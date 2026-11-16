@@ -117,8 +117,8 @@ dataset per signal, where today it takes only a `url`.
 
 **2. Local `dev` and `env up` also to Axiom, no local viewer.**
 
-```ts
-// the Collector, only when AXIOM_INGEST_TOKEN is in the environment. The token is read by the Collector, never written.
+```yaml
+# the Collector, only when AXIOM_INGEST_TOKEN is in the environment. The token is read by the Collector, never written.
 exporters:
   otlphttp/axiom:
     endpoint: https://us-east-1.aws.edge.axiom.co
@@ -317,7 +317,7 @@ Each ends green with its check. Order: after L2.04 and L2.P; L2.O5 and L2.O6 nee
 Marked here so nothing reads as fact: Axiom accepts our JSON OTLP (implied by Cloudflare's own exporter, not tested);
 the APL field paths for attributes; whether Axiom links logs to traces; a service map; ingest-to-query lag; query rate
 limits; whether built-in Cloudflare export merges with our spans; Grafana anonymous mode; the viewer's start-up time.
-None blocks O1.1 to O1.4; all are answered by L2.O5's first real send.
+None blocks L2.O1 to L2.O4; all are answered by L2.O5's first real send.
 
 ## Sources (read 16 November 2026)
 
