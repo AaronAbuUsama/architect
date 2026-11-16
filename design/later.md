@@ -37,3 +37,9 @@ belongs to, and why it waits.
   native addon is required at load, and the lint plugin and wrangler are resolved as files. Run the compiler
   in-process or through a hidden subcommand, resolve files lazily, ship the plugin beside the binary, and keep `nx`
   off the load path; then the `architect` binary can go through the same tap.
+
+- **Close `/_world/*` outside worlds (D3 #96).** The generated server routes every `/_world/` request to the world on every
+  environment, so a deployed environment would answer `/_world/cast` (people with known passwords) and `/_world/facts/*` (rows
+  and journal). Gate `cast` to local and test worlds (`ARCHITECT_WORLDS` or no `ARCHITECT_ENVIRONMENT`), and give the staging
+  proof another way to read what a step did (the journal from telemetry, a declared read) so facts can close there and on
+  production. Needs a `server.ts` generator change after L2.L lands; before the cloud pass deploys anything.

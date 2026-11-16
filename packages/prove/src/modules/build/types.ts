@@ -21,6 +21,8 @@ export interface BuildApi {
    * same hash. `dirty` says the working tree differs from the commit, so the bundle is not that commit's source.
    */
   readonly build: (root: string) => Effect.Effect<Built & { readonly dirty: boolean }, BuildFailed>;
+  /** Whether the working tree differs from the commit (`git status --porcelain`, so ignored files don't count): the revision's source is then not what is on disk. */
+  readonly dirty: (root: string) => Effect.Effect<boolean, BuildFailed>;
   /** A revision's kept artefact, checked against the hash recorded when it was built; none if it was never built. */
   readonly find: (root: string, revision: string) => Effect.Effect<Built | undefined, BuildFailed>;
 }

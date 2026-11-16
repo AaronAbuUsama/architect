@@ -1,7 +1,7 @@
 // The collector container: started detached on a port Docker picks, removed on release.
 import { spawnSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
-import { Effect } from "effect";
+import { Effect, Schedule } from "effect";
 import { CollectorFailed } from "../types.ts";
 
 /** Pinned in spikes/otlp-from-workerd: published 2026-10-27. */
@@ -30,11 +30,20 @@ const docker = (args: ReadonlyArray<string>) => spawnSync("docker", args, { enco
 export const runCollector = (dir: string, name: string) =>
   Effect.gen(function* () {
     writeFileSync(`${dir}/collector.yaml`, CONFIG);
-    const run = docker([
-      "run", "-d", "--rm", "--name", name, "--user", "0:0", "-p", "127.0.0.1::4318",
-      "-v", `${dir}:/out`, "-v", `${dir}/collector.yaml:/etc/otelcol/config.yaml:ro`,
-      IMAGE, "--config=/etc/otelcol/config.yaml",
-    ]);
+    const start = Effect.sync(() => {
+      docker(["rm", "-f", name]);
+      return docker([
+        "run", "-d", "--rm", "--name", name, "--user", "0:0", "-p", "127.0.0.1::4318",
+        "-v", `${dir}:/out`, "-v", `${dir}/collector.yaml:/etc/otelcol/config.yaml:ro`,
+        IMAGE, "--config=/etc/otelcol/config.yaml",
+      ]);
+    });
+    // Docker Desktop's file sharing can lag a moment behind a file just written ("mkdir ... no such file"): another try is enough.
+    const run = yield* start.pipe(
+      Effect.flatMap((r) => (r.status !== 0 && /no such file|mount/i.test(r.stderr) ? Effect.fail(r) : Effect.succeed(r))),
+      Effect.retry({ schedule: Schedule.spaced("1 second"), times: 3 }),
+      Effect.catch((r: ReturnType<typeof docker>) => Effect.succeed(r)),
+    );
     if (run.status !== 0) return yield* new CollectorFailed({ message: `docker couldn't start the collector: ${(run.stderr || run.stdout).trim()}` });
     const port = docker(["port", name, "4318/tcp"]).stdout.trim().split("\n")[0]?.split(":").pop() ?? "";
     if (!/^\d+$/.test(port)) return yield* new CollectorFailed({ message: `the collector started but published no port` });

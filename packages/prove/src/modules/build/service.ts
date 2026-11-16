@@ -23,6 +23,8 @@ const git = (root: string, ...args: ReadonlyArray<string>) =>
 
 const revision: BuildApi["revision"] = (root) => git(root, "rev-parse", "--short", "HEAD");
 
+const dirty: BuildApi["dirty"] = (root) => git(root, "status", "--porcelain").pipe(Effect.map((out) => out.length > 0));
+
 const find: BuildApi["find"] = (root, rev) =>
   Effect.try({
     try: () => {
@@ -42,7 +44,7 @@ const build: BuildApi["build"] = (root) =>
     const rev = yield* revision(root);
     const config = resolve(root, "generated/server/wrangler.jsonc");
     if (!existsSync(config)) return yield* new BuildFailed({ message: `${config} is missing: run nx sync first` });
-    const dirty = (yield* git(root, "status", "--porcelain")).length > 0;
+    const isDirty = yield* dirty(root);
     const dir = artefacts(root, rev);
     const main = join(dir, "main.js");
     yield* Effect.try({
@@ -59,7 +61,7 @@ const build: BuildApi["build"] = (root) =>
       },
       catch: (e) => new BuildFailed({ message: String(e).replace(/^Error: /, "") }),
     });
-    return { revision: rev, sha256: sha256(main), main, dirty };
+    return { revision: rev, sha256: sha256(main), main, dirty: isDirty };
   });
 
-export const Build: BuildApi = { revision, build, find };
+export const Build: BuildApi = { revision, build, dirty, find };

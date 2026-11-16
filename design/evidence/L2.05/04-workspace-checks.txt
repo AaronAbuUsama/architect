@@ -1,0 +1,7 @@
+nx run-many -t lint,typecheck: success (16 projects; 3 warnings, none in this change)
+nx sync:check: The workspace is up to date
+nx run-many -t test: every package passes except three files that failed in the one parallel run:
+  promote.test.ts (ECONNRESET on one fetch; passes alone, four times since),
+  environments.test.ts (Docker collector mount lag; fixed by D3 #98, passes alone),
+  impact.test.ts (port 8796 was held by another builder's prove in its own worktree; not this change).
+acme prove --env local: prove ✔ (15 operations, 9 evals each). starter prove --env local: prove ✔.

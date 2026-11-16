@@ -4,7 +4,7 @@ import { Blueprint } from "@architect/blueprint";
 import { Scripting } from "@architect/blueprint/server";
 import type { CallRecord, JourneyRun, JourneysApi, Project, StepResult } from "./types.ts";
 import { loadProject } from "./internal/load.ts";
-import { callOperation, castPeople, mayCall, stateOf } from "./internal/world.ts";
+import { callOperation, castPeople, mayCall, signUpPeople, stateOf } from "./internal/world.ts";
 import { subjectId } from "./internal/subject.ts";
 import { runChecks, show } from "./internal/checks.ts";
 
@@ -13,7 +13,7 @@ type Codec = Schema.Codec<Record<string, unknown>, Record<string, unknown>>;
 const nameOfOperation = (project: Project, op: Operation | Read) => [...project.operations].find(([, o]) => o === op)?.[0];
 const tableOf = (project: Project) => (thing: Thing) => [...project.things].find(([, t]) => t === thing)?.[0];
 
-const run = (project: Project, url: string, journey: Journey, index: number) =>
+const run = (project: Project, url: string, journey: Journey, index: number, how: "world" | "sign-up" = "world") =>
   Effect.gen(function* () {
     const world = journey.starts === undefined ? undefined : project.startingWorlds.get(journey.starts);
     // A starting world may begin from another: make the oldest first, so each sees what the one before it gave.
@@ -30,7 +30,12 @@ const run = (project: Project, url: string, journey: Journey, index: number) =>
     const names = [...new Set([...Object.keys(journey.cast), ...lineage.flatMap((w) => Object.keys(w.cast))])];
     // Cast as anyone: not signed up, so the script can sign them up itself; everyone else is, for real.
     const anyone = names.filter((n) => (journey.cast[n] as { readonly kind?: string } | undefined)?.kind === "anyone" && !lineage.some((w) => n in w.cast));
-    const cast = yield* castPeople(url, names.filter((n) => !anyone.includes(n)).map((n) => `j${index}.${n}`), anyone.map((n) => `j${index}.${n}`));
+    const wanted = [names.filter((n) => !anyone.includes(n)).map((n) => `j${index}.${n}`), anyone.map((n) => `j${index}.${n}`)] as const;
+    const casting = yield* how === "world"
+      ? castPeople(url, ...wanted).pipe(Effect.map((c) => ({ cast: c })))
+      : signUpPeople(url, ...wanted).pipe(Effect.map((c) => ({ cast: c })), Effect.catch((problem: string) => Effect.succeed({ problem })));
+    if ("problem" in casting) return done(`its people couldn't be made: ${casting.problem}`);
+    const cast = casting.cast;
     const people = Object.fromEntries(names.map((n) => [n, cast[`j${index}.${n}`]!]));
     const env: Record<string, unknown> = { cast: people };
     const facts = { url, tableOf: tableOf(project) };

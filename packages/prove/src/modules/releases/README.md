@@ -14,9 +14,9 @@ runs the logbook.
   since; a pull request's verdict never counts (D3 #8); `test` is never listed.
 - `Releases.next`: the version alone, for `architect version --next`.
 - `Releases.record({ logbook, env, model, revision, version })`: `PUT /models/<revision>`, then `POST /releases`. This is
-  what `promote --to production` (L2.05) calls. Both are writes and carry an OIDC token: `ARCHITECT_LOGBOOK_TOKEN`, else one
-  minted from `ARCHITECT_OIDC_ISSUER` and `ARCHITECT_OIDC_CLIENT` (client credentials, the local issuer), else GitHub Actions'
-  own (`ACTIONS_ID_TOKEN_REQUEST_URL`). The token is never printed or kept.
+  what `promote --to production` (L2.05) calls. Both are writes and carry an OIDC token from `Verdicts.sourceOf`, the one token
+  source verdicts use too (D3 #90): `ARCHITECT_LOGBOOK_TOKEN`, else the local issuer, else GitHub Actions' own. The token is
+  never printed or kept. `Releases.last` is the last production release, if any.
 - `Releases.changesJson` and `writeChanges`: `generated/model/changes.json` as the docs show it. The generators never write or
   delete it (`Sync` leaves it alone): it depends on the logbook, not on the blueprint.
 

@@ -1,0 +1,60 @@
+  Unknown subcommand "promote" for "architect"
+  Unrecognized flag: --to in command architect
+  Unrecognized flag: --root in command architect
+: expected [ 'USAGE', …(28) ] to include 'refused: 6c8df96 has no green verdict…'
+ ❯ src/modules/promote/promote.test.ts:121:34
+    119|     const none = architect("promote", "--to", "staging");
+    120|     expect(none.status, none.out).toBe(1);
+    121|     expect(none.lines, none.out).toContain(`refused: ${first} has no g…
+       |                                  ^
+    122|     expect(none.out).toContain(`missing: ${operations.join(", ")}`);
+    123|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/modules/promote/promote.test.ts > architect promote > production is refused without staging verdicts, then takes what staging proved: one bundle in test, staging and production
+AssertionError: USAGE
+  architect <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  model       
+  dev         
+  prove       
+  add         
+  check       
+  generate    
+  brief       
+  impact      
+  version     
+  build       
+  env         
+  worlds      
+
+ERRORS
+  Unknown subcommand "promote" for "architect"
+  Unrecognized flag: --to in command architect
+  Unrecognized flag: --root in command architect
+: expected [ 'USAGE', …(28) ] to include 'refused: 6c8df96 has no green verdict…'
+ ❯ src/modules/promote/promote.test.ts:147:40
+    145|     const refused = architect("promote", "--to", "production");
+    146|     expect(refused.status, refused.out).toBe(1);
+    147|     expect(refused.lines, refused.out).toContain(`refused: ${first} ha…
+       |                                        ^
+    148|     expect(await bundleStatus("production")).toBe("down");
+    149|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  22:20:52
+   Duration  21.56s (transform 184ms, setup 0ms, import 894ms, tests 20.53s, environment 0ms)
+

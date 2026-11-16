@@ -117,3 +117,10 @@ publishes with the rest. Author's checks 01 and 02 pass. The GitHub Action (`tes
   `docs/index.html`; the decisions and the build plan are the contract and don't depend on it.
 - `docs/source/` holds the files the docs page was built from; the build script points at the design session's working
   folder, so treat `docs/index.html` as the artefact and edit it directly, or rebuild the docs as a step later.
+
+L2.05 (local reading) is built on `build/L2.05` (decisions D3 #90 to #98; evidence `evidence/L2.05/`): `architect promote --to staging|production`
+(`Promote` in `@architect/prove`): the exact built bundle, refusing a dirty tree, an unbuilt bundle and a revision without `main` verdicts (test earns
+staging, staging earns production), checking `/_architect/bundle`; staging is proved where it runs (`Prove.against`, people signing up through Better
+Auth; staging has its own collector now) and posts staging verdicts; production records the release and carries staging's verdicts. One token source
+(`Verdicts.sourceOf`). Author's checks 01, 02, 03 and 06 pass; 04 and 05 call `promote --to staging` without `prove --env test` (the author must add it);
+publishing is L2.06's, the MCP server L2.08's, watch L2.09's, the portal L2.10's. `/_world/*` is still open on every environment (D3 #96, `later.md`).
