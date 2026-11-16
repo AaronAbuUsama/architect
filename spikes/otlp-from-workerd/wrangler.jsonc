@@ -1,0 +1,8 @@
+{
+  "name": "otlp-from-workerd",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-10-01",
+  "vars": { "OTLP_URL": "http://localhost:4318" },
+  "durable_objects": { "bindings": [{ "name": "STEPS", "class_name": "Steps" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Steps"] }]
+}

@@ -76,3 +76,18 @@ the two can't be installed together. Decision pending the toolchain research.
   `typescript@7.0.2`. `node_modules/.bin/tsc` is then 7.0.2, and 6.0's binary is `tsc6`.
 - With that in place, lint, typecheck and test pass on 14 projects, `nx sync:check` passes, and the graph builds. A
   planted type error fails typecheck. tsc 7 checks a package in about 0.09 seconds.
+
+## Spikes (16 November 2026)
+
+- **`spikes/effect4-worker-chain`: yes.** HttpApi, the handler and D1 run on workerd (`wrangler dev` and the vitest
+  pool); `HttpApiClient` and `effect/cli` work from Node; a declared error crosses the wire as its status with
+  `_tag` and fields. Gotchas: the pool's workerd accepts compatibility dates only up to `2026-08-22`, so use
+  `2026-08-01` everywhere. Errors on the wire are `Schema.TaggedError` with `httpApiStatus`. An undeclared defect
+  reaches the client as an opaque 500. Build `toWebHandler` once per isolate.
+- **`spikes/otlp-from-workerd`: yes.** The Worker and Durable Object export through `OtlpTracer` and `OtlpLogger` to
+  `otel/opentelemetry-collector-contrib:0.164.0`, whose `file` exporter (OTLP JSON lines, `flush_interval: 10ms`)
+  `prove` reads by trace id, a median of 12 ms after the response, with 50 concurrent requests kept apart. The
+  runtime is disposed in `ctx.waitUntil`, or the Worker's telemetry is lost. **Completeness:** the root span is
+  present, no span refers to a missing parent, and every span the declaration requires has arrived. A trace still
+  incomplete after 10 s fails, naming what's missing. `prove` checks that the collector is up first, because lost
+  telemetry is otherwise silent.
