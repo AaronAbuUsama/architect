@@ -5,7 +5,7 @@ const ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz";
 
 const make = (prefix: string) =>
   Effect.map(
-    Effect.forEach(Array.from({ length: 16 }), () => Random.nextIntBetween(0, ALPHABET.length)),
+    Effect.forEach(Array.from({ length: 16 }), () => Random.nextIntBetween(0, ALPHABET.length, { halfOpen: true })),
     (digits) => `${prefix}_${digits.map((d) => ALPHABET[d]).join("")}`,
   );
 

@@ -10,6 +10,12 @@ describe("Ids", () => {
     expect(a).toMatch(/^alw_[0-9a-z]{16}$/);
     expect(a).toBe(b);
   });
+
+  it("is always 16 characters: every draw lands inside the alphabet", async () => {
+    // One draw in 37 used to pick past the end, and that id came out a character short.
+    const ids = await Effect.runPromise(Effect.forEach(Array.from({ length: 2000 }), () => Ids.make("alw")).pipe(Random.withSeed("many")));
+    expect(ids.filter((id) => !/^alw_[0-9a-z]{16}$/.test(id))).toEqual([]);
+  });
 });
 
 describe("Ids.of", () => {
