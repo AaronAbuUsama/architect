@@ -67,3 +67,12 @@ the two can't be installed together. Decision pending the toolchain research.
 - **Node 24 and pnpm 11** are accepted by every engine range. esbuild and workerd need install scripts allowed by pnpm.
 - **Risk:** the pool pins its own wrangler 4.124 and miniflare 5.20260815 alpha, separate from our wrangler 4.156.1.
   So behaviour could differ between `wrangler dev` and the tests. Watch for it.
+
+## TypeScript 7, tried for real (16 November 2026)
+
+- A plain `typescript@7.0.2` breaks Nx core: `nx/js/dependencies-and-lockfile` threw `tsModule.readConfigFile is not
+  a function`.
+- The fix: alias `typescript` to `@typescript/typescript6@6.0.2`, for its API, and `@typescript/native` to
+  `typescript@7.0.2`. `node_modules/.bin/tsc` is then 7.0.2, and 6.0's binary is `tsc6`.
+- With that in place, lint, typecheck and test pass on 14 projects, `nx sync:check` passes, and the graph builds. A
+  planted type error fails typecheck. tsc 7 checks a package in about 0.09 seconds.
