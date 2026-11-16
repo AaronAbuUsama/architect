@@ -28,6 +28,8 @@ export interface ThingModel {
   readonly identifier: string;
   readonly description: string;
   readonly fields: FieldsModel;
+  /** Who owns its state: D1 rows, or a Durable Object per instance. */
+  readonly lives: "database" | "actor";
   readonly machine: MachineModel | null;
   readonly events: Readonly<Record<string, FieldsModel>>;
   readonly errors: Readonly<Record<string, { readonly fields: FieldsModel; readonly exit: number }>>;
@@ -42,6 +44,8 @@ export type AllowedModel =
   | { readonly kind: "role-of"; readonly role: string; readonly path: string };
 
 export interface OperationModel {
+  /** A read is answered from the thing's records with no handler. */
+  readonly kind: "operation" | "read";
   readonly name: string;
   readonly thing: string;
   readonly verb: string;

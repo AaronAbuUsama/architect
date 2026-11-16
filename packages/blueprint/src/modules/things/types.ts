@@ -20,11 +20,16 @@ export interface Thing<F extends FieldsInput = FieldsInput> {
   readonly kind: "thing";
   readonly description: string;
   readonly fields: { readonly [K in keyof F]: Field<ValueOf<F[K]>> };
+  /** Who owns its state: a D1 row with a version column (the default), or a Durable Object per instance (D1 #1). */
+  readonly lives: Lives;
 }
+
+export type Lives = "database" | "actor";
 
 export interface ThingsApi {
   readonly thing: <const F extends FieldsInput & { readonly id: FieldInput }>(spec: {
     readonly description: string;
     readonly fields: F;
+    readonly lives?: Lives;
   }) => Thing<F>;
 }

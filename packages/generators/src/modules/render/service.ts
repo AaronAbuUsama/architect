@@ -12,6 +12,6 @@ export const Render: RenderApi = {
     ...renderServer(model, name),
     ...renderSdk(model, name),
     ...renderCli(model, name),
-    ...Object.values(model.operations).map(renderHandlerScaffold),
+    ...Object.values(model.operations).filter((op) => op.kind === "operation").map(renderHandlerScaffold),
   ],
 };

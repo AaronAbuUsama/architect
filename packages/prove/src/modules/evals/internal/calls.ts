@@ -3,7 +3,7 @@ import { Schema } from "effect";
 import { structOf } from "@architect/blueprint/server";
 import type { FieldModel } from "@architect/compiler";
 import type { PerOperation, Verdict } from "../types.ts";
-import { answered, attr, subtree, where } from "./evidence.ts";
+import { answered, attr, replayed, subtree, where } from "./evidence.ts";
 
 const verdict = (name: string, operation: string, failures: ReadonlyArray<string>, notes: ReadonlyArray<string> = []): Verdict =>
   ({ eval: name, operation, failures, notes });
@@ -36,6 +36,7 @@ export const machinePath: PerOperation = (op, evidence) => {
   const move = op.move;
   if (!move) return verdict("machine path", op.name, []);
   return verdict("machine path", op.name, evidence.flatMap((e) => {
+    if (replayed(e)) return [];
     const to = attr(e, "move.to");
     if (to !== undefined && !move.to.includes(String(to))) return [`${where(e)}: ${move.key} ended in "${String(to)}", not one of ${move.to.join(", ")}`];
     if (!answered(e)) return [];
@@ -50,7 +51,7 @@ export const events: PerOperation = (op, evidence) => {
   const move = op.move;
   if (!move) return verdict("events", op.name, []);
   return verdict("events", op.name, evidence.flatMap((e) =>
-    answered(e) && !e.call.journal.some((j) => j.event === move.emits && j.move === move.key) ? [`${where(e)}: move ${move.key} emitted no ${move.emits}`] : []));
+    answered(e) && !replayed(e) && !e.call.journal.some((j) => j.event === move.emits && j.move === move.key) ? [`${where(e)}: move ${move.key} emitted no ${move.emits}`] : []));
 };
 
 const allowedText = (op: Parameters<PerOperation>[0], payload: Readonly<Record<string, unknown>>) =>
@@ -74,7 +75,7 @@ export const whoMayCall: PerOperation = (op, evidence) =>
 /** 6. Every declared step of an answered call ran in its own span. */
 export const steps: PerOperation = (op, evidence) =>
   verdict("steps", op.name, evidence.flatMap((e) => {
-    if (!answered(e)) return [];
+    if (!answered(e) || replayed(e)) return [];
     const names = new Set(e.trace.spans.map((s) => s.name));
     return Object.values(op.steps).filter((s) => !names.has(s.name)).map((s) => `${where(e)}: declared step ${s.name} ran no span`);
   }));

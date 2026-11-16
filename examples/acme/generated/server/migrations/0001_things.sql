@@ -6,17 +6,20 @@ CREATE TABLE "allowance" (
   "member" TEXT NOT NULL,
   "limit" TEXT NOT NULL,
   "spent" TEXT NOT NULL,
-  "state" TEXT
+  "state" TEXT,
+  "version" INTEGER NOT NULL DEFAULT 0
 );
 CREATE TABLE "organization" (
   "id" TEXT PRIMARY KEY,
   "name" TEXT NOT NULL,
   "owner" TEXT NOT NULL,
-  "cap" TEXT NOT NULL
+  "cap" TEXT NOT NULL,
+  "version" INTEGER NOT NULL DEFAULT 0
 );
 CREATE TABLE "person" (
   "id" TEXT PRIMARY KEY,
-  "name" TEXT NOT NULL
+  "name" TEXT NOT NULL,
+  "version" INTEGER NOT NULL DEFAULT 0
 );
 -- Every event a move emitted, with the trace of the call that made it (target-effect's Journal).
 CREATE TABLE "_journal" (
@@ -29,3 +32,8 @@ CREATE TABLE "_journal" (
   "fields" TEXT NOT NULL
 );
 CREATE INDEX "_journal_trace" ON "_journal" ("trace");
+-- Each idempotent call's answer, under its operation, caller and request key, committed with the call itself.
+CREATE TABLE "_requests" (
+  "key" TEXT PRIMARY KEY,
+  "answer" TEXT NOT NULL
+);

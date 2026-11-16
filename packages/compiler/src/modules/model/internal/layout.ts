@@ -1,5 +1,5 @@
 // Reads the blueprint's layout: which file holds what, and the name each declaration takes from its path or export.
-import type { AnyErrorClass, Event, Machine, Operation, Role, Thing, Value } from "@architect/blueprint";
+import type { AnyErrorClass, Event, Machine, Operation, Read, Role, Thing, Value } from "@architect/blueprint";
 import type { LoadedFile } from "#modules/source/types.ts";
 
 export interface ThingFiles {
@@ -9,7 +9,7 @@ export interface ThingFiles {
   readonly events: Map<string, Event>;
   readonly errors: Map<string, AnyErrorClass>;
   readonly roles: Map<string, Role>;
-  readonly verbs: Map<string, { readonly file: string; readonly declaration: Operation }>;
+  readonly verbs: Map<string, { readonly file: string; readonly declaration: Operation | Read }>;
 }
 
 export interface Layout {
@@ -68,8 +68,9 @@ export const readLayout = (files: ReadonlyArray<LoadedFile>): Layout => {
       const verb = parts[3]!;
       if (!NAME.test(verb)) layout.problems.push(`blueprint/${path}: verb "${verb}" must be lowercase words joined by dashes`);
       const d = exports["default"];
-      if (kindOf(d) !== "operation") layout.problems.push(`blueprint/${path}: the default export must be a Blueprint.operation`);
-      else t.verbs.set(verb, { file: `blueprint/${path}`, declaration: d as Operation });
+      const kind = kindOf(d);
+      if (kind !== "operation" && kind !== "read") layout.problems.push(`blueprint/${path}: the default export must be a Blueprint.operation or a Blueprint.read`);
+      else t.verbs.set(verb, { file: `blueprint/${path}`, declaration: d as Operation | Read });
     } else {
       layout.problems.push(`blueprint/${path}: not a file a thing has (thing, machine, events, errors, roles, verbs/<verb>)`);
     }

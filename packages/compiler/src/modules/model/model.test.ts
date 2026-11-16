@@ -24,7 +24,7 @@ describe("model", () => {
     const exit = await modelOf(acme);
     expect(Exit.isSuccess(exit)).toBe(true);
     if (!Exit.isSuccess(exit)) return;
-    expect(Object.keys(exit.value.operations)).toEqual(["allowance.grant", "organization.create"]);
+    expect(Object.keys(exit.value.operations)).toEqual(["allowance.get", "allowance.grant", "allowance.revoke", "allowance.spend", "organization.create"]);
     const grant = exit.value.operations["allowance.grant"];
     expect(grant?.refusals).toEqual(["AllowanceLimitTooHigh", "NotAllowed"]);
     expect(grant?.steps).toEqual({ insert: { name: "allowance.grant.insert", type: "database" } });
@@ -39,7 +39,7 @@ describe("model", () => {
     const exit = await modelOf(root);
     expect(Exit.isSuccess(exit)).toBe(true);
     if (!Exit.isSuccess(exit)) return;
-    expect(Object.keys(exit.value.operations)).toEqual(["allowance.award", "organization.create"]);
+    expect(Object.keys(exit.value.operations)).toEqual(["allowance.award", "allowance.get", "allowance.revoke", "allowance.spend", "organization.create"]);
     expect(exit.value.operations["allowance.award"]?.steps["insert"]?.name).toBe("allowance.award.insert");
   });
 

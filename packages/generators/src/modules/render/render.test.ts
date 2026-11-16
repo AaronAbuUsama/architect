@@ -24,7 +24,10 @@ describe("render", () => {
       expect(f.content.split("\n").find((l) => !l.startsWith("#!")), f.path).toMatch(/^\/\/ Generated from .+\. Do not edit\.$/);
     }
     const scaffolds = files.filter((f) => f.scaffold).map((f) => f.path);
-    expect(scaffolds).toEqual(["implementation/handlers/allowance/grant.ts", "implementation/handlers/organization/create.ts"]);
+    expect(scaffolds).toEqual([
+      "implementation/handlers/allowance/grant.ts", "implementation/handlers/allowance/revoke.ts",
+      "implementation/handlers/allowance/spend.ts", "implementation/handlers/organization/create.ts",
+    ]);
     expect(byPath.get(scaffolds[0]!)!.content).toMatch(/^\/\/ Scaffolded from blueprint\/things\/allowance\/verbs\/grant\.ts\. Yours from now on\./);
   });
 

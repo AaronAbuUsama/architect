@@ -1,7 +1,7 @@
 // Talking to a local world over HTTP: cast people, call operations with a trace prefixed by the caller, read facts.
 import { randomBytes } from "node:crypto";
 import { Effect, Layer, Option, Schema } from "effect";
-import type { Operation, Principal, Thing } from "@architect/blueprint";
+import type { Operation, Read, Principal, Thing } from "@architect/blueprint";
 import { structOf } from "@architect/blueprint/server";
 import { Access, Records, type Instance } from "@architect/target-effect";
 import type { CallRecord } from "../types.ts";
@@ -22,7 +22,7 @@ export const castPeople = (url: string, names: ReadonlyArray<string>) =>
   );
 
 /** Encode the payload by its declaration, call the route, and record what came back. */
-export const callOperation = (url: string, name: string, op: Operation, payload: Record<string, unknown>, token: string) =>
+export const callOperation = (url: string, name: string, op: Operation | Read, payload: Record<string, unknown>, token: string, request: string | undefined) =>
   Effect.gen(function* () {
     const wire = yield* Schema.encodeUnknownEffect(op.payloadSchema as unknown as Codec)(payload).pipe(Effect.orElseSucceed(() => payload));
     const trace = randomBytes(16).toString("hex");
@@ -30,7 +30,10 @@ export const callOperation = (url: string, name: string, op: Operation, payload:
     const [thing, verb] = name.split(".");
     const r = yield* fetchJson(`${url}/${thing}/${verb}`, {
       method: "POST",
-      headers: { "content-type": "application/json", authorization: `Bearer ${token}`, traceparent: `00-${trace}-${parent}-01` },
+      headers: {
+        "content-type": "application/json", authorization: `Bearer ${token}`, traceparent: `00-${trace}-${parent}-01`,
+        ...(request === undefined ? {} : { "idempotency-key": request }),
+      },
       body: JSON.stringify(wire),
     });
     const journal = (yield* fetchJson(`${url}/_world/facts/journal?trace=${trace}`)).body as CallRecord["journal"];
@@ -50,12 +53,12 @@ export const factsRecords = (url: string, tableOf: (thing: Thing) => string | un
         return (typeof row["state"] === "string" ? { ...fields, state: row["state"] } : fields) as Instance;
       }),
     insert: () => Effect.die(new Error("prove reads the world; it never writes to it")),
-    setState: () => Effect.die(new Error("prove reads the world; it never writes to it")),
+    update: () => Effect.die(new Error("prove reads the world; it never writes to it")),
   }));
 
 /** Whether the declaration's `allowed` lets this caller make this call, judged on the world's facts. */
-export const mayCall = (url: string, tableOf: (thing: Thing) => string | undefined, op: Operation, payload: object, principal: Principal) =>
-  Access.check({ allowed: op.allowed, payloadFields: op.payload, payload, principal }).pipe(
+export const mayCall = (url: string, tableOf: (thing: Thing) => string | undefined, op: Operation | Read, payload: object, principal: Principal) =>
+  Access.check({ allowed: op.allowed, payloadFields: op.payload, payload, principal, thing: op.thing }).pipe(
     Effect.as(true),
     Effect.catchTag("NotAllowed", () => Effect.succeed(false)),
     Effect.provide(factsRecords(url, tableOf)),

@@ -3,8 +3,8 @@ import { Effect, Layer, Tracer } from "effect";
 import { SqlClient } from "effect/sql";
 import { describe, expect, it } from "vitest";
 import { Blueprint } from "@architect/blueprint";
-import { BusyLive, Handlers, Ids, journalMemory, Records, type Handler } from "@architect/target-effect";
-import { RecordsD1 } from "#modules/records/service.ts";
+import { BusyLive, Handlers, Ids, Records, Store, type Handler } from "@architect/target-effect";
+import { StoreD1 } from "#modules/store/service.ts";
 import { Database } from "./service.ts";
 
 const Allowance = Blueprint.thing({
@@ -29,7 +29,7 @@ describe("D1 through SqlClient, in workerd", () => {
     expect(rows).toEqual([{ member: "per_olga", lim: "500" }]);
   });
 
-  it("the handler wrapper runs in workerd: its step stores the allowance through Records, inside its own span", async () => {
+  it("the handler wrapper runs in workerd: its step holds the allowance back, and the commit stores it in D1", async () => {
     const handler: Handler<typeof grant, Records> = (payload, { steps }) =>
       Effect.gen(function* () {
         const records = yield* Records;
@@ -40,13 +40,13 @@ describe("D1 through SqlClient, in workerd", () => {
     const spans: Array<Tracer.NativeSpan> = [];
     const tracer = Tracer.make({ span: (o) => { const s = new Tracer.NativeSpan(o); spans.push(s); return s; } });
     const served = Handlers.serve({ name: "allowance.grant", operation: grant, handler });
-    const records = RecordsD1.layer([[Allowance, "allowance"]]).pipe(Layer.provide(Database.d1(env.DB)));
+    const store = StoreD1.layer({ tables: [[Allowance, "allowance"]] }).pipe(Layer.provide(Database.d1(env.DB)));
     const most = "340282366920938463463374607431768211455";
     const program = Effect.gen(function* () {
       const answer = yield* served.call({ member: "per_olga", limit: most }, { kind: "person", person: "per_ada" });
-      return { answer, found: yield* (yield* Records).find(Allowance, answer.allowance) };
+      return { answer, found: (yield* (yield* Store).find(Allowance, answer.allowance))?.instance };
     });
-    const { answer, found } = await Effect.runPromise(program.pipe(Effect.provide(Layer.mergeAll(records, BusyLive, journalMemory().layer, Layer.succeed(Tracer.Tracer, tracer)))));
+    const { answer, found } = await Effect.runPromise(program.pipe(Effect.provide(Layer.mergeAll(store, BusyLive, Layer.succeed(Tracer.Tracer, tracer)))));
     expect(found).toEqual({ id: answer.allowance, member: "per_olga", limit: 2n ** 128n - 1n, state: "active" });
     const row = await env.DB.prepare(`SELECT "limit", state FROM "allowance" WHERE id = ?`).bind(answer.allowance).first();
     expect(row).toEqual({ limit: most, state: "active" });

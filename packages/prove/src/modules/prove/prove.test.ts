@@ -47,13 +47,17 @@ const nothingRunning = () => {
 afterAll(() => rmSync(scratch, { recursive: true, force: true }));
 
 describe("architect prove --env local", () => {
-  it("passes on acme: one journey, every eval, coverage, and leaves nothing running", { timeout: 120_000 }, async () => {
+  it("passes on acme: every journey, every eval, coverage, and leaves nothing running", { timeout: 180_000 }, async () => {
     const report = await prove(acme, 8800);
     expect(report.lines).toContain("journey grant an allowance ✔ 3/3 steps");
-    expect(report.lines).toContain("allowance.grant 8 evals ✔");
-    expect(report.lines).toContain("organization.create 8 evals ✔");
+    for (const j of ["an outsider cannot revoke", "read an allowance", "revoke then spend", "spend twice with one request", "spend within an allowance"]) {
+      expect(report.lines.some((l) => l.startsWith(`journey ${j} ✔`))).toBe(true);
+    }
+    for (const op of ["allowance.get", "allowance.grant", "allowance.revoke", "allowance.spend", "organization.create"]) {
+      expect(report.lines).toContain(`${op} 8 evals ✔`);
+    }
     expect(report.lines.some((l) => l.startsWith("allowance.grant performance ✔ p50 "))).toBe(true);
-    expect(report.lines.some((l) => l.startsWith("coverage ✔ operations 2/2 moves 1/1 outcomes 1/1 errors 1/1"))).toBe(true);
+    expect(report.lines.some((l) => l.startsWith("coverage ✔ operations 5/5 moves 3/3 outcomes 3/3 errors 2/2"))).toBe(true);
     expect(report.lines.at(-1)).toBe("prove ✔");
     expect(report.passed).toBe(true);
     nothingRunning();

@@ -1,43 +1,73 @@
 import { Effect } from "effect";
-import type { Allowed, Principal, Role } from "@architect/blueprint";
+import type { Allowed, Principal, Role, Thing } from "@architect/blueprint";
 import { Records } from "#modules/records/types.ts";
 import { NotAllowed, type AccessApi } from "./types.ts";
 import { referencedThing } from "./internal/path.ts";
 
 type Person = Extract<Principal, { kind: "person" }>;
+type Fields = { readonly [key: string]: unknown };
 
-/** `owner.of("organization")` or `owner.of("allowance.organization")`: walk the path from the payload to the role's thing. */
-const roleOf = (role: Role, path: string, payloadFields: { readonly [key: string]: unknown }, payload: object, person: Person) =>
+/** Where a walk starts: a payload field holding some thing's id. */
+const start = (payloadFields: Fields, payload: object, key: string): { thing: Thing | undefined; id: unknown } => ({
+  thing: referencedThing(payloadFields[key]),
+  id: (payload as Record<string, unknown>)[key],
+});
+
+/** The payload field that names an instance of `thing`: the subject, for a bare role or a path from the subject. */
+const subjectKey = (payloadFields: Fields, thing: Thing) => Object.keys(payloadFields).find((k) => referencedThing(payloadFields[k]) === thing);
+
+/** Walk `keys` from an instance, field by field, to the instance the role is decided on. */
+const walk = (from: { thing: Thing | undefined; id: unknown }, keys: ReadonlyArray<string>) =>
   Effect.gen(function* () {
     const records = yield* Records;
-    const [first, ...rest] = path.split(".");
-    let id: unknown = (payload as Record<string, unknown>)[first ?? ""];
-    let thing = referencedThing(payloadFields[first ?? ""]);
-    for (const key of rest) {
-      if (!thing || typeof id !== "string") return false;
+    let { thing, id } = from;
+    for (const key of keys) {
+      if (!thing || typeof id !== "string") return undefined;
       const instance = yield* records.find(thing, id);
-      if (!instance) return false;
+      if (!instance) return undefined;
       id = instance[key];
       thing = referencedThing(thing.fields[key]);
     }
-    if (thing !== role.thing || typeof id !== "string") return false;
-    const instance = yield* records.find(role.thing, id);
+    return thing && typeof id === "string" ? { thing, id } : undefined;
+  });
+
+/**
+ * A role decided on an instance: `grantee` on the operation's own subject, `owner.of("organization")` on the thing a
+ * payload field points at, or a path that starts from the subject when the payload has no such field (a read).
+ */
+const roleOn = (role: Role, path: string | undefined, payloadFields: Fields, payload: object, person: Person, own: Thing | undefined) =>
+  Effect.gen(function* () {
+    const records = yield* Records;
+    const keys = path === undefined ? [] : path.split(".");
+    const first = keys[0];
+    const fromPayload = first !== undefined && first in payloadFields;
+    const subject = own && subjectKey(payloadFields, own);
+    const origin = fromPayload
+      ? start(payloadFields, payload, first)
+      : subject !== undefined
+        ? start(payloadFields, payload, subject)
+        : path === undefined
+          ? start(payloadFields, payload, subjectKey(payloadFields, role.thing) ?? "")
+          : undefined;
+    if (!origin) return false;
+    const target = yield* walk(origin, fromPayload ? keys.slice(1) : keys);
+    if (!target || target.thing !== role.thing) return false;
+    const instance = yield* records.find(role.thing, target.id);
     return instance !== undefined && role.rule(instance as never, person);
   });
 
-const allows = (a: Allowed, payloadFields: { readonly [key: string]: unknown }, payload: object, principal: Principal): Effect.Effect<boolean, never, Records> => {
+const allows = (a: Allowed, payloadFields: Fields, payload: object, principal: Principal, own: Thing | undefined): Effect.Effect<boolean, never, Records> => {
   if (a.kind === "anyone") return Effect.succeed(true);
   if (principal.kind !== "person") return Effect.succeed(false);
   if (a.kind === "signed-in") return Effect.succeed(true);
-  if (a.kind === "role-of") return roleOf(a.role, a.path, payloadFields, payload, principal);
-  // A bare role names no instance yet; it arrives with roles proper (L1.22). Until then it never allows.
-  return Effect.succeed(false);
+  if (a.kind === "role-of") return roleOn(a.role, a.path, payloadFields, payload, principal, own);
+  return roleOn(a, undefined, payloadFields, payload, principal, own);
 };
 
 export const Access: AccessApi = {
-  check: ({ allowed, payloadFields, payload, principal }) =>
+  check: ({ allowed, payloadFields, payload, principal, thing }) =>
     Effect.gen(function* () {
-      for (const a of allowed) if (yield* allows(a, payloadFields, payload, principal)) return;
+      for (const a of allowed) if (yield* allows(a, payloadFields, payload, principal, thing)) return;
       return yield* new NotAllowed();
     }),
 };

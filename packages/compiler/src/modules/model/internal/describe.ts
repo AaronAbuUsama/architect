@@ -1,9 +1,12 @@
 // Turns the layout into the model: every declaration named, every reference resolved, every entry hashed.
 import { Duration } from "effect";
-import type { Allowed, Field, FieldsInput, Operation, Value } from "@architect/blueprint";
+import type { Allowed, Field, FieldsInput, Operation, Read, Value } from "@architect/blueprint";
 import type { AllowedModel, FieldModel, FieldsModel, Model, OperationModel, ThingModel } from "../types.ts";
 import { hashOf } from "./hash.ts";
 import { camel, pascal, type Layout } from "./layout.ts";
+
+/** A module's exports in name order: a namespace's own order differs between loaders, and the model must not. */
+const byName = <V>(m: ReadonlyMap<string, V>) => [...m].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
 
 export const describe = (layout: Layout): { model: Model; problems: Array<string> } => {
   const problems = [...layout.problems];
@@ -48,9 +51,9 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
       : null;
     if (m && m.thing !== t.thing) problems.push(`${where}/machine.ts: is a machine of another thing`);
     const entry = {
-      name, identifier: pascal(name), description: t.thing.description, fields, machine,
-      events: Object.fromEntries([...t.events].map(([n, e]) => [n, fieldsModel(e.fields, `${where}/events.ts ${n}`)])),
-      errors: Object.fromEntries([...t.errors].map(([n, e]) => [n, { fields: fieldsModel(e.fields, `${where}/errors.ts ${n}`), exit: e.exit }])),
+      name, identifier: pascal(name), description: t.thing.description, fields, lives: t.thing.lives ?? "database", machine,
+      events: Object.fromEntries(byName(t.events).map(([n, e]) => [n, fieldsModel(e.fields, `${where}/events.ts ${n}`)])),
+      errors: Object.fromEntries(byName(t.errors).map(([n, e]) => [n, { fields: fieldsModel(e.fields, `${where}/errors.ts ${n}`), exit: e.exit }])),
       roles: [...t.roles.keys()].sort(),
     };
     things[name] = { ...entry, hash: hashOf(entry) };
@@ -71,8 +74,10 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
     }
   }
 
-  function operationModel(thing: string, verb: string, file: string, op: Operation): OperationModel {
-    if (op.thing !== layout.things.get(thing)?.thing) problems.push(`${file}: declares an operation of another thing`);
+  function operationModel(thing: string, verb: string, file: string, declared: Operation | Read): OperationModel {
+    if (declared.thing !== layout.things.get(thing)?.thing) problems.push(`${file}: declares an operation of another thing`);
+    if (declared.kind === "read") return readModel(thing, verb, file, declared);
+    const op = declared;
     const machine = things[thing]?.machine;
     const move = op.move
       ? { key: op.move.key, from: op.move.from, to: op.move.to, emits: eventNames.get(op.move.emits) ?? "?" }
@@ -86,12 +91,28 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
       ...(allowed.every((a) => a.kind === "anyone") ? [] : ["NotAllowed"]),
     ];
     const entry = {
+      kind: "operation" as const,
       name: `${thing}.${verb}`, thing, verb, identifier: camel(verb), file, description: op.description,
       payload: fieldsModel(op.payload, `${file} payload`), answer: fieldsModel(op.answer, `${file} answer`),
       move, errors, refusals, allowed,
       steps: Object.fromEntries(Object.entries(op.steps).map(([k, s]) => [k, { name: `${thing}.${verb}.${k}`, type: s.type }])),
       idempotent: op.idempotent ?? null,
       budget: op.budget ? { p95Ms: Duration.toMillis(op.budget.p95) } : null,
+    };
+    return { ...entry, hash: hashOf(entry) };
+  }
+
+  /** A read: answered from the thing's records with no handler, so no move, no steps, no declared errors. */
+  function readModel(thing: string, verb: string, file: string, read: Read): OperationModel {
+    const allowed = read.allowed.map((a) => allowedModel(a, file));
+    const entry = {
+      kind: "read" as const,
+      name: `${thing}.${verb}`, thing, verb, identifier: camel(verb), file,
+      description: `Read one ${thing} by its id: ${read.fields.map(String).join(", ")}.`,
+      payload: fieldsModel(read.payload, `${file} payload`), answer: fieldsModel(read.answer, `${file} answer`),
+      move: null, errors: [], refusals: allowed.every((a) => a.kind === "anyone") ? [] : ["NotAllowed"], allowed,
+      steps: {}, idempotent: null,
+      budget: read.budget ? { p95Ms: Duration.toMillis(read.budget.p95) } : null,
     };
     return { ...entry, hash: hashOf(entry) };
   }

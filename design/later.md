@@ -8,3 +8,10 @@ belongs to, and why it waits.
 - Python as a third target. Later.
 - Each thing as an actor by default. Later.
 - The world's front door (`/_world/cast`, `/_world/facts/*`) closed in staging and production worlds: shipping, layer two (stage three), because only then do non-local worlds exist (D2 #28).
+
+## From stage two (layer one)
+
+- An actor's journal entries live in its own Durable Object, so `prove`'s facts door doesn't see them yet. Layer four
+  reads them through the actor.
+- Idempotency by request for things that `lives: "actor"`: the `_requests` row has to commit inside the actor.
+- When a handler awaits a chain call (layer four), the actor holds its lock across the whole call, not only the commit.

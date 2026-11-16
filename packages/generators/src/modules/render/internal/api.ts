@@ -113,5 +113,5 @@ export const renderApi = (model: Model, name: string): ReadonlyArray<RenderedFil
   errors(model),
   events(model),
   index(model, name),
-  ...Object.values(model.operations).flatMap((op) => [endpoint(op), handlerType(op)]),
+  ...Object.values(model.operations).flatMap((op) => (op.kind === "read" ? [endpoint(op)] : [endpoint(op), handlerType(op)])),
 ];

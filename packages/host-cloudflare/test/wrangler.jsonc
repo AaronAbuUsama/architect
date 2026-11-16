@@ -8,6 +8,6 @@
   "d1_databases": [
     { "binding": "DB", "database_name": "host-test", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "migrations" }
   ],
-  "durable_objects": { "bindings": [{ "name": "WORLD", "class_name": "World" }] },
-  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["World"] }]
+  "durable_objects": { "bindings": [{ "name": "WORLD", "class_name": "World" }, { "name": "ACTORS", "class_name": "Actor" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["World"] }, { "tag": "v2", "new_sqlite_classes": ["Actor"] }]
 }

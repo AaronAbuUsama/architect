@@ -6,10 +6,13 @@ import { Effect, Layer } from "effect";
 import { Command } from "effect/cli";
 import * as Sdk from "../../sdk/src/index.ts";
 import { ExitCode } from "./output.ts";
+import { get as allowanceGet } from "./allowance/get.ts";
 import { grant as allowanceGrant } from "./allowance/grant.ts";
+import { revoke as allowanceRevoke } from "./allowance/revoke.ts";
+import { spend as allowanceSpend } from "./allowance/spend.ts";
 import { create as organizationCreate } from "./organization/create.ts";
 
-const allowance = Command.make("allowance").pipe(Command.withSubcommands([allowanceGrant]));
+const allowance = Command.make("allowance").pipe(Command.withSubcommands([allowanceGet, allowanceGrant, allowanceRevoke, allowanceSpend]));
 const organization = Command.make("organization").pipe(Command.withSubcommands([organizationCreate]));
 
 Command.make("acme").pipe(

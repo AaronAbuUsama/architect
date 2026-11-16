@@ -4,7 +4,7 @@ import { valueOf } from "./internal/fields.ts";
 export const Things: ThingsApi = {
   thing: (spec) => {
     const fields: Record<string, Field> = {};
-    const thing = { kind: "thing", description: spec.description, fields } as Thing as Thing<typeof spec.fields>;
+    const thing = { kind: "thing", description: spec.description, fields, lives: spec.lives ?? "database" } as Thing as Thing<typeof spec.fields>;
     for (const [key, input] of Object.entries(spec.fields) as Array<[string, FieldInput]>) {
       fields[key] = Object.freeze({
         kind: "field", of: thing as Thing, key, value: valueOf(input), from: input.kind === "field" ? input : undefined,

@@ -3,6 +3,10 @@
     "Amount": {
       "type": "uint",
       "bits": 128
+    },
+    "Memo": {
+      "type": "text",
+      "max": 200
     }
   },
   "things": {
@@ -46,9 +50,12 @@
           "named": "Amount"
         }
       },
+      "lives": "database",
       "machine": {
         "states": [
-          "active"
+          "active",
+          "exhausted",
+          "revoked"
         ],
         "moves": {
           "grant": {
@@ -57,6 +64,26 @@
               "active"
             ],
             "emits": "AllowanceGranted"
+          },
+          "spend": {
+            "from": [
+              "active"
+            ],
+            "to": [
+              "active",
+              "exhausted"
+            ],
+            "emits": "AllowanceSpent"
+          },
+          "revoke": {
+            "from": [
+              "active",
+              "exhausted"
+            ],
+            "to": [
+              "revoked"
+            ],
+            "emits": "AllowanceRevoked"
           }
         },
         "notFrom": {
@@ -80,9 +107,60 @@
             },
             "named": "Amount"
           }
+        },
+        "AllowanceRevoked": {
+          "allowance": {
+            "value": {
+              "type": "id",
+              "prefix": "alw"
+            },
+            "ref": "allowance.id"
+          }
+        },
+        "AllowanceSpent": {
+          "allowance": {
+            "value": {
+              "type": "id",
+              "prefix": "alw"
+            },
+            "ref": "allowance.id"
+          },
+          "amount": {
+            "value": {
+              "type": "uint",
+              "bits": 128
+            },
+            "named": "Amount"
+          },
+          "memo": {
+            "value": {
+              "type": "text",
+              "max": 200
+            },
+            "named": "Memo"
+          },
+          "remaining": {
+            "value": {
+              "type": "uint",
+              "bits": 128
+            },
+            "named": "Amount"
+          }
         }
       },
       "errors": {
+        "AllowanceExceeded": {
+          "fields": {
+            "remaining": {
+              "value": {
+                "type": "uint",
+                "bits": 128
+              },
+              "named": "Amount"
+            }
+          },
+          "exit": 41
+        },
         "AllowanceLimitTooHigh": {
           "fields": {
             "cap": {
@@ -94,10 +172,16 @@
             }
           },
           "exit": 44
+        },
+        "AllowanceNotFound": {
+          "fields": {},
+          "exit": 43
         }
       },
-      "roles": [],
-      "hash": "f970f8db0ed45553"
+      "roles": [
+        "grantee"
+      ],
+      "hash": "d545ff8f0a5ef32d"
     },
     "organization": {
       "name": "organization",
@@ -131,13 +215,14 @@
           "named": "Amount"
         }
       },
+      "lives": "database",
       "machine": null,
       "events": {},
       "errors": {},
       "roles": [
         "owner"
       ],
-      "hash": "3100b243edb9e347"
+      "hash": "89ef34253616d87d"
     },
     "person": {
       "name": "person",
@@ -157,15 +242,95 @@
           }
         }
       },
+      "lives": "database",
       "machine": null,
       "events": {},
       "errors": {},
       "roles": [],
-      "hash": "ac769a99c895d4a7"
+      "hash": "39c91562a303dda0"
     }
   },
   "operations": {
+    "allowance.get": {
+      "kind": "read",
+      "name": "allowance.get",
+      "thing": "allowance",
+      "verb": "get",
+      "identifier": "get",
+      "file": "blueprint/things/allowance/verbs/get.ts",
+      "description": "Read one allowance by its id: organization, member, limit, spent, state.",
+      "payload": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "alw"
+          },
+          "ref": "allowance.id"
+        }
+      },
+      "answer": {
+        "organization": {
+          "value": {
+            "type": "id",
+            "prefix": "org"
+          },
+          "ref": "allowance.organization"
+        },
+        "member": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "allowance.member"
+        },
+        "limit": {
+          "value": {
+            "type": "uint",
+            "bits": 128
+          },
+          "named": "Amount",
+          "ref": "allowance.limit"
+        },
+        "spent": {
+          "value": {
+            "type": "uint",
+            "bits": 128
+          },
+          "named": "Amount",
+          "ref": "allowance.spent"
+        },
+        "state": {
+          "value": {
+            "type": "text",
+            "max": 64
+          }
+        }
+      },
+      "move": null,
+      "errors": [],
+      "refusals": [
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "role",
+          "role": "allowance.grantee"
+        },
+        {
+          "kind": "role-of",
+          "role": "organization.owner",
+          "path": "organization"
+        }
+      ],
+      "steps": {},
+      "idempotent": null,
+      "budget": {
+        "p95Ms": 50
+      },
+      "hash": "cbccc5abd9a4f686"
+    },
     "allowance.grant": {
+      "kind": "operation",
       "name": "allowance.grant",
       "thing": "allowance",
       "verb": "grant",
@@ -237,9 +402,144 @@
       "budget": {
         "p95Ms": 200
       },
-      "hash": "33848484aad9a715"
+      "hash": "c07763874651fc09"
+    },
+    "allowance.revoke": {
+      "kind": "operation",
+      "name": "allowance.revoke",
+      "thing": "allowance",
+      "verb": "revoke",
+      "identifier": "revoke",
+      "file": "blueprint/things/allowance/verbs/revoke.ts",
+      "description": "Stop an allowance. Nothing more can be spent from it.",
+      "payload": {
+        "allowance": {
+          "value": {
+            "type": "id",
+            "prefix": "alw"
+          },
+          "ref": "allowance.id"
+        }
+      },
+      "answer": {},
+      "move": {
+        "key": "revoke",
+        "from": [
+          "active",
+          "exhausted"
+        ],
+        "to": [
+          "revoked"
+        ],
+        "emits": "AllowanceRevoked"
+      },
+      "errors": [],
+      "refusals": [
+        "AllowanceNotActive",
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "role-of",
+          "role": "organization.owner",
+          "path": "allowance.organization"
+        }
+      ],
+      "steps": {
+        "update": {
+          "name": "allowance.revoke.update",
+          "type": "database"
+        }
+      },
+      "idempotent": null,
+      "budget": {
+        "p95Ms": 150
+      },
+      "hash": "4ce99862e3eab07d"
+    },
+    "allowance.spend": {
+      "kind": "operation",
+      "name": "allowance.spend",
+      "thing": "allowance",
+      "verb": "spend",
+      "identifier": "spend",
+      "file": "blueprint/things/allowance/verbs/spend.ts",
+      "description": "Spend from what is left of this month's allowance.",
+      "payload": {
+        "allowance": {
+          "value": {
+            "type": "id",
+            "prefix": "alw"
+          },
+          "ref": "allowance.id"
+        },
+        "amount": {
+          "value": {
+            "type": "uint",
+            "bits": 128
+          },
+          "named": "Amount"
+        },
+        "memo": {
+          "value": {
+            "type": "text",
+            "max": 200
+          },
+          "named": "Memo"
+        }
+      },
+      "answer": {
+        "remaining": {
+          "value": {
+            "type": "uint",
+            "bits": 128
+          },
+          "named": "Amount"
+        }
+      },
+      "move": {
+        "key": "spend",
+        "from": [
+          "active"
+        ],
+        "to": [
+          "active",
+          "exhausted"
+        ],
+        "emits": "AllowanceSpent"
+      },
+      "errors": [
+        "AllowanceExceeded"
+      ],
+      "refusals": [
+        "AllowanceExceeded",
+        "AllowanceNotActive",
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "role",
+          "role": "allowance.grantee"
+        }
+      ],
+      "steps": {
+        "load": {
+          "name": "allowance.spend.load",
+          "type": "database"
+        },
+        "record": {
+          "name": "allowance.spend.record",
+          "type": "database"
+        }
+      },
+      "idempotent": "request",
+      "budget": {
+        "p95Ms": 150
+      },
+      "hash": "40708454e868ce42"
     },
     "organization.create": {
+      "kind": "operation",
       "name": "organization.create",
       "thing": "organization",
       "verb": "create",
@@ -292,7 +592,7 @@
       "budget": {
         "p95Ms": 200
       },
-      "hash": "e3e79ef636641315"
+      "hash": "87c19461ee7e872b"
     }
   }
 }

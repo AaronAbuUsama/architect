@@ -4,7 +4,6 @@ import { Compiler, nodeSource } from "@architect/compiler";
 import { Collectors } from "#modules/telemetry/service.ts";
 import { Evals } from "#modules/evals/service.ts";
 import { Journeys } from "#modules/journeys/service.ts";
-import { stateOf } from "#modules/journeys/internal/world.ts";
 import { Worlds } from "#modules/world/service.ts";
 import { ProveFailed, type ProveApi } from "./types.ts";
 import { evalLines, journeyLines } from "./internal/report.ts";
@@ -25,7 +24,7 @@ export const Prove: ProveApi = {
       const runs = yield* Effect.forEach(project.journeys, (j, i) => Journeys.run(project, url, j, i));
       const calls = runs.flatMap((r) => r.calls);
       const traces = yield* collector.traces(calls.map((c) => ({ trace: c.trace, parent: c.parent })));
-      const evidence = yield* Evals.gather(project, calls, traces, (table, id) => stateOf(url, table, id));
+      const evidence = Evals.gather(calls, traces);
       const journeys = journeyLines(runs, traces);
       const evals = evalLines(model, Evals.judge(project, evidence));
       const failures = journeys.failed + evals.failed;

@@ -1,6 +1,5 @@
 // The nine evals: what every call in every journey must show, judged from telemetry and the world's facts against
 // the model. Eval 7 (performance) only ever raises a review; every other failure fails `prove`.
-import type { Effect } from "effect";
 import type { OperationModel } from "@architect/compiler";
 import type { CallRecord, Project } from "#modules/journeys/types.ts";
 import type { Span, Trace } from "#modules/telemetry/types.ts";
@@ -13,7 +12,7 @@ export interface Evidence {
   readonly opSpan: Span | undefined;
   /** The refusal's name: from the answer, or from the operation's span when the server died sending it. */
   readonly refusal: string | undefined;
-  /** The stored state of the instance the call moved, read after the run. */
+  /** The stored state of the instance the call moved, read right after the call. */
   readonly stored: string | undefined;
 }
 
@@ -31,11 +30,6 @@ export type PerOperation = (op: OperationModel, evidence: ReadonlyArray<Evidence
 export interface EvalsApi {
   /** Every eval over every operation, then coverage over the whole run. */
   readonly judge: (project: Project, evidence: ReadonlyArray<Evidence>) => ReadonlyArray<Verdict>;
-  /** The evidence for each call: its spans, its refusal and, for a move, the stored state of what moved. */
-  readonly gather: (
-    project: Project,
-    calls: ReadonlyArray<CallRecord>,
-    traces: ReadonlyMap<string, Trace>,
-    stateOf: (table: string, id: string) => Effect.Effect<unknown>,
-  ) => Effect.Effect<ReadonlyArray<Evidence>>;
+  /** The evidence for each call: its spans, its refusal and, for a move, the stored state of what moved, from the call record. */
+  readonly gather: (calls: ReadonlyArray<CallRecord>, traces: ReadonlyMap<string, Trace>) => ReadonlyArray<Evidence>;
 }

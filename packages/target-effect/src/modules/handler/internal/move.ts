@@ -1,11 +1,41 @@
-// The operation's move: chosen by the handler with `move(to?)`, applied by the wrapper once the handler has answered.
+// The operation's move: the machine's check before the handler, the outcome the handler chose, and the state and
+// journal entry the commit carries.
 import { Effect, Schema } from "effect";
 import type { Operation } from "@architect/blueprint";
 import { EventNames } from "@architect/blueprint/server";
-import { Journal } from "#modules/journal/types.ts";
-import { Records } from "#modules/records/types.ts";
+import type { Entry } from "#modules/journal/types.ts";
+import type { Unit } from "#modules/records/types.ts";
+import { NotFrom } from "../types.ts";
 
 type Codec = Schema.Codec<Record<string, unknown>, Record<string, unknown>>;
+
+/** The instance that moves: the answer's or the payload's field declared as the thing's own id. */
+export const subjectOf = (op: Operation, payload: object, answer: object = {}): string | undefined => {
+  const idField = op.thing.fields["id"];
+  for (const [fields, values] of [[op.answer, answer], [op.payload, payload]] as const) {
+    for (const [k, f] of Object.entries(fields)) {
+      const v = (values as Record<string, unknown>)[k];
+      if (f === idField && typeof v === "string") return v;
+    }
+  }
+  return undefined;
+};
+
+/**
+ * The machine's own refusal, before the handler: the subject exists but is in a state the move can't start from.
+ * Reading it here also fixes the version the commit is guarded by, so the check still holds when the move lands.
+ */
+export const checkFrom = (op: Operation, refusal: string | undefined, payload: object, unit: Unit) =>
+  Effect.gen(function* () {
+    const move = op.move;
+    if (!move || move.from.length === 0 || refusal === undefined) return;
+    const subject = subjectOf(op, payload);
+    if (subject === undefined) return;
+    const found = yield* unit.read(op.thing, subject);
+    if (!found) return;
+    const state = found.state ?? "none";
+    if (!move.from.includes(state)) return yield* Effect.fail(new NotFrom({ _tag: refusal, state }));
+  });
 
 /** The outcome a handler asked for: one of the move's `to`, or it dies naming what it asked for. */
 export const chooseOutcome = (name: string, op: Operation, to: string | undefined) =>
@@ -20,20 +50,8 @@ export const chooseOutcome = (name: string, op: Operation, to: string | undefine
     return outcome;
   });
 
-/** The instance that moves: the answer's or the payload's field declared as the thing's own id. */
-const subjectOf = (op: Operation, payload: object, answer: object): string | undefined => {
-  const idField = op.thing.fields["id"];
-  for (const [fields, values] of [[op.answer, answer], [op.payload, payload]] as const) {
-    for (const [k, f] of Object.entries(fields)) {
-      const v = (values as Record<string, unknown>)[k];
-      if (f === idField && typeof v === "string") return v;
-    }
-  }
-  return undefined;
-};
-
-/** Set the state and journal the event, its fields taken from the answer, then the payload. */
-export const applyMove = (name: string, op: Operation, payload: object, answer: object, outcome: string) =>
+/** Set the subject's state in this attempt's unit, and give back the journal entry the commit writes with it. */
+export const applyMove = (name: string, op: Operation, payload: object, answer: object, outcome: string, unit: Unit) =>
   Effect.gen(function* () {
     const move = op.move!;
     const subject = subjectOf(op, payload, answer);
@@ -44,10 +62,8 @@ export const applyMove = (name: string, op: Operation, payload: object, answer: 
     if (missing.length > 0) return yield* Effect.die(new Error(`${name}: ${event} needs ${missing.join(", ")}, found in neither answer nor payload`));
     const picked = Object.fromEntries(Object.keys(move.emits.fields).map((k) => [k, source[k]]));
     const fields = yield* Schema.encodeEffect(move.emits.schema as unknown as Codec)(picked).pipe(Effect.orDie);
-    const records = yield* Records;
-    yield* records.setState(op.thing, subject, outcome);
+    yield* unit.setState(op.thing, subject, outcome);
     const trace = yield* Effect.currentSpan.pipe(Effect.map((s) => s.traceId), Effect.orElseSucceed(() => ""));
-    const journal = yield* Journal;
-    yield* journal.record({ trace, operation: name, move: move.key, subject, event, fields });
     yield* Effect.annotateCurrentSpan({ "event.name": event });
+    return { trace, operation: name, move: move.key, subject, event, fields } satisfies Entry;
   });
