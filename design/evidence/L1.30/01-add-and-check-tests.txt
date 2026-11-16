@@ -1,0 +1,16 @@
+$ npx vitest run --reporter verbose --root packages/cli src/modules/add src/modules/check
+# commit a43d543 · 2026-11-16T18:38:48Z · exit 0 (expected 0) · 3.0s
+
+
+ RUN  v4.1.12 ./packages/cli
+
+ ✓ src/modules/check/check.test.ts > Check.blanks > finds every Blueprint.todo with its line and what it waits for, grouped by its thing 2ms
+ ✓ src/modules/add/add.test.ts > Add.plan > a thing is five files in its folder and a values file 1ms
+ ✓ src/modules/add/add.test.ts > Add.plan > an operation, a read and a journey are one file each, where the compiler and prove look 0ms
+ ✓ src/modules/add/add.test.ts > Add.plan > refuses a name that doesn't fit, and writes nothing if any file is already there 0ms
+ ✓ src/modules/add/add.test.ts > architect add, then check, in a fresh project > writes a thing with 3 blanks that compiles, and check names each with its file and line 2294ms
+
+ Test Files  2 passed (2)
+      Tests  5 passed (5)
+   Start at  18:38:46
+   Duration  2.57s (transform 68ms, setup 0ms, import 207ms, tests 2.30s, environment 0ms)

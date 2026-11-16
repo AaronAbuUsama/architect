@@ -1,0 +1,40 @@
+$ bash <scratch>/fresh.sh
+# commit a43d543 · 2026-11-16T18:38:51Z · exit 0 (expected 0) · 2.2s
+
+$ architect add thing allowance --dry-run | tail -1
+(dry run: 6 files, nothing written)
+
+$ architect add thing allowance
+wrote blueprint/things/allowance/thing.ts
+wrote blueprint/things/allowance/machine.ts
+wrote blueprint/things/allowance/roles.ts
+wrote blueprint/things/allowance/events.ts
+wrote blueprint/things/allowance/errors.ts
+wrote blueprint/values/allowance.ts
+
+$ cat blueprint/things/allowance/thing.ts
+import { Blueprint } from "@architect/blueprint";
+
+export const Allowance = Blueprint.thing({
+  description: Blueprint.todo("what an allowance is, in one sentence"),
+  fields: {
+    id: Blueprint.id("all"),
+  },
+});
+$ tsc --noEmit
+(exit 0)
+
+$ architect check
+allowance has 3 blanks
+  blueprint/things/allowance/machine.ts:6  the states an allowance can be in, the first one where it starts
+  blueprint/things/allowance/roles.ts:5  when a person holds this role on an allowance
+  blueprint/things/allowance/thing.ts:4  what an allowance is, in one sentence
+(exit 1)
+
+$ architect model
+thing allowance ()  b17c66c33e6e568d
+unfinished allowance  3 blanks
+
+$ architect add thing allowance   # again
+already there, so nothing was written: blueprint/things/allowance/thing.ts, blueprint/things/allowance/machine.ts, blueprint/things/allowance/roles.ts, blueprint/things/allowance/events.ts, blueprint/things/allowance/errors.ts, blueprint/values/allowance.ts
+(exit 2)
