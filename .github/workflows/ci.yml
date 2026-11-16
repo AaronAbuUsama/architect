@@ -37,6 +37,8 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       # Check 4 runs its agent when this secret exists, and says why it skipped when it doesn't (D2 #41).
+      # The key is given only to pull requests into main and pushes to main, so layer-branch pushes spend nothing
+      # (each run is capped at $5, and the cap across everything is $10 a day; D3 #71).
       - run: pnpm nx run e2e:layer1 --outputStyle=static
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ ((github.event_name == 'pull_request' && github.base_ref == 'main') || github.ref == 'refs/heads/main') && secrets.ANTHROPIC_API_KEY || '' }}
