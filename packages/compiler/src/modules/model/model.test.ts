@@ -1,9 +1,13 @@
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { basename, join, resolve } from "node:path";
 import { Effect, Exit } from "effect";
 import { afterAll, describe, expect, it } from "vitest";
 import { nodeSource } from "#modules/source/service.js";
 import { Compiler } from "./service.ts";
+
+// Dot-folders (.wrangler, .architect) belong to whatever is running there; a filter also keeps cpSync off its native path,
+// which aborts the process when a folder vanishes mid-copy.
+const visible = (from: string) => !basename(from).startsWith(".");
 
 const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
 const scratch = resolve(import.meta.dirname, "../../../test/tmp");
@@ -13,7 +17,7 @@ const modelOf = (root: string) => Effect.runPromiseExit(Effect.provide(Compiler.
 const copyOfAcme = (): string => {
   mkdirSync(scratch, { recursive: true });
   const root = mkdtempSync(join(scratch, "acme-"));
-  cpSync(join(acme, "blueprint"), join(root, "blueprint"), { recursive: true });
+  cpSync(join(acme, "blueprint"), join(root, "blueprint"), { recursive: true, filter: visible });
   return root;
 };
 

@@ -2,12 +2,16 @@
 // builder) fails its own eval in a scratch copy of acme.
 import { spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { join, relative, resolve } from "node:path";
+import { basename, join, relative, resolve } from "node:path";
 import { Effect } from "effect";
 import { afterAll, describe, expect, it } from "vitest";
 import { FsTree, flushChanges } from "nx/src/generators/tree.js";
 import { Sync } from "@architect/generators/sync";
 import { Prove } from "./service.ts";
+
+// Dot-folders (.wrangler, .architect) belong to whatever is running there; a filter also keeps cpSync off its native path,
+// which aborts the process when a folder vanishes mid-copy.
+const visible = (from: string) => !basename(from).startsWith(".");
 
 const repo = resolve(import.meta.dirname, "../../../../..");
 const acme = join(repo, "examples/acme");
@@ -23,7 +27,7 @@ const planted = (name: string, installs: ReadonlyArray<readonly [string, string]
     rmSync(join(scratch, name), { recursive: true, force: true });
     mkdirSync(root, { recursive: true });
     for (const part of ["blueprint", "generated", "implementation", "journeys", "package.json"]) {
-      cpSync(join(acme, part), join(root, part), { recursive: true });
+      cpSync(join(acme, part), join(root, part), { recursive: true, filter: visible });
     }
     // acme's own compiler options, from where the copy sits.
     writeFileSync(join(root, "tsconfig.json"), JSON.stringify({ extends: relative(root, join(acme, "tsconfig.json")) }));

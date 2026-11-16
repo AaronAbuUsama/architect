@@ -1,10 +1,14 @@
 // L1.50's prove half: the starter passes on real Better Auth sign-in, and each of the journey author's fixtures fails
 // where its README says, in a scratch copy of the starter.
 import { cpSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
-import { join, relative, resolve } from "node:path";
+import { basename, join, relative, resolve } from "node:path";
 import { Effect } from "effect";
 import { afterAll, describe, expect, it } from "vitest";
 import { Prove } from "./service.ts";
+
+// Dot-folders (.wrangler, .architect) belong to whatever is running there; a filter also keeps cpSync off its native path,
+// which aborts the process when a folder vanishes mid-copy.
+const visible = (from: string) => !basename(from).startsWith(".");
 
 const starter = resolve(import.meta.dirname, "../../../../../examples/starter");
 const fixtures = join(starter, "test/fixtures/journeys");
@@ -14,7 +18,7 @@ const copy = (name: string, installs: ReadonlyArray<readonly [string, string]>) 
   const root = join(scratch, name, "starter");
   rmSync(join(scratch, name), { recursive: true, force: true });
   mkdirSync(root, { recursive: true });
-  for (const part of ["blueprint", "generated", "implementation", "journeys", "package.json"]) cpSync(join(starter, part), join(root, part), { recursive: true });
+  for (const part of ["blueprint", "generated", "implementation", "journeys", "package.json"]) cpSync(join(starter, part), join(root, part), { recursive: true, filter: visible });
   writeFileSync(join(root, "tsconfig.json"), JSON.stringify({ extends: relative(root, join(starter, "tsconfig.json")) }));
   for (const [from, to] of installs) cpSync(join(fixtures, name, from), join(root, to));
   return root;

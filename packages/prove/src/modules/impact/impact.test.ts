@@ -2,12 +2,16 @@
 // stale, only unproven.
 import { execFileSync } from "node:child_process";
 import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { join, relative, resolve } from "node:path";
+import { basename, join, relative, resolve } from "node:path";
 import { Effect } from "effect";
 import { afterAll, describe, expect, it } from "vitest";
 import type { Model } from "@architect/compiler";
 import { Prove } from "#modules/prove/service.js";
 import { Impact } from "./service.ts";
+
+// Dot-folders (.wrangler, .architect) belong to whatever is running there; a filter also keeps cpSync off its native path,
+// which aborts the process when a folder vanishes mid-copy.
+const visible = (from: string) => !basename(from).startsWith(".");
 
 const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
 const scratch = join(acme, "test/tmp/impact");
@@ -26,7 +30,7 @@ describe("impact", () => {
   it("after a prove, names only what a change unproves", { timeout: 240_000 }, async () => {
     rmSync(scratch, { recursive: true, force: true });
     mkdirSync(root, { recursive: true });
-    for (const part of ["blueprint", "generated", "implementation", "journeys", "package.json"]) cpSync(join(acme, part), join(root, part), { recursive: true });
+    for (const part of ["blueprint", "generated", "implementation", "journeys", "package.json"]) cpSync(join(acme, part), join(root, part), { recursive: true, filter: visible });
     writeFileSync(join(root, "tsconfig.json"), JSON.stringify({
       extends: relative(root, join(acme, "tsconfig.json")),
       include: ["blueprint/**/*.ts", "generated/**/*.ts", "implementation/**/*.ts", "journeys/**/*.ts"],

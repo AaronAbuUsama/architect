@@ -2,8 +2,12 @@
 // fixture is the journey author's (never the builder's): spend failing with an error it doesn't declare.
 import { spawnSync } from "node:child_process";
 import { cpSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
-import { join, relative, resolve } from "node:path";
+import { basename, join, relative, resolve } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
+
+// Dot-folders (.wrangler, .architect) belong to whatever is running there; a filter also keeps cpSync off its native path,
+// which aborts the process when a folder vanishes mid-copy.
+const visible = (from: string) => !basename(from).startsWith(".");
 
 const repo = resolve(import.meta.dirname, "../../../../..");
 const acme = join(repo, "examples/acme");
@@ -15,7 +19,7 @@ const copy = (name: string, installs: ReadonlyArray<readonly [string, string]>) 
   const root = join(scratch, name);
   rmSync(root, { recursive: true, force: true });
   mkdirSync(root, { recursive: true });
-  for (const part of ["blueprint", "generated", "implementation", "journeys", "package.json"]) cpSync(join(acme, part), join(root, part), { recursive: true });
+  for (const part of ["blueprint", "generated", "implementation", "journeys", "package.json"]) cpSync(join(acme, part), join(root, part), { recursive: true, filter: visible });
   // acme's options, but its own files: an extended config's `include` is read from where that config sits.
   writeFileSync(join(root, "tsconfig.json"), JSON.stringify({
     extends: relative(root, join(acme, "tsconfig.json")),

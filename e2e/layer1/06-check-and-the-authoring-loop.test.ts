@@ -2,9 +2,13 @@
 // add writes a thing of blanks that check names; with the declarations written, generate scaffolds each handler once;
 // with the handlers written, check and prove pass. Each of the journey author's check fixtures fails it.
 import { cpSync, existsSync, readFileSync, rmSync } from "node:fs";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { acme, architect, copyOf, nothingRunning, repo } from "./support.ts";
+
+// Dot-folders (.wrangler, .architect) belong to whatever is running there; a filter also keeps cpSync off its native path,
+// which aborts the process when a folder vanishes mid-copy.
+const visible = (from: string) => !basename(from).startsWith(".");
 
 const starter = join(repo, "examples/starter");
 
@@ -23,7 +27,7 @@ describe("check 6: architect add, generate and check build the allowance on the 
       // The declarations written (acme's own, with its cap on organization), then generate.
       rmSync(join(root, "blueprint/things/allowance"), { recursive: true });
       for (const p of ["blueprint/things/allowance", "blueprint/things/organization", "blueprint/values/money.ts", "blueprint/starting-worlds/founded.ts", "blueprint/starting-worlds/funded.ts"]) {
-        cpSync(join(acme, p), join(root, p), { recursive: true });
+        cpSync(join(acme, p), join(root, p), { recursive: true, filter: visible });
       }
       cpSync(join(acme, "implementation/handlers/organization/create.ts"), join(root, "implementation/handlers/organization/create.ts"));
       const generated = architect(root, "generate");
@@ -35,7 +39,7 @@ describe("check 6: architect add, generate and check build the allowance on the 
 
       // The handlers and journeys written: check and prove pass.
       for (const op of ["grant", "revoke", "spend"]) cpSync(join(acme, `implementation/handlers/allowance/${op}.ts`), join(root, `implementation/handlers/allowance/${op}.ts`));
-      cpSync(join(acme, "journeys"), join(root, "journeys"), { recursive: true });
+      cpSync(join(acme, "journeys"), join(root, "journeys"), { recursive: true, filter: visible });
       const checked = architect(root, "check");
       expect(checked.stdout.trimEnd().split("\n").at(-1), checked.stdout).toBe("check ✔");
       const proved = architect(root, "prove", "--env", "local", "--port", "8885");
