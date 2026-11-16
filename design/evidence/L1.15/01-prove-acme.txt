@@ -1,0 +1,25 @@
+$ bash -c cd examples/acme && node ../../packages/cli/src/main.ts prove --env local; echo "--- after: collectors running: $(docker ps --format "{{.Names}}" | grep -c architect-collector), port 8799 listening: $(lsof -iTCP:8799 -sTCP:LISTEN -t | wc -l | tr -d " ")"
+# commit 9635862 · 2026-11-16T17:33:16Z · exit 0 (expected 0) · 6.3s
+
+journey grant an allowance ✔ 3/3 steps
+allowance.grant answer shape ✔
+allowance.grant declared errors ✔
+allowance.grant machine path ✔
+allowance.grant events ✔
+allowance.grant who may call ✔
+allowance.grant steps ✔
+allowance.grant performance ✔ p50 1ms p95 4ms budget p95 200ms
+allowance.grant explainability ✔
+allowance.grant 8 evals ✔
+organization.create answer shape ✔
+organization.create declared errors ✔
+organization.create machine path ✔
+organization.create events ✔
+organization.create who may call ✔
+organization.create steps ✔
+organization.create performance ✔ p50 8ms p95 8ms budget p95 200ms
+organization.create explainability ✔
+organization.create 8 evals ✔
+coverage ✔ operations 2/2 moves 1/1 outcomes 1/1 errors 1/1 (runtime refusals 1/2)
+prove ✔
+--- after: collectors running: 0, port 8799 listening: 0

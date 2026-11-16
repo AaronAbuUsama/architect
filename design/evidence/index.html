@@ -53,6 +53,561 @@ h2 { font-family: var(--display); font-size: 1.25rem; margin: 0; display: flex; 
   
 <section class="step">
   <div class="stage">Stage 1 · the skeleton, with every eval</div>
+  <h2><span class="id">L1.15</span> prove, with a real collector and all nine evals <span class="chip pass">done</span></h2>
+  <p class="summary">architect prove now judges the code for real. It starts a real OpenTelemetry collector in Docker and a fresh world on workerd. It runs the journey: Ada founds an organisation and grants Olga 500, Bob is refused, and a limit over the cap is refused. Then it reads every call&#x27;s spans and logs back from the collector and checks all nine evals: answer shape, declared errors, machine path, events, who may call, steps, performance, coverage and explainability. Acme passes in about six seconds and nothing is left running. Each of the eight broken fixtures, planted by a separate author, fails its own eval with a line that names the call. Two old bugs were found on the way: ids sometimes came out a character short, and the coverage fixture had never reached git.</p>
+  <div class="proves"><span class="label">Done when</span>architect prove --env local prints every eval ✔ and prove ✔ on acme; each planted fixture makes prove exit 1 and names the call on its own eval.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43920197113">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/9635862">commit 9635862</a> · 7 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">architect prove on acme: the journey&#x27;s three steps, eight evals for each operation, coverage, prove ✔. Afterwards no collector container and no open port.</span>
+    <span class="meta">exit 0 · 6.3s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ bash -c cd examples/acme &amp;&amp; node ../../packages/cli/src/main.ts prove --env local; echo &quot;--- after: collectors running: $(docker ps --format &quot;{{.Names}}&quot; | grep -c architect-collector), port 8799 listening: $(lsof -iTCP:8799 -sTCP:LISTEN -t | wc -l | tr -d &quot; &quot;)&quot;</div><pre>journey grant an allowance ✔ 3/3 steps
+allowance.grant answer shape ✔
+allowance.grant declared errors ✔
+allowance.grant machine path ✔
+allowance.grant events ✔
+allowance.grant who may call ✔
+allowance.grant steps ✔
+allowance.grant performance ✔ p50 1ms p95 4ms budget p95 200ms
+allowance.grant explainability ✔
+allowance.grant 8 evals ✔
+organization.create answer shape ✔
+organization.create declared errors ✔
+organization.create machine path ✔
+organization.create events ✔
+organization.create who may call ✔
+organization.create steps ✔
+organization.create performance ✔ p50 8ms p95 8ms budget p95 200ms
+organization.create explainability ✔
+organization.create 8 evals ✔
+coverage ✔ operations 2/2 moves 1/1 outcomes 1/1 errors 1/1 (runtime refusals 1/2)
+prove ✔
+--- after: collectors running: 0, port 8799 listening: 0</pre></div>
+</details>
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">Planted: grant answers a number for the id. The answer shape eval names the call and the field: expected alw_&lt;id&gt;, got 500. Exit 1.</span>
+    <span class="meta">exit 1 · 5.0s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ /private/tmp/claude-501/-Users-abuusama--claude-spares-spare-gEwBPG/d12405b7-5156-441f-94fa-245c9582b12b/scratchpad/plant.sh answer-shape grant.ts implementation/handlers/allowance/grant.ts</div><pre>planted test/fixtures/evals/answer-shape/grant.ts as implementation/handlers/allowance/grant.ts
+journey grant an allowance ✘ 1/3 steps
+  ✘ &quot;ada grants olga 500&quot;: expected an answer, failed with 500
+  ✘ &quot;ada grants olga 500&quot;: emits: nothing at last.allowance
+  ✘ &quot;ada grants olga 500&quot;: is-in: nothing at last.allowance
+  ✘ &quot;a limit over the cap is refused&quot;: expected refused with AllowanceLimitTooHigh, failed with 500
+  ✘ &quot;a limit over the cap is refused&quot;: span allowance.grant.insert present, expected absent
+allowance.grant answer shape ✘ grant-an-allowance &quot;ada grants olga 500&quot;: answer.allowance: expected alw_&lt;id&gt;, got 500
+allowance.grant answer shape ✘ grant-an-allowance &quot;a limit over the cap is refused&quot;: answer.allowance: expected alw_&lt;id&gt;, got 500
+allowance.grant declared errors ✔
+allowance.grant machine path ✔
+allowance.grant events ✔
+allowance.grant who may call ✔
+allowance.grant steps ✔
+allowance.grant performance ✔ p50 1ms p95 1ms budget p95 200ms
+allowance.grant explainability ✔
+allowance.grant 1 of 8 evals ✘
+organization.create answer shape ✔
+organization.create declared errors ✔
+organization.create machine path ✔
+organization.create events ✔
+organization.create who may call ✔
+organization.create steps ✔
+organization.create performance ✔ p50 8ms p95 8ms budget p95 200ms
+organization.create explainability ✔
+organization.create 8 evals ✔
+coverage ✘ operations 2/2 moves 0/1 outcomes 0/1 errors 0/1 (runtime refusals 1/2)
+coverage ✘ move allowance.grant made by no journey
+coverage ✘ outcome allowance active reached by no journey
+coverage ✘ allowance.grant refusing AllowanceLimitTooHigh reached by no journey
+prove ✘ 4 failing
+--- exit 1; collectors running: 0</pre></div>
+</details>
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">Planted: the server serves grant with no gate. Who may call decides from the world&#x27;s facts that Bob isn&#x27;t the owner, sees he was answered, and fails. Exit 1.</span>
+    <span class="meta">exit 1 · 3.5s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ /private/tmp/claude-501/-Users-abuusama--claude-spares-spare-gEwBPG/d12405b7-5156-441f-94fa-245c9582b12b/scratchpad/plant.sh who-may-call main.ts generated/server/main.ts</div><pre>planted test/fixtures/evals/who-may-call/main.ts as generated/server/main.ts
+journey grant an allowance ✘ 2/3 steps
+  ✘ &quot;bob is refused and the handler never runs&quot;: expected refused with NotAllowed, answered
+  ✘ &quot;bob is refused and the handler never runs&quot;: expected no events, journal has AllowanceGranted
+  ✘ &quot;bob is refused and the handler never runs&quot;: span allowance.grant present, expected absent
+  ✘ &quot;bob is refused and the handler never runs&quot;: span allowance.grant.insert present, expected absent
+allowance.grant answer shape ✔
+allowance.grant declared errors ✔
+allowance.grant machine path ✔
+allowance.grant events ✔
+allowance.grant who may call ✘ grant-an-allowance &quot;bob is refused and the handler never runs&quot;: caller bob (person per_a9na6c3i0899rgwg) lacks owner of organization org_np9afg4t6ny6k3k, and was answered, not refused
+allowance.grant steps ✔
+allowance.grant performance ✔ p50 3ms p95 4ms budget p95 200ms
+allowance.grant explainability ✔
+allowance.grant 1 of 8 evals ✘
+organization.create answer shape ✔
+organization.create declared errors ✔
+organization.create machine path ✔
+organization.create events ✔
+organization.create who may call ✔
+organization.create steps ✔
+organization.create performance ✔ p50 9ms p95 9ms budget p95 200ms
+organization.create explainability ✔
+organization.create 8 evals ✔
+coverage ✔ operations 2/2 moves 1/1 outcomes 1/1 errors 1/1 (runtime refusals 0/2)
+prove ✘ 2 failing
+--- exit 1; collectors running: 0</pre></div>
+</details>
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">Planted: the refusal over the cap logs nothing. Explainability says AllowanceLimitTooHigh has no deciding log. Exit 1.</span>
+    <span class="meta">exit 1 · 3.5s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ /private/tmp/claude-501/-Users-abuusama--claude-spares-spare-gEwBPG/d12405b7-5156-441f-94fa-245c9582b12b/scratchpad/plant.sh explainability grant.ts implementation/handlers/allowance/grant.ts</div><pre>planted test/fixtures/evals/explainability/grant.ts as implementation/handlers/allowance/grant.ts
+journey grant an allowance ✘ 2/3 steps
+  ✘ &quot;ada grants olga 500&quot;: expected AllowanceGranted, journal has nothing
+  ✘ &quot;ada grants olga 500&quot;: alw_planted1 is in no state, expected &quot;active&quot;
+allowance.grant answer shape ✔
+allowance.grant declared errors ✔
+allowance.grant machine path ✘ grant-an-allowance &quot;ada grants olga 500&quot;: answered without making its move grant
+allowance.grant events ✘ grant-an-allowance &quot;ada grants olga 500&quot;: move grant emitted no AllowanceGranted
+allowance.grant who may call ✔
+allowance.grant steps ✔
+allowance.grant performance ✔ p50 0ms p95 0ms budget p95 200ms
+allowance.grant explainability ✘ grant-an-allowance &quot;a limit over the cap is refused&quot;: AllowanceLimitTooHigh has no deciding log
+allowance.grant 3 of 8 evals ✘
+organization.create answer shape ✔
+organization.create declared errors ✔
+organization.create machine path ✔
+organization.create events ✔
+organization.create who may call ✔
+organization.create steps ✔
+organization.create performance ✔ p50 8ms p95 8ms budget p95 200ms
+organization.create explainability ✔
+organization.create 8 evals ✔
+coverage ✘ operations 2/2 moves 0/1 outcomes 0/1 errors 1/1 (runtime refusals 1/2)
+coverage ✘ move allowance.grant made by no journey
+coverage ✘ outcome allowance active reached by no journey
+prove ✘ 5 failing
+--- exit 1; collectors running: 0</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The gate as a test: acme passes, scaffolded handlers fail, and all eight planted fixtures fail their own eval.</span>
+    <span class="meta">exit 0 · 31.5s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run packages/prove/src/modules/prove --reporter=verbose</div><pre>RUN  v4.1.12 .
+
+ ✓ packages/prove/src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; passes on acme: one journey, every eval, coverage, and leaves nothing running 3188ms
+ ✓ packages/prove/src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails on the scaffolded handlers: the starting world can&#x27;t be made, so no step runs 3144ms
+ ✓ packages/prove/src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted answer-shape fixture on its own eval 2892ms
+ ✓ packages/prove/src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted declared-errors fixture on its own eval 2989ms
+ ✓ packages/prove/src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted machine-path fixture on its own eval 3001ms
+ ✓ packages/prove/src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted events fixture on its own eval 2967ms
+ ✓ packages/prove/src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted who-may-call fixture on its own eval 2998ms
+ ✓ packages/prove/src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted steps fixture on its own eval 3039ms
+ ✓ packages/prove/src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted coverage fixture on its own eval 3143ms
+ ✓ packages/prove/src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted explainability fixture on its own eval 3023ms
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  17:33:49
+   Duration  30.92s (transform 423ms, setup 0ms, import 354ms, tests 30.48s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Lint, typecheck and test across every project, cache off.</span>
+    <span class="meta">exit 0 · 38.9s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ env NX_DAEMON=false npx nx run-many -t lint typecheck test --skip-nx-cache --output-style=static</div><pre>NX   Running targets lint, typecheck, test for 14 projects:
+
+- host-cloudflare
+- target-solidity
+- target-effect
+- generators
+- blueprint
+- compiler
+- logbook
+- portal
+- preset
+- prove
+- acme
+- lint
+- cli
+- std
+
+
+
+&gt; nx run blueprint:typecheck
+
+&gt; tsc -p packages/blueprint/tsconfig.json
+
+
+&gt; nx run blueprint:test
+
+&gt; vitest run --root packages/blueprint --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/blueprint
+
+
+ Test Files  9 passed (9)
+      Tests  21 passed (21)
+   Start at  17:35:32
+   Duration  525ms (transform 272ms, setup 0ms, import 2.75s, tests 24ms, environment 0ms)
+
+
+&gt; nx run blueprint:lint
+
+&gt; oxlint packages/blueprint
+
+
+&gt; nx run target-effect:lint
+
+&gt; oxlint packages/target-effect
+
+
+&gt; nx run target-effect:typecheck
+
+&gt; tsc -p packages/target-effect/tsconfig.json
+
+
+&gt; nx run target-effect:test
+
+&gt; vitest run --root packages/target-effect --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/target-effect
+
+
+ Test Files  8 passed (8)
+      Tests  22 passed (22)
+   Start at  17:35:33
+   Duration  575ms (transform 1.00s, setup 0ms, import 2.87s, tests 69ms, environment 0ms)
+
+
+&gt; nx run compiler:typecheck
+
+&gt; tsc -p packages/compiler/tsconfig.json
+
+
+&gt; nx run compiler:test
+
+&gt; vitest run --root packages/compiler --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/compiler
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  17:35:33
+   Duration  442ms (transform 144ms, setup 0ms, import 205ms, tests 150ms, environment 0ms)
+
+
+&gt; nx run compiler:lint
+
+&gt; oxlint packages/compiler
+
+
+&gt; nx run generators:typecheck
+
+&gt; tsc -p packages/generators/tsconfig.json
+
+
+&gt; nx run generators:lint
+
+&gt; oxlint packages/generators
+
+
+&gt; nx run generators:test
+
+&gt; vitest run --root packages/generators --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/generators
+
+
+ Test Files  2 passed (2)
+      Tests  7 passed (7)
+   Start at  17:35:34
+   Duration  1.02s (transform 71ms, setup 0ms, import 529ms, tests 722ms, environment 0ms)
+
+
+&gt; nx run host-cloudflare:lint
+
+&gt; oxlint packages/host-cloudflare
+
+
+&gt; nx run prove:lint
+
+&gt; oxlint packages/prove
+
+
+&gt; nx run host-cloudflare:typecheck
+
+&gt; tsc -p packages/host-cloudflare/tsconfig.json
+
+
+&gt; nx run prove:typecheck
+
+&gt; tsc -p packages/prove/tsconfig.json
+
+
+&gt; nx run host-cloudflare:test
+
+&gt; vitest run --root packages/host-cloudflare --passWithNoTests
+
+
+=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+
+
+ RUN  v4.1.12 ./packages/host-cloudflare
+
+
+ Test Files  5 passed (5)
+      Tests  9 passed (9)
+   Start at  17:35:35
+   Duration  5.90s (transform 8.45s, setup 20.42s, import 718ms, tests 71ms, environment 0ms)
+
+
+&gt; nx run lint:test
+
+&gt; vitest run --root packages/lint --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/lint
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  17:35:37
+   Duration  3.98s (transform 16ms, setup 0ms, import 26ms, tests 3.85s, environment 0ms)
+
+
+&gt; nx run acme:lint
+
+&gt; oxlint examples/acme
+
+
+&gt; nx run cli:lint
+
+&gt; oxlint packages/cli
+
+
+&gt; nx run cli:test
+
+&gt; vitest run --root packages/cli --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/cli
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  17:35:41
+   Duration  1.77s (transform 78ms, setup 0ms, import 190ms, tests 1.48s, environment 0ms)
+
+
+&gt; nx run target-solidity:lint
+
+&gt; oxlint packages/target-solidity
+
+
+&gt; nx run lint:lint
+
+&gt; oxlint packages/lint
+
+
+&gt; nx run logbook:lint
+
+&gt; oxlint packages/logbook
+
+
+&gt; nx run portal:lint
+
+&gt; oxlint packages/portal
+
+
+&gt; nx run preset:lint
+
+&gt; oxlint packages/preset
+
+
+&gt; nx run acme:typecheck
+
+&gt; tsc -p examples/acme/tsconfig.json
+
+
+&gt; nx run cli:typecheck
+
+&gt; tsc -p packages/cli/tsconfig.json
+
+
+&gt; nx run std:lint
+
+&gt; oxlint packages/std
+
+
+&gt; nx run logbook:test
+
+&gt; vitest run --root packages/logbook --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/logbook
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run target-solidity:test
+
+&gt; vitest run --root packages/target-solidity --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/target-solidity
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run std:test
+
+&gt; vitest run --root packages/std --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/std
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run acme:test
+
+&gt; vitest run --root examples/acme --passWithNoTests
+
+
+ RUN  v4.1.12 ./examples/acme
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run portal:test
+
+&gt; vitest run --root packages/portal --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/portal
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run preset:test
+
+&gt; vitest run --root packages/preset --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/preset
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run target-solidity:typecheck
+
+&gt; tsc -p packages/target-solidity/tsconfig.json
+
+
+&gt; nx run lint:typecheck
+
+&gt; tsc -p packages/lint/tsconfig.json
+
+
+&gt; nx run logbook:typecheck
+
+&gt; tsc -p packages/logbook/tsconfig.json
+
+
+&gt; nx run std:typecheck
+
+&gt; tsc -p packages/std/tsconfig.json
+
+
+&gt; nx run preset:typecheck
+
+&gt; tsc -p packages/preset/tsconfig.json
+
+
+&gt; nx run portal:typecheck
+
+&gt; tsc -p packages/portal/tsconfig.json
+
+
+&gt; nx run prove:test
+
+&gt; vitest run --root packages/prove --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  5 passed (5)
+      Tests  17 passed (17)
+   Start at  17:35:35
+   Duration  34.98s (transform 1.11s, setup 0ms, import 1.99s, tests 39.44s, environment 0ms)
+
+
+
+
+ NX   Successfully ran targets lint, typecheck, test for 14 projects
+
+
+  Run duration:      38.0s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     35.2s (1 task)
+  Recoverable time:  2.8s (7% of the run)
+
+  Recommendations:
+    - Cache: drop --skip-nx-cache to restore unchanged tasks instantly.
+    - Speed up or split the longest tasks on the critical path:
+        prove:test    35.2s</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">generated/ matches the blueprint.</span>
+    <span class="meta">exit 0 · 1.4s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ env NX_DAEMON=false npx nx sync:check</div><pre>NX   The workspace is up to date
+
+[@architect/generators:sync]: All files are up to date.</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 1 · the skeleton, with every eval</div>
   <h2><span class="id">L1.14</span> architect dev <span class="chip pass">done</span></h2>
   <p class="summary">acme now runs for real on this Mac. One command starts the generated server on workerd, with its world and a fresh local database. The world signs people in for testing. Ada founds an organisation and grants Olga 500 from the generated command line, and gets an allowance id back. Over the cap, she&#x27;s refused with exit 44. Bob isn&#x27;t the owner, so he&#x27;s refused with exit 3 before the handler ever runs. Stopping it leaves nothing running. Meanwhile, a separate author wrote stage one&#x27;s journey and a planted fixture for each eval, ready for prove.</p>
   <div class="proves"><span class="label">Done when</span>architect dev &amp; then acme allowance grant prints an allowance id. curl to the route returns 200.</div>

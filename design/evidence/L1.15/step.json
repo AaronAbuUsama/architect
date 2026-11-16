@@ -1,0 +1,16 @@
+{
+  "step": "L1.15",
+  "stage": "Stage 1 · the skeleton, with every eval",
+  "title": "prove, with a real collector and all nine evals",
+  "summary": "architect prove now judges the code for real. It starts a real OpenTelemetry collector in Docker and a fresh world on workerd. It runs the journey: Ada founds an organisation and grants Olga 500, Bob is refused, and a limit over the cap is refused. Then it reads every call's spans and logs back from the collector and checks all nine evals: answer shape, declared errors, machine path, events, who may call, steps, performance, coverage and explainability. Acme passes in about six seconds and nothing is left running. Each of the eight broken fixtures, planted by a separate author, fails its own eval with a line that names the call. Two old bugs were found on the way: ids sometimes came out a character short, and the coverage fixture had never reached git.",
+  "proves": "architect prove --env local prints every eval ✔ and prove ✔ on acme; each planted fixture makes prove exit 1 and names the call on its own eval.",
+  "captions": {
+    "01-prove-acme": "architect prove on acme: the journey's three steps, eight evals for each operation, coverage, prove ✔. Afterwards no collector container and no open port.",
+    "02-planted-answer-shape": "Planted: grant answers a number for the id. The answer shape eval names the call and the field: expected alw_<id>, got 500. Exit 1.",
+    "03-planted-who-may-call": "Planted: the server serves grant with no gate. Who may call decides from the world's facts that Bob isn't the owner, sees he was answered, and fails. Exit 1.",
+    "04-planted-explainability": "Planted: the refusal over the cap logs nothing. Explainability says AllowanceLimitTooHigh has no deciding log. Exit 1.",
+    "05-gate-acme-and-every-planted-fixture": "The gate as a test: acme passes, scaffolded handlers fail, and all eight planted fixtures fail their own eval.",
+    "06-all-checks-green": "Lint, typecheck and test across every project, cache off.",
+    "07-sync-check": "generated/ matches the blueprint."
+  }
+}
