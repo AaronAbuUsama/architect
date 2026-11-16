@@ -1,0 +1,13 @@
+{
+  "step": "L1.32",
+  "stage": "Stage 2 · the allowance's whole life (Gate 1)",
+  "title": "Docs, model edges, and the CLI's exit codes",
+  "summary": "Every thing and operation now has a generated docs page. Spend's page lists who may call it, what goes in and comes out, its move, its two steps, and each refusal with its exit code: AllowanceExceeded 41, AllowanceNotActive 40, NotAllowed 3. The model also lists what depends on what. On a real local world, the generated acme command line spends, prints the answer as JSON when asked, exits 41 past the limit, 3 for an outsider, and 40 once the allowance is revoked.",
+  "proves": "acme allowance spend past the limit exits 41; generated/docs/allowance/spend.md lists AllowanceExceeded and AllowanceNotActive.",
+  "captions": {
+    "01-cli-exit-codes-on-a-real-world": "On workerd: the generated CLI spends 200 with --json, then 301 past what's left exits 41, bob revoking exits 3, and spending a revoked allowance exits 40.",
+    "02-render-docs-and-edges": "The renderer's tests, including the docs pages and the model's edges.",
+    "03-spend-docs-page": "The generated page for allowance.spend.",
+    "04-sync-check": "generated/ matches the blueprint, docs included."
+  }
+}
