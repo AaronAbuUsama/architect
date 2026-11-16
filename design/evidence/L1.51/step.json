@@ -1,0 +1,12 @@
+{
+  "step": "L1.51",
+  "stage": "Stage 2 · the allowance's whole life (Gate 1)",
+  "title": "acme on the starter",
+  "summary": "acme is now what a user would have: the starter the preset writes (sign-up and sign-in on Better Auth, organisations, memberships, invitations, API keys) with the allowance built on top. acme changes the starter in one place, the cap on an organisation, and the journey author adapted the one starter journey that needed it.",
+  "proves": "architect prove on acme passes all eleven journeys, and each of the fifteen operations, the four allowance operations among them, shows 9 evals ✔. architect check passes. The gate test still fails every planted fixture on its own eval in the merged acme.",
+  "captions": {
+    "01-prove-acme": "prove on acme: eleven journeys, fifteen operations with nine evals each, coverage.",
+    "02-check-acme": "architect check on acme.",
+    "03-prove-gate-tests": "The gate test: acme passes, the scaffolded handlers fail, and each planted fixture fails its own eval."
+  }
+}

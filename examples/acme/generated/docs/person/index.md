@@ -1,7 +1,7 @@
 <!-- Generated from the blueprint. Do not edit. -->
 # person
 
-Someone who signs in. People arrive through sign-in from stage two.
+Someone who signs in. Better Auth keeps people; the project refers to them by id.
 
 Lives in the database.
 
@@ -10,8 +10,9 @@ Lives in the database.
 | field | value |
 |---|---|
 | id | id |
+| email | text |
 | name | text |
 
 ## Operations
 
-(none yet)
+- [person.sign-up](sign-up.md): Sign up with an email address and a password.

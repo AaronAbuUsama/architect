@@ -9,16 +9,49 @@ CREATE TABLE "allowance" (
   "state" TEXT,
   "version" INTEGER NOT NULL DEFAULT 0
 );
+CREATE TABLE "api-key" (
+  "id" TEXT PRIMARY KEY,
+  "organization" TEXT NOT NULL,
+  "name" TEXT NOT NULL,
+  "createdBy" TEXT NOT NULL,
+  "version" INTEGER NOT NULL DEFAULT 0
+);
+CREATE TABLE "invitation" (
+  "id" TEXT PRIMARY KEY,
+  "organization" TEXT NOT NULL,
+  "email" TEXT NOT NULL,
+  "invitedBy" TEXT NOT NULL,
+  "state" TEXT,
+  "version" INTEGER NOT NULL DEFAULT 0
+);
+CREATE TABLE "membership" (
+  "id" TEXT PRIMARY KEY,
+  "organization" TEXT NOT NULL,
+  "person" TEXT NOT NULL,
+  "role" TEXT NOT NULL,
+  "version" INTEGER NOT NULL DEFAULT 0
+);
 CREATE TABLE "organization" (
   "id" TEXT PRIMARY KEY,
   "name" TEXT NOT NULL,
   "owner" TEXT NOT NULL,
   "cap" TEXT NOT NULL,
+  "state" TEXT,
   "version" INTEGER NOT NULL DEFAULT 0
 );
 CREATE TABLE "person" (
   "id" TEXT PRIMARY KEY,
+  "email" TEXT NOT NULL,
   "name" TEXT NOT NULL,
+  "version" INTEGER NOT NULL DEFAULT 0
+);
+CREATE TABLE "session" (
+  "id" TEXT PRIMARY KEY,
+  "person" TEXT NOT NULL,
+  "version" INTEGER NOT NULL DEFAULT 0
+);
+CREATE TABLE "system" (
+  "id" TEXT PRIMARY KEY,
   "version" INTEGER NOT NULL DEFAULT 0
 );
 -- Every event a move emitted, with the trace of the call that made it (target-effect's Journal).

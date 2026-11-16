@@ -35,14 +35,14 @@ describe("impact", () => {
 
     const proved = await Effect.runPromise(Effect.scoped(Prove.run({ root, port: 8796 })));
     expect(proved.passed, proved.lines.join("\n")).toBe(true);
-    expect(await impact()).toEqual(["stale none", "proven allowance.get, allowance.grant, allowance.revoke, allowance.spend, organization.create"]);
+    expect(await impact()).toEqual(["stale none", "proven allowance.get, allowance.grant, allowance.revoke, allowance.spend, api-key.create, invitation.accept, invitation.revoke, invitation.send, membership.get, organization.create, organization.get, person.sign-up, session.show, session.sign-in, system.health"]);
 
     const declared = readFileSync(spend, "utf8");
     writeFileSync(spend, declared.replace('budget: { p95: "150 millis" }', 'budget: { p95: "300 millis" }'));
     expect(await impact()).toEqual([
       "changed operation allowance.spend: budget",
       "stale allowance.spend",
-      "proven allowance.get, allowance.grant, allowance.revoke, organization.create",
+      "proven allowance.get, allowance.grant, allowance.revoke, api-key.create, invitation.accept, invitation.revoke, invitation.send, membership.get, organization.create, organization.get, person.sign-up, session.show, session.sign-in, system.health",
     ]);
 
     writeFileSync(spend, declared);
@@ -50,7 +50,7 @@ describe("impact", () => {
     expect(await impact()).toEqual([
       "added operation allowance.list",
       "stale none",
-      "proven allowance.get, allowance.grant, allowance.revoke, allowance.spend, organization.create",
+      "proven allowance.get, allowance.grant, allowance.revoke, allowance.spend, api-key.create, invitation.accept, invitation.revoke, invitation.send, membership.get, organization.create, organization.get, person.sign-up, session.show, session.sign-in, system.health",
       "unproven allowance.list",
     ]);
   });

@@ -51,14 +51,18 @@ describe("architect prove --env local", () => {
   it("passes on acme: every journey, every eval, coverage, and leaves nothing running", { timeout: 180_000 }, async () => {
     const report = await prove(acme, 8800);
     expect(report.lines).toContain("journey grant an allowance ✔ 3/3 steps");
-    for (const j of ["an outsider cannot revoke", "read an allowance", "revoke then spend", "spend twice with one request", "spend within an allowance"]) {
+    // acme is the starter plus the allowance (L1.51): the starter's five journeys run beside acme's own six.
+    for (const j of ["an outsider cannot revoke", "read an allowance", "revoke then spend", "spend twice with one request", "spend within an allowance",
+      "an invitation is used once", "an owner makes an api key", "health is up", "invite and accept", "sign up and sign in"]) {
       expect(report.lines.some((l) => l.startsWith(`journey ${j} ✔`))).toBe(true);
     }
-    for (const op of ["allowance.get", "allowance.grant", "allowance.revoke", "allowance.spend", "organization.create"]) {
+    for (const op of ["allowance.get", "allowance.grant", "allowance.revoke", "allowance.spend", "organization.create", "organization.get",
+      "api-key.create", "invitation.accept", "invitation.revoke", "invitation.send", "membership.get", "person.sign-up", "session.show",
+      "session.sign-in", "system.health"]) {
       expect(report.lines.some((l) => l.startsWith(`${op} 9 evals ✔ p50 `))).toBe(true);
     }
     expect(report.lines.some((l) => l.startsWith("allowance.grant performance ✔ p50 "))).toBe(true);
-    expect(report.lines).toContain("coverage ✔ moves 3/3 · outcomes 3/3 · refusals 2/2 · runtime refusals 4/7");
+    expect(report.lines).toContain("coverage ✔ moves 7/7 · outcomes 7/7 · refusals 4/4 · runtime refusals 13/16");
     expect(report.lines.at(-1)).toBe("prove ✔");
     expect(report.passed).toBe(true);
     nothingRunning();
@@ -86,7 +90,8 @@ describe("architect prove --env local", () => {
 
   it("fails on the scaffolded handlers: the starting world can't be made, so no step runs", { timeout: 120_000 }, async () => {
     const report = await prove(await planted("scaffolded", [], true, true), 8799);
-    expect(report.lines[0]).toMatch(/^journey grant an allowance ✘ starting world founded: organization.create died: .*BlankReached/);
+    expect(report.lines.find((l) => l.startsWith("journey grant an allowance"))).toMatch(/^journey grant an allowance ✘ starting world founded: organization.create died: .*BlankReached/);
+    expect(report.lines.filter((l) => l.startsWith("journey ")).every((l) => l.includes(" ✘ "))).toBe(true);
     expect(report.passed).toBe(false);
     nothingRunning();
   });

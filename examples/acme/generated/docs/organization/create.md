@@ -1,13 +1,13 @@
 <!-- Generated from the blueprint. Do not edit. -->
 # organization.create
 
-Start an organisation. Whoever creates it owns it.
+Found an organisation with its cap. Whoever founds it owns it, and is its first member.
 
 **Who may call:** anyone signed in.
 
 **Idempotent by request:** send `idempotency-key`; the same key twice is one call.
 
-**Budget:** p95 200ms.
+**Budget:** p95 250ms.
 
 ## Payload
 
@@ -22,9 +22,14 @@ Start an organisation. Whoever creates it owns it.
 |---|---|
 | organization | organization.id |
 
+## Move
+
+`create`: from nothing (it creates) to active, emitting OrganizationCreated.
+
 ## Steps
 
 - `organization.create.insert` (database)
+- `organization.create.owner` (database)
 
 ## Refusals
 

@@ -12,14 +12,37 @@ import * as allowanceGet from "../api/src/allowance/get.ts";
 import * as allowanceGrant from "../api/src/allowance/grant.ts";
 import * as allowanceRevoke from "../api/src/allowance/revoke.ts";
 import * as allowanceSpend from "../api/src/allowance/spend.ts";
+import * as apiKeyCreate from "../api/src/api-key/create.ts";
+import * as invitationAccept from "../api/src/invitation/accept.ts";
+import * as invitationRevoke from "../api/src/invitation/revoke.ts";
+import * as invitationSend from "../api/src/invitation/send.ts";
+import * as membershipGet from "../api/src/membership/get.ts";
 import * as organizationCreate from "../api/src/organization/create.ts";
+import * as organizationGet from "../api/src/organization/get.ts";
+import * as personSignUp from "../api/src/person/sign-up.ts";
+import * as sessionShow from "../api/src/session/show.ts";
+import * as sessionSignIn from "../api/src/session/sign-in.ts";
+import * as systemHealth from "../api/src/system/health.ts";
 import allowanceGrantHandler from "../../implementation/handlers/allowance/grant.ts";
 import allowanceRevokeHandler from "../../implementation/handlers/allowance/revoke.ts";
 import allowanceSpendHandler from "../../implementation/handlers/allowance/spend.ts";
+import apiKeyCreateHandler from "../../implementation/handlers/api-key/create.ts";
+import invitationAcceptHandler from "../../implementation/handlers/invitation/accept.ts";
+import invitationRevokeHandler from "../../implementation/handlers/invitation/revoke.ts";
+import invitationSendHandler from "../../implementation/handlers/invitation/send.ts";
 import organizationCreateHandler from "../../implementation/handlers/organization/create.ts";
+import personSignUpHandler from "../../implementation/handlers/person/sign-up.ts";
+import sessionShowHandler from "../../implementation/handlers/session/show.ts";
+import sessionSignInHandler from "../../implementation/handlers/session/sign-in.ts";
+import systemHealthHandler from "../../implementation/handlers/system/health.ts";
 import * as allowanceThing from "../../blueprint/things/allowance/thing.ts";
+import * as apiKeyThing from "../../blueprint/things/api-key/thing.ts";
+import * as invitationThing from "../../blueprint/things/invitation/thing.ts";
+import * as membershipThing from "../../blueprint/things/membership/thing.ts";
 import * as organizationThing from "../../blueprint/things/organization/thing.ts";
 import * as personThing from "../../blueprint/things/person/thing.ts";
+import * as sessionThing from "../../blueprint/things/session/thing.ts";
+import * as systemThing from "../../blueprint/things/system/thing.ts";
 
 export { World } from "@architect/host-cloudflare";
 
@@ -28,10 +51,20 @@ const allowanceGetServed = Reads.serve({ name: "allowance.get", read: allowanceG
 const allowanceGrantServed = Handlers.serve({ name: "allowance.grant", operation: { ...allowanceGrant.declaration, allowed: [Blueprint.anyone] }, handler: allowanceGrantHandler });
 const allowanceRevokeServed = Handlers.serve({ name: "allowance.revoke", operation: allowanceRevoke.declaration, handler: allowanceRevokeHandler, notFrom: "AllowanceNotActive" });
 const allowanceSpendServed = Handlers.serve({ name: "allowance.spend", operation: allowanceSpend.declaration, handler: allowanceSpendHandler, notFrom: "AllowanceNotActive" });
+const apiKeyCreateServed = Handlers.serve({ name: "api-key.create", operation: apiKeyCreate.declaration, handler: apiKeyCreateHandler });
+const invitationAcceptServed = Handlers.serve({ name: "invitation.accept", operation: invitationAccept.declaration, handler: invitationAcceptHandler, notFrom: "InvitationNotPending" });
+const invitationRevokeServed = Handlers.serve({ name: "invitation.revoke", operation: invitationRevoke.declaration, handler: invitationRevokeHandler, notFrom: "InvitationNotPending" });
+const invitationSendServed = Handlers.serve({ name: "invitation.send", operation: invitationSend.declaration, handler: invitationSendHandler });
+const membershipGetServed = Reads.serve({ name: "membership.get", read: membershipGet.declaration });
 const organizationCreateServed = Handlers.serve({ name: "organization.create", operation: organizationCreate.declaration, handler: organizationCreateHandler });
+const organizationGetServed = Reads.serve({ name: "organization.get", read: organizationGet.declaration });
+const personSignUpServed = Handlers.serve({ name: "person.sign-up", operation: personSignUp.declaration, handler: personSignUpHandler });
+const sessionShowServed = Handlers.serve({ name: "session.show", operation: sessionShow.declaration, handler: sessionShowHandler });
+const sessionSignInServed = Handlers.serve({ name: "session.sign-in", operation: sessionSignIn.declaration, handler: sessionSignInHandler });
+const systemHealthServed = Handlers.serve({ name: "system.health", operation: systemHealth.declaration, handler: systemHealthHandler });
 
 /** Each thing and its table: a D1 table, or the name its actors go by. */
-const tables = [[thingIn(allowanceThing), "allowance"], [thingIn(organizationThing), "organization"], [thingIn(personThing), "person"]] as const;
+const tables = [[thingIn(allowanceThing), "allowance"], [thingIn(apiKeyThing), "api-key"], [thingIn(invitationThing), "invitation"], [thingIn(membershipThing), "membership"], [thingIn(organizationThing), "organization"], [thingIn(personThing), "person"], [thingIn(sessionThing), "session"], [thingIn(systemThing), "system"]] as const;
 
 const refusals = Wire.refusals(Errors.wire);
 type Services = SqlClient.SqlClient | Store | Busy | Principals | Journal | Auth;
@@ -54,11 +87,51 @@ const AllowanceLive = HttpApiBuilder.group(Api, "allowance", Effect.fn(function*
       .handle("revoke", ({ payload, request }) => call(allowanceRevokeServed, payload, request.headers).pipe(Effect.provideContext(services)))
       .handle("spend", ({ payload, request }) => call(allowanceSpendServed, payload, request.headers).pipe(Effect.provideContext(services)));
 }));
+const ApiKeyLive = HttpApiBuilder.group(Api, "api-key", Effect.fn(function* (handlers) {
+  // The services are taken once, when the routes are built; each request keeps its own tracer and span.
+  const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
+  return handlers
+      .handle("create", ({ payload, request }) => call(apiKeyCreateServed, payload, request.headers).pipe(Effect.provideContext(services)));
+}));
+const InvitationLive = HttpApiBuilder.group(Api, "invitation", Effect.fn(function* (handlers) {
+  // The services are taken once, when the routes are built; each request keeps its own tracer and span.
+  const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
+  return handlers
+      .handle("accept", ({ payload, request }) => call(invitationAcceptServed, payload, request.headers).pipe(Effect.provideContext(services)))
+      .handle("revoke", ({ payload, request }) => call(invitationRevokeServed, payload, request.headers).pipe(Effect.provideContext(services)))
+      .handle("send", ({ payload, request }) => call(invitationSendServed, payload, request.headers).pipe(Effect.provideContext(services)));
+}));
+const MembershipLive = HttpApiBuilder.group(Api, "membership", Effect.fn(function* (handlers) {
+  // The services are taken once, when the routes are built; each request keeps its own tracer and span.
+  const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
+  return handlers
+      .handle("get", ({ payload, request }) => call(membershipGetServed, payload, request.headers).pipe(Effect.provideContext(services)));
+}));
 const OrganizationLive = HttpApiBuilder.group(Api, "organization", Effect.fn(function* (handlers) {
   // The services are taken once, when the routes are built; each request keeps its own tracer and span.
   const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
   return handlers
-      .handle("create", ({ payload, request }) => call(organizationCreateServed, payload, request.headers).pipe(Effect.provideContext(services)));
+      .handle("create", ({ payload, request }) => call(organizationCreateServed, payload, request.headers).pipe(Effect.provideContext(services)))
+      .handle("get", ({ payload, request }) => call(organizationGetServed, payload, request.headers).pipe(Effect.provideContext(services)));
+}));
+const PersonLive = HttpApiBuilder.group(Api, "person", Effect.fn(function* (handlers) {
+  // The services are taken once, when the routes are built; each request keeps its own tracer and span.
+  const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
+  return handlers
+      .handle("sign-up", ({ payload, request }) => call(personSignUpServed, payload, request.headers).pipe(Effect.provideContext(services)));
+}));
+const SessionLive = HttpApiBuilder.group(Api, "session", Effect.fn(function* (handlers) {
+  // The services are taken once, when the routes are built; each request keeps its own tracer and span.
+  const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
+  return handlers
+      .handle("show", ({ payload, request }) => call(sessionShowServed, payload, request.headers).pipe(Effect.provideContext(services)))
+      .handle("sign-in", ({ payload, request }) => call(sessionSignInServed, payload, request.headers).pipe(Effect.provideContext(services)));
+}));
+const SystemLive = HttpApiBuilder.group(Api, "system", Effect.fn(function* (handlers) {
+  // The services are taken once, when the routes are built; each request keeps its own tracer and span.
+  const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
+  return handlers
+      .handle("health", ({ payload, request }) => call(systemHealthServed, payload, request.headers).pipe(Effect.provideContext(services)));
 }));
 
 export interface Env {
@@ -72,7 +145,7 @@ export interface Env {
 const build = (env: Env) =>
   HttpRouter.toWebHandler(
     HttpApiBuilder.layer(Api).pipe(
-      Layer.provide([AllowanceLive, OrganizationLive]),
+      Layer.provide([AllowanceLive, ApiKeyLive, InvitationLive, MembershipLive, OrganizationLive, PersonLive, SessionLive, SystemLive]),
       Layer.provide([StoreD1.layer({ tables }), JournalD1.layer, BusyLive, AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))]),
       Layer.provideMerge(Database.d1(env.DB)),
       Layer.provide(HttpServer.layerServices),

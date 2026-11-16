@@ -25,8 +25,10 @@ describe("render", () => {
     }
     const scaffolds = files.filter((f) => f.scaffold).map((f) => f.path);
     expect(scaffolds).toEqual([
-      "implementation/handlers/allowance/grant.ts", "implementation/handlers/allowance/revoke.ts",
-      "implementation/handlers/allowance/spend.ts", "implementation/handlers/organization/create.ts",
+      "implementation/handlers/allowance/grant.ts", "implementation/handlers/allowance/revoke.ts", "implementation/handlers/allowance/spend.ts",
+      "implementation/handlers/api-key/create.ts", "implementation/handlers/invitation/accept.ts", "implementation/handlers/invitation/revoke.ts",
+      "implementation/handlers/invitation/send.ts", "implementation/handlers/organization/create.ts", "implementation/handlers/person/sign-up.ts",
+      "implementation/handlers/session/show.ts", "implementation/handlers/session/sign-in.ts", "implementation/handlers/system/health.ts",
     ]);
     expect(byPath.get(scaffolds[0]!)!.content).toMatch(/^\/\/ Scaffolded from blueprint\/things\/allowance\/verbs\/grant\.ts\. Yours from now on\./);
   });

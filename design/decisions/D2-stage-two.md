@@ -166,3 +166,10 @@ Decided 16 November 2026 by the builder, which has architectural ownership. The 
     into the workspace's own `pnpm-workspace.yaml`.
 72. **A world whose wrangler exits on a taken socket is started again, up to three times.** wrangler chooses the
     worker's internal sockets itself, and parallel worlds can choose the same one. Wrangler's metrics are off.
+73. **acme is the starter plus the allowance, with one change of its own to the starter.** Its base is exactly what
+    the preset writes (the starter's things, handlers, `invited` world and five journeys), and the allowance sits on
+    top. acme changes the starter in one place, as a user may: `organization` gains `cap`, and `organization.create`
+    takes `{ name, cap }` (its handler inserts the cap with the row and the owner's membership). The journey author,
+    not the builder, adapted the one starter journey that founds an organisation to pass a cap. acme's own `founded`
+    world replaces the starter's. Prove on acme: 11 journeys, 15 operations × 9 evals, `coverage ✔ moves 7/7 ·
+    outcomes 7/7 · refusals 4/4 · runtime refusals 13/16`.

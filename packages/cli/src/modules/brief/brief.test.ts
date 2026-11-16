@@ -25,6 +25,6 @@ describe("architect brief", () => {
   it("refuses a read or an unknown name, listing the operations that have handlers", { timeout: 60_000 }, () => {
     const run = architect("brief", "allowance.get");
     expect(run.status).toBe(2);
-    expect(run.stderr).toContain("allowance.get is not an operation with a handler: allowance.grant, allowance.revoke, allowance.spend, organization.create");
+    expect(run.stderr).toContain("allowance.get is not an operation with a handler: allowance.grant, allowance.revoke, allowance.spend, api-key.create, invitation.accept, invitation.revoke, invitation.send, organization.create, person.sign-up, session.show, session.sign-in, system.health");
   });
 });

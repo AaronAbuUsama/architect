@@ -14,10 +14,19 @@ Lives in the database.
 | owner | person.id |
 | cap | Amount |
 
+## Machine
+
+States: active. A move from the wrong state is refused OrganizationNotActive (exit 20).
+
+| move | from | to | emits |
+|---|---|---|---|
+| create | (creates) | active | OrganizationCreated |
+
 ## Roles
 
 - owner
 
 ## Operations
 
-- [organization.create](create.md): Start an organisation. Whoever creates it owns it.
+- [organization.create](create.md): Found an organisation with its cap. Whoever founds it owns it, and is its first member.
+- [organization.get](get.md): Read one organization by its id: name, owner, state.

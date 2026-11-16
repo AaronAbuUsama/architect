@@ -22,8 +22,10 @@ describe("architect generate", () => {
     const first = architect("generate");
     expect(first.status).toBe(0);
     expect(scaffolds(first.stdout)).toEqual([
-      "implementation/handlers/allowance/grant.ts", "implementation/handlers/allowance/revoke.ts",
-      "implementation/handlers/allowance/spend.ts", "implementation/handlers/organization/create.ts",
+      "implementation/handlers/allowance/grant.ts", "implementation/handlers/allowance/revoke.ts", "implementation/handlers/allowance/spend.ts",
+      "implementation/handlers/api-key/create.ts", "implementation/handlers/invitation/accept.ts", "implementation/handlers/invitation/revoke.ts",
+      "implementation/handlers/invitation/send.ts", "implementation/handlers/organization/create.ts", "implementation/handlers/person/sign-up.ts",
+      "implementation/handlers/session/show.ts", "implementation/handlers/session/sign-in.ts", "implementation/handlers/system/health.ts",
     ]);
     expect(existsSync(join(root, "generated/api/src/allowance/pause.ts"))).toBe(false);
 
