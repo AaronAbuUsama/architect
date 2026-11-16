@@ -1,0 +1,58 @@
+// `architect build` on a copy of acme under git: the revision's bundle, once, with its hash.
+import { spawnSync } from "node:child_process";
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, symlinkSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { basename, join, resolve } from "node:path";
+import { Effect } from "effect";
+import { afterAll, describe, expect, it } from "vitest";
+import { Build } from "./service.ts";
+
+const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
+const visible = (from: string) => !basename(from).startsWith(".");
+const git = (root: string, ...args: ReadonlyArray<string>) =>
+  spawnSync("git", ["-c", "user.name=l2", "-c", "user.email=l2@example.test", "-c", "commit.gpgsign=false", ...args], { cwd: root, encoding: "utf8" }).stdout.trim();
+
+/** A copy of acme under git, outside the repository: its revision is a commit of its own. */
+const copyUnderGit = () => {
+  const parent = mkdtempSync(join(realpathSync(tmpdir()), "architect-l201-build-"));
+  const root = join(parent, "acme");
+  for (const part of ["blueprint", "generated", "implementation", "journeys", "package.json"]) cpSync(join(acme, part), join(root, part), { recursive: true, filter: visible });
+  mkdirSync(join(root, "node_modules"));
+  for (const entry of readdirSync(join(acme, "node_modules"))) if (entry !== ".bin") symlinkSync(join(acme, "node_modules", entry), join(root, "node_modules", entry));
+  writeFileSync(join(root, ".gitignore"), "node_modules/\n.architect/\n.wrangler/\n");
+  git(root, "init", "-q", "-b", "main");
+  git(root, "add", "-A");
+  git(root, "commit", "-q", "-m", "acme");
+  return { root, revision: git(root, "rev-parse", "--short", "HEAD"), remove: () => rmSync(parent, { recursive: true, force: true }) };
+};
+
+const run = <A, E>(effect: Effect.Effect<A, E>) => Effect.runPromise(effect);
+const project = copyUnderGit();
+afterAll(() => project.remove());
+
+describe("build", () => {
+  it("builds a revision once: the same revision hashes the same, and the bundle is kept at its path", { timeout: 300_000 }, async () => {
+    const first = await run(Build.build(project.root));
+    const second = await run(Build.build(project.root));
+    expect(first.revision).toBe(project.revision);
+    expect(first.dirty).toBe(false);
+    expect(first.sha256).toMatch(/^[0-9a-f]{64}$/);
+    expect(second.sha256).toBe(first.sha256);
+    expect(first.main).toBe(join(project.root, ".architect/artefacts", project.revision, "main.js"));
+    expect(statSync(first.main).size).toBeGreaterThan(100_000);
+    expect(await run(Build.find(project.root, project.revision))).toEqual({ revision: project.revision, sha256: first.sha256, main: first.main });
+    expect(await run(Build.find(project.root, "0000000"))).toBeUndefined();
+  });
+
+  it("notices an artefact that is not what was built", { timeout: 60_000 }, async () => {
+    const built = await run(Build.find(project.root, project.revision));
+    writeFileSync(built!.main, `${readFileSync(built!.main, "utf8")}\n// tampered\n`);
+    expect((await run(Build.find(project.root, project.revision).pipe(Effect.flip))).message).toContain("no longer matches");
+  });
+
+  it("refuses a project outside git", async () => {
+    const outside = mkdtempSync(join(tmpdir(), "architect-l201-nogit-"));
+    const failure = await run(Build.build(outside).pipe(Effect.flip, Effect.ensuring(Effect.sync(() => rmSync(outside, { recursive: true, force: true })))));
+    expect(failure.message).toContain("git");
+  });
+});

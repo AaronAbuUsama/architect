@@ -139,6 +139,9 @@ export interface Env {
   /** Better Auth's secret, at least 32 characters: fresh per local world, a named secret per environment. */
   readonly AUTH_SECRET: string;
   readonly OTLP_URL?: string;
+  /** Which build this environment runs, set by `architect env up`; unset for a world made by `architect dev` or prove. */
+  readonly ARCHITECT_REVISION?: string;
+  readonly ARCHITECT_BUNDLE_SHA256?: string;
 }
 
 const build = (env: Env) =>
@@ -158,6 +161,11 @@ export default {
   fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     if (new URL(request.url).pathname.startsWith("/_world/")) {
       return toWorld({ worlds: env.WORLD, db: env.DB, tables: tables.map(([, table]) => table) }, request);
+    }
+    if (new URL(request.url).pathname === "/_architect/bundle") {
+      return env.ARCHITECT_REVISION && env.ARCHITECT_BUNDLE_SHA256
+        ? Promise.resolve(Response.json({ revision: env.ARCHITECT_REVISION, sha256: env.ARCHITECT_BUNDLE_SHA256 }))
+        : Promise.resolve(Response.json({ _tag: "NotAnEnvironment" }, { status: 404 }));
     }
     const app = (built ??= build(env));
     return Telemetry.serve({ url: env.OTLP_URL || undefined, service: "acme", handler: app.handler, waitUntil: (p) => ctx.waitUntil(p) }, request);

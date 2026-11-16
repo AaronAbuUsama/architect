@@ -1487,5 +1487,132 @@
       },
       "hash": "4c762db26dff1fd1"
     }
+  },
+  "environments": {
+    "local": {
+      "name": "local",
+      "file": "blueprint/environments/local.ts",
+      "runs": "on this machine",
+      "identity": "test-principals",
+      "lifetimeMs": null,
+      "cloud": null,
+      "database": "d1-local",
+      "secrets": {},
+      "promotesFrom": null,
+      "deploy": {},
+      "publish": {},
+      "hash": "d8d91f99932aa638"
+    },
+    "production": {
+      "name": "production",
+      "file": "blueprint/environments/production.ts",
+      "runs": "always on",
+      "identity": "better-auth",
+      "lifetimeMs": null,
+      "cloud": {
+        "provider": "cloudflare",
+        "database": "d1"
+      },
+      "database": null,
+      "secrets": {},
+      "promotesFrom": "staging",
+      "deploy": {
+        "mcp": {
+          "how": "worker",
+          "domain": "mcp.acme.dev"
+        },
+        "portal": {
+          "how": "site",
+          "domain": "acme.dev"
+        },
+        "server": {
+          "how": "worker",
+          "domain": "api.acme.dev"
+        }
+      },
+      "publish": {
+        "cli": [
+          {
+            "how": "npm",
+            "tag": null
+          },
+          {
+            "how": "homebrew",
+            "tap": "acme/tap"
+          },
+          {
+            "how": "binaries",
+            "on": "github-releases"
+          }
+        ],
+        "sdk": [
+          {
+            "how": "npm",
+            "tag": null
+          }
+        ]
+      },
+      "hash": "4f6570899bee2c14"
+    },
+    "staging": {
+      "name": "staging",
+      "file": "blueprint/environments/staging.ts",
+      "runs": "always on",
+      "identity": "better-auth",
+      "lifetimeMs": null,
+      "cloud": {
+        "provider": "cloudflare",
+        "database": "d1"
+      },
+      "database": null,
+      "secrets": {},
+      "promotesFrom": null,
+      "deploy": {
+        "mcp": {
+          "how": "worker",
+          "domain": "mcp.staging.acme.dev"
+        },
+        "portal": {
+          "how": "site",
+          "domain": "staging.acme.dev"
+        },
+        "server": {
+          "how": "worker",
+          "domain": "api.staging.acme.dev"
+        }
+      },
+      "publish": {
+        "cli": [
+          {
+            "how": "npm",
+            "tag": "next"
+          }
+        ],
+        "sdk": [
+          {
+            "how": "npm",
+            "tag": "next"
+          }
+        ]
+      },
+      "hash": "2e18287aedee1ae8"
+    },
+    "test": {
+      "name": "test",
+      "file": "blueprint/environments/test.ts",
+      "runs": "a fresh world for each pull request",
+      "identity": "test-principals",
+      "lifetimeMs": 7200000,
+      "cloud": {
+        "provider": "cloudflare",
+        "database": "d1"
+      },
+      "database": null,
+      "secrets": {},
+      "promotesFrom": null,
+      "deploy": {},
+      "publish": {},
+      "hash": "e264584f19862db6"
+    }
   }
 }

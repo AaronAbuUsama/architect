@@ -1,5 +1,11 @@
 // @architect/blueprint: the declaration language projects import. `import { Blueprint } from "@architect/blueprint"`.
 import { Blanks } from "#modules/blanks/service.js";
+import { Cloud } from "#modules/cloud/service.js";
+import { Auth, Configs, Telemetry } from "#modules/config/service.js";
+import { Deploy } from "#modules/deploy/service.js";
+import { Environments } from "#modules/environments/service.js";
+import { Identity } from "#modules/identity/service.js";
+import { Secrets } from "#modules/secrets/service.js";
 import { Errors } from "#modules/errors/service.js";
 import { Events } from "#modules/events/service.js";
 import { Checks, Journeys } from "#modules/journeys/service.js";
@@ -19,11 +25,15 @@ export const Blueprint = Object.freeze({
   ...Roles,
   ...Operations,
   ...Journeys,
+  ...Environments,
+  ...Secrets,
+  config: Configs.config,
   NotAllowed,
   todo: Blanks.todo,
 });
 
 export { Schema } from "effect";
+export { Auth, Telemetry, Cloud, Deploy, Identity };
 export const { expect, emits, noEvents, refuses, spans } = Checks;
 export { NotAllowed } from "#modules/errors/types.js";
 export type { Value, TypeOf } from "#modules/values/types.js";
@@ -35,3 +45,9 @@ export type { Role, RoleOf, Allowed, Principal, InstanceOf } from "#modules/role
 export type { Operation, Read, Step, Budget, PayloadOf, AnswerOf, ErrorOf, StepsOf } from "#modules/operations/types.js";
 export type { Blank } from "#modules/blanks/types.js";
 export type { Journey, StartingWorld, Step as JourneyStep, Call, Assertion, Script, Actor, Ref, Refusal } from "#modules/journeys/types.js";
+export type { Environment, EnvironmentSpec } from "#modules/environments/types.js";
+export type { Secret } from "#modules/secrets/types.js";
+export type { Identity as IdentityKind } from "#modules/identity/types.js";
+export type { CloudProvider, Database } from "#modules/cloud/types.js";
+export type { Deployment, Publication } from "#modules/deploy/types.js";
+export type { Config, ConfigSpec, AuthKit, TelemetrySink } from "#modules/config/types.js";
