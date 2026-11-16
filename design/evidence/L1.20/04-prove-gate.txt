@@ -1,0 +1,11 @@
+$ npx vitest run --root packages/prove
+# commit b150981 · 2026-11-16T18:19:12Z · exit 0 (expected 0) · 38.2s
+
+
+ RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  5 passed (5)
+      Tests  18 passed (18)
+   Start at  18:18:34
+   Duration  37.77s (transform 1.06s, setup 0ms, import 1.22s, tests 40.84s, environment 0ms)
