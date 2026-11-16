@@ -6,6 +6,8 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
+    "@architect/blueprint": "workspace:*",
+    "@architect/target-effect": "workspace:*",
     "@effect/sql-d1": "4.1.1",
     "effect": "4.1.1"
   },
@@ -13,8 +15,6 @@
     "#modules/*": "./src/modules/*"
   },
   "devDependencies": {
-    "@architect/blueprint": "workspace:*",
-    "@architect/target-effect": "workspace:*",
     "@cloudflare/vitest-pool-workers": "0.23.0",
     "@cloudflare/workers-types": "5.20261101.1",
     "wrangler": "4.156.1"

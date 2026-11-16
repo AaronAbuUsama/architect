@@ -1,0 +1,36 @@
+$ bash /private/tmp/claude-501/-Users-abuusama--claude-spares-spare-gEwBPG/d12405b7-5156-441f-94fa-245c9582b12b/scratchpad/dev-session.sh
+# commit 7d1082f · 2026-11-16T17:09:21Z · exit 0 (expected 0) · 5.0s
+
+$ architect dev --root examples/acme --port 8799 &
+running at http://127.0.0.1:8799  (world at http://127.0.0.1:8799/_world, wrangler output in ./examples/acme/.architect/dev/wrangler.log)
+
+$ curl -X POST /_world/cast -d {"names":["ada","olga","bob"]}    (tokens kept in shell variables, not shown)
+olga is per_b6sobhril7bsl5dv
+
+# signed in as ada
+$ acme organization create --name "Acme Demo" --cap 1000
+org_m2lulfkzfl6nlqcu
+
+$ acme allowance grant --organization org_m2lulfkzfl6nlqcu --member per_b6sobhril7bsl5dv --limit 500
+alw_l302ln5ebo08vhee
+(exit 0)
+
+$ acme allowance grant --organization org_m2lulfkzfl6nlqcu --member per_b6sobhril7bsl5dv --limit 1001
+AllowanceLimitTooHigh: {"cap":"1000"}
+(exit 44)
+
+# signed in as bob
+$ acme allowance grant --organization org_m2lulfkzfl6nlqcu --member per_b6sobhril7bsl5dv --limit 500
+NotAllowed: {}
+(exit 3)
+
+$ curl -i -X POST /allowance/grant   (as ada)
+HTTP/1.1 200 OK
+{"allowance":"alw_qny7zcg1q0n2tqt2"}
+
+
+$ kill the dev server
+dev stopped
+$ lsof -iTCP:8799 -sTCP:LISTEN; pgrep workerd
+port 8799: nothing listening
+workerd: not running

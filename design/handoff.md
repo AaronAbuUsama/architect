@@ -27,16 +27,19 @@ Aaron's rule from 16 November 2026: the building agent owns the architecture and
 
 ## Where the goal stands
 
-Stage 1 (`layer/1`). Done: wayfinding (`wayfinding/stage-1.md`, decisions D1 and D2), L1.01, L1.10 to L1.13, each
-with evidence in `evidence/`. Packages so far: `blueprint`, `compiler` (`Compiler.model`, `architect-model` entry),
-`cli` (`architect model`), `target-effect` (`Handlers.serve`, `Busy`, `Timers`, `Principals`, `Wire`),
-`host-cloudflare` (`Database.d1`, tested in real workerd with a real D1) and `generators` (the Nx sync generator:
-`nx sync` writes `examples/acme/generated/` and scaffolds `implementation/handlers/`; `nx sync:check` fails on drift).
-Run Nx with `NX_DAEMON=false` after changing generator code, or the daemon keeps the old generator. Next: L1.14,
-`architect dev`: the generated Worker on workerd with the world Durable Object (registry, front door, signed test
-tokens), D1 migrations generated from the model, and OTLP export (spike code in `spikes/otlp-from-workerd/README.md`).
-The evidence page is https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB; republish it with
-`python3 tools/evidence/page.py` after each step.
+Stage 1 (`layer/1`). Done: wayfinding (`wayfinding/stage-1.md`, decisions D1 and D2), L1.01, L1.10 to L1.14, each
+with evidence in `evidence/`. Packages so far: `blueprint`, `compiler`, `cli` (`architect model`, `architect dev`),
+`target-effect` (`Handlers.serve` with who-may-call, `Busy`, `Timers`, `Principals`, `Records`, `Ids`, `Wire`),
+`host-cloudflare` (`Database.d1`, `RecordsD1`, `Tokens`, the `World` Durable Object; tested in real workerd) and
+`generators` (`nx sync` writes `examples/acme/generated/`, including the Worker's wrangler config and D1 tables, and
+scaffolds `implementation/handlers/`, which acme now fills in). `architect dev` serves acme on workerd; the generated
+`acme` CLI grants, refuses over the cap (exit 44) and refuses bob (exit 3). The journey author's files are committed:
+`examples/acme/journeys/`, `blueprint/starting-worlds/founded.ts`, `test/fixtures/evals/` (the compiler skips the
+first two until L1.15). Run Nx with `NX_DAEMON=false` after changing generator code. Next: L1.15, prove: the journey
+API (`Blueprint.journey`, `startingWorld`), OTLP export from the Worker to a real collector in Docker (spike code in
+`spikes/otlp-from-workerd/README.md`), the nine evals with the author's planted fixtures, then L1.20 to L1.25's grant
+slice (events, the machine move), the stage 1 review and the pull request. The evidence page is
+https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB; republish it with `python3 tools/evidence/page.py` after each step.
 
 ## Open
 

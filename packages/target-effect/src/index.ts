@@ -1,9 +1,14 @@
 // @architect/target-effect: the runtime generated code runs on. Effect only, no host.
+export { Access } from "#modules/access/service.ts";
+export { NotAllowed } from "#modules/access/types.ts";
 export { Handlers } from "#modules/handler/service.ts";
 export { BlankReached, InvalidPayload } from "#modules/handler/types.ts";
 export type { Handler, HandlerContext, Served, StepRunners } from "#modules/handler/types.ts";
+export { Ids } from "#modules/ids/service.ts";
 export { PrincipalsAnonymous } from "#modules/principals/service.ts";
 export { Principals } from "#modules/principals/types.ts";
+export { recordsMemory, thingIn } from "#modules/records/service.ts";
+export { Records, type Instance } from "#modules/records/types.ts";
 export { TimersMemory } from "#modules/timers/service.ts";
 export { Timers, type Timer } from "#modules/timers/types.ts";
 export { Wire } from "#modules/wire/service.ts";

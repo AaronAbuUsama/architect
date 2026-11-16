@@ -1,5 +1,6 @@
 import { Effect, Schema } from "effect";
 import type { Operation, Principal } from "@architect/blueprint";
+import { Access } from "#modules/access/service.ts";
 import { Busy } from "#modules/work/types.ts";
 import { BlankReached, InvalidPayload, type HandlerApi } from "./types.ts";
 import { payloadAttributes, principalAttributes } from "./internal/attributes.ts";
@@ -14,7 +15,8 @@ const serve = ({ name, operation, handler }: { readonly name: string; readonly o
   const steps = Object.fromEntries(
     Object.keys(op.steps).map((key) => [key, <A, E, R>(work: Effect.Effect<A, E, R>) => Effect.withSpan(work, `${name}.${key}`)]),
   );
-  const run = (payload: object, principal: Principal) =>
+  // The handler's own span: opened only once the caller may call, so a refused caller leaves no handler span.
+  const handle = (payload: object, principal: Principal) =>
     Effect.gen(function* () {
       const busy = yield* Busy;
       yield* Effect.annotateCurrentSpan(payloadAttributes(payload));
@@ -25,18 +27,19 @@ const serve = ({ name, operation, handler }: { readonly name: string; readonly o
         Effect.orDie,
       );
       return answer;
-    });
-  const span = { attributes: { operation: name } };
+    }).pipe(Effect.withSpan(name, { attributes: { operation: name, ...principalAttributes(principal) } }));
+  const run = (payload: object, principal: Principal) =>
+    Access.check({ allowed: op.allowed, payloadFields: op.payload, payload, principal }).pipe(
+      Effect.andThen(handle(payload, principal)),
+    );
   return {
     name,
     call: (raw: unknown, principal: Principal) =>
       decode(raw).pipe(
         Effect.mapError((e) => new InvalidPayload({ issues: e.message })),
         Effect.flatMap((payload) => run(payload, principal)),
-        Effect.withSpan(name, { attributes: { ...span.attributes, ...principalAttributes(principal) } }),
       ),
-    run: (payload: object, principal: Principal) =>
-      run(payload, principal).pipe(Effect.withSpan(name, { attributes: { ...span.attributes, ...principalAttributes(principal) } })),
+    run,
   };
 };
 

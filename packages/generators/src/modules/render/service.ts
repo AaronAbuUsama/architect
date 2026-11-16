@@ -9,7 +9,7 @@ export const Render: RenderApi = {
   files: ({ name, model }) => [
     { path: "generated/model/model.json", content: JSON.stringify(model, null, 2) + "\n", scaffold: false },
     ...renderApi(model, name),
-    ...renderServer(model),
+    ...renderServer(model, name),
     ...renderSdk(model, name),
     ...renderCli(model, name),
     ...Object.values(model.operations).map(renderHandlerScaffold),

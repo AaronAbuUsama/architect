@@ -7,7 +7,9 @@
   ],
   "exclude": [
     "node_modules",
-    "test/fixtures/**"
+    "test/fixtures/**",
+    "blueprint/starting-worlds/**",
+    "journeys/**"
   ],
   "compilerOptions": {
     "types": [

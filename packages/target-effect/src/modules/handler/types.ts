@@ -1,7 +1,9 @@
-// The handler wrapper: what every generated operation runs through. Decode, run the handler as counted work inside
-// the operation's span, check the answer, give it back.
+// The handler wrapper: what every generated operation runs through. Decode, check who may call, run the handler as
+// counted work inside the operation's span, check the answer, give it back.
 import { Data, type Effect } from "effect";
 import type { AnswerOf, ErrorOf, PayloadOf, Principal, StepsOf } from "@architect/blueprint";
+import type { NotAllowed } from "#modules/access/types.ts";
+import type { Records } from "#modules/records/types.ts";
 import type { Busy } from "#modules/work/types.ts";
 
 /** The payload didn't match the operation's declaration. Refused before the handler runs. */
@@ -23,9 +25,9 @@ export type Handler<O, R = never> = (payload: PayloadOf<O>, context: HandlerCont
 export interface Served<O, R> {
   readonly name: string;
   /** From the outside: decode first, refusing with `InvalidPayload`. */
-  readonly call: (payload: unknown, principal: Principal) => Effect.Effect<AnswerOf<O>, ErrorOf<O> | InvalidPayload, R | Busy>;
+  readonly call: (payload: unknown, principal: Principal) => Effect.Effect<AnswerOf<O>, ErrorOf<O> | InvalidPayload | NotAllowed, R | Busy | Records>;
   /** From a server that has already decoded the payload against the same declaration. */
-  readonly run: (payload: PayloadOf<O>, principal: Principal) => Effect.Effect<AnswerOf<O>, ErrorOf<O>, R | Busy>;
+  readonly run: (payload: PayloadOf<O>, principal: Principal) => Effect.Effect<AnswerOf<O>, ErrorOf<O> | NotAllowed, R | Busy | Records>;
 }
 
 /** A scaffolded handler not written yet. Reaching it is a defect that names what's missing. */

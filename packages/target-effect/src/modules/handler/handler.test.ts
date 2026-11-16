@@ -4,6 +4,8 @@ import { Blueprint } from "@architect/blueprint";
 import { ErrorNames } from "@architect/blueprint/server";
 import { Busy } from "#modules/work/types.ts";
 import { BusyLive } from "#modules/work/service.ts";
+import { recordsMemory } from "#modules/records/service.ts";
+import { NotAllowed } from "#modules/access/types.ts";
 import { Handlers } from "./service.ts";
 import { InvalidPayload, type Handler } from "./types.ts";
 
@@ -33,7 +35,7 @@ const handler: Handler<typeof grant> = (payload, { steps }) =>
 const recording = () => {
   const spans: Array<Tracer.NativeSpan> = [];
   const tracer = Tracer.make({ span: (options) => { const s = new Tracer.NativeSpan(options); spans.push(s); return s; } });
-  return { spans, layer: Layer.mergeAll(BusyLive, Layer.succeed(Tracer.Tracer, tracer)) };
+  return { spans, layer: Layer.mergeAll(BusyLive, recordsMemory([]), Layer.succeed(Tracer.Tracer, tracer)) };
 };
 const ada = { kind: "person", person: "per_ada" } as const;
 const served = Handlers.serve({ name: "allowance.grant", operation: grant, handler });
@@ -63,7 +65,14 @@ describe("handler wrapper", () => {
     const error = Exit.isFailure(exit.result) ? Cause.squash(exit.result.cause) : undefined;
     expect(error).toBeInstanceOf(AllowanceLimitTooHigh);
     expect(error).toMatchObject({ _tag: "AllowanceLimitTooHigh", cap: 1000n });
-    expectTypeOf(served.call).returns.toExtend<Effect.Effect<unknown, AllowanceLimitTooHigh | InvalidPayload, Busy>>();
+    expectTypeOf(served.call).returns.toExtend<Effect.Effect<unknown, AllowanceLimitTooHigh | InvalidPayload | NotAllowed, unknown>>();
+  });
+
+  it("refuses an anonymous caller with NotAllowed before the handler runs", async () => {
+    const { spans, layer } = recording();
+    const exit = await Effect.runPromiseExit(Effect.provide(served.call({ member: "per_olga", limit: "500" }, { kind: "anonymous" }), layer));
+    expect(Exit.isFailure(exit) ? Cause.squash(exit.cause) : undefined).toBeInstanceOf(NotAllowed);
+    expect(spans.map((s) => s.name)).toEqual([]); // the handler never ran, so it has no span
   });
 
   it("refuses a payload outside its declaration before the handler runs", async () => {

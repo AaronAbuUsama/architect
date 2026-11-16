@@ -67,10 +67,10 @@ const handlerType = (op: OperationModel): RenderedFile => {
     GENERATED,
     "// What the handler is given: its payload and steps; what it may return: its answer or a declared error.",
     `import type { SqlClient } from "effect/sql";`,
-    `import type { Handler as Of } from "@architect/target-effect";`,
+    `import type { Handler as Of, Records } from "@architect/target-effect";`,
     `import type declaration from "${toRoot(path)}${op.file}";`,
     "",
-    "export type Handler<R = SqlClient.SqlClient> = Of<typeof declaration, R>;",
+    "export type Handler<R = Records | SqlClient.SqlClient> = Of<typeof declaration, R>;",
   ));
 };
 

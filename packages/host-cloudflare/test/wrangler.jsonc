@@ -1,9 +1,13 @@
-// The Worker the tests run in: real workerd, a real local D1. Nothing here reaches Cloudflare.
+// The Worker the tests run in: real workerd, a real local D1, the world Durable Object. Nothing here reaches Cloudflare.
 {
   "name": "host-cloudflare-test",
+  "main": "worker.ts",
   "compatibility_date": "2026-08-01",
   "compatibility_flags": ["nodejs_compat"],
+  "vars": { "WORLD_SECRET": "test-only" },
   "d1_databases": [
     { "binding": "DB", "database_name": "host-test", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "migrations" }
-  ]
+  ],
+  "durable_objects": { "bindings": [{ "name": "WORLD", "class_name": "World" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["World"] }]
 }
