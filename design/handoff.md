@@ -80,6 +80,13 @@ The evidence page is https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB; republis
 `python3 tools/evidence/page.py` after each step. For plants, back up with `cp` and restore with `cp`, never
 `git checkout`.
 
+L2.01 (local reading) is built on `build/L2.01` (decisions D3 #17 to #25, evidence `evidence/L2.01/`): `architect build`
+(`built <rev> sha256:<hash>`, kept at `.architect/artefacts/<rev>/main.js`), `architect env up|down|status <env>` for
+test, staging and production (state under `.architect/environments/<env>/`), `GET /_architect/bundle`, and the
+declarations `Blueprint.environment|config|secret`, `Identity`, `Cloud`, `Deploy` read into `model.environments`. The code
+is in `packages/prove` (`build`, `environments`, and `Worlds.launch`). The Alchemy stack and `architect deploy` wait for
+the cloud pass. The logbook (L2.03) plugs in at `OWN_WORKER` in `packages/prove/src/modules/environments/service.ts`.
+
 ## Open
 
 - A last consistency review of the design docs was still running at handoff. Its findings, if any, are small fixes to

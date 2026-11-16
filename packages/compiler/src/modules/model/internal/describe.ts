@@ -3,6 +3,7 @@ import { Duration } from "effect";
 import type { Allowed, Field, FieldsInput, Operation, Read, Value } from "@architect/blueprint";
 import type { AllowedModel, FieldModel, FieldsModel, Model, OperationModel, ThingModel } from "../types.ts";
 import { Blanks } from "@architect/blueprint/server";
+import { environmentsOf } from "./environments.ts";
 import { hashOf } from "./hash.ts";
 import { camel, pascal, type Layout } from "./layout.ts";
 
@@ -136,7 +137,11 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
   }
 
   const values = Object.fromEntries([...layout.values].sort(([a], [b]) => a.localeCompare(b)).map(([n, v]) => [n, v.meta]));
-  return { model: { values, things, operations, ...(Object.keys(blanks).length > 0 ? { blanks } : {}) }, problems };
+  const environments = environmentsOf(layout, problems);
+  return {
+    model: { values, things, operations, ...(Object.keys(blanks).length > 0 ? { blanks } : {}), ...(Object.keys(environments).length > 0 ? { environments } : {}) },
+    problems,
+  };
 };
 
 const problem = (problems: Array<string>, p: string): string => {

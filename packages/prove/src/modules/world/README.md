@@ -5,4 +5,11 @@
 `.architect/<name>/`. Each start makes a new world with a new secret for Better Auth, passed to wrangler as an
 argument and never written to a file. With `otlp`, the Worker exports its spans and logs to that collector. Ready once
 `/_world/health` answers; stopped, with wrangler, when the scope closes. `architect dev` and `architect prove` both use
-it. Test: `world.test.ts`.
+it.
+
+`Worlds.launch({ config, state, port, log, pidFile, envFile?, ready })`: the same wrangler, kept: detached in its own
+process group, on a config the caller made, with a `--persist-to` folder that survives restarts, `--inspector-port 0`,
+and its secrets in an env file. Migrations are applied first, a taken socket starts it again, and it is ready once the
+`ready` path answers. The caller keeps the pid and stops it: this is what `environments` builds on (D3 #4).
+
+Test: `world.test.ts`.

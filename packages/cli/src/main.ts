@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 // The architect command. The only file here that reads the process, prints or exits.
 import { NodeRuntime, NodeServices } from "@effect/platform-node";
-import { Console, Effect } from "effect";
+import { Console, Effect, Option } from "effect";
 import { Argument, Command, Flag } from "effect/cli";
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
-import { Impact, Prove, Worlds } from "@architect/prove";
+import { Build, Environments, Impact, Prove, Worlds } from "@architect/prove";
 import { ModelCommand } from "#modules/model/service.js";
 import { Add } from "#modules/add/service.js";
 import { AddRefused, type What } from "#modules/add/types.js";
@@ -140,8 +140,43 @@ const brief = Command.make(
     ),
 );
 
+// `architect build`: the revision's bundle, once. Every environment runs this file unchanged (D3 #6).
+const build = Command.make(
+  "build",
+  { root: Flag.String("root").pipe(Flag.withDefault(process.cwd())) },
+  ({ root }) =>
+    Build.build(root).pipe(
+      Effect.tap((b) => (b.dirty ? Console.error(`warning: the working tree differs from ${b.revision}, so this bundle is not that commit's source`) : Effect.void)),
+      Effect.tap((b) => Console.log(`built ${b.revision} sha256:${b.sha256}`)),
+      Effect.catchTag("BuildFailed", (e) => fail(e.message, 2)),
+    ),
+);
+
+// `architect env up|down|status <env>`: a long-lived local environment (D3 #4).
+const environment = (verb: "up" | "down" | "status") =>
+  Command.make(
+    verb,
+    {
+      env: Argument.String("env"),
+      port: Flag.optional(Flag.Int("port")),
+      revision: Flag.optional(Flag.String("revision")),
+      root: Flag.String("root").pipe(Flag.withDefault(process.cwd())),
+    },
+    ({ env, port, revision, root }) => {
+      const name = { root, name: env };
+      const said =
+        verb === "up"
+          ? Environments.up({ ...name, ...(Option.isSome(port) ? { port: port.value } : {}), ...(Option.isSome(revision) ? { revision: revision.value } : {}) }).pipe(Effect.map((s) => `${env} up ${s.url}`))
+          : verb === "down"
+            ? Environments.down(name).pipe(Effect.map(() => `${env} down`))
+            : Environments.status(name).pipe(Effect.map((s) => (s.state === "up" ? `${env} up ${s.url}` : `${env} down`)));
+      return said.pipe(Effect.flatMap(Console.log), Effect.catchTag("EnvironmentFailed", (e) => fail(e.message, 2)));
+    },
+  );
+const env = Command.make("env").pipe(Command.withSubcommands([environment("up"), environment("down"), environment("status")]));
+
 Command.make("architect").pipe(
-  Command.withSubcommands([model, dev, prove, add, check, generate, brief, impact]),
+  Command.withSubcommands([model, dev, prove, add, check, generate, brief, impact, build, env]),
   Command.run({ version: "0.0.0" }),
   Effect.provide(NodeServices.layer),
   NodeRuntime.runMain,

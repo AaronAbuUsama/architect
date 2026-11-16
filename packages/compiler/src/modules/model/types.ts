@@ -65,6 +65,29 @@ export interface OperationModel {
   readonly hash: string;
 }
 
+export type PublicationModel =
+  | { readonly how: "npm"; readonly tag: string | null }
+  | { readonly how: "homebrew"; readonly tap: string }
+  | { readonly how: "binaries"; readonly on: "github-releases" };
+
+/** An environment, named by its file: `blueprint/environments/staging.ts` is `staging`. */
+export interface EnvironmentModel {
+  readonly name: string;
+  readonly file: string;
+  readonly runs: string;
+  readonly identity: "test-principals" | "better-auth";
+  /** How long a world of this environment lives, when it has a lifetime. */
+  readonly lifetimeMs: number | null;
+  readonly cloud: { readonly provider: "cloudflare"; readonly database: "d1" | "d1-local" } | null;
+  readonly database: "d1" | "d1-local" | null;
+  /** Secret names, and how each gets its value. Never a value. */
+  readonly secrets: Readonly<Record<string, "generated" | "stored">>;
+  readonly promotesFrom: string | null;
+  readonly deploy: Readonly<Record<string, { readonly how: "worker" | "site"; readonly domain: string | null }>>;
+  readonly publish: Readonly<Record<string, ReadonlyArray<PublicationModel>>>;
+  readonly hash: string;
+}
+
 export interface Model {
   readonly values: Readonly<Record<string, ValueMeta>>;
   readonly things: Readonly<Record<string, ThingModel>>;
@@ -74,6 +97,8 @@ export interface Model {
    * An operation with a blank is left out of `operations`, so nothing is generated for it until it is filled.
    */
   readonly blanks?: Readonly<Record<string, ReadonlyArray<string>>>;
+  /** Where the application runs, by name: present only when the blueprint has an `environments/` folder. */
+  readonly environments?: Readonly<Record<string, EnvironmentModel>>;
 }
 
 /** A blueprint the compiler refuses, with every problem found, each naming its file. */

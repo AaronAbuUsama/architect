@@ -61,6 +61,33 @@ describe("model", () => {
     expect(after.value).toEqual(before.value);
   });
 
+  it("reads environments, each named by its file", async () => {
+    const exit = await modelOf(acme);
+    expect(Exit.isSuccess(exit)).toBe(true);
+    if (!Exit.isSuccess(exit)) return;
+    const environments = exit.value.environments!;
+    expect(Object.keys(environments)).toEqual(["local", "production", "staging", "test"]);
+    expect(environments["test"]).toMatchObject({ lifetimeMs: 7_200_000, identity: "test-principals", cloud: { provider: "cloudflare", database: "d1" } });
+    expect(environments["production"]).toMatchObject({ promotesFrom: "staging", deploy: { server: { how: "worker", domain: "api.acme.dev" } } });
+    expect(environments["production"]?.publish["cli"]?.map((p) => p.how)).toEqual(["npm", "homebrew", "binaries"]);
+    expect(environments["local"]?.database).toBe("d1-local");
+  });
+
+  it("names an environment after its file, and refuses a promotesFrom that no file answers to", async () => {
+    const root = copyOfAcme();
+    renameSync(join(root, "blueprint/environments/staging.ts"), join(root, "blueprint/environments/preview.ts"));
+    const exit = await modelOf(root);
+    expect(Exit.isFailure(exit)).toBe(true);
+    expect(JSON.stringify(exit)).toContain('blueprint/environments/production.ts: promotesFrom \\"staging\\" isn');
+    // Node caches a module by its path, so the fixed copy is a copy of its own.
+    const fixed = copyOfAcme();
+    renameSync(join(fixed, "blueprint/environments/staging.ts"), join(fixed, "blueprint/environments/preview.ts"));
+    writeFileSync(join(fixed, "blueprint/environments/production.ts"), readFileSync(join(fixed, "blueprint/environments/production.ts"), "utf8").replace('"staging"', '"preview"'));
+    const renamed = await modelOf(fixed);
+    expect(Exit.isSuccess(renamed)).toBe(true);
+    if (Exit.isSuccess(renamed)) expect(Object.keys(renamed.value.environments!)).toEqual(["local", "preview", "production", "test"]);
+  });
+
   it("refuses a verb file that holds no operation", async () => {
     const exit = await modelOf(resolve(import.meta.dirname, "../../../test/fixtures/not-an-operation"));
     expect(Exit.isFailure(exit)).toBe(true);
