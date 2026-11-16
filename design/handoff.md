@@ -1,6 +1,6 @@
 # Where everything stands
 
-Kept by the 🎼 conductor, so a fresh conductor can take over. Last updated 16 November 2026, after L1.60 (Gate 1).
+Kept by the 🎼 conductor, so a fresh conductor can take over. Last updated 16 November 2026, after stage 2 (Gate 1) landed on main.
 
 ## Done
 
@@ -66,8 +66,11 @@ slow grant, D2 #77). Check 4 runs on the Claude Agent SDK with only our tools, t
 #78). The 🔍 review failed once (transitive packages under two weeks old) and passed after the fixes: pnpm's
 `minimumReleaseAge` enforces the rule tree-wide (D2 #79), and a prove with a failing journey proves nothing (D2 #80).
 Decisions through D2 #80.
-Next: the PR of `layer/2` to main, merged when CI is green, then the spoken report to Aaron.
-After that, stage 3 (Gate 2, shipping across worlds), opening with wayfinding.
+Stage 2 is on main (PR 2, merge e9e3194). Next: stage 3, Gate 2 (shipping across local test, staging and production
+worlds) on `layer/3`, opening with wayfinding (`wayfinding/stage-3.md`).
+Side thread: a 📐 Designer session is designing the minimal agent harness as its own package (Aaron favours Pi
+Durable; model switching, tools, skills, a sandbox, run records and internal benchmarks), landing as
+`design/decisions/D3-agent-harness.md` by its own PR. Don't build the harness on a layer branch until that lands.
 The evidence page is https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB; republish it with
 `python3 tools/evidence/page.py` after each step. For plants, back up with `cp` and restore with `cp`, never
 `git checkout`.
