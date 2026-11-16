@@ -57,12 +57,14 @@ on Better Auth, organization, membership, invitation, api-key; 5 journeys, 11 op
 `packages/preset` writes the starter; the nine published packages build to `dist/` (imports spelled
 `#modules/….js`, D2 #67) and `tools/e2e/starter.sh` (CI job `starter`) publishes them to Verdaccio, runs
 `create-nx-workspace --preset=@architect/preset`, then check and prove in the new workspace. Decisions through D2 #72.
-In progress: L1.51, acme rebuilt as the starter plus the allowance. The builder copied the starter's things, handlers,
-`invited` world and journeys into acme; acme keeps `organization.cap` and `create {name, cap}` (handler merged: org row
-plus owner membership). A journey-author subagent is adapting acme's copies of the starter journeys to pass `cap`,
-rewriting `journeys/README.md` and regenerating the who-may-call fixture. Then: update `prove.test.ts`'s expected acme
-lines (ops, coverage), prove green, evidence, commit. After that L1.60 (`e2e:layer1`, with check 4 the `claude -p`
-session denied `Brief.forbidden`). Then a 🔍 review and a PR to main.
+L1.51 done (commit 79be956, evidence `evidence/L1.51/`): acme is the starter plus the allowance (D2 #73).
+In progress: L1.60, Gate 1. `e2e/` is a workspace project; `nx run e2e:layer1` runs the seven checks of D2 #74 from
+`e2e/layer1/0N-*.test.ts`, each in a copy of an example outside the repository (`support.ts` `copyOf`). Checks 1, 2,
+3, 5, 6 and 7 pass locally. Check 4 (`04-agent-writes-a-handler.test.ts`, today a `claude -p` session) waits on
+Aaron's pick of harness: he asked, 16 November 2026, to use an agent SDK with traces exported, and pointed at Pi
+(`@earendil-works/pi-durable`, pi-mono). Proposed: the Claude Agent SDK 0.3.316 now (his Claude Code sign-in, tools
+locked to read / edit spend / run check, telemetry to prove's collector), and a durable agent on Architect's own stack
+(a DO session, each turn a step) in `later.md`. Don't run check 4 until he answers. Then a 🔍 review and a PR to main.
 The evidence page is https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB; republish it with
 `python3 tools/evidence/page.py` after each step. For plants, back up with `cp` and restore with `cp`, never
 `git checkout`.

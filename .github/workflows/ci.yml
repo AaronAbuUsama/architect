@@ -25,9 +25,8 @@ jobs:
       # Nx 24 skips task-level sync generators in CI, so drift is checked explicitly.
       - run: pnpm nx sync:check
 
-  # The starter as a user gets it: Architect published to a local Verdaccio, a workspace made with
-  # create-nx-workspace --preset=@architect/preset, then architect check and architect prove --env local in it.
-  starter:
+  # Gate 1 (L1.60): the seven checks of layer one, run as a user runs Architect (D2 #74).
+  e2e-layer1:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1
@@ -37,4 +36,4 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: tools/e2e/starter.sh
+      - run: pnpm nx run e2e:layer1 --outputStyle=static

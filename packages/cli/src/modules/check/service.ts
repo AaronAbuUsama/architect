@@ -1,3 +1,4 @@
+import { existsSync, realpathSync } from "node:fs";
 import { resolve } from "node:path";
 import { Effect } from "effect";
 import { Compiler, nodeSource } from "@architect/compiler";
@@ -15,7 +16,8 @@ const part = (name: string, found: ReadonlyArray<Finding>) =>
 
 const run: CheckApi["run"] = (at) =>
   Effect.gen(function* () {
-    const root = resolve(at);
+    // The real path: tools report files by it, so a root reached through a symlink (macOS /var) still matches.
+    const root = existsSync(at) ? realpathSync(at) : resolve(at);
     const left = blanks(textsUnder(root, "blueprint"));
     const model = yield* Compiler.model.pipe(Effect.provide(nodeSource(root)), Effect.option);
     if (model._tag === "None") return { lines: [...blankLines(left), "model ✘ the blueprint doesn't compile: run architect model"], passed: false };

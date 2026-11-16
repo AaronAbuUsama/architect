@@ -1,0 +1,10 @@
+{
+  "name": "@architect/e2e",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@architect/compiler": "workspace:*",
+    "@architect/generators": "workspace:*"
+  }
+}

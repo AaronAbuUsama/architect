@@ -14,10 +14,11 @@ export const types = (root: string): ReadonlyArray<Finding> => {
   const tsc = binOf(root, "tsc");
   if (!tsc) return [{ part: "types", rule: "tsc", file: "tsconfig.json", message: "no tsc found in node_modules/.bin" }];
   const run = spawnSync(tsc, ["-p", join(root, "tsconfig.json"), "--noEmit", "--pretty", "false"], { cwd: root, encoding: "utf8" });
-  return (run.stdout ?? "").split("\n").flatMap((l) => {
+  const found = (run.stdout ?? "").split("\n").flatMap((l) => {
     const m = /^(.+?)\((\d+),\d+\): error (TS\d+): (.*)$/.exec(l);
     return m ? [{ part: "types" as const, rule: m[3]!, file: m[1]!, line: Number(m[2]), message: m[4]! }] : [];
   });
+  return found.length === 0 && run.status !== 0 ? [failed("types", "tsc", "tsconfig.json", run)] : found;
 };
 
 export const factsOf = (root: string, model: Model): ProjectFacts => {
@@ -46,8 +47,13 @@ export const rules = (root: string, model: Model): ReadonlyArray<Finding> => {
   const targets = ["implementation", "blueprint"].flatMap((d) => tsFiles(join(root, d)).map((f) => relative(root, f)));
   if (targets.length === 0) return [];
   const run = spawnSync(oxlint, ["-c", join(dir, "oxlintrc.json"), "--no-ignore", "--format", "unix", ...targets], { cwd: root, encoding: "utf8" });
-  return (run.stdout ?? "").split("\n").flatMap((l) => {
+  const found = (run.stdout ?? "").split("\n").flatMap((l) => {
     const m = /^(.+?):(\d+):\d+: (.*) \[Error\/architect\((.+?)\)\]$/.exec(l);
     return m ? [{ part: "rules" as const, rule: m[4]!, file: m[1]!, line: Number(m[2]), message: m[3]! }] : [];
   });
+  return found.length === 0 && run.status !== 0 ? [failed("rules", "oxlint", ".", run)] : found;
 };
+
+/** A tool that exits non-zero without one finding it reports didn't run: that is a finding too, never a pass. */
+const failed = (part: "types" | "rules", rule: string, file: string, run: { readonly status: number | null; readonly stderr?: string | null; readonly stdout?: string | null }): Finding =>
+  ({ part, rule, file, message: `${rule} failed (exit ${run.status}): ${`${run.stderr ?? ""}${run.stdout ?? ""}`.trim().split("\n")[0] ?? ""}` });

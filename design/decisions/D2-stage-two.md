@@ -173,3 +173,14 @@ Decided 16 November 2026 by the builder, which has architectural ownership. The 
     not the builder, adapted the one starter journey that founds an organisation to pass a cap. acme's own `founded`
     world replaces the starter's. Prove on acme: 11 journeys, 15 operations × 9 evals, `coverage ✔ moves 7/7 ·
     outcomes 7/7 · refusals 4/4 · runtime refusals 13/16`.
+74. **Gate 1's seven checks.** No design file listed them, so they are fixed here, one per thing layer one promises:
+    (1) a project from the preset, installed from Verdaccio, checks and proves; (2) acme proves: 11 journeys, 15
+    operations × 9 evals, coverage; (3) every eval fails its planted break; (4) an agent writes `allowance.spend` from
+    its brief alone (D2 #41); (5) the generated CLI, SDK and docs work against `architect dev`; (6) `add`, `generate`
+    and `check` build the allowance on the starter, and check fails each planted rule break; (7) `impact`. Each runs
+    the real `architect` command in a copy outside the repository (`e2e/layer1/support.ts`), so nothing leans on the
+    repository's own layout. CI runs them as job `e2e-layer1`, which replaces the `starter` job (check 1 is that job).
+75. **check never reads a failed tool as a pass, and works from the project's real path.** A tsc or oxlint run that
+    exits non-zero with no finding it can name is itself a finding. The root is resolved with `realpath`, because
+    oxlint reports files by real path and macOS's temporary folder is a symlink; before this, every rule silently
+    skipped a project reached through one. Both were found by Gate 1's check 6.
