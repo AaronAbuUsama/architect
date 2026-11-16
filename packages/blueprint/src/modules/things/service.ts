@@ -15,4 +15,4 @@ export const Things: ThingsApi = {
 };
 
 // The struct schema for any declared fields: payloads, answers, events and errors use it.
-export { structOf } from "./internal/fields.ts";
+export { structOf, valueOf } from "./internal/fields.ts";

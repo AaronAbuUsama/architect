@@ -3,36 +3,43 @@ import type { Model, OperationModel } from "@architect/compiler";
 import type { RenderedFile } from "../types.ts";
 import { GENERATED, camel, lines, opVar } from "./names.ts";
 
-const command = (op: OperationModel): RenderedFile => ({
-  path: `generated/cli/src/${op.thing}/${op.verb}.ts`,
-  scaffold: false,
-  content: lines(
-    GENERATED,
-    `import { Effect, Schema } from "effect";`,
-    `import { Command, Flag } from "effect/cli";`,
-    `import { declaration } from "../../../api/src/${op.thing}/${op.verb}.ts";`,
-    `import * as Sdk from "../../../sdk/src/index.ts";`,
-    `import { answer } from "../output.ts";`,
-    "",
-    `/** ${op.description} Every flag is text; the declaration decodes it. \`--json\` prints the whole answer as JSON. */`,
-    `export const ${camel(op.verb)} = Command.make(`,
-    `  "${op.verb}",`,
-    `  { ${[...Object.keys(op.payload).map((k) => `${k}: Flag.String("${k}")`), `json: Flag.Boolean("json").pipe(Flag.withDefault(false))`].join(", ")} },`,
-    `  ({ json, ...flags }) => Schema.decodeUnknownEffect(declaration.payloadSchema)(flags).pipe(Effect.flatMap(Sdk.${camel(op.thing)}.${camel(op.verb)}), answer(json)),`,
-    ");",
-  ),
-});
+const command = (op: OperationModel): RenderedFile => {
+  const optional = Object.values(op.payload).some((f) => f.optional);
+  return {
+    path: `generated/cli/src/${op.thing}/${op.verb}.ts`,
+    scaffold: false,
+    content: lines(
+      GENERATED,
+      `import { Effect, Schema } from "effect";`,
+      `import { Command, Flag } from "effect/cli";`,
+      `import { declaration } from "../../../api/src/${op.thing}/${op.verb}.ts";`,
+      `import * as Sdk from "../../../sdk/src/index.ts";`,
+      `import { answer${optional ? ", supplied" : ""} } from "../output.ts";`,
+      "",
+      `/** ${op.description} Every flag is text; the declaration decodes it${optional ? "; a flag left out is not sent" : ""}. \`--json\` prints the whole answer as JSON. */`,
+      `export const ${camel(op.verb)} = Command.make(`,
+      `  "${op.verb}",`,
+      `  { ${[...Object.entries(op.payload).map(([k, f]) => (f.optional ? `${k}: Flag.optional(Flag.String("${k}"))` : `${k}: Flag.String("${k}")`)), `json: Flag.Boolean("json").pipe(Flag.withDefault(false))`].join(", ")} },`,
+      `  ({ json, ...flags }) => Schema.decodeUnknownEffect(declaration.payloadSchema)(${optional ? "supplied(flags)" : "flags"}).pipe(Effect.flatMap(Sdk.${camel(op.thing)}.${camel(op.verb)}), answer(json)),`,
+      ");",
+    ),
+  };
+};
 
 const output = (): RenderedFile => ({
   path: "generated/cli/src/output.ts",
   scaffold: false,
   content: lines(
     GENERATED,
-    `import { Console, Context, Effect } from "effect";`,
+    `import { Console, Context, Effect, Option } from "effect";`,
     `import { Errors } from "../../sdk/src/index.ts";`,
     "",
     "/** Set by the entry, so commands never touch the process. */",
     `export class ExitCode extends Context.Service<ExitCode, { readonly set: (code: number) => Effect.Effect<void> }>()("cli/ExitCode") {}`,
+    "",
+    "/** The flags the caller gave: an optional flag left out is `None`, and is not sent at all. */",
+    "export const supplied = (flags: Readonly<Record<string, unknown>>) =>",
+    "  Object.fromEntries(Object.entries(flags).flatMap(([k, v]) => (Option.isOption(v) ? (Option.isSome(v) ? [[k, v.value]] : []) : [[k, v]])));",
     "",
     "const text = (x: unknown) => JSON.stringify(x, (_, v: unknown) => (typeof v === \"bigint\" ? v.toString() : v));",
     "const exitOf = (tag: unknown): number =>",

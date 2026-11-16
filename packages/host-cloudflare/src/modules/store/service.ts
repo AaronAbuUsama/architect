@@ -6,6 +6,7 @@ import { Store, type Commit, type Entry, type Write } from "@architect/target-ef
 import type { StoreD1Api } from "./types.ts";
 import { decodeRow, encodeFields, lostGuard } from "./internal/rows.ts";
 import { actorCommit, actorFind } from "./internal/actors.ts";
+import { listRows } from "./internal/list.ts";
 
 export const StoreD1: StoreD1Api = {
   layer: ({ tables, actors }) =>
@@ -49,6 +50,10 @@ export const StoreD1: StoreD1Api = {
             Effect.map((rows) => rows[0]?.answer),
             Effect.orDie,
           ),
+        list: (query) =>
+          query.thing.lives === "actor"
+            ? Effect.die(new Error("a list read needs a thing that lives in the database; actors keep one instance each"))
+            : listRows(sql, tableOf(query.thing), query),
         find: (thing, id) =>
           thing.lives === "actor"
             ? (actors ? actorFind(actors, thing, tableOf(thing), id) : noActors)

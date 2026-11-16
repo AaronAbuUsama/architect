@@ -1,0 +1,30 @@
+> vitest run --root e2e --config vitest.layer2.config.ts layer2 03-a-read
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-af6c657309d2f0575/e2e
+ ❯ layer2/08-watch-and-the-portal.test.ts (1 test | 1 skipped) 6160ms
+ ❯ layer2/05-publishing.test.ts (2 tests | 2 skipped) 6329ms
+ ❯ layer2/01-prove-in-a-test-world.test.ts (2 tests | 2 skipped) 3911ms
+ ❯ layer2/04-promotion.test.ts (1 test | 1 skipped) 5296ms
+ ❯ layer2/06-device-sign-in.test.ts (1 test | 1 skipped) 3485ms
+ ❯ layer2/03-a-read-is-minor-a-budget-is-stale.test.ts (1 test | 1 skipped) 5524ms
+ ❯ layer2/02-the-logbook-takes-signed-verdicts.test.ts (1 test | 1 skipped) 7495ms
+ ❯ layer2/07-remote-mcp-with-oauth.test.ts (1 test | 1 skipped) 5524ms
+⎯⎯⎯⎯⎯⎯ Failed Suites 8 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  layer2/01-prove-in-a-test-world.test.ts [ layer2/01-prove-in-a-test-world.test.ts ]
+AssertionError: the logbook is its own worker, built in L2.03
+: expected 2 to be +0 // Object.is equality
+- Expected
++ Received
+- 0
++ 2
+ ❯ up layer2/services.ts:134:50
+    132|       const said = run(root, { ...env, ...extra }, "env", "up", name, …
+    133|       running.add(name);
+    134|       expect(said.status, said.out.slice(-2000)).toBe(0);
+       |                                                  ^
+    135|       expect(said.lines, said.out).toContain(`${name} up http://127.0.…
+    136|     };
+ ❯ startStack layer2/services.ts:137:5
+ ❯ layer2/01-prove-in-a-test-world.test.ts:20:33
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+ FAIL  layer2/02-the-logbook-takes-signed-verdicts.test.ts [ layer2/02-the-logbook-takes-signed-verdicts.test.ts ]

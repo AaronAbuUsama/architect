@@ -11,7 +11,7 @@ const MARK = "<!-- Generated from the blueprint. Do not edit. -->";
 const fieldRows = (fields: FieldsModel) =>
   Object.keys(fields).length === 0
     ? ["(none)"]
-    : ["| field | value |", "|---|---|", ...Object.entries(fields).map(([k, f]) => `| ${k} | ${f.ref ?? f.named ?? f.value.type} |`)];
+    : ["| field | value |", "|---|---|", ...Object.entries(fields).map(([k, f]) => `| ${k}${f.optional ? " (optional)" : ""} | ${f.ref ?? f.named ?? f.value.type} |`)];
 
 const who = (op: OperationModel) =>
   op.allowed.map((a) => (a.kind === "anyone" ? "anyone" : a.kind === "signed-in" ? "anyone signed in" : a.kind === "role" ? `the ${a.role.split(".").pop()} of the ${op.thing}` : `the ${a.role.split(".").pop()} of its ${a.path}`)).join(", or ");
@@ -38,7 +38,7 @@ const operationPage = (model: Model, op: OperationModel, project: string): Rende
     "",
     [
       `**Who may call:** ${who(op)}.`,
-      op.kind === "read" ? "**A read:** answered from the records, with no handler." : "",
+      op.kind === "read" ? `**A read:** answered from the records, with no handler.${op.list ? ` A page of ${op.list.page} at a time, ${op.list.order === "newest" ? "newest" : "oldest"} first, narrowed by ${op.list.where.join(", ") || "nothing"}; pass the answer's \`next\` as \`cursor\` for the page after it.` : ""}` : "",
       op.idempotent === "request" ? "**Idempotent by request:** send `idempotency-key`; the same key twice is one call." : "",
       op.budget ? `**Budget:** p95 ${op.budget.p95Ms}ms.` : "",
     ].filter((l) => l !== "").join("\n\n"),
@@ -47,7 +47,7 @@ const operationPage = (model: Model, op: OperationModel, project: string): Rende
     Object.keys(op.steps).length ? ["", "## Steps", "", ...Object.values(op.steps).map((s) => `- \`${s.name}\` (${s.type})`)] : [],
     "", "## Refusals", "", op.refusals.length ? ["| refusal | exit | when |", "|---|---|---|", ...refusals(model, op)] : ["(none)"],
     "", "## How to call", "",
-    "```sh", `${project} ${op.thing} ${op.verb} ${Object.keys(op.payload).map((k) => `--${k} <${k}>`).join(" ")}`.trimEnd(), "```",
+    "```sh", `${project} ${op.thing} ${op.verb} ${Object.entries(op.payload).map(([k, f]) => (f.optional ? `[--${k} <${k}>]` : `--${k} <${k}>`)).join(" ")}`.trimEnd(), "```",
     "", `HTTP: \`POST /${op.thing}/${op.verb}\` with the payload as JSON. SDK: \`Sdk.${op.thing}.${op.verb}(payload)\`.`,
   ),
 });

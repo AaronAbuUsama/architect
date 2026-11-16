@@ -1,9 +1,13 @@
 // Generated from the blueprint. Do not edit.
-import { Console, Context, Effect } from "effect";
+import { Console, Context, Effect, Option } from "effect";
 import { Errors } from "../../sdk/src/index.ts";
 
 /** Set by the entry, so commands never touch the process. */
 export class ExitCode extends Context.Service<ExitCode, { readonly set: (code: number) => Effect.Effect<void> }>()("cli/ExitCode") {}
+
+/** The flags the caller gave: an optional flag left out is `None`, and is not sent at all. */
+export const supplied = (flags: Readonly<Record<string, unknown>>) =>
+  Object.fromEntries(Object.entries(flags).flatMap(([k, v]) => (Option.isOption(v) ? (Option.isSome(v) ? [[k, v.value]] : []) : [[k, v]])));
 
 const text = (x: unknown) => JSON.stringify(x, (_, v: unknown) => (typeof v === "bigint" ? v.toString() : v));
 const exitOf = (tag: unknown): number =>

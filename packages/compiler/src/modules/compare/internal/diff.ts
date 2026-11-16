@@ -1,3 +1,4 @@
+import { canonical } from "#modules/model/service.js";
 import type { Model } from "#modules/model/types.js";
 import type { Change, Kind } from "../types.ts";
 
@@ -7,7 +8,8 @@ const KINDS: ReadonlyArray<readonly [Kind, (m: Model) => Readonly<Record<string,
   ["operation", (m) => m.operations],
 ];
 
-const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
+// Compared as canonical text: a model that has been through the logbook has its keys sorted, one just compiled has not.
+const same = (a: unknown, b: unknown) => canonical(a) === canonical(b);
 
 /** The top-level fields of two entries that differ, leaving out the hash, which differs whenever any of them does. */
 const partsOf = (a: unknown, b: unknown): ReadonlyArray<string> => {

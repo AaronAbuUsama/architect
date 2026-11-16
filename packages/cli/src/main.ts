@@ -5,12 +5,13 @@ import { Console, Effect, Option } from "effect";
 import { Argument, Command, Flag } from "effect/cli";
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
-import { Build, Environments, Impact, Prove, Worlds } from "@architect/prove";
+import { Build, Environments, Prove, Worlds } from "@architect/prove";
 import { ModelCommand } from "#modules/model/service.js";
 import { Add } from "#modules/add/service.js";
 import { AddRefused, type What } from "#modules/add/types.js";
 import { Check } from "#modules/check/service.js";
 import { Generate } from "#modules/generate/service.js";
+import { Ship } from "#modules/ship/service.js";
 import { Brief } from "#modules/brief/service.js";
 import { Compiler, nodeSource } from "@architect/compiler";
 
@@ -57,6 +58,13 @@ const prove = Command.make(
       Effect.catchTag("ProveFailed", (e) => Console.error(`prove couldn't run: ${e.message}`).pipe(Effect.tap(() => Effect.sync(() => (process.exitCode = 2))))),
     ),
 );
+
+const print = (said: { readonly out: string; readonly err: string; readonly exit: number }) =>
+  Effect.sync(() => {
+    if (said.out) process.stdout.write(said.out);
+    if (said.err) process.stderr.write(said.err);
+    process.exitCode = said.exit;
+  });
 
 const fail = (message: string, exit: number) => Console.error(message).pipe(Effect.tap(() => Effect.sync(() => (process.exitCode = exit))));
 
@@ -108,20 +116,23 @@ const generate = Command.make(
   ({ root }) =>
     Generate.run(root).pipe(
       Effect.tap((changes) => Effect.sync(() => process.stdout.write(Generate.lines(changes).join("\n") + "\n"))),
+      Effect.tap(() => Ship.changes({ root, env: process.env })),
       Effect.catchTag("ModelFailed", (e) => fail(e.problems, 2)),
     ),
 );
 
+// What a change does: the local ledger's lines, and with a logbook the next version and what is stale in staging and production.
 const impact = Command.make(
   "impact",
   { root: Flag.String("root").pipe(Flag.withDefault(process.cwd())) },
-  ({ root }) =>
-    Compiler.model.pipe(
-      Effect.provide(nodeSource(root)),
-      Effect.flatMap((m) => Impact.of(root, m)),
-      Effect.flatMap((said) => Effect.sync(() => process.stdout.write(Impact.lines(said).join("\n") + "\n"))),
-      Effect.catchTags({ BlueprintInvalid: (e) => fail(e.problems.join("\n"), 2), SourceError: (e) => fail(e.message, 2) }),
-    ),
+  ({ root }) => Ship.impact({ root, env: process.env }).pipe(Effect.flatMap(print)),
+);
+
+// `architect version --next`: the version the working model would release as, worked out from the last production release.
+const version = Command.make(
+  "version",
+  { next: Flag.Boolean("next").pipe(Flag.withDefault(false)), root: Flag.String("root").pipe(Flag.withDefault(process.cwd())) },
+  ({ next, root }) => (next ? Ship.next({ root, env: process.env }).pipe(Effect.flatMap(print)) : fail("usage: architect version --next", 2)),
 );
 
 const brief = Command.make(
@@ -176,7 +187,7 @@ const environment = (verb: "up" | "down" | "status") =>
 const env = Command.make("env").pipe(Command.withSubcommands([environment("up"), environment("down"), environment("status")]));
 
 Command.make("architect").pipe(
-  Command.withSubcommands([model, dev, prove, add, check, generate, brief, impact, build, env]),
+  Command.withSubcommands([model, dev, prove, add, check, generate, brief, impact, version, build, env]),
   Command.run({ version: "0.0.0" }),
   Effect.provide(NodeServices.layer),
   NodeRuntime.runMain,

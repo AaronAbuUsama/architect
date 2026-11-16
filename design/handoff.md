@@ -90,6 +90,12 @@ declarations `Blueprint.environment|config|secret`, `Identity`, `Cloud`, `Deploy
 is in `packages/prove` (`build`, `environments`, and `Worlds.launch`). The Alchemy stack and `architect deploy` wait for
 the cloud pass. The logbook (L2.03) plugs in at `OWN_WORKER` in `packages/prove/src/modules/environments/service.ts`.
 
+L2.04 done on `build/L2.04` (decisions D3 #60 to #68; evidence `evidence/L2.04/`): reads list (`where`, `order`, `page`, `{ items, next }`;
+the store's `list`, generated api, server, sdk, cli and docs), `Compare.release` (minor, major, patch) and `architect version --next`,
+`architect impact` with `next` and `stale <ops> in <envs>` from the logbook (found by `ARCHITECT_LOGBOOK_URL`, else the `logbook`
+environment's pidfile), `generated/model/changes.json`, and `Releases.record` in `@architect/prove`, which L2.05's `promote --to production`
+calls. Check 3 of Gate 2 also needs L2.02 (`prove --env test`, `env up logbook`) and L2.05 (`promote`).
+
 ## Open
 
 - A last consistency review of the design docs was still running at handoff. Its findings, if any, are small fixes to

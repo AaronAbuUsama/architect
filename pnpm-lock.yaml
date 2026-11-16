@@ -155,6 +155,10 @@ importers:
       wrangler:
         specifier: 4.156.1
         version: 4.156.1(@cloudflare/workers-types@5.20261101.1)(@types/node@24.19.2)
+    devDependencies:
+      '@architect/logbook':
+        specifier: workspace:*
+        version: link:../logbook
 
   packages/compiler:
     dependencies:
@@ -287,6 +291,9 @@ importers:
       '@architect/generators':
         specifier: workspace:*
         version: link:../generators
+      '@architect/logbook':
+        specifier: workspace:*
+        version: link:../logbook
       nx:
         specifier: 24.0.3
         version: 24.0.3

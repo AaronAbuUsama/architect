@@ -1,19 +1,48 @@
 import { Effect, Schema } from "effect";
-import { NotAllowed, type Principal } from "@architect/blueprint";
+import { NotAllowed, type Principal, type Read } from "@architect/blueprint";
 import { Access } from "#modules/access/service.js";
 import { Unit } from "#modules/records/service.js";
-import { Records, Store } from "#modules/records/types.js";
+import { Records, Store, type Unit as UnitOf } from "#modules/records/types.js";
 import { answerAttributes, payloadAttributes, principalAttributes } from "./attributes.ts";
-import type { ReadsApi } from "../types.ts";
+import type { ReadAnswer, ReadPayload, ReadsApi } from "../types.ts";
 
 type AnyCodec = Schema.Codec<object, unknown>;
+
+/** One instance by its id; a missing one is `NotAllowed`, so a read never says what exists. */
+const byId = (read: Read<any, any, any>, payload: ReadPayload, unit: UnitOf) =>
+  Effect.gen(function* () {
+    const found = yield* unit.read(read.thing, String(payload["id"]));
+    if (!found) return yield* new NotAllowed();
+    return Object.fromEntries(read.fields.map((f) => [f, f === "state" ? (found.state ?? "none") : found[f]])) as ReadAnswer;
+  });
+
+/** A cursor is the position of the last instance of the page before; anything else is not one this read handed out. */
+const CURSOR = /^[0-9]{1,15}$/;
+
+/** A page: the instances matching the filters the caller gave, `page` of them, in the read's order. */
+const byList = (read: Read<any, any, any>, payload: ReadPayload) =>
+  Effect.gen(function* () {
+    const store = yield* Store;
+    const { cursor, state, ...filters } = payload as { readonly cursor?: string; readonly state?: string; readonly [field: string]: unknown };
+    if (cursor !== undefined && !CURSOR.test(cursor)) return yield* new NotAllowed();
+    const listed = yield* store.list({
+      thing: read.thing,
+      where: Object.fromEntries(Object.entries(filters).filter(([k]) => read.where.includes(k))),
+      state,
+      order: read.order ?? "newest",
+      limit: read.page ?? 50,
+      after: cursor,
+    });
+    const items = listed.items.map((i) => ({ ...i, state: i.state ?? "none" }));
+    return { items, next: listed.next } as ReadAnswer;
+  });
 
 /** Reads are served beside operations: the same role check, the same span, no handler. */
 export const Reads: ReadsApi = {
   serve: ({ name, read }) => {
     const decode = Schema.decodeUnknownEffect(read.payloadSchema as unknown as AnyCodec);
     const check = Schema.encodeEffect(read.answerSchema as unknown as AnyCodec);
-    const run = (payload: { readonly id: string }, principal: Principal) =>
+    const run = (payload: ReadPayload, principal: Principal) =>
       Effect.gen(function* () {
         const unit = yield* Unit.make(yield* Store);
         yield* Access.check({ allowed: read.allowed, payloadFields: read.payload, payload, principal, thing: read.thing }).pipe(
@@ -21,9 +50,7 @@ export const Reads: ReadsApi = {
         );
         return yield* Effect.gen(function* () {
           yield* Effect.annotateCurrentSpan(payloadAttributes(payload));
-          const found = yield* unit.read(read.thing, payload.id);
-          if (!found) return yield* new NotAllowed();
-          const answer = Object.fromEntries(read.fields.map((f) => [f, f === "state" ? (found.state ?? "none") : found[f as string]]));
+          const answer = read.by === "list" ? yield* byList(read, payload) : yield* byId(read, payload, unit);
           yield* Effect.annotateCurrentSpan(answerAttributes(answer));
           yield* check(answer).pipe(Effect.mapError((e) => new Error(`${name} answered outside its declaration: ${e.message}`)), Effect.orDie);
           return answer;
@@ -32,7 +59,7 @@ export const Reads: ReadsApi = {
     return {
       name,
       run,
-      call: (raw, principal) => decode(raw).pipe(Effect.flatMap((p) => run(p as { id: string }, principal))),
+      call: (raw, principal) => decode(raw).pipe(Effect.flatMap((p) => run(p as ReadPayload, principal))),
     };
   },
 };
