@@ -36,3 +36,6 @@ belongs to, and why it waits.
   a mutant only if prove fails on it. Waits until the authored planted breaks (A8) show which evals need more tasks.
 - **Benchmark regressions as a gate** (H2.12). Advisory until baselines have shown how noisy they are; a later decision makes it a gate.
 - **A weekly scheduled baseline in CI** on free models (H2.12), once CI may hold a model key (Aaron's call, H2 question 3).
+- **Other agents as comparison runners** (H1 section 16). Claude Code through the Agent SDK (check 4's runner, parented by `TRACEPARENT`)
+  and Command Code's own agent (`cmd -p`, headless) run the same benchmark tasks behind the same run record, so "our harness against theirs"
+  is a measured pair. Layer 2, after A5, once the record exists.

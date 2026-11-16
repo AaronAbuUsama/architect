@@ -175,7 +175,8 @@ A role decides what the agent may call because the agent *is* a principal: it ho
 **H1.6 Skills are a small extension, not a package.** A skill is a folder with `SKILL.md` (name up to 64 characters, description up to
 1024, the Agent Skills layout Pi's coding agent reads, `coding-agent/src/core/skills.ts:12-15`). Our `Skills` module scans declared
 folders, adds one `<available_skills>` section (name and description only; the shape of `formatSkillsForPrompt`, `skills.ts:358`) and a
-`load_skill` tool that returns the body, so cost scales with use. About 150 lines. The set of skills and the hash of each go in the run record.
+loading tool that returns the body, so cost scales with use. About 150 lines. *(Amended in section 16: the tools are named
+`activate_skill` and `read_skill_resource`, as in Cloudflare's `agents/skills`, so the Durable Object host can swap in theirs.)* The set of skills and the hash of each go in the run record.
 
 **H1.7 Sandbox: tools-only on a throwaway copy of the project, on the machine, first** (full comparison in section 10). The `Sandbox`
 service has kinds `copy` (v0), `docker` (later, over `pi-env`) and `cloudflare` (later). Model-written code runs during scoring, so the **scorer is a
@@ -186,7 +187,8 @@ separate, trusted stage** that takes the produced file(s) out of the sandbox, th
 `pi.durable.phase`, events, metrics as histograms) flows through the *same* `Otlp` layer (`effect/src/observability/Otlp.ts:42`) our
 handlers already use, into the Collector that prove runs. `propagation.inject/extract` carry a W3C `traceparent` in Pi's `TelemetryCarrier`
 (a `Record<string, string>`), built on `Tracer.externalSpan` (`effect/src/Tracer.ts:521`). About 150 lines; the contract is 4 methods
-and `memory.ts` (463 lines) is the reference. Our own spans are named `agent.run`, `agent.turn`, `agent.tool.<name>`, `agent.score`, with
+and `memory.ts` (463 lines) is the reference. Our own spans follow the OpenTelemetry GenAI conventions (amended in section 16): `invoke_agent architect`, `chat <model>`,
+`execute_tool <tool>`, plus our `agent.score`, with
 `gen_ai.*` attributes (`effect/src/ai/Telemetry.ts` has the convention). Content never goes in attributes (Pi's rule); it stays in the transcript.
 
 **H1.9 The run record is a projection; the transcript is the source of truth** (section 11). Benchmarks are tasks scored by the real
@@ -245,6 +247,8 @@ smallest thing that works is B. E's `Entity` and `Workflow` stay in the picture 
 | Size: about 120k lines in the closure | per-package counts above | Tree-shakes (`sideEffects: false`); **measure the workerd bundle in A6** against Workers' size limit; images/`photon` never imported |
 | Churn: a release every week or so | npm `time` | Two-week rule: stay on 1.5.0 until a bump is wanted, then the newest at least 14 days old |
 | Licence | MIT on all six packages | none |
+| Stored format moves forward only | `CHANGELOG.md` Unreleased: `pi.tool` v4, `pi.generation` v3, "a database written by this version is not meant to be opened by an older Harness" | A run's storage lives only as long as the run; the record (section 12) is our own schema, so a Pi bump never needs to open old storage |
+| Cloudflare supports one Pi minor at a time | `agents` 0.32.0 peers Pi `~1.4.0`, 0.33.0 peers `~1.5.0` | Pi and `agents` pins move together, in one change, with the conformance suite |
 | Promise and `Date.now` | `harness.ts:518`, `agent.ts:438` (agent-core, unused) | Injected clock; `Date.now` is the fallback only when `now` throws |
 | Tools default to not replayable | `README.md:277` | `replay: "safe"` only for `idempotent: "request"` operations |
 | `pi-ai` provider retry uses `setTimeout` | `provider-retry.ts:88` | Provider retries set to 0; Pi's stored backoff does the waiting |
@@ -358,7 +362,65 @@ Fields come from: `harness.usage()` and `pi.usage` (cost per `provider/model`), 
 
 ## 15. Questions only Aaron can answer
 
-1. Is "Command Code" the service at commandcode.ai (a coding agent with a Provider API)? If it is another service, what is its address, and does it speak OpenAI's format?
+1. Is "Command Code" the service at commandcode.ai, whose `cmd` command is installed on your machine? If so, which plan is the key on? The Go plan has no API access, so the harness needs GOAT or higher. If it is another service, what is its address, and does it speak OpenAI's format?
 2. May the harness be told, by name only, a secret in the project's environment config, with the value set outside the repository (D3 item 2), rather than read from anywhere on disk? (This is how the key must reach it; the design never reads or prints it.)
 3. Should benchmarks with open models run against paid Command Code models, or only against its free ones until we agree a budget (per run $1, per suite cap, inside the $10 a day)?
 4. Is the machine an acceptable sandbox for the first benchmarks, given that scoring executes model-written handlers on it, or do you want Docker first even though it delays the first run?
+
+## 16. Second pass (16 November 2026): an independent check, and what it changed
+
+A second 📐 designer thread was briefed on the same question before this record reached `main`. It did not write a second record:
+`D3` is the build plan's layer-2 decision (destinations, versions, secrets), so this one stays `H1`. Instead it checked H1 with three
+research agents, each reading its sources from scratch at pinned versions: the Pi Durable 1.5.0 tag (`v1.5.0`, commit `f9a2636`) and its npm
+tarball; Command Code's documentation pages; and the Agent SDK, `effect/ai`, the Vercel AI SDK, Cloudflare `agents` and the GenAI conventions.
+**H1's recommendation stands.** Each fact in sections 3, 5 and 6 was found again independently. What it changed:
+
+**H1.10 The Durable Object host is Cloudflare's `PiHarness`, not ours.** Cloudflare's `agents` package (MIT) ships `agents/harness/pi`
+(741 lines, `docs/harnesses/pi.md`). `PiHarness` hosts Pi Durable in a Durable Object as a `Lifecycle` capability. It opens Pi over the
+object's SQLite with `openDurableObjectSqliteStorage`, passes `onWake` so the object hibernates while Pi's tasks sleep, and wakes sessions after
+eviction. It also ships a `skills(sources)` Pi extension over `agents/skills`, which reads skills from code, R2 or a workspace. This is the
+platform's owner backing exactly the pairing Aaron leaned towards, and it removes most of A6's hand-written wiring. Version fit:
+`agents` 0.32.0 (29 October) peers Pi `~1.4.0`; **0.33.0 (3 November) peers `~1.5.0`, matching our pin, and is usable from 17 November**.
+A6 pins `agents` 0.33.0 exactly. It is imported only by the `/do` entry. `agents` is experimental too, so it stays behind the same seam.
+
+**H1.11 Skills use Cloudflare's tool names.** The Node `skills` module (A3) keeps H1.6's shape. Its two tools are named `activate_skill` and
+`read_skill_resource`, with a `skills` prompt section, as in `agents/skills`. A run then reads the same on Node and in a Durable Object, and A6
+can use Cloudflare's loader. `agents/skills` imports nothing from Cloudflare (its chunks are `catalog`, `markdown` and `resource`). A3 checks whether
+it runs on Node, and uses it there too if so.
+
+**H1.12 Span names follow the OpenTelemetry GenAI conventions.** The conventions now live in
+`open-telemetry/semantic-conventions-genai` (read at `e6658f1`, 6 November 2026). Their status is still *Development*. The span names are
+`invoke_agent {gen_ai.agent.name}`, `{gen_ai.operation.name} {gen_ai.request.model}` (for example `chat claude-sonnet-5-5`) and
+`execute_tool {gen_ai.tool.name}`. Usage goes in `gen_ai.usage.input_tokens`, `output_tokens`, `cache_read.input_tokens`,
+`cache_write.input_tokens` and `reasoning.output_tokens`. The Vercel AI SDK writes `cache_creation`, and the conventions write `cache_write`;
+we follow the conventions. So A4 names its spans `invoke_agent architect`, `chat <model>` and `execute_tool <tool>`, plus our own `agent.score`
+for the scorer. Two other span families arrive through the adapter: Pi's `pi.durable.*` and `pi-ai`'s `pi.ai.request` and `pi.ai.poll`.
+Effect's own `LanguageModel.generateText` span would be renamed the same way under Option E (`CurrentSpanTransformer`).
+
+**Facts sharpened, no change to a call:**
+
+- **Agent SDK and other models.** Anthropic's gateway documentation says it "doesn't support routing Claude Code to non-Claude models
+  through any gateway". `total_cost_usd` is "an estimate, not a billing statement", taken from Claude Code's own price table, so it means
+  nothing for an unknown model id. The spans are `claude_code.interaction`, `.llm_request`, `.tool` and `.tool.execution`. They are not
+  GenAI-named, and cost is on a metric, not the span. A `TRACEPARENT` variable parents its interaction span under ours, so the comparison runner
+  (section 5, D) joins the run's trace. Skills reach it only as `.claude/skills` files; the SDK has no API to register them.
+- **Command Code.** About 90% confident it is commandcode.ai. Its CLI, `command-code` 1.58.0, is installed on Aaron's machine as `cmd`
+  (only the binary's name and version were looked at, no config). Every plan has the API **except Go ($1 a month), which gets `403 upgrade_required`**.
+  So the key works for the harness only on GOAT, Pro, Max, Team or Provider. Question 1 now asks which plan it is.
+  `cmd -p` is a headless mode, which makes Command Code's own agent a possible third comparison runner (`later.md`).
+- **Pi Durable's churn, measured.** It was first published 19 September 2026, with 20 releases in 8 weeks and 252 commits to `packages/durable`
+  since 18 September. Six of the twelve 1.x releases list breaking changes, and `main` has another in Unreleased. Section 9 now also holds
+  the forward-only storage format and the lockstep with `agents`.
+- **Pi's closure meets the two-week rule today.** Pi's own packages and `pi-ai`'s provider SDKs are all pinned exactly by Pi:
+  `@anthropic-ai/sdk` 0.129.0 (28 September), `openai` 7.19.0 (18 September), `@google/genai` 2.21.0 (2 September),
+  `@aws-sdk/client-bedrock-runtime` 3.1127.0 (4 September), `quickjs-wasi` 3.6.2 (19 September). The AWS SDK's own ranges are the likeliest
+  to trip `minimumReleaseAge`; A1 finds out at install.
+- **Option E's clock.** `effect` 4.1.2 (2 November) and `@effect/ai-*` 4.1.2 are usable today. `@effect/platform-cloudflare` 4.1.3 still
+  needs `effect` 4.1.3, so E's Durable Object engine is usable from 24 November as section 8 said. `effect/ai`'s `generateText` runs one model
+  call and that turn's tools; the loop, turn limit, budget and cost are ours (`ai-docs/src/71_ai/30_chat.ts`), as section 8 assumed.
+- **Cloudflare's other harnesses.** `agents` also ships `ThinkHarness` (the AI SDK loop in a Durable Object, with durable transcripts),
+  `opencode`, `container` and `ai-sdk` harnesses. `ThinkHarness` is a real Option G: durable on Durable Objects, with model switching
+  through the AI SDK and AI Gateway. It loses to B for the same reasons A does (Promise API outside Effect), and it adds the AI SDK as a
+  second loop beside Pi's. It is not the pick, but it is the nearest exit after E if Pi's seam fails.
+- **Sandbox locally.** `@cloudflare/sandbox` 1.0.3 under `wrangler dev` needs Docker ("Docker must be running"; Wrangler 4.141.0 or later
+  for the managed image). It is real execution, not a stand-in. Section 10's order holds: the copy now, Docker over `pi-env` next, Containers later.

@@ -49,7 +49,8 @@ Rules, held by Nx module boundaries:
   `prove` and the `target-effect` interfaces (`Timers`, `Clock`), and `cli` depends on it. Pi Durable and its closure
   (`pi-ai`, `chord`, `pi-codemode`, `pi-schema`, `pi-telemetry`, all pinned at 1.5.0) are imported only inside
   `packages/agent`, only through its `internal/` seam; no generated code and no other package imports Pi. Its Durable
-  Object host (`@architect/agent/do`, build-plan step A6) is the one runtime-facing file, tagged separately then.
+  Object host (`@architect/agent/do`, build-plan step A6) is the one runtime-facing file, tagged separately then; it alone imports
+  Cloudflare's `agents` (0.33.0, for `PiHarness`), whose Pi peer range moves in lockstep with the Pi pins (H1.10).
   Six slots per module: `harness` (the `Runner` kinds `sdk`, `pi`, `oracle`, `null`; the Agent SDK and Pi each only in its
   `internal/`), `models`, `tools`, `skills`, `sandbox`, `telemetry`, `runs`, `tasks`, `score`, `suite`, `report` (H2 section 3).
 - `benchmarks` is an `env:build` Nx project, not a package: it depends on `agent` and nothing depends on it. Its `main.ts` is the
