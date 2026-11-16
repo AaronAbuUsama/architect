@@ -69,6 +69,9 @@ Decisions through D2 #80.
 Stage 2 is on main (PR 2, merge e9e3194, main CI green).
 Stage 3 (Gate 2) is open on `layer/3`. Wayfinding is done: `wayfinding/stage-3.md` (research R1–R4) and
 `decisions/D3.md` (#1–#13 how shipping runs on local worlds; #14 the command surface; #15 Gate 2's eight checks).
+L2.03 done on `build/L2.03` (the logbook, `packages/logbook`; decisions D3 #30 to #34; evidence `evidence/L2.03/`): a
+worker with a Durable Object and R2, `POST /verdicts` with a verified OIDC token, and `Logbook.launch` for the CLI's
+`env up logbook`, which the conductor wires once L2.01 lands.
 In flight: three spikes, each in a worktree on its own branch (`spike/mcp-oauth`, `spike/single-binary`,
 `spike/ci-oidc`), and the ✍️ author writing `e2e/layer2/` and `examples/acme/test/fixtures/layer2/` on
 `author/gate-2`. Merge each into `layer/3` (spikes into main by PR) when they report. Then build L2.01 to L2.10
