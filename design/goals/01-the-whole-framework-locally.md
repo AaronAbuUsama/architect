@@ -43,6 +43,38 @@ config change, not new code.
    once CI is green and a 🔍 reviewer subagent that wrote none of it passes it. Then the next layer branch is cut from
    `main`.
 
+## Wayfinding comes first, in every stage
+
+Building is about half the work. The other half is finding the way. Each stage opens with a wayfinding pass before
+any of its build steps, and wayfinding comes back whenever a step meets something unknown.
+
+1. **List the stage's unknowns:** each library, runtime or tool behaviour the stage depends on that nobody here has
+   seen working yet.
+2. **Research each one** from its source: the package's own docs, its source code and types at the pinned version,
+   its changelog and issues. Read the code rather than trust memory, since versions move. Research runs in parallel
+   in subagents, and each brings back an answer with links and the exact version.
+3. **Spike what research can't settle,** in `spikes/<name>/`, with the `spike` skill: one question, throwaway code, a
+   README with what was found. Several spikes can run at once.
+4. **Decide and record** in `design/decisions/`, fold the results into the stage's steps, then build.
+
+Write down what you learn where the next session will find it: in a decision, in a spike's README, or in the
+package's `README.md`. Time spent finding the way isn't time lost. A wrong turn found in a spike costs minutes, and the
+same wrong turn found in the build costs a stage.
+
+### Stage 1's known unknowns (from checking versions on 16 November 2026)
+
+- **Effect 4's shape.** Effect is at 4.1, but `@effect/platform` is still at 0.97, which suggests HTTP, HttpApi, the
+  CLI and SQL have moved into `effect` itself (perhaps under `effect/unstable/*`). Find where HttpApi, the CLI, the SQL
+  client and a D1 driver now live, and whether `@effect/vitest` 4 runs inside workerd.
+- **TypeScript 7** (the native compiler) is the current stable. Check whether Nx 24, typescript-eslint and vitest work
+  with it, or whether the workspace should pin TypeScript 6 for now.
+- **The test runner in workerd.** Check which vitest versions `@cloudflare/vitest-pool-workers` 0.23 supports, and how
+  it runs Durable Objects and D1.
+- **Nx 24 sync generators and module boundaries,** and whether the boundaries rule needs ESLint, or whether oxlint can
+  hold it. Oxlint is the project's linter for its own rules.
+- **Pinned versions,** the newest published on or before 2 November 2026: nx 24.0.3, effect 4.1.1, wrangler 4.156.1,
+  `@cloudflare/vitest-pool-workers` 0.23.0, vitest 4.1.12, oxlint 1.90.0, verdaccio 7.0.2, tsx 4.23.15.
+
 ## The stages
 
 ### Stage 1: the skeleton, with every eval
