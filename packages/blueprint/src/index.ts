@@ -45,7 +45,7 @@ export type { Event } from "#modules/events/types.js";
 export type { BlueprintError, ErrorClass, AnyErrorClass } from "#modules/errors/types.js";
 export type { Machine, Move, NotFrom } from "#modules/machines/types.js";
 export type { Role, RoleOf, Allowed, Principal, InstanceOf } from "#modules/roles/types.js";
-export type { Operation, Read, Step, StepKind, Runs, TestKind, Budget, PayloadOf, AnswerOf, ErrorOf, StepsOf } from "#modules/operations/types.js";
+export type { Operation, Read, ReadAnswer, Order, Page, ListPayload, ListItem, Steps, OperationSpec, Step, StepKind, Runs, TestKind, Budget, PayloadOf, AnswerOf, ErrorOf, StepsOf } from "#modules/operations/types.js";
 export type { Blank } from "#modules/blanks/types.js";
 export type { Journey, StartingWorld, Step as JourneyStep, Call, Assertion, Script, Actor, Ref, Refusal } from "#modules/journeys/types.js";
 export type { Environment, EnvironmentSpec } from "#modules/environments/types.js";

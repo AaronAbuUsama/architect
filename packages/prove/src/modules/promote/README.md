@@ -15,6 +15,10 @@ bundle `architect build` kept for the revision (the git commit) to an environmen
   operation is posted with `environment: "staging"`, failing ones too.
 - **Production** records the release in the logbook through `Releases.record`, with the version `Releases.next` gives, unless
   the revision is already the last release.
+- **Publishing** (L2.06, D3 #111, `publish/`): staging, once its proof passed and before it posts its verdicts, publishes the prerelease
+  `<next>-next.<n>` of the SDK and CLI under the dist-tag `next`; production, after `released <version>` and its verdicts, publishes the
+  release (`latest`), and a revision that was already released publishes what is missing. Both go to `ARCHITECT_REGISTRY`, and say
+  `skipped npm (...)` when there is none. Production writes the Homebrew formula only when `ARCHITECT_TAP_REPO` is set.
 - What the local pass can't reach prints `skipped <destination> (cloud pass)`.
 
 Test: `promote.test.ts`, the L2.05 done-when checks on a copy of acme under git, through the command, with the real logbook,

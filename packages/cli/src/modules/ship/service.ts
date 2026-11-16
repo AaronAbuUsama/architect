@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 import { Compiler, nodeSource, type Model } from "@architect/compiler";
-import { Impact, Releases, type Shipping } from "@architect/prove";
+import { Impact, Publish, Releases, type Shipping } from "@architect/prove";
 import type { Said, ShipApi, ShipOptions } from "./types.ts";
 
 const NO_LOGBOOK = "no logbook: start one with `architect env up logbook`, or set ARCHITECT_LOGBOOK_URL";
@@ -51,4 +51,22 @@ const changes: ShipApi["changes"] = (options) =>
     Effect.catch(() => Effect.void),
   );
 
-export const Ship: ShipApi = { next, impact, changes };
+const publish: ShipApi["publish"] = ({ root, env, mode, say }) =>
+  Effect.gen(function* () {
+    const model = yield* modelOf(root);
+    const logbook = yield* Releases.locate({ root, env });
+    if (logbook === undefined) return refused(NO_LOGBOOK);
+    if (mode === "local" && Publish.registry(env) === undefined) return refused("no registry: set ARCHITECT_REGISTRY to the registry to publish to (Verdaccio, on this machine)");
+    const version = yield* Releases.next(logbook, model);
+    yield* Publish.run({ root, env, environment: "production", version, mode: mode === "local" ? "publish" : "dry-run", localTap: true, say });
+    return { out: "", err: "", exit: 0 } satisfies Said;
+  }).pipe(
+    Effect.catchTags({
+      ReleaseFailed: (e) => Effect.succeed(refused(e.message)),
+      PublishFailed: (e) => Effect.succeed(refused(`publish couldn't run: ${e.message}`)),
+      BlueprintInvalid: (e) => Effect.succeed(refused(e.problems.join("\n"))),
+      SourceError: (e) => Effect.succeed(refused(e.message)),
+    }),
+  );
+
+export const Ship: ShipApi = { next, impact, changes, publish };

@@ -172,6 +172,20 @@ const version = Command.make(
   ({ next, root }) => (next ? Ship.next({ root, env: process.env }).pipe(Effect.flatMap(print)) : fail("usage: architect version --next", 2)),
 );
 
+// `architect publish --dry-run | --local`: the SDK and CLI at the next version (D3 #9, #110). The cloud pass publishes to npmjs.org and GitHub.
+const publish = Command.make(
+  "publish",
+  {
+    dryRun: Flag.Boolean("dry-run").pipe(Flag.withDefault(false)),
+    local: Flag.Boolean("local").pipe(Flag.withDefault(false)),
+    root: Flag.String("root").pipe(Flag.withDefault(process.cwd())),
+  },
+  ({ dryRun, local, root }) =>
+    dryRun || local
+      ? Ship.publish({ root, env: process.env, mode: dryRun ? "dry-run" : "local", say: (line) => Console.log(line) }).pipe(Effect.flatMap(print))
+      : fail("usage: architect publish --dry-run | --local (npmjs.org and GitHub releases are the cloud pass's)", 2),
+);
+
 const brief = Command.make(
   "brief",
   { operation: Argument.String("operation"), root: Flag.String("root").pipe(Flag.withDefault(process.cwd())) },
@@ -246,7 +260,7 @@ const reap = Command.make(
 const worlds = Command.make("worlds").pipe(Command.withSubcommands([reap]));
 
 Command.make("architect").pipe(
-  Command.withSubcommands([model, dev, prove, promote, add, check, generate, brief, impact, version, build, env, worlds]),
+  Command.withSubcommands([model, dev, prove, promote, add, check, generate, brief, impact, version, publish, build, env, worlds]),
   Command.run({ version: "0.0.0" }),
   Effect.provide(NodeServices.layer),
   NodeRuntime.runMain,

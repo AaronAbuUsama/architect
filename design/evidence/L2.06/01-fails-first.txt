@@ -1,0 +1,240 @@
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-aa8ccf3ef2023a89a/packages/prove
+
+ × src/modules/publish/publish.test.ts > architect publish > --dry-run lists exactly what would go out, and sends nothing 2080ms
+   → USAGE
+  architect <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  model       
+  dev         
+  prove       
+  promote     
+  add         
+  check       
+  generate    
+  brief       
+  impact      
+  version     
+  build       
+  env         
+  worlds      
+
+ERRORS
+  Unknown subcommand "publish" for "architect"
+  Unrecognized flag: --dry-run in command architect
+  Unrecognized flag: --root in command architect
+: expected 1 to be +0 // Object.is equality
+ × src/modules/publish/publish.test.ts > architect publish > without a registry, --local says so and exits 2; with neither flag it says how to use it 1124ms
+   → 
+ERRORS
+  Unknown subcommand "publish" for "architect"
+  Unrecognized flag: --local in command architect
+  Unrecognized flag: --root in command architect
+: expected 1 to be 2 // Object.is equality
+ × src/modules/publish/publish.test.ts > architect publish > a prerelease goes out under `next`, numbered one past the last, and never takes `latest` 3904ms
+   → after 1.1.0-next.1: expected { next: '1.1.0-next.1', …(1) } to deeply equal { next: '1.1.0-next.1' }
+ × src/modules/publish/publish.test.ts > architect publish > --local puts @acme/sdk@1.1.0 and @acme/cli@1.1.0 on the registry, `latest` on them, and a fresh folder installs and runs them 739ms
+   → USAGE
+  architect <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  model       
+  dev         
+  prove       
+  promote     
+  add         
+  check       
+  generate    
+  brief       
+  impact      
+  version     
+  build       
+  env         
+  worlds      
+
+ERRORS
+  Unknown subcommand "publish" for "architect"
+  Unrecognized flag: --local in command architect
+  Unrecognized flag: --root in command architect
+: expected 1 to be +0 // Object.is equality
+ × src/modules/publish/publish.test.ts > architect publish > `brew install <tap>/<formula>` installs the CLI binary, which prints its version and `ok` from a running world 1ms
+   → ENOENT: no such file or directory, open '/private/var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/architect-l206-ao3GEm/acme/.architect/tap/Formula/acme-l206-349e99.rb'
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/publish/publish.test.ts > architect publish > --dry-run lists exactly what would go out, and sends nothing
+AssertionError: USAGE
+  architect <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  model       
+  dev         
+  prove       
+  promote     
+  add         
+  check       
+  generate    
+  brief       
+  impact      
+  version     
+  build       
+  env         
+  worlds      
+
+ERRORS
+  Unknown subcommand "publish" for "architect"
+  Unrecognized flag: --dry-run in command architect
+  Unrecognized flag: --root in command architect
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ src/modules/publish/publish.test.ts:130:35
+    128|     expect(architect("version", "--next").lines).toContain("1.1.0");
+    129|     const said = architect("publish", "--dry-run");
+    130|     expect(said.status, said.out).toBe(0);
+       |                                   ^
+    131|     const target = hostTarget() ?? `${process.platform}-${process.arch…
+    132|     expect(said.lines, said.out).toEqual(expect.arrayContaining([
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  src/modules/publish/publish.test.ts > architect publish > without a registry, --local says so and exits 2; with neither flag it says how to use it
+AssertionError: 
+ERRORS
+  Unknown subcommand "publish" for "architect"
+  Unrecognized flag: --local in command architect
+  Unrecognized flag: --root in command architect
+: expected 1 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 1
+
+ ❯ src/modules/publish/publish.test.ts:149:38
+    147|   it("without a registry, --local says so and exits 2; with neither fl…
+    148|     const none = spawnSync(process.execPath, [cli, "publish", "--local…
+    149|     expect(none.status, none.stderr).toBe(2);
+       |                                      ^
+    150|     expect(none.stderr).toContain("no registry: set ARCHITECT_REGISTRY…
+    151|     const bare = architect("publish");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  src/modules/publish/publish.test.ts > architect publish > a prerelease goes out under `next`, numbered one past the last, and never takes `latest`
+AssertionError: after 1.1.0-next.1: expected { next: '1.1.0-next.1', …(1) } to deeply equal { next: '1.1.0-next.1' }
+
+- Expected
++ Received
+
+  {
++   "latest": "1.1.0-next.1",
+    "next": "1.1.0-next.1",
+  }
+
+ ❯ src/modules/publish/publish.test.ts:164:54
+    162|       expect(lines, lines.join("\n")).toContain(`npm @acme/sdk@${versi…
+    163|       const sdk = await dist("@acme/sdk");
+    164|       expect(sdk?.["dist-tags"], `after ${version}`).toEqual({ next: v…
+       |                                                      ^
+    165|       expect((await dist("@acme/cli"))?.["dist-tags"]).toEqual({ next:…
+    166|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  src/modules/publish/publish.test.ts > architect publish > --local puts @acme/sdk@1.1.0 and @acme/cli@1.1.0 on the registry, `latest` on them, and a fresh folder installs and runs them
+AssertionError: USAGE
+  architect <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  model       
+  dev         
+  prove       
+  promote     
+  add         
+  check       
+  generate    
+  brief       
+  impact      
+  version     
+  build       
+  env         
+  worlds      
+
+ERRORS
+  Unknown subcommand "publish" for "architect"
+  Unrecognized flag: --local in command architect
+  Unrecognized flag: --root in command architect
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ src/modules/publish/publish.test.ts:171:35
+    169|   it("--local puts @acme/sdk@1.1.0 and @acme/cli@1.1.0 on the registry…
+    170|     const said = architect("publish", "--local");
+    171|     expect(said.status, said.out).toBe(0);
+       |                                   ^
+    172|     expect(said.lines, said.out).toEqual(expect.arrayContaining([
+    173|       `npm @acme/sdk@1.1.0 published --tag latest to ${registry}`, `np…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  src/modules/publish/publish.test.ts > architect publish > `brew install <tap>/<formula>` installs the CLI binary, which prints its version and `ok` from a running world
+Error: ENOENT: no such file or directory, open '/private/var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/architect-l206-ao3GEm/acme/.architect/tap/Formula/acme-l206-349e99.rb'
+ ❯ src/modules/publish/publish.test.ts:204:18
+    202|   it.skipIf(!brewHere)("`brew install <tap>/<formula>` installs the CL…
+    203|     const formulaFile = join(root, ".architect/tap/Formula", `${formul…
+    204|     const text = readFileSync(formulaFile, "utf8");
+       |                  ^
+    205|     const target = hostTarget();
+    206|     const sums = readFileSync(join(root, `.architect/publish/1.1.0/acm…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { errno: -2, code: 'ENOENT', syscall: 'open', path: '/private/var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/architect-l206-ao3GEm/acme/.architect/tap/Formula/acme-l206-349e99.rb' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed (5)
+   Start at  23:17:12
+   Duration  18.35s (transform 332ms, setup 0ms, import 1.48s, tests 16.73s, environment 0ms)
+

@@ -25,6 +25,13 @@ export interface ShipApi {
    * one, or when it doesn't answer, only the local ledger's lines (the second case with a warning on stderr).
    */
   readonly impact: (options: ShipOptions) => Effect.Effect<Said>;
+  /**
+   * `architect publish --dry-run | --local`: the generated SDK and CLI at the version `architect version --next` says, as
+   * production's `publish` list names them. `dry-run` lists exactly what would go out and sends nothing; `local` sends the
+   * packages to the registry in `ARCHITECT_REGISTRY`, builds the CLI binary for this machine, and commits the formula to the
+   * tap (`ARCHITECT_TAP_REPO`, else `.architect/tap/`). Each line is said as it happens; the result is the exit and any error.
+   */
+  readonly publish: (options: ShipOptions & { readonly mode: "dry-run" | "local"; readonly say: (line: string) => Effect.Effect<void> }) => Effect.Effect<Said>;
   /** After `architect generate`: write `generated/model/changes.json` when a logbook answers; silent when there is none. */
   readonly changes: (options: ShipOptions) => Effect.Effect<void>;
 }

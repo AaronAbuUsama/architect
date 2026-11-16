@@ -58,3 +58,13 @@ belongs to, and why it waits.
   and journal). Gate `cast` to local and test worlds (`ARCHITECT_WORLDS` or no `ARCHITECT_ENVIRONMENT`), and give the staging
   proof another way to read what a step did (the journal from telemetry, a declared read) so facts can close there and on
   production. Needs a `server.ts` generator change after L2.L lands; before the cloud pass deploys anything.
+
+- **Read `architect.config.ts`'s `outputs` where packages and commands are named (D3 #112).** Nothing reads the config yet: the generators
+  name the CLI from the project's folder and `publish` names `@<folder>/sdk` and `@<folder>/cli`, so `outputs: { sdk: "@acme/sdk", cli: "acme" }`
+  renames nothing. One change for the generators and publish together: the config's names, the folder as the default.
+- **The SDK without Architect's server packages.** `@acme/sdk`'s declarations and runtime import only `effect` and `@architect/blueprint`
+  (and its `/server` entry for the API's schemas); a consumer of the SDK still installs all of `@architect/blueprint`. Splitting the client's
+  schemas from the blueprint's declaration API would slim it; worth doing before the packages are public (the cloud pass).
+- **Architect's own CLI as a single executable** (spike `single-binary`, D3 #9): still blocked by the four breakages the spike lists
+  (`import.meta` at load, spawning `process.execPath` as Node, the lint plugin and wrangler as files, nx's native addon). The generated project
+  CLI ships as a binary; `architect` stays an npm package.

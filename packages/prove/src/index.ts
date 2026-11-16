@@ -19,3 +19,5 @@ export { Verdicts } from "#modules/verdicts/service.js";
 export { VerdictsFailed, type Result as VerdictResult, type TokenSource } from "#modules/verdicts/types.js";
 export { Promote } from "#modules/promote/service.js";
 export { PromoteFailed, PromoteRefused, type Promoted, type Target as PromoteTarget } from "#modules/promote/types.js";
+export { Publish } from "#modules/publish/service.js";
+export { PublishFailed, type Binary as PublishedBinary, type Published, type PublishTarget } from "#modules/publish/types.js";
