@@ -2,6 +2,9 @@
 
 ## How to use this plan
 
+> **Run order:** goal 1 (`goals/01-the-whole-framework-locally.md`) builds these steps in six stages, against local
+> stand-ins, and pulls the grant's slice of L1.20 to L1.25 into the skeleton. See `decisions/G1-local-first.md`.
+
 This plan takes Architect from an empty repository to all five layers. One local agent follows it, working with Aaron.
 
 **Rules**

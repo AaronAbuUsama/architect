@@ -18,12 +18,16 @@ design session.
 ## Next
 
 1. Done: the private GitHub repository, with the design on `main`.
-2. Goal 1, the walking skeleton on this Mac: `goals/01-walking-skeleton.md`. It covers L1.01, D1, D2 and L1.10 to
-   L1.15, and folds spikes S2, S4 and S5 into the build.
-3. Goal 2, the rest of layer one to Gate 1 (with spikes S3 and S6), to be written when goal 1 is done.
+2. Goal 1, the whole framework proven locally, in six stages, one per gate, with stage 1 being the skeleton with
+   every eval: `goals/01-the-whole-framework-locally.md`. Why it's sliced that way: `decisions/G1-local-first.md`.
+3. After that, the cloud pass, which needs Aaron's yes on credentials.
 
 Aaron's rule from 16 November 2026: the building agent owns the architecture and asks only when blocked (see
 "Who decides" in `AGENTS.md`).
+
+## Where the goal stands
+
+Not started. Stage 1, step L1.01, is next.
 
 ## Open
 
