@@ -100,3 +100,7 @@ Decided 16 November 2026 by the builder, which has architectural ownership. The 
     what depends on what: field references, operations on their things, moves on their events, roles that allow them.
     The generated CLI takes `--json` on every command. It signs in with `<PROJECT>_TOKEN` until the starter's Better
     Auth sign-in (L1.50); it doesn't send an idempotency key yet, which the SDK gains with that sign-in work.
+56. **A brief is for one handler, and names its journeys by the files that import the operation.** `architect brief`
+    reads the model and the journey files' text: a journey that imports `verbs/spend.ts` calls spend. Reads and
+    unknown names are refused, listing the operations that have handlers. The forbidden paths (`Brief.forbidden`) are
+    the ones Gate 1's `claude -p` session is denied.

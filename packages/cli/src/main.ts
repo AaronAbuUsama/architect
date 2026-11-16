@@ -11,6 +11,8 @@ import { Add } from "#modules/add/service.ts";
 import { AddRefused, type What } from "#modules/add/types.ts";
 import { Check } from "#modules/check/service.ts";
 import { Generate } from "#modules/generate/service.ts";
+import { Brief } from "#modules/brief/service.ts";
+import { Compiler, nodeSource } from "@architect/compiler";
 
 const model = Command.make(
   "model",
@@ -110,8 +112,24 @@ const generate = Command.make(
     ),
 );
 
+const brief = Command.make(
+  "brief",
+  { operation: Argument.String("operation"), root: Flag.String("root").pipe(Flag.withDefault(process.cwd())) },
+  ({ operation, root }) =>
+    Compiler.model.pipe(
+      Effect.provide(nodeSource(root)),
+      Effect.flatMap((m) => {
+        const journeys = [...tsFiles(join(root, "blueprint/journeys")), ...tsFiles(join(root, "journeys"))]
+          .map((f) => ({ path: relative(root, f), text: readFileSync(f, "utf8") }));
+        const said = Brief.of(m, operation, journeys);
+        return "unknown" in said ? fail(said.unknown, 2) : Effect.sync(() => process.stdout.write(said.lines.join("\n") + "\n"));
+      }),
+      Effect.catchTags({ BlueprintInvalid: (e) => fail(e.problems.join("\n"), 2), SourceError: (e) => fail(e.message, 2) }),
+    ),
+);
+
 Command.make("architect").pipe(
-  Command.withSubcommands([model, dev, prove, add, check, generate]),
+  Command.withSubcommands([model, dev, prove, add, check, generate, brief]),
   Command.run({ version: "0.0.0" }),
   Effect.provide(NodeServices.layer),
   NodeRuntime.runMain,
