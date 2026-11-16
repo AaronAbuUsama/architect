@@ -27,7 +27,7 @@ Aaron's rule from 16 November 2026: the building agent owns the architecture and
 
 ## Where the goal stands
 
-Stage 1 (`layer/1`). Done: wayfinding (`wayfinding/stage-1.md`, decisions D1 and D2), L1.01, L1.10 to L1.15, each
+Stage 1 (`layer/1`, now on main). Done: wayfinding (`wayfinding/stage-1.md`, decisions D1 and D2), L1.01, L1.10 to L1.15, each
 with evidence in `evidence/`. Packages: `blueprint` (declarations, journeys and their checks), `compiler`, `cli`
 (`architect model`, `dev`, `prove`), `target-effect` (`Handlers.serve` with who-may-call, `move`, answer/refusal/move
 evidence on the span, `Journal`, `Busy`, `Timers`, `Principals`, `Records`, `Ids`, `Wire`), `host-cloudflare`
@@ -36,11 +36,12 @@ facts door), `generators`, and `prove` (`Worlds` (moved from cli), `Collectors` 
 `Journeys`, `Evals` (all nine), `Prove`). `architect prove --env local` in `examples/acme` prints every eval ✔ and
 `prove ✔` in about 6 s and leaves nothing running; `packages/prove/src/modules/prove/prove.test.ts` is the gate: acme
 passes, the scaffolded handlers fail, and each of the journey author's eight planted fixtures fails its own eval.
-Decisions for L1.15 are D2 #24 to #32. Run Nx with `NX_DAEMON=false` after changing generator code. Next: the stage 1
-review by a 🔍 reviewer subagent, then the pull request from `layer/1` to main, merged when CI is green, then the report
-to Aaron. Stage 2 (Gate 1, the allowance's whole life) opens with wayfinding and a journey author. The build plan's
-L1.20 to L1.25 rows were built only as far as grant needs (move, event, steps, budgets, the evals); their remaining
-parts (reads, idempotency, `step.wait`, spend) belong to stage 2. The evidence page is
+Decisions for L1.15 are D2 #24 to #32. Run Nx with `NX_DAEMON=false` after changing generator code. Stage 1 landed on main on 16 November 2026 (pull request #1, merged with CI green after a 🔍 review that passed).
+Next: stage 2 (Gate 1, the allowance's whole life) on `layer/2`: wayfinding first (`wayfinding/stage-2.md`: list the
+unknowns, research them in parallel subagents, spike what research can't settle), then a journey author writes the
+stage's journeys and planted fixtures, then the build steps. The build plan's L1.20 to L1.25 rows were built only as
+far as grant needs (move, event, steps, budgets, the evals); their remaining parts (reads, idempotency, `step.wait`,
+spend, one transaction for a move) belong to stage 2. The evidence page is
 https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB; republish it with `python3 tools/evidence/page.py` after each step.
 
 ## Open
