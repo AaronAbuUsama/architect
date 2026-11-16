@@ -53,6 +53,722 @@ h2 { font-family: var(--display); font-size: 1.25rem; margin: 0; display: flex; 
   
 <section class="step">
   <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
+  <h2><span class="id">L1.60</span> Gate 1: layer one&#x27;s seven checks <span class="chip pass">done</span></h2>
+  <p class="summary">nx run e2e:layer1 runs the seven checks of layer one, each with the real architect command in a copy outside the repository: a project from the preset installed from Verdaccio; acme proving; every eval catching its planted break (performance, being review-only, raises a review on a slow grant and prove still passes); an agent writing a handler from its brief alone; the generated CLI, SDK and docs against a running world; add, generate and check building the allowance on the starter; and impact. The agent check runs on the Claude Agent SDK with only four tools of ours, and its whole run is traced into the same OpenTelemetry Collector prove uses.</p>
+  <div class="proves"><span class="label">Done when</span>All seven checks pass locally, 19 tests. In CI, the agent check says it was skipped and why, until CI has an Anthropic key; the rest pass.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43950414868">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/ad0362c">commit ad0362c</a> · 3 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The whole Gate 1 suite, seven checks.</span>
+    <span class="meta">exit 0 · 144.9s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx nx run e2e:layer1 --outputStyle=static --skip-nx-cache --reporter=verbose</div><pre>&gt; nx run e2e:layer1 --reporter=verbose
+
+&gt; vitest run --root e2e layer1 --reporter=verbose
+
+
+ RUN  v4.1.12 ./e2e
+
+ ✓ layer1/03-every-eval-catches-its-break.test.ts &gt; check 3: every eval catches its planted break &gt; answer-shape: prove exits 1 with &quot;allowance.grant answer shape ✘&quot; 9061ms
+ ✓ layer1/03-every-eval-catches-its-break.test.ts &gt; check 3: every eval catches its planted break &gt; declared-errors: prove exits 1 with &quot;allowance.grant declared errors ✘&quot; 7892ms
+ ✓ layer1/03-every-eval-catches-its-break.test.ts &gt; check 3: every eval catches its planted break &gt; machine-path: prove exits 1 with &quot;allowance.grant machine path ✘&quot; 8705ms
+ ✓ layer1/03-every-eval-catches-its-break.test.ts &gt; check 3: every eval catches its planted break &gt; events: prove exits 1 with &quot;allowance.grant events ✘&quot; 7907ms
+ ✓ layer1/03-every-eval-catches-its-break.test.ts &gt; check 3: every eval catches its planted break &gt; who-may-call: prove exits 1 with &quot;allowance.grant who may call ✘&quot; 8678ms
+ ✓ layer1/03-every-eval-catches-its-break.test.ts &gt; check 3: every eval catches its planted break &gt; steps: prove exits 1 with &quot;allowance.grant steps ✘&quot; 8354ms
+ ✓ layer1/03-every-eval-catches-its-break.test.ts &gt; check 3: every eval catches its planted break &gt; coverage: prove exits 1 with &quot;organization.rename coverage ✘&quot; 11005ms
+ ✓ layer1/03-every-eval-catches-its-break.test.ts &gt; check 3: every eval catches its planted break &gt; performance: prove exits 0 with &quot;allowance.grant performance ✔&quot; and a review 21628ms
+ ✓ layer1/03-every-eval-catches-its-break.test.ts &gt; check 3: every eval catches its planted break &gt; explainability: prove exits 1 with &quot;allowance.grant explainability ✘&quot; 8107ms
+ ✓ layer1/01-a-project-from-the-preset.test.ts &gt; check 1: create-nx-workspace --preset=@architect/preset &gt; makes a project whose check and prove pass, from packages installed out of a registry 99582ms
+ ✓ layer1/06-check-and-the-authoring-loop.test.ts &gt; check 6: architect add, generate and check build the allowance on the starter &gt; blanks, then scaffolds, then a project that checks and proves 12999ms
+ ✓ layer1/06-check-and-the-authoring-loop.test.ts &gt; check 6: architect add, generate and check build the allowance on the starter &gt; check/edited-output/get.ts: check exits 1 naming generated/api/src/allowance/get.ts and no-edited-output 1570ms
+ ✓ layer1/06-check-and-the-authoring-loop.test.ts &gt; check 6: architect add, generate and check build the allowance on the starter &gt; check/name-as-string/spend.ts: check exits 1 naming implementation/handlers/allowance/spend.ts and no-name-as-string 1575ms
+ ✓ layer1/06-check-and-the-authoring-loop.test.ts &gt; check 6: architect add, generate and check build the allowance on the starter &gt; check/refusal-without-log/spend.ts: check exits 1 naming implementation/handlers/allowance/spend.ts and refusal-has-log 1536ms
+ ✓ layer1/06-check-and-the-authoring-loop.test.ts &gt; check 6: architect add, generate and check build the allowance on the starter &gt; types/undeclared-error/spend.ts: check exits 1 naming implementation/handlers/allowance/spend.ts and TS 1621ms
+ ✓ layer1/07-impact.test.ts &gt; check 7: architect impact &gt; stale exactly allowance.spend after its budget is loosened; allowance.list unproven once added 9334ms
+ ✓ layer1/02-acme-proves.test.ts &gt; check 2: architect prove --env local on acme &gt; passes eleven journeys and fifteen operations with nine evals each, and leaves nothing running 7764ms
+ ✓ layer1/05-the-generated-surfaces.test.ts &gt; check 5: the generated CLI, SDK and docs &gt; against architect dev: exit codes, --json, a typed SDK call, and docs with every refusal 6639ms
+stdout | layer1/04-agent-writes-a-handler.test.ts &gt; check 4: an agent writes allowance.spend from its brief alone &gt; the written handler passes prove: spend&#x27;s 9 evals and the journeys that call it
+agent session: success, 31 turns, 39 s, $1.62
+I wrote `implementation/handlers/allowance/spend.ts`, and `architect check` passes (types, rules, drift all clean). I haven&#x27;t run `architect prove --env local`, so the 9 evals and the three journeys are untested. I don&#x27;t have a tool for that command.
+
+How the handler works:
+- **Load:** it reads the allowance through `steps.load(records.find(...))`. If the record is missing it dies, the same way `invitation/accept.ts` does, since the runtime has already found it.
+- **Refusal:** if `amount` is more than what is left (`limit - spent`), it logs why with `Effect.logInfo` and fails with `AllowanceExceeded({ remaining })`. The role check and the machine&#x27;s `AllowanceNotActive` check are left to the runtime.
+- **Record:** it writes the new `spent` through `steps.record(records.update(...))`, then calls `move(&quot;exhausted&quot;)` if nothing is left and `move(&quot;active&quot;)` otherwise.
+- **Answer:** it returns `{ remaining }`, the amount left after this spend.
+
+I couldn&#x27;t read the `Records` API, so I guessed `records.update(Allowance, id, { spent })`. The type check accepts it, but I haven&#x27;t seen it run. The other thing to confirm is that `steps.record(...)` wrapping the update (rather than the move, as `revoke.ts` does with `steps.update(move(...))`) satisfies the step eval. If `prove` shows a problem with `spent` not updating or with the steps, those are the two places to look.
+
+ ✓ layer1/04-agent-writes-a-handler.test.ts &gt; check 4: an agent writes allowance.spend from its brief alone &gt; the written handler passes prove: spend&#x27;s 9 evals and the journeys that call it 51383ms
+ ↓ layer1/04-agent-writes-a-handler.test.ts &gt; check 4 in CI without ANTHROPIC_API_KEY &gt; is skipped, and says why
+
+ Test Files  7 passed (7)
+      Tests  19 passed | 1 skipped (20)
+   Start at  20:30:13
+   Duration  143.43s (transform 205ms, setup 0ms, import 662ms, tests 285.47s, environment 0ms)
+
+
+
+
+ NX   Successfully ran target layer1 for project e2e
+
+
+  Run duration:      2m 24s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     2m 24s (1 task)
+  Recoverable time:  &lt;1ms
+
+  Recommendations:
+    - Cache: drop --skip-nx-cache to restore unchanged tasks instantly.
+    - Speed up or split the longest tasks on the critical path:
+        e2e:layer1    2m 24s</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">What the agent did, read back from the collector: the interaction, each model request, each tool call.</span>
+    <span class="meta">exit 0 · 0.1s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node &lt;scratch&gt;/telemetry-summary.mjs e2e/.architect/agent-telemetry</div><pre>spans, from the agent session in check 4, exported over OTLP to the prove Collector:
+  claude_code.interaction ×1
+  claude_code.llm_request ×17
+  claude_code.tool ×30
+  claude_code.tool.blocked_on_user ×30
+  claude_code.tool.execution ×30
+logs:
+  api_request ×16
+  assistant_response ×3
+  managed_settings_resolved ×1
+  mcp_server_connection ×12
+  plugin_loaded ×3
+  tool_decision ×30
+  tool_result ×30
+  user_prompt ×1</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Every package&#x27;s lint, typecheck and tests.</span>
+    <span class="meta">exit 0 · 84.7s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx nx run-many -t lint,typecheck,test --outputStyle=static --skip-nx-cache</div><pre>NX   Running targets lint, typecheck, test for 16 projects:
+
+- host-cloudflare
+- target-solidity
+- target-effect
+- generators
+- blueprint
+- compiler
+- logbook
+- starter
+- portal
+- preset
+- prove
+- acme
+- lint
+- cli
+- std
+- e2e
+
+
+
+&gt; nx run blueprint:typecheck
+
+&gt; tsc -p packages/blueprint/tsconfig.json
+
+
+&gt; nx run blueprint:test
+
+&gt; vitest run --root packages/blueprint --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/blueprint
+
+
+ Test Files  9 passed (9)
+      Tests  21 passed (21)
+   Start at  20:32:38
+   Duration  493ms (transform 343ms, setup 0ms, import 2.34s, tests 28ms, environment 1ms)
+
+
+&gt; nx run blueprint:lint
+
+&gt; oxlint packages/blueprint
+
+
+&gt; nx run target-effect:lint
+
+&gt; oxlint packages/target-effect
+
+
+&gt; nx run target-effect:typecheck
+
+&gt; tsc -p packages/target-effect/tsconfig.json
+
+
+&gt; nx run target-effect:test
+
+&gt; vitest run --root packages/target-effect --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/target-effect
+
+
+ Test Files  11 passed (11)
+      Tests  34 passed (34)
+   Start at  20:32:39
+   Duration  814ms (transform 722ms, setup 0ms, import 3.85s, tests 274ms, environment 1ms)
+
+
+&gt; nx run compiler:typecheck
+
+&gt; tsc -p packages/compiler/tsconfig.json
+
+
+&gt; nx run compiler:lint
+
+&gt; oxlint packages/compiler
+
+
+&gt; nx run compiler:test
+
+&gt; vitest run --root packages/compiler --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/compiler
+
+
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
+   Start at  20:32:39
+   Duration  1.13s (transform 700ms, setup 0ms, import 736ms, tests 634ms, environment 0ms)
+
+
+&gt; nx run generators:typecheck
+
+&gt; tsc -p packages/generators/tsconfig.json
+
+
+&gt; nx run generators:lint
+
+&gt; oxlint packages/generators
+
+
+&gt; nx run generators:test
+
+&gt; vitest run --root packages/generators --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/generators
+
+
+ Test Files  3 passed (3)
+      Tests  10 passed (10)
+   Start at  20:32:40
+   Duration  1.64s (transform 139ms, setup 0ms, import 717ms, tests 2.73s, environment 0ms)
+
+
+&gt; nx run host-cloudflare:lint
+
+&gt; oxlint packages/host-cloudflare
+
+
+&gt; nx run prove:lint
+
+&gt; oxlint packages/prove
+
+
+&gt; nx run host-cloudflare:typecheck
+
+&gt; tsc -p packages/host-cloudflare/tsconfig.json
+
+
+&gt; nx run prove:typecheck
+
+&gt; tsc -p packages/prove/tsconfig.json
+
+
+&gt; nx run lint:test
+
+&gt; vitest run --root packages/lint --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/lint
+
+
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
+   Start at  20:32:44
+   Duration  5.09s (transform 43ms, setup 0ms, import 81ms, tests 6.16s, environment 0ms)
+
+
+&gt; nx run lint:lint
+
+&gt; oxlint packages/lint
+
+
+&gt; nx run lint:typecheck
+
+&gt; tsc -p packages/lint/tsconfig.json
+
+
+&gt; nx run cli:test
+
+&gt; vitest run --root packages/cli --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/cli
+
+
+ Test Files  5 passed (5)
+      Tests  18 passed (18)
+   Start at  20:32:51
+   Duration  11.93s (transform 3.74s, setup 0ms, import 1.84s, tests 29.18s, environment 0ms)
+
+
+&gt; nx run e2e:lint
+
+&gt; oxlint e2e
+
+e2e/layer1/04-agent-writes-a-handler.test.ts:13:27: warning eslint(no-unused-vars): Identifier &#x27;cli&#x27; is imported but never used. help: Consider removing this import.
+
+&gt; nx run starter:lint
+
+&gt; oxlint examples/starter
+
+
+&gt; nx run acme:lint
+
+&gt; oxlint examples/acme
+
+
+&gt; nx run cli:lint
+
+&gt; oxlint packages/cli
+
+
+&gt; nx run starter:typecheck
+
+&gt; tsc -p examples/starter/tsconfig.json
+
+
+&gt; nx run host-cloudflare:test
+
+&gt; vitest run --root packages/host-cloudflare --passWithNoTests
+
+
+=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+
+
+ RUN  v4.1.12 ./packages/host-cloudflare
+
+
+ Test Files  7 passed (7)
+      Tests  12 passed (12)
+   Start at  20:32:42
+   Duration  25.29s (transform 65.06s, setup 149.72s, import 1.89s, tests 4.28s, environment 0ms)
+
+
+&gt; nx run preset:lint
+
+&gt; oxlint packages/preset
+
+
+&gt; nx run std:lint
+
+&gt; oxlint packages/std
+
+
+&gt; nx run portal:lint
+
+&gt; oxlint packages/portal
+
+
+&gt; nx run logbook:lint
+
+&gt; oxlint packages/logbook
+
+
+&gt; nx run target-solidity:lint
+
+&gt; oxlint packages/target-solidity
+
+
+&gt; nx run acme:typecheck
+
+&gt; tsc -p examples/acme/tsconfig.json
+
+
+&gt; nx run cli:typecheck
+
+&gt; tsc -p packages/cli/tsconfig.json
+
+
+&gt; nx run e2e:typecheck
+
+&gt; tsc -p e2e/tsconfig.json
+
+
+&gt; nx run preset:test
+
+&gt; vitest run --root packages/preset --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/preset
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  20:33:10
+   Duration  402ms (transform 75ms, setup 0ms, import 279ms, tests 3ms, environment 0ms)
+
+
+&gt; nx run starter:test
+
+&gt; vitest run --root examples/starter --passWithNoTests
+
+
+ RUN  v4.1.12 ./examples/starter
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run acme:test
+
+&gt; vitest run --root examples/acme --passWithNoTests
+
+
+ RUN  v4.1.12 ./examples/acme
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run portal:test
+
+&gt; vitest run --root packages/portal --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/portal
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run logbook:test
+
+&gt; vitest run --root packages/logbook --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/logbook
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run target-solidity:test
+
+&gt; vitest run --root packages/target-solidity --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/target-solidity
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run preset:typecheck
+
+&gt; tsc -p packages/preset/tsconfig.json
+
+
+&gt; nx run std:test
+
+&gt; vitest run --root packages/std --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/std
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run target-solidity:typecheck
+
+&gt; tsc -p packages/target-solidity/tsconfig.json
+
+
+&gt; nx run logbook:typecheck
+
+&gt; tsc -p packages/logbook/tsconfig.json
+
+
+&gt; nx run std:typecheck
+
+&gt; tsc -p packages/std/tsconfig.json
+
+
+&gt; nx run portal:typecheck
+
+&gt; tsc -p packages/portal/tsconfig.json
+
+
+&gt; nx run prove:test
+
+&gt; vitest run --root packages/prove --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  7 passed (7)
+      Tests  25 passed (25)
+   Start at  20:32:41
+   Duration  80.23s (transform 4.22s, setup 0ms, import 1.69s, tests 128.45s, environment 0ms)
+
+
+
+
+ NX   Successfully ran targets lint, typecheck, test for 16 projects
+
+
+  Run duration:      1m 24s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     1m 21s (1 task)
+  Recoverable time:  3.1s (4% of the run)
+
+  Recommendations:
+    - Cache: drop --skip-nx-cache to restore unchanged tasks instantly.
+    - Speed up or split the longest tasks on the critical path:
+        prove:test    1m 21s</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
+  <h2><span class="id">L1.51</span> acme on the starter <span class="chip pass">done</span></h2>
+  <p class="summary">acme is now what a user would have: the starter the preset writes (sign-up and sign-in on Better Auth, organisations, memberships, invitations, API keys) with the allowance built on top. acme changes the starter in one place, the cap on an organisation, and the journey author adapted the one starter journey that needed it.</p>
+  <div class="proves"><span class="label">Done when</span>architect prove on acme passes all eleven journeys, and each of the fifteen operations, the four allowance operations among them, shows 9 evals ✔. architect check passes. The gate test still fails every planted fixture on its own eval in the merged acme.</div>
+  <div class="links">CI not run · <a href="https://github.com/AaronAbuUsama/architect/commit/a9e9624">commit a9e9624</a> · 3 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">prove on acme: eleven journeys, fifteen operations with nine evals each, coverage.</span>
+    <span class="meta">exit 0 · 7.7s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node packages/cli/src/main.ts prove --root examples/acme --port 8850</div><pre>journey an invitation is used once ✔ 3/3 steps
+journey an owner makes an api key ✔ 5/5 steps
+journey grant an allowance ✔ 3/3 steps
+journey health is up ✔ 1/1 steps
+journey invite and accept ✔ 11/11 steps
+journey an outsider cannot revoke ✔ 1/1 steps
+journey read an allowance ✔ 3/3 steps
+journey revoke then spend ✔ 3/3 steps
+journey sign up and sign in ✔ 5/5 steps
+journey spend twice with one request ✔ 3/3 steps
+journey spend within an allowance ✔ 4/4 steps
+allowance.get answer shape ✔
+allowance.get declared errors ✔
+allowance.get machine path ✔
+allowance.get events ✔
+allowance.get who may call ✔
+allowance.get steps ✔
+allowance.get performance ✔ p50 0ms p95 0ms budget p95 50ms
+allowance.get coverage ✔
+allowance.get explainability ✔
+allowance.get 9 evals ✔ p50 0ms p95 0ms budget p95 50ms
+allowance.grant answer shape ✔
+allowance.grant declared errors ✔
+allowance.grant machine path ✔
+allowance.grant events ✔
+allowance.grant who may call ✔
+allowance.grant steps ✔
+allowance.grant performance ✔ p50 1ms p95 2ms budget p95 200ms
+allowance.grant coverage ✔
+allowance.grant explainability ✔
+allowance.grant 9 evals ✔ p50 1ms p95 2ms budget p95 200ms
+allowance.revoke answer shape ✔
+allowance.revoke declared errors ✔
+allowance.revoke machine path ✔
+allowance.revoke events ✔
+allowance.revoke who may call ✔
+allowance.revoke steps ✔
+allowance.revoke performance ✔ p50 3ms p95 3ms budget p95 150ms
+allowance.revoke coverage ✔
+allowance.revoke explainability ✔
+allowance.revoke 9 evals ✔ p50 3ms p95 3ms budget p95 150ms
+allowance.spend answer shape ✔
+allowance.spend declared errors ✔
+allowance.spend machine path ✔
+allowance.spend events ✔
+allowance.spend who may call ✔
+allowance.spend steps ✔
+allowance.spend performance ✔ p50 1ms p95 2ms budget p95 150ms
+allowance.spend coverage ✔
+allowance.spend explainability ✔
+allowance.spend 9 evals ✔ p50 1ms p95 2ms budget p95 150ms
+api-key.create answer shape ✔
+api-key.create declared errors ✔
+api-key.create machine path ✔
+api-key.create events ✔
+api-key.create who may call ✔
+api-key.create steps ✔
+api-key.create performance ✔ p50 2ms p95 5ms budget p95 250ms
+api-key.create coverage ✔
+api-key.create explainability ✔
+api-key.create 9 evals ✔ p50 2ms p95 5ms budget p95 250ms
+invitation.accept answer shape ✔
+invitation.accept declared errors ✔
+invitation.accept machine path ✔
+invitation.accept events ✔
+invitation.accept who may call ✔
+invitation.accept steps ✔
+invitation.accept performance ✔ p50 1ms p95 2ms budget p95 200ms
+invitation.accept coverage ✔
+invitation.accept explainability ✔
+invitation.accept 9 evals ✔ p50 1ms p95 2ms budget p95 200ms
+invitation.revoke answer shape ✔
+invitation.revoke declared errors ✔
+invitation.revoke machine path ✔
+invitation.revoke events ✔
+invitation.revoke who may call ✔
+invitation.revoke steps ✔
+invitation.revoke performance ✔ p50 1ms p95 1ms budget p95 150ms
+invitation.revoke coverage ✔
+invitation.revoke explainability ✔
+invitation.revoke 9 evals ✔ p50 1ms p95 1ms budget p95 150ms
+invitation.send answer shape ✔
+invitation.send declared errors ✔
+invitation.send machine path ✔
+invitation.send events ✔
+invitation.send who may call ✔
+invitation.send steps ✔
+invitation.send performance ✔ p50 2ms p95 3ms budget p95 200ms
+invitation.send coverage ✔
+invitation.send explainability ✔
+invitation.send 9 evals ✔ p50 2ms p95 3ms budget p95 200ms
+membership.get answer shape ✔
+membership.get declared errors ✔
+membership.get machine path ✔
+membership.get events ✔
+membership.get who may call ✔
+membership.get steps ✔
+membership.get performance ✔ p50 0ms p95 0ms budget p95 50ms
+membership.get coverage ✔
+membership.get explainability ✔
+membership.get 9 evals ✔ p50 0ms p95 0ms budget p95 50ms
+organization.create answer shape ✔
+organization.create declared errors ✔
+organization.create machine path ✔
+organization.create events ✔
+organization.create who may call ✔
+organization.create steps ✔
+organization.create performance ✔ p50 1ms p95 5ms budget p95 250ms
+organization.create coverage ✔
+organization.create explainability ✔
+organization.create 9 evals ✔ p50 1ms p95 5ms budget p95 250ms
+organization.get answer shape ✔
+organization.get declared errors ✔
+organization.get machine path ✔
+organization.get events ✔
+organization.get who may call ✔
+organization.get steps ✔
+organization.get performance ✔ p50 1ms p95 1ms budget p95 50ms
+organization.get coverage ✔
+organization.get explainability ✔
+organization.get 9 evals ✔ p50 1ms p95 1ms budget p95 50ms
+person.sign-up answer shape ✔
+person.sign-up declared errors ✔
+person.sign-up machine path ✔
+person.sign-up events ✔
+person.sign-up who may call ✔
+person.sign-up steps ✔
+person.sign-up performance ✔ p50 2ms p95 59ms budget p95 400ms
+person.sign-up coverage ✔
+person.sign-up explainability ✔
+person.sign-up 9 evals ✔ p50 2ms p95 59ms budget p95 400ms
+session.show answer shape ✔
+session.show declared errors ✔
+session.show machine path ✔
+session.show events ✔
+session.show who may call ✔
+session.show steps ✔
+session.show performance ✔ p50 0ms p95 0ms budget p95 100ms
+session.show coverage ✔
+session.show explainability ✔
+session.show 9 evals ✔ p50 0ms p95 0ms budget p95 100ms
+session.sign-in answer shape ✔
+session.sign-in declared errors ✔
+session.sign-in machine path ✔
+session.sign-in events ✔
+session.sign-in who may call ✔
+session.sign-in steps ✔
+session.sign-in performance ✔ p50 52ms p95 56ms budget p95 400ms
+session.sign-in coverage ✔
+session.sign-in explainability ✔
+session.sign-in 9 evals ✔ p50 52ms p95 56ms budget p95 400ms
+system.health answer shape ✔
+system.health declared errors ✔
+system.health machine path ✔
+system.health events ✔
+system.health who may call ✔
+system.health steps ✔
+system.health performance ✔ p50 0ms p95 0ms budget p95 50ms
+system.health coverage ✔
+system.health explainability ✔
+system.health 9 evals ✔ p50 0ms p95 0ms budget p95 50ms
+coverage ✔ moves 7/7 · outcomes 7/7 · refusals 4/4 · runtime refusals 13/16
+prove ✔</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">architect check on acme.</span>
+    <span class="meta">exit 0 · 1.2s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node packages/cli/src/main.ts check --root examples/acme</div><pre>blanks left 0
+types ✔
+rules ✔
+drift ✔
+ratchets 0
+check ✔</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The gate test: acme passes, the scaffolded handlers fail, and each planted fixture fails its own eval.</span>
+    <span class="meta">exit 0 · 67.8s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --root packages/prove src/modules/prove/prove.test.ts</div><pre>RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  19:56:40
+   Duration  67.14s (transform 1.26s, setup 0ms, import 341ms, tests 66.71s, environment 0ms)</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
   <h2><span class="id">L1.50</span> The starter preset, from a published registry <span class="chip pass">done</span></h2>
   <p class="summary">A new project now starts the way a user starts it: npx create-nx-workspace with Architect&#x27;s preset. The preset writes the starter (sign-up and sign-in on Better Auth, organisations, memberships, invitations and API keys, with five journeys) and renders its generated code under the new name. Architect&#x27;s nine packages build to JavaScript and are published to a real Verdaccio registry in Docker for the check.</p>
   <div class="proves"><span class="label">Done when</span>In a fresh temporary folder, with Architect installed only from the local registry, create-nx-workspace makes the project, architect check passes, and architect prove passes five journeys and eleven operations with nine evals each, signing people in through Better Auth on workerd and D1.</div>

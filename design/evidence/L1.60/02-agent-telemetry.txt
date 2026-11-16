@@ -1,0 +1,18 @@
+$ node <scratch>/telemetry-summary.mjs e2e/.architect/agent-telemetry
+# commit ad0362c · 2026-11-16T20:32:37Z · exit 0 (expected 0) · 0.1s
+
+spans, from the agent session in check 4, exported over OTLP to the prove Collector:
+  claude_code.interaction ×1
+  claude_code.llm_request ×17
+  claude_code.tool ×30
+  claude_code.tool.blocked_on_user ×30
+  claude_code.tool.execution ×30
+logs:
+  api_request ×16
+  assistant_response ×3
+  managed_settings_resolved ×1
+  mcp_server_connection ×12
+  plugin_loaded ×3
+  tool_decision ×30
+  tool_result ×30
+  user_prompt ×1
