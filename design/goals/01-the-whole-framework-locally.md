@@ -91,7 +91,10 @@ The allowance's first operation, `allowance.grant`, goes the whole way: declarat
 sdk and cli, served on Miniflare, called from the CLI, proven by a journey. The grant already has what every eval
 needs: a machine (it enters `active`), an event (`AllowanceGranted`), a role, a step, a budget and declared errors.
 
-Covers L1.01, D1 and D2, L1.10 to L1.15, and the grant's slice of L1.20 to L1.25. Spikes S2, S4 and S5 are folded
+Covers L1.01, D1 and D2, L1.10 to L1.15, and the grant's slice of L1.20 to L1.25. It also covers the grant's slice of
+L1.30 and L1.31, because the authoring loop is the point. That means `Blueprint.todo` blanks, the generated
+`grant.handler.ts` (what the handler is given), and the handler scaffold, written once with a blank and never
+overwritten. The grant's handler is filled into that scaffold, not hand-written from nothing. Spikes S2, S4 and S5 are folded
 into the build.
 
 **Works when:** `acme allowance grant --to olga --limit 500` prints an id, `architect prove --env local` prints
