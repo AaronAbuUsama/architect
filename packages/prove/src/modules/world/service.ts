@@ -29,7 +29,8 @@ export const Worlds: WorldsApi = {
       const attempt = Effect.gen(function* () {
         const from = existsSync(log) ? readFileSync(log, "utf8").length : 0;
         const child = yield* Effect.acquireRelease(startWrangler(config, state, port, vars, log), stop);
-        const up = Effect.suspend(() => (child.exitCode !== null ? Effect.fail("exited" as const) : answers(`${url}/_world/health`)));
+        const up = Effect.suspend((): Effect.Effect<void, "exited" | "silent"> =>
+          child.exitCode !== null ? Effect.fail("exited") : answers(`${url}/_world/health`).pipe(Effect.mapError(() => "silent" as const)));
         yield* up.pipe(
           Effect.retry({ schedule: Schedule.spaced("250 millis"), times: 480, while: (e) => e !== "exited" }),
           Effect.mapError((e) => new WorldFailed({ message: e === "exited" ? `the world exited (${child.exitCode}); see ${log}` : `the world didn't answer within 120 s; see ${log}`, taken: e === "exited" && readFileSync(log, "utf8").slice(from).includes("Address already in use") })),

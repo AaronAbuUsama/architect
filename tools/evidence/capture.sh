@@ -9,7 +9,7 @@ start=$(perl -MTime::HiRes=time -e 'printf "%.3f", time')
 body=$("$@" 2>&1); code=$?
 end=$(perl -MTime::HiRes=time -e 'printf "%.3f", time')
 # Local paths never leave the machine: the repo becomes ".", home "~", any scratch folder "<scratch>".
-clean() { sed -E -e 's/\x1b\[[0-9;]*[A-Za-z]//g' -e "s#$PWD#.#g" -e "s#$HOME#~#g" -e 's#(/private)?/tmp/claude-[0-9]+/[^/ "]+/[0-9a-f-]+/scratchpad#<scratch>#g' -e 's#(/private)?/tmp/claude-[0-9]+/[^/ "]+#<scratch>#g'; }
+clean() { sed -E -e 's/\x1b\[[0-9;]*[A-Za-z]//g' -e "s#$PWD#.#g" -e "s#$HOME#~#g" -e 's#(/private)?/tmp/claude-[0-9]+/[^/ "]+/[0-9a-f-]+/scratchpad#<scratch>#g' -e 's#(/private)?/tmp/claude-[0-9]+/[^/ "]+#<scratch>#g' -e 's#(/private)?/var/folders/[^/ "]+/[^/ "]+/T#<tmp>#g'; }
 {
   echo "\$ $*" | clean
   echo "# commit $(git rev-parse --short HEAD) · $(date -u +%Y-%m-%dT%H:%M:%SZ) · exit $code (expected $expect) · $(perl -e "printf '%.1fs', $end-$start")"
