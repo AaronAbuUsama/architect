@@ -1,0 +1,20 @@
+diff --git a/packages/prove/src/modules/telemetry/internal/docker.ts b/packages/prove/src/modules/telemetry/internal/docker.ts
+index b3c035a..72ae41a 100644
+--- a/packages/prove/src/modules/telemetry/internal/docker.ts
++++ b/packages/prove/src/modules/telemetry/internal/docker.ts
+@@ -19,10 +19,13 @@ exporters:
+   file/logs:
+     path: /out/logs.jsonl
+     flush_interval: 10ms
++  otlphttp/viewer:
++    endpoint: http://host.docker.internal:14318
++    retry_on_failure: { enabled: false }
+ service:
+   pipelines:
+-    traces: { receivers: [otlp], exporters: [file/traces] }
+-    logs: { receivers: [otlp], exporters: [file/logs] }
++    traces: { receivers: [otlp], exporters: [file/traces, otlphttp/viewer] }
++    logs: { receivers: [otlp], exporters: [file/logs, otlphttp/viewer] }
+ `;
+ 
+ const docker = (args: ReadonlyArray<string>) => spawnSync("docker", args, { encoding: "utf8" });
