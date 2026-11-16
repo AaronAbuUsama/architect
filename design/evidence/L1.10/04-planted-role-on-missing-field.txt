@@ -1,0 +1,7 @@
+$ node_modules/.bin/tsc -p examples/acme/tsconfig.json
+# commit adcbe7b · 2026-11-16T16:33:18Z · exit 1 (expected 1) · 0.1s
+
+examples/acme/blueprint/planted.ts(6,87): error TS2322: Type 'RoleOf<Thing<{ readonly id: Value<brand<String, "org">>; readonly name: Value<String>; readonly owner: Field<Value<brand<String, "per">>>; readonly cap: Value<...>; }>, "organization">' is not assignable to type 'AllowedFor<{ readonly limit: Field<Value<BigInt>>; }>'.
+  Type 'RoleOf<Thing<{ readonly id: Value<brand<String, "org">>; readonly name: Value<String>; readonly owner: Field<Value<brand<String, "per">>>; readonly cap: Value<...>; }>, "organization">' is not assignable to type 'RoleOf<any, "limit" | `limit.${string}`>'.
+    Types of property 'path' are incompatible.
+      Type '"organization"' is not assignable to type '"limit" | `limit.${string}`'.

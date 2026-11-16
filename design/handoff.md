@@ -27,7 +27,10 @@ Aaron's rule from 16 November 2026: the building agent owns the architecture and
 
 ## Where the goal stands
 
-Stage 1. Wayfinding is done (`wayfinding/stage-1.md`, `decisions/D1.md`). L1.01 is done on `layer/1`. Next: D2's record, then L1.10, the language core.
+Stage 1 (`layer/1`). Done: wayfinding (`wayfinding/stage-1.md`, decisions D1 and D2), L1.01 and L1.10, each with
+evidence in `evidence/`. Spike `spikes/effect4-worker-chain` answered yes (HttpApi on workerd with D1, client and CLI).
+Spike `spikes/otlp-from-workerd` is running in a subagent. Next: L1.11, the compiler. The evidence page is
+https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB; republish it with `python3 tools/evidence/page.py` after each step.
 
 ## Open
 

@@ -1,0 +1,28 @@
+$ pnpm exec vitest run --root packages/blueprint --reporter=verbose
+# commit adcbe7b · 2026-11-16T16:33:18Z · exit 0 (expected 0) · 1.1s
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/packages/blueprint
+
+ ✓ src/modules/blanks/blanks.test.ts > blanks > fit any slot and are found again 1ms
+ ✓ src/modules/values/values.test.ts > values > ids keep their prefix and brand 2ms
+ ✓ src/modules/values/values.test.ts > values > uints are bounded bigints 0ms
+ ✓ src/modules/values/values.test.ts > values > text is never empty 0ms
+ ✓ src/modules/things/things.test.ts > things > fields know the thing they came from 1ms
+ ✓ src/modules/things/things.test.ts > things > fields become one schema 1ms
+ ✓ src/modules/things/things.test.ts > things > is frozen 0ms
+ ✓ src/modules/errors/errors.test.ts > errors > are yieldable, tagged by name, and carry their fields and exit 2ms
+ ✓ src/modules/roles/roles.test.ts > roles > decide on an instance and a principal 1ms
+ ✓ src/modules/roles/roles.test.ts > roles > point at another thing through a payload field 0ms
+ ✓ src/modules/events/events.test.ts > events > carry a schema of their fields 2ms
+ ✓ src/modules/operations/operations.test.ts > operations > keep what was declared 2ms
+ ✓ src/modules/operations/operations.test.ts > operations > type the payload, answer, errors and steps 0ms
+ ✓ src/modules/operations/operations.test.ts > operations > refuse an answer of the wrong type 1ms
+ ✓ src/modules/operations/operations.test.ts > operations > refuse a role pointing at a field the payload doesn't have 0ms
+ ✓ src/modules/machines/machines.test.ts > machines > names moves by key and lists outcomes 1ms
+ ✓ src/modules/machines/machines.test.ts > machines > refuses a move to a state it doesn't have 0ms
+
+ Test Files  8 passed (8)
+      Tests  17 passed (17)
+   Start at  16:33:17
+   Duration  513ms (transform 314ms, setup 0ms, import 2.53s, tests 23ms, environment 0ms)
