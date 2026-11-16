@@ -104,3 +104,15 @@ Decided 16 November 2026 by the builder, which has architectural ownership. The 
     reads the model and the journey files' text: a journey that imports `verbs/spend.ts` calls spend. Reads and
     unknown names are refused, listing the operations that have handlers. The forbidden paths (`Brief.forbidden`) are
     the ones Gate 1's `claude -p` session is denied.
+57. **`architect check` compares `generated/` itself rather than calling `nx sync:check`.** The build plan said drift
+    runs through `nx sync:check`; it runs the same render (`Render.files`) and compares file by file instead, so the
+    finding names the exact file and works in a project copy that isn't an Nx project. Any difference, missing file or
+    extra file is the rule `no-edited-output`. The repository's own CI keeps `nx sync:check` as well. Evidence:
+    `check.test.ts`, the `edited-output` fixture.
+58. **`no-raw-sleep` is part of `no-wall-clock`.** I2 named a separate rule; one rule now covers every way of reading or
+    waiting on real time outside the runtime: `Date.now`, `new Date()`, `setTimeout`, `setInterval` and a raw
+    `Effect.sleep`. Evidence: `packages/lint/src/modules/rules/rules.test.ts`.
+59. **The architect rules run as their own oxlint config, with the project's facts passed as rule options.** check
+    writes `.architect/check/oxlintrc.json` (ignored by git) with only the architect rules, and names each file,
+    because oxlint skips anything under a `.gitignore`d folder when walking one, even with `--no-ignore`. The project's
+    own lint config stays its own.

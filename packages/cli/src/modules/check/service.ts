@@ -1,26 +1,33 @@
-import type { Blank, CheckApi } from "./types.ts";
+import { resolve } from "node:path";
+import { Effect } from "effect";
+import { Compiler, nodeSource } from "@architect/compiler";
+import type { CheckApi, Finding } from "./types.ts";
+import { blankLines, blanks } from "./internal/blanks.ts";
+import { textsUnder } from "./internal/files.ts";
+import { rules, types } from "./internal/tools.ts";
+import { drift } from "./internal/drift.ts";
+import { ratchet, ratchetsOf } from "./internal/ratchets.ts";
 
-const TODO = /Blueprint\.todo(?:<[^>]*>)?\(\s*("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`[^`]*`)?/g;
+const part = (name: string, found: ReadonlyArray<Finding>) =>
+  found.length === 0
+    ? [`${name} ✔`]
+    : [`${name} ✘ ${found.length}`, ...found.map((f) => `  ${f.file}${f.line ? `:${f.line}` : ""}  ${f.rule}: ${f.message}`)];
 
-const ownerOf = (path: string) => /^blueprint\/things\/([^/]+)\//.exec(path)?.[1] ?? path.replace(/^blueprint\//, "").replace(/\.ts$/, "");
-
-const blanks: CheckApi["blanks"] = (files) =>
-  files.flatMap(({ path, text }) =>
-    text.split("\n").flatMap((line, i) =>
-      [...line.matchAll(TODO)].map((m): Blank => ({
-        file: path, line: i + 1, owner: ownerOf(path),
-        what: m[1] ? m[1].slice(1, -1) : "(no description)",
-      })),
-    ),
-  );
-
-const report: CheckApi["report"] = (all) => {
-  const owners = [...new Set(all.map((b) => b.owner))];
-  const lines = owners.flatMap((owner) => {
-    const mine = all.filter((b) => b.owner === owner);
-    return [`${owner} has ${mine.length} blank${mine.length === 1 ? "" : "s"}`, ...mine.map((b) => `  ${b.file}:${b.line}  ${b.what}`)];
+const run: CheckApi["run"] = (at) =>
+  Effect.gen(function* () {
+    const root = resolve(at);
+    const left = blanks(textsUnder(root, "blueprint"));
+    const model = yield* Compiler.model.pipe(Effect.provide(nodeSource(root)), Effect.option);
+    if (model._tag === "None") return { lines: [...blankLines(left), "model ✘ the blueprint doesn't compile: run architect model"], passed: false };
+    const typed = yield* Effect.sync(() => types(root));
+    const ruled = yield* Effect.sync(() => rules(root, model.value));
+    const drifted = yield* Effect.sync(() => drift(root, model.value));
+    const ratchets = ratchet(ruled, ratchetsOf(root));
+    const passed = left.length === 0 && typed.length === 0 && ratchets.over.length === 0 && drifted.length === 0;
+    return {
+      lines: [...blankLines(left), ...part("types", typed), ...part("rules", ratchets.over), ...part("drift", drifted), ...ratchets.lines, passed ? "check ✔" : "check ✘"],
+      passed,
+    };
   });
-  return { lines: all.length === 0 ? ["blanks left 0"] : lines, passed: all.length === 0 };
-};
 
-export const Check: CheckApi = { blanks, report };
+export const Check: CheckApi = { blanks, report: (all) => ({ lines: blankLines(all), passed: all.length === 0 }), run };

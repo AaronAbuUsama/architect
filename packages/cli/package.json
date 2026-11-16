@@ -5,6 +5,7 @@
   "dependencies": {
     "@architect/compiler": "workspace:*",
     "@architect/generators": "workspace:*",
+    "@architect/lint": "workspace:*",
     "@architect/prove": "workspace:*",
     "@effect/platform-node": "4.1.1",
     "effect": "4.1.1",

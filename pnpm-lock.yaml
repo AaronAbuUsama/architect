@@ -84,6 +84,9 @@ importers:
       '@architect/generators':
         specifier: workspace:*
         version: link:../generators
+      '@architect/lint':
+        specifier: workspace:*
+        version: link:../lint
       '@architect/prove':
         specifier: workspace:*
         version: link:../prove

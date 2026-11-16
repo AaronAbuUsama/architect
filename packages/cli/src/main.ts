@@ -94,12 +94,12 @@ const check = Command.make(
   "check",
   { root: Flag.String("root").pipe(Flag.withDefault(process.cwd())) },
   ({ root }) =>
-    Effect.sync(() => {
-      const files = tsFiles(join(root, "blueprint")).map((f) => ({ path: relative(root, f), text: readFileSync(f, "utf8") }));
-      const said = Check.report(Check.blanks(files));
-      process.stdout.write(said.lines.join("\n") + "\n");
-      process.exitCode = said.passed ? 0 : 1;
-    }),
+    Check.run(root).pipe(
+      Effect.tap((said) => Effect.sync(() => {
+        process.stdout.write(said.lines.join("\n") + "\n");
+        process.exitCode = said.passed ? 0 : 1;
+      })),
+    ),
 );
 
 const generate = Command.make(

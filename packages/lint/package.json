@@ -3,7 +3,12 @@
   "version": "0.0.0",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./plugin": "./src/main.ts",
+    "./package.json": "./package.json"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "imports": {
+    "#modules/*": "./src/modules/*"
+  }
 }
