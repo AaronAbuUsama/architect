@@ -9,13 +9,9 @@ const text = (x: unknown) => JSON.stringify(x, (_, v: unknown) => (typeof v === 
 const exitOf = (tag: unknown): number =>
   typeof tag === "string" && tag in Errors.exits ? Errors.exits[tag as keyof typeof Errors.exits] : tag === "SchemaError" ? 2 : 1;
 
-/**
- * A one-field answer prints its value, or with `json` the whole answer as JSON. A refusal prints its name and fields
- * to stderr and exits with its code.
- */
-export const answer = (json: boolean) => <A extends object, E, R>(effect: Effect.Effect<A, E, R>) =>
+/** A refusal prints its name and fields to stderr and exits with its code. */
+export const refused = <A, E, R>(effect: Effect.Effect<A, E, R>) =>
   effect.pipe(
-    Effect.flatMap((a) => Console.log(!json && Object.keys(a).length === 1 ? String(Object.values(a)[0]) : text(a))),
     Effect.catch((e: unknown) => {
       const tag = typeof e === "object" && e !== null ? (e as { readonly _tag?: unknown })._tag : undefined;
       const { _tag: _, ...fields } = (typeof e === "object" && e !== null ? e : {}) as Record<string, unknown>;
@@ -25,3 +21,7 @@ export const answer = (json: boolean) => <A extends object, E, R>(effect: Effect
       );
     }),
   );
+
+/** A one-field answer prints its value, or with `json` the whole answer as JSON. */
+export const answer = (json: boolean) => <A extends object, E, R>(effect: Effect.Effect<A, E, R>) =>
+  effect.pipe(Effect.flatMap((a) => Console.log(!json && Object.keys(a).length === 1 ? String(Object.values(a)[0]) : text(a))), refused);

@@ -72,6 +72,10 @@ Stage 3 (Gate 2) is open on `layer/3`. Wayfinding is done: `wayfinding/stage-3.m
 L2.03 done on `build/L2.03` (the logbook, `packages/logbook`; decisions D3 #30 to #34; evidence `evidence/L2.03/`): a
 worker with a Durable Object and R2, `POST /verdicts` with a verified OIDC token, and `Logbook.launch` for the CLI's
 `env up logbook`, which the conductor wires once L2.01 lands.
+L2.07 done on `build/L2.07`, the local reading (device sign-in; decisions D3 #40 to #44; evidence `evidence/L2.07/`):
+Better Auth's `deviceAuthorization` is in the server's auth, `/api/auth/*` is mounted in the generated server, and
+`acme session sign-in --env <env>` / `session show --env <env>` work against a real local world (ports 8960 to 8961 in
+`prove/world/device-sign-in.test.ts`). The real staging sign-in is the cloud pass.
 In flight: three spikes, each in a worktree on its own branch (`spike/mcp-oauth`, `spike/single-binary`,
 `spike/ci-oidc`), and the ✍️ author writing `e2e/layer2/` and `examples/acme/test/fixtures/layer2/` on
 `author/gate-2`. Merge each into `layer/3` (spikes into main by PR) when they report. Then build L2.01 to L2.10

@@ -123,6 +123,11 @@ export interface Env {
   readonly ARCHITECT_BUNDLE_SHA256?: string;
 }
 
+// Better Auth's own routes at /api/auth/*: the device sign-in of this project's CLI. Same database and secret as the
+// layer's instance, so a session either one issues is a person to both.
+let routes: ReturnType<typeof AuthD1.make> | undefined;
+const routesOf = (env: Env) => (routes ??= AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET, cli: "starter-cli" }));
+
 const build = (env: Env) =>
   HttpRouter.toWebHandler(
     HttpApiBuilder.layer(Api).pipe(
@@ -146,6 +151,7 @@ export default {
         ? Promise.resolve(Response.json({ revision: env.ARCHITECT_REVISION, sha256: env.ARCHITECT_BUNDLE_SHA256 }))
         : Promise.resolve(Response.json({ _tag: "NotAnEnvironment" }, { status: 404 }));
     }
+    if (new URL(request.url).pathname.startsWith("/api/auth/")) return Effect.runPromise(AuthD1.handle(routesOf(env), request));
     const app = (built ??= build(env));
     return Telemetry.serve({ url: env.OTLP_URL || undefined, service: "starter", handler: app.handler, waitUntil: (p) => ctx.waitUntil(p) }, request);
   },

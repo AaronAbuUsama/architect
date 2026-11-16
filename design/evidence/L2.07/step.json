@@ -1,0 +1,13 @@
+{
+  "step": "L2.07",
+  "stage": "Stage 3 · shipping on local worlds (Gate 2)",
+  "title": "Real sign-in: device login for the CLI (the local reading)",
+  "summary": "Better Auth 1.7.15's deviceAuthorization is in the server's auth (client acme-cli only, table auth_device_code, a 5 second polling interval), and the generated server mounts Better Auth's routes at /api/auth. The generated CLI's session sign-in --env <env> runs the device flow: it prints the code and where to approve it, polls with an Effect Schedule that backs off on slow_down, keeps the session in the config folder (ACME_CONFIG_DIR) and prints signed in. session show --env <env> uses the kept session and prints the person. The real staging sign-in is the cloud pass.",
+  "proves": "On a real local world, the generated CLI signs in by device code; ada claims and approves the code with her own session and no browser, and session show prints her. Bob approving ada's claimed code is a 403, another client id is refused, a poll before the interval is slow_down, a code is single-use, and no token or password is printed.",
+  "captions": {
+    "01-fails-first": "The check before the build: the generated server has no /api/auth, so it fails.",
+    "02-device-sign-in": "The check after: two tests on a real local world and the generated CLI.",
+    "03-unit-suite": "Every package's lint, typecheck and tests.",
+    "04-sync-check": "nx sync:check stays green."
+  }
+}
