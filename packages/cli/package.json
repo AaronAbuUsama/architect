@@ -4,9 +4,11 @@
   "type": "module",
   "dependencies": {
     "@architect/compiler": "workspace:*",
+    "@architect/generators": "workspace:*",
     "@architect/prove": "workspace:*",
     "@effect/platform-node": "4.1.1",
     "effect": "4.1.1",
+    "nx": "24.0.3",
     "wrangler": "4.156.1"
   },
   "bin": {

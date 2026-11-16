@@ -21,3 +21,4 @@ export const Sync: SyncApi = {
       for (const path of filesUnder(tree, `${root}/generated`)) if (!wanted.has(path)) tree.delete(path);
     }),
 };
+export { ModelFailed } from "./types.ts";

@@ -10,6 +10,7 @@ import { ModelCommand } from "#modules/model/service.ts";
 import { Add } from "#modules/add/service.ts";
 import { AddRefused, type What } from "#modules/add/types.ts";
 import { Check } from "#modules/check/service.ts";
+import { Generate } from "#modules/generate/service.ts";
 
 const model = Command.make(
   "model",
@@ -99,8 +100,18 @@ const check = Command.make(
     }),
 );
 
+const generate = Command.make(
+  "generate",
+  { root: Flag.String("root").pipe(Flag.withDefault(process.cwd())) },
+  ({ root }) =>
+    Generate.run(root).pipe(
+      Effect.tap((changes) => Effect.sync(() => process.stdout.write(Generate.lines(changes).join("\n") + "\n"))),
+      Effect.catchTag("ModelFailed", (e) => fail(e.problems, 2)),
+    ),
+);
+
 Command.make("architect").pipe(
-  Command.withSubcommands([model, dev, prove, add, check]),
+  Command.withSubcommands([model, dev, prove, add, check, generate]),
   Command.run({ version: "0.0.0" }),
   Effect.provide(NodeServices.layer),
   NodeRuntime.runMain,

@@ -90,3 +90,7 @@ Decided 16 November 2026 by the builder, which has architectural ownership. The 
     so nothing is generated for it until it is filled (the generators' side of L1.31). `architect check` finds blanks
     by text, so it gives each one's file and line. `architect add` writes journeys to `blueprint/journeys/`, the docs'
     place; `prove` reads both that and the root `journeys/` (item 24).
+54. **`architect generate` is `nx sync` for one project, from the architect command.** It runs the same render through
+    an Nx `FsTree` and says what changed: generated files, and a scaffold for each operation with no blanks left,
+    marked "yours from now on". A scaffold is never overwritten, and a second run says `nothing to change`. `cli`
+    depends on `generators` for this; both are build-time tools, never in production.

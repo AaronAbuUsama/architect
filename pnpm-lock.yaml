@@ -81,6 +81,9 @@ importers:
       '@architect/compiler':
         specifier: workspace:*
         version: link:../compiler
+      '@architect/generators':
+        specifier: workspace:*
+        version: link:../generators
       '@architect/prove':
         specifier: workspace:*
         version: link:../prove
@@ -90,6 +93,9 @@ importers:
       effect:
         specifier: 4.1.1
         version: 4.1.1
+      nx:
+        specifier: 24.0.3
+        version: 24.0.3
       wrangler:
         specifier: 4.156.1
         version: 4.156.1(@cloudflare/workers-types@5.20261101.1)(@types/node@24.19.2)
