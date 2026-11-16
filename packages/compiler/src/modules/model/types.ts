@@ -69,6 +69,11 @@ export interface Model {
   readonly values: Readonly<Record<string, ValueMeta>>;
   readonly things: Readonly<Record<string, ThingModel>>;
   readonly operations: Readonly<Record<string, OperationModel>>;
+  /**
+   * What is still `Blueprint.todo`, by declaration (`allowance`, `allowance.spend`): present only when something is.
+   * An operation with a blank is left out of `operations`, so nothing is generated for it until it is filled.
+   */
+  readonly blanks?: Readonly<Record<string, ReadonlyArray<string>>>;
 }
 
 /** A blueprint the compiler refuses, with every problem found, each naming its file. */

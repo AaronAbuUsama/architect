@@ -1,9 +1,11 @@
 import type { Machine, MachinesApi, Move, MoveSpec } from "./types.ts";
 import { checkMoves } from "./internal/check.ts";
+import { Blanks } from "#modules/blanks/service.ts";
 
 export const Machines: MachinesApi = {
   machine: (thing, spec) => {
-    checkMoves(spec.states, spec.moves as Record<string, MoveSpec<string>>);
+    // States not written yet (`Blueprint.todo`) have nothing to check moves against.
+    if (!Blanks.isBlank(spec.states)) checkMoves(spec.states, spec.moves as Record<string, MoveSpec<string>>);
     const moves: Record<string, Move> = {};
     const machine = {
       kind: "machine", thing, states: spec.states, moves, notFrom: undefined,

@@ -9,4 +9,5 @@ export const summary = (model: Model): string =>
     ...Object.values(model.operations).map(
       (o) => `operation ${o.name}  refuses ${o.refusals.join(", ") || "nothing"}  ${o.hash}`,
     ),
+    ...Object.entries(model.blanks ?? {}).map(([owner, parts]) => `unfinished ${owner}  ${parts.length} blank${parts.length === 1 ? "" : "s"}`),
   ].join("\n") + "\n";

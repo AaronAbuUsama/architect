@@ -83,3 +83,10 @@ Decided 16 November 2026 by the builder, which has architectural ownership. The 
     refusals 4/7`. The plan's `outcomes 2/2 · refusals 4/4` predated revoke's own outcome and item 45; outcomes are
     the states moves end in (active, exhausted, revoked), refusals the declared errors, and runtime refusals
     (`NotAllowed`, `AllowanceNotActive`) are counted but never required.
+53. **A blank is a value the declaration functions accept, and the compiler records.** `Blueprint.todo` returns a
+    frozen `{ kind: "blank", what }` typed as anything. `machine`, `operation` and `read` skip what they can't build
+    from a blank (moves checked against states, schemas from fields). The compiler lists blanks by declaration in
+    `model.blanks`, describes a blank thing part as empty, and leaves an operation with any blank out of `operations`,
+    so nothing is generated for it until it is filled (the generators' side of L1.31). `architect check` finds blanks
+    by text, so it gives each one's file and line. `architect add` writes journeys to `blueprint/journeys/`, the docs'
+    place; `prove` reads both that and the root `journeys/` (item 24).
