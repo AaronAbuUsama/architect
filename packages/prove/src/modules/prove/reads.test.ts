@@ -22,7 +22,7 @@ const project = (name: string, list: { readonly from: string } | { readonly text
     const root = join(scratch, name, "acme");
     rmSync(join(scratch, name), { recursive: true, force: true });
     mkdirSync(root, { recursive: true });
-    for (const part of ["blueprint", "generated", "implementation", "journeys", "package.json"]) cpSync(join(acme, part), join(root, part), { recursive: true, filter: visible });
+    for (const part of ["blueprint", "generated", "src", "journeys", "package.json"]) cpSync(join(acme, part), join(root, part), { recursive: true, filter: visible });
     writeFileSync(join(root, "tsconfig.json"), JSON.stringify({ extends: relative(root, join(acme, "tsconfig.json")) }));
     if ("from" in list) cpSync(join(fixtures, list.from), join(root, "blueprint/things/allowance/verbs/list.ts"));
     else writeFileSync(join(root, "blueprint/things/allowance/verbs/list.ts"), list.text);

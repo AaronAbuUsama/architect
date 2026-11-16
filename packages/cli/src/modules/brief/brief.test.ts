@@ -12,7 +12,7 @@ describe("architect brief", () => {
     const run = architect("brief", "allowance.spend");
     expect(run.status).toBe(0);
     const out = run.stdout;
-    expect(out).toContain("Write   implementation/handlers/allowance/spend.ts, and nothing else.");
+    expect(out).toContain("Write   src/allowance/spend.ts, and nothing else.");
     expect(out).toContain("  blueprint/things/allowance/verbs/spend.ts  the declaration");
     expect(out).toContain("  blueprint/journeys/**");
     expect(out).toContain("allowance.spend's 9 evals: answer shape, declared errors, machine path, events, who may call, steps, performance, coverage, explainability");

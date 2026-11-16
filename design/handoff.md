@@ -111,6 +111,8 @@ world a Durable Object with an alarm in the test environment (`host-cloudflare/w
 environment has its own collector (a container `env down` removes). `prove` now depends on `@architect/logbook`, which `tools/e2e/starter.sh`
 publishes with the rest. Author's checks 01 and 02 pass. The GitHub Action (`test-pr-<n>`) is the cloud pass's.
 
+L2.L (branch `build/L2.L`, D3 #70, evidence `evidence/L2.L/`): Aaron's layout call. Handlers are `src/<thing>/<operation>.ts`, mirroring `blueprint/things/`; there is no `implementation/` folder, and a thing's contract and workflows join its folder in later layers. The e2e files still say `implementation/`; the journey author updates them.
+
 ## Open
 
 - A last consistency review of the design docs was still running at handoff. Its findings, if any, are small fixes to

@@ -9,7 +9,7 @@ export interface PresetOptions {
 
 /** Where the starter's own files are read from: the published package's `files/`, or the repository's example. */
 export interface StarterSource {
-  /** Each file under blueprint/, implementation/ and journeys/, by its path from the project root. */
+  /** Each file under blueprint/, src/ and journeys/, by its path from the project root. */
   readonly files: ReadonlyArray<{ readonly path: string; readonly content: string }>;
   /** The starter's compiled model, `generated/model/model.json`. */
   readonly model: string;
@@ -20,6 +20,6 @@ export interface StarterSource {
 export interface StarterApi {
   /** Lay the starter into `tree` at its root, as project `name`. Returns the task that installs its packages. */
   readonly write: (tree: Tree, options: PresetOptions, source: StarterSource) => () => void;
-  /** Read the starter from a folder holding `blueprint/`, `implementation/`, `journeys/` and `generated/model/`. */
+  /** Read the starter from a folder holding `blueprint/`, `src/`, `journeys/` and `generated/model/`. */
   readonly read: (root: string, version: string) => StarterSource;
 }

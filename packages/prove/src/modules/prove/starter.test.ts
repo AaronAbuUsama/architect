@@ -1,7 +1,7 @@
 // L1.50's prove half: the starter passes on real Better Auth sign-in, and each of the journey author's fixtures fails
 // where its README says, in a scratch copy of the starter.
 import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { basename, join, relative, resolve } from "node:path";
+import { basename, dirname, join, relative, resolve } from "node:path";
 import { Effect } from "effect";
 import { afterAll, describe, expect, it } from "vitest";
 import { Prove } from "./service.ts";
@@ -9,6 +9,13 @@ import { Prove } from "./service.ts";
 // Dot-folders (.wrangler, .architect) belong to whatever is running there; a filter also keeps cpSync off its native path,
 // which aborts the process when a folder vanishes mid-copy.
 const visible = (from: string) => !basename(from).startsWith(".");
+// The planted fixtures were written for implementation/handlers/<thing>/, three levels deep; src/<thing>/ is two.
+const moved = (text: string) => text.replaceAll('"../../../', '"../../').replaceAll("/implementation/handlers/", "/src/");
+const install = (from: string, root: string, to: string) => {
+  if (!to.startsWith("src/") && !to.startsWith("generated/")) return cpSync(from, join(root, to));
+  mkdirSync(dirname(join(root, to)), { recursive: true });
+  writeFileSync(join(root, to), moved(readFileSync(from, "utf8")));
+};
 
 const starter = resolve(import.meta.dirname, "../../../../../examples/starter");
 const fixtures = join(starter, "test/fixtures/journeys");
@@ -18,9 +25,9 @@ const copy = (name: string, installs: ReadonlyArray<readonly [string, string]>) 
   const root = join(scratch, name, "starter");
   rmSync(join(scratch, name), { recursive: true, force: true });
   mkdirSync(root, { recursive: true });
-  for (const part of ["blueprint", "generated", "implementation", "journeys", "package.json"]) cpSync(join(starter, part), join(root, part), { recursive: true, filter: visible });
+  for (const part of ["blueprint", "generated", "src", "journeys", "package.json"]) cpSync(join(starter, part), join(root, part), { recursive: true, filter: visible });
   writeFileSync(join(root, "tsconfig.json"), JSON.stringify({ extends: relative(root, join(starter, "tsconfig.json")) }));
-  for (const [from, to] of installs) cpSync(join(fixtures, name, from), join(root, to));
+  for (const [from, to] of installs) install(join(fixtures, name, from), root, to);
   return root;
 };
 const prove = (root: string, port: number) => Effect.runPromise(Effect.scoped(Prove.run({ root, port })));
@@ -36,9 +43,9 @@ describe("the starter", () => {
   });
 
   const cases = [
-    ["wrong-password-signs-in", "session/sign-in.ts", "implementation/handlers/session/sign-in.ts", 'journey sign up and sign in ✘', '✘ "a wrong password is refused"'],
-    ["accept-without-membership", "invitation/accept.ts", "implementation/handlers/invitation/accept.ts", "journey invite and accept ✘", '✘ "olga reads her membership'],
-    ["owner-step-skipped", "organization/create.ts", "implementation/handlers/organization/create.ts", "journey an owner makes an api key ✘", "organization.create steps ✘"],
+    ["wrong-password-signs-in", "session/sign-in.ts", "src/session/sign-in.ts", 'journey sign up and sign in ✘', '✘ "a wrong password is refused"'],
+    ["accept-without-membership", "invitation/accept.ts", "src/invitation/accept.ts", "journey invite and accept ✘", '✘ "olga reads her membership'],
+    ["owner-step-skipped", "organization/create.ts", "src/organization/create.ts", "journey an owner makes an api key ✘", "organization.create steps ✘"],
   ] as const;
   cases.forEach(([name, from, to, journey, detail], i) => {
     it(`fails on ${name}`, { timeout: 180_000 }, async () => {

@@ -12,6 +12,6 @@ export interface Change {
 export interface GenerateApi {
   /** Bring `root` in line with its blueprint, and say what changed: nothing, on a second run. */
   readonly run: (root: string) => Effect.Effect<ReadonlyArray<Change>, ModelFailed>;
-  /** `created implementation/handlers/allowance/spend.ts (scaffold)`, one line per change, or `nothing to change`. */
+  /** `created src/allowance/spend.ts (scaffold)`, one line per change, or `nothing to change`. */
   readonly lines: (changes: ReadonlyArray<Change>) => ReadonlyArray<string>;
 }

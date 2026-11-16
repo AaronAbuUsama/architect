@@ -19,14 +19,21 @@ describe("Check.blanks", () => {
 });
 
 // L1.40's done-when: the journey author's four fixtures each make check fail naming the file; clean acme passes.
-import { cpSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
-import { basename, join, relative, resolve } from "node:path";
+import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { basename, dirname, join, relative, resolve } from "node:path";
 import { Effect } from "effect";
 import { afterAll } from "vitest";
 
 // Dot-folders (.wrangler, .architect) belong to whatever is running there; a filter also keeps cpSync off its native path,
 // which aborts the process when a folder vanishes mid-copy.
 const visible = (from: string) => !basename(from).startsWith(".");
+// The planted fixtures were written for implementation/handlers/<thing>/, three levels deep; src/<thing>/ is two.
+const moved = (text: string) => text.replaceAll('"../../../', '"../../').replaceAll("/implementation/handlers/", "/src/");
+const install = (from: string, root: string, to: string) => {
+  if (!to.startsWith("src/") && !to.startsWith("generated/")) return cpSync(from, join(root, to));
+  mkdirSync(dirname(join(root, to)), { recursive: true });
+  writeFileSync(join(root, to), moved(readFileSync(from, "utf8")));
+};
 
 const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
 const scratch = join(acme, "test/tmp/check");
@@ -36,12 +43,12 @@ const copy = (name: string, installs: ReadonlyArray<readonly [string, string]>) 
   const root = join(scratch, name, "acme");
   rmSync(root, { recursive: true, force: true });
   mkdirSync(root, { recursive: true });
-  for (const part of ["blueprint", "generated", "implementation", "journeys", "package.json"]) cpSync(join(acme, part), join(root, part), { recursive: true, filter: visible });
+  for (const part of ["blueprint", "generated", "src", "journeys", "package.json"]) cpSync(join(acme, part), join(root, part), { recursive: true, filter: visible });
   writeFileSync(join(root, "tsconfig.json"), JSON.stringify({
     extends: relative(root, join(acme, "tsconfig.json")),
-    include: ["blueprint/**/*.ts", "generated/**/*.ts", "implementation/**/*.ts", "journeys/**/*.ts"],
+    include: ["blueprint/**/*.ts", "generated/**/*.ts", "src/**/*.ts", "journeys/**/*.ts"],
   }));
-  for (const [from, to] of installs) cpSync(join(acme, from), join(root, to));
+  for (const [from, to] of installs) install(join(acme, from), root, to);
   return root;
 };
 const checked = (root: string) => Effect.runPromise(Check.run(root));
@@ -56,16 +63,16 @@ describe("architect check on acme", () => {
   });
 
   it("lets a ratchet allow a rule's findings, and asks for it to be lowered once they are gone", { timeout: 180_000 }, async () => {
-    const root = copy("ratchet", [["test/fixtures/check/name-as-string/spend.ts", "implementation/handlers/allowance/spend.ts"]]);
+    const root = copy("ratchet", [["test/fixtures/check/name-as-string/spend.ts", "src/allowance/spend.ts"]]);
     mkdirSync(join(root, ".architect"), { recursive: true });
     writeFileSync(join(root, ".architect/ratchets.json"), JSON.stringify({ "no-name-as-string": 1 }));
     const allowed = await checked(root);
     expect([allowed.passed, allowed.lines.includes("ratchets 1")]).toEqual([true, true]);
-    cpSync(join(acme, "implementation/handlers/allowance/spend.ts"), join(root, "implementation/handlers/allowance/spend.ts"));
+    cpSync(join(acme, "src/allowance/spend.ts"), join(root, "src/allowance/spend.ts"));
     expect((await checked(root)).lines).toContain("  no-name-as-string allows 1 but has 0: lower it");
   });
 
-  const spend = "implementation/handlers/allowance/spend.ts";
+  const spend = "src/allowance/spend.ts";
   const fixtures = [
     ["edited-output", "check/edited-output/get.ts", "generated/api/src/allowance/get.ts", "drift ✘", "no-edited-output"],
     ["name-as-string", "check/name-as-string/spend.ts", spend, "rules ✘", "no-name-as-string"],

@@ -33,7 +33,7 @@ export const TSCONFIG = {
     verbatimModuleSyntax: true, erasableSyntaxOnly: true, allowImportingTsExtensions: true, noEmit: true,
     skipLibCheck: true, resolveJsonModule: true, isolatedModules: true,
   },
-  include: ["blueprint/**/*.ts", "generated/**/*.ts", "implementation/**/*.ts", "journeys/**/*.ts"],
+  include: ["blueprint/**/*.ts", "generated/**/*.ts", "src/**/*.ts", "journeys/**/*.ts"],
 };
 
 export const IGNORES = [".architect/", ".wrangler/", "node_modules/"];

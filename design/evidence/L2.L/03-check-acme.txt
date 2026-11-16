@@ -1,0 +1,8 @@
+$ node packages/cli/src/main.ts check --root examples/acme
+blanks left 0
+types ✔
+rules ✔
+drift ✔
+ratchets 0
+check ✔
+exit 0
