@@ -503,3 +503,9 @@ Axiom sink reads `AXIOM_ORG_ID` and the token by name from the keychain (`securi
 The organisation's edge deployment is EU Central 1, so ingest and query go to that edge's domain, not
 `api.axiom.co`. The sink reads the domain by name too (`axiom-domain` in the keychain, or `AXIOM_DOMAIN`), and the
 MCP server for supervised sessions is `https://mcp.eu.axiom.co/mcp`, which keeps query results in the EU.
+
+Aaron's tokens already exist, one per dataset group, each in the keychain under its own name: `capxul-ingest-test`
+(capxul-test-*), `capxul-ingest-real` (capxul-real-*), `capxul-ingest-agents` (capxul-agents-*),
+`capxul-ingest-cloudflare` (capxul-cloudflare-*), all ingest-only, and `capxul-query`, query-only with a cost cap of
+$1 an hour and $5 a day, for `watch`. The sink reads them by those service names; `axiom-org-id` and `axiom-domain`
+hold the organisation and its EU Central 1 edge.
