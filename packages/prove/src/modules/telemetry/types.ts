@@ -11,6 +11,8 @@ export interface Span {
   /** 0 unset, 1 ok, 2 error. */
   readonly status: number;
   readonly ms: number;
+  /** When it started, in milliseconds since the epoch: the order steps ran in. */
+  readonly start: number;
 }
 
 export interface Log {

@@ -1,11 +1,29 @@
-$ npx vitest run --root packages/prove
-# commit b150981 · 2026-11-16T18:19:12Z · exit 0 (expected 0) · 38.2s
+$ npx vitest run --reporter verbose --root packages/prove
+# commit 3e6826a · 2026-11-16T18:27:05Z · exit 0 (expected 0) · 36.1s
 
 
  RUN  v4.1.12 ./packages/prove
 
+ ✓ src/modules/evals/evals.test.ts > evals on evidence > performance: slow evidence raises a review and never fails 1ms
+ ✓ src/modules/evals/evals.test.ts > evals on evidence > declared errors: an undeclared refusal names itself and the declared ones 0ms
+ ✓ src/modules/evals/evals.test.ts > evals on evidence > who may call: judged on mayCall, not on what the server said 0ms
+ ✓ src/modules/evals/evals.test.ts > evals on evidence > coverage: an operation no journey reaches fails, and the counts say by how much 0ms
+ ✓ src/modules/journeys/journeys.test.ts > loading a project > finds acme's journeys, its starting worlds, and the very declarations they import 203ms
+ ✓ src/modules/telemetry/telemetry.test.ts > the collector, in Docker > takes an OTLP span over HTTP and reads it back by trace id once complete 858ms
+ ✓ src/modules/world/world.test.ts > a local world > serves acme on workerd: the world casts ada, ada founds an organisation and grants olga 500 3009ms
+ ✓ src/modules/prove/prove.test.ts > architect prove --env local > passes on acme: every journey, every eval, coverage, and leaves nothing running 4137ms
+ ✓ src/modules/prove/prove.test.ts > architect prove --env local > the who-may-call fixture is still the generated server with only its gate removed 1ms
+ ✓ src/modules/prove/prove.test.ts > architect prove --env local > fails on the scaffolded handlers: the starting world can't be made, so no step runs 3553ms
+ ✓ src/modules/prove/prove.test.ts > architect prove --env local > fails the planted answer-shape fixture on its own eval 3271ms
+ ✓ src/modules/prove/prove.test.ts > architect prove --env local > fails the planted declared-errors fixture on its own eval 3262ms
+ ✓ src/modules/prove/prove.test.ts > architect prove --env local > fails the planted machine-path fixture on its own eval 3300ms
+ ✓ src/modules/prove/prove.test.ts > architect prove --env local > fails the planted events fixture on its own eval 3411ms
+ ✓ src/modules/prove/prove.test.ts > architect prove --env local > fails the planted who-may-call fixture on its own eval 3544ms
+ ✓ src/modules/prove/prove.test.ts > architect prove --env local > fails the planted steps fixture on its own eval 3378ms
+ ✓ src/modules/prove/prove.test.ts > architect prove --env local > fails the planted coverage fixture on its own eval 3770ms
+ ✓ src/modules/prove/prove.test.ts > architect prove --env local > fails the planted explainability fixture on its own eval 3411ms
 
  Test Files  5 passed (5)
       Tests  18 passed (18)
-   Start at  18:18:34
-   Duration  37.77s (transform 1.06s, setup 0ms, import 1.22s, tests 40.84s, environment 0ms)
+   Start at  18:26:29
+   Duration  35.60s (transform 1.05s, setup 0ms, import 1.25s, tests 39.23s, environment 0ms)

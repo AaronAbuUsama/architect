@@ -72,12 +72,18 @@ export const whoMayCall: PerOperation = (op, evidence) =>
     return [];
   }));
 
-/** 6. Every declared step of an answered call ran in its own span. */
+/** 6. Every declared step of an answered call ran in its own span, in the order the operation declares them. */
 export const steps: PerOperation = (op, evidence) =>
   verdict("steps", op.name, evidence.flatMap((e) => {
     if (!answered(e) || replayed(e)) return [];
-    const names = new Set(e.trace.spans.map((s) => s.name));
-    return Object.values(op.steps).filter((s) => !names.has(s.name)).map((s) => `${where(e)}: declared step ${s.name} ran no span`);
+    const declared = Object.values(op.steps);
+    const ran = declared.flatMap((s) => {
+      const span = e.trace.spans.find((x) => x.name === s.name);
+      return span ? [{ name: s.name, start: span.start }] : [];
+    });
+    const missing = declared.filter((s) => !ran.some((r) => r.name === s.name)).map((s) => `${where(e)}: declared step ${s.name} ran no span`);
+    const late = ran.slice(1).flatMap((r, i) => (r.start < ran[i]!.start ? [`${where(e)}: step ${r.name} ran before ${ran[i]!.name}, which is declared first`] : []));
+    return [...missing, ...late];
   }));
 
 /** 9. Every declared refusal has the log that decided it, inside the operation's span. */

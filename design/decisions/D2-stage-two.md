@@ -74,3 +74,6 @@ Decided 16 November 2026 by the builder, which has architectural ownership. The 
     `AllowanceLimitTooHigh`) fails to compile. Declared errors are structural, though, so an undeclared error with
     the same fields as a declared one (two with no fields, say) would compile. L1.40's lint plugin closes it with a
     rule: a handler file constructs only the errors its operation declares, read from the generated config.
+51. **Steps are judged in the order they are declared.** Each step's span is marked `step.kind` (`database` or
+    `wait`). The steps eval reads each span's start from the collector and fails a call whose declared steps ran out of
+    order. Equal starts pass: workerd's clock only moves across I/O, so two steps with no I/O between them can share one.

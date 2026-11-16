@@ -57,6 +57,28 @@ describe("handler wrapper", () => {
     expect(step?.parent._tag === "Some" && step.parent.value.spanId).toBe(span!.spanId);
   });
 
+  it("runs each declared step in its own span, in order, marked with its kind", async () => {
+    const settle = Blueprint.operation(Allowance, {
+      description: "Load, wait, then answer.",
+      payload: { member: Allowance.fields.member, limit: Allowance.fields.limit },
+      answer: { allowance: Allowance.fields.id },
+      allowed: [Blueprint.signedIn],
+      steps: { load: Blueprint.step.database(), wait: Blueprint.step.wait() },
+    });
+    const h: Handler<typeof settle> = (_p, { steps }) =>
+      Effect.gen(function* () {
+        yield* steps.load(Effect.void);
+        yield* steps.wait(Effect.void);
+        return { allowance: "alw_1" as never };
+      });
+    const { spans, layer } = recording();
+    await Effect.runPromise(Effect.provide(Handlers.serve({ name: "allowance.settle", operation: settle, handler: h }).call({ member: "per_olga", limit: "1" }, ada), layer));
+    const stepSpans = spans.filter((x) => x.name.startsWith("allowance.settle."));
+    expect(stepSpans.map((x) => [x.name, x.attributes.get("step.kind")])).toEqual([
+      ["allowance.settle.load", "database"], ["allowance.settle.wait", "wait"],
+    ]);
+  });
+
   it("passes a declared error through, typed, and counts the work until it ends", async () => {
     const { layer } = recording();
     const exit = await Effect.runPromise(Effect.provide(

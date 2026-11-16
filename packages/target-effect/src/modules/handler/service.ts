@@ -27,7 +27,11 @@ const serve = ({ name, operation, handler, notFrom }: { readonly name: string; r
   const decode = Schema.decodeUnknownEffect(op.payloadSchema as unknown as AnyCodec);
   const check = Schema.encodeEffect(op.answerSchema as unknown as AnyCodec);
   const steps = Object.fromEntries(
-    Object.keys(op.steps).map((key) => [key, <A, E, R>(work: Effect.Effect<A, E, R>) => Effect.withSpan(work, `${name}.${key}`)]),
+    // Each step is its own span, marked with its kind: a `database` step's work is the store's, a `wait` step's a timer's.
+    Object.entries(op.steps).map(([key, step]) => [
+      key,
+      <A, E, R>(work: Effect.Effect<A, E, R>) => Effect.withSpan(work, `${name}.${key}`, { attributes: { "step.kind": step.type } }),
+    ]),
   );
 
   // One attempt: who may call, then the operation's own span (opened only once the caller may call, so a refused

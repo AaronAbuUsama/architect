@@ -1,11 +1,13 @@
-$ npx vitest run --root packages/generators src/modules/render/handler-type.test.ts
-# commit 37023e8 · 2026-11-16T18:25:31Z · exit 0 (expected 0) · 1.2s
+$ npx vitest run --reporter verbose --root packages/generators src/modules/render/handler-type.test.ts
+# commit 3e6826a · 2026-11-16T18:26:15Z · exit 0 (expected 0) · 1.2s
 
 
  RUN  v4.1.12 ./packages/generators
 
+ ✓ src/modules/render/handler-type.test.ts > the generated Handler type > rejects a handler that fails with an error its operation doesn't declare 366ms
+ ✓ src/modules/render/handler-type.test.ts > the generated Handler type > accepts acme as written: the same copy, without the plant, compiles 257ms
 
  Test Files  1 passed (1)
       Tests  2 passed (2)
-   Start at  18:25:30
-   Duration  792ms (transform 12ms, setup 0ms, import 18ms, tests 688ms, environment 0ms)
+   Start at  18:26:14
+   Duration  741ms (transform 12ms, setup 0ms, import 19ms, tests 641ms, environment 0ms)
