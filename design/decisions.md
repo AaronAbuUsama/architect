@@ -129,7 +129,7 @@ Only a layer's own primitives are decided before it starts; the rest wait in `pl
 
 ## The agent harness (proposed, H1)
 
-- A package of its own, `@architect/agent`: Pi Durable 1.5.0 behind an Effect seam, providers through `pi-ai` (Anthropic and Command Code), tools derived from the blueprint's operations, skills as a small extension, a copy-of-the-project tools-only sandbox first, Pi's telemetry exported through Effect's OTLP layer, run records scored by `check` and `prove`. Effect AI with Cluster/Workflow on Durable Objects is the named fallback. See `decisions/H1-agent-harness.md`; steps A1 to A7 in `build-plan.md`.
+- A package of its own, `@architect/agent`: Pi Durable 1.5.0 behind an Effect seam, hosted in a Durable Object by Cloudflare's `PiHarness` (H1.10), providers through `pi-ai` (Anthropic and Command Code), tools derived from the blueprint's operations, skills as a small extension, a copy-of-the-project tools-only sandbox first, Pi's telemetry exported through Effect's OTLP layer, run records scored by `check` and `prove`. Effect AI with Cluster/Workflow on Durable Objects is the named fallback. See `decisions/H1-agent-harness.md`; steps A1 to A7 in `build-plan.md`.
 
 ## Agent runs and internal benchmarks (proposed, H2)
 
