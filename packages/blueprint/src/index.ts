@@ -15,9 +15,11 @@ import { Operations } from "#modules/operations/service.js";
 import { Roles } from "#modules/roles/service.js";
 import { Things } from "#modules/things/service.js";
 import { Values } from "#modules/values/service.js";
+import { Visibilities } from "#modules/visibility/service.js";
 
 export const Blueprint = Object.freeze({
   ...Values,
+  ...Visibilities,
   ...Things,
   ...Events,
   ...Errors,
@@ -37,12 +39,13 @@ export { Auth, Telemetry, Cloud, Deploy, Identity };
 export const { expect, emits, noEvents, refuses, spans } = Checks;
 export { NotAllowed } from "#modules/errors/types.js";
 export type { Value, TypeOf } from "#modules/values/types.js";
+export type { Visibility, PrivateTo } from "#modules/visibility/types.js";
 export type { Thing, Field, FieldsInput, Lives } from "#modules/things/types.js";
 export type { Event } from "#modules/events/types.js";
 export type { BlueprintError, ErrorClass, AnyErrorClass } from "#modules/errors/types.js";
 export type { Machine, Move, NotFrom } from "#modules/machines/types.js";
 export type { Role, RoleOf, Allowed, Principal, InstanceOf } from "#modules/roles/types.js";
-export type { Operation, Read, Step, Budget, PayloadOf, AnswerOf, ErrorOf, StepsOf } from "#modules/operations/types.js";
+export type { Operation, Read, Step, StepKind, Runs, TestKind, Budget, PayloadOf, AnswerOf, ErrorOf, StepsOf } from "#modules/operations/types.js";
 export type { Blank } from "#modules/blanks/types.js";
 export type { Journey, StartingWorld, Step as JourneyStep, Call, Assertion, Script, Actor, Ref, Refusal } from "#modules/journeys/types.js";
 export type { Environment, EnvironmentSpec } from "#modules/environments/types.js";

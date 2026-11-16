@@ -93,4 +93,96 @@ describe("model", () => {
     expect(Exit.isFailure(exit)).toBe(true);
     expect(JSON.stringify(exit)).toContain("blueprint/things/widget/verbs/spin.ts");
   });
+
+  // L2.P (N1): the seams a later target needs, each with a default that keeps today's behaviour.
+  describe("privacy-ready seams", () => {
+    const edit = (root: string, file: string, change: (text: string) => string) => {
+      const path = join(root, "blueprint", file);
+      writeFileSync(path, change(readFileSync(path, "utf8")));
+    };
+
+    it("carries `visibility` into the model: the declared secrets are marked, everything else is public by absence", async () => {
+      const exit = await modelOf(acme);
+      expect(Exit.isSuccess(exit)).toBe(true);
+      if (!Exit.isSuccess(exit)) return;
+      const ops = exit.value.operations;
+      expect(ops["session.sign-in"]?.payload["password"]?.visibility).toBe("secret");
+      expect(ops["session.sign-in"]?.answer["token"]?.visibility).toBe("secret");
+      expect(ops["session.sign-in"]?.answer["session"]?.visibility).toBe("secret");
+      expect(ops["session.sign-in"]?.payload["email"]).not.toHaveProperty("visibility");
+      expect(ops["person.sign-up"]?.payload["password"]?.visibility).toBe("secret");
+      expect(ops["api-key.create"]?.answer["key"]?.visibility).toBe("secret");
+      expect(ops["allowance.grant"]?.payload["limit"]).not.toHaveProperty("visibility");
+      // The things' own fields are public: a session id declared elsewhere is not secret because one answer marks it.
+      expect(exit.value.things["session"]?.fields["id"]).not.toHaveProperty("visibility");
+    });
+
+    it("carries `private(role)` into the model, the role named as thing.role", async () => {
+      const root = copyOfAcme();
+      edit(root, "things/allowance/verbs/grant.ts", (t) => t.replace("limit: Allowance.fields.limit }", "limit: Blueprint.visibility.private(Allowance.fields.limit, owner) }"));
+      edit(root, "things/allowance/errors.ts", (t) => t.replace('import { Amount }', 'import { owner } from "../organization/roles.ts";\nimport { Amount }').replace("remaining: Amount", "remaining: Blueprint.visibility.private(Amount, owner)"));
+      const exit = await modelOf(root);
+      expect(Exit.isSuccess(exit)).toBe(true);
+      if (!Exit.isSuccess(exit)) return;
+      expect(exit.value.operations["allowance.grant"]?.payload["limit"]?.visibility).toEqual({ private: ["organization.owner"] });
+      expect(exit.value.things["allowance"]?.errors["AllowanceExceeded"]?.fields["remaining"]?.visibility).toEqual({ private: ["organization.owner"] });
+      // Only what was marked: the same field elsewhere is public.
+      expect(exit.value.things["allowance"]?.events["AllowanceGranted"]?.["limit"]).not.toHaveProperty("visibility");
+    });
+
+    it("numbers refusal codes by declaration order, and a new error never moves one that shipped", async () => {
+      const before = await modelOf(acme);
+      expect(Exit.isSuccess(before)).toBe(true);
+      if (!Exit.isSuccess(before)) return;
+      expect(before.value.things["allowance"]?.code).toBe("AL");
+      expect(Object.fromEntries(Object.entries(before.value.things["allowance"]!.errors).map(([n, e]) => [n, e.code]))).toEqual({
+        AllowanceExceeded: "AL-001", AllowanceNotFound: "AL-002", AllowanceLimitTooHigh: "AL-003",
+      });
+      expect(before.value.refusals).toMatchObject({ AllowanceNotActive: "AL-900", NotAllowed: "AR-001", PersonEmailTaken: "PE-001", SessionCredentialsWrong: "SE-001" });
+
+      const root = copyOfAcme();
+      edit(root, "things/allowance/errors.ts", (t) => `${t}export class AllowanceFrozen extends Blueprint.error({}, { exit: 45 }) {}\n`);
+      const after = await modelOf(root);
+      expect(Exit.isSuccess(after)).toBe(true);
+      if (!Exit.isSuccess(after)) return;
+      expect(after.value.refusals).toMatchObject({ AllowanceExceeded: "AL-001", AllowanceNotFound: "AL-002", AllowanceLimitTooHigh: "AL-003", AllowanceFrozen: "AL-004", AllowanceNotActive: "AL-900" });
+    });
+
+    it("refuses two things that would share a code prefix, naming both", async () => {
+      const root = copyOfAcme();
+      edit(root, "things/organization/thing.ts", (t) => t.replace('  description: "A company', '  code: "AL",\n  description: "A company'));
+      const exit = await modelOf(root);
+      expect(Exit.isFailure(exit)).toBe(true);
+      expect(JSON.stringify(exit)).toMatch(/organization and allowance would both have refusal codes starting AL-|allowance and organization would both/);
+    });
+
+    it("defaults `runs` to server and `test` to unit, and refuses every other place, naming the target that would run it", async () => {
+      const exit = await modelOf(acme);
+      expect(Exit.isSuccess(exit)).toBe(true);
+      if (Exit.isSuccess(exit)) expect(Object.values(exit.value.operations).every((o) => o.runs === "server" && o.test === "unit")).toBe(true);
+
+      const client = copyOfAcme();
+      edit(client, "things/allowance/verbs/grant.ts", (t) => t.replace("  idempotent:", '  runs: "client",\n  idempotent:'));
+      const refusedClient = await modelOf(client);
+      expect(Exit.isFailure(refusedClient)).toBe(true);
+      expect(JSON.stringify(refusedClient)).toContain('blueprint/things/allowance/verbs/grant.ts: runs \\"client\\" is not supported yet');
+      expect(JSON.stringify(refusedClient)).toContain("target-noir");
+
+      const chain = copyOfAcme();
+      edit(chain, "things/allowance/verbs/grant.ts", (t) => t.replace("  idempotent:", '  runs: "chain",\n  idempotent:'));
+      const refusedChain = await modelOf(chain);
+      expect(Exit.isFailure(refusedChain)).toBe(true);
+      expect(JSON.stringify(refusedChain)).toContain("target-solidity");
+    });
+
+    it("carries a test kind a target set, `unit` otherwise", async () => {
+      const root = copyOfAcme();
+      edit(root, "things/allowance/verbs/grant.ts", (t) => t.replace("  idempotent:", '  test: "network",\n  idempotent:'));
+      const exit = await modelOf(root);
+      expect(Exit.isSuccess(exit)).toBe(true);
+      if (!Exit.isSuccess(exit)) return;
+      expect(exit.value.operations["allowance.grant"]?.test).toBe("network");
+      expect(exit.value.operations["allowance.spend"]?.test).toBe("unit");
+    });
+  });
 });

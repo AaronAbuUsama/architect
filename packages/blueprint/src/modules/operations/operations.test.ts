@@ -56,4 +56,22 @@ describe("operations", () => {
       allowed: [owner.of("organization")],
     });
   });
+
+  // L2.P (N1): the seams a later target needs. Each has a default that keeps today's behaviour.
+  it("runs on the server and tests as a unit unless a declaration says otherwise", () => {
+    expect([grant.runs, grant.test]).toEqual(["server", "unit"]);
+    const far = Operations.operation(Allowance, {
+      description: "Far.", payload: {}, answer: {}, allowed: [Roles.anyone], runs: "chain", test: "network",
+    });
+    expect([far.runs, far.test]).toEqual(["chain", "network"]);
+    expectTypeOf(far.runs).toEqualTypeOf<"client" | "server" | "chain">();
+    // @ts-expect-error a place that is not one of the three
+    Operations.operation(Allowance, { description: "x", payload: {}, answer: {}, allowed: [Roles.anyone], runs: "cloud" });
+  });
+
+  it("leaves the step kinds open: `sync`, `check` and `prove` are named, and a target may add its own", () => {
+    expectTypeOf<import("./types.ts").StepKind>().toExtend<string>();
+    const kinds: Array<import("./types.ts").StepKind> = ["database", "wait", "sync", "check", "prove", "a-kind-a-target-adds"];
+    expect(kinds).toHaveLength(6);
+  });
 });

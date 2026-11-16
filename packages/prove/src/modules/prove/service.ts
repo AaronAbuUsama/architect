@@ -1,7 +1,7 @@
 import { resolve } from "node:path";
 import { Effect } from "effect";
 import { Compiler, nodeSource } from "@architect/compiler";
-import { Collectors } from "#modules/telemetry/service.js";
+import { Collectors, privateKeys } from "#modules/telemetry/service.js";
 import { Journeys } from "#modules/journeys/service.js";
 import { Worlds } from "#modules/world/service.js";
 import { Impact } from "#modules/impact/service.js";
@@ -27,7 +27,7 @@ export const Prove: ProveApi = {
   run: ({ root, port }) =>
     Effect.gen(function* () {
       const { model, project } = yield* load(root);
-      const collector = yield* Collectors.start(resolve(root, ".architect/prove-telemetry")).pipe(Effect.mapError(failed));
+      const collector = yield* Collectors.start(resolve(root, ".architect/prove-telemetry"), { strip: privateKeys(model) }).pipe(Effect.mapError(failed));
       const { url } = yield* Worlds.start({ root, port, name: "prove", otlp: collector.url }).pipe(Effect.mapError(failed));
       const done = yield* exercise(model, project, url, collector);
       // A run with a failing journey proves nothing: its operations are recorded as judged and not passed (D2 #80).

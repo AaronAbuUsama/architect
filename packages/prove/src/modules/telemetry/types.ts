@@ -41,13 +41,16 @@ export interface Collector {
 }
 
 export interface CollectorsApi {
-  /** Start a collector in Docker writing to `dir`; removed when the scope closes. */
-  readonly start: (dir: string) => Effect.Effect<Collector, CollectorFailed, Scope.Scope>;
+  /**
+   * Start a collector in Docker writing to `dir`; removed when the scope closes. `strip` are attribute keys its
+   * `attributes` processor deletes from every span and log (L2.P): the keys the model says may carry a non-public value.
+   */
+  readonly start: (dir: string, options?: { readonly strip?: ReadonlyArray<string> }) => Effect.Effect<Collector, CollectorFailed, Scope.Scope>;
   /**
    * A collector that outlives this process, for an environment that has one of its own: a container `name` writing to
    * a fresh `dir`, on a port Docker picks. Returns its OTLP/HTTP URL. Whoever launches it stops it.
    */
-  readonly launch: (options: { readonly dir: string; readonly name: string }) => Effect.Effect<string, CollectorFailed>;
+  readonly launch: (options: { readonly dir: string; readonly name: string; readonly strip?: ReadonlyArray<string> }) => Effect.Effect<string, CollectorFailed>;
   /** Remove the container `name`. Nothing to remove is not an error. */
   readonly stop: (name: string) => Effect.Effect<void>;
   /** Read what some collector wrote to `dir`, by trace id. */

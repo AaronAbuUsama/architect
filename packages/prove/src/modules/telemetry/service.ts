@@ -2,6 +2,7 @@ import { mkdirSync, rmSync } from "node:fs";
 import { Effect, Schedule } from "effect";
 import { CollectorFailed, type Collector, type CollectorsApi, type Trace } from "./types.ts";
 import { removeCollector, runCollector } from "./internal/docker.ts";
+export { privateKeys } from "./internal/private-keys.ts";
 import { looksComplete, readAll } from "./internal/otlp.ts";
 
 /** An empty export answers `{"partialSuccess":{}}` once the receiver is up: the spike's readiness check. */
@@ -42,21 +43,21 @@ const reader = (dir: string): Collector["traces"] => (wanted) =>
   });
 
 export const Collectors: CollectorsApi = {
-  start: (dir) =>
+  start: (dir, options) =>
     Effect.gen(function* () {
       rmSync(dir, { recursive: true, force: true });
       mkdirSync(dir, { recursive: true });
       const name = `architect-collector-${process.pid}-${Math.floor(Math.random() * 1e9)}`;
-      const url = yield* Effect.acquireRelease(runCollector(dir, name), () => removeCollector(name));
+      const url = yield* Effect.acquireRelease(runCollector(dir, name, options?.strip), () => removeCollector(name));
       yield* waitReady(url);
       return { url, traces: reader(dir) };
     }),
-  launch: ({ dir, name }) =>
+  launch: ({ dir, name, strip }) =>
     Effect.gen(function* () {
       rmSync(dir, { recursive: true, force: true });
       mkdirSync(dir, { recursive: true });
       yield* removeCollector(name);
-      const url = yield* runCollector(dir, name);
+      const url = yield* runCollector(dir, name, strip);
       yield* waitReady(url).pipe(Effect.tapError(() => removeCollector(name)));
       return url;
     }),

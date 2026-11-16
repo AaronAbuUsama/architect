@@ -3,7 +3,7 @@ import { join, resolve } from "node:path";
 import { Effect } from "effect";
 import { Compiler, nodeSource } from "@architect/compiler";
 import { Build } from "#modules/build/service.js";
-import { Collectors } from "#modules/telemetry/service.js";
+import { Collectors, privateKeys } from "#modules/telemetry/service.js";
 import { Worlds } from "#modules/world/service.js";
 import type { EnvironmentsApi, Up } from "./types.ts";
 import { collectorName, telemetryDir } from "./internal/collector.ts";
@@ -25,7 +25,7 @@ const declared = (root: string, name: string) =>
     const known = Object.keys(model.environments ?? {}).filter((n) => n !== "local");
     if (!environment) return yield* failed(`no environment "${name}" in blueprint/environments/ (there is ${known.join(", ") || "none"})`);
     if (name === "local") return yield* failed(`"local" is not kept running: it is what \`architect dev\` and \`architect prove --env local\` start`);
-    return environment;
+    return { environment, strip: privateKeys(model) };
   });
 
 const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision, policy }) =>
@@ -39,7 +39,7 @@ const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision, policy }
       if (!policy) return yield* failed("the logbook needs a policy: ARCHITECT_OIDC_ISSUER, ARCHITECT_OIDC_REPOSITORY, ARCHITECT_OIDC_REF and ARCHITECT_OIDC_WORKFLOW");
       return yield* startLogbook(dir, port, policy);
     }
-    const environment = yield* declared(root, name);
+    const { environment, strip } = yield* declared(root, name);
     const f = files(dir);
     yield* io(`${dir}`, () => mkdirSync(f.state, { recursive: true }));
     const now = yield* status(root, name);
@@ -59,7 +59,7 @@ const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision, policy }
     // An environment that hosts worlds has its own collector, which lives until `down`.
     const hosts = environment.lifetimeMs !== null;
     const otlp = hosts
-      ? yield* Collectors.launch({ dir: telemetryDir(dir), name: collectorName(dir) }).pipe(Effect.mapError((e) => failed(`${name} needs Docker for its collector: ${e.message}`)))
+      ? yield* Collectors.launch({ dir: telemetryDir(dir), name: collectorName(dir), strip }).pipe(Effect.mapError((e) => failed(`${name} needs Docker for its collector: ${e.message}`)))
       : undefined;
     yield* io(`${dir}`, () => {
       ensureSecrets(f.secrets, Object.keys(environment.secrets));

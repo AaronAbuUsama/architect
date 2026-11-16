@@ -49,9 +49,9 @@ export const Reads: ReadsApi = {
           Effect.provideService(Records, unit.records),
         );
         return yield* Effect.gen(function* () {
-          yield* Effect.annotateCurrentSpan(payloadAttributes(payload));
+          yield* Effect.annotateCurrentSpan(payloadAttributes(payload, read.payload));
           const answer = read.by === "list" ? yield* byList(read, payload) : yield* byId(read, payload, unit);
-          yield* Effect.annotateCurrentSpan(answerAttributes(answer));
+          yield* Effect.annotateCurrentSpan(answerAttributes(answer, read.answer, read.by === "list" ? read.thing.fields : undefined));
           yield* check(answer).pipe(Effect.mapError((e) => new Error(`${name} answered outside its declaration: ${e.message}`)), Effect.orDie);
           return answer;
         }).pipe(Effect.withSpan(name, { attributes: { operation: name, ...principalAttributes(principal) } }));

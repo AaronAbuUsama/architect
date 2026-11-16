@@ -11,7 +11,18 @@ export interface Step<K extends StepKind = StepKind> {
   readonly kind: "step";
   readonly type: K;
 }
-export type StepKind = "database" | "wait";
+/**
+ * What a step is. `database` and `wait` are what the Effect target runs. `sync`, `check` and `prove` are reserved for
+ * targets that run on a chain or a client (N1): each is a span with its own budget. The union is open, so a target can
+ * add kinds, and nothing here matches on all of them.
+ */
+export type StepKind = "database" | "wait" | "sync" | "check" | "prove" | (string & {});
+
+/** Where an operation runs: `server` (every target today), on the caller's `client`, or on a `chain`. */
+export type Runs = "client" | "server" | "chain";
+
+/** How a guarantee is tested: `unit` in the target's own test runner, or `network` on a network the target's tests need. */
+export type TestKind = "unit" | "network";
 export type Steps = { readonly [key: string]: Step };
 
 export interface Budget {
@@ -35,6 +46,10 @@ export interface OperationSpec<P extends FieldsInput, A extends FieldsInput, E e
   readonly steps?: St;
   readonly idempotent?: "request";
   readonly budget?: Budget;
+  /** Where it runs. Only `server` is accepted until a target supports another (N1). */
+  readonly runs?: Runs;
+  /** A target can say a guarantee needs a network test; defaults to `unit`. */
+  readonly test?: TestKind;
 }
 
 export interface Operation<
@@ -57,6 +72,8 @@ export interface Operation<
   readonly steps: St;
   readonly idempotent: "request" | undefined;
   readonly budget: Budget | undefined;
+  readonly runs: Runs;
+  readonly test: TestKind;
 }
 
 /** What a read by id answers: the fields it names, decoded, with `state` as text. */

@@ -11,7 +11,7 @@ const MARK = "<!-- Generated from the blueprint. Do not edit. -->";
 const fieldRows = (fields: FieldsModel) =>
   Object.keys(fields).length === 0
     ? ["(none)"]
-    : ["| field | value |", "|---|---|", ...Object.entries(fields).map(([k, f]) => `| ${k}${f.optional ? " (optional)" : ""} | ${f.ref ?? f.named ?? f.value.type} |`)];
+    : ["| field | value |", "|---|---|", ...Object.entries(fields).map(([k, f]) => `| ${k}${f.optional ? " (optional)" : ""} | ${f.ref ?? f.named ?? f.value.type}${f.visibility ? ` (${f.visibility === "secret" ? "secret" : `private to ${f.visibility.private.join(", ")}`})` : ""} |`)];
 
 const who = (op: OperationModel) =>
   op.allowed.map((a) => (a.kind === "anyone" ? "anyone" : a.kind === "signed-in" ? "anyone signed in" : a.kind === "role" ? `the ${a.role.split(".").pop()} of the ${op.thing}` : `the ${a.role.split(".").pop()} of its ${a.path}`)).join(", or ");
@@ -21,9 +21,10 @@ const refusals = (model: Model, op: OperationModel) => {
   const thing = model.things[op.thing];
   return op.refusals.map((r) => {
     const declared = thing?.errors[r];
-    if (declared) return `| ${r} | ${declared.exit} | declared in errors.ts${Object.keys(declared.fields).length ? `, carrying ${Object.keys(declared.fields).join(", ")}` : ""} |`;
-    if (r === "NotAllowed") return `| NotAllowed | ${NOT_ALLOWED_EXIT} | the caller isn't ${who(op)}; the handler never runs |`;
-    return `| ${r} | ${thing?.machine?.notFrom.exit ?? "?"} | the ${op.thing} is in a state ${op.move?.key ?? "this"} can't start from; carries \`state\` |`;
+    const code = model.refusals[r] ?? "?";
+    if (declared) return `| ${r} | ${declared.exit} | ${code} | declared in errors.ts${Object.keys(declared.fields).length ? `, carrying ${Object.keys(declared.fields).join(", ")}` : ""} |`;
+    if (r === "NotAllowed") return `| NotAllowed | ${NOT_ALLOWED_EXIT} | ${code} | the caller isn't ${who(op)}; the handler never runs |`;
+    return `| ${r} | ${thing?.machine?.notFrom.exit ?? "?"} | ${code} | the ${op.thing} is in a state ${op.move?.key ?? "this"} can't start from; carries \`state\` |`;
   });
 };
 
@@ -45,7 +46,7 @@ const operationPage = (model: Model, op: OperationModel, project: string): Rende
     "", "## Payload", "", fieldRows(op.payload), "", "## Answer", "", fieldRows(op.answer),
     op.move ? ["", "## Move", "", `\`${op.move.key}\`: from ${op.move.from.length ? op.move.from.join(" or ") : "nothing (it creates)"} to ${op.move.to.join(" or ")}, emitting ${op.move.emits}.`] : [],
     Object.keys(op.steps).length ? ["", "## Steps", "", ...Object.values(op.steps).map((s) => `- \`${s.name}\` (${s.type})`)] : [],
-    "", "## Refusals", "", op.refusals.length ? ["| refusal | exit | when |", "|---|---|---|", ...refusals(model, op)] : ["(none)"],
+    "", "## Refusals", "", op.refusals.length ? ["| refusal | exit | code | when |", "|---|---|---|---|", ...refusals(model, op)] : ["(none)"],
     "", "## How to call", "",
     "```sh", `${project} ${op.thing} ${op.verb} ${Object.entries(op.payload).map(([k, f]) => (f.optional ? `[--${k} <${k}>]` : `--${k} <${k}>`)).join(" ")}`.trimEnd(), "```",
     "", `HTTP: \`POST /${op.thing}/${op.verb}\` with the payload as JSON. SDK: \`Sdk.${op.thing}.${op.verb}(payload)\`.`,

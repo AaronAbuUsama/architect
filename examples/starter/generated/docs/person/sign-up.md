@@ -12,7 +12,7 @@ Sign up with an email address and a password.
 | field | value |
 |---|---|
 | email | person.email |
-| password | Password |
+| password | Password (secret) |
 | name | person.name |
 
 ## Answer
@@ -27,9 +27,9 @@ Sign up with an email address and a password.
 
 ## Refusals
 
-| refusal | exit | when |
-|---|---|---|
-| PersonEmailTaken | 11 | declared in errors.ts |
+| refusal | exit | code | when |
+|---|---|---|---|
+| PersonEmailTaken | 11 | PE-001 | declared in errors.ts |
 
 ## How to call
 

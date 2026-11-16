@@ -27,10 +27,10 @@ Stop an allowance. Nothing more can be spent from it.
 
 ## Refusals
 
-| refusal | exit | when |
-|---|---|---|
-| AllowanceNotActive | 40 | the allowance is in a state revoke can't start from; carries `state` |
-| NotAllowed | 3 | the caller isn't the owner of its allowance.organization; the handler never runs |
+| refusal | exit | code | when |
+|---|---|---|---|
+| AllowanceNotActive | 40 | AL-900 | the allowance is in a state revoke can't start from; carries `state` |
+| NotAllowed | 3 | AR-001 | the caller isn't the owner of its allowance.organization; the handler never runs |
 
 ## How to call
 

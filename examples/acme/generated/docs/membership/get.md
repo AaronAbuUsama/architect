@@ -25,9 +25,9 @@ Read one membership by its id: organization, person, role.
 
 ## Refusals
 
-| refusal | exit | when |
-|---|---|---|
-| NotAllowed | 3 | the caller isn't the holder of the membership, or the owner of its membership.organization; the handler never runs |
+| refusal | exit | code | when |
+|---|---|---|---|
+| NotAllowed | 3 | AR-001 | the caller isn't the holder of the membership, or the owner of its membership.organization; the handler never runs |
 
 ## How to call
 

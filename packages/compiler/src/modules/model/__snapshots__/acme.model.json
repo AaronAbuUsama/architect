@@ -1,4 +1,15 @@
 {
+  "refusals": {
+    "AllowanceExceeded": "AL-001",
+    "AllowanceLimitTooHigh": "AL-003",
+    "AllowanceNotActive": "AL-900",
+    "AllowanceNotFound": "AL-002",
+    "InvitationNotPending": "IN-900",
+    "NotAllowed": "AR-001",
+    "OrganizationNotActive": "OR-900",
+    "PersonEmailTaken": "PE-001",
+    "SessionCredentialsWrong": "SE-001"
+  },
   "values": {
     "Amount": {
       "type": "uint",
@@ -27,6 +38,7 @@
     "allowance": {
       "name": "allowance",
       "identifier": "Allowance",
+      "code": "AL",
       "description": "Money a member may spend from their organisation, up to a limit each month.",
       "fields": {
         "id": {
@@ -102,7 +114,8 @@
         },
         "notFrom": {
           "error": "AllowanceNotActive",
-          "exit": 40
+          "exit": 40,
+          "code": "AL-900"
         }
       },
       "events": {
@@ -173,7 +186,13 @@
               "named": "Amount"
             }
           },
-          "exit": 41
+          "exit": 41,
+          "code": "AL-001"
+        },
+        "AllowanceNotFound": {
+          "fields": {},
+          "exit": 43,
+          "code": "AL-002"
         },
         "AllowanceLimitTooHigh": {
           "fields": {
@@ -185,21 +204,19 @@
               "named": "Amount"
             }
           },
-          "exit": 44
-        },
-        "AllowanceNotFound": {
-          "fields": {},
-          "exit": 43
+          "exit": 44,
+          "code": "AL-003"
         }
       },
       "roles": [
         "grantee"
       ],
-      "hash": "d545ff8f0a5ef32d"
+      "hash": "0029b5bcfd260e5f"
     },
     "api-key": {
       "name": "api-key",
       "identifier": "ApiKey",
+      "code": "AP",
       "description": "A key an agent or a service calls with, on behalf of whoever created it. Better Auth keeps its hash.",
       "fields": {
         "id": {
@@ -234,11 +251,12 @@
       "events": {},
       "errors": {},
       "roles": [],
-      "hash": "3f17df33fae4a95e"
+      "hash": "6e46b72b0aa08b14"
     },
     "invitation": {
       "name": "invitation",
       "identifier": "Invitation",
+      "code": "IN",
       "description": "An offer to join an organisation, sent to an email address.",
       "fields": {
         "id": {
@@ -305,7 +323,8 @@
         },
         "notFrom": {
           "error": "InvitationNotPending",
-          "exit": 40
+          "exit": 40,
+          "code": "IN-900"
         }
       },
       "events": {
@@ -355,11 +374,12 @@
       "roles": [
         "invitee"
       ],
-      "hash": "4b386b81727a94e8"
+      "hash": "c480108780ac255d"
     },
     "membership": {
       "name": "membership",
       "identifier": "Membership",
+      "code": "ME",
       "description": "A person's place in an organisation.",
       "fields": {
         "id": {
@@ -396,11 +416,12 @@
       "roles": [
         "holder"
       ],
-      "hash": "4c97f83624480289"
+      "hash": "7c2dc564f0e86a98"
     },
     "organization": {
       "name": "organization",
       "identifier": "Organization",
+      "code": "OR",
       "description": "A company whose owner hands out allowances, up to a cap each.",
       "fields": {
         "id": {
@@ -446,7 +467,8 @@
         },
         "notFrom": {
           "error": "OrganizationNotActive",
-          "exit": 20
+          "exit": 20,
+          "code": "OR-900"
         }
       },
       "events": {
@@ -471,11 +493,12 @@
       "roles": [
         "owner"
       ],
-      "hash": "d28831c5e02ff781"
+      "hash": "d95f8ccf9838cc7b"
     },
     "person": {
       "name": "person",
       "identifier": "Person",
+      "code": "PE",
       "description": "Someone who signs in. Better Auth keeps people; the project refers to them by id.",
       "fields": {
         "id": {
@@ -503,15 +526,17 @@
       "errors": {
         "PersonEmailTaken": {
           "fields": {},
-          "exit": 11
+          "exit": 11,
+          "code": "PE-001"
         }
       },
       "roles": [],
-      "hash": "67846e43cd15c7f0"
+      "hash": "1595aad527217150"
     },
     "session": {
       "name": "session",
       "identifier": "Session",
+      "code": "SE",
       "description": "A person's signed-in session, issued by Better Auth.",
       "fields": {
         "id": {
@@ -534,15 +559,17 @@
       "errors": {
         "SessionCredentialsWrong": {
           "fields": {},
-          "exit": 10
+          "exit": 10,
+          "code": "SE-001"
         }
       },
       "roles": [],
-      "hash": "56ef682327ea406a"
+      "hash": "1fa5923e2d4a38d4"
     },
     "system": {
       "name": "system",
       "identifier": "System",
+      "code": "SY",
       "description": "The running application itself.",
       "fields": {
         "id": {
@@ -557,7 +584,7 @@
       "events": {},
       "errors": {},
       "roles": [],
-      "hash": "8414ffbf37eb77af"
+      "hash": "f59c02fd744afb41"
     }
   },
   "operations": {
@@ -634,10 +661,12 @@
       ],
       "steps": {},
       "idempotent": null,
+      "runs": "server",
+      "test": "unit",
       "budget": {
         "p95Ms": 50
       },
-      "hash": "cbccc5abd9a4f686"
+      "hash": "d37e32b8d27bcb3e"
     },
     "allowance.grant": {
       "kind": "operation",
@@ -709,10 +738,12 @@
         }
       },
       "idempotent": "request",
+      "runs": "server",
+      "test": "unit",
       "budget": {
         "p95Ms": 200
       },
-      "hash": "c07763874651fc09"
+      "hash": "1f1b19530837e4ed"
     },
     "allowance.revoke": {
       "kind": "operation",
@@ -762,10 +793,12 @@
         }
       },
       "idempotent": null,
+      "runs": "server",
+      "test": "unit",
       "budget": {
         "p95Ms": 150
       },
-      "hash": "4ce99862e3eab07d"
+      "hash": "840eec1fa79d3872"
     },
     "allowance.spend": {
       "kind": "operation",
@@ -843,10 +876,12 @@
         }
       },
       "idempotent": "request",
+      "runs": "server",
+      "test": "unit",
       "budget": {
         "p95Ms": 150
       },
-      "hash": "40708454e868ce42"
+      "hash": "aee8ecae8dc5fc81"
     },
     "api-key.create": {
       "kind": "operation",
@@ -885,7 +920,8 @@
             "type": "text",
             "max": 512
           },
-          "named": "Secret"
+          "named": "Secret",
+          "visibility": "secret"
         }
       },
       "move": null,
@@ -911,10 +947,12 @@
         }
       },
       "idempotent": null,
+      "runs": "server",
+      "test": "unit",
       "budget": {
         "p95Ms": 250
       },
-      "hash": "e7a7b757872cfe84"
+      "hash": "08aae6601d29ec9c"
     },
     "invitation.accept": {
       "kind": "operation",
@@ -977,10 +1015,12 @@
         }
       },
       "idempotent": null,
+      "runs": "server",
+      "test": "unit",
       "budget": {
         "p95Ms": 200
       },
-      "hash": "72b1952ae2625487"
+      "hash": "9b5d5f2a5e227711"
     },
     "invitation.revoke": {
       "kind": "operation",
@@ -1029,10 +1069,12 @@
         }
       },
       "idempotent": null,
+      "runs": "server",
+      "test": "unit",
       "budget": {
         "p95Ms": 150
       },
-      "hash": "996b5a457075683e"
+      "hash": "273081eb20442e78"
     },
     "invitation.send": {
       "kind": "operation",
@@ -1093,10 +1135,12 @@
         }
       },
       "idempotent": null,
+      "runs": "server",
+      "test": "unit",
       "budget": {
         "p95Ms": 200
       },
-      "hash": "e56d1a8e22b99636"
+      "hash": "f760027d1cbbe846"
     },
     "membership.get": {
       "kind": "read",
@@ -1156,10 +1200,12 @@
       ],
       "steps": {},
       "idempotent": null,
+      "runs": "server",
+      "test": "unit",
       "budget": {
         "p95Ms": 50
       },
-      "hash": "ae9d119db65ee4f8"
+      "hash": "b2d66623a4335cca"
     },
     "organization.create": {
       "kind": "operation",
@@ -1223,10 +1269,12 @@
         }
       },
       "idempotent": "request",
+      "runs": "server",
+      "test": "unit",
       "budget": {
         "p95Ms": 250
       },
-      "hash": "522eb516f4ba2099"
+      "hash": "88a1c1cad20fbba0"
     },
     "organization.get": {
       "kind": "read",
@@ -1280,10 +1328,12 @@
       ],
       "steps": {},
       "idempotent": null,
+      "runs": "server",
+      "test": "unit",
       "budget": {
         "p95Ms": 50
       },
-      "hash": "570b2e6322dee4c7"
+      "hash": "45802f5f1bd67a6d"
     },
     "person.sign-up": {
       "kind": "operation",
@@ -1306,7 +1356,8 @@
             "type": "text",
             "max": 128
           },
-          "named": "Password"
+          "named": "Password",
+          "visibility": "secret"
         },
         "name": {
           "value": {
@@ -1344,10 +1395,12 @@
         }
       },
       "idempotent": null,
+      "runs": "server",
+      "test": "unit",
       "budget": {
         "p95Ms": 400
       },
-      "hash": "93e57fe5eea95e26"
+      "hash": "a07b2e3beea84684"
     },
     "session.show": {
       "kind": "operation",
@@ -1386,10 +1439,12 @@
       ],
       "steps": {},
       "idempotent": null,
+      "runs": "server",
+      "test": "unit",
       "budget": {
         "p95Ms": 100
       },
-      "hash": "cee6d72700637d9e"
+      "hash": "d6972d746c66f735"
     },
     "session.sign-in": {
       "kind": "operation",
@@ -1412,7 +1467,8 @@
             "type": "text",
             "max": 128
           },
-          "named": "Password"
+          "named": "Password",
+          "visibility": "secret"
         }
       },
       "answer": {
@@ -1421,14 +1477,16 @@
             "type": "id",
             "prefix": "ses"
           },
-          "ref": "session.id"
+          "ref": "session.id",
+          "visibility": "secret"
         },
         "token": {
           "value": {
             "type": "text",
             "max": 512
           },
-          "named": "Secret"
+          "named": "Secret",
+          "visibility": "secret"
         }
       },
       "move": null,
@@ -1450,10 +1508,12 @@
         }
       },
       "idempotent": null,
+      "runs": "server",
+      "test": "unit",
       "budget": {
         "p95Ms": 400
       },
-      "hash": "2e89ec46a9e68da1"
+      "hash": "631917ddeff4685a"
     },
     "system.health": {
       "kind": "operation",
@@ -1482,10 +1542,12 @@
       ],
       "steps": {},
       "idempotent": null,
+      "runs": "server",
+      "test": "unit",
       "budget": {
         "p95Ms": 50
       },
-      "hash": "4c762db26dff1fd1"
+      "hash": "354821b9c37665dc"
     }
   },
   "environments": {

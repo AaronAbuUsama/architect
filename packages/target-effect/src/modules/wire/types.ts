@@ -3,7 +3,10 @@
 import type { Effect } from "effect";
 
 /** The generated wire classes, by error name. */
-export type WireClasses = { readonly [name: string]: new (fields: never) => unknown };
+export type WireClasses = { readonly [name: string]: (new (fields: never) => unknown) & {
+  /** The refusal's code, `AL-002`: the thing's prefix and a number the model fixed. */
+  readonly code: string;
+} };
 
 export interface WireApi {
   /** Turn each declared error into its wire class. An error with no wire class was never declared: it dies. */

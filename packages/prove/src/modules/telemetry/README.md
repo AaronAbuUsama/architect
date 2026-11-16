@@ -9,3 +9,7 @@ the evals name what is missing. Test: `telemetry.test.ts`.
 `Collectors.launch({ dir, name })`, `.stop(name)` and `.read(dir)` are the same collector for an environment that has
 one of its own (D3 #52): launched without a scope, removed by whoever launched it, and read back from its folder by
 whoever proves against the environment.
+
+`Collectors.start(dir, { strip })` and `launch({ …, strip })` add an `attributes` processor that deletes each key in `strip` from every
+span and log before the file exporter (L2.P, D3 #82): the second guard behind the runtime's allowlist. `privateKeys(model)` builds the keys
+from the model's `visibility`; `prove` and `env up` pass it. Test: `prove/secrets.test.ts`, against the real Collector's files.

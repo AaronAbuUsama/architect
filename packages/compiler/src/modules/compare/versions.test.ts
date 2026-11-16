@@ -38,6 +38,15 @@ describe("Compare.release", () => {
     expect(Compare.release(model, errors).bump).toBe("major");
   });
 
+  it("a refusal code that shipped never moves: changed or removed is major, a new refusal's code is not a change", () => {
+    const moved = edited((m) => { m.refusals["AllowanceNotFound"] = "AL-003"; });
+    expect(Compare.release(model, moved)).toEqual({ bump: "major", changes: [{ kind: "changed", what: "refusal:AllowanceNotFound", detail: "AL-002 to AL-003", bump: "major" }] });
+    const removed = edited((m) => { delete m.refusals["AllowanceNotFound"]; });
+    expect(Compare.release(model, removed).changes).toEqual([{ kind: "removed", what: "refusal:AllowanceNotFound", detail: "AL-002 removed", bump: "major" }]);
+    const added = edited((m) => { m.refusals["AllowanceFrozen"] = "AL-004"; });
+    expect(Compare.release(model, added)).toEqual({ bump: "patch", changes: [] });
+  });
+
   it("a removed operation is major; the largest change sets the bump", () => {
     const after = edited((m) => {
       delete m.operations["organization.create"];

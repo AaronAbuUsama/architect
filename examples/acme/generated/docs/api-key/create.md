@@ -19,7 +19,7 @@ Create an API key in an organisation. The key itself is shown once.
 | field | value |
 |---|---|
 | apiKey | api-key.id |
-| key | Secret |
+| key | Secret (secret) |
 
 ## Steps
 
@@ -28,9 +28,9 @@ Create an API key in an organisation. The key itself is shown once.
 
 ## Refusals
 
-| refusal | exit | when |
-|---|---|---|
-| NotAllowed | 3 | the caller isn't the owner of its organization; the handler never runs |
+| refusal | exit | code | when |
+|---|---|---|---|
+| NotAllowed | 3 | AR-001 | the caller isn't the owner of its organization; the handler never runs |
 
 ## How to call
 
