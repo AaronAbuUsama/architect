@@ -17,11 +17,13 @@ design session.
 
 ## Next
 
-1. A repository on GitHub, if this isn't one yet.
-2. L1.01, the workspace.
-3. Spikes S2 to S6, in parallel.
-4. Decision steps D1 and D2 (most of D1 is decided).
-5. Layer one, with a 🧭 lead on `layer/1`.
+1. Done: the private GitHub repository, with the design on `main`.
+2. Goal 1, the walking skeleton on this Mac: `goals/01-walking-skeleton.md`. It covers L1.01, D1, D2 and L1.10 to
+   L1.15, and folds spikes S2, S4 and S5 into the build.
+3. Goal 2, the rest of layer one to Gate 1 (with spikes S3 and S6), to be written when goal 1 is done.
+
+Aaron's rule from 16 November 2026: the building agent owns the architecture and asks only when blocked (see
+"Who decides" in `AGENTS.md`).
 
 ## Open
 

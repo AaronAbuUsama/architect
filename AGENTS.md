@@ -6,18 +6,31 @@
 
 Architect, the framework. Its design is in `design/`: `decisions.md` (what is decided and what is proposed),
 `build-plan.md` (the steps, layer by layer, each with what it needs and the check that proves it), `packages.md`,
-`spikes.md` and `spikes/`, and the design docs in `design/docs/index.html`. When code and design disagree, the design
-wins until a decision changes it; a decision changes only with Aaron's yes for anything marked decided.
+`spikes.md` and `spikes/`, and the design docs in `design/docs/index.html`.
+
+## Who decides (Aaron, 16 November 2026)
+
+The building agent owns the architecture. Aaron's words: be independent and autonomous, make the architectural
+decisions, and where docs disagree, take ownership and make them consistent. So:
+
+- When code and design disagree, or two design files disagree, decide which is right, fix the other in the same
+  change, and record the call in `design/decisions/` with the evidence. Nothing waits on Aaron for this, including
+  items marked decided, as long as the change serves the goal in `README.md`.
+- Keep Aaron's own calls (the ones dated with his name) unless building proves one wrong; then change it, record why,
+  and tell him in the next report.
+- Come back to Aaron only when truly blocked: money beyond the cap, a credential, production, something outward-facing
+  or irreversible, or a fork where the goal itself is unclear.
 
 ## How work flows
 
 - **Layers.** Architect is built in five layers (declare and call; prove and ship; reach out; on chain; time). Nothing
   in a layer starts until the previous layer's gate passes on `main`. Ideas for later layers go in `design/later.md`,
   never into code.
-- **Steps.** Each step of `build-plan.md` is one thread, one branch and one pull request, small enough for one session,
-  ending green with its "done when" check. A layer is built on `layer/<n>`, cut from `main` by that layer's lead; step
-  pull requests go into `layer/<n>`; the layer reaches `main` by one pull request, merged when CI is green, its gate
-  passes and a 🔍 reviewer passed it.
+- **Goals.** Work runs as goals in `design/goals/`: one long autonomous run with a bound and a single done check. A
+  goal works on `layer/<n>`, one commit per build-plan step, each ending green with its "done when" check. It loops
+  generate, run, fix until the check passes, then moves on. The layer reaches `main` by one pull request, merged when
+  CI is green, its gate passes and a 🔍 reviewer subagent passed it. Threads are optional, for work that truly runs in
+  parallel.
 - **Spikes** answer one question in throwaway code under `spikes/<name>/`, on a `spike/<name>` branch. Each ends with
   a README (question, tried, found, the decision it supports, open risks) and is merged into `main` for the record.
   Spike code is never imported by packages.
@@ -39,11 +52,12 @@ wins until a decision changes it; a decision changes only with Aaron's yes for a
 - Package rules (Nx module boundaries): `blueprint` depends only on Effect; generated code imports only the target's
   runtime, `blueprint`, the host and project code; `compiler` and `generators` never run in production.
 - Pin dependency versions exactly, and use versions published at least two weeks before you add them.
+- Inside each package, `src/` follows the six-slot module shape in `~/AGENTS.md` (`main.ts` as the only entry file;
+  `modules/<name>/{README.md,types.ts,service.ts,internal/,<name>.test.ts}`), no source file over about 250 lines.
 
 ## Standing rules from Aaron
 
-- Ask Aaron only about money beyond the cap, credentials, production, or a decision nothing covers, and batch the
-  questions.
+- Ask Aaron only when blocked (see "Who decides"), and batch the questions.
 - Spend at most $10 a day on cloud resources, across everything. Layer one needs no cloud at all.
 - Every world, stage and site you make is destroyed; nothing is left running. Touch only your own resources.
 - Never print a key or connection string, or write one to a file or a commit. Never create a cloud credential without

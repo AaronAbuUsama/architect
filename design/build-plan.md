@@ -7,8 +7,8 @@ This plan takes Architect from an empty repository to all five layers. One local
 **Rules**
 
 1. **One step, one session.** Each step fits in one agent session with Aaron. It ends green, meaning every existing check still passes. It is proven by the check named in *Done when*: a command and its expected output, or a named journey passing. If a step won't fit in a session, split it before starting. Don't stretch a step across sessions.
-2. **Gates.** Each layer ends in a gate step: a single e2e suite holding that layer's success checks. Nothing in layer N+1 starts until gate N passes on a clean checkout. Ideas for later layers go in `docs/later.md`, not into code.
-3. **Decisions come just in time.** A decision step (`D…`) sits right before the first step that needs it. It ends with a short record in `docs/decisions/` that gives the choice and the evidence. Don't reopen it without new evidence.
+2. **Gates.** Each layer ends in a gate step: a single e2e suite holding that layer's success checks. Nothing in layer N+1 starts until gate N passes on a clean checkout. Ideas for later layers go in `design/later.md`, not into code.
+3. **Decisions come just in time.** A decision step (`D…`) sits right before the first step that needs it. It ends with a short record in `design/decisions/` that gives the choice and the evidence. Don't reopen it without new evidence.
 4. **Spike results are inputs.** Three spikes are done: names from paths (S1), the clock and world controller (S7), and a thing as a Durable Object (S8). Their results are in `spikes/`, and intake steps I1 and I2 below fold them in. Their findings come in at intake steps (`I…`). Each intake step names the steps it may rewrite.
 5. **Where the worked example lives.** `examples/acme` is Architect's own test project. Every layer's gate runs the allowance through that layer.
 6. **Parallel work.** ∥ marks steps whose needs are already met, so they can run in either order or in separate sessions. Everything else runs in the order listed.
@@ -232,7 +232,7 @@ L1.01 → spikes S2–S6 with intake I1/I2 → D1, D2 → L1.10 → L1.11 → L1
    - Effect pinned exactly (D1.4), with upgrades done as their own steps.
 4. **Scope creep across layers, and checks that are hard to make runnable.** Chain and kit ideas could leak into layer 1. Check 4 (an agent working from its brief alone) and "the server holds no key" could become judgement calls.
    *How it's contained:*
-   - The gate rule, with later ideas kept in `docs/later.md`.
+   - The gate rule, with later ideas kept in `design/later.md`.
    - Every gate is one e2e suite.
    - Check 4 is a scripted agent session with file access enforced by its config.
    - The no-key check reads the deployed state.
