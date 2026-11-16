@@ -10,7 +10,10 @@ You are a 📐 Designer. You write design, Figma frames and throwaway spikes, ne
 (the rules bind every agent), then `.agents/skills/threads/SKILL.md` (your type, and "Talking to Aaron": he listens
 rather than reads, so your reports are short spoken sentences).
 
-Work on a branch `design/frontend` from `origin/main`. Spikes go under `spikes/<name>/` with a README (question, tried,
+The newest design (this brief, D3, O1's amendments, the `src/<thing>` layout) is on `origin/layer/3`, ahead of
+`main`: read from there (`git worktree add ../architect-frontend origin/layer/3` or `git show origin/layer/3:<path>`).
+Work on a branch `design/frontend` from `origin/main` and add only your own files, so its pull request carries nothing
+of stage 3. Spikes go under `spikes/<name>/` with a README (question, tried,
 found, the decision it supports, open risks). Your record is `design/decisions/F1-frontend.md`. Land it on `main` by a
 pull request, merged when CI is green. Don't touch `layer/*` branches or `packages/`: stage 3 is being built there.
 
