@@ -1,0 +1,62 @@
+
+/* IDE: editor split on top, a terminal panel docked at the bottom */
+#explorer-view { padding-bottom: var(--reader-h, 64px); }
+#explorer-view .ide .tree { top: 56px; max-height: calc(100vh - 56px - var(--panel-h, 260px) - var(--reader-h, 64px)); }
+.panel { position: sticky; bottom: var(--reader-h, 64px); z-index: 6; background: var(--surface); border-top: 1px solid var(--line); box-shadow: 0 -6px 18px rgba(0,0,0,.06); }
+.panel-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding-block: 8px;
+  padding-left: max(14px, env(safe-area-inset-left, 0px)); padding-right: max(14px, env(safe-area-inset-right, 0px)); border-bottom: 1px solid var(--line); }
+#panel-toggle { border: 0; background: var(--panel); color: var(--fg); width: 30px; height: 28px; border-radius: 5px; cursor: pointer; }
+.panel.collapsed #panel-toggle { transform: rotate(180deg); }
+#rail-count { font: 500 12px var(--mono); color: var(--muted); }
+#rail-title { font: 600 15px var(--display); flex: 1 1 160px; }
+.rail-nav { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.rail-nav > button { font: 500 15px var(--body); color: var(--accent); background: var(--accent-soft); border: 0; border-radius: 6px; width: 34px; height: 28px; cursor: pointer; }
+.rail-nav > button:disabled { opacity: .4; cursor: default; }
+#rail-dots { display: flex; gap: 3px; flex-wrap: wrap; }
+#rail-dots button { font: 500 10.5px var(--mono); width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--line); background: var(--panel); color: var(--muted); cursor: pointer; padding: 0; }
+#rail-dots button[aria-current="true"] { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.panel-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 14px; max-height: 32vh; overflow: auto; padding-block: 10px 12px;
+  padding-left: max(14px, env(safe-area-inset-left, 0px)); padding-right: max(14px, env(safe-area-inset-right, 0px)); }
+.panel.collapsed .panel-body { display: none; }
+#rail-say { margin: 0; font-size: 14px; line-height: 1.55; }
+.panel .term { min-width: 0; }
+.panel .term pre { margin: 0 0 6px; }
+/* life cycle cards */
+.life { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); margin: 14px 0; max-width: 1000px; overflow: hidden; }
+.life-head { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; padding: 10px 14px 0; }
+.life-head h3 { margin: 0; }
+.life-tabs { display: flex; gap: 2px; flex-wrap: wrap; padding: 8px 10px 0; border-bottom: 1px solid var(--line); }
+.life-tabs button { font: 500 13px var(--body); border: 0; background: transparent; color: var(--muted); padding: 6px 10px; border-radius: 6px 6px 0 0; cursor: pointer; display: flex; gap: 6px; align-items: center; }
+.life-tabs button span { font: 500 10.5px var(--mono); background: var(--panel); border-radius: 50%; width: 18px; height: 18px; display: inline-grid; place-items: center; }
+.life-tabs button[aria-selected="true"] { color: var(--accent); background: var(--accent-soft); }
+.life-body { padding: 10px 14px 14px; min-width: 0; }
+.life-body .path { font: 500 12.5px var(--mono); color: var(--muted); margin-top: 8px; word-break: break-all; }
+.life-body pre { margin: 4px 0 8px; max-width: none; }
+.life-rule { margin: 4px 0 8px; max-width: 72ch; }
+@media (max-width: 760px) {
+  .panel-body { grid-template-columns: 1fr; max-height: 46vh; }
+  #rail-dots { order: 5; width: 100%; }
+  #explorer-view .ide .tree { max-height: 260px; }
+}
+
+/* stage of the dev loop, in the terminal bar */
+#rail-stage { font: 500 11.5px var(--mono); color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: 3px 9px; white-space: nowrap; }
+/* folding trees */
+.ttools { display: flex; gap: 6px; padding: 2px 0 8px; }
+.tree .ttools button, .mini-tree .ttools button, .ttools button { width: auto; flex: 0 0 auto; display: inline-block; font: 500 11.5px var(--body); color: var(--muted); background: var(--panel); border: 1px solid var(--line); border-radius: 5px; padding: 3px 8px; cursor: pointer; }
+.ttools button:hover { color: var(--accent); }
+.tdir .chev { display: inline-block; width: 1em; color: var(--muted); }
+/* the two loops */
+.loops { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin: 18px 0 8px; max-width: 900px; }
+.loop { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: var(--surface); }
+.loop-name { font: 600 13px var(--display); text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.loop-stages { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin: 10px 0 8px; }
+.loop-stages span { font: 600 15px var(--display); background: var(--accent-soft); color: var(--accent); border-radius: 6px; padding: 5px 10px; }
+.loop-stages span + span::before { content: "→"; color: var(--muted); font-weight: 400; margin: 0 6px 0 -2px; }
+.loop-stages span + span { position: relative; }
+.loop-out { font-size: 13px; color: var(--muted); }
+
+.rail-see { margin: 8px 0 0; font-size: 13px; color: var(--muted); }
+.steps-index { padding-left: 1.4em; }
+.steps-index li { margin: 4px 0; }
+.muted { color: var(--muted); font-size: 13px; }
