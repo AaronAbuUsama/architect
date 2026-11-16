@@ -111,13 +111,13 @@ describe("architect promote", () => {
     expect(unbuilt.lines, unbuilt.out).toContain(`refused: ${first} has no built bundle: run \`architect build\``);
 
     expect(architect("build").status).toBe(0);
-    writeFileSync(join(root, "implementation/handlers/allowance/spend.ts"), `${readFileSync(join(root, "implementation/handlers/allowance/spend.ts"), "utf8")}\n// edited, not committed\n`);
+    writeFileSync(join(root, "src/allowance/spend.ts"), `${readFileSync(join(root, "src/allowance/spend.ts"), "utf8")}\n// edited, not committed\n`);
     const dirty = architect("promote", "--to", "staging");
     expect(dirty.status, dirty.out).toBe(1);
     expect(dirty.out).toContain(`refused: the working tree differs from ${first}`);
     // Nothing was started for a refused promotion.
     expect(dirty.out).not.toContain("up http");
-    git(root, "checkout", "--", "implementation/handlers/allowance/spend.ts");
+    git(root, "checkout", "--", "src/allowance/spend.ts");
   });
 
   it("refuses a revision without main test verdicts, naming what is missing, and accepts one that has them", { timeout: 900_000 }, async () => {

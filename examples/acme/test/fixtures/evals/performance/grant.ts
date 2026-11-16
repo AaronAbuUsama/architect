@@ -3,10 +3,10 @@
 import { Effect } from "effect";
 import { SqlClient } from "effect/sql";
 import { Ids, Records } from "@architect/target-effect";
-import type { Handler } from "../../../generated/api/src/allowance/grant.handler.ts";
-import { Allowance } from "../../../blueprint/things/allowance/thing.ts";
-import { AllowanceLimitTooHigh } from "../../../blueprint/things/allowance/errors.ts";
-import { Organization } from "../../../blueprint/things/organization/thing.ts";
+import type { Handler } from "../../generated/api/src/allowance/grant.handler.ts";
+import { Allowance } from "../../blueprint/things/allowance/thing.ts";
+import { AllowanceLimitTooHigh } from "../../blueprint/things/allowance/errors.ts";
+import { Organization } from "../../blueprint/things/organization/thing.ts";
 
 const COUNT = 2000;
 

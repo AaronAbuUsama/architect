@@ -1,6 +1,6 @@
 // Planted fixture: moves the allowance to "paused", a state the machine does not declare (it declares only "active").
 import { Effect } from "effect";
-import type { Handler } from "../../../generated/api/src/allowance/grant.handler.ts";
+import type { Handler } from "../../generated/api/src/allowance/grant.handler.ts";
 
 const grant: Handler = (_payload, { steps, move }) =>
   Effect.gen(function* () {

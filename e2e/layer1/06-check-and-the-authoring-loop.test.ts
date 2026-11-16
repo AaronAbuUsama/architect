@@ -30,16 +30,16 @@ describe("check 6: architect add, generate and check build the allowance on the 
       for (const p of ["blueprint/things/allowance", "blueprint/things/organization", "blueprint/values/money.ts", "blueprint/starting-worlds/founded.ts", "blueprint/starting-worlds/funded.ts"]) {
         cpSync(join(acme, p), join(root, p), { recursive: true, filter: visible });
       }
-      cpSync(join(acme, "implementation/handlers/organization/create.ts"), join(root, "implementation/handlers/organization/create.ts"));
+      cpSync(join(acme, "src/organization/create.ts"), join(root, "src/organization/create.ts"));
       const generated = architect(root, "generate");
       const scaffolds = generated.stdout.split("\n").filter((l) => l.endsWith("(scaffold: yours from now on)"));
       expect(scaffolds.map((l) => l.split(" ")[1])).toEqual([
-        "implementation/handlers/allowance/grant.ts", "implementation/handlers/allowance/revoke.ts", "implementation/handlers/allowance/spend.ts",
+        "src/allowance/grant.ts", "src/allowance/revoke.ts", "src/allowance/spend.ts",
       ]);
       expect(architect(root, "generate").stdout.trim()).not.toContain("implementation/");
 
       // The handlers and journeys written: check and prove pass.
-      for (const op of ["grant", "revoke", "spend"]) cpSync(join(acme, `implementation/handlers/allowance/${op}.ts`), join(root, `implementation/handlers/allowance/${op}.ts`));
+      for (const op of ["grant", "revoke", "spend"]) cpSync(join(acme, `src/allowance/${op}.ts`), join(root, `src/allowance/${op}.ts`));
       cpSync(join(acme, "journeys"), join(root, "journeys"), { recursive: true, filter: visible });
       const checked = architect(root, "check");
       expect(checked.stdout.trimEnd().split("\n").at(-1), checked.stdout).toBe("check ✔");
@@ -53,7 +53,7 @@ describe("check 6: architect add, generate and check build the allowance on the 
     }
   });
 
-  const SPEND = "implementation/handlers/allowance/spend.ts";
+  const SPEND = "src/allowance/spend.ts";
   const fixtures = [
     ["check/edited-output/get.ts", "generated/api/src/allowance/get.ts", "no-edited-output"],
     ["check/name-as-string/spend.ts", SPEND, "no-name-as-string"],
