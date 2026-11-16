@@ -16,6 +16,7 @@ before code discovery. Independently audited the six supplied HeroUI archives wi
 Open [index.html](index.html) directly in a browser. No server, installation, account, token or network call is needed.
 The app opens on actual declarations with evidence unavailable. The scenario selector makes synthetic budget-stale,
 latest-failure and offline cases reviewable. Navigate to home, allowance, spend, docs and the change-request preview.
+Specification and Derived work preview both loops and blueprint-derived context. They do not invent a plan or run history.
 The change preview is an authored five-stage walkthrough, not a general-purpose agent. Text entry changes only its
 displayed draft; its example patch always demonstrates the specific budget change from 150 to 120 ms.
 

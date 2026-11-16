@@ -8,7 +8,7 @@ const content = document.querySelector("#content");
 let scenario = "empty";
 let loopStep = 0;
 let previewRequest = "Make allowance.spend's p95 budget 120 ms. Show me the impact before changing it.";
-const titles = { home: "Overview", thing: "Things", operation: "Operations & reads", journeys: "Journeys", environments: "Environments", releases: "Releases", docs: "Docs", future: "Kits, chain & time", loop: "Change request" };
+const titles = { home: "Overview", design: "Specification", work: "Derived work", thing: "Things", operation: "Operations & reads", journeys: "Journeys", environments: "Environments", releases: "Releases", docs: "Docs", future: "Kits, chain & time", loop: "Change request" };
 function esc(value) { return String(value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]); }
 function tag(text, kind = "") { return `<span class="tag ${kind}">${esc(text)}</span>`; }
 function empty(title, detail) { return `<div class="empty"><strong>${esc(title)}</strong>${esc(detail)}</div>`; }
@@ -41,6 +41,7 @@ function fields(fs) { return table(["Field", "Type", "Reference"], Object.entrie
 function home() {
   return heading("Understand the system. Then trust it.", "An owner gives a member an allowance. The member can spend within its limit. Every change has rules and evidence.", '<a class="primary button-link" href="#loop">Preview a change request</a>') +
     '<div class="summary"><div><strong>8</strong><small>things</small></div><div><strong>15</strong><small>operations & reads</small></div><div><strong>4</strong><small>declared environments</small></div><div><strong>Unavailable</strong><small>live proof coverage</small></div></div>' +
+    panel("From intent to a system that improves", '<div class="graph"><section><h3><a href="#design">Design the specification</a></h3><p>Ideate, spike and resolve the blanks. The specification becomes executable code.</p></section><section><h3><a href="#work">Build from the blueprint</a></h3><p>Generate the interfaces, scaffolds and instrumentation. Give workers context and checks derived from the same declarations.</p></section><section><h3>Measure and improve</h3><p>Prove, promote and watch. Use evidence to direct the next attempt.</p></section></div>') +
     panel("How acme hangs together", '<div class="graph"><section><h3>Organization</h3><p>An owner grants an allowance to a member. The organization holds the cap.</p><code>organization.owner</code></section><section><h3><a href="#thing">Allowance</a></h3><p>Limit and spent total. Active, exhausted or revoked.</p><code>organization → allowance ← person</code></section><section><h3><a href="#operation">Spend</a></h3><p>The grantee spends. The system returns what remains, or refuses.</p><code>AllowanceSpent</code></section></div><div class="route-list"><a href="#thing">Explore the allowance</a><a href="#docs">Read how spend works</a><a href="#loop">Ask for a change</a></div>') +
     panel("Evidence by environment", '<p class="subtle">Repository scope: main. A recorded pass is scoped to its evidence revision. Production may carry staging evidence.</p>' + matrix(operations.filter((o) => o.thing === "allowance"))) +
     '<div class="cols">' + panel("Start with allowance", `<p>${esc(allowance.description)}</p><div class="route-list"><a href="#thing">Fields and machine</a><a href="#operation">Inspect spend</a><a href="#journeys">Journey coverage</a></div>`) +
@@ -64,6 +65,18 @@ function operation() {
     panel("Proof in each environment", matrix([spend]) + '<p class="subtle">Individual eval details unavailable. An aggregate pass cannot supply nine fabricated green checks.</p>') +
     '<div class="cols">' + panel("Declared steps", '<ol class="timeline">' + Object.values(spend.steps).map((s) => `<li><strong><code>${esc(s.name)}</code></strong><p>${esc(s.type)}</p></li>`).join("") + '</ol>') +
     panel("Traces and journeys", empty("No retained trace or journey links", "TraceSource and the generated journey projection will fill this view. A refusal is an expected result; a defect is a failure.") + '<button disabled>Open retained trace</button>') + '</div>';
+}
+function design() {
+  return heading("Make the specification executable.", "Ideate, spike and specify. Then build, prove and improve against the same coded promises.") +
+    panel("Acme’s current specification", '<p>The generated artifact contains 8 things and 15 operations or reads. It records no blanks. That does not establish a fresh check, complete ideation history or passing behaviour.</p><div class="route-list"><a href="#thing">Explore allowance</a><a href="#operation">Inspect spend’s promise</a><a href="#docs">Read the docs</a></div>') +
+    panel("What falls out of a declaration", '<ol class="timeline"><li><strong>Caller interfaces</strong><p>API, SDK, CLI and MCP where the target is built; generated from the operation.</p></li><li><strong>Implementation context</strong><p>Typed scaffolds, permitted errors, declared steps and runtime instrumentation.</p></li><li><strong>Proof obligations</strong><p>Journeys and evals judge the implementation. Results attach to revisions and environments.</p></li></ol>') +
+    panel("Ideas, spikes and open decisions", empty("History projection unavailable", "This model has no idea or decision history. The portal must expose that design work when generated projections exist; it cannot reconstruct it from a green badge."));
+}
+function work() {
+  return heading("Work with context already attached.", "Managers organise bounded work. Workers execute it against promises and measurable checks. This is a later tooling preview.") +
+    panel("Context derived from allowance.spend", table(["The worker needs", "The blueprint provides"], [["Promise",esc(spend.description)],["Payload",esc(Object.keys(spend.payload).join(", "))],["Answer",esc(Object.keys(spend.answer).join(", "))],["Declared errors",esc(spend.errors.join(", "))],["Event",esc(spend.move.emits)],["Declared steps",esc(Object.values(spend.steps).map((s)=>s.name).join(", "))],["Target", "Effect server today; other targets only after their gates"],["Budget", `${spend.budget.p95Ms} ms p95 · measured result unavailable`]])) +
+    panel("Goals, milestones and live workers", empty("No work-plan or run projection attached", "No task assignment, manager, worker or progress is inferred from the model. A future code-declared plan links work to these operations; observed run state belongs in durable storage.")) +
+    panel("Durable execution", '<p>Pi Durable sits behind Architect’s Effect seam. Show the request, current checkpoint, tool activity, limits, result and resume state. Managers coordinate; workers act within their bounded context. An independent author owns journeys and evals.</p><a href="#loop">Preview the person–agent change loop</a>');
 }
 function journeys() {
   return heading("Journeys", "Follow a starting world through calls, refusals and state changes.") + panel("Journey coverage", empty("Journey projection unavailable", "The reviewed generated model contains no journeys or starting worlds. The app cannot infer coverage from operations or manufacture passing assertions.")) +
@@ -102,7 +115,7 @@ function loop() {
 }
 function render() {
   const route = location.hash.slice(1) || "home";
-  const views = { home, thing, operation, journeys, environments, releases, docs, future, loop };
+  const views = { home, design, work, thing, operation, journeys, environments, releases, docs, future, loop };
   const current = Object.hasOwn(views, route) ? route : "home";
   document.querySelector("#crumb").textContent = titles[current];
   document.querySelectorAll("nav a").forEach((a) => a.setAttribute("aria-current", a.hash === `#${current}` ? "page" : "false"));

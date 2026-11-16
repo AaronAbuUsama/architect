@@ -246,21 +246,55 @@ show current green. The budget edit changes only `allowance.spend` when only its
 
 ## 2. What the blueprint is, and what the app is for
 
-The blueprint is the agreement about what the system is supposed to do. It declares the things, their values and
-relationships, what may happen to them, who may cause it, and the checks that make those promises credible. Handlers
-fulfil that agreement. The compiler turns it into a model; generators turn that model into interfaces and constraints;
-journeys and evals judge behaviour. A blueprint is executable specification, not a set of dashboard settings.
+The blueprint makes the specification code. It declares the system's things, values, operations, machines, events,
+errors, roles, journeys, environments and targets. Generation, types, lint and evals consume those declarations. The
+specification is therefore structurally connected to the system built from it, instead of relying on a separate
+Markdown document being kept current. Checks expose disagreement; generated outputs cannot become an independent
+source of truth. This is the aim of the no-drift design, not a claim that every possible behavioural error is impossible.
 
-The app should make four questions easy: **What are we building? What does it promise? What can we trust today?
-What happens if we change it?** A person explores in domain language, asks for a change, sees its consequences, reviews
-the patch, and sees evidence come back. Code is available as a detail for a reviewer, not the default way to understand
-the system. This records Aaron's follow-up questions in this design session: explain the blueprint in our own words,
-what matters on screen, how it should be used, and make the docs findable.
+Its opinions buy leverage. A complete operation declaration supplies its interfaces, constraints, instrumentation,
+context and proof obligations. Architect generates the API, SDK, CLI, MCP and infrastructure where their target is
+built, and scaffolds the implementation work that remains. The instrumentation is part of the generated/runtime
+structure; it is not a separate task that each handler author has to remember. Debugging can follow an observed call
+through declared steps, outcomes, state changes and evidence. Generators are central to the product, not a convenience
+added after the frontend.
 
-**Display priority:** system and promises first; evidence next to each promise; change and its consequences next.
-Do not lead with anonymous counts of green tests. Do not make chat the only way to navigate. Documentation is a
-first-class route and a section of every thing/operation, not an external link that loses project/revision context.
-The home mock was revised to put organization → allowance → spend before its proof matrix.
+**Two loops are first-class in the portal.** Design is ideate → spike → specify until the blueprint is executable.
+Build is implement → check → prove → promote → watch, with measured failure directing another bounded attempt.
+A changed declaration sends its dependents around the appropriate loop again. The portal must show incomplete ideas,
+open decisions and blanks as useful work states; it cannot start its story only after a finished specification exists.
+
+The blueprint is also the foundation for the tooling that organises work. A goal can become milestones and bounded
+tasks linked to declarations. The task context is derived from the operation, its dependencies, errors, events,
+journeys, targets and evals. Managers can coordinate that work; workers can execute it and hill-climb against explicit
+checks. Plan declarations are reviewed code; observed task/run state belongs in durable storage and the logbook,
+not a generated file that changes every time someone makes progress. This follows context-pack sections 1 and 4;
+it does not add a manager/task engine to today's compiler.
+
+The portal is the human-readable artifact through which a person and agents reach agreement about that coded
+specification. It is where the person shapes intent, understands consequences, follows work and judges results.
+The authoritative spec remains code. A requested app edit becomes a reviewable spec change and returns through the
+same generator/check/proof loop. It never creates a second, separately editable truth inside a dashboard.
+
+Pi Durable is the selected agent execution foundation behind H1's Effect seam. Managers and workers are future
+orchestration built on that foundation, not features supplied by the downloaded chat template. Durable transcripts,
+checkpoints, run identities and interruption/resume states should remain visible. Cloudflare's Workers, Durable
+Objects and SQLite carry the same durable theme through the runtime. Do not copy a UI's browser timer simulation
+and call it a durable execution system. H1/H2's gates and the framework's five-layer sequence still apply.
+
+This section records Aaron's clarification in this session: the portal must cover the entire lifecycle, not only
+inspect/prove an already built system. His request was to restate this coherently in our own words. The record is a
+restatement of that intent, with the current-code boundaries made explicit, not a new promise that managers, workers
+or the visual specification editor are implemented.
+
+The app should answer **What are we trying to build? What remains to specify? What work follows from it? What is
+happening now? What is proven, and what should improve next?** A person explores in domain language, resolves asks,
+reviews a proposed change, follows durable work, and sees evidence return. Code and hashes are available as reviewer
+details. Documentation is a first-class route and belongs beside each thing and operation.
+
+**Display priority:** intention and specification → derived work → evidence and improvement. The home explains the
+organization/allowance/spend system and the two loops before its proof matrix. Design/work previews clearly show
+which projections do not exist yet. The read-only L2.10 slice stays the floor of this larger product.
 
 ### One map, checked against the compiler
 
@@ -394,6 +428,8 @@ mocks, not a HeroUI runtime implementation or a demonstrated agent journey.
 | Journeys `#journeys` | Follow a world into calls and assertions | Current missing-projection state; proposed seed/cast/call/assertion/run/cleanup anatomy, explicitly future |
 | Environments `#environments` | Compare declared destinations | Four identities/lifetimes/promotion settings; production domains shown as declarations, with observed deployment unavailable |
 | Releases `#releases` | Understand version impact | Missing real release baseline; illustrative budget 150→120 patch; actual release number stays unavailable |
+| Specification `#design` | Follow ideation, spikes and specification readiness | Real operation declarations and recorded blanks only; idea/decision history unavailable until projected; generation relationships visible |
+| Work `#work` | Inspect what the blueprint supplies to a worker | Real spend context, independent author obligations and future manager/worker anatomy; no invented milestones, assignments or live runs |
 | Docs `#docs` | Read how spend works without reading TypeScript | Reader view beside generated Markdown; direct link back to contract and evidence; exact source document retained in fixture |
 | Later `#future` | Understand what will appear after gates | Kit origin/config/operations, contract/signature/receipt, clock/due/actual/lateness anatomy; no live future controls |
 | Change loop `#loop` | Enter request; inspect patch and failure/recovery | Explicit authored preview: proposed budget diff; omitted-generation failure; corrected patch; review; returned-evidence explanation |
@@ -556,6 +592,7 @@ the face. Rich docs, agent editing and later target views are additions behind e
 | F1.1 — licensed face and docs | L2.10 on main; licence scope; Figma if chosen | age-pinned React Router/HeroUI face and Fumadocs components | Same wire fixtures render unchanged; keyboard + mobile + direct URLs + sanitized Markdown/static search pass; no package secrets or Pro source redistributed |
 | F1.2 — richer generated evidence | read portal on main, independent author | journey/world/eval/ratchet projection; explicit executed/carried origin | Named acme journeys link to exact operation/revision/evals; missing result stays missing; production shows its real source proof |
 | F1.3 — trace drilldown | O1 reader and L2.P | portal adapter over TraceSource, sink-independent trace view | Same trace tree from supported sources; expected refusal separate from defect; private attribute fixture absent; unsupported source clearly unavailable |
+| later.md — planning and durable orchestration | H1/H2; declared work primitives and independent checks | code-declared goals/milestones/tasks, derived context and manager/worker run projections | Task context derives from real declarations; plan changes are reviewed; checkpoint/resume and run state survive interruption; no fabricated work history |
 | later.md — two-way requests / prose / agent face | H1/H2 harness and an explicit request-service step | durable requests, draft editor, reviewed diff and prove/merge lifecycle | Base conflicts, repeated submits, failed proof, interruption and budget cap cannot falsely complete; independent journey authors remain protected; no browser verdict writes |
 | L3 view extension | Gate 2 on main, L3 kit model | kit source/config/dependency links | A fixture kit's generated operations appear without hand-maintained page definitions |
 | L4 view extension | Gate 3 on main, chain target | network/contract/ABI/signature/receipt/follower views | Real local Anvil evidence links to exact environment and bytecode; no mock receipt labeled real |
