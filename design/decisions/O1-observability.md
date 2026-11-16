@@ -509,3 +509,9 @@ Aaron's tokens already exist, one per dataset group, each in the keychain under 
 `capxul-ingest-cloudflare` (capxul-cloudflare-*), all ingest-only, and `capxul-query`, query-only with a cost cap of
 $1 an hour and $5 a day, for `watch`. The sink reads them by those service names; `axiom-org-id` and `axiom-domain`
 hold the organisation and its EU Central 1 edge.
+
+## Aaron's call, 16 November 2026: Axiom only for now
+
+"Let's leave PostHog for now." The default sink list is Axiom (traces, logs and defects, defects found by their span
+status and `defect` tag through an Axiom monitor) plus the local viewer. The `Sink` seam stays, so PostHog is one
+adapter added later by config; L2.O8 and L2.O9 move to `later.md`.
