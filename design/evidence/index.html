@@ -53,10 +53,242 @@ h2 { font-family: var(--display); font-size: 1.25rem; margin: 0; display: flex; 
   
 <section class="step">
   <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
+  <h2><span class="id">L1.50</span> The starter preset, from a published registry <span class="chip pass">done</span></h2>
+  <p class="summary">A new project now starts the way a user starts it: npx create-nx-workspace with Architect&#x27;s preset. The preset writes the starter (sign-up and sign-in on Better Auth, organisations, memberships, invitations and API keys, with five journeys) and renders its generated code under the new name. Architect&#x27;s nine packages build to JavaScript and are published to a real Verdaccio registry in Docker for the check.</p>
+  <div class="proves"><span class="label">Done when</span>In a fresh temporary folder, with Architect installed only from the local registry, create-nx-workspace makes the project, architect check passes, and architect prove passes five journeys and eleven operations with nine evals each, signing people in through Better Auth on workerd and D1.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43942904207">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/163b5ef">commit 163b5ef</a> · 4 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Publish to Verdaccio, create the workspace from the preset, then check and prove in it.</span>
+    <span class="meta">exit 0 · 113.2s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ tools/e2e/starter.sh</div><pre>== build
+
+== pack the starter into the preset
+
+== registry on :4880
+
+== publish
+published @architect/blueprint
+published @architect/compiler
+published @architect/target-effect
+published @architect/lint
+published @architect/generators
+published @architect/host-cloudflare
+published @architect/prove
+published @architect/cli
+published @architect/preset
+
+== create-nx-workspace bakery --preset=@architect/preset
+{&quot;stage&quot;:&quot;starting&quot;,&quot;message&quot;:&quot;Creating Nx workspace v24.0.3...&quot;}
+- Installing dependencies with pnpm
+✔ Installing dependencies with pnpm
+- Creating your workspace in bakery
+✔ Successfully created the workspace: bakery
+? Verifying lockfile against supply-chain policies (109 entries)...
+✓ Lockfile passes supply-chain policies (109 entries in 2.4s)
+Lockfile is up to date, resolution step is skipped
+Already up to date
+Done in 2.4s using pnpm v12.18.0
+{&quot;stage&quot;:&quot;complete&quot;,&quot;success&quot;:true,&quot;result&quot;:{&quot;title&quot;:&quot;Nx Workspace Created Successfully&quot;,&quot;workspacePath&quot;:&quot;&lt;tmp&gt;/architect-e2e.uwJUnx/bakery&quot;,&quot;workspaceName&quot;:&quot;bakery&quot;,&quot;template&quot;:&quot;custom&quot;,&quot;preset&quot;:&quot;@architect/preset&quot;},&quot;docs&quot;:{&quot;gettingStarted&quot;:&quot;https://nx.dev/getting-started/intro&quot;,&quot;nxCloud&quot;:&quot;https://nx.dev/ci/intro/why-nx-cloud&quot;}}
+npm notice
+npm notice New major version of npm available! 11.19.0 -&gt; 12.2.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+npm notice To update run: npm install -g npm@12.2.2
+npm notice
+
+== architect check
+? Verifying lockfile against supply-chain policies (280 entries)...
+Lockfile is up to date, resolution step is skipped
+Already up to date
+✓ Lockfile passes supply-chain policies (280 entries in 7.6s)
+
+Done in 8s using pnpm v11.20.0
+$ architect check
+blanks left 0
+types ✔
+rules ✔
+drift ✔
+ratchets 0
+check ✔
+
+== architect prove --env local
+$ architect prove --env local
+journey an invitation is used once ✔ 3/3 steps
+journey an owner makes an api key ✔ 5/5 steps
+journey health is up ✔ 1/1 steps
+journey invite and accept ✔ 11/11 steps
+journey sign up and sign in ✔ 5/5 steps
+api-key.create answer shape ✔
+api-key.create declared errors ✔
+api-key.create machine path ✔
+api-key.create events ✔
+api-key.create who may call ✔
+api-key.create steps ✔
+api-key.create performance ✔ p50 2ms p95 5ms budget p95 250ms
+api-key.create coverage ✔
+api-key.create explainability ✔
+api-key.create 9 evals ✔ p50 2ms p95 5ms budget p95 250ms
+invitation.accept answer shape ✔
+invitation.accept declared errors ✔
+invitation.accept machine path ✔
+invitation.accept events ✔
+invitation.accept who may call ✔
+invitation.accept steps ✔
+invitation.accept performance ✔ p50 1ms p95 1ms budget p95 200ms
+invitation.accept coverage ✔
+invitation.accept explainability ✔
+invitation.accept 9 evals ✔ p50 1ms p95 1ms budget p95 200ms
+invitation.revoke answer shape ✔
+invitation.revoke declared errors ✔
+invitation.revoke machine path ✔
+invitation.revoke events ✔
+invitation.revoke who may call ✔
+invitation.revoke steps ✔
+invitation.revoke performance ✔ p50 0ms p95 2ms budget p95 150ms
+invitation.revoke coverage ✔
+invitation.revoke explainability ✔
+invitation.revoke 9 evals ✔ p50 0ms p95 2ms budget p95 150ms
+invitation.send answer shape ✔
+invitation.send declared errors ✔
+invitation.send machine path ✔
+invitation.send events ✔
+invitation.send who may call ✔
+invitation.send steps ✔
+invitation.send performance ✔ p50 2ms p95 2ms budget p95 200ms
+invitation.send coverage ✔
+invitation.send explainability ✔
+invitation.send 9 evals ✔ p50 2ms p95 2ms budget p95 200ms
+membership.get answer shape ✔
+membership.get declared errors ✔
+membership.get machine path ✔
+membership.get events ✔
+membership.get who may call ✔
+membership.get steps ✔
+membership.get performance ✔ p50 0ms p95 0ms budget p95 50ms
+membership.get coverage ✔
+membership.get explainability ✔
+membership.get 9 evals ✔ p50 0ms p95 0ms budget p95 50ms
+organization.create answer shape ✔
+organization.create declared errors ✔
+organization.create machine path ✔
+organization.create events ✔
+organization.create who may call ✔
+organization.create steps ✔
+organization.create performance ✔ p50 2ms p95 6ms budget p95 250ms
+organization.create coverage ✔
+organization.create explainability ✔
+organization.create 9 evals ✔ p50 2ms p95 6ms budget p95 250ms
+organization.get answer shape ✔
+organization.get declared errors ✔
+organization.get machine path ✔
+organization.get events ✔
+organization.get who may call ✔
+organization.get steps ✔
+organization.get performance ✔ p50 0ms p95 0ms budget p95 50ms
+organization.get coverage ✔
+organization.get explainability ✔
+organization.get 9 evals ✔ p50 0ms p95 0ms budget p95 50ms
+person.sign-up answer shape ✔
+person.sign-up declared errors ✔
+person.sign-up machine path ✔
+person.sign-up events ✔
+person.sign-up who may call ✔
+person.sign-up steps ✔
+person.sign-up performance ✔ p50 3ms p95 61ms budget p95 400ms
+person.sign-up coverage ✔
+person.sign-up explainability ✔
+person.sign-up 9 evals ✔ p50 3ms p95 61ms budget p95 400ms
+session.show answer shape ✔
+session.show declared errors ✔
+session.show machine path ✔
+session.show events ✔
+session.show who may call ✔
+session.show steps ✔
+session.show performance ✔ p50 0ms p95 0ms budget p95 100ms
+session.show coverage ✔
+session.show explainability ✔
+session.show 9 evals ✔ p50 0ms p95 0ms budget p95 100ms
+session.sign-in answer shape ✔
+session.sign-in declared errors ✔
+session.sign-in machine path ✔
+session.sign-in events ✔
+session.sign-in who may call ✔
+session.sign-in steps ✔
+session.sign-in performance ✔ p50 56ms p95 59ms budget p95 400ms
+session.sign-in coverage ✔
+session.sign-in explainability ✔
+session.sign-in 9 evals ✔ p50 56ms p95 59ms budget p95 400ms
+system.health answer shape ✔
+system.health declared errors ✔
+system.health machine path ✔
+system.health events ✔
+system.health who may call ✔
+system.health steps ✔
+system.health performance ✔ p50 0ms p95 0ms budget p95 50ms
+system.health coverage ✔
+system.health explainability ✔
+system.health 9 evals ✔ p50 0ms p95 0ms budget p95 50ms
+coverage ✔ moves 4/4 · outcomes 4/4 · refusals 2/2 · runtime refusals 9/10
+prove ✔</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The preset&#x27;s tests: what it copies, renders and merges.</span>
+    <span class="meta">exit 0 · 0.9s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --root packages/preset</div><pre>RUN  v4.1.12 ./packages/preset
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  19:43:58
+   Duration  309ms (transform 54ms, setup 0ms, import 219ms, tests 3ms, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">architect check on the starter in the repository.</span>
+    <span class="meta">exit 0 · 1.3s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node packages/cli/src/main.ts check --root examples/starter</div><pre>blanks left 0
+types ✔
+rules ✔
+drift ✔
+ratchets 0
+check ✔</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Better Auth on real D1 inside workerd: sign-up, sign-in, API keys, and the schema kept in step.</span>
+    <span class="meta">exit 0 · 7.0s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --root packages/host-cloudflare src/modules/auth</div><pre>=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+
+
+ RUN  v4.1.12 ./packages/host-cloudflare
+
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  19:44:01
+   Duration  5.80s (transform 2.18s, setup 5.03s, import 29ms, tests 237ms, environment 0ms)</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
   <h2><span class="id">L1.41</span> Model comparison and architect impact <span class="chip pass">done</span></h2>
   <p class="summary">The compiler can now compare two models and name each declaration that was added, removed or changed, down to the part that changed. Every prove records which operations passed and the hashes their proof rests on: the operation, its thing and the things it reaches. architect impact reads that record against today&#x27;s blueprint, so a change shows exactly which proofs no longer hold.</p>
   <div class="proves"><span class="label">Done when</span>After a prove, loosening allowance.spend&#x27;s budget shows exactly stale allowance.spend while grant, revoke, get and create stay proven. Adding allowance.list shows stale none, with list unproven.</div>
-  <div class="links">CI not run · <a href="https://github.com/AaronAbuUsama/architect/commit/f81c2f7">commit f81c2f7</a> · 6 captured runs</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43934869284">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/f81c2f7">commit f81c2f7</a> · 6 captured runs</div>
   
 <details class="run" >
   <summary>

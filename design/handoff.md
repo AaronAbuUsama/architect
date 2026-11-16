@@ -1,6 +1,6 @@
 # Where everything stands
 
-Kept by the 🎼 conductor, so a fresh conductor can take over. Last updated 16 November 2026, after L1.41.
+Kept by the 🎼 conductor, so a fresh conductor can take over. Last updated 16 November 2026, after L1.50.
 
 ## Done
 
@@ -51,9 +51,18 @@ generate`), L1.32 (generated docs and `edges.json`, the full SDK and CLI with ex
 (`architect brief`), L1.40 (`architect check`: blanks, types, rules, drift, ratchets; the oxlint plugin is
 `packages/lint`, run through real oxlint with the model's facts as rule options; the author's four
 `test/fixtures/check/` fixtures each fail it). L1.41 (`Compare` in the compiler; prove writes
-`.architect/evidence/proven.json`; `architect impact` prints stale, proven, unproven). Decisions through D2 #60. Next
-steps, in order: L1.50 (Better Auth preset via Verdaccio, Dex as the OIDC issuer), L1.51 (acme on the
-starter), L1.60 (`e2e:layer1`, with check 4 the `claude -p` session denied `Brief.forbidden`). Then a 🔍 review and a PR to main.
+`.architect/evidence/proven.json`; `architect impact` prints stale, proven, unproven). Decisions through D2 #60. L1.50 (commits 8107b6d, 163b5ef, 02623af; evidence in `evidence/L1.50/`): `examples/starter` (system, person and session
+on Better Auth, organization, membership, invitation, api-key; 5 journeys, 11 ops × 9 evals); Better Auth is
+`host-cloudflare/auth` (`AuthD1`, tables `auth_*`, keys `ak_`), the runtime's `Auth` service is in target-effect;
+`packages/preset` writes the starter; the nine published packages build to `dist/` (imports spelled
+`#modules/….js`, D2 #67) and `tools/e2e/starter.sh` (CI job `starter`) publishes them to Verdaccio, runs
+`create-nx-workspace --preset=@architect/preset`, then check and prove in the new workspace. Decisions through D2 #72.
+In progress: L1.51, acme rebuilt as the starter plus the allowance. The builder copied the starter's things, handlers,
+`invited` world and journeys into acme; acme keeps `organization.cap` and `create {name, cap}` (handler merged: org row
+plus owner membership). A journey-author subagent is adapting acme's copies of the starter journeys to pass `cap`,
+rewriting `journeys/README.md` and regenerating the who-may-call fixture. Then: update `prove.test.ts`'s expected acme
+lines (ops, coverage), prove green, evidence, commit. After that L1.60 (`e2e:layer1`, with check 4 the `claude -p`
+session denied `Brief.forbidden`). Then a 🔍 review and a PR to main.
 The evidence page is https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB; republish it with
 `python3 tools/evidence/page.py` after each step. For plants, back up with `cp` and restore with `cp`, never
 `git checkout`.

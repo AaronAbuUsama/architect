@@ -1,0 +1,18 @@
+$ npx vitest run --root packages/host-cloudflare src/modules/auth
+# commit 163b5ef · 2026-11-16T19:44:07Z · exit 0 (expected 0) · 7.0s
+
+
+=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+
+
+ RUN  v4.1.12 ./packages/host-cloudflare
+
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  19:44:01
+   Duration  5.80s (transform 2.18s, setup 5.03s, import 29ms, tests 237ms, environment 0ms)
