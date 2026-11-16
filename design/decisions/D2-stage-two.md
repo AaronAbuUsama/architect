@@ -94,3 +94,9 @@ Decided 16 November 2026 by the builder, which has architectural ownership. The 
     an Nx `FsTree` and says what changed: generated files, and a scaffold for each operation with no blanks left,
     marked "yours from now on". A scaffold is never overwritten, and a second run says `nothing to change`. `cli`
     depends on `generators` for this; both are build-time tools, never in production.
+55. **Generated docs are Markdown, one page per thing and per operation**, opening with an HTML comment that says they
+    are generated. An operation's page has who may call, payload, answer, move, steps, every refusal with its exit
+    code and when it happens, and how to call it from the CLI, HTTP and the SDK. `generated/model/edges.json` lists
+    what depends on what: field references, operations on their things, moves on their events, roles that allow them.
+    The generated CLI takes `--json` on every command. It signs in with `<PROJECT>_TOKEN` until the starter's Better
+    Auth sign-in (L1.50); it doesn't send an idempotency key yet, which the SDK gains with that sign-in work.

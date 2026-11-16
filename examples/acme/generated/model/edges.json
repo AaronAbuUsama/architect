@@ -1,0 +1,82 @@
+[
+  {
+    "from": "allowance.organization",
+    "to": "organization.id",
+    "kind": "refers"
+  },
+  {
+    "from": "allowance.member",
+    "to": "person.id",
+    "kind": "refers"
+  },
+  {
+    "from": "organization.owner",
+    "to": "person.id",
+    "kind": "refers"
+  },
+  {
+    "from": "allowance.get",
+    "to": "allowance",
+    "kind": "reads"
+  },
+  {
+    "from": "allowance.get",
+    "to": "allowance.grantee",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "allowance.get",
+    "to": "organization.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "allowance.grant",
+    "to": "allowance",
+    "kind": "acts-on"
+  },
+  {
+    "from": "allowance.grant",
+    "to": "allowance.AllowanceGranted",
+    "kind": "emits"
+  },
+  {
+    "from": "allowance.grant",
+    "to": "organization.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "allowance.revoke",
+    "to": "allowance",
+    "kind": "acts-on"
+  },
+  {
+    "from": "allowance.revoke",
+    "to": "allowance.AllowanceRevoked",
+    "kind": "emits"
+  },
+  {
+    "from": "allowance.revoke",
+    "to": "organization.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "allowance.spend",
+    "to": "allowance",
+    "kind": "acts-on"
+  },
+  {
+    "from": "allowance.spend",
+    "to": "allowance.AllowanceSpent",
+    "kind": "emits"
+  },
+  {
+    "from": "allowance.spend",
+    "to": "allowance.grantee",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "organization.create",
+    "to": "organization",
+    "kind": "acts-on"
+  }
+]

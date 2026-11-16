@@ -31,6 +31,18 @@ describe("render", () => {
     expect(byPath.get(scaffolds[0]!)!.content).toMatch(/^\/\/ Scaffolded from blueprint\/things\/allowance\/verbs\/grant\.ts\. Yours from now on\./);
   });
 
+  it("writes a docs page per thing and operation, each refusal with its exit code, and the model's edges", () => {
+    const spend = byPath.get("generated/docs/allowance/spend.md")!.content;
+    expect(spend.split("\n")[0]).toBe("<!-- Generated from the blueprint. Do not edit. -->");
+    expect(spend).toContain("| AllowanceExceeded | 41 |");
+    expect(spend).toContain("| AllowanceNotActive | 40 |");
+    expect(spend).toContain("acme allowance spend --allowance <allowance> --amount <amount> --memo <memo>");
+    expect(byPath.get("generated/docs/allowance/index.md")!.content).toContain("| spend | active | active, exhausted | AllowanceSpent |");
+    const edges = JSON.parse(byPath.get("generated/model/edges.json")!.content) as ReadonlyArray<{ from: string; to: string; kind: string }>;
+    expect(edges).toContainEqual({ from: "allowance.organization", to: "organization.id", kind: "refers" });
+    expect(edges).toContainEqual({ from: "allowance.spend", to: "allowance.grantee", kind: "allowed-by" });
+  });
+
   it("declares each operation's refusals on its endpoint, with their exit codes", () => {
     expect(byPath.get("generated/api/src/allowance/grant.ts")!.content).toContain("error: [AllowanceLimitTooHigh, NotAllowed]");
     const errors = byPath.get("generated/api/src/errors.ts")!.content;
