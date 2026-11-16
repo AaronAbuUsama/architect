@@ -1,0 +1,15 @@
+{
+  "step": "L1.14",
+  "stage": "Stage 1 · the skeleton, with every eval",
+  "title": "architect dev",
+  "summary": "acme now runs for real on this Mac. One command starts the generated server on workerd, with its world and a fresh local database. The world signs people in for testing. Ada founds an organisation and grants Olga 500 from the generated command line, and gets an allowance id back. Over the cap, she's refused with exit 44. Bob isn't the owner, so he's refused with exit 3 before the handler ever runs. Stopping it leaves nothing running. Meanwhile, a separate author wrote stage one's journey and a planted fixture for each eval, ready for prove.",
+  "proves": "architect dev & then acme allowance grant prints an allowance id. curl to the route returns 200.",
+  "captions": {
+    "01-dev-session-acme-cli-and-curl": "One real session: architect dev, the world casts ada, olga and bob, the generated acme CLI grants, refuses over the cap and refuses bob, curl gets 200, and nothing is left running.",
+    "02-dev-end-to-end-test": "The same flow as an automated test that starts and stops workerd itself.",
+    "03-world-records-tokens-in-workerd": "Inside real workerd: the world Durable Object's cast and tokens, and records in D1 keeping a 128-bit amount exact.",
+    "04-who-may-call-before-the-handler": "Who may call: owner of the organisation, walked from the payload, checked before the handler's span opens.",
+    "05-all-checks-green": "Lint, typecheck and test across all 14 projects, cache off.",
+    "06-sync-check": "generated/ matches the blueprint."
+  }
+}

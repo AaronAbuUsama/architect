@@ -53,6 +53,154 @@ h2 { font-family: var(--display); font-size: 1.25rem; margin: 0; display: flex; 
   
 <section class="step">
   <div class="stage">Stage 1 · the skeleton, with every eval</div>
+  <h2><span class="id">L1.14</span> architect dev <span class="chip pass">done</span></h2>
+  <p class="summary">acme now runs for real on this Mac. One command starts the generated server on workerd, with its world and a fresh local database. The world signs people in for testing. Ada founds an organisation and grants Olga 500 from the generated command line, and gets an allowance id back. Over the cap, she&#x27;s refused with exit 44. Bob isn&#x27;t the owner, so he&#x27;s refused with exit 3 before the handler ever runs. Stopping it leaves nothing running. Meanwhile, a separate author wrote stage one&#x27;s journey and a planted fixture for each eval, ready for prove.</p>
+  <div class="proves"><span class="label">Done when</span>architect dev &amp; then acme allowance grant prints an allowance id. curl to the route returns 200.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43915487004">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/7d1082f">commit 7d1082f</a> · 6 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">One real session: architect dev, the world casts ada, olga and bob, the generated acme CLI grants, refuses over the cap and refuses bob, curl gets 200, and nothing is left running.</span>
+    <span class="meta">exit 0 · 5.0s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ bash /private/tmp/claude-501/-Users-abuusama--claude-spares-spare-gEwBPG/d12405b7-5156-441f-94fa-245c9582b12b/scratchpad/dev-session.sh</div><pre>$ architect dev --root examples/acme --port 8799 &amp;
+running at http://127.0.0.1:8799  (world at http://127.0.0.1:8799/_world, wrangler output in ./examples/acme/.architect/dev/wrangler.log)
+
+$ curl -X POST /_world/cast -d {&quot;names&quot;:[&quot;ada&quot;,&quot;olga&quot;,&quot;bob&quot;]}    (tokens kept in shell variables, not shown)
+olga is per_b6sobhril7bsl5dv
+
+# signed in as ada
+$ acme organization create --name &quot;Acme Demo&quot; --cap 1000
+org_m2lulfkzfl6nlqcu
+
+$ acme allowance grant --organization org_m2lulfkzfl6nlqcu --member per_b6sobhril7bsl5dv --limit 500
+alw_l302ln5ebo08vhee
+(exit 0)
+
+$ acme allowance grant --organization org_m2lulfkzfl6nlqcu --member per_b6sobhril7bsl5dv --limit 1001
+AllowanceLimitTooHigh: {&quot;cap&quot;:&quot;1000&quot;}
+(exit 44)
+
+# signed in as bob
+$ acme allowance grant --organization org_m2lulfkzfl6nlqcu --member per_b6sobhril7bsl5dv --limit 500
+NotAllowed: {}
+(exit 3)
+
+$ curl -i -X POST /allowance/grant   (as ada)
+HTTP/1.1 200 OK
+{&quot;allowance&quot;:&quot;alw_qny7zcg1q0n2tqt2&quot;}
+
+
+$ kill the dev server
+dev stopped
+$ lsof -iTCP:8799 -sTCP:LISTEN; pgrep workerd
+port 8799: nothing listening
+workerd: not running</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The same flow as an automated test that starts and stops workerd itself.</span>
+    <span class="meta">exit 0 · 3.3s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node_modules/.bin/vitest run --root packages/cli --reporter verbose</div><pre>RUN  v4.1.12 ./packages/cli
+
+ ✓ src/modules/model/model.test.ts &gt; architect model &gt; --json on acme prints the model snapshot, from a real process 568ms
+ ✓ src/modules/model/model.test.ts &gt; architect model &gt; summarises things and operations without --json 48ms
+ ✓ src/modules/model/model.test.ts &gt; architect model &gt; --json is optional on the real command line 447ms
+ ✓ src/modules/model/model.test.ts &gt; architect model &gt; an invalid blueprint lists its problems and exits 2 410ms
+ ✓ src/modules/dev/dev.test.ts &gt; architect dev &gt; serves acme on workerd: the world casts ada, ada founds an organisation and grants olga 500 2494ms
+
+ Test Files  2 passed (2)
+      Tests  5 passed (5)
+   Start at  17:09:44
+   Duration  2.81s (transform 117ms, setup 0ms, import 467ms, tests 3.97s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Inside real workerd: the world Durable Object&#x27;s cast and tokens, and records in D1 keeping a 128-bit amount exact.</span>
+    <span class="meta">exit 0 · 4.1s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node_modules/.bin/vitest run --root packages/host-cloudflare --reporter verbose</div><pre>=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+
+
+ RUN  v4.1.12 ./packages/host-cloudflare
+
+ ✓ src/modules/tokens/tokens.test.ts &gt; Tokens &gt; a token the world signed is that person; a forged or missing one is anonymous 5ms
+ ✓ src/modules/world/world.test.ts &gt; the world Durable Object, in workerd &gt; casts people once and signs tokens the Worker accepts 10ms
+ ✓ src/modules/world/world.test.ts &gt; the world Durable Object, in workerd &gt; answers health 2ms
+ ✓ src/modules/database/database.test.ts &gt; D1 through SqlClient, in workerd &gt; writes and reads a real D1 row 6ms
+ ✓ src/modules/database/database.test.ts &gt; D1 through SqlClient, in workerd &gt; the handler wrapper runs in workerd: its step stores the allowance through Records, inside its own span 5ms
+
+ Test Files  3 passed (3)
+      Tests  5 passed (5)
+   Start at  17:09:47
+   Duration  3.24s (transform 3.21s, setup 7.72s, import 94ms, tests 31ms, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Who may call: owner of the organisation, walked from the payload, checked before the handler&#x27;s span opens.</span>
+    <span class="meta">exit 0 · 0.5s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node_modules/.bin/vitest run --root packages/target-effect src/modules/access src/modules/handler --reporter verbose</div><pre>RUN  v4.1.12 ./packages/target-effect
+
+ ✓ src/modules/access/access.test.ts &gt; Access &gt; owner.of(&quot;organization&quot;): ada owns org_1, bob doesn&#x27;t, and a missing org allows no one 2ms
+ ✓ src/modules/access/access.test.ts &gt; Access &gt; owner.of(&quot;allowance.organization&quot;) walks from the allowance to its organization 0ms
+ ✓ src/modules/access/access.test.ts &gt; Access &gt; signedIn refuses the anonymous; anyone allows them 0ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; runs the handler in a span named after the operation, with its payload as attributes 5ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; passes a declared error through, typed, and counts the work until it ends 1ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; refuses an anonymous caller with NotAllowed before the handler runs 0ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; refuses a payload outside its declaration before the handler runs 2ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; an answer outside its declaration dies as the handler&#x27;s bug 1ms
+
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
+   Start at  17:09:51
+   Duration  281ms (transform 105ms, setup 0ms, import 372ms, tests 12ms, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Lint, typecheck and test across all 14 projects, cache off.</span>
+    <span class="meta">exit 0 · 10.6s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm nx run-many -t lint,typecheck,test --skip-nx-cache</div><pre>NX   42 tasks: 42 succeeded
+
+
+Re-run with --output-style=static to inline logs.
+
+
+ NX   Nx detected a flaky task
+
+  cli:test
+
+Flaky tasks can disrupt your CI pipeline. Automatically retry them with Nx Cloud. Learn more at https://nx.dev/ci/features/flaky-tasks
+
+  Run duration:      9.7s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     4.7s (1 task)
+  Recoverable time:  5.0s (52% of the run)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">generated/ matches the blueprint.</span>
+    <span class="meta">exit 0 · 1.2s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm nx sync:check</div><pre>NX   The workspace is up to date
+
+[@architect/generators:sync]: All files are up to date.</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 1 · the skeleton, with every eval</div>
   <h2><span class="id">L1.13</span> The generators <span class="chip pass">done</span></h2>
   <p class="summary">One command now turns acme&#x27;s blueprint into a working codebase: the API contract, the server, a typed client and a command line, plus a starter handler for each operation that is written once and then left alone. The generated code reuses the blueprint&#x27;s own declarations, so they can never drift apart. If anyone edits a generated file by hand, the check fails and says which file.</p>
   <div class="proves"><span class="label">Done when</span>In examples/acme, nx sync writes the four outputs and nx sync:check passes. Editing generated/sdk/... makes nx sync:check fail.</div>
