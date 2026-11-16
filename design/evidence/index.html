@@ -53,6 +53,408 @@ h2 { font-family: var(--display); font-size: 1.25rem; margin: 0; display: flex; 
   
 <section class="step">
   <div class="stage">Stage 1 · the skeleton, with every eval</div>
+  <h2><span class="id">L1.11</span> The compiler <span class="chip pass">done</span></h2>
+  <p class="summary">Architect can now read a project&#x27;s blueprint by its folders and files and describe it: every thing, operation, refusal, role and step, named only by where it lives. Rename a file and the operation is renamed; reformat a file and nothing changes. A new command, architect model, prints it. Capturing the evidence caught a bug the tests had missed: --json was required on the real command line. Fixed, and now tested from a real process.</p>
+  <div class="proves"><span class="label">Done when</span>architect model --json on acme matches its snapshot. Renaming verbs/grant.ts to award.ts renames the operation. Reformatting a file leaves the hash unchanged.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43910515154">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/f9d570c">commit f9d570c</a> · 7 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The compiler&#x27;s and the CLI&#x27;s tests, including the snapshot, rename and reformat checks.</span>
+    <span class="meta">exit 0 · 2.6s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ bash /private/tmp/claude-501/-Users-abuusama--claude-spares-spare-gEwBPG/d12405b7-5156-441f-94fa-245c9582b12b/scratchpad/tests.sh</div><pre>RUN  v4.1.12 /Users/abuusama/projects/architect/packages/compiler
+
+ ✓ src/modules/model/model.test.ts &gt; model &gt; describes acme 44ms
+ ✓ src/modules/model/model.test.ts &gt; model &gt; names an operation after its file: grant.ts renamed to award.ts is allowance.award 27ms
+ ✓ src/modules/model/model.test.ts &gt; model &gt; keeps every hash when a file is only reformatted 42ms
+ ✓ src/modules/model/model.test.ts &gt; model &gt; refuses a verb file that holds no operation 6ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  16:42:10
+   Duration  469ms (transform 127ms, setup 0ms, import 232ms, tests 124ms, environment 0ms)
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/packages/cli
+
+ ✓ src/modules/model/model.test.ts &gt; architect model &gt; --json on acme prints the model snapshot, from a real process 522ms
+ ✓ src/modules/model/model.test.ts &gt; architect model &gt; summarises things and operations without --json 41ms
+ ✓ src/modules/model/model.test.ts &gt; architect model &gt; --json is optional on the real command line 397ms
+ ✓ src/modules/model/model.test.ts &gt; architect model &gt; an invalid blueprint lists its problems and exits 2 379ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  16:42:10
+   Duration  1.62s (transform 71ms, setup 0ms, import 188ms, tests 1.34s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">architect model on acme: three things, two operations, each with its refusals and hash.</span>
+    <span class="meta">exit 0 · 0.4s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node packages/cli/src/main.ts model --root examples/acme</div><pre>thing allowance (active)  f970f8db0ed45553
+thing organization  3100b243edb9e347
+thing person  ac769a99c895d4a7
+operation allowance.grant  refuses AllowanceLimitTooHigh, NotAllowed  33848484aad9a715
+operation organization.create  refuses NotAllowed  e3e79ef636641315</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The whole model as JSON, the one description every generator will read.</span>
+    <span class="meta">exit 0 · 0.4s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node packages/cli/src/main.ts model --json --root examples/acme</div><pre>{
+  &quot;values&quot;: {
+    &quot;Amount&quot;: {
+      &quot;type&quot;: &quot;uint&quot;,
+      &quot;bits&quot;: 128
+    }
+  },
+  &quot;things&quot;: {
+    &quot;allowance&quot;: {
+      &quot;name&quot;: &quot;allowance&quot;,
+      &quot;identifier&quot;: &quot;Allowance&quot;,
+      &quot;description&quot;: &quot;Money a member may spend from their organisation, up to a limit each month.&quot;,
+      &quot;fields&quot;: {
+        &quot;id&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;id&quot;,
+            &quot;prefix&quot;: &quot;alw&quot;
+          }
+        },
+        &quot;organization&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;id&quot;,
+            &quot;prefix&quot;: &quot;org&quot;
+          },
+          &quot;ref&quot;: &quot;organization.id&quot;
+        },
+        &quot;member&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;id&quot;,
+            &quot;prefix&quot;: &quot;per&quot;
+          },
+          &quot;ref&quot;: &quot;person.id&quot;
+        },
+        &quot;limit&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;uint&quot;,
+            &quot;bits&quot;: 128
+          },
+          &quot;named&quot;: &quot;Amount&quot;
+        },
+        &quot;spent&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;uint&quot;,
+            &quot;bits&quot;: 128
+          },
+          &quot;named&quot;: &quot;Amount&quot;
+        }
+      },
+      &quot;machine&quot;: {
+        &quot;states&quot;: [
+          &quot;active&quot;
+        ],
+        &quot;moves&quot;: {
+          &quot;grant&quot;: {
+            &quot;from&quot;: [],
+            &quot;to&quot;: [
+              &quot;active&quot;
+            ],
+            &quot;emits&quot;: &quot;AllowanceGranted&quot;
+          }
+        },
+        &quot;notFrom&quot;: {
+          &quot;error&quot;: &quot;AllowanceNotActive&quot;,
+          &quot;exit&quot;: 40
+        }
+      },
+      &quot;events&quot;: {
+        &quot;AllowanceGranted&quot;: {
+          &quot;allowance&quot;: {
+            &quot;value&quot;: {
+              &quot;type&quot;: &quot;id&quot;,
+              &quot;prefix&quot;: &quot;alw&quot;
+            },
+            &quot;ref&quot;: &quot;allowance.id&quot;
+          },
+          &quot;limit&quot;: {
+            &quot;value&quot;: {
+              &quot;type&quot;: &quot;uint&quot;,
+              &quot;bits&quot;: 128
+            },
+            &quot;named&quot;: &quot;Amount&quot;
+          }
+        }
+      },
+      &quot;errors&quot;: {
+        &quot;AllowanceLimitTooHigh&quot;: {
+          &quot;fields&quot;: {
+            &quot;cap&quot;: {
+              &quot;value&quot;: {
+                &quot;type&quot;: &quot;uint&quot;,
+                &quot;bits&quot;: 128
+              },
+              &quot;named&quot;: &quot;Amount&quot;
+            }
+          },
+          &quot;exit&quot;: 44
+        }
+      },
+      &quot;roles&quot;: [],
+      &quot;hash&quot;: &quot;f970f8db0ed45553&quot;
+    },
+    &quot;organization&quot;: {
+      &quot;name&quot;: &quot;organization&quot;,
+      &quot;identifier&quot;: &quot;Organization&quot;,
+      &quot;description&quot;: &quot;A company whose owner hands out allowances, up to a cap each.&quot;,
+      &quot;fields&quot;: {
+        &quot;id&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;id&quot;,
+            &quot;prefix&quot;: &quot;org&quot;
+          }
+        },
+        &quot;name&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;text&quot;,
+            &quot;max&quot;: 200
+          }
+        },
+        &quot;owner&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;id&quot;,
+            &quot;prefix&quot;: &quot;per&quot;
+          },
+          &quot;ref&quot;: &quot;person.id&quot;
+        },
+        &quot;cap&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;uint&quot;,
+            &quot;bits&quot;: 128
+          },
+          &quot;named&quot;: &quot;Amount&quot;
+        }
+      },
+      &quot;machine&quot;: null,
+      &quot;events&quot;: {},
+      &quot;errors&quot;: {},
+      &quot;roles&quot;: [
+        &quot;owner&quot;
+      ],
+      &quot;hash&quot;: &quot;3100b243edb9e347&quot;
+    },
+    &quot;person&quot;: {
+      &quot;name&quot;: &quot;person&quot;,
+      &quot;identifier&quot;: &quot;Person&quot;,
+      &quot;description&quot;: &quot;Someone who signs in. People arrive through sign-in from stage two.&quot;,
+      &quot;fields&quot;: {
+        &quot;id&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;id&quot;,
+            &quot;prefix&quot;: &quot;per&quot;
+          }
+        },
+        &quot;name&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;text&quot;,
+            &quot;max&quot;: 200
+          }
+        }
+      },
+      &quot;machine&quot;: null,
+      &quot;events&quot;: {},
+      &quot;errors&quot;: {},
+      &quot;roles&quot;: [],
+      &quot;hash&quot;: &quot;ac769a99c895d4a7&quot;
+    }
+  },
+  &quot;operations&quot;: {
+    &quot;allowance.grant&quot;: {
+      &quot;name&quot;: &quot;allowance.grant&quot;,
+      &quot;thing&quot;: &quot;allowance&quot;,
+      &quot;verb&quot;: &quot;grant&quot;,
+      &quot;identifier&quot;: &quot;grant&quot;,
+      &quot;file&quot;: &quot;blueprint/things/allowance/verbs/grant.ts&quot;,
+      &quot;description&quot;: &quot;Let a member spend from the organisation, up to a limit each month.&quot;,
+      &quot;payload&quot;: {
+        &quot;organization&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;id&quot;,
+            &quot;prefix&quot;: &quot;org&quot;
+          },
+          &quot;ref&quot;: &quot;allowance.organization&quot;
+        },
+        &quot;member&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;id&quot;,
+            &quot;prefix&quot;: &quot;per&quot;
+          },
+          &quot;ref&quot;: &quot;allowance.member&quot;
+        },
+        &quot;limit&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;uint&quot;,
+            &quot;bits&quot;: 128
+          },
+          &quot;named&quot;: &quot;Amount&quot;,
+          &quot;ref&quot;: &quot;allowance.limit&quot;
+        }
+      },
+      &quot;answer&quot;: {
+        &quot;allowance&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;id&quot;,
+            &quot;prefix&quot;: &quot;alw&quot;
+          },
+          &quot;ref&quot;: &quot;allowance.id&quot;
+        }
+      },
+      &quot;move&quot;: {
+        &quot;key&quot;: &quot;grant&quot;,
+        &quot;from&quot;: [],
+        &quot;to&quot;: [
+          &quot;active&quot;
+        ],
+        &quot;emits&quot;: &quot;AllowanceGranted&quot;
+      },
+      &quot;errors&quot;: [
+        &quot;AllowanceLimitTooHigh&quot;
+      ],
+      &quot;refusals&quot;: [
+        &quot;AllowanceLimitTooHigh&quot;,
+        &quot;NotAllowed&quot;
+      ],
+      &quot;allowed&quot;: [
+        {
+          &quot;kind&quot;: &quot;role-of&quot;,
+          &quot;role&quot;: &quot;organization.owner&quot;,
+          &quot;path&quot;: &quot;organization&quot;
+        }
+      ],
+      &quot;steps&quot;: {
+        &quot;insert&quot;: {
+          &quot;name&quot;: &quot;allowance.grant.insert&quot;,
+          &quot;type&quot;: &quot;database&quot;
+        }
+      },
+      &quot;idempotent&quot;: &quot;request&quot;,
+      &quot;budget&quot;: {
+        &quot;p95Ms&quot;: 200
+      },
+      &quot;hash&quot;: &quot;33848484aad9a715&quot;
+    },
+    &quot;organization.create&quot;: {
+      &quot;name&quot;: &quot;organization.create&quot;,
+      &quot;thing&quot;: &quot;organization&quot;,
+      &quot;verb&quot;: &quot;create&quot;,
+      &quot;identifier&quot;: &quot;create&quot;,
+      &quot;file&quot;: &quot;blueprint/things/organization/verbs/create.ts&quot;,
+      &quot;description&quot;: &quot;Start an organisation. Whoever creates it owns it.&quot;,
+      &quot;payload&quot;: {
+        &quot;name&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;text&quot;,
+            &quot;max&quot;: 200
+          },
+          &quot;ref&quot;: &quot;organization.name&quot;
+        },
+        &quot;cap&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;uint&quot;,
+            &quot;bits&quot;: 128
+          },
+          &quot;named&quot;: &quot;Amount&quot;,
+          &quot;ref&quot;: &quot;organization.cap&quot;
+        }
+      },
+      &quot;answer&quot;: {
+        &quot;organization&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;id&quot;,
+            &quot;prefix&quot;: &quot;org&quot;
+          },
+          &quot;ref&quot;: &quot;organization.id&quot;
+        }
+      },
+      &quot;move&quot;: null,
+      &quot;errors&quot;: [],
+      &quot;refusals&quot;: [
+        &quot;NotAllowed&quot;
+      ],
+      &quot;allowed&quot;: [
+        {
+          &quot;kind&quot;: &quot;signed-in&quot;
+        }
+      ],
+      &quot;steps&quot;: {
+        &quot;insert&quot;: {
+          &quot;name&quot;: &quot;organization.create.insert&quot;,
+          &quot;type&quot;: &quot;database&quot;
+        }
+      },
+      &quot;idempotent&quot;: &quot;request&quot;,
+      &quot;budget&quot;: {
+        &quot;p95Ms&quot;: 200
+      },
+      &quot;hash&quot;: &quot;e3e79ef636641315&quot;
+    }
+  }
+}</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">A copy of acme with grant.ts renamed to award.ts. The operation is now allowance.award.</span>
+    <span class="meta">exit 0 · 0.4s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node packages/cli/src/main.ts model --root packages/compiler/test/tmp/renamed</div><pre>thing allowance (active)  f970f8db0ed45553
+thing organization  3100b243edb9e347
+thing person  ac769a99c895d4a7
+operation allowance.award  refuses AllowanceLimitTooHigh, NotAllowed  7d8dcec6b6472512
+operation organization.create  refuses NotAllowed  e3e79ef636641315</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">A copy with grant.ts re-indented on every line. Same model, same hashes.</span>
+    <span class="meta">exit 0 · 0.5s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ bash /private/tmp/claude-501/-Users-abuusama--claude-spares-spare-gEwBPG/d12405b7-5156-441f-94fa-245c9582b12b/scratchpad/same.sh</div><pre>same model, same hashes
+ 1 file changed, 17 insertions(+), 17 deletions(-)</pre></div>
+</details>
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">Planted: a verb file that holds no operation. Refused with every problem listed, exit 2.</span>
+    <span class="meta">exit 2 · 0.4s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node packages/cli/src/main.ts model --json --root packages/compiler/test/fixtures/not-an-operation</div><pre>The blueprint is invalid:
+  - blueprint/things/widget/verbs/spin.ts: the default export must be a Blueprint.operation</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Lint, typecheck and test across all 14 projects, cache off.</span>
+    <span class="meta">exit 0 · 7.5s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm nx run-many -t lint,typecheck,test --skip-nx-cache</div><pre>NX   42 tasks: 42 succeeded
+
+
+Re-run with --output-style=static to inline logs.
+
+  Run duration:      6.7s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     3.6s (1 task)
+  Recoverable time:  3.1s (46% of the run)</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 1 · the skeleton, with every eval</div>
   <h2><span class="id">L1.10</span> The language core <span class="chip pass">done</span></h2>
   <p class="summary">Blueprint can now declare acme&#x27;s first slice: people, organisations with an owner role, and the allowance with its machine, event, a data refusal and the grant operation. Nothing carries a name; names come from paths and exports. Capturing this evidence also caught a lint gap the cache had hidden: test fixtures were let off the vitest ban. That&#x27;s fixed.</p>
   <div class="proves"><span class="label">Done when</span>nx test blueprint is green. The fixture things/allowance/{thing.ts,verbs/grant.ts} typechecks. An answer with a wrong type fails in a type test.</div>
