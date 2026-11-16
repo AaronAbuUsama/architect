@@ -1,5 +1,5 @@
 $ npx nx run-many -t lint,typecheck,test --outputStyle=static --skip-nx-cache
-# commit ad0362c · 2026-11-16T20:34:01Z · exit 0 (expected 0) · 84.7s
+# commit 4218f19 · 2026-11-16T20:40:43Z · exit 0 (expected 0) · 91.7s
 
 
  NX   Running targets lint, typecheck, test for 16 projects:
@@ -38,8 +38,8 @@ $ npx nx run-many -t lint,typecheck,test --outputStyle=static --skip-nx-cache
 
  Test Files  9 passed (9)
       Tests  21 passed (21)
-   Start at  20:32:38
-   Duration  493ms (transform 343ms, setup 0ms, import 2.34s, tests 28ms, environment 1ms)
+   Start at  20:39:13
+   Duration  611ms (transform 498ms, setup 0ms, import 2.88s, tests 27ms, environment 0ms)
 
 
 > nx run blueprint:lint
@@ -67,8 +67,8 @@ $ npx nx run-many -t lint,typecheck,test --outputStyle=static --skip-nx-cache
 
  Test Files  11 passed (11)
       Tests  34 passed (34)
-   Start at  20:32:39
-   Duration  814ms (transform 722ms, setup 0ms, import 3.85s, tests 274ms, environment 1ms)
+   Start at  20:39:14
+   Duration  841ms (transform 1.08s, setup 0ms, import 4.48s, tests 219ms, environment 1ms)
 
 
 > nx run compiler:typecheck
@@ -91,8 +91,8 @@ $ npx nx run-many -t lint,typecheck,test --outputStyle=static --skip-nx-cache
 
  Test Files  2 passed (2)
       Tests  8 passed (8)
-   Start at  20:32:39
-   Duration  1.13s (transform 700ms, setup 0ms, import 736ms, tests 634ms, environment 0ms)
+   Start at  20:39:14
+   Duration  925ms (transform 501ms, setup 0ms, import 648ms, tests 505ms, environment 0ms)
 
 
 > nx run generators:typecheck
@@ -115,8 +115,8 @@ $ npx nx run-many -t lint,typecheck,test --outputStyle=static --skip-nx-cache
 
  Test Files  3 passed (3)
       Tests  10 passed (10)
-   Start at  20:32:40
-   Duration  1.64s (transform 139ms, setup 0ms, import 717ms, tests 2.73s, environment 0ms)
+   Start at  20:39:15
+   Duration  1.62s (transform 140ms, setup 0ms, import 708ms, tests 2.67s, environment 0ms)
 
 
 > nx run host-cloudflare:lint
@@ -149,8 +149,8 @@ $ npx nx run-many -t lint,typecheck,test --outputStyle=static --skip-nx-cache
 
  Test Files  2 passed (2)
       Tests  8 passed (8)
-   Start at  20:32:44
-   Duration  5.09s (transform 43ms, setup 0ms, import 81ms, tests 6.16s, environment 0ms)
+   Start at  20:39:19
+   Duration  6.30s (transform 29ms, setup 0ms, import 44ms, tests 7.49s, environment 0ms)
 
 
 > nx run lint:lint
@@ -173,8 +173,8 @@ $ npx nx run-many -t lint,typecheck,test --outputStyle=static --skip-nx-cache
 
  Test Files  5 passed (5)
       Tests  18 passed (18)
-   Start at  20:32:51
-   Duration  11.93s (transform 3.74s, setup 0ms, import 1.84s, tests 29.18s, environment 0ms)
+   Start at  20:39:27
+   Duration  16.58s (transform 4.92s, setup 0ms, import 1.59s, tests 37.80s, environment 0ms)
 
 
 > nx run e2e:lint
@@ -203,6 +203,26 @@ e2e/layer1/04-agent-writes-a-handler.test.ts:13:27: warning eslint(no-unused-var
 > tsc -p examples/starter/tsconfig.json
 
 
+> nx run preset:lint
+
+> oxlint packages/preset
+
+
+> nx run std:lint
+
+> oxlint packages/std
+
+
+> nx run portal:lint
+
+> oxlint packages/portal
+
+
+> nx run target-solidity:lint
+
+> oxlint packages/target-solidity
+
+
 > nx run host-cloudflare:test
 
 > vitest run --root packages/host-cloudflare --passWithNoTests
@@ -220,23 +240,8 @@ Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
 
  Test Files  7 passed (7)
       Tests  12 passed (12)
-   Start at  20:32:42
-   Duration  25.29s (transform 65.06s, setup 149.72s, import 1.89s, tests 4.28s, environment 0ms)
-
-
-> nx run preset:lint
-
-> oxlint packages/preset
-
-
-> nx run std:lint
-
-> oxlint packages/std
-
-
-> nx run portal:lint
-
-> oxlint packages/portal
+   Start at  20:39:17
+   Duration  34.22s (transform 85.47s, setup 188.50s, import 2.48s, tests 3.88s, environment 0ms)
 
 
 > nx run logbook:lint
@@ -244,9 +249,9 @@ Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
 > oxlint packages/logbook
 
 
-> nx run target-solidity:lint
+> nx run cli:typecheck
 
-> oxlint packages/target-solidity
+> tsc -p packages/cli/tsconfig.json
 
 
 > nx run acme:typecheck
@@ -254,28 +259,9 @@ Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
 > tsc -p examples/acme/tsconfig.json
 
 
-> nx run cli:typecheck
-
-> tsc -p packages/cli/tsconfig.json
-
-
 > nx run e2e:typecheck
 
 > tsc -p e2e/tsconfig.json
-
-
-> nx run preset:test
-
-> vitest run --root packages/preset --passWithNoTests
-
-
- RUN  v4.1.12 ./packages/preset
-
-
- Test Files  1 passed (1)
-      Tests  4 passed (4)
-   Start at  20:33:10
-   Duration  402ms (transform 75ms, setup 0ms, import 279ms, tests 3ms, environment 0ms)
 
 
 > nx run starter:test
@@ -291,12 +277,39 @@ include: **/*.{test,spec}.?(c|m)[jt]s?(x)
 exclude:  **/node_modules/**, **/.git/**
 
 
+> nx run preset:test
+
+> vitest run --root packages/preset --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/preset
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  20:39:52
+   Duration  342ms (transform 61ms, setup 0ms, import 233ms, tests 3ms, environment 0ms)
+
+
 > nx run acme:test
 
 > vitest run --root examples/acme --passWithNoTests
 
 
  RUN  v4.1.12 ./examples/acme
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+> nx run std:test
+
+> vitest run --root packages/std --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/std
 
 No test files found, exiting with code 0
 
@@ -348,17 +361,9 @@ exclude:  **/node_modules/**, **/.git/**
 > tsc -p packages/preset/tsconfig.json
 
 
-> nx run std:test
+> nx run logbook:typecheck
 
-> vitest run --root packages/std --passWithNoTests
-
-
- RUN  v4.1.12 ./packages/std
-
-No test files found, exiting with code 0
-
-include: **/*.{test,spec}.?(c|m)[jt]s?(x)
-exclude:  **/node_modules/**, **/.git/**
+> tsc -p packages/logbook/tsconfig.json
 
 
 > nx run target-solidity:typecheck
@@ -366,19 +371,14 @@ exclude:  **/node_modules/**, **/.git/**
 > tsc -p packages/target-solidity/tsconfig.json
 
 
-> nx run logbook:typecheck
+> nx run portal:typecheck
 
-> tsc -p packages/logbook/tsconfig.json
+> tsc -p packages/portal/tsconfig.json
 
 
 > nx run std:typecheck
 
 > tsc -p packages/std/tsconfig.json
-
-
-> nx run portal:typecheck
-
-> tsc -p packages/portal/tsconfig.json
 
 
 > nx run prove:test
@@ -391,8 +391,8 @@ exclude:  **/node_modules/**, **/.git/**
 
  Test Files  7 passed (7)
       Tests  25 passed (25)
-   Start at  20:32:41
-   Duration  80.23s (transform 4.22s, setup 0ms, import 1.69s, tests 128.45s, environment 0ms)
+   Start at  20:39:16
+   Duration  87.10s (transform 4.56s, setup 0ms, import 1.91s, tests 140.92s, environment 0ms)
 
 
 
@@ -400,12 +400,12 @@ exclude:  **/node_modules/**, **/.git/**
  NX   Successfully ran targets lint, typecheck, test for 16 projects
 
 
-  Run duration:      1m 24s
+  Run duration:      1m 31s
   Cache:             Skipped (--skip-nx-cache)
-  Critical path:     1m 21s (1 task)
-  Recoverable time:  3.1s (4% of the run)
+  Critical path:     1m 27s (1 task)
+  Recoverable time:  3.3s (4% of the run)
 
   Recommendations:
     - Cache: drop --skip-nx-cache to restore unchanged tasks instantly.
     - Speed up or split the longest tasks on the critical path:
-        prove:test    1m 21s
+        prove:test    1m 27s

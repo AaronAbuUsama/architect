@@ -1,5 +1,5 @@
 $ npx nx run e2e:layer1 --outputStyle=static --skip-nx-cache --reporter=verbose
-# commit ad0362c · 2026-11-16T20:32:36Z · exit 0 (expected 0) · 144.9s
+# commit 4218f19 · 2026-11-16T20:43:07Z · exit 0 (expected 0) · 143.4s
 
 
 > nx run e2e:layer1 --reporter=verbose
@@ -9,43 +9,46 @@ $ npx nx run e2e:layer1 --outputStyle=static --skip-nx-cache --reporter=verbose
 
  RUN  v4.1.12 ./e2e
 
- ✓ layer1/03-every-eval-catches-its-break.test.ts > check 3: every eval catches its planted break > answer-shape: prove exits 1 with "allowance.grant answer shape ✘" 9061ms
- ✓ layer1/03-every-eval-catches-its-break.test.ts > check 3: every eval catches its planted break > declared-errors: prove exits 1 with "allowance.grant declared errors ✘" 7892ms
- ✓ layer1/03-every-eval-catches-its-break.test.ts > check 3: every eval catches its planted break > machine-path: prove exits 1 with "allowance.grant machine path ✘" 8705ms
- ✓ layer1/03-every-eval-catches-its-break.test.ts > check 3: every eval catches its planted break > events: prove exits 1 with "allowance.grant events ✘" 7907ms
- ✓ layer1/03-every-eval-catches-its-break.test.ts > check 3: every eval catches its planted break > who-may-call: prove exits 1 with "allowance.grant who may call ✘" 8678ms
- ✓ layer1/03-every-eval-catches-its-break.test.ts > check 3: every eval catches its planted break > steps: prove exits 1 with "allowance.grant steps ✘" 8354ms
- ✓ layer1/03-every-eval-catches-its-break.test.ts > check 3: every eval catches its planted break > coverage: prove exits 1 with "organization.rename coverage ✘" 11005ms
- ✓ layer1/03-every-eval-catches-its-break.test.ts > check 3: every eval catches its planted break > performance: prove exits 0 with "allowance.grant performance ✔" and a review 21628ms
- ✓ layer1/03-every-eval-catches-its-break.test.ts > check 3: every eval catches its planted break > explainability: prove exits 1 with "allowance.grant explainability ✘" 8107ms
- ✓ layer1/01-a-project-from-the-preset.test.ts > check 1: create-nx-workspace --preset=@architect/preset > makes a project whose check and prove pass, from packages installed out of a registry 99582ms
- ✓ layer1/06-check-and-the-authoring-loop.test.ts > check 6: architect add, generate and check build the allowance on the starter > blanks, then scaffolds, then a project that checks and proves 12999ms
- ✓ layer1/06-check-and-the-authoring-loop.test.ts > check 6: architect add, generate and check build the allowance on the starter > check/edited-output/get.ts: check exits 1 naming generated/api/src/allowance/get.ts and no-edited-output 1570ms
- ✓ layer1/06-check-and-the-authoring-loop.test.ts > check 6: architect add, generate and check build the allowance on the starter > check/name-as-string/spend.ts: check exits 1 naming implementation/handlers/allowance/spend.ts and no-name-as-string 1575ms
- ✓ layer1/06-check-and-the-authoring-loop.test.ts > check 6: architect add, generate and check build the allowance on the starter > check/refusal-without-log/spend.ts: check exits 1 naming implementation/handlers/allowance/spend.ts and refusal-has-log 1536ms
- ✓ layer1/06-check-and-the-authoring-loop.test.ts > check 6: architect add, generate and check build the allowance on the starter > types/undeclared-error/spend.ts: check exits 1 naming implementation/handlers/allowance/spend.ts and TS 1621ms
- ✓ layer1/07-impact.test.ts > check 7: architect impact > stale exactly allowance.spend after its budget is loosened; allowance.list unproven once added 9334ms
- ✓ layer1/02-acme-proves.test.ts > check 2: architect prove --env local on acme > passes eleven journeys and fifteen operations with nine evals each, and leaves nothing running 7764ms
- ✓ layer1/05-the-generated-surfaces.test.ts > check 5: the generated CLI, SDK and docs > against architect dev: exit codes, --json, a typed SDK call, and docs with every refusal 6639ms
+ ✓ layer1/03-every-eval-catches-its-break.test.ts > check 3: every eval catches its planted break > answer-shape: prove exits 1 with "allowance.grant answer shape ✘" 7959ms
+ ✓ layer1/03-every-eval-catches-its-break.test.ts > check 3: every eval catches its planted break > declared-errors: prove exits 1 with "allowance.grant declared errors ✘" 7589ms
+ ✓ layer1/03-every-eval-catches-its-break.test.ts > check 3: every eval catches its planted break > machine-path: prove exits 1 with "allowance.grant machine path ✘" 7589ms
+ ✓ layer1/03-every-eval-catches-its-break.test.ts > check 3: every eval catches its planted break > events: prove exits 1 with "allowance.grant events ✘" 7941ms
+ ✓ layer1/03-every-eval-catches-its-break.test.ts > check 3: every eval catches its planted break > who-may-call: prove exits 1 with "allowance.grant who may call ✘" 7816ms
+ ✓ layer1/03-every-eval-catches-its-break.test.ts > check 3: every eval catches its planted break > steps: prove exits 1 with "allowance.grant steps ✘" 7800ms
+ ✓ layer1/03-every-eval-catches-its-break.test.ts > check 3: every eval catches its planted break > coverage: prove exits 1 with "organization.rename coverage ✘" 9148ms
+ ✓ layer1/03-every-eval-catches-its-break.test.ts > check 3: every eval catches its planted break > performance: prove exits 0 with "allowance.grant performance ✔" and a review 21278ms
+ ✓ layer1/03-every-eval-catches-its-break.test.ts > check 3: every eval catches its planted break > explainability: prove exits 1 with "allowance.grant explainability ✘" 8592ms
+ ✓ layer1/01-a-project-from-the-preset.test.ts > check 1: create-nx-workspace --preset=@architect/preset > makes a project whose check and prove pass, from packages installed out of a registry 106496ms
+ ✓ layer1/06-check-and-the-authoring-loop.test.ts > check 6: architect add, generate and check build the allowance on the starter > blanks, then scaffolds, then a project that checks and proves 13914ms
+ ✓ layer1/06-check-and-the-authoring-loop.test.ts > check 6: architect add, generate and check build the allowance on the starter > check/edited-output/get.ts: check exits 1 naming generated/api/src/allowance/get.ts and no-edited-output 1889ms
+ ✓ layer1/06-check-and-the-authoring-loop.test.ts > check 6: architect add, generate and check build the allowance on the starter > check/name-as-string/spend.ts: check exits 1 naming implementation/handlers/allowance/spend.ts and no-name-as-string 1860ms
+ ✓ layer1/06-check-and-the-authoring-loop.test.ts > check 6: architect add, generate and check build the allowance on the starter > check/refusal-without-log/spend.ts: check exits 1 naming implementation/handlers/allowance/spend.ts and refusal-has-log 1770ms
 stdout | layer1/04-agent-writes-a-handler.test.ts > check 4: an agent writes allowance.spend from its brief alone > the written handler passes prove: spend's 9 evals and the journeys that call it
-agent session: success, 31 turns, 39 s, $1.62
-I wrote `implementation/handlers/allowance/spend.ts`, and `architect check` passes (types, rules, drift all clean). I haven't run `architect prove --env local`, so the 9 evals and the three journeys are untested. I don't have a tool for that command.
+agent session: success, 18 turns, 24 s, $0.05
+I wrote `implementation/handlers/allowance/spend.ts`, and `architect check` passes (types, rules and drift). I haven't run `architect prove --env local`, because I have no tool for it. So the 9 evals and the three journeys are untested.
 
-How the handler works:
-- **Load:** it reads the allowance through `steps.load(records.find(...))`. If the record is missing it dies, the same way `invitation/accept.ts` does, since the runtime has already found it.
-- **Refusal:** if `amount` is more than what is left (`limit - spent`), it logs why with `Effect.logInfo` and fails with `AllowanceExceeded({ remaining })`. The role check and the machine's `AllowanceNotActive` check are left to the runtime.
-- **Record:** it writes the new `spent` through `steps.record(records.update(...))`, then calls `move("exhausted")` if nothing is left and `move("active")` otherwise.
-- **Answer:** it returns `{ remaining }`, the amount left after this spend.
+The handler works like this:
+- **Load:** it loads the allowance through `steps.load(...)` and works out what is left (`limit - spent`).
+- **Refusal:** if the amount is more than what is left, it logs why with `Effect.logInfo` and refuses with `AllowanceExceeded`, carrying the remaining amount.
+- **Record:** otherwise it writes the new `spent` total through `steps.record(...)`.
+- **Move:** it then calls `move("exhausted")` if nothing is left, or `move("active")` if not.
+- **Answer:** it returns `{ remaining }`.
 
-I couldn't read the `Records` API, so I guessed `records.update(Allowance, id, { spent })`. The type check accepts it, but I haven't seen it run. The other thing to confirm is that `steps.record(...)` wrapping the update (rather than the move, as `revoke.ts` does with `steps.update(move(...))`) satisfies the step eval. If `prove` shows a problem with `spent` not updating or with the steps, those are the two places to look.
+I didn't handle `AllowanceNotActive` or `NotAllowed`; the runtime refuses those before the handler runs.
 
- ✓ layer1/04-agent-writes-a-handler.test.ts > check 4: an agent writes allowance.spend from its brief alone > the written handler passes prove: spend's 9 evals and the journeys that call it 51383ms
+I couldn't find documentation for the `Records` API. I assumed `records.update(Allowance, id, { spent })` exists, based on how `grant.ts` and `accept.ts` use `records.insert` and `records.find`. Check passed with it, so it type-checks. Whether it behaves correctly is what the prove run will show.
+
+ ✓ layer1/04-agent-writes-a-handler.test.ts > check 4: an agent writes allowance.spend from its brief alone > the written handler passes prove: spend's 9 evals and the journeys that call it 40388ms
  ↓ layer1/04-agent-writes-a-handler.test.ts > check 4 in CI without ANTHROPIC_API_KEY > is skipped, and says why
+ ✓ layer1/06-check-and-the-authoring-loop.test.ts > check 6: architect add, generate and check build the allowance on the starter > types/undeclared-error/spend.ts: check exits 1 naming implementation/handlers/allowance/spend.ts and TS 1763ms
+ ✓ layer1/02-acme-proves.test.ts > check 2: architect prove --env local on acme > passes eleven journeys and fifteen operations with nine evals each, and leaves nothing running 7913ms
+ ✓ layer1/07-impact.test.ts > check 7: architect impact > stale exactly allowance.spend after its budget is loosened; allowance.list unproven once added 9629ms
+ ✓ layer1/05-the-generated-surfaces.test.ts > check 5: the generated CLI, SDK and docs > against architect dev: exit codes, --json, a typed SDK call, and docs with every refusal 5737ms
 
  Test Files  7 passed (7)
       Tests  19 passed | 1 skipped (20)
-   Start at  20:30:13
-   Duration  143.43s (transform 205ms, setup 0ms, import 662ms, tests 285.47s, environment 0ms)
+   Start at  20:40:45
+   Duration  142.11s (transform 265ms, setup 0ms, import 774ms, tests 277.20s, environment 0ms)
 
 
 
@@ -53,12 +56,12 @@ I couldn't read the `Records` API, so I guessed `records.update(Allowance, id, {
  NX   Successfully ran target layer1 for project e2e
 
 
-  Run duration:      2m 24s
+  Run duration:      2m 22s
   Cache:             Skipped (--skip-nx-cache)
-  Critical path:     2m 24s (1 task)
+  Critical path:     2m 22s (1 task)
   Recoverable time:  <1ms
 
   Recommendations:
     - Cache: drop --skip-nx-cache to restore unchanged tasks instantly.
     - Speed up or split the longest tasks on the critical path:
-        e2e:layer1    2m 24s
+        e2e:layer1    2m 22s

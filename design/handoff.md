@@ -58,13 +58,15 @@ on Better Auth, organization, membership, invitation, api-key; 5 journeys, 11 op
 `#modules/….js`, D2 #67) and `tools/e2e/starter.sh` (CI job `starter`) publishes them to Verdaccio, runs
 `create-nx-workspace --preset=@architect/preset`, then check and prove in the new workspace. Decisions through D2 #72.
 L1.51 done (commit 79be956, evidence `evidence/L1.51/`): acme is the starter plus the allowance (D2 #73).
-L1.60 done: Gate 1 passes locally and in CI (ad0362c, run 43950414868; evidence `evidence/L1.60/`). `e2e/` is a
+L1.60 done: Gate 1 passes locally and in CI (4218f19, run 43951988847; evidence `evidence/L1.60/`). `e2e/` is a
 workspace project; `nx run e2e:layer1` runs the seven checks of D2 #74 from `e2e/layer1/0N-*.test.ts`, each in a copy
 outside the repository (`support.ts` `copyOf`): 19 tests, check 3 covering all nine evals (performance's break is a
 slow grant, D2 #77). Check 4 runs on the Claude Agent SDK with only our tools, traced into prove's collector (D2
 #76); in CI it is skipped with a message until there is an `ANTHROPIC_API_KEY`. Test copies skip dot-folders (D2
-#78). Decisions through D2 #78.
-Next: the 🔍 review of `layer/2`, then the PR to main, merged when CI is green, then the spoken report to Aaron.
+#78). The 🔍 review failed once (transitive packages under two weeks old) and passed after the fixes: pnpm's
+`minimumReleaseAge` enforces the rule tree-wide (D2 #79), and a prove with a failing journey proves nothing (D2 #80).
+Decisions through D2 #80.
+Next: the PR of `layer/2` to main, merged when CI is green, then the spoken report to Aaron.
 After that, stage 3 (Gate 2, shipping across worlds), opening with wayfinding.
 The evidence page is https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB; republish it with
 `python3 tools/evidence/page.py` after each step. For plants, back up with `cp` and restore with `cp`, never
