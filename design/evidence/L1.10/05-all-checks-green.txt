@@ -31,7 +31,7 @@ $ pnpm nx run-many -t lint,typecheck,test --outputStyle=static --skip-nx-cache
 > vitest run --root packages/compiler --passWithNoTests
 
 
- RUN  v4.1.12 /Users/abuusama/projects/architect/packages/compiler
+ RUN  v4.1.12 ./packages/compiler
 
 No test files found, exiting with code 0
 
@@ -69,7 +69,7 @@ exclude:  **/node_modules/**, **/.git/**
 > vitest run --root packages/generators --passWithNoTests
 
 
- RUN  v4.1.12 /Users/abuusama/projects/architect/packages/generators
+ RUN  v4.1.12 ./packages/generators
 
 No test files found, exiting with code 0
 
@@ -82,7 +82,7 @@ exclude:  **/node_modules/**, **/.git/**
 > vitest run --root packages/blueprint --passWithNoTests
 
 
- RUN  v4.1.12 /Users/abuusama/projects/architect/packages/blueprint
+ RUN  v4.1.12 ./packages/blueprint
 
 
  Test Files  8 passed (8)
@@ -146,7 +146,7 @@ exclude:  **/node_modules/**, **/.git/**
 > vitest run --root packages/std --passWithNoTests
 
 
- RUN  v4.1.12 /Users/abuusama/projects/architect/packages/std
+ RUN  v4.1.12 ./packages/std
 
 No test files found, exiting with code 0
 
@@ -164,7 +164,7 @@ exclude:  **/node_modules/**, **/.git/**
 > vitest run --root packages/preset --passWithNoTests
 
 
- RUN  v4.1.12 /Users/abuusama/projects/architect/packages/preset
+ RUN  v4.1.12 ./packages/preset
 
 No test files found, exiting with code 0
 
@@ -177,7 +177,7 @@ exclude:  **/node_modules/**, **/.git/**
 > vitest run --root packages/prove --passWithNoTests
 
 
- RUN  v4.1.12 /Users/abuusama/projects/architect/packages/prove
+ RUN  v4.1.12 ./packages/prove
 
 No test files found, exiting with code 0
 
@@ -190,7 +190,7 @@ exclude:  **/node_modules/**, **/.git/**
 > vitest run --root packages/lint --passWithNoTests
 
 
- RUN  v4.1.12 /Users/abuusama/projects/architect/packages/lint
+ RUN  v4.1.12 ./packages/lint
 
 
  Test Files  1 passed (1)
@@ -204,7 +204,7 @@ exclude:  **/node_modules/**, **/.git/**
 > vitest run --root packages/cli --passWithNoTests
 
 
- RUN  v4.1.12 /Users/abuusama/projects/architect/packages/cli
+ RUN  v4.1.12 ./packages/cli
 
 No test files found, exiting with code 0
 
@@ -217,7 +217,7 @@ exclude:  **/node_modules/**, **/.git/**
 > vitest run --root packages/portal --passWithNoTests
 
 
- RUN  v4.1.12 /Users/abuusama/projects/architect/packages/portal
+ RUN  v4.1.12 ./packages/portal
 
 No test files found, exiting with code 0
 
@@ -230,7 +230,7 @@ exclude:  **/node_modules/**, **/.git/**
 > vitest run --root examples/acme --passWithNoTests
 
 
- RUN  v4.1.12 /Users/abuusama/projects/architect/examples/acme
+ RUN  v4.1.12 ./examples/acme
 
 No test files found, exiting with code 0
 
@@ -243,7 +243,7 @@ exclude:  **/node_modules/**, **/.git/**
 > vitest run --root packages/logbook --passWithNoTests
 
 
- RUN  v4.1.12 /Users/abuusama/projects/architect/packages/logbook
+ RUN  v4.1.12 ./packages/logbook
 
 No test files found, exiting with code 0
 
@@ -256,7 +256,7 @@ exclude:  **/node_modules/**, **/.git/**
 > vitest run --root packages/target-effect --passWithNoTests
 
 
- RUN  v4.1.12 /Users/abuusama/projects/architect/packages/target-effect
+ RUN  v4.1.12 ./packages/target-effect
 
 No test files found, exiting with code 0
 
@@ -269,7 +269,7 @@ exclude:  **/node_modules/**, **/.git/**
 > vitest run --root packages/target-solidity --passWithNoTests
 
 
- RUN  v4.1.12 /Users/abuusama/projects/architect/packages/target-solidity
+ RUN  v4.1.12 ./packages/target-solidity
 
 No test files found, exiting with code 0
 
@@ -292,7 +292,7 @@ exclude:  **/node_modules/**, **/.git/**
 > vitest run --root packages/host-cloudflare --passWithNoTests
 
 
- RUN  v4.1.12 /Users/abuusama/projects/architect/packages/host-cloudflare
+ RUN  v4.1.12 ./packages/host-cloudflare
 
 No test files found, exiting with code 0
 

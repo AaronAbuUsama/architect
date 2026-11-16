@@ -9,7 +9,7 @@ Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
 =======================================================================================
 
 
- RUN  v4.1.12 /Users/abuusama/projects/architect/packages/host-cloudflare
+ RUN  v4.1.12 ./packages/host-cloudflare
 
  ✓ src/modules/database/database.test.ts > D1 through SqlClient, in workerd > writes and reads a real D1 row 7ms
  ✓ src/modules/database/database.test.ts > D1 through SqlClient, in workerd > the handler wrapper runs in workerd: its step writes to D1 inside its own span 4ms

@@ -1,0 +1,20 @@
+$ pnpm nx run-many -t lint,typecheck,test --skip-nx-cache
+# commit eff75fb · 2026-11-16T16:58:55Z · exit 0 (expected 0) · 9.1s
+
+
+ NX   42 tasks: 42 succeeded
+
+
+Re-run with --output-style=static to inline logs.
+
+
+ NX   Nx detected a flaky task
+
+  lint:test
+
+Flaky tasks can disrupt your CI pipeline. Automatically retry them with Nx Cloud. Learn more at https://nx.dev/ci/features/flaky-tasks
+
+  Run duration:      8.4s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     4.1s (1 task)
+  Recoverable time:  4.3s (51% of the run)

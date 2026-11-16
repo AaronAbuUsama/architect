@@ -1,0 +1,37 @@
+$ bash /private/tmp/claude-501/-Users-abuusama--claude-spares-spare-gEwBPG/d12405b7-5156-441f-94fa-245c9582b12b/scratchpad/acme-tsc.sh
+# commit eff75fb · 2026-11-16T16:59:03Z · exit 0 (expected 0) · 0.5s
+
+Files:              845
+Check time:      0.062s
+Total time:      0.191s
+
+acme project files TypeScript 7 checked:
+  blueprint/things/allowance/errors.ts
+  blueprint/things/allowance/events.ts
+  blueprint/things/allowance/machine.ts
+  blueprint/things/allowance/thing.ts
+  blueprint/things/allowance/verbs/grant.ts
+  blueprint/things/organization/roles.ts
+  blueprint/things/organization/thing.ts
+  blueprint/things/organization/verbs/create.ts
+  blueprint/things/person/thing.ts
+  blueprint/values/money.ts
+  generated/api/src/allowance/grant.handler.ts
+  generated/api/src/allowance/grant.ts
+  generated/api/src/errors.ts
+  generated/api/src/index.ts
+  generated/api/src/organization/create.handler.ts
+  generated/api/src/organization/create.ts
+  generated/cli/src/allowance/grant.ts
+  generated/cli/src/main.ts
+  generated/cli/src/organization/create.ts
+  generated/cli/src/output.ts
+  generated/sdk/src/allowance/grant.ts
+  generated/sdk/src/allowance/index.ts
+  generated/sdk/src/client.ts
+  generated/sdk/src/index.ts
+  generated/sdk/src/organization/create.ts
+  generated/sdk/src/organization/index.ts
+  generated/server/main.ts
+  implementation/handlers/allowance/grant.ts
+  implementation/handlers/organization/create.ts

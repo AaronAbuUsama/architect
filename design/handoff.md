@@ -27,14 +27,16 @@ Aaron's rule from 16 November 2026: the building agent owns the architecture and
 
 ## Where the goal stands
 
-Stage 1 (`layer/1`). Done: wayfinding (`wayfinding/stage-1.md`, decisions D1 and D2), L1.01, L1.10, L1.11 and L1.12,
-each with evidence in `evidence/`. Spikes `effect4-worker-chain` and `otlp-from-workerd` both answered yes. L1.11 gave
-`packages/compiler` (`Compiler.model`) and `packages/cli` (`architect model [--json]`). L1.12 gave
-`packages/target-effect` (`Handlers.serve`, `Busy`, `Timers`) and `packages/host-cloudflare` (`Database.d1`, tested in
-real workerd with a real local D1 via `vitest.config.ts`). Next: L1.13, the generators (Nx sync generators writing
-`generated/{api,server,sdk,cli}` in `examples/acme`, `nx sync:check` failing on drift) and the handler scaffold. OTLP
-export (spike code in `spikes/otlp-from-workerd/README.md`) lands with `architect dev` in L1.14. The evidence page is
-https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB; republish it with `python3 tools/evidence/page.py` after each step.
+Stage 1 (`layer/1`). Done: wayfinding (`wayfinding/stage-1.md`, decisions D1 and D2), L1.01, L1.10 to L1.13, each
+with evidence in `evidence/`. Packages so far: `blueprint`, `compiler` (`Compiler.model`, `architect-model` entry),
+`cli` (`architect model`), `target-effect` (`Handlers.serve`, `Busy`, `Timers`, `Principals`, `Wire`),
+`host-cloudflare` (`Database.d1`, tested in real workerd with a real D1) and `generators` (the Nx sync generator:
+`nx sync` writes `examples/acme/generated/` and scaffolds `implementation/handlers/`; `nx sync:check` fails on drift).
+Run Nx with `NX_DAEMON=false` after changing generator code, or the daemon keeps the old generator. Next: L1.14,
+`architect dev`: the generated Worker on workerd with the world Durable Object (registry, front door, signed test
+tokens), D1 migrations generated from the model, and OTLP export (spike code in `spikes/otlp-from-workerd/README.md`).
+The evidence page is https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB; republish it with
+`python3 tools/evidence/page.py` after each step.
 
 ## Open
 

@@ -1,0 +1,9 @@
+{
+  "generators": {
+    "sync": {
+      "factory": "./src/main.ts",
+      "schema": "./schema.json",
+      "description": "Writes generated/ from the blueprint of every project that has one, and scaffolds missing handlers."
+    }
+  }
+}

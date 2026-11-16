@@ -40,5 +40,10 @@
       },
       "cache": true
     }
+  },
+  "sync": {
+    "globalGenerators": [
+      "@architect/generators:sync"
+    ]
   }
 }

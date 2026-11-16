@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./main": "./src/main.ts"
   },
   "dependencies": {
     "@architect/blueprint": "workspace:*",
@@ -11,5 +12,8 @@
   },
   "imports": {
     "#modules/*": "./src/modules/*"
+  },
+  "bin": {
+    "architect-model": "./src/main.ts"
   }
 }

@@ -12,6 +12,6 @@ end=$(perl -MTime::HiRes=time -e 'printf "%.3f", time')
   echo "\$ $*"
   echo "# commit $(git rev-parse --short HEAD) · $(date -u +%Y-%m-%dT%H:%M:%SZ) · exit $code (expected $expect) · $(perl -e "printf '%.1fs', $end-$start")"
   echo
-  printf '%s\n' "$body" | sed -E 's/\x1b\[[0-9;]*[A-Za-z]//g'
+  printf '%s\n' "$body" | sed -E -e 's/\x1b\[[0-9;]*[A-Za-z]//g' -e "s#$PWD#.#g" -e "s#$HOME#~#g"
 } > "$out"
 [ "$code" = "$expect" ] && echo "ok   $out" || { echo "FAIL $out (exit $code, expected $expect)"; exit 1; }

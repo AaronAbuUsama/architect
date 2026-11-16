@@ -50,6 +50,25 @@ importers:
       '@architect/blueprint':
         specifier: workspace:*
         version: link:../../packages/blueprint
+      '@architect/host-cloudflare':
+        specifier: workspace:*
+        version: link:../../packages/host-cloudflare
+      '@architect/target-effect':
+        specifier: workspace:*
+        version: link:../../packages/target-effect
+      '@effect/platform-node':
+        specifier: 4.1.1
+        version: 4.1.1(effect@4.1.1)(redis@6.3.1)
+      '@effect/sql-d1':
+        specifier: 4.1.1
+        version: 4.1.1(effect@4.1.1)
+      effect:
+        specifier: 4.1.1
+        version: 4.1.1
+    devDependencies:
+      '@cloudflare/workers-types':
+        specifier: 5.20261101.1
+        version: 5.20261101.1
 
   packages/blueprint:
     dependencies:
@@ -78,7 +97,24 @@ importers:
         specifier: 4.1.1
         version: 4.1.1
 
-  packages/generators: {}
+  packages/generators:
+    dependencies:
+      '@architect/blueprint':
+        specifier: workspace:*
+        version: link:../blueprint
+      '@architect/compiler':
+        specifier: workspace:*
+        version: link:../compiler
+      '@nx/devkit':
+        specifier: 24.0.3
+        version: 24.0.3(nx@24.0.3)
+      effect:
+        specifier: 4.1.1
+        version: 4.1.1
+    devDependencies:
+      nx:
+        specifier: 24.0.3
+        version: 24.0.3
 
   packages/host-cloudflare:
     dependencies:
@@ -5317,7 +5353,7 @@ snapshots:
   '@emnapi/core@1.4.5':
     dependencies:
       '@emnapi/wasi-threads': 1.0.4
-      tslib: 2.8.1
+      tslib: 2.9.1
 
   '@emnapi/core@2.0.0-beta.2':
     dependencies:
@@ -5332,7 +5368,7 @@ snapshots:
 
   '@emnapi/runtime@1.4.5':
     dependencies:
-      tslib: 2.8.1
+      tslib: 2.9.1
 
   '@emnapi/runtime@2.0.0-beta.2':
     dependencies:
@@ -5341,7 +5377,7 @@ snapshots:
 
   '@emnapi/wasi-threads@1.0.4':
     dependencies:
-      tslib: 2.8.1
+      tslib: 2.9.1
 
   '@emnapi/wasi-threads@2.2.0':
     dependencies:
@@ -6130,7 +6166,7 @@ snapshots:
 
   '@tybys/wasm-util@0.9.0':
     dependencies:
-      tslib: 2.8.1
+      tslib: 2.9.1
 
   '@types/chai@5.2.3':
     dependencies:

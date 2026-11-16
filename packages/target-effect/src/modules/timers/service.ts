@@ -2,6 +2,8 @@ import { Clock, Deferred, Duration, Effect, Layer } from "effect";
 import { Busy } from "#modules/work/types.ts";
 import { Timers, type Timer } from "./types.ts";
 
+const timerOf = (t: Timer): Timer => ({ id: t.id, at: t.at, owner: t.owner, name: t.name });
+
 /** Timers kept in memory, fired by whoever drives the world's clock. A world's Durable Object keeps them in its table. */
 export const TimersMemory = Layer.effect(
   Timers,
@@ -33,9 +35,9 @@ export const TimersMemory = Layer.effect(
           const hit = table.filter((t) => t.at === at).sort((a, b) => a.id - b.id);
           for (const t of hit) table.splice(table.indexOf(t), 1);
           yield* Effect.forEach(hit, (t) => t.run, { discard: true });
-          return hit.map(({ run: _, ...timer }) => timer);
+          return hit.map(timerOf);
         }),
-      pending: Effect.sync(() => table.map(({ run: _, ...timer }) => timer).sort((a, b) => a.at - b.at)),
+      pending: Effect.sync(() => table.map(timerOf).sort((a, b) => a.at - b.at)),
     });
   }),
 );

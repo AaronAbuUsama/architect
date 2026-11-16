@@ -1,0 +1,5 @@
+$ node examples/acme/generated/cli/src/main.ts allowance grant --organization org_1 --member olga --limit 500
+# commit eff75fb · 2026-11-16T16:58:46Z · exit 2 (expected 2) · 0.5s
+
+SchemaError: Expected a string matching the RegExp ^per_[0-9a-z]+$
+  at ["member"]

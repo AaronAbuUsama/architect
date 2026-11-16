@@ -2,7 +2,7 @@ $ node_modules/.bin/vitest run --root packages/target-effect --reporter verbose
 # commit 4f06767 · 2026-11-16T16:49:01Z · exit 0 (expected 0) · 0.9s
 
 
- RUN  v4.1.12 /Users/abuusama/projects/architect/packages/target-effect
+ RUN  v4.1.12 ./packages/target-effect
 
  ✓ src/modules/work/work.test.ts > Busy > counts work while it runs, and after it fails 3ms
  ✓ src/modules/work/work.test.ts > Busy > is quiet only once spawned work ends 1ms

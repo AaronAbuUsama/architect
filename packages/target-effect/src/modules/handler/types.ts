@@ -22,10 +22,18 @@ export type Handler<O, R = never> = (payload: PayloadOf<O>, context: HandlerCont
 
 export interface Served<O, R> {
   readonly name: string;
+  /** From the outside: decode first, refusing with `InvalidPayload`. */
   readonly call: (payload: unknown, principal: Principal) => Effect.Effect<AnswerOf<O>, ErrorOf<O> | InvalidPayload, R | Busy>;
+  /** From a server that has already decoded the payload against the same declaration. */
+  readonly run: (payload: PayloadOf<O>, principal: Principal) => Effect.Effect<AnswerOf<O>, ErrorOf<O>, R | Busy>;
 }
+
+/** A scaffolded handler not written yet. Reaching it is a defect that names what's missing. */
+export class BlankReached extends Data.TaggedError("BlankReached")<{ readonly what: string }> {}
 
 export interface HandlerApi {
   /** `name` comes from the generated code, which got it from the operation's path. */
   readonly serve: <O, R>(spec: { readonly name: string; readonly operation: O; readonly handler: Handler<O, R> }) => Served<O, R>;
+  /** What a scaffold returns until it is written: dies with `BlankReached`, typed as anything. */
+  readonly blank: <A = never>(what: string) => Effect.Effect<A>;
 }
