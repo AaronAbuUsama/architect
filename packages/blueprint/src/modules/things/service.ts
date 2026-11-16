@@ -6,7 +6,9 @@ export const Things: ThingsApi = {
     const fields: Record<string, Field> = {};
     const thing = { kind: "thing", description: spec.description, fields } as Thing as Thing<typeof spec.fields>;
     for (const [key, input] of Object.entries(spec.fields) as Array<[string, FieldInput]>) {
-      fields[key] = { kind: "field", of: thing as Thing, key, value: valueOf(input) };
+      fields[key] = Object.freeze({
+        kind: "field", of: thing as Thing, key, value: valueOf(input), from: input.kind === "field" ? input : undefined,
+      });
     }
     return Object.freeze(thing);
   },

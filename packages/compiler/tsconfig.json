@@ -5,6 +5,7 @@
     "test/**/*.ts"
   ],
   "exclude": [
-    "test/fixtures/**"
+    "test/fixtures/**",
+    "test/tmp/**"
   ]
 }

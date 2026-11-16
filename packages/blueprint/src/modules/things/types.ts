@@ -7,6 +7,8 @@ export interface Field<V extends Value = Value> {
   readonly of: Thing;
   readonly key: string;
   readonly value: V;
+  /** The field it was taken from, when declared as another thing's field: the model's edge. */
+  readonly from: Field | undefined;
 }
 
 /** What a thing's or payload's field may be declared as: a value, or a field taken from a thing. */

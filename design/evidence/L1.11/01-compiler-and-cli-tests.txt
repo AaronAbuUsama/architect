@@ -1,0 +1,28 @@
+$ bash /private/tmp/claude-501/-Users-abuusama--claude-spares-spare-gEwBPG/d12405b7-5156-441f-94fa-245c9582b12b/scratchpad/tests.sh
+# commit f9d570c · 2026-11-16T16:42:12Z · exit 0 (expected 0) · 2.6s
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/packages/compiler
+
+ ✓ src/modules/model/model.test.ts > model > describes acme 44ms
+ ✓ src/modules/model/model.test.ts > model > names an operation after its file: grant.ts renamed to award.ts is allowance.award 27ms
+ ✓ src/modules/model/model.test.ts > model > keeps every hash when a file is only reformatted 42ms
+ ✓ src/modules/model/model.test.ts > model > refuses a verb file that holds no operation 6ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  16:42:10
+   Duration  469ms (transform 127ms, setup 0ms, import 232ms, tests 124ms, environment 0ms)
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/packages/cli
+
+ ✓ src/modules/model/model.test.ts > architect model > --json on acme prints the model snapshot, from a real process 522ms
+ ✓ src/modules/model/model.test.ts > architect model > summarises things and operations without --json 41ms
+ ✓ src/modules/model/model.test.ts > architect model > --json is optional on the real command line 397ms
+ ✓ src/modules/model/model.test.ts > architect model > an invalid blueprint lists its problems and exits 2 379ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  16:42:10
+   Duration  1.62s (transform 71ms, setup 0ms, import 188ms, tests 1.34s, environment 0ms)

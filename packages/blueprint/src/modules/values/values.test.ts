@@ -6,6 +6,11 @@ const decode = <S extends Schema.Constraint>(s: S, x: unknown) =>
   Schema.decodeUnknownExit(s as never)(x)._tag;
 
 describe("values", () => {
+  it("describe themselves for the model", () => {
+    expect(Values.id("alw").meta).toEqual({ type: "id", prefix: "alw" });
+    expect(Values.value(Values.uint(128)).meta).toEqual({ type: "uint", bits: 128 });
+  });
+
   it("ids keep their prefix and brand", () => {
     const AllowanceId = Values.id("alw");
     expect(decode(AllowanceId.schema, "alw_7f3k")).toBe("Success");

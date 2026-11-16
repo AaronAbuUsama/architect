@@ -15,6 +15,8 @@ describe("things", () => {
     expect(Allowance.fields.organization.value).toBe(Organization.fields.id.value);
     expect(Organization.fields.id.of).toBe(Organization);
     expect(Allowance.fields.limit.of).toBe(Allowance);
+    expect(Allowance.fields.organization.from).toBe(Organization.fields.id);
+    expect(Allowance.fields.limit.from).toBeUndefined();
   });
 
   it("fields become one schema", () => {

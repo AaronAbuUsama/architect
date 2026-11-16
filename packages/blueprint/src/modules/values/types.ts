@@ -4,7 +4,15 @@ import type { Schema } from "effect";
 export interface Value<S extends Schema.Constraint = Schema.Constraint> {
   readonly kind: "value";
   readonly schema: S;
+  /** What the value is, for the model: stable across reformatting, and readable by every target. */
+  readonly meta: ValueMeta;
 }
+
+export type ValueMeta =
+  | { readonly type: "id"; readonly prefix: string }
+  | { readonly type: "uint"; readonly bits: number }
+  | { readonly type: "text"; readonly max: number }
+  | { readonly type: "schema" };
 
 /** The TypeScript type a value holds. */
 export type TypeOf<V extends Value> = V["schema"]["Type"];

@@ -1,0 +1,5 @@
+$ node packages/cli/src/main.ts model --json --root packages/compiler/test/fixtures/not-an-operation
+# commit f9d570c · 2026-11-16T16:42:14Z · exit 2 (expected 2) · 0.4s
+
+The blueprint is invalid:
+  - blueprint/things/widget/verbs/spin.ts: the default export must be a Blueprint.operation

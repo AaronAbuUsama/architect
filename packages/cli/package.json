@@ -2,8 +2,15 @@
   "name": "@architect/cli",
   "version": "0.0.0",
   "type": "module",
-  "exports": {
-    ".": "./src/index.ts"
+  "dependencies": {
+    "@architect/compiler": "workspace:*",
+    "@effect/platform-node": "4.1.1",
+    "effect": "4.1.1"
   },
-  "dependencies": {}
+  "bin": {
+    "architect": "./src/main.ts"
+  },
+  "imports": {
+    "#modules/*": "./src/modules/*"
+  }
 }

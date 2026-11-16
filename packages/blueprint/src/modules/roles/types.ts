@@ -27,9 +27,7 @@ export interface RoleOf<T extends Thing = Thing, P extends string = string> {
 }
 
 /** Built in: anyone at all, or anyone signed in. */
-export interface Builtin {
-  readonly kind: "anyone" | "signed-in";
-}
+export type Builtin = { readonly kind: "anyone" } | { readonly kind: "signed-in" };
 
 export type Allowed = Role<any> | RoleOf<any> | Builtin;
 
