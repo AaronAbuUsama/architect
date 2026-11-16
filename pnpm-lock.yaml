@@ -278,6 +278,9 @@ importers:
       '@architect/compiler':
         specifier: workspace:*
         version: link:../compiler
+      '@architect/logbook':
+        specifier: workspace:*
+        version: link:../logbook
       '@architect/target-effect':
         specifier: workspace:*
         version: link:../target-effect
@@ -291,9 +294,6 @@ importers:
       '@architect/generators':
         specifier: workspace:*
         version: link:../generators
-      '@architect/logbook':
-        specifier: workspace:*
-        version: link:../logbook
       nx:
         specifier: 24.0.3
         version: 24.0.3

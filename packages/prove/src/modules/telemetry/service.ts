@@ -1,6 +1,6 @@
 import { mkdirSync, rmSync } from "node:fs";
 import { Effect, Schedule } from "effect";
-import { CollectorFailed, type CollectorsApi, type Trace } from "./types.ts";
+import { CollectorFailed, type Collector, type CollectorsApi, type Trace } from "./types.ts";
 import { removeCollector, runCollector } from "./internal/docker.ts";
 import { looksComplete, readAll } from "./internal/otlp.ts";
 
@@ -16,6 +16,31 @@ const QUIET_MS = 250;
 const POLL_MS = 25;
 const LIMIT_MS = 10_000;
 
+/** Wait until the collector at `url` takes an export. */
+const waitReady = (url: string) =>
+  ready(url).pipe(
+    Effect.retry({ schedule: Schedule.spaced("100 millis"), times: 100 }),
+    Effect.mapError(() => new CollectorFailed({ message: `the collector didn't answer at ${url} within 10 s` })),
+  );
+
+/** What the collector has written to `dir`, read back by trace id once each wanted trace is complete. */
+const reader = (dir: string): Collector["traces"] => (wanted) =>
+  Effect.gen(function* () {
+    let last = readAll(dir);
+    let quietMs = 0;
+    const settled = Effect.sync(() => {
+      const now = readAll(dir);
+      quietMs = now.size === last.size ? quietMs + POLL_MS : 0;
+      last = now;
+      return quietMs >= QUIET_MS && wanted.every((w) => looksComplete(now.byTrace.get(w.trace), w.parent));
+    });
+    yield* settled.pipe(
+      Effect.repeat({ schedule: Schedule.spaced(`${POLL_MS} millis`), until: (done) => done }),
+      Effect.timeoutOption(`${LIMIT_MS} millis`),
+    );
+    return new Map(wanted.map((w): [string, Trace] => [w.trace, last.byTrace.get(w.trace) ?? { spans: [], logs: [] }]));
+  });
+
 export const Collectors: CollectorsApi = {
   start: (dir) =>
     Effect.gen(function* () {
@@ -23,26 +48,18 @@ export const Collectors: CollectorsApi = {
       mkdirSync(dir, { recursive: true });
       const name = `architect-collector-${process.pid}-${Math.floor(Math.random() * 1e9)}`;
       const url = yield* Effect.acquireRelease(runCollector(dir, name), () => removeCollector(name));
-      yield* ready(url).pipe(
-        Effect.retry({ schedule: Schedule.spaced("100 millis"), times: 100 }),
-        Effect.mapError(() => new CollectorFailed({ message: `the collector didn't answer at ${url} within 10 s` })),
-      );
-      const traces = (wanted: ReadonlyArray<{ readonly trace: string; readonly parent: string }>) =>
-        Effect.gen(function* () {
-          let last = readAll(dir);
-          let quietMs = 0;
-          const settled = Effect.sync(() => {
-            const now = readAll(dir);
-            quietMs = now.size === last.size ? quietMs + POLL_MS : 0;
-            last = now;
-            return quietMs >= QUIET_MS && wanted.every((w) => looksComplete(now.byTrace.get(w.trace), w.parent));
-          });
-          yield* settled.pipe(
-            Effect.repeat({ schedule: Schedule.spaced(`${POLL_MS} millis`), until: (done) => done }),
-            Effect.timeoutOption(`${LIMIT_MS} millis`),
-          );
-          return new Map(wanted.map((w): [string, Trace] => [w.trace, last.byTrace.get(w.trace) ?? { spans: [], logs: [] }]));
-        });
-      return { url, traces };
+      yield* waitReady(url);
+      return { url, traces: reader(dir) };
     }),
+  launch: ({ dir, name }) =>
+    Effect.gen(function* () {
+      rmSync(dir, { recursive: true, force: true });
+      mkdirSync(dir, { recursive: true });
+      yield* removeCollector(name);
+      const url = yield* runCollector(dir, name);
+      yield* waitReady(url).pipe(Effect.tapError(() => removeCollector(name)));
+      return url;
+    }),
+  stop: removeCollector,
+  read: (dir) => ({ traces: reader(dir) }),
 };

@@ -8,6 +8,7 @@
   "dependencies": {
     "@architect/blueprint": "workspace:*",
     "@architect/compiler": "workspace:*",
+    "@architect/logbook": "workspace:*",
     "@architect/target-effect": "workspace:*",
     "effect": "4.1.1",
     "wrangler": "4.156.1"

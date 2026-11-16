@@ -104,6 +104,12 @@ the store's `list`, generated api, server, sdk, cli and docs), `Compare.release`
 `architect impact` with `next` and `stale <ops> in <envs>` from the logbook (found by `ARCHITECT_LOGBOOK_URL`, else the `logbook`
 environment's pidfile), `generated/model/changes.json`, and `Releases.record` in `@architect/prove`, which L2.05's `promote --to production`
 calls. Check 3 of Gate 2 also needs L2.02 (`prove --env test`, `env up logbook`) and L2.05 (`promote`).
+L2.02 (local reading) is built on `build/L2.02` (decisions D3 #50 to #56, evidence `evidence/L2.02/`): `architect prove --env test`
+(`world test-<id> · expires in <lifetime>`, the journeys and evals, `verdicts <op> ✔ …   (revision <rev>)`, `world destroyed`), with each
+world a Durable Object with an alarm in the test environment (`host-cloudflare/world`, `/_world/worlds`), `architect worlds reap`
+(`reaped <n>`), `env status test` adding `worlds <n>`, and `architect env up|down|status logbook` through `Logbook.launch`. The test
+environment has its own collector (a container `env down` removes). `prove` now depends on `@architect/logbook`, which `tools/e2e/starter.sh`
+publishes with the rest. Author's checks 01 and 02 pass. The GitHub Action (`test-pr-<n>`) is the cloud pass's.
 
 ## Open
 

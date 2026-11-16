@@ -121,6 +121,8 @@ export interface Env {
   /** Which build this environment runs, set by `architect env up`; unset for a world made by `architect dev` or prove. */
   readonly ARCHITECT_REVISION?: string;
   readonly ARCHITECT_BUNDLE_SHA256?: string;
+  /** `1` in an environment that hosts worlds with lifetimes (a test environment), set by `architect env up`. */
+  readonly ARCHITECT_WORLDS?: string;
 }
 
 // Better Auth's own routes at /api/auth/*: the device sign-in of this project's CLI. Same database and secret as the
@@ -144,7 +146,7 @@ let built: ReturnType<typeof build> | undefined;
 export default {
   fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     if (new URL(request.url).pathname.startsWith("/_world/")) {
-      return toWorld({ worlds: env.WORLD, db: env.DB, tables: tables.map(([, table]) => table) }, request);
+      return toWorld({ worlds: env.WORLD, db: env.DB, tables: tables.map(([, table]) => table), leases: env.ARCHITECT_WORLDS === "1" }, request);
     }
     if (new URL(request.url).pathname === "/_architect/bundle") {
       return env.ARCHITECT_REVISION && env.ARCHITECT_BUNDLE_SHA256

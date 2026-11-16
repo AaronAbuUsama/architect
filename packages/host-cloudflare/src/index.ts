@@ -10,4 +10,4 @@ export { Actor } from "#modules/actors/service.js";
 export { AuthD1 } from "#modules/auth/service.js";
 export type { AuthInstance, AuthOptions, CastMember } from "#modules/auth/types.js";
 export { World, toWorld } from "#modules/world/service.js";
-export type { Cast, WorldEnv } from "#modules/world/types.js";
+export type { Cast, WorldEnv, WorldHost } from "#modules/world/types.js";
