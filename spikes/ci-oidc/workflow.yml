@@ -1,0 +1,43 @@
+name: spike-ci-oidc
+
+on:
+  push:
+    branches: [spike/ci-oidc]
+  pull_request:
+    branches: [layer/3]
+
+permissions:
+  contents: read
+
+jobs:
+  oidc:
+    # Only the spike's own branch (a fork's pull request would get no id-token anyway).
+    if: github.head_ref == 'spike/ci-oidc' || github.ref == 'refs/heads/spike/ci-oidc'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: pnpm/action-setup@v6.1.0
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+      - name: Install spike dependencies
+        working-directory: spikes/ci-oidc
+        run: pnpm install --frozen-lockfile
+      - name: Verify this job's own OIDC token in workerd
+        working-directory: spikes/ci-oidc
+        run: bash scripts/ci.sh
+      - name: Time the mock issuer image on the runner (cold pull, then start)
+        run: |
+          IMAGE=ghcr.io/navikt/mock-oauth2-server@sha256:647dd8c78a54f0e6fcd58d79c884e612f8f998a0662276f3e1db22e464a50192
+          s=$(date +%s.%N); docker pull -q "$IMAGE" >/dev/null; p=$(date +%s.%N)
+          docker run -d --rm --name mock -p 127.0.0.1:18080:8080 "$IMAGE" >/dev/null
+          until curl -sf http://127.0.0.1:18080/default/.well-known/openid-configuration >/dev/null; do sleep 0.1; done
+          r=$(date +%s.%N); docker rm -f mock >/dev/null
+          echo "pull=$(echo "$p - $s" | bc)s start-to-ready=$(echo "$r - $p" | bc)s"
+      - name: Worker log (no tokens are logged)
+        if: always()
+        working-directory: spikes/ci-oidc
+        run: tail -n 20 wrangler.log || true
