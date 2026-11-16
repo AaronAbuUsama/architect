@@ -1,0 +1,11 @@
+{
+  "step": "L1.31",
+  "stage": "Stage 2 · the allowance's whole life (Gate 1)",
+  "title": "architect generate, and handler scaffolds",
+  "summary": "architect generate brings a project's generated code in line with its blueprint, the same as nx sync, and tells you what it changed. Each operation that has no blanks left gets a handler scaffold, written once and yours from then on. An operation with a blank gets nothing yet; fill it in and the next run scaffolds it. Run it twice and the second run says nothing to change.",
+  "proves": "From acme's blueprint with no implementation, generate creates the four operation scaffolds and none for a blank operation; filled in, that one is scaffolded; a further run changes nothing.",
+  "captions": {
+    "01-generate-test": "The test: four scaffolds, none for the blank pause; filled in, pause gets its scaffold and generated files; then nothing to change.",
+    "02-generate-session": "A real session: add a blank operation, generate, generate again, and the spend scaffold it wrote."
+  }
+}

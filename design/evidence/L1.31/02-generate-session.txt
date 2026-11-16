@@ -1,0 +1,33 @@
+$ bash <scratch>/gen.sh
+# commit e0ed3ae · 2026-11-16T18:41:01Z · exit 0 (expected 0) · 2.0s
+
+$ architect add operation allowance.pause
+wrote blueprint/things/allowance/verbs/pause.ts
+
+$ architect generate   (generated/ lines folded)
+created implementation/handlers/allowance/grant.ts (scaffold: yours from now on)
+created implementation/handlers/allowance/revoke.ts (scaffold: yours from now on)
+created implementation/handlers/allowance/spend.ts (scaffold: yours from now on)
+created implementation/handlers/organization/create.ts (scaffold: yours from now on)
+  ... and 29 generated files
+
+$ architect generate   # again
+nothing to change
+
+$ cat implementation/handlers/allowance/spend.ts
+// Scaffolded from blueprint/things/allowance/verbs/spend.ts. Yours from now on.
+import { Effect } from "effect";
+import { Handlers } from "@architect/target-effect";
+import type { Handler } from "../../../generated/api/src/allowance/spend.handler.ts";
+
+/** Spend from what is left of this month's allowance. */
+const spend: Handler = (_payload, _context) =>
+  Effect.gen(function* () {
+    // Payload: allowance, amount, memo.
+    // Answer: remaining.
+    // Steps, each its own span: steps.load(...), steps.record(...).
+    // May refuse with AllowanceExceeded.
+    return yield* Handlers.blank("this handler is not written yet");
+  });
+
+export default spend;

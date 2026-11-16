@@ -1,0 +1,12 @@
+$ npx vitest run --reporter verbose --root packages/cli src/modules/generate
+# commit e0ed3ae · 2026-11-16T18:40:59Z · exit 0 (expected 0) · 3.2s
+
+
+ RUN  v4.1.12 ./packages/cli
+
+ ✓ src/modules/generate/generate.test.ts > architect generate > scaffolds each finished operation's handler once, and nothing for one with blanks 2549ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  18:40:56
+   Duration  2.68s (transform 19ms, setup 0ms, import 26ms, tests 2.56s, environment 0ms)
