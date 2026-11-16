@@ -499,3 +499,7 @@ The `-events` datasets hold product events as flat, typed fields (the blueprint'
 The organisation id and the region are not secrets, but this repository is public, so neither is written in it: the
 Axiom sink reads `AXIOM_ORG_ID` and the token by name from the keychain (`security find-generic-password -a architect
 -s <name> -w`), and `architect.config.ts` names only the dataset group.
+
+The organisation's edge deployment is EU Central 1, so ingest and query go to that edge's domain, not
+`api.axiom.co`. The sink reads the domain by name too (`axiom-domain` in the keychain, or `AXIOM_DOMAIN`), and the
+MCP server for supervised sessions is `https://mcp.eu.axiom.co/mcp`, which keeps query results in the EU.
