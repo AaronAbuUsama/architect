@@ -1,6 +1,6 @@
 # Where everything stands
 
-Kept by the 🎼 conductor, so a fresh conductor can take over. Last updated 16 November 2026, after stage 2 (Gate 1) landed on main.
+Kept by the 🎼 conductor, so a fresh conductor can take over. Last updated 16 November 2026, mid stage 3 (Gate 2). The section "Where the goal stands" ends with what is in flight now.
 
 ## Done
 
@@ -76,13 +76,18 @@ L2.07 done on `build/L2.07`, the local reading (device sign-in; decisions D3 #40
 Better Auth's `deviceAuthorization` is in the server's auth, `/api/auth/*` is mounted in the generated server, and
 `acme session sign-in --env <env>` / `session show --env <env>` work against a real local world (ports 8960 to 8961 in
 `prove/world/device-sign-in.test.ts`). The real staging sign-in is the cloud pass.
-In flight: three spikes, each in a worktree on its own branch (`spike/mcp-oauth`, `spike/single-binary`,
-`spike/ci-oidc`), and the ✍️ author writing `e2e/layer2/` and `examples/acme/test/fixtures/layer2/` on
-`author/gate-2`. Merge each into `layer/3` (spikes into main by PR) when they report. Then build L2.01 to L2.10
-against the author's checks, one commit per step.
-Side work: a 📐 designer subagent is writing `design/decisions/H1-agent-harness.md` on `design/agent-harness` (Pi
-Durable for durability, made native: Effect seam, OTel exporter, DO storage, blueprint tools; sandbox options).
-The app's own sessions failed to start twice, so it runs as a subagent. Don't build the harness on a layer branch.
+Now (16 November 2026, evening). On `layer/3`: the three spikes are done and merged into main (PRs 5 to 7), the ✍️
+author's Gate 2 checks are in `e2e/layer2/` (red for the right reason), and L2.01, L2.03 and L2.07 are merged
+(HEAD bb51313). In flight, each a 🔨 builder subagent in its own worktree, branching from `layer/3`: L2.02 (test
+worlds, `prove --env test` posting signed verdicts, `worlds reap`, the logbook wired into `env up`; D3 from #50) on
+`build/L2.02`, and L2.04 (versions, staleness, `Blueprint.read` where/order/page; D3 from #60) on `build/L2.04`.
+Merge each into `layer/3` when it reports (run `pnpm nx reset` before `nx sync` after merging generator code, or the
+daemon writes from the old generator). Then L2.P (privacy seams, decision `N1-noir-target.md`), L2.05, L2.06, L2.08,
+L2.09, L2.10 and Gate 2 (L2.11: CI job `e2e-layer2`, evidence, the 🔍 review, PR to main).
+Side work: the agent harness is designed (`decisions/H1-agent-harness.md`, on main) and waits on Aaron's four answers
+(the Command Code key's provider, reading the key by name from config, free or paid models, machine or Docker as the
+sandbox). The Noir on Aztec handoff is filed in `design/noir/` as a later target (N1). Don't build either on a layer
+branch.
 The evidence page is https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB; republish it with
 `python3 tools/evidence/page.py` after each step. For plants, back up with `cp` and restore with `cp`, never
 `git checkout`.
