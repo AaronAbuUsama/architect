@@ -1,0 +1,14 @@
+{
+  "step": "L2.06",
+  "stage": "Stage 3 · shipping on local worlds (Gate 2)",
+  "title": "architect publish: the SDK and CLI as npm packages, a single executable and a Homebrew formula",
+  "summary": "architect publish --dry-run | --local turns the generated SDK and CLI into @acme/sdk and @acme/cli at the version architect version --next says. Each is one esbuild bundle with its dependencies as installed (the SDK with type declarations from the project's tsc), sent to the registry in ARCHITECT_REGISTRY under a dist-tag: a prerelease always goes under next and never takes latest from a release. The CLI is also built as a Node 24.22.2 single executable for this machine (macOS arm64 or Linux x64), whose tarball sha256 the formula pins, committed to a local tap repository by file:// URL. promote publishes: staging the prerelease <next>-next.<n> before its verdicts line, production the release after released <version>. npmjs.org and GitHub releases print skipped (cloud pass).",
+  "proves": "Through the command on a copy of acme under git, with a real logbook, OIDC server and Verdaccio 6.11.1 in Docker and real Homebrew: --dry-run lists exactly the files, binary and formula that would go out and leaves the registry and tap empty; --local puts @acme/sdk@1.1.0 and @acme/cli@1.1.0 on the registry with latest on them, and a fresh folder installs them, imports the SDK, type-checks against its declarations and runs the CLI's bin, which prints acme 1.1.0; a re-run leaves what is there alone; prereleases are numbered one past the last under next and a prerelease after a release never moves latest; brew install of the formula by full name runs, prints acme 1.1.0, passes brew test and prints ok from acme system health against a running world, then uninstall and untap. The author's check 5 passes (the SDK installs at exactly version --next, and brew install runs acme --version printing it).",
+  "captions": {
+    "01-fails-first": "The done-when tests before the command was registered: unknown subcommand publish.",
+    "02-done-when-tests": "The done-when tests passing: publish.test.ts, six tests against real Verdaccio and Homebrew.",
+    "03-author-checks": "The author's Gate 2 checks 4 and 5, run with vitest directly.",
+    "04-workspace-checks": "Lint, typecheck, sync check, local prove of acme and the starter, and every project's tests.",
+    "05-starter-e2e": "tools/e2e/starter.sh: the starter, the way a user gets it, check and prove."
+  }
+}

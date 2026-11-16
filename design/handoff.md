@@ -133,3 +133,13 @@ staging, staging earns production), checking `/_architect/bundle`; staging is pr
 Auth; staging has its own collector now) and posts staging verdicts; production records the release and carries staging's verdicts. One token source
 (`Verdicts.sourceOf`). Author's checks 01, 02, 03 and 06 pass; 04 and 05 call `promote --to staging` without `prove --env test` (the author must add it);
 publishing is L2.06's, the MCP server L2.08's, watch L2.09's, the portal L2.10's. `/_world/*` is still open on every environment (D3 #96, `later.md`).
+
+L2.06 (local reading) is built on `build/L2.06` (decisions D3 #110 to #119; evidence `evidence/L2.06/`): `architect publish --dry-run | --local`
+(`Publish` in `@architect/prove`, composed by `Ship.publish`): the generated SDK and CLI as `@<folder>/sdk` and `@<folder>/cli` at `version --next`,
+each one esbuild bundle with its dependencies as installed (the SDK with its type declarations), sent to the registry in `ARCHITECT_REGISTRY` (a real
+Verdaccio in the tests); a prerelease is always `--tag next`; the CLI as a Node 24.22.2 single executable for this machine's platform (cached download,
+postject, sha256 printed) and a formula committed to a tap repository (`ARCHITECT_TAP_REPO`, else `.architect/tap/`), installed with `brew` in the test.
+`promote` publishes: staging the prerelease `<next>-next.<n>` after its proof passed and before its verdicts line, production the release after `released`
+(`latest`); both skip npm without a registry. The generated CLI's `--version` now prints `<name> <version>` (the bundler stamps `ARCHITECT_VERSION`), and
+`ReadAnswer` is exported from `@architect/blueprint`. npmjs.org and GitHub releases print `skipped … (cloud pass)`. Gate 2's global teardown removes every
+new `architect-*` container, other builders' too, and checks 4 and 5 and the other layer-2 checks share ports 8900 to 8999: run Gate 2 when no other builder is.

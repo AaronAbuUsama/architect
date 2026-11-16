@@ -1,0 +1,26 @@
+The author's Gate 2 checks 4 and 5 (e2e/layer2/04-promotion.test.ts, 05-publishing.test.ts), run with vitest directly, e2e/ untouched. layer/3 at
+aa15349 has the author's `prove --env test` in both. Result: 04 passes, 05 passes (both of its tests: the SDK installs from Verdaccio at exactly
+architect version --next, and `brew install <tap>/<formula>` runs `acme --version`, printing the release version).
+
+How they were run: the first run used Gate 2's own config (vitest.layer2.config.ts): 05 passed, and 04 failed at its first `env up staging` with "port
+8941 is already in use": another builder's run held ports 8940 to 8949 at the same moment, and Gate 2's global teardown then removed two
+`architect-collector-*` containers that were not this run's (they were the other run's: a hazard of running Gate 2 while another builder does).
+After that, both ran with the same files under a config of this worktree's own that is Gate 2's minus that global teardown (the checks'
+own afterAll still asserts that nothing of their copy is left running), once ports 8940 to 8949 were free. Check 04 first failed there at its
+line 68 (the staging promote after the list read) because the SDK's declarations could not name three types that `@architect/blueprint` did
+not export (`ListItem`, `ListPayload`, `Page`; TS2883); they are exported now (D3 #113), and the last run is below.
+
+---- the last run of 04 and 05 ----
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-aa8ccf3ef2023a89a/e2e
+
+ ✓ layer2/04-promotion.test.ts > check 4: promote > production refuses an unproven revision, takes the staging-proven one with the same bundle, and releases 1.0.0 then 1.1.0 88505ms
+ ✓ layer2/05-publishing.test.ts > check 5: publishing > @acme/sdk installs from Verdaccio at exactly architect version --next 77879ms
+ ✓ layer2/05-publishing.test.ts > check 5: publishing > brew install <tap>/<formula> runs acme --version, printing the release version 13897ms
+
+ Test Files  2 passed (2)
+      Tests  3 passed (3)
+   Start at  23:46:29
+   Duration  230.66s (transform 58ms, setup 0ms, import 1.04s, tests 229.36s, environment 0ms)
+

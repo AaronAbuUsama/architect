@@ -11,6 +11,8 @@
     "@architect/logbook": "workspace:*",
     "@architect/target-effect": "workspace:*",
     "effect": "4.1.1",
+    "esbuild": "0.28.2",
+    "postject": "1.0.0-alpha.6",
     "wrangler": "4.156.1"
   },
   "imports": {
