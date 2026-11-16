@@ -1,9 +1,9 @@
 import { betterAuth } from "better-auth";
 import type { AuthInstance, AuthOptions } from "../types.ts";
-import { options } from "./options.ts";
+import { optionsFor } from "./options.ts";
 import { SCHEMA } from "./schema.ts";
 
-const make = (o: AuthOptions) => betterAuth({ ...options, database: o.db, secret: o.secret, baseURL: "http://architect.local" });
+const make = (o: AuthOptions) => betterAuth({ ...optionsFor(o.cli ?? "cli"), database: o.db, secret: o.secret, baseURL: "http://architect.local" });
 export type BetterAuth = ReturnType<typeof make>;
 
 interface Held extends AuthInstance {

@@ -38,7 +38,7 @@ describe("Better Auth on D1", () => {
     expect(said.byKey).toEqual({ kind: "person", person: said.person, email });
     expect([said.byNothing, said.byGarbage]).toEqual([{ kind: "anonymous" }, { kind: "anonymous" }]);
     const tables = await env.DB.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name LIKE 'auth_%' ORDER BY name").all<{ name: string }>();
-    expect(tables.results.map((t) => t.name)).toEqual(["auth_account", "auth_apikey", "auth_session", "auth_user", "auth_verification"]);
+    expect(tables.results.map((t) => t.name)).toEqual(["auth_account", "auth_apikey", "auth_device_code", "auth_session", "auth_user", "auth_verification"]);
   });
 });
 

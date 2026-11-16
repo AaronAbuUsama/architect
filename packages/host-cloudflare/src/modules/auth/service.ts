@@ -47,6 +47,8 @@ const layer: AuthD1Api["layer"] = (a) =>
     }),
   );
 
+const handle: AuthD1Api["handle"] = (a, request) => call(a, (auth) => auth.handler(request)).pipe(Effect.orDie);
+
 const ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz";
 const random = (n: number) => Array.from(crypto.getRandomValues(new Uint8Array(n)), (b) => ALPHABET[b % 36]).join("");
 
@@ -59,4 +61,4 @@ const castMember: AuthD1Api["castMember"] = (a, name, anonymous, stored) =>
     return { person, token, email: member.email, password: member.password } satisfies CastMember;
   });
 
-export const AuthD1: AuthD1Api = { make: instance, layer, castMember };
+export const AuthD1: AuthD1Api = { make: instance, layer, handle, castMember };

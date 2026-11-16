@@ -6,10 +6,13 @@ export const SCHEMA: ReadonlyArray<string> = [
   "create table if not exists \"auth_account\" (\"id\" text not null primary key, \"accountId\" text not null, \"providerId\" text not null, \"userId\" text not null references \"auth_user\" (\"id\") on delete cascade, \"accessToken\" text, \"refreshToken\" text, \"idToken\" text, \"accessTokenExpiresAt\" date, \"refreshTokenExpiresAt\" date, \"scope\" text, \"password\" text, \"createdAt\" date not null, \"updatedAt\" date not null)",
   "create table if not exists \"auth_verification\" (\"id\" text not null primary key, \"identifier\" text not null, \"value\" text not null, \"expiresAt\" date not null, \"createdAt\" date not null, \"updatedAt\" date not null)",
   "create table if not exists \"auth_apikey\" (\"id\" text not null primary key, \"configId\" text not null, \"name\" text, \"start\" text, \"referenceId\" text not null, \"prefix\" text, \"key\" text not null, \"refillInterval\" integer, \"refillAmount\" integer, \"lastRefillAt\" date, \"enabled\" integer, \"rateLimitEnabled\" integer, \"rateLimitTimeWindow\" integer, \"rateLimitMax\" integer, \"requestCount\" integer, \"remaining\" integer, \"lastRequest\" date, \"expiresAt\" date, \"createdAt\" date not null, \"updatedAt\" date not null, \"permissions\" text, \"metadata\" text)",
+  "create table if not exists \"auth_device_code\" (\"id\" text not null primary key, \"deviceCode\" text not null, \"userCode\" text not null, \"userId\" text, \"expiresAt\" date not null, \"status\" text not null, \"lastPolledAt\" date, \"pollingInterval\" integer, \"clientId\" text, \"scope\" text)",
   "create index if not exists \"auth_session_userId_idx\" on \"auth_session\" (\"userId\")",
   "create index if not exists \"auth_account_userId_idx\" on \"auth_account\" (\"userId\")",
   "create index if not exists \"auth_verification_identifier_idx\" on \"auth_verification\" (\"identifier\")",
   "create index if not exists \"auth_apikey_configId_idx\" on \"auth_apikey\" (\"configId\")",
   "create index if not exists \"auth_apikey_referenceId_idx\" on \"auth_apikey\" (\"referenceId\")",
-  "create index if not exists \"auth_apikey_key_idx\" on \"auth_apikey\" (\"key\")"
+  "create index if not exists \"auth_apikey_key_idx\" on \"auth_apikey\" (\"key\")",
+  "create unique index if not exists \"auth_device_code_deviceCode_uidx\" on \"auth_device_code\" (\"deviceCode\")",
+  "create unique index if not exists \"auth_device_code_userCode_uidx\" on \"auth_device_code\" (\"userCode\")"
 ];
