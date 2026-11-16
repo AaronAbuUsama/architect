@@ -27,3 +27,9 @@ belongs to, and why it waits.
   declared step with its span, the transcript committed before anything is shown, waits through `Timers`, resumed by
   the DO alarm after a crash, and the run proven by the same nine evals. Pi Durable's checkpoint-per-phase design is
   the reference, not a dependency (it is about 36k lines and experimental). Belongs with layer five, time.
+
+- **Architect's own CLI as a single executable.** The `single-binary` spike (`spikes/single-binary/`) found what
+  stops it: the compiler is spawned through `process.execPath`, three modules read `import.meta` at load, `nx`'s
+  native addon is required at load, and the lint plugin and wrangler are resolved as files. Run the compiler
+  in-process or through a hidden subcommand, resolve files lazily, ship the plugin beside the binary, and keep `nx`
+  off the load path; then the `architect` binary can go through the same tap.
