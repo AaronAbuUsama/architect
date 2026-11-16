@@ -53,6 +53,777 @@ h2 { font-family: var(--display); font-size: 1.25rem; margin: 0; display: flex; 
   
 <section class="step">
   <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
+  <h2><span class="id">L1.25</span> Nine evals for every operation <span class="chip pass">done</span></h2>
+  <p class="summary">prove now prints nine evals for every operation, the way the docs show it: answer shape, declared errors, machine path, events, who may call, steps, performance, coverage and explainability, each with its p50, p95 and budget. Coverage became each operation&#x27;s own eval: it fails an operation no journey calls, a move no journey makes, an outcome never reached or a declared error never given. One line then counts the whole run: three moves, three outcomes, both declared refusals, and four of seven runtime refusals. Every planted fixture still fails its own eval.</p>
+  <div class="proves"><span class="label">Done when</span>architect prove on acme prints 9 evals ✔ for get, grant, revoke, spend and create, and the coverage line; the gate test passes with every planted fixture failing.</div>
+  <div class="links">CI not run · <a href="https://github.com/AaronAbuUsama/architect/commit/74f3d47">commit 74f3d47</a> · 3 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">architect prove on acme: six journeys, then each operation&#x27;s nine evals and its timing, the coverage line, prove ✔.</span>
+    <span class="meta">exit 0 · 4.8s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx tsx packages/cli/src/main.ts prove --env local --root examples/acme</div><pre>journey grant an allowance ✔ 3/3 steps
+journey an outsider cannot revoke ✔ 1/1 steps
+journey read an allowance ✔ 3/3 steps
+journey revoke then spend ✔ 3/3 steps
+journey spend twice with one request ✔ 3/3 steps
+journey spend within an allowance ✔ 4/4 steps
+allowance.get answer shape ✔
+allowance.get declared errors ✔
+allowance.get machine path ✔
+allowance.get events ✔
+allowance.get who may call ✔
+allowance.get steps ✔
+allowance.get performance ✔ p50 0ms p95 1ms budget p95 50ms
+allowance.get coverage ✔
+allowance.get explainability ✔
+allowance.get 9 evals ✔ p50 0ms p95 1ms budget p95 50ms
+allowance.grant answer shape ✔
+allowance.grant declared errors ✔
+allowance.grant machine path ✔
+allowance.grant events ✔
+allowance.grant who may call ✔
+allowance.grant steps ✔
+allowance.grant performance ✔ p50 1ms p95 4ms budget p95 200ms
+allowance.grant coverage ✔
+allowance.grant explainability ✔
+allowance.grant 9 evals ✔ p50 1ms p95 4ms budget p95 200ms
+allowance.revoke answer shape ✔
+allowance.revoke declared errors ✔
+allowance.revoke machine path ✔
+allowance.revoke events ✔
+allowance.revoke who may call ✔
+allowance.revoke steps ✔
+allowance.revoke performance ✔ p50 1ms p95 1ms budget p95 150ms
+allowance.revoke coverage ✔
+allowance.revoke explainability ✔
+allowance.revoke 9 evals ✔ p50 1ms p95 1ms budget p95 150ms
+allowance.spend answer shape ✔
+allowance.spend declared errors ✔
+allowance.spend machine path ✔
+allowance.spend events ✔
+allowance.spend who may call ✔
+allowance.spend steps ✔
+allowance.spend performance ✔ p50 0ms p95 2ms budget p95 150ms
+allowance.spend coverage ✔
+allowance.spend explainability ✔
+allowance.spend 9 evals ✔ p50 0ms p95 2ms budget p95 150ms
+organization.create answer shape ✔
+organization.create declared errors ✔
+organization.create machine path ✔
+organization.create events ✔
+organization.create who may call ✔
+organization.create steps ✔
+organization.create performance ✔ p50 1ms p95 10ms budget p95 200ms
+organization.create coverage ✔
+organization.create explainability ✔
+organization.create 9 evals ✔ p50 1ms p95 10ms budget p95 200ms
+coverage ✔ moves 3/3 · outcomes 3/3 · refusals 2/2 · runtime refusals 4/7
+prove ✔</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">prove&#x27;s tests: acme passes, scaffolded handlers fail, and every planted fixture fails its own eval, coverage now on organization.rename itself.</span>
+    <span class="meta">exit 0 · 37.5s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --reporter verbose --root packages/prove</div><pre>RUN  v4.1.12 ./packages/prove
+
+ ✓ src/modules/evals/evals.test.ts &gt; evals on evidence &gt; performance: slow evidence raises a review and never fails 1ms
+ ✓ src/modules/evals/evals.test.ts &gt; evals on evidence &gt; declared errors: an undeclared refusal names itself and the declared ones 0ms
+ ✓ src/modules/evals/evals.test.ts &gt; evals on evidence &gt; who may call: judged on mayCall, not on what the server said 0ms
+ ✓ src/modules/evals/evals.test.ts &gt; evals on evidence &gt; steps: every declared step ran, in the order declared 0ms
+ ✓ src/modules/evals/evals.test.ts &gt; evals on evidence &gt; coverage: an operation no journey reaches fails on its own, and the run&#x27;s line counts what was reached 0ms
+ ✓ src/modules/journeys/journeys.test.ts &gt; loading a project &gt; finds acme&#x27;s journeys, its starting worlds, and the very declarations they import 158ms
+ ✓ src/modules/telemetry/telemetry.test.ts &gt; the collector, in Docker &gt; takes an OTLP span over HTTP and reads it back by trace id once complete 798ms
+ ✓ src/modules/world/world.test.ts &gt; a local world &gt; serves acme on workerd: the world casts ada, ada founds an organisation and grants olga 500 2520ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; passes on acme: every journey, every eval, coverage, and leaves nothing running 3836ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; the who-may-call fixture is still the generated server with only its gate removed 1ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails on the scaffolded handlers: the starting world can&#x27;t be made, so no step runs 3536ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted answer-shape fixture on its own eval 3862ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted declared-errors fixture on its own eval 3262ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted machine-path fixture on its own eval 3217ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted events fixture on its own eval 3818ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted who-may-call fixture on its own eval 3511ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted steps fixture on its own eval 3440ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted coverage fixture on its own eval 4221ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted explainability fixture on its own eval 3672ms
+
+ Test Files  5 passed (5)
+      Tests  19 passed (19)
+   Start at  18:32:29
+   Duration  36.97s (transform 1.11s, setup 0ms, import 1.36s, tests 39.98s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Lint, typecheck and test across every project, cache off.</span>
+    <span class="meta">exit 0 · 43.2s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx nx run-many -t lint,typecheck,test --skip-nx-cache --output-style=static</div><pre>NX   Running targets lint, typecheck, test for 14 projects:
+
+- host-cloudflare
+- target-solidity
+- target-effect
+- generators
+- blueprint
+- compiler
+- logbook
+- portal
+- preset
+- prove
+- acme
+- lint
+- cli
+- std
+
+
+
+&gt; nx run blueprint:typecheck
+
+&gt; tsc -p packages/blueprint/tsconfig.json
+
+
+&gt; nx run blueprint:test
+
+&gt; vitest run --root packages/blueprint --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/blueprint
+
+
+ Test Files  9 passed (9)
+      Tests  21 passed (21)
+   Start at  18:33:08
+   Duration  489ms (transform 329ms, setup 0ms, import 2.46s, tests 29ms, environment 0ms)
+
+
+&gt; nx run blueprint:lint
+
+&gt; oxlint packages/blueprint
+
+
+&gt; nx run target-effect:lint
+
+&gt; oxlint packages/target-effect
+
+
+&gt; nx run target-effect:typecheck
+
+&gt; tsc -p packages/target-effect/tsconfig.json
+
+
+&gt; nx run target-effect:test
+
+&gt; vitest run --root packages/target-effect --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/target-effect
+
+
+ Test Files  10 passed (10)
+      Tests  33 passed (33)
+   Start at  18:33:08
+   Duration  755ms (transform 676ms, setup 0ms, import 3.61s, tests 188ms, environment 1ms)
+
+
+&gt; nx run compiler:typecheck
+
+&gt; tsc -p packages/compiler/tsconfig.json
+
+
+&gt; nx run compiler:lint
+
+&gt; oxlint packages/compiler
+
+
+&gt; nx run compiler:test
+
+&gt; vitest run --root packages/compiler --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/compiler
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  18:33:09
+   Duration  594ms (transform 250ms, setup 0ms, import 219ms, tests 279ms, environment 0ms)
+
+
+&gt; nx run generators:typecheck
+
+&gt; tsc -p packages/generators/tsconfig.json
+
+
+&gt; nx run generators:lint
+
+&gt; oxlint packages/generators
+
+
+&gt; nx run generators:test
+
+&gt; vitest run --root packages/generators --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/generators
+
+
+ Test Files  3 passed (3)
+      Tests  9 passed (9)
+   Start at  18:33:09
+   Duration  1.42s (transform 149ms, setup 0ms, import 746ms, tests 1.84s, environment 0ms)
+
+
+&gt; nx run host-cloudflare:lint
+
+&gt; oxlint packages/host-cloudflare
+
+
+&gt; nx run prove:lint
+
+&gt; oxlint packages/prove
+
+
+&gt; nx run host-cloudflare:typecheck
+
+&gt; tsc -p packages/host-cloudflare/tsconfig.json
+
+
+&gt; nx run prove:typecheck
+
+&gt; tsc -p packages/prove/tsconfig.json
+
+
+&gt; nx run lint:test
+
+&gt; vitest run --root packages/lint --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/lint
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  18:33:13
+   Duration  4.17s (transform 13ms, setup 0ms, import 23ms, tests 4.04s, environment 0ms)
+
+
+&gt; nx run host-cloudflare:test
+
+&gt; vitest run --root packages/host-cloudflare --passWithNoTests
+
+
+=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+
+
+ RUN  v4.1.12 ./packages/host-cloudflare
+
+
+ Test Files  7 passed (7)
+      Tests  11 passed (11)
+   Start at  18:33:12
+   Duration  7.68s (transform 11.23s, setup 31.50s, import 1.01s, tests 2.34s, environment 0ms)
+
+
+&gt; nx run cli:test
+
+&gt; vitest run --root packages/cli --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/cli
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  18:33:18
+   Duration  2.11s (transform 131ms, setup 0ms, import 231ms, tests 1.78s, environment 0ms)
+
+
+&gt; nx run acme:lint
+
+&gt; oxlint examples/acme
+
+
+&gt; nx run cli:lint
+
+&gt; oxlint packages/cli
+
+
+&gt; nx run lint:lint
+
+&gt; oxlint packages/lint
+
+
+&gt; nx run preset:lint
+
+&gt; oxlint packages/preset
+
+
+&gt; nx run target-solidity:lint
+
+&gt; oxlint packages/target-solidity
+
+
+&gt; nx run portal:lint
+
+&gt; oxlint packages/portal
+
+
+&gt; nx run std:lint
+
+&gt; oxlint packages/std
+
+
+&gt; nx run acme:typecheck
+
+&gt; tsc -p examples/acme/tsconfig.json
+
+
+&gt; nx run cli:typecheck
+
+&gt; tsc -p packages/cli/tsconfig.json
+
+
+&gt; nx run logbook:lint
+
+&gt; oxlint packages/logbook
+
+
+&gt; nx run logbook:test
+
+&gt; vitest run --root packages/logbook --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/logbook
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run target-solidity:test
+
+&gt; vitest run --root packages/target-solidity --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/target-solidity
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run portal:test
+
+&gt; vitest run --root packages/portal --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/portal
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run acme:test
+
+&gt; vitest run --root examples/acme --passWithNoTests
+
+
+ RUN  v4.1.12 ./examples/acme
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run preset:test
+
+&gt; vitest run --root packages/preset --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/preset
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run std:test
+
+&gt; vitest run --root packages/std --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/std
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run lint:typecheck
+
+&gt; tsc -p packages/lint/tsconfig.json
+
+
+&gt; nx run target-solidity:typecheck
+
+&gt; tsc -p packages/target-solidity/tsconfig.json
+
+
+&gt; nx run logbook:typecheck
+
+&gt; tsc -p packages/logbook/tsconfig.json
+
+
+&gt; nx run preset:typecheck
+
+&gt; tsc -p packages/preset/tsconfig.json
+
+
+&gt; nx run std:typecheck
+
+&gt; tsc -p packages/std/tsconfig.json
+
+
+&gt; nx run portal:typecheck
+
+&gt; tsc -p packages/portal/tsconfig.json
+
+
+&gt; nx run prove:test
+
+&gt; vitest run --root packages/prove --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  5 passed (5)
+      Tests  19 passed (19)
+   Start at  18:33:10
+   Duration  39.37s (transform 1.57s, setup 0ms, import 1.89s, tests 43.10s, environment 0ms)
+
+
+
+
+ NX   Successfully ran targets lint, typecheck, test for 14 projects
+
+
+  Run duration:      42.3s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     39.7s (1 task)
+  Recoverable time:  2.6s (6% of the run)
+
+  Recommendations:
+    - Cache: drop --skip-nx-cache to restore unchanged tasks instantly.
+    - Speed up or split the longest tasks on the critical path:
+        prove:test    39.7s</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
+  <h2><span class="id">L1.24</span> Steps in the order declared <span class="chip pass">done</span></h2>
+  <p class="summary">Every declared step runs in its own span, marked with its kind: a database step or a wait. prove now reads when each step span started, from the real collector, and checks the steps ran in the order the operation declares them. Spend declares load, then record, and its span tree shows exactly that on every call. Declared the other way round, prove fails and names the call and the two steps.</p>
+  <div class="proves"><span class="label">Done when</span>The steps eval passes on acme and fails when spend&#x27;s steps are declared out of the order the handler runs them.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43929371171">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/a5d9ca0">commit a5d9ca0</a> · 4 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The evals&#x27; own tests, including steps: in order passes, backwards names both steps, a missing step names itself.</span>
+    <span class="meta">exit 0 · 0.7s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --reporter verbose --root packages/prove src/modules/evals</div><pre>RUN  v4.1.12 ./packages/prove
+
+ ✓ src/modules/evals/evals.test.ts &gt; evals on evidence &gt; performance: slow evidence raises a review and never fails 1ms
+ ✓ src/modules/evals/evals.test.ts &gt; evals on evidence &gt; declared errors: an undeclared refusal names itself and the declared ones 0ms
+ ✓ src/modules/evals/evals.test.ts &gt; evals on evidence &gt; who may call: judged on mayCall, not on what the server said 0ms
+ ✓ src/modules/evals/evals.test.ts &gt; evals on evidence &gt; steps: every declared step ran, in the order declared 0ms
+ ✓ src/modules/evals/evals.test.ts &gt; evals on evidence &gt; coverage: an operation no journey reaches fails, and the counts say by how much 0ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  18:29:25
+   Duration  254ms (transform 46ms, setup 0ms, import 167ms, tests 3ms, environment 0ms)</pre></div>
+</details>
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">Planted: spend declares record before load. prove fails spend&#x27;s steps eval and names the call. Exit 1.</span>
+    <span class="meta">exit 1 · 5.0s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx tsx packages/cli/src/main.ts prove --env local --root examples/acme</div><pre>journey grant an allowance ✔ 3/3 steps
+journey an outsider cannot revoke ✔ 1/1 steps
+journey read an allowance ✔ 3/3 steps
+journey revoke then spend ✔ 3/3 steps
+journey spend twice with one request ✔ 3/3 steps
+journey spend within an allowance ✔ 4/4 steps
+allowance.get answer shape ✔
+allowance.get declared errors ✔
+allowance.get machine path ✔
+allowance.get events ✔
+allowance.get who may call ✔
+allowance.get steps ✔
+allowance.get performance ✔ p50 0ms p95 0ms budget p95 50ms
+allowance.get explainability ✔
+allowance.get 8 evals ✔
+allowance.grant answer shape ✔
+allowance.grant declared errors ✔
+allowance.grant machine path ✔
+allowance.grant events ✔
+allowance.grant who may call ✔
+allowance.grant steps ✔
+allowance.grant performance ✔ p50 1ms p95 2ms budget p95 200ms
+allowance.grant explainability ✔
+allowance.grant 8 evals ✔
+allowance.revoke answer shape ✔
+allowance.revoke declared errors ✔
+allowance.revoke machine path ✔
+allowance.revoke events ✔
+allowance.revoke who may call ✔
+allowance.revoke steps ✔
+allowance.revoke performance ✔ p50 1ms p95 1ms budget p95 150ms
+allowance.revoke explainability ✔
+allowance.revoke 8 evals ✔
+allowance.spend answer shape ✔
+allowance.spend declared errors ✔
+allowance.spend machine path ✔
+allowance.spend events ✔
+allowance.spend who may call ✔
+allowance.spend steps ✘ spend-twice-with-one-request &quot;olga spends 100&quot;: step allowance.spend.load ran before allowance.spend.record, which is declared first
+allowance.spend performance ✔ p50 1ms p95 3ms budget p95 150ms
+allowance.spend explainability ✔
+allowance.spend 1 of 8 evals ✘
+organization.create answer shape ✔
+organization.create declared errors ✔
+organization.create machine path ✔
+organization.create events ✔
+organization.create who may call ✔
+organization.create steps ✔
+organization.create performance ✔ p50 1ms p95 9ms budget p95 200ms
+organization.create explainability ✔
+organization.create 8 evals ✔
+coverage ✔ operations 5/5 moves 3/3 outcomes 3/3 errors 2/2 (runtime refusals 4/7)
+prove ✘ 1 failing</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The wrapper&#x27;s test: a load and a wait step, each its own span, in order, each marked with its kind.</span>
+    <span class="meta">exit 0 · 0.8s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --reporter verbose --root packages/target-effect src/modules/handler -t step</div><pre>RUN  v4.1.12 ./packages/target-effect
+
+ ↓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; runs the handler in a span named after the operation, with its payload as attributes
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; runs each declared step in its own span, in order, marked with its kind 5ms
+ ↓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; passes a declared error through, typed, and counts the work until it ends
+ ↓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; refuses an anonymous caller with NotAllowed before the handler runs
+ ↓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; refuses a payload outside its declaration before the handler runs
+ ↓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; an answer outside its declaration dies as the handler&#x27;s bug
+ ↓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; moves &gt; sets the state and journals the event once the handler answers
+ ↓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; moves &gt; an outcome the move doesn&#x27;t declare dies, and the span says what was asked
+ ↓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; moves &gt; a refusal is written on the span
+ ↓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; moves &gt; a refusal carries the log that decided it, and only this attempt&#x27;s
+ ↓ src/modules/handler/handler.test.ts &gt; a move with a machine: the race, the machine&#x27;s refusal, all or nothing &gt; 50 concurrent spends of 10 against 500: every one lands, none is lost, and it ends exhausted
+ ↓ src/modules/handler/handler.test.ts &gt; a move with a machine: the race, the machine&#x27;s refusal, all or nothing &gt; refuses with the machine&#x27;s refusal, carrying the state it was in, before the handler runs
+ ↓ src/modules/handler/handler.test.ts &gt; a move with a machine: the race, the machine&#x27;s refusal, all or nothing &gt; a handler that dies after writing leaves nothing behind
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+   Start at  18:29:25
+   Duration  298ms (transform 69ms, setup 0ms, import 202ms, tests 6ms, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">architect prove on acme after the change: steps ✔ for all five operations.</span>
+    <span class="meta">exit 0 · 4.7s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx tsx packages/cli/src/main.ts prove --env local --root examples/acme</div><pre>journey grant an allowance ✔ 3/3 steps
+journey an outsider cannot revoke ✔ 1/1 steps
+journey read an allowance ✔ 3/3 steps
+journey revoke then spend ✔ 3/3 steps
+journey spend twice with one request ✔ 3/3 steps
+journey spend within an allowance ✔ 4/4 steps
+allowance.get answer shape ✔
+allowance.get declared errors ✔
+allowance.get machine path ✔
+allowance.get events ✔
+allowance.get who may call ✔
+allowance.get steps ✔
+allowance.get performance ✔ p50 0ms p95 0ms budget p95 50ms
+allowance.get explainability ✔
+allowance.get 8 evals ✔
+allowance.grant answer shape ✔
+allowance.grant declared errors ✔
+allowance.grant machine path ✔
+allowance.grant events ✔
+allowance.grant who may call ✔
+allowance.grant steps ✔
+allowance.grant performance ✔ p50 1ms p95 2ms budget p95 200ms
+allowance.grant explainability ✔
+allowance.grant 8 evals ✔
+allowance.revoke answer shape ✔
+allowance.revoke declared errors ✔
+allowance.revoke machine path ✔
+allowance.revoke events ✔
+allowance.revoke who may call ✔
+allowance.revoke steps ✔
+allowance.revoke performance ✔ p50 1ms p95 1ms budget p95 150ms
+allowance.revoke explainability ✔
+allowance.revoke 8 evals ✔
+allowance.spend answer shape ✔
+allowance.spend declared errors ✔
+allowance.spend machine path ✔
+allowance.spend events ✔
+allowance.spend who may call ✔
+allowance.spend steps ✔
+allowance.spend performance ✔ p50 1ms p95 2ms budget p95 150ms
+allowance.spend explainability ✔
+allowance.spend 8 evals ✔
+organization.create answer shape ✔
+organization.create declared errors ✔
+organization.create machine path ✔
+organization.create events ✔
+organization.create who may call ✔
+organization.create steps ✔
+organization.create performance ✔ p50 1ms p95 12ms budget p95 200ms
+organization.create explainability ✔
+organization.create 8 evals ✔
+coverage ✔ operations 5/5 moves 3/3 outcomes 3/3 errors 2/2 (runtime refusals 4/7)
+prove ✔</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
+  <h2><span class="id">L1.21</span> Errors and the logs that decide them <span class="chip pass">done</span></h2>
+  <p class="summary">A refusal now carries the log line that decided it. While the handler runs, a second logger sits beside the project&#x27;s and remembers the last thing logged; when the handler refuses, that line goes on the operation&#x27;s span as refusal.log. The handler&#x27;s errors are held to what its operation declares by the generated types: the journey author&#x27;s fixture, a spend that fails with an error spend never declared, fails to compile, and acme as written compiles. The types are structural, so two errors with the same fields would slip past; a lint rule in L1.40 closes that.</p>
+  <div class="proves"><span class="label">Done when</span>A type test compiles a copy of acme with the planted handler and tsc rejects it at spend.ts naming AllowanceLimitTooHigh; the clean copy compiles. A refusal span carries its deciding log.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43928712233">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/3e6826a">commit 3e6826a</a> · 3 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The wrapper&#x27;s tests: a refusal carries the log that decided it, a refusal with no log carries none, and every earlier refusal test still holds.</span>
+    <span class="meta">exit 0 · 1.0s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --reporter verbose --root packages/target-effect src/modules/handler</div><pre>RUN  v4.1.12 ./packages/target-effect
+
+stdout | src/modules/handler/handler.test.ts &gt; handler wrapper &gt; moves &gt; a refusal carries the log that decided it, and only this attempt&#x27;s
+[18:26:14.351] INFO (#65): looked it up
+[18:26:14.352] INFO (#65): the limit is over the cap { limit: &#x27;5000&#x27; }
+
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; runs the handler in a span named after the operation, with its payload as attributes 5ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; passes a declared error through, typed, and counts the work until it ends 1ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; refuses an anonymous caller with NotAllowed before the handler runs 0ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; refuses a payload outside its declaration before the handler runs 2ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; an answer outside its declaration dies as the handler&#x27;s bug 1ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; moves &gt; sets the state and journals the event once the handler answers 1ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; moves &gt; an outcome the move doesn&#x27;t declare dies, and the span says what was asked 1ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; moves &gt; a refusal is written on the span 0ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; moves &gt; a refusal carries the log that decided it, and only this attempt&#x27;s 2ms
+ ✓ src/modules/handler/handler.test.ts &gt; a move with a machine: the race, the machine&#x27;s refusal, all or nothing &gt; 50 concurrent spends of 10 against 500: every one lands, none is lost, and it ends exhausted 79ms
+ ✓ src/modules/handler/handler.test.ts &gt; a move with a machine: the race, the machine&#x27;s refusal, all or nothing &gt; refuses with the machine&#x27;s refusal, carrying the state it was in, before the handler runs 0ms
+ ✓ src/modules/handler/handler.test.ts &gt; a move with a machine: the race, the machine&#x27;s refusal, all or nothing &gt; a handler that dies after writing leaves nothing behind 1ms
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  18:26:13
+   Duration  444ms (transform 91ms, setup 0ms, import 264ms, tests 94ms, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The type test: tsc on a copy of acme with the author&#x27;s planted spend fails, at spend.ts, naming AllowanceLimitTooHigh. The same copy without the plant compiles.</span>
+    <span class="meta">exit 0 · 1.2s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --reporter verbose --root packages/generators src/modules/render/handler-type.test.ts</div><pre>RUN  v4.1.12 ./packages/generators
+
+ ✓ src/modules/render/handler-type.test.ts &gt; the generated Handler type &gt; rejects a handler that fails with an error its operation doesn&#x27;t declare 366ms
+ ✓ src/modules/render/handler-type.test.ts &gt; the generated Handler type &gt; accepts acme as written: the same copy, without the plant, compiles 257ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  18:26:14
+   Duration  741ms (transform 12ms, setup 0ms, import 19ms, tests 641ms, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">architect prove on acme, still green after the change.</span>
+    <span class="meta">exit 0 · 5.1s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx tsx packages/cli/src/main.ts prove --env local --root examples/acme</div><pre>journey grant an allowance ✔ 3/3 steps
+journey an outsider cannot revoke ✔ 1/1 steps
+journey read an allowance ✔ 3/3 steps
+journey revoke then spend ✔ 3/3 steps
+journey spend twice with one request ✔ 3/3 steps
+journey spend within an allowance ✔ 4/4 steps
+allowance.get answer shape ✔
+allowance.get declared errors ✔
+allowance.get machine path ✔
+allowance.get events ✔
+allowance.get who may call ✔
+allowance.get steps ✔
+allowance.get performance ✔ p50 0ms p95 0ms budget p95 50ms
+allowance.get explainability ✔
+allowance.get 8 evals ✔
+allowance.grant answer shape ✔
+allowance.grant declared errors ✔
+allowance.grant machine path ✔
+allowance.grant events ✔
+allowance.grant who may call ✔
+allowance.grant steps ✔
+allowance.grant performance ✔ p50 1ms p95 3ms budget p95 200ms
+allowance.grant explainability ✔
+allowance.grant 8 evals ✔
+allowance.revoke answer shape ✔
+allowance.revoke declared errors ✔
+allowance.revoke machine path ✔
+allowance.revoke events ✔
+allowance.revoke who may call ✔
+allowance.revoke steps ✔
+allowance.revoke performance ✔ p50 1ms p95 1ms budget p95 150ms
+allowance.revoke explainability ✔
+allowance.revoke 8 evals ✔
+allowance.spend answer shape ✔
+allowance.spend declared errors ✔
+allowance.spend machine path ✔
+allowance.spend events ✔
+allowance.spend who may call ✔
+allowance.spend steps ✔
+allowance.spend performance ✔ p50 0ms p95 2ms budget p95 150ms
+allowance.spend explainability ✔
+allowance.spend 8 evals ✔
+organization.create answer shape ✔
+organization.create declared errors ✔
+organization.create machine path ✔
+organization.create events ✔
+organization.create who may call ✔
+organization.create steps ✔
+organization.create performance ✔ p50 1ms p95 10ms budget p95 200ms
+organization.create explainability ✔
+organization.create 8 evals ✔
+coverage ✔ operations 5/5 moves 3/3 outcomes 3/3 errors 2/2 (runtime refusals 4/7)
+prove ✔</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
   <h2><span class="id">L1.20</span> Machines and moves, with reads and idempotency <span class="chip pass">done</span></h2>
   <p class="summary">The allowance now lives its whole life: granted, spent, exhausted and revoked. A call commits once. The handler&#x27;s writes are held back, then the move, its new state and its event are committed together, as one D1 batch or inside the instance&#x27;s own Durable Object. Every update is guarded by the version it read, so fifty spends racing on one allowance all land and none is lost, on D1 and on an actor. A revoked allowance refuses a spend before the handler runs. allowance.get is answered with no handler at all, and spending twice with one request key spends once. prove passes on acme&#x27;s six journeys, written by a separate author.</p>
   <div class="proves"><span class="label">Done when</span>The race test passes for both owners in workerd and fails when the version guard is removed. architect prove passes on acme with five operations, three moves and every eval.</div>
@@ -122,9 +893,9 @@ prove ✔</pre></div>
   <summary>
     <span class="chip pass">passed</span>
     <span class="cap">The race in workerd: 50 concurrent spends of 10 against 500, on D1 and on a Durable Object. All land, the allowance ends exhausted at version 50.</span>
-    <span class="meta">exit 0 · 5.3s</span>
+    <span class="meta">exit 0 · 5.6s</span>
   </summary>
-  <div class="term"><div class="prompt">$ npx vitest run --root packages/host-cloudflare src/modules/store src/modules/actors</div><pre>=======================================================================================
+  <div class="term"><div class="prompt">$ npx vitest run --reporter verbose --root packages/host-cloudflare src/modules/store src/modules/actors</div><pre>=======================================================================================
 WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
 This package will not receive future updates.
 Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
@@ -133,11 +904,13 @@ Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
 
  RUN  v4.1.12 ./packages/host-cloudflare
 
+ ✓ src/modules/actors/actors.test.ts &gt; a thing that lives as an actor, in workerd &gt; S3&#x27;s race: 50 concurrent spends of 10 against 500 all land in its Durable Object, none lost 727ms
+ ✓ src/modules/store/store.test.ts &gt; the store in D1, in workerd &gt; S3&#x27;s race: 50 concurrent spends of 10 against 500 all land, none lost, and it ends exhausted 1211ms
 
  Test Files  2 passed (2)
       Tests  2 passed (2)
-   Start at  18:18:28
-   Duration  4.13s (transform 2.16s, setup 4.81s, import 134ms, tests 1.91s, environment 0ms)</pre></div>
+   Start at  18:26:23
+   Duration  4.42s (transform 2.37s, setup 5.08s, import 147ms, tests 1.94s, environment 0ms)</pre></div>
 </details>
 <details class="run" >
   <summary>
@@ -145,27 +918,67 @@ Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
     <span class="cap">The runtime&#x27;s own tests: one commit per call, a conflict reruns the attempt, one request key twice is one event, reads answer with no handler.</span>
     <span class="meta">exit 0 · 0.8s</span>
   </summary>
-  <div class="term"><div class="prompt">$ npx vitest run --root packages/target-effect src/modules/records src/modules/handler</div><pre>RUN  v4.1.12 ./packages/target-effect
+  <div class="term"><div class="prompt">$ npx vitest run --reporter verbose --root packages/target-effect src/modules/records src/modules/handler</div><pre>RUN  v4.1.12 ./packages/target-effect
 
+ ✓ src/modules/records/records.test.ts &gt; a unit of work &gt; holds writes back, reads its own writes, and merges them per instance 4ms
+ ✓ src/modules/records/records.test.ts &gt; a unit of work &gt; commits all of it, or none of it when a version has moved on 1ms
+ ✓ src/modules/records/reads-and-requests.test.ts &gt; a request key &gt; the same key twice is one call: the same answer, one event, spent once 6ms
+ ✓ src/modules/records/reads-and-requests.test.ts &gt; a request key &gt; another key, or no key, is another call 1ms
+ ✓ src/modules/records/reads-and-requests.test.ts &gt; a read &gt; answers the fields it names, with the state, to someone its role allows 0ms
+ ✓ src/modules/records/reads-and-requests.test.ts &gt; a read &gt; refuses someone else, and refuses a missing id the same way 1ms
+stdout | src/modules/handler/handler.test.ts &gt; handler wrapper &gt; moves &gt; a refusal carries the log that decided it, and only this attempt&#x27;s
+[18:26:29.129] INFO (#65): looked it up
+[18:26:29.130] INFO (#65): the limit is over the cap { limit: &#x27;5000&#x27; }
+
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; runs the handler in a span named after the operation, with its payload as attributes 5ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; passes a declared error through, typed, and counts the work until it ends 1ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; refuses an anonymous caller with NotAllowed before the handler runs 0ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; refuses a payload outside its declaration before the handler runs 2ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; an answer outside its declaration dies as the handler&#x27;s bug 1ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; moves &gt; sets the state and journals the event once the handler answers 1ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; moves &gt; an outcome the move doesn&#x27;t declare dies, and the span says what was asked 1ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; moves &gt; a refusal is written on the span 0ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; moves &gt; a refusal carries the log that decided it, and only this attempt&#x27;s 3ms
+ ✓ src/modules/handler/handler.test.ts &gt; a move with a machine: the race, the machine&#x27;s refusal, all or nothing &gt; 50 concurrent spends of 10 against 500: every one lands, none is lost, and it ends exhausted 70ms
+ ✓ src/modules/handler/handler.test.ts &gt; a move with a machine: the race, the machine&#x27;s refusal, all or nothing &gt; refuses with the machine&#x27;s refusal, carrying the state it was in, before the handler runs 0ms
+ ✓ src/modules/handler/handler.test.ts &gt; a move with a machine: the race, the machine&#x27;s refusal, all or nothing &gt; a handler that dies after writing leaves nothing behind 0ms
 
  Test Files  3 passed (3)
-      Tests  17 passed (17)
-   Start at  18:18:33
-   Duration  407ms (transform 194ms, setup 0ms, import 667ms, tests 100ms, environment 0ms)</pre></div>
+      Tests  18 passed (18)
+   Start at  18:26:28
+   Duration  405ms (transform 207ms, setup 0ms, import 665ms, tests 101ms, environment 0ms)</pre></div>
 </details>
 <details class="run" >
   <summary>
     <span class="chip pass">passed</span>
     <span class="cap">The gate as a test: acme passes, scaffolded handlers fail, every planted fixture fails its own eval.</span>
-    <span class="meta">exit 0 · 38.2s</span>
+    <span class="meta">exit 0 · 36.1s</span>
   </summary>
-  <div class="term"><div class="prompt">$ npx vitest run --root packages/prove</div><pre>RUN  v4.1.12 ./packages/prove
+  <div class="term"><div class="prompt">$ npx vitest run --reporter verbose --root packages/prove</div><pre>RUN  v4.1.12 ./packages/prove
 
+ ✓ src/modules/evals/evals.test.ts &gt; evals on evidence &gt; performance: slow evidence raises a review and never fails 1ms
+ ✓ src/modules/evals/evals.test.ts &gt; evals on evidence &gt; declared errors: an undeclared refusal names itself and the declared ones 0ms
+ ✓ src/modules/evals/evals.test.ts &gt; evals on evidence &gt; who may call: judged on mayCall, not on what the server said 0ms
+ ✓ src/modules/evals/evals.test.ts &gt; evals on evidence &gt; coverage: an operation no journey reaches fails, and the counts say by how much 0ms
+ ✓ src/modules/journeys/journeys.test.ts &gt; loading a project &gt; finds acme&#x27;s journeys, its starting worlds, and the very declarations they import 203ms
+ ✓ src/modules/telemetry/telemetry.test.ts &gt; the collector, in Docker &gt; takes an OTLP span over HTTP and reads it back by trace id once complete 858ms
+ ✓ src/modules/world/world.test.ts &gt; a local world &gt; serves acme on workerd: the world casts ada, ada founds an organisation and grants olga 500 3009ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; passes on acme: every journey, every eval, coverage, and leaves nothing running 4137ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; the who-may-call fixture is still the generated server with only its gate removed 1ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails on the scaffolded handlers: the starting world can&#x27;t be made, so no step runs 3553ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted answer-shape fixture on its own eval 3271ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted declared-errors fixture on its own eval 3262ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted machine-path fixture on its own eval 3300ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted events fixture on its own eval 3411ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted who-may-call fixture on its own eval 3544ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted steps fixture on its own eval 3378ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted coverage fixture on its own eval 3770ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted explainability fixture on its own eval 3411ms
 
  Test Files  5 passed (5)
       Tests  18 passed (18)
-   Start at  18:18:34
-   Duration  37.77s (transform 1.06s, setup 0ms, import 1.22s, tests 40.84s, environment 0ms)</pre></div>
+   Start at  18:26:29
+   Duration  35.60s (transform 1.05s, setup 0ms, import 1.25s, tests 39.23s, environment 0ms)</pre></div>
 </details>
 <details class="run" >
   <summary>
@@ -558,9 +1371,9 @@ exclude:  **/node_modules/**, **/.git/**
   <summary>
     <span class="chip planted">caught</span>
     <span class="cap">Planted: the D1 update without its version guard. The race loses spends and the test fails. Exit 1.</span>
-    <span class="meta">exit 1 · 4.1s</span>
+    <span class="meta">exit 1 · 4.0s</span>
   </summary>
-  <div class="term"><div class="prompt">$ npx vitest run --root packages/host-cloudflare src/modules/store</div><pre>=======================================================================================
+  <div class="term"><div class="prompt">$ npx vitest run --reporter verbose --root packages/host-cloudflare src/modules/store</div><pre>=======================================================================================
 WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
 This package will not receive future updates.
 Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
@@ -569,13 +1382,14 @@ Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
 
  RUN  v4.1.12 ./packages/host-cloudflare
 
- ❯ src/modules/store/store.test.ts (1 test | 1 failed) 69ms
-     × S3&#x27;s race: 50 concurrent spends of 10 against 500 all land, none lost, and it ends exhausted 68ms
+ × src/modules/store/store.test.ts &gt; the store in D1, in workerd &gt; S3&#x27;s race: 50 concurrent spends of 10 against 500 all land, none lost, and it ends exhausted 65ms
+   → expected { id: &#x27;pur_database6afvzj&#x27;, …(3) } to match object { spent: 500n, state: &#x27;exhausted&#x27; }
+(2 matching properties omitted from actual)
 
 ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
 
  FAIL  src/modules/store/store.test.ts &gt; the store in D1, in workerd &gt; S3&#x27;s race: 50 concurrent spends of 10 against 500 all land, none lost, and it ends exhausted
-AssertionError: expected { id: &#x27;pur_databaseukv8y7&#x27;, …(3) } to match object { spent: 500n, state: &#x27;exhausted&#x27; }
+AssertionError: expected { id: &#x27;pur_database6afvzj&#x27;, …(3) } to match object { spent: 500n, state: &#x27;exhausted&#x27; }
 (2 matching properties omitted from actual)
 
 - Expected
@@ -601,8 +1415,8 @@ AssertionError: expected { id: &#x27;pur_databaseukv8y7&#x27;, …(3) } to match
 
  Test Files  1 failed (1)
       Tests  1 failed (1)
-   Start at  18:20:04
-   Duration  2.91s (transform 1.13s, setup 2.35s, import 65ms, tests 69ms, environment 0ms)</pre></div>
+   Start at  18:27:06
+   Duration  2.73s (transform 1.01s, setup 2.21s, import 57ms, tests 65ms, environment 0ms)</pre></div>
 </details>
 </section>
 <section class="step">
