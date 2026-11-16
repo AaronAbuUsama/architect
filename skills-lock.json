@@ -1,0 +1,61 @@
+{
+  "version": 2,
+  "skills": {
+    "axiom-alerting": {
+      "source": "axiomhq/skills",
+      "commit": "6cd2321634b63e6da115180336cf7a00949f02b1",
+      "sourceType": "github",
+      "skillPath": "skills/axiom-alerting/SKILL.md",
+      "computedHash": "6b0cd6843b1f282c2faf4f43c67535823856a69d72fa080aadb493435a6bb9eb"
+    },
+    "axiom-build-dashboard": {
+      "source": "axiomhq/skills",
+      "commit": "6cd2321634b63e6da115180336cf7a00949f02b1",
+      "sourceType": "github",
+      "skillPath": "skills/axiom-build-dashboard/SKILL.md",
+      "computedHash": "d4b396e965beae5700661b52f21640d51803d9d1c5c6196db113c5c15208e810"
+    },
+    "axiom-control-costs": {
+      "source": "axiomhq/skills",
+      "commit": "6cd2321634b63e6da115180336cf7a00949f02b1",
+      "sourceType": "github",
+      "skillPath": "skills/axiom-control-costs/SKILL.md",
+      "computedHash": "4f2d483839cf89ccd1a621aabd6516c3854b3aa90bb9832068f1a83aed70f198"
+    },
+    "axiom-create-org": {
+      "source": "axiomhq/skills",
+      "commit": "6cd2321634b63e6da115180336cf7a00949f02b1",
+      "sourceType": "github",
+      "skillPath": "skills/axiom-create-org/SKILL.md",
+      "computedHash": "896975d8791b454fee6d98caa9f8d347aaf6b03f820663c3608f4705ff7b2e0d"
+    },
+    "axiom-ingest": {
+      "source": "axiomhq/skills",
+      "commit": "6cd2321634b63e6da115180336cf7a00949f02b1",
+      "sourceType": "github",
+      "skillPath": "skills/axiom-ingest/SKILL.md",
+      "computedHash": "e54e5ff0fee8c5bc57ff612ceb41ed5e6b7e27ba9b5961e9856df7837f0b52c1"
+    },
+    "axiom-metrics-chart": {
+      "source": "axiomhq/skills",
+      "commit": "6cd2321634b63e6da115180336cf7a00949f02b1",
+      "sourceType": "github",
+      "skillPath": "skills/axiom-metrics-chart/SKILL.md",
+      "computedHash": "a35414eac5ab362086c51662b4400f3221356b41119ef0e2f2d87e9ad63b7891"
+    },
+    "axiom-spl-to-apl": {
+      "source": "axiomhq/skills",
+      "commit": "6cd2321634b63e6da115180336cf7a00949f02b1",
+      "sourceType": "github",
+      "skillPath": "skills/axiom-spl-to-apl/SKILL.md",
+      "computedHash": "00a9c0a61855688e478c7bcb3825bb5f6dd492e5c490ceb1c7e252dcc668e459"
+    },
+    "axiom-sre": {
+      "source": "axiomhq/skills",
+      "commit": "6cd2321634b63e6da115180336cf7a00949f02b1",
+      "sourceType": "github",
+      "skillPath": "skills/axiom-sre/SKILL.md",
+      "computedHash": "a07f63bd3a28bd4d0255707139b036e3e9b7bc31496db01e3eb0c94cec80641e"
+    }
+  }
+}
