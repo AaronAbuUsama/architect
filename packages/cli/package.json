@@ -12,6 +12,9 @@
     "nx": "24.0.3",
     "wrangler": "4.156.1"
   },
+  "devDependencies": {
+    "@architect/logbook": "workspace:*"
+  },
   "bin": {
     "architect": "./src/main.ts"
   },

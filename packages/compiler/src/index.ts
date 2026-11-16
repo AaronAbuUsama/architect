@@ -5,4 +5,4 @@ export type { Model, ThingModel, OperationModel, FieldModel, AllowedModel, Value
 export { nodeSource } from "#modules/source/service.js";
 export { BlueprintSource, SourceError } from "#modules/source/types.js";
 export { Compare } from "#modules/compare/service.js";
-export type { Change, Depends } from "#modules/compare/types.js";
+export type { Bump, Change, Depends, Release as ModelRelease, Versioned } from "#modules/compare/types.js";

@@ -1,0 +1,5 @@
+system.health 9 evals ✔ p50 0ms p95 0ms budget p95 50ms
+coverage ✔ moves 7/7 · outcomes 7/7 · refusals 4/4 · runtime refusals 13/16
+prove ✔
+coverage ✔ moves 4/4 · outcomes 4/4 · refusals 2/2 · runtime refusals 9/10
+prove ✔

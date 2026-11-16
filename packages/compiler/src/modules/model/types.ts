@@ -13,6 +13,8 @@ export interface FieldModel {
   readonly value: ValueMeta;
   readonly named?: string;
   readonly ref?: string;
+  /** A payload field the caller may leave out (a list's filters and cursor). */
+  readonly optional?: true;
 }
 export type FieldsModel = Readonly<Record<string, FieldModel>>;
 
@@ -62,6 +64,8 @@ export interface OperationModel {
   readonly steps: Readonly<Record<string, { readonly name: string; readonly type: string }>>;
   readonly idempotent: "request" | null;
   readonly budget: { readonly p95Ms: number } | null;
+  /** A list read: what it filters by, its order and its page size. Present only for lists. */
+  readonly list?: { readonly where: ReadonlyArray<string>; readonly order: string; readonly page: number };
   readonly hash: string;
 }
 

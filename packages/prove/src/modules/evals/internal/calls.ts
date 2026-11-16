@@ -11,6 +11,14 @@ const verdict = (name: string, operation: string, failures: ReadonlyArray<string
 const expectation = (f: FieldModel | undefined) =>
   !f ? "nothing" : f.value.type === "id" ? `${f.value.prefix}_<id>` : f.value.type === "uint" ? "a whole number, as text" : f.value.type === "text" ? `text up to ${f.value.max}` : "its schema";
 
+/** A span keeps an object answer as JSON text; a field declared by its schema (a page's `items`, `next`) is read back from it. */
+const fromJson = (text: unknown) => {
+  // Objects, arrays and null were written as JSON; a plain string (a cursor, "2") was written as itself.
+  if (typeof text !== "string" || !/^(\[|\{|null$)/.test(text)) return text;
+  const parsed = Schema.decodeUnknownOption(Schema.fromJsonString(Schema.Unknown))(text);
+  return parsed._tag === "Some" ? parsed.value : text;
+};
+
 /** 1. Every answer has its declared shape: read from the operation's span, so an answer the server refused to send counts. */
 export const answerShape: PerOperation = (op, evidence, { project }) => {
   const declared = project.operations.get(op.name)?.answer ?? {};
@@ -19,7 +27,8 @@ export const answerShape: PerOperation = (op, evidence, { project }) => {
     const answer = Object.keys(fromSpan).length > 0 ? fromSpan : answered(e) ? (e.call.body as Record<string, unknown>) : undefined;
     if (!answer) return [];
     return Object.keys(op.answer).flatMap((k) => {
-      const ok = Schema.decodeUnknownExit(structOf({ [k]: declared[k]! }) as never)({ [k]: answer[k] })._tag === "Success";
+      const got = op.answer[k]?.value.type === "schema" ? fromJson(answer[k]) : answer[k];
+      const ok = Schema.decodeUnknownExit(structOf({ [k]: declared[k]! }) as never)({ [k]: got })._tag === "Success";
       return ok ? [] : [`${where(e)}: answer.${k}: expected ${expectation(op.answer[k])}, got ${JSON.stringify(answer[k])}`];
     });
   });

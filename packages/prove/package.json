@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@architect/generators": "workspace:*",
+    "@architect/logbook": "workspace:*",
     "nx": "24.0.3"
   },
   "files": [

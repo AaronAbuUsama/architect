@@ -86,7 +86,7 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
   for (const [thing, t] of [...layout.things].sort(([a], [b]) => a.localeCompare(b))) {
     for (const [verb, { file, declaration: op }] of [...t.verbs].sort(([a], [b]) => a.localeCompare(b))) {
       const parts = op.kind === "read"
-        ? { fields: op.fields, allowed: op.allowed }
+        ? { [op.by === "list" ? "where" : "fields"]: op.by === "list" ? op.where : op.fields, allowed: op.allowed }
         : { description: op.description, payload: op.payload, answer: op.answer, allowed: op.allowed, errors: op.errors, steps: op.steps, move: op.move };
       if (blankIn(`${thing}.${verb}`, parts)) continue;
       operations[`${thing}.${verb}`] = operationModel(thing, verb, file, op);
@@ -124,14 +124,23 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
   /** A read: answered from the thing's records with no handler, so no move, no steps, no declared errors. */
   function readModel(thing: string, verb: string, file: string, read: Read): OperationModel {
     const allowed = read.allowed.map((a) => allowedModel(a, file));
+    const list = read.by === "list";
+    const t = layout.things.get(thing);
+    if (list && t?.thing?.lives === "actor") problems.push(`${file}: a list read needs a thing that lives in the database, and ${thing} lives as actors`);
+    if (list && read.where.includes("state") && !t?.machine) problems.push(`${file}: where "state" needs ${thing} to have a machine`);
+    if (list && (!Number.isInteger(read.page) || (read.page ?? 0) < 1 || (read.page ?? 0) > 1000)) problems.push(`${file}: page must be a whole number from 1 to 1000`);
+    const payload = Object.fromEntries(Object.entries(fieldsModel(read.payload, `${file} payload`)).map(([k, f]) => [k, read.optional.includes(k) ? { ...f, optional: true as const } : f]));
     const entry = {
       kind: "read" as const,
       name: `${thing}.${verb}`, thing, verb, identifier: camel(verb), file,
-      description: `Read one ${thing} by its id: ${read.fields.map(String).join(", ")}.`,
-      payload: fieldsModel(read.payload, `${file} payload`), answer: fieldsModel(read.answer, `${file} answer`),
+      description: list
+        ? `List ${thing}s, ${read.order === "newest" ? "newest first" : "oldest first"}, ${read.page} to a page${read.where.length > 0 ? `, filtered by ${read.where.join(", ")}` : ""}.`
+        : `Read one ${thing} by its id: ${read.fields.map(String).join(", ")}.`,
+      payload, answer: fieldsModel(read.answer, `${file} answer`),
       move: null, errors: [], refusals: allowed.every((a) => a.kind === "anyone") ? [] : ["NotAllowed"], allowed,
       steps: {}, idempotent: null,
       budget: read.budget ? { p95Ms: Duration.toMillis(read.budget.p95) } : null,
+      ...(list ? { list: { where: [...read.where], order: read.order ?? "newest", page: read.page ?? 0 } } : {}),
     };
     return { ...entry, hash: hashOf(entry) };
   }

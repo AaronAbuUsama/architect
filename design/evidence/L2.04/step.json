@@ -1,0 +1,13 @@
+{
+  "step": "L2.04",
+  "stage": "Stage 3 · shipping on local worlds (Gate 2)",
+  "title": "Versions and staleness against the logbook",
+  "summary": "Blueprint.read lists (where, order, page; answers { items, next }) through the model, store, server, sdk, cli and docs. Compare.release works the next version out from the model diff (minor, major, patch); architect version --next and architect impact (next, stale <ops> in <envs>) read the last release and main's verdicts from the logbook; generated/model/changes.json is written; Releases.record PUTs the model and POSTs the release for L2.05.",
+  "proves": "Against the real logbook and a real OIDC issuer: adding allowance.list gives next 1.1.0 and stale none; a budget edit is a patch and stales exactly allowance.spend in staging and production; a changed payload is a major; a pull request's verdict never counts. On a real world, a list's where, order, page and cursor work, roles are enforced, and allowance.list passes all nine evals. Gate 1's checks and acme and the starter's local prove stay green.",
+  "captions": {
+    "02-done-when-tests": "The done-when tests: releases, ship, list reads and versions.",
+    "03-workspace-tests": "Every package's tests.",
+    "04-local-prove": "acme and the starter prove locally.",
+    "05-e2e-check-03-state": "Gate 2 check 03 stops at env up logbook, which is L2.02's."
+  }
+}

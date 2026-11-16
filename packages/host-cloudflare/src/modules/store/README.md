@@ -10,3 +10,7 @@
 - A failing query dies: it is never the caller's refusal.
 
 Tests: `store.test.ts`, the race test for the database owner.
+
+`Store.list` (L2.04) runs one SELECT in `internal/list.ts`: `WHERE` the equality filters, `rowid` ordered `ASC` or `DESC`, one row more
+than the page to know whether another follows. The cursor is the last kept row's rowid, so rows made meanwhile never shift a page.
+A thing that lives as actors can't be listed (the compiler refuses a list read of one).

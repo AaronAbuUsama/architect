@@ -18,7 +18,9 @@ export const Sync: SyncApi = {
         tree.write(path, f.content);
       }
       const wanted = new Set(files.filter((f) => !f.scaffold).map((f) => `${root}/${f.path}`));
-      for (const path of filesUnder(tree, `${root}/generated`)) if (!wanted.has(path)) tree.delete(path);
+      // `generated/model/changes.json` is the model against the last release in the logbook: the CLI writes it, never the generators.
+      const kept = `${root}/generated/model/changes.json`;
+      for (const path of filesUnder(tree, `${root}/generated`)) if (!wanted.has(path) && path !== kept) tree.delete(path);
     }),
 };
 export { ModelFailed } from "./types.ts";

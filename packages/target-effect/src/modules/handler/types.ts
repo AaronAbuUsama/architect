@@ -59,23 +59,27 @@ export interface HandlerApi {
   readonly blank: <A = never>(what: string) => Effect.Effect<A>;
 }
 
-// Reads: a thing's instance by its id, answered from the store with no handler (L1.23).
+// Reads: a thing's instance by its id, or a page of them, answered from the store with no handler (L1.23, L2.04).
 
-/** What a read answers: the fields it names, decoded, with `state` as text. */
+/** What a read answers: the fields it names, decoded, with `state` as text; or a list's `{ items, next }`. */
 export type ReadAnswer = { readonly [field: string]: unknown };
+
+/** What a read is called with: `{ id }`, or a list's filters and cursor. */
+export type ReadPayload = { readonly [field: string]: unknown };
 
 export interface ServedRead {
   readonly name: string;
-  /** From the outside: the payload `{ id }` decoded first. */
+  /** From the outside: the payload decoded first. */
   readonly call: (payload: unknown, principal: Principal) => Effect.Effect<ReadAnswer, NotAllowed | Schema.SchemaError, Store>;
-  /** From a server that already decoded `{ id }`. */
-  readonly run: (payload: { readonly id: string }, principal: Principal) => Effect.Effect<ReadAnswer, NotAllowed, Store>;
+  /** From a server that already decoded the payload. */
+  readonly run: (payload: ReadPayload, principal: Principal) => Effect.Effect<ReadAnswer, NotAllowed, Store>;
 }
 
 export interface ReadsApi {
   /**
-   * Serve a read: who may read is checked on the instance itself, then its named fields are answered. A missing id is
-   * refused `NotAllowed`, so a read never tells an outsider what exists.
+   * Serve a read: who may read is checked first (on the instance itself for a read by id, on the thing a filter names
+   * for a list), then its answer is made. A missing id is refused `NotAllowed`, so a read never tells an outsider what
+   * exists; a list answers `{ items, next }`, and `next` goes back as the `cursor` of the page after it.
    */
-  readonly serve: <R extends Read<any>>(spec: { readonly name: string; readonly read: R }) => ServedRead;
+  readonly serve: <R extends Read<any, any, any>>(spec: { readonly name: string; readonly read: R }) => ServedRead;
 }
