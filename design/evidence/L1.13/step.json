@@ -1,0 +1,17 @@
+{
+  "step": "L1.13",
+  "stage": "Stage 1 · the skeleton, with every eval",
+  "title": "The generators",
+  "summary": "One command now turns acme's blueprint into a working codebase: the API contract, the server, a typed client and a command line, plus a starter handler for each operation that is written once and then left alone. The generated code reuses the blueprint's own declarations, so they can never drift apart. If anyone edits a generated file by hand, the check fails and says which file.",
+  "proves": "In examples/acme, nx sync writes the four outputs and nx sync:check passes. Editing generated/sdk/... makes nx sync:check fail.",
+  "captions": {
+    "01-generator-tests": "The generator's tests: all four outputs, the do-not-edit and scaffold headers, refusals with exit codes, and sync on the real workspace.",
+    "02-nx-sync-writes-the-four-outputs": "From an empty generated folder: nx sync writes the api, server, sdk and cli, and the model.",
+    "03-sync-check-passes": "Straight after: the workspace is in sync.",
+    "04-generated-acme-typechecks": "TypeScript 7 checks acme whole: blueprint, generated code and handler scaffolds.",
+    "05-planted-hand-edit-fails-sync-check": "Planted: one line added by hand to the generated SDK. sync:check fails and names the file.",
+    "06-grant-endpoint-and-scaffold": "The generated grant endpoint, and the handler scaffold waiting to be written.",
+    "07-generated-cli-refuses-bad-input": "The generated CLI refuses a member id without its per_ prefix, exit 2, before any network call.",
+    "08-all-checks-green": "Lint, typecheck and test across all 14 projects, cache off."
+  }
+}
