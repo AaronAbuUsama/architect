@@ -1,0 +1,157 @@
+[
+  {
+    "from": "api-key.organization",
+    "to": "organization.id",
+    "kind": "refers"
+  },
+  {
+    "from": "api-key.createdBy",
+    "to": "person.id",
+    "kind": "refers"
+  },
+  {
+    "from": "invitation.organization",
+    "to": "organization.id",
+    "kind": "refers"
+  },
+  {
+    "from": "invitation.email",
+    "to": "person.email",
+    "kind": "refers"
+  },
+  {
+    "from": "invitation.invitedBy",
+    "to": "person.id",
+    "kind": "refers"
+  },
+  {
+    "from": "membership.organization",
+    "to": "organization.id",
+    "kind": "refers"
+  },
+  {
+    "from": "membership.person",
+    "to": "person.id",
+    "kind": "refers"
+  },
+  {
+    "from": "organization.owner",
+    "to": "person.id",
+    "kind": "refers"
+  },
+  {
+    "from": "session.person",
+    "to": "person.id",
+    "kind": "refers"
+  },
+  {
+    "from": "api-key.create",
+    "to": "api-key",
+    "kind": "acts-on"
+  },
+  {
+    "from": "api-key.create",
+    "to": "organization.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "invitation.accept",
+    "to": "invitation",
+    "kind": "acts-on"
+  },
+  {
+    "from": "invitation.accept",
+    "to": "invitation.InvitationAccepted",
+    "kind": "emits"
+  },
+  {
+    "from": "invitation.accept",
+    "to": "invitation.invitee",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "invitation.revoke",
+    "to": "invitation",
+    "kind": "acts-on"
+  },
+  {
+    "from": "invitation.revoke",
+    "to": "invitation.InvitationRevoked",
+    "kind": "emits"
+  },
+  {
+    "from": "invitation.revoke",
+    "to": "organization.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "invitation.send",
+    "to": "invitation",
+    "kind": "acts-on"
+  },
+  {
+    "from": "invitation.send",
+    "to": "invitation.InvitationSent",
+    "kind": "emits"
+  },
+  {
+    "from": "invitation.send",
+    "to": "organization.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "membership.get",
+    "to": "membership",
+    "kind": "reads"
+  },
+  {
+    "from": "membership.get",
+    "to": "membership.holder",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "membership.get",
+    "to": "organization.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "organization.create",
+    "to": "organization",
+    "kind": "acts-on"
+  },
+  {
+    "from": "organization.create",
+    "to": "organization.OrganizationCreated",
+    "kind": "emits"
+  },
+  {
+    "from": "organization.get",
+    "to": "organization",
+    "kind": "reads"
+  },
+  {
+    "from": "organization.get",
+    "to": "organization.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "person.sign-up",
+    "to": "person",
+    "kind": "acts-on"
+  },
+  {
+    "from": "session.show",
+    "to": "session",
+    "kind": "acts-on"
+  },
+  {
+    "from": "session.sign-in",
+    "to": "session",
+    "kind": "acts-on"
+  },
+  {
+    "from": "system.health",
+    "to": "system",
+    "kind": "acts-on"
+  }
+]

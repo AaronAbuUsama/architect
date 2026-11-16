@@ -57,9 +57,11 @@ export const applyMove = (name: string, op: Operation, payload: object, answer: 
     const subject = subjectOf(op, payload, answer);
     if (subject === undefined) return yield* Effect.die(new Error(`${name} moved, but neither its answer nor its payload names the ${move.key}'s instance`));
     const event = EventNames.nameOf(move.emits) ?? "UnnamedEvent";
-    const source = { ...payload, ...answer } as Record<string, unknown>;
+    // An event's fields come from the subject as this call left it, then the payload, then the answer.
+    const instance = (yield* unit.read(op.thing, subject)) ?? {};
+    const source = { ...instance, ...payload, ...answer } as Record<string, unknown>;
     const missing = Object.keys(move.emits.fields).filter((k) => !(k in source));
-    if (missing.length > 0) return yield* Effect.die(new Error(`${name}: ${event} needs ${missing.join(", ")}, found in neither answer nor payload`));
+    if (missing.length > 0) return yield* Effect.die(new Error(`${name}: ${event} needs ${missing.join(", ")}, found in neither its instance, answer nor payload`));
     const picked = Object.fromEntries(Object.keys(move.emits.fields).map((k) => [k, source[k]]));
     const fields = yield* Schema.encodeEffect(move.emits.schema as unknown as Codec)(picked).pipe(Effect.orDie);
     yield* unit.setState(op.thing, subject, outcome);

@@ -27,4 +27,6 @@ export interface ValuesApi {
   readonly uint: (bits: number) => Value<Schema.BigIntFromString>;
   /** Text, never empty, at most `max` characters (default 200). */
   readonly text: (options?: { readonly max?: number }) => Value<Schema.String>;
+  /** An email address: text of at most 254 characters, with an `@` and a dot after it. */
+  readonly email: () => Value<Schema.String>;
 }

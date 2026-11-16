@@ -20,5 +20,29 @@
     "./sync": "./src/modules/sync/service.ts",
     "./package.json": "./package.json",
     "./render": "./src/modules/render/service.ts"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/main.d.ts",
+        "default": "./dist/main.js"
+      },
+      "./sync": {
+        "types": "./dist/modules/sync/service.d.ts",
+        "default": "./dist/modules/sync/service.js"
+      },
+      "./package.json": "./package.json",
+      "./render": {
+        "types": "./dist/modules/render/service.d.ts",
+        "default": "./dist/modules/render/service.js"
+      }
+    },
+    "imports": {
+      "#modules/*.js": "./dist/modules/*.js"
+    }
   }
 }

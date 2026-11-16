@@ -123,3 +123,38 @@ Decided 16 November 2026 by the builder, which has architectural ownership. The 
     holds. Journeys and handler code are not in the key yet: a handler change is caught by running prove, which is
     cheap locally; keying by handler source waits until prove is slow enough to need it (`later.md`). Evidence:
     `packages/prove/src/modules/impact/impact.test.ts`.
+61. **Better Auth is identity only; organizations, memberships and invitations are the project's own things.** It keeps
+    people (`per_`), sessions (`ses_`), accounts and API keys (`key_` ids, keys starting `ak_`), with
+    `advanced.database.generateId` giving Architect ids. Its organization plugin isn't used: a project's organization
+    has its own machine, roles and journeys like any thing, and one store holds it. Every Better Auth table is
+    `auth_*`, so the starter's `session` thing can't collide with Better Auth's session table. Evidence:
+    `spikes/better-auth-workerd/`, `host-cloudflare/src/modules/auth/auth.test.ts`.
+62. **Handlers reach identity through the runtime's `Auth` service** (`signUp`, `signIn`, `createApiKey`, refusing
+    with `AuthRefused { reason }`); the host provides it, and `Principals` resolves a bearer session token or an
+    `ak_` key to `{ kind: "person", person, email }`. A handler never imports Better Auth. The generated `Handler` type's
+    default requirements now include `Auth`.
+63. **Better Auth's tables are created by the host on first use**, from a schema checked in at
+    `host-cloudflare/src/modules/auth/internal/schema.ts` and compiled from the options with Kysely's `DummyDriver`
+    (`auth generate` needs a live database). A test fails when the schema is stale. Better Auth checks its tables the
+    moment it is constructed, so the instance is made only after they exist.
+64. **Every local world signs its cast up for real** (D2 #40 done). The world's test tokens are gone. A cast member
+    whose role is `Blueprint.anyone` is not signed up: they get an email and a password, so a journey can sign them
+    up itself. Cast members carry `email` and `password` refs in scripts, and the principal carries the email, which
+    the `invitee` role reads. The world's secret is now Better Auth's `AUTH_SECRET`, fresh per world.
+65. **An event's fields come from its subject as the call left it, then the payload, then the answer.** The starter's
+    `OrganizationCreated` carries `owner`, which only the instance has.
+66. **The starter is a real project in the repository, `examples/starter/`,** proven on every CI run like acme. The
+    preset ships it. Its journeys and fixtures are the journey author's.
+67. **Published packages ship compiled JavaScript; the monorepo keeps running from source.** Node refuses to strip
+    types under `node_modules` and Nx can't load a `.ts` generator from there (`spikes/preset-verdaccio/`). Each
+    package builds to `dist/` with tsc 7 (`rewriteRelativeImportExtensions`), and `publishConfig` points `exports`,
+    `imports` and `bin` at `dist/`. Installs from the local Verdaccio go only through `npm_config_registry` and
+    `pnpm_config_registry`.
+68. **`kysely` is held at 0.29.7 by a workspace override.** Better Auth would resolve 0.29.9, published 12 November
+    2026, inside the two-week window. One copy also keeps Better Auth's plugin types whole.
+69. **The preset writes the starter without compiling anything.** `@architect/preset` copies `examples/starter`'s
+    blueprint, handlers and journeys (packed under `files/` when published) and renders `generated/` from the
+    starter's own `generated/model/model.json` under the new name, so nothing runs before the new workspace's packages
+    are installed. Its package.json pins every `@architect/*` package at the preset's own version.
+70. **Sync, like drift, leaves dot-folders under `generated/` alone.** `.wrangler/` there belongs to a running or
+    finished local world, not to the blueprint; deleting it made `nx sync:check` fail after any local prove.

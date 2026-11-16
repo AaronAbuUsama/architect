@@ -11,5 +11,20 @@
   },
   "imports": {
     "#modules/*": "./src/modules/*"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    },
+    "imports": {
+      "#modules/*.js": "./dist/modules/*.js"
+    }
   }
 }

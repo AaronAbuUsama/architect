@@ -1,5 +1,5 @@
 import { Effect, Schema } from "effect";
-import type { Call, Journey, Operation, Read, StartingWorld, Thing } from "@architect/blueprint";
+import type { Call, Journey, Operation, Principal, Read, StartingWorld, Thing } from "@architect/blueprint";
 import { Blueprint } from "@architect/blueprint";
 import { Scripting } from "@architect/blueprint/server";
 import type { CallRecord, JourneyRun, JourneysApi, Project, StepResult } from "./types.ts";
@@ -28,9 +28,11 @@ const run = (project: Project, url: string, journey: Journey, index: number) =>
 
     // Each journey has its own people: the same name in two journeys is two people.
     const names = [...new Set([...Object.keys(journey.cast), ...lineage.flatMap((w) => Object.keys(w.cast))])];
-    const cast = yield* castPeople(url, names.map((n) => `j${index}.${n}`));
+    // Cast as anyone: not signed up, so the script can sign them up itself; everyone else is, for real.
+    const anyone = names.filter((n) => (journey.cast[n] as { readonly kind?: string } | undefined)?.kind === "anyone" && !lineage.some((w) => n in w.cast));
+    const cast = yield* castPeople(url, names.filter((n) => !anyone.includes(n)).map((n) => `j${index}.${n}`), anyone.map((n) => `j${index}.${n}`));
     const people = Object.fromEntries(names.map((n) => [n, cast[`j${index}.${n}`]!]));
-    const env: Record<string, unknown> = { cast: Object.fromEntries(names.map((n) => [n, { person: people[n]!.person }])) };
+    const env: Record<string, unknown> = { cast: people };
     const facts = { url, tableOf: tableOf(project) };
 
     const make = (step: string, call: Call) =>
@@ -38,8 +40,9 @@ const run = (project: Project, url: string, journey: Journey, index: number) =>
         const operation = nameOfOperation(project, call.operation) ?? "an undeclared operation";
         const resolved = Scripting.resolve(call.payload, env);
         const payload = resolved.value as Record<string, unknown>;
-        const person = people[call.actor]?.person ?? "";
-        const principal = { kind: "person", person } as const;
+        const who = people[call.actor];
+        const person = who?.person ?? "";
+        const principal: Principal = who?.person ? { kind: "person", person: who.person, email: who.email } : { kind: "anonymous" };
         const may = yield* mayCall(url, facts.tableOf, call.operation, payload, principal);
         const r = yield* callOperation(url, operation, call.operation, payload, people[call.actor]?.token ?? "", call.request);
         const model = project.model.operations[operation];

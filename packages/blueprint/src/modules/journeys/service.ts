@@ -7,6 +7,8 @@ const script = <C extends Record<string, unknown>>(cast: C): Script<any> => {
       name,
       Object.freeze({
         person: refTo(["cast", name, "person"]),
+        email: refTo(["cast", name, "email"]),
+        password: refTo(["cast", name, "password"]),
         run: (operation: Call["operation"], payload: Call["payload"], options?: { readonly request?: string }): Call =>
           Object.freeze({ kind: "call", actor: name, operation, payload, request: options?.request }),
       }),

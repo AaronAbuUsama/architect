@@ -16,9 +16,10 @@ const fetchJson = (url: string, init?: RequestInit) =>
     fetch(url, init).then((r) => r.text().then((t) => ({ status: r.status, body: Option.getOrElse(parse(t), () => (t === "" ? null : t)) as unknown }))),
   );
 
-export const castPeople = (url: string, names: ReadonlyArray<string>) =>
-  fetchJson(`${url}/_world/cast`, { method: "POST", body: JSON.stringify({ names }) }).pipe(
-    Effect.map((r) => r.body as Record<string, { readonly person: string; readonly token: string }>),
+/** The world signs `names` up for real; `anonymous` only get an email and a password. */
+export const castPeople = (url: string, names: ReadonlyArray<string>, anonymous: ReadonlyArray<string> = []) =>
+  fetchJson(`${url}/_world/cast`, { method: "POST", body: JSON.stringify({ names, anonymous }) }).pipe(
+    Effect.map((r) => r.body as Record<string, { readonly person?: string; readonly token?: string; readonly email: string; readonly password: string }>),
   );
 
 /** Encode the payload by its declaration, call the route, and record what came back. */
@@ -31,7 +32,7 @@ export const callOperation = (url: string, name: string, op: Operation | Read, p
     const r = yield* fetchJson(`${url}/${thing}/${verb}`, {
       method: "POST",
       headers: {
-        "content-type": "application/json", authorization: `Bearer ${token}`, traceparent: `00-${trace}-${parent}-01`,
+        "content-type": "application/json", ...(token ? { authorization: `Bearer ${token}` } : {}), traceparent: `00-${trace}-${parent}-01`,
         ...(request === undefined ? {} : { "idempotency-key": request }),
       },
       body: JSON.stringify(wire),

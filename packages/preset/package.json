@@ -2,8 +2,39 @@
   "name": "@architect/preset",
   "version": "0.0.0",
   "type": "module",
-  "exports": {
-    ".": "./src/index.ts"
+  "generators": "./generators.json",
+  "imports": {
+    "#modules/*": "./src/modules/*"
   },
-  "dependencies": {}
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@architect/compiler": "workspace:*",
+    "@architect/generators": "workspace:*",
+    "@nx/devkit": "24.0.3"
+  },
+  "devDependencies": {
+    "nx": "24.0.3"
+  },
+  "files": [
+    "dist",
+    "generators.json",
+    "schema.json",
+    "files"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "./package.json": "./package.json"
+    },
+    "imports": {
+      "#modules/*.js": "./dist/modules/*.js"
+    }
+  }
 }

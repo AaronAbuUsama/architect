@@ -44,9 +44,14 @@ export interface Step {
   readonly checks: ReadonlyArray<Assertion>;
 }
 
-/** A cast member as a script sees them. `person` is the id the world gave them. */
+/**
+ * A cast member as a script sees them. `person` is the id the world gave them, once signed up; `email` and `password`
+ * are theirs from the start, so a script can sign them up or in itself.
+ */
 export interface Actor {
   readonly person: any;
+  readonly email: any;
+  readonly password: any;
   readonly run: {
     <O extends Operation>(
       operation: O,

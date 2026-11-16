@@ -1,5 +1,7 @@
 // @architect/target-effect: the runtime generated code runs on. Effect only, no host.
 export { Access } from "#modules/access/service.ts";
+export { authMemory } from "#modules/auth/service.ts";
+export { Auth, AuthRefused } from "#modules/auth/types.ts";
 export { NotAllowed } from "#modules/access/types.ts";
 export { Handlers, Reads } from "#modules/handler/service.ts";
 export { BlankReached, InvalidPayload, NotFrom } from "#modules/handler/types.ts";

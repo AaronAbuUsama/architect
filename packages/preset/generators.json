@@ -1,0 +1,9 @@
+{
+  "generators": {
+    "preset": {
+      "factory": "./dist/main.js",
+      "schema": "./schema.json",
+      "description": "The Architect starter: sign-in, organisations, invitations and API keys, with their journeys."
+    }
+  }
+}

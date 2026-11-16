@@ -5,7 +5,7 @@ import type { TypeOf } from "#modules/values/types.ts";
 /** Who is calling. Sign-in fills it in; the runtime checks roles against it before any handler runs. */
 export type Principal =
   | { readonly kind: "anonymous" }
-  | { readonly kind: "person"; readonly person: string };
+  | { readonly kind: "person"; readonly person: string; readonly email?: string };
 
 /** A thing as its handler and its roles see it: its fields and its machine state. */
 export type InstanceOf<T extends Thing> = { readonly [K in keyof T["fields"]]: TypeOf<T["fields"][K]["value"]> } & {

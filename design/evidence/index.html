@@ -53,10 +53,146 @@ h2 { font-family: var(--display); font-size: 1.25rem; margin: 0; display: flex; 
   
 <section class="step">
   <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
+  <h2><span class="id">L1.41</span> Model comparison and architect impact <span class="chip pass">done</span></h2>
+  <p class="summary">The compiler can now compare two models and name each declaration that was added, removed or changed, down to the part that changed. Every prove records which operations passed and the hashes their proof rests on: the operation, its thing and the things it reaches. architect impact reads that record against today&#x27;s blueprint, so a change shows exactly which proofs no longer hold.</p>
+  <div class="proves"><span class="label">Done when</span>After a prove, loosening allowance.spend&#x27;s budget shows exactly stale allowance.spend while grant, revoke, get and create stay proven. Adding allowance.list shows stale none, with list unproven.</div>
+  <div class="links">CI not run · <a href="https://github.com/AaronAbuUsama/architect/commit/f81c2f7">commit f81c2f7</a> · 6 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">prove on acme, which records the proofs.</span>
+    <span class="meta">exit 0 · 4.3s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node packages/cli/src/main.ts prove --env local --root examples/acme</div><pre>journey grant an allowance ✔ 3/3 steps
+journey an outsider cannot revoke ✔ 1/1 steps
+journey read an allowance ✔ 3/3 steps
+journey revoke then spend ✔ 3/3 steps
+journey spend twice with one request ✔ 3/3 steps
+journey spend within an allowance ✔ 4/4 steps
+allowance.get answer shape ✔
+allowance.get declared errors ✔
+allowance.get machine path ✔
+allowance.get events ✔
+allowance.get who may call ✔
+allowance.get steps ✔
+allowance.get performance ✔ p50 0ms p95 0ms budget p95 50ms
+allowance.get coverage ✔
+allowance.get explainability ✔
+allowance.get 9 evals ✔ p50 0ms p95 0ms budget p95 50ms
+allowance.grant answer shape ✔
+allowance.grant declared errors ✔
+allowance.grant machine path ✔
+allowance.grant events ✔
+allowance.grant who may call ✔
+allowance.grant steps ✔
+allowance.grant performance ✔ p50 1ms p95 2ms budget p95 200ms
+allowance.grant coverage ✔
+allowance.grant explainability ✔
+allowance.grant 9 evals ✔ p50 1ms p95 2ms budget p95 200ms
+allowance.revoke answer shape ✔
+allowance.revoke declared errors ✔
+allowance.revoke machine path ✔
+allowance.revoke events ✔
+allowance.revoke who may call ✔
+allowance.revoke steps ✔
+allowance.revoke performance ✔ p50 1ms p95 1ms budget p95 150ms
+allowance.revoke coverage ✔
+allowance.revoke explainability ✔
+allowance.revoke 9 evals ✔ p50 1ms p95 1ms budget p95 150ms
+allowance.spend answer shape ✔
+allowance.spend declared errors ✔
+allowance.spend machine path ✔
+allowance.spend events ✔
+allowance.spend who may call ✔
+allowance.spend steps ✔
+allowance.spend performance ✔ p50 1ms p95 2ms budget p95 150ms
+allowance.spend coverage ✔
+allowance.spend explainability ✔
+allowance.spend 9 evals ✔ p50 1ms p95 2ms budget p95 150ms
+organization.create answer shape ✔
+organization.create declared errors ✔
+organization.create machine path ✔
+organization.create events ✔
+organization.create who may call ✔
+organization.create steps ✔
+organization.create performance ✔ p50 1ms p95 8ms budget p95 200ms
+organization.create coverage ✔
+organization.create explainability ✔
+organization.create 9 evals ✔ p50 1ms p95 8ms budget p95 200ms
+coverage ✔ moves 3/3 · outcomes 3/3 · refusals 2/2 · runtime refusals 4/7
+prove ✔</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Right after: nothing stale, all five proven.</span>
+    <span class="meta">exit 0 · 0.5s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node packages/cli/src/main.ts impact --root examples/acme</div><pre>stale none
+proven allowance.get, allowance.grant, allowance.revoke, allowance.spend, organization.create</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">spend&#x27;s budget loosened: only spend is stale.</span>
+    <span class="meta">exit 0 · 0.5s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node packages/cli/src/main.ts impact --root examples/acme</div><pre>changed operation allowance.spend: budget
+stale allowance.spend
+proven allowance.get, allowance.grant, allowance.revoke, organization.create</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">A new read added: nothing stale, list unproven.</span>
+    <span class="meta">exit 0 · 0.5s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node packages/cli/src/main.ts impact --root examples/acme</div><pre>added operation allowance.list
+stale none
+proven allowance.get, allowance.grant, allowance.revoke, allowance.spend, organization.create
+unproven allowance.list</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The impact test, on a real prove of a copy of acme.</span>
+    <span class="meta">exit 0 · 5.5s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --root packages/prove src/modules/impact --reporter verbose</div><pre>RUN  v4.1.12 ./packages/prove
+
+ ✓ src/modules/impact/impact.test.ts &gt; impact &gt; after a prove, names only what a change unproves 4507ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  19:00:29
+   Duration  4.90s (transform 193ms, setup 0ms, import 283ms, tests 4.52s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Model comparison: changes, additions, removals, and what a proof depends on.</span>
+    <span class="meta">exit 0 · 0.7s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --root packages/compiler src/modules/compare --reporter verbose</div><pre>RUN  v4.1.12 ./packages/compiler
+
+ ✓ src/modules/compare/compare.test.ts &gt; Compare &gt; finds nothing between a model and itself 1ms
+ ✓ src/modules/compare/compare.test.ts &gt; Compare &gt; names the declaration and the part that changed 0ms
+ ✓ src/modules/compare/compare.test.ts &gt; Compare &gt; lists added and removed declarations 0ms
+ ✓ src/modules/compare/compare.test.ts &gt; Compare &gt; says an operation&#x27;s proof rests on itself, its thing and the things it refers to 0ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  19:00:35
+   Duration  333ms (transform 18ms, setup 0ms, import 245ms, tests 3ms, environment 0ms)</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
   <h2><span class="id">L1.40</span> architect check <span class="chip pass">done</span></h2>
   <p class="summary">architect check now holds a project to five parts: no blanks left, tsc clean, the architect lint rules clean, generated/ exactly what the blueprint renders, and the ratchets it still allows. Each finding names its file, line and rule. The rules run through real oxlint with the project&#x27;s model passed in: no declared name as a string, a log before every refusal, only declared errors, no wall clock or raw sleep, and every handler file belonging to an operation.</p>
   <div class="proves"><span class="label">Done when</span>Four planted fixtures each make architect check exit 1 naming the file: an edited output, a name as a string, an undeclared error and a refusal with no log. Clean acme passes with ratchets 0.</div>
-  <div class="links">CI not run · <a href="https://github.com/AaronAbuUsama/architect/commit/9536039">commit 9536039</a> · 5 captured runs</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43933827504">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/9536039">commit 9536039</a> · 5 captured runs</div>
   
 <details class="run" >
   <summary>

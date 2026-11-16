@@ -17,5 +17,17 @@
   },
   "imports": {
     "#modules/*": "./src/modules/*"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "imports": {
+      "#modules/*.js": "./dist/modules/*.js"
+    },
+    "bin": {
+      "architect": "./dist/main.js"
+    }
   }
 }

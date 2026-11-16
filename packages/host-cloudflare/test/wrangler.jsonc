@@ -4,7 +4,7 @@
   "main": "worker.ts",
   "compatibility_date": "2026-08-01",
   "compatibility_flags": ["nodejs_compat"],
-  "vars": { "WORLD_SECRET": "test-only" },
+  "vars": { "AUTH_SECRET": "test-only-secret-at-least-32-characters-long" },
   "d1_databases": [
     { "binding": "DB", "database_name": "host-test", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "migrations" }
   ],

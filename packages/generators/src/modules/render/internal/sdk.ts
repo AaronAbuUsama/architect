@@ -3,6 +3,9 @@ import type { Model } from "@architect/compiler";
 import type { RenderedFile } from "../types.ts";
 import { GENERATED, camel, lines, pascal } from "./names.ts";
 
+/** `.create`, or `["sign-in"]` for a name that isn't an identifier. */
+const member = (name: string) => (/^[A-Za-z_$][\w$]*$/.test(name) ? `.${name}` : `[${JSON.stringify(name)}]`);
+
 export const renderSdk = (model: Model, name: string): ReadonlyArray<RenderedFile> => {
   const ops = Object.values(model.operations);
   const things = [...new Set(ops.map((o) => o.thing))];
@@ -19,7 +22,7 @@ export const renderSdk = (model: Model, name: string): ReadonlyArray<RenderedFil
       "",
       `/** ${o.description} */`,
       `export const ${camel(o.verb)} = (payload: PayloadOf<typeof declaration>) =>`,
-      `  Effect.flatMap(${client}, (client) => client.${o.thing}.${o.verb}({ payload }));`,
+      `  Effect.flatMap(${client}, (client) => client${member(o.thing)}${member(o.verb)}({ payload }));`,
     ),
   }));
   const clientFile: RenderedFile = {

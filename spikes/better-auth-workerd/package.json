@@ -1,0 +1,29 @@
+{
+  "name": "better-auth-workerd",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "e2e": "node --experimental-strip-types scripts/e2e.ts"
+  },
+  "dependencies": {
+    "better-auth": "1.7.15",
+    "@better-auth/api-key": "1.7.15",
+    "@better-auth/core": "1.7.15",
+    "@better-auth/utils": "0.5.1",
+    "better-call": "1.4.4",
+    "kysely": "0.29.7",
+    "zod": "4.5.4"
+  },
+  "devDependencies": {
+    "auth": "1.7.15",
+    "wrangler": "4.156.1",
+    "@cloudflare/vitest-pool-workers": "0.23.0",
+    "vitest": "4.1.12",
+    "@cloudflare/workers-types": "5.20261101.1",
+    "typescript": "npm:@typescript/typescript6@6.0.2",
+    "@typescript/native": "npm:typescript@7.0.2"
+  }
+}

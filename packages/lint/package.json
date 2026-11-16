@@ -10,5 +10,25 @@
   "dependencies": {},
   "imports": {
     "#modules/*": "./src/modules/*"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "./plugin": {
+        "types": "./dist/main.d.ts",
+        "default": "./dist/main.js"
+      },
+      "./package.json": "./package.json"
+    },
+    "imports": {
+      "#modules/*.js": "./dist/modules/*.js"
+    }
   }
 }

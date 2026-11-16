@@ -22,11 +22,11 @@ export const Worlds: WorldsApi = {
       yield* applyMigrations(config, state);
       const log = join(state, "wrangler.log");
       const secret = randomBytes(32).toString("hex");
-      const child = yield* Effect.acquireRelease(startWrangler(config, state, port, { WORLD_SECRET: secret, ...(otlp ? { OTLP_URL: otlp } : {}) }, log), stop);
+      const child = yield* Effect.acquireRelease(startWrangler(config, state, port, { AUTH_SECRET: secret, ...(otlp ? { OTLP_URL: otlp } : {}) }, log), stop);
       const url = `http://127.0.0.1:${port}`;
       yield* answers(`${url}/_world/health`).pipe(
-        Effect.retry({ schedule: Schedule.spaced("250 millis"), times: 160 }),
-        Effect.mapError(() => new WorldFailed({ message: `the world didn't answer within 40 s (exit ${child.exitCode}); see ${log}` })),
+        Effect.retry({ schedule: Schedule.spaced("250 millis"), times: 480 }),
+        Effect.mapError(() => new WorldFailed({ message: `the world didn't answer within 120 s (exit ${child.exitCode}); see ${log}` })),
       );
       return { url, log };
     }),

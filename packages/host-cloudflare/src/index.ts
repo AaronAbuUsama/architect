@@ -7,6 +7,7 @@ export type { WebHandler } from "#modules/telemetry/types.ts";
 export { StoreD1 } from "#modules/store/service.ts";
 export type { StoreD1Options } from "#modules/store/types.ts";
 export { Actor } from "#modules/actors/service.ts";
-export { Tokens } from "#modules/tokens/service.ts";
+export { AuthD1 } from "#modules/auth/service.ts";
+export type { AuthInstance, AuthOptions, CastMember } from "#modules/auth/types.ts";
 export { World, toWorld } from "#modules/world/service.ts";
 export type { Cast, WorldEnv } from "#modules/world/types.ts";

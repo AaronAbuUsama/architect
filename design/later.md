@@ -18,3 +18,6 @@ belongs to, and why it waits.
 - **Key proofs by handler source and journeys too** (D2 #60). Today impact keys a proof by blueprint hashes only.
   When prove gets slow enough that skipping proven operations pays, add the handler file's hash and the hashes of the
   journeys that call the operation.
+- **A release-age policy for transitive dependencies.** `minimumReleaseAge: 20160` in `pnpm-workspace.yaml` rejects
+  53 entries already in the lockfile (transitives resolved within the last two weeks). The rule binds the versions we
+  pin; turning the policy on means rebuilding the lockfile once the window has passed.

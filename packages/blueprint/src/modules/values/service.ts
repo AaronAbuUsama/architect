@@ -28,6 +28,7 @@ export const Values: ValuesApi = {
     const max = options?.max ?? 200;
     return described(Schema.String.check(Schema.isMinLength(1), Schema.isMaxLength(max)), { type: "text", max });
   },
+  email: () => described(Schema.String.check(Schema.isMaxLength(254), Schema.isPattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)), { type: "text", max: 254 }),
 };
 
 export { isValue };

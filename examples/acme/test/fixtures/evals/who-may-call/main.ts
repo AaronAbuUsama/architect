@@ -5,8 +5,8 @@ import { HttpRouter, HttpServer } from "effect/http";
 import { HttpApiBuilder } from "effect/http-api";
 import { SqlClient } from "effect/sql";
 import { Blueprint, type Principal } from "@architect/blueprint";
-import { Database, JournalD1, StoreD1, Telemetry, Tokens, toWorld } from "@architect/host-cloudflare";
-import { Busy, BusyLive, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@architect/target-effect";
+import { AuthD1, Database, JournalD1, StoreD1, Telemetry, toWorld } from "@architect/host-cloudflare";
+import { Auth, Busy, BusyLive, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@architect/target-effect";
 import { Api, Errors } from "../api/src/index.ts";
 import * as allowanceGet from "../api/src/allowance/get.ts";
 import * as allowanceGrant from "../api/src/allowance/grant.ts";
@@ -34,7 +34,7 @@ const organizationCreateServed = Handlers.serve({ name: "organization.create", o
 const tables = [[thingIn(allowanceThing), "allowance"], [thingIn(organizationThing), "organization"], [thingIn(personThing), "person"]] as const;
 
 const refusals = Wire.refusals(Errors.wire);
-type Services = SqlClient.SqlClient | Store | Busy | Principals | Journal;
+type Services = SqlClient.SqlClient | Store | Busy | Principals | Journal | Auth;
 
 /** Who is calling, then the operation or read, its refusals sent as their wire classes. */
 type Run = (payload: never, principal: Principal, request?: string) => Effect.Effect<unknown, unknown, unknown>;
@@ -47,7 +47,7 @@ const call = <P>(served: { readonly run: Run }, payload: P, headers: Readonly<Re
 
 const AllowanceLive = HttpApiBuilder.group(Api, "allowance", Effect.fn(function* (handlers) {
   // The services are taken once, when the routes are built; each request keeps its own tracer and span.
-  const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal)(yield* Effect.context<Services>());
+  const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
   return handlers
       .handle("get", ({ payload, request }) => call(allowanceGetServed, payload, request.headers).pipe(Effect.provideContext(services)))
       .handle("grant", ({ payload, request }) => call(allowanceGrantServed, payload, request.headers).pipe(Effect.provideContext(services)))
@@ -56,7 +56,7 @@ const AllowanceLive = HttpApiBuilder.group(Api, "allowance", Effect.fn(function*
 }));
 const OrganizationLive = HttpApiBuilder.group(Api, "organization", Effect.fn(function* (handlers) {
   // The services are taken once, when the routes are built; each request keeps its own tracer and span.
-  const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal)(yield* Effect.context<Services>());
+  const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
   return handlers
       .handle("create", ({ payload, request }) => call(organizationCreateServed, payload, request.headers).pipe(Effect.provideContext(services)));
 }));
@@ -64,7 +64,8 @@ const OrganizationLive = HttpApiBuilder.group(Api, "organization", Effect.fn(fun
 export interface Env {
   readonly DB: D1Database;
   readonly WORLD: DurableObjectNamespace;
-  readonly WORLD_SECRET: string;
+  /** Better Auth's secret, at least 32 characters: fresh per local world, a named secret per environment. */
+  readonly AUTH_SECRET: string;
   readonly OTLP_URL?: string;
 }
 
@@ -72,7 +73,7 @@ const build = (env: Env) =>
   HttpRouter.toWebHandler(
     HttpApiBuilder.layer(Api).pipe(
       Layer.provide([AllowanceLive, OrganizationLive]),
-      Layer.provide([StoreD1.layer({ tables }), JournalD1.layer, BusyLive, Tokens.principals(env.WORLD_SECRET)]),
+      Layer.provide([StoreD1.layer({ tables }), JournalD1.layer, BusyLive, AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))]),
       Layer.provideMerge(Database.d1(env.DB)),
       Layer.provide(HttpServer.layerServices),
     ),

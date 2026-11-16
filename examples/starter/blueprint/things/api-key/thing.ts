@@ -1,0 +1,8 @@
+import { Blueprint } from "@architect/blueprint";
+import { Organization } from "../organization/thing.ts";
+import { Person } from "../person/thing.ts";
+
+export const ApiKey = Blueprint.thing({
+  description: "A key an agent or a service calls with, on behalf of whoever created it. Better Auth keeps its hash.",
+  fields: { id: Blueprint.id("key"), organization: Organization.fields.id, name: Blueprint.text(), createdBy: Person.fields.id },
+});

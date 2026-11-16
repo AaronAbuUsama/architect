@@ -5,3 +5,6 @@ allowBuilds:
   esbuild: true
   nx: true
   workerd: true
+overrides:
+  # Better Auth would resolve 0.29.9 (12 November 2026), under two weeks old; one copy keeps its types whole.
+  kysely: 0.29.7
