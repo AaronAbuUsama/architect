@@ -1,6 +1,6 @@
 # undeclared-error (types)
 
-**Replaces:** `implementation/handlers/allowance/spend.ts` with `spend.ts` here (imports are relative to that install location).
+**Replaces:** `src/allowance/spend.ts` with `spend.ts` here (imports are relative to that install location).
 **Breaks:** the handler fails with `AllowanceLimitTooHigh`, which `allowance.spend` does not declare (it declares `AllowanceExceeded` and `AllowanceNotFound`; `AllowanceNotActive` and `NotAllowed` are computed). No cast: the break must be caught by the types.
 **Must fail:** `tsc` (the `types` part of `architect check`, L1.21 and L1.40): `AllowanceLimitTooHigh` is not assignable to `AllowanceExceeded | AllowanceNotFound`.
 **Failure shape (checked):** `error TS2375: Type 'Effect<never, AllowanceLimitTooHigh, never>' is not assignable to type 'Effect<{ remaining: bigint }, AllowanceExceeded, ...>'`.

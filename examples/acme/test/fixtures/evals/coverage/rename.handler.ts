@@ -1,6 +1,6 @@
-// Planted fixture: the handler for organization.rename, at implementation/handlers/organization/rename.ts.
+// Planted fixture: the handler for organization.rename, at src/organization/rename.ts.
 import { Effect } from "effect";
-import type { Handler } from "../../../generated/api/src/organization/rename.handler.ts";
+import type { Handler } from "../../generated/api/src/organization/rename.handler.ts";
 
 const rename: Handler = (payload, _context) => Effect.succeed({ organization: payload.organization });
 

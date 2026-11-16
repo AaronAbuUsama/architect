@@ -9,12 +9,10 @@ import { Prove } from "./service.ts";
 // Dot-folders (.wrangler, .architect) belong to whatever is running there; a filter also keeps cpSync off its native path,
 // which aborts the process when a folder vanishes mid-copy.
 const visible = (from: string) => !basename(from).startsWith(".");
-// The planted fixtures were written for implementation/handlers/<thing>/, three levels deep; src/<thing>/ is two.
-const moved = (text: string) => text.replaceAll('"../../../', '"../../').replaceAll("/implementation/handlers/", "/src/");
 const install = (from: string, root: string, to: string) => {
   if (!to.startsWith("src/") && !to.startsWith("generated/")) return cpSync(from, join(root, to));
   mkdirSync(dirname(join(root, to)), { recursive: true });
-  writeFileSync(join(root, to), moved(readFileSync(from, "utf8")));
+  writeFileSync(join(root, to), readFileSync(from, "utf8"));
 };
 
 const starter = resolve(import.meta.dirname, "../../../../../examples/starter");

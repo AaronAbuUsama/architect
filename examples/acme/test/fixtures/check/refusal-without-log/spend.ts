@@ -1,7 +1,7 @@
 // Planted lint fixture: refuses with AllowanceExceeded and no Effect.log* before it, so nothing says why.
 import { Effect } from "effect";
-import type { Handler } from "../../../generated/api/src/allowance/spend.handler.ts";
-import { AllowanceExceeded } from "../../../blueprint/things/allowance/errors.ts";
+import type { Handler } from "../../generated/api/src/allowance/spend.handler.ts";
+import { AllowanceExceeded } from "../../blueprint/things/allowance/errors.ts";
 
 const spend: Handler = (payload, { steps }) =>
   Effect.gen(function* () {

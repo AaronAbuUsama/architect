@@ -1,12 +1,12 @@
 // Planted fixture: the real spend handler, made slow by real work. Before its normal work it runs COUNT sequential
 // queries through the handler's SqlClient (D1). No wall clock, no Timers: handlers cannot reach Timers before layer 5.
-// Install over implementation/handlers/allowance/spend.ts.
+// Install over src/allowance/spend.ts.
 import { Effect } from "effect";
 import { SqlClient } from "effect/sql";
 import { Records } from "@architect/target-effect";
-import type { Handler } from "../../../generated/api/src/allowance/spend.handler.ts";
-import { Allowance } from "../../../blueprint/things/allowance/thing.ts";
-import { AllowanceExceeded } from "../../../blueprint/things/allowance/errors.ts";
+import type { Handler } from "../../generated/api/src/allowance/spend.handler.ts";
+import { Allowance } from "../../blueprint/things/allowance/thing.ts";
+import { AllowanceExceeded } from "../../blueprint/things/allowance/errors.ts";
 
 const COUNT = 2000;
 

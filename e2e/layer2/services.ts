@@ -159,7 +159,7 @@ export const finish = async (root: string, stack: Stack | undefined) => {
   expect(problems).toEqual([]);
 };
 
-const architectPackages = ["blueprint", "compiler", "target-effect", "lint", "generators", "host-cloudflare", "prove", "cli", "preset"] as const;
+const architectPackages = ["blueprint", "compiler", "target-effect", "lint", "generators", "host-cloudflare", "logbook", "prove", "cli", "preset"] as const;
 
 /**
  * Every `@architect/*` package, built and published to the stack's registry as tools/e2e/starter.sh does, so that what promote

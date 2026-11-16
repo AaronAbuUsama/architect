@@ -20,7 +20,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { randomBytes } from "node:crypto";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { promote } from "./flow.ts";
+import { promote, proveInTest } from "./flow.ts";
 import { type Stack, finish, publishArchitect, startStack } from "./services.ts";
 import { project, run } from "./support.ts";
 
@@ -71,8 +71,10 @@ describe("check 5: publishing", () => {
     const next = run(root, s.env, "version", "--next").stdout.trim();
     expect(next).toBe("1.0.0");
     released = next;
+    s.up("test");
     s.up("staging");
     s.up("production");
+    proveInTest(root, s);
     expect(promote(root, s, "staging").status).toBe(0);
     expect(promote(root, s, "production").status).toBe(0);
 

@@ -81,7 +81,7 @@ describe("check 8: watch and the portal", () => {
     expect(healthy.drift).toEqual([]);
 
     // A slow spend handler, a new revision: it proves and promotes (performance is review only), and its traffic drifts.
-    install(root, "slow-spend/spend.ts", "implementation/handlers/allowance/spend.ts");
+    install(root, "slow-spend/spend.ts", "src/allowance/spend.ts");
     const slow = commit(root, "a slow spend");
     build(root, s, slow);
     expect(promote(root, s, "staging").status).toBe(0);

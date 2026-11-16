@@ -1,6 +1,6 @@
 # wrong-password-signs-in
 
-**Replaces:** `implementation/handlers/session/sign-in.ts` with `session/sign-in.ts` here.
+**Replaces:** `src/session/sign-in.ts` with `session/sign-in.ts` here.
 **Breaks:** catches `AuthRefused` and answers a made-up session and token, so any password signs in.
 **Must fail:** journey `sign up and sign in`, step "a wrong password is refused" (expected `SessionCredentialsWrong`, got a 200 with a `ses_` answer). The right-password step still passes.
 **Failure shape:** `sign up and sign in ✘ "a wrong password is refused": expected SessionCredentialsWrong, the call answered`.
