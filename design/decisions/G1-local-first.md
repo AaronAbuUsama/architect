@@ -6,9 +6,10 @@ as early as possible.
 
 ## The decision
 
-1. **Every layer is built and gated against local stand-ins** (Miniflare, Anvil, Foundry, Verdaccio, a local tap, a
-   local OIDC issuer, a local OTLP sink). The cloud is one later pass, behind config switches. The map of stand-ins is
-   in `goals/01-the-whole-framework-locally.md`.
+1. **Every layer is built and gated on real services running on this Mac:** workerd with real D1, Durable Objects
+   and R2, Containers on Docker, Anvil, Verdaccio, a real local tap, a real OIDC issuer and a real OpenTelemetry
+   Collector. Nothing is faked or mocked (Aaron: "local but not fake"). The cloud is one later pass, behind config
+   switches. The full map is in `goals/01-the-whole-framework-locally.md`.
 2. **Gate 2 changes meaning.** "Production" and "staging" are isolated local worlds until the cloud pass. L2.01's check
    becomes `architect deploy --env sandbox` against a local world, and `destroy` leaving its folder and ports empty.
 3. **Stage 1 pulls the grant's slice of L1.20 to L1.25 forward,** so all nine evals run, each with a planted fixture,

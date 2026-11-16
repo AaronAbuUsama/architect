@@ -10,19 +10,25 @@
 
 ## The bound
 
-All five layers of the build plan, against local stand-ins for every cloud service, with no key and no cloud account:
+All five layers of the build plan, running for real on this Mac, with no key and no cloud account.
 
-| Cloud piece | Local stand-in |
+**Local, never fake (Aaron, 16 November 2026).** Every service actually runs: a real Worker in workerd (the open-source
+runtime Cloudflare's own edge runs), a real D1 database (SQLite, through workerd's D1), real Durable Objects with
+their own storage and alarms, real R2, and a real EVM node. No hand-written fakes, mocks or in-memory shims of any
+Cloudflare API, chain or service, in tests or in `prove`. A test that needs a Worker runs inside workerd. If something
+can't run for real locally, say so in `decisions/`, and leave it for the cloud pass. Never fake it.
+
+| Cloud piece | What runs locally (the real thing) |
 |---|---|
-| Workers, Durable Objects, alarms, D1, R2 | Miniflare (workerd), through wrangler and `@cloudflare/vitest-pool-workers` |
-| Environments (test, staging, production) | One isolated local world each: its own Miniflare persistence folder, port and secrets file |
-| Alchemy infrastructure | The generated Alchemy stack, applied to the local world; cloud apply is a config switch |
-| Containers for benches | Anvil as a child process (the build plan's local default) |
-| The chain | Anvil and Foundry, both installed |
-| npm and Homebrew | Verdaccio (through `npx`, pinned) and a local tap repository |
-| GitHub's OIDC token for verdicts | A local issuer with a throwaway key made per run; GitHub Actions' real token in CI, which is free |
-| Axiom, the OTLP sink | A local OTLP sink (in-memory, or a file exporter) |
-| OAuth for the MCP server and Better Auth | Both running inside the local world |
+| Workers, Durable Objects, alarms, D1, R2 | workerd, through `wrangler dev` and `@cloudflare/vitest-pool-workers`, with state persisted to disk |
+| Environments (test, staging, production) | A separate running deployment each: its own workerd process, persisted D1 and Durable Object storage, port and secrets |
+| Alchemy infrastructure | Alchemy itself, applied to the local runtime if it supports that (a wayfinding question); otherwise wrangler's local deploy, with the Alchemy stack generated and planned |
+| Containers for benches | Cloudflare Containers through `wrangler dev`, on local Docker |
+| The chain | Anvil (a real EVM node) and Foundry |
+| npm and Homebrew | Verdaccio (a real npm registry) and a real local tap repository that `brew install` uses |
+| GitHub's OIDC token for verdicts | A real OIDC issuer running locally that signs real JWTs, and GitHub Actions' own token in CI |
+| Axiom, the OTLP sink | A real OpenTelemetry Collector and trace store in Docker, receiving OTLP from the Workers |
+| OAuth for the MCP server and Better Auth | Both running for real inside the local deployment |
 
 **Not in this goal (the cloud pass, later and with Aaron's yes on credentials):** real Cloudflare deploys, publishing
 to the real npm and Homebrew, Axiom, and sign-in on a real staging host. Everything is built so that each of these is a
@@ -72,6 +78,8 @@ same wrong turn found in the build costs a stage.
   it runs Durable Objects and D1.
 - **Nx 24 sync generators and module boundaries,** and whether the boundaries rule needs ESLint, or whether oxlint can
   hold it. Oxlint is the project's linter for its own rules.
+- **Real services locally:** whether Alchemy can apply a stack to the local runtime, how `wrangler dev` runs
+  Containers on Docker, and how to get OTLP out of workerd into a local collector.
 - **Pinned versions,** the newest published on or before 2 November 2026: nx 24.0.3, effect 4.1.1, wrangler 4.156.1,
   `@cloudflare/vitest-pool-workers` 0.23.0, vitest 4.1.12, oxlint 1.90.0, verdaccio 7.0.2, tsx 4.23.15.
 
