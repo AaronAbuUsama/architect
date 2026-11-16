@@ -93,7 +93,7 @@ prove ✔
     <span class="cap">Planted: grant answers a number for the id. The answer shape eval names the call and the field: expected alw_&lt;id&gt;, got 500. Exit 1.</span>
     <span class="meta">exit 1 · 5.0s</span>
   </summary>
-  <div class="term"><div class="prompt">$ /private/tmp/claude-501/-Users-abuusama--claude-spares-spare-gEwBPG/d12405b7-5156-441f-94fa-245c9582b12b/scratchpad/plant.sh answer-shape grant.ts implementation/handlers/allowance/grant.ts</div><pre>planted test/fixtures/evals/answer-shape/grant.ts as implementation/handlers/allowance/grant.ts
+  <div class="term"><div class="prompt">$ &lt;scratch&gt;/plant.sh answer-shape grant.ts implementation/handlers/allowance/grant.ts</div><pre>planted test/fixtures/evals/answer-shape/grant.ts as implementation/handlers/allowance/grant.ts
 journey grant an allowance ✘ 1/3 steps
   ✘ &quot;ada grants olga 500&quot;: expected an answer, failed with 500
   ✘ &quot;ada grants olga 500&quot;: emits: nothing at last.allowance
@@ -132,7 +132,7 @@ prove ✘ 4 failing
     <span class="cap">Planted: the server serves grant with no gate. Who may call decides from the world&#x27;s facts that Bob isn&#x27;t the owner, sees he was answered, and fails. Exit 1.</span>
     <span class="meta">exit 1 · 3.5s</span>
   </summary>
-  <div class="term"><div class="prompt">$ /private/tmp/claude-501/-Users-abuusama--claude-spares-spare-gEwBPG/d12405b7-5156-441f-94fa-245c9582b12b/scratchpad/plant.sh who-may-call main.ts generated/server/main.ts</div><pre>planted test/fixtures/evals/who-may-call/main.ts as generated/server/main.ts
+  <div class="term"><div class="prompt">$ &lt;scratch&gt;/plant.sh who-may-call main.ts generated/server/main.ts</div><pre>planted test/fixtures/evals/who-may-call/main.ts as generated/server/main.ts
 journey grant an allowance ✘ 2/3 steps
   ✘ &quot;bob is refused and the handler never runs&quot;: expected refused with NotAllowed, answered
   ✘ &quot;bob is refused and the handler never runs&quot;: expected no events, journal has AllowanceGranted
@@ -166,7 +166,7 @@ prove ✘ 2 failing
     <span class="cap">Planted: the refusal over the cap logs nothing. Explainability says AllowanceLimitTooHigh has no deciding log. Exit 1.</span>
     <span class="meta">exit 1 · 3.5s</span>
   </summary>
-  <div class="term"><div class="prompt">$ /private/tmp/claude-501/-Users-abuusama--claude-spares-spare-gEwBPG/d12405b7-5156-441f-94fa-245c9582b12b/scratchpad/plant.sh explainability grant.ts implementation/handlers/allowance/grant.ts</div><pre>planted test/fixtures/evals/explainability/grant.ts as implementation/handlers/allowance/grant.ts
+  <div class="term"><div class="prompt">$ &lt;scratch&gt;/plant.sh explainability grant.ts implementation/handlers/allowance/grant.ts</div><pre>planted test/fixtures/evals/explainability/grant.ts as implementation/handlers/allowance/grant.ts
 journey grant an allowance ✘ 2/3 steps
   ✘ &quot;ada grants olga 500&quot;: expected AllowanceGranted, journal has nothing
   ✘ &quot;ada grants olga 500&quot;: alw_planted1 is in no state, expected &quot;active&quot;
@@ -619,7 +619,7 @@ exclude:  **/node_modules/**, **/.git/**
     <span class="cap">One real session: architect dev, the world casts ada, olga and bob, the generated acme CLI grants, refuses over the cap and refuses bob, curl gets 200, and nothing is left running.</span>
     <span class="meta">exit 0 · 5.0s</span>
   </summary>
-  <div class="term"><div class="prompt">$ bash /private/tmp/claude-501/-Users-abuusama--claude-spares-spare-gEwBPG/d12405b7-5156-441f-94fa-245c9582b12b/scratchpad/dev-session.sh</div><pre>$ architect dev --root examples/acme --port 8799 &amp;
+  <div class="term"><div class="prompt">$ bash &lt;scratch&gt;/dev-session.sh</div><pre>$ architect dev --root examples/acme --port 8799 &amp;
 running at http://127.0.0.1:8799  (world at http://127.0.0.1:8799/_world, wrangler output in ./examples/acme/.architect/dev/wrangler.log)
 
 $ curl -X POST /_world/cast -d {&quot;names&quot;:[&quot;ada&quot;,&quot;olga&quot;,&quot;bob&quot;]}    (tokens kept in shell variables, not shown)
@@ -788,7 +788,7 @@ Flaky tasks can disrupt your CI pipeline. Automatically retry them with Nx Cloud
     <span class="cap">From an empty generated folder: nx sync writes the api, server, sdk and cli, and the model.</span>
     <span class="meta">exit 0 · 1.4s</span>
   </summary>
-  <div class="term"><div class="prompt">$ bash /private/tmp/claude-501/-Users-abuusama--claude-spares-spare-gEwBPG/d12405b7-5156-441f-94fa-245c9582b12b/scratchpad/sync.sh</div><pre>NX   The workspace is out of sync
+  <div class="term"><div class="prompt">$ bash &lt;scratch&gt;/sync.sh</div><pre>NX   The workspace is out of sync
 
 [@architect/generators:sync]: generated/ doesn&#x27;t match the blueprint. Run nx sync.
 
@@ -832,7 +832,7 @@ examples/acme/generated/server/main.ts</pre></div>
     <span class="cap">TypeScript 7 checks acme whole: blueprint, generated code and handler scaffolds.</span>
     <span class="meta">exit 0 · 0.5s</span>
   </summary>
-  <div class="term"><div class="prompt">$ bash /private/tmp/claude-501/-Users-abuusama--claude-spares-spare-gEwBPG/d12405b7-5156-441f-94fa-245c9582b12b/scratchpad/acme-tsc.sh</div><pre>Files:              845
+  <div class="term"><div class="prompt">$ bash &lt;scratch&gt;/acme-tsc.sh</div><pre>Files:              845
 Check time:      0.062s
 Total time:      0.191s
 
@@ -886,7 +886,7 @@ Run `nx sync` to sync the workspace.</pre></div>
     <span class="cap">The generated grant endpoint, and the handler scaffold waiting to be written.</span>
     <span class="meta">exit 0 · 0.0s</span>
   </summary>
-  <div class="term"><div class="prompt">$ bash /private/tmp/claude-501/-Users-abuusama--claude-spares-spare-gEwBPG/d12405b7-5156-441f-94fa-245c9582b12b/scratchpad/show.sh</div><pre>// Generated from blueprint/things/allowance/verbs/grant.ts. Do not edit.
+  <div class="term"><div class="prompt">$ bash &lt;scratch&gt;/show.sh</div><pre>// Generated from blueprint/things/allowance/verbs/grant.ts. Do not edit.
 import { HttpApiEndpoint } from &quot;effect/http-api&quot;;
 import declaration from &quot;../../../../blueprint/things/allowance/verbs/grant.ts&quot;;
 import { AllowanceLimitTooHigh, NotAllowed } from &quot;../errors.ts&quot;;
@@ -1045,7 +1045,7 @@ Re-run with --output-style=static to inline logs.
     <span class="cap">The compiler&#x27;s and the CLI&#x27;s tests, including the snapshot, rename and reformat checks.</span>
     <span class="meta">exit 0 · 2.6s</span>
   </summary>
-  <div class="term"><div class="prompt">$ bash /private/tmp/claude-501/-Users-abuusama--claude-spares-spare-gEwBPG/d12405b7-5156-441f-94fa-245c9582b12b/scratchpad/tests.sh</div><pre>RUN  v4.1.12 ./packages/compiler
+  <div class="term"><div class="prompt">$ bash &lt;scratch&gt;/tests.sh</div><pre>RUN  v4.1.12 ./packages/compiler
 
  ✓ src/modules/model/model.test.ts &gt; model &gt; describes acme 44ms
  ✓ src/modules/model/model.test.ts &gt; model &gt; names an operation after its file: grant.ts renamed to award.ts is allowance.award 27ms
@@ -1405,7 +1405,7 @@ operation organization.create  refuses NotAllowed  e3e79ef636641315</pre></div>
     <span class="cap">A copy with grant.ts re-indented on every line. Same model, same hashes.</span>
     <span class="meta">exit 0 · 0.5s</span>
   </summary>
-  <div class="term"><div class="prompt">$ bash /private/tmp/claude-501/-Users-abuusama--claude-spares-spare-gEwBPG/d12405b7-5156-441f-94fa-245c9582b12b/scratchpad/same.sh</div><pre>same model, same hashes
+  <div class="term"><div class="prompt">$ bash &lt;scratch&gt;/same.sh</div><pre>same model, same hashes
  1 file changed, 17 insertions(+), 17 deletions(-)</pre></div>
 </details>
 <details class="run" open>

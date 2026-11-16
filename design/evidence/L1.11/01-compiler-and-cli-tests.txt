@@ -1,4 +1,4 @@
-$ bash /private/tmp/claude-501/-Users-abuusama--claude-spares-spare-gEwBPG/d12405b7-5156-441f-94fa-245c9582b12b/scratchpad/tests.sh
+$ bash <scratch>/tests.sh
 # commit f9d570c · 2026-11-16T16:42:12Z · exit 0 (expected 0) · 2.6s
 
 

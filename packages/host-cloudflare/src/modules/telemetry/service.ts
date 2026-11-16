@@ -29,12 +29,11 @@ export const Telemetry: TelemetryApi = {
     if (!url) return handler(traced).then(answered);
     // One runtime per request: its exporters are flushed when it is disposed, after the response, under waitUntil.
     const runtime = ManagedRuntime.make(exporters(url, service));
+    // Disposed whether the handler answers or throws, so a failed request still exports what it recorded.
     return runtime
       .context()
       .then((context) => handler(traced, context as unknown as Context.Context<never>))
-      .then((response) => {
-        waitUntil(runtime.dispose());
-        return answered(response);
-      });
+      .finally(() => waitUntil(runtime.dispose()))
+      .then(answered);
   },
 };

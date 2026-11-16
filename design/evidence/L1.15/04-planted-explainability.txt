@@ -1,4 +1,4 @@
-$ /private/tmp/claude-501/-Users-abuusama--claude-spares-spare-gEwBPG/d12405b7-5156-441f-94fa-245c9582b12b/scratchpad/plant.sh explainability grant.ts implementation/handlers/allowance/grant.ts
+$ <scratch>/plant.sh explainability grant.ts implementation/handlers/allowance/grant.ts
 # commit 9635862 · 2026-11-16T17:33:43Z · exit 1 (expected 1) · 3.5s
 
 planted test/fixtures/evals/explainability/grant.ts as implementation/handlers/allowance/grant.ts

@@ -1,4 +1,4 @@
-$ bash /private/tmp/claude-501/-Users-abuusama--claude-spares-spare-gEwBPG/d12405b7-5156-441f-94fa-245c9582b12b/scratchpad/acme-tsc.sh
+$ bash <scratch>/acme-tsc.sh
 # commit eff75fb · 2026-11-16T16:59:03Z · exit 0 (expected 0) · 0.5s
 
 Files:              845

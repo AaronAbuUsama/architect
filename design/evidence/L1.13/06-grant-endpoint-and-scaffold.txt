@@ -1,4 +1,4 @@
-$ bash /private/tmp/claude-501/-Users-abuusama--claude-spares-spare-gEwBPG/d12405b7-5156-441f-94fa-245c9582b12b/scratchpad/show.sh
+$ bash <scratch>/show.sh
 # commit eff75fb · 2026-11-16T16:58:46Z · exit 0 (expected 0) · 0.0s
 
 // Generated from blueprint/things/allowance/verbs/grant.ts. Do not edit.

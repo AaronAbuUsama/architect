@@ -1,7 +1,7 @@
 // The stage-one gate for prove: acme passes, and each planted fixture (written by the journey author, never by the
 // builder) fails its own eval in a scratch copy of acme.
 import { spawnSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { Effect } from "effect";
 import { afterAll, describe, expect, it } from "vitest";
@@ -57,6 +57,15 @@ describe("architect prove --env local", () => {
     expect(report.lines.at(-1)).toBe("prove ✔");
     expect(report.passed).toBe(true);
     nothingRunning();
+  });
+
+  it("the who-may-call fixture is still the generated server with only its gate removed", () => {
+    // The author regenerates it from generated/server/main.ts; if the generator moves on, this says so.
+    const fixture = readFileSync(join(fixtures, "who-may-call/main.ts"), "utf8").split("\n");
+    const generated = new Set(readFileSync(join(acme, "generated/server/main.ts"), "utf8").split("\n"));
+    const different = fixture.filter((line) => !generated.has(line));
+    expect(different.length).toBeLessThanOrEqual(5);
+    expect(different.some((l) => l.includes("allowed: [Blueprint.anyone]"))).toBe(true);
   });
 
   const cases: ReadonlyArray<{ readonly fixture: string; readonly installs: ReadonlyArray<readonly [string, string]>; readonly line: string; readonly says: string; readonly sync?: boolean }> = [

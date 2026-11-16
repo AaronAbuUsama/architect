@@ -1,4 +1,4 @@
-$ /private/tmp/claude-501/-Users-abuusama--claude-spares-spare-gEwBPG/d12405b7-5156-441f-94fa-245c9582b12b/scratchpad/plant.sh who-may-call main.ts generated/server/main.ts
+$ <scratch>/plant.sh who-may-call main.ts generated/server/main.ts
 # commit 9635862 · 2026-11-16T17:33:39Z · exit 1 (expected 1) · 3.5s
 
 planted test/fixtures/evals/who-may-call/main.ts as generated/server/main.ts

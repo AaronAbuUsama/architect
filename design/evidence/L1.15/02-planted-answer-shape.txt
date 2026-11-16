@@ -1,4 +1,4 @@
-$ /private/tmp/claude-501/-Users-abuusama--claude-spares-spare-gEwBPG/d12405b7-5156-441f-94fa-245c9582b12b/scratchpad/plant.sh answer-shape grant.ts implementation/handlers/allowance/grant.ts
+$ <scratch>/plant.sh answer-shape grant.ts implementation/handlers/allowance/grant.ts
 # commit 9635862 · 2026-11-16T17:33:36Z · exit 1 (expected 1) · 5.0s
 
 planted test/fixtures/evals/answer-shape/grant.ts as implementation/handlers/allowance/grant.ts

@@ -1,4 +1,4 @@
-$ bash /private/tmp/claude-501/-Users-abuusama--claude-spares-spare-gEwBPG/d12405b7-5156-441f-94fa-245c9582b12b/scratchpad/dev-session.sh
+$ bash <scratch>/dev-session.sh
 # commit 7d1082f · 2026-11-16T17:09:21Z · exit 0 (expected 0) · 5.0s
 
 $ architect dev --root examples/acme --port 8799 &
