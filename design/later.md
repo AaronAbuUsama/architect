@@ -6,6 +6,8 @@ belongs to, and why it waits.
 - Indexers beyond the generated follower, for views too large for an organisation's index. Later.
 - Safe as a kit, built from its own events and our own small core. Later.
 - Python as a third target. Later.
+- **Noir on Aztec as a target**, client-proved and private (N1, `design/noir/`). After Gate 5, its own layer. The
+  private Capxul layers in the handoff are a product roadmap built on it, kept with the Noir thread.
 - Each thing as an actor by default. Later.
 - The world's front door (`/_world/cast`, `/_world/facts/*`) closed in staging and production worlds: shipping, layer two (stage three), because only then do non-local worlds exist (D2 #28).
 
