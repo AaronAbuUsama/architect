@@ -1,4 +1,4 @@
-import type { Model } from "#modules/model/types.ts";
+import type { Model } from "#modules/model/types.js";
 import type { CompareApi, Depends } from "./types.ts";
 import { diff } from "./internal/diff.ts";
 

@@ -2,7 +2,7 @@
 import { Effect } from "effect";
 import type { Thing } from "@architect/blueprint";
 import type { Commit, Instance, Stored } from "@architect/target-effect";
-import type { ActorApi, ActorWrite } from "#modules/actors/types.ts";
+import type { ActorApi, ActorWrite } from "#modules/actors/types.js";
 import { decodeRow, encodeFields } from "./rows.ts";
 
 const stubOf = (actors: DurableObjectNamespace, table: string, id: string) =>

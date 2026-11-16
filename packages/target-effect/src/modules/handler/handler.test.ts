@@ -2,12 +2,12 @@ import { Cause, Effect, Exit, Layer, Tracer } from "effect";
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { Blueprint } from "@architect/blueprint";
 import { ErrorNames } from "@architect/blueprint/server";
-import { Busy } from "#modules/work/types.ts";
-import { BusyLive } from "#modules/work/service.ts";
-import { storeMemory } from "#modules/records/service.ts";
-import { Records, Store } from "#modules/records/types.ts";
+import { Busy } from "#modules/work/types.js";
+import { BusyLive } from "#modules/work/service.js";
+import { storeMemory } from "#modules/records/service.js";
+import { Records, Store } from "#modules/records/types.js";
 import { EventNames } from "@architect/blueprint/server";
-import { NotAllowed } from "#modules/access/types.ts";
+import { NotAllowed } from "#modules/access/types.js";
 import { Handlers } from "./service.ts";
 import { InvalidPayload, NotFrom, type Handler } from "./types.ts";
 

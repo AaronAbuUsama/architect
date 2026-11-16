@@ -158,3 +158,11 @@ Decided 16 November 2026 by the builder, which has architectural ownership. The 
     are installed. Its package.json pins every `@architect/*` package at the preset's own version.
 70. **Sync, like drift, leaves dot-folders under `generated/` alone.** `.wrangler/` there belongs to a running or
     finished local world, not to the blueprint; deleting it made `nx sync:check` fail after any local prove.
+71. **The starter's end-to-end check runs the way a user installs.** `tools/e2e/starter.sh` builds, publishes the
+    nine packages to Verdaccio in Docker, and runs `create-nx-workspace` with every npm and pnpm cache pointed inside
+    its own temporary folder, since each run republishes `0.0.0` and a cached tarball would hide a change. The
+    Verdaccio uplink tolerates slow answers (120 s, 100 failures) because the defaults turn one slow fetch into 404s.
+    The preset pins `packageManager: pnpm@11.20.0` and merges `allowBuilds` (esbuild, workerd) and the kysely hold
+    into the workspace's own `pnpm-workspace.yaml`.
+72. **A world whose wrangler exits on a taken socket is started again, up to three times.** wrangler chooses the
+    worker's internal sockets itself, and parallel worlds can choose the same one. Wrangler's metrics are off.

@@ -1,5 +1,5 @@
 import { Data } from "effect";
-import { structOf } from "#modules/things/service.ts";
+import { structOf } from "#modules/things/service.js";
 import type { AnyErrorClass, ErrorClass, ErrorsApi, Naming } from "./types.ts";
 
 const nameKey = Symbol.for("architect/error-name");

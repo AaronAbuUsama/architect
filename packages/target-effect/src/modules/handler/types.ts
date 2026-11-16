@@ -2,9 +2,9 @@
 // counted work inside the operation's span, check the answer, give it back.
 import { Data, type Effect, type Schema } from "effect";
 import type { AnswerOf, ErrorOf, PayloadOf, Principal, Read, StepsOf } from "@architect/blueprint";
-import type { NotAllowed } from "#modules/access/types.ts";
-import type { Records, Store } from "#modules/records/types.ts";
-import type { Busy } from "#modules/work/types.ts";
+import type { NotAllowed } from "#modules/access/types.js";
+import type { Records, Store } from "#modules/records/types.js";
+import type { Busy } from "#modules/work/types.js";
 
 /** The payload didn't match the operation's declaration. Refused before the handler runs. */
 export class InvalidPayload extends Data.TaggedError("InvalidPayload")<{ readonly issues: string }> {}

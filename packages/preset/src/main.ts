@@ -2,8 +2,8 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Tree } from "@nx/devkit";
-import { Starter } from "#modules/starter/service.ts";
-import type { PresetOptions } from "#modules/starter/types.ts";
+import { Starter } from "#modules/starter/service.js";
+import type { PresetOptions } from "#modules/starter/types.js";
 
 const here = import.meta.dirname;
 // Published: dist/main.js beside files/. In the repository: src/main.ts, two folders below examples/starter.

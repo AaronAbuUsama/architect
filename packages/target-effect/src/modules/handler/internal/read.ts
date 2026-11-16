@@ -1,8 +1,8 @@
 import { Effect, Schema } from "effect";
 import { NotAllowed, type Principal } from "@architect/blueprint";
-import { Access } from "#modules/access/service.ts";
-import { Unit } from "#modules/records/service.ts";
-import { Records, Store } from "#modules/records/types.ts";
+import { Access } from "#modules/access/service.js";
+import { Unit } from "#modules/records/service.js";
+import { Records, Store } from "#modules/records/types.js";
 import { answerAttributes, payloadAttributes, principalAttributes } from "./attributes.ts";
 import type { ReadsApi } from "../types.ts";
 

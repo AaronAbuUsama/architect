@@ -6,12 +6,12 @@ import { Argument, Command, Flag } from "effect/cli";
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { Impact, Prove, Worlds } from "@architect/prove";
-import { ModelCommand } from "#modules/model/service.ts";
-import { Add } from "#modules/add/service.ts";
-import { AddRefused, type What } from "#modules/add/types.ts";
-import { Check } from "#modules/check/service.ts";
-import { Generate } from "#modules/generate/service.ts";
-import { Brief } from "#modules/brief/service.ts";
+import { ModelCommand } from "#modules/model/service.js";
+import { Add } from "#modules/add/service.js";
+import { AddRefused, type What } from "#modules/add/types.js";
+import { Check } from "#modules/check/service.js";
+import { Generate } from "#modules/generate/service.js";
+import { Brief } from "#modules/brief/service.js";
 import { Compiler, nodeSource } from "@architect/compiler";
 
 const model = Command.make(

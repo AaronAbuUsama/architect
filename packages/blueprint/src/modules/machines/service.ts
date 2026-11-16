@@ -1,6 +1,6 @@
 import type { Machine, MachinesApi, Move, MoveSpec } from "./types.ts";
 import { checkMoves } from "./internal/check.ts";
-import { Blanks } from "#modules/blanks/service.ts";
+import { Blanks } from "#modules/blanks/service.js";
 
 export const Machines: MachinesApi = {
   machine: (thing, spec) => {

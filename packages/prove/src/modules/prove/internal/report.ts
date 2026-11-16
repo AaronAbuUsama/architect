@@ -1,8 +1,8 @@
 // Turning journeys and verdicts into prove's lines.
 import type { Model } from "@architect/compiler";
-import type { Verdict } from "#modules/evals/types.ts";
-import type { JourneyRun, StepResult } from "#modules/journeys/types.ts";
-import type { Trace } from "#modules/telemetry/types.ts";
+import type { Verdict } from "#modules/evals/types.js";
+import type { JourneyRun, StepResult } from "#modules/journeys/types.js";
+import type { Trace } from "#modules/telemetry/types.js";
 
 /** A step's span checks, now that its trace is in. */
 export const spanFailures = (step: StepResult, trace: Trace | undefined): ReadonlyArray<string> => {

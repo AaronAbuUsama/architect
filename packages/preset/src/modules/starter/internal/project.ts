@@ -17,6 +17,7 @@ export const packageJson = (existing: Record<string, unknown>, name: string, ver
   return {
     ...existing,
     type: "module",
+    packageManager: "pnpm@11.20.0",
     scripts: { ...(existing["scripts"] as object | undefined), architect: "architect" },
     bin: { [name]: "./generated/cli/src/main.ts" },
     dependencies: { ...(existing["dependencies"] as object | undefined), ...architect, ...EXACT },
@@ -36,3 +37,26 @@ export const TSCONFIG = {
 };
 
 export const IGNORES = [".architect/", ".wrangler/", "node_modules/"];
+
+/** pnpm settings the project needs: workerd and esbuild build for the local world; kysely held as in Architect (D2 #68). */
+export const WORKSPACE: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+  allowBuilds: { esbuild: "true", nx: "true", workerd: "true" },
+  overrides: { kysely: "0.29.7" },
+};
+
+/** Merge flat two-level maps into a pnpm-workspace.yaml: each entry is set under its key, which is added if missing. */
+export const mergeWorkspace = (yaml: string, settings: typeof WORKSPACE): string => {
+  const lines = yaml.trimEnd() === "" ? [] : yaml.trimEnd().split("\n");
+  for (const [key, entries] of Object.entries(settings)) {
+    let at = lines.findIndex((l) => l === `${key}:`);
+    if (at === -1) { lines.push(`${key}:`); at = lines.length - 1; }
+    let end = at + 1;
+    while (end < lines.length && lines[end]!.startsWith("  ")) end++;
+    for (const [name, value] of Object.entries(entries)) {
+      const line = `  ${name}: ${value}`;
+      const found = lines.slice(at + 1, end).findIndex((l) => l.trimStart().replace(/^'|'(?=:)/g, "").startsWith(`${name}:`));
+      if (found === -1) { lines.splice(end, 0, line); end++; } else lines[at + 1 + found] = line;
+    }
+  }
+  return lines.join("\n") + "\n";
+};

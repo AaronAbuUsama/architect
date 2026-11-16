@@ -1,8 +1,8 @@
 import { Effect, Layer } from "effect";
 import { TestClock } from "effect/testing";
 import { describe, expect, it } from "vitest";
-import { Busy } from "#modules/work/types.ts";
-import { BusyLive } from "#modules/work/service.ts";
+import { Busy } from "#modules/work/types.js";
+import { BusyLive } from "#modules/work/service.js";
 import { Timers } from "./types.ts";
 import { TimersMemory } from "./service.ts";
 

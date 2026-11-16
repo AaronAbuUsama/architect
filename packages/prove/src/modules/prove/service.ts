@@ -1,11 +1,11 @@
 import { resolve } from "node:path";
 import { Effect } from "effect";
 import { Compiler, nodeSource } from "@architect/compiler";
-import { Collectors } from "#modules/telemetry/service.ts";
-import { Evals } from "#modules/evals/service.ts";
-import { Journeys } from "#modules/journeys/service.ts";
-import { Worlds } from "#modules/world/service.ts";
-import { Impact } from "#modules/impact/service.ts";
+import { Collectors } from "#modules/telemetry/service.js";
+import { Evals } from "#modules/evals/service.js";
+import { Journeys } from "#modules/journeys/service.js";
+import { Worlds } from "#modules/world/service.js";
+import { Impact } from "#modules/impact/service.js";
 import { ProveFailed, type ProveApi } from "./types.ts";
 import { evalLines, journeyLines } from "./internal/report.ts";
 

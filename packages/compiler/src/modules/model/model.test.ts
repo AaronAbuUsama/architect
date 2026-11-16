@@ -2,7 +2,7 @@ import { cpSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, write
 import { join, resolve } from "node:path";
 import { Effect, Exit } from "effect";
 import { afterAll, describe, expect, it } from "vitest";
-import { nodeSource } from "#modules/source/service.ts";
+import { nodeSource } from "#modules/source/service.js";
 import { Compiler } from "./service.ts";
 
 const acme = resolve(import.meta.dirname, "../../../../../examples/acme");

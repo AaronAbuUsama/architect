@@ -1,6 +1,6 @@
 // The world: one Durable Object per running world. Its front door is `/_world/*`. It keeps the cast, signing each
 // one up for real through Better Auth; the clock and the registry of things join it in stage five.
-import type { CastMember } from "#modules/auth/types.ts";
+import type { CastMember } from "#modules/auth/types.js";
 
 export interface WorldEnv {
   readonly DB: D1Database;

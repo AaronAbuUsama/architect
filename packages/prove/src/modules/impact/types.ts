@@ -2,7 +2,7 @@
 // rests on; impact compares today's model with them, so only what a change touches has to be proven again.
 import type { Effect } from "effect";
 import type { Change, Depends, Model } from "@architect/compiler";
-import type { Verdict } from "#modules/evals/types.ts";
+import type { Verdict } from "#modules/evals/types.js";
 
 /** `.architect/evidence/proven.json`: the model last proven, and each proven operation's dependencies then. */
 export interface Ledger {

@@ -1,6 +1,6 @@
 import { Effect } from "effect";
-import { AuthD1 } from "#modules/auth/service.ts";
-import type { AuthInstance, CastMember } from "#modules/auth/types.ts";
+import { AuthD1 } from "#modules/auth/service.js";
+import type { AuthInstance, CastMember } from "#modules/auth/types.js";
 import type { Cast } from "../types.ts";
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });

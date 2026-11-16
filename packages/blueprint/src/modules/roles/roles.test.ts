@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { Values } from "#modules/values/service.ts";
-import { Things } from "#modules/things/service.ts";
+import { Values } from "#modules/values/service.js";
+import { Things } from "#modules/things/service.js";
 import { Roles } from "./service.ts";
 
 const Organization = Things.thing({ description: "x", fields: { id: Values.id("org"), owner: Values.id("per") } });

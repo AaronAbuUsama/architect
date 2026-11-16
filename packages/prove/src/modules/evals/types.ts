@@ -1,8 +1,8 @@
 // The nine evals: what every call in every journey must show, judged from telemetry and the world's facts against
 // the model. Eval 7 (performance) only ever raises a review; every other failure fails `prove`.
 import type { OperationModel } from "@architect/compiler";
-import type { CallRecord, Project } from "#modules/journeys/types.ts";
-import type { Span, Trace } from "#modules/telemetry/types.ts";
+import type { CallRecord, Project } from "#modules/journeys/types.js";
+import type { Span, Trace } from "#modules/telemetry/types.js";
 
 /** One call and everything known about it. */
 export interface Evidence {

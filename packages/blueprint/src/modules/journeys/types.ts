@@ -1,10 +1,10 @@
 // Journeys: a story told in declared operations, and the starting worlds it begins from. Pure descriptions: `prove`
 // runs them against a real world and checks every step. Nothing here calls anything.
-import type { Allowed } from "#modules/roles/types.ts";
-import type { AnyErrorClass, NotAllowed } from "#modules/errors/types.ts";
-import type { Event } from "#modules/events/types.ts";
-import type { NotFrom } from "#modules/machines/types.ts";
-import type { Operation, PayloadOf, Read } from "#modules/operations/types.ts";
+import type { Allowed } from "#modules/roles/types.js";
+import type { AnyErrorClass, NotAllowed } from "#modules/errors/types.js";
+import type { Event } from "#modules/events/types.js";
+import type { NotFrom } from "#modules/machines/types.js";
+import type { Operation, PayloadOf, Read } from "#modules/operations/types.js";
 
 /**
  * A value known only once the world runs: `s.world.organization`, `s.olga.person`, `s.last.allowance`. Its path is

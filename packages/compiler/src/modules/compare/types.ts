@@ -1,5 +1,5 @@
 // Comparing two models: what changed, declaration by declaration, and what each operation's proof depends on.
-import type { Model } from "#modules/model/types.ts";
+import type { Model } from "#modules/model/types.js";
 
 export type Kind = "value" | "thing" | "operation";
 

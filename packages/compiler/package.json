@@ -11,7 +11,7 @@
     "effect": "4.1.1"
   },
   "imports": {
-    "#modules/*": "./src/modules/*"
+    "#modules/*.js": "./src/modules/*.ts"
   },
   "bin": {
     "architect-model": "./src/main.ts"

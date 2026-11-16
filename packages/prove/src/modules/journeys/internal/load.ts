@@ -17,7 +17,7 @@ const kindOf = (x: unknown) => (typeof x === "object" && x !== null ? (x as { ki
 
 const filesIn = (dir: string) => (existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith(".ts")).sort().map((f) => join(dir, f)) : []);
 
-export const loadProject = (root: string, model: Model) =>
+export const loadProject = (root: string, model: Model): Effect.Effect<Project, ProjectFailed> =>
   Effect.gen(function* () {
     // The generated api names every event and error, the same way the server does.
     yield* importFile(join(root, "generated/api/src/index.ts"));

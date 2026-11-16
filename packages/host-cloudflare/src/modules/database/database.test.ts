@@ -4,7 +4,7 @@ import { SqlClient } from "effect/sql";
 import { describe, expect, it } from "vitest";
 import { Blueprint } from "@architect/blueprint";
 import { BusyLive, Handlers, Ids, Records, Store, type Handler } from "@architect/target-effect";
-import { StoreD1 } from "#modules/store/service.ts";
+import { StoreD1 } from "#modules/store/service.js";
 import { Database } from "./service.ts";
 
 const Allowance = Blueprint.thing({

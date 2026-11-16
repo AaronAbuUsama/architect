@@ -1,4 +1,4 @@
-import type { Model } from "#modules/model/types.ts";
+import type { Model } from "#modules/model/types.js";
 import type { Change, Kind } from "../types.ts";
 
 const KINDS: ReadonlyArray<readonly [Kind, (m: Model) => Readonly<Record<string, unknown>>]> = [

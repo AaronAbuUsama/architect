@@ -2,8 +2,8 @@ import { env } from "cloudflare:workers";
 import { Effect, Layer } from "effect";
 import { describe, expect, it } from "vitest";
 import { Journal, Store } from "@architect/target-effect";
-import { Database } from "#modules/database/service.ts";
-import { StoreD1 } from "#modules/store/service.ts";
+import { Database } from "#modules/database/service.js";
+import { StoreD1 } from "#modules/store/service.js";
 import { JournalD1 } from "./service.ts";
 
 describe("journal in D1, in workerd", () => {

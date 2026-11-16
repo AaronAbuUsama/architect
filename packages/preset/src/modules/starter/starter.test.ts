@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import { createTreeWithEmptyWorkspace } from "nx/src/generators/testing-utils/create-tree-with-empty-workspace.js";
 import { describe, expect, it } from "vitest";
 import { Starter } from "./service.ts";
+import { WORKSPACE, mergeWorkspace } from "./internal/project.ts";
 
 const starter = resolve(import.meta.dirname, "../../../../../examples/starter");
 
@@ -32,6 +33,16 @@ describe("the starter preset", () => {
     expect(pkg["devDependencies"]!["@architect/cli"]).toBe("1.2.3");
     expect(pkg["dependencies"]!["@architect/host-cloudflare"]).toBe("1.2.3");
     expect(tree.read(".gitignore", "utf8")).toContain(".architect/");
+    expect(pkg["packageManager"]).toBe("pnpm@11.20.0" as never);
+    expect(tree.read("pnpm-workspace.yaml", "utf8")).toMatch(/allowBuilds:\n  esbuild: true\n  nx: true\n  workerd: true/);
     expect(typeof install).toBe("function");
+  });
+
+  it("merges its pnpm settings into the workspace's own, keeping what Nx wrote", () => {
+    const nx = "autoInstallPeers: true\nallowBuilds:\n  nx: true\n  '@architect/preset': false\nminimumReleaseAgeExclude:\n  - 'x@1'\n";
+    expect(mergeWorkspace(nx, WORKSPACE)).toBe(
+      "autoInstallPeers: true\nallowBuilds:\n  nx: true\n  '@architect/preset': false\n  esbuild: true\n  workerd: true\nminimumReleaseAgeExclude:\n  - 'x@1'\noverrides:\n  kysely: 0.29.7\n",
+    );
+    expect(mergeWorkspace(mergeWorkspace(nx, WORKSPACE), WORKSPACE)).toBe(mergeWorkspace(nx, WORKSPACE));
   });
 });

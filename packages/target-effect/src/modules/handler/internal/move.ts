@@ -3,8 +3,8 @@
 import { Effect, Schema } from "effect";
 import type { Operation } from "@architect/blueprint";
 import { EventNames } from "@architect/blueprint/server";
-import type { Entry } from "#modules/journal/types.ts";
-import type { Unit } from "#modules/records/types.ts";
+import type { Entry } from "#modules/journal/types.js";
+import type { Unit } from "#modules/records/types.js";
 import { NotFrom } from "../types.ts";
 
 type Codec = Schema.Codec<Record<string, unknown>, Record<string, unknown>>;

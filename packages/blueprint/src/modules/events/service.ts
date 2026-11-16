@@ -1,4 +1,4 @@
-import { structOf } from "#modules/things/service.ts";
+import { structOf } from "#modules/things/service.js";
 import type { EventNaming, EventsApi } from "./types.ts";
 
 // Events are frozen, so their names are kept beside them.

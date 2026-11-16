@@ -16,7 +16,7 @@
     "architect": "./src/main.ts"
   },
   "imports": {
-    "#modules/*": "./src/modules/*"
+    "#modules/*.js": "./src/modules/*.ts"
   },
   "files": [
     "dist"

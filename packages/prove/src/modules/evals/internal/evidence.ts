@@ -1,6 +1,6 @@
 // Building each call's evidence, and the small readings every eval shares.
-import type { CallRecord } from "#modules/journeys/types.ts";
-import type { Span, Trace } from "#modules/telemetry/types.ts";
+import type { CallRecord } from "#modules/journeys/types.js";
+import type { Span, Trace } from "#modules/telemetry/types.js";
 import type { Evidence } from "../types.ts";
 
 const kebab = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");

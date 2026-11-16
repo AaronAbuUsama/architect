@@ -4,7 +4,7 @@ import { installPackagesTask } from "@nx/devkit";
 import type { Model } from "@architect/compiler";
 import { Render } from "@architect/generators/render";
 import type { StarterApi } from "./types.ts";
-import { IGNORES, TSCONFIG, packageJson } from "./internal/project.ts";
+import { IGNORES, TSCONFIG, WORKSPACE, mergeWorkspace, packageJson } from "./internal/project.ts";
 
 const PARTS = ["blueprint", "implementation", "journeys"];
 
@@ -26,6 +26,8 @@ const write: StarterApi["write"] = (tree, { name }, source) => {
   tree.write("tsconfig.json", JSON.stringify(TSCONFIG, null, 2) + "\n");
   const ignore = tree.exists(".gitignore") ? tree.read(".gitignore", "utf8")! : "";
   tree.write(".gitignore", [ignore.trimEnd(), ...IGNORES.filter((i) => !ignore.includes(i))].filter(Boolean).join("\n") + "\n");
+  const workspace = tree.exists("pnpm-workspace.yaml") ? tree.read("pnpm-workspace.yaml", "utf8")! : "";
+  tree.write("pnpm-workspace.yaml", mergeWorkspace(workspace, WORKSPACE));
   return () => installPackagesTask(tree);
 };
 

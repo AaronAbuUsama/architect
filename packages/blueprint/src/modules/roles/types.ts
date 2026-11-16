@@ -1,6 +1,6 @@
 // Roles: who may call. A role lives in the thing it is scoped to, and is named by its export.
-import type { Thing } from "#modules/things/types.ts";
-import type { TypeOf } from "#modules/values/types.ts";
+import type { Thing } from "#modules/things/types.js";
+import type { TypeOf } from "#modules/values/types.js";
 
 /** Who is calling. Sign-in fills it in; the runtime checks roles against it before any handler runs. */
 export type Principal =

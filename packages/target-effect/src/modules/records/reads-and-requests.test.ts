@@ -2,9 +2,9 @@ import { Cause, Effect, Exit, Layer } from "effect";
 import { describe, expect, it } from "vitest";
 import { Blueprint } from "@architect/blueprint";
 import { EventNames } from "@architect/blueprint/server";
-import { BusyLive } from "#modules/work/service.ts";
-import { Handlers, Reads } from "#modules/handler/service.ts";
-import type { Handler } from "#modules/handler/types.ts";
+import { BusyLive } from "#modules/work/service.js";
+import { Handlers, Reads } from "#modules/handler/service.js";
+import type { Handler } from "#modules/handler/types.js";
 import { storeMemory } from "./service.ts";
 import { Records } from "./types.ts";
 

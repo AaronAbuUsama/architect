@@ -1,6 +1,6 @@
 // The model: every declaration in the blueprint, named, described and hashed. Generators and evals read only this.
 import { Data, type Effect } from "effect";
-import type { BlueprintSource, SourceError } from "#modules/source/types.ts";
+import type { BlueprintSource, SourceError } from "#modules/source/types.js";
 
 export type ValueMeta =
   | { readonly type: "id"; readonly prefix: string }

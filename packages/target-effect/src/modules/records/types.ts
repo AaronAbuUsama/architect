@@ -2,7 +2,7 @@
 // `Records`, which reads through the store and holds its writes back until the call commits them with its move.
 import { Context, type Effect } from "effect";
 import type { InstanceOf, Thing } from "@architect/blueprint";
-import type { Entry } from "#modules/journal/types.ts";
+import type { Entry } from "#modules/journal/types.js";
 
 /** A thing's fields, decoded: what a handler stores. */
 export type FieldsOf<T extends Thing> = Omit<InstanceOf<T>, "state">;

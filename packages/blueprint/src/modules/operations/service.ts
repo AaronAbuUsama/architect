@@ -1,8 +1,8 @@
-import { structOf } from "#modules/things/service.ts";
-import { Values } from "#modules/values/service.ts";
-import type { FieldsInput } from "#modules/things/types.ts";
+import { structOf } from "#modules/things/service.js";
+import { Values } from "#modules/values/service.js";
+import type { FieldsInput } from "#modules/things/types.js";
 import type { Operation, OperationsApi, Step } from "./types.ts";
-import { Blanks } from "#modules/blanks/service.ts";
+import { Blanks } from "#modules/blanks/service.js";
 
 /** Fields not written yet (`Blueprint.todo`) have no schema yet: until they're filled, nothing decodes to them. */
 const filled = (fields: FieldsInput): FieldsInput => (Blanks.isBlank(fields) ? {} : fields);

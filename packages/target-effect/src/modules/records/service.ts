@@ -1,8 +1,8 @@
 import { Effect, Layer } from "effect";
 import type { Thing } from "@architect/blueprint";
-import type { Entry } from "#modules/journal/types.ts";
-import { Journal } from "#modules/journal/types.ts";
-import { journalOf } from "#modules/journal/service.ts";
+import type { Entry } from "#modules/journal/types.js";
+import { Journal } from "#modules/journal/types.js";
+import { journalOf } from "#modules/journal/service.js";
 import { Records, Store, type Instance, type UnitApi } from "./types.ts";
 import { makeUnit } from "./internal/unit.ts";
 

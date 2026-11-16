@@ -1,6 +1,6 @@
 import { join } from "node:path";
 import { Effect } from "effect";
-import { Render } from "#modules/render/service.ts";
+import { Render } from "#modules/render/service.js";
 import type { SyncApi } from "./types.ts";
 import { filesUnder } from "./internal/files.ts";
 import { modelOf } from "./internal/model.ts";

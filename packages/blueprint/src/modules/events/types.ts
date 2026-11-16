@@ -1,6 +1,6 @@
 // Events: what a move emits. An event is named by its export, `export const AllowanceGranted = Blueprint.event({...})`.
 import type { Schema } from "effect";
-import type { FieldsInput, ValueOf } from "#modules/things/types.ts";
+import type { FieldsInput, ValueOf } from "#modules/things/types.js";
 
 export interface Event<F extends FieldsInput = FieldsInput> {
   readonly kind: "event";

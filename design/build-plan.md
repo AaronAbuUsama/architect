@@ -112,7 +112,7 @@ This plan takes Architect from an empty repository to all five layers. One local
 
 | id | name | needs | packages | what is built | done when |
 |---|---|---|---|---|---|
-| L1.50 | The starter preset | L1.32, L1.40, D1.5 | cli (preset), target-effect (auth adapter) | `npx create-nx-workspace acme --preset=@architect/preset` with system, session (Better Auth), organization, membership, invitation and API keys, plus 3 journeys. | In a temporary folder, the preset runs, then `pnpm architect check` and `pnpm architect prove --env local` are both green. |
+| L1.50 | The starter preset | L1.32, L1.40, D1.5 | preset, host-cloudflare (Better Auth), target-effect (auth) | `npx create-nx-workspace <name> --preset=@architect/preset` writes `examples/starter`: system, person and session (Better Auth), organization, membership, invitation and API keys, with 5 journeys. Published packages ship `dist/` (D2 #67). | `tools/e2e/starter.sh` (CI job `starter`): Architect published to a local Verdaccio, the preset run in a temporary folder, then `pnpm architect check` and `pnpm architect prove --env local` both green. |
 | L1.51 | examples/acme: the allowance off chain | L1.50 | examples/acme | The allowance built by Architect's own commands on top of the starter (walkthrough steps 3–8). Starting world `funded`. Journeys `spend-within-allowance` and `revoke-then-spend`. | `architect prove --env local` in acme shows four operations each with `9 evals ✔`. |
 | L1.60 | **Gate 1** | L1.51, L1.41 | e2e | `nx run e2e:layer1` holds the seven checks. Check 4 is a scripted, fresh agent session given only `architect brief allowance.spend`, with read access to the journeys' code denied by its config. | All seven tests pass on a clean checkout in CI. |
 

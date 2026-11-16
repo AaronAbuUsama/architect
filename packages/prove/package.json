@@ -13,7 +13,7 @@
     "wrangler": "4.156.1"
   },
   "imports": {
-    "#modules/*": "./src/modules/*"
+    "#modules/*.js": "./src/modules/*.ts"
   },
   "devDependencies": {
     "@architect/generators": "workspace:*",

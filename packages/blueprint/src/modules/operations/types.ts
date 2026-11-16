@@ -1,9 +1,9 @@
 // Operations and reads: what can be called. An operation's name is its path; nothing here carries a name.
 import type { Duration, Schema } from "effect";
-import type { AnyErrorClass } from "#modules/errors/types.ts";
-import type { Move } from "#modules/machines/types.ts";
-import type { Allowed, Builtin, Role, RoleOf } from "#modules/roles/types.ts";
-import type { FieldsInput, Thing, ValueOf } from "#modules/things/types.ts";
+import type { AnyErrorClass } from "#modules/errors/types.js";
+import type { Move } from "#modules/machines/types.js";
+import type { Allowed, Builtin, Role, RoleOf } from "#modules/roles/types.js";
+import type { FieldsInput, Thing, ValueOf } from "#modules/things/types.js";
 
 /** A named part of a handler's work, recorded as its own span. Named `<thing>.<verb>.<key>` by the compiler. */
 export interface Step<K extends StepKind = StepKind> {

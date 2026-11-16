@@ -2,8 +2,8 @@ import { DurableObject } from "cloudflare:workers";
 import { Effect } from "effect";
 import type { WorldEnv } from "./types.ts";
 import { frontDoor } from "./internal/front-door.ts";
-import { AuthD1 } from "#modules/auth/service.ts";
-import type { AuthInstance } from "#modules/auth/types.ts";
+import { AuthD1 } from "#modules/auth/service.js";
+import type { AuthInstance } from "#modules/auth/types.js";
 import { facts } from "./internal/facts.ts";
 
 /** The world's Durable Object. Export it from the Worker's entry; bind it as `WORLD`. */

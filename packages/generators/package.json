@@ -10,7 +10,7 @@
   },
   "generators": "./generators.json",
   "imports": {
-    "#modules/*": "./src/modules/*"
+    "#modules/*.js": "./src/modules/*.ts"
   },
   "devDependencies": {
     "nx": "24.0.3"

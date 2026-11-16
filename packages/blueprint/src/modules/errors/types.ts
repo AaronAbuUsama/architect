@@ -1,6 +1,6 @@
 // Errors: refusals that depend on data. Named by the exported class, `class AllowanceExceeded extends Blueprint.error(...) {}`.
 import { Data, type Cause, type Schema } from "effect";
-import type { FieldsInput, ValueOf } from "#modules/things/types.ts";
+import type { FieldsInput, ValueOf } from "#modules/things/types.js";
 
 export type ErrorFields<F extends FieldsInput> = { readonly [K in keyof F]: ValueOf<F[K]>["schema"]["Type"] };
 

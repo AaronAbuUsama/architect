@@ -1,5 +1,5 @@
 // Things: what the system is made of. A thing has fields; its name is its folder, given by the compiler.
-import type { Value } from "#modules/values/types.ts";
+import type { Value } from "#modules/values/types.js";
 
 /** A field of one thing, which another thing or a payload can reuse: `Organization.fields.id`. */
 export interface Field<V extends Value = Value> {

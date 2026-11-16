@@ -4,7 +4,7 @@
   "type": "module",
   "generators": "./generators.json",
   "imports": {
-    "#modules/*": "./src/modules/*"
+    "#modules/*.js": "./src/modules/*.ts"
   },
   "exports": {
     ".": "./src/index.ts",

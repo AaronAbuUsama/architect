@@ -1,5 +1,5 @@
 import { Schema } from "effect";
-import type { Value } from "#modules/values/types.ts";
+import type { Value } from "#modules/values/types.js";
 import type { FieldInput, FieldsInput, ValueOf } from "../types.ts";
 
 export const valueOf = (input: FieldInput): Value => (input.kind === "field" ? input.value : input);

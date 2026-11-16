@@ -1,7 +1,7 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { Values } from "#modules/values/service.ts";
-import { Things } from "#modules/things/service.ts";
-import { Events } from "#modules/events/service.ts";
+import { Values } from "#modules/values/service.js";
+import { Things } from "#modules/things/service.js";
+import { Events } from "#modules/events/service.js";
 import { Machines } from "./service.ts";
 
 const Allowance = Things.thing({ description: "x", fields: { id: Values.id("alw") } });

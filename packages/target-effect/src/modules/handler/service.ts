@@ -1,9 +1,9 @@
 import { Cause, Data, Effect, Ref, Schema } from "effect";
 import type { Operation, Principal } from "@architect/blueprint";
-import { Access } from "#modules/access/service.ts";
-import { Unit } from "#modules/records/service.ts";
-import { Records, Store } from "#modules/records/types.ts";
-import { Busy } from "#modules/work/types.ts";
+import { Access } from "#modules/access/service.js";
+import { Unit } from "#modules/records/service.js";
+import { Records, Store } from "#modules/records/types.js";
+import { Busy } from "#modules/work/types.js";
 import { BlankReached, InvalidPayload, type HandlerApi } from "./types.ts";
 import { answerAttributes, payloadAttributes, principalAttributes } from "./internal/attributes.ts";
 import { applyMove, checkFrom, chooseOutcome } from "./internal/move.ts";

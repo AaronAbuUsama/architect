@@ -1,6 +1,6 @@
 // Reads the blueprint's layout: which file holds what, and the name each declaration takes from its path or export.
 import type { AnyErrorClass, Event, Machine, Operation, Read, Role, Thing, Value } from "@architect/blueprint";
-import type { LoadedFile } from "#modules/source/types.ts";
+import type { LoadedFile } from "#modules/source/types.js";
 
 export interface ThingFiles {
   readonly name: string;

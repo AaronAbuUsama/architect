@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Model, OperationModel } from "@architect/compiler";
-import type { CallRecord } from "#modules/journeys/types.ts";
+import type { CallRecord } from "#modules/journeys/types.js";
 import type { Evidence } from "./types.ts";
 import { coverage, coverageSummary, performance } from "./internal/run.ts";
 import { declaredErrors, steps, whoMayCall } from "./internal/calls.ts";

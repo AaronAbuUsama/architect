@@ -14,10 +14,11 @@
     "@effect/sql-d1": "4.1.1",
     "better-auth": "1.7.15",
     "better-call": "1.4.4",
-    "effect": "4.1.1"
+    "effect": "4.1.1",
+    "zod": "4.6.7"
   },
   "imports": {
-    "#modules/*": "./src/modules/*"
+    "#modules/*.js": "./src/modules/*.ts"
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "0.23.0",
