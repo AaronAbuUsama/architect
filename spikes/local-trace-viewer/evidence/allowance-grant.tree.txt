@@ -1,0 +1,8 @@
+6 spans, 1 root(s)
+POST  5.0 ms  
+  log: Sent HTTP response
+  sqlite  0.0 ms  
+  allowance.grant  2.0 ms  {'operation': 'allowance.grant', 'principal.person': 'per_emtxkeoknx7eutro', 'payload.organization': 'org_4rcp5cmvirsibewg', 'payload.member': 'per_bx20i6nc0rmrlmc8', 'payload.limit': '500', 'move.name': 'grant', 'move.to': 'active'}
+    allowance.grant.insert  0.0 ms  {'step.kind': 'database'}
+    sqlite  1.0 ms  
+    BATCH  1.0 ms  
