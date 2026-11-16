@@ -1,6 +1,6 @@
 # Where everything stands
 
-Kept by the 🎼 conductor, so a fresh conductor can take over. Last updated 16 November 2026, after L1.40.
+Kept by the 🎼 conductor, so a fresh conductor can take over. Last updated 16 November 2026, after L1.41.
 
 ## Done
 
@@ -50,8 +50,9 @@ coverage line), L1.30 (`Blueprint.todo` blanks, `architect add thing|operation|r
 generate`), L1.32 (generated docs and `edges.json`, the full SDK and CLI with exit codes and `--json`), L1.33
 (`architect brief`), L1.40 (`architect check`: blanks, types, rules, drift, ratchets; the oxlint plugin is
 `packages/lint`, run through real oxlint with the model's facts as rule options; the author's four
-`test/fixtures/check/` fixtures each fail it). Decisions through D2 #59. Next steps, in order: L1.41 (model comparison
-and `architect impact`), L1.50 (Better Auth preset via Verdaccio, Dex as the OIDC issuer), L1.51 (acme on the
+`test/fixtures/check/` fixtures each fail it). L1.41 (`Compare` in the compiler; prove writes
+`.architect/evidence/proven.json`; `architect impact` prints stale, proven, unproven). Decisions through D2 #60. Next
+steps, in order: L1.50 (Better Auth preset via Verdaccio, Dex as the OIDC issuer), L1.51 (acme on the
 starter), L1.60 (`e2e:layer1`, with check 4 the `claude -p` session denied `Brief.forbidden`). Then a 🔍 review and a PR to main.
 The evidence page is https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB; republish it with
 `python3 tools/evidence/page.py` after each step. For plants, back up with `cp` and restore with `cp`, never

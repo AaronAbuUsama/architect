@@ -1,0 +1,12 @@
+$ npx vitest run --root packages/prove src/modules/impact --reporter verbose
+# commit f81c2f7 · 2026-11-16T19:00:34Z · exit 0 (expected 0) · 5.5s
+
+
+ RUN  v4.1.12 ./packages/prove
+
+ ✓ src/modules/impact/impact.test.ts > impact > after a prove, names only what a change unproves 4507ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  19:00:29
+   Duration  4.90s (transform 193ms, setup 0ms, import 283ms, tests 4.52s, environment 0ms)
