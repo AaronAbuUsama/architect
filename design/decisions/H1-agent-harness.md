@@ -122,14 +122,15 @@ Why each loses or wins:
 The best match is **Command Code**, commandcode.ai, a coding agent with a "Provider API". Facts from its docs
 (`commandcode.ai/docs/provider-api`, `commandcode.ai/models`):
 
-- Base `https://api.commandcode.ai/provider/v1`. `Authorization: Bearer <key>`; the same key serves its CLI and the API; its docs name
-  the variable `CMD_API_KEY`.
+- Base `https://api.commandcode.ai/provider/v1`. `Authorization: Bearer <key>`; the same key serves its CLI and the API. The docs name
+  no key variable (`CMD_API_KEY` is only the header example's placeholder; corrected by H2, U4); ours is `COMMANDCODE_API_KEY` (H2.4).
 - Routes: `POST /chat/completions` (OpenAI Chat, open and OpenAI models), `POST /responses`, `POST /messages` (Anthropic Messages,
   Claude models only; non-Anthropic is refused), `GET /models` (each entry has `supported_endpoints`).
 - Streaming reports usage at the end on every route. Request body cap 32 MiB. 429 on upstream limits.
 - A catalog of about 100 models with prices per million tokens: Claude (Sonnet 5.5, Opus 5.5, Haiku 5.5), GPT-6 family, Gemini, and
-  open models: DeepSeek V4.x, Kimi K3/K2.x, GLM-5.x, MiniMax M3, Qwen 3.x, Step, Nemotron, MiMo and others. **Two are free** (`inkling-2-small-free`,
-  `glyph-cluster-free`), which makes real-model tests cheap.
+  open models: DeepSeek V4.x, Kimi K3/K2.x, GLM-5.x, MiniMax M3, Qwen 3.x, Step, Nemotron, MiMo and others. **Two are free** (API ids `inkling-2-small:free`,
+  200 requests a day, and `glyph-cluster:free`, 1000 a day; the page slugs use a hyphen; corrected by H2, U4), which makes real-model
+  tests cheap. They need $1 of credit on the account, run outside zero data retention, and may be trained on.
 - Plans: the Provider plan starts at $15 a month with $15 of credit, at underlying rates "with no markup"; the Go plan has no API access.
 - Zero data retention with `x-cmd-zdr: 1`.
 
@@ -357,7 +358,7 @@ Fields come from: `harness.usage()` and `pi.usage` (cost per `provider/model`), 
 
 ## 15. Questions only Aaron can answer
 
-1. Is "Command Code" the service at commandcode.ai (a coding agent with a Provider API, key variable `CMD_API_KEY`)? If it is another service, what is its address, and does it speak OpenAI's format?
+1. Is "Command Code" the service at commandcode.ai (a coding agent with a Provider API)? If it is another service, what is its address, and does it speak OpenAI's format?
 2. May the harness be told, by name only, a secret in the project's environment config, with the value set outside the repository (D3 item 2), rather than read from anywhere on disk? (This is how the key must reach it; the design never reads or prints it.)
 3. Should benchmarks with open models run against paid Command Code models, or only against its free ones until we agree a budget (per run $1, per suite cap, inside the $10 a day)?
 4. Is the machine an acceptable sandbox for the first benchmarks, given that scoring executes model-written handlers on it, or do you want Docker first even though it delays the first run?
