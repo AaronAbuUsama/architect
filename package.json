@@ -1,0 +1,26 @@
+{
+  "name": "@architect/source",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.20.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "check": "nx run-many -t lint,typecheck,test && nx sync:check"
+  },
+  "devDependencies": {
+    "@nx/js": "24.0.3",
+    "@nx/oxlint": "24.0.3",
+    "@types/node": "24.19.2",
+    "effect": "4.1.1",
+    "nx": "24.0.3",
+    "oxlint": "1.90.0",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3",
+    "verdaccio": "6.11.1",
+    "vite": "8.3.5",
+    "vitest": "4.1.12"
+  }
+}

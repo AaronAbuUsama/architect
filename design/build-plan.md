@@ -29,13 +29,15 @@ This plan takes Architect from an empty repository to all five layers. One local
 
 ## Layer 1: Declare and call
 
+> **L1.01 done (16 November 2026):** `pnpm nx run-many -t lint,typecheck,test` is green over 13 package shells and acme. `packages/lint/test/boundaries.test.ts` shows `@nx/enforce-module-boundaries` failing on three planted fixtures (blueprint importing compiler, blueprint importing a package other than Effect, runtime importing generators). Lint is oxlint with `@nx/oxlint`'s boundaries plugin, with no ESLint. Verdaccio runs as `nx local-registry workspace`. CI runs the same, plus `nx sync:check`.
+
 **Goal.** The allowance runs off chain, on this machine only. It is declared in `blueprint/` and served by a generated server, API, SDK, CLI and docs. Its journeys pass all nine evals, and `architect check` enforces the rules. The clock and the world controller are wired in, even though nothing moves by time yet.
 
 ### Foundations and spikes
 
 | id | name | needs | packages | what is built | done when |
 |---|---|---|---|---|---|
-| L1.01 | Architect's own workspace | none | all (empty) | Nx and pnpm monorepo with every package shell. `examples/acme` is an empty project. Module-boundary tags hold the package rules. The CI workflow runs lint, typecheck and test. A local Verdaccio target is set up for e2e. | `pnpm nx run-many -t lint,typecheck,test` is green. A fixture where blueprint imports compiler fails lint with `@nx/enforce-module-boundaries`. |
+| L1.01 ✅ | Architect's own workspace | none | all (empty) | Nx and pnpm monorepo with every package shell. `examples/acme` is an empty project. Module-boundary tags hold the package rules. The CI workflow runs lint, typecheck and test. A local Verdaccio target is set up for e2e. | `pnpm nx run-many -t lint,typecheck,test` is green. A fixture where blueprint imports compiler fails lint with `@nx/enforce-module-boundaries`. |
 | S2 ∥ | Spike: one declaration through the whole chain | L1.01 | spikes/ | One hand-written `allowance.grant` taken all the way through: declaration → model JSON → a generated HttpApi route → a handler → an SDK call → a CLI command, with a span. | `pnpm tsx spikes/chain/run.ts` prints the CLI output and the span tree. The README lists every seam that needed a hand-edit. |
 | S3 ∥ | Spike: a move without races | L1.01 | spikes/ | 50 concurrent `spend` calls on one allowance, tried two ways: a version column in D1, and a Durable Object (the Durable Object half is answered by S8). | Both runs end with `spent` equal to the sum of the accepted calls, with no lost update. The README has latency for each way. |
 | S4 ∥ | Spike: evals from telemetry | L1.01 | spikes/ | An in-memory OTel exporter under Effect's tracer. Three evals (answer shape, declared errors, refusal has a deciding log) run over the spans and logs it records. | `pnpm tsx spikes/evals/run.ts` passes on good calls. It fails, naming the call, on a planted bad call. |

@@ -1,0 +1,16 @@
+{
+  "name": "generators",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/generators/src",
+  "projectType": "library",
+  "tags": [
+    "scope:generators",
+    "env:build",
+    "layer:1"
+  ],
+  "targets": {
+    "lint": {},
+    "typecheck": {},
+    "test": {}
+  }
+}

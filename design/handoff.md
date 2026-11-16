@@ -27,7 +27,7 @@ Aaron's rule from 16 November 2026: the building agent owns the architecture and
 
 ## Where the goal stands
 
-Not started. Stage 1, step L1.01, is next.
+Stage 1. Wayfinding is done (`wayfinding/stage-1.md`, `decisions/D1.md`). L1.01 is done on `layer/1`. Next: D2's record, then L1.10, the language core.
 
 ## Open
 

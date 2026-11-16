@@ -5,3 +5,6 @@ dist/
 .wrangler/
 .env
 .env.*
+tmp/
+.verdaccio/storage/
+coverage/

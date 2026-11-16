@@ -1,0 +1,55 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "jsPlugins": [
+    "@nx/oxlint/boundaries-plugin"
+  ],
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "**/generated/**",
+    "spikes/**",
+    "design/**",
+    "tmp/**",
+    "**/test/fixtures/**"
+  ],
+  "rules": {
+    "@nx/enforce-module-boundaries": [
+      "error",
+      {
+        "enforceBuildableLibDependency": false,
+        "allow": [],
+        "depConstraints": [
+          {
+            "sourceTag": "scope:blueprint",
+            "onlyDependOnLibsWithTags": [],
+            "allowedExternalImports": [
+              "effect",
+              "effect/*"
+            ]
+          },
+          {
+            "sourceTag": "env:runtime",
+            "onlyDependOnLibsWithTags": [
+              "env:runtime"
+            ]
+          },
+          {
+            "sourceTag": "env:build",
+            "onlyDependOnLibsWithTags": [
+              "env:build",
+              "env:runtime"
+            ]
+          },
+          {
+            "sourceTag": "scope:project",
+            "onlyDependOnLibsWithTags": [
+              "scope:blueprint",
+              "scope:target",
+              "scope:host",
+              "scope:std"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

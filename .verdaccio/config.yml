@@ -1,0 +1,24 @@
+# Local npm registry for e2e: only @architect/* and @acme/* are published here; everything else proxies to npmjs.
+storage: ../tmp/local-registry/storage
+auth:
+  htpasswd:
+    file: ../tmp/local-registry/htpasswd
+uplinks:
+  npmjs:
+    url: https://registry.npmjs.org/
+packages:
+  '@architect/*':
+    access: $all
+    publish: $all
+    unpublish: $all
+  '@acme/*':
+    access: $all
+    publish: $all
+    unpublish: $all
+  '**':
+    access: $all
+    proxy: npmjs
+log:
+  type: stdout
+  format: pretty
+  level: warn

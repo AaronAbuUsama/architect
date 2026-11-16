@@ -1,0 +1,16 @@
+{
+  "name": "blueprint",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/blueprint/src",
+  "projectType": "library",
+  "tags": [
+    "scope:blueprint",
+    "env:runtime",
+    "layer:1"
+  ],
+  "targets": {
+    "lint": {},
+    "typecheck": {},
+    "test": {}
+  }
+}
