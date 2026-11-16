@@ -69,6 +69,8 @@ export const Operations: OperationsApi = {
       steps: spec.steps ?? {},
       idempotent: spec.idempotent,
       budget: spec.budget,
+      runs: spec.runs ?? "server",
+      test: spec.test ?? "unit",
     }) as unknown as Operation<typeof thing, typeof spec.payload, typeof spec.answer, never, never> as never,
   read: ((thing: Thing, spec: ReadSpec) => ("where" in spec ? listRead(thing, spec) : idRead(thing, spec))) as OperationsApi["read"],
   step: {

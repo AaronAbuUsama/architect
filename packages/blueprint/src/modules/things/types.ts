@@ -1,5 +1,6 @@
 // Things: what the system is made of. A thing has fields; its name is its folder, given by the compiler.
 import type { Value } from "#modules/values/types.js";
+import type { Visibility } from "#modules/visibility/types.js";
 
 /** A field of one thing, which another thing or a payload can reuse: `Organization.fields.id`. */
 export interface Field<V extends Value = Value> {
@@ -9,6 +10,8 @@ export interface Field<V extends Value = Value> {
   readonly value: V;
   /** The field it was taken from, when declared as another thing's field: the model's edge. */
   readonly from: Field | undefined;
+  /** Who may see this field's value: its own mark, or that of the value or field it was made from. */
+  readonly visibility: Visibility;
 }
 
 /** What a thing's or payload's field may be declared as: a value, or a field taken from a thing. */
@@ -22,6 +25,8 @@ export interface Thing<F extends FieldsInput = FieldsInput> {
   readonly fields: { readonly [K in keyof F]: Field<ValueOf<F[K]>> };
   /** Who owns its state: a D1 row with a version column (the default), or a Durable Object per instance (D1 #1). */
   readonly lives: Lives;
+  /** The prefix of this thing's refusal codes (`AL` in `[AL-002]`); the compiler takes two letters of its name when unset. */
+  readonly code: string | undefined;
 }
 
 export type Lives = "database" | "actor";
@@ -31,5 +36,6 @@ export interface ThingsApi {
     readonly description: string;
     readonly fields: F;
     readonly lives?: Lives;
+    readonly code?: string;
   }) => Thing<F>;
 }

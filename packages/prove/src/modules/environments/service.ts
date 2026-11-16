@@ -3,7 +3,7 @@ import { join, resolve } from "node:path";
 import { Effect } from "effect";
 import { Compiler, nodeSource } from "@architect/compiler";
 import { Build } from "#modules/build/service.js";
-import { Collectors } from "#modules/telemetry/service.js";
+import { Collectors, privateKeys } from "#modules/telemetry/service.js";
 import { Worlds } from "#modules/world/service.js";
 import type { EnvironmentsApi, Up } from "./types.ts";
 import { collectorName, telemetryDir } from "./internal/collector.ts";
@@ -25,7 +25,7 @@ const declared = (root: string, name: string) =>
     const known = Object.keys(model.environments ?? {}).filter((n) => n !== "local");
     if (!environment) return yield* failed(`no environment "${name}" in blueprint/environments/ (there is ${known.join(", ") || "none"})`);
     if (name === "local") return yield* failed(`"local" is not kept running: it is what \`architect dev\` and \`architect prove --env local\` start`);
-    return { environment, model };
+    return { environment, model, strip: privateKeys(model) };
   });
 
 const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision, policy }) =>
@@ -39,7 +39,7 @@ const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision, policy }
       if (!policy) return yield* failed("the logbook needs a policy: ARCHITECT_OIDC_ISSUER, ARCHITECT_OIDC_REPOSITORY, ARCHITECT_OIDC_REF and ARCHITECT_OIDC_WORKFLOW");
       return yield* startLogbook(dir, port, policy);
     }
-    const { environment, model } = yield* declared(root, name);
+    const { environment, model, strip } = yield* declared(root, name);
     // An environment that hosts worlds, or that another is promoted from (so it is proved where it runs), records telemetry
     // in a collector of its own, which lives until `down` (D3 #52, #91).
     const hosts = environment.lifetimeMs !== null;
@@ -61,7 +61,7 @@ const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision, policy }
     if (!existsSync(base)) return yield* failed(`${base} is missing: run nx sync first`);
     const chosen = yield* choosePort(dir, port).pipe(Effect.mapError(failed));
     const otlp = records
-      ? yield* Collectors.launch({ dir: telemetryDir(dir), name: collectorName(dir) }).pipe(Effect.mapError((e) => failed(`${name} needs Docker for its collector: ${e.message}`)))
+      ? yield* Collectors.launch({ dir: telemetryDir(dir), name: collectorName(dir), strip }).pipe(Effect.mapError((e) => failed(`${name} needs Docker for its collector: ${e.message}`)))
       : undefined;
     yield* io(`${dir}`, () => {
       ensureSecrets(f.secrets, Object.keys(environment.secrets));

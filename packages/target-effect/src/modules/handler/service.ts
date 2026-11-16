@@ -46,7 +46,7 @@ const serve = ({ name, operation, handler, notFrom }: { readonly name: string; r
       const logs = yield* recordingLogs;
       return yield* Effect.gen(function* () {
         const busy = yield* Busy;
-        yield* Effect.annotateCurrentSpan(payloadAttributes(payload));
+        yield* Effect.annotateCurrentSpan(payloadAttributes(payload, op.payload));
         // The same request key from the same caller is one call: answer what was answered, and change nothing.
         const kept = key === undefined ? undefined : yield* store.answered(key);
         if (kept !== undefined) {
@@ -58,7 +58,7 @@ const serve = ({ name, operation, handler, notFrom }: { readonly name: string; r
         const move = (to?: string) => chooseOutcome(name, op, to).pipe(Effect.flatMap((o) => Ref.set(chosen, o)));
         const answer = yield* busy.counted(handler(payload, { principal, steps, move })).pipe(withRecords, logs.around);
         // Recorded before the check, so an answer outside its declaration is evidence `prove` can name.
-        yield* Effect.annotateCurrentSpan(answerAttributes(answer));
+        yield* Effect.annotateCurrentSpan(answerAttributes(answer, op.answer));
         // An answer that breaks its declaration is the handler's bug, never the caller's: it dies, loudly.
         const wire = yield* check(answer).pipe(
           Effect.mapError((e) => new Error(`${name} answered outside its declaration: ${e.message}`)),

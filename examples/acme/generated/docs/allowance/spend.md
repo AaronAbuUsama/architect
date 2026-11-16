@@ -34,11 +34,11 @@ Spend from what is left of this month's allowance.
 
 ## Refusals
 
-| refusal | exit | when |
-|---|---|---|
-| AllowanceExceeded | 41 | declared in errors.ts, carrying remaining |
-| AllowanceNotActive | 40 | the allowance is in a state spend can't start from; carries `state` |
-| NotAllowed | 3 | the caller isn't the grantee of the allowance; the handler never runs |
+| refusal | exit | code | when |
+|---|---|---|---|
+| AllowanceExceeded | 41 | AL-001 | declared in errors.ts, carrying remaining |
+| AllowanceNotActive | 40 | AL-900 | the allowance is in a state spend can't start from; carries `state` |
+| NotAllowed | 3 | AR-001 | the caller isn't the grantee of the allowance; the handler never runs |
 
 ## How to call
 

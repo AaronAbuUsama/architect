@@ -1,0 +1,93 @@
+### packages/prove: vitest run src/modules/prove/secrets.test.ts src/modules/evals src/modules/telemetry
+ ✓ src/modules/telemetry/telemetry.test.ts > the collector, in Docker > takes an OTLP span over HTTP and reads it back by trace id once complete 1032ms
+ ✓ src/modules/evals/evals.test.ts > evals on evidence > performance: slow evidence raises a review and never fails 1ms
+ ✓ src/modules/evals/evals.test.ts > evals on evidence > declared errors: an undeclared refusal names itself and the declared ones 0ms
+ ✓ src/modules/evals/evals.test.ts > evals on evidence > declared errors: every refusal answer carries the code the model fixed for it, beside its tag 0ms
+ ✓ src/modules/evals/evals.test.ts > evals on evidence > who may call: judged on mayCall, not on what the server said 0ms
+ ✓ src/modules/evals/evals.test.ts > evals on evidence > steps: every declared step ran, in the order declared 0ms
+ ✓ src/modules/evals/evals.test.ts > evals on evidence > coverage: an operation no journey reaches fails on its own, and the run's line counts what was reached 1ms
+ ✓ src/modules/evals/evals.test.ts > answer shape: no secret reaches a span, a log or the journal > passes a call whose spans and logs hold only public values 1ms
+ ✓ src/modules/evals/evals.test.ts > answer shape: no secret reaches a span, a log or the journal > fails an attribute named for a secret field, without repeating the secret 0ms
+ ✓ src/modules/evals/evals.test.ts > answer shape: no secret reaches a span, a log or the journal > fails a secret value found in any span attribute, log line or log attribute 0ms
+ ✓ src/modules/evals/evals.test.ts > answer shape: no secret reaches a span, a log or the journal > fails a secret value in a journal entry 0ms
+ ✓ src/modules/prove/secrets.test.ts > secrets never reach telemetry (L2.P) > sign-in and api-key.create leave no password, token, key or session in the Collector's spans or logs 5876ms
+ ✓ src/modules/prove/secrets.test.ts > the Collector's second guard (L2.P) > deletes the attribute keys it is given from every span and every log, and keeps the rest 1075ms
+ ✓ src/modules/prove/secrets.test.ts > a field declared private(owner) never appears (L2.P) > leaves `payload.member` off every span of allowance.grant, and prove still passes 11090ms
+ Test Files  3 passed (3)
+      Tests  14 passed (14)
+
+### packages/compiler: vitest run src/modules/model src/modules/compare
+ ✓ src/modules/compare/versions.test.ts > Compare.release > a new read is minor 3ms
+ ✓ src/modules/compare/versions.test.ts > Compare.release > a looser budget is a patch 2ms
+ ✓ src/modules/compare/versions.test.ts > Compare.release > a changed payload, answer or error set is major, and says what changed 3ms
+ ✓ src/modules/compare/versions.test.ts > Compare.release > a refusal code that shipped never moves: changed or removed is major, a new refusal's code is not a change 3ms
+ ✓ src/modules/compare/versions.test.ts > Compare.release > a removed operation is major; the largest change sets the bump 1ms
+ ✓ src/modules/compare/versions.test.ts > Compare.release > nothing changed is still a release, so a patch 1ms
+ ✓ src/modules/compare/versions.test.ts > Compare.next > is 1.0.0 with no release, and bumps the last one 0ms
+ ✓ src/modules/compare/compare.test.ts > Compare > finds nothing between a model and itself 3ms
+ ✓ src/modules/compare/compare.test.ts > Compare > names the declaration and the part that changed 2ms
+ ✓ src/modules/compare/compare.test.ts > Compare > lists added and removed declarations 1ms
+ ✓ src/modules/compare/compare.test.ts > Compare > says an operation's proof rests on itself, its thing and the things it refers to 0ms
+ ✓ src/modules/model/model.test.ts > model > describes acme 380ms
+ ✓ src/modules/model/model.test.ts > model > names an operation after its file: grant.ts renamed to award.ts is allowance.award 147ms
+ ✓ src/modules/model/model.test.ts > model > keeps every hash when a file is only reformatted 170ms
+ ✓ src/modules/model/model.test.ts > model > reads environments, each named by its file 17ms
+ ✓ src/modules/model/model.test.ts > model > names an environment after its file, and refuses a promotesFrom that no file answers to 267ms
+ ✓ src/modules/model/model.test.ts > model > refuses a verb file that holds no operation 6ms
+ ✓ src/modules/model/model.test.ts > model > privacy-ready seams > carries `visibility` into the model: the declared secrets are marked, everything else is public by absence 15ms
+ ✓ src/modules/model/model.test.ts > model > privacy-ready seams > carries `private(role)` into the model, the role named as thing.role 130ms
+ ✓ src/modules/model/model.test.ts > model > privacy-ready seams > numbers refusal codes by declaration order, and a new error never moves one that shipped 146ms
+ ✓ src/modules/model/model.test.ts > model > privacy-ready seams > refuses two things that would share a code prefix, naming both 126ms
+ ✓ src/modules/model/model.test.ts > model > privacy-ready seams > defaults `runs` to server and `test` to unit, and refuses every other place, naming the target that would run it 283ms
+ ✓ src/modules/model/model.test.ts > model > privacy-ready seams > carries a test kind a target set, `unit` otherwise 140ms
+ Test Files  3 passed (3)
+      Tests  23 passed (23)
+
+### packages/target-effect: vitest run src/modules/handler src/modules/wire
+ ✓ src/modules/wire/wire.test.ts > Wire.refusals > sends a declared error as its wire class, fields kept, and its code beside the tag 3ms
+ ✓ src/modules/wire/wire.test.ts > Wire.refusals > an undeclared error dies 0ms
+ ✓ src/modules/handler/internal/attributes.test.ts > span attributes are an allowlist of public fields > writes only public fields: no secret, no private, in the payload or the answer 8ms
+ ✓ src/modules/handler/internal/attributes.test.ts > span attributes are an allowlist of public fields > journals an event's public fields only 1ms
+ ✓ src/modules/handler/internal/attributes.test.ts > span attributes are an allowlist of public fields > a field the declaration doesn't name is not an attribute either: it fails closed 1ms
+ ✓ src/modules/handler/handler.test.ts > handler wrapper > runs the handler in a span named after the operation, with its payload as attributes 7ms
+ ✓ src/modules/handler/handler.test.ts > handler wrapper > runs each declared step in its own span, in order, marked with its kind 1ms
+ ✓ src/modules/handler/handler.test.ts > handler wrapper > passes a declared error through, typed, and counts the work until it ends 1ms
+ ✓ src/modules/handler/handler.test.ts > handler wrapper > refuses an anonymous caller with NotAllowed before the handler runs 1ms
+ ✓ src/modules/handler/handler.test.ts > handler wrapper > refuses a payload outside its declaration before the handler runs 2ms
+ ✓ src/modules/handler/handler.test.ts > handler wrapper > an answer outside its declaration dies as the handler's bug 1ms
+ ✓ src/modules/handler/handler.test.ts > handler wrapper > moves > sets the state and journals the event once the handler answers 1ms
+ ✓ src/modules/handler/handler.test.ts > handler wrapper > moves > an outcome the move doesn't declare dies, and the span says what was asked 1ms
+ ✓ src/modules/handler/handler.test.ts > handler wrapper > moves > a refusal is written on the span 0ms
+ ✓ src/modules/handler/handler.test.ts > handler wrapper > moves > a refusal carries the log that decided it, and only this attempt's 3ms
+ ✓ src/modules/handler/handler.test.ts > a move with a machine: the race, the machine's refusal, all or nothing > 50 concurrent spends of 10 against 500: every one lands, none is lost, and it ends exhausted 96ms
+ ✓ src/modules/handler/handler.test.ts > a move with a machine: the race, the machine's refusal, all or nothing > refuses with the machine's refusal, carrying the state it was in, before the handler runs 1ms
+ ✓ src/modules/handler/handler.test.ts > a move with a machine: the race, the machine's refusal, all or nothing > a handler that dies after writing leaves nothing behind 1ms
+ Test Files  3 passed (3)
+      Tests  18 passed (18)
+
+### packages/blueprint: vitest run src/modules/visibility src/modules/operations
+ ✓ src/modules/visibility/visibility.test.ts > visibility > is public unless a blueprint says otherwise 1ms
+ ✓ src/modules/visibility/visibility.test.ts > visibility > marks a value secret, as a copy that is still the same value 0ms
+ ✓ src/modules/visibility/visibility.test.ts > visibility > marks one field secret without touching the thing's own 0ms
+ ✓ src/modules/visibility/visibility.test.ts > visibility > is private to a list of roles 1ms
+ ✓ src/modules/operations/operations.test.ts > operations > keep what was declared 1ms
+ ✓ src/modules/operations/operations.test.ts > operations > type the payload, answer, errors and steps 0ms
+ ✓ src/modules/operations/operations.test.ts > operations > refuse an answer of the wrong type 0ms
+ ✓ src/modules/operations/operations.test.ts > operations > refuse a role pointing at a field the payload doesn't have 0ms
+ ✓ src/modules/operations/operations.test.ts > operations > runs on the server and tests as a unit unless a declaration says otherwise 0ms
+ ✓ src/modules/operations/operations.test.ts > operations > leaves the step kinds open: `sync`, `check` and `prove` are named, and a target may add its own 0ms
+ Test Files  2 passed (2)
+      Tests  10 passed (10)
+
+### packages/generators: vitest run src/modules/render
+ ✓ src/modules/render/render.test.ts > render > writes the four outputs for every operation 1ms
+ ✓ src/modules/render/render.test.ts > render > marks every generated file do-not-edit, and every scaffold with where it came from 1ms
+ ✓ src/modules/render/render.test.ts > render > writes a docs page per thing and operation, each refusal with its exit code, and the model's edges 0ms
+ ✓ src/modules/render/render.test.ts > render > declares each operation's refusals on its endpoint, with their exit codes 0ms
+ ✓ src/modules/render/render.test.ts > render > gives every refusal its code beside its tag: on its wire class, in the SDK's codes, and in the CLI's line (L2.P) 0ms
+ ✓ src/modules/render/render.test.ts > render > is deterministic 2ms
+ ✓ src/modules/render/handler-type.test.ts > the generated Handler type > rejects a handler that fails with an error its operation doesn't declare 873ms
+ ✓ src/modules/render/handler-type.test.ts > the generated Handler type > accepts acme as written: the same copy, without the plant, compiles 703ms
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
+

@@ -33,10 +33,10 @@ Let a member spend from the organisation, up to a limit each month.
 
 ## Refusals
 
-| refusal | exit | when |
-|---|---|---|
-| AllowanceLimitTooHigh | 44 | declared in errors.ts, carrying cap |
-| NotAllowed | 3 | the caller isn't the owner of its organization; the handler never runs |
+| refusal | exit | code | when |
+|---|---|---|---|
+| AllowanceLimitTooHigh | 44 | AL-003 | declared in errors.ts, carrying cap |
+| NotAllowed | 3 | AR-001 | the caller isn't the owner of its organization; the handler never runs |
 
 ## How to call
 

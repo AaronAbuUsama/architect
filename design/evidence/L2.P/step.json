@@ -1,0 +1,15 @@
+{
+  "step": "L2.P",
+  "stage": "Stage 3 · shipping on local worlds (Gate 2)",
+  "title": "Privacy-ready seams",
+  "summary": "Blueprint.visibility.secret|private|public on values and fields, carried into the model; the declared secrets of acme and the starter (Password, Secret, sign-in's session) marked in the blueprint. Span attributes come from an allowlist of public fields (target-effect handler attributes, journal, list items), with a Collector attributes processor, built from the model, as the second guard. The leak check lives in eval 1 (answer shape), by name and by value, over spans, logs and the journal. Refusal codes [AL-001] Name { field: value } are fixed by the model (prefix from the thing, number from declaration order, 900 for the machine's refusal, AR-001 for NotAllowed), carried on the wire, the SDK, the CLI and the docs, and a moved code is a major change in Compare.release. runs (only server), the open step kinds and the unit | network test marker are in.",
+  "proves": "Against a real world and the real Collector's files, a sign-in and an api-key.create leave no password, token, key or session value in any span or log, and no attribute is keyed for a secret field; a field declared private(owner) is never an attribute of allowance.grant and prove still passes; the Collector's processor deletes the keys it is given from spans and logs; every refusal answer carries the code the model fixed. The test failed first, showing payload.password, answer.token, answer.key and answer.session in the Collector's files. Gate 1's checks, acme's and the starter's local prove and the starter's publish-and-create run stay green, except one line of e2e/layer1/05 that expects the old CLI refusal text (for the author).",
+  "captions": {
+    "01-fails-first-secrets": "The done-when test, before any change: it fails, naming the secret values found in the Collector's files.",
+    "02-done-when-tests": "The done-when tests, passing: secrets, private(owner), the Collector guard, the evals, the compiler's model, the handler's allowlist.",
+    "03-workspace-tests": "Lint, typecheck and every package's tests.",
+    "04-local-prove": "acme and the starter prove locally, nine evals per operation.",
+    "05-starter-e2e": "tools/e2e/starter.sh: publish, create a workspace from the preset, check and prove in it.",
+    "06-attributes-before-after": "The attribute keys the Collector heard for sign-in and api-key.create, before and after."
+  }
+}

@@ -47,11 +47,21 @@ const entriesOf = (change: Change, before: Model, after: Model): ReadonlyArray<V
 };
 
 /**
+ * A refusal code that shipped is a promise (L2.P): clients match on `[AL-002]`. One that changed, or went away with its
+ * refusal, is major. A new refusal's code is new, and moves nothing.
+ */
+const movedCodes = (before: Model, after: Model): ReadonlyArray<Versioned> =>
+  Object.entries(before.refusals ?? {}).flatMap(([name, code]): ReadonlyArray<Versioned> => {
+    const now = after.refusals?.[name];
+    return now === code ? [] : [{ kind: now === undefined ? "removed" : "changed", what: `refusal:${name}`, detail: now === undefined ? `${code} removed` : `${code} to ${now}`, bump: "major" }];
+  });
+
+/**
  * Everything that differs between two models, each with what it does to the version, and the largest of them.
  * Nothing different still makes a release (a rebuilt revision, never an identical version), so it is a patch.
  */
 export const release = (before: Model, after: Model): Release => {
-  const changes = diff(before, after).flatMap((c) => entriesOf(c, before, after));
+  const changes = [...diff(before, after).flatMap((c) => entriesOf(c, before, after)), ...movedCodes(before, after)];
   const bump = changes.reduce<Bump>((top, c) => (RANK[c.bump] > RANK[top] ? c.bump : top), "patch");
   return { bump, changes };
 };

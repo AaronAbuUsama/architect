@@ -4,6 +4,7 @@ import { structOf } from "@architect/blueprint/server";
 import type { FieldModel } from "@architect/compiler";
 import type { PerOperation, Verdict } from "../types.ts";
 import { answered, attr, replayed, subtree, where } from "./evidence.ts";
+import { secretsIn } from "./secrets.ts";
 
 const verdict = (name: string, operation: string, failures: ReadonlyArray<string>, notes: ReadonlyArray<string> = []): Verdict =>
   ({ eval: name, operation, failures, notes });
@@ -19,26 +20,42 @@ const fromJson = (text: unknown) => {
   return parsed._tag === "Some" ? parsed.value : text;
 };
 
-/** 1. Every answer has its declared shape: read from the operation's span, so an answer the server refused to send counts. */
+/**
+ * 1. Every answer has its declared shape: read from the operation's span, so an answer the server refused to send counts.
+ * A secret or private field is never on the span (L2.P), so its shape is read from what was answered; and the same eval
+ * checks that no secret value, sent or answered, appears in any span or log of the call (`secrets.ts`).
+ */
 export const answerShape: PerOperation = (op, evidence, { project }) => {
   const declared = project.operations.get(op.name)?.answer ?? {};
   const failures = evidence.flatMap((e) => {
     const fromSpan = Object.fromEntries(Object.entries(e.opSpan?.attrs ?? {}).filter(([k]) => k.startsWith("answer.")).map(([k, v]) => [k.slice(7), v]));
-    const answer = Object.keys(fromSpan).length > 0 ? fromSpan : answered(e) ? (e.call.body as Record<string, unknown>) : undefined;
-    if (!answer) return [];
-    return Object.keys(op.answer).flatMap((k) => {
+    const sent = answered(e) && typeof e.call.body === "object" && e.call.body !== null ? (e.call.body as Record<string, unknown>) : {};
+    const hidden = Object.fromEntries(Object.entries(sent).filter(([k]) => op.answer[k]?.visibility !== undefined));
+    const answer = Object.keys(fromSpan).length > 0 ? { ...hidden, ...fromSpan } : answered(e) ? sent : undefined;
+    const leaks = secretsIn(op, e);
+    if (!answer) return leaks;
+    return [...leaks, ...Object.keys(op.answer).flatMap((k) => {
       const got = op.answer[k]?.value.type === "schema" ? fromJson(answer[k]) : answer[k];
       const ok = Schema.decodeUnknownExit(structOf({ [k]: declared[k]! }) as never)({ [k]: got })._tag === "Success";
-      return ok ? [] : [`${where(e)}: answer.${k}: expected ${expectation(op.answer[k])}, got ${JSON.stringify(answer[k])}`];
-    });
+      // A secret is not repeated in the report, only said to be wrong.
+      return ok ? [] : [`${where(e)}: answer.${k}: expected ${expectation(op.answer[k])}, got ${op.answer[k]?.visibility === undefined ? JSON.stringify(answer[k]) : "a value that does not fit (hidden: not public)"}`];
+    })];
   });
   return verdict("answer shape", op.name, failures);
 };
 
-/** 2. Every refusal is one the operation declares (its errors, its machine's, NotAllowed). */
-export const declaredErrors: PerOperation = (op, evidence) =>
-  verdict("declared errors", op.name, evidence.flatMap((e) =>
-    e.refusal && !op.refusals.includes(e.refusal) ? [`${where(e)}: refused with ${e.refusal}, not one of ${op.refusals.join(", ")}`] : []));
+/** 2. Every refusal is one the operation declares (its errors, its machine's, NotAllowed), and its answer carries its code. */
+export const declaredErrors: PerOperation = (op, evidence, { project }) =>
+  verdict("declared errors", op.name, evidence.flatMap((e) => {
+    if (!e.refusal) return [];
+    if (!op.refusals.includes(e.refusal)) return [`${where(e)}: refused with ${e.refusal}, not one of ${op.refusals.join(", ")}`];
+    // The answer to a refusal is `{ _tag, code, ...fields }` (L2.P): the code beside the tag, as the model fixed it.
+    const body = e.call.status >= 400 && e.call.status < 500 && typeof e.call.body === "object" && e.call.body !== null ? (e.call.body as { _tag?: unknown; code?: unknown }) : undefined;
+    const code = project.model.refusals[e.refusal];
+    return body && body._tag === e.refusal && code !== undefined && body.code !== code
+      ? [`${where(e)}: ${e.refusal} was answered ${typeof body.code === "string" ? `with code ${body.code}` : "with no code"}, and the model's code for it is ${code}`]
+      : [];
+  }));
 
 /** 3. Every move ends in a declared state, and the stored state is where it ended. */
 export const machinePath: PerOperation = (op, evidence) => {

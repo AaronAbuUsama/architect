@@ -13,14 +13,23 @@ const text = (x: unknown) => JSON.stringify(x, (_, v: unknown) => (typeof v === 
 const exitOf = (tag: unknown): number =>
   typeof tag === "string" && tag in Errors.exits ? Errors.exits[tag as keyof typeof Errors.exits] : tag === "SchemaError" ? 2 : 1;
 
-/** A refusal prints its name and fields to stderr and exits with its code. */
+/** `AL-002 Name { a: 1, b: x }`: a refusal's code, its name, and the values of its public fields only. */
+const said = (tag: unknown, code: unknown, fields: Readonly<Record<string, unknown>>) => {
+  // Only the project's own refusals have a code. Anything else (the CLI's own `NotSignedIn`) is told as it always was.
+  if (typeof tag !== "string" || !(tag in Errors.codes)) return `${String(tag ?? "Error")}: ${text(fields)}`;
+  const visible = Errors.shown[tag] ?? [];
+  const shown = Object.entries(fields).filter(([k]) => visible.includes(k)).map(([k, v]) => `${k}: ${typeof v === "object" ? text(v) : String(v)}`);
+  return `${typeof code === "string" ? `[${code}] ` : ""}${tag}${shown.length > 0 ? ` { ${shown.join(", ")} }` : ""}`;
+};
+
+/** A refusal prints its code, name and public fields to stderr and exits with its exit code. */
 export const refused = <A, E, R>(effect: Effect.Effect<A, E, R>) =>
   effect.pipe(
     Effect.catch((e: unknown) => {
       const tag = typeof e === "object" && e !== null ? (e as { readonly _tag?: unknown })._tag : undefined;
-      const { _tag: _, ...fields } = (typeof e === "object" && e !== null ? e : {}) as Record<string, unknown>;
-      const said = tag === "SchemaError" ? String((e as { readonly message?: unknown }).message) : text(fields);
-      return Console.error(`${String(tag ?? "Error")}: ${said}`).pipe(
+      const { _tag: _, code, ...fields } = (typeof e === "object" && e !== null ? e : {}) as Record<string, unknown>;
+      const line = tag === "SchemaError" ? `SchemaError: ${String((e as { readonly message?: unknown }).message)}` : said(tag, code, fields);
+      return Console.error(line).pipe(
         Effect.andThen(Effect.flatMap(ExitCode, (exit) => exit.set(exitOf(tag)))),
       );
     }),

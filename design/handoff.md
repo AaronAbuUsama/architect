@@ -92,6 +92,13 @@ The evidence page is https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB; republis
 `python3 tools/evidence/page.py` after each step. For plants, back up with `cp` and restore with `cp`, never
 `git checkout`.
 
+L2.P done on `build/L2.P` (decisions D3 #80 to #87; evidence `evidence/L2.P/`): `Blueprint.visibility.secret|private|public` on values and fields
+(`Password`, `Secret` and sign-in's `session` are secret in acme and the starter); span attributes through an allowlist of public fields
+(`handler/internal/attributes.ts`), the journal likewise, a Collector `attributes` processor built from the model (`privateKeys`), and the leak
+check inside eval 1 (answer shape); refusal codes `[AL-001] Name { … }` from the model (`refusals`, `things[].code`), on the wire, in the SDK,
+the CLI and the docs; `runs` (only `server`), open step kinds, the `unit | network` test marker. L2.08 (MCP) and L2.09 (`watch`) may now read
+arguments and telemetry. FOR THE AUTHOR: `e2e/layer1/05` line 40 expects the old CLI refusal line, now `[AL-001] AllowanceExceeded { remaining: 300 }` (D3 #87).
+
 L2.01 (local reading) is built on `build/L2.01` (decisions D3 #17 to #25, evidence `evidence/L2.01/`): `architect build`
 (`built <rev> sha256:<hash>`, kept at `.architect/artefacts/<rev>/main.js`), `architect env up|down|status <env>` for
 test, staging and production (state under `.architect/environments/<env>/`), `GET /_architect/bundle`, and the
