@@ -194,3 +194,14 @@ Decided 16 November 2026 by the builder, which has architectural ownership. The 
     interaction, each model request and each tool call as spans to the same collector image prove runs; the files
     stay in `e2e/.architect/agent-telemetry/`. Pi's core loop was the alternative; it would need an Anthropic key, a
     credential. A durable agent on Architect's own stack, after Pi Durable's design, is in `later.md`.
+77. **Performance has a planted break too: a grant slowed by real work.** All nine evals now have a fixture (check 3
+    runs nine cases). Performance is review-only, so its break must give `allowance.grant performance ✔ … review:
+    p95 <n>ms is over 1.5x budget` while prove exits 0. The fixture's author first tried a wait through `Timers` and
+    found handlers cannot reach it: the generated server provides `SqlClient | Store | Busy | Principals | Journal |
+    Auth`, and `Timers` needs a clock driver in the worker, which is layer five's work. So the slow grant runs 2000
+    sequential `select 1` queries on D1 (p95 about 840 ms here, 4× the 200 ms budget). A `Timers`-based slow
+    handler replaces it in layer five.
+78. **Test copies skip dot-folders.** Node's `cpSync` without a filter copies through native `std::filesystem`, which
+    aborts the whole process when a folder vanishes mid-copy; CI hit this when a live `.wrangler/tmp/bundle-*` in
+    acme was deleted while a unit test copied `generated/`. Every recursive copy of an example now passes a filter
+    that skips dot-folders, which also keeps the native path out.
