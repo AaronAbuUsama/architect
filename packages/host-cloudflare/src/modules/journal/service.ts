@@ -1,0 +1,24 @@
+import { Effect, Layer } from "effect";
+import { SqlClient } from "effect/sql";
+import { Journal, type Entry } from "@architect/target-effect";
+import type { JournalD1Api } from "./types.ts";
+
+interface Row { readonly trace: string; readonly operation: string; readonly move: string; readonly subject: string; readonly event: string; readonly fields: string }
+
+export const JournalD1: JournalD1Api = {
+  layer: Layer.effect(Journal, Effect.gen(function* () {
+    const sql = yield* SqlClient.SqlClient;
+    return Journal.of({
+      record: (e) =>
+        sql`INSERT INTO "_journal" ${sql.insert({ trace: e.trace, operation: e.operation, move: e.move, subject: e.subject, event: e.event, fields: JSON.stringify(e.fields) })}`.pipe(
+          Effect.asVoid,
+          Effect.orDie,
+        ),
+      ofTrace: (trace) =>
+        sql<Row>`SELECT * FROM "_journal" WHERE "trace" = ${trace} ORDER BY "seq"`.pipe(
+          Effect.map((rows) => rows.map((r): Entry => ({ ...r, fields: JSON.parse(r.fields) as Entry["fields"] }))),
+          Effect.orDie,
+        ),
+    });
+  })),
+};

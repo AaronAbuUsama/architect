@@ -1,6 +1,7 @@
 // Machines: a thing's states and the moves between them. Moves take their names from their keys.
 import type { Event } from "#modules/events/types.ts";
 import type { Thing } from "#modules/things/types.ts";
+import type { Assertion } from "#modules/journeys/types.ts";
 
 export interface MoveSpec<S extends string> {
   /** The states it may start from; `[]` means it creates the thing. */
@@ -35,6 +36,8 @@ export interface Machine<
   readonly states: ReadonlyArray<S>;
   readonly moves: { readonly [K in keyof Mv]: Move<S, ToOf<Mv[K]["to"]> & S> };
   readonly notFrom: NotFrom;
+  /** A journey check: the instance with this id is in `state` once the step's call has come back. */
+  readonly isIn: (id: unknown, state: S) => Assertion;
 }
 
 type ToOf<T> = T extends ReadonlyArray<infer X> ? X : T;

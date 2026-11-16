@@ -1,12 +1,12 @@
 // Generated from the blueprint. Do not edit.
 // The Worker: each operation's route runs its handler through the runtime's wrapper; /_world/* goes to the world.
-import { Effect, Layer } from "effect";
+import { Context, Effect, Layer } from "effect";
 import { HttpRouter, HttpServer } from "effect/http";
 import { HttpApiBuilder } from "effect/http-api";
-import type { SqlClient } from "effect/sql";
+import { SqlClient } from "effect/sql";
 import type { Principal } from "@architect/blueprint";
-import { Database, RecordsD1, Tokens, toWorld } from "@architect/host-cloudflare";
-import { Busy, BusyLive, Handlers, Principals, Records, Wire, thingIn, type Served } from "@architect/target-effect";
+import { Database, JournalD1, RecordsD1, Telemetry, Tokens, toWorld } from "@architect/host-cloudflare";
+import { Busy, BusyLive, Handlers, Journal, Principals, Records, Wire, thingIn, type Served } from "@architect/target-effect";
 import { Api, Errors } from "../api/src/index.ts";
 import * as allowanceGrant from "../api/src/allowance/grant.ts";
 import * as organizationCreate from "../api/src/organization/create.ts";
@@ -25,7 +25,7 @@ const organizationCreateServed = Handlers.serve({ name: "organization.create", o
 const tables = [[thingIn(allowanceThing), "allowance"], [thingIn(organizationThing), "organization"], [thingIn(personThing), "person"]] as const;
 
 const refusals = Wire.refusals(Errors.wire);
-type Services = SqlClient.SqlClient | Records | Busy | Principals;
+type Services = SqlClient.SqlClient | Records | Busy | Principals | Journal;
 
 /** Who is calling, then the operation, its refusals sent as their wire classes. */
 const call = <O, P>(served: Served<O, Records | SqlClient.SqlClient>, payload: P, authorization: string | undefined) =>
@@ -35,14 +35,14 @@ const call = <O, P>(served: Served<O, Records | SqlClient.SqlClient>, payload: P
   ) as Effect.Effect<never, never, Services>;
 
 const AllowanceLive = HttpApiBuilder.group(Api, "allowance", Effect.fn(function* (handlers) {
-  // The services are taken once, when the routes are built, so no request has to supply them.
-  const services = yield* Effect.context<Services>();
+  // The services are taken once, when the routes are built; each request keeps its own tracer and span.
+  const services = Context.pick(SqlClient.SqlClient, Records, Busy, Principals, Journal)(yield* Effect.context<Services>());
   return handlers
       .handle("grant", ({ payload, request }) => call(allowanceGrantServed, payload, request.headers["authorization"]).pipe(Effect.provideContext(services)));
 }));
 const OrganizationLive = HttpApiBuilder.group(Api, "organization", Effect.fn(function* (handlers) {
-  // The services are taken once, when the routes are built, so no request has to supply them.
-  const services = yield* Effect.context<Services>();
+  // The services are taken once, when the routes are built; each request keeps its own tracer and span.
+  const services = Context.pick(SqlClient.SqlClient, Records, Busy, Principals, Journal)(yield* Effect.context<Services>());
   return handlers
       .handle("create", ({ payload, request }) => call(organizationCreateServed, payload, request.headers["authorization"]).pipe(Effect.provideContext(services)));
 }));
@@ -51,13 +51,14 @@ export interface Env {
   readonly DB: D1Database;
   readonly WORLD: DurableObjectNamespace;
   readonly WORLD_SECRET: string;
+  readonly OTLP_URL?: string;
 }
 
 const build = (env: Env) =>
   HttpRouter.toWebHandler(
     HttpApiBuilder.layer(Api).pipe(
       Layer.provide([AllowanceLive, OrganizationLive]),
-      Layer.provide([RecordsD1.layer(tables), BusyLive, Tokens.principals(env.WORLD_SECRET)]),
+      Layer.provide([RecordsD1.layer(tables), JournalD1.layer, BusyLive, Tokens.principals(env.WORLD_SECRET)]),
       Layer.provideMerge(Database.d1(env.DB)),
       Layer.provide(HttpServer.layerServices),
     ),
@@ -67,9 +68,11 @@ const build = (env: Env) =>
 let built: ReturnType<typeof build> | undefined;
 
 export default {
-  fetch(request: Request, env: Env): Promise<Response> {
-    if (new URL(request.url).pathname.startsWith("/_world/")) return toWorld(env.WORLD, request);
-    built ??= build(env);
-    return built.handler(request);
+  fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    if (new URL(request.url).pathname.startsWith("/_world/")) {
+      return toWorld({ worlds: env.WORLD, db: env.DB, tables: tables.map(([, table]) => table) }, request);
+    }
+    const app = (built ??= build(env));
+    return Telemetry.serve({ url: env.OTLP_URL || undefined, service: "acme", handler: app.handler, waitUntil: (p) => ctx.waitUntil(p) }, request);
   },
 };

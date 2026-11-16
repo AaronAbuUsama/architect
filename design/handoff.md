@@ -27,18 +27,20 @@ Aaron's rule from 16 November 2026: the building agent owns the architecture and
 
 ## Where the goal stands
 
-Stage 1 (`layer/1`). Done: wayfinding (`wayfinding/stage-1.md`, decisions D1 and D2), L1.01, L1.10 to L1.14, each
-with evidence in `evidence/`. Packages so far: `blueprint`, `compiler`, `cli` (`architect model`, `architect dev`),
-`target-effect` (`Handlers.serve` with who-may-call, `Busy`, `Timers`, `Principals`, `Records`, `Ids`, `Wire`),
-`host-cloudflare` (`Database.d1`, `RecordsD1`, `Tokens`, the `World` Durable Object; tested in real workerd) and
-`generators` (`nx sync` writes `examples/acme/generated/`, including the Worker's wrangler config and D1 tables, and
-scaffolds `implementation/handlers/`, which acme now fills in). `architect dev` serves acme on workerd; the generated
-`acme` CLI grants, refuses over the cap (exit 44) and refuses bob (exit 3). The journey author's files are committed:
-`examples/acme/journeys/`, `blueprint/starting-worlds/founded.ts`, `test/fixtures/evals/` (the compiler skips the
-first two until L1.15). Run Nx with `NX_DAEMON=false` after changing generator code. Next: L1.15, prove: the journey
-API (`Blueprint.journey`, `startingWorld`), OTLP export from the Worker to a real collector in Docker (spike code in
-`spikes/otlp-from-workerd/README.md`), the nine evals with the author's planted fixtures, then L1.20 to L1.25's grant
-slice (events, the machine move), the stage 1 review and the pull request. The evidence page is
+Stage 1 (`layer/1`). Done: wayfinding (`wayfinding/stage-1.md`, decisions D1 and D2), L1.01, L1.10 to L1.15, each
+with evidence in `evidence/`. Packages: `blueprint` (declarations, journeys and their checks), `compiler`, `cli`
+(`architect model`, `dev`, `prove`), `target-effect` (`Handlers.serve` with who-may-call, `move`, answer/refusal/move
+evidence on the span, `Journal`, `Busy`, `Timers`, `Principals`, `Records`, `Ids`, `Wire`), `host-cloudflare`
+(`Database.d1`, `RecordsD1`, `JournalD1`, `Telemetry` (per-request OTLP), `Tokens`, the `World` Durable Object and its
+facts door), `generators`, and `prove` (`Worlds` (moved from cli), `Collectors` (a real OTel collector in Docker),
+`Journeys`, `Evals` (all nine), `Prove`). `architect prove --env local` in `examples/acme` prints every eval ✔ and
+`prove ✔` in about 6 s and leaves nothing running; `packages/prove/src/modules/prove/prove.test.ts` is the gate: acme
+passes, the scaffolded handlers fail, and each of the journey author's eight planted fixtures fails its own eval.
+Decisions for L1.15 are D2 #24 to #32. Run Nx with `NX_DAEMON=false` after changing generator code. Next: the stage 1
+review by a 🔍 reviewer subagent, then the pull request from `layer/1` to main, merged when CI is green, then the report
+to Aaron. Stage 2 (Gate 1, the allowance's whole life) opens with wayfinding and a journey author. The build plan's
+L1.20 to L1.25 rows were built only as far as grant needs (move, event, steps, budgets, the evals); their remaining
+parts (reads, idempotency, `step.wait`, spend) belong to stage 2. The evidence page is
 https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB; republish it with `python3 tools/evidence/page.py` after each step.
 
 ## Open

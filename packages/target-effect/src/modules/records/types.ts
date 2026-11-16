@@ -13,4 +13,6 @@ export class Records extends Context.Service<Records, {
   readonly find: (thing: Thing, id: string) => Effect.Effect<Instance | undefined>;
   /** Store a new instance, in `state` when the thing has a machine. A failing store dies. */
   readonly insert: <T extends Thing>(thing: T, fields: FieldsOf<T>, state?: string) => Effect.Effect<void>;
+  /** Put the instance in `state`: what a move does once its handler has answered. A failing store dies. */
+  readonly setState: (thing: Thing, id: string, state: string) => Effect.Effect<void>;
 }>()("@architect/target-effect/Records") {}

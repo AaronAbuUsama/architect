@@ -8,4 +8,5 @@ export class Organization extends HttpApiGroup.make("organization").add(organiza
 export class Api extends HttpApi.make("acme").add(Allowance).add(Organization) {}
 
 export * as Errors from "./errors.ts";
+export * as Events from "./events.ts";
 export const operations = { "allowance.grant": allowanceGrant, "organization.create": organizationCreate } as const;

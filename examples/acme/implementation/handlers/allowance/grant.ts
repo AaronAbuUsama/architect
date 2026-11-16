@@ -4,11 +4,10 @@ import { Ids, Records } from "@architect/target-effect";
 import type { Handler } from "../../../generated/api/src/allowance/grant.handler.ts";
 import { Allowance } from "../../../blueprint/things/allowance/thing.ts";
 import { AllowanceLimitTooHigh } from "../../../blueprint/things/allowance/errors.ts";
-import { machine } from "../../../blueprint/things/allowance/machine.ts";
 import { Organization } from "../../../blueprint/things/organization/thing.ts";
 
 /** Let a member spend from the organisation, up to a limit each month. */
-const grant: Handler = ({ organization, member, limit }, { steps }) =>
+const grant: Handler = ({ organization, member, limit }, { steps, move }) =>
   Effect.gen(function* () {
     const records = yield* Records;
     // The role check already loaded this organisation, so it exists.
@@ -19,7 +18,8 @@ const grant: Handler = ({ organization, member, limit }, { steps }) =>
       return yield* new AllowanceLimitTooHigh({ cap });
     }
     const allowance = yield* Ids.of(Allowance.fields.id);
-    yield* steps.insert(records.insert(Allowance, { id: allowance, organization, member, limit, spent: 0n }, machine.moves.grant.to[0]));
+    yield* steps.insert(records.insert(Allowance, { id: allowance, organization, member, limit, spent: 0n }));
+    yield* move("active");
     return { allowance };
   });
 

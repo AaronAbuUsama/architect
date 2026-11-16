@@ -1,14 +1,14 @@
 import { resolve } from "node:path";
 import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
-import { Dev } from "./service.ts";
+import { Worlds } from "./service.ts";
 
 const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
 
-describe("architect dev", () => {
+describe("a local world", () => {
   it("serves acme on workerd: the world casts ada, ada founds an organisation and grants olga 500", { timeout: 90_000 }, () =>
     Effect.runPromise(Effect.scoped(Effect.gen(function* () {
-      const { url } = yield* Dev.start({ root: acme, port: 8791 });
+      const { url } = yield* Worlds.start({ root: acme, port: 8791, name: "world-test" });
       const post = (path: string, body: unknown, token?: string) =>
         Effect.promise(() => fetch(`${url}${path}`, {
           method: "POST",

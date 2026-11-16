@@ -8,6 +8,11 @@ export const recordsMemory = (initial: ReadonlyArray<readonly [Thing, Instance]>
   return Layer.succeed(Records, Records.of({
     find: (thing, id) => Effect.succeed(rows.find(([t, r]) => t === thing && r["id"] === id)?.[1]),
     insert: (thing, fields, state) => Effect.sync(() => void rows.push([thing, { ...(fields as Instance), ...(state ? { state } : {}) }])),
+    setState: (thing, id, state) =>
+      Effect.sync(() => {
+        const at = rows.findIndex(([t, r]) => t === thing && r["id"] === id);
+        if (at >= 0) rows[at] = [thing, { ...rows[at]![1], state }];
+      }),
   }));
 };
 

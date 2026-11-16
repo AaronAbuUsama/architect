@@ -1,5 +1,5 @@
 // Errors: refusals that depend on data. Named by the exported class, `class AllowanceExceeded extends Blueprint.error(...) {}`.
-import type { Cause, Schema } from "effect";
+import { Data, type Cause, type Schema } from "effect";
 import type { FieldsInput, ValueOf } from "#modules/things/types.ts";
 
 export type ErrorFields<F extends FieldsInput> = { readonly [K in keyof F]: ValueOf<F[K]>["schema"]["Type"] };
@@ -34,3 +34,6 @@ export interface Naming {
   readonly name: (cls: AnyErrorClass, name: string) => void;
   readonly nameOf: (cls: AnyErrorClass) => string | undefined;
 }
+
+/** The runtime's own refusal: the caller has none of the operation's roles, so the handler never runs. Exit 3. */
+export class NotAllowed extends Data.TaggedError("NotAllowed")<{}> {}

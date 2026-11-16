@@ -5,7 +5,10 @@ export const Machines: MachinesApi = {
   machine: (thing, spec) => {
     checkMoves(spec.states, spec.moves as Record<string, MoveSpec<string>>);
     const moves: Record<string, Move> = {};
-    const machine = { kind: "machine", thing, states: spec.states, moves, notFrom: undefined } as unknown as Machine;
+    const machine = {
+      kind: "machine", thing, states: spec.states, moves, notFrom: undefined,
+      isIn: (id: unknown, state: string) => Object.freeze({ kind: "is-in", thing, id, state }),
+    } as unknown as Machine;
     for (const [key, m] of Object.entries(spec.moves as Record<string, MoveSpec<string>>)) {
       moves[key] = Object.freeze({
         kind: "move", machine, key, from: m.from, to: typeof m.to === "string" ? [m.to] : m.to, emits: m.emits,

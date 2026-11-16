@@ -3,7 +3,7 @@ import { Effect, Layer, Tracer } from "effect";
 import { SqlClient } from "effect/sql";
 import { describe, expect, it } from "vitest";
 import { Blueprint } from "@architect/blueprint";
-import { BusyLive, Handlers, Ids, Records, type Handler } from "@architect/target-effect";
+import { BusyLive, Handlers, Ids, journalMemory, Records, type Handler } from "@architect/target-effect";
 import { RecordsD1 } from "#modules/records/service.ts";
 import { Database } from "./service.ts";
 
@@ -46,7 +46,7 @@ describe("D1 through SqlClient, in workerd", () => {
       const answer = yield* served.call({ member: "per_olga", limit: most }, { kind: "person", person: "per_ada" });
       return { answer, found: yield* (yield* Records).find(Allowance, answer.allowance) };
     });
-    const { answer, found } = await Effect.runPromise(program.pipe(Effect.provide(Layer.mergeAll(records, BusyLive, Layer.succeed(Tracer.Tracer, tracer)))));
+    const { answer, found } = await Effect.runPromise(program.pipe(Effect.provide(Layer.mergeAll(records, BusyLive, journalMemory().layer, Layer.succeed(Tracer.Tracer, tracer)))));
     expect(found).toEqual({ id: answer.allowance, member: "per_olga", limit: 2n ** 128n - 1n, state: "active" });
     const row = await env.DB.prepare(`SELECT "limit", state FROM "allowance" WHERE id = ?`).bind(answer.allowance).first();
     expect(row).toEqual({ limit: most, state: "active" });

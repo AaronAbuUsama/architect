@@ -89,12 +89,29 @@ const index = (model: Model, name: string): RenderedFile => {
     `export class Api extends HttpApi.make("${name}")${things.map((t) => `.add(${pascal(t)})`).join("")} {}`,
     "",
     `export * as Errors from "./errors.ts";`,
+    `export * as Events from "./events.ts";`,
     `export const operations = { ${ops.map((o) => `"${o.name}": ${opVar(o)}`).join(", ")} } as const;`,
+  ));
+};
+
+/** Events take their names from their exports; the runtime journals them by that name. */
+const events = (model: Model): RenderedFile => {
+  const path = "generated/api/src/events.ts";
+  const emitting = Object.values(model.things).filter((t) => Object.keys(t.events).length > 0);
+  return file(path, lines(
+    GENERATED,
+    `import { EventNames } from "@architect/blueprint/server";`,
+    emitting.map((t) => `import * as ${t.identifier} from "${toRoot(path)}blueprint/things/${t.name}/events.ts";`),
+    "",
+    emitting.flatMap((t) => Object.keys(t.events).map((e) => `EventNames.name(${t.identifier}.${e}, "${e}");`)),
+    "",
+    `export const names = [${emitting.flatMap((t) => Object.keys(t.events).map((e) => `"${e}"`)).join(", ")}] as const;`,
   ));
 };
 
 export const renderApi = (model: Model, name: string): ReadonlyArray<RenderedFile> => [
   errors(model),
+  events(model),
   index(model, name),
   ...Object.values(model.operations).flatMap((op) => [endpoint(op), handlerType(op)]),
 ];

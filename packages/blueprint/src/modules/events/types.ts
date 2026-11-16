@@ -11,3 +11,9 @@ export interface Event<F extends FieldsInput = FieldsInput> {
 export interface EventsApi {
   readonly event: <const F extends FieldsInput>(fields: F) => Event<F>;
 }
+
+/** Called only by generated code and the compiler: gives an event the name of its export. */
+export interface EventNaming {
+  readonly name: (event: Event, name: string) => void;
+  readonly nameOf: (event: Event) => string | undefined;
+}

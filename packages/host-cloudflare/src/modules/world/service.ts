@@ -2,6 +2,7 @@ import { DurableObject } from "cloudflare:workers";
 import { Effect } from "effect";
 import type { WorldEnv } from "./types.ts";
 import { frontDoor } from "./internal/front-door.ts";
+import { facts } from "./internal/facts.ts";
 
 /** The world's Durable Object. Export it from the Worker's entry; bind it as `WORLD`. */
 export class World extends DurableObject<WorldEnv> {
@@ -15,6 +16,11 @@ export class World extends DurableObject<WorldEnv> {
   }
 }
 
-/** Send a `/_world/*` request to the one world of this deployment. */
-export const toWorld = (worlds: DurableObjectNamespace, request: Request): Promise<Response> =>
-  worlds.get(worlds.idFromName("world")).fetch(request);
+/**
+ * A `/_world/*` request: facts come straight from the database; everything else goes to the one world of this
+ * deployment. Local and test worlds only: a production world has no front door (stage three).
+ */
+export const toWorld = (world: { readonly worlds: DurableObjectNamespace; readonly db: D1Database; readonly tables: ReadonlyArray<string> }, request: Request): Promise<Response> =>
+  new URL(request.url).pathname.startsWith("/_world/facts/")
+    ? Effect.runPromise(facts(world.db, world.tables, request))
+    : world.worlds.get(world.worlds.idFromName("world")).fetch(request);

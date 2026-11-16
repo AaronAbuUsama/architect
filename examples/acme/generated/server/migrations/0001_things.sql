@@ -6,7 +6,7 @@ CREATE TABLE "allowance" (
   "member" TEXT NOT NULL,
   "limit" TEXT NOT NULL,
   "spent" TEXT NOT NULL,
-  "state" TEXT NOT NULL
+  "state" TEXT
 );
 CREATE TABLE "organization" (
   "id" TEXT PRIMARY KEY,
@@ -18,3 +18,14 @@ CREATE TABLE "person" (
   "id" TEXT PRIMARY KEY,
   "name" TEXT NOT NULL
 );
+-- Every event a move emitted, with the trace of the call that made it (target-effect's Journal).
+CREATE TABLE "_journal" (
+  "seq" INTEGER PRIMARY KEY AUTOINCREMENT,
+  "trace" TEXT NOT NULL,
+  "operation" TEXT NOT NULL,
+  "move" TEXT NOT NULL,
+  "subject" TEXT NOT NULL,
+  "event" TEXT NOT NULL,
+  "fields" TEXT NOT NULL
+);
+CREATE INDEX "_journal_trace" ON "_journal" ("trace");

@@ -5,6 +5,9 @@ import { ErrorNames } from "@architect/blueprint/server";
 import { Busy } from "#modules/work/types.ts";
 import { BusyLive } from "#modules/work/service.ts";
 import { recordsMemory } from "#modules/records/service.ts";
+import { journalMemory } from "#modules/journal/service.ts";
+import { Records } from "#modules/records/types.ts";
+import { EventNames } from "@architect/blueprint/server";
 import { NotAllowed } from "#modules/access/types.ts";
 import { Handlers } from "./service.ts";
 import { InvalidPayload, type Handler } from "./types.ts";
@@ -35,7 +38,8 @@ const handler: Handler<typeof grant> = (payload, { steps }) =>
 const recording = () => {
   const spans: Array<Tracer.NativeSpan> = [];
   const tracer = Tracer.make({ span: (options) => { const s = new Tracer.NativeSpan(options); spans.push(s); return s; } });
-  return { spans, layer: Layer.mergeAll(BusyLive, recordsMemory([]), Layer.succeed(Tracer.Tracer, tracer)) };
+  const journal = journalMemory();
+  return { spans, journal, layer: Layer.mergeAll(BusyLive, recordsMemory([]), journal.layer, Layer.succeed(Tracer.Tracer, tracer)) };
 };
 const ada = { kind: "person", person: "per_ada" } as const;
 const served = Handlers.serve({ name: "allowance.grant", operation: grant, handler });
@@ -86,5 +90,56 @@ describe("handler wrapper", () => {
     const bad = Handlers.serve({ name: "allowance.grant", operation: grant, handler: () => Effect.succeed({ allowance: "nope" as never }) });
     const exit = await Effect.runPromiseExit(Effect.provide(bad.call({ member: "per_olga", limit: "1" }, ada), recording().layer));
     expect(Exit.isFailure(exit) && Cause.pretty(exit.cause)).toContain("answered outside its declaration");
+  });
+
+  describe("moves", () => {
+    const Granted = Blueprint.event({ allowance: Allowance.fields.id, limit: Amount });
+    EventNames.name(Granted, "Granted");
+    const machine = Blueprint.machine(Allowance, { states: ["active"], moves: { grant: { from: [], to: "active", emits: Granted } }, notFrom: { exit: 40 } });
+    const moving = Blueprint.operation(Allowance, {
+      description: "Grant, with its move.",
+      payload: { member: Allowance.fields.member, limit: Allowance.fields.limit },
+      answer: { allowance: Allowance.fields.id },
+      move: machine.moves.grant,
+      allowed: [Blueprint.signedIn],
+    });
+    const insertAndMove = (to?: string): Handler<typeof moving, Records> => (payload, { move }) =>
+      Effect.gen(function* () {
+        const records = yield* Records;
+        yield* records.insert(Allowance, { id: "alw_7" as never, member: payload.member, limit: payload.limit });
+        yield* move(to as never);
+        return { allowance: "alw_7" as never };
+      });
+
+    it("sets the state and journals the event once the handler answers", async () => {
+      const r = recording();
+      const s = Handlers.serve({ name: "allowance.grant", operation: moving, handler: insertAndMove() });
+      const state = await Effect.runPromise(Effect.gen(function* () {
+        yield* s.call({ member: "per_olga", limit: "500" }, ada);
+        return (yield* (yield* Records).find(Allowance, "alw_7"))?.state;
+      }).pipe(Effect.provide(r.layer)));
+      expect(state).toBe("active");
+      expect(r.journal.entries).toEqual([
+        expect.objectContaining({ operation: "allowance.grant", move: "grant", subject: "alw_7", event: "Granted", fields: { allowance: "alw_7", limit: "500" } }),
+      ]);
+      expect(r.spans[0]!.attributes.get("move.to")).toBe("active");
+      expect(r.spans[0]!.attributes.get("answer.allowance")).toBe("alw_7");
+    });
+
+    it("an outcome the move doesn't declare dies, and the span says what was asked", async () => {
+      const r = recording();
+      const s = Handlers.serve({ name: "allowance.grant", operation: moving, handler: insertAndMove("paused") });
+      const exit = await Effect.runPromiseExit(Effect.provide(s.call({ member: "per_olga", limit: "5" }, ada), r.layer));
+      expect(Exit.isFailure(exit) && Cause.hasDies(exit.cause)).toBe(true);
+      expect(r.spans[0]!.attributes.get("move.to")).toBe("paused");
+      expect(String(r.spans[0]!.attributes.get("defect"))).toContain("moved to paused");
+      expect(r.journal.entries).toEqual([]);
+    });
+
+    it("a refusal is written on the span", async () => {
+      const r = recording();
+      await Effect.runPromiseExit(Effect.provide(served.call({ member: "per_olga", limit: "5000" }, ada), r.layer));
+      expect(r.spans[0]!.attributes.get("refusal")).toBe("AllowanceLimitTooHigh");
+    });
   });
 });

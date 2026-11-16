@@ -17,6 +17,7 @@
   },
   "exports": {
     ".": "./src/main.ts",
+    "./sync": "./src/modules/sync/service.ts",
     "./package.json": "./package.json"
   }
 }

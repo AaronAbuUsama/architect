@@ -3,6 +3,7 @@
 import { Data, type Effect } from "effect";
 import type { AnswerOf, ErrorOf, PayloadOf, Principal, StepsOf } from "@architect/blueprint";
 import type { NotAllowed } from "#modules/access/types.ts";
+import type { Journal } from "#modules/journal/types.ts";
 import type { Records } from "#modules/records/types.ts";
 import type { Busy } from "#modules/work/types.ts";
 
@@ -17,7 +18,14 @@ export type StepRunners<St> = {
 export interface HandlerContext<O> {
   readonly principal: Principal;
   readonly steps: StepRunners<StepsOf<O>>;
+  /**
+   * Make the operation's move, ending in `to` (or its only outcome). Applied once the handler answers: the instance's
+   * state is set and the move's event journalled. A handler that never calls it makes no move and emits nothing.
+   */
+  readonly move: (to?: MoveTo<O>) => Effect.Effect<void>;
 }
+
+type MoveTo<O> = O extends { readonly move: infer M } ? (NonNullable<M> extends { readonly to: ReadonlyArray<infer S> } ? S : never) : never;
 
 /** What a project writes in `<verb>.handler.ts`: the declared payload in, the declared answer or a declared error out. */
 export type Handler<O, R = never> = (payload: PayloadOf<O>, context: HandlerContext<O>) => Effect.Effect<AnswerOf<O>, ErrorOf<O>, R>;
@@ -25,9 +33,9 @@ export type Handler<O, R = never> = (payload: PayloadOf<O>, context: HandlerCont
 export interface Served<O, R> {
   readonly name: string;
   /** From the outside: decode first, refusing with `InvalidPayload`. */
-  readonly call: (payload: unknown, principal: Principal) => Effect.Effect<AnswerOf<O>, ErrorOf<O> | InvalidPayload | NotAllowed, R | Busy | Records>;
+  readonly call: (payload: unknown, principal: Principal) => Effect.Effect<AnswerOf<O>, ErrorOf<O> | InvalidPayload | NotAllowed, R | Busy | Records | Journal>;
   /** From a server that has already decoded the payload against the same declaration. */
-  readonly run: (payload: PayloadOf<O>, principal: Principal) => Effect.Effect<AnswerOf<O>, ErrorOf<O> | NotAllowed, R | Busy | Records>;
+  readonly run: (payload: PayloadOf<O>, principal: Principal) => Effect.Effect<AnswerOf<O>, ErrorOf<O> | NotAllowed, R | Busy | Records | Journal>;
 }
 
 /** A scaffolded handler not written yet. Reaching it is a defect that names what's missing. */

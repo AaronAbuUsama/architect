@@ -29,6 +29,8 @@ export const RecordsD1: RecordsD1Api = {
             const row = yield* Schema.encodeEffect(codecOf(thing))(fields as Record<string, unknown>);
             yield* sql`INSERT INTO ${sql(tableOf(thing))} ${sql.insert(state ? { ...row, state } : row)}`;
           }).pipe(Effect.orDie),
+        setState: (thing, id, state) =>
+          sql`UPDATE ${sql(tableOf(thing))} SET "state" = ${state} WHERE "id" = ${id}`.pipe(Effect.asVoid, Effect.orDie),
       });
     })),
 };

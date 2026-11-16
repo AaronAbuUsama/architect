@@ -81,6 +81,9 @@ importers:
       '@architect/compiler':
         specifier: workspace:*
         version: link:../compiler
+      '@architect/prove':
+        specifier: workspace:*
+        version: link:../prove
       '@effect/platform-node':
         specifier: 4.1.1
         version: 4.1.1(effect@4.1.1)(redis@6.3.1)
@@ -152,7 +155,30 @@ importers:
 
   packages/preset: {}
 
-  packages/prove: {}
+  packages/prove:
+    dependencies:
+      '@architect/blueprint':
+        specifier: workspace:*
+        version: link:../blueprint
+      '@architect/compiler':
+        specifier: workspace:*
+        version: link:../compiler
+      '@architect/target-effect':
+        specifier: workspace:*
+        version: link:../target-effect
+      effect:
+        specifier: 4.1.1
+        version: 4.1.1
+      wrangler:
+        specifier: 4.156.1
+        version: 4.156.1(@cloudflare/workers-types@5.20261101.1)(@types/node@24.19.2)
+    devDependencies:
+      '@architect/generators':
+        specifier: workspace:*
+        version: link:../generators
+      nx:
+        specifier: 24.0.3
+        version: 24.0.3
 
   packages/std: {}
 

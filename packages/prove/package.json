@@ -5,5 +5,18 @@
   "exports": {
     ".": "./src/index.ts"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@architect/blueprint": "workspace:*",
+    "@architect/compiler": "workspace:*",
+    "@architect/target-effect": "workspace:*",
+    "effect": "4.1.1",
+    "wrangler": "4.156.1"
+  },
+  "imports": {
+    "#modules/*": "./src/modules/*"
+  },
+  "devDependencies": {
+    "@architect/generators": "workspace:*",
+    "nx": "24.0.3"
+  }
 }
