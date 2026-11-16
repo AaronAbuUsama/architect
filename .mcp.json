@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "eu": {
+      "type": "http",
+      "url": "https://mcp.eu.axiom.co/mcp"
+    }
+  }
+}
