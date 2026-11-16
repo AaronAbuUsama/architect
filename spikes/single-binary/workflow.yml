@@ -1,0 +1,62 @@
+# Spike only. Runs on pushes to spike/single-binary and nowhere else.
+# The Linux x64 binary under test was built on a Mac (spikes/single-binary/build.sh) and sits on the throwaway branch
+# spike/single-binary-input as a tarball, because a workflow cannot take an artifact from a laptop.
+name: spike-single-binary
+
+on:
+  push:
+    branches: [spike/single-binary]
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    name: run the Mac-built linux-x64 binary
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: spike/single-binary-input
+          path: input
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.22.2"
+      - name: verify and unpack the tarball
+        run: |
+          cd input && sha256sum -c SHA256SUMS
+          mkdir -p ../out && tar -xzf architect-sea-spike-0.0.0-spike.1-linux-x64.tar.gz -C ../out
+          ls -l ../out; file ../out/architect-sea-spike; uname -a; cat /etc/os-release | head -2
+      - name: --help, --version and start time
+        run: |
+          out/architect-sea-spike --help | head -5
+          out/architect-sea-spike --version
+          for i in 1 2 3 4 5; do /usr/bin/time -f "%e s" out/architect-sea-spike --version; done
+      - name: install the repo so the example blueprint resolves
+        run: |
+          npm install -g pnpm@11.20.0
+          pnpm install --frozen-lockfile
+      - name: try to break it (other cwd, no node on PATH, commands that need effect and our packages)
+        run: spikes/single-binary/break.sh out/architect-sea-spike examples/acme
+
+  brew:
+    name: install through a local tap on Linuxbrew
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        skip_clean: ["", "skip_clean"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: spike/single-binary-input
+          path: input
+      - name: verify the tarball
+        run: cd input && sha256sum -c SHA256SUMS
+      - name: brew install, test, uninstall, untap
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          brew --version
+          spikes/single-binary/brew-local.sh "$PWD/input" "${{ matrix.skip_clean }}"
