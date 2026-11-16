@@ -1,0 +1,13 @@
+{
+  "step": "L2.03",
+  "stage": "Stage 3 · shipping on local worlds (Gate 2)",
+  "title": "The logbook and signed verdicts",
+  "summary": "packages/logbook is a worker on local workerd under wrangler dev: a Durable Object holds verdicts and releases, R2 holds each revision's model. POST /verdicts takes a Bearer OIDC token, verified with jose against the one issuer the environment names (RS256 only, audience, repository, ref patterns, workflow and job_workflow_ref), and stores the ref and event with the verdict. Reads are open. Beyond the verdicts it keeps a revision's model, the latest verdict per operation and environment, and the last production release, for versions and staleness in L2.04 and promotion in L2.05. The test runs the real worker against a real OIDC server (mock-oauth2-server, by digest, in Docker).",
+  "proves": "A trusted token's verdict is accepted and read back with its ref and event. A forged token, another issuer's token, a wrong branch, repository, workflow or audience, no token and a non-JWT are each 401 and store nothing. State, model and release survive a restart. Nothing is left running.",
+  "captions": {
+    "01-fails-first": "The check before the build: the logbook doesn't exist yet, so it fails.",
+    "02-logbook-with-real-issuer": "The check after: five tests against the worker on workerd and the issuer in Docker.",
+    "03-unit-suite": "Every package's lint, typecheck and tests.",
+    "04-sync-check": "nx sync:check stays green."
+  }
+}
