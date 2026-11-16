@@ -1,0 +1,12 @@
+{
+  "step": "L1.60",
+  "stage": "Stage 2 · the allowance's whole life (Gate 1)",
+  "title": "Gate 1: layer one's seven checks",
+  "summary": "nx run e2e:layer1 runs the seven checks of layer one, each with the real architect command in a copy outside the repository: a project from the preset installed from Verdaccio; acme proving; every eval failing its planted break; an agent writing a handler from its brief alone; the generated CLI, SDK and docs against a running world; add, generate and check building the allowance on the starter; and impact. The agent check runs on the Claude Agent SDK with only four tools of ours, and its whole run is traced into the same OpenTelemetry Collector prove uses.",
+  "proves": "All seven checks pass locally. In CI, six pass and the agent check says it was skipped and why, until CI has an Anthropic key.",
+  "captions": {
+    "01-e2e-layer1": "The whole Gate 1 suite, seven checks.",
+    "02-agent-telemetry": "What the agent did, read back from the collector: the interaction, each model request, each tool call.",
+    "03-unit-suite": "Every package's lint, typecheck and tests."
+  }
+}

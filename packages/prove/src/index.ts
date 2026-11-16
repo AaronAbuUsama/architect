@@ -5,3 +5,5 @@ export { Worlds } from "#modules/world/service.js";
 export { WorldFailed, type Running } from "#modules/world/types.js";
 export { Impact } from "#modules/impact/service.js";
 export type { Impact as ImpactReport } from "#modules/impact/types.js";
+export { Collectors } from "#modules/telemetry/service.js";
+export { CollectorFailed, type Collector, type Trace } from "#modules/telemetry/types.js";

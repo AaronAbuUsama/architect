@@ -60,11 +60,7 @@ on Better Auth, organization, membership, invitation, api-key; 5 journeys, 11 op
 L1.51 done (commit 79be956, evidence `evidence/L1.51/`): acme is the starter plus the allowance (D2 #73).
 In progress: L1.60, Gate 1. `e2e/` is a workspace project; `nx run e2e:layer1` runs the seven checks of D2 #74 from
 `e2e/layer1/0N-*.test.ts`, each in a copy of an example outside the repository (`support.ts` `copyOf`). Checks 1, 2,
-3, 5, 6 and 7 pass locally. Check 4 (`04-agent-writes-a-handler.test.ts`, today a `claude -p` session) waits on
-Aaron's pick of harness: he asked, 16 November 2026, to use an agent SDK with traces exported, and pointed at Pi
-(`@earendil-works/pi-durable`, pi-mono). Proposed: the Claude Agent SDK 0.3.316 now (his Claude Code sign-in, tools
-locked to read / edit spend / run check, telemetry to prove's collector), and a durable agent on Architect's own stack
-(a DO session, each turn a step) in `later.md`. Don't run check 4 until he answers. Then a 🔍 review and a PR to main.
+3, 5, 6 and 7 pass locally. Check 4 runs on the Claude Agent SDK with only our tools and its traces in prove's collector (D2 #76); it passed locally. Next: the whole suite green through `nx run e2e:layer1`, evidence, CI, Then a 🔍 review and a PR to main.
 The evidence page is https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB; republish it with
 `python3 tools/evidence/page.py` after each step. For plants, back up with `cp` and restore with `cp`, never
 `git checkout`.

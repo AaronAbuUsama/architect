@@ -184,3 +184,13 @@ Decided 16 November 2026 by the builder, which has architectural ownership. The 
     exits non-zero with no finding it can name is itself a finding. The root is resolved with `realpath`, because
     oxlint reports files by real path and macOS's temporary folder is a symlink; before this, every rule silently
     skipped a project reached through one. Both were found by Gate 1's check 6.
+76. **Check 4's agent runs on the Claude Agent SDK, with only our tools, and its traces go to prove's collector.**
+    Aaron asked (16 November 2026) for an agent SDK with exported traces instead of a scripted `claude -p`, and pointed
+    at Pi. The check uses `@anthropic-ai/claude-agent-sdk` 0.3.316 (peers pinned: `@anthropic-ai/sdk` 1.3.0,
+    `@modelcontextprotocol/sdk` 1.32.2, `zod` 4.6.7) with `tools: []`: no built-in tool at all, and four tools of
+    ours in an in-process server (`read` and `list` outside the denied folders, `write_handler` for the one file,
+    `check`), so its permissions hold by construction. It signs in as Claude Code does on this machine; in CI it needs
+    `ANTHROPIC_API_KEY` (D2 #41). Claude Code's OpenTelemetry (with the enhanced-telemetry beta) exports the
+    interaction, each model request and each tool call as spans to the same collector image prove runs; the files
+    stay in `e2e/.architect/agent-telemetry/`. Pi's core loop was the alternative; it would need an Anthropic key, a
+    credential. A durable agent on Architect's own stack, after Pi Durable's design, is in `later.md`.

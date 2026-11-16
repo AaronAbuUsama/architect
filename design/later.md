@@ -21,3 +21,9 @@ belongs to, and why it waits.
 - **A release-age policy for transitive dependencies.** `minimumReleaseAge: 20160` in `pnpm-workspace.yaml` rejects
   53 entries already in the lockfile (transitives resolved within the last two weeks). The rule binds the versions we
   pin; turning the policy on means rebuilding the lockfile once the window has passed.
+
+- **A durable agent on Architect's own stack** (proposed 16 November 2026, after Aaron pointed at Pi Durable,
+  `@earendil-works/pi-durable` in pi-mono). An agent session as a Durable Object: each model turn and each tool call a
+  declared step with its span, the transcript committed before anything is shown, waits through `Timers`, resumed by
+  the DO alarm after a crash, and the run proven by the same nine evals. Pi Durable's checkpoint-per-phase design is
+  the reference, not a dependency (it is about 36k lines and experimental). Belongs with layer five, time.
