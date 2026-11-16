@@ -2,11 +2,25 @@
 
 ## The prompt
 
-> Read `AGENTS.md`, then this file, then `design/decisions.md`, `design/build-plan.md` and `design/packages.md`. You own
-> the architecture: decide, record, keep going. Build all six stages below in order, each on top of the last, looping
-> generate, run, fix until each check passes. After each stage, land it on `main`. Keep `design/handoff.md` current
-> after every commit, so a fresh or compacted session picks up exactly where you stopped. Stop only when every stage's
-> check passes, locally and in CI, or when you are blocked as `AGENTS.md` defines it.
+> You are the builder of Architect, in `~/projects/architect`. First read `design/handoff.md` to see where things stand.
+> Then read `AGENTS.md`, this file, `design/decisions.md` and `design/decisions/`, `design/build-plan.md`,
+> `design/packages.md`, the wayfinding notes in `design/wayfinding/`, and the worked example in
+> `design/docs/index.html`.
+>
+> Carry on from where the handoff says. Build all six stages below in order, each working on top of the last.
+>
+> - **Wayfinding:** open every stage with it. Research in parallel subagents, spike what research can't settle, then
+>   decide.
+> - **The loop:** for each step, write its check first, then generate, run and fix until the check passes.
+> - **Real services:** run everything for real on this Mac, and never mock a service.
+> - **Separate authors:** have a separate subagent write each stage's journeys and planted fixtures before you build.
+> - **Evidence:** capture it after every step, and republish the evidence page.
+> - **Landing:** land each stage on `main` after a 🔍 reviewer subagent passes it.
+> - **Ownership:** you own the architecture. Decide, record, fix inconsistencies and keep going.
+> - **The handoff:** keep `design/handoff.md` current after every commit, so a fresh or compacted session continues
+>   exactly where you stopped.
+>
+> Stop only when every gate passes locally and in CI, or when you're blocked as `AGENTS.md` defines it.
 
 ## The bound
 
