@@ -4,3 +4,5 @@ export { BlueprintInvalid } from "#modules/model/types.ts";
 export type { Model, ThingModel, OperationModel, FieldModel, AllowedModel, ValueMeta } from "#modules/model/types.ts";
 export { nodeSource } from "#modules/source/service.ts";
 export { BlueprintSource, SourceError } from "#modules/source/types.ts";
+export { Compare } from "#modules/compare/service.ts";
+export type { Change, Depends } from "#modules/compare/types.ts";

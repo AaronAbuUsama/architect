@@ -15,3 +15,6 @@ belongs to, and why it waits.
   reads them through the actor.
 - Idempotency by request for things that `lives: "actor"`: the `_requests` row has to commit inside the actor.
 - When a handler awaits a chain call (layer four), the actor holds its lock across the whole call, not only the commit.
+- **Key proofs by handler source and journeys too** (D2 #60). Today impact keys a proof by blueprint hashes only.
+  When prove gets slow enough that skipping proven operations pays, add the handler file's hash and the hashes of the
+  journeys that call the operation.

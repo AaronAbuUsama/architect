@@ -41,7 +41,8 @@ const planted = (name: string, installs: ReadonlyArray<readonly [string, string]
 const GRANT = "implementation/handlers/allowance/grant.ts";
 const nothingRunning = () => {
   const containers = spawnSync("docker", ["ps", "--format", "{{.Names}}"], { encoding: "utf8" }).stdout;
-  expect(containers).not.toContain("architect-collector");
+  // This process's collectors only: other test files prove their own projects at the same time.
+  expect(containers).not.toContain(`architect-collector-${process.pid}-`);
 };
 
 afterAll(() => rmSync(scratch, { recursive: true, force: true }));

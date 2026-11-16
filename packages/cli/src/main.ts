@@ -5,7 +5,7 @@ import { Console, Effect } from "effect";
 import { Argument, Command, Flag } from "effect/cli";
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
-import { Prove, Worlds } from "@architect/prove";
+import { Impact, Prove, Worlds } from "@architect/prove";
 import { ModelCommand } from "#modules/model/service.ts";
 import { Add } from "#modules/add/service.ts";
 import { AddRefused, type What } from "#modules/add/types.ts";
@@ -112,6 +112,18 @@ const generate = Command.make(
     ),
 );
 
+const impact = Command.make(
+  "impact",
+  { root: Flag.String("root").pipe(Flag.withDefault(process.cwd())) },
+  ({ root }) =>
+    Compiler.model.pipe(
+      Effect.provide(nodeSource(root)),
+      Effect.flatMap((m) => Impact.of(root, m)),
+      Effect.flatMap((said) => Effect.sync(() => process.stdout.write(Impact.lines(said).join("\n") + "\n"))),
+      Effect.catchTags({ BlueprintInvalid: (e) => fail(e.problems.join("\n"), 2), SourceError: (e) => fail(e.message, 2) }),
+    ),
+);
+
 const brief = Command.make(
   "brief",
   { operation: Argument.String("operation"), root: Flag.String("root").pipe(Flag.withDefault(process.cwd())) },
@@ -129,7 +141,7 @@ const brief = Command.make(
 );
 
 Command.make("architect").pipe(
-  Command.withSubcommands([model, dev, prove, add, check, generate, brief]),
+  Command.withSubcommands([model, dev, prove, add, check, generate, brief, impact]),
   Command.run({ version: "0.0.0" }),
   Effect.provide(NodeServices.layer),
   NodeRuntime.runMain,

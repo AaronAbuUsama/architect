@@ -5,6 +5,7 @@ import { Collectors } from "#modules/telemetry/service.ts";
 import { Evals } from "#modules/evals/service.ts";
 import { Journeys } from "#modules/journeys/service.ts";
 import { Worlds } from "#modules/world/service.ts";
+import { Impact } from "#modules/impact/service.ts";
 import { ProveFailed, type ProveApi } from "./types.ts";
 import { evalLines, journeyLines } from "./internal/report.ts";
 
@@ -26,7 +27,9 @@ export const Prove: ProveApi = {
       const traces = yield* collector.traces(calls.map((c) => ({ trace: c.trace, parent: c.parent })));
       const evidence = Evals.gather(calls, traces);
       const journeys = journeyLines(runs, traces);
-      const evals = evalLines(model, Evals.judge(project, evidence));
+      const verdicts = Evals.judge(project, evidence);
+      yield* Impact.record(root, model, verdicts);
+      const evals = evalLines(model, verdicts);
       const failures = journeys.failed + evals.failed;
       return {
         lines: [...journeys.lines, ...evals.lines, failures === 0 ? "prove ✔" : `prove ✘ ${failures} failing`],

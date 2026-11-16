@@ -53,10 +53,102 @@ h2 { font-family: var(--display); font-size: 1.25rem; margin: 0; display: flex; 
   
 <section class="step">
   <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
+  <h2><span class="id">L1.40</span> architect check <span class="chip pass">done</span></h2>
+  <p class="summary">architect check now holds a project to five parts: no blanks left, tsc clean, the architect lint rules clean, generated/ exactly what the blueprint renders, and the ratchets it still allows. Each finding names its file, line and rule. The rules run through real oxlint with the project&#x27;s model passed in: no declared name as a string, a log before every refusal, only declared errors, no wall clock or raw sleep, and every handler file belonging to an operation.</p>
+  <div class="proves"><span class="label">Done when</span>Four planted fixtures each make architect check exit 1 naming the file: an edited output, a name as a string, an undeclared error and a refusal with no log. Clean acme passes with ratchets 0.</div>
+  <div class="links">CI not run · <a href="https://github.com/AaronAbuUsama/architect/commit/9536039">commit 9536039</a> · 5 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Clean acme: every part passes, ratchets 0.</span>
+    <span class="meta">exit 0 · 1.2s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node packages/cli/src/main.ts check --root examples/acme</div><pre>blanks left 0
+types ✔
+rules ✔
+drift ✔
+ratchets 0
+check ✔</pre></div>
+</details>
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">The name-as-string fixture: rules fail, naming the handler and line.</span>
+    <span class="meta">exit 1 · 0.9s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node packages/cli/src/main.ts check --root examples/acme/test/tmp/evidence/acme</div><pre>blanks left 0
+types ✔
+rules ✘ 1
+  implementation/handlers/allowance/spend.ts:7  no-name-as-string: &quot;allowance.spend&quot; is a declared name written as a string: import the declaration instead
+drift ✔
+ratchets 0
+check ✘</pre></div>
+</details>
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">The edited-output fixture: drift fails, naming the generated file.</span>
+    <span class="meta">exit 1 · 0.9s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node packages/cli/src/main.ts check --root examples/acme/test/tmp/evidence/acme</div><pre>blanks left 0
+types ✔
+rules ✔
+drift ✘ 1
+  generated/api/src/allowance/get.ts  no-edited-output: differs from what the blueprint generates: never edit generated/, run architect generate
+ratchets 0
+check ✘</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The check tests: clean acme, all four fixtures, and a ratchet.</span>
+    <span class="meta">exit 0 · 4.2s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --root packages/cli src/modules/check --reporter verbose</div><pre>RUN  v4.1.12 ./packages/cli
+
+ ✓ src/modules/check/check.test.ts &gt; Check.blanks &gt; finds every Blueprint.todo with its line and what it waits for, grouped by its thing 1ms
+ ✓ src/modules/check/check.test.ts &gt; architect check on acme &gt; passes clean acme with ratchets 0 509ms
+ ✓ src/modules/check/check.test.ts &gt; architect check on acme &gt; lets a ratchet allow a rule&#x27;s findings, and asks for it to be lowered once they are gone 900ms
+ ✓ src/modules/check/check.test.ts &gt; architect check on acme &gt; fails on edited-output, naming generated/api/src/allowance/get.ts 468ms
+ ✓ src/modules/check/check.test.ts &gt; architect check on acme &gt; fails on name-as-string, naming implementation/handlers/allowance/spend.ts 441ms
+ ✓ src/modules/check/check.test.ts &gt; architect check on acme &gt; fails on undeclared-error, naming implementation/handlers/allowance/spend.ts 447ms
+ ✓ src/modules/check/check.test.ts &gt; architect check on acme &gt; fails on refusal-without-log, naming implementation/handlers/allowance/spend.ts 466ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  18:54:41
+   Duration  3.62s (transform 220ms, setup 0ms, import 239ms, tests 3.30s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Each architect rule through real oxlint: what it reports and what it lets through.</span>
+    <span class="meta">exit 0 · 4.0s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --root packages/lint --reporter verbose</div><pre>RUN  v4.1.12 ./packages/lint
+
+ ✓ src/modules/rules/rules.test.ts &gt; the architect rules &gt; no-name-as-string: a declared name as a literal outside generated/ 261ms
+ ✓ src/modules/rules/rules.test.ts &gt; the architect rules &gt; refusal-has-log and declared-errors-only: a refusal says why first, and is one its operation declares 157ms
+ ✓ src/modules/rules/rules.test.ts &gt; the architect rules &gt; no-wall-clock: Date.now, new Date(), setTimeout and raw Effect.sleep, but not new Date(at) 136ms
+ ✓ src/modules/rules/rules.test.ts &gt; the architect rules &gt; handler-matches-path: a handler file belongs to a declared operation 132ms
+ ✓ test/boundaries.test.ts &gt; module boundaries &gt; fails lint when blueprint imports compiler 1138ms
+ ✓ test/boundaries.test.ts &gt; module boundaries &gt; fails lint when blueprint imports a package other than Effect 784ms
+ ✓ test/boundaries.test.ts &gt; module boundaries &gt; fails lint when runtime code imports generators 757ms
+ ✓ test/boundaries.test.ts &gt; module boundaries &gt; passes when blueprint imports Effect 780ms
+
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
+   Start at  18:54:45
+   Duration  3.56s (transform 26ms, setup 0ms, import 39ms, tests 4.15s, environment 0ms)</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
   <h2><span class="id">L1.33</span> architect brief <span class="chip pass">done</span></h2>
   <p class="summary">architect brief gives an agent everything it needs to write one handler, and fences it in. For allowance.spend it names the one file to write, the declaration and generated pages to read, the two steps to run, the move and its outcomes, the one refusal to give with its exit code, and the two the runtime gives instead. It lists every folder not to touch, journeys included, and says what must pass: prove with spend&#x27;s nine evals and the three journeys that call it, and check.</p>
   <div class="proves"><span class="label">Done when</span>architect brief allowance.spend prints the declaration to read, the files it must not touch (including blueprint/journeys/**), and the evals that must pass.</div>
-  <div class="links">CI not run · <a href="https://github.com/AaronAbuUsama/architect/commit/bb7e816">commit bb7e816</a> · 2 captured runs</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43932264735">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/bb7e816">commit bb7e816</a> · 2 captured runs</div>
   
 <details class="run" >
   <summary>
@@ -113,10 +205,10 @@ Done when
 </section>
 <section class="step">
   <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
-  <h2><span class="id">L1.32</span> Docs, model edges, and the CLI&#x27;s exit codes <span class="chip bad">not done</span></h2>
+  <h2><span class="id">L1.32</span> Docs, model edges, and the CLI&#x27;s exit codes <span class="chip pass">done</span></h2>
   <p class="summary">Every thing and operation now has a generated docs page. Spend&#x27;s page lists who may call it, what goes in and comes out, its move, its two steps, and each refusal with its exit code: AllowanceExceeded 41, AllowanceNotActive 40, NotAllowed 3. The model also lists what depends on what. On a real local world, the generated acme command line spends, prints the answer as JSON when asked, exits 41 past the limit, 3 for an outsider, and 40 once the allowance is revoked.</p>
   <div class="proves"><span class="label">Done when</span>acme allowance spend past the limit exits 41; generated/docs/allowance/spend.md lists AllowanceExceeded and AllowanceNotActive.</div>
-  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43931991422">CI </a> · <a href="https://github.com/AaronAbuUsama/architect/commit/735020c">commit 735020c</a> · 4 captured runs</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43931991422">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/735020c">commit 735020c</a> · 4 captured runs</div>
   
 <details class="run" >
   <summary>

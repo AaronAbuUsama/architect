@@ -116,3 +116,10 @@ Decided 16 November 2026 by the builder, which has architectural ownership. The 
     writes `.architect/check/oxlintrc.json` (ignored by git) with only the architect rules, and names each file,
     because oxlint skips anything under a `.gitignore`d folder when walking one, even with `--no-ignore`. The project's
     own lint config stays its own.
+60. **A proof rests on the operation, its thing, and the things it reaches.** `Compare.dependsOn` keys each proven
+    operation by its own hash, its thing's, every thing its payload, answer or thing's fields refer to, and every thing
+    whose role may call it. prove writes them to `.architect/evidence/proven.json` with the model it proved;
+    `architect impact` reads it. A new operation is `unproven`, never `stale`: stale means a proof that no longer
+    holds. Journeys and handler code are not in the key yet: a handler change is caught by running prove, which is
+    cheap locally; keying by handler source waits until prove is slow enough to need it (`later.md`). Evidence:
+    `packages/prove/src/modules/impact/impact.test.ts`.
