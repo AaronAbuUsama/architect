@@ -12,7 +12,7 @@
 // - Destinations the local pass can't reach print `skipped <destination> (cloud pass)` (the GitHub release, at least, in
 //   a production promote).
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { addList, build, promote } from "./flow.ts";
+import { addList, build, promote, proveInTest } from "./flow.ts";
 import { type Stack, finish, startStack } from "./services.ts";
 import { commit, getJson, project, run } from "./support.ts";
 
@@ -31,14 +31,17 @@ describe("check 4: promote", () => {
     const { root } = copy;
     const first = build(root, s, copy.rev);
     expect(build(root, s, copy.rev).hash, "two builds of one revision").toBe(first.hash);
+    s.up("test");
     s.up("staging");
     s.up("production");
+    proveInTest(root, s);
 
     // Nothing proved in staging yet.
     const refused = promote(root, s, "production");
     expect(refused.status, refused.out).toBe(1);
     expect(refused.lines, refused.out).toContain(`refused: ${copy.rev} has no green verdicts in staging`);
 
+    // Test has passed, staging has not yet been promoted to.
     const staged = promote(root, s, "staging");
     expect(staged.status, staged.out.slice(-3000)).toBe(0);
     expect(await bundle(s.url("staging"))).toEqual({ revision: copy.rev, sha256: first.hash });
@@ -61,6 +64,7 @@ describe("check 4: promote", () => {
     expect(again.status, again.out).toBe(1);
     expect(again.lines, again.out).toContain(`refused: ${second} has no green verdicts in staging`);
 
+    proveInTest(root, s);
     expect(promote(root, s, "staging").status).toBe(0);
     expect(await bundle(s.url("staging"))).toEqual({ revision: second, sha256: next.hash });
     const after = promote(root, s, "production");

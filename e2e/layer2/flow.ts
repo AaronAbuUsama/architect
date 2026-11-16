@@ -18,6 +18,13 @@ export const build = (root: string, stack: Stack, rev: string) => {
   return { rev, hash: match![2]! };
 };
 
+/** `architect prove --env test`: the passing `main`-ref verdicts a revision needs before it can reach staging (D3). */
+export const proveInTest = (root: string, stack: Stack) => {
+  const proved = run(root, stack.env, "prove", "--env", "test");
+  expect(proved.status, proved.out.slice(-3000)).toBe(0);
+  return proved;
+};
+
 export const promote = (root: string, stack: Stack, to: "staging" | "production"): Said => run(root, stack.env, "promote", "--to", to);
 
 /** A first release: test proves the revision, staging takes it, production takes what staging proved. */
@@ -25,8 +32,7 @@ export const release = (root: string, stack: Stack, rev: string) => {
   stack.up("test");
   stack.up("staging");
   stack.up("production");
-  const proved = run(root, stack.env, "prove", "--env", "test");
-  expect(proved.status, proved.out.slice(-3000)).toBe(0);
+  proveInTest(root, stack);
   const staging = promote(root, stack, "staging");
   expect(staging.status, staging.out.slice(-3000)).toBe(0);
   const production = promote(root, stack, "production");
