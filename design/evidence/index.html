@@ -53,6 +53,89 @@ h2 { font-family: var(--display); font-size: 1.25rem; margin: 0; display: flex; 
   
 <section class="step">
   <div class="stage">Stage 1 · the skeleton, with every eval</div>
+  <h2><span class="id">L1.12</span> The runtime <span class="chip pass">done</span></h2>
+  <p class="summary">Every operation now runs through one wrapper. It checks the payload, runs the handler as counted work so the world can tell when it&#x27;s quiet, records a span named after the operation with the payload on it, gives each step its own span, and checks the answer. It runs inside real workerd, writing to a real local D1. Along the way, amounts now travel as text, since a JSON number can&#x27;t hold 128 bits.</p>
+  <div class="proves"><span class="label">Done when</span>A unit test with the in-memory exporter shows a span named allowance.grant with its payload&#x27;s attributes.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43911747836">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/4f06767">commit 4f06767</a> · 4 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The runtime&#x27;s tests: counted work, timers on a test clock, and the wrapper&#x27;s span, refusals and answer check.</span>
+    <span class="meta">exit 0 · 0.9s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node_modules/.bin/vitest run --root packages/target-effect --reporter verbose</div><pre>RUN  v4.1.12 /Users/abuusama/projects/architect/packages/target-effect
+
+ ✓ src/modules/work/work.test.ts &gt; Busy &gt; counts work while it runs, and after it fails 3ms
+ ✓ src/modules/work/work.test.ts &gt; Busy &gt; is quiet only once spawned work ends 1ms
+ ✓ src/modules/timers/timers.test.ts &gt; Timers &gt; a durable sleep parks uncounted, and its timer wakes it counted 5ms
+ ✓ src/modules/timers/timers.test.ts &gt; Timers &gt; `at` runs its work as counted work when fired 1ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; runs the handler in a span named after the operation, with its payload as attributes 5ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; passes a declared error through, typed, and counts the work until it ends 1ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; refuses a payload outside its declaration before the handler runs 2ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; an answer outside its declaration dies as the handler&#x27;s bug 1ms
+
+ Test Files  3 passed (3)
+      Tests  8 passed (8)
+   Start at  16:49:00
+   Duration  578ms (transform 146ms, setup 0ms, import 1.30s, tests 20ms, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">One grant, and the spans it recorded: allowance.grant with its payload, and the insert step inside it.</span>
+    <span class="meta">exit 0 · 0.2s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node tmp/spans.ts</div><pre>answer {&quot;allowance&quot;:&quot;alw_1&quot;}
+span allowance.grant  status Ended
+    operation = allowance.grant
+    principal.person = per_ada
+    payload.member = per_olga
+    payload.limit = 500
+span allowance.grant.insert  (child of allowance.grant)  status Ended</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Inside real workerd: a real D1 row through SqlClient, and the wrapper&#x27;s step writing the largest 128-bit amount.</span>
+    <span class="meta">exit 0 · 4.0s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node_modules/.bin/vitest run --root packages/host-cloudflare --reporter verbose</div><pre>=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/packages/host-cloudflare
+
+ ✓ src/modules/database/database.test.ts &gt; D1 through SqlClient, in workerd &gt; writes and reads a real D1 row 7ms
+ ✓ src/modules/database/database.test.ts &gt; D1 through SqlClient, in workerd &gt; the handler wrapper runs in workerd: its step writes to D1 inside its own span 4ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  16:49:02
+   Duration  2.95s (transform 1.14s, setup 29ms, import 2.41s, tests 12ms, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Lint, typecheck and test across all 14 projects, cache off.</span>
+    <span class="meta">exit 0 · 8.9s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm nx run-many -t lint,typecheck,test --skip-nx-cache</div><pre>NX   42 tasks: 42 succeeded
+
+
+Re-run with --output-style=static to inline logs.
+
+  Run duration:      8.2s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     3.8s (1 task)
+  Recoverable time:  4.4s (54% of the run)</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 1 · the skeleton, with every eval</div>
   <h2><span class="id">L1.11</span> The compiler <span class="chip pass">done</span></h2>
   <p class="summary">Architect can now read a project&#x27;s blueprint by its folders and files and describe it: every thing, operation, refusal, role and step, named only by where it lives. Rename a file and the operation is renamed; reformat a file and nothing changes. A new command, architect model, prints it. Capturing the evidence caught a bug the tests had missed: --json was required on the real command line. Fixed, and now tested from a real process.</p>
   <div class="proves"><span class="label">Done when</span>architect model --json on acme matches its snapshot. Renaming verbs/grant.ts to award.ts renames the operation. Reformatting a file leaves the hash unchanged.</div>
