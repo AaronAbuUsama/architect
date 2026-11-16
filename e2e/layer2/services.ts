@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { expect } from "vitest";
-import { type Ports, nothingRunning, ports, run, sleep, until } from "./support.ts";
+import { type Ports, nothingRunning, ports, repo, run, sleep, until } from "./support.ts";
 
 const ISSUER_IMAGE = "ghcr.io/navikt/mock-oauth2-server:6.1.4@sha256:647dd8c78a54f0e6fcd58d79c884e612f8f998a0662276f3e1db22e464a50192";
 const REGISTRY_IMAGE = "verdaccio/verdaccio:6.11.1";
@@ -157,4 +157,23 @@ export const finish = async (root: string, stack: Stack | undefined) => {
   await sleep(500);
   nothingRunning(root);
   expect(problems).toEqual([]);
+};
+
+const architectPackages = ["blueprint", "compiler", "target-effect", "lint", "generators", "host-cloudflare", "prove", "cli", "preset"] as const;
+
+/**
+ * Every `@architect/*` package, built and published to the stack's registry as tools/e2e/starter.sh does, so that what promote
+ * publishes (`@acme/sdk`) resolves all its dependencies locally. The throwaway user's token stays in the temp npmrc; nothing prints it.
+ */
+export const publishArchitect = (stack: Stack) => {
+  const registry = stack.registry;
+  const npmrc = stack.env["NPM_CONFIG_USERCONFIG"];
+  if (registry === undefined || npmrc === undefined) throw new Error("the stack has no registry");
+  const built = spawnSync("pnpm", ["nx", "run-many", "-t", "build", "--outputStyle=static"], { cwd: repo, encoding: "utf8", env: { ...process.env, NX_DAEMON: "false" }, timeout: 900_000 });
+  expect(built.status, built.stdout.slice(-2000) + built.stderr.slice(-2000)).toBe(0);
+  for (const name of architectPackages) {
+    const published = spawnSync("pnpm", ["publish", "--registry", registry, "--no-git-checks"], {
+      cwd: join(repo, "packages", name), encoding: "utf8", env: { ...process.env, NPM_CONFIG_USERCONFIG: npmrc }, timeout: 300_000 });
+    expect(published.status, `${name}: ${published.stderr.slice(-1500)}`).toBe(0);
+  }
 };

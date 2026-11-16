@@ -28,40 +28,58 @@ const provider = (captured: { url: URL | undefined }): OAuthClientProvider & { s
   };
 };
 
-/** Follow the authorization request as the person; consent on their behalf if asked; give back the code on the client's redirect. */
-const authorize = async (authorization: URL, bearer: string): Promise<string> => {
-  const as = { authorization: `Bearer ${bearer}` };
-  let next: URL = authorization;
+/** The person's own Better Auth session cookie, as a browser would hold it after signing in (`flow.ts` of the mcp-oauth spike). */
+const sessionCookie = async (origin: string, email: string, password: string): Promise<string> => {
+  const res = await fetch(`${origin}/api/auth/sign-in/email`, {
+    method: "POST", headers: { "content-type": "application/json", origin }, body: JSON.stringify({ email, password }) });
+  if (res.status !== 200) throw new Error(`sign-in answered ${res.status}`);
+  return res.headers.getSetCookie().map((c) => c.split(";")[0]!).join("; ");
+};
+
+/**
+ * Follow the authorization request as the person, as the spike found it works with @better-auth/oauth-provider 1.7.15: with
+ * no browser headers authorize answers `200 {redirect: true, url}`; consent (asked for every time, the SDK sends prompt=consent)
+ * is `POST /api/auth/oauth2/consent { accept: true, oauth_query }` with the consent URL's query string, signature included,
+ * and answers the callback URL in its JSON. Gives back the authorization code.
+ */
+const authorize = async (origin: string, authorization: URL, cookie: string): Promise<string> => {
+  let next = authorization.toString();
   for (let hop = 0; hop < 8; hop++) {
-    const response = await fetch(next, { headers: as, redirect: "manual" });
-    const where = response.headers.get("location") ?? ((await response.clone().json().catch(() => ({}))) as { url?: string; redirectURI?: string }).url;
-    if (where === undefined || where === null) throw new Error(`authorization answered ${response.status} with nowhere to go`);
-    const target = new URL(where, next);
-    if (target.href.startsWith(redirectUrl)) {
-      const code = target.searchParams.get("code");
-      if (code === null) throw new Error(`the redirect carried no code: ${target.searchParams.get("error") ?? "unknown"}`);
-      return code;
+    const response = await fetch(next, { redirect: "manual", headers: { cookie } });
+    let where = response.headers.get("location") ?? "";
+    if (where === "" && response.status === 200 && (response.headers.get("content-type") ?? "").includes("json")) {
+      const body = (await response.json()) as { redirect?: boolean; url?: string };
+      if (body.redirect && body.url) where = body.url;
     }
-    // A consent page: the person accepts, with the consent code the provider issued for this request.
-    const consent = target.searchParams.get("consent_code");
-    if (consent !== null) {
-      const accepted = await fetch(new URL("/api/auth/oauth2/consent", target), {
-        method: "POST", headers: { ...as, "content-type": "application/json" }, body: JSON.stringify({ accept: true, consent_code: consent }) });
-      const body = (await accepted.json().catch(() => ({}))) as { redirectURI?: string; url?: string };
-      const to = body.redirectURI ?? body.url;
+    if (where === "") throw new Error(`authorize answered ${response.status} with nowhere to go`);
+    if (where.startsWith(redirectUrl)) return codeOf(where);
+    if (new URL(where, origin).pathname === "/consent") {
+      const query = new URL(where, origin).search.slice(1);
+      const accepted = await fetch(`${origin}/api/auth/oauth2/consent`, {
+        method: "POST", headers: { "content-type": "application/json", origin, cookie }, body: JSON.stringify({ accept: true, oauth_query: query }) });
+      const body = (await accepted.json()) as { redirect_uri?: string; url?: string; redirectTo?: string };
+      const to = body.redirect_uri ?? body.url ?? body.redirectTo;
       if (to === undefined) throw new Error(`consent answered ${accepted.status} with nowhere to go`);
-      next = new URL(to, target);
+      if (to.startsWith(redirectUrl)) return codeOf(to);
+      next = new URL(to, origin).toString();
       continue;
     }
-    next = target;
+    next = new URL(where, origin).toString();
   }
   throw new Error("too many redirects");
 };
 
+const codeOf = (callback: string) => {
+  const code = new URL(callback).searchParams.get("code");
+  if (code === null) throw new Error("the callback carried no code");
+  return code;
+};
+
 export type Called = { readonly isError: boolean; readonly text: string };
 
-/** Connect to `mcpUrl` through OAuth as the person holding `bearer`, call one tool, and say what it answered. */
-export const callAs = async (mcpUrl: string, bearer: string, name: string, args: Record<string, unknown>): Promise<Called> => {
+/** Connect to `<origin>/mcp` through OAuth as the person who signs in with `email` and `password`, call one tool, and say what it answered. */
+export const callAs = async (origin: string, who: { readonly email: string; readonly password: string }, name: string, args: Record<string, unknown>): Promise<Called> => {
+  const mcpUrl = `${origin}/mcp`;
   const captured: { url: URL | undefined } = { url: undefined };
   const auth = provider(captured);
   const first = new StreamableHTTPClientTransport(new URL(mcpUrl), { authProvider: auth });
@@ -73,7 +91,7 @@ export const callAs = async (mcpUrl: string, bearer: string, name: string, args:
     if (!(error instanceof UnauthorizedError)) throw error;
   }
   if (captured.url === undefined) throw new Error("the server never sent the client to authorize");
-  await first.finishAuth(await authorize(captured.url, bearer));
+  await first.finishAuth(await authorize(origin, captured.url, await sessionCookie(origin, who.email, who.password)));
   await asked.close().catch(() => undefined);
 
   const transport = new StreamableHTTPClientTransport(new URL(mcpUrl), { authProvider: auth });

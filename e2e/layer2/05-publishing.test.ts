@@ -10,8 +10,9 @@
 //   this tap and nothing else.
 // - The binary is run from the formula's keg (`brew --prefix <tap>/<formula>`), so nothing is linked into Homebrew's bin.
 // - `acme --version` prints the version, which the check reads as the last word of its output.
-// - The SDK is installed with npm into an empty folder, from the registry alone for the project's names (everything else from
-//   npm), so every dependency of `@acme/sdk` must be resolvable there: bundled, or published by promote.
+// - The SDK is installed with npm into an empty folder, from the registry for the project's names (everything else from npm).
+//   The check's own setup first builds and publishes every `@architect/*` package to its Verdaccio, as tools/e2e/starter.sh does
+//   (D3 #16), with a throwaway user whose token stays in a temp npmrc, so `@acme/sdk`'s dependencies all resolve locally.
 // - The macOS arm64 binary is the one a Mac builds (D3 #9); on any other machine the brew half is skipped.
 import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -20,7 +21,7 @@ import { join } from "node:path";
 import { randomBytes } from "node:crypto";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { promote } from "./flow.ts";
-import { type Stack, finish, startStack } from "./services.ts";
+import { type Stack, finish, publishArchitect, startStack } from "./services.ts";
 import { project, run } from "./support.ts";
 
 const id = randomBytes(4).toString("hex");
@@ -45,6 +46,7 @@ beforeAll(async () => {
   git(tapRepo, "add", "-A");
   git(tapRepo, "commit", "-q", "-m", "tap");
   stack = await startStack(copy.root, 5, { registry: true, env: { ARCHITECT_TAP_REPO: tapRepo, ARCHITECT_FORMULA: formula } });
+  publishArchitect(stack);
 });
 afterAll(async () => {
   try {

@@ -19,9 +19,9 @@ import { createHash } from "node:crypto";
 import { cpSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect } from "vitest";
-import { acme, cli, copyOf, nothingRunning } from "../layer1/support.ts";
+import { acme, cli, copyOf, nothingRunning, repo } from "../layer1/support.ts";
 
-export { acme, cli, copyOf, nothingRunning };
+export { acme, cli, copyOf, nothingRunning, repo };
 
 export const ports = (n: number) => {
   const base = 8900 + 10 * n;
