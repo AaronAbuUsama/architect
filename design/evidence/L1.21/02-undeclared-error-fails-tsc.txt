@@ -1,0 +1,11 @@
+$ npx vitest run --root packages/generators src/modules/render/handler-type.test.ts
+# commit 37023e8 · 2026-11-16T18:25:31Z · exit 0 (expected 0) · 1.2s
+
+
+ RUN  v4.1.12 ./packages/generators
+
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  18:25:30
+   Duration  792ms (transform 12ms, setup 0ms, import 18ms, tests 688ms, environment 0ms)

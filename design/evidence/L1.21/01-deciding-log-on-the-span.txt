@@ -1,0 +1,11 @@
+$ npx vitest run --root packages/target-effect src/modules/handler -t refusal
+# commit 37023e8 · 2026-11-16T18:25:29Z · exit 0 (expected 0) · 1.0s
+
+
+ RUN  v4.1.12 ./packages/target-effect
+
+
+ Test Files  1 passed (1)
+      Tests  5 passed | 7 skipped (12)
+   Start at  18:25:29
+   Duration  401ms (transform 76ms, setup 0ms, import 212ms, tests 99ms, environment 0ms)
