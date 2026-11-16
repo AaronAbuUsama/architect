@@ -13,11 +13,14 @@ Which environments exist, and that `local` is not one of them, comes from the mo
 running environment onto that bundle with its state kept (what `promote` does, L2.05). `down` stops the whole process
 group and is not an error on an environment that isn't running. Test: `environments.test.ts` (ports 8950 to 8999).
 
-Two environments are more than the revision's bundle (D3 #50 to #52):
+Three environments are more than the revision's bundle (D3 #50 to #52, #91):
 
 - **One that declares a `lifetime` hosts worlds** (the test environment). `up` starts a collector of its own first
   (`Collectors.launch`, a container named for the folder, writing `telemetry/`), and puts `OTLP_URL` and
   `ARCHITECT_WORLDS=1` in its config, which opens `/_world/worlds` (see `test-worlds`). `down` removes the container.
+- **One that another environment is promoted from** (`promotesFrom`: staging) records telemetry too: the same collector and
+  `OTLP_URL`, without `ARCHITECT_WORLDS`, because `promote --to staging` proves it where it runs and `watch` reads the same
+  folder. Such an environment needs Docker to start, and one already running without a collector is restarted onto one.
 - **`logbook` is the logbook's own worker** (`@architect/logbook`, L2.03), started with `policy` (issuer, repository,
   refs, workflows: `ARCHITECT_OIDC_*` in the CLI) through `Logbook.launch`, with its state, pid and port beside the
   others'. It has no bundle, so its status carries no revision.

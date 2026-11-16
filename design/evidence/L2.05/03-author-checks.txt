@@ -1,0 +1,20 @@
+Author's Gate 2 checks (vitest --config e2e/vitest.layer2.config.ts), run on this branch, e2e/ untouched.
+
+01 prove in a test world .............. pass
+02 the logbook takes signed verdicts .. pass
+03 a read is minor, a budget is stale . pass (its release path runs prove --env test, promote staging, promote production)
+06 device sign-in ..................... pass
+04 promotion .......................... FAILS at its first `promote --to staging`: the check never runs `prove --env test`, so the revision has no
+    test verdicts: "refused: <rev> has no green verdicts in test / missing: <every operation>" (D3 #92). Everything before it passed:
+    the build, two builds with one hash, the production refusal line.
+    A copy of the check with `stack.up("test")` and `prove --env test` before each staging promote, and without the registry
+    assertions (L2.06's), passed in full: production refused, staging proved, {revision, sha256} equal to the built hash in
+    staging and production, `production from staging <rev> sha256:<hash>`, a `skipped ... (cloud pass)` line, and the same for the
+    second revision after the read. One run in three failed with ECONNRESET on the test's own fetch of staging's /_architect/bundle
+    after a restart (it passed on retry, and on the next run).
+05 publishing ......................... FAILS at `promote --to staging` for the same reason as 04, then needs L2.06 (npm, tap)
+07 remote MCP ......................... needs L2.08
+08 watch and the portal ............... gets through release() and the staging promote, then needs the portal (L2.10) and watch (L2.09)
+
+The teardown notice "left behind: architect-collector-<pid>-..." in these runs is other builders' prove collectors; none of the
+containers this branch made (architect-collector-env-*) is left.

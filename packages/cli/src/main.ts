@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 // The architect command. The only file here that reads the process, prints or exits.
 import { NodeRuntime, NodeServices } from "@effect/platform-node";
-import { Console, Effect, Option, Redacted } from "effect";
+import { Console, Effect, Option } from "effect";
 import { Argument, Command, Flag } from "effect/cli";
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
-import { Build, Environments, Impact, Prove, ProveFailed, TestWorlds, Worlds, type TokenSource } from "@architect/prove";
+import { Build, Environments, Prove, ProveFailed, Promote, TestWorlds, Verdicts, Worlds } from "@architect/prove";
 import { ModelCommand } from "#modules/model/service.js";
 import { Add } from "#modules/add/service.js";
 import { AddRefused, type What } from "#modules/add/types.js";
@@ -49,15 +49,7 @@ const fail = (message: string, exit: number) => Console.error(message).pipe(Effe
 /** Where the logbook is (ARCHITECT_LOGBOOK_URL, else the running `logbook` environment) and who signs for the run (D3 #14, #54). */
 const attestation = (root: string) =>
   Effect.gen(function* () {
-    const issuer = process.env["ARCHITECT_OIDC_ISSUER"];
-    const githubUrl = process.env["ACTIONS_ID_TOKEN_REQUEST_URL"];
-    const githubToken = process.env["ACTIONS_ID_TOKEN_REQUEST_TOKEN"];
-    const token: TokenSource | undefined = issuer
-      ? { kind: "issuer", issuer, client: process.env["ARCHITECT_OIDC_CLIENT"] || "ci-main" }
-      : githubUrl && githubToken
-        ? { kind: "github", requestUrl: githubUrl, requestToken: Redacted.make(githubToken) }
-        : undefined;
-    if (!token) return yield* Effect.fail("no way to sign verdicts: set ARCHITECT_OIDC_ISSUER, or run in a GitHub Actions job with id-token: write");
+    const token = yield* Verdicts.sourceOf(process.env).pipe(Effect.mapError((e) => e.message));
     const given = process.env["ARCHITECT_LOGBOOK_URL"];
     const logbook = given ?? (yield* Environments.status({ root, name: "logbook" }).pipe(Effect.map((s) => (s.state === "up" ? s.url : undefined))));
     if (!logbook) return yield* Effect.fail("the logbook isn't running: `architect env up logbook`, or set ARCHITECT_LOGBOOK_URL");
@@ -98,6 +90,20 @@ const print = (said: { readonly out: string; readonly err: string; readonly exit
     if (said.err) process.stderr.write(said.err);
     process.exitCode = said.exit;
   });
+
+// `architect promote --to staging|production`: the exact built bundle, moved on only with the verdicts that earn it (D3 #14, #92).
+const promote = Command.make(
+  "promote",
+  { to: Flag.Literals("to", ["staging", "production"]), root: Flag.String("root").pipe(Flag.withDefault(process.cwd())) },
+  ({ to, root }) =>
+    Promote.to({ root, env: process.env, target: to, say: (line) => Console.log(line) }).pipe(
+      Effect.tap((promoted) => Effect.sync(() => (process.exitCode = promoted.passed ? 0 : 1))),
+      Effect.catchTags({
+        PromoteRefused: (e) => Console.log(e.lines.join("\n")).pipe(Effect.tap(() => Effect.sync(() => (process.exitCode = 1)))),
+        PromoteFailed: (e) => fail(`promote couldn't run: ${e.message}`, 2),
+      }),
+    ),
+);
 
 // `architect add <what> <name>`: writes the planned files, or with --dry-run prints them and writes nothing.
 const addOne = (what: What) =>
@@ -240,7 +246,7 @@ const reap = Command.make(
 const worlds = Command.make("worlds").pipe(Command.withSubcommands([reap]));
 
 Command.make("architect").pipe(
-  Command.withSubcommands([model, dev, prove, add, check, generate, brief, impact, version, build, env, worlds]),
+  Command.withSubcommands([model, dev, prove, promote, add, check, generate, brief, impact, version, build, env, worlds]),
   Command.run({ version: "0.0.0" }),
   Effect.provide(NodeServices.layer),
   NodeRuntime.runMain,

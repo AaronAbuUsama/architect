@@ -1,5 +1,6 @@
 // Talking to a local world over HTTP: cast people, call operations with a trace prefixed by the caller, read facts.
 import { randomBytes } from "node:crypto";
+import { request } from "node:http";
 import { Effect, Layer, Option, Schema } from "effect";
 import type { Operation, Read, Principal, Thing } from "@architect/blueprint";
 import { structOf } from "@architect/blueprint/server";
@@ -21,6 +22,51 @@ export const castPeople = (url: string, names: ReadonlyArray<string>, anonymous:
   fetchJson(`${url}/_world/cast`, { method: "POST", body: JSON.stringify({ names, anonymous }) }).pipe(
     Effect.map((r) => r.body as Record<string, { readonly person?: string; readonly token?: string; readonly email: string; readonly password: string }>),
   );
+
+/**
+ * A POST from something that is not a browser. Node's `fetch` adds `Sec-Fetch-*` headers, which Better Auth reads as a
+ * browser's first login and so demands an `Origin` for; `node:http` sends none, as `curl` doesn't.
+ */
+const postJson = (url: string, body: object) =>
+  Effect.callback<{ readonly status: number; readonly body: unknown }>((resume) => {
+    const text = JSON.stringify(body);
+    const req = request(url, { method: "POST", headers: { "content-type": "application/json", "content-length": Buffer.byteLength(text) } }, (res) => {
+      let received = "";
+      res.on("data", (chunk: Buffer) => (received += chunk.toString()));
+      res.on("end", () => resume(Effect.succeed({ status: res.statusCode ?? 0, body: Option.getOrElse(parse(received), () => received) as unknown })));
+    });
+    req.on("error", () => resume(Effect.succeed({ status: 0, body: null })));
+    req.end(text);
+  });
+
+const ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz";
+const random = (n: number) => Array.from(randomBytes(n), (b) => ALPHABET[b % 36]).join("");
+
+/**
+ * A real environment has no `/_world/cast`: its people sign up and sign in through Better Auth's own routes, with an email
+ * and password of their own (never `@world.test`'s fixed ones: a person made here stays in the environment). `anonymous`
+ * only get credentials, so a script can sign them up itself. A refusal is the problem as text.
+ */
+export const signUpPeople = (url: string, names: ReadonlyArray<string>, anonymous: ReadonlyArray<string> = []) =>
+  Effect.gen(function* () {
+    const cast: Record<string, { person?: string; token?: string; email: string; password: string }> = {};
+    for (const name of [...names, ...anonymous]) {
+      const member = { email: `${name}.${random(8)}@staging.test`, password: random(24) };
+      if (anonymous.includes(name)) {
+        cast[name] = member;
+        continue;
+      }
+      const post = (route: string, body: object) => postJson(`${url}/api/auth/${route}`, body);
+      const up = yield* post("sign-up/email", { ...member, name });
+      const person = (up.body as { user?: { id?: unknown } } | null)?.user?.id;
+      if (up.status !== 200 || typeof person !== "string") return yield* Effect.fail(`signing ${name} up answered ${up.status}`);
+      const inn = yield* post("sign-in/email", member);
+      const token = (inn.body as { token?: unknown } | null)?.token;
+      if (inn.status !== 200 || typeof token !== "string") return yield* Effect.fail(`signing ${name} in answered ${inn.status}`);
+      cast[name] = { person, token, ...member };
+    }
+    return cast;
+  });
 
 /** Encode the payload by its declaration, call the route, and record what came back. */
 export const callOperation = (url: string, name: string, op: Operation | Read, payload: Record<string, unknown>, token: string, request: string | undefined) =>

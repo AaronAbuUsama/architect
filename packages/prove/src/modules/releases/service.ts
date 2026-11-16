@@ -1,12 +1,12 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { Effect } from "effect";
+import { Effect, Redacted } from "effect";
 import { Compare, canonical } from "@architect/compiler";
 import { Environments } from "#modules/environments/service.js";
-import { ReleaseFailed, type ReleasesApi, type Shipping } from "./types.ts";
+import { Verdicts } from "#modules/verdicts/service.js";
+import { ReleaseFailed, type Env as ReleaseEnv, type ReleasesApi, type Shipping } from "./types.ts";
 import { call, ok } from "./internal/http.ts";
 import { modelAt, staleness } from "./internal/stale.ts";
-import { tokenOf } from "./internal/token.ts";
 
 /** The last production release's version and revision, or undefined when there has been none. */
 const lastRelease = (logbook: string) =>
@@ -31,6 +31,14 @@ const shipping: ReleasesApi["shipping"] = (logbook, model) =>
 const changesJson: ReleasesApi["changesJson"] = (s) =>
   JSON.stringify({ from: s.from, to: s.version, changes: s.changes, stale: s.stale.map((x) => x.operation), proven: s.proven }, null, 2) + "\n";
 
+/** The same token source as a verdict's: one place decides it (D3 #90). Minted per write, because the issuer's tokens are short-lived. */
+const writeToken = (env: ReleaseEnv) =>
+  Verdicts.sourceOf(env).pipe(
+    Effect.flatMap(Verdicts.mint),
+    Effect.map(Redacted.value),
+    Effect.mapError((e) => new ReleaseFailed({ message: e.message })),
+  );
+
 export const Releases: ReleasesApi = {
   locate: ({ root, env }) => {
     const given = env["ARCHITECT_LOGBOOK_URL"];
@@ -40,14 +48,18 @@ export const Releases: ReleasesApi = {
       Effect.mapError((e) => new ReleaseFailed({ message: e.message })),
     );
   },
+  last: (logbook) => lastRelease(logbook),
   shipping,
   next: (logbook, model) => Effect.map(shipping(logbook, model), (s) => s.version),
+  keep: ({ logbook, env, model, revision }) =>
+    Effect.gen(function* () {
+      const put = yield* call("PUT", `${logbook}/models/${encodeURIComponent(revision)}`, { token: yield* writeToken(env), body: canonical(model) });
+      yield* ok(`the model of ${revision}`, put);
+    }),
   record: ({ logbook, env, model, revision, version }) =>
     Effect.gen(function* () {
-      const token = yield* tokenOf(env);
-      const put = yield* call("PUT", `${logbook}/models/${encodeURIComponent(revision)}`, { token, body: canonical(model) });
-      yield* ok(`the model of ${revision}`, put);
-      const posted = yield* call("POST", `${logbook}/releases`, { token, body: JSON.stringify({ version, revision }) });
+      yield* Releases.keep({ logbook, env, model, revision });
+      const posted = yield* call("POST", `${logbook}/releases`, { token: yield* writeToken(env), body: JSON.stringify({ version, revision }) });
       yield* ok(`release ${version}`, posted);
     }),
   changesJson,

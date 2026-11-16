@@ -10,7 +10,7 @@ import { Collectors } from "#modules/telemetry/service.js";
 import { TestWorlds } from "#modules/test-worlds/service.js";
 import { Verdicts } from "#modules/verdicts/service.js";
 import { ProveFailed, type ProveApi } from "../types.ts";
-import { closing, exercise } from "./exercise.ts";
+import { closing, exercise, resultsOf } from "./exercise.ts";
 
 const TEST = "test";
 const failed = (e: { readonly message: string }) => new ProveFailed({ message: e.message });
@@ -50,10 +50,7 @@ export const proveInTest = (model: Model, project: Project, options: Parameters<
           const verdict = closing(done);
           yield* say(verdict.line);
 
-          const results = Object.keys(model.operations).map((operation) => ({
-            operation,
-            verdict: done.judged.filter((v) => v.operation === operation).every((v) => v.failures.length === 0) ? ("pass" as const) : ("fail" as const),
-          }));
+          const results = resultsOf(model, done);
           const token = yield* Verdicts.mint(options.token).pipe(Effect.mapError(failed));
           yield* Verdicts.post({ logbook: options.logbook, token, revision, environment: TEST, results }).pipe(Effect.mapError((e) => new ProveFailed({ message: `the verdicts weren't recorded: ${e.message}` })));
           yield* say(`verdicts ${results.map((r) => `${r.operation} ${r.verdict === "pass" ? "✔" : "✘"}`).join("  ")}   (revision ${revision})`);

@@ -52,3 +52,9 @@ belongs to, and why it waits.
   a mutant only if prove fails on it. Waits until the authored planted breaks (A8) show which evals need more tasks.
 - **Benchmark regressions as a gate** (H2.12). Advisory until baselines have shown how noisy they are; a later decision makes it a gate.
 - **A weekly scheduled baseline in CI** on free models (H2.12), once CI may hold a model key (Aaron's call, H2 question 3).
+
+- **Close `/_world/*` outside worlds (D3 #96).** The generated server routes every `/_world/` request to the world on every
+  environment, so a deployed environment would answer `/_world/cast` (people with known passwords) and `/_world/facts/*` (rows
+  and journal). Gate `cast` to local and test worlds (`ARCHITECT_WORLDS` or no `ARCHITECT_ENVIRONMENT`), and give the staging
+  proof another way to read what a step did (the journal from telemetry, a declared read) so facts can close there and on
+  production. Needs a `server.ts` generator change after L2.L lands; before the cloud pass deploys anything.

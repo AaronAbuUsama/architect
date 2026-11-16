@@ -36,14 +36,22 @@ export interface ReleasesApi {
    * and port under `.architect/environments/logbook/`, as `architect env up logbook` keeps them). Undefined when neither.
    */
   readonly locate: (options: { readonly root: string; readonly env: Env }) => Effect.Effect<string | undefined, ReleaseFailed>;
+  /** The last production release, or undefined when there has been none. */
+  readonly last: (logbook: string) => Effect.Effect<{ readonly version: string; readonly revision: string } | undefined, ReleaseFailed>;
   /** The working model against the last production release's model, and the logbook's latest `main` verdicts. */
   readonly shipping: (logbook: string, model: Model) => Effect.Effect<Shipping, ReleaseFailed>;
   /** `architect version --next`: the version the working model would release as. */
   readonly next: (logbook: string, model: Model) => Effect.Effect<string, ReleaseFailed>;
   /**
-   * Record a release: `PUT /models/<revision>`, then `POST /releases { version, revision }`. Both are writes, so they
-   * carry a verified OIDC token (`ARCHITECT_LOGBOOK_TOKEN`, else minted from `ARCHITECT_OIDC_ISSUER` and
-   * `ARCHITECT_OIDC_CLIENT`, else GitHub's own when the job has `id-token: write`). L2.05's `promote --to production` calls it.
+   * Keep a revision's model in the logbook (`PUT /models/<revision>`; a revision's model is written once, and the same model
+   * again is fine). Staleness judges a verdict against the model of the revision it proved, so whoever posts a shipped
+   * environment's verdicts keeps the model first (`promote --to staging` does).
+   */
+  readonly keep: (options: { readonly logbook: string; readonly env: Env; readonly model: Model; readonly revision: string }) => Effect.Effect<void, ReleaseFailed>;
+  /**
+   * Record a release: the model is kept, then `POST /releases { version, revision }`. Both are writes, so they carry a
+   * verified OIDC token from `Verdicts.sourceOf`, the one token source verdicts use too (`ARCHITECT_LOGBOOK_TOKEN`, else the
+   * local issuer, else GitHub's own). `promote --to production` calls it.
    */
   readonly record: (options: {
     readonly logbook: string;

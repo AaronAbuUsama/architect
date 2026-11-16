@@ -17,3 +17,5 @@ export { TestWorlds } from "#modules/test-worlds/service.js";
 export { TestWorldFailed, type TestWorld } from "#modules/test-worlds/types.js";
 export { Verdicts } from "#modules/verdicts/service.js";
 export { VerdictsFailed, type Result as VerdictResult, type TokenSource } from "#modules/verdicts/types.js";
+export { Promote } from "#modules/promote/service.js";
+export { PromoteFailed, PromoteRefused, type Promoted, type Target as PromoteTarget } from "#modules/promote/types.js";

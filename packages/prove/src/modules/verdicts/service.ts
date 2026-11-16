@@ -1,5 +1,5 @@
-import { Effect, Redacted } from "effect";
-import { VerdictsFailed, type TokenSource, type VerdictsApi } from "./types.ts";
+import { Effect, Redacted, Schema } from "effect";
+import { VerdictsFailed, type Held, type TokenSource, type VerdictsApi } from "./types.ts";
 
 const AUDIENCE = "architect-logbook";
 
@@ -33,9 +33,30 @@ const fromGithub = (requestUrl: string, requestToken: Redacted.Redacted<string>)
     return typeof body["value"] === "string" ? body["value"] : yield* failed("GitHub's answer has no value");
   });
 
+const Rows = Schema.Array(Schema.Struct({ revision: Schema.String, environment: Schema.String, operation: Schema.String, verdict: Schema.String, ref: Schema.String }));
+
+const minted = (source: TokenSource) =>
+  source.kind === "given" ? Effect.succeed(Redacted.value(source.token))
+  : source.kind === "issuer" ? fromIssuer(source.issuer, source.client)
+  : fromGithub(source.requestUrl, source.requestToken);
+
 export const Verdicts: VerdictsApi = {
-  mint: (source: TokenSource) =>
-    (source.kind === "issuer" ? fromIssuer(source.issuer, source.client) : fromGithub(source.requestUrl, source.requestToken)).pipe(Effect.map(Redacted.make)),
+  sourceOf: (env) => {
+    const [given, issuer, requestUrl, requestToken] = [env["ARCHITECT_LOGBOOK_TOKEN"], env["ARCHITECT_OIDC_ISSUER"], env["ACTIONS_ID_TOKEN_REQUEST_URL"], env["ACTIONS_ID_TOKEN_REQUEST_TOKEN"]];
+    if (given) return Effect.succeed({ kind: "given", token: Redacted.make(given) });
+    if (issuer) return Effect.succeed({ kind: "issuer", issuer, client: env["ARCHITECT_OIDC_CLIENT"] || "ci-main" });
+    if (requestUrl && requestToken) return Effect.succeed({ kind: "github", requestUrl, requestToken: Redacted.make(requestToken) });
+    return Effect.fail(failed("no way to sign a write to the logbook: set ARCHITECT_OIDC_ISSUER (and ARCHITECT_OIDC_CLIENT), or ARCHITECT_LOGBOOK_TOKEN, or run in a GitHub Actions job with id-token: write"));
+  },
+  mint: (source: TokenSource) => minted(source).pipe(Effect.map(Redacted.make)),
+  latest: ({ logbook, revision, environment, ref }) =>
+    Effect.gen(function* () {
+      const query = new URLSearchParams({ revision, environment, ref });
+      const response = yield* request("the logbook", `${logbook}/verdicts/latest?${query}`, {});
+      if (!response.ok) return yield* failed(`the logbook would not give ${environment}'s verdicts for ${revision} (${response.status})`);
+      const body = yield* Effect.tryPromise({ try: () => response.json() as Promise<unknown>, catch: () => failed("the logbook's verdicts were not JSON") });
+      return (yield* Schema.decodeUnknownEffect(Rows)(body).pipe(Effect.mapError((e) => failed(`the logbook's verdicts were not as expected: ${e.message}`)))) as ReadonlyArray<Held>;
+    }),
   post: ({ logbook, token, revision, environment, results }) =>
     Effect.forEach(results, (r) =>
       Effect.gen(function* () {

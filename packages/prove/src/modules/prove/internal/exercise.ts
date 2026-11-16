@@ -16,9 +16,9 @@ export interface Exercised {
   readonly judged: ReadonlyArray<Verdict>;
 }
 
-export const exercise = (model: Model, project: Project, url: string, collector: Pick<Collector, "traces">): Effect.Effect<Exercised> =>
+export const exercise = (model: Model, project: Project, url: string, collector: Pick<Collector, "traces">, people?: "world" | "sign-up"): Effect.Effect<Exercised> =>
   Effect.gen(function* () {
-    const runs = yield* Effect.forEach(project.journeys, (j, i) => Journeys.run(project, url, j, i));
+    const runs = yield* Effect.forEach(project.journeys, (j, i) => Journeys.run(project, url, j, i, people));
     const calls = runs.flatMap((r) => r.calls);
     const traces = yield* collector.traces(calls.map((c) => ({ trace: c.trace, parent: c.parent })));
     const evidence = Evals.gather(calls, traces);
@@ -33,3 +33,10 @@ export const closing = (x: Exercised) => {
   const failures = x.journeys.failed + x.evals.failed;
   return { line: failures === 0 ? "prove ✔" : `prove ✘ ${failures} failing`, passed: failures === 0 };
 };
+
+/** One verdict per operation: `pass` only when every one of its evals passed and no journey failed (D2 #80). */
+export const resultsOf = (model: Model, done: Exercised) =>
+  Object.keys(model.operations).map((operation) => ({
+    operation,
+    verdict: done.judged.filter((v) => v.operation === operation).every((v) => v.failures.length === 0) ? ("pass" as const) : ("fail" as const),
+  }));

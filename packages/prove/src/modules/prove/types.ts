@@ -1,7 +1,7 @@
 // `architect prove --env local`: a fresh local world and a real collector, every journey run, the nine evals judged.
 // `architect prove --env test`: the same, in a world of the long-lived test environment, with a signed verdict per operation.
 import { Data, type Effect, type Scope } from "effect";
-import type { TokenSource } from "#modules/verdicts/types.js";
+import type { Result, TokenSource } from "#modules/verdicts/types.js";
 
 export class ProveFailed extends Data.TaggedError("ProveFailed")<{ readonly message: string }> {}
 
@@ -34,4 +34,18 @@ export interface ProveApi {
     readonly token: TokenSource;
     readonly say: (line: string) => Effect.Effect<void>;
   }) => Effect.Effect<{ readonly passed: boolean }, ProveFailed>;
+
+  /**
+   * Prove the project against an environment that is already running (staging), and post nothing. A real environment has
+   * no `/_world/cast`, so each journey's people sign up for real through Better Auth's own routes, with credentials of
+   * their own; the journeys and the nine evals are otherwise the same, judged from the environment's own collector
+   * (`telemetry`, the folder it writes). Each line is `say`d as it is true. Returns the verdict of each operation, which the
+   * caller records: a failing one too.
+   */
+  readonly against: (options: {
+    readonly root: string;
+    readonly url: string;
+    readonly telemetry: string;
+    readonly say: (line: string) => Effect.Effect<void>;
+  }) => Effect.Effect<{ readonly passed: boolean; readonly results: ReadonlyArray<Result> }, ProveFailed>;
 }

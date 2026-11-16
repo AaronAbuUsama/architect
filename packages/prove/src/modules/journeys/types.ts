@@ -59,6 +59,10 @@ export class ProjectFailed extends Data.TaggedError("ProjectFailed")<{ readonly 
 
 export interface JourneysApi {
   readonly load: (root: string, model: Model) => Effect.Effect<Project, ProjectFailed>;
-  /** Run one journey against the world at `url`. Span checks wait for telemetry, so they are made later by `check`. */
-  readonly run: (project: Project, url: string, journey: Journey, index: number) => Effect.Effect<JourneyRun>;
+  /**
+   * Run one journey against the world at `url`. Span checks wait for telemetry, so they are made later by `check`.
+   * `people` is how the cast comes to be: `"world"` (the default) asks the world's `/_world/cast`; `"sign-up"` signs each
+   * person up for real through Better Auth's own routes, as someone would on a real environment, which has no cast.
+   */
+  readonly run: (project: Project, url: string, journey: Journey, index: number, people?: "world" | "sign-up") => Effect.Effect<JourneyRun>;
 }

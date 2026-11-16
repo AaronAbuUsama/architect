@@ -6,7 +6,7 @@ import { Journeys } from "#modules/journeys/service.js";
 import { Worlds } from "#modules/world/service.js";
 import { Impact } from "#modules/impact/service.js";
 import { ProveFailed, type ProveApi } from "./types.ts";
-import { closing, exercise } from "./internal/exercise.ts";
+import { closing, exercise, resultsOf } from "./internal/exercise.ts";
 import { proveInTest } from "./internal/test-run.ts";
 
 const failed = (e: { readonly message: string }) => new ProveFailed({ message: e.message });
@@ -37,4 +37,13 @@ export const Prove: ProveApi = {
     }),
   test: (options) =>
     load(options.root).pipe(Effect.flatMap(({ model, project }) => proveInTest(model, project, options))),
+  against: ({ root, url, telemetry, say }) =>
+    Effect.gen(function* () {
+      const { model, project } = yield* load(root);
+      const done = yield* exercise(model, project, url, Collectors.read(telemetry), "sign-up");
+      for (const line of [...done.journeys.lines, ...done.evals.lines]) yield* say(line);
+      const verdict = closing(done);
+      yield* say(verdict.line);
+      return { passed: verdict.passed, results: resultsOf(model, done) };
+    }),
 };

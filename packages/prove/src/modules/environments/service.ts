@@ -25,7 +25,7 @@ const declared = (root: string, name: string) =>
     const known = Object.keys(model.environments ?? {}).filter((n) => n !== "local");
     if (!environment) return yield* failed(`no environment "${name}" in blueprint/environments/ (there is ${known.join(", ") || "none"})`);
     if (name === "local") return yield* failed(`"local" is not kept running: it is what \`architect dev\` and \`architect prove --env local\` start`);
-    return environment;
+    return { environment, model };
   });
 
 const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision, policy }) =>
@@ -39,11 +39,15 @@ const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision, policy }
       if (!policy) return yield* failed("the logbook needs a policy: ARCHITECT_OIDC_ISSUER, ARCHITECT_OIDC_REPOSITORY, ARCHITECT_OIDC_REF and ARCHITECT_OIDC_WORKFLOW");
       return yield* startLogbook(dir, port, policy);
     }
-    const environment = yield* declared(root, name);
+    const { environment, model } = yield* declared(root, name);
+    // An environment that hosts worlds, or that another is promoted from (so it is proved where it runs), records telemetry
+    // in a collector of its own, which lives until `down` (D3 #52, #91).
+    const hosts = environment.lifetimeMs !== null;
+    const records = hosts || Object.values(model.environments ?? {}).some((e) => e.promotesFrom === name);
     const f = files(dir);
     yield* io(`${dir}`, () => mkdirSync(f.state, { recursive: true }));
     const now = yield* status(root, name);
-    if (now.state === "up" && (revision === undefined || revision === now.revision)) return now;
+    if (now.state === "up" && (revision === undefined || revision === now.revision) && (!records || now.telemetry !== undefined)) return now;
     // Not running, or running another bundle: whatever is left of it goes first. The state stays.
     yield* reap(dir);
 
@@ -56,15 +60,13 @@ const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision, policy }
     const base = join(root, "generated/server/wrangler.jsonc");
     if (!existsSync(base)) return yield* failed(`${base} is missing: run nx sync first`);
     const chosen = yield* choosePort(dir, port).pipe(Effect.mapError(failed));
-    // An environment that hosts worlds has its own collector, which lives until `down`.
-    const hosts = environment.lifetimeMs !== null;
-    const otlp = hosts
+    const otlp = records
       ? yield* Collectors.launch({ dir: telemetryDir(dir), name: collectorName(dir) }).pipe(Effect.mapError((e) => failed(`${name} needs Docker for its collector: ${e.message}`)))
       : undefined;
     yield* io(`${dir}`, () => {
       ensureSecrets(f.secrets, Object.keys(environment.secrets));
       writeFileSync(f.config, environmentConfig(root, readFileSync(base, "utf8"), {
-        name, revision: built.revision, sha256: built.sha256, main: built.main, ...(otlp ? { worlds: { otlp } } : {}),
+        name, revision: built.revision, sha256: built.sha256, main: built.main, ...(otlp ? { otlp } : {}), ...(hosts ? { worlds: true } : {}),
       }));
       writeFileSync(f.bundle, JSON.stringify({ revision: built.revision, sha256: built.sha256 }) + "\n");
       writePort(dir, chosen);
@@ -77,7 +79,7 @@ const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision, policy }
     );
     return {
       state: "up", name, url: launched.url, port: chosen, pid: launched.pid, revision: built.revision, sha256: built.sha256,
-      ...(hosts ? { telemetry: telemetryDir(dir) } : {}),
+      ...(records ? { telemetry: telemetryDir(dir) } : {}),
     } satisfies Up;
   });
 
