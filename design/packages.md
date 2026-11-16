@@ -28,6 +28,8 @@ architect/
                                             Foundry tests, contract scaffolds                                       (layer 4)
     portal/          @architect/portal      the portal app every project gets                                     (layer 2)
     logbook/         @architect/logbook     verdicts and the model, kept per project                              (layer 2)
+    agent/           @architect/agent       the agent harness: Pi Durable behind an Effect seam, models, tools derived
+                                            from the blueprint, skills, sandbox, run records, benchmarks (H1)    (layer 2 track)
   examples/
     acme/            the worked example, built layer by layer; CI proves it on every change to Architect
   docs/              these docs
@@ -42,6 +44,12 @@ Rules, held by Nx module boundaries:
 - `blueprint` depends on nothing but Effect. Every other package may import it.
 - `target-effect`'s runtime is the only package generated code imports at run time, besides `blueprint`, the host and
   the project's own code.
+- `agent` is `env:build` (dev and CI tooling, never in production in v0). It may depend on `blueprint`, `compiler`,
+  `prove` and the `target-effect` interfaces (`Timers`, `Clock`), and `cli` depends on it. Pi Durable and its closure
+  (`pi-ai`, `chord`, `pi-codemode`, `pi-schema`, `pi-telemetry`, all pinned at 1.5.0) are imported only inside
+  `packages/agent`, only through its `internal/` seam; no generated code and no other package imports Pi. Its Durable
+  Object host (`@architect/agent/do`, build-plan step A6) is the one runtime-facing file, tagged separately then.
+  Six slots per module: `harness`, `models`, `tools`, `skills`, `sandbox`, `runs`, `telemetry`, `bench`.
 - Targets are languages (target-effect, target-solidity, later target-python); hosts are where it runs (host-cloudflare).
 - `compiler` and `generators` never run in production.
 - A target is a package of its own, so adding Python later is adding `target-python`.

@@ -22,8 +22,13 @@ belongs to, and why it waits.
   53 entries already in the lockfile (transitives resolved within the last two weeks). The rule binds the versions we
   pin; turning the policy on means rebuilding the lockfile once the window has passed.
 
-- **A durable agent on Architect's own stack** (proposed 16 November 2026, after Aaron pointed at Pi Durable,
-  `@earendil-works/pi-durable` in pi-mono). An agent session as a Durable Object: each model turn and each tool call a
-  declared step with its span, the transcript committed before anything is shown, waits through `Timers`, resumed by
-  the DO alarm after a crash, and the run proven by the same nine evals. Pi Durable's checkpoint-per-phase design is
-  the reference, not a dependency (it is about 36k lines and experimental). Belongs with layer five, time.
+- **A durable agent on Architect's own stack, as declared operations** (proposed 16 November 2026; narrowed by H1). The
+  build-time harness is Pi Durable behind an Effect seam (`decisions/H1-agent-harness.md`, build-plan track A). What waits:
+  the agent run as a declared `Run` thing with a machine (`briefed`, `working`, `checking`, `proven | failed`), its turns and
+  tool calls as declared steps, shipped as a std kit `agent` (layer 3, once kits exist); runs resumed by the world's
+  `Timers`, stepped-clock tests of agent waits, and scheduled agents (layer 5). The fallback if the Pi seam fails is H1's
+  Option E: Effect AI plus `@effect/platform-cloudflare` (`CloudflareWorkflowEngine`, one Durable Object per execution),
+  usable from 24 November 2026 under the two-week rule and the `effect` 4.1.3 bump.
+- **Agent sandboxes beyond the machine** (H1 section 10): a Docker sandbox over Pi's `pi-env` daemon (build-plan A7), then
+  Cloudflare Containers, and Dynamic Workers for an *operator* agent whose tools are the app's operations. Layer 2 and later.
+- **Benchmark verdicts in the logbook, and a portal page comparing runs.** Layer 2 once L2.03 and L2.10 exist.

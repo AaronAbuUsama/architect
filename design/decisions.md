@@ -126,3 +126,7 @@ Only a layer's own primitives are decided before it starts; the rest wait in `pl
 - Safe as its own kit (from Safe's ABI events and our own small core; Protocol Kit only in conformance tests; nothing
   from @prb/effect-evm-safe, which only covers Safe Apps); other kits; Python as a third target; migrations when states change; side-by-side versions
   once real callers exist; derivations.
+
+## The agent harness (proposed, H1)
+
+- A package of its own, `@architect/agent`: Pi Durable 1.5.0 behind an Effect seam, providers through `pi-ai` (Anthropic and Command Code), tools derived from the blueprint's operations, skills as a small extension, a copy-of-the-project tools-only sandbox first, Pi's telemetry exported through Effect's OTLP layer, run records scored by `check` and `prove`. Effect AI with Cluster/Workflow on Durable Objects is the named fallback. See `decisions/H1-agent-harness.md`; steps A1 to A7 in `build-plan.md`.
