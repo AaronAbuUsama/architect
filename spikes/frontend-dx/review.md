@@ -4,8 +4,8 @@
 
 ## Browser observations
 
-Ego browser, 1440 × 1040 desktop and 390 × 844 mobile. All five captured screens (home, thing, operation,
-change loop, docs) reported body width equal to viewport width after the responsive table fix. Ten screenshots
+Ego browser, 1440 × 1040 desktop and 390 × 844 mobile. All eleven routes (home, specification, derived work, thing, operation,
+change loop, docs, journeys, environments, releases, later capabilities) reported body width equal to viewport width after the responsive table fix. Fourteen screenshots (the four required views plus specification, derived work and docs at each size)
 are retained in `screenshots/`. Updated files were reloaded with browser cache disabled before final capture.
 
 | Scenario | Stale cells | Failed cells | Recorded-pass cells | Meaning |

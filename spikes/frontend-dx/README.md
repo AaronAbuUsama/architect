@@ -52,7 +52,7 @@ deterministically. Run it without `--check` after deliberately updating the revi
 project source at app runtime. The committed fixture script has a generated header and is not hand-edited.
 
 Browser inspection: desktop 1440 × 1040 and mobile 390 × 844. Screenshots are under `screenshots/`, four required
-views plus Docs at each size. Tables intentionally scroll within their containers on mobile. Native anchors, select, buttons
+views plus Specification, Derived work and Docs at each size. Tables intentionally scroll within their containers on mobile. Native anchors, select, buttons
 and textarea remain keyboard accessible; the skip link and visible focus are present. A mechanical design scan
 reported no findings. These are scoped static-mock checks, not WCAG certification or HeroUI runtime proof.
 
