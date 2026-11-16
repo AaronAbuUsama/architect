@@ -66,3 +66,11 @@ Decided 16 November 2026 by the builder, which has architectural ownership. The 
     steps don't expect one from it.
 48. **Journeys are type-checked with the project.** `refuses` takes `NotAllowed`, and `run` takes any declared read.
     Expected values may name the script (`toBe(s.olga.person)`); `prove` resolves them before comparing.
+49. **A refusal carries the log that decided it.** Each attempt runs the handler with one more logger beside the
+    project's, which remembers the last message. When the handler refuses, the operation's span gets
+    `refusal.log` as well as `refusal`. A refusal with no log before it carries none, and explainability names it.
+50. **The handler's error type is checked by `tsc`, and the gap it leaves is closed by lint.** The generated `Handler`
+    type narrows the error channel to the declared classes, and the author's fixture (spend failing with
+    `AllowanceLimitTooHigh`) fails to compile. Declared errors are structural, though, so an undeclared error with
+    the same fields as a declared one (two with no fields, say) would compile. L1.40's lint plugin closes it with a
+    rule: a handler file constructs only the errors its operation declares, read from the generated config.

@@ -140,6 +140,23 @@ describe("handler wrapper", () => {
       await Effect.runPromiseExit(Effect.provide(served.call({ member: "per_olga", limit: "5000" }, ada), r.layer));
       expect(r.spans[0]!.attributes.get("refusal")).toBe("AllowanceLimitTooHigh");
     });
+
+    it("a refusal carries the log that decided it, and only this attempt's", async () => {
+      const decides: Handler<typeof grant> = (payload) =>
+        Effect.gen(function* () {
+          yield* Effect.logInfo("looked it up");
+          yield* Effect.logInfo("the limit is over the cap", { limit: String(payload.limit) });
+          return yield* new AllowanceLimitTooHigh({ cap: 1000n });
+        });
+      const r = recording();
+      const s = Handlers.serve({ name: "allowance.grant", operation: grant, handler: decides });
+      await Effect.runPromiseExit(Effect.provide(s.call({ member: "per_olga", limit: "5000" }, ada), r.layer));
+      expect(String(r.spans[0]!.attributes.get("refusal.log"))).toMatch(/^the limit is over the cap/);
+      // A refusal with no log before it carries none: explainability then names it.
+      const r2 = recording();
+      await Effect.runPromiseExit(Effect.provide(served.call({ member: "per_olga", limit: "5000" }, ada), r2.layer));
+      expect(r2.spans[0]!.attributes.has("refusal.log")).toBe(false);
+    });
   });
 });
 

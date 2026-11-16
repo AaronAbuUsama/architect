@@ -7,6 +7,7 @@ import { Busy } from "#modules/work/types.ts";
 import { BlankReached, InvalidPayload, type HandlerApi } from "./types.ts";
 import { answerAttributes, payloadAttributes, principalAttributes } from "./internal/attributes.ts";
 import { applyMove, checkFrom, chooseOutcome } from "./internal/move.ts";
+import { recordingLogs } from "./internal/decided.ts";
 export { Reads } from "./internal/read.ts";
 
 type AnyCodec = Schema.Codec<object, unknown>;
@@ -38,6 +39,7 @@ const serve = ({ name, operation, handler, notFrom }: { readonly name: string; r
       const unit = yield* Unit.make(store);
       const withRecords = Effect.provideService(Records, unit.records);
       yield* Access.check({ allowed: op.allowed, payloadFields: op.payload, payload, principal, thing: op.thing }).pipe(withRecords);
+      const logs = yield* recordingLogs;
       return yield* Effect.gen(function* () {
         const busy = yield* Busy;
         yield* Effect.annotateCurrentSpan(payloadAttributes(payload));
@@ -50,7 +52,7 @@ const serve = ({ name, operation, handler, notFrom }: { readonly name: string; r
         yield* checkFrom(op, notFrom, payload, unit);
         const chosen = yield* Ref.make<string | undefined>(undefined);
         const move = (to?: string) => chooseOutcome(name, op, to).pipe(Effect.flatMap((o) => Ref.set(chosen, o)));
-        const answer = yield* busy.counted(handler(payload, { principal, steps, move })).pipe(withRecords);
+        const answer = yield* busy.counted(handler(payload, { principal, steps, move })).pipe(withRecords, logs.around);
         // Recorded before the check, so an answer outside its declaration is evidence `prove` can name.
         yield* Effect.annotateCurrentSpan(answerAttributes(answer));
         // An answer that breaks its declaration is the handler's bug, never the caller's: it dies, loudly.
@@ -66,10 +68,12 @@ const serve = ({ name, operation, handler, notFrom }: { readonly name: string; r
         return answer;
       }).pipe(
         // Every refusal and every defect is written on the operation's span: what `prove` reads.
+        // A refusal also carries the log that decided it, when the handler logged one before refusing.
         Effect.tapCause((cause) =>
-          Effect.annotateCurrentSpan(
-            Cause.hasDies(cause) ? { defect: Cause.pretty(cause).split("\n")[0] ?? "" } : { refusal: tagOf(Cause.squash(cause)) },
-          ),
+          Cause.hasDies(cause)
+            ? Effect.annotateCurrentSpan({ defect: Cause.pretty(cause).split("\n")[0] ?? "" })
+            : logs.last.pipe(Effect.flatMap((log) =>
+                Effect.annotateCurrentSpan({ refusal: tagOf(Cause.squash(cause)), ...(log === undefined ? {} : { "refusal.log": log }) }))),
         ),
         Effect.withSpan(name, { attributes: { operation: name, ...principalAttributes(principal) } }),
       );
