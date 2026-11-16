@@ -1,6 +1,6 @@
 # Where everything stands
 
-Kept by the 🎼 conductor, so a fresh conductor can take over. Last updated 16 November 2026, after L1.20.
+Kept by the 🎼 conductor, so a fresh conductor can take over. Last updated 16 November 2026, after L1.25.
 
 ## Done
 
@@ -42,10 +42,13 @@ Stage 2 (Gate 1) is on `layer/2`. Done: wayfinding (`wayfinding/stage-2.md`, dec
 L1.20 (commit b150981, evidence in `evidence/L1.20/`), which also built L1.23 (reads, idempotency) and L1.22's bob
 journey. The store is `host-cloudflare/store` (`StoreD1`, D1 batch plus actor routing) and `host-cloudflare/actors`
 (the `Actor` DO); the runtime's `Records` holds writes back and the wrapper commits once, retrying conflicts.
-`prove` passes on acme's six journeys. Next steps, in order: L1.21 (exit codes, deciding logs, the type test against
-`test/fixtures/types/undeclared-error/`; note the author's finding that errors without fields are structurally
-interchangeable, so give each generated error a literal `_tag`), L1.24 (`step.wait`, budgets), L1.25, L1.30, L1.31,
-L1.32, L1.33, L1.40 (check, lint plugin, the `test/fixtures/check/` fixtures), L1.41, L1.50 (Better Auth preset via
+`prove` passes on acme's six journeys. Also done, each with evidence and CI green: L1.21 (a refusal's span carries
+`refusal.log`; `generators/src/modules/render/handler-type.test.ts` compiles a copy of acme with the author's
+undeclared-error fixture and expects tsc to fail), L1.24 (step spans carry `step.kind`; the steps eval checks declared
+order from span start times), L1.25 (coverage is each operation's eighth eval, so `9 evals ✔` per operation, plus one
+coverage line). Decisions through D2 #52. Next steps, in order: L1.30 (`Blueprint.todo`, `architect add`), L1.31,
+L1.32 (docs, full SDK and CLI, exit codes), L1.33 (`brief`), L1.40 (check, the lint plugin with
+`declared-errors-only`, the author's `test/fixtures/check/` fixtures), L1.41 (impact), L1.50 (Better Auth preset via
 Verdaccio), L1.51, L1.60 (`e2e:layer1`, with check 4 the `claude -p` session). Then a 🔍 review and a PR to main.
 The evidence page is https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB; republish it with
 `python3 tools/evidence/page.py` after each step. For plants, back up with `cp` and restore with `cp`, never
