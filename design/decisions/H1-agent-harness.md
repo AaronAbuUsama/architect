@@ -367,6 +367,26 @@ Fields come from: `harness.usage()` and `pi.usage` (cost per `provider/model`), 
 3. Should benchmarks with open models run against paid Command Code models, or only against its free ones until we agree a budget (per run $1, per suite cap, inside the $10 a day)?
 4. Is the machine an acceptable sandbox for the first benchmarks, given that scoring executes model-written handlers on it, or do you want Docker first even though it delays the first run?
 
+**Answered (Aaron, 16 November 2026):**
+
+- Q1: yes, it is commandcode.ai. Which plan the key is on is still open; the harness needs GOAT or higher.
+- Q3: no, not only the free models. He wants paid runs across the open models (DeepSeek, GLM and the others on Command Code),
+  **and across OpenAI's Codex models through his ChatGPT subscription** (a new requirement; H1.13). Paid runs stay inside the $10 a
+  day cap until he raises it.
+- Q4: yes, the machine is an acceptable sandbox for the first benchmarks.
+- He asked for telemetry to be first-class and explained, so he can see how the pieces work together. H1.8, H1.12 and H2.11 are that
+  design, unchanged; the spoken explanation is in the thread's report.
+- Q2 is re-asked in plain words: the key is set once by Aaron as an environment variable on his machine (`COMMANDCODE_API_KEY`, H2.4);
+  the harness reads only that name, and never prints the value or writes it anywhere.
+
+**H1.13 Codex models through the ChatGPT subscription.** `pi-ai` 1.5.0's `openai` provider has "Sign in with ChatGPT: uses the
+ChatGPT subscription with the OpenAI API" (`packages/ai/README.md:1791`). The older `openai-codex` provider is marked legacy and superseded
+by it (`:1872`). So A2 adds a third provider config, `openai` with subscription sign-in, beside Anthropic and Command Code. Aaron signs in
+himself through Pi's OAuth flow; the build never sees or stores the token outside the credential store Pi uses (A2 says where, before it is
+built). Some endpoints refuse subscription credentials (`:961`, the classifier endpoint), so A2's check runs one real tool-calling task per
+Codex model. Codex's own CLI, `codex-cli` 0.166.0, is installed on Aaron's machine, which makes `codex exec` a fourth comparison runner
+(`later.md`).
+
 ## 16. Second pass (16 November 2026): an independent check, and what it changed
 
 A second 📐 designer thread was briefed on the same question before this record reached `main`. It did not write a second record:
