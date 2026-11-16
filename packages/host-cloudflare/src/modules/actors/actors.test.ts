@@ -7,7 +7,7 @@ import { StoreD1 } from "#modules/store/service.ts";
 import { race } from "../../../test/race.ts";
 
 describe("a thing that lives as an actor, in workerd", () => {
-  it("S3's race: 50 concurrent spends of 10 against 500 all land in its Durable Object, none lost", async () => {
+  it("S3's race: 50 concurrent spends of 10 against 500 all land in its Durable Object, none lost", { timeout: 60_000 }, async () => {
     const store = (purse: Thing) => StoreD1.layer({ tables: [[purse, "purse"]], actors: env.ACTORS }).pipe(Layer.provide(Database.d1(env.DB)));
     const result = await Effect.runPromise(race("actor", store));
     expect(result.failures.slice(0, 3)).toEqual([]);

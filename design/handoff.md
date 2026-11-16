@@ -1,7 +1,6 @@
 # Where everything stands
 
-Kept by the 🎼 conductor, so a fresh conductor can take over. Last updated 16 November 2026, at handoff from the
-design session.
+Kept by the 🎼 conductor, so a fresh conductor can take over. Last updated 16 November 2026, after L1.20.
 
 ## Done
 
@@ -37,12 +36,20 @@ facts door), `generators`, and `prove` (`Worlds` (moved from cli), `Collectors` 
 `prove ✔` in about 6 s and leaves nothing running; `packages/prove/src/modules/prove/prove.test.ts` is the gate: acme
 passes, the scaffolded handlers fail, and each of the journey author's eight planted fixtures fails its own eval.
 Decisions for L1.15 are D2 #24 to #32. Run Nx with `NX_DAEMON=false` after changing generator code. Stage 1 landed on main on 16 November 2026 (pull request #1, merged with CI green after a 🔍 review that passed).
-Next: stage 2 (Gate 1, the allowance's whole life) on `layer/2`: wayfinding first (`wayfinding/stage-2.md`: list the
-unknowns, research them in parallel subagents, spike what research can't settle), then a journey author writes the
-stage's journeys and planted fixtures, then the build steps. The build plan's L1.20 to L1.25 rows were built only as
-far as grant needs (move, event, steps, budgets, the evals); their remaining parts (reads, idempotency, `step.wait`,
-spend, one transaction for a move) belong to stage 2. The evidence page is
-https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB; republish it with `python3 tools/evidence/page.py` after each step.
+Stage 2 (Gate 1) is on `layer/2`. Done: wayfinding (`wayfinding/stage-2.md`, decisions in
+`decisions/D2-stage-two.md` #35 to #48); the journey author's stage-two journeys and planted fixtures (in
+`examples/acme/journeys/`, `blueprint/starting-worlds/funded.ts`, `test/fixtures/{types,check}/`: never edit them);
+L1.20 (commit b150981, evidence in `evidence/L1.20/`), which also built L1.23 (reads, idempotency) and L1.22's bob
+journey. The store is `host-cloudflare/store` (`StoreD1`, D1 batch plus actor routing) and `host-cloudflare/actors`
+(the `Actor` DO); the runtime's `Records` holds writes back and the wrapper commits once, retrying conflicts.
+`prove` passes on acme's six journeys. Next steps, in order: L1.21 (exit codes, deciding logs, the type test against
+`test/fixtures/types/undeclared-error/`; note the author's finding that errors without fields are structurally
+interchangeable, so give each generated error a literal `_tag`), L1.24 (`step.wait`, budgets), L1.25, L1.30, L1.31,
+L1.32, L1.33, L1.40 (check, lint plugin, the `test/fixtures/check/` fixtures), L1.41, L1.50 (Better Auth preset via
+Verdaccio), L1.51, L1.60 (`e2e:layer1`, with check 4 the `claude -p` session). Then a 🔍 review and a PR to main.
+The evidence page is https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB; republish it with
+`python3 tools/evidence/page.py` after each step. For plants, back up with `cp` and restore with `cp`, never
+`git checkout`.
 
 ## Open
 
