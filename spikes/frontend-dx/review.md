@@ -29,4 +29,23 @@ The Impeccable mechanical detector returned `[]`. No dependencies were installed
 
 ## Independent review
 
-Pending the independent review of the committed candidate; its final outcome is appended before landing.
+**pass** — independent read-only reviewer, candidate `bdd4655` with verification-only commit `90ff1e0`.
+
+No blocking finding. All five F1 questions, early contract, real acme example, rubric and bounded build steps
+were checked. Compiler dependency/hash semantics, model types, generators, logbook fields/routes and version
+classification were compared with the pinned stage-three source. Current main is included; only design/spike
+files change. Fourteen refreshed desktop/mobile screenshots were reviewed.
+
+One advisory was corrected: the opening HTML comment now says lifecycle and system explanation lead home,
+matching the revised screen. It had retained the earlier evidence-first wording.
+
+Visual disposition:
+
+- Thesis: understand the coded promise, then judge its evidence.
+- Own-world: actual acme fields/events/budgets and missing projections give the neutral shell substance.
+- Story: specification → derived work → evidence → reviewed change is coherent.
+- First viewport: desktop establishes intent; mobile remains readable with lifecycle below initial controls.
+- Form: restrained HeroUI-style shell, clear labels, responsive stacking; tables intentionally scroll.
+
+Review changed no files and started no server. CI remains the landing gate. This receipt adds no claim of
+framework integration, accessibility certification or live-service proof.
