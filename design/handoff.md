@@ -27,13 +27,14 @@ Aaron's rule from 16 November 2026: the building agent owns the architecture and
 
 ## Where the goal stands
 
-Stage 1 (`layer/1`). Done: wayfinding (`wayfinding/stage-1.md`, decisions D1 and D2), L1.01, L1.10 and L1.11, each
-with evidence in `evidence/`. Spikes `effect4-worker-chain` and `otlp-from-workerd` both answered yes. L1.11 gave
-`packages/compiler` (`Compiler.model` over a `BlueprintSource`) and `packages/cli` (`architect model [--json]`); the
-acme model snapshot is `packages/compiler/src/modules/model/__snapshots__/acme.model.json`. Next: L1.12, the runtime
-(handler wrapper, spans, Clock and Timers, counted work, D1 layer, OTLP export), using the spike code in
-`spikes/otlp-from-workerd/README.md`. The evidence page is https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB; republish
-it with `python3 tools/evidence/page.py` after each step.
+Stage 1 (`layer/1`). Done: wayfinding (`wayfinding/stage-1.md`, decisions D1 and D2), L1.01, L1.10, L1.11 and L1.12,
+each with evidence in `evidence/`. Spikes `effect4-worker-chain` and `otlp-from-workerd` both answered yes. L1.11 gave
+`packages/compiler` (`Compiler.model`) and `packages/cli` (`architect model [--json]`). L1.12 gave
+`packages/target-effect` (`Handlers.serve`, `Busy`, `Timers`) and `packages/host-cloudflare` (`Database.d1`, tested in
+real workerd with a real local D1 via `vitest.config.ts`). Next: L1.13, the generators (Nx sync generators writing
+`generated/{api,server,sdk,cli}` in `examples/acme`, `nx sync:check` failing on drift) and the handler scaffold. OTLP
+export (spike code in `spikes/otlp-from-workerd/README.md`) lands with `architect dev` in L1.14. The evidence page is
+https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB; republish it with `python3 tools/evidence/page.py` after each step.
 
 ## Open
 

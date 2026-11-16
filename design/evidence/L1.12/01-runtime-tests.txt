@@ -1,0 +1,19 @@
+$ node_modules/.bin/vitest run --root packages/target-effect --reporter verbose
+# commit 4f06767 · 2026-11-16T16:49:01Z · exit 0 (expected 0) · 0.9s
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/packages/target-effect
+
+ ✓ src/modules/work/work.test.ts > Busy > counts work while it runs, and after it fails 3ms
+ ✓ src/modules/work/work.test.ts > Busy > is quiet only once spawned work ends 1ms
+ ✓ src/modules/timers/timers.test.ts > Timers > a durable sleep parks uncounted, and its timer wakes it counted 5ms
+ ✓ src/modules/timers/timers.test.ts > Timers > `at` runs its work as counted work when fired 1ms
+ ✓ src/modules/handler/handler.test.ts > handler wrapper > runs the handler in a span named after the operation, with its payload as attributes 5ms
+ ✓ src/modules/handler/handler.test.ts > handler wrapper > passes a declared error through, typed, and counts the work until it ends 1ms
+ ✓ src/modules/handler/handler.test.ts > handler wrapper > refuses a payload outside its declaration before the handler runs 2ms
+ ✓ src/modules/handler/handler.test.ts > handler wrapper > an answer outside its declaration dies as the handler's bug 1ms
+
+ Test Files  3 passed (3)
+      Tests  8 passed (8)
+   Start at  16:49:00
+   Duration  578ms (transform 146ms, setup 0ms, import 1.30s, tests 20ms, environment 0ms)

@@ -23,7 +23,8 @@ export interface ValuesApi {
   /** An identifier with a short prefix, such as `alw_7f3k`. Ids of different things never mix. */
   readonly id: <const P extends string>(prefix: P) => Value<Schema.brand<Schema.String, P>>;
   /** A whole number from 0 below 2^bits, carried as a bigint. */
-  readonly uint: (bits: number) => Value<Schema.BigInt>;
+  /** A whole number below 2^bits. In code a `bigint`; on the wire a decimal string, since JSON numbers lose precision. */
+  readonly uint: (bits: number) => Value<Schema.BigIntFromString>;
   /** Text, never empty, at most `max` characters (default 200). */
   readonly text: (options?: { readonly max?: number }) => Value<Schema.String>;
 }

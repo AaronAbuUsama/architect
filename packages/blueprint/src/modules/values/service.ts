@@ -20,7 +20,7 @@ export const Values: ValuesApi = {
   value,
   id,
   uint: (bits) =>
-    described(Schema.BigInt.check(Schema.isGreaterThanOrEqualToBigInt(0n), Schema.isLessThanBigInt(1n << BigInt(bits))), {
+    described(Schema.BigIntFromString.check(Schema.isGreaterThanOrEqualToBigInt(0n), Schema.isLessThanBigInt(1n << BigInt(bits))), {
       type: "uint",
       bits,
     }),

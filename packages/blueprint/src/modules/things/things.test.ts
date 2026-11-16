@@ -21,8 +21,8 @@ describe("things", () => {
 
   it("fields become one schema", () => {
     const s = structOf({ organization: Allowance.fields.organization, limit: Allowance.fields.limit });
-    expect(Schema.decodeUnknownExit(s)({ organization: "org_1", limit: 5n })._tag).toBe("Success");
-    expect(Schema.decodeUnknownExit(s)({ organization: "alw_1", limit: 5n })._tag).toBe("Failure");
+    expect(Schema.decodeUnknownExit(s)({ organization: "org_1", limit: "5" })._tag).toBe("Success");
+    expect(Schema.decodeUnknownExit(s)({ organization: "alw_1", limit: "5" })._tag).toBe("Failure");
     expectTypeOf<(typeof s)["Type"]["limit"]>().toEqualTypeOf<bigint>();
   });
 

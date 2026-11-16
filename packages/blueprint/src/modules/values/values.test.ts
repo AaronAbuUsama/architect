@@ -19,11 +19,13 @@ describe("values", () => {
     expectTypeOf<Schema.Schema.Type<typeof AllowanceId.schema>>().not.toEqualTypeOf<Schema.Schema.Type<typeof OrgId.schema>>();
   });
 
-  it("uints are bounded bigints", () => {
+  it("uints are bounded bigints that travel as decimal strings", () => {
     const U8 = Values.uint(8);
-    expect(decode(U8.schema, 255n)).toBe("Success");
-    expect(decode(U8.schema, 256n)).toBe("Failure");
-    expect(decode(U8.schema, -1n)).toBe("Failure");
+    expect(decode(U8.schema, "255")).toBe("Success");
+    expect(decode(U8.schema, "256")).toBe("Failure");
+    expect(decode(U8.schema, "-1")).toBe("Failure");
+    expect(decode(U8.schema, 255)).toBe("Failure");
+    expect(Schema.encodeSync(Values.uint(128).schema)(2n ** 100n)).toBe("1267650600228229401496703205376");
   });
 
   it("text is never empty", () => {

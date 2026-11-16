@@ -5,5 +5,18 @@
   "exports": {
     ".": "./src/index.ts"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@effect/sql-d1": "4.1.1",
+    "effect": "4.1.1"
+  },
+  "imports": {
+    "#modules/*": "./src/modules/*"
+  },
+  "devDependencies": {
+    "@architect/blueprint": "workspace:*",
+    "@architect/target-effect": "workspace:*",
+    "@cloudflare/vitest-pool-workers": "0.23.0",
+    "@cloudflare/workers-types": "5.20261101.1",
+    "wrangler": "4.156.1"
+  }
 }
