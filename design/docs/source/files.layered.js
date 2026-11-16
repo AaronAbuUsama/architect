@@ -100,8 +100,8 @@ export default Blueprint.operation(Allowance, {
   move: machine.moves.grant,
   allowed: [owner.of("organization")],
   signedBy: owner,                             // the owner's wallet signs; the relayer only pays the gas «4»
-  steps: [Blueprint.step.database("allowance.grant.insert")], «-4»
-  steps: [Blueprint.step.database("allowance.grant.insert"), Blueprint.step.chain("allowance.grant.submit"), Blueprint.step.wait("allowance.grant.confirm")], «4»
+  steps: { insert: Blueprint.step.database() }, «-4»
+  steps: { insert: Blueprint.step.database(), submit: Blueprint.step.chain(), confirm: Blueprint.step.wait() }, «4»
   idempotent: "request",                       // the same request twice grants once
   budget: { p95: "200 millis" }, «-4»
   budget: { p95: "3 seconds", excludes: ["allowance.grant.confirm"] }, «4»
@@ -129,8 +129,8 @@ export default Blueprint.operation(Allowance, {
   errors: [AllowanceExceeded, AllowanceNotFound, VaultBalanceLow], «4»
   allowed: [grantee],
   signedBy: grantee,                           // the grantee's own wallet signs the payload «4»
-  steps: [Blueprint.step.database("allowance.spend.load"), Blueprint.step.database("allowance.spend.record")], «-4»
-  steps: [Blueprint.step.database("allowance.spend.load"), Blueprint.step.chain("allowance.spend.submit"), Blueprint.step.wait("allowance.spend.confirm")], «4»
+  steps: { load: Blueprint.step.database(), record: Blueprint.step.database() }, «-4»
+  steps: { load: Blueprint.step.database(), submit: Blueprint.step.chain(), confirm: Blueprint.step.wait() }, «4»
   idempotent: "request",                       // retried with the same request key, it spends once
   budget: { p95: "150 millis" }, «-4»
   budget: { p95: "4 seconds", excludes: ["allowance.spend.confirm"] }, «4»
@@ -149,8 +149,8 @@ export default Blueprint.operation(Allowance, {
   move: machine.moves.revoke,
   allowed: [owner.of("allowance.organization")],
   signedBy: owner, «4»
-  steps: [Blueprint.step.database("allowance.revoke.update")], «-4»
-  steps: [Blueprint.step.chain("allowance.revoke.submit"), Blueprint.step.wait("allowance.revoke.confirm")], «4»
+  steps: { update: Blueprint.step.database() }, «-4»
+  steps: { submit: Blueprint.step.chain(), confirm: Blueprint.step.wait() }, «4»
   budget: { p95: "150 millis" }, «-4»
   budget: { p95: "3 seconds", excludes: ["allowance.revoke.confirm"] }, «4»
 })` },
