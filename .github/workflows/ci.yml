@@ -36,4 +36,7 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Check 4 runs its agent when this secret exists, and says why it skipped when it doesn't (D2 #41).
       - run: pnpm nx run e2e:layer1 --outputStyle=static
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

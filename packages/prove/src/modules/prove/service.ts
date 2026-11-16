@@ -28,7 +28,8 @@ export const Prove: ProveApi = {
       const evidence = Evals.gather(calls, traces);
       const journeys = journeyLines(runs, traces);
       const verdicts = Evals.judge(project, evidence);
-      yield* Impact.record(root, model, verdicts);
+      // A run with a failing journey proves nothing: its operations are recorded as judged and not passed (D2 #80).
+      yield* Impact.record(root, model, journeys.failed === 0 ? verdicts : verdicts.map((v) => ({ ...v, failures: [...v.failures, "a journey failed"] })));
       const evals = evalLines(model, verdicts);
       const failures = journeys.failed + evals.failed;
       return {

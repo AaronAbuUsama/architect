@@ -37,7 +37,7 @@ Decided 16 November 2026 by the builder, which has architectural ownership. The 
     - The signed test tokens from stage one stay, but only behind the world's door, until the starter (L1.50) moves
       acme onto Better Auth.
     - The OIDC issuer for a later staging sign-in is Dex in Docker.
-41. **Check 4 of Gate 1 is a real `claude -p` session.**
+41. **Check 4 of Gate 1 is a real `claude -p` session.** *(Its harness is superseded by #76: the Agent SDK with only our tools. The CI skip stands.)*
     - It runs in a copy of acme with the journeys removed, as well as denied in its `--settings`. It's given only
       `architect brief allowance.spend` and must make `prove` pass.
     - It runs wherever Claude Code is signed in. In GitHub CI it needs an `ANTHROPIC_API_KEY` secret, which is a
@@ -205,3 +205,12 @@ Decided 16 November 2026 by the builder, which has architectural ownership. The 
     aborts the whole process when a folder vanishes mid-copy; CI hit this when a live `.wrangler/tmp/bundle-*` in
     acme was deleted while a unit test copied `generated/`. Every recursive copy of an example now passes a filter
     that skips dot-folders, which also keeps the native path out.
+79. **The two-week rule covers transitive packages, enforced by pnpm.** The 🔍 review of `layer/2` found about 68
+    lockfile entries under two weeks old (babel through Nx, hono and jose through the MCP SDK, and others); only the
+    direct pins had been checked. `pnpm-workspace.yaml` now sets `minimumReleaseAge: 20160` (two weeks, in minutes)
+    and the lockfile was resolved fresh under it, so `pnpm install` refuses a too-new version anywhere in the tree.
+    The kysely override (#68) stays, since Better Auth's types need one copy.
+80. **A prove with a failing journey proves nothing.** Before, `impact`'s ledger recorded every operation whose evals
+    passed, even in a run that ended `prove ✘` (found by the review). Now a failing journey marks every judged
+    operation as not passed, so after a failed run they are unproven. The starter's three failing-journey cases
+    check the ledger is empty after their run.

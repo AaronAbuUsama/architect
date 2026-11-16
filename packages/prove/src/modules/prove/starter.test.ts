@@ -1,6 +1,6 @@
 // L1.50's prove half: the starter passes on real Better Auth sign-in, and each of the journey author's fixtures fails
 // where its README says, in a scratch copy of the starter.
-import { cpSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { basename, join, relative, resolve } from "node:path";
 import { Effect } from "effect";
 import { afterAll, describe, expect, it } from "vitest";
@@ -42,8 +42,11 @@ describe("the starter", () => {
   ] as const;
   cases.forEach(([name, from, to, journey, detail], i) => {
     it(`fails on ${name}`, { timeout: 180_000 }, async () => {
-      const report = await prove(copy(name, [[from, to]]), 8811 + i);
+      const root = copy(name, [[from, to]]);
+      const report = await prove(root, 8811 + i);
       expect(report.passed).toBe(false);
+      // A failed run proves nothing, even operations whose own evals passed (D2 #80).
+      expect(JSON.parse(readFileSync(join(root, ".architect/evidence/proven.json"), "utf8")).proven).toEqual({});
       expect(report.lines.some((l) => l.startsWith(journey)), report.lines.join("\n")).toBe(true);
       expect(report.lines.some((l) => l.includes(detail)), report.lines.join("\n")).toBe(true);
     });

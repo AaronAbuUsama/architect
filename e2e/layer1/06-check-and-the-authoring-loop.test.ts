@@ -14,7 +14,8 @@ const starter = join(repo, "examples/starter");
 
 describe("check 6: architect add, generate and check build the allowance on the starter", () => {
   it("blanks, then scaffolds, then a project that checks and proves", () => {
-    // The starter as the preset writes it, in a folder named acme.
+    // The starter as the preset writes it. add writes the allowance's blanks; the filled declarations, handlers and
+    // journeys then come from acme, so what this proves is blanks, scaffolds and check, not authoring.
     const project = copyOf(starter);
     const { root } = project;
     try {

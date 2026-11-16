@@ -13,6 +13,8 @@ import { afterAll, describe, expect, it } from "vitest";
 import { acme, architect, cli, copyOf, nothingRunning, repo } from "./support.ts";
 
 const SPEND = "implementation/handlers/allowance/spend.ts";
+// What the agent may not read. The brief's own forbidden list is about writing (blueprint and generated are read-only to
+// it but readable); this one is about reading, so the agent can't learn the journeys or the planted answers.
 const DENIED = ["journeys/", "blueprint/journeys/", "blueprint/starting-worlds/", "test/", "node_modules/", ".architect/"];
 const ci = process.env["CI"] === "true" && !process.env["ANTHROPIC_API_KEY"];
 const project = copyOf(acme);
@@ -25,7 +27,8 @@ const text = (t: string) => ({ content: [{ type: "text" as const, text: t }] });
 const tools = (root: string) => {
   const inside = (path: string) => {
     const at = relative(root, join(root, normalize(path)));
-    return at.startsWith("..") || DENIED.some((d) => `${at}/`.startsWith(d)) ? undefined : at;
+    // macOS's file system ignores case, so the comparison does too: "Journeys/x.ts" is journeys/x.ts.
+    return at.startsWith("..") || DENIED.some((d) => `${at}/`.toLowerCase().startsWith(d)) ? undefined : at;
   };
   return createSdkMcpServer({
     name: "project",
@@ -84,7 +87,7 @@ describe.skipIf(ci)("check 4: an agent writes allowance.spend from its brief alo
         for await (const message of query({
           prompt,
           options: {
-            cwd: root, model: "sonnet", env, tools: [], settingSources: [], maxTurns: 40,
+            cwd: root, model: "sonnet", env, tools: [], settingSources: [], strictMcpConfig: true, maxTurns: 40, maxBudgetUsd: 5,
             mcpServers: { project: tools(root) },
             allowedTools: ["mcp__project__read", "mcp__project__list", "mcp__project__write_handler", "mcp__project__check"],
             permissionMode: "dontAsk",
