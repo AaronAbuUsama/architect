@@ -66,11 +66,16 @@ slow grant, D2 #77). Check 4 runs on the Claude Agent SDK with only our tools, t
 #78). The 🔍 review failed once (transitive packages under two weeks old) and passed after the fixes: pnpm's
 `minimumReleaseAge` enforces the rule tree-wide (D2 #79), and a prove with a failing journey proves nothing (D2 #80).
 Decisions through D2 #80.
-Stage 2 is on main (PR 2, merge e9e3194). Next: stage 3, Gate 2 (shipping across local test, staging and production
-worlds) on `layer/3`, opening with wayfinding (`wayfinding/stage-3.md`).
-Side thread: a 📐 Designer session is designing the minimal agent harness as its own package (Aaron favours Pi
-Durable; model switching, tools, skills, a sandbox, run records and internal benchmarks), landing as
-`design/decisions/D3-agent-harness.md` by its own PR. Don't build the harness on a layer branch until that lands.
+Stage 2 is on main (PR 2, merge e9e3194, main CI green).
+Stage 3 (Gate 2) is open on `layer/3`. Wayfinding is done: `wayfinding/stage-3.md` (research R1–R4) and
+`decisions/D3.md` (#1–#13 how shipping runs on local worlds; #14 the command surface; #15 Gate 2's eight checks).
+In flight: three spikes, each in a worktree on its own branch (`spike/mcp-oauth`, `spike/single-binary`,
+`spike/ci-oidc`), and the ✍️ author writing `e2e/layer2/` and `examples/acme/test/fixtures/layer2/` on
+`author/gate-2`. Merge each into `layer/3` (spikes into main by PR) when they report. Then build L2.01 to L2.10
+against the author's checks, one commit per step.
+Side work: a 📐 designer subagent is writing `design/decisions/H1-agent-harness.md` on `design/agent-harness` (Pi
+Durable for durability, made native: Effect seam, OTel exporter, DO storage, blueprint tools; sandbox options).
+The app's own sessions failed to start twice, so it runs as a subagent. Don't build the harness on a layer branch.
 The evidence page is https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB; republish it with
 `python3 tools/evidence/page.py` after each step. For plants, back up with `cp` and restore with `cp`, never
 `git checkout`.
