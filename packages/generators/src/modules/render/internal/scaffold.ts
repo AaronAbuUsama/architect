@@ -1,10 +1,10 @@
-// implementation/handlers: written once per operation, then the project's own. Never overwritten.
+// src/<thing>/<verb>.ts: written once per operation, then the project's own. Never overwritten.
 import type { OperationModel } from "@architect/compiler";
 import type { RenderedFile } from "../types.ts";
 import { camel, lines, scaffolded, toRoot } from "./names.ts";
 
 export const renderHandlerScaffold = (op: OperationModel): RenderedFile => {
-  const path = `implementation/handlers/${op.thing}/${op.verb}.ts`;
+  const path = `src/${op.thing}/${op.verb}.ts`;
   const said = [
     `Payload: ${Object.keys(op.payload).join(", ") || "none"}.`,
     `Answer: ${Object.keys(op.answer).join(", ") || "nothing"}.`,

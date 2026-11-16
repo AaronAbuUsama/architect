@@ -31,7 +31,7 @@ step "build"
 
 step "pack the starter into the preset"
 mkdir -p "$preset_files"
-for part in blueprint implementation journeys; do cp -R "$repo/examples/starter/$part" "$preset_files/$part"; done
+for part in blueprint src journeys; do cp -R "$repo/examples/starter/$part" "$preset_files/$part"; done
 mkdir -p "$preset_files/generated/model" && cp "$repo/examples/starter/generated/model/model.json" "$preset_files/generated/model/"
 
 step "registry on :$port"

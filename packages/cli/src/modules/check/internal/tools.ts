@@ -29,7 +29,7 @@ export const factsOf = (root: string, model: Model): ProjectFacts => {
     names: [...ops.map((o) => o.name), ...ops.flatMap((o) => Object.values(o.steps).map((s) => s.name)),
       ...things.flatMap((t) => [...Object.keys(t.events), ...Object.keys(t.errors)])],
     errors: things.flatMap((t) => Object.keys(t.errors)),
-    handlers: Object.fromEntries(ops.filter((o) => o.kind === "operation").map((o) => [`implementation/handlers/${o.thing}/${o.verb}.ts`, o.errors])),
+    handlers: Object.fromEntries(ops.filter((o) => o.kind === "operation").map((o) => [`src/${o.thing}/${o.verb}.ts`, o.errors])),
   };
 };
 
@@ -44,7 +44,7 @@ export const rules = (root: string, model: Model): ReadonlyArray<Finding> => {
   const config = { jsPlugins: [plugin], categories: { correctness: "off" }, plugins: [], rules: Object.fromEntries(RULES.map((r) => [`architect/${r}`, ["error", facts]])) };
   writeFileSync(join(dir, "oxlintrc.json"), JSON.stringify(config, null, 2));
   // Files named one by one: walking a folder applies every .gitignore above it, which would skip a project kept in one.
-  const targets = ["implementation", "blueprint"].flatMap((d) => tsFiles(join(root, d)).map((f) => relative(root, f)));
+  const targets = ["src", "blueprint"].flatMap((d) => tsFiles(join(root, d)).map((f) => relative(root, f)));
   if (targets.length === 0) return [];
   const run = spawnSync(oxlint, ["-c", join(dir, "oxlintrc.json"), "--no-ignore", "--format", "unix", ...targets], { cwd: root, encoding: "utf8" });
   const found = (run.stdout ?? "").split("\n").flatMap((l) => {

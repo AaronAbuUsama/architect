@@ -1,4 +1,4 @@
-// generated/server: the Worker. Every operation's route wired to its handler in implementation/, by path; the world's
+// generated/server: the Worker. Every operation's route wired to its handler in src/, by path; the world's
 // front door at /_world/*; D1 tables from the model.
 import type { Model, OperationModel } from "@architect/compiler";
 import type { RenderedFile } from "../types.ts";
@@ -45,7 +45,7 @@ const main = (model: Model, name: string): RenderedFile => {
       `import { Auth, Busy, BusyLive, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@architect/target-effect";`,
       `import { Api, Errors } from "../api/src/index.ts";`,
       ops.map((o) => `import * as ${opVar(o)} from "../api/src/${o.thing}/${o.verb}.ts";`),
-      handled.map((o) => `import ${opVar(o)}Handler from "../../implementation/handlers/${o.thing}/${o.verb}.ts";`),
+      handled.map((o) => `import ${opVar(o)}Handler from "../../src/${o.thing}/${o.verb}.ts";`),
       things.map((t) => `import * as ${camel(t.name)}Thing from "../../blueprint/things/${t.name}/thing.ts";`),
       "",
       actors ? `export { Actor, World } from "@architect/host-cloudflare";` : `export { World } from "@architect/host-cloudflare";`,

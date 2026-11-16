@@ -6,7 +6,7 @@ import { Render } from "@architect/generators/render";
 import type { StarterApi } from "./types.ts";
 import { IGNORES, TSCONFIG, WORKSPACE, mergeWorkspace, packageJson } from "./internal/project.ts";
 
-const PARTS = ["blueprint", "implementation", "journeys"];
+const PARTS = ["blueprint", "src", "journeys"];
 
 const walk = (dir: string): ReadonlyArray<string> =>
   existsSync(dir) ? readdirSync(dir, { withFileTypes: true }).flatMap((d) => (d.isDirectory() ? walk(join(dir, d.name)) : [join(dir, d.name)])) : [];

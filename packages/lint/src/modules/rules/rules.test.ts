@@ -11,7 +11,7 @@ const facts: ProjectFacts = {
   root,
   names: ["allowance.spend", "allowance.spend.load", "AllowanceExceeded"],
   errors: ["AllowanceExceeded", "AllowanceLimitTooHigh"],
-  handlers: { "implementation/handlers/allowance/spend.ts": ["AllowanceExceeded"] },
+  handlers: { "src/allowance/spend.ts": ["AllowanceExceeded"] },
 };
 const RULES = ["no-name-as-string", "refusal-has-log", "declared-errors-only", "no-wall-clock", "handler-matches-path"];
 
@@ -33,7 +33,7 @@ const lint = (files: Record<string, string>): ReadonlyArray<string> => {
 
 afterAll(() => rmSync(root, { recursive: true, force: true }));
 
-const spend = "implementation/handlers/allowance/spend.ts";
+const spend = "src/allowance/spend.ts";
 
 describe("the architect rules", () => {
   it("no-name-as-string: a declared name as a literal outside generated/", { timeout: 60_000 }, () => {
@@ -65,7 +65,7 @@ describe("the architect rules", () => {
   });
 
   it("handler-matches-path: a handler file belongs to a declared operation", { timeout: 60_000 }, () => {
-    expect(lint({ [spend]: `export {};\n`, "implementation/handlers/allowance/refund.ts": `export {};\n` }))
-      .toEqual(["implementation/handlers/allowance/refund.ts handler-matches-path"]);
+    expect(lint({ [spend]: `export {};\n`, "src/allowance/refund.ts": `export {};\n` }))
+      .toEqual(["src/allowance/refund.ts handler-matches-path"]);
   });
 });

@@ -32,7 +32,7 @@ const git = (root: string, ...args: ReadonlyArray<string>) =>
 const copyUnderGit = () => {
   const parent = mkdtempSync(join(realpathSync(tmpdir()), "architect-l202-"));
   const root = join(parent, "acme");
-  for (const part of ["blueprint", "generated", "implementation", "journeys", "package.json"]) cpSync(join(acme, part), join(root, part), { recursive: true, filter: visible });
+  for (const part of ["blueprint", "generated", "src", "journeys", "package.json"]) cpSync(join(acme, part), join(root, part), { recursive: true, filter: visible });
   mkdirSync(join(root, "node_modules"));
   for (const entry of readdirSync(join(acme, "node_modules"))) if (entry !== ".bin") symlinkSync(join(acme, "node_modules", entry), join(root, "node_modules", entry));
   writeFileSync(join(root, ".gitignore"), "node_modules/\n.architect/\n.wrangler/\n");

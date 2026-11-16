@@ -25,15 +25,18 @@ export const noWallClock: Rule = {
   },
 };
 
+// A thing's other code (workflows, contracts) lives in the same folder under other names: only <verb>.ts is a handler.
+const HANDLER_SHAPE = /^src\/[^/]+\/[^/.]+\.ts$/;
+
 export const handlerMatchesPath: Rule = {
-  meta: { schema: SCHEMA, docs: { description: "implementation/handlers/<thing>/<verb>.ts belongs to a declared operation." } },
+  meta: { schema: SCHEMA, docs: { description: "src/<thing>/<verb>.ts belongs to a declared operation." } },
   create: (context) => {
     const facts = factsOf(context);
     const path = pathOf(context, facts);
-    if (path === undefined || !path.startsWith("implementation/handlers/") || path in facts.handlers) return {};
+    if (path === undefined || !HANDLER_SHAPE.test(path) || path in facts.handlers) return {};
     return {
       Program: (node) => {
-        const [, , thing, file] = path.split("/");
+        const [, thing, file] = path.split("/");
         context.report({ node, message: `no declared operation ${thing}.${file?.replace(/\.ts$/, "")} has its handler here` });
       },
     };

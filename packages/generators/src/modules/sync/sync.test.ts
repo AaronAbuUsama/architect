@@ -25,8 +25,8 @@ describe("sync", () => {
 
   it("never overwrites a scaffold that exists", async () => {
     const tree = new FsTree(repo, false);
-    tree.write("examples/acme/implementation/handlers/allowance/grant.ts", "// mine now\n");
+    tree.write("examples/acme/src/allowance/grant.ts", "// mine now\n");
     await sync(tree);
-    expect(tree.read("examples/acme/implementation/handlers/allowance/grant.ts", "utf8")).toBe("// mine now\n");
+    expect(tree.read("examples/acme/src/allowance/grant.ts", "utf8")).toBe("// mine now\n");
   });
 });
