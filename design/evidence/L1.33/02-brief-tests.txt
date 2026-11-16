@@ -1,0 +1,13 @@
+$ npx vitest run --reporter verbose --root packages/cli src/modules/brief
+# commit bb7e816 · 2026-11-16T18:45:51Z · exit 0 (expected 0) · 1.6s
+
+
+ RUN  v4.1.12 ./packages/cli
+
+ ✓ src/modules/brief/brief.test.ts > architect brief > names the declaration to read, the files not to touch and the evals that must pass 448ms
+ ✓ src/modules/brief/brief.test.ts > architect brief > refuses a read or an unknown name, listing the operations that have handlers 442ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  18:45:50
+   Duration  999ms (transform 15ms, setup 0ms, import 22ms, tests 892ms, environment 0ms)

@@ -1,0 +1,32 @@
+$ node packages/cli/src/main.ts brief allowance.spend --root examples/acme
+# commit bb7e816 · 2026-11-16T18:45:50Z · exit 0 (expected 0) · 0.5s
+
+brief allowance.spend
+
+Write   implementation/handlers/allowance/spend.ts, and nothing else.
+
+Read
+  blueprint/things/allowance/verbs/spend.ts  the declaration: payload, answer, move, steps, errors
+  generated/api/src/allowance/spend.handler.ts  what the handler is given and may return
+  generated/docs/allowance/spend.md  the same, in words, with every refusal
+  generated/docs/allowance/index.md  the allowance: fields, machine, roles
+
+Do
+  run step allowance.spend.load (database) through steps.load(...)
+  run step allowance.spend.record (database) through steps.record(...)
+  make the move with move("active" | "exhausted"): spend, emitting AllowanceSpent
+  refuse with AllowanceExceeded (exit 41), each after an Effect.logInfo saying why
+  never refuse AllowanceNotActive or NotAllowed yourself: the runtime does, before the handler runs
+
+Don't touch
+  blueprint/**
+  blueprint/journeys/**
+  blueprint/starting-worlds/**
+  journeys/**
+  generated/**
+  test/**
+
+Done when
+  architect prove --env local passes, with allowance.spend's 9 evals: answer shape, declared errors, machine path, events, who may call, steps, performance, coverage, explainability
+  and the journeys that call it: journeys/revoke-then-spend.ts, journeys/spend-twice-with-one-request.ts, journeys/spend-within-allowance.ts
+  architect check passes

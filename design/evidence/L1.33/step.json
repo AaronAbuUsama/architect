@@ -1,0 +1,11 @@
+{
+  "step": "L1.33",
+  "stage": "Stage 2 · the allowance's whole life (Gate 1)",
+  "title": "architect brief",
+  "summary": "architect brief gives an agent everything it needs to write one handler, and fences it in. For allowance.spend it names the one file to write, the declaration and generated pages to read, the two steps to run, the move and its outcomes, the one refusal to give with its exit code, and the two the runtime gives instead. It lists every folder not to touch, journeys included, and says what must pass: prove with spend's nine evals and the three journeys that call it, and check.",
+  "proves": "architect brief allowance.spend prints the declaration to read, the files it must not touch (including blueprint/journeys/**), and the evals that must pass.",
+  "captions": {
+    "01-brief-allowance-spend": "The brief for allowance.spend, from acme.",
+    "02-brief-tests": "The tests: the brief's three parts, and a read or unknown name refused."
+  }
+}

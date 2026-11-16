@@ -53,10 +53,310 @@ h2 { font-family: var(--display); font-size: 1.25rem; margin: 0; display: flex; 
   
 <section class="step">
   <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
+  <h2><span class="id">L1.33</span> architect brief <span class="chip pass">done</span></h2>
+  <p class="summary">architect brief gives an agent everything it needs to write one handler, and fences it in. For allowance.spend it names the one file to write, the declaration and generated pages to read, the two steps to run, the move and its outcomes, the one refusal to give with its exit code, and the two the runtime gives instead. It lists every folder not to touch, journeys included, and says what must pass: prove with spend&#x27;s nine evals and the three journeys that call it, and check.</p>
+  <div class="proves"><span class="label">Done when</span>architect brief allowance.spend prints the declaration to read, the files it must not touch (including blueprint/journeys/**), and the evals that must pass.</div>
+  <div class="links">CI not run · <a href="https://github.com/AaronAbuUsama/architect/commit/bb7e816">commit bb7e816</a> · 2 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The brief for allowance.spend, from acme.</span>
+    <span class="meta">exit 0 · 0.5s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node packages/cli/src/main.ts brief allowance.spend --root examples/acme</div><pre>brief allowance.spend
+
+Write   implementation/handlers/allowance/spend.ts, and nothing else.
+
+Read
+  blueprint/things/allowance/verbs/spend.ts  the declaration: payload, answer, move, steps, errors
+  generated/api/src/allowance/spend.handler.ts  what the handler is given and may return
+  generated/docs/allowance/spend.md  the same, in words, with every refusal
+  generated/docs/allowance/index.md  the allowance: fields, machine, roles
+
+Do
+  run step allowance.spend.load (database) through steps.load(...)
+  run step allowance.spend.record (database) through steps.record(...)
+  make the move with move(&quot;active&quot; | &quot;exhausted&quot;): spend, emitting AllowanceSpent
+  refuse with AllowanceExceeded (exit 41), each after an Effect.logInfo saying why
+  never refuse AllowanceNotActive or NotAllowed yourself: the runtime does, before the handler runs
+
+Don&#x27;t touch
+  blueprint/**
+  blueprint/journeys/**
+  blueprint/starting-worlds/**
+  journeys/**
+  generated/**
+  test/**
+
+Done when
+  architect prove --env local passes, with allowance.spend&#x27;s 9 evals: answer shape, declared errors, machine path, events, who may call, steps, performance, coverage, explainability
+  and the journeys that call it: journeys/revoke-then-spend.ts, journeys/spend-twice-with-one-request.ts, journeys/spend-within-allowance.ts
+  architect check passes</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The tests: the brief&#x27;s three parts, and a read or unknown name refused.</span>
+    <span class="meta">exit 0 · 1.6s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --reporter verbose --root packages/cli src/modules/brief</div><pre>RUN  v4.1.12 ./packages/cli
+
+ ✓ src/modules/brief/brief.test.ts &gt; architect brief &gt; names the declaration to read, the files not to touch and the evals that must pass 448ms
+ ✓ src/modules/brief/brief.test.ts &gt; architect brief &gt; refuses a read or an unknown name, listing the operations that have handlers 442ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  18:45:50
+   Duration  999ms (transform 15ms, setup 0ms, import 22ms, tests 892ms, environment 0ms)</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
+  <h2><span class="id">L1.32</span> Docs, model edges, and the CLI&#x27;s exit codes <span class="chip bad">not done</span></h2>
+  <p class="summary">Every thing and operation now has a generated docs page. Spend&#x27;s page lists who may call it, what goes in and comes out, its move, its two steps, and each refusal with its exit code: AllowanceExceeded 41, AllowanceNotActive 40, NotAllowed 3. The model also lists what depends on what. On a real local world, the generated acme command line spends, prints the answer as JSON when asked, exits 41 past the limit, 3 for an outsider, and 40 once the allowance is revoked.</p>
+  <div class="proves"><span class="label">Done when</span>acme allowance spend past the limit exits 41; generated/docs/allowance/spend.md lists AllowanceExceeded and AllowanceNotActive.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43931991422">CI </a> · <a href="https://github.com/AaronAbuUsama/architect/commit/735020c">commit 735020c</a> · 4 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">On workerd: the generated CLI spends 200 with --json, then 301 past what&#x27;s left exits 41, bob revoking exits 3, and spending a revoked allowance exits 40.</span>
+    <span class="meta">exit 0 · 9.6s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --reporter verbose --root packages/prove src/modules/world</div><pre>RUN  v4.1.12 ./packages/prove
+
+ ✓ src/modules/world/world.test.ts &gt; a local world &gt; serves acme on workerd: the world casts ada, ada founds an organisation and grants olga 500 2764ms
+ ✓ src/modules/world/world.test.ts &gt; a local world &gt; the generated CLI: spending past the limit exits 41, a revoked allowance 40, an outsider 3; --json prints the answer 5658ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  18:44:10
+   Duration  8.73s (transform 38ms, setup 0ms, import 212ms, tests 8.42s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The renderer&#x27;s tests, including the docs pages and the model&#x27;s edges.</span>
+    <span class="meta">exit 0 · 0.8s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --reporter verbose --root packages/generators src/modules/render/render.test.ts</div><pre>RUN  v4.1.12 ./packages/generators
+
+ ✓ src/modules/render/render.test.ts &gt; render &gt; writes the four outputs for every operation 1ms
+ ✓ src/modules/render/render.test.ts &gt; render &gt; marks every generated file do-not-edit, and every scaffold with where it came from 1ms
+ ✓ src/modules/render/render.test.ts &gt; render &gt; writes a docs page per thing and operation, each refusal with its exit code, and the model&#x27;s edges 0ms
+ ✓ src/modules/render/render.test.ts &gt; render &gt; declares each operation&#x27;s refusals on its endpoint, with their exit codes 0ms
+ ✓ src/modules/render/render.test.ts &gt; render &gt; is deterministic 1ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  18:44:20
+   Duration  346ms (transform 36ms, setup 0ms, import 256ms, tests 3ms, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The generated page for allowance.spend.</span>
+    <span class="meta">exit 0 · 0.0s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ cat examples/acme/generated/docs/allowance/spend.md</div><pre>&lt;!-- Generated from the blueprint. Do not edit. --&gt;
+# allowance.spend
+
+Spend from what is left of this month&#x27;s allowance.
+
+**Who may call:** the grantee of the allowance.
+
+**Idempotent by request:** send `idempotency-key`; the same key twice is one call.
+
+**Budget:** p95 150ms.
+
+## Payload
+
+| field | value |
+|---|---|
+| allowance | allowance.id |
+| amount | Amount |
+| memo | Memo |
+
+## Answer
+
+| field | value |
+|---|---|
+| remaining | Amount |
+
+## Move
+
+`spend`: from active to active or exhausted, emitting AllowanceSpent.
+
+## Steps
+
+- `allowance.spend.load` (database)
+- `allowance.spend.record` (database)
+
+## Refusals
+
+| refusal | exit | when |
+|---|---|---|
+| AllowanceExceeded | 41 | declared in errors.ts, carrying remaining |
+| AllowanceNotActive | 40 | the allowance is in a state spend can&#x27;t start from; carries `state` |
+| NotAllowed | 3 | the caller isn&#x27;t the grantee of the allowance; the handler never runs |
+
+## How to call
+
+```sh
+acme allowance spend --allowance &lt;allowance&gt; --amount &lt;amount&gt; --memo &lt;memo&gt;
+```
+
+HTTP: `POST /allowance/spend` with the payload as JSON. SDK: `Sdk.allowance.spend(payload)`.</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">generated/ matches the blueprint, docs included.</span>
+    <span class="meta">exit 0 · 1.3s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ env NX_DAEMON=false npx nx sync:check</div><pre>NX   The workspace is up to date
+
+[@architect/generators:sync]: All files are up to date.</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
+  <h2><span class="id">L1.31</span> architect generate, and handler scaffolds <span class="chip pass">done</span></h2>
+  <p class="summary">architect generate brings a project&#x27;s generated code in line with its blueprint, the same as nx sync, and tells you what it changed. Each operation that has no blanks left gets a handler scaffold, written once and yours from then on. An operation with a blank gets nothing yet; fill it in and the next run scaffolds it. Run it twice and the second run says nothing to change.</p>
+  <div class="proves"><span class="label">Done when</span>From acme&#x27;s blueprint with no implementation, generate creates the four operation scaffolds and none for a blank operation; filled in, that one is scaffolded; a further run changes nothing.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43931432227">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/e0ed3ae">commit e0ed3ae</a> · 2 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The test: four scaffolds, none for the blank pause; filled in, pause gets its scaffold and generated files; then nothing to change.</span>
+    <span class="meta">exit 0 · 3.2s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --reporter verbose --root packages/cli src/modules/generate</div><pre>RUN  v4.1.12 ./packages/cli
+
+ ✓ src/modules/generate/generate.test.ts &gt; architect generate &gt; scaffolds each finished operation&#x27;s handler once, and nothing for one with blanks 2549ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  18:40:56
+   Duration  2.68s (transform 19ms, setup 0ms, import 26ms, tests 2.56s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">A real session: add a blank operation, generate, generate again, and the spend scaffold it wrote.</span>
+    <span class="meta">exit 0 · 2.0s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ bash &lt;scratch&gt;/gen.sh</div><pre>$ architect add operation allowance.pause
+wrote blueprint/things/allowance/verbs/pause.ts
+
+$ architect generate   (generated/ lines folded)
+created implementation/handlers/allowance/grant.ts (scaffold: yours from now on)
+created implementation/handlers/allowance/revoke.ts (scaffold: yours from now on)
+created implementation/handlers/allowance/spend.ts (scaffold: yours from now on)
+created implementation/handlers/organization/create.ts (scaffold: yours from now on)
+  ... and 29 generated files
+
+$ architect generate   # again
+nothing to change
+
+$ cat implementation/handlers/allowance/spend.ts
+// Scaffolded from blueprint/things/allowance/verbs/spend.ts. Yours from now on.
+import { Effect } from &quot;effect&quot;;
+import { Handlers } from &quot;@architect/target-effect&quot;;
+import type { Handler } from &quot;../../../generated/api/src/allowance/spend.handler.ts&quot;;
+
+/** Spend from what is left of this month&#x27;s allowance. */
+const spend: Handler = (_payload, _context) =&gt;
+  Effect.gen(function* () {
+    // Payload: allowance, amount, memo.
+    // Answer: remaining.
+    // Steps, each its own span: steps.load(...), steps.record(...).
+    // May refuse with AllowanceExceeded.
+    return yield* Handlers.blank(&quot;this handler is not written yet&quot;);
+  });
+
+export default spend;</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
+  <h2><span class="id">L1.30</span> Blanks, and architect add <span class="chip pass">done</span></h2>
+  <p class="summary">You can now start a declaration before you know all of it. architect add writes a thing, an operation, a read or a journey, and every part you still have to decide is a blank that says what belongs there. Blanks compile. architect check names each one with its file and line, and fails until they&#x27;re filled. The compiler keeps track of them too: an operation with a blank isn&#x27;t generated yet. add never overwrites anything, and --dry-run shows what it would write.</p>
+  <div class="proves"><span class="label">Done when</span>In a fresh project, architect add thing allowance writes five files and a values file; tsc compiles them; architect check prints allowance has 3 blanks with the file and line of each.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43931052927">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/a43d543">commit a43d543</a> · 2 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The tests: the files each add plans, names refused, nothing overwritten, and the fresh-project run end to end.</span>
+    <span class="meta">exit 0 · 3.0s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --reporter verbose --root packages/cli src/modules/add src/modules/check</div><pre>RUN  v4.1.12 ./packages/cli
+
+ ✓ src/modules/check/check.test.ts &gt; Check.blanks &gt; finds every Blueprint.todo with its line and what it waits for, grouped by its thing 2ms
+ ✓ src/modules/add/add.test.ts &gt; Add.plan &gt; a thing is five files in its folder and a values file 1ms
+ ✓ src/modules/add/add.test.ts &gt; Add.plan &gt; an operation, a read and a journey are one file each, where the compiler and prove look 0ms
+ ✓ src/modules/add/add.test.ts &gt; Add.plan &gt; refuses a name that doesn&#x27;t fit, and writes nothing if any file is already there 0ms
+ ✓ src/modules/add/add.test.ts &gt; architect add, then check, in a fresh project &gt; writes a thing with 3 blanks that compiles, and check names each with its file and line 2294ms
+
+ Test Files  2 passed (2)
+      Tests  5 passed (5)
+   Start at  18:38:46
+   Duration  2.57s (transform 68ms, setup 0ms, import 207ms, tests 2.30s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">A real session in an empty project: add thing allowance, the scaffold, tsc passing, check naming three blanks and exiting 1, model calling it unfinished, and add refusing to overwrite.</span>
+    <span class="meta">exit 0 · 2.2s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ bash &lt;scratch&gt;/fresh.sh</div><pre>$ architect add thing allowance --dry-run | tail -1
+(dry run: 6 files, nothing written)
+
+$ architect add thing allowance
+wrote blueprint/things/allowance/thing.ts
+wrote blueprint/things/allowance/machine.ts
+wrote blueprint/things/allowance/roles.ts
+wrote blueprint/things/allowance/events.ts
+wrote blueprint/things/allowance/errors.ts
+wrote blueprint/values/allowance.ts
+
+$ cat blueprint/things/allowance/thing.ts
+import { Blueprint } from &quot;@architect/blueprint&quot;;
+
+export const Allowance = Blueprint.thing({
+  description: Blueprint.todo(&quot;what an allowance is, in one sentence&quot;),
+  fields: {
+    id: Blueprint.id(&quot;all&quot;),
+  },
+});
+$ tsc --noEmit
+(exit 0)
+
+$ architect check
+allowance has 3 blanks
+  blueprint/things/allowance/machine.ts:6  the states an allowance can be in, the first one where it starts
+  blueprint/things/allowance/roles.ts:5  when a person holds this role on an allowance
+  blueprint/things/allowance/thing.ts:4  what an allowance is, in one sentence
+(exit 1)
+
+$ architect model
+thing allowance ()  b17c66c33e6e568d
+unfinished allowance  3 blanks
+
+$ architect add thing allowance   # again
+already there, so nothing was written: blueprint/things/allowance/thing.ts, blueprint/things/allowance/machine.ts, blueprint/things/allowance/roles.ts, blueprint/things/allowance/events.ts, blueprint/things/allowance/errors.ts, blueprint/values/allowance.ts
+(exit 2)</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
   <h2><span class="id">L1.25</span> Nine evals for every operation <span class="chip pass">done</span></h2>
   <p class="summary">prove now prints nine evals for every operation, the way the docs show it: answer shape, declared errors, machine path, events, who may call, steps, performance, coverage and explainability, each with its p50, p95 and budget. Coverage became each operation&#x27;s own eval: it fails an operation no journey calls, a move no journey makes, an outcome never reached or a declared error never given. One line then counts the whole run: three moves, three outcomes, both declared refusals, and four of seven runtime refusals. Every planted fixture still fails its own eval.</p>
   <div class="proves"><span class="label">Done when</span>architect prove on acme prints 9 evals ✔ for get, grant, revoke, spend and create, and the coverage line; the gate test passes with every planted fixture failing.</div>
-  <div class="links">CI not run · <a href="https://github.com/AaronAbuUsama/architect/commit/74f3d47">commit 74f3d47</a> · 3 captured runs</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43930184703">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/74f3d47">commit 74f3d47</a> · 3 captured runs</div>
   
 <details class="run" >
   <summary>
