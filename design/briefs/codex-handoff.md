@@ -274,38 +274,49 @@ What each template is for in the portal (Aaron's call):
 - **CRM** is the backbone. Its rich data tables (filter, sort, owner, stage, display columns, bulk select, saved
   lists), its kanban of opportunities, and its tasks and meetings lists become the blueprint's tables: things,
   operations, evals and verdicts, journeys, environments, and the plan (milestones and tasks).
-- **Chat** becomes the agent console, restyled toward Grok (below).
+- **Chat** becomes the agent console, restyled toward Grok Bot (below).
 - **Dashboard** gives the project home: stat cards, charts and a table (proven, stale, unproven, p95 against budget).
 - **Email** only where its three-pane list-and-reader layout helps, such as an agent run's inbox of asks and reports.
 
-**The agent console is Grok's interaction style, and only Grok's** (Aaron: "we need Grok and that style of
-interaction"). The reference is the Mobbin collection "Architect: Grok-style agent", Grok screens and flows only:
-https://mobbin.com/collections/c1b1fa48-b691-4827-99de-65e77e4330fa/mobile/screens. What to take from it, mapped to
-Architect:
+**The agent console is Grok Bot's interaction style, and only Grok Bot's.** Grok Bot ("AI teammates that do real work",
+iOS) is not xAI's Grok app: it is a team of named, always-on agents you talk to like colleagues. Aaron's link, the source
+of truth: https://mobbin.com/apps/grok-bot-ios-c5e50da8-b7fc-423a-a264-5ea9c387d5ad/862b66ab-c959-4a0d-85ec-bdfe42eb2eb5/screens
+(117 screens; open its Flows tab too). The Grok Bot flows are saved in the Mobbin collection "Architect: Grok Bot agent
+console": https://mobbin.com/collections/28bfec56-d666-461c-b6e7-7eaa68f6335d/mobile/screens. Ignore the older collection
+"Architect: Grok-style agent"; it holds xAI Grok screens and is not the reference. What to take, mapped to Architect:
 
-- **The empty state**: a greeting and one centred composer with suggestion chips below it. In Architect the chips are
-  actions on the project ("Climb the red evals", "What did the last change make stale?", "Brief allowance.spend").
-- **The composer**: attach, a mode switch (Grok's Auto, Fast, Expert and Heavy, where Heavy is "a team of experts"; in
-  Architect Fast is one worker, Expert is one worker that thinks harder, Heavy is the manager with the whole fleet),
-  a Think toggle, a DeepSearch-style picker, and send turning into stop while it runs.
-- **Thinking**: "Thought for 1m 8s", folded by default, expanding inline or into a Thoughts side panel with headed
-  stages. In Architect the stages are the run's steps and tool calls, each linked to its span.
-- **DeeperSearch's run card**: a left rail of stages with ticks ("Thinking", "Exploring", "Evaluating", "Completed,
-  2m 15s, 22 sources") beside the live detail. In Architect this is a worker's climb: brief, fill, check, prove, each
-  eval ticking green, with the verdicts as the "sources".
-- **Answers**: plain prose with headings, real tables, and code blocks with collapse, wrap and copy; under each answer
-  an action row (regenerate, copy, share, thumbs, the time it took) and follow-up suggestions.
-- **Projects**: a project with its own instructions, sources and conversations. In Architect a project's sources are
-  its blueprint, its generated model and its logbook; a milestone's conversation lives inside it.
+- **Agents are teammates, each with a name, an avatar and a status dot.** The home screen is one list of conversations,
+  one per bot or group ("SLMob", "Design", "Inbox Triage", "Chief of Staff", "UX Research, Design, Chief…"), each row
+  with a tag chip for what it is doing now ("Meal prepping", "Proposes UI…"), the last line and the time. In Architect
+  the rows are the milestone's manager, each worker, and group runs; the chip is the task it is on ("Filling
+  allowance.spend").
+- **Onboarding is "Meet your first bot"**: a carousel of starter bots with one line each, then Start Chat or Create My
+  Own. In Architect: starter agents such as a manager, a builder, a reviewer and a docs writer, or make your own.
+- **Each bot has Instructions**, a plain editable page with Save. In Architect that is the agent's brief and rules (the
+  AGENTS.md rules, its task, its tools).
+- **A chat reads like messaging, not a document**: short bubbles, a greeting that asks what to work on, and the bot's
+  avatar pulsing while it works. Answers are a few short bubbles, not one long essay.
+- **Files are first-class**: the bot attaches a file chip (`week-meal-prep.md`, 3.1 KB) that opens in a sheet with real
+  headings and tables, and says "File's updated" when it changes it. In Architect the files are the handler it filled,
+  its brief, and the verdict; the sheet is the code or MDX view.
+- **Questions come as a lettered choice card**: "Want me to tweak this?" with options A to E ("This works",
+  "Vegetarian"…), the chosen one ticked, and "dismissed" when ignored. In Architect this is how a worker asks the person
+  to decide (keep the old answer shape or break it, retry or give up).
+- **@mention hands work to another bot**: "@Chief of Staff record this routine" shows a system line "Messaged Chief of
+  Staff" and the reply. In Architect the manager @mentions workers, and a person can @mention any agent; group chats
+  hold the manager with its fleet.
+- **Routines**: "Set up a routine…" makes a system line "New routine 'Weekly meal prep'". In Architect: re-run the
+  stale journeys every night, or climb the red evals each morning.
+- **Connectors ask in the chat**: an Authorize card ("Google Calendar, connect via its remote MCP server") when a bot
+  needs access. In Architect: a card asking for a key by name or for leave to deploy to staging.
+- **Long-press a message** for reactions, Reply, Start a thread, Mark as unread and Copy; replies quote the message
+  they answer. In Architect a thread is where one task's back-and-forth lives.
+- **Search** covers groups, agents and messages in one list, each row labelled Group, Agent or Message.
+- **The composer** is plain: plus, "Ask SLMob", dictation with a timer, and send. The desktop icon top-right opens the
+  bot's screen; in Architect it opens the worker's live run (its steps, spans and evals ticking).
 
-**Correction: the reference is the app Mobbin calls "Grok bot" (iOS), not the xAI "Grok" app.** They are different
-apps. Work from this page, Aaron's direct link, and treat it as the source of truth for the console:
-https://mobbin.com/apps/grok-bot-ios-c5e50da8-b7fc-423a-a264-5ea9c387d5ad/862b66ab-c959-4a0d-85ec-bdfe42eb2eb5/screens
-Where the bullets above or the collection (which holds xAI Grok screens) disagree with Grok bot's screens, Grok bot
-wins: map its empty state, composer, thinking, run progress, answers and history onto Architect the same way.
-
-The other four templates' screens and Mobbin's non-Grok agent apps are not the reference for the console. If the
-Mobbin connector is available to you, pull more Grok screens; if not, work from these.
+The other four templates' screens and other agent apps on Mobbin (xAI Grok included) are not the reference for the
+console. If the Mobbin connector is available to you, pull more Grok Bot screens; if not, work from these.
 
 Write the audit as `design/decisions/P1-portal.md` section 1: a table of view, template screen, components, and gaps.
 Keep screenshots outside the repository and reference them by path.
@@ -408,10 +419,11 @@ Build `@architect/agent` along H1 and H2 (rows A0 to A6, in that order), then ad
   the journeys pass, or it gives up and says why.
 - **The manager** is its own Durable Object per milestone. It hands tasks to workers, caps how many run at once, watches
   their verdicts, reassigns a failed task once, and marks the milestone proven only when every task's verdict is green.
-- **The console** is the HeroUI chat template restyled to Grok's interaction style (phase 1): a person talks to the
-  manager; the mode switch picks the fleet's size (Fast is one worker, Heavy is the whole team); each worker's climb
-  shows as a DeeperSearch-style run card of stages and evals ticking green, its thinking folds into a Thoughts panel,
-  and every step links to its span (one trace with the world's).
+- **The console** is the HeroUI chat template restyled to Grok Bot's interaction style (phase 1): the manager and each
+  worker are teammates in one list with a status dot and a chip for their current task; a person talks to the manager
+  in a group chat with its workers; the manager @mentions workers to hand out tasks; workers ask with lettered choice
+  cards and attach their files; the desktop view of a worker shows its climb, each eval ticking green, every step
+  linked to its span (one trace with the world's).
 - Runs are scored by `check` and `prove` (H2.7: untampered, `check` ✔, the nine evals and journeys ✔). The CI bench
   uses H2's `oracle` and `null` runners with no key.
 
