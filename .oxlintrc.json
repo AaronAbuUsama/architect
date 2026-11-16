@@ -56,8 +56,7 @@
   "overrides": [
     {
       "files": [
-        "**/*.test.ts",
-        "**/test/**/*.ts"
+        "**/*.test.ts"
       ],
       "rules": {
         "@nx/enforce-module-boundaries": [
