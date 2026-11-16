@@ -1,6 +1,6 @@
 # Where everything stands
 
-Kept by the 🎼 conductor, so a fresh conductor can take over. Last updated 16 November 2026, after L1.25.
+Kept by the 🎼 conductor, so a fresh conductor can take over. Last updated 16 November 2026, after L1.40.
 
 ## Done
 
@@ -46,10 +46,13 @@ journey. The store is `host-cloudflare/store` (`StoreD1`, D1 batch plus actor ro
 `refusal.log`; `generators/src/modules/render/handler-type.test.ts` compiles a copy of acme with the author's
 undeclared-error fixture and expects tsc to fail), L1.24 (step spans carry `step.kind`; the steps eval checks declared
 order from span start times), L1.25 (coverage is each operation's eighth eval, so `9 evals ✔` per operation, plus one
-coverage line). Decisions through D2 #52. Next steps, in order: L1.30 (`Blueprint.todo`, `architect add`), L1.31,
-L1.32 (docs, full SDK and CLI, exit codes), L1.33 (`brief`), L1.40 (check, the lint plugin with
-`declared-errors-only`, the author's `test/fixtures/check/` fixtures), L1.41 (impact), L1.50 (Better Auth preset via
-Verdaccio), L1.51, L1.60 (`e2e:layer1`, with check 4 the `claude -p` session). Then a 🔍 review and a PR to main.
+coverage line), L1.30 (`Blueprint.todo` blanks, `architect add thing|operation|read|journey`), L1.31 (`architect
+generate`), L1.32 (generated docs and `edges.json`, the full SDK and CLI with exit codes and `--json`), L1.33
+(`architect brief`), L1.40 (`architect check`: blanks, types, rules, drift, ratchets; the oxlint plugin is
+`packages/lint`, run through real oxlint with the model's facts as rule options; the author's four
+`test/fixtures/check/` fixtures each fail it). Decisions through D2 #59. Next steps, in order: L1.41 (model comparison
+and `architect impact`), L1.50 (Better Auth preset via Verdaccio, Dex as the OIDC issuer), L1.51 (acme on the
+starter), L1.60 (`e2e:layer1`, with check 4 the `claude -p` session denied `Brief.forbidden`). Then a 🔍 review and a PR to main.
 The evidence page is https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB; republish it with
 `python3 tools/evidence/page.py` after each step. For plants, back up with `cp` and restore with `cp`, never
 `git checkout`.
