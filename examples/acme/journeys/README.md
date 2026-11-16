@@ -4,11 +4,31 @@ Written by the journey author, not the builder. The builder never edits these fi
 
 ## Files
 
-- `journeys/grant-an-allowance.ts`: the one journey. Cast: ada (`owner`), olga and bob (`Blueprint.signedIn`).
-- `blueprint/starting-worlds/founded.ts`: ada runs `organization.create({ name: "Acme Demo", cap: 1000n })`; it gives `organization`.
+- `blueprint/starting-worlds/founded.ts`: ada (`owner`) runs `organization.create({ name: "Acme Demo", cap: 1000n })`; it gives `organization`.
+- `blueprint/starting-worlds/funded.ts`: from `founded`, ada runs `allowance.grant` to olga (`grantee`), limit 500; gives `organization` and `allowance`.
+- `blueprint/starting-worlds/invited.ts`: from `founded`, ada runs `invitation.send` to olga's email; gives `organization` and `invitation`. Copied from the starter unchanged.
+- `journeys/*.ts`: eleven journeys, acme's own six and the starter's five (below). A journey's name is its file name with spaces, except where noted.
 - `test/fixtures/evals/<eval>/`: one planted break per eval, each with its own README (what it replaces, what it breaks, the failure shape).
 
-## The journey
+acme is the starter's things (system, person, session, organization, membership, invitation, api-key) plus the allowance. Its one change to the starter is that `organization` has a `cap` (an `Amount`) and `organization.create` takes `{ name, cap }`. The starter's journeys are copied here; the only edit is that `an owner makes an api key` passes `cap: 1000n` where Bob founds his own organisation. Everything else those journeys prove is as in `examples/starter/journeys/README.md`.
+
+## Journeys
+
+| Journey | World | Cast | What it proves |
+|---|---|---|---|
+| `grant-an-allowance` | `founded` | ada owner, olga and bob signed in | see below |
+| `read-an-allowance` | `funded` | ada owner, olga grantee, bob signed in | olga and ada read the allowance (`active`, limit 500, spent 0; no events); bob is refused `NotAllowed` |
+| `outsider-cannot-revoke` ("an outsider cannot revoke") | `funded` | bob signed in | bob's `allowance.revoke` is refused `NotAllowed`; no events; span `allowance.revoke` absent; still `active` |
+| `revoke-then-spend` | `funded` | ada owner, olga grantee | ada revokes (`AllowanceRevoked`, `revoked`); olga's spend is refused `machine.notFrom { state: "revoked" }`; olga's revoke is refused `NotAllowed` |
+| `spend-within-allowance` ("spend within an allowance") | `funded` | olga grantee | spends 120 (remaining 380, `AllowanceSpent`); 400 refused `AllowanceExceeded { remaining: 380n }`; spends the last 380 (`exhausted`); a further spend refused `machine.notFrom { state: "exhausted" }` |
+| `spend-twice-with-one-request` | `funded` | olga grantee | the same request key twice answers the same and records one spend (`spent` is 100) |
+| `health-is-up` | none | visitor (anyone) | starter: `system.health` answers "ok" |
+| `sign-up-and-sign-in` | none | newcomer (anyone) | starter: `person.sign-up`, `PersonEmailTaken`, `session.sign-in`, `SessionCredentialsWrong` |
+| `invite-and-accept` | `founded` | ada owner, olga and bob signed in | starter: send, accept, revoke an invitation; `membership.get`; `NotAllowed` for outsiders |
+| `an-invitation-is-used-once` | `invited` | ada owner, olga signed in | starter: a second accept or a revoke after accept is refused `InvitationNotPending` |
+| `an-owner-makes-an-api-key` | `founded` | ada owner, bob signed in | starter: only an owner makes a key; bob founds his own organisation (`cap: 1000n`) and makes one there |
+
+### grant an allowance (`journeys/grant-an-allowance.ts`)
 
 | # | Call | Expected |
 |---|---|---|
@@ -16,7 +36,7 @@ Written by the journey author, not the builder. The builder never edits these fi
 | 2 | bob `allowance.grant` (own id, 500) | refused `NotAllowed`; no events; spans `allowance.grant` and `.insert` both absent (handler never ran) |
 | 3 | ada `allowance.grant` olga, 1001 | refused `AllowanceLimitTooHigh { cap: 1000n }` (exit 44); no events; span `allowance.grant` present, `.insert` absent |
 
-Coverage this gives: grant move 1/1, outcome `active` 1/1, refusals `AllowanceLimitTooHigh` and `NotAllowed`.
+Coverage this gives for the allowance: grant move 1/1, outcome `active` 1/1, refusals `AllowanceLimitTooHigh` and `NotAllowed`. The starter's five journeys cover the other eleven operations (see the starter's README).
 
 ## Fixtures
 
@@ -32,16 +52,15 @@ Coverage this gives: grant move 1/1, outcome `active` 1/1, refusals `AllowanceLi
 | 8 coverage | `coverage/rename*.ts` | new operation `organization.rename` no journey calls |
 | 9 explainability | `explainability/grant.ts` | refusal with no deciding log |
 
-## Expected on the scaffolded handlers
+## Expected on blank handlers
 
-Every handler returns `Handlers.blank(...)`, which dies with `BlankReached`. So `organization.create` dies inside the starting
-world and `founded` cannot be made: the journey fails before step 1 (`starting world founded: organization.create died: BlankReached`),
-and no step runs. `prove` exits 1. Evals report no passing evidence for grant (answer shape and the others fail or have none).
-Step 2 would still refuse bob once the gate exists, but never runs while the world fails.
+Every handler a scaffold writes returns `Handlers.blank(...)`, which dies with `BlankReached`. `organization.create` then dies inside the
+`founded` world (`starting world founded: organization.create died: BlankReached`), and so do `funded` and `invited`, which start from it.
+No journey that needs a world runs a step; only `health is up` and `sign up and sign in` can run. `prove` exits 1.
 
 ## Formats I chose where the docs were silent
 
-- **Location.** The task put the journey in `examples/acme/journeys/`; the docs say `blueprint/journeys/`. The starting world is at the docs' path, `blueprint/starting-worlds/founded.ts`. The builder may move the journey to where `Layout.journeys` reads, or read both.
+- **Location.** The task put the journey in `examples/acme/journeys/`; the docs say `blueprint/journeys/`. The starting worlds are at the docs' path, `blueprint/starting-worlds/founded.ts`. The builder may move the journey to where `Layout.journeys` reads, or read both.
 - **Calls.** The docs write `s.ada.invitation.send(...)`, which needs the generated SDK on the cast. I wrote `s.ada.run(operation, payload)`, naming the declaration by import (no name strings, per AGENTS.md).
 - **Cast role.** acme has only `owner`; D2's "olga member" has no role yet. Olga and bob are `Blueprint.signedIn`; bob is an outsider because he isn't the organization's owner.
 - **Person ids.** `s.<name>.person` is each cast member's world-issued person id (D2: tokens carry `person`).

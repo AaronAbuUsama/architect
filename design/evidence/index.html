@@ -52,6 +52,2852 @@ h2 { font-family: var(--display); font-size: 1.25rem; margin: 0; display: flex; 
   </header>
   
 <section class="step">
+  <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
+  <h2><span class="id">L1.60</span> Gate 1: layer one&#x27;s seven checks <span class="chip pass">done</span></h2>
+  <p class="summary">nx run e2e:layer1 runs the seven checks of layer one, each with the real architect command in a copy outside the repository: a project from the preset installed from Verdaccio; acme proving; every eval catching its planted break (performance, being review-only, raises a review on a slow grant and prove still passes); an agent writing a handler from its brief alone; the generated CLI, SDK and docs against a running world; add, generate and check building the allowance on the starter; and impact. The agent check runs on the Claude Agent SDK with only four tools of ours, and its whole run is traced into the same OpenTelemetry Collector prove uses.</p>
+  <div class="proves"><span class="label">Done when</span>All seven checks pass locally, 19 tests. In CI, the agent check says it was skipped and why, until CI has an Anthropic key; the rest pass.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43951988847">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/4218f19">commit 4218f19</a> · 3 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The whole Gate 1 suite, seven checks.</span>
+    <span class="meta">exit 0 · 143.4s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx nx run e2e:layer1 --outputStyle=static --skip-nx-cache --reporter=verbose</div><pre>&gt; nx run e2e:layer1 --reporter=verbose
+
+&gt; vitest run --root e2e layer1 --reporter=verbose
+
+
+ RUN  v4.1.12 ./e2e
+
+ ✓ layer1/03-every-eval-catches-its-break.test.ts &gt; check 3: every eval catches its planted break &gt; answer-shape: prove exits 1 with &quot;allowance.grant answer shape ✘&quot; 7959ms
+ ✓ layer1/03-every-eval-catches-its-break.test.ts &gt; check 3: every eval catches its planted break &gt; declared-errors: prove exits 1 with &quot;allowance.grant declared errors ✘&quot; 7589ms
+ ✓ layer1/03-every-eval-catches-its-break.test.ts &gt; check 3: every eval catches its planted break &gt; machine-path: prove exits 1 with &quot;allowance.grant machine path ✘&quot; 7589ms
+ ✓ layer1/03-every-eval-catches-its-break.test.ts &gt; check 3: every eval catches its planted break &gt; events: prove exits 1 with &quot;allowance.grant events ✘&quot; 7941ms
+ ✓ layer1/03-every-eval-catches-its-break.test.ts &gt; check 3: every eval catches its planted break &gt; who-may-call: prove exits 1 with &quot;allowance.grant who may call ✘&quot; 7816ms
+ ✓ layer1/03-every-eval-catches-its-break.test.ts &gt; check 3: every eval catches its planted break &gt; steps: prove exits 1 with &quot;allowance.grant steps ✘&quot; 7800ms
+ ✓ layer1/03-every-eval-catches-its-break.test.ts &gt; check 3: every eval catches its planted break &gt; coverage: prove exits 1 with &quot;organization.rename coverage ✘&quot; 9148ms
+ ✓ layer1/03-every-eval-catches-its-break.test.ts &gt; check 3: every eval catches its planted break &gt; performance: prove exits 0 with &quot;allowance.grant performance ✔&quot; and a review 21278ms
+ ✓ layer1/03-every-eval-catches-its-break.test.ts &gt; check 3: every eval catches its planted break &gt; explainability: prove exits 1 with &quot;allowance.grant explainability ✘&quot; 8592ms
+ ✓ layer1/01-a-project-from-the-preset.test.ts &gt; check 1: create-nx-workspace --preset=@architect/preset &gt; makes a project whose check and prove pass, from packages installed out of a registry 106496ms
+ ✓ layer1/06-check-and-the-authoring-loop.test.ts &gt; check 6: architect add, generate and check build the allowance on the starter &gt; blanks, then scaffolds, then a project that checks and proves 13914ms
+ ✓ layer1/06-check-and-the-authoring-loop.test.ts &gt; check 6: architect add, generate and check build the allowance on the starter &gt; check/edited-output/get.ts: check exits 1 naming generated/api/src/allowance/get.ts and no-edited-output 1889ms
+ ✓ layer1/06-check-and-the-authoring-loop.test.ts &gt; check 6: architect add, generate and check build the allowance on the starter &gt; check/name-as-string/spend.ts: check exits 1 naming implementation/handlers/allowance/spend.ts and no-name-as-string 1860ms
+ ✓ layer1/06-check-and-the-authoring-loop.test.ts &gt; check 6: architect add, generate and check build the allowance on the starter &gt; check/refusal-without-log/spend.ts: check exits 1 naming implementation/handlers/allowance/spend.ts and refusal-has-log 1770ms
+stdout | layer1/04-agent-writes-a-handler.test.ts &gt; check 4: an agent writes allowance.spend from its brief alone &gt; the written handler passes prove: spend&#x27;s 9 evals and the journeys that call it
+agent session: success, 18 turns, 24 s, $0.05
+I wrote `implementation/handlers/allowance/spend.ts`, and `architect check` passes (types, rules and drift). I haven&#x27;t run `architect prove --env local`, because I have no tool for it. So the 9 evals and the three journeys are untested.
+
+The handler works like this:
+- **Load:** it loads the allowance through `steps.load(...)` and works out what is left (`limit - spent`).
+- **Refusal:** if the amount is more than what is left, it logs why with `Effect.logInfo` and refuses with `AllowanceExceeded`, carrying the remaining amount.
+- **Record:** otherwise it writes the new `spent` total through `steps.record(...)`.
+- **Move:** it then calls `move(&quot;exhausted&quot;)` if nothing is left, or `move(&quot;active&quot;)` if not.
+- **Answer:** it returns `{ remaining }`.
+
+I didn&#x27;t handle `AllowanceNotActive` or `NotAllowed`; the runtime refuses those before the handler runs.
+
+I couldn&#x27;t find documentation for the `Records` API. I assumed `records.update(Allowance, id, { spent })` exists, based on how `grant.ts` and `accept.ts` use `records.insert` and `records.find`. Check passed with it, so it type-checks. Whether it behaves correctly is what the prove run will show.
+
+ ✓ layer1/04-agent-writes-a-handler.test.ts &gt; check 4: an agent writes allowance.spend from its brief alone &gt; the written handler passes prove: spend&#x27;s 9 evals and the journeys that call it 40388ms
+ ↓ layer1/04-agent-writes-a-handler.test.ts &gt; check 4 in CI without ANTHROPIC_API_KEY &gt; is skipped, and says why
+ ✓ layer1/06-check-and-the-authoring-loop.test.ts &gt; check 6: architect add, generate and check build the allowance on the starter &gt; types/undeclared-error/spend.ts: check exits 1 naming implementation/handlers/allowance/spend.ts and TS 1763ms
+ ✓ layer1/02-acme-proves.test.ts &gt; check 2: architect prove --env local on acme &gt; passes eleven journeys and fifteen operations with nine evals each, and leaves nothing running 7913ms
+ ✓ layer1/07-impact.test.ts &gt; check 7: architect impact &gt; stale exactly allowance.spend after its budget is loosened; allowance.list unproven once added 9629ms
+ ✓ layer1/05-the-generated-surfaces.test.ts &gt; check 5: the generated CLI, SDK and docs &gt; against architect dev: exit codes, --json, a typed SDK call, and docs with every refusal 5737ms
+
+ Test Files  7 passed (7)
+      Tests  19 passed | 1 skipped (20)
+   Start at  20:40:45
+   Duration  142.11s (transform 265ms, setup 0ms, import 774ms, tests 277.20s, environment 0ms)
+
+
+
+
+ NX   Successfully ran target layer1 for project e2e
+
+
+  Run duration:      2m 22s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     2m 22s (1 task)
+  Recoverable time:  &lt;1ms
+
+  Recommendations:
+    - Cache: drop --skip-nx-cache to restore unchanged tasks instantly.
+    - Speed up or split the longest tasks on the critical path:
+        e2e:layer1    2m 22s</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">What the agent did, read back from the collector: the interaction, each model request, each tool call.</span>
+    <span class="meta">exit 0 · 0.1s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node &lt;scratch&gt;/telemetry-summary.mjs e2e/.architect/agent-telemetry</div><pre>spans, from the agent session in check 4, exported over OTLP to the prove Collector:
+  claude_code.interaction ×1
+  claude_code.llm_request ×9
+  claude_code.tool ×17
+  claude_code.tool.blocked_on_user ×17
+  claude_code.tool.execution ×17
+logs:
+  api_request ×8
+  assistant_response ×2
+  managed_settings_resolved ×1
+  plugin_loaded ×3
+  tool_decision ×17
+  tool_result ×17
+  user_prompt ×1</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Every package&#x27;s lint, typecheck and tests.</span>
+    <span class="meta">exit 0 · 91.7s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx nx run-many -t lint,typecheck,test --outputStyle=static --skip-nx-cache</div><pre>NX   Running targets lint, typecheck, test for 16 projects:
+
+- host-cloudflare
+- target-solidity
+- target-effect
+- generators
+- blueprint
+- compiler
+- logbook
+- starter
+- portal
+- preset
+- prove
+- acme
+- lint
+- cli
+- std
+- e2e
+
+
+
+&gt; nx run blueprint:typecheck
+
+&gt; tsc -p packages/blueprint/tsconfig.json
+
+
+&gt; nx run blueprint:test
+
+&gt; vitest run --root packages/blueprint --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/blueprint
+
+
+ Test Files  9 passed (9)
+      Tests  21 passed (21)
+   Start at  20:39:13
+   Duration  611ms (transform 498ms, setup 0ms, import 2.88s, tests 27ms, environment 0ms)
+
+
+&gt; nx run blueprint:lint
+
+&gt; oxlint packages/blueprint
+
+
+&gt; nx run target-effect:lint
+
+&gt; oxlint packages/target-effect
+
+
+&gt; nx run target-effect:typecheck
+
+&gt; tsc -p packages/target-effect/tsconfig.json
+
+
+&gt; nx run target-effect:test
+
+&gt; vitest run --root packages/target-effect --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/target-effect
+
+
+ Test Files  11 passed (11)
+      Tests  34 passed (34)
+   Start at  20:39:14
+   Duration  841ms (transform 1.08s, setup 0ms, import 4.48s, tests 219ms, environment 1ms)
+
+
+&gt; nx run compiler:typecheck
+
+&gt; tsc -p packages/compiler/tsconfig.json
+
+
+&gt; nx run compiler:lint
+
+&gt; oxlint packages/compiler
+
+
+&gt; nx run compiler:test
+
+&gt; vitest run --root packages/compiler --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/compiler
+
+
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
+   Start at  20:39:14
+   Duration  925ms (transform 501ms, setup 0ms, import 648ms, tests 505ms, environment 0ms)
+
+
+&gt; nx run generators:typecheck
+
+&gt; tsc -p packages/generators/tsconfig.json
+
+
+&gt; nx run generators:lint
+
+&gt; oxlint packages/generators
+
+
+&gt; nx run generators:test
+
+&gt; vitest run --root packages/generators --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/generators
+
+
+ Test Files  3 passed (3)
+      Tests  10 passed (10)
+   Start at  20:39:15
+   Duration  1.62s (transform 140ms, setup 0ms, import 708ms, tests 2.67s, environment 0ms)
+
+
+&gt; nx run host-cloudflare:lint
+
+&gt; oxlint packages/host-cloudflare
+
+
+&gt; nx run prove:lint
+
+&gt; oxlint packages/prove
+
+
+&gt; nx run host-cloudflare:typecheck
+
+&gt; tsc -p packages/host-cloudflare/tsconfig.json
+
+
+&gt; nx run prove:typecheck
+
+&gt; tsc -p packages/prove/tsconfig.json
+
+
+&gt; nx run lint:test
+
+&gt; vitest run --root packages/lint --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/lint
+
+
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
+   Start at  20:39:19
+   Duration  6.30s (transform 29ms, setup 0ms, import 44ms, tests 7.49s, environment 0ms)
+
+
+&gt; nx run lint:lint
+
+&gt; oxlint packages/lint
+
+
+&gt; nx run lint:typecheck
+
+&gt; tsc -p packages/lint/tsconfig.json
+
+
+&gt; nx run cli:test
+
+&gt; vitest run --root packages/cli --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/cli
+
+
+ Test Files  5 passed (5)
+      Tests  18 passed (18)
+   Start at  20:39:27
+   Duration  16.58s (transform 4.92s, setup 0ms, import 1.59s, tests 37.80s, environment 0ms)
+
+
+&gt; nx run e2e:lint
+
+&gt; oxlint e2e
+
+e2e/layer1/04-agent-writes-a-handler.test.ts:13:27: warning eslint(no-unused-vars): Identifier &#x27;cli&#x27; is imported but never used. help: Consider removing this import.
+
+&gt; nx run starter:lint
+
+&gt; oxlint examples/starter
+
+
+&gt; nx run acme:lint
+
+&gt; oxlint examples/acme
+
+
+&gt; nx run cli:lint
+
+&gt; oxlint packages/cli
+
+
+&gt; nx run starter:typecheck
+
+&gt; tsc -p examples/starter/tsconfig.json
+
+
+&gt; nx run preset:lint
+
+&gt; oxlint packages/preset
+
+
+&gt; nx run std:lint
+
+&gt; oxlint packages/std
+
+
+&gt; nx run portal:lint
+
+&gt; oxlint packages/portal
+
+
+&gt; nx run target-solidity:lint
+
+&gt; oxlint packages/target-solidity
+
+
+&gt; nx run host-cloudflare:test
+
+&gt; vitest run --root packages/host-cloudflare --passWithNoTests
+
+
+=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+
+
+ RUN  v4.1.12 ./packages/host-cloudflare
+
+
+ Test Files  7 passed (7)
+      Tests  12 passed (12)
+   Start at  20:39:17
+   Duration  34.22s (transform 85.47s, setup 188.50s, import 2.48s, tests 3.88s, environment 0ms)
+
+
+&gt; nx run logbook:lint
+
+&gt; oxlint packages/logbook
+
+
+&gt; nx run cli:typecheck
+
+&gt; tsc -p packages/cli/tsconfig.json
+
+
+&gt; nx run acme:typecheck
+
+&gt; tsc -p examples/acme/tsconfig.json
+
+
+&gt; nx run e2e:typecheck
+
+&gt; tsc -p e2e/tsconfig.json
+
+
+&gt; nx run starter:test
+
+&gt; vitest run --root examples/starter --passWithNoTests
+
+
+ RUN  v4.1.12 ./examples/starter
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run preset:test
+
+&gt; vitest run --root packages/preset --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/preset
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  20:39:52
+   Duration  342ms (transform 61ms, setup 0ms, import 233ms, tests 3ms, environment 0ms)
+
+
+&gt; nx run acme:test
+
+&gt; vitest run --root examples/acme --passWithNoTests
+
+
+ RUN  v4.1.12 ./examples/acme
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run std:test
+
+&gt; vitest run --root packages/std --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/std
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run portal:test
+
+&gt; vitest run --root packages/portal --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/portal
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run logbook:test
+
+&gt; vitest run --root packages/logbook --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/logbook
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run target-solidity:test
+
+&gt; vitest run --root packages/target-solidity --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/target-solidity
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run preset:typecheck
+
+&gt; tsc -p packages/preset/tsconfig.json
+
+
+&gt; nx run logbook:typecheck
+
+&gt; tsc -p packages/logbook/tsconfig.json
+
+
+&gt; nx run target-solidity:typecheck
+
+&gt; tsc -p packages/target-solidity/tsconfig.json
+
+
+&gt; nx run portal:typecheck
+
+&gt; tsc -p packages/portal/tsconfig.json
+
+
+&gt; nx run std:typecheck
+
+&gt; tsc -p packages/std/tsconfig.json
+
+
+&gt; nx run prove:test
+
+&gt; vitest run --root packages/prove --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  7 passed (7)
+      Tests  25 passed (25)
+   Start at  20:39:16
+   Duration  87.10s (transform 4.56s, setup 0ms, import 1.91s, tests 140.92s, environment 0ms)
+
+
+
+
+ NX   Successfully ran targets lint, typecheck, test for 16 projects
+
+
+  Run duration:      1m 31s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     1m 27s (1 task)
+  Recoverable time:  3.3s (4% of the run)
+
+  Recommendations:
+    - Cache: drop --skip-nx-cache to restore unchanged tasks instantly.
+    - Speed up or split the longest tasks on the critical path:
+        prove:test    1m 27s</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
+  <h2><span class="id">L1.51</span> acme on the starter <span class="chip pass">done</span></h2>
+  <p class="summary">acme is now what a user would have: the starter the preset writes (sign-up and sign-in on Better Auth, organisations, memberships, invitations, API keys) with the allowance built on top. acme changes the starter in one place, the cap on an organisation, and the journey author adapted the one starter journey that needed it.</p>
+  <div class="proves"><span class="label">Done when</span>architect prove on acme passes all eleven journeys, and each of the fifteen operations, the four allowance operations among them, shows 9 evals ✔. architect check passes. The gate test still fails every planted fixture on its own eval in the merged acme.</div>
+  <div class="links">CI not run · <a href="https://github.com/AaronAbuUsama/architect/commit/a9e9624">commit a9e9624</a> · 3 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">prove on acme: eleven journeys, fifteen operations with nine evals each, coverage.</span>
+    <span class="meta">exit 0 · 7.7s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node packages/cli/src/main.ts prove --root examples/acme --port 8850</div><pre>journey an invitation is used once ✔ 3/3 steps
+journey an owner makes an api key ✔ 5/5 steps
+journey grant an allowance ✔ 3/3 steps
+journey health is up ✔ 1/1 steps
+journey invite and accept ✔ 11/11 steps
+journey an outsider cannot revoke ✔ 1/1 steps
+journey read an allowance ✔ 3/3 steps
+journey revoke then spend ✔ 3/3 steps
+journey sign up and sign in ✔ 5/5 steps
+journey spend twice with one request ✔ 3/3 steps
+journey spend within an allowance ✔ 4/4 steps
+allowance.get answer shape ✔
+allowance.get declared errors ✔
+allowance.get machine path ✔
+allowance.get events ✔
+allowance.get who may call ✔
+allowance.get steps ✔
+allowance.get performance ✔ p50 0ms p95 0ms budget p95 50ms
+allowance.get coverage ✔
+allowance.get explainability ✔
+allowance.get 9 evals ✔ p50 0ms p95 0ms budget p95 50ms
+allowance.grant answer shape ✔
+allowance.grant declared errors ✔
+allowance.grant machine path ✔
+allowance.grant events ✔
+allowance.grant who may call ✔
+allowance.grant steps ✔
+allowance.grant performance ✔ p50 1ms p95 2ms budget p95 200ms
+allowance.grant coverage ✔
+allowance.grant explainability ✔
+allowance.grant 9 evals ✔ p50 1ms p95 2ms budget p95 200ms
+allowance.revoke answer shape ✔
+allowance.revoke declared errors ✔
+allowance.revoke machine path ✔
+allowance.revoke events ✔
+allowance.revoke who may call ✔
+allowance.revoke steps ✔
+allowance.revoke performance ✔ p50 3ms p95 3ms budget p95 150ms
+allowance.revoke coverage ✔
+allowance.revoke explainability ✔
+allowance.revoke 9 evals ✔ p50 3ms p95 3ms budget p95 150ms
+allowance.spend answer shape ✔
+allowance.spend declared errors ✔
+allowance.spend machine path ✔
+allowance.spend events ✔
+allowance.spend who may call ✔
+allowance.spend steps ✔
+allowance.spend performance ✔ p50 1ms p95 2ms budget p95 150ms
+allowance.spend coverage ✔
+allowance.spend explainability ✔
+allowance.spend 9 evals ✔ p50 1ms p95 2ms budget p95 150ms
+api-key.create answer shape ✔
+api-key.create declared errors ✔
+api-key.create machine path ✔
+api-key.create events ✔
+api-key.create who may call ✔
+api-key.create steps ✔
+api-key.create performance ✔ p50 2ms p95 5ms budget p95 250ms
+api-key.create coverage ✔
+api-key.create explainability ✔
+api-key.create 9 evals ✔ p50 2ms p95 5ms budget p95 250ms
+invitation.accept answer shape ✔
+invitation.accept declared errors ✔
+invitation.accept machine path ✔
+invitation.accept events ✔
+invitation.accept who may call ✔
+invitation.accept steps ✔
+invitation.accept performance ✔ p50 1ms p95 2ms budget p95 200ms
+invitation.accept coverage ✔
+invitation.accept explainability ✔
+invitation.accept 9 evals ✔ p50 1ms p95 2ms budget p95 200ms
+invitation.revoke answer shape ✔
+invitation.revoke declared errors ✔
+invitation.revoke machine path ✔
+invitation.revoke events ✔
+invitation.revoke who may call ✔
+invitation.revoke steps ✔
+invitation.revoke performance ✔ p50 1ms p95 1ms budget p95 150ms
+invitation.revoke coverage ✔
+invitation.revoke explainability ✔
+invitation.revoke 9 evals ✔ p50 1ms p95 1ms budget p95 150ms
+invitation.send answer shape ✔
+invitation.send declared errors ✔
+invitation.send machine path ✔
+invitation.send events ✔
+invitation.send who may call ✔
+invitation.send steps ✔
+invitation.send performance ✔ p50 2ms p95 3ms budget p95 200ms
+invitation.send coverage ✔
+invitation.send explainability ✔
+invitation.send 9 evals ✔ p50 2ms p95 3ms budget p95 200ms
+membership.get answer shape ✔
+membership.get declared errors ✔
+membership.get machine path ✔
+membership.get events ✔
+membership.get who may call ✔
+membership.get steps ✔
+membership.get performance ✔ p50 0ms p95 0ms budget p95 50ms
+membership.get coverage ✔
+membership.get explainability ✔
+membership.get 9 evals ✔ p50 0ms p95 0ms budget p95 50ms
+organization.create answer shape ✔
+organization.create declared errors ✔
+organization.create machine path ✔
+organization.create events ✔
+organization.create who may call ✔
+organization.create steps ✔
+organization.create performance ✔ p50 1ms p95 5ms budget p95 250ms
+organization.create coverage ✔
+organization.create explainability ✔
+organization.create 9 evals ✔ p50 1ms p95 5ms budget p95 250ms
+organization.get answer shape ✔
+organization.get declared errors ✔
+organization.get machine path ✔
+organization.get events ✔
+organization.get who may call ✔
+organization.get steps ✔
+organization.get performance ✔ p50 1ms p95 1ms budget p95 50ms
+organization.get coverage ✔
+organization.get explainability ✔
+organization.get 9 evals ✔ p50 1ms p95 1ms budget p95 50ms
+person.sign-up answer shape ✔
+person.sign-up declared errors ✔
+person.sign-up machine path ✔
+person.sign-up events ✔
+person.sign-up who may call ✔
+person.sign-up steps ✔
+person.sign-up performance ✔ p50 2ms p95 59ms budget p95 400ms
+person.sign-up coverage ✔
+person.sign-up explainability ✔
+person.sign-up 9 evals ✔ p50 2ms p95 59ms budget p95 400ms
+session.show answer shape ✔
+session.show declared errors ✔
+session.show machine path ✔
+session.show events ✔
+session.show who may call ✔
+session.show steps ✔
+session.show performance ✔ p50 0ms p95 0ms budget p95 100ms
+session.show coverage ✔
+session.show explainability ✔
+session.show 9 evals ✔ p50 0ms p95 0ms budget p95 100ms
+session.sign-in answer shape ✔
+session.sign-in declared errors ✔
+session.sign-in machine path ✔
+session.sign-in events ✔
+session.sign-in who may call ✔
+session.sign-in steps ✔
+session.sign-in performance ✔ p50 52ms p95 56ms budget p95 400ms
+session.sign-in coverage ✔
+session.sign-in explainability ✔
+session.sign-in 9 evals ✔ p50 52ms p95 56ms budget p95 400ms
+system.health answer shape ✔
+system.health declared errors ✔
+system.health machine path ✔
+system.health events ✔
+system.health who may call ✔
+system.health steps ✔
+system.health performance ✔ p50 0ms p95 0ms budget p95 50ms
+system.health coverage ✔
+system.health explainability ✔
+system.health 9 evals ✔ p50 0ms p95 0ms budget p95 50ms
+coverage ✔ moves 7/7 · outcomes 7/7 · refusals 4/4 · runtime refusals 13/16
+prove ✔</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">architect check on acme.</span>
+    <span class="meta">exit 0 · 1.2s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node packages/cli/src/main.ts check --root examples/acme</div><pre>blanks left 0
+types ✔
+rules ✔
+drift ✔
+ratchets 0
+check ✔</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The gate test: acme passes, the scaffolded handlers fail, and each planted fixture fails its own eval.</span>
+    <span class="meta">exit 0 · 67.8s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --root packages/prove src/modules/prove/prove.test.ts</div><pre>RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  19:56:40
+   Duration  67.14s (transform 1.26s, setup 0ms, import 341ms, tests 66.71s, environment 0ms)</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
+  <h2><span class="id">L1.50</span> The starter preset, from a published registry <span class="chip pass">done</span></h2>
+  <p class="summary">A new project now starts the way a user starts it: npx create-nx-workspace with Architect&#x27;s preset. The preset writes the starter (sign-up and sign-in on Better Auth, organisations, memberships, invitations and API keys, with five journeys) and renders its generated code under the new name. Architect&#x27;s nine packages build to JavaScript and are published to a real Verdaccio registry in Docker for the check.</p>
+  <div class="proves"><span class="label">Done when</span>In a fresh temporary folder, with Architect installed only from the local registry, create-nx-workspace makes the project, architect check passes, and architect prove passes five journeys and eleven operations with nine evals each, signing people in through Better Auth on workerd and D1.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43942904207">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/163b5ef">commit 163b5ef</a> · 4 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Publish to Verdaccio, create the workspace from the preset, then check and prove in it.</span>
+    <span class="meta">exit 0 · 113.2s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ tools/e2e/starter.sh</div><pre>== build
+
+== pack the starter into the preset
+
+== registry on :4880
+
+== publish
+published @architect/blueprint
+published @architect/compiler
+published @architect/target-effect
+published @architect/lint
+published @architect/generators
+published @architect/host-cloudflare
+published @architect/prove
+published @architect/cli
+published @architect/preset
+
+== create-nx-workspace bakery --preset=@architect/preset
+{&quot;stage&quot;:&quot;starting&quot;,&quot;message&quot;:&quot;Creating Nx workspace v24.0.3...&quot;}
+- Installing dependencies with pnpm
+✔ Installing dependencies with pnpm
+- Creating your workspace in bakery
+✔ Successfully created the workspace: bakery
+? Verifying lockfile against supply-chain policies (109 entries)...
+✓ Lockfile passes supply-chain policies (109 entries in 2.4s)
+Lockfile is up to date, resolution step is skipped
+Already up to date
+Done in 2.4s using pnpm v12.18.0
+{&quot;stage&quot;:&quot;complete&quot;,&quot;success&quot;:true,&quot;result&quot;:{&quot;title&quot;:&quot;Nx Workspace Created Successfully&quot;,&quot;workspacePath&quot;:&quot;&lt;tmp&gt;/architect-e2e.uwJUnx/bakery&quot;,&quot;workspaceName&quot;:&quot;bakery&quot;,&quot;template&quot;:&quot;custom&quot;,&quot;preset&quot;:&quot;@architect/preset&quot;},&quot;docs&quot;:{&quot;gettingStarted&quot;:&quot;https://nx.dev/getting-started/intro&quot;,&quot;nxCloud&quot;:&quot;https://nx.dev/ci/intro/why-nx-cloud&quot;}}
+npm notice
+npm notice New major version of npm available! 11.19.0 -&gt; 12.2.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+npm notice To update run: npm install -g npm@12.2.2
+npm notice
+
+== architect check
+? Verifying lockfile against supply-chain policies (280 entries)...
+Lockfile is up to date, resolution step is skipped
+Already up to date
+✓ Lockfile passes supply-chain policies (280 entries in 7.6s)
+
+Done in 8s using pnpm v11.20.0
+$ architect check
+blanks left 0
+types ✔
+rules ✔
+drift ✔
+ratchets 0
+check ✔
+
+== architect prove --env local
+$ architect prove --env local
+journey an invitation is used once ✔ 3/3 steps
+journey an owner makes an api key ✔ 5/5 steps
+journey health is up ✔ 1/1 steps
+journey invite and accept ✔ 11/11 steps
+journey sign up and sign in ✔ 5/5 steps
+api-key.create answer shape ✔
+api-key.create declared errors ✔
+api-key.create machine path ✔
+api-key.create events ✔
+api-key.create who may call ✔
+api-key.create steps ✔
+api-key.create performance ✔ p50 2ms p95 5ms budget p95 250ms
+api-key.create coverage ✔
+api-key.create explainability ✔
+api-key.create 9 evals ✔ p50 2ms p95 5ms budget p95 250ms
+invitation.accept answer shape ✔
+invitation.accept declared errors ✔
+invitation.accept machine path ✔
+invitation.accept events ✔
+invitation.accept who may call ✔
+invitation.accept steps ✔
+invitation.accept performance ✔ p50 1ms p95 1ms budget p95 200ms
+invitation.accept coverage ✔
+invitation.accept explainability ✔
+invitation.accept 9 evals ✔ p50 1ms p95 1ms budget p95 200ms
+invitation.revoke answer shape ✔
+invitation.revoke declared errors ✔
+invitation.revoke machine path ✔
+invitation.revoke events ✔
+invitation.revoke who may call ✔
+invitation.revoke steps ✔
+invitation.revoke performance ✔ p50 0ms p95 2ms budget p95 150ms
+invitation.revoke coverage ✔
+invitation.revoke explainability ✔
+invitation.revoke 9 evals ✔ p50 0ms p95 2ms budget p95 150ms
+invitation.send answer shape ✔
+invitation.send declared errors ✔
+invitation.send machine path ✔
+invitation.send events ✔
+invitation.send who may call ✔
+invitation.send steps ✔
+invitation.send performance ✔ p50 2ms p95 2ms budget p95 200ms
+invitation.send coverage ✔
+invitation.send explainability ✔
+invitation.send 9 evals ✔ p50 2ms p95 2ms budget p95 200ms
+membership.get answer shape ✔
+membership.get declared errors ✔
+membership.get machine path ✔
+membership.get events ✔
+membership.get who may call ✔
+membership.get steps ✔
+membership.get performance ✔ p50 0ms p95 0ms budget p95 50ms
+membership.get coverage ✔
+membership.get explainability ✔
+membership.get 9 evals ✔ p50 0ms p95 0ms budget p95 50ms
+organization.create answer shape ✔
+organization.create declared errors ✔
+organization.create machine path ✔
+organization.create events ✔
+organization.create who may call ✔
+organization.create steps ✔
+organization.create performance ✔ p50 2ms p95 6ms budget p95 250ms
+organization.create coverage ✔
+organization.create explainability ✔
+organization.create 9 evals ✔ p50 2ms p95 6ms budget p95 250ms
+organization.get answer shape ✔
+organization.get declared errors ✔
+organization.get machine path ✔
+organization.get events ✔
+organization.get who may call ✔
+organization.get steps ✔
+organization.get performance ✔ p50 0ms p95 0ms budget p95 50ms
+organization.get coverage ✔
+organization.get explainability ✔
+organization.get 9 evals ✔ p50 0ms p95 0ms budget p95 50ms
+person.sign-up answer shape ✔
+person.sign-up declared errors ✔
+person.sign-up machine path ✔
+person.sign-up events ✔
+person.sign-up who may call ✔
+person.sign-up steps ✔
+person.sign-up performance ✔ p50 3ms p95 61ms budget p95 400ms
+person.sign-up coverage ✔
+person.sign-up explainability ✔
+person.sign-up 9 evals ✔ p50 3ms p95 61ms budget p95 400ms
+session.show answer shape ✔
+session.show declared errors ✔
+session.show machine path ✔
+session.show events ✔
+session.show who may call ✔
+session.show steps ✔
+session.show performance ✔ p50 0ms p95 0ms budget p95 100ms
+session.show coverage ✔
+session.show explainability ✔
+session.show 9 evals ✔ p50 0ms p95 0ms budget p95 100ms
+session.sign-in answer shape ✔
+session.sign-in declared errors ✔
+session.sign-in machine path ✔
+session.sign-in events ✔
+session.sign-in who may call ✔
+session.sign-in steps ✔
+session.sign-in performance ✔ p50 56ms p95 59ms budget p95 400ms
+session.sign-in coverage ✔
+session.sign-in explainability ✔
+session.sign-in 9 evals ✔ p50 56ms p95 59ms budget p95 400ms
+system.health answer shape ✔
+system.health declared errors ✔
+system.health machine path ✔
+system.health events ✔
+system.health who may call ✔
+system.health steps ✔
+system.health performance ✔ p50 0ms p95 0ms budget p95 50ms
+system.health coverage ✔
+system.health explainability ✔
+system.health 9 evals ✔ p50 0ms p95 0ms budget p95 50ms
+coverage ✔ moves 4/4 · outcomes 4/4 · refusals 2/2 · runtime refusals 9/10
+prove ✔</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The preset&#x27;s tests: what it copies, renders and merges.</span>
+    <span class="meta">exit 0 · 0.9s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --root packages/preset</div><pre>RUN  v4.1.12 ./packages/preset
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  19:43:58
+   Duration  309ms (transform 54ms, setup 0ms, import 219ms, tests 3ms, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">architect check on the starter in the repository.</span>
+    <span class="meta">exit 0 · 1.3s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node packages/cli/src/main.ts check --root examples/starter</div><pre>blanks left 0
+types ✔
+rules ✔
+drift ✔
+ratchets 0
+check ✔</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Better Auth on real D1 inside workerd: sign-up, sign-in, API keys, and the schema kept in step.</span>
+    <span class="meta">exit 0 · 7.0s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --root packages/host-cloudflare src/modules/auth</div><pre>=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+
+
+ RUN  v4.1.12 ./packages/host-cloudflare
+
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  19:44:01
+   Duration  5.80s (transform 2.18s, setup 5.03s, import 29ms, tests 237ms, environment 0ms)</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
+  <h2><span class="id">L1.41</span> Model comparison and architect impact <span class="chip pass">done</span></h2>
+  <p class="summary">The compiler can now compare two models and name each declaration that was added, removed or changed, down to the part that changed. Every prove records which operations passed and the hashes their proof rests on: the operation, its thing and the things it reaches. architect impact reads that record against today&#x27;s blueprint, so a change shows exactly which proofs no longer hold.</p>
+  <div class="proves"><span class="label">Done when</span>After a prove, loosening allowance.spend&#x27;s budget shows exactly stale allowance.spend while grant, revoke, get and create stay proven. Adding allowance.list shows stale none, with list unproven.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43934869284">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/f81c2f7">commit f81c2f7</a> · 6 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">prove on acme, which records the proofs.</span>
+    <span class="meta">exit 0 · 4.3s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node packages/cli/src/main.ts prove --env local --root examples/acme</div><pre>journey grant an allowance ✔ 3/3 steps
+journey an outsider cannot revoke ✔ 1/1 steps
+journey read an allowance ✔ 3/3 steps
+journey revoke then spend ✔ 3/3 steps
+journey spend twice with one request ✔ 3/3 steps
+journey spend within an allowance ✔ 4/4 steps
+allowance.get answer shape ✔
+allowance.get declared errors ✔
+allowance.get machine path ✔
+allowance.get events ✔
+allowance.get who may call ✔
+allowance.get steps ✔
+allowance.get performance ✔ p50 0ms p95 0ms budget p95 50ms
+allowance.get coverage ✔
+allowance.get explainability ✔
+allowance.get 9 evals ✔ p50 0ms p95 0ms budget p95 50ms
+allowance.grant answer shape ✔
+allowance.grant declared errors ✔
+allowance.grant machine path ✔
+allowance.grant events ✔
+allowance.grant who may call ✔
+allowance.grant steps ✔
+allowance.grant performance ✔ p50 1ms p95 2ms budget p95 200ms
+allowance.grant coverage ✔
+allowance.grant explainability ✔
+allowance.grant 9 evals ✔ p50 1ms p95 2ms budget p95 200ms
+allowance.revoke answer shape ✔
+allowance.revoke declared errors ✔
+allowance.revoke machine path ✔
+allowance.revoke events ✔
+allowance.revoke who may call ✔
+allowance.revoke steps ✔
+allowance.revoke performance ✔ p50 1ms p95 1ms budget p95 150ms
+allowance.revoke coverage ✔
+allowance.revoke explainability ✔
+allowance.revoke 9 evals ✔ p50 1ms p95 1ms budget p95 150ms
+allowance.spend answer shape ✔
+allowance.spend declared errors ✔
+allowance.spend machine path ✔
+allowance.spend events ✔
+allowance.spend who may call ✔
+allowance.spend steps ✔
+allowance.spend performance ✔ p50 1ms p95 2ms budget p95 150ms
+allowance.spend coverage ✔
+allowance.spend explainability ✔
+allowance.spend 9 evals ✔ p50 1ms p95 2ms budget p95 150ms
+organization.create answer shape ✔
+organization.create declared errors ✔
+organization.create machine path ✔
+organization.create events ✔
+organization.create who may call ✔
+organization.create steps ✔
+organization.create performance ✔ p50 1ms p95 8ms budget p95 200ms
+organization.create coverage ✔
+organization.create explainability ✔
+organization.create 9 evals ✔ p50 1ms p95 8ms budget p95 200ms
+coverage ✔ moves 3/3 · outcomes 3/3 · refusals 2/2 · runtime refusals 4/7
+prove ✔</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Right after: nothing stale, all five proven.</span>
+    <span class="meta">exit 0 · 0.5s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node packages/cli/src/main.ts impact --root examples/acme</div><pre>stale none
+proven allowance.get, allowance.grant, allowance.revoke, allowance.spend, organization.create</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">spend&#x27;s budget loosened: only spend is stale.</span>
+    <span class="meta">exit 0 · 0.5s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node packages/cli/src/main.ts impact --root examples/acme</div><pre>changed operation allowance.spend: budget
+stale allowance.spend
+proven allowance.get, allowance.grant, allowance.revoke, organization.create</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">A new read added: nothing stale, list unproven.</span>
+    <span class="meta">exit 0 · 0.5s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node packages/cli/src/main.ts impact --root examples/acme</div><pre>added operation allowance.list
+stale none
+proven allowance.get, allowance.grant, allowance.revoke, allowance.spend, organization.create
+unproven allowance.list</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The impact test, on a real prove of a copy of acme.</span>
+    <span class="meta">exit 0 · 5.5s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --root packages/prove src/modules/impact --reporter verbose</div><pre>RUN  v4.1.12 ./packages/prove
+
+ ✓ src/modules/impact/impact.test.ts &gt; impact &gt; after a prove, names only what a change unproves 4507ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  19:00:29
+   Duration  4.90s (transform 193ms, setup 0ms, import 283ms, tests 4.52s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Model comparison: changes, additions, removals, and what a proof depends on.</span>
+    <span class="meta">exit 0 · 0.7s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --root packages/compiler src/modules/compare --reporter verbose</div><pre>RUN  v4.1.12 ./packages/compiler
+
+ ✓ src/modules/compare/compare.test.ts &gt; Compare &gt; finds nothing between a model and itself 1ms
+ ✓ src/modules/compare/compare.test.ts &gt; Compare &gt; names the declaration and the part that changed 0ms
+ ✓ src/modules/compare/compare.test.ts &gt; Compare &gt; lists added and removed declarations 0ms
+ ✓ src/modules/compare/compare.test.ts &gt; Compare &gt; says an operation&#x27;s proof rests on itself, its thing and the things it refers to 0ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  19:00:35
+   Duration  333ms (transform 18ms, setup 0ms, import 245ms, tests 3ms, environment 0ms)</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
+  <h2><span class="id">L1.40</span> architect check <span class="chip pass">done</span></h2>
+  <p class="summary">architect check now holds a project to five parts: no blanks left, tsc clean, the architect lint rules clean, generated/ exactly what the blueprint renders, and the ratchets it still allows. Each finding names its file, line and rule. The rules run through real oxlint with the project&#x27;s model passed in: no declared name as a string, a log before every refusal, only declared errors, no wall clock or raw sleep, and every handler file belonging to an operation.</p>
+  <div class="proves"><span class="label">Done when</span>Four planted fixtures each make architect check exit 1 naming the file: an edited output, a name as a string, an undeclared error and a refusal with no log. Clean acme passes with ratchets 0.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43933827504">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/9536039">commit 9536039</a> · 5 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Clean acme: every part passes, ratchets 0.</span>
+    <span class="meta">exit 0 · 1.2s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node packages/cli/src/main.ts check --root examples/acme</div><pre>blanks left 0
+types ✔
+rules ✔
+drift ✔
+ratchets 0
+check ✔</pre></div>
+</details>
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">The name-as-string fixture: rules fail, naming the handler and line.</span>
+    <span class="meta">exit 1 · 0.9s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node packages/cli/src/main.ts check --root examples/acme/test/tmp/evidence/acme</div><pre>blanks left 0
+types ✔
+rules ✘ 1
+  implementation/handlers/allowance/spend.ts:7  no-name-as-string: &quot;allowance.spend&quot; is a declared name written as a string: import the declaration instead
+drift ✔
+ratchets 0
+check ✘</pre></div>
+</details>
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">The edited-output fixture: drift fails, naming the generated file.</span>
+    <span class="meta">exit 1 · 0.9s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node packages/cli/src/main.ts check --root examples/acme/test/tmp/evidence/acme</div><pre>blanks left 0
+types ✔
+rules ✔
+drift ✘ 1
+  generated/api/src/allowance/get.ts  no-edited-output: differs from what the blueprint generates: never edit generated/, run architect generate
+ratchets 0
+check ✘</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The check tests: clean acme, all four fixtures, and a ratchet.</span>
+    <span class="meta">exit 0 · 4.2s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --root packages/cli src/modules/check --reporter verbose</div><pre>RUN  v4.1.12 ./packages/cli
+
+ ✓ src/modules/check/check.test.ts &gt; Check.blanks &gt; finds every Blueprint.todo with its line and what it waits for, grouped by its thing 1ms
+ ✓ src/modules/check/check.test.ts &gt; architect check on acme &gt; passes clean acme with ratchets 0 509ms
+ ✓ src/modules/check/check.test.ts &gt; architect check on acme &gt; lets a ratchet allow a rule&#x27;s findings, and asks for it to be lowered once they are gone 900ms
+ ✓ src/modules/check/check.test.ts &gt; architect check on acme &gt; fails on edited-output, naming generated/api/src/allowance/get.ts 468ms
+ ✓ src/modules/check/check.test.ts &gt; architect check on acme &gt; fails on name-as-string, naming implementation/handlers/allowance/spend.ts 441ms
+ ✓ src/modules/check/check.test.ts &gt; architect check on acme &gt; fails on undeclared-error, naming implementation/handlers/allowance/spend.ts 447ms
+ ✓ src/modules/check/check.test.ts &gt; architect check on acme &gt; fails on refusal-without-log, naming implementation/handlers/allowance/spend.ts 466ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  18:54:41
+   Duration  3.62s (transform 220ms, setup 0ms, import 239ms, tests 3.30s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Each architect rule through real oxlint: what it reports and what it lets through.</span>
+    <span class="meta">exit 0 · 4.0s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --root packages/lint --reporter verbose</div><pre>RUN  v4.1.12 ./packages/lint
+
+ ✓ src/modules/rules/rules.test.ts &gt; the architect rules &gt; no-name-as-string: a declared name as a literal outside generated/ 261ms
+ ✓ src/modules/rules/rules.test.ts &gt; the architect rules &gt; refusal-has-log and declared-errors-only: a refusal says why first, and is one its operation declares 157ms
+ ✓ src/modules/rules/rules.test.ts &gt; the architect rules &gt; no-wall-clock: Date.now, new Date(), setTimeout and raw Effect.sleep, but not new Date(at) 136ms
+ ✓ src/modules/rules/rules.test.ts &gt; the architect rules &gt; handler-matches-path: a handler file belongs to a declared operation 132ms
+ ✓ test/boundaries.test.ts &gt; module boundaries &gt; fails lint when blueprint imports compiler 1138ms
+ ✓ test/boundaries.test.ts &gt; module boundaries &gt; fails lint when blueprint imports a package other than Effect 784ms
+ ✓ test/boundaries.test.ts &gt; module boundaries &gt; fails lint when runtime code imports generators 757ms
+ ✓ test/boundaries.test.ts &gt; module boundaries &gt; passes when blueprint imports Effect 780ms
+
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
+   Start at  18:54:45
+   Duration  3.56s (transform 26ms, setup 0ms, import 39ms, tests 4.15s, environment 0ms)</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
+  <h2><span class="id">L1.33</span> architect brief <span class="chip pass">done</span></h2>
+  <p class="summary">architect brief gives an agent everything it needs to write one handler, and fences it in. For allowance.spend it names the one file to write, the declaration and generated pages to read, the two steps to run, the move and its outcomes, the one refusal to give with its exit code, and the two the runtime gives instead. It lists every folder not to touch, journeys included, and says what must pass: prove with spend&#x27;s nine evals and the three journeys that call it, and check.</p>
+  <div class="proves"><span class="label">Done when</span>architect brief allowance.spend prints the declaration to read, the files it must not touch (including blueprint/journeys/**), and the evals that must pass.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43932264735">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/bb7e816">commit bb7e816</a> · 2 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The brief for allowance.spend, from acme.</span>
+    <span class="meta">exit 0 · 0.5s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node packages/cli/src/main.ts brief allowance.spend --root examples/acme</div><pre>brief allowance.spend
+
+Write   implementation/handlers/allowance/spend.ts, and nothing else.
+
+Read
+  blueprint/things/allowance/verbs/spend.ts  the declaration: payload, answer, move, steps, errors
+  generated/api/src/allowance/spend.handler.ts  what the handler is given and may return
+  generated/docs/allowance/spend.md  the same, in words, with every refusal
+  generated/docs/allowance/index.md  the allowance: fields, machine, roles
+
+Do
+  run step allowance.spend.load (database) through steps.load(...)
+  run step allowance.spend.record (database) through steps.record(...)
+  make the move with move(&quot;active&quot; | &quot;exhausted&quot;): spend, emitting AllowanceSpent
+  refuse with AllowanceExceeded (exit 41), each after an Effect.logInfo saying why
+  never refuse AllowanceNotActive or NotAllowed yourself: the runtime does, before the handler runs
+
+Don&#x27;t touch
+  blueprint/**
+  blueprint/journeys/**
+  blueprint/starting-worlds/**
+  journeys/**
+  generated/**
+  test/**
+
+Done when
+  architect prove --env local passes, with allowance.spend&#x27;s 9 evals: answer shape, declared errors, machine path, events, who may call, steps, performance, coverage, explainability
+  and the journeys that call it: journeys/revoke-then-spend.ts, journeys/spend-twice-with-one-request.ts, journeys/spend-within-allowance.ts
+  architect check passes</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The tests: the brief&#x27;s three parts, and a read or unknown name refused.</span>
+    <span class="meta">exit 0 · 1.6s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --reporter verbose --root packages/cli src/modules/brief</div><pre>RUN  v4.1.12 ./packages/cli
+
+ ✓ src/modules/brief/brief.test.ts &gt; architect brief &gt; names the declaration to read, the files not to touch and the evals that must pass 448ms
+ ✓ src/modules/brief/brief.test.ts &gt; architect brief &gt; refuses a read or an unknown name, listing the operations that have handlers 442ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  18:45:50
+   Duration  999ms (transform 15ms, setup 0ms, import 22ms, tests 892ms, environment 0ms)</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
+  <h2><span class="id">L1.32</span> Docs, model edges, and the CLI&#x27;s exit codes <span class="chip pass">done</span></h2>
+  <p class="summary">Every thing and operation now has a generated docs page. Spend&#x27;s page lists who may call it, what goes in and comes out, its move, its two steps, and each refusal with its exit code: AllowanceExceeded 41, AllowanceNotActive 40, NotAllowed 3. The model also lists what depends on what. On a real local world, the generated acme command line spends, prints the answer as JSON when asked, exits 41 past the limit, 3 for an outsider, and 40 once the allowance is revoked.</p>
+  <div class="proves"><span class="label">Done when</span>acme allowance spend past the limit exits 41; generated/docs/allowance/spend.md lists AllowanceExceeded and AllowanceNotActive.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43931991422">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/735020c">commit 735020c</a> · 4 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">On workerd: the generated CLI spends 200 with --json, then 301 past what&#x27;s left exits 41, bob revoking exits 3, and spending a revoked allowance exits 40.</span>
+    <span class="meta">exit 0 · 9.6s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --reporter verbose --root packages/prove src/modules/world</div><pre>RUN  v4.1.12 ./packages/prove
+
+ ✓ src/modules/world/world.test.ts &gt; a local world &gt; serves acme on workerd: the world casts ada, ada founds an organisation and grants olga 500 2764ms
+ ✓ src/modules/world/world.test.ts &gt; a local world &gt; the generated CLI: spending past the limit exits 41, a revoked allowance 40, an outsider 3; --json prints the answer 5658ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  18:44:10
+   Duration  8.73s (transform 38ms, setup 0ms, import 212ms, tests 8.42s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The renderer&#x27;s tests, including the docs pages and the model&#x27;s edges.</span>
+    <span class="meta">exit 0 · 0.8s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --reporter verbose --root packages/generators src/modules/render/render.test.ts</div><pre>RUN  v4.1.12 ./packages/generators
+
+ ✓ src/modules/render/render.test.ts &gt; render &gt; writes the four outputs for every operation 1ms
+ ✓ src/modules/render/render.test.ts &gt; render &gt; marks every generated file do-not-edit, and every scaffold with where it came from 1ms
+ ✓ src/modules/render/render.test.ts &gt; render &gt; writes a docs page per thing and operation, each refusal with its exit code, and the model&#x27;s edges 0ms
+ ✓ src/modules/render/render.test.ts &gt; render &gt; declares each operation&#x27;s refusals on its endpoint, with their exit codes 0ms
+ ✓ src/modules/render/render.test.ts &gt; render &gt; is deterministic 1ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  18:44:20
+   Duration  346ms (transform 36ms, setup 0ms, import 256ms, tests 3ms, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The generated page for allowance.spend.</span>
+    <span class="meta">exit 0 · 0.0s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ cat examples/acme/generated/docs/allowance/spend.md</div><pre>&lt;!-- Generated from the blueprint. Do not edit. --&gt;
+# allowance.spend
+
+Spend from what is left of this month&#x27;s allowance.
+
+**Who may call:** the grantee of the allowance.
+
+**Idempotent by request:** send `idempotency-key`; the same key twice is one call.
+
+**Budget:** p95 150ms.
+
+## Payload
+
+| field | value |
+|---|---|
+| allowance | allowance.id |
+| amount | Amount |
+| memo | Memo |
+
+## Answer
+
+| field | value |
+|---|---|
+| remaining | Amount |
+
+## Move
+
+`spend`: from active to active or exhausted, emitting AllowanceSpent.
+
+## Steps
+
+- `allowance.spend.load` (database)
+- `allowance.spend.record` (database)
+
+## Refusals
+
+| refusal | exit | when |
+|---|---|---|
+| AllowanceExceeded | 41 | declared in errors.ts, carrying remaining |
+| AllowanceNotActive | 40 | the allowance is in a state spend can&#x27;t start from; carries `state` |
+| NotAllowed | 3 | the caller isn&#x27;t the grantee of the allowance; the handler never runs |
+
+## How to call
+
+```sh
+acme allowance spend --allowance &lt;allowance&gt; --amount &lt;amount&gt; --memo &lt;memo&gt;
+```
+
+HTTP: `POST /allowance/spend` with the payload as JSON. SDK: `Sdk.allowance.spend(payload)`.</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">generated/ matches the blueprint, docs included.</span>
+    <span class="meta">exit 0 · 1.3s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ env NX_DAEMON=false npx nx sync:check</div><pre>NX   The workspace is up to date
+
+[@architect/generators:sync]: All files are up to date.</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
+  <h2><span class="id">L1.31</span> architect generate, and handler scaffolds <span class="chip pass">done</span></h2>
+  <p class="summary">architect generate brings a project&#x27;s generated code in line with its blueprint, the same as nx sync, and tells you what it changed. Each operation that has no blanks left gets a handler scaffold, written once and yours from then on. An operation with a blank gets nothing yet; fill it in and the next run scaffolds it. Run it twice and the second run says nothing to change.</p>
+  <div class="proves"><span class="label">Done when</span>From acme&#x27;s blueprint with no implementation, generate creates the four operation scaffolds and none for a blank operation; filled in, that one is scaffolded; a further run changes nothing.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43931432227">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/e0ed3ae">commit e0ed3ae</a> · 2 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The test: four scaffolds, none for the blank pause; filled in, pause gets its scaffold and generated files; then nothing to change.</span>
+    <span class="meta">exit 0 · 3.2s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --reporter verbose --root packages/cli src/modules/generate</div><pre>RUN  v4.1.12 ./packages/cli
+
+ ✓ src/modules/generate/generate.test.ts &gt; architect generate &gt; scaffolds each finished operation&#x27;s handler once, and nothing for one with blanks 2549ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  18:40:56
+   Duration  2.68s (transform 19ms, setup 0ms, import 26ms, tests 2.56s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">A real session: add a blank operation, generate, generate again, and the spend scaffold it wrote.</span>
+    <span class="meta">exit 0 · 2.0s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ bash &lt;scratch&gt;/gen.sh</div><pre>$ architect add operation allowance.pause
+wrote blueprint/things/allowance/verbs/pause.ts
+
+$ architect generate   (generated/ lines folded)
+created implementation/handlers/allowance/grant.ts (scaffold: yours from now on)
+created implementation/handlers/allowance/revoke.ts (scaffold: yours from now on)
+created implementation/handlers/allowance/spend.ts (scaffold: yours from now on)
+created implementation/handlers/organization/create.ts (scaffold: yours from now on)
+  ... and 29 generated files
+
+$ architect generate   # again
+nothing to change
+
+$ cat implementation/handlers/allowance/spend.ts
+// Scaffolded from blueprint/things/allowance/verbs/spend.ts. Yours from now on.
+import { Effect } from &quot;effect&quot;;
+import { Handlers } from &quot;@architect/target-effect&quot;;
+import type { Handler } from &quot;../../../generated/api/src/allowance/spend.handler.ts&quot;;
+
+/** Spend from what is left of this month&#x27;s allowance. */
+const spend: Handler = (_payload, _context) =&gt;
+  Effect.gen(function* () {
+    // Payload: allowance, amount, memo.
+    // Answer: remaining.
+    // Steps, each its own span: steps.load(...), steps.record(...).
+    // May refuse with AllowanceExceeded.
+    return yield* Handlers.blank(&quot;this handler is not written yet&quot;);
+  });
+
+export default spend;</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
+  <h2><span class="id">L1.30</span> Blanks, and architect add <span class="chip pass">done</span></h2>
+  <p class="summary">You can now start a declaration before you know all of it. architect add writes a thing, an operation, a read or a journey, and every part you still have to decide is a blank that says what belongs there. Blanks compile. architect check names each one with its file and line, and fails until they&#x27;re filled. The compiler keeps track of them too: an operation with a blank isn&#x27;t generated yet. add never overwrites anything, and --dry-run shows what it would write.</p>
+  <div class="proves"><span class="label">Done when</span>In a fresh project, architect add thing allowance writes five files and a values file; tsc compiles them; architect check prints allowance has 3 blanks with the file and line of each.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43931052927">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/a43d543">commit a43d543</a> · 2 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The tests: the files each add plans, names refused, nothing overwritten, and the fresh-project run end to end.</span>
+    <span class="meta">exit 0 · 3.0s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --reporter verbose --root packages/cli src/modules/add src/modules/check</div><pre>RUN  v4.1.12 ./packages/cli
+
+ ✓ src/modules/check/check.test.ts &gt; Check.blanks &gt; finds every Blueprint.todo with its line and what it waits for, grouped by its thing 2ms
+ ✓ src/modules/add/add.test.ts &gt; Add.plan &gt; a thing is five files in its folder and a values file 1ms
+ ✓ src/modules/add/add.test.ts &gt; Add.plan &gt; an operation, a read and a journey are one file each, where the compiler and prove look 0ms
+ ✓ src/modules/add/add.test.ts &gt; Add.plan &gt; refuses a name that doesn&#x27;t fit, and writes nothing if any file is already there 0ms
+ ✓ src/modules/add/add.test.ts &gt; architect add, then check, in a fresh project &gt; writes a thing with 3 blanks that compiles, and check names each with its file and line 2294ms
+
+ Test Files  2 passed (2)
+      Tests  5 passed (5)
+   Start at  18:38:46
+   Duration  2.57s (transform 68ms, setup 0ms, import 207ms, tests 2.30s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">A real session in an empty project: add thing allowance, the scaffold, tsc passing, check naming three blanks and exiting 1, model calling it unfinished, and add refusing to overwrite.</span>
+    <span class="meta">exit 0 · 2.2s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ bash &lt;scratch&gt;/fresh.sh</div><pre>$ architect add thing allowance --dry-run | tail -1
+(dry run: 6 files, nothing written)
+
+$ architect add thing allowance
+wrote blueprint/things/allowance/thing.ts
+wrote blueprint/things/allowance/machine.ts
+wrote blueprint/things/allowance/roles.ts
+wrote blueprint/things/allowance/events.ts
+wrote blueprint/things/allowance/errors.ts
+wrote blueprint/values/allowance.ts
+
+$ cat blueprint/things/allowance/thing.ts
+import { Blueprint } from &quot;@architect/blueprint&quot;;
+
+export const Allowance = Blueprint.thing({
+  description: Blueprint.todo(&quot;what an allowance is, in one sentence&quot;),
+  fields: {
+    id: Blueprint.id(&quot;all&quot;),
+  },
+});
+$ tsc --noEmit
+(exit 0)
+
+$ architect check
+allowance has 3 blanks
+  blueprint/things/allowance/machine.ts:6  the states an allowance can be in, the first one where it starts
+  blueprint/things/allowance/roles.ts:5  when a person holds this role on an allowance
+  blueprint/things/allowance/thing.ts:4  what an allowance is, in one sentence
+(exit 1)
+
+$ architect model
+thing allowance ()  b17c66c33e6e568d
+unfinished allowance  3 blanks
+
+$ architect add thing allowance   # again
+already there, so nothing was written: blueprint/things/allowance/thing.ts, blueprint/things/allowance/machine.ts, blueprint/things/allowance/roles.ts, blueprint/things/allowance/events.ts, blueprint/things/allowance/errors.ts, blueprint/values/allowance.ts
+(exit 2)</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
+  <h2><span class="id">L1.25</span> Nine evals for every operation <span class="chip pass">done</span></h2>
+  <p class="summary">prove now prints nine evals for every operation, the way the docs show it: answer shape, declared errors, machine path, events, who may call, steps, performance, coverage and explainability, each with its p50, p95 and budget. Coverage became each operation&#x27;s own eval: it fails an operation no journey calls, a move no journey makes, an outcome never reached or a declared error never given. One line then counts the whole run: three moves, three outcomes, both declared refusals, and four of seven runtime refusals. Every planted fixture still fails its own eval.</p>
+  <div class="proves"><span class="label">Done when</span>architect prove on acme prints 9 evals ✔ for get, grant, revoke, spend and create, and the coverage line; the gate test passes with every planted fixture failing.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43930184703">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/74f3d47">commit 74f3d47</a> · 3 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">architect prove on acme: six journeys, then each operation&#x27;s nine evals and its timing, the coverage line, prove ✔.</span>
+    <span class="meta">exit 0 · 4.8s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx tsx packages/cli/src/main.ts prove --env local --root examples/acme</div><pre>journey grant an allowance ✔ 3/3 steps
+journey an outsider cannot revoke ✔ 1/1 steps
+journey read an allowance ✔ 3/3 steps
+journey revoke then spend ✔ 3/3 steps
+journey spend twice with one request ✔ 3/3 steps
+journey spend within an allowance ✔ 4/4 steps
+allowance.get answer shape ✔
+allowance.get declared errors ✔
+allowance.get machine path ✔
+allowance.get events ✔
+allowance.get who may call ✔
+allowance.get steps ✔
+allowance.get performance ✔ p50 0ms p95 1ms budget p95 50ms
+allowance.get coverage ✔
+allowance.get explainability ✔
+allowance.get 9 evals ✔ p50 0ms p95 1ms budget p95 50ms
+allowance.grant answer shape ✔
+allowance.grant declared errors ✔
+allowance.grant machine path ✔
+allowance.grant events ✔
+allowance.grant who may call ✔
+allowance.grant steps ✔
+allowance.grant performance ✔ p50 1ms p95 4ms budget p95 200ms
+allowance.grant coverage ✔
+allowance.grant explainability ✔
+allowance.grant 9 evals ✔ p50 1ms p95 4ms budget p95 200ms
+allowance.revoke answer shape ✔
+allowance.revoke declared errors ✔
+allowance.revoke machine path ✔
+allowance.revoke events ✔
+allowance.revoke who may call ✔
+allowance.revoke steps ✔
+allowance.revoke performance ✔ p50 1ms p95 1ms budget p95 150ms
+allowance.revoke coverage ✔
+allowance.revoke explainability ✔
+allowance.revoke 9 evals ✔ p50 1ms p95 1ms budget p95 150ms
+allowance.spend answer shape ✔
+allowance.spend declared errors ✔
+allowance.spend machine path ✔
+allowance.spend events ✔
+allowance.spend who may call ✔
+allowance.spend steps ✔
+allowance.spend performance ✔ p50 0ms p95 2ms budget p95 150ms
+allowance.spend coverage ✔
+allowance.spend explainability ✔
+allowance.spend 9 evals ✔ p50 0ms p95 2ms budget p95 150ms
+organization.create answer shape ✔
+organization.create declared errors ✔
+organization.create machine path ✔
+organization.create events ✔
+organization.create who may call ✔
+organization.create steps ✔
+organization.create performance ✔ p50 1ms p95 10ms budget p95 200ms
+organization.create coverage ✔
+organization.create explainability ✔
+organization.create 9 evals ✔ p50 1ms p95 10ms budget p95 200ms
+coverage ✔ moves 3/3 · outcomes 3/3 · refusals 2/2 · runtime refusals 4/7
+prove ✔</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">prove&#x27;s tests: acme passes, scaffolded handlers fail, and every planted fixture fails its own eval, coverage now on organization.rename itself.</span>
+    <span class="meta">exit 0 · 37.5s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --reporter verbose --root packages/prove</div><pre>RUN  v4.1.12 ./packages/prove
+
+ ✓ src/modules/evals/evals.test.ts &gt; evals on evidence &gt; performance: slow evidence raises a review and never fails 1ms
+ ✓ src/modules/evals/evals.test.ts &gt; evals on evidence &gt; declared errors: an undeclared refusal names itself and the declared ones 0ms
+ ✓ src/modules/evals/evals.test.ts &gt; evals on evidence &gt; who may call: judged on mayCall, not on what the server said 0ms
+ ✓ src/modules/evals/evals.test.ts &gt; evals on evidence &gt; steps: every declared step ran, in the order declared 0ms
+ ✓ src/modules/evals/evals.test.ts &gt; evals on evidence &gt; coverage: an operation no journey reaches fails on its own, and the run&#x27;s line counts what was reached 0ms
+ ✓ src/modules/journeys/journeys.test.ts &gt; loading a project &gt; finds acme&#x27;s journeys, its starting worlds, and the very declarations they import 158ms
+ ✓ src/modules/telemetry/telemetry.test.ts &gt; the collector, in Docker &gt; takes an OTLP span over HTTP and reads it back by trace id once complete 798ms
+ ✓ src/modules/world/world.test.ts &gt; a local world &gt; serves acme on workerd: the world casts ada, ada founds an organisation and grants olga 500 2520ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; passes on acme: every journey, every eval, coverage, and leaves nothing running 3836ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; the who-may-call fixture is still the generated server with only its gate removed 1ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails on the scaffolded handlers: the starting world can&#x27;t be made, so no step runs 3536ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted answer-shape fixture on its own eval 3862ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted declared-errors fixture on its own eval 3262ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted machine-path fixture on its own eval 3217ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted events fixture on its own eval 3818ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted who-may-call fixture on its own eval 3511ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted steps fixture on its own eval 3440ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted coverage fixture on its own eval 4221ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted explainability fixture on its own eval 3672ms
+
+ Test Files  5 passed (5)
+      Tests  19 passed (19)
+   Start at  18:32:29
+   Duration  36.97s (transform 1.11s, setup 0ms, import 1.36s, tests 39.98s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Lint, typecheck and test across every project, cache off.</span>
+    <span class="meta">exit 0 · 43.2s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx nx run-many -t lint,typecheck,test --skip-nx-cache --output-style=static</div><pre>NX   Running targets lint, typecheck, test for 14 projects:
+
+- host-cloudflare
+- target-solidity
+- target-effect
+- generators
+- blueprint
+- compiler
+- logbook
+- portal
+- preset
+- prove
+- acme
+- lint
+- cli
+- std
+
+
+
+&gt; nx run blueprint:typecheck
+
+&gt; tsc -p packages/blueprint/tsconfig.json
+
+
+&gt; nx run blueprint:test
+
+&gt; vitest run --root packages/blueprint --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/blueprint
+
+
+ Test Files  9 passed (9)
+      Tests  21 passed (21)
+   Start at  18:33:08
+   Duration  489ms (transform 329ms, setup 0ms, import 2.46s, tests 29ms, environment 0ms)
+
+
+&gt; nx run blueprint:lint
+
+&gt; oxlint packages/blueprint
+
+
+&gt; nx run target-effect:lint
+
+&gt; oxlint packages/target-effect
+
+
+&gt; nx run target-effect:typecheck
+
+&gt; tsc -p packages/target-effect/tsconfig.json
+
+
+&gt; nx run target-effect:test
+
+&gt; vitest run --root packages/target-effect --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/target-effect
+
+
+ Test Files  10 passed (10)
+      Tests  33 passed (33)
+   Start at  18:33:08
+   Duration  755ms (transform 676ms, setup 0ms, import 3.61s, tests 188ms, environment 1ms)
+
+
+&gt; nx run compiler:typecheck
+
+&gt; tsc -p packages/compiler/tsconfig.json
+
+
+&gt; nx run compiler:lint
+
+&gt; oxlint packages/compiler
+
+
+&gt; nx run compiler:test
+
+&gt; vitest run --root packages/compiler --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/compiler
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  18:33:09
+   Duration  594ms (transform 250ms, setup 0ms, import 219ms, tests 279ms, environment 0ms)
+
+
+&gt; nx run generators:typecheck
+
+&gt; tsc -p packages/generators/tsconfig.json
+
+
+&gt; nx run generators:lint
+
+&gt; oxlint packages/generators
+
+
+&gt; nx run generators:test
+
+&gt; vitest run --root packages/generators --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/generators
+
+
+ Test Files  3 passed (3)
+      Tests  9 passed (9)
+   Start at  18:33:09
+   Duration  1.42s (transform 149ms, setup 0ms, import 746ms, tests 1.84s, environment 0ms)
+
+
+&gt; nx run host-cloudflare:lint
+
+&gt; oxlint packages/host-cloudflare
+
+
+&gt; nx run prove:lint
+
+&gt; oxlint packages/prove
+
+
+&gt; nx run host-cloudflare:typecheck
+
+&gt; tsc -p packages/host-cloudflare/tsconfig.json
+
+
+&gt; nx run prove:typecheck
+
+&gt; tsc -p packages/prove/tsconfig.json
+
+
+&gt; nx run lint:test
+
+&gt; vitest run --root packages/lint --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/lint
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  18:33:13
+   Duration  4.17s (transform 13ms, setup 0ms, import 23ms, tests 4.04s, environment 0ms)
+
+
+&gt; nx run host-cloudflare:test
+
+&gt; vitest run --root packages/host-cloudflare --passWithNoTests
+
+
+=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+
+
+ RUN  v4.1.12 ./packages/host-cloudflare
+
+
+ Test Files  7 passed (7)
+      Tests  11 passed (11)
+   Start at  18:33:12
+   Duration  7.68s (transform 11.23s, setup 31.50s, import 1.01s, tests 2.34s, environment 0ms)
+
+
+&gt; nx run cli:test
+
+&gt; vitest run --root packages/cli --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/cli
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  18:33:18
+   Duration  2.11s (transform 131ms, setup 0ms, import 231ms, tests 1.78s, environment 0ms)
+
+
+&gt; nx run acme:lint
+
+&gt; oxlint examples/acme
+
+
+&gt; nx run cli:lint
+
+&gt; oxlint packages/cli
+
+
+&gt; nx run lint:lint
+
+&gt; oxlint packages/lint
+
+
+&gt; nx run preset:lint
+
+&gt; oxlint packages/preset
+
+
+&gt; nx run target-solidity:lint
+
+&gt; oxlint packages/target-solidity
+
+
+&gt; nx run portal:lint
+
+&gt; oxlint packages/portal
+
+
+&gt; nx run std:lint
+
+&gt; oxlint packages/std
+
+
+&gt; nx run acme:typecheck
+
+&gt; tsc -p examples/acme/tsconfig.json
+
+
+&gt; nx run cli:typecheck
+
+&gt; tsc -p packages/cli/tsconfig.json
+
+
+&gt; nx run logbook:lint
+
+&gt; oxlint packages/logbook
+
+
+&gt; nx run logbook:test
+
+&gt; vitest run --root packages/logbook --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/logbook
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run target-solidity:test
+
+&gt; vitest run --root packages/target-solidity --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/target-solidity
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run portal:test
+
+&gt; vitest run --root packages/portal --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/portal
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run acme:test
+
+&gt; vitest run --root examples/acme --passWithNoTests
+
+
+ RUN  v4.1.12 ./examples/acme
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run preset:test
+
+&gt; vitest run --root packages/preset --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/preset
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run std:test
+
+&gt; vitest run --root packages/std --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/std
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run lint:typecheck
+
+&gt; tsc -p packages/lint/tsconfig.json
+
+
+&gt; nx run target-solidity:typecheck
+
+&gt; tsc -p packages/target-solidity/tsconfig.json
+
+
+&gt; nx run logbook:typecheck
+
+&gt; tsc -p packages/logbook/tsconfig.json
+
+
+&gt; nx run preset:typecheck
+
+&gt; tsc -p packages/preset/tsconfig.json
+
+
+&gt; nx run std:typecheck
+
+&gt; tsc -p packages/std/tsconfig.json
+
+
+&gt; nx run portal:typecheck
+
+&gt; tsc -p packages/portal/tsconfig.json
+
+
+&gt; nx run prove:test
+
+&gt; vitest run --root packages/prove --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  5 passed (5)
+      Tests  19 passed (19)
+   Start at  18:33:10
+   Duration  39.37s (transform 1.57s, setup 0ms, import 1.89s, tests 43.10s, environment 0ms)
+
+
+
+
+ NX   Successfully ran targets lint, typecheck, test for 14 projects
+
+
+  Run duration:      42.3s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     39.7s (1 task)
+  Recoverable time:  2.6s (6% of the run)
+
+  Recommendations:
+    - Cache: drop --skip-nx-cache to restore unchanged tasks instantly.
+    - Speed up or split the longest tasks on the critical path:
+        prove:test    39.7s</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
+  <h2><span class="id">L1.24</span> Steps in the order declared <span class="chip pass">done</span></h2>
+  <p class="summary">Every declared step runs in its own span, marked with its kind: a database step or a wait. prove now reads when each step span started, from the real collector, and checks the steps ran in the order the operation declares them. Spend declares load, then record, and its span tree shows exactly that on every call. Declared the other way round, prove fails and names the call and the two steps.</p>
+  <div class="proves"><span class="label">Done when</span>The steps eval passes on acme and fails when spend&#x27;s steps are declared out of the order the handler runs them.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43929371171">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/a5d9ca0">commit a5d9ca0</a> · 4 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The evals&#x27; own tests, including steps: in order passes, backwards names both steps, a missing step names itself.</span>
+    <span class="meta">exit 0 · 0.7s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --reporter verbose --root packages/prove src/modules/evals</div><pre>RUN  v4.1.12 ./packages/prove
+
+ ✓ src/modules/evals/evals.test.ts &gt; evals on evidence &gt; performance: slow evidence raises a review and never fails 1ms
+ ✓ src/modules/evals/evals.test.ts &gt; evals on evidence &gt; declared errors: an undeclared refusal names itself and the declared ones 0ms
+ ✓ src/modules/evals/evals.test.ts &gt; evals on evidence &gt; who may call: judged on mayCall, not on what the server said 0ms
+ ✓ src/modules/evals/evals.test.ts &gt; evals on evidence &gt; steps: every declared step ran, in the order declared 0ms
+ ✓ src/modules/evals/evals.test.ts &gt; evals on evidence &gt; coverage: an operation no journey reaches fails, and the counts say by how much 0ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  18:29:25
+   Duration  254ms (transform 46ms, setup 0ms, import 167ms, tests 3ms, environment 0ms)</pre></div>
+</details>
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">Planted: spend declares record before load. prove fails spend&#x27;s steps eval and names the call. Exit 1.</span>
+    <span class="meta">exit 1 · 5.0s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx tsx packages/cli/src/main.ts prove --env local --root examples/acme</div><pre>journey grant an allowance ✔ 3/3 steps
+journey an outsider cannot revoke ✔ 1/1 steps
+journey read an allowance ✔ 3/3 steps
+journey revoke then spend ✔ 3/3 steps
+journey spend twice with one request ✔ 3/3 steps
+journey spend within an allowance ✔ 4/4 steps
+allowance.get answer shape ✔
+allowance.get declared errors ✔
+allowance.get machine path ✔
+allowance.get events ✔
+allowance.get who may call ✔
+allowance.get steps ✔
+allowance.get performance ✔ p50 0ms p95 0ms budget p95 50ms
+allowance.get explainability ✔
+allowance.get 8 evals ✔
+allowance.grant answer shape ✔
+allowance.grant declared errors ✔
+allowance.grant machine path ✔
+allowance.grant events ✔
+allowance.grant who may call ✔
+allowance.grant steps ✔
+allowance.grant performance ✔ p50 1ms p95 2ms budget p95 200ms
+allowance.grant explainability ✔
+allowance.grant 8 evals ✔
+allowance.revoke answer shape ✔
+allowance.revoke declared errors ✔
+allowance.revoke machine path ✔
+allowance.revoke events ✔
+allowance.revoke who may call ✔
+allowance.revoke steps ✔
+allowance.revoke performance ✔ p50 1ms p95 1ms budget p95 150ms
+allowance.revoke explainability ✔
+allowance.revoke 8 evals ✔
+allowance.spend answer shape ✔
+allowance.spend declared errors ✔
+allowance.spend machine path ✔
+allowance.spend events ✔
+allowance.spend who may call ✔
+allowance.spend steps ✘ spend-twice-with-one-request &quot;olga spends 100&quot;: step allowance.spend.load ran before allowance.spend.record, which is declared first
+allowance.spend performance ✔ p50 1ms p95 3ms budget p95 150ms
+allowance.spend explainability ✔
+allowance.spend 1 of 8 evals ✘
+organization.create answer shape ✔
+organization.create declared errors ✔
+organization.create machine path ✔
+organization.create events ✔
+organization.create who may call ✔
+organization.create steps ✔
+organization.create performance ✔ p50 1ms p95 9ms budget p95 200ms
+organization.create explainability ✔
+organization.create 8 evals ✔
+coverage ✔ operations 5/5 moves 3/3 outcomes 3/3 errors 2/2 (runtime refusals 4/7)
+prove ✘ 1 failing</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The wrapper&#x27;s test: a load and a wait step, each its own span, in order, each marked with its kind.</span>
+    <span class="meta">exit 0 · 0.8s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --reporter verbose --root packages/target-effect src/modules/handler -t step</div><pre>RUN  v4.1.12 ./packages/target-effect
+
+ ↓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; runs the handler in a span named after the operation, with its payload as attributes
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; runs each declared step in its own span, in order, marked with its kind 5ms
+ ↓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; passes a declared error through, typed, and counts the work until it ends
+ ↓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; refuses an anonymous caller with NotAllowed before the handler runs
+ ↓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; refuses a payload outside its declaration before the handler runs
+ ↓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; an answer outside its declaration dies as the handler&#x27;s bug
+ ↓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; moves &gt; sets the state and journals the event once the handler answers
+ ↓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; moves &gt; an outcome the move doesn&#x27;t declare dies, and the span says what was asked
+ ↓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; moves &gt; a refusal is written on the span
+ ↓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; moves &gt; a refusal carries the log that decided it, and only this attempt&#x27;s
+ ↓ src/modules/handler/handler.test.ts &gt; a move with a machine: the race, the machine&#x27;s refusal, all or nothing &gt; 50 concurrent spends of 10 against 500: every one lands, none is lost, and it ends exhausted
+ ↓ src/modules/handler/handler.test.ts &gt; a move with a machine: the race, the machine&#x27;s refusal, all or nothing &gt; refuses with the machine&#x27;s refusal, carrying the state it was in, before the handler runs
+ ↓ src/modules/handler/handler.test.ts &gt; a move with a machine: the race, the machine&#x27;s refusal, all or nothing &gt; a handler that dies after writing leaves nothing behind
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+   Start at  18:29:25
+   Duration  298ms (transform 69ms, setup 0ms, import 202ms, tests 6ms, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">architect prove on acme after the change: steps ✔ for all five operations.</span>
+    <span class="meta">exit 0 · 4.7s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx tsx packages/cli/src/main.ts prove --env local --root examples/acme</div><pre>journey grant an allowance ✔ 3/3 steps
+journey an outsider cannot revoke ✔ 1/1 steps
+journey read an allowance ✔ 3/3 steps
+journey revoke then spend ✔ 3/3 steps
+journey spend twice with one request ✔ 3/3 steps
+journey spend within an allowance ✔ 4/4 steps
+allowance.get answer shape ✔
+allowance.get declared errors ✔
+allowance.get machine path ✔
+allowance.get events ✔
+allowance.get who may call ✔
+allowance.get steps ✔
+allowance.get performance ✔ p50 0ms p95 0ms budget p95 50ms
+allowance.get explainability ✔
+allowance.get 8 evals ✔
+allowance.grant answer shape ✔
+allowance.grant declared errors ✔
+allowance.grant machine path ✔
+allowance.grant events ✔
+allowance.grant who may call ✔
+allowance.grant steps ✔
+allowance.grant performance ✔ p50 1ms p95 2ms budget p95 200ms
+allowance.grant explainability ✔
+allowance.grant 8 evals ✔
+allowance.revoke answer shape ✔
+allowance.revoke declared errors ✔
+allowance.revoke machine path ✔
+allowance.revoke events ✔
+allowance.revoke who may call ✔
+allowance.revoke steps ✔
+allowance.revoke performance ✔ p50 1ms p95 1ms budget p95 150ms
+allowance.revoke explainability ✔
+allowance.revoke 8 evals ✔
+allowance.spend answer shape ✔
+allowance.spend declared errors ✔
+allowance.spend machine path ✔
+allowance.spend events ✔
+allowance.spend who may call ✔
+allowance.spend steps ✔
+allowance.spend performance ✔ p50 1ms p95 2ms budget p95 150ms
+allowance.spend explainability ✔
+allowance.spend 8 evals ✔
+organization.create answer shape ✔
+organization.create declared errors ✔
+organization.create machine path ✔
+organization.create events ✔
+organization.create who may call ✔
+organization.create steps ✔
+organization.create performance ✔ p50 1ms p95 12ms budget p95 200ms
+organization.create explainability ✔
+organization.create 8 evals ✔
+coverage ✔ operations 5/5 moves 3/3 outcomes 3/3 errors 2/2 (runtime refusals 4/7)
+prove ✔</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
+  <h2><span class="id">L1.21</span> Errors and the logs that decide them <span class="chip pass">done</span></h2>
+  <p class="summary">A refusal now carries the log line that decided it. While the handler runs, a second logger sits beside the project&#x27;s and remembers the last thing logged; when the handler refuses, that line goes on the operation&#x27;s span as refusal.log. The handler&#x27;s errors are held to what its operation declares by the generated types: the journey author&#x27;s fixture, a spend that fails with an error spend never declared, fails to compile, and acme as written compiles. The types are structural, so two errors with the same fields would slip past; a lint rule in L1.40 closes that.</p>
+  <div class="proves"><span class="label">Done when</span>A type test compiles a copy of acme with the planted handler and tsc rejects it at spend.ts naming AllowanceLimitTooHigh; the clean copy compiles. A refusal span carries its deciding log.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43928712233">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/3e6826a">commit 3e6826a</a> · 3 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The wrapper&#x27;s tests: a refusal carries the log that decided it, a refusal with no log carries none, and every earlier refusal test still holds.</span>
+    <span class="meta">exit 0 · 1.0s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --reporter verbose --root packages/target-effect src/modules/handler</div><pre>RUN  v4.1.12 ./packages/target-effect
+
+stdout | src/modules/handler/handler.test.ts &gt; handler wrapper &gt; moves &gt; a refusal carries the log that decided it, and only this attempt&#x27;s
+[18:26:14.351] INFO (#65): looked it up
+[18:26:14.352] INFO (#65): the limit is over the cap { limit: &#x27;5000&#x27; }
+
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; runs the handler in a span named after the operation, with its payload as attributes 5ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; passes a declared error through, typed, and counts the work until it ends 1ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; refuses an anonymous caller with NotAllowed before the handler runs 0ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; refuses a payload outside its declaration before the handler runs 2ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; an answer outside its declaration dies as the handler&#x27;s bug 1ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; moves &gt; sets the state and journals the event once the handler answers 1ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; moves &gt; an outcome the move doesn&#x27;t declare dies, and the span says what was asked 1ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; moves &gt; a refusal is written on the span 0ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; moves &gt; a refusal carries the log that decided it, and only this attempt&#x27;s 2ms
+ ✓ src/modules/handler/handler.test.ts &gt; a move with a machine: the race, the machine&#x27;s refusal, all or nothing &gt; 50 concurrent spends of 10 against 500: every one lands, none is lost, and it ends exhausted 79ms
+ ✓ src/modules/handler/handler.test.ts &gt; a move with a machine: the race, the machine&#x27;s refusal, all or nothing &gt; refuses with the machine&#x27;s refusal, carrying the state it was in, before the handler runs 0ms
+ ✓ src/modules/handler/handler.test.ts &gt; a move with a machine: the race, the machine&#x27;s refusal, all or nothing &gt; a handler that dies after writing leaves nothing behind 1ms
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  18:26:13
+   Duration  444ms (transform 91ms, setup 0ms, import 264ms, tests 94ms, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The type test: tsc on a copy of acme with the author&#x27;s planted spend fails, at spend.ts, naming AllowanceLimitTooHigh. The same copy without the plant compiles.</span>
+    <span class="meta">exit 0 · 1.2s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --reporter verbose --root packages/generators src/modules/render/handler-type.test.ts</div><pre>RUN  v4.1.12 ./packages/generators
+
+ ✓ src/modules/render/handler-type.test.ts &gt; the generated Handler type &gt; rejects a handler that fails with an error its operation doesn&#x27;t declare 366ms
+ ✓ src/modules/render/handler-type.test.ts &gt; the generated Handler type &gt; accepts acme as written: the same copy, without the plant, compiles 257ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  18:26:14
+   Duration  741ms (transform 12ms, setup 0ms, import 19ms, tests 641ms, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">architect prove on acme, still green after the change.</span>
+    <span class="meta">exit 0 · 5.1s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx tsx packages/cli/src/main.ts prove --env local --root examples/acme</div><pre>journey grant an allowance ✔ 3/3 steps
+journey an outsider cannot revoke ✔ 1/1 steps
+journey read an allowance ✔ 3/3 steps
+journey revoke then spend ✔ 3/3 steps
+journey spend twice with one request ✔ 3/3 steps
+journey spend within an allowance ✔ 4/4 steps
+allowance.get answer shape ✔
+allowance.get declared errors ✔
+allowance.get machine path ✔
+allowance.get events ✔
+allowance.get who may call ✔
+allowance.get steps ✔
+allowance.get performance ✔ p50 0ms p95 0ms budget p95 50ms
+allowance.get explainability ✔
+allowance.get 8 evals ✔
+allowance.grant answer shape ✔
+allowance.grant declared errors ✔
+allowance.grant machine path ✔
+allowance.grant events ✔
+allowance.grant who may call ✔
+allowance.grant steps ✔
+allowance.grant performance ✔ p50 1ms p95 3ms budget p95 200ms
+allowance.grant explainability ✔
+allowance.grant 8 evals ✔
+allowance.revoke answer shape ✔
+allowance.revoke declared errors ✔
+allowance.revoke machine path ✔
+allowance.revoke events ✔
+allowance.revoke who may call ✔
+allowance.revoke steps ✔
+allowance.revoke performance ✔ p50 1ms p95 1ms budget p95 150ms
+allowance.revoke explainability ✔
+allowance.revoke 8 evals ✔
+allowance.spend answer shape ✔
+allowance.spend declared errors ✔
+allowance.spend machine path ✔
+allowance.spend events ✔
+allowance.spend who may call ✔
+allowance.spend steps ✔
+allowance.spend performance ✔ p50 0ms p95 2ms budget p95 150ms
+allowance.spend explainability ✔
+allowance.spend 8 evals ✔
+organization.create answer shape ✔
+organization.create declared errors ✔
+organization.create machine path ✔
+organization.create events ✔
+organization.create who may call ✔
+organization.create steps ✔
+organization.create performance ✔ p50 1ms p95 10ms budget p95 200ms
+organization.create explainability ✔
+organization.create 8 evals ✔
+coverage ✔ operations 5/5 moves 3/3 outcomes 3/3 errors 2/2 (runtime refusals 4/7)
+prove ✔</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 2 · the allowance&#x27;s whole life (Gate 1)</div>
+  <h2><span class="id">L1.20</span> Machines and moves, with reads and idempotency <span class="chip pass">done</span></h2>
+  <p class="summary">The allowance now lives its whole life: granted, spent, exhausted and revoked. A call commits once. The handler&#x27;s writes are held back, then the move, its new state and its event are committed together, as one D1 batch or inside the instance&#x27;s own Durable Object. Every update is guarded by the version it read, so fifty spends racing on one allowance all land and none is lost, on D1 and on an actor. A revoked allowance refuses a spend before the handler runs. allowance.get is answered with no handler at all, and spending twice with one request key spends once. prove passes on acme&#x27;s six journeys, written by a separate author.</p>
+  <div class="proves"><span class="label">Done when</span>The race test passes for both owners in workerd and fails when the version guard is removed. architect prove passes on acme with five operations, three moves and every eval.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43928105354">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/b150981">commit b150981</a> · 7 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">architect prove on acme: six journeys, eight evals for each of five operations, coverage, prove ✔.</span>
+    <span class="meta">exit 0 · 5.1s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx tsx packages/cli/src/main.ts prove --env local --root examples/acme</div><pre>journey grant an allowance ✔ 3/3 steps
+journey an outsider cannot revoke ✔ 1/1 steps
+journey read an allowance ✔ 3/3 steps
+journey revoke then spend ✔ 3/3 steps
+journey spend twice with one request ✔ 3/3 steps
+journey spend within an allowance ✔ 4/4 steps
+allowance.get answer shape ✔
+allowance.get declared errors ✔
+allowance.get machine path ✔
+allowance.get events ✔
+allowance.get who may call ✔
+allowance.get steps ✔
+allowance.get performance ✔ p50 0ms p95 0ms budget p95 50ms
+allowance.get explainability ✔
+allowance.get 8 evals ✔
+allowance.grant answer shape ✔
+allowance.grant declared errors ✔
+allowance.grant machine path ✔
+allowance.grant events ✔
+allowance.grant who may call ✔
+allowance.grant steps ✔
+allowance.grant performance ✔ p50 1ms p95 2ms budget p95 200ms
+allowance.grant explainability ✔
+allowance.grant 8 evals ✔
+allowance.revoke answer shape ✔
+allowance.revoke declared errors ✔
+allowance.revoke machine path ✔
+allowance.revoke events ✔
+allowance.revoke who may call ✔
+allowance.revoke steps ✔
+allowance.revoke performance ✔ p50 1ms p95 1ms budget p95 150ms
+allowance.revoke explainability ✔
+allowance.revoke 8 evals ✔
+allowance.spend answer shape ✔
+allowance.spend declared errors ✔
+allowance.spend machine path ✔
+allowance.spend events ✔
+allowance.spend who may call ✔
+allowance.spend steps ✔
+allowance.spend performance ✔ p50 0ms p95 2ms budget p95 150ms
+allowance.spend explainability ✔
+allowance.spend 8 evals ✔
+organization.create answer shape ✔
+organization.create declared errors ✔
+organization.create machine path ✔
+organization.create events ✔
+organization.create who may call ✔
+organization.create steps ✔
+organization.create performance ✔ p50 1ms p95 8ms budget p95 200ms
+organization.create explainability ✔
+organization.create 8 evals ✔
+coverage ✔ operations 5/5 moves 3/3 outcomes 3/3 errors 2/2 (runtime refusals 4/7)
+prove ✔</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The race in workerd: 50 concurrent spends of 10 against 500, on D1 and on a Durable Object. All land, the allowance ends exhausted at version 50.</span>
+    <span class="meta">exit 0 · 5.6s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --reporter verbose --root packages/host-cloudflare src/modules/store src/modules/actors</div><pre>=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+
+
+ RUN  v4.1.12 ./packages/host-cloudflare
+
+ ✓ src/modules/actors/actors.test.ts &gt; a thing that lives as an actor, in workerd &gt; S3&#x27;s race: 50 concurrent spends of 10 against 500 all land in its Durable Object, none lost 727ms
+ ✓ src/modules/store/store.test.ts &gt; the store in D1, in workerd &gt; S3&#x27;s race: 50 concurrent spends of 10 against 500 all land, none lost, and it ends exhausted 1211ms
+
+ Test Files  2 passed (2)
+      Tests  2 passed (2)
+   Start at  18:26:23
+   Duration  4.42s (transform 2.37s, setup 5.08s, import 147ms, tests 1.94s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The runtime&#x27;s own tests: one commit per call, a conflict reruns the attempt, one request key twice is one event, reads answer with no handler.</span>
+    <span class="meta">exit 0 · 0.8s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --reporter verbose --root packages/target-effect src/modules/records src/modules/handler</div><pre>RUN  v4.1.12 ./packages/target-effect
+
+ ✓ src/modules/records/records.test.ts &gt; a unit of work &gt; holds writes back, reads its own writes, and merges them per instance 4ms
+ ✓ src/modules/records/records.test.ts &gt; a unit of work &gt; commits all of it, or none of it when a version has moved on 1ms
+ ✓ src/modules/records/reads-and-requests.test.ts &gt; a request key &gt; the same key twice is one call: the same answer, one event, spent once 6ms
+ ✓ src/modules/records/reads-and-requests.test.ts &gt; a request key &gt; another key, or no key, is another call 1ms
+ ✓ src/modules/records/reads-and-requests.test.ts &gt; a read &gt; answers the fields it names, with the state, to someone its role allows 0ms
+ ✓ src/modules/records/reads-and-requests.test.ts &gt; a read &gt; refuses someone else, and refuses a missing id the same way 1ms
+stdout | src/modules/handler/handler.test.ts &gt; handler wrapper &gt; moves &gt; a refusal carries the log that decided it, and only this attempt&#x27;s
+[18:26:29.129] INFO (#65): looked it up
+[18:26:29.130] INFO (#65): the limit is over the cap { limit: &#x27;5000&#x27; }
+
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; runs the handler in a span named after the operation, with its payload as attributes 5ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; passes a declared error through, typed, and counts the work until it ends 1ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; refuses an anonymous caller with NotAllowed before the handler runs 0ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; refuses a payload outside its declaration before the handler runs 2ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; an answer outside its declaration dies as the handler&#x27;s bug 1ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; moves &gt; sets the state and journals the event once the handler answers 1ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; moves &gt; an outcome the move doesn&#x27;t declare dies, and the span says what was asked 1ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; moves &gt; a refusal is written on the span 0ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; moves &gt; a refusal carries the log that decided it, and only this attempt&#x27;s 3ms
+ ✓ src/modules/handler/handler.test.ts &gt; a move with a machine: the race, the machine&#x27;s refusal, all or nothing &gt; 50 concurrent spends of 10 against 500: every one lands, none is lost, and it ends exhausted 70ms
+ ✓ src/modules/handler/handler.test.ts &gt; a move with a machine: the race, the machine&#x27;s refusal, all or nothing &gt; refuses with the machine&#x27;s refusal, carrying the state it was in, before the handler runs 0ms
+ ✓ src/modules/handler/handler.test.ts &gt; a move with a machine: the race, the machine&#x27;s refusal, all or nothing &gt; a handler that dies after writing leaves nothing behind 0ms
+
+ Test Files  3 passed (3)
+      Tests  18 passed (18)
+   Start at  18:26:28
+   Duration  405ms (transform 207ms, setup 0ms, import 665ms, tests 101ms, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The gate as a test: acme passes, scaffolded handlers fail, every planted fixture fails its own eval.</span>
+    <span class="meta">exit 0 · 36.1s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --reporter verbose --root packages/prove</div><pre>RUN  v4.1.12 ./packages/prove
+
+ ✓ src/modules/evals/evals.test.ts &gt; evals on evidence &gt; performance: slow evidence raises a review and never fails 1ms
+ ✓ src/modules/evals/evals.test.ts &gt; evals on evidence &gt; declared errors: an undeclared refusal names itself and the declared ones 0ms
+ ✓ src/modules/evals/evals.test.ts &gt; evals on evidence &gt; who may call: judged on mayCall, not on what the server said 0ms
+ ✓ src/modules/evals/evals.test.ts &gt; evals on evidence &gt; coverage: an operation no journey reaches fails, and the counts say by how much 0ms
+ ✓ src/modules/journeys/journeys.test.ts &gt; loading a project &gt; finds acme&#x27;s journeys, its starting worlds, and the very declarations they import 203ms
+ ✓ src/modules/telemetry/telemetry.test.ts &gt; the collector, in Docker &gt; takes an OTLP span over HTTP and reads it back by trace id once complete 858ms
+ ✓ src/modules/world/world.test.ts &gt; a local world &gt; serves acme on workerd: the world casts ada, ada founds an organisation and grants olga 500 3009ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; passes on acme: every journey, every eval, coverage, and leaves nothing running 4137ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; the who-may-call fixture is still the generated server with only its gate removed 1ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails on the scaffolded handlers: the starting world can&#x27;t be made, so no step runs 3553ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted answer-shape fixture on its own eval 3271ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted declared-errors fixture on its own eval 3262ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted machine-path fixture on its own eval 3300ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted events fixture on its own eval 3411ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted who-may-call fixture on its own eval 3544ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted steps fixture on its own eval 3378ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted coverage fixture on its own eval 3770ms
+ ✓ src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted explainability fixture on its own eval 3411ms
+
+ Test Files  5 passed (5)
+      Tests  18 passed (18)
+   Start at  18:26:29
+   Duration  35.60s (transform 1.05s, setup 0ms, import 1.25s, tests 39.23s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Lint, typecheck and test across every project, cache off. Journeys are type-checked now too.</span>
+    <span class="meta">exit 0 · 42.2s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx nx run-many -t lint,typecheck,test --skip-nx-cache --output-style=static</div><pre>NX   Running targets lint, typecheck, test for 14 projects:
+
+- host-cloudflare
+- target-solidity
+- target-effect
+- generators
+- blueprint
+- compiler
+- logbook
+- portal
+- preset
+- prove
+- acme
+- lint
+- cli
+- std
+
+
+
+&gt; nx run blueprint:typecheck
+
+&gt; tsc -p packages/blueprint/tsconfig.json
+
+
+&gt; nx run blueprint:test
+
+&gt; vitest run --root packages/blueprint --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/blueprint
+
+
+ Test Files  9 passed (9)
+      Tests  21 passed (21)
+   Start at  18:19:13
+   Duration  501ms (transform 285ms, setup 0ms, import 2.57s, tests 29ms, environment 2ms)
+
+
+&gt; nx run blueprint:lint
+
+&gt; oxlint packages/blueprint
+
+
+&gt; nx run target-effect:typecheck
+
+&gt; tsc -p packages/target-effect/tsconfig.json
+
+
+&gt; nx run target-effect:lint
+
+&gt; oxlint packages/target-effect
+
+
+&gt; nx run target-effect:test
+
+&gt; vitest run --root packages/target-effect --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/target-effect
+
+
+ Test Files  10 passed (10)
+      Tests  31 passed (31)
+   Start at  18:19:14
+   Duration  846ms (transform 1.16s, setup 0ms, import 4.65s, tests 171ms, environment 1ms)
+
+
+&gt; nx run compiler:typecheck
+
+&gt; tsc -p packages/compiler/tsconfig.json
+
+
+&gt; nx run compiler:lint
+
+&gt; oxlint packages/compiler
+
+
+&gt; nx run compiler:test
+
+&gt; vitest run --root packages/compiler --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/compiler
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  18:19:15
+   Duration  533ms (transform 198ms, setup 0ms, import 237ms, tests 195ms, environment 0ms)
+
+
+&gt; nx run generators:typecheck
+
+&gt; tsc -p packages/generators/tsconfig.json
+
+
+&gt; nx run generators:lint
+
+&gt; oxlint packages/generators
+
+
+&gt; nx run generators:test
+
+&gt; vitest run --root packages/generators --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/generators
+
+
+ Test Files  2 passed (2)
+      Tests  7 passed (7)
+   Start at  18:19:15
+   Duration  1.26s (transform 63ms, setup 0ms, import 532ms, tests 956ms, environment 0ms)
+
+
+&gt; nx run host-cloudflare:lint
+
+&gt; oxlint packages/host-cloudflare
+
+
+&gt; nx run prove:lint
+
+&gt; oxlint packages/prove
+
+
+&gt; nx run host-cloudflare:typecheck
+
+&gt; tsc -p packages/host-cloudflare/tsconfig.json
+
+
+&gt; nx run prove:typecheck
+
+&gt; tsc -p packages/prove/tsconfig.json
+
+
+&gt; nx run lint:test
+
+&gt; vitest run --root packages/lint --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/lint
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  18:19:19
+   Duration  4.14s (transform 13ms, setup 0ms, import 22ms, tests 4.02s, environment 0ms)
+
+
+&gt; nx run host-cloudflare:test
+
+&gt; vitest run --root packages/host-cloudflare --passWithNoTests
+
+
+=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+
+
+ RUN  v4.1.12 ./packages/host-cloudflare
+
+
+ Test Files  7 passed (7)
+      Tests  11 passed (11)
+   Start at  18:19:17
+   Duration  7.73s (transform 11.40s, setup 31.89s, import 1.06s, tests 2.49s, environment 0ms)
+
+
+&gt; nx run acme:lint
+
+&gt; oxlint examples/acme
+
+
+&gt; nx run cli:test
+
+&gt; vitest run --root packages/cli --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/cli
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  18:19:23
+   Duration  2.22s (transform 150ms, setup 0ms, import 249ms, tests 1.88s, environment 0ms)
+
+
+&gt; nx run lint:lint
+
+&gt; oxlint packages/lint
+
+
+&gt; nx run cli:lint
+
+&gt; oxlint packages/cli
+
+
+&gt; nx run target-solidity:lint
+
+&gt; oxlint packages/target-solidity
+
+
+&gt; nx run preset:lint
+
+&gt; oxlint packages/preset
+
+
+&gt; nx run logbook:lint
+
+&gt; oxlint packages/logbook
+
+
+&gt; nx run std:lint
+
+&gt; oxlint packages/std
+
+
+&gt; nx run acme:typecheck
+
+&gt; tsc -p examples/acme/tsconfig.json
+
+
+&gt; nx run cli:typecheck
+
+&gt; tsc -p packages/cli/tsconfig.json
+
+
+&gt; nx run portal:lint
+
+&gt; oxlint packages/portal
+
+
+&gt; nx run logbook:test
+
+&gt; vitest run --root packages/logbook --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/logbook
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run target-solidity:test
+
+&gt; vitest run --root packages/target-solidity --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/target-solidity
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run portal:test
+
+&gt; vitest run --root packages/portal --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/portal
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run acme:test
+
+&gt; vitest run --root examples/acme --passWithNoTests
+
+
+ RUN  v4.1.12 ./examples/acme
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run std:test
+
+&gt; vitest run --root packages/std --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/std
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run preset:test
+
+&gt; vitest run --root packages/preset --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/preset
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run target-solidity:typecheck
+
+&gt; tsc -p packages/target-solidity/tsconfig.json
+
+
+&gt; nx run lint:typecheck
+
+&gt; tsc -p packages/lint/tsconfig.json
+
+
+&gt; nx run logbook:typecheck
+
+&gt; tsc -p packages/logbook/tsconfig.json
+
+
+&gt; nx run preset:typecheck
+
+&gt; tsc -p packages/preset/tsconfig.json
+
+
+&gt; nx run std:typecheck
+
+&gt; tsc -p packages/std/tsconfig.json
+
+
+&gt; nx run portal:typecheck
+
+&gt; tsc -p packages/portal/tsconfig.json
+
+
+&gt; nx run prove:test
+
+&gt; vitest run --root packages/prove --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  5 passed (5)
+      Tests  18 passed (18)
+   Start at  18:19:15
+   Duration  38.52s (transform 1.51s, setup 0ms, import 1.94s, tests 42.13s, environment 0ms)
+
+
+
+
+ NX   Successfully ran targets lint, typecheck, test for 14 projects
+
+
+  Run duration:      41.3s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     38.8s (1 task)
+  Recoverable time:  2.6s (6% of the run)
+
+  Recommendations:
+    - Cache: drop --skip-nx-cache to restore unchanged tasks instantly.
+    - Speed up or split the longest tasks on the critical path:
+        prove:test    38.8s</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">generated/ matches the blueprint.</span>
+    <span class="meta">exit 0 · 1.0s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx nx sync:check</div><pre>NX   The workspace is up to date
+
+[@architect/generators:sync]: All files are up to date.</pre></div>
+</details>
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">Planted: the D1 update without its version guard. The race loses spends and the test fails. Exit 1.</span>
+    <span class="meta">exit 1 · 4.0s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run --reporter verbose --root packages/host-cloudflare src/modules/store</div><pre>=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+
+
+ RUN  v4.1.12 ./packages/host-cloudflare
+
+ × src/modules/store/store.test.ts &gt; the store in D1, in workerd &gt; S3&#x27;s race: 50 concurrent spends of 10 against 500 all land, none lost, and it ends exhausted 65ms
+   → expected { id: &#x27;pur_database6afvzj&#x27;, …(3) } to match object { spent: 500n, state: &#x27;exhausted&#x27; }
+(2 matching properties omitted from actual)
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/store/store.test.ts &gt; the store in D1, in workerd &gt; S3&#x27;s race: 50 concurrent spends of 10 against 500 all land, none lost, and it ends exhausted
+AssertionError: expected { id: &#x27;pur_database6afvzj&#x27;, …(3) } to match object { spent: 500n, state: &#x27;exhausted&#x27; }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   &quot;spent&quot;: 500n,
+-   &quot;state&quot;: &quot;exhausted&quot;,
++   &quot;spent&quot;: 10n,
++   &quot;state&quot;: &quot;active&quot;,
+  }
+
+ ❯ src/modules/store/store.test.ts:15:36
+     13|     expect(result.failures.slice(0, 3)).toEqual([]);
+     14|     expect(result.accepted).toBe(50);
+     15|     expect(result.after?.instance).toMatchObject({ spent: 500n, state:…
+       |                                    ^
+     16|     expect(result.after?.version).toBe(50);
+     17|     expect(Exit.isFailure(result.refused) &amp;&amp; Cause.squash(result.refus…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  18:27:06
+   Duration  2.73s (transform 1.01s, setup 2.21s, import 57ms, tests 65ms, environment 0ms)</pre></div>
+</details>
+</section>
+<section class="step">
   <div class="stage">Stage 1 · the skeleton, with every eval</div>
   <h2><span class="id">L1.15</span> prove, with a real collector and all nine evals <span class="chip pass">done</span></h2>
   <p class="summary">architect prove now judges the code for real. It starts a real OpenTelemetry collector in Docker and a fresh world on workerd. It runs the journey: Ada founds an organisation and grants Olga 500, Bob is refused, and a limit over the cap is refused. Then it reads every call&#x27;s spans and logs back from the collector and checks all nine evals: answer shape, declared errors, machine path, events, who may call, steps, performance, coverage and explainability. Acme passes in about six seconds and nothing is left running. Each of the eight broken fixtures, planted by a separate author, fails its own eval with a line that names the call. Two old bugs were found on the way: ids sometimes came out a character short, and the coverage fixture had never reached git.</p>

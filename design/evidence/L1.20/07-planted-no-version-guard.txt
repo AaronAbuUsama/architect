@@ -1,0 +1,48 @@
+$ npx vitest run --reporter verbose --root packages/host-cloudflare src/modules/store
+# commit 3e6826a · 2026-11-16T18:27:09Z · exit 1 (expected 1) · 4.0s
+
+
+=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+
+
+ RUN  v4.1.12 ./packages/host-cloudflare
+
+ × src/modules/store/store.test.ts > the store in D1, in workerd > S3's race: 50 concurrent spends of 10 against 500 all land, none lost, and it ends exhausted 65ms
+   → expected { id: 'pur_database6afvzj', …(3) } to match object { spent: 500n, state: 'exhausted' }
+(2 matching properties omitted from actual)
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/store/store.test.ts > the store in D1, in workerd > S3's race: 50 concurrent spends of 10 against 500 all land, none lost, and it ends exhausted
+AssertionError: expected { id: 'pur_database6afvzj', …(3) } to match object { spent: 500n, state: 'exhausted' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "spent": 500n,
+-   "state": "exhausted",
++   "spent": 10n,
++   "state": "active",
+  }
+
+ ❯ src/modules/store/store.test.ts:15:36
+     13|     expect(result.failures.slice(0, 3)).toEqual([]);
+     14|     expect(result.accepted).toBe(50);
+     15|     expect(result.after?.instance).toMatchObject({ spent: 500n, state:…
+       |                                    ^
+     16|     expect(result.after?.version).toBe(50);
+     17|     expect(Exit.isFailure(result.refused) && Cause.squash(result.refus…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  18:27:06
+   Duration  2.73s (transform 1.01s, setup 2.21s, import 57ms, tests 65ms, environment 0ms)

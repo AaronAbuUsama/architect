@@ -3,7 +3,32 @@
   "version": "0.0.0",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./plugin": "./src/main.ts",
+    "./package.json": "./package.json"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "imports": {
+    "#modules/*.js": "./src/modules/*.ts"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "./plugin": {
+        "types": "./dist/main.d.ts",
+        "default": "./dist/main.js"
+      },
+      "./package.json": "./package.json"
+    },
+    "imports": {
+      "#modules/*.js": "./dist/modules/*.js"
+    }
+  }
 }

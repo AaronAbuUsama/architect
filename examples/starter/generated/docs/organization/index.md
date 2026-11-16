@@ -1,0 +1,31 @@
+<!-- Generated from the blueprint. Do not edit. -->
+# organization
+
+A company or team that people belong to.
+
+Lives in the database.
+
+## Fields
+
+| field | value |
+|---|---|
+| id | id |
+| name | text |
+| owner | person.id |
+
+## Machine
+
+States: active. A move from the wrong state is refused OrganizationNotActive (exit 20).
+
+| move | from | to | emits |
+|---|---|---|---|
+| create | (creates) | active | OrganizationCreated |
+
+## Roles
+
+- owner
+
+## Operations
+
+- [organization.create](create.md): Found an organisation. Whoever founds it owns it, and is its first member.
+- [organization.get](get.md): Read one organization by its id: name, owner, state.

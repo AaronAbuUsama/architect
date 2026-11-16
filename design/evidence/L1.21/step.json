@@ -1,0 +1,12 @@
+{
+  "step": "L1.21",
+  "stage": "Stage 2 · the allowance's whole life (Gate 1)",
+  "title": "Errors and the logs that decide them",
+  "summary": "A refusal now carries the log line that decided it. While the handler runs, a second logger sits beside the project's and remembers the last thing logged; when the handler refuses, that line goes on the operation's span as refusal.log. The handler's errors are held to what its operation declares by the generated types: the journey author's fixture, a spend that fails with an error spend never declared, fails to compile, and acme as written compiles. The types are structural, so two errors with the same fields would slip past; a lint rule in L1.40 closes that.",
+  "proves": "A type test compiles a copy of acme with the planted handler and tsc rejects it at spend.ts naming AllowanceLimitTooHigh; the clean copy compiles. A refusal span carries its deciding log.",
+  "captions": {
+    "01-deciding-log-on-the-span": "The wrapper's tests: a refusal carries the log that decided it, a refusal with no log carries none, and every earlier refusal test still holds.",
+    "02-undeclared-error-fails-tsc": "The type test: tsc on a copy of acme with the author's planted spend fails, at spend.ts, naming AllowanceLimitTooHigh. The same copy without the plant compiles.",
+    "04-prove-acme": "architect prove on acme, still green after the change."
+  }
+}

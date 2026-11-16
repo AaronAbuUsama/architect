@@ -11,9 +11,31 @@
     "effect": "4.1.1"
   },
   "imports": {
-    "#modules/*": "./src/modules/*"
+    "#modules/*.js": "./src/modules/*.ts"
   },
   "bin": {
     "architect-model": "./src/main.ts"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "./main": {
+        "types": "./dist/main.d.ts",
+        "default": "./dist/main.js"
+      }
+    },
+    "imports": {
+      "#modules/*.js": "./dist/modules/*.js"
+    },
+    "bin": {
+      "architect-model": "./dist/main.js"
+    }
   }
 }

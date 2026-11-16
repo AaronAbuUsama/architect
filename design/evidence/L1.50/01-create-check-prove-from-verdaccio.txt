@@ -1,0 +1,173 @@
+$ tools/e2e/starter.sh
+# commit 163b5ef · 2026-11-16T19:46:35Z · exit 0 (expected 0) · 113.2s
+
+
+== build
+
+== pack the starter into the preset
+
+== registry on :4880
+
+== publish
+published @architect/blueprint
+published @architect/compiler
+published @architect/target-effect
+published @architect/lint
+published @architect/generators
+published @architect/host-cloudflare
+published @architect/prove
+published @architect/cli
+published @architect/preset
+
+== create-nx-workspace bakery --preset=@architect/preset
+{"stage":"starting","message":"Creating Nx workspace v24.0.3..."}
+- Installing dependencies with pnpm
+✔ Installing dependencies with pnpm
+- Creating your workspace in bakery
+✔ Successfully created the workspace: bakery
+? Verifying lockfile against supply-chain policies (109 entries)...
+✓ Lockfile passes supply-chain policies (109 entries in 2.4s)
+Lockfile is up to date, resolution step is skipped
+Already up to date
+Done in 2.4s using pnpm v12.18.0
+{"stage":"complete","success":true,"result":{"title":"Nx Workspace Created Successfully","workspacePath":"<tmp>/architect-e2e.uwJUnx/bakery","workspaceName":"bakery","template":"custom","preset":"@architect/preset"},"docs":{"gettingStarted":"https://nx.dev/getting-started/intro","nxCloud":"https://nx.dev/ci/intro/why-nx-cloud"}}
+npm notice
+npm notice New major version of npm available! 11.19.0 -> 12.2.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+npm notice To update run: npm install -g npm@12.2.2
+npm notice
+
+== architect check
+? Verifying lockfile against supply-chain policies (280 entries)...
+Lockfile is up to date, resolution step is skipped
+Already up to date
+✓ Lockfile passes supply-chain policies (280 entries in 7.6s)
+
+Done in 8s using pnpm v11.20.0
+$ architect check
+blanks left 0
+types ✔
+rules ✔
+drift ✔
+ratchets 0
+check ✔
+
+== architect prove --env local
+$ architect prove --env local
+journey an invitation is used once ✔ 3/3 steps
+journey an owner makes an api key ✔ 5/5 steps
+journey health is up ✔ 1/1 steps
+journey invite and accept ✔ 11/11 steps
+journey sign up and sign in ✔ 5/5 steps
+api-key.create answer shape ✔
+api-key.create declared errors ✔
+api-key.create machine path ✔
+api-key.create events ✔
+api-key.create who may call ✔
+api-key.create steps ✔
+api-key.create performance ✔ p50 2ms p95 5ms budget p95 250ms
+api-key.create coverage ✔
+api-key.create explainability ✔
+api-key.create 9 evals ✔ p50 2ms p95 5ms budget p95 250ms
+invitation.accept answer shape ✔
+invitation.accept declared errors ✔
+invitation.accept machine path ✔
+invitation.accept events ✔
+invitation.accept who may call ✔
+invitation.accept steps ✔
+invitation.accept performance ✔ p50 1ms p95 1ms budget p95 200ms
+invitation.accept coverage ✔
+invitation.accept explainability ✔
+invitation.accept 9 evals ✔ p50 1ms p95 1ms budget p95 200ms
+invitation.revoke answer shape ✔
+invitation.revoke declared errors ✔
+invitation.revoke machine path ✔
+invitation.revoke events ✔
+invitation.revoke who may call ✔
+invitation.revoke steps ✔
+invitation.revoke performance ✔ p50 0ms p95 2ms budget p95 150ms
+invitation.revoke coverage ✔
+invitation.revoke explainability ✔
+invitation.revoke 9 evals ✔ p50 0ms p95 2ms budget p95 150ms
+invitation.send answer shape ✔
+invitation.send declared errors ✔
+invitation.send machine path ✔
+invitation.send events ✔
+invitation.send who may call ✔
+invitation.send steps ✔
+invitation.send performance ✔ p50 2ms p95 2ms budget p95 200ms
+invitation.send coverage ✔
+invitation.send explainability ✔
+invitation.send 9 evals ✔ p50 2ms p95 2ms budget p95 200ms
+membership.get answer shape ✔
+membership.get declared errors ✔
+membership.get machine path ✔
+membership.get events ✔
+membership.get who may call ✔
+membership.get steps ✔
+membership.get performance ✔ p50 0ms p95 0ms budget p95 50ms
+membership.get coverage ✔
+membership.get explainability ✔
+membership.get 9 evals ✔ p50 0ms p95 0ms budget p95 50ms
+organization.create answer shape ✔
+organization.create declared errors ✔
+organization.create machine path ✔
+organization.create events ✔
+organization.create who may call ✔
+organization.create steps ✔
+organization.create performance ✔ p50 2ms p95 6ms budget p95 250ms
+organization.create coverage ✔
+organization.create explainability ✔
+organization.create 9 evals ✔ p50 2ms p95 6ms budget p95 250ms
+organization.get answer shape ✔
+organization.get declared errors ✔
+organization.get machine path ✔
+organization.get events ✔
+organization.get who may call ✔
+organization.get steps ✔
+organization.get performance ✔ p50 0ms p95 0ms budget p95 50ms
+organization.get coverage ✔
+organization.get explainability ✔
+organization.get 9 evals ✔ p50 0ms p95 0ms budget p95 50ms
+person.sign-up answer shape ✔
+person.sign-up declared errors ✔
+person.sign-up machine path ✔
+person.sign-up events ✔
+person.sign-up who may call ✔
+person.sign-up steps ✔
+person.sign-up performance ✔ p50 3ms p95 61ms budget p95 400ms
+person.sign-up coverage ✔
+person.sign-up explainability ✔
+person.sign-up 9 evals ✔ p50 3ms p95 61ms budget p95 400ms
+session.show answer shape ✔
+session.show declared errors ✔
+session.show machine path ✔
+session.show events ✔
+session.show who may call ✔
+session.show steps ✔
+session.show performance ✔ p50 0ms p95 0ms budget p95 100ms
+session.show coverage ✔
+session.show explainability ✔
+session.show 9 evals ✔ p50 0ms p95 0ms budget p95 100ms
+session.sign-in answer shape ✔
+session.sign-in declared errors ✔
+session.sign-in machine path ✔
+session.sign-in events ✔
+session.sign-in who may call ✔
+session.sign-in steps ✔
+session.sign-in performance ✔ p50 56ms p95 59ms budget p95 400ms
+session.sign-in coverage ✔
+session.sign-in explainability ✔
+session.sign-in 9 evals ✔ p50 56ms p95 59ms budget p95 400ms
+system.health answer shape ✔
+system.health declared errors ✔
+system.health machine path ✔
+system.health events ✔
+system.health who may call ✔
+system.health steps ✔
+system.health performance ✔ p50 0ms p95 0ms budget p95 50ms
+system.health coverage ✔
+system.health explainability ✔
+system.health 9 evals ✔ p50 0ms p95 0ms budget p95 50ms
+coverage ✔ moves 4/4 · outcomes 4/4 · refusals 2/2 · runtime refusals 9/10
+prove ✔

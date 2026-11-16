@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { Values } from "#modules/values/service.ts";
+import { Values } from "#modules/values/service.js";
 import { Things } from "./service.ts";
 import { structOf } from "./internal/fields.ts";
 import { Schema } from "effect";

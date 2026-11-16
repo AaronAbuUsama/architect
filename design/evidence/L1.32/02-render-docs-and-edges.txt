@@ -1,0 +1,16 @@
+$ npx vitest run --reporter verbose --root packages/generators src/modules/render/render.test.ts
+# commit 735020c · 2026-11-16T18:44:20Z · exit 0 (expected 0) · 0.8s
+
+
+ RUN  v4.1.12 ./packages/generators
+
+ ✓ src/modules/render/render.test.ts > render > writes the four outputs for every operation 1ms
+ ✓ src/modules/render/render.test.ts > render > marks every generated file do-not-edit, and every scaffold with where it came from 1ms
+ ✓ src/modules/render/render.test.ts > render > writes a docs page per thing and operation, each refusal with its exit code, and the model's edges 0ms
+ ✓ src/modules/render/render.test.ts > render > declares each operation's refusals on its endpoint, with their exit codes 0ms
+ ✓ src/modules/render/render.test.ts > render > is deterministic 1ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  18:44:20
+   Duration  346ms (transform 36ms, setup 0ms, import 256ms, tests 3ms, environment 0ms)

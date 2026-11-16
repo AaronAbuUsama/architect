@@ -1,20 +1,52 @@
 import { Effect, Layer } from "effect";
 import type { Thing } from "@architect/blueprint";
-import { Records, type Instance } from "./types.ts";
+import type { Entry } from "#modules/journal/types.js";
+import { Journal } from "#modules/journal/types.js";
+import { journalOf } from "#modules/journal/service.js";
+import { Records, Store, type Instance, type UnitApi } from "./types.ts";
+import { makeUnit } from "./internal/unit.ts";
 
-/** Records held in memory, for tests of roles and reads. */
-export const recordsMemory = (initial: ReadonlyArray<readonly [Thing, Instance]>) => {
-  const rows = [...initial];
-  return Layer.succeed(Records, Records.of({
-    find: (thing, id) => Effect.succeed(rows.find(([t, r]) => t === thing && r["id"] === id)?.[1]),
-    insert: (thing, fields, state) => Effect.sync(() => void rows.push([thing, { ...(fields as Instance), ...(state ? { state } : {}) }])),
-    setState: (thing, id, state) =>
+export const Unit: UnitApi = { make: makeUnit };
+
+/** A store and journal held in memory, for tests: the same versions and the same all-or-nothing commit as a host's. */
+export const storeMemory = (initial: ReadonlyArray<readonly [Thing, Instance]> = []) => {
+  const rows = initial.map(([thing, instance]) => ({ thing, instance, version: 0 }));
+  const entries: Array<Entry> = [];
+  const requests = new Map<string, string>();
+  const at = (thing: Thing, id: unknown) => rows.findIndex((r) => r.thing === thing && r.instance["id"] === id);
+  const store = Store.of({
+    find: (thing, id) => Effect.sync(() => {
+      const r = rows[at(thing, id)];
+      return r && { instance: r.instance, version: r.version };
+    }),
+    answered: (key) => Effect.sync(() => requests.get(key)),
+    commit: ({ writes, entries: events, request }) =>
       Effect.sync(() => {
-        const at = rows.findIndex(([t, r]) => t === thing && r["id"] === id);
-        if (at >= 0) rows[at] = [thing, { ...rows[at]![1], state }];
+        const stale = writes.some((w) => w.kind === "update" && rows[at(w.thing, w.id)]?.version !== w.version);
+        if (stale || (request && requests.has(request.key))) return "conflict" as const;
+        if (request) requests.set(request.key, request.answer);
+        for (const w of writes) {
+          if (w.kind === "insert") rows.push({ thing: w.thing, instance: { ...w.fields, ...(w.state ? { state: w.state } : {}) }, version: 0 });
+          else {
+            const r = rows[at(w.thing, w.id)]!;
+            r.instance = { ...r.instance, ...w.changes, ...(w.state ? { state: w.state } : {}) };
+            r.version += 1;
+          }
+        }
+        entries.push(...events);
+        return "committed" as const;
       }),
-  }));
+  });
+  const journal = journalOf(entries);
+  return { entries, rows, layer: Layer.mergeAll(Layer.succeed(Store, store), Layer.succeed(Journal, journal)) };
 };
+
+/** `Records` over an in-memory store, outside any call: for tests of roles and reads. */
+export const recordsMemory = (initial: ReadonlyArray<readonly [Thing, Instance]>) =>
+  Layer.effect(Records, Effect.gen(function* () {
+    const store = yield* Store;
+    return (yield* makeUnit(store)).records;
+  })).pipe(Layer.provide(storeMemory(initial).layer));
 
 /** The one thing a `thing.ts` module exports, whatever its export is called. */
 export const thingIn = (module: Readonly<Record<string, unknown>>): Thing => {

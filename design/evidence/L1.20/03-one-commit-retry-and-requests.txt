@@ -1,0 +1,33 @@
+$ npx vitest run --reporter verbose --root packages/target-effect src/modules/records src/modules/handler
+# commit 3e6826a · 2026-11-16T18:26:29Z · exit 0 (expected 0) · 0.8s
+
+
+ RUN  v4.1.12 ./packages/target-effect
+
+ ✓ src/modules/records/records.test.ts > a unit of work > holds writes back, reads its own writes, and merges them per instance 4ms
+ ✓ src/modules/records/records.test.ts > a unit of work > commits all of it, or none of it when a version has moved on 1ms
+ ✓ src/modules/records/reads-and-requests.test.ts > a request key > the same key twice is one call: the same answer, one event, spent once 6ms
+ ✓ src/modules/records/reads-and-requests.test.ts > a request key > another key, or no key, is another call 1ms
+ ✓ src/modules/records/reads-and-requests.test.ts > a read > answers the fields it names, with the state, to someone its role allows 0ms
+ ✓ src/modules/records/reads-and-requests.test.ts > a read > refuses someone else, and refuses a missing id the same way 1ms
+stdout | src/modules/handler/handler.test.ts > handler wrapper > moves > a refusal carries the log that decided it, and only this attempt's
+[18:26:29.129] INFO (#65): looked it up
+[18:26:29.130] INFO (#65): the limit is over the cap { limit: '5000' }
+
+ ✓ src/modules/handler/handler.test.ts > handler wrapper > runs the handler in a span named after the operation, with its payload as attributes 5ms
+ ✓ src/modules/handler/handler.test.ts > handler wrapper > passes a declared error through, typed, and counts the work until it ends 1ms
+ ✓ src/modules/handler/handler.test.ts > handler wrapper > refuses an anonymous caller with NotAllowed before the handler runs 0ms
+ ✓ src/modules/handler/handler.test.ts > handler wrapper > refuses a payload outside its declaration before the handler runs 2ms
+ ✓ src/modules/handler/handler.test.ts > handler wrapper > an answer outside its declaration dies as the handler's bug 1ms
+ ✓ src/modules/handler/handler.test.ts > handler wrapper > moves > sets the state and journals the event once the handler answers 1ms
+ ✓ src/modules/handler/handler.test.ts > handler wrapper > moves > an outcome the move doesn't declare dies, and the span says what was asked 1ms
+ ✓ src/modules/handler/handler.test.ts > handler wrapper > moves > a refusal is written on the span 0ms
+ ✓ src/modules/handler/handler.test.ts > handler wrapper > moves > a refusal carries the log that decided it, and only this attempt's 3ms
+ ✓ src/modules/handler/handler.test.ts > a move with a machine: the race, the machine's refusal, all or nothing > 50 concurrent spends of 10 against 500: every one lands, none is lost, and it ends exhausted 70ms
+ ✓ src/modules/handler/handler.test.ts > a move with a machine: the race, the machine's refusal, all or nothing > refuses with the machine's refusal, carrying the state it was in, before the handler runs 0ms
+ ✓ src/modules/handler/handler.test.ts > a move with a machine: the race, the machine's refusal, all or nothing > a handler that dies after writing leaves nothing behind 0ms
+
+ Test Files  3 passed (3)
+      Tests  18 passed (18)
+   Start at  18:26:28
+   Duration  405ms (transform 207ms, setup 0ms, import 665ms, tests 101ms, environment 0ms)

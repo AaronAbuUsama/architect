@@ -1,0 +1,11 @@
+{
+  "step": "L1.30",
+  "stage": "Stage 2 · the allowance's whole life (Gate 1)",
+  "title": "Blanks, and architect add",
+  "summary": "You can now start a declaration before you know all of it. architect add writes a thing, an operation, a read or a journey, and every part you still have to decide is a blank that says what belongs there. Blanks compile. architect check names each one with its file and line, and fails until they're filled. The compiler keeps track of them too: an operation with a blank isn't generated yet. add never overwrites anything, and --dry-run shows what it would write.",
+  "proves": "In a fresh project, architect add thing allowance writes five files and a values file; tsc compiles them; architect check prints allowance has 3 blanks with the file and line of each.",
+  "captions": {
+    "01-add-and-check-tests": "The tests: the files each add plans, names refused, nothing overwritten, and the fresh-project run end to end.",
+    "02-fresh-project-session": "A real session in an empty project: add thing allowance, the scaffold, tsc passing, check naming three blanks and exiting 1, model calling it unfinished, and add refusing to overwrite."
+  }
+}

@@ -19,7 +19,7 @@ describe("architect model", () => {
   it("summarises things and operations without --json", async () => {
     const said = await Effect.runPromise(ModelCommand.run({ root: acme, json: false }));
     expect(said.exit).toBe(0);
-    expect(said.out).toContain("thing allowance (active)");
+    expect(said.out).toContain("thing allowance (active, exhausted, revoked)");
     expect(said.out).toMatch(/operation allowance\.grant {2}refuses AllowanceLimitTooHigh, NotAllowed {2}[0-9a-f]{16}/);
   });
 

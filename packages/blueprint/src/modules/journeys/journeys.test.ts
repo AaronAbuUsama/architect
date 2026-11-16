@@ -1,10 +1,10 @@
 import { describe, expect as want, it } from "vitest";
-import { Values } from "#modules/values/service.ts";
-import { Things } from "#modules/things/service.ts";
-import { Roles } from "#modules/roles/service.ts";
-import { Operations } from "#modules/operations/service.ts";
-import { Events } from "#modules/events/service.ts";
-import { Machines } from "#modules/machines/service.ts";
+import { Values } from "#modules/values/service.js";
+import { Things } from "#modules/things/service.js";
+import { Roles } from "#modules/roles/service.js";
+import { Operations } from "#modules/operations/service.js";
+import { Events } from "#modules/events/service.js";
+import { Machines } from "#modules/machines/service.js";
 import { Checks, Journeys, Scripting } from "./service.ts";
 
 const Box = Things.thing({ description: "A box.", fields: { id: Values.id("box"), size: Values.uint(8) } });

@@ -3,7 +3,7 @@ import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { Effect } from "effect";
-import type { Journey, Operation, StartingWorld, Thing } from "@architect/blueprint";
+import type { Journey, Operation, Read, StartingWorld, Thing } from "@architect/blueprint";
 import type { Model } from "@architect/compiler";
 import { ProjectFailed, type Project } from "../types.ts";
 
@@ -17,13 +17,13 @@ const kindOf = (x: unknown) => (typeof x === "object" && x !== null ? (x as { ki
 
 const filesIn = (dir: string) => (existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith(".ts")).sort().map((f) => join(dir, f)) : []);
 
-export const loadProject = (root: string, model: Model) =>
+export const loadProject = (root: string, model: Model): Effect.Effect<Project, ProjectFailed> =>
   Effect.gen(function* () {
     // The generated api names every event and error, the same way the server does.
     yield* importFile(join(root, "generated/api/src/index.ts"));
-    const operations = new Map<string, Operation>();
+    const operations = new Map<string, Operation | Read>();
     for (const op of Object.values(model.operations)) {
-      operations.set(op.name, (yield* importFile(join(root, op.file)))["default"] as Operation);
+      operations.set(op.name, (yield* importFile(join(root, op.file)))["default"] as Operation | Read);
     }
     const things = new Map<string, Thing>();
     for (const t of Object.values(model.things)) {

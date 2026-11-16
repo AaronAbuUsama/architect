@@ -3,7 +3,7 @@ import { Schema } from "effect";
 import { structOf } from "@architect/blueprint/server";
 import type { FieldModel } from "@architect/compiler";
 import type { PerOperation, Verdict } from "../types.ts";
-import { answered, attr, subtree, where } from "./evidence.ts";
+import { answered, attr, replayed, subtree, where } from "./evidence.ts";
 
 const verdict = (name: string, operation: string, failures: ReadonlyArray<string>, notes: ReadonlyArray<string> = []): Verdict =>
   ({ eval: name, operation, failures, notes });
@@ -12,7 +12,7 @@ const expectation = (f: FieldModel | undefined) =>
   !f ? "nothing" : f.value.type === "id" ? `${f.value.prefix}_<id>` : f.value.type === "uint" ? "a whole number, as text" : f.value.type === "text" ? `text up to ${f.value.max}` : "its schema";
 
 /** 1. Every answer has its declared shape: read from the operation's span, so an answer the server refused to send counts. */
-export const answerShape: PerOperation = (op, evidence, project) => {
+export const answerShape: PerOperation = (op, evidence, { project }) => {
   const declared = project.operations.get(op.name)?.answer ?? {};
   const failures = evidence.flatMap((e) => {
     const fromSpan = Object.fromEntries(Object.entries(e.opSpan?.attrs ?? {}).filter(([k]) => k.startsWith("answer.")).map(([k, v]) => [k.slice(7), v]));
@@ -36,6 +36,7 @@ export const machinePath: PerOperation = (op, evidence) => {
   const move = op.move;
   if (!move) return verdict("machine path", op.name, []);
   return verdict("machine path", op.name, evidence.flatMap((e) => {
+    if (replayed(e)) return [];
     const to = attr(e, "move.to");
     if (to !== undefined && !move.to.includes(String(to))) return [`${where(e)}: ${move.key} ended in "${String(to)}", not one of ${move.to.join(", ")}`];
     if (!answered(e)) return [];
@@ -50,7 +51,7 @@ export const events: PerOperation = (op, evidence) => {
   const move = op.move;
   if (!move) return verdict("events", op.name, []);
   return verdict("events", op.name, evidence.flatMap((e) =>
-    answered(e) && !e.call.journal.some((j) => j.event === move.emits && j.move === move.key) ? [`${where(e)}: move ${move.key} emitted no ${move.emits}`] : []));
+    answered(e) && !replayed(e) && !e.call.journal.some((j) => j.event === move.emits && j.move === move.key) ? [`${where(e)}: move ${move.key} emitted no ${move.emits}`] : []));
 };
 
 const allowedText = (op: Parameters<PerOperation>[0], payload: Readonly<Record<string, unknown>>) =>
@@ -71,12 +72,18 @@ export const whoMayCall: PerOperation = (op, evidence) =>
     return [];
   }));
 
-/** 6. Every declared step of an answered call ran in its own span. */
+/** 6. Every declared step of an answered call ran in its own span, in the order the operation declares them. */
 export const steps: PerOperation = (op, evidence) =>
   verdict("steps", op.name, evidence.flatMap((e) => {
-    if (!answered(e)) return [];
-    const names = new Set(e.trace.spans.map((s) => s.name));
-    return Object.values(op.steps).filter((s) => !names.has(s.name)).map((s) => `${where(e)}: declared step ${s.name} ran no span`);
+    if (!answered(e) || replayed(e)) return [];
+    const declared = Object.values(op.steps);
+    const ran = declared.flatMap((s) => {
+      const span = e.trace.spans.find((x) => x.name === s.name);
+      return span ? [{ name: s.name, start: span.start }] : [];
+    });
+    const missing = declared.filter((s) => !ran.some((r) => r.name === s.name)).map((s) => `${where(e)}: declared step ${s.name} ran no span`);
+    const late = ran.slice(1).flatMap((r, i) => (r.start < ran[i]!.start ? [`${where(e)}: step ${r.name} ran before ${ran[i]!.name}, which is declared first`] : []));
+    return [...missing, ...late];
   }));
 
 /** 9. Every declared refusal has the log that decided it, inside the operation's span. */

@@ -13,7 +13,7 @@ export const applyMigrations = (config: string, state: string) =>
     try: () => {
       const run = spawnSync(process.execPath, [bin, "d1", "migrations", "apply", "DB", "--local", "--config", config, "--persist-to", state], {
         encoding: "utf8",
-        env: { ...process.env, CI: "1" },
+        env: { ...process.env, CI: "1", WRANGLER_SEND_METRICS: "false" },
       });
       if (run.status !== 0) throw new Error(run.stderr || run.stdout);
     },
@@ -27,7 +27,7 @@ export const startWrangler = (config: string, state: string, port: number, vars:
     return spawn(
       process.execPath,
       [bin, "dev", "--config", config, "--port", String(port), "--ip", "127.0.0.1", "--persist-to", state, ...Object.entries(vars).flatMap(([k, v]) => ["--var", `${k}:${v}`])],
-      { stdio: ["ignore", out, out], env: { ...process.env, CI: "1" } },
+      { stdio: ["ignore", out, out], env: { ...process.env, CI: "1", WRANGLER_SEND_METRICS: "false" } },
     );
   });
 

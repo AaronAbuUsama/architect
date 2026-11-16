@@ -1,6 +1,6 @@
 // A step's checks against what its call got back and what the world now holds. Span checks wait for telemetry.
 import { Effect } from "effect";
-import type { Assertion, Thing } from "@architect/blueprint";
+import type { Assertion, NotFrom, Refusal, Thing } from "@architect/blueprint";
 import { ErrorNames, EventNames, Scripting } from "@architect/blueprint/server";
 import type { CallRecord } from "../types.ts";
 import { stateOf } from "./world.ts";
@@ -15,6 +15,15 @@ export const show = (v: unknown) => JSON.stringify(wireOf(v));
 
 export const tagOfClass = (cls: unknown): string =>
   ErrorNames.nameOf(cls as never) ?? String((new (cls as new (a: object) => { _tag?: unknown })({}))._tag);
+
+const pascal = (name: string) => name.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join("");
+
+/** A refusal check's tag: a declared error's class name, or `<Thing>Not<FirstState>` for a machine's own refusal. */
+const tagOfRefusal = (error: Refusal, tableOf: (thing: Thing) => string | undefined): string => {
+  if ((error as NotFrom).kind !== "not-from") return tagOfClass(error);
+  const machine = (error as NotFrom).machine;
+  return `${pascal(tableOf(machine.thing) ?? "?")}Not${pascal(machine.states[0] ?? "")}`;
+};
 
 const subset = (want: Readonly<Record<string, unknown>>, got: unknown) =>
   typeof got === "object" && got !== null && Object.entries(want).every(([k, v]) => show(v) === show((got as Record<string, unknown>)[k]));
@@ -44,8 +53,16 @@ export const runChecks = (
           const picked = check.pick(env["last"]);
           if (!check.match.test(String(wireOf(picked)))) failures.push(`answer ${show(picked)} doesn't match ${check.match}`);
         }
+      } else if (check.kind === "expect-equal") {
+        if (call.status !== 200) failures.push(`expected an answer, ${said}`);
+        else {
+          const picked = check.pick(env["last"]);
+          // The expected value may name the script (`s.olga.person`): it means what the run gave it.
+          const value = Scripting.resolve(check.value, env).value;
+          if (show(picked) !== show(value)) failures.push(`answer ${show(picked)}, expected ${show(value)}`);
+        }
       } else if (check.kind === "refuses") {
-        const tag = tagOfClass(check.error);
+        const tag = tagOfRefusal(check.error, world.tableOf);
         if (refused !== tag) failures.push(`expected refused with ${tag}, ${said}`);
         else if (!subset(check.fields, call.body)) failures.push(`refused with ${tag} ${show(call.body)}, expected ${show(check.fields)}`);
       } else if (check.kind === "emits") {

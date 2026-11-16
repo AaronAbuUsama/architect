@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 import { ErrorNames, EventNames } from "@architect/blueprint/server";
-import { BlueprintSource } from "#modules/source/types.ts";
+import { BlueprintSource } from "#modules/source/types.js";
 import { BlueprintInvalid, type CompilerApi } from "./types.ts";
 import { describe } from "./internal/describe.ts";
 import { readLayout } from "./internal/layout.ts";

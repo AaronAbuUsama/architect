@@ -1,5 +1,5 @@
 import { Clock, Deferred, Duration, Effect, Layer } from "effect";
-import { Busy } from "#modules/work/types.ts";
+import { Busy } from "#modules/work/types.js";
 import { Timers, type Timer } from "./types.ts";
 
 const timerOf = (t: Timer): Timer => ({ id: t.id, at: t.at, owner: t.owner, name: t.name });

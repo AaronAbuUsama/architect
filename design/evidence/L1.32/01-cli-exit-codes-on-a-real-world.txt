@@ -1,0 +1,13 @@
+$ npx vitest run --reporter verbose --root packages/prove src/modules/world
+# commit 735020c · 2026-11-16T18:44:19Z · exit 0 (expected 0) · 9.6s
+
+
+ RUN  v4.1.12 ./packages/prove
+
+ ✓ src/modules/world/world.test.ts > a local world > serves acme on workerd: the world casts ada, ada founds an organisation and grants olga 500 2764ms
+ ✓ src/modules/world/world.test.ts > a local world > the generated CLI: spending past the limit exits 41, a revoked allowance 40, an outsider 3; --json prints the answer 5658ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  18:44:10
+   Duration  8.73s (transform 38ms, setup 0ms, import 212ms, tests 8.42s, environment 0ms)

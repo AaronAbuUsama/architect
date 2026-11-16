@@ -1,0 +1,9 @@
+$ node packages/cli/src/main.ts check --root examples/starter
+# commit 163b5ef · 2026-11-16T19:44:00Z · exit 0 (expected 0) · 1.3s
+
+blanks left 0
+types ✔
+rules ✔
+drift ✔
+ratchets 0
+check ✔

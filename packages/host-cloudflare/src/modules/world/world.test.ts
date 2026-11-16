@@ -2,26 +2,27 @@ import { env } from "cloudflare:workers";
 import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
 import { Principals } from "@architect/target-effect";
-import { Tokens } from "#modules/tokens/service.ts";
+import { AuthD1 } from "#modules/auth/service.js";
 import { toWorld } from "./service.ts";
 
 const world = { worlds: env.WORLD, db: env.DB, tables: ["allowance"] };
 
-const cast = (names: ReadonlyArray<string>) =>
-  toWorld(world, new Request("http://world/_world/cast", { method: "POST", body: JSON.stringify({ names }) }))
-    .then((r) => r.json() as Promise<Record<string, { person: string; token: string }>>);
+const cast = (names: ReadonlyArray<string>, anonymous: ReadonlyArray<string> = []) =>
+  toWorld(world, new Request("http://world/_world/cast", { method: "POST", body: JSON.stringify({ names, anonymous }) }))
+    .then((r) => r.json() as Promise<Record<string, { person?: string; token?: string; email: string; password: string }>>);
 
 describe("the world Durable Object, in workerd", () => {
-  it("casts people once and signs tokens the Worker accepts", async () => {
-    const first = await cast(["ada", "olga"]);
+  it("signs the cast up once through Better Auth, with tokens the Worker accepts; an anonymous member only gets credentials", { timeout: 30_000 }, async () => {
+    const first = await cast(["ada", "olga"], ["newcomer"]);
     const again = await cast(["ada"]);
     expect(first["ada"]!.person).toMatch(/^per_[0-9a-z]{16}$/);
     expect(again["ada"]!.person).toBe(first["ada"]!.person);
     expect(first["olga"]!.person).not.toBe(first["ada"]!.person);
     const principal = await Effect.runPromise(
-      Effect.flatMap(Principals, (p) => p.of(`Bearer ${first["ada"]!.token}`)).pipe(Effect.provide(Tokens.principals(env.WORLD_SECRET))),
+      Effect.flatMap(Principals, (p) => p.of(`Bearer ${again["ada"]!.token}`)).pipe(Effect.provide(AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET })))),
     );
-    expect(principal).toEqual({ kind: "person", person: first["ada"]!.person });
+    expect(principal).toEqual({ kind: "person", person: first["ada"]!.person, email: first["ada"]!.email });
+    expect(first["newcomer"]).toEqual({ email: expect.stringMatching(/^newcomer\..+@world\.test$/), password: expect.any(String) });
   });
 
   it("answers health", async () => {

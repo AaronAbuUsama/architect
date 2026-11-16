@@ -9,4 +9,4 @@ export const endpoint = HttpApiEndpoint.post("create", "/organization/create", {
   success: declaration.answerSchema,
   error: [NotAllowed],
 });
-export const steps = ["organization.create.insert"] as const;
+export const steps = ["organization.create.insert", "organization.create.owner"] as const;

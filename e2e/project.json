@@ -1,0 +1,15 @@
+{
+  "name": "e2e",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "tags": ["scope:e2e", "env:build", "layer:1"],
+  "targets": {
+    "lint": {},
+    "typecheck": {},
+    "layer1": {
+      "executor": "nx:run-commands",
+      "options": { "command": "vitest run --root {projectRoot} layer1" },
+      "cache": false
+    }
+  }
+}

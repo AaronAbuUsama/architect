@@ -1,11 +1,11 @@
 import { resolve } from "node:path";
 import { Effect } from "effect";
 import { Compiler, nodeSource } from "@architect/compiler";
-import { Collectors } from "#modules/telemetry/service.ts";
-import { Evals } from "#modules/evals/service.ts";
-import { Journeys } from "#modules/journeys/service.ts";
-import { stateOf } from "#modules/journeys/internal/world.ts";
-import { Worlds } from "#modules/world/service.ts";
+import { Collectors } from "#modules/telemetry/service.js";
+import { Evals } from "#modules/evals/service.js";
+import { Journeys } from "#modules/journeys/service.js";
+import { Worlds } from "#modules/world/service.js";
+import { Impact } from "#modules/impact/service.js";
 import { ProveFailed, type ProveApi } from "./types.ts";
 import { evalLines, journeyLines } from "./internal/report.ts";
 
@@ -25,9 +25,12 @@ export const Prove: ProveApi = {
       const runs = yield* Effect.forEach(project.journeys, (j, i) => Journeys.run(project, url, j, i));
       const calls = runs.flatMap((r) => r.calls);
       const traces = yield* collector.traces(calls.map((c) => ({ trace: c.trace, parent: c.parent })));
-      const evidence = yield* Evals.gather(project, calls, traces, (table, id) => stateOf(url, table, id));
+      const evidence = Evals.gather(calls, traces);
       const journeys = journeyLines(runs, traces);
-      const evals = evalLines(model, Evals.judge(project, evidence));
+      const verdicts = Evals.judge(project, evidence);
+      // A run with a failing journey proves nothing: its operations are recorded as judged and not passed (D2 #80).
+      yield* Impact.record(root, model, journeys.failed === 0 ? verdicts : verdicts.map((v) => ({ ...v, failures: [...v.failures, "a journey failed"] })));
+      const evals = evalLines(model, verdicts);
       const failures = journeys.failed + evals.failed;
       return {
         lines: [...journeys.lines, ...evals.lines, failures === 0 ? "prove ✔" : `prove ✘ ${failures} failing`],

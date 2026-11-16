@@ -1,0 +1,10 @@
+$ node packages/cli/src/main.ts check --root examples/acme/test/tmp/evidence/acme
+# commit 9536039 · 2026-11-16T18:54:40Z · exit 1 (expected 1) · 0.9s
+
+blanks left 0
+types ✔
+rules ✔
+drift ✘ 1
+  generated/api/src/allowance/get.ts  no-edited-output: differs from what the blueprint generates: never edit generated/, run architect generate
+ratchets 0
+check ✘

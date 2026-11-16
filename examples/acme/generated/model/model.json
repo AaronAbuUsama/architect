@@ -3,6 +3,24 @@
     "Amount": {
       "type": "uint",
       "bits": 128
+    },
+    "Memo": {
+      "type": "text",
+      "max": 200
+    },
+    "Ok": {
+      "type": "schema"
+    },
+    "Password": {
+      "type": "text",
+      "max": 128
+    },
+    "Role": {
+      "type": "schema"
+    },
+    "Secret": {
+      "type": "text",
+      "max": 512
     }
   },
   "things": {
@@ -46,9 +64,12 @@
           "named": "Amount"
         }
       },
+      "lives": "database",
       "machine": {
         "states": [
-          "active"
+          "active",
+          "exhausted",
+          "revoked"
         ],
         "moves": {
           "grant": {
@@ -57,6 +78,26 @@
               "active"
             ],
             "emits": "AllowanceGranted"
+          },
+          "spend": {
+            "from": [
+              "active"
+            ],
+            "to": [
+              "active",
+              "exhausted"
+            ],
+            "emits": "AllowanceSpent"
+          },
+          "revoke": {
+            "from": [
+              "active",
+              "exhausted"
+            ],
+            "to": [
+              "revoked"
+            ],
+            "emits": "AllowanceRevoked"
           }
         },
         "notFrom": {
@@ -80,9 +121,60 @@
             },
             "named": "Amount"
           }
+        },
+        "AllowanceRevoked": {
+          "allowance": {
+            "value": {
+              "type": "id",
+              "prefix": "alw"
+            },
+            "ref": "allowance.id"
+          }
+        },
+        "AllowanceSpent": {
+          "allowance": {
+            "value": {
+              "type": "id",
+              "prefix": "alw"
+            },
+            "ref": "allowance.id"
+          },
+          "amount": {
+            "value": {
+              "type": "uint",
+              "bits": 128
+            },
+            "named": "Amount"
+          },
+          "memo": {
+            "value": {
+              "type": "text",
+              "max": 200
+            },
+            "named": "Memo"
+          },
+          "remaining": {
+            "value": {
+              "type": "uint",
+              "bits": 128
+            },
+            "named": "Amount"
+          }
         }
       },
       "errors": {
+        "AllowanceExceeded": {
+          "fields": {
+            "remaining": {
+              "value": {
+                "type": "uint",
+                "bits": 128
+              },
+              "named": "Amount"
+            }
+          },
+          "exit": 41
+        },
         "AllowanceLimitTooHigh": {
           "fields": {
             "cap": {
@@ -94,10 +186,217 @@
             }
           },
           "exit": 44
+        },
+        "AllowanceNotFound": {
+          "fields": {},
+          "exit": 43
         }
       },
+      "roles": [
+        "grantee"
+      ],
+      "hash": "d545ff8f0a5ef32d"
+    },
+    "api-key": {
+      "name": "api-key",
+      "identifier": "ApiKey",
+      "description": "A key an agent or a service calls with, on behalf of whoever created it. Better Auth keeps its hash.",
+      "fields": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "key"
+          }
+        },
+        "organization": {
+          "value": {
+            "type": "id",
+            "prefix": "org"
+          },
+          "ref": "organization.id"
+        },
+        "name": {
+          "value": {
+            "type": "text",
+            "max": 200
+          }
+        },
+        "createdBy": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "person.id"
+        }
+      },
+      "lives": "database",
+      "machine": null,
+      "events": {},
+      "errors": {},
       "roles": [],
-      "hash": "f970f8db0ed45553"
+      "hash": "3f17df33fae4a95e"
+    },
+    "invitation": {
+      "name": "invitation",
+      "identifier": "Invitation",
+      "description": "An offer to join an organisation, sent to an email address.",
+      "fields": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "inv"
+          }
+        },
+        "organization": {
+          "value": {
+            "type": "id",
+            "prefix": "org"
+          },
+          "ref": "organization.id"
+        },
+        "email": {
+          "value": {
+            "type": "text",
+            "max": 254
+          },
+          "ref": "person.email"
+        },
+        "invitedBy": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "person.id"
+        }
+      },
+      "lives": "database",
+      "machine": {
+        "states": [
+          "pending",
+          "accepted",
+          "revoked"
+        ],
+        "moves": {
+          "send": {
+            "from": [],
+            "to": [
+              "pending"
+            ],
+            "emits": "InvitationSent"
+          },
+          "accept": {
+            "from": [
+              "pending"
+            ],
+            "to": [
+              "accepted"
+            ],
+            "emits": "InvitationAccepted"
+          },
+          "revoke": {
+            "from": [
+              "pending"
+            ],
+            "to": [
+              "revoked"
+            ],
+            "emits": "InvitationRevoked"
+          }
+        },
+        "notFrom": {
+          "error": "InvitationNotPending",
+          "exit": 40
+        }
+      },
+      "events": {
+        "InvitationAccepted": {
+          "invitation": {
+            "value": {
+              "type": "id",
+              "prefix": "inv"
+            },
+            "ref": "invitation.id"
+          },
+          "membership": {
+            "value": {
+              "type": "id",
+              "prefix": "mem"
+            },
+            "ref": "membership.id"
+          }
+        },
+        "InvitationRevoked": {
+          "invitation": {
+            "value": {
+              "type": "id",
+              "prefix": "inv"
+            },
+            "ref": "invitation.id"
+          }
+        },
+        "InvitationSent": {
+          "invitation": {
+            "value": {
+              "type": "id",
+              "prefix": "inv"
+            },
+            "ref": "invitation.id"
+          },
+          "email": {
+            "value": {
+              "type": "text",
+              "max": 254
+            },
+            "ref": "invitation.email"
+          }
+        }
+      },
+      "errors": {},
+      "roles": [
+        "invitee"
+      ],
+      "hash": "4b386b81727a94e8"
+    },
+    "membership": {
+      "name": "membership",
+      "identifier": "Membership",
+      "description": "A person's place in an organisation.",
+      "fields": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "mem"
+          }
+        },
+        "organization": {
+          "value": {
+            "type": "id",
+            "prefix": "org"
+          },
+          "ref": "organization.id"
+        },
+        "person": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "person.id"
+        },
+        "role": {
+          "value": {
+            "type": "schema"
+          },
+          "named": "Role"
+        }
+      },
+      "lives": "database",
+      "machine": null,
+      "events": {},
+      "errors": {},
+      "roles": [
+        "holder"
+      ],
+      "hash": "4c97f83624480289"
     },
     "organization": {
       "name": "organization",
@@ -131,23 +430,64 @@
           "named": "Amount"
         }
       },
-      "machine": null,
-      "events": {},
+      "lives": "database",
+      "machine": {
+        "states": [
+          "active"
+        ],
+        "moves": {
+          "create": {
+            "from": [],
+            "to": [
+              "active"
+            ],
+            "emits": "OrganizationCreated"
+          }
+        },
+        "notFrom": {
+          "error": "OrganizationNotActive",
+          "exit": 20
+        }
+      },
+      "events": {
+        "OrganizationCreated": {
+          "organization": {
+            "value": {
+              "type": "id",
+              "prefix": "org"
+            },
+            "ref": "organization.id"
+          },
+          "owner": {
+            "value": {
+              "type": "id",
+              "prefix": "per"
+            },
+            "ref": "organization.owner"
+          }
+        }
+      },
       "errors": {},
       "roles": [
         "owner"
       ],
-      "hash": "3100b243edb9e347"
+      "hash": "d28831c5e02ff781"
     },
     "person": {
       "name": "person",
       "identifier": "Person",
-      "description": "Someone who signs in. People arrive through sign-in from stage two.",
+      "description": "Someone who signs in. Better Auth keeps people; the project refers to them by id.",
       "fields": {
         "id": {
           "value": {
             "type": "id",
             "prefix": "per"
+          }
+        },
+        "email": {
+          "value": {
+            "type": "text",
+            "max": 254
           }
         },
         "name": {
@@ -157,15 +497,150 @@
           }
         }
       },
+      "lives": "database",
+      "machine": null,
+      "events": {},
+      "errors": {
+        "PersonEmailTaken": {
+          "fields": {},
+          "exit": 11
+        }
+      },
+      "roles": [],
+      "hash": "67846e43cd15c7f0"
+    },
+    "session": {
+      "name": "session",
+      "identifier": "Session",
+      "description": "A person's signed-in session, issued by Better Auth.",
+      "fields": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "ses"
+          }
+        },
+        "person": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "person.id"
+        }
+      },
+      "lives": "database",
+      "machine": null,
+      "events": {},
+      "errors": {
+        "SessionCredentialsWrong": {
+          "fields": {},
+          "exit": 10
+        }
+      },
+      "roles": [],
+      "hash": "56ef682327ea406a"
+    },
+    "system": {
+      "name": "system",
+      "identifier": "System",
+      "description": "The running application itself.",
+      "fields": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "sys"
+          }
+        }
+      },
+      "lives": "database",
       "machine": null,
       "events": {},
       "errors": {},
       "roles": [],
-      "hash": "ac769a99c895d4a7"
+      "hash": "8414ffbf37eb77af"
     }
   },
   "operations": {
+    "allowance.get": {
+      "kind": "read",
+      "name": "allowance.get",
+      "thing": "allowance",
+      "verb": "get",
+      "identifier": "get",
+      "file": "blueprint/things/allowance/verbs/get.ts",
+      "description": "Read one allowance by its id: organization, member, limit, spent, state.",
+      "payload": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "alw"
+          },
+          "ref": "allowance.id"
+        }
+      },
+      "answer": {
+        "organization": {
+          "value": {
+            "type": "id",
+            "prefix": "org"
+          },
+          "ref": "allowance.organization"
+        },
+        "member": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "allowance.member"
+        },
+        "limit": {
+          "value": {
+            "type": "uint",
+            "bits": 128
+          },
+          "named": "Amount",
+          "ref": "allowance.limit"
+        },
+        "spent": {
+          "value": {
+            "type": "uint",
+            "bits": 128
+          },
+          "named": "Amount",
+          "ref": "allowance.spent"
+        },
+        "state": {
+          "value": {
+            "type": "text",
+            "max": 64
+          }
+        }
+      },
+      "move": null,
+      "errors": [],
+      "refusals": [
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "role",
+          "role": "allowance.grantee"
+        },
+        {
+          "kind": "role-of",
+          "role": "organization.owner",
+          "path": "organization"
+        }
+      ],
+      "steps": {},
+      "idempotent": null,
+      "budget": {
+        "p95Ms": 50
+      },
+      "hash": "cbccc5abd9a4f686"
+    },
     "allowance.grant": {
+      "kind": "operation",
       "name": "allowance.grant",
       "thing": "allowance",
       "verb": "grant",
@@ -237,15 +712,463 @@
       "budget": {
         "p95Ms": 200
       },
-      "hash": "33848484aad9a715"
+      "hash": "c07763874651fc09"
+    },
+    "allowance.revoke": {
+      "kind": "operation",
+      "name": "allowance.revoke",
+      "thing": "allowance",
+      "verb": "revoke",
+      "identifier": "revoke",
+      "file": "blueprint/things/allowance/verbs/revoke.ts",
+      "description": "Stop an allowance. Nothing more can be spent from it.",
+      "payload": {
+        "allowance": {
+          "value": {
+            "type": "id",
+            "prefix": "alw"
+          },
+          "ref": "allowance.id"
+        }
+      },
+      "answer": {},
+      "move": {
+        "key": "revoke",
+        "from": [
+          "active",
+          "exhausted"
+        ],
+        "to": [
+          "revoked"
+        ],
+        "emits": "AllowanceRevoked"
+      },
+      "errors": [],
+      "refusals": [
+        "AllowanceNotActive",
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "role-of",
+          "role": "organization.owner",
+          "path": "allowance.organization"
+        }
+      ],
+      "steps": {
+        "update": {
+          "name": "allowance.revoke.update",
+          "type": "database"
+        }
+      },
+      "idempotent": null,
+      "budget": {
+        "p95Ms": 150
+      },
+      "hash": "4ce99862e3eab07d"
+    },
+    "allowance.spend": {
+      "kind": "operation",
+      "name": "allowance.spend",
+      "thing": "allowance",
+      "verb": "spend",
+      "identifier": "spend",
+      "file": "blueprint/things/allowance/verbs/spend.ts",
+      "description": "Spend from what is left of this month's allowance.",
+      "payload": {
+        "allowance": {
+          "value": {
+            "type": "id",
+            "prefix": "alw"
+          },
+          "ref": "allowance.id"
+        },
+        "amount": {
+          "value": {
+            "type": "uint",
+            "bits": 128
+          },
+          "named": "Amount"
+        },
+        "memo": {
+          "value": {
+            "type": "text",
+            "max": 200
+          },
+          "named": "Memo"
+        }
+      },
+      "answer": {
+        "remaining": {
+          "value": {
+            "type": "uint",
+            "bits": 128
+          },
+          "named": "Amount"
+        }
+      },
+      "move": {
+        "key": "spend",
+        "from": [
+          "active"
+        ],
+        "to": [
+          "active",
+          "exhausted"
+        ],
+        "emits": "AllowanceSpent"
+      },
+      "errors": [
+        "AllowanceExceeded"
+      ],
+      "refusals": [
+        "AllowanceExceeded",
+        "AllowanceNotActive",
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "role",
+          "role": "allowance.grantee"
+        }
+      ],
+      "steps": {
+        "load": {
+          "name": "allowance.spend.load",
+          "type": "database"
+        },
+        "record": {
+          "name": "allowance.spend.record",
+          "type": "database"
+        }
+      },
+      "idempotent": "request",
+      "budget": {
+        "p95Ms": 150
+      },
+      "hash": "40708454e868ce42"
+    },
+    "api-key.create": {
+      "kind": "operation",
+      "name": "api-key.create",
+      "thing": "api-key",
+      "verb": "create",
+      "identifier": "create",
+      "file": "blueprint/things/api-key/verbs/create.ts",
+      "description": "Create an API key in an organisation. The key itself is shown once.",
+      "payload": {
+        "organization": {
+          "value": {
+            "type": "id",
+            "prefix": "org"
+          },
+          "ref": "api-key.organization"
+        },
+        "name": {
+          "value": {
+            "type": "text",
+            "max": 200
+          },
+          "ref": "api-key.name"
+        }
+      },
+      "answer": {
+        "apiKey": {
+          "value": {
+            "type": "id",
+            "prefix": "key"
+          },
+          "ref": "api-key.id"
+        },
+        "key": {
+          "value": {
+            "type": "text",
+            "max": 512
+          },
+          "named": "Secret"
+        }
+      },
+      "move": null,
+      "errors": [],
+      "refusals": [
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "role-of",
+          "role": "organization.owner",
+          "path": "organization"
+        }
+      ],
+      "steps": {
+        "issue": {
+          "name": "api-key.create.issue",
+          "type": "database"
+        },
+        "insert": {
+          "name": "api-key.create.insert",
+          "type": "database"
+        }
+      },
+      "idempotent": null,
+      "budget": {
+        "p95Ms": 250
+      },
+      "hash": "e7a7b757872cfe84"
+    },
+    "invitation.accept": {
+      "kind": "operation",
+      "name": "invitation.accept",
+      "thing": "invitation",
+      "verb": "accept",
+      "identifier": "accept",
+      "file": "blueprint/things/invitation/verbs/accept.ts",
+      "description": "Accept an invitation and become a member of its organisation.",
+      "payload": {
+        "invitation": {
+          "value": {
+            "type": "id",
+            "prefix": "inv"
+          },
+          "ref": "invitation.id"
+        }
+      },
+      "answer": {
+        "organization": {
+          "value": {
+            "type": "id",
+            "prefix": "org"
+          },
+          "ref": "invitation.organization"
+        },
+        "membership": {
+          "value": {
+            "type": "id",
+            "prefix": "mem"
+          },
+          "ref": "membership.id"
+        }
+      },
+      "move": {
+        "key": "accept",
+        "from": [
+          "pending"
+        ],
+        "to": [
+          "accepted"
+        ],
+        "emits": "InvitationAccepted"
+      },
+      "errors": [],
+      "refusals": [
+        "InvitationNotPending",
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "role",
+          "role": "invitation.invitee"
+        }
+      ],
+      "steps": {
+        "join": {
+          "name": "invitation.accept.join",
+          "type": "database"
+        }
+      },
+      "idempotent": null,
+      "budget": {
+        "p95Ms": 200
+      },
+      "hash": "72b1952ae2625487"
+    },
+    "invitation.revoke": {
+      "kind": "operation",
+      "name": "invitation.revoke",
+      "thing": "invitation",
+      "verb": "revoke",
+      "identifier": "revoke",
+      "file": "blueprint/things/invitation/verbs/revoke.ts",
+      "description": "Withdraw an invitation that hasn't been accepted.",
+      "payload": {
+        "invitation": {
+          "value": {
+            "type": "id",
+            "prefix": "inv"
+          },
+          "ref": "invitation.id"
+        }
+      },
+      "answer": {},
+      "move": {
+        "key": "revoke",
+        "from": [
+          "pending"
+        ],
+        "to": [
+          "revoked"
+        ],
+        "emits": "InvitationRevoked"
+      },
+      "errors": [],
+      "refusals": [
+        "InvitationNotPending",
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "role-of",
+          "role": "organization.owner",
+          "path": "invitation.organization"
+        }
+      ],
+      "steps": {
+        "update": {
+          "name": "invitation.revoke.update",
+          "type": "database"
+        }
+      },
+      "idempotent": null,
+      "budget": {
+        "p95Ms": 150
+      },
+      "hash": "996b5a457075683e"
+    },
+    "invitation.send": {
+      "kind": "operation",
+      "name": "invitation.send",
+      "thing": "invitation",
+      "verb": "send",
+      "identifier": "send",
+      "file": "blueprint/things/invitation/verbs/send.ts",
+      "description": "Invite someone to an organisation by email.",
+      "payload": {
+        "organization": {
+          "value": {
+            "type": "id",
+            "prefix": "org"
+          },
+          "ref": "invitation.organization"
+        },
+        "email": {
+          "value": {
+            "type": "text",
+            "max": 254
+          },
+          "ref": "invitation.email"
+        }
+      },
+      "answer": {
+        "invitation": {
+          "value": {
+            "type": "id",
+            "prefix": "inv"
+          },
+          "ref": "invitation.id"
+        }
+      },
+      "move": {
+        "key": "send",
+        "from": [],
+        "to": [
+          "pending"
+        ],
+        "emits": "InvitationSent"
+      },
+      "errors": [],
+      "refusals": [
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "role-of",
+          "role": "organization.owner",
+          "path": "organization"
+        }
+      ],
+      "steps": {
+        "insert": {
+          "name": "invitation.send.insert",
+          "type": "database"
+        }
+      },
+      "idempotent": null,
+      "budget": {
+        "p95Ms": 200
+      },
+      "hash": "e56d1a8e22b99636"
+    },
+    "membership.get": {
+      "kind": "read",
+      "name": "membership.get",
+      "thing": "membership",
+      "verb": "get",
+      "identifier": "get",
+      "file": "blueprint/things/membership/verbs/get.ts",
+      "description": "Read one membership by its id: organization, person, role.",
+      "payload": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "mem"
+          },
+          "ref": "membership.id"
+        }
+      },
+      "answer": {
+        "organization": {
+          "value": {
+            "type": "id",
+            "prefix": "org"
+          },
+          "ref": "membership.organization"
+        },
+        "person": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "membership.person"
+        },
+        "role": {
+          "value": {
+            "type": "schema"
+          },
+          "named": "Role",
+          "ref": "membership.role"
+        }
+      },
+      "move": null,
+      "errors": [],
+      "refusals": [
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "role",
+          "role": "membership.holder"
+        },
+        {
+          "kind": "role-of",
+          "role": "organization.owner",
+          "path": "membership.organization"
+        }
+      ],
+      "steps": {},
+      "idempotent": null,
+      "budget": {
+        "p95Ms": 50
+      },
+      "hash": "ae9d119db65ee4f8"
     },
     "organization.create": {
+      "kind": "operation",
       "name": "organization.create",
       "thing": "organization",
       "verb": "create",
       "identifier": "create",
       "file": "blueprint/things/organization/verbs/create.ts",
-      "description": "Start an organisation. Whoever creates it owns it.",
+      "description": "Found an organisation with its cap. Whoever founds it owns it, and is its first member.",
       "payload": {
         "name": {
           "value": {
@@ -272,7 +1195,14 @@
           "ref": "organization.id"
         }
       },
-      "move": null,
+      "move": {
+        "key": "create",
+        "from": [],
+        "to": [
+          "active"
+        ],
+        "emits": "OrganizationCreated"
+      },
       "errors": [],
       "refusals": [
         "NotAllowed"
@@ -286,13 +1216,276 @@
         "insert": {
           "name": "organization.create.insert",
           "type": "database"
+        },
+        "owner": {
+          "name": "organization.create.owner",
+          "type": "database"
         }
       },
       "idempotent": "request",
       "budget": {
-        "p95Ms": 200
+        "p95Ms": 250
       },
-      "hash": "e3e79ef636641315"
+      "hash": "522eb516f4ba2099"
+    },
+    "organization.get": {
+      "kind": "read",
+      "name": "organization.get",
+      "thing": "organization",
+      "verb": "get",
+      "identifier": "get",
+      "file": "blueprint/things/organization/verbs/get.ts",
+      "description": "Read one organization by its id: name, owner, state.",
+      "payload": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "org"
+          },
+          "ref": "organization.id"
+        }
+      },
+      "answer": {
+        "name": {
+          "value": {
+            "type": "text",
+            "max": 200
+          },
+          "ref": "organization.name"
+        },
+        "owner": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "organization.owner"
+        },
+        "state": {
+          "value": {
+            "type": "text",
+            "max": 64
+          }
+        }
+      },
+      "move": null,
+      "errors": [],
+      "refusals": [
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "role",
+          "role": "organization.owner"
+        }
+      ],
+      "steps": {},
+      "idempotent": null,
+      "budget": {
+        "p95Ms": 50
+      },
+      "hash": "570b2e6322dee4c7"
+    },
+    "person.sign-up": {
+      "kind": "operation",
+      "name": "person.sign-up",
+      "thing": "person",
+      "verb": "sign-up",
+      "identifier": "signUp",
+      "file": "blueprint/things/person/verbs/sign-up.ts",
+      "description": "Sign up with an email address and a password.",
+      "payload": {
+        "email": {
+          "value": {
+            "type": "text",
+            "max": 254
+          },
+          "ref": "person.email"
+        },
+        "password": {
+          "value": {
+            "type": "text",
+            "max": 128
+          },
+          "named": "Password"
+        },
+        "name": {
+          "value": {
+            "type": "text",
+            "max": 200
+          },
+          "ref": "person.name"
+        }
+      },
+      "answer": {
+        "person": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "person.id"
+        }
+      },
+      "move": null,
+      "errors": [
+        "PersonEmailTaken"
+      ],
+      "refusals": [
+        "PersonEmailTaken"
+      ],
+      "allowed": [
+        {
+          "kind": "anyone"
+        }
+      ],
+      "steps": {
+        "create": {
+          "name": "person.sign-up.create",
+          "type": "database"
+        }
+      },
+      "idempotent": null,
+      "budget": {
+        "p95Ms": 400
+      },
+      "hash": "93e57fe5eea95e26"
+    },
+    "session.show": {
+      "kind": "operation",
+      "name": "session.show",
+      "thing": "session",
+      "verb": "show",
+      "identifier": "show",
+      "file": "blueprint/things/session/verbs/show.ts",
+      "description": "Who is signed in.",
+      "payload": {},
+      "answer": {
+        "person": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "person.id"
+        },
+        "email": {
+          "value": {
+            "type": "text",
+            "max": 254
+          },
+          "ref": "person.email"
+        }
+      },
+      "move": null,
+      "errors": [],
+      "refusals": [
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "signed-in"
+        }
+      ],
+      "steps": {},
+      "idempotent": null,
+      "budget": {
+        "p95Ms": 100
+      },
+      "hash": "cee6d72700637d9e"
+    },
+    "session.sign-in": {
+      "kind": "operation",
+      "name": "session.sign-in",
+      "thing": "session",
+      "verb": "sign-in",
+      "identifier": "signIn",
+      "file": "blueprint/things/session/verbs/sign-in.ts",
+      "description": "Sign in with email and password. The token is the bearer for every later call.",
+      "payload": {
+        "email": {
+          "value": {
+            "type": "text",
+            "max": 254
+          },
+          "ref": "person.email"
+        },
+        "password": {
+          "value": {
+            "type": "text",
+            "max": 128
+          },
+          "named": "Password"
+        }
+      },
+      "answer": {
+        "session": {
+          "value": {
+            "type": "id",
+            "prefix": "ses"
+          },
+          "ref": "session.id"
+        },
+        "token": {
+          "value": {
+            "type": "text",
+            "max": 512
+          },
+          "named": "Secret"
+        }
+      },
+      "move": null,
+      "errors": [
+        "SessionCredentialsWrong"
+      ],
+      "refusals": [
+        "SessionCredentialsWrong"
+      ],
+      "allowed": [
+        {
+          "kind": "anyone"
+        }
+      ],
+      "steps": {
+        "verify": {
+          "name": "session.sign-in.verify",
+          "type": "database"
+        }
+      },
+      "idempotent": null,
+      "budget": {
+        "p95Ms": 400
+      },
+      "hash": "2e89ec46a9e68da1"
+    },
+    "system.health": {
+      "kind": "operation",
+      "name": "system.health",
+      "thing": "system",
+      "verb": "health",
+      "identifier": "health",
+      "file": "blueprint/things/system/verbs/health.ts",
+      "description": "Is the application up?",
+      "payload": {},
+      "answer": {
+        "status": {
+          "value": {
+            "type": "schema"
+          },
+          "named": "Ok"
+        }
+      },
+      "move": null,
+      "errors": [],
+      "refusals": [],
+      "allowed": [
+        {
+          "kind": "anyone"
+        }
+      ],
+      "steps": {},
+      "idempotent": null,
+      "budget": {
+        "p95Ms": 50
+      },
+      "hash": "4c762db26dff1fd1"
     }
   }
 }

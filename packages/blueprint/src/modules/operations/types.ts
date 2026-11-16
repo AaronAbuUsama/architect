@@ -1,9 +1,9 @@
 // Operations and reads: what can be called. An operation's name is its path; nothing here carries a name.
 import type { Duration, Schema } from "effect";
-import type { AnyErrorClass } from "#modules/errors/types.ts";
-import type { Move } from "#modules/machines/types.ts";
-import type { Allowed, Builtin, Role, RoleOf } from "#modules/roles/types.ts";
-import type { FieldsInput, Thing, ValueOf } from "#modules/things/types.ts";
+import type { AnyErrorClass } from "#modules/errors/types.js";
+import type { Move } from "#modules/machines/types.js";
+import type { Allowed, Builtin, Role, RoleOf } from "#modules/roles/types.js";
+import type { FieldsInput, Thing, ValueOf } from "#modules/things/types.js";
 
 /** A named part of a handler's work, recorded as its own span. Named `<thing>.<verb>.<key>` by the compiler. */
 export interface Step<K extends StepKind = StepKind> {
@@ -65,10 +65,18 @@ export interface Read<T extends Thing = Thing> {
   readonly fields: ReadonlyArray<keyof T["fields"] | "state">;
   readonly allowed: ReadonlyArray<Allowed>;
   readonly budget: Budget | undefined;
+  /** `{ id }`, the thing's own id field. */
+  readonly payload: FieldsInput;
+  /** The fields it names, with `state` as text. */
+  readonly answer: FieldsInput;
+  readonly payloadSchema: Schema.Codec<{ readonly id: string }, { readonly id: string }>;
+  readonly answerSchema: Schema.Codec<{ readonly [field: string]: unknown }, { readonly [field: string]: unknown }>;
 }
 
-export type PayloadOf<O> = O extends Operation<any, infer P, any, any, any> ? StructOf<P>["Type"] : never;
-export type AnswerOf<O> = O extends Operation<any, any, infer A, any, any> ? StructOf<A>["Type"] : never;
+export type PayloadOf<O> =
+  O extends Operation<any, infer P, any, any, any> ? StructOf<P>["Type"] : O extends Read<any> ? { readonly id: string } : never;
+export type AnswerOf<O> =
+  O extends Operation<any, any, infer A, any, any> ? StructOf<A>["Type"] : O extends Read<any> ? { readonly [field: string]: unknown } : never;
 export type ErrorOf<O> = O extends Operation<any, any, any, infer E, any> ? InstanceType<E[number]> : never;
 export type StepsOf<O> = O extends Operation<any, any, any, any, infer St> ? St : never;
 

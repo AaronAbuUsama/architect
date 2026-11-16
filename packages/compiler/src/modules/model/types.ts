@@ -1,6 +1,6 @@
 // The model: every declaration in the blueprint, named, described and hashed. Generators and evals read only this.
 import { Data, type Effect } from "effect";
-import type { BlueprintSource, SourceError } from "#modules/source/types.ts";
+import type { BlueprintSource, SourceError } from "#modules/source/types.js";
 
 export type ValueMeta =
   | { readonly type: "id"; readonly prefix: string }
@@ -28,6 +28,8 @@ export interface ThingModel {
   readonly identifier: string;
   readonly description: string;
   readonly fields: FieldsModel;
+  /** Who owns its state: D1 rows, or a Durable Object per instance. */
+  readonly lives: "database" | "actor";
   readonly machine: MachineModel | null;
   readonly events: Readonly<Record<string, FieldsModel>>;
   readonly errors: Readonly<Record<string, { readonly fields: FieldsModel; readonly exit: number }>>;
@@ -42,6 +44,8 @@ export type AllowedModel =
   | { readonly kind: "role-of"; readonly role: string; readonly path: string };
 
 export interface OperationModel {
+  /** A read is answered from the thing's records with no handler. */
+  readonly kind: "operation" | "read";
   readonly name: string;
   readonly thing: string;
   readonly verb: string;
@@ -65,6 +69,11 @@ export interface Model {
   readonly values: Readonly<Record<string, ValueMeta>>;
   readonly things: Readonly<Record<string, ThingModel>>;
   readonly operations: Readonly<Record<string, OperationModel>>;
+  /**
+   * What is still `Blueprint.todo`, by declaration (`allowance`, `allowance.spend`): present only when something is.
+   * An operation with a blank is left out of `operations`, so nothing is generated for it until it is filled.
+   */
+  readonly blanks?: Readonly<Record<string, ReadonlyArray<string>>>;
 }
 
 /** A blueprint the compiler refuses, with every problem found, each naming its file. */

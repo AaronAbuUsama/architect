@@ -1,9 +1,13 @@
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { basename, join, resolve } from "node:path";
 import { Effect, Exit } from "effect";
 import { afterAll, describe, expect, it } from "vitest";
-import { nodeSource } from "#modules/source/service.ts";
+import { nodeSource } from "#modules/source/service.js";
 import { Compiler } from "./service.ts";
+
+// Dot-folders (.wrangler, .architect) belong to whatever is running there; a filter also keeps cpSync off its native path,
+// which aborts the process when a folder vanishes mid-copy.
+const visible = (from: string) => !basename(from).startsWith(".");
 
 const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
 const scratch = resolve(import.meta.dirname, "../../../test/tmp");
@@ -13,7 +17,7 @@ const modelOf = (root: string) => Effect.runPromiseExit(Effect.provide(Compiler.
 const copyOfAcme = (): string => {
   mkdirSync(scratch, { recursive: true });
   const root = mkdtempSync(join(scratch, "acme-"));
-  cpSync(join(acme, "blueprint"), join(root, "blueprint"), { recursive: true });
+  cpSync(join(acme, "blueprint"), join(root, "blueprint"), { recursive: true, filter: visible });
   return root;
 };
 
@@ -24,7 +28,7 @@ describe("model", () => {
     const exit = await modelOf(acme);
     expect(Exit.isSuccess(exit)).toBe(true);
     if (!Exit.isSuccess(exit)) return;
-    expect(Object.keys(exit.value.operations)).toEqual(["allowance.grant", "organization.create"]);
+    expect(Object.keys(exit.value.operations)).toEqual(["allowance.get", "allowance.grant", "allowance.revoke", "allowance.spend", "api-key.create", "invitation.accept", "invitation.revoke", "invitation.send", "membership.get", "organization.create", "organization.get", "person.sign-up", "session.show", "session.sign-in", "system.health"]);
     const grant = exit.value.operations["allowance.grant"];
     expect(grant?.refusals).toEqual(["AllowanceLimitTooHigh", "NotAllowed"]);
     expect(grant?.steps).toEqual({ insert: { name: "allowance.grant.insert", type: "database" } });
@@ -39,7 +43,7 @@ describe("model", () => {
     const exit = await modelOf(root);
     expect(Exit.isSuccess(exit)).toBe(true);
     if (!Exit.isSuccess(exit)) return;
-    expect(Object.keys(exit.value.operations)).toEqual(["allowance.award", "organization.create"]);
+    expect(Object.keys(exit.value.operations)).toEqual(["allowance.award", "allowance.get", "allowance.revoke", "allowance.spend", "api-key.create", "invitation.accept", "invitation.revoke", "invitation.send", "membership.get", "organization.create", "organization.get", "person.sign-up", "session.show", "session.sign-in", "system.health"]);
     expect(exit.value.operations["allowance.award"]?.steps["insert"]?.name).toBe("allowance.award.insert");
   });
 

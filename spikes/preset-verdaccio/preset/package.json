@@ -1,0 +1,11 @@
+{
+  "name": "@architect/preset",
+  "version": "0.0.0-spike.1",
+  "type": "module",
+  "description": "Spike preset for create-nx-workspace",
+  "generators": "./generators.json",
+  "exports": { ".": "./dist/index.js", "./package.json": "./package.json" },
+  "dependencies": { "@nx/devkit": "24.0.3" },
+  "files": ["dist", "src", "generators.json", "schema.json"],
+  "publishConfig": { "access": "public" }
+}

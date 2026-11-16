@@ -1,7 +1,7 @@
 // Machines: a thing's states and the moves between them. Moves take their names from their keys.
-import type { Event } from "#modules/events/types.ts";
-import type { Thing } from "#modules/things/types.ts";
-import type { Assertion } from "#modules/journeys/types.ts";
+import type { Event } from "#modules/events/types.js";
+import type { Thing } from "#modules/things/types.js";
+import type { Assertion } from "#modules/journeys/types.js";
 
 export interface MoveSpec<S extends string> {
   /** The states it may start from; `[]` means it creates the thing. */

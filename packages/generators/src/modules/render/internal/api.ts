@@ -67,10 +67,10 @@ const handlerType = (op: OperationModel): RenderedFile => {
     GENERATED,
     "// What the handler is given: its payload and steps; what it may return: its answer or a declared error.",
     `import type { SqlClient } from "effect/sql";`,
-    `import type { Handler as Of, Records } from "@architect/target-effect";`,
+    `import type { Auth, Handler as Of, Records } from "@architect/target-effect";`,
     `import type declaration from "${toRoot(path)}${op.file}";`,
     "",
-    "export type Handler<R = Records | SqlClient.SqlClient> = Of<typeof declaration, R>;",
+    "export type Handler<R = Records | SqlClient.SqlClient | Auth> = Of<typeof declaration, R>;",
   ));
 };
 
@@ -113,5 +113,5 @@ export const renderApi = (model: Model, name: string): ReadonlyArray<RenderedFil
   errors(model),
   events(model),
   index(model, name),
-  ...Object.values(model.operations).flatMap((op) => [endpoint(op), handlerType(op)]),
+  ...Object.values(model.operations).flatMap((op) => (op.kind === "read" ? [endpoint(op)] : [endpoint(op), handlerType(op)])),
 ];

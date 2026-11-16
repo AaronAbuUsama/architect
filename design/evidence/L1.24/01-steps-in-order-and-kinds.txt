@@ -1,0 +1,16 @@
+$ npx vitest run --reporter verbose --root packages/prove src/modules/evals
+# commit a5d9ca0 · 2026-11-16T18:29:25Z · exit 0 (expected 0) · 0.7s
+
+
+ RUN  v4.1.12 ./packages/prove
+
+ ✓ src/modules/evals/evals.test.ts > evals on evidence > performance: slow evidence raises a review and never fails 1ms
+ ✓ src/modules/evals/evals.test.ts > evals on evidence > declared errors: an undeclared refusal names itself and the declared ones 0ms
+ ✓ src/modules/evals/evals.test.ts > evals on evidence > who may call: judged on mayCall, not on what the server said 0ms
+ ✓ src/modules/evals/evals.test.ts > evals on evidence > steps: every declared step ran, in the order declared 0ms
+ ✓ src/modules/evals/evals.test.ts > evals on evidence > coverage: an operation no journey reaches fails, and the counts say by how much 0ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  18:29:25
+   Duration  254ms (transform 46ms, setup 0ms, import 167ms, tests 3ms, environment 0ms)

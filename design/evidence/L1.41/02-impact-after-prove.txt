@@ -1,0 +1,5 @@
+$ node packages/cli/src/main.ts impact --root examples/acme
+# commit f81c2f7 · 2026-11-16T19:00:28Z · exit 0 (expected 0) · 0.5s
+
+stale none
+proven allowance.get, allowance.grant, allowance.revoke, allowance.spend, organization.create

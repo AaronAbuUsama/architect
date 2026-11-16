@@ -24,3 +24,19 @@ jobs:
       - run: pnpm nx run-many -t lint,typecheck,test --outputStyle=static
       # Nx 24 skips task-level sync generators in CI, so drift is checked explicitly.
       - run: pnpm nx sync:check
+
+  # Gate 1 (L1.60): the seven checks of layer one, run as a user runs Architect (D2 #74).
+  e2e-layer1:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: pnpm/action-setup@v6.1.0
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Check 4 runs its agent when this secret exists, and says why it skipped when it doesn't (D2 #41).
+      - run: pnpm nx run e2e:layer1 --outputStyle=static
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

@@ -1,6 +1,6 @@
 import { Effect, Exit } from "effect";
 import { describe, expect, it } from "vitest";
-import { Values } from "#modules/values/service.ts";
+import { Values } from "#modules/values/service.js";
 import { ErrorNames, Errors } from "./service.ts";
 
 class AllowanceExceeded extends Errors.error({ remaining: Values.uint(128) }, { exit: 41 }) {}

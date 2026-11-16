@@ -1,0 +1,15 @@
+$ npx vitest run --root packages/compiler src/modules/compare --reporter verbose
+# commit f81c2f7 · 2026-11-16T19:00:35Z · exit 0 (expected 0) · 0.7s
+
+
+ RUN  v4.1.12 ./packages/compiler
+
+ ✓ src/modules/compare/compare.test.ts > Compare > finds nothing between a model and itself 1ms
+ ✓ src/modules/compare/compare.test.ts > Compare > names the declaration and the part that changed 0ms
+ ✓ src/modules/compare/compare.test.ts > Compare > lists added and removed declarations 0ms
+ ✓ src/modules/compare/compare.test.ts > Compare > says an operation's proof rests on itself, its thing and the things it refers to 0ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  19:00:35
+   Duration  333ms (transform 18ms, setup 0ms, import 245ms, tests 3ms, environment 0ms)

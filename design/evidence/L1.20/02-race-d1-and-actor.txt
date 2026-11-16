@@ -1,0 +1,20 @@
+$ npx vitest run --reporter verbose --root packages/host-cloudflare src/modules/store src/modules/actors
+# commit 3e6826a · 2026-11-16T18:26:28Z · exit 0 (expected 0) · 5.6s
+
+
+=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+
+
+ RUN  v4.1.12 ./packages/host-cloudflare
+
+ ✓ src/modules/actors/actors.test.ts > a thing that lives as an actor, in workerd > S3's race: 50 concurrent spends of 10 against 500 all land in its Durable Object, none lost 727ms
+ ✓ src/modules/store/store.test.ts > the store in D1, in workerd > S3's race: 50 concurrent spends of 10 against 500 all land, none lost, and it ends exhausted 1211ms
+
+ Test Files  2 passed (2)
+      Tests  2 passed (2)
+   Start at  18:26:23
+   Duration  4.42s (transform 2.37s, setup 5.08s, import 147ms, tests 1.94s, environment 0ms)

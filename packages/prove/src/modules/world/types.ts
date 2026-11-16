@@ -1,7 +1,11 @@
 // A local world: the generated Worker on real workerd, with its world Durable Object and a fresh local D1.
 import { Data, type Effect, type Scope } from "effect";
 
-export class WorldFailed extends Data.TaggedError("WorldFailed")<{ readonly message: string }> {}
+export class WorldFailed extends Data.TaggedError("WorldFailed")<{
+  readonly message: string;
+  /** wrangler exited because a socket it picked was already taken: starting again can work. */
+  readonly taken?: boolean;
+}> {}
 
 export interface Running {
   readonly url: string;

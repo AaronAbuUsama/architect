@@ -1,0 +1,9 @@
+$ node packages/cli/src/main.ts check --root examples/acme
+# commit a9e9624 · 2026-11-16T19:56:40Z · exit 0 (expected 0) · 1.2s
+
+blanks left 0
+types ✔
+rules ✔
+drift ✔
+ratchets 0
+check ✔

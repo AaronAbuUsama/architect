@@ -1,7 +1,7 @@
 // Running journeys: each starting world made by its declared calls, each step called as its cast member, every call
 // recorded with its trace so the evals can read what really happened.
 import { Data, type Effect } from "effect";
-import type { Journey, Operation, StartingWorld, Thing } from "@architect/blueprint";
+import type { Journey, Operation, Read, StartingWorld, Thing } from "@architect/blueprint";
 import type { Model } from "@architect/compiler";
 
 /** One HTTP call to the world, as `prove` saw it. */
@@ -22,6 +22,8 @@ export interface CallRecord {
   readonly mayCall: boolean;
   /** The journal entries the call's trace wrote. */
   readonly journal: ReadonlyArray<{ readonly event: string; readonly move: string; readonly subject: string; readonly fields: Readonly<Record<string, unknown>> }>;
+  /** For an answered call whose operation moves: the stored state of what it moved, read right after the call. */
+  readonly stored?: string | undefined;
 }
 
 export interface StepResult {
@@ -46,7 +48,8 @@ export interface JourneyRun {
 export interface Project {
   readonly root: string;
   readonly model: Model;
-  readonly operations: ReadonlyMap<string, Operation>;
+  /** Operations and reads, by name. */
+  readonly operations: ReadonlyMap<string, Operation | Read>;
   readonly things: ReadonlyMap<string, Thing>;
   readonly journeys: ReadonlyArray<Journey>;
   readonly startingWorlds: ReadonlyMap<string, StartingWorld>;

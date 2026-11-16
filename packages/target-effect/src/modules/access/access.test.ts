@@ -1,7 +1,7 @@
 import { Effect, Exit } from "effect";
 import { describe, expect, it } from "vitest";
 import { Blueprint, type Principal } from "@architect/blueprint";
-import { recordsMemory } from "#modules/records/service.ts";
+import { recordsMemory } from "#modules/records/service.js";
 import { Access } from "./service.ts";
 
 const Person = Blueprint.thing({ description: "Someone.", fields: { id: Blueprint.id("per") } });

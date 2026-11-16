@@ -1,0 +1,11 @@
+$ npx vitest run --root packages/prove src/modules/prove/prove.test.ts
+# commit a9e9624 · 2026-11-16T19:57:47Z · exit 0 (expected 0) · 67.8s
+
+
+ RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  19:56:40
+   Duration  67.14s (transform 1.26s, setup 0ms, import 341ms, tests 66.71s, environment 0ms)

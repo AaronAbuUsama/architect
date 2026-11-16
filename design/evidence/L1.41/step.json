@@ -1,0 +1,15 @@
+{
+  "step": "L1.41",
+  "stage": "Stage 2 · the allowance's whole life (Gate 1)",
+  "title": "Model comparison and architect impact",
+  "summary": "The compiler can now compare two models and name each declaration that was added, removed or changed, down to the part that changed. Every prove records which operations passed and the hashes their proof rests on: the operation, its thing and the things it reaches. architect impact reads that record against today's blueprint, so a change shows exactly which proofs no longer hold.",
+  "proves": "After a prove, loosening allowance.spend's budget shows exactly stale allowance.spend while grant, revoke, get and create stay proven. Adding allowance.list shows stale none, with list unproven.",
+  "captions": {
+    "01-prove-acme": "prove on acme, which records the proofs.",
+    "02-impact-after-prove": "Right after: nothing stale, all five proven.",
+    "03-impact-looser-spend-budget": "spend's budget loosened: only spend is stale.",
+    "04-impact-added-list": "A new read added: nothing stale, list unproven.",
+    "05-impact-and-compare-tests": "The impact test, on a real prove of a copy of acme.",
+    "06-compare-tests": "Model comparison: changes, additions, removals, and what a proof depends on."
+  }
+}

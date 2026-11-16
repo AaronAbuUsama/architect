@@ -1,6 +1,6 @@
 import { Schema } from "effect";
 import { describe, expect, it } from "vitest";
-import { Values } from "#modules/values/service.ts";
+import { Values } from "#modules/values/service.js";
 import { Events } from "./service.ts";
 
 describe("events", () => {

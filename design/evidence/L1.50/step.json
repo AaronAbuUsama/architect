@@ -1,0 +1,13 @@
+{
+  "step": "L1.50",
+  "stage": "Stage 2 · the allowance's whole life (Gate 1)",
+  "title": "The starter preset, from a published registry",
+  "summary": "A new project now starts the way a user starts it: npx create-nx-workspace with Architect's preset. The preset writes the starter (sign-up and sign-in on Better Auth, organisations, memberships, invitations and API keys, with five journeys) and renders its generated code under the new name. Architect's nine packages build to JavaScript and are published to a real Verdaccio registry in Docker for the check.",
+  "proves": "In a fresh temporary folder, with Architect installed only from the local registry, create-nx-workspace makes the project, architect check passes, and architect prove passes five journeys and eleven operations with nine evals each, signing people in through Better Auth on workerd and D1.",
+  "captions": {
+    "01-create-check-prove-from-verdaccio": "Publish to Verdaccio, create the workspace from the preset, then check and prove in it.",
+    "02-preset-tests": "The preset's tests: what it copies, renders and merges.",
+    "03-starter-check": "architect check on the starter in the repository.",
+    "04-auth-tests": "Better Auth on real D1 inside workerd: sign-up, sign-in, API keys, and the schema kept in step."
+  }
+}

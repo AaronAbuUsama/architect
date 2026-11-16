@@ -1,11 +1,11 @@
 // Roles: who may call. A role lives in the thing it is scoped to, and is named by its export.
-import type { Thing } from "#modules/things/types.ts";
-import type { TypeOf } from "#modules/values/types.ts";
+import type { Thing } from "#modules/things/types.js";
+import type { TypeOf } from "#modules/values/types.js";
 
 /** Who is calling. Sign-in fills it in; the runtime checks roles against it before any handler runs. */
 export type Principal =
   | { readonly kind: "anonymous" }
-  | { readonly kind: "person"; readonly person: string };
+  | { readonly kind: "person"; readonly person: string; readonly email?: string };
 
 /** A thing as its handler and its roles see it: its fields and its machine state. */
 export type InstanceOf<T extends Thing> = { readonly [K in keyof T["fields"]]: TypeOf<T["fields"][K]["value"]> } & {

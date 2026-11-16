@@ -4,15 +4,30 @@
   "type": "module",
   "dependencies": {
     "@architect/compiler": "workspace:*",
+    "@architect/generators": "workspace:*",
+    "@architect/lint": "workspace:*",
     "@architect/prove": "workspace:*",
     "@effect/platform-node": "4.1.1",
     "effect": "4.1.1",
+    "nx": "24.0.3",
     "wrangler": "4.156.1"
   },
   "bin": {
     "architect": "./src/main.ts"
   },
   "imports": {
-    "#modules/*": "./src/modules/*"
+    "#modules/*.js": "./src/modules/*.ts"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "imports": {
+      "#modules/*.js": "./dist/modules/*.js"
+    },
+    "bin": {
+      "architect": "./dist/main.js"
+    }
   }
 }

@@ -1,9 +1,13 @@
 // Turns the layout into the model: every declaration named, every reference resolved, every entry hashed.
 import { Duration } from "effect";
-import type { Allowed, Field, FieldsInput, Operation, Value } from "@architect/blueprint";
+import type { Allowed, Field, FieldsInput, Operation, Read, Value } from "@architect/blueprint";
 import type { AllowedModel, FieldModel, FieldsModel, Model, OperationModel, ThingModel } from "../types.ts";
+import { Blanks } from "@architect/blueprint/server";
 import { hashOf } from "./hash.ts";
 import { camel, pascal, type Layout } from "./layout.ts";
+
+/** A module's exports in name order: a namespace's own order differs between loaders, and the model must not. */
+const byName = <V>(m: ReadonlyMap<string, V>) => [...m].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
 
 export const describe = (layout: Layout): { model: Model; problems: Array<string> } => {
   const problems = [...layout.problems];
@@ -29,6 +33,14 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
   const fieldsModel = (fields: FieldsInput, where: string): FieldsModel =>
     Object.fromEntries(Object.entries(fields).map(([k, f]) => [k, fieldModel(f, `${where} field ${k}`)]));
 
+  // What isn't written yet, by declaration. A blank thing part is described as empty; a blank operation is left out.
+  const blanks: Record<string, Array<string>> = {};
+  const blankIn = (owner: string, parts: Record<string, unknown>) => {
+    const found = Object.entries(parts).flatMap(([k, v]) => (Blanks.isBlank(v) ? [`${k}: ${v.what}`] : []));
+    if (found.length > 0) blanks[owner] = [...(blanks[owner] ?? []), ...found];
+    return found.length > 0;
+  };
+
   const things: Record<string, ThingModel> = {};
   for (const [name, t] of [...layout.things].sort(([a], [b]) => a.localeCompare(b))) {
     if (!t.thing) continue;
@@ -37,20 +49,25 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
       Object.entries(t.thing.fields).map(([k, f]) => [k, fieldModel(f.from ?? f.value, `${where}/thing.ts field ${k}`)]),
     );
     const m = t.machine;
+    blankIn(name, {
+      description: t.thing.description, states: m?.states,
+      ...Object.fromEntries([...t.roles].map(([r, role]) => [`role ${r}`, (role as { rule?: unknown }).rule])),
+    });
+    const states = m && !Blanks.isBlank(m.states) ? m.states : [];
     const machine = m
       ? {
-          states: m.states,
+          states,
           moves: Object.fromEntries(Object.entries(m.moves).map(([k, mv]) => [k, {
             from: mv.from, to: mv.to, emits: eventNames.get(mv.emits) ?? problem(problems, `${where}/machine.ts move ${k}: emits an event not exported from events.ts`),
           }])),
-          notFrom: { error: `${pascal(name)}Not${pascal(m.states[0] ?? "")}`, exit: m.notFrom.exit },
+          notFrom: { error: `${pascal(name)}Not${pascal(states[0] ?? "")}`, exit: m.notFrom.exit },
         }
       : null;
     if (m && m.thing !== t.thing) problems.push(`${where}/machine.ts: is a machine of another thing`);
     const entry = {
-      name, identifier: pascal(name), description: t.thing.description, fields, machine,
-      events: Object.fromEntries([...t.events].map(([n, e]) => [n, fieldsModel(e.fields, `${where}/events.ts ${n}`)])),
-      errors: Object.fromEntries([...t.errors].map(([n, e]) => [n, { fields: fieldsModel(e.fields, `${where}/errors.ts ${n}`), exit: e.exit }])),
+      name, identifier: pascal(name), description: Blanks.isBlank(t.thing.description) ? "" : t.thing.description, fields, lives: t.thing.lives ?? "database", machine,
+      events: Object.fromEntries(byName(t.events).map(([n, e]) => [n, fieldsModel(e.fields, `${where}/events.ts ${n}`)])),
+      errors: Object.fromEntries(byName(t.errors).map(([n, e]) => [n, { fields: fieldsModel(e.fields, `${where}/errors.ts ${n}`), exit: e.exit }])),
       roles: [...t.roles.keys()].sort(),
     };
     things[name] = { ...entry, hash: hashOf(entry) };
@@ -67,12 +84,18 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
   const operations: Record<string, OperationModel> = {};
   for (const [thing, t] of [...layout.things].sort(([a], [b]) => a.localeCompare(b))) {
     for (const [verb, { file, declaration: op }] of [...t.verbs].sort(([a], [b]) => a.localeCompare(b))) {
+      const parts = op.kind === "read"
+        ? { fields: op.fields, allowed: op.allowed }
+        : { description: op.description, payload: op.payload, answer: op.answer, allowed: op.allowed, errors: op.errors, steps: op.steps, move: op.move };
+      if (blankIn(`${thing}.${verb}`, parts)) continue;
       operations[`${thing}.${verb}`] = operationModel(thing, verb, file, op);
     }
   }
 
-  function operationModel(thing: string, verb: string, file: string, op: Operation): OperationModel {
-    if (op.thing !== layout.things.get(thing)?.thing) problems.push(`${file}: declares an operation of another thing`);
+  function operationModel(thing: string, verb: string, file: string, declared: Operation | Read): OperationModel {
+    if (declared.thing !== layout.things.get(thing)?.thing) problems.push(`${file}: declares an operation of another thing`);
+    if (declared.kind === "read") return readModel(thing, verb, file, declared);
+    const op = declared;
     const machine = things[thing]?.machine;
     const move = op.move
       ? { key: op.move.key, from: op.move.from, to: op.move.to, emits: eventNames.get(op.move.emits) ?? "?" }
@@ -86,6 +109,7 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
       ...(allowed.every((a) => a.kind === "anyone") ? [] : ["NotAllowed"]),
     ];
     const entry = {
+      kind: "operation" as const,
       name: `${thing}.${verb}`, thing, verb, identifier: camel(verb), file, description: op.description,
       payload: fieldsModel(op.payload, `${file} payload`), answer: fieldsModel(op.answer, `${file} answer`),
       move, errors, refusals, allowed,
@@ -96,8 +120,23 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
     return { ...entry, hash: hashOf(entry) };
   }
 
+  /** A read: answered from the thing's records with no handler, so no move, no steps, no declared errors. */
+  function readModel(thing: string, verb: string, file: string, read: Read): OperationModel {
+    const allowed = read.allowed.map((a) => allowedModel(a, file));
+    const entry = {
+      kind: "read" as const,
+      name: `${thing}.${verb}`, thing, verb, identifier: camel(verb), file,
+      description: `Read one ${thing} by its id: ${read.fields.map(String).join(", ")}.`,
+      payload: fieldsModel(read.payload, `${file} payload`), answer: fieldsModel(read.answer, `${file} answer`),
+      move: null, errors: [], refusals: allowed.every((a) => a.kind === "anyone") ? [] : ["NotAllowed"], allowed,
+      steps: {}, idempotent: null,
+      budget: read.budget ? { p95Ms: Duration.toMillis(read.budget.p95) } : null,
+    };
+    return { ...entry, hash: hashOf(entry) };
+  }
+
   const values = Object.fromEntries([...layout.values].sort(([a], [b]) => a.localeCompare(b)).map(([n, v]) => [n, v.meta]));
-  return { model: { values, things, operations }, problems };
+  return { model: { values, things, operations, ...(Object.keys(blanks).length > 0 ? { blanks } : {}) }, problems };
 };
 
 const problem = (problems: Array<string>, p: string): string => {

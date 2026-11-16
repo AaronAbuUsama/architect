@@ -1,0 +1,12 @@
+{
+  "step": "L1.25",
+  "stage": "Stage 2 · the allowance's whole life (Gate 1)",
+  "title": "Nine evals for every operation",
+  "summary": "prove now prints nine evals for every operation, the way the docs show it: answer shape, declared errors, machine path, events, who may call, steps, performance, coverage and explainability, each with its p50, p95 and budget. Coverage became each operation's own eval: it fails an operation no journey calls, a move no journey makes, an outcome never reached or a declared error never given. One line then counts the whole run: three moves, three outcomes, both declared refusals, and four of seven runtime refusals. Every planted fixture still fails its own eval.",
+  "proves": "architect prove on acme prints 9 evals ✔ for get, grant, revoke, spend and create, and the coverage line; the gate test passes with every planted fixture failing.",
+  "captions": {
+    "01-prove-acme-nine-evals": "architect prove on acme: six journeys, then each operation's nine evals and its timing, the coverage line, prove ✔.",
+    "02-prove-gate-and-planted": "prove's tests: acme passes, scaffolded handlers fail, and every planted fixture fails its own eval, coverage now on organization.rename itself.",
+    "03-all-checks-green": "Lint, typecheck and test across every project, cache off."
+  }
+}

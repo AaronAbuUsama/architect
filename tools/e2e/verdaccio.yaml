@@ -1,0 +1,26 @@
+# Local registry for the starter e2e: anyone may read and publish @architect/*, everything else is proxied to npmjs.
+storage: /verdaccio/storage
+auth:
+  htpasswd:
+    file: /verdaccio/storage/htpasswd
+    max_users: 10
+uplinks:
+  npmjs:
+    url: https://registry.npmjs.org/
+    # An install asks for ~1000 packages at once; the defaults (30s, offline after 2 failures for 5m) turn one slow
+    # answer into 404s for everything not yet cached.
+    timeout: 120s
+    max_fails: 100
+    fail_timeout: 2s
+    agent_options:
+      keepAlive: true
+      maxSockets: 32
+packages:
+  '@architect/*':
+    access: $all
+    publish: $all
+    unpublish: $all
+  '**':
+    access: $all
+    proxy: npmjs
+log: { type: stdout, format: pretty, level: warn }

@@ -1,9 +1,9 @@
 // Type tests: the declaration decides what a handler and a client may say. `@ts-expect-error` lines are checked by tsc.
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { Values } from "#modules/values/service.ts";
-import { Things } from "#modules/things/service.ts";
-import { Errors } from "#modules/errors/service.ts";
-import { Roles } from "#modules/roles/service.ts";
+import { Values } from "#modules/values/service.js";
+import { Things } from "#modules/things/service.js";
+import { Errors } from "#modules/errors/service.js";
+import { Roles } from "#modules/roles/service.js";
 import { Operations } from "./service.ts";
 import type { AnswerOf, ErrorOf, PayloadOf, StepsOf } from "./types.ts";
 

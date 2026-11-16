@@ -1,0 +1,16 @@
+{
+  "step": "L1.20",
+  "stage": "Stage 2 · the allowance's whole life (Gate 1)",
+  "title": "Machines and moves, with reads and idempotency",
+  "summary": "The allowance now lives its whole life: granted, spent, exhausted and revoked. A call commits once. The handler's writes are held back, then the move, its new state and its event are committed together, as one D1 batch or inside the instance's own Durable Object. Every update is guarded by the version it read, so fifty spends racing on one allowance all land and none is lost, on D1 and on an actor. A revoked allowance refuses a spend before the handler runs. allowance.get is answered with no handler at all, and spending twice with one request key spends once. prove passes on acme's six journeys, written by a separate author.",
+  "proves": "The race test passes for both owners in workerd and fails when the version guard is removed. architect prove passes on acme with five operations, three moves and every eval.",
+  "captions": {
+    "01-prove-acme": "architect prove on acme: six journeys, eight evals for each of five operations, coverage, prove ✔.",
+    "02-race-d1-and-actor": "The race in workerd: 50 concurrent spends of 10 against 500, on D1 and on a Durable Object. All land, the allowance ends exhausted at version 50.",
+    "03-one-commit-retry-and-requests": "The runtime's own tests: one commit per call, a conflict reruns the attempt, one request key twice is one event, reads answer with no handler.",
+    "04-prove-gate": "The gate as a test: acme passes, scaffolded handlers fail, every planted fixture fails its own eval.",
+    "05-all-checks-green": "Lint, typecheck and test across every project, cache off. Journeys are type-checked now too.",
+    "06-sync-check": "generated/ matches the blueprint.",
+    "07-planted-no-version-guard": "Planted: the D1 update without its version guard. The race loses spends and the test fails. Exit 1."
+  }
+}

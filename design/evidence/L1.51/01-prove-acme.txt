@@ -1,0 +1,166 @@
+$ node packages/cli/src/main.ts prove --root examples/acme --port 8850
+# commit a9e9624 · 2026-11-16T19:56:38Z · exit 0 (expected 0) · 7.7s
+
+journey an invitation is used once ✔ 3/3 steps
+journey an owner makes an api key ✔ 5/5 steps
+journey grant an allowance ✔ 3/3 steps
+journey health is up ✔ 1/1 steps
+journey invite and accept ✔ 11/11 steps
+journey an outsider cannot revoke ✔ 1/1 steps
+journey read an allowance ✔ 3/3 steps
+journey revoke then spend ✔ 3/3 steps
+journey sign up and sign in ✔ 5/5 steps
+journey spend twice with one request ✔ 3/3 steps
+journey spend within an allowance ✔ 4/4 steps
+allowance.get answer shape ✔
+allowance.get declared errors ✔
+allowance.get machine path ✔
+allowance.get events ✔
+allowance.get who may call ✔
+allowance.get steps ✔
+allowance.get performance ✔ p50 0ms p95 0ms budget p95 50ms
+allowance.get coverage ✔
+allowance.get explainability ✔
+allowance.get 9 evals ✔ p50 0ms p95 0ms budget p95 50ms
+allowance.grant answer shape ✔
+allowance.grant declared errors ✔
+allowance.grant machine path ✔
+allowance.grant events ✔
+allowance.grant who may call ✔
+allowance.grant steps ✔
+allowance.grant performance ✔ p50 1ms p95 2ms budget p95 200ms
+allowance.grant coverage ✔
+allowance.grant explainability ✔
+allowance.grant 9 evals ✔ p50 1ms p95 2ms budget p95 200ms
+allowance.revoke answer shape ✔
+allowance.revoke declared errors ✔
+allowance.revoke machine path ✔
+allowance.revoke events ✔
+allowance.revoke who may call ✔
+allowance.revoke steps ✔
+allowance.revoke performance ✔ p50 3ms p95 3ms budget p95 150ms
+allowance.revoke coverage ✔
+allowance.revoke explainability ✔
+allowance.revoke 9 evals ✔ p50 3ms p95 3ms budget p95 150ms
+allowance.spend answer shape ✔
+allowance.spend declared errors ✔
+allowance.spend machine path ✔
+allowance.spend events ✔
+allowance.spend who may call ✔
+allowance.spend steps ✔
+allowance.spend performance ✔ p50 1ms p95 2ms budget p95 150ms
+allowance.spend coverage ✔
+allowance.spend explainability ✔
+allowance.spend 9 evals ✔ p50 1ms p95 2ms budget p95 150ms
+api-key.create answer shape ✔
+api-key.create declared errors ✔
+api-key.create machine path ✔
+api-key.create events ✔
+api-key.create who may call ✔
+api-key.create steps ✔
+api-key.create performance ✔ p50 2ms p95 5ms budget p95 250ms
+api-key.create coverage ✔
+api-key.create explainability ✔
+api-key.create 9 evals ✔ p50 2ms p95 5ms budget p95 250ms
+invitation.accept answer shape ✔
+invitation.accept declared errors ✔
+invitation.accept machine path ✔
+invitation.accept events ✔
+invitation.accept who may call ✔
+invitation.accept steps ✔
+invitation.accept performance ✔ p50 1ms p95 2ms budget p95 200ms
+invitation.accept coverage ✔
+invitation.accept explainability ✔
+invitation.accept 9 evals ✔ p50 1ms p95 2ms budget p95 200ms
+invitation.revoke answer shape ✔
+invitation.revoke declared errors ✔
+invitation.revoke machine path ✔
+invitation.revoke events ✔
+invitation.revoke who may call ✔
+invitation.revoke steps ✔
+invitation.revoke performance ✔ p50 1ms p95 1ms budget p95 150ms
+invitation.revoke coverage ✔
+invitation.revoke explainability ✔
+invitation.revoke 9 evals ✔ p50 1ms p95 1ms budget p95 150ms
+invitation.send answer shape ✔
+invitation.send declared errors ✔
+invitation.send machine path ✔
+invitation.send events ✔
+invitation.send who may call ✔
+invitation.send steps ✔
+invitation.send performance ✔ p50 2ms p95 3ms budget p95 200ms
+invitation.send coverage ✔
+invitation.send explainability ✔
+invitation.send 9 evals ✔ p50 2ms p95 3ms budget p95 200ms
+membership.get answer shape ✔
+membership.get declared errors ✔
+membership.get machine path ✔
+membership.get events ✔
+membership.get who may call ✔
+membership.get steps ✔
+membership.get performance ✔ p50 0ms p95 0ms budget p95 50ms
+membership.get coverage ✔
+membership.get explainability ✔
+membership.get 9 evals ✔ p50 0ms p95 0ms budget p95 50ms
+organization.create answer shape ✔
+organization.create declared errors ✔
+organization.create machine path ✔
+organization.create events ✔
+organization.create who may call ✔
+organization.create steps ✔
+organization.create performance ✔ p50 1ms p95 5ms budget p95 250ms
+organization.create coverage ✔
+organization.create explainability ✔
+organization.create 9 evals ✔ p50 1ms p95 5ms budget p95 250ms
+organization.get answer shape ✔
+organization.get declared errors ✔
+organization.get machine path ✔
+organization.get events ✔
+organization.get who may call ✔
+organization.get steps ✔
+organization.get performance ✔ p50 1ms p95 1ms budget p95 50ms
+organization.get coverage ✔
+organization.get explainability ✔
+organization.get 9 evals ✔ p50 1ms p95 1ms budget p95 50ms
+person.sign-up answer shape ✔
+person.sign-up declared errors ✔
+person.sign-up machine path ✔
+person.sign-up events ✔
+person.sign-up who may call ✔
+person.sign-up steps ✔
+person.sign-up performance ✔ p50 2ms p95 59ms budget p95 400ms
+person.sign-up coverage ✔
+person.sign-up explainability ✔
+person.sign-up 9 evals ✔ p50 2ms p95 59ms budget p95 400ms
+session.show answer shape ✔
+session.show declared errors ✔
+session.show machine path ✔
+session.show events ✔
+session.show who may call ✔
+session.show steps ✔
+session.show performance ✔ p50 0ms p95 0ms budget p95 100ms
+session.show coverage ✔
+session.show explainability ✔
+session.show 9 evals ✔ p50 0ms p95 0ms budget p95 100ms
+session.sign-in answer shape ✔
+session.sign-in declared errors ✔
+session.sign-in machine path ✔
+session.sign-in events ✔
+session.sign-in who may call ✔
+session.sign-in steps ✔
+session.sign-in performance ✔ p50 52ms p95 56ms budget p95 400ms
+session.sign-in coverage ✔
+session.sign-in explainability ✔
+session.sign-in 9 evals ✔ p50 52ms p95 56ms budget p95 400ms
+system.health answer shape ✔
+system.health declared errors ✔
+system.health machine path ✔
+system.health events ✔
+system.health who may call ✔
+system.health steps ✔
+system.health performance ✔ p50 0ms p95 0ms budget p95 50ms
+system.health coverage ✔
+system.health explainability ✔
+system.health 9 evals ✔ p50 0ms p95 0ms budget p95 50ms
+coverage ✔ moves 7/7 · outcomes 7/7 · refusals 4/4 · runtime refusals 13/16
+prove ✔

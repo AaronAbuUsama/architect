@@ -18,6 +18,7 @@ const spansOf = (doc: any): Array<Span> =>
       (ss.spans ?? []).map((s: any): Span => ({
         traceId: s.traceId, spanId: s.spanId, parentSpanId: s.parentSpanId ?? "", name: s.name, attrs: attrs(s.attributes),
         status: s.status?.code ?? 0, ms: Number(BigInt(s.endTimeUnixNano) - BigInt(s.startTimeUnixNano)) / 1e6,
+        start: Number(BigInt(s.startTimeUnixNano) / 1000n) / 1e3,
       }))));
 
 const logsOf = (doc: any): Array<Log> =>

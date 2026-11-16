@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import type { Model, OperationModel } from "@architect/compiler";
-import type { CallRecord } from "#modules/journeys/types.ts";
+import type { CallRecord } from "#modules/journeys/types.js";
 import type { Evidence } from "./types.ts";
-import { performance, coverage } from "./internal/run.ts";
-import { declaredErrors, whoMayCall } from "./internal/calls.ts";
+import { coverage, coverageSummary, performance } from "./internal/run.ts";
+import { declaredErrors, steps, whoMayCall } from "./internal/calls.ts";
 
 const op = {
   name: "allowance.grant", thing: "allowance", verb: "grant", answer: {}, payload: { organization: { value: { type: "id", prefix: "org" } } },
@@ -17,7 +17,7 @@ const call = (over: Partial<CallRecord>): CallRecord => ({
 });
 const evidence = (ms: number, over: Partial<Evidence> = {}): Evidence => ({
   call: call({}), trace: { spans: [], logs: [] }, refusal: undefined, stored: undefined,
-  opSpan: { traceId: "t", spanId: "s", parentSpanId: "p", name: "allowance.grant", attrs: {}, status: 1, ms }, ...over,
+  opSpan: { traceId: "t", spanId: "s", parentSpanId: "p", name: "allowance.grant", attrs: {}, status: 1, ms, start: 0 }, ...over,
 });
 
 describe("evals on evidence", () => {
@@ -40,10 +40,26 @@ describe("evals on evidence", () => {
     expect(whoMayCall(op, [evidence(1, { refusal: "NotAllowed", call: call({ mayCall: false, status: 403 }) })], undefined as never).failures).toEqual([]);
   });
 
-  it("coverage: an operation no journey reaches fails, and the counts say by how much", () => {
-    const model = { operations: { "allowance.grant": op, "organization.rename": { ...op, name: "organization.rename", errors: [], refusals: ["NotAllowed"] } } } as unknown as Model;
-    const v = coverage(model, [evidence(1, { refusal: "AllowanceLimitTooHigh" })]);
-    expect(v.failures).toEqual(["organization.rename reached by no journey"]);
-    expect(v.notes[0]).toMatch(/^operations 1\/2 /);
+  it("steps: every declared step ran, in the order declared", () => {
+    const two = { ...op, steps: { load: { name: "allowance.spend.load" }, record: { name: "allowance.spend.record" } } } as unknown as OperationModel;
+    const span = (name: string, start: number) => ({ traceId: "t", spanId: name, parentSpanId: "s", name, attrs: {}, status: 1, ms: 1, start });
+    const inOrder = evidence(1, { trace: { spans: [span("allowance.spend.load", 1), span("allowance.spend.record", 2)], logs: [] } });
+    expect(steps(two, [inOrder], undefined as never).failures).toEqual([]);
+    const backwards = evidence(1, { trace: { spans: [span("allowance.spend.load", 5), span("allowance.spend.record", 2)], logs: [] } });
+    expect(steps(two, [backwards], undefined as never).failures).toEqual([
+      'grant-an-allowance "s": step allowance.spend.record ran before allowance.spend.load, which is declared first',
+    ]);
+    const missing = evidence(1, { trace: { spans: [span("allowance.spend.load", 1)], logs: [] } });
+    expect(steps(two, [missing], undefined as never).failures).toEqual(['grant-an-allowance "s": declared step allowance.spend.record ran no span']);
+  });
+
+  it("coverage: an operation no journey reaches fails on its own, and the run's line counts what was reached", () => {
+    const rename = { ...op, name: "organization.rename", errors: [], refusals: ["NotAllowed"] } as unknown as OperationModel;
+    const model = { operations: { "allowance.grant": op, "organization.rename": rename } } as unknown as Model;
+    const all = [evidence(1, { refusal: "AllowanceLimitTooHigh" })];
+    const run = { project: { model } as never, all };
+    expect(coverage(op, all, run).failures).toEqual([]);
+    expect(coverage(rename, [], run).failures).toEqual(["organization.rename reached by no journey"]);
+    expect(coverageSummary(model, all).notes).toEqual(["moves 0/0 · outcomes 0/0 · refusals 1/1 · runtime refusals 0/2"]);
   });
 });

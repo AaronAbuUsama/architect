@@ -5,9 +5,9 @@ import { declaration } from "../../../api/src/organization/create.ts";
 import * as Sdk from "../../../sdk/src/index.ts";
 import { answer } from "../output.ts";
 
-/** Start an organisation. Whoever creates it owns it. Every flag is text; the declaration decodes it. */
+/** Found an organisation with its cap. Whoever founds it owns it, and is its first member. Every flag is text; the declaration decodes it. `--json` prints the whole answer as JSON. */
 export const create = Command.make(
   "create",
-  { name: Flag.String("name"), cap: Flag.String("cap") },
-  (flags) => Schema.decodeUnknownEffect(declaration.payloadSchema)(flags).pipe(Effect.flatMap(Sdk.organization.create), answer),
+  { name: Flag.String("name"), cap: Flag.String("cap"), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
+  ({ json, ...flags }) => Schema.decodeUnknownEffect(declaration.payloadSchema)(flags).pipe(Effect.flatMap(Sdk.organization.create), answer(json)),
 );

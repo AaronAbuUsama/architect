@@ -1,0 +1,13 @@
+{
+  "step": "L1.24",
+  "stage": "Stage 2 · the allowance's whole life (Gate 1)",
+  "title": "Steps in the order declared",
+  "summary": "Every declared step runs in its own span, marked with its kind: a database step or a wait. prove now reads when each step span started, from the real collector, and checks the steps ran in the order the operation declares them. Spend declares load, then record, and its span tree shows exactly that on every call. Declared the other way round, prove fails and names the call and the two steps.",
+  "proves": "The steps eval passes on acme and fails when spend's steps are declared out of the order the handler runs them.",
+  "captions": {
+    "01-steps-in-order-and-kinds": "The evals' own tests, including steps: in order passes, backwards names both steps, a missing step names itself.",
+    "02-planted-steps-out-of-order": "Planted: spend declares record before load. prove fails spend's steps eval and names the call. Exit 1.",
+    "03-step-kinds-in-the-runtime": "The wrapper's test: a load and a wait step, each its own span, in order, each marked with its kind.",
+    "04-prove-acme": "architect prove on acme after the change: steps ✔ for all five operations."
+  }
+}

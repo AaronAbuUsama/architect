@@ -1,8 +1,8 @@
 // Turning journeys and verdicts into prove's lines.
 import type { Model } from "@architect/compiler";
-import type { Verdict } from "#modules/evals/types.ts";
-import type { JourneyRun, StepResult } from "#modules/journeys/types.ts";
-import type { Trace } from "#modules/telemetry/types.ts";
+import type { Verdict } from "#modules/evals/types.js";
+import type { JourneyRun, StepResult } from "#modules/journeys/types.js";
+import type { Trace } from "#modules/telemetry/types.js";
 
 /** A step's span checks, now that its trace is in. */
 export const spanFailures = (step: StepResult, trace: Trace | undefined): ReadonlyArray<string> => {
@@ -49,7 +49,8 @@ export const evalLines = (model: Model, verdicts: ReadonlyArray<Verdict>) => {
       for (const f of v.failures) lines.push(`${op} ${v.eval} ✘ ${f}`);
     }
     const bad = mine.filter((v) => v.failures.length > 0).length;
-    lines.push(bad === 0 ? `${op} ${mine.length} evals ✔` : `${op} ${bad} of ${mine.length} evals ✘`);
+    const timing = mine.find((v) => v.eval === "performance")?.notes[0];
+    lines.push((bad === 0 ? `${op} ${mine.length} evals ✔` : `${op} ${bad} of ${mine.length} evals ✘`) + (timing ? ` ${timing}` : ""));
     failed += bad;
   }
   for (const v of verdicts.filter((x) => x.operation === undefined)) {

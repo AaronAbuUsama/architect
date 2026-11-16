@@ -1,0 +1,9 @@
+{
+  "generators": {
+    "preset": {
+      "factory": "./dist/preset.js",
+      "schema": "./schema.json",
+      "description": "Writes a package.json dependency on @architect/blueprint and a hello.ts that imports it."
+    }
+  }
+}

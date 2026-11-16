@@ -1,7 +1,6 @@
 # Where everything stands
 
-Kept by the 🎼 conductor, so a fresh conductor can take over. Last updated 16 November 2026, at handoff from the
-design session.
+Kept by the 🎼 conductor, so a fresh conductor can take over. Last updated 16 November 2026, after L1.60 (Gate 1).
 
 ## Done
 
@@ -27,7 +26,7 @@ Aaron's rule from 16 November 2026: the building agent owns the architecture and
 
 ## Where the goal stands
 
-Stage 1 (`layer/1`). Done: wayfinding (`wayfinding/stage-1.md`, decisions D1 and D2), L1.01, L1.10 to L1.15, each
+Stage 1 (`layer/1`, now on main). Done: wayfinding (`wayfinding/stage-1.md`, decisions D1 and D2), L1.01, L1.10 to L1.15, each
 with evidence in `evidence/`. Packages: `blueprint` (declarations, journeys and their checks), `compiler`, `cli`
 (`architect model`, `dev`, `prove`), `target-effect` (`Handlers.serve` with who-may-call, `move`, answer/refusal/move
 evidence on the span, `Journal`, `Busy`, `Timers`, `Principals`, `Records`, `Ids`, `Wire`), `host-cloudflare`
@@ -36,12 +35,42 @@ facts door), `generators`, and `prove` (`Worlds` (moved from cli), `Collectors` 
 `Journeys`, `Evals` (all nine), `Prove`). `architect prove --env local` in `examples/acme` prints every eval ✔ and
 `prove ✔` in about 6 s and leaves nothing running; `packages/prove/src/modules/prove/prove.test.ts` is the gate: acme
 passes, the scaffolded handlers fail, and each of the journey author's eight planted fixtures fails its own eval.
-Decisions for L1.15 are D2 #24 to #32. Run Nx with `NX_DAEMON=false` after changing generator code. Next: the stage 1
-review by a 🔍 reviewer subagent, then the pull request from `layer/1` to main, merged when CI is green, then the report
-to Aaron. Stage 2 (Gate 1, the allowance's whole life) opens with wayfinding and a journey author. The build plan's
-L1.20 to L1.25 rows were built only as far as grant needs (move, event, steps, budgets, the evals); their remaining
-parts (reads, idempotency, `step.wait`, spend) belong to stage 2. The evidence page is
-https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB; republish it with `python3 tools/evidence/page.py` after each step.
+Decisions for L1.15 are D2 #24 to #32. Run Nx with `NX_DAEMON=false` after changing generator code. Stage 1 landed on main on 16 November 2026 (pull request #1, merged with CI green after a 🔍 review that passed).
+Stage 2 (Gate 1) is on `layer/2`. Done: wayfinding (`wayfinding/stage-2.md`, decisions in
+`decisions/D2-stage-two.md` #35 to #48); the journey author's stage-two journeys and planted fixtures (in
+`examples/acme/journeys/`, `blueprint/starting-worlds/funded.ts`, `test/fixtures/{types,check}/`: never edit them);
+L1.20 (commit b150981, evidence in `evidence/L1.20/`), which also built L1.23 (reads, idempotency) and L1.22's bob
+journey. The store is `host-cloudflare/store` (`StoreD1`, D1 batch plus actor routing) and `host-cloudflare/actors`
+(the `Actor` DO); the runtime's `Records` holds writes back and the wrapper commits once, retrying conflicts.
+`prove` passes on acme's six journeys. Also done, each with evidence and CI green: L1.21 (a refusal's span carries
+`refusal.log`; `generators/src/modules/render/handler-type.test.ts` compiles a copy of acme with the author's
+undeclared-error fixture and expects tsc to fail), L1.24 (step spans carry `step.kind`; the steps eval checks declared
+order from span start times), L1.25 (coverage is each operation's eighth eval, so `9 evals ✔` per operation, plus one
+coverage line), L1.30 (`Blueprint.todo` blanks, `architect add thing|operation|read|journey`), L1.31 (`architect
+generate`), L1.32 (generated docs and `edges.json`, the full SDK and CLI with exit codes and `--json`), L1.33
+(`architect brief`), L1.40 (`architect check`: blanks, types, rules, drift, ratchets; the oxlint plugin is
+`packages/lint`, run through real oxlint with the model's facts as rule options; the author's four
+`test/fixtures/check/` fixtures each fail it). L1.41 (`Compare` in the compiler; prove writes
+`.architect/evidence/proven.json`; `architect impact` prints stale, proven, unproven). Decisions through D2 #60. L1.50 (commits 8107b6d, 163b5ef, 02623af; evidence in `evidence/L1.50/`): `examples/starter` (system, person and session
+on Better Auth, organization, membership, invitation, api-key; 5 journeys, 11 ops × 9 evals); Better Auth is
+`host-cloudflare/auth` (`AuthD1`, tables `auth_*`, keys `ak_`), the runtime's `Auth` service is in target-effect;
+`packages/preset` writes the starter; the nine published packages build to `dist/` (imports spelled
+`#modules/….js`, D2 #67) and `tools/e2e/starter.sh` (CI job `starter`) publishes them to Verdaccio, runs
+`create-nx-workspace --preset=@architect/preset`, then check and prove in the new workspace. Decisions through D2 #72.
+L1.51 done (commit 79be956, evidence `evidence/L1.51/`): acme is the starter plus the allowance (D2 #73).
+L1.60 done: Gate 1 passes locally and in CI (4218f19, run 43951988847; evidence `evidence/L1.60/`). `e2e/` is a
+workspace project; `nx run e2e:layer1` runs the seven checks of D2 #74 from `e2e/layer1/0N-*.test.ts`, each in a copy
+outside the repository (`support.ts` `copyOf`): 19 tests, check 3 covering all nine evals (performance's break is a
+slow grant, D2 #77). Check 4 runs on the Claude Agent SDK with only our tools, traced into prove's collector (D2
+#76); in CI it is skipped with a message until there is an `ANTHROPIC_API_KEY`. Test copies skip dot-folders (D2
+#78). The 🔍 review failed once (transitive packages under two weeks old) and passed after the fixes: pnpm's
+`minimumReleaseAge` enforces the rule tree-wide (D2 #79), and a prove with a failing journey proves nothing (D2 #80).
+Decisions through D2 #80.
+Next: the PR of `layer/2` to main, merged when CI is green, then the spoken report to Aaron.
+After that, stage 3 (Gate 2, shipping across worlds), opening with wayfinding.
+The evidence page is https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB; republish it with
+`python3 tools/evidence/page.py` after each step. For plants, back up with `cp` and restore with `cp`, never
+`git checkout`.
 
 ## Open
 
