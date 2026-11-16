@@ -3081,7 +3081,7 @@ export default Handlers.allowance.spend(({ allowance, amount, memo }, { steps, m
 { t: "Prove it locally", layer: 1, stage: "Build · test", see: "proof",
   say: "Prove runs every journey in a fresh local world, and checks every call with the built-in evals: the answer's shape, the declared errors, the machine's path, the events, who may call, the steps, the budget, coverage and explainability. Everything is green, and coverage shows every move and every refusal reached. While you work, architect dev keeps a local world like this one running, and re-proves whatever a change touches. That's the first layer: a thing declared, called through a generated SDK and CLI, and proven.",
   cmd: "pnpm architect prove --env local",
-  out: "world       local · fresh database · seeded: funded\n\nallowance.grant    9 evals ✔   p95 18ms   budget 200ms\nallowance.spend    9 evals ✔   p95 12ms   budget 150ms\nallowance.revoke   9 evals ✔   p95 9ms    budget 150ms\nallowance.get      9 evals ✔   p95 4ms    budget 50ms\n\ncoverage    moves 3/3 · outcomes 2/2 · refusals 4/4",
+  out: "world       local · fresh database · seeded: funded\n\nallowance.grant    9 evals ✔   p95 18ms   budget 200ms\nallowance.spend    9 evals ✔   p95 12ms   budget 150ms\nallowance.revoke   9 evals ✔   p95 9ms    budget 150ms\nallowance.get      9 evals ✔   p95 4ms    budget 50ms\n\ncoverage ✔ moves 3/3 · outcomes 3/3 · refusals 2/2 · runtime refusals 4/7",
   focus: "acme/blueprint/journeys/revoke-then-spend.ts", files: [] },
 
 /* ===== Layer 2: prove and ship ===== */

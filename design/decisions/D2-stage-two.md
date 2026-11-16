@@ -77,3 +77,9 @@ Decided 16 November 2026 by the builder, which has architectural ownership. The 
 51. **Steps are judged in the order they are declared.** Each step's span is marked `step.kind` (`database` or
     `wait`). The steps eval reads each span's start from the collector and fails a call whose declared steps ran out of
     order. Equal starts pass: workerd's clock only moves across I/O, so two steps with no I/O between them can share one.
+52. **Coverage is the eighth eval of every operation**, so each prints `9 evals ✔` with its p50, p95 and budget, as
+    the docs show. An operation fails coverage when no journey calls it, makes its move, reaches each outcome or gives
+    each declared error. One line then counts the whole run: `moves 3/3 · outcomes 3/3 · refusals 2/2 · runtime
+    refusals 4/7`. The plan's `outcomes 2/2 · refusals 4/4` predated revoke's own outcome and item 45; outcomes are
+    the states moves end in (active, exhausted, revoked), refusals the declared errors, and runtime refusals
+    (`NotAllowed`, `AllowanceNotActive`) are counted but never required.

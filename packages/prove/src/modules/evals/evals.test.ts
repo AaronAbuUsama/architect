@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { Model, OperationModel } from "@architect/compiler";
 import type { CallRecord } from "#modules/journeys/types.ts";
 import type { Evidence } from "./types.ts";
-import { performance, coverage } from "./internal/run.ts";
+import { coverage, coverageSummary, performance } from "./internal/run.ts";
 import { declaredErrors, steps, whoMayCall } from "./internal/calls.ts";
 
 const op = {
@@ -53,10 +53,13 @@ describe("evals on evidence", () => {
     expect(steps(two, [missing], undefined as never).failures).toEqual(['grant-an-allowance "s": declared step allowance.spend.record ran no span']);
   });
 
-  it("coverage: an operation no journey reaches fails, and the counts say by how much", () => {
-    const model = { operations: { "allowance.grant": op, "organization.rename": { ...op, name: "organization.rename", errors: [], refusals: ["NotAllowed"] } } } as unknown as Model;
-    const v = coverage(model, [evidence(1, { refusal: "AllowanceLimitTooHigh" })]);
-    expect(v.failures).toEqual(["organization.rename reached by no journey"]);
-    expect(v.notes[0]).toMatch(/^operations 1\/2 /);
+  it("coverage: an operation no journey reaches fails on its own, and the run's line counts what was reached", () => {
+    const rename = { ...op, name: "organization.rename", errors: [], refusals: ["NotAllowed"] } as unknown as OperationModel;
+    const model = { operations: { "allowance.grant": op, "organization.rename": rename } } as unknown as Model;
+    const all = [evidence(1, { refusal: "AllowanceLimitTooHigh" })];
+    const run = { project: { model } as never, all };
+    expect(coverage(op, all, run).failures).toEqual([]);
+    expect(coverage(rename, [], run).failures).toEqual(["organization.rename reached by no journey"]);
+    expect(coverageSummary(model, all).notes).toEqual(["moves 0/0 · outcomes 0/0 · refusals 1/1 · runtime refusals 0/2"]);
   });
 });

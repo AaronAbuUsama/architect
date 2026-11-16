@@ -54,10 +54,10 @@ describe("architect prove --env local", () => {
       expect(report.lines.some((l) => l.startsWith(`journey ${j} ✔`))).toBe(true);
     }
     for (const op of ["allowance.get", "allowance.grant", "allowance.revoke", "allowance.spend", "organization.create"]) {
-      expect(report.lines).toContain(`${op} 8 evals ✔`);
+      expect(report.lines.some((l) => l.startsWith(`${op} 9 evals ✔ p50 `))).toBe(true);
     }
     expect(report.lines.some((l) => l.startsWith("allowance.grant performance ✔ p50 "))).toBe(true);
-    expect(report.lines.some((l) => l.startsWith("coverage ✔ operations 5/5 moves 3/3 outcomes 3/3 errors 2/2"))).toBe(true);
+    expect(report.lines).toContain("coverage ✔ moves 3/3 · outcomes 3/3 · refusals 2/2 · runtime refusals 4/7");
     expect(report.lines.at(-1)).toBe("prove ✔");
     expect(report.passed).toBe(true);
     nothingRunning();
@@ -79,7 +79,7 @@ describe("architect prove --env local", () => {
     { fixture: "events", installs: [["grant.ts", GRANT]], line: "allowance.grant events ✘", says: "move grant emitted no AllowanceGranted" },
     { fixture: "who-may-call", installs: [["main.ts", "generated/server/main.ts"]], line: "allowance.grant who may call ✘", says: "and was answered, not refused" },
     { fixture: "steps", installs: [["grant.ts", GRANT]], line: "allowance.grant steps ✘", says: "declared step allowance.grant.insert ran no span" },
-    { fixture: "coverage", installs: [["rename.ts", "blueprint/things/organization/verbs/rename.ts"], ["rename.handler.ts", "implementation/handlers/organization/rename.ts"]], line: "coverage ✘", says: "organization.rename reached by no journey", sync: true },
+    { fixture: "coverage", installs: [["rename.ts", "blueprint/things/organization/verbs/rename.ts"], ["rename.handler.ts", "implementation/handlers/organization/rename.ts"]], line: "organization.rename coverage ✘", says: "organization.rename reached by no journey", sync: true },
     { fixture: "explainability", installs: [["grant.ts", GRANT]], line: "allowance.grant explainability ✘", says: '"a limit over the cap is refused": AllowanceLimitTooHigh has no deciding log' },
   ];
 

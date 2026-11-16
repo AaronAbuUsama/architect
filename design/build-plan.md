@@ -90,7 +90,7 @@ This plan takes Architect from an empty repository to all five layers. One local
 | L1.22 ∥ | Roles and principals | L1.20 | blueprint, target-effect | `role`, `anyone`, `signedIn`, `owner.of("field")`. Test principals. The role check runs before the handler. | A journey: bob calls `allowance.revoke` and is refused with `NotAllowed`, and the handler span is absent. |
 | L1.23 ∥ | Reads and idempotency | L1.20 | blueprint, target-effect | `read`, answered from the thing's records with no handler. `idempotent: "request"`. | `allowance.get` works without a handler file. Calling `allowance.spend` twice with the same request key spends once and returns the same answer. |
 | L1.24 | Steps and budgets | L1.21 | blueprint, target-effect | `step.database` and `step.wait` as named spans. `budget.p95`. | The spend span tree shows the declared step spans in order. |
-| L1.25 | The nine evals and coverage | L1.21–L1.24 | prove | Answer shape, declared errors, machine path, events, who may call, steps, performance (review only, never fails), coverage, explainability. | `architect prove --env local` on acme prints `9 evals ✔` for grant, spend, revoke and get, and `coverage moves 3/3 · outcomes 2/2 · refusals 4/4`. Each eval has a planted fixture that it fails. |
+| L1.25 | The nine evals and coverage | L1.21–L1.24 | prove | Answer shape, declared errors, machine path, events, who may call, steps, performance (review only, never fails), coverage, explainability. | `architect prove --env local` on acme prints `9 evals ✔` for grant, spend, revoke and get, and `coverage ✔ moves 3/3 · outcomes 3/3 · refusals 2/2 · runtime refusals 4/7` (D2 #52). Each eval has a planted fixture that it fails. |
 
 ### Generators and scaffolds (the authoring loop)
 

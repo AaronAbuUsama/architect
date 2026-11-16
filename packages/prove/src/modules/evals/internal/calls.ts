@@ -12,7 +12,7 @@ const expectation = (f: FieldModel | undefined) =>
   !f ? "nothing" : f.value.type === "id" ? `${f.value.prefix}_<id>` : f.value.type === "uint" ? "a whole number, as text" : f.value.type === "text" ? `text up to ${f.value.max}` : "its schema";
 
 /** 1. Every answer has its declared shape: read from the operation's span, so an answer the server refused to send counts. */
-export const answerShape: PerOperation = (op, evidence, project) => {
+export const answerShape: PerOperation = (op, evidence, { project }) => {
   const declared = project.operations.get(op.name)?.answer ?? {};
   const failures = evidence.flatMap((e) => {
     const fromSpan = Object.fromEntries(Object.entries(e.opSpan?.attrs ?? {}).filter(([k]) => k.startsWith("answer.")).map(([k, v]) => [k.slice(7), v]));

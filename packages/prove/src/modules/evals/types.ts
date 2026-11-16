@@ -25,7 +25,8 @@ export interface Verdict {
   readonly notes: ReadonlyArray<string>;
 }
 
-export type PerOperation = (op: OperationModel, evidence: ReadonlyArray<Evidence>, project: Project) => Verdict;
+/** One eval of one operation: its own calls' evidence, and the whole run's, for the evals that look wider (coverage). */
+export type PerOperation = (op: OperationModel, evidence: ReadonlyArray<Evidence>, run: { readonly project: Project; readonly all: ReadonlyArray<Evidence> }) => Verdict;
 
 export interface EvalsApi {
   /** Every eval over every operation, then coverage over the whole run. */

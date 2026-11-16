@@ -49,7 +49,8 @@ export const evalLines = (model: Model, verdicts: ReadonlyArray<Verdict>) => {
       for (const f of v.failures) lines.push(`${op} ${v.eval} ✘ ${f}`);
     }
     const bad = mine.filter((v) => v.failures.length > 0).length;
-    lines.push(bad === 0 ? `${op} ${mine.length} evals ✔` : `${op} ${bad} of ${mine.length} evals ✘`);
+    const timing = mine.find((v) => v.eval === "performance")?.notes[0];
+    lines.push((bad === 0 ? `${op} ${mine.length} evals ✔` : `${op} ${bad} of ${mine.length} evals ✘`) + (timing ? ` ${timing}` : ""));
     failed += bad;
   }
   for (const v of verdicts.filter((x) => x.operation === undefined)) {

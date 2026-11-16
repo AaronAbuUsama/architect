@@ -1,5 +1,5 @@
-// Eval 7 (performance, review only) and eval 8 (coverage, over the whole run).
-import type { Model } from "@architect/compiler";
+// Eval 7 (performance, review only) and eval 8 (coverage: each operation's, and the run's in one line).
+import type { Model, OperationModel } from "@architect/compiler";
 import type { Evidence, PerOperation, Verdict } from "../types.ts";
 import { answered, attr } from "./evidence.ts";
 
@@ -18,30 +18,52 @@ export const performance: PerOperation = (op, evidence) => {
   return { eval: "performance", operation: op.name, failures: [], notes };
 };
 
-/**
- * 8. Every declared operation called, every move made, every outcome reached and every declared error refused, by some
- * journey or starting world. The runtime's own refusals (NotAllowed, the machine's) are counted but never required.
- */
-export const coverage = (model: Model, evidence: ReadonlyArray<Evidence>): Verdict => {
-  const ops = Object.values(model.operations);
-  const called = new Set(evidence.map((e) => e.call.operation));
-  const moves = ops.filter((o) => o.move).map((o) => `${o.thing}.${o.move!.key}`);
-  const moved = new Set(evidence.filter((e) => answered(e) && attr(e, "move.to") !== undefined).map((e) => `${model.operations[e.call.operation]?.thing}.${model.operations[e.call.operation]?.move?.key}`));
-  const outcomes = [...new Set(ops.flatMap((o) => (o.move ? o.move.to.map((s) => `${o.thing}:${s}`) : [])))];
-  const reached = new Set(evidence.filter(answered).flatMap((e) => {
-    const to = attr(e, "move.to");
-    return to === undefined ? [] : [`${model.operations[e.call.operation]?.thing}:${String(to)}`];
-  }));
-  const errors = [...new Set(ops.flatMap((o) => o.errors.map((x) => `${o.name}:${x}`)))];
-  const refused = new Set(evidence.flatMap((e) => (e.refusal ? [`${e.call.operation}:${e.refusal}`] : [])));
-  const computed = [...new Set(ops.flatMap((o) => o.refusals.filter((r) => !o.errors.includes(r)).map((r) => `${o.name}:${r}`)))];
-  const count = (all: ReadonlyArray<string>, hit: ReadonlySet<string>) => `${all.filter((x) => hit.has(x)).length}/${all.length}`;
-  const failures = [
-    ...ops.filter((o) => !called.has(o.name)).map((o) => `${o.name} reached by no journey`),
-    ...moves.filter((m) => !moved.has(m)).map((m) => `move ${m} made by no journey`),
-    ...outcomes.filter((s) => !reached.has(s)).map((s) => `outcome ${s.replace(":", " ")} reached by no journey`),
-    ...errors.filter((x) => !refused.has(x)).map((x) => `${x.replace(":", " refusing ")} reached by no journey`),
+type Sets = ReturnType<typeof reachedIn>;
+
+/** What the whole run reached: operations called, moves made, outcomes reached, refusals given. */
+const reachedIn = (model: Model, evidence: ReadonlyArray<Evidence>) => {
+  const thingOf = (e: Evidence) => model.operations[e.call.operation]?.thing;
+  const moving = evidence.filter((e) => answered(e) && attr(e, "move.to") !== undefined);
+  return {
+    called: new Set(evidence.map((e) => e.call.operation)),
+    moved: new Set(moving.map((e) => `${thingOf(e)}.${model.operations[e.call.operation]?.move?.key}`)),
+    reached: new Set(moving.map((e) => `${thingOf(e)}:${String(attr(e, "move.to"))}`)),
+    refused: new Set(evidence.flatMap((e) => (e.refusal ? [`${e.call.operation}:${e.refusal}`] : []))),
+  };
+};
+
+const required = (op: OperationModel) => ({
+  move: op.move ? [`${op.thing}.${op.move.key}`] : [],
+  outcomes: op.move ? op.move.to.map((s) => `${op.thing}:${s}`) : [],
+  errors: op.errors.map((x) => `${op.name}:${x}`),
+  runtime: op.refusals.filter((r) => !op.errors.includes(r)).map((r) => `${op.name}:${r}`),
+});
+
+const gaps = (op: OperationModel, sets: Sets) => {
+  if (!sets.called.has(op.name)) return [`${op.name} reached by no journey`];
+  const r = required(op);
+  return [
+    ...r.move.filter((m) => !sets.moved.has(m)).map((m) => `move ${m} made by no journey`),
+    ...r.outcomes.filter((s) => !sets.reached.has(s)).map((s) => `outcome ${s.replace(":", " ")} reached by no journey`),
+    ...r.errors.filter((x) => !sets.refused.has(x)).map((x) => `${x.replace(":", " refusing ")} reached by no journey`),
   ];
-  const summary = `operations ${count(ops.map((o) => o.name), called)} moves ${count(moves, moved)} outcomes ${count(outcomes, reached)} errors ${count(errors, refused)} (runtime refusals ${count(computed, refused)})`;
-  return { eval: "coverage", operation: undefined, failures, notes: [summary] };
+};
+
+/**
+ * 8. Coverage, per operation: called by some journey or starting world, its move made, every outcome reached and every
+ * declared error refused. The runtime's own refusals (NotAllowed, the machine's) are counted but never required.
+ */
+export const coverage: PerOperation = (op, _mine, { project, all }) => {
+  const failures = gaps(op, reachedIn(project.model, all));
+  return { eval: "coverage", operation: op.name, failures, notes: [] };
+};
+
+/** The run's coverage in one line: what was reached of everything declared. It never fails; each operation's does. */
+export const coverageSummary = (model: Model, evidence: ReadonlyArray<Evidence>): Verdict => {
+  const sets = reachedIn(model, evidence);
+  const all = Object.values(model.operations).map(required);
+  const count = (xs: ReadonlyArray<string>, hit: ReadonlySet<string>) => `${xs.filter((x) => hit.has(x)).length}/${xs.length}`;
+  const flat = (k: keyof ReturnType<typeof required>) => [...new Set(all.flatMap((r) => r[k]))];
+  const notes = [`moves ${count(flat("move"), sets.moved)} · outcomes ${count(flat("outcomes"), sets.reached)} · refusals ${count(flat("errors"), sets.refused)} · runtime refusals ${count(flat("runtime"), sets.refused)}`];
+  return { eval: "coverage", operation: undefined, failures: [], notes };
 };
