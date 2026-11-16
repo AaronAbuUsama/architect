@@ -1,0 +1,15 @@
+{
+  "step": "L1.01",
+  "stage": "Stage 1 · the skeleton, with every eval",
+  "title": "The workspace",
+  "summary": "The monorepo stands up: thirteen package shells and the acme project, the package rules enforced by lint, TypeScript 7 doing every type check, a real local npm registry, and CI green on GitHub.",
+  "proves": "pnpm nx run-many -t lint,typecheck,test is green. A fixture where blueprint imports compiler fails lint with @nx/enforce-module-boundaries.",
+  "captions": {
+    "01-all-checks-green": "Lint, typecheck and test across all 14 projects, cache off.",
+    "02-boundary-fixtures": "Each planted bad import fails lint; the allowed one passes.",
+    "03-planted-blueprint-imports-compiler": "One planted fixture, linted on its own: blueprint may not import the compiler.",
+    "04-sync-check": "No generated file has drifted. Generators arrive in L1.13.",
+    "05-typescript-7": "The compiler every check runs.",
+    "06-planted-type-error": "A planted type error, caught by TypeScript 7. The file was removed afterwards."
+  }
+}

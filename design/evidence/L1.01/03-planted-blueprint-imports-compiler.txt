@@ -1,0 +1,4 @@
+$ pnpm exec oxlint -c tmp/oxlintrc.fixtures.json packages/blueprint/test/fixtures/boundaries/imports-compiler.ts
+# commit 6bbd66b · 2026-11-16T16:10:43Z · exit 1 (expected 1) · 0.7s
+
+packages/blueprint/test/fixtures/boundaries/imports-compiler.ts:2:1: error @nx(enforce-module-boundaries): A project tagged with "scope:blueprint" cannot depend on any libs with tags

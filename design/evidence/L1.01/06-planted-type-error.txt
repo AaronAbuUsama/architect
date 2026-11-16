@@ -1,0 +1,31 @@
+$ pnpm nx typecheck blueprint --skip-nx-cache --outputStyle=static
+# commit 6bbd66b · 2026-11-16T16:10:45Z · exit 1 (expected 1) · 0.8s
+
+
+> nx run blueprint:typecheck
+
+> tsc -p packages/blueprint/tsconfig.json
+
+packages/blueprint/src/planted.ts:1:14 - error TS2322: Type 'string' is not assignable to type 'number'.
+
+1 export const x: number = "no";
+               ~
+
+
+Found 1 error in packages/blueprint/src/planted.ts:1
+
+Warning: command "tsc -p packages/blueprint/tsconfig.json" exited with non-zero status code
+
+
+ NX   Running target typecheck for project blueprint failed
+
+Failed tasks:
+
+- blueprint:typecheck
+
+Hint: run the command with --verbose for more details.
+
+  Run duration:      159ms
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     87ms (1 task)
+  Recoverable time:  <1ms

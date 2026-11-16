@@ -163,6 +163,22 @@ keeper with its own narrow key; durable workflows; and eval 10, on time.
 6. Stop everything you start. No dev server, Miniflare, Anvil, Verdaccio or port is left running at the end of a
    step.
 
+## Evidence, after every step (Aaron, 16 November 2026)
+
+Aaron is often on his phone, so each step and stage ends with evidence he can see there, not a claim that it works.
+
+- **Captured, never retyped.** Every command output in the evidence is captured by a script (`tools/evidence/`) as it
+  runs, with the command, its exit code, the time it took, and the commit it ran on. Planted failures are shown
+  failing.
+- **One evidence page per goal** (https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB), built by
+  `python3 tools/evidence/page.py` into `design/evidence/index.html` and republished to that same URL, as a private Artifact and updated after each step, newest first. Each
+  step's entry has what it proves (the "done when" check, word for word), the captured sessions, the CI run link and
+  the commit link. When a step makes something you can look at (a span tree, an eval table, generated files, the
+  portal), the entry shows it.
+- **The raw captures are committed** under `design/evidence/<step>/` (each with a `step.json` holding what it proves, plus `ci.json`), captured with `tools/evidence/capture.sh`, so the page can always be rebuilt from the
+  repository.
+- After each step, send Aaron the page's link with a one-line spoken summary.
+
 ## Reporting
 
 After each stage lands, write Aaron a short report for the ear: what works now, what was decided, and what's next.
