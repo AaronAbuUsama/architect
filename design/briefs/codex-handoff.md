@@ -298,6 +298,21 @@ Architect:
 - **Projects**: a project with its own instructions, sources and conversations. In Architect a project's sources are
   its blueprint, its generated model and its logbook; a milestone's conversation lives inside it.
 
+Aaron's own pointer is the Grok iOS app on Mobbin, and its current screens are the primary reference:
+https://mobbin.com/apps/grok-bot-ios-c5e50da8-b7fc-423a-a264-5ea9c387d5ad/862b66ab-c959-4a0d-85ec-bdfe42eb2eb5/screens
+(the strongest are also saved to the collection above). From the iOS app in particular:
+
+- **The mode picker** lists Heavy, Expert ("Thinks hard"), Fast, Auto ("Chooses Fast or Expert") and a "4 Agents"
+  option. That last one is the fleet: in Architect the picker shows how many workers a run will start.
+- **The live step line**: while it works, one dim line names the current step and its time ("Choosing visuals • 35s")
+  with short bullets of what it is doing underneath. In Architect that line is the worker's current step.
+- **"Thoughts >"** sits above the answer, folded; under the answer, copy, share, thumbs, read aloud, regenerate, more,
+  and a "2/2" pager between regenerated answers.
+- **The side drawer**: Tasks, then Pinned and Conversations with long-press to pin, rename or delete, and search and
+  new chat at the bottom. In Architect, Tasks is the plan's tasks and Conversations are runs.
+- **Private chat** (a ghost icon, "won't appear in history"): in Architect, a scratch run whose verdicts are not
+  written to the logbook.
+
 The other four templates' screens and Mobbin's non-Grok agent apps are not the reference for the console. If the
 Mobbin connector is available to you, pull more Grok screens; if not, work from these.
 
