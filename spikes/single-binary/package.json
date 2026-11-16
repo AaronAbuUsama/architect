@@ -1,0 +1,10 @@
+{
+  "name": "single-binary-spike",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Throwaway. Not part of the workspace; installs its own two pins.",
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "postject": "1.0.0-alpha.6"
+  }
+}

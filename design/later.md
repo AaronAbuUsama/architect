@@ -37,3 +37,17 @@ belongs to, and why it waits.
   native addon is required at load, and the lint plugin and wrangler are resolved as files. Run the compiler
   in-process or through a hidden subcommand, resolve files lazily, ship the plugin beside the binary, and keep `nx`
   off the load path; then the `architect` binary can go through the same tap.
+- **A durable agent on Architect's own stack, as declared operations** (proposed 16 November 2026; narrowed by H1). The
+  build-time harness is Pi Durable behind an Effect seam (`decisions/H1-agent-harness.md`, build-plan track A). What waits:
+  the agent run as a declared `Run` thing with a machine (`briefed`, `working`, `checking`, `proven | failed`), its turns and
+  tool calls as declared steps, shipped as a std kit `agent` (layer 3, once kits exist); runs resumed by the world's
+  `Timers`, stepped-clock tests of agent waits, and scheduled agents (layer 5). The fallback if the Pi seam fails is H1's
+  Option E: Effect AI plus `@effect/platform-cloudflare` (`CloudflareWorkflowEngine`, one Durable Object per execution),
+  usable from 24 November 2026 under the two-week rule and the `effect` 4.1.3 bump.
+- **Agent sandboxes beyond the machine** (H1 section 10): a Docker sandbox over Pi's `pi-env` daemon (build-plan A7), then
+  Cloudflare Containers, and Dynamic Workers for an *operator* agent whose tools are the app's operations. Layer 2 and later.
+- **Benchmark verdicts in the logbook, and a portal page comparing runs.** Layer 2 once L2.03 and L2.10 exist.
+- **Mutant repair tasks** (H2.6 b): break a reference handler mechanically (drop an `emit` or a `move`, swap a declared error), keep
+  a mutant only if prove fails on it. Waits until the authored planted breaks (A8) show which evals need more tasks.
+- **Benchmark regressions as a gate** (H2.12). Advisory until baselines have shown how noisy they are; a later decision makes it a gate.
+- **A weekly scheduled baseline in CI** on free models (H2.12), once CI may hold a model key (Aaron's call, H2 question 3).

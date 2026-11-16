@@ -1,0 +1,14 @@
+{
+  // Every policy value is an env var; the scripts override them with `--var` (none is a secret).
+  "name": "ci-oidc-logbook",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-11-01",
+  "vars": {
+    "OIDC_ISSUER": "https://token.actions.githubusercontent.com",
+    "OIDC_JWKS_URL": "https://token.actions.githubusercontent.com/.well-known/jwks",
+    "OIDC_AUDIENCE": "architect-logbook",
+    "ALLOWED_REPOSITORY": "AaronAbuUsama/architect",
+    "ALLOWED_REFS": "refs/heads/main",
+    "ALLOWED_WORKFLOWS": "ci"
+  }
+}
