@@ -45,7 +45,11 @@ importers:
         specifier: 4.1.12
         version: 4.1.12(@types/node@24.19.2)(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.0))
 
-  examples/acme: {}
+  examples/acme:
+    dependencies:
+      '@architect/blueprint':
+        specifier: workspace:*
+        version: link:../../packages/blueprint
 
   packages/blueprint:
     dependencies:

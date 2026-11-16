@@ -1,0 +1,5 @@
+import { Blueprint } from "@architect/blueprint";
+import { Organization } from "./thing.ts";
+
+// The person who created the organisation.
+export const owner = Blueprint.role(Organization, { rule: (organization, principal) => organization.owner === principal.person });
