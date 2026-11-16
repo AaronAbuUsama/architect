@@ -1,9 +1,11 @@
 // What an environment leaves on disk to be found again: a pid, a port, and the bundle it runs. And stopping it.
-import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { spawn, spawnSync, type ChildProcess } from "node:child_process";
+import { existsSync, openSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createServer } from "node:net";
 import { join } from "node:path";
 import { Effect, Schedule } from "effect";
+import { Collectors } from "#modules/telemetry/service.js";
+import { collectorName } from "./collector.ts";
 
 export const files = (dir: string) => ({
   config: join(dir, "wrangler.jsonc"),
@@ -70,3 +72,33 @@ export const anyPort = Effect.callback<number>((resume) => {
     server.close(() => resume(Effect.succeed(port)));
   });
 });
+
+/** Stop whatever the pid file names and the collector that went with it, and clear what marks the environment as running. */
+export const reap = (dir: string) =>
+  Effect.gen(function* () {
+    const pid = readPid(dir);
+    if (pid !== undefined && (yield* groupAlive(pid))) yield* stopGroup(pid);
+    yield* Collectors.stop(collectorName(dir));
+    forget(dir);
+  });
+
+/** The port asked for if it is free (an explicit one that isn't is refused), else the one it last had, else any. */
+export const choosePort = (dir: string, wanted: number | undefined) =>
+  Effect.gen(function* () {
+    if (wanted !== undefined) {
+      if (!(yield* isFree(wanted))) return yield* Effect.fail(`port ${wanted} is already in use`);
+      return wanted;
+    }
+    const last = readPort(dir);
+    return last !== undefined && (yield* isFree(last)) ? last : yield* anyPort;
+  });
+
+/** Run a command detached in its own process group, its output appended to `log`, its pid written at once. */
+export const spawnDetached = (run: { readonly command: string; readonly args: ReadonlyArray<string>; readonly env: Readonly<Record<string, string>> }, log: string, pidFile: string) =>
+  Effect.sync((): ChildProcess => {
+    const out = openSync(log, "a");
+    const child = spawn(run.command, [...run.args], { stdio: ["ignore", out, out], detached: true, env: { ...process.env, ...run.env } });
+    child.unref();
+    writeFileSync(pidFile, `${child.pid}\n`);
+    return child;
+  });

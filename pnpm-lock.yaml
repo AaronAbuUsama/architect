@@ -274,6 +274,9 @@ importers:
       '@architect/compiler':
         specifier: workspace:*
         version: link:../compiler
+      '@architect/logbook':
+        specifier: workspace:*
+        version: link:../logbook
       '@architect/target-effect':
         specifier: workspace:*
         version: link:../target-effect

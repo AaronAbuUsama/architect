@@ -90,6 +90,13 @@ declarations `Blueprint.environment|config|secret`, `Identity`, `Cloud`, `Deploy
 is in `packages/prove` (`build`, `environments`, and `Worlds.launch`). The Alchemy stack and `architect deploy` wait for
 the cloud pass. The logbook (L2.03) plugs in at `OWN_WORKER` in `packages/prove/src/modules/environments/service.ts`.
 
+L2.02 (local reading) is built on `build/L2.02` (decisions D3 #50 to #56, evidence `evidence/L2.02/`): `architect prove --env test`
+(`world test-<id> · expires in <lifetime>`, the journeys and evals, `verdicts <op> ✔ …   (revision <rev>)`, `world destroyed`), with each
+world a Durable Object with an alarm in the test environment (`host-cloudflare/world`, `/_world/worlds`), `architect worlds reap`
+(`reaped <n>`), `env status test` adding `worlds <n>`, and `architect env up|down|status logbook` through `Logbook.launch`. The test
+environment has its own collector (a container `env down` removes). `prove` now depends on `@architect/logbook`, which `tools/e2e/starter.sh`
+publishes with the rest. Author's checks 01 and 02 pass. The GitHub Action (`test-pr-<n>`) is the cloud pass's.
+
 ## Open
 
 - A last consistency review of the design docs was still running at handoff. Its findings, if any, are small fixes to

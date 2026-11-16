@@ -3,26 +3,20 @@ import { join, resolve } from "node:path";
 import { Effect } from "effect";
 import { Compiler, nodeSource } from "@architect/compiler";
 import { Build } from "#modules/build/service.js";
+import { Collectors } from "#modules/telemetry/service.js";
 import { Worlds } from "#modules/world/service.js";
-import { EnvironmentFailed, type EnvironmentsApi, type Status, type Up } from "./types.ts";
+import type { EnvironmentsApi, Up } from "./types.ts";
+import { collectorName, telemetryDir } from "./internal/collector.ts";
 import { environmentConfig } from "./internal/config.ts";
-import { anyPort, files, forget, groupAlive, isFree, isWrangler, readPid, readPort, stopGroup, writePort } from "./internal/process.ts";
+import { startLogbook } from "./internal/logbook.ts";
+import { choosePort, files, reap, writePort } from "./internal/process.ts";
+import { NAME, dirOf, failed, io, status } from "./internal/status.ts";
 import { ensureSecrets } from "./internal/secrets.ts";
-
-const NAME = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
-const failed = (message: string) => new EnvironmentFailed({ message });
-const io = <A>(what: string, run: () => A) => Effect.try({ try: run, catch: (e) => failed(`${what}: ${String(e).replace(/^Error: /, "")}`) });
-
-const dirOf = (root: string, name: string) => join(resolve(root), ".architect/environments", name);
-
-/** Environments that are not the project's server on workerd: they have their own worker, built in their own step. */
-const OWN_WORKER: Readonly<Record<string, string>> = { logbook: "the logbook is its own worker, built in L2.03" };
 
 /** The environment as the blueprint declares it, and only one a long-lived workerd can run the revision's bundle for. */
 const declared = (root: string, name: string) =>
   Effect.gen(function* () {
     if (!NAME.test(name)) return yield* failed(`"${name}" isn't an environment name`);
-    if (OWN_WORKER[name]) return yield* failed(OWN_WORKER[name]!);
     const model = yield* Compiler.model.pipe(
       Effect.provide(nodeSource(root)),
       Effect.mapError((e) => failed(e._tag === "BlueprintInvalid" ? `the blueprint is invalid:\n  - ${e.problems.join("\n  - ")}` : e.message)),
@@ -34,41 +28,18 @@ const declared = (root: string, name: string) =>
     return environment;
   });
 
-const status = (root: string, name: string): Effect.Effect<Status, EnvironmentFailed> =>
-  Effect.gen(function* () {
-    if (!NAME.test(name)) return yield* failed(`"${name}" isn't an environment name`);
-    const dir = dirOf(root, name);
-    const pid = readPid(dir);
-    if (pid === undefined || !(yield* groupAlive(pid)) || !isWrangler(pid)) return { state: "down" as const, name };
-    const port = readPort(dir);
-    const bundle = yield* io("its bundle record", () => JSON.parse(readFileSync(files(dir).bundle, "utf8")) as { revision: string; sha256: string });
-    if (port === undefined) return { state: "down" as const, name };
-    return { state: "up" as const, name, url: `http://127.0.0.1:${port}`, port, pid, ...bundle };
-  });
-
-/** Stop whatever the pid file names, and clear what marks the environment as running. */
-const reap = (dir: string) =>
-  Effect.gen(function* () {
-    const pid = readPid(dir);
-    if (pid !== undefined && (yield* groupAlive(pid))) yield* stopGroup(pid);
-    forget(dir);
-  });
-
-const choosePort = (dir: string, wanted: number | undefined) =>
-  Effect.gen(function* () {
-    if (wanted !== undefined) {
-      if (!(yield* isFree(wanted))) return yield* failed(`port ${wanted} is already in use`);
-      return wanted;
-    }
-    const last = readPort(dir);
-    return last !== undefined && (yield* isFree(last)) ? last : yield* anyPort;
-  });
-
-const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision }) =>
+const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision, policy }) =>
   Effect.gen(function* () {
     const root = resolve(given);
-    const environment = yield* declared(root, name);
     const dir = dirOf(root, name);
+    if (name === "logbook") {
+      if (!NAME.test(name)) return yield* failed(`"${name}" isn't an environment name`);
+      const running = yield* status(root, name);
+      if (running.state === "up") return running;
+      if (!policy) return yield* failed("the logbook needs a policy: ARCHITECT_OIDC_ISSUER, ARCHITECT_OIDC_REPOSITORY, ARCHITECT_OIDC_REF and ARCHITECT_OIDC_WORKFLOW");
+      return yield* startLogbook(dir, port, policy);
+    }
+    const environment = yield* declared(root, name);
     const f = files(dir);
     yield* io(`${dir}`, () => mkdirSync(f.state, { recursive: true }));
     const now = yield* status(root, name);
@@ -84,10 +55,17 @@ const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision }) =>
 
     const base = join(root, "generated/server/wrangler.jsonc");
     if (!existsSync(base)) return yield* failed(`${base} is missing: run nx sync first`);
-    const chosen = yield* choosePort(dir, port);
+    const chosen = yield* choosePort(dir, port).pipe(Effect.mapError(failed));
+    // An environment that hosts worlds has its own collector, which lives until `down`.
+    const hosts = environment.lifetimeMs !== null;
+    const otlp = hosts
+      ? yield* Collectors.launch({ dir: telemetryDir(dir), name: collectorName(dir) }).pipe(Effect.mapError((e) => failed(`${name} needs Docker for its collector: ${e.message}`)))
+      : undefined;
     yield* io(`${dir}`, () => {
       ensureSecrets(f.secrets, Object.keys(environment.secrets));
-      writeFileSync(f.config, environmentConfig(root, readFileSync(base, "utf8"), { name, revision: built.revision, sha256: built.sha256, main: built.main }));
+      writeFileSync(f.config, environmentConfig(root, readFileSync(base, "utf8"), {
+        name, revision: built.revision, sha256: built.sha256, main: built.main, ...(otlp ? { worlds: { otlp } } : {}),
+      }));
       writeFileSync(f.bundle, JSON.stringify({ revision: built.revision, sha256: built.sha256 }) + "\n");
       writePort(dir, chosen);
     });
@@ -97,7 +75,10 @@ const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision }) =>
       Effect.tapError(() => reap(dir)),
       Effect.mapError((e) => failed(`${name} didn't start: ${e.message}`)),
     );
-    return { state: "up", name, url: launched.url, port: chosen, pid: launched.pid, revision: built.revision, sha256: built.sha256 } satisfies Up;
+    return {
+      state: "up", name, url: launched.url, port: chosen, pid: launched.pid, revision: built.revision, sha256: built.sha256,
+      ...(hosts ? { telemetry: telemetryDir(dir) } : {}),
+    } satisfies Up;
   });
 
 const down: EnvironmentsApi["down"] = ({ root, name }) =>
