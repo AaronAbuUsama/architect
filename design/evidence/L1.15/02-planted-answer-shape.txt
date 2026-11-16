@@ -1,0 +1,35 @@
+$ <scratch>/plant.sh answer-shape grant.ts implementation/handlers/allowance/grant.ts
+# commit 9635862 · 2026-11-16T17:33:36Z · exit 1 (expected 1) · 5.0s
+
+planted test/fixtures/evals/answer-shape/grant.ts as implementation/handlers/allowance/grant.ts
+journey grant an allowance ✘ 1/3 steps
+  ✘ "ada grants olga 500": expected an answer, failed with 500
+  ✘ "ada grants olga 500": emits: nothing at last.allowance
+  ✘ "ada grants olga 500": is-in: nothing at last.allowance
+  ✘ "a limit over the cap is refused": expected refused with AllowanceLimitTooHigh, failed with 500
+  ✘ "a limit over the cap is refused": span allowance.grant.insert present, expected absent
+allowance.grant answer shape ✘ grant-an-allowance "ada grants olga 500": answer.allowance: expected alw_<id>, got 500
+allowance.grant answer shape ✘ grant-an-allowance "a limit over the cap is refused": answer.allowance: expected alw_<id>, got 500
+allowance.grant declared errors ✔
+allowance.grant machine path ✔
+allowance.grant events ✔
+allowance.grant who may call ✔
+allowance.grant steps ✔
+allowance.grant performance ✔ p50 1ms p95 1ms budget p95 200ms
+allowance.grant explainability ✔
+allowance.grant 1 of 8 evals ✘
+organization.create answer shape ✔
+organization.create declared errors ✔
+organization.create machine path ✔
+organization.create events ✔
+organization.create who may call ✔
+organization.create steps ✔
+organization.create performance ✔ p50 8ms p95 8ms budget p95 200ms
+organization.create explainability ✔
+organization.create 8 evals ✔
+coverage ✘ operations 2/2 moves 0/1 outcomes 0/1 errors 0/1 (runtime refusals 1/2)
+coverage ✘ move allowance.grant made by no journey
+coverage ✘ outcome allowance active reached by no journey
+coverage ✘ allowance.grant refusing AllowanceLimitTooHigh reached by no journey
+prove ✘ 4 failing
+--- exit 1; collectors running: 0

@@ -1,0 +1,13 @@
+{
+  "step": "L1.12",
+  "stage": "Stage 1 · the skeleton, with every eval",
+  "title": "The runtime",
+  "summary": "Every operation now runs through one wrapper. It checks the payload, runs the handler as counted work so the world can tell when it's quiet, records a span named after the operation with the payload on it, gives each step its own span, and checks the answer. It runs inside real workerd, writing to a real local D1. Along the way, amounts now travel as text, since a JSON number can't hold 128 bits.",
+  "proves": "A unit test with the in-memory exporter shows a span named allowance.grant with its payload's attributes.",
+  "captions": {
+    "01-runtime-tests": "The runtime's tests: counted work, timers on a test clock, and the wrapper's span, refusals and answer check.",
+    "02-spans-of-one-grant": "One grant, and the spans it recorded: allowance.grant with its payload, and the insert step inside it.",
+    "03-workerd-and-real-d1": "Inside real workerd: a real D1 row through SqlClient, and the wrapper's step writing the largest 128-bit amount.",
+    "04-all-checks-green": "Lint, typecheck and test across all 14 projects, cache off."
+  }
+}

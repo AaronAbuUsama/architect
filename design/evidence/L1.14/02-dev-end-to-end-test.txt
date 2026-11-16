@@ -1,0 +1,16 @@
+$ node_modules/.bin/vitest run --root packages/cli --reporter verbose
+# commit 7d1082f · 2026-11-16T17:09:46Z · exit 0 (expected 0) · 3.3s
+
+
+ RUN  v4.1.12 ./packages/cli
+
+ ✓ src/modules/model/model.test.ts > architect model > --json on acme prints the model snapshot, from a real process 568ms
+ ✓ src/modules/model/model.test.ts > architect model > summarises things and operations without --json 48ms
+ ✓ src/modules/model/model.test.ts > architect model > --json is optional on the real command line 447ms
+ ✓ src/modules/model/model.test.ts > architect model > an invalid blueprint lists its problems and exits 2 410ms
+ ✓ src/modules/dev/dev.test.ts > architect dev > serves acme on workerd: the world casts ada, ada founds an organisation and grants olga 500 2494ms
+
+ Test Files  2 passed (2)
+      Tests  5 passed (5)
+   Start at  17:09:44
+   Duration  2.81s (transform 117ms, setup 0ms, import 467ms, tests 3.97s, environment 0ms)

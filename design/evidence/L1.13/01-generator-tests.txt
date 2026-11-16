@@ -1,0 +1,18 @@
+$ node_modules/.bin/vitest run --root packages/generators --reporter verbose
+# commit eff75fb · 2026-11-16T16:58:42Z · exit 0 (expected 0) · 1.1s
+
+
+ RUN  v4.1.12 ./packages/generators
+
+ ✓ src/modules/render/render.test.ts > render > writes the four outputs for every operation 1ms
+ ✓ src/modules/render/render.test.ts > render > marks every generated file do-not-edit, and every scaffold with where it came from 1ms
+ ✓ src/modules/render/render.test.ts > render > declares each operation's refusals on its endpoint, with their exit codes 0ms
+ ✓ src/modules/render/render.test.ts > render > is deterministic 0ms
+ ✓ src/modules/sync/sync.test.ts > sync > changes nothing when generated/ matches the blueprint 212ms
+ ✓ src/modules/sync/sync.test.ts > sync > puts back a hand edit and removes a file the blueprint doesn't explain 202ms
+ ✓ src/modules/sync/sync.test.ts > sync > never overwrites a scaffold that exists 200ms
+
+ Test Files  2 passed (2)
+      Tests  7 passed (7)
+   Start at  16:58:41
+   Duration  889ms (transform 65ms, setup 0ms, import 443ms, tests 617ms, environment 0ms)

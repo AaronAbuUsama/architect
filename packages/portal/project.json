@@ -1,0 +1,16 @@
+{
+  "name": "portal",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/portal/src",
+  "projectType": "library",
+  "tags": [
+    "scope:portal",
+    "env:runtime",
+    "layer:2"
+  ],
+  "targets": {
+    "lint": {},
+    "typecheck": {},
+    "test": {}
+  }
+}

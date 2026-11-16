@@ -1,0 +1,301 @@
+$ node packages/cli/src/main.ts model --json --root examples/acme
+# commit f9d570c · 2026-11-16T16:42:13Z · exit 0 (expected 0) · 0.4s
+
+{
+  "values": {
+    "Amount": {
+      "type": "uint",
+      "bits": 128
+    }
+  },
+  "things": {
+    "allowance": {
+      "name": "allowance",
+      "identifier": "Allowance",
+      "description": "Money a member may spend from their organisation, up to a limit each month.",
+      "fields": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "alw"
+          }
+        },
+        "organization": {
+          "value": {
+            "type": "id",
+            "prefix": "org"
+          },
+          "ref": "organization.id"
+        },
+        "member": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "person.id"
+        },
+        "limit": {
+          "value": {
+            "type": "uint",
+            "bits": 128
+          },
+          "named": "Amount"
+        },
+        "spent": {
+          "value": {
+            "type": "uint",
+            "bits": 128
+          },
+          "named": "Amount"
+        }
+      },
+      "machine": {
+        "states": [
+          "active"
+        ],
+        "moves": {
+          "grant": {
+            "from": [],
+            "to": [
+              "active"
+            ],
+            "emits": "AllowanceGranted"
+          }
+        },
+        "notFrom": {
+          "error": "AllowanceNotActive",
+          "exit": 40
+        }
+      },
+      "events": {
+        "AllowanceGranted": {
+          "allowance": {
+            "value": {
+              "type": "id",
+              "prefix": "alw"
+            },
+            "ref": "allowance.id"
+          },
+          "limit": {
+            "value": {
+              "type": "uint",
+              "bits": 128
+            },
+            "named": "Amount"
+          }
+        }
+      },
+      "errors": {
+        "AllowanceLimitTooHigh": {
+          "fields": {
+            "cap": {
+              "value": {
+                "type": "uint",
+                "bits": 128
+              },
+              "named": "Amount"
+            }
+          },
+          "exit": 44
+        }
+      },
+      "roles": [],
+      "hash": "f970f8db0ed45553"
+    },
+    "organization": {
+      "name": "organization",
+      "identifier": "Organization",
+      "description": "A company whose owner hands out allowances, up to a cap each.",
+      "fields": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "org"
+          }
+        },
+        "name": {
+          "value": {
+            "type": "text",
+            "max": 200
+          }
+        },
+        "owner": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "person.id"
+        },
+        "cap": {
+          "value": {
+            "type": "uint",
+            "bits": 128
+          },
+          "named": "Amount"
+        }
+      },
+      "machine": null,
+      "events": {},
+      "errors": {},
+      "roles": [
+        "owner"
+      ],
+      "hash": "3100b243edb9e347"
+    },
+    "person": {
+      "name": "person",
+      "identifier": "Person",
+      "description": "Someone who signs in. People arrive through sign-in from stage two.",
+      "fields": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          }
+        },
+        "name": {
+          "value": {
+            "type": "text",
+            "max": 200
+          }
+        }
+      },
+      "machine": null,
+      "events": {},
+      "errors": {},
+      "roles": [],
+      "hash": "ac769a99c895d4a7"
+    }
+  },
+  "operations": {
+    "allowance.grant": {
+      "name": "allowance.grant",
+      "thing": "allowance",
+      "verb": "grant",
+      "identifier": "grant",
+      "file": "blueprint/things/allowance/verbs/grant.ts",
+      "description": "Let a member spend from the organisation, up to a limit each month.",
+      "payload": {
+        "organization": {
+          "value": {
+            "type": "id",
+            "prefix": "org"
+          },
+          "ref": "allowance.organization"
+        },
+        "member": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "allowance.member"
+        },
+        "limit": {
+          "value": {
+            "type": "uint",
+            "bits": 128
+          },
+          "named": "Amount",
+          "ref": "allowance.limit"
+        }
+      },
+      "answer": {
+        "allowance": {
+          "value": {
+            "type": "id",
+            "prefix": "alw"
+          },
+          "ref": "allowance.id"
+        }
+      },
+      "move": {
+        "key": "grant",
+        "from": [],
+        "to": [
+          "active"
+        ],
+        "emits": "AllowanceGranted"
+      },
+      "errors": [
+        "AllowanceLimitTooHigh"
+      ],
+      "refusals": [
+        "AllowanceLimitTooHigh",
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "role-of",
+          "role": "organization.owner",
+          "path": "organization"
+        }
+      ],
+      "steps": {
+        "insert": {
+          "name": "allowance.grant.insert",
+          "type": "database"
+        }
+      },
+      "idempotent": "request",
+      "budget": {
+        "p95Ms": 200
+      },
+      "hash": "33848484aad9a715"
+    },
+    "organization.create": {
+      "name": "organization.create",
+      "thing": "organization",
+      "verb": "create",
+      "identifier": "create",
+      "file": "blueprint/things/organization/verbs/create.ts",
+      "description": "Start an organisation. Whoever creates it owns it.",
+      "payload": {
+        "name": {
+          "value": {
+            "type": "text",
+            "max": 200
+          },
+          "ref": "organization.name"
+        },
+        "cap": {
+          "value": {
+            "type": "uint",
+            "bits": 128
+          },
+          "named": "Amount",
+          "ref": "organization.cap"
+        }
+      },
+      "answer": {
+        "organization": {
+          "value": {
+            "type": "id",
+            "prefix": "org"
+          },
+          "ref": "organization.id"
+        }
+      },
+      "move": null,
+      "errors": [],
+      "refusals": [
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "signed-in"
+        }
+      ],
+      "steps": {
+        "insert": {
+          "name": "organization.create.insert",
+          "type": "database"
+        }
+      },
+      "idempotent": "request",
+      "budget": {
+        "p95Ms": 200
+      },
+      "hash": "e3e79ef636641315"
+    }
+  }
+}

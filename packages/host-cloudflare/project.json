@@ -1,0 +1,16 @@
+{
+  "name": "host-cloudflare",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/host-cloudflare/src",
+  "projectType": "library",
+  "tags": [
+    "scope:host",
+    "env:runtime",
+    "layer:1"
+  ],
+  "targets": {
+    "lint": {},
+    "typecheck": {},
+    "test": {}
+  }
+}

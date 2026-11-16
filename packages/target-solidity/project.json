@@ -1,0 +1,16 @@
+{
+  "name": "target-solidity",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/target-solidity/src",
+  "projectType": "library",
+  "tags": [
+    "scope:target-solidity",
+    "env:build",
+    "layer:4"
+  ],
+  "targets": {
+    "lint": {},
+    "typecheck": {},
+    "test": {}
+  }
+}

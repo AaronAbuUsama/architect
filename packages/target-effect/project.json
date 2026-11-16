@@ -1,0 +1,16 @@
+{
+  "name": "target-effect",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/target-effect/src",
+  "projectType": "library",
+  "tags": [
+    "scope:target",
+    "env:runtime",
+    "layer:1"
+  ],
+  "targets": {
+    "lint": {},
+    "typecheck": {},
+    "test": {}
+  }
+}

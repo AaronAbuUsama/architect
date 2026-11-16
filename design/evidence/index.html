@@ -1,0 +1,2698 @@
+<title>Architect Build Evidence</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400&display=swap">
+<style>
+/* Layout: one narrow column of steps, newest first; each run is a collapsible terminal capture. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --fg: #1b2230; --muted: #5d6677; --line: #dde1e8;
+  --accent: #3355d4; --pass: #1f7a4d; --pass-bg: #e3f3ea; --planted: #8a5a00; --planted-bg: #fbf0d9;
+  --bad: #b3261e; --bad-bg: #fbe4e2; --term: #121722; --term-fg: #d6dbe6; --term-dim: #8b93a6; --prompt: #7fb2ff;
+  --display: "Space Grotesk", system-ui, sans-serif; --body: "Inter", system-ui, sans-serif; --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f131b; --surface: #161b25; --fg: #e4e8f0; --muted: #98a1b3; --line: #262d3a;
+  --accent: #8aa6ff; --pass: #6fd3a0; --pass-bg: #163326; --planted: #f0c060; --planted-bg: #3a2e12; --bad: #ff8a80; --bad-bg: #3d1a18;
+  --term: #0a0d13; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0f131b; --surface: #161b25; --fg: #e4e8f0; --muted: #98a1b3; --line: #262d3a;
+  --accent: #8aa6ff; --pass: #6fd3a0; --pass-bg: #163326; --planted: #f0c060; --planted-bg: #3a2e12; --bad: #ff8a80; --bad-bg: #3d1a18;
+  --term: #0a0d13; color-scheme: dark }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 24px 48px; }
+main { max-width: 760px; margin: 0 auto; display: grid; gap: 28px; }
+header h1 { font-family: var(--display); font-size: 1.6rem; margin: 0; text-wrap: balance; }
+header p { color: var(--muted); margin: 6px 0 0; }
+a { color: var(--accent); }
+.step { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 12px; min-width: 0; }
+.stage { font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+h2 { font-family: var(--display); font-size: 1.25rem; margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.id { font-family: var(--mono); font-size: .9rem; color: var(--muted); }
+.summary { margin: 0; }
+.proves { font-size: .9rem; border-left: 3px solid var(--line); padding-left: 10px; color: var(--muted); }
+.proves .label { display: block; font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: var(--fg); }
+.links { font-size: .85rem; color: var(--muted); }
+.chip { font-family: var(--body); font-size: .7rem; font-weight: 500; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.chip.pass { color: var(--pass); background: var(--pass-bg); }
+.chip.planted { color: var(--planted); background: var(--planted-bg); }
+.chip.bad { color: var(--bad); background: var(--bad-bg); }
+.run { border-top: 1px solid var(--line); padding-top: 10px; min-width: 0; }
+.run summary { cursor: pointer; display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; list-style: none; }
+.run summary::-webkit-details-marker { display: none; }
+.run summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.cap { flex: 1 1 220px; min-width: 0; }
+.meta { font-family: var(--mono); font-size: .75rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.term { background: var(--term); border-radius: 8px; margin-top: 10px; overflow-x: auto; }
+.prompt { font-family: var(--mono); font-size: .78rem; color: var(--prompt); padding: 10px 12px 0; white-space: pre-wrap; word-break: break-all; }
+.term pre { font-family: var(--mono); font-size: .75rem; color: var(--term-fg); margin: 0; padding: 8px 12px 12px; line-height: 1.5; }
+</style>
+<main>
+  <header>
+    <h1>Architect build evidence</h1>
+    <p>Every run below was captured by a script as it happened, on the commit shown. Planted failures are meant to fail. Newest step first.</p>
+  </header>
+  
+<section class="step">
+  <div class="stage">Stage 1 · the skeleton, with every eval</div>
+  <h2><span class="id">L1.15</span> prove, with a real collector and all nine evals <span class="chip pass">done</span></h2>
+  <p class="summary">architect prove now judges the code for real. It starts a real OpenTelemetry collector in Docker and a fresh world on workerd. It runs the journey: Ada founds an organisation and grants Olga 500, Bob is refused, and a limit over the cap is refused. Then it reads every call&#x27;s spans and logs back from the collector and checks all nine evals: answer shape, declared errors, machine path, events, who may call, steps, performance, coverage and explainability. Acme passes in about six seconds and nothing is left running. Each of the eight broken fixtures, planted by a separate author, fails its own eval with a line that names the call. Two old bugs were found on the way: ids sometimes came out a character short, and the coverage fixture had never reached git.</p>
+  <div class="proves"><span class="label">Done when</span>architect prove --env local prints every eval ✔ and prove ✔ on acme; each planted fixture makes prove exit 1 and names the call on its own eval.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43920197113">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/9635862">commit 9635862</a> · 7 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">architect prove on acme: the journey&#x27;s three steps, eight evals for each operation, coverage, prove ✔. Afterwards no collector container and no open port.</span>
+    <span class="meta">exit 0 · 6.3s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ bash -c cd examples/acme &amp;&amp; node ../../packages/cli/src/main.ts prove --env local; echo &quot;--- after: collectors running: $(docker ps --format &quot;{{.Names}}&quot; | grep -c architect-collector), port 8799 listening: $(lsof -iTCP:8799 -sTCP:LISTEN -t | wc -l | tr -d &quot; &quot;)&quot;</div><pre>journey grant an allowance ✔ 3/3 steps
+allowance.grant answer shape ✔
+allowance.grant declared errors ✔
+allowance.grant machine path ✔
+allowance.grant events ✔
+allowance.grant who may call ✔
+allowance.grant steps ✔
+allowance.grant performance ✔ p50 1ms p95 4ms budget p95 200ms
+allowance.grant explainability ✔
+allowance.grant 8 evals ✔
+organization.create answer shape ✔
+organization.create declared errors ✔
+organization.create machine path ✔
+organization.create events ✔
+organization.create who may call ✔
+organization.create steps ✔
+organization.create performance ✔ p50 8ms p95 8ms budget p95 200ms
+organization.create explainability ✔
+organization.create 8 evals ✔
+coverage ✔ operations 2/2 moves 1/1 outcomes 1/1 errors 1/1 (runtime refusals 1/2)
+prove ✔
+--- after: collectors running: 0, port 8799 listening: 0</pre></div>
+</details>
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">Planted: grant answers a number for the id. The answer shape eval names the call and the field: expected alw_&lt;id&gt;, got 500. Exit 1.</span>
+    <span class="meta">exit 1 · 5.0s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ &lt;scratch&gt;/plant.sh answer-shape grant.ts implementation/handlers/allowance/grant.ts</div><pre>planted test/fixtures/evals/answer-shape/grant.ts as implementation/handlers/allowance/grant.ts
+journey grant an allowance ✘ 1/3 steps
+  ✘ &quot;ada grants olga 500&quot;: expected an answer, failed with 500
+  ✘ &quot;ada grants olga 500&quot;: emits: nothing at last.allowance
+  ✘ &quot;ada grants olga 500&quot;: is-in: nothing at last.allowance
+  ✘ &quot;a limit over the cap is refused&quot;: expected refused with AllowanceLimitTooHigh, failed with 500
+  ✘ &quot;a limit over the cap is refused&quot;: span allowance.grant.insert present, expected absent
+allowance.grant answer shape ✘ grant-an-allowance &quot;ada grants olga 500&quot;: answer.allowance: expected alw_&lt;id&gt;, got 500
+allowance.grant answer shape ✘ grant-an-allowance &quot;a limit over the cap is refused&quot;: answer.allowance: expected alw_&lt;id&gt;, got 500
+allowance.grant declared errors ✔
+allowance.grant machine path ✔
+allowance.grant events ✔
+allowance.grant who may call ✔
+allowance.grant steps ✔
+allowance.grant performance ✔ p50 1ms p95 1ms budget p95 200ms
+allowance.grant explainability ✔
+allowance.grant 1 of 8 evals ✘
+organization.create answer shape ✔
+organization.create declared errors ✔
+organization.create machine path ✔
+organization.create events ✔
+organization.create who may call ✔
+organization.create steps ✔
+organization.create performance ✔ p50 8ms p95 8ms budget p95 200ms
+organization.create explainability ✔
+organization.create 8 evals ✔
+coverage ✘ operations 2/2 moves 0/1 outcomes 0/1 errors 0/1 (runtime refusals 1/2)
+coverage ✘ move allowance.grant made by no journey
+coverage ✘ outcome allowance active reached by no journey
+coverage ✘ allowance.grant refusing AllowanceLimitTooHigh reached by no journey
+prove ✘ 4 failing
+--- exit 1; collectors running: 0</pre></div>
+</details>
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">Planted: the server serves grant with no gate. Who may call decides from the world&#x27;s facts that Bob isn&#x27;t the owner, sees he was answered, and fails. Exit 1.</span>
+    <span class="meta">exit 1 · 3.5s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ &lt;scratch&gt;/plant.sh who-may-call main.ts generated/server/main.ts</div><pre>planted test/fixtures/evals/who-may-call/main.ts as generated/server/main.ts
+journey grant an allowance ✘ 2/3 steps
+  ✘ &quot;bob is refused and the handler never runs&quot;: expected refused with NotAllowed, answered
+  ✘ &quot;bob is refused and the handler never runs&quot;: expected no events, journal has AllowanceGranted
+  ✘ &quot;bob is refused and the handler never runs&quot;: span allowance.grant present, expected absent
+  ✘ &quot;bob is refused and the handler never runs&quot;: span allowance.grant.insert present, expected absent
+allowance.grant answer shape ✔
+allowance.grant declared errors ✔
+allowance.grant machine path ✔
+allowance.grant events ✔
+allowance.grant who may call ✘ grant-an-allowance &quot;bob is refused and the handler never runs&quot;: caller bob (person per_a9na6c3i0899rgwg) lacks owner of organization org_np9afg4t6ny6k3k, and was answered, not refused
+allowance.grant steps ✔
+allowance.grant performance ✔ p50 3ms p95 4ms budget p95 200ms
+allowance.grant explainability ✔
+allowance.grant 1 of 8 evals ✘
+organization.create answer shape ✔
+organization.create declared errors ✔
+organization.create machine path ✔
+organization.create events ✔
+organization.create who may call ✔
+organization.create steps ✔
+organization.create performance ✔ p50 9ms p95 9ms budget p95 200ms
+organization.create explainability ✔
+organization.create 8 evals ✔
+coverage ✔ operations 2/2 moves 1/1 outcomes 1/1 errors 1/1 (runtime refusals 0/2)
+prove ✘ 2 failing
+--- exit 1; collectors running: 0</pre></div>
+</details>
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">Planted: the refusal over the cap logs nothing. Explainability says AllowanceLimitTooHigh has no deciding log. Exit 1.</span>
+    <span class="meta">exit 1 · 3.5s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ &lt;scratch&gt;/plant.sh explainability grant.ts implementation/handlers/allowance/grant.ts</div><pre>planted test/fixtures/evals/explainability/grant.ts as implementation/handlers/allowance/grant.ts
+journey grant an allowance ✘ 2/3 steps
+  ✘ &quot;ada grants olga 500&quot;: expected AllowanceGranted, journal has nothing
+  ✘ &quot;ada grants olga 500&quot;: alw_planted1 is in no state, expected &quot;active&quot;
+allowance.grant answer shape ✔
+allowance.grant declared errors ✔
+allowance.grant machine path ✘ grant-an-allowance &quot;ada grants olga 500&quot;: answered without making its move grant
+allowance.grant events ✘ grant-an-allowance &quot;ada grants olga 500&quot;: move grant emitted no AllowanceGranted
+allowance.grant who may call ✔
+allowance.grant steps ✔
+allowance.grant performance ✔ p50 0ms p95 0ms budget p95 200ms
+allowance.grant explainability ✘ grant-an-allowance &quot;a limit over the cap is refused&quot;: AllowanceLimitTooHigh has no deciding log
+allowance.grant 3 of 8 evals ✘
+organization.create answer shape ✔
+organization.create declared errors ✔
+organization.create machine path ✔
+organization.create events ✔
+organization.create who may call ✔
+organization.create steps ✔
+organization.create performance ✔ p50 8ms p95 8ms budget p95 200ms
+organization.create explainability ✔
+organization.create 8 evals ✔
+coverage ✘ operations 2/2 moves 0/1 outcomes 0/1 errors 1/1 (runtime refusals 1/2)
+coverage ✘ move allowance.grant made by no journey
+coverage ✘ outcome allowance active reached by no journey
+prove ✘ 5 failing
+--- exit 1; collectors running: 0</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The gate as a test: acme passes, scaffolded handlers fail, and all eight planted fixtures fail their own eval.</span>
+    <span class="meta">exit 0 · 31.5s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ npx vitest run packages/prove/src/modules/prove --reporter=verbose</div><pre>RUN  v4.1.12 .
+
+ ✓ packages/prove/src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; passes on acme: one journey, every eval, coverage, and leaves nothing running 3188ms
+ ✓ packages/prove/src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails on the scaffolded handlers: the starting world can&#x27;t be made, so no step runs 3144ms
+ ✓ packages/prove/src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted answer-shape fixture on its own eval 2892ms
+ ✓ packages/prove/src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted declared-errors fixture on its own eval 2989ms
+ ✓ packages/prove/src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted machine-path fixture on its own eval 3001ms
+ ✓ packages/prove/src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted events fixture on its own eval 2967ms
+ ✓ packages/prove/src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted who-may-call fixture on its own eval 2998ms
+ ✓ packages/prove/src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted steps fixture on its own eval 3039ms
+ ✓ packages/prove/src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted coverage fixture on its own eval 3143ms
+ ✓ packages/prove/src/modules/prove/prove.test.ts &gt; architect prove --env local &gt; fails the planted explainability fixture on its own eval 3023ms
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  17:33:49
+   Duration  30.92s (transform 423ms, setup 0ms, import 354ms, tests 30.48s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Lint, typecheck and test across every project, cache off.</span>
+    <span class="meta">exit 0 · 38.9s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ env NX_DAEMON=false npx nx run-many -t lint typecheck test --skip-nx-cache --output-style=static</div><pre>NX   Running targets lint, typecheck, test for 14 projects:
+
+- host-cloudflare
+- target-solidity
+- target-effect
+- generators
+- blueprint
+- compiler
+- logbook
+- portal
+- preset
+- prove
+- acme
+- lint
+- cli
+- std
+
+
+
+&gt; nx run blueprint:typecheck
+
+&gt; tsc -p packages/blueprint/tsconfig.json
+
+
+&gt; nx run blueprint:test
+
+&gt; vitest run --root packages/blueprint --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/blueprint
+
+
+ Test Files  9 passed (9)
+      Tests  21 passed (21)
+   Start at  17:35:32
+   Duration  525ms (transform 272ms, setup 0ms, import 2.75s, tests 24ms, environment 0ms)
+
+
+&gt; nx run blueprint:lint
+
+&gt; oxlint packages/blueprint
+
+
+&gt; nx run target-effect:lint
+
+&gt; oxlint packages/target-effect
+
+
+&gt; nx run target-effect:typecheck
+
+&gt; tsc -p packages/target-effect/tsconfig.json
+
+
+&gt; nx run target-effect:test
+
+&gt; vitest run --root packages/target-effect --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/target-effect
+
+
+ Test Files  8 passed (8)
+      Tests  22 passed (22)
+   Start at  17:35:33
+   Duration  575ms (transform 1.00s, setup 0ms, import 2.87s, tests 69ms, environment 0ms)
+
+
+&gt; nx run compiler:typecheck
+
+&gt; tsc -p packages/compiler/tsconfig.json
+
+
+&gt; nx run compiler:test
+
+&gt; vitest run --root packages/compiler --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/compiler
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  17:35:33
+   Duration  442ms (transform 144ms, setup 0ms, import 205ms, tests 150ms, environment 0ms)
+
+
+&gt; nx run compiler:lint
+
+&gt; oxlint packages/compiler
+
+
+&gt; nx run generators:typecheck
+
+&gt; tsc -p packages/generators/tsconfig.json
+
+
+&gt; nx run generators:lint
+
+&gt; oxlint packages/generators
+
+
+&gt; nx run generators:test
+
+&gt; vitest run --root packages/generators --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/generators
+
+
+ Test Files  2 passed (2)
+      Tests  7 passed (7)
+   Start at  17:35:34
+   Duration  1.02s (transform 71ms, setup 0ms, import 529ms, tests 722ms, environment 0ms)
+
+
+&gt; nx run host-cloudflare:lint
+
+&gt; oxlint packages/host-cloudflare
+
+
+&gt; nx run prove:lint
+
+&gt; oxlint packages/prove
+
+
+&gt; nx run host-cloudflare:typecheck
+
+&gt; tsc -p packages/host-cloudflare/tsconfig.json
+
+
+&gt; nx run prove:typecheck
+
+&gt; tsc -p packages/prove/tsconfig.json
+
+
+&gt; nx run host-cloudflare:test
+
+&gt; vitest run --root packages/host-cloudflare --passWithNoTests
+
+
+=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+
+
+ RUN  v4.1.12 ./packages/host-cloudflare
+
+
+ Test Files  5 passed (5)
+      Tests  9 passed (9)
+   Start at  17:35:35
+   Duration  5.90s (transform 8.45s, setup 20.42s, import 718ms, tests 71ms, environment 0ms)
+
+
+&gt; nx run lint:test
+
+&gt; vitest run --root packages/lint --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/lint
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  17:35:37
+   Duration  3.98s (transform 16ms, setup 0ms, import 26ms, tests 3.85s, environment 0ms)
+
+
+&gt; nx run acme:lint
+
+&gt; oxlint examples/acme
+
+
+&gt; nx run cli:lint
+
+&gt; oxlint packages/cli
+
+
+&gt; nx run cli:test
+
+&gt; vitest run --root packages/cli --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/cli
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  17:35:41
+   Duration  1.77s (transform 78ms, setup 0ms, import 190ms, tests 1.48s, environment 0ms)
+
+
+&gt; nx run target-solidity:lint
+
+&gt; oxlint packages/target-solidity
+
+
+&gt; nx run lint:lint
+
+&gt; oxlint packages/lint
+
+
+&gt; nx run logbook:lint
+
+&gt; oxlint packages/logbook
+
+
+&gt; nx run portal:lint
+
+&gt; oxlint packages/portal
+
+
+&gt; nx run preset:lint
+
+&gt; oxlint packages/preset
+
+
+&gt; nx run acme:typecheck
+
+&gt; tsc -p examples/acme/tsconfig.json
+
+
+&gt; nx run cli:typecheck
+
+&gt; tsc -p packages/cli/tsconfig.json
+
+
+&gt; nx run std:lint
+
+&gt; oxlint packages/std
+
+
+&gt; nx run logbook:test
+
+&gt; vitest run --root packages/logbook --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/logbook
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run target-solidity:test
+
+&gt; vitest run --root packages/target-solidity --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/target-solidity
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run std:test
+
+&gt; vitest run --root packages/std --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/std
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run acme:test
+
+&gt; vitest run --root examples/acme --passWithNoTests
+
+
+ RUN  v4.1.12 ./examples/acme
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run portal:test
+
+&gt; vitest run --root packages/portal --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/portal
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run preset:test
+
+&gt; vitest run --root packages/preset --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/preset
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run target-solidity:typecheck
+
+&gt; tsc -p packages/target-solidity/tsconfig.json
+
+
+&gt; nx run lint:typecheck
+
+&gt; tsc -p packages/lint/tsconfig.json
+
+
+&gt; nx run logbook:typecheck
+
+&gt; tsc -p packages/logbook/tsconfig.json
+
+
+&gt; nx run std:typecheck
+
+&gt; tsc -p packages/std/tsconfig.json
+
+
+&gt; nx run preset:typecheck
+
+&gt; tsc -p packages/preset/tsconfig.json
+
+
+&gt; nx run portal:typecheck
+
+&gt; tsc -p packages/portal/tsconfig.json
+
+
+&gt; nx run prove:test
+
+&gt; vitest run --root packages/prove --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  5 passed (5)
+      Tests  17 passed (17)
+   Start at  17:35:35
+   Duration  34.98s (transform 1.11s, setup 0ms, import 1.99s, tests 39.44s, environment 0ms)
+
+
+
+
+ NX   Successfully ran targets lint, typecheck, test for 14 projects
+
+
+  Run duration:      38.0s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     35.2s (1 task)
+  Recoverable time:  2.8s (7% of the run)
+
+  Recommendations:
+    - Cache: drop --skip-nx-cache to restore unchanged tasks instantly.
+    - Speed up or split the longest tasks on the critical path:
+        prove:test    35.2s</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">generated/ matches the blueprint.</span>
+    <span class="meta">exit 0 · 1.4s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ env NX_DAEMON=false npx nx sync:check</div><pre>NX   The workspace is up to date
+
+[@architect/generators:sync]: All files are up to date.</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 1 · the skeleton, with every eval</div>
+  <h2><span class="id">L1.14</span> architect dev <span class="chip pass">done</span></h2>
+  <p class="summary">acme now runs for real on this Mac. One command starts the generated server on workerd, with its world and a fresh local database. The world signs people in for testing. Ada founds an organisation and grants Olga 500 from the generated command line, and gets an allowance id back. Over the cap, she&#x27;s refused with exit 44. Bob isn&#x27;t the owner, so he&#x27;s refused with exit 3 before the handler ever runs. Stopping it leaves nothing running. Meanwhile, a separate author wrote stage one&#x27;s journey and a planted fixture for each eval, ready for prove.</p>
+  <div class="proves"><span class="label">Done when</span>architect dev &amp; then acme allowance grant prints an allowance id. curl to the route returns 200.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43915487004">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/7d1082f">commit 7d1082f</a> · 6 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">One real session: architect dev, the world casts ada, olga and bob, the generated acme CLI grants, refuses over the cap and refuses bob, curl gets 200, and nothing is left running.</span>
+    <span class="meta">exit 0 · 5.0s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ bash &lt;scratch&gt;/dev-session.sh</div><pre>$ architect dev --root examples/acme --port 8799 &amp;
+running at http://127.0.0.1:8799  (world at http://127.0.0.1:8799/_world, wrangler output in ./examples/acme/.architect/dev/wrangler.log)
+
+$ curl -X POST /_world/cast -d {&quot;names&quot;:[&quot;ada&quot;,&quot;olga&quot;,&quot;bob&quot;]}    (tokens kept in shell variables, not shown)
+olga is per_b6sobhril7bsl5dv
+
+# signed in as ada
+$ acme organization create --name &quot;Acme Demo&quot; --cap 1000
+org_m2lulfkzfl6nlqcu
+
+$ acme allowance grant --organization org_m2lulfkzfl6nlqcu --member per_b6sobhril7bsl5dv --limit 500
+alw_l302ln5ebo08vhee
+(exit 0)
+
+$ acme allowance grant --organization org_m2lulfkzfl6nlqcu --member per_b6sobhril7bsl5dv --limit 1001
+AllowanceLimitTooHigh: {&quot;cap&quot;:&quot;1000&quot;}
+(exit 44)
+
+# signed in as bob
+$ acme allowance grant --organization org_m2lulfkzfl6nlqcu --member per_b6sobhril7bsl5dv --limit 500
+NotAllowed: {}
+(exit 3)
+
+$ curl -i -X POST /allowance/grant   (as ada)
+HTTP/1.1 200 OK
+{&quot;allowance&quot;:&quot;alw_qny7zcg1q0n2tqt2&quot;}
+
+
+$ kill the dev server
+dev stopped
+$ lsof -iTCP:8799 -sTCP:LISTEN; pgrep workerd
+port 8799: nothing listening
+workerd: not running</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The same flow as an automated test that starts and stops workerd itself.</span>
+    <span class="meta">exit 0 · 3.3s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node_modules/.bin/vitest run --root packages/cli --reporter verbose</div><pre>RUN  v4.1.12 ./packages/cli
+
+ ✓ src/modules/model/model.test.ts &gt; architect model &gt; --json on acme prints the model snapshot, from a real process 568ms
+ ✓ src/modules/model/model.test.ts &gt; architect model &gt; summarises things and operations without --json 48ms
+ ✓ src/modules/model/model.test.ts &gt; architect model &gt; --json is optional on the real command line 447ms
+ ✓ src/modules/model/model.test.ts &gt; architect model &gt; an invalid blueprint lists its problems and exits 2 410ms
+ ✓ src/modules/dev/dev.test.ts &gt; architect dev &gt; serves acme on workerd: the world casts ada, ada founds an organisation and grants olga 500 2494ms
+
+ Test Files  2 passed (2)
+      Tests  5 passed (5)
+   Start at  17:09:44
+   Duration  2.81s (transform 117ms, setup 0ms, import 467ms, tests 3.97s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Inside real workerd: the world Durable Object&#x27;s cast and tokens, and records in D1 keeping a 128-bit amount exact.</span>
+    <span class="meta">exit 0 · 4.1s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node_modules/.bin/vitest run --root packages/host-cloudflare --reporter verbose</div><pre>=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+
+
+ RUN  v4.1.12 ./packages/host-cloudflare
+
+ ✓ src/modules/tokens/tokens.test.ts &gt; Tokens &gt; a token the world signed is that person; a forged or missing one is anonymous 5ms
+ ✓ src/modules/world/world.test.ts &gt; the world Durable Object, in workerd &gt; casts people once and signs tokens the Worker accepts 10ms
+ ✓ src/modules/world/world.test.ts &gt; the world Durable Object, in workerd &gt; answers health 2ms
+ ✓ src/modules/database/database.test.ts &gt; D1 through SqlClient, in workerd &gt; writes and reads a real D1 row 6ms
+ ✓ src/modules/database/database.test.ts &gt; D1 through SqlClient, in workerd &gt; the handler wrapper runs in workerd: its step stores the allowance through Records, inside its own span 5ms
+
+ Test Files  3 passed (3)
+      Tests  5 passed (5)
+   Start at  17:09:47
+   Duration  3.24s (transform 3.21s, setup 7.72s, import 94ms, tests 31ms, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Who may call: owner of the organisation, walked from the payload, checked before the handler&#x27;s span opens.</span>
+    <span class="meta">exit 0 · 0.5s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node_modules/.bin/vitest run --root packages/target-effect src/modules/access src/modules/handler --reporter verbose</div><pre>RUN  v4.1.12 ./packages/target-effect
+
+ ✓ src/modules/access/access.test.ts &gt; Access &gt; owner.of(&quot;organization&quot;): ada owns org_1, bob doesn&#x27;t, and a missing org allows no one 2ms
+ ✓ src/modules/access/access.test.ts &gt; Access &gt; owner.of(&quot;allowance.organization&quot;) walks from the allowance to its organization 0ms
+ ✓ src/modules/access/access.test.ts &gt; Access &gt; signedIn refuses the anonymous; anyone allows them 0ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; runs the handler in a span named after the operation, with its payload as attributes 5ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; passes a declared error through, typed, and counts the work until it ends 1ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; refuses an anonymous caller with NotAllowed before the handler runs 0ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; refuses a payload outside its declaration before the handler runs 2ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; an answer outside its declaration dies as the handler&#x27;s bug 1ms
+
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
+   Start at  17:09:51
+   Duration  281ms (transform 105ms, setup 0ms, import 372ms, tests 12ms, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Lint, typecheck and test across all 14 projects, cache off.</span>
+    <span class="meta">exit 0 · 10.6s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm nx run-many -t lint,typecheck,test --skip-nx-cache</div><pre>NX   42 tasks: 42 succeeded
+
+
+Re-run with --output-style=static to inline logs.
+
+
+ NX   Nx detected a flaky task
+
+  cli:test
+
+Flaky tasks can disrupt your CI pipeline. Automatically retry them with Nx Cloud. Learn more at https://nx.dev/ci/features/flaky-tasks
+
+  Run duration:      9.7s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     4.7s (1 task)
+  Recoverable time:  5.0s (52% of the run)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">generated/ matches the blueprint.</span>
+    <span class="meta">exit 0 · 1.2s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm nx sync:check</div><pre>NX   The workspace is up to date
+
+[@architect/generators:sync]: All files are up to date.</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 1 · the skeleton, with every eval</div>
+  <h2><span class="id">L1.13</span> The generators <span class="chip pass">done</span></h2>
+  <p class="summary">One command now turns acme&#x27;s blueprint into a working codebase: the API contract, the server, a typed client and a command line, plus a starter handler for each operation that is written once and then left alone. The generated code reuses the blueprint&#x27;s own declarations, so they can never drift apart. If anyone edits a generated file by hand, the check fails and says which file.</p>
+  <div class="proves"><span class="label">Done when</span>In examples/acme, nx sync writes the four outputs and nx sync:check passes. Editing generated/sdk/... makes nx sync:check fail.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43913537888">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/eff75fb">commit eff75fb</a> · 8 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The generator&#x27;s tests: all four outputs, the do-not-edit and scaffold headers, refusals with exit codes, and sync on the real workspace.</span>
+    <span class="meta">exit 0 · 1.1s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node_modules/.bin/vitest run --root packages/generators --reporter verbose</div><pre>RUN  v4.1.12 ./packages/generators
+
+ ✓ src/modules/render/render.test.ts &gt; render &gt; writes the four outputs for every operation 1ms
+ ✓ src/modules/render/render.test.ts &gt; render &gt; marks every generated file do-not-edit, and every scaffold with where it came from 1ms
+ ✓ src/modules/render/render.test.ts &gt; render &gt; declares each operation&#x27;s refusals on its endpoint, with their exit codes 0ms
+ ✓ src/modules/render/render.test.ts &gt; render &gt; is deterministic 0ms
+ ✓ src/modules/sync/sync.test.ts &gt; sync &gt; changes nothing when generated/ matches the blueprint 212ms
+ ✓ src/modules/sync/sync.test.ts &gt; sync &gt; puts back a hand edit and removes a file the blueprint doesn&#x27;t explain 202ms
+ ✓ src/modules/sync/sync.test.ts &gt; sync &gt; never overwrites a scaffold that exists 200ms
+
+ Test Files  2 passed (2)
+      Tests  7 passed (7)
+   Start at  16:58:41
+   Duration  889ms (transform 65ms, setup 0ms, import 443ms, tests 617ms, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">From an empty generated folder: nx sync writes the api, server, sdk and cli, and the model.</span>
+    <span class="meta">exit 0 · 1.4s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ bash &lt;scratch&gt;/sync.sh</div><pre>NX   The workspace is out of sync
+
+[@architect/generators:sync]: generated/ doesn&#x27;t match the blueprint. Run nx sync.
+
+Syncing the workspace...
+The workspace was synced successfully!
+
+Please make sure to commit the changes to your repository.
+
+examples/acme/generated/api/src/allowance/grant.handler.ts
+examples/acme/generated/api/src/allowance/grant.ts
+examples/acme/generated/api/src/errors.ts
+examples/acme/generated/api/src/index.ts
+examples/acme/generated/api/src/organization/create.handler.ts
+examples/acme/generated/api/src/organization/create.ts
+examples/acme/generated/cli/src/allowance/grant.ts
+examples/acme/generated/cli/src/main.ts
+examples/acme/generated/cli/src/organization/create.ts
+examples/acme/generated/cli/src/output.ts
+examples/acme/generated/model/model.json
+examples/acme/generated/sdk/src/allowance/grant.ts
+examples/acme/generated/sdk/src/allowance/index.ts
+examples/acme/generated/sdk/src/client.ts
+examples/acme/generated/sdk/src/index.ts
+examples/acme/generated/sdk/src/organization/create.ts
+examples/acme/generated/sdk/src/organization/index.ts
+examples/acme/generated/server/main.ts</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Straight after: the workspace is in sync.</span>
+    <span class="meta">exit 0 · 1.1s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm nx sync:check</div><pre>NX   The workspace is up to date
+
+[@architect/generators:sync]: All files are up to date.</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">TypeScript 7 checks acme whole: blueprint, generated code and handler scaffolds.</span>
+    <span class="meta">exit 0 · 0.5s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ bash &lt;scratch&gt;/acme-tsc.sh</div><pre>Files:              845
+Check time:      0.062s
+Total time:      0.191s
+
+acme project files TypeScript 7 checked:
+  blueprint/things/allowance/errors.ts
+  blueprint/things/allowance/events.ts
+  blueprint/things/allowance/machine.ts
+  blueprint/things/allowance/thing.ts
+  blueprint/things/allowance/verbs/grant.ts
+  blueprint/things/organization/roles.ts
+  blueprint/things/organization/thing.ts
+  blueprint/things/organization/verbs/create.ts
+  blueprint/things/person/thing.ts
+  blueprint/values/money.ts
+  generated/api/src/allowance/grant.handler.ts
+  generated/api/src/allowance/grant.ts
+  generated/api/src/errors.ts
+  generated/api/src/index.ts
+  generated/api/src/organization/create.handler.ts
+  generated/api/src/organization/create.ts
+  generated/cli/src/allowance/grant.ts
+  generated/cli/src/main.ts
+  generated/cli/src/organization/create.ts
+  generated/cli/src/output.ts
+  generated/sdk/src/allowance/grant.ts
+  generated/sdk/src/allowance/index.ts
+  generated/sdk/src/client.ts
+  generated/sdk/src/index.ts
+  generated/sdk/src/organization/create.ts
+  generated/sdk/src/organization/index.ts
+  generated/server/main.ts
+  implementation/handlers/allowance/grant.ts
+  implementation/handlers/organization/create.ts</pre></div>
+</details>
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">Planted: one line added by hand to the generated SDK. sync:check fails and names the file.</span>
+    <span class="meta">exit 1 · 1.1s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm nx sync:check</div><pre>NX   The workspace is out of sync
+
+[@architect/generators:sync]: generated/ doesn&#x27;t match the blueprint. Run nx sync.
+UPDATE examples/acme/generated/sdk/src/allowance/grant.ts
+
+Run `nx sync` to sync the workspace.</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The generated grant endpoint, and the handler scaffold waiting to be written.</span>
+    <span class="meta">exit 0 · 0.0s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ bash &lt;scratch&gt;/show.sh</div><pre>// Generated from blueprint/things/allowance/verbs/grant.ts. Do not edit.
+import { HttpApiEndpoint } from &quot;effect/http-api&quot;;
+import declaration from &quot;../../../../blueprint/things/allowance/verbs/grant.ts&quot;;
+import { AllowanceLimitTooHigh, NotAllowed } from &quot;../errors.ts&quot;;
+
+export { declaration };
+export const endpoint = HttpApiEndpoint.post(&quot;grant&quot;, &quot;/allowance/grant&quot;, {
+  payload: declaration.payloadSchema,
+  success: declaration.answerSchema,
+  error: [AllowanceLimitTooHigh, NotAllowed],
+});
+export const steps = [&quot;allowance.grant.insert&quot;] as const;
+
+// Scaffolded from blueprint/things/allowance/verbs/grant.ts. Yours from now on.
+import { Effect } from &quot;effect&quot;;
+import { Handlers } from &quot;@architect/target-effect&quot;;
+import type { Handler } from &quot;../../../generated/api/src/allowance/grant.handler.ts&quot;;
+
+/** Let a member spend from the organisation, up to a limit each month. */
+const grant: Handler = (_payload, _context) =&gt;
+  Effect.gen(function* () {
+    // Payload: organization, member, limit.
+    // Answer: allowance.
+    // Steps, each its own span: steps.insert(...).
+    // May refuse with AllowanceLimitTooHigh.
+    return yield* Handlers.blank(&quot;this handler is not written yet&quot;);
+  });
+
+export default grant;</pre></div>
+</details>
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">The generated CLI refuses a member id without its per_ prefix, exit 2, before any network call.</span>
+    <span class="meta">exit 2 · 0.5s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node examples/acme/generated/cli/src/main.ts allowance grant --organization org_1 --member olga --limit 500</div><pre>SchemaError: Expected a string matching the RegExp ^per_[0-9a-z]+$
+  at [&quot;member&quot;]</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Lint, typecheck and test across all 14 projects, cache off.</span>
+    <span class="meta">exit 0 · 9.1s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm nx run-many -t lint,typecheck,test --skip-nx-cache</div><pre>NX   42 tasks: 42 succeeded
+
+
+Re-run with --output-style=static to inline logs.
+
+
+ NX   Nx detected a flaky task
+
+  lint:test
+
+Flaky tasks can disrupt your CI pipeline. Automatically retry them with Nx Cloud. Learn more at https://nx.dev/ci/features/flaky-tasks
+
+  Run duration:      8.4s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     4.1s (1 task)
+  Recoverable time:  4.3s (51% of the run)</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 1 · the skeleton, with every eval</div>
+  <h2><span class="id">L1.12</span> The runtime <span class="chip pass">done</span></h2>
+  <p class="summary">Every operation now runs through one wrapper. It checks the payload, runs the handler as counted work so the world can tell when it&#x27;s quiet, records a span named after the operation with the payload on it, gives each step its own span, and checks the answer. It runs inside real workerd, writing to a real local D1. Along the way, amounts now travel as text, since a JSON number can&#x27;t hold 128 bits.</p>
+  <div class="proves"><span class="label">Done when</span>A unit test with the in-memory exporter shows a span named allowance.grant with its payload&#x27;s attributes.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43911747836">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/4f06767">commit 4f06767</a> · 4 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The runtime&#x27;s tests: counted work, timers on a test clock, and the wrapper&#x27;s span, refusals and answer check.</span>
+    <span class="meta">exit 0 · 0.9s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node_modules/.bin/vitest run --root packages/target-effect --reporter verbose</div><pre>RUN  v4.1.12 ./packages/target-effect
+
+ ✓ src/modules/work/work.test.ts &gt; Busy &gt; counts work while it runs, and after it fails 3ms
+ ✓ src/modules/work/work.test.ts &gt; Busy &gt; is quiet only once spawned work ends 1ms
+ ✓ src/modules/timers/timers.test.ts &gt; Timers &gt; a durable sleep parks uncounted, and its timer wakes it counted 5ms
+ ✓ src/modules/timers/timers.test.ts &gt; Timers &gt; `at` runs its work as counted work when fired 1ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; runs the handler in a span named after the operation, with its payload as attributes 5ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; passes a declared error through, typed, and counts the work until it ends 1ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; refuses a payload outside its declaration before the handler runs 2ms
+ ✓ src/modules/handler/handler.test.ts &gt; handler wrapper &gt; an answer outside its declaration dies as the handler&#x27;s bug 1ms
+
+ Test Files  3 passed (3)
+      Tests  8 passed (8)
+   Start at  16:49:00
+   Duration  578ms (transform 146ms, setup 0ms, import 1.30s, tests 20ms, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">One grant, and the spans it recorded: allowance.grant with its payload, and the insert step inside it.</span>
+    <span class="meta">exit 0 · 0.2s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node tmp/spans.ts</div><pre>answer {&quot;allowance&quot;:&quot;alw_1&quot;}
+span allowance.grant  status Ended
+    operation = allowance.grant
+    principal.person = per_ada
+    payload.member = per_olga
+    payload.limit = 500
+span allowance.grant.insert  (child of allowance.grant)  status Ended</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Inside real workerd: a real D1 row through SqlClient, and the wrapper&#x27;s step writing the largest 128-bit amount.</span>
+    <span class="meta">exit 0 · 4.0s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node_modules/.bin/vitest run --root packages/host-cloudflare --reporter verbose</div><pre>=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+
+
+ RUN  v4.1.12 ./packages/host-cloudflare
+
+ ✓ src/modules/database/database.test.ts &gt; D1 through SqlClient, in workerd &gt; writes and reads a real D1 row 7ms
+ ✓ src/modules/database/database.test.ts &gt; D1 through SqlClient, in workerd &gt; the handler wrapper runs in workerd: its step writes to D1 inside its own span 4ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  16:49:02
+   Duration  2.95s (transform 1.14s, setup 29ms, import 2.41s, tests 12ms, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Lint, typecheck and test across all 14 projects, cache off.</span>
+    <span class="meta">exit 0 · 8.9s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm nx run-many -t lint,typecheck,test --skip-nx-cache</div><pre>NX   42 tasks: 42 succeeded
+
+
+Re-run with --output-style=static to inline logs.
+
+  Run duration:      8.2s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     3.8s (1 task)
+  Recoverable time:  4.4s (54% of the run)</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 1 · the skeleton, with every eval</div>
+  <h2><span class="id">L1.11</span> The compiler <span class="chip pass">done</span></h2>
+  <p class="summary">Architect can now read a project&#x27;s blueprint by its folders and files and describe it: every thing, operation, refusal, role and step, named only by where it lives. Rename a file and the operation is renamed; reformat a file and nothing changes. A new command, architect model, prints it. Capturing the evidence caught a bug the tests had missed: --json was required on the real command line. Fixed, and now tested from a real process.</p>
+  <div class="proves"><span class="label">Done when</span>architect model --json on acme matches its snapshot. Renaming verbs/grant.ts to award.ts renames the operation. Reformatting a file leaves the hash unchanged.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43910515154">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/f9d570c">commit f9d570c</a> · 7 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The compiler&#x27;s and the CLI&#x27;s tests, including the snapshot, rename and reformat checks.</span>
+    <span class="meta">exit 0 · 2.6s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ bash &lt;scratch&gt;/tests.sh</div><pre>RUN  v4.1.12 ./packages/compiler
+
+ ✓ src/modules/model/model.test.ts &gt; model &gt; describes acme 44ms
+ ✓ src/modules/model/model.test.ts &gt; model &gt; names an operation after its file: grant.ts renamed to award.ts is allowance.award 27ms
+ ✓ src/modules/model/model.test.ts &gt; model &gt; keeps every hash when a file is only reformatted 42ms
+ ✓ src/modules/model/model.test.ts &gt; model &gt; refuses a verb file that holds no operation 6ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  16:42:10
+   Duration  469ms (transform 127ms, setup 0ms, import 232ms, tests 124ms, environment 0ms)
+
+
+ RUN  v4.1.12 ./packages/cli
+
+ ✓ src/modules/model/model.test.ts &gt; architect model &gt; --json on acme prints the model snapshot, from a real process 522ms
+ ✓ src/modules/model/model.test.ts &gt; architect model &gt; summarises things and operations without --json 41ms
+ ✓ src/modules/model/model.test.ts &gt; architect model &gt; --json is optional on the real command line 397ms
+ ✓ src/modules/model/model.test.ts &gt; architect model &gt; an invalid blueprint lists its problems and exits 2 379ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  16:42:10
+   Duration  1.62s (transform 71ms, setup 0ms, import 188ms, tests 1.34s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">architect model on acme: three things, two operations, each with its refusals and hash.</span>
+    <span class="meta">exit 0 · 0.4s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node packages/cli/src/main.ts model --root examples/acme</div><pre>thing allowance (active)  f970f8db0ed45553
+thing organization  3100b243edb9e347
+thing person  ac769a99c895d4a7
+operation allowance.grant  refuses AllowanceLimitTooHigh, NotAllowed  33848484aad9a715
+operation organization.create  refuses NotAllowed  e3e79ef636641315</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The whole model as JSON, the one description every generator will read.</span>
+    <span class="meta">exit 0 · 0.4s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node packages/cli/src/main.ts model --json --root examples/acme</div><pre>{
+  &quot;values&quot;: {
+    &quot;Amount&quot;: {
+      &quot;type&quot;: &quot;uint&quot;,
+      &quot;bits&quot;: 128
+    }
+  },
+  &quot;things&quot;: {
+    &quot;allowance&quot;: {
+      &quot;name&quot;: &quot;allowance&quot;,
+      &quot;identifier&quot;: &quot;Allowance&quot;,
+      &quot;description&quot;: &quot;Money a member may spend from their organisation, up to a limit each month.&quot;,
+      &quot;fields&quot;: {
+        &quot;id&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;id&quot;,
+            &quot;prefix&quot;: &quot;alw&quot;
+          }
+        },
+        &quot;organization&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;id&quot;,
+            &quot;prefix&quot;: &quot;org&quot;
+          },
+          &quot;ref&quot;: &quot;organization.id&quot;
+        },
+        &quot;member&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;id&quot;,
+            &quot;prefix&quot;: &quot;per&quot;
+          },
+          &quot;ref&quot;: &quot;person.id&quot;
+        },
+        &quot;limit&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;uint&quot;,
+            &quot;bits&quot;: 128
+          },
+          &quot;named&quot;: &quot;Amount&quot;
+        },
+        &quot;spent&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;uint&quot;,
+            &quot;bits&quot;: 128
+          },
+          &quot;named&quot;: &quot;Amount&quot;
+        }
+      },
+      &quot;machine&quot;: {
+        &quot;states&quot;: [
+          &quot;active&quot;
+        ],
+        &quot;moves&quot;: {
+          &quot;grant&quot;: {
+            &quot;from&quot;: [],
+            &quot;to&quot;: [
+              &quot;active&quot;
+            ],
+            &quot;emits&quot;: &quot;AllowanceGranted&quot;
+          }
+        },
+        &quot;notFrom&quot;: {
+          &quot;error&quot;: &quot;AllowanceNotActive&quot;,
+          &quot;exit&quot;: 40
+        }
+      },
+      &quot;events&quot;: {
+        &quot;AllowanceGranted&quot;: {
+          &quot;allowance&quot;: {
+            &quot;value&quot;: {
+              &quot;type&quot;: &quot;id&quot;,
+              &quot;prefix&quot;: &quot;alw&quot;
+            },
+            &quot;ref&quot;: &quot;allowance.id&quot;
+          },
+          &quot;limit&quot;: {
+            &quot;value&quot;: {
+              &quot;type&quot;: &quot;uint&quot;,
+              &quot;bits&quot;: 128
+            },
+            &quot;named&quot;: &quot;Amount&quot;
+          }
+        }
+      },
+      &quot;errors&quot;: {
+        &quot;AllowanceLimitTooHigh&quot;: {
+          &quot;fields&quot;: {
+            &quot;cap&quot;: {
+              &quot;value&quot;: {
+                &quot;type&quot;: &quot;uint&quot;,
+                &quot;bits&quot;: 128
+              },
+              &quot;named&quot;: &quot;Amount&quot;
+            }
+          },
+          &quot;exit&quot;: 44
+        }
+      },
+      &quot;roles&quot;: [],
+      &quot;hash&quot;: &quot;f970f8db0ed45553&quot;
+    },
+    &quot;organization&quot;: {
+      &quot;name&quot;: &quot;organization&quot;,
+      &quot;identifier&quot;: &quot;Organization&quot;,
+      &quot;description&quot;: &quot;A company whose owner hands out allowances, up to a cap each.&quot;,
+      &quot;fields&quot;: {
+        &quot;id&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;id&quot;,
+            &quot;prefix&quot;: &quot;org&quot;
+          }
+        },
+        &quot;name&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;text&quot;,
+            &quot;max&quot;: 200
+          }
+        },
+        &quot;owner&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;id&quot;,
+            &quot;prefix&quot;: &quot;per&quot;
+          },
+          &quot;ref&quot;: &quot;person.id&quot;
+        },
+        &quot;cap&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;uint&quot;,
+            &quot;bits&quot;: 128
+          },
+          &quot;named&quot;: &quot;Amount&quot;
+        }
+      },
+      &quot;machine&quot;: null,
+      &quot;events&quot;: {},
+      &quot;errors&quot;: {},
+      &quot;roles&quot;: [
+        &quot;owner&quot;
+      ],
+      &quot;hash&quot;: &quot;3100b243edb9e347&quot;
+    },
+    &quot;person&quot;: {
+      &quot;name&quot;: &quot;person&quot;,
+      &quot;identifier&quot;: &quot;Person&quot;,
+      &quot;description&quot;: &quot;Someone who signs in. People arrive through sign-in from stage two.&quot;,
+      &quot;fields&quot;: {
+        &quot;id&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;id&quot;,
+            &quot;prefix&quot;: &quot;per&quot;
+          }
+        },
+        &quot;name&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;text&quot;,
+            &quot;max&quot;: 200
+          }
+        }
+      },
+      &quot;machine&quot;: null,
+      &quot;events&quot;: {},
+      &quot;errors&quot;: {},
+      &quot;roles&quot;: [],
+      &quot;hash&quot;: &quot;ac769a99c895d4a7&quot;
+    }
+  },
+  &quot;operations&quot;: {
+    &quot;allowance.grant&quot;: {
+      &quot;name&quot;: &quot;allowance.grant&quot;,
+      &quot;thing&quot;: &quot;allowance&quot;,
+      &quot;verb&quot;: &quot;grant&quot;,
+      &quot;identifier&quot;: &quot;grant&quot;,
+      &quot;file&quot;: &quot;blueprint/things/allowance/verbs/grant.ts&quot;,
+      &quot;description&quot;: &quot;Let a member spend from the organisation, up to a limit each month.&quot;,
+      &quot;payload&quot;: {
+        &quot;organization&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;id&quot;,
+            &quot;prefix&quot;: &quot;org&quot;
+          },
+          &quot;ref&quot;: &quot;allowance.organization&quot;
+        },
+        &quot;member&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;id&quot;,
+            &quot;prefix&quot;: &quot;per&quot;
+          },
+          &quot;ref&quot;: &quot;allowance.member&quot;
+        },
+        &quot;limit&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;uint&quot;,
+            &quot;bits&quot;: 128
+          },
+          &quot;named&quot;: &quot;Amount&quot;,
+          &quot;ref&quot;: &quot;allowance.limit&quot;
+        }
+      },
+      &quot;answer&quot;: {
+        &quot;allowance&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;id&quot;,
+            &quot;prefix&quot;: &quot;alw&quot;
+          },
+          &quot;ref&quot;: &quot;allowance.id&quot;
+        }
+      },
+      &quot;move&quot;: {
+        &quot;key&quot;: &quot;grant&quot;,
+        &quot;from&quot;: [],
+        &quot;to&quot;: [
+          &quot;active&quot;
+        ],
+        &quot;emits&quot;: &quot;AllowanceGranted&quot;
+      },
+      &quot;errors&quot;: [
+        &quot;AllowanceLimitTooHigh&quot;
+      ],
+      &quot;refusals&quot;: [
+        &quot;AllowanceLimitTooHigh&quot;,
+        &quot;NotAllowed&quot;
+      ],
+      &quot;allowed&quot;: [
+        {
+          &quot;kind&quot;: &quot;role-of&quot;,
+          &quot;role&quot;: &quot;organization.owner&quot;,
+          &quot;path&quot;: &quot;organization&quot;
+        }
+      ],
+      &quot;steps&quot;: {
+        &quot;insert&quot;: {
+          &quot;name&quot;: &quot;allowance.grant.insert&quot;,
+          &quot;type&quot;: &quot;database&quot;
+        }
+      },
+      &quot;idempotent&quot;: &quot;request&quot;,
+      &quot;budget&quot;: {
+        &quot;p95Ms&quot;: 200
+      },
+      &quot;hash&quot;: &quot;33848484aad9a715&quot;
+    },
+    &quot;organization.create&quot;: {
+      &quot;name&quot;: &quot;organization.create&quot;,
+      &quot;thing&quot;: &quot;organization&quot;,
+      &quot;verb&quot;: &quot;create&quot;,
+      &quot;identifier&quot;: &quot;create&quot;,
+      &quot;file&quot;: &quot;blueprint/things/organization/verbs/create.ts&quot;,
+      &quot;description&quot;: &quot;Start an organisation. Whoever creates it owns it.&quot;,
+      &quot;payload&quot;: {
+        &quot;name&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;text&quot;,
+            &quot;max&quot;: 200
+          },
+          &quot;ref&quot;: &quot;organization.name&quot;
+        },
+        &quot;cap&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;uint&quot;,
+            &quot;bits&quot;: 128
+          },
+          &quot;named&quot;: &quot;Amount&quot;,
+          &quot;ref&quot;: &quot;organization.cap&quot;
+        }
+      },
+      &quot;answer&quot;: {
+        &quot;organization&quot;: {
+          &quot;value&quot;: {
+            &quot;type&quot;: &quot;id&quot;,
+            &quot;prefix&quot;: &quot;org&quot;
+          },
+          &quot;ref&quot;: &quot;organization.id&quot;
+        }
+      },
+      &quot;move&quot;: null,
+      &quot;errors&quot;: [],
+      &quot;refusals&quot;: [
+        &quot;NotAllowed&quot;
+      ],
+      &quot;allowed&quot;: [
+        {
+          &quot;kind&quot;: &quot;signed-in&quot;
+        }
+      ],
+      &quot;steps&quot;: {
+        &quot;insert&quot;: {
+          &quot;name&quot;: &quot;organization.create.insert&quot;,
+          &quot;type&quot;: &quot;database&quot;
+        }
+      },
+      &quot;idempotent&quot;: &quot;request&quot;,
+      &quot;budget&quot;: {
+        &quot;p95Ms&quot;: 200
+      },
+      &quot;hash&quot;: &quot;e3e79ef636641315&quot;
+    }
+  }
+}</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">A copy of acme with grant.ts renamed to award.ts. The operation is now allowance.award.</span>
+    <span class="meta">exit 0 · 0.4s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node packages/cli/src/main.ts model --root packages/compiler/test/tmp/renamed</div><pre>thing allowance (active)  f970f8db0ed45553
+thing organization  3100b243edb9e347
+thing person  ac769a99c895d4a7
+operation allowance.award  refuses AllowanceLimitTooHigh, NotAllowed  7d8dcec6b6472512
+operation organization.create  refuses NotAllowed  e3e79ef636641315</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">A copy with grant.ts re-indented on every line. Same model, same hashes.</span>
+    <span class="meta">exit 0 · 0.5s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ bash &lt;scratch&gt;/same.sh</div><pre>same model, same hashes
+ 1 file changed, 17 insertions(+), 17 deletions(-)</pre></div>
+</details>
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">Planted: a verb file that holds no operation. Refused with every problem listed, exit 2.</span>
+    <span class="meta">exit 2 · 0.4s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node packages/cli/src/main.ts model --json --root packages/compiler/test/fixtures/not-an-operation</div><pre>The blueprint is invalid:
+  - blueprint/things/widget/verbs/spin.ts: the default export must be a Blueprint.operation</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Lint, typecheck and test across all 14 projects, cache off.</span>
+    <span class="meta">exit 0 · 7.5s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm nx run-many -t lint,typecheck,test --skip-nx-cache</div><pre>NX   42 tasks: 42 succeeded
+
+
+Re-run with --output-style=static to inline logs.
+
+  Run duration:      6.7s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     3.6s (1 task)
+  Recoverable time:  3.1s (46% of the run)</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 1 · the skeleton, with every eval</div>
+  <h2><span class="id">L1.10</span> The language core <span class="chip pass">done</span></h2>
+  <p class="summary">Blueprint can now declare acme&#x27;s first slice: people, organisations with an owner role, and the allowance with its machine, event, a data refusal and the grant operation. Nothing carries a name; names come from paths and exports. Capturing this evidence also caught a lint gap the cache had hidden: test fixtures were let off the vitest ban. That&#x27;s fixed.</p>
+  <div class="proves"><span class="label">Done when</span>nx test blueprint is green. The fixture things/allowance/{thing.ts,verbs/grant.ts} typechecks. An answer with a wrong type fails in a type test.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43908745215">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/adcbe7b">commit adcbe7b</a> · 5 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Every blueprint module&#x27;s tests, including the type tests.</span>
+    <span class="meta">exit 0 · 1.1s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/blueprint --reporter=verbose</div><pre>RUN  v4.1.12 ./packages/blueprint
+
+ ✓ src/modules/blanks/blanks.test.ts &gt; blanks &gt; fit any slot and are found again 1ms
+ ✓ src/modules/values/values.test.ts &gt; values &gt; ids keep their prefix and brand 2ms
+ ✓ src/modules/values/values.test.ts &gt; values &gt; uints are bounded bigints 0ms
+ ✓ src/modules/values/values.test.ts &gt; values &gt; text is never empty 0ms
+ ✓ src/modules/things/things.test.ts &gt; things &gt; fields know the thing they came from 1ms
+ ✓ src/modules/things/things.test.ts &gt; things &gt; fields become one schema 1ms
+ ✓ src/modules/things/things.test.ts &gt; things &gt; is frozen 0ms
+ ✓ src/modules/errors/errors.test.ts &gt; errors &gt; are yieldable, tagged by name, and carry their fields and exit 2ms
+ ✓ src/modules/roles/roles.test.ts &gt; roles &gt; decide on an instance and a principal 1ms
+ ✓ src/modules/roles/roles.test.ts &gt; roles &gt; point at another thing through a payload field 0ms
+ ✓ src/modules/events/events.test.ts &gt; events &gt; carry a schema of their fields 2ms
+ ✓ src/modules/operations/operations.test.ts &gt; operations &gt; keep what was declared 2ms
+ ✓ src/modules/operations/operations.test.ts &gt; operations &gt; type the payload, answer, errors and steps 0ms
+ ✓ src/modules/operations/operations.test.ts &gt; operations &gt; refuse an answer of the wrong type 1ms
+ ✓ src/modules/operations/operations.test.ts &gt; operations &gt; refuse a role pointing at a field the payload doesn&#x27;t have 0ms
+ ✓ src/modules/machines/machines.test.ts &gt; machines &gt; names moves by key and lists outcomes 1ms
+ ✓ src/modules/machines/machines.test.ts &gt; machines &gt; refuses a move to a state it doesn&#x27;t have 0ms
+
+ Test Files  8 passed (8)
+      Tests  17 passed (17)
+   Start at  16:33:17
+   Duration  513ms (transform 314ms, setup 0ms, import 2.53s, tests 23ms, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">acme&#x27;s stage-one blueprint compiles: the files TypeScript 7 checked.</span>
+    <span class="meta">exit 0 · 0.2s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node_modules/.bin/tsc -p examples/acme/tsconfig.json --listFilesOnly</div><pre>./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es5.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2015.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2016.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2017.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2018.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2019.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2020.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2021.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2022.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2023.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2024.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2015.core.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2015.collection.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2015.generator.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2015.iterable.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2015.promise.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2015.proxy.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2015.reflect.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2015.symbol.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2015.symbol.wellknown.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2016.array.include.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2016.intl.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2017.arraybuffer.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2017.date.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2017.object.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2017.sharedmemory.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2017.string.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2017.intl.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2017.typedarrays.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2018.asyncgenerator.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2018.asynciterable.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2018.intl.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2018.promise.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2018.regexp.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2019.array.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2019.object.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2019.string.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2019.symbol.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2019.intl.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2020.bigint.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2020.date.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2020.promise.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2020.sharedmemory.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2020.string.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2020.symbol.wellknown.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2020.intl.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2020.number.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2021.promise.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2021.string.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2021.weakref.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2021.intl.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2022.array.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2022.error.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2022.intl.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2022.object.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2022.string.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2022.regexp.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2023.array.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2023.collection.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2023.intl.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2024.arraybuffer.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2024.collection.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2024.object.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2024.promise.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2024.regexp.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2024.sharedmemory.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2024.string.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.es2025.float16.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.esnext.disposable.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.decorators.d.ts
+./node_modules/.pnpm/@typescript+typescript-darwin-arm64@7.0.2/node_modules/@typescript/typescript-darwin-arm64/lib/lib.decorators.legacy.d.ts
+./packages/blueprint/src/modules/blanks/types.ts
+./packages/blueprint/src/modules/blanks/service.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Types.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/HKT.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Function.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Ordering.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Order.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Combiner.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Reducer.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Equivalence.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Predicate.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Inspectable.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Pipeable.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Unify.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Utils.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Result.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Filter.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Option.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Record.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Array.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Hash.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Equal.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Context.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Exit.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/LogLevel.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Duration.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/NonEmptyIterable.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Chunk.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Deferred.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Latch.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/MutableList.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/MutableRef.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Scope.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/PubSub.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Pull.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Scheduler.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Queue.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/DateTime.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Cron.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Schedule.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Take.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Tracer.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Channel.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/BigDecimal.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/crypto/CryptoError.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/crypto/SecureRandom.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/crypto/WebCrypto.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/crypto/Aead.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/crypto/Cipher.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/crypto/KeyAgreement.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/crypto/Digest.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/crypto/KeyWrap.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/crypto/Mac.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/crypto/Signature.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/crypto/KeyFormat.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Differ.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Formatter.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Graph.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/HashMap.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/HashSet.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Data.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/http/Cookies.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Redactable.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Redacted.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/http/Headers.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/http/UrlParams.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/internal/schemaError.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/JsonPatch.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/JsonSchema.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/net/NetAddress.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/net/Host.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/net/Dns.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/net/IpInterface.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/net/IpNetwork.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/StandardSchema.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/SchemaIssue.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/SchemaGetter.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/SchemaTransformation.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/SchemaAST.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Optic.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/SchemaParser.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/SchemaRepresentation.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/SemVer.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/SemVerRange.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Struct.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Schema.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Brand.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/ByteSize.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/ExecutionPlan.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Sink.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Stream.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Layer.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Metric.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/PlatformError.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/FileSystem.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Logger.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/References.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Fiber.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Cause.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Clock.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Request.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/MutableHashMap.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Cache.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/PrimaryKey.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/reactivity/Reactivity.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Semaphore.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/sql/SqlError.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/sql/SqlConnection.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/sql/Statement.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/sql/SqlClient.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Path.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/persistence/KeyValueStore.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/persistence/Redis.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/persistence/Persistence.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/persistence/Persistable.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/RequestResolver.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/TxRef.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Effect.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/internal/arbitrary/runner.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Arbitrary.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/BigInt.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Boolean.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Bytes.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/ChannelSchema.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/ConfigProvider.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Config.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Console.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Effectable.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/ErrorReporter.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/FiberHandle.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/FiberMap.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/FiberSet.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Glob.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/HashRing.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Iterable.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/JsonPointer.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/RcMap.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/LayerMap.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/RcRef.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/LayerRef.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/ManagedRuntime.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Match.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/MutableHashSet.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Newtype.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Number.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/PartitionedSemaphore.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Pool.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Random.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Ref.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/RegExp.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/SynchronizedRef.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/ScopedRef.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Resource.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Runtime.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/ScopedCache.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Stdio.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/String.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/SubscriptionRef.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Symbol.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Terminal.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/TextDiff.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Trie.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Tuple.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/TxChunk.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/TxDeferred.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/TxHashMap.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/TxHashSet.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/TxPriorityQueue.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/TxQueue.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/TxPubSub.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/TxReentrantLock.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/TxSemaphore.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/TxSubscriptionRef.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/UndefinedOr.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/Version.d.ts
+./node_modules/.pnpm/effect@4.1.1/node_modules/effect/dist/index.d.ts
+./packages/blueprint/src/modules/values/types.ts
+./packages/blueprint/src/modules/things/types.ts
+./packages/blueprint/src/modules/things/internal/fields.ts
+./packages/blueprint/src/modules/things/service.ts
+./packages/blueprint/src/modules/errors/types.ts
+./packages/blueprint/src/modules/errors/service.ts
+./packages/blueprint/src/modules/events/types.ts
+./packages/blueprint/src/modules/events/service.ts
+./packages/blueprint/src/modules/machines/types.ts
+./packages/blueprint/src/modules/machines/internal/check.ts
+./packages/blueprint/src/modules/machines/service.ts
+./packages/blueprint/src/modules/roles/types.ts
+./packages/blueprint/src/modules/operations/types.ts
+./packages/blueprint/src/modules/operations/service.ts
+./packages/blueprint/src/modules/roles/service.ts
+./packages/blueprint/src/modules/values/service.ts
+./packages/blueprint/src/index.ts
+./examples/acme/blueprint/values/money.ts
+./examples/acme/blueprint/things/allowance/errors.ts
+./examples/acme/blueprint/things/person/thing.ts
+./examples/acme/blueprint/things/organization/thing.ts
+./examples/acme/blueprint/things/allowance/thing.ts
+./examples/acme/blueprint/things/allowance/events.ts
+./examples/acme/blueprint/things/allowance/machine.ts
+./examples/acme/blueprint/things/organization/roles.ts
+./examples/acme/blueprint/things/allowance/verbs/grant.ts
+./examples/acme/blueprint/things/organization/verbs/create.ts
+./examples/acme/src/index.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/compatibility/iterators.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/globals.typedarray.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/buffer.buffer.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/globals.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/web-globals/abortcontroller.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/web-globals/crypto.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/web-globals/domexception.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/web-globals/events.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/utility.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/header.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/readable.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/fetch.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/formdata.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/connector.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/client-stats.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/client.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/errors.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/dispatcher.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/global-dispatcher.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/global-origin.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/pool-stats.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/pool.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/handlers.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/balanced-pool.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/round-robin-pool.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/h2c-client.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/agent.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/mock-interceptor.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/mock-call-history.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/mock-agent.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/mock-client.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/mock-pool.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/snapshot-agent.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/mock-errors.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/proxy-agent.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/socks5-proxy-agent.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/env-http-proxy-agent.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/retry-handler.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/retry-agent.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/api.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/cache-interceptor.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/interceptors.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/util.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/cookies.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/patch.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/websocket.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/eventsource.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/diagnostics-channel.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/content-type.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/cache.d.ts
+./node_modules/.pnpm/undici-types@7.24.6/node_modules/undici-types/index.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/web-globals/fetch.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/web-globals/navigator.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/web-globals/storage.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/web-globals/streams.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/assert.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/assert/strict.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/async_hooks.d.ts
+./node_modules/.pnpm/buffer@5.7.1/node_modules/buffer/index.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/buffer.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/child_process.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/cluster.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/console.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/constants.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/crypto.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/dgram.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/diagnostics_channel.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/dns.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/dns/promises.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/domain.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/events.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/fs.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/fs/promises.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/http.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/http2.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/https.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/inspector.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/inspector.generated.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/module.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/net.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/os.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/path.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/perf_hooks.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/process.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/punycode.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/querystring.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/readline.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/readline/promises.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/repl.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/sea.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/sqlite.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/stream.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/stream/promises.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/stream/consumers.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/stream/web.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/string_decoder.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/test.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/timers.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/timers/promises.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/tls.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/trace_events.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/tty.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/url.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/util.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/v8.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/vm.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/wasi.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/worker_threads.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/zlib.d.ts
+./node_modules/.pnpm/@types+node@24.19.2/node_modules/@types/node/index.d.ts</pre></div>
+</details>
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">Planted: grant answering a number where it declares an allowance id. Refused.</span>
+    <span class="meta">exit 1 · 0.2s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node_modules/.bin/tsc -p packages/blueprint/tsconfig.json</div><pre>packages/blueprint/src/planted-wrong-answer.ts(4,49): error TS2322: Type &#x27;number&#x27; is not assignable to type &#x27;string &amp; Brand&lt;&quot;alw&quot;&gt;&#x27;.
+  Type &#x27;number&#x27; is not assignable to type &#x27;string&#x27;.</pre></div>
+</details>
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">Planted: a role pointing at a payload field that doesn&#x27;t exist. Refused.</span>
+    <span class="meta">exit 1 · 0.1s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node_modules/.bin/tsc -p examples/acme/tsconfig.json</div><pre>examples/acme/blueprint/planted.ts(6,87): error TS2322: Type &#x27;RoleOf&lt;Thing&lt;{ readonly id: Value&lt;brand&lt;String, &quot;org&quot;&gt;&gt;; readonly name: Value&lt;String&gt;; readonly owner: Field&lt;Value&lt;brand&lt;String, &quot;per&quot;&gt;&gt;&gt;; readonly cap: Value&lt;...&gt;; }&gt;, &quot;organization&quot;&gt;&#x27; is not assignable to type &#x27;AllowedFor&lt;{ readonly limit: Field&lt;Value&lt;BigInt&gt;&gt;; }&gt;&#x27;.
+  Type &#x27;RoleOf&lt;Thing&lt;{ readonly id: Value&lt;brand&lt;String, &quot;org&quot;&gt;&gt;; readonly name: Value&lt;String&gt;; readonly owner: Field&lt;Value&lt;brand&lt;String, &quot;per&quot;&gt;&gt;&gt;; readonly cap: Value&lt;...&gt;; }&gt;, &quot;organization&quot;&gt;&#x27; is not assignable to type &#x27;RoleOf&lt;any, &quot;limit&quot; | `limit.${string}`&gt;&#x27;.
+    Types of property &#x27;path&#x27; are incompatible.
+      Type &#x27;&quot;organization&quot;&#x27; is not assignable to type &#x27;&quot;limit&quot; | `limit.${string}`&#x27;.</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Lint, typecheck and test across all 14 projects, cache off.</span>
+    <span class="meta">exit 0 · 6.4s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm nx run-many -t lint,typecheck,test --outputStyle=static --skip-nx-cache</div><pre>NX   Running targets lint, typecheck, test for 14 projects:
+
+- host-cloudflare
+- target-solidity
+- target-effect
+- generators
+- blueprint
+- compiler
+- logbook
+- portal
+- preset
+- prove
+- acme
+- lint
+- cli
+- std
+
+
+
+&gt; nx run compiler:typecheck
+
+&gt; tsc -p packages/compiler/tsconfig.json
+
+
+&gt; nx run compiler:test
+
+&gt; vitest run --root packages/compiler --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/compiler
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run compiler:lint
+
+&gt; oxlint packages/compiler
+
+
+&gt; nx run generators:lint
+
+&gt; oxlint packages/generators
+
+
+&gt; nx run blueprint:typecheck
+
+&gt; tsc -p packages/blueprint/tsconfig.json
+
+
+&gt; nx run blueprint:lint
+
+&gt; oxlint packages/blueprint
+
+
+&gt; nx run generators:typecheck
+
+&gt; tsc -p packages/generators/tsconfig.json
+
+
+&gt; nx run generators:test
+
+&gt; vitest run --root packages/generators --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/generators
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run blueprint:test
+
+&gt; vitest run --root packages/blueprint --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/blueprint
+
+
+ Test Files  8 passed (8)
+      Tests  17 passed (17)
+   Start at  16:33:20
+   Duration  471ms (transform 299ms, setup 0ms, import 2.23s, tests 27ms, environment 0ms)
+
+
+&gt; nx run std:lint
+
+&gt; oxlint packages/std
+
+
+&gt; nx run acme:lint
+
+&gt; oxlint examples/acme
+
+
+&gt; nx run lint:lint
+
+&gt; oxlint packages/lint
+
+
+&gt; nx run cli:lint
+
+&gt; oxlint packages/cli
+
+
+&gt; nx run preset:lint
+
+&gt; oxlint packages/preset
+
+
+&gt; nx run prove:lint
+
+&gt; oxlint packages/prove
+
+
+&gt; nx run target-solidity:lint
+
+&gt; oxlint packages/target-solidity
+
+
+&gt; nx run host-cloudflare:lint
+
+&gt; oxlint packages/host-cloudflare
+
+
+&gt; nx run logbook:lint
+
+&gt; oxlint packages/logbook
+
+
+&gt; nx run portal:lint
+
+&gt; oxlint packages/portal
+
+
+&gt; nx run std:test
+
+&gt; vitest run --root packages/std --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/std
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run target-effect:lint
+
+&gt; oxlint packages/target-effect
+
+
+&gt; nx run preset:test
+
+&gt; vitest run --root packages/preset --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/preset
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run prove:test
+
+&gt; vitest run --root packages/prove --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/prove
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run lint:test
+
+&gt; vitest run --root packages/lint --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/lint
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  16:33:21
+   Duration  3.30s (transform 12ms, setup 0ms, import 20ms, tests 3.19s, environment 0ms)
+
+
+&gt; nx run cli:test
+
+&gt; vitest run --root packages/cli --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/cli
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run portal:test
+
+&gt; vitest run --root packages/portal --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/portal
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run acme:test
+
+&gt; vitest run --root examples/acme --passWithNoTests
+
+
+ RUN  v4.1.12 ./examples/acme
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run logbook:test
+
+&gt; vitest run --root packages/logbook --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/logbook
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run target-effect:test
+
+&gt; vitest run --root packages/target-effect --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/target-effect
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run target-solidity:test
+
+&gt; vitest run --root packages/target-solidity --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/target-solidity
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run acme:typecheck
+
+&gt; tsc -p examples/acme/tsconfig.json
+
+
+&gt; nx run lint:typecheck
+
+&gt; tsc -p packages/lint/tsconfig.json
+
+
+&gt; nx run host-cloudflare:test
+
+&gt; vitest run --root packages/host-cloudflare --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/host-cloudflare
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run host-cloudflare:typecheck
+
+&gt; tsc -p packages/host-cloudflare/tsconfig.json
+
+
+&gt; nx run target-solidity:typecheck
+
+&gt; tsc -p packages/target-solidity/tsconfig.json
+
+
+&gt; nx run std:typecheck
+
+&gt; tsc -p packages/std/tsconfig.json
+
+
+&gt; nx run target-effect:typecheck
+
+&gt; tsc -p packages/target-effect/tsconfig.json
+
+
+&gt; nx run portal:typecheck
+
+&gt; tsc -p packages/portal/tsconfig.json
+
+
+&gt; nx run prove:typecheck
+
+&gt; tsc -p packages/prove/tsconfig.json
+
+
+&gt; nx run logbook:typecheck
+
+&gt; tsc -p packages/logbook/tsconfig.json
+
+
+&gt; nx run cli:typecheck
+
+&gt; tsc -p packages/cli/tsconfig.json
+
+
+&gt; nx run preset:typecheck
+
+&gt; tsc -p packages/preset/tsconfig.json
+
+
+
+
+ NX   Successfully ran targets lint, typecheck, test for 14 projects
+
+
+
+ NX   Nx detected a flaky task
+
+  lint:test
+
+Flaky tasks can disrupt your CI pipeline. Automatically retry them with Nx Cloud. Learn more at https://nx.dev/ci/features/flaky-tasks
+
+  Run duration:      5.7s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     3.6s (1 task)
+  Recoverable time:  2.1s (36% of the run)</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 1 · the skeleton, with every eval</div>
+  <h2><span class="id">L1.01</span> The workspace <span class="chip pass">done</span></h2>
+  <p class="summary">The monorepo stands up: thirteen package shells and the acme project, the package rules enforced by lint, TypeScript 7 doing every type check, a real local npm registry, and CI green on GitHub.</p>
+  <div class="proves"><span class="label">Done when</span>pnpm nx run-many -t lint,typecheck,test is green. A fixture where blueprint imports compiler fails lint with @nx/enforce-module-boundaries.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43903393244">CI green</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/6bbd66b">commit 6bbd66b</a> · 6 captured runs</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Lint, typecheck and test across all 14 projects, cache off.</span>
+    <span class="meta">exit 0 · 8.9s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm nx run-many -t lint,typecheck,test --outputStyle=static --skip-nx-cache</div><pre>NX   Running targets lint, typecheck, test for 14 projects:
+
+- host-cloudflare
+- target-solidity
+- target-effect
+- generators
+- blueprint
+- compiler
+- logbook
+- portal
+- preset
+- prove
+- acme
+- lint
+- cli
+- std
+
+
+
+&gt; nx run generators:typecheck
+
+&gt; tsc -p packages/generators/tsconfig.json
+
+
+&gt; nx run generators:test
+
+&gt; vitest run --root packages/generators --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/generators
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run compiler:typecheck
+
+&gt; tsc -p packages/compiler/tsconfig.json
+
+
+&gt; nx run compiler:test
+
+&gt; vitest run --root packages/compiler --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/compiler
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run generators:lint
+
+&gt; oxlint packages/generators
+
+
+&gt; nx run compiler:lint
+
+&gt; oxlint packages/compiler
+
+
+&gt; nx run host-cloudflare:typecheck
+
+&gt; tsc -p packages/host-cloudflare/tsconfig.json
+
+
+&gt; nx run host-cloudflare:test
+
+&gt; vitest run --root packages/host-cloudflare --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/host-cloudflare
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run target-solidity:typecheck
+
+&gt; tsc -p packages/target-solidity/tsconfig.json
+
+
+&gt; nx run host-cloudflare:lint
+
+&gt; oxlint packages/host-cloudflare
+
+
+&gt; nx run target-solidity:test
+
+&gt; vitest run --root packages/target-solidity --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/target-solidity
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run target-effect:typecheck
+
+&gt; tsc -p packages/target-effect/tsconfig.json
+
+
+&gt; nx run target-solidity:lint
+
+&gt; oxlint packages/target-solidity
+
+
+&gt; nx run target-effect:test
+
+&gt; vitest run --root packages/target-effect --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/target-effect
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run target-effect:lint
+
+&gt; oxlint packages/target-effect
+
+
+&gt; nx run blueprint:typecheck
+
+&gt; tsc -p packages/blueprint/tsconfig.json
+
+
+&gt; nx run blueprint:test
+
+&gt; vitest run --root packages/blueprint --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/blueprint
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run blueprint:lint
+
+&gt; oxlint packages/blueprint
+
+
+&gt; nx run logbook:typecheck
+
+&gt; tsc -p packages/logbook/tsconfig.json
+
+
+&gt; nx run logbook:test
+
+&gt; vitest run --root packages/logbook --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/logbook
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run logbook:lint
+
+&gt; oxlint packages/logbook
+
+
+&gt; nx run portal:typecheck
+
+&gt; tsc -p packages/portal/tsconfig.json
+
+
+&gt; nx run portal:test
+
+&gt; vitest run --root packages/portal --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/portal
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run portal:lint
+
+&gt; oxlint packages/portal
+
+
+&gt; nx run preset:typecheck
+
+&gt; tsc -p packages/preset/tsconfig.json
+
+
+&gt; nx run preset:test
+
+&gt; vitest run --root packages/preset --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/preset
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run preset:lint
+
+&gt; oxlint packages/preset
+
+
+&gt; nx run prove:typecheck
+
+&gt; tsc -p packages/prove/tsconfig.json
+
+
+&gt; nx run prove:test
+
+&gt; vitest run --root packages/prove --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/prove
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run prove:lint
+
+&gt; oxlint packages/prove
+
+
+&gt; nx run acme:typecheck
+
+&gt; tsc -p examples/acme/tsconfig.json
+
+
+&gt; nx run acme:test
+
+&gt; vitest run --root examples/acme --passWithNoTests
+
+
+ RUN  v4.1.12 ./examples/acme
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run acme:lint
+
+&gt; oxlint examples/acme
+
+
+&gt; nx run lint:typecheck
+
+&gt; tsc -p packages/lint/tsconfig.json
+
+
+&gt; nx run lint:lint
+
+&gt; oxlint packages/lint
+
+
+&gt; nx run cli:typecheck
+
+&gt; tsc -p packages/cli/tsconfig.json
+
+
+&gt; nx run cli:lint
+
+&gt; oxlint packages/cli
+
+
+&gt; nx run cli:test
+
+&gt; vitest run --root packages/cli --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/cli
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run std:typecheck
+
+&gt; tsc -p packages/std/tsconfig.json
+
+
+&gt; nx run std:test
+
+&gt; vitest run --root packages/std --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/std
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+&gt; nx run std:lint
+
+&gt; oxlint packages/std
+
+
+&gt; nx run lint:test
+
+&gt; vitest run --root packages/lint --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/lint
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  16:10:36
+   Duration  3.31s (transform 19ms, setup 0ms, import 27ms, tests 3.18s, environment 0ms)
+
+
+
+
+ NX   Successfully ran targets lint, typecheck, test for 14 projects
+
+
+  Run duration:      6.9s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     3.5s (1 task)
+  Recoverable time:  3.4s (49% of the run)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Each planted bad import fails lint; the allowed one passes.</span>
+    <span class="meta">exit 0 · 3.5s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/lint --reporter=verbose</div><pre>RUN  v4.1.12 ./packages/lint
+
+ ✓ test/boundaries.test.ts &gt; module boundaries &gt; fails lint when blueprint imports compiler 722ms
+ ✓ test/boundaries.test.ts &gt; module boundaries &gt; fails lint when blueprint imports a package other than Effect 720ms
+ ✓ test/boundaries.test.ts &gt; module boundaries &gt; fails lint when runtime code imports generators 726ms
+ ✓ test/boundaries.test.ts &gt; module boundaries &gt; passes when blueprint imports Effect 711ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  16:10:39
+   Duration  2.99s (transform 12ms, setup 0ms, import 20ms, tests 2.88s, environment 0ms)</pre></div>
+</details>
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">One planted fixture, linted on its own: blueprint may not import the compiler.</span>
+    <span class="meta">exit 1 · 0.7s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec oxlint -c tmp/oxlintrc.fixtures.json packages/blueprint/test/fixtures/boundaries/imports-compiler.ts</div><pre>packages/blueprint/test/fixtures/boundaries/imports-compiler.ts:2:1: error @nx(enforce-module-boundaries): A project tagged with &quot;scope:blueprint&quot; cannot depend on any libs with tags</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">No generated file has drifted. Generators arrive in L1.13.</span>
+    <span class="meta">exit 0 · 0.5s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm nx sync:check</div><pre>NX   The workspace is up to date
+
+There are no sync generators to run.</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The compiler every check runs.</span>
+    <span class="meta">exit 0 · 0.1s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node_modules/.bin/tsc --version</div><pre>Version 7.0.2</pre></div>
+</details>
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">A planted type error, caught by TypeScript 7. The file was removed afterwards.</span>
+    <span class="meta">exit 1 · 0.8s</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm nx typecheck blueprint --skip-nx-cache --outputStyle=static</div><pre>&gt; nx run blueprint:typecheck
+
+&gt; tsc -p packages/blueprint/tsconfig.json
+
+packages/blueprint/src/planted.ts:1:14 - error TS2322: Type &#x27;string&#x27; is not assignable to type &#x27;number&#x27;.
+
+1 export const x: number = &quot;no&quot;;
+               ~
+
+
+Found 1 error in packages/blueprint/src/planted.ts:1
+
+Warning: command &quot;tsc -p packages/blueprint/tsconfig.json&quot; exited with non-zero status code
+
+
+ NX   Running target typecheck for project blueprint failed
+
+Failed tasks:
+
+- blueprint:typecheck
+
+Hint: run the command with --verbose for more details.
+
+  Run duration:      159ms
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     87ms (1 task)
+  Recoverable time:  &lt;1ms</pre></div>
+</details>
+</section>
+</main>

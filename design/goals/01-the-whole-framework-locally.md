@@ -2,11 +2,25 @@
 
 ## The prompt
 
-> Read `AGENTS.md`, then this file, then `design/decisions.md`, `design/build-plan.md` and `design/packages.md`. You own
-> the architecture: decide, record, keep going. Build all six stages below in order, each on top of the last, looping
-> generate, run, fix until each check passes. After each stage, land it on `main`. Keep `design/handoff.md` current
-> after every commit, so a fresh or compacted session picks up exactly where you stopped. Stop only when every stage's
-> check passes, locally and in CI, or when you are blocked as `AGENTS.md` defines it.
+> You are the builder of Architect, in `~/projects/architect`. First read `design/handoff.md` to see where things stand.
+> Then read `AGENTS.md`, this file, `design/decisions.md` and `design/decisions/`, `design/build-plan.md`,
+> `design/packages.md`, the wayfinding notes in `design/wayfinding/`, and the worked example in
+> `design/docs/index.html`.
+>
+> Carry on from where the handoff says. Build all six stages below in order, each working on top of the last.
+>
+> - **Wayfinding:** open every stage with it. Research in parallel subagents, spike what research can't settle, then
+>   decide.
+> - **The loop:** for each step, write its check first, then generate, run and fix until the check passes.
+> - **Real services:** run everything for real on this Mac, and never mock a service.
+> - **Separate authors:** have a separate subagent write each stage's journeys and planted fixtures before you build.
+> - **Evidence:** capture it after every step, and republish the evidence page.
+> - **Landing:** land each stage on `main` after a 🔍 reviewer subagent passes it.
+> - **Ownership:** you own the architecture. Decide, record, fix inconsistencies and keep going.
+> - **The handoff:** keep `design/handoff.md` current after every commit, so a fresh or compacted session continues
+>   exactly where you stopped.
+>
+> Stop only when every gate passes locally and in CI, or when you're blocked as `AGENTS.md` defines it.
 
 ## The bound
 
@@ -91,7 +105,10 @@ The allowance's first operation, `allowance.grant`, goes the whole way: declarat
 sdk and cli, served on Miniflare, called from the CLI, proven by a journey. The grant already has what every eval
 needs: a machine (it enters `active`), an event (`AllowanceGranted`), a role, a step, a budget and declared errors.
 
-Covers L1.01, D1 and D2, L1.10 to L1.15, and the grant's slice of L1.20 to L1.25. Spikes S2, S4 and S5 are folded
+Covers L1.01, D1 and D2, L1.10 to L1.15, and the grant's slice of L1.20 to L1.25. It also covers the grant's slice of
+L1.30 and L1.31, because the authoring loop is the point. That means `Blueprint.todo` blanks, the generated
+`grant.handler.ts` (what the handler is given), and the handler scaffold, written once with a blank and never
+overwritten. The grant's handler is filled into that scaffold, not hand-written from nothing. Spikes S2, S4 and S5 are folded
 into the build.
 
 **Works when:** `acme allowance grant --to olga --limit 500` prints an id, `architect prove --env local` prints
@@ -159,6 +176,22 @@ keeper with its own narrow key; durable workflows; and eval 10, on time.
    record it in `design/decisions/`.
 6. Stop everything you start. No dev server, Miniflare, Anvil, Verdaccio or port is left running at the end of a
    step.
+
+## Evidence, after every step (Aaron, 16 November 2026)
+
+Aaron is often on his phone, so each step and stage ends with evidence he can see there, not a claim that it works.
+
+- **Captured, never retyped.** Every command output in the evidence is captured by a script (`tools/evidence/`) as it
+  runs, with the command, its exit code, the time it took, and the commit it ran on. Planted failures are shown
+  failing.
+- **One evidence page per goal** (https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB), built by
+  `python3 tools/evidence/page.py` into `design/evidence/index.html` and republished to that same URL, as a private Artifact and updated after each step, newest first. Each
+  step's entry has what it proves (the "done when" check, word for word), the captured sessions, the CI run link and
+  the commit link. When a step makes something you can look at (a span tree, an eval table, generated files, the
+  portal), the entry shows it.
+- **The raw captures are committed** under `design/evidence/<step>/` (each with a `step.json` holding what it proves, plus `ci.json`), captured with `tools/evidence/capture.sh`, so the page can always be rebuilt from the
+  repository.
+- After each step, send Aaron the page's link with a one-line spoken summary.
 
 ## Reporting
 

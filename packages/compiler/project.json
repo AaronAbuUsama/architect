@@ -1,0 +1,16 @@
+{
+  "name": "compiler",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/compiler/src",
+  "projectType": "library",
+  "tags": [
+    "scope:compiler",
+    "env:build",
+    "layer:1"
+  ],
+  "targets": {
+    "lint": {},
+    "typecheck": {},
+    "test": {}
+  }
+}

@@ -47,7 +47,8 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
   `Effect.sleep` outside named entry files. Every wait goes through `Timers`; all handler, workflow and keeper work is
   counted work.
 - Names come from paths and exported identifiers; a declared name is never written as a string outside `generated/`.
-- Generated files start with `// Generated from the blueprint. Do not edit.` and are never edited. Scaffolds start
+- Generated files open with a `// Generated from … Do not edit.` line (naming the blueprint or the declaration's path;
+  after a shebang when there is one) and are never edited. Scaffolds start
   with `// Scaffolded from <path>. Yours from now on.`
 - Package rules (Nx module boundaries): `blueprint` depends only on Effect; generated code imports only the target's
   runtime, `blueprint`, the host and project code; `compiler` and `generators` never run in production.

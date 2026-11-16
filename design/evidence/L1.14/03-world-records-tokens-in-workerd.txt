@@ -1,0 +1,23 @@
+$ node_modules/.bin/vitest run --root packages/host-cloudflare --reporter verbose
+# commit 7d1082f · 2026-11-16T17:09:51Z · exit 0 (expected 0) · 4.1s
+
+
+=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+
+
+ RUN  v4.1.12 ./packages/host-cloudflare
+
+ ✓ src/modules/tokens/tokens.test.ts > Tokens > a token the world signed is that person; a forged or missing one is anonymous 5ms
+ ✓ src/modules/world/world.test.ts > the world Durable Object, in workerd > casts people once and signs tokens the Worker accepts 10ms
+ ✓ src/modules/world/world.test.ts > the world Durable Object, in workerd > answers health 2ms
+ ✓ src/modules/database/database.test.ts > D1 through SqlClient, in workerd > writes and reads a real D1 row 6ms
+ ✓ src/modules/database/database.test.ts > D1 through SqlClient, in workerd > the handler wrapper runs in workerd: its step stores the allowance through Records, inside its own span 5ms
+
+ Test Files  3 passed (3)
+      Tests  5 passed (5)
+   Start at  17:09:47
+   Duration  3.24s (transform 3.21s, setup 7.72s, import 94ms, tests 31ms, environment 0ms)

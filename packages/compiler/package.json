@@ -1,0 +1,19 @@
+{
+  "name": "@architect/compiler",
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./main": "./src/main.ts"
+  },
+  "dependencies": {
+    "@architect/blueprint": "workspace:*",
+    "effect": "4.1.1"
+  },
+  "imports": {
+    "#modules/*": "./src/modules/*"
+  },
+  "bin": {
+    "architect-model": "./src/main.ts"
+  }
+}

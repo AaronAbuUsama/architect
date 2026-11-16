@@ -1,0 +1,13 @@
+$ pnpm nx run-many -t lint,typecheck,test --skip-nx-cache
+# commit 4f06767 · 2026-11-16T16:49:14Z · exit 0 (expected 0) · 8.9s
+
+
+ NX   42 tasks: 42 succeeded
+
+
+Re-run with --output-style=static to inline logs.
+
+  Run duration:      8.2s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     3.8s (1 task)
+  Recoverable time:  4.4s (54% of the run)

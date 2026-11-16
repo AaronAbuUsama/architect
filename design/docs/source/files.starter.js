@@ -80,7 +80,7 @@ export default Blueprint.operation(System, {
   payload: {},
   answer: { status: Schema.Literal("ok"), database: Schema.Literal("ok") },
   allowed: [Blueprint.anyone],
-  steps: [Blueprint.step.database("system.health.ping")],
+  steps: { ping: Blueprint.step.database() },
   budget: { p95: "50 millis" },
 })` },
 { p: "acme/blueprint/things/system/verbs/version.ts", k: "write", n: "Which build is running, in which environment.", c:
@@ -184,7 +184,7 @@ export default Blueprint.operation(Organization, {
   move: machine.moves.create,
   errors: [OrganizationSlugTaken],
   allowed: [Blueprint.signedIn],
-  steps: [Blueprint.step.database("organization.create.insert"), Blueprint.step.database("organization.create.owner")],
+  steps: { insert: Blueprint.step.database(), owner: Blueprint.step.database() },
   budget: { p95: "250 millis" },
 })` },
 { p: "acme/blueprint/things/organization/verbs/archive.ts", k: "write", n: "Only an owner may archive. Anyone else gets NotAllowed; an organisation already archived gets OrganizationNotActive. Both generated.", c:
@@ -304,7 +304,7 @@ export default Blueprint.operation(Invitation, {
   move: machine.moves.send,
   errors: [InvitationAlreadyMember],
   allowed: [owner.of("organization")],      // owner of the payload's organisation
-  steps: [Blueprint.step.database("invitation.send.insert"), Blueprint.step.wait("invitation.send.email")],
+  steps: { insert: Blueprint.step.database(), email: Blueprint.step.wait() },
   budget: { p95: "400 millis" },
 })` },
 { p: "acme/blueprint/things/invitation/verbs/accept.ts", k: "write", n: "The worked example used across these docs. Every generated file for invitation.accept is derived from this one path: see the links below.", c:
@@ -322,10 +322,10 @@ export default Blueprint.operation(Invitation, {
   move: machine.moves.accept,                 // so InvitationNotPending is refused from every other state
   errors: [InvitationNotFound],
   allowed: [invitee],                         // anyone else: NotAllowed, generated
-  steps: [
-    Blueprint.step.database("invitation.accept.read"),
-    Blueprint.step.database("invitation.accept.join"),
-  ],
+  steps: {
+    read: Blueprint.step.database(),
+    join: Blueprint.step.database(),
+  },
   budget: { p95: "300 millis" },              // a target, never a failure
 })` },
 { p: "acme/blueprint/things/api-key/verbs/create.ts", k: "write", n: "API keys are how agents and services become principals (kind agent or service).", c:

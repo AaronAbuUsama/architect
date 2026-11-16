@@ -1,0 +1,15 @@
+{
+  "name": "@architect/blueprint",
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./server": "./src/server.ts"
+  },
+  "dependencies": {
+    "effect": "4.1.1"
+  },
+  "imports": {
+    "#modules/*": "./src/modules/*"
+  }
+}

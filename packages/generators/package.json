@@ -1,0 +1,23 @@
+{
+  "name": "@architect/generators",
+  "version": "0.0.0",
+  "type": "module",
+  "dependencies": {
+    "@architect/blueprint": "workspace:*",
+    "@architect/compiler": "workspace:*",
+    "@nx/devkit": "24.0.3",
+    "effect": "4.1.1"
+  },
+  "generators": "./generators.json",
+  "imports": {
+    "#modules/*": "./src/modules/*"
+  },
+  "devDependencies": {
+    "nx": "24.0.3"
+  },
+  "exports": {
+    ".": "./src/main.ts",
+    "./sync": "./src/modules/sync/service.ts",
+    "./package.json": "./package.json"
+  }
+}

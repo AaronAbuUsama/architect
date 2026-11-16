@@ -1,0 +1,16 @@
+{
+  "name": "lint",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/lint/src",
+  "projectType": "library",
+  "tags": [
+    "scope:lint",
+    "env:build",
+    "layer:1"
+  ],
+  "targets": {
+    "lint": {},
+    "typecheck": {},
+    "test": {}
+  }
+}

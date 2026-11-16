@@ -1,0 +1,5 @@
+$ bash <scratch>/same.sh
+# commit f9d570c · 2026-11-16T16:42:14Z · exit 0 (expected 0) · 0.5s
+
+same model, same hashes
+ 1 file changed, 17 insertions(+), 17 deletions(-)

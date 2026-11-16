@@ -1,0 +1,57 @@
+import { env } from "cloudflare:workers";
+import { Effect, Layer, Tracer } from "effect";
+import { SqlClient } from "effect/sql";
+import { describe, expect, it } from "vitest";
+import { Blueprint } from "@architect/blueprint";
+import { BusyLive, Handlers, Ids, journalMemory, Records, type Handler } from "@architect/target-effect";
+import { RecordsD1 } from "#modules/records/service.ts";
+import { Database } from "./service.ts";
+
+const Allowance = Blueprint.thing({
+  description: "Money a member may spend.",
+  fields: { id: Blueprint.id("alw"), member: Blueprint.id("per"), limit: Blueprint.uint(128) },
+});
+const grant = Blueprint.operation(Allowance, {
+  description: "Let a member spend, up to a limit.",
+  payload: { member: Allowance.fields.member, limit: Allowance.fields.limit },
+  answer: { allowance: Allowance.fields.id },
+  allowed: [Blueprint.signedIn],
+  steps: { insert: Blueprint.step.database() },
+});
+
+describe("D1 through SqlClient, in workerd", () => {
+  it("writes and reads a real D1 row", async () => {
+    const rows = await Effect.runPromise(Effect.gen(function* () {
+      const sql = yield* SqlClient.SqlClient;
+      yield* sql`INSERT INTO allowances (id, member, lim) VALUES ('alw_sql', 'per_olga', '500')`;
+      return yield* sql`SELECT member, lim FROM allowances WHERE id = 'alw_sql'`;
+    }).pipe(Effect.provide(Database.d1(env.DB))));
+    expect(rows).toEqual([{ member: "per_olga", lim: "500" }]);
+  });
+
+  it("the handler wrapper runs in workerd: its step stores the allowance through Records, inside its own span", async () => {
+    const handler: Handler<typeof grant, Records> = (payload, { steps }) =>
+      Effect.gen(function* () {
+        const records = yield* Records;
+        const id = yield* Ids.of(Allowance.fields.id);
+        yield* steps.insert(records.insert(Allowance, { id, member: payload.member, limit: payload.limit }, "active"));
+        return { allowance: id };
+      });
+    const spans: Array<Tracer.NativeSpan> = [];
+    const tracer = Tracer.make({ span: (o) => { const s = new Tracer.NativeSpan(o); spans.push(s); return s; } });
+    const served = Handlers.serve({ name: "allowance.grant", operation: grant, handler });
+    const records = RecordsD1.layer([[Allowance, "allowance"]]).pipe(Layer.provide(Database.d1(env.DB)));
+    const most = "340282366920938463463374607431768211455";
+    const program = Effect.gen(function* () {
+      const answer = yield* served.call({ member: "per_olga", limit: most }, { kind: "person", person: "per_ada" });
+      return { answer, found: yield* (yield* Records).find(Allowance, answer.allowance) };
+    });
+    const { answer, found } = await Effect.runPromise(program.pipe(Effect.provide(Layer.mergeAll(records, BusyLive, journalMemory().layer, Layer.succeed(Tracer.Tracer, tracer)))));
+    expect(found).toEqual({ id: answer.allowance, member: "per_olga", limit: 2n ** 128n - 1n, state: "active" });
+    const row = await env.DB.prepare(`SELECT "limit", state FROM "allowance" WHERE id = ?`).bind(answer.allowance).first();
+    expect(row).toEqual({ limit: most, state: "active" });
+    const names = spans.map((s) => s.name);
+    expect(names.slice(0, 2)).toEqual(["allowance.grant", "allowance.grant.insert"]);
+    expect(spans[0]!.attributes.get("payload.limit")).toBe(most);
+  });
+});

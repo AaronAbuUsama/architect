@@ -1,0 +1,8 @@
+$ node packages/cli/src/main.ts model --root examples/acme
+# commit f9d570c · 2026-11-16T16:42:12Z · exit 0 (expected 0) · 0.4s
+
+thing allowance (active)  f970f8db0ed45553
+thing organization  3100b243edb9e347
+thing person  ac769a99c895d4a7
+operation allowance.grant  refuses AllowanceLimitTooHigh, NotAllowed  33848484aad9a715
+operation organization.create  refuses NotAllowed  e3e79ef636641315

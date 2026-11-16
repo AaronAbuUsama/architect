@@ -198,7 +198,7 @@ export const grantee = Blueprint.role(Allowance, { rule: (allowance, principal) 
   errors: [AllowanceExceeded, AllowanceNotFound, VaultBalanceLow],
   allowed: [grantee],
   signedBy: grantee,                           // the grantee's own wallet signs the payload
-  steps: [Blueprint.step.database("allowance.spend.load"), Blueprint.step.chain("allowance.spend.submit"), Blueprint.step.wait("allowance.spend.confirm")],
+  steps: { load: Blueprint.step.database(), submit: Blueprint.step.chain(), confirm: Blueprint.step.wait() },
   idempotent: "request",                       // retried with the same request key, it spends once
   budget: { p95: "4 seconds", excludes: ["allowance.spend.confirm"] },
 })` },
@@ -259,7 +259,7 @@ state  active` } ],
   scaffold: { p: "things/allowance/verbs/spend.ts", c:
 `  // no steps yet: the operation is one span` },
   filled: { p: "things/allowance/verbs/spend.ts", c:
-`  steps: [Blueprint.step.database("allowance.spend.load"), Blueprint.step.chain("allowance.spend.submit"), Blueprint.step.wait("allowance.spend.confirm")],
+`  steps: { load: Blueprint.step.database(), submit: Blueprint.step.chain(), confirm: Blueprint.step.wait() },
   budget: { p95: "4 seconds", excludes: ["allowance.spend.confirm"] },` },
   generated: [
     { p: "generated/api/src/allowance/spend.handler.ts", c:

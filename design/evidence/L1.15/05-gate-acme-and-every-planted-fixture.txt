@@ -1,0 +1,21 @@
+$ npx vitest run packages/prove/src/modules/prove --reporter=verbose
+# commit 9635862 · 2026-11-16T17:34:20Z · exit 0 (expected 0) · 31.5s
+
+
+ RUN  v4.1.12 .
+
+ ✓ packages/prove/src/modules/prove/prove.test.ts > architect prove --env local > passes on acme: one journey, every eval, coverage, and leaves nothing running 3188ms
+ ✓ packages/prove/src/modules/prove/prove.test.ts > architect prove --env local > fails on the scaffolded handlers: the starting world can't be made, so no step runs 3144ms
+ ✓ packages/prove/src/modules/prove/prove.test.ts > architect prove --env local > fails the planted answer-shape fixture on its own eval 2892ms
+ ✓ packages/prove/src/modules/prove/prove.test.ts > architect prove --env local > fails the planted declared-errors fixture on its own eval 2989ms
+ ✓ packages/prove/src/modules/prove/prove.test.ts > architect prove --env local > fails the planted machine-path fixture on its own eval 3001ms
+ ✓ packages/prove/src/modules/prove/prove.test.ts > architect prove --env local > fails the planted events fixture on its own eval 2967ms
+ ✓ packages/prove/src/modules/prove/prove.test.ts > architect prove --env local > fails the planted who-may-call fixture on its own eval 2998ms
+ ✓ packages/prove/src/modules/prove/prove.test.ts > architect prove --env local > fails the planted steps fixture on its own eval 3039ms
+ ✓ packages/prove/src/modules/prove/prove.test.ts > architect prove --env local > fails the planted coverage fixture on its own eval 3143ms
+ ✓ packages/prove/src/modules/prove/prove.test.ts > architect prove --env local > fails the planted explainability fixture on its own eval 3023ms
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  17:33:49
+   Duration  30.92s (transform 423ms, setup 0ms, import 354ms, tests 30.48s, environment 0ms)

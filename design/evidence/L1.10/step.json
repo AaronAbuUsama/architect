@@ -1,0 +1,14 @@
+{
+  "step": "L1.10",
+  "stage": "Stage 1 · the skeleton, with every eval",
+  "title": "The language core",
+  "summary": "Blueprint can now declare acme's first slice: people, organisations with an owner role, and the allowance with its machine, event, a data refusal and the grant operation. Nothing carries a name; names come from paths and exports. Capturing this evidence also caught a lint gap the cache had hidden: test fixtures were let off the vitest ban. That's fixed.",
+  "proves": "nx test blueprint is green. The fixture things/allowance/{thing.ts,verbs/grant.ts} typechecks. An answer with a wrong type fails in a type test.",
+  "captions": {
+    "01-blueprint-tests": "Every blueprint module's tests, including the type tests.",
+    "02-acme-blueprint-typechecks": "acme's stage-one blueprint compiles: the files TypeScript 7 checked.",
+    "03-planted-wrong-answer-type": "Planted: grant answering a number where it declares an allowance id. Refused.",
+    "04-planted-role-on-missing-field": "Planted: a role pointing at a payload field that doesn't exist. Refused.",
+    "05-all-checks-green": "Lint, typecheck and test across all 14 projects, cache off."
+  }
+}

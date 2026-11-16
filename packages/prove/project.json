@@ -1,0 +1,16 @@
+{
+  "name": "prove",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/prove/src",
+  "projectType": "library",
+  "tags": [
+    "scope:prove",
+    "env:build",
+    "layer:1"
+  ],
+  "targets": {
+    "lint": {},
+    "typecheck": {},
+    "test": {}
+  }
+}

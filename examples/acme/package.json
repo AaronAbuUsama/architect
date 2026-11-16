@@ -1,0 +1,20 @@
+{
+  "name": "@acme/source",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@architect/blueprint": "workspace:*",
+    "@architect/host-cloudflare": "workspace:*",
+    "@architect/target-effect": "workspace:*",
+    "@effect/platform-node": "4.1.1",
+    "@effect/sql-d1": "4.1.1",
+    "effect": "4.1.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20261101.1"
+  },
+  "bin": {
+    "acme": "./generated/cli/src/main.ts"
+  }
+}

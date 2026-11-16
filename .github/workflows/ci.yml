@@ -1,0 +1,26 @@
+name: ci
+
+on:
+  push:
+    branches: [main, "layer/**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v6.1.0
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm nx run-many -t lint,typecheck,test --outputStyle=static
+      # Nx 24 skips task-level sync generators in CI, so drift is checked explicitly.
+      - run: pnpm nx sync:check

@@ -1,0 +1,16 @@
+{
+  "name": "logbook",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/logbook/src",
+  "projectType": "library",
+  "tags": [
+    "scope:logbook",
+    "env:runtime",
+    "layer:2"
+  ],
+  "targets": {
+    "lint": {},
+    "typecheck": {},
+    "test": {}
+  }
+}

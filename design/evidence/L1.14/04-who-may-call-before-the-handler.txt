@@ -1,0 +1,19 @@
+$ node_modules/.bin/vitest run --root packages/target-effect src/modules/access src/modules/handler --reporter verbose
+# commit 7d1082f · 2026-11-16T17:09:51Z · exit 0 (expected 0) · 0.5s
+
+
+ RUN  v4.1.12 ./packages/target-effect
+
+ ✓ src/modules/access/access.test.ts > Access > owner.of("organization"): ada owns org_1, bob doesn't, and a missing org allows no one 2ms
+ ✓ src/modules/access/access.test.ts > Access > owner.of("allowance.organization") walks from the allowance to its organization 0ms
+ ✓ src/modules/access/access.test.ts > Access > signedIn refuses the anonymous; anyone allows them 0ms
+ ✓ src/modules/handler/handler.test.ts > handler wrapper > runs the handler in a span named after the operation, with its payload as attributes 5ms
+ ✓ src/modules/handler/handler.test.ts > handler wrapper > passes a declared error through, typed, and counts the work until it ends 1ms
+ ✓ src/modules/handler/handler.test.ts > handler wrapper > refuses an anonymous caller with NotAllowed before the handler runs 0ms
+ ✓ src/modules/handler/handler.test.ts > handler wrapper > refuses a payload outside its declaration before the handler runs 2ms
+ ✓ src/modules/handler/handler.test.ts > handler wrapper > an answer outside its declaration dies as the handler's bug 1ms
+
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
+   Start at  17:09:51
+   Duration  281ms (transform 105ms, setup 0ms, import 372ms, tests 12ms, environment 0ms)

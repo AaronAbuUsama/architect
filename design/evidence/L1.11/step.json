@@ -1,0 +1,16 @@
+{
+  "step": "L1.11",
+  "stage": "Stage 1 · the skeleton, with every eval",
+  "title": "The compiler",
+  "summary": "Architect can now read a project's blueprint by its folders and files and describe it: every thing, operation, refusal, role and step, named only by where it lives. Rename a file and the operation is renamed; reformat a file and nothing changes. A new command, architect model, prints it. Capturing the evidence caught a bug the tests had missed: --json was required on the real command line. Fixed, and now tested from a real process.",
+  "proves": "architect model --json on acme matches its snapshot. Renaming verbs/grant.ts to award.ts renames the operation. Reformatting a file leaves the hash unchanged.",
+  "captions": {
+    "01-compiler-and-cli-tests": "The compiler's and the CLI's tests, including the snapshot, rename and reformat checks.",
+    "02-architect-model-on-acme": "architect model on acme: three things, two operations, each with its refusals and hash.",
+    "03-architect-model-json": "The whole model as JSON, the one description every generator will read.",
+    "04-rename-grant-to-award": "A copy of acme with grant.ts renamed to award.ts. The operation is now allowance.award.",
+    "05-reformatted-grant-same-hashes": "A copy with grant.ts re-indented on every line. Same model, same hashes.",
+    "06-planted-verb-without-operation": "Planted: a verb file that holds no operation. Refused with every problem listed, exit 2.",
+    "07-all-checks-green": "Lint, typecheck and test across all 14 projects, cache off."
+  }
+}

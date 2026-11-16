@@ -1,0 +1,31 @@
+$ bash <scratch>/sync.sh
+# commit eff75fb · 2026-11-16T16:58:41Z · exit 0 (expected 0) · 1.4s
+
+
+ NX   The workspace is out of sync
+
+[@architect/generators:sync]: generated/ doesn't match the blueprint. Run nx sync.
+
+Syncing the workspace...
+The workspace was synced successfully!
+
+Please make sure to commit the changes to your repository.
+
+examples/acme/generated/api/src/allowance/grant.handler.ts
+examples/acme/generated/api/src/allowance/grant.ts
+examples/acme/generated/api/src/errors.ts
+examples/acme/generated/api/src/index.ts
+examples/acme/generated/api/src/organization/create.handler.ts
+examples/acme/generated/api/src/organization/create.ts
+examples/acme/generated/cli/src/allowance/grant.ts
+examples/acme/generated/cli/src/main.ts
+examples/acme/generated/cli/src/organization/create.ts
+examples/acme/generated/cli/src/output.ts
+examples/acme/generated/model/model.json
+examples/acme/generated/sdk/src/allowance/grant.ts
+examples/acme/generated/sdk/src/allowance/index.ts
+examples/acme/generated/sdk/src/client.ts
+examples/acme/generated/sdk/src/index.ts
+examples/acme/generated/sdk/src/organization/create.ts
+examples/acme/generated/sdk/src/organization/index.ts
+examples/acme/generated/server/main.ts

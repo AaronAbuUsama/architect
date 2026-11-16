@@ -1,0 +1,16 @@
+{
+  "name": "preset",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/preset/src",
+  "projectType": "library",
+  "tags": [
+    "scope:preset",
+    "env:build",
+    "layer:1"
+  ],
+  "targets": {
+    "lint": {},
+    "typecheck": {},
+    "test": {}
+  }
+}

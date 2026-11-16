@@ -1,0 +1,15 @@
+{
+  "name": "@architect/target-effect",
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@architect/blueprint": "workspace:*",
+    "effect": "4.1.1"
+  },
+  "imports": {
+    "#modules/*": "./src/modules/*"
+  }
+}

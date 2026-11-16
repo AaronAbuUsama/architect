@@ -1,0 +1,32 @@
+$ bash <scratch>/show.sh
+# commit eff75fb · 2026-11-16T16:58:46Z · exit 0 (expected 0) · 0.0s
+
+// Generated from blueprint/things/allowance/verbs/grant.ts. Do not edit.
+import { HttpApiEndpoint } from "effect/http-api";
+import declaration from "../../../../blueprint/things/allowance/verbs/grant.ts";
+import { AllowanceLimitTooHigh, NotAllowed } from "../errors.ts";
+
+export { declaration };
+export const endpoint = HttpApiEndpoint.post("grant", "/allowance/grant", {
+  payload: declaration.payloadSchema,
+  success: declaration.answerSchema,
+  error: [AllowanceLimitTooHigh, NotAllowed],
+});
+export const steps = ["allowance.grant.insert"] as const;
+
+// Scaffolded from blueprint/things/allowance/verbs/grant.ts. Yours from now on.
+import { Effect } from "effect";
+import { Handlers } from "@architect/target-effect";
+import type { Handler } from "../../../generated/api/src/allowance/grant.handler.ts";
+
+/** Let a member spend from the organisation, up to a limit each month. */
+const grant: Handler = (_payload, _context) =>
+  Effect.gen(function* () {
+    // Payload: organization, member, limit.
+    // Answer: allowance.
+    // Steps, each its own span: steps.insert(...).
+    // May refuse with AllowanceLimitTooHigh.
+    return yield* Handlers.blank("this handler is not written yet");
+  });
+
+export default grant;
