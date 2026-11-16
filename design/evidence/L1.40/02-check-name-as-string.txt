@@ -1,0 +1,10 @@
+$ node packages/cli/src/main.ts check --root examples/acme/test/tmp/evidence/acme
+# commit 9536039 · 2026-11-16T18:54:39Z · exit 1 (expected 1) · 0.9s
+
+blanks left 0
+types ✔
+rules ✘ 1
+  implementation/handlers/allowance/spend.ts:7  no-name-as-string: "allowance.spend" is a declared name written as a string: import the declaration instead
+drift ✔
+ratchets 0
+check ✘

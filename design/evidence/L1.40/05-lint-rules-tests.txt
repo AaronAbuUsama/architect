@@ -1,0 +1,19 @@
+$ npx vitest run --root packages/lint --reporter verbose
+# commit 9536039 · 2026-11-16T18:54:48Z · exit 0 (expected 0) · 4.0s
+
+
+ RUN  v4.1.12 ./packages/lint
+
+ ✓ src/modules/rules/rules.test.ts > the architect rules > no-name-as-string: a declared name as a literal outside generated/ 261ms
+ ✓ src/modules/rules/rules.test.ts > the architect rules > refusal-has-log and declared-errors-only: a refusal says why first, and is one its operation declares 157ms
+ ✓ src/modules/rules/rules.test.ts > the architect rules > no-wall-clock: Date.now, new Date(), setTimeout and raw Effect.sleep, but not new Date(at) 136ms
+ ✓ src/modules/rules/rules.test.ts > the architect rules > handler-matches-path: a handler file belongs to a declared operation 132ms
+ ✓ test/boundaries.test.ts > module boundaries > fails lint when blueprint imports compiler 1138ms
+ ✓ test/boundaries.test.ts > module boundaries > fails lint when blueprint imports a package other than Effect 784ms
+ ✓ test/boundaries.test.ts > module boundaries > fails lint when runtime code imports generators 757ms
+ ✓ test/boundaries.test.ts > module boundaries > passes when blueprint imports Effect 780ms
+
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
+   Start at  18:54:45
+   Duration  3.56s (transform 26ms, setup 0ms, import 39ms, tests 4.15s, environment 0ms)

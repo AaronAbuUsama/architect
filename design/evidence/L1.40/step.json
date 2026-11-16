@@ -1,0 +1,14 @@
+{
+  "step": "L1.40",
+  "stage": "Stage 2 · the allowance's whole life (Gate 1)",
+  "title": "architect check",
+  "summary": "architect check now holds a project to five parts: no blanks left, tsc clean, the architect lint rules clean, generated/ exactly what the blueprint renders, and the ratchets it still allows. Each finding names its file, line and rule. The rules run through real oxlint with the project's model passed in: no declared name as a string, a log before every refusal, only declared errors, no wall clock or raw sleep, and every handler file belonging to an operation.",
+  "proves": "Four planted fixtures each make architect check exit 1 naming the file: an edited output, a name as a string, an undeclared error and a refusal with no log. Clean acme passes with ratchets 0.",
+  "captions": {
+    "01-check-clean-acme": "Clean acme: every part passes, ratchets 0.",
+    "02-check-name-as-string": "The name-as-string fixture: rules fail, naming the handler and line.",
+    "03-check-edited-output": "The edited-output fixture: drift fails, naming the generated file.",
+    "04-check-tests": "The check tests: clean acme, all four fixtures, and a ratchet.",
+    "05-lint-rules-tests": "Each architect rule through real oxlint: what it reports and what it lets through."
+  }
+}

@@ -1,0 +1,18 @@
+$ npx vitest run --root packages/cli src/modules/check --reporter verbose
+# commit 9536039 · 2026-11-16T18:54:44Z · exit 0 (expected 0) · 4.2s
+
+
+ RUN  v4.1.12 ./packages/cli
+
+ ✓ src/modules/check/check.test.ts > Check.blanks > finds every Blueprint.todo with its line and what it waits for, grouped by its thing 1ms
+ ✓ src/modules/check/check.test.ts > architect check on acme > passes clean acme with ratchets 0 509ms
+ ✓ src/modules/check/check.test.ts > architect check on acme > lets a ratchet allow a rule's findings, and asks for it to be lowered once they are gone 900ms
+ ✓ src/modules/check/check.test.ts > architect check on acme > fails on edited-output, naming generated/api/src/allowance/get.ts 468ms
+ ✓ src/modules/check/check.test.ts > architect check on acme > fails on name-as-string, naming implementation/handlers/allowance/spend.ts 441ms
+ ✓ src/modules/check/check.test.ts > architect check on acme > fails on undeclared-error, naming implementation/handlers/allowance/spend.ts 447ms
+ ✓ src/modules/check/check.test.ts > architect check on acme > fails on refusal-without-log, naming implementation/handlers/allowance/spend.ts 466ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  18:54:41
+   Duration  3.62s (transform 220ms, setup 0ms, import 239ms, tests 3.30s, environment 0ms)
