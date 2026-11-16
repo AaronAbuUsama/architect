@@ -17,7 +17,7 @@ design session.
 
 ## Next
 
-1. Done: the private GitHub repository, with the design on `main`.
+1. Done: the GitHub repository, public since 16 November 2026 (Aaron), so Actions minutes are free. CI is green on `layer/1`.
 2. Goal 1, the whole framework proven locally, in six stages, one per gate, with stage 1 being the skeleton with
    every eval: `goals/01-the-whole-framework-locally.md`. Why it's sliced that way: `decisions/G1-local-first.md`.
 3. After that, the cloud pass, which needs Aaron's yes on credentials.
