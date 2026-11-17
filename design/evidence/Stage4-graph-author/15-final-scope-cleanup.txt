@@ -1,0 +1,6 @@
+$ python3 design/evidence/Stage4-graph-author/verify_scope.py
+# commit 5219cf0 · 2026-11-17T10:19:25Z · exit 0 (expected 0) · 0.1s
+
+19 scoped source files hashed; every source file <=250 lines.
+Own failed setup copies absent; no owned workerd/Wrangler/Anvil process remains.
+No service was started: all product checks stopped at the unsupported CLI command. No port/cloud/credential was used.

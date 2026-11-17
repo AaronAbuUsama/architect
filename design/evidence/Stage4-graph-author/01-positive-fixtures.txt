@@ -1,0 +1,67 @@
+$ node_modules/.bin/vitest run --root e2e --config vitest.layer3.config.ts layer3/06-collisions.test.ts -t collision fixture positive controls
+# commit 5219cf0 · 2026-11-17T10:07:55Z · exit 1 (expected 0) · 12.2s
+
+
+ RUN  v4.1.12 ./e2e
+
+ ❯ layer3/06-collisions.test.ts (25 tests | 2 failed | 15 skipped) 11736ms
+     × graph-invalid-export is a valid TypeScript package and remains pure at its descriptor/declaration entries 213ms
+     × graph-field-cycle is a valid TypeScript package and remains pure at its descriptor/declaration entries 194ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  layer3/06-collisions.test.ts > L3.01: collision fixture positive controls > graph-invalid-export is a valid TypeScript package and remains pure at its descriptor/declaration entries
+AssertionError: ./node_modules/.bin/tsc: ../../../../../../../../../../..<tmp>/architect-gate1-wjrQtk/acme/.architect/fixture-build/echo/src/runtime/blueprint.ts(3,15): error TS2460: Module '"../echo.js"' declares 'repeat' locally, but it is exported as '"bad/name"'.
+
+: expected 2 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 2
+
+ ❯ tool layer3/packages.ts:12:75
+     10| const tool = (command: string, args: ReadonlyArray<string>, cwd: strin…
+     11|   const result = spawnSync(command, args, { cwd, encoding: "utf8", tim…
+     12|   expect(result.status, `${command}: ${result.stdout}\n${result.stderr…
+       |                                                                           ^
+     13|   return result.stdout;
+     14| };
+ ❯ installFixture layer3/packages.ts:39:3
+ ❯ project layer3/support.ts:14:19
+ ❯ fresh layer3/06-collisions.test.ts:13:52
+ ❯ layer3/06-collisions.test.ts:33:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  layer3/06-collisions.test.ts > L3.01: collision fixture positive controls > graph-field-cycle is a valid TypeScript package and remains pure at its descriptor/declaration entries
+AssertionError: ./node_modules/.bin/tsc: ../../../../../../../../../../..<tmp>/architect-gate1-QqXyTK/acme/.architect/fixture-build/echo/src/runtime/blueprint.ts(3,15): error TS2305: Module '"../echo.js"' has no exported member 'repeat'.
+
+: expected 2 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 2
+
+ ❯ tool layer3/packages.ts:12:75
+     10| const tool = (command: string, args: ReadonlyArray<string>, cwd: strin…
+     11|   const result = spawnSync(command, args, { cwd, encoding: "utf8", tim…
+     12|   expect(result.status, `${command}: ${result.stdout}\n${result.stderr…
+       |                                                                           ^
+     13|   return result.stdout;
+     14| };
+ ❯ installFixture layer3/packages.ts:39:3
+ ❯ project layer3/support.ts:14:19
+ ❯ fresh layer3/06-collisions.test.ts:13:52
+ ❯ layer3/06-collisions.test.ts:33:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 8 passed | 15 skipped (25)
+   Start at  10:07:43
+   Duration  11.88s (transform 44ms, setup 0ms, import 48ms, tests 11.74s, environment 0ms)

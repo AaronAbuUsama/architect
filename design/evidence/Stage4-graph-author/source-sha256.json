@@ -1,0 +1,21 @@
+{
+  "e2e/layer3/05-graph-integrity.test.ts": "a40782e5057487732626d3f38b787e03592658888d4ce76c34a9c462777333bd",
+  "e2e/layer3/06-collisions.test.ts": "291e581d73d8b78ecc555ae8747c50e33db8d34566fd1ed1effbfe2489e563b2",
+  "e2e/layer3/graph-entry/main.ts": "25ae6765d808d4dd4139918259fb4634761d6c82c8e6d23fa6857dddc1bbf6af",
+  "e2e/fixtures/layer3/echo/variants/graph-ambiguous-tags/src/audit.ts": "16d0559d3446e729e6236d9c7df7ab54725cf5eb6dd60cf9a48c4ecbb66013ea",
+  "e2e/fixtures/layer3/echo/variants/graph-ambiguous-tags/src/blueprint.ts": "68ad2f0117d1da30cbcc4451282ed03411f01d9b0aa5a86b1c9f4d8d7bdf37e2",
+  "e2e/fixtures/layer3/echo/variants/graph-ambiguous-tags/src/echo.ts": "fb7e8700174a57a15e6fe14015c279a08665f5663d3f609173b8ca462f757f0d",
+  "e2e/fixtures/layer3/echo/variants/graph-final-code/src/echo.ts": "5742e13d6cccbd20c656ab7d7228544a3d1ef070fe82d243549a7f289d10495e",
+  "e2e/fixtures/layer3/echo/variants/graph-identifier-collision/src/blueprint.ts": "f63ca09bdf0bdbda7f22fc4b92a6e326111c4288ad556fdde489ec79c641b923",
+  "e2e/fixtures/layer3/echo/variants/graph-identifier-collision/src/first.ts": "7d359fa25647a40be950bbda74056ad5eb2a38124329141a33b0463eb3a056d1",
+  "e2e/fixtures/layer3/echo/variants/graph-identifier-collision/src/second.ts": "a0681ff9b2b8fed74baf12ad5b316bff111af83db4dffef0aca2be94120769a9",
+  "e2e/fixtures/layer3/echo/variants/graph-invalid-export/src/echo.ts": "80671c25eb60943668016c7aee90ad0faaa6ab0c8db53781c1f1ff750023dcaa",
+  "e2e/fixtures/layer3/echo/variants/graph-invalid-export/src/runtime/blueprint.ts": "5de101257573d62ec186b231f9108d18dd40f9ea23b9d3fbcf1576b2050007bc",
+  "e2e/fixtures/layer3/echo/variants/graph-invalid-namespace/src/blueprint.ts": "8a44664d022ac972a1dcc143f1a761720595da72b2c76124aec3fe989daf86bb",
+  "e2e/fixtures/layer3/echo/variants/graph-no-worker/src/descriptor.ts": "57cd03dd2da9c7ef15f5f6fcc23b4b9bbee92262b1e400ec674ce99dbc99cc7b",
+  "e2e/fixtures/layer3/echo/variants/graph-order-forward/src/audit.ts": "5edfb05603aa395ea3578134929ca6d5f8a581bdd244f86e366061e79a211f83",
+  "e2e/fixtures/layer3/echo/variants/graph-order-forward/src/blueprint.ts": "68ad2f0117d1da30cbcc4451282ed03411f01d9b0aa5a86b1c9f4d8d7bdf37e2",
+  "e2e/fixtures/layer3/echo/variants/graph-order-reverse/src/audit.ts": "5edfb05603aa395ea3578134929ca6d5f8a581bdd244f86e366061e79a211f83",
+  "e2e/fixtures/layer3/echo/variants/graph-order-reverse/src/blueprint.ts": "ec6b2982995bd9a32e6d56e53b4d44353114ab047432861ed0f106360fd5a3e1",
+  "e2e/fixtures/layer3/echo/variants/graph-reserved-prefix/src/echo.ts": "afbfd1c335d8b4910bd0a1827cb3a620c85fc34a4a27e3f680ede9829d84723e"
+}

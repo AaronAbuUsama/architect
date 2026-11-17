@@ -1,0 +1,16 @@
+{
+  "step": "Stage4 L3.01 independent graph/collision authoring",
+  "source_base": "5219cf065227b84b9691ee9936d7a7da4f22642f",
+  "done_when": "A fixture kit is added with one command. Its operations appear in the generated SDK, and architect impact shows edges from the kit to the operations that use it.",
+  "status": "author-only RED at unsupported CLI; implementation assertions unreached",
+  "positive_controls": 9,
+  "product_red": 24,
+  "proves": "packed/type/pure fixtures; scoped static checks; exact authored acceptance and current CLI absence",
+  "does_not_prove": [
+    "empty-handler failure",
+    "runtime behavior",
+    "graph/collision behavior",
+    "Gate 3",
+    "CI/main"
+  ]
+}

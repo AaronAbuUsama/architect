@@ -1,0 +1,11 @@
+$ node_modules/.bin/vitest run --root e2e --config vitest.layer3.config.ts layer3/06-collisions.test.ts -t collision fixture positive controls
+# commit 5219cf0 · 2026-11-17T10:10:46Z · exit 0 (expected 0) · 13.5s
+
+
+ RUN  v4.1.12 ./e2e
+
+
+ Test Files  1 passed (1)
+      Tests  9 passed | 14 skipped (23)
+   Start at  10:10:33
+   Duration  13.14s (transform 47ms, setup 0ms, import 55ms, tests 12.98s, environment 0ms)

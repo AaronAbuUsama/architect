@@ -1,0 +1,357 @@
+$ node_modules/.bin/vitest run --root e2e --config vitest.layer3.config.ts layer3/05-graph-integrity.test.ts
+# commit 5219cf0 · 2026-11-17T10:11:52Z · exit 1 (expected 1) · 18.1s
+
+
+ RUN  v4.1.12 ./e2e
+
+ ❯ layer3/05-graph-integrity.test.ts (8 tests | 8 failed) 16811ms
+     × prints deduplicated sorted provides/used-by edges and uses those identities in Compare 2633ms
+     × decoded choices stale kit operations and their users while unrelated operations retain their hashes 2071ms
+     × same-version package runtime bytes cannot false-green Compare or retained proof staleness 1996ms
+     × same-version dependency mapper bytes stale only its declared consumers 1979ms
+     × follows kit → dependency → operation transitively for choices and same-version runtime bytes 1980ms
+     × transient outputs and absolute checkout paths do not enter kit identity or source hashes 1985ms
+     × missing effective package integrity fails closed, and points to the selected source 2082ms
+     × namespace enumeration order preserves canonical identities, identifiers, codes and wire tags 2084ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  layer3/05-graph-integrity.test.ts > L3.01: normalized graph and effective source integrity > prints deduplicated sorted provides/used-by edges and uses those identities in Compare
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ ready layer3/05-graph-integrity.test.ts:23:3
+ ❯ layer3/05-graph-integrity.test.ts:50:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  layer3/05-graph-integrity.test.ts > L3.01: normalized graph and effective source integrity > decoded choices stale kit operations and their users while unrelated operations retain their hashes
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ ready layer3/05-graph-integrity.test.ts:23:3
+ ❯ layer3/05-graph-integrity.test.ts:71:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  layer3/05-graph-integrity.test.ts > L3.01: normalized graph and effective source integrity > same-version package runtime bytes cannot false-green Compare or retained proof staleness
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ ready layer3/05-graph-integrity.test.ts:23:3
+ ❯ layer3/05-graph-integrity.test.ts:79:31
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  layer3/05-graph-integrity.test.ts > L3.01: normalized graph and effective source integrity > same-version dependency mapper bytes stale only its declared consumers
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ ready layer3/05-graph-integrity.test.ts:23:3
+ ❯ layer3/05-graph-integrity.test.ts:88:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  layer3/05-graph-integrity.test.ts > L3.01: normalized graph and effective source integrity > follows kit → dependency → operation transitively for choices and same-version runtime bytes
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ layer3/05-graph-integrity.test.ts:100:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  layer3/05-graph-integrity.test.ts > L3.01: normalized graph and effective source integrity > transient outputs and absolute checkout paths do not enter kit identity or source hashes
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ ready layer3/05-graph-integrity.test.ts:23:3
+ ❯ layer3/05-graph-integrity.test.ts:121:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+ FAIL  layer3/05-graph-integrity.test.ts > L3.01: normalized graph and effective source integrity > missing effective package integrity fails closed, and points to the selected source
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ ready layer3/05-graph-integrity.test.ts:23:3
+ ❯ layer3/05-graph-integrity.test.ts:133:31
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
+
+ FAIL  layer3/05-graph-integrity.test.ts > L3.01: normalized graph and effective source integrity > namespace enumeration order preserves canonical identities, identifiers, codes and wire tags
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ layer3/05-graph-integrity.test.ts:143:49
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/8]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  8 failed (8)
+   Start at  10:11:34
+   Duration  17.74s (transform 374ms, setup 0ms, import 813ms, tests 16.81s, environment 0ms)
