@@ -22,8 +22,8 @@ import { show as sessionShow } from "./session/show.ts";
 import { signIn as sessionSignIn } from "./session/sign-in.ts";
 import { health as systemHealth } from "./system/health.ts";
 
-// The release version is stamped in when the CLI is published (`architect publish`); run from source, it says 0.0.0.
-declare const ARCHITECT_VERSION: string | undefined;
+// The release version is stamped in when the CLI is published (`forman publish`); run from source, it says 0.0.0.
+declare const FORMAN_VERSION: string | undefined;
 
 const allowance = Command.make("allowance").pipe(Command.withSubcommands([allowanceGet, allowanceGrant, allowanceRevoke, allowanceSpend]));
 const apiKey = Command.make("api-key").pipe(Command.withSubcommands([apiKeyCreate]));
@@ -36,7 +36,7 @@ const system = Command.make("system").pipe(Command.withSubcommands([systemHealth
 
 Command.make("acme").pipe(
   Command.withSubcommands([allowance, apiKey, invitation, membership, organization, person, session, system]),
-  Command.run({ version: typeof ARCHITECT_VERSION === "string" ? ARCHITECT_VERSION : "0.0.0" }),
+  Command.run({ version: typeof FORMAN_VERSION === "string" ? FORMAN_VERSION : "0.0.0" }),
   Effect.provide(CliOutput.layer({ ...CliOutput.defaultFormatter(), formatVersion: (name, version) => `${name} ${version}` })),
   Effect.provide(Sdk.layer(process.env["ACME_URL"] ?? "http://127.0.0.1:8787", process.env["ACME_TOKEN"])),
   Effect.provide(Layer.succeed(ExitCode, ExitCode.of({ set: (code) => Effect.sync(() => void (process.exitCode = code)) }))),

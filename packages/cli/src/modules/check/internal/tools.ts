@@ -38,17 +38,17 @@ export const rules = (root: string, model: Model): ReadonlyArray<Finding> => {
   if (!oxlint) return [{ part: "rules", rule: "oxlint", file: ".", message: "no oxlint found in node_modules/.bin" }];
   const plugin = createRequire(import.meta.url).resolve("@formants/lint/plugin");
   const facts = factsOf(root, model);
-  const dir = join(root, ".architect/check");
+  const dir = join(root, ".forman/check");
   mkdirSync(dir, { recursive: true });
-  // Only the architect rules: the project's own lint config is its own business.
-  const config = { jsPlugins: [plugin], categories: { correctness: "off" }, plugins: [], rules: Object.fromEntries(RULES.map((r) => [`architect/${r}`, ["error", facts]])) };
+  // Only the forman rules: the project's own lint config is its own business.
+  const config = { jsPlugins: [plugin], categories: { correctness: "off" }, plugins: [], rules: Object.fromEntries(RULES.map((r) => [`forman/${r}`, ["error", facts]])) };
   writeFileSync(join(dir, "oxlintrc.json"), JSON.stringify(config, null, 2));
   // Files named one by one: walking a folder applies every .gitignore above it, which would skip a project kept in one.
   const targets = ["src", "blueprint"].flatMap((d) => tsFiles(join(root, d)).map((f) => relative(root, f)));
   if (targets.length === 0) return [];
   const run = spawnSync(oxlint, ["-c", join(dir, "oxlintrc.json"), "--no-ignore", "--format", "unix", ...targets], { cwd: root, encoding: "utf8" });
   const found = (run.stdout ?? "").split("\n").flatMap((l) => {
-    const m = /^(.+?):(\d+):\d+: (.*) \[Error\/architect\((.+?)\)\]$/.exec(l);
+    const m = /^(.+?):(\d+):\d+: (.*) \[Error\/forman\((.+?)\)\]$/.exec(l);
     return m ? [{ part: "rules" as const, rule: m[4]!, file: m[1]!, line: Number(m[2]), message: m[3]! }] : [];
   });
   return found.length === 0 && run.status !== 0 ? [failed("rules", "oxlint", ".", run)] : found;

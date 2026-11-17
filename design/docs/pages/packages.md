@@ -3,9 +3,9 @@
 The package map, decided in [`M0-packages.md`](../../decisions/M0-packages.md) under K2 question 4: **one front door,
 plus one package per plugin, language and host.** The old names, and which package each one became, are in that record.
 
-Milestone M0 renames the code to match this page: M0.02 renames packages and imports, M0.03 the command, folders and
-variables. Until they land, the code on `main` still carries the old names. Nothing is published to npm before M7; only
-the local Verdaccio sees these names, so any of them can still change.
+Milestone M0 renamed the code to match this page: M0.02 the packages and imports, M0.03 the command, folders and
+variables, and M0.04 added a lint rule that keeps the old names out. Nothing is published to npm before M7; only the
+local Verdaccio sees these names, so any of them can still change.
 
 ## The packages
 
@@ -69,4 +69,4 @@ These are checked by lint and `check`, in Nx tags:
 
 The only names that keep the old form are the records, listed in section 5 of
 [`M0-packages.md`](../../decisions/M0-packages.md), and the GitHub repository and checkout path, which are not ours to
-rename in M0. The old design docs are one of those records ([the old design docs](../../history/docs-architect/)).
+rename in M0. The old design docs are one of those records ([the old design docs](../../history/docs-layers-1-2/)).

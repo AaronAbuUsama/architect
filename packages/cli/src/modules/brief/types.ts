@@ -1,4 +1,4 @@
-// `architect brief <thing>.<verb>`: everything an agent needs to write one handler, and nothing it may change besides.
+// `forman brief <thing>.<verb>`: everything an agent needs to write one handler, and nothing it may change besides.
 // What to read, the one file to write, the files it must not touch, and the evals and journeys that must pass.
 import type { Model } from "@formants/compiler";
 

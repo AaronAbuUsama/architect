@@ -69,7 +69,7 @@ mechanical renames (milestones, risk 1), and every internal package is still pub
 A record says what happened, in the words used then; rewriting it would falsify it. So the old names stay in records,
 and the gate's name check (M0.06), the lint rule (M0.04) and the docs' "kit" check (M0.05) skip exactly these:
 
-- `design/history/`, which now also holds the old design docs (`design/history/docs-architect/`), the old
+- `design/history/`, which now also holds the old design docs (`design/history/docs-layers-1-2/`), the old
   `handoff.md` narrative and `KICKOFF.md`;
 - `design/decisions/` and `design/decisions.md` (decision records, this one included, which names the old packages
   to map them);

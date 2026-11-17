@@ -7,7 +7,7 @@ import { BuildFailed, type BuildApi } from "./types.ts";
 import { digest, io, read } from "./internal/manifest.ts";
 
 const wrangler = join(dirname(fileURLToPath(import.meta.resolve("wrangler/package.json"))), "bin/wrangler.js");
-const artefacts = (root: string, revision: string) => join(resolve(root), ".architect/artefacts", revision);
+const artefacts = (root: string, revision: string) => join(resolve(root), ".forman/artefacts", revision);
 
 const git = (root: string, ...args: ReadonlyArray<string>) =>
   Effect.gen(function* () {

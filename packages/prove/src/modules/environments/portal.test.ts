@@ -15,8 +15,8 @@ const ISSUER_IMAGE = "ghcr.io/navikt/mock-oauth2-server:6.1.4@sha256:647dd8c78a5
 const PORTS = { logbook: 9094, issuer: 9095, staging: 9096, production: 9097 };
 const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
 const compiler = resolve(import.meta.dirname, "../../../../compiler/src/main.ts");
-const trusted = { repository: "acme/acme", workflow: "architect" };
-const container = `architect-l210-env-issuer-${process.pid}`;
+const trusted = { repository: "acme/acme", workflow: "forman" };
+const container = `forman-l210-env-issuer-${process.pid}`;
 const visible = (from: string) => !basename(from).startsWith(".");
 const docker = (...args: ReadonlyArray<string>) => spawnSync("docker", args, { encoding: "utf8" });
 const run = <A, E>(effect: Effect.Effect<A, E>) => Effect.runPromise(effect);
@@ -29,12 +29,12 @@ const git = (root: string, ...args: ReadonlyArray<string>) => {
 };
 
 /** A copy of acme under git, outside the repository: its revision is a commit of its own. */
-const parent = mkdtempSync(join(realpathSync(tmpdir()), "architect-l210-"));
+const parent = mkdtempSync(join(realpathSync(tmpdir()), "forman-l210-"));
 const root = join(parent, "acme");
-for (const part of ["architect.config.ts", "blueprint", "generated", "src", "journeys", "package.json"]) cpSync(join(acme, part), join(root, part), { recursive: true, filter: visible });
+for (const part of ["forman.config.ts", "blueprint", "generated", "src", "journeys", "package.json"]) cpSync(join(acme, part), join(root, part), { recursive: true, filter: visible });
 mkdirSync(join(root, "node_modules"));
 for (const entry of readdirSync(join(acme, "node_modules"))) if (entry !== ".bin") symlinkSync(join(acme, "node_modules", entry), join(root, "node_modules", entry));
-writeFileSync(join(root, ".gitignore"), "node_modules/\n.architect/\n.wrangler/\n");
+writeFileSync(join(root, ".gitignore"), "node_modules/\n.forman/\n.wrangler/\n");
 git(root, "init", "-q", "-b", "main");
 git(root, "add", "-A");
 git(root, "commit", "-q", "-m", "acme");
@@ -42,7 +42,7 @@ const first = git(root, "rev-parse", "--short", "HEAD");
 const model = JSON.parse(readFileSync(join(root, "generated/model/model.json"), "utf8")) as { operations: Record<string, unknown> };
 const operations = Object.keys(model.operations);
 
-const issuer = `http://127.0.0.1:${PORTS.issuer}/architect`;
+const issuer = `http://127.0.0.1:${PORTS.issuer}/forman`;
 const logbook = `http://127.0.0.1:${PORTS.logbook}`;
 const url = (name: "staging" | "production") => `http://127.0.0.1:${PORTS[name]}`;
 
@@ -67,8 +67,8 @@ beforeAll(async () => {
   const dir = join(parent, "issuer");
   mkdirSync(dir);
   const config = join(dir, "issuer.json");
-  const claims = { sub: `repo:acme/acme:ref:refs/heads/main`, aud: ["architect-logbook"], repository: trusted.repository, ref: "refs/heads/main", workflow: trusted.workflow };
-  writeFileSync(config, JSON.stringify({ interactiveLogin: false, tokenCallbacks: [{ issuerId: "architect", tokenExpiry: 600, requestMappings: [{ requestParam: "client_id", match: "ci-main", claims }] }] }));
+  const claims = { sub: `repo:acme/acme:ref:refs/heads/main`, aud: ["forman-logbook"], repository: trusted.repository, ref: "refs/heads/main", workflow: trusted.workflow };
+  writeFileSync(config, JSON.stringify({ interactiveLogin: false, tokenCallbacks: [{ issuerId: "forman", tokenExpiry: 600, requestMappings: [{ requestParam: "client_id", match: "ci-main", claims }] }] }));
   chmodSync(config, 0o644);
   docker("rm", "-f", container);
   const started = docker("run", "-d", "--name", container, "-p", `127.0.0.1:${PORTS.issuer}:8080`, "-e", "JSON_CONFIG_PATH=/config/issuer.json", "-v", `${config}:/config/issuer.json:ro`, ISSUER_IMAGE);
@@ -98,7 +98,7 @@ describe("/portal on an environment", () => {
     expect(rows.join("\n")).not.toMatch(/\bstale\b/);
 
     // The page is the environment's own route: the bundle, the API and the data routes are still there.
-    expect(await (await fetch(`${staging.url}/_architect/bundle`)).json()).toEqual({ revision: first, sha256: built.sha256 });
+    expect(await (await fetch(`${staging.url}/_forman/bundle`)).json()).toEqual({ revision: first, sha256: built.sha256 });
     const blueprint = await fetch(`${staging.url}/_portal/v1/blueprint`);
     expect(blueprint.status).toBe(200);
     const digest = ((await blueprint.json()) as { digest: string }).digest;
@@ -129,7 +129,7 @@ describe("/portal on an environment", () => {
     const others = rows.filter((r) => /\b[a-z-]+\.[a-z-]+\b.*(test|staging|production) ✔/.test(r) && !/allowance\.spend/.test(r));
     expect(others.length).toBeGreaterThan(5);
     expect(others.filter((r) => /\bstale\b/.test(r)), "only spend is stale").toEqual([]);
-    expect(await (await fetch(`${url("staging")}/_architect/bundle`)).json()).toMatchObject({ revision: first });
+    expect(await (await fetch(`${url("staging")}/_forman/bundle`)).json()).toMatchObject({ revision: first });
   });
 
   it("the latest failure wins", { timeout: 300_000 }, async () => {

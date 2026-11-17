@@ -1,17 +1,17 @@
-// What every Gate 2 check shares, on top of layer 1's support: the architect command with an environment and a
+// What every Gate 2 check shares, on top of layer 1's support: the forman command with an environment and a
 // timeout, a project under git, the planted fixtures, and the generated acme CLI against a running environment.
 //
 // THE CONTRACT THE CHECKS HOLD THE BUILD TO (D3 #14 names the commands and their output lines; where it is open,
 // this is the simplest reading, and each check repeats what it relies on at its top):
 //
 // - Everything an environment or command needs from outside comes through the process environment, which only
-//   main.ts reads: ARCHITECT_OIDC_ISSUER (the issuer URL, `http://127.0.0.1:<port>/architect`), ARCHITECT_OIDC_CLIENT
-//   (the scenario a run mints its verdict token as, default `ci-main`), ARCHITECT_OIDC_REPOSITORY / _REF / _WORKFLOW
-//   (the claims the logbook demands), ARCHITECT_LIFETIME, ARCHITECT_REGISTRY (an npm registry URL),
-//   NPM_CONFIG_USERCONFIG (an npmrc, which holds the registry token), ARCHITECT_TAP_REPO (a local git repository the
-//   formula is committed to) and ARCHITECT_FORMULA (its name).
-// - `architect env up <env> --port <n>` picks the port; every later command finds a running environment through its
-//   pidfile under `.architect/environments/<env>/`. `env up` runs the latest built bundle, building the current
+//   main.ts reads: FORMAN_OIDC_ISSUER (the issuer URL, `http://127.0.0.1:<port>/forman`), FORMAN_OIDC_CLIENT
+//   (the scenario a run mints its verdict token as, default `ci-main`), FORMAN_OIDC_REPOSITORY / _REF / _WORKFLOW
+//   (the claims the logbook demands), FORMAN_LIFETIME, FORMAN_REGISTRY (an npm registry URL),
+//   NPM_CONFIG_USERCONFIG (an npmrc, which holds the registry token), FORMAN_TAP_REPO (a local git repository the
+//   formula is committed to) and FORMAN_FORMULA (its name).
+// - `forman env up <env> --port <n>` picks the port; every later command finds a running environment through its
+//   pidfile under `.forman/environments/<env>/`. `env up` runs the latest built bundle, building the current
 //   revision first when there is none. `env down` on an environment that isn't running is not an error.
 // - Ports: check N owns 8900 + 10N .. 8909 + 10N (layer 1 owns 8810..8899); registries are on 4890 + N.
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
@@ -35,12 +35,12 @@ const said = (r: { status: number | null; stdout: string; stderr: string }): Sai
   return { ...r, out, lines: out.split("\n") };
 };
 
-/** The architect command as a user runs it, with an environment and a time limit. */
+/** The forman command as a user runs it, with an environment and a time limit. */
 export const run = (root: string, env: Readonly<Record<string, string>>, ...args: ReadonlyArray<string>): Said =>
   said(spawnSync(process.execPath, [cli, ...args, "--root", root], {
     cwd: root, encoding: "utf8", maxBuffer: 64 * 1024 * 1024, env: { ...process.env, ...env }, timeout: 600_000, killSignal: "SIGKILL" }));
 
-/** The architect command left running, for a run a check kills part-way. */
+/** The forman command left running, for a run a check kills part-way. */
 export const start = (root: string, env: Readonly<Record<string, string>>, ...args: ReadonlyArray<string>): ChildProcess =>
   spawn(process.execPath, [cli, ...args, "--root", root], { cwd: root, env: { ...process.env, ...env }, stdio: ["ignore", "pipe", "pipe"] });
 
@@ -64,9 +64,9 @@ const git = (root: string, ...args: ReadonlyArray<string>) => {
   return r.stdout.trim();
 };
 
-/** The revision is the git commit (D3 #14), so a check's copy is a repository: node_modules and Architect's own state are ignored. */
+/** The revision is the git commit (D3 #14), so a check's copy is a repository: node_modules and Forman's own state are ignored. */
 export const initGit = (root: string) => {
-  writeFileSync(join(root, ".gitignore"), "node_modules/\n.architect/\n.wrangler/\n");
+  writeFileSync(join(root, ".gitignore"), "node_modules/\n.forman/\n.wrangler/\n");
   git(root, "init", "-q", "-b", "main");
   return commit(root, "acme");
 };

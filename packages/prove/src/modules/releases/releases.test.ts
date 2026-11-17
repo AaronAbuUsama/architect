@@ -28,12 +28,12 @@ const visible = (from: string) => !basename(from).startsWith(".");
 
 const scenario = (client: string, ref: string, event: string) => ({
   requestParam: "client_id", match: client,
-  claims: { sub: `repo:${REPO}:ref:${ref}`, aud: ["architect-logbook"], repository: REPO, ref, workflow: "architect", event_name: event, sha: "0123456789abcdef0123456789abcdef01234567",
-    job_workflow_ref: `${REPO}/.github/workflows/architect.yml@${ref}` },
+  claims: { sub: `repo:${REPO}:ref:${ref}`, aud: ["forman-logbook"], repository: REPO, ref, workflow: "forman", event_name: event, sha: "0123456789abcdef0123456789abcdef01234567",
+    job_workflow_ref: `${REPO}/.github/workflows/forman.yml@${ref}` },
 });
 const issuerConfig = JSON.stringify({
   interactiveLogin: false,
-  tokenCallbacks: [{ issuerId: "architect", tokenExpiry: 600, requestMappings: [scenario("ci-main", "refs/heads/main", "push"), scenario("ci-pr", "refs/pull/7/merge", "pull_request")] }],
+  tokenCallbacks: [{ issuerId: "forman", tokenExpiry: 600, requestMappings: [scenario("ci-main", "refs/heads/main", "push"), scenario("ci-pr", "refs/pull/7/merge", "pull_request")] }],
 });
 
 const docker = (...args: string[]) => spawnSync("docker", args, { encoding: "utf8" });
@@ -73,16 +73,16 @@ beforeAll(async () => {
   docker("rm", "-f", container);
   const started = docker("run", "-d", "--name", container, "-p", `127.0.0.1:${PORTS.issuer}:8080`, "-e", `JSON_CONFIG=${issuerConfig}`, IMAGE);
   expect(started.status, started.stderr).toBe(0);
-  issuer = `http://127.0.0.1:${PORTS.issuer}/architect`;
+  issuer = `http://127.0.0.1:${PORTS.issuer}/forman`;
   for (let i = 0; i < 300 && !(await fetch(`${issuer}/.well-known/openid-configuration`).then((r) => r.ok, () => false)); i++) await new Promise((r) => setTimeout(r, 200));
   const scope = Effect.runSync(Scope.make());
   await Effect.runPromise(Logbook.start({
     port: PORTS.logbook, state: join(dir, "state"), log: join(dir, "wrangler.log"),
-    policy: { issuer, jwksUrl: `${issuer}/jwks`, audience: "architect-logbook", repository: REPO, refs: ["refs/heads/main", "refs/pull/*/merge"], workflows: ["architect"] },
+    policy: { issuer, jwksUrl: `${issuer}/jwks`, audience: "forman-logbook", repository: REPO, refs: ["refs/heads/main", "refs/pull/*/merge"], workflows: ["forman"] },
   }).pipe(Scope.provide(scope)));
   stop = () => Effect.runPromise(Scope.close(scope, Exit.void));
   logbook = `http://127.0.0.1:${PORTS.logbook}`;
-  env = { ARCHITECT_LOGBOOK_URL: logbook, ARCHITECT_OIDC_ISSUER: issuer, ARCHITECT_OIDC_CLIENT: "ci-main" };
+  env = { FORMAN_LOGBOOK_URL: logbook, FORMAN_OIDC_ISSUER: issuer, FORMAN_OIDC_CLIENT: "ci-main" };
 }, 240_000);
 
 afterAll(async () => {
@@ -150,10 +150,10 @@ describe("versions and staleness against the logbook", () => {
     expect(s.changes[0]).toMatchObject({ what: "allowance.spend.payload", bump: "major" });
   }, 120_000);
 
-  it("is found through ARCHITECT_LOGBOOK_URL, and says when there is no logbook", async () => {
-    const found = await run(Releases.locate({ root: dir, env: { ARCHITECT_LOGBOOK_URL: `${logbook}/` } }));
+  it("is found through FORMAN_LOGBOOK_URL, and says when there is no logbook", async () => {
+    const found = await run(Releases.locate({ root: dir, env: { FORMAN_LOGBOOK_URL: `${logbook}/` } }));
     expect(found).toBe(logbook);
-    expect(existsSync(join(dir, ".architect"))).toBe(false);
+    expect(existsSync(join(dir, ".forman"))).toBe(false);
     expect(await run(Releases.locate({ root: dir, env: {} }))).toBeUndefined();
   });
 });

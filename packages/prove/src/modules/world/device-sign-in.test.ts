@@ -47,7 +47,7 @@ describe("device sign-in", () => {
       const { url } = yield* Worlds.start({ root: acme, port: 8960, name: "device-test" });
       const cast = (yield* send(`${url}/_world/cast`, "POST", { names: ["ada", "bob"] })).body as unknown as Cast;
       const [ada, bob] = [cast["ada"]!, cast["bob"]!];
-      const config = mkdtempSync(join(tmpdir(), "architect-device-"));
+      const config = mkdtempSync(join(tmpdir(), "forman-device-"));
       yield* Effect.addFinalizer(() => Effect.sync(() => rmSync(config, { recursive: true, force: true })));
       const env: NodeJS.ProcessEnv = { ...process.env, ACME_URL: url, ACME_CONFIG_DIR: config };
       delete env["ACME_TOKEN"];

@@ -1,4 +1,4 @@
-// `architect watch --env <name>`: the evals that telemetry can answer, run over an environment's recorded traffic (L2.09, D3 #140 to #149).
+// `forman watch --env <name>`: the evals that telemetry can answer, run over an environment's recorded traffic (L2.09, D3 #140 to #149).
 import type { Effect } from "effect";
 import type { WatchSource } from "@formants/prove";
 
@@ -11,7 +11,7 @@ export interface Said {
 
 export interface WatchCommandApi {
   /**
-   * Exit 0 when no eval failed, drift included (drift is a task, written under `.architect/tasks/`); 1 when an eval failed on
+   * Exit 0 when no eval failed, drift included (drift is a task, written under `.forman/tasks/`); 1 when an eval failed on
    * live traffic; 2 when it couldn't run (no telemetry recorded, no Axiom sink named, no query token, a `--since` that isn't a
    * duration). `since` is `30s`, `15m`, `1h` or `2d`.
    */

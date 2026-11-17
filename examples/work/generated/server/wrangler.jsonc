@@ -10,6 +10,6 @@
   ],
   "durable_objects": { "bindings": [{ "name": "WORLD", "class_name": "World" }] },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["World"] }],
-  // Where telemetry goes. `architect prove` and `architect dev --otlp` set it; unset, nothing is exported.
+  // Where telemetry goes. `forman prove` and `forman dev --otlp` set it; unset, nothing is exported.
   "vars": { "OTLP_URL": "" }
 }

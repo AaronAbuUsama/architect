@@ -15,8 +15,6 @@ const RETIRED = [
   ["the plugin word that was renamed to feature and adapter", new RegExp(`\\b${"ki"}${"ts?"}\\b`, "i")],
   ["the old framework name (any case, any form)", new RegExp(`${"archi"}${"tect"}`, "i")],
 ];
-// The one place the old name may appear: the link to the history folder, whose path carries it.
-const HISTORY_FOLDER = `history/docs-${"archi"}${"tect"}`;
 
 const problems = [];
 const fail = (where, what) => problems.push(`${relative(process.cwd(), where)}: ${what}`);
@@ -59,7 +57,7 @@ const checkLinks = () => {
 
 const checkWords = () => {
   for (const file of walk(docs)) {
-    const text = readFileSync(file, "utf8").split(HISTORY_FOLDER).join("");
+    const text = readFileSync(file, "utf8");
     text.split("\n").forEach((line, i) => {
       for (const [why, re] of RETIRED) if (re.test(line)) fail(file, `line ${i + 1}: ${why}: ${line.trim().slice(0, 80)}`);
     });

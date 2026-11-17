@@ -1,4 +1,4 @@
-// `architect generate`: what `nx sync` does for one project, run from the architect command. Writes `generated/` from
+// `forman generate`: what `nx sync` does for one project, run from the forman command. Writes `generated/` from
 // the blueprint, scaffolds each handler once its operation has no blanks, and never overwrites a scaffold.
 import type { Effect } from "effect";
 import type { ModelFailed } from "@formants/generators/sync";

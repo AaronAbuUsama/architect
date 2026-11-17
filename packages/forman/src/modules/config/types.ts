@@ -1,4 +1,5 @@
-// The project's one loose file, `architect.config.ts`: what to generate, how people sign in, what it generates.
+// The project's one loose file, `forman.config.ts`: its name and how people sign in. What it generates is mounted
+// as projections from M1 (M1.11); the old `outputs` field was read by nothing and is gone (D3 #112, M0.03).
 export interface AuthKit {
   readonly kind: "auth";
   readonly adapter: "better-auth";
@@ -9,15 +10,8 @@ export interface AuthKit {
   readonly oauthProvider: boolean;
 }
 
-/** `true` is the standard name; text renames the output. */
-export type Output = boolean | string;
-
 export interface ConfigSpec {
   readonly name: string;
-  readonly outputs?: {
-    readonly server?: Output; readonly api?: Output; readonly sdk?: Output; readonly cli?: Output;
-    readonly docs?: Output; readonly mcp?: Output; readonly portal?: Output;
-  };
   readonly auth?: AuthKit;
 }
 

@@ -29,10 +29,10 @@ describe("the starter preset", () => {
 
   it("writes a project that installs every @formants package at the preset's version", () => {
     const pkg = JSON.parse(tree.read("package.json", "utf8")!) as Record<string, Record<string, string>>;
-    expect(pkg["scripts"]!["architect"]).toBe("architect");
+    expect(pkg["scripts"]!["forman"]).toBe("forman");
     expect(pkg["devDependencies"]!["@formants/cli"]).toBe("1.2.3");
     expect(pkg["dependencies"]!["@formants/host-cloudflare"]).toBe("1.2.3");
-    expect(tree.read(".gitignore", "utf8")).toContain(".architect/");
+    expect(tree.read(".gitignore", "utf8")).toContain(".forman/");
     expect(pkg["packageManager"]).toBe("pnpm@11.20.0" as never);
     expect(tree.read("pnpm-workspace.yaml", "utf8")).toMatch(/allowBuilds:\n  esbuild: true\n  nx: true\n  workerd: true/);
     expect(typeof install).toBe("function");

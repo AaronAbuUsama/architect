@@ -1,5 +1,5 @@
-// Check 1: a project starts the way a user starts one. Architect is published to a local Verdaccio, the preset makes a
-// workspace, and architect check and prove pass in it (tools/e2e/starter.sh, D2 #71).
+// Check 1: a project starts the way a user starts one. Forman is published to a local Verdaccio, the preset makes a
+// workspace, and forman check and prove pass in it (tools/e2e/starter.sh, D2 #71).
 import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";

@@ -2,7 +2,7 @@ import { Data } from "effect";
 import { structOf } from "#modules/things/service.js";
 import type { AnyErrorClass, ErrorClass, ErrorsApi, Naming } from "./types.ts";
 
-const nameKey = Symbol.for("architect/error-name");
+const nameKey = Symbol.for("forman/error-name");
 
 /** Counts every error made, so that the compiler can put those of one `errors.ts` in the order they were declared in. */
 let made = 0;

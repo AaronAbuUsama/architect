@@ -2,7 +2,7 @@
 
 ## The prompt
 
-> You are the builder for milestone M0 of Forman (formerly Architect), in this repository. Run it as one autonomous
+> You are the builder for milestone M0 of Forman (the framework's new name), in this repository. Run it as one autonomous
 > goal until Gate M0 passes on `main`, or until you are truly blocked as `AGENTS.md` defines it.
 >
 > Read first: `AGENTS.md`, `design/milestones.md` (the "How a milestone works" rules and the M0 section, word for
@@ -46,9 +46,9 @@ and design docs say Forman; Gates 1 and 2 still pass under the new names; a name
 | id | what | done when |
 |---|---|---|
 | M0.01 | the package map (decision) | `decisions/M0-packages.md` written |
-| M0.02 | packages and imports renamed; `target-*` becomes `language-*`; Nx tags follow | `nx run-many -t check test` green; `rg '@architect/'` finds nothing outside the records |
+| M0.02 | packages and imports renamed; `target-*` becomes `language-*`; Nx tags follow | `nx run-many -t check test` green; `rg` finds the old package scope nowhere outside the records |
 | M0.03 | the command, folders and variables; `outputs` removed from the config | `nx run e2e:layer1` and `e2e:layer2` pass, renamed |
-| M0.04 | a lint rule against the old names | it fails on a planted `@architect/` import |
+| M0.04 | a lint rule against the old names | it fails on a planted import from the old package scope |
 | M0.05 | design docs rewritten around plugins, the story as the spine | the docs build, their link check passes, "kit" appears only in history |
 | M0.06 | Gate M0 | `nx run e2e:m0` passes on `main` |
 

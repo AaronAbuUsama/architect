@@ -60,7 +60,7 @@ place roles are checked.
 
 ```ts
 // blueprint/environments/production.ts (proposed: places by mount, secrets and settings by source)
-import { Blueprint, Cloudflare, GitHub, Homebrew, Npm, Secrets, Telemetry, Via } from "@blueprint/blueprint";
+import { Blueprint, Cloudflare, GitHub, Homebrew, Npm, Secrets, Telemetry, Via } from "@formants/forman";
 import staging from "./staging.ts";
 import server from "../projections/server.ts";
 import sdk from "../projections/sdk.ts";
@@ -89,7 +89,7 @@ opens (from every mounted projection and adapter).
 
 - **Features** add tables and actors to the one database and Worker. Their migrations are generated with the app's,
   in one ordered list per environment; a feature's upgrade that changes a table is a major change to the app.
-- **Adapters** add secrets that must be set before `promote` will go (`blueprint secrets`), and doors. Most outside
+- **Adapters** add secrets that must be set before `promote` will go (`forman secrets`), and doors. Most outside
   systems also have to be told where the door is: Stripe needs the webhook URL registered, a chain needs nothing.
   An adapter may declare a `provision` step that does it with a release secret (Stripe's restricted key, in CI), or,
   without one, `promote` prints the one line a person must do and refuses until it's confirmed.
@@ -99,24 +99,24 @@ opens (from every mounted projection and adapter).
 
 - **Rollback** is `promote` of an earlier revision: its bundle is kept, its verdicts are still in the logbook, and the
   version goes back with it. A migration that can't run backwards blocks a rollback across it, named by `promote`.
-- **Destroy**: a world expires by its own alarm; `blueprint env down <name>` stops a long-lived local environment; in
-  the cloud pass, `blueprint env destroy <name>` removes its Alchemy stack. Nothing is left running (AGENTS.md).
+- **Destroy**: a world expires by its own alarm; `forman env down <name>` stops a long-lived local environment; in
+  the cloud pass, `forman env destroy <name>` removes its Alchemy stack. Nothing is left running (AGENTS.md).
 
 ## The day, in commands
 
 ```text
 $ git push                                    # CI: build, a test world, check, prove, verdicts
-$ blueprint impact
+$ forman impact
 changes since 1.3.0   + wallet.link (wallets 1.2.0)   ~ allowance.spend budget
 next 1.4.0            stale allowance.spend in staging, production
-$ blueprint promote --to staging
+$ forman promote --to staging
 bundle 7f3e…c21 (rev a91c2e0)   test ✔ 31/31 operations
 secrets ✔   stripe door registered ✔
 proving in staging … 31/31 ✔   released @acme/sdk@1.4.0-next.1, @acme/cli@1.4.0-next.1
-$ blueprint promote --to production
+$ forman promote --to production
 bundle 7f3e…c21   staging ✔ 31/31
 released 1.4.0: @acme/sdk, @acme/cli, brew acme/tap/acme
-$ blueprint watch --env production
+$ forman watch --env production
 allowance.spend  p95 88ms / 150ms   refused 3% (AllowanceExceeded)   ✔
 ```
 
@@ -126,6 +126,6 @@ allowance.spend  p95 88ms / 150ms   refused 3% (AllowanceExceeded)   ✔
 |---|---|---|
 | Where outputs go | fixed keys: `deploy: { server, mcp, portal }`, `publish: { sdk, cli }` (`examples/acme/blueprint/environments/production.ts`) | `places`, each a mounted projection by import |
 | MCP | served at `/mcp` by the server (L2.08), yet production also declares `mcp: Deploy.worker({ domain: "mcp.acme.dev" })` | a door of the one Worker (question 2) |
-| Infrastructure | per-environment wrangler configs under `.architect/environments/` (D3 #17); Alchemy deferred to the cloud pass (D3 #5) | an Alchemy stack generated from the model and mounts |
+| Infrastructure | per-environment wrangler configs under `.forman/environments/` (D3 #17); Alchemy deferred to the cloud pass (D3 #5) | an Alchemy stack generated from the model and mounts |
 | Adapter provisioning | none | a declared `provision` step, or a refused `promote` naming the manual line |
 | Cloud | none: every environment is a local process with its own state (G1) | the cloud pass: a config change per destination, with Aaron's yes on each credential |

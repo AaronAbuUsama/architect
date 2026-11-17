@@ -41,5 +41,5 @@ variables. Milestone M0 renames the code to match. The pages say "today" for the
 
 ## The old design docs
 
-The docs this site replaces are kept as a record in [the old design docs](../../history/docs-architect/). They are not
+The docs this site replaces are kept as a record in [the old design docs](../../history/docs-layers-1-2/). They are not
 edited and they are not the current design.

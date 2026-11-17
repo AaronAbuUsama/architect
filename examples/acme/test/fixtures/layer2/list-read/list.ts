@@ -1,4 +1,4 @@
-// Planted fixture: the docs' `allowance.list`, as the user writes it after `architect add read allowance.list`.
+// Planted fixture: the docs' `allowance.list`, as the user writes it after `forman add read allowance.list`.
 // Install over blueprint/things/allowance/verbs/list.ts.
 import { Blueprint } from "@formants/forman";
 import { Allowance } from "../thing.ts";

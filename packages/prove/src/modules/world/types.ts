@@ -48,7 +48,7 @@ export interface WorldsApi {
   readonly start: (options: {
     readonly root: string;
     readonly port: number;
-    /** Which folder under `.architect/` holds this world's state: `dev` for `architect dev`, `prove` for prove. */
+    /** Which folder under `.forman/` holds this world's state: `dev` for `forman dev`, `prove` for prove. */
     readonly name: string;
     /** The collector's OTLP/HTTP base URL; unset, the Worker exports nothing. */
     readonly otlp?: string;

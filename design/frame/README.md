@@ -17,22 +17,18 @@ records are brought in line.
 | [`deployment.md`](deployment.md) | from a commit to a running system: build once, verdicts, promote, release, watch, rollback |
 | [`writing-a-feature.md`](writing-a-feature.md) | writing the wallets feature, step by step |
 | [`story.md`](story.md) | **start here**: one allowance from an idea to production and back, the spine of the frame |
-| [`generators.md`](generators.md) | everything Forman generates and scaffolds, including the agent kit that closes the loop |
+| [`generators.md`](generators.md) | everything Forman generates and scaffolds, including the agent files that close the loop |
 | [`examples/`](examples/README.md) | worked examples: agents, the factory, payments, notifications, on chain, Noir, Python |
 | [`questions.md`](questions.md) | every open question, in one round |
 | [`../milestones.md`](../milestones.md) | the recut: milestones M0 to M7, their slices and gates; workable at the end of M2 |
 | [`delta.md`](delta.md) | every weakness found, how this frame answers it, and the order to close the gap |
 
-> **Name, updated 17 November 2026 (Aaron):** the framework is **Forman** (command `forman`, npm org `@formants`).
-> Blueprint stays the name of what you write. The documents below still say Blueprint for the framework until the
-> rename step.
-
 ## The name (Aaron, 17 November 2026)
 
-The framework is called **Blueprint**, not Architect. It is already what the code says (`Blueprint.thing`,
-`Blueprint.operation`) and what the project's own folder is called (`blueprint/`). These documents use the new name.
-The code, the packages and the command are renamed in a later step of their own (the command becomes `blueprint`); the
-npm scope is still open (`decisions/K1-kits.md`, Q2).
+The framework is **Forman**: the command `forman`, the npm org `@formants` (`decisions/K2-forman-frame.md`).
+**Blueprint** is what you write: the `blueprint/` folder and the `Blueprint.*` API, imported from the front door
+`@formants/forman`. The packages, command, folders and variables were renamed in M0 (`decisions/M0-packages.md`).
+Where a frame document still says Blueprint for the framework itself, read Forman.
 
 ## In one breath
 
@@ -95,7 +91,7 @@ description and judged against it.
 
 | Word | One meaning |
 |---|---|
-| **blueprint** | the description, the folder `blueprint/`, and the framework's name; the folder is "the blueprint", the framework is "Blueprint" |
+| **blueprint** | the description and the folder `blueprint/`, written with the `Blueprint.*` API; the framework itself is Forman |
 | **model** | the compiled blueprint: one JSON, every declaration with its hash, every name written once |
 | **thing** | a noun with an identity, fields and an owner of its state (`lives`: the database, an actor, a chain) |
 | **value** | a named field type that says what it is in every target (`Amount`: bigint in Effect, uint128 in Solidity) |

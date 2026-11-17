@@ -1,4 +1,4 @@
-// `architect build` on a copy of acme under git: the revision's bundle, once, with its hash.
+// `forman build` on a copy of acme under git: the revision's bundle, once, with its hash.
 import { spawnSync } from "node:child_process";
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, statSync, symlinkSync, writeFileSync, utimesSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -14,12 +14,12 @@ const git = (root: string, ...args: ReadonlyArray<string>) =>
 
 /** A copy of acme under git, outside the repository: its revision is a commit of its own. */
 const copyUnderGit = () => {
-  const parent = mkdtempSync(join(realpathSync(tmpdir()), "architect-l201-build-"));
+  const parent = mkdtempSync(join(realpathSync(tmpdir()), "forman-l201-build-"));
   const root = join(parent, "acme");
   for (const part of ["blueprint", "generated", "src", "journeys", "package.json"]) cpSync(join(acme, part), join(root, part), { recursive: true, filter: visible });
   mkdirSync(join(root, "node_modules"));
   for (const entry of readdirSync(join(acme, "node_modules"))) if (entry !== ".bin") symlinkSync(join(acme, "node_modules", entry), join(root, "node_modules", entry));
-  writeFileSync(join(root, ".gitignore"), "node_modules/\n.architect/\n.wrangler/\n");
+  writeFileSync(join(root, ".gitignore"), "node_modules/\n.forman/\n.wrangler/\n");
   git(root, "init", "-q", "-b", "main");
   git(root, "add", "-A");
   git(root, "commit", "-q", "-m", "acme");
@@ -40,7 +40,7 @@ describe("build", () => {
     expect(first.sha256).toMatch(/^[0-9a-f]{64}$/);
     expect(second.sha256).toBe(first.sha256);
     expect(statSync(first.main).mtimeMs).toBe(1000);
-    expect(first.main).toBe(join(project.root, ".architect/artefacts", project.revision, "main.js"));
+    expect(first.main).toBe(join(project.root, ".forman/artefacts", project.revision, "main.js"));
     expect(statSync(first.main).size).toBeGreaterThan(100_000);
     expect(await run(Build.find(project.root, project.revision))).toEqual({ revision: project.revision, commit: git(project.root, "rev-parse", "HEAD"), sha256: first.sha256, main: first.main });
     expect(await run(Build.find(project.root, "0000000"))).toBeUndefined();
@@ -58,7 +58,7 @@ describe("build", () => {
   });
 
   it("refuses a legacy manifest, then rebuilds after its local cache is preserved aside", { timeout: 300_000 }, async () => {
-    const record = join(project.root, ".architect/artefacts", project.revision, "bundle.json");
+    const record = join(project.root, ".forman/artefacts", project.revision, "bundle.json");
     const original = readFileSync(record, "utf8");
     const old = JSON.parse(original) as { revision: string; sha256: string };
     writeFileSync(record, JSON.stringify({ revision: old.revision, sha256: old.sha256 }));
@@ -78,7 +78,7 @@ describe("build", () => {
   });
 
   it("refuses a project outside git", async () => {
-    const outside = mkdtempSync(join(tmpdir(), "architect-l201-nogit-"));
+    const outside = mkdtempSync(join(tmpdir(), "forman-l201-nogit-"));
     const failure = await run(Build.build(outside).pipe(Effect.flip, Effect.ensuring(Effect.sync(() => rmSync(outside, { recursive: true, force: true })))));
     expect(failure.message).toContain("git");
   });

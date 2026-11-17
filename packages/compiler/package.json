@@ -14,7 +14,7 @@
     "#modules/*.js": "./src/modules/*.ts"
   },
   "bin": {
-    "architect-model": "./src/main.ts"
+    "forman-model": "./src/main.ts"
   },
   "files": [
     "dist"
@@ -35,7 +35,7 @@
       "#modules/*.js": "./dist/modules/*.js"
     },
     "bin": {
-      "architect-model": "./dist/main.js"
+      "forman-model": "./dist/main.js"
     }
   }
 }

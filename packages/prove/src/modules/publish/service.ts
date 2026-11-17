@@ -16,15 +16,15 @@ const kb = (bytes: number) => `${(bytes / 1024).toFixed(1)} kB`;
 const prerelease: PublishApi["prerelease"] = ({ root, env, version }) =>
   Effect.gen(function* () {
     const registry = registryOf(env);
-    if (registry === undefined) return yield* new PublishFailed({ message: "no registry: set ARCHITECT_REGISTRY to the registry to publish to" });
+    if (registry === undefined) return yield* new PublishFailed({ message: "no registry: set FORMAN_REGISTRY to the registry to publish to" });
     const project = projectName(root);
     return yield* nextPrerelease(registry, [`@${project}/sdk`, `@${project}/cli`], version);
   });
 
-/** The tap repository this run writes to: the one named, or `.architect/tap/` for a run that is local by its own say-so. */
+/** The tap repository this run writes to: the one named, or `.forman/tap/` for a run that is local by its own say-so. */
 const tapOf = (root: string, env: Parameters<PublishApi["run"]>[0]["env"], localTap: boolean) => {
-  const given = env["ARCHITECT_TAP_REPO"]?.trim();
-  return given ? resolve(given) : localTap ? join(resolve(root), ".architect/tap") : undefined;
+  const given = env["FORMAN_TAP_REPO"]?.trim();
+  return given ? resolve(given) : localTap ? join(resolve(root), ".forman/tap") : undefined;
 };
 
 type Options = Parameters<PublishApi["run"]>[0];
@@ -42,7 +42,7 @@ const publishCaptured = ({ root, env, environment, version, mode, localTap, say 
     const registry = registryOf(env);
     if (registry !== undefined && isNpmjs(registry)) return yield* new PublishFailed({ message: `${registry} is the real npm: publishing there is the cloud pass's` });
     const out = yield* Effect.try({ try: () => {
-      const parent = join(resolve(root), ".architect/publish", version);
+      const parent = join(resolve(root), ".forman/publish", version);
       mkdirSync(parent, { recursive: true });
       return mkdtempSync(join(parent, "run-"));
     }, catch: (e) => new PublishFailed({ message: String(e) }) });
@@ -50,7 +50,7 @@ const publishCaptured = ({ root, env, environment, version, mode, localTap, say 
     yield* say(dry ? `publish --dry-run: ${plan.project} ${version}, ${environment}'s publish list; nothing is sent anywhere` : `publish ${plan.project} ${version}, ${environment}'s publish list`);
 
     const packages: Array<Staged> = [];
-    if (!dry && registry === undefined && plan.npm.length > 0) yield* say("skipped npm (set ARCHITECT_REGISTRY to a registry on this machine to publish to)");
+    if (!dry && registry === undefined && plan.npm.length > 0) yield* say("skipped npm (set FORMAN_REGISTRY to a registry on this machine to publish to)");
     for (const pkg of plan.npm.filter(() => dry || registry !== undefined)) {
       const staged = yield* stage({ root: source, env, project: plan.project, kind: pkg.kind, version, out });
       packages.push(staged);
@@ -73,19 +73,19 @@ const publishCaptured = ({ root, env, environment, version, mode, localTap, say 
     let binary: Binary | undefined;
     let formula: string | undefined;
     if (plan.homebrew !== undefined) {
-      const name = env["ARCHITECT_FORMULA"]?.trim() || plan.project;
+      const name = env["FORMAN_FORMULA"]?.trim() || plan.project;
       const tap = tapOf(root, env, localTap);
       const target = hostTarget();
       const tarball = `${plan.project}-${version}-${target ?? `${process.platform}-${process.arch}`}.tar.gz`;
       if (dry) {
         yield* say(target === undefined ? `skipped binary (no single executable for ${process.platform}-${process.arch})` : `binary ${tarball}  (Node ${NODE_VERSION} single executable, built when published)`);
-        yield* say(`homebrew ${plan.homebrew}: Formula/${name}.rb in ${tap === undefined ? "ARCHITECT_TAP_REPO (not set)" : relative(resolve(root), tap) || tap}`);
+        yield* say(`homebrew ${plan.homebrew}: Formula/${name}.rb in ${tap === undefined ? "FORMAN_TAP_REPO (not set)" : relative(resolve(root), tap) || tap}`);
       } else if (tap === undefined) {
-        yield* say("skipped homebrew (set ARCHITECT_TAP_REPO to a git repository to commit the formula to)");
+        yield* say("skipped homebrew (set FORMAN_TAP_REPO to a git repository to commit the formula to)");
       } else if (target === undefined) {
         yield* say(`skipped binary (no single executable for ${process.platform}-${process.arch})`);
       } else {
-        binary = yield* buildBinary({ root: source, project: plan.project, version, out, cache: env["ARCHITECT_CACHE"] || join(homedir(), ".cache/architect"), target });
+        binary = yield* buildBinary({ root: source, project: plan.project, version, out, cache: env["FORMAN_CACHE"] || join(homedir(), ".cache/forman"), target });
         yield* say(`binary ${tarball} sha256:${binary.sha256}  (${kb(binary.bytes)})`);
         formula = yield* writeFormula({ repo: tap, formula: name, text: formulaText({ formula: name, project: plan.project, version, binaries: [binary] }), version });
         yield* say(`homebrew ${plan.homebrew}: Formula/${name}.rb committed to ${tap}`);

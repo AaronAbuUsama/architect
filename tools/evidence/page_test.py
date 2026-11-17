@@ -95,7 +95,7 @@ class EvidencePageTests(unittest.TestCase):
                 self.assertEqual(page.count("&lt;organization id&gt;"), len(identifiers))
 
     def test_rendering_removes_local_paths_and_personal_email(self):
-        body = "/Users/example/.codex/worktrees/task/architect/src/a.ts\n/private/var/folders/xx/temp/T/run.log\n/tmp/check-123/log.txt\n/home/example/project/a.ts\nowner@example.invalid\n/Users/\n/home/\n/tmp/\n/private/var/folders/"
+        body = "/Users/example/.codex/worktrees/task/forman/src/a.ts\n/private/var/folders/xx/temp/T/run.log\n/tmp/check-123/log.txt\n/home/example/project/a.ts\nowner@example.invalid\n/Users/\n/home/\n/tmp/\n/private/var/folders/"
         page = self.render({"raw.txt": body})
         for private in ("/Users/", "/private/var/folders/", "/tmp/", "/home/", "owner@example.invalid"):
             self.assertNotIn(private, page)

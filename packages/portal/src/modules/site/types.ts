@@ -6,10 +6,10 @@ import type { BlueprintWire } from "#modules/wire/types.js";
 /** The Worker's variables the portal reads. Every one is optional: a portal without a logbook shows nothing green. */
 export interface PortalEnv {
   /** Where the logbook is. Held by the Worker, never sent to a browser. */
-  readonly ARCHITECT_LOGBOOK_URL?: string;
+  readonly FORMAN_LOGBOOK_URL?: string;
   /** The revision this environment's bundle is. */
-  readonly ARCHITECT_REVISION?: string;
-  readonly ARCHITECT_ENVIRONMENT?: string;
+  readonly FORMAN_REVISION?: string;
+  readonly FORMAN_ENVIRONMENT?: string;
 }
 
 /** A decoded blueprint, its logbook reader if it has one, and the bundle's revision: all `handle` needs. */

@@ -1,6 +1,6 @@
 ---
 name: conductor
-description: The 🎼 conductor's loop for building Architect, in any agent. Use it when starting, briefing, landing or archiving threads, when merging a layer into main, or when Aaron asks for a sitrep.
+description: The 🎼 conductor's loop for building Forman, in any agent. Use it when starting, briefing, landing or archiving threads, when merging a layer into main, or when Aaron asks for a sitrep.
 ---
 
 # 🎼 Conductor
@@ -36,7 +36,7 @@ thread types, their emojis, their finish lines and your agent's word for each ac
 - **Plan and decisions:** `design/build-plan.md` (mark each step done, with its proof, in the pull request that lands
   it), `design/decisions.md` and `design/decisions/`. `design/handoff.md`, which you keep, says where each piece of work
   stands, so a fresh conductor can take over.
-- **Threads:** your agent's thread list, by title emoji; Claude Code cloud threads also by tag `architect`.
+- **Threads:** your agent's thread list, by title emoji; Claude Code cloud threads also by tag `forman`.
 - **Aaron's view:** a short sitrep in the thread, after every change. A sitrep page is optional.
 
 ## While threads run

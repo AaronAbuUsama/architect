@@ -10,8 +10,8 @@ export const drift = (root: string, model: Model): ReadonlyArray<Finding> => {
   const wanted = Render.files({ name: basename(root), model }).filter((f) => !f.scaffold);
   const edited = wanted.flatMap((f): ReadonlyArray<Finding> => {
     const at = join(root, f.path);
-    if (!existsSync(at)) return [{ part: "drift", rule: "no-edited-output", file: f.path, message: "is missing: run architect generate" }];
-    return readFileSync(at, "utf8") === f.content ? [] : [{ part: "drift", rule: "no-edited-output", file: f.path, message: "differs from what the blueprint generates: never edit generated/, run architect generate" }];
+    if (!existsSync(at)) return [{ part: "drift", rule: "no-edited-output", file: f.path, message: "is missing: run forman generate" }];
+    return readFileSync(at, "utf8") === f.content ? [] : [{ part: "drift", rule: "no-edited-output", file: f.path, message: "differs from what the blueprint generates: never edit generated/, run forman generate" }];
   });
   // Dot-folders under generated/ are tools' own state (wrangler's `.wrangler/`), never output.
   const known = new Set(wanted.map((f) => f.path));

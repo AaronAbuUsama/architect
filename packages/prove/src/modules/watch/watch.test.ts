@@ -70,19 +70,19 @@ describe("watch over staging's traffic", { timeout: 120_000 }, () => {
     expect(slow.lines).toContain("drift allowance.spend");
     expect(slow.drift).toEqual(["allowance.spend"]);
     expect(slow.passed).toBe(true); // drift is a task, not a failed run
-    const file = join(root, ".architect/tasks/drift-staging-allowance.spend.md");
-    expect(slow.lines).toContain("task .architect/tasks/drift-staging-allowance.spend.md");
+    const file = join(root, ".forman/tasks/drift-staging-allowance.spend.md");
+    expect(slow.lines).toContain("task .forman/tasks/drift-staging-allowance.spend.md");
     expect(existsSync(file)).toBe(true);
     const text = readFileSync(file, "utf8");
     expect(text).toContain("p95 800ms");
     expect(text).toContain("budget of 150ms");
-    expect(text).toMatch(/architect telemetry trace [0-9a-f]{32} --env staging/);
-    expect(text).toContain("architect brief allowance.spend");
+    expect(text).toMatch(/forman telemetry trace [0-9a-f]{32} --env staging/);
+    expect(text).toContain("forman brief allowance.spend");
 
     const fixed = await watch(Array.from({ length: 30 }, () => call("allowance.spend", 20)));
     expect(fixed.drift).toEqual([]);
     expect(existsSync(file)).toBe(false);
-    expect(readdirSync(join(root, ".architect/tasks"))).toEqual([]);
+    expect(readdirSync(join(root, ".forman/tasks"))).toEqual([]);
   });
 
   it("says, and does not call drift, a p95 over budget on too few calls: with a handful, the p95 is only the slowest call", async () => {

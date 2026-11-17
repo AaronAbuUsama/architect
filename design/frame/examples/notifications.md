@@ -168,7 +168,7 @@ notification, which is the idempotency proof.
 |---|---|---|
 | Our events causing calls | none; events are evidence only (`examples/acme/blueprint/things/invitation/events.ts:5`) | `on:` takes our own events as well as an adapter's |
 | Outbox | inside actors only, for the index (build plan I2, L1.20) | every move writes its events to an outbox, drained by alarm |
-| `system` principal | not in `Principal` (`packages/blueprint/src/modules/roles/types.ts:6-8`) | added; the keeper and the outbox call as it |
+| `system` principal | not in `Principal` (`packages/forman/src/modules/roles/types.ts:6-8`) | added; the keeper and the outbox call as it |
 | Idempotency | `idempotent: "request"` (`allowance/verbs/spend.ts:16`) | also `idempotent: { by: <field> }` |
 | Reading an inbox in a journey | no | `inbox(...)`, through Mailpit's API |
 

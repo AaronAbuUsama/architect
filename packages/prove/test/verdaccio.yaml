@@ -1,5 +1,5 @@
 # The registry the publish tests run (D3 #9, #113): anyone may read and publish the project's own names (@acme/*, and the unscoped
-# `acme`, which exists on npm) and Architect's, none of which is ever proxied to npm; everything else is, so an install finds
+# `acme`, which exists on npm) and Forman's, none of which is ever proxied to npm; everything else is, so an install finds
 # its dependencies (effect and the rest).
 storage: /verdaccio/storage
 auth:

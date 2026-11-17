@@ -1,7 +1,7 @@
 # promote
 
-`architect promote --to staging|production` (D3 #14, #90 to #96). `Promote.to({ root, env, target, say })` moves the exact
-bundle `architect build` kept for the revision (the git commit) to an environment, and never rebuilds it.
+`forman promote --to staging|production` (D3 #14, #90 to #96). `Promote.to({ root, env, target, say })` moves the exact
+bundle `forman build` kept for the revision (the git commit) to an environment, and never rebuilds it.
 
 - **Refusals come first,** and nothing is started for one: a dirty working tree, a revision with no built bundle or one whose
   file no longer matches its recorded hash, and a revision without the verdicts. Staging needs a passing `test` verdict for
@@ -9,7 +9,7 @@ bundle `architect build` kept for the revision (the git commit) to an environmen
   the newest one posted from `main` (`Verdicts.latest`): a pull request's verdict never opens a gate. A refusal is
   `PromoteRefused`, with the lines to print (`refused: <rev> has no green verdicts in <env>`, then `missing: <ops>`).
 - **Then the target environment runs that bundle:** started, or restarted onto it with its state kept (`Environments.up`
-  with the revision), and `GET /_architect/bundle` must answer the same revision and sha256.
+  with the revision), and `GET /_forman/bundle` must answer the same revision and sha256.
 - **Staging** is proved where it runs (`Prove.against`): the journeys and the nine evals, their people signing up for real
   through Better Auth because a real environment has no `/_world/cast`, judged from staging's own collector; a verdict per
   operation is posted with `environment: "staging"`, failing ones too.
@@ -17,8 +17,8 @@ bundle `architect build` kept for the revision (the git commit) to an environmen
   the revision is already the last release.
 - **Publishing** (L2.06, D3 #111, `publish/`): staging, once its proof passed and before it posts its verdicts, publishes the prerelease
   `<next>-next.<n>` of the SDK and CLI under the dist-tag `next`; production, after `released <version>` and its verdicts, publishes the
-  release (`latest`), and a revision that was already released publishes what is missing. Both go to `ARCHITECT_REGISTRY`, and say
-  `skipped npm (...)` when there is none. Production writes the Homebrew formula only when `ARCHITECT_TAP_REPO` is set.
+  release (`latest`), and a revision that was already released publishes what is missing. Both go to `FORMAN_REGISTRY`, and say
+  `skipped npm (...)` when there is none. Production writes the Homebrew formula only when `FORMAN_TAP_REPO` is set.
 - What the local pass can't reach prints `skipped <destination> (cloud pass)`.
 
 Test: `promote.test.ts`, the L2.05 done-when checks on a copy of acme under git, through the command, with the real logbook,

@@ -11,7 +11,7 @@ export const NAME = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
 export const failed = (message: string) => new EnvironmentFailed({ message });
 export const io = <A>(what: string, run: () => A) => Effect.try({ try: run, catch: (e) => failed(`${what}: ${String(e).replace(/^Error: /, "")}`) });
 
-export const dirOf = (root: string, name: string) => join(resolve(root), ".architect/environments", name);
+export const dirOf = (root: string, name: string) => join(resolve(root), ".forman/environments", name);
 
 export const status = (root: string, name: string): Effect.Effect<Status, EnvironmentFailed> =>
   Effect.gen(function* () {

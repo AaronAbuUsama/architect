@@ -19,7 +19,7 @@ export interface Exporter {
 
 export interface TelemetryApi {
   /**
-   * What the environment adds to the Collector: its sinks (`OTLP_SINKS`) and its name (`ARCHITECT_ENVIRONMENT`). Bindings
+   * What the environment adds to the Collector: its sinks (`OTLP_SINKS`) and its name (`FORMAN_ENVIRONMENT`). Bindings
    * never change within an isolate, so the generated Worker says it once per request, on a line of its own, and
    * `serve` keeps its own call as it was.
    */

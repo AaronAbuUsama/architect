@@ -19,7 +19,7 @@ export const TestWorlds: TestWorldsApi = {
     Effect.gen(function* () {
       const made = yield* door(url, "", "POST", { id, lifetimeMs });
       if (made.status === 409) {
-        return yield* failed(`world ${String(made.json["id"])} is still live in the test environment; \`architect worlds reap\` destroys it once its lifetime is up`);
+        return yield* failed(`world ${String(made.json["id"])} is still live in the test environment; \`forman worlds reap\` destroys it once its lifetime is up`);
       }
       if (made.status === 404) return yield* failed("this environment does not host worlds: it declares no lifetime");
       if (made.status !== 201) return yield* failed(`the test environment refused the world (${made.status}): ${String(made.json["error"] ?? "")}`);

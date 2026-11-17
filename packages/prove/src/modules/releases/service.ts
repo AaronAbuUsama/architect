@@ -46,7 +46,7 @@ const tokenFrom = (source: TokenSource) =>
 
 export const Releases: ReleasesApi = {
   locate: ({ root, env }) => {
-    const given = env["ARCHITECT_LOGBOOK_URL"];
+    const given = env["FORMAN_LOGBOOK_URL"];
     if (given) return Effect.succeed(given.replace(/\/+$/, ""));
     return Environments.status({ root, name: "logbook" }).pipe(
       Effect.map((s) => (s.state === "up" ? s.url : undefined)),

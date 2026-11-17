@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// `architect-model <project-root>`: the model as JSON on stdout. Generators run this in a fresh process, so a
+// `forman-model <project-root>`: the model as JSON on stdout. Generators run this in a fresh process, so a
 // long-lived Nx daemon never reads a blueprint file it imported before an edit.
 import { Effect } from "effect";
 import { Compiler } from "#modules/model/service.js";

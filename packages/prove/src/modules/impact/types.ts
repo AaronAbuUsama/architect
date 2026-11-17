@@ -4,7 +4,7 @@ import type { Effect } from "effect";
 import type { Change, Depends, Model, Versioned } from "@formants/compiler";
 import type { Verdict } from "#modules/evals/types.js";
 
-/** `.architect/evidence/proven.json`: the model last proven, and each proven operation's dependencies then. */
+/** `.forman/evidence/proven.json`: the model last proven, and each proven operation's dependencies then. */
 export interface Ledger {
   readonly model: Model;
   readonly proven: Readonly<Record<string, Depends>>;

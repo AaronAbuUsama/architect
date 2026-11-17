@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "include": [
-    "architect.config.ts",
+    "forman.config.ts",
     "blueprint/**/*.ts",
     "generated/**/*.ts",
     "src/**/*.ts",

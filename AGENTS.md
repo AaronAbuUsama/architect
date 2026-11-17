@@ -4,9 +4,10 @@
 
 ## What this repository is
 
-Architect, the framework. Its design is in `design/`: `decisions.md` (what is decided and what is proposed),
-`build-plan.md` (the steps, layer by layer, each with what it needs and the check that proves it), `packages.md`,
-`spikes.md` and `spikes/`, and the design docs in `design/docs/index.html`.
+Forman, the framework (command `forman`, packages `@formants/*`); what you write with it is the blueprint. Its design
+is in `design/`: the frame (`frame/`), the milestones (`milestones.md`: M0 to M7, each slice with what it needs and the
+check that proves it), the decisions (`decisions/`), `packages.md`, `spikes.md` and `spikes/`, and the design docs in
+`design/docs/`. Layers 1 and 2 are recorded in `build-plan.md`.
 
 ## Who decides (Aaron, 16 November 2026)
 
@@ -23,13 +24,13 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
 
 ## How work flows
 
-- **Layers.** Architect is built in five layers (declare and call; prove and ship; reach out; on chain; time). Nothing
-  in a layer starts until the previous layer's gate passes on `main`. Ideas for later layers go in `design/later.md`,
+- **Milestones.** Forman is built in milestones M0 to M7 (`design/milestones.md`; layers 1 and 2 came first). Nothing
+  in a milestone starts until the previous milestone's gate passes on `main`. Ideas for later go in `design/later.md`,
   never into code.
 - **Goals.** Work runs as goals in `design/goals/`: one long autonomous run with a bound and a single done check. A
-  goal works on `layer/<n>`, one commit per build-plan step, each ending green with its "done when" check. It loops
-  generate, run, fix until the check passes, then moves on. The layer reaches `main` by one pull request, merged when
-  CI is green, its gate passes and a 🔍 reviewer subagent passed it. Threads are optional, for work that truly runs in
+  goal works on `m<n>`, one commit per milestone slice, each ending green with its "done when" check. It loops
+  generate, run, fix until the check passes, then moves on. The milestone reaches `main` by one pull request, merged
+  when CI is green, its gate passes and a 🔍 reviewer subagent passed it. Threads are optional, for work that truly runs in
   parallel.
 - **Spikes** answer one question in throwaway code under `spikes/<name>/`, on a `spike/<name>` branch. Each ends with
   a README (question, tried, found, the decision it supports, open risks) and is merged into `main` for the record.
@@ -50,8 +51,9 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
 - Generated files open with a `// Generated from … Do not edit.` line (naming the blueprint or the declaration's path;
   after a shebang when there is one) and are never edited. Scaffolds start
   with `// Scaffolded from <path>. Yours from now on.`
-- Package rules (Nx module boundaries): `blueprint` depends only on Effect; generated code imports only the target's
-  runtime, `blueprint`, the host and project code; `compiler` and `generators` never run in production.
+- Package rules (Nx module boundaries): `forman` (the front door, the `Blueprint` API) depends only on Effect;
+  generated code imports only the language's runtime, `forman`, the host and project code; `compiler` and `generators`
+  never run in production.
 - Pin dependency versions exactly, and use versions published at least three days before you add them (Aaron, 17
   November 2026). A younger version needs an override: its name in `minimumReleaseAgeExclude` in
   `pnpm-workspace.yaml`, with a comment giving the reason, and a line in `design/decisions/R1-release-age.md`.
@@ -72,7 +74,7 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
 
 ## Threads
 
-Every thread is one type, titled with its emoji; the kit is in `.agents/skills/`: `threads` (the types and each agent's
+Every thread is one type, titled with its emoji; the skills are in `.agents/skills/`: `threads` (the types and each agent's
 word for starting, messaging, reading and archiving a thread), `conductor` (the loop), `spike` (running a spike),
 `reviewer` (the 🔍 review) and `hashtags` (Aaron's `#shortcuts`). `.claude/skills` and `.claude/agents/reviewer.md`
-are links to it; edit the kit only in `.agents/skills/`.
+are links to it; edit them only in `.agents/skills/`.

@@ -9,16 +9,16 @@ import { afterAll, describe, expect, it } from "vitest";
 import { Build } from "#modules/build/service.js";
 import { Environments } from "./service.ts";
 
-const parent = mkdtempSync(join(realpathSync(tmpdir()), "architect-process-owner-"));
+const parent = mkdtempSync(join(realpathSync(tmpdir()), "forman-process-owner-"));
 // Exercise wide inspection and unquoted process arguments containing spaces, beyond normal terminal widths.
 const root = join(parent, "long-environment-path-".repeat(5), "project with spaces", "acme");
 const shadow = join(parent, "shadow");
 const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
-const issuerName = `architect-process-owner-issuer-${process.pid}`;
+const issuerName = `forman-process-owner-issuer-${process.pid}`;
 const issuerImage = "ghcr.io/navikt/mock-oauth2-server:6.1.4@sha256:647dd8c78a54f0e6fcd58d79c884e612f8f998a0662276f3e1db22e464a50192";
 const run = <A, E>(effect: Effect.Effect<A, E>) => Effect.runPromise(effect);
 const docker = (...args: ReadonlyArray<string>) => spawnSync("docker", args, { encoding: "utf8" });
-const dir = (project: string, name: string) => join(project, ".architect/environments", name);
+const dir = (project: string, name: string) => join(project, ".forman/environments", name);
 const git = (...args: ReadonlyArray<string>) => {
   const result = spawnSync("git", ["-c", "user.name=ownership", "-c", "user.email=ownership@example.test", "-c", "commit.gpgsign=false", ...args], { cwd: root, encoding: "utf8" });
   expect(result.status, result.stderr).toBe(0);
@@ -32,7 +32,7 @@ const project = () => {
   }
   mkdirSync(join(root, "node_modules"));
   for (const entry of readdirSync(join(acme, "node_modules"))) if (entry !== ".bin") symlinkSync(join(acme, "node_modules", entry), join(root, "node_modules", entry));
-  writeFileSync(join(root, ".gitignore"), "node_modules/\n.architect/\n.wrangler/\n");
+  writeFileSync(join(root, ".gitignore"), "node_modules/\n.forman/\n.wrangler/\n");
   git("init", "-q", "-b", "main"); git("add", "-A"); git("commit", "-q", "-m", "acme");
 };
 
@@ -128,7 +128,7 @@ describe("persisted environment process ownership", () => {
       expect(await run(Environments.status({ root: shadow, name: "production" }))).toEqual({ state: "down", name: "production" });
       await run(Environments.down({ root: shadow, name: "production" }));
       expect(await run(Environments.status({ root, name: "production" }))).toMatchObject({ state: "up", pid: owned.pid });
-      expect((await fetch(`${owned.url}/_architect/bundle`, { headers: { connection: "close" } })).status).toBe(200);
+      expect((await fetch(`${owned.url}/_forman/bundle`, { headers: { connection: "close" } })).status).toBe(200);
     } finally { await run(Environments.down({ root, name: "production" })); }
   });
 
@@ -136,7 +136,7 @@ describe("persisted environment process ownership", () => {
     const started = docker("run", "-d", "--name", issuerName, "-p", "127.0.0.1:9163:8080", issuerImage);
     expect(started.status, started.stderr).toBe(0);
     issuerStarted = true;
-    const issuer = "http://127.0.0.1:9163/architect";
+    const issuer = "http://127.0.0.1:9163/forman";
     for (let i = 0; i < 240; i++) {
       if (await fetch(`${issuer}/.well-known/openid-configuration`).then((r) => r.ok, () => false)) break;
       await new Promise((done) => setTimeout(done, 250));

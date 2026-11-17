@@ -277,10 +277,10 @@ $ acme run cancel run_9Kx1
 | | Today | Proposed |
 |---|---|---|
 | An agent run | check 4 only: the Agent SDK with `tools: []`, four tools of ours, `maxBudgetUsd: 5` (`origin/layer/3:e2e/layer1/04-agent-writes-a-handler.test.ts:90`), denied paths at `:18` | the agents feature, with a declared `Run` |
-| The harness | `@architect/agent` designed (H1, H2), not built; steps A0 to A9 (`design/build-plan.md:149-166`) | the same seam, shipped inside `@formants/agents` |
+| The harness | an agent package designed (H1, H2), not built; steps A0 to A9 (`design/build-plan.md:149-166`) | the same seam, shipped inside `@formants/agents` |
 | Pi version | 1.5.0, the newest under the two-week rule (H1.1) | 1.5.2 (10 November) is allowed under the three-day rule; bumped only when wanted |
 | Effect Workflow on Cloudflare | 4.1.3 not allowed until 24 November (H1 section 8) | allowed now; used for processes that span runs |
-| An agent as a caller | `Principal` is `anonymous` or `person` (`origin/layer/3:packages/blueprint/src/modules/roles/types.ts:6-8`); an agent looks like its person (F5 section 4) | `agent`, through `Via.agent`, and `system` for the loop |
+| An agent as a caller | `Principal` is `anonymous` or `person` (`origin/layer/3:packages/forman/src/modules/roles/types.ts:6-8`); an agent looks like its person (F5 section 4) | `agent`, through `Via.agent`, and `system` for the loop |
 | A run in the factory | `run` is a row in `examples/work` (F5 call 3), its Durable Object is design only (W5) | the factory mounts this feature ([`factory.md`](factory.md)) |
 | A declared Run | considered for L5.08 (`build-plan.md:224`) | now, as this feature |
 

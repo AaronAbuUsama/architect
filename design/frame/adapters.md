@@ -35,13 +35,13 @@ says the refund settled; both run against one Stripe stand-in in a world. One pl
 ### Mounting
 
 ```bash
-blueprint add adapter @blueprint/stripe
+forman add adapter @formants/stripe
 ```
 
 ```ts
 // blueprint/adapters/stripe.ts: the mount is called `stripe`, after its file
-import { Blueprint } from "@blueprint/blueprint";
-import stripe from "@blueprint/stripe";
+import { Blueprint } from "@formants/forman";
+import stripe from "@formants/stripe";
 
 export default Blueprint.use(stripe, (s) => [
   s.include(s.calls.refunds.create),          // what this app may call: only what it names, nothing else of Stripe's
@@ -117,7 +117,7 @@ A Blueprint app publishes its SDK and its model ([`projections.md`](projections.
 so an adapter for another Blueprint app is generated, not written:
 
 ```bash
-blueprint add adapter @acme-billing/sdk --as billing
+forman add adapter @acme-billing/sdk --as billing
 ```
 
 Its calls are the other app's operations that admit a `service` principal (a `Via.key` way in); its errors are their
@@ -132,7 +132,7 @@ needs one when a browser signer is chosen ([`writing-a-feature.md`](writing-a-fe
 adapter: it keeps keys in a keystore file of its own format. An OS keychain would be another adapter, later.
 
 ```ts
-// @blueprint/eip1193: an adapter for whatever wallet the browser offers
+// @formants/eip1193: an adapter for whatever wallet the browser offers
 export default Blueprint.adapter({
   host: [Host.browser],
   shape: Eip1193.contract,            // the standard's methods and errors
@@ -148,11 +148,11 @@ export default Blueprint.adapter({
 A feature that needs an outside system names the adapter in its descriptor; it does not contain it:
 
 ```ts
-// @blueprint/payments/blueprint/feature.ts
+// @formants/payments/blueprint/feature.ts
 export default Blueprint.feature({ needs: [auth, stripe] /* uses stripe.calls.checkout.sessions.create, stripe.events.checkoutCompleted */ });
 ```
 
-`blueprint add feature @blueprint/payments` sees the need, and either finds a Stripe mount that already includes the
+`forman add feature @formants/payments` sees the need, and either finds a Stripe mount that already includes the
 calls and events the feature uses, offers to widen it, or offers to mount Stripe. One Stripe mount per app serves the payments feature,
 the app's own refund handler and the webhook, with one secret and one stand-in. Two mounts of one adapter (`stripe-eu`
 and `stripe-us`) are two outside systems, with their own names, secrets and stand-ins.
@@ -174,7 +174,7 @@ service, and fails if their shapes disagree. That is what keeps a stand-in hones
 `prove` prints what each adapter ran against:
 
 ```text
-$ blueprint prove --env local
+$ forman prove --env local
 adapters   stripe → stripe-mock (vendor)   chain → anvil (process)   resend → none: 2 journeys left for the cloud pass
 ```
 
@@ -197,9 +197,9 @@ that calls it.
 Most adapters are generated from a contract the outside system already publishes, then narrowed by hand:
 
 ```bash
-blueprint new adapter stripe --from-openapi https://raw.githubusercontent.com/stripe/openapi/…/spec3.json
-blueprint new adapter usdc --from-abi ./abi/usdc.json --chain
-blueprint new adapter billing --from-model @acme-billing/sdk
+forman new adapter stripe --from-openapi https://raw.githubusercontent.com/stripe/openapi/…/spec3.json
+forman new adapter usdc --from-abi ./abi/usdc.json --chain
+forman new adapter billing --from-model @acme-billing/sdk
 ```
 
 What the author writes: which calls and events the adapter offers, its error names, its secrets, its door's

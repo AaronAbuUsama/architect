@@ -3,7 +3,7 @@
 import { cpSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { acme, architect, copyOf, nothingRunning } from "./support.ts";
+import { acme, forman, copyOf, nothingRunning } from "./support.ts";
 
 const GRANT = "src/allowance/grant.ts";
 const planted: ReadonlyArray<{ readonly fixture: string; readonly installs: ReadonlyArray<readonly [string, string]>; readonly line: string; readonly generate?: boolean; readonly review?: true }> = [
@@ -24,8 +24,8 @@ describe("check 3: every eval catches its planted break", () => {
       const project = copyOf(acme);
       try {
         for (const [from, to] of p.installs) cpSync(join(acme, "test/fixtures/evals", p.fixture, from), join(project.root, to));
-        if (p.generate) expect(architect(project.root, "generate").status).toBe(0);
-        const run = architect(project.root, "prove", "--env", "local", "--port", String(8871 + i));
+        if (p.generate) expect(forman(project.root, "generate").status).toBe(0);
+        const run = forman(project.root, "prove", "--env", "local", "--port", String(8871 + i));
         const line = run.stdout.split("\n").find((l) => l.startsWith(p.line));
         expect(line, run.stdout).toBeDefined();
         if (p.review) expect(line).toMatch(/review: p95 \d+ms is over 1\.5x budget/);

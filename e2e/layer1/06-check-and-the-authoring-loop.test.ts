@@ -1,27 +1,27 @@
-// Check 6: the allowance is built on the starter by Architect's own commands, and check holds the rules throughout.
+// Check 6: the allowance is built on the starter by Forman's own commands, and check holds the rules throughout.
 // add writes a thing of blanks that check names; with the declarations written, generate scaffolds each handler once;
 // with the handlers written, check and prove pass. Each of the journey author's check fixtures fails it.
 import { cpSync, existsSync, readFileSync, rmSync } from "node:fs";
 import { basename, join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { acme, architect, copyOf, nothingRunning, repo } from "./support.ts";
+import { acme, forman, copyOf, nothingRunning, repo } from "./support.ts";
 
-// Dot-folders (.wrangler, .architect) belong to whatever is running there; a filter also keeps cpSync off its native path,
+// Dot-folders (.wrangler, .forman) belong to whatever is running there; a filter also keeps cpSync off its native path,
 // which aborts the process when a folder vanishes mid-copy.
 const visible = (from: string) => !basename(from).startsWith(".");
 
 const starter = join(repo, "examples/starter");
 
-describe("check 6: architect add, generate and check build the allowance on the starter", () => {
+describe("check 6: forman add, generate and check build the allowance on the starter", () => {
   it("blanks, then scaffolds, then a project that checks and proves", () => {
     // The starter as the preset writes it. add writes the allowance's blanks; the filled declarations, handlers and
     // journeys then come from acme, so what this proves is blanks, scaffolds and check, not authoring.
     const project = copyOf(starter);
     const { root } = project;
     try {
-      const added = architect(root, "add", "thing", "allowance");
+      const added = forman(root, "add", "thing", "allowance");
       expect(added.stdout.trim().split("\n")).toHaveLength(6);
-      const blank = architect(root, "check");
+      const blank = forman(root, "check");
       expect(blank.status).toBe(1);
       expect(blank.stdout.split("\n")[0]).toBe("allowance has 3 blanks");
 
@@ -31,19 +31,19 @@ describe("check 6: architect add, generate and check build the allowance on the 
         cpSync(join(acme, p), join(root, p), { recursive: true, filter: visible });
       }
       cpSync(join(acme, "src/organization/create.ts"), join(root, "src/organization/create.ts"));
-      const generated = architect(root, "generate");
+      const generated = forman(root, "generate");
       const scaffolds = generated.stdout.split("\n").filter((l) => l.endsWith("(scaffold: yours from now on)"));
       expect(scaffolds.map((l) => l.split(" ")[1])).toEqual([
         "src/allowance/grant.ts", "src/allowance/revoke.ts", "src/allowance/spend.ts",
       ]);
-      expect(architect(root, "generate").stdout.trim()).not.toContain("implementation/");
+      expect(forman(root, "generate").stdout.trim()).not.toContain("implementation/");
 
       // The handlers and journeys written: check and prove pass.
       for (const op of ["grant", "revoke", "spend"]) cpSync(join(acme, `src/allowance/${op}.ts`), join(root, `src/allowance/${op}.ts`));
       cpSync(join(acme, "journeys"), join(root, "journeys"), { recursive: true, filter: visible });
-      const checked = architect(root, "check");
+      const checked = forman(root, "check");
       expect(checked.stdout.trimEnd().split("\n").at(-1), checked.stdout).toBe("check ✔");
-      const proved = architect(root, "prove", "--env", "local", "--port", "8885");
+      const proved = forman(root, "prove", "--env", "local", "--port", "8885");
       expect(proved.stdout.trimEnd().split("\n").at(-1), proved.stdout).toBe("prove ✔");
       expect(proved.stdout).toMatch(/^allowance\.spend 9 evals ✔/m);
       expect(existsSync(join(root, "generated/docs/allowance/spend.md"))).toBe(true);
@@ -66,7 +66,7 @@ describe("check 6: architect add, generate and check build the allowance on the 
       try {
         expect(readFileSync(join(acme, "test/fixtures", fixture), "utf8")).not.toBe("");
         cpSync(join(acme, "test/fixtures", fixture), join(project.root, over));
-        const run = architect(project.root, "check");
+        const run = forman(project.root, "check");
         expect(run.status).toBe(1);
         expect(run.stdout.split("\n").some((l) => l.includes(over) && l.includes(rule)), run.stdout).toBe(true);
       } finally {

@@ -1,5 +1,5 @@
 // The two TraceSources' `window`: FileSource over a folder of the Collector's files, AxiomSource over a stand-in for Axiom's
-// query API on this machine (never Axiom: that is sources.live.test.ts, behind ARCHITECT_LIVE_AXIOM=1).
+// query API on this machine (never Axiom: that is sources.live.test.ts, behind FORMAN_LIVE_AXIOM=1).
 import { createServer } from "node:http";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";

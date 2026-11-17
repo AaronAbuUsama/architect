@@ -16,12 +16,12 @@ const git = (root: string, ...args: ReadonlyArray<string>) =>
   spawnSync("git", ["-c", "user.name=l2", "-c", "user.email=l2@example.test", "-c", "commit.gpgsign=false", ...args], { cwd: root, encoding: "utf8" }).stdout.trim();
 
 const copyUnderGit = () => {
-  const parent = mkdtempSync(join(realpathSync(tmpdir()), "architect-l208-"));
+  const parent = mkdtempSync(join(realpathSync(tmpdir()), "forman-l208-"));
   const root = join(parent, "acme");
   for (const part of ["blueprint", "generated", "src", "journeys", "package.json"]) cpSync(join(acme, part), join(root, part), { recursive: true, filter: visible });
   mkdirSync(join(root, "node_modules"));
   for (const entry of readdirSync(join(acme, "node_modules"))) if (entry !== ".bin") symlinkSync(join(acme, "node_modules", entry), join(root, "node_modules", entry));
-  writeFileSync(join(root, ".gitignore"), "node_modules/\n.architect/\n.wrangler/\n");
+  writeFileSync(join(root, ".gitignore"), "node_modules/\n.forman/\n.wrangler/\n");
   git(root, "init", "-q", "-b", "main");
   git(root, "add", "-A");
   git(root, "commit", "-q", "-m", "acme");
@@ -49,7 +49,7 @@ describe("the world's front door", () => {
     for (const env of [staging, production]) {
       for (const [path, method, body] of door) expect([env.name, path, (await at(env.url, path, method, body)).status]).toEqual([env.name, path, 404]);
       // What the environment is for still answers.
-      expect((await at(env.url, "/_architect/bundle")).status).toBe(200);
+      expect((await at(env.url, "/_forman/bundle")).status).toBe(200);
       expect((await at(env.url, "/mcp", "POST", "{}")).status).toBe(401);
       expect((await at(env.url, "/person/sign-up", "POST", "{}")).status).not.toBe(404);
     }

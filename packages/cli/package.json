@@ -16,7 +16,7 @@
     "@formants/logbook": "workspace:*"
   },
   "bin": {
-    "architect": "./src/main.ts"
+    "forman": "./src/main.ts"
   },
   "imports": {
     "#modules/*.js": "./src/modules/*.ts"
@@ -30,7 +30,7 @@
       "#modules/*.js": "./dist/modules/*.js"
     },
     "bin": {
-      "architect": "./dist/main.js"
+      "forman": "./dist/main.js"
     }
   }
 }

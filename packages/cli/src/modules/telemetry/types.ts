@@ -1,4 +1,4 @@
-// `architect telemetry view | stop | trace <id> | open <id>`: seeing what a call did (O1, D3 #100 to #104).
+// `forman telemetry view | stop | trace <id> | open <id>`: seeing what a call did (O1, D3 #100 to #104).
 import type { Effect } from "effect";
 
 /** What a command prints and how it exits; only `main.ts` writes it out. */

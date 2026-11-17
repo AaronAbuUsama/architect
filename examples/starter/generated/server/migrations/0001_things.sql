@@ -1,5 +1,5 @@
 -- Generated from the blueprint. Do not edit.
--- Stage one rebuilds the local database on every `architect dev`; migrations between versions arrive in stage three.
+-- Stage one rebuilds the local database on every `forman dev`; migrations between versions arrive in stage three.
 CREATE TABLE "api-key" (
   "id" TEXT PRIMARY KEY,
   "organization" TEXT NOT NULL,

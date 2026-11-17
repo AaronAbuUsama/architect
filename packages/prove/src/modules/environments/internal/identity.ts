@@ -8,7 +8,7 @@ const Bundle = Schema.Struct({ revision: Schema.String, sha256: Schema.String })
 export const verify: EnvironmentsApi["verify"] = ({ root, name, pid, revision, sha256 }) => Effect.gen(function* () {
   const before = yield* status(root, name);
   if (before.state !== "up" || before.pid !== pid) return yield* new EnvironmentFailed({ message: `${name} restarted or stopped while proving its bundle` });
-  const raw = yield* Effect.tryPromise({ try: () => fetch(`${before.url}/_architect/bundle`, { headers: { connection: "close" } }).then((r) => r.json() as Promise<unknown>), catch: () => new EnvironmentFailed({ message: `${name} did not report its bundle` }) });
+  const raw = yield* Effect.tryPromise({ try: () => fetch(`${before.url}/_forman/bundle`, { headers: { connection: "close" } }).then((r) => r.json() as Promise<unknown>), catch: () => new EnvironmentFailed({ message: `${name} did not report its bundle` }) });
   const reported = yield* Schema.decodeUnknownEffect(Bundle)(raw).pipe(Effect.mapError(() => new EnvironmentFailed({ message: `${name} did not report a revision and bundle hash` })));
   const after = yield* status(root, name);
   if (after.state !== "up" || after.pid !== pid) return yield* new EnvironmentFailed({ message: `${name} restarted or stopped while proving its bundle` });

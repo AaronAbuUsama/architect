@@ -13,7 +13,7 @@ export const compile = async (): Promise<ReadonlyArray<string>> => {
     createIntrospector: (db: Kysely<unknown>) => new SqliteIntrospector(db),
     createQueryCompiler: () => new SqliteQueryCompiler(),
   };
-  const { compileMigrations } = await getMigrations({ ...optionsFor("cli"), secret: "x".repeat(32), baseURL: "http://architect.local", database: { dialect, type: "sqlite" } } as never);
+  const { compileMigrations } = await getMigrations({ ...optionsFor("cli"), secret: "x".repeat(32), baseURL: "http://forman.local", database: { dialect, type: "sqlite" } } as never);
   const sql = (await compileMigrations()).replace(/create table "/g, 'create table if not exists "').replace(/create (unique )?index "/g, 'create $1index if not exists "');
   return sql.split(/;\s*/).map((s) => s.trim()).filter(Boolean);
 };

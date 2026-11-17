@@ -92,8 +92,8 @@ const main = (model: Model, name: string): RenderedFile => {
       `import { ExitCode } from "./output.ts";`,
       ops.map((o) => `import { ${camel(o.verb)} as ${opVar(o)} } from "./${o.thing}/${o.verb}.ts";`),
       "",
-      "// The release version is stamped in when the CLI is published (`architect publish`); run from source, it says 0.0.0.",
-      "declare const ARCHITECT_VERSION: string | undefined;",
+      "// The release version is stamped in when the CLI is published (`forman publish`); run from source, it says 0.0.0.",
+      "declare const FORMAN_VERSION: string | undefined;",
       "",
       things.map((t) => {
         const subs = ops.filter((o) => o.thing === t).map(opVar);
@@ -102,7 +102,7 @@ const main = (model: Model, name: string): RenderedFile => {
       "",
       `Command.make("${name}").pipe(`,
       `  Command.withSubcommands([${things.map(camel).join(", ")}]),`,
-      `  Command.run({ version: typeof ARCHITECT_VERSION === "string" ? ARCHITECT_VERSION : "0.0.0" }),`,
+      `  Command.run({ version: typeof FORMAN_VERSION === "string" ? FORMAN_VERSION : "0.0.0" }),`,
       "  Effect.provide(CliOutput.layer({ ...CliOutput.defaultFormatter(), formatVersion: (name, version) => `${name} ${version}` })),",
       `  Effect.provide(Sdk.layer(process.env["${env}_URL"] ?? "http://127.0.0.1:8787", process.env["${env}_TOKEN"])),`,
       "  Effect.provide(Layer.succeed(ExitCode, ExitCode.of({ set: (code) => Effect.sync(() => void (process.exitCode = code)) }))),",

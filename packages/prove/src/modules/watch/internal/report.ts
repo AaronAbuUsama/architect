@@ -10,7 +10,7 @@ export interface Drifting {
   readonly p95: number;
   readonly budget: number;
   readonly calls: number;
-  /** The slowest calls' trace ids, slowest first: what to read with `architect telemetry trace`. */
+  /** The slowest calls' trace ids, slowest first: what to read with `forman telemetry trace`. */
   readonly slowest: ReadonlyArray<string>;
 }
 

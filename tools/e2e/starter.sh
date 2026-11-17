@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# The starter, the way a user gets it: publish Architect's packages to a local Verdaccio, create a workspace with
-# `create-nx-workspace --preset=@formants/preset`, then `architect check` and `architect prove --env local` in it.
+# The starter, the way a user gets it: publish Forman's packages to a local Verdaccio, create a workspace with
+# `create-nx-workspace --preset=@formants/preset`, then `forman check` and `forman prove --env local` in it.
 # Leaves nothing running: the registry, its storage and the workspace are removed on any exit.
 set -euo pipefail
 
 repo=$(cd "$(dirname "$0")/../.." && pwd)
-port=${ARCHITECT_E2E_REGISTRY_PORT:-4880}
-name=${ARCHITECT_E2E_NAME:-bakery}
+port=${FORMAN_E2E_REGISTRY_PORT:-4880}
+name=${FORMAN_E2E_NAME:-bakery}
 registry="http://localhost:$port/"
-container="architect-e2e-verdaccio-$$"
-work=$(mktemp -d "${TMPDIR:-/tmp}/architect-e2e.XXXXXX")
+container="forman-e2e-verdaccio-$$"
+work=$(mktemp -d "${TMPDIR:-/tmp}/forman-e2e.XXXXXX")
 preset_files="$repo/packages/preset/files"
 
 cleanup() {
@@ -60,10 +60,10 @@ export npm_config_cache="$work/npm-cache" pnpm_config_cache_dir="$work/pnpm-cach
 cd "$work"
 step "create-nx-workspace $name --preset=@formants/preset"
 npx --yes create-nx-workspace@24.0.3 "$name" --preset=@formants/preset --no-interactive \
-  --nxCloud=skip --trustThirdPartyPreset --pm=pnpm --skipGit ${ARCHITECT_E2E_VERBOSE:+--verbose}
+  --nxCloud=skip --trustThirdPartyPreset --pm=pnpm --skipGit ${FORMAN_E2E_VERBOSE:+--verbose}
 
 cd "$work/$name"
-step "architect check"
-pnpm architect check
-step "architect prove --env local"
-pnpm architect prove --env local
+step "forman check"
+pnpm forman check
+step "forman prove --env local"
+pnpm forman prove --env local

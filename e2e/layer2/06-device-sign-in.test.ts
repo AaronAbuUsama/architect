@@ -21,7 +21,7 @@ import { build } from "./flow.ts";
 import { project, signUp, until } from "./support.ts";
 
 const copy = project();
-const config = mkdtempSync(join(tmpdir(), "architect-gate2-acme-"));
+const config = mkdtempSync(join(tmpdir(), "forman-gate2-acme-"));
 let stack: Stack | undefined;
 beforeAll(async () => { stack = await startStack(copy.root, 6); });
 afterAll(async () => { try { await finish(copy.root, stack); } finally { rmSync(config, { recursive: true, force: true }); copy.remove(); } });

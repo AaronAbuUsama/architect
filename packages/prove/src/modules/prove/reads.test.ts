@@ -101,7 +101,7 @@ describe("a read that lists, on a real world", () => {
     expect(report.lines).toContain("journey an owner lists allowances ✔ 3/3 steps");
     expect(report.lines.some((l) => l.startsWith("allowance.list 9 evals ✔ p50 "))).toBe(true);
     expect(report.lines.at(-1)).toBe("prove ✔");
-    expect(spawnSync("docker", ["ps", "--format", "{{.Names}}"], { encoding: "utf8" }).stdout).not.toContain(`architect-collector-${process.pid}-`);
+    expect(spawnSync("docker", ["ps", "--format", "{{.Names}}"], { encoding: "utf8" }).stdout).not.toContain(`forman-collector-${process.pid}-`);
   });
 
   it("filters, orders and pages, and refuses who is not the owner", { timeout: 600_000 }, async () => {

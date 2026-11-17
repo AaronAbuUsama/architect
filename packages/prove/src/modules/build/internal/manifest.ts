@@ -20,10 +20,10 @@ export const read = (dir: string, revision: string) =>
     const main = join(dir, "main.js");
     const record = join(dir, "bundle.json");
     if (!existsSync(main) && !existsSync(record)) return undefined;
-    if (!existsSync(main) || !existsSync(record)) return yield* new BuildFailed({ message: `the artefact of ${revision} is incomplete: move its local cache aside, then run architect build and architect prove --env test` });
+    if (!existsSync(main) || !existsSync(record)) return yield* new BuildFailed({ message: `the artefact of ${revision} is incomplete: move its local cache aside, then run forman build and forman prove --env test` });
     const raw: unknown = yield* io(() => JSON.parse(readFileSync(record, "utf8")));
     const manifest = yield* Schema.decodeUnknownEffect(Manifest)(raw).pipe(
-      Effect.mapError(() => new BuildFailed({ message: `the artefact of ${revision} has no trusted clean-source provenance: move its local cache aside, then run architect build and architect prove --env test` })),
+      Effect.mapError(() => new BuildFailed({ message: `the artefact of ${revision} has no trusted clean-source provenance: move its local cache aside, then run forman build and forman prove --env test` })),
     );
     if (manifest.revision !== revision || !manifest.commit.startsWith(revision)) return yield* new BuildFailed({ message: `the artefact's source commit does not match ${revision}` });
     const actual = yield* io(() => digest(main));

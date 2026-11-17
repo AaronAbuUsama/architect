@@ -1,6 +1,6 @@
 // L2.09's live check: `watch` over Axiom's query API, on what L2.O's live check left in `capxul-test-traces` (acme's prove, environment
 // `local`). It sends nothing: it asks a few small APL queries with the query-only token (capped by Axiom), so it runs only when
-// asked: `ARCHITECT_LIVE_AXIOM=1`. The token, the edge and the organisation are read by name (the keychain, or AXIOM_QUERY_TOKEN,
+// asked: `FORMAN_LIVE_AXIOM=1`. The token, the edge and the organisation are read by name (the keychain, or AXIOM_QUERY_TOKEN,
 // AXIOM_DOMAIN, AXIOM_ORG_ID) and none is printed, written or kept.
 import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { basename, join, relative, resolve } from "node:path";
@@ -10,7 +10,7 @@ import { Sinks } from "#modules/sinks/service.js";
 import { AxiomSource } from "#modules/telemetry/service.js";
 import { Watch } from "./service.ts";
 
-const live = process.env["ARCHITECT_LIVE_AXIOM"] === "1";
+const live = process.env["FORMAN_LIVE_AXIOM"] === "1";
 const visible = (from: string) => !basename(from).startsWith(".");
 const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
 const scratch = join(acme, "tmp/watch-live");

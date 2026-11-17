@@ -8,7 +8,7 @@ import { Effect } from "effect";
  */
 export const IMAGE = "grafana/otel-lgtm@sha256:4c8056c9c05fcb3c8fd93800e85334bfd79b4d0271b47a54a121a64af41fe1fe";
 
-export const NAME = "architect-viewer";
+export const NAME = "forman-viewer";
 
 export interface Ran {
   readonly status: number;

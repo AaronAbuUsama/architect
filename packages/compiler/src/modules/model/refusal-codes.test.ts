@@ -7,7 +7,7 @@ import { nodeSource } from "#modules/source/service.js";
 import { Compiler } from "./service.ts";
 
 // Separate from model.test.ts's scratch tree, which that suite removes as a whole while files may run in parallel.
-const scratch = resolve(import.meta.dirname, "../../../.architect/refusal-namespace");
+const scratch = resolve(import.meta.dirname, "../../../.forman/refusal-namespace");
 
 const blueprint = (name: string, prefix?: string, errorCount = 1, machine = false): string => {
   mkdirSync(scratch, { recursive: true });
