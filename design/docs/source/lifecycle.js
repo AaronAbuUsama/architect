@@ -278,24 +278,27 @@ state  active` } ],
   checked: ["Steps: a span for every declared step whose path ran","Waits: each finished within its declared time","Explainability: the share of the call's time inside declared steps","Performance: p50 and p95 against the budget, waits excluded where declared"] },
 
 { id: "dependency", name: "Dependency", file: "blueprint/dependencies/<alias>.ts", cmd: "architect add dependency <package> --export <call> --as <alias> --step <kind> --error <file>#<class>",
-  rule: "A library you call and don't govern. Its callable owns argument and answer types. You select an installed exact package, export, step kind and existing error classes; Architect scaffolds exactly one blank, the failure mapping. Promise mode is the default; explicit Effect mode preserves typed failures, defects and interruption. The generated service adds spans and counted work. D4 is decided; L3.01 implementation and authored runtime checks are still required.",
-  scaffold: { p: "blueprint/dependencies/pricing.ts", c:
-`// Scaffolded from @fixture/remote. Yours from now on.
+  rule: "A library you call and don't govern. Its callable owns argument and answer types. You select an installed exact package, export, step kind and existing error classes; Architect writes a pure declaration and a separate runtime wrapper with exactly one blank, the failure mapping. Only the wrapper imports the SDK. Promise mode is the default; explicit Effect mode preserves typed failures, defects and interruption. The generated service adds spans and counted work. D4 is decided; L3.01 implementation and authored runtime checks are still required.",
+  scaffold: { p: "src/dependencies/pricing.ts", c:
+`// Scaffolded from blueprint/dependencies/pricing.ts. Yours from now on.
 import { Blueprint } from "@architect/blueprint"
+import { Dependencies } from "@architect/target-effect/runtime"
+import { quote as declaration } from "../../blueprint/dependencies/pricing.ts"
+import { PriceUnavailable } from "../../blueprint/things/allowance/errors.ts"
 import { quote as call } from "@fixture/remote"
-import { PriceUnavailable } from "../things/allowance/errors.ts"
 
-export const quote = Blueprint.dependency({
-  package: "@fixture/remote",
-  version: "1.0.0",                  // The actual resolved exact pin.
-  mode: "promise",
+export const quote = Dependencies.implementation(declaration, {
   call,
-  errors: [PriceUnavailable],
-  step: "network",
   failure: Blueprint.todo("map the dependency failure to PriceUnavailable"),
 })` },
   filled: { p: "blueprint/dependencies/pricing.ts", c:
-`// The only blank becomes a typed mapping to a selected declared error.
+`// The pure declaration imports Blueprint and declared errors, no SDK:
+export const quote = Blueprint.dependency({
+  package: "@fixture/remote", version: "1.0.0", mode: "promise",
+  errors: [PriceUnavailable], step: "network",
+})
+
+// The runtime wrapper's only blank becomes a typed error mapping.
 failure: (_failure) => new PriceUnavailable({ reason: "pricing unavailable" })
 
 // A consuming operation declares the dependency by reference.
@@ -307,12 +310,13 @@ uses: [quote]
   generated: [
     { p: "acme/generated/dependencies/pricing.ts", c:
 `// Generated from blueprint/dependencies/pricing.ts. Do not edit.
+import { quote as implemented } from "../../src/dependencies/pricing.ts"
 export class Pricing extends Context.Service<Pricing, {
-  readonly quote: Wrapped<typeof declared>
+  readonly quote: Wrapped<typeof implemented>
 }>()("dependency:pricing") {}
 
 export const layer = Layer.succeed(Pricing, {
-  quote: Dependencies.wrap(declared, { name: "dependency:pricing.quote" }),
+  quote: Dependencies.wrap(implemented, { name: "dependency:pricing.quote" }),
 })` } ],
   checked: ["Exactly one failure-mapping blank; argument and answer types come from the library", "Real Promise completion remains counted during cancellation; no manufactured quiet", "Effect typed failures map, while defects and interruption stay intact", "Dependency spans, graph edges and source integrity participate in impact and proof staleness"] },
 

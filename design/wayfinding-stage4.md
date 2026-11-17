@@ -122,8 +122,15 @@ Future full gate runs remain exclusive.
 
 The conductor has folded the kit/source receipts into [D4](decisions/D4.md),
 including the selected-kit import amendment and raw Promise dependency behavior.
-The package rules and affected documentation now agree with that decision. An
-independent read-only contract audit is running. The separate author on
+An independent contract audit found that putting a foreign callable or its
+failure mapper in a dependency descriptor would leak that runtime through the
+API's whole-operation imports. D4 now separates a vendor-free declaration from
+`src/dependencies/<alias>.ts`, with the one blank in the latter. Callable types
+are inferred there and stay out of client declarations. A Node-capable SDK closure
+and client typecheck are required acceptance cases. The kit factory, generated SDK
+paths, HTTP/MCP names and generated dependency service invocation are also explicit.
+The correction awaits the same independent reviewer before contract freeze.
+The package rules and affected documentation now agree. The separate author on
 `author/stage4-checks` now owns the Stage 4 acceptance matrix and immediate L3.01
 journeys/fixtures/red checks, with ports 19160–19179 reserved. That author writes
 Stage 4 journeys,

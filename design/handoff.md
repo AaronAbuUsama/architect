@@ -12,7 +12,9 @@ Stages1–3 are complete on main; the full goal remains active through Gate5. Ro
 from that green main. Three read-only research passes and three isolated throwaway spikes are complete:
 kit export isolation, native world-owned Anvil containers and authenticated SIWE linking. Each has a source/
 retained-receipt review pass and verified cleanup. Results and portability limits are in `wayfinding-stage4.md`.
-D4 is decided on `layer/4` at `caa06ca8`; an independent read-only contract audit is running. The separate
+D4 is recorded on `layer/4`. Its independent audit caught a dependency runtime leaking through whole-operation
+API imports; the corrected contract separates the vendor-free descriptor from the runtime wrapper and requires
+a Node-capable SDK closure/client-typecheck guard. The same reviewer must clear that correction before freeze. The separate
 author owns `author/stage4-checks` in the existing check-author worktree: Stage4 acceptance matrix, immediate
 L3.01 journeys/planted fixtures and captured red checks. Its runtime ports are19160–19179; it must stop only its
 own resources and must not run the old gates' global cleanup. No L3.01 builder starts before the author receipt.

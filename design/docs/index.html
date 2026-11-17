@@ -1876,17 +1876,14 @@ export interface Signer {
 // the wallet user's account. WalletLinks instead verifies an exact session-bound
 // SIWE challenge, consumes it atomically in D1, and stores only a public link.` },
 { p: "architect/packages/std/src/modules/chain/internal/viem.ts", k: "framework", n: "The chain kit owns viem's explicit typed Effect boundary. A project uses that kit rather than importing viem. These are the D4/L3.04 adapter contracts, not a completed implementation.", c:
-`import { Blueprint } from "@architect/blueprint"
+`import { Dependencies } from "@architect/target-effect/runtime"
+import { write as declaration } from "../types.ts"
 import { writeEffect } from "./rpc.ts"
-import { ChainUnavailable, ChainRejected } from "../types.ts"
 
-export const write = Blueprint.dependency({
-  package: "viem",
-  version: "2.57.15",               // Published 3 November; eligible on 17 November.
-  mode: "effect",
+// The pure declaration records viem 2.57.15, Effect mode and declared errors.
+// This runtime file alone imports the actual adapter.
+export const write = Dependencies.implementation(declaration, {
   call: writeEffect,
-  errors: [ChainUnavailable, ChainRejected],
-  step: "chain",
   failure: (failure) => failure,
 })
 
@@ -2692,8 +2689,8 @@ Nx runs for you.</p>
 <li><code>architect add thing allowance</code> writes <code>things/allowance/</code> with <code>thing.ts</code>, <code>machine.ts</code>, <code>events.ts</code>, <code>errors.ts</code> and <code>roles.ts</code>, each with blanks, and a values file. Moving it on chain later is one line in <code>thing.ts</code>.</li>
 <li><code>architect add operation allowance.spend</code> writes <code>verbs/spend.ts</code>. Its move is already filled in, because <code>spend</code> is a move of the allowance's machine. There's no handler yet.</li>
 <li><code>architect add read allowance.get</code> writes <code>verbs/get.ts</code>. A read never gets a handler.</li>
-<li><code>architect add kit wallets chain</code> writes <code>kits/wallets.ts</code> and <code>kits/chain.ts</code>, one file of your choices each, and gives the CLI its wallet commands. The kits themselves arrive finished; generate folds their declarations into your model, so their operations get endpoints, docs and evals like yours.</li>
-<li><code>architect add dependency &lt;package&gt; --export &lt;call&gt; --as &lt;alias&gt; --step &lt;kind&gt; --error &lt;file&gt;#&lt;class&gt;</code> writes <code>blueprint/dependencies/&lt;alias&gt;.ts</code>. Package, callable and declared errors are selected before writing; the failure mapping is the only blank. Promise mode is the default; <code>--mode effect</code> preserves an Effect callable.</li>
+<li><code>architect add kit wallets</code> and <code>architect add kit chain</code> write <code>blueprint/kits/wallets.ts</code> and <code>blueprint/kits/chain.ts</code>, one file of your choices each, and gives the CLI its wallet commands. The kits themselves arrive finished; generate folds their declarations into your model, so their operations get endpoints, docs and evals like yours.</li>
+<li><code>architect add dependency &lt;package&gt; --export &lt;call&gt; --as &lt;alias&gt; --step &lt;kind&gt; --error &lt;file&gt;#&lt;class&gt;</code> writes pure <code>blueprint/dependencies/&lt;alias&gt;.ts</code> and runtime <code>src/dependencies/&lt;alias&gt;.ts</code>. Only the runtime imports the callable and holds the single failure-mapping blank. Package, callable and declared errors are selected before either file is written. Promise mode is the default; <code>--mode effect</code> preserves an Effect callable.</li>
 <li><code>architect add journey monthly-reset</code> writes <code>journeys/monthly-reset.ts</code>, which fails until the operations work.</li>
 <li><code>architect add environment staging</code> writes <code>environments/staging.ts</code> and its infrastructure stack.</li>
 </ul>
@@ -3491,24 +3488,27 @@ state  active` } ],
   checked: ["Steps: a span for every declared step whose path ran","Waits: each finished within its declared time","Explainability: the share of the call's time inside declared steps","Performance: p50 and p95 against the budget, waits excluded where declared"] },
 
 { id: "dependency", name: "Dependency", file: "blueprint/dependencies/<alias>.ts", cmd: "architect add dependency <package> --export <call> --as <alias> --step <kind> --error <file>#<class>",
-  rule: "A library you call and don't govern. Its callable owns argument and answer types. You select an installed exact package, export, step kind and existing error classes; Architect scaffolds exactly one blank, the failure mapping. Promise mode is the default; explicit Effect mode preserves typed failures, defects and interruption. The generated service adds spans and counted work. D4 is decided; L3.01 implementation and authored runtime checks are still required.",
-  scaffold: { p: "blueprint/dependencies/pricing.ts", c:
-`// Scaffolded from @fixture/remote. Yours from now on.
+  rule: "A library you call and don't govern. Its callable owns argument and answer types. You select an installed exact package, export, step kind and existing error classes; Architect writes a pure declaration and a separate runtime wrapper with exactly one blank, the failure mapping. Only the wrapper imports the SDK. Promise mode is the default; explicit Effect mode preserves typed failures, defects and interruption. The generated service adds spans and counted work. D4 is decided; L3.01 implementation and authored runtime checks are still required.",
+  scaffold: { p: "src/dependencies/pricing.ts", c:
+`// Scaffolded from blueprint/dependencies/pricing.ts. Yours from now on.
 import { Blueprint } from "@architect/blueprint"
+import { Dependencies } from "@architect/target-effect/runtime"
+import { quote as declaration } from "../../blueprint/dependencies/pricing.ts"
+import { PriceUnavailable } from "../../blueprint/things/allowance/errors.ts"
 import { quote as call } from "@fixture/remote"
-import { PriceUnavailable } from "../things/allowance/errors.ts"
 
-export const quote = Blueprint.dependency({
-  package: "@fixture/remote",
-  version: "1.0.0",                  // The actual resolved exact pin.
-  mode: "promise",
+export const quote = Dependencies.implementation(declaration, {
   call,
-  errors: [PriceUnavailable],
-  step: "network",
   failure: Blueprint.todo("map the dependency failure to PriceUnavailable"),
 })` },
   filled: { p: "blueprint/dependencies/pricing.ts", c:
-`// The only blank becomes a typed mapping to a selected declared error.
+`// The pure declaration imports Blueprint and declared errors, no SDK:
+export const quote = Blueprint.dependency({
+  package: "@fixture/remote", version: "1.0.0", mode: "promise",
+  errors: [PriceUnavailable], step: "network",
+})
+
+// The runtime wrapper's only blank becomes a typed error mapping.
 failure: (_failure) => new PriceUnavailable({ reason: "pricing unavailable" })
 
 // A consuming operation declares the dependency by reference.
@@ -3520,12 +3520,13 @@ uses: [quote]
   generated: [
     { p: "acme/generated/dependencies/pricing.ts", c:
 `// Generated from blueprint/dependencies/pricing.ts. Do not edit.
+import { quote as implemented } from "../../src/dependencies/pricing.ts"
 export class Pricing extends Context.Service<Pricing, {
-  readonly quote: Wrapped<typeof declared>
+  readonly quote: Wrapped<typeof implemented>
 }>()("dependency:pricing") {}
 
 export const layer = Layer.succeed(Pricing, {
-  quote: Dependencies.wrap(declared, { name: "dependency:pricing.quote" }),
+  quote: Dependencies.wrap(implemented, { name: "dependency:pricing.quote" }),
 })` } ],
   checked: ["Exactly one failure-mapping blank; argument and answer types come from the library", "Real Promise completion remains counted during cancellation; no manufactured quiet", "Effect typed failures map, while defects and interruption stay intact", "Dependency spans, graph edges and source integrity participate in impact and proof staleness"] },
 

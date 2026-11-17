@@ -18,17 +18,14 @@ export interface Signer {
 // the wallet user's account. WalletLinks instead verifies an exact session-bound
 // SIWE challenge, consumes it atomically in D1, and stores only a public link.` },
 { p: "architect/packages/std/src/modules/chain/internal/viem.ts", k: "framework", n: "The chain kit owns viem's explicit typed Effect boundary. A project uses that kit rather than importing viem. These are the D4/L3.04 adapter contracts, not a completed implementation.", c:
-`import { Blueprint } from "@architect/blueprint"
+`import { Dependencies } from "@architect/target-effect/runtime"
+import { write as declaration } from "../types.ts"
 import { writeEffect } from "./rpc.ts"
-import { ChainUnavailable, ChainRejected } from "../types.ts"
 
-export const write = Blueprint.dependency({
-  package: "viem",
-  version: "2.57.15",               // Published 3 November; eligible on 17 November.
-  mode: "effect",
+// The pure declaration records viem 2.57.15, Effect mode and declared errors.
+// This runtime file alone imports the actual adapter.
+export const write = Dependencies.implementation(declaration, {
   call: writeEffect,
-  errors: [ChainUnavailable, ChainRejected],
-  step: "chain",
   failure: (failure) => failure,
 })
 
