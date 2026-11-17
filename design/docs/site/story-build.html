@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>5. Build: compile, tasks, and filling the blanks · Forman design docs</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav aria-label="Pages"><a class="brand" href="index.html">Forman</a><p class="group">Start</p><ul><li><a href="index.html">Forman</a></li></ul><p class="group">The story</p><ul><li><a href="story.html">The story: one allowance, from an idea to production and back</a></li><li><a href="story-idea.html">1. The idea</a></li><li><a href="story-blueprint.html">2. The blueprint</a></li><li><a href="story-journeys.html">3. Journeys and blanks</a></li><li><a href="story-checks.html">4. Checks: making the journey executable</a></li><li><a href="story-build.html" aria-current="page">5. Build: compile, tasks, and filling the blanks</a></li><li><a href="story-prove.html">6. Prove: worlds, evidence, verdicts</a></li><li><a href="story-ship.html">7. Ship, watch, change</a></li></ul><p class="group">Reference</p><ul><li><a href="concepts.html">Concepts: every word, one meaning</a></li><li><a href="plugins.html">Plugins</a></li><li><a href="packages.html">Packages</a></li><li><a href="status.html">Where it stands</a></li></ul></nav>
+<main>
+<h1 id="5-build-compile-tasks-and-filling-the-blanks">5. Build: compile, tasks, and filling the blanks</h1>
+<p>Part of <a href="story.html">the story</a>. Deeper: <a href="../../frame/projections.md"><code>projections.md</code></a>, <a href="../../frame/builder.md"><code>builder.md</code></a>, <a href="../../frame/generators.md"><code>generators.md</code></a> and <a href="../../frame/story.md"><code>frame/story.md</code></a>, sections 5 and 6.</p>
+<h2 id="compile">Compile</h2>
+<p><code>forman check</code> compiles the blueprint into the <strong>model</strong>: one JSON, every declaration with its hash, every name written once. Then each mounted projection renders from it.</p>
+<pre><code class="lang-text">$ forman check
+model 53d0…28de   things 8   operations 17   journeys 11   blanks 2
+blanks  allowance: &quot;what happens at the month's end&quot;   journey &quot;month rolls over&quot;: 2 steps unwritten
+types ok  rules ok  drift ok</code></pre>
+<p>What one operation becomes, with nothing written by hand:</p>
+<div class="table"><table><thead><tr><th>Projection</th><th>What <code>allowance.spend</code> turns into</th></tr></thead><tbody><tr><td>server</td><td>a route on the one Worker: decode, check <code>grantee</code>, check the state, call the handler, record the move and event, trace it</td></tr><tr><td>sdk</td><td><code>client.allowance.spend({ allowance, amount, memo })</code>, typed, its errors a union you can match</td></tr><tr><td>cli</td><td><code>acme allowance spend --allowance alw_… --amount 120 --memo coffee</code>, exit code 41 on <code>AllowanceExceeded</code></td></tr><tr><td>mcp</td><td>a tool <code>allowance_spend</code>, with the payload's schema and the description as its help</td></tr><tr><td>docs</td><td>a page: who may call it, its states, its errors with codes, its budget</td></tr><tr><td>builder</td><td><code>bp.operations[&quot;allowance.spend&quot;]</code> in <code>generated/builder/bp.d.ts</code>, so an agent can call it typed</td></tr></tbody></table></div>
+<p>And the <strong>handler frame</strong>: a generated type that says what the handler is given and what it may return, plus a scaffold, written once into <code>src/</code>, that is yours from then on. The handler body is the only blank that is code. That is &quot;behaviour is the only freehand&quot;.</p>
+<blockquote><p><strong>Today.</strong> All of these projections exist except the builder's <code>bp.d.ts</code>. They are fixed renderers, not mounted plugins. <strong>Proposed.</strong> Projections as mounts (M1), so the list of what an app becomes is <code>ls blueprint/projections</code>. See <a href="plugins.html">plugins</a>.</p></blockquote>
+<h2 id="the-factory">The factory</h2>
+<p>Nobody writes a to-do list. <strong>Tasks are worked out</strong> from the model and the facts, never stored.</p>
+<pre><code class="lang-text">$ forman tasks --of allowance
+specify  allowance                    1 blank: &quot;what happens at the month's end&quot;
+build    allowance.spend              handler is still the scaffold
+prove    allowance.spend              0 of 9 evals in test</code></pre>
+<p>A <strong>manager agent</strong> turns each task into a bounded brief and starts one <strong>builder</strong> run per brief. A builder's whole world is its brief:</p>
+<pre><code class="lang-text">brief  build allowance.spend
+  you may edit    src/allowance/spend.ts            (one file; anything else is tampering)
+  declaration     blueprint/things/allowance/verbs/spend.ts
+  frame           generated/api/src/allowance/spend.handler.ts
+  evals           answer shape, declared errors, machine path, events, who may call, steps, budget, coverage, explainability
+  tools           bp (code mode), check, prove --only allowance.spend, telemetry by name
+  not given       the journeys: you are judged by them, you don't see them</code></pre>
+<p>The builder loops on its own: write, <code>check</code>, <code>prove</code>, read the trace by name, fix. Then a <strong>trusted scorer</strong>, outside the builder's sandbox, decides. It checks that nothing but the one file changed, puts the journeys back, runs <code>check</code> and <code>prove</code>, and marks the task <code>solved</code> only if every eval for the operation passes. Eight of nine is a broken handler.</p>
+<p><strong>Verdicts are the facts.</strong> Only CI writes them, signed. The task board moves because a verdict appeared, never because an agent said &quot;done&quot;.</p>
+<p><strong>Ratchets</strong> keep it climbing. Once <code>allowance.spend</code> is green in test, it stays green: a change that turns it red is refused. A blank that only a person can answer becomes a <strong>question</strong> to you. A step that needs money, a credential or production becomes an <strong>attention</strong>, and waits on your yes.</p>
+<p>The factory comes before agents. It is a feature, <code>@formants/work</code>, with a choice of workers: <code>people</code> (a person, or an outside agent such as Claude Code, claims a task through the factory's CLI or MCP) and <code>agents</code> (the manager starts an agents run on the task's brief). See <a href="../../frame/examples/factory.md"><code>examples/factory.md</code></a> and <a href="../../frame/examples/agents.md"><code>examples/agents.md</code></a>.</p>
+<blockquote><p><strong>Today.</strong> The work app is declared and compiles (6 things, 26 operations). The scorer, the record and the runners are designed, not built. The builder has only the CLI. <strong>Proposed.</strong> The factory in M3 (people as workers), agents in M4, the builder's code mode and telemetry tools in M4, and ratchets as a standing rule. See <a href="status.html">where it stands</a>.</p></blockquote>
+<p>Next: <a href="story-prove.html">6. Prove</a>.</p>
+<footer><div class="pager"><a href="story-checks.html">Back: 4. Checks: making the journey executable</a><a href="story-prove.html">Next: 6. Prove: worlds, evidence, verdicts</a></div>
+<p>Generated from <code>design/docs/pages/story-build.md</code> by <code>design/docs/build.mjs</code>. Do not edit.</p></footer>
+</main>
+</body>
+</html>
