@@ -1,0 +1,15 @@
+{
+  "step": "World-isolation",
+  "stage": "Stage 3 · shipping on local worlds (Gate 2)",
+  "title": "Atomic world admission and guarded teardown",
+  "summary": "D1 admits a single live world and captures its rowid marks in the same guarded insertion. Teardown deletes only while that lease remains live, in one transaction. An additive unique index refuses overlapping legacy state without deleting data.",
+  "proves": "Eight concurrent world creations produce exactly one 201 and seven 409 responses naming the same owner. Cleanup preserves pre-world rows, overlapping endings count once, stale teardown leaves the next world intact, admission/ending handovers remove the correct rows, used ids are refused, and an overlapping legacy registry remains unchanged when its additive index upgrade fails. The existing expiry/restart/reap integration tests and lint/typecheck/sync checks pass.",
+  "captions": {
+    "01-fails-first": "The real-workerd baseline admits all eight concurrent worlds; the new assertion fails.",
+    "02-world-tests": "The first guarded admission/teardown implementation passes the five core tests.",
+    "05-lifecycle-pass": "Seven real-workerd tests pass with the admission snapshot inside the INSERT and non-destructive upgrade checks.",
+    "06-host-suite": "Every host-cloudflare module test in real workerd.",
+    "07-test-worlds": "Existing L2.02 prove, failed verdict, expiry, restart and reap integration checks.",
+    "08-workspace-checks": "Nx reset, generation, lint, typecheck and drift checks."
+  }
+}
