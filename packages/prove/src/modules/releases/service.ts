@@ -4,6 +4,7 @@ import { Effect, Redacted } from "effect";
 import { Compare, canonical } from "@architect/compiler";
 import { Environments } from "#modules/environments/service.js";
 import { Verdicts } from "#modules/verdicts/service.js";
+import type { TokenSource } from "#modules/verdicts/types.js";
 import { ReleaseFailed, type Env as ReleaseEnv, type ReleasesApi, type Shipping } from "./types.ts";
 import { call, ok } from "./internal/http.ts";
 import { modelAt, staleness } from "./internal/stale.ts";
@@ -39,6 +40,10 @@ const writeToken = (env: ReleaseEnv) =>
     Effect.mapError((e) => new ReleaseFailed({ message: e.message })),
   );
 
+/** A token from a source already chosen (a prove's own), minted for this write. */
+const tokenFrom = (source: TokenSource) =>
+  Verdicts.mint(source).pipe(Effect.map(Redacted.value), Effect.mapError((e) => new ReleaseFailed({ message: e.message })));
+
 export const Releases: ReleasesApi = {
   locate: ({ root, env }) => {
     const given = env["ARCHITECT_LOGBOOK_URL"];
@@ -51,9 +56,10 @@ export const Releases: ReleasesApi = {
   last: (logbook) => lastRelease(logbook),
   shipping,
   next: (logbook, model) => Effect.map(shipping(logbook, model), (s) => s.version),
-  keep: ({ logbook, env, model, revision }) =>
+  keep: ({ logbook, env, source, model, revision }) =>
     Effect.gen(function* () {
-      const put = yield* call("PUT", `${logbook}/models/${encodeURIComponent(revision)}`, { token: yield* writeToken(env), body: canonical(model) });
+      const token = yield* (source === undefined ? writeToken(env ?? {}) : tokenFrom(source));
+      const put = yield* call("PUT", `${logbook}/models/${encodeURIComponent(revision)}`, { token, body: canonical(model) });
       yield* ok(`the model of ${revision}`, put);
     }),
   record: ({ logbook, env, model, revision, version }) =>

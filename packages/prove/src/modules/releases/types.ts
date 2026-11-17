@@ -1,6 +1,7 @@
 // Releases against the logbook: what the next version is, what is stale where, and recording a release (D3 #1, #31).
 import { Data, type Effect } from "effect";
 import type { Bump, Model, Versioned } from "@architect/compiler";
+import type { TokenSource } from "#modules/verdicts/types.js";
 
 export class ReleaseFailed extends Data.TaggedError("ReleaseFailed")<{ readonly message: string }> {}
 
@@ -47,7 +48,14 @@ export interface ReleasesApi {
    * again is fine). Staleness judges a verdict against the model of the revision it proved, so whoever posts a shipped
    * environment's verdicts keeps the model first (`promote --to staging` does).
    */
-  readonly keep: (options: { readonly logbook: string; readonly env: Env; readonly model: Model; readonly revision: string }) => Effect.Effect<void, ReleaseFailed>;
+  readonly keep: (options: {
+    readonly logbook: string;
+    /** Who signs the write: the process environment's token source (`Verdicts.sourceOf`), or one already chosen. One of the two. */
+    readonly env?: Env;
+    readonly source?: TokenSource;
+    readonly model: Model;
+    readonly revision: string;
+  }) => Effect.Effect<void, ReleaseFailed>;
   /**
    * Record a release: the model is kept, then `POST /releases { version, revision }`. Both are writes, so they carry a
    * verified OIDC token from `Verdicts.sourceOf`, the one token source verdicts use too (`ARCHITECT_LOGBOOK_TOKEN`, else the

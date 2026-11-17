@@ -40,6 +40,16 @@ lint and typecheck, and pushes.
 - A Collector whose run was killed stays up and holds its port; L2.O removes such orphans at the next start. Until it
   lands: `docker ps` for `architect-collector-<pid>-…` whose pid is gone, and remove those only.
 - A stale Nx daemon writes generated files from the old generator: `pnpm nx reset` first.
+- Two things in the author's check 08 that are the check's, not the build's (found by running its portal steps in the real flow, `evidence/L2.10/03-author-checks.txt`):
+  it calls `promote --to staging` straight after `build` for the slow-spend revision, which L2.05's gate refuses (no `test` verdicts for that revision), so it
+  needs `prove --env test` between; and its second `portal(url)` is a `fetch` on a pooled socket to a staging that `promote` has since restarted, with the event
+  loop blocked by `spawnSync`, so it fails with `ECONNRESET` or `EPIPE` (a Worker cannot stop it: workerd drops a `Connection: close` response header; the cure is
+  `headers: { connection: "close" }` on that fetch). The author's call; the builders never edit `e2e/`.
+- A killed Gate 2 run leaves its registry: `architect-l2-registry-<pid>-<check>` holding `127.0.0.1:489<n>` (found on 4898, check 08's, with
+  a pid that was gone), which makes the next run of that check fail at `docker run`. Remove only the ones whose pid is gone. To run
+  a check beside another builder without Gate 2's teardown: a private vitest config without `globalSetup` under `.architect/`, and, when its
+  ports are taken, a copy of `e2e/layer1` and `e2e/layer2` under the gitignored `tmp/` (so `repo` still resolves), the check number changed
+  (`ports(n)` is `8900 + 10n`).
 - The CI key for Gate 1 check 4 is given only to pull requests into `main` and pushes to `main` (D3 #71, $10 a day).
 
 **Aaron's credentials, for the cloud pass and O1** (never print, never write to a file): the Axiom tokens are in his

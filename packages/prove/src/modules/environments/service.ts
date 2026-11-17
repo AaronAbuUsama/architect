@@ -8,7 +8,7 @@ import { Sinks } from "#modules/sinks/service.js";
 import { Worlds } from "#modules/world/service.js";
 import type { EnvironmentsApi, Up } from "./types.ts";
 import { collectorName, telemetryDir } from "./internal/collector.ts";
-import { environmentConfig } from "./internal/config.ts";
+import { environmentConfig, logbookOf } from "./internal/config.ts";
 import { startLogbook } from "./internal/logbook.ts";
 import { choosePort, files, reap, writePort } from "./internal/process.ts";
 import { NAME, dirOf, failed, io, status } from "./internal/status.ts";
@@ -29,7 +29,7 @@ const declared = (root: string, name: string) =>
     return { environment, model, strip: privateKeys(model) };
   });
 
-const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision, policy, env }) =>
+const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision, policy, env, logbook: givenLogbook }) =>
   Effect.gen(function* () {
     const root = resolve(given);
     const dir = dirOf(root, name);
@@ -48,7 +48,11 @@ const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision, policy, 
     const f = files(dir);
     yield* io(`${dir}`, () => mkdirSync(f.state, { recursive: true }));
     const now = yield* status(root, name);
-    if (now.state === "up" && (revision === undefined || revision === now.revision) && (!records || now.telemetry !== undefined)) return now;
+    // The portal route reads the logbook: the one asked for, else the one running here (D3 #131).
+    const book = yield* status(root, "logbook");
+    const logbook = givenLogbook ?? (book.state === "up" ? book.url : undefined);
+    const held = existsSync(f.config) ? logbookOf(readFileSync(f.config, "utf8")) : undefined;
+    if (now.state === "up" && (revision === undefined || revision === now.revision) && (!records || now.telemetry !== undefined) && held === logbook) return now;
     // Not running, or running another bundle: whatever is left of it goes first. The state stays.
     yield* reap(dir);
 
@@ -67,7 +71,7 @@ const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision, policy, 
     yield* io(`${dir}`, () => {
       ensureSecrets(f.secrets, Object.keys(environment.secrets));
       writeFileSync(f.config, environmentConfig(root, readFileSync(base, "utf8"), {
-        name, revision: built.revision, sha256: built.sha256, main: built.main, ...(otlp ? { otlp } : {}), ...(hosts ? { worlds: true } : {}),
+        name, revision: built.revision, sha256: built.sha256, main: built.main, ...(otlp ? { otlp } : {}), ...(hosts ? { worlds: true } : {}), ...(logbook ? { logbook } : {}),
       }));
       writeFileSync(f.bundle, JSON.stringify({ revision: built.revision, sha256: built.sha256 }) + "\n");
       writePort(dir, chosen);

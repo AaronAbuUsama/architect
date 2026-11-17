@@ -13,7 +13,7 @@ const DEV = {
 };
 
 export const packageJson = (existing: Record<string, unknown>, name: string, version: string) => {
-  const architect = Object.fromEntries(["blueprint", "host-cloudflare", "target-effect"].map((p) => [`@architect/${p}`, version]));
+  const architect = Object.fromEntries(["blueprint", "host-cloudflare", "portal", "target-effect"].map((p) => [`@architect/${p}`, version]));
   return {
     ...existing,
     type: "module",

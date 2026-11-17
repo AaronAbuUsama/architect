@@ -8,6 +8,7 @@ import type { Principal } from "@architect/blueprint";
 import { AuthD1, Database, JournalD1, StoreD1, Telemetry, toWorld } from "@architect/host-cloudflare";
 import { Auth, Busy, BusyLive, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@architect/target-effect";
 import { Api, Errors } from "../api/src/index.ts";
+import * as portal from "../portal/main.ts";
 import * as allowanceGet from "../api/src/allowance/get.ts";
 import * as allowanceGrant from "../api/src/allowance/grant.ts";
 import * as allowanceRevoke from "../api/src/allowance/revoke.ts";
@@ -146,6 +147,8 @@ export interface Env {
   /** Which build this environment runs, set by `architect env up`; unset for a world made by `architect dev` or prove. */
   readonly ARCHITECT_REVISION?: string;
   readonly ARCHITECT_BUNDLE_SHA256?: string;
+  /** The portal's: where the logbook is, which environment this is. Read by `portal.serve`; neither is sent to a browser. */
+  readonly ARCHITECT_LOGBOOK_URL?: string;
   /** `1` in an environment that hosts worlds with lifetimes (a test environment), set by `architect env up`. */
   readonly ARCHITECT_WORLDS?: string;
 }
@@ -178,6 +181,7 @@ export default {
         ? Promise.resolve(Response.json({ revision: env.ARCHITECT_REVISION, sha256: env.ARCHITECT_BUNDLE_SHA256 }))
         : Promise.resolve(Response.json({ _tag: "NotAnEnvironment" }, { status: 404 }));
     }
+    if (portal.owns(new URL(request.url).pathname)) return portal.serve(request, env);
     if (new URL(request.url).pathname.startsWith("/api/auth/")) return Effect.runPromise(AuthD1.handle(routesOf(env), request));
     const app = (built ??= build(env));
     Telemetry.configure({ sinks: env.OTLP_SINKS, environment: env.ARCHITECT_ENVIRONMENT });

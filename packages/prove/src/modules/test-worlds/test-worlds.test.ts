@@ -117,6 +117,10 @@ describe("prove --env test", () => {
     expect(held.map((v) => v.operation).sort()).toEqual([...operations].sort());
     expect(held.every((v) => v.verdict === "pass" && v.environment === "test" && v.ref === trusted.ref)).toBe(true);
     for (const op of operations) expect(said[verdicts]).toContain(`${op} ✔`);
+    // The logbook keeps the revision's model with its verdicts, so the portal and `impact` can judge them against it (D3 #138).
+    const kept = await fetch(`${logbook}/models/${project.revision}`);
+    expect(kept.status).toBe(200);
+    expect(Object.keys(((await kept.json()) as { operations: object }).operations).sort()).toEqual([...operations].sort());
 
     // The world is gone: nothing counts it, and the rows its journeys made are gone with it.
     expect(await run(TestWorlds.live(testUrl))).toBe(0);

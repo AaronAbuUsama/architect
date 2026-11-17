@@ -276,7 +276,7 @@ const environment = (verb: "up" | "down" | "status") =>
       const policy = issuer && repository && refs.length > 0 && workflows.length > 0 ? { policy: { issuer, repository, refs, workflows } } : {};
       const said =
         verb === "up"
-          ? Environments.up({ ...name, ...policy, ...(Option.isSome(port) ? { port: port.value } : {}), ...(Option.isSome(revision) ? { revision: revision.value } : {}) }).pipe(Effect.map((s) => [`${env} up ${s.url}`]))
+          ? Environments.up({ ...name, ...policy, ...(process.env["ARCHITECT_LOGBOOK_URL"] ? { logbook: process.env["ARCHITECT_LOGBOOK_URL"] } : {}), ...(Option.isSome(port) ? { port: port.value } : {}), ...(Option.isSome(revision) ? { revision: revision.value } : {}) }).pipe(Effect.map((s) => [`${env} up ${s.url}`]))
           : verb === "down"
             ? Environments.down(name).pipe(Effect.map(() => [`${env} down`]))
             : Environments.status(name).pipe(

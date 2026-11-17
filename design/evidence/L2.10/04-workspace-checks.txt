@@ -1,0 +1,304 @@
+=============== nx run-many -t lint typecheck (16 projects) and nx sync:check: passed on the final tree
+=============== nx run-many -t test --parallel=2 on the tree before 'prove --env test keeps the model' (D3 #138); the tests it touches were run again: releases (7), test-worlds, the portal tests
+
+ NX   Running target test for 15 projects:
+
+- host-cloudflare
+- target-solidity
+- target-effect
+- generators
+- blueprint
+- compiler
+- logbook
+- starter
+- portal
+- preset
+- prove
+- acme
+- lint
+- cli
+- std
+
+
+
+> nx run blueprint:test
+
+> vitest run --root packages/blueprint --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-a835556981c7bf3f4/packages/blueprint
+
+
+ Test Files  16 passed (16)
+      Tests  34 passed (34)
+   Start at  00:25:11
+   Duration  1.14s (transform 1.27s, setup 0ms, import 5.20s, tests 81ms, environment 1ms)
+
+
+> nx run logbook:test
+
+> vitest run --root packages/logbook --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-a835556981c7bf3f4/packages/logbook
+
+
+ Test Files  4 passed (4)
+      Tests  22 passed (22)
+   Start at  00:25:11
+   Duration  8.16s (transform 300ms, setup 0ms, import 1.75s, tests 7.70s, environment 0ms)
+
+
+> nx run target-effect:test
+
+> vitest run --root packages/target-effect --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-a835556981c7bf3f4/packages/target-effect
+
+
+ Test Files  13 passed (13)
+      Tests  40 passed (40)
+   Start at  00:25:19
+   Duration  1.76s (transform 1.39s, setup 0ms, import 6.61s, tests 266ms, environment 1ms)
+
+
+> nx run portal:test
+
+> vitest run --root packages/portal --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-a835556981c7bf3f4/packages/portal
+
+
+ Test Files  4 passed (4)
+      Tests  48 passed (48)
+   Start at  00:25:12
+   Duration  9.84s (transform 227ms, setup 0ms, import 1.09s, tests 9.55s, environment 0ms)
+
+
+> nx run generators:test
+
+> vitest run --root packages/generators --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-a835556981c7bf3f4/packages/generators
+
+
+ Test Files  4 passed (4)
+      Tests  20 passed (20)
+   Start at  00:25:22
+   Duration  2.76s (transform 1.62s, setup 0ms, import 4.32s, tests 4.19s, environment 0ms)
+
+
+> nx run compiler:test
+
+> vitest run --root packages/compiler --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-a835556981c7bf3f4/packages/compiler
+
+
+ Test Files  3 passed (3)
+      Tests  23 passed (23)
+   Start at  00:25:21
+   Duration  4.93s (transform 3.66s, setup 0ms, import 1.63s, tests 4.41s, environment 0ms)
+
+
+> nx run host-cloudflare:test
+
+> vitest run --root packages/host-cloudflare --passWithNoTests
+
+[1m[33m
+=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+[39m[22m
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-a835556981c7bf3f4/packages/host-cloudflare
+
+
+ Test Files  7 passed (7)
+      Tests  12 passed (12)
+   Start at  00:25:26
+   Duration  33.22s (transform 72.26s, setup 176.43s, import 3.27s, tests 4.27s, environment 0ms)
+
+
+> nx run lint:test
+
+> vitest run --root packages/lint --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-a835556981c7bf3f4/packages/lint
+
+
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
+   Start at  00:26:00
+   Duration  6.58s (transform 29ms, setup 0ms, import 47ms, tests 7.26s, environment 0ms)
+
+
+> nx run target-solidity:test
+
+> vitest run --root packages/target-solidity --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-a835556981c7bf3f4/packages/target-solidity
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+> nx run starter:test
+
+> vitest run --root examples/starter --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-a835556981c7bf3f4/examples/starter
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+> nx run preset:test
+
+> vitest run --root packages/preset --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-a835556981c7bf3f4/packages/preset
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  00:26:08
+   Duration  2.31s (transform 818ms, setup 0ms, import 2.14s, tests 7ms, environment 0ms)
+
+
+> nx run acme:test
+
+> vitest run --root examples/acme --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-a835556981c7bf3f4/examples/acme
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+> nx run cli:test
+
+> vitest run --root packages/cli --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-a835556981c7bf3f4/packages/cli
+
+
+ Test Files  6 passed (6)
+      Tests  22 passed (22)
+   Start at  00:26:12
+   Duration  57.34s (transform 35.73s, setup 0ms, import 14.56s, tests 154.97s, environment 1ms)
+
+
+> nx run std:test
+
+> vitest run --root packages/std --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-a835556981c7bf3f4/packages/std
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+> nx run prove:test
+
+> vitest run --root packages/prove --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-a835556981c7bf3f4/packages/prove
+
+
+ Test Files  18 passed (18)
+      Tests  72 passed (72)
+   Start at  00:25:26
+   Duration  348.17s (transform 8.18s, setup 0ms, import 10.23s, tests 658.04s, environment 1ms)
+
+
+
+
+ NX   Successfully ran target test for 15 projects
+
+
+  Run duration:      6m 5s
+  Cache:             0/15 hit (0%)
+  Critical path:     5m 49s (1 task)
+  Recoverable time:  15.9s (4% of the run)
+
+  Recommendations:
+    - Drastically reduce your run duration by sharing a cache across your team and CI → https://cloud.nx.app/connect/hM8kJLxZmo.
+    - Speed up or split the longest tasks on the critical path:
+        prove:test    5m 49s
+
+=============== architect prove --env local, acme
+session.show coverage ✔
+session.show explainability ✔
+session.show 9 evals ✔ p50 0ms p95 0ms budget p95 100ms
+session.sign-in answer shape ✔
+session.sign-in declared errors ✔
+session.sign-in machine path ✔
+session.sign-in events ✔
+session.sign-in who may call ✔
+session.sign-in steps ✔
+session.sign-in performance ✔ p50 351ms p95 412ms budget p95 400ms
+session.sign-in coverage ✔
+session.sign-in explainability ✔
+session.sign-in 9 evals ✔ p50 351ms p95 412ms budget p95 400ms
+system.health answer shape ✔
+system.health declared errors ✔
+system.health machine path ✔
+system.health events ✔
+system.health who may call ✔
+system.health steps ✔
+system.health performance ✔ p50 0ms p95 0ms budget p95 50ms
+system.health coverage ✔
+system.health explainability ✔
+system.health 9 evals ✔ p50 0ms p95 0ms budget p95 50ms
+coverage ✔ moves 7/7 · outcomes 7/7 · refusals 4/4 · runtime refusals 13/16
+prove ✔
+
+=============== architect prove --env local, the starter
+session.show coverage ✔
+session.show explainability ✔
+session.show 9 evals ✔ p50 1ms p95 1ms budget p95 100ms
+session.sign-in answer shape ✔
+session.sign-in declared errors ✔
+session.sign-in machine path ✔
+session.sign-in events ✔
+session.sign-in who may call ✔
+session.sign-in steps ✔
+session.sign-in performance ✔ p50 66ms p95 85ms budget p95 400ms
+session.sign-in coverage ✔
+session.sign-in explainability ✔
+session.sign-in 9 evals ✔ p50 66ms p95 85ms budget p95 400ms
+system.health answer shape ✔
+system.health declared errors ✔
+system.health machine path ✔
+system.health events ✔
+system.health who may call ✔
+system.health steps ✔
+system.health performance ✔ p50 0ms p95 0ms budget p95 50ms
+system.health coverage ✔
+system.health explainability ✔
+system.health 9 evals ✔ p50 0ms p95 0ms budget p95 50ms
+coverage ✔ moves 4/4 · outcomes 4/4 · refusals 2/2 · runtime refusals 9/10
+prove ✔
