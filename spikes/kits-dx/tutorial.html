@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Building on Architect</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600&display=swap">
+<style>
+/* Layout: the Architect Docs look (design/docs/index.html): sticky header, a step nav, one article read top to bottom. */
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --panel: #eef1f5; --fg: #19202c; --muted: #5b6577; --line: #dbe0e8;
+  --accent: #2d5bd0; --accent-soft: #e5ecfb; --code-bg: #f3f5f9; --comment: #7a8496;
+  --today: #1d7a52; --today-soft: #dff1e8; --proposed: #8a5a00; --proposed-soft: #f7ecd8; --mixed: #7a3fb8; --mixed-soft: #efe5f8;
+  --term-bg: #1b2230; --term-fg: #e4e8ef; --term-dim: #8590a3; --term-ok: #5ccb98; --term-bad: #ff8a80; --term-prompt: #8fb0ff;
+  --display: "Space Grotesk", "IBM Plex Sans", system-ui, sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #10141b; --surface: #161b24; --panel: #1b212c; --fg: #e4e8ef; --muted: #98a2b4; --line: #283040;
+  --accent: #7fa3ff; --accent-soft: #1c2640; --code-bg: #131821; --comment: #7f8aa0;
+  --today: #5ccb98; --today-soft: #12301f; --proposed: #e3ac4f; --proposed-soft: #33280f; --mixed: #c39cf0; --mixed-soft: #2a1d3b;
+  --term-bg: #0b0e13; --term-fg: #e4e8ef; --term-dim: #7f8aa0; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #10141b; --surface: #161b24; --panel: #1b212c; --fg: #e4e8ef; --muted: #98a2b4; --line: #283040;
+  --accent: #7fa3ff; --accent-soft: #1c2640; --code-bg: #131821; --comment: #7f8aa0;
+  --today: #5ccb98; --today-soft: #12301f; --proposed: #e3ac4f; --proposed-soft: #33280f; --mixed: #c39cf0; --mixed-soft: #2a1d3b;
+  --term-bg: #0b0e13; --term-fg: #e4e8ef; --term-dim: #7f8aa0; color-scheme: dark }
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.6; }
+header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; gap: 12px 18px; flex-wrap: wrap; padding-block: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+.brand { font-family: var(--display); font-weight: 600; font-size: 18px; }
+.brand small { font-family: var(--mono); font-size: 11px; color: var(--muted); font-weight: 400; margin-left: 8px; }
+.legend { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+.badge { font: 500 11px var(--mono); letter-spacing: .03em; padding: 1px 7px; border-radius: 4px; white-space: nowrap; display: inline-block; }
+.b-today { background: var(--today-soft); color: var(--today); }
+.b-proposed { background: var(--proposed-soft); color: var(--proposed); }
+.b-mixed { background: var(--mixed-soft); color: var(--mixed); }
+main { display: grid; grid-template-columns: 250px minmax(0, 1fr); }
+nav { background: var(--surface); border-right: 1px solid var(--line); padding: 18px 10px 40px; position: sticky; top: 56px; align-self: start;
+  max-height: calc(100vh - 56px); overflow: auto; }
+nav h4 { font: 600 11px var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 16px 8px 6px; }
+nav a { display: flex; align-items: baseline; gap: 8px; color: var(--fg); text-decoration: none; padding: 3px 8px; border-radius: 5px; font-size: 14px; }
+nav a:hover { background: var(--panel); }
+nav a .dot { width: 7px; height: 7px; border-radius: 50%; flex: none; transform: translateY(-1px); }
+.d-today { background: var(--today); } .d-proposed { background: var(--proposed); } .d-mixed { background: var(--mixed); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+article { padding-block: 30px 80px; padding-left: max(28px, env(safe-area-inset-left, 0px)); padding-right: max(28px, env(safe-area-inset-right, 0px)); min-width: 0; }
+article > * { max-width: 800px; }
+h1 { font: 600 30px/1.2 var(--display); margin: 0 0 10px; text-wrap: balance; }
+h2 { font: 600 13px var(--mono); text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin: 48px 0 4px; }
+h3 { font: 600 20px/1.3 var(--display); margin: 30px 0 6px; text-wrap: balance; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; scroll-margin-top: 70px; }
+h3 .n { font: 500 13px var(--mono); color: var(--muted); }
+p { margin: 8px 0; }
+.lede { font-size: 17px; color: var(--muted); max-width: 680px; }
+.note { border-left: 3px solid var(--line); padding: 2px 0 2px 14px; color: var(--muted); }
+code { font-family: var(--mono); font-size: .88em; background: var(--code-bg); padding: 1px 4px; border-radius: 3px; }
+pre { font: 13px/1.55 var(--mono); background: var(--code-bg); border: 1px solid var(--line); border-radius: 7px; padding: 12px 14px; overflow-x: auto; margin: 10px 0; }
+pre code { background: none; padding: 0; font-size: inherit; }
+pre .c { color: var(--comment); }
+pre.term { background: var(--term-bg); color: var(--term-fg); border-color: var(--term-bg); }
+pre.term .p { color: var(--term-prompt); } pre.term .c { color: var(--term-dim); } pre.term .ok { color: var(--term-ok); } pre.term .bad { color: var(--term-bad); }
+.file { font: 500 12px var(--mono); color: var(--muted); margin: 14px 0 -6px; }
+.table-wrap { overflow-x: auto; margin: 12px 0; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 600 11.5px var(--mono); text-transform: uppercase; letter-spacing: .05em; color: var(--muted); background: var(--panel); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.y { color: var(--today); font-weight: 600; } td.n { color: var(--muted); }
+.summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 18px 0; }
+.summary div { background: var(--surface); border: 1px solid var(--line); border-radius: 7px; padding: 12px 14px; min-width: 0; }
+.summary b { display: block; font-family: var(--display); font-size: 15px; margin-bottom: 2px; }
+.summary span { color: var(--muted); font-size: 14px; }
+footer { color: var(--muted); font-size: 13px; margin-top: 60px; border-top: 1px solid var(--line); padding-top: 14px; }
+@media (max-width: 820px) {
+  main { grid-template-columns: minmax(0, 1fr); }
+  nav { position: static; max-height: none; border-right: 0; border-bottom: 1px solid var(--line); columns: 2; column-gap: 8px; }
+  nav h4 { break-after: avoid; }
+  article { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .legend { margin-left: 0; }
+}
+@media (max-width: 460px) { nav { columns: 1; } h1 { font-size: 25px; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Building on Architect <small>the kits tutorial · 17 Nov 2026</small></div>
+  <div class="legend">
+    <span class="badge b-today">works today</span>
+    <span class="badge b-mixed">today, with proposed parts</span>
+    <span class="badge b-proposed">proposed</span>
+  </div>
+</header>
+<main>
+<nav aria-label="Steps">
+  <h4>A project</h4>
+  <a href="#s1"><span class="dot d-mixed"></span>1 Start a project</a>
+  <a href="#s2"><span class="dot d-mixed"></span>2 Add a thing</a>
+  <a href="#s3"><span class="dot d-mixed"></span>3 Add verbs as moves</a>
+  <a href="#s4"><span class="dot d-mixed"></span>4 Fill in, check ready</a>
+  <a href="#s5"><span class="dot d-today"></span>5 Generate</a>
+  <a href="#s6"><span class="dot d-mixed"></span>6 Journeys first</a>
+  <a href="#s7"><span class="dot d-today"></span>7 Build</a>
+  <a href="#s8"><span class="dot d-today"></span>8 Use it everywhere</a>
+  <a href="#s9"><span class="dot d-mixed"></span>9 Environments, ship</a>
+  <h4>Who may reach it</h4>
+  <a href="#s10"><span class="dot d-proposed"></span>10 Narrow by credential</a>
+  <a href="#s11"><span class="dot d-proposed"></span>11 What exists where</a>
+  <h4>Kits</h4>
+  <a href="#s12"><span class="dot d-proposed"></span>12 Add the wallets kit</a>
+  <a href="#s13"><span class="dot d-proposed"></span>13 Wallets on the device</a>
+  <a href="#s14"><span class="dot d-proposed"></span>14 Payments and email</a>
+  <a href="#s15"><span class="dot d-proposed"></span>15 Upgrade a kit</a>
+  <h4>Making a kit</h4>
+  <a href="#s16"><span class="dot d-proposed"></span>16 New kit, dependency, inbound</a>
+  <h4>Reference</h4>
+  <a href="#loop"><span class="dot d-proposed"></span>The design loop</a>
+  <a href="#targets"><span class="dot d-proposed"></span>What each target gets</a>
+</nav>
+<article>
+<h1>Building acme on Architect, start to finish</h1>
+<p class="lede">From an empty folder to a project with wallets, payments and email kits mounted. Each step says whether it works today on <code>layer/3</code> or is proposed by the K1 decision (<code>design/decisions/K1-kits.md</code>).</p>
+
+<div class="summary">
+  <div><b>Where code runs</b><span><code>runs</code> on the operation: server, or the client's own device.</span></div>
+  <div><b>Who may reach it</b><span><code>allowed</code>, narrowed by credential kind: session, key, device, agent. Enforced on every route.</span></div>
+  <div><b>What exists</b><span>The environment: which credential kinds it issues, what it deploys and publishes.</span></div>
+  <div><b>A kit</b><span>A package laid out like a project, mounted by one file in <code>blueprint/kits/</code>.</span></div>
+</div>
+
+<h2>A project</h2>
+
+<h3 id="s1"><span class="n">1</span>Start a project <span class="badge b-mixed">today · pnpm create proposed</span></h3>
+<p>No questions asked. It writes the starter, a project that already proves, so minute one is green. Today the same starter comes from the Nx preset: <code>npx create-nx-workspace acme --preset=@architect/preset</code>. The proposed <code>pnpm create architect</code> runs that same preset, so there is one template.</p>
+<pre class="term"><span class="p">$</span> pnpm create architect acme
+<span class="c">  wrote the starter · pnpm install · architect generate · architect prove --env local</span>
+acme: <span class="ok">5 journeys ✔</span>  local
+next: architect add thing &lt;name&gt;      (or ask your agent: it reads AGENTS.md)</pre>
+<pre><code>acme/
+  package.json  tsconfig.json  .gitignore
+  architect.config.ts                 name and outputs
+  AGENTS.md  CLAUDE.md                rules for agents                                   (new)
+  .agents/skills/                     wayfinder · spike · designer · author · builder · reviewer   (new)
+  blueprint/kits/auth.ts              sign-in, as a kit                                  (new, after the auth kit)
+  blueprint/things/                   system, organization, membership, invitation, api-key
+  blueprint/environments/             local, test, staging, production
+  blueprint/starting-worlds/          founded, invited
+  blueprint/journeys/                 health is up, sign up and sign in, invite and accept, and two more
+  src/                                the starter's handlers
+  generated/                          written by the first generate</code></pre>
+<p class="note">Flags: <code>--no-install</code>, <code>--no-git</code>. Journeys move into <code>blueprint/journeys/</code>, where prove and <code>add journey</code> already look.</p>
+
+<h3 id="s2"><span class="n">2</span>Add a thing <span class="badge b-mixed">today · flags proposed</span></h3>
+<pre class="term"><span class="p">$</span> architect add thing allowance \
+    --fields organization:organization,member:person,limit:Amount,spent:Amount \
+    --states active,exhausted,revoked --role grantee</pre>
+<p>Today <code>architect add thing allowance</code> writes six files, every gap a <code>Blueprint.todo</code> that compiles and that <code>check</code> names. The proposed flags make the first draft closer: a capitalised type is a value, a lowercase one is another thing's id.</p>
+<div class="file">blueprint/things/allowance/thing.ts</div>
+<pre><code>export const Allowance = Blueprint.thing({
+  description: Blueprint.todo("what an allowance is, in one sentence"),
+  fields: { id: Blueprint.id("all"), organization: Organization.fields.id, member: Person.fields.id, limit: Amount, spent: Amount },
+});</code></pre>
+
+<h3 id="s3"><span class="n">3</span>Add verbs, each a move <span class="badge b-mixed">today · --from --to proposed</span></h3>
+<p>A verb that changes state is a move, so one command writes the verb and inserts the move and its event.</p>
+<pre class="term"><span class="p">$</span> architect add operation allowance.grant  --to active
+<span class="p">$</span> architect add operation allowance.spend  --from active --to active,exhausted
+<span class="p">$</span> architect add operation allowance.revoke --from active,exhausted --to revoked
+<span class="p">$</span> architect add read allowance.get</pre>
+<pre class="term"><span class="p">$</span> architect add operation allowance.spend --from active --to active,exhausted --dry-run
++ blueprint/things/allowance/verbs/spend.ts
+~ blueprint/things/allowance/machine.ts
+<span class="ok">+     spend: { from: ["active"], to: ["active", "exhausted"], emits: Events.AllowanceSpent },</span>
+~ blueprint/things/allowance/events.ts
+<span class="ok">+ export const AllowanceSpent = Blueprint.event(Blueprint.todo("what AllowanceSpent records"));</span></pre>
+<p class="note">One file per verb stays: names come from paths, and hashes, <code>impact</code> and the builder's scaffold are per file.</p>
+
+<h3 id="s4"><span class="n">4</span>Fill in the declarations <span class="badge b-mixed">today · --ready proposed</span></h3>
+<p>You, or the designer skill, replace the todos. A decision not made yet is a <code>Blueprint.question</code>, with its options and where it will be answered. "Ready to build" is a check.</p>
+<pre class="term"><span class="p">$</span> architect check --ready
+<span class="bad">✘ not ready: 1 question, 2 todos</span>
+  ? blueprint/kits/wallets.ts:6          which signer does the browser SDK use?  (passkey | injected) → spikes/browser-signer
+  · blueprint/things/allowance/thing.ts:7  what an allowance is, in one sentence
+  · blueprint/values/allowance.ts:2        what an Amount is</pre>
+<div class="file">blueprint/things/allowance/verbs/spend.ts, filled in (acme today)</div>
+<pre><code>export default Blueprint.operation(Allowance, {
+  description: "Spend from what is left of this month's allowance.",
+  payload: { allowance: Allowance.fields.id, amount: Amount, memo: Memo },
+  answer: { remaining: Amount },
+  move: machine.moves.spend, errors: [AllowanceExceeded], allowed: [grantee],
+  steps: { load: Blueprint.step.database(), record: Blueprint.step.database() },
+  idempotent: "request", budget: { p95: "150 millis" },
+});</code></pre>
+
+<h3 id="s5"><span class="n">5</span>Generate <span class="badge b-today">works today</span></h3>
+<pre class="term"><span class="p">$</span> architect generate</pre>
+<pre><code>generated/model/model.json, edges.json          hashes, edges
+generated/api/src/allowance/spend.handler.ts    the Handler type
+generated/server/main.ts                        route, auth, role check, idempotency, telemetry
+generated/sdk/src/allowance/spend.ts            acme.allowance.spend({ … })
+generated/cli/src/main.ts                       acme allowance spend --allowance … --amount …
+generated/mcp/src/index.ts                      the allowance.spend tool
+generated/docs/allowance/…   generated/portal/blueprint.json
+src/allowance/spend.ts                          scaffolded once: "Yours from now on."</code></pre>
+<p class="note">Proposed: which of these an operation appears in follows from <code>runs</code> and <code>allowed</code> (step 10).</p>
+
+<h3 id="s6"><span class="n">6</span>Journeys first <span class="badge b-mixed">today · flags and --unbuilt proposed</span></h3>
+<p>An author, a different agent from the builder, writes the journey and its starting world. Journeys live in <code>blueprint/journeys/</code>.</p>
+<pre class="term"><span class="p">$</span> architect add journey "spend within an allowance" --starts funded --cast olga:grantee</pre>
+<pre><code>export default Blueprint.journey("spend within an allowance", {
+  cast: { olga: grantee }, starts: "funded",
+  steps: (s) =&gt; [
+    s.step("olga spends some", s.olga.run(spend, { allowance: s.world.allowance, amount: 120n, memo: "train" }),
+      expect((a) =&gt; a.remaining).toBe(380n), emits(AllowanceSpent, { … }), machine.isIn(s.world.allowance, "active")),
+    s.step("olga can't spend more than is left", s.olga.run(spend, { …, amount: 400n }),
+      refuses(AllowanceExceeded, { remaining: 380n }), noEvents()),
+  ],
+});</code></pre>
+<pre class="term"><span class="p">$</span> architect prove --env local --unbuilt
+<span class="ok">✔ ready to build:</span> 2 journeys fail, every failure on a handler not yet written (allowance.spend)</pre>
+
+<h3 id="s7"><span class="n">7</span>Build <span class="badge b-today">works today</span></h3>
+<pre class="term"><span class="p">$</span> architect brief allowance.spend    <span class="c"># the declaration, its journeys, its rules</span>
+<span class="p">$</span> architect check
+<span class="p">$</span> architect prove --env local
+<span class="p">$</span> architect telemetry view</pre>
+<p>The builder writes <code>src/allowance/spend.ts</code> in Effect: load, refuse with <code>AllowanceExceeded</code>, record, move.</p>
+
+<h3 id="s8"><span class="n">8</span>Use it, from every surface <span class="badge b-today">works today</span></h3>
+<pre><code>const acme = client({ url, token });                       // a browser session or an API key
+await acme.allowance.spend({ allowance, amount: 120n, memo: "train" });</code></pre>
+<pre class="term"><span class="p">$</span> acme login                          <span class="c"># device login</span>
+<span class="p">$</span> acme allowance spend --allowance alw_… --amount 120 --memo train</pre>
+<p>An agent signs in to the MCP server by OAuth and sees the <code>allowance.spend</code> tool. The portal shows spend as proven on local.</p>
+
+<h3 id="s9"><span class="n">9</span>Environments, ship, watch <span class="badge b-mixed">today · add environment proposed</span></h3>
+<pre class="term"><span class="p">$</span> architect add environment staging --kind always-on --domain staging.acme.dev --promotes-from test
+<span class="p">$</span> architect promote --to staging      <span class="c"># re-proves there before it counts</span>
+<span class="p">$</span> architect publish --dry-run         <span class="c"># the SDK and CLI</span>
+<span class="p">$</span> architect watch --env staging       <span class="c"># drift from real traffic becomes a task</span>
+<span class="p">$</span> architect impact                    <span class="c"># what a change made stale</span></pre>
+
+<h2>Who may reach it</h2>
+
+<h3 id="s10"><span class="n">10</span>Narrow by credential <span class="badge b-proposed">proposed</span></h3>
+<p>The principal records how it arrived: a browser <code>session</code>, an API <code>key</code>, the CLI's <code>device</code> login, or an <code>agent</code>'s OAuth token. Better Auth already issues all four. With no <code>via</code>, every way in is allowed, so acme does not change.</p>
+<pre><code>allowed: [grantee]                                      // every way in
+allowed: [Blueprint.signedIn.via("session", "device")]  // people at a browser or a terminal
+allowed: [holder.notVia("agent")]                       // anyone holding it, except through an agent's token</code></pre>
+<p>The runtime refuses with <code>NotAllowed</code> on every route, so an agent's token on the HTTP API is refused too. Hiding a tool from MCP alone would not be security. An agent handed an API key arrives as <code>key</code>: to stop keys too, narrow to session and device.</p>
+<div class="table-wrap"><table>
+<tr><th>Surface</th><th>Gets an operation when</th></tr>
+<tr><td>server</td><td>it runs on the server</td></tr>
+<tr><td>SDK</td><td>it admits session or key; a client operation is local code</td></tr>
+<tr><td>CLI</td><td>it admits device or key; client operations run in the CLI process</td></tr>
+<tr><td>MCP</td><td>it admits agent and does not run on the client</td></tr>
+<tr><td>docs, portal</td><td>always, marked with where it runs and who may reach it</td></tr>
+</table></div>
+
+<h3 id="s11"><span class="n">11</span>What exists in each environment <span class="badge b-proposed">proposed</span></h3>
+<div class="file">blueprint/environments/production.ts</div>
+<pre><code>identity: auth.identity({ via: ["session", "key", "device", "agent"] }),   // delete "agent" to keep agents out
+deploy: { server: Deploy.worker({ domain: "api.acme.dev" }), mcp: Deploy.worker({ domain: "mcp.acme.dev" }), portal: … },</code></pre>
+<p><code>architect check</code> fails if an environment deploys MCP but issues no agent tokens, or the other way round.</p>
+<pre class="term"><span class="p">$</span> architect model --surfaces --env production
+operation          runs    reach                     sdk  cli  mcp
+allowance.spend    server  session key device agent  <span class="ok">✔    ✔    ✔</span>
+wallet.create      client  anyone                    <span class="ok">✔    ✔</span>    ·   runs on the device
+wallet.complete    server  session key device        <span class="ok">✔    ✔</span>    ·   notVia agent (kit-wallets)
+wallet.list        server  session device agent      <span class="ok">✔    ✔    ✔</span>   narrowed by blueprint/kits/wallets.ts</pre>
+
+<h2>Kits</h2>
+
+<h3 id="s12"><span class="n">12</span>Add the wallets kit <span class="badge b-proposed">proposed</span></h3>
+<pre class="term"><span class="p">$</span> architect add kit @architect/kit-wallets
+  + package.json             @architect/kit-wallets pinned exactly
+  + blueprint/kits/wallets.ts
+<span class="p">$</span> architect generate
+<span class="p">$</span> architect prove --env local       <span class="c"># acme's journeys and the kit's, in acme's worlds</span></pre>
+<div class="file">blueprint/kits/wallets.ts — its file name is the mount's name</div>
+<pre><code>import { Blueprint } from "@architect/blueprint";
+import wallets from "@architect/kit-wallets";
+
+export default Blueprint.use(wallets, {
+  choices: { browserSigner: "passkey" },   // every choice the kit declares, at its default
+});</code></pre>
+<p>The kit's things keep their names: <code>wallet.create</code>, <code>wallet.link</code>. A clash with an app thing fails <code>check</code>, naming both files; renaming the mount file prefixes the kit's things. A mount can narrow or omit the kit's operations, by reference, never widen them.</p>
+
+<h3 id="s13"><span class="n">13</span>Wallets on the device <span class="badge b-proposed">proposed</span></h3>
+<p>Making a key is client side, so <code>wallet.create</code> runs on the device. Linking signs the server's Sign-In with Ethereum challenge on the device, so <code>wallet.link</code> is a client operation over two server operations.</p>
+<pre><code>// kit-wallets/blueprint/things/wallet/verbs/link.ts
+export default Blueprint.operation(Wallet, {
+  description: "Link a key on this device to your account, by signing the server's challenge.",
+  runs: "client",
+  payload: { address: Address }, answer: { wallet: Wallet.fields.id },
+  allowed: [Blueprint.signedIn.notVia("agent")],
+  steps: {
+    challenge: Blueprint.step.call(challenge),            // server
+    sign: Blueprint.step.dependency(Signer.signMessage),  // here, on the device
+    complete: Blueprint.step.call(complete),              // server: verify, consume, link
+  },
+});</code></pre>
+<pre class="term"><span class="p">$</span> acme wallet create
+address 0x8b2f…41c0   <span class="c">(local keystore, encrypted)</span>
+<span class="p">$</span> acme wallet link --address 0x8b2f…41c0
+linked wal_3k9…   <span class="c">challenge ✔ sign ✔ complete ✔</span>
+<span class="p">$</span> acme session show
+olga@acme.dev · wallets 0x8b2f…41c0</pre>
+<p>Agents get <code>wallet.list</code> and nothing else. The kit's journey proves it:</p>
+<pre><code>s.step("olga's agent asks for a challenge", s.olga.via("agent").run(challenge, { address }), refuses(NotAllowed), noEvents()),
+s.step("olga's agent cannot see the tool", s.olga.via("agent").tools(), lacks(challenge, complete, link)),</code></pre>
+
+<h3 id="s14"><span class="n">14</span>Payments and email <span class="badge b-proposed">proposed</span></h3>
+<p>Not every kit has operations. Email gives a dependency your handlers call, a delivery record, and an inbound entry for bounces. Payments gives <code>checkout.start</code>, a Stripe webhook, and a refund dependency acme wraps in its own operation, because a refund needs acme's own <code>owner</code> role.</p>
+<pre class="term"><span class="p">$</span> architect add kit @architect/kit-payments
+<span class="p">$</span> architect add kit @architect/kit-email
+<span class="c">  the kits' secrets (STRIPE_KEY, STRIPE_WEBHOOK_SECRET, RESEND_KEY) join every deployed environment, by name only</span></pre>
+<div class="file">blueprint/things/invitation/verbs/send.ts</div>
+<pre><code>steps: { insert: Blueprint.step.database(), mail: Blueprint.step.dependency(Mail.send) },</code></pre>
+<div class="file">src/invitation/send.ts</div>
+<pre><code>yield* steps.mail(mail.send({ to: email, subject: "You're invited to acme", text: `Accept: https://acme.dev/i/${invitation}` }));</code></pre>
+<p>In local and test worlds each kit uses a real local stand-in, never a mock: a local mail sink whose messages journeys can check, <code>stripe-mock</code> with webhooks signed by the world's own secret, test keys for wallets, Anvil for a chain.</p>
+
+<h3 id="s15"><span class="n">15</span>Upgrade a kit <span class="badge b-proposed">proposed</span></h3>
+<pre class="term"><span class="p">$</span> pnpm add -E @architect/kit-email@1.3.0
+<span class="p">$</span> architect generate &amp;&amp; architect impact
+from-kit email 1.2.0 → 1.3.0: Mail.send payload changed (major)
+  stale: invitation.send   uses-dependency Mail.send
+  stale: 2 proofs          invite and accept · an invitation is used once</pre>
+
+<h2>Making a kit</h2>
+
+<h3 id="s16"><span class="n">16</span>New kit, dependency, inbound <span class="badge b-proposed">proposed</span></h3>
+<pre class="term"><span class="p">$</span> architect new kit wallets         <span class="c"># the kit layout, its example/ already proving</span>
+<span class="p">$</span> cd kit-wallets &amp;&amp; architect prove --env local
+<span class="ok">1 journey ✔</span>
+<span class="p">$</span> architect add dependency signer --host node,browser
+<span class="p">$</span> architect add inbound stripe --http /stripe
+<span class="p">$</span> architect check                  <span class="c"># kit rules: no blanks, a world implementation, a pure /blueprint entry</span>
+<span class="p">$</span> architect publish</pre>
+<pre><code>kit-wallets/
+  kit.ts                                  the descriptor: description, choices, needs, provides
+  blueprint/things/wallet/…               the same language as a project
+  blueprint/dependencies/signer.ts        methods; an implementation per host, and one for worlds
+  blueprint/journeys/…                    re-run in every app that mounts it
+  src/…                                   handlers and implementations
+  example/                                a tiny app that mounts it; the kit proves itself here
+  package.json                            exports: ".", "./blueprint", "./worker", "./node", "./browser"</code></pre>
+
+<h2>Reference</h2>
+
+<h3 id="loop">The design loop: idea to ready-to-build <span class="badge b-proposed">proposed</span></h3>
+<div class="table-wrap"><table>
+<tr><th>Step</th><th>Skill</th><th>Artifact</th><th>Done when</th></tr>
+<tr><td>idea → questions</td><td>wayfinder</td><td><code>Blueprint.question(…)</code></td><td>it compiles and the portal shows it</td></tr>
+<tr><td>question → answer</td><td>spike</td><td><code>spikes/&lt;x&gt;/README.md</code></td><td>the question becomes a declaration</td></tr>
+<tr><td>answers → declarations</td><td>designer</td><td>blueprint files, mounts</td><td><code>architect check --ready</code></td></tr>
+<tr><td>declarations → journeys</td><td>author</td><td><code>blueprint/journeys/</code></td><td><code>architect prove --unbuilt</code></td></tr>
+<tr><td>journeys → code</td><td>builder</td><td><code>src/</code> from <code>architect brief</code></td><td><code>architect prove</code> passes</td></tr>
+<tr><td>code → merged</td><td>reviewer</td><td>a verdict</td><td>pass</td></tr>
+</table></div>
+
+<h3 id="targets">What each target gets: acme with auth, wallets, payments and email <span class="badge b-proposed">proposed</span></h3>
+<div class="table-wrap"><table>
+<tr><th>Operation or piece</th><th>Kit</th><th>Runs</th><th>Reach</th><th>server</th><th>SDK</th><th>CLI</th><th>MCP</th></tr>
+<tr><td><code>allowance.*</code>, <code>invitation.*</code>, <code>organization.create</code></td><td>acme</td><td>server</td><td>every way in</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td></tr>
+<tr><td><code>organization.refund</code></td><td>acme</td><td>server</td><td>session</td><td class="y">✔</td><td class="y">✔</td><td class="n">·</td><td class="n">·</td></tr>
+<tr><td><code>person.sign-up</code>, <code>session.sign-in</code></td><td>auth</td><td>server</td><td>anyone</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td></tr>
+<tr><td><code>wallet.create</code>, <code>import</code>, <code>keys</code></td><td>wallets</td><td>client</td><td>anyone</td><td class="n">·</td><td class="y">✔</td><td class="y">✔</td><td class="n">·</td></tr>
+<tr><td><code>wallet.link</code></td><td>wallets</td><td>client</td><td>not agent</td><td class="n">·</td><td class="y">✔</td><td class="y">✔</td><td class="n">·</td></tr>
+<tr><td><code>wallet.challenge</code>, <code>complete</code>, <code>unlink</code></td><td>wallets</td><td>server</td><td>not agent</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td><td class="n">·</td></tr>
+<tr><td><code>wallet.list</code></td><td>wallets</td><td>server</td><td>session, device, agent</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td></tr>
+<tr><td><code>checkout.start</code></td><td>payments</td><td>server</td><td>session, device</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td><td class="n">·</td></tr>
+<tr><td><code>/stripe</code>, <code>/resend</code>, <code>/api/auth/*</code></td><td>payments, email, auth</td><td>server</td><td>inbound</td><td class="y">✔</td><td class="n">·</td><td class="n">·</td><td class="n">·</td></tr>
+<tr><td><code>Mail.send</code>, <code>Payments.refund</code>, <code>Accounts</code></td><td>email, payments, auth</td><td>dependency</td><td>your handlers</td><td class="y">✔</td><td class="n">·</td><td class="n">·</td><td class="n">·</td></tr>
+</table></div>
+<p class="note">Docs and the portal get every row. The full sketch, with its files, is <code>spikes/kits-dx/acme/</code>.</p>
+
+<footer>Proposed by <code>design/decisions/K1-kits.md</code>; today means <code>origin/layer/3</code> at <code>3bacbf3</code>. Opens with no server; fonts come from Google Fonts when online, system fonts otherwise.</footer>
+</article>
+</main>
+</body>
+</html>

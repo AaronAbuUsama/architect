@@ -52,7 +52,9 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
   with `// Scaffolded from <path>. Yours from now on.`
 - Package rules (Nx module boundaries): `blueprint` depends only on Effect; generated code imports only the target's
   runtime, `blueprint`, the host and project code; `compiler` and `generators` never run in production.
-- Pin dependency versions exactly, and use versions published at least two weeks before you add them.
+- Pin dependency versions exactly, and use versions published at least three days before you add them (Aaron, 17
+  November 2026). A younger version needs an override: its name in `minimumReleaseAgeExclude` in
+  `pnpm-workspace.yaml`, with a comment giving the reason, and a line in `design/decisions/R1-release-age.md`.
 - Inside each package, `src/` follows the six-slot module shape in `~/AGENTS.md` (`main.ts` as the only entry file;
   `modules/<name>/{README.md,types.ts,service.ts,internal/,<name>.test.ts}`), no source file over about 250 lines.
 

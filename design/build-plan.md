@@ -1,5 +1,9 @@
 # Architect: the build plan
 
+> **Recut, 17 November 2026.** Layers 1 and 2 below are done (Gates 1 and 2 green). Everything after them, layers
+> 3 to 5 and the A-steps, is replaced by [`milestones.md`](milestones.md), M0 to M7 (`decisions/K2-forman-frame.md`).
+> Every unfinished step here is mapped to its new slice there.
+
 ## How to use this plan
 
 > **Run order:** goal 1 (`goals/01-the-whole-framework-locally.md`) builds these steps in six stages, against local
