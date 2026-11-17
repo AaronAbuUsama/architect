@@ -1,6 +1,7 @@
 // Proof and its evals as one thing: a verdict is the nine evals' sum. The matrix gives each operation one compact row —
 // per environment, the verdict and its nine squares — and an operation's page gives each environment one small panel.
-import { Link } from "react-router";
+import { ArrowRight } from "@gravity-ui/icons";
+import { Card, Chip, Link } from "@heroui/react";
 import { CANDIDATE, ENVS, EVALS, evalOf, p95Of, proofOf, type ProofState } from "../blueprint/evidence.ts";
 import { operations, type Operation } from "../blueprint/model.ts";
 import { DataTable } from "./data-table.tsx";
@@ -30,8 +31,8 @@ export function ProofMatrix({ ops = operations, label = "Operations" }: { ops?: 
           <div className="flex flex-col items-start gap-1"><StateChip p={proofOf(o.name, e)} /><EvalStrip op={o.name} env={e} /></div>) })),
         { key: "speed", label: "Speed", sort: (o) => Math.max(0, ...ENVS.map((e) => p95Of(o.name, e) ?? 0)) / (o.budget?.p95Ms ?? 1), cell: (o) => <SpeedBar op={o.name} /> },
         { key: "status", label: "Needs attention", sort: (o) => -items(o.name).length * 10 + RANK[worstOf(o.name).state], cell: (o) => { const its = items(o.name);
-          return its.length ? <Live><Link to={`/proof/attention#${its[0]!.id}`} className="inline-flex items-center gap-1.5 rounded-full border border-fd-border px-3 py-1 text-sm hover:bg-fd-accent">
-            <span className={`size-2 rounded-full ${its.some((i) => i.kind === "failed") ? "bg-red-500" : "bg-amber-500"}`} />{its.length === 1 ? its[0]!.kind : `${its.length} items`}<span aria-hidden>→</span></Link></Live> : <Sub>nothing</Sub>; } },
+          return its.length ? <Live><Link href={`/proof/attention#${its[0]!.id}`} className="no-underline"><Chip size="sm" variant="soft" color={its.some((i) => i.kind === "failed") ? "danger" : "warning"}>
+            {its.length === 1 ? its[0]!.kind : `${its.length} items`}<ArrowRight /></Chip></Link></Live> : <Sub>nothing</Sub>; } },
         { key: "kind", label: "Kind", sort: (o) => o.kind, hidden: true, cell: (o) => <span className="text-sm">{o.kind}</span> },
       ]} />
   );
@@ -40,19 +41,19 @@ export function ProofMatrix({ ops = operations, label = "Operations" }: { ops?: 
 /** An operation's proof: one panel per environment with the verdict, the nine evals, its speed, and where the verdict came from. */
 export function OperationProof({ op }: { op: string }) {
   return (
-    <div className="not-prose my-4 grid gap-3 md:grid-cols-3">
+    <div className="my-4 grid gap-3 md:grid-cols-3">
       {ENVS.map((e) => { const p = proofOf(op, e), w = p.state === "recorded-pass" && !EVALS.some(([k]) => evalOf(op, e, k).result === "review") ? null : why(op, e); return (
-        <section key={e} className="flex flex-col gap-3 rounded-2xl border border-fd-border bg-fd-card p-4">
+        <Card key={e} className="gap-3">
           <div className="flex items-center justify-between"><A href={to.env(e)}>{e}</A><StateChip p={p} /></div>
           <div><Sub>Nine evals</Sub><div className="mt-1"><EvalStrip op={op} env={e} /></div></div>
-          {w && <Live><Link to={`/proof/attention#${attention().find((i) => i.op === op && (i.env === e || i.kind === "review"))?.id ?? ""}`} className="text-sm hover:underline">{w} →</Link></Live>}
-          <div className="grid grid-cols-2 gap-2 border-t border-fd-border pt-3 text-sm">
+          {w && <Live><Link href={`/proof/attention#${attention().find((i) => i.op === op && (i.env === e || i.kind === "review"))?.id ?? ""}`} className="text-sm">{w}<ArrowRight className="ml-1 inline size-3.5" /></Link></Live>}
+          <div className="grid grid-cols-2 gap-2 border-t border-border pt-3 text-sm">
             <div><Sub>Speed (p95)</Sub><div className="mt-1"><SpeedBar op={op} env={e} wide /></div></div>
             <div><Sub>From revision</Sub><Live>{p.evidence ? <Code>{p.evidence.revision}</Code> : "none"}</Live></div>
           </div>
           <Live><Sub>{p.changed.length ? p.changed.map((c) => `${c.key}: ${c.was.slice(0, 8)} → ${c.now?.slice(0, 8) ?? "gone"}`).join("; ")
             : p.candidateNotRerun ? `contract unchanged; ${CANDIDATE} not rerun here` : p.evidence?.revision === CANDIDATE ? "the candidate" : ""}</Sub></Live>
-        </section>); })}
+        </Card>); })}
     </div>
   );
 }

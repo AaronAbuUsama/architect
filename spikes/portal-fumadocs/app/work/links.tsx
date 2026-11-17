@@ -1,32 +1,44 @@
 // From a docs page into work: the tasks on an operation or thing, their threads, and its manager's chat.
+import { Comment, CirclePlay } from "@gravity-ui/icons";
+import { buttonVariants, Chip, Link as UiLink } from "@heroui/react";
+import { ItemCard, ItemCardGroup } from "@heroui-pro/react";
 import { Link } from "react-router";
 import { missionOf, runOf, tasks, workerOf } from "./fixtures.ts";
-import { HeadLink, RunStatus, TYPE_TONE } from "./bits.tsx";
+import { TYPE_TONE } from "./bits.tsx";
+import { AgentDot, RunStatusIcon } from "./status-icon.tsx";
+import type { Column } from "./types.ts";
 
 export const tasksAbout = (subject: string) => tasks.filter((t) => t.subject === subject || t.subject.startsWith(`${subject}.`));
+const COLUMN_TONE: Record<Column, "default" | "accent" | "warning" | "success"> = { open: "default", running: "accent", waiting: "warning", proven: "success", done: "success" };
 
-/** Navbar links on a docs page: straight into the chat of the manager working on it. */
+/** Navbar links on a docs page: straight into the live run and the chat of the manager working on it. */
 export function WorkLinks({ subject }: { subject: string }) {
   const ts = tasksAbout(subject); if (!ts.length) return null;
   const m = missionOf(ts[0]!.mission)!, live = ts.flatMap((t) => t.runs.map(runOf)).find((r) => r?.status === "running");
-  return <>{live && <HeadLink to={`/work/r/${live.id}`}>● {live.id} working on it</HeadLink>}<HeadLink to={`/work/m/${m.id}`} primary>Manager chat</HeadLink></>;
+  return <>
+    {live && <Link to={`/work/r/${live.id}`} className={buttonVariants({ size: "sm", variant: "tertiary" })}><CirclePlay className="text-accent" />{live.id} working on it</Link>}
+    <Link to={`/work/m/${m.id}`} className={buttonVariants({ size: "sm", variant: "primary" })}><Comment />Manager chat</Link>
+  </>;
 }
 
 /** A section on the page: each task on this subject, where it stands, and its threads. */
 export function WorkOnIt({ subject }: { subject: string }) {
   const ts = tasksAbout(subject);
-  if (!ts.length) return <p className="text-fd-muted-foreground">No mission is working on it.</p>;
+  if (!ts.length) return <p className="text-muted">No mission is working on it.</p>;
   return (
-    <div className="not-prose my-4 overflow-hidden rounded-xl border border-fd-border">
+    <ItemCardGroup className="my-4">
       {ts.map((t) => (
-        <div key={t.id} className="flex flex-wrap items-center gap-3 border-b border-fd-border px-4 py-2.5 text-sm last:border-0">
-          <Link to={`/work/t/${t.id}`} className="font-medium text-fd-primary hover:underline">{t.kind}{t.subject !== subject && ` ${t.subject}`}</Link>
-          <span className="rounded-full bg-fd-muted px-2 py-0.5 text-xs">{t.column}</span>
-          {t.reopened && <span className="text-xs text-red-600 dark:text-red-400">reopened: {t.reopened}</span>}
-          <span className="ml-auto flex items-center gap-3">{t.runs.map((id) => { const r = runOf(id)!; return (
-            <Link key={id} to={`/work/r/${id}`} className="flex items-center gap-1 text-xs hover:underline"><RunStatus s={r.status} /><span className="size-1.5 rounded-full" style={{ background: TYPE_TONE[r.worker] }} />{id} · {workerOf(r.worker).name}</Link>); })}
-            <Link to={`/work/m/${t.mission}`} className="text-xs text-fd-muted-foreground hover:underline">{missionOf(t.mission)!.title}</Link></span>
-        </div>))}
-    </div>
+        <ItemCard key={t.id}>
+          <ItemCard.Content>
+            <ItemCard.Title><UiLink href={`/work/t/${t.id}`}>{t.kind}{t.subject !== subject && ` ${t.subject}`}</UiLink></ItemCard.Title>
+            <ItemCard.Description>{missionOf(t.mission)!.title}{t.reopened && ` · reopened: ${t.reopened}`}</ItemCard.Description>
+          </ItemCard.Content>
+          <ItemCard.Action className="flex flex-wrap items-center justify-end gap-2">
+            <Chip size="sm" variant="soft" color={t.reopened ? "danger" : COLUMN_TONE[t.column]}>{t.column}</Chip>
+            {t.runs.map((id) => { const r = runOf(id)!; return (
+              <UiLink key={id} href={`/work/r/${id}`} className="flex items-center gap-1 text-xs"><RunStatusIcon s={r.status} /><AgentDot color={TYPE_TONE[r.worker]!} />{id} · {workerOf(r.worker).name}</UiLink>); })}
+          </ItemCard.Action>
+        </ItemCard>))}
+    </ItemCardGroup>
   );
 }

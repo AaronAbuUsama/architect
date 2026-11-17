@@ -1,58 +1,132 @@
 // A manager's conversation: you talk to it, it asks you lettered questions and for approvals, and system lines show
 // every thread it starts or ends. Threads and tasks link out; operations link back to the portal.
+import { Alert, Button, Card, Chip } from "@heroui/react";
+import { CircleCheck, CircleXmark, Pulse, Thunderbolt } from "@gravity-ui/icons";
+import { ChatConversation, ChatLoader, ChatMessage, ChatMessageActions, ItemCard, PromptInput, PromptSuggestion, RadioButtonGroup, TextShimmer } from "@heroui-pro/react";
+import { useState, type ReactNode } from "react";
 import { Link, useParams } from "react-router";
-import { conversations, type Msg } from "./conversation.ts";
+import { conversations, quick, type Msg } from "./conversation.ts";
 import { missionOf, missions, runOf, runsOf, taskOf, tasksOf, workerOf } from "./fixtures.ts";
-import { HeadLink, Orb, RunStatus, TYPE_TONE, WorkShell, runTitle } from "./shell.tsx";
+import { HeadLink, Orb, WorkShell, runTitle } from "./shell.tsx";
 
 export function meta() { return [{ title: "Manager · acme work" }]; }
 
 /** An operation name anywhere in work links to its page in the portal. */
 export const OpLink = ({ subject }: { subject: string }) =>
-  subject.includes(".") ? <Link to={`/operations/${subject}`} className="font-medium text-fd-primary hover:underline">{subject}</Link> : <Link to={`/things/${subject}`} className="font-medium text-fd-primary hover:underline">{subject}</Link>;
+  <Link to={subject.includes(".") ? `/operations/${subject}` : `/things/${subject}`} className="font-medium text-accent hover:underline">{subject}</Link>;
+
+/** A thread or task a system line points at: a HeroUI Chip inside a router link. */
+const RefChip = ({ to, children }: { to: string; children: ReactNode }) =>
+  <Link to={to}><Chip size="sm" variant="secondary" color="accent">{children}</Chip></Link>;
+
+const Manager = ({ children, actions }: { children: ReactNode; actions?: ReactNode }) => (
+  <ChatMessage.Assistant>
+    <ChatMessage.Avatar alt="Manager" fallback="M" show />
+    <ChatMessage.Body>{children}{actions}</ChatMessage.Body>
+  </ChatMessage.Assistant>);
+
+const Actions = ({ text }: { text: string }) => (
+  <ChatMessageActions>
+    <ChatMessageActions.Copy onPress={() => void navigator.clipboard?.writeText(text)} />
+    <ChatMessageActions.Regenerate />
+  </ChatMessageActions>);
+
+function Choice({ m }: { m: Extract<Msg, { kind: "choice" }> }) {
+  const [picked, setPicked] = useState(m.picked);
+  return (
+    <Manager>
+      <Card variant="secondary" className="w-full max-w-xl">
+        <Card.Header><Card.Description>From the blueprint: {m.from}</Card.Description><Card.Title>{m.question}</Card.Title></Card.Header>
+        <Card.Content>
+          <RadioButtonGroup aria-label={m.question} value={picked} onChange={setPicked} layout="grid" className="grid-cols-1">
+            {m.options.map(([l, t]) => (
+              <RadioButtonGroup.Item key={l} value={l}><RadioButtonGroup.ItemContent><span className="text-sm"><b className="mr-2">{l}</b>{t}</span></RadioButtonGroup.ItemContent><RadioButtonGroup.Indicator /></RadioButtonGroup.Item>))}
+          </RadioButtonGroup>
+        </Card.Content>
+      </Card>
+    </Manager>);
+}
+
+function Approve({ m }: { m: Extract<Msg, { kind: "approve" }> }) {
+  const [done, setDone] = useState(m.done);
+  return (
+    <Manager>
+      <Alert status="warning" className="w-full max-w-xl">
+        <Alert.Indicator />
+        <Alert.Content>
+          <Alert.Title>{m.title}</Alert.Title><Alert.Description>{m.why}</Alert.Description>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            {done ? <Chip size="sm" color={done === "approved" ? "success" : "default"}>{done === "approved" ? "Promoting" : "Not yet"}</Chip> : <>
+              <Button size="sm" variant="primary" onPress={() => setDone("approved")}>Promote</Button>
+              <Button size="sm" variant="secondary" onPress={() => setDone("not yet")}>Not yet</Button></>}
+            <HeadLink to={`/work/t/${m.task}`}>See the task</HeadLink>
+          </div>
+        </Alert.Content>
+      </Alert>
+    </Manager>);
+}
 
 function Message({ m }: { m: Msg }) {
   switch (m.kind) {
-    case "you": return <div className="ml-auto max-w-[70%] rounded-2xl bg-fd-muted px-4 py-2">{m.text}</div>;
-    case "manager": return <div className="max-w-[80%] leading-relaxed">{m.text}</div>;
-    case "system": { const r = m.run ? runOf(m.run) : undefined; return (
-      <div className={`flex items-center gap-2 self-center rounded-full border px-3 py-1 text-xs ${m.tone === "bad" ? "border-red-500/40 text-red-600 dark:text-red-400" : m.tone === "good" ? "border-emerald-500/40 text-emerald-700 dark:text-emerald-400" : "border-fd-border text-fd-muted-foreground"}`}>
-        {r && <span className="size-1.5 rounded-full" style={{ background: TYPE_TONE[r.worker] }} />}{m.text}
-        {r && <Link to={`/work/r/${r.id}`} className="font-medium text-fd-primary hover:underline">open thread</Link>}
-        {m.task && <Link to={`/work/t/${m.task}`} className="font-medium text-fd-primary hover:underline">task</Link>}
-      </div>); }
-    case "choice": return (
-      <div className="max-w-[80%] rounded-2xl border border-fd-border bg-fd-card p-4">
-        <div className="text-xs text-fd-muted-foreground">From the blueprint: {m.from}</div>
-        <div className="mt-1 font-medium">{m.question}</div>
-        <div className="mt-3 grid gap-2">{m.options.map(([l, t]) => (
-          <div key={l} className={`flex gap-3 rounded-xl border px-3 py-2 text-sm ${m.picked === l ? "border-fd-primary bg-fd-primary/10" : "border-fd-border"}`}><b>{l}</b>{t}{m.picked === l && <span className="ml-auto text-xs text-fd-primary">you picked</span>}</div>))}</div>
-      </div>);
-    case "approve": return (
-      <div className="max-w-[80%] rounded-2xl border-2 border-amber-500/60 bg-fd-card p-4">
-        <div className="font-medium">{m.title}</div><div className="mt-1 text-sm text-fd-muted-foreground">{m.why}</div>
-        <div className="mt-3 flex gap-2"><button className="rounded-full bg-fd-primary px-4 py-1.5 text-sm text-fd-primary-foreground">Promote</button><button className="rounded-full border border-fd-border px-4 py-1.5 text-sm">Not yet</button>
-          <Link to={`/work/t/${m.task}`} className="ml-auto self-center text-sm text-fd-primary hover:underline">See the task</Link></div>
-      </div>);
+    case "you": return <ChatMessage.User><ChatMessage.Bubble><ChatMessage.Content>{m.text}</ChatMessage.Content></ChatMessage.Bubble></ChatMessage.User>;
+    case "manager": return <Manager actions={<Actions text={m.text} />}><ChatMessage.Content>{m.text}</ChatMessage.Content></Manager>;
+    case "thinking": return <Manager><ChatMessage.Content><span className="flex items-center gap-2"><ChatLoader.Dots /><TextShimmer className="text-muted text-sm">{m.text}…</TextShimmer></span></ChatMessage.Content></Manager>;
+    case "choice": return <Choice m={m} />;
+    case "approve": return <Approve m={m} />;
+    case "system": {
+      const Icon = m.tone === "bad" ? CircleXmark : m.tone === "good" ? CircleCheck : Thunderbolt;
+      return (
+        <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-muted">
+          <Chip size="sm" variant="soft" color={m.tone === "bad" ? "danger" : m.tone === "good" ? "success" : "default"}><Icon className="size-3" />{m.text}</Chip>
+          {m.run && <RefChip to={`/work/r/${runOf(m.run)?.id ?? m.run}`}>thread {m.run}</RefChip>}
+          {m.task && <RefChip to={`/work/t/${m.task}`}>task {m.task}</RefChip>}
+        </div>);
+    }
   }
 }
 
-export default function Manager() {
+export default function ManagerPage() {
   const m = missionOf(useParams().mission ?? "") ?? missions[0]!;
   const live = runsOf(m.id).filter((r) => r.status === "running"), all = tasksOf(m.id), closed = all.filter((t) => t.column === "done" || t.column === "proven").length;
+  const [sent, setSent] = useState<Msg[]>([]), [draft, setDraft] = useState("");
+  const msgs = [...(conversations[m.id] ?? []), ...sent];
+  const send = () => { const text = draft.trim(); if (text) { setSent((s) => [...s, { kind: "you", at: "Nov 17 now", text }, { kind: "thinking", at: "Nov 17 now", text: "Reading what you asked" }]); setDraft(""); } };
   return (
     <WorkShell mission={m.id} title={<span className="flex items-center gap-2"><Orb hue={m.hue} size={20} />{m.title}</span>} sub={`Manager · ${closed} of ${all.length} tasks closed · until ${m.until} · started ${m.started}`}
       actions={<><HeadLink to={`/work/m/${m.id}/board`}>Board</HeadLink><HeadLink to={`/things/${m.milestones[0]!.of}`}>{m.milestones[0]!.of} in the portal</HeadLink></>}>
-      <div className="mx-auto flex max-w-3xl flex-col gap-4 px-6 py-6">
-        {live.length > 0 && <div className="sticky top-0 z-10 -mx-2 flex flex-wrap gap-2 bg-fd-background/90 px-2 py-2 backdrop-blur">
-          <span className="self-center text-xs text-fd-muted-foreground">Working now</span>
-          {live.map((r) => <Link key={r.id} to={`/work/r/${r.id}`} className="flex items-center gap-2 rounded-full border border-sky-500/40 px-3 py-1 text-xs hover:bg-fd-accent/50"><RunStatus s={r.status} />{runTitle(r)}<span className="text-fd-muted-foreground">{workerOf(r.worker).name}</span></Link>)}
+      <div className="flex h-[calc(100dvh-4.5rem)] min-h-0 flex-col">
+        {live.length > 0 && <div className="mx-auto w-full max-w-3xl px-6 pt-4">
+          <div className="mb-2 text-xs text-muted">Working now</div>
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {live.map((r) => (
+              <Link key={r.id} to={`/work/r/${r.id}`} className="min-w-56 flex-1">
+                <ItemCard variant="secondary"><ItemCard.Icon><Pulse /></ItemCard.Icon><ItemCard.Content><ItemCard.Title>{runTitle(r)}</ItemCard.Title><ItemCard.Description>{workerOf(r.worker).name} · {r.model}</ItemCard.Description></ItemCard.Content></ItemCard>
+              </Link>))}
+          </div>
         </div>}
-        {(conversations[m.id] ?? []).map((msg, i, all) => <div key={i} className="flex flex-col">
-          {(i === 0 || all[i - 1]!.at.slice(0, 6) !== msg.at.slice(0, 6)) && <div className="mb-3 text-center text-xs text-fd-muted-foreground">{msg.at.slice(0, 6)}</div>}
-          <Message m={msg} /></div>)}
+        <ChatConversation className="min-h-0 flex-1">
+          <ChatConversation.Content className="px-6 py-6">
+            {msgs.map((msg, i) => <div key={i} className="flex flex-col gap-4">
+              {(i === 0 || msgs[i - 1]!.at.slice(0, 6) !== msg.at.slice(0, 6)) && <div className="text-center"><Chip size="sm" variant="tertiary">{msg.at.slice(0, 6)}</Chip></div>}
+              <Message m={msg} /></div>)}
+          </ChatConversation.Content>
+          <ChatConversation.ScrollAnchor />
+        </ChatConversation>
+        <div className="mx-auto w-full max-w-3xl px-6 pb-5">
+          <PromptSuggestion className="mb-3"><PromptSuggestion.Items className="flex flex-row flex-wrap gap-2">
+            {(quick[m.id] ?? []).map((q) => <PromptSuggestion.Item key={q} className="w-auto rounded-full border border-border px-3 py-1" onPress={() => setDraft(q)}><PromptSuggestion.ItemTitle>{q}</PromptSuggestion.ItemTitle></PromptSuggestion.Item>)}
+          </PromptSuggestion.Items></PromptSuggestion>
+          <PromptInput value={draft} onValueChange={setDraft} onSubmit={send}>
+            <PromptInput.Shell>
+              <PromptInput.Content><PromptInput.TextArea placeholder="Tell the manager…" /></PromptInput.Content>
+              <PromptInput.Toolbar>
+                <PromptInput.ToolbarStart><Chip size="sm" variant="tertiary">claude-opus-5-5</Chip></PromptInput.ToolbarStart>
+                <PromptInput.ToolbarEnd><PromptInput.Send /></PromptInput.ToolbarEnd>
+              </PromptInput.Toolbar>
+            </PromptInput.Shell>
+          </PromptInput>
+        </div>
       </div>
-      <div className="sticky bottom-0 bg-fd-background px-6 pb-5 pt-2"><div className="mx-auto max-w-3xl rounded-2xl border border-fd-border bg-fd-card px-4 py-3 text-sm text-fd-muted-foreground">Tell the manager… <span className="float-right text-xs">claude-opus-5-5</span></div></div>
     </WorkShell>
   );
 }

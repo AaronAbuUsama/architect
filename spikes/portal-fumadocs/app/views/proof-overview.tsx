@@ -1,5 +1,9 @@
 // Proof at a glance: a row of numbers over the matrix, and the small speed bar the matrix and the operation panels share.
-import { Link } from "react-router";
+import { ArrowRight, CircleCheck, CircleQuestion, CircleXmark, TriangleExclamation } from "@gravity-ui/icons";
+import { Link } from "@heroui/react";
+import { KPIGroup } from "@heroui-pro/react";
+import { KPI } from "@heroui-pro/react/kpi";
+import type { ReactNode } from "react";
 import { ENVS, p95Of, proofOf, type ProofState } from "../blueprint/evidence.ts";
 import { M, operations, things } from "../blueprint/model.ts";
 import { Live, Sub } from "./status.tsx";
@@ -9,22 +13,25 @@ export const worstOf = (op: string) => ENVS.map((e) => proofOf(op, e)).sort((a, 
 
 export function StatTiles() {
   const count = (s: ProofState) => operations.filter((o) => worstOf(o.name).state === s).length;
-  const tiles: Array<[label: string, value: number, sub: string, tone?: string, href?: string]> = [
-    ["Operations", operations.length, `across ${things.length} things`],
-    ["Proved everywhere", count("recorded-pass"), `in all ${ENVS.length} environments`, "text-emerald-500"],
-    ["Failing", count("failed"), "a newest verdict is a failure", "text-red-500", "/proof/attention"],
-    ["Stale", count("stale"), "changed since its pass", "text-amber-500", "/proof/attention"],
-    ["Unproven", count("unproven"), "no verdict somewhere", undefined, "/proof/attention"],
+  const tiles: Array<[label: string, value: number, sub: string, icon: ReactNode, status?: "success" | "warning" | "danger", href?: string]> = [
+    ["Operations", operations.length, `across ${things.length} things`, <CircleQuestion />],
+    ["Proved everywhere", count("recorded-pass"), `in all ${ENVS.length} environments`, <CircleCheck />, "success"],
+    ["Failing", count("failed"), "a newest verdict is a failure", <CircleXmark />, "danger", "/proof/attention"],
+    ["Stale", count("stale"), "changed since its pass", <TriangleExclamation />, "warning", "/proof/attention"],
+    ["Unproven", count("unproven"), "no verdict somewhere", <CircleQuestion />, undefined, "/proof/attention"],
   ];
   return (
-    <div className="not-prose my-4 grid grid-cols-2 gap-3 md:grid-cols-5">
-      {tiles.map(([label, value, sub, tone, href]) => { const body = <>
-        <div className="text-sm text-fd-muted-foreground">{label}</div>
-        <Live><div className={`mt-1 text-3xl font-semibold tabular-nums ${value && tone ? tone : ""}`}>{value}</div></Live>
-        <Sub>{sub}</Sub></>;
-        const cls = "rounded-2xl border border-fd-border bg-fd-card p-4";
-        return href && value ? <Link key={label} to={href} className={`${cls} hover:bg-fd-accent`}>{body}</Link> : <div key={label} className={cls}>{body}</div>; })}
-    </div>
+    <KPIGroup className="my-4 flex-wrap">
+      {tiles.flatMap(([label, value, sub, icon, status, href], i) => [
+        ...(i ? [<KPIGroup.Separator key={`s${label}`} />] : []),
+        <KPI key={label} className="min-w-40 flex-1">
+          <KPI.Header><KPI.Icon status={value ? status : undefined}>{icon}</KPI.Icon><KPI.Title>{label}</KPI.Title></KPI.Header>
+          <KPI.Content><KPI.Value value={value} data-live="" /></KPI.Content>
+          <KPI.Footer><span className="text-xs text-muted">{sub}</span>
+            {href && value > 0 && <Link href={href} className="ml-2 text-xs">See why<ArrowRight className="ml-0.5 size-3" /></Link>}</KPI.Footer>
+        </KPI>,
+      ])}
+    </KPIGroup>
   );
 }
 
@@ -33,15 +40,15 @@ export function SpeedBar({ op, env, wide }: { op: string; env?: string; wide?: b
   const budget = M.operations[op]!.budget?.p95Ms; if (!budget) return <Sub>no budget</Sub>;
   const ms = env ? p95Of(op, env) : Math.max(0, ...ENVS.map((e) => p95Of(op, e) ?? 0)) || null;
   const max = budget * 2, pct = (v: number) => `${Math.min(100, (v / max) * 100)}%`;
-  const tone = ms === null ? "" : ms > budget * 1.5 ? "bg-red-500" : ms > budget ? "bg-amber-500" : "bg-sky-500";
+  const tone = ms === null ? "" : ms > budget * 1.5 ? "bg-danger" : ms > budget ? "bg-warning" : "bg-accent";
   return (
     <div className={`flex flex-col gap-1 ${wide ? "w-full" : "w-32"}`} title={`p95 ${ms ?? "–"} ms against a ${budget} ms budget`}>
-      <Live><div className="relative h-2 rounded-full bg-fd-muted">
-        <div className="absolute inset-y-0 rounded-r-full bg-amber-500/15" style={{ left: pct(budget), width: `${(budget * 0.5 / max) * 100}%` }} />
+      <Live><div className="relative h-2 rounded-full bg-default">
+        <div className="absolute inset-y-0 rounded-r-full bg-warning/15" style={{ left: pct(budget), width: `${(budget * 0.5 / max) * 100}%` }} />
         {ms !== null && <div className={`absolute inset-y-0 left-0 rounded-full ${tone}`} style={{ width: pct(ms) }} />}
-        <div className="absolute -inset-y-1 w-0.5 rounded bg-fd-foreground/70" style={{ left: pct(budget) }} />
+        <div className="absolute -inset-y-1 w-0.5 rounded bg-foreground/70" style={{ left: pct(budget) }} />
       </div></Live>
-      <span className="text-xs tabular-nums text-fd-muted-foreground"><Live><span className={ms && ms > budget ? "font-semibold text-amber-500" : "text-fd-foreground"}>{ms ?? "–"}</span></Live> / {budget} ms</span>
+      <span className="text-xs tabular-nums text-muted"><Live><span className={ms && ms > budget ? "font-semibold text-warning" : "text-foreground"}>{ms ?? "–"}</span></Live> / {budget} ms</span>
     </div>
   );
 }

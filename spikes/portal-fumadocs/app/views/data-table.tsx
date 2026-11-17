@@ -1,16 +1,16 @@
-// One table for every list in the portal: HeroUI's Table, with a toolbar of Filter, Columns and Search, and sortable headers.
-import { Button, Dropdown, Header, SearchField, Table } from "@heroui/react";
+// One table for every list in the portal: HeroUI Pro's DataGrid, with a toolbar of Filter, Columns and Search, and sortable headers.
+import { ArrowDown, ArrowUp } from "@gravity-ui/icons";
+import { Button, Chip, Dropdown, Header, SearchField } from "@heroui/react";
+import { DataGrid, type DataGridColumn } from "@heroui-pro/react";
 import { useMemo, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router";
 import type { Selection, SortDescriptor } from "react-aria-components";
 
 export type Column<R> = { key: string; label: string; head?: ReactNode; cell: (r: R) => ReactNode; sort?: (r: R) => string | number; hidden?: boolean; align?: "start" | "center" | "end"; rowHeader?: boolean };
 export type Filter<R> = { key: string; label: string; of: (r: R) => string };
-export type SubRow = { key: string; cells: Record<string, ReactNode> };
 export type DataTableProps<R> = {
   label: string; rows: R[]; rowKey: (r: R) => string; columns: Column<R>[]; filters?: Filter<R>[]; search?: (r: R) => string; sort?: SortDescriptor; footer?: ReactNode;
-  /** Rows shown under a row while its key is in `expanded`: same columns, a quieter look. */
-  subRows?: (r: R) => SubRow[]; expanded?: Set<string>; toolbar?: ReactNode;
+  toolbar?: ReactNode;
   /** Filter, Columns, Sort and Search. Default: only when the table is long enough to need them. */
   tools?: boolean;
   /** Where a click on the row goes. The whole row is the link; no per-row buttons needed. */
@@ -18,7 +18,7 @@ export type DataTableProps<R> = {
 };
 const TOOLS_FROM = 9;
 
-export function DataTable<R>({ label, rows, rowKey, columns, filters = [], search, sort, footer, subRows, expanded, toolbar, tools, rowHref }: DataTableProps<R>) {
+export function DataTable<R extends object>({ label, rows, rowKey, columns, filters = [], search, sort, footer, toolbar, tools, rowHref }: DataTableProps<R>) {
   const navigate = useNavigate();
   const withTools = tools ?? rows.length >= TOOLS_FROM;
   const [q, setQ] = useState("");
@@ -37,13 +37,13 @@ export function DataTable<R>({ label, rows, rowKey, columns, filters = [], searc
   const filterKeys = new Set(Object.entries(picked).flatMap(([k, s]) => [...s].map((v) => `${k}=${v}`)));
 
   return (
-    <div className="not-prose my-4 flex flex-col gap-3">
+    <div className="my-4 flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2">
         <span className="font-semibold">{label}</span>
-        <span className="rounded-full border border-fd-border px-2 text-xs text-fd-muted-foreground">{out.length}</span>
+        <Chip size="sm" variant="soft">{out.length}</Chip>
         {withTools && filters.length > 0 && (
           <Dropdown>
-            <Button size="sm" variant={active ? "primary" : "secondary"}>Filter{active ? ` · ${active}` : ""}</Button>
+            <Button size="sm" variant={active ? "primary" : "secondary"}>Filter{active ? ` (${active})` : ""}</Button>
             <Dropdown.Popover>
               <Dropdown.Menu aria-label="Filters" selectionMode="multiple" selectedKeys={filterKeys} onSelectionChange={(sel) => {
                 const next: Record<string, Set<string>> = {};
@@ -54,7 +54,7 @@ export function DataTable<R>({ label, rows, rowKey, columns, filters = [], searc
                   <Dropdown.Section key={f.key}><Header>{f.label}</Header>
                     {[...new Set(rows.map(f.of))].sort().map((v) => (
                       <Dropdown.Item key={`${f.key}=${v}`} id={`${f.key}=${v}`} textValue={v}>
-                        <Dropdown.ItemIndicator />{v} <span className="ml-auto text-xs text-fd-muted-foreground">{rows.filter((r) => f.of(r) === v).length}</span>
+                        <Dropdown.ItemIndicator />{v} <span className="ml-auto text-xs text-muted">{rows.filter((r) => f.of(r) === v).length}</span>
                       </Dropdown.Item>
                     ))}
                   </Dropdown.Section>
@@ -73,7 +73,7 @@ export function DataTable<R>({ label, rows, rowKey, columns, filters = [], searc
         </Dropdown>}
         {withTools && columns.some((c) => c.sort) && (
           <Dropdown>
-            <Button size="sm" variant="secondary">Sort{sortBy ? `: ${columns.find((c) => c.key === sortBy.column)?.label} ${sortBy.direction === "ascending" ? "↑" : "↓"}` : ""}</Button>
+            <Button size="sm" variant="secondary">Sort{sortBy ? <>: {columns.find((c) => c.key === sortBy.column)?.label}{sortBy.direction === "ascending" ? <ArrowUp /> : <ArrowDown />}</> : null}</Button>
             <Dropdown.Popover>
               <Dropdown.Menu aria-label="Sort" selectionMode="single" selectedKeys={sortBy ? new Set([String(sortBy.column)]) : new Set()} onAction={(k) =>
                 setSortBy({ column: String(k), direction: sortBy?.column === k && sortBy.direction === "ascending" ? "descending" : "ascending" })}>
@@ -89,33 +89,10 @@ export function DataTable<R>({ label, rows, rowKey, columns, filters = [], searc
           </SearchField>
         )}
       </div>
-      <Table>
-        <Table.ScrollContainer>
-          <Table.Content aria-label={label} sortDescriptor={sortBy} onSortChange={setSortBy}>
-            <Table.Header>
-              {visible.map((c) => (
-                <Table.Column key={c.key} id={c.key} isRowHeader={c.rowHeader} allowsSorting={!!c.sort} className={align(c)}>
-                  {c.head ?? c.label}
-                </Table.Column>
-              ))}
-            </Table.Header>
-            <Table.Body renderEmptyState={() => <span className="text-fd-muted-foreground">Nothing matches.</span>}>
-              {out.flatMap((r) => [
-                <Table.Row key={rowKey(r)} id={rowKey(r)} onAction={rowHref ? () => navigate(rowHref(r)) : undefined} className={rowHref ? "cursor-pointer" : undefined}>
-                  {visible.map((c) => <Table.Cell key={c.key} className={align(c)}>{c.cell(r)}</Table.Cell>)}
-                </Table.Row>,
-                ...(expanded?.has(rowKey(r)) && subRows ? subRows(r).map((s) => (
-                  <Table.Row key={`${rowKey(r)}/${s.key}`} id={`${rowKey(r)}/${s.key}`} className="bg-fd-muted/40">
-                    {visible.map((c) => <Table.Cell key={c.key} className={`${align(c)} py-1.5 text-sm`}>{s.cells[c.key] ?? null}</Table.Cell>)}
-                  </Table.Row>)) : []),
-              ])}
-            </Table.Body>
-          </Table.Content>
-        </Table.ScrollContainer>
-        {footer && <Table.Footer>{footer}</Table.Footer>}
-      </Table>
+      <DataGrid aria-label={label} data={out} getRowId={rowKey} sortDescriptor={sortBy} onSortChange={setSortBy}
+        onRowAction={rowHref ? (k) => { const r = out.find((x) => rowKey(x) === String(k)); if (r) navigate(rowHref(r)); } : undefined}
+        renderEmptyState={() => <span className="text-muted">Nothing matches.</span>} footer={footer}
+        columns={visible.map((c): DataGridColumn<R> => ({ id: c.key, header: c.head ?? c.label, isRowHeader: c.rowHeader, allowsSorting: !!c.sort, align: c.align, cell: c.cell }))} />
     </div>
   );
 }
-
-const align = (c: { align?: "start" | "center" | "end" }) => (c.align === "center" ? "text-center" : c.align === "end" ? "text-end" : "");

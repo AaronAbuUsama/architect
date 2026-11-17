@@ -1,5 +1,6 @@
 // The reference tables. Each takes an optional `thing` so a thing's page shows the same table, narrowed to it.
-import { Link } from "react-router";
+import { ArrowRight, Check } from "@gravity-ui/icons";
+import { Chip, Link } from "@heroui/react";
 import { access, errors, events, moves, operations, refusedBy, roles, M, typeText, valueUsers, type Operation } from "../blueprint/model.ts";
 import { SpeedBar } from "./proof-overview.tsx";
 import { DataTable } from "./data-table.tsx";
@@ -14,7 +15,7 @@ export const OperationsTable = ({ thing }: { thing?: string }) => (
     filters={[...(thing ? [] : [thingFilter]), { key: "kind", label: "Kind", of: (o) => o.kind }]}
     columns={[
       { key: "op", label: "Operation", rowHeader: true, sort: (o) => o.name, cell: (o) => <><A href={to.op(o.name)}>{o.name}</A><Sub>{o.description}</Sub></> },
-      { key: "move", label: "Move", cell: (o) => (o.move ? <span className="whitespace-nowrap text-sm">{o.move.from.join(", ") || "new"} → {o.move.to.join(", ")}</span> : <Sub>{o.kind === "read" ? "read" : "none"}</Sub>) },
+      { key: "move", label: "Move", cell: (o) => (o.move ? <span className="whitespace-nowrap text-sm">{o.move.from.join(", ") || "new"} <ArrowRight className="inline size-3.5" /> {o.move.to.join(", ")}</span> : <Sub>{o.kind === "read" ? "read" : "none"}</Sub>) },
       { key: "budget", label: "Speed", cell: (o) => <SpeedBar op={o.name} /> },
       ...ENVS.map((e) => ({ key: e, label: e[0]!.toUpperCase() + e.slice(1), cell: (o: Operation) => <div className="flex flex-col items-start gap-1"><StateChip p={proofOf(o.name, e)} /><EvalStrip op={o.name} env={e} /></div> })),
     ]} />
@@ -22,7 +23,7 @@ export const OperationsTable = ({ thing }: { thing?: string }) => (
 
 /** Field names as quiet chips: the shape at a glance; types live on the event or error's own page. */
 const Carries = ({ fields }: { fields: Record<string, unknown> }) => Object.keys(fields).length
-  ? <div className="flex flex-wrap gap-1">{Object.keys(fields).map((f) => <span key={f} className="rounded-md bg-fd-muted px-1.5 py-0.5 font-mono text-xs">{f}</span>)}</div>
+  ? <div className="flex flex-wrap gap-1">{Object.keys(fields).map((f) => <Chip key={f} size="sm" variant="soft" className="font-mono">{f}</Chip>)}</div>
   : <Sub>nothing</Sub>;
 
 export const EventsTable = ({ thing }: { thing?: string }) => (
@@ -30,7 +31,7 @@ export const EventsTable = ({ thing }: { thing?: string }) => (
     filters={thing ? [] : [thingFilter]}
     columns={[
       { key: "name", label: "Event", rowHeader: true, sort: (e) => e.name, cell: (e) => <><A href={to.event(e.thing, e.name)}>{e.name}</A>{!thing && <Sub>{e.thing}</Sub>}</> },
-      { key: "when", label: "When", cell: (e) => <div className="flex flex-col gap-0.5">{e.emittedBy.map((o) => <span key={o.name} className="text-sm"><A href={to.op(o.name)}>{o.name}</A> <span className="text-fd-muted-foreground">{o.move!.from.join(", ") || "new"} → {o.move!.to.join(", ")}</span></span>)}</div> },
+      { key: "when", label: "When", cell: (e) => <div className="flex flex-col gap-0.5">{e.emittedBy.map((o) => <span key={o.name} className="text-sm"><A href={to.op(o.name)}>{o.name}</A> <span className="text-muted">{o.move!.from.join(", ") || "new"} <ArrowRight className="inline size-3.5" /> {o.move!.to.join(", ")}</span></span>)}</div> },
       { key: "fields", label: "Carries", cell: (e) => <Carries fields={e.fields} /> },
     ]} />
 );
@@ -80,8 +81,8 @@ export const AccessMatrix = ({ thing }: { thing?: string }) => {
     <DataTable label="Who may call" rows={ops} rowKey={(o) => o.name} search={(o) => o.name} filters={thing ? [] : [thingFilter]}
       rowHref={(o) => to.op(o.name)} columns={[
         { key: "op", label: "Operation", rowHeader: true, sort: (o) => o.name, cell: (o) => <A href={to.op(o.name)}>{o.name}</A> },
-        ...cols.map((r) => ({ key: r, label: r, head: <Link to={to.role(r)} className="hover:underline">{r}</Link>, align: "center" as const, cell: (o: Operation) => { const a = access(o, r);
-          return !a ? <span className="text-fd-muted-foreground">·</span> : <span title={a.path ? `as the ${r} of ${a.path}` : r}>✔{a.path && <Sub>of {a.path}</Sub>}</span>; } })),
+        ...cols.map((r) => ({ key: r, label: r, head: <Link href={to.role(r)}>{r}</Link>, align: "center" as const, cell: (o: Operation) => { const a = access(o, r);
+          return !a ? <span className="text-muted">·</span> : <span title={a.path ? `as the ${r} of ${a.path}` : r} className="inline-flex flex-col items-center"><Check className="text-success" aria-label="allowed" />{a.path && <Sub>of {a.path}</Sub>}</span>; } })),
       ]} />
   );
 };

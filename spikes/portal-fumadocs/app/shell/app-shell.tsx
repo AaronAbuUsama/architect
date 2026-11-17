@@ -3,11 +3,11 @@
 import { Magnifier, Moon, Sun } from "@gravity-ui/icons";
 import { Avatar, Button, Kbd } from "@heroui/react";
 import { AppLayout, Navbar, Sidebar } from "@heroui-pro/react";
-import { useSearchContext } from "fumadocs-ui/contexts/search";
 import { useEffect, useState, type ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { source } from "../blueprint/source.ts";
 import { AgentsMenu, DocsMenu, WorkMenu } from "./menus.tsx";
+import { useSearchContext } from "./search.tsx";
 import { sectionOf, SectionSwitch, type Section } from "./section-switch.tsx";
 
 function ThemeToggle() {

@@ -1,7 +1,9 @@
 // A thread told as a story: one plain sentence per thing that happened, written to be heard. "Listen" reads it aloud
 // with the browser's speech, lighting each line as it goes. In the real system the Run object writes these lines as the
 // run goes (a cheap model summarising each step); here they are made from the recorded events.
+import { ArrowRight, Play, Stop } from "@gravity-ui/icons";
 import { Button, Chip } from "@heroui/react";
+import { Segment, TextShimmer, Timeline } from "@heroui-pro/react";
 import { useEffect, useRef, useState } from "react";
 import { clock } from "./output.tsx";
 import type { Run, RunEvent } from "./types.ts";
@@ -28,11 +30,11 @@ export function narrate(e: RunEvent): { text: string; tone: "plain" | "good" | "
   }
 }
 
-const TONE = { plain: "bg-foreground/40", good: "bg-success", bad: "bg-danger", warn: "bg-warning" };
+const STATUS = { plain: "default", good: "success", bad: "danger", warn: "warning" } as const;
 
 export function Narration({ run, onJump }: { run: Run; onJump: (i: number) => void }) {
   const lines = run.events.map((e) => ({ at: e.at, ...narrate(e) }));
-  const [at, setAt] = useState<number | null>(null), [rate, setRate] = useState(1.1);
+  const [at, setAt] = useState<number | null>(null), [rate, setRate] = useState("1.1");
   const stopped = useRef(false);
   useEffect(() => () => { stopped.current = true; globalThis.speechSynthesis?.cancel(); }, []);
   const play = (from: number) => {
@@ -41,32 +43,41 @@ export function Narration({ run, onJump }: { run: Run; onJump: (i: number) => vo
     const say = (i: number) => {
       if (stopped.current || i >= lines.length) { setAt(null); return; }
       setAt(i);
-      const u = new SpeechSynthesisUtterance(lines[i]!.text); u.rate = rate; u.onend = () => say(i + 1);
+      const u = new SpeechSynthesisUtterance(lines[i]!.text); u.rate = Number(rate); u.onend = () => say(i + 1);
       synth.speak(u);
     };
     say(from);
   };
   const stop = () => { stopped.current = true; globalThis.speechSynthesis?.cancel(); setAt(null); };
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex items-center gap-2 rounded-2xl border border-border bg-surface p-2 pl-3 shadow-surface">
-        {at === null ? <Button size="sm" variant="primary" onPress={() => play(0)}>▶ Listen</Button> : <Button size="sm" variant="secondary" onPress={stop}>■ Stop</Button>}
-        <span className="text-sm text-muted">{at === null ? `${plural(lines.length, "line")} · about ${Math.max(1, Math.round(lines.map((l) => l.text).join(" ").length / 900))} min to hear` : `Reading line ${at + 1} of ${lines.length}`}</span>
-        <span className="ml-auto flex items-center gap-1 text-xs text-muted">Speed {[1, 1.1, 1.4].map((r) => <button key={r} onClick={() => setRate(r)} className={`rounded-md px-1.5 py-0.5 ${rate === r ? "bg-default text-foreground" : "hover:bg-default/60"}`}>{r}×</button>)}</span>
-        {run.status === "running" && <Chip size="sm" color="accent" variant="soft">● following live</Chip>}
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-surface p-2 pl-3">
+        {at === null ? <Button size="sm" variant="primary" onPress={() => play(0)}><Play />Listen</Button> : <Button size="sm" variant="secondary" onPress={stop}><Stop />Stop</Button>}
+        <span className="text-sm text-muted">{at === null ? `${plural(lines.length, "line")}, about ${Math.max(1, Math.round(lines.map((l) => l.text).join(" ").length / 900))} min to hear` : `Reading line ${at + 1} of ${lines.length}`}</span>
+        <span className="ml-auto flex items-center gap-2 text-xs text-muted">Speed
+          <Segment size="sm" aria-label="Speech speed" selectedKey={rate} onSelectionChange={(key) => setRate(String(key))}>
+            {["1", "1.1", "1.4"].map((r) => <Segment.Item key={r} id={r}>{r}x</Segment.Item>)}
+          </Segment></span>
+        {run.status === "running" && <Chip size="sm" color="accent" variant="soft">Following live</Chip>}
       </div>
-      <ol className="flex flex-col">
+      <Timeline density="compact">
         {lines.map((l, i) => (
-          <li key={i} className={`group grid grid-cols-[3rem_1.25rem_1fr] gap-x-2 rounded-xl py-1.5 transition-colors ${at === i ? "bg-accent-soft" : ""}`}>
-            <span className="pt-0.5 text-right font-mono text-xs text-muted tabular-nums">{clock(l.at)}</span>
-            <span className="flex justify-center pt-1.5"><span className={`size-2 rounded-full ${TONE[l.tone]}`} /></span>
-            <p className={`text-[15px] leading-relaxed ${l.tone === "bad" ? "text-danger" : ""}`}>{l.text}
-              <span className="ml-2 inline-flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                <button onClick={() => play(i)} className="rounded-md px-1.5 text-xs text-muted hover:bg-default">▶ from here</button>
-                <button onClick={() => onJump(i)} className="rounded-md px-1.5 text-xs text-muted hover:bg-default">show detail</button></span></p>
-          </li>))}
-        {run.status === "running" && <li className="grid grid-cols-[3rem_1.25rem_1fr] gap-x-2 py-1.5"><span /><span className="flex justify-center pt-1.5"><span className="size-2 animate-pulse rounded-full bg-accent" /></span><p className="text-[15px] text-muted">Still working…</p></li>}
-      </ol>
+          <Timeline.Item key={i} status={at === i ? "current" : STATUS[l.tone]}>
+            <Timeline.Rail><Timeline.Marker /><Timeline.Connector /></Timeline.Rail>
+            <Timeline.Content>
+              <div className={`flex flex-col gap-1 rounded-xl px-2 py-1 ${at === i ? "bg-accent-soft" : ""}`}>
+                <time className="font-mono text-xs text-muted tabular-nums">{clock(l.at)}</time>
+                <p className={`text-[15px] leading-relaxed ${l.tone === "bad" ? "text-danger" : ""}`}>{l.text}</p>
+                <div className="flex gap-1">
+                  <Button size="sm" variant="ghost" onPress={() => play(i)}><Play />Play from here</Button>
+                  <Button size="sm" variant="ghost" onPress={() => onJump(i)}>Show in transcript<ArrowRight /></Button>
+                </div>
+              </div>
+            </Timeline.Content>
+          </Timeline.Item>))}
+        {run.status === "running" && (
+          <Timeline.Item status="current"><Timeline.Rail><Timeline.Marker /></Timeline.Rail><Timeline.Content><TextShimmer className="text-[15px]">Still working...</TextShimmer></Timeline.Content></Timeline.Item>)}
+      </Timeline>
     </div>
   );
 }

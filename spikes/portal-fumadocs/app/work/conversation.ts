@@ -5,6 +5,7 @@ export type Msg =
   | { kind: "manager"; at: string; text: string }
   | { kind: "choice"; at: string; question: string; from: string; options: Array<[letter: string, text: string]>; picked?: string }
   | { kind: "approve"; at: string; title: string; why: string; task: string; done?: "approved" | "not yet" }
+  | { kind: "thinking"; at: string; text: string }
   | { kind: "system"; at: string; text: string; run?: string; task?: string; tone?: "good" | "bad" };
 
 export const conversations: Record<string, Msg[]> = {
@@ -37,4 +38,11 @@ export const conversations: Record<string, Msg[]> = {
   "sign-in": [
     { kind: "manager", at: "Nov 10 17:20", text: "Sign-in v1 is in production. 9 of 9 tasks closed; the mission is done." },
   ],
+};
+
+/** Quick replies offered above the composer, per mission. */
+export const quick: Record<string, string[]> = {
+  allowances: ["Why is spend still red?", "Promote grant", "Pause the mission", "What is r_41 doing?"],
+  invitations: ["Start again now", "Show today's spend", "What is left?"],
+  "sign-in": ["Reopen the mission", "What shipped?"],
 };

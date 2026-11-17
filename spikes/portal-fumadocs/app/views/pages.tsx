@@ -1,6 +1,6 @@
 // Each page type's body. Fumadocs gives the frame (title, TOC, breadcrumbs); these give the content, from the blueprint.
-import { Callout } from "fumadocs-ui/components/callout";
-import { TypeTable } from "fumadocs-ui/components/type-table";
+import { Alert } from "@heroui/react";
+import { ItemCard, ItemCardGroup } from "@heroui-pro/react";
 import type { ReactNode } from "react";
 import { CANDIDATE } from "../blueprint/evidence.ts";
 import { BP, errors, M, opsOf, things, refusedBy, roleOps, typeText, valueUsers, type Fields } from "../blueprint/model.ts";
@@ -11,13 +11,15 @@ import { OperationProof, ProofMatrix } from "./proof.tsx";
 import { StatTiles } from "./proof-overview.tsx";
 import { AttentionList } from "./attention.tsx";
 import { AccessMatrix, ErrorsTable, EventsTable, MovesTable, OperationsTable, ValuesTable } from "./reference.tsx";
-import { A, Code, Illustration, Sub, to, TypeCell } from "./status.tsx";
+import { SimpleTable as DataTableLite, FieldsTable } from "./simple-table.tsx";
+import { A, Code, Illustration, Sub, to } from "./status.tsx";
 import { tasksAbout, WorkOnIt } from "../work/links.tsx";
 
 export type Section = { id: string; title: string; body: ReactNode; fold?: boolean };
-const fieldsType = (fields: Fields) => Object.fromEntries(Object.entries(fields).map(([n, f]) => [n, { type: <TypeCell f={f} />, required: !f.optional, typeDescription: typeText(f.value) }]));
-const Fields = ({ fields, empty }: { fields: Fields; empty: string }) => (Object.keys(fields).length ? <TypeTable type={fieldsType(fields)} /> : <p className="text-fd-muted-foreground">{empty}</p>);
-const evidenceNote = <Callout title="Proof here is an illustration">The states are made up to show each one; names and hashes are acme's. Per-eval results (the nine squares) do not reach the portal yet: today the logbook keeps one verdict per operation.</Callout>;
+const Fields = ({ fields, empty }: { fields: Fields; empty: string }) => (Object.keys(fields).length ? <FieldsTable fields={fields} /> : <p className="text-muted">{empty}</p>);
+const Note = ({ title, status = "accent", children }: { title: string; status?: "accent" | "warning"; children: ReactNode }) => (
+  <Alert status={status} className="my-4"><Alert.Indicator /><Alert.Content><Alert.Title>{title}</Alert.Title><Alert.Description>{children}</Alert.Description></Alert.Content></Alert>);
+const evidenceNote = <Note title="Proof here is an illustration">The states are made up to show each one; names and hashes are acme's. Per-eval results (the nine squares) do not reach the portal yet: today the logbook keeps one verdict per operation.</Note>;
 
 export function sections(p: PageKind): Section[] {
   switch (p.kind) {
@@ -54,7 +56,7 @@ export function sections(p: PageKind): Section[] {
       { id: "fields", title: "Carries", body: <Fields fields={fields} empty="Nothing." /> },
       { id: "machine", title: `In the ${p.thing} machine`, body: <MachineDiagram thing={p.thing} hot={by[0]?.move?.key} />, fold: true },
     ]; }
-    case "reference": return [{ id: p.table, title: "", body: { machines: <><MovesTable />{things.filter((t) => t.machine).map((t) => <div key={t.name}><h3 id={t.name}>{t.name}</h3><MachineDiagram thing={t.name} /></div>)}</>,
+    case "reference": return [{ id: p.table, title: "", body: { machines: <><MovesTable />{things.filter((t) => t.machine).map((t) => <div key={t.name}><h3 id={t.name} className="mt-6 text-lg font-semibold">{t.name}</h3><MachineDiagram thing={t.name} /></div>)}</>,
       events: <EventsTable />, errors: <ErrorsTable />, values: <ValuesTable />, roles: <AccessMatrix /> }[p.table] }];
     case "environment": { const e = M.environments[p.environment]!; const proved = e.name !== "local"; return [
       { id: "about", title: "About", body: <EnvironmentAbout name={e.name} /> },
@@ -67,14 +69,14 @@ export function sections(p: PageKind): Section[] {
     ]; }
     case "role": { const ops = roleOps(p.role); const declared = !["anyone", "signed-in"].includes(p.role); return [
       { id: "allows", title: "Lets you call", body: <DataTableLite head={["Operation", "How"]} rows={ops.map(({ op, via }) => [<A href={to.op(op.name)}>{op.name}</A>, via ? `as the ${p.role.split(".")[1]} of the ${via}` : declared ? `as the ${p.role.split(".")[1]} of this ${op.thing}` : "directly"])} /> },
-      ...(declared ? [{ id: "holds", title: "Who holds it", body: <Callout type="warn" title="Not in the blueprint yet">The blueprint names this role on <A href={to.thing(p.role.split(".")[0]!)}>{p.role.split(".")[0]}</A> but not how someone comes to hold it (which field or fact). The compiler would need to project that for this page to say it.</Callout> }] : []),
+      ...(declared ? [{ id: "holds", title: "Who holds it", body: <Note status="warning" title="Not in the blueprint yet">The blueprint names this role on <A href={to.thing(p.role.split(".")[0]!)}>{p.role.split(".")[0]}</A> but not how someone comes to hold it (which field or fact). The compiler would need to project that for this page to say it.</Note> }] : []),
     ]; }
     case "value": { const v = M.values[p.value]!; const users = valueUsers(p.value); return [
       { id: "facts", title: "", body: <Facts items={[["Shape", <Code>{typeText(v)}</Code>], ["Used in", users.length]]} /> },
       { id: "used", title: "Used in", body: users.length ? <DataTableLite head={["Where", "Field"]} rows={users.map((u) => [<A href={u.href}>{u.where}</A>, <Code>{u.field}</Code>])} /> : <p>Nothing uses it yet.</p> },
     ]; }
     case "attention": return [{ id: "items", title: "", body: <>{evidenceNote}<AttentionList /></> }];
-    case "journeys": return [{ id: "journeys", title: "", body: <Callout type="info" title="Not available yet">{String(BP.extensions.journeys?.reason)}. These pages appear when the compiler projects journeys and worlds (F2.2); nothing here is invented.</Callout> }];
+    case "journeys": return [{ id: "journeys", title: "", body: <Note title="Not available yet">{String(BP.extensions.journeys?.reason)}. These pages appear when the compiler projects journeys and worlds (F2.2); nothing here is invented.</Note> }];
   }
 }
 
@@ -87,17 +89,10 @@ const EnvironmentAbout = ({ name }: { name: string }) => { const e = M.environme
   <Sub>Declared in <Code>{e.file}</Code></Sub>
 </>; };
 
-/** A few facts as tiles. */
+/** A few facts as a grid of item cards. */
 const Facts = ({ items }: { items: Array<[string, ReactNode]> }) => (
-  <div className="not-prose my-4 grid grid-cols-2 gap-3 md:grid-cols-4">
-    {items.map(([k, v]) => <div key={k} className="rounded-2xl border border-fd-border bg-fd-card p-4"><div className="text-sm text-fd-muted-foreground">{k}</div><div className="mt-1 font-semibold">{v}</div></div>)}
-  </div>
-);
-/** A short plain table: no toolbar, for a handful of rows. */
-const DataTableLite = ({ head, rows }: { head: string[]; rows: ReactNode[][] }) => (
-  <div className="not-prose my-4 overflow-hidden rounded-xl border border-fd-border">
-    <table className="w-full text-sm"><thead className="bg-fd-muted/50 text-left text-fd-muted-foreground"><tr>{head.map((h) => <th key={h} className="px-4 py-2 font-medium">{h}</th>)}</tr></thead>
-      <tbody>{rows.map((r, i) => <tr key={i} className="border-t border-fd-border">{r.map((c, j) => <td key={j} className="px-4 py-2.5 align-top">{c}</td>)}</tr>)}</tbody></table>
-  </div>
+  <ItemCardGroup layout="grid" columns={2} variant="secondary" className="my-4">
+    {items.map(([k, v]) => <ItemCard key={k}><ItemCard.Content><ItemCard.Description>{k}</ItemCard.Description><ItemCard.Title>{v}</ItemCard.Title></ItemCard.Content></ItemCard>)}
+  </ItemCardGroup>
 );
 export { Illustration };

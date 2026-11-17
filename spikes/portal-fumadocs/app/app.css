@@ -1,43 +1,16 @@
 @import "tailwindcss";
-@import "fumadocs-ui/css/neutral.css";
-@import "fumadocs-ui/css/preset.css";
 @import "@heroui/styles";
 @import "@heroui-pro/react/css";
 
-@source "../node_modules/fumadocs-ui/dist/**/*.js";
 @source "../node_modules/streamdown/dist/*.js";
 @source "../node_modules/@heroui-pro/react/dist/**/*.js";
 
-/* HeroUI first: its tokens are the palette, and Fumadocs' headless pieces (search, accordions, prose) follow them. */
-:root, .dark {
-  --color-fd-background: var(--background);
-  --color-fd-foreground: var(--foreground);
-  --color-fd-card: var(--surface);
-  --color-fd-card-foreground: var(--surface-foreground);
-  --color-fd-popover: var(--overlay);
-  --color-fd-popover-foreground: var(--overlay-foreground);
-  --color-fd-primary: var(--accent);
-  --color-fd-primary-foreground: var(--accent-foreground);
-  --color-fd-secondary: var(--surface-secondary);
-  --color-fd-secondary-foreground: var(--surface-secondary-foreground);
-  --color-fd-muted: var(--default);
-  --color-fd-muted-foreground: var(--muted);
-  --color-fd-accent: var(--default);
-  --color-fd-accent-foreground: var(--default-foreground);
-  --color-fd-border: var(--border);
-  --color-fd-ring: var(--focus);
-}
 /* Fields and unticked boxes keep a visible edge on raised surfaces. */
 :root, .dark { --field-border: color-mix(in oklab, var(--foreground) 25%, transparent); --border-width-field: 1px; }
 
 /* The mock's "static file" view: every live slot is empty, as the generator writes it. */
 html[data-view="static"] [data-live] > * { visibility: hidden; }
-html[data-view="static"] [data-live] { background: repeating-linear-gradient(45deg, transparent 0 4px, color-mix(in oklab, var(--color-fd-primary) 18%, transparent) 4px 8px); border-radius: 6px; }
-
-/* Fill the window: no centred gutter pushing the sidebar in from the left edge. */
-#nd-docs-layout { --fd-layout-width: 100vw; }
-/* The theme switch sits in a box sized to it, not a full-width empty pill. */
-#nd-sidebar div:has(> [data-theme-toggle]), aside div:has(> [data-theme-toggle]) { width: fit-content; margin-inline-start: auto; }
+html[data-view="static"] [data-live] { background: repeating-linear-gradient(45deg, transparent 0 4px, color-mix(in oklab, var(--accent) 18%, transparent) 4px 8px); border-radius: 6px; }
 
 /* Room for mission and thread titles. */
 .sidebar { --sidebar-width: 300px; }
