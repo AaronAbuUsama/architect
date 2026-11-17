@@ -15,4 +15,4 @@ Lives in the database.
 
 ## Operations
 
-(none yet)
+- [person.sign-up](sign-up.md): Sign up with an email address and a password.

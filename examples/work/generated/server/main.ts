@@ -16,6 +16,7 @@ import * as attentionApprove from "../api/src/attention/approve.ts";
 import * as attentionDecline from "../api/src/attention/decline.ts";
 import * as attentionList from "../api/src/attention/list.ts";
 import * as attentionRaise from "../api/src/attention/raise.ts";
+import * as factRecord from "../api/src/fact/record.ts";
 import * as milestoneAdd from "../api/src/milestone/add.ts";
 import * as milestoneDrop from "../api/src/milestone/drop.ts";
 import * as milestoneList from "../api/src/milestone/list.ts";
@@ -28,6 +29,7 @@ import * as missionResume from "../api/src/mission/resume.ts";
 import * as missionStart from "../api/src/mission/start.ts";
 import * as missionStop from "../api/src/mission/stop.ts";
 import * as missionTasks from "../api/src/mission/tasks.ts";
+import * as personSignUp from "../api/src/person/sign-up.ts";
 import * as questionAnswer from "../api/src/question/answer.ts";
 import * as questionAsk from "../api/src/question/ask.ts";
 import * as questionList from "../api/src/question/list.ts";
@@ -38,9 +40,12 @@ import * as runList from "../api/src/run/list.ts";
 import * as runReport from "../api/src/run/report.ts";
 import * as runStart from "../api/src/run/start.ts";
 import * as runStop from "../api/src/run/stop.ts";
+import * as sessionShow from "../api/src/session/show.ts";
+import * as sessionSignIn from "../api/src/session/sign-in.ts";
 import attentionApproveHandler from "../../src/attention/approve.ts";
 import attentionDeclineHandler from "../../src/attention/decline.ts";
 import attentionRaiseHandler from "../../src/attention/raise.ts";
+import factRecordHandler from "../../src/fact/record.ts";
 import milestoneAddHandler from "../../src/milestone/add.ts";
 import milestoneDropHandler from "../../src/milestone/drop.ts";
 import missionFinishHandler from "../../src/mission/finish.ts";
@@ -50,6 +55,7 @@ import missionResumeHandler from "../../src/mission/resume.ts";
 import missionStartHandler from "../../src/mission/start.ts";
 import missionStopHandler from "../../src/mission/stop.ts";
 import missionTasksHandler from "../../src/mission/tasks.ts";
+import personSignUpHandler from "../../src/person/sign-up.ts";
 import questionAnswerHandler from "../../src/question/answer.ts";
 import questionAskHandler from "../../src/question/ask.ts";
 import questionSpikeHandler from "../../src/question/spike.ts";
@@ -58,12 +64,16 @@ import runFinishHandler from "../../src/run/finish.ts";
 import runReportHandler from "../../src/run/report.ts";
 import runStartHandler from "../../src/run/start.ts";
 import runStopHandler from "../../src/run/stop.ts";
+import sessionShowHandler from "../../src/session/show.ts";
+import sessionSignInHandler from "../../src/session/sign-in.ts";
 import * as attentionThing from "../../blueprint/things/attention/thing.ts";
+import * as factThing from "../../blueprint/things/fact/thing.ts";
 import * as milestoneThing from "../../blueprint/things/milestone/thing.ts";
 import * as missionThing from "../../blueprint/things/mission/thing.ts";
 import * as personThing from "../../blueprint/things/person/thing.ts";
 import * as questionThing from "../../blueprint/things/question/thing.ts";
 import * as runThing from "../../blueprint/things/run/thing.ts";
+import * as sessionThing from "../../blueprint/things/session/thing.ts";
 
 export { World } from "@architect/host-cloudflare";
 
@@ -71,6 +81,7 @@ const attentionApproveServed = Handlers.serve({ name: "attention.approve", opera
 const attentionDeclineServed = Handlers.serve({ name: "attention.decline", operation: attentionDecline.declaration, handler: attentionDeclineHandler, notFrom: "AttentionNotOpen" });
 const attentionListServed = Reads.serve({ name: "attention.list", read: attentionList.declaration });
 const attentionRaiseServed = Handlers.serve({ name: "attention.raise", operation: attentionRaise.declaration, handler: attentionRaiseHandler });
+const factRecordServed = Handlers.serve({ name: "fact.record", operation: factRecord.declaration, handler: factRecordHandler });
 const milestoneAddServed = Handlers.serve({ name: "milestone.add", operation: milestoneAdd.declaration, handler: milestoneAddHandler });
 const milestoneDropServed = Handlers.serve({ name: "milestone.drop", operation: milestoneDrop.declaration, handler: milestoneDropHandler, notFrom: "MilestoneNotActive" });
 const milestoneListServed = Reads.serve({ name: "milestone.list", read: milestoneList.declaration });
@@ -83,6 +94,7 @@ const missionResumeServed = Handlers.serve({ name: "mission.resume", operation: 
 const missionStartServed = Handlers.serve({ name: "mission.start", operation: missionStart.declaration, handler: missionStartHandler, notFrom: "MissionNotIntake" });
 const missionStopServed = Handlers.serve({ name: "mission.stop", operation: missionStop.declaration, handler: missionStopHandler, notFrom: "MissionNotIntake" });
 const missionTasksServed = Handlers.serve({ name: "mission.tasks", operation: missionTasks.declaration, handler: missionTasksHandler });
+const personSignUpServed = Handlers.serve({ name: "person.sign-up", operation: personSignUp.declaration, handler: personSignUpHandler });
 const questionAnswerServed = Handlers.serve({ name: "question.answer", operation: questionAnswer.declaration, handler: questionAnswerHandler, notFrom: "QuestionNotAsked" });
 const questionAskServed = Handlers.serve({ name: "question.ask", operation: questionAsk.declaration, handler: questionAskHandler });
 const questionListServed = Reads.serve({ name: "question.list", read: questionList.declaration });
@@ -93,9 +105,11 @@ const runListServed = Reads.serve({ name: "run.list", read: runList.declaration 
 const runReportServed = Handlers.serve({ name: "run.report", operation: runReport.declaration, handler: runReportHandler, notFrom: "RunNotRunning" });
 const runStartServed = Handlers.serve({ name: "run.start", operation: runStart.declaration, handler: runStartHandler });
 const runStopServed = Handlers.serve({ name: "run.stop", operation: runStop.declaration, handler: runStopHandler, notFrom: "RunNotRunning" });
+const sessionShowServed = Handlers.serve({ name: "session.show", operation: sessionShow.declaration, handler: sessionShowHandler });
+const sessionSignInServed = Handlers.serve({ name: "session.sign-in", operation: sessionSignIn.declaration, handler: sessionSignInHandler });
 
 /** Each thing and its table: a D1 table, or the name its actors go by. */
-const tables = [[thingIn(attentionThing), "attention"], [thingIn(milestoneThing), "milestone"], [thingIn(missionThing), "mission"], [thingIn(personThing), "person"], [thingIn(questionThing), "question"], [thingIn(runThing), "run"]] as const;
+const tables = [[thingIn(attentionThing), "attention"], [thingIn(factThing), "fact"], [thingIn(milestoneThing), "milestone"], [thingIn(missionThing), "mission"], [thingIn(personThing), "person"], [thingIn(questionThing), "question"], [thingIn(runThing), "run"], [thingIn(sessionThing), "session"]] as const;
 
 const refusals = Wire.refusals(Errors.wire);
 type Services = SqlClient.SqlClient | Store | Busy | Principals | Journal | Auth;
@@ -117,6 +131,12 @@ const AttentionLive = HttpApiBuilder.group(Api, "attention", Effect.fn(function*
       .handle("decline", ({ payload, request }) => call(attentionDeclineServed, payload, request.headers).pipe(Effect.provideContext(services)))
       .handle("list", ({ payload, request }) => call(attentionListServed, payload, request.headers).pipe(Effect.provideContext(services)))
       .handle("raise", ({ payload, request }) => call(attentionRaiseServed, payload, request.headers).pipe(Effect.provideContext(services)));
+}));
+const FactLive = HttpApiBuilder.group(Api, "fact", Effect.fn(function* (handlers) {
+  // The services are taken once, when the routes are built; each request keeps its own tracer and span.
+  const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
+  return handlers
+      .handle("record", ({ payload, request }) => call(factRecordServed, payload, request.headers).pipe(Effect.provideContext(services)));
 }));
 const MilestoneLive = HttpApiBuilder.group(Api, "milestone", Effect.fn(function* (handlers) {
   // The services are taken once, when the routes are built; each request keeps its own tracer and span.
@@ -140,6 +160,12 @@ const MissionLive = HttpApiBuilder.group(Api, "mission", Effect.fn(function* (ha
       .handle("stop", ({ payload, request }) => call(missionStopServed, payload, request.headers).pipe(Effect.provideContext(services)))
       .handle("tasks", ({ payload, request }) => call(missionTasksServed, payload, request.headers).pipe(Effect.provideContext(services)));
 }));
+const PersonLive = HttpApiBuilder.group(Api, "person", Effect.fn(function* (handlers) {
+  // The services are taken once, when the routes are built; each request keeps its own tracer and span.
+  const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
+  return handlers
+      .handle("sign-up", ({ payload, request }) => call(personSignUpServed, payload, request.headers).pipe(Effect.provideContext(services)));
+}));
 const QuestionLive = HttpApiBuilder.group(Api, "question", Effect.fn(function* (handlers) {
   // The services are taken once, when the routes are built; each request keeps its own tracer and span.
   const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
@@ -159,6 +185,13 @@ const RunLive = HttpApiBuilder.group(Api, "run", Effect.fn(function* (handlers) 
       .handle("report", ({ payload, request }) => call(runReportServed, payload, request.headers).pipe(Effect.provideContext(services)))
       .handle("start", ({ payload, request }) => call(runStartServed, payload, request.headers).pipe(Effect.provideContext(services)))
       .handle("stop", ({ payload, request }) => call(runStopServed, payload, request.headers).pipe(Effect.provideContext(services)));
+}));
+const SessionLive = HttpApiBuilder.group(Api, "session", Effect.fn(function* (handlers) {
+  // The services are taken once, when the routes are built; each request keeps its own tracer and span.
+  const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
+  return handlers
+      .handle("show", ({ payload, request }) => call(sessionShowServed, payload, request.headers).pipe(Effect.provideContext(services)))
+      .handle("sign-in", ({ payload, request }) => call(sessionSignInServed, payload, request.headers).pipe(Effect.provideContext(services)));
 }));
 
 export interface Env {
@@ -188,7 +221,7 @@ const routesOf = (env: Env) => (routes ??= AuthD1.make({ db: env.DB, secret: env
 const build = (env: Env) =>
   HttpRouter.toWebHandler(
     HttpApiBuilder.layer(Api).pipe(
-      Layer.provide([AttentionLive, MilestoneLive, MissionLive, QuestionLive, RunLive]),
+      Layer.provide([AttentionLive, FactLive, MilestoneLive, MissionLive, PersonLive, QuestionLive, RunLive, SessionLive]),
       Layer.provide([StoreD1.layer({ tables }), JournalD1.layer, BusyLive, AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))]),
       Layer.provideMerge(Database.d1(env.DB)),
       Layer.provide(HttpServer.layerServices),
@@ -212,7 +245,7 @@ const hostsWorlds = (env: Env) =>
 /** One tool per operation and read: the same served operations as the API, called as the person the access token names. */
 const tools = Mcp.tools<Services>({
   catalog,
-  served: { "attention.approve": attentionApproveServed, "attention.decline": attentionDeclineServed, "attention.list": attentionListServed, "attention.raise": attentionRaiseServed, "milestone.add": milestoneAddServed, "milestone.drop": milestoneDropServed, "milestone.list": milestoneListServed, "mission.finish": missionFinishServed, "mission.get": missionGetServed, "mission.list": missionListServed, "mission.open": missionOpenServed, "mission.pause": missionPauseServed, "mission.resume": missionResumeServed, "mission.start": missionStartServed, "mission.stop": missionStopServed, "mission.tasks": missionTasksServed, "question.answer": questionAnswerServed, "question.ask": questionAskServed, "question.list": questionListServed, "question.spike": questionSpikeServed, "run.fail": runFailServed, "run.finish": runFinishServed, "run.list": runListServed, "run.report": runReportServed, "run.start": runStartServed, "run.stop": runStopServed },
+  served: { "attention.approve": attentionApproveServed, "attention.decline": attentionDeclineServed, "attention.list": attentionListServed, "attention.raise": attentionRaiseServed, "fact.record": factRecordServed, "milestone.add": milestoneAddServed, "milestone.drop": milestoneDropServed, "milestone.list": milestoneListServed, "mission.finish": missionFinishServed, "mission.get": missionGetServed, "mission.list": missionListServed, "mission.open": missionOpenServed, "mission.pause": missionPauseServed, "mission.resume": missionResumeServed, "mission.start": missionStartServed, "mission.stop": missionStopServed, "mission.tasks": missionTasksServed, "person.sign-up": personSignUpServed, "question.answer": questionAnswerServed, "question.ask": questionAskServed, "question.list": questionListServed, "question.spike": questionSpikeServed, "run.fail": runFailServed, "run.finish": runFinishServed, "run.list": runListServed, "run.report": runReportServed, "run.start": runStartServed, "run.stop": runStopServed, "session.show": sessionShowServed, "session.sign-in": sessionSignInServed },
   refusals: { codes: Errors.codes, declared: Errors.declared },
 });
 

@@ -2,8 +2,10 @@
 import { Schema } from "effect";
 import { ErrorNames, structOf } from "@architect/blueprint/server";
 import * as Mission from "../../../blueprint/things/mission/errors.ts";
+import * as Person from "../../../blueprint/things/person/errors.ts";
 import * as Question from "../../../blueprint/things/question/errors.ts";
 import * as Run from "../../../blueprint/things/run/errors.ts";
+import * as Session from "../../../blueprint/things/session/errors.ts";
 
 ErrorNames.name(Mission.MissionHasOpenQuestions, "MissionHasOpenQuestions");
 export class MissionHasOpenQuestions extends Schema.TaggedError<MissionHasOpenQuestions>()("MissionHasOpenQuestions", { code: Schema.Literal("MS-001"), ...structOf(Mission.MissionHasOpenQuestions.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "MS-001" as const; }
@@ -15,6 +17,8 @@ ErrorNames.name(Mission.MissionHasOpenTasks, "MissionHasOpenTasks");
 export class MissionHasOpenTasks extends Schema.TaggedError<MissionHasOpenTasks>()("MissionHasOpenTasks", { code: Schema.Literal("MS-004"), ...structOf(Mission.MissionHasOpenTasks.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "MS-004" as const; }
 ErrorNames.name(Mission.MissionClosed, "MissionClosed");
 export class MissionClosed extends Schema.TaggedError<MissionClosed>()("MissionClosed", { code: Schema.Literal("MS-005"), ...structOf(Mission.MissionClosed.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "MS-005" as const; }
+ErrorNames.name(Person.PersonEmailTaken, "PersonEmailTaken");
+export class PersonEmailTaken extends Schema.TaggedError<PersonEmailTaken>()("PersonEmailTaken", { code: Schema.Literal("PE-001"), ...structOf(Person.PersonEmailTaken.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "PE-001" as const; }
 ErrorNames.name(Question.QuestionNoSuchOption, "QuestionNoSuchOption");
 export class QuestionNoSuchOption extends Schema.TaggedError<QuestionNoSuchOption>()("QuestionNoSuchOption", { code: Schema.Literal("QU-001"), ...structOf(Question.QuestionNoSuchOption.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "QU-001" as const; }
 ErrorNames.name(Run.RunOverBudget, "RunOverBudget");
@@ -23,6 +27,8 @@ ErrorNames.name(Run.RunAgentCannot, "RunAgentCannot");
 export class RunAgentCannot extends Schema.TaggedError<RunAgentCannot>()("RunAgentCannot", { code: Schema.Literal("RU-002"), ...structOf(Run.RunAgentCannot.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "RU-002" as const; }
 ErrorNames.name(Run.RunTaskClaimed, "RunTaskClaimed");
 export class RunTaskClaimed extends Schema.TaggedError<RunTaskClaimed>()("RunTaskClaimed", { code: Schema.Literal("RU-003"), ...structOf(Run.RunTaskClaimed.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "RU-003" as const; }
+ErrorNames.name(Session.SessionCredentialsWrong, "SessionCredentialsWrong");
+export class SessionCredentialsWrong extends Schema.TaggedError<SessionCredentialsWrong>()("SessionCredentialsWrong", { code: Schema.Literal("SE-001"), ...structOf(Session.SessionCredentialsWrong.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "SE-001" as const; }
 export class AttentionNotOpen extends Schema.TaggedError<AttentionNotOpen>()("AttentionNotOpen", { code: Schema.Literal("AT-900"), ...{ state: Schema.String } }, { httpApiStatus: 409 }) { static readonly code = "AT-900" as const; }
 export class MilestoneNotActive extends Schema.TaggedError<MilestoneNotActive>()("MilestoneNotActive", { code: Schema.Literal("ML-900"), ...{ state: Schema.String } }, { httpApiStatus: 409 }) { static readonly code = "ML-900" as const; }
 export class MissionNotIntake extends Schema.TaggedError<MissionNotIntake>()("MissionNotIntake", { code: Schema.Literal("MS-900"), ...{ state: Schema.String } }, { httpApiStatus: 409 }) { static readonly code = "MS-900" as const; }
@@ -37,10 +43,12 @@ export const exits = {
   MissionNotInIntake: 57,
   MissionHasOpenTasks: 58,
   MissionClosed: 59,
+  PersonEmailTaken: 11,
   QuestionNoSuchOption: 54,
   RunOverBudget: 61,
   RunAgentCannot: 62,
   RunTaskClaimed: 63,
+  SessionCredentialsWrong: 10,
   AttentionNotOpen: 55,
   MilestoneNotActive: 52,
   MissionNotIntake: 50,
@@ -56,10 +64,12 @@ export const codes = {
   MissionNotInIntake: "MS-003",
   MissionHasOpenTasks: "MS-004",
   MissionClosed: "MS-005",
+  PersonEmailTaken: "PE-001",
   QuestionNoSuchOption: "QU-001",
   RunOverBudget: "RU-001",
   RunAgentCannot: "RU-002",
   RunTaskClaimed: "RU-003",
+  SessionCredentialsWrong: "SE-001",
   AttentionNotOpen: "AT-900",
   MilestoneNotActive: "ML-900",
   MissionNotIntake: "MS-900",
@@ -75,10 +85,12 @@ export const shown: Readonly<Record<string, ReadonlyArray<string>>> = {
   MissionNotInIntake: [],
   MissionHasOpenTasks: ["open"],
   MissionClosed: [],
+  PersonEmailTaken: [],
   QuestionNoSuchOption: [],
   RunOverBudget: ["left"],
   RunAgentCannot: [],
   RunTaskClaimed: [],
+  SessionCredentialsWrong: [],
   AttentionNotOpen: ["state"],
   MilestoneNotActive: ["state"],
   MissionNotIntake: ["state"],
@@ -94,11 +106,13 @@ export const declared = {
   MissionNotInIntake: Mission.MissionNotInIntake,
   MissionHasOpenTasks: Mission.MissionHasOpenTasks,
   MissionClosed: Mission.MissionClosed,
+  PersonEmailTaken: Person.PersonEmailTaken,
   QuestionNoSuchOption: Question.QuestionNoSuchOption,
   RunOverBudget: Run.RunOverBudget,
   RunAgentCannot: Run.RunAgentCannot,
   RunTaskClaimed: Run.RunTaskClaimed,
+  SessionCredentialsWrong: Session.SessionCredentialsWrong,
 } as const;
 
 /** The wire class of each refusal, by name. */
-export const wire = { MissionHasOpenQuestions, MissionNotRunning, MissionNotInIntake, MissionHasOpenTasks, MissionClosed, QuestionNoSuchOption, RunOverBudget, RunAgentCannot, RunTaskClaimed, AttentionNotOpen, MilestoneNotActive, MissionNotIntake, QuestionNotAsked, RunNotRunning, NotAllowed };
+export const wire = { MissionHasOpenQuestions, MissionNotRunning, MissionNotInIntake, MissionHasOpenTasks, MissionClosed, PersonEmailTaken, QuestionNoSuchOption, RunOverBudget, RunAgentCannot, RunTaskClaimed, SessionCredentialsWrong, AttentionNotOpen, MilestoneNotActive, MissionNotIntake, QuestionNotAsked, RunNotRunning, NotAllowed };

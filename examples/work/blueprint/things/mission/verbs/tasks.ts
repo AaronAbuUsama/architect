@@ -13,7 +13,7 @@ export default Blueprint.operation(Mission, {
   allowed: [owner.of("mission")],
   steps: {
     plan: Blueprint.step.database(), // milestones, questions spiked, runs and attention, from this project
-    facts: Blueprint.todo("read eval rows, verdicts and compiled revisions from the logbook: a declared dependency (L3.01)"),
+    facts: Blueprint.step.database(), // SPIKE: the fact table stands in for the logbook (L3.01)
   },
   budget: { p95: "300 millis" },
 });

@@ -61,6 +61,15 @@ target-effect and cli, and `nx sync:check`):
   `export const answer = Command.make(...)`. The CLI now imports `* as Output` and `{ declaration as Declaration }`, so no
   verb (always lower camel case) can clash with an import.
 
+Found and fixed by the spike `spikes/work-real` (work running locally on acme's real facts):
+
+- **D1 could not bind an array field.** `milestone.add` failed with `D1_TYPE_ERROR: Type 'object' not supported` for
+  `kinds`. The store (`host-cloudflare` `store/internal/rows.ts`) now keeps a field whose encoded schema is an array or
+  a struct as JSON and parses it back, decided by the schema, not the text. acme has no array field, so nothing had
+  exercised it.
+- **work had no sign-in.** No `person` or `session`, so every `owner.of("mission")` operation was unreachable. They are
+  added, as in acme.
+
 Open, for the language (not changed here):
 
 - **A person and an agent acting for them look the same.** `Principal` is `anonymous | person`. F4 8.10 needs
@@ -72,6 +81,8 @@ Open, for the language (not changed here):
 - **An array value has no length bound.** `Options` (a question's answers) is an unbounded `Schema.Array`.
 - **A blank cannot sit in `allowed`.** `Blueprint.todo(...)` there fails with `uses a role not exported from a roles.ts`,
   so an undecided role cannot be left as a blank.
+- **A question's answer is not kept.** `question.answer` takes `picked` but `question` has no field for it, so the
+  board can say a question was answered, not how. It needs an optional field or an `answer` row.
 - **`notFrom` names its one refusal after the first state.** `mission.pause` refuses with `MissionNotIntake` though it
   moves from `running`. The refusal carries the real state; the name misleads.
 

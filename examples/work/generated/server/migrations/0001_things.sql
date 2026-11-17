@@ -10,6 +10,16 @@ CREATE TABLE "attention" (
   "state" TEXT,
   "version" INTEGER NOT NULL DEFAULT 0
 );
+CREATE TABLE "fact" (
+  "id" TEXT PRIMARY KEY,
+  "subject" TEXT NOT NULL,
+  "kind" TEXT NOT NULL,
+  "env" TEXT NOT NULL,
+  "result" TEXT NOT NULL,
+  "note" TEXT NOT NULL,
+  "revision" TEXT NOT NULL,
+  "version" INTEGER NOT NULL DEFAULT 0
+);
 CREATE TABLE "milestone" (
   "id" TEXT PRIMARY KEY,
   "mission" TEXT NOT NULL,
@@ -53,6 +63,11 @@ CREATE TABLE "run" (
   "model" TEXT NOT NULL,
   "budget" TEXT NOT NULL,
   "state" TEXT,
+  "version" INTEGER NOT NULL DEFAULT 0
+);
+CREATE TABLE "session" (
+  "id" TEXT PRIMARY KEY,
+  "person" TEXT NOT NULL,
   "version" INTEGER NOT NULL DEFAULT 0
 );
 -- Every event a move emitted, with the trace of the call that made it (target-effect's Journal).

@@ -1,15 +1,19 @@
 // Scaffolded from blueprint/things/attention/verbs/raise.ts. Yours from now on.
 import { Effect } from "effect";
-import { Handlers } from "@architect/target-effect";
+import { Ids, Records } from "@architect/target-effect";
+import { Attention } from "../../blueprint/things/attention/thing.ts";
+import { MissionNotRunning } from "../../blueprint/things/mission/errors.ts";
+import { stateOf } from "../board.ts";
 import type { Handler } from "../../generated/api/src/attention/raise.handler.ts";
 
-/** Ask the mission's owner for a decision only they can make. */
-const raise: Handler = (_payload, _context) =>
+const raise: Handler = ({ mission, kind, title, why, task }, { steps, move }) =>
   Effect.gen(function* () {
-    // Payload: mission, kind, title, why, task.
-    // Answer: attention.
-    // Steps, each its own span: steps.insert(...).
-    return yield* Handlers.blank("this handler is not written yet");
+    if ((yield* stateOf("mission", mission)) !== "running") return yield* new MissionNotRunning({});
+    const records = yield* Records;
+    const attention = yield* Ids.of(Attention.fields.id);
+    yield* steps.insert(records.insert(Attention, { id: attention, mission, kind, title, why, task }));
+    yield* move("open");
+    return { attention };
   });
 
 export default raise;

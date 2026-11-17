@@ -25,6 +25,11 @@
     "kind": "refers"
   },
   {
+    "from": "session.person",
+    "to": "person.id",
+    "kind": "refers"
+  },
+  {
     "from": "attention.approve",
     "to": "attention",
     "kind": "acts-on"
@@ -78,6 +83,11 @@
     "from": "attention.raise",
     "to": "mission.owner",
     "kind": "allowed-by"
+  },
+  {
+    "from": "fact.record",
+    "to": "fact",
+    "kind": "acts-on"
   },
   {
     "from": "milestone.add",
@@ -230,6 +240,11 @@
     "kind": "allowed-by"
   },
   {
+    "from": "person.sign-up",
+    "to": "person",
+    "kind": "acts-on"
+  },
+  {
     "from": "question.answer",
     "to": "question",
     "kind": "acts-on"
@@ -368,5 +383,15 @@
     "from": "run.stop",
     "to": "mission.owner",
     "kind": "allowed-by"
+  },
+  {
+    "from": "session.show",
+    "to": "session",
+    "kind": "acts-on"
+  },
+  {
+    "from": "session.sign-in",
+    "to": "session",
+    "kind": "acts-on"
   }
 ]

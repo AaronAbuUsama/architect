@@ -1,15 +1,20 @@
 // Scaffolded from blueprint/things/milestone/verbs/add.ts. Yours from now on.
 import { Effect } from "effect";
-import { Handlers } from "@architect/target-effect";
+import { Ids, Records } from "@architect/target-effect";
+import { Milestone } from "../../blueprint/things/milestone/thing.ts";
+import { MissionClosed } from "../../blueprint/things/mission/errors.ts";
+import { stateOf } from "../board.ts";
 import type { Handler } from "../../generated/api/src/milestone/add.handler.ts";
 
-/** Add a milestone to a mission. Its tasks appear at once: its kinds over its subject. */
-const add: Handler = (_payload, _context) =>
+const add: Handler = ({ mission, title, kinds, of, until }, { steps, move }) =>
   Effect.gen(function* () {
-    // Payload: mission, title, kinds, of, until.
-    // Answer: milestone.
-    // Steps, each its own span: steps.insert(...).
-    return yield* Handlers.blank("this handler is not written yet");
+    const s = yield* stateOf("mission", mission);
+    if (s === "done" || s === "stopped") return yield* new MissionClosed({});
+    const records = yield* Records;
+    const milestone = yield* Ids.of(Milestone.fields.id);
+    yield* steps.insert(records.insert(Milestone, { id: milestone, mission, title, kinds, of, until }));
+    yield* move("active");
+    return { milestone };
   });
 
 export default add;

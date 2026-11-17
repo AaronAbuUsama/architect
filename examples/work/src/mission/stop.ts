@@ -1,15 +1,12 @@
 // Scaffolded from blueprint/things/mission/verbs/stop.ts. Yours from now on.
 import { Effect } from "effect";
-import { Handlers } from "@architect/target-effect";
 import type { Handler } from "../../generated/api/src/mission/stop.handler.ts";
 
-/** Stop the mission for good. Its runs are stopped with it. */
-const stop: Handler = (_payload, _context) =>
+const stop: Handler = (_payload, { steps, move }) =>
   Effect.gen(function* () {
-    // Payload: mission, why.
-    // Answer: nothing.
-    // Steps, each its own span: steps.record(...).
-    return yield* Handlers.blank("this handler is not written yet");
+    yield* steps.record(Effect.void); // the why is in the event the move emits
+    yield* move("stopped");
+    return {};
   });
 
 export default stop;

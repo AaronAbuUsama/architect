@@ -4,6 +4,7 @@ import { declaration as attentionApprove } from "../../api/src/attention/approve
 import { declaration as attentionDecline } from "../../api/src/attention/decline.ts";
 import { declaration as attentionList } from "../../api/src/attention/list.ts";
 import { declaration as attentionRaise } from "../../api/src/attention/raise.ts";
+import { declaration as factRecord } from "../../api/src/fact/record.ts";
 import { declaration as milestoneAdd } from "../../api/src/milestone/add.ts";
 import { declaration as milestoneDrop } from "../../api/src/milestone/drop.ts";
 import { declaration as milestoneList } from "../../api/src/milestone/list.ts";
@@ -16,6 +17,7 @@ import { declaration as missionResume } from "../../api/src/mission/resume.ts";
 import { declaration as missionStart } from "../../api/src/mission/start.ts";
 import { declaration as missionStop } from "../../api/src/mission/stop.ts";
 import { declaration as missionTasks } from "../../api/src/mission/tasks.ts";
+import { declaration as personSignUp } from "../../api/src/person/sign-up.ts";
 import { declaration as questionAnswer } from "../../api/src/question/answer.ts";
 import { declaration as questionAsk } from "../../api/src/question/ask.ts";
 import { declaration as questionList } from "../../api/src/question/list.ts";
@@ -26,6 +28,8 @@ import { declaration as runList } from "../../api/src/run/list.ts";
 import { declaration as runReport } from "../../api/src/run/report.ts";
 import { declaration as runStart } from "../../api/src/run/start.ts";
 import { declaration as runStop } from "../../api/src/run/stop.ts";
+import { declaration as sessionShow } from "../../api/src/session/show.ts";
+import { declaration as sessionSignIn } from "../../api/src/session/sign-in.ts";
 
 /** One tool per operation and read, named as the operation is. */
 export const catalog = {
@@ -33,6 +37,7 @@ export const catalog = {
   "attention.decline": { description: "Say not yet, and why. The task stays where its facts put it.", operation: attentionDecline },
   "attention.list": { description: "List attentions, newest first, 50 to a page, filtered by mission, state.", operation: attentionList },
   "attention.raise": { description: "Ask the mission's owner for a decision only they can make.", operation: attentionRaise },
+  "fact.record": { description: "Record a fact (spike only: the logbook's job once L3.01 lands).", operation: factRecord },
   "milestone.add": { description: "Add a milestone to a mission. Its tasks appear at once: its kinds over its subject.", operation: milestoneAdd },
   "milestone.drop": { description: "Drop a milestone from its mission's scope. Its tasks leave the board; the burn-down shows the step.", operation: milestoneDrop },
   "milestone.list": { description: "List milestones, oldest first, 50 to a page, filtered by mission, state.", operation: milestoneList },
@@ -45,6 +50,7 @@ export const catalog = {
   "mission.start": { description: "Start the mission once intake is done. From here the manager only orchestrates.", operation: missionStart },
   "mission.stop": { description: "Stop the mission for good. Its runs are stopped with it.", operation: missionStop },
   "mission.tasks": { description: "The mission's tasks, each in the column its facts put it in.", operation: missionTasks },
+  "person.sign-up": { description: "Sign up with an email address and a password.", operation: personSignUp },
   "question.answer": { description: "Answer a question with one of its letters.", operation: questionAnswer },
   "question.ask": { description: "Ask the mission's owner about one gap in the blueprint, with lettered answers.", operation: questionAsk },
   "question.list": { description: "List questions, oldest first, 50 to a page, filtered by mission, state.", operation: questionList },
@@ -55,4 +61,6 @@ export const catalog = {
   "run.report": { description: "Say how the run is going. It moves no card.", operation: runReport },
   "run.start": { description: "Start an agent on one task. The run claims the task until it ends.", operation: runStart },
   "run.stop": { description: "Stop the run. A person's act, or the mission stopping.", operation: runStop },
+  "session.show": { description: "Who is signed in.", operation: sessionShow },
+  "session.sign-in": { description: "Sign in with email and password. The token is the bearer for every later call.", operation: sessionSignIn },
 } as const satisfies { readonly [name: string]: McpEntry };

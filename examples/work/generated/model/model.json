@@ -9,12 +9,14 @@
     "MissionNotIntake": "MS-900",
     "MissionNotRunning": "MS-002",
     "NotAllowed": "AR-001",
+    "PersonEmailTaken": "PE-001",
     "QuestionNoSuchOption": "QU-001",
     "QuestionNotAsked": "QU-900",
     "RunAgentCannot": "RU-002",
     "RunNotRunning": "RU-900",
     "RunOverBudget": "RU-001",
-    "RunTaskClaimed": "RU-003"
+    "RunTaskClaimed": "RU-003",
+    "SessionCredentialsWrong": "SE-001"
   },
   "values": {
     "AgentType": {
@@ -54,8 +56,16 @@
     "Options": {
       "type": "schema"
     },
+    "Password": {
+      "type": "text",
+      "max": 128
+    },
     "Report": {
       "type": "schema"
+    },
+    "Secret": {
+      "type": "text",
+      "max": 512
     },
     "Subject": {
       "type": "text",
@@ -225,6 +235,63 @@
       "errors": {},
       "roles": [],
       "hash": "ddfc27b01db3872b"
+    },
+    "fact": {
+      "name": "fact",
+      "identifier": "Fact",
+      "code": "FA",
+      "description": "Something true about a subject of the project's blueprint: compiled, an eval's result, or a verdict.",
+      "fields": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "fct"
+          }
+        },
+        "subject": {
+          "value": {
+            "type": "text",
+            "max": 120
+          },
+          "named": "Subject"
+        },
+        "kind": {
+          "value": {
+            "type": "schema"
+          }
+        },
+        "env": {
+          "value": {
+            "type": "schema"
+          },
+          "named": "Environment"
+        },
+        "result": {
+          "value": {
+            "type": "schema"
+          }
+        },
+        "note": {
+          "value": {
+            "type": "text",
+            "max": 4000
+          },
+          "named": "Note"
+        },
+        "revision": {
+          "value": {
+            "type": "text",
+            "max": 64
+          },
+          "named": "Digest"
+        }
+      },
+      "lives": "database",
+      "machine": null,
+      "events": {},
+      "errors": {},
+      "roles": [],
+      "hash": "f740f6b78936fc10"
     },
     "milestone": {
       "name": "milestone",
@@ -633,9 +700,15 @@
       "lives": "database",
       "machine": null,
       "events": {},
-      "errors": {},
+      "errors": {
+        "PersonEmailTaken": {
+          "fields": {},
+          "exit": 11,
+          "code": "PE-001"
+        }
+      },
       "roles": [],
-      "hash": "0c62a8f851d3c32f"
+      "hash": "3eb4beb77b5d8133"
     },
     "question": {
       "name": "question",
@@ -1059,6 +1132,39 @@
       },
       "roles": [],
       "hash": "1ecf60f70ed99b66"
+    },
+    "session": {
+      "name": "session",
+      "identifier": "Session",
+      "code": "SE",
+      "description": "A person's signed-in session, issued by Better Auth.",
+      "fields": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "ses"
+          }
+        },
+        "person": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "person.id"
+        }
+      },
+      "lives": "database",
+      "machine": null,
+      "events": {},
+      "errors": {
+        "SessionCredentialsWrong": {
+          "fields": {},
+          "exit": 10,
+          "code": "SE-001"
+        }
+      },
+      "roles": [],
+      "hash": "1fa5923e2d4a38d4"
     }
   },
   "operations": {
@@ -1356,6 +1462,92 @@
         "p95Ms": 200
       },
       "hash": "92d59b158780c2d2"
+    },
+    "fact.record": {
+      "kind": "operation",
+      "name": "fact.record",
+      "thing": "fact",
+      "verb": "record",
+      "identifier": "record",
+      "file": "blueprint/things/fact/verbs/record.ts",
+      "description": "Record a fact (spike only: the logbook's job once L3.01 lands).",
+      "payload": {
+        "subject": {
+          "value": {
+            "type": "text",
+            "max": 120
+          },
+          "named": "Subject",
+          "ref": "fact.subject"
+        },
+        "kind": {
+          "value": {
+            "type": "schema"
+          },
+          "ref": "fact.kind"
+        },
+        "env": {
+          "value": {
+            "type": "schema"
+          },
+          "named": "Environment",
+          "ref": "fact.env"
+        },
+        "result": {
+          "value": {
+            "type": "schema"
+          },
+          "ref": "fact.result"
+        },
+        "note": {
+          "value": {
+            "type": "text",
+            "max": 4000
+          },
+          "named": "Note",
+          "ref": "fact.note"
+        },
+        "revision": {
+          "value": {
+            "type": "text",
+            "max": 64
+          },
+          "named": "Digest",
+          "ref": "fact.revision"
+        }
+      },
+      "answer": {
+        "fact": {
+          "value": {
+            "type": "id",
+            "prefix": "fct"
+          },
+          "ref": "fact.id"
+        }
+      },
+      "move": null,
+      "errors": [],
+      "refusals": [
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "signed-in"
+        }
+      ],
+      "steps": {
+        "insert": {
+          "name": "fact.record.insert",
+          "type": "database"
+        }
+      },
+      "idempotent": null,
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 200
+      },
+      "hash": "fc9bd17be7a15932"
     },
     "milestone.add": {
       "kind": "operation",
@@ -2137,7 +2329,8 @@
           "type": "database"
         },
         "facts": {
-          "name": "mission.tasks.facts"
+          "name": "mission.tasks.facts",
+          "type": "database"
         }
       },
       "idempotent": null,
@@ -2146,7 +2339,74 @@
       "budget": {
         "p95Ms": 300
       },
-      "hash": "08e5c4eaf83fb049"
+      "hash": "26bbdbe35e250f6c"
+    },
+    "person.sign-up": {
+      "kind": "operation",
+      "name": "person.sign-up",
+      "thing": "person",
+      "verb": "sign-up",
+      "identifier": "signUp",
+      "file": "blueprint/things/person/verbs/sign-up.ts",
+      "description": "Sign up with an email address and a password.",
+      "payload": {
+        "email": {
+          "value": {
+            "type": "text",
+            "max": 254
+          },
+          "ref": "person.email"
+        },
+        "password": {
+          "value": {
+            "type": "text",
+            "max": 128
+          },
+          "named": "Password",
+          "visibility": "secret"
+        },
+        "name": {
+          "value": {
+            "type": "text",
+            "max": 200
+          },
+          "ref": "person.name"
+        }
+      },
+      "answer": {
+        "person": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "person.id"
+        }
+      },
+      "move": null,
+      "errors": [
+        "PersonEmailTaken"
+      ],
+      "refusals": [
+        "PersonEmailTaken"
+      ],
+      "allowed": [
+        {
+          "kind": "anyone"
+        }
+      ],
+      "steps": {
+        "create": {
+          "name": "person.sign-up.create",
+          "type": "database"
+        }
+      },
+      "idempotent": null,
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 400
+      },
+      "hash": "a07b2e3beea84684"
     },
     "question.answer": {
       "kind": "operation",
@@ -2910,6 +3170,119 @@
         "p95Ms": 150
       },
       "hash": "9967cbbc707bd3b3"
+    },
+    "session.show": {
+      "kind": "operation",
+      "name": "session.show",
+      "thing": "session",
+      "verb": "show",
+      "identifier": "show",
+      "file": "blueprint/things/session/verbs/show.ts",
+      "description": "Who is signed in.",
+      "payload": {},
+      "answer": {
+        "person": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "person.id"
+        },
+        "email": {
+          "value": {
+            "type": "text",
+            "max": 254
+          },
+          "ref": "person.email"
+        }
+      },
+      "move": null,
+      "errors": [],
+      "refusals": [
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "signed-in"
+        }
+      ],
+      "steps": {},
+      "idempotent": null,
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 100
+      },
+      "hash": "d6972d746c66f735"
+    },
+    "session.sign-in": {
+      "kind": "operation",
+      "name": "session.sign-in",
+      "thing": "session",
+      "verb": "sign-in",
+      "identifier": "signIn",
+      "file": "blueprint/things/session/verbs/sign-in.ts",
+      "description": "Sign in with email and password. The token is the bearer for every later call.",
+      "payload": {
+        "email": {
+          "value": {
+            "type": "text",
+            "max": 254
+          },
+          "ref": "person.email"
+        },
+        "password": {
+          "value": {
+            "type": "text",
+            "max": 128
+          },
+          "named": "Password",
+          "visibility": "secret"
+        }
+      },
+      "answer": {
+        "session": {
+          "value": {
+            "type": "id",
+            "prefix": "ses"
+          },
+          "ref": "session.id",
+          "visibility": "secret"
+        },
+        "token": {
+          "value": {
+            "type": "text",
+            "max": 512
+          },
+          "named": "Secret",
+          "visibility": "secret"
+        }
+      },
+      "move": null,
+      "errors": [
+        "SessionCredentialsWrong"
+      ],
+      "refusals": [
+        "SessionCredentialsWrong"
+      ],
+      "allowed": [
+        {
+          "kind": "anyone"
+        }
+      ],
+      "steps": {
+        "verify": {
+          "name": "session.sign-in.verify",
+          "type": "database"
+        }
+      },
+      "idempotent": null,
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 400
+      },
+      "hash": "631917ddeff4685a"
     }
   },
   "environments": {

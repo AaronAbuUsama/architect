@@ -1,15 +1,13 @@
 // Scaffolded from blueprint/things/run/verbs/report.ts. Yours from now on.
 import { Effect } from "effect";
-import { Handlers } from "@architect/target-effect";
 import type { Handler } from "../../generated/api/src/run/report.handler.ts";
 
-/** Say how the run is going. It moves no card. */
-const report: Handler = (_payload, _context) =>
+/** A report moves no card: only the run's own state (running or waiting). */
+const report: Handler = ({ report }, { steps, move }) =>
   Effect.gen(function* () {
-    // Payload: mission, run, report, note.
-    // Answer: nothing.
-    // Steps, each its own span: steps.record(...).
-    return yield* Handlers.blank("this handler is not written yet");
+    yield* steps.record(Effect.void);
+    yield* move(report === "waiting" ? "waiting" : "running");
+    return {};
   });
 
 export default report;

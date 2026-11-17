@@ -4,6 +4,7 @@ import * as attentionApprove from "./attention/approve.ts";
 import * as attentionDecline from "./attention/decline.ts";
 import * as attentionList from "./attention/list.ts";
 import * as attentionRaise from "./attention/raise.ts";
+import * as factRecord from "./fact/record.ts";
 import * as milestoneAdd from "./milestone/add.ts";
 import * as milestoneDrop from "./milestone/drop.ts";
 import * as milestoneList from "./milestone/list.ts";
@@ -16,6 +17,7 @@ import * as missionResume from "./mission/resume.ts";
 import * as missionStart from "./mission/start.ts";
 import * as missionStop from "./mission/stop.ts";
 import * as missionTasks from "./mission/tasks.ts";
+import * as personSignUp from "./person/sign-up.ts";
 import * as questionAnswer from "./question/answer.ts";
 import * as questionAsk from "./question/ask.ts";
 import * as questionList from "./question/list.ts";
@@ -26,14 +28,19 @@ import * as runList from "./run/list.ts";
 import * as runReport from "./run/report.ts";
 import * as runStart from "./run/start.ts";
 import * as runStop from "./run/stop.ts";
+import * as sessionShow from "./session/show.ts";
+import * as sessionSignIn from "./session/sign-in.ts";
 
 export class Attention extends HttpApiGroup.make("attention").add(attentionApprove.endpoint).add(attentionDecline.endpoint).add(attentionList.endpoint).add(attentionRaise.endpoint) {}
+export class Fact extends HttpApiGroup.make("fact").add(factRecord.endpoint) {}
 export class Milestone extends HttpApiGroup.make("milestone").add(milestoneAdd.endpoint).add(milestoneDrop.endpoint).add(milestoneList.endpoint) {}
 export class Mission extends HttpApiGroup.make("mission").add(missionFinish.endpoint).add(missionGet.endpoint).add(missionList.endpoint).add(missionOpen.endpoint).add(missionPause.endpoint).add(missionResume.endpoint).add(missionStart.endpoint).add(missionStop.endpoint).add(missionTasks.endpoint) {}
+export class Person extends HttpApiGroup.make("person").add(personSignUp.endpoint) {}
 export class Question extends HttpApiGroup.make("question").add(questionAnswer.endpoint).add(questionAsk.endpoint).add(questionList.endpoint).add(questionSpike.endpoint) {}
 export class Run extends HttpApiGroup.make("run").add(runFail.endpoint).add(runFinish.endpoint).add(runList.endpoint).add(runReport.endpoint).add(runStart.endpoint).add(runStop.endpoint) {}
-export class Api extends HttpApi.make("work").add(Attention).add(Milestone).add(Mission).add(Question).add(Run) {}
+export class Session extends HttpApiGroup.make("session").add(sessionShow.endpoint).add(sessionSignIn.endpoint) {}
+export class Api extends HttpApi.make("work").add(Attention).add(Fact).add(Milestone).add(Mission).add(Person).add(Question).add(Run).add(Session) {}
 
 export * as Errors from "./errors.ts";
 export * as Events from "./events.ts";
-export const operations = { "attention.approve": attentionApprove, "attention.decline": attentionDecline, "attention.list": attentionList, "attention.raise": attentionRaise, "milestone.add": milestoneAdd, "milestone.drop": milestoneDrop, "milestone.list": milestoneList, "mission.finish": missionFinish, "mission.get": missionGet, "mission.list": missionList, "mission.open": missionOpen, "mission.pause": missionPause, "mission.resume": missionResume, "mission.start": missionStart, "mission.stop": missionStop, "mission.tasks": missionTasks, "question.answer": questionAnswer, "question.ask": questionAsk, "question.list": questionList, "question.spike": questionSpike, "run.fail": runFail, "run.finish": runFinish, "run.list": runList, "run.report": runReport, "run.start": runStart, "run.stop": runStop } as const;
+export const operations = { "attention.approve": attentionApprove, "attention.decline": attentionDecline, "attention.list": attentionList, "attention.raise": attentionRaise, "fact.record": factRecord, "milestone.add": milestoneAdd, "milestone.drop": milestoneDrop, "milestone.list": milestoneList, "mission.finish": missionFinish, "mission.get": missionGet, "mission.list": missionList, "mission.open": missionOpen, "mission.pause": missionPause, "mission.resume": missionResume, "mission.start": missionStart, "mission.stop": missionStop, "mission.tasks": missionTasks, "person.sign-up": personSignUp, "question.answer": questionAnswer, "question.ask": questionAsk, "question.list": questionList, "question.spike": questionSpike, "run.fail": runFail, "run.finish": runFinish, "run.list": runList, "run.report": runReport, "run.start": runStart, "run.stop": runStop, "session.show": sessionShow, "session.sign-in": sessionSignIn } as const;

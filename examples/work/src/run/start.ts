@@ -1,16 +1,25 @@
 // Scaffolded from blueprint/things/run/verbs/start.ts. Yours from now on.
 import { Effect } from "effect";
-import { Handlers } from "@architect/target-effect";
+import { SqlClient } from "effect/sql";
+import { Ids, Records } from "@architect/target-effect";
+import { Run } from "../../blueprint/things/run/thing.ts";
+import { RunTaskClaimed } from "../../blueprint/things/run/errors.ts";
+import { MissionNotRunning } from "../../blueprint/things/mission/errors.ts";
+import { stateOf } from "../board.ts";
 import type { Handler } from "../../generated/api/src/run/start.handler.ts";
 
-/** Start an agent on one task. The run claims the task until it ends. */
-const start: Handler = (_payload, _context) =>
+/** Claim a task for one agent. One live run per task; only while the mission runs. */
+const start: Handler = ({ mission, task, agent, model, budget }, { steps, move }) =>
   Effect.gen(function* () {
-    // Payload: mission, task, agent, model, budget.
-    // Answer: run.
-    // Steps, each its own span: steps.claim(...).
-    // May refuse with RunOverBudget, RunAgentCannot, RunTaskClaimed.
-    return yield* Handlers.blank("this handler is not written yet");
+    if ((yield* stateOf("mission", mission)) !== "running") return yield* new MissionNotRunning({});
+    const sql = yield* SqlClient.SqlClient;
+    const live = yield* sql.unsafe<{ n: number }>(`SELECT count(*) AS n FROM run WHERE task = ? AND state IN ('running','waiting')`, [task]).pipe(Effect.orDie);
+    if (Number(live[0]?.n ?? 0) > 0) return yield* new RunTaskClaimed({});
+    const records = yield* Records;
+    const run = yield* Ids.of(Run.fields.id);
+    yield* steps.claim(records.insert(Run, { id: run, mission, task, agent, model, budget }));
+    yield* move("running");
+    return { run };
   });
 
 export default start;

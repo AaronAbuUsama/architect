@@ -1,15 +1,19 @@
 // Scaffolded from blueprint/things/question/verbs/ask.ts. Yours from now on.
 import { Effect } from "effect";
-import { Handlers } from "@architect/target-effect";
+import { Ids, Records } from "@architect/target-effect";
+import { Question } from "../../blueprint/things/question/thing.ts";
+import { MissionNotInIntake } from "../../blueprint/things/mission/errors.ts";
+import { stateOf } from "../board.ts";
 import type { Handler } from "../../generated/api/src/question/ask.handler.ts";
 
-/** Ask the mission's owner about one gap in the blueprint, with lettered answers. */
-const ask: Handler = (_payload, _context) =>
+const ask: Handler = ({ mission, asks, about, gap, options }, { steps, move }) =>
   Effect.gen(function* () {
-    // Payload: mission, asks, about, gap, options.
-    // Answer: question.
-    // Steps, each its own span: steps.insert(...).
-    return yield* Handlers.blank("this handler is not written yet");
+    if ((yield* stateOf("mission", mission)) !== "intake") return yield* new MissionNotInIntake({});
+    const records = yield* Records;
+    const question = yield* Ids.of(Question.fields.id);
+    yield* steps.insert(records.insert(Question, { id: question, mission, asks, about, gap, options }));
+    yield* move("asked");
+    return { question };
   });
 
 export default ask;
