@@ -139,9 +139,9 @@ across test, staging and production, and watch it. Every build step of stage thr
 <ul>
 <li><b>Layer one, declare and call, is finished.</b> Stages one and two, Gate 1, merged on 16 November.</li>
 <li><b>Layer two, prove and ship, is built.</b> Thirteen of its fourteen steps are merged on <code>layer/3</code>: traces, the MCP server, <code>watch</code> and the portal landed today.</li>
-<li><b>Paused for the Codex handoff.</b> No builder is running.</li>
-<li><b>Next:</b> make three tests reliable on CI's Linux machines, one fix in check 8, then Gate 2 itself, the review and the pull request into main.</li>
-<li><b>CI is red on <code>layer/3</code>:</b> three tests time out or lose a connection under CI's load. Each passes on your Mac. Main is green.</li>
+<li><b>Codex has resumed.</b> One builder is diagnosing the Linux CI failures in a separate worktree.</li>
+<li><b>Next:</b> finish CI recovery on Linux, one fix in check 8, then Gate 2 itself, the review and the pull request into main.</li>
+<li><b>The latest completed layer CI failed on the trace viewer.</b> Reads passed on that run. A newer run is still running. Main’s latest CI is green.</li>
 <li><b>Layers three to five,</b> the kits, the chain and time, haven't started. Neither has the cloud pass, which needs your yes on credentials.</li>
 </ul>
 <div class="callout">For the detail, see <a href="#layers">the five layers</a>, <a href="#stage3">layer two, step by step</a> and <a href="#left">what's left</a>.</div>` },
@@ -264,10 +264,10 @@ steps, performance, coverage and explainability.</p>
 
 { id: "flight", group: "Progress", t: "In flight", h: () => `
 <h1>In flight</h1>
-<p class="lede">Paused for the Codex handoff. Nothing is being built.</p>
-<h2>First for Codex</h2>
+<p class="lede">One builder is recovering CI before Gate 2. It owns no journeys or fixtures.</p>
+<h2>On the critical path</h2>
 <ul>
-<li><b>CI on <code>layer/3</code>:</b> three tests that pass on your Mac fail under CI's load: promotion's restart, the list read, and the trace viewer on Linux.</li>
+<li><b>CI on <code>layer/3</code>:</b> the latest completed failure is the trace viewer on Linux. The builder is also checking the earlier promotion restart and list-read failures.</li>
 <li><b>Check 8:</b> one fetch needs a fresh connection after staging restarts. An author's fix, not a builder's.</li>
 </ul>
 <h2>Side threads</h2>
@@ -337,7 +337,7 @@ steps, performance, coverage and explainability.</p>
 { id: "risks", group: "Decisions", t: "Risks and known issues", h: () => `
 <h1>Risks and known issues</h1>
 <p class="lede">What could bite, from CI and from the handoff's list of traps already hit.</p>
-<div class="callout red"><b>CI is red on <code>layer/3</code>.</b> Three tests fail under CI's load and pass on your Mac. Fixing them is the first job after the handoff.</div>
+<div class="callout red"><b>CI is red on <code>layer/3</code>.</b> The latest completed failure is the trace viewer. CI recovery is running before any gate work starts.</div>
 <ul>
 <li><b>Shared ports and Docker.</b> Builders running tests at once collide on ports. Gate 2's cleanup removes every Architect container, other agents' too, so it must run alone.</li>
 <li><b>Leftover containers.</b> A killed Gate 2 run can leave a registry container holding its port. Collectors now clean themselves up.</li>

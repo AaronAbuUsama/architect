@@ -5,20 +5,24 @@
 **The goal** is `goals/01-the-whole-framework-locally.md`: all five gates passing locally and in CI, on `main`, in six
 stages. The rules are `AGENTS.md`; the thread kit (conductor, threads, spike, reviewer, hashtags) is `.agents/skills/`.
 
-**Where it stands (paused for the Codex handoff, 17 November 2026).** Stages 1 and 2 (Gate 1) are on `main`. Stage 3
+**Where it stands (Codex conductor resumed, 17 November 2026).** Stages 1 and 2 (Gate 1) are on `main`. Stage 3
 (Gate 2, shipping) is on `layer/3`, and **every build step of layer two is merged there**, each with its decisions in
 `decisions/D3.md` and evidence in `evidence/<step>/`: L2.01 environments, L2.02 test worlds, L2.03 logbook, L2.04
 versions, L2.05 promote, L2.06 publish, L2.07 device sign-in, L2.L the `src/<thing>/` layout (Aaron), L2.P privacy
 seams, L2.O seeing traces (D3 #100 to #109, #120, #121), L2.08 MCP with OAuth and `/_world` closed outside world hosts
 (#122 to #127), L2.10 the read-only portal at `/portal` (#130 to #138), L2.09 `watch` (#140 to #149). Only L2.11, Gate
-2 itself, is left. No builder is running; nothing was in flight when the conductor stopped.
+2 itself, is left. The handoff had no in-flight branches to recover. One CI-recovery builder is now running on `build/ci-recovery`, from `cd9d069`, with D3 numbers 150–159 and ports 9100–9119. No other runtime tests may run beside it.
 
-**CI on `layer/3` is red, and that is the first job.** The `check` job's unit tests failed on the L2.09 merge (49eea9e)
-under CI's load: `prove/promote.test.ts` (fetch "other side closed" after staging restarts, the known flake),
-`prove/reads.test.ts` (timed out at 240 s) and `prove/viewer/viewer.test.ts` ("the viewer never had it", L2.O's viewer
-on Linux). Each passes locally. Read the run for the latest commit first (`gh run list --branch layer/3`), then make
-them reliable on Linux (a longer wait for the viewer's Tempo ingest, a retry on the restarted socket, a raised budget
-or a split for reads), one builder, before Gate 2.
+**CI on `layer/3` is the first job.** Latest completed failure inspected: run `43994958256` on `00da1c6`.
+It failed only the viewer test (`viewer.test.ts:52`, “the viewer never had it”); reads passed in about 31 seconds.
+Earlier promotion socket and reads timeout failures remain regression concerns. Run `43996163508` on `cd9d069`
+is still running. Main's latest run `43995723506` on `798ff34` passed.
+
+**Working arrangement.** The conductor uses an isolated managed worktree on `codex/conductor-goal-01`, based on
+`origin/layer/3`. The original checkout and its ignored template files stay untouched. Verified commits will be
+integrated and pushed to `layer/3` from this worktree; the original checkout is not switched or reset. Docker's
+initial inventory had no Architect containers. The separate builder owns feature and module-test fixes; the
+conductor owns this handoff and the status/evidence pages. Check 08's author and the gate builder start after CI recovery.
 
 **Next, in order:**
 1. CI green on `layer/3` (above).
@@ -78,7 +82,7 @@ cap), F1 the portal's design (PR 12), F2 the portal's information architecture (
 The history below is kept for the record; START HERE is what is current.
 
 
-Kept by the 🎼 conductor, so a fresh conductor can take over. Last updated 17 November 2026: paused for the Codex handoff with every layer-two step merged; START HERE is current. The section "Where the goal stands" ends with what is in flight now.
+Kept by the 🎼 conductor, so a fresh conductor can take over. Last updated 17 November 2026: Codex resumed with CI recovery first; START HERE is current. The section "Where the goal stands" ends with what is in flight now.
 
 ## Done
 
