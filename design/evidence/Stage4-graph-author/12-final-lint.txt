@@ -1,0 +1,4 @@
+$ node_modules/.bin/oxlint e2e/layer3/05-graph-integrity.test.ts e2e/layer3/06-collisions.test.ts e2e/layer3/graph-entry/main.ts
+# commit 5219cf0 · 2026-11-17T10:17:15Z · exit 0 (expected 0) · 0.8s
+
+

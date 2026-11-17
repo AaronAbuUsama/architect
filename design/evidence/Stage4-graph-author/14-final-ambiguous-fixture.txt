@@ -1,0 +1,11 @@
+$ node_modules/.bin/vitest run --root e2e --config vitest.layer3.config.ts layer3/06-collisions.test.ts -t graph-ambiguous-tags is a valid TypeScript package
+# commit 5219cf0 · 2026-11-17T10:19:26Z · exit 0 (expected 0) · 2.5s
+
+
+ RUN  v4.1.12 ./e2e
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 23 skipped (24)
+   Start at  10:19:24
+   Duration  2.17s (transform 43ms, setup 0ms, import 57ms, tests 2.01s, environment 0ms)
