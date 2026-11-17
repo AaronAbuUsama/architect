@@ -36,9 +36,7 @@ export const putRevisionModel = (revision: string, request: Request, env: Logboo
     const model = yield* jsonBody(request);
     if (typeof model !== "object" || model === null || Array.isArray(model)) return yield* new BadRequest({ reason: "a model is a JSON object" });
     const text = JSON.stringify(model);
-    const held = yield* modelText(env, revision);
-    if (held === null) yield* putModel(env, revision, text);
-    else if (held !== text) return yield* new Conflict({ reason: `revision ${revision} already has a different model` });
+    yield* putModel(env, revision, text);
     return json({ ok: true, revision });
   });
 

@@ -144,6 +144,28 @@ describe("the logbook on local workerd, with a real issuer", () => {
     expect(await fetch(`${base}/releases/latest`).then((r) => r.json())).toMatchObject({ version: "1.0.0", revision: "abcdef1" });
   });
 
+  it("admits one concurrent different model and preserves that stored winner", async () => {
+    const token = await mint(issuer);
+    const models = Array.from({ length: 8 }, (_, owner) => ({ owner, operations: ["allowance.spend"], declarations: "x".repeat(512 * 1024) }));
+    const requests = models.map((model) => new Request(`${base}/models/concurrent-different`, { method: "PUT", headers: { "content-type": "application/json", authorization: `Bearer ${token}` }, body: JSON.stringify(model) }));
+    const responses = await Promise.all(requests.map((request) => fetch(request)));
+    expect(responses.map((r) => r.status).filter((status) => status === 200)).toHaveLength(1);
+    expect(responses.map((r) => r.status).filter((status) => status === 409)).toHaveLength(models.length - 1);
+    const winner = models[responses.findIndex((r) => r.status === 200)]!;
+    expect(await fetch(`${base}/models/concurrent-different`).then((r) => r.json())).toEqual(winner);
+    for (const model of models) expect((await send("/models/concurrent-different", model, token, "PUT")).status).toBe(model === winner ? 200 : 409);
+    expect(await fetch(`${base}/models/concurrent-different`).then((r) => r.json())).toEqual(winner);
+  });
+
+  it("accepts concurrent identical model retries without replacing the immutable object", async () => {
+    const token = await mint(issuer);
+    const model = { operations: ["allowance.spend"], revision: "concurrent-identical" };
+    const responses = await Promise.all([send("/models/concurrent-identical", model, token, "PUT"), send("/models/concurrent-identical", model, token, "PUT")]);
+    expect(responses.map((r) => r.status)).toEqual([200, 200]);
+    expect((await send("/models/concurrent-identical", { changed: true }, token, "PUT")).status).toBe(409);
+    expect(await fetch(`${base}/models/concurrent-identical`).then((r) => r.json())).toEqual(model);
+  });
+
   it("rejects a body that isn't a verdict", async () => {
     const token = await mint(issuer);
     expect((await send("/verdicts", { ...verdict, verdict: "maybe" }, token)).status).toBe(400);

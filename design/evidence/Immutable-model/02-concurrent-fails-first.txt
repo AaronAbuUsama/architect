@@ -1,0 +1,30 @@
+$ pnpm exec vitest run --root packages/logbook src/modules/local/local.test.ts
+# commit ee35a5c · 2026-11-17T04:40:55Z · exit 1 (expected 1) · 10.1s
+
+
+ RUN  v4.1.12 ./packages/logbook
+
+ ❯ src/modules/local/local.test.ts (8 tests | 1 failed) 8825ms
+     × admits one concurrent different model and preserves that stored winner 90ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/local/local.test.ts > the logbook on local workerd, with a real issuer > admits one concurrent different model and preserves that stored winner
+AssertionError: expected [ …(4) ] to have a length of 1 but got 4
+
+- Expected
++ Received
+
+- 1
++ 4
+
+ ❯ src/modules/local/local.test.ts:152:55
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  04:40:46
+   Duration  9.27s (transform 45ms, setup 0ms, import 335ms, tests 8.83s, environment 0ms)
