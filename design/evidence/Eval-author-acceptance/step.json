@@ -1,0 +1,25 @@
+{
+  "step": "Eval-author-acceptance",
+  "stage": "Stage 3 · shipping on local worlds (Gate 2)",
+  "title": "Independent author acceptance of the widened evaluator contracts",
+  "summary": "The original author-before-builder rule was missed for three historical evaluator changes; that history remains explicit. A separate author reviewed the complete evaluator diffs against declarations and original planted guards, found and corrected two bounded schema/refusal gaps, and accepted the resulting local contract without changing fixtures, journeys, handlers, performance or call-count policy.",
+  "proves": "The new public evaluator guards fail first for a known refusal missing its tag/code and schema-valued string/JSON ambiguity. A partial-telemetry guard also rejects a broad body-first draft before the narrower correction. The final 21 pure evaluator/watch guards, independent probes and 16 real workerd/Collector planted/list/privacy tests pass. Original eight negative fixtures still fail their named evals, blank scaffolds fail, and every operation retains nine evals. Static checks and ownership-scoped cleanup pass. Historical authorship is not rewritten; full integrated gate/CI/review remain the conductor's work.",
+  "captions": {
+    "00a-complete-evaluator-diff-L2-04": "Complete historical evaluator-subtree diff for list/schema answers, with immutable commit identity.",
+    "00b-complete-evaluator-diff-L2-P": "Complete historical evaluator-subtree diff for privacy and refusal codes, including its original guards.",
+    "00c-complete-evaluator-diff-L2-09": "Complete historical evaluator-subtree diff for the telemetry-only live subset.",
+    "01-existing-pure-guards": "The original 17 evaluator/watch guards before any author correction.",
+    "02-independent-contract-probes": "Independent public-interface probes reproduce the actual semantic gaps; this is not the earlier import failure.",
+    "03-existing-planted-guards": "All 16 existing real-service planted/list/privacy checks pass before correction; original fixtures remain untouched.",
+    "04-public-contract-guards-red": "Three new public guards fail first on the two semantic gaps and false acceptance of an observed serialized-object string.",
+    "05-public-contract-guards-green": "Intermediate draft passes the first 20 pure guards; it is subsequently rejected by the partial-telemetry guard and is not the final correction.",
+    "06-independent-contract-probes-green": "Intermediate draft clears the reported pure probes; the next guard still rejects its broad answer-selection change.",
+    "07-public-span-presence-red": "A new guard rejects using a valid body to fill a public field missing from partial answer telemetry.",
+    "08-bounded-public-guards-green": "Final narrow correction passes all 21 pure evaluator/watch guards, preserving the original observability selection.",
+    "09-final-independent-probes-green": "The final narrow correction clears the independent reported semantic probes.",
+    "10-final-planted-runtime-guards": "All 16 original planted/list/privacy tests pass after correction on real workerd, D1 and Collector; nine evals remain per operation.",
+    "11-source-and-fixture-scope": "Original fixtures/journeys remain unchanged; corrected source/test/README blob identities and scoped diff are recorded.",
+    "12-static-checks": "Fresh prove lint and typecheck without Nx cache.",
+    "13-cleanup-proof": "No owned container mount, reserved proof/list/privacy listening port or worktree runtime process remains."
+  }
+}
