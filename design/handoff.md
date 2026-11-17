@@ -82,8 +82,9 @@ No runtime source, retry or write replay changed. Linux run `44023299021` on the
 across all three jobs, including all ten Gate2 tests and actual Linuxbrew.
 
 **Next, in order.**
-1. Complete integration reset, sync, lint/typecheck, then freeze and push the corrected candidate. Run the clean full
-   local Gate2 alone with stock configuration; preserve raw output and scoped cleanup.
+1. Integration reset, sync, sync:check and all 16 projects lint/typecheck passed on `40a1e86`, without cache. Freeze
+   and push the receipts checkpoint, then run the clean full local Gate2 alone with stock configuration; preserve
+   raw output and scoped cleanup.
 2. Refresh Linux CI on that candidate and each layer-two step's ci.json and pages. Obtain a fresh independent
    whole-layer verdict on the final candidate and evidence. The product-round ledger remains three.
 3. Open `layer/3` into main, merge only fresh green CI and independent review, then verify main CI. Stage3 delivery

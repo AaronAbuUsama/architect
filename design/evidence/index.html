@@ -4021,9 +4021,9 @@ bash tools/e2e/starter.sh  42.40s user 26.03s system 47% cpu 2:23.09 total</pre>
 <section class="step">
   <div class="stage">Stage 3 · shipping on local worlds (Gate 2)</div>
   <h2><span class="id">L2.11</span> Gate 2: eight shipping checks locally and in Linux CI <span class="chip unknown">unverified</span></h2>
-  <p class="summary">The earlier full Gate2 passed with ten tests and real Homebrew. The fresh clean c867e21 attempt passed nine of ten tests, including real Mac Homebrew, but check04 ended in a direct test fetch ECONNRESET. Its raw failure and complete clean preflight/cleanup remain under attempts; the separate author is diagnosing the request lifecycle. Linux CI and the final independent gate verdict remain pending. Fresh Linux run44023299021 on the same c867e21 is green across all three jobs: Gate2 passes eight files and ten tests with actual Linuxbrew and no skips.</p>
+  <p class="summary">The confirmed test-side connection reset is corrected by the separate author at the shared read-only JSON helper. Focused promotion passes with unchanged assertions, all16projects static checks and Nx sync pass after integration, and every author resource is stopped. The prior source passed all10tests on Linux with actual Linuxbrew. A fresh clean full local gate and Linux CI on this integrated candidate remain required before final review and landing.</p>
   <div class="proves"><span class="label">Done when</span>A PR goes to test, then staging, then production. There is a verdict in each environment, and the npm version equals `architect version --next`.</div>
-  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44023299021">CI success</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/759ebb4">commit 759ebb4</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/2b2aa3c">commit 2b2aa3c</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/d261e73">commit d261e73</a> · 4 verified captures · 1 unverified records</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44023299021">CI success</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/759ebb4">commit 759ebb4</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/2b2aa3c">commit 2b2aa3c</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/d261e73">commit d261e73</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/40a1e86">commit 40a1e86</a> · 5 verified captures · 1 unverified records</div>
   
 <details class="run" >
   <summary>
@@ -4403,6 +4403,238 @@ e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-
 e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T05:27:59.6100669Z ^[[2m      Tests ^[[22m ^[[1m^[[32m10 passed^[[39m^[[22m^[[90m (10)^[[39m
 e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T05:27:59.6106694Z ^[[7m^[[1m^[[32m NX ^[[39m^[[22m^[[27m  ^[[32mSuccessfully ran target ^[[1mlayer2^[[22m for project e2e^[[39m
 e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T05:27:59.6129643Z   Run duration:      7m 52s</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">After the separate author correction integrates: all16projects lint/typecheck pass without Nx cache; reset/sync/sync:check also pass.</span>
+    <span class="meta">exit 0 · 7.2s · 2026-11-17T05:37:39Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ env NX_DAEMON=false pnpm nx run-many -t lint,typecheck --outputStyle=static --skipNxCache</div><pre>NX   Running targets lint, typecheck for 16 projects:
+
+- host-cloudflare
+- target-solidity
+- target-effect
+- generators
+- blueprint
+- compiler
+- logbook
+- starter
+- portal
+- preset
+- prove
+- acme
+- lint
+- cli
+- std
+- e2e
+
+
+
+&gt; nx run blueprint:typecheck
+
+&gt; tsc -p packages/blueprint/tsconfig.json
+
+
+&gt; nx run logbook:typecheck
+
+&gt; tsc -p packages/logbook/tsconfig.json
+
+
+&gt; nx run logbook:lint
+
+&gt; oxlint packages/logbook
+
+(node:36589) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+packages/logbook/src/modules/local/local.test.ts:85:156: warning unicorn(no-invalid-fetch-options): &quot;body&quot; is not allowed when method is &quot;GET&quot;
+
+&gt; nx run blueprint:lint
+
+&gt; oxlint packages/blueprint
+
+(node:36587) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run portal:typecheck
+
+&gt; tsc -p packages/portal/tsconfig.json
+
+
+&gt; nx run portal:lint
+
+&gt; oxlint packages/portal
+
+(node:36637) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run target-effect:typecheck
+
+&gt; tsc -p packages/target-effect/tsconfig.json
+
+
+&gt; nx run compiler:typecheck
+
+&gt; tsc -p packages/compiler/tsconfig.json
+
+
+&gt; nx run target-effect:lint
+
+&gt; oxlint packages/target-effect
+
+(node:36650) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run generators:typecheck
+
+&gt; tsc -p packages/generators/tsconfig.json
+
+
+&gt; nx run compiler:lint
+
+&gt; oxlint packages/compiler
+
+(node:36663) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run generators:lint
+
+&gt; oxlint packages/generators
+
+(node:36675) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run prove:typecheck
+
+&gt; tsc -p packages/prove/tsconfig.json
+
+
+&gt; nx run prove:lint
+
+&gt; oxlint packages/prove
+
+(node:36688) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+packages/prove/src/modules/world/device-sign-in.test.ts:3:33: warning eslint(no-unused-vars): Type &#x27;ChildProcess&#x27; is imported but never used. help: Consider removing this import.
+
+&gt; nx run host-cloudflare:typecheck
+
+&gt; tsc -p packages/host-cloudflare/tsconfig.json
+
+
+&gt; nx run lint:typecheck
+
+&gt; tsc -p packages/lint/tsconfig.json
+
+
+&gt; nx run host-cloudflare:lint
+
+&gt; oxlint packages/host-cloudflare
+
+(node:36701) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run target-solidity:typecheck
+
+&gt; tsc -p packages/target-solidity/tsconfig.json
+
+
+&gt; nx run lint:lint
+
+&gt; oxlint packages/lint
+
+(node:36744) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run target-solidity:lint
+
+&gt; oxlint packages/target-solidity
+
+(node:36756) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run starter:lint
+
+&gt; oxlint examples/starter
+
+(node:36768) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run preset:typecheck
+
+&gt; tsc -p packages/preset/tsconfig.json
+
+
+&gt; nx run starter:typecheck
+
+&gt; tsc -p examples/starter/tsconfig.json
+
+
+&gt; nx run preset:lint
+
+&gt; oxlint packages/preset
+
+(node:36924) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run acme:typecheck
+
+&gt; tsc -p examples/acme/tsconfig.json
+
+
+&gt; nx run acme:lint
+
+&gt; oxlint examples/acme
+
+(node:36937) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run cli:lint
+
+&gt; oxlint packages/cli
+
+(node:36974) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run cli:typecheck
+
+&gt; tsc -p packages/cli/tsconfig.json
+
+
+&gt; nx run std:typecheck
+
+&gt; tsc -p packages/std/tsconfig.json
+
+
+&gt; nx run std:lint
+
+&gt; oxlint packages/std
+
+(node:36988) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run e2e:typecheck
+
+&gt; tsc -p e2e/tsconfig.json
+
+
+&gt; nx run e2e:lint
+
+&gt; oxlint e2e
+
+(node:37000) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+e2e/layer1/04-agent-writes-a-handler.test.ts:13:27: warning eslint(no-unused-vars): Identifier &#x27;cli&#x27; is imported but never used. help: Consider removing this import.
+
+
+
+ NX   Successfully ran targets lint, typecheck for 16 projects
+
+
+  Run duration:      6.5s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     1.1s (1 task)
+  Recoverable time:  5.4s (83% of the run)</pre></div>
 </details>
 </section>
 <section class="step">
@@ -14480,6 +14712,111 @@ Reserved listening sockets: none
 Homebrew test taps: none
 Homebrew test formulas: none
 Processes from this worktree: none</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 3 · shipping on local worlds (Gate 2)</div>
+  <h2><span class="id">Check04-author</span> Fresh authored JSON reads after a synchronous environment restart <span class="chip pass">done</span></h2>
+  <p class="summary">An unchanged focused check reproduced the clean-gate fetch reset. Observer-only Undici diagnostics identified the second staging bundle GET reusing its pre-restart socket. The shared GET-only helper now closes request connections; assertions, requests, fixtures, journeys and runtime behavior remain unchanged.</p>
+  <div class="proves"><span class="label">Done when</span>Before the correction, request 5 to staging /_architect/bundle reused the same local socket as request 1 and failed with ECONNRESET after the second synchronous staging promotion. The focused check then passes once with the correction: both unproven-revision refusals, exact bundle hashes, prerelease/release tags and releases 1.0.0 then 1.1.0. All seven observed reads request close and return 200, with a fresh post-restart staging socket. Fresh e2e lint/typecheck and owned-resource cleanup pass. Clean full-gate and current CI verification remain the conductor&#x27;s next steps.</div>
+  <div class="links">CI not run · <a href="https://github.com/AaronAbuUsama/architect/commit/c867e21">commit c867e21</a> · 5 verified captures · 0 unverified records</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Actual before-change socket identity: staging&#x27;s reused local port fails on the post-promotion request; registry reuse also remains visible.</span>
+    <span class="meta">exit 0 · 0.0s · 2026-11-17T05:33:49Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ cat design/evidence/Check04-author/diagnostics/before.jsonl</div><pre>{&quot;event&quot;:&quot;undici:client:sendHeaders&quot;,&quot;request&quot;:1,&quot;url&quot;:&quot;http://127.0.0.1:8941/_architect/bundle&quot;,&quot;localPort&quot;:60874,&quot;remotePort&quot;:8941,&quot;connection&quot;:&quot;keep-alive&quot;}
+{&quot;event&quot;:&quot;undici:request:headers&quot;,&quot;request&quot;:1,&quot;url&quot;:&quot;http://127.0.0.1:8941/_architect/bundle&quot;,&quot;status&quot;:200}
+{&quot;event&quot;:&quot;undici:client:sendHeaders&quot;,&quot;request&quot;:2,&quot;url&quot;:&quot;http://localhost:4894/@acme%2fsdk&quot;,&quot;localPort&quot;:60876,&quot;remotePort&quot;:4894,&quot;connection&quot;:&quot;keep-alive&quot;}
+{&quot;event&quot;:&quot;undici:request:headers&quot;,&quot;request&quot;:2,&quot;url&quot;:&quot;http://localhost:4894/@acme%2fsdk&quot;,&quot;status&quot;:200}
+{&quot;event&quot;:&quot;undici:client:sendHeaders&quot;,&quot;request&quot;:3,&quot;url&quot;:&quot;http://127.0.0.1:8942/_architect/bundle&quot;,&quot;localPort&quot;:60895,&quot;remotePort&quot;:8942,&quot;connection&quot;:&quot;keep-alive&quot;}
+{&quot;event&quot;:&quot;undici:request:headers&quot;,&quot;request&quot;:3,&quot;url&quot;:&quot;http://127.0.0.1:8942/_architect/bundle&quot;,&quot;status&quot;:200}
+{&quot;event&quot;:&quot;undici:client:sendHeaders&quot;,&quot;request&quot;:4,&quot;url&quot;:&quot;http://localhost:4894/@acme%2fsdk&quot;,&quot;localPort&quot;:60876,&quot;remotePort&quot;:4894,&quot;connection&quot;:&quot;keep-alive&quot;}
+{&quot;event&quot;:&quot;undici:request:headers&quot;,&quot;request&quot;:4,&quot;url&quot;:&quot;http://localhost:4894/@acme%2fsdk&quot;,&quot;status&quot;:200}
+{&quot;event&quot;:&quot;undici:client:sendHeaders&quot;,&quot;request&quot;:5,&quot;url&quot;:&quot;http://127.0.0.1:8941/_architect/bundle&quot;,&quot;localPort&quot;:60874,&quot;remotePort&quot;:8941,&quot;connection&quot;:&quot;keep-alive&quot;}
+{&quot;event&quot;:&quot;undici:request:error&quot;,&quot;request&quot;:5,&quot;url&quot;:&quot;http://127.0.0.1:8941/_architect/bundle&quot;,&quot;errorCode&quot;:&quot;ECONNRESET&quot;,&quot;syscall&quot;:&quot;read&quot;}</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The actual unchanged check 04 passes once after its GET-only helper closes request connections.</span>
+    <span class="meta">exit 0 · 73.3s · 2026-11-17T05:35:02Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root e2e --config ./.architect/vitest.check04.config.ts</div><pre>RUN  v4.1.12 ./e2e
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  05:33:49
+   Duration  72.69s (transform 33ms, setup 16ms, import 375ms, tests 72.20s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">All seven bundle/SDK reads request close and answer 200; the second staging request uses a fresh socket.</span>
+    <span class="meta">exit 0 · 0.0s · 2026-11-17T05:35:40Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ cat design/evidence/Check04-author/diagnostics/after.jsonl</div><pre>{&quot;event&quot;:&quot;undici:client:sendHeaders&quot;,&quot;request&quot;:1,&quot;url&quot;:&quot;http://127.0.0.1:8941/_architect/bundle&quot;,&quot;localPort&quot;:61353,&quot;remotePort&quot;:8941,&quot;connection&quot;:&quot;close&quot;}
+{&quot;event&quot;:&quot;undici:request:headers&quot;,&quot;request&quot;:1,&quot;url&quot;:&quot;http://127.0.0.1:8941/_architect/bundle&quot;,&quot;status&quot;:200}
+{&quot;event&quot;:&quot;undici:client:sendHeaders&quot;,&quot;request&quot;:2,&quot;url&quot;:&quot;http://localhost:4894/@acme%2fsdk&quot;,&quot;localPort&quot;:61355,&quot;remotePort&quot;:4894,&quot;connection&quot;:&quot;close&quot;}
+{&quot;event&quot;:&quot;undici:request:headers&quot;,&quot;request&quot;:2,&quot;url&quot;:&quot;http://localhost:4894/@acme%2fsdk&quot;,&quot;status&quot;:200}
+{&quot;event&quot;:&quot;undici:client:sendHeaders&quot;,&quot;request&quot;:3,&quot;url&quot;:&quot;http://127.0.0.1:8942/_architect/bundle&quot;,&quot;localPort&quot;:61374,&quot;remotePort&quot;:8942,&quot;connection&quot;:&quot;close&quot;}
+{&quot;event&quot;:&quot;undici:request:headers&quot;,&quot;request&quot;:3,&quot;url&quot;:&quot;http://127.0.0.1:8942/_architect/bundle&quot;,&quot;status&quot;:200}
+{&quot;event&quot;:&quot;undici:client:sendHeaders&quot;,&quot;request&quot;:4,&quot;url&quot;:&quot;http://localhost:4894/@acme%2fsdk&quot;,&quot;localPort&quot;:61376,&quot;remotePort&quot;:4894,&quot;connection&quot;:&quot;close&quot;}
+{&quot;event&quot;:&quot;undici:request:headers&quot;,&quot;request&quot;:4,&quot;url&quot;:&quot;http://localhost:4894/@acme%2fsdk&quot;,&quot;status&quot;:200}
+{&quot;event&quot;:&quot;undici:client:sendHeaders&quot;,&quot;request&quot;:5,&quot;url&quot;:&quot;http://127.0.0.1:8941/_architect/bundle&quot;,&quot;localPort&quot;:61502,&quot;remotePort&quot;:8941,&quot;connection&quot;:&quot;close&quot;}
+{&quot;event&quot;:&quot;undici:request:headers&quot;,&quot;request&quot;:5,&quot;url&quot;:&quot;http://127.0.0.1:8941/_architect/bundle&quot;,&quot;status&quot;:200}
+{&quot;event&quot;:&quot;undici:client:sendHeaders&quot;,&quot;request&quot;:6,&quot;url&quot;:&quot;http://127.0.0.1:8942/_architect/bundle&quot;,&quot;localPort&quot;:61550,&quot;remotePort&quot;:8942,&quot;connection&quot;:&quot;close&quot;}
+{&quot;event&quot;:&quot;undici:request:headers&quot;,&quot;request&quot;:6,&quot;url&quot;:&quot;http://127.0.0.1:8942/_architect/bundle&quot;,&quot;status&quot;:200}
+{&quot;event&quot;:&quot;undici:client:sendHeaders&quot;,&quot;request&quot;:7,&quot;url&quot;:&quot;http://localhost:4894/@acme%2fsdk&quot;,&quot;localPort&quot;:61552,&quot;remotePort&quot;:4894,&quot;connection&quot;:&quot;close&quot;}
+{&quot;event&quot;:&quot;undici:request:headers&quot;,&quot;request&quot;:7,&quot;url&quot;:&quot;http://localhost:4894/@acme%2fsdk&quot;,&quot;status&quot;:200}</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Fresh e2e lint and typecheck without Nx cache.</span>
+    <span class="meta">exit 0 · 1.9s · 2026-11-17T05:35:04Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ env NX_DAEMON=false pnpm nx run-many -t lint,typecheck -p e2e --outputStyle=static --skip-nx-cache</div><pre>NX   Running targets lint, typecheck for project e2e:
+
+- e2e
+
+
+
+&gt; nx run e2e:typecheck
+
+&gt; tsc -p e2e/tsconfig.json
+
+
+&gt; nx run e2e:lint
+
+&gt; oxlint e2e
+
+(node:33780) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+e2e/layer1/04-agent-writes-a-handler.test.ts:13:27: warning eslint(no-unused-vars): Identifier &#x27;cli&#x27; is imported but never used. help: Consider removing this import.
+
+
+
+ NX   Successfully ran targets lint, typecheck for project e2e
+
+
+  Run duration:      858ms
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     854ms (1 task)
+  Recoverable time:  &lt;1ms</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">No container mounted from this worktree, reserved check 04 listener or worktree runtime process remains.</span>
+    <span class="meta">exit 0 · 0.6s · 2026-11-17T05:35:41Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ python3 .architect/check04-cleanup.py</div><pre>Containers mounted from this worktree: none
+Reserved check04 listening ports: none
+Runtime processes from this worktree: none</pre></div>
 </details>
 </section>
 <section class="step">

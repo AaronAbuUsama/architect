@@ -2,15 +2,16 @@
   "step": "L2.11",
   "stage": "Stage 3 · shipping on local worlds (Gate 2)",
   "title": "Gate 2: eight shipping checks locally and in Linux CI",
-  "status": "final-clean-attempt-failed",
-  "summary": "The earlier full Gate2 passed with ten tests and real Homebrew. The fresh clean c867e21 attempt passed nine of ten tests, including real Mac Homebrew, but check04 ended in a direct test fetch ECONNRESET. Its raw failure and complete clean preflight/cleanup remain under attempts; the separate author is diagnosing the request lifecycle. Linux CI and the final independent gate verdict remain pending. Fresh Linux run44023299021 on the same c867e21 is green across all three jobs: Gate2 passes eight files and ten tests with actual Linuxbrew and no skips.",
+  "status": "final-clean-rerun-pending",
+  "summary": "The confirmed test-side connection reset is corrected by the separate author at the shared read-only JSON helper. Focused promotion passes with unchanged assertions, all16projects static checks and Nx sync pass after integration, and every author resource is stopped. The prior source passed all10tests on Linux with actual Linuxbrew. A fresh clean full local gate and Linux CI on this integrated candidate remain required before final review and landing.",
   "proves": "A PR goes to test, then staging, then production. There is a verdict in each environment, and the npm version equals `architect version --next`.",
   "captions": {
     "01-ci-static": "Workspace lint, typecheck, Nx sync and workflow syntax validation; these are static checks.",
     "02-local-gate": "Full Gate 2 on clean source: eight files, ten tests passed, zero skips; the real Homebrew test ran.",
     "03-cleanup": "Zero remaining containers, gate taps, formulas, exact gate port listeners or own runtime processes. Unrelated listeners were preserved.",
     "06-linux-ci": "Fresh Linux run44023299021: all three CI jobs green on c867e21.",
-    "07-linux-gate-summary": "Linux Gate2 passes all eight files and ten tests; Homebrew7.0.13 is present and both publishing tests execute."
+    "07-linux-gate-summary": "Linux Gate2 passes all eight files and ten tests; Homebrew7.0.13 is present and both publishing tests execute.",
+    "08-post-author-static": "After the separate author correction integrates: all16projects lint/typecheck pass without Nx cache; reset/sync/sync:check also pass."
   },
   "local": {
     "commit": "2b2aa3cc77ce9762d43ca98193e9acf2319c3897",
