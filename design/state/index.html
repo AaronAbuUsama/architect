@@ -134,14 +134,14 @@ const DONE = B("done", "built"), WIP = B("wip", "being built"), TODO = B("todo",
 const ALL_PAGES = [
 { id: "now", group: "Start", t: "Where it stands", h: () => `
 <h1>Where it stands</h1>
-<p class="lede">Two of the six stages are done and on main. Architect can already declare a system, generate it, call it and prove it,
-and Gate 1 passed in CI. Stage three, prove and ship, is about two thirds built.</p>
+<p class="lede">Two of the six stages are done and on main. Architect can declare a system, generate it, call it, prove it, ship it
+across test, staging and production, and watch it. Every build step of stage three is merged; only Gate 2 itself is left.</p>
 <ul>
 <li><b>Layer one, declare and call, is finished.</b> Stages one and two, Gate 1, merged on 16 November.</li>
-<li><b>Layer two, prove and ship, is in progress.</b> Nine of its fourteen steps are merged on <code>layer/3</code>, and six of Gate 2's eight checks pass.</li>
-<li><b>Being built now:</b> seeing traces locally, and the MCP server with OAuth.</li>
-<li><b>Next:</b> <code>watch</code>, then the portal, then Gate 2 itself, and the pull request into main.</li>
-<li><b>CI is green</b> on main and on <code>layer/3</code>. It was red on <code>layer/3</code> for four runs, because two tests couldn't clean up their temporary folders on Linux, and the fix passed.</li>
+<li><b>Layer two, prove and ship, is built.</b> Thirteen of its fourteen steps are merged on <code>layer/3</code>: traces, the MCP server, <code>watch</code> and the portal landed today.</li>
+<li><b>Paused for the Codex handoff.</b> No builder is running.</li>
+<li><b>Next:</b> make three tests reliable on CI's Linux machines, one fix in check 8, then Gate 2 itself, the review and the pull request into main.</li>
+<li><b>CI is red on <code>layer/3</code>:</b> three tests time out or lose a connection under CI's load. Each passes on your Mac. Main is green.</li>
 <li><b>Layers three to five,</b> the kits, the chain and time, haven't started. Neither has the cloud pass, which needs your yes on credentials.</li>
 </ul>
 <div class="callout">For the detail, see <a href="#layers">the five layers</a>, <a href="#stage3">layer two, step by step</a> and <a href="#left">what's left</a>.</div>` },
@@ -158,7 +158,7 @@ steps, performance, coverage and explainability.</p>
 <p>It's built in five layers, each closed by a gate, and everything runs for real on your Mac, in Cloudflare's own local runtime, with nothing mocked.</p>
 <div class="loops">
   <div class="loop"><div class="loop-name">Design loop</div><div class="loop-stages"><span class="s-done">Ideate</span><span class="s-done">Spike</span><span class="s-done">Specify</span></div><div class="loop-out">The blueprint, blanks and scaffolds work today.</div></div>
-  <div class="loop"><div class="loop-name">Build loop</div><div class="loop-stages"><span class="s-done">Build</span><span class="s-done">Test</span><span class="s-done">Deploy</span><span class="s-todo">Watch</span></div><div class="loop-out">Deploy runs across local environments; watch is next.</div></div>
+  <div class="loop"><div class="loop-name">Build loop</div><div class="loop-stages"><span class="s-done">Build</span><span class="s-done">Test</span><span class="s-done">Deploy</span><span class="s-done">Watch</span></div><div class="loop-out">All four run across local environments.</div></div>
 </div>
 <p class="muted">The worked example is acme: the starter project (sign-up, organisations, members, invitations, API keys) plus the allowance, an owner letting a member spend up to a limit.</p>` },
 
@@ -169,8 +169,9 @@ steps, performance, coverage and explainability.</p>
 <div class="tablewrap"><table><tbody>
 <tr><td><b>The server</b>, every operation as an endpoint with its role check, spans and typed refusals</td><td class="s">${DONE}</td></tr>
 <tr><td colspan="2" class="muted">Runs locally in workerd, in test, staging and production at once. A real Cloudflare deploy waits for the cloud pass.</td></tr>
-<tr><td><b>The MCP server</b>, one tool per operation, with OAuth</td><td class="s">${WIP}</td></tr>
-<tr><td><b>The portal</b>, the blueprint and what's proven where</td><td class="s">${TODO}</td></tr>
+<tr><td><b>The MCP server</b>, one tool per operation, with OAuth</td><td class="s">${DONE}</td></tr>
+<tr><td><b>The portal</b>, the blueprint and what's proven where</td><td class="s">${DONE}</td></tr>
+<tr><td colspan="2" class="muted">A plain read-only page at <code>/portal</code> on every environment. A designed docs site on top of it is next (F2, F3).</td></tr>
 <tr><td><b>The world</b> as a Durable Object, with its clock and test worlds</td><td class="s">${DONE}</td></tr>
 <tr><td><b>The contracts</b>, for things that live on chain</td><td class="s">${TODO}</td></tr>
 <tr><td><b>The keeper</b>, for moves made by time</td><td class="s">${TODO}</td></tr>
@@ -186,7 +187,8 @@ steps, performance, coverage and explainability.</p>
 <tr><td><b>The docs</b>, a page per thing and operation</td><td class="s">${DONE}</td></tr>
 <tr><td><b>The model</b>, with versions and staleness worked out from it</td><td class="s">${DONE}</td></tr>
 <tr><td><b>The evidence</b>, signed verdicts per operation per environment, in the logbook</td><td class="s">${DONE}</td></tr>
-<tr><td><b>The same evals watching production</b></td><td class="s">${TODO}</td></tr>
+<tr><td><b>The same evals watching production</b></td><td class="s">${DONE}</td></tr>
+<tr><td colspan="2" class="muted"><code>architect watch</code> reads local files or Axiom. Traces show locally in a viewer, and in Axiom by config.</td></tr>
 <tr><td><b>The infrastructure</b>, an Alchemy stack per environment</td><td class="s">${CLOUD}</td></tr>
 </tbody></table></div>` },
 
@@ -198,8 +200,8 @@ steps, performance, coverage and explainability.</p>
     <div class="bar"><i style="width:100%"></i></div>
     <div class="meta">22 of 22 steps. On main since 16 November, pull requests 1 and 2. Gate 1's seven checks pass locally and in CI.</div></div>
   <div class="layer"><div class="name">2. Prove and ship <span>stage 3 · Gate 2</span></div>${WIP}
-    <div class="bar w"><i style="width:64%"></i></div>
-    <div class="meta">9 of 14 steps merged on <code>layer/3</code>, 64%. Six of Gate 2's eight checks pass, run one by one.</div></div>
+    <div class="bar w"><i style="width:93%"></i></div>
+    <div class="meta">13 of 14 steps merged on <code>layer/3</code>, 93%. Only Gate 2 is left. Seven of its eight checks pass run one by one; check 8 needs one fix.</div></div>
   <div class="layer"><div class="name">3. Reach out <span>stage 4 · Gate 3</span></div>${TODO}
     <div class="meta">Kits, wallets, sign-in with Ethereum, the chain kit on viem, Anvil in a world, the relayer, the chain follower.</div></div>
   <div class="layer"><div class="name">4. On chain <span>stage 5 · Gate 4</span></div>${TODO}
@@ -223,13 +225,13 @@ steps, performance, coverage and explainability.</p>
 <tr><td class="k">L2.07</td><td>Device sign-in for the generated CLI.</td><td class="s">${DONE}</td></tr>
 <tr><td class="k">L2.L</td><td>Your layout: handlers at <code>src/&lt;thing&gt;/&lt;operation&gt;.ts</code>.</td><td class="s">${DONE}</td></tr>
 <tr><td class="k">L2.P</td><td>Privacy seams for Noir later: secret and private fields, coded refusals.</td><td class="s">${DONE}</td></tr>
-<tr><td class="k">L2.O</td><td>Seeing traces locally, with Axiom as a sink by config.</td><td class="s">${WIP}</td></tr>
-<tr><td class="k">L2.08</td><td>The MCP server with OAuth.</td><td class="s">${WIP}</td></tr>
-<tr><td class="k">L2.09</td><td><code>watch</code>: the same evals on live telemetry.</td><td class="s">${TODO}</td></tr>
-<tr><td class="k">L2.10</td><td>The portal. Handed to Codex.</td><td class="s">${TODO}</td></tr>
+<tr><td class="k">L2.O</td><td>Seeing traces locally, with Axiom as a sink by config.</td><td class="s">${DONE}</td></tr>
+<tr><td class="k">L2.08</td><td>The MCP server with OAuth, and the world's front door closed outside test worlds.</td><td class="s">${DONE}</td></tr>
+<tr><td class="k">L2.09</td><td><code>watch</code>: the same evals on live telemetry; drift becomes a task.</td><td class="s">${DONE}</td></tr>
+<tr><td class="k">L2.10</td><td>The portal: a read-only page per environment, honest ticks, stale explained.</td><td class="s">${DONE}</td></tr>
 <tr><td class="k">L2.11</td><td>Gate 2, in CI, then the review and the pull request into main.</td><td class="s">${TODO}</td></tr>
 </tbody></table></div>
-<p class="muted">"Being built" comes from the handoff. Neither branch had been pushed yet when this page was made.</p>` },
+<p class="muted">Read from the build plan's marks and the merges on <code>layer/3</code>.</p>` },
 
 { id: "works", group: "Progress", t: "What works on your Mac", h: () => `
 <h1>What works on your Mac</h1>
@@ -254,29 +256,32 @@ steps, performance, coverage and explainability.</p>
 <li><code>architect promote</code> moves the same bundle from test to staging to production, only on green verdicts.</li>
 <li><code>architect publish --local</code> puts the SDK and CLI on a local npm registry, and the CLI in a Homebrew tap.</li>
 <li><code>acme session sign-in</code> signs the generated CLI in with a device code.</li>
+<li><code>architect telemetry view</code> and <code>prove --view</code> show each trace in a local viewer; Axiom is one line of config.</li>
+<li>An MCP client signs in with OAuth and calls acme's operations as tools; a caller without the role is refused.</li>
+<li><code>architect watch --env staging</code> prints p95 against budget and refusal counts, and a planted slow handler shows as drift.</li>
+<li><code>/portal</code> on staging shows every operation per environment: proven, failed, stale with the reason, or unproven.</li>
 </ul>` },
 
 { id: "flight", group: "Progress", t: "In flight", h: () => `
 <h1>In flight</h1>
-<p class="lede">What's moving right now, from the branches, the open pull requests and CI.</p>
-<h2>Being built</h2>
+<p class="lede">Paused for the Codex handoff. Nothing is being built.</p>
+<h2>First for Codex</h2>
 <ul>
-<li><b>Seeing traces locally</b> (L2.O): telemetry commands and a local viewer.</li>
-<li><b>The MCP server with OAuth</b> (L2.08), which also closes the world's front door outside test worlds.</li>
+<li><b>CI on <code>layer/3</code>:</b> three tests that pass on your Mac fail under CI's load: promotion's restart, the list read, and the trace viewer on Linux.</li>
+<li><b>Check 8:</b> one fetch needs a fresh connection after staging restarts. An author's fix, not a builder's.</li>
 </ul>
-<p>Every earlier builder and author branch is fully merged into <code>layer/3</code>.</p>
-<h2>Open pull requests</h2>
+<h2>Side threads</h2>
 <ul>
-<li><a href="https://github.com/AaronAbuUsama/architect/pull/9">Pull request 9</a>: the agent harness's second design pass. Checks green, mergeable, waiting on your answers. Of fourteen pull requests, twelve are merged, one closed and this one open.</li>
-</ul>
-<h2>CI</h2>
-<p>${B("done", "green")} on main and on <code>layer/3</code>. Gate 2 has no CI job yet; adding one is part of the gate.</p>` },
+<li><b>The portal's information architecture</b> is on main (pull request 17). That thread is now writing the brief for the designed docs site.</li>
+<li><b>Your HeroUI Pro template</b> is on its own branch, <code>portal/heroui-pro-template</code>.</li>
+<li><a href="https://github.com/AaronAbuUsama/architect/pull/9">Pull request 9</a>, the agent harness, still waits on your answers.</li>
+</ul>` },
 
 { id: "left", group: "Progress", t: "What's left", h: () => `
 <h1>What's left</h1>
 <p class="lede">In order. Nothing in a layer starts until the previous gate passes on main.</p>
 <ol>
-<li><b>Finish Gate 2.</b> Merge traces and the MCP server, build <code>watch</code>, the portal from Codex, then Gate 2 green locally and in CI, a review, and the pull request into main.</li>
+<li><b>Finish Gate 2.</b> CI green on <code>layer/3</code>, the check 8 fix, then Gate 2 green locally and in CI, a review, and the pull request into main.</li>
 <li><b>Layer three, Gate 3.</b> Opens with wayfinding, then the kit format and ten steps.</li>
 <li><b>Layer four, Gate 4.</b> The allowance on chain, nine steps.</li>
 <li><b>Layer five, Gate 5.</b> Time, eight steps.</li>
@@ -324,19 +329,20 @@ steps, performance, coverage and explainability.</p>
 <tr><td class="k">F1</td><td>The portal's design and the data it reads.</td><td class="s">${B("done", "designed · merged")}</td></tr>
 <tr><td class="k">Codex</td><td>A brief for Codex: the portal, then the plan as blueprint things, then an agent fleet. Codex hasn't pushed a branch yet.</td><td class="s">${B("done", "brief merged")}</td></tr>
 <tr><td class="k">N1</td><td>Noir on Aztec, a private target, after layer five.</td><td class="s">${LATER}</td></tr>
-<tr><td class="k">O1</td><td>Observability: the core speaks only OpenTelemetry, and sinks are config.</td><td class="s">${B("wip", "designed · being built")}</td></tr>
+<tr><td class="k">O1</td><td>Observability: the core speaks only OpenTelemetry, and sinks are config.</td><td class="s">${B("done", "built")}</td></tr>
+<tr><td class="k">F2 · F3</td><td>The portal's information architecture, then a brief for the designed docs site generated from the blueprint.</td><td class="s">${B("wip", "F2 merged · F3 being written")}</td></tr>
 <tr><td class="k">Spikes</td><td>CI's OIDC token, OAuth for MCP, and a single executable. All answered.</td><td class="s">${B("done", "done")}</td></tr>
 </tbody></table></div>` },
 
 { id: "risks", group: "Decisions", t: "Risks and known issues", h: () => `
 <h1>Risks and known issues</h1>
 <p class="lede">What could bite, from CI and from the handoff's list of traps already hit.</p>
-<div class="callout open"><b>CI was red on <code>layer/3</code> for four runs.</b> Two tests couldn't remove their temporary folders on Linux. The fix passed on the next run; it's new, so the next few runs are worth watching.</div>
+<div class="callout red"><b>CI is red on <code>layer/3</code>.</b> Three tests fail under CI's load and pass on your Mac. Fixing them is the first job after the handoff.</div>
 <ul>
 <li><b>Shared ports and Docker.</b> Builders running tests at once collide on ports. Gate 2's cleanup removes every Architect container, other agents' too, so it must run alone.</li>
-<li><b>Leftover collectors.</b> A killed run can leave a trace collector holding its port, until the traces step lands.</li>
+<li><b>Leftover containers.</b> A killed Gate 2 run can leave a registry container holding its port. Collectors now clean themselves up.</li>
 <li><b>One flaky check.</b> One run in three of the promotion check lost its connection to staging after a restart, and passed on retry.</li>
-<li><b>The world's front door is open</b> in every environment, until the MCP step closes it.</li>
+<li><b>The cloud pass must set the environment's name</b> on every deployed server, or it would open the world's front door.</li>
 <li><b>The agent check is skipped in CI</b> on <code>layer/3</code>, because the model key only reaches pull requests into main.</li>
 </ul>` },
 
@@ -344,7 +350,7 @@ steps, performance, coverage and explainability.</p>
 <h1>How this was checked</h1>
 <p class="lede">Every claim here was read from the repository, its pull requests and CI, on 17 November 2026, not from memory.</p>
 <ul>
-<li><b>Plan and state:</b> the handoff's START HERE, the goal file with its six stages and five gates, and the build plan's marks, on <code>layer/3</code> at 91c0f1b.</li>
+<li><b>Plan and state:</b> the handoff's START HERE, the goal file with its six stages and five gates, and the build plan's marks, on <code>layer/3</code> after the last merge.</li>
 <li><b>Decisions:</b> <code>design/decisions.md</code> and <code>design/decisions/</code>.</li>
 <li><b>What works:</b> each step's evidence in <code>design/evidence/</code>.</li>
 <li><b>Branches, pull requests and CI:</b> the remote branches, the pull request list, and the last CI runs on main and <code>layer/3</code>.</li>
