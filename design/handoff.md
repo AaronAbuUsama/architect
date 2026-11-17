@@ -44,14 +44,33 @@ and the subsequent full clean Gate2 passes (D3 #198). D3 #197 records legacy hos
 debt, without an exemption or universal compliance claim. D3 #195 records OAuth registration as a local throttle;
 a strict concurrent ceiling remains before public cloud use.
 
+**Stage3 is merged; exact-main verification is running.** [PR21](https://github.com/AaronAbuUsama/architect/pull/21)
+merged at `396dab4c9021deeec622e8bfb87d31a725aa0dc2` on main, after keyed PR run `44028403050` passed all three
+jobs on reviewed receipt head `3bacbf3`. The same independent reviewer returned PASS against main base `ca2fbf2`,
+with no unresolved actionable finding. The merge's tracked tree is identical to reviewed `3bacbf3` (capture23).
+The model-assisted PR check succeeded and cost $0.04; observed daily keyed spend before main is $0.63.
+Hosted GitHub Codex review could not complete because of the account review limit; it produced no review or inline
+finding. The repository-required independent subagent review is the recorded PASS, not a hosted-review claim.
+
+**Exact-main local proof is green; main CI needs a bounded test recovery.** Clean `396dab4` passed all16projects'
+static checks after reset/sync, all25real logbook tests, then stock Gate2 with eight files/ten tests/zero skips in
+245.7seconds and real Mac Homebrew. Preflight and scoped cleanup prove zero owned resources (captures19–22).
+Main run `44029791265` passed Gate1 and Gate2, but the workspace job failed only `publish.test.ts:149`: its two
+real Node CLI invocations took5.285seconds under the implicit5second test-body deadline. All117other prove tests
+passed; three configured provider/platform skips are unchanged. This is a test integration deadline, not an
+assertion or runtime counterexample. The raw failure remains under `L2.11/attempts/396dab4-workspace-ci.txt`.
+
+**The separate author owns the main recovery.** The other five publish cases already have explicit300/900second
+budgets. Only the negative two-CLI usage body needs a bounded60second integration deadline; every request,
+assertion, subprocess deadline, hook and global/domain budget stays unchanged. Separate author `c67bf4c` is integrated: the one-line per-body60second deadline passed its real focused CLI case,
+prove static checks and cleanup. Post-merge reset/sync/sync:check, all16static projects, the same focused real case
+and scoped9050–9053 cleanup also passed (captures26–28). No runtime worker is active. The product-review count remains three; this is ordinary test feedback.
+
 **Next, in order.**
-1. Push the final receipts candidate and open `layer/3` into main. The branch’s all-three-job CI is green on
-   `5ff5f6f`; the pull-request run must also execute the model-assisted Gate1 check using the existing repository
-   secret. Observed daily keyed CI spend is $0.59 before this PR; no new credential or cloud resource is created.
-2. Obtain the same independent reviewer's final verdict on the exact final evidence head and CI. Open `layer/3` into
-   main; merge only fresh green CI, a clean target and the pass. Check the keyed Gate1 run's actual spend before main.
-3. Verify main CI, reset/sync/static and touched checks, and cleanup. Hand the green main commit back to root. Root
-   alone opens Stage4 wayfinding. Claude alone republishes the private status/evidence page links.
+1. Open the fresh bounded recovery PR against main396; the author patch and required integration checks are green.
+   Obtain the same independent reviewer's exact-head pass and all three keyed CI jobs, then merge the fix.
+2. Verify the corrected main CI and clean local gate, inspect actual model costs and cleanup. Do not start Stage4
+   while main is red. Root alone takes back after green main; Claude alone republishes the private page links.
 
 **For the cloud pass, from L2.08:** every deployed Worker must set `ARCHITECT_ENVIRONMENT`, or it reads as a local
 world and opens `/_world/*` (`later.md`); `Facts` reads staging's SQLite file today and needs a D1 API reader behind the

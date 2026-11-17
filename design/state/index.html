@@ -141,15 +141,14 @@ const DONE = B("done", "built"), WIP = B("wip", "being built"), TODO = B("todo",
 const ALL_PAGES = [
 { id: "now", group: "Start", t: "Where it stands", h: () => `
 <h1>Where it stands</h1>
-<p class="lede">Two of the six stages are done and on main. Architect can declare a system, generate it, call it, prove it, ship it
-across test, staging and production, and watch it. Every build step of stage three is merged. The review corrections and authored checks pass locally; the full Gate 2 passed locally, with Linux CI and final review next.</p>
+<p class="lede">Stage three has merged into main after all three keyed pull-request checks and the independent review passed. The exact main local gate passed; main CI passed both gates but found a short test deadline around two real CLI starts. A separate author owns that narrow recovery before the stage closes.</p>
 <ul>
-<li><b>Layer one, declare and call, is finished.</b> Stages one and two, Gate 1, merged on 16 November.</li>
-<li><b>Layer two, prove and ship, is built.</b> All fourteen steps are merged on <code>layer/3</code>: traces, the MCP server, <code>watch</code> and the portal landed today.</li>
-<li><b>Codex has resumed.</b> The CI and evidence-page repairs passed locally and on Linux. World isolation is fixed and passes integration checks. The previous clean local gate passed all ten tests. The four boundary corrections are merged. Independent author acceptance and the real-service logbook migration pass their integrated checks. The final clean gate passed all ten tests, including real Homebrew, locally and on Linux. All three Linux CI jobs are green. Cleanup is complete; the final keyed pull-request check, independent verdict and main landing are next.</li>
-<li><b>Next:</b> run the final keyed pull-request checks and exact-head review, then land the green candidate on main.</li>
-<li><b>Fresh Linux CI is green across all three jobs.</b> Gate 2 passed all ten tests with actual Linux Homebrew and no skips. The prior candidate passed Linux; the corrected final candidate also passed all ten local tests. Its fresh Linux run, final review and landing remain.</li>
-<li><b>Layers three to five,</b> the kits, the chain and time, haven't started. Neither has the cloud pass, which needs your yes on credentials.</li>
+<li><b>Layer one, declare and call, is finished.</b> Stages one and two, Gate 1, are on main.</li>
+<li><b>Layer two, prove and ship, is merged.</b> All fourteen steps are on main: real local environments, signed proof, promotion, publishing, OAuth MCP, watch and the portal.</li>
+<li><b>The complete shipping gate passes.</b> Clean local and Linux runs passed all ten tests with zero skips and real Homebrew. The final keyed pull-request run and independent exact-head review also passed.</li>
+<li><b>Next:</b> recover the main workspace check’s CLI integration deadline, then verify corrected main CI and cleanup. Stage 4 waits for green main.</li>
+<li><b>Boundaries remain explicit.</b> Test, staging and production are local workerd deployments. The historical author-rule deviation and accepted legacy-adapter policy debt remain recorded; no public cloud or universal compliance claim is made.</li>
+<li><b>Layers three to five</b> and the cloud pass have not started.</li>
 </ul>
 <div class="callout">For the detail, see <a href="#layers">the five layers</a>, <a href="#stage3">layer two, step by step</a> and <a href="#left">what's left</a>.</div>` },
 
@@ -208,7 +207,7 @@ steps, performance, coverage and explainability.</p>
     <div class="meta">22 of 22 steps. On main since 16 November, pull requests 1 and 2. Gate 1's seven checks pass locally and in CI.</div></div>
   <div class="layer"><div class="name">2. Prove and ship <span>stage 3 · Gate 2</span></div>${WIP}
     <div class="bar w"><i style="width:100%"></i></div>
-    <div class="meta">14 of 14 steps built on <code>layer/3</code>. Gate 2 and all three Linux CI jobs pass. The keyed pull-request check, final independent verdict and landing remain.</div></div>
+    <div class="meta">14 of 14 steps merged on <code>main</code>. Gate 2 and all three Linux CI jobs pass. The keyed pull-request check and independent review passed; exact-main verification is running.</div></div>
   <div class="layer"><div class="name">3. Reach out <span>stage 4 · Gate 3</span></div>${TODO}
     <div class="meta">Kits, wallets, sign-in with Ethereum, the chain kit on viem, Anvil in a world, the relayer, the chain follower.</div></div>
   <div class="layer"><div class="name">4. On chain <span>stage 5 · Gate 4</span></div>${TODO}
@@ -236,9 +235,9 @@ steps, performance, coverage and explainability.</p>
 <tr><td class="k">L2.08</td><td>The MCP server with OAuth, and the world's front door closed outside test worlds.</td><td class="s">${DONE}</td></tr>
 <tr><td class="k">L2.09</td><td><code>watch</code>: the same evals on live telemetry; drift becomes a task.</td><td class="s">${DONE}</td></tr>
 <tr><td class="k">L2.10</td><td>The portal: a read-only page per environment, honest ticks, stale explained.</td><td class="s">${DONE}</td></tr>
-<tr><td class="k">L2.11</td><td>Gate 2 and Linux CI pass with real Homebrew. Final PR checks, review and main landing remain.</td><td class="s">${WIP}</td></tr>
+<tr><td class="k">L2.11</td><td>Gate 2, keyed PR checks and review pass; merged into main, whose final verification is running.</td><td class="s">${WIP}</td></tr>
 </tbody></table></div>
-<p class="muted">Read from the build plan's marks and the merges on <code>layer/3</code>.</p>` },
+<p class="muted">Read from the build plan and the layer merged into <code>main</code>.</p>` },
 
 { id: "works", group: "Progress", t: "What works on your Mac", h: () => `
 <h1>What works on your Mac</h1>
@@ -291,7 +290,7 @@ steps, performance, coverage and explainability.</p>
 <h1>What's left</h1>
 <p class="lede">In order. Nothing in a layer starts until the previous gate passes on main.</p>
 <ol>
-<li><b>Finish Gate 2.</b> Gate 2 is green locally and in Linux CI. Finish the keyed PR checks, independent final verdict and main landing.</li>
+<li><b>Finish Gate 2.</b> Gate 2, keyed PR checks and independent review passed; finish the exact-main local run, CI and cleanup.</li>
 <li><b>Layer three, Gate 3.</b> Opens with wayfinding, then the kit format and ten steps.</li>
 <li><b>Layer four, Gate 4.</b> The allowance on chain, nine steps.</li>
 <li><b>Layer five, Gate 5.</b> Time, eight steps.</li>

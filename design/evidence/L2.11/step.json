@@ -2,8 +2,8 @@
   "step": "L2.11",
   "stage": "Stage 3 · shipping on local worlds (Gate 2)",
   "title": "Gate 2: eight shipping checks locally and in Linux CI",
-  "status": "gate-pass-pr-review-pending",
-  "summary": "Gate 2 passes on clean local source and fresh Linux CI: all eight files and ten tests, zero skips, with actual Mac arm64 and Linux x64 Homebrew. The clean local 4516059 proof is unchanged by the subsequent two test-only restart deadlines and documentation; final source 5ff5f6f passes all three Linux CI jobs. All 25 real logbook tests and all 16 projects’ static checks pass after integration. Owned-resource cleanup is complete. Final keyed PR CI, independent exact-head verdict and main landing remain.",
+  "status": "main-recovery-local-pass-ci-pending",
+  "summary": "Stage3 shipping is merged and exact main396dab4 passes clean local Gate2 (eight files/ten tests/no skips/real Homebrew) and both Linux gates. The sole first-main workspace failure was the two-CLI test’s implicit five-second deadline. Separate author c67bf4c changes only that body to60seconds; focused real behavior, post-merge static/touched checks and cleanup pass with all assertions/runtime unchanged. A fresh reviewed recovery PR and corrected main CI remain required before closure.",
   "proves": "A PR goes to test, then staging, then production. There is a verdict in each environment, and the npm version equals `architect version --next`.",
   "captions": {
     "01-ci-static": "Workspace lint, typecheck, Nx sync and workflow syntax validation; these are static checks.",
@@ -19,19 +19,32 @@
     "13-restart-budget-static": "Post-merge restart-deadline correction: all 16 projects pass lint/typecheck without cache; reset/sync/sync:check pass.",
     "14-restart-budget-logbook": "Post-merge serial real logbook suite: all 25 tests pass, including both restart cases.",
     "15-restart-budget-cleanup": "Post-merge cleanup: no owned containers, exact test-port listeners or worktree runtime processes.",
-    "16-final-linux-ci": "Final source 5ff5f6f, run 44027211261: all three Linux CI jobs green, including real Homebrew Gate 2 and corrected real logbook integration tests."
+    "16-final-linux-ci": "Final source 5ff5f6f, run 44027211261: all three Linux CI jobs green, including real Homebrew Gate 2 and corrected real logbook integration tests.",
+    "17-keyed-pr-ci": "Exact final receipt head 3bacbf3: all three keyed PR CI jobs pass.",
+    "18-keyed-pr-agent-cost": "Actual model-assisted PR check: success, 18 turns, 24 seconds, $0.04.",
+    "23-main-review-source-boundary": "The merged main commit 396dab4 has exactly the reviewed 3bacbf3 tracked tree; no merge-time source change.",
+    "19-main-static": "Exact main: Nx reset/sync/sync:check and all 16 projects lint/typecheck pass without cache.",
+    "20-main-logbook": "Exact main: serial real logbook suite passes all 25 tests; resources stopped before the full gate.",
+    "21-main-clean-gate": "Exact main 396dab4, literally clean checkout: eight files/ten tests pass, no skips, 245.7 seconds, real Mac arm64 Homebrew.",
+    "22-main-cleanup": "Exact-main clean preflights and scoped cleanup: no owned container, tap, formula, gate-port listener or runtime process; unrelated resources preserved.",
+    "24-first-main-ci": "First main396dab4 CI: both shipping gates green; sole workspace failure is the two-real-CLI test default deadline.",
+    "25-first-main-agent-cost": "Actual model-assisted first-main Gate1 session and observed cost.",
+    "26-cli-budget-integration-static": "After the one-line CLI integration deadline merges: reset/sync/sync:check and all 16 projects lint/typecheck pass without cache.",
+    "27-cli-budget-integration-case": "Actual focused two-CLI usage case passes after integration; all assertions unchanged, existing real services/CLI used.",
+    "28-cli-budget-integration-cleanup": "Focused recovery leaves no owned containers, exact publishing test-port listener or worktree runtime process."
   },
   "local": {
-    "commit": "4516059b27c2013fda885225a7ea2074357ab3b2",
+    "commit": "396dab4c9021deeec622e8bfb87d31a725aa0dc2",
     "command": "NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static",
     "filesPassed": 8,
     "testsPassed": 10,
     "testsSkipped": 0,
-    "durationSeconds": 253.1,
+    "durationSeconds": 245.7,
     "platform": "darwin-arm64",
     "nodeVersion": "26.13.1",
     "pnpmVersion": "11.20.0",
     "cleanSourceBeforeRun": true,
     "cleanup": "No Architect containers, gate taps, gate formulas, exact gate port listeners or own runtime processes remain."
-  }
+  },
+  "pullRequest": "https://github.com/AaronAbuUsama/architect/pull/21"
 }
