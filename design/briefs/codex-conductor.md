@@ -18,8 +18,8 @@ Read, in this order, before doing anything:
 5. design/build-plan.md (layer 2's rows and Gate 2), design/decisions/D3.md, and design/decisions/O1-observability.md.
 
 Then:
-- Run `git fetch origin` and check out `layer/3`. For each branch START HERE lists as in flight (build/L2.O,
-  build/L2.08): if it exists on origin, read its last commit and the decision block it added, merge it into layer/3,
+- Run `git fetch origin` and check out `layer/3`. For each branch START HERE lists as in flight (if any): if it
+  exists on origin and is not yet merged, read its last commit and the decision block it added, merge it into layer/3,
   resolve conflicts, run `pnpm nx reset`, `NX_DAEMON=false pnpm nx sync`, lint, typecheck and the tests it touched,
   and push. If it does not exist, the step was not finished: build it yourself from its build-plan row.
 - Continue with the next steps in START HERE, one builder per step (a subagent or a new Codex session, each in its own
