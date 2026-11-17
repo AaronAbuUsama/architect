@@ -1,0 +1,17 @@
+PASS legacy Wrangler credential directory is absent
+PASS real workerd Worker answers
+PASS real Durable Object starts its container
+PASS owned Anvil answers eth_chainId
+PASS Anvil startup output never reaches Docker logs
+PASS timestamp interval zero accepted
+PASS chain time remains fixed across wall time
+PASS fractional seconds are refused by real Anvil
+PASS expiry world owns a distinct real container
+PASS explicit end acknowledges
+PASS explicit end preserves the other world's live Anvil
+PASS repeated end cannot resurrect the world
+PASS real Durable Object alarm stops the container
+PASS actual invalid-hardfork startup failure is cleaned
+PASS failed world cannot start later
+PASS all owned container logs remain empty
+PASS cleanup preserves every pre-existing container

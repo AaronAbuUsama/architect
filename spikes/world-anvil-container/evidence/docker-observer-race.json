@@ -1,0 +1,181 @@
+{
+  "owner": "architect-spike-anvil-65313",
+  "port": 19120,
+  "platform": "darwin",
+  "architecture": "arm64",
+  "started": "2026-11-17T07:44:45.825Z",
+  "baseCommit": "6a4fe088027e1df1b21bae7350356c9d0909b823",
+  "checks": [
+    {
+      "name": "legacy Wrangler credential directory is absent",
+      "passed": true
+    },
+    {
+      "name": "real workerd Worker answers",
+      "passed": true,
+      "elapsedMs": 2766
+    },
+    {
+      "name": "real Durable Object starts its container",
+      "passed": true,
+      "status": 202,
+      "body": {
+        "state": "running",
+        "running": true
+      }
+    },
+    {
+      "name": "owned Anvil answers eth_chainId",
+      "passed": true,
+      "elapsedMs": 833,
+      "ids": [
+        "02c21d537335"
+      ]
+    },
+    {
+      "name": "Anvil startup output never reaches Docker logs",
+      "passed": true
+    },
+    {
+      "name": "timestamp interval zero accepted",
+      "passed": true
+    },
+    {
+      "name": "chain time remains fixed across wall time",
+      "passed": true,
+      "timestamp": "0x6ae7d281"
+    },
+    {
+      "name": "fractional seconds are refused by real Anvil",
+      "passed": true
+    },
+    {
+      "name": "expiry world owns a distinct real container",
+      "passed": true
+    },
+    {
+      "name": "explicit end acknowledges",
+      "passed": true
+    },
+    {
+      "name": "explicit end preserves the other world's live Anvil",
+      "passed": true
+    },
+    {
+      "name": "repeated end cannot resurrect the world",
+      "passed": true
+    },
+    {
+      "name": "real Durable Object alarm stops the container",
+      "passed": true,
+      "elapsedMs": 1581
+    }
+  ],
+  "owned": [
+    {
+      "id": "02c21d5373355a7e3ceebff19d065615bf18d4755aabb5d72154d5d14af5ea99",
+      "name": "/workerd-architect-spike-anvil-65313-World-dc2aed46be80f94de1d5756f294773caa0c52e0703cf2f4a4ef3bb8f502670b8",
+      "image": "sha256:6b098ac0ddc4f730c70c88f3fe6d7ad59e55986c5214ede0c6032eb90a9fde81",
+      "architecture": "amd64",
+      "running": true,
+      "exitCode": 0,
+      "owner": "architect-spike-anvil-65313"
+    },
+    {
+      "id": "97f041c29d96dedb9e2edda4ab5a8595785c2c00fdfbc50f4abb7d86f6033f62",
+      "name": "/workerd-architect-spike-anvil-65313-World-14a4204262d3d587649fb4d05277ff021bbe8a2d3effc96199085408a1464e64",
+      "image": "sha256:6b098ac0ddc4f730c70c88f3fe6d7ad59e55986c5214ede0c6032eb90a9fde81",
+      "architecture": "amd64",
+      "running": true,
+      "exitCode": 0,
+      "owner": "architect-spike-anvil-65313"
+    },
+    {
+      "id": "99f66c5e9936d4934c23e19e69b2f03fba499e56f54eb2f4c255ea17e80d936d",
+      "name": "/workerd-architect-spike-anvil-65313-World-7d53f0d6e2b649842fcc95fd21e04824e3438312d846b8056d881ad1ead9e2b4",
+      "image": "sha256:6b098ac0ddc4f730c70c88f3fe6d7ad59e55986c5214ede0c6032eb90a9fde81",
+      "architecture": "amd64",
+      "running": true,
+      "exitCode": 1,
+      "owner": "architect-spike-anvil-65313"
+    }
+  ],
+  "cleanup": {
+    "removedOwnedIds": [],
+    "removedOwnedImages": [
+      "6b098ac0ddc4"
+    ],
+    "remainingOwnedIds": [],
+    "afterIds": [
+      "2133429b1290",
+      "338e6e86439a",
+      "8308927667fe",
+      "21044a8a58c8",
+      "71895b83af52",
+      "f60c662d0910",
+      "63b24d284733",
+      "2effd3ee8c26",
+      "1d527069eb34"
+    ],
+    "originalIdsStillPresent": true,
+    "workerExited": true
+  },
+  "beforeIds": [
+    "2133429b1290",
+    "338e6e86439a",
+    "8308927667fe",
+    "21044a8a58c8",
+    "71895b83af52",
+    "f60c662d0910",
+    "63b24d284733",
+    "2effd3ee8c26",
+    "1d527069eb34"
+  ],
+  "versions": {
+    "node": "v26.13.1",
+    "anvil": "anvil Version: 1.8.6\nCommit SHA: 6bad0a66de7c83f7b33695044138f0f5fa4c5990\nBuild Timestamp: 2026-10-21T17:44:12.747118000Z (1792604652)\nBuild Profile: dist",
+    "dockerClient": "Docker version 29.8.2, build 7fc2dff",
+    "dockerServer": "linux aarch64 29.7.2",
+    "wrangler": "4.156.1",
+    "miniflare": "5.20261101.0-beta",
+    "workerd": "1.20261101.1"
+  },
+  "image": [
+    "ghcr.io/foundry-rs/foundry@sha256:4a16a86f41d30418fbdca47ce2868121bbb0aeaa0a34bde2dd1e2911c4be2464"
+  ],
+  "credentials": {
+    "cloudflareEnvironmentNames": [],
+    "isolatedConfigDirectory": "/Users/abuusama/.codex/worktrees/architect-world-isolation/architect/spikes/world-anvil-container/.run/architect-spike-anvil-65313/config"
+  },
+  "childEnvironmentNames": [
+    "CI",
+    "HOME",
+    "LANG",
+    "LOGNAME",
+    "PATH",
+    "SHELL",
+    "TMPDIR",
+    "USER",
+    "WRANGLER_SEND_METRICS",
+    "XDG_CACHE_HOME",
+    "XDG_CONFIG_HOME",
+    "XDG_STATE_HOME"
+  ],
+  "command": [
+    "/Users/abuusama/.vite-plus/js_runtime/node/26.13.1/bin/node",
+    "/Users/abuusama/.codex/worktrees/architect-world-isolation/architect/packages/host-cloudflare/node_modules/wrangler/bin/wrangler.js",
+    "dev",
+    "--local",
+    "--config",
+    "/Users/abuusama/.codex/worktrees/architect-world-isolation/architect/spikes/world-anvil-container/.run/architect-spike-anvil-65313/wrangler.json",
+    "--persist-to",
+    "/Users/abuusama/.codex/worktrees/architect-world-isolation/architect/spikes/world-anvil-container/.run/architect-spike-anvil-65313/state",
+    "--inspector-port",
+    "0"
+  ],
+  "readyMs": 2766,
+  "finished": "2026-11-17T07:45:05.108Z",
+  "passed": false,
+  "exitCode": 1,
+  "failure": "Command failed: docker inspect --format {{json .}} 99f66c5e9936\nerror: no such object: 99f66c5e9936\n"
+}

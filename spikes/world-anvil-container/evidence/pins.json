@@ -1,0 +1,37 @@
+[
+  {
+    "package": "effect",
+    "version": "4.1.1",
+    "published": "2026-10-30T21:53:39.762Z",
+    "metadata": "https://registry.npmjs.org/effect",
+    "integrity": "sha512-XYu65BrcmNqu5i7PPvP4dqL+R5ma37zIsfuSPjcn78mog+6e5PkilNg7Xo+pBpjXJYlWEIpH4j91tMrfW05CMw=="
+  },
+  {
+    "package": "wrangler",
+    "version": "4.156.1",
+    "published": "2026-11-01T23:18:26.514Z",
+    "metadata": "https://registry.npmjs.org/wrangler",
+    "integrity": "sha512-aZngeNRosSVly6wgxpaJAtFPtEoyM3hD8mLMMcHNXTnofMq4ZN+RMXOdHETyttNP+//+mfiD1hb5E8YFtiMMRQ=="
+  },
+  {
+    "package": "@cloudflare/workers-types",
+    "version": "5.20261101.1",
+    "published": "2026-11-01T01:06:38.378Z",
+    "metadata": "https://registry.npmjs.org/@cloudflare%2fworkers-types",
+    "integrity": "sha512-malJEW9V9x+MygAc9RDGiWF0I8HFYfMzY5CXMn3tbzCxUiQBHtHWUTG5aFmO9oaFenc2z5OyT7e+a46ZaGs3cQ=="
+  },
+  {
+    "package": "miniflare",
+    "version": "5.20261101.0-beta",
+    "published": "2026-11-01T23:13:59.180Z",
+    "metadata": "https://registry.npmjs.org/miniflare",
+    "integrity": "sha512-31uZmP8PGue7S3fYMIRXNXxFGh5/SEmd4OGna/80RXcE1nngVub21h9GbcWajQ7625mEYBnexpI2ogGo9NUa6Q=="
+  },
+  {
+    "package": "workerd",
+    "version": "1.20261101.1",
+    "published": "2026-11-01T01:07:41.418Z",
+    "metadata": "https://registry.npmjs.org/workerd",
+    "integrity": "sha512-qHUIS4cmvhpAE7k2TW0ZktXj9KGDeoUvvLuqi5cSalCM6el5Q6IPuaup9XAC6zQq/xJUPHMG29ML93HuSDY2RQ=="
+  }
+]
