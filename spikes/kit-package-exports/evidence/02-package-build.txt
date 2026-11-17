@@ -1,0 +1,7 @@
+
+  fixture/dist/blueprint.js   512b 
+  fixture/dist/descriptor.js  366b 
+  fixture/dist/worker.js      319b 
+  fixture/dist/node.js        147b 
+
+⚡ Done in 20ms

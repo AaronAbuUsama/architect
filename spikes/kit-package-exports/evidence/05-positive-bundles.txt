@@ -1,0 +1,12 @@
+
+  .architect/bundles/client-api.js  731.4kb
+
+⚡ Done in 154ms
+
+  .architect/bundles/client-sdk.js  979.4kb
+
+⚡ Done in 100ms
+
+  .architect/bundles/worker.js  1.1mb ⚠️
+
+⚡ Done in 94ms

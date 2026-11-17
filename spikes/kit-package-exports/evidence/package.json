@@ -1,0 +1,15 @@
+{
+  "archive": "architect-spike-fixture-kit-0.0.0-spike.tgz",
+  "sha256": "26acdb94d7ddf2a31b92ae35dc8fa4a20770c77fff437ea904ac1032b4271411",
+  "entries": [
+    "dist/blueprint.d.ts",
+    "dist/blueprint.js",
+    "dist/descriptor.d.ts",
+    "dist/descriptor.js",
+    "dist/node.d.ts",
+    "dist/node.js",
+    "dist/worker.d.ts",
+    "dist/worker.js",
+    "package.json"
+  ]
+}
