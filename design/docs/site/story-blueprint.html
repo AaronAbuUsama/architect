@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2. The blueprint · Forman design docs</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav aria-label="Pages"><a class="brand" href="index.html">Forman</a><p class="group">Start</p><ul><li><a href="index.html">Forman</a></li></ul><p class="group">The story</p><ul><li><a href="story.html">The story: one allowance, from an idea to production and back</a></li><li><a href="story-idea.html">1. The idea</a></li><li><a href="story-blueprint.html" aria-current="page">2. The blueprint</a></li><li><a href="story-journeys.html">3. Journeys and blanks</a></li><li><a href="story-checks.html">4. Checks: making the journey executable</a></li><li><a href="story-build.html">5. Build: compile, tasks, and filling the blanks</a></li><li><a href="story-prove.html">6. Prove: worlds, evidence, verdicts</a></li><li><a href="story-ship.html">7. Ship, watch, change</a></li></ul><p class="group">Reference</p><ul><li><a href="concepts.html">Concepts: every word, one meaning</a></li><li><a href="plugins.html">Plugins</a></li><li><a href="packages.html">Packages</a></li><li><a href="status.html">Where it stands</a></li></ul></nav>
+<main>
+<h1 id="2-the-blueprint">2. The blueprint</h1>
+<p>Part of <a href="story.html">the story</a>. Deeper: <a href="../../frame/story.md"><code>frame/story.md</code></a>, section 2, and <a href="../../frame/mounting.md"><code>mounting.md</code></a> for where files live.</p>
+<p>The facts become declarations. Each is a file, and the name comes from the path. A project imports the API from the front door, <code>@formants/forman</code>.</p>
+<pre><code class="lang-ts">// blueprint/things/allowance/thing.ts
+import { Blueprint } from &quot;@formants/forman&quot;;
+
+export const Allowance = Blueprint.thing({
+  description: &quot;Money a member may spend from their organisation, up to a limit each month.&quot;,
+  fields: { id: Blueprint.id(&quot;alw&quot;), organization: Organization.fields.id, member: Person.fields.id, limit: Amount, spent: Amount },
+});</code></pre>
+<pre><code class="lang-ts">// blueprint/things/allowance/machine.ts
+export const machine = Blueprint.machine(Allowance, {
+  states: [&quot;active&quot;, &quot;exhausted&quot;, &quot;revoked&quot;],
+  moves: {
+    grant:  { from: [], to: &quot;active&quot;, emits: Events.AllowanceGranted },
+    spend:  { from: [&quot;active&quot;], to: [&quot;active&quot;, &quot;exhausted&quot;], emits: Events.AllowanceSpent }, // two outcomes
+    revoke: { from: [&quot;active&quot;, &quot;exhausted&quot;], to: &quot;revoked&quot;, emits: Events.AllowanceRevoked },
+  },
+  notFrom: { exit: 40 }, // generates AllowanceNotActive, carrying the state it was in
+});</code></pre>
+<pre><code class="lang-ts">// blueprint/things/allowance/verbs/spend.ts
+export default Blueprint.operation(Allowance, {
+  description: &quot;Spend from what is left of this month's allowance.&quot;,
+  payload: { allowance: Allowance.fields.id, amount: Amount, memo: Memo },
+  answer: { remaining: Amount },
+  move: machine.moves.spend,
+  errors: [AllowanceExceeded],                       // carries { remaining }
+  allowed: [grantee],                                // a rule: allowance.member is the caller
+  steps: { load: Blueprint.step.database(), record: Blueprint.step.database() },
+  idempotent: &quot;request&quot;,                             // retried with the same request key, it spends once
+  budget: { p95: &quot;150 millis&quot; },
+});</code></pre>
+<p><code>grant</code> and <code>revoke</code> have the same shape, allowed to <code>owner.of(&quot;organization&quot;)</code>.</p>
+<p>A thing also says where it lives. The allowance lives in the database (the default), because the owner will want to list them. A thing that needs one writer at a time and no lists would say <code>lives: &quot;actor&quot;</code>: one Durable Object per allowance.</p>
+<p>This is the whole contract. Everything else in the story is made from these files, or judged against them.</p>
+<h2 id="the-folder">The folder</h2>
+<pre><code class="lang-text">blueprint/
+  things/          your own things: the root feature
+  features/        mounted features, one file each
+  adapters/        mounted adapters, one file each
+  projections/     mounted projections, one file each
+  environments/    where each projection lives
+  journeys/  starting-worlds/  values/
+src/               how it behaves: the only hand-written logic
+generated/         everything else; never edited</code></pre>
+<p>The <code>features/</code>, <code>adapters/</code> and <code>projections/</code> folders are the plugin mounts. See <a href="plugins.html">plugins</a>.</p>
+<h2 id="today-and-proposed">Today and proposed</h2>
+<blockquote><p><strong>Today.</strong> All of this compiles (<code>examples/acme/blueprint/things/allowance/</code>). Principals are only anonymous or a person, so &quot;an agent spending for olga&quot; cannot be said yet. There is no <code>features/</code>, <code>adapters/</code> or <code>projections/</code> folder.</p>
+<p><strong>Proposed.</strong> <code>agent</code>, <code>service</code> and <code>system</code> principals (M2), and data <strong>views</strong> for lists over things that live as actors (M5). See <a href="../../frame/delta.md"><code>delta.md</code></a>.</p></blockquote>
+<p>Next: <a href="story-journeys.html">3. Journeys and blanks</a>.</p>
+<footer><div class="pager"><a href="story-idea.html">Back: 1. The idea</a><a href="story-journeys.html">Next: 3. Journeys and blanks</a></div>
+<p>Generated from <code>design/docs/pages/story-blueprint.md</code> by <code>design/docs/build.mjs</code>. Do not edit.</p></footer>
+</main>
+</body>
+</html>
