@@ -550,15 +550,18 @@ Design record plus a static mock; no package code, no `layer/*` change. Validati
 
 Three things arrived on the branches after F2's pinned revision. None changes the recommendation.
 
-1. **The plain portal exists.** Codex's `build/L2.10` (`f9a2404`) builds F1's contract: `packages/portal` with `reader`,
-   `snapshot` and `site` modules, a generator module, and `generated/portal/blueprint.json` for acme and the starter,
-   serving `/portal` from each environment's Worker. F2.1 (the catalog IA) grows inside that face. It was not on
-   `layer/3` when F2 was reviewed, so §0 and §11 did not see it.
+1. **The plain portal is on layer/3.** Codex's L2.10 merged into `layer/3` at `56bd7aa`: `packages/portal`
+   (`@architect/portal`) with `reader`, `snapshot` and `site` modules, a generator module, and
+   `generated/portal/blueprint.json` for acme and the starter, serving `/portal` and `/_portal/v1/*` from each
+   environment's Worker. F2.1 (the catalog IA) grows inside that face. It was not on `layer/3` when F2 was reviewed,
+   so §0 and §11 did not see it.
 2. **Watch landed** on `layer/3` (L2.09, `49eea9e`): `architect watch --env <env>` prints p95 against budget, refusal
    counts and drift per operation from live telemetry. The event page's "seen in traces" and the operation page's
-   measured p95 now have a source to read once the portal reads it; they stay "later" until then.
-3. **Portal Pro.** Aaron's call: the licensed HeroUI Pro face is its own package, `packages/portal-pro`
-   (`@architect/portal-pro`), beside the plain portal, reading the same `/_portal/v1` contract (F1 §3's
-   project-selected face). It is brought to the repository's standards in
-   [PR #16](https://github.com/AaronAbuUsama/architect/pull/16) into `layer/3`. Its Pro components install only when
-   CI has a `HEROUI_AUTH_TOKEN` secret; until then its `allowBuilds` entry stays off.
+   measured p95 now have a source; they stay "later" until the portal reads it.
+3. **Portal Pro is a separate face.** The HeroUI Pro dashboard template briefly replaced `packages/portal` on `layer/3`
+   (`7db5de6`); it was moved to branch `portal/heroui-pro-template` (`9233c20`). Aaron's call: the licensed Pro face is
+   **Portal Pro**, its own package `packages/portal-pro` (`@architect/portal-pro`) beside the plain portal, reading the
+   same `/_portal/v1/*` data later, as F1 §3 has it. A version brought to the repository's standards (oxlint, exact
+   pins, static export, a six-slot shell) is parked as a draft,
+   [PR #16](https://github.com/AaronAbuUsama/architect/pull/16), while layer 2 is paused for Codex. Its Pro components
+   install only when CI has a `HEROUI_AUTH_TOKEN` secret.
