@@ -1,8 +1,7 @@
 import { env } from "cloudflare:workers";
-import { Cause, Effect, Exit, Layer } from "effect";
+import { Cause, Effect, Exit, Layer, Schema } from "effect";
 import { describe, expect, it } from "vitest";
 import { Blueprint, type Thing } from "@architect/blueprint";
-import { Schema } from "effect";
 import { decodeRow, encodeFields } from "./internal/rows.ts";
 import { Database } from "#modules/database/service.js";
 import { race } from "../../../test/race.ts";

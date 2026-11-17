@@ -41,7 +41,7 @@ request, and two gaps in the work blueprint.
    array or a struct is stored as JSON and parsed back; the schema decides, so a string starting with `[` stays a
    string. Tested in `store.test.ts`. acme never hit this because it has no array fields.
 3. **The work project could not sign anyone in.** F5's blueprint had no `person` or `session`, so every
-   `owner.of("mission")` operation was unreachable. Added here; F5 should carry them.
+   `owner.of("mission")` operation was unreachable. Added here, and recorded in F5 §4.
 4. Two bugs found while landing F5 (#27) and fixed there: the MCP target's tool type did not accept a list read
    (`McpOperation`), and the generated CLI clashed on an operation named `answer` (namespace import).
 5. **Gap: the answer to a question is not kept.** `question.answer` takes `picked` and moves to `answered`, but the

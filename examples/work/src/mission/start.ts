@@ -10,7 +10,10 @@ const start: Handler = ({ mission }, { steps, move }) =>
     const sql = yield* SqlClient.SqlClient;
     const rows = yield* steps.record(sql.unsafe<{ n: number }>(`SELECT count(*) AS n FROM question WHERE mission = ? AND state = 'asked'`, [mission]).pipe(Effect.orDie));
     const open = Number(rows[0]?.n ?? 0);
-    if (open > 0) return yield* new MissionHasOpenQuestions({ open: BigInt(open) });
+    if (open > 0) {
+      yield* Effect.logInfo("the mission still has open questions");
+      return yield* new MissionHasOpenQuestions({ open: BigInt(open) });
+    }
     yield* move("running");
     return {};
   });

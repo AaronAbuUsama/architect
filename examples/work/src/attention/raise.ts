@@ -8,7 +8,10 @@ import type { Handler } from "../../generated/api/src/attention/raise.handler.ts
 
 const raise: Handler = ({ mission, kind, title, why, task }, { steps, move }) =>
   Effect.gen(function* () {
-    if ((yield* stateOf("mission", mission)) !== "running") return yield* new MissionNotRunning({});
+    if ((yield* stateOf("mission", mission)) !== "running") {
+      yield* Effect.logInfo("the mission is not running");
+      return yield* new MissionNotRunning({});
+    }
     const records = yield* Records;
     const attention = yield* Ids.of(Attention.fields.id);
     yield* steps.insert(records.insert(Attention, { id: attention, mission, kind, title, why, task }));

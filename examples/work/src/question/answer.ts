@@ -10,7 +10,10 @@ const answer: Handler = ({ question, picked }, { steps, move }) =>
     const records = yield* Records;
     const found = yield* steps.record(records.find(Question, question));
     const letters = ((found?.["options"] as ReadonlyArray<string> | undefined) ?? []).map((_, i) => String.fromCharCode(65 + i));
-    if (!letters.includes(picked.toUpperCase())) return yield* new QuestionNoSuchOption({});
+    if (!letters.includes(picked.toUpperCase())) {
+      yield* Effect.logInfo("no such option");
+      return yield* new QuestionNoSuchOption({});
+    }
     yield* move("answered");
     return {};
   });

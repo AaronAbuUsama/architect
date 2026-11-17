@@ -9,7 +9,7 @@ where it said a hand-written `Plan` Durable Object would hold missions.
 as an Architect project, `examples/work`, in the same language acme uses. Architect then generates the work system's
 server, SDK, `work` CLI, MCP server (the manager's and the runs' tools), docs and portal wire, and proves it with the same
 evals. Tasks stay what F4 made them: never stored, worked out from milestones, the blueprint and the facts. The facts
-(eval rows, verdicts, compiled revisions) stay in the logbook. The blueprint compiles today: 6 things, 26 operations,
+(eval rows, verdicts, compiled revisions) stay in the logbook. The blueprint compiles today: 8 things, 30 operations (with `session` and the spike's stand-in `fact`),
 26 MCP tools, `types ✔ rules ✔ drift ✔`, and one blank, which waits on L3.01.
 
 ## 1. The question
@@ -40,8 +40,8 @@ model, and a scope change becomes a blueprint change.
 
 | # | Call | Evidence |
 |---|---|---|
-| 1 | **Work is a project, `examples/work`.** It moves to `apps/work` when its handlers are built and it is deployed. | `architect model --root examples/work` lists 6 things and 26 operations |
-| 2 | **Six things**: `person`, `mission`, `milestone`, `question`, `run`, `attention`. A task is not a thing: `mission.tasks` works them out, each `<kind>:<subject>` in the column its facts put it in. | F4 §2 and 8.8 kept; `blueprint/things/mission/verbs/tasks.ts` |
+| 1 | **Work is a project, `examples/work`.** It moves to `apps/work` when its handlers are built and it is deployed. | `architect model --root examples/work` lists 8 things and 30 operations (7 and 29 once the spike's `fact` goes) |
+| 2 | **Seven things**: `person`, `session`, `mission`, `milestone`, `question`, `run`, `attention`. A task is not a thing: `mission.tasks` works them out, each `<kind>:<subject>` in the column its facts put it in. | F4 §2 and 8.8 kept; `blueprint/things/mission/verbs/tasks.ts` |
 | 3 | **Missions and runs are database rows, not actors.** The compiler refuses a list read on a thing that lives as actors, and the board and sidebar need lists. The manager's Durable Object (one per mission) and the run's (one per run) are agents keyed by those ids that call these operations over MCP. They hold a conversation or a harness, never the mission's state. | `a list read needs a thing that lives in the database, and mission lives as actors` (compiler, first run) |
 | 4 | **Facts stay in the logbook.** Eval rows (F4.1), compiled revisions with blanks (F4.2), verdicts and releases are written where they are now. Work reads them through a declared dependency, so `mission.tasks` carries a blank until L3.01 (kits, dependencies and edges) lands. | `architect check`: `mission has 1 blank … tasks.ts:16` |
 | 5 | **Only a fact moves a card.** `run.finish` records a pushed branch; it cannot close the task. `run.report` moves no card. | F4 8.4; `run/machine.ts` |

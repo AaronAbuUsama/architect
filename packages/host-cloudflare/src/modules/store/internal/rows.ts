@@ -11,7 +11,8 @@ const codecOf = (thing: Thing, keys?: ReadonlyArray<string>) =>
 
 // D1 holds text, numbers and nulls. A field whose encoded form is an array or a struct (a
 // `Blueprint.value(Schema.Array(...))`) is kept as its JSON and read back from it; the field's schema decides, never the
-// text, so a string that happens to start with `[` stays a string.
+// text, so a string that happens to start with `[` stays a string. A list read filtering on such a field compares the
+// JSON text, so it matches an exact value only, not containment. A nullable array (a union) is not detected yet.
 const isJson = (thing: Thing, k: string) => {
   const f = thing.fields[k];
   const tag = f?.value.meta.type === "schema" ? SchemaAST.toEncoded((f.value.schema as Schema.Top).ast)._tag : undefined;

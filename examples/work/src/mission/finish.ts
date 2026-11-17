@@ -13,7 +13,10 @@ const finish: Handler = ({ mission }, { steps, move }) =>
     const found = yield* records.find(Mission, mission);
     const tasks = yield* steps.record(board(mission, String(found?.["target"] ?? "test")));
     const open = tasks.filter((t) => t.column !== "done").length;
-    if (open > 0) return yield* new MissionHasOpenTasks({ open: BigInt(open) });
+    if (open > 0) {
+      yield* Effect.logInfo("the mission still has open tasks");
+      return yield* new MissionHasOpenTasks({ open: BigInt(open) });
+    }
     yield* move("done");
     return {};
   });

@@ -8,7 +8,10 @@ import type { Handler } from "../../generated/api/src/question/ask.handler.ts";
 
 const ask: Handler = ({ mission, asks, about, gap, options }, { steps, move }) =>
   Effect.gen(function* () {
-    if ((yield* stateOf("mission", mission)) !== "intake") return yield* new MissionNotInIntake({});
+    if ((yield* stateOf("mission", mission)) !== "intake") {
+      yield* Effect.logInfo("the mission is past intake");
+      return yield* new MissionNotInIntake({});
+    }
     const records = yield* Records;
     const question = yield* Ids.of(Question.fields.id);
     yield* steps.insert(records.insert(Question, { id: question, mission, asks, about, gap, options }));
