@@ -16,6 +16,11 @@ records are brought in line.
 | [`builder.md`](builder.md) | the agent that builds an app: how it runs, its tools, code mode, telemetry |
 | [`deployment.md`](deployment.md) | from a commit to a running system: build once, verdicts, promote, release, watch, rollback |
 | [`writing-a-feature.md`](writing-a-feature.md) | writing the wallets feature, step by step |
+| [`delta.md`](delta.md) | every weakness found, how this frame answers it, and the order to close the gap |
+
+> **Name, updated 17 November 2026 (Aaron):** the framework is **Forman** (command `forman`, npm org `@formants`).
+> Blueprint stays the name of what you write. The documents below still say Blueprint for the framework until the
+> rename step.
 
 ## The name (Aaron, 17 November 2026)
 
