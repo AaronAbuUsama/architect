@@ -7,7 +7,7 @@ stages. The rules are `AGENTS.md`; the thread kit (conductor, threads, spike, re
 
 **Where it stands (Codex conductor resumed, 17 November 2026).** Stages 1 and 2 (Gate 1) are on `main`.
 Every layer-two build step is on `layer/3`; L2.11, Gate 2 itself, is not done. The handoff had no in-flight branches
-to recover. The conductor merged main through `798ff34` (F2 design record and portal IA spike, no feature changes).
+to recover. The conductor has refreshed main through `eb167b2`: F2, the F3 portal brief and the separate Noir spike record. All16 project lint/typecheck and sync checks pass after that refresh. Framework runtime changes still belong to this layer branch.
 
 **Recovery is green locally and on Linux CI.** `build/ci-recovery` at `d3ab3f4` fixes the viewer’s Linux network
 path: both containers use Docker’s bridge and exports use the viewer’s container address, with host ports still
@@ -93,7 +93,7 @@ keychain by service name (`capxul-ingest-test`, `capxul-ingest-real`, `capxul-in
 is a repository secret. Observability is Axiom only for now (O1, Aaron); PostHog is in `later.md`.
 
 **Side work, not on the main line:** H1/H2 the agent harness (PR 9 waits on Aaron: his Command Code plan and the daily
-cap), F1 the portal's design (PR 12), F2 the portal's information architecture (on main, PR 17; mocks in `spikes/portal-ia/`), the Codex handoff prompt (PR 13, 14), N1 Noir on Aztec (later).
+cap), F1 the portal's design (PR 12), F2 the portal's information architecture (on main, PR 17; mocks in `spikes/portal-ia/`), the Codex handoff prompt (PR 13, 14), F3 the portal builder brief (on main, PR18), N1’s private-core spike (on main, PR19; framework integration later, with the cooperative-client/privacy limits in its README).
 
 The history below is kept for the record; START HERE is what is current.
 
