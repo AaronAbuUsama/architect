@@ -1,0 +1,23 @@
+$ pnpm exec vitest run --root e2e --config ./.architect/vitest.check04.config.ts
+# commit c867e21 · 2026-11-17T05:31:07Z · exit 1 (expected 0) · 68.6s
+
+
+ RUN  v4.1.12 ./e2e
+
+ ❯ layer2/04-promotion.test.ts (1 test | 1 failed) 67301ms
+     × production refuses an unproven revision, takes the staging-proven one with the same bundle, and releases 1.0.0 then 1.1.0 56401ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  layer2/04-promotion.test.ts > check 4: promote > production refuses an unproven revision, takes the staging-proven one with the same bundle, and releases 1.0.0 then 1.1.0
+TypeError: fetch failed
+Caused by: Error: read ECONNRESET
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { errno: -54, code: 'ECONNRESET', syscall: 'read' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  05:29:59
+   Duration  67.80s (transform 37ms, setup 17ms, import 375ms, tests 67.30s, environment 0ms)

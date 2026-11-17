@@ -74,18 +74,19 @@ passed. D3 #197 records the remaining legacy adapter policy/enforcement debt wit
 tests with zero skips in 282.8 seconds; nine tests passed, including actual Mac Homebrew, while check04 ended with a
 direct test fetch ECONNRESET. All Architect containers, gate taps/formulas, exact gate listeners and own runtime
 processes are gone; unrelated resources remain untouched. Raw attempt and preflight/cleanup are retained under
-`evidence/L2.11/attempts/c867e21-*`. The separate author owns request-lifecycle diagnosis and focused check04 alone.
-No product cause is claimed yet and no runtime-source correction has started. Linux run `44023299021` on the same
-`c867e21` is green across all three jobs, including all ten Gate2 tests and actual Linuxbrew.
+`evidence/L2.11/attempts/c867e21-*`. Separate author `f255520` now fixes the confirmed stale staging bundle GET socket reuse. Its shared GET-only
+helper closes connections; all seven observed focused reads succeeded, including a fresh post-restart socket.
+The actual focused promotion check passed once in 72.69 seconds, with unchanged assertions. Fresh e2e static checks
+and owned-resource cleanup passed. The earlier clean run and observer failures remain raw historical attempts.
+No runtime source, retry or write replay changed. Linux run `44023299021` on the prior source `c867e21` is green
+across all three jobs, including all ten Gate2 tests and actual Linuxbrew.
 
 **Next, in order.**
-1. Finish the separate author's focused request-lifecycle diagnosis. Integrate only its bounded correction, then
-   reset Nx, sync, lint/typecheck and touched checks. Keep runtime services exclusive.
-2. Repeat the clean full local Gate2 alone on the final committed candidate using stock configuration. Preserve
-   raw output and scoped cleanup, then refresh Linux CI and each layer-two step's current ci.json and pages.
-3. Obtain a fresh independent whole-layer verdict on the final candidate and CI evidence. The product-round ledger
-   remains three; ordinary fixture feedback does not create a fourth product head.
-4. Open `layer/3` into main, merge only fresh green CI and independent review, then verify main CI. Stage3 delivery
+1. Complete integration reset, sync, lint/typecheck, then freeze and push the corrected candidate. Run the clean full
+   local Gate2 alone with stock configuration; preserve raw output and scoped cleanup.
+2. Refresh Linux CI on that candidate and each layer-two step's ci.json and pages. Obtain a fresh independent
+   whole-layer verdict on the final candidate and evidence. The product-round ledger remains three.
+3. Open `layer/3` into main, merge only fresh green CI and independent review, then verify main CI. Stage3 delivery
    hands the green main commit and cleanup proof back to root; only root opens Stage4 wayfinding. Claude alone
    republishes the private page links.
 

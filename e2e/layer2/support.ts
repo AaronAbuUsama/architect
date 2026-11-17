@@ -125,7 +125,10 @@ export const seed = (root: string, url: string) => {
 };
 
 export const getJson = async <T>(url: string, headers: Readonly<Record<string, string>> = {}) => {
-  const response = await fetch(url, { headers });
+  // Synchronous CLI commands can restart an environment before this event loop retires an idle pooled socket.
+  const requestHeaders = new Headers(headers);
+  requestHeaders.set("connection", "close");
+  const response = await fetch(url, { headers: requestHeaders });
   expect(response.status, url).toBe(200);
   return (await response.json()) as T;
 };
