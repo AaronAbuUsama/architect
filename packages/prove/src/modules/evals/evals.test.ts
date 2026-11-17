@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { Blueprint } from "@architect/blueprint";
+import { Blueprint, type FieldsInput } from "@architect/blueprint";
+import { Schema } from "effect";
 import type { Model, OperationModel } from "@architect/compiler";
-import type { CallRecord } from "#modules/journeys/types.js";
+import type { CallRecord, Project } from "#modules/journeys/types.js";
 import type { Evidence } from "./types.ts";
 import { coverage, coverageSummary, performance } from "./internal/run.ts";
 import { answerShape, declaredErrors, steps, whoMayCall } from "./internal/calls.ts";
+import { Evals } from "./service.ts";
 
 const op = {
   name: "allowance.grant", thing: "allowance", verb: "grant", answer: {}, payload: { organization: { value: { type: "id", prefix: "org" } } },
@@ -116,5 +118,59 @@ describe("answer shape: no secret reaches a span, a log or the journal", () => {
     expect(judge(signedIn({ call: call({ operation: "session.sign-in", payload: { password: "correct horse battery" }, body: { session: "ses_abc123", token: "tok_0123456789abcdef" }, journal }) }))).toEqual([
       'grant-an-allowance "s": answer.token (not public) appears in a journal entry',
     ]);
+  });
+});
+
+
+/** A response and its real trace representation through the public evidence/judging interface; no service is substituted. */
+const observed = (operation: OperationModel, answer: FieldsInput, body: unknown, status: number, attrs: Record<string, unknown>) => {
+  const project = { model: { operations: { [operation.name]: operation }, refusals: { AllowanceLimitTooHigh: "AL-003", NotAllowed: "AR-001" } },
+    operations: new Map([[operation.name, { answer }]]) } as unknown as Project;
+  const record = call({ body, status, operation: operation.name });
+  const trace: Evidence["trace"] = { spans: [{ traceId: "t", spanId: "s", parentSpanId: "p", name: operation.name, attrs, status: 1, ms: 1, start: 0 }], logs: [] };
+  return { project, evidence: Evals.gather([record], new Map([["t", trace]])) };
+};
+const judged = (seen: ReturnType<typeof observed>) => Evals.judge(seen.project, seen.evidence);
+const shapeOf = (seen: ReturnType<typeof observed>) => judged(seen).find((v) => v.eval === "answer shape")!.failures;
+const liveShapeOf = (seen: ReturnType<typeof observed>) => Evals.judgeLive(seen.project, seen.evidence).find((v) => v.eval === "answer shape")!.failures;
+const schemaAnswer = { ...op, errors: [], refusals: [], answer: { value: { value: { type: "schema" } } } } as unknown as OperationModel;
+
+describe("independent author: public evaluator response boundaries", () => {
+  it("requires a known 4xx refusal's tag and exact model code, including a response whose tag is missing", () => {
+    const errors = (body: unknown) => judged(observed(op, {}, body, 422, { refusal: "AllowanceLimitTooHigh" })).find((v) => v.eval === "declared errors")!.failures;
+    expect(errors({ _tag: "AllowanceLimitTooHigh", code: "AL-003" })).toEqual([]);
+    for (const body of [{}, { code: "AL-009" }, { _tag: "NotAllowed", code: "AR-001" }, null, "refused"]) expect(errors(body).length).toBeGreaterThan(0);
+  });
+
+  it("keeps schema-valued string literals as strings in observed responses and live spans", () => {
+    for (const value of ["null", "{}", "[]"]) {
+      const fields = { value: Blueprint.value(Schema.String) };
+      expect(shapeOf(observed(schemaAnswer, fields, { value }, 200, { "answer.value": value }))).toEqual([]);
+      expect(liveShapeOf(observed(schemaAnswer, fields, undefined, 200, { "answer.value": value }))).toEqual([]);
+    }
+  });
+
+  it("does not use a valid body to bless a public field missing from partial answer telemetry", () => {
+    const operation = { ...schemaAnswer, answer: { ...schemaAnswer.answer, other: { value: { type: "text", max: 200 } } } } as unknown as OperationModel;
+    const fields = { value: Blueprint.value(Schema.String), other: Blueprint.text({ max: 200 }) };
+    const body = { value: "null", other: "present" };
+    expect(shapeOf(observed(operation, fields, body, 200, { "answer.value": "null", "answer.other": "present" }))).toEqual([]);
+    for (const attrs of [{ "answer.other": "present" }, { "answer.value": "null" }]) expect(shapeOf(observed(operation, fields, body, 200, attrs)).length).toBeGreaterThan(0);
+    // The existing all-attributes-absent response fallback stays; this correction does not rewrite observability policy.
+    expect(shapeOf(observed(operation, fields, body, 200, {}))).toEqual([]);
+  });
+
+  it("decodes legitimate encoded objects and lists only when the observed response is unavailable", () => {
+    const cases = [
+      { fields: { value: Blueprint.value(Schema.Struct({ count: Schema.Number })) }, value: { count: 1 } },
+      { fields: { value: Blueprint.value(Schema.Array(Schema.Number)) }, value: [1, 2] },
+    ];
+    for (const { fields, value } of cases) {
+      const encoded = JSON.stringify(value);
+      expect(shapeOf(observed(schemaAnswer, fields, { value }, 200, { "answer.value": encoded }))).toEqual([]);
+      expect(liveShapeOf(observed(schemaAnswer, fields, undefined, 200, { "answer.value": encoded }))).toEqual([]);
+      expect(shapeOf(observed(schemaAnswer, fields, { value: encoded }, 200, { "answer.value": encoded })).length).toBeGreaterThan(0);
+      for (const body of [null, [], "not an object"]) expect(shapeOf(observed(schemaAnswer, fields, body, 200, { "answer.value": encoded })).length).toBeGreaterThan(0);
+    }
   });
 });

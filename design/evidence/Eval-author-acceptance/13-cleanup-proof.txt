@@ -1,0 +1,6 @@
+$ python3 .architect/eval-author-cleanup.py
+# commit b2aa54e · 2026-11-17T05:14:09Z · exit 0 (expected 0) · 1.1s
+
+Containers mounted from this worktree: none
+Reserved proof/list/privacy listening ports: none
+Runtime processes from this worktree: none

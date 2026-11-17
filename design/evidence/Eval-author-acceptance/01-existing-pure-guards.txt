@@ -1,0 +1,11 @@
+$ pnpm exec vitest run --root packages/prove src/modules/evals/evals.test.ts src/modules/watch/watch.test.ts
+# commit b2aa54e · 2026-11-17T04:51:02Z · exit 0 (expected 0) · 2.1s
+
+
+ RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  2 passed (2)
+      Tests  17 passed (17)
+   Start at  04:51:01
+   Duration  1.36s (transform 540ms, setup 0ms, import 1.04s, tests 539ms, environment 0ms)

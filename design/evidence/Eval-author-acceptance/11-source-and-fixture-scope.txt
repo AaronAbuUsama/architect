@@ -1,0 +1,10 @@
+$ bash -e -c git diff --exit-code HEAD -- examples/acme/test/fixtures examples/acme/journeys; git hash-object packages/prove/src/modules/evals/internal/calls.ts packages/prove/src/modules/evals/evals.test.ts packages/prove/src/modules/evals/README.md; git diff --stat -- packages/prove/src/modules/evals
+# commit b2aa54e · 2026-11-17T05:14:08Z · exit 0 (expected 0) · 0.1s
+
+48a03c4aaf793b3cf9757f192b52eabbb4d97bb4
+e504a85438181bc5cd865c895e78416141f88356
+47c04105cc0a6011143077145c0a6bc585aac0fe
+ packages/prove/src/modules/evals/README.md         |  5 +-
+ packages/prove/src/modules/evals/evals.test.ts     | 60 +++++++++++++++++++++-
+ packages/prove/src/modules/evals/internal/calls.ts | 25 ++++++---
+ 3 files changed, 81 insertions(+), 9 deletions(-)

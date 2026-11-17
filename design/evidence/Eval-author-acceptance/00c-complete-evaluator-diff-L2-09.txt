@@ -1,0 +1,92 @@
+$ git show 49eea9e --format=%H%n%s -- packages/prove/src/modules/evals
+# commit b2aa54e · 2026-11-17T05:10:07Z · exit 0 (expected 0) · 0.0s
+
+49eea9ed068af85e0643e3b8bc78d5be23b4460c
+L2.09: architect watch, the evals on live telemetry; AxiomSource; drift as a task (D3 #140 to #149)
+
+diff --git a/packages/prove/src/modules/evals/README.md b/packages/prove/src/modules/evals/README.md
+index 15384cd..c10674e 100644
+--- a/packages/prove/src/modules/evals/README.md
++++ b/packages/prove/src/modules/evals/README.md
+@@ -17,3 +17,8 @@ against the model, never from what the server says about itself:
+ 
+ `Evals.gather` builds the evidence; `Evals.judge` returns one verdict per operation and eval, then coverage.
+ Test: `evals.test.ts`.
++
++`Evals.judgeLive` (L2.09, D3 #143) runs the five evals telemetry alone can answer (answer shape, declared errors, steps, performance,
++explainability) over the calls `watch` saw; who may call, machine path, events and coverage need the world's facts, the journal or a whole run, and stay prove's.
++On live traffic a field that is secret or private, or named `email` (which never leaves the machine for a sink, D3 #120), is not checked, and a
++replayed call (`request.replayed`) is not checked for its answer shape: it answers from the stored answer, not from a span.
+diff --git a/packages/prove/src/modules/evals/internal/run.ts b/packages/prove/src/modules/evals/internal/run.ts
+index 1e99707..f2833ce 100644
+--- a/packages/prove/src/modules/evals/internal/run.ts
++++ b/packages/prove/src/modules/evals/internal/run.ts
+@@ -3,7 +3,7 @@ import type { Model, OperationModel } from "@architect/compiler";
+ import type { Evidence, PerOperation, Verdict } from "../types.ts";
+ import { answered, attr } from "./evidence.ts";
+ 
+-const percentile = (sorted: ReadonlyArray<number>, p: number) => sorted[Math.min(sorted.length - 1, Math.ceil((p / 100) * sorted.length) - 1)] ?? 0;
++export const percentile = (sorted: ReadonlyArray<number>, p: number) => sorted[Math.min(sorted.length - 1, Math.ceil((p / 100) * sorted.length) - 1)] ?? 0;
+ const ms = (n: number) => `${Math.round(n)}ms`;
+ 
+ /** 7. p50 and p95 of the operation's spans against its budget. Over 1.5 times the budget is a review, never a failure. */
+diff --git a/packages/prove/src/modules/evals/service.ts b/packages/prove/src/modules/evals/service.ts
+index b332a6e..8ee7c94 100644
+--- a/packages/prove/src/modules/evals/service.ts
++++ b/packages/prove/src/modules/evals/service.ts
+@@ -1,13 +1,20 @@
+ import type { EvalsApi, PerOperation } from "./types.ts";
+ import { answerShape, declaredErrors, events, explainability, machinePath, steps, whoMayCall } from "./internal/calls.ts";
+-import { coverage, coverageSummary, performance } from "./internal/run.ts";
+-import { gather, where } from "./internal/evidence.ts";
++import { coverage, coverageSummary, percentile, performance } from "./internal/run.ts";
++import { gather, replayed, where } from "./internal/evidence.ts";
+ 
+ /** The nine evals, in their numbered order, run for every operation. */
+ const PER_OPERATION: ReadonlyArray<PerOperation> = [answerShape, declaredErrors, machinePath, events, whoMayCall, steps, performance, coverage, explainability];
+ 
++/**
++ * The evals that can be judged from telemetry alone, which is all `watch` has: no journey decided who may call, no world
++ * stored the state a move ended in, no journal was read, and coverage is what a whole run reached (L2.09, D3 #143).
++ */
++const LIVE: ReadonlyArray<PerOperation> = [answerShape, declaredErrors, steps, performance, explainability];
++
+ export const Evals: EvalsApi = {
+   gather,
++  percentile,
+   where: (call) => where({ call }),
+   judge: (project, evidence) => [
+     ...Object.values(project.model.operations).flatMap((op) => {
+@@ -16,4 +23,13 @@ export const Evals: EvalsApi = {
+     }),
+     coverageSummary(project.model, evidence),
+   ],
++  judgeLive: (project, evidence) =>
++    Object.values(project.model.operations).flatMap((op) => {
++      const mine = evidence.filter((e) => e.call.operation === op.name);
++      if (mine.length === 0) return [];
++      // No answer is in hand live, only the span's. A secret or private field is on no span (L2.P), `email` never leaves the machine
++      // for a sink (D3 #120), and a replayed call answers from the stored answer, not from a span: prove judges those.
++      const visible = { ...op, answer: Object.fromEntries(Object.entries(op.answer).filter(([k, f]) => f.visibility === undefined && k !== "email")) };
++      return LIVE.map((ev) => ev(visible, ev === answerShape ? mine.filter((e) => !replayed(e)) : mine, { project, all: evidence }));
++    }),
+ };
+diff --git a/packages/prove/src/modules/evals/types.ts b/packages/prove/src/modules/evals/types.ts
+index 063c4d4..bfed73e 100644
+--- a/packages/prove/src/modules/evals/types.ts
++++ b/packages/prove/src/modules/evals/types.ts
+@@ -33,6 +33,14 @@ export interface EvalsApi {
+   readonly where: (call: CallRecord) => string;
+   /** Every eval over every operation, then coverage over the whole run. */
+   readonly judge: (project: Project, evidence: ReadonlyArray<Evidence>) => ReadonlyArray<Verdict>;
++  /**
++   * The evals that telemetry alone can answer, over the calls it saw: answer shape, declared errors, steps, performance and
++   * explainability, for each operation that has a call. Not who may call, machine path or events (they need the world's facts and
++   * the call's journal), and not coverage. A secret or private answer field is not checked (it is on no span).
++   */
++  readonly judgeLive: (project: Project, evidence: ReadonlyArray<Evidence>) => ReadonlyArray<Verdict>;
++  /** The nearest-rank percentile of an ascending list of numbers: what performance reports. */
++  readonly percentile: (sorted: ReadonlyArray<number>, p: number) => number;
+   /** The evidence for each call: its spans, its refusal and, for a move, the stored state of what moved, from the call record. */
+   readonly gather: (calls: ReadonlyArray<CallRecord>, traces: ReadonlyMap<string, Trace>) => ReadonlyArray<Evidence>;
+ }

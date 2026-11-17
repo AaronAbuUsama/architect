@@ -1,0 +1,8 @@
+$ pnpm exec tsx design/evidence/Eval-author-acceptance/probes/main.ts
+# commit b2aa54e · 2026-11-17T05:02:21Z · exit 0 (expected 0) · 0.8s
+
+{"case":"valid coded refusal","failures":[],"expectedFailure":false}
+{"case":"4xx refusal on span, response object has no tag or code","failures":["independent-evaluator-contract \"observed response\": AllowanceLimitTooHigh was answered without its declared refusal tag"],"expectedFailure":true}
+{"case":"4xx refusal on span, response has wrong code and no tag","failures":["independent-evaluator-contract \"observed response\": AllowanceLimitTooHigh was answered without its declared refusal tag"],"expectedFailure":true}
+{"case":"valid Schema.String literal null remains text","failures":[],"expectedFailure":false}
+{"contractGaps":[]}
