@@ -9,5 +9,7 @@ allowBuilds:
 overrides:
   # Better Auth would resolve 0.29.9 (12 November 2026), under two weeks old; one copy keeps its types whole.
   kysely: 0.29.7
-# AGENTS.md: versions published at least two weeks before they are added, transitive ones included (D2 #79).
-minimumReleaseAge: 20160
+# AGENTS.md: versions published at least three days before they are added, transitive ones included (D2 #79; three
+# days since 17 November 2026, R1). An override names the package below with its reason, and is logged in R1.
+minimumReleaseAge: 4320
+minimumReleaseAgeExclude: []

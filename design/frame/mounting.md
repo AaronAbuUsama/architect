@@ -136,7 +136,7 @@ names from paths, and no loose config file. The question "what does this app bec
 
 | Stage | What happens |
 |---|---|
-| `blueprint add feature @blueprint/wallets` | pins the package exactly, refusing a version under two weeks old; writes the mount with the plugin's default choices; resolves the plugin's needs (below) |
+| `blueprint add feature @blueprint/wallets` | pins the package exactly, refusing a version under three days old, unless overridden; writes the mount with the plugin's default choices; resolves the plugin's needs (below) |
 | compile | folds the plugin's declarations into the model under the mount's name; each carries `from: wallets@1.2.0` |
 | check | names clashes, unmet needs, a narrowing that would empty an operation, an app operation that calls an omitted one, an adapter event the mount includes that no operation takes |
 | generate | every projection sees the feature's operations like the app's own; the feature's handlers are imported from its package, never copied |

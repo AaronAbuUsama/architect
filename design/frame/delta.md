@@ -74,7 +74,7 @@ version answers each, and for the gap between today and the goal. This is that l
 | The builder agent has only the CLI | H1 | One tool layer: code mode over a typed `bp` API, direct tools, our own telemetry tools ([`builder.md`](builder.md)) |
 | The agent harness is not built | H1 | Layer 3, being built now |
 | `pi-ai` bundling to workerd is unverified | H1 section 9 | Measured in step A6, with a fallback |
-| Effect's Cloudflare Cluster and Workflow package is experimental and too new for our two-week rule | H1 section 8 | Usable from 24 November with `effect` 4.1.3; adopted for durable workflows (L5.04) behind a seam |
+| Effect's Cloudflare Cluster and Workflow package is experimental | H1 section 8 | Usable now under the three-day rule, with `effect` 4.1.3; adopted for durable workflows behind a seam |
 
 ### The design itself
 
@@ -89,6 +89,9 @@ version answers each, and for the gap between today and the goal. This is that l
 - The framework is **Forman**, command `forman`. **Blueprint** stays the name of what you write (the `blueprint/`
   folder and the `Blueprint.*` API). The npm org is **`@formants`** (npm names are lowercase); not yet created, it
   needs Aaron signed in. The Capxul app keeps `@capxul`.
+- "Target" is renamed **language** (Effect, Solidity, Noir, Python), never confused with a host or a projection.
+- Dependencies may be three days old, with a named override (`decisions/R1-release-age.md`).
+- Codex is dropped; we build Forman ourselves.
 - Q1: stand-ins follow the labelled ladder above.
 - Q2: MCP is a door of the one Worker.
 - Q3: an unattended builder may read staging telemetry, redacted, through a read-only token created only with
@@ -97,10 +100,8 @@ version answers each, and for the gap between today and the goal. This is that l
 ## Still open
 
 1. Data: how a thing's home, views and the data map are declared and shown.
-2. Rename "target" (the language axis: Effect, Solidity, Noir, Python) to "language", so it is never confused with a
-   host or a projection.
-3. Package layout under `@formants`.
-4. Order: the factory first (layer 3), then Capxul's rebuild on Forman after Gate 3.
+2. Package layout under `@formants`.
+3. Order: the factory first (layer 3), then Capxul's rebuild on Forman after Gate 3.
 
 ## The order to close the gap
 

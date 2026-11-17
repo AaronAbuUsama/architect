@@ -511,7 +511,7 @@ blueprint add feature @blueprint/wallets
   adapter  eip1193   for the browser signer: mount it? [Y/n] y
 wrote  blueprint/features/wallets.ts
 wrote  blueprint/adapters/eip1193.ts
-pinned @blueprint/wallets 1.1.0, @blueprint/eip1193 1.0.2 (both published over two weeks ago)
+pinned @blueprint/wallets 1.1.0, @blueprint/eip1193 1.0.2 (both published over three days ago)
 ```
 
 ```ts
