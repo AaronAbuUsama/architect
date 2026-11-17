@@ -12,5 +12,5 @@
 html[data-view="static"] [data-live] > * { visibility: hidden; }
 html[data-view="static"] [data-live] { background: repeating-linear-gradient(45deg, transparent 0 4px, color-mix(in oklab, var(--accent) 18%, transparent) 4px 8px); border-radius: 6px; }
 
-/* Room for mission and thread titles. */
-.sidebar { --sidebar-width: 300px; }
+/* Room for mission and thread titles. The wrapper reserves the space and the sidebar draws into it, so both change. */
+.sidebar__offcanvas-wrapper, .sidebar { --sidebar-width: 280px; }
