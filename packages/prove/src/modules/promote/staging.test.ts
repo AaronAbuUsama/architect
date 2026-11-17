@@ -78,8 +78,10 @@ beforeAll(async () => {
 }, 180_000);
 afterAll(async () => {
   for (const name of ["production", "staging", "logbook"]) await run(Environments.down({ root, name }));
+  // Linux cannot remove nested files owned by the registry UID: let our own container empty its storage first.
+  docker("exec", names[1]!, "sh", "-c", "rm -rf /verdaccio/storage/*");
   for (const name of names) docker("rm", "-f", name);
-  rmSync(parent, { recursive: true, force: true });
+  rmSync(parent, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
 });
 
 /** Real signed gate inputs. This fixture does not claim these seeded rows are a new test-world proof. */

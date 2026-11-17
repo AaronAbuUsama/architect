@@ -1,0 +1,32 @@
+$ pnpm nx run-many -t lint,typecheck --projects prove --outputStyle=static
+# commit 7f662af · 2026-11-17T04:12:04Z · exit 0 (expected 0) · 3.5s
+
+
+ NX   Running targets lint, typecheck for project prove:
+
+- prove
+
+
+
+> nx run prove:typecheck
+
+> tsc -p packages/prove/tsconfig.json
+
+
+> nx run prove:lint
+
+> oxlint packages/prove
+
+(node:62321) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+packages/prove/src/modules/world/device-sign-in.test.ts:3:33: warning eslint(no-unused-vars): Type 'ChildProcess' is imported but never used. help: Consider removing this import.
+
+
+
+ NX   Successfully ran targets lint, typecheck for project prove
+
+
+  Run duration:      1.4s
+  Cache:             0/2 hit (0%)
+  Critical path:     1.3s (1 task)
+  Recoverable time:  <1ms
