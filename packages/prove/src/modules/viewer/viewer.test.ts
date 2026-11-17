@@ -4,7 +4,7 @@ import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { Effect } from "effect";
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it } from "vitest";
 import { Prove } from "#modules/prove/service.js";
 import { FileSource } from "#modules/telemetry/service.js";
 import { Viewer } from "./service.ts";
@@ -24,6 +24,8 @@ const waitFor = async <A>(read: () => Promise<A | undefined>): Promise<A> => {
   throw new Error("the viewer never had it");
 };
 
+afterAll(() => Effect.runPromise(Viewer.stop()));
+
 describe("the local viewer", () => {
   it("shows prove's allowance.grant trace with its root, step and log, and stop leaves nothing", { timeout: 300_000 }, async () => {
     await Effect.runPromise(Viewer.stop());
@@ -36,6 +38,12 @@ describe("the local viewer", () => {
     expect(viewing.url).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/);
     // Anonymous Grafana: an API call with no credentials is let in.
     expect(viewing.anonymous).toBe(true);
+    // Container traffic must stay on Docker's bridge. A host loopback-only published port is unreachable through
+    // host-gateway on Linux, although Docker Desktop routes it on macOS.
+    const bridge = spawnSync("docker", ["inspect", "-f", '{{(index .NetworkSettings.Networks "bridge").IPAddress}}', "architect-viewer"], { encoding: "utf8" });
+    expect(bridge.status, bridge.stderr).toBe(0);
+    expect(viewing.otlpFromContainers).toBe(`http://${bridge.stdout.trim()}:4318`);
+    expect((await Effect.runPromise(Viewer.running()))?.otlpFromContainers).toBe(viewing.otlpFromContainers);
 
     const report = await proveAcme(true);
     expect(report.passed).toBe(true);

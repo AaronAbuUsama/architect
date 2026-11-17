@@ -47,9 +47,7 @@ export const runCollector = (dir: string, name: string, options: CollectorOption
     const start = Effect.sync(() => {
       docker(["rm", "-f", name]);
       return docker([
-        "run", "-d", "--rm", "--name", name, "--user", "0:0", "-p", "127.0.0.1::4318",
-        // Linux has no host.docker.internal of its own; Docker Desktop and OrbStack already do.
-        "--add-host=host.docker.internal:host-gateway",
+        "run", "-d", "--rm", "--name", name, "--network", "bridge", "--user", "0:0", "-p", "127.0.0.1::4318",
         "-v", `${dir}:/out`, "-v", `${dir}/collector.yaml:/etc/otelcol/config.yaml:ro`,
         IMAGE, "--config=/etc/otelcol/config.yaml",
       ]);

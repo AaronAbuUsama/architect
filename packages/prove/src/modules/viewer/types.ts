@@ -4,7 +4,7 @@ import { Data, type Effect } from "effect";
 
 export class ViewerFailed extends Data.TaggedError("ViewerFailed")<{ readonly message: string }> {}
 
-/** A viewer that is up. Both addresses are on this machine's loopback; nothing is published beyond it. */
+/** A viewer that is up. Host addresses are loopback-only; container traffic stays on Docker's bridge. */
 export interface Viewing {
   /** Grafana, with anonymous access: open it, no login. */
   readonly url: string;

@@ -1,23 +1,24 @@
 import { Effect, Schedule } from "effect";
 import { ViewerFailed, type Viewing, type ViewerApi } from "./types.ts";
-import { NAME, docker, isRunning, portOf, runArgs } from "./internal/docker.ts";
+import { NAME, bridgeAddress, docker, isRunning, portOf, runArgs } from "./internal/docker.ts";
 
-const viewing = (grafana: number, otlp: number, anonymous: boolean): Viewing => ({
+const viewing = (grafana: number, otlp: number, bridge: string, anonymous: boolean): Viewing => ({
   url: `http://127.0.0.1:${grafana}`,
   anonymous,
   otlp: `http://127.0.0.1:${otlp}`,
-  otlpFromContainers: `http://host.docker.internal:${otlp}`,
+  otlpFromContainers: `http://${bridge}:4318`,
 });
 
 const running = (): Effect.Effect<Viewing | undefined> =>
   Effect.gen(function* () {
     if (!(yield* isRunning(NAME))) return undefined;
     const [grafana, otlp] = [yield* portOf(NAME, 3000), yield* portOf(NAME, 4318)];
-    if (grafana === undefined || otlp === undefined) return undefined;
+    const bridge = yield* bridgeAddress(NAME);
+    if (grafana === undefined || otlp === undefined || bridge === undefined) return undefined;
     // Anonymous access shows as an answer to an API call made with no credentials: `/api/user` never does, as the
     // anonymous visitor is no user, so ask for something an org admin may list.
     const anonymous = yield* answers(`http://127.0.0.1:${grafana}/api/datasources`).pipe(Effect.match({ onFailure: () => false, onSuccess: () => true }));
-    return viewing(grafana, otlp, anonymous);
+    return viewing(grafana, otlp, bridge, anonymous);
   });
 
 const answers = (url: string, init?: RequestInit) =>
