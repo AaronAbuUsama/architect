@@ -70,26 +70,27 @@ semantic gaps, and recorded the author-before-builder process deviation. Integra
 evaluator/watch guards and 16 real-service planted/list/privacy guards. All 16 projects' lint/typecheck plus Nx sync
 passed. D3 #197 records the remaining legacy adapter policy/enforcement debt without claiming universal compliance.
 
-**Latest clean Gate2 attempt is red, with cleanup complete.** Clean candidate `c867e21` ran all eight files and ten
-tests with zero skips in 282.8 seconds; nine tests passed, including actual Mac Homebrew, while check04 ended with a
-direct test fetch ECONNRESET. All Architect containers, gate taps/formulas, exact gate listeners and own runtime
-processes are gone; unrelated resources remain untouched. Raw attempt and preflight/cleanup are retained under
-`evidence/L2.11/attempts/c867e21-*`. Separate author `f255520` now fixes the confirmed stale staging bundle GET socket reuse. Its shared GET-only
-helper closes connections; all seven observed focused reads succeeded, including a fresh post-restart socket.
-The actual focused promotion check passed once in 72.69 seconds, with unchanged assertions. Fresh e2e static checks
-and owned-resource cleanup passed. The earlier clean run and observer failures remain raw historical attempts.
-No runtime source, retry or write replay changed. Linux run `44023299021` on the prior source `c867e21` is green
-across all three jobs, including all ten Gate2 tests and actual Linuxbrew.
+**Final clean local Gate2 is green.** Exact candidate `4516059` passed all eight files and ten tests, zero skips,
+in 253.1 seconds, including actual Mac Homebrew. Clean preflight, Nx reset/sync/sync:check and post-run scoped cleanup
+passed: zero owned containers, taps, formulas, exact gate listeners or runtime processes. Unrelated user containers
+and document viewers remain untouched. Raw receipts are `evidence/L2.11/09-final-clean-gate.txt` and
+`10-final-cleanup.txt`. The verifier's exclusive runtime window is released.
+
+**The local transport correction is author-owned.** Separate author `f255520` fixes confirmed stale staging bundle
+GET socket reuse by closing the shared GET-only helper's connections. Focused promotion passed with all seven
+observed reads successful and a new post-restart socket; no runtime source, assertion, retry or write replay changed.
+The failed clean attempt and observer reproduction remain under attempts. All 16 projects' lint/typecheck and Nx
+sync pass after integration. The source reviewer found no new blocker through `4516059`, including D3 #197/#198.
 
 **Next, in order.**
-1. Integration reset, sync, sync:check and all 16 projects lint/typecheck passed on `40a1e86`, without cache. Freeze
-   and push the receipts checkpoint, then run the clean full local Gate2 alone with stock configuration; preserve
-   raw output and scoped cleanup.
-2. Refresh Linux CI on that candidate and each layer-two step's ci.json and pages. Obtain a fresh independent
-   whole-layer verdict on the final candidate and evidence. The product-round ledger remains three.
-3. Open `layer/3` into main, merge only fresh green CI and independent review, then verify main CI. Stage3 delivery
-   hands the green main commit and cleanup proof back to root; only root opens Stage4 wayfinding. Claude alone
-   republishes the private page links.
+1. Linux run `44025466900` on `4516059` passed both Gate1 and Gate2, including actual Linuxbrew. The workspace
+   job failed only the real logbook missing-policy restart test at its implicit five-second body deadline; the case
+   took 8.16 seconds while 24 other logbook tests passed. The separate author owns a bounded case-specific deadline
+   correction and real-service validation. No runtime behavior or assertion changes are involved.
+2. Refresh current CI records, build-plan and pages, then obtain the final independent verdict on the exact evidence
+   head. The product-round ledger remains three. Open `layer/3` into main with the final current checks.
+3. Merge only fresh green CI and independent review, then verify main CI and cleanup. Stage3 delivery hands the
+   green main commit back to root; only root opens Stage4 wayfinding. Claude alone republishes private page links.
 
 **For the cloud pass, from L2.08:** every deployed Worker must set `ARCHITECT_ENVIRONMENT`, or it reads as a local
 world and opens `/_world/*` (`later.md`); `Facts` reads staging's SQLite file today and needs a D1 API reader behind the

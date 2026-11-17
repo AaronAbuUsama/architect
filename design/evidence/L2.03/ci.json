@@ -1,9 +1,9 @@
 [
   {
-    "conclusion": "success",
-    "databaseId": 44023299021,
-    "headSha": "c867e21e7438808113345e562870ad6f91dde5d3",
+    "conclusion": "failure",
+    "databaseId": 44025466900,
+    "headSha": "4516059b27c2013fda885225a7ea2074357ab3b2",
     "status": "completed",
-    "url": "https://github.com/AaronAbuUsama/architect/actions/runs/44023299021"
+    "url": "https://github.com/AaronAbuUsama/architect/actions/runs/44025466900"
   }
 ]

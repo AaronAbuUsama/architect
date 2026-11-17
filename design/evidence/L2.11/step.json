@@ -2,8 +2,8 @@
   "step": "L2.11",
   "stage": "Stage 3 · shipping on local worlds (Gate 2)",
   "title": "Gate 2: eight shipping checks locally and in Linux CI",
-  "status": "final-clean-rerun-pending",
-  "summary": "The confirmed test-side connection reset is corrected by the separate author at the shared read-only JSON helper. Focused promotion passes with unchanged assertions, all16projects static checks and Nx sync pass after integration, and every author resource is stopped. The prior source passed all10tests on Linux with actual Linuxbrew. A fresh clean full local gate and Linux CI on this integrated candidate remain required before final review and landing.",
+  "status": "local-and-linux-gate-pass-workspace-pending",
+  "summary": "Candidate 4516059 passed the full clean local Gate 2 and Linux Gate 2: all eight files and ten tests, zero skips, with real Homebrew on both targets. Local cleanup is complete. The Linux workspace job failed only a real logbook stop/restart body at its implicit five-second deadline (8.16 seconds actual); the separate author owns that bounded deadline correction. Every assertion and runtime behavior remains unchanged. All three CI jobs and final review/landing are still required.",
   "proves": "A PR goes to test, then staging, then production. There is a verdict in each environment, and the npm version equals `architect version --next`.",
   "captions": {
     "01-ci-static": "Workspace lint, typecheck, Nx sync and workflow syntax validation; these are static checks.",
@@ -11,15 +11,19 @@
     "03-cleanup": "Zero remaining containers, gate taps, formulas, exact gate port listeners or own runtime processes. Unrelated listeners were preserved.",
     "06-linux-ci": "Fresh Linux run44023299021: all three CI jobs green on c867e21.",
     "07-linux-gate-summary": "Linux Gate2 passes all eight files and ten tests; Homebrew7.0.13 is present and both publishing tests execute.",
-    "08-post-author-static": "After the separate author correction integrates: all16projects lint/typecheck pass without Nx cache; reset/sync/sync:check also pass."
+    "08-post-author-static": "After the author correction integrates: all 16 projects pass lint/typecheck without cache; reset/sync/sync:check also pass.",
+    "09-final-clean-gate": "Final clean 4516059: all eight files and ten tests pass, zero skips, real Mac arm64 Homebrew, 253.1 seconds.",
+    "10-final-cleanup": "Clean preflight/reset/sync and cleanup: zero owned containers, taps, formulas, exact gate listeners or processes; unrelated resources preserved.",
+    "11-corrected-linux-ci": "4516059 Linux: both gates green; workspace job failed the real logbook restart case at its five-second default.",
+    "12-corrected-linux-gate": "4516059 Linux Gate 2: eight files and ten tests pass, no skips, actual Linuxbrew."
   },
   "local": {
-    "commit": "2b2aa3cc77ce9762d43ca98193e9acf2319c3897",
+    "commit": "4516059b27c2013fda885225a7ea2074357ab3b2",
     "command": "NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static",
     "filesPassed": 8,
     "testsPassed": 10,
     "testsSkipped": 0,
-    "durationSeconds": 283.2,
+    "durationSeconds": 253.1,
     "platform": "darwin-arm64",
     "nodeVersion": "26.13.1",
     "pnpmVersion": "11.20.0",
