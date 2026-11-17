@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Architect portal · F2 IA mock</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="acme-data.js" defer></script>
+  <script src="lib.js" defer></script>
+  <script src="diagrams.js" defer></script>
+  <script src="pages-catalog.js" defer></script>
+  <script src="pages-proof.js" defer></script>
+  <script src="shell.js" defer></script>
+</head>
+<body>
+<!-- F2 recommended IA: a catalog of things (primary axis), with proof and work as lenses over the same declarations.
+     Original HTML/CSS/JS. Every name, field and relationship is read from acme-data.js (generated from acme at 92bb0fa). -->
+<div class="app">
+  <aside>
+    <a class="brand" href="#/">▲ Architect <span class="muted small">acme</span></a>
+    <div class="search" title="Search indexes every declaration by name, description, field, error code and event (F2 §5)"><span>Search declarations…</span><kbd>⌘K</kbd></div>
+    <nav id="nav" aria-label="Portal"></nav>
+  </aside>
+  <div>
+    <div class="top">
+      <div class="crumbs" id="crumbs"></div>
+      <div class="controls">
+        <label for="env">Environment</label>
+        <select id="env"><option value="all">All environments</option></select>
+        <label for="scenario">Evidence</label>
+        <select id="scenario">
+          <option value="none">Real: no logbook connected</option>
+          <option value="illus">Illustration: every proof state</option>
+        </select>
+        <button id="comps" class="on" aria-pressed="true" title="Show which component each section maps to">Components</button>
+      </div>
+    </div>
+    <div class="banner"><b>Design mock.</b> Names, fields, machines, events, roles, errors and environments come from acme's generated
+      model at <code>92bb0fa</code>. Journeys and starting worlds are read from acme's source (not yet in the model). Evidence is
+      unavailable unless you pick the labelled illustration. <a href="sitemaps.html">Compare the four IA options</a> ·
+      <a href="../../design/decisions/F2-portal-ia.md">Read F2</a></div>
+    <main id="main" tabindex="-1"></main>
+  </div>
+</div>
+</body>
+</html>
