@@ -17,17 +17,20 @@ export const prefixOf = (name: string, thing: Thing): string => thing.code ?? na
 
 export const codeOf = (prefix: string, n: number): string => `${prefix}-${String(n).padStart(3, "0")}`;
 
-/** Each thing's prefix, with a problem for one that is not 2 to 4 capital letters and for two things that share one. */
+/** Each thing's prefix: valid, distinct from other things, and outside every runtime refusal's namespace. */
 export const prefixes = (things: ReadonlyMap<string, { readonly thing?: Thing | undefined }>, problems: Array<string>): ReadonlyMap<string, string> => {
   const out = new Map<string, string>();
-  const owner = new Map<string, string>();
+  const owner = new Map<string, { readonly thing: string } | { readonly runtime: string }>(
+    Object.entries(RUNTIME_CODES).map(([name, code]) => [code.slice(0, code.indexOf("-")), { runtime: name }]),
+  );
   for (const [name, t] of [...things].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) {
     if (!t.thing) continue;
     const prefix = prefixOf(name, t.thing);
     if (!PREFIX.test(prefix)) problems.push(`blueprint/things/${name}/thing.ts: the refusal code prefix "${prefix}" must be 2 to 4 capital letters; set \`code\` on the thing`);
     const other = owner.get(prefix);
-    if (other) problems.push(`blueprint/things/${name}/thing.ts: ${name} and ${other} would both have refusal codes starting ${prefix}-; give one of them a \`code\` of its own`);
-    else owner.set(prefix, name);
+    if (other && "runtime" in other) problems.push(`blueprint/things/${name}/thing.ts: ${prefix}- is reserved for runtime refusals (${other.runtime}); set \`code\` on the thing to a distinct prefix`);
+    else if (other) problems.push(`blueprint/things/${name}/thing.ts: ${name} and ${other.thing} would both have refusal codes starting ${prefix}-; give one of them a \`code\` of its own`);
+    else owner.set(prefix, { thing: name });
     out.set(name, prefix);
   }
   return out;
@@ -43,8 +46,12 @@ export const refusalsOf = (
   problems: Array<string>,
 ): Readonly<Record<string, string>> => {
   const out: Record<string, string> = { ...RUNTIME_CODES };
+  const owner = new Map<string, string>(Object.entries(RUNTIME_CODES).map(([name, code]) => [code, name]));
   const add = (name: string, code: string, where: string) => {
     if (name in out) problems.push(`${where}: the refusal ${name} is declared twice, and refusals are named for the whole project`);
+    const other = owner.get(code);
+    if (other !== undefined) problems.push(`${where}: ${other} and ${name} share ${code}; refusal codes must be unique (a machine reserves number ${MACHINE_NUMBER}); codes are never silently renumbered`);
+    else owner.set(code, name);
     out[name] = code;
   };
   for (const [thing, t] of Object.entries(things)) {

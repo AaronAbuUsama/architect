@@ -1,0 +1,51 @@
+$ bash -c pnpm nx reset && NX_DAEMON=false pnpm nx sync && NX_DAEMON=false pnpm nx run-many -p compiler -t lint,typecheck --outputStyle=static && NX_DAEMON=false pnpm nx sync:check && git diff --check
+# commit ee35a5c · 2026-11-17T04:38:58Z · exit 0 (expected 0) · 8.6s
+
+Stopping the Nx Daemon
+Stopped the Nx Daemon
+Removing the Nx Daemon workspace data
+Removed the Nx Daemon workspace data
+Removing the cache directory
+Removed the cache directory
+Removing the workspace data directory
+Removed the workspace data directory
+
+ NX   Successfully reset the Nx workspace.
+
+
+ NX   The workspace is already up to date
+
+[@architect/generators:sync]: All files are up to date.
+
+
+ NX   Running targets lint, typecheck for project compiler:
+
+- compiler
+
+
+
+> nx run compiler:typecheck
+
+> tsc -p packages/compiler/tsconfig.json
+
+
+> nx run compiler:lint
+
+> oxlint packages/compiler
+
+(node:8407) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+
+ NX   Successfully ran targets lint, typecheck for project compiler
+
+
+  Run duration:      1.0s
+  Cache:             0/2 hit (0%)
+  Critical path:     1.0s (1 task)
+  Recoverable time:  <1ms
+
+ NX   The workspace is up to date
+
+[@architect/generators:sync]: All files are up to date.
