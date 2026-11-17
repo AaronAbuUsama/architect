@@ -14,7 +14,7 @@
 //   and the word `stale` if its model has changed since the verdicts, and none of those words otherwise. It reads the logbook,
 //   so a new revision's model and its test verdicts (`prove --env test`) are what make staging's old ones stale.
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { build, promote, release } from "./flow.ts";
+import { build, promote, proveInTest, release } from "./flow.ts";
 import { type Stack, finish, startStack } from "./services.ts";
 import { acmeCli, commit, escape, install, project, run, seed } from "./support.ts";
 
@@ -84,6 +84,7 @@ describe("check 8: watch and the portal", () => {
     install(root, "slow-spend/spend.ts", "src/allowance/spend.ts");
     const slow = commit(root, "a slow spend");
     build(root, s, slow);
+    proveInTest(root, s); // staging takes a revision only with `main` verdicts in test (D3 #92)
     expect(promote(root, s, "staging").status).toBe(0);
     replay(url, people, 30, 0);
     const drifting = watch(s.env, root);
@@ -94,8 +95,7 @@ describe("check 8: watch and the portal", () => {
     // A looser budget, a new revision whose test verdicts are posted: the old verdicts of spend, and of nothing else, are stale.
     install(root, "looser-budget/spend.ts", "blueprint/things/allowance/verbs/spend.ts");
     const looser = commit(root, "a looser budget");
-    const proved = run(root, s.env, "prove", "--env", "test");
-    expect(proved.status, proved.out.slice(-3000)).toBe(0);
+    const proved = proveInTest(root, s);
     expect(proved.lines.some((l) => l.endsWith(`(revision ${looser})`))).toBe(true);
     const stale = await portal(url);
     expect(row(stale, "allowance.spend"), stale.join("\n")).toMatch(/\bstale\b/);
