@@ -97,8 +97,14 @@ version answers each, and for the gap between today and the goal. This is that l
 - Codex is dropped; we build Forman ourselves.
 - **Workable means the end of M2**: plugins mounted and proved, auth and organizations as plugins, the new
   principals, secrets by declaration. From there Aaron builds Capxul's plugins on Forman, refining it as he goes;
-  agents (M3) and the factory (M4) speed that up but don't gate it. Milestones M0 to M7 are proposed in the chat
+  the factory (M3) and agents (M4) speed that up but don't gate it. Milestones M0 to M7 are proposed in the chat
   walkthrough of 17 November and still to be litigated.
+- **The factory comes before agents, and each works without the other** (Aaron, 17 November 2026). The factory is a
+  feature, `@formants/work`, with a choice of workers: people (the default: a person, or an outside agent such as
+  Claude Code, claims a task through the factory's CLI or MCP) and agents. Picking agents adds an optional need,
+  `Blueprint.need(agents, { when: workers.agents })`: the manager starts an agents run on the task's brief, and the
+  run's finished event comes back through `on:`. The agents feature knows nothing of the factory. Either way, only a
+  fact closes a task. M3 is the factory with people as workers; M4 is agents, proved together with the factory.
 - Q1: stand-ins follow the labelled ladder above.
 - Q2: MCP is a door of the one Worker.
 - Q3: an unattended builder may read staging telemetry, redacted, through a read-only token created only with
