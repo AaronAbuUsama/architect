@@ -35,6 +35,34 @@ Then:
   works from Claude: leave that step for Claude, and say so.
 - Then open stage 4 with wayfinding, and go on through the gates.
 
+Your own status page. design/state/index.html is the status page Aaron reads: where it stands, the five layers with
+percent, layer two step by step, what works, in flight, what's left, his calls, side tracks, risks, and how it was
+checked. It reads aloud. It is yours to keep: after every merge into a layer branch, every pull request and every
+gate, update it from the repo (START HERE, the build plan's marks, the evidence, the branches, the PRs and CI, never
+from memory), commit it with that change, and open it for Aaron (`open design/state/index.html`). Keep its look
+and its spoken style. Put no keys, emails, org ids or local paths in it. Do the same for the evidence page
+(`python3 tools/evidence/page.py` writes design/evidence/index.html). Claude republishes both to their claude.ai links
+when it next takes over.
+
+Work the way the last conductor did:
+- One builder per step, in parallel where the build plan's dependencies allow. Each builder works in its own worktree
+  on build/<step> from the layer branch, with its own port range and D3 number block, given in its brief. A builder
+  never kills a process or container it didn't start.
+- Brief a builder with its build-plan row, the D3 entries it builds on, the author's checks it must pass, and the
+  traps in START HERE. It writes its done-when tests first and sees them fail. It reports a commit hash, its decisions,
+  its tests, anything not green and why, and the commands Aaron would run to see it work.
+- When a builder finds a gap in e2e/, send a ✍️ author to fix it on its own branch. Never let the builder patch it.
+- Merge each step as it lands: `pnpm nx reset`, `NX_DAEMON=false pnpm nx sync`, then lint, typecheck and the touched
+  tests. Push, check CI on the layer branch, and fix red before anything new starts.
+- After every merge, update START HERE in design/handoff.md and the status page, in the same push.
+- Run the full gate alone, with no other builder running: its cleanup removes every Architect container.
+- Record every call you make in design/decisions/ (D3 for stage 3, then D4, and so on). Don't reopen a decision
+  without new evidence.
+- Talk to Aaron in short spoken sentences: what works, what was decided, what's next, then the link. Batch any
+  questions, and ask only when blocked.
+- Before you stop, check that no workerd, wrangler, Verdaccio, Anvil, collector, viewer or open port of yours is
+  left, and that START HERE says exactly where you stopped.
+
 Never print a key, never write one to a file or a commit; Aaron's keys are in his macOS keychain by name (START HERE
 lists them). Stay within $10 a day across everything. Leave nothing running: no workerd, Verdaccio, Anvil,
 containers or open ports.
@@ -47,6 +75,8 @@ decided, what's next, then the link. Ask him nothing unless you are blocked.
 
 - Subagents: Claude's `Agent` tool with worktree isolation becomes a Codex subagent or a new `codex exec` session in
   its own `git worktree add` (threads skill, Codex column).
-- The evidence page artifact (`https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB`) is published only by Claude;
-  Codex builds `design/evidence/index.html` and leaves the publish.
+- The evidence page (`https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB`) and the status page
+  (`https://claude.ai/artifact/9cEbbURyke6qugAcjMHFn6`) are claude.ai artifacts, which only Claude can publish. Codex
+  keeps their sources current in the repo: `design/evidence/index.html` and `design/state/index.html`, opened locally.
+  Claude republishes both to the same links when it takes over again.
 - The goal's keep-going loop is a Claude Code feature; in Codex, re-prompt with this brief when a session stops.
