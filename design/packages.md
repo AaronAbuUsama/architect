@@ -37,8 +37,8 @@ e2e/                 the gates: e2e:layer1, e2e:layer2, e2e:m0
 ```
 
 Plugins come later, one package each: `@formants/auth` and `@formants/organizations` (M2), `@formants/work` (M3),
-`@formants/agents` (M4), `@formants/stripe` and `@formants/resend` (M5), `@formants/wallets` (M6). Nothing is
-published to npm before M7; every milestone before it publishes to the local Verdaccio.
+`@formants/agent-kit` (M3, the agents projection that writes `generated/agents/`), `@formants/agents` (M4),
+`@formants/stripe` and `@formants/resend` (M5), `@formants/wallets` (M6). Nothing is published to npm before M7; every milestone before it publishes to the local Verdaccio.
 
 ## Rules, held by Nx module boundaries
 
