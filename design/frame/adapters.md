@@ -44,13 +44,13 @@ import { Blueprint } from "@blueprint/blueprint";
 import stripe from "@blueprint/stripe";
 
 export default Blueprint.use(stripe, (s) => [
-  s.calls.refunds.create,            // what this app may call: only what it names, nothing else of Stripe's
-  s.calls.checkout.sessions.create,
-  s.events.checkoutCompleted,        // what this app accepts in: each one must be routed (below)
+  s.include(s.calls.refunds.create),          // what this app may call: only what it names, nothing else of Stripe's
+  s.include(s.calls.checkout.sessions.create),
+  s.include(s.events.checkoutCompleted),      // what this app accepts in: some operation must take it (below)
 ]);
 ```
 
-The mount narrows the outside system to what the app uses. Stripe has hundreds of endpoints; acme reaches two. That
+The mount's `include` narrows the outside system to what the app uses. Stripe has hundreds of endpoints; acme reaches two. That
 list is what the model, the docs and `impact` know about.
 
 ### Calling out, from a handler
@@ -65,7 +65,7 @@ export default Blueprint.operation(Organization, {
   payload: { payment: PaymentId, amount: Amount },
   answer: { refund: RefundId },
   errors: [RefundTooLarge],
-  allowed: [owner.of("organization").via("session")],
+  allowed: [owner.of("organization").via(Via.session)],
   steps: { refund: Blueprint.step.call(stripe.calls.refunds.create) },
 });
 ```
@@ -73,10 +73,12 @@ export default Blueprint.operation(Organization, {
 ```ts
 // src/organization/refund.ts: the handler gets the step, typed with Stripe's own errors
 const refund: Handler = ({ payment, amount }, { steps }) =>
-  steps.refund({ payment_intent: payment, amount }).pipe(
-    Effect.catchTag("StripeInvalidRequest", (e) => new RefundTooLarge({ asked: amount })), // map what you can answer
-    Effect.map((r) => ({ refund: r.id })),
-  );
+  Effect.gen(function* () {
+    const r = yield* steps.refund({ payment_intent: payment, amount }).pipe(Effect.either);
+    if (r._tag === "Left" && r.left._tag === "StripeInvalidRequest") return yield* new RefundTooLarge({ asked: amount }); // map what you can answer
+    if (r._tag === "Left") return yield* Effect.die(r.left); // anything unmapped is a defect
+    return { refund: r.right.id };
+  });
 ```
 
 The one blank an adapter call leaves is the mapping: which of the outside system's errors become your declared errors.
@@ -85,13 +87,18 @@ is the one blank" from `decisions.md`, made concrete and type-checked.
 
 ### Events coming in
 
-Each event the mount accepts is routed to one of our operations, called as the adapter's principal:
+Each event the mount includes is taken by one of our operations, which says so in its own declaration, and is called
+as the adapter's principal. The mount imports nothing of the app's, so nothing imports in a circle:
 
 ```ts
-// blueprint/adapters/stripe.ts (continued)
-export const routes = Blueprint.route(stripe.events.checkoutCompleted, {
-  to: payment.verbs.settle,                                  // our operation, by reference
-  with: (e) => ({ payment: e.data.object.payment_intent }),  // their payload to ours
+// blueprint/things/payment/verbs/settle.ts
+import stripe from "../../../adapters/stripe.ts";
+
+export default Blueprint.operation(Payment, {
+  payload: { payment: PaymentId },
+  move: machine.moves.settle,
+  allowed: [processor],
+  on: [Blueprint.on(stripe.events.checkoutCompleted, (e) => ({ payment: e.data.object.payment_intent }))], // their payload to ours
 });
 ```
 
@@ -113,37 +120,40 @@ so an adapter for another Blueprint app is generated, not written:
 blueprint add adapter @acme-billing/sdk --as billing
 ```
 
-Its calls are the other app's operations that admit a `service` principal (a `key` way in); its errors are their
+Its calls are the other app's operations that admit a `service` principal (a `Via.key` way in); its errors are their
 declared errors, already typed; its events in are their events, delivered to a door; and its stand-in is a world of
 the other app itself, made from its published bundle. This is how two Blueprint apps talk: each is outside the other,
 and each is an adapter to the other. It is also why "one app, one model" holds: a second app is never merged in.
 
 ### Adapters on other hosts
 
-Adapters are not only server-side. A browser wallet is an outside system on the browser host; the OS keychain is one on
-the node host. The wallets feature needs both ([`writing-a-feature.md`](writing-a-feature.md)):
+Adapters are not only server-side. A browser wallet is an outside system on the browser host, and the wallets feature
+needs one when a browser signer is chosen ([`writing-a-feature.md`](writing-a-feature.md)). Its node signer needs no
+adapter: it keeps keys in a keystore file of its own format. An OS keychain would be another adapter, later.
 
 ```ts
 // @blueprint/eip1193: an adapter for whatever wallet the browser offers
 export default Blueprint.adapter({
-  host: Host.browser,
+  host: [Host.browser],
   shape: Eip1193.contract,            // the standard's methods and errors
   calls: { requestAccounts, signTypedData, personalSign },
+  events: { accountsChanged },          // events in, here from the wallet to the page
   standIn: Stand.process(anvilWallet), // a real local signer backed by Anvil's test keys, driven by the world
+  // secrets and needs go here too when an adapter has them; this one has neither
 });
 ```
 
 ### Adapters inside features
 
-A feature that needs an outside system names the adapter; it does not contain it:
+A feature that needs an outside system names the adapter in its descriptor; it does not contain it:
 
 ```ts
-// @blueprint/payments/blueprint/needs.ts
-export const needs = Blueprint.needs({ adapters: [stripe.calls.checkout.sessions.create, stripe.events.checkoutCompleted] });
+// @blueprint/payments/blueprint/feature.ts
+export default Blueprint.feature({ needs: [auth, stripe] /* uses stripe.calls.checkout.sessions.create, stripe.events.checkoutCompleted */ });
 ```
 
-`blueprint add feature @blueprint/payments` sees the need, and either finds a Stripe mount that already includes those
-calls and events, offers to widen it, or offers to mount Stripe. One Stripe mount per app serves the payments feature,
+`blueprint add feature @blueprint/payments` sees the need, and either finds a Stripe mount that already includes the
+calls and events the feature uses, offers to widen it, or offers to mount Stripe. One Stripe mount per app serves the payments feature,
 the app's own refund handler and the webhook, with one secret and one stand-in. Two mounts of one adapter (`stripe-eu`
 and `stripe-us`) are two outside systems, with their own names, secrets and stand-ins.
 
@@ -201,7 +211,7 @@ response types, which come from the contract.
 | | Today (`origin/layer/3`) | Proposed |
 |---|---|---|
 | Calls out | none; `decisions.md` layer 3 plans "a dependency is something you call" | adapter calls as steps, errors mapped in the handler |
-| Events in | none; "an edge is where a framework calls you" is planned | routes from an adapter's events to operations, as `service(<mount>)` |
+| Events in | none; "an edge is where a framework calls you" is planned | an operation's `on:` takes an adapter's event, called as `service(<mount>)` |
 | Service principals | `Principal` is `anonymous \| person` (`blueprint/src/modules/roles/types.ts:6-8`) | `service` added beside `person` and `agent` |
 | Stand-ins | Anvil planned for the chain (`spikes/world-anvil-container/`) | every adapter declares one, and evidence names it |
 | Another app | not designed | an adapter generated from its model |

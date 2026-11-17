@@ -14,7 +14,7 @@ proved by signing the server's challenge (Sign-In with Ethereum). The server nev
 2. Agents never link a wallet: linking binds a key to an account.
 3. `wallet.link` is a client operation over two server operations, `challenge` and `complete`.
 4. Wallets needs auth, not chain. Sign-In with Ethereum needs a chain id, not a chain client.
-5. Behaviour that runs on a device is written per host (`node`, `browser`, `world`), not per environment.
+5. Behaviour that runs on a device is written per host (`Host.node`, `Host.browser`, `Host.world`), not per environment.
 
 ## Step 1: make the package
 
@@ -126,12 +126,13 @@ export const machine = Blueprint.machine(Challenge, {
 
 ```ts
 // wallets/blueprint/things/wallet/errors.ts
-export class SignatureInvalid extends Blueprint.error("SignatureInvalid", { exit: 42, code: "WAL01" }) {}
-export class AddressTaken extends Blueprint.error("AddressTaken", { exit: 43, code: "WAL02", fields: { chain: ChainId } }) {}
-export class KeyLocked extends Blueprint.error("KeyLocked", { exit: 44, code: "WAL03" }) {}  // the device refused to sign
-export class NoSuchKey extends Blueprint.error("NoSuchKey", { exit: 45, code: "WAL04" }) {}
+// Named by their exported classes, as acme's errors.ts files are; refusal codes come from the thing's prefix (D3 #84)
+export class SignatureInvalid extends Blueprint.error({}, { exit: 42 }) {}
+export class AddressTaken extends Blueprint.error({ chain: ChainId }, { exit: 43 }) {}
+export class KeyLocked extends Blueprint.error({}, { exit: 44 }) {}  // the device refused to sign
+export class NoSuchKey extends Blueprint.error({}, { exit: 45 }) {}
 // wallets/blueprint/things/challenge/errors.ts
-export class ChallengeExpired extends Blueprint.error("ChallengeExpired", { exit: 46, code: "CHL01" }) {}
+export class ChallengeExpired extends Blueprint.error({}, { exit: 46 }) {}
 ```
 
 ### Roles
@@ -140,13 +141,14 @@ export class ChallengeExpired extends Blueprint.error("ChallengeExpired", { exit
 // wallets/blueprint/things/wallet/roles.ts
 import { Blueprint } from "@blueprint/blueprint";
 import { signedIn } from "@blueprint/auth/blueprint";
+import { Via } from "@blueprint/blueprint";
 import { Wallet } from "./thing.ts";
 
 /** The person whose wallet it is. */
 export const holder = Blueprint.role(Wallet, { rule: (wallet, principal) => wallet.person === principal.person });
 
 /** Someone binding a key to their own account: a person, never an agent acting for them (rule 2). */
-export const linker = signedIn.notVia("agent");
+export const linker = signedIn.notVia(Via.agent);
 ```
 
 ### Operations
@@ -162,7 +164,7 @@ device and calls two of the server's.
 | `wallet.link` | client | `linker` | challenge, sign here, complete |
 | `wallet.challenge` | server | `linker` | issue the exact message for this session to sign |
 | `wallet.complete` | server | `linker` | verify, use the challenge, link the address |
-| `wallet.unlink` | server | `holder.notVia("agent")` | unlink one of your wallets |
+| `wallet.unlink` | server | `holder.notVia(Via.agent)` | unlink one of your wallets |
 | `wallet.list` | server (read) | `signedIn` | your linked wallets, by any way in |
 
 `anyone` is safe on the device operations because nothing leaves the device: the caller's own machine is the boundary.
@@ -221,15 +223,17 @@ import { Blueprint } from "@blueprint/blueprint";
 import auth from "@blueprint/auth";
 import eip1193 from "@blueprint/eip1193";
 import * as Choices from "./blueprint/choices.ts";
+import * as Settings from "./blueprint/settings.ts";
 import * as Exports from "./blueprint/exports/index.ts";
 
 export default Blueprint.feature({
   description: "Keys on a person's own device, linked to their account by Sign-In with Ethereum.",
   needs: [
     auth,                                                       // sessions, signedIn, the person
-    Blueprint.need(eip1193, { when: Choices.browserSigner.injected }), // only if an app picks the injected browser signer
+    Blueprint.need(eip1193, { when: Choices.signer.browser.injected }), // only if an app picks the injected browser signer
   ],
   choices: Choices,
+  settings: Settings,
   exports: Exports,
 });
 ```
@@ -243,16 +247,21 @@ to the extension shares that mount.
 ```ts
 // wallets/blueprint/choices.ts
 import { Blueprint } from "@blueprint/blueprint";
+export const signer = {
+  /** How a key is kept on a Node device (the CLI, a Node SDK). */
+  node: Blueprint.choice({ keystore: "an encrypted keystore file in the user's config folder" }),
+  /** How the browser signs. */
+  browser: Blueprint.choice({ injected: "the extension the person already uses, through EIP-1193" }),
+};
+```
+
+```ts
+// wallets/blueprint/settings.ts: values each environment gives, not choices (a choice never varies by environment)
+import { Blueprint } from "@blueprint/blueprint";
 import { ChainId } from "./values/chain.ts";
 
-/** How a key is kept on a Node device (the CLI, a Node SDK). */
-export const nodeSigner = Blueprint.choice({ keystore: "an encrypted keystore file in the user's config folder" });
-
-/** How the browser signs. */
-export const browserSigner = Blueprint.choice({ injected: "the extension the person already uses, through EIP-1193" });
-
-/** Which chains a link is for: set per environment, since local is Anvil's 31337 and production is mainnet. */
-export const chains = Blueprint.choice.list(ChainId, { min: 1 });
+/** Which chains a link is for: local is Anvil's 31337, production is mainnet and Base. */
+export const chains = Blueprint.setting.list(ChainId, { min: 1 });
 ```
 
 **The Node signer is an encrypted keystore file (Web3 Secret Storage v3), not the OS keychain.** The file format is
@@ -271,7 +280,7 @@ proved.
 import { Blueprint } from "@blueprint/blueprint";
 import { Address, Signature } from "../values/chain.ts";
 import { KeyLocked, NoSuchKey } from "../things/wallet/errors.ts";
-import { browserSigner, nodeSigner } from "../choices.ts";
+import { Host } from "@blueprint/blueprint";
 
 export const Signer = Blueprint.export({
   description: "Sign a message with a key on this device.",
@@ -279,7 +288,7 @@ export const Signer = Blueprint.export({
   methods: {
     sign: { payload: { address: Address, message: Blueprint.value.text() }, answer: { signature: Signature }, errors: [KeyLocked, NoSuchKey] },
   },
-  hosts: { node: nodeSigner, browser: browserSigner, world: Blueprint.host.world }, // implementations found by path
+  hosts: [Host.node, Host.browser, Host.world], // implementations found by path, one per host and choice
 });
 ```
 
@@ -401,11 +410,12 @@ brief forbids `blueprint/journeys/`.
 // wallets/blueprint/journeys/create-and-link.ts
 export default Blueprint.journey("make a key and link it", {
   cast: { olga: signedIn },
-  starts: worlds.signedIn,
+  starts: worlds.signedIn,   // always one starting world; it may include fragments
   steps: (s) => [
     s.step("olga makes a key on her device", s.olga.run(create, {}), expect((a) => a.address).toMatch(/^0x/)),
     s.step("and links it", s.olga.run(link, { address: s.last.address }),
       emits(WalletLinked, { address: s.last.address }), spans({ present: ["wallet.link.challenge", "wallet.link.sign", "wallet.link.complete"] })),
+    // spans() takes strings today, as acme's journeys do; it becomes typed names generated from the model later
     s.step("it is listed", s.olga.run(list, {}), expect((a) => a.wallets).toHaveLength(1)),
   ],
 });
@@ -417,9 +427,9 @@ export default Blueprint.journey("an agent cannot link a wallet", {
   cast: { olga: signedIn },
   starts: worlds.linked,
   steps: (s) => [
-    s.step("olga's agent asks for a challenge", s.olga.via("agent").run(challenge, { address: s.world.address }), refuses(NotAllowed), noEvents()),
-    s.step("olga's agent has no such tools", s.olga.via("agent").tools(), lacks(challenge, complete, link, unlink)),
-    s.step("but it can list her wallets", s.olga.via("agent").run(list, {}), expect((a) => a.wallets).toHaveLength(1)),
+    s.step("olga's agent asks for a challenge", s.olga.via(Via.agent).run(challenge, { address: s.world.address }), refuses(NotAllowed), noEvents()),
+    s.step("olga's agent has no such tools", s.olga.via(Via.agent).tools(), lacks(challenge, complete, link, unlink)),
+    s.step("but it can list her wallets", s.olga.via(Via.agent).run(list, {}), expect((a) => a.wallets).toHaveLength(1)),
   ],
 });
 ```
@@ -427,12 +437,12 @@ export default Blueprint.journey("an agent cannot link a wallet", {
 A third journey, `an-address-links-once`, covers the spike's replay and `AddressTaken`. A fourth, `unlink-then-link`,
 covers unlinking and linking again.
 
-**One journey, every projection.** A journey names operations, never a surface. `blueprint prove` replays it through
+**One journey, every projection.** A journey names operations, never a way in. `blueprint prove` replays it through
 each projection that can reach each step ([`projections.md`](projections.md)):
 
-| Step | http | sdk (node) | sdk (browser) | cli | mcp |
+| Step | api | sdk (node) | react (browser) | cli | mcp |
 |---|---|---|---|---|---|
-| `create`, `link` (client) | · | ✔ local code, world signer | ✔ in the feature's CI only | ✔ the built binary | · |
+| `create`, `link` (client) | · | ✔ local code, world signer | ✔ in a real browser | ✔ the built binary | · |
 | `challenge` (agent refused) | ✔ refusal | ✔ refusal | | ✔ refusal | ✔ absent from the catalogue |
 | `list` | ✔ | ✔ | | ✔ | ✔ |
 
@@ -440,7 +450,7 @@ each projection that can reach each step ([`projections.md`](projections.md)):
 
 ```ts
 // wallets/blueprint/starting-worlds/linked.ts
-export default Blueprint.world.fragment("every cast person has one linked wallet", {
+export default Blueprint.startingWorld.fragment("every cast person has one linked wallet", {
   after: auth.worlds.signedIn,
   run: (w) => w.cast.map((person) => [person.run(create, {}), person.run(link, { address: w.last.address })]),
 });
@@ -452,9 +462,9 @@ export default Blueprint.world.fragment("every cast person has one linked wallet
 wallets/example/blueprint/
   features/auth.ts           Blueprint.use(auth, …)
   features/wallets.ts        Blueprint.use(wallets, (w) => [w.signer.node.keystore, w.signer.browser.injected])
-  adapters/eip1193.ts        Blueprint.use(eip1193, {})
-  projections/server.ts  sdk.ts  cli.ts  mcp.ts  browser.ts
-  environments/local.ts      wallets.choose(chains, [31337])
+  adapters/eip1193.ts        Blueprint.use(eip1193, (e) => [e.include(e.calls.personalSign)])
+  projections/server.ts  api.ts  sdk.ts  react.ts  cli.ts  mcp.ts
+  environments/local.ts      settings: [wallets.settings.chains.is([31337])]
 ```
 
 ```bash
@@ -463,13 +473,13 @@ cd example && blueprint prove --env local
 
 ```text
 journeys   wallets 4 · auth 5
-through    http ✔  sdk(node) ✔  cli ✔  mcp ✔  browser ✔
+through    api ✔  sdk ✔  react ✔  cli ✔  mcp ✔
 wallet.complete   9 evals ✔
-wallet.link       9 evals ✔   (sdk, cli, browser)
+wallet.link       9 evals ✔   (sdk, react, cli)
 eip1193           conformance ✔   stand-in: Anvil 1.4.0's JSON-RPC as the provider
 ```
 
-**The browser.** The `browser` projection replays the client steps in a real headless Chromium (Playwright). The
+**The browser.** The `react` projection replays the client steps in a real headless Chromium (Playwright). The
 `eip1193` adapter's stand-in is a real provider, Anvil's JSON-RPC with its unlocked test accounts, so a real
 `personal_sign` happens. It is not a fake. This runs in the feature's own CI, not in every app that mounts it.
 Whether that gives enough confidence about real extensions is an open risk.
@@ -520,7 +530,7 @@ export default Blueprint.use(wallets, (w) => [
 // acme/blueprint/environments/production.ts (the lines this adds)
 import wallets from "../features/wallets.ts";
 // …
-  choices: [wallets.choose(wallets.choices.chains, [1, 8453])],
+  settings: [wallets.settings.chains.is([1, 8453])],
 ```
 
 ### What acme gains
@@ -544,7 +554,7 @@ in its package.
 // acme/blueprint/journeys/approve-a-large-spend.ts
 export default Blueprint.journey("a large spend needs the owner's wallet", {
   cast: { owen: owner, olga: grantee },
-  starts: [worlds.funded, wallets.worlds.linked],   // acme's world, with the feature's fragment
+  starts: worlds.fundedAndLinked,   // one starting world: acme's `funded`, which includes the wallets fragment
   steps: (s) => [ /* owen signs the approval with his linked wallet; acme's handler checks it with Verify.linked */ ],
 });
 ```
@@ -561,7 +571,7 @@ blueprint upgrade wallets
 ```text
 @blueprint/wallets 1.1.0 → 2.0.0
   major  wallet.complete: payload adds `chain`   (your SDK's callers must pass it)
-  acme   1.4.0 → 2.0.0   (a payload in acme's surface changed)
+  acme   1.4.0 → 2.0.0   (a payload in acme's API changed)
   stale  12 verdicts: wallet.*, and acme's approve-a-large-spend (it uses Verify.linked)
 re-run blueprint prove to clear them
 ```
@@ -577,10 +587,10 @@ it round again.
 | Mounting | none | `blueprint add feature`, one file per mount |
 | `runs: "client"` | the compiler refuses it (`operations/types.ts:49`, D3 #86) | client operations, behaviour per host |
 | `step.call`, `step.use` | `Blueprint.step.database()` and kin only | both |
-| `via`, `.notVia("agent")` | `Principal` is `anonymous | person` | as in K1 section 1 |
+| `via`, `.notVia(Via.agent)` | `Principal` is `anonymous | person` | as in K1 section 1 |
 | Linking over SIWE | proved in `spikes/authenticated-siwe-link` | the same design, as `challenge` and `complete` |
 | Journeys through projections | raw HTTP (`world.ts:85`) | replayed through each projection |
-| World fragments | starting worlds only | `Blueprint.world.fragment` |
+| Starting-world fragments | starting worlds only | `Blueprint.startingWorld.fragment` |
 
 ## Open risks
 
@@ -588,7 +598,7 @@ it round again.
    of the protocol, not each extension's quirks.
 2. **Plain keys only.** ERC-1271, ERC-6492 and EIP-7702 verification are unproved (the spike's first open risk). So are
    passkeys, which wait on them.
-3. **Chain and origin policy.** The spike used one chain (31337) and one origin. The `chains` choice settles which
+3. **Chain and origin policy.** The spike used one chain (31337) and one origin. The `chains` setting settles which
    chains, but deploying behind several origins is not decided.
 4. **Keystore portability.** Encrypted keystores on Linux CI and Node 24 are untested. The spike ran on macOS with
    Node 26.

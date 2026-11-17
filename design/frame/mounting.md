@@ -4,7 +4,7 @@ Part of the frame ([`README.md`](README.md)). Proposed, 17 November 2026.
 
 ## What a mount is
 
-A mount is one small file that says "use this plugin here, with these choices". It is the only thing a plugin puts in
+A mount is one small file that says "use this plugin here, like this". It is the only thing a plugin puts in
 your project. The plugin's declarations, handlers and journeys stay in its package, pinned to one version.
 
 ```ts
@@ -13,19 +13,24 @@ import { Blueprint } from "@blueprint/blueprint";
 import wallets from "@blueprint/wallets";
 
 export default Blueprint.use(wallets, (w) => [
-  w.signer.browser,                                            // choose: a signer wallets has proved
-  w.narrow(w.operations.list, { via: ["session", "device"] }), // tighten: fewer ways in
-  w.omit(w.operations.import),                                 // drop: acme doesn't import keys
+  w.signer.browser.injected,                                        // choose: a signer wallets has proved
+  w.narrow(w.operations.list, { via: [w.via.session, w.via.device] }), // narrow: fewer ways in
+  w.omit(w.operations.import),                                      // omit: acme doesn't import keys
 ]);
 ```
 
-Three verbs, and only three, because each keeps the plugin's proof true:
+Four verbs, the same for every kind of plugin, and only four, because each keeps the plugin's proof true:
 
-| Verb | What it does | Why it is safe |
-|---|---|---|
-| **choose** | picks one of the options the plugin offers (a signer, a region, a currency) | the plugin proved each option in its own CI |
-| **narrow** | removes ways in, or roles, from an operation | fewer callers can't break a journey that passed with more; journeys needing the removed way are skipped and named |
-| **omit** | drops an operation | nothing of the app's may call it; `check` fails if anything does |
+| Verb | What it does | Used by | Why it is safe |
+|---|---|---|---|
+| **choose** | picks one of the options the plugin offers (a signer, a CLI's command name) | features, adapters, projections | the plugin proved each option in its own CI |
+| **include** | names which of an adapter's calls and events are reachable; nothing else of the outside system is | adapters | the app reaches only what it named, and `impact` knows exactly that |
+| **narrow** | removes ways in, or operations: `narrow` on a feature's operation, `via` and `takes` on a projection | features, projections | fewer callers can't break a journey that passed with more; journeys needing the removed way are skipped and named |
+| **omit** | drops an operation | features | nothing of the app's may call it; `check` fails if anything does |
+
+A choice never varies by environment. A value that must differ between environments, such as which chains a wallet
+links for, is a **setting**: the plugin declares it, and each environment gives it
+(`settings: [wallets.settings.chains.is([1, 8453])]` in `environments/production.ts`).
 
 There is no "override". If an app needs a feature's operation to behave differently, it writes its own operation over
 what the feature exports (acme's `organization.refund` over the payments feature's `Payments.refund`).
@@ -79,7 +84,7 @@ export default Blueprint.config({
 A · Projections in the config:
 
 ```ts
-// architect.config.ts
+// blueprint.config.ts
 export default Blueprint.config({
   projections: [server(), sdk({ package: "@acme/sdk" }), cli({ command: "acme" }), mcp(), docs(), portal()],
 });
@@ -131,9 +136,9 @@ names from paths, and no loose config file. The question "what does this app bec
 
 | Stage | What happens |
 |---|---|
-| `blueprint add feature @blueprint/wallets` | pins the package exactly, refusing a version under two weeks old; writes the mount with the plugin's default choices; checks the plugin's needs (below) |
+| `blueprint add feature @blueprint/wallets` | pins the package exactly, refusing a version under two weeks old; writes the mount with the plugin's default choices; resolves the plugin's needs (below) |
 | compile | folds the plugin's declarations into the model under the mount's name; each carries `from: wallets@1.2.0` |
-| check | names clashes, unmet needs, a narrowing that would empty an operation, an app operation that calls an omitted one |
+| check | names clashes, unmet needs, a narrowing that would empty an operation, an app operation that calls an omitted one, an adapter event the mount includes that no operation takes |
 | generate | every projection sees the feature's operations like the app's own; the feature's handlers are imported from its package, never copied |
 | scaffold | nothing for a feature (it arrives with no blanks); for an adapter call, the error mapping in your handler is the blank |
 | secrets | the plugin's secrets join every environment, named from mount and export ([`secrets.md`](secrets.md)) |
@@ -143,15 +148,18 @@ names from paths, and no loose config file. The question "what does this app bec
 
 ## Needs
 
-A plugin says what it needs, and mounting resolves it:
+A plugin names the plugins it needs in its own descriptor, and mounting resolves them:
 
 ```ts
-// @blueprint/wallets/blueprint/needs.ts
-export const needs = Blueprint.needs({
-  features: [auth.principals],                        // a feature, by what it exports
-  adapters: [eip1193.calls.signTypedData],            // only when a browser signer is chosen
+// @blueprint/wallets/blueprint/feature.ts
+export default Blueprint.feature({
+  needs: [auth, Blueprint.need(eip1193, { when: signer.browser.injected })], // eip1193 only with a browser signer
+  // choices, exports … (writing-a-feature.md)
 });
 ```
+
+The calls a plugin uses of a needed adapter (wallets uses `eip1193.calls.personalSign`) are checked against what the
+app's mount of that adapter includes.
 
 `blueprint add feature @blueprint/wallets` finds a mount that satisfies each need, or offers to add one. A need is never
 satisfied by a copy inside the plugin, so the app has one auth, one Stripe and one browser wallet, however many features

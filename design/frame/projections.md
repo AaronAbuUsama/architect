@@ -62,17 +62,17 @@ projection is around it.
 ```ts
 // @blueprint/projection: what every projection plugin exports
 export interface Projection<Choices> {
-  readonly host: Host;                         // where its output runs: worker, node, browser, chain, none
+  readonly host: ReadonlyArray<Host>;          // where its output runs; empty when nothing runs (docs, types)
   readonly builtOn?: Projection<unknown>;      // another projection it is layered on (the CLI on the SDK)
   readonly reaches?: Door;                     // the door it calls: server.api, server.mcp, or none
-  readonly via?: ReadonlyArray<Via>;           // the ways its callers sign in: session, key, device, agent
+  readonly via?: ReadonlyArray<Via>;           // the ways its callers sign in: Via.session, Via.key, Via.device, Via.agent
   readonly takes?: (op: OperationModel) => boolean; // which operations it includes; the default rule is below
-  readonly render: (model: Model, mount: Mount<Choices>) => Effect<ReadonlyArray<Output>>;
+  readonly render: (project: Project<Choices>) => Effect<ReadonlyArray<Output>>; // { model, mount, mounts, environments }
   readonly replay?: (step: JourneyStep, world: World) => Effect<Evidence, ReplayFailed>;
-  readonly ships: Deploy | Release | Kept;     // deployed at a place, released under a tag, or kept in the repo
+  readonly ships: ReadonlyArray<Deploy | Release | Kept>; // deployed, released under a tag, kept in the repo; [] never shipped
 }
 
-export const cli = Blueprint.projection<CliChoices>({ host: Host.node, builtOn: sdk, ... });
+export const cli = Blueprint.projection<CliChoices>({ host: [Host.node], builtOn: sdk, ... });
 ```
 
 Here is what each field is for.
@@ -86,7 +86,9 @@ Here is what each field is for.
   chain of projections is declared, not implied, so `blueprint model --projections` can draw it and a change to the SDK
   knows the CLI depends on it.
 - **`reaches`** names the door this projection calls, if it calls one. A door is an entrance a server-hosted projection
-  opens: the HTTP API, the MCP endpoint, an inbound webhook. The SDK reaches `server.api`. Docs reach nothing.
+  opens. All the doors, once: the server opens `server.api`, `server.mcp` (serving the `mcp` projection's catalogue)
+  and `server.inbound` (one per adapter event the app takes), and in a world also the world door (`/_world/*`). The api
+  and the SDK reach `server.api`. The CLI and MCP are built on the SDK and reach nothing themselves. Docs reach nothing.
 - **`via`** lists how this projection's callers prove who they are:
   - a browser SDK signs in by session;
   - a CLI signs in by device login or by API key;
@@ -101,18 +103,19 @@ Here is what each field is for.
     op.reach.some((v) => p.via?.includes(v) ?? true); // someone who signs in this way may call it
   ```
 
-  A mount may tighten this rule but never widen it. Nothing names a surface by hand.
-- **`render`** is today's renderer, unchanged in spirit: a pure function from the model (and the mount's choices) to
-  files under `generated/<mount>/`. It may import the declarations, never copy them.
+  A mount may narrow this rule but never widen it. Nothing names a way in by hand.
+- **`render`** is today's renderer, unchanged in spirit: a pure function from one `project` value (the model, this
+  mount's choices, the other mounts, the environments) to files under `generated/<mount>/`. It may import the declarations, never copy them.
 - **`replay`** runs one journey step through this projection's built output and returns the evidence. This is what
   makes a projection proved rather than just generated ([section 4](#4-the-replay-rule)). Only projections that callers
-  call need it. Docs and infrastructure have none.
+  call need it. Docs and infrastructure have none, and say "not proved by replay".
 - **`ships`** says how the output reaches the world:
   - `Deploy`: we run it at a place, such as a Worker at a domain.
   - `Release`: we hand it to others under a tag, such as an npm package or a Homebrew formula.
   - `Kept`: it is a file in the repository, such as docs or the model.
 
-  The environment says where. The projection only says which kinds it accepts.
+  The environment says where. The projection only says which kinds it accepts: `Release.npm` is a kind; `Npm.latest`
+  in an environment is where.
 
 ## 2. Mounting a projection
 
@@ -136,15 +139,17 @@ import { cli } from "@blueprint/cli";
 import { operator } from "../things/system/roles.ts";
 
 export default Blueprint.use(cli, (c) => [
+  c.command.named("acme-admin"),
   c.via([c.via.key]),                                  // keys only: run from CI and ops machines
   c.takes((op) => op.allowed.includes(operator)),      // only what an operator may do
 ]);
 ```
 
 The two mounts are the reason for one file per mount. A list of options in a config file cannot say "two CLIs,
-different callers, different operations" without inventing names in strings. Here each CLI is named by its file. Its
-command (`acme`, `acme-admin`), its folder (`generated/cli/`, `generated/cli-admin/`) and its package all follow from
-that name.
+different callers, different operations" without inventing names in strings. Here each CLI is named by its file, and
+its folder follows (`generated/cli/`, `generated/cli-admin/`). Its command is a choice: `c.command.fromProject` gives
+`acme`, `c.command.named("acme-admin")` gives the second. A command name is a package-level name, like an npm
+package's, not a declared name, so writing it is allowed.
 
 The environment places each mount. It refers to mounts by import, never by a string:
 
@@ -175,7 +180,7 @@ export default Blueprint.environment({
 
 - a mount the environment does not place is fine; it just isn't shipped there;
 - a place whose kind the projection does not accept is an error (a `Release` given to the server);
-- a `via` the environment does not issue is an error (`cli` wants `device`, but staging issues only `session`).
+- a `via` the environment does not issue is an error (`cli` wants `Via.device`, but staging issues only `Via.session`).
 
 ## 3. A catalogue of projections
 
@@ -184,27 +189,29 @@ column cites the renderer it grows from.
 
 ### 3.1 The server (Cloudflare)
 
-The server is the Worker that runs every `runs: server` operation, with D1, a Durable Object per actor and the world's
-front door.
+The server is the Worker that runs every `runs: server` operation, with D1 and a Durable Object per actor. In a world
+it also opens the world door (`/_world/*`: the cast, the facts, the clock, the stand-ins of every mounted adapter), which
+staging and production close (D3 #126). There is no separate world projection: a world is the description running for
+a test, and this is the door `prove` uses.
 
 ```ts
 export const server = Blueprint.projection({
-  host: Host.worker,
+  host: [Host.worker],
   takes: (op) => op.runs === "server",
-  render: (model, mount) => Effect.succeed([
+  render: ({ model, mount }) => Effect.succeed([
     ...routes(model),         // each operation's route wired to its handler in src/, by path
     ...actors(model),         // a Durable Object class per thing that lives as an actor
     migration(model),         // D1 tables from the model
     wrangler(mount),          // the Worker's configuration
   ]),
-  ships: Deploy.worker,
+  ships: [Deploy.worker],
   // no replay: the server is what every other projection's replay lands on
 });
 ```
 
 - **Today:** `render/internal/server.ts:1-2`, `server.ts:190`, `worker-config.ts:9,55`.
-- **What it opens:** doors that other projections reach: `server.api`, `server.mcp` once MCP is mounted, and one per
-  adapter's inbound webhook.
+- **What it opens:** `server.api`; `server.mcp` once MCP is mounted; `server.inbound`, one per adapter event an
+  operation takes; and in a world, the world door. Today the world door lives in the server renderer (`server.ts:1-2`).
 - **Proving it:** it has no replay of its own, because it is the far end of every other replay.
 - **Hosts:** one per host plugin. `@blueprint/server-cloudflare` is the one that exists. A Node server is the fallback
   seam (`decisions.md`, "a seam for another host kept but unused").
@@ -216,11 +223,12 @@ for callers who will never use our SDK.
 
 ```ts
 export const api = Blueprint.projection({
-  host: Host.none,                       // types and a document, nothing runs
+  host: [],                       // types and a document, nothing runs
+  reaches: server.api,
   takes: (op) => op.runs === "server",
-  render: (model) => Effect.succeed([...endpoints(model), ...handlerTypes(model), openapi(model)]),
+  render: ({ model }) => Effect.succeed([...endpoints(model), ...handlerTypes(model), openapi(model)]),
   replay: (step, world) => postJson(world.door(server.api), step), // today's world.ts:85, renamed honestly
-  ships: Kept,                           // and served at /openapi.json by the server
+  ships: [Kept],                           // and served at /openapi.json by the server
 });
 ```
 
@@ -237,9 +245,9 @@ export const sdk = Blueprint.projection({
   host: [Host.node, Host.browser],
   reaches: server.api,
   via: [Via.session, Via.key],
-  render: (model) => Effect.succeed([client(model), ...perOperation(model), ...clientOperations(model)]),
+  render: ({ model }) => Effect.succeed([client(model), ...perOperation(model), ...clientOperations(model)]),
   replay: (step, world) => runInHost(Host.node, sdkCall(step), world),
-  ships: Release.npm,
+  ships: [Release.npm],
 });
 ```
 
@@ -254,12 +262,12 @@ React gives a web app hooks over the SDK: `useSpend()`, `useAllowance(id)`, with
 
 ```ts
 export const react = Blueprint.projection({
-  host: Host.browser,
+  host: [Host.browser],
   builtOn: sdk,
   via: [Via.session],
-  render: (model) => Effect.succeed([...hooks(model), provider(model)]),
+  render: ({ model }) => Effect.succeed([...hooks(model), provider(model)]),
   replay: (step, world) => runInBrowser(hookHarness(step), world),  // a real browser (Playwright), never jsdom
-  ships: Release.npm,
+  ships: [Release.npm],
 });
 ```
 
@@ -274,10 +282,10 @@ One command per operation: `acme <thing> <verb> --<field>`, with exit codes from
 
 ```ts
 export const cli = Blueprint.projection<CliChoices>({
-  host: Host.node,
+  host: [Host.node],
   builtOn: sdk,
   via: [Via.device, Via.key],
-  render: (model, mount) => Effect.succeed([...commands(model), session(mount), main(mount)]),
+  render: ({ model, mount }) => Effect.succeed([...commands(model), session(mount), main(mount)]),
   replay: (step, world) => spawn(builtBinary, argv(step), { env: world.credentialFor(step.cast) }),
   ships: [Release.npm, Release.homebrew, Release.binaries],
 });
@@ -293,13 +301,13 @@ The MCP server gives agents one tool per operation and read, signed in by OAuth.
 
 ```ts
 export const mcp = Blueprint.projection({
-  host: Host.worker,
+  host: [Host.worker],
   builtOn: sdk,
   via: [Via.agent],
   takes: (op) => op.runs === "server" && op.reach.includes(Via.agent), // an agent never runs client code of ours
-  render: (model) => Effect.succeed([catalog(model)]),
-  replay: (step, world) => mcpClient(world.door(mcp)).callTool(step),
-  ships: Deploy.worker,
+  render: ({ model }) => Effect.succeed([catalog(model)]),
+  replay: (step, world) => mcpClient(world.door(server.mcp)).callTool(step),
+  ships: [Deploy.worker],
 });
 ```
 
@@ -314,9 +322,9 @@ call it from each mounted projection.
 
 ```ts
 export const docs = Blueprint.projection({
-  host: Host.none,
-  render: (model, _, mounts) => Effect.succeed([...thingPages(model), ...operationPages(model, mounts)]),
-  ships: Kept,
+  host: [],
+  render: ({ model, mounts }) => Effect.succeed([...thingPages(model), ...operationPages(model, mounts)]),
+  ships: [Kept],
 });
 ```
 
@@ -332,9 +340,9 @@ Its data is generated; its renderer is shipped once.
 
 ```ts
 export const portal = Blueprint.projection({
-  host: Host.worker,
-  render: (model) => Effect.succeed([blueprintJson(model), entry()]), // generated/portal/blueprint.json, main.ts
-  ships: Deploy.route,  // a route of an environment's Worker (/portal, /_portal/v1/*), not a site of its own
+  host: [Host.worker],
+  render: ({ model }) => Effect.succeed([blueprintJson(model), entry()]), // generated/portal/blueprint.json, main.ts
+  ships: [Deploy.route],  // a route of an environment's Worker (/portal, /_portal/v1/*), not a site of its own
 });
 ```
 
@@ -353,11 +361,11 @@ For every thing that `lives: Blueprint.chain(...)`, this projection renders:
 
 ```ts
 export const solidity = Blueprint.projection({
-  host: Host.chain,
+  host: [Host.chain],
   takes: (op) => op.runs === "chain" || livesOnChain(op.thing),
-  render: (model) => Effect.succeed([...machines(model), ...typedData(model), ...foundryTests(model), ...scaffolds(model)]),
+  render: ({ model }) => Effect.succeed([...machines(model), ...typedData(model), ...foundryTests(model), ...scaffolds(model)]),
   replay: (step, world) => relayer(world.chain).submit(signed(step)),  // through the relayer, on the world's Anvil
-  ships: Deploy.contract,   // redeployed only when bytecode changes
+  ships: [Deploy.contract],   // redeployed only when bytecode changes
 });
 ```
 
@@ -374,11 +382,11 @@ The keeper is the built-in caller for time. It makes every `every` and `after` m
 
 ```ts
 export const keeper = Blueprint.projection({
-  host: Host.worker,
+  host: [Host.worker],
   takes: (op) => op.move?.by === "time",
-  render: (model) => Effect.succeed([...timerPerMove(model)]),   // one timer file per time move
+  render: ({ model }) => Effect.succeed([...timerPerMove(model)]),   // one timer file per time move
   replay: (step, world) => world.clock.advanceTo(step.at),        // a stepped clock fires it; evidence as any call
-  ships: Deploy.worker,
+  ships: [Deploy.worker],
 });
 ```
 
@@ -391,9 +399,9 @@ Infrastructure is the Alchemy stack per environment: Workers, D1, R2, Durable Ob
 
 ```ts
 export const infra = Blueprint.projection({
-  host: Host.none,
-  render: (model, _, mounts, environments) => Effect.succeed(environments.map(stack)),
-  ships: Kept,     // applied by `blueprint promote`, in the cloud pass
+  host: [],
+  render: ({ model, mounts, environments }) => Effect.succeed(environments.map(stack)),
+  ships: [Kept],     // applied by `blueprint promote`, in the cloud pass
 });
 ```
 
@@ -406,13 +414,13 @@ A typed client for Python callers, built from the API's OpenAPI document.
 
 ```ts
 export const python = Blueprint.projection({
-  host: Host.python,
+  host: [Host.python],
   builtOn: api,                     // from the OpenAPI document, not from the TypeScript SDK
   via: [Via.key],
   takes: (op) => op.runs === "server",
-  render: (model) => Effect.succeed([...pydanticModels(model), client(model), pyproject(model)]),
+  render: ({ model }) => Effect.succeed([...pydanticModels(model), client(model), pyproject(model)]),
   replay: (step, world) => spawn("python", ["-m", "replay", ...], { env: world.credentialFor(step.cast) }),
-  ships: Release.pypi,
+  ships: [Release.pypi],
 });
 ```
 
@@ -429,47 +437,31 @@ operations can carry a `native` implementation beside `browser` and `node`.
 
 ```ts
 export const reactNative = Blueprint.projection({
-  host: Host.native,
+  host: [Host.native],
   builtOn: sdk,
   via: [Via.session, Via.device],
-  render: (model) => Effect.succeed([...hooks(model)]),
+  render: ({ model }) => Effect.succeed([...hooks(model)]),
   replay: undefined,   // later: a simulator harness; until then it is generated and not proved, and says so
-  ships: Release.npm,
+  ships: [Release.npm],
 });
 ```
 
 It is marked later because there is no replay yet. A projection without a replay prints `not proved` beside every
 operation it carries. It never prints a pass it did not earn.
 
-### 3.14 The world
+### 3.14 The builder projection
 
-A world is a running copy of an environment, made for one purpose and destroyed afterwards. It is the projection
-`prove` runs.
+The builder projection is for builders, not callers. Mounted in every app, it renders `generated/builder/`: the typed
+`bp` API and its `bp.d.ts`, and the brief texts. The tools themselves are `BuilderTools` in the CLI package: `blueprint
+mcp` (a stdio MCP server, for builders on their own machine) exposes four direct tools, `describe`, `run`, `brief` and
+`write`, and everything else is code mode over `bp`. Do not confuse `blueprint mcp` with the `mcp` projection above,
+the remote server for the app's callers.
 
 ```ts
-export const world = Blueprint.projection({
-  host: Host.worker,
-  builtOn: server,
-  render: (model) => Effect.succeed([frontDoor(model), cast(model), facts(model), standIns(model)]),
-  ships: Deploy.world,  // made, given an owner and an expiry, destroyed by its own alarm
-});
+export const builder = Blueprint.projection({ host: [], render: ({ model }) => Effect.succeed([bpTypes(model), briefs(model)]), ships: [] });
 ```
 
-- **What it renders:** the front door (`/_world/*`), the cast and facts routes, and the stand-ins for every mounted
-  adapter that has one ([`adapters.md`](adapters.md)).
-- **Today:** this lives inside the server renderer (`server.ts:1-2`, "the world's front door at /_world/*"). It is only
-  mounted in the `local` and `test` environments. Staging and production close the front door (D3 #126).
-
-### 3.15 The builder MCP
-
-The builder MCP is a projection for builders, not callers. It renders the tools an agent uses to build the app:
-
-- `brief`, `model`, `check`, `prove`, `impact` and `trace`;
-- `call`, which makes a call as a cast member in a world;
-- code mode over a typed API generated from the model.
-
-Its callers are the agents building the app, so its `via` is the builder's local credential. It never ships to an
-environment. See [`builder.md`](builder.md).
+It is never shipped to an environment and has no replay. See [`builder.md`](builder.md).
 
 ## 4. The replay rule
 
@@ -525,7 +517,7 @@ server ──opens──▶ server.api ◀──reaches── api (types, OpenAP
                          sdk (TypeScript)              python (builtOn api)
                         ▲          ▲         ▲
                  builtOn│   builtOn│  builtOn│
-                     cli         react      mcp ──opens──▶ server.mcp
+                     cli         react      mcp ◀──serves── server.mcp (opened by the server)
 ```
 
 A projection builds on another for three reasons.
@@ -562,12 +554,12 @@ is missing, the same way a feature's needs are met ([`mounting.md`](mounting.md)
    in-process mode that runs the same command parser without a spawn. That would prove the parser but not the binary.
    CI would still run the binary.
 3. **React replay needs a real browser** in CI and on the Mac. That is the same need as browser signers (S-RC, the
-   runs-client spike).
+   proposed runs-client spike in `decisions/K1-kits.md` section 5).
 4. **"The same evidence" across projections assumes one trace per step.** The CLI's own process and MCP's OAuth
    exchange add spans. The rule sets transport spans aside by name, which means each projection must declare its
    transport span names.
-5. **Docs reads other mounts and infra reads environments.** Both widen `render`'s inputs past the model alone. If more
-   projections need that, `render` should take one `Project` value (model, mounts, environments) rather than growing
-   arguments.
+5. **Docs reads other mounts and infra reads environments.** That is why `render` takes one `project` value (model,
+   mount, mounts, environments) rather than the model alone. A projection that reads environments re-renders whenever
+   one changes; `impact` must know that.
 6. **A projection without a replay** (mobile today) must never look proved. The portal's proof matrix needs a
    `not proved here` state per projection, not only per operation.

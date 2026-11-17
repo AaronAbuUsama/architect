@@ -34,8 +34,8 @@ names.
 1. **One description.** What exists (things), how it changes (machines, operations), who may change it (roles), what is
    recorded (events, steps), what must hold (journeys). That is the blueprint; compiled, it is the model.
 2. **Many projections.** The server is the description projected onto a host. The SDK, CLI and MCP are projections onto
-   callers. Docs and the portal are projections onto readers. Solidity is a projection onto a chain. A world is a
-   projection onto a test. None of them is the system; each is a view of it.
+   callers. Docs and the portal are projections onto readers. Solidity is a projection onto a chain. A world is the
+   description running for a test. None of them is the system; each is a view of it.
 3. **Behaviour is the only freehand.** Handlers fill blanks in generated frames. Their types come from the declaration,
    so code that breaks the contract doesn't compile.
 4. **Evidence comes back under the same names.** Spans, events and refusals carry the names that came from paths. Evals
@@ -52,7 +52,7 @@ description and judged against it.
   plugins ─mount──▶ │  features   what else the system is           e.g. auth, wallets                  │
                     │  adapters   what is outside it                e.g. stripe, an EVM chain, MetaMask │
                     │  projections what it becomes                  e.g. server, sdk, cli, mcp, docs    │
-                    │  environments where each projection lives, which credentials exist, secret values │
+                    │  environments where each projection lives, credentials, settings, secret sources  │
                     └───────────────┬───────────────────────────────────────────────────────────────────┘
                                     │ compile
                                     ▼
@@ -93,9 +93,9 @@ description and judged against it.
 | **error** | a declared refusal, with an exit code and a stable refusal code |
 | **operation** | a verb on a thing: payload, answer, errors, move, `allowed`, steps, budget, `runs`; named by its path |
 | **read** | an operation that changes nothing and has no handler |
-| **step** | a named span inside an operation: a database write, an adapter call, a wait |
-| **role** | a right over one thing, decided by a rule, plus the ways in it accepts (`via`) |
-| **principal** | who is calling: a person, an agent acting for a person, a service (an outside system, through an adapter), or the system (the keeper) |
+| **step** | a named span inside an operation: a database write, a wait, a call (`Blueprint.step.call`: another operation, or an adapter's call), or a use of a feature's export (`Blueprint.step.use`) |
+| **role** | who may call: a right over one thing decided by a rule (`owner.of(...)`), a built-in role (`anyone`, `signedIn`), or a service role (`Blueprint.role(Payment, { service: stripe })`); any of them narrowed by way in (`.via(Via.session)`, `.notVia(Via.agent)`) |
+| **principal** | who is calling: anonymous, a person, an agent acting for a person, a service (an outside system, through an adapter's door), or the system (the keeper); see the table below |
 | **journey** | a story through real operations, played by a cast, written by a different agent from the builder |
 | **starting world** | a named setup, made by running operations, never by writing rows |
 
@@ -106,20 +106,25 @@ description and judged against it.
 | **plugin** | something built once that any project can mount: a feature, an adapter or a projection |
 | **feature** | a plugin that adds to what the system *is*: things, operations, handlers, journeys, exports. The app itself is the root feature |
 | **adapter** | a plugin that brings something *outside* into the description: calls out, events in, a principal kind, a stand-in for worlds |
-| **projection** | a plugin that makes the description *real* in one form: renders outputs, replays journeys, says where it runs and how it ships |
+| **projection** | a plugin that makes the description *real* in one form: renders outputs, replays journeys (if callers use it), says where it runs and how it ships |
 | **mount** | one file in `blueprint/<kind>/<name>.ts` that says "use this plugin here, with these choices"; the file's name is the mount's name |
-| **export** | something a feature or adapter offers your handlers (an internal command), such as `Payments.refund` |
-| **choice** | a setting a plugin offers at mount time, picked by reference from what the plugin has proved |
+| **export** | typed functions a feature offers your handlers (an internal command), with an implementation per host, such as `Payments.refund` or `Signer.sign`; used with `Blueprint.step.use` |
+| **call** | what an adapter offers: one operation of the outside system, typed from its contract, such as `stripe.calls.refunds.create`; called with `Blueprint.step.call` |
+| **need** | a plugin another plugin requires, named in its descriptor (`needs: [auth, Blueprint.need(eip1193, { when: … })]`); the app mounts it once |
+| **mount verbs** | the only four things a mount may say: **choose** (an option the plugin proved), **include** (which of an adapter's calls and events are reachable), **narrow** (fewer ways in, fewer operations), **omit** (drop an operation) |
+| **choice** | an option a plugin offers at mount time, picked by reference from what the plugin has proved; never varies by environment |
+| **setting** | a value a plugin declares that each environment gives (`wallets.settings.chains.is([1, 8453])`), such as which chains, which region |
 
 ### Where code runs
 
 | Word | One meaning |
 |---|---|
-| **host** | a kind of machine code runs on: worker, node, browser, chain. A projection names its host; a client operation's code is written per host |
+| **host** | a kind of machine code runs on, one namespace: `Host.worker`, `Host.node`, `Host.browser`, `Host.chain`, `Host.native`, `Host.python`, and `Host.world` (an implementation used only in worlds, such as the Anvil-backed signer). A projection names its hosts; a client operation's code is written per host |
 | **runs** | where an operation's behaviour must execute: on the `server`, at the `client` (the caller's host), or on a `chain` |
-| **output** | a file or folder a projection writes under `generated/` |
-| **artifact** | what an output becomes when shipped: a deployed Worker, a published package, a released binary |
-| **environment** | one file per environment: where each projection lives (deployed at a domain, or released under a tag), which credential kinds it issues, where secret values come from |
+| **output** | a file or folder a projection writes, under `generated/<mount>/`; the one exception is a scaffold written once into `src/` (a handler, a contract) |
+| **artifact** | what an output becomes when shipped: a deployed Worker, a published package, a released binary, or a file kept in the repository (docs, the model) |
+| **door** | an entrance a server-hosted projection opens: the API, the MCP endpoint, an adapter's inbound endpoint, and in a world the world door (`/_world/*`) |
+| **environment** | one file per environment: where each projection lives (deployed at a domain, or released under a tag), which credential kinds it issues, its settings, and where each secret's value comes from |
 | **world** | a running copy of an environment, made for a purpose and destroyed after: its own storage, clock and cast |
 
 ### Proof
@@ -130,7 +135,17 @@ description and judged against it.
 | **eval** | a rule over evidence: nine built in (answer shape, declared errors, machine path, events, who may call, steps, budget, coverage, explainability), a tenth for time |
 | **verdict** | all of an operation's evals at one revision in one environment; only CI writes one |
 | **stale** | a verdict whose evidence predates a change to something the operation uses |
-| **uses** | the model's dependency graph: what an operation reads, so a change knows what it makes stale (the word "dependency" is retired) |
+| **uses** | the model's uses graph: what an operation reads, so a change knows what it makes stale (the word "dependency" is retired) |
+
+### Principals and how each gets in
+
+| Kind | How it gets in |
+|---|---|
+| anonymous | nothing; only `anyone` admits it |
+| person | `Via.session`, `Via.key` or `Via.device` |
+| agent, acting for a person | `Via.agent`: an OAuth token from the MCP sign-in |
+| service | an adapter's door: the outside system's own verification, such as Stripe's signature |
+| system | the keeper's own key, limited to time moves |
 
 ### Audiences
 
@@ -145,7 +160,7 @@ description and judged against it.
 
 - **A feature's operations meet projections through two fields.** `runs` decides which hosts can carry it; `allowed`,
   with `via`, decides which callers may reach it. A projection includes an operation when it can host it and its
-  callers' way in is admitted. Nothing names a surface by hand.
+  callers' way in is admitted. Nothing names a way in by hand.
 - **Features need adapters and other features; they never contain them.** A payments feature *needs* the Stripe
   adapter; the app mounts Stripe once, and the feature, the app's handlers and the webhook share that one mount, its
   secret and its stand-in.
@@ -158,13 +173,13 @@ description and judged against it.
 - **Environments bind; worlds run.** An environment says where each projection lives and where secrets come from; a
   world is one running copy of it, with stand-ins for every adapter that has one.
 - **Proof follows the plugin kinds.** A feature brings journeys. An adapter brings a conformance test against its
-  stand-in. A projection replays every journey through itself.
+  stand-in. A projection that callers use replays the journeys it takes; the rest say "not proved by replay".
 
 ## Each plugin brings its proof
 
 - **A feature** brings journeys, proved in its own example app and again in every app that mounts it.
-- **A projection** replays every journey through itself: the same story through the SDK, the CLI and MCP must leave the
-  same evidence. Today journeys call the server over raw HTTP (`prove/.../journeys/internal/world.ts:85`), so the SDK,
+- **A projection that callers use** replays every journey it takes through itself: the same story through the SDK, the
+  CLI and MCP must leave the same evidence. Docs, infrastructure and the like are "not proved by replay". Today journeys call the server over raw HTTP (`prove/.../journeys/internal/world.ts:85`), so the SDK,
   CLI and MCP are never proved by a journey.
 - **An adapter** brings a conformance test against a stand-in that runs in the world.
 
@@ -183,7 +198,7 @@ generated/         everything else; never edited
 ```
 
 There is no loose config file: what the app becomes is mounted like everything else ([`mounting.md`](mounting.md)
-grades this against keeping projections in `architect.config.ts`).
+grades this against keeping projections in a config file).
 
 ## The loops
 

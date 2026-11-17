@@ -27,7 +27,7 @@ secrets: { RELAYER_KEY: Secrets.secret.stored() },
 - Locally, `prove` writes every named secret into `.architect/environments/<env>/secrets.env`, mode 0600, and hands it
   to wrangler as `--env-file`, so no value is on a command line (`prove/src/modules/environments/internal/secrets.ts`,
   D3 #2 and #20). Every name, `stored` included, gets a generated value locally.
-- `AUTH_SECRET` is built in. A world makes a fresh one per run (`host-cloudflare/src/modules/world/types.ts:7-8`).
+- Today `AUTH_SECRET` is built in (under this frame, the auth feature declares it). A world makes a fresh one per run (`host-cloudflare/src/modules/world/types.ts:7-8`).
 - The model holds names and how each gets its value, never a value (D3 #22).
 - Field visibility (`public`, `private`, `secret`) keeps secret *data* out of spans, logs and MCP answers (L2.P,
   `target-effect/src/modules/handler/internal/attributes.ts:2`). That is a different thing: a secret field is data a
@@ -64,6 +64,13 @@ export const webhookSigning = Blueprint.secret.stored({ describe: "The endpoint'
 export const invoiceSigning = Blueprint.secret.generated({ bytes: 32 });
 ```
 
+A secret is a runtime secret unless it says otherwise:
+
+```ts
+// @blueprint/npm/blueprint/secrets.ts: the npm release projection's token, held by CI only
+export const publishToken = Blueprint.secret.stored({ kind: Secret.release, describe: "An npm automation token" });
+```
+
 The secret's name in the environment comes from the mount and the export, so it is never written by hand:
 
 | Declared | Mount | Name in the environment |
@@ -78,14 +85,14 @@ unmounting removes them.
 
 ## Using one
 
-Only the code of the plugin that declared a secret can read it, and it reads it as a dependency, at the composition
-root. A handler never reads the environment:
+Only the code of the plugin that declared a secret can read it, and it is given the value as a service, at the
+composition root. A handler never reads the environment:
 
 ```ts
-// @blueprint/stripe/src/server.ts: the adapter's own layer, given its secret by the generated server
+// @blueprint/stripe, its /worker entry: the adapter's own layer, given its secret by the generated server
 export const layer = Blueprint.layer(stripe, ({ secrets }) =>
   Effect.gen(function* () {
-    const key = yield* secrets.apiKey;            // Redacted<string>: printing it shows <redacted>
+    const key = yield* secrets.apiKey;            // stripe.secrets.apiKey, as Redacted<string>: printing it shows <redacted>
     return makeClient({ apiKey: Redacted.value(key) });
   }),
 );
@@ -96,7 +103,8 @@ export const layer = Blueprint.layer(stripe, ({ secrets }) =>
 steps.refund({ payment_intent: payment, amount })
 ```
 
-An app's own secret is read the same way, through its own `secrets` export, in its own `src/services.ts`. The generated
+An app's own secret is read the same way: through its own `secrets` export, by the app's own service layer in `src/`,
+the one place the app builds the services its handlers use. The generated
 server (`generated/server/main.ts`) is the one place that reads the environment and hands each layer its secrets. That
 follows the house rule that only `main.ts` reads `process.env`, and it is what makes every handler testable without a
 secret.
@@ -152,6 +160,11 @@ one to a file in the repository. `promote` refuses an environment with a missing
 A builder agent never sees a value ([`builder.md`](builder.md)). Its tools run operations in worlds, where every secret
 is generated or a test value. It can list which secrets exist and whether they're set, which is all it needs to tell a
 person "production needs `STRIPE_WEBHOOK_SIGNING` before this can be promoted".
+
+One builder secret is proposed: a read-only query token for staging's telemetry, so an unattended builder can read
+staging redacted ([`builder.md`](builder.md) section 9). The builder projection declares it
+(`Blueprint.secret.stored({ kind: Secret.builder })`), it is held where the harness runs, never in a Worker, and it is
+created only with Aaron's written yes.
 
 ## Today vs proposed
 

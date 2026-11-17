@@ -64,7 +64,7 @@ type Operation = "allowance.grant" | "allowance.spend" | "allowance.revoke" | "a
 type Refusal<O extends Operation> = O extends "allowance.spend" ? "AllowanceExceeded" | "AllowanceNotActive" | "NotAllowed" : string;
 type StartingWorld = "founded" | "funded" | "invited";
 type Env = "local" | "test" | "staging";            // never "production": see section 5
-type Through = "http" | "sdk" | "cli" | "mcp";      // the projections that can replay a journey
+type Through = "api" | "sdk" | "cli" | "mcp" | "react"; // generated from the mounts that have a replay: sdk in node, react in a real browser
 
 interface Bp {
   model: {
@@ -189,7 +189,7 @@ switch, for the `pi` runner on open models. H2's benchmarks then measure which w
 
 ## 5. Our own telemetry tools, not a vendor's MCP
 
-O1 already chose one surface, `architect telemetry trace`, "the one agent surface"
+O1 already chose one tool, `architect telemetry trace`, "the one agent surface"
 (`packages/cli/src/modules/telemetry/README.md`). It allowed PostHog's MCP read-only at most and Axiom's never
 (`O1-observability.md:293-295`). `bp.telemetry` takes that to its end: the builder needs no vendor MCP at all.
 
@@ -244,7 +244,7 @@ An unattended run on `allowance.spend`, with the handler scaffolded blank.
 → write src/allowance/spend.ts        (checks the limit before recording)
 → run  const w = bp.world.start("funded"); … return { a, b }
   { a: { answered: { remaining: 380n } }, b: { refused: "AllowanceExceeded" } }
-→ run  return bp.prove({ operations: ["allowance.spend"], through: ["http", "sdk", "cli"] }).ok
+→ run  return bp.prove({ operations: ["allowance.spend"], through: ["api", "sdk", "cli"] }).ok
   true
   done. The scorer then puts the journeys back and runs check and prove itself (H2.7).
 ```
@@ -275,7 +275,7 @@ Eight calls in all, and the agent's context never held a raw trace.
 
 **Risks:**
 
-- **QuickJS bindings are a surface.** Every host function is a door out of the sandbox. Keep them few, read-only
+- **QuickJS bindings are an attack surface.** Every host function is a door out of the sandbox. Keep them few, read-only
   except `world` (which only makes local worlds), and test them as their own module.
 - **`pi-codemode` churns with Pi.** It is held behind the H1 seam like the rest of Pi. If it goes, `quickjs-emscripten`
   directly is about the same size.
