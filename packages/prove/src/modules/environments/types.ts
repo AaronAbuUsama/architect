@@ -58,5 +58,7 @@ export interface EnvironmentsApi {
   }) => Effect.Effect<Up, EnvironmentFailed>;
   /** Stop it, and everything it started. An environment that isn't running is not an error. */
   readonly down: (options: { readonly root: string; readonly name: string }) => Effect.Effect<void, EnvironmentFailed>;
+  /** Verify the same live process still serves the expected revision and bytes; a restart, even back to the same bytes, fails. */
+  readonly verify: (options: { readonly root: string; readonly name: string; readonly pid: number; readonly revision: string; readonly sha256: string }) => Effect.Effect<void, EnvironmentFailed>;
   readonly status: (options: { readonly root: string; readonly name: string }) => Effect.Effect<Status, EnvironmentFailed>;
 }

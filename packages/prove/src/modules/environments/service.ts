@@ -12,6 +12,7 @@ import { environmentConfig, logbookOf } from "./internal/config.ts";
 import { startLogbook } from "./internal/logbook.ts";
 import { choosePort, files, reap, writePort } from "./internal/process.ts";
 import { NAME, dirOf, failed, io, status } from "./internal/status.ts";
+import { verify } from "./internal/identity.ts";
 import { ensureSecrets } from "./internal/secrets.ts";
 
 /** The environment as the blueprint declares it, and only one a long-lived workerd can run the revision's bundle for. */
@@ -99,4 +100,4 @@ const down: EnvironmentsApi["down"] = ({ root, name }) =>
     yield* reap(dirOf(root, name));
   });
 
-export const Environments: EnvironmentsApi = { up, down, status: ({ root, name }) => status(root, name) };
+export const Environments: EnvironmentsApi = { up, down, verify, status: ({ root, name }) => status(root, name) };

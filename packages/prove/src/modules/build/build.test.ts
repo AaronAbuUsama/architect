@@ -42,7 +42,7 @@ describe("build", () => {
     expect(statSync(first.main).mtimeMs).toBe(1000);
     expect(first.main).toBe(join(project.root, ".architect/artefacts", project.revision, "main.js"));
     expect(statSync(first.main).size).toBeGreaterThan(100_000);
-    expect(await run(Build.find(project.root, project.revision))).toEqual({ revision: project.revision, sha256: first.sha256, main: first.main });
+    expect(await run(Build.find(project.root, project.revision))).toEqual({ revision: project.revision, commit: git(project.root, "rev-parse", "HEAD"), sha256: first.sha256, main: first.main });
     expect(await run(Build.find(project.root, "0000000"))).toBeUndefined();
   });
 
@@ -67,7 +67,7 @@ describe("build", () => {
     renameSync(dirname(record), `${dirname(record)}.legacy`);
     const rebuilt = await run(Build.build(project.root));
     expect(rebuilt.sha256).toBe(old.sha256);
-    expect(await run(Build.find(project.root, project.revision))).toEqual({ revision: rebuilt.revision, sha256: rebuilt.sha256, main: rebuilt.main });
+    expect(await run(Build.find(project.root, project.revision))).toEqual({ revision: rebuilt.revision, commit: git(project.root, "rev-parse", "HEAD"), sha256: rebuilt.sha256, main: rebuilt.main });
     expect(readFileSync(join(`${dirname(record)}.legacy`, "bundle.json"), "utf8")).toBe(JSON.stringify({ revision: old.revision, sha256: old.sha256 }));
   });
 

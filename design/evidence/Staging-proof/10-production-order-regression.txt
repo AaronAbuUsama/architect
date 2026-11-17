@@ -1,0 +1,231 @@
+$ pnpm exec vitest run --root packages/prove src/modules/promote/staging.test.ts -t records no new production
+# commit 8f50320 · 2026-11-17T02:58:21Z · exit 1 (expected 1) · 15.2s
+
+
+ RUN  v4.1.12 ./packages/prove
+
+ ❯ src/modules/promote/staging.test.ts (7 tests | 1 failed | 6 skipped) 13738ms
+     × records no new production release or carried pass when existing package bytes conflict 8156ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/promote/staging.test.ts > publication identity > records no new production release or carried pass when existing package bytes conflict
+AssertionError: expected [ { seq: 16, …(10) }, …(14) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   {
++     "environment": "production",
++     "event_name": null,
++     "operation": "allowance.get",
++     "ref": "refs/heads/main",
++     "repository": "acme/acme",
++     "revision": "e725d3e",
++     "seq": 16,
++     "sha": null,
++     "sha256": "e15c74e36232b76b3971e74761a42fa3d742bad206a031573eb025030405b9fd",
++     "verdict": "pass",
++     "workflow": "architect",
++   },
++   {
++     "environment": "production",
++     "event_name": null,
++     "operation": "allowance.grant",
++     "ref": "refs/heads/main",
++     "repository": "acme/acme",
++     "revision": "e725d3e",
++     "seq": 17,
++     "sha": null,
++     "sha256": "e15c74e36232b76b3971e74761a42fa3d742bad206a031573eb025030405b9fd",
++     "verdict": "pass",
++     "workflow": "architect",
++   },
++   {
++     "environment": "production",
++     "event_name": null,
++     "operation": "allowance.revoke",
++     "ref": "refs/heads/main",
++     "repository": "acme/acme",
++     "revision": "e725d3e",
++     "seq": 18,
++     "sha": null,
++     "sha256": "e15c74e36232b76b3971e74761a42fa3d742bad206a031573eb025030405b9fd",
++     "verdict": "pass",
++     "workflow": "architect",
++   },
++   {
++     "environment": "production",
++     "event_name": null,
++     "operation": "allowance.spend",
++     "ref": "refs/heads/main",
++     "repository": "acme/acme",
++     "revision": "e725d3e",
++     "seq": 19,
++     "sha": null,
++     "sha256": "e15c74e36232b76b3971e74761a42fa3d742bad206a031573eb025030405b9fd",
++     "verdict": "pass",
++     "workflow": "architect",
++   },
++   {
++     "environment": "production",
++     "event_name": null,
++     "operation": "api-key.create",
++     "ref": "refs/heads/main",
++     "repository": "acme/acme",
++     "revision": "e725d3e",
++     "seq": 20,
++     "sha": null,
++     "sha256": "e15c74e36232b76b3971e74761a42fa3d742bad206a031573eb025030405b9fd",
++     "verdict": "pass",
++     "workflow": "architect",
++   },
++   {
++     "environment": "production",
++     "event_name": null,
++     "operation": "invitation.accept",
++     "ref": "refs/heads/main",
++     "repository": "acme/acme",
++     "revision": "e725d3e",
++     "seq": 21,
++     "sha": null,
++     "sha256": "e15c74e36232b76b3971e74761a42fa3d742bad206a031573eb025030405b9fd",
++     "verdict": "pass",
++     "workflow": "architect",
++   },
++   {
++     "environment": "production",
++     "event_name": null,
++     "operation": "invitation.revoke",
++     "ref": "refs/heads/main",
++     "repository": "acme/acme",
++     "revision": "e725d3e",
++     "seq": 22,
++     "sha": null,
++     "sha256": "e15c74e36232b76b3971e74761a42fa3d742bad206a031573eb025030405b9fd",
++     "verdict": "pass",
++     "workflow": "architect",
++   },
++   {
++     "environment": "production",
++     "event_name": null,
++     "operation": "invitation.send",
++     "ref": "refs/heads/main",
++     "repository": "acme/acme",
++     "revision": "e725d3e",
++     "seq": 23,
++     "sha": null,
++     "sha256": "e15c74e36232b76b3971e74761a42fa3d742bad206a031573eb025030405b9fd",
++     "verdict": "pass",
++     "workflow": "architect",
++   },
++   {
++     "environment": "production",
++     "event_name": null,
++     "operation": "membership.get",
++     "ref": "refs/heads/main",
++     "repository": "acme/acme",
++     "revision": "e725d3e",
++     "seq": 24,
++     "sha": null,
++     "sha256": "e15c74e36232b76b3971e74761a42fa3d742bad206a031573eb025030405b9fd",
++     "verdict": "pass",
++     "workflow": "architect",
++   },
++   {
++     "environment": "production",
++     "event_name": null,
++     "operation": "organization.create",
++     "ref": "refs/heads/main",
++     "repository": "acme/acme",
++     "revision": "e725d3e",
++     "seq": 25,
++     "sha": null,
++     "sha256": "e15c74e36232b76b3971e74761a42fa3d742bad206a031573eb025030405b9fd",
++     "verdict": "pass",
++     "workflow": "architect",
++   },
++   {
++     "environment": "production",
++     "event_name": null,
++     "operation": "organization.get",
++     "ref": "refs/heads/main",
++     "repository": "acme/acme",
++     "revision": "e725d3e",
++     "seq": 26,
++     "sha": null,
++     "sha256": "e15c74e36232b76b3971e74761a42fa3d742bad206a031573eb025030405b9fd",
++     "verdict": "pass",
++     "workflow": "architect",
++   },
++   {
++     "environment": "production",
++     "event_name": null,
++     "operation": "person.sign-up",
++     "ref": "refs/heads/main",
++     "repository": "acme/acme",
++     "revision": "e725d3e",
++     "seq": 27,
++     "sha": null,
++     "sha256": "e15c74e36232b76b3971e74761a42fa3d742bad206a031573eb025030405b9fd",
++     "verdict": "pass",
++     "workflow": "architect",
++   },
++   {
++     "environment": "production",
++     "event_name": null,
++     "operation": "session.show",
++     "ref": "refs/heads/main",
++     "repository": "acme/acme",
++     "revision": "e725d3e",
++     "seq": 28,
++     "sha": null,
++     "sha256": "e15c74e36232b76b3971e74761a42fa3d742bad206a031573eb025030405b9fd",
++     "verdict": "pass",
++     "workflow": "architect",
++   },
++   {
++     "environment": "production",
++     "event_name": null,
++     "operation": "session.sign-in",
++     "ref": "refs/heads/main",
++     "repository": "acme/acme",
++     "revision": "e725d3e",
++     "seq": 29,
++     "sha": null,
++     "sha256": "e15c74e36232b76b3971e74761a42fa3d742bad206a031573eb025030405b9fd",
++     "verdict": "pass",
++     "workflow": "architect",
++   },
++   {
++     "environment": "production",
++     "event_name": null,
++     "operation": "system.health",
++     "ref": "refs/heads/main",
++     "repository": "acme/acme",
++     "revision": "e725d3e",
++     "seq": 30,
++     "sha": null,
++     "sha256": "e15c74e36232b76b3971e74761a42fa3d742bad206a031573eb025030405b9fd",
++     "verdict": "pass",
++     "workflow": "architect",
++   },
++ ]
+
+ ❯ src/modules/promote/staging.test.ts:222:122
+    220|     expect(result._tag).toBe("Failure");
+    221|     if (result._tag === "Failure" && "message" in result.failure) expe…
+    222|     expect(await request(`${logbook}/verdicts?revision=${built.revisio…
+       |                                                                                                                          ^
+    223|     expect((await request(`${logbook}/releases/latest`)).status).toBe(…
+    224|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 skipped (7)
+   Start at  02:58:06
+   Duration  14.58s (transform 507ms, setup 0ms, import 743ms, tests 13.74s, environment 0ms)

@@ -7,6 +7,8 @@ export class BuildFailed extends Data.TaggedError("BuildFailed")<{ readonly mess
 export interface Built {
   /** The git commit, `git rev-parse --short HEAD`. */
   readonly revision: string;
+  /** Full source commit, captured by the immutable manifest. */
+  readonly commit: string;
   /** Bare hex, as `/_architect/bundle` reports it. */
   readonly sha256: string;
   /** Absolute path of the bundle. */
@@ -22,6 +24,8 @@ export interface BuildApi {
    */
   readonly build: (root: string, env?: Readonly<Record<string, string | undefined>>) => Effect.Effect<Built & { readonly dirty: boolean }, BuildFailed>;
   /** Whether the working tree differs from the commit (`git status --porcelain`, so ignored files don't count): the revision's source is then not what is on disk. */
+  /** Require the same clean full commit before consuming a proof or publishing its captured source. */
+  readonly unchanged: (root: string, commit: string) => Effect.Effect<void, BuildFailed>;
   readonly dirty: (root: string) => Effect.Effect<boolean, BuildFailed>;
   /** A revision's kept artefact, checked against the hash recorded when it was built; none if it was never built. */
   readonly find: (root: string, revision: string) => Effect.Effect<Built | undefined, BuildFailed>;

@@ -30,3 +30,10 @@ its folder's, as the generators name it) at one version, as `blueprint/environme
 `--dry-run` builds the packages (so the file lists are the real ones) and sends, writes to the tap and downloads nothing.
 Test: `publish.test.ts`, through the command with a real logbook, a real Verdaccio (`test/verdaccio.yaml`: the project's own names are
 never proxied to npm), an install in a fresh folder, and real Homebrew. Ports 9050 to 9069.
+
+Promotion supplies a full `sourceRevision`. The compiler, SDK/CLI staging and SEA read a private archive of that
+commit, with ancestor configs preserved for nested projects. Installed dependencies remain trusted tooling.
+Each invocation owns `.architect/publish/<version>/run-*/` under the original project; returned package paths and
+formula tarball URLs survive source cleanup and later invocations. An existing npm version is reusable only when its
+reported integrity matches npm pack's integrity for the staged captured files. Unknown or different bytes fail closed;
+partial publication is observable as an error, never a successful promotion (D3 #166–169).

@@ -219,9 +219,9 @@ describe("architect publish", () => {
   it.skipIf(!brewHere)("`brew install <tap>/<formula>` installs the CLI binary, which prints its version and `ok` from a running world", { timeout: 900_000 }, async () => {
     const formulaFile = join(root, ".architect/tap/Formula", `${formula}.rb`);
     const text = readFileSync(formulaFile, "utf8");
-    const target = hostTarget();
-    const sums = readFileSync(join(root, `.architect/publish/1.1.0/acme-1.1.0-${target}.tar.gz`));
-    expect(text).toContain(`url "file://${join(root, `.architect/publish/1.1.0/acme-1.1.0-${target}.tar.gz`)}"`);
+    const tarball = /url "file:\/\/([^"\n]+)"/.exec(text)![1]!;
+    const sums = readFileSync(tarball);
+    expect(tarball).toContain(join(root, ".architect/publish/1.1.0/run-"));
     expect(text).toContain(`sha256 "${(await import("node:crypto")).createHash("sha256").update(sums).digest("hex")}"`);
     // One commit per run that changed the formula (the binary is built again each run, so its hash is new): the newest is this version's.
     expect(git(join(root, ".architect/tap"), "log", "--format=%s").split("\n")[0]).toBe(`${formula} 1.1.0`);

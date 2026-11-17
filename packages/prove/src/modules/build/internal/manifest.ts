@@ -28,5 +28,5 @@ export const read = (dir: string, revision: string) =>
     if (manifest.revision !== revision || !manifest.commit.startsWith(revision)) return yield* new BuildFailed({ message: `the artefact's source commit does not match ${revision}` });
     const actual = yield* io(() => digest(main));
     if (actual !== manifest.sha256) return yield* new BuildFailed({ message: `${main} no longer matches the hash recorded when it was built` });
-    return { revision, sha256: actual, main };
+    return { revision, commit: manifest.commit, sha256: actual, main };
   });

@@ -23,3 +23,9 @@ bundle `architect build` kept for the revision (the git commit) to an environmen
 
 Test: `promote.test.ts`, the L2.05 done-when checks on a copy of acme under git, through the command, with the real logbook,
 issuer and environments on ports 9030 to 9049.
+
+After a staging proof, source must still be the captured clean full commit and staging must still be the same live
+PID/revision/hash before any proof or publication fact is consumed. Publishing uses the captured Git source. The live
+incarnation is checked again before final success facts; source edits after publication capture cannot affect packages.
+Production publishes/verifies package bytes before NEW release/carried facts, then records only missing matching
+carried passes. A retry after an interrupted release completes missing passes without duplicating complete rows.

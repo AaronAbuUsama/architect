@@ -1,0 +1,20 @@
+{
+  "step": "Staging-proof",
+  "stage": "Stage 3 · shipping on local worlds (Gate 2)",
+  "title": "Stable proof identity and captured publication source",
+  "summary": "Proofs pin a clean full source commit and a live environment PID/revision/hash. Promotion publication archives that commit and owns unique durable output directories under the original project. Existing npm versions are reused only for matching npm pack integrity. Publication succeeds before new production release/pass facts; interrupted releases complete only missing carried facts on retry. Resolved diagnostic captures are retained unchanged in attempts/ with causes and resolutions in attempts/README.md. Current acceptance is captured in 13-complete-boundaries and 14-workspace-checks; no history was relabeled.",
+  "proves": "A real staging A-to-B change, A-to-B-to-A rollback and proof-time source mutation refuse before model storage, prerelease publication or passing verdicts. The installed SDK and CLI still contain captured committed-A when original source changes after capture. Package/SEA paths belong to each invocation and earlier tarballs/formula URLs stay valid after source cleanup. Different or unknown existing npm bytes refuse; matching bytes are reused. A publication conflict creates no new release/pass facts. An interruption after a real persisted release is retried to complete every matching carried pass, then repeated without duplicate rows. Actual nested examples/acme snapshot staging works with ancestor configs and installed tooling. Four focused test files pass all 22 tests, with all-project lint/typecheck and generated drift checks green.",
+  "captions": {
+    "01-fails-first": "Before guards: real staging replacement and source edits incorrectly return success.",
+    "03-publication-regressions-before": "Before publication fixes: installed content follows mutable source, output paths collide and conflicting versions report reuse.",
+    "04-rollback-fails-before-boundary": "Hash-only identity incorrectly accepts a real A-to-B-to-A process restart.",
+    "07-nested-monorepo-snapshot": "Public Publish.run stages the actual nested acme project at a captured full commit, retaining ancestor config/tool resolution and durable output.",
+    "08-publication-final": "Real npm install verifies captured SDK/CLI content, matching reuse, conflict rejection and invocation-owned real SEA/tarball outputs.",
+    "10-production-order-regression": "Before reordering: a real integrity conflict still leaves new carried production passes.",
+    "11-all-focused-regressions": "The original proof/publication fixes and compatibility checks pass before adding the final partial-release sibling.",
+    "12-partial-release-before": "A real persisted release interrupted before carried verdicts incorrectly retries success with missing facts.",
+    "13-complete-boundaries": "Final real-service acceptance: all 22 tests across proof identity, build, publication, SEA, Homebrew and retry boundaries pass.",
+    "14-workspace-checks": "Nx reset/sync, all 16 projects lint/typecheck, sync check and diff whitespace check pass.",
+    "15-reproducible-nested-snapshot": "The durable evidence-entry version of the same actual nested-monorepo snapshot check; two staged packages remain usable after source cleanup."
+  }
+}

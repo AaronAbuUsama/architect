@@ -1,0 +1,95 @@
+$ pnpm exec vitest run --root packages/prove src/modules/promote/staging.test.ts -t publication identity
+# commit 8f50320 · 2026-11-17T02:51:28Z · exit 1 (expected 0) · 239.6s
+
+
+ RUN  v4.1.12 ./packages/prove
+
+
+<--- Last few GCs --->
+
+[1067:0x7a6740c000]   238136 ms: Mark-Compact (reduce) 4095.8 (4096.9) -> 4095.7 (4096.9) MB, pooled: 0.0 MB, 6607.19 / 0.00 ms (average mu = 0.126, current mu = 0.000) last resort; GC in old space requested
+
+FATAL ERROR: Ineffective mark-compacts near heap limit Allocation failed - JavaScript heap out of memory
+----- Native stack trace -----
+
+ 1: 0x1021ab690 node::(anonymous namespace)::DefaultAbortHandler(char const*, char const*) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+ 2: 0x1021ab8ec node::OOMErrorHandler(char const*, v8::OOMDetails const&) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+ 3: 0x1024129c8 v8::internal::V8::FatalProcessOutOfMemory(v8::internal::Isolate*, char const*, v8::OOMDetails const&) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+ 4: 0x102672a1c v8::internal::Heap::stack() [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+ 5: 0x102670cb0 v8::internal::Heap::CollectGarbage(v8::internal::AllocationSpace, v8::internal::GarbageCollectionReason, v8::GCCallbackFlags, v8::internal::PerformHeapLimitCheck, v8::internal::PerformIneffectiveMarkCompactCheck) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+ 6: 0x10267137c v8::internal::Heap::CollectAllAvailableGarbage(v8::internal::GarbageCollectionReason) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+ 7: 0x102664b58 v8::internal::HeapAllocator::RetryCustomAllocate(v8::base::FunctionRef<bool ()>, v8::internal::AllocationType) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+ 8: 0x1026643c8 v8::internal::HeapAllocator::AllocateRawSlowPath(v8::internal::HeapAllocator::AllocationRetryMode, int, v8::internal::AllocationType, v8::internal::AllocationOrigin, v8::internal::AllocationAlignment, v8::internal::AllocationHint) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+ 9: 0x10262cd20 v8::internal::FactoryBase<v8::internal::Factory>::NewRawOneByteString(unsigned int, v8::internal::AllocationType, v8::internal::AllocationHint) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+10: 0x10262cb68 v8::internal::FactoryBase<v8::internal::Factory>::NewStringFromOneByte(v8::base::Vector<unsigned char const>, v8::internal::AllocationType) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+11: 0x10262d1f8 v8::internal::FactoryBase<v8::internal::Factory>::SmiToString(v8::internal::Tagged<v8::internal::Smi>, v8::internal::NumberCacheMode) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+12: 0x102850434 v8::internal::(anonymous namespace)::ElementsAccessorBase<v8::internal::(anonymous namespace)::TypedElementsAccessor<(v8::internal::ElementsKind)18>, v8::internal::(anonymous namespace)::ElementsKindTraits<(v8::internal::ElementsKind)18>>::CollectValuesOrEntries(v8::internal::Isolate*, v8::internal::DirectHandle<v8::internal::JSObject>, v8::internal::DirectHandle<v8::internal::FixedArray>, bool, unsigned int*, v8::internal::PropertyFilter) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+13: 0x10291c830 v8::internal::FastGetOwnValuesOrEntries(v8::internal::Isolate*, v8::internal::DirectHandle<v8::internal::JSReceiver>, bool, v8::internal::Handle<v8::internal::FixedArray>*) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+14: 0x10291ce64 v8::internal::GetOwnValuesOrEntries(v8::internal::Isolate*, v8::internal::DirectHandle<v8::internal::JSReceiver>, v8::internal::PropertyFilter, bool, bool) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+15: 0x102aba668 v8::internal::Runtime_ObjectEntries(int, unsigned long*, v8::internal::Isolate*) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+16: 0x103184cac Builtins_CEntry_Return1_ArgvOnStack_NoBuiltinExit [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+17: 0x103160f00 Builtins_ObjectEntries [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+18: 0x1030e1424 Builtins_InterpreterEntryTrampoline [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+19: 0x1030e1424 Builtins_InterpreterEntryTrampoline [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+20: 0x1030e1424 Builtins_InterpreterEntryTrampoline [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+21: 0x1030e1424 Builtins_InterpreterEntryTrampoline [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+22: 0x1228d5240 
+23: 0x1227f359c 
+24: 0x1030e1424 Builtins_InterpreterEntryTrampoline [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+25: 0x10311f764 Builtins_AsyncFunctionAwaitResolveClosure [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+26: 0x1031fd458 Builtins_PromiseFulfillReactionJob [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+27: 0x10310e904 Builtins_RunMicrotasks [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+28: 0x1030de678 Builtins_JSRunMicrotasksEntry [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+29: 0x102593290 v8::internal::(anonymous namespace)::Invoke(v8::internal::Isolate*, v8::internal::(anonymous namespace)::InvokeParams const&) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+30: 0x102593a18 v8::internal::(anonymous namespace)::InvokeWithTryCatch(v8::internal::Isolate*, v8::internal::(anonymous namespace)::InvokeParams const&) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+31: 0x102593b44 v8::internal::Execution::TryRunMicrotasks(v8::internal::Isolate*, v8::internal::MicrotaskQueue*) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+32: 0x1047af1cc v8::internal::MicrotaskQueue::RunMicrotasks(v8::internal::Isolate*) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+33: 0x1047af510 v8::internal::MicrotaskQueue::PerformCheckpoint(v8::Isolate*) (.cold.1) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+34: 0x1025c3e88 v8::internal::MicrotaskQueue::PerformCheckpoint(v8::Isolate*) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+35: 0x1030e3320 Builtins_CallApiCallbackOptimizedNoProfiling [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+36: 0x1228ddf04 
+37: 0x1030de788 Builtins_JSEntryTrampoline [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+38: 0x1030de478 Builtins_JSEntry [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+39: 0x1025932c0 v8::internal::(anonymous namespace)::Invoke(v8::internal::Isolate*, v8::internal::(anonymous namespace)::InvokeParams const&) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+40: 0x102592c94 v8::internal::Execution::Call(v8::internal::Isolate*, v8::internal::DirectHandle<v8::internal::Object>, v8::internal::DirectHandle<v8::internal::Object>, v8::base::Vector<v8::internal::DirectHandle<v8::internal::Object> const>) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+41: 0x102423158 v8::Function::Call(v8::Isolate*, v8::Local<v8::Context>, v8::Local<v8::Value>, int, v8::Local<v8::Value>*) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+42: 0x10209e334 node::InternalCallbackScope::Close() [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+43: 0x10209e5f0 node::InternalMakeCallback(node::Environment*, v8::Local<v8::Object>, v8::Local<v8::Object>, v8::Local<v8::Function>, int, v8::Local<v8::Value>*, node::async_context, v8::Local<v8::Value>) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+44: 0x1020b2898 node::AsyncWrap::MakeCallback(v8::Local<v8::Function>, int, v8::Local<v8::Value>*) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+45: 0x1022f456c node::StreamBase::CallJSOnreadMethod(long, v8::Local<v8::ArrayBuffer>, unsigned long, node::StreamBase::StreamBaseJSChecks) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+46: 0x1022f6694 node::EmitToJSStreamListener::OnStreamRead(long, uv_buf_t const&) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+47: 0x1022fad28 node::LibuvStreamWrap::OnUvRead(long, uv_buf_t const*) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+48: 0x1022fb2e4 node::LibuvStreamWrap::ReadStart()::$_1::__invoke(uv_stream_s*, long, uv_buf_t const*) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+49: 0x1030ca980 uv__stream_io [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+50: 0x1030d2124 uv__io_poll [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+51: 0x1030be240 uv_run [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+52: 0x10209f8e4 node::SpinEventLoopInternal(node::Environment*) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+53: 0x1021f86a0 node::NodeMainInstance::Run() [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+54: 0x102164204 node::Start(int, char**) [~/.vite-plus/js_runtime/node/26.13.1/bin/node]
+55: 0x18f508f90 start [/usr/lib/dyld]
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 1 unhandled error during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-pool]: Worker forks emitted error.
+ ❯ EventEmitter.onTaskError ../../node_modules/.pnpm/vitest@4.1.12_@opentelemetry+api@1.10.0_@types+node@24.19.2_vite@8.3.5_@types+node@24.1_86da054293acb62b0cc0edcca3196042/node_modules/vitest/dist/chunks/cli-api.B0Pz1_R7.js:3526:21
+ ❯ EventEmitter.emit ../../node:events:514:20
+ ❯ ChildProcess.emitUnexpectedExit ../../node_modules/.pnpm/vitest@4.1.12_@opentelemetry+api@1.10.0_@types+node@24.19.2_vite@8.3.5_@types+node@24.1_86da054293acb62b0cc0edcca3196042/node_modules/vitest/dist/chunks/cli-api.B0Pz1_R7.js:3092:22
+ ❯ ChildProcess.emit ../../node:events:514:20
+ ❯ ChildProcess._handle.onexit ../../node:internal/child_process:323:12
+
+Caused by: Error: Worker exited unexpectedly
+ ❯ ChildProcess.emitUnexpectedExit ../../node_modules/.pnpm/vitest@4.1.12_@opentelemetry+api@1.10.0_@types+node@24.19.2_vite@8.3.5_@types+node@24.1_86da054293acb62b0cc0edcca3196042/node_modules/vitest/dist/chunks/cli-api.B0Pz1_R7.js:3090:33
+ ❯ ChildProcess.emit ../../node:events:514:20
+ ❯ ChildProcess._handle.onexit ../../node:internal/child_process:323:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files   (1)
+      Tests  1 passed | 3 skipped (6)
+     Errors  1 error
+   Start at  02:47:29
+   Duration  238.52s (transform 871ms, setup 0ms, import 953ms, tests 0ms, environment 0ms)

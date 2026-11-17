@@ -3,7 +3,7 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { Effect } from "effect";
+import { Effect, Schema } from "effect";
 import { PublishFailed, type Env, type Staged } from "../types.ts";
 import { bundle, installedVersion } from "./bundle.ts";
 import { cleanEnv } from "./env.ts";
@@ -54,16 +54,17 @@ const declarations = (root: string, dir: string): Effect.Effect<string, PublishF
   });
 
 /** What `npm pack --dry-run` says the package holds: the files and their sizes, exactly as `npm publish` would send them. */
-const listing = (dir: string, env: Env): Effect.Effect<Staged["files"], PublishFailed> =>
-  Effect.try({
-    try: () => {
-      const run = spawnSync("npm", ["pack", "--dry-run", "--json", "--ignore-scripts"], { cwd: dir, encoding: "utf8", env: cleanEnv(env) });
-      if (run.status !== 0) throw new Error(`npm pack failed: ${run.stderr.trim().split("\n")[0] ?? ""}`);
-      const [pack] = JSON.parse(run.stdout) as ReadonlyArray<{ readonly files: ReadonlyArray<{ readonly path: string; readonly size: number }> }>;
-      return (pack?.files ?? []).map((f) => ({ path: f.path, bytes: f.size })).sort((a, b) => a.path.localeCompare(b.path));
-    },
-    catch: (e) => new PublishFailed({ message: String((e as { message?: unknown }).message ?? e) }),
-  });
+const packFailure = (e: unknown) => new PublishFailed({ message: String(e) });
+
+const listing = (dir: string, env: Env): Effect.Effect<Pick<Staged, "files" | "integrity">, PublishFailed> => Effect.gen(function* () {
+  const run = yield* Effect.try({ try: () => spawnSync("npm", ["pack", "--dry-run", "--json", "--ignore-scripts"], { cwd: dir, encoding: "utf8", env: cleanEnv(env) }), catch: packFailure });
+  if (run.status !== 0) return yield* new PublishFailed({ message: `npm pack failed: ${run.stderr?.trim().split("\n")[0] ?? run.error?.message ?? "unknown failure"}` });
+  const raw: unknown = yield* Effect.try({ try: () => JSON.parse(run.stdout), catch: packFailure });
+  const packs = yield* Schema.decodeUnknownEffect(Schema.Array(Schema.Struct({ integrity: Schema.String, files: Schema.Array(Schema.Struct({ path: Schema.String, size: Schema.Number })) })))(raw).pipe(Effect.mapError(() => new PublishFailed({ message: "npm pack did not report package integrity and files" })));
+  const pack = packs[0];
+  if (!pack?.integrity) return yield* new PublishFailed({ message: "npm pack did not report package integrity" });
+  return { integrity: pack.integrity, files: pack.files.map((f) => ({ path: f.path, bytes: f.size })).sort((a, b) => a.path.localeCompare(b.path)) };
+});
 
 /** Build `@<project>/<kind>` at `version` into `<out>/<kind>/`, ready for `npm publish`. */
 export const stage = (options: { readonly root: string; readonly env: Env; readonly project: string; readonly kind: Kind; readonly version: string; readonly out: string }): Effect.Effect<Staged, PublishFailed> =>
@@ -92,5 +93,5 @@ export const stage = (options: { readonly root: string; readonly env: Env; reado
       publishConfig: { access: "public" },
     };
     yield* Effect.try({ try: () => writeFileSync(join(dir, "package.json"), JSON.stringify(manifest, null, 2) + "\n"), catch: (e) => new PublishFailed({ message: String(e) }) });
-    return { name: manifest.name, version, dir, files: yield* listing(dir, options.env) } satisfies Staged;
+    return { name: manifest.name, version, dir, ...(yield* listing(dir, options.env)) } satisfies Staged;
   });
