@@ -1,0 +1,4 @@
+$ python3 -c from pathlib import Path; import re; s=Path("design/evidence/index.html").read_text(); forbidden=[r"/Users/",r"/home/",r"/tmp/",r"/private/var/folders/",r"[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}",r"\b(?:sk-|phx_|phc_)[A-Za-z0-9_-]{12,}"]; counts=[len(re.findall(p,s)) for p in forbidden]; print("Private display-pattern matches:", counts); assert not any(counts)
+# commit 38e3586 · 2026-11-17T01:40:11Z · exit 0 (expected 0) · 0.1s
+
+Private display-pattern matches: [0, 0, 0, 0, 0, 0]
