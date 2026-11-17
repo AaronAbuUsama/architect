@@ -1,0 +1,122 @@
+{
+  "command": "pnpm prove",
+  "baseCommit": "6a4fe088027e1df1b21bae7350356c9d0909b823",
+  "sourceSha256": "edd7ec467d46741a1358e1a52693712da9e09348d0b95bad2ab15cf97405df22",
+  "versions": {
+    "node": "v26.13.1",
+    "viem": "2.57.15",
+    "wrangler": "4.156.1",
+    "betterAuth": "1.7.15"
+  },
+  "startedAt": "2026-11-17T07:31:41.595Z",
+  "durationMillis": 4311,
+  "restartMillis": 1509,
+  "exitCode": 0,
+  "checks": [
+    {
+      "name": "reserved HTTP and inspector ports initially free",
+      "ok": true
+    },
+    {
+      "name": "real existing bearer session has no wallet initially",
+      "ok": true
+    },
+    {
+      "name": "anonymous cannot issue a challenge",
+      "ok": true
+    },
+    {
+      "name": "garbage bearer cannot issue a challenge",
+      "ok": true
+    },
+    {
+      "name": "unconfigured chain rejected",
+      "ok": true
+    },
+    {
+      "name": "another person cannot complete challenge",
+      "ok": true
+    },
+    {
+      "name": "another session of same person cannot complete challenge",
+      "ok": true
+    },
+    {
+      "name": "genuinely signed altered domain rejected",
+      "ok": true
+    },
+    {
+      "name": "genuinely signed altered URI rejected",
+      "ok": true
+    },
+    {
+      "name": "genuinely signed altered chain rejected",
+      "ok": true
+    },
+    {
+      "name": "genuinely signed altered address rejected",
+      "ok": true
+    },
+    {
+      "name": "genuinely signed altered nonce rejected",
+      "ok": true
+    },
+    {
+      "name": "genuinely signed altered expiry rejected",
+      "ok": true
+    },
+    {
+      "name": "genuinely signed altered not-before rejected",
+      "ok": true
+    },
+    {
+      "name": "another EOA signature rejected",
+      "ok": true
+    },
+    {
+      "name": "server challenge expiry rejected",
+      "ok": true
+    },
+    {
+      "name": "all invalid attempts leave associations empty",
+      "ok": true
+    },
+    {
+      "name": "two concurrent valid completions have exactly one winner",
+      "ok": true
+    },
+    {
+      "name": "link issues no replacement token or cookie",
+      "ok": true
+    },
+    {
+      "name": "link preserves existing person session and email",
+      "ok": true
+    },
+    {
+      "name": "existing session lists exactly the signed address",
+      "ok": true
+    },
+    {
+      "name": "completed challenge cannot replay",
+      "ok": true
+    },
+    {
+      "name": "association uniqueness prevents reassignment",
+      "ok": true
+    },
+    {
+      "name": "same persisted D1 retains original bearer person session and wallet across runtime restart",
+      "ok": true
+    },
+    {
+      "name": "consumed challenge remains consumed after runtime restart",
+      "ok": true
+    },
+    {
+      "name": "unconsumed challenge completes after runtime restart",
+      "ok": true
+    }
+  ],
+  "cleanup": true
+}
