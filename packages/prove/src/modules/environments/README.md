@@ -32,3 +32,16 @@ parameter: only an entry file reads `process.env`); a skipped sink comes back as
 `verify({ root, name, pid, revision, sha256 })` checks that the live process still has the captured PID and its own
 bundle endpoint still reports the expected bytes. It checks the live PID around the HTTP read, so an ordinary restart
 or rollback cannot inherit an in-flight proof merely by returning to the same hash (D3 #165).
+
+
+Persisted process ownership (D3 #190) is the same for `status` and `down`/restart cleanup. A PID file alone, a live
+process group, or the word `wrangler` is insufficient. Wide process inspection must show the Node-launched pinned
+wrangler entry in `dev` mode, with exactly this environment directory's `--config` and `--persist-to` arguments.
+The ordinary config is `<environment directory>/wrangler.jsonc`. A logbook uses its package-owned config beside the
+public package entry's `src` or `dist` folder, shared by every logbook, so its derived state directory must match too.
+Expected paths never come from the persisted bundle record. Both termination signals recheck this ownership.
+
+Foreign or stale markers are forgotten without signaling the process they name. Cleanup removes only this
+folder's derived Collector; state, secrets, config and port are retained. Fresh child-handle stop paths are unchanged.
+`process-ownership.test.ts` covers detached harmless sentinels, misleading command arguments and metadata, long paths
+with spaces, another actual wrangler, and logbooks sharing a config but using different state (ports 9160–9163).
