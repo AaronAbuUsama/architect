@@ -30,7 +30,7 @@ secrets: { RELAYER_KEY: Secrets.secret.stored() },
 - Today `AUTH_SECRET` is built in (under this frame, the auth feature declares it). A world makes a fresh one per run (`host-cloudflare/src/modules/world/types.ts:7-8`).
 - The model holds names and how each gets its value, never a value (D3 #22).
 - Field visibility (`public`, `private`, `secret`) keeps secret *data* out of spans, logs and MCP answers (L2.P,
-  `target-effect/src/modules/handler/internal/attributes.ts:2`). That is a different thing: a secret field is data a
+  `language-effect/src/modules/handler/internal/attributes.ts:2`). That is a different thing: a secret field is data a
   thing holds; a secret is a credential the system uses. These documents call the first "secret fields".
 
 What is missing: names are strings in each environment, nothing says which code needs which secret, and a handler has

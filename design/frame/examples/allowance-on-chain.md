@@ -153,7 +153,7 @@ signature replayed (projections section 3.9). A disagreement is a failed check b
 | | Today (`origin/layer/3`) | Proposed (layer 4) |
 |---|---|---|
 | Where it lives | `Lives = "database" \| "actor"` (`packages/forman/src/modules/things/types.ts:32`) | adds `Blueprint.chain({ contract, per })` |
-| Solidity | a shell: "Arrives in layer 4" (`packages/target-solidity/README.md`) | `@formants/language-solidity` plus the solidity projection |
+| Solidity | a shell: "Arrives in layer 4" (`packages/language-solidity/README.md`) | `@formants/language-solidity` plus the solidity projection |
 | Relayer, follower | not built (L3.06, L3.08 on layer 3) | two actors |
 | Conformance between languages | none | generated fuzz, Effect machine against contract |
 

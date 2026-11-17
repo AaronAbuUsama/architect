@@ -211,7 +211,7 @@ summaries cross into the sandbox, and only what the script returns crosses into 
 |---|---|---|
 | What it writes | only the brief's `write` paths | the `write` tool refuses any other path, using `realpath` and case-insensitive matching (check 4's rule, `04-agent-writes-a-handler.test.ts:27-32`); `check`'s forbidden list (`brief/service.ts:3-5`) |
 | What it never reads | journeys, starting worlds, tests, the evals' fixtures | `bp.files` treats them as absent (check 4's `DENIED`, `:18`); unattended, the copy has no journeys in it at all |
-| What it never sees | secret values; private and secret fields | worlds generate their own secrets and the tool layer never holds a value ([`secrets.md`](secrets.md)); fields are cut by visibility, as the generated MCP already does (`target-effect/src/modules/mcp/README.md:9`) |
+| What it never sees | secret values; private and secret fields | worlds generate their own secrets and the tool layer never holds a value ([`secrets.md`](secrets.md)); fields are cut by visibility, as the generated MCP already does (`language-effect/src/modules/mcp/README.md:9`) |
 | Which worlds it may call into | fresh local worlds, made for the script and destroyed after it | `bp.world.start` makes only local worlds; there is no binding that calls a deployed environment |
 | Which telemetry it may read | local and test whole; staging redacted; production never, unattended | `Env` has no `production`; a supervised session reads production through `forman watch` like a person |
 | How much it may spend | turns, dollars and wall clock per run | the harness's limits (H1.7: default $1 a run inside the $10 a day) |

@@ -27,7 +27,7 @@ environment's file, and the infrastructure it needs is derived from the model.
 
 | Stage | What happens | Today (`origin/layer/3`) |
 |---|---|---|
-| build | one bundle per revision, with its sha256; the server answers `GET /_architect/bundle` with both | built (D3 #21) |
+| build | one bundle per revision, with its sha256; the server answers `GET /_forman/bundle` with both | built (D3 #21) |
 | test | `test.ts` declares `lifetime: "2 hours"`: a world per pull request, made and destroyed as one unit | built locally |
 | verdicts | only CI writes them, signed with its OIDC token, into the logbook (a Durable Object, R2 for models) | built, with a local OIDC issuer standing in for GitHub's (D3 #8) |
 | promote | the exact bundle; refuses a dirty tree, an altered bundle, a revision without the verdicts it needs, naming what's missing | built (L2.05, `cli/src/main.ts:99`) |

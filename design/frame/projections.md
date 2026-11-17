@@ -369,7 +369,7 @@ export const solidity = Blueprint.projection({
 });
 ```
 
-- **Today:** `packages/target-solidity/src/index.ts` is a shell. Layer 4 builds it.
+- **Today:** `packages/language-solidity/src/index.ts` is a shell. Layer 4 builds it.
 - **Mounting:** it mounts automatically when a thing first `lives` on chain, because you cannot have one without the
   other. The mount file is written for you, with no choices.
 - **Note:** this projection is the only one that renders scaffolds into `src/` (`<Thing>.sol`). Every other scaffold
@@ -544,7 +544,7 @@ is missing, the same way a feature's needs are met ([`mounting.md`](mounting.md)
 | Proving clients | none; journeys use raw HTTP (`world.ts:85`) | each projection's `replay`, compared by the replay rule |
 | Client operations | refused by the compiler (`operations/types.ts:49-50`) | carried by projections whose host the feature ships code for |
 | Third-party projections | impossible | a package exporting `Blueprint.projection(...)` |
-| Solidity, keeper, infra | a shell (`target-solidity/src/index.ts`), later layers | projections mounted with their layer |
+| Solidity, keeper, infra | a shell (`language-solidity/src/index.ts`), later layers | projections mounted with their layer |
 
 ## 7. Open risks
 

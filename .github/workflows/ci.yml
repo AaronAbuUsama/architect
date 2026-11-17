@@ -2,7 +2,7 @@ name: ci
 
 on:
   push:
-    branches: [main, "layer/**"]
+    branches: [main, "layer/**", "m[0-9]"]
   pull_request:
 
 permissions:
@@ -68,3 +68,18 @@ jobs:
           echo "$brew_bin" >> "$GITHUB_PATH"
           "$brew_bin/brew" --version
       - run: NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static
+
+  # Gate M0 (M0.06): no old name outside the records, and the design docs build with every link resolving.
+  # Gates 1 and 2 above are the rest of `nx run e2e:m0`, run as their own jobs so they run side by side.
+  e2e-m0:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: pnpm/action-setup@v6.1.0
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm nx run e2e:m0-names --outputStyle=static
+      - run: pnpm nx run docs:check --outputStyle=static

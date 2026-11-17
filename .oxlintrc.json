@@ -101,6 +101,14 @@
           }
         ]
       }
+    },
+    {
+      "files": [
+        "e2e/m0/names.test.ts"
+      ],
+      "rules": {
+        "forman/no-old-names": "off"
+      }
     }
   ]
 }

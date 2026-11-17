@@ -243,7 +243,7 @@ needs it, unless it also runs a factory.
 | secrets list | mounts | `forman secrets` output | G | **missing**; names by string | [`secrets.md`](secrets.md) |
 | migrations | the model diff | ordered per environment | G | **missing** (deferred) | [`deployment.md`](deployment.md) |
 | infrastructure | model, mounts, environments | an Alchemy stack | G | wrangler configs under `.forman/environments/` (D3 #17) | the cloud pass |
-| contracts | things that live on a chain | Solidity sources, ABIs | G and S | `target-solidity` is a placeholder (`src/index.ts` only) | `language-solidity`, layer four |
+| contracts | things that live on a chain | Solidity sources, ABIs | G and S | `language-solidity` is a placeholder (`src/index.ts` only) | `language-solidity`, layer four |
 | Python SDK | model | a package | G | **missing** | later ([`projections.md`](projections.md) 3.12) |
 
 Ten of these are built today. The ones that close the loop (the builder API, the agent kit, CI, goals, the root files)

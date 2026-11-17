@@ -44,6 +44,8 @@ export const rules: ReadonlyArray<{ readonly name: string; readonly pattern: Reg
   { name: "architect- name (container, folder, command)", pattern: /\barchitect-[\w-]*/gi },
   { name: "Architect product name", pattern: /\b(?:Architect|ARCHITECT)\b/g },
   { name: "architect command or leftover name", pattern: /\barchitect\b/g },
+  // Glued after "_" or a digit, where \b sees no word edge: `/_architect/bundle`, `v2architect`, `MY_ARCHITECT_HOME`, any case.
+  { name: "architect glued after _ or a digit", pattern: /(?<=[_\d])architect(?![A-Za-z])/gi },
 ];
 
 export interface Hit {
@@ -129,6 +131,12 @@ describe("the matcher catches a planted old name", () => {
   it("a file name with an old name in it", () => {
     expect(rulesHit("examples/acme/architect.config.ts")).toEqual(["architect.config file"]);
   });
+  it("the old name glued after an underscore or a digit, in any case", () => {
+    expect(rulesHit("/_architect/bundle")).toEqual(["architect glued after _ or a digit"]);
+    expect(rulesHit("MY_ARCHITECT_HOME")).toEqual(["architect glued after _ or a digit"]);
+    expect(rulesHit("v2architect")).toEqual(["architect glued after _ or a digit"]);
+    expect(findHits("/_architect/bundle").map((h) => [h.text, h.column])).toEqual([["architect", 3]]);
+  });
   it("reports each piece once, with its column", () => {
     expect(findHits('x "@architect/a" y architect z')).toEqual([
       { rule: "@architect/ package", text: "@architect/", column: 4 },
@@ -153,6 +161,9 @@ describe("the matcher leaves the allowed forms and ordinary words alone", () => 
   });
   it("architecture, architectural and the like", () => {
     expect(findHits("Architecture, architectural, architects, architecturally, ARCHITECTURE")).toEqual([]);
+  });
+  it("architecture glued after an underscore or a digit", () => {
+    expect(findHits("/_architecture/bundle, my_architects, v2architectural, _Architecture")).toEqual([]);
   });
   it("the new names", () => {
     expect(findHits('import { Blueprint } from "@formants/forman"; FORMAN_HOME; .forman/; forman.config.ts; forman-model')).toEqual([]);
