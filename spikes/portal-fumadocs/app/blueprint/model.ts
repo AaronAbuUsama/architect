@@ -66,3 +66,14 @@ export const access = (op: Operation, role: string): Allowed | undefined =>
   op.allowed.find((a) => (role === "signed-in" || role === "anyone" ? a.kind === role : a.role === role));
 
 export const typeText = (v: Value) => v.type === "uint" || v.type === "int" ? `${v.type}${v.bits}` : v.type === "text" ? `text ≤ ${v.max}` : v.type === "id" ? `id (${v.prefix}_…)` : v.type;
+
+/** Everywhere a named value is used: thing fields, payloads, answers, event and error fields. */
+export const valueUsers = (name: string): Array<{ where: string; field: string; href: string }> => [
+  ...things.flatMap((t) => Object.entries(t.fields).filter(([, d]) => d.named === name).map(([f]) => ({ where: t.name, field: f, href: `/things/${t.name}` }))),
+  ...operations.flatMap((o) => [...Object.entries(o.payload).map(([f, d]) => [`${f} (payload)`, d] as const), ...Object.entries(o.answer).map(([f, d]) => [`${f} (answer)`, d] as const)]
+    .filter(([, d]) => d.named === name).map(([f]) => ({ where: o.name, field: f, href: `/operations/${o.name}` }))),
+  ...events.flatMap((e) => Object.entries(e.fields).filter(([, d]) => d.named === name).map(([f]) => ({ where: e.name, field: f, href: `/things/${e.thing}/events/${e.name}` }))),
+  ...Object.values(errors).flatMap((e) => Object.entries(e.fields).filter(([, d]) => d.named === name).map(([f]) => ({ where: e.name, field: f, href: `/reference/errors/${e.name}` }))),
+];
+/** The operations a role or audience lets you call, and how (directly, or as the role on a related thing). */
+export const roleOps = (role: string) => operations.flatMap((o) => { const a = access(o, role); return a ? [{ op: o, via: a.path ?? null }] : []; });

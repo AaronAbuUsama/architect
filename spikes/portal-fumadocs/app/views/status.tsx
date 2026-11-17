@@ -8,6 +8,7 @@ import { typeText, type Field } from "../blueprint/model.ts";
 export const to = {
   thing: (t: string) => `/things/${t}`, op: (o: string) => `/operations/${o}`, env: (e: string) => `/environments/${e}`,
   event: (t: string, e: string) => `/things/${t}/events/${e}`, ref: (t: string) => `/reference/${t}`,
+  error: (n: string) => `/reference/errors/${n}`, role: (r: string) => `/reference/roles/${r}`, value: (n: string) => `/reference/values/${n}`,
 };
 export const A = ({ href, children }: { href: string; children: ReactNode }) => <Link to={href} className="font-medium text-fd-primary hover:underline">{children}</Link>;
 export const Code = ({ children }: { children: ReactNode }) => <code className="rounded bg-fd-muted px-1.5 py-0.5 font-mono text-[0.8em]">{children}</code>;
@@ -43,7 +44,7 @@ export const EvalStrip = ({ op, env }: { op: string; env: string }) => (
 );
 
 export const TypeCell = ({ f }: { f: Field }) => (
-  <span>{f.ref ? <A href={to.thing(f.ref.split(".")[0]!)}>{f.ref}</A> : f.named ? <A href={`${to.ref("values")}#${f.named}`}>{f.named}</A> : <Code>{typeText(f.value)}</Code>}
+  <span>{f.ref ? <A href={to.thing(f.ref.split(".")[0]!)}>{f.ref}</A> : f.named ? <A href={to.value(f.named)}>{f.named}</A> : <Code>{typeText(f.value)}</Code>}
     {(f.ref || f.named) && <span className="ml-1 text-xs text-fd-muted-foreground">{typeText(f.value)}</span>}</span>
 );
 export const Illustration = () => <Chip size="sm" variant="soft" color="accent">illustration</Chip>;

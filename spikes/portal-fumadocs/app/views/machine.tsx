@@ -21,8 +21,8 @@ export function MachineDiagram({ thing, hot }: { thing: string; hot?: string }) 
   ];
   const on = (k: string) => !hot || k === hot;
   return (
-    <figure className="not-prose my-4 rounded-xl border border-fd-border bg-fd-card p-3">
-      <svg viewBox={`0 0 ${X0 * 2 + (nodes.length - 1) * W} ${Y + B + 30}`} width="100%" role="img" aria-label={`State machine of ${thing}`} className="text-fd-foreground">
+    <figure className="not-prose my-4 flex flex-col items-center rounded-xl border border-fd-border bg-fd-card p-3">
+      <svg viewBox={`0 0 ${X0 * 2 + (nodes.length - 1) * W} ${Y + B + 30}`} width="100%" style={{ maxWidth: (X0 * 2 + (nodes.length - 1) * W) * 1.3 }} role="img" aria-label={`State machine of ${thing}`} className="text-fd-foreground">
         <defs>{["n", "h"].map((k) => <marker key={k} id={`ar-${thing}-${k}`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" className={k === "h" ? "fill-fd-primary" : "fill-fd-muted-foreground"} /></marker>)}</defs>
         {arcs.map((a, i) => <path key={i} d={a.d} fill="none" opacity={on(a.key) ? 1 : 0.2} strokeWidth={a.key === hot ? 2.4 : 1.4} className={a.key === hot ? "stroke-fd-primary" : "stroke-fd-muted-foreground"} markerEnd={`url(#ar-${thing}-${a.key === hot ? "h" : "n"})`} />)}
         {nodes.map((n) => { const lit = !hot || arcs.some((a) => a.key === hot && (a.f === n || a.t === n)); return (
@@ -33,7 +33,7 @@ export function MachineDiagram({ thing, hot }: { thing: string; hot?: string }) 
             <tspan fontWeight={700}>{a.key}</tspan><tspan dx={6} fontSize={11} className={a.key === hot ? "fill-fd-primary" : "fill-fd-muted-foreground"}>{a.emits}</tspan>
           </text>))}
       </svg>
-      <figcaption className="px-2 text-xs text-fd-muted-foreground">From any other state the move is refused {m.notFrom.error} (exit {m.notFrom.exit}, {m.notFrom.code}).</figcaption>
+      <figcaption className="self-start px-2 text-xs text-fd-muted-foreground">From any other state the move is refused {m.notFrom.error} (exit {m.notFrom.exit}, {m.notFrom.code}).</figcaption>
     </figure>
   );
 }

@@ -1,9 +1,9 @@
 // Every page's URL, from the blueprint: what the source makes pages for, and what the build prerenders.
-import { M } from "./model.ts";
+import { M, errors, roles } from "./model.ts";
 
 export type PageKind =
   | { kind: "home" } | { kind: "proof" } | { kind: "attention" } | { kind: "thing"; thing: string } | { kind: "operation"; operation: string }
-  | { kind: "event"; thing: string; event: string } | { kind: "machine"; thing: string } | { kind: "environment"; environment: string }
+  | { kind: "event"; thing: string; event: string } | { kind: "machine"; thing: string } | { kind: "error"; error: string } | { kind: "role"; role: string } | { kind: "value"; value: string } | { kind: "environment"; environment: string }
   | { kind: "reference"; table: "machines" | "events" | "errors" | "values" | "roles" } | { kind: "journeys" };
 
 /** Virtual pages: `path` places a page in the sidebar tree, `slugs` give its URL (F2 §5's addresses). */
@@ -21,7 +21,12 @@ export const pages = (): Array<{ path: string; slugs: string[]; title: string; d
       path: `things/${t.name}/${e}.page`, slugs: ["things", t.name, "events", e], title: e, description: `An event of ${t.name}.`, page: { kind: "event" as const, thing: t.name, event: e } })),
   ]),
   ...(["machines", "events", "errors", "values", "roles"] as const).map((table) => ({
-    path: `reference/${table}.page`, slugs: ["reference", table], title: table[0]!.toUpperCase() + table.slice(1), description: "", page: { kind: "reference" as const, table } })),
+    path: ["errors", "values", "roles"].includes(table) ? `reference/${table}/index.page` : `reference/${table}.page`, slugs: ["reference", table], title: table[0]!.toUpperCase() + table.slice(1), description: "", page: { kind: "reference" as const, table } })),
+  ...Object.values(errors).map((e) => ({ path: `reference/errors/${e.name}.page`, slugs: ["reference", "errors", e.name], title: e.name,
+    description: `${e.code}${e.exit !== null ? `, exit ${e.exit}` : ""}. ${e.kind === "wrong state" ? `Refused when ${e.thing} is in a state the move does not start from.` : e.kind === "built in" ? "Built into every project." : `Declared by ${e.thing}.`}`, page: { kind: "error" as const, error: e.name } })),
+  ...roles.map((r) => ({ path: `reference/roles/${r}.page`, slugs: ["reference", "roles", r], title: r,
+    description: r === "anyone" ? "Every caller, signed in or not." : r === "signed-in" ? "Any caller with a session or an API key." : `The ${r.split(".")[1]} of ${/^[aeiou]/.test(r) ? "an" : "a"} ${r.split(".")[0]}.`, page: { kind: "role" as const, role: r } })),
+  ...Object.entries(M.values).map(([n, v]) => ({ path: `reference/values/${n}.page`, slugs: ["reference", "values", n], title: n, description: `A named value: ${v.type}.`, page: { kind: "value" as const, value: n } })),
   ...Object.values(M.environments).map((e) => ({
     path: `environments/${e.name}.page`, slugs: ["environments", e.name], title: e.name, description: `Runs ${e.runs}.`, page: { kind: "environment" as const, environment: e.name } })),
   { path: "journeys.page", slugs: ["journeys"], title: "Journeys", description: "Not available yet.", page: { kind: "journeys" } },

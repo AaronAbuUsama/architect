@@ -19,3 +19,8 @@
 /* The mock's "static file" view: every live slot is empty, as the generator writes it. */
 html[data-view="static"] [data-live] > * { visibility: hidden; }
 html[data-view="static"] [data-live] { background: repeating-linear-gradient(45deg, transparent 0 4px, color-mix(in oklab, var(--color-fd-primary) 18%, transparent) 4px 8px); border-radius: 6px; }
+
+/* Fill the window: no centred gutter pushing the sidebar in from the left edge. */
+#nd-docs-layout { --fd-layout-width: 100vw; }
+/* The theme switch sits in a box sized to it, not a full-width empty pill. */
+#nd-sidebar div:has(> [data-theme-toggle]), aside div:has(> [data-theme-toggle]) { width: fit-content; margin-inline-start: auto; }

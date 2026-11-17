@@ -1,9 +1,10 @@
 // One table for every list in the portal: HeroUI's Table, with a toolbar of Filter, Columns and Search, and sortable headers.
 import { Button, Dropdown, Header, SearchField, Table } from "@heroui/react";
 import { useMemo, useState, type ReactNode } from "react";
+import { useNavigate } from "react-router";
 import type { Selection, SortDescriptor } from "react-aria-components";
 
-export type Column<R> = { key: string; label: string; cell: (r: R) => ReactNode; sort?: (r: R) => string | number; hidden?: boolean; align?: "start" | "center" | "end"; rowHeader?: boolean };
+export type Column<R> = { key: string; label: string; head?: ReactNode; cell: (r: R) => ReactNode; sort?: (r: R) => string | number; hidden?: boolean; align?: "start" | "center" | "end"; rowHeader?: boolean };
 export type Filter<R> = { key: string; label: string; of: (r: R) => string };
 export type SubRow = { key: string; cells: Record<string, ReactNode> };
 export type DataTableProps<R> = {
@@ -12,10 +13,13 @@ export type DataTableProps<R> = {
   subRows?: (r: R) => SubRow[]; expanded?: Set<string>; toolbar?: ReactNode;
   /** Filter, Columns, Sort and Search. Default: only when the table is long enough to need them. */
   tools?: boolean;
+  /** Where a click on the row goes. The whole row is the link; no per-row buttons needed. */
+  rowHref?: (r: R) => string;
 };
 const TOOLS_FROM = 9;
 
-export function DataTable<R>({ label, rows, rowKey, columns, filters = [], search, sort, footer, subRows, expanded, toolbar, tools }: DataTableProps<R>) {
+export function DataTable<R>({ label, rows, rowKey, columns, filters = [], search, sort, footer, subRows, expanded, toolbar, tools, rowHref }: DataTableProps<R>) {
+  const navigate = useNavigate();
   const withTools = tools ?? rows.length >= TOOLS_FROM;
   const [q, setQ] = useState("");
   const [picked, setPicked] = useState<Record<string, Set<string>>>({});
@@ -91,13 +95,13 @@ export function DataTable<R>({ label, rows, rowKey, columns, filters = [], searc
             <Table.Header>
               {visible.map((c) => (
                 <Table.Column key={c.key} id={c.key} isRowHeader={c.rowHeader} allowsSorting={!!c.sort} className={align(c)}>
-                  {c.label}
+                  {c.head ?? c.label}
                 </Table.Column>
               ))}
             </Table.Header>
             <Table.Body renderEmptyState={() => <span className="text-fd-muted-foreground">Nothing matches.</span>}>
               {out.flatMap((r) => [
-                <Table.Row key={rowKey(r)} id={rowKey(r)}>
+                <Table.Row key={rowKey(r)} id={rowKey(r)} onAction={rowHref ? () => navigate(rowHref(r)) : undefined} className={rowHref ? "cursor-pointer" : undefined}>
                   {visible.map((c) => <Table.Cell key={c.key} className={align(c)}>{c.cell(r)}</Table.Cell>)}
                 </Table.Row>,
                 ...(expanded?.has(rowKey(r)) && subRows ? subRows(r).map((s) => (

@@ -1,10 +1,10 @@
 // Each page type's body. Fumadocs gives the frame (title, TOC, breadcrumbs); these give the content, from the blueprint.
 import { Callout } from "fumadocs-ui/components/callout";
-import { Tab, Tabs } from "fumadocs-ui/components/tabs";
 import { TypeTable } from "fumadocs-ui/components/type-table";
 import type { ReactNode } from "react";
 import { CANDIDATE } from "../blueprint/evidence.ts";
-import { BP, M, opsOf, things, typeText, type Fields } from "../blueprint/model.ts";
+import { BP, errors, M, opsOf, things, refusedBy, roleOps, typeText, valueUsers, type Fields } from "../blueprint/model.ts";
+import { HowToCall } from "./call.tsx";
 import type { PageKind } from "../blueprint/paths.ts";
 import { MachineDiagram, MoveStrip } from "./machine.tsx";
 import { OperationProof, ProofMatrix } from "./proof.tsx";
@@ -35,14 +35,10 @@ export function sections(p: PageKind): Section[] {
       { id: "errors", title: "Errors", body: <ErrorsTable thing={t.name} />, fold: true },
       { id: "access", title: "Who may call", body: <AccessMatrix thing={t.name} />, fold: true },
     ]; }
-    case "operation": { const o = M.operations[p.operation]!; const cli = /```sh\n(.*)\n```/.exec(BP.docs[`${o.thing}/${o.verb}.md`] ?? "")?.[1] ?? "";
-      const sdkThing = o.thing.replace(/-(\w)/g, (_, c: string) => c.toUpperCase()); const body = JSON.stringify(Object.fromEntries(Object.keys(o.payload).map((k) => [k, `<${k}>`])), null, 2);
+    case "operation": { const o = M.operations[p.operation]!;
       return [
         { id: "proof", title: "Proof", body: <>{evidenceNote}<OperationProof op={o.name} /></> },
-        { id: "call", title: "How to call", body: <Tabs items={["CLI", "HTTP", "SDK"]}>
-          <Tab value="CLI"><pre className="overflow-x-auto"><code>{cli}</code></pre></Tab>
-          <Tab value="HTTP"><pre className="overflow-x-auto"><code>{`POST /${o.thing}/${o.verb}\ncontent-type: application/json${o.idempotent ? "\nidempotency-key: <key>" : ""}\n\n${body}`}</code></pre></Tab>
-          <Tab value="SDK"><pre className="overflow-x-auto"><code>{`const answer = yield* Sdk.${sdkThing}.${o.identifier}(${body})`}</code></pre></Tab></Tabs> },
+        { id: "call", title: "How to call", body: <HowToCall op={o.name} /> },
         { id: "payload", title: "Payload", body: <Fields fields={o.payload} empty="No payload." /> },
         { id: "answer", title: "Answer", body: <Fields fields={o.answer} empty="No answer." /> },
         ...(o.move ? [{ id: "move", title: "Move", body: <><p>{o.move.from.length ? <>From <b>{o.move.from.join(" or ")}</b></> : "Creates it"}, to <b>{o.move.to.join(" or ")}</b>, emitting <A href={to.event(o.thing, o.move.emits)}>{o.move.emits}</A>.</p><MachineDiagram thing={o.thing} hot={o.move.key} /></> }] : []),
@@ -61,20 +57,44 @@ export function sections(p: PageKind): Section[] {
       { id: "about", title: "About", body: <EnvironmentAbout name={e.name} /> },
       ...(proved ? [{ id: "proof", title: "Proof", body: <>{evidenceNote}<ProofMatrix label={`Operations in ${e.name}`} /></> }] : []),
     ]; }
+    case "error": { const e = errors[p.error]!; const by = refusedBy(e.name); return [
+      { id: "facts", title: "", body: <Facts items={[["Code", <Code>{e.code}</Code>], ["Exit", e.exit ?? "–"], ["Kind", e.kind], ["Of", e.thing ? <A href={to.thing(e.thing)}>{e.thing}</A> : "every project"]]} /> },
+      { id: "when", title: "When", body: by.length ? <DataTableLite rows={by.map((o) => [<A href={to.op(o)}>{o}</A>, e.when[o] ?? <Sub>not described</Sub>])} head={["Operation", "Refuses when"]} /> : <p>No operation refuses with it yet.</p> },
+      { id: "carries", title: "Carries", body: <Fields fields={e.fields} empty="Nothing beyond its name and code." /> },
+    ]; }
+    case "role": { const ops = roleOps(p.role); const declared = !["anyone", "signed-in"].includes(p.role); return [
+      { id: "allows", title: "Lets you call", body: <DataTableLite head={["Operation", "How"]} rows={ops.map(({ op, via }) => [<A href={to.op(op.name)}>{op.name}</A>, via ? `as the ${p.role.split(".")[1]} of the ${via}` : declared ? `as the ${p.role.split(".")[1]} of this ${op.thing}` : "directly"])} /> },
+      ...(declared ? [{ id: "holds", title: "Who holds it", body: <Callout type="warn" title="Not in the blueprint yet">The blueprint names this role on <A href={to.thing(p.role.split(".")[0]!)}>{p.role.split(".")[0]}</A> but not how someone comes to hold it (which field or fact). The compiler would need to project that for this page to say it.</Callout> }] : []),
+    ]; }
+    case "value": { const v = M.values[p.value]!; const users = valueUsers(p.value); return [
+      { id: "facts", title: "", body: <Facts items={[["Shape", <Code>{typeText(v)}</Code>], ["Used in", users.length]]} /> },
+      { id: "used", title: "Used in", body: users.length ? <DataTableLite head={["Where", "Field"]} rows={users.map((u) => [<A href={u.href}>{u.where}</A>, <Code>{u.field}</Code>])} /> : <p>Nothing uses it yet.</p> },
+    ]; }
     case "attention": return [{ id: "items", title: "", body: <>{evidenceNote}<AttentionList /></> }];
     case "journeys": return [{ id: "journeys", title: "", body: <Callout type="info" title="Not available yet">{String(BP.extensions.journeys?.reason)}. These pages appear when the compiler projects journeys and worlds (F2.2); nothing here is invented.</Callout> }];
   }
 }
 
-const EnvironmentAbout = ({ name }: { name: string }) => { const e = M.environments[name]!; return (
-  <div className="not-prose grid grid-cols-[10rem_1fr] gap-x-6 gap-y-2 text-sm">
-    <span className="text-fd-muted-foreground">Runs</span><span>{e.runs}</span>
-    <span className="text-fd-muted-foreground">Identity</span><span>{e.identity}</span>
-    <span className="text-fd-muted-foreground">Where</span><span>{e.cloud ? `${e.cloud.provider}, ${e.cloud.database}` : e.database}</span>
-    {e.promotesFrom && <><span className="text-fd-muted-foreground">Promoted from</span><A href={to.env(e.promotesFrom)}>{e.promotesFrom}</A></>}
-    {Object.entries(e.deploy).map(([k, d]) => <><span key={k} className="text-fd-muted-foreground">Serves {k}</span><span><Code>{d.domain}</Code> <Sub>{d.how}</Sub></span></>)}
-    {Object.entries(e.publish).map(([k, ps]) => <><span key={k} className="text-fd-muted-foreground">Publishes the {k}</span><span>{ps.map((x) => x.how + (x.tag ? ` (${x.tag})` : x.tap ? ` (${x.tap})` : "")).join(", ")}</span></>)}
-    <span className="text-fd-muted-foreground">Declared in</span><span><Code>{e.file}</Code></span>
+const EnvironmentAbout = ({ name }: { name: string }) => { const e = M.environments[name]!; return <>
+  <Facts items={[["Runs", e.runs], ["Identity", e.identity], ["Database", e.cloud ? `${e.cloud.provider} ${e.cloud.database}` : e.database ?? "–"], ["Promoted from", e.promotesFrom ? <A href={to.env(e.promotesFrom)}>{e.promotesFrom}</A> : "nothing"]]} />
+  {(Object.keys(e.deploy).length > 0 || Object.keys(e.publish).length > 0) && <DataTableLite head={["What", "Where", "How"]} rows={[
+    ...Object.entries(e.deploy).map(([k, d]) => [k, <Code>{d.domain}</Code>, d.how]),
+    ...Object.entries(e.publish).flatMap(([k, ps]) => ps.map((x) => [`${k} package`, x.tag ? <Code>{x.tag}</Code> : x.tap ?? "", x.how])),
+  ]} />}
+  <Sub>Declared in <Code>{e.file}</Code></Sub>
+</>; };
+
+/** A few facts as tiles. */
+const Facts = ({ items }: { items: Array<[string, ReactNode]> }) => (
+  <div className="not-prose my-4 grid grid-cols-2 gap-3 md:grid-cols-4">
+    {items.map(([k, v]) => <div key={k} className="rounded-2xl border border-fd-border bg-fd-card p-4"><div className="text-sm text-fd-muted-foreground">{k}</div><div className="mt-1 font-semibold">{v}</div></div>)}
   </div>
-); };
+);
+/** A short plain table: no toolbar, for a handful of rows. */
+const DataTableLite = ({ head, rows }: { head: string[]; rows: ReactNode[][] }) => (
+  <div className="not-prose my-4 overflow-hidden rounded-xl border border-fd-border">
+    <table className="w-full text-sm"><thead className="bg-fd-muted/50 text-left text-fd-muted-foreground"><tr>{head.map((h) => <th key={h} className="px-4 py-2 font-medium">{h}</th>)}</tr></thead>
+      <tbody>{rows.map((r, i) => <tr key={i} className="border-t border-fd-border">{r.map((c, j) => <td key={j} className="px-4 py-2.5 align-top">{c}</td>)}</tr>)}</tbody></table>
+  </div>
+);
 export { Illustration };

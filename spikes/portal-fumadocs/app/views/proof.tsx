@@ -1,6 +1,5 @@
 // Proof and its evals as one thing: a verdict is the nine evals' sum. The matrix gives each operation one compact row —
 // per environment, the verdict and its nine squares — and an operation's page gives each environment one small panel.
-import { Button, Tooltip } from "@heroui/react";
 import { Link } from "react-router";
 import { CANDIDATE, ENVS, EVALS, evalOf, p95Of, proofOf, type ProofState } from "../blueprint/evidence.ts";
 import { operations, type Operation } from "../blueprint/model.ts";
@@ -13,14 +12,13 @@ const items = (op: string) => attention().filter((i) => i.op === op);
 const RANK: Record<ProofState, number> = { failed: 0, stale: 1, unproven: 2, unavailable: 3, "recorded-pass": 4 };
 /** Who may call, in a few words: the role names, or the audience. */
 const whoShort = (o: Operation) => o.allowed.map((a) => a.kind === "anyone" ? "anyone" : a.kind === "signed-in" ? "signed in" : a.path ? `${a.role!.split(".")[1]} of ${a.path.split(".").at(-1)}` : a.role!.split(".")[1]).join(", ");
-const commandFor = (op: string) => { const w = worstOf(op); return `architect prove --env ${w.state === "recorded-pass" ? "test" : w.environment}`; };
 /** Why it is not all green, in one line: the first failing eval's note, else the verdict's own reason. */
 const why = (op: string, env: string) => { const p = proofOf(op, env); const bad = EVALS.map(([k]) => evalOf(op, env, k)).find((r) => r.result === "fail" || r.result === "review");
   return p.state === "stale" ? `${p.changed.map((c) => c.key.split(":")[0]).join(", ")} changed since its pass` : bad?.note ?? p.reason; };
 
 export function ProofMatrix({ ops = operations, label = "Operations" }: { ops?: Operation[]; label?: string }) {
   return (
-    <DataTable label={label} rows={ops} rowKey={(o) => o.name} search={(o) => `${o.name} ${o.thing} ${o.description}`}
+    <DataTable label={label} rows={ops} rowKey={(o) => o.name} search={(o) => `${o.name} ${o.thing} ${o.description}`} rowHref={(o) => to.op(o.name)}
       sort={{ column: "status", direction: "ascending" }}
       filters={[{ key: "thing", label: "Thing", of: (o) => o.thing }, { key: "worst", label: "Worst state", of: (o) => worstOf(o.name).state },
         ...ENVS.map((e) => ({ key: e, label: `In ${e}`, of: (o: Operation) => proofOf(o.name, e).state })), { key: "kind", label: "Kind", of: (o) => o.kind }]}
@@ -35,11 +33,6 @@ export function ProofMatrix({ ops = operations, label = "Operations" }: { ops?: 
           return its.length ? <Live><Link to={`/proof/attention#${its[0]!.id}`} className="inline-flex items-center gap-1.5 rounded-full border border-fd-border px-3 py-1 text-sm hover:bg-fd-accent">
             <span className={`size-2 rounded-full ${its.some((i) => i.kind === "failed") ? "bg-red-500" : "bg-amber-500"}`} />{its.length === 1 ? its[0]!.kind : `${its.length} items`}<span aria-hidden>→</span></Link></Live> : <Sub>nothing</Sub>; } },
         { key: "kind", label: "Kind", sort: (o) => o.kind, hidden: true, cell: (o) => <span className="text-sm">{o.kind}</span> },
-        { key: "actions", label: "", align: "end", cell: (o) => (
-          <div className="flex justify-end gap-1">
-            <Tooltip delay={200}><Tooltip.Trigger><Button size="sm" isIconOnly variant="ghost" aria-label={`Copy ${commandFor(o.name)}`} onPress={() => navigator.clipboard?.writeText(commandFor(o.name))}>⧉</Button></Tooltip.Trigger><Tooltip.Content>Copy <code>{commandFor(o.name)}</code></Tooltip.Content></Tooltip>
-            <Link to={to.op(o.name)} aria-label={`Open ${o.name}`} className="inline-flex size-8 items-center justify-center rounded-full text-sm hover:bg-fd-accent">→</Link>
-          </div>) },
       ]} />
   );
 }
