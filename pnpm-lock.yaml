@@ -81,6 +81,9 @@ importers:
       '@architect/host-cloudflare':
         specifier: workspace:*
         version: link:../../packages/host-cloudflare
+      '@architect/portal':
+        specifier: workspace:*
+        version: link:../../packages/portal
       '@architect/target-effect':
         specifier: workspace:*
         version: link:../../packages/target-effect
@@ -106,6 +109,9 @@ importers:
       '@architect/host-cloudflare':
         specifier: workspace:*
         version: link:../../packages/host-cloudflare
+      '@architect/portal':
+        specifier: workspace:*
+        version: link:../../packages/portal
       '@architect/target-effect':
         specifier: workspace:*
         version: link:../../packages/target-effect
@@ -177,6 +183,9 @@ importers:
       '@architect/compiler':
         specifier: workspace:*
         version: link:../compiler
+      '@architect/portal':
+        specifier: workspace:*
+        version: link:../portal
       '@nx/devkit':
         specifier: 24.0.3
         version: 24.0.3(nx@24.0.3)
@@ -252,7 +261,15 @@ importers:
         specifier: 5.20261101.1
         version: 5.20261101.1
 
-  packages/portal: {}
+  packages/portal:
+    dependencies:
+      effect:
+        specifier: 4.1.1
+        version: 4.1.1
+    devDependencies:
+      '@architect/logbook':
+        specifier: workspace:*
+        version: link:../logbook
 
   packages/preset:
     dependencies:

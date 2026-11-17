@@ -11,6 +11,24 @@
   "targets": {
     "lint": {},
     "typecheck": {},
-    "test": {}
+    "test": {},
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc -p {projectRoot}/tsconfig.build.json"
+      },
+      "dependsOn": [
+        "^build"
+      ],
+      "cache": true,
+      "inputs": [
+        "production",
+        "{workspaceRoot}/tsconfig.base.json",
+        "{workspaceRoot}/tsconfig.build.base.json"
+      ],
+      "outputs": [
+        "{projectRoot}/dist"
+      ]
+    }
   }
 }

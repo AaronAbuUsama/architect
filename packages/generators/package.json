@@ -5,6 +5,7 @@
   "dependencies": {
     "@architect/blueprint": "workspace:*",
     "@architect/compiler": "workspace:*",
+    "@architect/portal": "workspace:*",
     "@nx/devkit": "24.0.3",
     "effect": "4.1.1"
   },

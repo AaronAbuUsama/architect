@@ -6,6 +6,7 @@
   "dependencies": {
     "@architect/blueprint": "workspace:*",
     "@architect/host-cloudflare": "workspace:*",
+    "@architect/portal": "workspace:*",
     "@architect/target-effect": "workspace:*",
     "@effect/platform-node": "4.1.1",
     "@effect/sql-d1": "4.1.1",

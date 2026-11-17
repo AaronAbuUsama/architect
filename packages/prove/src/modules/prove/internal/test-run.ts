@@ -6,6 +6,7 @@ import type { Model } from "@architect/compiler";
 import { Build } from "#modules/build/service.js";
 import { Environments } from "#modules/environments/service.js";
 import type { Project } from "#modules/journeys/types.js";
+import { Releases } from "#modules/releases/service.js";
 import { Collectors } from "#modules/telemetry/service.js";
 import { TestWorlds } from "#modules/test-worlds/service.js";
 import { Verdicts } from "#modules/verdicts/service.js";
@@ -51,6 +52,8 @@ export const proveInTest = (model: Model, project: Project, options: Parameters<
           yield* say(verdict.line);
 
           const results = resultsOf(model, done);
+          // The portal and `impact` judge a verdict against the model of the revision it proved, so the logbook keeps that model first (D3 #138).
+          yield* Releases.keep({ logbook: options.logbook, source: options.token, model, revision }).pipe(Effect.mapError(failed));
           const token = yield* Verdicts.mint(options.token).pipe(Effect.mapError(failed));
           yield* Verdicts.post({ logbook: options.logbook, token, revision, environment: TEST, results }).pipe(Effect.mapError((e) => new ProveFailed({ message: `the verdicts weren't recorded: ${e.message}` })));
           yield* say(`verdicts ${results.map((r) => `${r.operation} ${r.verdict === "pass" ? "✔" : "✘"}`).join("  ")}   (revision ${revision})`);

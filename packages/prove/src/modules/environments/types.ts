@@ -47,6 +47,8 @@ export interface EnvironmentsApi {
     readonly revision?: string;
     /** For `logbook` only: who may write to it. */
     readonly policy?: LogbookSetup;
+    /** Where the logbook is, for the portal route an environment serves (`ARCHITECT_LOGBOOK_URL`). Default: the running `logbook` environment, if there is one (D3 #131). */
+    readonly logbook?: string;
   }) => Effect.Effect<Up, EnvironmentFailed>;
   /** Stop it, and everything it started. An environment that isn't running is not an error. */
   readonly down: (options: { readonly root: string; readonly name: string }) => Effect.Effect<void, EnvironmentFailed>;

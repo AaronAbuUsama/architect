@@ -9,7 +9,8 @@ stages. The rules are `AGENTS.md`; the thread kit (conductor, threads, spike, re
 that are merged there, each with its decisions in `decisions/D3.md` and evidence in `evidence/<step>/`:
 L2.01 environments, L2.02 test worlds, L2.03 logbook, L2.04 versions, L2.05 promote, L2.06 publish, L2.07 device
 sign-in, L2.L the `src/<thing>/` layout (Aaron), L2.P privacy seams. Gate 1 (`nx run e2e:layer1`) is green on `layer/3`;
-of Gate 2's eight checks (`e2e/layer2/`), 01 to 06 pass run one by one, 07 waits on L2.08, 08 on L2.09 and L2.10.
+of Gate 2's eight checks (`e2e/layer2/`), 01 to 06 pass run one by one, 07 waits on L2.08, 08 on L2.09 (its portal half is built: L2.10,
+below).
 
 **In flight when this was written** (each a Claude Code builder in its own worktree, pushing its own branch; check
 `git branch -r` and merge each into `layer/3` if it has landed, or rebuild the step from its row if the branch never
@@ -18,9 +19,16 @@ appears):
   sinks as config (`Telemetry.sink.local|axiom`), the Axiom sink reading Aaron's keychain, personal keys dropped (O1).
 - `build/L2.08`: the MCP server with OAuth (`generated/mcp`), and `/_world/*` closed outside world-hosting
   environments (D3 #96).
+- `build/L2.10` (17 November, done and pushed, no pull request; merge it into `layer/3`): the portal, D3 #130 to #137, evidence in
+  `evidence/L2.10/`. `generated/portal/{blueprint.json,main.ts}` from the generators (new module `portal`), `@architect/portal` (`wire`,
+  `reader`, `snapshot`, `site`), the generated Worker's one `if` for `/portal` and `/_portal/*`, and `env up` writing
+  `ARCHITECT_LOGBOOK_URL` into the environment's config. After merging: `pnpm install` (acme, the starter and generators gained the
+  `@architect/portal` workspace dependency; the lockfile changed), `pnpm nx reset`, `NX_DAEMON=false pnpm nx sync`. Conflicts to expect:
+  `render/internal/server.ts` and the two examples' `generated/server/main.ts` (regenerate, never merge by hand), both `package.json`s and
+  `pnpm-lock.yaml` (regenerate), `environments/service.ts` and `types.ts` (L2.O touches them too: both add to `up`).
 
-**Next, in order:** L2.09 `watch` (reads telemetry through O1's `TraceSource`), L2.10 the portal (read-only, on the data
-contract in PR 12 `design/frontend`, F1), then L2.11 Gate 2: add a CI job `e2e-layer2`, run `nx run e2e:layer2` green
+**Next, in order:** L2.09 `watch` (reads telemetry through O1's `TraceSource`; the author's check 08 then goes the rest of the way:
+its portal assertions already pass, see `evidence/L2.10/`), then L2.11 Gate 2: add a CI job `e2e-layer2`, run `nx run e2e:layer2` green
 locally and in CI, evidence for every step (`ci.json`, `python3 tools/evidence/page.py`), the 🔍 reviewer, the pull
 request `layer/3` into `main`, merged when CI is green; then the spoken report to Aaron. Then stage 4 opens with
 wayfinding (`wayfinding/stage-4.md`).
@@ -38,6 +46,16 @@ lint and typecheck, and pushes.
 - A Collector whose run was killed stays up and holds its port; L2.O removes such orphans at the next start. Until it
   lands: `docker ps` for `architect-collector-<pid>-…` whose pid is gone, and remove those only.
 - A stale Nx daemon writes generated files from the old generator: `pnpm nx reset` first.
+- Two things in the author's check 08 that are the check's, not the build's (found by running its portal steps in the real flow, `evidence/L2.10/03-author-checks.txt`):
+  it calls `promote --to staging` straight after `build` for the slow-spend revision, which L2.05's gate refuses (no `test` verdicts for that revision), so it
+  needs `prove --env test` between; and its second `portal(url)` is a `fetch` on a pooled socket to a staging that `promote` has since restarted, with the event
+  loop blocked by `spawnSync`, so it fails with `ECONNRESET` or `EPIPE` (a Worker cannot stop it: workerd drops a `Connection: close` response header; the cure is
+  `headers: { connection: "close" }` on that fetch). The author's call; the builders never edit `e2e/`.
+- A killed Gate 2 run leaves its registry: `architect-l2-registry-<pid>-<check>` holding `127.0.0.1:489<n>` (found on 4898, check 08's, with
+  a pid that was gone), which makes the next run of that check fail at `docker run`. Remove only the ones whose pid is gone. To run
+  a check beside another builder without Gate 2's teardown: a private vitest config without `globalSetup` under `.architect/`, and, when its
+  ports are taken, a copy of `e2e/layer1` and `e2e/layer2` under the gitignored `tmp/` (so `repo` still resolves), the check number changed
+  (`ports(n)` is `8900 + 10n`).
 - The CI key for Gate 1 check 4 is given only to pull requests into `main` and pushes to `main` (D3 #71, $10 a day).
 
 **Aaron's credentials, for the cloud pass and O1** (never print, never write to a file): the Axiom tokens are in his
