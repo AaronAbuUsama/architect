@@ -26,6 +26,12 @@ export interface CallRecord {
   readonly stored?: string | undefined;
 }
 
+/** What `prove` reads back from the environment's database: a row by table and id (wire form), and a trace's journal entries. */
+export interface Facts {
+  readonly record: (table: string, id: string) => Effect.Effect<Record<string, unknown> | null>;
+  readonly journal: (trace: string) => Effect.Effect<CallRecord["journal"]>;
+}
+
 export interface StepResult {
   readonly journey: string;
   readonly title: string;
@@ -58,11 +64,15 @@ export interface Project {
 export class ProjectFailed extends Data.TaggedError("ProjectFailed")<{ readonly message: string }> {}
 
 export interface JourneysApi {
+  /** Facts read from an environment's database file, for one that has closed its front door (D3 #127). */
+  readonly databaseFacts: (state: string) => Facts;
   readonly load: (root: string, model: Model) => Effect.Effect<Project, ProjectFailed>;
   /**
    * Run one journey against the world at `url`. Span checks wait for telemetry, so they are made later by `check`.
    * `people` is how the cast comes to be: `"world"` (the default) asks the world's `/_world/cast`; `"sign-up"` signs each
    * person up for real through Better Auth's own routes, as someone would on a real environment, which has no cast.
+   * `facts` is where the rows and journal are read: by default the world's own front door at `url`; an environment that has
+   * closed the door (staging) gives its database instead.
    */
-  readonly run: (project: Project, url: string, journey: Journey, index: number, people?: "world" | "sign-up") => Effect.Effect<JourneyRun>;
+  readonly run: (project: Project, url: string, journey: Journey, index: number, people?: "world" | "sign-up", facts?: Facts) => Effect.Effect<JourneyRun>;
 }

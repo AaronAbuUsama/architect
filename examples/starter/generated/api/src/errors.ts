@@ -39,5 +39,11 @@ export const shown: Readonly<Record<string, ReadonlyArray<string>>> = {
   NotAllowed: [],
 };
 
+/** The declared errors themselves, by name: their fields say who may see a value (the MCP server redacts by role). */
+export const declared = {
+  PersonEmailTaken: Person.PersonEmailTaken,
+  SessionCredentialsWrong: Session.SessionCredentialsWrong,
+} as const;
+
 /** The wire class of each refusal, by name. */
 export const wire = { PersonEmailTaken, SessionCredentialsWrong, InvitationNotPending, OrganizationNotActive, NotAllowed };

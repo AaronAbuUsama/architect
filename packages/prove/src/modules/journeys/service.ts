@@ -2,9 +2,10 @@ import { Effect, Schema } from "effect";
 import type { Call, Journey, Operation, Principal, Read, StartingWorld, Thing } from "@architect/blueprint";
 import { Blueprint } from "@architect/blueprint";
 import { Scripting } from "@architect/blueprint/server";
-import type { CallRecord, JourneyRun, JourneysApi, Project, StepResult } from "./types.ts";
+import type { CallRecord, Facts, JourneyRun, JourneysApi, Project, StepResult } from "./types.ts";
 import { loadProject } from "./internal/load.ts";
-import { callOperation, castPeople, mayCall, signUpPeople, stateOf } from "./internal/world.ts";
+import { callOperation, castPeople, doorFacts, mayCall, signUpPeople, stateOf } from "./internal/world.ts";
+import { databaseFacts } from "./internal/database-facts.ts";
 import { subjectId } from "./internal/subject.ts";
 import { runChecks, show } from "./internal/checks.ts";
 
@@ -13,7 +14,7 @@ type Codec = Schema.Codec<Record<string, unknown>, Record<string, unknown>>;
 const nameOfOperation = (project: Project, op: Operation | Read) => [...project.operations].find(([, o]) => o === op)?.[0];
 const tableOf = (project: Project) => (thing: Thing) => [...project.things].find(([, t]) => t === thing)?.[0];
 
-const run = (project: Project, url: string, journey: Journey, index: number, how: "world" | "sign-up" = "world") =>
+const run = (project: Project, url: string, journey: Journey, index: number, how: "world" | "sign-up" = "world", given?: Facts) =>
   Effect.gen(function* () {
     const world = journey.starts === undefined ? undefined : project.startingWorlds.get(journey.starts);
     // A starting world may begin from another: make the oldest first, so each sees what the one before it gave.
@@ -38,7 +39,7 @@ const run = (project: Project, url: string, journey: Journey, index: number, how
     const cast = casting.cast;
     const people = Object.fromEntries(names.map((n) => [n, cast[`j${index}.${n}`]!]));
     const env: Record<string, unknown> = { cast: people };
-    const facts = { url, tableOf: tableOf(project) };
+    const facts = { facts: given ?? doorFacts(url), tableOf: tableOf(project) };
 
     const make = (step: string, call: Call) =>
       Effect.gen(function* () {
@@ -48,11 +49,11 @@ const run = (project: Project, url: string, journey: Journey, index: number, how
         const who = people[call.actor];
         const person = who?.person ?? "";
         const principal: Principal = who?.person ? { kind: "person", person: who.person, email: who.email } : { kind: "anonymous" };
-        const may = yield* mayCall(url, facts.tableOf, call.operation, payload, principal);
-        const r = yield* callOperation(url, operation, call.operation, payload, people[call.actor]?.token ?? "", call.request);
+        const may = yield* mayCall(facts.facts, facts.tableOf, call.operation, payload, principal);
+        const r = yield* callOperation(url, facts.facts, operation, call.operation, payload, people[call.actor]?.token ?? "", call.request);
         const model = project.model.operations[operation];
         const id = model?.move && r.status === 200 ? subjectId(model, r.wire, r.body) : undefined;
-        const state = id === undefined ? undefined : yield* stateOf(url, model!.thing, id);
+        const state = id === undefined ? undefined : yield* stateOf(facts.facts, model!.thing, id);
         const record: CallRecord = {
           journey: journey.name, step, actor: call.actor, person, operation, payload: r.wire, status: r.status, body: r.body,
           trace: r.trace, parent: r.parent, mayCall: may, journal: r.journal, stored: typeof state === "string" ? state : undefined,
@@ -86,4 +87,4 @@ const run = (project: Project, url: string, journey: Journey, index: number, how
     return done(undefined);
   });
 
-export const Journeys: JourneysApi = { load: loadProject, run };
+export const Journeys: JourneysApi = { load: loadProject, run, databaseFacts };

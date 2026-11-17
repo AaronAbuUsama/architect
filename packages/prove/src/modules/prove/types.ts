@@ -65,6 +65,11 @@ export interface ProveApi {
     readonly root: string;
     readonly url: string;
     readonly telemetry: string;
+    /**
+     * The environment's state folder (`.architect/environments/<env>/state`). Its `/_world/*` is closed, so the rows and
+     * journal the evals read come from its database file instead (D3 #127). Without it, from the world's own front door.
+     */
+    readonly state?: string;
     readonly say: (line: string) => Effect.Effect<void>;
   }) => Effect.Effect<{ readonly passed: boolean; readonly results: ReadonlyArray<Result> }, ProveFailed>;
 }

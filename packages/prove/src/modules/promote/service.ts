@@ -1,3 +1,4 @@
+import { join, resolve } from "node:path";
 import { Effect } from "effect";
 import { Compiler, nodeSource, type EnvironmentModel } from "@architect/compiler";
 import { Build } from "#modules/build/service.js";
@@ -44,7 +45,7 @@ const to: PromoteApi["to"] = ({ root, env, target, say }) =>
     if (target === "staging") {
       // The staging verdicts: the journeys and evals, run where staging runs, by people who really sign up.
       if (up.telemetry === undefined) return yield* new PromoteFailed({ message: "staging records no telemetry, so its evals have nothing to judge: another environment must declare promotesFrom: \"staging\"" });
-      const proved = yield* Prove.against({ root, url: up.url, telemetry: up.telemetry, say }).pipe(Effect.mapError(failed));
+      const proved = yield* Prove.against({ root, url: up.url, telemetry: up.telemetry, state: join(resolve(root), ".architect/environments", target, "state"), say }).pipe(Effect.mapError(failed));
       // Staleness judges these verdicts against the model of the revision they proved, so the logbook keeps that model first.
       yield* Releases.keep({ logbook, env, model, revision }).pipe(Effect.mapError(failed));
       const source = yield* Verdicts.sourceOf(env).pipe(Effect.mapError(failed));

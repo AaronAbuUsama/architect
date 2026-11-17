@@ -21,6 +21,7 @@
   "devDependencies": {
     "@architect/generators": "workspace:*",
     "@architect/logbook": "workspace:*",
+    "@modelcontextprotocol/sdk": "1.32.2",
     "nx": "24.0.3"
   },
   "files": [

@@ -16,8 +16,7 @@ Verdaccio and scratch cleanup). Gate 1 (`nx run e2e:layer1`) is green on `layer/
 **In flight when this was written** (each a Claude Code builder in its own worktree, pushing its own branch; check
 `git branch -r` and merge each into `layer/3` if it has landed, or rebuild the step from its row if the branch never
 appears):
-- `build/L2.08`: the MCP server with OAuth (`generated/mcp`), and `/_world/*` closed outside world-hosting
-  environments (D3 #96). D3 from #122.
+- `build/L2.08`: done (below), waiting to be merged into `layer/3`.
 - `build/L2.10`: the read-only portal on F1's data contract. D3 from #130.
 - `build/L2.09`: `watch` over the `TraceSource` (File, then Axiom with `capxul-query`), drift as a task. D3 #140 to
   #149, ports 8900 to 8949.
@@ -173,6 +172,12 @@ publishes with the rest. Author's checks 01 and 02 pass. The GitHub Action (`tes
 
 L2.L (branch `build/L2.L`, D3 #70, evidence `evidence/L2.L/`): Aaron's layout call. Handlers are `src/<thing>/<operation>.ts`, mirroring `blueprint/things/`; there is no `implementation/` folder, and a thing's contract and workflows join its folder in later layers. The e2e files still say `implementation/`; the journey author updates them.
 
+L2.08 done on `build/L2.08` (decisions D3 #122 to #127; evidence `evidence/L2.08/`): `generated/mcp` is the catalog and `Mcp` in `target-effect` makes one MCP tool per
+operation and read on the SDK's stateless streamable HTTP server (input schema from the declaration, public fields only, private ones by role through
+`Access.holds`, refusals as `[AL-001] …` tool errors, the API's role check); the generated server serves `/mcp` and the OAuth discovery, with Better Auth's
+`oauthProvider` and `jwt` on `AuthD1` (one instance per origin, registration capped at 500 clients, consent headless). `/_world/*` is a 404 unless the
+environment is `local` (or unnamed) or declares a lifetime and was started to host worlds; staging's proof reads its database file (`Facts`), not the door.
+`zod` is pinned 4.5.4 in `target-effect` (4.6.7 breaks the Worker's start). The author's checks 01 to 07 and Gate 1 pass; 07 needed no change.
 L2.O done on `build/L2.O` (decisions D3 #100 to #109, #120, #121; evidence `evidence/L2.O/`): `architect telemetry view|stop|trace <id>|open <id>` and `prove --view`
 (`Viewer`, `grafana/otel-lgtm` by digest, anonymous Grafana, a second Collector exporter while it runs; `dev` gets a Collector only then), a Collector
 whose owner pid is gone is removed at the next start, prove exports `journey.<name>` as each trace's root, a refusal ends its span ok and a defect ends
@@ -195,7 +200,7 @@ L2.05 (local reading) is built on `build/L2.05` (decisions D3 #90 to #98; eviden
 staging, staging earns production), checking `/_architect/bundle`; staging is proved where it runs (`Prove.against`, people signing up through Better
 Auth; staging has its own collector now) and posts staging verdicts; production records the release and carries staging's verdicts. One token source
 (`Verdicts.sourceOf`). Author's checks 01, 02, 03 and 06 pass; 04 and 05 call `promote --to staging` without `prove --env test` (the author must add it);
-publishing is L2.06's, the MCP server L2.08's, watch L2.09's, the portal L2.10's. `/_world/*` is still open on every environment (D3 #96, `later.md`).
+publishing is L2.06's, the MCP server L2.08's, watch L2.09's, the portal L2.10's. `/_world/*` is closed outside world-hosting environments since L2.08 (D3 #126).
 
 L2.06 (local reading) is built on `build/L2.06` (decisions D3 #110 to #119; evidence `evidence/L2.06/`): `architect publish --dry-run | --local`
 (`Publish` in `@architect/prove`, composed by `Ship.publish`): the generated SDK and CLI as `@<folder>/sdk` and `@<folder>/cli` at `version --next`,
