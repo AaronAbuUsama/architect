@@ -1,5 +1,56 @@
 # Where everything stands
 
+## START HERE (17 November 2026, the conductor, for whoever continues: Claude Code or Codex)
+
+**The goal** is `goals/01-the-whole-framework-locally.md`: all five gates passing locally and in CI, on `main`, in six
+stages. The rules are `AGENTS.md`; the thread kit (conductor, threads, spike, reviewer, hashtags) is `.agents/skills/`.
+
+**Where it stands.** Stages 1 and 2 (Gate 1) are on `main`. Stage 3 (Gate 2, shipping) is open on `layer/3`; the steps
+that are merged there, each with its decisions in `decisions/D3.md` and evidence in `evidence/<step>/`:
+L2.01 environments, L2.02 test worlds, L2.03 logbook, L2.04 versions, L2.05 promote, L2.06 publish, L2.07 device
+sign-in, L2.L the `src/<thing>/` layout (Aaron), L2.P privacy seams. Gate 1 (`nx run e2e:layer1`) is green on `layer/3`;
+of Gate 2's eight checks (`e2e/layer2/`), 01 to 06 pass run one by one, 07 waits on L2.08, 08 on L2.09 and L2.10.
+
+**In flight when this was written** (each a Claude Code builder in its own worktree, pushing its own branch; check
+`git branch -r` and merge each into `layer/3` if it has landed, or rebuild the step from its row if the branch never
+appears):
+- `build/L2.O`: seeing traces: `architect telemetry view|stop|trace|open`, the local viewer (`grafana/otel-lgtm`),
+  sinks as config (`Telemetry.sink.local|axiom`), the Axiom sink reading Aaron's keychain, personal keys dropped (O1).
+- `build/L2.08`: the MCP server with OAuth (`generated/mcp`), and `/_world/*` closed outside world-hosting
+  environments (D3 #96).
+
+**Next, in order:** L2.09 `watch` (reads telemetry through O1's `TraceSource`), L2.10 the portal (read-only, on the data
+contract in PR 12 `design/frontend`, F1), then L2.11 Gate 2: add a CI job `e2e-layer2`, run `nx run e2e:layer2` green
+locally and in CI, evidence for every step (`ci.json`, `python3 tools/evidence/page.py`), the 🔍 reviewer, the pull
+request `layer/3` into `main`, merged when CI is green; then the spoken report to Aaron. Then stage 4 opens with
+wayfinding (`wayfinding/stage-4.md`).
+
+**How the work runs.** The conductor keeps `layer/3` and merges; each step is one builder in its own worktree on
+`build/<step>` from `layer/3`, given its D3 numbers, its ports and its contract (the build-plan row, D3, the author's
+checks), and told never to edit `e2e/` or fixtures. Journeys, checks and fixtures are a separate ✍️ author's
+(`author/<topic>` branches). The conductor merges, resolves conflicts (decision blocks append; generated files are
+regenerated, never merged by hand), runs `pnpm nx reset` then `NX_DAEMON=false pnpm nx sync` after any generator change,
+lint and typecheck, and pushes.
+
+**Traps already hit.**
+- Builders running tests at once collide on ports and Docker: give each its own port range (used so far 8940 to 9089),
+  and run Gate 2 when no builder is. Gate 2's teardown removes every new `architect-*` container, other agents' too.
+- A Collector whose run was killed stays up and holds its port; L2.O removes such orphans at the next start. Until it
+  lands: `docker ps` for `architect-collector-<pid>-…` whose pid is gone, and remove those only.
+- A stale Nx daemon writes generated files from the old generator: `pnpm nx reset` first.
+- The CI key for Gate 1 check 4 is given only to pull requests into `main` and pushes to `main` (D3 #71, $10 a day).
+
+**Aaron's credentials, for the cloud pass and O1** (never print, never write to a file): the Axiom tokens are in his
+keychain by service name (`capxul-ingest-test`, `capxul-ingest-real`, `capxul-ingest-agents`,
+`capxul-ingest-cloudflare`, `capxul-query`), with `axiom-org-id` and `axiom-domain` (EU Central 1); `ANTHROPIC_API_KEY`
+is a repository secret. Observability is Axiom only for now (O1, Aaron); PostHog is in `later.md`.
+
+**Side work, not on the main line:** H1/H2 the agent harness (PR 9 waits on Aaron: his Command Code plan and the daily
+cap), F1 the portal's design (PR 12), the Codex handoff prompt (PR 13, 14), N1 Noir on Aztec (later).
+
+The history below is kept for the record; START HERE is what is current.
+
+
 Kept by the 🎼 conductor, so a fresh conductor can take over. Last updated 16 November 2026, mid stage 3 (Gate 2). The section "Where the goal stands" ends with what is in flight now.
 
 ## Done
