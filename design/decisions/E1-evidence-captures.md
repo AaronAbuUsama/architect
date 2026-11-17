@@ -26,3 +26,14 @@ capture time. This is a display guard, not a claim to detect every possible cred
 raw, partial and malformed records; mixed or empty steps; failure badges, including mixed raw records with a known capture or CI failure; HTML escaping; private display values.
 `python3 tools/evidence/page.py` rebuilds the actual record collection. Evidence is in
 `evidence/Evidence-recovery/`. No historical output or source metadata was fabricated. No service was started.
+
+
+## Display privacy addendum, 17 November 2026
+
+The rendered historical records also contained five opaque organization identifiers. The runtime's IDs module
+owns their spelling: an organization prefix followed by sixteen random base36 digits; one older record held a
+fifteen-digit suffix. The existing display seam now masks the opaque prefix plus six or more lowercase base36
+digits, including those truncated records. Operation, role and field names such as `organization.create`,
+`organization.owner` and `organization.id` keep their spelling. Historical captures stay unchanged.
+The invented-identifier regression fails before this guard and passes after; the real rendered page's count
+of organization-style identifiers is zero. No service is started for this correction.

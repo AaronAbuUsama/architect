@@ -1,0 +1,4 @@
+$ python3 -c from pathlib import Path; import re; s=Path("design/evidence/index.html").read_text(); count=len(re.findall(r"\borg_[A-Za-z0-9_-]{6,}",s)); print("Organization-style identifiers in rendered page:",count); assert count == 0
+# commit 2b560b7 · 2026-11-17T03:19:30Z · exit 0 (expected 0) · 0.1s
+
+Organization-style identifiers in rendered page: 0
