@@ -67,3 +67,8 @@ belongs to, and why it waits.
 - **Atomic OAuth client-registration ceiling before public deployment (D3 #195).** The local count-before-insert guard
   is a throttle; concurrent registrations can exceed the nominal500 threshold. Keep role/JWT admission unchanged,
   but enforce a strict ceiling at its authoritative mutation before a public cloud rollout. No such rollout is in goal01.
+
+- **Legacy host adapter policy debt (D3 #197).** Before extending the existing publish, world-process or host
+  telemetry adapters, and before public cloud use, remove their remaining literal throw/try and ambient-env policy
+  violations and close the corresponding workspace lint coverage gap. Local Gate2 records this limitation; it
+  does not grant new runtime exceptions or claim every standing-rule syntax restriction was certified.

@@ -70,6 +70,13 @@ and truthfully recorded the author-before-builder process deviation. The conduct
 and16real-service planted/list/privacy guards on543611e; all passed. All16projects' lint/typecheck plus Nx sync passed.
 No builder, author or root verifier service remains. Stage3 delivery now owns the exclusive clean full-gate window.
 
+**Latest clean Gate2 attempt is red, with cleanup complete.** Exact clean candidatec867e21 ran all8files/10tests
+with0skips in282.8s;9tests passed including actualMacHomebrew, while check04 ended with a direct test `fetch`
+ECONNRESET. All Architect containers, gate taps/formulas, exact gate listeners and own runtime processes are gone;
+unrelated resources remain untouched. Raw attempt and preflight/cleanup are retained under
+`evidence/L2.11/attempts/c867e21-*`. The separate author owns request-lifecycle diagnosis and focusedcheck04 alone;
+no product cause is claimed yet and no runtime-source correction has started. Linuxrun44023299021 is still active.
+
 **Next, in order.**
 1. Checkpoint integrated receipts and status, then freeze source. Run the clean full local Gate2 alone on that exact
    committed candidate using stock configuration. Preserve full raw output and ownership-scoped cleanup.

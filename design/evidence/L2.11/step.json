@@ -2,8 +2,8 @@
   "step": "L2.11",
   "stage": "Stage 3 · shipping on local worlds (Gate 2)",
   "title": "Gate 2: eight shipping checks locally and in Linux CI",
-  "status": "local-pass-ci-pending",
-  "summary": "The full Gate 2 passed from clean committed source: all eight authored files and ten tests, with no skips, including the real macOS arm64 Homebrew install. The CI job pins Node 24.22.2, frozen dependencies and mandatory Linuxbrew. Linux CI and the independent final review remain pending.",
+  "status": "final-clean-attempt-failed",
+  "summary": "The earlier full Gate2 passed with ten tests and real Homebrew. The fresh clean c867e21 attempt passed nine of ten tests, including real Mac Homebrew, but check04 ended in a direct test fetch ECONNRESET. Its raw failure and complete clean preflight/cleanup remain under attempts; the separate author is diagnosing the request lifecycle. Linux CI and the final independent gate verdict remain pending.",
   "proves": "A PR goes to test, then staging, then production. There is a verdict in each environment, and the npm version equals `architect version --next`.",
   "captions": {
     "01-ci-static": "Workspace lint, typecheck, Nx sync and workflow syntax validation; these are static checks.",
