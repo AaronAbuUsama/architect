@@ -27,7 +27,7 @@ const files = [
   ...things.map((t) => ({ type: "meta" as const, path: `things/${t.name}/meta.json`, data: {
     title: t.name, pages: [
       "---Operations---", ...Object.values(M.operations).filter((o) => o.thing === t.name).map((o) => o.verb),
-      ...(t.machine ? ["---State machine---", `[${t.machine.states.length} states, ${Object.keys(t.machine.moves).length} moves](/things/${t.name}#machine)`] : []),
+      ...(t.machine ? ["---State machine---", "machine"] : []),
       ...(Object.keys(t.events ?? {}).length ? ["---Events---", ...Object.keys(t.events ?? {})] : []),
     ] } satisfies MetaData })),
 ];

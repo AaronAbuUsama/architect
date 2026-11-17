@@ -48,3 +48,11 @@ export const evalOf = (op: string, env: string, key: string): { result: EvalResu
   if (key === "performance" && op === "allowance.spend") return { result: "review", note: "p95 212 ms against 150 ms (1.41x)" };
   return { result: "pass", note: "" };
 };
+
+/** Measured p95 per operation and environment, from the performance eval's spans. Illustrative; null where nothing ran. */
+export const p95Of = (op: string, env: string): number | null => {
+  const o = M.operations[op]!; if (!o.budget || proofOf(op, env).state === "unproven") return null;
+  if (op === "allowance.spend") return 212;
+  const i = operations.findIndex((x) => x.name === op), j = ENVS.indexOf(env as (typeof ENVS)[number]);
+  return Math.round(o.budget.p95Ms * (0.3 + (((i * 37 + j * 11) % 55) / 100)));
+};

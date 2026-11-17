@@ -8,6 +8,7 @@ import { BP, M, opsOf, things, typeText, type Fields } from "../blueprint/model.
 import type { PageKind } from "../blueprint/paths.ts";
 import { MachineDiagram } from "./machine.tsx";
 import { OperationProof, ProofMatrix } from "./proof.tsx";
+import { ProofOverview, StatTiles } from "./proof-overview.tsx";
 import { AccessMatrix, ErrorsTable, EventsTable, MovesTable, OperationsTable, ValuesTable } from "./reference.tsx";
 import { A, Code, Illustration, Sub, to, TypeCell } from "./status.tsx";
 
@@ -20,10 +21,11 @@ export function sections(p: PageKind): Section[] {
   switch (p.kind) {
     case "home": return [
       { id: "things", title: "Things", body: <ThingsTable /> },
-      { id: "proof", title: "Proof", body: <>{evidenceNote}<ProofMatrix /></> },
+      { id: "proof", title: "Proof", body: <>{evidenceNote}<StatTiles /><ProofMatrix /></> },
     ];
     case "proof": return [
-      { id: "matrix", title: "Every operation", body: <>{evidenceNote}<p>One row per operation, one fact per column. Open a row (▸) for the nine evals behind its verdicts, or switch to By eval to see each eval across every operation.</p><ProofMatrix /></> },
+      { id: "overview", title: "At a glance", body: <>{evidenceNote}<ProofOverview /></> },
+      { id: "matrix", title: "Every operation", body: <><p>Each environment shows the verdict and its nine evals as squares; hover a square for the eval and its note.</p><ProofMatrix /></> },
       { id: "candidate", title: "What it is judged against", body: <p>The candidate is <Code>{CANDIDATE}</Code>, the newest revision proved in test. A verdict from an older revision still counts when the contract it rests on has not changed; it says so.</p> },
     ];
     case "thing": { const t = M.things[p.thing]!; return [
@@ -48,6 +50,7 @@ export function sections(p: PageKind): Section[] {
         { id: "refusals", title: "Refusals", body: <ErrorsTable op={o.name} /> },
         { id: "access", title: "Who may call", body: <AccessMatrix thing={o.thing} /> },
       ]; }
+    case "machine": return [{ id: "machine", title: "Machine", body: <><MachineDiagram thing={p.thing} /><MovesTable thing={p.thing} /></> }];
     case "event": { const fields = M.things[p.thing]!.events![p.event]!; const by = opsOf(p.thing).filter((o) => o.move?.emits === p.event); return [
       { id: "fields", title: "Carries", body: <Fields fields={fields} empty="Nothing." /> },
       { id: "emitted", title: "Emitted by", body: by.map((o) => <div key={o.name}><p><A href={to.op(o.name)}>{o.name}</A>, on the move <b>{o.move!.key}</b>.</p><MachineDiagram thing={p.thing} hot={o.move!.key} /></div>) },
