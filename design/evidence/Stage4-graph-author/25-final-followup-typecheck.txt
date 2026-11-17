@@ -1,0 +1,4 @@
+$ node_modules/.bin/tsc -p e2e/layer3/tsconfig.json
+# commit be58b32 · 2026-11-17T11:03:49Z · exit 0 (expected 0) · 1.1s
+
+

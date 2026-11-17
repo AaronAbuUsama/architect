@@ -1,5 +1,9 @@
 # Stage 4 L3.01 graph/collision author receipt
 
+Review correction: see [followup.md](followup.md). Its directional cycle oracle
+supersedes the original cycle paragraph below, and adds dependency-source
+isolation, direct kit metadata and operation-reference rejection checks.
+
 Author-only change based on `5219cf065227b84b9691ee9936d7a7da4f22642f`, on
 `author/stage4-graph-checks`. No production source, handlers, shared helpers,
 old tests, evals, generic runner or gate configuration changed. The adopted Echo

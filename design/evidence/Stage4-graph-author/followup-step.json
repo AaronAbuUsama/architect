@@ -1,0 +1,14 @@
+{
+  "source_base": "be58b32c9a337358999aeac41514e460a05ff647",
+  "D4_contract": "9278116",
+  "status": "author follow-up only; product assertions unreached at unsupported CLI",
+  "positive_packed_controls": 9,
+  "graph_red": 11,
+  "collision_red": 16,
+  "static": "TypeScript + scoped Oxlint pass",
+  "cycle_oracle": "positive directional A/B consumers first; after link controlled typed cycle refusal or both observed directional dependency bundles retained",
+  "aggregation": "B own hash may remain stable or change; retained dependency bundle staleness is required",
+  "source_manifest": "followup-source-sha256.json",
+  "CI": "not run",
+  "gate3": "open"
+}

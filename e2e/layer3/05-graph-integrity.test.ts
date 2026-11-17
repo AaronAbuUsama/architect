@@ -1,7 +1,7 @@
 // D4 graph acceptance through real produced models, public Compare/Impact, and printed CLI output.
 import { spawnSync } from "node:child_process";
 import { appendFileSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { Effect } from "effect";
 import { Compare, type Model } from "@architect/compiler";
 import { Impact } from "@architect/prove";
@@ -12,7 +12,7 @@ import { addKit, model, project, repo, selectKit, run, succeeds, textAt, type Co
 
 const copies: Array<Copy> = [];
 const fresh = (variant?: string) => { const copy = project(variant); copies.push(copy); return copy; };
-afterEach(() => { for (const copy of copies.splice(0)) copy.remove(); });
+afterEach(() => { for (const copy of copies.splice(0)) rmSync(dirname(copy.root), {recursive:true,force:true,maxRetries:3,retryDelay:100}); });
 const produced = (root: string) => model(root) as unknown as Model;
 const grant = "blueprint/things/allowance/verbs/grant.ts";
 const consumer = (root: string, dependency = false) => {
@@ -46,6 +46,15 @@ const staleOnlyConsumers = async (root: string, before: Model, after: Model, dir
   expect(Compare.release(before, after).bump).toBe("patch");
   expect(Compare.release(before, after).changes.length).toBeGreaterThan(0);
 };
+
+const aliasDependency = (root: string, alias: string, upstream = false) => {
+  const declaration = textAt(root,"blueprint/dependencies/pricing.ts");
+  writeFileSync(join(root,`blueprint/dependencies/${alias}.ts`), upstream
+    ? 'import {quote as upstream} from "./pricing.ts";\n' + declaration.replace("Blueprint.dependency({","Blueprint.dependency({uses:[upstream],") : declaration);
+  writeFileSync(join(root,`src/dependencies/${alias}.ts`),textAt(root,"src/dependencies/pricing.ts").replaceAll("dependencies/pricing.ts",`dependencies/${alias}.ts`));
+};
+const dependencyUse = (root: string, file: string, alias: string) => writeFileSync(join(root,file),
+  `import {quote} from "../../../dependencies/${alias}.ts";\n` + textAt(root,file).replace('  description:','  uses:[quote],\n  description:'));
 
 describe("L3.01: normalized graph and effective source integrity", () => {
   it("prints deduplicated sorted provides/used-by edges and uses those identities in Compare", () => {
@@ -119,6 +128,50 @@ describe("L3.01: normalized graph and effective source integrity", () => {
     appendFileSync(join(fixture.installed, "dist/runtime/worker-body.js"), '\nexport const transitiveIntegrityRevision = "changed";\n');
     const byteChange = produced(root);
     await staleOnlyConsumers(root, choiceChange, byteChange, "kit:fixture:echo.repeat");
+  });
+
+  it("dependency edges propagate only the upstream mapper change, excluding an independent dependency consumer", async () => {
+    const {root} = fresh(); prepareDependency(root); addDependency(root); fillMapper(root);
+    aliasDependency(root,"peer",true); aliasDependency(root,"independent");
+    dependencyUse(root,grant,"peer"); dependencyUse(root,"blueprint/things/allowance/verbs/revoke.ts","pricing");
+    dependencyUse(root,"blueprint/things/system/verbs/health.ts","independent");
+    const before = produced(root); retainHashes(root,before);
+    for (const key of ["dependency:pricing.quote","dependency:peer.quote"]) {
+      expect(deps(before)[key]).toBeTypeOf("string"); expect(deps(before)[key]).toBe(Compare.hashOf(before,key));
+    }
+    expect(deps(before,"system.health")).toHaveProperty("dependency:independent.quote");
+    expect(deps(before,"system.health")).not.toHaveProperty("dependency:pricing.quote");
+    expect(deps(before,"system.health")).not.toHaveProperty("dependency:peer.quote");
+    const unchanged = ["blueprint/dependencies/peer.ts","src/dependencies/peer.ts","blueprint/dependencies/independent.ts","src/dependencies/independent.ts"];
+    const directSources = unchanged.map((file)=>textAt(root,file));
+    appendFileSync(join(root,"src/dependencies/pricing.ts"),'\n// Only upstream A mapping bytes change.\n');
+    expect(unchanged.map((file)=>textAt(root,file))).toEqual(directSources);
+    const after = produced(root);
+    expect(Compare.hashOf(after,"dependency:pricing.quote")).not.toBe(Compare.hashOf(before,"dependency:pricing.quote"));
+    for (const key of ["dependency:pricing.quote","dependency:peer.quote"]) expect(deps(after)[key]).toBe(Compare.hashOf(after,key));
+    expect(Compare.hashOf(after,"dependency:independent.quote")).toBe(Compare.hashOf(before,"dependency:independent.quote"));
+    expect(changed(before,after,"system.health")).toBe(false);
+    const impact = await Effect.runPromise(Impact.of(root,after));
+    expect([...impact.stale].sort()).toEqual(["allowance.grant","allowance.revoke"]);
+    expect(impact.proven).toContain("system.health");
+  });
+
+  it("kit selection third-argument uses propagates a pure dependency into its own operation and consumer", async () => {
+    const {root} = ready(true);
+    writeFileSync(join(root,grant),textAt(root,grant).replace("fixture, quote, fixture, quote","fixture"));
+    const selection = "blueprint/kits/fixture.ts";
+    writeFileSync(join(root,selection),'import {quote} from "../dependencies/pricing.ts";\n' + textAt(root,selection).replace(/Blueprint\.kit\((Fixture,.*)\);/,"Blueprint.kit($1, {uses:[quote]});"));
+    expect(textAt(root,selection)).toContain("{uses:[quote]}");
+    const before = produced(root); retainHashes(root,before);
+    for (const op of ["kit:fixture:echo.repeat","allowance.grant"]) {
+      expect(deps(before,op)["dependency:pricing.quote"]).toBeTypeOf("string");
+      expect(deps(before,op)["dependency:pricing.quote"]).toBe(Compare.hashOf(before,"dependency:pricing.quote"));
+    }
+    expect(succeeds(root,"impact").stdout).toContain("dependency:pricing.quote -> kit:fixture");
+    const kitSource = textAt(root,selection);
+    appendFileSync(join(root,"src/dependencies/pricing.ts"),'\n// Dependency used only by kit metadata changes.\n');
+    expect(textAt(root,selection)).toBe(kitSource);
+    await staleOnlyConsumers(root,before,produced(root),"kit:fixture:echo.repeat");
   });
 
   it("transient outputs and absolute checkout paths do not enter kit identity or source hashes", () => {

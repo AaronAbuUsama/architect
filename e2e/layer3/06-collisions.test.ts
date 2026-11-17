@@ -1,9 +1,10 @@
 // Independent malformed declarations: every negative starts after a successful ordinary fixture control.
 import { spawnSync } from "node:child_process";
 import { mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
+import { Compare, type Model } from "@architect/compiler";
 import { installFixture } from "./packages.ts";
 import { addDependency, fillMapper, prepareDependency } from "./dependencies.ts";
 import { addKit, model, project, repo, run, succeeds, textAt, tree, type Copy } from "./support.ts";
@@ -12,7 +13,7 @@ const copies: Array<Copy> = [];
 const variants = ["graph-invalid-namespace", "graph-invalid-export", "graph-identifier-collision", "graph-ambiguous-tags",
   "graph-final-code", "graph-reserved-prefix", "graph-no-worker", "graph-order-forward", "graph-order-reverse"];
 const fresh = (variant?: string) => { const copy = project(variant); copies.push(copy); return copy; };
-afterEach(() => { for (const copy of copies.splice(0)) copy.remove(); });
+afterEach(() => { for (const copy of copies.splice(0)) rmSync(dirname(copy.root), {recursive:true,force:true,maxRetries:3,retryDelay:100}); });
 const selected = () => {
   const copy = fresh(); addKit(copy.root); model(copy.root); succeeds(copy.root, "generate"); return copy;
 };
@@ -22,6 +23,7 @@ const invalid = (root: string, diagnostic: RegExp, sources: ReadonlyArray<string
   expect(result.out).toMatch(diagnostic);
   for (const source of sources) expect(result.out).toContain(source);
   expect(result.out).not.toMatch(/unknown command|unknown blueprint folder|is not a function|Cannot redefine property|SyntaxError/i);
+  return result;
 };
 const withOverlay = (variant: string) => {
   const copy = selected();
@@ -108,7 +110,7 @@ import {PriceUnavailable} from "../blueprint/things/allowance/errors.ts";
 const outgoing: Array<ReturnType<typeof Blueprint.dependency>> = [];
 export const quote = Blueprint.dependency({package:"@fixture/remote",version:"1.0.0",mode:"promise",errors:[PriceUnavailable],step:"network",uses:outgoing});
 export const peer = Blueprint.dependency({package:"@fixture/remote",version:"1.0.0",mode:"promise",errors:[PriceUnavailable],step:"network",uses:[quote]});
-export const linked = Reflect.set(outgoing,"0",peer);
+export const link = () => Reflect.set(outgoing,"0",peer);
 `;
     writeFileSync(join(root, "src/graph-cycle.ts"), source);
     writeFileSync(join(root, "blueprint/dependencies/pricing.ts"), 'export {quote} from "../../src/graph-cycle.ts";\n');
@@ -116,20 +118,41 @@ export const linked = Reflect.set(outgoing,"0",peer);
     writeFileSync(join(root, "src/dependencies/peer.ts"), textAt(root, "src/dependencies/pricing.ts").replaceAll('dependencies/pricing.ts', 'dependencies/peer.ts'));
     const grant = "blueprint/things/allowance/verbs/grant.ts";
     writeFileSync(join(root, grant), 'import {quote} from "../../../dependencies/pricing.ts";\n' + textAt(root, grant).replace('  description:', '  uses:[quote],\n  description:'));
+    const health = "blueprint/things/system/verbs/health.ts";
+    writeFileSync(join(root,health),'import {quote} from "../../../dependencies/peer.ts";\n' + textAt(root,health).replace('  description:','  uses:[quote],\n  description:'));
     const probe = spawnSync(process.execPath, [join(repo, "e2e/layer3/graph-entry/main.ts"), root, "--cycle"], {cwd:repo,encoding:"utf8",timeout:120_000});
     expect(probe.status, probe.stdout + probe.stderr).toBe(0); // A native TDZ/stack overflow is never a cycle proof.
-    const result = JSON.parse(probe.stdout) as {boundary:string; failure?:{_tag:string; problems:ReadonlyArray<string>}; depends?:Record<string,string>};
-    if (result.boundary === "compiler") {
-      expect(result.failure?._tag).toBe("BlueprintInvalid");
-      expect(result.failure?.problems.join("\n")).toMatch(/cycle|cyclic/i);
-      expect(result.failure?.problems.join("\n")).toContain("pricing");
-      expect(result.failure?.problems.join("\n")).toContain("peer");
+    type Observation = {a:Record<string,string>; b:Record<string,string>; aHash:string; bHash:string};
+    const result = JSON.parse(probe.stdout) as {before:Observation; linked:boolean; after:Observation & {boundary:string;failure?:{_tag:string;problems:ReadonlyArray<string>}}};
+    const directed = (observed:Observation) => {
+      expect(observed.aHash).toBeTypeOf("string"); expect(observed.bHash).toBeTypeOf("string");
+      expect(observed.a["dependency:pricing.quote"]).toBe(observed.aHash);
+      expect(observed.a).not.toHaveProperty("dependency:peer.quote");
+      expect(observed.b["dependency:pricing.quote"]).toBe(observed.aHash);
+      expect(observed.b["dependency:peer.quote"]).toBe(observed.bHash);
+    };
+    directed(result.before); // Positive A → B → O and asymmetric A-root control precede any cycle assertion.
+    if (result.after.boundary === "compiler") {
+      expect(result.after.failure?._tag).toBe("BlueprintInvalid");
+      expect(result.after.failure?.problems.join("\n")).toMatch(/cycle|cyclic/i);
+      expect(result.after.failure?.problems.join("\n")).toContain("pricing");
+      expect(result.after.failure?.problems.join("\n")).toContain("peer");
     } else {
-      // A safe constructor may snapshot/freeze uses: demonstrate that no backedge materialized through public Compare.
-      expect(["acyclic-snapshot", "immutable-input"]).toContain(result.boundary);
-      expect(result.depends?.["dependency:pricing.quote"]).toBeTypeOf("string");
-      expect(result.depends).not.toHaveProperty("dependency:peer.quote");
+      // Reflect.set's boolean alone proves nothing. Both public consumers must demonstrate retained acyclic direction.
+      expect(result.after.boundary).toBe("compiled"); directed(result.after);
+      expect(result.after.aHash).toBe(result.before.aHash); expect(result.after.bHash).toBe(result.before.bHash);
     }
+  });
+
+  it("refuses an operation object in uses after a real accepted dependency reference compiled", () => {
+    const {root} = selected(); prepareDependency(root); addDependency(root); fillMapper(root);
+    const file = "blueprint/things/allowance/verbs/grant.ts";
+    const original = textAt(root,file);
+    writeFileSync(join(root,file),'import {quote} from "../../../dependencies/pricing.ts";\n'+original.replace('  description:','  uses:[quote],\n  description:'));
+    const current = model(root) as unknown as Model;
+    expect(Compare.dependsOn(current,"allowance.grant")["dependency:pricing.quote"]).toBeTypeOf("string");
+    writeFileSync(join(root,file),'import health from "../../system/verbs/health.ts";\n'+original.replace('  description:','  uses:[health],\n  description:'));
+    expect(invalid(root,/uses|reference|operation/i,["grant.ts"]).out).toMatch(/kit|dependency/i);
   });
 
   it("refuses a kit without a Worker capability rather than generating a Node shim", () => {

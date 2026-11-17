@@ -1,0 +1,601 @@
+$ node_modules/.bin/vitest run --root e2e --config vitest.layer3.config.ts layer3/06-collisions.test.ts
+# commit be58b32 · 2026-11-17T11:01:57Z · exit 1 (expected 1) · 53.3s
+
+
+ RUN  v4.1.12 ./e2e
+
+ ❯ layer3/06-collisions.test.ts (25 tests | 17 failed) 52602ms
+     × graph-invalid-namespace is a valid TypeScript package and remains pure at its descriptor/declaration entries 1809ms
+     × rejects invalid alias ../escape before writing selections 2473ms
+     × rejects invalid alias bad/name before writing selections 2600ms
+     × rejects invalid alias bad:alias before writing selections 3409ms
+     × rejects invalid alias 1starts-with-digit before writing selections 4283ms
+     × rejects an invalid namespace without silently turning it into a path 3053ms
+     × rejects an invalid operation export without stripping its punctuation 2204ms
+     × rejects distinct namespaces that normalize to one generated identifier, with separate codes 2056ms
+     × rejects mounting the same singleton descriptor under two aliases, naming both files 2047ms
+     × rejects two distinct error classes with one wire tag in an operation's error union 2030ms
+     × rejects duplicate final error codes from project and kit declarations 1990ms
+     × reserves the runtime AR code prefix for runtime refusals 1963ms
+     × rejects an unmounted descriptor reference rather than silently omitting its uses edge 2024ms
+     × prevents a dependency cycle by immutable input/snapshot or reports its actual graph cycle 2053ms
+     × refuses an operation object in uses after a real accepted dependency reference compiled 2065ms
+     × refuses a kit without a Worker capability rather than generating a Node shim 2102ms
+     × repeated compiles and a second alias preserve export-derived tags on the same cached package class 2031ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 17 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  layer3/06-collisions.test.ts > L3.01: collision fixture positive controls > graph-invalid-namespace is a valid TypeScript package and remains pure at its descriptor/declaration entries
+Error: ENOTEMPTY, Directory not empty: '<tmp>/architect-gate1-oN79w7'
+ ❯ Object.remove layer1/support.ts:35:32
+     33|     compilerOptions: { typeRoots: [join(repo, "node_modules/@types"), …
+     34|     include: ["blueprint/**/*.ts", "generated/**/*.ts", "src/**/*.ts",…
+     35|   return { root, remove: () => rmSync(parent, { recursive: true, force…
+       |                                ^
+     36| };
+     37|
+ ❯ layer3/06-collisions.test.ts:16:61
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/17]⎯
+
+ FAIL  layer3/06-collisions.test.ts > L3.01: canonical names, tags, codes and graph refusals > rejects invalid alias ../escape before writing selections
+ FAIL  layer3/06-collisions.test.ts > L3.01: canonical names, tags, codes and graph refusals > rejects invalid alias bad/name before writing selections
+ FAIL  layer3/06-collisions.test.ts > L3.01: canonical names, tags, codes and graph refusals > rejects invalid alias bad:alias before writing selections
+ FAIL  layer3/06-collisions.test.ts > L3.01: canonical names, tags, codes and graph refusals > rejects invalid alias 1starts-with-digit before writing selections
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ selected layer3/06-collisions.test.ts:18:25
+ ❯ layer3/06-collisions.test.ts:48:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/17]⎯
+
+ FAIL  layer3/06-collisions.test.ts > L3.01: canonical names, tags, codes and graph refusals > rejects an invalid namespace without silently turning it into a path
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ selected layer3/06-collisions.test.ts:18:25
+ ❯ withOverlay layer3/06-collisions.test.ts:29:16
+ ❯ layer3/06-collisions.test.ts:60:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/17]⎯
+
+ FAIL  layer3/06-collisions.test.ts > L3.01: canonical names, tags, codes and graph refusals > rejects an invalid operation export without stripping its punctuation
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ selected layer3/06-collisions.test.ts:18:25
+ ❯ withOverlay layer3/06-collisions.test.ts:29:16
+ ❯ layer3/06-collisions.test.ts:65:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/17]⎯
+
+ FAIL  layer3/06-collisions.test.ts > L3.01: canonical names, tags, codes and graph refusals > rejects distinct namespaces that normalize to one generated identifier, with separate codes
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ selected layer3/06-collisions.test.ts:18:25
+ ❯ withOverlay layer3/06-collisions.test.ts:29:16
+ ❯ layer3/06-collisions.test.ts:70:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/17]⎯
+
+ FAIL  layer3/06-collisions.test.ts > L3.01: canonical names, tags, codes and graph refusals > rejects mounting the same singleton descriptor under two aliases, naming both files
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ selected layer3/06-collisions.test.ts:18:25
+ ❯ layer3/06-collisions.test.ts:75:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/17]⎯
+
+ FAIL  layer3/06-collisions.test.ts > L3.01: canonical names, tags, codes and graph refusals > rejects two distinct error classes with one wire tag in an operation's error union
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ selected layer3/06-collisions.test.ts:18:25
+ ❯ withOverlay layer3/06-collisions.test.ts:29:16
+ ❯ layer3/06-collisions.test.ts:81:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/17]⎯
+
+ FAIL  layer3/06-collisions.test.ts > L3.01: canonical names, tags, codes and graph refusals > rejects duplicate final error codes from project and kit declarations
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ selected layer3/06-collisions.test.ts:18:25
+ ❯ withOverlay layer3/06-collisions.test.ts:29:16
+ ❯ layer3/06-collisions.test.ts:87:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/17]⎯
+
+ FAIL  layer3/06-collisions.test.ts > L3.01: canonical names, tags, codes and graph refusals > reserves the runtime AR code prefix for runtime refusals
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ selected layer3/06-collisions.test.ts:18:25
+ ❯ withOverlay layer3/06-collisions.test.ts:29:16
+ ❯ layer3/06-collisions.test.ts:92:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/17]⎯
+
+ FAIL  layer3/06-collisions.test.ts > L3.01: canonical names, tags, codes and graph refusals > rejects an unmounted descriptor reference rather than silently omitting its uses edge
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ selected layer3/06-collisions.test.ts:18:25
+ ❯ layer3/06-collisions.test.ts:97:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/17]⎯
+
+ FAIL  layer3/06-collisions.test.ts > L3.01: canonical names, tags, codes and graph refusals > prevents a dependency cycle by immutable input/snapshot or reports its actual graph cycle
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ selected layer3/06-collisions.test.ts:18:25
+ ❯ layer3/06-collisions.test.ts:107:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/17]⎯
+
+ FAIL  layer3/06-collisions.test.ts > L3.01: canonical names, tags, codes and graph refusals > refuses an operation object in uses after a real accepted dependency reference compiled
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ selected layer3/06-collisions.test.ts:18:25
+ ❯ layer3/06-collisions.test.ts:148:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/17]⎯
+
+ FAIL  layer3/06-collisions.test.ts > L3.01: canonical names, tags, codes and graph refusals > refuses a kit without a Worker capability rather than generating a Node shim
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ selected layer3/06-collisions.test.ts:18:25
+ ❯ withOverlay layer3/06-collisions.test.ts:29:16
+ ❯ layer3/06-collisions.test.ts:159:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/17]⎯
+
+ FAIL  layer3/06-collisions.test.ts > L3.01: canonical names, tags, codes and graph refusals > repeated compiles and a second alias preserve export-derived tags on the same cached package class
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ selected layer3/06-collisions.test.ts:18:25
+ ❯ layer3/06-collisions.test.ts:164:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/17]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  17 failed | 8 passed (25)
+   Start at  11:01:04
+   Duration  53.01s (transform 105ms, setup 0ms, import 273ms, tests 52.60s, environment 0ms)
