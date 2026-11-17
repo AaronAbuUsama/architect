@@ -1,7 +1,7 @@
 // `prove --env test`: a world in the long-lived test environment, the journeys and evals against it, a signed verdict
 // per operation in the logbook, then the world destroyed (D3 #14, #50, #53).
 import { randomBytes } from "node:crypto";
-import { Effect, Schema } from "effect";
+import { Effect } from "effect";
 import type { Model } from "@architect/compiler";
 import { Build } from "#modules/build/service.js";
 import { Environments } from "#modules/environments/service.js";
@@ -14,12 +14,6 @@ import { ProveFailed, type ProveApi } from "../types.ts";
 import { closing, exercise, resultsOf } from "./exercise.ts";
 
 const TEST = "test";
-const Bundle = Schema.Struct({ revision: Schema.String, sha256: Schema.String });
-const sameBundle = (url: string, revision: string, sha256: string) => Effect.gen(function* () {
-  const raw = yield* Effect.tryPromise({ try: () => fetch(`${url}/_architect/bundle`, { headers: { connection: "close" } }).then((r) => r.json() as Promise<unknown>), catch: () => new ProveFailed({ message: "test did not report its bundle" }) });
-  const reported = yield* Schema.decodeUnknownEffect(Bundle)(raw).pipe(Effect.mapError(() => new ProveFailed({ message: "test did not report a revision and bundle hash" })));
-  if (reported.revision !== revision || reported.sha256 !== sha256) return yield* new ProveFailed({ message: "test is not running the bundle being proved" });
-});
 const failed = (e: { readonly message: string }) => new ProveFailed({ message: e.message });
 
 /** The lifetime in words and in milliseconds: the one asked for, else the environment's own. */
@@ -44,7 +38,7 @@ export const proveInTest = (model: Model, project: Project, options: Parameters<
     if (yield* Build.dirty(root).pipe(Effect.mapError(failed))) return yield* new ProveFailed({ message: "commit or stash changes before proving a revision in test" });
     const built = (yield* Build.find(root, revision).pipe(Effect.mapError(failed))) ?? (yield* Build.build(root, options.env).pipe(Effect.mapError(failed)));
     const environment = yield* Environments.up({ root, name: TEST, revision, env: options.env ?? {} }).pipe(Effect.mapError(failed));
-    yield* sameBundle(environment.url, revision, built.sha256);
+    yield* Environments.verify({ root, name: TEST, pid: environment.pid, revision, sha256: built.sha256 }).pipe(Effect.mapError(failed));
     for (const note of environment.notes ?? []) yield* say(note);
     if (!environment.telemetry) return yield* new ProveFailed({ message: `environment ${TEST} has no collector of its own` });
     const collector = Collectors.read(environment.telemetry);
@@ -61,8 +55,8 @@ export const proveInTest = (model: Model, project: Project, options: Parameters<
           yield* say(verdict.line);
 
           const results = resultsOf(model, done);
-          yield* sameBundle(environment.url, revision, built.sha256);
-          if ((yield* Build.dirty(root).pipe(Effect.mapError(failed))) || (yield* Build.revision(root).pipe(Effect.mapError(failed))) !== revision) return yield* new ProveFailed({ message: "the source changed while proving: commit it and prove again" });
+          yield* Environments.verify({ root, name: TEST, pid: environment.pid, revision, sha256: built.sha256 }).pipe(Effect.mapError(failed));
+          yield* Build.unchanged(root, built.commit).pipe(Effect.mapError(failed));
           // The portal and `impact` judge a verdict against the model of the revision it proved, so the logbook keeps that model first (D3 #138).
           yield* Releases.keep({ logbook: options.logbook, source: options.token, model, revision }).pipe(Effect.mapError(failed));
           const token = yield* Verdicts.mint(options.token).pipe(Effect.mapError(failed));

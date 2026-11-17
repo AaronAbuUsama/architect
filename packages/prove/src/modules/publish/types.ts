@@ -16,6 +16,8 @@ export interface Staged {
   /** Where the package was built, ready for `npm publish`. */
   readonly dir: string;
   /** Every file `npm publish` would send, by path. */
+  /** npm pack’s integrity for precisely these package files. */
+  readonly integrity: string;
   readonly files: ReadonlyArray<{ readonly path: string; readonly bytes: number }>;
 }
 
@@ -50,10 +52,13 @@ export interface PublishApi {
    *   (`skipped npmjs.org (cloud pass)`, `skipped github releases (cloud pass)`).
    *
    * A prerelease (`1.1.0-next.2`) is always published under a dist-tag that is not `latest`, whatever the blueprint says.
-   * A version the registry already has is said so and left alone, so a promotion can be run again.
+   * A version already on the registry is reused only when its npm integrity matches these staged bytes.
+   * Per-invocation output remains under the original root after temporary captured source is removed.
    */
   readonly run: (options: {
     readonly root: string;
+    /** Promotion callers pin the full Git commit; source is archived privately before staging any output. */
+    readonly sourceRevision?: string;
     readonly env: Env;
     readonly environment: PublishTarget;
     readonly version: string;

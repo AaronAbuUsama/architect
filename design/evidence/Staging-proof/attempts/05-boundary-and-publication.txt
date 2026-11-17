@@ -1,0 +1,144 @@
+$ pnpm exec vitest run --root packages/prove src/modules/promote/staging.test.ts
+# commit 8f50320 · 2026-11-17T02:45:48Z · exit 1 (expected 0) · 60.1s
+
+
+ RUN  v4.1.12 ./packages/prove
+
+ ❯ src/modules/promote/staging.test.ts (6 tests | 2 failed) 58398ms
+     × installs the captured SDK and CLI even if source changes after capture during publication 433ms
+     × owns package and SEA outputs per invocation and preserves earlier tarballs and formula URLs 298ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/promote/staging.test.ts > publication identity > installs the captured SDK and CLI even if source changes after capture during publication
+ FAIL  src/modules/promote/staging.test.ts > publication identity > owns package and SEA outputs per invocation and preserves earlier tarballs and formula URLs
+PublishFailed: the blueprint is invalid:
+  - blueprint/things/allowance/thing.ts field organization: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/allowance/thing.ts field member: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/allowance/machine.ts move grant: emits an event not exported from events.ts
+  - blueprint/things/allowance/machine.ts move spend: emits an event not exported from events.ts
+  - blueprint/things/allowance/machine.ts move revoke: emits an event not exported from events.ts
+  - blueprint/things/allowance/machine.ts: is a machine of another thing
+  - blueprint/things/allowance/events.ts AllowanceGranted field allowance: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/allowance/events.ts AllowanceRevoked field allowance: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/allowance/events.ts AllowanceSpent field allowance: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/api-key/thing.ts field organization: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/api-key/thing.ts field createdBy: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/invitation/thing.ts field organization: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/invitation/thing.ts field email: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/invitation/thing.ts field invitedBy: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/invitation/machine.ts move send: emits an event not exported from events.ts
+  - blueprint/things/invitation/machine.ts move accept: emits an event not exported from events.ts
+  - blueprint/things/invitation/machine.ts move revoke: emits an event not exported from events.ts
+  - blueprint/things/invitation/machine.ts: is a machine of another thing
+  - blueprint/things/invitation/events.ts InvitationAccepted field invitation: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/invitation/events.ts InvitationAccepted field membership: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/invitation/events.ts InvitationRevoked field invitation: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/invitation/events.ts InvitationSent field invitation: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/invitation/events.ts InvitationSent field email: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/membership/thing.ts field organization: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/membership/thing.ts field person: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/organization/thing.ts field owner: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/organization/machine.ts move create: emits an event not exported from events.ts
+  - blueprint/things/organization/machine.ts: is a machine of another thing
+  - blueprint/things/organization/events.ts OrganizationCreated field organization: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/organization/events.ts OrganizationCreated field owner: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/session/thing.ts field person: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/allowance/verbs/get.ts: declares an operation of another thing
+  - blueprint/things/allowance/verbs/get.ts: uses a role not exported from a roles.ts
+  - blueprint/things/allowance/verbs/get.ts: uses a role not exported from a roles.ts
+  - blueprint/things/allowance/verbs/get.ts payload field id: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/allowance/verbs/get.ts answer field organization: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/allowance/verbs/get.ts answer field member: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/allowance/verbs/get.ts answer field limit: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/allowance/verbs/get.ts answer field spent: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/allowance/verbs/grant.ts: declares an operation of another thing
+  - blueprint/things/allowance/verbs/grant.ts: moves another thing's machine
+  - blueprint/things/allowance/verbs/grant.ts: declares an error not exported from an errors.ts
+  - blueprint/things/allowance/verbs/grant.ts: uses a role not exported from a roles.ts
+  - blueprint/things/allowance/verbs/grant.ts payload field organization: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/allowance/verbs/grant.ts payload field member: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/allowance/verbs/grant.ts payload field limit: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/allowance/verbs/grant.ts answer field allowance: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/allowance/verbs/revoke.ts: declares an operation of another thing
+  - blueprint/things/allowance/verbs/revoke.ts: moves another thing's machine
+  - blueprint/things/allowance/verbs/revoke.ts: uses a role not exported from a roles.ts
+  - blueprint/things/allowance/verbs/revoke.ts payload field allowance: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/allowance/verbs/spend.ts: declares an operation of another thing
+  - blueprint/things/allowance/verbs/spend.ts: moves another thing's machine
+  - blueprint/things/allowance/verbs/spend.ts: declares an error not exported from an errors.ts
+  - blueprint/things/allowance/verbs/spend.ts: uses a role not exported from a roles.ts
+  - blueprint/things/allowance/verbs/spend.ts payload field allowance: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/api-key/verbs/create.ts: declares an operation of another thing
+  - blueprint/things/api-key/verbs/create.ts: uses a role not exported from a roles.ts
+  - blueprint/things/api-key/verbs/create.ts payload field organization: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/api-key/verbs/create.ts payload field name: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/api-key/verbs/create.ts answer field apiKey: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/invitation/verbs/accept.ts: declares an operation of another thing
+  - blueprint/things/invitation/verbs/accept.ts: moves another thing's machine
+  - blueprint/things/invitation/verbs/accept.ts: uses a role not exported from a roles.ts
+  - blueprint/things/invitation/verbs/accept.ts payload field invitation: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/invitation/verbs/accept.ts answer field organization: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/invitation/verbs/accept.ts answer field membership: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/invitation/verbs/revoke.ts: declares an operation of another thing
+  - blueprint/things/invitation/verbs/revoke.ts: moves another thing's machine
+  - blueprint/things/invitation/verbs/revoke.ts: uses a role not exported from a roles.ts
+  - blueprint/things/invitation/verbs/revoke.ts payload field invitation: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/invitation/verbs/send.ts: declares an operation of another thing
+  - blueprint/things/invitation/verbs/send.ts: moves another thing's machine
+  - blueprint/things/invitation/verbs/send.ts: uses a role not exported from a roles.ts
+  - blueprint/things/invitation/verbs/send.ts payload field organization: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/invitation/verbs/send.ts payload field email: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/invitation/verbs/send.ts answer field invitation: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/membership/verbs/get.ts: declares an operation of another thing
+  - blueprint/things/membership/verbs/get.ts: uses a role not exported from a roles.ts
+  - blueprint/things/membership/verbs/get.ts: uses a role not exported from a roles.ts
+  - blueprint/things/membership/verbs/get.ts payload field id: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/membership/verbs/get.ts answer field organization: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/membership/verbs/get.ts answer field person: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/membership/verbs/get.ts answer field role: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/organization/verbs/create.ts: declares an operation of another thing
+  - blueprint/things/organization/verbs/create.ts: moves another thing's machine
+  - blueprint/things/organization/verbs/create.ts payload field name: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/organization/verbs/create.ts payload field cap: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/organization/verbs/create.ts answer field organization: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/organization/verbs/get.ts: declares an operation of another thing
+  - blueprint/things/organization/verbs/get.ts: uses a role not exported from a roles.ts
+  - blueprint/things/organization/verbs/get.ts payload field id: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/organization/verbs/get.ts answer field name: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/organization/verbs/get.ts answer field owner: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/person/verbs/sign-up.ts: declares an operation of another thing
+  - blueprint/things/person/verbs/sign-up.ts: declares an error not exported from an errors.ts
+  - blueprint/things/person/verbs/sign-up.ts payload field email: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/person/verbs/sign-up.ts payload field name: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/person/verbs/sign-up.ts answer field person: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/session/verbs/show.ts: declares an operation of another thing
+  - blueprint/things/session/verbs/show.ts answer field person: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/session/verbs/show.ts answer field email: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/session/verbs/sign-in.ts: declares an operation of another thing
+  - blueprint/things/session/verbs/sign-in.ts: declares an error not exported from an errors.ts
+  - blueprint/things/session/verbs/sign-in.ts payload field email: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/session/verbs/sign-in.ts answer field session: uses a field of a thing that isn't in the blueprint
+  - blueprint/things/system/verbs/health.ts: declares an operation of another thing
+ ❯ src/modules/publish/service.ts:34:30
+     32|     const model = yield* Compiler.model.pipe(
+     33|       Effect.provide(nodeSource(source)),
+     34|       Effect.mapError((e) => new PublishFailed({ message: e._tag === "…
+       |                              ^
+     35|     );
+     36|     const declared = model.environments?.[environment];
+ ❯ ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:281:25
+ ❯ ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:278:34
+ ❯ ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/Function.ts:253:17
+ ❯ OnFailureImpl.~effect/Effect/failureCont ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:3440:70
+ ❯ ~effect/Effect/evaluate ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/core.ts:629:20
+ ❯ FiberImpl.runLoop ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:700:41
+ ❯ FiberImpl.evaluate ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:635:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 4 passed (6)
+   Start at  02:44:48
+   Duration  59.39s (transform 1.04s, setup 0ms, import 878ms, tests 58.40s, environment 0ms)

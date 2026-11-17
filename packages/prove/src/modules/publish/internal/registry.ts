@@ -16,10 +16,14 @@ export const isNpmjs = (registry: string) => new URL(registry).hostname.endsWith
 const packument = (registry: string, name: string) =>
   fetch(`${registry}${name.replace("/", "%2f")}`, { headers: { accept: "application/json" } }).then((r) =>
     r.status === 404
-      ? { versions: [] as ReadonlyArray<string>, tags: {} as Readonly<Record<string, string>> }
+      ? { versions: [] as ReadonlyArray<string>, tags: {} as Readonly<Record<string, string>>, integrities: {} as Readonly<Record<string, string>> }
       : r.json().then((body) => {
           const found = body as { readonly versions?: Record<string, unknown>; readonly "dist-tags"?: Record<string, string> };
-          return { versions: Object.keys(found.versions ?? {}), tags: found["dist-tags"] ?? {} };
+          const integrities = Object.fromEntries(Object.entries(found.versions ?? {}).flatMap(([version, pkg]) => {
+            const dist = typeof pkg === "object" && pkg !== null && "dist" in pkg ? pkg.dist : undefined;
+            return typeof dist === "object" && dist !== null && "integrity" in dist && typeof dist.integrity === "string" ? [[version, dist.integrity] as const] : [];
+          }));
+          return { versions: Object.keys(found.versions ?? {}), tags: found["dist-tags"] ?? {}, integrities };
         }),
   );
 
@@ -27,7 +31,7 @@ const packument = (registry: string, name: string) =>
  * The versions a package has on the registry (none when it has never been published), and its dist-tags. A kept-alive connection
  * the registry closed while a long build ran fails once, so a second try is made before the registry is said not to answer.
  */
-export const versionsOf = (registry: string, name: string): Effect.Effect<{ readonly versions: ReadonlyArray<string>; readonly tags: Readonly<Record<string, string>> }, PublishFailed> =>
+export const versionsOf = (registry: string, name: string): Effect.Effect<{ readonly versions: ReadonlyArray<string>; readonly tags: Readonly<Record<string, string>>; readonly integrities: Readonly<Record<string, string>> }, PublishFailed> =>
   Effect.tryPromise({
     try: () => packument(registry, name).catch(() => packument(registry, name)),
     catch: () => new PublishFailed({ message: `the registry at ${registry} didn't answer: is it running?` }),

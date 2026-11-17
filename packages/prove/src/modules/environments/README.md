@@ -28,3 +28,7 @@ Three environments are more than the revision's bundle (D3 #50 to #52, #91):
 L2.O: `up` resolves the environment's `telemetry` sinks (`Sinks.resolve`) and hands the secrets to the process through its environment (`env`, a
 parameter: only an entry file reads `process.env`); a skipped sink comes back as `notes`. An environment's status carries its Collector's address
 (`collector`), where prove sends the journey's span.
+
+`verify({ root, name, pid, revision, sha256 })` checks that the live process still has the captured PID and its own
+bundle endpoint still reports the expected bytes. It checks the live PID around the HTTP read, so an ordinary restart
+or rollback cannot inherit an in-flight proof merely by returning to the same hash (D3 #165).

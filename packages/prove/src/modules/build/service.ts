@@ -18,6 +18,9 @@ const git = (root: string, ...args: ReadonlyArray<string>) =>
 
 const revision: BuildApi["revision"] = (root) => git(root, "rev-parse", "--short", "HEAD");
 const dirty: BuildApi["dirty"] = (root) => git(root, "status", "--porcelain").pipe(Effect.map((out) => out.length > 0));
+const unchanged: BuildApi["unchanged"] = (root, commit) => Effect.gen(function* () {
+  if ((yield* dirty(root)) || (yield* git(root, "rev-parse", "HEAD")) !== commit) return yield* new BuildFailed({ message: "the source changed while proving: commit it and prove again" });
+});
 const find: BuildApi["find"] = (root, rev) => read(artefacts(root, rev), rev);
 
 /** Only tooling environment reaches the bundler. No account credential is needed by a local dry run. */
@@ -29,9 +32,9 @@ const build: BuildApi["build"] = (root, env = {}) =>
   Effect.gen(function* () {
     const rev = yield* revision(root);
     if (yield* dirty(root)) return yield* new BuildFailed({ message: `refused: the working tree differs from ${rev}: commit or stash what changed before building a deployable bundle` });
-    const held = yield* find(root, rev);
-    if (held !== undefined) return { ...held, dirty: false };
     const commit = yield* git(root, "rev-parse", "HEAD");
+    const held = yield* find(root, rev);
+    if (held !== undefined) { yield* unchanged(root, held.commit); return { ...held, dirty: false }; }
     const config = resolve(root, "generated/server/wrangler.jsonc");
     if (!existsSync(config)) return yield* new BuildFailed({ message: `${config} is missing: run nx sync first` });
     const dir = artefacts(root, rev);
@@ -51,10 +54,10 @@ const build: BuildApi["build"] = (root, env = {}) =>
         const winner = yield* find(root, rev);
         if (winner !== undefined) return { ...winner, dirty: false };
         yield* io(() => renameSync(scratch, dir));
-        return { revision: rev, sha256, main: join(dir, "main.js"), dirty: false };
+        return { revision: rev, commit, sha256, main: join(dir, "main.js"), dirty: false };
       }),
       (scratch) => io(() => rmSync(scratch, { recursive: true, force: true })).pipe(Effect.ignore),
     );
   });
 
-export const Build: BuildApi = { revision, build, dirty, find };
+export const Build: BuildApi = { revision, build, dirty, find, unchanged };

@@ -19,3 +19,6 @@ For an existing legacy cache at a clean HEAD, move `.architect/artefacts/REVISIO
 `architect prove --env test`, then promote through staging before production. This preserves the old cache for
 inspection and every logbook row; the new proof, not the move or rebuild, supplies the missing hash. The legacy
 cache recovery is exercised by `build.test.ts` with a real bundle rebuild.
+
+A `Built` also exposes its full `commit`, from the manifest. `Build.unchanged(root, commit)` checks the same clean
+full commit at a proof boundary. Promotion publishers archive that exact commit rather than reread mutable source.
