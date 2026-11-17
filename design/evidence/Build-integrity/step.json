@@ -14,6 +14,9 @@
     "07-final-promotion": "Explicit assertions bind staging and carried production verdicts to the same bundle hash.",
     "08-legacy-cache-recovery": "A legacy cache stays untrusted; preserving it aside permits a new real clean build without rewriting history.",
     "09-final-build-checks": "Final build regressions after actionable recovery and typed subprocess failure handling.",
-    "10-final-workspace-checks": "Final Nx reset/sync, all-project lint/typecheck, generated drift check and diff check."
+    "10-final-workspace-checks": "Final Nx reset/sync, all-project lint/typecheck, generated drift check and diff check.",
+    "11-integrated-build-promote-verdicts": "The conductor reruns Build, promotion and verdict checks after combining both correctness fixes.",
+    "12-integrated-logbook-migration": "The conductor reruns real logbook and persisted legacy-schema migration checks after integration.",
+    "13-integrated-test-worlds": "The conductor verifies actual test-world proofs with signed hashes and the atomic lease correction together."
   }
 }

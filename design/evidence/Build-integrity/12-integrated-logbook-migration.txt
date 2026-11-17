@@ -1,0 +1,11 @@
+$ pnpm exec vitest run --root packages/logbook src/modules/book/book.test.ts src/modules/local/local.test.ts
+# commit 8f50320 · 2026-11-17T02:18:02Z · exit 0 (expected 0) · 10.9s
+
+
+ RUN  v4.1.12 ./packages/logbook
+
+
+ Test Files  2 passed (2)
+      Tests  10 passed (10)
+   Start at  02:17:51
+   Duration  10.23s (transform 78ms, setup 0ms, import 282ms, tests 9.88s, environment 0ms)

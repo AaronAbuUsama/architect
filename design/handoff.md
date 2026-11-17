@@ -25,21 +25,22 @@ The conductor regenerated `evidence/index.html` and opened both pages. Claude mu
 **Working arrangement.** The conductor works from a managed worktree on `codex/conductor-goal-01`, based on
 `origin/layer/3`, and pushes verified integration commits to `layer/3`. The original checkout is neither switched nor
 reset, and its ignored template files stay untouched. The two recovery builders are finished. Now active:
-- `build/build-integrity`: D3 #160–169, private ports 9120–9139 and existing promote ports 9030–9049. Scope now includes optional SHA-256 on logbook verdict schema/wire/readers and actual test/staging writers; promotion requires it. Preserve legacy rows, never backfill a fabricated hash, add idempotent column migration. Migration skill applies. It also owns Build’s environment composition fix.
+- `build/build-integrity` at `9c0d42d` is merged (D3 #160–164): immutable clean artifacts, signed hash-bound verdicts, additive nullable book column, preserved legacy rows, explicit cache rebuild/reprove recovery, injected Build environment. The conductor reran Build/promote/Verdicts (11), real book/migration (10), and existing test-worlds (3) after combining both corrections; all passed, as did all-project lint/typecheck/sync.
+- `build/staging-proof-boundary` is now active from `8f50320`, D3 #165–169, same private 9120–9139 and promote 9030–9049 ports. Focused reviewer accepted the original fixes but found that staging attests/publishes after Prove.against without rechecking its endpoint identity or source. A concurrent restart onto B could earn a proof labeled A; source edits could feed the publisher different files. Add a post-proof identity + clean-revision check before model storage, publish or verdict posting, with real restart/source-change negative regressions.
 - `build/world-isolation` is merged at `c9d1285` (D3 #170–172): D1 atomically admits/snapshots one live lease and guards every teardown mutation. Eight creations all succeeded before the fix; seven workerd regressions and all 21 host tests pass afterward. The conductor reran the seven world tests and all three existing test-worlds tests (expiry/restart/reap) after integration; lint/typecheck/sync passed, no Architect containers remained. CI on the forthcoming integration push is still required.
 - `author/check08-connection`: D3 #180–189. Connection-close source patch and e2e lint/typecheck passed; no assertions/phases changed. Runtime is pending explicit conductor go after both builders stop; then check 08 alone via `.architect/vitest.check08.config.ts` without global teardown, stock 8980–8986/4898.
-Each has its own managed worktree. The world builder is finished; build-integrity is finishing static checks. The author still needs explicit runtime go after the conductor integrates the hash-bound verdict change. No full gate may run beside these tasks.
+Each has its own managed worktree. Both initial correctness builders are finished. Only staging-proof-boundary is running services now. The author is rebased onto `8f50320` at `d428228`, static checks pass, but runtime still needs explicit go after the new boundary correction is integrated. No full gate may run beside these tasks.
 
 **Next, in order:**
 1. Done: recovery Linux CI is green (`43997952028`, `53d028d`).
-2. Correct two blockers from the independent preliminary source review (reviewed `e43aa22`; final review still required):
+2. Initial review blockers are corrected and locally verified; one focused follow-up remains (reviewed `8f50320`; final whole-gate review still required):
    - Build provenance: dirty-source bundles overwrite the artifact under HEAD; after restoring the source, those bytes
      can reuse that revision’s verdicts. Production also never compares staging’s hash. Preserve trustworthy provenance
      and immutable proven bytes; add dirty-build, restore, promote and staging-hash regressions. Also remove Build’s explicit control-flow throws and direct process.env read: D1’s named entry exemptions do not include it; environment belongs to composition.
    - World leases: concurrent `POST /_world/worlds` calls can both pass the separate live check and both create a lease.
      Enforce D3 #51 atomically and prove exactly one success/one 409 against real workerd/D1.
    - Review correction: the portal’s `new Date(effectClockValue)` is permitted formatting under D2 #58 and `place.ts`; only zero-argument wall-time construction is banned. It is not a blocker.
-3. A separate ✍️ author fixes check 08’s `portal(url)` fetch with `headers: { connection: "close" }`. Its missing test
+3. The separate ✍️ author’s check 08 source fix is ready with `headers: { connection: "close" }`; run it against the final integrated proof code after explicit runtime go. Its missing test
    proof for the slow revision is already fixed (D3 #92). Builders never edit `e2e/` or fixtures.
 4. L2.11: add `e2e-layer2` CI, run `nx run e2e:layer2` alone locally and in CI, add current `ci.json` per step, regenerate
    evidence, get a final independent reviewer pass, open `layer/3` into `main`, merge green, check main’s CI.

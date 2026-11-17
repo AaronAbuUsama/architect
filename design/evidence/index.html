@@ -11052,4 +11052,823 @@ e2e/layer1/04-agent-writes-a-handler.test.ts:13:27: warning eslint(no-unused-var
 [@architect/generators:sync]: All files are up to date.</pre></div>
 </details>
 </section>
+<section class="step">
+  <div class="stage">Stage 3 · shipping on local worlds (Gate 2)</div>
+  <h2><span class="id">Build-integrity</span> Immutable clean bundles and signed proof hashes <span class="chip pass">done</span></h2>
+  <p class="summary">Deployable builds refuse dirty source, retain a versioned clean-commit manifest and reuse an existing verified artifact without replacing it. Test and staging proofs sign the actual bundle hash; production carries that exact hash. The newest verdict must pass and name the same bytes. The logbook adds a nullable hash column in place, preserving all legacy rows and mixed-version reads/writes. Hashless legacy verdicts remain visible but cannot open a promotion gate.</p>
+  <div class="proves"><span class="label">Done when</span>architect promote --to production refuses a revision without staging verdicts and accepts one that has them. A dirty build followed by restoring source cannot replace the clean artifact. A newest signed staging verdict with another hash or no hash refuses production; matching hash-bound verdicts move exactly the staged bytes, and production carries that hash. Legacy cache provenance is refused, then a real clean bundle rebuild succeeds after preserving that cache aside. A real workerd logbook upgrades its own legacy persisted SQLite schema without losing rows or releases, keeps old hashless rows readable, rejects malformed hashes, round-trips new signed hashes, and restarts through idempotent initialization.</div>
+  <div class="links">CI not run · <a href="https://github.com/AaronAbuUsama/architect/commit/53d028d">commit 53d028d</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/8f50320">commit 8f50320</a> · 13 verified captures · 0 unverified records</div>
+  
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">Before implementation: immutable-file, dirty-build and legacy-provenance regressions fail.</span>
+    <span class="meta">exit 1 · 7.9s · 2026-11-17T01:57:44Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/prove src/modules/build/build.test.ts</div><pre>RUN  v4.1.12 ./packages/prove
+
+ ❯ src/modules/build/build.test.ts (5 tests | 3 failed) 4681ms
+     × builds a revision once: the same revision hashes the same, and the bundle is kept at its path 3297ms
+     × a dirty build cannot replace a clean revision&#x27;s bundle, even after its source is restored 1310ms
+     × does not trust a legacy manifest without clean-source provenance 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/build/build.test.ts &gt; build &gt; builds a revision once: the same revision hashes the same, and the bundle is kept at its path
+AssertionError: expected 1794880662635.056 to be 1000 // Object.is equality
+
+- Expected
++ Received
+
+- 1000
++ 1794880662635.056
+
+ ❯ src/modules/build/build.test.ts:42:42
+     40|     expect(first.sha256).toMatch(/^[0-9a-f]{64}$/);
+     41|     expect(second.sha256).toBe(first.sha256);
+     42|     expect(statSync(first.main).mtimeMs).toBe(1000);
+       |                                          ^
+     43|     expect(first.main).toBe(join(project.root, &quot;.architect/artefacts&quot;,…
+     44|     expect(statSync(first.main).size).toBeGreaterThan(100_000);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/modules/build/build.test.ts &gt; build &gt; a dirty build cannot replace a clean revision&#x27;s bundle, even after its source is restored
+AssertionError: expected &#x27;Success&#x27; to be &#x27;Failure&#x27; // Object.is equality
+
+Expected: &quot;Failure&quot;
+Received: &quot;Success&quot;
+
+ ❯ src/modules/build/build.test.ts:56:25
+     54|     const result = await run(Build.build(project.root).pipe(Effect.res…
+     55|     writeFileSync(source, text);
+     56|     expect(result._tag).toBe(&quot;Failure&quot;);
+       |                         ^
+     57|     expect(await run(Build.find(project.root, project.revision))).toEq…
+     58|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/modules/build/build.test.ts &gt; build &gt; does not trust a legacy manifest without clean-source provenance
+AssertionError: expected &#x27;Success&#x27; to be &#x27;Failure&#x27; // Object.is equality
+
+Expected: &quot;Failure&quot;
+Received: &quot;Success&quot;
+
+ ❯ src/modules/build/build.test.ts:67:25
+     65|     const result = await run(Build.find(project.root, project.revision…
+     66|     writeFileSync(record, original);
+     67|     expect(result._tag).toBe(&quot;Failure&quot;);
+       |                         ^
+     68|   });
+     69|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 2 passed (5)
+   Start at  01:57:38
+   Duration  5.43s (transform 27ms, setup 0ms, import 629ms, tests 4.68s, environment 0ms)</pre></div>
+</details>
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">Before implementation: the real logbook accepts a malformed hash and drops a valid one.</span>
+    <span class="meta">exit 1 · 11.0s · 2026-11-17T01:58:26Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/logbook src/modules/local/local.test.ts</div><pre>RUN  v4.1.12 ./packages/logbook
+
+ ❯ src/modules/local/local.test.ts (6 tests | 2 failed) 9817ms
+     × rejects a body that isn&#x27;t a verdict 21ms
+     × expands a legacy persisted book without losing rows, keeps hashless verdicts readable, and retries the upgrade 1270ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/local/local.test.ts &gt; the logbook on local workerd, with a real issuer &gt; rejects a body that isn&#x27;t a verdict
+AssertionError: expected 200 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 200
+
+ ❯ src/modules/local/local.test.ts:151:93
+    149|     expect((await send(&quot;/verdicts&quot;, { ...verdict, verdict: &quot;maybe&quot; }, …
+    150|     expect((await send(&quot;/verdicts&quot;, { revision: &quot;x&quot; }, token)).status)…
+    151|     expect((await send(&quot;/verdicts&quot;, { ...verdict, sha256: &quot;not-a-sha25…
+       |                                                                                             ^
+    152|   });
+    153|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/modules/local/local.test.ts &gt; the logbook on local workerd, with a real issuer &gt; expands a legacy persisted book without losing rows, keeps hashless verdicts readable, and retries the upgrade
+AssertionError: expected [ { seq: 5, …(9) } ] to match object [ Array(1) ]
+(10 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  [
+    {
+-     &quot;sha256&quot;: &quot;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&quot;,
++     &quot;environment&quot;: &quot;test&quot;,
++     &quot;event_name&quot;: &quot;push&quot;,
++     &quot;operation&quot;: &quot;allowance.spend&quot;,
++     &quot;ref&quot;: &quot;refs/heads/main&quot;,
++     &quot;repository&quot;: &quot;acme/acme&quot;,
++     &quot;revision&quot;: &quot;hashbound&quot;,
++     &quot;seq&quot;: 5,
++     &quot;sha&quot;: &quot;0123456789abcdef0123456789abcdef01234567&quot;,
++     &quot;verdict&quot;: &quot;pass&quot;,
++     &quot;workflow&quot;: &quot;architect&quot;,
+    },
+  ]
+
+ ❯ src/modules/local/local.test.ts:176:56
+    174|     const sha256 = &quot;a&quot;.repeat(64);
+    175|     expect((await send(&quot;/verdicts&quot;, { ...verdict, revision: &quot;hashbound…
+    176|     expect(await read(&quot;/verdicts?revision=hashbound&quot;)).toMatchObject([…
+       |                                                        ^
+    177|     await stop();
+    178|     stop = undefined;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 4 passed (6)
+   Start at  01:58:16
+   Duration  10.25s (transform 48ms, setup 0ms, import 304ms, tests 9.82s, environment 0ms)</pre></div>
+</details>
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">Before implementation: production accepts a latest staging verdict for different bytes.</span>
+    <span class="meta">exit 1 · 41.7s · 2026-11-17T01:59:17Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/prove src/modules/promote/promote.test.ts</div><pre>RUN  v4.1.12 ./packages/prove
+
+ ❯ src/modules/promote/promote.test.ts (3 tests | 1 failed) 39994ms
+     × production is refused without staging verdicts, then takes what staging proved: one bundle in test, staging and production 27575ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/promote/promote.test.ts &gt; architect promote &gt; production is refused without staging verdicts, then takes what staging proved: one bundle in test, staging and production
+AssertionError: production from staging 6f5f35b sha256:3cdbecde717f4191a38fd555eb2f9869c69aed766c4da0a2f02a564d94c1d265
+production up http://127.0.0.1:9033   bundle 6f5f35b sha256:3cdbecde717f4191a38fd555eb2f9869c69aed766c4da0a2f02a564d94c1d265 ✔
+released 1.0.0
+publish acme 1.0.0, production&#x27;s publish list
+skipped npm (set ARCHITECT_REGISTRY to a registry on this machine to publish to)
+skipped homebrew (set ARCHITECT_TAP_REPO to a git repository to commit the formula to)
+skipped github releases (cloud pass)
+skipped cloudflare (cloud pass)
+skipped mcp domain mcp.acme.dev (cloud pass)
+skipped portal domain acme.dev (cloud pass)
+skipped server domain api.acme.dev (cloud pass)
+: expected +0 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ src/modules/promote/promote.test.ts:181:39
+    179|       expect(response.status).toBe(200);
+    180|       const wrong = architect(&quot;promote&quot;, &quot;--to&quot;, &quot;production&quot;);
+    181|       expect(wrong.status, wrong.out).toBe(1);
+       |                                       ^
+    182|       expect(wrong.out).toContain(&quot;bundle&quot;);
+    183|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  01:58:36
+   Duration  40.92s (transform 163ms, setup 0ms, import 805ms, tests 39.99s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Build, promotion and verdict client checks pass through real bundles, workerd, collectors and OIDC.</span>
+    <span class="meta">exit 0 · 51.7s · 2026-11-17T02:04:54Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/prove src/modules/build/build.test.ts src/modules/promote/promote.test.ts src/modules/verdicts/verdicts.test.ts</div><pre>RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  3 passed (3)
+      Tests  11 passed (11)
+   Start at  02:04:03
+   Duration  50.90s (transform 258ms, setup 0ms, import 1.89s, tests 53.28s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Real persisted logbook migration, compatibility, signed hash roundtrip and restart, plus existing SQL checks.</span>
+    <span class="meta">exit 0 · 11.7s · 2026-11-17T02:04:15Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/logbook src/modules/book/book.test.ts src/modules/local/local.test.ts</div><pre>RUN  v4.1.12 ./packages/logbook
+
+
+ Test Files  2 passed (2)
+      Tests  10 passed (10)
+   Start at  02:04:04
+   Duration  11.02s (transform 54ms, setup 0ms, import 267ms, tests 10.69s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Nx reset, sync, all-project lint/typecheck, sync check and diff whitespace check.</span>
+    <span class="meta">exit 0 · 15.5s · 2026-11-17T02:07:08Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ bash .architect/verify-build-integrity.sh</div><pre>Stopping the Nx Daemon
+Stopped the Nx Daemon
+Removing the Nx Daemon workspace data
+Removed the Nx Daemon workspace data
+Removing the cache directory
+Removed the cache directory
+Removing the workspace data directory
+Removed the workspace data directory
+
+ NX   Successfully reset the Nx workspace.
+
+
+ NX   The workspace is already up to date
+
+[@architect/generators:sync]: All files are up to date.
+
+
+ NX   Running targets lint, typecheck for 16 projects:
+
+- host-cloudflare
+- target-solidity
+- target-effect
+- generators
+- blueprint
+- compiler
+- logbook
+- starter
+- portal
+- preset
+- prove
+- acme
+- lint
+- cli
+- std
+- e2e
+
+
+
+&gt; nx run blueprint:typecheck
+
+&gt; tsc -p packages/blueprint/tsconfig.json
+
+
+&gt; nx run logbook:typecheck
+
+&gt; tsc -p packages/logbook/tsconfig.json
+
+
+&gt; nx run portal:lint
+
+&gt; oxlint packages/portal
+
+(node:33298) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run logbook:lint
+
+&gt; oxlint packages/logbook
+
+(node:33274) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+packages/logbook/src/modules/local/local.test.ts:85:156: warning unicorn(no-invalid-fetch-options): &quot;body&quot; is not allowed when method is &quot;GET&quot;
+
+&gt; nx run blueprint:lint
+
+&gt; oxlint packages/blueprint
+
+(node:33272) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run portal:typecheck
+
+&gt; tsc -p packages/portal/tsconfig.json
+
+
+&gt; nx run target-effect:typecheck
+
+&gt; tsc -p packages/target-effect/tsconfig.json
+
+
+&gt; nx run compiler:typecheck
+
+&gt; tsc -p packages/compiler/tsconfig.json
+
+
+&gt; nx run target-effect:lint
+
+&gt; oxlint packages/target-effect
+
+(node:33372) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run compiler:lint
+
+&gt; oxlint packages/compiler
+
+(node:33389) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run generators:typecheck
+
+&gt; tsc -p packages/generators/tsconfig.json
+
+
+&gt; nx run generators:lint
+
+&gt; oxlint packages/generators
+
+(node:33401) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run host-cloudflare:typecheck
+
+&gt; tsc -p packages/host-cloudflare/tsconfig.json
+
+
+&gt; nx run host-cloudflare:lint
+
+&gt; oxlint packages/host-cloudflare
+
+(node:33458) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run prove:typecheck
+
+&gt; tsc -p packages/prove/tsconfig.json
+
+
+&gt; nx run lint:typecheck
+
+&gt; tsc -p packages/lint/tsconfig.json
+
+
+&gt; nx run prove:lint
+
+&gt; oxlint packages/prove
+
+(node:33498) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+packages/prove/src/modules/world/device-sign-in.test.ts:3:33: warning eslint(no-unused-vars): Type &#x27;ChildProcess&#x27; is imported but never used. help: Consider removing this import.
+
+&gt; nx run target-solidity:typecheck
+
+&gt; tsc -p packages/target-solidity/tsconfig.json
+
+
+&gt; nx run lint:lint
+
+&gt; oxlint packages/lint
+
+(node:33510) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run target-solidity:lint
+
+&gt; oxlint packages/target-solidity
+
+(node:33522) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run starter:lint
+
+&gt; oxlint examples/starter
+
+(node:33551) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run starter:typecheck
+
+&gt; tsc -p examples/starter/tsconfig.json
+
+
+&gt; nx run preset:typecheck
+
+&gt; tsc -p packages/preset/tsconfig.json
+
+
+&gt; nx run preset:lint
+
+&gt; oxlint packages/preset
+
+(node:33590) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run acme:typecheck
+
+&gt; tsc -p examples/acme/tsconfig.json
+
+
+&gt; nx run cli:lint
+
+&gt; oxlint packages/cli
+
+(node:33658) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run acme:lint
+
+&gt; oxlint examples/acme
+
+(node:33647) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run std:typecheck
+
+&gt; tsc -p packages/std/tsconfig.json
+
+
+&gt; nx run cli:typecheck
+
+&gt; tsc -p packages/cli/tsconfig.json
+
+
+&gt; nx run std:lint
+
+&gt; oxlint packages/std
+
+(node:33739) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run e2e:typecheck
+
+&gt; tsc -p e2e/tsconfig.json
+
+
+&gt; nx run e2e:lint
+
+&gt; oxlint e2e
+
+(node:33752) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+e2e/layer1/04-agent-writes-a-handler.test.ts:13:27: warning eslint(no-unused-vars): Identifier &#x27;cli&#x27; is imported but never used. help: Consider removing this import.
+
+
+
+ NX   Successfully ran targets lint, typecheck for 16 projects
+
+
+  Run duration:      8.8s
+  Cache:             0/32 hit (0%)
+  Critical path:     2.4s (1 task)
+  Recoverable time:  6.4s (73% of the run)
+
+ NX   The workspace is up to date
+
+[@architect/generators:sync]: All files are up to date.</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Explicit assertions bind staging and carried production verdicts to the same bundle hash.</span>
+    <span class="meta">exit 0 · 49.2s · 2026-11-17T02:07:43Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/prove src/modules/promote/promote.test.ts</div><pre>RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  02:06:54
+   Duration  48.56s (transform 194ms, setup 0ms, import 870ms, tests 47.57s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">A legacy cache stays untrusted; preserving it aside permits a new real clean build without rewriting history.</span>
+    <span class="meta">exit 0 · 5.0s · 2026-11-17T02:08:44Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/prove src/modules/build/build.test.ts</div><pre>RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  02:08:39
+   Duration  4.30s (transform 33ms, setup 0ms, import 674ms, tests 3.51s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Final build regressions after actionable recovery and typed subprocess failure handling.</span>
+    <span class="meta">exit 0 · 6.1s · 2026-11-17T02:12:26Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/prove src/modules/build/build.test.ts</div><pre>RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  02:12:20
+   Duration  5.32s (transform 41ms, setup 0ms, import 740ms, tests 4.45s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Final Nx reset/sync, all-project lint/typecheck, generated drift check and diff check.</span>
+    <span class="meta">exit 0 · 16.5s · 2026-11-17T02:13:44Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ bash .architect/verify-build-integrity.sh</div><pre>Stopping the Nx Daemon
+Stopped the Nx Daemon
+Removing the Nx Daemon workspace data
+Removed the Nx Daemon workspace data
+Removing the cache directory
+Removed the cache directory
+Removing the workspace data directory
+Removed the workspace data directory
+
+ NX   Successfully reset the Nx workspace.
+
+
+ NX   The workspace is already up to date
+
+[@architect/generators:sync]: All files are up to date.
+
+
+ NX   Running targets lint, typecheck for 16 projects:
+
+- host-cloudflare
+- target-solidity
+- target-effect
+- generators
+- blueprint
+- compiler
+- logbook
+- starter
+- portal
+- preset
+- prove
+- acme
+- lint
+- cli
+- std
+- e2e
+
+
+
+&gt; nx run blueprint:typecheck
+
+&gt; tsc -p packages/blueprint/tsconfig.json
+
+
+&gt; nx run logbook:typecheck
+
+&gt; tsc -p packages/logbook/tsconfig.json
+
+
+&gt; nx run logbook:lint
+
+&gt; oxlint packages/logbook
+
+(node:43870) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+packages/logbook/src/modules/local/local.test.ts:85:156: warning unicorn(no-invalid-fetch-options): &quot;body&quot; is not allowed when method is &quot;GET&quot;
+
+&gt; nx run blueprint:lint
+
+&gt; oxlint packages/blueprint
+
+(node:43868) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run portal:typecheck
+
+&gt; tsc -p packages/portal/tsconfig.json
+
+
+&gt; nx run portal:lint
+
+&gt; oxlint packages/portal
+
+(node:43894) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run target-effect:typecheck
+
+&gt; tsc -p packages/target-effect/tsconfig.json
+
+
+&gt; nx run compiler:typecheck
+
+&gt; tsc -p packages/compiler/tsconfig.json
+
+
+&gt; nx run target-effect:lint
+
+&gt; oxlint packages/target-effect
+
+(node:43957) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run generators:typecheck
+
+&gt; tsc -p packages/generators/tsconfig.json
+
+
+&gt; nx run compiler:lint
+
+&gt; oxlint packages/compiler
+
+(node:43980) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run generators:lint
+
+&gt; oxlint packages/generators
+
+(node:43994) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run host-cloudflare:typecheck
+
+&gt; tsc -p packages/host-cloudflare/tsconfig.json
+
+
+&gt; nx run host-cloudflare:lint
+
+&gt; oxlint packages/host-cloudflare
+
+(node:44032) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run prove:typecheck
+
+&gt; tsc -p packages/prove/tsconfig.json
+
+
+&gt; nx run lint:typecheck
+
+&gt; tsc -p packages/lint/tsconfig.json
+
+
+&gt; nx run prove:lint
+
+&gt; oxlint packages/prove
+
+(node:44046) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+packages/prove/src/modules/world/device-sign-in.test.ts:3:33: warning eslint(no-unused-vars): Type &#x27;ChildProcess&#x27; is imported but never used. help: Consider removing this import.
+
+&gt; nx run target-solidity:typecheck
+
+&gt; tsc -p packages/target-solidity/tsconfig.json
+
+
+&gt; nx run lint:lint
+
+&gt; oxlint packages/lint
+
+(node:44063) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run target-solidity:lint
+
+&gt; oxlint packages/target-solidity
+
+(node:44075) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run starter:lint
+
+&gt; oxlint examples/starter
+
+(node:44115) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run starter:typecheck
+
+&gt; tsc -p examples/starter/tsconfig.json
+
+
+&gt; nx run preset:lint
+
+&gt; oxlint packages/preset
+
+(node:44128) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run preset:typecheck
+
+&gt; tsc -p packages/preset/tsconfig.json
+
+
+&gt; nx run acme:lint
+
+&gt; oxlint examples/acme
+
+(node:44163) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run acme:typecheck
+
+&gt; tsc -p examples/acme/tsconfig.json
+
+
+&gt; nx run cli:lint
+
+&gt; oxlint packages/cli
+
+(node:44187) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run std:typecheck
+
+&gt; tsc -p packages/std/tsconfig.json
+
+
+&gt; nx run cli:typecheck
+
+&gt; tsc -p packages/cli/tsconfig.json
+
+
+&gt; nx run std:lint
+
+&gt; oxlint packages/std
+
+(node:44300) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run e2e:typecheck
+
+&gt; tsc -p e2e/tsconfig.json
+
+
+&gt; nx run e2e:lint
+
+&gt; oxlint e2e
+
+(node:44319) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+e2e/layer1/04-agent-writes-a-handler.test.ts:13:27: warning eslint(no-unused-vars): Identifier &#x27;cli&#x27; is imported but never used. help: Consider removing this import.
+
+
+
+ NX   Successfully ran targets lint, typecheck for 16 projects
+
+
+  Run duration:      8.9s
+  Cache:             0/32 hit (0%)
+  Critical path:     1.7s (1 task)
+  Recoverable time:  7.2s (81% of the run)
+
+ NX   The workspace is up to date
+
+[@architect/generators:sync]: All files are up to date.</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The conductor reruns Build, promotion and verdict checks after combining both correctness fixes.</span>
+    <span class="meta">exit 0 · 71.4s · 2026-11-17T02:17:51Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/prove src/modules/build/build.test.ts src/modules/promote/promote.test.ts src/modules/verdicts/verdicts.test.ts</div><pre>RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  3 passed (3)
+      Tests  11 passed (11)
+   Start at  02:16:40
+   Duration  70.42s (transform 210ms, setup 0ms, import 1.67s, tests 73.61s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The conductor reruns real logbook and persisted legacy-schema migration checks after integration.</span>
+    <span class="meta">exit 0 · 10.9s · 2026-11-17T02:18:02Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/logbook src/modules/book/book.test.ts src/modules/local/local.test.ts</div><pre>RUN  v4.1.12 ./packages/logbook
+
+
+ Test Files  2 passed (2)
+      Tests  10 passed (10)
+   Start at  02:17:51
+   Duration  10.23s (transform 78ms, setup 0ms, import 282ms, tests 9.88s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The conductor verifies actual test-world proofs with signed hashes and the atomic lease correction together.</span>
+    <span class="meta">exit 0 · 62.2s · 2026-11-17T02:19:04Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/prove src/modules/test-worlds/test-worlds.test.ts</div><pre>RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  02:18:03
+   Duration  61.15s (transform 846ms, setup 0ms, import 1.32s, tests 59.69s, environment 0ms)</pre></div>
+</details>
+</section>
 </main>
