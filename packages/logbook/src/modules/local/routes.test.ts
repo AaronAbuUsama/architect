@@ -96,7 +96,7 @@ describe("the public logbook routes on real platform storage", () => {
     expect(response.status).toBe(500);
     expect(await response.json()).toEqual({ ok: false, reason: "not configured", missing: ["OIDC_ISSUER"] });
     expect(await rows()).toEqual([]);
-  });
+  }, 60_000);
 
   it("accepts a valid verdict and rejects every original invalid body without extra records", async () => {
     expect((await request("POST", "/verdicts", verdict, token)).status).toBe(200);

@@ -1,0 +1,27 @@
+$ git diff -- packages/logbook/src/modules/local/routes.test.ts packages/logbook/src/modules/local/local.test.ts
+# commit 4516059 · 2026-11-17T05:50:04Z · exit 0 (expected 0) · 0.0s
+
+diff --git a/packages/logbook/src/modules/local/local.test.ts b/packages/logbook/src/modules/local/local.test.ts
+index 297e16c..cb83421 100644
+--- a/packages/logbook/src/modules/local/local.test.ts
++++ b/packages/logbook/src/modules/local/local.test.ts
+@@ -213,5 +213,5 @@ describe("the logbook on local workerd, with a real issuer", () => {
+     expect(await read("/verdicts?revision=abcdef1")).toEqual(before);
+     expect(await fetch(`${base}/models/abcdef1`).then((r) => r.status)).toBe(200);
+     expect(await fetch(`${base}/releases/latest`).then((r) => r.json())).toMatchObject({ version: "1.0.0" });
+-  });
++  }, 60_000);
+ });
+diff --git a/packages/logbook/src/modules/local/routes.test.ts b/packages/logbook/src/modules/local/routes.test.ts
+index 22662aa..5222818 100644
+--- a/packages/logbook/src/modules/local/routes.test.ts
++++ b/packages/logbook/src/modules/local/routes.test.ts
+@@ -96,7 +96,7 @@ describe("the public logbook routes on real platform storage", () => {
+     expect(response.status).toBe(500);
+     expect(await response.json()).toEqual({ ok: false, reason: "not configured", missing: ["OIDC_ISSUER"] });
+     expect(await rows()).toEqual([]);
+-  });
++  }, 60_000);
+ 
+   it("accepts a valid verdict and rejects every original invalid body without extra records", async () => {
+     expect((await request("POST", "/verdicts", verdict, token)).status).toBe(200);

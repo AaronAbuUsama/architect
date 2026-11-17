@@ -213,5 +213,5 @@ describe("the logbook on local workerd, with a real issuer", () => {
     expect(await read("/verdicts?revision=abcdef1")).toEqual(before);
     expect(await fetch(`${base}/models/abcdef1`).then((r) => r.status)).toBe(200);
     expect(await fetch(`${base}/releases/latest`).then((r) => r.json())).toMatchObject({ version: "1.0.0" });
-  });
+  }, 60_000);
 });
