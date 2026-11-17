@@ -2,7 +2,8 @@
 // headless, and calls `allowance.get`; bob, who has no role on it, is refused with the refusal's code; a refusal carries its
 // code; a secret never appears in a tool's input or answer. Ports 9070 to 9079.
 import { randomBytes } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, realpathSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { UnauthorizedError, type OAuthClientProvider } from "@modelcontextprotocol/sdk/client/auth.js";
@@ -10,6 +11,7 @@ import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/
 import type { OAuthClientInformationMixed, OAuthTokens } from "@modelcontextprotocol/sdk/shared/auth.js";
 import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
+import { Collectors } from "#modules/telemetry/service.js";
 import { Worlds } from "./service.ts";
 
 const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
@@ -66,7 +68,7 @@ const authorize = async (origin: string, authorization: URL, token: string): Pro
 };
 
 /** Connect to `<origin>/mcp` through OAuth as the person whose session token this is: registration, PKCE, consent, token. */
-const connect = async (origin: string, session: string): Promise<Client> => {
+const connect = async (origin: string, session: string, headers: Record<string, string> = {}): Promise<Client> => {
   const captured: { url: URL | undefined } = { url: undefined };
   const auth = provider(captured);
   const first = new StreamableHTTPClientTransport(new URL(`${origin}/mcp`), { authProvider: auth });
@@ -78,7 +80,7 @@ const connect = async (origin: string, session: string): Promise<Client> => {
   }
   await first.finishAuth(await authorize(origin, captured.url!, session));
   const client = new Client({ name: "l2.08", version: "0.0.0" });
-  await client.connect(new StreamableHTTPClientTransport(new URL(`${origin}/mcp`), { authProvider: auth }));
+  await client.connect(new StreamableHTTPClientTransport(new URL(`${origin}/mcp`), { authProvider: auth, requestInit: { headers } }));
   return client;
 };
 
@@ -86,6 +88,43 @@ const textOf = (result: Awaited<ReturnType<Client["callTool"]>>) =>
   (Array.isArray(result["content"]) ? (result["content"] as ReadonlyArray<{ text?: string }>) : []).map((p) => p.text ?? "").join("\n");
 
 describe("the remote MCP server", () => {
+  it("exports the first MCP operation to an extra Collector sink without a prior API call or local OTLP URL", { timeout: 180_000 }, () =>
+    Effect.runPromise(Effect.scoped(Effect.gen(function* () {
+      const dir = yield* Effect.acquireRelease(
+        Effect.sync(() => mkdtempSync(join(realpathSync(tmpdir()), "architect-mcp-telemetry-"))),
+        (path) => Effect.sync(() => rmSync(path, { recursive: true, force: true })),
+      );
+      const collector = yield* Collectors.start(dir);
+      const sinks = [{ id: "extra-collector", traces: { url: `${collector.url}/v1/traces`, headers: {} }, logs: { url: `${collector.url}/v1/logs`, headers: {} } }];
+      const { url } = yield* Worlds.start({ root: acme, port: 9200, name: "mcp-first-telemetry", environment: "local", secretEnv: { OTLP_SINKS: JSON.stringify(sinks) } });
+
+      // Only Better Auth and OAuth run before the tool: no cast, ordinary operation or telemetry configuration call.
+      const session = yield* Effect.promise(() => fetch(`${url}/api/auth/sign-up/email`, {
+        method: "POST", headers: { "content-type": "application/json", origin: url },
+        body: JSON.stringify({ name: "First MCP", email: "first-mcp@architect.test", password: randomBytes(16).toString("hex") }),
+      }).then(async (response) => {
+        expect(response.status).toBe(200);
+        return (await response.json()) as { token: string };
+      }));
+      const trace = randomBytes(16).toString("hex");
+      const parent = randomBytes(8).toString("hex");
+      const client = yield* Effect.promise(() => connect(url, session.token, { traceparent: `00-${trace}-${parent}-01` }));
+      yield* Effect.addFinalizer(() => Effect.promise(() => client.close()));
+      const result = yield* Effect.promise(() => client.callTool({ name: "system.health", arguments: {} }));
+      expect(result["isError"]).toBeFalsy();
+      expect(textOf(result)).toContain("ok");
+      const traces = yield* collector.traces([{ trace, parent }]);
+      expect(traces.get(trace)?.spans.some((span) => span.name === "system.health")).toBe(true);
+
+      // The public reader omits resource attributes; inspect the real Collector's raw OTLP export for this trace.
+      type Batch = { resource?: { attributes?: Array<{ key: string; value: { stringValue?: string } }> }; scopeSpans: Array<{ spans: Array<{ traceId: string; name: string }> }> };
+      const batches = readFileSync(join(dir, "traces.jsonl"), "utf8").split("\n").filter(Boolean)
+        .flatMap((line) => (JSON.parse(line) as { resourceSpans: Array<Batch> }).resourceSpans);
+      const operation = batches.find((batch) => batch.scopeSpans.some((scope) => scope.spans.some((span) => span.traceId === trace && span.name === "system.health")));
+      expect(operation?.resource?.attributes?.find((attribute) => attribute.key === "deployment.environment")?.value.stringValue).toBe("local");
+      expect(operation?.resource?.attributes?.find((attribute) => attribute.key === "deployment.environment.name")?.value.stringValue).toBe("local");
+    }))));
+
   it("serves one tool per operation and read, behind OAuth, as the person the token names", { timeout: 180_000 }, () =>
     Effect.runPromise(Effect.scoped(Effect.gen(function* () {
       const { url } = yield* Worlds.start({ root: acme, port: 9070, name: "mcp-test" });
