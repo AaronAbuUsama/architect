@@ -21,7 +21,7 @@ write. The design is the frame ([`frame/`](frame/README.md)), decided in
 | M0.03 command, folders, variables | done: Gates 1 and 2 pass under the new names ([`evidence/M0.03/`](evidence/M0.03/)); config `outputs` removed |
 | M0.04 lint rule against old names | done: `forman/no-old-names` in the lint package, on in the root `.oxlintrc.json` and in `forman check`; a planted import fails ([`evidence/M0.04/`](evidence/M0.04/)) |
 | M0.05 design docs around plugins | done: the docs are one page, `design/docs/index.html`, ported from the published Forman Docs (Aaron's change); `nx run docs:check` |
-| M0.06 Gate M0 | next. The name check is authored on `author/m0-names` (`e2e/m0/names.test.ts`), red before the rename |
+| M0.06 Gate M0 | passes on a clean checkout ([`evidence/M0.06/`](evidence/M0.06/)); PR #32 merges it. The name check is authored on `author/m0-names` (`e2e/m0/names.test.ts`), red before the rename |
 
 **Decided so far.** `@formants/forman` is the old blueprint package (Effect only); the `forman` bin ships from
 `@formants/cli` until M2.09; `target-*` becomes `language-*`; the old std package (an empty placeholder) is removed;

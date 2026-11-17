@@ -66,7 +66,9 @@ evidence, brief, wayfinding, spike, Noir and state records, the layer 1 and 2 bu
 | M0.03 ✅ | The command, folders and variables: `forman`, `.forman/`, `FORMAN_*`; the config file renamed `forman.config.ts` and its unread `outputs` removed (D3 #112) | M0.02 | build | `nx run e2e:layer1` and `e2e:layer2` pass, renamed. **Proof:** [`evidence/M0.03/`](evidence/M0.03/): Gate 1, 7 files, 19 passed and check 4's agent skipped for want of a key, as on any keyless run (D2 #41); Gate 2, 8 files, 10 passed | M |
 | M0.04 ✅ | A lint rule against the old names | M0.03 | build | the rule fails on a planted import from the old package scope. **Proof:** [`evidence/M0.04/`](evidence/M0.04/): `forman(no-old-names)` names the planted import and exits 1; the rule runs in this repository's own lint and in `forman check` | S |
 | M0.05 ∥ ✅ | Design docs rewritten: plugins instead of kits, the story as the spine; `build-plan.md` marked superseded from layer 3 | M0.01 | build | the docs build and their link check passes; "kit" (the word for a plugin) appears only in history. **Proof:** the docs are one page, [`docs/index.html`](docs/index.html), ported from Forman Docs ([`decisions/M0-build.md`](decisions/M0-build.md) #7 to #10); `nx run docs:check` ([`evidence/M0.05/`](evidence/M0.05/)); `build-plan.md` line 4 already points layers 3 to 5 here | M |
-| M0.06 | **Gate M0** | M0.04, M0.05 | e2e | `nx run e2e:m0` passes on `main` | S |
+| M0.06 ✅ | **Gate M0** | M0.04, M0.05 | e2e | `nx run e2e:m0` passes on `main` | S |
+
+**Gate M0 proof:** a clean clone of `m0` at `091cc86` passes the workspace check, `sync:check`, `docs:check` and `nx run e2e:m0` ([`evidence/M0.06/`](evidence/M0.06/)); CI runs the same on [#32](https://github.com/AaronAbuUsama/architect/pull/32) and on `main` (jobs `check`, `e2e-layer1`, `e2e-layer2`, `e2e-m0`).
 
 The npm org `@formants` is not needed until M7: every milestone before it publishes to the local Verdaccio.
 
