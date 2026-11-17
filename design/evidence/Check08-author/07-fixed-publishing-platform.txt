@@ -1,0 +1,9 @@
+$ sh .architect/check05-source.sh
+# commit d428228 · 2026-11-17T02:50:53Z · exit 0 (expected 0) · 0.0s
+
+44:  if (supportedBinary) expect(brew("--version").status, "Homebrew must be on PATH for the supported binary target").toBe(0);
+56:    if ((brew("list", "--formula").stdout ?? "").split("\n").some((l) => l === formula)) brew("uninstall", "--force", full);
+57:    if ((brew("tap").stdout ?? "").split("\n").includes(tap)) brew("untap", tap);
+67:const supportedBinary = (process.platform === "darwin" && process.arch === "arm64") || (process.platform === "linux" && process.arch === "x64");
+93:  it.skipIf(!supportedBinary)("brew install <tap>/<formula> runs acme --version, printing the release version", () => {
+104:    expect(version.stdout.trim().split(/\s+/).at(-1)).toBe(released);

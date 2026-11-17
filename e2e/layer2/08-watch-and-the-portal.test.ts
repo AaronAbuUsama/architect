@@ -54,7 +54,8 @@ const watch = (env: Stack["env"], root: string) => {
 
 /** The portal's rows as plain text, one per operation. */
 const portal = async (url: string) => {
-  const html = await (await fetch(`${url}/portal`)).text();
+  // Synchronous CLI commands can restart staging while this event loop cannot retire an idle pooled socket.
+  const html = await (await fetch(`${url}/portal`, { headers: { connection: "close" } })).text();
   return html.split(/<\/tr>/i).map((row) => row.replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim());
 };
 const row = (rows: ReadonlyArray<string>, op: string) => rows.find((r) => new RegExp(`(^|\\s)${escape(op)}(\\s|$)`).test(r));

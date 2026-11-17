@@ -13,7 +13,8 @@
 // - The SDK is installed with npm into an empty folder, from the registry for the project's names (everything else from npm).
 //   The check's own setup first builds and publishes every `@architect/*` package to its Verdaccio, as tools/e2e/starter.sh does
 //   (D3 #16), with a throwaway user whose token stays in a temp npmrc, so `@acme/sdk`'s dependencies all resolve locally.
-// - The macOS arm64 binary is the one a Mac builds (D3 #9); on any other machine the brew half is skipped.
+// - Mac arm64 and Linux x64 build their own supported binary (D3 #9, #116); each must run the real brew half.
+//   Other targets skip that half. Missing Homebrew on a supported target is a failure, never a skip.
 import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -40,6 +41,7 @@ const git = (cwd: string, ...args: ReadonlyArray<string>) => {
 const copy = project();
 let stack: Stack | undefined;
 beforeAll(async () => {
+  if (supportedBinary) expect(brew("--version").status, "Homebrew must be on PATH for the supported binary target").toBe(0);
   mkdirSync(tapRepo);
   writeFileSync(join(tapRepo, "README.md"), `A local tap for Architect's Gate 2 (${id}).\n`);
   git(tapRepo, "init", "-q", "-b", "main");
@@ -51,8 +53,8 @@ beforeAll(async () => {
 afterAll(async () => {
   try {
     // Our own tap only, and only what this run installed: uninstall, then untap.
-    if (brew("list", "--formula").stdout.split("\n").some((l) => l === formula)) brew("uninstall", "--force", full);
-    if (brew("tap").stdout.split("\n").includes(tap)) brew("untap", tap);
+    if ((brew("list", "--formula").stdout ?? "").split("\n").some((l) => l === formula)) brew("uninstall", "--force", full);
+    if ((brew("tap").stdout ?? "").split("\n").includes(tap)) brew("untap", tap);
     await finish(copy.root, stack);
   } finally {
     rmSync(scratch, { recursive: true, force: true });
@@ -62,7 +64,7 @@ afterAll(async () => {
 
 // What `architect version --next` printed before the release; the first test sets it, the second needs it.
 let released = "";
-const mac = process.platform === "darwin" && process.arch === "arm64";
+const supportedBinary = (process.platform === "darwin" && process.arch === "arm64") || (process.platform === "linux" && process.arch === "x64");
 
 describe("check 5: publishing", () => {
   it("@acme/sdk installs from Verdaccio at exactly architect version --next", () => {
@@ -88,7 +90,7 @@ describe("check 5: publishing", () => {
     expect(version).toBe(next);
   });
 
-  it.skipIf(!mac)("brew install <tap>/<formula> runs acme --version, printing the release version", () => {
+  it.skipIf(!supportedBinary)("brew install <tap>/<formula> runs acme --version, printing the release version", () => {
     // The formula was committed to the tap repository by the production promote above.
     const tapped = brew("tap", tap, tapRepo);
     expect(tapped.status, tapped.stderr).toBe(0);
