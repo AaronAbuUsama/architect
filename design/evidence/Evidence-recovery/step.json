@@ -1,0 +1,17 @@
+{
+  "step": "Evidence-recovery",
+  "stage": "Stage 3 · evidence tooling",
+  "title": "Rebuild the evidence page without inventing missing capture metadata",
+  "summary": "The renderer accepts complete capture headers and preserves raw historical records as explicitly unverified. Unknown records never mark a step done or link an unknown commit. Rendering redacts known local path, email and token forms without changing source records. Known unexpected exits and failed CI keep their step red even beside unverified records.",
+  "proves": "python3 tools/evidence/page_test.py passes for valid, raw, partial and malformed records, HTML escaping, mixed or empty steps, expected and unexpected failures, and display privacy; python3 tools/evidence/page.py rebuilds the actual evidence page.",
+  "captions": {
+    "01-fails-first": "Regression checks before the repair: raw and malformed captures crash the renderer.",
+    "02-regression-checks": "Focused regression checks after the repair.",
+    "03-page-rebuild": "The real evidence page rebuilds from all committed records.",
+    "04-final-checks": "Final focused regression checks.",
+    "05-display-privacy": "The rebuilt page has no matches for the known private display forms.",
+    "06-failure-precedence-before": "Review regression before correction: unverified records incorrectly hide a known capture or CI failure at step level.",
+    "07-failure-precedence-after": "All eight regressions pass, including known failure taking precedence over unknown records.",
+    "08-final-page-rebuild": "The real page rebuilds after the failure-precedence correction."
+  }
+}

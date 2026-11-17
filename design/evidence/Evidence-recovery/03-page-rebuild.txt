@@ -1,0 +1,4 @@
+$ python3 tools/evidence/page.py
+# commit 38e3586 · 2026-11-17T01:40:10Z · exit 0 (expected 0) · 0.2s
+
+wrote design/evidence/index.html with 34 steps

@@ -35,6 +35,7 @@ h2 { font-family: var(--display); font-size: 1.25rem; margin: 0; display: flex; 
 .chip.pass { color: var(--pass); background: var(--pass-bg); }
 .chip.planted { color: var(--planted); background: var(--planted-bg); }
 .chip.bad { color: var(--bad); background: var(--bad-bg); }
+.chip.unknown { color: var(--muted); background: var(--bg); }
 .run { border-top: 1px solid var(--line); padding-top: 10px; min-width: 0; }
 .run summary { cursor: pointer; display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; list-style: none; }
 .run summary::-webkit-details-marker { display: none; }
@@ -48,7 +49,7 @@ h2 { font-family: var(--display); font-size: 1.25rem; margin: 0; display: flex; 
 <main>
   <header>
     <h1>Architect build evidence</h1>
-    <p>Every run below was captured by a script as it happened, on the commit shown. Planted failures are meant to fail. Newest step first.</p>
+    <p>Verified captures show their recorded commit, exit code and duration. Older records without that metadata are marked unverified. Planted failures are meant to fail. Raw records remain unchanged; private display values are redacted.</p>
   </header>
   <!--STEPS-->
 </main>
