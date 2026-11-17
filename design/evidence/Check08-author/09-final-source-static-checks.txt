@@ -1,0 +1,32 @@
+$ env NX_DAEMON=false pnpm nx run-many -t lint,typecheck -p e2e --outputStyle=static --skip-nx-cache
+# commit b6d483e · 2026-11-17T03:28:06Z · exit 0 (expected 0) · 2.0s
+
+
+ NX   Running targets lint, typecheck for project e2e:
+
+- e2e
+
+
+
+> nx run e2e:typecheck
+
+> tsc -p e2e/tsconfig.json
+
+
+> nx run e2e:lint
+
+> oxlint e2e
+
+(node:84760) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+e2e/layer1/04-agent-writes-a-handler.test.ts:13:27: warning eslint(no-unused-vars): Identifier 'cli' is imported but never used. help: Consider removing this import.
+
+
+
+ NX   Successfully ran targets lint, typecheck for project e2e
+
+
+  Run duration:      920ms
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     916ms (1 task)
+  Recoverable time:  <1ms

@@ -1,0 +1,11 @@
+$ pnpm exec vitest run --root e2e --config ./.architect/vitest.check08.config.ts
+# commit 323239c · 2026-11-17T03:34:25Z · exit 0 (expected 0) · 279.0s
+
+
+ RUN  v4.1.12 ./e2e
+
+
+ Test Files  2 passed (2)
+      Tests  3 passed (3)
+   Start at  03:29:49
+   Duration  276.10s (transform 61ms, setup 0ms, import 832ms, tests 275.02s, environment 0ms)
