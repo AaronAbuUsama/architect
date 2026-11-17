@@ -10,6 +10,8 @@
     "05-lifecycle-pass": "Seven real-workerd tests pass with the admission snapshot inside the INSERT and non-destructive upgrade checks.",
     "06-host-suite": "Every host-cloudflare module test in real workerd.",
     "07-test-worlds": "Existing L2.02 prove, failed verdict, expiry, restart and reap integration checks.",
-    "08-workspace-checks": "Nx reset, generation, lint, typecheck and drift checks."
+    "08-workspace-checks": "Nx reset, generation, lint, typecheck and drift checks.",
+    "07-integrated-world-tests": "The conductor reruns all seven world tests after merging the correction.",
+    "08-integrated-test-worlds": "The conductor reruns existing test-world creation, expiry, restart and reap checks after merging."
   }
 }

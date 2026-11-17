@@ -26,9 +26,9 @@ The conductor regenerated `evidence/index.html` and opened both pages. Claude mu
 `origin/layer/3`, and pushes verified integration commits to `layer/3`. The original checkout is neither switched nor
 reset, and its ignored template files stay untouched. The two recovery builders are finished. Now active:
 - `build/build-integrity`: D3 #160–169, private ports 9120–9139 and existing promote ports 9030–9049. Scope now includes optional SHA-256 on logbook verdict schema/wire/readers and actual test/staging writers; promotion requires it. Preserve legacy rows, never backfill a fabricated hash, add idempotent column migration. Migration skill applies. It also owns Build’s environment composition fix.
-- `build/world-isolation`: D3 #170–179, private ports 9140–9159 and existing test-worlds ports 8970–8989.
+- `build/world-isolation` is merged at `c9d1285` (D3 #170–172): D1 atomically admits/snapshots one live lease and guards every teardown mutation. Eight creations all succeeded before the fix; seven workerd regressions and all 21 host tests pass afterward. The conductor reran the seven world tests and all three existing test-worlds tests (expiry/restart/reap) after integration; lint/typecheck/sync passed, no Architect containers remained. CI on the forthcoming integration push is still required.
 - `author/check08-connection`: D3 #180–189. Connection-close source patch and e2e lint/typecheck passed; no assertions/phases changed. Runtime is pending explicit conductor go after both builders stop; then check 08 alone via `.architect/vitest.check08.config.ts` without global teardown, stock 8980–8986/4898.
-Each has its own managed worktree. No full gate may run beside them.
+Each has its own managed worktree. The world builder is finished; build-integrity is finishing static checks. The author still needs explicit runtime go after the conductor integrates the hash-bound verdict change. No full gate may run beside these tasks.
 
 **Next, in order:**
 1. Done: recovery Linux CI is green (`43997952028`, `53d028d`).

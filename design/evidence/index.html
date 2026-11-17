@@ -54,6 +54,509 @@ h2 { font-family: var(--display); font-size: 1.25rem; margin: 0; display: flex; 
   
 <section class="step">
   <div class="stage">Stage 3 · shipping on local worlds (Gate 2)</div>
+  <h2><span class="id">World-isolation</span> Atomic world admission and guarded teardown <span class="chip pass">done</span></h2>
+  <p class="summary">D1 admits a single live world and captures its rowid marks in the same guarded insertion. Teardown deletes only while that lease remains live, in one transaction. An additive unique index refuses overlapping legacy state without deleting data.</p>
+  <div class="proves"><span class="label">Done when</span>Eight concurrent world creations produce exactly one 201 and seven 409 responses naming the same owner. Cleanup preserves pre-world rows, overlapping endings count once, stale teardown leaves the next world intact, admission/ending handovers remove the correct rows, used ids are refused, and an overlapping legacy registry remains unchanged when its additive index upgrade fails. The existing expiry/restart/reap integration tests and lint/typecheck/sync checks pass.</div>
+  <div class="links">CI not run · <a href="https://github.com/AaronAbuUsama/architect/commit/53d028d">commit 53d028d</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/4d000a0">commit 4d000a0</a> · 8 verified captures · 0 unverified records</div>
+  
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">The real-workerd baseline admits all eight concurrent worlds; the new assertion fails.</span>
+    <span class="meta">exit 1 · 15.9s · 2026-11-17T02:00:57Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/host-cloudflare src/modules/world/world.test.ts</div><pre>=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+
+
+ RUN  v4.1.12 ./packages/host-cloudflare
+
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/webStandardStreamableHttp.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/mediaType.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/requestBody.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/sseKeepAlive.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/cfworker-provider.js&quot; points to missing source files
+ ❯ src/modules/world/world.test.ts (5 tests | 1 failed) 566ms
+     × admits exactly one concurrent creation and removes only that world&#x27;s rows 94ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/world/world.test.ts &gt; world leases, in real workerd and D1 &gt; admits exactly one concurrent creation and removes only that world&#x27;s rows
+AssertionError: expected [ 201, 201, 201, 201, 201, 201, …(2) ] to deeply equal [ 201, 409, 409, 409, 409, 409, …(2) ]
+
+- Expected
++ Received
+
+  [
+    201,
+-   409,
+-   409,
+-   409,
+-   409,
+-   409,
+-   409,
+-   409,
++   201,
++   201,
++   201,
++   201,
++   201,
++   201,
++   201,
+  ]
+
+ ❯ src/modules/world/world.test.ts:60:24
+     58|       const responses = await Promise.all(ids.map(lease));
+     59|       const statuses = responses.map((r) =&gt; r.status).sort();
+     60|       expect(statuses).toEqual([201, 409, 409, 409, 409, 409, 409, 409…
+       |                        ^
+     61|       const held = (await liveWorlds()).worlds;
+     62|       expect(held).toHaveLength(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  02:00:44
+   Duration  12.88s (transform 4.02s, setup 8.94s, import 11ms, tests 566ms, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The first guarded admission/teardown implementation passes the five core tests.</span>
+    <span class="meta">exit 0 · 11.2s · 2026-11-17T02:03:08Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/host-cloudflare src/modules/world/world.test.ts</div><pre>=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+
+
+ RUN  v4.1.12 ./packages/host-cloudflare
+
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/webStandardStreamableHttp.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/mediaType.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/requestBody.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/sseKeepAlive.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/cfworker-provider.js&quot; points to missing source files
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  02:02:59
+   Duration  9.58s (transform 3.62s, setup 8.37s, import 10ms, tests 553ms, environment 1ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Seven real-workerd tests pass with the admission snapshot inside the INSERT and non-destructive upgrade checks.</span>
+    <span class="meta">exit 0 · 12.9s · 2026-11-17T02:07:21Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/host-cloudflare src/modules/world/world.test.ts</div><pre>=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+
+
+ RUN  v4.1.12 ./packages/host-cloudflare
+
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/webStandardStreamableHttp.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/mediaType.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/requestBody.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/sseKeepAlive.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/cfworker-provider.js&quot; points to missing source files
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  02:07:09
+   Duration  11.39s (transform 4.51s, setup 9.92s, import 16ms, tests 783ms, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Every host-cloudflare module test in real workerd.</span>
+    <span class="meta">exit 0 · 23.0s · 2026-11-17T02:09:17Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/host-cloudflare</div><pre>=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+
+
+ RUN  v4.1.12 ./packages/host-cloudflare
+
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/webStandardStreamableHttp.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/mediaType.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/requestBody.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/sseKeepAlive.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/cfworker-provider.js&quot; points to missing source files
+
+ Test Files  7 passed (7)
+      Tests  21 passed (21)
+   Start at  02:08:55
+   Duration  21.49s (transform 50.71s, setup 129.16s, import 1.79s, tests 4.18s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The conductor reruns all seven world tests after merging the correction.</span>
+    <span class="meta">exit 0 · 12.9s · 2026-11-17T02:12:47Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/host-cloudflare src/modules/world/world.test.ts</div><pre>=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+
+
+ RUN  v4.1.12 ./packages/host-cloudflare
+
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/webStandardStreamableHttp.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/mediaType.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/requestBody.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/sseKeepAlive.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/cfworker-provider.js&quot; points to missing source files
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  02:12:36
+   Duration  11.41s (transform 3.49s, setup 8.05s, import 10ms, tests 727ms, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Existing L2.02 prove, failed verdict, expiry, restart and reap integration checks.</span>
+    <span class="meta">exit 0 · 62.5s · 2026-11-17T02:10:19Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/prove src/modules/test-worlds/test-worlds.test.ts</div><pre>RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  02:09:17
+   Duration  61.82s (transform 536ms, setup 0ms, import 998ms, tests 60.71s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The conductor reruns existing test-world creation, expiry, restart and reap checks after merging.</span>
+    <span class="meta">exit 0 · 59.5s · 2026-11-17T02:13:47Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/prove src/modules/test-worlds/test-worlds.test.ts</div><pre>RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  02:12:48
+   Duration  58.87s (transform 684ms, setup 0ms, import 1.02s, tests 57.75s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Nx reset, generation, lint, typecheck and drift checks.</span>
+    <span class="meta">exit 0 · 16.5s · 2026-11-17T02:10:36Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ bash -c set -e; pnpm nx reset; NX_DAEMON=false pnpm nx sync; NX_DAEMON=false pnpm nx run-many -t lint,typecheck --outputStyle=static; NX_DAEMON=false pnpm nx sync:check</div><pre>Stopping the Nx Daemon
+Stopped the Nx Daemon
+Removing the Nx Daemon workspace data
+Removed the Nx Daemon workspace data
+Removing the cache directory
+Removed the cache directory
+Removing the workspace data directory
+Removed the workspace data directory
+
+ NX   Successfully reset the Nx workspace.
+
+
+ NX   The workspace is already up to date
+
+[@architect/generators:sync]: All files are up to date.
+
+
+ NX   Running targets lint, typecheck for 16 projects:
+
+- host-cloudflare
+- target-solidity
+- target-effect
+- generators
+- blueprint
+- compiler
+- logbook
+- starter
+- portal
+- preset
+- prove
+- acme
+- lint
+- cli
+- std
+- e2e
+
+
+
+&gt; nx run blueprint:typecheck
+
+&gt; tsc -p packages/blueprint/tsconfig.json
+
+
+&gt; nx run logbook:typecheck
+
+&gt; tsc -p packages/logbook/tsconfig.json
+
+
+&gt; nx run logbook:lint
+
+&gt; oxlint packages/logbook
+
+(node:38656) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+packages/logbook/src/modules/local/local.test.ts:84:156: warning unicorn(no-invalid-fetch-options): &quot;body&quot; is not allowed when method is &quot;GET&quot;
+
+&gt; nx run blueprint:lint
+
+&gt; oxlint packages/blueprint
+
+(node:38654) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run portal:typecheck
+
+&gt; tsc -p packages/portal/tsconfig.json
+
+
+&gt; nx run portal:lint
+
+&gt; oxlint packages/portal
+
+(node:38693) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run target-effect:typecheck
+
+&gt; tsc -p packages/target-effect/tsconfig.json
+
+
+&gt; nx run compiler:typecheck
+
+&gt; tsc -p packages/compiler/tsconfig.json
+
+
+&gt; nx run target-effect:lint
+
+&gt; oxlint packages/target-effect
+
+(node:38736) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run generators:typecheck
+
+&gt; tsc -p packages/generators/tsconfig.json
+
+
+&gt; nx run compiler:lint
+
+&gt; oxlint packages/compiler
+
+(node:38753) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run generators:lint
+
+&gt; oxlint packages/generators
+
+(node:38765) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run host-cloudflare:typecheck
+
+&gt; tsc -p packages/host-cloudflare/tsconfig.json
+
+
+&gt; nx run host-cloudflare:lint
+
+&gt; oxlint packages/host-cloudflare
+
+(node:38777) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run prove:typecheck
+
+&gt; tsc -p packages/prove/tsconfig.json
+
+
+&gt; nx run lint:typecheck
+
+&gt; tsc -p packages/lint/tsconfig.json
+
+
+&gt; nx run prove:lint
+
+&gt; oxlint packages/prove
+
+(node:38814) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+packages/prove/src/modules/world/device-sign-in.test.ts:3:33: warning eslint(no-unused-vars): Type &#x27;ChildProcess&#x27; is imported but never used. help: Consider removing this import.
+
+&gt; nx run target-solidity:typecheck
+
+&gt; tsc -p packages/target-solidity/tsconfig.json
+
+
+&gt; nx run lint:lint
+
+&gt; oxlint packages/lint
+
+(node:38829) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run target-solidity:lint
+
+&gt; oxlint packages/target-solidity
+
+(node:38842) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run starter:typecheck
+
+&gt; tsc -p examples/starter/tsconfig.json
+
+
+&gt; nx run starter:lint
+
+&gt; oxlint examples/starter
+
+(node:38854) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run preset:typecheck
+
+&gt; tsc -p packages/preset/tsconfig.json
+
+
+&gt; nx run preset:lint
+
+&gt; oxlint packages/preset
+
+(node:38896) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run acme:lint
+
+&gt; oxlint examples/acme
+
+(node:38907) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run acme:typecheck
+
+&gt; tsc -p examples/acme/tsconfig.json
+
+
+&gt; nx run cli:typecheck
+
+&gt; tsc -p packages/cli/tsconfig.json
+
+
+&gt; nx run std:typecheck
+
+&gt; tsc -p packages/std/tsconfig.json
+
+
+&gt; nx run cli:lint
+
+&gt; oxlint packages/cli
+
+(node:38931) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run std:lint
+
+&gt; oxlint packages/std
+
+(node:38944) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run e2e:typecheck
+
+&gt; tsc -p e2e/tsconfig.json
+
+
+&gt; nx run e2e:lint
+
+&gt; oxlint e2e
+
+(node:38983) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+e2e/layer1/04-agent-writes-a-handler.test.ts:13:27: warning eslint(no-unused-vars): Identifier &#x27;cli&#x27; is imported but never used. help: Consider removing this import.
+
+
+
+ NX   Successfully ran targets lint, typecheck for 16 projects
+
+
+  Run duration:      9.1s
+  Cache:             0/32 hit (0%)
+  Critical path:     2.1s (1 task)
+  Recoverable time:  7.0s (77% of the run)
+
+ NX   The workspace is up to date
+
+[@architect/generators:sync]: All files are up to date.</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 3 · shipping on local worlds (Gate 2)</div>
   <h2><span class="id">L2.P</span> Privacy-ready seams <span class="chip unknown">unverified</span></h2>
   <p class="summary">Blueprint.visibility.secret|private|public on values and fields, carried into the model; the declared secrets of acme and the starter (Password, Secret, sign-in&#x27;s session) marked in the blueprint. Span attributes come from an allowlist of public fields (target-effect handler attributes, journal, list items), with a Collector attributes processor, built from the model, as the second guard. The leak check lives in eval 1 (answer shape), by name and by value, over spans, logs and the journal. Refusal codes [AL-001] Name { field: value } are fixed by the model (prefix from the thing, number from declaration order, 900 for the machine&#x27;s refusal, AR-001 for NotAllowed), carried on the wire, the SDK, the CLI and the docs, and a moved code is a major change in Compare.release. runs (only server), the open step kinds and the unit | network test marker are in.</p>
   <div class="proves"><span class="label">Done when</span>Against a real world and the real Collector&#x27;s files, a sign-in and an api-key.create leave no password, token, key or session value in any span or log, and no attribute is keyed for a secret field; a field declared private(owner) is never an attribute of allowance.grant and prove still passes; the Collector&#x27;s processor deletes the keys it is given from spans and logs; every refusal answer carries the code the model fixed. The test failed first, showing payload.password, answer.token, answer.key and answer.session in the Collector&#x27;s files. Gate 1&#x27;s checks, acme&#x27;s and the starter&#x27;s local prove and the starter&#x27;s publish-and-create run stay green, except one line of e2e/layer1/05 that expects the old CLI refusal text (for the author).</div>

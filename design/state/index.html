@@ -139,7 +139,7 @@ across test, staging and production, and watch it. Every build step of stage thr
 <ul>
 <li><b>Layer one, declare and call, is finished.</b> Stages one and two, Gate 1, merged on 16 November.</li>
 <li><b>Layer two, prove and ship, is built.</b> Thirteen of its fourteen steps are merged on <code>layer/3</code>: traces, the MCP server, <code>watch</code> and the portal landed today.</li>
-<li><b>Codex has resumed.</b> The CI and evidence-page repairs passed locally and on Linux. Two correctness builders and a separate author are now working.</li>
+<li><b>Codex has resumed.</b> The CI and evidence-page repairs passed locally and on Linux. World isolation is fixed and passes integration checks. The hash-bound proof repair is finishing, and the author is waiting to run check 8.</li>
 <li><b>Next:</b> fix the independent review’s two blockers and check 8, then Gate 2 and the pull request into main.</li>
 <li><b>CI is green on the recovery push.</b> Both the general check and layer-one compatibility job passed. Main’s latest CI is green.</li>
 <li><b>Layers three to five,</b> the kits, the chain and time, haven't started. Neither has the cloud pass, which needs your yes on credentials.</li>
@@ -264,11 +264,11 @@ steps, performance, coverage and explainability.</p>
 
 { id: "flight", group: "Progress", t: "In flight", h: () => `
 <h1>In flight</h1>
-<p class="lede">Recovery is green locally and in CI. Two builders are fixing promotion provenance and world lease isolation. The separate author is preparing check 8; its runtime check waits until the builders stop.</p>
+<p class="lede">Recovery is green locally and in CI. World isolation has passed integration checks. The promotion proof repair is finishing. The separate author’s check 8 runtime waits until integration is complete.</p>
 <h2>On the critical path</h2>
 <ul>
 <li><b>CI on <code>layer/3</code>:</b> the Docker networking fix and promotion/read repairs pass all six touched tests locally. Linux CI also passed on the recovery push.</li>
-<li><b>World isolation:</b> review found that concurrent world creation can bypass the single-live-world rule. It needs atomic creation and a real concurrency regression.</li>
+<li><b>World isolation:</b> is fixed at D1’s atomic mutation. Seven world regressions and the existing expiry, restart and reap checks pass after integration; CI still has to verify this change.</li>
 <li><b>Promotion integrity:</b> independent review found that a dirty-source bundle can reuse a clean revision’s proofs after its source is restored. This must be fixed and regression-tested before Gate 2.</li>
 <li><b>Check 8:</b> one fetch needs a fresh connection after staging restarts. An author's fix, not a builder's.</li>
 <li><b>The evidence page:</b> rebuilds successfully. Eight regression checks pass. Missing capture metadata stays marked unverified.</li>
