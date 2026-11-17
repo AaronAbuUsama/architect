@@ -12,6 +12,7 @@ const errors = (model: Model): RenderedFile => {
   const exits: Array<string> = [];
   const codes: Array<string> = [];
   const shown: Array<string> = [];
+  const declared: Array<string> = [];
   const body: Array<string> = [];
   // Each refusal's code is beside its tag: a field on the wire class, and a static the runtime reads it from.
   const cls = (name: string, code: string, fields: string, status: number) =>
@@ -24,6 +25,7 @@ const errors = (model: Model): RenderedFile => {
       exits.push(`  ${name}: ${e.exit},`);
       codes.push(`  ${name}: "${e.code}",`);
       shown.push(`  ${name}: ${publicFields(e.fields)},`);
+      declared.push(`  ${name}: ${t.identifier}.${name},`);
     }
   }
   for (const t of things) {
@@ -55,6 +57,9 @@ const errors = (model: Model): RenderedFile => {
     "",
     "/** The fields of each refusal whose values may be shown (printed, logged, put in a span): only the public ones. */",
     "export const shown: Readonly<Record<string, ReadonlyArray<string>>> = {", shown, "};",
+    "",
+    "/** The declared errors themselves, by name: their fields say who may see a value (the MCP server redacts by role). */",
+    "export const declared = {", declared, "} as const;",
     "",
     "/** The wire class of each refusal, by name. */",
     `export const wire = { ${names.join(", ")} };`,

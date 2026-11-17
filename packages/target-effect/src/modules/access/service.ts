@@ -64,7 +64,19 @@ const allows = (a: Allowed, payloadFields: Fields, payload: object, principal: P
   return roleOn(a, undefined, payloadFields, payload, principal, own);
 };
 
+/** The role an `allowed` entry names, if it names one. */
+const roleOf = (a: Allowed): Role | undefined => (a.kind === "role" ? a : a.kind === "role-of" ? a.role : undefined);
+
 export const Access: AccessApi = {
+  holds: ({ allowed, payloadFields, payload, principal, thing }) =>
+    Effect.gen(function* () {
+      const held: Array<Role> = [];
+      for (const a of allowed) {
+        const role = roleOf(a);
+        if (role && (yield* allows(a, payloadFields, payload, principal, thing))) held.push(role);
+      }
+      return held;
+    }),
   check: ({ allowed, payloadFields, payload, principal, thing }) =>
     Effect.gen(function* () {
       for (const a of allowed) if (yield* allows(a, payloadFields, payload, principal, thing)) return;

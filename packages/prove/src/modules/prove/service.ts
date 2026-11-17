@@ -53,10 +53,10 @@ export const Prove: ProveApi = {
     }),
   test: (options) =>
     load(options.root).pipe(Effect.flatMap(({ model, project }) => proveInTest(model, project, options))),
-  against: ({ root, url, telemetry, say }) =>
+  against: ({ root, url, telemetry, state, say }) =>
     Effect.gen(function* () {
       const { model, project } = yield* load(root);
-      const done = yield* exercise(model, project, url, Collectors.read(telemetry), "sign-up");
+      const done = yield* exercise(model, project, url, Collectors.read(telemetry), "sign-up", undefined, state === undefined ? undefined : Journeys.databaseFacts(state));
       for (const line of [...done.journeys.lines, ...done.evals.lines]) yield* say(line);
       const verdict = closing(done);
       yield* say(verdict.line);

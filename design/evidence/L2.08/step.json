@@ -1,0 +1,14 @@
+{
+  "step": "L2.08",
+  "stage": "Stage 3 · shipping on local worlds (Gate 2)",
+  "title": "Remote MCP with OAuth, and the world's front door closed",
+  "summary": "The generated server serves /mcp: one MCP tool per operation and read, built on the MCP SDK's stateless streamable HTTP server, its input schema from the declaration, only public fields in an input or an answer (a private field only to a caller who holds its role), refusals as tool errors with their code, and the API's own role check. OAuth is Better Auth's oauth-provider on the project's AuthD1, with dynamic client registration capped and the consent given headless. /_world/* now answers 404 in every environment that does not host worlds, and staging's proof reads its own database instead of the door.",
+  "proves": "An MCP client completes OAuth as ada and calls allowance.get for the typed answer; bob is refused [AR-001] NotAllowed; a declared refusal carries its code; no secret is an input or an answer. Staging and production answer 404 on /_world/cast and the facts, while the test environment's door stays open.",
+  "captions": {
+    "01-fails-first-mcp": "The MCP test on the generated server before the build: /mcp is a 404.",
+    "02-fails-first-front-door": "The front-door test before the build: staging answers /_world/cast with 200.",
+    "03-unit-suite": "Every project's tests.",
+    "04-author-checks": "The author's checks 01 to 07, run one at a time.",
+    "05-starter-e2e": "tools/e2e/starter.sh."
+  }
+}

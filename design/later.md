@@ -12,7 +12,7 @@ belongs to, and why it waits.
 - **Noir on Aztec as a target**, client-proved and private (N1, `design/noir/`). After Gate 5, its own layer. The
   private Capxul layers in the handoff are a product roadmap built on it, kept with the Noir thread.
 - Each thing as an actor by default. Later.
-- The world's front door (`/_world/cast`, `/_world/facts/*`) closed in staging and production worlds: shipping, layer two (stage three), because only then do non-local worlds exist (D2 #28).
+- ~~The world's front door closed in staging and production worlds~~: done in L2.08 (D3 #126, #127).
 
 ## From stage two (layer one)
 
@@ -53,12 +53,8 @@ belongs to, and why it waits.
 - **Benchmark regressions as a gate** (H2.12). Advisory until baselines have shown how noisy they are; a later decision makes it a gate.
 - **A weekly scheduled baseline in CI** on free models (H2.12), once CI may hold a model key (Aaron's call, H2 question 3).
 
-- **Close `/_world/*` outside worlds (D3 #96).** The generated server routes every `/_world/` request to the world on every
-  environment, so a deployed environment would answer `/_world/cast` (people with known passwords) and `/_world/facts/*` (rows
-  and journal). Gate `cast` to local and test worlds (`ARCHITECT_WORLDS` or no `ARCHITECT_ENVIRONMENT`), and give the staging
-  proof another way to read what a step did (the journal from telemetry, a declared read) so facts can close there and on
-  production. Needs a `server.ts` generator change after L2.L lands; before the cloud pass deploys anything.
-
+- **The cloud pass must set `ARCHITECT_ENVIRONMENT` on every deployed Worker, and give `Facts` a D1-API reader (D3 #126, #127).** The front door is closed unless
+  the environment is named and declares a lifetime; a Worker that forgets the name reads as a local world. Staging's proof reads D1 through a file today.
 - **Read `architect.config.ts`'s `outputs` where packages and commands are named (D3 #112).** Nothing reads the config yet: the generators
   name the CLI from the project's folder and `publish` names `@<folder>/sdk` and `@<folder>/cli`, so `outputs: { sdk: "@acme/sdk", cli: "acme" }`
   renames nothing. One change for the generators and publish together: the config's names, the folder as the default.

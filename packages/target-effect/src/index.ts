@@ -3,6 +3,8 @@ export { Access } from "#modules/access/service.js";
 export { authMemory } from "#modules/auth/service.js";
 export { Auth, AuthRefused } from "#modules/auth/types.js";
 export { NotAllowed } from "#modules/access/types.js";
+export { Mcp } from "#modules/mcp/service.js";
+export type { McpEntry, McpRefusals, McpResult, McpServed, McpTool } from "#modules/mcp/types.js";
 export { Handlers, Reads } from "#modules/handler/service.js";
 export { BlankReached, InvalidPayload, NotFrom } from "#modules/handler/types.js";
 export type { Handler, HandlerContext, ReadAnswer, ReadPayload, Served, ServedRead, StepRunners } from "#modules/handler/types.js";

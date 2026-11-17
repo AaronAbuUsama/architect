@@ -38,7 +38,36 @@ describe("Better Auth on D1", () => {
     expect(said.byKey).toEqual({ kind: "person", person: said.person, email });
     expect([said.byNothing, said.byGarbage]).toEqual([{ kind: "anonymous" }, { kind: "anonymous" }]);
     const tables = await env.DB.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name LIKE 'auth_%' ORDER BY name").all<{ name: string }>();
-    expect(tables.results.map((t) => t.name)).toEqual(["auth_account", "auth_apikey", "auth_device_code", "auth_session", "auth_user", "auth_verification"]);
+    expect(tables.results.map((t) => t.name)).toEqual(["auth_account", "auth_apikey", "auth_device_code", "auth_jwks", "auth_oauth_access_token", "auth_oauth_client", "auth_oauth_client_assertion", "auth_oauth_client_resource", "auth_oauth_consent", "auth_oauth_refresh_token", "auth_oauth_resource", "auth_session", "auth_user", "auth_verification"]);
+  });
+});
+
+describe("dynamic client registration (D3 #123)", () => {
+  const register = (origin: string) =>
+    Effect.runPromise(AuthD1.handle(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET, cli: "cli" }), new Request(`${origin}/api/auth/oauth2/register`, {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ client_name: "c", redirect_uris: ["http://127.0.0.1:1/callback"], token_endpoint_auth_method: "none" }),
+    })));
+  const clients = async () => (await env.DB.prepare(`SELECT COUNT(*) AS n FROM "auth_oauth_client"`).first<{ n: number }>())!.n;
+  const fill = (n: number, createdAt: string) =>
+    env.DB.batch(Array.from({ length: n }, (_, i) =>
+      env.DB.prepare(`INSERT INTO "auth_oauth_client" ("id", "clientId", "redirectUris", "createdAt") VALUES (?, ?, '[]', ?)`).bind(`fill_${createdAt}_${i}`, `fill_${createdAt}_${i}`, createdAt)));
+
+  it("registers a client, and says 429 once the cap is held by clients that are in use or new; a stale unused one makes room", { timeout: 60_000 }, async () => {
+    await env.DB.prepare(`DELETE FROM "auth_oauth_client"`).run().catch(() => undefined);
+    const made = await register("http://127.0.0.1:1");
+    expect(made.status, await made.clone().text()).toBe(201);
+    // A full house of clients made just now: nobody is cleared, and a new one is refused.
+    await env.DB.prepare(`DELETE FROM "auth_oauth_client"`).run();
+    await fill(500, new Date().toISOString());
+    const full = await register("http://127.0.0.1:1");
+    expect([full.status, ((await full.json()) as { error: string }).error]).toEqual([429, "temporarily_unavailable"]);
+    expect(await clients()).toBe(500);
+    // The same number, a week old and never authorized: they are cleared and the registration is accepted.
+    await env.DB.prepare(`DELETE FROM "auth_oauth_client"`).run();
+    await fill(500, new Date(Date.now() - 7 * 86_400_000).toISOString());
+    expect((await register("http://127.0.0.1:1")).status).toBe(201);
+    expect(await clients()).toBe(1);
   });
 });
 
