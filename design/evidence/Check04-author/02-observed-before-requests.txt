@@ -1,0 +1,13 @@
+$ cat design/evidence/Check04-author/diagnostics/before.jsonl
+# commit c867e21 · 2026-11-17T05:33:49Z · exit 0 (expected 0) · 0.0s
+
+{"event":"undici:client:sendHeaders","request":1,"url":"http://127.0.0.1:8941/_architect/bundle","localPort":60874,"remotePort":8941,"connection":"keep-alive"}
+{"event":"undici:request:headers","request":1,"url":"http://127.0.0.1:8941/_architect/bundle","status":200}
+{"event":"undici:client:sendHeaders","request":2,"url":"http://localhost:4894/@acme%2fsdk","localPort":60876,"remotePort":4894,"connection":"keep-alive"}
+{"event":"undici:request:headers","request":2,"url":"http://localhost:4894/@acme%2fsdk","status":200}
+{"event":"undici:client:sendHeaders","request":3,"url":"http://127.0.0.1:8942/_architect/bundle","localPort":60895,"remotePort":8942,"connection":"keep-alive"}
+{"event":"undici:request:headers","request":3,"url":"http://127.0.0.1:8942/_architect/bundle","status":200}
+{"event":"undici:client:sendHeaders","request":4,"url":"http://localhost:4894/@acme%2fsdk","localPort":60876,"remotePort":4894,"connection":"keep-alive"}
+{"event":"undici:request:headers","request":4,"url":"http://localhost:4894/@acme%2fsdk","status":200}
+{"event":"undici:client:sendHeaders","request":5,"url":"http://127.0.0.1:8941/_architect/bundle","localPort":60874,"remotePort":8941,"connection":"keep-alive"}
+{"event":"undici:request:error","request":5,"url":"http://127.0.0.1:8941/_architect/bundle","errorCode":"ECONNRESET","syscall":"read"}

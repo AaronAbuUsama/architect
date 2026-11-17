@@ -1,0 +1,14 @@
+{
+  "step": "Check04-author",
+  "stage": "Stage 3 · shipping on local worlds (Gate 2)",
+  "title": "Fresh authored JSON reads after a synchronous environment restart",
+  "summary": "An unchanged focused check reproduced the clean-gate fetch reset. Observer-only Undici diagnostics identified the second staging bundle GET reusing its pre-restart socket. The shared GET-only helper now closes request connections; assertions, requests, fixtures, journeys and runtime behavior remain unchanged.",
+  "proves": "Before the correction, request 5 to staging /_architect/bundle reused the same local socket as request 1 and failed with ECONNRESET after the second synchronous staging promotion. The focused check then passes once with the correction: both unproven-revision refusals, exact bundle hashes, prerelease/release tags and releases 1.0.0 then 1.1.0. All seven observed reads request close and return 200, with a fresh post-restart staging socket. Fresh e2e lint/typecheck and owned-resource cleanup pass. Clean full-gate and current CI verification remain the conductor's next steps.",
+  "captions": {
+    "02-observed-before-requests": "Actual before-change socket identity: staging's reused local port fails on the post-promotion request; registry reuse also remains visible.",
+    "03-focused-check-green": "The actual unchanged check 04 passes once after its GET-only helper closes request connections.",
+    "04-observed-after-requests": "All seven bundle/SDK reads request close and answer 200; the second staging request uses a fresh socket.",
+    "05-e2e-static-checks": "Fresh e2e lint and typecheck without Nx cache.",
+    "06-cleanup-proof": "No container mounted from this worktree, reserved check 04 listener or worktree runtime process remains."
+  }
+}
