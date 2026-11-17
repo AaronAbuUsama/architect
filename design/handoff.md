@@ -33,13 +33,10 @@ Each has its own managed worktree. Both initial correctness builders are finishe
 
 **Next, in order:**
 1. Done: recovery Linux CI is green (`43997952028`, `53d028d`).
-2. Initial review blockers are corrected and locally verified; one focused follow-up remains (reviewed `8f50320`; final whole-gate review still required):
-   - Build provenance: dirty-source bundles overwrite the artifact under HEAD; after restoring the source, those bytes
-     can reuse that revision’s verdicts. Production also never compares staging’s hash. Preserve trustworthy provenance
-     and immutable proven bytes; add dirty-build, restore, promote and staging-hash regressions. Also remove Build’s explicit control-flow throws and direct process.env read: D1’s named entry exemptions do not include it; environment belongs to composition.
-   - World leases: concurrent `POST /_world/worlds` calls can both pass the separate live check and both create a lease.
-     Enforce D3 #51 atomically and prove exactly one success/one 409 against real workerd/D1.
-   - Review correction: the portal’s `new Date(effectClockValue)` is permitted formatting under D2 #58 and `place.ts`; only zero-argument wall-time construction is banned. It is not a blocker.
+2. Finish `build/staging-proof-boundary`: recheck staging identity and clean/current source after proof, before
+   model storage, publishing or signed verdicts. The original dirty-artifact/hashless-proof blocker is corrected by
+   D3 #160–164 (`9c0d42d`), and atomic lease isolation by #170–172 (`c9d1285`), with combined integration tests green.
+   The date-formatting concern was withdrawn: `new Date(effectClockValue)` is allowed deterministic formatting.
 3. The separate ✍️ author’s check 08 source fix is ready with `headers: { connection: "close" }`; run it against the final integrated proof code after explicit runtime go. Its missing test
    proof for the slow revision is already fixed (D3 #92). Builders never edit `e2e/` or fixtures.
 4. L2.11: add `e2e-layer2` CI, run `nx run e2e:layer2` alone locally and in CI, add current `ci.json` per step, regenerate
