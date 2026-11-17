@@ -215,7 +215,7 @@ export default {
       return Effect.runPromise(AuthD1.oauth.discovery(routesOf(env), request)).then((found) => found ?? Response.json({ error: "not found" }, { status: 404 }));
     }
     if (new URL(request.url).pathname === "/mcp") {
-      return Telemetry.serve({ url: env.OTLP_URL || undefined, service: "starter", handler: (req, context) => mcp(env, req, context), waitUntil: (p) => ctx.waitUntil(p) }, request);
+      return Telemetry.serve({ url: env.OTLP_URL || undefined, sinks: env.OTLP_SINKS, environment: env.ARCHITECT_ENVIRONMENT, service: "starter", handler: (req, context) => mcp(env, req, context), waitUntil: (p) => ctx.waitUntil(p) }, request);
     }
     const app = (built ??= build(env));
     Telemetry.configure({ sinks: env.OTLP_SINKS, environment: env.ARCHITECT_ENVIRONMENT });
