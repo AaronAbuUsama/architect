@@ -20,6 +20,7 @@ records are brought in line.
 | [`generators.md`](generators.md) | everything Forman generates and scaffolds, including the agent kit that closes the loop |
 | [`examples/`](examples/README.md) | worked examples: agents, the factory, payments, notifications, on chain, Noir, Python |
 | [`questions.md`](questions.md) | every open question, in one round |
+| [`../milestones.md`](../milestones.md) | the recut: milestones M0 to M7, their slices and gates; workable at the end of M2 |
 | [`delta.md`](delta.md) | every weakness found, how this frame answers it, and the order to close the gap |
 
 > **Name, updated 17 November 2026 (Aaron):** the framework is **Forman** (command `forman`, npm org `@formants`).

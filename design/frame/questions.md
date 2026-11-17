@@ -1,7 +1,8 @@
 # Open questions: one round
 
-Part of the frame ([`README.md`](README.md)). Every bounded question still open, 17 November 2026, to be answered in
-one sitting. Each follows the grill template: the problem in code, what it touches, the options as code, what happens,
+Part of the frame ([`README.md`](README.md)). **Decided, 17 November 2026: every recommendation below was taken**
+([`../decisions/K2-forman-frame.md`](../decisions/K2-forman-frame.md)). Kept as the reasoning behind each call.
+Each follows the grill template: the problem in code, what it touches, the options as code, what happens,
 a rubric, a recommendation. The answer key is at the end.
 
 **Terms used below.**

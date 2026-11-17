@@ -112,18 +112,8 @@ version answers each, and for the gap between today and the goal. This is that l
 
 ## Still open
 
-1. Data: how a thing's home, views and the data map are declared and shown.
-2. Package layout under `@formants`.
-3. Order: the factory first (layer 3), then Capxul's rebuild on Forman after Gate 3.
+Nothing. Every question is decided ([`../decisions/K2-forman-frame.md`](../decisions/K2-forman-frame.md)).
 
 ## The order to close the gap
 
-1. Recut the milestones and slices from this delta, once the questions are answered.
-2. Decide the open questions above, and bring `decisions.md` and the build plan in line with this frame.
-3. A complete model: blanks, journeys, worlds and role rules in it; verdicts per operation, keyed by handler hash.
-4. Plugins: projections, features and adapters mounted; auth as a feature; secrets by declaration.
-5. Principals and roles: agent, service, system; one role model.
-6. Journeys through the clients; telemetry gaps closed.
-7. Data: views, request idempotency, migrations, the outbox with workflows.
-8. The builder's tools and the factory loop, then the rename to Forman and the first release under `@formants`.
-9. The cloud pass, then Capxul rebuilt on Forman.
+Recut as milestones M0 to M7 in [`../milestones.md`](../milestones.md).
