@@ -8,19 +8,21 @@ stages. The rules are `AGENTS.md`; the thread kit (conductor, threads, spike, re
 **Where it stands.** Stages 1 and 2 (Gate 1) are on `main`. Stage 3 (Gate 2, shipping) is open on `layer/3`; the steps
 that are merged there, each with its decisions in `decisions/D3.md` and evidence in `evidence/<step>/`:
 L2.01 environments, L2.02 test worlds, L2.03 logbook, L2.04 versions, L2.05 promote, L2.06 publish, L2.07 device
-sign-in, L2.L the `src/<thing>/` layout (Aaron), L2.P privacy seams. Gate 1 (`nx run e2e:layer1`) is green on `layer/3`;
-of Gate 2's eight checks (`e2e/layer2/`), 01 to 06 pass run one by one, 07 waits on L2.08, 08 on L2.09 and L2.10.
+sign-in, L2.L the `src/<thing>/` layout (Aaron), L2.P privacy seams, L2.O seeing traces (`telemetry view|stop|trace|open`,
+sinks as config, the Axiom sink; D3 #100 to #109, #120, #121). CI on `layer/3` is green from 91c0f1b (the Linux
+Verdaccio and scratch cleanup). Gate 1 (`nx run e2e:layer1`) is green on `layer/3`; of Gate 2's eight checks
+(`e2e/layer2/`), 01 to 06 pass run one by one, 07 waits on L2.08, 08 on L2.09 and L2.10.
 
 **In flight when this was written** (each a Claude Code builder in its own worktree, pushing its own branch; check
 `git branch -r` and merge each into `layer/3` if it has landed, or rebuild the step from its row if the branch never
 appears):
-- `build/L2.O`: seeing traces: `architect telemetry view|stop|trace|open`, the local viewer (`grafana/otel-lgtm`),
-  sinks as config (`Telemetry.sink.local|axiom`), the Axiom sink reading Aaron's keychain, personal keys dropped (O1).
 - `build/L2.08`: the MCP server with OAuth (`generated/mcp`), and `/_world/*` closed outside world-hosting
-  environments (D3 #96).
+  environments (D3 #96). D3 from #122.
+- `build/L2.10`: the read-only portal on F1's data contract. D3 from #130.
+- `build/L2.09`: `watch` over the `TraceSource` (File, then Axiom with `capxul-query`), drift as a task. D3 #140 to
+  #149, ports 8900 to 8949.
 
-**Next, in order:** L2.09 `watch` (reads telemetry through O1's `TraceSource`), L2.10 the portal (read-only, on the data
-contract in PR 12 `design/frontend`, F1), then L2.11 Gate 2: add a CI job `e2e-layer2`, run `nx run e2e:layer2` green
+**Next, in order:** merge those three, then L2.11 Gate 2: add a CI job `e2e-layer2`, run `nx run e2e:layer2` green
 locally and in CI, evidence for every step (`ci.json`, `python3 tools/evidence/page.py`), the 🔍 reviewer, the pull
 request `layer/3` into `main`, merged when CI is green; then the spoken report to Aaron. Then stage 4 opens with
 wayfinding (`wayfinding/stage-4.md`).
