@@ -5,26 +5,42 @@
 **The goal** is `goals/01-the-whole-framework-locally.md`: all five gates passing locally and in CI, on `main`, in six
 stages. The rules are `AGENTS.md`; the thread kit (conductor, threads, spike, reviewer, hashtags) is `.agents/skills/`.
 
-**Where it stands.** Stages 1 and 2 (Gate 1) are on `main`. Stage 3 (Gate 2, shipping) is open on `layer/3`; the steps
-that are merged there, each with its decisions in `decisions/D3.md` and evidence in `evidence/<step>/`:
-L2.01 environments, L2.02 test worlds, L2.03 logbook, L2.04 versions, L2.05 promote, L2.06 publish, L2.07 device
-sign-in, L2.L the `src/<thing>/` layout (Aaron), L2.P privacy seams, L2.O seeing traces (`telemetry view|stop|trace|open`,
-sinks as config, the Axiom sink; D3 #100 to #109, #120, #121). CI on `layer/3` is green from 91c0f1b (the Linux
-Verdaccio and scratch cleanup). Gate 1 (`nx run e2e:layer1`) is green on `layer/3`; of Gate 2's eight checks
-(`e2e/layer2/`), 01 to 06 pass run one by one, 07 waits on L2.08, 08 on L2.09 and L2.10.
+**Where it stands (paused for the Codex handoff, 17 November 2026).** Stages 1 and 2 (Gate 1) are on `main`. Stage 3
+(Gate 2, shipping) is on `layer/3`, and **every build step of layer two is merged there**, each with its decisions in
+`decisions/D3.md` and evidence in `evidence/<step>/`: L2.01 environments, L2.02 test worlds, L2.03 logbook, L2.04
+versions, L2.05 promote, L2.06 publish, L2.07 device sign-in, L2.L the `src/<thing>/` layout (Aaron), L2.P privacy
+seams, L2.O seeing traces (D3 #100 to #109, #120, #121), L2.08 MCP with OAuth and `/_world` closed outside world hosts
+(#122 to #127), L2.10 the read-only portal at `/portal` (#130 to #138), L2.09 `watch` (#140 to #149). Only L2.11, Gate
+2 itself, is left. No builder is running; nothing was in flight when the conductor stopped.
 
-**In flight when this was written** (each a Claude Code builder in its own worktree, pushing its own branch; check
-`git branch -r` and merge each into `layer/3` if it has landed, or rebuild the step from its row if the branch never
-appears):
-- `build/L2.08`: done (below), waiting to be merged into `layer/3`.
-- `build/L2.10`: the read-only portal on F1's data contract. D3 from #130.
-- `build/L2.09`: `watch` over the `TraceSource` (File, then Axiom with `capxul-query`), drift as a task. D3 #140 to
-  #149, ports 8900 to 8949.
+**CI on `layer/3` is red, and that is the first job.** The `check` job's unit tests failed on the L2.09 merge (49eea9e)
+under CI's load: `prove/promote.test.ts` (fetch "other side closed" after staging restarts, the known flake),
+`prove/reads.test.ts` (timed out at 240 s) and `prove/viewer/viewer.test.ts` ("the viewer never had it", L2.O's viewer
+on Linux). Each passes locally. Read the run for the latest commit first (`gh run list --branch layer/3`), then make
+them reliable on Linux (a longer wait for the viewer's Tempo ingest, a retry on the restarted socket, a raised budget
+or a split for reads), one builder, before Gate 2.
 
-**Next, in order:** merge those three, then L2.11 Gate 2: add a CI job `e2e-layer2`, run `nx run e2e:layer2` green
-locally and in CI, evidence for every step (`ci.json`, `python3 tools/evidence/page.py`), the 🔍 reviewer, the pull
-request `layer/3` into `main`, merged when CI is green; then the spoken report to Aaron. Then stage 4 opens with
-wayfinding (`wayfinding/stage-4.md`).
+**Next, in order:**
+1. CI green on `layer/3` (above).
+2. A ✍️ author fixes check 08's second `portal(url)` fetch: `headers: { connection: "close" }` (Traps, below). Its
+   other gap, proving the slow revision in test before promoting, is already fixed (D3 #92).
+3. L2.11 Gate 2: add a CI job `e2e-layer2` beside `e2e-layer1`, run `nx run e2e:layer2` green locally with no other
+   builder running and in CI, `ci.json` per step, `python3 tools/evidence/page.py`, a 🔍 reviewer that wrote none of
+   it, the pull request `layer/3` into `main`, merged when CI is green, and the spoken report to Aaron.
+4. Stage 4 opens with wayfinding (`wayfinding/stage-4.md`).
+
+**For the cloud pass, from L2.08:** every deployed Worker must set `ARCHITECT_ENVIRONMENT`, or it reads as a local
+world and opens `/_world/*` (`later.md`); `Facts` reads staging's SQLite file today and needs a D1 API reader behind the
+same seam. MCP leaves out on purpose: idempotency keys for `idempotent: "request"`, CORS, and a consent page.
+
+**Aaron's HeroUI Pro template** (his commit 7db5de6, 17 November) is on its own branch `portal/heroui-pro-template`
+for his work elsewhere, and was reverted on `layer/3` (9233c20): `packages/portal` is L2.10's `@architect/portal`. His
+Pro face will read the same `/_portal/v1/*` data later (F1). His main checkout at `~/projects/architect` still holds
+those template files uncommitted (with a `.env`, a zip and `template-dashboard/`); don't touch, commit or delete them:
+work from a fresh worktree, or ask him to move them out.
+
+**Status page.** `design/state/index.html` is the page Aaron reads (also at its claude.ai link, which only Claude
+publishes). The conductor keeps it current after every merge, PR and gate (`briefs/codex-conductor.md`).
 
 **How the work runs.** The conductor keeps `layer/3` and merges; each step is one builder in its own worktree on
 `build/<step>` from `layer/3`, given its D3 numbers, its ports and its contract (the build-plan row, D3, the author's
@@ -34,7 +50,7 @@ regenerated, never merged by hand), runs `pnpm nx reset` then `NX_DAEMON=false p
 lint and typecheck, and pushes.
 
 **Traps already hit.**
-- Builders running tests at once collide on ports and Docker: give each its own port range (used so far 8940 to 9089),
+- Builders running tests at once collide on ports and Docker: give each its own port range (used so far 8900 to 9097),
   and run Gate 2 when no builder is. Gate 2's teardown removes every new `architect-*` container, other agents' too.
 - A Collector whose run was killed stays up and holds its port; L2.O removes such orphans at the next start. Until it
   lands: `docker ps` for `architect-collector-<pid>-…` whose pid is gone, and remove those only.
@@ -62,7 +78,7 @@ cap), F1 the portal's design (PR 12), the Codex handoff prompt (PR 13, 14), N1 N
 The history below is kept for the record; START HERE is what is current.
 
 
-Kept by the 🎼 conductor, so a fresh conductor can take over. Last updated 16 November 2026, mid stage 3 (Gate 2). The section "Where the goal stands" ends with what is in flight now.
+Kept by the 🎼 conductor, so a fresh conductor can take over. Last updated 17 November 2026: paused for the Codex handoff with every layer-two step merged; START HERE is current. The section "Where the goal stands" ends with what is in flight now.
 
 ## Done
 
