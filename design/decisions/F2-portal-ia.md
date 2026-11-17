@@ -428,7 +428,7 @@ empty design stages.
 
 **The options**
 
-**Today** (F1's mock nav, `spikes/frontend-dx/index.html:27-30` on main)
+**Today** (F1's mock nav, `spikes/frontend-dx/index.html:22-24` on main)
 ```text
 Overview · Specification · Derived work · Things 8 · Operations & reads 15 · Journeys · Environments 4
 · Releases · Docs · Kits, chain & time · Change request (Preview)
