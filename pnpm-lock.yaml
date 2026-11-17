@@ -129,6 +129,34 @@ importers:
         specifier: 5.20261101.1
         version: 5.20261101.1
 
+  examples/work:
+    dependencies:
+      '@architect/blueprint':
+        specifier: workspace:*
+        version: link:../../packages/blueprint
+      '@architect/host-cloudflare':
+        specifier: workspace:*
+        version: link:../../packages/host-cloudflare
+      '@architect/portal':
+        specifier: workspace:*
+        version: link:../../packages/portal
+      '@architect/target-effect':
+        specifier: workspace:*
+        version: link:../../packages/target-effect
+      '@effect/platform-node':
+        specifier: 4.1.1
+        version: 4.1.1(effect@4.1.1)(redis@6.3.1(@opentelemetry/api@1.10.0))
+      '@effect/sql-d1':
+        specifier: 4.1.1
+        version: 4.1.1(effect@4.1.1)
+      effect:
+        specifier: 4.1.1
+        version: 4.1.1
+    devDependencies:
+      '@cloudflare/workers-types':
+        specifier: 5.20261101.1
+        version: 5.20261101.1
+
   packages/blueprint:
     dependencies:
       effect:

@@ -139,3 +139,9 @@ Only a layer's own primitives are decided before it starts; the rest wait in `pl
   operation and variant (`blank`, `isolated`, `repair`, `review`; 49 today), scored by `check` and `prove`; suites run under a daily
   spend ledger; baselines are small summaries committed from a clean `main`. See `decisions/H2-agent-runs-and-benchmarks.md`;
   steps A0, A8 and A9 in `build-plan.md`.
+
+## The work system (proposed, F5)
+
+- Missions, milestones, intake questions, agent runs and attention are an Architect project, `examples/work`, with its own
+  blueprint; its CLI, SDK and MCP tools are generated. Tasks are worked out, never stored. Facts stay in the logbook.
+  See `design/decisions/F5-work-blueprint.md`; it replaces F4's hand-written `Plan` Durable Object.

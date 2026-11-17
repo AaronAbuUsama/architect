@@ -184,6 +184,9 @@ parallel, then A4, A5; A8 after A0 (its open-model cells after A2); A9 after A8;
 | L3.07 ∥ | Simulation | L3.04 | std | `simulate`: the node's `eth_call` and `eth_simulateV1`, falling back to a forked Anvil. Tenderly is opt-in. | Simulating a reverting transfer returns the typed error without sending anything. |
 | L3.08 | The chain follower | L3.06 | std, host-cloudflare | A Durable Object per contract: alarm, checkpoint, chunked log ranges, reorg ring, corrections. Ideas from effective-indexer. | A fixture reorg on Anvil (`anvil_reorg`) emits a correction, and the follower's view equals the chain's view. Restarting from the checkpoint does no double counting. |
 | L3.09 ∥ | EIP-7702 (wallets) | L3.02, L3.04 | std | A 7702-delegated signer. It can move to layer 4 if it blocks the gate. | A delegated test account sends a sponsored call on Anvil (Prague). |
+| W1 | Work: journeys and checks (F5) | F5 | examples/work | Journeys for `examples/work`'s operations, by an agent other than the builder. | They fail on the scaffolded handlers. |
+| W2 | Work: handlers | W1 | examples/work | The scaffolds in `examples/work/src` written. | `architect prove --env local --root examples/work` passes but for `mission.tasks`. |
+| W3 | Work: tasks from the logbook | W2, L3.01, F4.1, F4.2 | examples/work | `mission.tasks` reads eval rows, verdicts and compiled revisions through a declared dependency; the blank goes. | A mission of two milestones over acme's allowance shows the tasks F4 §3 lists, each in its column. |
 | L3.10 | **Gate 3** | L3.02–L3.08 | e2e | acme adds the `wallets` and `chain` kits. | `nx run e2e:layer3`: `acme wallet create` and `link` work with a local key, and acme has no hand-written viem import (enforced by lint). |
 
 ---
