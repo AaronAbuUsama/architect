@@ -13,10 +13,10 @@ export const attention = (): Item[] => operations.flatMap((o) => ENVS.flatMap((e
   if (p.state === "failed") { const bad = EVALS.find(([k]) => evalOf(o.name, env, k).result === "fail");
     return [{ id, op: o.name, env, kind: "failed", title: `${o.name} fails in ${env}`,
       what: `The ${bad?.[1] ?? "verdict"} eval failed: ${bad ? evalOf(o.name, env, bad[0]).note : p.reason}.`,
-      steps: [["Read what the eval checks", bad?.[2]], [`Fix the handler in ${o.file}`], ["Prove it again", cmd]] }]; }
+      steps: [["Read what the eval checks", bad?.[2]], [`Fix the handler in ${o.file}`], ["Prove again (it proves every operation)", cmd]] }]; }
   if (p.state === "stale") return [{ id, op: o.name, env, kind: "stale", title: `${o.name} is stale in ${env}`,
     what: `Its contract changed since the pass: ${p.changed.map((c) => `${c.key} ${c.was.slice(0, 8)} → ${c.now?.slice(0, 8) ?? "gone"}`).join("; ")}. The old pass no longer counts.`,
-    steps: [["Prove the candidate here", cmd], [`Or promote ${CANDIDATE} from test, where it already passes`]] }];
+    steps: [["Prove the candidate here (every operation)", cmd], [`Or promote ${CANDIDATE} from test, where it already passes`]] }];
   if (p.state === "unproven") return [{ id, op: o.name, env, kind: "unproven", title: `${o.name} has no verdict in ${env}`,
     what: "Nothing has proved it here yet, so nothing can be claimed about it here.", steps: [["Prove it here", cmd]] }];
   const slow = evalOf(o.name, env, "performance");

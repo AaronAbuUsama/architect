@@ -22,7 +22,7 @@ export function HowToCall({ op }: { op: string }) {
         <span className="text-sm text-fd-muted-foreground">{api ? <>at <Code>https://{api}</Code></> : <>no public address: {env} {e.runs}</>}{tag && <> · CLI and SDK tagged <Code>{tag}</Code></>}</span>
       </div>
       <Tabs items={["CLI", "HTTP", "SDK"]}>
-        <Tab value="CLI">{pre(api ? `${tag && tag !== "latest" ? `npx ${BP.project}@${tag} ` : ""}${cli.replace(new RegExp(`^${BP.project} `), tag && tag !== "latest" ? "" : `${BP.project} `)}` : `architect prove --env ${env}   # ${env} is only reached through its worlds`)}</Tab>
+        <Tab value="CLI">{pre(api ? `${tag && tag !== "latest" ? `npx ${BP.project}@${tag} ` : ""}${cli.replace(new RegExp(`^${BP.project} `), tag && tag !== "latest" ? "" : `${BP.project} `)}` : `# ${env} has no public address: call it inside a world, e.g. one \`architect dev\` starts\n${cli}`)}</Tab>
         <Tab value="HTTP">{pre(`POST ${api ? `https://${api}` : ""}/${o.thing}/${o.verb}\ncontent-type: application/json${o.idempotent ? "\nidempotency-key: <key>" : ""}\n\n${body}`)}</Tab>
         <Tab value="SDK">{pre(`const answer = yield* Sdk.${sdkThing}.${o.identifier}(${body})`)}</Tab>
       </Tabs>
