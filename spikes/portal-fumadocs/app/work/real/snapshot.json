@@ -1,0 +1,235 @@
+{
+  "readAt": "2026-11-17T11:20:40.102Z",
+  "mission": {
+    "id": "msn_p9kfgqmo3vt36j3a",
+    "title": "Allowances to production",
+    "target": "production",
+    "blueprint": "5cf3f734e8be",
+    "state": "running"
+  },
+  "milestones": [
+    {
+      "id": "mst_1kmsenlpgcw4ipfd",
+      "mission": "msn_p9kfgqmo3vt36j3a",
+      "title": "Specify",
+      "kinds": [
+        "specify",
+        "machine",
+        "validate"
+      ],
+      "of": "allowance",
+      "until": "test",
+      "state": "active"
+    },
+    {
+      "id": "mst_4m9w7uqwikxaunla",
+      "mission": "msn_p9kfgqmo3vt36j3a",
+      "title": "Ship",
+      "kinds": [
+        "build",
+        "prove",
+        "promote"
+      ],
+      "of": "allowance",
+      "until": "production",
+      "state": "active"
+    }
+  ],
+  "questions": [
+    {
+      "id": "qst_c6mt6i23p605uaup",
+      "mission": "msn_p9kfgqmo3vt36j3a",
+      "asks": "When does spend refuse with OverLimit?",
+      "about": "allowance.spend",
+      "gap": "AllowanceExceeded has no when",
+      "options": [
+        "The amount is above what remains",
+        "Above what remains, or above a daily cap",
+        "Not sure yet: spike it"
+      ],
+      "state": "spiked"
+    },
+    {
+      "id": "qst_xi9etko87gb9l7kz",
+      "mission": "msn_p9kfgqmo3vt36j3a",
+      "asks": "What does revoking do to what's left?",
+      "about": "allowance.revoke",
+      "gap": "revoke's effect on spent is not declared",
+      "options": [
+        "It's gone",
+        "It goes back to the grantor"
+      ],
+      "state": "answered"
+    },
+    {
+      "id": "qst_tlqxdh10o6t2w8wf",
+      "mission": "msn_p9kfgqmo3vt36j3a",
+      "asks": "How far should this go?",
+      "about": "allowance",
+      "gap": "mission target",
+      "options": [
+        "Test",
+        "Staging",
+        "Production, with your yes for each promote"
+      ],
+      "state": "answered"
+    }
+  ],
+  "runs": [
+    {
+      "id": "run_a3xqqtfuumcchclv",
+      "mission": "msn_p9kfgqmo3vt36j3a",
+      "task": "spike:allowance.spend",
+      "agent": "specifier",
+      "model": "claude-sonnet-5-5",
+      "budget": "200",
+      "state": "running"
+    }
+  ],
+  "attention": [
+    {
+      "id": "att_n37qfl75fqdntgzf",
+      "mission": "msn_p9kfgqmo3vt36j3a",
+      "kind": "promote",
+      "title": "Promote allowance.grant to production?",
+      "why": "Proven 9 of 9 locally. Production can't be undone for its data.",
+      "task": "promote:allowance.grant",
+      "state": "open"
+    }
+  ],
+  "tasks": [
+    {
+      "key": "specify:allowance.get",
+      "kind": "specify",
+      "subject": "allowance.get",
+      "milestone": "mst_1kmsenlpgcw4ipfd",
+      "column": "done"
+    },
+    {
+      "key": "specify:allowance.grant",
+      "kind": "specify",
+      "subject": "allowance.grant",
+      "milestone": "mst_1kmsenlpgcw4ipfd",
+      "column": "done"
+    },
+    {
+      "key": "specify:allowance.revoke",
+      "kind": "specify",
+      "subject": "allowance.revoke",
+      "milestone": "mst_1kmsenlpgcw4ipfd",
+      "column": "done"
+    },
+    {
+      "key": "specify:allowance.spend",
+      "kind": "specify",
+      "subject": "allowance.spend",
+      "milestone": "mst_1kmsenlpgcw4ipfd",
+      "column": "done"
+    },
+    {
+      "key": "machine:allowance",
+      "kind": "machine",
+      "subject": "allowance",
+      "milestone": "mst_1kmsenlpgcw4ipfd",
+      "column": "done"
+    },
+    {
+      "key": "validate:allowance",
+      "kind": "validate",
+      "subject": "allowance",
+      "milestone": "mst_1kmsenlpgcw4ipfd",
+      "column": "proven"
+    },
+    {
+      "key": "build:allowance.get",
+      "kind": "build",
+      "subject": "allowance.get",
+      "milestone": "mst_4m9w7uqwikxaunla",
+      "column": "done"
+    },
+    {
+      "key": "build:allowance.grant",
+      "kind": "build",
+      "subject": "allowance.grant",
+      "milestone": "mst_4m9w7uqwikxaunla",
+      "column": "done"
+    },
+    {
+      "key": "build:allowance.revoke",
+      "kind": "build",
+      "subject": "allowance.revoke",
+      "milestone": "mst_4m9w7uqwikxaunla",
+      "column": "done"
+    },
+    {
+      "key": "build:allowance.spend",
+      "kind": "build",
+      "subject": "allowance.spend",
+      "milestone": "mst_4m9w7uqwikxaunla",
+      "column": "done"
+    },
+    {
+      "key": "prove:allowance.get",
+      "kind": "prove",
+      "subject": "allowance.get",
+      "milestone": "mst_4m9w7uqwikxaunla",
+      "column": "proven"
+    },
+    {
+      "key": "prove:allowance.grant",
+      "kind": "prove",
+      "subject": "allowance.grant",
+      "milestone": "mst_4m9w7uqwikxaunla",
+      "column": "proven"
+    },
+    {
+      "key": "prove:allowance.revoke",
+      "kind": "prove",
+      "subject": "allowance.revoke",
+      "milestone": "mst_4m9w7uqwikxaunla",
+      "column": "proven"
+    },
+    {
+      "key": "prove:allowance.spend",
+      "kind": "prove",
+      "subject": "allowance.spend",
+      "milestone": "mst_4m9w7uqwikxaunla",
+      "column": "proven"
+    },
+    {
+      "key": "promote:allowance.get",
+      "kind": "promote",
+      "subject": "allowance.get",
+      "milestone": "mst_4m9w7uqwikxaunla",
+      "column": "proven"
+    },
+    {
+      "key": "promote:allowance.grant",
+      "kind": "promote",
+      "subject": "allowance.grant",
+      "milestone": "mst_4m9w7uqwikxaunla",
+      "column": "waiting"
+    },
+    {
+      "key": "promote:allowance.revoke",
+      "kind": "promote",
+      "subject": "allowance.revoke",
+      "milestone": "mst_4m9w7uqwikxaunla",
+      "column": "proven"
+    },
+    {
+      "key": "promote:allowance.spend",
+      "kind": "promote",
+      "subject": "allowance.spend",
+      "milestone": "mst_4m9w7uqwikxaunla",
+      "column": "proven"
+    },
+    {
+      "key": "spike:allowance.spend",
+      "kind": "spike",
+      "subject": "allowance.spend",
+      "milestone": "",
+      "column": "running"
+    }
+  ]
+}

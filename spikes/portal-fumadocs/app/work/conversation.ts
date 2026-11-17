@@ -8,7 +8,10 @@ export type Msg =
   | { kind: "thinking"; at: string; text: string }
   | { kind: "system"; at: string; text: string; run?: string; task?: string; tone?: "good" | "bad" };
 
+import { REAL, realConversation } from "./real/real.ts";
+
 export const conversations: Record<string, Msg[]> = {
+  [REAL]: realConversation,
   allowances: [
     { kind: "you", at: "Nov 12 09:02", text: "Get allowances to production." },
     { kind: "manager", at: "Nov 12 09:02", text: "The blueprint has allowance with 4 operations. 2 have blanks, and spend refuses with OverLimit without saying when. Three questions, then I'll set the mission up." },

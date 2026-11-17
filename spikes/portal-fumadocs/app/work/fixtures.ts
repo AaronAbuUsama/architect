@@ -1,5 +1,6 @@
 // Made-up work over acme's real operations: what a Plan, Manager and Runs would hold mid-mission. Illustration only.
 import type { Fact, Mission, Run, RunEvent, Task, WorkerType } from "./types.ts";
+import { realMission, realRuns, realTasks } from "./real/real.ts";
 
 const DAYS = ["Nov 12", "Nov 13", "Nov 14", "Nov 15", "Nov 16", "Nov 17"];
 export const TODAY = "Nov 17";
@@ -104,6 +105,8 @@ export const facts: Fact[] = [
   { seq: 156, at: "Nov 17 10:05", subject: "allowance.spend", kind: "evals", text: "Evals in test: 8 pass, 1 fail (performance 212 / 150 ms)", tone: "bad" },
   { seq: 157, at: "Nov 17 10:06", subject: "allowance.spend", kind: "claimed", text: "prove reopened; r_40 (SRE) started on the trace" },
 ];
+
+missions.unshift(realMission); tasks.push(...realTasks); runs.push(...realRuns);
 
 export const missionOf = (id: string) => missions.find((m) => m.id === id);
 export const tasksOf = (mission: string) => tasks.filter((x) => x.mission === mission);
