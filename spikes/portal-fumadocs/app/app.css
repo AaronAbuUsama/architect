@@ -1,0 +1,21 @@
+@import "tailwindcss";
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
+@import "@heroui/styles";
+
+@source "../node_modules/fumadocs-ui/dist/**/*.js";
+
+/* One site, two systems: HeroUI's tokens follow Fumadocs' so tables, chips and menus sit in the docs' palette. */
+:root, .dark {
+  --accent: var(--color-fd-primary);
+  --accent-foreground: var(--color-fd-primary-foreground);
+  --background: var(--color-fd-background);
+  --foreground: var(--color-fd-foreground);
+  --surface: var(--color-fd-card);
+  --overlay: var(--color-fd-popover);
+  --muted: var(--color-fd-muted-foreground);
+  --border: var(--color-fd-border);
+}
+/* The mock's "static file" view: every live slot is empty, as the generator writes it. */
+html[data-view="static"] [data-live] > * { visibility: hidden; }
+html[data-view="static"] [data-live] { background: repeating-linear-gradient(45deg, transparent 0 4px, color-mix(in oklab, var(--color-fd-primary) 18%, transparent) 4px 8px); border-radius: 6px; }
