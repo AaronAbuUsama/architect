@@ -14,6 +14,7 @@ records are brought in line.
 | [`secrets.md`](secrets.md) | who declares a secret, who may read it, where its value lives |
 | [`projections.md`](projections.md) | how a description becomes real: many projections, each written out |
 | [`builder.md`](builder.md) | the agent that builds an app: how it runs, its tools, code mode, telemetry |
+| [`deployment.md`](deployment.md) | from a commit to a running system: build once, verdicts, promote, release, watch, rollback |
 | [`writing-a-feature.md`](writing-a-feature.md) | writing the wallets feature, step by step |
 
 ## The name (Aaron, 17 November 2026)
