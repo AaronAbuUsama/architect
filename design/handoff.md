@@ -69,14 +69,17 @@ MCP telemetry (D3#192, ports9200–9219) starts when a slot frees. Separate-auth
 is queued. D3#195/later.md explicitly disposition the soft registration throttle. No full gate is reserved yet.
 
 **Next, in order.**
-1. Push the integrated gate candidate/evidence to `layer/3`; watch all three CI jobs, especially `e2e-layer2` with real
-   Linuxbrew. The full local gate is already green. Fix any CI red before new work.
-2. Add the current successful `ci.json` per layer-two step; mark L2.11 with its proof, regenerate evidence and update/open
-   the status page. Refresh main and get one fresh independent reviewer pass on the final exact candidate. Keep the
-   actionable product-round count at2 unless a new valid product finding appears; ordinary development/evidence work is separate.
-3. Open `layer/3` into main, merge once fresh CI and review are green, then check main’s CI. Claude alone republishes
-   the private claude.ai status/evidence links.
-4. Open stage4 with `wayfinding/stage-4.md` only after Gate2 is green on main; continue goal01 through Gate5.
+1. Finish the four round3 packages from the reset plan. Keep ordinary/real logbook ownership, identical R2 retries,
+   actual first-MCP sink export and non-renumbered refusal-code behavior. Add separate-author evaluator acceptance
+   and truthful historical deviation record; no history rewriting. Record the throttle advisory as already done.
+2. Merge packages as they pass, resolve D3 append blocks without dropping any, reset/sync, static and touched checks;
+   keep handoff/status/evidence current. No full gate runs alongside a runtime builder.
+3. Once source is fixed, rerun the clean full local gate alone and new Linux CI (all three jobs, actual Linuxbrew),
+   refresh current successful ci.json per layer-two step, update build-plan/pages, and get one fresh final independent
+   verdict on the exact source/evidence head. Product-round ledger currently3; no fourth correction head starts
+   without owner-guided reality-first reset under the session’s architectural ownership.
+4. Open `layer/3` into main, merge fresh green CI/review, verify main. Only then open stage4 wayfinding and continue
+   goal01 through Gate5. Claude alone republishes the private page links.
 
 **For the cloud pass, from L2.08:** every deployed Worker must set `ARCHITECT_ENVIRONMENT`, or it reads as a local
 world and opens `/_world/*` (`later.md`); `Facts` reads staging's SQLite file today and needs a D1 API reader behind the
