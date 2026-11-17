@@ -9,9 +9,10 @@ stages. The rules are `AGENTS.md`; the thread kit (conductor, threads, spike, re
 `6a4fe088027e1df1b21bae7350356c9d0909b823`. Stage3 feature PR21 and bounded recovery PR22 are merged. Main CI
 run `44034847309` is completed SUCCESS with all three jobs green. The exact-main clean local Gate2 also passes.
 Stages1–3 are complete on main; the full goal remains active through Gate5. Root has opened `layer/4`
-from that green main. Three read-only researchers are mapping kits/compiler, wallets/auth and chain/runtime;
-the unknowns and author-before-builder sequence are in `wayfinding-stage4.md`. D4 is not yet decided.
-Stage4 has not been implemented; no Stage4 service has started.
+from that green main. Three read-only research passes are complete. Three isolated throwaway spikes now check
+kit package exports, native world-owned Anvil containers and authenticated SIWE linking; their ownership,
+port ranges, findings and author-before-builder sequence are in `wayfinding-stage4.md`. D4 is not yet decided.
+Stage4 production implementation has not started. No full local gate runs beside the spikes.
 
 **Exact-main proof.** Clean `6a4fe08` passed stock Gate2: eight files, ten tests, zero skips, 247.6 seconds,
 including real Mac arm64 Homebrew. The same source passes Linux Gate2 with actual Linuxbrew in main CI. Before

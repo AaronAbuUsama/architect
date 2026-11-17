@@ -45,16 +45,68 @@ stage-number convention (`layer/3` held Stage 3 / Gate 2).
    simulation sends nothing. Verify Prague EIP-7702 support; defer L3.09 only if
    evidence shows it blocks the gate, as the build plan permits.
 
-## Current research and next checks
+## Research receipts
 
-Three independent read-only researchers own kit/compiler integration, wallets/auth,
-and chain/runtime behavior. Each reads current code and pinned primary sources,
-returns exact source references and concrete interface sketches, and identifies
-only the questions that require a throwaway spike. No implementation or service
-is started by the research pass.
+Three independent read-only passes are complete. They inspected current source,
+installed types and pinned upstream sources; they did not start services or
+implement framework code.
 
-The conductor folds those receipts into D4, resolves code/design conflicts with
-evidence, and runs the unresolved spikes before authoring starts. D4 is not yet
+- **Kits.** `compiler/src/modules/model/internal/layout.ts` rejects `kits/`;
+  `model/types.ts` has no kit or provenance surface. Generator API/server imports
+  reconstruct project paths, and `render/internal/names.ts` only normalizes
+  dashes. Canonical kit identities cannot simply become paths or TypeScript
+  identifiers. `Compare.dependsOn`, release staleness and impact need one shared
+  dependency graph. The proposed pure descriptor plus separate declaration,
+  Worker and Node exports requires a narrowly stated generated-import decision;
+  correctness must not depend on tree shaking.
+- **Authentication.** Better Auth 1.7.15's SIWE plugin creates a session for the
+  wallet's user rather than attaching the address to the current session. Its
+  [pinned implementation](https://github.com/better-auth/better-auth/blob/v1.7.15/packages/better-auth/src/plugins/siwe/index.ts)
+  therefore does not satisfy linking by itself. Preserve Architect's Auth and
+  Principal tags; investigate additive authenticated linking with durable replay
+  state. Generated HTTP and MCP runtimes construct separate AuthD1 instances that
+  share D1, so an instance-local association is insufficient. Test-person signing
+  material belongs in the CLI/prove process; the server receives public links and
+  signatures. Session show needs an explicit additive declaration/handler change.
+- **Chain versions.** Installed Anvil/Forge 1.8.6 has an October 21 build. Prefer
+  viem 2.57.15: [npm metadata](https://registry.npmjs.org/viem) records publication
+  at November 3, 01:08:58.990 UTC, more than fourteen days before this research at
+  November 17, 07:15 UTC. Its [release](https://github.com/wevm/viem/releases/tag/viem@2.57.15)
+  fixes fee-field filling with Anvil 1.8.5 and later. This satisfies the actual
+  age rule; November 2 was only a conservative research cutoff. Do not choose the
+  older pin and add a workaround for a fix that is already eligible.
+- **Reference code.** Adapt MIT concepts from
+  [PRB Effect EVM 5.0.2](https://github.com/PaulRBerg/prb-effect/tree/3308c6d6254c5edfbf7e0d025f73f64f88d52c5f/evm)
+  and [effective-indexer 0.2.10](https://github.com/cybervoid0/effective-indexer/tree/2da5efbd81a0a8b9296ac00152091786a87515a8).
+  Neither becomes a dependency. The latter uses Effect 3 and Node SQLite, so its
+  persistence implementation is not Architect's Durable Object implementation.
+- **Runtime ownership.** Pinned Wrangler 4.156.1 and Workers types expose native
+  `ctx.container`; [local Containers](https://developers.cloudflare.com/containers/guides/local-dev/)
+  run through Docker without a cloud account. Source viability still needs real
+  lifecycle proof. Current Busy and Timers implementations are process-local;
+  durable alarms and cross-process quiescence must not be assumed to exist.
+
+## Focused spikes in progress
+
+Each runs in its own existing worktree and touches only its spike directory.
+They are throwaway experiments, never imported by framework packages.
+
+1. `spikes/kit-package-exports/`: published-style package resolution, real Worker
+   execution, and negative checks for Node/runtime code crossing into API or
+   Worker bundles. Reserved ports 19100–19109.
+2. `spikes/world-anvil-container/`: a real native Durable Object Container owns,
+   reaches and destroys pinned Anvil, including failure and expiry. Mac and Linux
+   proof remain distinct. Reserved ports 19120–19129.
+3. `spikes/authenticated-siwe-link/`: real Better Auth/D1 linking preserves the
+   authenticated person/session, with one successful concurrent consume and
+   replay refusal after restart. Reserved ports 19140–19149.
+
+No production implementation has started. Each experiment must capture its own
+commands and cleanup, suppress private-key output, and leave unrelated resources
+untouched. Full gate runs remain exclusive and are not run beside these spikes.
+
+The conductor folds the receipts into D4, resolves code/design conflicts with
+evidence, and completes the unresolved spikes before authoring starts. D4 is not yet
 decided or marked complete. A separate author then writes Stage 4 journeys,
 planted fixtures and checks, with their failure on empty handlers recorded before
 builders start. Builders never edit those checks or the generic eval runner.
