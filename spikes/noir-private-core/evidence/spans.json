@@ -1,0 +1,6670 @@
+[
+  {
+    "name": "private-core.publishClass",
+    "spanId": "2dd51623998ebaaa",
+    "traceId": "8fa0ac77a360996a9f85fb66d769c9d7",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875806697891375",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875791455000000"
+    },
+    "attributes": {
+      "architect.operation": "publishClass",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "3a7afee5b4006eb2",
+    "traceId": "8fa0ac77a360996a9f85fb66d769c9d7",
+    "parentSpanId": "2dd51623998ebaaa",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875791497284750",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875791455589792"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "a2cf0c5984b01524",
+    "traceId": "8fa0ac77a360996a9f85fb66d769c9d7",
+    "parentSpanId": "2dd51623998ebaaa",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875791523451458",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875791497472042"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "ed7e77964c3a424b",
+    "traceId": "8fa0ac77a360996a9f85fb66d769c9d7",
+    "parentSpanId": "2dd51623998ebaaa",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875803898705583",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875791523572792"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "41601fc0f4633bf2",
+    "traceId": "8fa0ac77a360996a9f85fb66d769c9d7",
+    "parentSpanId": "2dd51623998ebaaa",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875804013891417",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875803905839125"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "aac1e03ffb201b4b",
+    "traceId": "8fa0ac77a360996a9f85fb66d769c9d7",
+    "parentSpanId": "2dd51623998ebaaa",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875806697287208",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875804014097208"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.initialize",
+    "spanId": "ca364f37b8d5c713",
+    "traceId": "6b414033eb2ac071e75c54ceaec3cd45",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875818369837583",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875806711010000"
+    },
+    "attributes": {
+      "architect.operation": "initialize",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "7acb546657702106",
+    "traceId": "6b414033eb2ac071e75c54ceaec3cd45",
+    "parentSpanId": "ca364f37b8d5c713",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875806772147042",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875806711140708"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "746636b3a18c4f05",
+    "traceId": "6b414033eb2ac071e75c54ceaec3cd45",
+    "parentSpanId": "ca364f37b8d5c713",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875806796596792",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875806772636542"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "f22ddc4f188dee96",
+    "traceId": "6b414033eb2ac071e75c54ceaec3cd45",
+    "parentSpanId": "ca364f37b8d5c713",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875815575670500",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875806796812833"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "b4b002bc3bbfad2f",
+    "traceId": "6b414033eb2ac071e75c54ceaec3cd45",
+    "parentSpanId": "ca364f37b8d5c713",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875815647431792",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875815581683125"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "15b54935703aaabc",
+    "traceId": "6b414033eb2ac071e75c54ceaec3cd45",
+    "parentSpanId": "ca364f37b8d5c713",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875818369469583",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875815647516417"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.deposit",
+    "spanId": "7de9e8309f684725",
+    "traceId": "e6e430084694947ec78640cf39d3f571",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875850774768250",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875833643623250"
+    },
+    "attributes": {
+      "architect.operation": "deposit",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "4fef476326000aa0",
+    "traceId": "e6e430084694947ec78640cf39d3f571",
+    "parentSpanId": "7de9e8309f684725",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875833698220875",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875833643981958"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "d83df9638ffecae3",
+    "traceId": "e6e430084694947ec78640cf39d3f571",
+    "parentSpanId": "7de9e8309f684725",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875833720023458",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875833698376625"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "b9d397dc6d28bcb6",
+    "traceId": "e6e430084694947ec78640cf39d3f571",
+    "parentSpanId": "7de9e8309f684725",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875847806717625",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875833720116917"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "9676e085802b48f6",
+    "traceId": "e6e430084694947ec78640cf39d3f571",
+    "parentSpanId": "7de9e8309f684725",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875847910176583",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875847814547792"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "e1afddefc6d8f14e",
+    "traceId": "e6e430084694947ec78640cf39d3f571",
+    "parentSpanId": "7de9e8309f684725",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875850774498625",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875847910229208"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.deposit",
+    "spanId": "d73901e06b8468f4",
+    "traceId": "b4408011e8903a6e49ab922a3ecec33f",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875864890854208",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875850776768958"
+    },
+    "attributes": {
+      "architect.operation": "deposit",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "ea31a53a9d0d1c93",
+    "traceId": "b4408011e8903a6e49ab922a3ecec33f",
+    "parentSpanId": "d73901e06b8468f4",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875850821045000",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875850776892542"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "1f547ad09c9b1a3d",
+    "traceId": "b4408011e8903a6e49ab922a3ecec33f",
+    "parentSpanId": "d73901e06b8468f4",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875850847963792",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875850821178250"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "c0294c87ed4eb563",
+    "traceId": "b4408011e8903a6e49ab922a3ecec33f",
+    "parentSpanId": "d73901e06b8468f4",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875862031612125",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875850848115125"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "526f82feb5f5fe15",
+    "traceId": "b4408011e8903a6e49ab922a3ecec33f",
+    "parentSpanId": "d73901e06b8468f4",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875862165337250",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875862045133417"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "343789a73833c173",
+    "traceId": "b4408011e8903a6e49ab922a3ecec33f",
+    "parentSpanId": "d73901e06b8468f4",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875864890273708",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875862165614875"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.deposit",
+    "spanId": "73c84d35cd9b90d4",
+    "traceId": "f4d02095abaf352561b16e7d3c81cded",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875878975268167",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875864903345208"
+    },
+    "attributes": {
+      "architect.operation": "deposit",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "05a8d2b1c02f47f2",
+    "traceId": "f4d02095abaf352561b16e7d3c81cded",
+    "parentSpanId": "73c84d35cd9b90d4",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875864952652417",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875864903898708"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "bdc868f06d2fb021",
+    "traceId": "f4d02095abaf352561b16e7d3c81cded",
+    "parentSpanId": "73c84d35cd9b90d4",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875864968726125",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875864952732042"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "e25c56652e525d42",
+    "traceId": "f4d02095abaf352561b16e7d3c81cded",
+    "parentSpanId": "73c84d35cd9b90d4",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875876018643833",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875864968780625"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "d2a3f63da54b80b3",
+    "traceId": "f4d02095abaf352561b16e7d3c81cded",
+    "parentSpanId": "73c84d35cd9b90d4",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875876131801625",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875876027251292"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "f579e7054795e82f",
+    "traceId": "f4d02095abaf352561b16e7d3c81cded",
+    "parentSpanId": "73c84d35cd9b90d4",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875878974944042",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875876131968417"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.grant",
+    "spanId": "570db5cb23b1c866",
+    "traceId": "4a337e7dd4b6fb7a1ce80904c87f7800",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875890993667542",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875881354593375"
+    },
+    "attributes": {
+      "architect.operation": "grant",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "da23461ddd21ad9e",
+    "traceId": "4a337e7dd4b6fb7a1ce80904c87f7800",
+    "parentSpanId": "570db5cb23b1c866",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875881377152750",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875881354694542"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "8c559716ddafc119",
+    "traceId": "4a337e7dd4b6fb7a1ce80904c87f7800",
+    "parentSpanId": "570db5cb23b1c866",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875881380666042",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875881377226250"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "9e811b9ebb3b63f0",
+    "traceId": "4a337e7dd4b6fb7a1ce80904c87f7800",
+    "parentSpanId": "570db5cb23b1c866",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875888274365083",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875881380705750"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "3ee01c3675d759e0",
+    "traceId": "4a337e7dd4b6fb7a1ce80904c87f7800",
+    "parentSpanId": "570db5cb23b1c866",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875888365875167",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875888282014917"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "c7a0cd193ba12113",
+    "traceId": "4a337e7dd4b6fb7a1ce80904c87f7800",
+    "parentSpanId": "570db5cb23b1c866",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875890993053958",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875888366084542"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.grant",
+    "spanId": "affab6a74f9d6fb7",
+    "traceId": "d96f5e72c822b6bd84ac1b2ba44e83d1",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875901694314375",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875890995995542"
+    },
+    "attributes": {
+      "architect.operation": "grant",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "a6f1830c533918a3",
+    "traceId": "d96f5e72c822b6bd84ac1b2ba44e83d1",
+    "parentSpanId": "affab6a74f9d6fb7",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875891030880167",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875890996299292"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "71f987087ca3b4bc",
+    "traceId": "d96f5e72c822b6bd84ac1b2ba44e83d1",
+    "parentSpanId": "affab6a74f9d6fb7",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875891042608667",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875891031037167"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "09341e08aadb1dbe",
+    "traceId": "d96f5e72c822b6bd84ac1b2ba44e83d1",
+    "parentSpanId": "affab6a74f9d6fb7",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875898798900708",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875891042662042"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "405a0dc7bf317cab",
+    "traceId": "d96f5e72c822b6bd84ac1b2ba44e83d1",
+    "parentSpanId": "affab6a74f9d6fb7",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875898886704875",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875898805548583"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "91cb1add2d491407",
+    "traceId": "d96f5e72c822b6bd84ac1b2ba44e83d1",
+    "parentSpanId": "affab6a74f9d6fb7",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875901694192792",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875898886842125"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.spend",
+    "spanId": "3ec12704502cbe87",
+    "traceId": "3988f2ae827643d7b3b7ea10bf1ef31d",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875918530026042",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875901696238417"
+    },
+    "attributes": {
+      "architect.operation": "spend",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "1a84182c3f3c0135",
+    "traceId": "3988f2ae827643d7b3b7ea10bf1ef31d",
+    "parentSpanId": "3ec12704502cbe87",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875901745972625",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875901696389167"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "428406ce9e7d01c7",
+    "traceId": "3988f2ae827643d7b3b7ea10bf1ef31d",
+    "parentSpanId": "3ec12704502cbe87",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875901759788875",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875901746038583"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "c88ee828d7c78f02",
+    "traceId": "3988f2ae827643d7b3b7ea10bf1ef31d",
+    "parentSpanId": "3ec12704502cbe87",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875915728430125",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875901759871000"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "a4b6fb7780e7f5e7",
+    "traceId": "3988f2ae827643d7b3b7ea10bf1ef31d",
+    "parentSpanId": "3ec12704502cbe87",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875915809420000",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875915735778500"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "dd2baff2e1743b79",
+    "traceId": "3988f2ae827643d7b3b7ea10bf1ef31d",
+    "parentSpanId": "3ec12704502cbe87",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875918528638542",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875915809489667"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.spend",
+    "spanId": "dd46fb5e75a71362",
+    "traceId": "3a85492482b1a79bbbd6c8076c248aaa",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875920716378917",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Failure",
+        "cause": {
+          "_id": "Cause",
+          "reasons": [
+            {
+              "_tag": "Fail",
+              "error": "refused"
+            }
+          ]
+        }
+      },
+      "startTime": "1794875920419784958"
+    },
+    "attributes": {
+      "architect.operation": "spend",
+      "architect.runs": "client",
+      "architect.outcome": "AllowanceExceeded"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "a5dee8e45fadc52c",
+    "traceId": "3a85492482b1a79bbbd6c8076c248aaa",
+    "parentSpanId": "dd46fb5e75a71362",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875920435626958",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875920419876958"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "03c2d3f352e8981d",
+    "traceId": "3a85492482b1a79bbbd6c8076c248aaa",
+    "parentSpanId": "dd46fb5e75a71362",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875920438422375",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875920435678042"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "6bcf087507469e7c",
+    "traceId": "3a85492482b1a79bbbd6c8076c248aaa",
+    "parentSpanId": "dd46fb5e75a71362",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875920716219333",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Failure",
+        "cause": {
+          "_id": "Cause",
+          "reasons": [
+            {
+              "_tag": "Fail",
+              "error": "refused"
+            }
+          ]
+        }
+      },
+      "startTime": "1794875920438453833"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.spend",
+    "spanId": "efe0d906446a4759",
+    "traceId": "fdf92cac3790011c37623bfa1a859c34",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875921937020375",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Failure",
+        "cause": {
+          "_id": "Cause",
+          "reasons": [
+            {
+              "_tag": "Fail",
+              "error": "refused"
+            }
+          ]
+        }
+      },
+      "startTime": "1794875920716820167"
+    },
+    "attributes": {
+      "architect.operation": "spend",
+      "architect.runs": "client",
+      "architect.outcome": "AllowanceNotMember"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "e9a5d988a9a54cb5",
+    "traceId": "fdf92cac3790011c37623bfa1a859c34",
+    "parentSpanId": "efe0d906446a4759",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875920745493667",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875920716862083"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "ff3a817e11d85c8e",
+    "traceId": "fdf92cac3790011c37623bfa1a859c34",
+    "parentSpanId": "efe0d906446a4759",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875920762424042",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875920745544708"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "f1ed8e3ec8ae6851",
+    "traceId": "fdf92cac3790011c37623bfa1a859c34",
+    "parentSpanId": "efe0d906446a4759",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875921936944042",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Failure",
+        "cause": {
+          "_id": "Cause",
+          "reasons": [
+            {
+              "_tag": "Fail",
+              "error": "refused"
+            }
+          ]
+        }
+      },
+      "startTime": "1794875920762515625"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.spend",
+    "spanId": "63ad66b58c16be4e",
+    "traceId": "900240ffdc829581c2fa291ce510adf6",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875924194807250",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Failure",
+        "cause": {
+          "_id": "Cause",
+          "reasons": [
+            {
+              "_tag": "Fail",
+              "error": "refused"
+            }
+          ]
+        }
+      },
+      "startTime": "1794875921937249875"
+    },
+    "attributes": {
+      "architect.operation": "spend",
+      "architect.runs": "client",
+      "architect.outcome": "AllowanceNotMember"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "97da4f60ba55e191",
+    "traceId": "900240ffdc829581c2fa291ce510adf6",
+    "parentSpanId": "63ad66b58c16be4e",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875921966987167",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875921937282167"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "3aeea02ed437cca9",
+    "traceId": "900240ffdc829581c2fa291ce510adf6",
+    "parentSpanId": "63ad66b58c16be4e",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875921988388250",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875921967040708"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "b99680ae2aa4828e",
+    "traceId": "900240ffdc829581c2fa291ce510adf6",
+    "parentSpanId": "63ad66b58c16be4e",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875924194401625",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Failure",
+        "cause": {
+          "_id": "Cause",
+          "reasons": [
+            {
+              "_tag": "Fail",
+              "error": "refused"
+            }
+          ]
+        }
+      },
+      "startTime": "1794875921988456667"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.grant",
+    "spanId": "82919423bb0cb226",
+    "traceId": "54bdbadaa98e748cb6d28c97f3b437d9",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875924857591542",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Failure",
+        "cause": {
+          "_id": "Cause",
+          "reasons": [
+            {
+              "_tag": "Fail",
+              "error": "refused"
+            }
+          ]
+        }
+      },
+      "startTime": "1794875924198072417"
+    },
+    "attributes": {
+      "architect.operation": "grant",
+      "architect.runs": "client",
+      "architect.outcome": "AllowanceNotAdmin"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "f79213655008caa8",
+    "traceId": "54bdbadaa98e748cb6d28c97f3b437d9",
+    "parentSpanId": "82919423bb0cb226",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875924233827458",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875924198329500"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "d67cf0e3cad16099",
+    "traceId": "54bdbadaa98e748cb6d28c97f3b437d9",
+    "parentSpanId": "82919423bb0cb226",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875924238429333",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875924233912625"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "50d61698179e6d1b",
+    "traceId": "54bdbadaa98e748cb6d28c97f3b437d9",
+    "parentSpanId": "82919423bb0cb226",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875924857519125",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Failure",
+        "cause": {
+          "_id": "Cause",
+          "reasons": [
+            {
+              "_tag": "Fail",
+              "error": "refused"
+            }
+          ]
+        }
+      },
+      "startTime": "1794875924238491333"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.revoke",
+    "spanId": "83ac03894a3643bc",
+    "traceId": "92e06ab6d807700166b4d6580a467969",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875925777420333",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Failure",
+        "cause": {
+          "_id": "Cause",
+          "reasons": [
+            {
+              "_tag": "Fail",
+              "error": "refused"
+            }
+          ]
+        }
+      },
+      "startTime": "1794875924858020750"
+    },
+    "attributes": {
+      "architect.operation": "revoke",
+      "architect.runs": "client",
+      "architect.outcome": "AllowanceNotAdmin"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "e071ed19e3947c13",
+    "traceId": "92e06ab6d807700166b4d6580a467969",
+    "parentSpanId": "83ac03894a3643bc",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875924872952875",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875924858069625"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "269a864ac5197600",
+    "traceId": "92e06ab6d807700166b4d6580a467969",
+    "parentSpanId": "83ac03894a3643bc",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875924876146875",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875924873000208"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "3ab3b9b2089a4bee",
+    "traceId": "92e06ab6d807700166b4d6580a467969",
+    "parentSpanId": "83ac03894a3643bc",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875925777319083",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Failure",
+        "cause": {
+          "_id": "Cause",
+          "reasons": [
+            {
+              "_tag": "Fail",
+              "error": "refused"
+            }
+          ]
+        }
+      },
+      "startTime": "1794875924876176125"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.directTokenBypass",
+    "spanId": "b406730c0df76b62",
+    "traceId": "3d0bd909d45e07c9677d9d103d777d20",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875926757649750",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Failure",
+        "cause": {
+          "_id": "Cause",
+          "reasons": [
+            {
+              "_tag": "Fail",
+              "error": "refused"
+            }
+          ]
+        }
+      },
+      "startTime": "1794875925778350000"
+    },
+    "attributes": {
+      "architect.operation": "directTokenBypass",
+      "architect.runs": "client",
+      "architect.outcome": "AztecFailure"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "66dd9079819edbb4",
+    "traceId": "3d0bd909d45e07c9677d9d103d777d20",
+    "parentSpanId": "b406730c0df76b62",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875925814113292",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875925778396250"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "cc9e36570f128c84",
+    "traceId": "3d0bd909d45e07c9677d9d103d777d20",
+    "parentSpanId": "b406730c0df76b62",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875925819313125",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875925814218542"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "a1bbc6c4ca9770c8",
+    "traceId": "3d0bd909d45e07c9677d9d103d777d20",
+    "parentSpanId": "b406730c0df76b62",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875926757550083",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Failure",
+        "cause": {
+          "_id": "Cause",
+          "reasons": [
+            {
+              "_tag": "Fail",
+              "error": "refused"
+            }
+          ]
+        }
+      },
+      "startTime": "1794875925819360208"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.spend",
+    "spanId": "be4af7aa1b7ab2df",
+    "traceId": "e8dec09bfe6fe01b6ffa12f2f79864cc",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875943475652083",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875927369420917"
+    },
+    "attributes": {
+      "architect.operation": "spend",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "73b4ddd77ded9df3",
+    "traceId": "e8dec09bfe6fe01b6ffa12f2f79864cc",
+    "parentSpanId": "be4af7aa1b7ab2df",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875927398985708",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875927369490167"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "27d8f053af3e23ea",
+    "traceId": "e8dec09bfe6fe01b6ffa12f2f79864cc",
+    "parentSpanId": "be4af7aa1b7ab2df",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875927415138583",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875927399037333"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "7a2fffe5f3d7644d",
+    "traceId": "e8dec09bfe6fe01b6ffa12f2f79864cc",
+    "parentSpanId": "be4af7aa1b7ab2df",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875940253885542",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875927415196542"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "01ec9310b668d288",
+    "traceId": "e8dec09bfe6fe01b6ffa12f2f79864cc",
+    "parentSpanId": "be4af7aa1b7ab2df",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875940468398542",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875940268414750"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "1fae0d509e858e6e",
+    "traceId": "e8dec09bfe6fe01b6ffa12f2f79864cc",
+    "parentSpanId": "be4af7aa1b7ab2df",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875943474933833",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875940468584667"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.spend",
+    "spanId": "09110310c0750eaf",
+    "traceId": "4c560f0a5a5a01ac098d083f6c2a147f",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875976871630417",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875943482936542"
+    },
+    "attributes": {
+      "architect.operation": "spend",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "aca0f79284295089",
+    "traceId": "4c560f0a5a5a01ac098d083f6c2a147f",
+    "parentSpanId": "09110310c0750eaf",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875943564190292",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875943483116292"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "44770cd9bb666af6",
+    "traceId": "4c560f0a5a5a01ac098d083f6c2a147f",
+    "parentSpanId": "09110310c0750eaf",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875943586204167",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875943564392375"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "305c5f9e715dd5f4",
+    "traceId": "4c560f0a5a5a01ac098d083f6c2a147f",
+    "parentSpanId": "09110310c0750eaf",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875970564345292",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875943586293958"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "32fb8ee7d2817922",
+    "traceId": "4c560f0a5a5a01ac098d083f6c2a147f",
+    "parentSpanId": "09110310c0750eaf",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875971377495292",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875970608953833"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "e0a6fc01e59639af",
+    "traceId": "4c560f0a5a5a01ac098d083f6c2a147f",
+    "parentSpanId": "09110310c0750eaf",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875976856045583",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875971379236375"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.spend",
+    "spanId": "d6d71da710b0c647",
+    "traceId": "8b4fb49a8621be3ba26efb5e5c65e4f0",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876009454412250",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875976942123042"
+    },
+    "attributes": {
+      "architect.operation": "spend",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "0918b7eecfdc6335",
+    "traceId": "8b4fb49a8621be3ba26efb5e5c65e4f0",
+    "parentSpanId": "d6d71da710b0c647",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875977440590000",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875976945040250"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "8b54d49b35f184e2",
+    "traceId": "8b4fb49a8621be3ba26efb5e5c65e4f0",
+    "parentSpanId": "d6d71da710b0c647",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794875977601623333",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875977442049875"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "bb4f040b13769b3b",
+    "traceId": "8b4fb49a8621be3ba26efb5e5c65e4f0",
+    "parentSpanId": "d6d71da710b0c647",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876005628982583",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794875977601760917"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "4750c5dea555c7e2",
+    "traceId": "8b4fb49a8621be3ba26efb5e5c65e4f0",
+    "parentSpanId": "d6d71da710b0c647",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876006059651125",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876005646967750"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "150573ee5a14b9d4",
+    "traceId": "8b4fb49a8621be3ba26efb5e5c65e4f0",
+    "parentSpanId": "d6d71da710b0c647",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876009441968792",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876006060405250"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.spend",
+    "spanId": "190e86ac51be8c25",
+    "traceId": "a6be77dc5208114abd34a0937d4ea524",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876037197429667",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876009479102625"
+    },
+    "attributes": {
+      "architect.operation": "spend",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "6bc2cb5719b0fa1e",
+    "traceId": "a6be77dc5208114abd34a0937d4ea524",
+    "parentSpanId": "190e86ac51be8c25",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876009769274125",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876009485499000"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "03640a228cfcbcc2",
+    "traceId": "a6be77dc5208114abd34a0937d4ea524",
+    "parentSpanId": "190e86ac51be8c25",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876010082956625",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876009769713458"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "e651a2d3d716f77b",
+    "traceId": "a6be77dc5208114abd34a0937d4ea524",
+    "parentSpanId": "190e86ac51be8c25",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876031230329792",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876010083057958"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "e5d153a99b1af753",
+    "traceId": "a6be77dc5208114abd34a0937d4ea524",
+    "parentSpanId": "190e86ac51be8c25",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876031390390083",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876031239605792"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "c2f73f786477567b",
+    "traceId": "a6be77dc5208114abd34a0937d4ea524",
+    "parentSpanId": "190e86ac51be8c25",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876037194505625",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876031390592750"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.spend",
+    "spanId": "8e21505168344904",
+    "traceId": "e59262075802e9abdbe158ccb435fa6f",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876071892859458",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876045718115667"
+    },
+    "attributes": {
+      "architect.operation": "spend",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "42d6745a7d694517",
+    "traceId": "e59262075802e9abdbe158ccb435fa6f",
+    "parentSpanId": "8e21505168344904",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876045774047042",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876045719376792"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "2d697425c68e932d",
+    "traceId": "e59262075802e9abdbe158ccb435fa6f",
+    "parentSpanId": "8e21505168344904",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876045782690583",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876045774934542"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "b97662a505a5aef4",
+    "traceId": "e59262075802e9abdbe158ccb435fa6f",
+    "parentSpanId": "8e21505168344904",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876071877329750",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876045782792458"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.revoke",
+    "spanId": "088d7968a881f74b",
+    "traceId": "af38ae1ed422b1a7c34a6f70165eaa02",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876088384997375",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876071906907667"
+    },
+    "attributes": {
+      "architect.operation": "revoke",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "3a60b7dead2f4902",
+    "traceId": "af38ae1ed422b1a7c34a6f70165eaa02",
+    "parentSpanId": "088d7968a881f74b",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876072036622500",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876071908078708"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "d256528adfa34b41",
+    "traceId": "af38ae1ed422b1a7c34a6f70165eaa02",
+    "parentSpanId": "088d7968a881f74b",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876072083164417",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876072036774167"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "ab737f4dee6abd35",
+    "traceId": "af38ae1ed422b1a7c34a6f70165eaa02",
+    "parentSpanId": "088d7968a881f74b",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876084819303792",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876072083315125"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "8bd7d79db4eaf3a2",
+    "traceId": "af38ae1ed422b1a7c34a6f70165eaa02",
+    "parentSpanId": "088d7968a881f74b",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876084994614458",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876084832487625"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "039dda7937445b00",
+    "traceId": "af38ae1ed422b1a7c34a6f70165eaa02",
+    "parentSpanId": "088d7968a881f74b",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876088384662542",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876084994775000"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "45229ee385d4f3ef",
+    "traceId": "e3c70c46f36fc52a150eb00b3ca72db5",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876088517452625",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Failure",
+        "cause": {
+          "_id": "Cause",
+          "reasons": [
+            {
+              "_tag": "Fail",
+              "error": "refused"
+            }
+          ]
+        }
+      },
+      "startTime": "1794876088409146875"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.spend",
+    "spanId": "b294ef368d647806",
+    "traceId": "42c126fa33b7c1f867315c2c393b04db",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876092678099417",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Failure",
+        "cause": {
+          "_id": "Cause",
+          "reasons": [
+            {
+              "_tag": "Fail",
+              "error": "refused"
+            }
+          ]
+        }
+      },
+      "startTime": "1794876088538178042"
+    },
+    "attributes": {
+      "architect.operation": "spend",
+      "architect.runs": "client",
+      "architect.outcome": "AllowanceNotMember"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "1bd0588b591092f7",
+    "traceId": "42c126fa33b7c1f867315c2c393b04db",
+    "parentSpanId": "b294ef368d647806",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876088698216833",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876088538958208"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "f7610b6bbfc3b623",
+    "traceId": "42c126fa33b7c1f867315c2c393b04db",
+    "parentSpanId": "b294ef368d647806",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876088800185875",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876088698564292"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "0f5eba8fd57920cb",
+    "traceId": "42c126fa33b7c1f867315c2c393b04db",
+    "parentSpanId": "b294ef368d647806",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876092677852708",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Failure",
+        "cause": {
+          "_id": "Cause",
+          "reasons": [
+            {
+              "_tag": "Fail",
+              "error": "refused"
+            }
+          ]
+        }
+      },
+      "startTime": "1794876088800361667"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.grant",
+    "spanId": "fcde5c4d0d802648",
+    "traceId": "7c6e091ab228fd875de809276f49e701",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876113307962375",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876093440086667"
+    },
+    "attributes": {
+      "architect.operation": "grant",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "2900ee373fa88cf3",
+    "traceId": "7c6e091ab228fd875de809276f49e701",
+    "parentSpanId": "fcde5c4d0d802648",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876093479552500",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876093440211208"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "2578a067ca61e7a1",
+    "traceId": "7c6e091ab228fd875de809276f49e701",
+    "parentSpanId": "fcde5c4d0d802648",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876093502281167",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876093479616333"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "2341f6876fb46df2",
+    "traceId": "7c6e091ab228fd875de809276f49e701",
+    "parentSpanId": "fcde5c4d0d802648",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876109824220042",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876093502382125"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "239242de55ebf433",
+    "traceId": "7c6e091ab228fd875de809276f49e701",
+    "parentSpanId": "fcde5c4d0d802648",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876110068054542",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876109837694917"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "2d3b00b6fd5aa10b",
+    "traceId": "7c6e091ab228fd875de809276f49e701",
+    "parentSpanId": "fcde5c4d0d802648",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876113307679250",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876110068214792"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.revoke",
+    "spanId": "1210958407a66fd1",
+    "traceId": "3ebc2e56e44a2bbad74d2e1b2d150c3c",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876127191614625",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876113314357083"
+    },
+    "attributes": {
+      "architect.operation": "revoke",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "f1aee817aa31a2ed",
+    "traceId": "3ebc2e56e44a2bbad74d2e1b2d150c3c",
+    "parentSpanId": "1210958407a66fd1",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876113465497042",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876113314564667"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "da250b0320b7c0a1",
+    "traceId": "3ebc2e56e44a2bbad74d2e1b2d150c3c",
+    "parentSpanId": "1210958407a66fd1",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876113505737125",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876113465890833"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "5e110b496742d233",
+    "traceId": "3ebc2e56e44a2bbad74d2e1b2d150c3c",
+    "parentSpanId": "1210958407a66fd1",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876124225471167",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876113505815042"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "3a273606f9b81b49",
+    "traceId": "3ebc2e56e44a2bbad74d2e1b2d150c3c",
+    "parentSpanId": "1210958407a66fd1",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876124294740125",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876124231490958"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "fd7b427d4796b686",
+    "traceId": "3ebc2e56e44a2bbad74d2e1b2d150c3c",
+    "parentSpanId": "1210958407a66fd1",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876127190825958",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876124294943333"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.grant",
+    "spanId": "01467b77058a7886",
+    "traceId": "edc9efd2582a35605e0febd7f8b231fd",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876141191102625",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876128886155917"
+    },
+    "attributes": {
+      "architect.operation": "grant",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "b945da3f199e4ab0",
+    "traceId": "edc9efd2582a35605e0febd7f8b231fd",
+    "parentSpanId": "01467b77058a7886",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876128954300000",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876128886430208"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "8427e249a40b7873",
+    "traceId": "edc9efd2582a35605e0febd7f8b231fd",
+    "parentSpanId": "01467b77058a7886",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876129008819583",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876128954429583"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "73d758a76c152577",
+    "traceId": "edc9efd2582a35605e0febd7f8b231fd",
+    "parentSpanId": "01467b77058a7886",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876138467453500",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876129009057125"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "6f4de0e1770e4ce8",
+    "traceId": "edc9efd2582a35605e0febd7f8b231fd",
+    "parentSpanId": "01467b77058a7886",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876138562838125",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876138474567292"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "7945fec250ab58bd",
+    "traceId": "edc9efd2582a35605e0febd7f8b231fd",
+    "parentSpanId": "01467b77058a7886",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876141190906833",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876138563011958"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.spend",
+    "spanId": "d6114dff79f427fe",
+    "traceId": "cd768cc5919a324aa45713f13e92c416",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876152253106667",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876141192582667"
+    },
+    "attributes": {
+      "architect.operation": "spend",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "edc05cee7c1bd95e",
+    "traceId": "cd768cc5919a324aa45713f13e92c416",
+    "parentSpanId": "d6114dff79f427fe",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876141236050917",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876141192670250"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "c27d48a7e56234b6",
+    "traceId": "cd768cc5919a324aa45713f13e92c416",
+    "parentSpanId": "d6114dff79f427fe",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876141250390250",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876141236214500"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "9e533f728e8de5eb",
+    "traceId": "cd768cc5919a324aa45713f13e92c416",
+    "parentSpanId": "d6114dff79f427fe",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876152246363000",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876141250455958"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.revoke",
+    "spanId": "2374586706412757",
+    "traceId": "ab04a51cb63d7436ccb33fa3a8b6a9a4",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876161784825375",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876152254035958"
+    },
+    "attributes": {
+      "architect.operation": "revoke",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "a44585809539b933",
+    "traceId": "ab04a51cb63d7436ccb33fa3a8b6a9a4",
+    "parentSpanId": "2374586706412757",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876152340927333",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876152254132167"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "cb3fabf48fdda9a3",
+    "traceId": "ab04a51cb63d7436ccb33fa3a8b6a9a4",
+    "parentSpanId": "2374586706412757",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876152360216583",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876152341126333"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "a2040fcd0ee7e046",
+    "traceId": "ab04a51cb63d7436ccb33fa3a8b6a9a4",
+    "parentSpanId": "2374586706412757",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876161779316458",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876152360359250"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.grant",
+    "spanId": "fcf304a0eeaa2439",
+    "traceId": "7ba7cc642d343af73ef842d076c9c0ca",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876188643071958",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876170734773167"
+    },
+    "attributes": {
+      "architect.operation": "grant",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "be2bb7ec66775b5d",
+    "traceId": "7ba7cc642d343af73ef842d076c9c0ca",
+    "parentSpanId": "fcf304a0eeaa2439",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876170844872333",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876170738503125"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "1d84938b431a7671",
+    "traceId": "7ba7cc642d343af73ef842d076c9c0ca",
+    "parentSpanId": "fcf304a0eeaa2439",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876170909068667",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876170845629542"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "f92efd4f68493ba4",
+    "traceId": "7ba7cc642d343af73ef842d076c9c0ca",
+    "parentSpanId": "fcf304a0eeaa2439",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876185378157250",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876170909216833"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "69b063f113653825",
+    "traceId": "7ba7cc642d343af73ef842d076c9c0ca",
+    "parentSpanId": "fcf304a0eeaa2439",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876185633321542",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876185400498750"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "68ffa22476f4021a",
+    "traceId": "7ba7cc642d343af73ef842d076c9c0ca",
+    "parentSpanId": "fcf304a0eeaa2439",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876188642795292",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876185634169333"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.spend",
+    "spanId": "d9a7078f28acfd0f",
+    "traceId": "19d4d9d1768f8a8fe217c31ae40292e1",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876209149316917",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876188667016542"
+    },
+    "attributes": {
+      "architect.operation": "spend",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "36be4461dbc4c412",
+    "traceId": "19d4d9d1768f8a8fe217c31ae40292e1",
+    "parentSpanId": "d9a7078f28acfd0f",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876188747571250",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876188667193875"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "61c97d19d3f2fed3",
+    "traceId": "19d4d9d1768f8a8fe217c31ae40292e1",
+    "parentSpanId": "d9a7078f28acfd0f",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876188769415250",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876188747706292"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "cc0cecfc3ec3d442",
+    "traceId": "19d4d9d1768f8a8fe217c31ae40292e1",
+    "parentSpanId": "d9a7078f28acfd0f",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876209130500958",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876188769510833"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.revoke",
+    "spanId": "425671617f5cf207",
+    "traceId": "809b657be77c7a3183c8e9c8ab958b9e",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876227699821500",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876209160621167"
+    },
+    "attributes": {
+      "architect.operation": "revoke",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "5a2f3ce49bbca4d4",
+    "traceId": "809b657be77c7a3183c8e9c8ab958b9e",
+    "parentSpanId": "425671617f5cf207",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876209336299958",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876209163583042"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "f5beba68e4457714",
+    "traceId": "809b657be77c7a3183c8e9c8ab958b9e",
+    "parentSpanId": "425671617f5cf207",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876209380169583",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876209336448000"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "a9d6d9705be5b02c",
+    "traceId": "809b657be77c7a3183c8e9c8ab958b9e",
+    "parentSpanId": "425671617f5cf207",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876227669020500",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876209380251208"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.revoke",
+    "spanId": "900596c4b3d700f0",
+    "traceId": "4f0a5ed9d8d46448f89572de88b80d51",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876291391177750",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876237882974292"
+    },
+    "attributes": {
+      "architect.operation": "revoke",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "220b60a40587515e",
+    "traceId": "4f0a5ed9d8d46448f89572de88b80d51",
+    "parentSpanId": "900596c4b3d700f0",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876238175639042",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876237887507667"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "f4fc89a66b4b2d34",
+    "traceId": "4f0a5ed9d8d46448f89572de88b80d51",
+    "parentSpanId": "900596c4b3d700f0",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876238380965375",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876238176218667"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "fa1efccbed2206f8",
+    "traceId": "4f0a5ed9d8d46448f89572de88b80d51",
+    "parentSpanId": "900596c4b3d700f0",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876284310525708",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876238381681458"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "67eedce15a1a6fa1",
+    "traceId": "4f0a5ed9d8d46448f89572de88b80d51",
+    "parentSpanId": "900596c4b3d700f0",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876284986458833",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876284372402792"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "528196deefe54dce",
+    "traceId": "4f0a5ed9d8d46448f89572de88b80d51",
+    "parentSpanId": "900596c4b3d700f0",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876291386856625",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876284986847208"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.ordinary",
+    "spanId": "55a7c1d10dd1576f",
+    "traceId": "bae933c5937bd0489763b37d8ac4fb1d",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876323361131875",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876305016822500"
+    },
+    "attributes": {
+      "architect.operation": "ordinary",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "c384e3bcdc32532a",
+    "traceId": "bae933c5937bd0489763b37d8ac4fb1d",
+    "parentSpanId": "55a7c1d10dd1576f",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876305298741875",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876305018129792"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "d502a195b5eb1779",
+    "traceId": "bae933c5937bd0489763b37d8ac4fb1d",
+    "parentSpanId": "55a7c1d10dd1576f",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876305393763417",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876305300006958"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "04f71251d5a60f01",
+    "traceId": "bae933c5937bd0489763b37d8ac4fb1d",
+    "parentSpanId": "55a7c1d10dd1576f",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876317440236292",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876305393933167"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "4617d32e5102c785",
+    "traceId": "bae933c5937bd0489763b37d8ac4fb1d",
+    "parentSpanId": "55a7c1d10dd1576f",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876317937162792",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876317483733833"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "110b7e0cf3dfe767",
+    "traceId": "bae933c5937bd0489763b37d8ac4fb1d",
+    "parentSpanId": "55a7c1d10dd1576f",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876323340242958",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876317938317417"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "timer",
+    "spanId": "c3ec84422984ba33",
+    "traceId": "a5c2229f45cd9b93fc7c90389f0a8a4d",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876324634414500",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876323632461708"
+    },
+    "attributes": {},
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.ordinary",
+    "spanId": "0a4984d25c6e8992",
+    "traceId": "327104c8a9a9e38f71454dd550651911",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876348661722625",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876324966130167"
+    },
+    "attributes": {
+      "architect.operation": "ordinary",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "a8834b1331394593",
+    "traceId": "327104c8a9a9e38f71454dd550651911",
+    "parentSpanId": "0a4984d25c6e8992",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876327354143542",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876324975111375"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "97789a1de40f8e84",
+    "traceId": "327104c8a9a9e38f71454dd550651911",
+    "parentSpanId": "0a4984d25c6e8992",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876328545071375",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876327390380917"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "46b5406bb56fb02f",
+    "traceId": "327104c8a9a9e38f71454dd550651911",
+    "parentSpanId": "0a4984d25c6e8992",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876343168986833",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876328545565708"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "cb219c7153e2885b",
+    "traceId": "327104c8a9a9e38f71454dd550651911",
+    "parentSpanId": "0a4984d25c6e8992",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876343567190083",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876343194220708"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "bf78904f8bddb2ce",
+    "traceId": "327104c8a9a9e38f71454dd550651911",
+    "parentSpanId": "0a4984d25c6e8992",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876348625799083",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876343568491417"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "timer",
+    "spanId": "0681e6645289adbf",
+    "traceId": "93cc078fdb04fe3408d82a803b46add1",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876350817467208",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876349797570833"
+    },
+    "attributes": {},
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.ordinary",
+    "spanId": "479008e85b364c4f",
+    "traceId": "55a7fa92d7cd49b22e3ddb58d85c8243",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876370358769083",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876351776142625"
+    },
+    "attributes": {
+      "architect.operation": "ordinary",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "e3ecb02bdedae5ca",
+    "traceId": "55a7fa92d7cd49b22e3ddb58d85c8243",
+    "parentSpanId": "479008e85b364c4f",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876352109936625",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876351777829042"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "56889cd71b137b26",
+    "traceId": "55a7fa92d7cd49b22e3ddb58d85c8243",
+    "parentSpanId": "479008e85b364c4f",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876352184620375",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876352111097708"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "f72971758480f8d1",
+    "traceId": "55a7fa92d7cd49b22e3ddb58d85c8243",
+    "parentSpanId": "479008e85b364c4f",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876366338758000",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876352185157042"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "9da94fdc7420c6da",
+    "traceId": "55a7fa92d7cd49b22e3ddb58d85c8243",
+    "parentSpanId": "479008e85b364c4f",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876366605548875",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876366387882208"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "e3fd50145047e18f",
+    "traceId": "55a7fa92d7cd49b22e3ddb58d85c8243",
+    "parentSpanId": "479008e85b364c4f",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876370358367708",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876366605703042"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "timer",
+    "spanId": "7b62d19108fc9e47",
+    "traceId": "f1b9e104c0eb6473152efa4899929c98",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876371612285792",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876370609805375"
+    },
+    "attributes": {},
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.ordinary",
+    "spanId": "e46816d1e0044b3b",
+    "traceId": "2d18a652dcd762238d0068f947ca562c",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876395666576375",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876372309376458"
+    },
+    "attributes": {
+      "architect.operation": "ordinary",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "6480995c2d70081c",
+    "traceId": "2d18a652dcd762238d0068f947ca562c",
+    "parentSpanId": "e46816d1e0044b3b",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876372702343667",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876372310577833"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "47ff266fa65126de",
+    "traceId": "2d18a652dcd762238d0068f947ca562c",
+    "parentSpanId": "e46816d1e0044b3b",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876372847317458",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876372703102333"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "65be6708f91aa875",
+    "traceId": "2d18a652dcd762238d0068f947ca562c",
+    "parentSpanId": "e46816d1e0044b3b",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876391542379625",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876372847430625"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "2fb5cf66ee546071",
+    "traceId": "2d18a652dcd762238d0068f947ca562c",
+    "parentSpanId": "e46816d1e0044b3b",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876391972666292",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876391585974792"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "98a656b2f119550f",
+    "traceId": "2d18a652dcd762238d0068f947ca562c",
+    "parentSpanId": "e46816d1e0044b3b",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876395662361583",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876391973203625"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "timer",
+    "spanId": "b85b8ba3bb25a7e4",
+    "traceId": "d02d0da6d61ebf7a6f6e1ad222f6f337",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876397139963375",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876396128604792"
+    },
+    "attributes": {},
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.ordinary",
+    "spanId": "4cda780265a18217",
+    "traceId": "f286fbb74029c5aedf3d6adb54630596",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876413883008208",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876397688146958"
+    },
+    "attributes": {
+      "architect.operation": "ordinary",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "3c971f6f32d03eb4",
+    "traceId": "f286fbb74029c5aedf3d6adb54630596",
+    "parentSpanId": "4cda780265a18217",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876398295193208",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876397691518917"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "d0f379bd47959d4b",
+    "traceId": "f286fbb74029c5aedf3d6adb54630596",
+    "parentSpanId": "4cda780265a18217",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876398394169500",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876398296417958"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "6850bdfe01a34a5c",
+    "traceId": "f286fbb74029c5aedf3d6adb54630596",
+    "parentSpanId": "4cda780265a18217",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876410164422125",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876398394435750"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "d9535361bef62ecc",
+    "traceId": "f286fbb74029c5aedf3d6adb54630596",
+    "parentSpanId": "4cda780265a18217",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876410488173958",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876410186174292"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "6b6b541957bd3b04",
+    "traceId": "f286fbb74029c5aedf3d6adb54630596",
+    "parentSpanId": "4cda780265a18217",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876413880313250",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876410490702583"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "timer",
+    "spanId": "fa40bf8da6ef7216",
+    "traceId": "7fb95a4669fb4f617dfb02d7641fdae0",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876415546618875",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876414536956000"
+    },
+    "attributes": {},
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.ordinary",
+    "spanId": "9cfb590a10686bd1",
+    "traceId": "762e45f56e7a761037db5e5ff789015c",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876430901302417",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876415626073292"
+    },
+    "attributes": {
+      "architect.operation": "ordinary",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "8ac13e95ed4ef120",
+    "traceId": "762e45f56e7a761037db5e5ff789015c",
+    "parentSpanId": "9cfb590a10686bd1",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876415881171333",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876415629795333"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "972c41e1d5fc7d5f",
+    "traceId": "762e45f56e7a761037db5e5ff789015c",
+    "parentSpanId": "9cfb590a10686bd1",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876415991802417",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876415881622667"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "96d527a83da444fd",
+    "traceId": "762e45f56e7a761037db5e5ff789015c",
+    "parentSpanId": "9cfb590a10686bd1",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876426263165667",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876415991967250"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "318ec335d953e7aa",
+    "traceId": "762e45f56e7a761037db5e5ff789015c",
+    "parentSpanId": "9cfb590a10686bd1",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876426451778917",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876426283567292"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "d9a9ce6224d80848",
+    "traceId": "762e45f56e7a761037db5e5ff789015c",
+    "parentSpanId": "9cfb590a10686bd1",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876430879860000",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876426455411458"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "timer",
+    "spanId": "ebaca02d2fad1bc1",
+    "traceId": "23464fce870445170863e758b9000e6c",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876433123470375",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876432106140417"
+    },
+    "attributes": {},
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.ordinary",
+    "spanId": "e9094eb0d34fed06",
+    "traceId": "ff9fd18b67a7cc967db727cb51ff4097",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876448366879333",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876433530112125"
+    },
+    "attributes": {
+      "architect.operation": "ordinary",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "63b814f78ad6744a",
+    "traceId": "ff9fd18b67a7cc967db727cb51ff4097",
+    "parentSpanId": "e9094eb0d34fed06",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876433773540500",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876433532972833"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "70dc4533d842f444",
+    "traceId": "ff9fd18b67a7cc967db727cb51ff4097",
+    "parentSpanId": "e9094eb0d34fed06",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876433879921667",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876433773984333"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "26b8d11c69d7472e",
+    "traceId": "ff9fd18b67a7cc967db727cb51ff4097",
+    "parentSpanId": "e9094eb0d34fed06",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876444146683583",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876433880596417"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "8d51d784355dd1a3",
+    "traceId": "ff9fd18b67a7cc967db727cb51ff4097",
+    "parentSpanId": "e9094eb0d34fed06",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876444435807500",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876444195490750"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "9b4f7e46fd0672a6",
+    "traceId": "ff9fd18b67a7cc967db727cb51ff4097",
+    "parentSpanId": "e9094eb0d34fed06",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876448366722125",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876444435972375"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "timer",
+    "spanId": "dcf4a17568ad8492",
+    "traceId": "bf206216cc094037331182809e8394c3",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876449572488000",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876448570350417"
+    },
+    "attributes": {},
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.ordinary",
+    "spanId": "76d029b698445ce0",
+    "traceId": "37f27bb2c6b4b2d28dc620f917248cb8",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876454460988750",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876449620072167"
+    },
+    "attributes": {
+      "architect.operation": "ordinary",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "682057e5251112b4",
+    "traceId": "37f27bb2c6b4b2d28dc620f917248cb8",
+    "parentSpanId": "76d029b698445ce0",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876449663598042",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876449620501542"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "ddce7121e10c8633",
+    "traceId": "37f27bb2c6b4b2d28dc620f917248cb8",
+    "parentSpanId": "76d029b698445ce0",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876449689611333",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876449663735583"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "1808604933313994",
+    "traceId": "37f27bb2c6b4b2d28dc620f917248cb8",
+    "parentSpanId": "76d029b698445ce0",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876451456174292",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876449689686708"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "124492721b068274",
+    "traceId": "37f27bb2c6b4b2d28dc620f917248cb8",
+    "parentSpanId": "76d029b698445ce0",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876451508593583",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876451462280250"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "cd8a4b8920aa2fec",
+    "traceId": "37f27bb2c6b4b2d28dc620f917248cb8",
+    "parentSpanId": "76d029b698445ce0",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876454458365167",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876451508759167"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "timer",
+    "spanId": "f4f6ba33d05afe08",
+    "traceId": "5e0476f500b0511d78c8d04cbf0ebd8e",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876455643996833",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876454641726375"
+    },
+    "attributes": {},
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.ordinary",
+    "spanId": "c39f020811e152da",
+    "traceId": "bcd5b6ddcaa174cf461298600c7da701",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876463034805667",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876455719180875"
+    },
+    "attributes": {
+      "architect.operation": "ordinary",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "e6e3d759ba94f4a0",
+    "traceId": "bcd5b6ddcaa174cf461298600c7da701",
+    "parentSpanId": "c39f020811e152da",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876455767497042",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876455719533042"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "24ef54f197203412",
+    "traceId": "bcd5b6ddcaa174cf461298600c7da701",
+    "parentSpanId": "c39f020811e152da",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876455819231875",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876455767710083"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "6d5e75bd6a0b4720",
+    "traceId": "bcd5b6ddcaa174cf461298600c7da701",
+    "parentSpanId": "c39f020811e152da",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876460281808167",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876455819311125"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "c214258a92ecf875",
+    "traceId": "bcd5b6ddcaa174cf461298600c7da701",
+    "parentSpanId": "c39f020811e152da",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876460332070208",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876460287176542"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "d31f1907cf9e6f1c",
+    "traceId": "bcd5b6ddcaa174cf461298600c7da701",
+    "parentSpanId": "c39f020811e152da",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876463034681542",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876460332186833"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "timer",
+    "spanId": "d151ed9b18003e0d",
+    "traceId": "bc0d98ea939b686fe5b26394d9e0915f",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876464196608958",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876463192365875"
+    },
+    "attributes": {},
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.ordinary",
+    "spanId": "62e42ebd9a4a5a42",
+    "traceId": "fef95a0c8ed0f9d4e049f21ca44f3cd4",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876468679536333",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876464274874333"
+    },
+    "attributes": {
+      "architect.operation": "ordinary",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "5bfc583fbe63dc83",
+    "traceId": "fef95a0c8ed0f9d4e049f21ca44f3cd4",
+    "parentSpanId": "62e42ebd9a4a5a42",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876464319549542",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876464275230250"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "3807a9bbaee11a51",
+    "traceId": "fef95a0c8ed0f9d4e049f21ca44f3cd4",
+    "parentSpanId": "62e42ebd9a4a5a42",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876464334914875",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876464319703208"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "ec1504f548fff614",
+    "traceId": "fef95a0c8ed0f9d4e049f21ca44f3cd4",
+    "parentSpanId": "62e42ebd9a4a5a42",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876465653000208",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876464334992000"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "8e624a55eaeb7e58",
+    "traceId": "fef95a0c8ed0f9d4e049f21ca44f3cd4",
+    "parentSpanId": "62e42ebd9a4a5a42",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876465693627750",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876465658177125"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "13c27eee369aa39f",
+    "traceId": "fef95a0c8ed0f9d4e049f21ca44f3cd4",
+    "parentSpanId": "62e42ebd9a4a5a42",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876468679307292",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876465693674792"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "timer",
+    "spanId": "60b7c88be45d2764",
+    "traceId": "5e6d41b537332f1a4a0204464300aa7c",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876469821161583",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876468819713042"
+    },
+    "attributes": {},
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.ordinary",
+    "spanId": "6277f4d6b51ed328",
+    "traceId": "836a4ca80f31b672117e853a8b52fd2a",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876474698951042",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876469853388542"
+    },
+    "attributes": {
+      "architect.operation": "ordinary",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "0adcdb213d4ca179",
+    "traceId": "836a4ca80f31b672117e853a8b52fd2a",
+    "parentSpanId": "6277f4d6b51ed328",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876469904497167",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876469853519375"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "d63fbbc3e5bf881d",
+    "traceId": "836a4ca80f31b672117e853a8b52fd2a",
+    "parentSpanId": "6277f4d6b51ed328",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876469917349125",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876469904704042"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "ed876fbcb834cd60",
+    "traceId": "836a4ca80f31b672117e853a8b52fd2a",
+    "parentSpanId": "6277f4d6b51ed328",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876471881448458",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876469917411458"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "5335700dd0f84e77",
+    "traceId": "836a4ca80f31b672117e853a8b52fd2a",
+    "parentSpanId": "6277f4d6b51ed328",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876471927680417",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876471886618625"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "eb6462d10858f267",
+    "traceId": "836a4ca80f31b672117e853a8b52fd2a",
+    "parentSpanId": "6277f4d6b51ed328",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876474698494500",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876471927855167"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "timer",
+    "spanId": "21da6b85a7bb031c",
+    "traceId": "235e6f4a9119622b0805a9740a9a3727",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876475854816667",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876474851491000"
+    },
+    "attributes": {},
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.ordinary",
+    "spanId": "d0c213a47eb0d149",
+    "traceId": "1aa229692ac3e09d1de9085b1d68b454",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876481492944083",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876475889397958"
+    },
+    "attributes": {
+      "architect.operation": "ordinary",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "2958e6537ee3cc95",
+    "traceId": "1aa229692ac3e09d1de9085b1d68b454",
+    "parentSpanId": "d0c213a47eb0d149",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876475922687917",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876475889670250"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "d4ee6706d21078f0",
+    "traceId": "1aa229692ac3e09d1de9085b1d68b454",
+    "parentSpanId": "d0c213a47eb0d149",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876475941743958",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876475922817750"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "5d3adcb73a1f8f6a",
+    "traceId": "1aa229692ac3e09d1de9085b1d68b454",
+    "parentSpanId": "d0c213a47eb0d149",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876478332893542",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876475941823417"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "d9406d7cdd509c7c",
+    "traceId": "1aa229692ac3e09d1de9085b1d68b454",
+    "parentSpanId": "d0c213a47eb0d149",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876478553003917",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876478348490875"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "c406ad80118c6011",
+    "traceId": "1aa229692ac3e09d1de9085b1d68b454",
+    "parentSpanId": "d0c213a47eb0d149",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876481492598250",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876478553392875"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "timer",
+    "spanId": "8df57cb0903f9418",
+    "traceId": "ea3ad3ef58ece045bc85ac1c7d138732",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876482760496000",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876481759463125"
+    },
+    "attributes": {},
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.ordinary",
+    "spanId": "d40e3a2bcc700eca",
+    "traceId": "5110f07eb879caa3395e75a04ce5f99b",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876490089176792",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876482904807125"
+    },
+    "attributes": {
+      "architect.operation": "ordinary",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "c6cc09663b097b62",
+    "traceId": "5110f07eb879caa3395e75a04ce5f99b",
+    "parentSpanId": "d40e3a2bcc700eca",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876483130012667",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876482906847000"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "b61f6897a44b4652",
+    "traceId": "5110f07eb879caa3395e75a04ce5f99b",
+    "parentSpanId": "d40e3a2bcc700eca",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876483189532042",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876483130341917"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "eaddc9f16a81d848",
+    "traceId": "5110f07eb879caa3395e75a04ce5f99b",
+    "parentSpanId": "d40e3a2bcc700eca",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876487032893583",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876483189901708"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "2209d744b731f7ff",
+    "traceId": "5110f07eb879caa3395e75a04ce5f99b",
+    "parentSpanId": "d40e3a2bcc700eca",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876487093067125",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876487042736583"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "90d98c0b3c0c2a37",
+    "traceId": "5110f07eb879caa3395e75a04ce5f99b",
+    "parentSpanId": "d40e3a2bcc700eca",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876490084632917",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876487093198958"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "timer",
+    "spanId": "1410c771c35687d6",
+    "traceId": "727f7f4aa86b2032c78f943ba9a1a58c",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876491372337542",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876490369715875"
+    },
+    "attributes": {},
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.ordinary",
+    "spanId": "3be490abc5b49caf",
+    "traceId": "5c8b914518d229036c77ce507cd81e10",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876502759426708",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876491430935250"
+    },
+    "attributes": {
+      "architect.operation": "ordinary",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "61180ee37d73c8c1",
+    "traceId": "5c8b914518d229036c77ce507cd81e10",
+    "parentSpanId": "3be490abc5b49caf",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876491480223917",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876491431241167"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "92ef331df8f58a2e",
+    "traceId": "5c8b914518d229036c77ce507cd81e10",
+    "parentSpanId": "3be490abc5b49caf",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876491501267167",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876491480596917"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "5a488060d28780e0",
+    "traceId": "5c8b914518d229036c77ce507cd81e10",
+    "parentSpanId": "3be490abc5b49caf",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876499122670917",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876491501588292"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "567997bdd522e2a3",
+    "traceId": "5c8b914518d229036c77ce507cd81e10",
+    "parentSpanId": "3be490abc5b49caf",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876499815906292",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876499150564167"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "57f0eda9f84460f5",
+    "traceId": "5c8b914518d229036c77ce507cd81e10",
+    "parentSpanId": "3be490abc5b49caf",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876502758061875",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876499817295292"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "timer",
+    "spanId": "2a348f0b40e8df25",
+    "traceId": "1ae966e01c03928c9c320735c873c290",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876504131837625",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876503129842958"
+    },
+    "attributes": {},
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.ordinary",
+    "spanId": "c3c3dd2fda4ad1a3",
+    "traceId": "5681bc9ed3db78beeb70e8dcd501afdb",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876512989260083",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876504283771875"
+    },
+    "attributes": {
+      "architect.operation": "ordinary",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "42d9a2f997d01c00",
+    "traceId": "5681bc9ed3db78beeb70e8dcd501afdb",
+    "parentSpanId": "c3c3dd2fda4ad1a3",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876504639864500",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876504284667292"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "2454a1e232d75502",
+    "traceId": "5681bc9ed3db78beeb70e8dcd501afdb",
+    "parentSpanId": "c3c3dd2fda4ad1a3",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876504684744125",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876504640130792"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "7234fac9c8edcd10",
+    "traceId": "5681bc9ed3db78beeb70e8dcd501afdb",
+    "parentSpanId": "c3c3dd2fda4ad1a3",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876509774786542",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876504684907792"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "3ee27508b46e5484",
+    "traceId": "5681bc9ed3db78beeb70e8dcd501afdb",
+    "parentSpanId": "c3c3dd2fda4ad1a3",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876509995489042",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876509797614167"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "4f2ddf8b97364ed8",
+    "traceId": "5681bc9ed3db78beeb70e8dcd501afdb",
+    "parentSpanId": "c3c3dd2fda4ad1a3",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876512987875167",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876509995969250"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "timer",
+    "spanId": "7fffa94f20033191",
+    "traceId": "f6d9ad52abcb5efac052473a2e1e988b",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876514211633833",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876513209417625"
+    },
+    "attributes": {},
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.ordinary",
+    "spanId": "6db3d884f5c857b4",
+    "traceId": "04c27d3927bec9ad8a7951528e2a8447",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876524208489792",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876514278500083"
+    },
+    "attributes": {
+      "architect.operation": "ordinary",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "3dcafe734ac4edf2",
+    "traceId": "04c27d3927bec9ad8a7951528e2a8447",
+    "parentSpanId": "6db3d884f5c857b4",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876514342685750",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876514279413708"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "933a17c813929d94",
+    "traceId": "04c27d3927bec9ad8a7951528e2a8447",
+    "parentSpanId": "6db3d884f5c857b4",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876514366910208",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876514342872875"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "8d21ee1b17281313",
+    "traceId": "04c27d3927bec9ad8a7951528e2a8447",
+    "parentSpanId": "6db3d884f5c857b4",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876520682405583",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876514366982250"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "71e7fbd7f7b02f22",
+    "traceId": "04c27d3927bec9ad8a7951528e2a8447",
+    "parentSpanId": "6db3d884f5c857b4",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876520934679167",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876520710620500"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "44df55853f573f18",
+    "traceId": "04c27d3927bec9ad8a7951528e2a8447",
+    "parentSpanId": "6db3d884f5c857b4",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876524205864292",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876520935359042"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "timer",
+    "spanId": "cd2d3b6d819db4e7",
+    "traceId": "7ee606642b59e3a8577834053eb09085",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876525430309792",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876524428773708"
+    },
+    "attributes": {},
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.ordinary",
+    "spanId": "25d6da98671ac6f8",
+    "traceId": "971a29abff555a1e5f5a1e6e38a49b31",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876531608923792",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876525509564125"
+    },
+    "attributes": {
+      "architect.operation": "ordinary",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "0b7f18d9c67b19eb",
+    "traceId": "971a29abff555a1e5f5a1e6e38a49b31",
+    "parentSpanId": "25d6da98671ac6f8",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876525607556958",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876525510494667"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "6329c95c792317b8",
+    "traceId": "971a29abff555a1e5f5a1e6e38a49b31",
+    "parentSpanId": "25d6da98671ac6f8",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876525638246208",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876525607681083"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "dc82f58d337ea92d",
+    "traceId": "971a29abff555a1e5f5a1e6e38a49b31",
+    "parentSpanId": "25d6da98671ac6f8",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876528689374875",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876525638360792"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "5e0415633f5756a4",
+    "traceId": "971a29abff555a1e5f5a1e6e38a49b31",
+    "parentSpanId": "25d6da98671ac6f8",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876528756068583",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876528697156958"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "bba3e3b5f27dd6ed",
+    "traceId": "971a29abff555a1e5f5a1e6e38a49b31",
+    "parentSpanId": "25d6da98671ac6f8",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876531608547625",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876528756215583"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.ordinary",
+    "spanId": "3029b8f3a756feca",
+    "traceId": "1e07e1124ec5ffef15007a8b9bd37780",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876537336842333",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876531622689875"
+    },
+    "attributes": {
+      "architect.operation": "ordinary",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "c847e68d0daccabc",
+    "traceId": "1e07e1124ec5ffef15007a8b9bd37780",
+    "parentSpanId": "3029b8f3a756feca",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876531663704625",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876531622904292"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "bf2f38f56f70c1bb",
+    "traceId": "1e07e1124ec5ffef15007a8b9bd37780",
+    "parentSpanId": "3029b8f3a756feca",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876531681404625",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876531663859250"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "6e84cb7d16bb2a2e",
+    "traceId": "1e07e1124ec5ffef15007a8b9bd37780",
+    "parentSpanId": "3029b8f3a756feca",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876534088581583",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876531681494333"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "54221058b88f7ff4",
+    "traceId": "1e07e1124ec5ffef15007a8b9bd37780",
+    "parentSpanId": "3029b8f3a756feca",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876534139209333",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876534094622125"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "8b90aacede0cebda",
+    "traceId": "1e07e1124ec5ffef15007a8b9bd37780",
+    "parentSpanId": "3029b8f3a756feca",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876537336574333",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876534139327458"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.spend",
+    "spanId": "886f19bbbf83b3d3",
+    "traceId": "9a22335bc96023d96be58a710713374b",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876553349450917",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876540196311333"
+    },
+    "attributes": {
+      "architect.operation": "spend",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "c9bf814a07083d93",
+    "traceId": "9a22335bc96023d96be58a710713374b",
+    "parentSpanId": "886f19bbbf83b3d3",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876540222625125",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876540196598833"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "d6b95a30b8a71ad2",
+    "traceId": "9a22335bc96023d96be58a710713374b",
+    "parentSpanId": "886f19bbbf83b3d3",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876540226709167",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876540222728458"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "cfd6b8c10cf61b8a",
+    "traceId": "9a22335bc96023d96be58a710713374b",
+    "parentSpanId": "886f19bbbf83b3d3",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876553332375292",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876540226765750"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.ordinary",
+    "spanId": "4b900b11cf6f2f10",
+    "traceId": "01a9050aaa684cc924b0351e84047c15",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876569324714958",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876553392174875"
+    },
+    "attributes": {
+      "architect.operation": "ordinary",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "0b33a157c164a29c",
+    "traceId": "01a9050aaa684cc924b0351e84047c15",
+    "parentSpanId": "4b900b11cf6f2f10",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876553500215875",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876553392491542"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "b3f086f3884197f5",
+    "traceId": "01a9050aaa684cc924b0351e84047c15",
+    "parentSpanId": "4b900b11cf6f2f10",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876553545150000",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876553500402417"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "db556bc1d06bf706",
+    "traceId": "01a9050aaa684cc924b0351e84047c15",
+    "parentSpanId": "4b900b11cf6f2f10",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876563051481333",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876553545235792"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "98b539279a7215a5",
+    "traceId": "01a9050aaa684cc924b0351e84047c15",
+    "parentSpanId": "4b900b11cf6f2f10",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876563277984000",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876563058719625"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "90e44124b9783167",
+    "traceId": "01a9050aaa684cc924b0351e84047c15",
+    "parentSpanId": "4b900b11cf6f2f10",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876569324351333",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876563278205000"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.ordinary",
+    "spanId": "25ba061897d23e16",
+    "traceId": "f4fb048dacb0459f81a689b309064048",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876574908455542",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876569662013167"
+    },
+    "attributes": {
+      "architect.operation": "ordinary",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "572791bf1370769a",
+    "traceId": "f4fb048dacb0459f81a689b309064048",
+    "parentSpanId": "25ba061897d23e16",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876569878828583",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876569662212917"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "c5e69d0338f7bbdc",
+    "traceId": "f4fb048dacb0459f81a689b309064048",
+    "parentSpanId": "25ba061897d23e16",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876569903837583",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876569878947167"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "d100da581388e5f4",
+    "traceId": "f4fb048dacb0459f81a689b309064048",
+    "parentSpanId": "25ba061897d23e16",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876572103368792",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876569903914542"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "36990be83a0a5e3e",
+    "traceId": "f4fb048dacb0459f81a689b309064048",
+    "parentSpanId": "25ba061897d23e16",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876572157846333",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876572111096458"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "d1f9cbba1f4031e9",
+    "traceId": "f4fb048dacb0459f81a689b309064048",
+    "parentSpanId": "25ba061897d23e16",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876574908086292",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876572157912958"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.ordinary",
+    "spanId": "840a9095fe6adcca",
+    "traceId": "d9f54347a165fb0d32d4f494b2ba0c42",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876579823935083",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876574927763167"
+    },
+    "attributes": {
+      "architect.operation": "ordinary",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "d7f370afe9c8bd19",
+    "traceId": "d9f54347a165fb0d32d4f494b2ba0c42",
+    "parentSpanId": "840a9095fe6adcca",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876574981493333",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876574928356417"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "10895a5d6920f320",
+    "traceId": "d9f54347a165fb0d32d4f494b2ba0c42",
+    "parentSpanId": "840a9095fe6adcca",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876575000070917",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876574981680875"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "f0d547123c23174b",
+    "traceId": "d9f54347a165fb0d32d4f494b2ba0c42",
+    "parentSpanId": "840a9095fe6adcca",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876576919433583",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876575000182833"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "895ba28b64f137a3",
+    "traceId": "d9f54347a165fb0d32d4f494b2ba0c42",
+    "parentSpanId": "840a9095fe6adcca",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876576981959958",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876576924598458"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "c8d1f04a97f91677",
+    "traceId": "d9f54347a165fb0d32d4f494b2ba0c42",
+    "parentSpanId": "840a9095fe6adcca",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876579822678208",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876576982021333"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "6ca5dc677f473708",
+    "traceId": "b1073145ffb604637344347bc4486c91",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876579944185458",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876579847023625"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "0a7ca57aee6b3a40",
+    "traceId": "c907ba5a6e89c093a125500d60536f5f",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876582988339167",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876579944328083"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "private-core.spend",
+    "spanId": "6db12f59421eb09f",
+    "traceId": "567f3c019bff1b05ee0bf8471c0752d3",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876599061087708",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876584702647750"
+    },
+    "attributes": {
+      "architect.operation": "spend",
+      "architect.runs": "client",
+      "architect.outcome": "ok"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "request",
+    "spanId": "dc486e5cdc90c039",
+    "traceId": "567f3c019bff1b05ee0bf8471c0752d3",
+    "parentSpanId": "6db12f59421eb09f",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876584726640750",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876584702788667"
+    },
+    "attributes": {
+      "architect.step": "request"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "sync",
+    "spanId": "637258c77d3aa385",
+    "traceId": "567f3c019bff1b05ee0bf8471c0752d3",
+    "parentSpanId": "6db12f59421eb09f",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876584730596250",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876584726700167"
+    },
+    "attributes": {
+      "architect.step": "sync"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "prove",
+    "spanId": "1537ec160801dec0",
+    "traceId": "567f3c019bff1b05ee0bf8471c0752d3",
+    "parentSpanId": "6db12f59421eb09f",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876596229793833",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876584730667875"
+    },
+    "attributes": {
+      "architect.step": "prove"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "submit",
+    "spanId": "b62a695693317e5a",
+    "traceId": "567f3c019bff1b05ee0bf8471c0752d3",
+    "parentSpanId": "6db12f59421eb09f",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876596361932875",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876596238562708"
+    },
+    "attributes": {
+      "architect.step": "submit"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  },
+  {
+    "name": "wait",
+    "spanId": "4cad40d332eeffda",
+    "traceId": "567f3c019bff1b05ee0bf8471c0752d3",
+    "parentSpanId": "6db12f59421eb09f",
+    "status": {
+      "_tag": "Ended",
+      "endTime": "1794876599061000750",
+      "exit": {
+        "_id": "Exit",
+        "_tag": "Success"
+      },
+      "startTime": "1794876596362145042"
+    },
+    "attributes": {
+      "architect.step": "wait"
+    },
+    "events": [],
+    "links": [],
+    "annotations": []
+  }
+]

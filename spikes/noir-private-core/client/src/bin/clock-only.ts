@@ -1,0 +1,44 @@
+// Named entry: cheap clock-only rehearsal, without organisation or token setup.
+import { Effect, Layer } from "effect";
+import { strict as assert } from "node:assert";
+import { writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { createAztecNodeClient } from "@aztec/aztec.js/node";
+import { getContractInstanceFromInstantiationParams } from "@aztec/aztec.js/contracts";
+import { Fr, GrumpkinScalar } from "@aztec/aztec.js/fields";
+import { SPONSORED_FPC_SALT } from "@aztec/constants";
+import { SponsoredFPCContract } from "@aztec/noir-contracts.js/SponsoredFPC";
+import { EthCheatCodes } from "@aztec/ethereum/test";
+import { TestDateProvider } from "@aztec/foundation/timer";
+import { overwriteLoggingStream } from "@aztec/foundation/log";
+import { Writable } from "node:stream";
+import { ClockProbeContract } from "../generated/ClockProbe.js";
+import { DeviceWallet, live } from "../modules/client/service.js";
+import { Client, Device } from "../modules/client/types.js";
+import { advance } from "../modules/probes/service.js";
+import type { ClockControls } from "../modules/probes/types.js";
+overwriteLoggingStream(new Writable({ write(_chunk, _encoding, done) { done(); } }));
+const node = createAztecNodeClient("http://127.0.0.1:8080");
+const wallet = await DeviceWallet.create(node, { ephemeral: true, pxe: { proverEnabled: false } });
+try {
+  const fpc = await getContractInstanceFromInstantiationParams(SponsoredFPCContract.artifact, { salt: new Fr(SPONSORED_FPC_SALT) });
+  await wallet.registerContract(fpc, SponsoredFPCContract.artifact);
+  const account = await wallet.createSchnorrInitializerlessAccount(Fr.random(), Fr.random(), GrumpkinScalar.random());
+  const probe = await getContractInstanceFromInstantiationParams(ClockProbeContract.artifact, { salt: Fr.random() });
+  await wallet.registerContract(probe, ClockProbeContract.artifact);
+  const layer = live.pipe(Layer.provide(Layer.succeed(Device, { wallet, node, from: account.address, pool: account.address, sponsor: fpc.address })));
+  const tick = () => Effect.gen(function* () { return yield* (yield* Client).run("ordinary", ClockProbeContract.at(probe.address, wallet).methods.tick(Fr.random())); }).pipe(Effect.provide(layer));
+  const controls: ClockControls = { node, eth: new EthCheatCodes(["http://127.0.0.1:8545"], new TestDateProvider()), tick, wait: (ms) => Effect.promise(() => new Promise<void>((r) => setTimeout(r, ms))) };
+  const timestamp = Number((await node.getBlockData("latest"))!.header.globalVariables.timestamp);
+  const date = new Date(timestamp * 1000), midnight = Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 1) / 1000;
+  const steps = await Effect.runPromise(advance(controls, midnight - 4 * 3600));
+  await Effect.runPromise(advance(controls, midnight - 1800, false));
+  const before = Number((await node.getBlockData("latest"))!.header.globalVariables.timestamp);
+  const l1Before = await controls.eth.lastBlockTimestamp();
+  assert.ok(before < midnight && l1Before < midnight);
+  await Effect.runPromise(advance(controls, midnight + 120, false));
+  const after = Number((await node.getBlockData("latest"))!.header.globalVariables.timestamp);
+  assert.ok(after >= midnight);
+  writeFileSync(resolve(import.meta.dirname, "../../../evidence/clock-rehearsal.json"), JSON.stringify({ steps, before, l1Before, after, midnight, mockProofControlOnly: true }, null, 2) + "\n");
+  console.log("PASS stepped clock rehearsal before and after UTC midnight");
+} finally { await wallet.stop(); }

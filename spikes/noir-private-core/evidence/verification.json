@@ -1,0 +1,26 @@
+{
+  "networkRun": "passed local full scenario with real client proofs",
+  "networkVerifiesProofs": false,
+  "noirConformancePassed": 16,
+  "calendarPassed": 2,
+  "clientChecks": "typecheck, public refusal classification, failure and log redaction passed",
+  "generatorRepeat": "byte-identical on consecutive invocations",
+  "sourceRefutations": [
+    "unconditional successor-witness availability for unconstrained right delivery",
+    "raw INFO identifier privacy",
+    "literal no-metadata promise"
+  ],
+  "notTested": [
+    "malicious-PXE ciphertext attack",
+    "known-address recognition watcher",
+    "forced same-block dual admission",
+    "verifying network"
+  ],
+  "contractSourceSha256": {
+    "contracts/private_core_contract/src/notes.nr": "08a8f63e1798a87707cd044737f5df977f927622b225d7c28dfd7385e8aaf041",
+    "contracts/private_core_contract/src/calendar.nr": "c513eb1c66c7dde08e9bda2f1869b58e6ab20e9507b11743b93d2bd43752a2f8",
+    "contracts/private_core_contract/src/main.nr": "0ae51454e65effc661d546aec51f58ff003997d0461374d1b8b656f0b8a2f8ce"
+  },
+  "ownedNetworkProcessesAfterRun": 0,
+  "costDollars": 0
+}

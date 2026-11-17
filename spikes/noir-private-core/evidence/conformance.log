@@ -1,0 +1,196 @@
+No source changes detected, skipping compilation.
+[00:33:08.091] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[00:33:08.083] INFO: cli Setting up TXE...
+[00:33:08.088] INFO: cli TXE listening on port 8081
+[private_core_test] Running 16 test functions
+[00:33:22.304] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[00:33:22.644] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[00:33:22.904] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[00:33:23.388] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[00:33:23.429] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-zR6G0L/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[00:33:23.457] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[00:33:23.551] INFO: txe_node Aztec Node version: txe
+[00:33:23.551] INFO: txe_node Aztec Node started on chain 0x1
+[00:33:23.509] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[00:33:23.656] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[00:33:23.661] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[00:33:23.645] INFO: txe:top_level_context Created block 1 with timestamp 1794875603
+[00:33:23.667] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-DqO9bA/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[00:33:23.738] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[00:33:23.779] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[00:33:23.823] INFO: txe_node Aztec Node version: txe
+[00:33:23.823] INFO: txe_node Aztec Node started on chain 0x1
+[00:33:23.399] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[00:33:23.904] INFO: txe:top_level_context Created block 1 with timestamp 1794875603
+[00:33:23.772] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[00:33:23.841] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[00:33:23.576] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[00:33:23.582] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-GLWBdo/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[00:33:23.617] INFO: txe_node Aztec Node version: txe
+[00:33:23.617] INFO: txe_node Aztec Node started on chain 0x1
+[00:33:23.782] INFO: txe:top_level_context Created block 1 with timestamp 1794875603
+[00:33:23.860] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-P8f8eM/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[00:33:24.033] INFO: txe_node Aztec Node version: txe
+[00:33:24.033] INFO: txe_node Aztec Node started on chain 0x1
+[00:33:23.987] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[00:33:24.040] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[00:33:23.850] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-KmRK1T/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[00:33:24.018] INFO: txe_node Aztec Node version: txe
+[00:33:24.018] INFO: txe_node Aztec Node started on chain 0x1
+[00:33:24.073] INFO: txe:top_level_context Created block 1 with timestamp 1794875604
+[00:33:23.997] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-ZEMmcV/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[00:33:24.082] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-gtTfWu/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[00:33:24.121] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[00:33:24.172] INFO: txe_node Aztec Node version: txe
+[00:33:24.172] INFO: txe_node Aztec Node started on chain 0x1
+[00:33:24.141] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-0QOwDK/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[00:33:24.180] INFO: txe_node Aztec Node version: txe
+[00:33:24.180] INFO: txe_node Aztec Node started on chain 0x1
+[00:33:24.171] INFO: txe_node Aztec Node version: txe
+[00:33:24.171] INFO: txe_node Aztec Node started on chain 0x1
+[00:33:24.136] INFO: txe:top_level_context Created block 1 with timestamp 1794875604
+[00:33:24.308] INFO: txe:top_level_context Created block 1 with timestamp 1794875604
+[00:33:24.360] INFO: txe:top_level_context Created block 1 with timestamp 1794875604
+[00:33:24.373] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[00:33:24.509] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[00:33:23.845] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[00:33:23.860] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-XL2WZK/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[00:33:23.994] INFO: txe_node Aztec Node version: txe
+[00:33:23.994] INFO: txe_node Aztec Node started on chain 0x1
+[00:33:24.085] INFO: txe:top_level_context Created block 1 with timestamp 1794875603
+[00:33:24.313] INFO: txe:top_level_context Created block 1 with timestamp 1794875604
+[00:33:24.507] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[00:33:24.123] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[00:33:24.297] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[00:33:24.315] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-UlTUKl/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[00:33:24.384] INFO: txe_node Aztec Node version: txe
+[00:33:24.384] INFO: txe_node Aztec Node started on chain 0x1
+[00:33:24.457] INFO: txe:top_level_context Created block 1 with timestamp 1794875604
+[00:33:24.308] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[00:33:24.696] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[00:33:24.693] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[00:33:24.622] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[00:33:24.739] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[00:33:24.718] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[00:33:24.760] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[00:33:24.771] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[00:33:24.904] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[00:33:24.762] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[00:33:25.049] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[00:33:25.101] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[00:33:25.144] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[00:33:25.313] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[00:33:25.288] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[00:33:25.165] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[00:33:25.415] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[00:33:31.337] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.041141458999998576s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.041141458999998576,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":832,"l2Gas":499700},"totalSizeInBytes":832,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:33:31.050] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.21112529200000063s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.21112529200000063,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":832,"l2Gas":499700},"totalSizeInBytes":832,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:33:31.686] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.11739170899999954s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.11739170899999954,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":832,"l2Gas":499700},"totalSizeInBytes":832,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:33:31.352] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.041340250000001105s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.041340250000001105,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":832,"l2Gas":499700},"totalSizeInBytes":832,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:33:31.390] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.03484029200000077s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.03484029200000077,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":832,"l2Gas":499700},"totalSizeInBytes":832,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:33:32.220] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.02335966700000063s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.02335966700000063,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":832,"l2Gas":499700},"totalSizeInBytes":832,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:33:31.614] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.0938920419999995s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.0938920419999995,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":832,"l2Gas":499700},"totalSizeInBytes":832,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:33:32.100] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.035358541999998126s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.035358541999998126,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":832,"l2Gas":499700},"totalSizeInBytes":832,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:33:31.922] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.1495604170000006s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.1495604170000006,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":832,"l2Gas":499700},"totalSizeInBytes":832,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:33:32.260] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.04821941700000025s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.04821941700000025,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":832,"l2Gas":499700},"totalSizeInBytes":832,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:33:35.443] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.018217832999995152s {"blockNumber":5,"successfulCount":1,"failedCount":0,"duration":0.018217832999995152,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":800,"l2Gas":483700},"totalSizeInBytes":800,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:33:36.053] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.05546441600000253s {"blockNumber":5,"successfulCount":1,"failedCount":0,"duration":0.05546441600000253,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":800,"l2Gas":483700},"totalSizeInBytes":800,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:33:36.070] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.045745458999997934s {"blockNumber":5,"successfulCount":1,"failedCount":0,"duration":0.045745458999997934,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":800,"l2Gas":483700},"totalSizeInBytes":800,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:33:36.215] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.021353083999994853s {"blockNumber":5,"successfulCount":1,"failedCount":0,"duration":0.021353083999994853,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":800,"l2Gas":483700},"totalSizeInBytes":800,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:33:36.023] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.04845441700000083s {"blockNumber":5,"successfulCount":1,"failedCount":0,"duration":0.04845441700000083,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":800,"l2Gas":483700},"totalSizeInBytes":800,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:33:36.746] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.023361749999996392s {"blockNumber":5,"successfulCount":1,"failedCount":0,"duration":0.023361749999996392,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":800,"l2Gas":483700},"totalSizeInBytes":800,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:33:37.175] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.0606541670000006s {"blockNumber":5,"successfulCount":1,"failedCount":0,"duration":0.0606541670000006,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":800,"l2Gas":483700},"totalSizeInBytes":800,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:33:36.775] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.01933383299999696s {"blockNumber":5,"successfulCount":1,"failedCount":0,"duration":0.01933383299999696,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":800,"l2Gas":483700},"totalSizeInBytes":800,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:33:38.476] ERROR: world-state:database Call BATCH_INSERT failed: Error: Unable to insert values into tree NullifierTree leaf type NullifierLeafValue is not updateable and 0x2f60be6b58e786d3833d0b44eb6ce789a561a24be602a637a32b4deb6ba92e6c is already present: [Error: Unable to insert values into tree NullifierTree leaf type NullifierLeafValue is not updateable and 0x2f60be6b58e786d3833d0b44eb6ce789a561a24be602a637a32b4deb6ba92e6c is already present] {"treeId":"NULLIFIER_TREE","forkId":6,"leavesCount":64}
+[00:33:38.427] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.012728667000003042s {"blockNumber":6,"successfulCount":1,"failedCount":0,"duration":0.012728667000003042,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":800,"l2Gas":483700},"totalSizeInBytes":800,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:33:38.615] WARN: simulator:public-processor Failed to process tx 0x0947e6be82fd073d327958a8b0704a62f05fe5c646056857383c26e2f839177b: Transaction 0x0947e6be82fd073d327958a8b0704a62f05fe5c646056857383c26e2f839177b failed with duplicate nullifiers Error: Transaction 0x0947e6be82fd073d327958a8b0704a62f05fe5c646056857383c26e2f839177b failed with duplicate nullifiers
+    at _PublicProcessor.doTreeInsertionsForPrivateOnlyTx (file:///Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/client/node_modules/@aztec/txe/dest/chunk-SSWRTHNU.js:257:42200)
+    at async _PublicProcessor.processPrivateOnlyTx (file:///Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/client/node_modules/@aztec/txe/dest/chunk-SSWRTHNU.js:257:44948)
+    at async file:///Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/client/node_modules/@aztec/txe/dest/chunk-SSWRTHNU.js:252:220161
+    at async _PublicProcessor.processTxWithinDeadline (file:///Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/client/node_modules/@aztec/txe/dest/chunk-SSWRTHNU.js:257:43127)
+    at async elapsed (file:///Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/client/node_modules/@aztec/txe/dest/chunk-SSWRTHNU.js:88:45423)
+    at async _PublicProcessor.processTx (file:///Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/client/node_modules/@aztec/txe/dest/chunk-SSWRTHNU.js:257:40859)
+    at async file:///Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/client/node_modules/@aztec/txe/dest/chunk-SSWRTHNU.js:252:220161
+    at async elapsed (file:///Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/client/node_modules/@aztec/txe/dest/chunk-SSWRTHNU.js:88:45423)
+    at async _PublicProcessor.process (file:///Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/client/node_modules/@aztec/txe/dest/chunk-SSWRTHNU.js:257:36715)
+    at async TXEOracleTopLevelContext.privateCallNewFlow (file:///Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/client/node_modules/@aztec/txe/dest/chunk-SSWRTHNU.js:266:68571)
+[00:33:38.626] INFO: simulator:public-processor Processed 0 successful txs and 1 failed txs (0 silently skipped, 0ms wasted) in 0.24702987500000018s {"blockNumber":6,"successfulCount":0,"failedCount":1,"duration":0.24702987500000018,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":0,"l2Gas":0},"totalSizeInBytes":0,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:33:38.775] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.023862249999998312s {"blockNumber":5,"successfulCount":1,"failedCount":0,"duration":0.023862249999998312,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":800,"l2Gas":483700},"totalSizeInBytes":800,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:33:38.744] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.024299791000004917s {"blockNumber":6,"successfulCount":1,"failedCount":0,"duration":0.024299791000004917,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":800,"l2Gas":483700},"totalSizeInBytes":800,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:33:40.261] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.02643012499999895s {"blockNumber":6,"successfulCount":1,"failedCount":0,"duration":0.02643012499999895,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":800,"l2Gas":483700},"totalSizeInBytes":800,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:33:41.943] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.04399608299999818s {"blockNumber":6,"successfulCount":1,"failedCount":0,"duration":0.04399608299999818,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":800,"l2Gas":483700},"totalSizeInBytes":800,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[private_core_test] Testing conformance::a_duplicate_grant_cannot_create_a_second_active_right ... [0m[32mok[0m <32.303s>
+[private_core_test] Testing conformance::shared_key_member_cannot_change_their_limit ... [0m[32mok[0m <32.413s>
+[private_core_test] Testing conformance::non_member_with_shared_key_cannot_spend ... [0m[32mok[0m <32.565s>
+[private_core_test] Testing conformance::another_members_larger_limit_does_not_authorise_spend ... [0m[32mok[0m <32.592s>
+[00:33:44.503] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.47421508300000276s {"blockNumber":6,"successfulCount":1,"failedCount":0,"duration":0.47421508300000276,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":800,"l2Gas":483700},"totalSizeInBytes":800,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[private_core_test] Testing conformance::an_ungranted_member_has_no_active_right ... [0m[32mok[0m <36.123s>
+[00:33:47.965] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.014981833999998345s {"blockNumber":7,"successfulCount":1,"failedCount":0,"duration":0.014981833999998345,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":800,"l2Gas":483700},"totalSizeInBytes":800,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[private_core_test] Testing conformance::revoked_member_cannot_spend_even_with_shared_key ... [0m[32mok[0m <38.551s>
+[00:33:52.450] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[00:33:52.686] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-nyJ3zh/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[00:33:52.108] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[00:33:52.220] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-6jrDZr/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[00:33:52.399] INFO: txe_node Aztec Node version: txe
+[00:33:52.408] INFO: txe_node Aztec Node started on chain 0x1
+[00:33:52.634] INFO: txe:top_level_context Created block 1 with timestamp 1794875632
+[00:33:52.850] INFO: txe_node Aztec Node version: txe
+[00:33:52.851] INFO: txe_node Aztec Node started on chain 0x1
+[00:33:52.975] INFO: txe:top_level_context Created block 1 with timestamp 1794875632
+[00:33:52.118] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[00:33:52.254] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-xOj1fd/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[00:33:52.413] INFO: txe_node Aztec Node version: txe
+[00:33:52.422] INFO: txe_node Aztec Node started on chain 0x1
+[00:33:52.710] INFO: txe:top_level_context Created block 1 with timestamp 1794875632
+[00:33:52.523] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[00:33:52.701] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-h7LMIW/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[00:33:52.859] INFO: txe_node Aztec Node version: txe
+[00:33:52.861] INFO: txe_node Aztec Node started on chain 0x1
+[00:33:53.073] INFO: txe:top_level_context Created block 1 with timestamp 1794875632
+[00:33:53.912] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[00:33:53.876] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[00:33:54.777] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[00:33:54.637] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[00:33:54.330] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[00:33:55.379] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[00:33:54.486] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[00:33:55.252] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[private_core_test] Testing conformance::admin_grants_a_private_member_right ... [0m[32mok[0m <50.124s>
+[private_core_test] Testing conformance::admin_consumes_the_members_active_right ... [0m[32mok[0m <50.207s>
+[00:34:06.644] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[00:34:07.785] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-6HlGtg/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[00:34:08.610] INFO: txe_node Aztec Node version: txe
+[00:34:08.643] INFO: txe_node Aztec Node started on chain 0x1
+[00:34:09.500] INFO: txe:top_level_context Created block 1 with timestamp 1794875648
+[private_core_test] Testing conformance::each_member_has_their_own_limit ... [0m[32mok[0m <58.917s>
+[00:34:10.485] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[00:34:11.339] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-PEp8rz/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[00:34:11.622] INFO: txe_node Aztec Node version: txe
+[00:34:11.649] INFO: txe_node Aztec Node started on chain 0x1
+[00:34:11.674] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.24147750000000814s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.24147750000000814,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":832,"l2Gas":499700},"totalSizeInBytes":832,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:34:12.671] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[00:34:12.555] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.4747846249999857s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.4747846249999857,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":832,"l2Gas":499700},"totalSizeInBytes":832,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:34:12.800] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.14390020799999184s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.14390020799999184,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":832,"l2Gas":499700},"totalSizeInBytes":832,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:34:12.800] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.23911854100000346s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.23911854100000346,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":832,"l2Gas":499700},"totalSizeInBytes":832,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:34:13.270] INFO: txe:top_level_context Created block 1 with timestamp 1794875651
+[00:34:15.352] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[00:34:15.893] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[00:34:17.659] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[00:34:21.924] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.06045029199999408s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.06045029199999408,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":832,"l2Gas":499700},"totalSizeInBytes":832,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:34:22.261] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.10272058300000209s {"blockNumber":5,"successfulCount":1,"failedCount":0,"duration":0.10272058300000209,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":800,"l2Gas":483700},"totalSizeInBytes":800,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:34:22.415] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.0399477920000063s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.0399477920000063,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":832,"l2Gas":499700},"totalSizeInBytes":832,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:34:23.273] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.14302945800000452s {"blockNumber":5,"successfulCount":1,"failedCount":0,"duration":0.14302945800000452,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":800,"l2Gas":483700},"totalSizeInBytes":800,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:34:22.919] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.08827966599998763s {"blockNumber":5,"successfulCount":1,"failedCount":0,"duration":0.08827966599998763,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":800,"l2Gas":483700},"totalSizeInBytes":800,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:34:23.161] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.09764137499999197s {"blockNumber":5,"successfulCount":1,"failedCount":0,"duration":0.09764137499999197,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":800,"l2Gas":483700},"totalSizeInBytes":800,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:34:27.508] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.055415959000005385s {"blockNumber":5,"successfulCount":1,"failedCount":0,"duration":0.055415959000005385,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":800,"l2Gas":483700},"totalSizeInBytes":800,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[00:34:28.038] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.033874458000005686s {"blockNumber":5,"successfulCount":1,"failedCount":0,"duration":0.033874458000005686,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":800,"l2Gas":483700},"totalSizeInBytes":800,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[private_core_test] Testing conformance::revoke_leaves_other_members_right_unchanged ... [0m[32mok[0m <78.060s>
+[00:34:30.767] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.09779229199999827s {"blockNumber":6,"successfulCount":1,"failedCount":0,"duration":0.09779229199999827,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":800,"l2Gas":483700},"totalSizeInBytes":800,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[private_core_test] Testing conformance::ungranted_admin_cannot_spend ... [0m[32mok[0m <49.415s>
+[private_core_test] Testing conformance::shared_key_non_member_cannot_grant ... [0m[32mok[0m <55.562s>
+[private_core_test] Testing conformance::shared_key_member_cannot_revoke_themselves ... [0m[32mok[0m <55.627s>
+[private_core_test] Testing conformance::shared_key_member_cannot_grant_a_right ... [0m[32mok[0m <56.069s>
+[private_core_test] Testing conformance::spend_over_own_limit_refuses_before_token_call ... [0m[32mok[0m <53.159s>
+[private_core_test] Testing conformance::shared_key_member_cannot_revoke_another_member ... [0m[32mok[0m <62.668s>
+[private_core_test] [0m[32m16 tests passed[0m
+[00:34:47.638] INFO: cli Shutting down... {"exitCode":143}

@@ -1,0 +1,16 @@
+{
+  "before": {
+    "timestamp": 1794874970,
+    "number": 0
+  },
+  "ordinary": {
+    "timestamp": 1794874970,
+    "number": 130
+  },
+  "zeroInterval": {
+    "timestamp": 1794874970,
+    "number": 260
+  },
+  "ordinaryDeltaSeconds": 0,
+  "zeroIntervalDeltaSeconds": 0
+}

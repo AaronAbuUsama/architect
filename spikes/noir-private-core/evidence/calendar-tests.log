@@ -1,0 +1,9 @@
+No source changes detected, skipping compilation.
+[00:35:07.496] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[00:35:07.472] INFO: cli Setting up TXE...
+[00:35:07.485] INFO: cli TXE listening on port 8081
+[private_core_contract] Running 2 test functions
+[private_core_contract] Testing calendar::test::starts ... [0m[32mok[0m
+[private_core_contract] Testing calendar::test::months ... [0m[32mok[0m
+[private_core_contract] [0m[32m2 tests passed[0m
+[00:35:21.261] INFO: cli Shutting down... {"exitCode":143}
