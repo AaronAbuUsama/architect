@@ -1,0 +1,16 @@
+{
+  "step":"Stage4-author",
+  "stage":"Stage 4 · first author checkpoint (OPEN)",
+  "title":"Stage-wide acceptance matrix and first executable kit/dependency readiness checks",
+  "summary":"A separate author lists every L3.01–L3.10 success boundary, prepares real packed fixtures and first executable checks, and captures actual unsupported CLI readiness RED. Positive fixture-origin and kits-free real-service controls pass. Final first-step author acceptance remains open; no production builder or complete Gate 3 proof is authorized by this checkpoint.",
+  "proves":"Current add kit/add dependency commands are unimplemented: the real installed-package checks fail there. These failures are not empty-handler or mapper execution proof. The adopted successful Echo body and kits-free nine-eval control pass; static checks and cleanup pass. The stage-completeness criterion remains false while later step-specific checks are absent. Runtime adapter and graph/integrity/collision author receipts still need completion before L3.01 builders start.",
+  "captions":{
+    "01-kit-selection-red":"Five real kit-selection checks stop at the unsupported CLI after successful fixture package preparation; later assertions are unreached.",
+    "02-existing-control":"Adopted Prefix body executes with its real layer; the kits-free project retains SDK interfaces and nine evals through actual workerd/Collector.",
+    "03-dependency-selection-red":"Four checks reach unsupported dependency command; the client-boundary case first reaches unsupported kit selection. No adapter runtime proof is claimed.",
+    "04-checkpoint-typecheck":"The new layer-three authored check source typechecks independently of unchanged earlier suite configs.",
+    "05-checkpoint-lint":"New authored sources/fixture data lint without changing earlier checks.",
+    "06-stage-completeness-open":"The full-stage readiness criterion is still false: later precise author suites do not exist. This expected-pass acceptance condition has not passed.",
+    "07-checkpoint-cleanup":"No Architect container, reserved author listener or worktree runtime process remains."
+  }
+}

@@ -1,0 +1,11 @@
+$ pnpm exec vitest run --root e2e --config ./e2e/vitest.layer3.config.ts layer3/00-legacy-and-origin.test.ts
+# commit 66e28fb · 2026-11-17T09:18:43Z · exit 0 (expected 0) · 16.9s
+
+
+ RUN  v4.1.12 ./e2e
+
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  09:18:27
+   Duration  16.04s (transform 39ms, setup 0ms, import 284ms, tests 15.66s, environment 0ms)

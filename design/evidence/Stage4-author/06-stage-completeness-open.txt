@@ -1,0 +1,42 @@
+$ pnpm exec vitest run --root e2e --config ./e2e/vitest.layer3.config.ts layer3/99-stage4-completeness.test.ts
+# commit 3e666e9 · 2026-11-17T09:55:30Z · exit 1 (expected 0) · 1.2s
+
+
+ RUN  v4.1.12 ./e2e
+
+ ❯ layer3/99-stage4-completeness.test.ts (1 test | 1 failed) 5ms
+   × Gate 3 remains incomplete until the remaining step-specific author suites exist 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  layer3/99-stage4-completeness.test.ts > Gate 3 remains incomplete until the remaining step-specific author suites exist
+AssertionError: These later public contracts/checks are pending; current L3.01 readiness is not a complete Gate 3: expected [ '05-wallets-auth.test.ts', …(5) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "05-wallets-auth.test.ts",
++   "06-chain-worlds.test.ts",
++   "07-relay-and-simulation.test.ts",
++   "08-follower.test.ts",
++   "09-delegation.test.ts",
++   "10-whole-acme.test.ts",
++ ]
+
+ ❯ layer3/99-stage4-completeness.test.ts:10:119
+      8|     "08-follower.test.ts", "09-delegation.test.ts", "10-whole-acme.tes…
+      9|   const absent = required.filter((file) => !existsSync(join(import.met…
+     10|   expect(absent, "These later public contracts/checks are pending; cur…
+       |                                                                                                                       ^
+     11| });
+     12|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  09:55:30
+   Duration  142ms (transform 13ms, setup 0ms, import 19ms, tests 5ms, environment 0ms)
