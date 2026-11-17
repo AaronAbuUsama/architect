@@ -1,5 +1,5 @@
-// "On this page": HeroUI Pro's FloatingToc, tracking the section nearest the top of the scrolling content.
-import { FloatingToc } from "@heroui-pro/react";
+// "On this page": a quiet text column beside the article, as HeroUI's own docs have it, tracking the section nearest
+// the top of the scrolling content.
 import { useEffect, useState } from "react";
 
 export type TocEntry = { id: string; title: string };
@@ -16,15 +16,12 @@ export function PageToc({ entries }: { entries: TocEntry[] }) {
     for (const e of entries) { const el = document.getElementById(e.id); if (el) io.observe(el); }
     return () => io.disconnect();
   }, [entries]);
-  const go = (id: string) => { document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }); history.replaceState(null, "", `#${id}`); };
   return (
-    <FloatingToc placement="right" aria-label="On this page">
-      <FloatingToc.Trigger className="fixed right-4 top-1/2 z-10 -translate-y-1/2">
-        {entries.map((e) => <FloatingToc.Bar key={e.id} active={e.id === active} />)}
-      </FloatingToc.Trigger>
-      <FloatingToc.Content>
-        {entries.map((e) => <FloatingToc.Item key={e.id} active={e.id === active} onClick={() => go(e.id)}>{e.title}</FloatingToc.Item>)}
-      </FloatingToc.Content>
-    </FloatingToc>
+    <nav aria-label="On this page" className="sticky top-8 hidden w-48 shrink-0 self-start xl:block">
+      <div className="mb-3 text-sm text-muted">On this page</div>
+      <ul className="flex flex-col gap-2 text-sm">
+        {entries.map((e) => <li key={e.id}><a href={`#${e.id}`} className={e.id === active ? "font-medium text-foreground" : "text-muted hover:text-foreground"}>{e.title}</a></li>)}
+      </ul>
+    </nav>
   );
 }

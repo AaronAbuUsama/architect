@@ -29,8 +29,8 @@ export default function Page() {
   const wide = ["home", "proof", "attention", "reference", "environment"].includes(p.kind);
   return (
     <AppShell title={page.data.title} sub={slugs.length ? `Docs / ${slugs.slice(0, -1).join(" / ") || "top"}` : "Docs"} actions={<>{subject && <WorkLinks subject={subject} />}<ViewToggle /></>}>
-      {!wide && toc.length > 1 && <PageToc entries={toc} />}
-      <article className={`mx-auto px-8 py-8 ${wide ? "max-w-none" : "max-w-4xl"}`}>
+      <div className={`mx-auto flex gap-12 px-8 py-8 ${wide ? "max-w-none" : "max-w-6xl"}`}>
+      <article className="min-w-0 flex-1">
         <h1 className="text-3xl font-semibold tracking-tight">{page.data.title}</h1>
         {page.data.description && <p className="mt-2 text-lg text-muted">{page.data.description}</p>}
         <div className={`mt-6 ${TEXT}`}>{body.map((s) => s.fold
@@ -39,6 +39,8 @@ export default function Page() {
               <Accordion.Panel><Accordion.Body>{s.body}</Accordion.Body></Accordion.Panel></Accordion.Item></Accordion></section>
           : <section key={s.id} id={s.id} className="scroll-mt-20">{s.title && <h2 className="mb-2 mt-8 text-xl font-semibold">{s.title}</h2>}{s.body}</section>)}</div>
       </article>
+      {!wide && toc.length > 1 && <PageToc entries={toc} />}
+      </div>
     </AppShell>
   );
 }

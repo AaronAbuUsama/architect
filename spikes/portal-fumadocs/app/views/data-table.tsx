@@ -39,8 +39,7 @@ export function DataTable<R extends object>({ label, rows, rowKey, columns, filt
   return (
     <div className="my-4 flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="font-semibold">{label}</span>
-        <Chip size="sm" variant="soft">{out.length}</Chip>
+        <span className="text-sm text-muted">{out.length} of {rows.length} · {label.toLowerCase()}</span>
         {withTools && filters.length > 0 && (
           <Dropdown>
             <Button size="sm" variant={active ? "primary" : "secondary"}>Filter{active ? ` (${active})` : ""}</Button>

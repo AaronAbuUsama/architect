@@ -40,7 +40,7 @@ function SideNav({ section }: { section: Section }) {
 export function AppShell({ title, sub, actions, aside, children }: { mission?: string; title: ReactNode; sub?: ReactNode; actions?: ReactNode; aside?: ReactNode; children: ReactNode }) {
   const section = sectionOf(useLocation().pathname), navigate = useNavigate();
   return (
-    <AppLayout navigate={navigate} scrollMode="content" sidebarVariant="inset" sidebarCollapsible="offcanvas" aside={aside}
+    <AppLayout navigate={navigate} scrollMode="content" sidebarVariant="sidebar" sidebarCollapsible="offcanvas" aside={aside}
       sidebar={<><Sidebar><SideNav section={section} /></Sidebar><Sidebar.Mobile><SideNav section={section} /></Sidebar.Mobile></>}
       navbar={
         <Navbar maxWidth="full">

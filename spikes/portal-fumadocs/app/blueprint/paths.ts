@@ -15,7 +15,7 @@ export const pages = (): Array<{ path: string; slugs: string[]; title: string; d
     { path: `things/${t.name}/index.page`, slugs: ["things", t.name], title: t.name, description: t.description, page: { kind: "thing" as const, thing: t.name } },
     ...Object.values(M.operations).filter((o) => o.thing === t.name).map((o) => ({
       path: `things/${t.name}/${o.verb}.page`, slugs: ["operations", o.name], title: o.name, description: o.description, page: { kind: "operation" as const, operation: o.name } })),
-    ...(t.machine ? [{ path: `things/${t.name}/machine.page`, slugs: ["things", t.name, "machine"], title: `${t.machine.states.length} states, ${Object.keys(t.machine.moves).length} moves`,
+    ...(t.machine ? [{ path: `things/${t.name}/machine.page`, slugs: ["things", t.name, "machine"], title: "Machine",
       description: `The states ${t.name} moves through: ${t.machine.states.join(", ")}.`, page: { kind: "machine" as const, thing: t.name } }] : []),
     ...Object.keys(t.events ?? {}).map((e) => ({
       path: `things/${t.name}/${e}.page`, slugs: ["things", t.name, "events", e], title: e, description: `An event of ${t.name}.`, page: { kind: "event" as const, thing: t.name, event: e } })),
