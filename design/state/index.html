@@ -268,6 +268,7 @@ steps, performance, coverage and explainability.</p>
 <h2>On the critical path</h2>
 <ul>
 <li><b>CI on <code>layer/3</code>:</b> the latest completed failure is the trace viewer on Linux. The builder is also checking the earlier promotion restart and list-read failures.</li>
+<li><b>Promotion integrity:</b> independent review found that a dirty-source bundle can reuse a clean revision’s proofs after its source is restored. This must be fixed and regression-tested before Gate 2.</li>
 <li><b>Check 8:</b> one fetch needs a fresh connection after staging restarts. An author's fix, not a builder's.</li>
 <li><b>The evidence page:</b> a separate tooling builder is fixing its crash on older logs. Missing capture metadata will stay marked unverified.</li>
 </ul>

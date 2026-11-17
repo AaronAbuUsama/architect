@@ -30,14 +30,20 @@ checks; it must preserve those raw files and show them as unverified rather than
 will regenerate the page after that lands. Main through `798ff34` is merged into the conductor's integration branch
 (the F2 design record and portal IA spike only); no later-layer feature work has started.
 
+**Independent preliminary review.** A read-only reviewer of layer two found a promotion-integrity blocker:
+`Build.build` labels a dirty-source bundle with HEAD, and `Promote` checks only that the tree is clean now. Restoring
+the source after a dirty build can therefore reuse verdicts for a different bundle. A separate builder must add a
+failing regression and fix artifact provenance before Gate 2. Review is still in progress; this is not a final pass.
+
 **Next, in order:**
 1. CI green on `layer/3` (above).
-2. A ✍️ author fixes check 08's second `portal(url)` fetch: `headers: { connection: "close" }` (Traps, below). Its
+2. Fix the reviewed dirty-build provenance bypass with a separate builder and regression proof.
+3. A ✍️ author fixes check 08's second `portal(url)` fetch: `headers: { connection: "close" }` (Traps, below). Its
    other gap, proving the slow revision in test before promoting, is already fixed (D3 #92).
-3. L2.11 Gate 2: add a CI job `e2e-layer2` beside `e2e-layer1`, run `nx run e2e:layer2` green locally with no other
+4. L2.11 Gate 2: add a CI job `e2e-layer2` beside `e2e-layer1`, run `nx run e2e:layer2` green locally with no other
    builder running and in CI, `ci.json` per step, `python3 tools/evidence/page.py`, a 🔍 reviewer that wrote none of
    it, the pull request `layer/3` into `main`, merged when CI is green, and the spoken report to Aaron.
-4. Stage 4 opens with wayfinding (`wayfinding/stage-4.md`).
+5. Stage 4 opens with wayfinding (`wayfinding/stage-4.md`).
 
 **For the cloud pass, from L2.08:** every deployed Worker must set `ARCHITECT_ENVIRONMENT`, or it reads as a local
 world and opens `/_world/*` (`later.md`); `Facts` reads staging's SQLite file today and needs a D1 API reader behind the
