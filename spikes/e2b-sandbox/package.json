@@ -1,0 +1,8 @@
+{
+  "name": "spike-e2b-sandbox",
+  "private": true,
+  "type": "module",
+  "scripts": { "node": "node --env-file=$HOME/.config/architect/e2b.env src/node.mjs", "dev": "wrangler dev --port 8987" },
+  "dependencies": { "e2b": "2.62.1" },
+  "devDependencies": { "wrangler": "4.156.2" }
+}
