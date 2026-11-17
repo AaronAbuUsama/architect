@@ -2102,6 +2102,174 @@ Worktree Worker processes remaining: 0</pre></div>
 </details>
 </section>
 <section class="step">
+  <div class="stage">Stage 3 · main CI recovery</div>
+  <h2><span class="id">Publish-CLI-timeout</span> An explicit test-body budget for two real publish CLI starts <span class="chip bad">not done</span></h2>
+  <p class="summary">The negative publish integration case was the only publish-suite body still using Vitest&#x27;s implicit five-second deadline. Its two real Node CLI starts exceeded that deadline in main CI. The author adds only a 60-second per-body budget; assertions, requests, hooks, global defaults, process deadlines and domain performance policy remain unchanged.</p>
+  <div class="proves"><span class="label">Done when</span>The actual main failed job records the sole no-registry/usage timeout, with 117 other prove tests passing and three configured skips. All five sibling publish cases already have explicit 300- or 900-second body budgets. The focused unchanged CLI assertions pass once against the existing real fixture: missing registry exits 2 with its message, and missing flags exit 2 with usage. Five siblings are unselected by the filter, not newly skipped. Fresh prove lint/typecheck and cleanup pass. Fresh main CI on the recovery commit remains the conductor&#x27;s next verification.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44029791265/job/133858681138">CI failure</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/396dab4">commit 396dab4</a> · 5 verified captures · 0 unverified records</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Actual main CI timeout and surrounding test results; the complete failed job log is preserved under attempts.</span>
+    <span class="meta">exit 0 · 0.0s · 2026-11-17T06:30:51Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ bash -o pipefail -c rg -A18 -B5 &quot;without a registry|5285|Test timed out in 5000ms|117 passed&quot; design/evidence/Publish-CLI-timeout/attempts/main-ci-failed-job.log</div><pre>check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9673381Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9674147Z ^[[1m^[[30m^[[46m RUN ^[[49m^[[39m^[[22m ^[[36mv4.1.12 ^[[39m^[[90m&lt;local path&gt;
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9675170Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9676381Z  ^[[31m❯^[[39m src/modules/publish/publish.test.ts ^[[2m(^[[22m^[[2m6 tests^[[22m^[[2m | ^[[22m^[[31m1 failed^[[39m^[[2m | ^[[22m^[[33m1 skipped^[[39m^[[2m)^[[22m^[[33m 145908^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9677917Z      ^[[33m^[[2m✓^[[22m^[[39m --dry-run lists exactly what would go out, and sends nothing ^[[33m 11263^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9678857Z ^[[31m     ^[[31m×^[[31m without a registry, --local says so and exits 2; with neither flag it says how to use it^[[39m^[[33m 5285^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9679695Z      ^[[33m^[[2m✓^[[22m^[[39m a prerelease goes out under `next`, numbered one past the last ^[[33m 11776^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9681021Z      ^[[33m^[[2m✓^[[22m^[[39m --local puts @acme/sdk@1.1.0 and @acme/cli@1.1.0 on the registry, `latest` on them, and a fresh folder installs and runs them ^[[33m 88786^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9681969Z      ^[[33m^[[2m✓^[[22m^[[39m a prerelease published after a release never takes `latest` from it ^[[33m 4130^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9682840Z      ^[[2m^[[90m↓^[[39m^[[22m `brew install &lt;tap&gt;/&lt;formula&gt;` installs the CLI binary, which prints its version and `ok` from a running world
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9683787Z  ^[[32m✓^[[39m src/modules/promote/promote.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[33m 69729^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9684621Z      ^[[33m^[[2m✓^[[22m^[[39m refuses a dirty tree and a revision with no built bundle, each naming what is wrong ^[[33m 6952^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9685835Z      ^[[33m^[[2m✓^[[22m^[[39m refuses a revision without main test verdicts, naming what is missing, and accepts one that has them ^[[33m 6489^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9686949Z      ^[[33m^[[2m✓^[[22m^[[39m production is refused without staging verdicts, then takes what staging proved: one bundle in test, staging and production ^[[33m 50620^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9687863Z  ^[[32m✓^[[39m src/modules/world/mcp.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[33m 16250^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9688750Z      ^[[33m^[[2m✓^[[22m^[[39m exports the first MCP operation to an extra Collector sink without a prior API call or local OTLP URL ^[[33m 8167^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9689879Z      ^[[33m^[[2m✓^[[22m^[[39m serves one tool per operation and read, behind OAuth, as the person the token names ^[[33m 8080^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9690675Z  ^[[32m✓^[[39m src/modules/evals/evals.test.ts ^[[2m(^[[22m^[[2m14 tests^[[22m^[[2m)^[[22m^[[32m 19^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9691541Z  ^[[32m✓^[[39m src/modules/promote/staging.test.ts ^[[2m(^[[22m^[[2m8 tests^[[22m^[[2m)^[[22m^[[33m 240736^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9693024Z      ^[[33m^[[2m✓^[[22m^[[39m rejects staging replacement after its initial check, including rollback=false ^[[33m 56946^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9694040Z      ^[[33m^[[2m✓^[[22m^[[39m rejects staging replacement after its initial check, including rollback=true ^[[33m 61876^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9696015Z      ^[[33m^[[2m✓^[[22m^[[39m rejects source mutation at proof completion before model storage, publishing or passing verdicts ^[[33m 17569^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9697032Z      ^[[33m^[[2m✓^[[22m^[[39m installs the captured SDK and CLI even if source changes after capture during publication ^[[33m 18904^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9697982Z      ^[[33m^[[2m✓^[[22m^[[39m owns package and SEA outputs per invocation and preserves earlier tarballs and formula URLs ^[[33m 25130^[[2mms^[[22m^[[39m
+--
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9782278Z      ^[[33m^[[2m✓^[[22m^[[39m fails on accept-without-membership ^[[33m 8918^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9783098Z      ^[[33m^[[2m✓^[[22m^[[39m fails on owner-step-skipped ^[[33m 8803^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9783518Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9783884Z ^[[31m⎯⎯⎯⎯⎯⎯⎯^[[39m^[[1m^[[41m Failed Tests 1 ^[[49m^[[22m^[[31m⎯⎯⎯⎯⎯⎯⎯^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9784235Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9785448Z ^[[41m^[[1m FAIL ^[[22m^[[49m src/modules/publish/publish.test.ts^[[2m &gt; ^[[22marchitect publish^[[2m &gt; ^[[22mwithout a registry, --local says so and exits 2; with neither flag it says how to use it
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9786345Z ^[[31m^[[1mError^[[22m: Test timed out in 5000ms.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9787209Z If this is a long-running test, pass a timeout value as the last argument or configure it globally with &quot;testTimeout&quot;.^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9788027Z ^[[36m ^[[2m❯^[[22m src/modules/publish/publish.test.ts:^[[2m149:3^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9788529Z     ^[[90m147|^[[39m   })^[[33m;^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9788815Z     ^[[90m148|^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9789253Z     ^[[90m149|^[[39m   it(&quot;without a registry, --local says so and exits 2; with neither fl…
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9789741Z     ^[[90m   |^[[39m   ^[[31m^^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9790327Z     ^[[90m150|^[[39m     const none = spawnSync(process.execPath, [cli, &quot;publish&quot;, &quot;--local…
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9791162Z     ^[[90m151|^[[39m     ^[[34mexpect^[[39m(none^[[33m.^[[39mstatus^[[33m,^[[39m none^[[33m.^[[39mstderr)^[[33m.^[[39m^[[34mtoBe^[[39m(^[[34m2^[[39m)^[[33m;^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9791902Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9792137Z ^[[31m^[[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9792379Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9792386Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9793051Z ^[[2m Test Files ^[[22m ^[[1m^[[31m1 failed^[[39m^[[22m^[[2m | ^[[22m^[[1m^[[32m27 passed^[[39m^[[22m^[[2m | ^[[22m^[[33m2 skipped^[[39m^[[90m (30)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9794338Z ^[[2m      Tests ^[[22m ^[[1m^[[31m1 failed^[[39m^[[22m^[[2m | ^[[22m^[[1m^[[32m117 passed^[[39m^[[22m^[[2m | ^[[22m^[[33m3 skipped^[[39m^[[90m (121)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9795319Z ^[[2m   Start at ^[[22m 06:16:00
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9796126Z ^[[2m   Duration ^[[22m 565.99s^[[2m (transform 12.25s, setup 0ms, import 20.35s, tests 1081.37s, environment 11ms)^[[22m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9796661Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9796668Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9801850Z ##[error]Error: Test timed out in 5000ms.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	If this is a long-running test, pass a timeout value as the last argument or configure it globally with &quot;testTimeout&quot;.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	 ❯ src/modules/publish/publish.test.ts:149:3
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9804302Z Warning: command &quot;vitest run --root packages/prove --passWithNoTests&quot; exited with non-zero status code
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9805208Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9805454Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9806185Z ^[[7m^[[1m^[[31m NX ^[[39m^[[22m^[[27m  ^[[31mRunning targets ^[[1mlint^[[22m, ^[[1mtypecheck^[[22m, ^[[1mtest^[[22m for 16 projects failed^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9806647Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9806793Z ^[[2mFailed tasks:^[[22m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9806980Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9807113Z ^[[2m-^[[22m prove:test
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9807250Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9807260Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9807433Z ^[[2m^[[31m^[[39m^[[22m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9807641Z   Run duration:      10m 7s
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9807958Z   Cache:             0/46 hit (0%)
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9808228Z   Critical path:     9m 27s (1 task)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">All six publish bodies and the package config: only the negative CLI body lacked an explicit deadline.</span>
+    <span class="meta">exit 0 · 0.0s · 2026-11-17T06:30:51Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ bash -e -c rg -n &quot;^  it|^  it.skipIf|beforeAll|afterAll|timeout:&quot; packages/prove/src/modules/publish/publish.test.ts; cat packages/prove/vitest.config.ts</div><pre>12:import { afterAll, beforeAll, describe, expect, it } from &quot;vitest&quot;;
+64:  const r = spawnSync(process.execPath, [cli, ...args, &quot;--root&quot;, root], { cwd: root, encoding: &quot;utf8&quot;, env, maxBuffer: 64 * 1024 * 1024, timeout: 900_000 });
+76:const brew = (...args: ReadonlyArray&lt;string&gt;) =&gt; spawnSync(&quot;brew&quot;, args, { encoding: &quot;utf8&quot;, env, timeout: 600_000 });
+79:beforeAll(async () =&gt; {
+111:afterAll(async () =&gt; {
+129:  it(&quot;--dry-run lists exactly what would go out, and sends nothing&quot;, { timeout: 300_000 }, async () =&gt; {
+149:  it(&quot;without a registry, --local says so and exits 2; with neither flag it says how to use it&quot;, () =&gt; {
+169:  it(&quot;a prerelease goes out under `next`, numbered one past the last&quot;, { timeout: 300_000 }, async () =&gt; {
+178:  it(&quot;--local puts @acme/sdk@1.1.0 and @acme/cli@1.1.0 on the registry, `latest` on them, and a fresh folder installs and runs them&quot;, { timeout: 900_000 }, async () =&gt; {
+194:    const installed = spawnSync(&quot;npm&quot;, [&quot;install&quot;, &quot;@acme/sdk@1.1.0&quot;, &quot;@acme/cli@1.1.0&quot;, &quot;--registry&quot;, registry, &quot;--ignore-scripts&quot;, &quot;--no-audit&quot;, &quot;--no-fund&quot;, &quot;--cache&quot;, join(parent, &quot;npm-cache&quot;), &quot;--userconfig&quot;, join(parent, &quot;npmrc-empty&quot;)], { cwd: fresh, encoding: &quot;utf8&quot;, timeout: 600_000 });
+211:  it(&quot;a prerelease published after a release never takes `latest` from it&quot;, { timeout: 300_000 }, async () =&gt; {
+219:  it.skipIf(!brewHere)(&quot;`brew install &lt;tap&gt;/&lt;formula&gt;` installs the CLI binary, which prints its version and `ok` from a running world&quot;, { timeout: 900_000 }, async () =&gt; {
+238:    const health = spawnSync(bin, [&quot;system&quot;, &quot;health&quot;], { encoding: &quot;utf8&quot;, env: { ...env, ACME_URL: running.url }, timeout: 60_000 });
+import { defineConfig } from &quot;vitest/config&quot;;
+
+// Each test file starts real worlds (wrangler, workerd, a collector in Docker). Two files at a time keeps world start-up
+// well inside its wait on a laptop and on CI&#x27;s runners.
+export default defineConfig({ test: { maxWorkers: 2 } });</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The actual focused no-registry/usage case passes once with its real registry/OIDC/workerd fixture.</span>
+    <span class="meta">exit 0 · 9.5s · 2026-11-17T06:31:01Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/prove src/modules/publish/publish.test.ts -t without a registry</div><pre>RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 5 skipped (6)
+   Start at  06:30:52
+   Duration  8.79s (transform 202ms, setup 0ms, import 930ms, tests 7.76s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Fresh prove lint and typecheck, without Nx cache.</span>
+    <span class="meta">exit 0 · 2.0s · 2026-11-17T06:32:00Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ env NX_DAEMON=false pnpm nx run-many -t lint,typecheck -p prove --outputStyle=static --skip-nx-cache</div><pre>NX   Running targets lint, typecheck for project prove:
+
+- prove
+
+
+
+&gt; nx run prove:typecheck
+
+&gt; tsc -p packages/prove/tsconfig.json
+
+
+&gt; nx run prove:lint
+
+&gt; oxlint packages/prove
+
+(node:40473) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+packages/prove/src/modules/world/device-sign-in.test.ts:3:33: warning eslint(no-unused-vars): Type &#x27;ChildProcess&#x27; is imported but never used. help: Consider removing this import.
+
+
+
+ NX   Successfully ran targets lint, typecheck for project prove
+
+
+  Run duration:      1.1s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     1.1s (1 task)
+  Recoverable time:  &lt;1ms</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">No publishing fixture container, reserved 9050–9053 listener or runtime process from this worktree remains.</span>
+    <span class="meta">exit 0 · 0.5s · 2026-11-17T06:33:53Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ python3 .architect/publish-cli-timeout-cleanup.py</div><pre>Publishing fixture containers: none
+Reserved publish listening ports: none
+Runtime processes from this worktree: none</pre></div>
+</details>
+</section>
+<section class="step">
   <div class="stage">Stage 3 · shipping on local worlds (Gate 2)</div>
   <h2><span class="id">Process-ownership</span> Persisted environment processes require config-specific ownership <span class="chip pass">done</span></h2>
   <p class="summary">Status and cleanup share wide process inspection of the pinned wrangler launch and exact environment-derived config/state arguments. Logbooks additionally distinguish state directories despite their shared package config. Stale or foreign PID markers never authorize a termination signal.</p>
@@ -4060,10 +4228,10 @@ index 22662aa..5222818 100644
 </section>
 <section class="step">
   <div class="stage">Stage 3 · shipping on local worlds (Gate 2)</div>
-  <h2><span class="id">L2.P</span> Privacy-ready seams <span class="chip unknown">unverified</span></h2>
+  <h2><span class="id">L2.P</span> Privacy-ready seams <span class="chip bad">not done</span></h2>
   <p class="summary">Blueprint.visibility.secret|private|public on values and fields, carried into the model; the declared secrets of acme and the starter (Password, Secret, sign-in&#x27;s session) marked in the blueprint. Span attributes come from an allowlist of public fields (target-effect handler attributes, journal, list items), with a Collector attributes processor, built from the model, as the second guard. The leak check lives in eval 1 (answer shape), by name and by value, over spans, logs and the journal. Refusal codes [AL-001] Name { field: value } are fixed by the model (prefix from the thing, number from declaration order, 900 for the machine&#x27;s refusal, AR-001 for NotAllowed), carried on the wire, the SDK, the CLI and the docs, and a moved code is a major change in Compare.release. runs (only server), the open step kinds and the unit | network test marker are in.</p>
   <div class="proves"><span class="label">Done when</span>Against a real world and the real Collector&#x27;s files, a sign-in and an api-key.create leave no password, token, key or session value in any span or log, and no attribute is keyed for a secret field; a field declared private(owner) is never an attribute of allowance.grant and prove still passes; the Collector&#x27;s processor deletes the keys it is given from spans and logs; every refusal answer carries the code the model fixed. The test failed first, showing payload.password, answer.token, answer.key and answer.session in the Collector&#x27;s files. Gate 1&#x27;s checks, acme&#x27;s and the starter&#x27;s local prove and the starter&#x27;s publish-and-create run stay green, except one line of e2e/layer1/05 that expects the old CLI refusal text (for the author).</div>
-  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44027211261">CI success</a> · commit metadata unavailable · 0 verified captures · 6 unverified records</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44029791265">CI failure</a> · commit metadata unavailable · 0 verified captures · 6 unverified records</div>
   
 <details class="run">
   <summary><span class="chip unknown">unverified</span><span class="cap">The done-when test, before any change: it fails, naming the secret values found in the Collector&#x27;s files.</span>
@@ -4745,10 +4913,10 @@ exit 0</pre></div>
 </section>
 <section class="step">
   <div class="stage">Stage 3 · shipping on local worlds (Gate 2)</div>
-  <h2><span class="id">L2.O</span> Seeing traces locally, and the Axiom sink <span class="chip unknown">unverified</span></h2>
+  <h2><span class="id">L2.O</span> Seeing traces locally, and the Axiom sink <span class="chip bad">not done</span></h2>
   <p class="summary">architect telemetry view|stop|trace|open and prove --view: grafana/otel-lgtm pinned by digest with anonymous Grafana, fed by a second Collector exporter while it runs; a Collector whose owner process is gone is removed at the next start; prove exports journey.&lt;name&gt; as each trace&#x27;s root; a refusal ends its span ok and a defect ends it as an error; a TraceSource seam with a FileSource; the Sink seam (Telemetry.sink.local() and .axiom({ group }) as a list per environment) and an Axiom sink that exports from the Worker to the EU edge with Authorization and X-Axiom-Dataset per signal, every value read by name from the keychain or AXIOM_TOKEN/AXIOM_DOMAIN, skipped with one line when absent, deployment.environment on every span. User and organization identifiers never leave the machine.</p>
   <div class="proves"><span class="label">Done when</span>After telemetry view and a prove of acme, the viewer&#x27;s Tempo answers the allowance.grant trace with its journey root, its step span and its log by trace id; stop leaves no container and no open port; plain prove starts no viewer; a collector left by a dead process is gone after the next start. A refusal&#x27;s span ends ok and a defect&#x27;s ends as an error. A second sink is one line of config and a stand-in for Axiom receives the spans and logs with the token and dataset while no file of the run holds the token. The live send to capxul-test arrived with its step spans and no secret-looking or personal attribute.</div>
-  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44027211261">CI success</a> · commit metadata unavailable · 0 verified captures · 5 unverified records</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44029791265">CI failure</a> · commit metadata unavailable · 0 verified captures · 5 unverified records</div>
   
 <details class="run">
   <summary><span class="chip unknown">unverified</span><span class="cap">The conventions&#x27; tests before the change: two fail, the defect test already passed.</span>
@@ -5179,10 +5347,10 @@ bash tools/e2e/starter.sh  42.40s user 26.03s system 47% cpu 2:23.09 total</pre>
 </section>
 <section class="step">
   <div class="stage">Stage 3 · shipping on local worlds (Gate 2)</div>
-  <h2><span class="id">L2.11</span> Gate 2: eight shipping checks locally and in Linux CI <span class="chip unknown">unverified</span></h2>
-  <p class="summary">Gate 2 passes on clean local source and fresh Linux CI: all eight files and ten tests, zero skips, with actual Mac arm64 and Linux x64 Homebrew. The clean local 4516059 proof is unchanged by the subsequent two test-only restart deadlines and documentation; final source 5ff5f6f passes all three Linux CI jobs. All 25 real logbook tests and all 16 projects’ static checks pass after integration. Owned-resource cleanup is complete. Final keyed PR CI, independent exact-head verdict and main landing remain.</p>
+  <h2><span class="id">L2.11</span> Gate 2: eight shipping checks locally and in Linux CI <span class="chip bad">not done</span></h2>
+  <p class="summary">Stage3 shipping is merged and exact main396dab4 passes clean local Gate2 (eight files/ten tests/no skips/real Homebrew) and both Linux gates. The sole first-main workspace failure was the two-CLI test’s implicit five-second deadline. Separate author c67bf4c changes only that body to60seconds; focused real behavior, post-merge static/touched checks and cleanup pass with all assertions/runtime unchanged. A fresh reviewed recovery PR and corrected main CI remain required before closure.</p>
   <div class="proves"><span class="label">Done when</span>A PR goes to test, then staging, then production. There is a verdict in each environment, and the npm version equals `architect version --next`.</div>
-  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44027211261">CI success</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/759ebb4">commit 759ebb4</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/2b2aa3c">commit 2b2aa3c</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/d261e73">commit d261e73</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/40a1e86">commit 40a1e86</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/4516059">commit 4516059</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/fca159d">commit fca159d</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/5ff5f6f">commit 5ff5f6f</a> · 12 verified captures · 2 unverified records</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44029791265">CI failure</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/759ebb4">commit 759ebb4</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/2b2aa3c">commit 2b2aa3c</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/d261e73">commit d261e73</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/40a1e86">commit 40a1e86</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/4516059">commit 4516059</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/fca159d">commit fca159d</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/5ff5f6f">commit 5ff5f6f</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/3bacbf3">commit 3bacbf3</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/396dab4">commit 396dab4</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/2ad59a8">commit 2ad59a8</a> · 23 verified captures · 3 unverified records</div>
   
 <details class="run" >
   <summary>
@@ -6233,13 +6401,705 @@ e2e/layer1/04-agent-writes-a-handler.test.ts:13:27: warning eslint(no-unused-var
   </summary>
   <div class="term"><div class="prompt">$ gh run view 44027211261 --json conclusion,databaseId,headSha,status,url,jobs</div><pre>{&quot;conclusion&quot;:&quot;success&quot;,&quot;databaseId&quot;:44027211261,&quot;headSha&quot;:&quot;5ff5f6f3eab04bdf1abb7fa08c8ea919ec26abcd&quot;,&quot;jobs&quot;:[{&quot;completedAt&quot;:&quot;2026-11-17T06:01:19Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;databaseId&quot;:133850311802,&quot;name&quot;:&quot;check&quot;,&quot;startedAt&quot;:&quot;2026-11-17T05:53:20Z&quot;,&quot;status&quot;:&quot;completed&quot;,&quot;steps&quot;:[{&quot;completedAt&quot;:&quot;2026-11-17T05:53:22Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Set up job&quot;,&quot;number&quot;:1,&quot;startedAt&quot;:&quot;2026-11-17T05:53:20Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T05:53:27Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run actions/checkout@v7.0.1&quot;,&quot;number&quot;:2,&quot;startedAt&quot;:&quot;2026-11-17T05:53:23Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T05:53:35Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run pnpm/action-setup@v6.1.0&quot;,&quot;number&quot;:3,&quot;startedAt&quot;:&quot;2026-11-17T05:53:27Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T05:53:43Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run actions/setup-node@v7.1.0&quot;,&quot;number&quot;:4,&quot;startedAt&quot;:&quot;2026-11-17T05:53:35Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T05:53:55Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run pnpm install --frozen-lockfile&quot;,&quot;number&quot;:5,&quot;startedAt&quot;:&quot;2026-11-17T05:53:43Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:01:15Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static&quot;,&quot;number&quot;:6,&quot;startedAt&quot;:&quot;2026-11-17T05:53:55Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:01:17Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run pnpm nx sync:check&quot;,&quot;number&quot;:7,&quot;startedAt&quot;:&quot;2026-11-17T06:01:15Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:01:17Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Post Run actions/setup-node@v7.1.0&quot;,&quot;number&quot;:12,&quot;startedAt&quot;:&quot;2026-11-17T06:01:17Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:01:17Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Post Run pnpm/action-setup@v6.1.0&quot;,&quot;number&quot;:13,&quot;startedAt&quot;:&quot;2026-11-17T06:01:17Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:01:18Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Post Run actions/checkout@v7.0.1&quot;,&quot;number&quot;:14,&quot;startedAt&quot;:&quot;2026-11-17T06:01:17Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:01:18Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Complete job&quot;,&quot;number&quot;:15,&quot;startedAt&quot;:&quot;2026-11-17T06:01:18Z&quot;,&quot;status&quot;:&quot;completed&quot;}],&quot;url&quot;:&quot;https://github.com/AaronAbuUsama/architect/actions/runs/44027211261/job/133850311802&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T05:56:13Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;databaseId&quot;:133850312192,&quot;name&quot;:&quot;e2e-layer1&quot;,&quot;startedAt&quot;:&quot;2026-11-17T05:53:19Z&quot;,&quot;status&quot;:&quot;completed&quot;,&quot;steps&quot;:[{&quot;completedAt&quot;:&quot;2026-11-17T05:53:21Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Set up job&quot;,&quot;number&quot;:1,&quot;startedAt&quot;:&quot;2026-11-17T05:53:20Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T05:53:22Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run actions/checkout@v7.0.1&quot;,&quot;number&quot;:2,&quot;startedAt&quot;:&quot;2026-11-17T05:53:21Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T05:53:25Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run pnpm/action-setup@v6.1.0&quot;,&quot;number&quot;:3,&quot;startedAt&quot;:&quot;2026-11-17T05:53:22Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T05:53:30Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run actions/setup-node@v7.1.0&quot;,&quot;number&quot;:4,&quot;startedAt&quot;:&quot;2026-11-17T05:53:25Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T05:53:40Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run pnpm install --frozen-lockfile&quot;,&quot;number&quot;:5,&quot;startedAt&quot;:&quot;2026-11-17T05:53:30Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T05:56:10Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run pnpm nx run e2e:layer1 --outputStyle=static&quot;,&quot;number&quot;:6,&quot;startedAt&quot;:&quot;2026-11-17T05:53:40Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T05:56:10Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Post Run actions/setup-node@v7.1.0&quot;,&quot;number&quot;:10,&quot;startedAt&quot;:&quot;2026-11-17T05:56:10Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T05:56:11Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Post Run pnpm/action-setup@v6.1.0&quot;,&quot;number&quot;:11,&quot;startedAt&quot;:&quot;2026-11-17T05:56:10Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T05:56:11Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Post Run actions/checkout@v7.0.1&quot;,&quot;number&quot;:12,&quot;startedAt&quot;:&quot;2026-11-17T05:56:11Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T05:56:11Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Complete job&quot;,&quot;number&quot;:13,&quot;startedAt&quot;:&quot;2026-11-17T05:56:11Z&quot;,&quot;status&quot;:&quot;completed&quot;}],&quot;url&quot;:&quot;https://github.com/AaronAbuUsama/architect/actions/runs/44027211261/job/133850312192&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T05:59:08Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;databaseId&quot;:133850312224,&quot;name&quot;:&quot;e2e-layer2&quot;,&quot;startedAt&quot;:&quot;2026-11-17T05:53:20Z&quot;,&quot;status&quot;:&quot;completed&quot;,&quot;steps&quot;:[{&quot;completedAt&quot;:&quot;2026-11-17T05:53:21Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Set up job&quot;,&quot;number&quot;:1,&quot;startedAt&quot;:&quot;2026-11-17T05:53:20Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T05:53:23Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run actions/checkout@v7.0.1&quot;,&quot;number&quot;:2,&quot;startedAt&quot;:&quot;2026-11-17T05:53:21Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T05:53:25Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run pnpm/action-setup@v6.1.0&quot;,&quot;number&quot;:3,&quot;startedAt&quot;:&quot;2026-11-17T05:53:23Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T05:53:31Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run actions/setup-node@v7.1.0&quot;,&quot;number&quot;:4,&quot;startedAt&quot;:&quot;2026-11-17T05:53:25Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T05:53:42Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run pnpm install --frozen-lockfile&quot;,&quot;number&quot;:5,&quot;startedAt&quot;:&quot;2026-11-17T05:53:31Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T05:53:42Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Require Homebrew for Gate 2&quot;,&quot;number&quot;:6,&quot;startedAt&quot;:&quot;2026-11-17T05:53:42Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T05:59:06Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static&quot;,&quot;number&quot;:7,&quot;startedAt&quot;:&quot;2026-11-17T05:53:42Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T05:59:06Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Post Run actions/setup-node@v7.1.0&quot;,&quot;number&quot;:12,&quot;startedAt&quot;:&quot;2026-11-17T05:59:06Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T05:59:06Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Post Run pnpm/action-setup@v6.1.0&quot;,&quot;number&quot;:13,&quot;startedAt&quot;:&quot;2026-11-17T05:59:06Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T05:59:06Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Post Run actions/checkout@v7.0.1&quot;,&quot;number&quot;:14,&quot;startedAt&quot;:&quot;2026-11-17T05:59:06Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T05:59:06Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Complete job&quot;,&quot;number&quot;:15,&quot;startedAt&quot;:&quot;2026-11-17T05:59:06Z&quot;,&quot;status&quot;:&quot;completed&quot;}],&quot;url&quot;:&quot;https://github.com/AaronAbuUsama/architect/actions/runs/44027211261/job/133850312224&quot;}],&quot;status&quot;:&quot;completed&quot;,&quot;url&quot;:&quot;https://github.com/AaronAbuUsama/architect/actions/runs/44027211261&quot;}</pre></div>
 </details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Exact final receipt head 3bacbf3: all three keyed PR CI jobs pass.</span>
+    <span class="meta">exit 0 · 2.1s · 2026-11-17T06:14:34Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ gh run view 44028403050 --json conclusion,databaseId,headSha,status,url,jobs</div><pre>{&quot;conclusion&quot;:&quot;success&quot;,&quot;databaseId&quot;:44028403050,&quot;headSha&quot;:&quot;3bacbf3df816c9cfa971d3f284016df46df57304&quot;,&quot;jobs&quot;:[{&quot;completedAt&quot;:&quot;2026-11-17T06:09:18Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;databaseId&quot;:133854176169,&quot;name&quot;:&quot;e2e-layer2&quot;,&quot;startedAt&quot;:&quot;2026-11-17T06:03:32Z&quot;,&quot;status&quot;:&quot;completed&quot;,&quot;steps&quot;:[{&quot;completedAt&quot;:&quot;2026-11-17T06:03:35Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Set up job&quot;,&quot;number&quot;:1,&quot;startedAt&quot;:&quot;2026-11-17T06:03:33Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:03:39Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run actions/checkout@v7.0.1&quot;,&quot;number&quot;:2,&quot;startedAt&quot;:&quot;2026-11-17T06:03:35Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:03:45Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run pnpm/action-setup@v6.1.0&quot;,&quot;number&quot;:3,&quot;startedAt&quot;:&quot;2026-11-17T06:03:39Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:03:49Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run actions/setup-node@v7.1.0&quot;,&quot;number&quot;:4,&quot;startedAt&quot;:&quot;2026-11-17T06:03:45Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:03:59Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run pnpm install --frozen-lockfile&quot;,&quot;number&quot;:5,&quot;startedAt&quot;:&quot;2026-11-17T06:03:49Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:04:00Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Require Homebrew for Gate 2&quot;,&quot;number&quot;:6,&quot;startedAt&quot;:&quot;2026-11-17T06:03:59Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:09:13Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static&quot;,&quot;number&quot;:7,&quot;startedAt&quot;:&quot;2026-11-17T06:04:00Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:09:16Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Post Run actions/setup-node@v7.1.0&quot;,&quot;number&quot;:12,&quot;startedAt&quot;:&quot;2026-11-17T06:09:13Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:09:16Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Post Run pnpm/action-setup@v6.1.0&quot;,&quot;number&quot;:13,&quot;startedAt&quot;:&quot;2026-11-17T06:09:16Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:09:17Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Post Run actions/checkout@v7.0.1&quot;,&quot;number&quot;:14,&quot;startedAt&quot;:&quot;2026-11-17T06:09:16Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:09:17Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Complete job&quot;,&quot;number&quot;:15,&quot;startedAt&quot;:&quot;2026-11-17T06:09:17Z&quot;,&quot;status&quot;:&quot;completed&quot;}],&quot;url&quot;:&quot;https://github.com/AaronAbuUsama/architect/actions/runs/44028403050/job/133854176169&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:07:45Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;databaseId&quot;:133854176514,&quot;name&quot;:&quot;e2e-layer1&quot;,&quot;startedAt&quot;:&quot;2026-11-17T06:03:32Z&quot;,&quot;status&quot;:&quot;completed&quot;,&quot;steps&quot;:[{&quot;completedAt&quot;:&quot;2026-11-17T06:03:34Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Set up job&quot;,&quot;number&quot;:1,&quot;startedAt&quot;:&quot;2026-11-17T06:03:33Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:03:36Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run actions/checkout@v7.0.1&quot;,&quot;number&quot;:2,&quot;startedAt&quot;:&quot;2026-11-17T06:03:34Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:03:41Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run pnpm/action-setup@v6.1.0&quot;,&quot;number&quot;:3,&quot;startedAt&quot;:&quot;2026-11-17T06:03:36Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:03:43Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run actions/setup-node@v7.1.0&quot;,&quot;number&quot;:4,&quot;startedAt&quot;:&quot;2026-11-17T06:03:41Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:03:55Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run pnpm install --frozen-lockfile&quot;,&quot;number&quot;:5,&quot;startedAt&quot;:&quot;2026-11-17T06:03:43Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:07:37Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run pnpm nx run e2e:layer1 --outputStyle=static&quot;,&quot;number&quot;:6,&quot;startedAt&quot;:&quot;2026-11-17T06:03:55Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:07:43Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Post Run actions/setup-node@v7.1.0&quot;,&quot;number&quot;:10,&quot;startedAt&quot;:&quot;2026-11-17T06:07:37Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:07:43Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Post Run pnpm/action-setup@v6.1.0&quot;,&quot;number&quot;:11,&quot;startedAt&quot;:&quot;2026-11-17T06:07:43Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:07:43Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Post Run actions/checkout@v7.0.1&quot;,&quot;number&quot;:12,&quot;startedAt&quot;:&quot;2026-11-17T06:07:43Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:07:43Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Complete job&quot;,&quot;number&quot;:13,&quot;startedAt&quot;:&quot;2026-11-17T06:07:43Z&quot;,&quot;status&quot;:&quot;completed&quot;}],&quot;url&quot;:&quot;https://github.com/AaronAbuUsama/architect/actions/runs/44028403050/job/133854176514&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:13:07Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;databaseId&quot;:133854176539,&quot;name&quot;:&quot;check&quot;,&quot;startedAt&quot;:&quot;2026-11-17T06:03:32Z&quot;,&quot;status&quot;:&quot;completed&quot;,&quot;steps&quot;:[{&quot;completedAt&quot;:&quot;2026-11-17T06:03:33Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Set up job&quot;,&quot;number&quot;:1,&quot;startedAt&quot;:&quot;2026-11-17T06:03:33Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:03:35Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run actions/checkout@v7.0.1&quot;,&quot;number&quot;:2,&quot;startedAt&quot;:&quot;2026-11-17T06:03:33Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:03:40Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run pnpm/action-setup@v6.1.0&quot;,&quot;number&quot;:3,&quot;startedAt&quot;:&quot;2026-11-17T06:03:35Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:03:41Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run actions/setup-node@v7.1.0&quot;,&quot;number&quot;:4,&quot;startedAt&quot;:&quot;2026-11-17T06:03:40Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:03:54Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run pnpm install --frozen-lockfile&quot;,&quot;number&quot;:5,&quot;startedAt&quot;:&quot;2026-11-17T06:03:41Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:13:00Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static&quot;,&quot;number&quot;:6,&quot;startedAt&quot;:&quot;2026-11-17T06:03:54Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:13:03Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run pnpm nx sync:check&quot;,&quot;number&quot;:7,&quot;startedAt&quot;:&quot;2026-11-17T06:13:00Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:13:06Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Post Run actions/setup-node@v7.1.0&quot;,&quot;number&quot;:12,&quot;startedAt&quot;:&quot;2026-11-17T06:13:03Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:13:06Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Post Run pnpm/action-setup@v6.1.0&quot;,&quot;number&quot;:13,&quot;startedAt&quot;:&quot;2026-11-17T06:13:06Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:13:06Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Post Run actions/checkout@v7.0.1&quot;,&quot;number&quot;:14,&quot;startedAt&quot;:&quot;2026-11-17T06:13:06Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:13:06Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Complete job&quot;,&quot;number&quot;:15,&quot;startedAt&quot;:&quot;2026-11-17T06:13:06Z&quot;,&quot;status&quot;:&quot;completed&quot;}],&quot;url&quot;:&quot;https://github.com/AaronAbuUsama/architect/actions/runs/44028403050/job/133854176539&quot;}],&quot;status&quot;:&quot;completed&quot;,&quot;url&quot;:&quot;https://github.com/AaronAbuUsama/architect/actions/runs/44028403050&quot;}</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Actual model-assisted PR check: success, 18 turns, 24 seconds, $0.04.</span>
+    <span class="meta">exit 0 · 4.4s · 2026-11-17T06:14:39Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ bash -c gh run view 44028403050 --job 133854176514 --log | rg -F &quot;agent session:&quot;</div><pre>e2e-layer1	Run pnpm nx run e2e:layer1 --outputStyle=static	2026-11-17T06:07:37.6471431Z ^[[22m^[[39magent session: success, 18 turns, 24 s, $0.04</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Exact main: Nx reset/sync/sync:check and all 16 projects lint/typecheck pass without cache.</span>
+    <span class="meta">exit 0 · 12.9s · 2026-11-17T06:16:29Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ bash -e -c pnpm nx reset; NX_DAEMON=false pnpm nx sync; NX_DAEMON=false pnpm nx sync:check; NX_DAEMON=false pnpm nx run-many -t lint,typecheck --outputStyle=static; git diff --exit-code</div><pre>Stopping the Nx Daemon
+Stopped the Nx Daemon
+Removing the Nx Daemon workspace data
+Removed the Nx Daemon workspace data
+Removing the cache directory
+Removed the cache directory
+Removing the workspace data directory
+Removed the workspace data directory
+
+ NX   Successfully reset the Nx workspace.
+
+
+ NX   The workspace is already up to date
+
+[@architect/generators:sync]: All files are up to date.
+
+
+ NX   The workspace is up to date
+
+[@architect/generators:sync]: All files are up to date.
+
+
+ NX   Running targets lint, typecheck for 16 projects:
+
+- host-cloudflare
+- target-solidity
+- target-effect
+- generators
+- blueprint
+- compiler
+- logbook
+- starter
+- portal
+- preset
+- prove
+- acme
+- lint
+- cli
+- std
+- e2e
+
+
+
+&gt; nx run blueprint:typecheck
+
+&gt; tsc -p packages/blueprint/tsconfig.json
+
+
+&gt; nx run logbook:typecheck
+
+&gt; tsc -p packages/logbook/tsconfig.json
+
+
+&gt; nx run logbook:lint
+
+&gt; oxlint packages/logbook
+
+(node:5195) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+packages/logbook/src/modules/local/local.test.ts:85:156: warning unicorn(no-invalid-fetch-options): &quot;body&quot; is not allowed when method is &quot;GET&quot;
+
+&gt; nx run blueprint:lint
+
+&gt; oxlint packages/blueprint
+
+(node:5193) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run portal:typecheck
+
+&gt; tsc -p packages/portal/tsconfig.json
+
+
+&gt; nx run portal:lint
+
+&gt; oxlint packages/portal
+
+(node:5217) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run target-effect:typecheck
+
+&gt; tsc -p packages/target-effect/tsconfig.json
+
+
+&gt; nx run compiler:typecheck
+
+&gt; tsc -p packages/compiler/tsconfig.json
+
+
+&gt; nx run target-effect:lint
+
+&gt; oxlint packages/target-effect
+
+(node:5269) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run generators:typecheck
+
+&gt; tsc -p packages/generators/tsconfig.json
+
+
+&gt; nx run compiler:lint
+
+&gt; oxlint packages/compiler
+
+(node:5282) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run prove:typecheck
+
+&gt; tsc -p packages/prove/tsconfig.json
+
+
+&gt; nx run generators:lint
+
+&gt; oxlint packages/generators
+
+(node:5294) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run prove:lint
+
+&gt; oxlint packages/prove
+
+(node:5307) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+packages/prove/src/modules/world/device-sign-in.test.ts:3:33: warning eslint(no-unused-vars): Type &#x27;ChildProcess&#x27; is imported but never used. help: Consider removing this import.
+
+&gt; nx run host-cloudflare:typecheck
+
+&gt; tsc -p packages/host-cloudflare/tsconfig.json
+
+
+&gt; nx run lint:typecheck
+
+&gt; tsc -p packages/lint/tsconfig.json
+
+
+&gt; nx run host-cloudflare:lint
+
+&gt; oxlint packages/host-cloudflare
+
+(node:5325) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run target-solidity:typecheck
+
+&gt; tsc -p packages/target-solidity/tsconfig.json
+
+
+&gt; nx run lint:lint
+
+&gt; oxlint packages/lint
+
+(node:5364) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run target-solidity:lint
+
+&gt; oxlint packages/target-solidity
+
+(node:5377) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run starter:lint
+
+&gt; oxlint examples/starter
+
+(node:5390) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run starter:typecheck
+
+&gt; tsc -p examples/starter/tsconfig.json
+
+
+&gt; nx run preset:typecheck
+
+&gt; tsc -p packages/preset/tsconfig.json
+
+
+&gt; nx run preset:lint
+
+&gt; oxlint packages/preset
+
+(node:5402) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run acme:lint
+
+&gt; oxlint examples/acme
+
+(node:5413) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run acme:typecheck
+
+&gt; tsc -p examples/acme/tsconfig.json
+
+
+&gt; nx run cli:lint
+
+&gt; oxlint packages/cli
+
+(node:5426) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run std:typecheck
+
+&gt; tsc -p packages/std/tsconfig.json
+
+
+&gt; nx run cli:typecheck
+
+&gt; tsc -p packages/cli/tsconfig.json
+
+
+&gt; nx run std:lint
+
+&gt; oxlint packages/std
+
+(node:5463) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run e2e:typecheck
+
+&gt; tsc -p e2e/tsconfig.json
+
+
+&gt; nx run e2e:lint
+
+&gt; oxlint e2e
+
+(node:5476) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+e2e/layer1/04-agent-writes-a-handler.test.ts:13:27: warning eslint(no-unused-vars): Identifier &#x27;cli&#x27; is imported but never used. help: Consider removing this import.
+
+
+
+ NX   Successfully ran targets lint, typecheck for 16 projects
+
+
+  Run duration:      6.3s
+  Cache:             0/32 hit (0%)
+  Critical path:     988ms (1 task)
+  Recoverable time:  5.3s (84% of the run)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Exact main: serial real logbook suite passes all 25 tests; resources stopped before the full gate.</span>
+    <span class="meta">exit 0 · 20.7s · 2026-11-17T06:18:56Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/logbook --maxWorkers 1</div><pre>RUN  v4.1.12 ./packages/logbook
+
+
+ Test Files  3 passed (3)
+      Tests  25 passed (25)
+   Start at  06:18:36
+   Duration  19.78s (transform 78ms, setup 0ms, import 545ms, tests 18.95s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Exact main 396dab4, literally clean checkout: eight files/ten tests pass, no skips, 245.7 seconds, real Mac arm64 Homebrew.</span>
+    <span class="meta">exit 0 · 245.7s · 2026-11-17T06:23:49Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ env NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static</div><pre>&gt; nx run e2e:layer2
+
+&gt; vitest run --root e2e --config vitest.layer2.config.ts layer2
+
+(node:9319) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ RUN  v4.1.12 ./e2e
+
+(node:9366) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:9367) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:16672) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:23325) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:25192) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:28643) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30153) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30590) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ Test Files  8 passed (8)
+      Tests  10 passed (10)
+   Start at  06:19:45
+   Duration  244.07s (transform 144ms, setup 0ms, import 3.06s, tests 478.42s, environment 0ms)
+
+
+
+
+ NX   Successfully ran target layer2 for project e2e
+
+
+  Run duration:      4m 4s
+  Cache:             0/1 hit (0%)
+  Critical path:     4m 4s (1 task)
+  Recoverable time:  &lt;1ms
+
+  Recommendations:
+    - Drastically reduce your run duration by sharing a cache across your team and CI → https://cloud.nx.app/connect/DgQAVdTHzS.
+    - Speed up or split the longest tasks on the critical path:
+        e2e:layer2    4m 4s</pre></div>
+</details>
+<details class="run">
+  <summary><span class="chip unknown">unverified</span><span class="cap">Exact-main clean preflights and scoped cleanup: no owned container, tap, formula, gate-port listener or runtime process; unrelated resources preserved.</span>
+    <span class="meta">capture metadata unavailable</span></summary>
+  <div class="term"><pre>$ python3 -c 
+import pathlib, re, subprocess
+
+def run(*args):
+    result = subprocess.run(args, text=True, capture_output=True, check=True)
+    return result.stdout.splitlines()
+
+for label, file in [(&quot;Initial clean main preflight&quot;, &quot;.architect/l211-main-preflight.txt&quot;), (&quot;Serial logbook resource boundary&quot;, &quot;.architect/l211-main-logbook-cleanup.txt&quot;), (&quot;Literal clean checkout immediately before the main gate&quot;, &quot;.architect/l211-main-gate-preflight.txt&quot;)]:
+    print(label + &quot;:&quot;, flush=True)
+    print(pathlib.Path(file).read_text(), flush=True)
+head = &quot;&quot;.join(run(&quot;git&quot;, &quot;rev-parse&quot;, &quot;HEAD&quot;))
+assert head == &quot;396dab4c9021deeec622e8bfb87d31a725aa0dc2&quot;, head
+subprocess.run([&quot;git&quot;, &quot;diff&quot;, &quot;--exit-code&quot;], check=True)
+print(&quot;Post-run source unchanged at &quot; + head, flush=True)
+print(&quot;Local binary target: &quot; + &quot;&quot;.join(run(&quot;node&quot;, &quot;-p&quot;, &quot;process.platform + String.fromCharCode(45) + process.arch&quot;)), flush=True)
+containers = [name for name in run(&quot;docker&quot;, &quot;ps&quot;, &quot;-a&quot;, &quot;--format&quot;, &quot;{{.Names}}&quot;) if name.startswith(&quot;architect-&quot;)]
+taps = [name for name in run(&quot;brew&quot;, &quot;tap&quot;) if name.startswith(&quot;architect-e2e-&quot;)]
+formulas = [name for name in run(&quot;brew&quot;, &quot;list&quot;, &quot;--formula&quot;) if name.startswith(&quot;acme-&quot;)]
+ports = {4890 + check for check in range(1, 9)} | {8900 + 10 * check + delta for check in range(1, 9) for delta in range(7)}
+listeners = subprocess.run([&quot;lsof&quot;, &quot;-nP&quot;, &quot;-iTCP&quot;, &quot;-sTCP:LISTEN&quot;, &quot;-Fn&quot;], text=True, capture_output=True)
+assert listeners.returncode in (0, 1), listeners.stderr
+used = {int(line.rsplit(&quot;:&quot;, 1)[1]) for line in listeners.stdout.splitlines() if line.startswith(&quot;n&quot;) and re.search(r&quot;:\d+$&quot;, line)}
+root = str(pathlib.Path.cwd())
+processes = []
+for line in run(&quot;ps&quot;, &quot;-axo&quot;, &quot;pid=,comm=,args=&quot;):
+    parts = line.strip().split(None, 2)
+    if len(parts) != 3:
+        continue
+    pid, command, args = parts
+    if pathlib.Path(command).name in (&quot;node&quot;, &quot;workerd&quot;, &quot;wrangler&quot;) and root in args and re.search(r&quot;wrangler|workerd|vitest&quot;, args):
+        processes.append(pid)
+for label, left in [(&quot;Architect containers&quot;, containers), (&quot;gate taps&quot;, taps), (&quot;gate formulas&quot;, formulas), (&quot;exact gate port listeners&quot;, sorted(ports &amp; used)), (&quot;own runtime processes&quot;, processes)]:
+    print(f&quot;{label}: {len(left)}&quot;, flush=True)
+    assert not left, f&quot;{label} remain&quot;
+print(&quot;Cleanup passed; unrelated listeners and user containers were left untouched.&quot;)
+
+# commit 396dab4 · 2026-11-17T06:24:37Z · exit 0 (expected 0) · 0.5s
+
+Initial clean main preflight:
++ git rev-parse HEAD
+396dab4c9021deeec622e8bfb87d31a725aa0dc2
+++ git rev-parse HEAD
++ test 396dab4c9021deeec622e8bfb87d31a725aa0dc2 = 396dab4c9021deeec622e8bfb87d31a725aa0dc2
+++ git status --porcelain=v1
++ test -z &#x27;&#x27;
++ node --version
+v26.13.1
++ pnpm --version
+11.20.0
++ brew --version
+Homebrew 7.0.13-77-g8679d30
+
+Serial logbook resource boundary:
+After serial logbook tests, Architect containers: 0
+After serial logbook tests, own runtime processes: 0
+
+Literal clean checkout immediately before the main gate:
++ git rev-parse HEAD
+396dab4c9021deeec622e8bfb87d31a725aa0dc2
+++ git rev-parse HEAD
++ test 396dab4c9021deeec622e8bfb87d31a725aa0dc2 = 396dab4c9021deeec622e8bfb87d31a725aa0dc2
++ git diff --exit-code
+++ git status --porcelain=v1
++ test -z &#x27;&#x27;
+
+Post-run source unchanged at 396dab4c9021deeec622e8bfb87d31a725aa0dc2
+Local binary target: darwin-arm64
+Architect containers: 0
+gate taps: 0
+gate formulas: 0
+exact gate port listeners: 0
+own runtime processes: 0
+Cleanup passed; unrelated listeners and user containers were left untouched.</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The merged main commit 396dab4 has exactly the reviewed 3bacbf3 tracked tree; no merge-time source change.</span>
+    <span class="meta">exit 0 · 0.0s · 2026-11-17T06:18:42Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ git diff --exit-code 3bacbf3df816c9cfa971d3f284016df46df57304 396dab4c9021deeec622e8bfb87d31a725aa0dc2</div><pre></pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">First main396dab4 CI: both shipping gates green; sole workspace failure is the two-real-CLI test default deadline.</span>
+    <span class="meta">exit 0 · 2.2s · 2026-11-17T06:29:50Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ gh run view 44029791265 --json conclusion,databaseId,headSha,status,url,jobs</div><pre>{&quot;conclusion&quot;:&quot;failure&quot;,&quot;databaseId&quot;:44029791265,&quot;headSha&quot;:&quot;396dab4c9021deeec622e8bfb87d31a725aa0dc2&quot;,&quot;jobs&quot;:[{&quot;completedAt&quot;:&quot;2026-11-17T06:25:30Z&quot;,&quot;conclusion&quot;:&quot;failure&quot;,&quot;databaseId&quot;:133858681138,&quot;name&quot;:&quot;check&quot;,&quot;startedAt&quot;:&quot;2026-11-17T06:14:52Z&quot;,&quot;status&quot;:&quot;completed&quot;,&quot;steps&quot;:[{&quot;completedAt&quot;:&quot;2026-11-17T06:14:54Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Set up job&quot;,&quot;number&quot;:1,&quot;startedAt&quot;:&quot;2026-11-17T06:14:53Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:14:56Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run actions/checkout@v7.0.1&quot;,&quot;number&quot;:2,&quot;startedAt&quot;:&quot;2026-11-17T06:14:54Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:15:01Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run pnpm/action-setup@v6.1.0&quot;,&quot;number&quot;:3,&quot;startedAt&quot;:&quot;2026-11-17T06:14:56Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:15:05Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run actions/setup-node@v7.1.0&quot;,&quot;number&quot;:4,&quot;startedAt&quot;:&quot;2026-11-17T06:15:01Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:15:18Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run pnpm install --frozen-lockfile&quot;,&quot;number&quot;:5,&quot;startedAt&quot;:&quot;2026-11-17T06:15:05Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:25:27Z&quot;,&quot;conclusion&quot;:&quot;failure&quot;,&quot;name&quot;:&quot;Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static&quot;,&quot;number&quot;:6,&quot;startedAt&quot;:&quot;2026-11-17T06:15:18Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:25:27Z&quot;,&quot;conclusion&quot;:&quot;skipped&quot;,&quot;name&quot;:&quot;Run pnpm nx sync:check&quot;,&quot;number&quot;:7,&quot;startedAt&quot;:&quot;2026-11-17T06:25:27Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:25:27Z&quot;,&quot;conclusion&quot;:&quot;skipped&quot;,&quot;name&quot;:&quot;Post Run actions/setup-node@v7.1.0&quot;,&quot;number&quot;:12,&quot;startedAt&quot;:&quot;2026-11-17T06:25:27Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:25:27Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Post Run pnpm/action-setup@v6.1.0&quot;,&quot;number&quot;:13,&quot;startedAt&quot;:&quot;2026-11-17T06:25:27Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:25:27Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Post Run actions/checkout@v7.0.1&quot;,&quot;number&quot;:14,&quot;startedAt&quot;:&quot;2026-11-17T06:25:27Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:25:27Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Complete job&quot;,&quot;number&quot;:15,&quot;startedAt&quot;:&quot;2026-11-17T06:25:27Z&quot;,&quot;status&quot;:&quot;completed&quot;}],&quot;url&quot;:&quot;https://github.com/AaronAbuUsama/architect/actions/runs/44029791265/job/133858681138&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:18:08Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;databaseId&quot;:133858681493,&quot;name&quot;:&quot;e2e-layer1&quot;,&quot;startedAt&quot;:&quot;2026-11-17T06:14:52Z&quot;,&quot;status&quot;:&quot;completed&quot;,&quot;steps&quot;:[{&quot;completedAt&quot;:&quot;2026-11-17T06:14:54Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Set up job&quot;,&quot;number&quot;:1,&quot;startedAt&quot;:&quot;2026-11-17T06:14:52Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:14:58Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run actions/checkout@v7.0.1&quot;,&quot;number&quot;:2,&quot;startedAt&quot;:&quot;2026-11-17T06:14:54Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:15:07Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run pnpm/action-setup@v6.1.0&quot;,&quot;number&quot;:3,&quot;startedAt&quot;:&quot;2026-11-17T06:14:58Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:15:11Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run actions/setup-node@v7.1.0&quot;,&quot;number&quot;:4,&quot;startedAt&quot;:&quot;2026-11-17T06:15:07Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:15:21Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run pnpm install --frozen-lockfile&quot;,&quot;number&quot;:5,&quot;startedAt&quot;:&quot;2026-11-17T06:15:11Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:18:02Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run pnpm nx run e2e:layer1 --outputStyle=static&quot;,&quot;number&quot;:6,&quot;startedAt&quot;:&quot;2026-11-17T06:15:21Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:18:07Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Post Run actions/setup-node@v7.1.0&quot;,&quot;number&quot;:10,&quot;startedAt&quot;:&quot;2026-11-17T06:18:02Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:18:07Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Post Run pnpm/action-setup@v6.1.0&quot;,&quot;number&quot;:11,&quot;startedAt&quot;:&quot;2026-11-17T06:18:07Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:18:07Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Post Run actions/checkout@v7.0.1&quot;,&quot;number&quot;:12,&quot;startedAt&quot;:&quot;2026-11-17T06:18:07Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:18:07Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Complete job&quot;,&quot;number&quot;:13,&quot;startedAt&quot;:&quot;2026-11-17T06:18:07Z&quot;,&quot;status&quot;:&quot;completed&quot;}],&quot;url&quot;:&quot;https://github.com/AaronAbuUsama/architect/actions/runs/44029791265/job/133858681493&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:20:47Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;databaseId&quot;:133858681626,&quot;name&quot;:&quot;e2e-layer2&quot;,&quot;startedAt&quot;:&quot;2026-11-17T06:14:52Z&quot;,&quot;status&quot;:&quot;completed&quot;,&quot;steps&quot;:[{&quot;completedAt&quot;:&quot;2026-11-17T06:14:53Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Set up job&quot;,&quot;number&quot;:1,&quot;startedAt&quot;:&quot;2026-11-17T06:14:53Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:14:55Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run actions/checkout@v7.0.1&quot;,&quot;number&quot;:2,&quot;startedAt&quot;:&quot;2026-11-17T06:14:53Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:14:58Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run pnpm/action-setup@v6.1.0&quot;,&quot;number&quot;:3,&quot;startedAt&quot;:&quot;2026-11-17T06:14:55Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:14:59Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run actions/setup-node@v7.1.0&quot;,&quot;number&quot;:4,&quot;startedAt&quot;:&quot;2026-11-17T06:14:58Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:15:09Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run pnpm install --frozen-lockfile&quot;,&quot;number&quot;:5,&quot;startedAt&quot;:&quot;2026-11-17T06:14:59Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:15:09Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Require Homebrew for Gate 2&quot;,&quot;number&quot;:6,&quot;startedAt&quot;:&quot;2026-11-17T06:15:09Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:20:42Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static&quot;,&quot;number&quot;:7,&quot;startedAt&quot;:&quot;2026-11-17T06:15:09Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:20:45Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Post Run actions/setup-node@v7.1.0&quot;,&quot;number&quot;:12,&quot;startedAt&quot;:&quot;2026-11-17T06:20:42Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:20:45Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Post Run pnpm/action-setup@v6.1.0&quot;,&quot;number&quot;:13,&quot;startedAt&quot;:&quot;2026-11-17T06:20:45Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:20:46Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Post Run actions/checkout@v7.0.1&quot;,&quot;number&quot;:14,&quot;startedAt&quot;:&quot;2026-11-17T06:20:45Z&quot;,&quot;status&quot;:&quot;completed&quot;},{&quot;completedAt&quot;:&quot;2026-11-17T06:20:46Z&quot;,&quot;conclusion&quot;:&quot;success&quot;,&quot;name&quot;:&quot;Complete job&quot;,&quot;number&quot;:15,&quot;startedAt&quot;:&quot;2026-11-17T06:20:46Z&quot;,&quot;status&quot;:&quot;completed&quot;}],&quot;url&quot;:&quot;https://github.com/AaronAbuUsama/architect/actions/runs/44029791265/job/133858681626&quot;}],&quot;status&quot;:&quot;completed&quot;,&quot;url&quot;:&quot;https://github.com/AaronAbuUsama/architect/actions/runs/44029791265&quot;}</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Actual model-assisted first-main Gate1 session and observed cost.</span>
+    <span class="meta">exit 0 · 1.8s · 2026-11-17T06:29:52Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ bash -c gh run view 44029791265 --job 133858681493 --log | rg -F &quot;agent session:&quot;</div><pre>e2e-layer1	Run pnpm nx run e2e:layer1 --outputStyle=static	2026-11-17T06:18:02.6506786Z ^[[22m^[[39magent session: success, 16 turns, 20 s, $0.04</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">After the one-line CLI integration deadline merges: reset/sync/sync:check and all 16 projects lint/typecheck pass without cache.</span>
+    <span class="meta">exit 0 · 7.3s · 2026-11-17T06:35:25Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ env NX_DAEMON=false pnpm nx run-many -t lint,typecheck --outputStyle=static --skipNxCache</div><pre>NX   Running targets lint, typecheck for 16 projects:
+
+- host-cloudflare
+- target-solidity
+- target-effect
+- generators
+- blueprint
+- compiler
+- logbook
+- starter
+- portal
+- preset
+- prove
+- acme
+- lint
+- cli
+- std
+- e2e
+
+
+
+&gt; nx run blueprint:typecheck
+
+&gt; tsc -p packages/blueprint/tsconfig.json
+
+
+&gt; nx run logbook:typecheck
+
+&gt; tsc -p packages/logbook/tsconfig.json
+
+
+&gt; nx run logbook:lint
+
+&gt; oxlint packages/logbook
+
+(node:43986) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+packages/logbook/src/modules/local/local.test.ts:85:156: warning unicorn(no-invalid-fetch-options): &quot;body&quot; is not allowed when method is &quot;GET&quot;
+
+&gt; nx run blueprint:lint
+
+&gt; oxlint packages/blueprint
+
+(node:43984) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run portal:typecheck
+
+&gt; tsc -p packages/portal/tsconfig.json
+
+
+&gt; nx run portal:lint
+
+&gt; oxlint packages/portal
+
+(node:44009) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run target-effect:typecheck
+
+&gt; tsc -p packages/target-effect/tsconfig.json
+
+
+&gt; nx run compiler:typecheck
+
+&gt; tsc -p packages/compiler/tsconfig.json
+
+
+&gt; nx run target-effect:lint
+
+&gt; oxlint packages/target-effect
+
+(node:44021) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run generators:typecheck
+
+&gt; tsc -p packages/generators/tsconfig.json
+
+
+&gt; nx run compiler:lint
+
+&gt; oxlint packages/compiler
+
+(node:44034) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run generators:lint
+
+&gt; oxlint packages/generators
+
+(node:44073) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run prove:typecheck
+
+&gt; tsc -p packages/prove/tsconfig.json
+
+
+&gt; nx run prove:lint
+
+&gt; oxlint packages/prove
+
+(node:44087) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+packages/prove/src/modules/world/device-sign-in.test.ts:3:33: warning eslint(no-unused-vars): Type &#x27;ChildProcess&#x27; is imported but never used. help: Consider removing this import.
+
+&gt; nx run host-cloudflare:typecheck
+
+&gt; tsc -p packages/host-cloudflare/tsconfig.json
+
+
+&gt; nx run lint:typecheck
+
+&gt; tsc -p packages/lint/tsconfig.json
+
+
+&gt; nx run host-cloudflare:lint
+
+&gt; oxlint packages/host-cloudflare
+
+(node:44099) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run target-solidity:typecheck
+
+&gt; tsc -p packages/target-solidity/tsconfig.json
+
+
+&gt; nx run lint:lint
+
+&gt; oxlint packages/lint
+
+(node:44111) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run target-solidity:lint
+
+&gt; oxlint packages/target-solidity
+
+(node:44127) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run starter:lint
+
+&gt; oxlint examples/starter
+
+(node:44164) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run preset:typecheck
+
+&gt; tsc -p packages/preset/tsconfig.json
+
+
+&gt; nx run starter:typecheck
+
+&gt; tsc -p examples/starter/tsconfig.json
+
+
+&gt; nx run preset:lint
+
+&gt; oxlint packages/preset
+
+(node:44181) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run acme:typecheck
+
+&gt; tsc -p examples/acme/tsconfig.json
+
+
+&gt; nx run acme:lint
+
+&gt; oxlint examples/acme
+
+(node:44193) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run cli:lint
+
+&gt; oxlint packages/cli
+
+(node:44205) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run std:typecheck
+
+&gt; tsc -p packages/std/tsconfig.json
+
+
+&gt; nx run cli:typecheck
+
+&gt; tsc -p packages/cli/tsconfig.json
+
+
+&gt; nx run std:lint
+
+&gt; oxlint packages/std
+
+(node:44244) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run e2e:typecheck
+
+&gt; tsc -p e2e/tsconfig.json
+
+
+&gt; nx run e2e:lint
+
+&gt; oxlint e2e
+
+(node:44256) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+e2e/layer1/04-agent-writes-a-handler.test.ts:13:27: warning eslint(no-unused-vars): Identifier &#x27;cli&#x27; is imported but never used. help: Consider removing this import.
+
+
+
+ NX   Successfully ran targets lint, typecheck for 16 projects
+
+
+  Run duration:      6.5s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     1.2s (1 task)
+  Recoverable time:  5.3s (81% of the run)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Actual focused two-CLI usage case passes after integration; all assertions unchanged, existing real services/CLI used.</span>
+    <span class="meta">exit 0 · 8.4s · 2026-11-17T06:35:33Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/prove src/modules/publish/publish.test.ts -t without a registry</div><pre>RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 5 skipped (6)
+   Start at  06:35:25
+   Duration  7.81s (transform 154ms, setup 0ms, import 749ms, tests 6.97s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Focused recovery leaves no owned containers, exact publishing test-port listener or worktree runtime process.</span>
+    <span class="meta">exit 0 · 0.4s · 2026-11-17T06:37:41Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ python3 -c import os,subprocess; from pathlib import Path; root=str(Path.cwd()); names=subprocess.run([&quot;docker&quot;,&quot;ps&quot;,&quot;-a&quot;,&quot;--format&quot;,&quot;{{.Names}}&quot;],capture_output=True,text=True,check=True).stdout.splitlines(); containers=[n for n in names if n.startswith(&quot;architect-&quot;)]; listeners=[p for p in [9050,9051,9052,9053] if subprocess.run([&quot;lsof&quot;,&quot;-nP&quot;,&quot;-iTCP:&quot;+str(p),&quot;-sTCP:LISTEN&quot;,&quot;-t&quot;],capture_output=True,text=True).stdout.strip()]; processes=[s for s in subprocess.run([&quot;ps&quot;,&quot;-axo&quot;,&quot;pid=,command=&quot;],capture_output=True,text=True,check=True).stdout.splitlines() if root in s and (&quot;wrangler&quot; in s or &quot;workerd&quot; in s) and str(os.getpid()) not in s]; print(&quot;owned containers&quot;,len(containers),&quot;exact publish test-port listeners&quot;,len(listeners),&quot;own runtime processes&quot;,len(processes)); assert not containers and not listeners and not processes</div><pre>owned containers 0 exact publish test-port listeners 0 own runtime processes 0</pre></div>
+</details>
 </section>
 <section class="step">
   <div class="stage">Stage 3 · shipping on local worlds (Gate 2)</div>
-  <h2><span class="id">L2.10</span> The portal: the wire projection, the snapshot over the logbook, and a plain read-only face on each environment&#x27;s Worker <span class="chip unknown">unverified</span></h2>
+  <h2><span class="id">L2.10</span> The portal: the wire projection, the snapshot over the logbook, and a plain read-only face on each environment&#x27;s Worker <span class="chip bad">not done</span></h2>
   <p class="summary">Every environment&#x27;s Worker now answers /portal (HTML) and /_portal/v1/* (JSON) from the one bundle of a revision. generated/portal/blueprint.json is the portal&#x27;s wire: schemaVersion 1, the model, the generated docs, each operation&#x27;s proof dependencies and a sha256 digest, deterministic (no clock, no revision). @architect/portal rejects an unknown schema or a digest mismatch, reads the logbook&#x27;s open routes, and judges every operation in every environment: recorded-pass, failed (the latest failure wins), stale (naming the changed declarations and both hashes), unproven, or unavailable when the logbook is down, slow, inconsistent or lacks the model. Only a recorded pass is a tick. env up gives the Worker the logbook&#x27;s address; prove --env test now keeps the revision&#x27;s model in the logbook, which the portal judges verdicts against.</p>
   <div class="proves"><span class="label">Done when</span>On the real logbook (workerd under wrangler) holding verdicts signed by a real OIDC server in Docker, over models the real compiler wrote: spend shows test ✔ staging ✔ production ✔; a budget edit makes spend stale in staging and production and no other operation; the latest failure wins and a later pass replaces it; a pull request&#x27;s signed verdict never fills the matrix; a verdict whose revision has no model, a logbook that stops, and a ledger that will not hold still each show nothing green. On a copy of acme under git, staging&#x27;s and production&#x27;s own workerd serve /portal from the built bundle with the data routes, the old bundle still stale-judged against the newer test revision, the logbook&#x27;s address in no page, env down leaving nothing running. The portal&#x27;s JSON dependency adapter equals Compare.dependsOn on acme, acme with a list read, the compiler&#x27;s recorded snapshot of acme and the starter; the portal is imported by generated/portal/main.ts only. The author&#x27;s check 8 passes its first portal assertion and stops at architect watch (L2.09); its portal steps pass in the real flow with the watch steps taken out. Lint, typecheck, sync check, every project&#x27;s tests, acme&#x27;s and the starter&#x27;s prove, and tools/e2e/starter.sh pass.</div>
-  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44027211261">CI success</a> · commit metadata unavailable · 0 verified captures · 5 unverified records</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44029791265">CI failure</a> · commit metadata unavailable · 0 verified captures · 5 unverified records</div>
   
 <details class="run">
   <summary><span class="chip unknown">unverified</span><span class="cap">The done-when tests before the code (or with the piece they test set aside): missing modules, rows not found, a 404 for the model.</span>
@@ -7131,10 +7991,10 @@ prove ✔</pre></div>
 </section>
 <section class="step">
   <div class="stage">Stage 3 · shipping on local worlds (Gate 2)</div>
-  <h2><span class="id">L2.09</span> watch: the evals on live telemetry, and drift as a task <span class="chip unknown">unverified</span></h2>
+  <h2><span class="id">L2.09</span> watch: the evals on live telemetry, and drift as a task <span class="chip bad">not done</span></h2>
   <p class="summary">architect watch --env &lt;name&gt; [--source file|axiom] [--since 1h]: the evals telemetry alone can answer (answer shape, declared errors, steps, performance, explainability; not coverage) over an environment&#x27;s recorded traffic, read through the TraceSource seam (window) from the Collector&#x27;s files or from Axiom&#x27;s query API (APL on &lt;group&gt;-traces, query token read by name). It prints each operation&#x27;s p95 against its budget, the refusals by name and code, the defects and the drift; an operation over budget on at least 20 calls is drift and becomes a task file under .architect/tasks/. Prove&#x27;s own calls are told apart by their caller span id and left out. tools/watch/replay.sh drives staging traffic.</p>
   <div class="proves"><span class="label">Done when</span>On a real staging world, 30 replayed spends and 3 refusals print allowance.spend p95 within its 150ms budget, AllowanceExceeded 3 and drift none; after the author&#x27;s slow-spend fixture is built, proved in test, promoted and replayed, the same line is over budget with a mark of fail and drift allowance.spend, with its task written. Over Axiom (capxul-test, live) the same evals read what prove left there.</div>
-  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44027211261">CI success</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/f159db2">commit f159db2</a> · 5 verified captures · 1 unverified records</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44029791265">CI failure</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/f159db2">commit f159db2</a> · 5 verified captures · 1 unverified records</div>
   
 <details class="run" open>
   <summary>
@@ -7299,10 +8159,10 @@ then the author&#x27;s slow-spend fixture built, proved in test, promoted to sta
 </section>
 <section class="step">
   <div class="stage">Stage 3 · shipping on local worlds (Gate 2)</div>
-  <h2><span class="id">L2.08</span> Remote MCP with OAuth, and the world&#x27;s front door closed <span class="chip unknown">unverified</span></h2>
+  <h2><span class="id">L2.08</span> Remote MCP with OAuth, and the world&#x27;s front door closed <span class="chip bad">not done</span></h2>
   <p class="summary">The generated server serves /mcp: one MCP tool per operation and read, built on the MCP SDK&#x27;s stateless streamable HTTP server, its input schema from the declaration, only public fields in an input or an answer (a private field only to a caller who holds its role), refusals as tool errors with their code, and the API&#x27;s own role check. OAuth is Better Auth&#x27;s oauth-provider on the project&#x27;s AuthD1, with dynamic client registration capped and the consent given headless. /_world/* now answers 404 in every environment that does not host worlds, and staging&#x27;s proof reads its own database instead of the door.</p>
   <div class="proves"><span class="label">Done when</span>An MCP client completes OAuth as ada and calls allowance.get for the typed answer; bob is refused [AR-001] NotAllowed; a declared refusal carries its code; no secret is an input or an answer. Staging and production answer 404 on /_world/cast and the facts, while the test environment&#x27;s door stays open.</div>
-  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44027211261">CI success</a> · commit metadata unavailable · 0 verified captures · 9 unverified records</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44029791265">CI failure</a> · commit metadata unavailable · 0 verified captures · 9 unverified records</div>
   
 <details class="run">
   <summary><span class="chip unknown">unverified</span><span class="cap">The MCP test on the generated server before the build: /mcp is a 404.</span>
@@ -7839,10 +8699,10 @@ prove ✔</pre></div>
 </section>
 <section class="step">
   <div class="stage">Stage 3 · shipping on local worlds (Gate 2)</div>
-  <h2><span class="id">L2.07</span> Real sign-in: device login for the CLI (the local reading) <span class="chip pass">done</span></h2>
+  <h2><span class="id">L2.07</span> Real sign-in: device login for the CLI (the local reading) <span class="chip bad">not done</span></h2>
   <p class="summary">Better Auth 1.7.15&#x27;s deviceAuthorization is in the server&#x27;s auth (client acme-cli only, table auth_device_code, a 5 second polling interval), and the generated server mounts Better Auth&#x27;s routes at /api/auth. The generated CLI&#x27;s session sign-in --env &lt;env&gt; runs the device flow: it prints the code and where to approve it, polls with an Effect Schedule that backs off on slow_down, keeps the session in the config folder (ACME_CONFIG_DIR) and prints signed in. session show --env &lt;env&gt; uses the kept session and prints the person. The real staging sign-in is the cloud pass.</p>
   <div class="proves"><span class="label">Done when</span>On a real local world, the generated CLI signs in by device code; ada claims and approves the code with her own session and no browser, and session show prints her. Bob approving ada&#x27;s claimed code is a 403, another client id is refused, a poll before the interval is slow_down, a code is single-use, and no token or password is printed.</div>
-  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44027211261">CI success</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/9f19cfd">commit 9f19cfd</a> · 4 verified captures · 0 unverified records</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44029791265">CI failure</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/9f19cfd">commit 9f19cfd</a> · 4 verified captures · 0 unverified records</div>
   
 <details class="run" open>
   <summary>
@@ -8360,10 +9220,10 @@ Nx read the output from the cache instead of running the command for 36 out of 4
 </section>
 <section class="step">
   <div class="stage">Stage 3 · shipping on local worlds (Gate 2)</div>
-  <h2><span class="id">L2.06</span> architect publish: the SDK and CLI as npm packages, a single executable and a Homebrew formula <span class="chip unknown">unverified</span></h2>
+  <h2><span class="id">L2.06</span> architect publish: the SDK and CLI as npm packages, a single executable and a Homebrew formula <span class="chip bad">not done</span></h2>
   <p class="summary">architect publish --dry-run | --local turns the generated SDK and CLI into @acme/sdk and @acme/cli at the version architect version --next says. Each is one esbuild bundle with its dependencies as installed (the SDK with type declarations from the project&#x27;s tsc), sent to the registry in ARCHITECT_REGISTRY under a dist-tag: a prerelease always goes under next and never takes latest from a release. The CLI is also built as a Node 24.22.2 single executable for this machine (macOS arm64 or Linux x64), whose tarball sha256 the formula pins, committed to a local tap repository by file:// URL. promote publishes: staging the prerelease &lt;next&gt;-next.&lt;n&gt; before its verdicts line, production the release after released &lt;version&gt;. npmjs.org and GitHub releases print skipped (cloud pass).</p>
   <div class="proves"><span class="label">Done when</span>Through the command on a copy of acme under git, with a real logbook, OIDC server and Verdaccio 6.11.1 in Docker and real Homebrew: --dry-run lists exactly the files, binary and formula that would go out and leaves the registry and tap empty; --local puts @acme/sdk@1.1.0 and @acme/cli@1.1.0 on the registry with latest on them, and a fresh folder installs them, imports the SDK, type-checks against its declarations and runs the CLI&#x27;s bin, which prints acme 1.1.0; a re-run leaves what is there alone; prereleases are numbered one past the last under next and a prerelease after a release never moves latest; brew install of the formula by full name runs, prints acme 1.1.0, passes brew test and prints ok from acme system health against a running world, then uninstall and untap. The author&#x27;s check 5 passes (the SDK installs at exactly version --next, and brew install runs acme --version printing it).</div>
-  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44027211261">CI success</a> · commit metadata unavailable · 0 verified captures · 5 unverified records</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44029791265">CI failure</a> · commit metadata unavailable · 0 verified captures · 5 unverified records</div>
   
 <details class="run">
   <summary><span class="chip unknown">unverified</span><span class="cap">The done-when tests before the command was registered: unknown subcommand publish.</span>
@@ -8983,10 +9843,10 @@ exit 0</pre></div>
 </section>
 <section class="step">
   <div class="stage">Stage 3 · shipping on local worlds (Gate 2)</div>
-  <h2><span class="id">L2.05</span> architect promote: staging proved where it runs, production by what staging proved <span class="chip unknown">unverified</span></h2>
+  <h2><span class="id">L2.05</span> architect promote: staging proved where it runs, production by what staging proved <span class="chip bad">not done</span></h2>
   <p class="summary">architect promote --to staging|production moves the exact bundle architect build kept, never a rebuild. It refuses a dirty tree, an unbuilt or altered bundle and a revision without main verdicts (test for staging, staging for production, every operation), naming what is missing, and starts nothing for a refusal. It then starts or restarts the target on that bundle and checks /_architect/bundle. Staging is proved where it runs (journeys with people signing up through Better Auth, evals from staging&#x27;s own collector) and posts environment staging verdicts; production records the release through Releases.record and carries staging&#x27;s verdicts to production. Verdicts and Releases now share one token source.</p>
   <div class="proves"><span class="label">Done when</span>On a copy of acme under git with the real logbook, issuer, collectors and three environments: a revision with no test verdicts, a pull request&#x27;s verdicts, and a failing and a missing one are each refused with the operations named; a dirty tree and an unbuilt bundle are refused; production is refused without staging verdicts; after prove --env test, staging takes the revision and posts fifteen passing verdicts; production takes what staging proved, test, staging and production report the same revision and sha256, release 1.0.0 is recorded and promoting again records nothing. Author&#x27;s checks 01, 02, 03 and 06 pass; check 04 passes except for its missing prove --env test and the registry assertions (L2.06).</div>
-  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44027211261">CI success</a> · commit metadata unavailable · 0 verified captures · 4 unverified records</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44029791265">CI failure</a> · commit metadata unavailable · 0 verified captures · 4 unverified records</div>
   
 <details class="run">
   <summary><span class="chip unknown">unverified</span><span class="cap">The done-when tests before the command existed: unknown subcommand promote.</span>
@@ -9100,10 +9960,10 @@ acme prove --env local: prove ✔ (15 operations, 9 evals each). starter prove -
 </section>
 <section class="step">
   <div class="stage">Stage 3 · shipping on local worlds (Gate 2)</div>
-  <h2><span class="id">L2.04</span> Versions and staleness against the logbook <span class="chip unknown">unverified</span></h2>
+  <h2><span class="id">L2.04</span> Versions and staleness against the logbook <span class="chip bad">not done</span></h2>
   <p class="summary">Blueprint.read lists (where, order, page; answers { items, next }) through the model, store, server, sdk, cli and docs. Compare.release works the next version out from the model diff (minor, major, patch); architect version --next and architect impact (next, stale &lt;ops&gt; in &lt;envs&gt;) read the last release and main&#x27;s verdicts from the logbook; generated/model/changes.json is written; Releases.record PUTs the model and POSTs the release for L2.05.</p>
   <div class="proves"><span class="label">Done when</span>Against the real logbook and a real OIDC issuer: adding allowance.list gives next 1.1.0 and stale none; a budget edit is a patch and stales exactly allowance.spend in staging and production; a changed payload is a major; a pull request&#x27;s verdict never counts. On a real world, a list&#x27;s where, order, page and cursor work, roles are enforced, and allowance.list passes all nine evals. Gate 1&#x27;s checks and acme and the starter&#x27;s local prove stay green.</div>
-  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44027211261">CI success</a> · commit metadata unavailable · 0 verified captures · 4 unverified records</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44029791265">CI failure</a> · commit metadata unavailable · 0 verified captures · 4 unverified records</div>
   
 <details class="run">
   <summary><span class="chip unknown">unverified</span><span class="cap">The done-when tests: releases, ship, list reads and versions.</span>
@@ -9201,10 +10061,10 @@ AssertionError: the logbook is its own worker, built in L2.03
 </section>
 <section class="step">
   <div class="stage">Stage 3 · shipping on local worlds (Gate 2)</div>
-  <h2><span class="id">L2.03</span> The logbook and signed verdicts <span class="chip pass">done</span></h2>
+  <h2><span class="id">L2.03</span> The logbook and signed verdicts <span class="chip bad">not done</span></h2>
   <p class="summary">packages/logbook is a worker on local workerd under wrangler dev: a Durable Object holds verdicts and releases, R2 holds each revision&#x27;s model. POST /verdicts takes a Bearer OIDC token, verified with jose against the one issuer the environment names (RS256 only, audience, repository, ref patterns, workflow and job_workflow_ref), and stores the ref and event with the verdict. Reads are open. Beyond the verdicts it keeps a revision&#x27;s model, the latest verdict per operation and environment, and the last production release, for versions and staleness in L2.04 and promotion in L2.05. The test runs the real worker against a real OIDC server (mock-oauth2-server, by digest, in Docker).</p>
   <div class="proves"><span class="label">Done when</span>A trusted token&#x27;s verdict is accepted and read back with its ref and event. A forged token, another issuer&#x27;s token, a wrong branch, repository, workflow or audience, no token and a non-JWT are each 401 and store nothing. State, model and release survive a restart. Nothing is left running.</div>
-  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44027211261">CI success</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/dfca3a5">commit dfca3a5</a> · 4 verified captures · 0 unverified records</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44029791265">CI failure</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/dfca3a5">commit dfca3a5</a> · 4 verified captures · 0 unverified records</div>
   
 <details class="run" open>
   <summary>
@@ -9289,10 +10149,10 @@ Re-run with --output-style=static to inline logs.
 </section>
 <section class="step">
   <div class="stage">Stage 3 · shipping on local worlds (Gate 2)</div>
-  <h2><span class="id">L2.02</span> Test worlds, and the logbook as an environment <span class="chip unknown">unverified</span></h2>
+  <h2><span class="id">L2.02</span> Test worlds, and the logbook as an environment <span class="chip bad">not done</span></h2>
   <p class="summary">architect prove --env test makes world test-&lt;id&gt; inside the long-lived test environment (started if down), with the blueprint&#x27;s lifetime or ARCHITECT_LIFETIME. The world is its own Durable Object with an alarm at its expiry; its data is whatever is above the high-water mark of every table, so destroying it (alarm, reap or explicit) deletes exactly that. The journeys and evals run against it, one verdict per operation is posted to the logbook with an OIDC token (the local issuer, or the CI job&#x27;s own) that is never printed, and the world is destroyed. architect worlds reap starts the environment if it is down, destroys every world past its lifetime and stops it again; env status test adds worlds &lt;n&gt;; env up logbook runs the logbook worker through Logbook.launch. The test environment has a collector of its own, removed by env down.</p>
   <div class="proves"><span class="label">Done when</span>prove --env test posts fifteen passing verdicts that the logbook reads back with their ref, leaves no world and no row, and a run that fails to record its verdicts still destroys its world. A run killed with SIGKILL and a 20 s lifetime leaves a world that reap leaves alone within its lifetime and removes after it; the second reap says 0. The author&#x27;s checks 01 and 02 pass. Nothing is left running. The tests were written alongside the build, not before it.</div>
-  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44027211261">CI success</a> · commit metadata unavailable · 0 verified captures · 5 unverified records</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44029791265">CI failure</a> · commit metadata unavailable · 0 verified captures · 5 unverified records</div>
   
 <details class="run">
   <summary><span class="chip unknown">unverified</span><span class="cap">The done-when tests, on ports 8970 to 8989 with the real issuer, logbook and test environment.</span>
@@ -9399,10 +10259,10 @@ captured in the thread). test-worlds.test.ts and verdicts.test.ts, the new files
 </section>
 <section class="step">
   <div class="stage">Stage 3 · ship it across local worlds (Gate 2)</div>
-  <h2><span class="id">L2.01</span> Environments and one build per revision (local reading) <span class="chip pass">done</span></h2>
+  <h2><span class="id">L2.01</span> Environments and one build per revision (local reading) <span class="chip bad">not done</span></h2>
   <p class="summary">architect build bundles the revision&#x27;s Worker once with wrangler&#x27;s dry run, with no credentials, and prints built &lt;revision&gt; sha256:&lt;hash&gt;; the same revision hashes the same. architect env up, down and status run test, staging and production as long-lived wrangler dev processes on that exact file, each with its own D1 state, port, inspector port and secrets file, and every one answers GET /_architect/bundle with the revision and hash it runs. The declarations (Blueprint.environment, config and secret, Identity, Cloud, Deploy) are read into the model by file path, and acme and the starter carry the four environment files. The Alchemy stack and architect deploy wait for the cloud pass.</p>
   <div class="proves"><span class="label">Done when</span>On a copy of acme under git: two builds hash the same; staging and production run at once and a person who signs up in staging is a stranger to production; a restart of staging keeps its state and runs the same bundle; /_architect/bundle equals the build; the secrets file is mode 0600 and its value is on no command line; env down leaves nothing running and down on a stopped environment is not an error. Every package&#x27;s lint, typecheck and tests pass, and nx sync:check is clean.</div>
-  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44027211261">CI success</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/dfca3a5">commit dfca3a5</a> · 4 verified captures · 0 unverified records</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44029791265">CI failure</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/dfca3a5">commit dfca3a5</a> · 4 verified captures · 0 unverified records</div>
   
 <details class="run" >
   <summary>

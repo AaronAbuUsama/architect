@@ -1,0 +1,14 @@
+{
+  "step": "Publish-CLI-timeout",
+  "stage": "Stage 3 · main CI recovery",
+  "title": "An explicit test-body budget for two real publish CLI starts",
+  "summary": "The negative publish integration case was the only publish-suite body still using Vitest's implicit five-second deadline. Its two real Node CLI starts exceeded that deadline in main CI. The author adds only a 60-second per-body budget; assertions, requests, hooks, global defaults, process deadlines and domain performance policy remain unchanged.",
+  "proves": "The actual main failed job records the sole no-registry/usage timeout, with 117 other prove tests passing and three configured skips. All five sibling publish cases already have explicit 300- or 900-second body budgets. The focused unchanged CLI assertions pass once against the existing real fixture: missing registry exits 2 with its message, and missing flags exit 2 with usage. Five siblings are unselected by the filter, not newly skipped. Fresh prove lint/typecheck and cleanup pass. Fresh main CI on the recovery commit remains the conductor's next verification.",
+  "captions": {
+    "00-main-ci-failure": "Actual main CI timeout and surrounding test results; the complete failed job log is preserved under attempts.",
+    "01-suite-budget-scope": "All six publish bodies and the package config: only the negative CLI body lacked an explicit deadline.",
+    "02-focused-real-cli-check": "The actual focused no-registry/usage case passes once with its real registry/OIDC/workerd fixture.",
+    "03-prove-static-checks": "Fresh prove lint and typecheck, without Nx cache.",
+    "04-cleanup-proof": "No publishing fixture container, reserved 9050–9053 listener or runtime process from this worktree remains."
+  }
+}

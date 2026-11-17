@@ -1,0 +1,72 @@
+$ bash -o pipefail -c rg -A18 -B5 "without a registry|5285|Test timed out in 5000ms|117 passed" design/evidence/Publish-CLI-timeout/attempts/main-ci-failed-job.log
+# commit 396dab4 · 2026-11-17T06:30:51Z · exit 0 (expected 0) · 0.0s
+
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9673381Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9674147Z ^[[1m^[[30m^[[46m RUN ^[[49m^[[39m^[[22m ^[[36mv4.1.12 ^[[39m^[[90m/home/runner/work/architect/architect/packages/prove^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9675170Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9676381Z  ^[[31m❯^[[39m src/modules/publish/publish.test.ts ^[[2m(^[[22m^[[2m6 tests^[[22m^[[2m | ^[[22m^[[31m1 failed^[[39m^[[2m | ^[[22m^[[33m1 skipped^[[39m^[[2m)^[[22m^[[33m 145908^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9677917Z      ^[[33m^[[2m✓^[[22m^[[39m --dry-run lists exactly what would go out, and sends nothing ^[[33m 11263^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9678857Z ^[[31m     ^[[31m×^[[31m without a registry, --local says so and exits 2; with neither flag it says how to use it^[[39m^[[33m 5285^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9679695Z      ^[[33m^[[2m✓^[[22m^[[39m a prerelease goes out under `next`, numbered one past the last ^[[33m 11776^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9681021Z      ^[[33m^[[2m✓^[[22m^[[39m --local puts @acme/sdk@1.1.0 and @acme/cli@1.1.0 on the registry, `latest` on them, and a fresh folder installs and runs them ^[[33m 88786^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9681969Z      ^[[33m^[[2m✓^[[22m^[[39m a prerelease published after a release never takes `latest` from it ^[[33m 4130^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9682840Z      ^[[2m^[[90m↓^[[39m^[[22m `brew install <tap>/<formula>` installs the CLI binary, which prints its version and `ok` from a running world
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9683787Z  ^[[32m✓^[[39m src/modules/promote/promote.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[33m 69729^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9684621Z      ^[[33m^[[2m✓^[[22m^[[39m refuses a dirty tree and a revision with no built bundle, each naming what is wrong ^[[33m 6952^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9685835Z      ^[[33m^[[2m✓^[[22m^[[39m refuses a revision without main test verdicts, naming what is missing, and accepts one that has them ^[[33m 6489^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9686949Z      ^[[33m^[[2m✓^[[22m^[[39m production is refused without staging verdicts, then takes what staging proved: one bundle in test, staging and production ^[[33m 50620^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9687863Z  ^[[32m✓^[[39m src/modules/world/mcp.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[33m 16250^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9688750Z      ^[[33m^[[2m✓^[[22m^[[39m exports the first MCP operation to an extra Collector sink without a prior API call or local OTLP URL ^[[33m 8167^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9689879Z      ^[[33m^[[2m✓^[[22m^[[39m serves one tool per operation and read, behind OAuth, as the person the token names ^[[33m 8080^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9690675Z  ^[[32m✓^[[39m src/modules/evals/evals.test.ts ^[[2m(^[[22m^[[2m14 tests^[[22m^[[2m)^[[22m^[[32m 19^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9691541Z  ^[[32m✓^[[39m src/modules/promote/staging.test.ts ^[[2m(^[[22m^[[2m8 tests^[[22m^[[2m)^[[22m^[[33m 240736^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9693024Z      ^[[33m^[[2m✓^[[22m^[[39m rejects staging replacement after its initial check, including rollback=false ^[[33m 56946^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9694040Z      ^[[33m^[[2m✓^[[22m^[[39m rejects staging replacement after its initial check, including rollback=true ^[[33m 61876^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9696015Z      ^[[33m^[[2m✓^[[22m^[[39m rejects source mutation at proof completion before model storage, publishing or passing verdicts ^[[33m 17569^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9697032Z      ^[[33m^[[2m✓^[[22m^[[39m installs the captured SDK and CLI even if source changes after capture during publication ^[[33m 18904^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9697982Z      ^[[33m^[[2m✓^[[22m^[[39m owns package and SEA outputs per invocation and preserves earlier tarballs and formula URLs ^[[33m 25130^[[2mms^[[22m^[[39m
+--
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9782278Z      ^[[33m^[[2m✓^[[22m^[[39m fails on accept-without-membership ^[[33m 8918^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9783098Z      ^[[33m^[[2m✓^[[22m^[[39m fails on owner-step-skipped ^[[33m 8803^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9783518Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9783884Z ^[[31m⎯⎯⎯⎯⎯⎯⎯^[[39m^[[1m^[[41m Failed Tests 1 ^[[49m^[[22m^[[31m⎯⎯⎯⎯⎯⎯⎯^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9784235Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9785448Z ^[[41m^[[1m FAIL ^[[22m^[[49m src/modules/publish/publish.test.ts^[[2m > ^[[22marchitect publish^[[2m > ^[[22mwithout a registry, --local says so and exits 2; with neither flag it says how to use it
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9786345Z ^[[31m^[[1mError^[[22m: Test timed out in 5000ms.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9787209Z If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9788027Z ^[[36m ^[[2m❯^[[22m src/modules/publish/publish.test.ts:^[[2m149:3^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9788529Z     ^[[90m147|^[[39m   })^[[33m;^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9788815Z     ^[[90m148|^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9789253Z     ^[[90m149|^[[39m   it("without a registry, --local says so and exits 2; with neither fl…
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9789741Z     ^[[90m   |^[[39m   ^[[31m^^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9790327Z     ^[[90m150|^[[39m     const none = spawnSync(process.execPath, [cli, "publish", "--local…
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9791162Z     ^[[90m151|^[[39m     ^[[34mexpect^[[39m(none^[[33m.^[[39mstatus^[[33m,^[[39m none^[[33m.^[[39mstderr)^[[33m.^[[39m^[[34mtoBe^[[39m(^[[34m2^[[39m)^[[33m;^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9791902Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9792137Z ^[[31m^[[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9792379Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9792386Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9793051Z ^[[2m Test Files ^[[22m ^[[1m^[[31m1 failed^[[39m^[[22m^[[2m | ^[[22m^[[1m^[[32m27 passed^[[39m^[[22m^[[2m | ^[[22m^[[33m2 skipped^[[39m^[[90m (30)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9794338Z ^[[2m      Tests ^[[22m ^[[1m^[[31m1 failed^[[39m^[[22m^[[2m | ^[[22m^[[1m^[[32m117 passed^[[39m^[[22m^[[2m | ^[[22m^[[33m3 skipped^[[39m^[[90m (121)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9795319Z ^[[2m   Start at ^[[22m 06:16:00
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9796126Z ^[[2m   Duration ^[[22m 565.99s^[[2m (transform 12.25s, setup 0ms, import 20.35s, tests 1081.37s, environment 11ms)^[[22m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9796661Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9796668Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9801850Z ##[error]Error: Test timed out in 5000ms.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	 ❯ src/modules/publish/publish.test.ts:149:3
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9804302Z Warning: command "vitest run --root packages/prove --passWithNoTests" exited with non-zero status code
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9805208Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9805454Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9806185Z ^[[7m^[[1m^[[31m NX ^[[39m^[[22m^[[27m  ^[[31mRunning targets ^[[1mlint^[[22m, ^[[1mtypecheck^[[22m, ^[[1mtest^[[22m for 16 projects failed^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9806647Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9806793Z ^[[2mFailed tasks:^[[22m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9806980Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9807113Z ^[[2m-^[[22m prove:test
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9807250Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9807260Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9807433Z ^[[2m^[[31m^[[39m^[[22m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9807641Z   Run duration:      10m 7s
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9807958Z   Cache:             0/46 hit (0%)
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T06:25:26.9808228Z   Critical path:     9m 27s (1 task)
