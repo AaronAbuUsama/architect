@@ -1,0 +1,23 @@
+npm notice
+npm notice 📦  @architect/spike-fixture-kit@0.0.0-spike
+npm notice Tarball Contents
+npm notice 715B dist/blueprint.d.ts
+npm notice 512B dist/blueprint.js
+npm notice 388B dist/descriptor.d.ts
+npm notice 366B dist/descriptor.js
+npm notice 60B dist/node.d.ts
+npm notice 147B dist/node.js
+npm notice 549B dist/worker.d.ts
+npm notice 319B dist/worker.js
+npm notice 568B package.json
+npm notice Tarball Details
+npm notice name: @architect/spike-fixture-kit
+npm notice version: 0.0.0-spike
+npm notice filename: architect-spike-fixture-kit-0.0.0-spike.tgz
+npm notice package size: 1.4 kB
+npm notice unpacked size: 3.6 kB
+npm notice shasum: fa44305e6d49023ee9281aab067e825f5e6aef6a
+npm notice integrity: sha512-lw/9cnLCHGOW6[...]aYcrL7p8XaONA==
+npm notice total files: 9
+npm notice
+architect-spike-fixture-kit-0.0.0-spike.tgz

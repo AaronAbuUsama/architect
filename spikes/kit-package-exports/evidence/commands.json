@@ -1,0 +1,277 @@
+[
+  {
+    "name": "01-toolchain",
+    "command": [
+      "node",
+      "-e",
+      "const fs=require(\"node:fs\"); for(const p of [\"node_modules/effect/package.json\",\"packages/host-cloudflare/node_modules/wrangler/package.json\",\"node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/package.json\"]) { const v=JSON.parse(fs.readFileSync(p)); console.log(v.name+\"@\"+v.version); }"
+    ],
+    "cwd": ".",
+    "exit": 0,
+    "captured_at_utc": "2026-11-17T07:28:45.865652+00:00",
+    "expected_exit": 0,
+    "elapsed_seconds": 0.05,
+    "base_commit": "6a4fe088027e1df1b21bae7350356c9d0909b823",
+    "source_commit": "pending: uncommitted spike worktree",
+    "output": "01-toolchain.txt"
+  },
+  {
+    "name": "02-package-build",
+    "command": [
+      "node",
+      "build.mjs",
+      "package"
+    ],
+    "cwd": "spikes/kit-package-exports",
+    "exit": 0,
+    "captured_at_utc": "2026-11-17T07:28:45.983025+00:00",
+    "expected_exit": 0,
+    "elapsed_seconds": 0.116,
+    "base_commit": "6a4fe088027e1df1b21bae7350356c9d0909b823",
+    "source_commit": "pending: uncommitted spike worktree",
+    "output": "02-package-build.txt"
+  },
+  {
+    "name": "02-package-types",
+    "command": [
+      "/Users/abuusama/.codex/worktrees/architect-build-integrity/architect/node_modules/.bin/tsc",
+      "-p",
+      "fixture/tsconfig.json"
+    ],
+    "cwd": "spikes/kit-package-exports",
+    "exit": 0,
+    "captured_at_utc": "2026-11-17T07:28:46.229069+00:00",
+    "expected_exit": 0,
+    "elapsed_seconds": 0.246,
+    "base_commit": "6a4fe088027e1df1b21bae7350356c9d0909b823",
+    "source_commit": "pending: uncommitted spike worktree",
+    "output": "02-package-types.txt"
+  },
+  {
+    "name": "03-package-pack",
+    "command": [
+      "npm",
+      "pack",
+      "--ignore-scripts",
+      "--pack-destination",
+      "/Users/abuusama/.codex/worktrees/architect-build-integrity/architect/spikes/kit-package-exports/.architect"
+    ],
+    "cwd": "spikes/kit-package-exports/fixture",
+    "exit": 0,
+    "captured_at_utc": "2026-11-17T07:28:47.309706+00:00",
+    "expected_exit": 0,
+    "elapsed_seconds": 1.08,
+    "base_commit": "6a4fe088027e1df1b21bae7350356c9d0909b823",
+    "source_commit": "pending: uncommitted spike worktree",
+    "output": "03-package-pack.txt"
+  },
+  {
+    "name": "04-node-exports",
+    "command": [
+      "node",
+      "project/main.ts"
+    ],
+    "cwd": "spikes/kit-package-exports",
+    "exit": 0,
+    "captured_at_utc": "2026-11-17T07:28:47.748191+00:00",
+    "expected_exit": 0,
+    "elapsed_seconds": 0.432,
+    "base_commit": "6a4fe088027e1df1b21bae7350356c9d0909b823",
+    "source_commit": "pending: uncommitted spike worktree",
+    "output": "04-node-exports.txt"
+  },
+  {
+    "name": "04-project-typecheck",
+    "command": [
+      "/Users/abuusama/.codex/worktrees/architect-build-integrity/architect/node_modules/.bin/tsc",
+      "-p",
+      "project/tsconfig.json"
+    ],
+    "cwd": "spikes/kit-package-exports",
+    "exit": 0,
+    "captured_at_utc": "2026-11-17T07:28:47.974135+00:00",
+    "expected_exit": 0,
+    "elapsed_seconds": 0.225,
+    "base_commit": "6a4fe088027e1df1b21bae7350356c9d0909b823",
+    "source_commit": "pending: uncommitted spike worktree",
+    "output": "04-project-typecheck.txt"
+  },
+  {
+    "name": "05-positive-bundles",
+    "command": [
+      "node",
+      "build.mjs",
+      "positive"
+    ],
+    "cwd": "spikes/kit-package-exports",
+    "exit": 0,
+    "captured_at_utc": "2026-11-17T07:28:48.426431+00:00",
+    "expected_exit": 0,
+    "elapsed_seconds": 0.452,
+    "base_commit": "6a4fe088027e1df1b21bae7350356c9d0909b823",
+    "source_commit": "pending: uncommitted spike worktree",
+    "output": "05-positive-bundles.txt"
+  },
+  {
+    "name": "06-closure-client-api",
+    "command": [
+      "node",
+      "guard.mjs",
+      "client",
+      ".architect/bundles/client-api.meta.json"
+    ],
+    "cwd": "spikes/kit-package-exports",
+    "exit": 0,
+    "captured_at_utc": "2026-11-17T07:28:48.476238+00:00",
+    "expected_exit": 0,
+    "elapsed_seconds": 0.049,
+    "base_commit": "6a4fe088027e1df1b21bae7350356c9d0909b823",
+    "source_commit": "pending: uncommitted spike worktree",
+    "output": "06-closure-client-api.txt"
+  },
+  {
+    "name": "06-closure-client-sdk",
+    "command": [
+      "node",
+      "guard.mjs",
+      "client",
+      ".architect/bundles/client-sdk.meta.json"
+    ],
+    "cwd": "spikes/kit-package-exports",
+    "exit": 0,
+    "captured_at_utc": "2026-11-17T07:28:48.530568+00:00",
+    "expected_exit": 0,
+    "elapsed_seconds": 0.048,
+    "base_commit": "6a4fe088027e1df1b21bae7350356c9d0909b823",
+    "source_commit": "pending: uncommitted spike worktree",
+    "output": "06-closure-client-sdk.txt"
+  },
+  {
+    "name": "06-closure-worker",
+    "command": [
+      "node",
+      "guard.mjs",
+      "worker",
+      ".architect/bundles/worker.meta.json"
+    ],
+    "cwd": "spikes/kit-package-exports",
+    "exit": 0,
+    "captured_at_utc": "2026-11-17T07:28:48.587209+00:00",
+    "expected_exit": 0,
+    "elapsed_seconds": 0.051,
+    "base_commit": "6a4fe088027e1df1b21bae7350356c9d0909b823",
+    "source_commit": "pending: uncommitted spike worktree",
+    "output": "06-closure-worker.txt"
+  },
+  {
+    "name": "07-negative-bundle",
+    "command": [
+      "node",
+      "build.mjs",
+      "negative-guard"
+    ],
+    "cwd": "spikes/kit-package-exports",
+    "exit": 0,
+    "captured_at_utc": "2026-11-17T07:28:48.720777+00:00",
+    "expected_exit": 0,
+    "elapsed_seconds": 0.11,
+    "base_commit": "6a4fe088027e1df1b21bae7350356c9d0909b823",
+    "source_commit": "pending: uncommitted spike worktree",
+    "output": "07-negative-bundle.txt"
+  },
+  {
+    "name": "08-negative-closure",
+    "command": [
+      "node",
+      "guard.mjs",
+      "client",
+      ".architect/bundles/negative-client.meta.json"
+    ],
+    "cwd": "spikes/kit-package-exports",
+    "exit": 1,
+    "captured_at_utc": "2026-11-17T07:28:48.764594+00:00",
+    "expected_exit": 1,
+    "elapsed_seconds": 0.043,
+    "base_commit": "6a4fe088027e1df1b21bae7350356c9d0909b823",
+    "source_commit": "pending: uncommitted spike worktree",
+    "output": "08-negative-closure.txt"
+  },
+  {
+    "name": "09-negative-worker-platform",
+    "command": [
+      "node",
+      "build.mjs",
+      "negative-worker"
+    ],
+    "cwd": "spikes/kit-package-exports",
+    "exit": 1,
+    "captured_at_utc": "2026-11-17T07:28:48.827119+00:00",
+    "expected_exit": 1,
+    "elapsed_seconds": 0.058,
+    "base_commit": "6a4fe088027e1df1b21bae7350356c9d0909b823",
+    "source_commit": "pending: uncommitted spike worktree",
+    "output": "09-negative-worker-platform.txt"
+  },
+  {
+    "name": "11-worker-sdk-call",
+    "command": [
+      "node",
+      "project/main.ts",
+      "http://127.0.0.1:19100"
+    ],
+    "cwd": "spikes/kit-package-exports",
+    "exit": 0,
+    "captured_at_utc": "2026-11-17T07:28:49.908221+00:00",
+    "expected_exit": 0,
+    "elapsed_seconds": 0.303,
+    "base_commit": "6a4fe088027e1df1b21bae7350356c9d0909b823",
+    "source_commit": "pending: uncommitted spike worktree",
+    "output": "11-worker-sdk-call.txt"
+  },
+  {
+    "name": "12-worker-bad-payload",
+    "command": [
+      "curl",
+      "--silent",
+      "--show-error",
+      "--fail-with-body",
+      "-H",
+      "content-type: application/json",
+      "-d",
+      "{\"text\":123}",
+      "http://127.0.0.1:19100/kit/fixture/echo/repeat"
+    ],
+    "cwd": "spikes/kit-package-exports",
+    "exit": 22,
+    "captured_at_utc": "2026-11-17T07:28:49.943741+00:00",
+    "expected_exit": 22,
+    "elapsed_seconds": 0.035,
+    "base_commit": "6a4fe088027e1df1b21bae7350356c9d0909b823",
+    "source_commit": "pending: uncommitted spike worktree",
+    "output": "12-worker-bad-payload.txt"
+  },
+  {
+    "name": "10-worker",
+    "command": [
+      "/Users/abuusama/.codex/worktrees/architect-build-integrity/architect/packages/host-cloudflare/node_modules/.bin/wrangler",
+      "dev",
+      "--local",
+      "--ip",
+      "127.0.0.1",
+      "--port",
+      "19100",
+      "--inspector-port",
+      "19101",
+      "--persist-to",
+      "/Users/abuusama/.codex/worktrees/architect-build-integrity/architect/spikes/kit-package-exports/.architect/state"
+    ],
+    "cwd": "spikes/kit-package-exports/project",
+    "exit": 143,
+    "expected_exit": "terminated after scoped experiment",
+    "elapsed_seconds": 1.14,
+    "base_commit": "6a4fe088027e1df1b21bae7350356c9d0909b823",
+    "source_commit": "pending: uncommitted spike worktree",
+    "output": "10-worker.txt",
+    "owned_pid": 31863
+  }
+]

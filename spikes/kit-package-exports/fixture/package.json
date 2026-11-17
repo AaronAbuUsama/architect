@@ -1,0 +1,17 @@
+{
+  "name": "@architect/spike-fixture-kit",
+  "version": "0.0.0-spike",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": { "types": "./dist/descriptor.d.ts", "default": "./dist/descriptor.js" },
+    "./blueprint": { "types": "./dist/blueprint.d.ts", "default": "./dist/blueprint.js" },
+    "./worker": { "types": "./dist/worker.d.ts", "default": "./dist/worker.js" },
+    "./node": { "types": "./dist/node.d.ts", "default": "./dist/node.js" }
+  },
+  "files": ["dist"],
+  "dependencies": {
+    "@architect/blueprint": "0.0.0",
+    "effect": "4.1.1"
+  }
+}

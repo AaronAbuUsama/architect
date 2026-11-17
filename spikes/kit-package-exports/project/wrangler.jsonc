@@ -1,0 +1,6 @@
+{
+  "name": "architect-spike-kit-exports",
+  "main": "generated/main.ts",
+  "compatibility_date": "2026-08-01",
+  "send_metrics": false
+}
