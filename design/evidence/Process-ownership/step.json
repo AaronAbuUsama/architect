@@ -10,6 +10,7 @@
     "03-environment-regressions": "Existing environment lifecycle and process ownership guards together.",
     "04-workspace-checks": "Nx reset/sync, lint/typecheck and generated drift checks.",
     "05-final-ownership": "All nine ownership/lifecycle guards, with direct OS confirmation that owned ordinary/logbook groups stopped.",
-    "06-final-static": "Final test-file lint/typecheck and generated drift check."
+    "06-final-static": "Final test-file lint/typecheck and generated drift check.",
+    "04-integrated-ownership": "Nine real process/environment lifecycle tests pass after integration; unrelated processes survive and genuine ordinary/logbook groups stop."
   }
 }

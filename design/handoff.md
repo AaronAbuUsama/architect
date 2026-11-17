@@ -65,8 +65,7 @@ concurrent ceiling is cloud hardening before public deployment. Raw diagnostic w
 **Round3 workers resumed from `ee35a5c`.** `build/environment-process-owner` owns config/state-specific
 status/reap identity (D3#190, ports9160–9179); `build/immutable-model-create` owns conditional R2 model admission
 (D3#191, ports9280–9299); `build/refusal-namespace` owns compiler namespace validation (D3#193, no services).
-MCP telemetry (D3#192, ports9200–9219) starts when a slot frees. Separate-author evaluator acceptance (D3#194)
-is queued. D3#195/later.md explicitly disposition the soft registration throttle. No full gate is reserved yet.
+All four runtime/compiler packages are now merged: refusal7cbc946, MCP0fec194, immutable-model9a1aebb and ownershipa962de0. Integrated compiler30/MCP2/ownership9 plus all16 static/sync checks pass. Full logbook integration exposed the old fake-R2 test (actuallocal8 pass); its unchanged failure is retained under Immutable-model/attempts. Separate authors are correcting the two same-head evaluator gaps (D3#194) and moving fake HTTP/SQL checks to real services (D3#196), preserving assertions. D3#195/later.md explicitly disposition the soft registration throttle. No full gate is reserved yet.
 
 **Next, in order.**
 1. Finish the four round3 packages from the reset plan. Keep ordinary/real logbook ownership, identical R2 retries,

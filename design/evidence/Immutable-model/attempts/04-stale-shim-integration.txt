@@ -1,0 +1,35 @@
+$ pnpm exec vitest run --root packages/logbook
+# commit b4e3172 · 2026-11-17T04:52:03Z · exit 1 (expected 0) · 9.8s
+
+
+ RUN  v4.1.12 ./packages/logbook
+
+ ❯ src/modules/http/http.test.ts (6 tests | 1 failed) 33ms
+     × keeps a model once: the same again is fine, a different one is 409, and it can be read back 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/http/http.test.ts > the routes > keeps a model once: the same again is fine, a different one is 409, and it can be read back
+AssertionError: expected 200 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 200
+
+ ❯ src/modules/http/http.test.ts:79:82
+     77|     expect((await call(env, "PUT", "/models/abc1234", { a: 1 }, "good"…
+     78|     expect((await call(env, "PUT", "/models/abc1234", { a: 1 }, "good"…
+     79|     expect((await call(env, "PUT", "/models/abc1234", { a: 2 }, "good"…
+       |                                                                                  ^
+     80|     expect((await call(env, "PUT", "/models/abc1234", [1], "good")).st…
+     81|     expect(await call(env, "GET", "/models/abc1234")).toEqual({ status…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  1 failed | 24 passed (25)
+   Start at  04:51:54
+   Duration  9.17s (transform 207ms, setup 0ms, import 773ms, tests 9.01s, environment 0ms)

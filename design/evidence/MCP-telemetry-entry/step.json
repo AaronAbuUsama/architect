@@ -8,6 +8,7 @@
     "01-fails-first": "The first tool succeeds, but no system.health span reaches the real Collector before the fix.",
     "02-mcp-tests": "The new first-operation telemetry regression and existing real MCP read/role/privacy flow pass.",
     "03-related-tests": "All generator tests plus the runtime MCP and workerd Better Auth guards.",
-    "04-static": "All-project lint/typecheck, generated drift check and whitespace validation."
+    "04-static": "All-project lint/typecheck, generated drift check and whitespace validation.",
+    "04-integrated-mcp": "The conductor verifies first-MCP actual Collector export and existing OAuth/get/role flows after regeneration."
   }
 }
