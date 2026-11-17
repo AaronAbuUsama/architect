@@ -4,6 +4,7 @@ import { Effect } from "effect";
 import { Compiler, nodeSource } from "@architect/compiler";
 import { Build } from "#modules/build/service.js";
 import { Collectors, privateKeys } from "#modules/telemetry/service.js";
+import { Sinks } from "#modules/sinks/service.js";
 import { Worlds } from "#modules/world/service.js";
 import type { EnvironmentsApi, Up } from "./types.ts";
 import { collectorName, telemetryDir } from "./internal/collector.ts";
@@ -28,7 +29,7 @@ const declared = (root: string, name: string) =>
     return { environment, model, strip: privateKeys(model) };
   });
 
-const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision, policy }) =>
+const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision, policy, env }) =>
   Effect.gen(function* () {
     const root = resolve(given);
     const dir = dirOf(root, name);
@@ -71,8 +72,10 @@ const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision, policy }
       writeFileSync(f.bundle, JSON.stringify({ revision: built.revision, sha256: built.sha256 }) + "\n");
       writePort(dir, chosen);
     });
+    // The environment's sinks, read by name now and handed to its process alone: never in its config or its secrets file.
+    const sinks = yield* Sinks.resolve({ sinks: environment.telemetry ?? [{ sink: "local" }], env: env ?? {} });
     const launched = yield* Worlds.launch({
-      config: f.config, state: f.state, port: chosen, log: f.log, pidFile: f.pid, envFile: f.secrets, ready: "/_architect/bundle",
+      config: f.config, state: f.state, port: chosen, log: f.log, pidFile: f.pid, envFile: f.secrets, secretEnv: sinks.secretEnv, ready: "/_architect/bundle",
     }).pipe(
       Effect.tapError(() => reap(dir)),
       Effect.mapError((e) => failed(`${name} didn't start: ${e.message}`)),
@@ -80,6 +83,8 @@ const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision, policy }
     return {
       state: "up", name, url: launched.url, port: chosen, pid: launched.pid, revision: built.revision, sha256: built.sha256,
       ...(records ? { telemetry: telemetryDir(dir) } : {}),
+      ...(otlp ? { collector: otlp } : {}),
+      ...(sinks.notes.length > 0 ? { notes: sinks.notes } : {}),
     } satisfies Up;
   });
 

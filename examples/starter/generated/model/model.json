@@ -1061,9 +1061,14 @@
       "database": "d1-local",
       "secrets": {},
       "promotesFrom": null,
+      "telemetry": [
+        {
+          "sink": "local"
+        }
+      ],
       "deploy": {},
       "publish": {},
-      "hash": "d8d91f99932aa638"
+      "hash": "0f14705e03d3bc97"
     },
     "production": {
       "name": "production",

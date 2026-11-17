@@ -29,21 +29,41 @@ export interface Trace {
 
 export class CollectorFailed extends Data.TaggedError("CollectorFailed")<{ readonly message: string }> {}
 
-export interface Collector {
-  /** The OTLP/HTTP base URL the Worker exports to. */
-  readonly url: string;
+/** A trace some caller is waiting on: found by its id, complete once the span that is the caller's child is there. */
+export interface Wanted {
+  readonly trace: string;
+  /** The caller's own span id, from the `traceparent` it sent: the server's root span is its child. */
+  readonly parent: string;
+  /** The caller's span is itself in the trace (the journey's `journey.<name>`): complete only once it is. */
+  readonly rooted?: boolean;
+}
+
+/**
+ * Where traces are read from. `prove`, `telemetry trace` and, later, `watch` read through this and never through a
+ * file or a vendor directly (O1): a `FileSource` today, an Axiom one in the cloud pass.
+ */
+export interface TraceSource {
   /**
    * Every span and log of these traces, once each is complete: its root span (the child of the caller's span) is
    * present, no span points at a parent that isn't, and nothing new has arrived for a quiet window. A trace still
    * incomplete after 10 s comes back as it is; the evals then name what is missing.
    */
-  readonly traces: (wanted: ReadonlyArray<{ readonly trace: string; readonly parent: string }>) => Effect.Effect<ReadonlyMap<string, Trace>>;
+  readonly traces: (wanted: ReadonlyArray<Wanted>) => Effect.Effect<ReadonlyMap<string, Trace>>;
+  /** One trace by id, as it is now: no waiting, `undefined` when this source has none of it. */
+  readonly find: (trace: string) => Effect.Effect<Trace | undefined>;
+}
+
+export interface Collector extends TraceSource {
+  /** The OTLP/HTTP base URL the Worker exports to. */
+  readonly url: string;
 }
 
 export interface CollectorsApi {
   /**
-   * Start a collector in Docker writing to `dir`; removed when the scope closes. `strip` are attribute keys its
-   * `attributes` processor deletes from every span and log (L2.P): the keys the model says may carry a non-public value.
+   * Start a collector in Docker writing to `dir`; removed when the scope closes. First removes every collector whose
+   * owner process is gone (a killed prove's leak), and exports to the local viewer too if it is running. `strip` are
+   * attribute keys its `attributes` processor deletes from every span and log (L2.P): the keys the model says may carry
+   * a non-public value.
    */
   readonly start: (dir: string, options?: { readonly strip?: ReadonlyArray<string> }) => Effect.Effect<Collector, CollectorFailed, Scope.Scope>;
   /**
@@ -54,5 +74,10 @@ export interface CollectorsApi {
   /** Remove the container `name`. Nothing to remove is not an error. */
   readonly stop: (name: string) => Effect.Effect<void>;
   /** Read what some collector wrote to `dir`, by trace id. */
-  readonly read: (dir: string) => Pick<Collector, "traces">;
+  readonly read: (dir: string) => TraceSource;
+}
+
+export interface FileSourceApi {
+  /** Read OTLP JSON lines (`traces.jsonl`, `logs.jsonl`) from these folders, as one source. */
+  readonly open: (dirs: string | ReadonlyArray<string>) => TraceSource;
 }

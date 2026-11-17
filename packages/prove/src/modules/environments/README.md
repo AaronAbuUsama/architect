@@ -24,3 +24,7 @@ Three environments are more than the revision's bundle (D3 #50 to #52, #91):
 - **`logbook` is the logbook's own worker** (`@architect/logbook`, L2.03), started with `policy` (issuer, repository,
   refs, workflows: `ARCHITECT_OIDC_*` in the CLI) through `Logbook.launch`, with its state, pid and port beside the
   others'. It has no bundle, so its status carries no revision.
+
+L2.O: `up` resolves the environment's `telemetry` sinks (`Sinks.resolve`) and hands the secrets to the process through its environment (`env`, a
+parameter: only an entry file reads `process.env`); a skipped sink comes back as `notes`. An environment's status carries its Collector's address
+(`collector`), where prove sends the journey's span.

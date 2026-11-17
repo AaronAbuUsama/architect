@@ -13,3 +13,7 @@ and its secrets in an env file. Migrations are applied first, a taken socket sta
 `ready` path answers. The caller keeps the pid and stops it: this is what `environments` builds on (D3 #4).
 
 Test: `world.test.ts`.
+
+L2.O: `environment` (default `local`) is the `ARCHITECT_ENVIRONMENT` var, written on every span as `deployment.environment`. `secretEnv` (from
+`Sinks.resolve`) goes to wrangler through its process environment, which wrangler hands to the Worker as secret bindings, never a file or an
+argument; wrangler then runs with an allowlist of the shell's environment (D3 #109).

@@ -118,6 +118,10 @@ export interface Env {
   /** Better Auth's secret, at least 32 characters: fresh per local world, a named secret per environment. */
   readonly AUTH_SECRET: string;
   readonly OTLP_URL?: string;
+  /** The environment's telemetry sinks beside the collector, as JSON: each one's OTLP endpoints and headers. A secret. */
+  readonly OTLP_SINKS?: string;
+  /** The environment's name, written on every span as `deployment.environment`: `local` for a world of dev or prove. */
+  readonly ARCHITECT_ENVIRONMENT?: string;
   /** Which build this environment runs, set by `architect env up`; unset for a world made by `architect dev` or prove. */
   readonly ARCHITECT_REVISION?: string;
   readonly ARCHITECT_BUNDLE_SHA256?: string;
@@ -155,6 +159,7 @@ export default {
     }
     if (new URL(request.url).pathname.startsWith("/api/auth/")) return Effect.runPromise(AuthD1.handle(routesOf(env), request));
     const app = (built ??= build(env));
+    Telemetry.configure({ sinks: env.OTLP_SINKS, environment: env.ARCHITECT_ENVIRONMENT });
     return Telemetry.serve({ url: env.OTLP_URL || undefined, service: "starter", handler: app.handler, waitUntil: (p) => ctx.waitUntil(p) }, request);
   },
 };

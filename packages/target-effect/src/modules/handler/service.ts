@@ -8,6 +8,7 @@ import { BlankReached, InvalidPayload, type HandlerApi } from "./types.ts";
 import { answerAttributes, payloadAttributes, principalAttributes } from "./internal/attributes.ts";
 import { applyMove, checkFrom, chooseOutcome } from "./internal/move.ts";
 import { recordingLogs } from "./internal/decided.ts";
+import { spanned } from "./internal/span.ts";
 export { Reads } from "./internal/read.ts";
 
 type AnyCodec = Schema.Codec<object, unknown>;
@@ -30,7 +31,7 @@ const serve = ({ name, operation, handler, notFrom }: { readonly name: string; r
     // Each step is its own span, marked with its kind: a `database` step's work is the store's, a `wait` step's a timer's.
     Object.entries(op.steps).map(([key, step]) => [
       key,
-      <A, E, R>(work: Effect.Effect<A, E, R>) => Effect.withSpan(work, `${name}.${key}`, { attributes: { "step.kind": step.type } }),
+      <A, E, R>(work: Effect.Effect<A, E, R>) => spanned(`${name}.${key}`, { "step.kind": step.type })(work),
     ]),
   );
 
@@ -79,7 +80,7 @@ const serve = ({ name, operation, handler, notFrom }: { readonly name: string; r
             : logs.last.pipe(Effect.flatMap((log) =>
                 Effect.annotateCurrentSpan({ refusal: tagOf(Cause.squash(cause)), ...(log === undefined ? {} : { "refusal.log": log }) }))),
         ),
-        Effect.withSpan(name, { attributes: { operation: name, ...principalAttributes(principal) } }),
+        spanned(name, { operation: name, ...principalAttributes(principal) }),
       );
     });
 

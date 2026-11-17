@@ -2,6 +2,8 @@ import { resolve } from "node:path";
 import { Effect } from "effect";
 import { Compiler, nodeSource } from "@architect/compiler";
 import { Collectors, privateKeys } from "#modules/telemetry/service.js";
+import { Sinks } from "#modules/sinks/service.js";
+import { Viewer } from "#modules/viewer/service.js";
 import { Journeys } from "#modules/journeys/service.js";
 import { Worlds } from "#modules/world/service.js";
 import { Impact } from "#modules/impact/service.js";
@@ -24,16 +26,30 @@ const load = (root: string) =>
   });
 
 export const Prove: ProveApi = {
-  run: ({ root, port }) =>
+  run: ({ root, port, view, env }) =>
     Effect.gen(function* () {
       const { model, project } = yield* load(root);
+      // The viewer first, so the collector started next also exports to it.
+      const viewing = view ? yield* Viewer.start().pipe(Effect.mapError(failed)) : undefined;
       const collector = yield* Collectors.start(resolve(root, ".architect/prove-telemetry"), { strip: privateKeys(model) }).pipe(Effect.mapError(failed));
-      const { url } = yield* Worlds.start({ root, port, name: "prove", otlp: collector.url }).pipe(Effect.mapError(failed));
-      const done = yield* exercise(model, project, url, collector);
+      const sinks = yield* Sinks.resolve({ sinks: model.environments?.["local"]?.telemetry ?? [{ sink: "local" }], env: env ?? {} });
+      const { url } = yield* Worlds.start({ root, port, name: "prove", otlp: collector.url, environment: "local", secretEnv: sinks.secretEnv }).pipe(Effect.mapError(failed));
+      const done = yield* exercise(model, project, url, collector, undefined, collector.url);
       // A run with a failing journey proves nothing: its operations are recorded as judged and not passed (D2 #80).
       yield* Impact.record(root, model, done.judged);
       const verdict = closing(done);
-      return { lines: [...done.journeys.lines, ...done.evals.lines, verdict.line], passed: verdict.passed };
+      const seen = viewing === undefined ? [] : [`viewer ${viewing.url}`, ...done.failedTraces.map((f) => `  ${f.what}: trace ${f.trace}  ${Viewer.link(viewing, f.trace)}`)];
+      return { lines: [...sinks.notes, ...done.journeys.lines, ...done.evals.lines, verdict.line, ...seen], passed: verdict.passed };
+    }),
+  dev: ({ root, port, env }) =>
+    Effect.gen(function* () {
+      const model = yield* Compiler.model.pipe(Effect.provide(nodeSource(root)), Effect.mapError((e) => failed(e._tag === "BlueprintInvalid" ? { message: `the blueprint is invalid:\n  - ${e.problems.join("\n  - ")}` } : e)));
+      const sinks = yield* Sinks.resolve({ sinks: model.environments?.["local"]?.telemetry ?? [{ sink: "local" }], env: env ?? {} });
+      // dev needs no Docker of its own: it gets a collector only while the viewer runs, so what it does can be seen there.
+      const viewing = yield* Viewer.running();
+      const collector = viewing ? yield* Collectors.start(resolve(root, ".architect/dev-telemetry"), { strip: privateKeys(model) }).pipe(Effect.mapError(failed)) : undefined;
+      const { url, log } = yield* Worlds.start({ root, port, name: "dev", environment: "local", secretEnv: sinks.secretEnv, ...(collector ? { otlp: collector.url } : {}) }).pipe(Effect.mapError(failed));
+      return { url, log, notes: [...sinks.notes, ...(viewing ? [`traces go to the viewer at ${viewing.url}`] : [])] };
     }),
   test: (options) =>
     load(options.root).pipe(Effect.flatMap(({ model, project }) => proveInTest(model, project, options))),

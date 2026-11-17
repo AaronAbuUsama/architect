@@ -35,7 +35,8 @@ export const proveInTest = (model: Model, project: Project, options: Parameters<
     // The environment runs the revision being proved: its bundle is built when there is none, and a running one on another is restarted onto it.
     const revision = yield* Build.revision(root).pipe(Effect.mapError(failed));
     if (!(yield* Build.find(root, revision).pipe(Effect.mapError(failed)))) yield* Build.build(root).pipe(Effect.mapError(failed));
-    const environment = yield* Environments.up({ root, name: TEST, revision }).pipe(Effect.mapError(failed));
+    const environment = yield* Environments.up({ root, name: TEST, revision, env: options.env ?? {} }).pipe(Effect.mapError(failed));
+    for (const note of environment.notes ?? []) yield* say(note);
     if (!environment.telemetry) return yield* new ProveFailed({ message: `environment ${TEST} has no collector of its own` });
     const collector = Collectors.read(environment.telemetry);
 
@@ -45,7 +46,7 @@ export const proveInTest = (model: Model, project: Project, options: Parameters<
       () =>
         Effect.gen(function* () {
           yield* say(`world ${id} · expires in ${lifetime.text}`);
-          const done = yield* exercise(model, project, environment.url, collector);
+          const done = yield* exercise(model, project, environment.url, collector, undefined, environment.collector);
           for (const line of [...done.journeys.lines, ...done.evals.lines]) yield* say(line);
           const verdict = closing(done);
           yield* say(verdict.line);

@@ -171,6 +171,16 @@ publishes with the rest. Author's checks 01 and 02 pass. The GitHub Action (`tes
 
 L2.L (branch `build/L2.L`, D3 #70, evidence `evidence/L2.L/`): Aaron's layout call. Handlers are `src/<thing>/<operation>.ts`, mirroring `blueprint/things/`; there is no `implementation/` folder, and a thing's contract and workflows join its folder in later layers. The e2e files still say `implementation/`; the journey author updates them.
 
+L2.O done on `build/L2.O` (decisions D3 #100 to #109, #120, #121; evidence `evidence/L2.O/`): `architect telemetry view|stop|trace <id>|open <id>` and `prove --view`
+(`Viewer`, `grafana/otel-lgtm` by digest, anonymous Grafana, a second Collector exporter while it runs; `dev` gets a Collector only then), a Collector
+whose owner pid is gone is removed at the next start, prove exports `journey.<name>` as each trace's root, a refusal ends its span ok and a defect ends
+it as an error (`spanned`), a `TraceSource` seam with a `FileSource`, and the `Sink` seam: `Telemetry.sink.local()` and `.axiom({ group })` as `telemetry: [...]`
+in `blueprint/environments/<env>.ts`. The Axiom sink exports from the Worker (a fan-out `fetch`, `Authorization` and `X-Axiom-Dataset` per signal, EU edge),
+every value read by name from the keychain (`capxul-ingest-test|real`, `axiom-domain`, `axiom-org-id`) or `AXIOM_TOKEN`/`AXIOM_DOMAIN`, handed to the world's process
+by environment only, skipped with one line when absent. `user.*`, `organization.id` and `*.email` never leave the machine. The live check ran against `capxul-test`:
+`ARCHITECT_LIVE_AXIOM=1 pnpm exec vitest run --root packages/prove src/modules/sinks/sinks.live`. To see a trace: `architect telemetry view`, `architect prove --view` in acme,
+open the viewer's Explore (Tempo) and paste the trace id; or `architect telemetry trace <id>` with no viewer.
+
 ## Open
 
 - A last consistency review of the design docs was still running at handoff. Its findings, if any, are small fixes to

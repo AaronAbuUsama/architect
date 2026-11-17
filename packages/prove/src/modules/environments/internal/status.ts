@@ -4,6 +4,7 @@ import { join, resolve } from "node:path";
 import { Effect } from "effect";
 import { EnvironmentFailed, type Status } from "../types.ts";
 import { telemetryDir } from "./collector.ts";
+import { parseJsonc } from "./jsonc.ts";
 import { files, groupAlive, isWrangler, readPid, readPort } from "./process.ts";
 
 export const NAME = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
@@ -23,5 +24,8 @@ export const status = (root: string, name: string): Effect.Effect<Status, Enviro
     const record = files(dir).bundle;
     const bundle = existsSync(record) ? yield* io("its bundle record", () => JSON.parse(readFileSync(record, "utf8")) as { revision: string; sha256: string }) : {};
     const telemetry = telemetryDir(dir);
-    return { state: "up" as const, name, url: `http://127.0.0.1:${port}`, port, pid, ...bundle, ...(existsSync(telemetry) ? { telemetry } : {}) };
+    // Its own collector's address is in its config's vars: where prove can send the journey's span.
+    const config = existsSync(files(dir).config) ? (parseJsonc(readFileSync(files(dir).config, "utf8")) as { vars?: { OTLP_URL?: string } }) : {};
+    const collector = config.vars?.OTLP_URL;
+    return { state: "up" as const, name, url: `http://127.0.0.1:${port}`, port, pid, ...bundle, ...(existsSync(telemetry) ? { telemetry } : {}), ...(collector ? { collector } : {}) };
   });

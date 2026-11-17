@@ -73,6 +73,31 @@ describe("model", () => {
     expect(environments["local"]?.database).toBe("d1-local");
   });
 
+  it("reads an environment's telemetry sinks as a list, and a second sink is one more line of config", async () => {
+    const before = await modelOf(acme);
+    expect(Exit.isSuccess(before) && before.value.environments?.["local"]?.telemetry).toEqual([{ sink: "local" }]);
+    const root = copyOfAcme();
+    const file = join(root, "blueprint/environments/local.ts");
+    writeFileSync(file, readFileSync(file, "utf8").replace("[Telemetry.sink.local()]", '[Telemetry.sink.local(), Telemetry.sink.axiom({ group: "capxul-test" })]'));
+    const after = await modelOf(root);
+    expect(Exit.isSuccess(after) && after.value.environments?.["local"]?.telemetry).toEqual([{ sink: "local" }, { sink: "axiom", group: "capxul-test" }]);
+    // The hash moves with it, so what depends on the environment sees the change.
+    if (Exit.isSuccess(before) && Exit.isSuccess(after)) expect(after.value.environments?.["local"]?.hash).not.toBe(before.value.environments?.["local"]?.hash);
+    // An environment that names none has no telemetry key at all.
+    expect(Exit.isSuccess(before) && "telemetry" in before.value.environments!["test"]!).toBe(false);
+  });
+
+  it("refuses a sink named twice and an Axiom group that is no dataset name", async () => {
+    const root = copyOfAcme();
+    const file = join(root, "blueprint/environments/local.ts");
+    writeFileSync(file, readFileSync(file, "utf8").replace("[Telemetry.sink.local()]", '[Telemetry.sink.local(), Telemetry.sink.local(), Telemetry.sink.axiom({ group: "a b" })]'));
+    const exit = await modelOf(root);
+    expect(Exit.isFailure(exit)).toBe(true);
+    const text = JSON.stringify(exit);
+    expect(text).toContain("telemetry names the same sink twice");
+    expect(text).toContain("isn't a dataset group name");
+  });
+
   it("names an environment after its file, and refuses a promotesFrom that no file answers to", async () => {
     const root = copyOfAcme();
     renameSync(join(root, "blueprint/environments/staging.ts"), join(root, "blueprint/environments/preview.ts"));

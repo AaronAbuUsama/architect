@@ -8,33 +8,48 @@ import { CollectorFailed } from "../types.ts";
 export const IMAGE = "otel/opentelemetry-collector-contrib:0.164.0";
 
 /**
- * The collector's config. With `strip` keys, an `attributes` processor sits in both pipelines and deletes each key from
- * every span and log record before the file exporter sees it (L2.P): the second guard behind the runtime's allowlist.
+/** What a collector is started with: attribute keys to delete (L2.P), and the viewer's OTLP address while it runs. */
+export interface CollectorOptions {
+  readonly strip: ReadonlyArray<string>;
+  readonly viewer: string | undefined;
+}
+
+/**
+ * The collector's config. Every pipeline first drops the person the agent SDK's records name (`user.*`,
+ * `organization.id`), then, with `strip` keys, deletes each from every span and log record (L2.P: the second guard
+ * behind the runtime's allowlist), before any exporter sees it. While the local viewer runs there is a second
+ * `otlphttp` exporter on each pipeline (O1); a viewer that goes away mid-run costs the export, never the run.
  * Keys are written as JSON strings, which YAML reads as the same string.
  */
-export const collectorConfig = (strip: ReadonlyArray<string>) => {
-  const guarded = strip.length > 0;
-  const processors = guarded ? ["      processors: [attributes/private]"] : [];
+export const collectorConfig = ({ strip, viewer }: CollectorOptions) => {
+  const chain = ["attributes/personal", "resource/personal", ...(strip.length > 0 ? ["attributes/private"] : [])];
+  const to = (file: string) => `[${file}${viewer ? ", otlphttp/viewer" : ""}]`;
   return [
     "receivers:", "  otlp:", "    protocols:", "      http:", "        endpoint: 0.0.0.0:4318",
-    ...(guarded ? ["processors:", "  attributes/private:", "    actions:", ...strip.flatMap((k) => [`      - key: ${JSON.stringify(k)}`, "        action: delete"])] : []),
+    "processors:",
+    "  attributes/personal:", "    actions:", "      - { pattern: '^(user\\..*|organization\\.id)$', action: delete }",
+    "  resource/personal:", "    attributes:", "      - { pattern: '^(user\\..*|organization\\.id)$', action: delete }",
+    ...(strip.length > 0 ? ["  attributes/private:", "    actions:", ...strip.flatMap((k) => [`      - key: ${JSON.stringify(k)}`, "        action: delete"])] : []),
     "exporters:", "  file/traces:", "    path: /out/traces.jsonl", "    flush_interval: 10ms", "  file/logs:", "    path: /out/logs.jsonl", "    flush_interval: 10ms",
+    ...(viewer ? ["  otlphttp/viewer:", `    endpoint: ${viewer}`, "    timeout: 2s", "    retry_on_failure: { enabled: false }", "    sending_queue: { enabled: true, queue_size: 1000 }"] : []),
     "service:", "  pipelines:",
-    "    traces:", "      receivers: [otlp]", ...processors, "      exporters: [file/traces]",
-    "    logs:", "      receivers: [otlp]", ...processors, "      exporters: [file/logs]",
+    `    traces: { receivers: [otlp], processors: [${chain.join(", ")}], exporters: ${to("file/traces")} }`,
+    `    logs: { receivers: [otlp], processors: [${chain.join(", ")}], exporters: ${to("file/logs")} }`,
     "",
   ].join("\n");
 };
 
 const docker = (args: ReadonlyArray<string>) => spawnSync("docker", args, { encoding: "utf8" });
 
-export const runCollector = (dir: string, name: string, strip: ReadonlyArray<string> = []) =>
+export const runCollector = (dir: string, name: string, options: CollectorOptions) =>
   Effect.gen(function* () {
-    writeFileSync(`${dir}/collector.yaml`, collectorConfig(strip));
+    writeFileSync(`${dir}/collector.yaml`, collectorConfig(options));
     const start = Effect.sync(() => {
       docker(["rm", "-f", name]);
       return docker([
         "run", "-d", "--rm", "--name", name, "--user", "0:0", "-p", "127.0.0.1::4318",
+        // Linux has no host.docker.internal of its own; Docker Desktop and OrbStack already do.
+        "--add-host=host.docker.internal:host-gateway",
         "-v", `${dir}:/out`, "-v", `${dir}/collector.yaml:/etc/otelcol/config.yaml:ro`,
         IMAGE, "--config=/etc/otelcol/config.yaml",
       ]);
@@ -52,3 +67,35 @@ export const runCollector = (dir: string, name: string, strip: ReadonlyArray<str
   });
 
 export const removeCollector = (name: string) => Effect.sync(() => void docker(["rm", "-f", name]));
+
+/** `architect-collector-<owner pid>-<random>`: the name a collector started by a process carries, scoped to it. */
+export const ownedName = (pid: number) => `architect-collector-${pid}-${Math.floor(Math.random() * 1e9)}`;
+
+const OWNED = /^architect-collector-(\d+)-\d+$/;
+
+/** Whether a process is still there. Not being allowed to signal it means it is: someone else's, and alive. */
+const alive = (pid: number): boolean => {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (e) {
+    return (e as NodeJS.ErrnoException).code === "EPERM";
+  }
+};
+
+/**
+ * Remove every collector whose owner process is gone: a prove killed before it could clean up leaves its container
+ * running for good, and each is a few hundred megabytes. Collectors of a live process, and an environment's own (named
+ * for its folder, removed by `env down`), are never touched. Answers the names it removed.
+ */
+export const sweepOrphans = (): Effect.Effect<ReadonlyArray<string>> =>
+  Effect.sync(() => {
+    const listed = docker(["ps", "-a", "--filter", "name=architect-collector-", "--format", "{{.Names}}"]);
+    if (listed.status !== 0) return [];
+    const orphans = listed.stdout.split("\n").map((n) => n.trim()).filter((n) => {
+      const owner = OWNED.exec(n)?.[1];
+      return owner !== undefined && !alive(Number(owner));
+    });
+    for (const n of orphans) docker(["rm", "-f", n]);
+    return orphans;
+  });

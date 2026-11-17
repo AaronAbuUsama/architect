@@ -13,3 +13,9 @@ whoever proves against the environment.
 `Collectors.start(dir, { strip })` and `launch({ …, strip })` add an `attributes` processor that deletes each key in `strip` from every
 span and log before the file exporter (L2.P, D3 #82): the second guard behind the runtime's allowlist. `privateKeys(model)` builds the keys
 from the model's `visibility`; `prove` and `env up` pass it. Test: `prove/secrets.test.ts`, against the real Collector's files.
+
+L2.O (O1, D3 #100 to #109, #120, #121): `TraceSource` is the seam prove reads through (`traces(wanted)`, which waits until complete, and `find(id)`), and
+`FileSource.open(dirs)` is the one over the Collector's files. Before any `start` or `launch`, collectors whose owner process is gone
+(`architect-collector-<pid>-<n>`) are removed. While the local viewer runs, a started Collector also exports to it. Every pipeline first
+deletes `user.*` and `organization.id` (the agent SDK's records name the signed-in person), then the model's private keys (L2.P). `rootOf`
+and `exportRoots` make and send the journey's own span, `journey.<name>`, built from the spans the server recorded for the call.

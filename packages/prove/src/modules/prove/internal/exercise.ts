@@ -5,7 +5,8 @@ import { Evals } from "#modules/evals/service.js";
 import type { Verdict } from "#modules/evals/types.js";
 import { Journeys } from "#modules/journeys/service.js";
 import type { Project } from "#modules/journeys/types.js";
-import type { Collector } from "#modules/telemetry/types.js";
+import { exportRoots, rootOf } from "#modules/telemetry/service.js";
+import type { TraceSource } from "#modules/telemetry/types.js";
 import { evalLines, journeyLines } from "./report.ts";
 
 export interface Exercised {
@@ -14,18 +15,32 @@ export interface Exercised {
   readonly verdicts: ReadonlyArray<Verdict>;
   /** A run with a failing journey proves nothing: its operations are judged and not passed (D2 #80). */
   readonly judged: ReadonlyArray<Verdict>;
+  /** The trace of every call that went wrong, in a journey or an eval: what `prove --view` points at. */
+  readonly failedTraces: ReadonlyArray<{ readonly trace: string; readonly what: string }>;
 }
 
-export const exercise = (model: Model, project: Project, url: string, collector: Pick<Collector, "traces">, people?: "world" | "sign-up"): Effect.Effect<Exercised> =>
+/**
+ * Run every journey, then read each call's trace back. When prove can reach the collector (`otlp`), it first exports
+ * the journey's own span as each trace's root, `journey.<name>` (O1), and reads the traces again with it in.
+ */
+export const exercise = (model: Model, project: Project, url: string, collector: TraceSource, people?: "world" | "sign-up", otlp?: string): Effect.Effect<Exercised> =>
   Effect.gen(function* () {
     const runs = yield* Effect.forEach(project.journeys, (j, i) => Journeys.run(project, url, j, i, people));
     const calls = runs.flatMap((r) => r.calls);
-    const traces = yield* collector.traces(calls.map((c) => ({ trace: c.trace, parent: c.parent })));
+    const first = yield* collector.traces(calls.map((c) => ({ trace: c.trace, parent: c.parent })));
+    const roots = otlp === undefined ? [] : calls.flatMap((c) => rootOf({ trace: c.trace, span: c.parent, journey: c.journey, step: c.step, operation: c.operation, status: c.status }, first.get(c.trace)) ?? []);
+    if (otlp !== undefined) yield* exportRoots(otlp, roots);
+    const rooted = new Set(roots.map((r) => r.traceId));
+    const traces = roots.length === 0 ? first : yield* collector.traces(calls.map((c) => ({ trace: c.trace, parent: c.parent, rooted: rooted.has(c.trace) })));
     const evidence = Evals.gather(calls, traces);
     const journeys = journeyLines(runs, traces);
     const verdicts = Evals.judge(project, evidence);
     const judged = journeys.failed === 0 ? verdicts : verdicts.map((v) => ({ ...v, failures: [...v.failures, "a journey failed"] }));
-    return { journeys, evals: evalLines(model, verdicts), verdicts, judged };
+    // The traces of what went wrong: a journey's own, and the calls an eval named by their `where`.
+    const named = calls.filter((c) => verdicts.some((v) => v.failures.some((f) => f.startsWith(`${Evals.where(c)}:`))));
+    const failedTraces = [...journeys.failedTraces, ...named.map((c) => ({ trace: c.trace, what: `${c.journey} "${c.step}"` }))]
+      .filter((f, i, all) => all.findIndex((o) => o.trace === f.trace) === i);
+    return { journeys, evals: evalLines(model, verdicts), verdicts, judged, failedTraces };
   });
 
 /** The last line: every journey and every eval passed, or how many did not. */

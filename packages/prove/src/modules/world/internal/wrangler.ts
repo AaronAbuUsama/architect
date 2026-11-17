@@ -30,6 +30,12 @@ export interface Wrangle {
   readonly vars?: Readonly<Record<string, string>>;
   /** A file of secrets (`NAME=value` lines), read by wrangler and never shown by `ps`. */
   readonly envFile?: string;
+  /**
+   * Secrets that must never reach a file or an argument (a telemetry token): given to wrangler through its process
+   * environment, which wrangler hands to the Worker as secret bindings. wrangler then runs with a small allowlist of
+   * the caller's environment and not all of it, so nothing else in the shell becomes a binding of the Worker.
+   */
+  readonly secretEnv?: Readonly<Record<string, string>>;
   /** Own process group, outliving this process: a long-lived environment. */
   readonly detached?: boolean;
   /** Written with the process id as soon as it exists, so a caller killed part-way can still find what it started. */
@@ -47,11 +53,22 @@ export const startWrangler = (w: Wrangle) =>
       ...(w.envFile ? ["--env-file", w.envFile] : []),
       ...Object.entries(w.vars ?? {}).flatMap(([k, v]) => ["--var", `${k}:${v}`]),
     ];
-    const child = spawn(process.execPath, args, { stdio: ["ignore", out, out], detached: w.detached === true, env: { ...process.env, CI: "1", WRANGLER_SEND_METRICS: "false" } });
+    const child = spawn(process.execPath, args, { stdio: ["ignore", out, out], detached: w.detached === true, env: childEnv(w.secretEnv) });
     if (w.detached) child.unref();
     if (w.pidFile) writeFileSync(w.pidFile, `${child.pid}\n`);
     return child;
   });
+
+/** What wrangler needs from the shell to run, and nothing it doesn't: no key of the user's reaches the Worker. */
+const KEPT = /^(PATH|HOME|USER|LOGNAME|SHELL|TMPDIR|TERM|TZ|LANG|LC_[A-Z]+|XDG_[A-Z_]+|SSL_CERT_FILE|SSL_CERT_DIR|NODE_EXTRA_CA_CERTS|HTTPS?_PROXY|NO_PROXY|https?_proxy|no_proxy)$/;
+
+/** The environment wrangler runs in: unchanged, unless there are secrets to hand it, and then the allowlist plus them. */
+const childEnv = (secrets: Readonly<Record<string, string>> | undefined): NodeJS.ProcessEnv => {
+  const base = { CI: "1", WRANGLER_SEND_METRICS: "false" };
+  if (secrets === undefined || Object.keys(secrets).length === 0) return { ...process.env, ...base };
+  const kept = Object.fromEntries(Object.entries(process.env).filter(([k]) => KEPT.test(k)));
+  return { ...kept, ...base, ...secrets, CLOUDFLARE_INCLUDE_PROCESS_ENV: "true" };
+};
 
 export const stop = (child: ChildProcess) =>
   Effect.callback<void>((resume) => {

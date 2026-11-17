@@ -29,6 +29,8 @@ export interface Verdict {
 export type PerOperation = (op: OperationModel, evidence: ReadonlyArray<Evidence>, run: { readonly project: Project; readonly all: ReadonlyArray<Evidence> }) => Verdict;
 
 export interface EvalsApi {
+  /** How a failure names the call it is about: `grant-an-allowance "ada grants olga 500"`. Every failure line starts with it. */
+  readonly where: (call: CallRecord) => string;
   /** Every eval over every operation, then coverage over the whole run. */
   readonly judge: (project: Project, evidence: ReadonlyArray<Evidence>) => ReadonlyArray<Verdict>;
   /** The evidence for each call: its spans, its refusal and, for a move, the stored state of what moved, from the call record. */

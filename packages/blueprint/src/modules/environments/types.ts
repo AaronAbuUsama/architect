@@ -4,6 +4,7 @@ import type { CloudProvider, Database } from "#modules/cloud/types.js";
 import type { Deployment, Publication } from "#modules/deploy/types.js";
 import type { Identity } from "#modules/identity/types.js";
 import type { Secret } from "#modules/secrets/types.js";
+import type { Sink } from "#modules/telemetry/types.js";
 
 export interface EnvironmentSpec {
   /** How it runs, in words. */
@@ -17,6 +18,8 @@ export interface EnvironmentSpec {
   readonly database?: Database;
   /** Secrets by name, and how each gets its value. */
   readonly secrets?: Readonly<Record<string, Secret>>;
+  /** Where its traces and logs go: a list, so one sink or several is the same line. Absent: the local Collector only. */
+  readonly telemetry?: ReadonlyArray<Sink>;
   /** Only a revision with a green verdict in this environment may be promoted here. */
   readonly promotesFrom?: string;
   readonly deploy?: { readonly server?: Deployment; readonly mcp?: Deployment; readonly portal?: Deployment };

@@ -17,7 +17,24 @@ export interface ProveApi {
    * wrangler is stopped and the collector container removed. Fails only when it can't run at all (no model, no
    * Docker, no world); a project that runs and fails its journeys or evals is a report with `passed: false`.
    */
-  readonly run: (options: { readonly root: string; readonly port: number }) => Effect.Effect<Report, ProveFailed, Scope.Scope>;
+  readonly run: (options: {
+    readonly root: string;
+    readonly port: number;
+    /** Start the local viewer first (it stays up: `telemetry stop` ends it) and, for every failure, print its trace id and link. */
+    readonly view?: boolean;
+    /** The process environment, for the sinks' tokens (`AXIOM_TOKEN`): only an entry file reads it. */
+    readonly env?: Readonly<Record<string, string | undefined>>;
+  }) => Effect.Effect<Report, ProveFailed, Scope.Scope>;
+
+  /**
+   * `architect dev`: a local world on `port` that stays up while the scope is open. While the viewer runs it also has a
+   * collector, so its traces are in the viewer; the local environment's other sinks get what they are named for.
+   */
+  readonly dev: (options: {
+    readonly root: string;
+    readonly port: number;
+    readonly env?: Readonly<Record<string, string | undefined>>;
+  }) => Effect.Effect<{ readonly url: string; readonly log: string; readonly notes: ReadonlyArray<string> }, ProveFailed, Scope.Scope>;
 
   /**
    * Prove the project in a world of the test environment, which it starts if it is down, on the revision it was asked
@@ -30,6 +47,8 @@ export interface ProveApi {
   readonly test: (options: {
     readonly root: string;
     readonly lifetime?: string;
+    /** The process environment, for the telemetry sinks' tokens (`AXIOM_TOKEN`): only an entry file reads it. */
+    readonly env?: Readonly<Record<string, string | undefined>>;
     readonly logbook: string;
     readonly token: TokenSource;
     readonly say: (line: string) => Effect.Effect<void>;

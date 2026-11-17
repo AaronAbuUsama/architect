@@ -6,7 +6,7 @@ import { WorldFailed, type WorldsApi } from "./types.ts";
 import { applyMigrations, bringUp, stop } from "./internal/wrangler.ts";
 
 export const Worlds: WorldsApi = {
-  start: ({ root, port, name, otlp }) =>
+  start: ({ root, port, name, otlp, environment, secretEnv }) =>
     Effect.gen(function* () {
       const config = resolve(root, "generated/server/wrangler.jsonc");
       if (!existsSync(config)) return yield* new WorldFailed({ message: `${config} is missing: run nx sync first` });
@@ -18,14 +18,14 @@ export const Worlds: WorldsApi = {
       const log = join(state, "wrangler.log");
       const secret = randomBytes(32).toString("hex");
       const url = `http://127.0.0.1:${port}`;
-      const vars = { AUTH_SECRET: secret, ...(otlp ? { OTLP_URL: otlp } : {}) };
-      yield* Effect.acquireRelease(bringUp({ config, state, port, log, vars }, "/_world/health"), stop);
+      const vars = { AUTH_SECRET: secret, ARCHITECT_ENVIRONMENT: environment ?? "local", ...(otlp ? { OTLP_URL: otlp } : {}) };
+      yield* Effect.acquireRelease(bringUp({ config, state, port, log, vars, ...(secretEnv ? { secretEnv } : {}) }, "/_world/health"), stop);
       return { url, log };
     }),
-  launch: ({ config, state, port, log, pidFile, envFile, ready }) =>
+  launch: ({ config, state, port, log, pidFile, envFile, secretEnv, ready }) =>
     Effect.gen(function* () {
       yield* applyMigrations(config, state);
-      const child = yield* bringUp({ config, state, port, log, pidFile, ...(envFile ? { envFile } : {}), detached: true }, ready);
+      const child = yield* bringUp({ config, state, port, log, pidFile, ...(envFile ? { envFile } : {}), ...(secretEnv ? { secretEnv } : {}), detached: true }, ready);
       return { pid: child.pid!, url: `http://127.0.0.1:${port}`, log };
     }),
 };

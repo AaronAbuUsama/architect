@@ -5,7 +5,8 @@ import { Console, Effect, Option } from "effect";
 import { Argument, Command, Flag } from "effect/cli";
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
-import { Build, Environments, Prove, ProveFailed, Promote, TestWorlds, Verdicts, Worlds } from "@architect/prove";
+import { Build, Environments, Prove, ProveFailed, Promote, TestWorlds, Verdicts } from "@architect/prove";
+import { spawn } from "node:child_process";
 import { ModelCommand } from "#modules/model/service.js";
 import { Add } from "#modules/add/service.js";
 import { AddRefused, type What } from "#modules/add/types.js";
@@ -13,6 +14,7 @@ import { Check } from "#modules/check/service.js";
 import { Generate } from "#modules/generate/service.js";
 import { Ship } from "#modules/ship/service.js";
 import { Brief } from "#modules/brief/service.js";
+import { TelemetryCommand } from "#modules/telemetry/service.js";
 import { Compiler, nodeSource } from "@architect/compiler";
 
 const model = Command.make(
@@ -37,11 +39,12 @@ const dev = Command.make(
   },
   ({ root, port }) =>
     Effect.scoped(
-      Worlds.start({ root, port, name: "dev" }).pipe(
+      Prove.dev({ root, port, env: process.env }).pipe(
+        Effect.tap(({ notes }) => Effect.forEach(notes, (n) => Console.log(n))),
         Effect.tap(({ url, log }) => Console.log(`running at ${url}  (world at ${url}/_world, wrangler output in ${log})`)),
         Effect.andThen(Effect.never),
       ),
-    ).pipe(Effect.catchTag("WorldFailed", (e) => Console.error(e.message).pipe(Effect.tap(() => Effect.sync(() => (process.exitCode = 1)))))),
+    ).pipe(Effect.catchTag("ProveFailed", (e) => Console.error(e.message).pipe(Effect.tap(() => Effect.sync(() => (process.exitCode = 1)))))),
 );
 
 const fail = (message: string, exit: number) => Console.error(message).pipe(Effect.tap(() => Effect.sync(() => (process.exitCode = exit))));
@@ -62,18 +65,19 @@ const prove = Command.make(
     env: Flag.Literals("env", ["local", "test"]).pipe(Flag.withDefault("local")),
     root: Flag.String("root").pipe(Flag.withDefault(process.cwd())),
     port: Flag.Int("port").pipe(Flag.withDefault(8799)),
+    view: Flag.Boolean("view").pipe(Flag.withDefault(false)),
   },
-  ({ env, root, port }) => {
+  ({ env, root, port, view }) => {
     const proved = env === "test"
       ? attestation(root).pipe(
           Effect.flatMap(({ token, logbook }) => {
             const lifetime = process.env["ARCHITECT_LIFETIME"];
-            return Prove.test({ root, logbook, token, ...(lifetime ? { lifetime } : {}), say: (line) => Console.log(line) });
+            return Prove.test({ root, logbook, token, env: process.env, ...(lifetime ? { lifetime } : {}), say: (line) => Console.log(line) });
           }),
           Effect.tap((report) => Effect.sync(() => (process.exitCode = report.passed ? 0 : 1))),
           Effect.catchTag("EnvironmentFailed", (e) => Effect.fail(new ProveFailed({ message: e.message }))),
         )
-      : Effect.scoped(Prove.run({ root, port })).pipe(
+      : Effect.scoped(Prove.run({ root, port, view, env: process.env })).pipe(
           Effect.tap((report) => Effect.sync(() => process.stdout.write(report.lines.join("\n") + "\n"))),
           Effect.tap((report) => Effect.sync(() => (process.exitCode = report.passed ? 0 : 1))),
         );
@@ -172,6 +176,33 @@ const version = Command.make(
   ({ next, root }) => (next ? Ship.next({ root, env: process.env }).pipe(Effect.flatMap(print)) : fail("usage: architect version --next", 2)),
 );
 
+// `architect telemetry view | stop | trace <id> | open <id>`: the local viewer, and a trace read from the files (O1).
+const open = (url: string) =>
+  Effect.sync(() => {
+    const [cmd, ...args] = process.platform === "darwin" ? ["open", url] : process.platform === "win32" ? ["cmd", "/c", "start", "", url] : ["xdg-open", url];
+    spawn(cmd!, args, { stdio: "ignore", detached: true }).on("error", () => undefined).unref();
+  });
+const telemetryEnv = Flag.optional(Flag.String("env"));
+const telemetry = Command.make("telemetry").pipe(Command.withSubcommands([
+  Command.make("view", {}, () =>
+    Console.log("starting the viewer (the first start pulls its image once; it is large)").pipe(Effect.andThen(TelemetryCommand.view()), Effect.flatMap(print))),
+  Command.make("stop", {}, () => TelemetryCommand.stop().pipe(Effect.flatMap(print))),
+  Command.make(
+    "trace",
+    { id: Argument.String("id"), env: telemetryEnv, root: Flag.String("root").pipe(Flag.withDefault(process.cwd())) },
+    ({ id, env, root }) => TelemetryCommand.trace({ root, id, ...(Option.isSome(env) ? { env: env.value } : {}) }).pipe(Effect.flatMap(print)),
+  ),
+  Command.make(
+    "open",
+    { id: Argument.String("id"), env: telemetryEnv, root: Flag.String("root").pipe(Flag.withDefault(process.cwd())) },
+    ({ id, env, root }) =>
+      TelemetryCommand.open({ root, id, ...(Option.isSome(env) ? { env: env.value } : {}) }).pipe(
+        Effect.tap((said) => (said.open ? open(said.open) : Effect.void)),
+        Effect.flatMap(print),
+      ),
+  ),
+]));
+
 // `architect publish --dry-run | --local`: the SDK and CLI at the next version (D3 #9, #110). The cloud pass publishes to npmjs.org and GitHub.
 const publish = Command.make(
   "publish",
@@ -260,7 +291,7 @@ const reap = Command.make(
 const worlds = Command.make("worlds").pipe(Command.withSubcommands([reap]));
 
 Command.make("architect").pipe(
-  Command.withSubcommands([model, dev, prove, promote, add, check, generate, brief, impact, version, publish, build, env, worlds]),
+  Command.withSubcommands([model, dev, prove, promote, add, check, generate, brief, impact, version, publish, build, env, worlds, telemetry]),
   Command.run({ version: "0.0.0" }),
   Effect.provide(NodeServices.layer),
   NodeRuntime.runMain,

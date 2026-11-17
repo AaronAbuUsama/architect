@@ -1,4 +1,4 @@
-import type { AuthApi, ConfigApi, TelemetryApi } from "./types.ts";
+import type { AuthApi, ConfigApi } from "./types.ts";
 
 export const Configs: ConfigApi = {
   config: (spec) => Object.freeze({ ...spec, kind: "config" }),
@@ -10,8 +10,4 @@ export const Auth: AuthApi = {
     organizations: spec?.organizations ?? false, apiKeys: spec?.apiKeys ?? false,
     deviceLogin: spec?.deviceLogin ?? false, oauthProvider: spec?.oauthProvider ?? false,
   }),
-};
-
-export const Telemetry: TelemetryApi = {
-  otlp: ({ sink, dataset }) => Object.freeze({ kind: "telemetry", protocol: "otlp", sink, dataset }),
 };

@@ -5,7 +5,7 @@ import type { Evidence } from "../types.ts";
 
 const kebab = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 /** `grant-an-allowance "ada grants olga 500"`: where a failure happened. */
-export const where = (e: Evidence) => `${kebab(e.call.journey)} "${e.call.step}"`;
+export const where = (e: Pick<Evidence, "call">) => `${kebab(e.call.journey)} "${e.call.step}"`;
 
 export const answered = (e: Evidence) => e.call.status === 200;
 

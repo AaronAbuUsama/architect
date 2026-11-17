@@ -16,6 +16,10 @@ export type Status =
       readonly sha256?: string;
       /** Where its own collector writes, for an environment that hosts worlds. */
       readonly telemetry?: string;
+      /** The OTLP/HTTP address of that collector. */
+      readonly collector?: string;
+      /** From a start: a telemetry sink that was left out, and why (never a value). One line each. */
+      readonly notes?: ReadonlyArray<string>;
     };
 
 export type Up = Extract<Status, { state: "up" }>;
@@ -47,6 +51,8 @@ export interface EnvironmentsApi {
     readonly revision?: string;
     /** For `logbook` only: who may write to it. */
     readonly policy?: LogbookSetup;
+    /** The process environment, for the telemetry sinks' tokens (`AXIOM_TOKEN`); only an entry file reads it. */
+    readonly env?: Readonly<Record<string, string | undefined>>;
   }) => Effect.Effect<Up, EnvironmentFailed>;
   /** Stop it, and everything it started. An environment that isn't running is not an error. */
   readonly down: (options: { readonly root: string; readonly name: string }) => Effect.Effect<void, EnvironmentFailed>;

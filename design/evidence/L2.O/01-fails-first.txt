@@ -1,0 +1,4 @@
+The refusal and defect conventions, before the change (handler.test.ts, target-effect):
+ FAIL a refusal ends its span ok, still tagged, and still fails the call: expected 'Failure' to be 'Success'
+ FAIL a refusal raised inside a step ends the step's span ok too: expected 'Failure' to be 'Success'
+ (the defect test already passed)   Tests 2 failed | 14 passed (16)

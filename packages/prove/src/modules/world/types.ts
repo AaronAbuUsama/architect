@@ -36,6 +36,8 @@ export interface WorldsApi {
     readonly pidFile: string;
     /** A file of secrets for wrangler's `--env-file`. */
     readonly envFile?: string;
+    /** Secrets for the Worker that never touch a file or an argument (the telemetry sinks' tokens). */
+    readonly secretEnv?: Readonly<Record<string, string>>;
     readonly ready: string;
   }) => Effect.Effect<Launched, WorldFailed>;
 
@@ -50,5 +52,9 @@ export interface WorldsApi {
     readonly name: string;
     /** The collector's OTLP/HTTP base URL; unset, the Worker exports nothing. */
     readonly otlp?: string;
+    /** The environment this world stands for, written on every span as `deployment.environment`. Default `local`. */
+    readonly environment?: string;
+    /** Secrets for the Worker that never touch a file or an argument: `OTLP_SINKS`, from `Sinks.resolve`. */
+    readonly secretEnv?: Readonly<Record<string, string>>;
   }) => Effect.Effect<Running, WorldFailed, Scope.Scope>;
 }

@@ -1,7 +1,8 @@
 // @architect/blueprint: the declaration language projects import. `import { Blueprint } from "@architect/blueprint"`.
 import { Blanks } from "#modules/blanks/service.js";
 import { Cloud } from "#modules/cloud/service.js";
-import { Auth, Configs, Telemetry } from "#modules/config/service.js";
+import { Auth, Configs } from "#modules/config/service.js";
+import { Telemetry } from "#modules/telemetry/service.js";
 import { Deploy } from "#modules/deploy/service.js";
 import { Environments } from "#modules/environments/service.js";
 import { Identity } from "#modules/identity/service.js";
@@ -53,4 +54,5 @@ export type { Secret } from "#modules/secrets/types.js";
 export type { Identity as IdentityKind } from "#modules/identity/types.js";
 export type { CloudProvider, Database } from "#modules/cloud/types.js";
 export type { Deployment, Publication } from "#modules/deploy/types.js";
-export type { Config, ConfigSpec, AuthKit, TelemetrySink } from "#modules/config/types.js";
+export type { Config, ConfigSpec, AuthKit } from "#modules/config/types.js";
+export type { Sink, LocalSink, AxiomSink } from "#modules/telemetry/types.js";

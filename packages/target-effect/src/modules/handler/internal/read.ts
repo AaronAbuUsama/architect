@@ -1,12 +1,16 @@
-import { Effect, Schema } from "effect";
+import { Cause, Effect, Schema } from "effect";
 import { NotAllowed, type Principal, type Read } from "@architect/blueprint";
 import { Access } from "#modules/access/service.js";
 import { Unit } from "#modules/records/service.js";
 import { Records, Store, type Unit as UnitOf } from "#modules/records/types.js";
 import { answerAttributes, payloadAttributes, principalAttributes } from "./attributes.ts";
+import { spanned } from "./span.ts";
 import type { ReadAnswer, ReadPayload, ReadsApi } from "../types.ts";
 
 type AnyCodec = Schema.Codec<object, unknown>;
+
+const tagOf = (e: unknown): string =>
+  typeof e === "object" && e !== null && typeof (e as { _tag?: unknown })._tag === "string" ? (e as { _tag: string })._tag : String(e);
 
 /** One instance by its id; a missing one is `NotAllowed`, so a read never says what exists. */
 const byId = (read: Read<any, any, any>, payload: ReadPayload, unit: UnitOf) =>
@@ -54,7 +58,11 @@ export const Reads: ReadsApi = {
           yield* Effect.annotateCurrentSpan(answerAttributes(answer, read.answer, read.by === "list" ? read.thing.fields : undefined));
           yield* check(answer).pipe(Effect.mapError((e) => new Error(`${name} answered outside its declaration: ${e.message}`)), Effect.orDie);
           return answer;
-        }).pipe(Effect.withSpan(name, { attributes: { operation: name, ...principalAttributes(principal) } }));
+        }).pipe(
+          // A refusal is written on the span as the handler wrapper does, and ends it ok (O1).
+          Effect.tapCause((cause) => (Cause.hasDies(cause) ? Effect.annotateCurrentSpan({ defect: Cause.pretty(cause).split("\n")[0] ?? "" }) : Effect.annotateCurrentSpan({ refusal: tagOf(Cause.squash(cause)) }))),
+          spanned(name, { operation: name, ...principalAttributes(principal) }),
+        );
       });
     return {
       name,

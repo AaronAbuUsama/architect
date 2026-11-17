@@ -86,6 +86,9 @@ export type PublicationModel =
   | { readonly how: "homebrew"; readonly tap: string }
   | { readonly how: "binaries"; readonly on: "github-releases" };
 
+/** Where an environment's traces and logs go; never a token, an address or the name of a secret. */
+export type SinkModel = { readonly sink: "local" } | { readonly sink: "axiom"; readonly group: string };
+
 /** An environment, named by its file: `blueprint/environments/staging.ts` is `staging`. */
 export interface EnvironmentModel {
   readonly name: string;
@@ -99,6 +102,8 @@ export interface EnvironmentModel {
   /** Secret names, and how each gets its value. Never a value. */
   readonly secrets: Readonly<Record<string, "generated" | "stored">>;
   readonly promotesFrom: string | null;
+  /** The sinks it declares, in order; present only when it declares any (O1, D3 #100). */
+  readonly telemetry?: ReadonlyArray<SinkModel>;
   readonly deploy: Readonly<Record<string, { readonly how: "worker" | "site"; readonly domain: string | null }>>;
   readonly publish: Readonly<Record<string, ReadonlyArray<PublicationModel>>>;
   readonly hash: string;
