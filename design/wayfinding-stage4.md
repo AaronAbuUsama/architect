@@ -122,8 +122,11 @@ Future full gate runs remain exclusive.
 
 The conductor has folded the kit/source receipts into [D4](decisions/D4.md),
 including the selected-kit import amendment and raw Promise dependency behavior.
-The package rules and affected documentation now agree with that decision. A
-separate author next writes Stage 4 journeys,
+The package rules and affected documentation now agree with that decision. An
+independent read-only contract audit is running. The separate author on
+`author/stage4-checks` now owns the Stage 4 acceptance matrix and immediate L3.01
+journeys/fixtures/red checks, with ports 19160–19179 reserved. That author writes
+Stage 4 journeys,
 planted fixtures and checks, with their failure on empty handlers recorded before
 builders start. Builders never edit those checks or the generic eval runner.
 

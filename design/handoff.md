@@ -12,8 +12,11 @@ Stages1–3 are complete on main; the full goal remains active through Gate5. Ro
 from that green main. Three read-only research passes and three isolated throwaway spikes are complete:
 kit export isolation, native world-owned Anvil containers and authenticated SIWE linking. Each has a source/
 retained-receipt review pass and verified cleanup. Results and portability limits are in `wayfinding-stage4.md`.
-D4 is decided on `layer/4`; a separate author must write and record failing checks before L3.01 starts.
-Stage4 production implementation has not started. All spike runtime windows are released.
+D4 is decided on `layer/4` at `caa06ca8`; an independent read-only contract audit is running. The separate
+author owns `author/stage4-checks` in the existing check-author worktree: Stage4 acceptance matrix, immediate
+L3.01 journeys/planted fixtures and captured red checks. Its runtime ports are19160–19179; it must stop only its
+own resources and must not run the old gates' global cleanup. No L3.01 builder starts before the author receipt.
+Stage4 production implementation has not started. All three spike runtime windows are released.
 
 **Record landings are separate from feature work.** The former Stage3 lead owns each spike's own main PR from
 the verifier checkout, with at most one live keyed model job and a reserved five dollars before each trigger.
