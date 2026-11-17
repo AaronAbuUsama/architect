@@ -1,0 +1,5 @@
+
+> check
+> tsc -p . && node --import tsx src/bin/check.ts
+
+PASS typed refusals and full-span/log redaction

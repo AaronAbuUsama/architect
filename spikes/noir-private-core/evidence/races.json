@@ -1,0 +1,28 @@
+[
+  {
+    "submissionOrder": "revoke,spend",
+    "firstAdmission": "Success",
+    "secondAdmission": "Failure",
+    "admissionError": "Nullifier conflict with existing tx [hash]. Minimum required fee: 1, got: 0",
+    "loserStatus": "dropped",
+    "loserError": "Tx dropped by P2P node",
+    "bothPending": false,
+    "spend": "rejected",
+    "revoke": "mined",
+    "winningBlock": 23,
+    "recovery": "unneeded"
+  },
+  {
+    "submissionOrder": "spend,revoke",
+    "firstAdmission": "Success",
+    "secondAdmission": "Failure",
+    "admissionError": "Nullifier conflict with existing tx [hash]. Minimum required fee: 1, got: 0",
+    "loserStatus": "dropped",
+    "loserError": "Tx dropped by P2P node",
+    "bothPending": false,
+    "spend": "mined",
+    "revoke": "rejected",
+    "winningBlock": 25,
+    "recovery": "reproved revoke committed"
+  }
+]

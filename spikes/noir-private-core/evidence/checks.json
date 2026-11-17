@@ -1,0 +1,27 @@
+{
+  "unpublishedBefore": true,
+  "realPrivateToken": true,
+  "separateBudgetsAndTokenConservation": true,
+  "refusalsDoNotMoveStateOrTokens": true,
+  "sharedKeyAdminRevoke": true,
+  "revokedReadRetained": true,
+  "outsideReadRefused": true,
+  "directTokenBypassRefused": true,
+  "exceeded": {
+    "tag": "AllowanceExceeded",
+    "remaining": "5679"
+  },
+  "outsider": {
+    "tag": "AllowanceNotMember"
+  },
+  "authority": {
+    "tag": "AllowanceNotAdmin"
+  },
+  "revoked": {
+    "tag": "AllowanceNotMember"
+  },
+  "staleSpend": {
+    "tag": "NetworkRejected",
+    "reason": "Existing nullifier"
+  }
+}

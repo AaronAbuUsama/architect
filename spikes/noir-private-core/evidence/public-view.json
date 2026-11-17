@@ -1,0 +1,142 @@
+[
+  {
+    "operation": "deposit",
+    "feePayer": "0x2b83400ed7aba9904f74ed92f66b5371b78437991faec5e9dece2e4395af5806",
+    "lifetimeSeconds": 82800,
+    "noteHashes": 4,
+    "nullifiers": 6,
+    "privateLogs": 6,
+    "publicLogs": 0,
+    "publicDataWrites": 1,
+    "l2ToL1Msgs": 0,
+    "classLogs": 0,
+    "publicCalls": 0,
+    "transactionFee": "0x000000000000000000000000000000000000000000000000009e1327fd9f2000",
+    "privateAddressesFound": false,
+    "privateAmountsFound": false,
+    "gossipFields": [
+      "cachedId",
+      "txHash",
+      "data",
+      "chonkProof",
+      "contractClassLogFields",
+      "publicFunctionCalldata",
+      "calldataMap",
+      "sizeCache"
+    ],
+    "kernelFields": [
+      "constants",
+      "gasUsed",
+      "feePayer",
+      "expirationTimestamp",
+      "forPublic",
+      "forRollup"
+    ],
+    "nodeReturnedSameTx": true
+  },
+  {
+    "operation": "grant",
+    "feePayer": "0x2b83400ed7aba9904f74ed92f66b5371b78437991faec5e9dece2e4395af5806",
+    "lifetimeSeconds": 82800,
+    "noteHashes": 1,
+    "nullifiers": 2,
+    "privateLogs": 1,
+    "publicLogs": 0,
+    "publicDataWrites": 1,
+    "l2ToL1Msgs": 0,
+    "classLogs": 0,
+    "publicCalls": 0,
+    "transactionFee": "0x0000000000000000000000000000000000000000000000000005de8e3b969580",
+    "privateAddressesFound": false,
+    "privateAmountsFound": false,
+    "gossipFields": [
+      "cachedId",
+      "txHash",
+      "data",
+      "chonkProof",
+      "contractClassLogFields",
+      "publicFunctionCalldata",
+      "calldataMap",
+      "sizeCache"
+    ],
+    "kernelFields": [
+      "constants",
+      "gasUsed",
+      "feePayer",
+      "expirationTimestamp",
+      "forPublic",
+      "forRollup"
+    ],
+    "nodeReturnedSameTx": true
+  },
+  {
+    "operation": "spend",
+    "feePayer": "0x2b83400ed7aba9904f74ed92f66b5371b78437991faec5e9dece2e4395af5806",
+    "lifetimeSeconds": 82800,
+    "noteHashes": 4,
+    "nullifiers": 6,
+    "privateLogs": 5,
+    "publicLogs": 0,
+    "publicDataWrites": 1,
+    "l2ToL1Msgs": 0,
+    "classLogs": 0,
+    "publicCalls": 0,
+    "transactionFee": "0x00000000000000000000000000000000000000000000000000071a29e9795980",
+    "privateAddressesFound": false,
+    "privateAmountsFound": false,
+    "gossipFields": [
+      "cachedId",
+      "txHash",
+      "data",
+      "chonkProof",
+      "contractClassLogFields",
+      "publicFunctionCalldata",
+      "calldataMap",
+      "sizeCache"
+    ],
+    "kernelFields": [
+      "constants",
+      "gasUsed",
+      "feePayer",
+      "expirationTimestamp",
+      "forPublic",
+      "forRollup"
+    ],
+    "nodeReturnedSameTx": true
+  },
+  {
+    "operation": "revoke",
+    "feePayer": "0x2b83400ed7aba9904f74ed92f66b5371b78437991faec5e9dece2e4395af5806",
+    "lifetimeSeconds": 82800,
+    "noteHashes": 1,
+    "nullifiers": 2,
+    "privateLogs": 1,
+    "publicLogs": 0,
+    "publicDataWrites": 1,
+    "l2ToL1Msgs": 0,
+    "classLogs": 0,
+    "publicCalls": 0,
+    "transactionFee": "0x000000000000000000000000000000000000000000000000000194fe23cdbb00",
+    "privateAddressesFound": false,
+    "privateAmountsFound": false,
+    "gossipFields": [
+      "cachedId",
+      "txHash",
+      "data",
+      "chonkProof",
+      "contractClassLogFields",
+      "publicFunctionCalldata",
+      "calldataMap",
+      "sizeCache"
+    ],
+    "kernelFields": [
+      "constants",
+      "gasUsed",
+      "feePayer",
+      "expirationTimestamp",
+      "forPublic",
+      "forRollup"
+    ],
+    "nodeReturnedSameTx": true
+  }
+]

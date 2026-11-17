@@ -1,0 +1,107 @@
+{
+  "deposit": {
+    "n": 3,
+    "provingMs": {
+      "median": 8707,
+      "worst": 10768
+    },
+    "proveMs": {
+      "median": 11184,
+      "worst": 14087
+    },
+    "totalMs": {
+      "median": 14113,
+      "worst": 17131
+    }
+  },
+  "grant": {
+    "n": 5,
+    "provingMs": {
+      "median": 6679,
+      "worst": 10806
+    },
+    "proveMs": {
+      "median": 9459,
+      "worst": 16323
+    },
+    "totalMs": {
+      "median": 12305,
+      "worst": 19868
+    }
+  },
+  "initialize": {
+    "n": 1,
+    "provingMs": {
+      "median": 6928,
+      "worst": 6928
+    },
+    "proveMs": {
+      "median": 8779,
+      "worst": 8779
+    },
+    "totalMs": {
+      "median": 11658,
+      "worst": 11658
+    }
+  },
+  "ordinary": {
+    "n": 21,
+    "provingMs": {
+      "median": -1,
+      "worst": 6425
+    },
+    "proveMs": {
+      "median": 5090,
+      "worst": 18704
+    },
+    "totalMs": {
+      "median": 8704,
+      "worst": 23673
+    }
+  },
+  "publishClass": {
+    "n": 1,
+    "provingMs": {
+      "median": 10124,
+      "worst": 10124
+    },
+    "proveMs": {
+      "median": 12375,
+      "worst": 12375
+    },
+    "totalMs": {
+      "median": 15242,
+      "worst": 15242
+    }
+  },
+  "revoke": {
+    "n": 3,
+    "provingMs": {
+      "median": 8910,
+      "worst": 20443
+    },
+    "proveMs": {
+      "median": 12739,
+      "worst": 45939
+    },
+    "totalMs": {
+      "median": 16477,
+      "worst": 53501
+    }
+  },
+  "spend": {
+    "n": 6,
+    "provingMs": {
+      "median": 11913,
+      "worst": 17627
+    },
+    "proveMs": {
+      "median": 17558,
+      "worst": 28029
+    },
+    "totalMs": {
+      "median": 22274,
+      "worst": 33373
+    }
+  }
+}
