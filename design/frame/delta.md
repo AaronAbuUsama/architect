@@ -13,7 +13,10 @@ version answers each, and for the gap between today and the goal. This is that l
 - Journeys and evals, verdicts written by CI with a signed token into a logbook (a Durable Object).
 - `promote` of the exact bundle, a version worked out from the model diff, release to a local npm (Verdaccio) and a
   local Homebrew tap, and `watch` over live traces through `TraceSource`.
-- On layer 3, being built now: the agent feature and the work app (the factory's first project, `examples/work`).
+- The work app (`examples/work`, F5) on `main`: 6 things, 26 operations, one blank; a fuller version on
+  `spike/work-real`. The agent feature is designed (H1, H2) but not built on any branch.
+- Codex's work on `layer/4`, not merged: a kit and dependency decision (`D4.md`) and six end-to-end author checks
+  (`e2e/layer3/`). Codex is dropped; questions Q3 decides what we keep.
 
 ## Weaknesses, and how the new version answers each
 
@@ -72,7 +75,7 @@ version answers each, and for the gap between today and the goal. This is that l
 | Weakness | Evidence | The answer |
 |---|---|---|
 | The builder agent has only the CLI | H1 | One tool layer: code mode over a typed `bp` API, direct tools, our own telemetry tools ([`builder.md`](builder.md)) |
-| The agent harness is not built | H1 | Layer 3, being built now |
+| The agent harness is not built | H1, `build-plan.md:149-166` | Built by us, as the agents example lays out ([`examples/agents.md`](examples/agents.md)) |
 | `pi-ai` bundling to workerd is unverified | H1 section 9 | Measured in step A6, with a fallback |
 | Effect's Cloudflare Cluster and Workflow package is experimental | H1 section 8 | Usable now under the three-day rule, with `effect` 4.1.3; adopted for durable workflows behind a seam |
 
@@ -105,7 +108,7 @@ version answers each, and for the gap between today and the goal. This is that l
 
 ## The order to close the gap
 
-1. Finish layer 3 on `layer/3`: the agent feature and the work app.
+1. Recut the milestones and slices from this delta, once the questions are answered.
 2. Decide the open questions above, and bring `decisions.md` and the build plan in line with this frame.
 3. A complete model: blanks, journeys, worlds and role rules in it; verdicts per operation, keyed by handler hash.
 4. Plugins: projections, features and adapters mounted; auth as a feature; secrets by declaration.

@@ -16,6 +16,10 @@ records are brought in line.
 | [`builder.md`](builder.md) | the agent that builds an app: how it runs, its tools, code mode, telemetry |
 | [`deployment.md`](deployment.md) | from a commit to a running system: build once, verdicts, promote, release, watch, rollback |
 | [`writing-a-feature.md`](writing-a-feature.md) | writing the wallets feature, step by step |
+| [`story.md`](story.md) | **start here**: one allowance from an idea to production and back, the spine of the frame |
+| [`generators.md`](generators.md) | everything Forman generates and scaffolds, including the agent kit that closes the loop |
+| [`examples/`](examples/README.md) | worked examples: agents, the factory, payments, notifications, on chain, Noir, Python |
+| [`questions.md`](questions.md) | every open question, in one round |
 | [`delta.md`](delta.md) | every weakness found, how this frame answers it, and the order to close the gap |
 
 > **Name, updated 17 November 2026 (Aaron):** the framework is **Forman** (command `forman`, npm org `@formants`).
