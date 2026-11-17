@@ -114,10 +114,12 @@ each gets its own record pull request into main with fresh CI and serialized
 model-budget reservations. Generic earlier-gate CI does not execute the spike
 scripts and cannot prove their untested portability. The kit record is in PR23;
 the others follow after the paid-job reservation is released. The conductor keeps
-the full goal active while those records land. PR23 is held after CLI model
-subprocess cases exceeded their implicit five-second test deadlines. A separate
-author's three per-body sixty-second caps are in recovery PR24; assertions,
-runtime and domain budgets are unchanged. No spike record has landed yet.
+the full goal active while those records land. PR23's first run hit implicit CLI
+test deadlines. The separate author's three per-body sixty-second caps landed in
+PR24, and main764 passed all jobs; assertions, runtime and domain budgets are
+unchanged. Refreshed PR23 then passed all jobs and merged at e3a551b9. Its main
+CI44055581164 is running before the next spike record can land. One of three
+records has merged; no production kit implementation is claimed.
 
 All three experiments stopped their owned services and released ports
 19100–19109, 19120–19129 and 19140–19149. No production implementation has started.

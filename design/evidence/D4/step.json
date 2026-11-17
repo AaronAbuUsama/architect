@@ -3,8 +3,9 @@
   "stage": "Stage 4 · wayfinding",
   "title": "Kit and dependency contracts before implementation",
   "summary": "The decision defines pure kit descriptors, separate declaration/Worker/Node entries, canonical provenance, one dependency graph, source integrity and one-blank Promise/Effect dependency wrappers. Independent review caught and closed a client import leak by separating pure dependency declarations from runtime implementations.",
-  "proves": "A decision record is written. Independent read-only contract review passed the corrected record at 66e28fb7. The recorded file matches its committed bytes. This establishes the design contract, not L3.01 implementation, new runtime checks, Node 24/Linux spike portability or Gate 3.",
+  "proves": "A decision record is written. Independent read-only review passed the dependency split at 66e28fb7 and the explicit pure-descriptor clarification at 3e666e9a. Captures verify the reviewed record identities. This establishes the design contract, not L3.01 implementation, new runtime checks, Node 24/Linux spike portability or Gate 3.",
   "captions": {
-    "01-recorded-contract": "The current D4 record matches the reviewed commit; the source commit and required contract sections are recorded."
+    "01-recorded-contract": "The dependency-split decision matched reviewed commit 66e28fb7 when captured.",
+    "02-pure-descriptor-contract": "The current record matches independently reviewed clarification 3e666e9a; no implementation claim."
   }
 }

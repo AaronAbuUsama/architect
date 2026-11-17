@@ -141,13 +141,14 @@ const DONE = B("done", "built"), WIP = B("wip", "being built"), TODO = B("todo",
 const ALL_PAGES = [
 { id: "now", group: "Start", t: "Where it stands", h: () => `
 <h1>Where it stands</h1>
-<p class="lede">Three of the six stages are complete on main. Gate 2 passes on the exact main commit locally and in CI, with real Homebrew, and the independent review is passed. Cleanup is complete.</p>
+<p class="lede">Three of the six stages are complete on main. Gate 2 passes locally and in main CI, with real Homebrew, independent review and cleanup. Stage 4 has reached separate author checks.</p>
 <ul>
 <li><b>Layer one, declare and call, is finished.</b> Stages one and two, Gate 1, are on main.</li>
 <li><b>Layer two, prove and ship, is finished.</b> All fourteen steps are on main: real local environments, signed proof, promotion, publishing, OAuth MCP, watch and the portal.</li>
-<li><b>The exact main gate passed all ten tests.</b> The clean local run and Linux CI include real Homebrew with zero skips. All three main CI jobs passed, including the model-assisted handler check.</li>
-<li><b>Nothing from the tests remains running.</b> Owned containers, taps, formulas, listening ports and runtime processes are gone; unrelated resources were preserved.</li>
-<li><b>Moving:</b> Stage 4 research and three isolated experiments passed, with cleanup. The corrected kit-format contract passed independent review. A separate author is writing the checks before the first builder starts. Experiment records await a separate correction to CLI test deadlines; main remains green.</li>
+<li><b>Gate 2 passed all ten tests.</b> The clean local run and Linux CI include real Homebrew with zero skips. The latest completed recovery main run passed all three jobs, including the model-assisted handler check.</li>
+<li><b>The completed gate and experiment runs cleaned up.</b> Their owned containers, taps, formulas, listening ports and runtime processes are gone; unrelated resources were preserved. The current author owns a separate test window.</li>
+<li><b>Moving:</b> Stage 4 research and three isolated experiments passed, with cleanup. The corrected kit-format contract passed independent review. The author has captured the first five kit-readiness failures and is completing the checks before the first builder starts. The separate CLI deadline correction has landed and main is green; experiment records are resuming their own reviews and CI.</li>
+<li><b>Record landing:</b> The kit-export experiment is merged. Its main CI is running before the two remaining records land. <a href="https://github.com/AaronAbuUsama/architect/actions/runs/44050823357">The last completed main run</a> is green.</li>
 <li><b>Boundaries remain explicit.</b> Test, staging and production are local workerd deployments. The historical author-rule deviation, accepted legacy-adapter policy debt and one failed model sample with a bounded fresh sample remain recorded. No public cloud or model-reliability claim is made.</li>
 </ul>
 <div class="callout">For the detail, see <a href="#layers">the five layers</a>, <a href="#stage3">layer two, step by step</a> and <a href="#left">what's left</a>.</div>` },
@@ -200,20 +201,23 @@ steps, performance, coverage and explainability.</p>
 
 { id: "layers", group: "Progress", t: "The five layers", h: () => `
 <h1>The five layers</h1>
-<p class="lede">The goal is all five layers proven locally, in six stages with a gate at the end of each layer. Percent is merged steps from the build plan.</p>
+<p class="lede">The goal is all five layers proven locally, in six stages with a gate at the end of each layer. Percent tracks completed implementation; research and decisions are reported separately.</p>
 <div class="track">
   <div class="layer"><div class="name">1. Declare and call <span>stages 1–2 · Gate 1</span></div>${DONE}
     <div class="bar"><i style="width:100%"></i></div>
-    <div class="meta">22 of 22 steps. On main since 16 November, pull requests 1 and 2. Gate 1's seven checks pass locally and in CI.</div></div>
+    <div class="meta">100% implemented. 22 of 22 steps. On main since 16 November, pull requests 1 and 2. Gate 1's seven checks pass locally and in CI.</div></div>
   <div class="layer"><div class="name">2. Prove and ship <span>stage 3 · Gate 2</span></div>${DONE}
     <div class="bar"><i style="width:100%"></i></div>
-    <div class="meta">14 of 14 steps on main. Exact-main Gate 2, all three CI jobs, independent review and cleanup pass.</div></div>
+    <div class="meta">100% implemented. 14 of 14 steps on main. Clean local Gate 2, all three main CI jobs, independent review and cleanup pass.</div></div>
   <div class="layer"><div class="name">3. Reach out <span>stage 4 · Gate 3</span></div>${WIP}
-    <div class="meta">Research, three focused experiments and the kit-format decision are complete on the working branch. Separate author checks are being written. No production build step is complete yet.</div></div>
+    <div class="bar"><i style="width:0%"></i></div>
+    <div class="meta">0% implemented. Research, three focused experiments and the kit-format decision are complete on the working branch. Separate author checks are being written. No production build step is complete yet.</div></div>
   <div class="layer"><div class="name">4. On chain <span>stage 5 · Gate 4</span></div>${TODO}
-    <div class="meta">The Solidity target, signed operations, a vault per organisation on Anvil.</div></div>
+    <div class="bar"><i style="width:0%"></i></div>
+    <div class="meta">0% implemented. The Solidity target, signed operations, a vault per organisation on Anvil.</div></div>
   <div class="layer"><div class="name">5. Time <span>stage 6 · Gate 5</span></div>${TODO}
-    <div class="meta">One stepped clock for the chain, alarms and workflows; the keeper; the tenth eval, on time.</div></div>
+    <div class="bar"><i style="width:0%"></i></div>
+    <div class="meta">0% implemented. One stepped clock for the chain, alarms and workflows; the keeper; the tenth eval, on time.</div></div>
 </div>
 <div class="callout">Layer one is split into two stages: the skeleton with every eval (stage 1), then the allowance's whole life (stage 2, Gate 1).</div>` },
 

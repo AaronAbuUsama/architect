@@ -1,0 +1,8 @@
+$ python3 -
+# commit 402bdd9 · 2026-11-17T09:20:33Z · exit 0 (expected 0) · 0.1s
+
+Current contract matches independently reviewed pure-metadata clarification: 3e666e9a2481926554468d894bce4a29ff2308c6
+Contract SHA-256: 9f73660bce5585cf7a8c2092887966270ad8af4a4648591e65d07d8efe5fe3e2
+Pure selected descriptor and declaration entries are distinct from Worker/Node runtimes.
+Dependency vendor values and callable types stay in the runtime implementation.
+This records the decision boundary; L3.01 implementation remains pending authored checks.

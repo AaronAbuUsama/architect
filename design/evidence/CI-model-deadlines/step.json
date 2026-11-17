@@ -1,0 +1,11 @@
+{
+  "step": "CI-model-deadlines",
+  "stage": "Stage 4 · CI recovery",
+  "title": "Explicit deadlines for real model CLI processes",
+  "summary": "Two real CLI process tests exceeded Vitest's implicit five-second body deadline in the kit-record PR. The separate author added per-body sixty-second deadlines to those and the equivalent third process case, preserving the in-process test and all assertions, calls, runtime and domain budgets.",
+  "proves": "Independent source review verified that removing the three timeout options restores the original test bytes. All four model tests and CLI static checks passed; recovery PR24 and main764 passed all three CI jobs. After adopting green main into the Stage 4 branch, all sixteen projects passed fresh static checks and the four real model tests passed again. The sibling audit found no other CLI subprocess bodies at an implicit five seconds. This is integration-test recovery, not a kit implementation or performance-budget relaxation.",
+  "captions": {
+    "01-layer4-static": "Fresh static checks after merging the green main recovery into Stage 4.",
+    "02-layer4-model-tests": "All four model tests pass with unchanged assertions after adoption. Original failed logs and author captures remain preserved alongside these validated captures."
+  }
+}

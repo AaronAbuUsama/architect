@@ -17413,13 +17413,13 @@ Runtime processes from this worktree: none</pre></div>
   <div class="stage">Stage 4 · wayfinding</div>
   <h2><span class="id">D4</span> Kit and dependency contracts before implementation <span class="chip pass">done</span></h2>
   <p class="summary">The decision defines pure kit descriptors, separate declaration/Worker/Node entries, canonical provenance, one dependency graph, source integrity and one-blank Promise/Effect dependency wrappers. Independent review caught and closed a client import leak by separating pure dependency declarations from runtime implementations.</p>
-  <div class="proves"><span class="label">Done when</span>A decision record is written. Independent read-only contract review passed the corrected record at 66e28fb7. The recorded file matches its committed bytes. This establishes the design contract, not L3.01 implementation, new runtime checks, Node 24/Linux spike portability or Gate 3.</div>
-  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44048180046">CI success</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/66e28fb">commit 66e28fb</a> · 1 verified captures · 0 unverified records</div>
+  <div class="proves"><span class="label">Done when</span>A decision record is written. Independent read-only review passed the dependency split at 66e28fb7 and the explicit pure-descriptor clarification at 3e666e9a. Captures verify the reviewed record identities. This establishes the design contract, not L3.01 implementation, new runtime checks, Node 24/Linux spike portability or Gate 3.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44051398882">CI success</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/66e28fb">commit 66e28fb</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/402bdd9">commit 402bdd9</a> · 2 verified captures · 0 unverified records</div>
   
 <details class="run" >
   <summary>
     <span class="chip pass">passed</span>
-    <span class="cap">The current D4 record matches the reviewed commit; the source commit and required contract sections are recorded.</span>
+    <span class="cap">The dependency-split decision matched reviewed commit 66e28fb7 when captured.</span>
     <span class="meta">exit 0 · 0.1s · 2026-11-17T08:45:15Z</span>
   </summary>
   <div class="term"><div class="prompt">$ python3 -</div><pre>Recorded contract: design/decisions/D4.md
@@ -17427,6 +17427,18 @@ Reviewed commit: 66e28fb7d4de77099834b353f571cd7647b8e9c0
 Committed bytes match; SHA-256: 68b7dca6fecacb33f1c34276c81dd86a5c6805429f8714138977a01f2f716c61
 Kit/runtime split, graph/integrity, Promise/Effect modes and author boundary are present.
 This check proves the written decision identity, not feature implementation or runtime behavior.</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The current record matches independently reviewed clarification 3e666e9a; no implementation claim.</span>
+    <span class="meta">exit 0 · 0.1s · 2026-11-17T09:20:33Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ python3 -</div><pre>Current contract matches independently reviewed pure-metadata clarification: 3e666e9a2481926554468d894bce4a29ff2308c6
+Contract SHA-256: 9f73660bce5585cf7a8c2092887966270ad8af4a4648591e65d07d8efe5fe3e2
+Pure selected descriptor and declaration entries are distinct from Worker/Node runtimes.
+Dependency vendor values and callable types stay in the runtime implementation.
+This records the decision boundary; L3.01 implementation remains pending authored checks.</pre></div>
 </details>
 </section>
 <section class="step">
@@ -18231,6 +18243,294 @@ e2e/layer1/04-agent-writes-a-handler.test.ts:13:27: warning eslint(no-unused-var
  NX   The workspace is up to date
 
 [@architect/generators:sync]: All files are up to date.</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 4 · CI recovery</div>
+  <h2><span class="id">CI-model-deadlines</span> Explicit deadlines for real model CLI processes <span class="chip unknown">unverified</span></h2>
+  <p class="summary">Two real CLI process tests exceeded Vitest&#x27;s implicit five-second body deadline in the kit-record PR. The separate author added per-body sixty-second deadlines to those and the equivalent third process case, preserving the in-process test and all assertions, calls, runtime and domain budgets.</p>
+  <div class="proves"><span class="label">Done when</span>Independent source review verified that removing the three timeout options restores the original test bytes. All four model tests and CLI static checks passed; recovery PR24 and main764 passed all three CI jobs. After adopting green main into the Stage 4 branch, all sixteen projects passed fresh static checks and the four real model tests passed again. The sibling audit found no other CLI subprocess bodies at an implicit five seconds. This is integration-test recovery, not a kit implementation or performance-budget relaxation.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44050823357">CI success</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/402bdd9">commit 402bdd9</a> · 2 verified captures · 3 unverified records</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Fresh static checks after merging the green main recovery into Stage 4.</span>
+    <span class="meta">exit 0 · 7.0s · 2026-11-17T09:20:30Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ env NX_DAEMON=false pnpm nx run-many -t lint,typecheck --skip-nx-cache --outputStyle=static</div><pre>NX   Running targets lint, typecheck for 16 projects:
+
+- host-cloudflare
+- target-solidity
+- target-effect
+- generators
+- blueprint
+- compiler
+- logbook
+- starter
+- portal
+- preset
+- prove
+- acme
+- lint
+- cli
+- std
+- e2e
+
+
+
+&gt; nx run blueprint:typecheck
+
+&gt; tsc -p packages/blueprint/tsconfig.json
+
+
+&gt; nx run logbook:typecheck
+
+&gt; tsc -p packages/logbook/tsconfig.json
+
+
+&gt; nx run logbook:lint
+
+&gt; oxlint packages/logbook
+
+(node:85161) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+packages/logbook/src/modules/local/local.test.ts:85:156: warning unicorn(no-invalid-fetch-options): &quot;body&quot; is not allowed when method is &quot;GET&quot;
+
+&gt; nx run blueprint:lint
+
+&gt; oxlint packages/blueprint
+
+(node:85158) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run portal:typecheck
+
+&gt; tsc -p packages/portal/tsconfig.json
+
+
+&gt; nx run portal:lint
+
+&gt; oxlint packages/portal
+
+(node:85193) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run target-effect:typecheck
+
+&gt; tsc -p packages/target-effect/tsconfig.json
+
+
+&gt; nx run compiler:typecheck
+
+&gt; tsc -p packages/compiler/tsconfig.json
+
+
+&gt; nx run target-effect:lint
+
+&gt; oxlint packages/target-effect
+
+(node:85208) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run generators:typecheck
+
+&gt; tsc -p packages/generators/tsconfig.json
+
+
+&gt; nx run compiler:lint
+
+&gt; oxlint packages/compiler
+
+(node:85250) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run prove:typecheck
+
+&gt; tsc -p packages/prove/tsconfig.json
+
+
+&gt; nx run generators:lint
+
+&gt; oxlint packages/generators
+
+(node:85300) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run prove:lint
+
+&gt; oxlint packages/prove
+
+(node:85312) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+packages/prove/src/modules/world/device-sign-in.test.ts:3:33: warning eslint(no-unused-vars): Type &#x27;ChildProcess&#x27; is imported but never used. help: Consider removing this import.
+
+&gt; nx run host-cloudflare:typecheck
+
+&gt; tsc -p packages/host-cloudflare/tsconfig.json
+
+
+&gt; nx run lint:typecheck
+
+&gt; tsc -p packages/lint/tsconfig.json
+
+
+&gt; nx run host-cloudflare:lint
+
+&gt; oxlint packages/host-cloudflare
+
+(node:85324) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run lint:lint
+
+&gt; oxlint packages/lint
+
+(node:85336) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run cli:lint
+
+&gt; oxlint packages/cli
+
+(node:85380) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run acme:lint
+
+&gt; oxlint examples/acme
+
+(node:85386) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run preset:lint
+
+&gt; oxlint packages/preset
+
+(node:85392) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run starter:typecheck
+
+&gt; tsc -p examples/starter/tsconfig.json
+
+
+&gt; nx run starter:lint
+
+&gt; oxlint examples/starter
+
+(node:85406) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run e2e:lint
+
+&gt; oxlint e2e
+
+(node:85413) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+e2e/layer1/04-agent-writes-a-handler.test.ts:13:27: warning eslint(no-unused-vars): Identifier &#x27;cli&#x27; is imported but never used. help: Consider removing this import.
+
+&gt; nx run acme:typecheck
+
+&gt; tsc -p examples/acme/tsconfig.json
+
+
+&gt; nx run std:lint
+
+&gt; oxlint packages/std
+
+(node:85426) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run cli:typecheck
+
+&gt; tsc -p packages/cli/tsconfig.json
+
+
+&gt; nx run target-solidity:lint
+
+&gt; oxlint packages/target-solidity
+
+(node:85432) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run e2e:typecheck
+
+&gt; tsc -p e2e/tsconfig.json
+
+
+&gt; nx run std:typecheck
+
+&gt; tsc -p packages/std/tsconfig.json
+
+
+&gt; nx run preset:typecheck
+
+&gt; tsc -p packages/preset/tsconfig.json
+
+
+&gt; nx run target-solidity:typecheck
+
+&gt; tsc -p packages/target-solidity/tsconfig.json
+
+
+
+
+ NX   Successfully ran targets lint, typecheck for 16 projects
+
+
+  Run duration:      6.0s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     1.0s (1 task)
+  Recoverable time:  5.0s (83% of the run)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">All four model tests pass with unchanged assertions after adoption. Original failed logs and author captures remain preserved alongside these validated captures.</span>
+    <span class="meta">exit 0 · 2.8s · 2026-11-17T09:20:33Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ env NX_DAEMON=false pnpm exec vitest run --root packages/cli src/modules/model/model.test.ts</div><pre>RUN  v4.1.12 ./packages/cli
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  09:20:30
+   Duration  2.30s (transform 136ms, setup 0ms, import 252ms, tests 1.96s, environment 0ms)</pre></div>
+</details>
+<details class="run">
+  <summary><span class="chip unknown">unverified</span><span class="cap">cli-lint</span>
+    <span class="meta">capture metadata unavailable</span></summary>
+  <div class="term"><pre>$ pnpm exec oxlint packages/cli
+# parent commit 6a4fe088027e1df1b21bae7350356c9d0909b823; changed test sha256 9815015ec36f36e018a63d36721fa6ab44a208c3e0d621e415e0aa0dad2635cb
+# 2026-11-17T08:28:27.505255+00:00; exit 0; duration 2.821s</pre></div>
+</details>
+<details class="run">
+  <summary><span class="chip unknown">unverified</span><span class="cap">cli-typecheck</span>
+    <span class="meta">capture metadata unavailable</span></summary>
+  <div class="term"><pre>$ pnpm exec tsc -p packages/cli/tsconfig.json
+# parent commit 6a4fe088027e1df1b21bae7350356c9d0909b823; changed test sha256 9815015ec36f36e018a63d36721fa6ab44a208c3e0d621e415e0aa0dad2635cb
+# 2026-11-17T08:28:25.690993+00:00; exit 0; duration 1.006s</pre></div>
+</details>
+<details class="run">
+  <summary><span class="chip unknown">unverified</span><span class="cap">focused-model</span>
+    <span class="meta">capture metadata unavailable</span></summary>
+  <div class="term"><pre>$ pnpm exec vitest run --root packages/cli src/modules/model/model.test.ts --reporter verbose
+# parent commit 6a4fe088027e1df1b21bae7350356c9d0909b823; changed test sha256 9815015ec36f36e018a63d36721fa6ab44a208c3e0d621e415e0aa0dad2635cb
+# 2026-11-17T08:28:28.260525+00:00; exit 0; duration 3.576s
+
+
+ RUN  v4.1.12 ./packages/cli
+
+ ✓ src/modules/model/model.test.ts &gt; architect model &gt; --json on acme prints the model snapshot, from a real process 902ms
+ ✓ src/modules/model/model.test.ts &gt; architect model &gt; summarises things and operations without --json 140ms
+ ✓ src/modules/model/model.test.ts &gt; architect model &gt; --json is optional on the real command line 689ms
+ ✓ src/modules/model/model.test.ts &gt; architect model &gt; an invalid blueprint lists its problems and exits 2 567ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  08:28:25
+   Duration  2.79s (transform 196ms, setup 0ms, import 342ms, tests 2.30s, environment 0ms)</pre></div>
 </details>
 </section>
 <section class="step">

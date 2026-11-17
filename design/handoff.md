@@ -5,31 +5,42 @@
 **The goal** is `goals/01-the-whole-framework-locally.md`: all five gates passing locally and in CI, on `main`, in six
 stages. The rules are `AGENTS.md`; the thread kit (conductor, threads, spike, reviewer, hashtags) is `.agents/skills/`.
 
-**Current frontier: Stage3 complete, Stage4 wayfinding is running.** Current main is
-`6a4fe088027e1df1b21bae7350356c9d0909b823`. Stage3 feature PR21 and bounded recovery PR22 are merged. Main CI
-run `44034847309` is completed SUCCESS with all three jobs green. The exact-main clean local Gate2 also passes.
+**Current frontier: Stage3 complete, Stage4 author checks are being written.** Stage3 completed on
+`6a4fe088027e1df1b21bae7350356c9d0909b823`, with exact-source local Gate2 and all-three-job main CI44034847309.
+Last fully verified main is `764a841430ba89786d10efe33f0328d07442bbe7`: the separate three-body CLI
+test-deadline recovery PR24 is merged, and main CI44050823357 passed all three jobs. Current main
+`e3a551b9e32067697ca5fee0e26181ebb1ef0b28` additionally merges kit-export record PR23; its main run44055581164
+is active. That record changes only its spike directory. Runtime, old gates and assertions are unchanged.
 Stages1–3 are complete on main; the full goal remains active through Gate5. Root has opened `layer/4`
 from that green main. Three read-only research passes and three isolated throwaway spikes are complete:
 kit export isolation, native world-owned Anvil containers and authenticated SIWE linking. Each has a source/
 retained-receipt review pass and verified cleanup. Results and portability limits are in `wayfinding-stage4.md`.
 D4 is recorded on `layer/4`. Its independent audit caught a dependency runtime leaking through whole-operation
 API imports; the corrected contract separates the vendor-free descriptor from the runtime wrapper and requires
-a Node-capable SDK closure/client-typecheck guard. The same reviewer passed corrected `66e28fb7`; that contract
-is frozen for the author's first checks (decision receipt `evidence/D4/`). The separate
+a Node-capable SDK closure/client-typecheck guard. The same reviewer passed corrected `66e28fb7`, then explicit
+pure-descriptor metadata clarification `3e666e9a`; that contract is frozen for the author's checks (receipt
+`evidence/D4/`). The separate
 author owns `author/stage4-checks` in the existing check-author worktree: Stage4 acceptance matrix, immediate
 L3.01 journeys/planted fixtures and captured red checks. Its runtime ports are19160–19179; it must stop only its
 own resources and must not run the old gates' global cleanup. No L3.01 builder starts before the author receipt.
+Five first-step kit cases have captured CLI-readiness red: each package built, typed and packed successfully,
+then the real current CLI refused the unimplemented `kit` subcommand. This is not empty-handler proof; later
+assertions were not reached. The remaining immediate checks and stagewide matrix must finish before the author commit.
 Stage4 production implementation has not started. All three spike runtime windows are released.
 
 **Record landings are separate from feature work.** The former Stage3 lead owns each spike's own main PR from
 the verifier checkout, with at most one live keyed model job and a reserved five dollars before each trigger.
-PR23 holds the kit record, frozen after both product gates passed but two CLI model subprocess tests exceeded
-implicit five-second body deadlines. A separate author corrected only the three real-process cases; the
-in-process case stays unchanged. Independent review passed `228306df` and integrated `ddeb67ac`. Recovery PR24
-has fresh CI running before PR23 can refresh; the SIWE and container records follow with fresh main bases and CI. Root retains this
+PR23 holds the kit record. Its first run hit the now-recovered CLI test deadlines; the failed head/run are
+preserved. Refreshed head `54054c49` includes green main764 and still differs only in its spike directory.
+Run44053082071 passed all three jobs; independent source review passed the identical subtree against764.
+PR23 is now merged at e3a551b9, with main44055581164 active. The SIWE and container records follow only after
+that main run is green, using fresh main bases and CI. Root retains this
 checkout and `layer/4`. Main red is fixed before new feature work. The root must merge the final green main records
-back into `layer/4` before the layer landing. Logged daily model spend was $0.82 before recovery PR24; the lead
-audits each actual job cost before releasing its reservation. Main remains green at6a4; no spike record has landed.
+back into `layer/4` before the layer landing. Logged daily model spend is $0.96 through PR23's refreshed model
+job, before PR23's new main job; the lead audits each actual cost before releasing its reservation.
+One of three spike records has merged; its post-merge CI is still pending.
+Root already adopted main764 into `layer/4` at402bdd9: reset/sync, all16 static projects and all4 model tests pass;
+fresh retained captures are in `evidence/CI-model-deadlines/`. No full local gate was run alongside the author.
 
 **Exact-main proof.** Clean `6a4fe08` passed stock Gate2: eight files, ten tests, zero skips, 247.6 seconds,
 including real Mac arm64 Homebrew. The same source passes Linux Gate2 with actual Linuxbrew in main CI. Before

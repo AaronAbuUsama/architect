@@ -18,3 +18,10 @@ Promise wait masking, mapper placement and Busy semantics are source-checked
 contracts, not a claim that their new runtime checks have passed. L3.01 remains
 unbuilt. The three separate spike reviews likewise establish only their stated
 source/retained-receipt boundaries; Node 24/Linux portability remains pending.
+
+The same reviewer subsequently passed `3e666e9a2481926554468d894bce4a29ff2308c6`:
+the selected descriptor is explicitly a pure metadata entry, alongside the pure
+declaration entry. The whole-operation `uses` path may include that selected
+metadata; it may not include Worker, Node, vendor runtime or build-only entries.
+The consumer closure check and entry-injected private configuration requirement
+are consistent across the package rules and D4. This is contract review only.
