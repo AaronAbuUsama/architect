@@ -1,0 +1,11 @@
+{
+  "step": "L2.11",
+  "stage": "Stage 3 · shipping on local worlds (Gate 2)",
+  "title": "Gate 2: eight shipping checks locally and in Linux CI",
+  "status": "pending",
+  "summary": "Source preparation only: the e2e-layer2 CI job runs on Node 24.22.2 with frozen dependencies and requires the runner's real Homebrew. Local gate execution, Linux CI and final review are pending.",
+  "proves": "A PR goes to test, then staging, then production. There is a verdict in each environment, and the npm version equals `architect version --next`.",
+  "captions": {
+    "01-ci-static": "Workflow syntax and shell validation only. This is not a gate result."
+  }
+}
