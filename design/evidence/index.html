@@ -17410,6 +17410,26 @@ Runtime processes from this worktree: none</pre></div>
 </details>
 </section>
 <section class="step">
+  <div class="stage">Stage 4 · wayfinding</div>
+  <h2><span class="id">D4</span> Kit and dependency contracts before implementation <span class="chip pass">done</span></h2>
+  <p class="summary">The decision defines pure kit descriptors, separate declaration/Worker/Node entries, canonical provenance, one dependency graph, source integrity and one-blank Promise/Effect dependency wrappers. Independent review caught and closed a client import leak by separating pure dependency declarations from runtime implementations.</p>
+  <div class="proves"><span class="label">Done when</span>A decision record is written. Independent read-only contract review passed the corrected record at 66e28fb7. The recorded file matches its committed bytes. This establishes the design contract, not L3.01 implementation, new runtime checks, Node 24/Linux spike portability or Gate 3.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44048180046">CI success</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/66e28fb">commit 66e28fb</a> · 1 verified captures · 0 unverified records</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The current D4 record matches the reviewed commit; the source commit and required contract sections are recorded.</span>
+    <span class="meta">exit 0 · 0.1s · 2026-11-17T08:45:15Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ python3 -</div><pre>Recorded contract: design/decisions/D4.md
+Reviewed commit: 66e28fb7d4de77099834b353f571cd7647b8e9c0
+Committed bytes match; SHA-256: 68b7dca6fecacb33f1c34276c81dd86a5c6805429f8714138977a01f2f716c61
+Kit/runtime split, graph/integrity, Promise/Effect modes and author boundary are present.
+This check proves the written decision identity, not feature implementation or runtime behavior.</pre></div>
+</details>
+</section>
+<section class="step">
   <div class="stage">Stage 3 · shipping on local worlds (Gate 2)</div>
   <h2><span class="id">Check08-author</span> Fresh portal requests and complete publishing checks on supported targets <span class="chip pass">done</span></h2>
   <p class="summary">Check 08 closes each portal request so its second fetch cannot reuse a socket from the previous staging process. Check 05 runs real Homebrew installation on both Mac arm64 and Linux x64, failing before services start when a supported target lacks brew. Journey phases, fixtures and actual install/version/cleanup assertions remain unchanged.</p>

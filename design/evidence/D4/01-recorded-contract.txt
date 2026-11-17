@@ -1,0 +1,8 @@
+$ python3 -
+# commit 66e28fb · 2026-11-17T08:45:15Z · exit 0 (expected 0) · 0.1s
+
+Recorded contract: design/decisions/D4.md
+Reviewed commit: 66e28fb7d4de77099834b353f571cd7647b8e9c0
+Committed bytes match; SHA-256: 68b7dca6fecacb33f1c34276c81dd86a5c6805429f8714138977a01f2f716c61
+Kit/runtime split, graph/integrity, Promise/Effect modes and author boundary are present.
+This check proves the written decision identity, not feature implementation or runtime behavior.

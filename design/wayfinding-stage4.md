@@ -114,7 +114,10 @@ each gets its own record pull request into main with fresh CI and serialized
 model-budget reservations. Generic earlier-gate CI does not execute the spike
 scripts and cannot prove their untested portability. The kit record is in PR23;
 the others follow after the paid-job reservation is released. The conductor keeps
-the full goal active while those records land.
+the full goal active while those records land. PR23 is held after CLI model
+subprocess cases exceeded their implicit five-second test deadlines. A separate
+author's three per-body sixty-second caps are in recovery PR24; assertions,
+runtime and domain budgets are unchanged. No spike record has landed yet.
 
 All three experiments stopped their owned services and released ports
 19100–19109, 19120–19129 and 19140–19149. No production implementation has started.
@@ -129,8 +132,9 @@ API's whole-operation imports. D4 now separates a vendor-free declaration from
 are inferred there and stay out of client declarations. A Node-capable SDK closure
 and client typecheck are required acceptance cases. The kit factory, generated SDK
 paths, HTTP/MCP names and generated dependency service invocation are also explicit.
-The correction awaits the same independent reviewer before contract freeze.
-The package rules and affected documentation now agree. The separate author on
+The same independent reviewer passed the correction at `66e28fb7`; the contract
+is frozen for authoring. The package rules and affected documentation now agree.
+The separate author on
 `author/stage4-checks` now owns the Stage 4 acceptance matrix and immediate L3.01
 journeys/fixtures/red checks, with ports 19160–19179 reserved. That author writes
 Stage 4 journeys,

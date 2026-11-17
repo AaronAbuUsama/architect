@@ -14,7 +14,8 @@ kit export isolation, native world-owned Anvil containers and authenticated SIWE
 retained-receipt review pass and verified cleanup. Results and portability limits are in `wayfinding-stage4.md`.
 D4 is recorded on `layer/4`. Its independent audit caught a dependency runtime leaking through whole-operation
 API imports; the corrected contract separates the vendor-free descriptor from the runtime wrapper and requires
-a Node-capable SDK closure/client-typecheck guard. The same reviewer must clear that correction before freeze. The separate
+a Node-capable SDK closure/client-typecheck guard. The same reviewer passed corrected `66e28fb7`; that contract
+is frozen for the author's first checks (decision receipt `evidence/D4/`). The separate
 author owns `author/stage4-checks` in the existing check-author worktree: Stage4 acceptance matrix, immediate
 L3.01 journeys/planted fixtures and captured red checks. Its runtime ports are19160–19179; it must stop only its
 own resources and must not run the old gates' global cleanup. No L3.01 builder starts before the author receipt.
@@ -22,9 +23,13 @@ Stage4 production implementation has not started. All three spike runtime window
 
 **Record landings are separate from feature work.** The former Stage3 lead owns each spike's own main PR from
 the verifier checkout, with at most one live keyed model job and a reserved five dollars before each trigger.
-PR23 holds the kit record; the SIWE and container records follow with fresh main bases and CI. Root retains this
+PR23 holds the kit record, frozen after both product gates passed but two CLI model subprocess tests exceeded
+implicit five-second body deadlines. A separate author corrected only the three real-process cases; the
+in-process case stays unchanged. Independent review passed `228306df` and integrated `ddeb67ac`. Recovery PR24
+has fresh CI running before PR23 can refresh; the SIWE and container records follow with fresh main bases and CI. Root retains this
 checkout and `layer/4`. Main red is fixed before new feature work. The root must merge the final green main records
-back into `layer/4` before the layer landing. Logged daily model spend was $0.79 before these record PRs.
+back into `layer/4` before the layer landing. Logged daily model spend was $0.82 before recovery PR24; the lead
+audits each actual job cost before releasing its reservation. Main remains green at6a4; no spike record has landed.
 
 **Exact-main proof.** Clean `6a4fe08` passed stock Gate2: eight files, ten tests, zero skips, 247.6 seconds,
 including real Mac arm64 Homebrew. The same source passes Linux Gate2 with actual Linuxbrew in main CI. Before
