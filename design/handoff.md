@@ -5,42 +5,43 @@
 **The goal** is `goals/01-the-whole-framework-locally.md`: all five gates passing locally and in CI, on `main`, in six
 stages. The rules are `AGENTS.md`; the thread kit (conductor, threads, spike, reviewer, hashtags) is `.agents/skills/`.
 
-**Current frontier: Stage3 complete, Stage4 author checks are being written.** Stage3 completed on
-`6a4fe088027e1df1b21bae7350356c9d0909b823`, with exact-source local Gate2 and all-three-job main CI44034847309.
-Last fully verified main is `764a841430ba89786d10efe33f0328d07442bbe7`: the separate three-body CLI
-test-deadline recovery PR24 is merged, and main CI44050823357 passed all three jobs. Current main
-`e3a551b9e32067697ca5fee0e26181ebb1ef0b28` additionally merges kit-export record PR23; its main run44055581164
-is active. That record changes only its spike directory. Runtime, old gates and assertions are unchanged.
-Stages1–3 are complete on main; the full goal remains active through Gate5. Root has opened `layer/4`
-from that green main. Three read-only research passes and three isolated throwaway spikes are complete:
-kit export isolation, native world-owned Anvil containers and authenticated SIWE linking. Each has a source/
-retained-receipt review pass and verified cleanup. Results and portability limits are in `wayfinding-stage4.md`.
-D4 is recorded on `layer/4`. Its independent audit caught a dependency runtime leaking through whole-operation
-API imports; the corrected contract separates the vendor-free descriptor from the runtime wrapper and requires
-a Node-capable SDK closure/client-typecheck guard. The same reviewer passed corrected `66e28fb7`, then explicit
-pure-descriptor metadata clarification `3e666e9a`; that contract is frozen for the author's checks (receipt
-`evidence/D4/`). The separate
-author owns `author/stage4-checks` in the existing check-author worktree: Stage4 acceptance matrix, immediate
-L3.01 journeys/planted fixtures and captured red checks. Its runtime ports are19160–19179; it must stop only its
-own resources and must not run the old gates' global cleanup. No L3.01 builder starts before the author receipt.
-Five first-step kit cases have captured CLI-readiness red: each package built, typed and packed successfully,
-then the real current CLI refused the unimplemented `kit` subcommand. This is not empty-handler proof; later
-assertions were not reached. The remaining immediate checks and stagewide matrix must finish before the author commit.
-Stage4 production implementation has not started. All three spike runtime windows are released.
+**Current frontier: layer three, Stage4, before the first implementation.** Layers one and two are complete.
+Current main is `4dcb9e0cbe64767fd715c64dd6195d34647e111d`; run44064366272 passed all three jobs.
+All three isolated experiment records are merged: kit package exports (PR23), authenticated SIWE linking (PR25)
+and native world-owned Anvil Containers (PR26). Generic CI checks the earlier product gates, not the spike scripts.
+The local experiment proofs and Node24/Linux portability limits remain unchanged.
 
-**Record landings are separate from feature work.** The former Stage3 lead owns each spike's own main PR from
-the verifier checkout, with at most one live keyed model job and a reserved five dollars before each trigger.
-PR23 holds the kit record. Its first run hit the now-recovered CLI test deadlines; the failed head/run are
-preserved. Refreshed head `54054c49` includes green main764 and still differs only in its spike directory.
-Run44053082071 passed all three jobs; independent source review passed the identical subtree against764.
-PR23 is now merged at e3a551b9, with main44055581164 active. The SIWE and container records follow only after
-that main run is green, using fresh main bases and CI. Root retains this
-checkout and `layer/4`. Main red is fixed before new feature work. The root must merge the final green main records
-back into `layer/4` before the layer landing. Logged daily model spend is $0.96 through PR23's refreshed model
-job, before PR23's new main job; the lead audits each actual cost before releasing its reservation.
-One of three spike records has merged; its post-merge CI is still pending.
-Root already adopted main764 into `layer/4` at402bdd9: reset/sync, all16 static projects and all4 model tests pass;
-fresh retained captures are in `evidence/CI-model-deadlines/`. No full local gate was run alongside the author.
+**L3.01 is still author acceptance, not implementation.** D4 is recorded, including pure descriptor/runtime separation,
+Promise/Effect dependency wrappers and transitive uses metadata. Earlier boundary reviews passed; the latest
+transitivity/author audit remains part of acceptance. Separate author checkpoint5219cf0 and graph packagebe58b32
+are merged locally into `layer/4` at f9a9508/593b378. Their packed fixtures, kits-free fifteen-operation/nine-eval
+control and scoped static checks pass. Product cases reach the current missing kit/dependency CLI commands;
+assertions after that boundary are unreached, not empty-handler/runtime/graph proof.
+
+**Remaining before a builder.** Finish and commit the first author's runtime-guard edits, review both author packages,
+and confirm their integrated readiness. The author worktree has uncommitted changes and captures08–11; preserve them.
+No production L3.01 builder has started, so layer three remains zero of ten implementation steps. Later wallet,
+chain, relay and follower APIs are decided and independently checked before their respective builders.
+
+**Artifact correction requested by Aaron.** The status page now opens the current layer's step list and keeps layer two
+under History. Old `#stage3` deep links redirect to `#current-layer`; `#current-code` explains the contract in code,
+and `#delays` separates correctness fixes, test/CI delays and coordination overhead. The evidence page includes
+both committed author checkpoints and explicitly says these are readiness records, not implemented capabilities.
+Renderer handling now accepts a not-run CI object and optional captions; missing required display fields were
+added to the graph receipt without altering its proof boundaries. The original goal remains all five gates.
+
+**Verified in the artifact-update chat.** The integrated branch passed all sixteen projects' lint/type checks and the
+explicit layer-three TypeScript check. Both HTML artifacts passed inline-script syntax and display-privacy checks.
+The interrupted old verification session was not assumed successful; no matching verification process remained.
+The active original conductor chat was observed in progress; no worker was restarted or terminated from this chat.
+The artifact-update chat itself has no active goal record. Do not mistake that for completion of the original goal.
+
+**Budget and ownership.** Recorded model-assisted CI spending is $1.17 through PR26's main job, from the coordinator's
+actual job-cost ledger. Reserve five dollars and allow at most one live keyed job before further paid CI triggers.
+Root retains `layer/4`; original HeroUI/template/env/zip files in the main checkout remain protected and untouched.
+The main/spike coordinator records are retained in its ignored staging folder. Completed spike resources were
+cleaned up; do not kill unrelated user resources or another author's active test window. Claude alone republishes
+the private claude.ai artifacts; local files have been regenerated, not claimed remotely republished.
 
 **Exact-main proof.** Clean `6a4fe08` passed stock Gate2: eight files, ten tests, zero skips, 247.6 seconds,
 including real Mac arm64 Homebrew. The same source passes Linux Gate2 with actual Linuxbrew in main CI. Before
@@ -52,7 +53,7 @@ Raw captures33–40 are under `evidence/L2.11/`; all layer-two ci.json records p
 
 **Review and source boundary.** The independent whole-layer PASS covered `3bacbf3` against then-main `ca2fbf2`;
 PR21's first merge396 has that exact tree. The same reviewer gave the bounded recovery PASS for `f900eb1` against
-396 after all three keyed PR jobs were green. Current main6a4 has exactly that reviewed f900 tree (capture37).
+396 after all three keyed PR jobs were green. Stage3 closure main6a4 has exactly that reviewed f900 tree (capture37).
 The recovery changes only one test body's explicit60-second deadline around two real Node CLI starts; assertions,
 requests, subprocess/hook/global/domain deadlines and runtime are unchanged (D3 #200). Original main396's red
 workspace run and its green exact-main gate remain historical evidence. Product-review rounds remain three,
@@ -62,7 +63,7 @@ with the six source/evaluator findings resolved; ordinary test transport/deadlin
 it while canonical journeys passed. Root permitted exactly one unchanged-input targeted resample, which passed;
 the failed sample/cost and both attempts are retained (D3 #201, captures29–32 and nested attempts). Prompt, source,
 tools, assertions and limits were unchanged. This is not measured model reliability. Corrected main's fresh agent
-check passed at18 turns/24 seconds/$0.04. Observed logged CI sessions total $0.79 today: baseline $0.59, feature PR
+check passed at18 turns/24 seconds/$0.04. At the Stage3 closure, observed logged CI sessions totalled $0.79: baseline $0.59, feature PR
 $0.04, first main $0.04, failed recovery sample $0.03, one resample $0.05, corrected main $0.04. No new credential,
 paid cloud resource, public deployment or public publication was created.
 

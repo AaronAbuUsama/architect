@@ -12,5 +12,17 @@
     "graph/collision behavior",
     "Gate 3",
     "CI/main"
-  ]
+  ],
+  "stage": "Stage 4 \u00b7 independent graph/collision author checks",
+  "title": "Transitive integrity and collision acceptance: implementation not yet reached",
+  "summary": "Nine packed fixture controls pass. Nine graph and fifteen collision cases stop at the current missing kit/dependency commands, after valid setup. The checks are authored; graph, collision and runtime behavior remain unproved.",
+  "captions": {
+    "01-positive-fixtures": "Historical setup failure; corrected in the later positive controls. This is not a product failure.",
+    "02-positive-fixtures": "Nine independent packed/type/pure-entry fixture controls pass.",
+    "07-final-collision-red": "Nine controls pass; fifteen product cases remain RED at the missing kit command.",
+    "10-final-graph-red": "Nine product cases remain RED at missing kit/dependency commands; later assertions are unreached.",
+    "11-final-static": "The authored graph/collision sources typecheck.",
+    "12-final-lint": "Scoped authored source lint passes.",
+    "15-final-scope-cleanup": "Final source identity and owned-resource cleanup."
+  }
 }

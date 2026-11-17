@@ -114,6 +114,7 @@ td.s { white-space: nowrap; }
   .layer > .badge { justify-self: start; }
   .layer .name span { display: block; margin: 4px 0 0; }
 }
+pre { white-space: pre-wrap; overflow-x: auto; background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 14px; line-height: 1.5; }
 </style>
 
 <a class="skip-link" href="#doc">Skip to content</a>
@@ -138,20 +139,35 @@ td.s { white-space: nowrap; }
 const B = (s, t) => '<span class="badge s-' + s + '">' + t + '</span>';
 const DONE = B("done", "built"), WIP = B("wip", "being built"), TODO = B("todo", "not started"), LATER = B("todo", "later"), CLOUD = B("todo", "cloud pass");
 
+const CURRENT_LAYER = {
+  number: 3, label: "Layer three", title: "Reach out", stage: 4, gate: 3,
+  steps: [
+    ["L3.01", "Kits, dependencies and edges", "Author checkpoints merged locally; runtime-guard edits and independent acceptance review remain open. The current CLI does not implement add kit or add dependency.", "wip", "checks first"],
+    ["L3.02", "Wallets and the Signer", "Encrypted local keystore, create/import/list and a real test wallet per world person.", "todo", "not started"],
+    ["L3.03", "Authentication kit and wallet linking", "Preserve starter behavior; link a signed SIWE challenge to the existing person/session. The experiment is proven; production integration is not built.", "todo", "not started"],
+    ["L3.04", "The chain kit", "Wrap viem once; deploy a fixture ERC20, transfer, decode typed errors and retain receipt spans.", "todo", "not started"],
+    ["L3.05", "Anvil owned by a world", "Real child/container lifecycle, isolation and cleanup. The native Container experiment passed locally; framework integration remains.", "todo", "not started"],
+    ["L3.06", "The relayer", "A real Durable Object serializes 100 submissions with nonces zero through ninety-nine and replaces a dropped transaction.", "todo", "not started"],
+    ["L3.07", "Simulation", "A reverting simulation returns its typed error without sending a transaction.", "todo", "not started"],
+    ["L3.08", "The follower", "Real reorg corrections, persisted checkpoints and restart without double counting.", "todo", "not started"],
+    ["L3.09", "Delegated wallets", "A sponsored Prague EIP-7702 call. Defer only on recorded blocking evidence, not an availability skip.", "todo", "not started"],
+    ["L3.10", "Gate three", "The complete acme journey, all prior checks, real Linux CI and cleanup. The partial target deliberately remains red.", "todo", "gate not passed"]
+  ]
+};
+
 const ALL_PAGES = [
 { id: "now", group: "Start", t: "Where it stands", h: () => `
-<h1>Where it stands</h1>
-<p class="lede">Three of the six stages are complete on main. Gate 2 passes locally and in main CI, with real Homebrew, independent review and cleanup. Stage 4 has reached separate author checks.</p>
+<h1>Current: ${CURRENT_LAYER.label.toLowerCase()} — ${CURRENT_LAYER.title.toLowerCase()}</h1>
+<p class="lede">Layer two is finished. We are in layer three's research and acceptance-check phase, which is stage four of six. Zero of its ten implementation steps are complete. Gate three has not passed.</p>
 <ul>
-<li><b>Layer one, declare and call, is finished.</b> Stages one and two, Gate 1, are on main.</li>
-<li><b>Layer two, prove and ship, is finished.</b> All fourteen steps are on main: real local environments, signed proof, promotion, publishing, OAuth MCP, watch and the portal.</li>
-<li><b>Gate 2 passed all ten tests.</b> The clean local run and Linux CI include real Homebrew with zero skips. The latest completed recovery main run passed all three jobs, including the model-assisted handler check.</li>
-<li><b>The completed gate and experiment runs cleaned up.</b> Their owned containers, taps, formulas, listening ports and runtime processes are gone; unrelated resources were preserved. The current author owns a separate test window.</li>
-<li><b>Moving:</b> Stage 4 research and three isolated experiments passed, with cleanup. The corrected kit-format contract passed independent review. The author has captured the first five kit-readiness failures and is completing the checks before the first builder starts. The separate CLI deadline correction has landed and main is green; experiment records are resuming their own reviews and CI.</li>
-<li><b>Record landing:</b> The kit-export experiment is merged. Its main CI is running before the two remaining records land. <a href="https://github.com/AaronAbuUsama/architect/actions/runs/44050823357">The last completed main run</a> is green.</li>
-<li><b>Boundaries remain explicit.</b> Test, staging and production are local workerd deployments. The historical author-rule deviation, accepted legacy-adapter policy debt and one failed model sample with a bounded fresh sample remain recorded. No public cloud or model-reliability claim is made.</li>
+<li><b>Done on main:</b> layers one and two, with their local gates, CI and independent reviews. The three layer-three experiment records are also merged.</li>
+<li><b>Verified now:</b> <a href="https://github.com/AaronAbuUsama/architect/actions/runs/44064366272">main CI on the latest record merge</a> passed all three jobs. This checks the existing product gates; it does not run the new experiment scripts.</li>
+<li><b>Current step:</b> L3.01, the kit and dependency mechanism. The contract is recorded. Two independent authors have supplied package, SDK, import-boundary, graph and collision checks; the first checkpoint and graph suite are merged locally.</li>
+<li><b>Still open before implementation:</b> finish and commit the pricing Promise/Effect runtime-guard package, complete the independent acceptance review, and confirm integrated checks. The author branch contains further uncommitted work.</li>
+<li><b>What the red checks prove:</b> fixture packages successfully build and install, then the current CLI refuses the missing kit/dependency commands. They do not yet prove execution of empty handlers, the new runtime or graph behavior.</li>
+<li><b>Next:</b> start one L3.01 builder against the frozen author checks. Wallets, production SIWE integration, relaying and following come after that foundation.</li>
 </ul>
-<div class="callout">For the detail, see <a href="#layers">the five layers</a>, <a href="#stage3">layer two, step by step</a> and <a href="#left">what's left</a>.</div>` },
+<div class="callout">Open <a href="#current-layer">the current layer, step by step</a>, <a href="#current-code">the code walkthrough</a>, or <a href="#delays">what has taken the time</a>. Completed layer two is kept under History.</div>` },
 
 { id: "intro", group: "Start", t: "What Architect is", h: () => `
 <h1>What Architect is</h1>
@@ -221,27 +237,18 @@ steps, performance, coverage and explainability.</p>
 </div>
 <div class="callout">Layer one is split into two stages: the skeleton with every eval (stage 1), then the allowance's whole life (stage 2, Gate 1).</div>` },
 
-{ id: "stage3", group: "Progress", t: "Layer two, step by step", h: () => `
-<h1>Layer two, step by step</h1>
-<p class="lede">Prove and ship, across local environments. Each merged step has its decisions in D3 and its evidence in the repo.</p>
-<div class="tablewrap"><table>
-<thead><tr><th>Step</th><th>What it does</th><th>State</th></tr></thead><tbody>
-<tr><td class="k">L2.01</td><td>Environments: one build per revision, and test, staging and production running side by side.</td><td class="s">${DONE}</td></tr>
-<tr><td class="k">L2.02</td><td>Test worlds: prove in a fresh world, post verdicts, destroy the world.</td><td class="s">${DONE}</td></tr>
-<tr><td class="k">L2.03</td><td>The logbook: verdicts signed with an OIDC token, kept per revision.</td><td class="s">${DONE}</td></tr>
-<tr><td class="k">L2.04</td><td>Versions worked out from the model, and what a change made stale.</td><td class="s">${DONE}</td></tr>
-<tr><td class="k">L2.05</td><td>Promote the same bundle from test to staging to production.</td><td class="s">${DONE}</td></tr>
-<tr><td class="k">L2.06</td><td>Publish the SDK and CLI to npm and a Homebrew tap.</td><td class="s">${DONE}</td></tr>
-<tr><td class="k">L2.07</td><td>Device sign-in for the generated CLI.</td><td class="s">${DONE}</td></tr>
-<tr><td class="k">L2.L</td><td>Your layout: handlers at <code>src/&lt;thing&gt;/&lt;operation&gt;.ts</code>.</td><td class="s">${DONE}</td></tr>
-<tr><td class="k">L2.P</td><td>Privacy seams for Noir later: secret and private fields, coded refusals.</td><td class="s">${DONE}</td></tr>
-<tr><td class="k">L2.O</td><td>Seeing traces locally, with Axiom as a sink by config.</td><td class="s">${DONE}</td></tr>
-<tr><td class="k">L2.08</td><td>The MCP server with OAuth, and the world's front door closed outside test worlds.</td><td class="s">${DONE}</td></tr>
-<tr><td class="k">L2.09</td><td><code>watch</code>: the same evals on live telemetry; drift becomes a task.</td><td class="s">${DONE}</td></tr>
-<tr><td class="k">L2.10</td><td>The portal: a read-only page per environment, honest ticks, stale explained.</td><td class="s">${DONE}</td></tr>
-<tr><td class="k">L2.11</td><td>Complete on main: clean local gate, all three CI jobs, real Homebrew, independent review and cleanup pass.</td><td class="s">${WIP}</td></tr>
+{ id: "current-layer", group: "Progress", t: `${CURRENT_LAYER.label}, step by step`, h: () => `
+<h1>${CURRENT_LAYER.label}, step by step</h1>
+<p class="lede">${CURRENT_LAYER.title}. Stage ${CURRENT_LAYER.stage} of six, Gate ${CURRENT_LAYER.gate} of five. Research is complete; implementation is zero of ten steps.</p>
+<div class="callout"><b>Preparation completed:</b> package export separation, native Anvil Containers and authenticated SIWE linking passed bounded local experiments. D4 records the contract. Those are research results, not completed production capabilities.</div>
+<div class="tablewrap"><table><thead><tr><th>Step</th><th>Capability and next proof</th><th>State</th></tr></thead><tbody>
+${CURRENT_LAYER.steps.map(([id, title, detail, status, label]) => `<tr><td class="k">${id}</td><td><b>${title}.</b> ${detail}</td><td class="s">${B(status, label)}</td></tr>`).join("")}
 </tbody></table></div>
-<p class="muted">Read from the build plan and the layer merged into <code>main</code>.</p>` },
+<p>Independent author checks come before the builder. The current partial Gate 3 target remains red until its complete wallet, chain, relay and reorg journeys exist and pass. Research and records do not count as implemented steps.</p>` },
+
+{ id: "current-code", group: "Progress", t: "Current step: code walkthrough", h: () => "<h1>What the current step is building</h1><p class=\"lede\">L3.01 builds the plugin mechanism. A project selects a finished capability; Architect brings its declarations, implementation and proof dependencies into the same pipeline as project operations. The code below is the decided contract. The package fixture already runs independently, but Architect does not implement its selection or generated wiring yet.</p><h2>1. The project chooses a kit</h2><p>One command writes one choices file. The project does not copy handlers or import the underlying SDK.</p><pre><code>architect add kit @fixture/echo --as fixture</code></pre><pre><code>// blueprint/kits/fixture.ts\nimport { Blueprint } from &quot;@architect/blueprint&quot;;\nimport { Fixture } from &quot;@fixture/echo&quot;;\n\nexport default Blueprint.kit(Fixture, { prefix: &quot;Hello: &quot; });</code></pre><h2>2. The package separates declarations from execution</h2><p>The descriptor says where to find each entry. Descriptor and declaration entries are pure; browser clients never import the Worker or Node implementation. Actual secrets and local keystore paths are injected at the process entry.</p><pre><code>export const Fixture = {\n  choices: Choices,\n  defaults: { prefix: &quot;&quot; },\n  declarations,\n  sources: {\n    descriptor: &quot;@fixture/echo&quot;,\n    declarations: &quot;@fixture/echo/blueprint&quot;,\n    worker: &quot;@fixture/echo/worker&quot;,\n    node: &quot;@fixture/echo/node&quot;,\n  },\n};</code></pre><h2>3. Its Worker supplies finished behavior</h2><p>This factory shape is already present in the authored fixture. The handler and layer are adopted from the independently tested experiment. Architect must wire them, not scaffold an empty project handler.</p><pre><code>export const make = (choices, declarations) =&gt; ({\n  handlers: { echo: { repeat } },\n  layer: layer(choices),\n});\n\n// The existing behavior reads its configured Prefix service.\nconst repeat = (payload) =&gt;\n  Effect.map(Prefix, ({ value }) =&gt; ({ text: value + payload.text }));</code></pre><h2>4. Architect compiles and generates the connection</h2><p>The compiler learns the canonical operation identity <code>kit:fixture:echo.repeat</code>, its package provenance and source integrity. That identity is separate from safe file paths and TypeScript names. The generators emit the HTTP route, typed SDK and MCP tool, and provide the kit layer to both server transports.</p><pre><code>// Intended generated client surface\nSdk.kits.fixture.echo.repeat({ text: &quot;world&quot; });\n// Expected answer with these choices: { text: &quot;Hello: world&quot; }</code></pre><p>The intended HTTP route is <code>/kits/fixture/echo/repeat</code>. The logical SDK call returns an Effect, following the existing SDK style. The actual caller/transport setup is generated around it.</p><h2>5. Dependencies wrap libraries the project calls</h2><p>A kit arrives finished. A dependency wrapper is for a foreign callable whose failures you must map to your own declared errors. The command writes a pure descriptor and a runtime wrapper, with exactly one blank across the pair.</p><pre><code>// blueprint/dependencies/pricing.ts — no vendor runtime import\nexport const quote = Blueprint.dependency({\n  package: &quot;@fixture/remote&quot;, version: &quot;1.0.0&quot;,\n  mode: &quot;promise&quot;, errors: [PriceUnavailable], step: &quot;network&quot;,\n});</code></pre><pre><code>// src/dependencies/pricing.ts — runtime imports stay here\nexport const quote = Dependencies.implementation(declaration, {\n  call,\n  failure: Blueprint.todo(&quot;map the failure to PriceUnavailable&quot;),\n});\n\n// Once filled, the only application-specific choice might be:\nfailure: (_failure) =&gt; new PriceUnavailable({ reason: &quot;pricing unavailable&quot; });</code></pre><p>The generated Pricing service infers arguments and results from the library. Promise mode counts the request until its returned promise settles; it does not pretend cancellation stopped an arbitrary SDK. Effect mode maps typed failures while retaining defects and interruption.</p><h2>6. The same graph decides what becomes stale</h2><p>An operation declares <code>uses: [quote]</code>. Dependencies and selected kits can declare their own uses. If the kit, callable package or mapping implementation changes, its consumers become stale. Unrelated operations stay proven. Impact must show those relationships.</p><h2>What counts as finished</h2><p>One command adds the real packed fixture; generated SDK and HTTP/MCP calls execute it; choices affect its answer; client bundles exclude runtime-only imports; graph and integrity changes invalidate the right proofs; and earlier nine-eval behavior remains intact. Wallets, relaying and the follower are later steps built on this foundation.</p>" },
+
+{ id: "delays", group: "Progress", t: "What has taken the time", h: () => "<h1>What has taken the time</h1><p class=\"lede\">Most of the delay has been finishing layer two safely, then defining and checking the kit boundary before the first layer-three implementation. This has taken too long to turn into a first working slice.</p>\n<ol><li><b>Real layer-two correctness work.</b> Reviews found problems with artifact/proof identity, world isolation, process ownership, immutable model admission and first-call MCP telemetry. Those needed code fixes and real-service proofs, not another green rerun.</li>\n<li><b>Repeated integration-test deadline failures.</b> Real worker restarts and CLI processes sometimes exceeded Vitest's default five seconds in CI. Authors gave those integration bodies explicit bounds without changing assertions or domain performance budgets. Each recovery repeated PR and main CI. One model-written handler also missed its state update; the proof rejected it and one recorded unchanged resample passed.</li>\n<li><b>The new kit boundary had a genuine design trap.</b> Importing a dependency callable or mapper from a declaration would pull its runtime into client code. We split pure declarations from runtime implementations. We also made descriptor purity, names, dependency edges and source integrity explicit.</li>\n<li><b>Coordination overhead.</b> I spent too long on contract refinement, a broad acceptance package and serial record landings before delivering the first L3.01 implementation. The artifact navigation also stayed on the old layer. That part is a process and reporting failure, not a remaining layer-two blocker.</li></ol>\n<h2>The issue right now</h2><p>Main is green. There is no credential, budget or user decision blocking the next step. The remaining work before the builder is to finish and review the immediate dependency runtime guards and integrated author suite. Then the priority is a real kit selection reaching a generated SDK call.</p>\n<p>Logged model-assisted CI spend is $1.17 against the $10 daily cap. This is the recorded CI total, not a claim about unrelated account spending. All experiment runtime cleanup was recorded.</p>" },
 
 { id: "works", group: "Progress", t: "What works on your Mac", h: () => `
 <h1>What works on your Mac</h1>
@@ -353,21 +360,43 @@ steps, performance, coverage and explainability.</p>
 <ul>
 <li><b>Shared ports and Docker.</b> Builders running tests at once collide on ports. Gate 2's cleanup removes every Architect container, other agents' too, so it must run alone.</li>
 <li><b>Leftover containers.</b> A killed Gate 2 run can leave a registry container holding its port. Collectors now clean themselves up.</li>
-<li><b>One flaky check.</b> One run in three of the promotion check lost its connection to staging after a restart, and passed on retry.</li>
+<li><b>Resolved restart transport issue.</b> The authored GET helper now closes pooled connections across worker restarts. The fixed flow passed the clean local and Linux gates; earlier failures remain in evidence.</li>
 <li><b>The cloud pass must set the environment's name</b> on every deployed server, or it would open the world's front door.</li>
-<li><b>The agent check is skipped in CI</b> on <code>layer/3</code>, because the model key only reaches pull requests into main.</li>
+<li><b>The agent check is skipped in CI</b> on layer branches, because the model key only reaches main pushes and pull requests into main.</li>
 </ul>` },
 
 { id: "sources", group: "Decisions", t: "How this was checked", h: () => `
 <h1>How this was checked</h1>
 <p class="lede">Every claim here was read from the repository, its pull requests and CI, on 17 November 2026, not from memory.</p>
 <ul>
-<li><b>Plan and state:</b> the handoff's START HERE, the goal file with its six stages and five gates, and the build plan's marks, on <code>layer/3</code> after the last merge.</li>
+<li><b>Plan and state:</b> the handoff's START HERE, the goal file with its six stages and five gates, and the build plan's marks, on <code>layer/4</code> after the author checkpoint merges.</li>
 <li><b>Decisions:</b> <code>design/decisions.md</code> and <code>design/decisions/</code>.</li>
 <li><b>What works:</b> each step's evidence in <code>design/evidence/</code>. Some older raw logs lack capture metadata; their provenance is unverified until a fresh run supplies it.</li>
-<li><b>Branches, pull requests and CI:</b> the remote branches, the pull request list, and the last CI runs on main and <code>layer/3</code>.</li>
+<li><b>Branches, pull requests and CI:</b> the remote branches, the pull request list, and the last CI runs on main and <code>layer/4</code>.</li>
 </ul>
 <p>The design docs: <a href="https://claude.ai/artifact/K7KtHJwu7YzZe43BeSPHo2">Architect design docs</a>. Every captured run: <a href="https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB">the evidence page</a>.</p>` },
+{ id: "layer2-archive", group: "History", t: "Layer two — completed", h: () => `
+<h1>Layer two — completed</h1>
+<p class="lede">Prove and ship, across local environments. Each merged step has its decisions in D3 and its evidence in the repo.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Step</th><th>What it does</th><th>State</th></tr></thead><tbody>
+<tr><td class="k">L2.01</td><td>Environments: one build per revision, and test, staging and production running side by side.</td><td class="s">${DONE}</td></tr>
+<tr><td class="k">L2.02</td><td>Test worlds: prove in a fresh world, post verdicts, destroy the world.</td><td class="s">${DONE}</td></tr>
+<tr><td class="k">L2.03</td><td>The logbook: verdicts signed with an OIDC token, kept per revision.</td><td class="s">${DONE}</td></tr>
+<tr><td class="k">L2.04</td><td>Versions worked out from the model, and what a change made stale.</td><td class="s">${DONE}</td></tr>
+<tr><td class="k">L2.05</td><td>Promote the same bundle from test to staging to production.</td><td class="s">${DONE}</td></tr>
+<tr><td class="k">L2.06</td><td>Publish the SDK and CLI to npm and a Homebrew tap.</td><td class="s">${DONE}</td></tr>
+<tr><td class="k">L2.07</td><td>Device sign-in for the generated CLI.</td><td class="s">${DONE}</td></tr>
+<tr><td class="k">L2.L</td><td>Your layout: handlers at <code>src/&lt;thing&gt;/&lt;operation&gt;.ts</code>.</td><td class="s">${DONE}</td></tr>
+<tr><td class="k">L2.P</td><td>Privacy seams for Noir later: secret and private fields, coded refusals.</td><td class="s">${DONE}</td></tr>
+<tr><td class="k">L2.O</td><td>Seeing traces locally, with Axiom as a sink by config.</td><td class="s">${DONE}</td></tr>
+<tr><td class="k">L2.08</td><td>The MCP server with OAuth, and the world's front door closed outside test worlds.</td><td class="s">${DONE}</td></tr>
+<tr><td class="k">L2.09</td><td><code>watch</code>: the same evals on live telemetry; drift becomes a task.</td><td class="s">${DONE}</td></tr>
+<tr><td class="k">L2.10</td><td>The portal: a read-only page per environment, honest ticks, stale explained.</td><td class="s">${DONE}</td></tr>
+<tr><td class="k">L2.11</td><td>Complete on main: clean local gate, all three CI jobs, real Homebrew, independent review and cleanup pass.</td><td class="s">${DONE}</td></tr>
+</tbody></table></div>
+<p class="muted">Read from the build plan and the layer merged into <code>main</code>.</p>` },
+
 ];
 const PAGES = ALL_PAGES;
 
@@ -416,7 +445,10 @@ document.addEventListener("keydown", (event) => {
 function route() {
   const navigating = currentPage !== null;
   const fromNavigation = nav.contains(document.activeElement);
-  const moved = renderDoc(location.hash.slice(1) || "now");
+  const requested = location.hash.slice(1) || "now";
+  const target = requested === "stage3" ? "current-layer" : requested;
+  if (requested === "stage3") history.replaceState(null, "", "#current-layer");
+  const moved = renderDoc(target);
   if (moved) doc.scrollTop = 0;
   setNavigation(false);
   if (navigating && fromNavigation) doc.focus({ preventScroll: true });

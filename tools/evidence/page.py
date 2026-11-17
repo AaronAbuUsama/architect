@@ -55,17 +55,22 @@ def step_html(d):
     s = json.load(open(os.path.join(d, "step.json")))
     caps = sorted(glob.glob(os.path.join(d, "*.txt")))
     runs = [(os.path.basename(p)[:-4], capture(p)) for p in caps]
-    ci = json.load(open(os.path.join(d, "ci.json")))[0] if os.path.exists(os.path.join(d, "ci.json")) else None
+    ci_path = os.path.join(d, "ci.json")
+    ci = None
+    if os.path.exists(ci_path):
+        recorded = json.load(open(ci_path))
+        ci = (recorded[0] if recorded else {}) if isinstance(recorded, list) else recorded
+        ci = {**ci, "conclusion": ci.get("conclusion") or "not_run"}
     verified = [c for _, c in runs if c["verified"]]
     all_ok = bool(runs) and len(verified) == len(runs) and all(c["code"] == c["expect"] for c in verified) and (ci is None or ci["conclusion"] == "success")
     unverified = not runs or len(verified) != len(runs)
     failed = any(c["code"] != c["expect"] for c in verified) or (ci is not None and ci["conclusion"] in {"failure", "timed_out", "cancelled", "startup_failure", "action_required"})
     status = "not done" if failed else "done" if all_ok else "unverified" if unverified else "not done"
     cls = "bad" if failed else "pass" if all_ok else "unknown" if unverified else "bad"
-    ci_html = f'<a href="{html.escape(ci["url"], quote=True)}">CI {shown(ci["conclusion"])}</a>' if ci else "CI not run"
+    ci_html = f'<a href="{html.escape(ci["url"], quote=True)}">CI {shown(ci["conclusion"])}</a>' if ci and ci.get("url") else "CI not run"
     commits = list(dict.fromkeys(c["commit"] for c in verified))
     commit_html = " · ".join(f'<a href="{REPO}/commit/{commit}">commit {commit}</a>' for commit in commits) or "commit metadata unavailable"
-    body = "".join(run_html(n, c, s["captions"].get(n, n)) for n, c in runs)
+    body = "".join(run_html(n, c, s.get("captions", {}).get(n, n)) for n, c in runs)
     return f"""
 <section class="step">
   <div class="stage">{shown(s['stage'])}</div>
