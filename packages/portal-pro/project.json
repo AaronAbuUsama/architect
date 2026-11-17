@@ -1,0 +1,16 @@
+{
+  "name": "portal-pro",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/portal-pro/src",
+  "projectType": "application",
+  "tags": [
+    "scope:portal-pro",
+    "env:runtime",
+    "layer:2"
+  ],
+  "targets": {
+    "lint": {},
+    "typecheck": {},
+    "test": {}
+  }
+}

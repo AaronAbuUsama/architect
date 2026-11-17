@@ -3,6 +3,9 @@ packages:
   - examples/*
   - e2e
 allowBuilds:
+  # Off until CI has HEROUI_AUTH_TOKEN: Pro's postinstall fails the whole install without a licence.
+  '@heroui-pro/react': false
+  '@zowe/secrets-for-zowe-sdk': false
   esbuild: true
   nx: true
   workerd: true
