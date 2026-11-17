@@ -22,6 +22,14 @@ const docker = (...args: ReadonlyArray<string>) => spawnSync("docker", args, { e
 const run = <A, E>(effect: Effect.Effect<A, E>) => Effect.runPromise(effect);
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
+// Each architect command blocks this test's event loop. A pooled socket may close while spawnSync is running, so
+// never carry one across those commands. Closing the request is safe for both reads and signed writes; no replay.
+const request = (url: string, init?: RequestInit) => {
+  const headers = new Headers(init?.headers);
+  headers.set("connection", "close");
+  return fetch(url, { ...init, headers });
+};
+
 const git = (root: string, ...args: ReadonlyArray<string>) => {
   const r = spawnSync("git", ["-c", "user.name=l2", "-c", "user.email=l2@example.test", "-c", "commit.gpgsign=false", ...args], { cwd: root, encoding: "utf8" });
   expect(r.status, r.stderr).toBe(0);
@@ -65,22 +73,22 @@ const scenario = (client: string, ref: string) => ({
 const scenarios = { interactiveLogin: false, tokenCallbacks: [{ issuerId: "architect", tokenExpiry: 600, requestMappings: [scenario("ci-main", "refs/heads/main"), scenario("ci-pr", "refs/pull/7/merge")] }] };
 
 const mint = async (client: string) => {
-  const r = await fetch(`${issuer}/token`, { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ grant_type: "client_credentials", client_id: client, client_secret: "unused" }) });
+  const r = await request(`${issuer}/token`, { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ grant_type: "client_credentials", client_id: client, client_secret: "unused" }) });
   return ((await r.json()) as { access_token: string }).access_token;
 };
 const post = async (client: string, revision: string, environment: string, operation: string, verdict: "pass" | "fail" = "pass") => {
-  const r = await fetch(`${logbook}/verdicts`, { method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${await mint(client)}` }, body: JSON.stringify({ revision, environment, operation, verdict }) });
+  const r = await request(`${logbook}/verdicts`, { method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${await mint(client)}` }, body: JSON.stringify({ revision, environment, operation, verdict }) });
   expect(r.status).toBe(200);
 };
 type Row = { operation: string; verdict: string; environment: string; ref: string; revision: string };
 const held = async (revision: string, environment: string) =>
-  (await (await fetch(`${logbook}/verdicts?revision=${revision}&environment=${environment}`)).json()) as Array<Row>;
+  (await (await request(`${logbook}/verdicts?revision=${revision}&environment=${environment}`)).json()) as Array<Row>;
 /** What the environment itself says it runs, found where it is. */
 const bundleOf = async (name: "test" | "staging" | "production") => {
   const where = await run(Environments.status({ root, name }));
   expect(where.state, name).toBe("up");
   expect((where as { port: number }).port, `${name}'s port`).toBe(PORTS[name]);
-  return (await (await fetch(`${(where as { url: string }).url}/_architect/bundle`)).json()) as { revision: string; sha256: string };
+  return (await (await request(`${(where as { url: string }).url}/_architect/bundle`)).json()) as { revision: string; sha256: string };
 };
 
 beforeAll(async () => {
@@ -92,7 +100,7 @@ beforeAll(async () => {
   docker("rm", "-f", container);
   const started = docker("run", "-d", "--name", container, "-p", `127.0.0.1:${PORTS.issuer}:8080`, "-e", "JSON_CONFIG_PATH=/config/issuer.json", "-v", `${config}:/config/issuer.json:ro`, ISSUER_IMAGE);
   expect(started.status, started.stderr).toBe(0);
-  for (let i = 0; i < 300 && !(await fetch(`${issuer}/.well-known/openid-configuration`).then((r) => r.ok, () => false)); i++) await sleep(200);
+  for (let i = 0; i < 300 && !(await request(`${issuer}/.well-known/openid-configuration`).then((r) => r.ok, () => false)); i++) await sleep(200);
   // A pull request's token is trusted by the logbook, so that only a verdict's ref, not its signature, keeps it from counting.
   const policy = { issuer, repository: trusted.repository, refs: ["refs/heads/main", "refs/pull/*/merge"], workflows: [trusted.workflow] };
   expect((await run(Environments.up({ root, name: "logbook", port: PORTS.logbook, policy }))).url).toBe(logbook);
@@ -176,14 +184,14 @@ describe("architect promote", () => {
     expect((await held(first, "production")).map((v) => `${v.operation}:${v.verdict}`).sort()).toEqual(operations.map((o) => `${o}:pass`).sort());
 
     // The release is in the logbook, with the version the model gave.
-    const last = (await (await fetch(`${logbook}/releases/latest`)).json()) as { version: string; revision: string };
+    const last = (await (await request(`${logbook}/releases/latest`)).json()) as { version: string; revision: string };
     expect(last).toMatchObject({ version: "1.0.0", revision: first });
 
     // Promoting the revision again changes nothing: it is already the last release, and the logbook keeps one.
     const again = architect("promote", "--to", "production");
     expect(again.status, again.out).toBe(0);
     expect(again.lines, again.out).toContain(`release 1.0.0 already recorded for ${first}`);
-    expect(await (await fetch(`${logbook}/releases/latest`)).json()).toEqual(last);
+    expect(await (await request(`${logbook}/releases/latest`)).json()).toEqual(last);
   });
 });
 

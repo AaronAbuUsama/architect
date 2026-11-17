@@ -31,7 +31,7 @@ const GRAFANA = ["GF_AUTH_ANONYMOUS_ENABLED=true", "GF_AUTH_ANONYMOUS_ORG_ROLE=A
 
 /** Loopback only, on ports Docker picks, no volume: stopping it forgets everything. */
 export const runArgs = (): ReadonlyArray<string> => [
-  "run", "-d", "--rm", "--name", NAME, "-p", "127.0.0.1::3000", "-p", "127.0.0.1::4318",
+  "run", "-d", "--rm", "--name", NAME, "--network", "bridge", "-p", "127.0.0.1::3000", "-p", "127.0.0.1::4318",
   ...GRAFANA.flatMap((e) => ["-e", e]), IMAGE,
 ];
 
@@ -42,6 +42,12 @@ export const portOf = (container: string, port: number) =>
       const found = r.stdout.trim().split("\n")[0]?.split(":").pop() ?? "";
       return r.status === 0 && /^\d+$/.test(found) ? Number(found) : undefined;
     }),
+  );
+
+/** Container traffic stays on the bridge: Linux's host-gateway cannot reach host loopback-only published ports. */
+export const bridgeAddress = (container: string) =>
+  docker(["inspect", "-f", '{{(index .NetworkSettings.Networks "bridge").IPAddress}}', container]).pipe(
+    Effect.map((r) => r.status === 0 && /^\d{1,3}(\.\d{1,3}){3}$/.test(r.stdout.trim()) ? r.stdout.trim() : undefined),
   );
 
 /** Whether the container exists and is running. */

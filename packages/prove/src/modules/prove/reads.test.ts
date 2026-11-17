@@ -92,7 +92,9 @@ export default Blueprint.read(Allowance, {
 `;
 
 describe("a read that lists, on a real world", () => {
-  it("the author's allowance.list passes every eval, and its journey's answers are pages", { timeout: 240_000 }, async () => {
+  // These include generation, Docker and workerd startup plus every journey. CI's cold services once exceeded 240 s;
+  // use the integration-test budget, without changing any operation's performance eval or its declared budget.
+  it("the author's allowance.list passes every eval, and its journey's answers are pages", { timeout: 600_000 }, async () => {
     const root = await project("authors", { from: "list.ts" }, { "an-owner-lists-allowances.ts": readFileSync(join(fixtures, "an-owner-lists-allowances.ts"), "utf8") });
     const report = await prove(root);
     expect(report.lines.filter((l) => l.includes("✘")), report.lines.join("\n")).toEqual([]);
@@ -102,7 +104,7 @@ describe("a read that lists, on a real world", () => {
     expect(spawnSync("docker", ["ps", "--format", "{{.Names}}"], { encoding: "utf8" }).stdout).not.toContain(`architect-collector-${process.pid}-`);
   });
 
-  it("filters, orders and pages, and refuses who is not the owner", { timeout: 240_000 }, async () => {
+  it("filters, orders and pages, and refuses who is not the owner", { timeout: 600_000 }, async () => {
     const root = await project("paging", { text: SMALL_LIST }, { "a-list-pages.ts": PAGING });
     const report = await prove(root);
     expect(report.lines.filter((l) => l.includes("✘")), report.lines.join("\n")).toEqual([]);
