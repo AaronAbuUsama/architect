@@ -14,7 +14,7 @@ const program = Effect.gen(function* () {
   for (const mode of ["ok", "reject", "throw"] as const) {
     const exit = yield* Effect.exit(pricing.quote(origin, mode));
     const failure = Exit.isFailure(exit) ? Cause.findErrorOption(exit.cause) : undefined;
-    answers.push({ mode, success: Exit.isSuccess(exit), selected: failure?._tag === "Some" && failure.value instanceof PriceUnavailable,
+    answers.push({ mode, success: Exit.isSuccess(exit), value: Exit.isSuccess(exit) ? exit.value : undefined, selected: failure?._tag === "Some" && failure.value instanceof PriceUnavailable,
       defect: Exit.isFailure(exit) && Cause.hasDies(exit.cause) });
   }
   const work = yield* Effect.forkChild(pricing.quote(origin, "hold"));

@@ -1,0 +1,6 @@
+$ python3 .architect/stage4-checkpoint-cleanup.py
+# commit 5219cf0 · 2026-11-17T11:02:50Z · exit 0 (expected 0) · 1.8s
+
+Architect containers: none
+Reserved author listening ports: none
+Runtime processes from this worktree: none

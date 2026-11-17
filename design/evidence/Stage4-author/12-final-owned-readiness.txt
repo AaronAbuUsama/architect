@@ -1,0 +1,862 @@
+$ pnpm exec vitest run --root e2e --config ./e2e/vitest.layer3.config.ts layer3/00-legacy-and-origin.test.ts layer3/01-kit-selection.test.ts layer3/02-kit-runtime-and-closure.test.ts layer3/03-dependency-selection.test.ts layer3/04-dependency-runtime.test.ts
+# commit 5219cf0 · 2026-11-17T10:56:43Z · exit 1 (expected 1) · 91.6s
+
+
+ RUN  v4.1.12 ./e2e
+
+ ❯ layer3/04-dependency-runtime.test.ts (8 tests | 6 failed) 27618ms
+     × the same unsupported native initializer fails explicitly in a real Worker, not through an added platform shim 3559ms
+     × the real HTTP caller retains nine evals, the dependency step/refusal log, and no default foreign payload log 3276ms
+     × Promise success/sync throw/rejection map once; interruption cannot release counted work before actual settlement 5520ms
+     × Effect mode preserves required services and only maps typed failure, never defects or interruption 3863ms
+     × a defect failure mapper is a defect rather than a fabricated selected refusal 3242ms
+     × a unselected failure mapper is a defect rather than a fabricated selected refusal 3133ms
+ ❯ layer3/03-dependency-selection.test.ts (5 tests | 5 failed) 19682ms
+     × the default raw Promise callable creates two files atomically with exactly one runtime-only mapper blank 4186ms
+     × dry-run writes neither file, and an existing runtime destination cannot leave a half-written declaration 4185ms
+     × explicit Effect mode and a selected error union are retained rather than inventing an error band 3638ms
+     × rejects a missing callable and missing selected error before creating either destination 3219ms
+     × Node-capable Promise SDK types and runtime stay out of API/SDK clients 4452ms
+ ❯ layer3/02-kit-runtime-and-closure.test.ts (5 tests | 5 failed) 11536ms
+     × a typed logical SDK and real workerd HTTP call retain the kit layer; prove keeps all nine evals 2405ms
+     × a fresh worker's first operation may be MCP: auth-only warmup does not supply the missing kit Context 2330ms
+     × actual client closures contain selected pure descriptor/declarations only; Worker never imports the Node entry 2321ms
+     × the independent empty-worker fixture fails the real journey/prover once the kit pipeline exists 2321ms
+     × the independent defect-worker fixture fails the real journey/prover once the kit pipeline exists 2158ms
+ ❯ layer3/01-kit-selection.test.ts (5 tests | 5 failed) 11014ms
+     × one command writes one valid choices file; duplicate selection never overwrites it 2160ms
+     × dry-run validates the installed descriptor and writes nothing 2279ms
+     × canonical identities, physical paths, identifiers and module/export provenance stay separate 2237ms
+     × invalid choices and non-JSON decoded choices fail with their source, before output is generated 2173ms
+     × mounting one singleton descriptor twice names both selections rather than alias-stamping shared objects 2164ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 21 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  layer3/01-kit-selection.test.ts > L3.01: select a finished kit > one command writes one valid choices file; duplicate selection never overwrites it
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ layer3/01-kit-selection.test.ts:16:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/21]⎯
+
+ FAIL  layer3/01-kit-selection.test.ts > L3.01: select a finished kit > dry-run validates the installed descriptor and writes nothing
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --dry-run in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ layer3/01-kit-selection.test.ts:33:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/21]⎯
+
+ FAIL  layer3/01-kit-selection.test.ts > L3.01: select a finished kit > canonical identities, physical paths, identifiers and module/export provenance stay separate
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ layer3/01-kit-selection.test.ts:40:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/21]⎯
+
+ FAIL  layer3/01-kit-selection.test.ts > L3.01: select a finished kit > invalid choices and non-JSON decoded choices fail with their source, before output is generated
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ layer3/01-kit-selection.test.ts:57:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/21]⎯
+
+ FAIL  layer3/01-kit-selection.test.ts > L3.01: select a finished kit > mounting one singleton descriptor twice names both selections rather than alias-stamping shared objects
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ layer3/01-kit-selection.test.ts:74:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/21]⎯
+
+ FAIL  layer3/02-kit-runtime-and-closure.test.ts > L3.01: configured kit execution and closure > a typed logical SDK and real workerd HTTP call retain the kit layer; prove keeps all nine evals
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ ready layer3/02-kit-runtime-and-closure.test.ts:14:9
+ ❯ layer3/02-kit-runtime-and-closure.test.ts:20:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/21]⎯
+
+ FAIL  layer3/02-kit-runtime-and-closure.test.ts > L3.01: configured kit execution and closure > a fresh worker's first operation may be MCP: auth-only warmup does not supply the missing kit Context
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ ready layer3/02-kit-runtime-and-closure.test.ts:14:9
+ ❯ layer3/02-kit-runtime-and-closure.test.ts:46:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/21]⎯
+
+ FAIL  layer3/02-kit-runtime-and-closure.test.ts > L3.01: configured kit execution and closure > actual client closures contain selected pure descriptor/declarations only; Worker never imports the Node entry
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ ready layer3/02-kit-runtime-and-closure.test.ts:14:9
+ ❯ layer3/02-kit-runtime-and-closure.test.ts:60:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/21]⎯
+
+ FAIL  layer3/02-kit-runtime-and-closure.test.ts > L3.01: configured kit execution and closure > the independent empty-worker fixture fails the real journey/prover once the kit pipeline exists
+ FAIL  layer3/02-kit-runtime-and-closure.test.ts > L3.01: configured kit execution and closure > the independent defect-worker fixture fails the real journey/prover once the kit pipeline exists
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ ready layer3/02-kit-runtime-and-closure.test.ts:14:9
+ ❯ layer3/02-kit-runtime-and-closure.test.ts:77:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/21]⎯
+
+ FAIL  layer3/03-dependency-selection.test.ts > L3.01: installed dependency selection > the default raw Promise callable creates two files atomically with exactly one runtime-only mapper blank
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "dependency" for "architect add"
+  Unrecognized flag: --export in command architect add
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --step in command architect add
+  Unrecognized flag: --error in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addDependency layer3/dependencies.ts:20:3
+ ❯ layer3/03-dependency-selection.test.ts:16:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/21]⎯
+
+ FAIL  layer3/03-dependency-selection.test.ts > L3.01: installed dependency selection > dry-run writes neither file, and an existing runtime destination cannot leave a half-written declaration
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "dependency" for "architect add"
+  Unrecognized flag: --export in command architect add
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --step in command architect add
+  Unrecognized flag: --error in command architect add
+  Unrecognized flag: --dry-run in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addDependency layer3/dependencies.ts:20:3
+ ❯ layer3/03-dependency-selection.test.ts:37:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/21]⎯
+
+ FAIL  layer3/03-dependency-selection.test.ts > L3.01: installed dependency selection > explicit Effect mode and a selected error union are retained rather than inventing an error band
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "dependency" for "architect add"
+  Unrecognized flag: --export in command architect add
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --step in command architect add
+  Unrecognized flag: --error in command architect add
+  Unrecognized flag: --mode in command architect add
+  Unrecognized flag: --error in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addDependency layer3/dependencies.ts:20:3
+ ❯ layer3/03-dependency-selection.test.ts:51:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/21]⎯
+
+ FAIL  layer3/03-dependency-selection.test.ts > L3.01: installed dependency selection > rejects a missing callable and missing selected error before creating either destination
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "dependency" for "architect add"
+  Unrecognized flag: --export in command architect add
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --step in command architect add
+  Unrecognized flag: --error in command architect add
+  Unrecognized flag: --dry-run in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addDependency layer3/dependencies.ts:20:3
+ ❯ layer3/03-dependency-selection.test.ts:62:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/21]⎯
+
+ FAIL  layer3/03-dependency-selection.test.ts > L3.01: installed dependency selection > Node-capable Promise SDK types and runtime stay out of API/SDK clients
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ layer3/03-dependency-selection.test.ts:71:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/21]⎯
+
+ FAIL  layer3/04-dependency-runtime.test.ts > L3.01: real dependency call boundaries > the same unsupported native initializer fails explicitly in a real Worker, not through an added platform shim
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "dependency" for "architect add"
+  Unrecognized flag: --export in command architect add
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --step in command architect add
+  Unrecognized flag: --error in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addDependency layer3/dependencies.ts:20:3
+ ❯ ready layer3/04-dependency-runtime.test.ts:52:41
+ ❯ layer3/04-dependency-runtime.test.ts:81:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/21]⎯
+
+ FAIL  layer3/04-dependency-runtime.test.ts > L3.01: real dependency call boundaries > the real HTTP caller retains nine evals, the dependency step/refusal log, and no default foreign payload log
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "dependency" for "architect add"
+  Unrecognized flag: --export in command architect add
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --step in command architect add
+  Unrecognized flag: --error in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addDependency layer3/dependencies.ts:20:3
+ ❯ ready layer3/04-dependency-runtime.test.ts:52:41
+ ❯ layer3/04-dependency-runtime.test.ts:90:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/21]⎯
+
+ FAIL  layer3/04-dependency-runtime.test.ts > L3.01: real dependency call boundaries > Promise success/sync throw/rejection map once; interruption cannot release counted work before actual settlement
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "dependency" for "architect add"
+  Unrecognized flag: --export in command architect add
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --step in command architect add
+  Unrecognized flag: --error in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addDependency layer3/dependencies.ts:20:3
+ ❯ ready layer3/04-dependency-runtime.test.ts:52:41
+ ❯ layer3/04-dependency-runtime.test.ts:103:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/21]⎯
+
+ FAIL  layer3/04-dependency-runtime.test.ts > L3.01: real dependency call boundaries > Effect mode preserves required services and only maps typed failure, never defects or interruption
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "dependency" for "architect add"
+  Unrecognized flag: --export in command architect add
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --step in command architect add
+  Unrecognized flag: --error in command architect add
+  Unrecognized flag: --mode in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addDependency layer3/dependencies.ts:20:3
+ ❯ ready layer3/04-dependency-runtime.test.ts:52:41
+ ❯ layer3/04-dependency-runtime.test.ts:121:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/21]⎯
+
+ FAIL  layer3/04-dependency-runtime.test.ts > L3.01: real dependency call boundaries > a defect failure mapper is a defect rather than a fabricated selected refusal
+ FAIL  layer3/04-dependency-runtime.test.ts > L3.01: real dependency call boundaries > a unselected failure mapper is a defect rather than a fabricated selected refusal
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "dependency" for "architect add"
+  Unrecognized flag: --export in command architect add
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --step in command architect add
+  Unrecognized flag: --error in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addDependency layer3/dependencies.ts:20:3
+ ❯ ready layer3/04-dependency-runtime.test.ts:52:41
+ ❯ layer3/04-dependency-runtime.test.ts:139:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/21]⎯
+
+
+ Test Files  4 failed | 1 passed (5)
+      Tests  21 failed | 4 passed (25)
+   Start at  10:55:12
+   Duration  90.69s (transform 474ms, setup 0ms, import 1.83s, tests 88.24s, environment 0ms)

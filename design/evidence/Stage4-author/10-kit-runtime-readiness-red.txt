@@ -1,0 +1,189 @@
+$ pnpm exec vitest run --root e2e --config ./e2e/vitest.layer3.config.ts layer3/02-kit-runtime-and-closure.test.ts
+# commit 5219cf0 · 2026-11-17T10:26:51Z · exit 1 (expected 1) · 14.7s
+
+
+ RUN  v4.1.12 ./e2e
+
+ ❯ layer3/02-kit-runtime-and-closure.test.ts (5 tests | 5 failed) 12671ms
+     × a typed logical SDK and real workerd HTTP call retain the kit layer; prove keeps all nine evals 3417ms
+     × a fresh worker's first operation may be MCP: auth-only warmup does not supply the missing kit Context 2382ms
+     × actual client closures contain selected pure descriptor/declarations only; Worker never imports the Node entry 2138ms
+     × the independent empty-worker fixture fails the real journey/prover once the kit pipeline exists 2379ms
+     × the independent defect-worker fixture fails the real journey/prover once the kit pipeline exists 2354ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  layer3/02-kit-runtime-and-closure.test.ts > L3.01: configured kit execution and closure > a typed logical SDK and real workerd HTTP call retain the kit layer; prove keeps all nine evals
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ ready layer3/02-kit-runtime-and-closure.test.ts:14:9
+ ❯ layer3/02-kit-runtime-and-closure.test.ts:20:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  layer3/02-kit-runtime-and-closure.test.ts > L3.01: configured kit execution and closure > a fresh worker's first operation may be MCP: auth-only warmup does not supply the missing kit Context
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ ready layer3/02-kit-runtime-and-closure.test.ts:14:9
+ ❯ layer3/02-kit-runtime-and-closure.test.ts:46:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  layer3/02-kit-runtime-and-closure.test.ts > L3.01: configured kit execution and closure > actual client closures contain selected pure descriptor/declarations only; Worker never imports the Node entry
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ ready layer3/02-kit-runtime-and-closure.test.ts:14:9
+ ❯ layer3/02-kit-runtime-and-closure.test.ts:60:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  layer3/02-kit-runtime-and-closure.test.ts > L3.01: configured kit execution and closure > the independent empty-worker fixture fails the real journey/prover once the kit pipeline exists
+ FAIL  layer3/02-kit-runtime-and-closure.test.ts > L3.01: configured kit execution and closure > the independent defect-worker fixture fails the real journey/prover once the kit pipeline exists
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ ready layer3/02-kit-runtime-and-closure.test.ts:14:9
+ ❯ layer3/02-kit-runtime-and-closure.test.ts:77:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed (5)
+   Start at  10:26:37
+   Duration  13.90s (transform 491ms, setup 0ms, import 1.08s, tests 12.67s, environment 0ms)

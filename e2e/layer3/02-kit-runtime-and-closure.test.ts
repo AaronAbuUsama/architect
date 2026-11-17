@@ -1,12 +1,12 @@
 // D4's configured finished handler must execute through actual generated SDK/HTTP and a fresh MCP runtime.
 import { spawnSync } from "node:child_process";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { Effect } from "effect";
 import { Prove, Worlds } from "@architect/prove";
 import { describe, expect, it } from "vitest";
 import { callAs } from "../layer2/mcp.ts";
-import { addKit, echoJourney, PORTS, project, succeeds } from "./support.ts";
+import { addKit, echoJourney, fixtures, PORTS, project, succeeds } from "./support.ts";
 import { bundle, typecheckSdk, violations } from "./closures.ts";
 
 const ready = (variant?: string) => {
@@ -59,6 +59,10 @@ describe("L3.01: configured kit execution and closure", () => {
   it("actual client closures contain selected pure descriptor/declarations only; Worker never imports the Node entry", () => {
     const copy = ready();
     try {
+      // Exercise ordinary whole-operation -> uses -> kit selection -> selected pure descriptor root, not only the kit's direct op.
+      cpSync(join(fixtures, "project/kit-health.ts"), join(copy.root, "blueprint/things/system/verbs/health.ts"));
+      succeeds(copy.root, "generate");
+      typecheckSdk(copy.root);
       for (const [name, entry] of [["api", "generated/api/src/index.ts"], ["sdk", "generated/sdk/src/index.ts"]] as const) {
         expect(violations(copy.root, bundle(copy.root, entry, name), "client")).toEqual([]);
       }

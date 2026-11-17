@@ -1,0 +1,58 @@
+$ pnpm exec vitest run --root e2e --config ./e2e/vitest.layer3.config.ts layer3/02-kit-runtime-and-closure.test.ts -t actual client closures
+# commit 5219cf0 · 2026-11-17T11:01:22Z · exit 1 (expected 1) · 4.8s
+
+
+ RUN  v4.1.12 ./e2e
+
+ ❯ layer3/02-kit-runtime-and-closure.test.ts (5 tests | 1 failed | 4 skipped) 2799ms
+     × actual client closures contain selected pure descriptor/declarations only; Worker never imports the Node entry 2798ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  layer3/02-kit-runtime-and-closure.test.ts > L3.01: configured kit execution and closure > actual client closures contain selected pure descriptor/declarations only; Worker never imports the Node entry
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "kit" for "architect add"
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addKit layer3/support.ts:27:73
+ ❯ ready layer3/02-kit-runtime-and-closure.test.ts:14:9
+ ❯ layer3/02-kit-runtime-and-closure.test.ts:60:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 skipped (5)
+   Start at  11:01:18
+   Duration  4.08s (transform 576ms, setup 0ms, import 1.16s, tests 2.80s, environment 0ms)

@@ -1,0 +1,357 @@
+$ python3 .architect/node-module-probe/run.py
+# commit 5219cf0 · 2026-11-17T10:17:29Z · exit 0 (expected 0) · 12.1s
+
+{"http_status": null, "body": "", "process_exit": 143}
+
+ ⛅️ wrangler 4.156.1 (update available 4.163.0)
+───────────────────────────────────────────────
+⎔ Starting local server...
+[wrangler:info] Ready on http://127.0.0.1:19179
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (123ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (5ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (9ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (7ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (11ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (8ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (10ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (9ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (11ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (9ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (8ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (8ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (11ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (12ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (8ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (12ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (6ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (5ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (9ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (11ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (7ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (9ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (10ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (11ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (6ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (10ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (10ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (18ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (11ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (10ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (8ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (6ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (7ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (10ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (9ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (10ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (4ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (4ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (6ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (12ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (4ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (4ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (4ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (4ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (9ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (10ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (8ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (12ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (11ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (6ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (5ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (12ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (8ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (4ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (4ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (6ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (8ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (10ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (7ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (5ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (7ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (16ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (4ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (3ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (4ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (10ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (7ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (4ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (9ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (9ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (10ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (9ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (10ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (10ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (10ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (9ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (8ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (9ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (8ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (12ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (14ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (10ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (10ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (12ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (5ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (9ms)
+[wrangler:error] TypeError: Illegal constructor
+    at new DatabaseSync (node:sqlite:8:15)
+    at Object.fetch (file://./.architect/node-module-probe/main.ts:2:39)
+[wrangler:info] GET / 500 Internal Server Error (8ms)

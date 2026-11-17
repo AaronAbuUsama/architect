@@ -1,16 +1,25 @@
 {
-  "step":"Stage4-author",
-  "stage":"Stage 4 · first author checkpoint (OPEN)",
-  "title":"Stage-wide acceptance matrix and first executable kit/dependency readiness checks",
-  "summary":"A separate author lists every L3.01–L3.10 success boundary, prepares real packed fixtures and first executable checks, and captures actual unsupported CLI readiness RED. Positive fixture-origin and kits-free real-service controls pass. Final first-step author acceptance remains open; no production builder or complete Gate 3 proof is authorized by this checkpoint.",
-  "proves":"Current add kit/add dependency commands are unimplemented: the real installed-package checks fail there. These failures are not empty-handler or mapper execution proof. The adopted successful Echo body and kits-free nine-eval control pass; static checks and cleanup pass. The stage-completeness criterion remains false while later step-specific checks are absent. Runtime adapter and graph/integrity/collision author receipts still need completion before L3.01 builders start.",
-  "captions":{
-    "01-kit-selection-red":"Five real kit-selection checks stop at the unsupported CLI after successful fixture package preparation; later assertions are unreached.",
-    "02-existing-control":"Adopted Prefix body executes with its real layer; the kits-free project retains SDK interfaces and nine evals through actual workerd/Collector.",
-    "03-dependency-selection-red":"Four checks reach unsupported dependency command; the client-boundary case first reaches unsupported kit selection. No adapter runtime proof is claimed.",
-    "04-checkpoint-typecheck":"The new layer-three authored check source typechecks independently of unchanged earlier suite configs.",
-    "05-checkpoint-lint":"New authored sources/fixture data lint without changing earlier checks.",
-    "06-stage-completeness-open":"The full-stage readiness criterion is still false: later precise author suites do not exist. This expected-pass acceptance condition has not passed.",
-    "07-checkpoint-cleanup":"No Architect container, reserved author listener or worktree runtime process remains."
+  "step": "Stage4-author",
+  "stage": "Stage 4 · first author checkpoint (OPEN)",
+  "title": "Stage-wide author matrix and completed first runtime-author contract portion (implementation RED)",
+  "summary": "The separate author runtime portion is complete for combined review with the independent graph/collision portion. Valid packed fixtures, existing real-service nine-eval controls and actual HTTP/native controls pass; the current framework lacks add kit/add dependency, so 21 owned future-path cases remain CLI-readiness RED with their later assertions unreached. No implementation, empty-handler execution or complete Gate 3 is claimed.",
+  "proves": "The final owned run contains 25 cases: four actual controls pass (adopted configured body, kits-free real workerd/Collector with nine evals, held HTTP missing-mask detection, and native Node SDK execution), and 21 cases fail on unsupported CLI commands after fixture preparation succeeds. The generated-service, empty/defect handler, SDK/MCP, type/closure and mapper assertions are authored but blocked; those are not executed proofs. Static checks and cleanup pass. The separate stage inventory criterion remains failed while later precise suites are absent; full Gate 3 is not skip-green. Combined independent author review remains required before a builder starts.",
+  "captions": {
+    "01-kit-selection-red": "Five real kit-selection checks stop at the unsupported CLI after successful fixture package preparation; later assertions are unreached.",
+    "02-existing-control": "Adopted Prefix body executes with its real layer; the kits-free project retains SDK interfaces and nine evals through actual workerd/Collector.",
+    "03-dependency-selection-red": "Four checks reach unsupported dependency command; the client-boundary case first reaches unsupported kit selection. No adapter runtime proof is claimed.",
+    "04-checkpoint-typecheck": "The new layer-three authored check source typechecks independently of unchanged earlier suite configs.",
+    "05-checkpoint-lint": "New authored sources/fixture data lint without changing earlier checks.",
+    "06-stage-completeness-open": "The full-stage readiness criterion is still false: later precise author suites do not exist. This expected-pass acceptance condition has not passed.",
+    "07-checkpoint-cleanup": "No Architect container, reserved author listener or worktree runtime process remains.",
+    "08-missing-mask-control": "An independently wrong adapter performs a real held HTTP request; the guard detects quiet being reported before settlement. Other cases were unselected by the filter, not newly skipped.",
+    "09-node-module-capability": "Standalone pinned real workerd control: Ready, then native DatabaseSync throws Illegal constructor. The probe summary has null HTTP status because its readiness loop retried 500; it is not a failed-start or generated dependency proof.",
+    "10-kit-runtime-readiness-red": "Five actual future kit runtime/closure/empty/defect checks stop at unsupported kit selection; no empty/defect execution claim.",
+    "11-dependency-runtime-readiness-red": "Two real controls pass; six future adapter paths stop at unsupported dependency selection. Protected Pricing/mapper behavior is not claimed implemented.",
+    "12-final-owned-readiness": "Final combined owned run: 4 controls pass, 21 readiness cases remain RED at the missing commands; no skip declarations.",
+    "13-final-typecheck": "Final authored source typechecks, including the ordinary-operation consumer closure check and tightened response/log oracles.",
+    "14-final-lint": "Final authored tests and fixture data lint cleanly.",
+    "15-final-cleanup": "All reserved author ports, Architect containers and worktree runtime processes are clear.",
+    "16-consumer-closure-readiness-red": "Ordinary operation uses -> kit selection -> selected pure descriptor root is now included in the closure/type oracle. The current unsupported kit command blocks execution before that oracle."
   }
 }
