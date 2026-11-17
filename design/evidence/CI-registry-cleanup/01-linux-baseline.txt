@@ -1,0 +1,20 @@
+$ bash -o pipefail -c gh run view 44012727718 --log-failed | rg -A12 -B4 "EACCES: permission denied|108 passed"
+# commit 7f662af · 2026-11-17T04:09:00Z · exit 0 (expected 0) · 3.0s
+
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T03:55:08.7260713Z ^[[31m^[[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T03:55:08.7260827Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T03:55:08.7260836Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T03:55:08.7261127Z ^[[2m Test Files ^[[22m ^[[1m^[[31m1 failed^[[39m^[[22m^[[2m | ^[[22m^[[1m^[[32m26 passed^[[39m^[[22m^[[2m | ^[[22m^[[33m2 skipped^[[39m^[[90m (29)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T03:55:08.7261554Z ^[[2m      Tests ^[[22m ^[[1m^[[32m108 passed^[[39m^[[22m^[[2m | ^[[22m^[[33m3 skipped^[[39m^[[90m (111)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T03:55:08.7261813Z ^[[2m   Start at ^[[22m 03:49:00
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T03:55:08.7262156Z ^[[2m   Duration ^[[22m 367.61s^[[2m (transform 7.45s, setup 0ms, import 9.37s, tests 700.86s, environment 2ms)^[[22m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T03:55:08.7262510Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T03:55:08.7262513Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T03:55:08.7266503Z ##[error]Error: EACCES, Permission denied: '/tmp/architect-staging-proof-0KE1Eb'
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	 ❯ src/modules/promote/staging.test.ts:82:3
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	Serialized Error: { errno: 13, code: 'EACCES', path: '/tmp/architect-staging-proof-0KE1Eb', syscall: 'rm' }
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T03:55:08.7269070Z Warning: command "vitest run --root packages/prove --passWithNoTests" exited with non-zero status code
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T03:55:08.7269915Z ##[endgroup]

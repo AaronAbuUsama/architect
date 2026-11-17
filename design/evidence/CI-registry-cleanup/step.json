@@ -1,0 +1,12 @@
+{
+  "step": "CI-registry-cleanup",
+  "stage": "Stage 3 · Gate 2 CI fixture recovery",
+  "title": "Remove registry-owned fixture storage before host teardown",
+  "summary": "The staging module fixture now uses the existing publisher-fixture teardown convention: its own live registry empties its own mounted storage before container removal, then host removal uses bounded retries. Linux baseline run 44012727718 passed all 108 prove tests but failed only this afterAll with EACCES. Product assertions and runtime source are unchanged. Local staging-module and static verification are captured; Linux CI on the merged fix is pending.",
+  "proves": "The eight staging proof/publication tests and their afterAll complete locally with no owned process or container left. The change matches the already-working Linux registry-storage convention in publish.test.ts. Fresh Linux CI must verify the integrated candidate before this recovery is called Linux-proven.",
+  "captions": {
+    "01-linux-baseline": "Actual Linux failure:108 passed tests, with staging fixture afterAll EACCES at host removal.",
+    "02-local-staging-tests": "All eight existing staging/publication assertions and fixture teardown on real local services.",
+    "03-static-checks": "Prove lint, typecheck and source diff check."
+  }
+}
