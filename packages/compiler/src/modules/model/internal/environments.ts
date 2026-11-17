@@ -1,6 +1,6 @@
 // Reads the environments into the model: the name comes from the file, never from a string inside it.
 import { Duration, Option } from "effect";
-import type { Publication, Sink } from "@architect/blueprint";
+import type { Publication, Sink } from "@formants/forman";
 import type { EnvironmentModel, PublicationModel, SinkModel } from "../types.ts";
 import { hashOf } from "./hash.ts";
 import type { Layout } from "./layout.ts";

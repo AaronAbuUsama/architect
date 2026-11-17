@@ -1,4 +1,4 @@
-import { Blueprint } from "@architect/blueprint";
+import { Blueprint } from "@formants/forman";
 
 export const Person = Blueprint.thing({
   description: "Someone who signs in. Better Auth keeps people; work refers to them by id.",

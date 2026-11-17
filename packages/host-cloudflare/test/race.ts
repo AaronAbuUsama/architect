@@ -1,9 +1,9 @@
 // Spike S3's race, for both owners (D2 #39): 50 concurrent spends of 10 against a limit of 500. Each spend reads,
 // awaits (a real store's round trip), then writes, so without the version guard updates are lost.
 import { Cause, Effect, Exit, Layer } from "effect";
-import { Blueprint, type Lives, type Thing } from "@architect/blueprint";
-import { EventNames } from "@architect/blueprint/server";
-import { BusyLive, Handlers, Records, Store, type Handler } from "@architect/target-effect";
+import { Blueprint, type Lives, type Thing } from "@formants/forman";
+import { EventNames } from "@formants/forman/server";
+import { BusyLive, Handlers, Records, Store, type Handler } from "@formants/language-effect";
 
 const Amount = Blueprint.value(Blueprint.uint(128));
 

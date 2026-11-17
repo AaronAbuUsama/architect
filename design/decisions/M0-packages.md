@@ -76,7 +76,8 @@ and the gate's name check (M0.06), the lint rule (M0.04) and the docs' "kit" che
 - `design/evidence/`, `design/briefs/`, `design/wayfinding/`, `design/spikes/`, `design/noir/`, `design/state/`;
 - `design/build-plan.md`, the record of layers 1 and 2 (milestones.md: "Layers 1 and 2 stay in the build plan as the
   record of what was built");
-- `design/goals/01-the-whole-framework-locally.md`, goal 1's prompt;
+- `design/goals/01-the-whole-framework-locally.md`, goal 1's prompt, and `design/frame/questions.md`, the question
+  round K2 answered, which quotes the code as it was;
 - `spikes/` (spike code is throwaway and never imported by packages).
 
 Everything else speaks the new names: the code, the examples, the gates, `README.md`, `AGENTS.md`, the skills, the

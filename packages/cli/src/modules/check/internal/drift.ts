@@ -1,8 +1,8 @@
 // The drift part, which is also the rule no-edited-output: generated/ must be exactly what the blueprint renders.
 import { existsSync, readFileSync } from "node:fs";
 import { basename, join, relative } from "node:path";
-import type { Model } from "@architect/compiler";
-import { Render } from "@architect/generators/render";
+import type { Model } from "@formants/compiler";
+import { Render } from "@formants/generators/render";
 import type { Finding } from "../types.ts";
 import { allFiles } from "./files.ts";
 

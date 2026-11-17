@@ -1,6 +1,6 @@
 import { Effect, Layer } from "effect";
-import { Auth, AuthRefused, Principals } from "@architect/target-effect";
-import type { Principal } from "@architect/blueprint";
+import { Auth, AuthRefused, Principals } from "@formants/language-effect";
+import type { Principal } from "@formants/forman";
 import type { AuthD1Api, AuthInstance, CastMember } from "./types.ts";
 import { held, instance, statusOf, type BetterAuth } from "./internal/instance.ts";
 import { KEY_PREFIX } from "./internal/options.ts";

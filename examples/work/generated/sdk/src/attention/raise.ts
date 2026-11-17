@@ -1,6 +1,6 @@
 // Generated from the blueprint. Do not edit.
 import { Effect } from "effect";
-import type { PayloadOf } from "@architect/blueprint";
+import type { PayloadOf } from "@formants/forman";
 import type { declaration } from "../../../api/src/attention/raise.ts";
 import { Work } from "../client.ts";
 

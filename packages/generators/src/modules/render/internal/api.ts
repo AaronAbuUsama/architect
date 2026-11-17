@@ -1,5 +1,5 @@
 // generated/api: the contract. Endpoints from each operation's own declaration, wire errors, the handler types.
-import type { Model, OperationModel } from "@architect/compiler";
+import type { Model, OperationModel } from "@formants/compiler";
 import type { RenderedFile } from "../types.ts";
 import { GENERATED, NOT_ALLOWED_EXIT, STATUS, lines, opVar, pascal, toRoot } from "./names.ts";
 
@@ -44,7 +44,7 @@ const errors = (model: Model): RenderedFile => {
   return file(path, lines(
     GENERATED,
     `import { Schema } from "effect";`,
-    `import { ErrorNames, structOf } from "@architect/blueprint/server";`,
+    `import { ErrorNames, structOf } from "@formants/forman/server";`,
     declaring.map((t) => `import * as ${t.identifier} from "${toRoot(path)}blueprint/things/${t.name}/errors.ts";`),
     "",
     body,
@@ -90,7 +90,7 @@ const handlerType = (op: OperationModel): RenderedFile => {
     GENERATED,
     "// What the handler is given: its payload and steps; what it may return: its answer or a declared error.",
     `import type { SqlClient } from "effect/sql";`,
-    `import type { Auth, Handler as Of, Records } from "@architect/target-effect";`,
+    `import type { Auth, Handler as Of, Records } from "@formants/language-effect";`,
     `import type declaration from "${toRoot(path)}${op.file}";`,
     "",
     "export type Handler<R = Records | SqlClient.SqlClient | Auth> = Of<typeof declaration, R>;",
@@ -123,7 +123,7 @@ const events = (model: Model): RenderedFile => {
   const emitting = Object.values(model.things).filter((t) => Object.keys(t.events).length > 0);
   return file(path, lines(
     GENERATED,
-    `import { EventNames } from "@architect/blueprint/server";`,
+    `import { EventNames } from "@formants/forman/server";`,
     emitting.map((t) => `import * as ${t.identifier} from "${toRoot(path)}blueprint/things/${t.name}/events.ts";`),
     "",
     emitting.flatMap((t) => Object.keys(t.events).map((e) => `EventNames.name(${t.identifier}.${e}, "${e}");`)),

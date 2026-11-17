@@ -14,11 +14,11 @@ const blueprint = (name: string, prefix?: string, errorCount = 1, machine = fals
   const root = mkdtempSync(join(scratch, "project-"));
   const thing = join(root, "blueprint/things", name);
   mkdirSync(thing, { recursive: true });
-  writeFileSync(join(thing, "thing.ts"), `import { Blueprint } from "@architect/blueprint";
+  writeFileSync(join(thing, "thing.ts"), `import { Blueprint } from "@formants/forman";
 export const Subject = Blueprint.thing({ description: "A compiler input.", fields: { id: Blueprint.id("subject") }${prefix ? `, code: "${prefix}"` : ""} });
 `);
-  writeFileSync(join(thing, "errors.ts"), `import { Blueprint } from "@architect/blueprint";\n${Array.from({ length: errorCount }, (_, i) => `export class Refusal${i + 1} extends Blueprint.error({}, { exit: 41 }) {}`).join("\n")}\n`);
-  if (machine) writeFileSync(join(thing, "machine.ts"), `import { Blueprint } from "@architect/blueprint";
+  writeFileSync(join(thing, "errors.ts"), `import { Blueprint } from "@formants/forman";\n${Array.from({ length: errorCount }, (_, i) => `export class Refusal${i + 1} extends Blueprint.error({}, { exit: 41 }) {}`).join("\n")}\n`);
+  if (machine) writeFileSync(join(thing, "machine.ts"), `import { Blueprint } from "@formants/forman";
 import { Subject } from "./thing.ts";
 export const machine = Blueprint.machine(Subject, { states: ["active"], moves: {}, notFrom: { exit: 40 } });
 `);

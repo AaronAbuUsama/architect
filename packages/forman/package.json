@@ -1,0 +1,34 @@
+{
+  "name": "@formants/forman",
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./server": "./src/server.ts"
+  },
+  "dependencies": {
+    "effect": "4.1.1"
+  },
+  "imports": {
+    "#modules/*.js": "./src/modules/*.ts"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "./server": {
+        "types": "./dist/server.d.ts",
+        "default": "./dist/server.js"
+      }
+    },
+    "imports": {
+      "#modules/*.js": "./dist/modules/*.js"
+    }
+  }
+}

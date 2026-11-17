@@ -168,10 +168,10 @@ export const finish = async (root: string, stack: Stack | undefined) => {
   expect(problems).toEqual([]);
 };
 
-const architectPackages = ["blueprint", "compiler", "target-effect", "lint", "generators", "host-cloudflare", "logbook", "prove", "cli", "preset"] as const;
+const architectPackages = ["forman", "compiler", "language-effect", "lint", "generators", "host-cloudflare", "logbook", "prove", "cli", "preset"] as const;
 
 /**
- * Every `@architect/*` package, built and published to the stack's registry as tools/e2e/starter.sh does, so that what promote
+ * Every `@formants/*` package, built and published to the stack's registry as tools/e2e/starter.sh does, so that what promote
  * publishes (`@acme/sdk`) resolves all its dependencies locally. The throwaway user's token stays in the temp npmrc; nothing prints it.
  */
 export const publishArchitect = (stack: Stack) => {

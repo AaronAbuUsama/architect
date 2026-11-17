@@ -1,6 +1,6 @@
 // Scaffolded from blueprint/things/run/verbs/finish.ts. Yours from now on.
 import { Effect } from "effect";
-import { Handlers } from "@architect/target-effect";
+import { Handlers } from "@formants/language-effect";
 import type { Handler } from "../../generated/api/src/run/finish.handler.ts";
 
 /** The run pushed its branch. CI proves it; the run cannot close its own task. */

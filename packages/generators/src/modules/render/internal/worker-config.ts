@@ -1,5 +1,5 @@
 // The Worker's configuration and its database, both from the model.
-import type { Model } from "@architect/compiler";
+import type { Model } from "@formants/compiler";
 import type { RenderedFile } from "../types.ts";
 import { GENERATED, lines } from "./names.ts";
 
@@ -65,7 +65,7 @@ export const renderMigration = (model: Model): RenderedFile => ({
       columns.push(`  "version" INTEGER NOT NULL DEFAULT 0`);
       return `CREATE TABLE "${t.name}" (\n${columns.join(",\n")}\n);`;
     }),
-    "-- Every event a move emitted, with the trace of the call that made it (target-effect's Journal).",
+    "-- Every event a move emitted, with the trace of the call that made it (language-effect's Journal).",
     JOURNAL,
   ),
 });

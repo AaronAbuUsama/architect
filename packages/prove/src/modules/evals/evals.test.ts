@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { Blueprint, type FieldsInput } from "@architect/blueprint";
+import { Blueprint, type FieldsInput } from "@formants/forman";
 import { Schema } from "effect";
-import type { Model, OperationModel } from "@architect/compiler";
+import type { Model, OperationModel } from "@formants/compiler";
 import type { CallRecord, Project } from "#modules/journeys/types.js";
 import type { Evidence } from "./types.ts";
 import { coverage, coverageSummary, performance } from "./internal/run.ts";

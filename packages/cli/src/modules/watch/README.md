@@ -2,7 +2,7 @@
 
 `architect watch --env <name> [--source file|axiom] [--since 1h]` (L2.09, D3 #140 to #149).
 
-It runs the evals that telemetry can answer over what an environment recorded, through `Watch` in `@architect/prove`, and
+It runs the evals that telemetry can answer over what an environment recorded, through `Watch` in `@formants/prove`, and
 prints:
 
 ```

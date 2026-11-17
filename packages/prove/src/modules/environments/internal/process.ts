@@ -33,7 +33,7 @@ export const groupAlive = (pid: number) =>
 const wrangler = join(dirname(fileURLToPath(import.meta.resolve("wrangler/package.json"))), "bin/wrangler.js");
 // The public logbook entry is src/index.ts in this workspace and dist/index.js after publishing; both are one level
 // below its package-owned wrangler.jsonc. Every logbook shares that config, so its state argument must match too.
-const logbookConfig = resolve(dirname(fileURLToPath(import.meta.resolve("@architect/logbook"))), "../wrangler.jsonc");
+const logbookConfig = resolve(dirname(fileURLToPath(import.meta.resolve("@formants/logbook"))), "../wrangler.jsonc");
 
 /** A PID belongs to this environment only when its full launch command names the derived config and state. */
 export const isWrangler = (pid: number, dir: string): boolean => {

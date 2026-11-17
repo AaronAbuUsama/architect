@@ -1,6 +1,6 @@
 import { join, resolve } from "node:path";
 import { Effect } from "effect";
-import { Compiler, nodeSource, type EnvironmentModel, type Model } from "@architect/compiler";
+import { Compiler, nodeSource, type EnvironmentModel, type Model } from "@formants/compiler";
 import { Environments } from "#modules/environments/service.js";
 import type { Built } from "#modules/build/types.js";
 import type { Up } from "#modules/environments/types.js";

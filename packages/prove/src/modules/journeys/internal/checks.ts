@@ -1,7 +1,7 @@
 // A step's checks against what its call got back and what the world now holds. Span checks wait for telemetry.
 import { Effect } from "effect";
-import type { Assertion, NotFrom, Refusal, Thing } from "@architect/blueprint";
-import { ErrorNames, EventNames, Scripting } from "@architect/blueprint/server";
+import type { Assertion, NotFrom, Refusal, Thing } from "@formants/forman";
+import { ErrorNames, EventNames, Scripting } from "@formants/forman/server";
 import type { CallRecord, Facts } from "../types.ts";
 import { stateOf } from "./world.ts";
 

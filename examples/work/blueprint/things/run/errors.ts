@@ -1,4 +1,4 @@
-import { Blueprint } from "@architect/blueprint";
+import { Blueprint } from "@formants/forman";
 import { Cents } from "../../values/work.ts";
 
 /** Starting it would take the mission past its share of the day's cap. */

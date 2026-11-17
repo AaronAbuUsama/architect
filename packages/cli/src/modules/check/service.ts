@@ -1,7 +1,7 @@
 import { existsSync, realpathSync } from "node:fs";
 import { resolve } from "node:path";
 import { Effect } from "effect";
-import { Compiler, nodeSource } from "@architect/compiler";
+import { Compiler, nodeSource } from "@formants/compiler";
 import type { CheckApi, Finding } from "./types.ts";
 import { blankLines, blanks } from "./internal/blanks.ts";
 import { textsUnder } from "./internal/files.ts";

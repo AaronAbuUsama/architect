@@ -1,5 +1,5 @@
 // generated/sdk: a typed client. One function per operation; refusals arrive as their own classes.
-import type { Model } from "@architect/compiler";
+import type { Model } from "@formants/compiler";
 import type { RenderedFile } from "../types.ts";
 import { GENERATED, camel, lines, pascal } from "./names.ts";
 
@@ -16,7 +16,7 @@ export const renderSdk = (model: Model, name: string): ReadonlyArray<RenderedFil
     content: lines(
       GENERATED,
       `import { Effect } from "effect";`,
-      `import type { PayloadOf } from "@architect/blueprint";`,
+      `import type { PayloadOf } from "@formants/forman";`,
       `import type { declaration } from "../../../api/src/${o.thing}/${o.verb}.ts";`,
       `import { ${client} } from "../client.ts";`,
       "",

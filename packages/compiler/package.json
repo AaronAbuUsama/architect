@@ -1,5 +1,5 @@
 {
-  "name": "@architect/compiler",
+  "name": "@formants/compiler",
   "version": "0.0.0",
   "type": "module",
   "exports": {
@@ -7,7 +7,7 @@
     "./main": "./src/main.ts"
   },
   "dependencies": {
-    "@architect/blueprint": "workspace:*",
+    "@formants/forman": "workspace:*",
     "effect": "4.1.1"
   },
   "imports": {

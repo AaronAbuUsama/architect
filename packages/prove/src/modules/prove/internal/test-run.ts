@@ -2,7 +2,7 @@
 // per operation in the logbook, then the world destroyed (D3 #14, #50, #53).
 import { randomBytes } from "node:crypto";
 import { Effect } from "effect";
-import type { Model } from "@architect/compiler";
+import type { Model } from "@formants/compiler";
 import { Build } from "#modules/build/service.js";
 import { Environments } from "#modules/environments/service.js";
 import type { Project } from "#modules/journeys/types.js";

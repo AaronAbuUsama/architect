@@ -1,6 +1,6 @@
 // What a promotion needs before anything starts: a clean tree, the revision's own built bundle, and its verdicts.
 import { Effect } from "effect";
-import type { Model } from "@architect/compiler";
+import type { Model } from "@formants/compiler";
 import { Build } from "#modules/build/service.js";
 import type { Built } from "#modules/build/types.js";
 import { Verdicts } from "#modules/verdicts/service.js";

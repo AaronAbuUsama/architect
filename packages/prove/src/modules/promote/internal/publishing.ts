@@ -1,7 +1,7 @@
 // What a promotion publishes (D3 #111): staging the prerelease of the next version, production the release, as each environment's
 // `publish` list in the blueprint says, to the registry in `ARCHITECT_REGISTRY` (Verdaccio, on this machine).
 import { Effect } from "effect";
-import type { Model } from "@architect/compiler";
+import type { Model } from "@formants/compiler";
 import { Publish } from "#modules/publish/service.js";
 import { Releases } from "#modules/releases/service.js";
 import { PromoteFailed } from "../types.ts";

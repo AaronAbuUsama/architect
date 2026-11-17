@@ -4,9 +4,9 @@ import { Context, Effect, Layer } from "effect";
 import { HttpRouter, HttpServer } from "effect/http";
 import { HttpApiBuilder } from "effect/http-api";
 import { SqlClient } from "effect/sql";
-import { Blueprint, type Principal } from "@architect/blueprint";
-import { AuthD1, Database, JournalD1, StoreD1, Telemetry, toWorld } from "@architect/host-cloudflare";
-import { Auth, Busy, BusyLive, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@architect/target-effect";
+import { Blueprint, type Principal } from "@formants/forman";
+import { AuthD1, Database, JournalD1, StoreD1, Telemetry, toWorld } from "@formants/host-cloudflare";
+import { Auth, Busy, BusyLive, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@formants/language-effect";
 import { Api, Errors } from "../api/src/index.ts";
 import * as allowanceGet from "../api/src/allowance/get.ts";
 import * as allowanceGrant from "../api/src/allowance/grant.ts";
@@ -44,7 +44,7 @@ import * as personThing from "../../blueprint/things/person/thing.ts";
 import * as sessionThing from "../../blueprint/things/session/thing.ts";
 import * as systemThing from "../../blueprint/things/system/thing.ts";
 
-export { World } from "@architect/host-cloudflare";
+export { World } from "@formants/host-cloudflare";
 
 const allowanceGetServed = Reads.serve({ name: "allowance.get", read: allowanceGet.declaration });
 // PLANTED: the server's gate is removed. grant is served with a declaration that lets anyone call, so bob reaches the handler.

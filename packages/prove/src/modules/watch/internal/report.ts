@@ -1,6 +1,6 @@
 // What `watch` prints: p95 against budget, the refusals, the defects, the evals, and the drift. One line each, and the
 // lines Gate 2's check 8 reads are exact: `<op> p95 <n>ms (budget <n>ms) ✔|✘`, `refusals: <Error> <n> …`, `drift <ops>|none`.
-import type { Model } from "@architect/compiler";
+import type { Model } from "@formants/compiler";
 import type { Evidence, Verdict } from "#modules/evals/types.js";
 import { Evals } from "#modules/evals/service.js";
 

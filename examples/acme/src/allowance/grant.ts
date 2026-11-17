@@ -1,6 +1,6 @@
 // Scaffolded from blueprint/things/allowance/verbs/grant.ts. Yours from now on.
 import { Effect } from "effect";
-import { Ids, Records } from "@architect/target-effect";
+import { Ids, Records } from "@formants/language-effect";
 import type { Handler } from "../../generated/api/src/allowance/grant.handler.ts";
 import { Allowance } from "../../blueprint/things/allowance/thing.ts";
 import { AllowanceLimitTooHigh } from "../../blueprint/things/allowance/errors.ts";

@@ -1,5 +1,5 @@
 // Journey-author file. The builder of system.health never edits it (AGENTS.md, "Journeys and checks come first").
-import { Blueprint, expect, noEvents, spans } from "@architect/blueprint";
+import { Blueprint, expect, noEvents, spans } from "@formants/forman";
 import health from "../blueprint/things/system/verbs/health.ts";
 
 export default Blueprint.journey("health is up", {

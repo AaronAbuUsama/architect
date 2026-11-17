@@ -24,9 +24,9 @@ const lint = (file: string) => {
 
 describe("module boundaries", () => {
   it.each([
-    ["blueprint imports compiler", "packages/blueprint/test/fixtures/boundaries/imports-compiler.ts"],
-    ["blueprint imports a package other than Effect", "packages/blueprint/test/fixtures/boundaries/imports-other-package.ts"],
-    ["runtime code imports generators", "packages/target-effect/test/fixtures/boundaries/imports-generators.ts"],
+    ["blueprint imports compiler", "packages/forman/test/fixtures/boundaries/imports-compiler.ts"],
+    ["blueprint imports a package other than Effect", "packages/forman/test/fixtures/boundaries/imports-other-package.ts"],
+    ["runtime code imports generators", "packages/language-effect/test/fixtures/boundaries/imports-generators.ts"],
   ])("fails lint when %s", (_, file) => {
     const { exit, output } = lint(file);
     expect(exit).toBe(1);
@@ -34,6 +34,6 @@ describe("module boundaries", () => {
   });
 
   it("passes when blueprint imports Effect", () => {
-    expect(lint("packages/blueprint/test/fixtures/boundaries/imports-effect.ts").exit).toBe(0);
+    expect(lint("packages/forman/test/fixtures/boundaries/imports-effect.ts").exit).toBe(0);
   });
 });

@@ -1,7 +1,7 @@
 // What `add` writes. Every gap is a `Blueprint.todo` saying what belongs there.
 import { article, pascal, prefixOf } from "./names.ts";
 
-const header = `import { Blueprint } from "@architect/blueprint";`;
+const header = `import { Blueprint } from "@formants/forman";`;
 
 export const thingFiles = (thing: string) => {
   const T = pascal(thing);

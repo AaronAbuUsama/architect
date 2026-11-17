@@ -8,7 +8,7 @@ import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
 import { randomBytes } from "node:crypto";
 import { Effect, Exit, Scope } from "effect";
-import type { Model } from "@architect/compiler";
+import type { Model } from "@formants/compiler";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { Environments } from "#modules/environments/service.js";
 import { Releases } from "#modules/releases/service.js";
@@ -95,10 +95,10 @@ beforeAll(async () => {
   // A throwaway user on this registry; its token goes to a file and nowhere else.
   const created = await fetch(`${registry}-/user/org.couchdb.user:l206`, { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ name: "l206", password: randomBytes(12).toString("hex") }) });
   writeFileSync(npmrc, `//localhost:${PORTS.registry}/:_authToken=${((await created.json()) as { token: string }).token}\n`, { mode: 0o600 });
-  // The SDK and the CLI depend on @architect/blueprint, so the registry holds it, as the starter's script publishes it.
-  const built = spawnSync("pnpm", ["nx", "run", "blueprint:build", "--outputStyle=static"], { cwd: repo, encoding: "utf8", env: { ...env, NX_DAEMON: "false" } });
+  // The SDK and the CLI depend on @formants/forman, so the registry holds it, as the starter's script publishes it.
+  const built = spawnSync("pnpm", ["nx", "run", "forman:build", "--outputStyle=static"], { cwd: repo, encoding: "utf8", env: { ...env, NX_DAEMON: "false" } });
   expect(built.status, built.stdout + built.stderr).toBe(0);
-  const pushed = spawnSync("pnpm", ["publish", "--registry", registry, "--no-git-checks"], { cwd: join(repo, "packages/blueprint"), encoding: "utf8", env });
+  const pushed = spawnSync("pnpm", ["publish", "--registry", registry, "--no-git-checks"], { cwd: join(repo, "packages/forman"), encoding: "utf8", env });
   expect(pushed.status, pushed.stderr).toBe(0);
 
   const policy = { issuer, repository: "acme/acme", refs: ["refs/heads/main"], workflows: ["architect"] };
@@ -122,7 +122,7 @@ afterAll(async () => {
   docker("exec", containers.registry, "sh", "-c", "rm -rf /verdaccio/storage/*");
   docker("rm", "-f", containers.issuer, containers.registry);
   rmSync(parent, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
-  rmSync(join(repo, "packages/blueprint/dist"), { recursive: true, force: true });
+  rmSync(join(repo, "packages/forman/dist"), { recursive: true, force: true });
 });
 
 describe("architect publish", () => {

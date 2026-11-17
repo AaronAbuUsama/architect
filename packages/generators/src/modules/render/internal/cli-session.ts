@@ -1,6 +1,6 @@
 // generated/cli, the session commands: `session sign-in --env <env>` signs in by device code (D3 #10), `session show --env
 // <env>` uses the session it kept. Without `--env` both stay the operations' own: email and password, and ACME_TOKEN.
-import type { Model, OperationModel } from "@architect/compiler";
+import type { Model, OperationModel } from "@formants/compiler";
 import type { RenderedFile } from "../types.ts";
 import { GENERATED, camel, lines } from "./names.ts";
 

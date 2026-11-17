@@ -4,7 +4,7 @@
 import { Clock, DateTime, Effect } from "effect";
 import { createLocalJWKSet, jwtVerify } from "jose";
 import { oauthProviderAuthServerMetadata, oauthProviderOpenIdConfigMetadata } from "@better-auth/oauth-provider";
-import type { Principal } from "@architect/blueprint";
+import type { Principal } from "@formants/forman";
 import { held, type BetterAuth } from "./instance.ts";
 import { SCOPES, mcpResource } from "./options.ts";
 import type { AuthInstance, Bearer } from "../types.ts";

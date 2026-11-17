@@ -1,4 +1,4 @@
-import { Blueprint } from "@architect/blueprint";
+import { Blueprint } from "@formants/forman";
 import { Amount } from "../../values/money.ts";
 
 // Refusals that depend on data. The machine's own refusal, AllowanceNotActive, is generated and never written here.

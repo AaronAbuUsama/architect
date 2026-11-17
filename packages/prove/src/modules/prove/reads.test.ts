@@ -6,7 +6,7 @@ import { basename, join, relative, resolve } from "node:path";
 import { Effect } from "effect";
 import { afterAll, describe, expect, it } from "vitest";
 import { FsTree, flushChanges } from "nx/src/generators/tree.js";
-import { Sync } from "@architect/generators/sync";
+import { Sync } from "@formants/generators/sync";
 import { Prove } from "./service.ts";
 
 const visible = (from: string) => !basename(from).startsWith(".");
@@ -38,7 +38,7 @@ const prove = (root: string) => Effect.runPromise(Effect.scoped(Prove.run({ root
 afterAll(() => rmSync(scratch, { recursive: true, force: true }));
 
 /** Three allowances in the funded world's organisation: olga's, then bob's, then bea's. Two to a page, oldest first. */
-const PAGING = `import { Blueprint, expect, refuses } from "@architect/blueprint";
+const PAGING = `import { Blueprint, expect, refuses } from "@formants/forman";
 import { owner } from "../blueprint/things/organization/roles.ts";
 import { grantee } from "../blueprint/things/allowance/roles.ts";
 import grant from "../blueprint/things/allowance/verbs/grant.ts";
@@ -78,7 +78,7 @@ export default Blueprint.journey("a list pages through the allowances in order",
 });
 `;
 
-const SMALL_LIST = `import { Blueprint } from "@architect/blueprint";
+const SMALL_LIST = `import { Blueprint } from "@formants/forman";
 import { Allowance } from "../thing.ts";
 import { owner } from "../../organization/roles.ts";
 

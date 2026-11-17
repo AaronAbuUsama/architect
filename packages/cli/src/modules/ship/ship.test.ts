@@ -9,9 +9,9 @@ import { tmpdir } from "node:os";
 import { basename, join, relative, resolve } from "node:path";
 import { Effect, Exit, Scope } from "effect";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { Logbook } from "@architect/logbook";
-import { Releases } from "@architect/prove";
-import type { Model } from "@architect/compiler";
+import { Logbook } from "@formants/logbook";
+import { Releases } from "@formants/prove";
+import type { Model } from "@formants/compiler";
 import { Ship } from "./service.ts";
 
 const IMAGE = "ghcr.io/navikt/mock-oauth2-server:6.1.4@sha256:647dd8c78a54f0e6fcd58d79c884e612f8f998a0662276f3e1db22e464a50192";

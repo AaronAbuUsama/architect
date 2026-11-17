@@ -11,7 +11,7 @@ What the logbook adds to the commands that look at a change.
 - `Ship.changes`: after `architect generate`, writes `changes.json` when a logbook answers; silent when there is none.
 
 - `architect publish --dry-run | --local` (`Ship.publish`, D3 #110): the generated SDK and CLI at `version --next`, as production's `publish`
-  list names them (logic in `Publish`, `@architect/prove`). `--dry-run` lists what would go out; `--local` sends it to `ARCHITECT_REGISTRY`,
+  list names them (logic in `Publish`, `@formants/prove`). `--dry-run` lists what would go out; `--local` sends it to `ARCHITECT_REGISTRY`,
   builds the CLI binary for this machine and commits the formula to the tap. Test: `packages/prove/src/modules/publish/publish.test.ts`.
 
-The logic is `Releases` in `@architect/prove`; this module is the commands' composition. Test: `ship.test.ts` (ports 9012 and 9013).
+The logic is `Releases` in `@formants/prove`; this module is the commands' composition. Test: `ship.test.ts` (ports 9012 and 9013).

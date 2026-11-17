@@ -1,8 +1,8 @@
 import { Effect, Layer } from "effect";
 import { SqlClient } from "effect/sql";
 import { D1Client } from "@effect/sql-d1";
-import type { Thing } from "@architect/blueprint";
-import { Store, type Commit, type Entry, type Write } from "@architect/target-effect";
+import type { Thing } from "@formants/forman";
+import { Store, type Commit, type Entry, type Write } from "@formants/language-effect";
 import type { StoreD1Api } from "./types.ts";
 import { decodeRow, encodeFields, lostGuard } from "./internal/rows.ts";
 import { actorCommit, actorFind } from "./internal/actors.ts";

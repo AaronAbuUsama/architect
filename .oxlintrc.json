@@ -19,7 +19,7 @@
         "allow": [],
         "depConstraints": [
           {
-            "sourceTag": "scope:blueprint",
+            "sourceTag": "scope:forman",
             "onlyDependOnLibsWithTags": [],
             "allowedExternalImports": [
               "effect",
@@ -42,10 +42,9 @@
           {
             "sourceTag": "scope:project",
             "onlyDependOnLibsWithTags": [
-              "scope:blueprint",
-              "scope:target",
-              "scope:host",
-              "scope:std"
+              "scope:forman",
+              "scope:language",
+              "scope:host"
             ]
           }
         ],
@@ -66,7 +65,7 @@
             "allow": [],
             "depConstraints": [
               {
-                "sourceTag": "scope:blueprint",
+                "sourceTag": "scope:forman",
                 "onlyDependOnLibsWithTags": [],
                 "allowedExternalImports": [
                   "effect",
@@ -90,10 +89,9 @@
               {
                 "sourceTag": "scope:project",
                 "onlyDependOnLibsWithTags": [
-                  "scope:blueprint",
-                  "scope:target",
-                  "scope:host",
-                  "scope:std"
+                  "scope:forman",
+                  "scope:language",
+                  "scope:host"
                 ]
               }
             ],

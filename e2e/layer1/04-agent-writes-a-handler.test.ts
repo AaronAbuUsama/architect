@@ -6,7 +6,7 @@ import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } fr
 import { join, normalize, relative } from "node:path";
 import { spawnSync } from "node:child_process";
 import { createSdkMcpServer, query, tool } from "@anthropic-ai/claude-agent-sdk";
-import { Collectors } from "@architect/prove";
+import { Collectors } from "@formants/prove";
 import { Effect } from "effect";
 import { z } from "zod";
 import { afterAll, describe, expect, it } from "vitest";

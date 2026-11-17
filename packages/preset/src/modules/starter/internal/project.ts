@@ -13,7 +13,7 @@ const DEV = {
 };
 
 export const packageJson = (existing: Record<string, unknown>, name: string, version: string) => {
-  const architect = Object.fromEntries(["blueprint", "host-cloudflare", "portal", "target-effect"].map((p) => [`@architect/${p}`, version]));
+  const architect = Object.fromEntries(["forman", "host-cloudflare", "portal", "language-effect"].map((p) => [`@formants/${p}`, version]));
   return {
     ...existing,
     type: "module",
@@ -21,7 +21,7 @@ export const packageJson = (existing: Record<string, unknown>, name: string, ver
     scripts: { ...(existing["scripts"] as object | undefined), architect: "architect" },
     bin: { [name]: "./generated/cli/src/main.ts" },
     dependencies: { ...(existing["dependencies"] as object | undefined), ...architect, ...EXACT },
-    devDependencies: { ...(existing["devDependencies"] as object | undefined), "@architect/cli": version, ...DEV },
+    devDependencies: { ...(existing["devDependencies"] as object | undefined), "@formants/cli": version, ...DEV },
   };
 };
 

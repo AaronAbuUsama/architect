@@ -1,6 +1,6 @@
 import { Effect } from "effect";
-import { Compiler, nodeSource, type Model } from "@architect/compiler";
-import { Impact, Publish, Releases, type Shipping } from "@architect/prove";
+import { Compiler, nodeSource, type Model } from "@formants/compiler";
+import { Impact, Publish, Releases, type Shipping } from "@formants/prove";
 import type { Said, ShipApi, ShipOptions } from "./types.ts";
 
 const NO_LOGBOOK = "no logbook: start one with `architect env up logbook`, or set ARCHITECT_LOGBOOK_URL";

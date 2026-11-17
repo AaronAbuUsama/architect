@@ -1,4 +1,4 @@
-import { Blueprint } from "@architect/blueprint";
+import { Blueprint } from "@formants/forman";
 import { Allowance } from "./thing.ts";
 
 // The person the allowance was granted to.

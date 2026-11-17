@@ -6,7 +6,7 @@ import { basename, dirname, join, relative, resolve } from "node:path";
 import { Effect } from "effect";
 import { afterAll, describe, expect, it } from "vitest";
 import { FsTree, flushChanges } from "nx/src/generators/tree.js";
-import { Sync } from "@architect/generators/sync";
+import { Sync } from "@formants/generators/sync";
 import { Prove } from "./service.ts";
 
 // Dot-folders (.wrangler, .architect) belong to whatever is running there; a filter also keeps cpSync off its native path,

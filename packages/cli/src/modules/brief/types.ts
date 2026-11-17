@@ -1,6 +1,6 @@
 // `architect brief <thing>.<verb>`: everything an agent needs to write one handler, and nothing it may change besides.
 // What to read, the one file to write, the files it must not touch, and the evals and journeys that must pass.
-import type { Model } from "@architect/compiler";
+import type { Model } from "@formants/compiler";
 
 /** A journey file and its text: the brief names the ones that call the operation. */
 export interface JourneyFile {

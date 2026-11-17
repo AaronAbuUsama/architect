@@ -1,5 +1,5 @@
 // Calls as telemetry shows them: a trace with an operation's span is one call, and the evals read it as they read prove's.
-import type { Model } from "@architect/compiler";
+import type { Model } from "@formants/compiler";
 import type { CallRecord } from "#modules/journeys/types.js";
 import type { Evidence } from "#modules/evals/types.js";
 import { PROVE_SPAN_PREFIX, type Span, type Trace } from "#modules/telemetry/types.js";

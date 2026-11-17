@@ -34,7 +34,7 @@ describe("architect generate", () => {
     expect(existsSync(join(root, "generated/api/src/allowance/pause.ts"))).toBe(false);
 
     // Filled in, it gets its scaffold and its generated files.
-    writeFileSync(join(root, "blueprint/things/allowance/verbs/pause.ts"), `import { Blueprint } from "@architect/blueprint";
+    writeFileSync(join(root, "blueprint/things/allowance/verbs/pause.ts"), `import { Blueprint } from "@formants/forman";
 import { Allowance } from "../thing.ts";
 import { grantee } from "../roles.ts";
 

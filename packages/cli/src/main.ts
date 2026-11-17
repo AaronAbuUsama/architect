@@ -5,7 +5,7 @@ import { Console, Effect, Option } from "effect";
 import { Argument, Command, Flag } from "effect/cli";
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
-import { Build, Environments, Prove, ProveFailed, Promote, TestWorlds, Verdicts } from "@architect/prove";
+import { Build, Environments, Prove, ProveFailed, Promote, TestWorlds, Verdicts } from "@formants/prove";
 import { spawn } from "node:child_process";
 import { ModelCommand } from "#modules/model/service.js";
 import { Add } from "#modules/add/service.js";
@@ -16,7 +16,7 @@ import { Ship } from "#modules/ship/service.js";
 import { Brief } from "#modules/brief/service.js";
 import { TelemetryCommand } from "#modules/telemetry/service.js";
 import { WatchCommand } from "#modules/watch/service.js";
-import { Compiler, nodeSource } from "@architect/compiler";
+import { Compiler, nodeSource } from "@formants/compiler";
 
 const model = Command.make(
   "model",

@@ -1,5 +1,5 @@
 {
-  "name": "@architect/preset",
+  "name": "@formants/preset",
   "version": "0.0.0",
   "type": "module",
   "generators": "./generators.json",
@@ -11,8 +11,8 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@architect/compiler": "workspace:*",
-    "@architect/generators": "workspace:*",
+    "@formants/compiler": "workspace:*",
+    "@formants/generators": "workspace:*",
     "@nx/devkit": "24.0.3"
   },
   "devDependencies": {

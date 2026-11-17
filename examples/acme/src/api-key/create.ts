@@ -1,6 +1,6 @@
 // Scaffolded from blueprint/things/api-key/verbs/create.ts. Yours from now on.
 import { Effect } from "effect";
-import { Auth, Records } from "@architect/target-effect";
+import { Auth, Records } from "@formants/language-effect";
 import type { Handler } from "../../generated/api/src/api-key/create.handler.ts";
 import { ApiKey } from "../../blueprint/things/api-key/thing.ts";
 

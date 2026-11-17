@@ -191,13 +191,13 @@ describe("model", () => {
       const refusedClient = await modelOf(client);
       expect(Exit.isFailure(refusedClient)).toBe(true);
       expect(JSON.stringify(refusedClient)).toContain('blueprint/things/allowance/verbs/grant.ts: runs \\"client\\" is not supported yet');
-      expect(JSON.stringify(refusedClient)).toContain("target-noir");
+      expect(JSON.stringify(refusedClient)).toContain("language-noir");
 
       const chain = copyOfAcme();
       edit(chain, "things/allowance/verbs/grant.ts", (t) => t.replace("  idempotent:", '  runs: "chain",\n  idempotent:'));
       const refusedChain = await modelOf(chain);
       expect(Exit.isFailure(refusedChain)).toBe(true);
-      expect(JSON.stringify(refusedChain)).toContain("target-solidity");
+      expect(JSON.stringify(refusedChain)).toContain("language-solidity");
     });
 
     it("carries a test kind a target set, `unit` otherwise", async () => {

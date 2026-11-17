@@ -1,6 +1,6 @@
 // generated/server: the Worker. Every operation's route wired to its handler in src/, by path; the world's
 // front door at /_world/*; the portal at /portal and /_portal/*; D1 tables from the model.
-import type { Model, OperationModel } from "@architect/compiler";
+import type { Model, OperationModel } from "@formants/compiler";
 import type { RenderedFile } from "../types.ts";
 import { GENERATED, camel, lines, opVar, pascal } from "./names.ts";
 import { renderMigration, renderWrangler } from "./worker-config.ts";
@@ -41,10 +41,10 @@ const main = (model: Model, name: string): RenderedFile => {
       `import { HttpRouter, HttpServer } from "effect/http";`,
       `import { HttpApiBuilder } from "effect/http-api";`,
       `import { SqlClient } from "effect/sql";`,
-      `import type { Principal } from "@architect/blueprint";`,
-      `import { AuthD1, Database, JournalD1, StoreD1, Telemetry, toWorld } from "@architect/host-cloudflare";`,
-      `import { Auth, Busy, BusyLive, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@architect/target-effect";`,
-      `import { Mcp, type McpResult } from "@architect/target-effect";`,
+      `import type { Principal } from "@formants/forman";`,
+      `import { AuthD1, Database, JournalD1, StoreD1, Telemetry, toWorld } from "@formants/host-cloudflare";`,
+      `import { Auth, Busy, BusyLive, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@formants/language-effect";`,
+      `import { Mcp, type McpResult } from "@formants/language-effect";`,
       `import { Api, Errors } from "../api/src/index.ts";`,
       `import * as portal from "../portal/main.ts";`,
       `import { catalog } from "../mcp/src/index.ts";`,
@@ -52,7 +52,7 @@ const main = (model: Model, name: string): RenderedFile => {
       handled.map((o) => `import ${opVar(o)}Handler from "../../src/${o.thing}/${o.verb}.ts";`),
       things.map((t) => `import * as ${camel(t.name)}Thing from "../../blueprint/things/${t.name}/thing.ts";`),
       "",
-      actors ? `export { Actor, World } from "@architect/host-cloudflare";` : `export { World } from "@architect/host-cloudflare";`,
+      actors ? `export { Actor, World } from "@formants/host-cloudflare";` : `export { World } from "@formants/host-cloudflare";`,
       "",
       ops.map((o) =>
         o.kind === "read"

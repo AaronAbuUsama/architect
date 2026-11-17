@@ -1,84 +1,72 @@
 # Package structure
 
+The map and why it is shaped this way: [`decisions/M0-packages.md`](decisions/M0-packages.md). The layer 1 and 2
+version of this page is in [`history/packages-layers-1-2.md`](history/packages-layers-1-2.md).
+
 ## The framework's repository
 
 ```text
-architect/
-  packages/
-    blueprint/       @architect/blueprint   the declaration language: Blueprint.thing, machine, event, error, role,
-                                            operation, read, journey, world, environment, value, todo. What projects import.
-    compiler/        @architect/compiler    reads blueprint/ by path and builds the model: every declaration, its hash,
-                                            its dependencies; compares two models (versions, stale proofs); finds blanks
-    generators/      @architect/generators  the target-neutral Nx plugin. Scaffold generators (add thing, operation, read,
-                                            journey, kit) write once; sync generators run each target and fail
-                                            `nx sync:check` on drift
-    target-effect/   @architect/target-effect  the Effect target: generates api, server, sdk, cli, mcp, docs; and the runtime
-                                            generated code runs on (handler wrapper, role checks, moves and events, locks,
-                                            outbox, idempotency, steps as spans, Clock, Timers, counted work; client side)
-    host-cloudflare/ @architect/host-cloudflare  where it runs: Workers, Durable Objects (world, organisations, things,
-                                            followers, relayer), alarms, D1, R2, Containers for benches, Miniflare locally
-    prove/           @architect/prove       worlds (made and destroyed), journeys, evidence from telemetry, the evals,
-                                            verdicts
-    lint/            @architect/lint        oxlint rules for what types can't see: a name as a string, an edited output,
-                                            a blank left, a handler at the wrong path
-    cli/             @architect/cli         the `architect` command: new, add, generate, check, prove, promote, watch
-    preset/          @architect/preset      the create-nx-workspace preset: the starter project
-    std/             @architect/std         the standard library's kits: auth, wallets, chain, later erc20, safe   (layer 3)
-    target-solidity/ @architect/target-solidity  the Solidity target: types, compiled machine, signatures, calendar,
-                                            Foundry tests, contract scaffolds                                       (layer 4)
-    portal/          @architect/portal      the portal app every project gets                                     (layer 2)
-    logbook/         @architect/logbook     verdicts and the model, kept per project                              (layer 2)
-    agent/           @architect/agent       the agent harness: Pi Durable behind an Effect seam, models, tools derived
-                                            from the blueprint, skills, sandbox, run records, benchmarks (H1, H2) (layer 2 track)
-  benchmarks/        (private, never published) the internal benchmarks: `main.ts` entry, suites, committed baselines (H2)
-  examples/
-    acme/            the worked example, built layer by layer; CI proves it on every change to Architect
-  docs/              these docs
+packages/
+  forman/            @formants/forman            the front door: the Blueprint API (Blueprint.thing, machine, event,
+                                                 error, role, operation, read, journey, world, environment, value,
+                                                 todo). What projects and their generated code import. Effect only.
+  compiler/          @formants/compiler          reads blueprint/ by path and builds the model: every declaration, its
+                                                 hash, what it uses; compares two models (versions, stale proofs);
+                                                 finds blanks. Bin forman-model
+  generators/        @formants/generators        the Nx plugin: scaffold generators write once; sync generators render
+                                                 each output and fail `nx sync:check` on drift
+  language-effect/   @formants/language-effect   the Effect language: renders api, server, sdk, cli, mcp, docs; and the
+                                                 runtime generated code runs on (handler wrapper, role checks, moves and
+                                                 events, locks, outbox, idempotency, steps as spans, Clock, Timers)
+  language-solidity/ @formants/language-solidity the Solidity language (a placeholder until M6)
+  host-cloudflare/   @formants/host-cloudflare   where it runs: Workers, Durable Objects, alarms, D1, R2, and auth on
+                                                 Better Auth until M2 moves it into @formants/auth
+  prove/             @formants/prove             worlds (made and destroyed), journeys, evidence from telemetry, the
+                                                 evals, verdicts, promote, publish, releases
+  lint/              @formants/lint              oxlint rules for what types can't see, and against the old names
+  cli/               @formants/cli               the `forman` command: add, generate, check, prove, impact, promote,
+                                                 publish, watch
+  preset/            @formants/preset            the Nx preset that makes a starter project (until `forman new`, M2.09)
+  portal/            @formants/portal            the portal every project gets
+  logbook/           @formants/logbook           verdicts and the model, kept per project
+examples/
+  acme/              the worked example: the allowance
+  work/              the work app (F5)
+  starter/           what the preset copies into a new project
+e2e/                 the gates: e2e:layer1, e2e:layer2, e2e:m0
 ```
 
-Layer one needs eight of them: blueprint, compiler, generators, target-effect, host-cloudflare, prove, lint and cli
-(with the preset).
-The rest arrive with their layer.
+Plugins come later, one package each: `@formants/auth` and `@formants/organizations` (M2), `@formants/work` (M3),
+`@formants/agents` (M4), `@formants/stripe` and `@formants/resend` (M5), `@formants/wallets` (M6). Nothing is
+published to npm before M7; every milestone before it publishes to the local Verdaccio.
 
-Rules, held by Nx module boundaries:
+## Rules, held by Nx module boundaries
 
-- `blueprint` depends on nothing but Effect. Every other package may import it.
-- `target-effect`'s runtime is the only package generated code imports at run time, besides `blueprint`, the host and
+- `forman` (tag `scope:forman`) depends on nothing but Effect. Every other package may import it.
+- A project (`scope:project`) depends only on `scope:forman`, `scope:language` and `scope:host`.
+- `env:runtime` packages depend only on `env:runtime` packages; `env:build` packages may use both.
+- `language-effect`'s runtime is the only package generated code imports at run time, besides `forman`, the host and
   the project's own code.
-- `agent` is `env:build` (dev and CI tooling, never in production in v0). It may depend on `blueprint`, `compiler`,
-  `prove` and the `target-effect` interfaces (`Timers`, `Clock`), and `cli` depends on it. Pi Durable and its closure
-  (`pi-ai`, `chord`, `pi-codemode`, `pi-schema`, `pi-telemetry`, all pinned at 1.5.0) are imported only inside
-  `packages/agent`, only through its `internal/` seam; no generated code and no other package imports Pi. Its Durable
-  Object host (`@architect/agent/do`, build-plan step A6) is the one runtime-facing file, tagged separately then.
-  Six slots per module: `harness` (the `Runner` kinds `sdk`, `pi`, `oracle`, `null`; the Agent SDK and Pi each only in its
-  `internal/`), `models`, `tools`, `skills`, `sandbox`, `telemetry`, `runs`, `tasks`, `score`, `suite`, `report` (H2 section 3).
-- `benchmarks` is an `env:build` Nx project, not a package: it depends on `agent` and nothing depends on it. Its `main.ts` is the
-  only file that reads a model key from the environment, by name. Run folders go to `benchmarks/.architect/` (ignored); only
-  `benchmarks/baselines/*.json` summaries are committed.
-- Targets are languages (target-effect, target-solidity, later target-python); hosts are where it runs (host-cloudflare).
 - `compiler` and `generators` never run in production.
-- A target is a package of its own, so adding Python later is adding `target-python`.
+- A language is a package of its own (`language-effect`, `language-solidity`, later `language-noir` and
+  `language-python`); a host is where it runs (`host-cloudflare`).
 
 ## A project made with it
 
 ```text
 acme/
-  architect.config.ts
+  forman.config.ts          the project's name, sign-in and telemetry choices, until mounts take them (M1, M2)
   blueprint/
-    values/                 named types, each saying what it is in every target
+    values/                 named types, each saying what it is in every language
     things/<thing>/         thing.ts, machine.ts, events.ts, errors.ts, roles.ts, verbs/<verb>.ts
-    kits/                   which standard-library kits it uses, and how          (layer 3)
     journeys/<journey>.ts
     starting-worlds/<name>.ts
-    environments/<name>.ts  clock, chain, secrets, destinations
+    environments/<name>.ts  clock, secrets, destinations
   src/
     <thing>/<verb>.ts       a thing's handlers, mirroring blueprint/things/<thing>/
-    <thing>/<Thing>.sol     its contract, and its workflows                       (layers 4, 5)
-    services.ts
   generated/
-    server/  api/  sdk/  cli/  docs/  model/                                      (layer 1)
-    mcp/  portal/  infra/                                                         (layer 2)
-    contracts/                                                                    (layer 4)
-    keeper/                                                                       (layer 5)
-  spikes/
+    server/  api/  sdk/  cli/  docs/  model/  mcp/  portal/
 ```
+
+From M1, `blueprint/` also holds the mounts: `features/`, `adapters/` and `projections/`, one file each
+([`frame/mounting.md`](frame/mounting.md)).

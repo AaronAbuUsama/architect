@@ -1,6 +1,6 @@
 // Planted fixture: the docs' `allowance.list`, as the user writes it after `architect add read allowance.list`.
 // Install over blueprint/things/allowance/verbs/list.ts.
-import { Blueprint } from "@architect/blueprint";
+import { Blueprint } from "@formants/forman";
 import { Allowance } from "../thing.ts";
 import { owner } from "../../organization/roles.ts";
 

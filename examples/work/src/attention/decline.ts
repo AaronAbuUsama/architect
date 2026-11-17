@@ -1,6 +1,6 @@
 // Scaffolded from blueprint/things/attention/verbs/decline.ts. Yours from now on.
 import { Effect } from "effect";
-import { Handlers } from "@architect/target-effect";
+import { Handlers } from "@formants/language-effect";
 import type { Handler } from "../../generated/api/src/attention/decline.handler.ts";
 
 /** Say not yet, and why. The task stays where its facts put it. */

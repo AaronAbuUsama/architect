@@ -1,6 +1,6 @@
 # store
 
-`StoreD1.layer({ tables, actors? })`: target-effect's `Store` on Cloudflare (D2 #35 to #38).
+`StoreD1.layer({ tables, actors? })`: language-effect's `Store` on Cloudflare (D2 #35 to #38).
 
 - Things that live in the database are D1 rows: a table per thing, named by the generated server from the thing's
   path, a column per field holding its wire form, plus `state` and `version`. A commit is one D1 `batch` of the call's

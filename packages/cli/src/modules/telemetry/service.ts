@@ -1,7 +1,7 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { Effect } from "effect";
-import { FileSource, TraceTrees, Viewer } from "@architect/prove";
+import { FileSource, TraceTrees, Viewer } from "@formants/prove";
 import type { Said, TelemetryCommandApi } from "./types.ts";
 
 const ID = /^[0-9a-f]{32}$/;

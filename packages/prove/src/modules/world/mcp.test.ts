@@ -101,7 +101,7 @@ describe("the remote MCP server", () => {
       // Only Better Auth and OAuth run before the tool: no cast, ordinary operation or telemetry configuration call.
       const session = yield* Effect.promise(() => fetch(`${url}/api/auth/sign-up/email`, {
         method: "POST", headers: { "content-type": "application/json", origin: url },
-        body: JSON.stringify({ name: "First MCP", email: "first-mcp@architect.test", password: randomBytes(16).toString("hex") }),
+        body: JSON.stringify({ name: "First MCP", email: "first-mcp@formants.test", password: randomBytes(16).toString("hex") }),
       }).then(async (response) => {
         expect(response.status).toBe(200);
         return (await response.json()) as { token: string };

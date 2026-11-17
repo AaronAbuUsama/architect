@@ -24,7 +24,7 @@ packages:
     access: $all
     publish: $all
     unpublish: $all
-  '@architect/*':
+  '@formants/*':
     access: $all
     publish: $all
     unpublish: $all

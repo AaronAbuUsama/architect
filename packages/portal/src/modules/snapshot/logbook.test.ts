@@ -8,7 +8,7 @@ import { tmpdir } from "node:os";
 import { basename, join, relative, resolve } from "node:path";
 import { Effect, Exit, Scope } from "effect";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { Logbook } from "@architect/logbook";
+import { Logbook } from "@formants/logbook";
 import { Reader } from "#modules/reader/service.js";
 import { Wire } from "#modules/wire/service.js";
 import { acmeDocs } from "#modules/wire/testing.js";

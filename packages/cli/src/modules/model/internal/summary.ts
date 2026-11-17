@@ -1,4 +1,4 @@
-import type { Model } from "@architect/compiler";
+import type { Model } from "@formants/compiler";
 
 /** The human form: one line per thing and operation, so a glance shows what the blueprint declares. */
 export const summary = (model: Model): string =>

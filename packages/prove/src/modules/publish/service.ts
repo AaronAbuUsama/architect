@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, relative, resolve } from "node:path";
 import { Effect } from "effect";
-import { Compiler, nodeSource } from "@architect/compiler";
+import { Compiler, nodeSource } from "@formants/compiler";
 import { PublishFailed, type Binary, type PublishApi, type Published, type Staged } from "./types.ts";
 import { isPrerelease, planOf, projectName, type Plan } from "./internal/plan.ts";
 import { isNpmjs, nextPrerelease, publishPackage, registryOf, versionsOf } from "./internal/registry.ts";

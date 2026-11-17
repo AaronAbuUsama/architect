@@ -1,6 +1,6 @@
 // Releases against the logbook: what the next version is, what is stale where, and recording a release (D3 #1, #31).
 import { Data, type Effect } from "effect";
-import type { Bump, Model, Versioned } from "@architect/compiler";
+import type { Bump, Model, Versioned } from "@formants/compiler";
 import type { TokenSource } from "#modules/verdicts/types.js";
 
 export class ReleaseFailed extends Data.TaggedError("ReleaseFailed")<{ readonly message: string }> {}

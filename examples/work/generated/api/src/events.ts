@@ -1,5 +1,5 @@
 // Generated from the blueprint. Do not edit.
-import { EventNames } from "@architect/blueprint/server";
+import { EventNames } from "@formants/forman/server";
 import * as Attention from "../../../blueprint/things/attention/events.ts";
 import * as Milestone from "../../../blueprint/things/milestone/events.ts";
 import * as Mission from "../../../blueprint/things/mission/events.ts";

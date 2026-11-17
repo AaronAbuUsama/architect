@@ -2,7 +2,7 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { Effect } from "effect";
-import type { EnvironmentModel } from "@architect/compiler";
+import type { EnvironmentModel } from "@formants/compiler";
 import { AxiomSource, FileSource } from "#modules/telemetry/service.js";
 import type { TraceSource } from "#modules/telemetry/types.js";
 import type { Env, Reader } from "#modules/sinks/types.js";

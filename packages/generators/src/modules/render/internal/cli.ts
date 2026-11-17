@@ -1,5 +1,5 @@
 // generated/cli: `<project> <thing> <verb> --<field> ...`, one command per operation, calling the SDK.
-import type { Model, OperationModel } from "@architect/compiler";
+import type { Model, OperationModel } from "@formants/compiler";
 import type { RenderedFile } from "../types.ts";
 import { renderSessionCommands, sessionOperations } from "./cli-session.ts";
 import { GENERATED, camel, lines, opVar } from "./names.ts";

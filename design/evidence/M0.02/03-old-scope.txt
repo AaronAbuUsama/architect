@@ -1,0 +1,4 @@
+$ rg -l @architect/ --hidden -g !.git/ -g !node_modules/ -g !design/history/ -g !design/decisions/ -g !design/decisions.md -g !design/evidence/ -g !design/briefs/ -g !design/wayfinding/ -g !design/spikes/ -g !design/noir/ -g !design/state/ -g !design/build-plan.md -g !spikes/ -g !design/goals/01-the-whole-framework-locally.md -g !design/frame/questions.md
+# commit 2acb59d · 2026-11-17T19:31:02Z · exit 1 (expected 1) · 0.1s
+
+

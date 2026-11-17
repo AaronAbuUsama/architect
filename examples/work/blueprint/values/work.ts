@@ -1,4 +1,4 @@
-import { Blueprint, Schema } from "@architect/blueprint";
+import { Blueprint, Schema } from "@formants/forman";
 
 /** A short name a person reads: a mission's title, a question, what needs you. */
 export const Title = Blueprint.value(Blueprint.text({ max: 200 }));

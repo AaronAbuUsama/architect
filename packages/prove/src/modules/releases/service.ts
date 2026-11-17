@@ -1,7 +1,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { Effect, Redacted } from "effect";
-import { Compare, canonical } from "@architect/compiler";
+import { Compare, canonical } from "@formants/compiler";
 import { Environments } from "#modules/environments/service.js";
 import { Verdicts } from "#modules/verdicts/service.js";
 import type { TokenSource } from "#modules/verdicts/types.js";

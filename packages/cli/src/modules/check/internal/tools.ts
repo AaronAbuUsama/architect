@@ -3,8 +3,8 @@ import { spawnSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join, relative } from "node:path";
-import type { Model } from "@architect/compiler";
-import type { ProjectFacts } from "@architect/lint";
+import type { Model } from "@formants/compiler";
+import type { ProjectFacts } from "@formants/lint";
 import type { Finding } from "../types.ts";
 import { binOf, tsFiles } from "./files.ts";
 
@@ -36,7 +36,7 @@ export const factsOf = (root: string, model: Model): ProjectFacts => {
 export const rules = (root: string, model: Model): ReadonlyArray<Finding> => {
   const oxlint = binOf(root, "oxlint");
   if (!oxlint) return [{ part: "rules", rule: "oxlint", file: ".", message: "no oxlint found in node_modules/.bin" }];
-  const plugin = createRequire(import.meta.url).resolve("@architect/lint/plugin");
+  const plugin = createRequire(import.meta.url).resolve("@formants/lint/plugin");
   const facts = factsOf(root, model);
   const dir = join(root, ".architect/check");
   mkdirSync(dir, { recursive: true });

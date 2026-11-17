@@ -1,7 +1,7 @@
 // What the logbook adds to the commands that look at a change: `architect version --next`, `architect impact`'s `next` and
 // `stale <ops> in <envs>`, and `generated/model/changes.json` (D3 #1, #14; D3 #64 on where the logbook is found).
 import type { Effect } from "effect";
-import type { ReleaseEnv } from "@architect/prove";
+import type { ReleaseEnv } from "@formants/prove";
 
 /** What a command prints and how it exits; only `main.ts` writes it out. */
 export interface Said {

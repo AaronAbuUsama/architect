@@ -1,15 +1,15 @@
 {
-  "name": "@architect/prove",
+  "name": "@formants/prove",
   "version": "0.0.0",
   "type": "module",
   "exports": {
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@architect/blueprint": "workspace:*",
-    "@architect/compiler": "workspace:*",
-    "@architect/logbook": "workspace:*",
-    "@architect/target-effect": "workspace:*",
+    "@formants/forman": "workspace:*",
+    "@formants/compiler": "workspace:*",
+    "@formants/logbook": "workspace:*",
+    "@formants/language-effect": "workspace:*",
     "effect": "4.1.1",
     "esbuild": "0.28.2",
     "postject": "1.0.0-alpha.6",
@@ -19,8 +19,8 @@
     "#modules/*.js": "./src/modules/*.ts"
   },
   "devDependencies": {
-    "@architect/generators": "workspace:*",
-    "@architect/logbook": "workspace:*",
+    "@formants/generators": "workspace:*",
+    "@formants/logbook": "workspace:*",
     "@modelcontextprotocol/sdk": "1.32.2",
     "nx": "24.0.3"
   },

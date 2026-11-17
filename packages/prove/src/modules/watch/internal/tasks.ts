@@ -4,7 +4,7 @@
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { Effect } from "effect";
-import type { Model } from "@architect/compiler";
+import type { Model } from "@formants/compiler";
 import type { Drifting } from "./report.ts";
 
 const taskPath = (environment: string, operation: string) => `.architect/tasks/drift-${environment}-${operation}.md`;

@@ -52,8 +52,9 @@ Names below are Forman's: the rename happens in M0.
 **Goal.** One name and one vocabulary, with nothing broken.
 **Ships.** The frame on `main`; `@formants/*` packages; the `forman` command; the design docs rewritten around plugins
 and [`frame/story.md`](frame/story.md).
-**Gate.** `nx run e2e:m0` runs the Gate 1 and Gate 2 suites under the new names, plus a name check: no `@architect/`,
-`architect` command, `ARCHITECT_` variable or `.architect/` folder outside the records. "History" in this section means
+**Gate.** `nx run e2e:m0` runs the Gate 1 and Gate 2 suites under the new names, plus a name check: none of the old names (the
+package scope, the command, the variable prefix and the folder, listed in
+[`decisions/M0-packages.md`](decisions/M0-packages.md) section 4) outside the records. "History" in this section means
 the records listed in [`decisions/M0-packages.md`](decisions/M0-packages.md) section 5: `design/history/`, the decision,
 evidence, brief, wayfinding, spike, Noir and state records, the layer 1 and 2 build plan, and `spikes/`.
 **Goal file.** [`goals/02-m0-land-and-rename.md`](goals/02-m0-land-and-rename.md).
@@ -61,10 +62,10 @@ evidence, brief, wayfinding, spike, Noir and state records, the layer 1 and 2 bu
 | id | what | needs | kind | done when | size |
 |---|---|---|---|---|---|
 | M0.01 ✅ | The package map: each package's `@formants` name per K2 Q4 (front door `@formants/forman`; `language-effect`, `language-solidity`, `host-cloudflare`, `portal`; which internal packages ship inside the front door) | Gate 2 | decision | `decisions/M0-packages.md` written. **Proof:** [`decisions/M0-packages.md`](decisions/M0-packages.md) | S |
-| M0.02 | Rename packages and imports; `target-*` becomes `language-*`; Nx tags follow | M0.01 | build | `nx run-many -t check test` green; `rg '@architect/'` finds nothing outside history | M |
-| M0.03 | The command, folders and variables: `forman`, `.forman/`, `FORMAN_*`; the unread `outputs` in `architect.config.ts` removed (D3 #112) | M0.02 | build | `nx run e2e:layer1` and `e2e:layer2` pass, renamed | M |
-| M0.04 | A lint rule against the old names | M0.03 | build | the rule fails on a planted `@architect/` import | S |
-| M0.05 ∥ | Design docs rewritten: plugins instead of kits, the story as the spine; `build-plan.md` marked superseded from layer 3 | M0.01 | build | the docs build and their link check passes; "kit" appears only in history | M |
+| M0.02 ✅ | Rename packages and imports; `target-*` becomes `language-*`; Nx tags follow | M0.01 | build | `nx run-many -t check test` green; `rg` finds the old package scope nowhere outside history. **Proof:** [`evidence/M0.02/`](evidence/M0.02/): 16 projects' lint, typecheck and test, `sync:check`, the scope search empty | M |
+| M0.03 | The command, folders and variables: `forman`, `.forman/`, `FORMAN_*`; the config file renamed `forman.config.ts` and its unread `outputs` removed (D3 #112) | M0.02 | build | `nx run e2e:layer1` and `e2e:layer2` pass, renamed | M |
+| M0.04 | A lint rule against the old names | M0.03 | build | the rule fails on a planted import from the old package scope | S |
+| M0.05 ∥ ✅ | Design docs rewritten: plugins instead of kits, the story as the spine; `build-plan.md` marked superseded from layer 3 | M0.01 | build | the docs build and their link check passes; "kit" appears only in history. **Proof:** `nx run docs:check` ([`evidence/M0.05/`](evidence/M0.05/)); `build-plan.md` line 4 already points layers 3 to 5 here | M |
 | M0.06 | **Gate M0** | M0.04, M0.05 | e2e | `nx run e2e:m0` passes on `main` | S |
 
 The npm org `@formants` is not needed until M7: every milestone before it publishes to the local Verdaccio.
@@ -311,7 +312,7 @@ in `spikes/` and D3's records exist, so they are done in substance.
 **Dropped, with reasons:**
 
 - D4's old recommendation of a `kit:` namespace in the model: mounts are named by their file's path (K2).
-- `architect.config.ts`'s `outputs`: never read (D3 #112); projections are mounted instead (M0.03, M1.11).
+- The config file's `outputs`: never read (D3 #112); projections are mounted instead (M0.03, M1.11).
 - "Kit" and "dependency" as words: they become feature and adapter (K2, Q3).
 
 ## The critical path to workable

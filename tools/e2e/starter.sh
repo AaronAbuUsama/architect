@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # The starter, the way a user gets it: publish Architect's packages to a local Verdaccio, create a workspace with
-# `create-nx-workspace --preset=@architect/preset`, then `architect check` and `architect prove --env local` in it.
+# `create-nx-workspace --preset=@formants/preset`, then `architect check` and `architect prove --env local` in it.
 # Leaves nothing running: the registry, its storage and the workspace are removed on any exit.
 set -euo pipefail
 
@@ -49,17 +49,17 @@ printf '//localhost:%s/:_authToken=%s\n' "$port" "$token" > "$work/npmrc"
 unset token password
 
 step "publish"
-for p in blueprint compiler target-effect lint portal generators host-cloudflare logbook prove cli preset; do
+for p in forman compiler language-effect lint portal generators host-cloudflare logbook prove cli preset; do
   (cd "$repo/packages/$p" && NPM_CONFIG_USERCONFIG="$work/npmrc" pnpm publish --registry "$registry" --no-git-checks >/dev/null)
-  echo "published @architect/$p"
+  echo "published @formants/$p"
 done
 
 export npm_config_registry="$registry" pnpm_config_registry="$registry"
 # Every run publishes 0.0.0 again, so nothing may come from a cache another run filled.
 export npm_config_cache="$work/npm-cache" pnpm_config_cache_dir="$work/pnpm-cache" pnpm_config_store_dir="$work/pnpm-store"
 cd "$work"
-step "create-nx-workspace $name --preset=@architect/preset"
-npx --yes create-nx-workspace@24.0.3 "$name" --preset=@architect/preset --no-interactive \
+step "create-nx-workspace $name --preset=@formants/preset"
+npx --yes create-nx-workspace@24.0.3 "$name" --preset=@formants/preset --no-interactive \
   --nxCloud=skip --trustThirdPartyPreset --pm=pnpm --skipGit ${ARCHITECT_E2E_VERBOSE:+--verbose}
 
 cd "$work/$name"

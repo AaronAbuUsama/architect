@@ -1,4 +1,4 @@
-import { Blueprint, Cloud, Identity, Telemetry } from "@architect/blueprint";
+import { Blueprint, Cloud, Identity, Telemetry } from "@formants/forman";
 
 export default Blueprint.environment({
   runs: "on this machine",

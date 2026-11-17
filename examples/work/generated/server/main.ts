@@ -5,10 +5,10 @@ import { ManagedRuntime, Tracer } from "effect";
 import { HttpRouter, HttpServer } from "effect/http";
 import { HttpApiBuilder } from "effect/http-api";
 import { SqlClient } from "effect/sql";
-import type { Principal } from "@architect/blueprint";
-import { AuthD1, Database, JournalD1, StoreD1, Telemetry, toWorld } from "@architect/host-cloudflare";
-import { Auth, Busy, BusyLive, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@architect/target-effect";
-import { Mcp, type McpResult } from "@architect/target-effect";
+import type { Principal } from "@formants/forman";
+import { AuthD1, Database, JournalD1, StoreD1, Telemetry, toWorld } from "@formants/host-cloudflare";
+import { Auth, Busy, BusyLive, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@formants/language-effect";
+import { Mcp, type McpResult } from "@formants/language-effect";
 import { Api, Errors } from "../api/src/index.ts";
 import * as portal from "../portal/main.ts";
 import { catalog } from "../mcp/src/index.ts";
@@ -65,7 +65,7 @@ import * as personThing from "../../blueprint/things/person/thing.ts";
 import * as questionThing from "../../blueprint/things/question/thing.ts";
 import * as runThing from "../../blueprint/things/run/thing.ts";
 
-export { World } from "@architect/host-cloudflare";
+export { World } from "@formants/host-cloudflare";
 
 const attentionApproveServed = Handlers.serve({ name: "attention.approve", operation: attentionApprove.declaration, handler: attentionApproveHandler, notFrom: "AttentionNotOpen" });
 const attentionDeclineServed = Handlers.serve({ name: "attention.decline", operation: attentionDecline.declaration, handler: attentionDeclineHandler, notFrom: "AttentionNotOpen" });

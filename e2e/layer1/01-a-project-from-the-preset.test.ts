@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { repo } from "./support.ts";
 
-describe("check 1: create-nx-workspace --preset=@architect/preset", () => {
+describe("check 1: create-nx-workspace --preset=@formants/preset", () => {
   it("makes a project whose check and prove pass, from packages installed out of a registry", () => {
     const run = spawnSync(join(repo, "tools/e2e/starter.sh"), { cwd: repo, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
     expect(run.status, run.stdout.slice(-4000) + run.stderr.slice(-4000)).toBe(0);

@@ -1,6 +1,6 @@
 // `architect watch --env <name>`: the evals that telemetry can answer, run over an environment's recorded traffic (L2.09, D3 #140 to #149).
 import type { Effect } from "effect";
-import type { WatchSource } from "@architect/prove";
+import type { WatchSource } from "@formants/prove";
 
 /** What a command prints and how it exits; only `main.ts` writes it out. */
 export interface Said {

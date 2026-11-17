@@ -1,5 +1,5 @@
 import { Effect } from "effect";
-import { ErrorNames, EventNames } from "@architect/blueprint/server";
+import { ErrorNames, EventNames } from "@formants/forman/server";
 import { BlueprintSource } from "#modules/source/types.js";
 import { BlueprintInvalid, type CompilerApi } from "./types.ts";
 import { describe } from "./internal/describe.ts";

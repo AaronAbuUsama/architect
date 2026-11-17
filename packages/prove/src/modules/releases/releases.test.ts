@@ -9,8 +9,8 @@ import { tmpdir } from "node:os";
 import { basename, join, relative, resolve } from "node:path";
 import { Effect, Exit, Scope } from "effect";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { Logbook } from "@architect/logbook";
-import type { Model } from "@architect/compiler";
+import { Logbook } from "@formants/logbook";
+import type { Model } from "@formants/compiler";
 import { Impact } from "#modules/impact/service.js";
 import { Releases } from "./service.ts";
 import type { Env, Shipping } from "./types.ts";
@@ -22,7 +22,7 @@ const REPO = "acme/acme";
 
 const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
 const compiler = resolve(import.meta.dirname, "../../../../compiler/src/main.ts");
-// Variants are compiled inside acme's folder so that `@architect/blueprint` resolves, as the other tests' copies are.
+// Variants are compiled inside acme's folder so that `@formants/forman` resolves, as the other tests' copies are.
 const scratch = join(acme, "test/tmp/releases");
 const visible = (from: string) => !basename(from).startsWith(".");
 

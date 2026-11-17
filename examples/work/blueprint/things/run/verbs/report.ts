@@ -1,4 +1,4 @@
-import { Blueprint } from "@architect/blueprint";
+import { Blueprint } from "@formants/forman";
 import { Run } from "../thing.ts";
 import { machine } from "../machine.ts";
 import { owner } from "../../mission/roles.ts";

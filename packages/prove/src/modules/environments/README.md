@@ -21,7 +21,7 @@ Three environments are more than the revision's bundle (D3 #50 to #52, #91):
 - **One that another environment is promoted from** (`promotesFrom`: staging) records telemetry too: the same collector and
   `OTLP_URL`, without `ARCHITECT_WORLDS`, because `promote --to staging` proves it where it runs and `watch` reads the same
   folder. Such an environment needs Docker to start, and one already running without a collector is restarted onto one.
-- **`logbook` is the logbook's own worker** (`@architect/logbook`, L2.03), started with `policy` (issuer, repository,
+- **`logbook` is the logbook's own worker** (`@formants/logbook`, L2.03), started with `policy` (issuer, repository,
   refs, workflows: `ARCHITECT_OIDC_*` in the CLI) through `Logbook.launch`, with its state, pid and port beside the
   others'. It has no bundle, so its status carries no revision.
 

@@ -1,7 +1,7 @@
 // `architect generate`: what `nx sync` does for one project, run from the architect command. Writes `generated/` from
 // the blueprint, scaffolds each handler once its operation has no blanks, and never overwrites a scaffold.
 import type { Effect } from "effect";
-import type { ModelFailed } from "@architect/generators/sync";
+import type { ModelFailed } from "@formants/generators/sync";
 
 /** One file the run changed: made, rewritten, or removed (an orphan in `generated/`). */
 export interface Change {

@@ -11,7 +11,7 @@
 // - The binary is run from the formula's keg (`brew --prefix <tap>/<formula>`), so nothing is linked into Homebrew's bin.
 // - `acme --version` prints the version, which the check reads as the last word of its output.
 // - The SDK is installed with npm into an empty folder, from the registry for the project's names (everything else from npm).
-//   The check's own setup first builds and publishes every `@architect/*` package to its Verdaccio, as tools/e2e/starter.sh does
+//   The check's own setup first builds and publishes every `@formants/*` package to its Verdaccio, as tools/e2e/starter.sh does
 //   (D3 #16), with a throwaway user whose token stays in a temp npmrc, so `@acme/sdk`'s dependencies all resolve locally.
 // - Mac arm64 and Linux x64 build their own supported binary (D3 #9, #116); each must run the real brew half.
 //   Other targets skip that half. Missing Homebrew on a supported target is a failure, never a skip.

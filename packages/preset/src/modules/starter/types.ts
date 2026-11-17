@@ -1,4 +1,4 @@
-// The starter: what `create-nx-workspace <name> --preset=@architect/preset` writes. A copy of `examples/starter`'s
+// The starter: what `create-nx-workspace <name> --preset=@formants/preset` writes. A copy of `examples/starter`'s
 // blueprint, handlers and journeys, with generated/ rendered under the new project's name.
 import type { Tree } from "@nx/devkit";
 
@@ -13,7 +13,7 @@ export interface StarterSource {
   readonly files: ReadonlyArray<{ readonly path: string; readonly content: string }>;
   /** The starter's compiled model, `generated/model/model.json`. */
   readonly model: string;
-  /** The version every `@architect/*` package is installed at: the preset's own. */
+  /** The version every `@formants/*` package is installed at: the preset's own. */
   readonly version: string;
 }
 

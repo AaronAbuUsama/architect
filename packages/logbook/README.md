@@ -1,4 +1,4 @@
-# @architect/logbook
+# @formants/logbook
 
 Verdicts and the model, kept per project (D3 #3, #8; decisions #30 to #34). A worker on workerd: a Durable Object holds
 the verdicts and releases, R2 holds each revision's model, and every write needs an OIDC token from the one issuer its

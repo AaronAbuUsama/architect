@@ -5,10 +5,10 @@ import { ManagedRuntime, Tracer } from "effect";
 import { HttpRouter, HttpServer } from "effect/http";
 import { HttpApiBuilder } from "effect/http-api";
 import { SqlClient } from "effect/sql";
-import type { Principal } from "@architect/blueprint";
-import { AuthD1, Database, JournalD1, StoreD1, Telemetry, toWorld } from "@architect/host-cloudflare";
-import { Auth, Busy, BusyLive, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@architect/target-effect";
-import { Mcp, type McpResult } from "@architect/target-effect";
+import type { Principal } from "@formants/forman";
+import { AuthD1, Database, JournalD1, StoreD1, Telemetry, toWorld } from "@formants/host-cloudflare";
+import { Auth, Busy, BusyLive, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@formants/language-effect";
+import { Mcp, type McpResult } from "@formants/language-effect";
 import { Api, Errors } from "../api/src/index.ts";
 import * as portal from "../portal/main.ts";
 import { catalog } from "../mcp/src/index.ts";
@@ -40,7 +40,7 @@ import * as personThing from "../../blueprint/things/person/thing.ts";
 import * as sessionThing from "../../blueprint/things/session/thing.ts";
 import * as systemThing from "../../blueprint/things/system/thing.ts";
 
-export { World } from "@architect/host-cloudflare";
+export { World } from "@formants/host-cloudflare";
 
 const apiKeyCreateServed = Handlers.serve({ name: "api-key.create", operation: apiKeyCreate.declaration, handler: apiKeyCreateHandler });
 const invitationAcceptServed = Handlers.serve({ name: "invitation.accept", operation: invitationAccept.declaration, handler: invitationAcceptHandler, notFrom: "InvitationNotPending" });

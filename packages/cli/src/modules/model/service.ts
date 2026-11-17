@@ -1,5 +1,5 @@
 import { Effect } from "effect";
-import { Compiler, nodeSource } from "@architect/compiler";
+import { Compiler, nodeSource } from "@formants/compiler";
 import type { ModelCommandApi } from "./types.ts";
 import { summary } from "./internal/summary.ts";
 

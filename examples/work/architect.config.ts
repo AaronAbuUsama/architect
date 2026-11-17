@@ -1,4 +1,4 @@
-import { Auth, Blueprint } from "@architect/blueprint";
+import { Auth, Blueprint } from "@formants/forman";
 
 export default Blueprint.config({
   name: "work",

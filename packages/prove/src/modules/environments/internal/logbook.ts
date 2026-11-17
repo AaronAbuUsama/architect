@@ -1,8 +1,8 @@
-// The logbook as an environment: its own worker (`@architect/logbook`), run by `wrangler dev` with the token policy
+// The logbook as an environment: its own worker (`@formants/logbook`), run by `wrangler dev` with the token policy
 // the caller names, its state, pid and port beside the other environments' (D3 #33, #56).
 import { mkdirSync } from "node:fs";
 import { Effect, Schedule } from "effect";
-import { Logbook } from "@architect/logbook";
+import { Logbook } from "@formants/logbook";
 import { type LogbookSetup, type Up } from "../types.ts";
 import { failed, io } from "./status.ts";
 import { choosePort, files, reap, spawnDetached, writePort } from "./process.ts";

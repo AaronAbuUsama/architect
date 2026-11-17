@@ -1,8 +1,8 @@
 // Turns the layout into the model: every declaration named, every reference resolved, every entry hashed.
 import { Duration } from "effect";
-import type { Allowed, Field, FieldsInput, Operation, Read, Value, Visibility } from "@architect/blueprint";
+import type { Allowed, Field, FieldsInput, Operation, Read, Value, Visibility } from "@formants/forman";
 import type { AllowedModel, FieldModel, FieldsModel, Model, OperationModel, ThingModel, VisibilityModel } from "../types.ts";
-import { Blanks } from "@architect/blueprint/server";
+import { Blanks } from "@formants/forman/server";
 import { MACHINE_NUMBER, codeOf, inDeclarationOrder, prefixes, refusalsOf } from "./codes.ts";
 import { environmentsOf } from "./environments.ts";
 import { hashOf } from "./hash.ts";
@@ -166,8 +166,8 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
 
 /** What an operation that doesn't run on the server needs: a target that does. Only the Effect target exists today. */
 const RUNS_NEEDS: Readonly<Record<string, string>> = {
-  client: "it needs a target that runs operations on the caller's own device (target-noir, a later target), and this project's only target, target-effect, runs them all on the server",
-  chain: "it needs a target that runs operations on a chain (target-solidity, or target-noir on Aztec), and this project's only target, target-effect, runs them all on the server",
+  client: "it needs a target that runs operations on the caller's own device (language-noir, a later target), and this project's only target, language-effect, runs them all on the server",
+  chain: "it needs a target that runs operations on a chain (language-solidity, or language-noir on Aztec), and this project's only target, language-effect, runs them all on the server",
 };
 
 const problem = (problems: Array<string>, p: string): string => {

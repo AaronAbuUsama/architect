@@ -1,0 +1,455 @@
+$ pnpm nx run-many -t check,lint,typecheck,test --outputStyle=static
+# commit 2acb59d · 2026-11-17T19:30:59Z · exit 0 (expected 0) · 4.0s
+
+
+ NX   Running targets check, lint, typecheck, test for 18 projects:
+
+- language-solidity
+- host-cloudflare
+- language-effect
+- generators
+- compiler
+- logbook
+- starter
+- forman
+- portal
+- preset
+- prove
+- acme
+- lint
+- work
+- cli
+- docs
+- e2e
+- workspace
+
+
+
+> nx run forman:lint  [existing outputs match the cache, left as is]
+
+> oxlint packages/forman
+
+
+> nx run forman:test  [existing outputs match the cache, left as is]
+
+> vitest run --root packages/forman --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/forman
+
+
+ Test Files  17 passed (17)
+      Tests  36 passed (36)
+   Start at  19:24:03
+   Duration  1.02s (transform 761ms, setup 0ms, import 4.12s, tests 65ms, environment 1ms)
+
+
+> nx run forman:typecheck  [existing outputs match the cache, left as is]
+
+> tsc -p packages/forman/tsconfig.json
+
+
+> nx run logbook:test  [existing outputs match the cache, left as is]
+
+> vitest run --root packages/logbook --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/logbook
+
+
+ Test Files  3 passed (3)
+      Tests  25 passed (25)
+   Start at  19:24:04
+   Duration  25.02s (transform 229ms, setup 0ms, import 1.19s, tests 37.58s, environment 0ms)
+
+
+> nx run logbook:lint  [existing outputs match the cache, left as is]
+
+> oxlint packages/logbook
+
+packages/logbook/src/modules/local/local.test.ts:85:156: warning unicorn(no-invalid-fetch-options): "body" is not allowed when method is "GET"
+
+> nx run logbook:typecheck  [existing outputs match the cache, left as is]
+
+> tsc -p packages/logbook/tsconfig.json
+
+
+> nx run portal:test  [existing outputs match the cache, left as is]
+
+> vitest run --root packages/portal --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/portal
+
+
+ Test Files  4 passed (4)
+      Tests  48 passed (48)
+   Start at  19:24:05
+   Duration  11.52s (transform 1.10s, setup 0ms, import 2.48s, tests 10.94s, environment 0ms)
+
+
+> nx run portal:lint  [existing outputs match the cache, left as is]
+
+> oxlint packages/portal
+
+
+> nx run portal:typecheck  [existing outputs match the cache, left as is]
+
+> tsc -p packages/portal/tsconfig.json
+
+
+> nx run language-effect:test  [existing outputs match the cache, left as is]
+
+> vitest run --root packages/language-effect --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/language-effect
+
+
+ Test Files  14 passed (14)
+      Tests  49 passed (49)
+   Start at  19:24:08
+   Duration  2.23s (transform 4.55s, setup 0ms, import 12.93s, tests 497ms, environment 1ms)
+
+
+> nx run language-effect:lint  [existing outputs match the cache, left as is]
+
+> oxlint packages/language-effect
+
+
+> nx run language-effect:typecheck  [existing outputs match the cache, left as is]
+
+> tsc -p packages/language-effect/tsconfig.json
+
+
+> nx run compiler:test  [existing outputs match the cache, left as is]
+
+> vitest run --root packages/compiler --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/compiler
+
+
+ Test Files  4 passed (4)
+      Tests  30 passed (30)
+   Start at  19:24:12
+   Duration  5.58s (transform 5.33s, setup 0ms, import 4.95s, tests 6.27s, environment 0ms)
+
+
+> nx run compiler:lint  [existing outputs match the cache, left as is]
+
+> oxlint packages/compiler
+
+
+> nx run compiler:typecheck  [existing outputs match the cache, left as is]
+
+> tsc -p packages/compiler/tsconfig.json
+
+
+> nx run generators:test  [existing outputs match the cache, left as is]
+
+> vitest run --root packages/generators --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/generators
+
+
+ Test Files  4 passed (4)
+      Tests  20 passed (20)
+   Start at  19:24:18
+   Duration  4.03s (transform 1.39s, setup 0ms, import 6.05s, tests 6.90s, environment 0ms)
+
+
+> nx run generators:lint  [existing outputs match the cache, left as is]
+
+> oxlint packages/generators
+
+
+> nx run generators:typecheck  [existing outputs match the cache, left as is]
+
+> tsc -p packages/generators/tsconfig.json
+
+
+> nx run host-cloudflare:test  [existing outputs match the cache, left as is]
+
+> vitest run --root packages/host-cloudflare --passWithNoTests
+
+
+=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+
+
+ RUN  v4.1.12 ./packages/host-cloudflare
+
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/webStandardStreamableHttp.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/mediaType.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/requestBody.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/sseKeepAlive.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/cfworker-provider.js" points to missing source files
+
+ Test Files  7 passed (7)
+      Tests  21 passed (21)
+   Start at  19:24:23
+   Duration  43.48s (transform 117.12s, setup 273.43s, import 3.61s, tests 6.88s, environment 1ms)
+
+
+> nx run host-cloudflare:lint  [existing outputs match the cache, left as is]
+
+> oxlint packages/host-cloudflare
+
+
+> nx run host-cloudflare:typecheck  [existing outputs match the cache, left as is]
+
+> tsc -p packages/host-cloudflare/tsconfig.json
+
+
+> nx run prove:test  [existing outputs match the cache, left as is]
+
+> vitest run --root packages/prove --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  28 passed | 2 skipped (30)
+      Tests  119 passed | 2 skipped (121)
+   Start at  19:24:24
+   Duration  348.68s (transform 9.95s, setup 0ms, import 12.72s, tests 681.32s, environment 2ms)
+
+
+> nx run prove:lint  [existing outputs match the cache, left as is]
+
+> oxlint packages/prove
+
+packages/prove/src/modules/world/device-sign-in.test.ts:3:33: warning eslint(no-unused-vars): Type 'ChildProcess' is imported but never used. help: Consider removing this import.
+
+> nx run prove:typecheck  [existing outputs match the cache, left as is]
+
+> tsc -p packages/prove/tsconfig.json
+
+
+> nx run lint:test  [existing outputs match the cache, left as is]
+
+> vitest run --root packages/lint --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/lint
+
+
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
+   Start at  19:24:32
+   Duration  6.43s (transform 39ms, setup 0ms, import 62ms, tests 7.55s, environment 0ms)
+
+
+> nx run lint:lint  [existing outputs match the cache, left as is]
+
+> oxlint packages/lint
+
+
+> nx run lint:typecheck  [existing outputs match the cache, left as is]
+
+> tsc -p packages/lint/tsconfig.json
+
+
+> nx run cli:test  [existing outputs match the cache, left as is]
+
+> vitest run --root packages/cli --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/cli
+
+
+ Test Files  8 passed (8)
+      Tests  29 passed (29)
+   Start at  19:24:42
+   Duration  20.91s (transform 21.54s, setup 0ms, import 18.74s, tests 68.84s, environment 1ms)
+
+
+> nx run e2e:lint  [existing outputs match the cache, left as is]
+
+> oxlint e2e
+
+e2e/layer1/04-agent-writes-a-handler.test.ts:13:27: warning eslint(no-unused-vars): Identifier 'cli' is imported but never used. help: Consider removing this import.
+
+> nx run preset:test  [existing outputs match the cache, left as is]
+
+> vitest run --root packages/preset --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/preset
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  19:25:07
+   Duration  843ms (transform 238ms, setup 0ms, import 720ms, tests 3ms, environment 0ms)
+
+
+> nx run starter:lint  [existing outputs match the cache, left as is]
+
+> oxlint examples/starter
+
+
+> nx run acme:typecheck  [existing outputs match the cache, left as is]
+
+> tsc -p examples/acme/tsconfig.json
+
+
+> nx run language-solidity:lint  [existing outputs match the cache, left as is]
+
+> oxlint packages/language-solidity
+
+
+> nx run preset:lint  [existing outputs match the cache, left as is]
+
+> oxlint packages/preset
+
+
+> nx run work:typecheck  [existing outputs match the cache, left as is]
+
+> tsc -p examples/work/tsconfig.json
+
+
+> nx run cli:lint  [existing outputs match the cache, left as is]
+
+> oxlint packages/cli
+
+
+> nx run acme:lint  [existing outputs match the cache, left as is]
+
+> oxlint examples/acme
+
+
+> nx run starter:typecheck  [existing outputs match the cache, left as is]
+
+> tsc -p examples/starter/tsconfig.json
+
+
+> nx run work:lint  [existing outputs match the cache, left as is]
+
+> oxlint examples/work
+
+
+> nx run e2e:typecheck  [existing outputs match the cache, left as is]
+
+> tsc -p e2e/tsconfig.json
+
+
+> nx run cli:typecheck  [existing outputs match the cache, left as is]
+
+> tsc -p packages/cli/tsconfig.json
+
+
+> nx run starter:test  [existing outputs match the cache, left as is]
+
+> vitest run --root examples/starter --passWithNoTests
+
+
+ RUN  v4.1.12 ./examples/starter
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+> nx run work:test  [existing outputs match the cache, left as is]
+
+> vitest run --root examples/work --passWithNoTests
+
+
+ RUN  v4.1.12 ./examples/work
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+> nx run language-solidity:test  [existing outputs match the cache, left as is]
+
+> vitest run --root packages/language-solidity --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/language-solidity
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+> nx run preset:typecheck  [existing outputs match the cache, left as is]
+
+> tsc -p packages/preset/tsconfig.json
+
+
+> nx run acme:test  [existing outputs match the cache, left as is]
+
+> vitest run --root examples/acme --passWithNoTests
+
+
+ RUN  v4.1.12 ./examples/acme
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+> nx run language-solidity:typecheck  [existing outputs match the cache, left as is]
+
+> tsc -p packages/language-solidity/tsconfig.json
+
+
+> nx run docs:check
+
+> node design/docs/build.mjs --check
+
+docs: fresh build equals committed output (14 files)
+> node design/docs/links.mjs
+
+docs link check passed: 13 pages, links and anchors resolve, no retired words
+
+> nx run workspace:check
+
+$ nx run-many -t lint,typecheck,test && nx sync:check
+
+ NX   47 tasks: 47 succeeded, 47 cached
+
+
+Re-run with --output-style=static to inline logs.
+
+  Run duration:      26ms
+  Cache:             47/47 hit (100%)
+  Critical path:     1ms (1 task)
+  Recoverable time:  <1ms
+
+ NX   The workspace is up to date
+
+[@formants/generators:sync]: All files are up to date.
+
+
+
+
+ NX   Successfully ran targets check, lint, typecheck, test for 18 projects
+
+Nx read the output from the cache instead of running the command for 47 out of 49 tasks.
+
+  Run duration:      2.9s
+  Cache:             47/49 hit (96%)
+  Critical path:     2.8s (1 task)
+  Recoverable time:  1ms (0% of the run)
