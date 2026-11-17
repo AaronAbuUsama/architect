@@ -21,8 +21,8 @@ acme/
     environments/
       local.ts                              ✎ identity: auth.identity.test
       test.ts                                 the same change as local.ts
-      staging.ts                              identity: auth.identity({ via: [...] }) and the kits' secrets
-      production.ts                         ✎ identity: auth.identity({ via: [...] }) and the kits' secrets
+      staging.ts                              identity: auth.identity({ via: [...] }); the kits' secrets join by themselves
+      production.ts                         ✎ identity: auth.identity({ via: [...] }); the kits' secrets join by themselves
     things/
       allowance/ …                            unchanged
       organization/verbs/refund.ts          ✎ new: acme's own op over the payments kit's Payments.refund
@@ -76,7 +76,7 @@ generated/
   api/src/dependencies/<mount>/*.ts   the dependency tags handlers yield (Mail, Payments, Accounts)
   server/main.ts                   acme's routes, the kits' server ops and inbound entries, Principals from kit-auth,
                                    implementations from each kit's /worker entry; one Worker
-  server/wrangler.jsonc            + each kit's tables, actors and secret names
+  server/wrangler.jsonc            + each kit's tables, actors and secret names (from each kit's blueprint/secrets.ts)
   sdk/src/wallet/create.ts         local code: imports kit-wallets' client entry (node or browser); no HTTP
   sdk/src/wallet/link.ts           local code with two HTTP calls (challenge, complete) and one Signer step
   sdk/src/…                        every op whose reach admits session or key
@@ -94,7 +94,7 @@ architect add kit @architect/kit-wallets
 architect add kit @architect/kit-payments
 architect add kit @architect/kit-email
 architect generate
-architect check                                 # names any clash, missing secret or environment mismatch
+architect check                                 # names any clash or environment mismatch
 architect prove --env local                     # acme's journeys and every kit's, in acme's worlds
 architect model --surfaces --env production     # the table above
 ```

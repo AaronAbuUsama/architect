@@ -42,6 +42,9 @@ end to end?
    "dependency" and "inbound".
 6. Two documents disagreed: journeys live in `blueprint/journeys/` (prove's loader and `add journey` say so; acme and
    the brief used the root), and one package per kit rather than `@architect/std` subpaths.
+7. The brief said there is no `create`; there is one: the Nx preset writes `examples/starter` (L1.50), proven from
+   Verdaccio by `tools/e2e/starter.sh`. `pnpm create architect` is decided as a thin entry over that same preset, so
+   there is one template. (Caught by the 🔍 review of this spike.)
 
 ## The decision it supports
 

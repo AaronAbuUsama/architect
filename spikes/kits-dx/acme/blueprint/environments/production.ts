@@ -8,14 +8,9 @@ export default Blueprint.environment({
   identity: auth.identity({ via: ["session", "key", "device", "agent"] }),
   cloud: Cloud.cloudflare({ database: Cloud.d1() }),
   promotesFrom: "staging",
-  // Each kit's secrets, inserted by `architect add kit` and named like any other; values live only in the environment
-  // (D3). `check` fails if a deployed environment leaves out a secret a mounted kit needs.
-  secrets: {
-    AUTH_SECRET: Blueprint.secret.generated(),
-    STRIPE_KEY: Blueprint.secret.stored(),
-    STRIPE_WEBHOOK_SECRET: Blueprint.secret.stored(),
-    RESEND_KEY: Blueprint.secret.stored(),
-  },
+  // No `secrets` here: acme has none of its own. Each mounted kit's secrets (AUTH_SECRET, STRIPE_KEY,
+  // STRIPE_WEBHOOK_SECRET, RESEND_KEY, the exports of each kit's blueprint/secrets.ts) join every deployed
+  // environment by themselves; their values live only in the environment (D3).
   deploy: {
     server: Deploy.worker({ domain: "api.acme.dev" }), // acme's routes and every kit's server part: one Worker
     mcp: Deploy.worker({ domain: "mcp.acme.dev" }),

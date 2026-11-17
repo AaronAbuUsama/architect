@@ -242,7 +242,8 @@ readonly surfaces: ReadonlyArray<"server" | "sdk" | "cli" | "mcp">;             
 | MCP | reach admits `agent` **and** it does not run on the client (an agent has no device) | a tool, as today |
 | docs, portal | always | each page says where it runs and who may reach it, by which kinds |
 
-Client operations take only `Blueprint.anyone` or `Blueprint.signedIn` (optionally narrowed): a role is decided on
+`Blueprint.anyone` admits anonymous callers and all four kinds; `Blueprint.signedIn`, a role or a role-of with no
+`.via` admits all four kinds. Client operations take only `Blueprint.anyone` or `Blueprint.signedIn` (optionally narrowed): a role is decided on
 records the client does not have. A client operation that needs a server's decision calls a server operation as a
 step (section 3.2). `check` refuses a thing role on a client operation, naming the file.
 
@@ -279,7 +280,7 @@ allowance.spend         server  session key device agent      ✔    ✔    ✔
 wallet.create           client  anyone                        ✔    ✔    ·   runs on the device
 wallet.link             client  session key device            ✔    ✔    ·   runs on the device
 wallet.complete         server  session key device            ✔    ✔    ·   notVia agent (kit-wallets)
-wallet.list             server  session key device agent      ✔    ✔    ✔
+wallet.list             server  session device agent          ✔    ✔    ✔   narrowed by blueprint/kits/wallets.ts
 production issues session key device agent · deploys server mcp portal · publishes sdk cli
 ```
 
@@ -366,34 +367,37 @@ shows the insertion as a diff.
 pnpm create architect <name> [--no-install] [--no-git]
 ```
 
-The package is `create-architect` (free on npm today; `npm view create-architect` answers 404). `<name>` is lowercase
-words joined by dashes, as everywhere (`layout.ts:28`). It asks no questions and refuses a folder that exists and is
-not empty. Unless `--no-install`, it then runs `pnpm install`, `architect generate` and `architect prove --env local`,
-and prints:
+**Today ✅** a project already starts from a template: `npx create-nx-workspace acme --preset=@architect/preset` writes
+`examples/starter` (build plan L1.50: system, person, session, organization, membership, invitation and API keys, with 5
+journeys), and `tools/e2e/starter.sh` proves it from Verdaccio. The brief missed this ("There is no `create`").
+
+**Proposed:** `pnpm create architect <name>` is the package `create-architect` (free on npm today; `npm view
+create-architect` answers 404), a thin entry over **the same preset**, so there is one template, `examples/starter`, and
+no second one to keep proven. `<name>` is lowercase words joined by dashes, as everywhere (`layout.ts:28`). It asks no
+questions and refuses a folder that exists and is not empty. Unless `--no-install`, it then runs `pnpm install`,
+`architect generate` and `architect prove --env local`, and prints:
 
 ```text
-acme: 1 journey ✔  health is up · local · 0.9s
+acme: 5 journeys ✔  local
 next: architect add thing <name>      (or ask your agent: it reads AGENTS.md)
 ```
 
-It writes:
+It writes the starter, with four changes to the starter itself (marked ✎):
 
 ```text
 acme/
-  package.json                          pinned versions, the CLI's bin
-  tsconfig.json
-  .gitignore                            generated/ is committed; .architect/ and node_modules/ are not
-  architect.config.ts                   name and outputs
-  AGENTS.md  CLAUDE.md                  the rules for agents; CLAUDE.md is the one line "@AGENTS.md"
-  .agents/skills/{wayfinder,spike,designer,author,builder,reviewer}/SKILL.md   the design loop (section 4.4)
-  blueprint/kits/auth.ts                the auth kit, mounted (after step L3.03; before it, `auth` stays in the config)
+  package.json  tsconfig.json  .gitignore
+  architect.config.ts                 ✎ name and outputs; `auth` moves to the kit mount (after L3.03)
+  AGENTS.md  CLAUDE.md                ✎ new: the rules for agents; CLAUDE.md is the one line "@AGENTS.md"
+  .agents/skills/{wayfinder,spike,designer,author,builder,reviewer}/SKILL.md   ✎ new: the design loop (section 4.4)
+  blueprint/kits/auth.ts              ✎ new (after L3.03): the auth kit, mounted
   blueprint/values/identity.ts
-  blueprint/things/system/thing.ts
-  blueprint/things/system/verbs/health.ts
-  blueprint/environments/local.ts
-  blueprint/environments/test.ts
-  blueprint/journeys/health-is-up.ts
-  src/system/health.ts                  scaffolded once: "Yours from now on."
+  blueprint/things/{system,organization,membership,invitation,api-key}/…   person/ and session/ go to kit-auth at L3.03
+  blueprint/environments/{local,test,staging,production}.ts
+  blueprint/starting-worlds/{founded,invited}.ts
+  blueprint/journeys/…                ✎ moved from journeys/: health-is-up, sign-up-and-sign-in, invite-and-accept,
+                                         an-invitation-is-used-once, an-owner-makes-an-api-key
+  src/…                               the starter's handlers
 ```
 
 `generated/` is then written by the first `generate`. The contents:
@@ -459,9 +463,8 @@ export default Blueprint.environment({
 });
 ```
 
-`blueprint/values/identity.ts` holds `Ok` (acme's line, `Blueprint.value(Schema.Literal("ok"))`).
-`blueprint/things/system/thing.ts`, `verbs/health.ts`, `src/system/health.ts` and the journey are acme's files of the
-same names today (`examples/acme/…`), with the journey's imports one folder deeper. `AGENTS.md` is 30 lines: the
+Every other file is the starter's today (`examples/starter/…` on `origin/layer/3`), journeys' imports one folder
+deeper. `AGENTS.md` is 30 lines: the
 journeys-first rule, the Effect rules, names from paths, `generated/` is never edited, and "read
 `.agents/skills/<skill>/SKILL.md` for your job". Each skill is a page: its job, its artifact, its done check (section
 4.4).
@@ -647,10 +650,10 @@ export default Blueprint.use(wallets, {
 });
 ```
 
-It also inserts what the kit asks of environments: the kit's secret names (`Blueprint.secret.stored()`, or
-`generated()` where the kit says so) in every environment that deploys, and for a kit with per-environment choices
-(chain's `network`), a `choose` entry in every environment file at the kit's default for that environment kind.
-`check` fails when a deployed environment lacks a secret a mounted kit needs. Then you run `architect
+A mounted kit's secrets (the exports of its `blueprint/secrets.ts`) join every deployed environment's secrets
+automatically, named by their exports; the environment file names only the app's own, and `architect model` lists both.
+For a kit with per-environment choices (chain's `network`), `add kit` inserts a `choose` entry in every environment
+file, at the kit's default for that environment kind. Then you run `architect
 generate`, and `architect prove --env local` runs acme's journeys and the kit's.
 
 ### 2.8 `architect model --graph` and `--surfaces`
@@ -733,6 +736,7 @@ blueprint fragment.**
 import { Blueprint } from "@architect/blueprint";
 import { Address, Signature, Text } from "../values/chain.ts";
 import { KeyLocked } from "../things/wallet/errors.ts";
+import { browserSigner } from "../choices.ts"; // export const browserSigner = Blueprint.choice(["passkey", "injected"], { default: "passkey" })
 
 export const Signer = Blueprint.dependency({
   description: "Keys held on the person's own device: make one, list them, sign with one.",
@@ -742,7 +746,10 @@ export const Signer = Blueprint.dependency({
     list: { payload: {}, answer: { addresses: Blueprint.list(Address) } },
     signMessage: { payload: { address: Address, message: Text }, answer: { signature: Signature }, errors: [KeyLocked] },
   },
-  hosts: { node: "local keystore, encrypted", browser: Blueprint.choice("browserSigner"), world: "test keys" },
+  // Implementations are found by path, src/dependencies/signer/<host>.ts; the browser's by its choice,
+  // src/dependencies/signer/browser-<passkey|injected>.ts. Host names are a closed set, like `via`.
+  hosts: ["node", "browser", "world"],
+  choose: { browser: browserSigner },  // by reference to the kit's exported choice
 });
 ```
 
@@ -768,10 +775,11 @@ export default Blueprint.operation(Wallet, {
 import { Blueprint } from "@architect/blueprint";
 import { machine } from "../things/checkout/machine.ts";
 import { StripeEvent } from "../values/stripe.ts";
+import { STRIPE_WEBHOOK_SECRET } from "../secrets.ts"; // export const STRIPE_WEBHOOK_SECRET = Blueprint.secret.stored()
 
 export const stripe = Blueprint.inbound.http({
   description: "Stripe tells us a checkout was paid or expired.",
-  verify: Blueprint.verify.hmac({ secret: "STRIPE_WEBHOOK_SECRET", header: "stripe-signature", scheme: "stripe-v1" }),
+  verify: Blueprint.verify.hmac({ secret: STRIPE_WEBHOOK_SECRET, header: "stripe-signature", scheme: "stripe-v1" }),
   payload: StripeEvent,
   moves: [machine.moves.pay, machine.moves.expire],
 });
@@ -779,11 +787,14 @@ export const stripe = Blueprint.inbound.http({
 
 ```ts
 // kit-auth/kit.ts — runtime pieces: what the framework calls, filled by this kit
+import * as Secrets from "./blueprint/secrets.ts";   // export const AUTH_SECRET = Blueprint.secret.generated()
+import * as Choices from "./blueprint/choices.ts";   // apiKeys, deviceLogin, oauthProvider
+
 export default Blueprint.kit({
   description: "Sign-in: people, sessions, API keys, the CLI's device login, OAuth for agents on MCP.",
-  choices: { apiKeys: Blueprint.choice([true, false]), deviceLogin: Blueprint.choice([true, false]), oauthProvider: Blueprint.choice([true, false]) },
+  choices: Choices,
   provides: { principals: Principals.from("./worker/principals"), cast: Cast.from("./worker/cast") },
-  runtime: { tables: "auth_", secrets: ["AUTH_SECRET"] },
+  runtime: { tables: "auth_", secrets: Secrets },  // names from their exports, never strings
 });
 ```
 
@@ -798,7 +809,9 @@ New pieces of the language this needs, each small:
   inbound handler is not an operation: it has no principal and no surface, may make only the moves it names, and every
   move it makes emits its event as usual, so journeys and `watch` see it.
 - `Blueprint.kit({ description, choices, needs, provides, runtime })`, and `Blueprint.use(kit, { choices, narrow,
-  omit })`. Every `choice` is a closed set of literals, type-checked in the mount.
+  omit })`. Every choice and every secret is an export of the kit's `blueprint/choices.ts` or `blueprint/secrets.ts`,
+  named by its export: a mount sets a choice by its typed key to one of a closed set of literal values; nothing names
+  one by a string.
 
 ### 3.3 Tested on six kits
 
@@ -812,7 +825,7 @@ New pieces of the language this needs, each small:
 | Choices | apiKeys, deviceLogin, oauthProvider; `identity({ via })` per environment | browserSigner | `network` per environment | none (test or live follows the environment's secret) | none | the token's `address` per environment |
 | Needs | nothing | auth | nothing | auth | nothing | chain, wallets |
 | World implementation | Better Auth on local D1, people signed up for real (today) | test keys: real keys, made per world | Anvil (L3.05) | `stripe-mock`, webhooks signed with the world's own secret | a local mail sink; each message a fact journeys can check | Anvil with a deployed TestUSD |
-| server / SDK / CLI / MCP | its routes, Principals / sign-up, sign-in, show / `acme login`, `session show` / none | 4 routes / all 8 (client ops as local code) / all 8 / `wallet_list` only | dependencies only / nothing / nothing / nothing | start, get, `/stripe` / start, get / start, get / start, get (narrow in the mount to stop it) | `Mail`, `/resend` / nothing / nothing / nothing | balance / balance, transfer / balance, transfer / balance |
+| server / SDK / CLI / MCP | its routes, Principals / sign-up, sign-in, show / sign-up, sign-in, show, plus `acme login` / sign-up, sign-in, show (by the rule; a mount may omit them) | 4 routes / all 8 (client ops as local code) / all 8 / `wallet.list` only | dependencies only / nothing / nothing / nothing | start, get, `/stripe` / start, get / start, get / start, get (narrow in the mount to stop it) | `Mail`, `/resend` / nothing / nothing / nothing | balance / balance, transfer / balance, transfer / balance |
 
 What the test changed, against the brief:
 
@@ -987,12 +1000,12 @@ L3.01 for a declared dependency (`decisions/F5-work-blueprint.md`), now needs L3
 | D4 | Decision: the kit format | Gate 2 | none | This record. | ✅ written. |
 | L3.01a | `via` on the principal | D4 | blueprint, host-cloudflare, target-effect, prove | `Via`, `.via()` / `.notVia()`, every route resolving every credential kind, device sessions marked, `/_world/credential`, `s.<member>.via(kind)` in journeys. | acme's journeys pass unchanged. A new fixture journey: one person's session, key, device and agent credentials resolve to those four `via`s, and an operation `allowed: [signedIn.notVia("agent")]` refuses the agent token with `NotAllowed` on both the HTTP route and `/mcp`. |
 | L3.01b | Reach and surfaces | L3.01a | compiler, generators, cli | `reach` and `surfaces` in the model; renderers filter by them; `check`'s environment cross-rules; `identity({ via })`; `model --surfaces`. | A fixture op narrowed to `session` is in `generated/sdk` and absent from `generated/cli` and `generated/mcp`. `check` fails on an environment that deploys `mcp` without issuing `agent`, naming the file. `architect model --surfaces` prints the 1.5 table for acme. |
-| L3.01c ∥ | Project generators | D4 (`add environment`'s `via` needs L3.01b) | cli, create-architect (new) | `pnpm create architect`, `add thing` flags, `add operation --from --to --emits` with inserts, `add journey` flags, `add environment`, `Blueprint.question`, `check --ready`, `prove --unbuilt`. **Scope is question Q1.** | `nx run e2e:create`: in a temporary folder, from Verdaccio, `pnpm create architect demo` then `architect prove --env local` prints `1 journey ✔` with no edits; replaying tutorial steps 2 to 7 by script ends with `check --ready` exit 0 and `prove --unbuilt` exit 0. |
+| L3.01c ∥ | Project generators | D4 (`add environment`'s `via` needs L3.01b) | cli, create-architect (new) | `pnpm create architect`, `add thing` flags, `add operation --from --to --emits` with inserts, `add journey` flags, `add environment`, `Blueprint.question`, `check --ready`, `prove --unbuilt`. **Scope is question Q1.** | `nx run e2e:create`: in a temporary folder, from Verdaccio, `pnpm create architect demo` (over the existing preset) then `architect prove --env local` prints `5 journeys ✔` with no edits; replaying tutorial steps 2 to 7 by script ends with `check --ready` exit 0 and `prove --unbuilt` exit 0. |
 | S-RC | Spike: runs-client | D4 | spikes | Can the generated SDK run a client op with a `node` and a `browser` implementation (conditional exports), call a server op as a step with the same credential, and send its spans to the Collector, with the runner driving it? | Its README, merged, names the export shape and the runner's way of loading client code. |
 | L3.01d | Client operations | S-RC, L3.01b | blueprint, compiler, generators, prove | `runs: "client"` accepted; `step.call`; SDK and CLI render client ops as local code; the runner runs them in-process. | A fixture `note.draft` (client) works with the server stopped (`acme note draft`); a fixture client op with a `step.call` passes a journey and shows its client and server spans in one trace; it has no MCP tool. |
 | L3.01e | Dependencies | D4 | blueprint, compiler, generators, target-effect, cli | `Blueprint.dependency`, `step.dependency`, implementations per host plus `world`, `add dependency`, `uses-dependency` edges. | acme's `invitation.send` calls a project dependency `Mail` whose `world` implementation records each message as a fact; a journey checks one message per invitation; `architect impact` after changing `Mail.send`'s payload names `invitation.send`. |
 | L3.01f | Inbound | L3.01e | blueprint, compiler, generators, target-effect, prove | `Blueprint.inbound.http`, `verify.hmac`, `moves`; `add inbound`. | A fixture webhook signed with the world's secret makes its move and emits its event in a journey; a bad signature is a 401 with no event; the route exists only in `generated/server`. |
-| L3.01g | Kits | L3.01d, L3.01e, L3.01f | blueprint, compiler, generators, cli, prove, lint | `Blueprint.kit`, `Blueprint.use` (choices, `choose`, narrow, omit), the `kits/` place, names and prefixes, clash checks, `from-kit` edges, kit journeys in the app's worlds, the export map and closure lint, the generated-import rule amended. | A fixture kit is added with one command (`architect add kit ./fixtures/kit-notes`); its operations appear in the generated SDK; mounted a second time as `blueprint/kits/more-notes.ts` they appear as `more-notes-note.*`; a clash fails `check` naming both files; its journeys run and are filed under the mount; `architect impact` after a kit upgrade names the app operation that uses its dependency; the SDK bundle's closure has no kit runtime entry. |
+| L3.01g | Kits | L3.01d, L3.01e, L3.01f | blueprint, compiler, generators, cli, prove, lint | `Blueprint.kit`, `Blueprint.use` (choices, `choose`, narrow, omit), the `kits/` place, names and prefixes, clash checks, kit secrets and choices, `from-kit` edges, kit journeys in the app's worlds, the export map and closure lint, the generated-import rule amended, and `architect add kit` (2.7) with its `choose` inserts. | A fixture kit is added with one command (`architect add kit ./fixtures/kit-notes`); its operations appear in the generated SDK; mounted a second time as `blueprint/kits/more-notes.ts` they appear as `more-notes-note.*`; a clash fails `check` naming both files; its journeys run and are filed under the mount; `architect impact` after a kit upgrade names the app operation that uses its dependency; the SDK bundle's closure has no kit runtime entry. |
 | L3.01h ∥ | Kit generators and views | L3.01g | cli | `architect new kit`, `model --graph`, the `README` and `example/` scaffold. | `architect new kit demo && cd demo && architect prove --env local` is green; `architect model --graph` prints Mermaid with `from-kit` edges for acme. |
 | L3.03 | The auth kit, plus SIWE's server half | L3.01g | kit-auth, host-cloudflare, examples/acme | Today's adapter (`config.auth`, `AuthD1`) moved into `kit-auth` with no change to behaviour; acme mounts it; `api-key.create` stays acme's, over `Accounts`. | Every acme journey passes unchanged with `config.auth` deleted; `architect model --surfaces` shows `session.sign-in` on sdk and cli. |
 | L3.02 | The wallets kit | L3.01d, L3.03 | kit-wallets | The kit of 3.3: `Signer` with `node` (encrypted keystore) and `world` (test keys), the eight operations, SIWE from the spike, its three journeys. | `acme wallet create && acme wallet list` shows the address; `acme wallet link` links it and `acme session show` lists it; the kit's journeys pass in acme, including an agent refused on `challenge` and absent from MCP. In every world, each test person has a wallet. |
@@ -1042,8 +1055,9 @@ kit uses in local and test worlds (Anvil for a chain).
 
 ## Q1 — Do the builder's generators ship in stage 4, or after Gate 3?
 
-**The problem, in code.** Today a project is made by hand: acme's starter files exist, but nothing writes them, and
-there is no `create`, `add environment` or `check --ready`:
+**The problem, in code.** Today a project starts from the Nx preset (`npx create-nx-workspace acme
+--preset=@architect/preset`, L1.50), but there is no `pnpm create architect`, no `add environment`, no `check --ready`,
+and `add` knows four kinds and no flags:
 
 ```ts
 // packages/cli/src/modules/add/types.ts:11 (origin/layer/3)
@@ -1068,9 +1082,8 @@ review and one more e2e suite on the way to Gate 3.
 **Today** (`origin/layer/3`):
 
 ```bash
-mkdir acme && cd acme
-# copy examples/acme's system thing, health journey, environments and config by hand
-architect add thing allowance   # the first generator a builder meets
+npx create-nx-workspace acme --preset=@architect/preset   # the starter, 5 journeys green
+architect add thing allowance                             # then every move, event and environment by hand
 ```
 
 **A · In stage 4, as its own lane (recommended):**
@@ -1098,7 +1111,7 @@ pnpm create architect acme                 # later
 
 | Scenario | A · in stage 4 | B · after Gate 3 | C · kit generators only |
 |---|---|---|---|
-| You try Architect the day Gate 3 passes | `pnpm create architect`, green | copy files by hand | copy files by hand |
+| You try Architect the day Gate 3 passes | `pnpm create architect`, then flags write moves and environments | the Nx preset, then moves, events and environments by hand | the same as B |
 | Stage 4's end date | about one builder-step later, in parallel | unchanged | unchanged |
 | The tutorial page | all of steps 1 to 10 true | steps 1 to 4 and 9 still proposed | steps 1 to 4 and 9 still proposed |
 | Risk to the kit steps | none: separate files (cli `add`, a new package) | none | none |
@@ -1118,7 +1131,7 @@ pnpm create architect acme                 # later
 
 ## Q2 — Which npm scope do Architect and its kits publish under?
 
-**The problem, in code.** Every package is `@architect/*` (`examples/acme/package.json`: `"@architect/blueprint":
+**The problem, in code.** Every package is `@architect/*` (`examples/acme/package.json:7`: `"@architect/blueprint":
 "workspace:*"`), and so far they only go to the local Verdaccio. On the public registry the scope belongs to another
 project:
 
@@ -1196,7 +1209,7 @@ both are outward-facing and yours to do.
 `spikes/kits-dx/acme/`. Built for real, each needs a provider account and keys for staging and production, which
 AGENTS.md reserves for you ("Never create a cloud credential without Aaron's written yes"). acme has a place waiting
 for email today: `invitation.send` records an invitation and sends nothing
-(`examples/acme/src/invitation/send.ts`).
+(`examples/acme/src/invitation/send.ts:13`).
 
 **What it touches**
 
@@ -1212,7 +1225,7 @@ for email today: `invitation.send` records an invitation and sends nothing
 **Today:**
 
 ```ts
-// examples/acme/src/invitation/send.ts — no email is sent
+// examples/acme/src/invitation/send.ts:13 — no email is sent
 yield* steps.insert(records.insert(Invitation, { id: invitation, organization, email, invitedBy: principal.person as never }));
 ```
 
