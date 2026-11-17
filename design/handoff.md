@@ -73,7 +73,7 @@ keychain by service name (`capxul-ingest-test`, `capxul-ingest-real`, `capxul-in
 is a repository secret. Observability is Axiom only for now (O1, Aaron); PostHog is in `later.md`.
 
 **Side work, not on the main line:** H1/H2 the agent harness (PR 9 waits on Aaron: his Command Code plan and the daily
-cap), F1 the portal's design (PR 12), the Codex handoff prompt (PR 13, 14), N1 Noir on Aztec (later).
+cap), F1 the portal's design (PR 12), F2 the portal's information architecture (on main, PR 17; mocks in `spikes/portal-ia/`), the Codex handoff prompt (PR 13, 14), N1 Noir on Aztec (later).
 
 The history below is kept for the record; START HERE is what is current.
 
