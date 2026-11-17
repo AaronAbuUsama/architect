@@ -5,45 +5,42 @@
 **The goal** is `goals/01-the-whole-framework-locally.md`: all five gates passing locally and in CI, on `main`, in six
 stages. The rules are `AGENTS.md`; the thread kit (conductor, threads, spike, reviewer, hashtags) is `.agents/skills/`.
 
-**Where it stands (Codex conductor resumed, 17 November 2026).** Stages 1 and 2 (Gate 1) are on `main`. Stage 3
-(Gate 2, shipping) is on `layer/3`, and **every build step of layer two is merged there**, each with its decisions in
-`decisions/D3.md` and evidence in `evidence/<step>/`: L2.01 environments, L2.02 test worlds, L2.03 logbook, L2.04
-versions, L2.05 promote, L2.06 publish, L2.07 device sign-in, L2.L the `src/<thing>/` layout (Aaron), L2.P privacy
-seams, L2.O seeing traces (D3 #100 to #109, #120, #121), L2.08 MCP with OAuth and `/_world` closed outside world hosts
-(#122 to #127), L2.10 the read-only portal at `/portal` (#130 to #138), L2.09 `watch` (#140 to #149). Only L2.11, Gate
-2 itself, is left. The handoff had no in-flight branches to recover. One CI-recovery builder is now running on `build/ci-recovery`, from `cd9d069`, with D3 numbers 150–159 and ports 9100–9119. No other runtime tests may run beside it.
+**Where it stands (Codex conductor resumed, 17 November 2026).** Stages 1 and 2 (Gate 1) are on `main`.
+Every layer-two build step is on `layer/3`; L2.11, Gate 2 itself, is not done. The handoff had no in-flight branches
+to recover. The conductor merged main through `798ff34` (F2 design record and portal IA spike, no feature changes).
 
-**CI on `layer/3` is the first job.** Latest completed failure inspected: run `43994958256` on `00da1c6`.
-It failed only the viewer test (`viewer.test.ts:52`, “the viewer never had it”); reads passed in about 31 seconds.
-Earlier promotion socket and reads timeout failures remain regression concerns. Run `43996163508` on `cd9d069`
-then completed with the same viewer-only failure (97 tests passed, one failed, three skipped). Main's latest run `43995723506` on `798ff34` passed.
+**Just integrated, locally green; Linux CI pending.** `build/ci-recovery` at `d3ab3f4` fixes the viewer’s Linux network
+path: both containers use Docker’s bridge and exports use the viewer’s container address, with host ports still
+loopback-only. Promotion test requests close pooled connections across synchronous commands; the two reads integration
+tests have a bounded 600-second setup/journey budget. D3 #150–152 and `evidence/CI-recovery/` hold the proof. Baseline
+Linux run `43996163508` on `cd9d069` failed only the viewer (97 tests passed, one failed, three skipped). After merging,
+Nx reset, sync, all-project lint/typecheck, sync check and the three touched integration files passed locally
+(six tests, 66 seconds). No Architect containers remained.
 
-**Working arrangement.** The conductor uses an isolated managed worktree on `codex/conductor-goal-01`, based on
-`origin/layer/3`. The original checkout and its ignored template files stay untouched. Verified commits will be
-integrated and pushed to `layer/3` from this worktree; the original checkout is not switched or reset. Docker's
-initial inventory had no Architect containers. The separate builder owns feature and module-test fixes; the
-conductor owns this handoff and the status/evidence pages. Check 08's author and the gate builder start after CI recovery.
+**Evidence page repaired.** `build/evidence-recovery` at `5c10928` fixes the parser’s crash on older raw logs without
+metadata. Eight Python regressions pass, including known failures remaining red beside unverified records. Legacy
+captures stay unchanged and unverified; no provenance is invented. E1 and `evidence/Evidence-recovery/` explain it.
+The conductor regenerated `evidence/index.html` and opened both pages. Claude must still republish their private links.
 
-**Evidence repair in parallel (no services).** `python3 tools/evidence/page.py` currently crashes on older raw
-captures without metadata. A tooling builder on `build/evidence-recovery` owns the parser/template and focused Python
-checks; it must preserve those raw files and show them as unverified rather than invent provenance. The conductor
-will regenerate the page after that lands. Main through `798ff34` is merged into the conductor's integration branch
-(the F2 design record and portal IA spike only); no later-layer feature work has started.
-
-**Independent preliminary review.** A read-only reviewer of layer two found a promotion-integrity blocker:
-`Build.build` labels a dirty-source bundle with HEAD, and `Promote` checks only that the tree is clean now. Restoring
-the source after a dirty build can therefore reuse verdicts for a different bundle. A separate builder must add a
-failing regression and fix artifact provenance before Gate 2. Review also found non-atomic lease creation: concurrent world POSTs can both pass the preliminary live-world check, violating D3 #51 and corrupting marks-based cleanup. It needs a real concurrent workerd/D1 regression and one authoritative atomic mutation. The same provenance finding also permits replacing a staging-proved revision’s bundle before production, because verdicts hold no hash and production does not compare staging’s hash. A third standards correction is `new Date` in `portal/snapshot/service.ts:23`; use Effect DateTime. Review is still in progress; this is not a final pass.
+**Working arrangement.** The conductor works from a managed worktree on `codex/conductor-goal-01`, based on
+`origin/layer/3`, and pushes verified integration commits to `layer/3`. The original checkout is neither switched nor
+reset, and its ignored template files stay untouched. The two recovery builders are finished. No runtime worker is
+running while Linux CI verifies the integrated recovery.
 
 **Next, in order:**
-1. CI green on `layer/3` (above).
-2. Fix the reviewed dirty-build provenance bypass and concurrent lease creation, with separate builders and regression proof.
-3. A ✍️ author fixes check 08's second `portal(url)` fetch: `headers: { connection: "close" }` (Traps, below). Its
-   other gap, proving the slow revision in test before promoting, is already fixed (D3 #92).
-4. L2.11 Gate 2: add a CI job `e2e-layer2` beside `e2e-layer1`, run `nx run e2e:layer2` green locally with no other
-   builder running and in CI, `ci.json` per step, `python3 tools/evidence/page.py`, a 🔍 reviewer that wrote none of
-   it, the pull request `layer/3` into `main`, merged when CI is green, and the spoken report to Aaron.
-5. Stage 4 opens with wayfinding (`wayfinding/stage-4.md`).
+1. Confirm Linux CI on this recovery push is green; fix red before starting new runtime work.
+2. Correct three blockers from the independent preliminary source review (reviewed `e43aa22`; final review still required):
+   - Build provenance: dirty-source bundles overwrite the artifact under HEAD; after restoring the source, those bytes
+     can reuse that revision’s verdicts. Production also never compares staging’s hash. Preserve trustworthy provenance
+     and immutable proven bytes; add dirty-build, restore, promote and staging-hash regressions.
+   - World leases: concurrent `POST /_world/worlds` calls can both pass the separate live check and both create a lease.
+     Enforce D3 #51 atomically and prove exactly one success/one 409 against real workerd/D1.
+   - `portal/snapshot/service.ts:23` constructs `new Date` outside an entry file. Format the Effect clock with DateTime.
+3. A separate ✍️ author fixes check 08’s `portal(url)` fetch with `headers: { connection: "close" }`. Its missing test
+   proof for the slow revision is already fixed (D3 #92). Builders never edit `e2e/` or fixtures.
+4. L2.11: add `e2e-layer2` CI, run `nx run e2e:layer2` alone locally and in CI, add current `ci.json` per step, regenerate
+   evidence, get a final independent reviewer pass, open `layer/3` into `main`, merge green, check main’s CI.
+5. Open stage 4 with `wayfinding/stage-4.md`, only after Gate 2 is green on main.
 
 **For the cloud pass, from L2.08:** every deployed Worker must set `ARCHITECT_ENVIRONMENT`, or it reads as a local
 world and opens `/_world/*` (`later.md`); `Facts` reads staging's SQLite file today and needs a D1 API reader behind the
