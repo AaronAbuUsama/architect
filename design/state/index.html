@@ -139,9 +139,9 @@ across test, staging and production, and watch it. Every build step of stage thr
 <ul>
 <li><b>Layer one, declare and call, is finished.</b> Stages one and two, Gate 1, merged on 16 November.</li>
 <li><b>Layer two, prove and ship, is built.</b> Thirteen of its fourteen steps are merged on <code>layer/3</code>: traces, the MCP server, <code>watch</code> and the portal landed today.</li>
-<li><b>Codex has resumed.</b> The CI and evidence-page repairs are integrated and locally checked. Linux CI is next.</li>
-<li><b>Next:</b> verify the recovery on Linux, fix the independent review’s two blockers and check 8, then Gate 2 and the pull request into main.</li>
-<li><b>The latest completed layer CI failed on the trace viewer.</b> Reads passed on that run. The newest run failed on the same viewer test, with 97 tests passing. Main’s latest CI is green.</li>
+<li><b>Codex has resumed.</b> The CI and evidence-page repairs passed locally and on Linux. Two correctness builders and a separate author are now working.</li>
+<li><b>Next:</b> fix the independent review’s two blockers and check 8, then Gate 2 and the pull request into main.</li>
+<li><b>CI is green on the recovery push.</b> Both the general check and layer-one compatibility job passed. Main’s latest CI is green.</li>
 <li><b>Layers three to five,</b> the kits, the chain and time, haven't started. Neither has the cloud pass, which needs your yes on credentials.</li>
 </ul>
 <div class="callout">For the detail, see <a href="#layers">the five layers</a>, <a href="#stage3">layer two, step by step</a> and <a href="#left">what's left</a>.</div>` },
@@ -264,10 +264,10 @@ steps, performance, coverage and explainability.</p>
 
 { id: "flight", group: "Progress", t: "In flight", h: () => `
 <h1>In flight</h1>
-<p class="lede">Both recovery builders have finished. Their changes pass locally. Linux CI is the next check before new runtime work.</p>
+<p class="lede">Recovery is green locally and in CI. Two builders are fixing promotion provenance and world lease isolation. The separate author is preparing check 8; its runtime check waits until the builders stop.</p>
 <h2>On the critical path</h2>
 <ul>
-<li><b>CI on <code>layer/3</code>:</b> the Docker networking fix and the promotion/read test repairs pass all six touched tests locally. Linux still has to verify the push.</li>
+<li><b>CI on <code>layer/3</code>:</b> the Docker networking fix and promotion/read repairs pass all six touched tests locally. Linux CI also passed on the recovery push.</li>
 <li><b>World isolation:</b> review found that concurrent world creation can bypass the single-live-world rule. It needs atomic creation and a real concurrency regression.</li>
 <li><b>Promotion integrity:</b> independent review found that a dirty-source bundle can reuse a clean revision’s proofs after its source is restored. This must be fixed and regression-tested before Gate 2.</li>
 <li><b>Check 8:</b> one fetch needs a fresh connection after staging restarts. An author's fix, not a builder's.</li>
@@ -340,7 +340,7 @@ steps, performance, coverage and explainability.</p>
 { id: "risks", group: "Decisions", t: "Risks and known issues", h: () => `
 <h1>Risks and known issues</h1>
 <p class="lede">What could bite, from CI and from the handoff's list of traps already hit.</p>
-<div class="callout open"><b>CI recovery passes locally.</b> The viewer, promotion and read tests pass together after integration. Linux CI must confirm it before Gate 2 work proceeds.</div>
+<div class="callout open"><b>CI recovery passes locally and in CI.</b> The viewer, promotion and read tests pass together after integration. The next changes fix the two reviewed correctness blockers before Gate 2.</div>
 <ul>
 <li><b>Shared ports and Docker.</b> Builders running tests at once collide on ports. Gate 2's cleanup removes every Architect container, other agents' too, so it must run alone.</li>
 <li><b>Leftover containers.</b> A killed Gate 2 run can leave a registry container holding its port. Collectors now clean themselves up.</li>

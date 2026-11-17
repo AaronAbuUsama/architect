@@ -9,13 +9,13 @@ stages. The rules are `AGENTS.md`; the thread kit (conductor, threads, spike, re
 Every layer-two build step is on `layer/3`; L2.11, Gate 2 itself, is not done. The handoff had no in-flight branches
 to recover. The conductor merged main through `798ff34` (F2 design record and portal IA spike, no feature changes).
 
-**Just integrated, locally green; Linux CI pending.** `build/ci-recovery` at `d3ab3f4` fixes the viewer’s Linux network
+**Recovery is green locally and on Linux CI.** `build/ci-recovery` at `d3ab3f4` fixes the viewer’s Linux network
 path: both containers use Docker’s bridge and exports use the viewer’s container address, with host ports still
 loopback-only. Promotion test requests close pooled connections across synchronous commands; the two reads integration
 tests have a bounded 600-second setup/journey budget. D3 #150–152 and `evidence/CI-recovery/` hold the proof. Baseline
 Linux run `43996163508` on `cd9d069` failed only the viewer (97 tests passed, one failed, three skipped). After merging,
 Nx reset, sync, all-project lint/typecheck, sync check and the three touched integration files passed locally
-(six tests, 66 seconds). No Architect containers remained.
+(six tests, 66 seconds). Run `43997952028` on `53d028d` passed both `check` and `e2e-layer1`. No Architect containers remained.
 
 **Evidence page repaired.** `build/evidence-recovery` at `5c10928` fixes the parser’s crash on older raw logs without
 metadata. Eight Python regressions pass, including known failures remaining red beside unverified records. Legacy
@@ -24,11 +24,14 @@ The conductor regenerated `evidence/index.html` and opened both pages. Claude mu
 
 **Working arrangement.** The conductor works from a managed worktree on `codex/conductor-goal-01`, based on
 `origin/layer/3`, and pushes verified integration commits to `layer/3`. The original checkout is neither switched nor
-reset, and its ignored template files stay untouched. The two recovery builders are finished. No runtime worker is
-running while Linux CI verifies the integrated recovery.
+reset, and its ignored template files stay untouched. The two recovery builders are finished. Now active:
+- `build/build-integrity`: D3 #160–169, private ports 9120–9139 and existing promote ports 9030–9049.
+- `build/world-isolation`: D3 #170–179, private ports 9140–9159 and existing test-worlds ports 8970–8989.
+- `author/check08-connection`: D3 #180–189, source/static work only until both runtime builders finish; then check 08 alone without global teardown.
+Each has its own managed worktree. No full gate may run beside them.
 
 **Next, in order:**
-1. Confirm Linux CI on this recovery push is green; fix red before starting new runtime work.
+1. Done: recovery Linux CI is green (`43997952028`, `53d028d`).
 2. Correct two blockers from the independent preliminary source review (reviewed `e43aa22`; final review still required):
    - Build provenance: dirty-source bundles overwrite the artifact under HEAD; after restoring the source, those bytes
      can reuse that revision’s verdicts. Production also never compares staging’s hash. Preserve trustworthy provenance

@@ -9934,7 +9934,7 @@ Hint: run the command with --verbose for more details.
   <h2><span class="id">Evidence-recovery</span> Rebuild the evidence page without inventing missing capture metadata <span class="chip pass">done</span></h2>
   <p class="summary">The renderer accepts complete capture headers and preserves raw historical records as explicitly unverified. Unknown records never mark a step done or link an unknown commit. Rendering redacts known local path, email and token forms without changing source records. Known unexpected exits and failed CI keep their step red even beside unverified records.</p>
   <div class="proves"><span class="label">Done when</span>python3 tools/evidence/page_test.py passes for valid, raw, partial and malformed records, HTML escaping, mixed or empty steps, expected and unexpected failures, and display privacy; python3 tools/evidence/page.py rebuilds the actual evidence page.</div>
-  <div class="links">CI not run · <a href="https://github.com/AaronAbuUsama/architect/commit/cd9d069">commit cd9d069</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/38e3586">commit 38e3586</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/6bed2bb">commit 6bed2bb</a> · 8 verified captures · 0 unverified records</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43997952028">CI success</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/cd9d069">commit cd9d069</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/38e3586">commit 38e3586</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/6bed2bb">commit 6bed2bb</a> · 8 verified captures · 0 unverified records</div>
   
 <details class="run" open>
   <summary>
@@ -10189,10 +10189,10 @@ OK</pre></div>
 </section>
 <section class="step">
   <div class="stage">Stage 3 · shipping on local worlds (Gate 2)</div>
-  <h2><span class="id">CI-recovery</span> Reliable local telemetry networking and CI command tests <span class="chip bad">not done</span></h2>
+  <h2><span class="id">CI-recovery</span> Reliable local telemetry networking and CI command tests <span class="chip pass">done</span></h2>
   <p class="summary">The Collector addresses the viewer on Docker’s bridge, keeping host ports loopback-only. Promotion test requests close their sockets across synchronous commands. List-read integration sessions have a bounded 600-second startup and journey budget.</p>
-  <div class="proves"><span class="label">Done when</span>The viewer regression fails first on the old host-gateway endpoint; the real Collector delivers the journey root, allowance.grant.insert child and trace-linked log to Tempo and Loki on Docker Desktop. Viewer, promotion and list-read tests pass with their original assertions. Lint, typecheck and generated drift checks pass. Linux CI on the fix remains the conductor’s landing check.</div>
-  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43996163508">CI failure</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/cd9d069">commit cd9d069</a> · 5 verified captures · 0 unverified records</div>
+  <div class="proves"><span class="label">Done when</span>The viewer regression fails first on the old host-gateway endpoint; the real Collector delivers the journey root, allowance.grant.insert child and trace-linked log to Tempo and Loki on Docker Desktop. Viewer, promotion and list-read tests pass with their original assertions. Lint, typecheck and generated drift checks pass. Linux CI run 43997952028 on integrated head 53d028d passed check and e2e-layer1.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43997952028">CI success</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/cd9d069">commit cd9d069</a> · 5 verified captures · 0 unverified records</div>
   
 <details class="run" >
   <summary>
