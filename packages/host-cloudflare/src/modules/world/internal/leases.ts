@@ -4,6 +4,8 @@ import { Effect } from "effect";
 
 const CREATE = `CREATE TABLE IF NOT EXISTS "_worlds" ("id" TEXT PRIMARY KEY, "created" INTEGER NOT NULL, "expires" INTEGER NOT NULL, "marks" TEXT NOT NULL, "ended" INTEGER, "reason" TEXT, "reported" INTEGER NOT NULL DEFAULT 0)`;
 
+const ONE_LIVE = `CREATE UNIQUE INDEX IF NOT EXISTS "_worlds_one_live" ON "_worlds" ((1)) WHERE "ended" IS NULL`;
+
 /** The tables a world fills: everything but SQLite's, Cloudflare's, the migrations' and this registry. */
 const WORLD_TABLES = `SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite\\_%' ESCAPE '\\' AND name NOT LIKE '\\_cf\\_%' ESCAPE '\\' AND name NOT IN ('d1_migrations', '_worlds')`;
 
@@ -16,7 +18,8 @@ export interface Lease {
 
 type Row = Omit<Lease, "marks"> & { readonly marks: string; readonly ended: number | null; readonly reason: string | null; readonly reported: number };
 
-const ready = (db: D1Database) => Effect.promise(() => db.prepare(CREATE).run());
+// Additive only: an already-corrupt registry fails closed instead of choosing a world or deleting its data.
+const ready = (db: D1Database) => Effect.promise(() => db.batch([db.prepare(CREATE), db.prepare(ONE_LIVE)]));
 
 const toLease = (row: Row): Lease => ({ id: row.id, created: row.created, expires: row.expires, marks: JSON.parse(row.marks) as Record<string, number> });
 
@@ -28,17 +31,39 @@ export const live = (db: D1Database) =>
     return results.map(toLease);
   });
 
-/** A new live world, its tables' marks taken now. Whoever calls checks that no other world is live. */
+/** Bounded JSON functions keep the snapshot in one INSERT without a compound SELECT. */
+const markExpression = (tables: ReadonlyArray<{ readonly name: string }>): string => {
+  let parts: Array<string> = [];
+  for (let i = 0; i < tables.length; i += 8) {
+    const fields = tables.slice(i, i + 8).flatMap(({ name }) => [
+      `'${name.replaceAll("'", "''")}'`, `(SELECT COALESCE(MAX(rowid), 0) FROM "${name.replaceAll('"', '""')}")`,
+    ]);
+    parts.push(`json_object(${fields.join(", ")})`);
+  }
+  while (parts.length > 1) {
+    const next: Array<string> = [];
+    for (let i = 0; i < parts.length; i += 2) next.push(parts[i + 1] ? `json_patch(${parts[i]}, ${parts[i + 1]})` : parts[i]!);
+    parts = next;
+  }
+  return parts[0] ?? "'{}'";
+};
+
+/** Take the single-live slot atomically. A losing caller receives the owner from the same transaction. */
 export const begin = (db: D1Database, world: { readonly id: string; readonly now: number; readonly lifetimeMs: number }) =>
   Effect.gen(function* () {
     yield* ready(db);
     const { results: tables } = yield* Effect.promise(() => db.prepare(WORLD_TABLES).all<{ name: string }>());
-    const maxima = yield* Effect.promise(() => db.batch(tables.map((t) => db.prepare(`SELECT COALESCE(MAX(rowid), 0) AS mark FROM "${t.name}"`))));
-    const marks = Object.fromEntries(tables.map((t, i) => [t.name, (maxima[i]!.results[0] as { mark: number }).mark]));
-    const lease: Lease = { id: world.id, created: world.now, expires: world.now + world.lifetimeMs, marks };
-    yield* Effect.promise(() =>
-      db.prepare(`INSERT INTO "_worlds" ("id", "created", "expires", "marks") VALUES (?, ?, ?, ?)`).bind(lease.id, lease.created, lease.expires, JSON.stringify(marks)).run());
-    return lease;
+    // Marks are evaluated inside the guarded INSERT, never before another world's teardown can commit.
+    const marks = markExpression(tables);
+    const [inserted, held] = yield* Effect.promise(() => db.batch([
+      db.prepare(`INSERT INTO "_worlds" ("id", "created", "expires", "marks")
+        SELECT ?, ?, ?, ${marks} WHERE NOT EXISTS (SELECT 1 FROM "_worlds" WHERE "ended" IS NULL)
+        ON CONFLICT ("id") DO NOTHING`).bind(world.id, world.now, world.now + world.lifetimeMs),
+      db.prepare(`SELECT * FROM "_worlds" WHERE "ended" IS NULL ORDER BY "created" LIMIT 1`),
+    ]));
+    const owner = held!.results[0] as Row | undefined;
+    if (inserted!.meta.changes > 0) return { kind: "created", lease: toLease(owner!) } as const;
+    return owner ? { kind: "live", lease: toLease(owner) } as const : { kind: "used" } as const;
   });
 
 /**
@@ -53,13 +78,15 @@ export const end = (db: D1Database, id: string, reason: "destroyed" | "expired",
     const marks = toLease(row).marks;
     // A table made since (Better Auth makes its own on first use) was empty when the world began: its mark is 0.
     const { results: tables } = yield* Effect.promise(() => db.prepare(WORLD_TABLES).all<{ name: string }>());
-    yield* Effect.promise(() =>
+    const changes = yield* Effect.promise(() =>
       db.batch([
         db.prepare("PRAGMA defer_foreign_keys = on"),
-        ...tables.map((t) => db.prepare(`DELETE FROM "${t.name}" WHERE rowid > ?`).bind(marks[t.name] ?? 0)),
-        db.prepare(`UPDATE "_worlds" SET "ended" = ?, "reason" = ? WHERE "id" = ?`).bind(now, reason, id),
+        // The reads above may interleave. Every deletion and the ending transition share this transaction guard.
+        ...tables.map((t) => db.prepare(`DELETE FROM "${t.name.replaceAll('"', '""')}" WHERE rowid > ?
+          AND EXISTS (SELECT 1 FROM "_worlds" WHERE "id" = ? AND "ended" IS NULL)`).bind(marks[t.name] ?? 0, id)),
+        db.prepare(`UPDATE "_worlds" SET "ended" = ?, "reason" = ? WHERE "id" = ? AND "ended" IS NULL`).bind(now, reason, id),
       ]));
-    return true;
+    return changes.at(-1)!.meta.changes > 0;
   });
 
 /** Worlds whose lifetime has run out and that nothing has destroyed yet. */

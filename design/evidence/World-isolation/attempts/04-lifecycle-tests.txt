@@ -1,0 +1,54 @@
+$ pnpm exec vitest run --root packages/host-cloudflare src/modules/world/world.test.ts
+# commit 53d028d · 2026-11-17T02:05:39Z · exit 1 (expected 0) · 10.7s
+
+
+=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+
+
+ RUN  v4.1.12 ./packages/host-cloudflare
+
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/webStandardStreamableHttp.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/mediaType.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/requestBody.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/sseKeepAlive.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/cfworker-provider.js" points to missing source files
+ ❯ src/modules/world/world.test.ts (7 tests | 4 failed) 491ms
+     × admits exactly one concurrent creation and removes only that world's rows 58ms
+     × ends once when alarm-style and explicit teardown overlap, and an old teardown leaves the next world intact 12ms
+     × takes marks in the admission transaction when creation races an ending 11ms
+     × refuses a used id, and an additive index upgrade never repairs overlapping legacy leases by deleting data 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/world/world.test.ts > world leases, in real workerd and D1 > admits exactly one concurrent creation and removes only that world's rows
+ FAIL  src/modules/world/world.test.ts > world leases, in real workerd and D1 > ends once when alarm-style and explicit teardown overlap, and an old teardown leaves the next world intact
+ FAIL  src/modules/world/world.test.ts > world leases, in real workerd and D1 > takes marks in the admission transaction when creation races an ending
+ FAIL  src/modules/world/world.test.ts > world leases, in real workerd and D1 > refuses a used id, and an additive index upgrade never repairs overlapping legacy leases by deleting data
+Error: D1_ERROR: too many terms in compound SELECT: SQLITE_ERROR
+ ❯ D1DatabaseSessionAlwaysPrimary._sendOrThrow ../../cloudflare-internal:d1-api:188:19
+ ❯ ../../cloudflare-internal:d1-api:137:19
+
+Caused by: Error: too many terms in compound SELECT: SQLITE_ERROR
+ ❯ D1DatabaseSessionAlwaysPrimary._sendOrThrow ../../cloudflare-internal:d1-api:189:24
+ ❯ ../../cloudflare-internal:d1-api:137:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 3 passed (7)
+   Start at  02:05:30
+   Duration  9.19s (transform 3.47s, setup 8.08s, import 11ms, tests 491ms, environment 0ms)

@@ -1,6 +1,5 @@
 // The routes a long-lived environment answers for its worlds: make one with a lifetime, list them, destroy one, reap
-// the overdue. Every destruction goes through the world's own Durable Object, so the alarm, a reap and a destroy queue
-// behind each other and only the first does the work.
+// the overdue. Creation and teardown commit through D1 guards: one live lease, and only its first ending deletes data.
 import { Clock, Effect } from "effect";
 import { begin, live, overdue, reportReaped } from "./leases.ts";
 
@@ -30,11 +29,11 @@ const create = (l: Leases, request: Request) =>
     if (typeof body.lifetimeMs !== "number" || !(body.lifetimeMs > 0)) return json({ error: "lifetimeMs must be a positive number" }, 400);
     // A world past its lifetime is not in the way. (Nothing reports it: this is not the reap a person asked for.)
     for (const world of yield* overdue(l.db, yield* Clock.currentTimeMillis)) yield* tell(l, world.id, "/_world/end", { reason: "expired" });
-    const held = yield* live(l.db);
-    if (held.length > 0) return json({ error: "WorldLive", id: held[0]!.id, expires: held[0]!.expires }, 409);
-    const lease = yield* begin(l.db, { id: body.id, now: yield* Clock.currentTimeMillis, lifetimeMs: body.lifetimeMs });
-    yield* tell(l, lease.id, "/_world/arm", { id: lease.id, expires: lease.expires });
-    return json({ id: lease.id, expires: lease.expires }, 201);
+    const begun = yield* begin(l.db, { id: body.id, now: yield* Clock.currentTimeMillis, lifetimeMs: body.lifetimeMs });
+    if (begun.kind === "live") return json({ error: "WorldLive", id: begun.lease.id, expires: begun.lease.expires }, 409);
+    if (begun.kind === "used") return json({ error: "WorldUsed", id: body.id }, 409);
+    yield* tell(l, begun.lease.id, "/_world/arm", { id: begun.lease.id, expires: begun.lease.expires });
+    return json({ id: begun.lease.id, expires: begun.lease.expires }, 201);
   });
 
 /** `/_world/worlds`: the environment's worlds. */
