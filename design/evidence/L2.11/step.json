@@ -2,8 +2,8 @@
   "step": "L2.11",
   "stage": "Stage 3 · shipping on local worlds (Gate 2)",
   "title": "Gate 2: eight shipping checks locally and in Linux CI",
-  "status": "shipping-gates-pass-final-ci-pending",
-  "summary": "Clean candidate 4516059 passed all eight Gate 2 files and ten tests locally and on Linux, with zero skips and real Homebrew on both platforms. The separate author corrected the Linux workspace job’s implicit five-second real-Worker restart deadline and its matching durability sibling. After integration, all 16 projects pass static checks and all 25 real logbook tests pass; cleanup is complete. Runtime and Gate 2 source are unchanged. Fresh all-three-job CI and final review/landing remain.",
+  "status": "gate-pass-pr-review-pending",
+  "summary": "Gate 2 passes on clean local source and fresh Linux CI: all eight files and ten tests, zero skips, with actual Mac arm64 and Linux x64 Homebrew. The clean local 4516059 proof is unchanged by the subsequent two test-only restart deadlines and documentation; final source 5ff5f6f passes all three Linux CI jobs. All 25 real logbook tests and all 16 projects’ static checks pass after integration. Owned-resource cleanup is complete. Final keyed PR CI, independent exact-head verdict and main landing remain.",
   "proves": "A PR goes to test, then staging, then production. There is a verdict in each environment, and the npm version equals `architect version --next`.",
   "captions": {
     "01-ci-static": "Workspace lint, typecheck, Nx sync and workflow syntax validation; these are static checks.",
@@ -18,7 +18,8 @@
     "12-corrected-linux-gate": "4516059 Linux Gate 2: eight files and ten tests pass, no skips, actual Linuxbrew.",
     "13-restart-budget-static": "Post-merge restart-deadline correction: all 16 projects pass lint/typecheck without cache; reset/sync/sync:check pass.",
     "14-restart-budget-logbook": "Post-merge serial real logbook suite: all 25 tests pass, including both restart cases.",
-    "15-restart-budget-cleanup": "Post-merge cleanup: no owned containers, exact test-port listeners or worktree runtime processes."
+    "15-restart-budget-cleanup": "Post-merge cleanup: no owned containers, exact test-port listeners or worktree runtime processes.",
+    "16-final-linux-ci": "Final source 5ff5f6f, run 44027211261: all three Linux CI jobs green, including real Homebrew Gate 2 and corrected real logbook integration tests."
   },
   "local": {
     "commit": "4516059b27c2013fda885225a7ea2074357ab3b2",

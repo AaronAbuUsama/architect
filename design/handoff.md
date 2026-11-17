@@ -6,7 +6,7 @@
 stages. The rules are `AGENTS.md`; the thread kit (conductor, threads, spike, reviewer, hashtags) is `.agents/skills/`.
 
 **Current frontier.** Stages 1 and 2 (Gate1) are on `main` through `ca2fbf2`. Stage3 source is integrated through
-`fca159d` on `codex/conductor-goal-01`; the conductor pushes its verified candidate to `layer/3`. No feature builder
+`5ff5f6f` on `codex/conductor-goal-01`; the conductor pushes its verified candidate to `layer/3`. No feature builder
 or author is running services. The original checkout and ignored HeroUI template files stay untouched. Stage4 has
 not started and remains the root conductor's responsibility after Stage3 lands green on main.
 
@@ -17,14 +17,18 @@ document viewers on8978/8979 were preserved. Raw receipts: `evidence/L2.11/09-fi
 `10-final-cleanup.txt`. No runtime or Gate2 source changed after that proof: only two logbook integration-test
 restart deadlines and documentation/receipts changed.
 
-**Linux gates pass; the final all-three-job run is next.** Run `44025466900` on `4516059` passed Gate1 and Gate2,
+**All three Linux jobs are green on the final source.** Run `44027211261` on `5ff5f6f` passed the workspace job,
+Gate1 and Gate2 with mandatory real Linuxbrew. Current ci.json records for every layer-two step point to that
+success. The source reviewer is clear; the keyed PR run and final exact-head gate verdict precede landing.
+
+**The prior CI restart correction is preserved honestly.** Run `44025466900` on `4516059` passed Gate1 and Gate2,
 including real Linuxbrew, eight files/ten tests/zero skips. Its workspace job failed only the real logbook missing-
 policy restart body at the implicit five-second deadline (8.16 seconds actual). Separate author `ce2fb88` gives
 that body and its existing durability-restart sibling explicit60-second integration deadlines; the sibling passed
 CI and is not claimed as another reproduced failure. Every request, assertion, hook, global/domain budget and
 runtime is unchanged (D3 #199). After integration at `fca159d`, Nx reset/sync/sync:check, all16projects lint/typecheck
 without cache and all25real logbook tests passed. Cleanup found no owned container, test-port listener or runtime
-process. Current ci.json records still retain the failed overall run honestly until the fresh candidate passes.
+process. The failed run and exact two-line correction remain in the raw evidence; current CI records now point to the fresh green run.
 
 **Source review is clear, final gate verdict pending.** The same independent reviewer read the whole layer and all
 bounded corrections through `4516059`, finding no new actionable product blocker. Round-three defects are fixed at
@@ -41,8 +45,9 @@ debt, without an exemption or universal compliance claim. D3 #195 records OAuth 
 a strict concurrent ceiling remains before public cloud use.
 
 **Next, in order.**
-1. Freeze/push the final receipts candidate and run fresh Linux CI with all three jobs and mandatory real Linuxbrew.
-   No other source correction starts without actual feedback. Keep current CI records and pages truthful.
+1. Push the final receipts candidate and open `layer/3` into main. The branch’s all-three-job CI is green on
+   `5ff5f6f`; the pull-request run must also execute the model-assisted Gate1 check using the existing repository
+   secret. Observed daily keyed CI spend is $0.59 before this PR; no new credential or cloud resource is created.
 2. Obtain the same independent reviewer's final verdict on the exact final evidence head and CI. Open `layer/3` into
    main; merge only fresh green CI, a clean target and the pass. Check the keyed Gate1 run's actual spend before main.
 3. Verify main CI, reset/sync/static and touched checks, and cleanup. Hand the green main commit back to root. Root
