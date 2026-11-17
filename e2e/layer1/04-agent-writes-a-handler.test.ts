@@ -71,7 +71,7 @@ describe.skipIf(ci)("check 4: an agent writes allowance.spend from its brief alo
       mkdirSync(telemetry, { recursive: true });
       const collector = yield* Collectors.start(telemetry);
       const prompt = [
-        "You are writing one handler in an Forman project. Your tools are read, list, write_handler and check.",
+        "You are writing one handler in a Forman project. Your tools are read, list, write_handler and check.",
         "Here is your brief:", "", brief.stdout, "",
         "Work from the brief, the declarations and the project's other handlers. Finish when check passes.",
       ].join("\n");
