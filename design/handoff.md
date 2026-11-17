@@ -52,12 +52,15 @@ The gate verifier will now rerun the full local gate from this clean integrated 
   watch/drift and portal stale checks. Cleanup found zero test containers, listeners, taps/formulas or processes.
   Linuxbrew execution still awaits Gate2 CI.
 
-**Review state.** Two actionable reviewed heads (`e43aa22`, `8f50320`) and an early three-pass reset are recorded in
-`decisions/D3-proof-publication-reset.md` and private Git ledger `review-loop/architect-goal01-stage3.json`. The two
-causal clusters are D1 lease isolation and proof-to-publication identity. No third correction head was reviewed.
-Both actionable rounds are closed locally at committed source `759ebb4`, awaiting final whole-layer review. Original and sibling failures were reproduced and fixed; final whole-layer review is still required on the final
-candidate. Three trailing spaces in an untouched historical OOM capture under `Staging-proof/attempts/` are raw data,
-not source whitespace defects. Keep those captures intact.
+**Round3 whole-layer reset completed.** Review of `3a06e85` found four real source defects: config-specific
+process ownership before signaling; immutable R2 model admission; first-MCP sinks/environment configuration;
+reserved refusal-code uniqueness. `decisions/D3-whole-layer-reset.md` records history, owner tracing and the
+independent adversarial plan pass. Private ledger counter is3. Implementation resumes only in those bounded owners;
+no full-gate replay starts until their services stop. The earlier two causal clusters remain fixed.
+
+Historical builder-authored evaluator changes are being dispositioned truthfully by separate-author independent
+acceptance, without rewriting history or weakening checks. OAuth count is documented as a local throttle; strict
+concurrent ceiling is cloud hardening before public deployment. Raw diagnostic whitespace stays raw data.
 
 **Next, in order.**
 1. Push the integrated gate candidate/evidence to `layer/3`; watch all three CI jobs, especially `e2e-layer2` with real
