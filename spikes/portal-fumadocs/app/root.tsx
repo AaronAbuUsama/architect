@@ -1,6 +1,7 @@
 import { RootProvider } from "fumadocs-ui/provider/react-router";
 import type { ReactNode } from "react";
-import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
+import { RouterProvider } from "react-aria-components";
+import { Links, Meta, Outlet, Scripts, ScrollRestoration, useHref, useNavigate } from "react-router";
 import "./app.css";
 
 // The router's basename (react-router.config.ts); Vite's BASE_URL stays "/", so it can't be used here.
@@ -16,4 +17,8 @@ export function Layout({ children }: { children: ReactNode }) {
     </html>
   );
 }
-export default function App() { return <Outlet />; }
+// HeroUI Pro's Sidebar, Navbar and links route through React Aria; this hands them React Router.
+export default function App() {
+  const navigate = useNavigate();
+  return <RouterProvider navigate={navigate} useHref={useHref}><Outlet /></RouterProvider>;
+}

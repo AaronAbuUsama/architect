@@ -2,9 +2,11 @@
 @import "fumadocs-ui/css/neutral.css";
 @import "fumadocs-ui/css/preset.css";
 @import "@heroui/styles";
+@import "@heroui-pro/react/css";
 
 @source "../node_modules/fumadocs-ui/dist/**/*.js";
 @source "../node_modules/streamdown/dist/*.js";
+@source "../node_modules/@heroui-pro/react/dist/**/*.js";
 
 /* HeroUI first: its tokens are the palette, and Fumadocs' headless pieces (search, accordions, prose) follow them. */
 :root, .dark {
@@ -36,3 +38,6 @@ html[data-view="static"] [data-live] { background: repeating-linear-gradient(45d
 #nd-docs-layout { --fd-layout-width: 100vw; }
 /* The theme switch sits in a box sized to it, not a full-width empty pill. */
 #nd-sidebar div:has(> [data-theme-toggle]), aside div:has(> [data-theme-toggle]) { width: fit-content; margin-inline-start: auto; }
+
+/* Room for mission and thread titles. */
+.sidebar { --sidebar-width: 300px; }

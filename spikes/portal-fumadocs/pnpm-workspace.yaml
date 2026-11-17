@@ -3,3 +3,5 @@ packages: []
 minimumReleaseAge: 20160
 allowBuilds:
   esbuild: true
+  "@heroui-pro/react": true
+  '@zowe/secrets-for-zowe-sdk': false
