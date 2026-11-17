@@ -54,7 +54,8 @@ const nothingRunning = () => {
   expect(containers).not.toContain(`architect-collector-${process.pid}-`);
 };
 
-afterAll(() => rmSync(scratch, { recursive: true, force: true }));
+// A collector may still be flushing its last lines as the scope closes: retry instead of failing on ENOTEMPTY.
+afterAll(() => rmSync(scratch, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }));
 
 describe("architect prove --env local", () => {
   it("passes on acme: every journey, every eval, coverage, and leaves nothing running", { timeout: 180_000 }, async () => {

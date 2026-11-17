@@ -118,8 +118,10 @@ afterAll(async () => {
   }
   if (brewHere && brew("tap").stdout.split("\n").includes(tap)) brew("untap", tap);
   await Effect.runPromise(Environments.down({ root, name: "logbook" }));
+  // The registry writes its storage as its own user; on Linux the runner cannot delete those files, so the container empties it first.
+  docker("exec", containers.registry, "sh", "-c", "rm -rf /verdaccio/storage/*");
   docker("rm", "-f", containers.issuer, containers.registry);
-  rmSync(parent, { recursive: true, force: true });
+  rmSync(parent, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
   rmSync(join(repo, "packages/blueprint/dist"), { recursive: true, force: true });
 });
 
