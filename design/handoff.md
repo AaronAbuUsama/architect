@@ -33,6 +33,12 @@ Each has its own managed worktree. Both initial correctness builders are finishe
 
 **Next, in order:**
 1. Done: recovery Linux CI is green (`43997952028`, `53d028d`).
+**Early review reset completed.** Two actionable heads (`e43aa22`, `8f50320`), recorded in the private Git ledger
+`review-loop/architect-goal01-stage3.json`. `decisions/D3-proof-publication-reset.md` holds the history, architecture
+and independent adversarial plan passes. Implementation resumed with one coherent proof/publication package:
+identity plus live PID checks, captured full-revision publication source, per-invocation owned outputs, and npm pack
+integrity before reusing existing versions. No new proof matrix or generic snapshot framework. Author runtime is still pending.
+
 2. Finish `build/staging-proof-boundary`: recheck staging identity and clean/current source after proof, before
    model storage, publishing or signed verdicts. The original dirty-artifact/hashless-proof blocker is corrected by
    D3 #160–164 (`9c0d42d`), and atomic lease isolation by #170–172 (`c9d1285`), with combined integration tests green.
