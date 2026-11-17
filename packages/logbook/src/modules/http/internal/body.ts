@@ -10,6 +10,7 @@ export const VerdictBody = Schema.Struct({
   environment: Name,
   operation: Name,
   verdict: Schema.Literals(["pass", "fail"]),
+  sha256: Schema.optionalKey(Schema.String.check(Schema.isPattern(/^[0-9a-f]{64}$/))),
 });
 
 export const ReleaseBody = Schema.Struct({

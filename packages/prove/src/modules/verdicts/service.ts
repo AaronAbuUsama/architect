@@ -33,7 +33,7 @@ const fromGithub = (requestUrl: string, requestToken: Redacted.Redacted<string>)
     return typeof body["value"] === "string" ? body["value"] : yield* failed("GitHub's answer has no value");
   });
 
-const Rows = Schema.Array(Schema.Struct({ revision: Schema.String, environment: Schema.String, operation: Schema.String, verdict: Schema.String, ref: Schema.String }));
+const Rows = Schema.Array(Schema.Struct({ revision: Schema.String, environment: Schema.String, operation: Schema.String, verdict: Schema.String, ref: Schema.String, sha256: Schema.optionalKey(Schema.NullOr(Schema.String)) }));
 
 const minted = (source: TokenSource) =>
   source.kind === "given" ? Effect.succeed(Redacted.value(source.token))
@@ -57,13 +57,13 @@ export const Verdicts: VerdictsApi = {
       const body = yield* Effect.tryPromise({ try: () => response.json() as Promise<unknown>, catch: () => failed("the logbook's verdicts were not JSON") });
       return (yield* Schema.decodeUnknownEffect(Rows)(body).pipe(Effect.mapError((e) => failed(`the logbook's verdicts were not as expected: ${e.message}`)))) as ReadonlyArray<Held>;
     }),
-  post: ({ logbook, token, revision, environment, results }) =>
+  post: ({ logbook, token, revision, environment, sha256, results }) =>
     Effect.forEach(results, (r) =>
       Effect.gen(function* () {
         const response = yield* request("the logbook", `${logbook}/verdicts`, {
           method: "POST",
           headers: { "content-type": "application/json", authorization: `Bearer ${Redacted.value(token)}` },
-          body: JSON.stringify({ revision, environment, operation: r.operation, verdict: r.verdict }),
+          body: JSON.stringify({ revision, environment, operation: r.operation, verdict: r.verdict, ...(sha256 === undefined ? {} : { sha256 }) }),
         });
         if (!response.ok) return yield* failed(`the logbook refused ${r.operation} (${response.status})`);
       }), { discard: true }),

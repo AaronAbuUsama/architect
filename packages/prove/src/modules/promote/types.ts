@@ -27,7 +27,7 @@ export interface PromoteApi {
    * 1. It refuses a dirty working tree, and a revision with no built bundle or one whose file no longer matches the hash
    *    recorded when it was built. The bundle is never rebuilt here: it is the one `architect build` made.
    * 2. It refuses a revision whose verdicts, among those posted from `main` (a pull request's never count), are not all
-   *    passing for every operation: `test` for staging, `staging` (the environment's `promotesFrom`) for production. Nothing
+   *    passing for every operation and naming this exact bundle hash: `test` for staging, `staging` (the environment's `promotesFrom`) for production. Nothing
    *    is started for a refused promotion.
    * 3. It starts the target environment on that bundle, or restarts it onto it with its state kept, and checks
    *    `GET /_architect/bundle` answers the bundle's own revision and sha256.

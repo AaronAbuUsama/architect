@@ -1,8 +1,8 @@
 // `architect build` on a copy of acme under git: the revision's bundle, once, with its hash.
 import { spawnSync } from "node:child_process";
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, symlinkSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, statSync, symlinkSync, writeFileSync, utimesSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { basename, join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { Effect } from "effect";
 import { afterAll, describe, expect, it } from "vitest";
 import { Build } from "./service.ts";
@@ -33,15 +33,42 @@ afterAll(() => project.remove());
 describe("build", () => {
   it("builds a revision once: the same revision hashes the same, and the bundle is kept at its path", { timeout: 300_000 }, async () => {
     const first = await run(Build.build(project.root));
+    utimesSync(first.main, 1, 1);
     const second = await run(Build.build(project.root));
     expect(first.revision).toBe(project.revision);
     expect(first.dirty).toBe(false);
     expect(first.sha256).toMatch(/^[0-9a-f]{64}$/);
     expect(second.sha256).toBe(first.sha256);
+    expect(statSync(first.main).mtimeMs).toBe(1000);
     expect(first.main).toBe(join(project.root, ".architect/artefacts", project.revision, "main.js"));
     expect(statSync(first.main).size).toBeGreaterThan(100_000);
     expect(await run(Build.find(project.root, project.revision))).toEqual({ revision: project.revision, sha256: first.sha256, main: first.main });
     expect(await run(Build.find(project.root, "0000000"))).toBeUndefined();
+  });
+
+  it("a dirty build cannot replace a clean revision's bundle, even after its source is restored", { timeout: 300_000 }, async () => {
+    const original = await run(Build.find(project.root, project.revision));
+    const source = join(project.root, "src/allowance/spend.ts");
+    const text = readFileSync(source, "utf8");
+    writeFileSync(source, text.replace("return { remaining: remaining - amount }", "return { remaining: 0n }"));
+    const result = await run(Build.build(project.root).pipe(Effect.result));
+    writeFileSync(source, text);
+    expect(result._tag).toBe("Failure");
+    expect(await run(Build.find(project.root, project.revision))).toEqual(original);
+  });
+
+  it("refuses a legacy manifest, then rebuilds after its local cache is preserved aside", { timeout: 300_000 }, async () => {
+    const record = join(project.root, ".architect/artefacts", project.revision, "bundle.json");
+    const original = readFileSync(record, "utf8");
+    const old = JSON.parse(original) as { revision: string; sha256: string };
+    writeFileSync(record, JSON.stringify({ revision: old.revision, sha256: old.sha256 }));
+    const result = await run(Build.find(project.root, project.revision).pipe(Effect.result));
+    expect(result._tag).toBe("Failure");
+    renameSync(dirname(record), `${dirname(record)}.legacy`);
+    const rebuilt = await run(Build.build(project.root));
+    expect(rebuilt.sha256).toBe(old.sha256);
+    expect(await run(Build.find(project.root, project.revision))).toEqual({ revision: rebuilt.revision, sha256: rebuilt.sha256, main: rebuilt.main });
+    expect(readFileSync(join(`${dirname(record)}.legacy`, "bundle.json"), "utf8")).toBe(JSON.stringify({ revision: old.revision, sha256: old.sha256 }));
   });
 
   it("notices an artefact that is not what was built", { timeout: 60_000 }, async () => {

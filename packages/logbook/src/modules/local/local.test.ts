@@ -1,8 +1,9 @@
 // The done-when check for L2.03 (D3 #8, #15.2): the real logbook worker on local workerd, behind wrangler, and a real
-// OIDC server (mock-oauth2-server, pinned by digest) in Docker. Ports 8930 to 8949 are this file's.
+// OIDC server (mock-oauth2-server, pinned by digest) in Docker. Ports 9120 to 9122 are this file's.
 import { createSign, generateKeyPairSync } from "node:crypto";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, readdirSync, rmSync } from "node:fs";
+import { DatabaseSync } from "node:sqlite";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Effect, Exit, Scope } from "effect";
@@ -11,7 +12,7 @@ import { Logbook } from "./service.ts";
 
 const IMAGE = "ghcr.io/navikt/mock-oauth2-server:6.1.4@sha256:647dd8c78a54f0e6fcd58d79c884e612f8f998a0662276f3e1db22e464a50192";
 const REPO = "acme/acme";
-const PORTS = { logbook: 8930, issuer: 8931, rogue: 8932 };
+const PORTS = { logbook: 9120, issuer: 9121, rogue: 9122 };
 const names = [`logbook-test-issuer-${process.pid}`, `logbook-test-rogue-${process.pid}`];
 
 /** One client id per scenario: the claims a GitHub Actions job would carry (D3 #8). */
@@ -147,7 +148,38 @@ describe("the logbook on local workerd, with a real issuer", () => {
     const token = await mint(issuer);
     expect((await send("/verdicts", { ...verdict, verdict: "maybe" }, token)).status).toBe(400);
     expect((await send("/verdicts", { revision: "x" }, token)).status).toBe(400);
+    expect((await send("/verdicts", { ...verdict, sha256: "not-a-sha256" }, token)).status).toBe(400);
   });
+
+  it("expands a legacy persisted book without losing rows, keeps hashless verdicts readable, and retries the upgrade", async () => {
+    const before = await read("/verdicts?revision=abcdef1");
+    await stop?.();
+    stop = undefined;
+    // The real workerd state is stopped. Restore its verdict table to the exact pre-hash schema, preserving rows.
+    const sqlite = readdirSync(join(dir, "state"), { recursive: true }).map(String).filter((p) => p.endsWith(".sqlite"));
+    let found = false;
+    for (const path of sqlite) {
+      const db = new DatabaseSync(join(dir, "state", path));
+      if (db.prepare("SELECT name FROM sqlite_master WHERE name = 'verdicts'").get()) {
+        const columns = db.prepare("PRAGMA table_info(verdicts)").all() as Array<{ name: string }>;
+        if (columns.some((c) => c.name === "sha256")) db.exec("ALTER TABLE verdicts DROP COLUMN sha256");
+        found = true;
+      }
+      db.close();
+    }
+    expect(found).toBe(true);
+    stop = await start();
+    expect(await read("/verdicts?revision=abcdef1")).toMatchObject(before);
+    expect((await read("/verdicts?revision=abcdef1")).every((r) => r["sha256"] == null)).toBe(true);
+    const sha256 = "a".repeat(64);
+    expect((await send("/verdicts", { ...verdict, revision: "hashbound", sha256 }, await mint(issuer))).status).toBe(200);
+    expect(await read("/verdicts?revision=hashbound")).toMatchObject([{ sha256 }]);
+    await stop();
+    stop = undefined;
+    stop = await start();
+    expect(await read("/verdicts?revision=hashbound")).toMatchObject([{ sha256 }]);
+    expect((await read("/verdicts?revision=abcdef1")).length).toBe(before.length);
+  }, 180_000);
 
   it("keeps its state across a restart", async () => {
     const before = await read("/verdicts?revision=abcdef1");

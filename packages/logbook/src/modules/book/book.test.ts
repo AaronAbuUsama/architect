@@ -2,7 +2,7 @@
 // runs in local/local.test.ts.
 import { DatabaseSync } from "node:sqlite";
 import { beforeEach, describe, expect, it } from "vitest";
-import { findRelease, insertRelease, insertVerdict, lastRelease, schema, selectAll, selectLatest } from "./internal/sql.ts";
+import { findRelease, insertRelease, insertVerdict, lastRelease, initialize, selectAll, selectLatest } from "./internal/sql.ts";
 import type { Provenance, VerdictInput } from "./types.ts";
 
 const memory = () => {
@@ -13,7 +13,7 @@ const memory = () => {
       return { toArray: () => rows, one: () => rows[0] };
     },
   } as unknown as SqlStorage;
-  for (const statement of schema) sql.exec(statement);
+  initialize(sql);
   return sql;
 };
 

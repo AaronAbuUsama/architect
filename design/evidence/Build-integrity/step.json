@@ -1,0 +1,19 @@
+{
+  "step": "Build-integrity",
+  "stage": "Stage 3 · shipping on local worlds (Gate 2)",
+  "title": "Immutable clean bundles and signed proof hashes",
+  "summary": "Deployable builds refuse dirty source, retain a versioned clean-commit manifest and reuse an existing verified artifact without replacing it. Test and staging proofs sign the actual bundle hash; production carries that exact hash. The newest verdict must pass and name the same bytes. The logbook adds a nullable hash column in place, preserving all legacy rows and mixed-version reads/writes. Hashless legacy verdicts remain visible but cannot open a promotion gate.",
+  "proves": "architect promote --to production refuses a revision without staging verdicts and accepts one that has them. A dirty build followed by restoring source cannot replace the clean artifact. A newest signed staging verdict with another hash or no hash refuses production; matching hash-bound verdicts move exactly the staged bytes, and production carries that hash. Legacy cache provenance is refused, then a real clean bundle rebuild succeeds after preserving that cache aside. A real workerd logbook upgrades its own legacy persisted SQLite schema without losing rows or releases, keeps old hashless rows readable, rejects malformed hashes, round-trips new signed hashes, and restarts through idempotent initialization.",
+  "captions": {
+    "01-build-fails-first": "Before implementation: immutable-file, dirty-build and legacy-provenance regressions fail.",
+    "02-logbook-fails-first": "Before implementation: the real logbook accepts a malformed hash and drops a valid one.",
+    "03-promote-fails-first": "Before implementation: production accepts a latest staging verdict for different bytes.",
+    "04-build-and-promotion": "Build, promotion and verdict client checks pass through real bundles, workerd, collectors and OIDC.",
+    "05-logbook-migration": "Real persisted logbook migration, compatibility, signed hash roundtrip and restart, plus existing SQL checks.",
+    "06-workspace-checks": "Nx reset, sync, all-project lint/typecheck, sync check and diff whitespace check.",
+    "07-final-promotion": "Explicit assertions bind staging and carried production verdicts to the same bundle hash.",
+    "08-legacy-cache-recovery": "A legacy cache stays untrusted; preserving it aside permits a new real clean build without rewriting history.",
+    "09-final-build-checks": "Final build regressions after actionable recovery and typed subprocess failure handling.",
+    "10-final-workspace-checks": "Final Nx reset/sync, all-project lint/typecheck, generated drift check and diff check."
+  }
+}

@@ -8,6 +8,8 @@ export interface VerdictInput {
   readonly environment: string;
   readonly operation: string;
   readonly verdict: VerdictValue;
+  /** Bundle proved by this verdict. Absent or null on legacy rows; never inferred or backfilled. */
+  readonly sha256?: string | null;
 }
 
 /** Where a write came from: the verified token's claims. Stored with it so a pull request's verdict is never taken for main's. */

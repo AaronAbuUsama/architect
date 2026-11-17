@@ -27,16 +27,17 @@ export const bundleOf = (root: string, revision: string): Effect.Effect<Built, P
   });
 
 /** Every operation of the model has a passing verdict from `main` for the revision in `environment`, or the refusal says which do not. */
-export const verdictsIn = (logbook: string, model: Model, revision: string, environment: string): Effect.Effect<void, PromoteRefused | PromoteFailed> =>
+export const verdictsIn = (logbook: string, model: Model, revision: string, environment: string, sha256: string): Effect.Effect<void, PromoteRefused | PromoteFailed> =>
   Effect.gen(function* () {
     const held = yield* Verdicts.latest({ logbook, revision, environment, ref: MAIN }).pipe(Effect.mapError(failed));
-    const passing = new Set(held.filter((v) => v.verdict === "pass").map((v) => v.operation));
+    const passing = new Set(held.filter((v) => v.verdict === "pass" && v.sha256 === sha256).map((v) => v.operation));
     const missing = Object.keys(model.operations).filter((op) => !passing.has(op)).sort();
     if (missing.length === 0) return;
     return yield* new PromoteRefused({
       lines: [
         passing.size === 0 ? `refused: ${revision} has no green verdicts in ${environment}` : `refused: ${revision} has no green verdicts in ${environment} for every operation`,
         `missing: ${missing.join(", ")}`,
+        ...(held.some((v) => v.verdict === "pass" && v.sha256 !== sha256) ? [`bundle ${sha256}: the latest proof is missing its bundle hash or names different bytes`] : []),
       ],
     });
   });

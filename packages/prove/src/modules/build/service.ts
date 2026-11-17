@@ -1,67 +1,60 @@
-import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { Effect } from "effect";
 import { BuildFailed, type BuildApi } from "./types.ts";
+import { digest, io, read } from "./internal/manifest.ts";
 
 const wrangler = join(dirname(fileURLToPath(import.meta.resolve("wrangler/package.json"))), "bin/wrangler.js");
-
-const sha256 = (file: string) => createHash("sha256").update(readFileSync(file)).digest("hex");
 const artefacts = (root: string, revision: string) => join(resolve(root), ".architect/artefacts", revision);
 
 const git = (root: string, ...args: ReadonlyArray<string>) =>
-  Effect.try({
-    try: () => {
-      const run = spawnSync("git", args, { cwd: root, encoding: "utf8" });
-      if (run.status !== 0) throw new Error(run.stderr.trim() || `git ${args.join(" ")} exited ${run.status}`);
-      return run.stdout.trim();
-    },
-    catch: (e) => new BuildFailed({ message: `${resolve(root)} is not in a git repository, and the revision is the git commit (${String(e).replace(/^Error: /, "")})` }),
+  Effect.gen(function* () {
+    const run = yield* io(() => spawnSync("git", args, { cwd: root, encoding: "utf8" }));
+    if (run.status !== 0) return yield* new BuildFailed({ message: `${resolve(root)} is not in a git repository, and the revision is the git commit (${run.stderr?.trim() || run.error?.message || `git exited ${run.status}`})` });
+    return run.stdout.trim();
   });
 
 const revision: BuildApi["revision"] = (root) => git(root, "rev-parse", "--short", "HEAD");
-
 const dirty: BuildApi["dirty"] = (root) => git(root, "status", "--porcelain").pipe(Effect.map((out) => out.length > 0));
+const find: BuildApi["find"] = (root, rev) => read(artefacts(root, rev), rev);
 
-const find: BuildApi["find"] = (root, rev) =>
-  Effect.try({
-    try: () => {
-      const dir = artefacts(root, rev);
-      const main = join(dir, "main.js");
-      const record = join(dir, "bundle.json");
-      if (!existsSync(main) || !existsSync(record)) return undefined;
-      const recorded = (JSON.parse(readFileSync(record, "utf8")) as { sha256: string }).sha256;
-      if (sha256(main) !== recorded) throw new Error(`${main} no longer matches the hash recorded when it was built`);
-      return { revision: rev, sha256: recorded, main };
-    },
-    catch: (e) => new BuildFailed({ message: String(e).replace(/^Error: /, "") }),
-  });
+/** Only tooling environment reaches the bundler. No account credential is needed by a local dry run. */
+const toolingEnv = (env: Readonly<Record<string, string | undefined>>) => Object.fromEntries(
+  Object.entries(env).filter(([name]) => /^(PATH|HOME|TMPDIR|TMP|TEMP|LANG|LC_.*|HTTPS?_PROXY|NO_PROXY|NODE_EXTRA_CA_CERTS|SSL_CERT_FILE)$/i.test(name)),
+);
 
-const build: BuildApi["build"] = (root) =>
+const build: BuildApi["build"] = (root, env = {}) =>
   Effect.gen(function* () {
     const rev = yield* revision(root);
+    if (yield* dirty(root)) return yield* new BuildFailed({ message: `refused: the working tree differs from ${rev}: commit or stash what changed before building a deployable bundle` });
+    const held = yield* find(root, rev);
+    if (held !== undefined) return { ...held, dirty: false };
+    const commit = yield* git(root, "rev-parse", "HEAD");
     const config = resolve(root, "generated/server/wrangler.jsonc");
     if (!existsSync(config)) return yield* new BuildFailed({ message: `${config} is missing: run nx sync first` });
-    const isDirty = yield* dirty(root);
     const dir = artefacts(root, rev);
-    const main = join(dir, "main.js");
-    yield* Effect.try({
-      try: () => {
-        rmSync(dir, { recursive: true, force: true });
-        mkdirSync(dirname(dir), { recursive: true });
-        // No credentials: a dry run bundles and stops, and nothing here may reach an account.
-        const { CLOUDFLARE_API_TOKEN: _token, CLOUDFLARE_API_KEY: _key, CLOUDFLARE_ACCOUNT_ID: _account, ...env } = process.env;
-        const run = spawnSync(process.execPath, [wrangler, "deploy", "--dry-run", "--outdir", dir, "--config", config], {
-          cwd: resolve(root), encoding: "utf8", env: { ...env, CI: "1", WRANGLER_SEND_METRICS: "false" }, maxBuffer: 64 * 1024 * 1024,
-        });
-        if (run.status !== 0 || !existsSync(main)) throw new Error(`wrangler couldn't build the bundle:\n${run.stderr || run.stdout}`);
-        writeFileSync(join(dir, "bundle.json"), JSON.stringify({ revision: rev, sha256: sha256(main) }) + "\n");
-      },
-      catch: (e) => new BuildFailed({ message: String(e).replace(/^Error: /, "") }),
-    });
-    return { revision: rev, sha256: sha256(main), main, dirty: isDirty };
+    yield* io(() => mkdirSync(dirname(dir), { recursive: true }));
+    return yield* Effect.acquireUseRelease(
+      io(() => mkdtempSync(`${dir}-building-`)),
+      (scratch) => Effect.gen(function* () {
+        const main = join(scratch, "main.js");
+        const run = yield* io(() => spawnSync(process.execPath, [wrangler, "deploy", "--dry-run", "--outdir", scratch, "--config", config], {
+          cwd: resolve(root), encoding: "utf8", env: { ...toolingEnv(env), CI: "1", WRANGLER_SEND_METRICS: "false" }, maxBuffer: 64 * 1024 * 1024,
+        }));
+        if (run.status !== 0 || !existsSync(main)) return yield* new BuildFailed({ message: `wrangler couldn't build the bundle:\n${run.stderr || run.stdout || run.error?.message || `exit ${run.status}`}` });
+        if ((yield* dirty(root)) || (yield* git(root, "rev-parse", "HEAD")) !== commit) return yield* new BuildFailed({ message: "the source changed while bundling: commit it and build again" });
+        const sha256 = yield* io(() => digest(main));
+        yield* io(() => writeFileSync(join(scratch, "bundle.json"), JSON.stringify({ schemaVersion: 1, source: "clean", revision: rev, commit, sha256 }) + "\n"));
+        // Publish only a complete clean build. A concurrent winner is reused; its files are never overwritten.
+        const winner = yield* find(root, rev);
+        if (winner !== undefined) return { ...winner, dirty: false };
+        yield* io(() => renameSync(scratch, dir));
+        return { revision: rev, sha256, main: join(dir, "main.js"), dirty: false };
+      }),
+      (scratch) => io(() => rmSync(scratch, { recursive: true, force: true })).pipe(Effect.ignore),
+    );
   });
 
 export const Build: BuildApi = { revision, build, dirty, find };
