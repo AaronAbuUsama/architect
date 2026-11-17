@@ -29,6 +29,7 @@ Close the mission: every task is closed by a fact up to its target.
 
 | refusal | exit | code | when |
 |---|---|---|---|
+| MissionHasOpenTasks | 58 | MS-004 | declared in errors.ts, carrying open |
 | MissionNotIntake | 50 | MS-900 | the mission is in a state finish can't start from; carries `state` |
 | NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |
 

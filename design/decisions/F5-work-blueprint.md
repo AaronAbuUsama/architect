@@ -46,7 +46,7 @@ model, and a scope change becomes a blueprint change.
 | 4 | **Facts stay in the logbook.** Eval rows (F4.1), compiled revisions with blanks (F4.2), verdicts and releases are written where they are now. Work reads them through a declared dependency, so `mission.tasks` carries a blank until L3.01 (kits, dependencies and edges) lands. | `architect check`: `mission has 1 blank … tasks.ts:16` |
 | 5 | **Only a fact moves a card.** `run.finish` records a pushed branch; it cannot close the task. `run.report` moves no card. | F4 8.4; `run/machine.ts` |
 | 6 | **Intake is `question`**: `ask`, `answer` (a letter), `spike` ("not sure yet" makes a spike task, closed when its README lands). `mission.start` refuses with `MissionHasOpenQuestions` until every question is answered or spiked. | F4 8.6, 8.7 |
-| 7 | **What stays yours is `attention`**: `promote`, `money`, `credential`, `question`. `approve` and `decline` are the only way past it. | F4 8.10 |
+| 7 | **What stays yours is `attention`** (`promote`, `money`, `credential`, `question`), plus stopping a mission. `approve` and `decline` are the only way past an attention. Every step that starts work or asks you refuses unless the mission is in the right state: `MissionNotRunning` (`run.start`, `attention.raise`), `MissionNotInIntake` (`question.ask`), `MissionClosed` (`milestone.add`), `MissionHasOpenTasks` (`mission.finish`). | F4 8.10; 🔍 review |
 | 8 | Refusal codes `MS` (mission) and `ML` (milestone) are set by hand: both would take `MI`. Exit codes 50 to 63. | compiler: `mission and milestone would both have refusal codes starting MI-` |
 
 ## 4. What the second project found in Architect itself
@@ -58,13 +58,18 @@ target-effect and cli, and `nx sync:check`):
   acme has no list read, so nothing exercised it. Now `McpOperation = Operation | Read<Thing, unknown, unknown>`; the runtime
   already handled list reads (`mcp/internal/tool.ts`).
 - **A verb named like a CLI helper clashed.** `question.answer` generated `import { answer } from "../output.ts"` beside
-  `export const answer = Command.make(...)`. The CLI now imports `* as Output`.
+  `export const answer = Command.make(...)`. The CLI now imports `* as Output` and `{ declaration as Declaration }`, so no
+  verb (always lower camel case) can clash with an import.
 
 Open, for the language (not changed here):
 
 - **A person and an agent acting for them look the same.** `Principal` is `anonymous | person`. F4 8.10 needs
-  `attention.approve` to be the owner in person, so `Principal` needs to say when an agent signed in for someone. Until
-  then it is `owner.of("mission")` either way, with a comment.
+  `attention.approve`, `attention.decline`, `mission.stop` and `mission.pause` to be the owner in person, so `Principal`
+  needs to say when an agent signed in for someone. Until then they are `owner.of("mission")` either way, with a comment.
+- **A list read cannot be held to the caller's own rows.** `mission.list` is `signedIn` with `owner` as an optional
+  filter (`handler/internal/read.ts` applies only the filters sent), so any signed-in person could list every owner's
+  missions. Harmless while work has one owner; it needs a rule such as `where: { owner: principal }` before it has two.
+- **An array value has no length bound.** `Options` (a question's answers) is an unbounded `Schema.Array`.
 - **A blank cannot sit in `allowed`.** `Blueprint.todo(...)` there fails with `uses a role not exported from a roles.ts`,
   so an undecided role cannot be left as a blank.
 - **`notFrom` names its one refusal after the first state.** `mission.pause` refuses with `MissionNotIntake` though it

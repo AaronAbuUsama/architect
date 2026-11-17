@@ -7,6 +7,14 @@ import * as Run from "../../../blueprint/things/run/errors.ts";
 
 ErrorNames.name(Mission.MissionHasOpenQuestions, "MissionHasOpenQuestions");
 export class MissionHasOpenQuestions extends Schema.TaggedError<MissionHasOpenQuestions>()("MissionHasOpenQuestions", { code: Schema.Literal("MS-001"), ...structOf(Mission.MissionHasOpenQuestions.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "MS-001" as const; }
+ErrorNames.name(Mission.MissionNotRunning, "MissionNotRunning");
+export class MissionNotRunning extends Schema.TaggedError<MissionNotRunning>()("MissionNotRunning", { code: Schema.Literal("MS-002"), ...structOf(Mission.MissionNotRunning.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "MS-002" as const; }
+ErrorNames.name(Mission.MissionNotInIntake, "MissionNotInIntake");
+export class MissionNotInIntake extends Schema.TaggedError<MissionNotInIntake>()("MissionNotInIntake", { code: Schema.Literal("MS-003"), ...structOf(Mission.MissionNotInIntake.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "MS-003" as const; }
+ErrorNames.name(Mission.MissionHasOpenTasks, "MissionHasOpenTasks");
+export class MissionHasOpenTasks extends Schema.TaggedError<MissionHasOpenTasks>()("MissionHasOpenTasks", { code: Schema.Literal("MS-004"), ...structOf(Mission.MissionHasOpenTasks.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "MS-004" as const; }
+ErrorNames.name(Mission.MissionClosed, "MissionClosed");
+export class MissionClosed extends Schema.TaggedError<MissionClosed>()("MissionClosed", { code: Schema.Literal("MS-005"), ...structOf(Mission.MissionClosed.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "MS-005" as const; }
 ErrorNames.name(Question.QuestionNoSuchOption, "QuestionNoSuchOption");
 export class QuestionNoSuchOption extends Schema.TaggedError<QuestionNoSuchOption>()("QuestionNoSuchOption", { code: Schema.Literal("QU-001"), ...structOf(Question.QuestionNoSuchOption.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "QU-001" as const; }
 ErrorNames.name(Run.RunOverBudget, "RunOverBudget");
@@ -25,6 +33,10 @@ export class NotAllowed extends Schema.TaggedError<NotAllowed>()("NotAllowed", {
 /** Each refusal's exit code, for the CLI. */
 export const exits = {
   MissionHasOpenQuestions: 51,
+  MissionNotRunning: 56,
+  MissionNotInIntake: 57,
+  MissionHasOpenTasks: 58,
+  MissionClosed: 59,
   QuestionNoSuchOption: 54,
   RunOverBudget: 61,
   RunAgentCannot: 62,
@@ -40,6 +52,10 @@ export const exits = {
 /** Each refusal's code, stable across targets: `[AL-002] Name { field: value }`. Beside the tag, never in place of it. */
 export const codes = {
   MissionHasOpenQuestions: "MS-001",
+  MissionNotRunning: "MS-002",
+  MissionNotInIntake: "MS-003",
+  MissionHasOpenTasks: "MS-004",
+  MissionClosed: "MS-005",
   QuestionNoSuchOption: "QU-001",
   RunOverBudget: "RU-001",
   RunAgentCannot: "RU-002",
@@ -55,6 +71,10 @@ export const codes = {
 /** The fields of each refusal whose values may be shown (printed, logged, put in a span): only the public ones. */
 export const shown: Readonly<Record<string, ReadonlyArray<string>>> = {
   MissionHasOpenQuestions: ["open"],
+  MissionNotRunning: [],
+  MissionNotInIntake: [],
+  MissionHasOpenTasks: ["open"],
+  MissionClosed: [],
   QuestionNoSuchOption: [],
   RunOverBudget: ["left"],
   RunAgentCannot: [],
@@ -70,6 +90,10 @@ export const shown: Readonly<Record<string, ReadonlyArray<string>>> = {
 /** The declared errors themselves, by name: their fields say who may see a value (the MCP server redacts by role). */
 export const declared = {
   MissionHasOpenQuestions: Mission.MissionHasOpenQuestions,
+  MissionNotRunning: Mission.MissionNotRunning,
+  MissionNotInIntake: Mission.MissionNotInIntake,
+  MissionHasOpenTasks: Mission.MissionHasOpenTasks,
+  MissionClosed: Mission.MissionClosed,
   QuestionNoSuchOption: Question.QuestionNoSuchOption,
   RunOverBudget: Run.RunOverBudget,
   RunAgentCannot: Run.RunAgentCannot,
@@ -77,4 +101,4 @@ export const declared = {
 } as const;
 
 /** The wire class of each refusal, by name. */
-export const wire = { MissionHasOpenQuestions, QuestionNoSuchOption, RunOverBudget, RunAgentCannot, RunTaskClaimed, AttentionNotOpen, MilestoneNotActive, MissionNotIntake, QuestionNotAsked, RunNotRunning, NotAllowed };
+export const wire = { MissionHasOpenQuestions, MissionNotRunning, MissionNotInIntake, MissionHasOpenTasks, MissionClosed, QuestionNoSuchOption, RunOverBudget, RunAgentCannot, RunTaskClaimed, AttentionNotOpen, MilestoneNotActive, MissionNotIntake, QuestionNotAsked, RunNotRunning, NotAllowed };

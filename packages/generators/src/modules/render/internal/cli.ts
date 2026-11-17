@@ -13,7 +13,7 @@ const command = (op: OperationModel): RenderedFile => {
       GENERATED,
       `import { Effect, Schema } from "effect";`,
       `import { Command, Flag } from "effect/cli";`,
-      `import { declaration } from "../../../api/src/${op.thing}/${op.verb}.ts";`,
+      `import { declaration as Declaration } from "../../../api/src/${op.thing}/${op.verb}.ts";`,
       `import * as Sdk from "../../../sdk/src/index.ts";`,
       `import * as Output from "../output.ts"; // a namespace, so a verb named like a helper (answer) cannot clash`,
       "",
@@ -21,7 +21,7 @@ const command = (op: OperationModel): RenderedFile => {
       `export const ${camel(op.verb)} = Command.make(`,
       `  "${op.verb}",`,
       `  { ${[...Object.entries(op.payload).map(([k, f]) => (f.optional ? `${k}: Flag.optional(Flag.String("${k}"))` : `${k}: Flag.String("${k}")`)), `json: Flag.Boolean("json").pipe(Flag.withDefault(false))`].join(", ")} },`,
-      `  ({ json, ...flags }) => Schema.decodeUnknownEffect(declaration.payloadSchema)(${optional ? "Output.supplied(flags)" : "flags"}).pipe(Effect.flatMap(Sdk.${camel(op.thing)}.${camel(op.verb)}), Output.answer(json)),`,
+      `  ({ json, ...flags }) => Schema.decodeUnknownEffect(Declaration.payloadSchema)(${optional ? "Output.supplied(flags)" : "flags"}).pipe(Effect.flatMap(Sdk.${camel(op.thing)}.${camel(op.verb)}), Output.answer(json)),`,
       ");",
     ),
   };

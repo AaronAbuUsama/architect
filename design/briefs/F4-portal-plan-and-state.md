@@ -74,7 +74,7 @@ change is a new row, so the burn-down shows it as a step.
 |---|---|---|---|
 | F4.1 | `prove` posts the nine eval results per operation; logbook adds `evals (seq, verdict_seq, eval, result, failures, notes, at)` and a time on every row (the signed token's issue time) | `prove/verdicts`, `logbook/book`; additive | `extensions.evals` is no longer `unavailable`; the portal's nine squares are real |
 | F4.2 | compiler keeps blank operations (marked with their blanks) and adds `implementation: missing \| scaffold \| written` per operation; CI records each compiled revision (digest, blanks count, time) in the logbook | `compiler/model`, wire schemaVersion 2; generators read the blank marker instead of absence | an emptied handler shows *build* open, a `Blueprint.todo` shows *specify* open |
-| F4.3 | `Plan` DO in the logbook Worker; `architect mission`; `/plan/v1` | new module in `logbook`, new command | a mission of two milestones generates the tasks in §3 and they match Needs attention |
+| ~~F4.3~~ | *Replaced by F5 W1 to W3: the work project.* ~~`Plan` DO in the logbook Worker; `architect mission`; `/plan/v1`~~ | new module in `logbook`, new command | a mission of two milestones generates the tasks in §3 and they match Needs attention |
 | F4.4 | portal Plan page: board by milestone, progress, burn-down from timed rows; `/_portal/v1/plan` fills the static slot | portal route and template | an eval passing in CI moves a card without a rebuild |
 | F4.5 | spike `sandbox-from-a-do`: a Run DO drives a Cloudflare container (local: Docker) holding a copy of the repo; Pi Durable's `env` points at it | `spikes/`, throwaway | a run edits a handler, runs `architect check`, pushes a branch, and survives an eviction mid-command |
 | F4.6 | Run DO: one Pi Durable harness per run (H1 option B), grant from `architect brief`, reports as Plan facts | `@architect/agent` | three cards cross the board as three runs prove them; a killed run resumes |
@@ -90,7 +90,7 @@ same way, by producing facts.
 | Piece | Primitive | Why |
 |---|---|---|
 | `Book` | one DO per project (exists) | one ordered ledger of facts; signed writes |
-| `Plan` | one DO per project, beside `Book` in the same Worker | missions are few and need one serialised owner; same auth, same `seq` discipline |
+| ~~`Plan`~~ | *F5: work's own D1 rows and journal* ~~one DO per project, beside `Book` in the same Worker~~ | missions are few and need one serialised owner; same auth, same `seq` discipline |
 | manager | one DO per mission (§8) | one conversation per goal; serialises assignment; alarm-driven |
 | run | one DO per run (H1), driving a sandbox container | survives eviction; its transcript is the run record H2 benchmarks |
 | portal | the Worker route (exists) | stores nothing; computes views per request, cacheable by `(digest, seq)` |
@@ -134,7 +134,7 @@ Left out, because one project and one person do not need them: Source, Trigger, 
 versions and Mandate as an entity. The mandate survives as the run's grant (allowed paths and budget from
 `architect brief`), written into the claim fact.
 
-Four DO classes in all: `Book`, `Plan`, `Manager`, `Run`. No cluster: `idFromName` is the sharding. Each sits behind an
+Four DO classes in all: `Book`, `Plan`, `Manager`, `Run` (F5: three; work keeps missions in its database, and `Manager` and `Run` are agents that call it). No cluster: `idFromName` is the sharding. Each sits behind an
 Effect service shaped like an `@effect/cluster` entity, and Pi Durable sits behind H1's seam, so its churn stays in one file.
 
 Pushbacks recorded:

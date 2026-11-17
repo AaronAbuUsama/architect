@@ -1,7 +1,7 @@
 // Generated from the blueprint. Do not edit.
 import { Effect, Schema } from "effect";
 import { Command, Flag } from "effect/cli";
-import { declaration } from "../../../api/src/milestone/drop.ts";
+import { declaration as Declaration } from "../../../api/src/milestone/drop.ts";
 import * as Sdk from "../../../sdk/src/index.ts";
 import * as Output from "../output.ts"; // a namespace, so a verb named like a helper (answer) cannot clash
 
@@ -9,5 +9,5 @@ import * as Output from "../output.ts"; // a namespace, so a verb named like a h
 export const drop = Command.make(
   "drop",
   { mission: Flag.String("mission"), milestone: Flag.String("milestone"), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
-  ({ json, ...flags }) => Schema.decodeUnknownEffect(declaration.payloadSchema)(flags).pipe(Effect.flatMap(Sdk.milestone.drop), Output.answer(json)),
+  ({ json, ...flags }) => Schema.decodeUnknownEffect(Declaration.payloadSchema)(flags).pipe(Effect.flatMap(Sdk.milestone.drop), Output.answer(json)),
 );

@@ -1,7 +1,7 @@
 // Generated from the blueprint. Do not edit.
 import { Effect, Schema } from "effect";
 import { Command, Flag } from "effect/cli";
-import { declaration } from "../../../api/src/allowance/get.ts";
+import { declaration as Declaration } from "../../../api/src/allowance/get.ts";
 import * as Sdk from "../../../sdk/src/index.ts";
 import * as Output from "../output.ts"; // a namespace, so a verb named like a helper (answer) cannot clash
 
@@ -9,5 +9,5 @@ import * as Output from "../output.ts"; // a namespace, so a verb named like a h
 export const get = Command.make(
   "get",
   { id: Flag.String("id"), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
-  ({ json, ...flags }) => Schema.decodeUnknownEffect(declaration.payloadSchema)(flags).pipe(Effect.flatMap(Sdk.allowance.get), Output.answer(json)),
+  ({ json, ...flags }) => Schema.decodeUnknownEffect(Declaration.payloadSchema)(flags).pipe(Effect.flatMap(Sdk.allowance.get), Output.answer(json)),
 );

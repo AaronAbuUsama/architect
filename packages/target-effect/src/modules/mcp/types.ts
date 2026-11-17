@@ -5,10 +5,10 @@ import type { Effect } from "effect";
 import type { FieldsInput, Operation, Principal, Read, Thing } from "@architect/blueprint";
 import type { Store } from "#modules/records/types.js";
 
-/** What the generated `mcp` catalog says of each operation and read, by its name (`allowance.get`). */
 /** What a tool calls: an operation, a read by id, or a list read (whose payload and answer differ from a read by id). */
 export type McpOperation = Operation | Read<Thing, unknown, unknown>;
 
+/** What the generated `mcp` catalog says of each operation and read, by its name (`allowance.get`). */
 export interface McpEntry {
   readonly description: string;
   readonly operation: McpOperation;

@@ -2,8 +2,12 @@
   "refusals": {
     "AttentionNotOpen": "AT-900",
     "MilestoneNotActive": "ML-900",
+    "MissionClosed": "MS-005",
     "MissionHasOpenQuestions": "MS-001",
+    "MissionHasOpenTasks": "MS-004",
+    "MissionNotInIntake": "MS-003",
     "MissionNotIntake": "MS-900",
+    "MissionNotRunning": "MS-002",
     "NotAllowed": "AR-001",
     "QuestionNoSuchOption": "QU-001",
     "QuestionNotAsked": "QU-900",
@@ -567,12 +571,39 @@
           },
           "exit": 51,
           "code": "MS-001"
+        },
+        "MissionNotRunning": {
+          "fields": {},
+          "exit": 56,
+          "code": "MS-002"
+        },
+        "MissionNotInIntake": {
+          "fields": {},
+          "exit": 57,
+          "code": "MS-003"
+        },
+        "MissionHasOpenTasks": {
+          "fields": {
+            "open": {
+              "value": {
+                "type": "uint",
+                "bits": 16
+              }
+            }
+          },
+          "exit": 58,
+          "code": "MS-004"
+        },
+        "MissionClosed": {
+          "fields": {},
+          "exit": 59,
+          "code": "MS-005"
         }
       },
       "roles": [
         "owner"
       ],
-      "hash": "b7e867d90a67434c"
+      "hash": "0ef71607a40139e5"
     },
     "person": {
       "name": "person",
@@ -1298,8 +1329,11 @@
         ],
         "emits": "AttentionRaised"
       },
-      "errors": [],
+      "errors": [
+        "MissionNotRunning"
+      ],
       "refusals": [
+        "MissionNotRunning",
         "NotAllowed"
       ],
       "allowed": [
@@ -1321,7 +1355,7 @@
       "budget": {
         "p95Ms": 200
       },
-      "hash": "efb85cfbc42a1335"
+      "hash": "92d59b158780c2d2"
     },
     "milestone.add": {
       "kind": "operation",
@@ -1387,8 +1421,11 @@
         ],
         "emits": "MilestoneAdded"
       },
-      "errors": [],
+      "errors": [
+        "MissionClosed"
+      ],
       "refusals": [
+        "MissionClosed",
         "NotAllowed"
       ],
       "allowed": [
@@ -1410,7 +1447,7 @@
       "budget": {
         "p95Ms": 200
       },
-      "hash": "127f146078866cfc"
+      "hash": "f57260ccf4fa7dea"
     },
     "milestone.drop": {
       "kind": "operation",
@@ -1574,8 +1611,11 @@
         ],
         "emits": "MissionFinished"
       },
-      "errors": [],
+      "errors": [
+        "MissionHasOpenTasks"
+      ],
       "refusals": [
+        "MissionHasOpenTasks",
         "MissionNotIntake",
         "NotAllowed"
       ],
@@ -1598,7 +1638,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "64d7f49f42aa8cb0"
+      "hash": "b7fce489a2125211"
     },
     "mission.get": {
       "kind": "read",
@@ -2244,8 +2284,11 @@
         ],
         "emits": "QuestionAsked"
       },
-      "errors": [],
+      "errors": [
+        "MissionNotInIntake"
+      ],
       "refusals": [
+        "MissionNotInIntake",
         "NotAllowed"
       ],
       "allowed": [
@@ -2267,7 +2310,7 @@
       "budget": {
         "p95Ms": 200
       },
-      "hash": "df399da6240edcb4"
+      "hash": "ce99fec8831ff30a"
     },
     "question.list": {
       "kind": "read",
@@ -2766,11 +2809,13 @@
         "emits": "RunStarted"
       },
       "errors": [
+        "MissionNotRunning",
         "RunOverBudget",
         "RunAgentCannot",
         "RunTaskClaimed"
       ],
       "refusals": [
+        "MissionNotRunning",
         "RunOverBudget",
         "RunAgentCannot",
         "RunTaskClaimed",
@@ -2795,7 +2840,7 @@
       "budget": {
         "p95Ms": 250
       },
-      "hash": "c9f606fda78b81f5"
+      "hash": "9042f562ee3c07c3"
     },
     "run.stop": {
       "kind": "operation",

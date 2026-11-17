@@ -37,6 +37,7 @@ Start an agent on one task. The run claims the task until it ends.
 
 | refusal | exit | code | when |
 |---|---|---|---|
+| MissionNotRunning | 60 | MS-002 | the run is in a state start can't start from; carries `state` |
 | RunOverBudget | 61 | RU-001 | declared in errors.ts, carrying left |
 | RunAgentCannot | 62 | RU-002 | declared in errors.ts |
 | RunTaskClaimed | 63 | RU-003 | declared in errors.ts |

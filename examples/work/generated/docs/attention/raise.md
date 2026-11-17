@@ -37,6 +37,7 @@ Ask the mission's owner for a decision only they can make.
 
 | refusal | exit | code | when |
 |---|---|---|---|
+| MissionNotRunning | 55 | MS-002 | the attention is in a state raise can't start from; carries `state` |
 | NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |
 
 ## How to call

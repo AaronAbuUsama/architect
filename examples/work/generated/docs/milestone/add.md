@@ -37,6 +37,7 @@ Add a milestone to a mission. Its tasks appear at once: its kinds over its subje
 
 | refusal | exit | code | when |
 |---|---|---|---|
+| MissionClosed | 52 | MS-005 | the milestone is in a state add can't start from; carries `state` |
 | NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |
 
 ## How to call
