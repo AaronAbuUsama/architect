@@ -76,10 +76,11 @@ and the gate's name check (M0.06), the lint rule (M0.04) and the docs' "kit" che
 - `design/evidence/`, `design/briefs/`, `design/wayfinding/`, `design/spikes/`, `design/noir/`, `design/state/`;
 - `design/build-plan.md`, the record of layers 1 and 2 (milestones.md: "Layers 1 and 2 stay in the build plan as the
   record of what was built");
+- `design/goals/01-the-whole-framework-locally.md`, goal 1's prompt;
 - `spikes/` (spike code is throwaway and never imported by packages).
 
 Everything else speaks the new names: the code, the examples, the gates, `README.md`, `AGENTS.md`, the skills, the
-frame, the milestones, the goals, `handoff.md`, `later.md`, `packages.md` and the design docs. The milestones say
+frame, the milestones, goal 2, `handoff.md`, `later.md`, `packages.md` and the design docs. The milestones say
 "outside `design/history/`"; they mean these records, and `milestones.md` is updated to say so in this commit.
 
 **Two names that are not ours to change in M0** stay, and the name check allows them by exact form: the GitHub

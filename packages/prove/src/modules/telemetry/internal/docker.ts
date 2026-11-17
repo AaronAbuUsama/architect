@@ -48,8 +48,10 @@ export const runCollector = (dir: string, name: string, options: CollectorOption
       docker(["rm", "-f", name]);
       return docker([
         "run", "-d", "--rm", "--name", name, "--network", "bridge", "--user", "0:0", "-p", "127.0.0.1::4318",
-        "-v", `${dir}:/out`, "-v", `${dir}/collector.yaml:/etc/otelcol/config.yaml:ro`,
-        IMAGE, "--config=/etc/otelcol/config.yaml",
+        "-v", `${dir}:/out`,
+        // The config goes inline, not as a mounted file: a file just rewritten may not be visible yet through Docker
+        // Desktop's file sharing, and the collector would exit before it answers. collector.yaml is kept to read.
+        IMAGE, `--config=yaml:${collectorConfig(options)}`,
       ]);
     });
     // Docker Desktop's file sharing can lag a moment behind a file just written ("mkdir ... no such file"): another try is enough.

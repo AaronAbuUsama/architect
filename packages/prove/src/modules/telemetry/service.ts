@@ -1,4 +1,5 @@
-import { mkdirSync, rmSync } from "node:fs";
+import { mkdirSync, readdirSync, rmSync } from "node:fs";
+import { join } from "node:path";
 import { Effect, Schedule } from "effect";
 import { Viewer } from "#modules/viewer/service.js";
 import { CollectorFailed, type CollectorsApi } from "./types.ts";
@@ -25,6 +26,15 @@ const waitReady = (url: string) =>
     Effect.mapError(() => new CollectorFailed({ message: `the collector didn't answer at ${url} within 10 s` })),
   );
 
+/**
+ * An empty folder for a collector to write into. It is emptied rather than replaced: Docker Desktop's file sharing can
+ * keep serving a folder removed and made again under the same path, so the next collector would find nothing there.
+ */
+const emptied = (dir: string) => {
+  mkdirSync(dir, { recursive: true });
+  for (const entry of readdirSync(dir)) rmSync(join(dir, entry), { recursive: true, force: true });
+};
+
 /** Where a collector started now should also send what it hears: the local viewer, if it is running. */
 const viewerEndpoint = Viewer.running().pipe(Effect.map((v) => v?.otlpFromContainers));
 
@@ -32,8 +42,7 @@ export const Collectors: CollectorsApi = {
   start: (dir, options) =>
     Effect.gen(function* () {
       yield* sweepOrphans();
-      rmSync(dir, { recursive: true, force: true });
-      mkdirSync(dir, { recursive: true });
+      emptied(dir);
       const name = ownedName(process.pid);
       const viewer = yield* viewerEndpoint;
       const url = yield* Effect.acquireRelease(runCollector(dir, name, { strip: options?.strip ?? [], viewer }), () => removeCollector(name));
@@ -43,8 +52,7 @@ export const Collectors: CollectorsApi = {
   launch: ({ dir, name, strip }) =>
     Effect.gen(function* () {
       yield* sweepOrphans();
-      rmSync(dir, { recursive: true, force: true });
-      mkdirSync(dir, { recursive: true });
+      emptied(dir);
       yield* removeCollector(name);
       const viewer = yield* viewerEndpoint;
       const url = yield* runCollector(dir, name, { strip: strip ?? [], viewer });
