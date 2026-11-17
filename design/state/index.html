@@ -269,6 +269,7 @@ steps, performance, coverage and explainability.</p>
 <ul>
 <li><b>CI on <code>layer/3</code>:</b> the latest completed failure is the trace viewer on Linux. The builder is also checking the earlier promotion restart and list-read failures.</li>
 <li><b>Check 8:</b> one fetch needs a fresh connection after staging restarts. An author's fix, not a builder's.</li>
+<li><b>The evidence page:</b> a separate tooling builder is fixing its crash on older logs. Missing capture metadata will stay marked unverified.</li>
 </ul>
 <h2>Side threads</h2>
 <ul>
@@ -352,7 +353,7 @@ steps, performance, coverage and explainability.</p>
 <ul>
 <li><b>Plan and state:</b> the handoff's START HERE, the goal file with its six stages and five gates, and the build plan's marks, on <code>layer/3</code> after the last merge.</li>
 <li><b>Decisions:</b> <code>design/decisions.md</code> and <code>design/decisions/</code>.</li>
-<li><b>What works:</b> each step's evidence in <code>design/evidence/</code>.</li>
+<li><b>What works:</b> each step's evidence in <code>design/evidence/</code>. Some older raw logs lack capture metadata; their provenance is unverified until a fresh run supplies it.</li>
 <li><b>Branches, pull requests and CI:</b> the remote branches, the pull request list, and the last CI runs on main and <code>layer/3</code>.</li>
 </ul>
 <p>The design docs: <a href="https://claude.ai/artifact/K7KtHJwu7YzZe43BeSPHo2">Architect design docs</a>. Every captured run: <a href="https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB">the evidence page</a>.</p>` },

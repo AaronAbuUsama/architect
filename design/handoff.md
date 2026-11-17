@@ -24,6 +24,12 @@ integrated and pushed to `layer/3` from this worktree; the original checkout is 
 initial inventory had no Architect containers. The separate builder owns feature and module-test fixes; the
 conductor owns this handoff and the status/evidence pages. Check 08's author and the gate builder start after CI recovery.
 
+**Evidence repair in parallel (no services).** `python3 tools/evidence/page.py` currently crashes on older raw
+captures without metadata. A tooling builder on `build/evidence-recovery` owns the parser/template and focused Python
+checks; it must preserve those raw files and show them as unverified rather than invent provenance. The conductor
+will regenerate the page after that lands. Main through `798ff34` is merged into the conductor's integration branch
+(the F2 design record and portal IA spike only); no later-layer feature work has started.
+
 **Next, in order:**
 1. CI green on `layer/3` (above).
 2. A ✍️ author fixes check 08's second `portal(url)` fetch: `headers: { connection: "close" }` (Traps, below). Its
