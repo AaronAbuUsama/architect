@@ -11,6 +11,8 @@ const rule = "enforce-module-boundaries";
 const fixturesConfig = (): string => {
   const config = JSON.parse(readFileSync(join(root, ".oxlintrc.json"), "utf8"));
   config.ignorePatterns = config.ignorePatterns.filter((p: string) => !p.includes("fixtures"));
+  // The copy lives in tmp/, so a plugin given by a relative path is given from the root instead.
+  config.jsPlugins = config.jsPlugins.map((p: string) => (p.startsWith(".") ? join(root, p) : p));
   mkdirSync(join(root, "tmp"), { recursive: true });
   const path = join(root, "tmp", "oxlintrc.fixtures.json");
   writeFileSync(path, JSON.stringify(config));

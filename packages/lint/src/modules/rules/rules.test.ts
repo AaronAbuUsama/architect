@@ -13,7 +13,9 @@ const facts: ProjectFacts = {
   errors: ["AllowanceExceeded", "AllowanceLimitTooHigh"],
   handlers: { "src/allowance/spend.ts": ["AllowanceExceeded"] },
 };
-const RULES = ["no-name-as-string", "refusal-has-log", "declared-errors-only", "no-wall-clock", "handler-matches-path"];
+const RULES = ["no-name-as-string", "refusal-has-log", "declared-errors-only", "no-wall-clock", "handler-matches-path", "no-old-names"];
+// The framework's names before M0, spelled in pieces so this file holds none of them.
+const OLD = "arch" + "itect";
 
 /** Lays `files` out under the project, lints them, and gives back `<path> <rule>` per report. */
 const lint = (files: Record<string, string>): ReadonlyArray<string> => {
@@ -62,6 +64,20 @@ describe("the forman rules", () => {
         `setTimeout(() => 0, 1);`, `export const d = Effect.sleep("1 second");`,
       ].join("\n"),
     })).toEqual(Array(4).fill(`${spend} no-wall-clock`));
+  });
+
+  it("no-old-names: an import from the old package scope, the old variable prefix and the old folder", { timeout: 60_000 }, () => {
+    expect(lint({
+      [spend]: [
+        `import { Blueprint } from "@${OLD}/blueprint";`,
+        `export const a = process.env.${OLD.toUpperCase()}_ENVIRONMENT;`,
+        `export const b = "${OLD.toUpperCase()}_REVISION";`,
+        `export const c = ".${OLD}/prove";`,
+        `export const d = "@formants/forman";`,
+        `export const e = ".forman/prove";`,
+        `export const f = "${OLD}ure";`,
+      ].join("\n"),
+    })).toEqual(Array(4).fill(`${spend} no-old-names`));
   });
 
   it("handler-matches-path: a handler file belongs to a declared operation", { timeout: 60_000 }, () => {

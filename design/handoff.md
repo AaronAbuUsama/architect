@@ -19,9 +19,9 @@ write. The design is the frame ([`frame/`](frame/README.md)), decided in
 | M0.01 the package map | done: [`decisions/M0-packages.md`](decisions/M0-packages.md) |
 | M0.02 packages and imports | done: 16 projects green, generated files unchanged by sync ([`evidence/M0.02/`](evidence/M0.02/)) |
 | M0.03 command, folders, variables | done: Gates 1 and 2 pass under the new names ([`evidence/M0.03/`](evidence/M0.03/)); config `outputs` removed |
-| M0.04 lint rule against old names | next |
+| M0.04 lint rule against old names | done: `forman/no-old-names` in the lint package, on in the root `.oxlintrc.json` and in `forman check`; a planted import fails ([`evidence/M0.04/`](evidence/M0.04/)) |
 | M0.05 design docs around plugins | done by a docs subagent on `build/M0.05`, picked onto `m0`: `design/docs/` builds into `site/`; `nx run docs:check` |
-| M0.06 Gate M0 | the name check is authored on `author/m0-names` (`e2e/m0/names.test.ts`), red before the rename |
+| M0.06 Gate M0 | next. The name check is authored on `author/m0-names` (`e2e/m0/names.test.ts`), red before the rename |
 
 **Decided so far.** `@formants/forman` is the old blueprint package (Effect only); the `forman` bin ships from
 `@formants/cli` until M2.09; `target-*` becomes `language-*`; the old std package (an empty placeholder) is removed;

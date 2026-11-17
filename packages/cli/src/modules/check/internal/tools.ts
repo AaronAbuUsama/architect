@@ -8,7 +8,7 @@ import type { ProjectFacts } from "@formants/lint";
 import type { Finding } from "../types.ts";
 import { binOf, tsFiles } from "./files.ts";
 
-export const RULES = ["no-name-as-string", "refusal-has-log", "declared-errors-only", "no-wall-clock", "handler-matches-path"] as const;
+export const RULES = ["no-name-as-string", "refusal-has-log", "declared-errors-only", "no-wall-clock", "handler-matches-path", "no-old-names"] as const;
 
 export const types = (root: string): ReadonlyArray<Finding> => {
   const tsc = binOf(root, "tsc");

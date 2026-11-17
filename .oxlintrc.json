@@ -1,7 +1,8 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "jsPlugins": [
-    "@nx/oxlint/boundaries-plugin"
+    "@nx/oxlint/boundaries-plugin",
+    "./packages/lint/src/main.ts"
   ],
   "ignorePatterns": [
     "**/node_modules/**",
@@ -50,7 +51,8 @@
         ],
         "allowCircularSelfDependency": true
       }
-    ]
+    ],
+    "forman/no-old-names": "error"
   },
   "overrides": [
     {
