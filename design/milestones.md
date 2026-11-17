@@ -53,11 +53,14 @@ Names below are Forman's: the rename happens in M0.
 **Ships.** The frame on `main`; `@formants/*` packages; the `forman` command; the design docs rewritten around plugins
 and [`frame/story.md`](frame/story.md).
 **Gate.** `nx run e2e:m0` runs the Gate 1 and Gate 2 suites under the new names, plus a name check: no `@architect/`,
-`architect` command, `ARCHITECT_` variable or `.architect/` folder outside `design/history/`.
+`architect` command, `ARCHITECT_` variable or `.architect/` folder outside the records. "History" in this section means
+the records listed in [`decisions/M0-packages.md`](decisions/M0-packages.md) section 5: `design/history/`, the decision,
+evidence, brief, wayfinding, spike, Noir and state records, the layer 1 and 2 build plan, and `spikes/`.
+**Goal file.** [`goals/02-m0-land-and-rename.md`](goals/02-m0-land-and-rename.md).
 
 | id | what | needs | kind | done when | size |
 |---|---|---|---|---|---|
-| M0.01 | The package map: each package's `@formants` name per K2 Q4 (front door `@formants/forman`; `language-effect`, `language-solidity`, `host-cloudflare`, `portal`; which internal packages ship inside the front door) | Gate 2 | decision | `decisions/M0-packages.md` written | S |
+| M0.01 ✅ | The package map: each package's `@formants` name per K2 Q4 (front door `@formants/forman`; `language-effect`, `language-solidity`, `host-cloudflare`, `portal`; which internal packages ship inside the front door) | Gate 2 | decision | `decisions/M0-packages.md` written. **Proof:** [`decisions/M0-packages.md`](decisions/M0-packages.md) | S |
 | M0.02 | Rename packages and imports; `target-*` becomes `language-*`; Nx tags follow | M0.01 | build | `nx run-many -t check test` green; `rg '@architect/'` finds nothing outside history | M |
 | M0.03 | The command, folders and variables: `forman`, `.forman/`, `FORMAN_*`; the unread `outputs` in `architect.config.ts` removed (D3 #112) | M0.02 | build | `nx run e2e:layer1` and `e2e:layer2` pass, renamed | M |
 | M0.04 | A lint rule against the old names | M0.03 | build | the rule fails on a planted `@architect/` import | S |
