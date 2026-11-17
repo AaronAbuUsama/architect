@@ -1,0 +1,9 @@
+// A Worker with one Durable Object, Run, that drives an E2B sandbox.
+{
+  "name": "spike-e2b-sandbox",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "durable_objects": { "bindings": [{ "name": "RUN", "class_name": "Run" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Run"] }]
+}
