@@ -49,7 +49,7 @@ export default function Board() {
           <div className="lg:col-span-2"><Widget title="Burn-down" sub="open tasks per day; the dashed line reaches zero on the last day" legend={[["#3b82f6", "Open"], ["#a1a1aa", "Scope"]]}><BurnDown day={d.day} open={d.open} scope={d.scope} /></Widget></div>
           <Widget title="Agents on this mission" sub="threads by type">
             <ul className="flex flex-col gap-3 text-sm">{workers.filter((w) => rs.some((r) => r.worker === w.id)).map((w) => { const mine = rs.filter((r) => r.worker === w.id), ok = mine.filter((r) => r.status === "passed").length; return (
-              <li key={w.id}><Link to={`/work/workers#${w.id}`} className="flex items-center gap-2"><span className="size-2 rounded-full" style={{ background: TYPE_TONE[w.id] }} />{w.name}<span className="ml-auto tabular-nums text-fd-muted-foreground">{mine.length} threads · {ok} passed · ${mine.reduce((a, r) => a + r.costUsd, 0).toFixed(2)}</span></Link></li>); })}</ul>
+              <li key={w.id}><Link to={`/work/agents/${w.id}`} className="flex items-center gap-2"><span className="size-2 rounded-full" style={{ background: TYPE_TONE[w.id] }} />{w.name}<span className="ml-auto tabular-nums text-fd-muted-foreground">{mine.length} threads · {ok} passed · ${mine.reduce((a, r) => a + r.costUsd, 0).toFixed(2)}</span></Link></li>); })}</ul>
           </Widget>
         </div>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-5">{COLS.map(([c, label, icon]) => { const here = ts.filter((t) => t.column === c); return (

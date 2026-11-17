@@ -10,6 +10,10 @@ export type WorkerType = {
   /** Every model this type may run on; the manager picks one per run, and the run records which. */
   models: string[];
   skills: string[]; mcps: string[]; tools: string[]; sandbox: string | null; budgetUsd: number; file: string;
+  /** Hard stops on one thread; the manager is told when one trips. */
+  limits: { maxTurns: number; timeoutMin: number; parallel: number };
+  /** What it must ask its manager (and so you) before doing. */
+  asks: string[];
 };
 
 export type Mission = {
@@ -29,9 +33,9 @@ export type Task = {
 
 export type RunEvent =
   | { at: number; kind: "turn"; n: number; tokensIn: number; tokensOut: number; cached: number; text: string }
-  | { at: number; kind: "tool"; name: string; args: string; ok: boolean; ms: number; error?: string }
-  | { at: number; kind: "command"; cmd: string; exit: number; ms: number; tail?: string }
-  | { at: number; kind: "edit"; file: string; added: number; removed: number }
+  | { at: number; kind: "tool"; name: string; args: string; ok: boolean; ms: number; error?: string; input?: Record<string, unknown>; output?: string; lang?: string }
+  | { at: number; kind: "command"; cmd: string; exit: number; ms: number; tail?: string; out?: string }
+  | { at: number; kind: "edit"; file: string; added: number; removed: number; diff?: string }
   | { at: number; kind: "report"; report: "progress" | "waiting" | "ready" | "blocked" | "failed"; text: string }
   | { at: number; kind: "resume"; text: string };
 

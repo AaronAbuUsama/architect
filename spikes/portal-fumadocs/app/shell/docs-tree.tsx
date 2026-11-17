@@ -4,7 +4,7 @@ import type { Node, Root } from "fumadocs-core/page-tree";
 import { useState } from "react";
 import { NavLink, useLocation } from "react-router";
 
-const link = ({ isActive }: { isActive: boolean }) => `block truncate rounded-lg px-2 py-1 text-sm ${isActive ? "bg-fd-accent font-medium text-fd-accent-foreground" : "text-fd-muted-foreground hover:bg-fd-accent/50 hover:text-fd-foreground"}`;
+const link = ({ isActive }: { isActive: boolean }) => `block truncate rounded-xl px-2.5 py-1.5 text-sm ${isActive ? "bg-default font-medium text-default-foreground" : "text-foreground/80 hover:bg-default/60"}`;
 const within = (n: Node, path: string): boolean => n.type === "page" ? n.url === path : n.type === "folder" ? n.index?.url === path || n.children.some((c) => within(c, path)) : false;
 
 function Folder({ n, path }: { n: Extract<Node, { type: "folder" }>; path: string }) {
@@ -13,14 +13,14 @@ function Folder({ n, path }: { n: Extract<Node, { type: "folder" }>; path: strin
     <li>
       <div className="flex items-center">
         {n.index ? <NavLink to={n.index.url} end className={(s) => `${link(s)} flex-1`}>{n.name}</NavLink> : <span className="flex-1 px-2 py-1 text-sm">{n.name}</span>}
-        <button onClick={() => setOpen(!open)} aria-expanded={open} aria-label={open ? "Fold" : "Unfold"} className="grid size-6 place-items-center rounded text-fd-muted-foreground hover:bg-fd-accent/50"><span className={`text-xs transition-transform ${open ? "rotate-90" : ""}`}>›</span></button>
+        <button onClick={() => setOpen(!open)} aria-expanded={open} aria-label={open ? "Fold" : "Unfold"} className="grid size-6 place-items-center rounded text-muted hover:bg-default/60"><span className={`text-xs transition-transform ${open ? "rotate-90" : ""}`}>›</span></button>
       </div>
-      {open && <ul className="ml-3 border-l border-fd-border pl-2">{n.children.map((c, i) => <Item key={i} n={c} path={path} />)}</ul>}
+      {open && <ul className="ml-3 border-l border-border pl-2">{n.children.map((c, i) => <Item key={i} n={c} path={path} />)}</ul>}
     </li>
   );
 }
 function Item({ n, path }: { n: Node; path: string }) {
-  if (n.type === "separator") return <li className="px-2 pb-0.5 pt-3 text-xs font-medium text-fd-muted-foreground/80">{n.name}</li>;
+  if (n.type === "separator") return <li className="px-2 pb-0.5 pt-3 text-xs font-medium text-muted">{n.name}</li>;
   if (n.type === "folder") return <Folder n={n} path={path} />;
   return <li><NavLink to={n.url} end className={link}>{n.name}</NavLink></li>;
 }

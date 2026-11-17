@@ -9,6 +9,7 @@ export default [
   route("work/m/:mission/board", "work/board.tsx"),
   route("work/t/:task", "work/task.tsx"),
   route("work/r/:run", "work/thread.tsx"),
-  route("work/workers", "work/workers.tsx"),
+  route("work/agents", "work/workers.tsx"),
+  route("work/agents/:type", "work/agent-settings.tsx"),
   route("*", "routes/page.tsx"),
 ] satisfies RouteConfig;

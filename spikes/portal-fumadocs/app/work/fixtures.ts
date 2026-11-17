@@ -5,13 +5,13 @@ const DAYS = ["Nov 12", "Nov 13", "Nov 14", "Nov 15", "Nov 16", "Nov 17"];
 export const TODAY = "Nov 17";
 
 export const workers: WorkerType[] = [
-  { id: "manager", name: "Manager", does: "Sets a mission up, then only orchestrates: reads facts, starts runs, asks you.", kinds: [], models: ["claude-opus-5-5", "claude-sonnet-5-5"], skills: ["mission-intake", "hill-climb"], mcps: ["plan", "logbook"], tools: ["start run", "stop run", "ask you", "read facts"], sandbox: null, budgetUsd: 1, file: "architect/workers/manager.ts" },
-  { id: "specifier", name: "Specifier", does: "Fills an operation's blanks; runs spikes on what nobody knows yet.", kinds: ["specify", "spike"], models: ["claude-opus-5-5", "claude-fable-5-2"], skills: ["specify", "spike"], mcps: ["project", "logbook"], tools: ["read", "write blueprint", "check"], sandbox: "e2b · node24", budgetUsd: 2, file: "architect/workers/specifier.ts" },
-  { id: "designer", name: "Machine designer", does: "Designs a thing's states and moves; validates coverage.", kinds: ["design machine", "validate machine"], models: ["claude-opus-5-5"], skills: ["design-machine"], mcps: ["project"], tools: ["read", "write blueprint", "check"], sandbox: "e2b · node24", budgetUsd: 2, file: "architect/workers/designer.ts" },
-  { id: "journeys", name: "Journey writer", does: "Writes an operation's journeys before anyone builds it. Never the builder.", kinds: ["build"], models: ["claude-sonnet-5-5", "qwen3-coder"], skills: ["journeys"], mcps: ["project"], tools: ["read", "write journeys", "check"], sandbox: "e2b · node24", budgetUsd: 1, file: "architect/workers/journeys.ts" },
-  { id: "builder", name: "Builder", does: "Writes the handler until its journeys and evals pass.", kinds: ["build", "prove"], models: ["claude-sonnet-5-5", "claude-opus-5-5", "kimi-k2"], skills: ["build", "prove"], mcps: ["project", "axiom (read)"], tools: ["read", "write handler", "check", "prove"], sandbox: "e2b · node24", budgetUsd: 2, file: "architect/workers/builder.ts" },
-  { id: "sre", name: "SRE", does: "Finds out why a run or an eval failed, from traces.", kinds: ["prove"], models: ["claude-sonnet-5-5", "claude-haiku-5-5"], skills: ["axiom-sre"], mcps: ["axiom (read)", "logbook"], tools: ["query traces", "report"], sandbox: null, budgetUsd: 1, file: "architect/workers/sre.ts" },
-  { id: "reviewer", name: "🔍 Reviewer", does: "Reviews a change against its brief before it is promoted.", kinds: ["promote"], models: ["claude-opus-5-5"], skills: ["reviewer"], mcps: ["project", "logbook"], tools: ["read", "diff", "report"], sandbox: "e2b · node24", budgetUsd: 1, file: "architect/workers/reviewer.ts" },
+  { id: "manager", name: "Manager", does: "Sets a mission up, then only orchestrates: reads facts, starts runs, asks you.", kinds: [], models: ["claude-opus-5-5", "claude-sonnet-5-5"], skills: ["mission-intake", "hill-climb"], mcps: ["plan", "logbook"], tools: ["start run", "stop run", "ask you", "read facts"], sandbox: null, budgetUsd: 1, file: "architect/workers/manager.ts", limits: { maxTurns: 400, timeoutMin: 1440, parallel: 1 }, asks: ["start a mission", "promote to production", "spend past the daily cap"] },
+  { id: "specifier", name: "Specifier", does: "Fills an operation's blanks; runs spikes on what nobody knows yet.", kinds: ["specify", "spike"], models: ["claude-opus-5-5", "claude-fable-5-2"], skills: ["specify", "spike"], mcps: ["project", "logbook"], tools: ["read", "write blueprint", "check"], sandbox: "e2b · node24", budgetUsd: 2, file: "architect/workers/specifier.ts", limits: { maxTurns: 60, timeoutMin: 30, parallel: 2 }, asks: ["change a decided operation"] },
+  { id: "designer", name: "Machine designer", does: "Designs a thing's states and moves; validates coverage.", kinds: ["design machine", "validate machine"], models: ["claude-opus-5-5"], skills: ["design-machine"], mcps: ["project"], tools: ["read", "write blueprint", "check"], sandbox: "e2b · node24", budgetUsd: 2, file: "architect/workers/designer.ts", limits: { maxTurns: 60, timeoutMin: 30, parallel: 1 }, asks: ["remove a state"] },
+  { id: "journeys", name: "Journey writer", does: "Writes an operation's journeys before anyone builds it. Never the builder.", kinds: ["build"], models: ["claude-sonnet-5-5", "qwen3-coder"], skills: ["journeys"], mcps: ["project"], tools: ["read", "write journeys", "check"], sandbox: "e2b · node24", budgetUsd: 1, file: "architect/workers/journeys.ts", limits: { maxTurns: 40, timeoutMin: 20, parallel: 3 }, asks: [] },
+  { id: "builder", name: "Builder", does: "Writes the handler until its journeys and evals pass.", kinds: ["build", "prove"], models: ["claude-sonnet-5-5", "claude-opus-5-5", "kimi-k2"], skills: ["build", "prove"], mcps: ["project", "axiom (read)"], tools: ["read", "write handler", "check", "prove"], sandbox: "e2b · node24", budgetUsd: 2, file: "architect/workers/builder.ts", limits: { maxTurns: 80, timeoutMin: 45, parallel: 3 }, asks: ["add a dependency", "write outside its grant"] },
+  { id: "sre", name: "SRE", does: "Finds out why a run or an eval failed, from traces.", kinds: ["prove"], models: ["claude-sonnet-5-5", "claude-haiku-5-5"], skills: ["axiom-sre"], mcps: ["axiom (read)", "logbook"], tools: ["query traces", "report"], sandbox: null, budgetUsd: 1, file: "architect/workers/sre.ts", limits: { maxTurns: 30, timeoutMin: 15, parallel: 2 }, asks: [] },
+  { id: "reviewer", name: "🔍 Reviewer", does: "Reviews a change against its brief before it is promoted.", kinds: ["promote"], models: ["claude-opus-5-5"], skills: ["reviewer"], mcps: ["project", "logbook"], tools: ["read", "diff", "report"], sandbox: "e2b · node24", budgetUsd: 1, file: "architect/workers/reviewer.ts", limits: { maxTurns: 40, timeoutMin: 20, parallel: 1 }, asks: [] },
 ];
 
 export const missions: Mission[] = [
@@ -53,21 +53,22 @@ export const tasks: Task[] = [
 
 const turn = (at: number, n: number, i: number, o: number, c: number, text: string): RunEvent => ({ at, kind: "turn", n, tokensIn: i, tokensOut: o, cached: c, text });
 const cmd = (at: number, c: string, exit: number, ms: number, tail?: string): RunEvent => ({ at, kind: "command", cmd: c, exit, ms, tail });
-const tool = (at: number, name: string, args: string, ok: boolean, ms: number, error?: string): RunEvent => ({ at, kind: "tool", name, args, ok, ms, error });
+const tool = (at: number, name: string, args: string, ok: boolean, ms: number, error?: string, more: Partial<Extract<RunEvent, { kind: "tool" }>> = {}): RunEvent => ({ at, kind: "tool", name, args, ok, ms, error, ...more });
 export const runs: Run[] = [
   { id: "r_41", task: "t8", worker: "builder", model: "claude-sonnet-5-5", status: "running", started: "09:34", seconds: 372, costUsd: 0.41, sandbox: "e2b iztf5r…", sandboxUp: true, events: [
-    turn(4, 1, 18200, 410, 0, "Reading the brief and the spend journeys."),
-    tool(6, "read", "handlers/spend.ts", true, 120), tool(9, "read", "journeys/spend.journey.ts", true, 95),
+    turn(4, 1, 18200, 410, 0, "Reading the brief and the **spend** journeys. The scaffold answers every call with `OverLimit`, so all seven journeys are red."),
+    tool(6, "read", "handlers/spend.ts", true, 120, undefined, { input: { path: "handlers/spend.ts" }, lang: "ts", output: "// Scaffolded from blueprint/allowance.ts. Yours from now on.\nexport const spend = Handler.of(Allowance.spend, ({ input }) =>\n  Effect.fail(new OverLimit({ remaining: 0n })));" }),
+    tool(9, "read", "journeys/spend.journey.ts", true, 95, undefined, { input: { path: "journeys/spend.journey.ts" }, lang: "ts", output: "journey(\"spends within remaining\", ...)\njourney(\"spends past remaining\", ...)\njourney(\"spends on a revoked allowance\", ...)\n// 4 more" }),
     cmd(15, "pnpm install --frozen-lockfile", 0, 21400),
     turn(41, 2, 24100, 1220, 17900, "The handler reads the allowance twice; one read can serve both checks."),
-    { at: 52, kind: "edit", file: "handlers/spend.ts", added: 18, removed: 9 },
-    cmd(60, "architect check allowance.spend", 1, 8300, "journey 'spends past remaining' expected OverLimit, got answer"),
+    { at: 52, kind: "edit", file: "handlers/spend.ts", added: 18, removed: 9, diff: " export const spend = Handler.of(Allowance.spend, ({ input }) =>\n-  Effect.fail(new OverLimit({ remaining: 0n })));\n+  Effect.gen(function* () {\n+    const a = yield* Allowances.get(input.allowance);\n+    if (a.state !== \"active\") return yield* new AllowanceNotActive({ state: a.state });\n+    yield* Allowances.debit(a.id, input.amount);\n+    if (a.remaining < input.amount) return yield* new OverLimit({ remaining: a.remaining });\n+    return { remaining: a.remaining - input.amount };\n+  }));" },
+    { at: 60, kind: "command", cmd: "architect check allowance.spend", exit: 1, ms: 8300, tail: "journey 'spends past remaining' expected OverLimit, got answer", out: "✓ spends within remaining\n✘ spends past remaining\n    expected  OverLimit { remaining: 40n }\n    received  answer { remaining: -60n }\n✓ spends on a revoked allowance\n✓ spends on an expired allowance\n✓ spends twice in one second\n✓ spends the exact remaining\n✓ spends zero\n\n6 of 7 journeys pass" },
     turn(74, 3, 26800, 640, 23100, "Over-limit is checked after the debit. Moving it before."),
-    tool(80, "write_handler", "handlers/spend.ts", false, 40, "path outside grant: handlers/shared/limits.ts"),
+    tool(80, "write_handler", "handlers/shared/limits.ts", false, 40, "path outside grant: handlers/shared/limits.ts", { input: { path: "handlers/shared/limits.ts", content: "export const withinLimit = (a: Allowance, amount: bigint) => a.remaining >= amount;" }, output: "Refused by the grant. builder may write: handlers/spend.ts" }),
     turn(88, 4, 27300, 380, 26100, "That file is outside my grant; keeping the check inside spend.ts."),
-    { at: 95, kind: "edit", file: "handlers/spend.ts", added: 6, removed: 2 },
+    { at: 95, kind: "edit", file: "handlers/spend.ts", added: 6, removed: 2, diff: "     if (a.state !== \"active\") return yield* new AllowanceNotActive({ state: a.state });\n-    yield* Allowances.debit(a.id, input.amount);\n     if (a.remaining < input.amount) return yield* new OverLimit({ remaining: a.remaining });\n+    yield* Allowances.debit(a.id, input.amount);\n     return { remaining: a.remaining - input.amount };" },
     { at: 140, kind: "resume", text: "Run object evicted; resumed from the stored checkpoint, sandbox reconnected by id." },
-    cmd(150, "architect check allowance.spend", 0, 7900, "7 of 7 journeys pass"),
+    { at: 150, kind: "command", cmd: "architect check allowance.spend", exit: 0, ms: 7900, tail: "7 of 7 journeys pass", out: "✓ spends within remaining\n✓ spends past remaining\n✓ spends on a revoked allowance\n✓ spends on an expired allowance\n✓ spends twice in one second\n✓ spends the exact remaining\n✓ spends zero\n\n7 of 7 journeys pass" },
     { at: 168, kind: "report", report: "progress", text: "Journeys green. Running prove in test." },
     cmd(175, "architect prove --env test allowance.spend", 0, 0, "running…"),
   ] },
@@ -110,3 +111,20 @@ export const runsOf = (mission: string) => runs.filter((r) => tasks.find((x) => 
 export const taskOf = (id: string) => tasks.find((x) => x.id === id);
 export const runOf = (id: string) => runs.find((r) => r.id === id);
 export const workerOf = (id: string) => workers.find((w) => w.id === id)!;
+
+/** What an agent type can be given: the models the gateway serves, the skills in .agents/skills, the MCPs and tools
+ * the runner knows, and the sandbox templates. The settings page picks from these. */
+export const catalog = {
+  models: [
+    { id: "claude-opus-5-5", by: "Anthropic", inPerM: 5, outPerM: 25 }, { id: "claude-sonnet-5-5", by: "Anthropic", inPerM: 3, outPerM: 15 },
+    { id: "claude-haiku-5-5", by: "Anthropic", inPerM: 1, outPerM: 5 }, { id: "claude-fable-5-2", by: "Anthropic", inPerM: 4, outPerM: 20 },
+    { id: "kimi-k2", by: "Moonshot", inPerM: 0.6, outPerM: 2.5 }, { id: "qwen3-coder", by: "Alibaba", inPerM: 0.4, outPerM: 1.6 },
+  ],
+  skills: ["mission-intake", "hill-climb", "specify", "spike", "design-machine", "journeys", "build", "prove", "axiom-sre", "reviewer"],
+  mcps: [
+    { id: "project", does: "Reads and writes the repository through the grant" }, { id: "plan", does: "The Plan object: tasks, columns, facts" },
+    { id: "logbook", does: "The Book object: every fact, by seq" }, { id: "axiom (read)", does: "Traces and logs, read-only" },
+  ],
+  tools: ["read", "write blueprint", "write journeys", "write handler", "check", "prove", "diff", "report", "query traces", "start run", "stop run", "ask you", "read facts"],
+  sandboxes: [{ id: "e2b · node24", does: "Node 24, pnpm, architect CLI; resumes by id" }, { id: "e2b · node24 + anvil", does: "Adds a local chain, for layer four" }],
+};
