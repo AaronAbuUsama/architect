@@ -44,8 +44,9 @@ Rules, held by Nx module boundaries:
 
 - `blueprint` depends on nothing but Effect. Every other package may import it.
 - Generated code imports `target-effect`'s runtime, `blueprint`, the host and project code. D4 additionally permits
-  the declaration-only entry and matching target/host runtime entry explicitly declared by a selected kit.
-  Generated API/SDK/browser code may import only its declaration entry; a Worker may not import the Node entry.
+  the pure descriptor metadata entry, declaration-only entry and matching target/host runtime entry explicitly
+  declared by a selected kit. Generated API/SDK/browser code may import only its two pure entries; a Worker may
+  not import the Node entry.
   Verify the import closure. This does not permit compiler/generator imports or direct project imports of the
   kit's wrapped libraries.
 - `agent` is `env:build` (dev and CI tooling, never in production in v0). It may depend on `blueprint`, `compiler`,

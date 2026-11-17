@@ -82,7 +82,7 @@ Only a layer's own primitives are decided before it starts; the rest wait in `pl
 
 ## Layer 3: reach out
 
-- [D4](decisions/D4.md) decides the kit descriptor, separated declaration/Worker/Node entries, canonical provenance,
+- [D4](decisions/D4.md) decides the pure descriptor/declaration and separated Worker/Node entries, canonical provenance,
   reference-based dependency graph and source integrity, plus one-blank Promise/Effect dependency wrappers.
   Its selected-kit import amendment is reflected in AGENTS and the package rules. Implementation remains L3.01.
 
