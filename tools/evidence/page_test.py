@@ -82,6 +82,18 @@ class EvidencePageTests(unittest.TestCase):
         page = self.render({"planted.txt": HEADER.replace("exit 0 (expected 0)", "exit 1 (expected 1)") + "failed"})
         self.assertIn("caught", page)
 
+    def test_rendering_redacts_organization_ids_but_preserves_contract_names(self):
+        identifiers = ("org_0123456789abcdef", "org_0123456789abcde", "org_abc123")
+        names = ("organization.create", "organization.owner", "organization.id")
+        for header in ("", HEADER):
+            with self.subTest(header=bool(header)):
+                page = self.render({"record.txt": header + " ".join(identifiers + names)})
+                for identifier in identifiers:
+                    self.assertNotIn(identifier, page)
+                for name in names:
+                    self.assertIn(name, page)
+                self.assertEqual(page.count("&lt;organization id&gt;"), len(identifiers))
+
     def test_rendering_removes_local_paths_and_personal_email(self):
         body = "/Users/example/.codex/worktrees/task/architect/src/a.ts\n/private/var/folders/xx/temp/T/run.log\n/tmp/check-123/log.txt\n/home/example/project/a.ts\nowner@example.invalid\n/Users/\n/home/\n/tmp/\n/private/var/folders/"
         page = self.render({"raw.txt": body})

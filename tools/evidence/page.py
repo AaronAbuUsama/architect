@@ -13,6 +13,7 @@ def shown(text):
     text = re.sub(r"[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}", "<email>", text)
     text = re.sub(r"\b(?:sk-|phx_|phc_)[A-Za-z0-9_-]{12,}", "<redacted token>", text)
     text = re.sub(r"(?i)(authorization[\"']?\s*[:=]\s*[\"']?bearer\s+)\S+", r"\1<redacted token>", text)
+    text = re.sub(r"\borg_[a-z0-9]{6,}\b", "<organization id>", text)
     return html.escape(text)
 
 
