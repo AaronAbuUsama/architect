@@ -20,6 +20,8 @@
     "10-final-planted-runtime-guards": "All 16 original planted/list/privacy tests pass after correction on real workerd, D1 and Collector; nine evals remain per operation.",
     "11-source-and-fixture-scope": "Original fixtures/journeys remain unchanged; corrected source/test/README blob identities and scoped diff are recorded.",
     "12-static-checks": "Fresh prove lint and typecheck without Nx cache.",
-    "13-cleanup-proof": "No owned container mount, reserved proof/list/privacy listening port or worktree runtime process remains."
+    "13-cleanup-proof": "No owned container mount, reserved proof/list/privacy listening port or worktree runtime process remains.",
+    "12-integrated-pure": "Integrated source543611e: all21pure evaluator/watch guards pass.",
+    "13-integrated-real-guards": "Integrated source543611e: all16original real workerd/Collector planted/list/privacy tests pass."
   }
 }

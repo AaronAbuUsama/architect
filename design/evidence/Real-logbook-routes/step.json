@@ -9,6 +9,7 @@
     "02-real-route-ledger-checks": "All ten replacement groups pass on real workerd, SQLite Durable Objects, R2 and signed OIDC, before deleting either obsolete suite.",
     "03-static-checks": "Targeted Nx lint and type checking pass for the logbook package.",
     "04-whole-logbook-suite": "The whole logbook suite passes serially, including real persisted-schema upgrades and restarts.",
-    "05-cleanup": "No owned test ports, issuer containers or worktree Worker processes remain."
+    "05-cleanup": "No owned test ports, issuer containers or worktree Worker processes remain.",
+    "06-integrated-suite": "Integrated source123eea6: all25real logbook tests pass serially."
   }
 }

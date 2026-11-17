@@ -7,7 +7,7 @@ stages. The rules are `AGENTS.md`; the thread kit (conductor, threads, spike, re
 
 **Current frontier.** Stages 1 and 2 (Gate 1) are on `main`. All layer-two build steps and review corrections are
 integrated on the conductor branch; L2.11 passed locally; Linux CI and final independent review are next. Framework/author source is
-`759ebb4`; main has been refreshed through `ca2fbf2` (F3 brief, separate Noir and E2B spike records, no framework imports).
+`543611e`; main has been refreshed through `ca2fbf2` (F3 brief, separate Noir and E2B spike records, no framework imports).
 The conductor uses its managed worktree on `codex/conductor-goal-01`, then pushes verified integration to `layer/3`.
 The original checkout and ignored template files stay untouched.
 
@@ -62,23 +62,23 @@ Historical builder-authored evaluator changes are being dispositioned truthfully
 acceptance, without rewriting history or weakening checks. OAuth count is documented as a local throttle; strict
 concurrent ceiling is cloud hardening before public deployment. Raw diagnostic whitespace stays raw data.
 
-**Round3 workers resumed from `ee35a5c`.** `build/environment-process-owner` owns config/state-specific
-status/reap identity (D3#190, ports9160–9179); `build/immutable-model-create` owns conditional R2 model admission
-(D3#191, ports9280–9299); `build/refusal-namespace` owns compiler namespace validation (D3#193, no services).
-All four runtime/compiler packages are now merged: refusal7cbc946, MCP0fec194, immutable-model9a1aebb and ownershipa962de0. Integrated compiler30/MCP2/ownership9 plus all16 static/sync checks pass. Full logbook integration exposed the old fake-R2 test (actuallocal8 pass); its unchanged failure is retained under Immutable-model/attempts. Separate authors are correcting the two same-head evaluator gaps (D3#194) and moving fake HTTP/SQL checks to real services (D3#196), preserving assertions. D3#195/later.md explicitly disposition the soft registration throttle. No full gate is reserved yet.
+**Round3 source corrections and separate author acceptance are integrated.** The four bounded source fixes are
+refusal7cbc946, MCP0fec194, immutable-model9a1aebb and ownershipa962de0. Separate author83f6f8b replaced both
+forbidden platform-shim suites with real logbook routes and ledger checks; all25logbooktests passed after integration.
+Separate author6647d76 independently reviewed the historical evaluator changes, found and fixed two semantic gaps,
+and truthfully recorded the author-before-builder process deviation. The conductor reran21pure evaluator/watch guards
+and16real-service planted/list/privacy guards on543611e; all passed. All16projects' lint/typecheck plus Nx sync passed.
+No builder, author or root verifier service remains. Stage3 delivery now owns the exclusive clean full-gate window.
 
 **Next, in order.**
-1. Finish the four round3 packages from the reset plan. Keep ordinary/real logbook ownership, identical R2 retries,
-   actual first-MCP sink export and non-renumbered refusal-code behavior. Add separate-author evaluator acceptance
-   and truthful historical deviation record; no history rewriting. Record the throttle advisory as already done.
-2. Merge packages as they pass, resolve D3 append blocks without dropping any, reset/sync, static and touched checks;
-   keep handoff/status/evidence current. No full gate runs alongside a runtime builder.
-3. Once source is fixed, rerun the clean full local gate alone and new Linux CI (all three jobs, actual Linuxbrew),
-   refresh current successful ci.json per layer-two step, update build-plan/pages, and get one fresh final independent
-   verdict on the exact source/evidence head. Product-round ledger currently3; no fourth correction head starts
-   without owner-guided reality-first reset under the session’s architectural ownership.
-4. Open `layer/3` into main, merge fresh green CI/review, verify main. Only then open stage4 wayfinding and continue
-   goal01 through Gate5. Claude alone republishes the private page links.
+1. Checkpoint integrated receipts and status, then freeze source. Run the clean full local Gate2 alone on that exact
+   committed candidate using stock configuration. Preserve full raw output and ownership-scoped cleanup.
+2. Run fresh Linux CI with all three jobs and actual Linuxbrew. Refresh each layer-two step's current ci.json, the
+   build-plan and pages. Obtain one fresh independent whole-layer verdict on the final candidate and CI evidence.
+   Product-round ledger remains3; ordinary fixture feedback does not create a fourth product head.
+3. Open `layer/3` into main, merge only fresh green CI and independent review, then verify main CI. Stage3 delivery
+   hands the green main commit and cleanup proof back to the root conductor; only root opens stage4 wayfinding.
+   Claude alone republishes the private page links.
 
 **For the cloud pass, from L2.08:** every deployed Worker must set `ARCHITECT_ENVIRONMENT`, or it reads as a local
 world and opens `/_world/*` (`later.md`); `Facts` reads staging's SQLite file today and needs a D1 API reader behind the
