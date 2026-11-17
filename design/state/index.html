@@ -4,7 +4,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600&display=swap">
 <style>
-/* Layout: the Architect design docs' Docs mode (header, nav + article, read-aloud bar), filled with the build's real state. */
+/* A viewport-sized reading shell. Navigation and content scroll independently. */
 :root {
   --bg: #f5f6f8; --surface: #ffffff; --panel: #eef1f5; --fg: #19202c; --muted: #5b6577; --line: #dbe0e8;
   --accent: #2d5bd0; --accent-soft: #e5ecfb; --code-bg: #f3f5f9;
@@ -25,28 +25,38 @@
   --done: #5ccb98; --done-soft: #12301f; --wip: #e3ac4f; --wip-soft: #33280f; --todo: #98a2b4; --todo-soft: #222a36;
   --del: #ff8a80; --del-soft: #3a1714; color-scheme: dark }
 * { box-sizing: border-box; }
-body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.6; }
-header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border-bottom: 1px solid var(--line);
-  display: flex; align-items: center; gap: 18px; flex-wrap: wrap; padding-block: 10px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
-body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+html { height: 100%; }
+body { margin: 0; height: 100vh; height: 100dvh; overflow: hidden; display: grid; grid-template-rows: auto minmax(0, 1fr);
+  background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.6; }
+header { background: var(--surface); border-bottom: 1px solid var(--line); min-width: 0;
+  display: flex; align-items: center; gap: 24px; min-height: 64px; padding-block: max(12px, env(safe-area-inset-top, 0px)) 12px;
+  padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); }
 .brand { font-family: var(--display); font-weight: 600; font-size: 18px; }
 .brand small { font-family: var(--mono); font-size: 11px; color: var(--muted); font-weight: 400; margin-left: 8px; }
 .legend { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+.pages-toggle { display: none; align-items: center; gap: 8px; min-height: 44px; padding: 0 12px; margin-left: auto;
+  color: var(--fg); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; font: 500 14px var(--body); cursor: pointer; }
+.pages-toggle svg { width: 16px; height: 16px; }
+.pages-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+.skip-link { position: fixed; top: 8px; left: 8px; z-index: 10; transform: translateY(-160%); padding: 8px 16px;
+  color: var(--fg); background: var(--surface); border: 1px solid var(--accent); border-radius: 6px; }
+.skip-link:focus { transform: translateY(0); }
 .badge { font: 500 11px var(--mono); letter-spacing: .03em; padding: 1px 7px; border-radius: 4px; white-space: nowrap; }
 .s-done { background: var(--done-soft); color: var(--done); }
 .s-wip { background: var(--wip-soft); color: var(--wip); }
 .s-todo { background: var(--todo-soft); color: var(--todo); }
 .s-red { background: var(--del-soft); color: var(--del); }
-main { display: grid; grid-template-columns: 250px minmax(0, 1fr); min-height: calc(100vh - 56px); padding-bottom: 70px; }
-nav { background: var(--surface); border-right: 1px solid var(--line); padding: 18px 10px 40px; position: sticky; top: 56px; align-self: start;
-  max-height: calc(100vh - 56px); overflow: auto; }
+main { display: grid; grid-template-columns: 248px minmax(0, 1fr); min-height: 0; min-width: 0; overflow: hidden; }
+nav { height: 100%; min-height: 0; background: var(--surface); border-right: 1px solid var(--line); padding: 20px 12px max(24px, env(safe-area-inset-bottom, 0px));
+  overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
 nav h4 { font: 600 11px var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 16px 8px 6px; }
-nav a { display: block; color: var(--fg); text-decoration: none; padding: 4px 8px; border-radius: 5px; font-size: 14px; }
+nav a { display: flex; align-items: center; min-height: 40px; color: var(--fg); text-decoration: none; padding: 8px 12px; border-radius: 6px; font-size: 14px; line-height: 1.4; }
 nav a:hover { background: var(--panel); }
 nav a[aria-current="page"] { background: var(--accent-soft); color: var(--accent); font-weight: 500; }
 a:focus-visible, button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-article { padding-block: 30px 80px; padding-left: max(28px, env(safe-area-inset-left, 0px)); padding-right: max(28px, env(safe-area-inset-right, 0px)); min-width: 0; }
+article { padding: 40px clamp(24px, 4vw, 64px) max(48px, env(safe-area-inset-bottom, 0px)); min-width: 0; min-height: 0;
+  overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; }
+article:focus { outline: none; }
 article > * { max-width: 760px; }
 article h1 { font: 600 28px/1.2 var(--display); margin: 0 0 10px; text-wrap: balance; }
 article h2 { font: 600 19px/1.25 var(--display); margin: 28px 0 8px; }
@@ -84,27 +94,29 @@ td.s { white-space: nowrap; }
 .loop-stages span { font: 600 15px var(--display); border-radius: 6px; padding: 5px 10px; }
 .loop-stages span + span::before { content: "→"; color: var(--muted); font-weight: 400; margin: 0 6px 0 -2px; }
 .loop-out { font-size: 13px; color: var(--muted); }
-/* reader */
-.speaking { background: var(--accent-soft); border-radius: 4px; box-shadow: 0 0 0 4px var(--accent-soft); }
-#reader { position: fixed; left: 0; right: 0; bottom: 0; z-index: 8; background: var(--surface); border-top: 1px solid var(--line);
-  display: flex; align-items: center; gap: 10px; justify-content: center; flex-wrap: wrap;
-  padding-block: 10px calc(10px + env(safe-area-inset-bottom, 0px));
-  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
-#reader button, #reader select { font: 500 15px var(--body); color: var(--fg); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; height: 40px; min-width: 44px; padding: 0 12px; cursor: pointer; }
-#reader #r-play { background: var(--accent); color: var(--surface); border-color: var(--accent); min-width: 56px; font-size: 16px; }
-#reader button:disabled, #reader select:disabled { opacity: .45; cursor: default; }
-#reader .r-status { font: 12px var(--mono); color: var(--muted); min-width: 70px; text-align: center; max-width: 46ch; }
-#reader label { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
 [hidden] { display: none !important; }
-@media (max-width: 760px) {
-  main { grid-template-columns: 1fr; }
-  nav { position: static; max-height: 260px; border-right: 0; border-bottom: 1px solid var(--line); }
-  header { position: static; } .legend { display: none; } .brand small { display: block; margin: 0; }
-  article { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+@media (max-width: 1040px) {
+  .brand small { display: block; margin: 2px 0 0; }
+  .legend { gap: 6px; }
 }
-@media (prefers-reduced-motion: reduce) { .speaking { transition: none; } }
+@media (max-width: 700px) {
+  header { gap: 12px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .brand small { font: 12px var(--body); }
+  .legend { display: none; }
+  .pages-toggle { display: flex; }
+  main { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+  nav { display: none; height: auto; max-height: 55dvh; border-right: 0; border-bottom: 1px solid var(--line); padding: 8px 12px 16px; }
+  body[data-navigation-open="true"] nav { display: block; }
+  nav a { min-height: 44px; }
+  article { grid-row: 2; padding: 28px 20px max(32px, env(safe-area-inset-bottom, 0px)); }
+  article h1 { font-size: 26px; }
+  .layer { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .layer > .badge { justify-self: start; }
+  .layer .name span { display: block; margin: 4px 0 0; }
+}
 </style>
 
+<a class="skip-link" href="#doc">Skip to content</a>
 <header>
   <div class="brand">Architect <small>status · read from the repo · 17 November 2026</small></div>
   <div class="legend" aria-label="States">
@@ -112,20 +124,15 @@ td.s { white-space: nowrap; }
     <span class="badge s-wip">being built</span>
     <span class="badge s-todo">not started</span>
   </div>
+  <button class="pages-toggle" id="pages-toggle" type="button" aria-expanded="false" aria-controls="docnav">
+    Pages <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+  </button>
 </header>
 
 <main id="docs-view">
   <nav id="docnav" aria-label="Pages"></nav>
-  <article id="doc"></article>
+  <article id="doc" tabindex="-1" aria-labelledby="page-title"></article>
 </main>
-
-<div id="reader" role="region" aria-label="Read aloud">
-  <button id="r-back" type="button" aria-label="Back">⏮</button>
-  <button id="r-play" type="button" aria-label="Play">▶</button>
-  <button id="r-fwd" type="button" aria-label="Forward">⏭</button>
-  <label for="r-rate">Speed <select id="r-rate"><option value="0.8">0.8×</option><option value="1">1×</option><option value="1.15">1.15×</option><option value="1.3">1.3×</option><option value="1.5">1.5×</option></select></label>
-  <span class="r-status" id="r-status"></span>
-</div>
 
 <script>
 const B = (s, t) => '<span class="badge s-' + s + '">' + t + '</span>';
@@ -141,7 +148,7 @@ across test, staging and production, and watch it. Every build step of stage thr
 <li><b>Layer two, prove and ship, is built.</b> Thirteen of its fourteen steps are merged on <code>layer/3</code>: traces, the MCP server, <code>watch</code> and the portal landed today.</li>
 <li><b>Codex has resumed.</b> The CI and evidence-page repairs passed locally and on Linux. World isolation is fixed and passes integration checks. The hash-bound proof repair passes integrated checks. One post-proof staging check remains under review correction; the author is waiting to run check 8.</li>
 <li><b>Next:</b> close the post-proof staging check and run check 8, then Gate 2 and the pull request into main.</li>
-<li><b>CI is green on the recovery push.</b> Both the general check and layer-one compatibility job passed. Main’s latest CI is green.</li>
+<li><b>CI is green on the combined correctness push.</b> Both the general check and layer-one compatibility job passed. Main’s latest CI is green.</li>
 <li><b>Layers three to five,</b> the kits, the chain and time, haven't started. Neither has the cloud pass, which needs your yes on credentials.</li>
 </ul>
 <div class="callout">For the detail, see <a href="#layers">the five layers</a>, <a href="#stage3">layer two, step by step</a> and <a href="#left">what's left</a>.</div>` },
@@ -268,7 +275,7 @@ steps, performance, coverage and explainability.</p>
 <h2>On the critical path</h2>
 <ul>
 <li><b>CI on <code>layer/3</code>:</b> the Docker networking fix and promotion/read repairs pass all six touched tests locally. Linux CI also passed on the recovery push.</li>
-<li><b>World isolation:</b> is fixed at D1’s atomic mutation. Seven world regressions and the existing expiry, restart and reap checks pass after integration; CI still has to verify this change.</li>
+<li><b>World isolation:</b> is fixed at D1’s atomic mutation. Seven world regressions and the existing expiry, restart and reap checks pass after integration; Linux CI also passed on the combined corrections.</li>
 <li><b>Promotion integrity:</b> immutable clean artifacts and signed bundle hashes now pass integrated tests, including preserved legacy records. A reviewer found one remaining post-proof staging identity/source check; that correction is active before Gate 2.</li>
 <li><b>Check 8:</b> one fetch needs a fresh connection after staging restarts. An author's fix, not a builder's.</li>
 <li><b>The evidence page:</b> rebuilds successfully. Eight regression checks pass. Missing capture metadata stays marked unverified.</li>
@@ -376,66 +383,41 @@ let currentPage = null;
 function renderDoc(id) {
   const page = PAGES.find((p) => p.id === id) || PAGES[0];
   document.getElementById("doc").innerHTML = page.h();
+  document.querySelector("#doc h1").id = "page-title";
+  document.title = page.t + " · Architect status";
   nav.querySelectorAll("a").forEach((a) => a.setAttribute("aria-current", a.dataset.id === page.id ? "page" : "false"));
   const moved = currentPage !== page.id;
   currentPage = page.id;
   return moved;
 }
 
-/* ---------- Reader: the page read aloud with the device's own voice ---------- */
-const Reader = (() => {
-  const $ = (id) => document.getElementById(id);
-  const play = $("r-play"), back = $("r-back"), fwd = $("r-fwd"), rateSel = $("r-rate"), status = $("r-status");
-  const synth = window.speechSynthesis;
-  let lines = [], index = 0, rate = 1, speaking = false, token = 0;
-  try { rate = parseFloat(localStorage.getItem("architect-rate")) || 1; } catch (e) {}
-  rateSel.value = String(rate);
-  const supported = !!(synth && window.SpeechSynthesisUtterance);
-  function docEls() {
-    return [...document.querySelectorAll("#doc h1, #doc h2, #doc > p, #doc li, #doc .callout, #doc tr, #doc .layer")]
-      .filter((el) => el.innerText.trim() && !el.closest("thead"));
+/* ---------- Navigation ---------- */
+const doc = document.getElementById("doc");
+const pagesToggle = document.getElementById("pages-toggle");
+function setNavigation(open) {
+  document.body.dataset.navigationOpen = String(open);
+  pagesToggle.setAttribute("aria-expanded", String(open));
+}
+pagesToggle.addEventListener("click", () => setNavigation(pagesToggle.getAttribute("aria-expanded") !== "true"));
+document.querySelector(".skip-link").addEventListener("click", (event) => {
+  event.preventDefault();
+  doc.focus({ preventScroll: true });
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && pagesToggle.getAttribute("aria-expanded") === "true") {
+    setNavigation(false);
+    pagesToggle.focus();
   }
-  function mark(el) {
-    document.querySelectorAll(".speaking").forEach((e) => e.classList.remove("speaking"));
-    if (el) { el.classList.add("speaking"); el.scrollIntoView({ block: "center", behavior: "smooth" }); }
-  }
-  function show() {
-    play.textContent = speaking ? "❚❚" : "▶";
-    play.setAttribute("aria-label", speaking ? "Pause" : "Play");
-    [play, back, fwd, rateSel].forEach((b) => (b.disabled = !supported));
-    status.textContent = supported ? (index + 1) + " / " + lines.length : "Read-aloud isn't available in this view";
-  }
-  function speak(i) {
-    if (!supported) return;
-    index = Math.min(Math.max(i, 0), lines.length - 1);
-    const my = ++token;
-    synth.cancel();
-    const el = lines[index];
-    const u = new SpeechSynthesisUtterance(el.innerText.replace(/\s+/g, " ").replace(/`/g, ""));
-    u.rate = rate;
-    u.onend = () => { if (my !== token || !speaking) return; if (index + 1 < lines.length) speak(index + 1); else { speaking = false; mark(null); show(); } };
-    speaking = true;
-    mark(el);
-    synth.speak(u);
-    show();
-  }
-  function stop() { token++; speaking = false; if (supported) synth.cancel(); mark(null); show(); }
-  play.addEventListener("click", () => { if (speaking) stop(); else speak(index); });
-  back.addEventListener("click", () => { speaking ? speak(index - 1) : (index = Math.max(index - 1, 0), show()); });
-  fwd.addEventListener("click", () => { speaking ? speak(index + 1) : (index = Math.min(index + 1, lines.length - 1), show()); });
-  rateSel.addEventListener("change", () => {
-    rate = parseFloat(rateSel.value);
-    try { localStorage.setItem("architect-rate", String(rate)); } catch (e) {}
-    if (speaking) speak(index);
-  });
-  return { onNavigate() { stop(); lines = docEls(); index = 0; show(); } };
-})();
+});
 
 /* ---------- Routing ---------- */
 function route() {
+  const navigating = currentPage !== null;
+  const fromNavigation = nav.contains(document.activeElement);
   const moved = renderDoc(location.hash.slice(1) || "now");
-  if (moved) window.scrollTo(0, 0);
-  Reader.onNavigate();
+  if (moved) doc.scrollTop = 0;
+  setNavigation(false);
+  if (navigating && fromNavigation) doc.focus({ preventScroll: true });
 }
 window.addEventListener("hashchange", route);
 route();
