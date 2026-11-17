@@ -1,0 +1,32 @@
+$ env NX_DAEMON=false pnpm nx run-many -p logbook -t lint,typecheck --outputStyle=static
+# commit 4516059 · 2026-11-17T05:50:04Z · exit 0 (expected 0) · 3.4s
+
+
+ NX   Running targets lint, typecheck for project logbook:
+
+- logbook
+
+
+
+> nx run logbook:typecheck
+
+> tsc -p packages/logbook/tsconfig.json
+
+
+> nx run logbook:lint
+
+> oxlint packages/logbook
+
+(node:70375) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+packages/logbook/src/modules/local/local.test.ts:85:156: warning unicorn(no-invalid-fetch-options): "body" is not allowed when method is "GET"
+
+
+
+ NX   Successfully ran targets lint, typecheck for project logbook
+
+
+  Run duration:      1.1s
+  Cache:             0/2 hit (0%)
+  Critical path:     1.1s (1 task)
+  Recoverable time:  <1ms

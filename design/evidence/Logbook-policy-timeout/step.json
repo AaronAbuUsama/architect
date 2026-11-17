@@ -1,0 +1,14 @@
+{
+  "step": "Logbook-policy-timeout",
+  "stage": "Stage 3 · authored CI recovery",
+  "title": "Bound the two real Worker restart test bodies explicitly",
+  "summary": "Linux CI failed the missing-policy restart test at Vitest’s implicit five-second deadline. Its assertions and requests are unchanged; the body now has a bounded sixty-second deadline. The adjacent durability restart body gets the same deadline after tracing the sibling path; it passed the cited CI run and is not another reproduced failure. Hooks, schema-upgrade deadline, retries, runtime and domain performance budgets are unchanged.",
+  "proves": "pnpm exec vitest run --root packages/logbook --maxWorkers=1 passes all 25 logbook tests once. Targeted logbook lint/typecheck pass. Only the two body deadlines change in test code. The actual failed Linux job is retained, and no owned test services remain.",
+  "captions": {
+    "01-linux-ci-failure": "Actual Linux CI job log: the missing-policy case hit its implicit 5000 ms deadline; the durability sibling and all 24 other logbook tests passed.",
+    "02-real-logbook-suite": "The full serial real logbook suite passes once with explicit restart-body deadlines.",
+    "03-static-checks": "Targeted logbook lint and type checking pass.",
+    "04-cleanup": "The private logbook test ports and owned issuer/Worker processes are closed.",
+    "05-test-only-diff": "The actual test diff changes only the two explicit body deadlines."
+  }
+}
