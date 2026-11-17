@@ -1,0 +1,8 @@
+{
+  "spans": 311,
+  "logs": 527,
+  "tracked": 1193,
+  "spanLeaks": 0,
+  "rawLibraryLogLeaks": 22,
+  "recordedLibraryLogLeaks": 0
+}

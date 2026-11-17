@@ -1,0 +1,7 @@
+{
+  "status": "failed-harness-finality",
+  "expectedFinalizedBlock": 31,
+  "actualFinalizedBlock": 30,
+  "provenBlock": 31,
+  "observation": "First batch of 130 L1 blocks preceded synthetic proof settlement; later L1 blocks are also needed."
+}

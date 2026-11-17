@@ -1,0 +1,2 @@
+[workspace]
+members = ["private_core_contract", "private_core_test", "clock_probe_contract"]
