@@ -29,13 +29,13 @@ running while Linux CI verifies the integrated recovery.
 
 **Next, in order:**
 1. Confirm Linux CI on this recovery push is green; fix red before starting new runtime work.
-2. Correct three blockers from the independent preliminary source review (reviewed `e43aa22`; final review still required):
+2. Correct two blockers from the independent preliminary source review (reviewed `e43aa22`; final review still required):
    - Build provenance: dirty-source bundles overwrite the artifact under HEAD; after restoring the source, those bytes
      can reuse that revision’s verdicts. Production also never compares staging’s hash. Preserve trustworthy provenance
-     and immutable proven bytes; add dirty-build, restore, promote and staging-hash regressions.
+     and immutable proven bytes; add dirty-build, restore, promote and staging-hash regressions. Also remove Build’s explicit control-flow throws and direct process.env read: D1’s named entry exemptions do not include it; environment belongs to composition.
    - World leases: concurrent `POST /_world/worlds` calls can both pass the separate live check and both create a lease.
      Enforce D3 #51 atomically and prove exactly one success/one 409 against real workerd/D1.
-   - `portal/snapshot/service.ts:23` constructs `new Date` outside an entry file. Format the Effect clock with DateTime.
+   - Review correction: the portal’s `new Date(effectClockValue)` is permitted formatting under D2 #58 and `place.ts`; only zero-argument wall-time construction is banned. It is not a blocker.
 3. A separate ✍️ author fixes check 08’s `portal(url)` fetch with `headers: { connection: "close" }`. Its missing test
    proof for the slow revision is already fixed (D3 #92). Builders never edit `e2e/` or fixtures.
 4. L2.11: add `e2e-layer2` CI, run `nx run e2e:layer2` alone locally and in CI, add current `ci.json` per step, regenerate
