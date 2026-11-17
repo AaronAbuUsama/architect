@@ -95,6 +95,10 @@ version answers each, and for the gap between today and the goal. This is that l
 - "Target" is renamed **language** (Effect, Solidity, Noir, Python), never confused with a host or a projection.
 - Dependencies may be three days old, with a named override (`decisions/R1-release-age.md`).
 - Codex is dropped; we build Forman ourselves.
+- **Workable means the end of M2**: plugins mounted and proved, auth and organizations as plugins, the new
+  principals, secrets by declaration. From there Aaron builds Capxul's plugins on Forman, refining it as he goes;
+  agents (M3) and the factory (M4) speed that up but don't gate it. Milestones M0 to M7 are proposed in the chat
+  walkthrough of 17 November and still to be litigated.
 - Q1: stand-ins follow the labelled ladder above.
 - Q2: MCP is a door of the one Worker.
 - Q3: an unattended builder may read staging telemetry, redacted, through a read-only token created only with
