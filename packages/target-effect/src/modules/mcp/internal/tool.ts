@@ -1,9 +1,9 @@
 import { Effect, Schema } from "effect";
-import type { Operation, Principal, Read, Role } from "@architect/blueprint";
+import type { Principal, Role } from "@architect/blueprint";
 import { Access } from "#modules/access/service.js";
 import { Unit } from "#modules/records/service.js";
 import { Records, Store } from "#modules/records/types.js";
-import type { McpEntry, McpRefusals, McpResult, McpServed, McpTool } from "../types.ts";
+import type { McpEntry, McpOperation, McpRefusals, McpResult, McpServed, McpTool } from "../types.ts";
 import { inputSchema } from "./input.ts";
 import { hiddenInputs, needsRoles, seenBy, shownOf, text, type Seen } from "./shown.ts";
 
@@ -16,7 +16,7 @@ const DEFECT = "[AR-500] InternalError";
 const OWN = new Set(["_tag", "code", "message", "stack", "name", "cause"]);
 
 /** The roles the caller holds in this call, asked only when some field is private to roles. */
-const rolesHeld = (op: Operation | Read, payload: object, principal: Principal, needed: boolean): Effect.Effect<ReadonlyArray<Role>, never, Store> =>
+const rolesHeld = (op: McpOperation, payload: object, principal: Principal, needed: boolean): Effect.Effect<ReadonlyArray<Role>, never, Store> =>
   needed
     ? Effect.gen(function* () {
         const unit = yield* Unit.make(yield* Store);
@@ -25,7 +25,7 @@ const rolesHeld = (op: Operation | Read, payload: object, principal: Principal, 
     : Effect.succeed([]);
 
 /** A list read's `items` are whole instances: each is cut to the thing's fields that are shown, and `state`. */
-const shownAnswer = (wire: Fields, op: Operation | Read, seen: Seen): Fields => {
+const shownAnswer = (wire: Fields, op: McpOperation, seen: Seen): Fields => {
   const top = shownOf(wire, op.answer, seen);
   if (op.kind !== "read" || op.by !== "list" || !Array.isArray(top["items"])) return top;
   const items = (top["items"] as ReadonlyArray<object>).map((i) => Object.fromEntries(Object.entries(i).filter(([f]) => f === "state" || seen(op.thing.fields[f]?.visibility))));

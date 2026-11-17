@@ -2,13 +2,16 @@
 // transport (D3 #122). A tool is the operation's own call, as the person the access token names, so the role check is the
 // API's. Only public fields are in a tool's input or its answer; a field private to roles is shown to a caller who holds one.
 import type { Effect } from "effect";
-import type { FieldsInput, Operation, Principal, Read } from "@architect/blueprint";
+import type { FieldsInput, Operation, Principal, Read, Thing } from "@architect/blueprint";
 import type { Store } from "#modules/records/types.js";
 
 /** What the generated `mcp` catalog says of each operation and read, by its name (`allowance.get`). */
+/** What a tool calls: an operation, a read by id, or a list read (whose payload and answer differ from a read by id). */
+export type McpOperation = Operation | Read<Thing, unknown, unknown>;
+
 export interface McpEntry {
   readonly description: string;
-  readonly operation: Operation | Read;
+  readonly operation: McpOperation;
 }
 
 /** The refusals of a project: each one's code, and the declared error's fields (a machine's own refusal has none declared). */
