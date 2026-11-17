@@ -33,7 +33,7 @@ will regenerate the page after that lands. Main through `798ff34` is merged into
 **Independent preliminary review.** A read-only reviewer of layer two found a promotion-integrity blocker:
 `Build.build` labels a dirty-source bundle with HEAD, and `Promote` checks only that the tree is clean now. Restoring
 the source after a dirty build can therefore reuse verdicts for a different bundle. A separate builder must add a
-failing regression and fix artifact provenance before Gate 2. Review also found non-atomic lease creation: concurrent world POSTs can both pass the preliminary live-world check, violating D3 #51 and corrupting marks-based cleanup. It needs a real concurrent workerd/D1 regression and one authoritative atomic mutation. Review is still in progress; this is not a final pass.
+failing regression and fix artifact provenance before Gate 2. Review also found non-atomic lease creation: concurrent world POSTs can both pass the preliminary live-world check, violating D3 #51 and corrupting marks-based cleanup. It needs a real concurrent workerd/D1 regression and one authoritative atomic mutation. The same provenance finding also permits replacing a staging-proved revision’s bundle before production, because verdicts hold no hash and production does not compare staging’s hash. A third standards correction is `new Date` in `portal/snapshot/service.ts:23`; use Effect DateTime. Review is still in progress; this is not a final pass.
 
 **Next, in order:**
 1. CI green on `layer/3` (above).
