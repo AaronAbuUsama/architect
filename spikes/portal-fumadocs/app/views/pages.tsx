@@ -12,6 +12,7 @@ import { StatTiles } from "./proof-overview.tsx";
 import { AttentionList } from "./attention.tsx";
 import { AccessMatrix, ErrorsTable, EventsTable, MovesTable, OperationsTable, ValuesTable } from "./reference.tsx";
 import { A, Code, Illustration, Sub, to, TypeCell } from "./status.tsx";
+import { tasksAbout, WorkOnIt } from "../work/links.tsx";
 
 export type Section = { id: string; title: string; body: ReactNode; fold?: boolean };
 const fieldsType = (fields: Fields) => Object.fromEntries(Object.entries(fields).map(([n, f]) => [n, { type: <TypeCell f={f} />, required: !f.optional, typeDescription: typeText(f.value) }]));
@@ -29,6 +30,7 @@ export function sections(p: PageKind): Section[] {
     ];
     case "thing": { const t = M.things[p.thing]!; return [
       { id: "operations", title: "Operations", body: <OperationsTable thing={t.name} /> },
+      ...(tasksAbout(t.name).length ? [{ id: "work", title: "Work on it", body: <WorkOnIt subject={t.name} />, fold: true }] : []),
       { id: "fields", title: "Fields", body: <Fields fields={t.fields} empty="No fields." /> },
       ...(t.machine ? [{ id: "machine", title: "Machine", body: <MachineDiagram thing={t.name} /> }] : []),
       ...(Object.keys(t.events ?? {}).length ? [{ id: "events", title: "Events", body: <EventsTable thing={t.name} />, fold: true }] : []),
@@ -38,6 +40,7 @@ export function sections(p: PageKind): Section[] {
     case "operation": { const o = M.operations[p.operation]!;
       return [
         { id: "proof", title: "Proof", body: <>{evidenceNote}<OperationProof op={o.name} /></> },
+        ...(tasksAbout(o.name).length ? [{ id: "work", title: "Work on it", body: <WorkOnIt subject={o.name} /> }] : []),
         { id: "call", title: "How to call", body: <HowToCall op={o.name} /> },
         { id: "payload", title: "Payload", body: <Fields fields={o.payload} empty="No payload." /> },
         { id: "answer", title: "Answer", body: <Fields fields={o.answer} empty="No answer." /> },
