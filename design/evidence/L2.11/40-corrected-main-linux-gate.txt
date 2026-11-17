@@ -1,0 +1,21 @@
+$ bash -c gh run view 44034847309 --job 133875131781 --log | rg "Homebrew|Test Files|Tests |layer2/05|Successfully ran|Run duration"
+# commit 6a4fe08 · 2026-11-17T07:10:19Z · exit 0 (expected 0) · 4.2s
+
+e2e-layer2	Require Homebrew for Gate 2	﻿2026-11-17T06:56:37.5913362Z ##[group]Run brew_bin=/home/linuxbrew/.linuxbrew/bin
+e2e-layer2	Require Homebrew for Gate 2	2026-11-17T06:56:37.5913846Z ^[[36;1mbrew_bin=/home/linuxbrew/.linuxbrew/bin^[[0m
+e2e-layer2	Require Homebrew for Gate 2	2026-11-17T06:56:37.5914196Z ^[[36;1mif [[ ! -x "$brew_bin/brew" ]]; then^[[0m
+e2e-layer2	Require Homebrew for Gate 2	2026-11-17T06:56:37.5914640Z ^[[36;1m  echo "::error::Gate 2 requires the runner's preinstalled Homebrew; the install check must run."^[[0m
+e2e-layer2	Require Homebrew for Gate 2	2026-11-17T06:56:37.5915044Z ^[[36;1m  exit 1^[[0m
+e2e-layer2	Require Homebrew for Gate 2	2026-11-17T06:56:37.5915294Z ^[[36;1mfi^[[0m
+e2e-layer2	Require Homebrew for Gate 2	2026-11-17T06:56:37.5915542Z ^[[36;1mecho "$brew_bin" >> "$GITHUB_PATH"^[[0m
+e2e-layer2	Require Homebrew for Gate 2	2026-11-17T06:56:37.5915857Z ^[[36;1m"$brew_bin/brew" --version^[[0m
+e2e-layer2	Require Homebrew for Gate 2	2026-11-17T06:56:37.5947244Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+e2e-layer2	Require Homebrew for Gate 2	2026-11-17T06:56:37.5947628Z env:
+e2e-layer2	Require Homebrew for Gate 2	2026-11-17T06:56:37.5947948Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+e2e-layer2	Require Homebrew for Gate 2	2026-11-17T06:56:37.5948301Z ##[endgroup]
+e2e-layer2	Require Homebrew for Gate 2	2026-11-17T06:56:38.1496528Z Homebrew 7.0.13
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T07:02:02.5471093Z  ^[[32m✓^[[39m layer2/05-publishing.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[33m 93645^[[2mms^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T07:02:02.5487076Z ^[[2m Test Files ^[[22m ^[[1m^[[32m8 passed^[[39m^[[22m^[[90m (8)^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T07:02:02.5487582Z ^[[2m      Tests ^[[22m ^[[1m^[[32m10 passed^[[39m^[[22m^[[90m (10)^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T07:02:02.5511555Z ^[[7m^[[1m^[[32m NX ^[[39m^[[22m^[[27m  ^[[32mSuccessfully ran target ^[[1mlayer2^[[22m for project e2e^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T07:02:02.5512125Z   Run duration:      5m 23s

@@ -1,0 +1,4 @@
+$ bash -c gh run view 44032725626 --job 133868248245 --log | rg -F "agent session:"
+# commit f900eb1 · 2026-11-17T06:48:22Z · exit 0 (expected 0) · 4.0s
+
+e2e-layer1	Run pnpm nx run e2e:layer1 --outputStyle=static	2026-11-17T06:43:15.2701924Z ^[[22m^[[39magent session: success, 13 turns, 23 s, $0.03

@@ -2,8 +2,8 @@
   "step": "L2.11",
   "stage": "Stage 3 · shipping on local worlds (Gate 2)",
   "title": "Gate 2: eight shipping checks locally and in Linux CI",
-  "status": "main-recovery-local-pass-ci-pending",
-  "summary": "Stage3 shipping is merged and exact main396dab4 passes clean local Gate2 (eight files/ten tests/no skips/real Homebrew) and both Linux gates. The sole first-main workspace failure was the two-CLI test’s implicit five-second deadline. Separate author c67bf4c changes only that body to60seconds; focused real behavior, post-merge static/touched checks and cleanup pass with all assertions/runtime unchanged. A fresh reviewed recovery PR and corrected main CI remain required before closure.",
+  "status": "complete-on-main",
+  "summary": "Stage 3 Gate 2 is complete on main 6a4fe08. The literally clean local gate passed eight files and ten tests with zero skips in 247.6 seconds, including real Mac arm64 Homebrew. Main CI run 44034847309 passed all three jobs, including actual Linuxbrew and the fresh model-assisted Gate 1 check. Reset/sync, all 16 static projects, the touched real CLI case and scoped cleanup pass. Independent review covers the identical merged tree. The historical author-rule deviation, local policy debt and one failed model sample/resample remain explicit; no public-cloud or model-reliability claim is made.",
   "proves": "A PR goes to test, then staging, then production. There is a verdict in each environment, and the npm version equals `architect version --next`.",
   "captions": {
     "01-ci-static": "Workspace lint, typecheck, Nx sync and workflow syntax validation; these are static checks.",
@@ -31,20 +31,50 @@
     "25-first-main-agent-cost": "Actual model-assisted first-main Gate1 session and observed cost.",
     "26-cli-budget-integration-static": "After the one-line CLI integration deadline merges: reset/sync/sync:check and all 16 projects lint/typecheck pass without cache.",
     "27-cli-budget-integration-case": "Actual focused two-CLI usage case passes after integration; all assertions unchanged, existing real services/CLI used.",
-    "28-cli-budget-integration-cleanup": "Focused recovery leaves no owned containers, exact publishing test-port listener or worktree runtime process."
+    "28-cli-budget-integration-cleanup": "Focused recovery leaves no owned containers, exact publishing test-port listener or worktree runtime process.",
+    "29-recovery-pr-first-attempt": "Recovery PR22 attempt1: workspace and Gate2 pass, model-generated-handler Gate1 sample fails.",
+    "30-recovery-pr-first-agent-cost": "Actual first recovery model sample: 13 turns, 23 seconds, $0.03; provider session ended but prove rejected its bad handler.",
+    "31-recovery-pr-final-ci": "Recovery PR22 attempt 2: all three jobs green on unchanged f900eb1; failed first model sample retained.",
+    "32-recovery-pr-resample-cost": "One unchanged-input model resample: success, 21 turns, 29 seconds, $0.05; no reliability claim.",
+    "33-corrected-main-static": "Exact corrected main: reset/sync/sync:check and all 16 static projects pass without cache.",
+    "34-corrected-main-cli": "Exact corrected main: touched real two-CLI test passes in 8.9 seconds; five other cases intentionally unselected.",
+    "35-corrected-main-clean-gate": "Exact main 6a4fe08, literally clean checkout: eight files, ten tests, zero skips, 247.6 seconds, real Mac Homebrew.",
+    "36-corrected-main-cleanup": "Final clean preflights and scoped cleanup: no owned containers, taps, formulas, exact gate/publishing listeners or runtime processes; unrelated resources preserved.",
+    "37-corrected-main-review-boundary": "Corrected main 6a4fe08 has exactly the reviewed f900eb1 tracked tree; no merge-time source change.",
+    "39-corrected-main-agent-cost": "Fresh corrected-main model-assisted check: success, 18 turns, 24 seconds, $0.04.",
+    "38-corrected-main-ci": "Exact corrected main 6a4fe08: all three CI jobs pass in run 44034847309.",
+    "40-corrected-main-linux-gate": "Exact corrected main Linux Gate 2: all eight files and ten tests pass with actual Linuxbrew."
   },
   "local": {
-    "commit": "396dab4c9021deeec622e8bfb87d31a725aa0dc2",
+    "commit": "6a4fe088027e1df1b21bae7350356c9d0909b823",
     "command": "NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static",
     "filesPassed": 8,
     "testsPassed": 10,
     "testsSkipped": 0,
-    "durationSeconds": 245.7,
+    "durationSeconds": 247.6,
     "platform": "darwin-arm64",
     "nodeVersion": "26.13.1",
     "pnpmVersion": "11.20.0",
     "cleanSourceBeforeRun": true,
     "cleanup": "No Architect containers, gate taps, gate formulas, exact gate port listeners or own runtime processes remain."
   },
-  "pullRequest": "https://github.com/AaronAbuUsama/architect/pull/21"
+  "pullRequest": "https://github.com/AaronAbuUsama/architect/pull/21",
+  "recoveryPullRequest": "https://github.com/AaronAbuUsama/architect/pull/22",
+  "main": {
+    "commit": "6a4fe088027e1df1b21bae7350356c9d0909b823",
+    "ciRun": 44034847309,
+    "ci": "success",
+    "localGate": "8 files / 10 tests / 0 skips",
+    "localDurationSeconds": 247.6,
+    "cleanup": "zero owned resources"
+  },
+  "observedCiModelSpend": {
+    "baselineSessionsUsd": 0.59,
+    "featurePrUsd": 0.04,
+    "firstMainUsd": 0.04,
+    "failedRecoverySampleUsd": 0.03,
+    "singleRecoveryResampleUsd": 0.05,
+    "correctedMainUsd": 0.04,
+    "loggedTotalUsd": 0.79
+  }
 }

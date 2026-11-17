@@ -5,72 +5,51 @@
 **The goal** is `goals/01-the-whole-framework-locally.md`: all five gates passing locally and in CI, on `main`, in six
 stages. The rules are `AGENTS.md`; the thread kit (conductor, threads, spike, reviewer, hashtags) is `.agents/skills/`.
 
-**Current frontier.** Stages 1 and 2 (Gate1) are on `main` through `ca2fbf2`. Stage3 source is integrated through
-`5ff5f6f` on `codex/conductor-goal-01`; the conductor pushes its verified candidate to `layer/3`. No feature builder
-or author is running services. The original checkout and ignored HeroUI template files stay untouched. Stage4 has
-not started and remains the root conductor's responsibility after Stage3 lands green on main.
+**Current frontier: Stage3 complete, Stage4 wayfinding is running.** Current main is
+`6a4fe088027e1df1b21bae7350356c9d0909b823`. Stage3 feature PR21 and bounded recovery PR22 are merged. Main CI
+run `44034847309` is completed SUCCESS with all three jobs green. The exact-main clean local Gate2 also passes.
+Stages1–3 are complete on main; the full goal remains active through Gate5. Root has opened `layer/4`
+from that green main. Three read-only researchers are mapping kits/compiler, wallets/auth and chain/runtime;
+the unknowns and author-before-builder sequence are in `wayfinding-stage4.md`. D4 is not yet decided.
+Stage4 has not been implemented; no Stage4 service has started.
 
-**The full local Gate2 is green.** Clean committed `4516059` ran the stock gate: eight files, ten tests, zero skips,
-253.1 seconds, including real Mac arm64 Homebrew. Clean preflight and scoped cleanup passed with zero owned
-containers, gate taps/formulas, exact gate listeners or runtime processes. Unrelated user containers and Python
-document viewers on8978/8979 were preserved. Raw receipts: `evidence/L2.11/09-final-clean-gate.txt` and
-`10-final-cleanup.txt`. No runtime or Gate2 source changed after that proof: only two logbook integration-test
-restart deadlines and documentation/receipts changed.
+**Exact-main proof.** Clean `6a4fe08` passed stock Gate2: eight files, ten tests, zero skips, 247.6 seconds,
+including real Mac arm64 Homebrew. The same source passes Linux Gate2 with actual Linuxbrew in main CI. Before
+the local gate, reset/sync/sync:check and all 16 static projects passed without cache (13.0 seconds), then the
+touched real two-CLI test passed (one pass, five intentionally unselected, 8.9 seconds). Initial and gate clean
+preflights prove unchanged exact source. Final scoped cleanup found zero owned containers, taps, formulas,
+exact gate/publishing listeners or runtime processes. User resources and Python viewers on8978/8979 were preserved.
+Raw captures33–40 are under `evidence/L2.11/`; all layer-two ci.json records point to the green main run.
 
-**All three Linux jobs are green on the final source.** Run `44027211261` on `5ff5f6f` passed the workspace job,
-Gate1 and Gate2 with mandatory real Linuxbrew. Current ci.json records for every layer-two step point to that
-success. The source reviewer is clear; the keyed PR run and final exact-head gate verdict precede landing.
+**Review and source boundary.** The independent whole-layer PASS covered `3bacbf3` against then-main `ca2fbf2`;
+PR21's first merge396 has that exact tree. The same reviewer gave the bounded recovery PASS for `f900eb1` against
+396 after all three keyed PR jobs were green. Current main6a4 has exactly that reviewed f900 tree (capture37).
+The recovery changes only one test body's explicit60-second deadline around two real Node CLI starts; assertions,
+requests, subprocess/hook/global/domain deadlines and runtime are unchanged (D3 #200). Original main396's red
+workspace run and its green exact-main gate remain historical evidence. Product-review rounds remain three,
+with the six source/evaluator findings resolved; ordinary test transport/deadline feedback did not create a fourth.
 
-**The prior CI restart correction is preserved honestly.** Run `44025466900` on `4516059` passed Gate1 and Gate2,
-including real Linuxbrew, eight files/ten tests/zero skips. Its workspace job failed only the real logbook missing-
-policy restart body at the implicit five-second deadline (8.16 seconds actual). Separate author `ce2fb88` gives
-that body and its existing durability-restart sibling explicit60-second integration deadlines; the sibling passed
-CI and is not claimed as another reproduced failure. Every request, assertion, hook, global/domain budget and
-runtime is unchanged (D3 #199). After integration at `fca159d`, Nx reset/sync/sync:check, all16projects lint/typecheck
-without cache and all25real logbook tests passed. Cleanup found no owned container, test-port listener or runtime
-process. The failed run and exact two-line correction remain in the raw evidence; current CI records now point to the fresh green run.
+**Model evidence is transparent.** Recovery PR22's first sample omitted the spent write; prove correctly rejected
+it while canonical journeys passed. Root permitted exactly one unchanged-input targeted resample, which passed;
+the failed sample/cost and both attempts are retained (D3 #201, captures29–32 and nested attempts). Prompt, source,
+tools, assertions and limits were unchanged. This is not measured model reliability. Corrected main's fresh agent
+check passed at18 turns/24 seconds/$0.04. Observed logged CI sessions total $0.79 today: baseline $0.59, feature PR
+$0.04, first main $0.04, failed recovery sample $0.03, one resample $0.05, corrected main $0.04. No new credential,
+paid cloud resource, public deployment or public publication was created.
 
-**Source review is clear, final gate verdict pending.** The same independent reviewer read the whole layer and all
-bounded corrections through `4516059`, finding no new actionable product blocker. Round-three defects are fixed at
-their owners: process ownership `a962de0`, immutable R2 model admission `9a1aebb`, first-MCP telemetry `0fec194` and
-refusal namespace `7cbc946`. The private review ledger remains three actionable heads, with all six source/evaluator
-findings resolved. Ordinary authored request-lifetime and integration-deadline feedback does not create a fourth head.
+**Limits stay explicit.** D3 #194 retains the historical author-before-builder deviation and current independent
+acceptance; #197 records accepted local legacy-adapter literal policy/enforcement debt, without an exemption or
+universal compliance claim; #195 records the local OAuth throttle and strict admission before public deployment.
+Hosted GitHub Codex review could not run due account limits; the independent subagent verdicts are the actual
+review gates. All test/staging/production deployments here are local workerd. Claude alone republishes private
+status/evidence links; local pages are rebuilt, not claimed republished.
 
-**Author ownership and limitations are explicit.** Author `83f6f8b` replaced forbidden platform shims with25real
-logbook checks; author `6647d76` independently accepted the historical evaluator changes after fixing two semantic
-gaps, with21pure and16real guards passing. The original author-before-builder deviation remains truthful in D3 #194.
-Author `f255520` closes GET-only JSON connections after exact stale-socket reproduction; focused promotion passes,
-and the subsequent full clean Gate2 passes (D3 #198). D3 #197 records legacy host-adapter literal policy/enforcement
-debt, without an exemption or universal compliance claim. D3 #195 records OAuth registration as a local throttle;
-a strict concurrent ceiling remains before public cloud use.
-
-**Stage3 is merged; exact-main verification is running.** [PR21](https://github.com/AaronAbuUsama/architect/pull/21)
-merged at `396dab4c9021deeec622e8bfb87d31a725aa0dc2` on main, after keyed PR run `44028403050` passed all three
-jobs on reviewed receipt head `3bacbf3`. The same independent reviewer returned PASS against main base `ca2fbf2`,
-with no unresolved actionable finding. The merge's tracked tree is identical to reviewed `3bacbf3` (capture23).
-The model-assisted PR check succeeded and cost $0.04; observed daily keyed spend before main is $0.63.
-Hosted GitHub Codex review could not complete because of the account review limit; it produced no review or inline
-finding. The repository-required independent subagent review is the recorded PASS, not a hosted-review claim.
-
-**Exact-main local proof is green; main CI needs a bounded test recovery.** Clean `396dab4` passed all16projects'
-static checks after reset/sync, all25real logbook tests, then stock Gate2 with eight files/ten tests/zero skips in
-245.7seconds and real Mac Homebrew. Preflight and scoped cleanup prove zero owned resources (captures19–22).
-Main run `44029791265` passed Gate1 and Gate2, but the workspace job failed only `publish.test.ts:149`: its two
-real Node CLI invocations took5.285seconds under the implicit5second test-body deadline. All117other prove tests
-passed; three configured provider/platform skips are unchanged. This is a test integration deadline, not an
-assertion or runtime counterexample. The raw failure remains under `L2.11/attempts/396dab4-workspace-ci.txt`.
-
-**The separate author owns the main recovery.** The other five publish cases already have explicit300/900second
-budgets. Only the negative two-CLI usage body needs a bounded60second integration deadline; every request,
-assertion, subprocess deadline, hook and global/domain budget stays unchanged. Separate author `c67bf4c` is integrated: the one-line per-body60second deadline passed its real focused CLI case,
-prove static checks and cleanup. Post-merge reset/sync/sync:check, all16static projects, the same focused real case
-and scoped9050–9053 cleanup also passed (captures26–28). No runtime worker is active. The product-review count remains three; this is ordinary test feedback.
-
-**Next, in order.**
-1. Open the fresh bounded recovery PR against main396; the author patch and required integration checks are green.
-   Obtain the same independent reviewer's exact-head pass and all three keyed CI jobs, then merge the fix.
-2. Verify the corrected main CI and clean local gate, inspect actual model costs and cleanup. Do not start Stage4
-   while main is red. Root alone takes back after green main; Claude alone republishes the private page links.
+**Root owns the checkout and runtime window.** The Stage3 lead and verifier explicitly released ownership;
+all Stage3 services are stopped. The Stage3 closure includes D3 #201, current CI/step metadata, raw captures29–40
+and the retained failed model sample, the build-plan/status/handoff/evidence pages and final review record.
+These are receipt/docs changes after frozen f900;
+no package, e2e, workflow or tool source changed after that reviewed head. The original checkout and its ignored
+HeroUI/template/env/zip files remain untouched. Root remains the owner of the full goal through Gate5.
 
 **For the cloud pass, from L2.08:** every deployed Worker must set `ARCHITECT_ENVIRONMENT`, or it reads as a local
 world and opens `/_world/*` (`later.md`); `Facts` reads staging's SQLite file today and needs a D1 API reader behind the
@@ -85,8 +64,8 @@ work from a fresh worktree, or ask him to move them out.
 **Status page.** `design/state/index.html` is the page Aaron reads (also at its claude.ai link, which only Claude
 publishes). The conductor keeps it current after every merge, PR and gate (`briefs/codex-conductor.md`).
 
-**How the work runs.** The conductor keeps `layer/3` and merges; each step is one builder in its own worktree on
-`build/<step>` from `layer/3`, given its D3 numbers, its ports and its contract (the build-plan row, D3, the author's
+**How the work runs.** The conductor keeps `layer/4` and merges; each step is one builder in its own worktree on
+`build/<step>` from `layer/4`, given its D4 numbers, its ports and its contract (the build-plan row, D4, the author's
 checks), and told never to edit `e2e/` or fixtures. Journeys, checks and fixtures are a separate ✍️ author's
 (`author/<topic>` branches). The conductor merges, resolves conflicts (decision blocks append; generated files are
 regenerated, never merged by hand), runs `pnpm nx reset` then `NX_DAEMON=false pnpm nx sync` after any generator change,

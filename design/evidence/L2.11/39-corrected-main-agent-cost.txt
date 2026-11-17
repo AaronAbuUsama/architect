@@ -1,0 +1,4 @@
+$ bash -c gh api --allow-escape-sequences repos/AaronAbuUsama/architect/actions/jobs/133875132145/logs | rg -F "agent session:"
+# commit 6a4fe08 · 2026-11-17T07:04:45Z · exit 0 (expected 0) · 2.7s
+
+2026-11-17T07:00:24.8551350Z agent session: success, 18 turns, 24 s, $0.04

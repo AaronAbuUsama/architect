@@ -1,0 +1,74 @@
+$ python3 -c 
+import pathlib, re, subprocess
+
+def run(*args):
+    result = subprocess.run(args, text=True, capture_output=True, check=True)
+    return result.stdout.splitlines()
+
+for label, file in [("Initial clean corrected-main preflight", ".architect/l211-corrected-main-preflight.txt"), ("Publisher CLI resource boundary", ".architect/l211-corrected-main-cli-cleanup.txt"), ("Literal clean checkout immediately before corrected-main gate", ".architect/l211-corrected-main-gate-preflight.txt")]:
+    print(label + ":", flush=True)
+    print(pathlib.Path(file).read_text(), flush=True)
+head = "".join(run("git", "rev-parse", "HEAD"))
+assert head == "6a4fe088027e1df1b21bae7350356c9d0909b823", head
+subprocess.run(["git", "diff", "--exit-code"], check=True)
+print("Post-run source unchanged at " + head, flush=True)
+print("Local binary target: " + "".join(run("node", "-p", "process.platform + String.fromCharCode(45) + process.arch")), flush=True)
+containers = [name for name in run("docker", "ps", "-a", "--format", "{{.Names}}") if name.startswith("architect-")]
+taps = [name for name in run("brew", "tap") if name.startswith("architect-e2e-")]
+formulas = [name for name in run("brew", "list", "--formula") if name.startswith("acme-")]
+ports = {4890 + check for check in range(1, 9)} | {8900 + 10 * check + delta for check in range(1, 9) for delta in range(7)} | set(range(9050, 9054))
+listeners = subprocess.run(["lsof", "-nP", "-iTCP", "-sTCP:LISTEN", "-Fn"], text=True, capture_output=True)
+assert listeners.returncode in (0, 1), listeners.stderr
+used = {int(line.rsplit(":", 1)[1]) for line in listeners.stdout.splitlines() if line.startswith("n") and re.search(r":\d+$", line)}
+root = str(pathlib.Path.cwd())
+processes = []
+for line in run("ps", "-axo", "pid=,comm=,args="):
+    parts = line.strip().split(None, 2)
+    if len(parts) != 3:
+        continue
+    pid, command, args = parts
+    if pathlib.Path(command).name in ("node", "workerd", "wrangler") and root in args and re.search(r"wrangler|workerd|vitest", args):
+        processes.append(pid)
+for label, left in [("Architect containers", containers), ("gate taps", taps), ("gate formulas", formulas), ("exact gate and publisher port listeners", sorted(ports & used)), ("own runtime processes", processes)]:
+    print(f"{label}: {len(left)}", flush=True)
+    assert not left, f"{label} remain"
+print("Cleanup passed; unrelated listeners and user containers were left untouched.")
+
+# commit 6a4fe08 · 2026-11-17T07:04:38Z · exit 0 (expected 0) · 0.5s
+
+Initial clean corrected-main preflight:
++ git rev-parse HEAD
+6a4fe088027e1df1b21bae7350356c9d0909b823
+++ git rev-parse HEAD
++ test 6a4fe088027e1df1b21bae7350356c9d0909b823 = 6a4fe088027e1df1b21bae7350356c9d0909b823
+++ git status --porcelain=v1
++ test -z ''
++ node --version
+v26.13.1
++ pnpm --version
+11.20.0
++ brew --version
+Homebrew 7.0.13-77-g8679d30
+
+Publisher CLI resource boundary:
+After publisher CLI test, Architect containers: 0
+After publisher CLI test, own runtime processes: 0
+After publisher CLI test,9050-9053 listeners: 0
+
+Literal clean checkout immediately before corrected-main gate:
++ git rev-parse HEAD
+6a4fe088027e1df1b21bae7350356c9d0909b823
+++ git rev-parse HEAD
++ test 6a4fe088027e1df1b21bae7350356c9d0909b823 = 6a4fe088027e1df1b21bae7350356c9d0909b823
++ git diff --exit-code
+++ git status --porcelain=v1
++ test -z ''
+
+Post-run source unchanged at 6a4fe088027e1df1b21bae7350356c9d0909b823
+Local binary target: darwin-arm64
+Architect containers: 0
+gate taps: 0
+gate formulas: 0
+exact gate and publisher port listeners: 0
+own runtime processes: 0
+Cleanup passed; unrelated listeners and user containers were left untouched.

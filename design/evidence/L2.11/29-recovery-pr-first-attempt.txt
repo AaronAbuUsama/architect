@@ -1,0 +1,4 @@
+$ gh api repos/AaronAbuUsama/architect/actions/runs/44032725626 --jq {id,run_attempt,head_sha,status,conclusion,html_url}
+# commit f900eb1 · 2026-11-17T06:48:18Z · exit 0 (expected 0) · 1.1s
+
+{"conclusion":"failure","head_sha":"f900eb12ba1bef3456bae67179af7e837c80fc3c","html_url":"https://github.com/AaronAbuUsama/architect/actions/runs/44032725626","id":44032725626,"run_attempt":1,"status":"completed"}

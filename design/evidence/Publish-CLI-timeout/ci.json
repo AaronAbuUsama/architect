@@ -1,8 +1,9 @@
 [
   {
-    "databaseId": 133858681138,
-    "headSha": "396dab4c9021deeec622e8bfb87d31a725aa0dc2",
-    "conclusion": "failure",
-    "url": "https://github.com/AaronAbuUsama/architect/actions/runs/44029791265/job/133858681138"
+    "conclusion": "success",
+    "databaseId": 44034847309,
+    "headSha": "6a4fe088027e1df1b21bae7350356c9d0909b823",
+    "status": "completed",
+    "url": "https://github.com/AaronAbuUsama/architect/actions/runs/44034847309"
   }
 ]

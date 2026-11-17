@@ -141,14 +141,14 @@ const DONE = B("done", "built"), WIP = B("wip", "being built"), TODO = B("todo",
 const ALL_PAGES = [
 { id: "now", group: "Start", t: "Where it stands", h: () => `
 <h1>Where it stands</h1>
-<p class="lede">Stage three has merged into main after all three keyed pull-request checks and the independent review passed. The exact main local gate passed; main CI passed both gates but found a short test deadline around two real CLI starts. A separate author owns that narrow recovery before the stage closes.</p>
+<p class="lede">Three of the six stages are complete on main. Gate 2 passes on the exact main commit locally and in CI, with real Homebrew, and the independent review is passed. Cleanup is complete.</p>
 <ul>
 <li><b>Layer one, declare and call, is finished.</b> Stages one and two, Gate 1, are on main.</li>
-<li><b>Layer two, prove and ship, is merged.</b> All fourteen steps are on main: real local environments, signed proof, promotion, publishing, OAuth MCP, watch and the portal.</li>
-<li><b>The complete shipping gate passes.</b> Clean local and Linux runs passed all ten tests with zero skips and real Homebrew. The final keyed pull-request run and independent exact-head review also passed.</li>
-<li><b>Next:</b> recover the main workspace check’s CLI integration deadline, then verify corrected main CI and cleanup. Stage 4 waits for green main.</li>
-<li><b>Boundaries remain explicit.</b> Test, staging and production are local workerd deployments. The historical author-rule deviation and accepted legacy-adapter policy debt remain recorded; no public cloud or universal compliance claim is made.</li>
-<li><b>Layers three to five</b> and the cloud pass have not started.</li>
+<li><b>Layer two, prove and ship, is finished.</b> All fourteen steps are on main: real local environments, signed proof, promotion, publishing, OAuth MCP, watch and the portal.</li>
+<li><b>The exact main gate passed all ten tests.</b> The clean local run and Linux CI include real Homebrew with zero skips. All three main CI jobs passed, including the model-assisted handler check.</li>
+<li><b>Nothing from the tests remains running.</b> Owned containers, taps, formulas, listening ports and runtime processes are gone; unrelated resources were preserved.</li>
+<li><b>Moving:</b> Stage 4 wayfinding is running in three independent research lanes: kits, wallets and authentication, and the chain. The kit-format decision and separately authored checks come before implementation.</li>
+<li><b>Boundaries remain explicit.</b> Test, staging and production are local workerd deployments. The historical author-rule deviation, accepted legacy-adapter policy debt and one failed model sample with a bounded fresh sample remain recorded. No public cloud or model-reliability claim is made.</li>
 </ul>
 <div class="callout">For the detail, see <a href="#layers">the five layers</a>, <a href="#stage3">layer two, step by step</a> and <a href="#left">what's left</a>.</div>` },
 
@@ -205,11 +205,11 @@ steps, performance, coverage and explainability.</p>
   <div class="layer"><div class="name">1. Declare and call <span>stages 1–2 · Gate 1</span></div>${DONE}
     <div class="bar"><i style="width:100%"></i></div>
     <div class="meta">22 of 22 steps. On main since 16 November, pull requests 1 and 2. Gate 1's seven checks pass locally and in CI.</div></div>
-  <div class="layer"><div class="name">2. Prove and ship <span>stage 3 · Gate 2</span></div>${WIP}
-    <div class="bar w"><i style="width:100%"></i></div>
-    <div class="meta">14 of 14 steps merged on <code>main</code>. Gate 2 and all three Linux CI jobs pass. The keyed pull-request check and independent review passed; exact-main verification is running.</div></div>
-  <div class="layer"><div class="name">3. Reach out <span>stage 4 · Gate 3</span></div>${TODO}
-    <div class="meta">Kits, wallets, sign-in with Ethereum, the chain kit on viem, Anvil in a world, the relayer, the chain follower.</div></div>
+  <div class="layer"><div class="name">2. Prove and ship <span>stage 3 · Gate 2</span></div>${DONE}
+    <div class="bar"><i style="width:100%"></i></div>
+    <div class="meta">14 of 14 steps on main. Exact-main Gate 2, all three CI jobs, independent review and cleanup pass.</div></div>
+  <div class="layer"><div class="name">3. Reach out <span>stage 4 · Gate 3</span></div>${WIP}
+    <div class="meta">Wayfinding is running. No build step is complete yet. Kits, wallets, sign-in with Ethereum, viem, Anvil, the relayer and follower are being checked against current code and pinned sources.</div></div>
   <div class="layer"><div class="name">4. On chain <span>stage 5 · Gate 4</span></div>${TODO}
     <div class="meta">The Solidity target, signed operations, a vault per organisation on Anvil.</div></div>
   <div class="layer"><div class="name">5. Time <span>stage 6 · Gate 5</span></div>${TODO}
@@ -235,7 +235,7 @@ steps, performance, coverage and explainability.</p>
 <tr><td class="k">L2.08</td><td>The MCP server with OAuth, and the world's front door closed outside test worlds.</td><td class="s">${DONE}</td></tr>
 <tr><td class="k">L2.09</td><td><code>watch</code>: the same evals on live telemetry; drift becomes a task.</td><td class="s">${DONE}</td></tr>
 <tr><td class="k">L2.10</td><td>The portal: a read-only page per environment, honest ticks, stale explained.</td><td class="s">${DONE}</td></tr>
-<tr><td class="k">L2.11</td><td>Gate 2, keyed PR checks and review pass; merged into main, whose final verification is running.</td><td class="s">${WIP}</td></tr>
+<tr><td class="k">L2.11</td><td>Complete on main: clean local gate, all three CI jobs, real Homebrew, independent review and cleanup pass.</td><td class="s">${WIP}</td></tr>
 </tbody></table></div>
 <p class="muted">Read from the build plan and the layer merged into <code>main</code>.</p>` },
 
@@ -290,8 +290,7 @@ steps, performance, coverage and explainability.</p>
 <h1>What's left</h1>
 <p class="lede">In order. Nothing in a layer starts until the previous gate passes on main.</p>
 <ol>
-<li><b>Finish Gate 2.</b> Gate 2, keyed PR checks and independent review passed; finish the exact-main local run, CI and cleanup.</li>
-<li><b>Layer three, Gate 3.</b> Opens with wayfinding, then the kit format and ten steps.</li>
+<li><b>Layer three, Gate 3.</b> Wayfinding is running, followed by the kit-format decision, separate authored checks and ten build steps.</li>
 <li><b>Layer four, Gate 4.</b> The allowance on chain, nine steps.</li>
 <li><b>Layer five, Gate 5.</b> Time, eight steps.</li>
 <li><b>The cloud pass,</b> only with your yes: real Cloudflare deploys, the real npm and Homebrew, Axiom, and sign-in on a real staging host.</li>
