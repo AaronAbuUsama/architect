@@ -557,6 +557,1038 @@ e2e/layer1/04-agent-writes-a-handler.test.ts:13:27: warning eslint(no-unused-var
 </section>
 <section class="step">
   <div class="stage">Stage 3 · shipping on local worlds (Gate 2)</div>
+  <h2><span class="id">Staging-proof</span> Stable proof identity and captured publication source <span class="chip pass">done</span></h2>
+  <p class="summary">Proofs pin a clean full source commit and a live environment PID/revision/hash. Promotion publication archives that commit and owns unique durable output directories under the original project. Existing npm versions are reused only for matching npm pack integrity. Publication succeeds before new production release/pass facts; interrupted releases complete only missing carried facts on retry. Resolved diagnostic captures are retained unchanged in attempts/ with causes and resolutions in attempts/README.md. Current acceptance is captured in 13-complete-boundaries and 14-workspace-checks; no history was relabeled.</p>
+  <div class="proves"><span class="label">Done when</span>A real staging A-to-B change, A-to-B-to-A rollback and proof-time source mutation refuse before model storage, prerelease publication or passing verdicts. The installed SDK and CLI still contain captured committed-A when original source changes after capture. Package/SEA paths belong to each invocation and earlier tarballs/formula URLs stay valid after source cleanup. Different or unknown existing npm bytes refuse; matching bytes are reused. A publication conflict creates no new release/pass facts. An interruption after a real persisted release is retried to complete every matching carried pass, then repeated without duplicate rows. Actual nested examples/acme snapshot staging works with ancestor configs and installed tooling. Four focused test files pass all 22 tests, with all-project lint/typecheck and generated drift checks green.</div>
+  <div class="links">CI not run · <a href="https://github.com/AaronAbuUsama/architect/commit/8f50320">commit 8f50320</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/a94a183">commit a94a183</a> · 15 verified captures · 0 unverified records</div>
+  
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">Before guards: real staging replacement and source edits incorrectly return success.</span>
+    <span class="meta">exit 1 · 46.3s · 2026-11-17T02:26:13Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/prove src/modules/promote/staging.test.ts</div><pre>RUN  v4.1.12 ./packages/prove
+
+ ❯ src/modules/promote/staging.test.ts (2 tests | 2 failed) 44506ms
+     × rejects a different built revision replacing staging after its initial identity check 21217ms
+     × rejects source mutation at proof completion before model storage, publishing or passing verdicts 16159ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/promote/staging.test.ts &gt; staging&#x27;s proof-to-publish boundary &gt; rejects a different built revision replacing staging after its initial identity check
+AssertionError: expected &#x27;Success&#x27; to be &#x27;Failure&#x27; // Object.is equality
+
+Expected: &quot;Failure&quot;
+Received: &quot;Success&quot;
+
+ ❯ src/modules/promote/staging.test.ts:109:25
+    107|     }) }).pipe(Effect.result));
+    108|     expect(changed).toBe(true);
+    109|     expect(result._tag).toBe(&quot;Failure&quot;);
+       |                         ^
+    110|     if (result._tag === &quot;Failure&quot;) expect(result.failure.message).toMa…
+    111|     await noEffects(a.revision, before);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/modules/promote/staging.test.ts &gt; staging&#x27;s proof-to-publish boundary &gt; rejects source mutation at proof completion before model storage, publishing or passing verdicts
+AssertionError: expected &#x27;Success&#x27; to be &#x27;Failure&#x27; // Object.is equality
+
+Expected: &quot;Failure&quot;
+Received: &quot;Success&quot;
+
+ ❯ src/modules/promote/staging.test.ts:129:25
+    127|     git(&quot;checkout&quot;, &quot;--&quot;, &quot;src/allowance/spend.ts&quot;);
+    128|     expect(changed).toBe(true);
+    129|     expect(result._tag).toBe(&quot;Failure&quot;);
+       |                         ^
+    130|     if (result._tag === &quot;Failure&quot;) expect(result.failure.message).toCo…
+    131|     await noEffects(a.revision, before);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  02:25:27
+   Duration  45.51s (transform 730ms, setup 0ms, import 872ms, tests 44.51s, environment 0ms)</pre></div>
+</details>
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">Before publication fixes: installed content follows mutable source, output paths collide and conflicting versions report reuse.</span>
+    <span class="meta">exit 1 · 39.0s · 2026-11-17T02:38:26Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/prove src/modules/promote/staging.test.ts -t publication identity</div><pre>RUN  v4.1.12 ./packages/prove
+
+ ❯ src/modules/promote/staging.test.ts (6 tests | 3 failed | 3 skipped) 36938ms
+     × installs the captured SDK and CLI even if source changes after capture during publication 21062ms
+     × owns package and SEA outputs per invocation and preserves earlier tarballs and formula URLs 3680ms
+     × refuses pre-existing different same-version package bytes instead of claiming successful reuse 3007ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/promote/staging.test.ts &gt; publication identity &gt; installs the captured SDK and CLI even if source changes after capture during publication
+AssertionError: expected &#x27;uncommitted-B&#x27; to be &#x27;committed-A&#x27; // Object.is equality
+
+Expected: &quot;committed-A&quot;
+Received: &quot;uncommitted-B&quot;
+
+ ❯ src/modules/promote/staging.test.ts:169:43
+    167|     const sdk = spawnSync(process.execPath, [&quot;--input-type=module&quot;, &quot;-…
+    168|     const cli = spawnSync(join(install, &quot;node_modules/.bin/acme&quot;), [&quot;-…
+    169|     expect(sdk.stdout.trim(), sdk.stderr).toBe(&quot;committed-A&quot;);
+       |                                           ^
+    170|     expect(cli.stdout, cli.stderr).toContain(&quot;committed-A&quot;);
+    171|     expect(cli.stdout).toContain(`acme ${version}`);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/modules/promote/staging.test.ts &gt; publication identity &gt; owns package and SEA outputs per invocation and preserves earlier tarballs and formula URLs
+AssertionError: expected &#x27;&lt;local path&gt;&#x27; not to be &#x27;&lt;local path&gt;&#x27; // Object.is equality
+ ❯ src/modules/promote/staging.test.ts:182:41
+    180|     const sdkBytes = readFileSync(join(first.packages[0]!.dir, &quot;dist/i…
+    181|     const second = await publish(version, sourceRevision);
+    182|     expect(second.packages[0]!.dir).not.toBe(first.packages[0]!.dir);
+       |                                         ^
+    183|     expect(readFileSync(join(first.packages[0]!.dir, &quot;dist/index.js&quot;),…
+    184|     const binaryEnv = { ...env, ARCHITECT_REGISTRY: &quot;&quot; };
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/modules/promote/staging.test.ts &gt; publication identity &gt; refuses pre-existing different same-version package bytes instead of claiming successful reuse
+AssertionError: expected &#x27;Success&#x27; to be &#x27;Failure&#x27; // Object.is equality
+
+Expected: &quot;Failure&quot;
+Received: &quot;Success&quot;
+
+ ❯ src/modules/promote/staging.test.ts:200:25
+    198|     const result = await run(Publish.run({ root, env, environment: &quot;st…
+    199|     git(&quot;checkout&quot;, &quot;--&quot;, &quot;src/publication-source.ts&quot;);
+    200|     expect(result._tag).toBe(&quot;Failure&quot;);
+       |                         ^
+    201|     if (result._tag === &quot;Failure&quot;) expect(result.failure.message).toMa…
+    202|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 3 skipped (6)
+   Start at  02:37:48
+   Duration  38.00s (transform 574ms, setup 0ms, import 915ms, tests 36.94s, environment 0ms)</pre></div>
+</details>
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">Hash-only identity incorrectly accepts a real A-to-B-to-A process restart.</span>
+    <span class="meta">exit 1 · 33.1s · 2026-11-17T02:39:52Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/prove src/modules/promote/staging.test.ts -t rollback=true</div><pre>RUN  v4.1.12 ./packages/prove
+
+ ❯ src/modules/promote/staging.test.ts (6 tests | 1 failed | 5 skipped) 31418ms
+     × rejects staging replacement after its initial check, including rollback=true 24723ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/promote/staging.test.ts &gt; staging&#x27;s proof-to-publish boundary &gt; rejects staging replacement after its initial check, including rollback=true
+AssertionError: expected &#x27;Success&#x27; to be &#x27;Failure&#x27; // Object.is equality
+
+Expected: &quot;Failure&quot;
+Received: &quot;Success&quot;
+
+ ❯ src/modules/promote/staging.test.ts:114:25
+    112|     }) }).pipe(Effect.result));
+    113|     expect(changed).toBe(true);
+    114|     expect(result._tag).toBe(&quot;Failure&quot;);
+       |                         ^
+    115|     if (result._tag === &quot;Failure&quot; &amp;&amp; &quot;message&quot; in result.failure) expe…
+    116|     await noEffects(a.revision, before);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 skipped (6)
+   Start at  02:39:20
+   Duration  32.35s (transform 634ms, setup 0ms, import 821ms, tests 31.42s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Public Publish.run stages the actual nested acme project at a captured full commit, retaining ancestor config/tool resolution and durable output.</span>
+    <span class="meta">exit 0 · 4.3s · 2026-11-17T02:48:37Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node .architect/check-nested-publication.ts</div><pre>nested monorepo captured source: two packages staged with ancestor configs and installed tooling; durable output remains under original project</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Real npm install verifies captured SDK/CLI content, matching reuse, conflict rejection and invocation-owned real SEA/tarball outputs.</span>
+    <span class="meta">exit 0 · 64.9s · 2026-11-17T02:55:07Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/prove src/modules/promote/staging.test.ts -t publication identity</div><pre>RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  1 passed (1)
+      Tests  3 passed | 3 skipped (6)
+   Start at  02:54:03
+   Duration  63.89s (transform 842ms, setup 0ms, import 795ms, tests 62.99s, environment 0ms)</pre></div>
+</details>
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">Before reordering: a real integrity conflict still leaves new carried production passes.</span>
+    <span class="meta">exit 1 · 15.2s · 2026-11-17T02:58:21Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/prove src/modules/promote/staging.test.ts -t records no new production</div><pre>RUN  v4.1.12 ./packages/prove
+
+ ❯ src/modules/promote/staging.test.ts (7 tests | 1 failed | 6 skipped) 13738ms
+     × records no new production release or carried pass when existing package bytes conflict 8156ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/promote/staging.test.ts &gt; publication identity &gt; records no new production release or carried pass when existing package bytes conflict
+AssertionError: expected [ { seq: 16, …(10) }, …(14) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   {
++     &quot;environment&quot;: &quot;production&quot;,
++     &quot;event_name&quot;: null,
++     &quot;operation&quot;: &quot;allowance.get&quot;,
++     &quot;ref&quot;: &quot;refs/heads/main&quot;,
++     &quot;repository&quot;: &quot;acme/acme&quot;,
++     &quot;revision&quot;: &quot;e725d3e&quot;,
++     &quot;seq&quot;: 16,
++     &quot;sha&quot;: null,
++     &quot;sha256&quot;: &quot;e15c74e36232b76b3971e74761a42fa3d742bad206a031573eb025030405b9fd&quot;,
++     &quot;verdict&quot;: &quot;pass&quot;,
++     &quot;workflow&quot;: &quot;architect&quot;,
++   },
++   {
++     &quot;environment&quot;: &quot;production&quot;,
++     &quot;event_name&quot;: null,
++     &quot;operation&quot;: &quot;allowance.grant&quot;,
++     &quot;ref&quot;: &quot;refs/heads/main&quot;,
++     &quot;repository&quot;: &quot;acme/acme&quot;,
++     &quot;revision&quot;: &quot;e725d3e&quot;,
++     &quot;seq&quot;: 17,
++     &quot;sha&quot;: null,
++     &quot;sha256&quot;: &quot;e15c74e36232b76b3971e74761a42fa3d742bad206a031573eb025030405b9fd&quot;,
++     &quot;verdict&quot;: &quot;pass&quot;,
++     &quot;workflow&quot;: &quot;architect&quot;,
++   },
++   {
++     &quot;environment&quot;: &quot;production&quot;,
++     &quot;event_name&quot;: null,
++     &quot;operation&quot;: &quot;allowance.revoke&quot;,
++     &quot;ref&quot;: &quot;refs/heads/main&quot;,
++     &quot;repository&quot;: &quot;acme/acme&quot;,
++     &quot;revision&quot;: &quot;e725d3e&quot;,
++     &quot;seq&quot;: 18,
++     &quot;sha&quot;: null,
++     &quot;sha256&quot;: &quot;e15c74e36232b76b3971e74761a42fa3d742bad206a031573eb025030405b9fd&quot;,
++     &quot;verdict&quot;: &quot;pass&quot;,
++     &quot;workflow&quot;: &quot;architect&quot;,
++   },
++   {
++     &quot;environment&quot;: &quot;production&quot;,
++     &quot;event_name&quot;: null,
++     &quot;operation&quot;: &quot;allowance.spend&quot;,
++     &quot;ref&quot;: &quot;refs/heads/main&quot;,
++     &quot;repository&quot;: &quot;acme/acme&quot;,
++     &quot;revision&quot;: &quot;e725d3e&quot;,
++     &quot;seq&quot;: 19,
++     &quot;sha&quot;: null,
++     &quot;sha256&quot;: &quot;e15c74e36232b76b3971e74761a42fa3d742bad206a031573eb025030405b9fd&quot;,
++     &quot;verdict&quot;: &quot;pass&quot;,
++     &quot;workflow&quot;: &quot;architect&quot;,
++   },
++   {
++     &quot;environment&quot;: &quot;production&quot;,
++     &quot;event_name&quot;: null,
++     &quot;operation&quot;: &quot;api-key.create&quot;,
++     &quot;ref&quot;: &quot;refs/heads/main&quot;,
++     &quot;repository&quot;: &quot;acme/acme&quot;,
++     &quot;revision&quot;: &quot;e725d3e&quot;,
++     &quot;seq&quot;: 20,
++     &quot;sha&quot;: null,
++     &quot;sha256&quot;: &quot;e15c74e36232b76b3971e74761a42fa3d742bad206a031573eb025030405b9fd&quot;,
++     &quot;verdict&quot;: &quot;pass&quot;,
++     &quot;workflow&quot;: &quot;architect&quot;,
++   },
++   {
++     &quot;environment&quot;: &quot;production&quot;,
++     &quot;event_name&quot;: null,
++     &quot;operation&quot;: &quot;invitation.accept&quot;,
++     &quot;ref&quot;: &quot;refs/heads/main&quot;,
++     &quot;repository&quot;: &quot;acme/acme&quot;,
++     &quot;revision&quot;: &quot;e725d3e&quot;,
++     &quot;seq&quot;: 21,
++     &quot;sha&quot;: null,
++     &quot;sha256&quot;: &quot;e15c74e36232b76b3971e74761a42fa3d742bad206a031573eb025030405b9fd&quot;,
++     &quot;verdict&quot;: &quot;pass&quot;,
++     &quot;workflow&quot;: &quot;architect&quot;,
++   },
++   {
++     &quot;environment&quot;: &quot;production&quot;,
++     &quot;event_name&quot;: null,
++     &quot;operation&quot;: &quot;invitation.revoke&quot;,
++     &quot;ref&quot;: &quot;refs/heads/main&quot;,
++     &quot;repository&quot;: &quot;acme/acme&quot;,
++     &quot;revision&quot;: &quot;e725d3e&quot;,
++     &quot;seq&quot;: 22,
++     &quot;sha&quot;: null,
++     &quot;sha256&quot;: &quot;e15c74e36232b76b3971e74761a42fa3d742bad206a031573eb025030405b9fd&quot;,
++     &quot;verdict&quot;: &quot;pass&quot;,
++     &quot;workflow&quot;: &quot;architect&quot;,
++   },
++   {
++     &quot;environment&quot;: &quot;production&quot;,
++     &quot;event_name&quot;: null,
++     &quot;operation&quot;: &quot;invitation.send&quot;,
++     &quot;ref&quot;: &quot;refs/heads/main&quot;,
++     &quot;repository&quot;: &quot;acme/acme&quot;,
++     &quot;revision&quot;: &quot;e725d3e&quot;,
++     &quot;seq&quot;: 23,
++     &quot;sha&quot;: null,
++     &quot;sha256&quot;: &quot;e15c74e36232b76b3971e74761a42fa3d742bad206a031573eb025030405b9fd&quot;,
++     &quot;verdict&quot;: &quot;pass&quot;,
++     &quot;workflow&quot;: &quot;architect&quot;,
++   },
++   {
++     &quot;environment&quot;: &quot;production&quot;,
++     &quot;event_name&quot;: null,
++     &quot;operation&quot;: &quot;membership.get&quot;,
++     &quot;ref&quot;: &quot;refs/heads/main&quot;,
++     &quot;repository&quot;: &quot;acme/acme&quot;,
++     &quot;revision&quot;: &quot;e725d3e&quot;,
++     &quot;seq&quot;: 24,
++     &quot;sha&quot;: null,
++     &quot;sha256&quot;: &quot;e15c74e36232b76b3971e74761a42fa3d742bad206a031573eb025030405b9fd&quot;,
++     &quot;verdict&quot;: &quot;pass&quot;,
++     &quot;workflow&quot;: &quot;architect&quot;,
++   },
++   {
++     &quot;environment&quot;: &quot;production&quot;,
++     &quot;event_name&quot;: null,
++     &quot;operation&quot;: &quot;organization.create&quot;,
++     &quot;ref&quot;: &quot;refs/heads/main&quot;,
++     &quot;repository&quot;: &quot;acme/acme&quot;,
++     &quot;revision&quot;: &quot;e725d3e&quot;,
++     &quot;seq&quot;: 25,
++     &quot;sha&quot;: null,
++     &quot;sha256&quot;: &quot;e15c74e36232b76b3971e74761a42fa3d742bad206a031573eb025030405b9fd&quot;,
++     &quot;verdict&quot;: &quot;pass&quot;,
++     &quot;workflow&quot;: &quot;architect&quot;,
++   },
++   {
++     &quot;environment&quot;: &quot;production&quot;,
++     &quot;event_name&quot;: null,
++     &quot;operation&quot;: &quot;organization.get&quot;,
++     &quot;ref&quot;: &quot;refs/heads/main&quot;,
++     &quot;repository&quot;: &quot;acme/acme&quot;,
++     &quot;revision&quot;: &quot;e725d3e&quot;,
++     &quot;seq&quot;: 26,
++     &quot;sha&quot;: null,
++     &quot;sha256&quot;: &quot;e15c74e36232b76b3971e74761a42fa3d742bad206a031573eb025030405b9fd&quot;,
++     &quot;verdict&quot;: &quot;pass&quot;,
++     &quot;workflow&quot;: &quot;architect&quot;,
++   },
++   {
++     &quot;environment&quot;: &quot;production&quot;,
++     &quot;event_name&quot;: null,
++     &quot;operation&quot;: &quot;person.sign-up&quot;,
++     &quot;ref&quot;: &quot;refs/heads/main&quot;,
++     &quot;repository&quot;: &quot;acme/acme&quot;,
++     &quot;revision&quot;: &quot;e725d3e&quot;,
++     &quot;seq&quot;: 27,
++     &quot;sha&quot;: null,
++     &quot;sha256&quot;: &quot;e15c74e36232b76b3971e74761a42fa3d742bad206a031573eb025030405b9fd&quot;,
++     &quot;verdict&quot;: &quot;pass&quot;,
++     &quot;workflow&quot;: &quot;architect&quot;,
++   },
++   {
++     &quot;environment&quot;: &quot;production&quot;,
++     &quot;event_name&quot;: null,
++     &quot;operation&quot;: &quot;session.show&quot;,
++     &quot;ref&quot;: &quot;refs/heads/main&quot;,
++     &quot;repository&quot;: &quot;acme/acme&quot;,
++     &quot;revision&quot;: &quot;e725d3e&quot;,
++     &quot;seq&quot;: 28,
++     &quot;sha&quot;: null,
++     &quot;sha256&quot;: &quot;e15c74e36232b76b3971e74761a42fa3d742bad206a031573eb025030405b9fd&quot;,
++     &quot;verdict&quot;: &quot;pass&quot;,
++     &quot;workflow&quot;: &quot;architect&quot;,
++   },
++   {
++     &quot;environment&quot;: &quot;production&quot;,
++     &quot;event_name&quot;: null,
++     &quot;operation&quot;: &quot;session.sign-in&quot;,
++     &quot;ref&quot;: &quot;refs/heads/main&quot;,
++     &quot;repository&quot;: &quot;acme/acme&quot;,
++     &quot;revision&quot;: &quot;e725d3e&quot;,
++     &quot;seq&quot;: 29,
++     &quot;sha&quot;: null,
++     &quot;sha256&quot;: &quot;e15c74e36232b76b3971e74761a42fa3d742bad206a031573eb025030405b9fd&quot;,
++     &quot;verdict&quot;: &quot;pass&quot;,
++     &quot;workflow&quot;: &quot;architect&quot;,
++   },
++   {
++     &quot;environment&quot;: &quot;production&quot;,
++     &quot;event_name&quot;: null,
++     &quot;operation&quot;: &quot;system.health&quot;,
++     &quot;ref&quot;: &quot;refs/heads/main&quot;,
++     &quot;repository&quot;: &quot;acme/acme&quot;,
++     &quot;revision&quot;: &quot;e725d3e&quot;,
++     &quot;seq&quot;: 30,
++     &quot;sha&quot;: null,
++     &quot;sha256&quot;: &quot;e15c74e36232b76b3971e74761a42fa3d742bad206a031573eb025030405b9fd&quot;,
++     &quot;verdict&quot;: &quot;pass&quot;,
++     &quot;workflow&quot;: &quot;architect&quot;,
++   },
++ ]
+
+ ❯ src/modules/promote/staging.test.ts:222:122
+    220|     expect(result._tag).toBe(&quot;Failure&quot;);
+    221|     if (result._tag === &quot;Failure&quot; &amp;&amp; &quot;message&quot; in result.failure) expe…
+    222|     expect(await request(`${logbook}/verdicts?revision=${built.revisio…
+       |                                                                                                                          ^
+    223|     expect((await request(`${logbook}/releases/latest`)).status).toBe(…
+    224|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 skipped (7)
+   Start at  02:58:06
+   Duration  14.58s (transform 507ms, setup 0ms, import 743ms, tests 13.74s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The original proof/publication fixes and compatibility checks pass before adding the final partial-release sibling.</span>
+    <span class="meta">exit 0 · 138.9s · 2026-11-17T03:01:39Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/prove src/modules/promote/staging.test.ts src/modules/promote/promote.test.ts src/modules/build/build.test.ts src/modules/publish/publish.test.ts</div><pre>RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  4 passed (4)
+      Tests  21 passed (21)
+   Start at  02:59:21
+   Duration  138.17s (transform 1.66s, setup 0ms, import 2.99s, tests 253.67s, environment 0ms)</pre></div>
+</details>
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">A real persisted release interrupted before carried verdicts incorrectly retries success with missing facts.</span>
+    <span class="meta">exit 1 · 20.4s · 2026-11-17T03:08:02Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/prove src/modules/promote/staging.test.ts -t repairs a persisted partial release</div><pre>RUN  v4.1.12 ./packages/prove
+
+ ❯ src/modules/promote/staging.test.ts (8 tests | 1 failed | 7 skipped) 18314ms
+     × repairs a persisted partial release on retry without duplicating complete carried facts 10112ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/promote/staging.test.ts &gt; publication identity &gt; repairs a persisted partial release on retry without duplicating complete carried facts
+AssertionError: expected [] to have a length of 15 but got +0
+
+- Expected
++ Received
+
+- 15
++ 0
+
+ ❯ src/modules/promote/staging.test.ts:234:22
+    232|     const complete = await request(query).then((r) =&gt; r.json()) as Arr…
+    233|     const operations = Object.keys((JSON.parse(readFileSync(join(root,…
+    234|     expect(complete).toHaveLength(operations.length);
+       |                      ^
+    235|     expect(complete.every((v) =&gt; v.sha256 === built.sha256 &amp;&amp; v.verdic…
+    236|     await run(Promote.to({ root, env, target: &quot;production&quot;, say: () =&gt;…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 skipped (8)
+   Start at  03:07:43
+   Duration  19.43s (transform 711ms, setup 0ms, import 978ms, tests 18.31s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Final real-service acceptance: all 22 tests across proof identity, build, publication, SEA, Homebrew and retry boundaries pass.</span>
+    <span class="meta">exit 0 · 152.9s · 2026-11-17T03:11:23Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/prove src/modules/promote/staging.test.ts src/modules/promote/promote.test.ts src/modules/build/build.test.ts src/modules/publish/publish.test.ts</div><pre>RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  4 passed (4)
+      Tests  22 passed (22)
+   Start at  03:08:50
+   Duration  152.11s (transform 2.52s, setup 0ms, import 3.07s, tests 287.39s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Nx reset/sync, all 16 projects lint/typecheck, sync check and diff whitespace check pass.</span>
+    <span class="meta">exit 0 · 19.2s · 2026-11-17T03:10:46Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ bash .architect/check-staging-proof.sh</div><pre>Stopping the Nx Daemon
+Stopped the Nx Daemon
+Removing the Nx Daemon workspace data
+Removed the Nx Daemon workspace data
+Removing the cache directory
+Removed the cache directory
+Removing the workspace data directory
+Removed the workspace data directory
+
+ NX   Successfully reset the Nx workspace.
+
+
+ NX   The workspace is already up to date
+
+[@architect/generators:sync]: All files are up to date.
+
+
+ NX   Running targets lint, typecheck for 16 projects:
+
+- host-cloudflare
+- target-solidity
+- target-effect
+- generators
+- blueprint
+- compiler
+- logbook
+- starter
+- portal
+- preset
+- prove
+- acme
+- lint
+- cli
+- std
+- e2e
+
+
+
+&gt; nx run blueprint:typecheck
+
+&gt; tsc -p packages/blueprint/tsconfig.json
+
+
+&gt; nx run logbook:typecheck
+
+&gt; tsc -p packages/logbook/tsconfig.json
+
+
+&gt; nx run blueprint:lint
+
+&gt; oxlint packages/blueprint
+
+(node:50477) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run logbook:lint
+
+&gt; oxlint packages/logbook
+
+(node:50479) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+packages/logbook/src/modules/local/local.test.ts:85:156: warning unicorn(no-invalid-fetch-options): &quot;body&quot; is not allowed when method is &quot;GET&quot;
+
+&gt; nx run portal:typecheck
+
+&gt; tsc -p packages/portal/tsconfig.json
+
+
+&gt; nx run portal:lint
+
+&gt; oxlint packages/portal
+
+(node:50539) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run target-effect:typecheck
+
+&gt; tsc -p packages/target-effect/tsconfig.json
+
+
+&gt; nx run compiler:typecheck
+
+&gt; tsc -p packages/compiler/tsconfig.json
+
+
+&gt; nx run target-effect:lint
+
+&gt; oxlint packages/target-effect
+
+(node:50552) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run compiler:lint
+
+&gt; oxlint packages/compiler
+
+(node:50573) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run generators:typecheck
+
+&gt; tsc -p packages/generators/tsconfig.json
+
+
+&gt; nx run generators:lint
+
+&gt; oxlint packages/generators
+
+(node:50616) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run host-cloudflare:typecheck
+
+&gt; tsc -p packages/host-cloudflare/tsconfig.json
+
+
+&gt; nx run host-cloudflare:lint
+
+&gt; oxlint packages/host-cloudflare
+
+(node:50634) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run prove:typecheck
+
+&gt; tsc -p packages/prove/tsconfig.json
+
+
+&gt; nx run lint:typecheck
+
+&gt; tsc -p packages/lint/tsconfig.json
+
+
+&gt; nx run prove:lint
+
+&gt; oxlint packages/prove
+
+(node:50699) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+packages/prove/src/modules/world/device-sign-in.test.ts:3:33: warning eslint(no-unused-vars): Type &#x27;ChildProcess&#x27; is imported but never used. help: Consider removing this import.
+
+&gt; nx run target-solidity:typecheck
+
+&gt; tsc -p packages/target-solidity/tsconfig.json
+
+
+&gt; nx run lint:lint
+
+&gt; oxlint packages/lint
+
+(node:50798) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run target-solidity:lint
+
+&gt; oxlint packages/target-solidity
+
+(node:50810) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run starter:lint
+
+&gt; oxlint examples/starter
+
+(node:50852) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run starter:typecheck
+
+&gt; tsc -p examples/starter/tsconfig.json
+
+
+&gt; nx run preset:typecheck
+
+&gt; tsc -p packages/preset/tsconfig.json
+
+
+&gt; nx run preset:lint
+
+&gt; oxlint packages/preset
+
+(node:50883) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run acme:typecheck
+
+&gt; tsc -p examples/acme/tsconfig.json
+
+
+&gt; nx run acme:lint
+
+&gt; oxlint examples/acme
+
+(node:51002) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run cli:lint
+
+&gt; oxlint packages/cli
+
+(node:51029) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run std:typecheck
+
+&gt; tsc -p packages/std/tsconfig.json
+
+
+&gt; nx run cli:typecheck
+
+&gt; tsc -p packages/cli/tsconfig.json
+
+
+&gt; nx run e2e:typecheck
+
+&gt; tsc -p e2e/tsconfig.json
+
+
+&gt; nx run std:lint
+
+&gt; oxlint packages/std
+
+(node:51135) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run e2e:lint
+
+&gt; oxlint e2e
+
+(node:51151) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+e2e/layer1/04-agent-writes-a-handler.test.ts:13:27: warning eslint(no-unused-vars): Identifier &#x27;cli&#x27; is imported but never used. help: Consider removing this import.
+
+
+
+ NX   Successfully ran targets lint, typecheck for 16 projects
+
+
+  Run duration:      10.9s
+  Cache:             0/32 hit (0%)
+  Critical path:     2.0s (1 task)
+  Recoverable time:  8.9s (82% of the run)
+
+ NX   The workspace is up to date
+
+[@architect/generators:sync]: All files are up to date.</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The durable evidence-entry version of the same actual nested-monorepo snapshot check; two staged packages remain usable after source cleanup.</span>
+    <span class="meta">exit 0 · 2.3s · 2026-11-17T03:15:50Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node design/evidence/Staging-proof/nested-monorepo.ts</div><pre>nested monorepo captured source: two packages staged with ancestor configs and installed tooling; durable output remains under original project</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The conductor verifies the integrated source with reset, sync, all-project lint/typecheck and drift checks.</span>
+    <span class="meta">exit 0 · 11.9s · 2026-11-17T03:23:04Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ sh design/evidence/Staging-proof/verify.sh</div><pre>Stopping the Nx Daemon
+Stopped the Nx Daemon
+Removing the Nx Daemon workspace data
+Removed the Nx Daemon workspace data
+Removing the cache directory
+Removed the cache directory
+Removing the workspace data directory
+Removed the workspace data directory
+
+ NX   Successfully reset the Nx workspace.
+
+
+ NX   The workspace is already up to date
+
+[@architect/generators:sync]: All files are up to date.
+
+
+ NX   Running targets lint, typecheck for 16 projects:
+
+- host-cloudflare
+- target-solidity
+- target-effect
+- generators
+- blueprint
+- compiler
+- logbook
+- starter
+- portal
+- preset
+- prove
+- acme
+- lint
+- cli
+- std
+- e2e
+
+
+
+&gt; nx run blueprint:typecheck
+
+&gt; tsc -p packages/blueprint/tsconfig.json
+
+
+&gt; nx run logbook:typecheck
+
+&gt; tsc -p packages/logbook/tsconfig.json
+
+
+&gt; nx run logbook:lint
+
+&gt; oxlint packages/logbook
+
+(node:71965) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+packages/logbook/src/modules/local/local.test.ts:85:156: warning unicorn(no-invalid-fetch-options): &quot;body&quot; is not allowed when method is &quot;GET&quot;
+
+&gt; nx run blueprint:lint
+
+&gt; oxlint packages/blueprint
+
+(node:71963) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run portal:typecheck
+
+&gt; tsc -p packages/portal/tsconfig.json
+
+
+&gt; nx run portal:lint
+
+&gt; oxlint packages/portal
+
+(node:71987) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run target-effect:typecheck
+
+&gt; tsc -p packages/target-effect/tsconfig.json
+
+
+&gt; nx run compiler:typecheck
+
+&gt; tsc -p packages/compiler/tsconfig.json
+
+
+&gt; nx run target-effect:lint
+
+&gt; oxlint packages/target-effect
+
+(node:71996) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run generators:typecheck
+
+&gt; tsc -p packages/generators/tsconfig.json
+
+
+&gt; nx run compiler:lint
+
+&gt; oxlint packages/compiler
+
+(node:72011) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run generators:lint
+
+&gt; oxlint packages/generators
+
+(node:72048) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run prove:typecheck
+
+&gt; tsc -p packages/prove/tsconfig.json
+
+
+&gt; nx run prove:lint
+
+&gt; oxlint packages/prove
+
+(node:72060) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+packages/prove/src/modules/world/device-sign-in.test.ts:3:33: warning eslint(no-unused-vars): Type &#x27;ChildProcess&#x27; is imported but never used. help: Consider removing this import.
+
+&gt; nx run host-cloudflare:typecheck
+
+&gt; tsc -p packages/host-cloudflare/tsconfig.json
+
+
+&gt; nx run lint:typecheck
+
+&gt; tsc -p packages/lint/tsconfig.json
+
+
+&gt; nx run host-cloudflare:lint
+
+&gt; oxlint packages/host-cloudflare
+
+(node:72072) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run target-solidity:typecheck
+
+&gt; tsc -p packages/target-solidity/tsconfig.json
+
+
+&gt; nx run lint:lint
+
+&gt; oxlint packages/lint
+
+(node:72086) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run target-solidity:lint
+
+&gt; oxlint packages/target-solidity
+
+(node:72098) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run starter:lint
+
+&gt; oxlint examples/starter
+
+(node:72135) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run starter:typecheck
+
+&gt; tsc -p examples/starter/tsconfig.json
+
+
+&gt; nx run preset:typecheck
+
+&gt; tsc -p packages/preset/tsconfig.json
+
+
+&gt; nx run preset:lint
+
+&gt; oxlint packages/preset
+
+(node:72149) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run acme:typecheck
+
+&gt; tsc -p examples/acme/tsconfig.json
+
+
+&gt; nx run acme:lint
+
+&gt; oxlint examples/acme
+
+(node:72166) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run cli:lint
+
+&gt; oxlint packages/cli
+
+(node:72178) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run cli:typecheck
+
+&gt; tsc -p packages/cli/tsconfig.json
+
+
+&gt; nx run std:typecheck
+
+&gt; tsc -p packages/std/tsconfig.json
+
+
+&gt; nx run std:lint
+
+&gt; oxlint packages/std
+
+(node:72191) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+&gt; nx run e2e:typecheck
+
+&gt; tsc -p e2e/tsconfig.json
+
+
+&gt; nx run e2e:lint
+
+&gt; oxlint e2e
+
+(node:72228) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+e2e/layer1/04-agent-writes-a-handler.test.ts:13:27: warning eslint(no-unused-vars): Identifier &#x27;cli&#x27; is imported but never used. help: Consider removing this import.
+
+
+
+ NX   Successfully ran targets lint, typecheck for 16 projects
+
+
+  Run duration:      6.4s
+  Cache:             0/32 hit (0%)
+  Critical path:     1.0s (1 task)
+  Recoverable time:  5.4s (84% of the run)
+
+ NX   The workspace is up to date
+
+[@architect/generators:sync]: All files are up to date.</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Existing actual test-world creation, expiry, restart and reap pass with the final proof/publication source.</span>
+    <span class="meta">exit 0 · 56.5s · 2026-11-17T03:24:00Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/prove src/modules/test-worlds/test-worlds.test.ts</div><pre>RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  03:23:04
+   Duration  55.81s (transform 543ms, setup 0ms, import 1.04s, tests 54.67s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The conductor reruns all22 focused real-service regressions on committed integrated source.</span>
+    <span class="meta">exit 0 · 142.0s · 2026-11-17T03:27:36Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/prove src/modules/promote/staging.test.ts src/modules/promote/promote.test.ts src/modules/build/build.test.ts src/modules/publish/publish.test.ts</div><pre>RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  4 passed (4)
+      Tests  22 passed (22)
+   Start at  03:25:15
+   Duration  141.18s (transform 2.37s, setup 0ms, import 3.04s, tests 270.60s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Actual nested acme publication retains ancestor config/tooling and durable output on the integrated main base.</span>
+    <span class="meta">exit 0 · 2.0s · 2026-11-17T03:27:38Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ node design/evidence/Staging-proof/nested-monorepo.ts</div><pre>nested monorepo captured source: two packages staged with ancestor configs and installed tooling; durable output remains under original project</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 3 · shipping on local worlds (Gate 2)</div>
   <h2><span class="id">L2.P</span> Privacy-ready seams <span class="chip unknown">unverified</span></h2>
   <p class="summary">Blueprint.visibility.secret|private|public on values and fields, carried into the model; the declared secrets of acme and the starter (Password, Secret, sign-in&#x27;s session) marked in the blueprint. Span attributes come from an allowlist of public fields (target-effect handler attributes, journal, list items), with a Collector attributes processor, built from the model, as the second guard. The leak check lives in eval 1 (answer shape), by name and by value, over spans, logs and the journal. Refusal codes [AL-001] Name { field: value } are fixed by the model (prefix from the thing, number from declaration order, 900 for the machine&#x27;s refusal, AR-001 for NotAllowed), carried on the wire, the SDK, the CLI and the docs, and a moved code is a major change in Compare.release. runs (only server), the open step kinds and the unit | network test marker are in.</p>
   <div class="proves"><span class="label">Done when</span>Against a real world and the real Collector&#x27;s files, a sign-in and an api-key.create leave no password, token, key or session value in any span or log, and no attribute is keyed for a secret field; a field declared private(owner) is never an attribute of allowance.grant and prove still passes; the Collector&#x27;s processor deletes the keys it is given from spans and logs; every refusal answer carries the code the model fixed. The test failed first, showing payload.password, answer.token, answer.key and answer.session in the Collector&#x27;s files. Gate 1&#x27;s checks, acme&#x27;s and the starter&#x27;s local prove and the starter&#x27;s publish-and-create run stay green, except one line of e2e/layer1/05 that expects the old CLI refusal text (for the author).</div>
@@ -7879,7 +8911,7 @@ allowance.grant answer shape ✔
 allowance.grant declared errors ✔
 allowance.grant machine path ✔
 allowance.grant events ✔
-allowance.grant who may call ✘ grant-an-allowance &quot;bob is refused and the handler never runs&quot;: caller bob (person per_a9na6c3i0899rgwg) lacks owner of organization org_np9afg4t6ny6k3k, and was answered, not refused
+allowance.grant who may call ✘ grant-an-allowance &quot;bob is refused and the handler never runs&quot;: caller bob (person per_a9na6c3i0899rgwg) lacks owner of organization &lt;organization id&gt;, and was answered, not refused
 allowance.grant steps ✔
 allowance.grant performance ✔ p50 3ms p95 4ms budget p95 200ms
 allowance.grant explainability ✔
@@ -8364,18 +9396,18 @@ olga is per_b6sobhril7bsl5dv
 
 # signed in as ada
 $ acme organization create --name &quot;Acme Demo&quot; --cap 1000
-org_m2lulfkzfl6nlqcu
+&lt;organization id&gt;
 
-$ acme allowance grant --organization org_m2lulfkzfl6nlqcu --member per_b6sobhril7bsl5dv --limit 500
+$ acme allowance grant --organization &lt;organization id&gt; --member per_b6sobhril7bsl5dv --limit 500
 alw_l302ln5ebo08vhee
 (exit 0)
 
-$ acme allowance grant --organization org_m2lulfkzfl6nlqcu --member per_b6sobhril7bsl5dv --limit 1001
+$ acme allowance grant --organization &lt;organization id&gt; --member per_b6sobhril7bsl5dv --limit 1001
 AllowanceLimitTooHigh: {&quot;cap&quot;:&quot;1000&quot;}
 (exit 44)
 
 # signed in as bob
-$ acme allowance grant --organization org_m2lulfkzfl6nlqcu --member per_b6sobhril7bsl5dv --limit 500
+$ acme allowance grant --organization &lt;organization id&gt; --member per_b6sobhril7bsl5dv --limit 500
 NotAllowed: {}
 (exit 3)
 
@@ -10437,7 +11469,7 @@ Hint: run the command with --verbose for more details.
   <h2><span class="id">Evidence-recovery</span> Rebuild the evidence page without inventing missing capture metadata <span class="chip pass">done</span></h2>
   <p class="summary">The renderer accepts complete capture headers and preserves raw historical records as explicitly unverified. Unknown records never mark a step done or link an unknown commit. Rendering redacts known local path, email and token forms without changing source records. Known unexpected exits and failed CI keep their step red even beside unverified records.</p>
   <div class="proves"><span class="label">Done when</span>python3 tools/evidence/page_test.py passes for valid, raw, partial and malformed records, HTML escaping, mixed or empty steps, expected and unexpected failures, and display privacy; python3 tools/evidence/page.py rebuilds the actual evidence page.</div>
-  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43997952028">CI success</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/cd9d069">commit cd9d069</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/38e3586">commit 38e3586</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/6bed2bb">commit 6bed2bb</a> · 8 verified captures · 0 unverified records</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/43997952028">CI success</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/cd9d069">commit cd9d069</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/38e3586">commit 38e3586</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/6bed2bb">commit 6bed2bb</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/482ffc9">commit 482ffc9</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/2b560b7">commit 2b560b7</a> · 12 verified captures · 0 unverified records</div>
   
 <details class="run" open>
   <summary>
@@ -10688,6 +11720,304 @@ OK</pre></div>
     <span class="meta">exit 0 · 0.2s · 2026-11-17T01:41:45Z</span>
   </summary>
   <div class="term"><div class="prompt">$ python3 tools/evidence/page.py</div><pre>wrote design/evidence/index.html with 34 steps</pre></div>
+</details>
+<details class="run" open>
+  <summary>
+    <span class="chip planted">caught</span>
+    <span class="cap">09-org-redaction-before</span>
+    <span class="meta">exit 1 · 0.9s · 2026-11-17T03:19:07Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ python3 tools/evidence/page_test.py</div><pre>........
+======================================================================
+FAIL: test_rendering_redacts_organization_ids_but_preserves_contract_names (__main__.EvidencePageTests) (header=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File &quot;./tools/evidence/page_test.py&quot;, line 92, in test_rendering_redacts_organization_ids_but_preserves_contract_names
+    self.assertNotIn(identifier, page)
+AssertionError: &#x27;&lt;organization id&gt;&#x27; unexpectedly found in &#x27;&lt;title&gt;Architect Build Evidence&lt;/title&gt;\n&lt;meta name=&quot;claude:viewport-fit-sides&quot; content=&quot;cover&quot;&gt;\n&lt;link rel=&quot;stylesheet&quot; href=&quot;https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&amp;family=Inter:wght@400;500&amp;family=JetBrains+Mono:wght@400&amp;display=swap&quot;&gt;\n&lt;style&gt;\n/* Layout: one narrow column of steps, newest first; each run is a collapsible terminal capture. */\n:root {\n  --bg: #f6f7f9; --surface: #ffffff; --fg: #1b2230; --muted: #5d6677; --line: #dde1e8;\n  --accent: #3355d4; --pass: #1f7a4d; --pass-bg: #e3f3ea; --planted: #8a5a00; --planted-bg: #fbf0d9;\n  --bad: #b3261e; --bad-bg: #fbe4e2; --term: #121722; --term-fg: #d6dbe6; --term-dim: #8b93a6; --prompt: #7fb2ff;\n  --display: &quot;Space Grotesk&quot;, system-ui, sans-serif; --body: &quot;Inter&quot;, system-ui, sans-serif; --mono: &quot;JetBrains Mono&quot;, ui-monospace, Menlo, monospace;\n}\n@media (prefers-color-scheme: dark) { :root:not([data-theme=&quot;light&quot;]) {\n  --bg: #0f131b; --surface: #161b25; --fg: #e4e8f0; --muted: #98a1b3; --line: #262d3a;\n  --accent: #8aa6ff; --pass: #6fd3a0; --pass-bg: #163326; --planted: #f0c060; --planted-bg: #3a2e12; --bad: #ff8a80; --bad-bg: #3d1a18;\n  --term: #0a0d13; color-scheme: dark } }\n:root[data-theme=&quot;dark&quot;] {\n  --bg: #0f131b; --surface: #161b25; --fg: #e4e8f0; --muted: #98a1b3; --line: #262d3a;\n  --accent: #8aa6ff; --pass: #6fd3a0; --pass-bg: #163326; --planted: #f0c060; --planted-bg: #3a2e12; --bad: #ff8a80; --bad-bg: #3d1a18;\n  --term: #0a0d13; color-scheme: dark }\nbody { background: var(--bg); color: var(--fg); font-family: var(--body); line-height: 1.55;\n  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 24px 48px; }\nmain { max-width: 760px; margin: 0 auto; display: grid; gap: 28px; }\nheader h1 { font-family: var(--display); font-size: 1.6rem; margin: 0; text-wrap: balance; }\nheader p { color: var(--muted); margin: 6px 0 0; }\na { color: var(--accent); }\n.step { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 12px; min-width: 0; }\n.stage { font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }\nh2 { font-family: var(--display); font-size: 1.25rem; margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }\n.id { font-family: var(--mono); font-size: .9rem; color: var(--muted); }\n.summary { margin: 0; }\n.proves { font-size: .9rem; border-left: 3px solid var(--line); padding-left: 10px; color: var(--muted); }\n.proves .label { display: block; font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: var(--fg); }\n.links { font-size: .85rem; color: var(--muted); }\n.chip { font-family: var(--body); font-size: .7rem; font-weight: 500; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }\n.chip.pass { color: var(--pass); background: var(--pass-bg); }\n.chip.planted { color: var(--planted); background: var(--planted-bg); }\n.chip.bad { color: var(--bad); background: var(--bad-bg); }\n.chip.unknown { color: var(--muted); background: var(--bg); }\n.run { border-top: 1px solid var(--line); padding-top: 10px; min-width: 0; }\n.run summary { cursor: pointer; display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; list-style: none; }\n.run summary::-webkit-details-marker { display: none; }\n.run summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }\n.cap { flex: 1 1 220px; min-width: 0; }\n.meta { font-family: var(--mono); font-size: .75rem; color: var(--muted); font-variant-numeric: tabular-nums; }\n.term { background: var(--term); border-radius: 8px; margin-top: 10px; overflow-x: auto; }\n.prompt { font-family: var(--mono); font-size: .78rem; color: var(--prompt); padding: 10px 12px 0; white-space: pre-wrap; word-break: break-all; }\n.term pre { font-family: var(--mono); font-size: .75rem; color: var(--term-fg); margin: 0; padding: 8px 12px 12px; line-height: 1.5; }\n&lt;/style&gt;\n&lt;main&gt;\n  &lt;header&gt;\n    &lt;h1&gt;Architect build evidence&lt;/h1&gt;\n    &lt;p&gt;Verified captures show their recorded commit, exit code and duration. Older records without that metadata are marked unverified. Planted failures are meant to fail. Raw records remain unchanged; private display values are redacted.&lt;/p&gt;\n  &lt;/header&gt;\n  \n&lt;section class=&quot;step&quot;&gt;\n  &lt;div class=&quot;stage&quot;&gt;local&lt;/div&gt;\n  &lt;h2&gt;&lt;span class=&quot;id&quot;&gt;example&lt;/span&gt; Example &lt;span class=&quot;chip unknown&quot;&gt;unverified&lt;/span&gt;&lt;/h2&gt;\n  &lt;p class=&quot;summary&quot;&gt;Example&lt;/p&gt;\n  &lt;div class=&quot;proves&quot;&gt;&lt;span class=&quot;label&quot;&gt;Done when&lt;/span&gt;Example&lt;/div&gt;\n  &lt;div class=&quot;links&quot;&gt;CI not run · commit metadata unavailable · 0 verified captures · 1 unverified records&lt;/div&gt;\n  \n&lt;details class=&quot;run&quot;&gt;\n  &lt;summary&gt;&lt;span class=&quot;chip unknown&quot;&gt;unverified&lt;/span&gt;&lt;span class=&quot;cap&quot;&gt;record&lt;/span&gt;\n    &lt;span class=&quot;meta&quot;&gt;capture metadata unavailable&lt;/span&gt;&lt;/summary&gt;\n  &lt;div class=&quot;term&quot;&gt;&lt;pre&gt;&lt;organization id&gt; &lt;organization id&gt; &lt;organization id&gt; organization.create organization.owner organization.id&lt;/pre&gt;&lt;/div&gt;\n&lt;/details&gt;\n&lt;/section&gt;\n&lt;/main&gt;\n&#x27;
+
+======================================================================
+FAIL: test_rendering_redacts_organization_ids_but_preserves_contract_names (__main__.EvidencePageTests) (header=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File &quot;./tools/evidence/page_test.py&quot;, line 92, in test_rendering_redacts_organization_ids_but_preserves_contract_names
+    self.assertNotIn(identifier, page)
+AssertionError: &#x27;&lt;organization id&gt;&#x27; unexpectedly found in &#x27;&lt;title&gt;Architect Build Evidence&lt;/title&gt;\n&lt;meta name=&quot;claude:viewport-fit-sides&quot; content=&quot;cover&quot;&gt;\n&lt;link rel=&quot;stylesheet&quot; href=&quot;https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&amp;family=Inter:wght@400;500&amp;family=JetBrains+Mono:wght@400&amp;display=swap&quot;&gt;\n&lt;style&gt;\n/* Layout: one narrow column of steps, newest first; each run is a collapsible terminal capture. */\n:root {\n  --bg: #f6f7f9; --surface: #ffffff; --fg: #1b2230; --muted: #5d6677; --line: #dde1e8;\n  --accent: #3355d4; --pass: #1f7a4d; --pass-bg: #e3f3ea; --planted: #8a5a00; --planted-bg: #fbf0d9;\n  --bad: #b3261e; --bad-bg: #fbe4e2; --term: #121722; --term-fg: #d6dbe6; --term-dim: #8b93a6; --prompt: #7fb2ff;\n  --display: &quot;Space Grotesk&quot;, system-ui, sans-serif; --body: &quot;Inter&quot;, system-ui, sans-serif; --mono: &quot;JetBrains Mono&quot;, ui-monospace, Menlo, monospace;\n}\n@media (prefers-color-scheme: dark) { :root:not([data-theme=&quot;light&quot;]) {\n  --bg: #0f131b; --surface: #161b25; --fg: #e4e8f0; --muted: #98a1b3; --line: #262d3a;\n  --accent: #8aa6ff; --pass: #6fd3a0; --pass-bg: #163326; --planted: #f0c060; --planted-bg: #3a2e12; --bad: #ff8a80; --bad-bg: #3d1a18;\n  --term: #0a0d13; color-scheme: dark } }\n:root[data-theme=&quot;dark&quot;] {\n  --bg: #0f131b; --surface: #161b25; --fg: #e4e8f0; --muted: #98a1b3; --line: #262d3a;\n  --accent: #8aa6ff; --pass: #6fd3a0; --pass-bg: #163326; --planted: #f0c060; --planted-bg: #3a2e12; --bad: #ff8a80; --bad-bg: #3d1a18;\n  --term: #0a0d13; color-scheme: dark }\nbody { background: var(--bg); color: var(--fg); font-family: var(--body); line-height: 1.55;\n  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 24px 48px; }\nmain { max-width: 760px; margin: 0 auto; display: grid; gap: 28px; }\nheader h1 { font-family: var(--display); font-size: 1.6rem; margin: 0; text-wrap: balance; }\nheader p { color: var(--muted); margin: 6px 0 0; }\na { color: var(--accent); }\n.step { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 12px; min-width: 0; }\n.stage { font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }\nh2 { font-family: var(--display); font-size: 1.25rem; margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }\n.id { font-family: var(--mono); font-size: .9rem; color: var(--muted); }\n.summary { margin: 0; }\n.proves { font-size: .9rem; border-left: 3px solid var(--line); padding-left: 10px; color: var(--muted); }\n.proves .label { display: block; font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: var(--fg); }\n.links { font-size: .85rem; color: var(--muted); }\n.chip { font-family: var(--body); font-size: .7rem; font-weight: 500; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }\n.chip.pass { color: var(--pass); background: var(--pass-bg); }\n.chip.planted { color: var(--planted); background: var(--planted-bg); }\n.chip.bad { color: var(--bad); background: var(--bad-bg); }\n.chip.unknown { color: var(--muted); background: var(--bg); }\n.run { border-top: 1px solid var(--line); padding-top: 10px; min-width: 0; }\n.run summary { cursor: pointer; display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; list-style: none; }\n.run summary::-webkit-details-marker { display: none; }\n.run summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }\n.cap { flex: 1 1 220px; min-width: 0; }\n.meta { font-family: var(--mono); font-size: .75rem; color: var(--muted); font-variant-numeric: tabular-nums; }\n.term { background: var(--term); border-radius: 8px; margin-top: 10px; overflow-x: auto; }\n.prompt { font-family: var(--mono); font-size: .78rem; color: var(--prompt); padding: 10px 12px 0; white-space: pre-wrap; word-break: break-all; }\n.term pre { font-family: var(--mono); font-size: .75rem; color: var(--term-fg); margin: 0; padding: 8px 12px 12px; line-height: 1.5; }\n&lt;/style&gt;\n&lt;main&gt;\n  &lt;header&gt;\n    &lt;h1&gt;Architect build evidence&lt;/h1&gt;\n    &lt;p&gt;Verified captures show their recorded commit, exit code and duration. Older records without that metadata are marked unverified. Planted failures are meant to fail. Raw records remain unchanged; private display values are redacted.&lt;/p&gt;\n  &lt;/header&gt;\n  \n&lt;section class=&quot;step&quot;&gt;\n  &lt;div class=&quot;stage&quot;&gt;local&lt;/div&gt;\n  &lt;h2&gt;&lt;span class=&quot;id&quot;&gt;example&lt;/span&gt; Example &lt;span class=&quot;chip pass&quot;&gt;done&lt;/span&gt;&lt;/h2&gt;\n  &lt;p class=&quot;summary&quot;&gt;Example&lt;/p&gt;\n  &lt;div class=&quot;proves&quot;&gt;&lt;span class=&quot;label&quot;&gt;Done when&lt;/span&gt;Example&lt;/div&gt;\n  &lt;div class=&quot;links&quot;&gt;CI not run · &lt;a href=&quot;https://github.com/AaronAbuUsama/architect/commit/abc1234&quot;&gt;commit abc1234&lt;/a&gt; · 1 verified captures · 0 unverified records&lt;/div&gt;\n  \n&lt;details class=&quot;run&quot; &gt;\n  &lt;summary&gt;\n    &lt;span class=&quot;chip pass&quot;&gt;passed&lt;/span&gt;\n    &lt;span class=&quot;cap&quot;&gt;record&lt;/span&gt;\n    &lt;span class=&quot;meta&quot;&gt;exit 0 · 1.2s · 2026-11-17T02:00:00Z&lt;/span&gt;\n  &lt;/summary&gt;\n  &lt;div class=&quot;term&quot;&gt;&lt;div class=&quot;prompt&quot;&gt;$ python3 check.py&lt;/div&gt;&lt;pre&gt;&lt;organization id&gt; &lt;organization id&gt; &lt;organization id&gt; organization.create organization.owner organization.id&lt;/pre&gt;&lt;/div&gt;\n&lt;/details&gt;\n&lt;/section&gt;\n&lt;/main&gt;\n&#x27;
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.786s
+
+FAILED (failures=2)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">10-org-redaction-after</span>
+    <span class="meta">exit 0 · 0.8s · 2026-11-17T03:19:30Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ python3 tools/evidence/page_test.py</div><pre>.........
+----------------------------------------------------------------------
+Ran 9 tests in 0.758s
+
+OK</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">11-org-page-rebuild</span>
+    <span class="meta">exit 0 · 0.2s · 2026-11-17T03:19:30Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ python3 tools/evidence/page.py</div><pre>wrote design/evidence/index.html with 37 steps</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">12-org-display-count</span>
+    <span class="meta">exit 0 · 0.1s · 2026-11-17T03:19:30Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ python3 -c from pathlib import Path; import re; s=Path(&quot;design/evidence/index.html&quot;).read_text(); count=len(re.findall(r&quot;\borg_[A-Za-z0-9_-]{6,}&quot;,s)); print(&quot;Organization-style identifiers in rendered page:&quot;,count); assert count == 0</div><pre>Organization-style identifiers in rendered page: 0</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 3 · shipping on local worlds (Gate 2)</div>
+  <h2><span class="id">Check08-author</span> Fresh portal requests and complete publishing checks on supported targets <span class="chip pass">done</span></h2>
+  <p class="summary">Check 08 closes each portal request so its second fetch cannot reuse a socket from the previous staging process. Check 05 runs real Homebrew installation on both Mac arm64 and Linux x64, failing before services start when a supported target lacks brew. Journey phases, fixtures and actual install/version/cleanup assertions remain unchanged.</p>
+  <div class="proves"><span class="label">Done when</span>On integrated source a94a183 plus the author changes, real checks 05 and 08 pass sequentially: two files and three tests in 276 seconds. The SDK installs from Verdaccio at the expected version; the Mac-arm64 Homebrew formula installs the real binary and its --version matches. Healthy and slow staging traffic, portal verdicts and spend-only stale assertions all pass across staging restarts. Linux x64 now requires the same authored Homebrew test; its execution remains the CI job’s proof. Cleanup leaves no Architect container, reserved listening socket, test tap/formula or worktree runtime process.</div>
+  <div class="links">CI not run · <a href="https://github.com/AaronAbuUsama/architect/commit/53d028d">commit 53d028d</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/b12f356">commit b12f356</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/d428228">commit d428228</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/b6d483e">commit b6d483e</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/323239c">commit 323239c</a> · 11 verified captures · 0 unverified records</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The original helper, captured before this author&#x27;s change. This is source evidence, not a reproduced runtime failure.</span>
+    <span class="meta">exit 0 · 0.0s · 2026-11-17T01:54:39Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ sh .architect/check08-source.sh</div><pre>/** The portal&#x27;s rows as plain text, one per operation. */
+const portal = async (url: string) =&gt; {
+  const html = await (await fetch(`${url}/portal`)).text();
+  return html.split(/&lt;\/tr&gt;/i).map((row) =&gt; row.replace(/&lt;[^&gt;]*&gt;/g, &quot; &quot;).replace(/&amp;nbsp;/g, &quot; &quot;).replace(/\s+/g, &quot; &quot;).trim());
+};
+const row = (rows: ReadonlyArray&lt;string&gt;, op: string) =&gt; rows.find((r) =&gt; new RegExp(`(^|\\s)${escape(op)}(\\s|$)`).test(r));
+
+describe(&quot;check 8: watch and the portal&quot;, () =&gt; {
+  it(&quot;p95 against budget and refusal counts; a slow handler drifts; the portal shows verdicts, then stale on spend only&quot;, async () =&gt; {
+    const s = stack!;</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The helper now asks for a closed connection on both portal reads.</span>
+    <span class="meta">exit 0 · 0.0s · 2026-11-17T01:55:04Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ sh .architect/check08-source.sh</div><pre>/** The portal&#x27;s rows as plain text, one per operation. */
+const portal = async (url: string) =&gt; {
+  // Synchronous CLI commands can restart staging while this event loop cannot retire an idle pooled socket.
+  const html = await (await fetch(`${url}/portal`, { headers: { connection: &quot;close&quot; } })).text();
+  return html.split(/&lt;\/tr&gt;/i).map((row) =&gt; row.replace(/&lt;[^&gt;]*&gt;/g, &quot; &quot;).replace(/&amp;nbsp;/g, &quot; &quot;).replace(/\s+/g, &quot; &quot;).trim());
+};
+const row = (rows: ReadonlyArray&lt;string&gt;, op: string) =&gt; rows.find((r) =&gt; new RegExp(`(^|\\s)${escape(op)}(\\s|$)`).test(r));
+
+describe(&quot;check 8: watch and the portal&quot;, () =&gt; {
+  it(&quot;p95 against budget and refusal counts; a slow handler drifts; the portal shows verdicts, then stale on spend only&quot;, async () =&gt; {</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">E2e lint and typecheck after the narrow author correction.</span>
+    <span class="meta">exit 0 · 4.3s · 2026-11-17T01:55:09Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ env NX_DAEMON=false pnpm nx run-many -t lint,typecheck -p e2e --outputStyle=static</div><pre>NX   Running targets lint, typecheck for project e2e:
+
+- e2e
+
+
+
+&gt; nx run e2e:typecheck
+
+&gt; tsc -p e2e/tsconfig.json
+
+
+&gt; nx run e2e:lint
+
+&gt; oxlint e2e
+
+(node:18320) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+e2e/layer1/04-agent-writes-a-handler.test.ts:13:27: warning eslint(no-unused-vars): Identifier &#x27;cli&#x27; is imported but never used. help: Consider removing this import.
+
+
+
+ NX   Successfully ran targets lint, typecheck for project e2e
+
+
+  Run duration:      2.1s
+  Cache:             0/2 hit (0%)
+  Critical path:     2.1s (1 task)
+  Recoverable time:  &lt;1ms</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Whitespace and patch validation; no runtime service starts.</span>
+    <span class="meta">exit 0 · 0.0s · 2026-11-17T01:56:30Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ git diff --check</div><pre></pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">E2e lint and typecheck after rebasing onto integrated build/proof integrity and world isolation at 8f50320.</span>
+    <span class="meta">exit 0 · 3.9s · 2026-11-17T02:17:18Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ env NX_DAEMON=false pnpm nx run-many -t lint,typecheck -p e2e --outputStyle=static</div><pre>NX   Running targets lint, typecheck for project e2e:
+
+- e2e
+
+
+
+&gt; nx run e2e:typecheck
+
+&gt; tsc -p e2e/tsconfig.json
+
+
+&gt; nx run e2e:lint
+
+&gt; oxlint e2e
+
+(node:55961) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+e2e/layer1/04-agent-writes-a-handler.test.ts:13:27: warning eslint(no-unused-vars): Identifier &#x27;cli&#x27; is imported but never used. help: Consider removing this import.
+
+
+
+ NX   Successfully ran targets lint, typecheck for project e2e
+
+
+  Run duration:      1.4s
+  Cache:             0/2 hit (0%)
+  Critical path:     1.4s (1 task)
+  Recoverable time:  &lt;1ms</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The original Mac-only predicate, captured as source evidence before this author expanded supported-target proof.</span>
+    <span class="meta">exit 0 · 0.2s · 2026-11-17T02:50:53Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ sh .architect/check05-source.sh</div><pre>16:// - The macOS arm64 binary is the one a Mac builds (D3 #9); on any other machine the brew half is skipped.
+54:    if (brew(&quot;list&quot;, &quot;--formula&quot;).stdout.split(&quot;\n&quot;).some((l) =&gt; l === formula)) brew(&quot;uninstall&quot;, &quot;--force&quot;, full);
+55:    if (brew(&quot;tap&quot;).stdout.split(&quot;\n&quot;).includes(tap)) brew(&quot;untap&quot;, tap);
+65:const mac = process.platform === &quot;darwin&quot; &amp;&amp; process.arch === &quot;arm64&quot;;
+91:  it.skipIf(!mac)(&quot;brew install &lt;tap&gt;/&lt;formula&gt; runs acme --version, printing the release version&quot;, () =&gt; {
+102:    expect(version.stdout.trim().split(/\s+/).at(-1)).toBe(released);</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Both supported binary targets require real brew installation; missing brew fails before stack startup and cleanup still reaches environment teardown.</span>
+    <span class="meta">exit 0 · 0.0s · 2026-11-17T02:50:53Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ sh .architect/check05-source.sh</div><pre>44:  if (supportedBinary) expect(brew(&quot;--version&quot;).status, &quot;Homebrew must be on PATH for the supported binary target&quot;).toBe(0);
+56:    if ((brew(&quot;list&quot;, &quot;--formula&quot;).stdout ?? &quot;&quot;).split(&quot;\n&quot;).some((l) =&gt; l === formula)) brew(&quot;uninstall&quot;, &quot;--force&quot;, full);
+57:    if ((brew(&quot;tap&quot;).stdout ?? &quot;&quot;).split(&quot;\n&quot;).includes(tap)) brew(&quot;untap&quot;, tap);
+67:const supportedBinary = (process.platform === &quot;darwin&quot; &amp;&amp; process.arch === &quot;arm64&quot;) || (process.platform === &quot;linux&quot; &amp;&amp; process.arch === &quot;x64&quot;);
+93:  it.skipIf(!supportedBinary)(&quot;brew install &lt;tap&gt;/&lt;formula&gt; runs acme --version, printing the release version&quot;, () =&gt; {
+104:    expect(version.stdout.trim().split(/\s+/).at(-1)).toBe(released);</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">E2e lint and typecheck after including Linux x64 in the real install check.</span>
+    <span class="meta">exit 0 · 5.4s · 2026-11-17T02:50:59Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ env NX_DAEMON=false pnpm nx run-many -t lint,typecheck -p e2e --outputStyle=static</div><pre>NX   Running targets lint, typecheck for project e2e:
+
+- e2e
+
+
+
+&gt; nx run e2e:typecheck
+
+&gt; tsc -p e2e/tsconfig.json
+
+
+&gt; nx run e2e:lint
+
+&gt; oxlint e2e
+
+(node:8361) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+e2e/layer1/04-agent-writes-a-handler.test.ts:13:27: warning eslint(no-unused-vars): Identifier &#x27;cli&#x27; is imported but never used. help: Consider removing this import.
+
+
+
+ NX   Successfully ran targets lint, typecheck for project e2e
+
+
+  Run duration:      1.4s
+  Cache:             0/2 hit (0%)
+  Critical path:     1.4s (1 task)
+  Recoverable time:  &lt;1ms</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Fresh e2e lint and typecheck without Nx cache after rebasing onto final proof/publication source and org-ID display fix at a94a183.</span>
+    <span class="meta">exit 0 · 2.0s · 2026-11-17T03:28:06Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ env NX_DAEMON=false pnpm nx run-many -t lint,typecheck -p e2e --outputStyle=static --skip-nx-cache</div><pre>NX   Running targets lint, typecheck for project e2e:
+
+- e2e
+
+
+
+&gt; nx run e2e:typecheck
+
+&gt; tsc -p e2e/tsconfig.json
+
+
+&gt; nx run e2e:lint
+
+&gt; oxlint e2e
+
+(node:84760) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+e2e/layer1/04-agent-writes-a-handler.test.ts:13:27: warning eslint(no-unused-vars): Identifier &#x27;cli&#x27; is imported but never used. help: Consider removing this import.
+
+
+
+ NX   Successfully ran targets lint, typecheck for project e2e
+
+
+  Run duration:      920ms
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     916ms (1 task)
+  Recoverable time:  &lt;1ms</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Actual authored checks 05 and 08, unchanged assertions, sequential real-service execution on the final integrated source; all three tests pass.</span>
+    <span class="meta">exit 0 · 279.0s · 2026-11-17T03:34:25Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root e2e --config ./.architect/vitest.check08.config.ts</div><pre>RUN  v4.1.12 ./e2e
+
+
+ Test Files  2 passed (2)
+      Tests  3 passed (3)
+   Start at  03:29:49
+   Duration  276.10s (transform 61ms, setup 0ms, import 832ms, tests 275.02s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">No Architect containers, reserved check05/check08 ports, test Homebrew taps/formulas or runtime processes from this worktree remain.</span>
+    <span class="meta">exit 0 · 1.4s · 2026-11-17T03:38:00Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ python3 .architect/check05-08-cleanup.py</div><pre>Architect containers: none
+Reserved listening sockets: none
+Homebrew test taps: none
+Homebrew test formulas: none
+Processes from this worktree: none</pre></div>
 </details>
 </section>
 <section class="step">

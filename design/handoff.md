@@ -5,49 +5,57 @@
 **The goal** is `goals/01-the-whole-framework-locally.md`: all five gates passing locally and in CI, on `main`, in six
 stages. The rules are `AGENTS.md`; the thread kit (conductor, threads, spike, reviewer, hashtags) is `.agents/skills/`.
 
-**Where it stands (Codex conductor resumed, 17 November 2026).** Stages 1 and 2 (Gate 1) are on `main`.
-Every layer-two build step is on `layer/3`; L2.11, Gate 2 itself, is not done. The handoff had no in-flight branches
-to recover. The conductor has refreshed main through `eb167b2`: F2, the F3 portal brief and the separate Noir spike record. All16 project lint/typecheck and sync checks pass after that refresh. Framework runtime changes still belong to this layer branch.
+**Current frontier.** Stages 1 and 2 (Gate 1) are on `main`. All layer-two build steps and review corrections are
+integrated on the conductor branch; L2.11 (the complete Gate 2) is running now. Framework/author source is
+`759ebb4`; main has been refreshed through `eb167b2` (F3 brief and separate Noir spike record, no framework imports).
+The conductor uses its managed worktree on `codex/conductor-goal-01`, then pushes verified integration to `layer/3`.
+The original checkout and ignored template files stay untouched.
 
-**Recovery is green locally and on Linux CI.** `build/ci-recovery` at `d3ab3f4` fixes the viewer’s Linux network
-path: both containers use Docker’s bridge and exports use the viewer’s container address, with host ports still
-loopback-only. Promotion test requests close pooled connections across synchronous commands; the two reads integration
-tests have a bounded 600-second setup/journey budget. D3 #150–152 and `evidence/CI-recovery/` hold the proof. Baseline
-Linux run `43996163508` on `cd9d069` failed only the viewer (97 tests passed, one failed, three skipped). After merging,
-Nx reset, sync, all-project lint/typecheck, sync check and the three touched integration files passed locally
-(six tests, 66 seconds). Run `43997952028` on `53d028d` passed both `check` and `e2e-layer1`. No Architect containers remained.
+**Sole runtime reservation: `build/L2.11`.** The gate builder reused its CI-recovery worktree and committed candidate
+`2b2aa3c` from `759ebb4` before starting. `git status --porcelain` was empty. It is running exactly
+`env NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static` through the capture script, with stock two internal
+workers and global teardown. No other builder, author or conductor may start runtime tests until it reports stopped.
+No Architect containers existed before it started. It will leave its new raw captures/local-result metadata uncommitted;
+the conductor merges the one code commit and copies unchanged evidence into a separate receipt commit. Do not amend
+away the clean tested code SHA. CI wiring includes exact Node24.22.2 and a required Linuxbrew PATH/availability check.
 
-**Evidence page repaired.** `build/evidence-recovery` at `5c10928` fixes the parser’s crash on older raw logs without
-metadata. Eight Python regressions pass, including known failures remaining red beside unverified records. Legacy
-captures stay unchanged and unverified; no provenance is invented. E1 and `evidence/Evidence-recovery/` explain it.
-The conductor regenerated `evidence/index.html` and opened both pages. Claude must still republish their private links.
+**What landed in this takeover.**
+- `d3ab3f4`, D3 #150–152: Linux Collector-to-viewer bridge routing, promotion-test fresh connections and bounded read
+  integration setup budgets. Local tests and Linux CI run `43997952028` (`53d028d`) passed.
+- `5c10928` and `b96ad36`, E1: evidence-page rebuild works; legacy/malformed records stay unverified, known failures
+  remain red, and display-only redaction hides local paths, emails, token forms and organization IDs. Nine Python
+  checks pass; raw history is unchanged.
+- `9c0d42d`, D3 #160–164: immutable clean-source manifests; signed verdict hashes; additive nullable book column,
+  preserved legacy rows; explicit legacy-cache rebuild/reprove recovery. Hashless proofs never open promotion gates.
+- `c9d1285`, D3 #170–172: D1 owns one-live-lease admission, its atomic snapshot and guarded first teardown. Eight
+  concurrent creates reproduced eight201s before the fix; seven world regressions and existing expiry/restart/reap
+  tests now pass. Combined initial corrections passed Linux run `44002209543` (`dc9c673`).
+- `bccd5be`, D3 #165–169: proof pins live PID/revision/hash and clean full commit; promotion publishes from that
+  captured Git tree into invocation-owned durable output. npm versions are reused only for matching pack integrity.
+  Publication precedes new release/pass facts; retry repairs missing carried facts without duplicates. The conductor
+  reran all22 focused tests,3 test-world lifecycle tests, the real nested-monorepo publication probe and all16
+  lint/typecheck/sync checks after integration. No services remained.
+- `639aeee`, D3 #180–181, separate author: check08 fetches close connections; check05 runs real Homebrew on both
+  Macarm64 and Linuxx64 and fails if it is absent. Actual05+08 passed locally (2files/3tests,276s), including SDK/Brew,
+  watch/drift and portal stale checks. Cleanup found zero test containers, listeners, taps/formulas or processes.
+  Linuxbrew execution still awaits Gate2 CI.
 
-**Working arrangement.** The conductor works from a managed worktree on `codex/conductor-goal-01`, based on
-`origin/layer/3`, and pushes verified integration commits to `layer/3`. The original checkout is neither switched nor
-reset, and its ignored template files stay untouched. The two recovery builders are finished. Now active:
-- `build/build-integrity` at `9c0d42d` is merged (D3 #160–164): immutable clean artifacts, signed hash-bound verdicts, additive nullable book column, preserved legacy rows, explicit cache rebuild/reprove recovery, injected Build environment. The conductor reran Build/promote/Verdicts (11), real book/migration (10), and existing test-worlds (3) after combining both corrections; all passed, as did all-project lint/typecheck/sync. Linux CI `44002209543` on `dc9c673` then passed both jobs.
-- `build/staging-proof-boundary` is now active from `8f50320`, D3 #165–169, same private 9120–9139 and promote 9030–9049 ports. Focused reviewer accepted the original fixes but found that staging attests/publishes after Prove.against without rechecking its endpoint identity or source. A concurrent restart onto B could earn a proof labeled A; source edits could feed the publisher different files. Add a post-proof identity + clean-revision check before model storage, publish or verdict posting, with real restart/source-change negative regressions.
-- `build/world-isolation` is merged at `c9d1285` (D3 #170–172): D1 atomically admits/snapshots one live lease and guards every teardown mutation. Eight creations all succeeded before the fix; seven workerd regressions and all 21 host tests pass afterward. The conductor reran the seven world tests and all three existing test-worlds tests (expiry/restart/reap) after integration; lint/typecheck/sync passed, no Architect containers remained. Linux run `44002209543` on `dc9c673` passed both check and e2e-layer1 for the combined corrections.
-- `author/check08-connection`: D3 #180–189. Connection-close source patch and e2e lint/typecheck passed; no assertions/phases changed. Runtime is pending explicit conductor go after both builders stop; then check 08 alone via `.architect/vitest.check08.config.ts` without global teardown, stock 8980–8986/4898.
-Each has its own managed worktree. Both initial correctness builders are finished. Only staging-proof-boundary is running services now. The author is rebased onto `8f50320` at `d428228`, static checks pass, but runtime still needs explicit go after the new boundary correction is integrated. No full gate may run beside these tasks.
+**Review state.** Two actionable reviewed heads (`e43aa22`, `8f50320`) and an early three-pass reset are recorded in
+`decisions/D3-proof-publication-reset.md` and private Git ledger `review-loop/architect-goal01-stage3.json`. The two
+causal clusters are D1 lease isolation and proof-to-publication identity. No third correction head was reviewed.
+Original and sibling failures were reproduced and fixed; final whole-layer review is still required on the final
+candidate. Three trailing spaces in an untouched historical OOM capture under `Staging-proof/attempts/` are raw data,
+not source whitespace defects. Keep those captures intact.
 
-**Next, in order:**
-1. Done: recovery Linux CI is green (`43997952028`, `53d028d`).
-**Early review reset completed.** Two actionable heads (`e43aa22`, `8f50320`), recorded in the private Git ledger
-`review-loop/architect-goal01-stage3.json`. `decisions/D3-proof-publication-reset.md` holds the history, architecture
-and independent adversarial plan passes. Implementation resumed with one coherent proof/publication package:
-identity plus live PID checks, captured full-revision publication source, per-invocation owned outputs, and npm pack
-integrity before reusing existing versions. No new proof matrix or generic snapshot framework. Author runtime is still pending.
-
-2. Finish `build/staging-proof-boundary`: recheck staging identity and clean/current source after proof, before
-   model storage, publishing or signed verdicts. The original dirty-artifact/hashless-proof blocker is corrected by
-   D3 #160–164 (`9c0d42d`), and atomic lease isolation by #170–172 (`c9d1285`), with combined integration tests green.
-   The date-formatting concern was withdrawn: `new Date(effectClockValue)` is allowed deterministic formatting.
-3. The separate ✍️ author’s check 08 source fix is ready with `headers: { connection: "close" }`; run it against the final integrated proof code after explicit runtime go. Its missing test
-   proof for the slow revision is already fixed (D3 #92). Builders never edit `e2e/` or fixtures.
-4. L2.11: add `e2e-layer2` CI, run `nx run e2e:layer2` alone locally and in CI, add current `ci.json` per step, regenerate
-   evidence, get a final independent reviewer pass, open `layer/3` into `main`, merge green, check main’s CI.
-5. Open stage 4 with `wayfinding/stage-4.md`, only after Gate 2 is green on main.
+**Next, in order.**
+1. Finish the local full gate alone. If it fails, diagnose from the capture; assign runtime fixes to a builder and
+   check/fixture fixes to the separate author. Never weaken assertions to obtain green.
+2. Merge `2b2aa3c` once green, copy its unchanged raw evidence/local metadata, update build-plan/handoff/pages, push
+   `layer/3`, and prove the new `e2e-layer2` CI job green, including real Linuxbrew. Fix any red before new work.
+3. Add current `ci.json` per layer-two step, rebuild `python3 tools/evidence/page.py`, update/open both pages, refresh
+   main, get one fresh independent reviewer pass on the final exact candidate, open `layer/3` into main and merge
+   green. Check main's CI. Claude alone republishes the private claude.ai page links.
+4. Open stage4 with `wayfinding/stage-4.md` only after Gate2 is green on main; continue goal01 through Gate5.
 
 **For the cloud pass, from L2.08:** every deployed Worker must set `ARCHITECT_ENVIRONMENT`, or it reads as a local
 world and opens `/_world/*` (`later.md`); `Facts` reads staging's SQLite file today and needs a D1 API reader behind the

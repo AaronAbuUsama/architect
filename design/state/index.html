@@ -142,12 +142,12 @@ const ALL_PAGES = [
 { id: "now", group: "Start", t: "Where it stands", h: () => `
 <h1>Where it stands</h1>
 <p class="lede">Two of the six stages are done and on main. Architect can declare a system, generate it, call it, prove it, ship it
-across test, staging and production, and watch it. Every build step of stage three is merged; only Gate 2 itself is left.</p>
+across test, staging and production, and watch it. Every build step of stage three is merged. The review corrections and authored checks pass locally; the full Gate 2 is now running.</p>
 <ul>
 <li><b>Layer one, declare and call, is finished.</b> Stages one and two, Gate 1, merged on 16 November.</li>
 <li><b>Layer two, prove and ship, is built.</b> Thirteen of its fourteen steps are merged on <code>layer/3</code>: traces, the MCP server, <code>watch</code> and the portal landed today.</li>
-<li><b>Codex has resumed.</b> The CI and evidence-page repairs passed locally and on Linux. World isolation is fixed and passes integration checks. The hash-bound proof repair passes integrated checks. One post-proof staging check remains under review correction; the author is waiting to run check 8.</li>
-<li><b>Next:</b> close the post-proof staging check and run check 8, then Gate 2 and the pull request into main.</li>
+<li><b>Codex has resumed.</b> The CI and evidence-page repairs passed locally and on Linux. World isolation is fixed and passes integration checks. The integrity repairs and authored publishing/portal checks pass. The full gate is running alone on a clean committed candidate.</li>
+<li><b>Next:</b> finish the full gate locally and in CI, then the independent review and pull request into main.</li>
 <li><b>CI is green on the combined correctness push.</b> Both the general check and layer-one compatibility job passed. Main’s latest CI is green.</li>
 <li><b>Layers three to five,</b> the kits, the chain and time, haven't started. Neither has the cloud pass, which needs your yes on credentials.</li>
 </ul>
@@ -276,8 +276,8 @@ steps, performance, coverage and explainability.</p>
 <ul>
 <li><b>CI on <code>layer/3</code>:</b> the Docker networking fix and promotion/read repairs pass all six touched tests locally. Linux CI also passed on the recovery push.</li>
 <li><b>World isolation:</b> is fixed at D1’s atomic mutation. Seven world regressions and the existing expiry, restart and reap checks pass after integration; Linux CI also passed on the combined corrections.</li>
-<li><b>Promotion integrity:</b> immutable clean artifacts and signed bundle hashes now pass integrated tests, including preserved legacy records. A reviewer found one remaining post-proof staging identity/source check; that correction is active before Gate 2.</li>
-<li><b>Check 8:</b> one fetch needs a fresh connection after staging restarts. An author's fix, not a builder's.</li>
+<li><b>Promotion integrity:</b> immutable clean artifacts, signed hashes, stable process identity, captured publication source and matching npm bytes pass all22 integrated regressions. Retry completes partial release facts without duplicating them.</li>
+<li><b>Check 8:</b> fresh-connection checks and the real publishing/portal flow passed in the author’s runtime run. The full gate is now verifying them together with the other checks.</li>
 <li><b>The evidence page:</b> rebuilds successfully. Eight regression checks pass. Missing capture metadata stays marked unverified.</li>
 </ul>
 <h2>Side threads</h2>

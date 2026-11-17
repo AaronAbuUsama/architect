@@ -15,6 +15,10 @@
     "12-partial-release-before": "A real persisted release interrupted before carried verdicts incorrectly retries success with missing facts.",
     "13-complete-boundaries": "Final real-service acceptance: all 22 tests across proof identity, build, publication, SEA, Homebrew and retry boundaries pass.",
     "14-workspace-checks": "Nx reset/sync, all 16 projects lint/typecheck, sync check and diff whitespace check pass.",
-    "15-reproducible-nested-snapshot": "The durable evidence-entry version of the same actual nested-monorepo snapshot check; two staged packages remain usable after source cleanup."
+    "15-reproducible-nested-snapshot": "The durable evidence-entry version of the same actual nested-monorepo snapshot check; two staged packages remain usable after source cleanup.",
+    "16-integrated-static": "The conductor verifies the integrated source with reset, sync, all-project lint/typecheck and drift checks.",
+    "17-integrated-worlds": "Existing actual test-world creation, expiry, restart and reap pass with the final proof/publication source.",
+    "18-integrated-runtime": "The conductor reruns all22 focused real-service regressions on committed integrated source.",
+    "19-integrated-nested-source": "Actual nested acme publication retains ancestor config/tooling and durable output on the integrated main base."
   }
 }

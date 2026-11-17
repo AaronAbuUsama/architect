@@ -1,0 +1,4 @@
+$ node design/evidence/Staging-proof/nested-monorepo.ts
+# commit a94a183 · 2026-11-17T03:27:38Z · exit 0 (expected 0) · 2.0s
+
+nested monorepo captured source: two packages staged with ancestor configs and installed tooling; durable output remains under original project
