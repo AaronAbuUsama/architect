@@ -5,92 +5,48 @@
 **The goal** is `goals/01-the-whole-framework-locally.md`: all five gates passing locally and in CI, on `main`, in six
 stages. The rules are `AGENTS.md`; the thread kit (conductor, threads, spike, reviewer, hashtags) is `.agents/skills/`.
 
-**Current frontier.** Stages 1 and 2 (Gate 1) are on `main`. All layer-two build steps and review corrections are
-integrated on the conductor branch; L2.11 passed locally; Linux CI and final independent review are next. Framework/author source is
-`543611e`; main has been refreshed through `ca2fbf2` (F3 brief, separate Noir and E2B spike records, no framework imports).
-The conductor uses its managed worktree on `codex/conductor-goal-01`, then pushes verified integration to `layer/3`.
-The original checkout and ignored template files stay untouched.
+**Current frontier.** Stages 1 and 2 (Gate1) are on `main` through `ca2fbf2`. Stage3 source is integrated through
+`fca159d` on `codex/conductor-goal-01`; the conductor pushes its verified candidate to `layer/3`. No feature builder
+or author is running services. The original checkout and ignored HeroUI template files stay untouched. Stage4 has
+not started and remains the root conductor's responsibility after Stage3 lands green on main.
 
-**Local Gate2 is green and runtime reservation is released.** `build/L2.11` ran from clean committed candidate
-`2b2aa3cc77ce9762d43ca98193e9acf2319c3897` (parent `759ebb4`):8files,10tests,0skips,283.2s. Real Macarm64
-Homebrew installation executed. `02-local-gate.txt` and `03-cleanup.txt` were copied unchanged after merging the
-single code commit. Cleanup proves zero Architect containers, exact gate-port listeners, gate taps/formulas and own
-runtime processes. Two unrelated pre-existing Python document viewers on8978/8979 were preserved. No runtime
-worker is active. The integrated CI wiring pins Node24.22.2 and requires Linuxbrew; it must now run in GitHub.
+**The full local Gate2 is green.** Clean committed `4516059` ran the stock gate: eight files, ten tests, zero skips,
+253.1 seconds, including real Mac arm64 Homebrew. Clean preflight and scoped cleanup passed with zero owned
+containers, gate taps/formulas, exact gate listeners or runtime processes. Unrelated user containers and Python
+document viewers on8978/8979 were preserved. Raw receipts: `evidence/L2.11/09-final-clean-gate.txt` and
+`10-final-cleanup.txt`. No runtime or Gate2 source changed after that proof: only two logbook integration-test
+restart deadlines and documentation/receipts changed.
 
-**First full Linux gate result: functional checks pass, cleanup is red.** Run `44014044365` on `7f662af` ran all10
-Gate2 tests, including real Linuxbrew, with0skips. Four suites03/04/05/08 failed afterward at `services.ts:117` because
-Verdaccio-owned nested storage could not be removed by the host. The general job also hit that same new staging
-fixture cleanup issue and the world handover test’s implicit5s timeout (the following legacy case then saw409).
-Current bounded fixes, with no runtime-product/assertion changes:
-- `build/ci-registry-cleanup` at `0926a12` is merged: staging fixture empties only its live registry storage before own
-  container removal, following the existing publish-test convention. Eight local staging tests pass; services stopped.
-- `author/gate2-registry-cleanup` at `9404c7d` is merged, D3#182. Actual05 passed with real SDK/Homebrew; no runtime resources remain.
-- `build/world-ci-budget` at `990b3ae` is merged and gives four real-workerd multi-transaction lease tests explicit60s budgets matching the
-  existing actor-race integration budget, D3#173. Assertions, loop count and runtime algorithms stay unchanged.
-These are normal fixture/deadline CI feedback; actionable product-review rounds remain2. Postmerge staging8 and host21 tests plus all16 static/sync checks passed. No focused runtime worker remains.
-The gate verifier will now rerun the full local gate from this clean integrated source, then Linux CI follows.
+**Linux gates pass; the final all-three-job run is next.** Run `44025466900` on `4516059` passed Gate1 and Gate2,
+including real Linuxbrew, eight files/ten tests/zero skips. Its workspace job failed only the real logbook missing-
+policy restart body at the implicit five-second deadline (8.16 seconds actual). Separate author `ce2fb88` gives
+that body and its existing durability-restart sibling explicit60-second integration deadlines; the sibling passed
+CI and is not claimed as another reproduced failure. Every request, assertion, hook, global/domain budget and
+runtime is unchanged (D3 #199). After integration at `fca159d`, Nx reset/sync/sync:check, all16projects lint/typecheck
+without cache and all25real logbook tests passed. Cleanup found no owned container, test-port listener or runtime
+process. Current ci.json records still retain the failed overall run honestly until the fresh candidate passes.
 
-**What landed in this takeover.**
-- `d3ab3f4`, D3 #150–152: Linux Collector-to-viewer bridge routing, promotion-test fresh connections and bounded read
-  integration setup budgets. Local tests and Linux CI run `43997952028` (`53d028d`) passed.
-- `5c10928` and `b96ad36`, E1: evidence-page rebuild works; legacy/malformed records stay unverified, known failures
-  remain red, and display-only redaction hides local paths, emails, token forms and organization IDs. Nine Python
-  checks pass; raw history is unchanged.
-- `9c0d42d`, D3 #160–164: immutable clean-source manifests; signed verdict hashes; additive nullable book column,
-  preserved legacy rows; explicit legacy-cache rebuild/reprove recovery. Hashless proofs never open promotion gates.
-- `c9d1285`, D3 #170–172: D1 owns one-live-lease admission, its atomic snapshot and guarded first teardown. Eight
-  concurrent creates reproduced eight201s before the fix; seven world regressions and existing expiry/restart/reap
-  tests now pass. Combined initial corrections passed Linux run `44002209543` (`dc9c673`).
-- `bccd5be`, D3 #165–169: proof pins live PID/revision/hash and clean full commit; promotion publishes from that
-  captured Git tree into invocation-owned durable output. npm versions are reused only for matching pack integrity.
-  Publication precedes new release/pass facts; retry repairs missing carried facts without duplicates. The conductor
-  reran all22 focused tests,3 test-world lifecycle tests, the real nested-monorepo publication probe and all16
-  lint/typecheck/sync checks after integration. No services remained.
-- `639aeee`, D3 #180–181, separate author: check08 fetches close connections; check05 runs real Homebrew on both
-  Macarm64 and Linuxx64 and fails if it is absent. Actual05+08 passed locally (2files/3tests,276s), including SDK/Brew,
-  watch/drift and portal stale checks. Cleanup found zero test containers, listeners, taps/formulas or processes.
-  Linuxbrew execution still awaits Gate2 CI.
+**Source review is clear, final gate verdict pending.** The same independent reviewer read the whole layer and all
+bounded corrections through `4516059`, finding no new actionable product blocker. Round-three defects are fixed at
+their owners: process ownership `a962de0`, immutable R2 model admission `9a1aebb`, first-MCP telemetry `0fec194` and
+refusal namespace `7cbc946`. The private review ledger remains three actionable heads, with all six source/evaluator
+findings resolved. Ordinary authored request-lifetime and integration-deadline feedback does not create a fourth head.
 
-**Round3 whole-layer reset completed.** Review of `3a06e85` found four real source defects: config-specific
-process ownership before signaling; immutable R2 model admission; first-MCP sinks/environment configuration;
-reserved refusal-code uniqueness. `decisions/D3-whole-layer-reset.md` records history, owner tracing and the
-independent adversarial plan pass. Private ledger counter is3. Implementation resumes only in those bounded owners;
-no full-gate replay starts until their services stop. The earlier two causal clusters remain fixed.
-
-Historical builder-authored evaluator changes are being dispositioned truthfully by separate-author independent
-acceptance, without rewriting history or weakening checks. OAuth count is documented as a local throttle; strict
-concurrent ceiling is cloud hardening before public deployment. Raw diagnostic whitespace stays raw data.
-
-**Round-three source corrections and separate author acceptance are integrated.** The four bounded source fixes
-are refusal `7cbc946`, MCP `0fec194`, immutable model `9a1aebb` and ownership `a962de0`. Separate author `83f6f8b`
-replaced both forbidden platform-shim suites with real logbook route and ledger checks; all 25 tests passed after
-integration. Separate author `6647d76` independently reviewed historical evaluator changes, found and fixed two
-semantic gaps, and recorded the author-before-builder process deviation. Integrated source `543611e` passed 21 pure
-evaluator/watch guards and 16 real-service planted/list/privacy guards. All 16 projects' lint/typecheck plus Nx sync
-passed. D3 #197 records the remaining legacy adapter policy/enforcement debt without claiming universal compliance.
-
-**Final clean local Gate2 is green.** Exact candidate `4516059` passed all eight files and ten tests, zero skips,
-in 253.1 seconds, including actual Mac Homebrew. Clean preflight, Nx reset/sync/sync:check and post-run scoped cleanup
-passed: zero owned containers, taps, formulas, exact gate listeners or runtime processes. Unrelated user containers
-and document viewers remain untouched. Raw receipts are `evidence/L2.11/09-final-clean-gate.txt` and
-`10-final-cleanup.txt`. The verifier's exclusive runtime window is released.
-
-**The local transport correction is author-owned.** Separate author `f255520` fixes confirmed stale staging bundle
-GET socket reuse by closing the shared GET-only helper's connections. Focused promotion passed with all seven
-observed reads successful and a new post-restart socket; no runtime source, assertion, retry or write replay changed.
-The failed clean attempt and observer reproduction remain under attempts. All 16 projects' lint/typecheck and Nx
-sync pass after integration. The source reviewer found no new blocker through `4516059`, including D3 #197/#198.
+**Author ownership and limitations are explicit.** Author `83f6f8b` replaced forbidden platform shims with25real
+logbook checks; author `6647d76` independently accepted the historical evaluator changes after fixing two semantic
+gaps, with21pure and16real guards passing. The original author-before-builder deviation remains truthful in D3 #194.
+Author `f255520` closes GET-only JSON connections after exact stale-socket reproduction; focused promotion passes,
+and the subsequent full clean Gate2 passes (D3 #198). D3 #197 records legacy host-adapter literal policy/enforcement
+debt, without an exemption or universal compliance claim. D3 #195 records OAuth registration as a local throttle;
+a strict concurrent ceiling remains before public cloud use.
 
 **Next, in order.**
-1. Linux run `44025466900` on `4516059` passed both Gate1 and Gate2, including actual Linuxbrew. The workspace
-   job failed only the real logbook missing-policy restart test at its implicit five-second body deadline; the case
-   took 8.16 seconds while 24 other logbook tests passed. The separate author owns a bounded case-specific deadline
-   correction and real-service validation. No runtime behavior or assertion changes are involved.
-2. Refresh current CI records, build-plan and pages, then obtain the final independent verdict on the exact evidence
-   head. The product-round ledger remains three. Open `layer/3` into main with the final current checks.
-3. Merge only fresh green CI and independent review, then verify main CI and cleanup. Stage3 delivery hands the
-   green main commit back to root; only root opens Stage4 wayfinding. Claude alone republishes private page links.
+1. Freeze/push the final receipts candidate and run fresh Linux CI with all three jobs and mandatory real Linuxbrew.
+   No other source correction starts without actual feedback. Keep current CI records and pages truthful.
+2. Obtain the same independent reviewer's final verdict on the exact final evidence head and CI. Open `layer/3` into
+   main; merge only fresh green CI, a clean target and the pass. Check the keyed Gate1 run's actual spend before main.
+3. Verify main CI, reset/sync/static and touched checks, and cleanup. Hand the green main commit back to root. Root
+   alone opens Stage4 wayfinding. Claude alone republishes the private status/evidence page links.
 
 **For the cloud pass, from L2.08:** every deployed Worker must set `ARCHITECT_ENVIRONMENT`, or it reads as a local
 world and opens `/_world/*` (`later.md`); `Facts` reads staging's SQLite file today and needs a D1 API reader behind the
