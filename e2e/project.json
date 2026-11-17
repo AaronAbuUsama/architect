@@ -15,6 +15,11 @@
       "executor": "nx:run-commands",
       "options": { "command": "vitest run --root {projectRoot} --config vitest.layer2.config.ts layer2" },
       "cache": false
+    },
+    "layer3": {
+      "executor": "nx:run-commands",
+      "options": { "command": "vitest run --root {projectRoot} --config vitest.layer3.config.ts layer3" },
+      "cache": false
     }
   }
 }
