@@ -1,0 +1,16 @@
+{
+  "step": "CI-gate-cleanup",
+  "stage": "Stage 3 · shipping on local worlds (Gate 2)",
+  "title": "Remove each gate stack's own registry data before its container",
+  "summary": "The authored Gate 2 service helper now empties only its own live Verdaccio storage inside that container before removing the container and the host temporary directory. This follows the existing publishing fixture convention and avoids Docker-owned subdirectories blocking Linux teardown. All product assertions and own-resource cleanup checks remain.",
+  "proves": "The recorded Linux Gate 2 run passed all ten test bodies, including real Homebrew installation, then failed four afterAll hooks only at host registry-directory deletion with EACCES. On the final helper, e2e lint/typecheck pass and actual check 05 passes its SDK-install and real Homebrew-install/version tests. Its live registry storage is emptied before own container removal; the original finish checks and host-directory deletion succeed. Cleanup verification finds no Gate 2 container, reserved check05 listener, test tap/formula or worktree runtime process. Final Linux verification belongs to the conductor’s integration CI run.",
+  "captions": {
+    "00-linux-baseline": "The actual Linux Gate 2 afterAll failures after ten passing test bodies, captured from run 44014044365 and job 133807598193.",
+    "01-baseline-cleanup": "The original helper removed registry containers before trying to remove their Docker-owned host data.",
+    "02-fixed-cleanup": "Only the stack's own live registry empties its mounted storage before the existing container removal and host cleanup.",
+    "03-static-checks": "Fresh e2e lint and typecheck, without Nx cache, after the final failed-start inspection guard.",
+    "04-real-publishing-check": "The relevant actual publishing check passes both SDK and real Homebrew installation tests with the registry cleanup repair.",
+    "05-final-publishing-check": "The same real publishing check runs on the final helper, including the guard for a failed container inspection.",
+    "06-cleanup-proof": "No Gate 2 containers, reserved check05 ports, test Homebrew taps/formulas or runtime processes from this worktree remain."
+  }
+}

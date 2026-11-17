@@ -113,6 +113,15 @@ export const startStack = async (root: string, check: number, options: { readonl
       if (down.status !== 0) problems.push(`env down ${name}: ${down.out.slice(-500)}`);
     }
     running.clear();
+    // Verdaccio owns its mounted files on Linux. Empty only this stack's live registry before removing it,
+    // as the publishing fixture does; absent/no-registry and failed-start stacks still remove their own containers.
+    if (options.registry) {
+      const registry = docker("inspect", "-f", "{{.State.Running}}", containers[2]!);
+      if (registry.status === 0 && registry.stdout.trim() === "true") {
+        const emptied = docker("exec", containers[2]!, "sh", "-c", "rm -rf /verdaccio/storage/*");
+        if (emptied.status !== 0) problems.push(`registry storage cleanup: ${emptied.stderr.trim()}`);
+      }
+    }
     for (const name of containers) remove(name);
     rmSync(dir, { recursive: true, force: true });
     return problems;

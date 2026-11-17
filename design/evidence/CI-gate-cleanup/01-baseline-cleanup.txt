@@ -1,0 +1,28 @@
+$ sh .architect/gate2-cleanup-source.sh
+# commit 7f662af · 2026-11-17T04:09:20Z · exit 0 (expected 0) · 0.0s
+
+      const down = run(root, env, "env", "down", name);
+      if (down.status !== 0) problems.push(`env down ${name}: ${down.out.slice(-500)}`);
+    }
+    running.clear();
+    for (const name of containers) remove(name);
+    rmSync(dir, { recursive: true, force: true });
+    return problems;
+  };
+  const env: Record<string, string> = {};
+  try {
+    const issuer = await startIssuer(containers[0]!, p.issuer, dir);
+    const rogue = options.rogue ? await startIssuer(containers[1]!, p.rogue, dir) : undefined;
+    const registry = options.registry ? await startRegistry(containers[2]!, p.registry, dir) : undefined;
+    Object.assign(env, {
+      ARCHITECT_OIDC_ISSUER: issuer, ARCHITECT_OIDC_CLIENT: "ci-main",
+      ARCHITECT_OIDC_REPOSITORY: trusted.repository, ARCHITECT_OIDC_REF: trusted.ref, ARCHITECT_OIDC_WORKFLOW: trusted.workflow,
+      HOMEBREW_NO_AUTO_UPDATE: "1", HOMEBREW_NO_ANALYTICS: "1", ...options.env,
+      ...(registry ? { ARCHITECT_REGISTRY: registry.url, NPM_CONFIG_USERCONFIG: registry.npmrc } : {}),
+    });
+    const up = (name: string, port: number, extra: Readonly<Record<string, string>> = {}) => {
+      const said = run(root, { ...env, ...extra }, "env", "up", name, "--port", String(port));
+      running.add(name);
+      expect(said.status, said.out.slice(-2000)).toBe(0);
+      expect(said.lines, said.out).toContain(`${name} up http://127.0.0.1:${port}`);
+    };

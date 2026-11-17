@@ -1,0 +1,11 @@
+$ pnpm exec vitest run --root e2e --config ./.architect/vitest.gate2-cleanup.config.ts
+# commit 7f662af · 2026-11-17T04:15:34Z · exit 0 (expected 0) · 95.4s
+
+
+ RUN  v4.1.12 ./e2e
+
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  04:13:59
+   Duration  94.57s (transform 37ms, setup 0ms, import 510ms, tests 93.93s, environment 0ms)

@@ -1,0 +1,8 @@
+$ python3 .architect/gate2-cleanup-proof.py
+# commit 7f662af · 2026-11-17T04:17:21Z · exit 0 (expected 0) · 0.8s
+
+Architect containers: none
+Reserved listening sockets: none
+Homebrew test taps: none
+Homebrew test formulas: none
+Processes from this worktree: none
