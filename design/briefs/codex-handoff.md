@@ -278,45 +278,43 @@ What each template is for in the portal (Aaron's call):
 - **Dashboard** gives the project home: stat cards, charts and a table (proven, stale, unproven, p95 against budget).
 - **Email** only where its three-pane list-and-reader layout helps, such as an agent run's inbox of asks and reports.
 
-**The agent console is Grok Bot's interaction style, and only Grok Bot's.** Grok Bot ("AI teammates that do real work",
-iOS) is not xAI's Grok app: it is a team of named, always-on agents you talk to like colleagues. Aaron's link, the source
-of truth: https://mobbin.com/apps/grok-bot-ios-c5e50da8-b7fc-423a-a264-5ea9c387d5ad/862b66ab-c959-4a0d-85ec-bdfe42eb2eb5/screens
-(117 screens; open its Flows tab too). The Grok Bot flows are saved in the Mobbin collection "Architect: Grok Bot agent
-console": https://mobbin.com/collections/28bfec56-d666-461c-b6e7-7eaa68f6335d/mobile/screens. Ignore the older collection
-"Architect: Grok-style agent"; it holds xAI Grok screens and is not the reference. What to take, mapped to Architect:
+**Take Grok Bot's UI elements, not its design patterns** (Aaron, 17 November). Grok Bot ("AI teammates that do real
+work", iOS) is not xAI's Grok app. Aaron's link, the source of truth for how things look:
+https://mobbin.com/apps/grok-bot-ios-c5e50da8-b7fc-423a-a264-5ea9c387d5ad/862b66ab-c959-4a0d-85ec-bdfe42eb2eb5/screens
+(117 screens, and its Flows tab). Its flows are saved in the Mobbin collection "Architect: Grok Bot agent console":
+https://mobbin.com/collections/28bfec56-d666-461c-b6e7-7eaa68f6335d/mobile/screens. Ignore the older collection
+"Architect: Grok-style agent"; it holds xAI Grok screens.
 
-- **Agents are teammates, each with a name, an avatar and a status dot.** The home screen is one list of conversations,
-  one per bot or group ("SLMob", "Design", "Inbox Triage", "Chief of Staff", "UX Research, Design, Chief…"), each row
-  with a tag chip for what it is doing now ("Meal prepping", "Proposes UI…"), the last line and the time. In Architect
-  the rows are the milestone's manager, each worker, and group runs; the chip is the task it is on ("Filling
-  allowance.spend").
-- **Onboarding is "Meet your first bot"**: a carousel of starter bots with one line each, then Start Chat or Create My
-  Own. In Architect: starter agents such as a manager, a builder, a reviewer and a docs writer, or make your own.
-- **Each bot has Instructions**, a plain editable page with Save. In Architect that is the agent's brief and rules (the
-  AGENTS.md rules, its task, its tools).
-- **A chat reads like messaging, not a document**: short bubbles, a greeting that asks what to work on, and the bot's
-  avatar pulsing while it works. Answers are a few short bubbles, not one long essay.
-- **Files are first-class**: the bot attaches a file chip (`week-meal-prep.md`, 3.1 KB) that opens in a sheet with real
-  headings and tables, and says "File's updated" when it changes it. In Architect the files are the handler it filled,
-  its brief, and the verdict; the sheet is the code or MDX view.
-- **Questions come as a lettered choice card**: "Want me to tweak this?" with options A to E ("This works",
-  "Vegetarian"…), the chosen one ticked, and "dismissed" when ignored. In Architect this is how a worker asks the person
-  to decide (keep the old answer shape or break it, retry or give up).
-- **@mention hands work to another bot**: "@Chief of Staff record this routine" shows a system line "Messaged Chief of
-  Staff" and the reply. In Architect the manager @mentions workers, and a person can @mention any agent; group chats
-  hold the manager with its fleet.
-- **Routines**: "Set up a routine…" makes a system line "New routine 'Weekly meal prep'". In Architect: re-run the
-  stale journeys every night, or climb the red evals each morning.
-- **Connectors ask in the chat**: an Authorize card ("Google Calendar, connect via its remote MCP server") when a bot
-  needs access. In Architect: a card asking for a key by name or for leave to deploy to staging.
-- **Long-press a message** for reactions, Reply, Start a thread, Mark as unread and Copy; replies quote the message
-  they answer. In Architect a thread is where one task's back-and-forth lives.
-- **Search** covers groups, agents and messages in one list, each row labelled Group, Agent or Message.
-- **The composer** is plain: plus, "Ask SLMob", dictation with a timer, and send. The desktop icon top-right opens the
-  bot's screen; in Architect it opens the worker's live run (its steps, spans and evals ticking).
+The elements to borrow, as components:
 
-The other four templates' screens and other agent apps on Mobbin (xAI Grok included) are not the reference for the
-console. If the Mobbin connector is available to you, pull more Grok Bot screens; if not, work from these.
+- **The agent row**: avatar, name, a status dot, a chip for what it is on now ("Filling allowance.spend"), the last line
+  and the time.
+- **Message bubbles**: short, plain, the agent's avatar pulsing while it works.
+- **The file chip and its sheet**: a named file with its size that opens in a sheet with real headings, tables and code.
+  In Architect: a worker's filled handler, its brief, its verdict.
+- **The lettered choice card**: a question with options A to E, the chosen one ticked, "dismissed" when ignored.
+- **The authorize card**: a small card with one button, for asking for a key by name or for leave to deploy.
+- **The system line**: one dim centred line for an event ("Task claimed by worker 2", "Milestone proven").
+- **The long-press menu, the instructions editor, the search list** (rows labelled by kind) and **the composer** (plus,
+  input, dictation, send).
+
+Do not copy its patterns. **No group chats, no agents @mentioning each other, no routines, no conversation-per-bot
+home.** The shape of Architect's agent side is fixed by Aaron:
+
+- **One manager, a fleet of workers.** The manager does no work itself; it only manages. It plugs straight into the
+  blueprint: it reads the plan (milestones and tasks, phase 5) and the model, hands each task to a worker, caps how many
+  run at once, watches the verdicts, reassigns a failed task, and closes the milestone when every task is green.
+- **Workers do the work**, one task each, and are never talked to as teammates.
+- **The plan is the main view, not a chat**: a board of milestones and tasks. Draw it as a kanban whose columns are the
+  task's states (open, claimed, climbing, proven, failed) with one swim lane per milestone, and the same data as a list
+  grouped by milestone. A task card shows its operation, its variant, the worker on it (an agent row in small) and its
+  evals as small ticks.
+- **The person talks only to the manager**, in one console beside the board: to start a milestone, ask why something is
+  red, or answer a worker's question (which the manager passes on as a choice card). The console uses the elements
+  above; opening a task card shows the worker's live run (its steps, spans and evals ticking).
+
+The other four templates' screens and other agent apps on Mobbin are not the reference for these elements. If the Mobbin
+connector is available to you, pull more Grok Bot screens; if not, work from these.
 
 Write the audit as `design/decisions/P1-portal.md` section 1: a table of view, template screen, components, and gaps.
 Keep screenshots outside the repository and reference them by path.
@@ -336,9 +334,10 @@ The information architecture, as a sidebar like the CRM's:
 - **Home**: what is proven, where, what is stale and why; p95 against budget; the latest release.
 - **Records**: Things, Operations (verbs and reads), Evals and verdicts (one row per operation, a column per eval,
   per environment), Journeys, Starting worlds, Environments, Releases (versions from the model diff).
-- **Plan**: Milestones (a kanban by state), Tasks (today, overdue, upcoming), saved lists ("stale in staging",
-  "red evals", "no handler yet").
-- **Agents**: the console (chat), Runs (a table of every run), Fleet (a manager and its workers, live).
+- **Plan**: the board (a kanban with task states as columns and one swim lane per milestone, or the same as a list
+  grouped by milestone), Tasks, saved lists ("stale in staging", "red evals", "no handler yet").
+- **Agents**: the manager's console beside the board, Runs (a table of every run), Fleet (the manager and its workers,
+  live).
 - **Docs**: the generated MDX docs, inside the same shell.
 
 Detail screens (a thing's page, an operation's page) are generated per project from the model, so design one template
@@ -417,13 +416,13 @@ Build `@architect/agent` along H1 and H2 (rows A0 to A6, in that order), then ad
   object's alarm, clock and timers injected). Its tools are derived from the blueprint's operations and the `architect`
   commands; it fills only the handler `architect brief` names, and it loops `check` and `prove` until the nine evals and
   the journeys pass, or it gives up and says why.
-- **The manager** is its own Durable Object per milestone. It hands tasks to workers, caps how many run at once, watches
-  their verdicts, reassigns a failed task once, and marks the milestone proven only when every task's verdict is green.
-- **The console** is the HeroUI chat template restyled to Grok Bot's interaction style (phase 1): the manager and each
-  worker are teammates in one list with a status dot and a chip for their current task; a person talks to the manager
-  in a group chat with its workers; the manager @mentions workers to hand out tasks; workers ask with lettered choice
-  cards and attach their files; the desktop view of a worker shows its climb, each eval ticking green, every step
-  linked to its span (one trace with the world's).
+- **The manager** is its own Durable Object per milestone. It does no work itself: it reads the milestone's tasks from
+  the plan, hands each to a worker, caps how many run at once, watches their verdicts, reassigns a failed task once,
+  and marks the milestone proven only when every task's verdict is green.
+- **The board and the console**: the plan board (phase 2) moves cards across columns as workers claim, climb and prove
+  tasks; the console beside it is the HeroUI chat template built from Grok Bot's elements (phase 1), where a person
+  talks only to the manager. Opening a card shows that worker's run, each eval ticking green, every step linked to its
+  span (one trace with the world's).
 - Runs are scored by `check` and `prove` (H2.7: untampered, `check` ✔, the nine evals and journeys ✔). The CI bench
   uses H2's `oracle` and `null` runners with no key.
 
@@ -433,7 +432,7 @@ first (`glyph-cluster:free`, `inkling-2-small:free`); the sandbox is a copy of t
 Docker (A7).
 
 **Done when:** from the portal, a person selects three acme operations with emptied handlers into a milestone, launches
-the manager in the console, watches three workers run in parallel, and sees the milestone turn proven with a fresh
+the manager, watches three cards cross the board as three workers run in parallel, and sees the milestone turn proven with a fresh
 verdict per operation; evicting a worker's Durable Object mid-turn resumes it from its alarm; and in CI the same flow
 passes with the `oracle` runner and no key.
 
