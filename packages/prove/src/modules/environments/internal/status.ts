@@ -18,7 +18,7 @@ export const status = (root: string, name: string): Effect.Effect<Status, Enviro
     if (!NAME.test(name)) return yield* failed(`"${name}" isn't an environment name`);
     const dir = dirOf(root, name);
     const pid = readPid(dir);
-    if (pid === undefined || !(yield* groupAlive(pid)) || !isWrangler(pid)) return { state: "down" as const, name };
+    if (pid === undefined || !(yield* groupAlive(pid)) || !isWrangler(pid, dir)) return { state: "down" as const, name };
     const port = readPort(dir);
     if (port === undefined) return { state: "down" as const, name };
     const record = files(dir).bundle;

@@ -1,0 +1,15 @@
+{
+  "step": "Process-ownership",
+  "stage": "Stage 3 · shipping on local worlds (Gate 2)",
+  "title": "Persisted environment processes require config-specific ownership",
+  "summary": "Status and cleanup share wide process inspection of the pinned wrangler launch and exact environment-derived config/state arguments. Logbooks additionally distinguish state directories despite their shared package config. Stale or foreign PID markers never authorize a termination signal.",
+  "proves": "Real detached harmless sentinels survive stale-marker down and up; lookalike wrangler text and forged path hints never report an environment up. Actual ordinary wrangler and logbook lifecycles still report up and stop their own groups, while another environment using a different config or state remains alive. Existing environment lifecycle tests and static/generation checks pass. No process APIs or services are mocked.",
+  "captions": {
+    "01-fails-first": "Baseline kills an unrelated sentinel and misreports a wrangler-word lookalike as up.",
+    "02-ownership-tests": "Five real process/workerd ownership guards, including ordinary and logbook lifecycle.",
+    "03-environment-regressions": "Existing environment lifecycle and process ownership guards together.",
+    "04-workspace-checks": "Nx reset/sync, lint/typecheck and generated drift checks.",
+    "05-final-ownership": "All nine ownership/lifecycle guards, with direct OS confirmation that owned ordinary/logbook groups stopped.",
+    "06-final-static": "Final test-file lint/typecheck and generated drift check."
+  }
+}

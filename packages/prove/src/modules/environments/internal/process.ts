@@ -2,7 +2,8 @@
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
 import { existsSync, openSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createServer } from "node:net";
-import { join } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { Effect, Schedule } from "effect";
 import { Collectors } from "#modules/telemetry/service.js";
 import { collectorName } from "./collector.ts";
@@ -29,23 +30,34 @@ export const writePort = (dir: string, port: number) => writeFileSync(files(dir)
 export const groupAlive = (pid: number) =>
   Effect.try({ try: () => process.kill(-pid, 0), catch: () => "gone" as const }).pipe(Effect.match({ onFailure: () => false, onSuccess: () => true }));
 
-/** The pid is wrangler's, not a process that has since taken the number. */
-export const isWrangler = (pid: number): boolean => {
-  const ps = spawnSync("ps", ["-p", String(pid), "-o", "command="], { encoding: "utf8" });
-  return ps.status === 0 && ps.stdout.includes("wrangler");
+const wrangler = join(dirname(fileURLToPath(import.meta.resolve("wrangler/package.json"))), "bin/wrangler.js");
+// The public logbook entry is src/index.ts in this workspace and dist/index.js after publishing; both are one level
+// below its package-owned wrangler.jsonc. Every logbook shares that config, so its state argument must match too.
+const logbookConfig = resolve(dirname(fileURLToPath(import.meta.resolve("@architect/logbook"))), "../wrangler.jsonc");
+
+/** A PID belongs to this environment only when its full launch command names the derived config and state. */
+export const isWrangler = (pid: number, dir: string): boolean => {
+  const ps = spawnSync("ps", ["-ww", "-p", String(pid), "-o", "command="], { encoding: "utf8" });
+  if (ps.status !== 0) return false;
+  const command = ps.stdout.trim();
+  const launch = command.indexOf(` ${wrangler} dev `);
+  if (launch < 1 || !/(?:^|\/)node(?:\.exe)?$/.test(command.slice(0, launch))) return false;
+  const expected = files(resolve(dir));
+  const config = basename(resolve(dir)) === "logbook" ? logbookConfig : expected.config;
+  return command.includes(` --config ${config} `) && command.includes(` --persist-to ${expected.state} `);
 };
 
-const signal = (pid: number, name: "SIGTERM" | "SIGKILL") =>
-  Effect.try({ try: () => process.kill(-pid, name), catch: () => "gone" as const }).pipe(Effect.ignore);
+const signal = (pid: number, name: "SIGTERM" | "SIGKILL", dir: string) =>
+  Effect.try({ try: () => { if (isWrangler(pid, dir)) process.kill(-pid, name); }, catch: () => "gone" as const }).pipe(Effect.ignore);
 
 /** Stop the group: ask, wait up to ten seconds, then insist. */
-export const stopGroup = (pid: number) =>
+export const stopGroup = (pid: number, dir: string) =>
   Effect.gen(function* () {
     const gone = groupAlive(pid).pipe(Effect.flatMap((alive) => (alive ? Effect.fail("alive" as const) : Effect.void)));
-    yield* signal(pid, "SIGTERM");
+    yield* signal(pid, "SIGTERM", dir);
     const stopped = yield* gone.pipe(Effect.retry({ schedule: Schedule.spaced("100 millis"), times: 100 }), Effect.option);
     if (stopped._tag === "None") {
-      yield* signal(pid, "SIGKILL");
+      yield* signal(pid, "SIGKILL", dir);
       yield* gone.pipe(Effect.retry({ schedule: Schedule.spaced("100 millis"), times: 50 }), Effect.ignore);
     }
   });
@@ -73,11 +85,11 @@ export const anyPort = Effect.callback<number>((resume) => {
   });
 });
 
-/** Stop whatever the pid file names and the collector that went with it, and clear what marks the environment as running. */
+/** Stop only a verified environment process, remove its derived collector, and forget stale or foreign markers. */
 export const reap = (dir: string) =>
   Effect.gen(function* () {
     const pid = readPid(dir);
-    if (pid !== undefined && (yield* groupAlive(pid))) yield* stopGroup(pid);
+    if (pid !== undefined && (yield* groupAlive(pid)) && isWrangler(pid, dir)) yield* stopGroup(pid, dir);
     yield* Collectors.stop(collectorName(dir));
     forget(dir);
   });

@@ -1,0 +1,65 @@
+$ pnpm exec vitest run --root packages/prove src/modules/environments/process-ownership.test.ts -t down forgets|wrangler-word
+# commit ee35a5c · 2026-11-17T04:44:55Z · exit 1 (expected 1) · 1.9s
+
+
+ RUN  v4.1.12 ./packages/prove
+
+ ❯ src/modules/environments/process-ownership.test.ts (5 tests | 2 failed | 3 skipped) 474ms
+     × down forgets a stale marker without signaling the unrelated detached sentinel it names 166ms
+     × a wrangler-word lookalike is down even when its arguments and metadata name this environment 10ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/environments/process-ownership.test.ts > persisted environment process ownership > down forgets a stale marker without signaling the unrelated detached sentinel it names
+AssertionError: the PID file does not own this process: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/modules/environments/process-ownership.test.ts:85:70
+     83|       // Observe signal delivery, not merely ChildProcess fields befor…
+     84|       await new Promise((done) => setTimeout(done, 100));
+     85|       expect(alive(child), "the PID file does not own this process").t…
+       |                                                                      ^
+     86|       absent(shadow, "production");
+     87|     } finally { await stopSentinel(child); }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/modules/environments/process-ownership.test.ts > persisted environment process ownership > a wrangler-word lookalike is down even when its arguments and metadata name this environment
+AssertionError: expected { state: 'up', name: 'staging', …(7) } to deeply equal { state: 'down', name: 'staging' }
+
+- Expected
++ Received
+
+  {
++   "config": "<tmp>/architect-process-owner-zoMSQl/shadow/.architect/environments/staging/wrangler.jsonc",
+    "name": "staging",
+-   "state": "down",
++   "persistTo": "<tmp>/architect-process-owner-zoMSQl/shadow/.architect/environments/staging/state",
++   "pid": 15919,
++   "port": 9161,
++   "revision": "stale",
++   "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
++   "state": "up",
++   "url": "http://127.0.0.1:9161",
+  }
+
+ ❯ src/modules/environments/process-ownership.test.ts:95:81
+     93|     try {
+     94|       marker(shadow, "staging", child.pid!, 9161, { config: join(at, "…
+     95|       expect(await run(Environments.status({ root: shadow, name: "stag…
+       |                                                                                 ^
+     96|       await run(Environments.down({ root: shadow, name: "staging" }));
+     97|       expect(alive(child)).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 3 skipped (5)
+   Start at  04:44:54
+   Duration  1.12s (transform 189ms, setup 0ms, import 531ms, tests 474ms, environment 0ms)
