@@ -70,7 +70,8 @@ The compiler skips journeys and starting worlds on purpose: `LATER = ["starting-
 with provenance and `seq`, no timestamp, eval, journey or trace id (`logbook/src/modules/book/types.ts:6-30`). Releases:
 latest only (`http/service.ts:24`). Prove computes nine evals per operation (`prove/src/modules/evals/README.md:3-18`)
 and keeps them in process; the posted verdict is pass only if every eval passed (`prove/.../prove/internal/exercise.ts:53-57`).
-Traces have refusal versus defect marks (`prove/src/modules/trace-trees/service.ts:6-14`). Watch is not built.
+Traces have refusal versus defect marks (`prove/src/modules/trace-trees/service.ts:6-14`). Watch was not built at the
+reviewed revision; it landed on layer/3 just after (L2.09, `49eea9e`), see §12.
 Staleness exists only per operation: `Compare.dependsOn` = the operation hash plus the hashes of its thing, every thing
 its payload, answer or own fields refer to, and every thing whose role may call it (`compiler/src/modules/compare/service.ts:6-17`).
 Nothing in acme's repository is a recorded verdict; the mock's default evidence is therefore "unavailable".
@@ -544,3 +545,20 @@ Answer key: reply "Q1 A, Q2 A" to take both recommendations, or name another let
 Design record plus a static mock; no package code, no `layer/*` change. Validation, from the repository root:
 `python3 spikes/portal-ia/fixtures.py --check` (the fixture matches acme at the pinned revision) and
 `node --check` on each mock script. Browser inspection at 1400 wide, dark and light. Nothing is left running.
+
+## 12. Addendum, 17 November 2026: what landed while F2 was written
+
+Three things arrived on the branches after F2's pinned revision. None changes the recommendation.
+
+1. **The plain portal exists.** Codex's `build/L2.10` (`f9a2404`) builds F1's contract: `packages/portal` with `reader`,
+   `snapshot` and `site` modules, a generator module, and `generated/portal/blueprint.json` for acme and the starter,
+   serving `/portal` from each environment's Worker. F2.1 (the catalog IA) grows inside that face. It was not on
+   `layer/3` when F2 was reviewed, so §0 and §11 did not see it.
+2. **Watch landed** on `layer/3` (L2.09, `49eea9e`): `architect watch --env <env>` prints p95 against budget, refusal
+   counts and drift per operation from live telemetry. The event page's "seen in traces" and the operation page's
+   measured p95 now have a source to read once the portal reads it; they stay "later" until then.
+3. **Portal Pro.** Aaron's call: the licensed HeroUI Pro face is its own package, `packages/portal-pro`
+   (`@architect/portal-pro`), beside the plain portal, reading the same `/_portal/v1` contract (F1 §3's
+   project-selected face). It is brought to the repository's standards in
+   [PR #16](https://github.com/AaronAbuUsama/architect/pull/16) into `layer/3`. Its Pro components install only when
+   CI has a `HEROUI_AUTH_TOKEN` secret; until then its `allowBuilds` entry stays off.
