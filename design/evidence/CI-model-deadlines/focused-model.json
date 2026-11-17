@@ -1,0 +1,17 @@
+{
+  "command": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "--root",
+    "packages/cli",
+    "src/modules/model/model.test.ts",
+    "--reporter",
+    "verbose"
+  ],
+  "parentCommit": "6a4fe088027e1df1b21bae7350356c9d0909b823",
+  "testSha256": "9815015ec36f36e018a63d36721fa6ab44a208c3e0d621e415e0aa0dad2635cb",
+  "durationSeconds": 3.576,
+  "exitCode": 0
+}
