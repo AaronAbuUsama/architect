@@ -1,117 +1,97 @@
-# F4: the portal as the one place for what's current — plan, lifecycle and the durable state behind it
+# F4: the portal as the one place for what's current — missions, tasks and the durable state behind them
 
-Status: **proposed** (📐 designer, 17 November 2026). Aaron's direction, same day: the plan belongs in the portal, not in
-a separate tool; the portal is the one place that holds what's current; any hand-made status artifact should instead
-be generated and always fresh; burn-down and the like should be views over real state. This brief says what the
-blueprint, the logbook and the host must add for that, and which state lives where.
+Status: **accepted direction** (Aaron, 17 November 2026: "go with A"). 📐 designer brief; steps below are proposed rows.
 
-It revises `codex-handoff.md` phase 5 ("the plan as blueprint things" in a separate `examples/workbench` project) and
-phase 6's storage; the agent fleet itself (manager and workers) is unchanged.
+Aaron's intent, in his words: every time an eval runs and passes it updates durable state, and that updates the portal;
+a person or an agent sets a **mission** (a goal): milestones with tasks in them, the tasks generated from the
+blueprint and of different kinds (specify an operation, design and validate its state machine, build it, prove it,
+promote it); the portal is a static template that the blueprint and the durable state fill, always fresh, so no
+hand-made status artifact is needed.
 
-## 1. The rule: declare intent, record facts, derive everything else
+This replaces `codex-handoff.md` phase 5 (the plan as a separate `examples/workbench` project) and an earlier draft of
+this brief that put milestones in the blueprint (option B). Phase 6 (manager and workers) is unchanged, except that the
+manager reads its tasks from the plan below.
 
-Three kinds of state, and each has exactly one home.
+## 1. Where things live today (layer/3)
 
-| Kind | What it is | Home | Written by |
+| Store | What it is | Holds | Code |
 |---|---|---|---|
-| **Intent** | what the system is, and what we mean to finish by when | git: `blueprint/` (declarations and, new, milestones) | people and agents, reviewed |
-| **Facts** | what happened: compiled, proved, released, watched, claimed | append-only ledgers in Durable Objects (SQLite) | the compiler's CI step, `prove`, `promote`, `watch`, the fleet |
-| **Views** | status, tasks, attention, burn-down, the board | computed on read, never stored | the portal Worker |
+| **Journal** | acme's own event log, in acme's D1 | one row per state-machine move, written in the same transaction as the row (`trace, operation, move, subject, event, fields`) | `host-cloudflare/src/modules/store/service.ts:33`; read by `Journal.ofTrace` for the Events and Machine path evals |
+| **Logbook** | Architect's record about acme: one `Book` Durable Object, SQLite | `verdicts` (one pass/fail per operation, environment, revision) and `releases`; no time | `logbook/src/modules/book/internal/sql.ts:4` |
+| **Models** | R2 | each compiled blueprint, by digest | `logbook` `http` module |
+| **Actors** | acme's things with `lives: "actor"` | one DO per instance | `host-cloudflare/src/modules/actors` |
 
-Nothing in the third row is ever saved. A task, a "needs attention" item, a percentage, a burn-down point: each is a
-function of intent at a revision plus the facts up to a sequence number. That is what makes the portal "automatically
-fresh": there is nothing to go stale, because nothing derived is kept.
+The journal is about acme's data, never about our work; it stays as it is. Work state goes in the logbook's Worker.
 
-## 2. Where an operation is in the two loops (the lifecycle column)
+Two losses today: `prove` judges nine evals per operation (`evals/types.ts:19`) and posts only
+`{ operation, verdict }` (`verdicts/types.ts:18`); and the compiler leaves a blank operation out of the model
+(`compiler/…/describe.ts:44`) though it knows its blanks (`describe.ts:45`).
 
-`design/decisions.md` fixes the loops: design (ideate, spike, specify until no blanks) and build (build, test, deploy,
-watch). Every stage below is derived; none is typed in.
+## 2. The rule: record facts, declare missions, derive the rest
 
-| Stage | True when | Comes from | Today |
-|---|---|---|---|
-| Ideated | the operation is declared at all | blueprint | ✅ but **a blank operation is dropped from the model** (`compiler/…/describe.ts:44`, "a blank operation is left out") |
-| Spiked | a spike's README names it as what its decision supports | blueprint (new `spikes`) | ❌ |
-| Specified | its declaration has no blanks | blueprint `model.blanks` | ⚠️ computed (`describe.ts:45`) but not on the portal wire, and only for parts that survive |
-| Built | its handler exists and is no longer the untouched scaffold | blueprint (new `implementation`) | ❌ |
-| Tested | a recorded pass in `test`, all nine evals | logbook | ⚠️ one aggregate verdict; no per-eval rows (`extensions.evals: unavailable`) |
-| Deployed | a recorded pass in each environment up to production, and a release | logbook | ✅ verdicts and releases |
-| Watched | the same evals green on the running system | logbook (new `watch` rows) | ❌ |
-
-## 3. What changes in the blueprint (schemaVersion 2)
-
-All additive except the first, which fixes a loss.
-
-1. **Keep blank operations in the model**, marked `blanks: ["move: …", …]`, instead of leaving them out. The portal can't
-   show "not specified yet" for something it can't see. Generators already refuse to scaffold a handler for a
-   declaration with blanks; they keep doing that by reading the marker.
-2. **`implementation` per operation**: `{ file, state: "missing" | "scaffold" | "written", hash }`. The compiler reads
-   the handler file: missing, still byte-for-byte the scaffold it rendered (it knows that content), or written. Static,
-   per revision, no runtime needed.
-3. **`spikes`**: from each `spikes/<name>/README.md` its question, the decision it supports and the declarations it
-   names, as `{ name, question, decision, supports: ["operation:allowance.spend", …] }`.
-4. **Milestones, a new small declaration kind** in `blueprint/plan/<name>.ts`:
-   `Blueprint.milestone({ title, operations: [Allowance.spend, …], until: "production", by: "2026-12-01" })`. Refs, not
-   strings, so a renamed operation breaks the build rather than the plan. That's all the plan declares: a task is
-   never declared, it is derived (§4).
-5. **Two gaps the portal already found**: a role says how it is held (`heldBy: Allowance.fields.member` or a fact), and
-   a declared error says when it happens (`when: "…"`), instead of the docs saying "declared in errors.ts".
-6. **`revision` carries the commit time** (from git, not a clock), so facts can be laid on a time axis.
-
-## 4. Plan, tasks and burn-down, derived
-
-- **A milestone** is declared (above). **Its tasks** are its operations × the stages they still lack up to `until`:
-  `allowance.spend` with `until: "production"` that is specified and built but stale in staging has one task, "prove in
-  staging". The Needs attention page in the spike already computes exactly this for the proof stages.
-- **Task state on the board** (open, claimed, climbing, proven, failed) is: *proven* from the logbook only (a worker
-  can never mark its own task green), *claimed / climbing / failed* from the fleet's facts (§5), *open* otherwise.
-- **Burn-down** for a milestone: at each point on the time axis, how many of its tasks were still open, recomputed from
-  the ledgers' timestamps. Scope changes (an operation added to a milestone) show as a step, because the milestone's
-  declaration is versioned in git like everything else.
-- **Missions** are not a separate kind: a goal in `design/goals/` already plays that part. If one is needed later it is a
-  milestone of milestones.
-
-## 5. The durable architecture
-
-| Piece | Cloudflare primitive | Holds | Why this shape |
-|---|---|---|---|
-| **Logbook** (`Book`) | one Durable Object, SQLite (exists) | facts, append-only: verdicts (now with nine eval rows each), releases, compiled revisions (digest, time, blanks count), watch results | one writer orders everything by `seq`; small; signed rows. Shard per project later, not now |
-| **Models** | R2 (exists) | each compiled blueprint by digest | immutable; the portal reads the one it judges against |
-| **Milestone manager** | one Durable Object per milestone, an *actor* | the fleet's facts for that milestone: which worker claimed which task, attempts, give-ups, each with a time | needs serialised decisions (cap concurrency, reassign once); alarm-driven, survives eviction (H1) |
-| **Worker run** | one Durable Object per run, an *actor* | one Pi run's turns, its steps and spans | H1's design, unchanged; its outcome is a verdict in the logbook, not a field it sets |
-| **Portal** | the Worker route `/_portal/v1/*` (exists) | nothing | static pages + live slots; computes views from R2 + logbook + managers per request, cached by `(digest, seq)` |
-| **Live feed** | WebSocket hibernation on the logbook and each manager | nothing | pushes "seq moved" so open pages refresh their slots; no polling |
-
-**On "cluster" and "actor".** On Cloudflare a Durable Object class *is* an entity type and `idFromName` *is* sharding:
-there is no separate cluster to run. Write each one behind an Effect service seam shaped like an `@effect/cluster`
-entity (a typed id, typed messages, a handler), so a move off Cloudflare later is one seam, not a rewrite. A Durable
-Object is used only where something needs one serialised owner (the logbook, a milestone, a run). Everything that is a
-view stays a pure function.
-
-**What is not durable:** tasks, statuses, attention items, percentages, burn-down points, the board's columns. All
-recomputed. If a computation gets slow, cache it keyed by `(digest, seq)`; a cache keyed that way can never be wrong.
-
-## 6. What this replaces
-
-- Hand-made status pages (the "state artifact"): the portal's Overview, Plan and Proof pages are that status, always
-  current, generated per project.
-- `codex-handoff.md` phase 5's separate `examples/workbench` project: the plan lives in the project's own blueprint, so
-  there is one place. (The workbench was proposed to avoid touching `@architect/blueprint`; Aaron's 16 November call puts
-  the architecture with the building agent, and one small declaration kind is cheaper than a second project.)
-
-## 7. Proposed steps (each with its check)
-
-| Step | Change | Done when |
+| Kind | Home | Written by |
 |---|---|---|
-| F4.1 | compiler keeps blank operations, adds `implementation` and `spikes`; wire schemaVersion 2 | acme with one emptied handler and one `Blueprint.todo` shows *built: no* and *specified: no* on the portal |
-| F4.2 | logbook: nine eval rows per verdict, `revisions` and `watch` tables, row times from the signed token | `extensions.evals` is no longer `unavailable`; the nine squares are real |
-| F4.3 | `Blueprint.milestone` and the derived tasks | a milestone of three operations shows its tasks, matching Needs attention |
-| F4.4 | milestone manager DO + board + burn-down | three tasks cross the board; burn-down drops as verdicts land |
-| F4.5 | roles `heldBy`, errors `when` | the role and error pages stop showing "not in the blueprint yet" |
+| **Facts**: compiled revisions, eval results, verdicts, releases, claims | logbook Worker, append-only, ordered by `seq`, each row with a time | CI (`prove`, `promote`), the compiler's CI step, the fleet |
+| **Missions**: title, milestones, which task kinds over which things or operations, target environment | a `Plan` Durable Object in the logbook Worker | a person (CLI) or an agent (signed HTTP) |
+| **Views**: tasks, their status, progress, burn-down, attention | computed on read, never stored | the portal route |
 
-## 8. Open risks
+A task is never stored and never ticked by hand: it is generated from a milestone and the blueprint, and closed by a
+fact. A worker cannot mark its own task done.
 
-- Byte-comparing a handler to its scaffold breaks if a formatter touches the scaffold; compare a normalised form, and
-  record the scaffold's hash when rendering.
-- Time on a burn-down comes from the signed token's issue time and git commit time; both are facts, but CI queueing
-  skews them by minutes. Fine for a burn-down, not for latency.
-- One logbook per project is a single writer. At acme's scale that's nothing; revisit with real numbers, not before.
+## 3. Task kinds
+
+| Kind | Generated when | Done when | Fact from |
+|---|---|---|---|
+| specify | the operation has blanks | its blanks are gone | compiled revision |
+| design machine | the thing's machine has blanks or no states | states set; every move has from, to, emits | compiled revision |
+| validate machine | the thing has a machine | coverage reaches every move and declared error | eval rows |
+| build | handler missing or still the scaffold | `implementation: written` | compiled revision |
+| prove | built | all nine evals pass in `test` | eval rows |
+| promote | proved, target beyond `test` | a recorded pass in each environment up to the target | verdicts, releases |
+
+## 4. DX
+
+```bash
+architect mission new "Allowances to production" \
+  --milestone "Specify" --kinds specify,machine,validate --of allowance \
+  --milestone "Ship" --kinds build,prove,promote --of allowance --until production
+# ✔ mission m_7 · 2 milestones · 16 tasks from blueprint 53d028ded1
+architect mission show m_7
+```
+
+An agent does the same with `POST /plan/v1/missions { title, milestones: [{ title, kinds, of, until }] }`, signed with
+the same token sources as a verdict (`verdicts/types.ts` `TokenSource`). Missions are append-only facts too: a scope
+change is a new row, so the burn-down shows it as a step.
+
+## 5. What changes
+
+| Step | Change | Blast radius | Done when |
+|---|---|---|---|
+| F4.1 | `prove` posts the nine eval results per operation; logbook adds `evals (seq, verdict_seq, eval, result, failures, notes, at)` and a time on every row (the signed token's issue time) | `prove/verdicts`, `logbook/book`; additive | `extensions.evals` is no longer `unavailable`; the portal's nine squares are real |
+| F4.2 | compiler keeps blank operations (marked with their blanks) and adds `implementation: missing \| scaffold \| written` per operation; CI records each compiled revision (digest, blanks count, time) in the logbook | `compiler/model`, wire schemaVersion 2; generators read the blank marker instead of absence | an emptied handler shows *build* open, a `Blueprint.todo` shows *specify* open |
+| F4.3 | `Plan` DO in the logbook Worker; `architect mission`; `/plan/v1` | new module in `logbook`, new command | a mission of two milestones generates the tasks in §3 and they match Needs attention |
+| F4.4 | portal Plan page: board by milestone, progress, burn-down from timed rows; `/_portal/v1/plan` fills the static slot | portal route and template | an eval passing in CI moves a card without a rebuild |
+| F4.5 | phase 6's manager reads tasks from the plan; claims are facts in the plan's ledger | `@architect/agent` | three cards cross the board as three workers prove them |
+
+F4.1 and F4.2 are independent and can run in parallel; F4.3 needs neither to start but needs both to close tasks.
+
+## 6. Durable shape
+
+| Piece | Primitive | Why |
+|---|---|---|
+| `Book` | one DO per project (exists) | one ordered ledger of facts; signed writes |
+| `Plan` | one DO per project, beside `Book` in the same Worker | missions are few and need one serialised owner; same auth, same `seq` discipline |
+| milestone manager | one DO per milestone (phase 6) | serialises assignment; alarm-driven |
+| worker run | one DO per run (H1) | survives eviction |
+| portal | the Worker route (exists) | stores nothing; computes views per request, cacheable by `(digest, seq)` |
+| live updates | WebSocket hibernation on `Book` and `Plan` | pushes "seq moved"; open pages refresh their slots |
+
+On Cloudflare a DO class is the entity type and `idFromName` the sharding, so there is no separate cluster to run.
+Each DO sits behind an Effect service shaped like an `@effect/cluster` entity, so leaving Cloudflare is one seam.
+
+## 7. Open risks
+
+- Comparing a handler to its scaffold must survive a formatter: record the scaffold's normalised hash when rendering.
+- Times come from the signed token and git, not a clock; CI queueing skews them by minutes, fine for a burn-down.
+- A renamed operation orphans its tasks until the mission is regenerated; the Plan page shows orphans, never hides them.
+- One `Book` and one `Plan` per project is a single writer each; revisit with real numbers.
