@@ -148,7 +148,7 @@ across test, staging and production, and watch it. Every build step of stage thr
 <li><b>Layer two, prove and ship, is built.</b> Thirteen of its fourteen steps are merged on <code>layer/3</code>: traces, the MCP server, <code>watch</code> and the portal landed today.</li>
 <li><b>Codex has resumed.</b> The CI and evidence-page repairs passed locally and on Linux. World isolation is fixed and passes integration checks. The integrity repairs and authored publishing/portal checks pass. The full gate passed on clean committed source: eight files, ten tests and no skips. Linux CI is next.</li>
 <li><b>Next:</b> finish the full gate locally and in CI, then the independent review and pull request into main.</li>
-<li><b>CI is green on the combined correctness push.</b> Both the general check and layer-one compatibility job passed. Main’s latest CI is green.</li>
+<li><b>The first Linux gate ran all ten functional tests successfully, including Homebrew.</b> CI is red on registry-storage cleanup and a short world-test timeout. Those focused test-helper fixes are active. Main’s latest CI is green.</li>
 <li><b>Layers three to five,</b> the kits, the chain and time, haven't started. Neither has the cloud pass, which needs your yes on credentials.</li>
 </ul>
 <div class="callout">For the detail, see <a href="#layers">the five layers</a>, <a href="#stage3">layer two, step by step</a> and <a href="#left">what's left</a>.</div>` },
@@ -347,7 +347,7 @@ steps, performance, coverage and explainability.</p>
 { id: "risks", group: "Decisions", t: "Risks and known issues", h: () => `
 <h1>Risks and known issues</h1>
 <p class="lede">What could bite, from CI and from the handoff's list of traps already hit.</p>
-<div class="callout open"><b>CI recovery passes locally and in CI.</b> The viewer, promotion and read tests pass together after integration. The next changes fix the two reviewed correctness blockers before Gate 2.</div>
+<div class="callout open"><b>CI recovery passes locally and in CI.</b> The viewer, promotion and read tests pass together after integration. The current CI corrections handle registry-owned fixture storage and an integration-test deadline; product assertions remain unchanged.</div>
 <ul>
 <li><b>Shared ports and Docker.</b> Builders running tests at once collide on ports. Gate 2's cleanup removes every Architect container, other agents' too, so it must run alone.</li>
 <li><b>Leftover containers.</b> A killed Gate 2 run can leave a registry container holding its port. Collectors now clean themselves up.</li>

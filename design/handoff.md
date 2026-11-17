@@ -18,6 +18,19 @@ single code commit. Cleanup proves zero Architect containers, exact gate-port li
 runtime processes. Two unrelated pre-existing Python document viewers on8978/8979 were preserved. No runtime
 worker is active. The integrated CI wiring pins Node24.22.2 and requires Linuxbrew; it must now run in GitHub.
 
+**First full Linux gate result: functional checks pass, cleanup is red.** Run `44014044365` on `7f662af` ran all10
+Gate2 tests, including real Linuxbrew, with0skips. Four suites03/04/05/08 failed afterward at `services.ts:117` because
+Verdaccio-owned nested storage could not be removed by the host. The general job also hit that same new staging
+fixture cleanup issue and the world handover test’s implicit5s timeout (the following legacy case then saw409).
+Current bounded fixes, with no runtime-product/assertion changes:
+- `build/ci-registry-cleanup` at `0926a12` is ready: staging fixture empties only its live registry storage before own
+  container removal, following the existing publish-test convention. Eight local staging tests pass; services stopped.
+- `author/gate2-registry-cleanup` owns the same seam in the e2e stack helper, D3#182; actual05 is running on8950/4895.
+- `build/world-ci-budget` gives four real-workerd multi-transaction lease tests explicit60s budgets matching the
+  existing actor-race integration budget, D3#173. Assertions, loop count and runtime algorithms stay unchanged.
+These are normal fixture/deadline CI feedback; actionable product-review rounds remain2. No full gate runs while
+these focused validations are active. Merge the fixes, rerun the clean full local gate, then rerun Linux CI.
+
 **What landed in this takeover.**
 - `d3ab3f4`, D3 #150–152: Linux Collector-to-viewer bridge routing, promotion-test fresh connections and bounded read
   integration setup budgets. Local tests and Linux CI run `43997952028` (`53d028d`) passed.
