@@ -4,7 +4,7 @@ const M = BP.model;
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const L = {
   home: "#/", proof: "#/proof", errors: "#/reference/errors", values: "#/reference/values", roles: "#/reference/roles",
-  journeys: "#/journeys", thing: (t) => `#/things/${t}`, op: (o) => `#/operations/${o}`, env: (e) => `#/environments/${e}`,
+  journeys: "#/journeys", events: "#/reference/events", machines: "#/reference/machines", traces: "#/traces", trace: (id) => `#/traces/${id}`, thing: (t) => `#/things/${t}`, op: (o) => `#/operations/${o}`, env: (e) => `#/environments/${e}`,
   event: (t, e) => `#/things/${t}/events/${e}`, doc: (p) => `#/docs/${p.replace(/\.md$/, "")}`,
 };
 const a = (href, text) => `<a href="${href}">${esc(text)}</a>`;
@@ -73,7 +73,7 @@ const WORD = { "recorded-pass": "✔", stale: "stale", failed: "✘ failed", unp
 const chip = (p) => `<span class="chip s-${p.state}" title="${esc(p.reason ?? "recorded pass")}">${esc(p.environment)} ${WORD[p.state]}</span>`;
 const slot = (html, inlineSpan = true) => inlineSpan ? `<span class="slot">${html}</span>` : `<div class="slot">${html}</div>`;
 const chips = (op) => slot(scoped().map((e) => chip(proofOf(op, e))).join(""));
-const scoped = () => (window.SCOPE && window.SCOPE !== "all" ? [window.SCOPE] : ENVS);
+const scoped = () => ENVS;
 const worst = (op) => ["failed", "stale", "unproven", "unavailable"].find((s) => scoped().some((e) => proofOf(op, e).state === s)) ?? "recorded-pass";
 
 const explainer = (op, env) => {

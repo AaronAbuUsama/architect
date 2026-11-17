@@ -14,7 +14,8 @@ function sidebar(route) {
   }).join("");
   return `${item(L.home, "Overview")}${item(L.proof, "Proof")}
     <h6>Things</h6>${things}
-    <h6>Reference</h6>${item(L.errors, "Errors")}${item(L.values, "Values")}${item(L.roles, "Roles")}
+    <h6>Reference</h6>${item(L.machines, "Machines")}${item(L.events, "Events")}${item(L.errors, "Errors")}${item(L.values, "Values")}${item(L.roles, "Roles")}
+    <h6>Runtime</h6>${item(L.traces, "Traces", `<span class="dim small">${TRACES.length}</span>`)}
     <h6>Environments</h6>${Object.keys(M.environments).map((e) => item(L.env(e), e)).join("")}
     <h6>Stories</h6>${item(L.journeys, "Journeys", `<span class="dim small">soon</span>`)}`;
 }
@@ -30,6 +31,7 @@ function resolve(path) {
   if (p[0] === "environments") return PAGES.env(p[1]);
   if (p[0] === "reference" && PAGES[p[1]]) return PAGES[p[1]]();
   if (p[0] === "journeys") return PAGES.journeys();
+  if (p[0] === "traces") return p[1] ? PAGES.trace(p[1]) : PAGES.traces();
   if (p[0] === "docs") return PAGES.doc(p.slice(1).join("/"));
   return null;
 }
@@ -43,7 +45,7 @@ function render() {
   document.querySelector(".side").innerHTML = sidebar(base);
   document.querySelector(".page").innerHTML = `<div class="crumbs">${page.crumbs.map(([h, t]) => (h ? a(h, t) : esc(t))).join(" / ")}</div>${page.html}`;
   document.querySelector(".toc").innerHTML = page.toc.length ? `<b>On this page</b>${page.toc.map(([id, t]) => `<a href="${base}#${id}">${esc(t)}</a>`).join("")}` : "";
-  document.body.classList.remove("nav-open");
+  document.body.classList.remove("nav-open"); mountTables();
   const target = sub && document.getElementById(sub); if (target) target.scrollIntoView(); else scrollTo(0, 0);
   document.querySelectorAll(".tabs").forEach((t) => t.querySelectorAll("nav button").forEach((b) => b.onclick = () => {
     t.querySelectorAll("nav button").forEach((x) => x.classList.toggle("on", x === b));
@@ -78,7 +80,6 @@ function controls() {
     el.innerHTML = values.map(([v, t]) => `<button data-v="${v}">${t}</button>`).join("");
     const set = (v) => { el.querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.v === v)); store.set(key, v); apply(v); };
     el.onclick = (e) => { const b = e.target.closest("button"); if (b) set(b.dataset.v); }; set(store.get(key) ?? values[0][0]); };
-  seg(".scope", "scope", [["all", "All"], ...ENVS.map((e) => [e, e])], (v) => { window.SCOPE = v; render(); });
   seg(".view", "view", [["served", "Served"], ["static", "Static file"]], (v) => document.body.classList.toggle("static", v === "static"));
   document.querySelector(".seams").onclick = () => document.body.classList.toggle("seams");
   document.querySelector(".theme").onclick = () => { const r = document.documentElement; const dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; r.dataset.theme = dark ? "light" : "dark"; };

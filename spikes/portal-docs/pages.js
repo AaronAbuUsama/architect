@@ -44,10 +44,12 @@ const PAGES = {
     const o = M.operations[name]; if (!o) return null; const [, verb] = name.split(".");
     const doc = BP.docs[`${o.thing}/${verb}.md`] ?? ""; const cli = /```sh\n(.*)\n```/.exec(doc)?.[1] ?? "";
     const tab = (id, label, body, on) => `<button data-tab="${id}" class="${on ? "on" : ""}">${label}</button>`;
-    return { title: name, crumbs: crumbs([L.home, BP.project], [L.thing(o.thing), o.thing]), toc: [["proof", "Proof"], ["call", "How to call"], ["payload", "Payload"], ["answer", "Answer"], ["who", "Who may call"], ...(o.move ? [["move", "Move"]] : []), ["refusals", "Refusals"], ["steps", "Steps"]], html: `
+    return { title: name, crumbs: crumbs([L.home, BP.project], [L.thing(o.thing), o.thing]), toc: [["proof", "Proof"], ["evals", "Evals"], ["traces", "Recent traces"], ["call", "How to call"], ["payload", "Payload"], ["answer", "Answer"], ["who", "Who may call"], ...(o.move ? [["move", "Move"]] : []), ["refusals", "Refusals"], ["steps", "Steps"]], html: `
       <h1>${esc(name)}</h1><p class="lead">${esc(o.description)}</p>
       <div class="badges">${chips(name)}<span class="badge">${o.kind}</span>${o.idempotent ? `<span class="badge">idempotent by request</span>` : ""}${o.budget ? `<span class="badge">p95 ≤ ${o.budget.p95Ms} ms</span>` : ""}<span class="badge">runs on ${esc(o.runs)}</span><span class="badge">test: ${esc(o.test)}</span></div>
-      ${sec("proof", "Proof", slot(scoped().map((e) => explainer(name, e)).join(""), false))}
+      ${sec("proof", "Proof", opProof(name))}
+      ${sec("evals", "Evals", `<p class="small muted">The nine checks prove runs for every operation in every environment, judged from the call's own spans, logs and stored state. ${illus} Today the logbook keeps one verdict per operation, so these per-eval results are not available yet.</p>${opEvals(name)}`)}
+      ${sec("traces", "Recent traces", traceTable(`traces-${name}`, TRACES.filter((t) => t.op === name), "Traces") + `<p class="small">${a(L.traces, "All traces")} ${illus}</p>`)}
       ${sec("call", "How to call", `<div class="tabs"><nav>${tab("cli", "CLI", 0, 1)}${tab("http", "HTTP", 0)}${tab("sdk", "SDK", 0)}</nav>
         <pre data-panel="cli"><code>${esc(cli)}</code></pre><pre data-panel="http" hidden><code>POST /${esc(o.thing)}/${esc(verb)}\ncontent-type: application/json${o.idempotent ? "\nidempotency-key: <key>" : ""}\n\n${esc(JSON.stringify(Object.fromEntries(Object.keys(o.payload).map((k) => [k, `<${k}>`])), null, 2))}</code></pre>
         <pre data-panel="sdk" hidden><code>const answer = yield* Sdk.${esc(o.thing.replace(/-(\w)/g, (_, c) => c.toUpperCase()))}.${esc(o.identifier)}(${esc(JSON.stringify(Object.fromEntries(Object.keys(o.payload).map((k) => [k, "…"]))))})</code></pre></div>`)}
