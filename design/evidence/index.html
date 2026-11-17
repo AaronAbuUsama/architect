@@ -557,6 +557,216 @@ e2e/layer1/04-agent-writes-a-handler.test.ts:13:27: warning eslint(no-unused-var
 </section>
 <section class="step">
   <div class="stage">Stage 3 · shipping on local worlds (Gate 2)</div>
+  <h2><span class="id">World-ci-budget</span> Bounded integration budgets for the real world-lease checks <span class="chip pass">done</span></h2>
+  <p class="summary">The four multi-transaction world-lease checks receive explicit 60-second budgets, matching the existing actor race. Runtime algorithms, requests, concurrency and assertions are unchanged.</p>
+  <div class="proves"><span class="label">Done when</span>The actual Linux failure is retained: six handovers exceeded the implicit five-second timeout, and the following check encountered the timed-out predecessor’s world. All 21 host tests pass locally with the explicit bounded budgets, with lint/typecheck and generated drift checks green. Linux confirmation remains the conductor’s integration check.</div>
+  <div class="links">CI not run · <a href="https://github.com/AaronAbuUsama/architect/commit/36607fe">commit 36607fe</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/7f662af">commit 7f662af</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/3a06e85">commit 3a06e85</a> · 4 verified captures · 0 unverified records</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Captured Linux failure from run 44014044365: five-second timeout and consequent 409 in the following check.</span>
+    <span class="meta">exit 0 · 0.1s · 2026-11-17T04:17:53Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ python3 -c from pathlib import Path; lines=Path(&quot;.architect/world-ci-baseline.log&quot;).read_text().splitlines(); start=next(i for i,line in enumerate(lines) if &quot;Failed Tests 2&quot; in line); print(&quot;\n&quot;.join(line.rstrip() for line in lines[start:start+66]))</div><pre>check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5324218Z ^[[31m⎯⎯⎯⎯⎯⎯⎯^[[39m^[[1m^[[41m Failed Tests 2 ^[[49m^[[22m^[[31m⎯⎯⎯⎯⎯⎯⎯^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5324878Z
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5325935Z ^[[41m^[[1m FAIL ^[[22m^[[49m src/modules/world/world.test.ts^[[2m &gt; ^[[22mworld leases, in real workerd and D1^[[2m &gt; ^[[22mtakes marks in the admission transaction when creation races an ending
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5326931Z ^[[31m^[[1mError^[[22m: Test timed out in 5000ms.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5327879Z If this is a long-running test, pass a timeout value as the last argument or configure it globally with &quot;testTimeout&quot;.^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5328944Z ^[[36m ^[[2m❯^[[22m src/modules/world/world.test.ts:^[[2m101:3^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5329428Z     ^[[90m 99|^[[39m   })^[[33m;^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5329756Z     ^[[90m100|^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5330296Z     ^[[90m101|^[[39m   it(&quot;takes marks in the admission transaction when creation races an …
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5330874Z     ^[[90m   |^[[39m   ^[[31m^^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5331676Z     ^[[90m102|^[[39m     ^[[35mfor^[[39m (^[[35mlet^[[39m i ^[[33m=^[[39m ^[[34m0^[[39m^[[33m;^[[39m i ^[[33m&lt;^[[39m ^[[34m6^[[39m^[[33m;^[[39m i^[[33m++^[[39m) {
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5332744Z     ^[[90m103|^[[39m       ^[[35mconst^[[39m old ^[[33m=^[[39m ^[[32m`handover-old-^[[39m^[[36m${^[[39mi^[[36m}^[[39m^[[32m`^[[39m^[[33m;^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5333224Z
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5333536Z ^[[31m^[[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5333782Z
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5335029Z ^[[41m^[[1m FAIL ^[[22m^[[49m src/modules/world/world.test.ts^[[2m &gt; ^[[22mworld leases, in real workerd and D1^[[2m &gt; ^[[22mrefuses a used id, and an additive index upgrade never repairs overlapping legacy leases by deleting data
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5336344Z ^[[31m^[[1mAssertionError^[[22m: expected 409 to be 201 // Object.is equality^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5336729Z
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5336895Z ^[[32m- Expected^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5337211Z ^[[31m+ Received^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5337387Z
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5337512Z ^[[32m- 201^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5337794Z ^[[31m+ 409^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5337934Z
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5338651Z ^[[36m ^[[2m❯^[[22m src/modules/world/world.test.ts:^[[2m124:48^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5339398Z     ^[[90m122|^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5339975Z     ^[[90m123|^[[39m   it(&quot;refuses a used id, and an additive index upgrade never repairs o…
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5341128Z     ^[[90m124|^[[39m     ^[[34mexpect^[[39m((^[[35mawait^[[39m ^[[34mlease^[[39m(^[[32m&quot;used-world&quot;^[[39m))^[[33m.^[[39mstatus)^[[33m.^[[39m^[[34mtoBe^[[39m(^[[34m201^[[39m)^[[33m;^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5342044Z     ^[[90m   |^[[39m                                                ^[[31m^^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5342846Z     ^[[90m125|^[[39m     ^[[35mawait^[[39m ^[[34mdoor^[[39m(^[[32m&quot;/used-world&quot;^[[39m^[[33m,^[[39m ^[[32m&quot;DELETE&quot;^[[39m)^[[33m;^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5343839Z     ^[[90m126|^[[39m     ^[[35mconst^[[39m reused ^[[33m=^[[39m ^[[35mawait^[[39m ^[[34mlease^[[39m(^[[32m&quot;used-world&quot;^[[39m)^[[33m;^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5344528Z
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5344843Z ^[[31m^[[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5345101Z
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5345109Z
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5345657Z ^[[2m Test Files ^[[22m ^[[1m^[[31m1 failed^[[39m^[[22m^[[2m | ^[[22m^[[1m^[[32m6 passed^[[39m^[[22m^[[90m (7)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5346633Z ^[[2m      Tests ^[[22m ^[[1m^[[31m2 failed^[[39m^[[22m^[[2m | ^[[22m^[[1m^[[32m19 passed^[[39m^[[22m^[[90m (21)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5347286Z ^[[2m   Start at ^[[22m 04:01:06
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5348377Z ^[[2m   Duration ^[[22m 77.58s^[[2m (transform 32.67s, setup 179.25s, import 4.05s, tests 31.13s, environment 1ms)^[[22m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5348910Z
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5348917Z
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5352856Z ##[error]Error: Test timed out in 5000ms.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	If this is a long-running test, pass a timeout value as the last argument or configure it globally with &quot;testTimeout&quot;.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	 ❯ src/modules/world/world.test.ts:101:3
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5355609Z
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5357918Z ##[error]AssertionError: expected 409 to be 201 // Object.is equality
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	- Expected
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	+ Received
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	- 201
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	+ 409
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	 ❯ src/modules/world/world.test.ts:124:48
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5360493Z Warning: command &quot;vitest run --root packages/host-cloudflare --passWithNoTests&quot; exited with non-zero status code
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5361396Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.6832916Z
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.6835440Z ##[group]✅ ^[[2m&gt; ^[[22m^[[2mnx run^[[22m std:typecheck
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.6835922Z
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.6836387Z ^[[2m&gt; ^[[22mtsc -p packages/std/tsconfig.json
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.6836820Z
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.6837213Z ##[endgroup]</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The whole real-workerd host suite with explicit lease-test integration budgets.</span>
+    <span class="meta">exit 0 · 22.9s · 2026-11-17T04:17:06Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/host-cloudflare</div><pre>=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+
+
+ RUN  v4.1.12 ./packages/host-cloudflare
+
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/webStandardStreamableHttp.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/mediaType.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/requestBody.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/sseKeepAlive.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/cfworker-provider.js&quot; points to missing source files
+
+ Test Files  7 passed (7)
+      Tests  21 passed (21)
+   Start at  04:16:44
+   Duration  21.30s (transform 52.01s, setup 127.19s, import 2.14s, tests 4.47s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Nx reset/sync, host lint/typecheck and generation drift check.</span>
+    <span class="meta">exit 0 · 9.9s · 2026-11-17T04:17:16Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ bash -c set -e; pnpm nx reset; NX_DAEMON=false pnpm nx sync; NX_DAEMON=false pnpm nx run host-cloudflare:lint --outputStyle=static; NX_DAEMON=false pnpm nx run host-cloudflare:typecheck --outputStyle=static; NX_DAEMON=false pnpm nx sync:check</div><pre>Stopping the Nx Daemon
+Stopped the Nx Daemon
+Removing the Nx Daemon workspace data
+Removed the Nx Daemon workspace data
+Removing the cache directory
+Removed the cache directory
+Removing the workspace data directory
+Removed the workspace data directory
+
+ NX   Successfully reset the Nx workspace.
+
+
+ NX   The workspace is already up to date
+
+[@architect/generators:sync]: All files are up to date.
+
+
+&gt; nx run host-cloudflare:lint
+
+&gt; oxlint packages/host-cloudflare
+
+(node:73122) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+
+ NX   Successfully ran target lint for project host-cloudflare
+
+
+  Run duration:      918ms
+  Cache:             0/1 hit (0%)
+  Critical path:     914ms (1 task)
+  Recoverable time:  &lt;1ms
+
+&gt; nx run host-cloudflare:typecheck
+
+&gt; tsc -p packages/host-cloudflare/tsconfig.json
+
+
+
+
+ NX   Successfully ran target typecheck for project host-cloudflare
+
+
+  Run duration:      730ms
+  Cache:             0/1 hit (0%)
+  Critical path:     726ms (1 task)
+  Recoverable time:  &lt;1ms
+
+ NX   The workspace is up to date
+
+[@architect/generators:sync]: All files are up to date.</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The conductor runs the full21-test host suite after integration, preserving all concurrency and lifecycle assertions.</span>
+    <span class="meta">exit 0 · 21.8s · 2026-11-17T04:21:32Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/host-cloudflare</div><pre>=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+
+
+ RUN  v4.1.12 ./packages/host-cloudflare
+
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/webStandardStreamableHttp.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/mediaType.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/requestBody.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/sseKeepAlive.js&quot; points to missing source files
+Sourcemap for &quot;./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/cfworker-provider.js&quot; points to missing source files
+
+ Test Files  7 passed (7)
+      Tests  21 passed (21)
+   Start at  04:21:11
+   Duration  20.33s (transform 47.13s, setup 121.20s, import 1.71s, tests 4.07s, environment 1ms)</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 3 · shipping on local worlds (Gate 2)</div>
   <h2><span class="id">Staging-proof</span> Stable proof identity and captured publication source <span class="chip pass">done</span></h2>
   <p class="summary">Proofs pin a clean full source commit and a live environment PID/revision/hash. Promotion publication archives that commit and owns unique durable output directories under the original project. Existing npm versions are reused only for matching npm pack integrity. Publication succeeds before new production release/pass facts; interrupted releases complete only missing carried facts on retry. Resolved diagnostic captures are retained unchanged in attempts/ with causes and resolutions in attempts/README.md. Current acceptance is captured in 13-complete-boundaries and 14-workspace-checks; no history was relabeled.</p>
   <div class="proves"><span class="label">Done when</span>A real staging A-to-B change, A-to-B-to-A rollback and proof-time source mutation refuse before model storage, prerelease publication or passing verdicts. The installed SDK and CLI still contain captured committed-A when original source changes after capture. Package/SEA paths belong to each invocation and earlier tarballs/formula URLs stay valid after source cleanup. Different or unknown existing npm bytes refuse; matching bytes are reused. A publication conflict creates no new release/pass facts. An interruption after a real persisted release is retried to complete every matching carried pass, then repeated without duplicate rows. Actual nested examples/acme snapshot staging works with ancestor configs and installed tooling. Four focused test files pass all 22 tests, with all-project lint/typecheck and generated drift checks green.</div>
@@ -12375,6 +12585,101 @@ Processes from this worktree: none</pre></div>
 </details>
 </section>
 <section class="step">
+  <div class="stage">Stage 3 · Gate 2 CI fixture recovery</div>
+  <h2><span class="id">CI-registry-cleanup</span> Remove registry-owned fixture storage before host teardown <span class="chip pass">done</span></h2>
+  <p class="summary">The staging module fixture now uses the existing publisher-fixture teardown convention: its own live registry empties its own mounted storage before container removal, then host removal uses bounded retries. Linux baseline run 44012727718 passed all 108 prove tests but failed only this afterAll with EACCES. Product assertions and runtime source are unchanged. Local staging-module and static verification are captured; Linux CI on the merged fix is pending.</p>
+  <div class="proves"><span class="label">Done when</span>The eight staging proof/publication tests and their afterAll complete locally with no owned process or container left. The change matches the already-working Linux registry-storage convention in publish.test.ts. Fresh Linux CI must verify the integrated candidate before this recovery is called Linux-proven.</div>
+  <div class="links">CI not run · <a href="https://github.com/AaronAbuUsama/architect/commit/7f662af">commit 7f662af</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/3a06e85">commit 3a06e85</a> · 4 verified captures · 0 unverified records</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Actual Linux failure:108 passed tests, with staging fixture afterAll EACCES at host removal.</span>
+    <span class="meta">exit 0 · 3.0s · 2026-11-17T04:09:00Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ bash -o pipefail -c gh run view 44012727718 --log-failed | rg -A12 -B4 &quot;EACCES: permission denied|108 passed&quot;</div><pre>check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T03:55:08.7260713Z ^[[31m^[[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T03:55:08.7260827Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T03:55:08.7260836Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T03:55:08.7261127Z ^[[2m Test Files ^[[22m ^[[1m^[[31m1 failed^[[39m^[[22m^[[2m | ^[[22m^[[1m^[[32m26 passed^[[39m^[[22m^[[2m | ^[[22m^[[33m2 skipped^[[39m^[[90m (29)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T03:55:08.7261554Z ^[[2m      Tests ^[[22m ^[[1m^[[32m108 passed^[[39m^[[22m^[[2m | ^[[22m^[[33m3 skipped^[[39m^[[90m (111)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T03:55:08.7261813Z ^[[2m   Start at ^[[22m 03:49:00
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T03:55:08.7262156Z ^[[2m   Duration ^[[22m 367.61s^[[2m (transform 7.45s, setup 0ms, import 9.37s, tests 700.86s, environment 2ms)^[[22m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T03:55:08.7262510Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T03:55:08.7262513Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T03:55:08.7266503Z ##[error]Error: EACCES, Permission denied: &#x27;&lt;local path&gt;&#x27;
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	 ❯ src/modules/promote/staging.test.ts:82:3
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	Serialized Error: { errno: 13, code: &#x27;EACCES&#x27;, path: &#x27;&lt;local path&gt;&#x27;, syscall: &#x27;rm&#x27; }
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T03:55:08.7269070Z Warning: command &quot;vitest run --root packages/prove --passWithNoTests&quot; exited with non-zero status code
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T03:55:08.7269915Z ##[endgroup]</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">All eight existing staging/publication assertions and fixture teardown on real local services.</span>
+    <span class="meta">exit 0 · 144.0s · 2026-11-17T04:11:22Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/prove src/modules/promote/staging.test.ts</div><pre>RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  04:08:58
+   Duration  143.04s (transform 1.97s, setup 0ms, import 767ms, tests 142.15s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Prove lint, typecheck and source diff check.</span>
+    <span class="meta">exit 0 · 3.5s · 2026-11-17T04:12:04Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm nx run-many -t lint,typecheck --projects prove --outputStyle=static</div><pre>NX   Running targets lint, typecheck for project prove:
+
+- prove
+
+
+
+&gt; nx run prove:typecheck
+
+&gt; tsc -p packages/prove/tsconfig.json
+
+
+&gt; nx run prove:lint
+
+&gt; oxlint packages/prove
+
+(node:62321) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+packages/prove/src/modules/world/device-sign-in.test.ts:3:33: warning eslint(no-unused-vars): Type &#x27;ChildProcess&#x27; is imported but never used. help: Consider removing this import.
+
+
+
+ NX   Successfully ran targets lint, typecheck for project prove
+
+
+  Run duration:      1.4s
+  Cache:             0/2 hit (0%)
+  Critical path:     1.3s (1 task)
+  Recoverable time:  &lt;1ms</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The conductor verifies all eight staging proof/publication cases and owned-registry teardown after integration.</span>
+    <span class="meta">exit 0 · 131.5s · 2026-11-17T04:21:10Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root packages/prove src/modules/promote/staging.test.ts</div><pre>RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  04:18:59
+   Duration  130.68s (transform 1.47s, setup 0ms, import 697ms, tests 129.85s, environment 0ms)</pre></div>
+</details>
+</section>
+<section class="step">
   <div class="stage">Stage 3 · shipping on local worlds (Gate 2)</div>
   <h2><span class="id">CI-recovery</span> Reliable local telemetry networking and CI command tests <span class="chip pass">done</span></h2>
   <p class="summary">The Collector addresses the viewer on Docker’s bridge, keeping host ports loopback-only. Promotion test requests close their sockets across synchronous commands. List-read integration sessions have a bounded 600-second startup and journey budget.</p>
@@ -12734,6 +13039,282 @@ e2e/layer1/04-agent-writes-a-handler.test.ts:13:27: warning eslint(no-unused-var
  NX   The workspace is up to date
 
 [@architect/generators:sync]: All files are up to date.</pre></div>
+</details>
+</section>
+<section class="step">
+  <div class="stage">Stage 3 · shipping on local worlds (Gate 2)</div>
+  <h2><span class="id">CI-gate-cleanup</span> Remove each gate stack&#x27;s own registry data before its container <span class="chip bad">not done</span></h2>
+  <p class="summary">The authored Gate 2 service helper now empties only its own live Verdaccio storage inside that container before removing the container and the host temporary directory. This follows the existing publishing fixture convention and avoids Docker-owned subdirectories blocking Linux teardown. All product assertions and own-resource cleanup checks remain.</p>
+  <div class="proves"><span class="label">Done when</span>The recorded Linux Gate 2 run passed all ten test bodies, including real Homebrew installation, then failed four afterAll hooks only at host registry-directory deletion with EACCES. On the final helper, e2e lint/typecheck pass and actual check 05 passes its SDK-install and real Homebrew-install/version tests. Its live registry storage is emptied before own container removal; the original finish checks and host-directory deletion succeed. Cleanup verification finds no Gate 2 container, reserved check05 listener, test tap/formula or worktree runtime process. Final Linux verification belongs to the conductor’s integration CI run.</div>
+  <div class="links"><a href="https://github.com/AaronAbuUsama/architect/actions/runs/44014044365/job/133807598193">CI failure</a> · <a href="https://github.com/AaronAbuUsama/architect/commit/7f662af">commit 7f662af</a> · 8 verified captures · 0 unverified records</div>
+  
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The actual Linux Gate 2 afterAll failures after ten passing test bodies, captured from run 44014044365 and job 133807598193.</span>
+    <span class="meta">exit 0 · 2.5s · 2026-11-17T04:11:08Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ bash -o pipefail -c gh run view 44014044365 --job 133807598193 --log-failed | rg -A16 -B2 &quot;EACCES|10 passed|services.ts:117&quot;</div><pre>e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6829156Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6829680Z ^[[41m^[[1m FAIL ^[[22m^[[49m layer2/03-a-read-is-minor-a-budget-is-stale.test.ts^[[2m [ layer2/03-a-read-is-minor-a-budget-is-stale.test.ts ]^[[22m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6831578Z ^[[31m^[[1mError^[[22m: EACCES, Permission denied: &#x27;&lt;local path&gt;&#x27;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6832097Z ^[[36m ^[[2m❯^[[22m Object.stop layer2/services.ts:^[[2m117:5^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6832563Z     ^[[90m115|^[[39m     running^[[33m.^[[39m^[[34mclear^[[39m()^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6833409Z     ^[[90m116|^[[39m     ^[[35mfor^[[39m (^[[35mconst^[[39m name ^[[35mof^[[39m containers) ^[[34mremove^[[39m(name)^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6834144Z     ^[[90m117|^[[39m     ^[[34mrmSync^[[39m(dir^[[33m,^[[39m { recursive^[[33m:^[[39m ^[[35mtrue^[[39m^[[33m,^[[39m force^[[33m:^[[39m ^[[35mtrue^[[39m })^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6834652Z     ^[[90m   |^[[39m     ^[[31m^^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6834961Z     ^[[90m118|^[[39m     ^[[35mreturn^[[39m problems^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6835356Z     ^[[90m119|^[[39m   }^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6835904Z ^[[90m ^[[2m❯^[[22m finish layer2/services.ts:^[[2m156:27^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6836708Z ^[[90m ^[[2m❯^[[22m layer2/03-a-read-is-minor-a-budget-is-stale.test.ts:^[[2m20:36^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6837144Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6837412Z ^[[31m^[[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6837576Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6837900Z ^[[41m^[[1m FAIL ^[[22m^[[49m layer2/04-promotion.test.ts^[[2m [ layer2/04-promotion.test.ts ]^[[22m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6838454Z ^[[31m^[[1mError^[[22m: EACCES, Permission denied: &#x27;&lt;local path&gt;&#x27;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6838914Z ^[[36m ^[[2m❯^[[22m Object.stop layer2/services.ts:^[[2m117:5^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6839306Z     ^[[90m115|^[[39m     running^[[33m.^[[39m^[[34mclear^[[39m()^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6839829Z     ^[[90m116|^[[39m     ^[[35mfor^[[39m (^[[35mconst^[[39m name ^[[35mof^[[39m containers) ^[[34mremove^[[39m(name)^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6840501Z     ^[[90m117|^[[39m     ^[[34mrmSync^[[39m(dir^[[33m,^[[39m { recursive^[[33m:^[[39m ^[[35mtrue^[[39m^[[33m,^[[39m force^[[33m:^[[39m ^[[35mtrue^[[39m })^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6841200Z     ^[[90m   |^[[39m     ^[[31m^^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6841510Z     ^[[90m118|^[[39m     ^[[35mreturn^[[39m problems^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6841802Z     ^[[90m119|^[[39m   }^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6842152Z ^[[90m ^[[2m❯^[[22m finish layer2/services.ts:^[[2m156:27^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6842550Z ^[[90m ^[[2m❯^[[22m layer2/04-promotion.test.ts:^[[2m22:36^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6842738Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6842914Z ^[[31m^[[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6843073Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6843401Z ^[[41m^[[1m FAIL ^[[22m^[[49m layer2/05-publishing.test.ts^[[2m [ layer2/05-publishing.test.ts ]^[[22m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6843947Z ^[[31m^[[1mError^[[22m: EACCES, Permission denied: &#x27;&lt;local path&gt;&#x27;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6844404Z ^[[36m ^[[2m❯^[[22m Object.stop layer2/services.ts:^[[2m117:5^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6844794Z     ^[[90m115|^[[39m     running^[[33m.^[[39m^[[34mclear^[[39m()^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6845294Z     ^[[90m116|^[[39m     ^[[35mfor^[[39m (^[[35mconst^[[39m name ^[[35mof^[[39m containers) ^[[34mremove^[[39m(name)^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6845987Z     ^[[90m117|^[[39m     ^[[34mrmSync^[[39m(dir^[[33m,^[[39m { recursive^[[33m:^[[39m ^[[35mtrue^[[39m^[[33m,^[[39m force^[[33m:^[[39m ^[[35mtrue^[[39m })^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6846451Z     ^[[90m   |^[[39m     ^[[31m^^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6846763Z     ^[[90m118|^[[39m     ^[[35mreturn^[[39m problems^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6847060Z     ^[[90m119|^[[39m   }^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6847395Z ^[[90m ^[[2m❯^[[22m finish layer2/services.ts:^[[2m156:27^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6847791Z ^[[90m ^[[2m❯^[[22m layer2/05-publishing.test.ts:^[[2m58:11^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6847986Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6848172Z ^[[31m^[[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6848325Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6848738Z ^[[41m^[[1m FAIL ^[[22m^[[49m layer2/08-watch-and-the-portal.test.ts^[[2m [ layer2/08-watch-and-the-portal.test.ts ]^[[22m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6849338Z ^[[31m^[[1mError^[[22m: EACCES, Permission denied: &#x27;&lt;local path&gt;&#x27;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6850086Z ^[[36m ^[[2m❯^[[22m Object.stop layer2/services.ts:^[[2m117:5^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6850868Z     ^[[90m115|^[[39m     running^[[33m.^[[39m^[[34mclear^[[39m()^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6851391Z     ^[[90m116|^[[39m     ^[[35mfor^[[39m (^[[35mconst^[[39m name ^[[35mof^[[39m containers) ^[[34mremove^[[39m(name)^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6852085Z     ^[[90m117|^[[39m     ^[[34mrmSync^[[39m(dir^[[33m,^[[39m { recursive^[[33m:^[[39m ^[[35mtrue^[[39m^[[33m,^[[39m force^[[33m:^[[39m ^[[35mtrue^[[39m })^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6852543Z     ^[[90m   |^[[39m     ^[[31m^^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6852876Z     ^[[90m118|^[[39m     ^[[35mreturn^[[39m problems^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6853266Z     ^[[90m119|^[[39m   }^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6853597Z ^[[90m ^[[2m❯^[[22m finish layer2/services.ts:^[[2m156:27^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6854045Z ^[[90m ^[[2m❯^[[22m layer2/08-watch-and-the-portal.test.ts:^[[2m24:36^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6854264Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6854451Z ^[[31m^[[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6854616Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6854628Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6854957Z ^[[2m Test Files ^[[22m ^[[1m^[[31m4 failed^[[39m^[[22m^[[2m | ^[[22m^[[1m^[[32m4 passed^[[39m^[[22m^[[90m (8)^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6855439Z ^[[2m      Tests ^[[22m ^[[1m^[[32m10 passed^[[39m^[[22m^[[90m (10)^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6855759Z ^[[2m   Start at ^[[22m 04:00:22
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6856281Z ^[[2m   Duration ^[[22m 379.65s^[[2m (transform 133ms, setup 0ms, import 1.18s, tests 724.10s, environment 1ms)^[[22m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6856583Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6856588Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6879041Z ##[error]Error: EACCES, Permission denied: &#x27;&lt;local path&gt;&#x27;
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	 ❯ Object.stop layer2/services.ts:117:5
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	 ❯ finish layer2/services.ts:156:27
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	 ❯ layer2/03-a-read-is-minor-a-budget-is-stale.test.ts:20:36
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	Serialized Error: { errno: 13, code: &#x27;EACCES&#x27;, path: &#x27;&lt;local path&gt;&#x27;, syscall: &#x27;rm&#x27; }
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6887598Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6890006Z ##[error]Error: EACCES, Permission denied: &#x27;&lt;local path&gt;&#x27;
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	 ❯ Object.stop layer2/services.ts:117:5
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	 ❯ finish layer2/services.ts:156:27
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	 ❯ layer2/04-promotion.test.ts:22:36
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	Serialized Error: { errno: 13, code: &#x27;EACCES&#x27;, path: &#x27;&lt;local path&gt;&#x27;, syscall: &#x27;rm&#x27; }
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6891749Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6893779Z ##[error]Error: EACCES, Permission denied: &#x27;&lt;local path&gt;&#x27;
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	 ❯ Object.stop layer2/services.ts:117:5
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	 ❯ finish layer2/services.ts:156:27
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	 ❯ layer2/05-publishing.test.ts:58:11
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	Serialized Error: { errno: 13, code: &#x27;EACCES&#x27;, path: &#x27;&lt;local path&gt;&#x27;, syscall: &#x27;rm&#x27; }
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6894910Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6896959Z ##[error]Error: EACCES, Permission denied: &#x27;&lt;local path&gt;&#x27;
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	 ❯ Object.stop layer2/services.ts:117:5
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	 ❯ finish layer2/services.ts:156:27
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	 ❯ layer2/08-watch-and-the-portal.test.ts:24:36
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	Serialized Error: { errno: 13, code: &#x27;EACCES&#x27;, path: &#x27;&lt;local path&gt;&#x27;, syscall: &#x27;rm&#x27; }
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6898473Z Warning: command &quot;vitest run --root e2e --config vitest.layer2.config.ts layer2&quot; exited with non-zero status code
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6899028Z ##[endgroup]
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6899180Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6899556Z ^[[7m^[[1m^[[31m NX ^[[39m^[[22m^[[27m  ^[[31mRunning target ^[[1mlayer2^[[22m for project e2e failed^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6899835Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6899958Z ^[[2mFailed tasks:^[[22m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6900074Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6900188Z ^[[2m-^[[22m e2e:layer2
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6900303Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6900561Z ^[[2mHint: run the command with^[[22m --verbose ^[[2mfor more details.^[[22m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6900960Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6900968Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6901077Z ^[[2m^[[31m^[[39m^[[22m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6901275Z   Run duration:      6m 20s
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6901513Z   Critical path:     6m 20s (1 task)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The original helper removed registry containers before trying to remove their Docker-owned host data.</span>
+    <span class="meta">exit 0 · 0.0s · 2026-11-17T04:09:20Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ sh .architect/gate2-cleanup-source.sh</div><pre>const down = run(root, env, &quot;env&quot;, &quot;down&quot;, name);
+      if (down.status !== 0) problems.push(`env down ${name}: ${down.out.slice(-500)}`);
+    }
+    running.clear();
+    for (const name of containers) remove(name);
+    rmSync(dir, { recursive: true, force: true });
+    return problems;
+  };
+  const env: Record&lt;string, string&gt; = {};
+  try {
+    const issuer = await startIssuer(containers[0]!, p.issuer, dir);
+    const rogue = options.rogue ? await startIssuer(containers[1]!, p.rogue, dir) : undefined;
+    const registry = options.registry ? await startRegistry(containers[2]!, p.registry, dir) : undefined;
+    Object.assign(env, {
+      ARCHITECT_OIDC_ISSUER: issuer, ARCHITECT_OIDC_CLIENT: &quot;ci-main&quot;,
+      ARCHITECT_OIDC_REPOSITORY: trusted.repository, ARCHITECT_OIDC_REF: trusted.ref, ARCHITECT_OIDC_WORKFLOW: trusted.workflow,
+      HOMEBREW_NO_AUTO_UPDATE: &quot;1&quot;, HOMEBREW_NO_ANALYTICS: &quot;1&quot;, ...options.env,
+      ...(registry ? { ARCHITECT_REGISTRY: registry.url, NPM_CONFIG_USERCONFIG: registry.npmrc } : {}),
+    });
+    const up = (name: string, port: number, extra: Readonly&lt;Record&lt;string, string&gt;&gt; = {}) =&gt; {
+      const said = run(root, { ...env, ...extra }, &quot;env&quot;, &quot;up&quot;, name, &quot;--port&quot;, String(port));
+      running.add(name);
+      expect(said.status, said.out.slice(-2000)).toBe(0);
+      expect(said.lines, said.out).toContain(`${name} up http://127.0.0.1:${port}`);
+    };</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Only the stack&#x27;s own live registry empties its mounted storage before the existing container removal and host cleanup.</span>
+    <span class="meta">exit 0 · 0.0s · 2026-11-17T04:13:56Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ sh .architect/gate2-cleanup-source.sh</div><pre>const down = run(root, env, &quot;env&quot;, &quot;down&quot;, name);
+      if (down.status !== 0) problems.push(`env down ${name}: ${down.out.slice(-500)}`);
+    }
+    running.clear();
+    // Verdaccio owns its mounted files on Linux. Empty only this stack&#x27;s live registry before removing it,
+    // as the publishing fixture does; absent/no-registry and failed-start stacks still remove their own containers.
+    if (options.registry) {
+      const registry = docker(&quot;inspect&quot;, &quot;-f&quot;, &quot;{{.State.Running}}&quot;, containers[2]!);
+      if (registry.status === 0 &amp;&amp; registry.stdout.trim() === &quot;true&quot;) {
+        const emptied = docker(&quot;exec&quot;, containers[2]!, &quot;sh&quot;, &quot;-c&quot;, &quot;rm -rf /verdaccio/storage/*&quot;);
+        if (emptied.status !== 0) problems.push(`registry storage cleanup: ${emptied.stderr.trim()}`);
+      }
+    }
+    for (const name of containers) remove(name);
+    rmSync(dir, { recursive: true, force: true });
+    return problems;
+  };
+  const env: Record&lt;string, string&gt; = {};
+  try {
+    const issuer = await startIssuer(containers[0]!, p.issuer, dir);
+    const rogue = options.rogue ? await startIssuer(containers[1]!, p.rogue, dir) : undefined;
+    const registry = options.registry ? await startRegistry(containers[2]!, p.registry, dir) : undefined;
+    Object.assign(env, {
+      ARCHITECT_OIDC_ISSUER: issuer, ARCHITECT_OIDC_CLIENT: &quot;ci-main&quot;,
+      ARCHITECT_OIDC_REPOSITORY: trusted.repository, ARCHITECT_OIDC_REF: trusted.ref, ARCHITECT_OIDC_WORKFLOW: trusted.workflow,</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">Fresh e2e lint and typecheck, without Nx cache, after the final failed-start inspection guard.</span>
+    <span class="meta">exit 0 · 2.5s · 2026-11-17T04:13:58Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ env NX_DAEMON=false pnpm nx run-many -t lint,typecheck -p e2e --outputStyle=static --skip-nx-cache</div><pre>NX   Running targets lint, typecheck for project e2e:
+
+- e2e
+
+
+
+&gt; nx run e2e:typecheck
+
+&gt; tsc -p e2e/tsconfig.json
+
+
+&gt; nx run e2e:lint
+
+&gt; oxlint e2e
+
+(node:66326) Warning: The &#x27;NO_COLOR&#x27; env is ignored due to the &#x27;FORCE_COLOR&#x27; env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+e2e/layer1/04-agent-writes-a-handler.test.ts:13:27: warning eslint(no-unused-vars): Identifier &#x27;cli&#x27; is imported but never used. help: Consider removing this import.
+
+
+
+ NX   Successfully ran targets lint, typecheck for project e2e
+
+
+  Run duration:      1.1s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     1.1s (1 task)
+  Recoverable time:  &lt;1ms</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The relevant actual publishing check passes both SDK and real Homebrew installation tests with the registry cleanup repair.</span>
+    <span class="meta">exit 0 · 94.1s · 2026-11-17T04:12:42Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root e2e --config ./.architect/vitest.gate2-cleanup.config.ts</div><pre>RUN  v4.1.12 ./e2e
+
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  04:11:09
+   Duration  93.20s (transform 35ms, setup 0ms, import 507ms, tests 92.57s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">The same real publishing check runs on the final helper, including the guard for a failed container inspection.</span>
+    <span class="meta">exit 0 · 95.4s · 2026-11-17T04:15:34Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ pnpm exec vitest run --root e2e --config ./.architect/vitest.gate2-cleanup.config.ts</div><pre>RUN  v4.1.12 ./e2e
+
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  04:13:59
+   Duration  94.57s (transform 37ms, setup 0ms, import 510ms, tests 93.93s, environment 0ms)</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">No Gate 2 containers, reserved check05 ports, test Homebrew taps/formulas or runtime processes from this worktree remain.</span>
+    <span class="meta">exit 0 · 0.8s · 2026-11-17T04:17:21Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ python3 .architect/gate2-cleanup-proof.py</div><pre>Architect containers: none
+Reserved listening sockets: none
+Homebrew test taps: none
+Homebrew test formulas: none
+Processes from this worktree: none</pre></div>
+</details>
+<details class="run" >
+  <summary>
+    <span class="chip pass">passed</span>
+    <span class="cap">07-diff-check</span>
+    <span class="meta">exit 0 · 0.0s · 2026-11-17T04:17:22Z</span>
+  </summary>
+  <div class="term"><div class="prompt">$ git diff --check</div><pre></pre></div>
 </details>
 </section>
 <section class="step">

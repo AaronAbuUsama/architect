@@ -7,6 +7,7 @@
   "captions": {
     "01-linux-failure": "Captured Linux failure from run 44014044365: five-second timeout and consequent 409 in the following check.",
     "02-host-suite": "The whole real-workerd host suite with explicit lease-test integration budgets.",
-    "03-workspace-checks": "Nx reset/sync, host lint/typecheck and generation drift check."
+    "03-workspace-checks": "Nx reset/sync, host lint/typecheck and generation drift check.",
+    "04-integrated-host": "The conductor runs the full21-test host suite after integration, preserving all concurrency and lifecycle assertions."
   }
 }

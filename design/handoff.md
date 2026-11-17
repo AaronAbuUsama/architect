@@ -7,7 +7,7 @@ stages. The rules are `AGENTS.md`; the thread kit (conductor, threads, spike, re
 
 **Current frontier.** Stages 1 and 2 (Gate 1) are on `main`. All layer-two build steps and review corrections are
 integrated on the conductor branch; L2.11 passed locally; Linux CI and final independent review are next. Framework/author source is
-`759ebb4`; main has been refreshed through `eb167b2` (F3 brief and separate Noir spike record, no framework imports).
+`759ebb4`; main has been refreshed through `ca2fbf2` (F3 brief, separate Noir and E2B spike records, no framework imports).
 The conductor uses its managed worktree on `codex/conductor-goal-01`, then pushes verified integration to `layer/3`.
 The original checkout and ignored template files stay untouched.
 
@@ -23,13 +23,13 @@ Gate2 tests, including real Linuxbrew, with0skips. Four suites03/04/05/08 failed
 Verdaccio-owned nested storage could not be removed by the host. The general job also hit that same new staging
 fixture cleanup issue and the world handover test’s implicit5s timeout (the following legacy case then saw409).
 Current bounded fixes, with no runtime-product/assertion changes:
-- `build/ci-registry-cleanup` at `0926a12` is ready: staging fixture empties only its live registry storage before own
+- `build/ci-registry-cleanup` at `0926a12` is merged: staging fixture empties only its live registry storage before own
   container removal, following the existing publish-test convention. Eight local staging tests pass; services stopped.
-- `author/gate2-registry-cleanup` owns the same seam in the e2e stack helper, D3#182; actual05 is running on8950/4895.
-- `build/world-ci-budget` gives four real-workerd multi-transaction lease tests explicit60s budgets matching the
+- `author/gate2-registry-cleanup` at `9404c7d` is merged, D3#182. Actual05 passed with real SDK/Homebrew; no runtime resources remain.
+- `build/world-ci-budget` at `990b3ae` is merged and gives four real-workerd multi-transaction lease tests explicit60s budgets matching the
   existing actor-race integration budget, D3#173. Assertions, loop count and runtime algorithms stay unchanged.
-These are normal fixture/deadline CI feedback; actionable product-review rounds remain2. No full gate runs while
-these focused validations are active. Merge the fixes, rerun the clean full local gate, then rerun Linux CI.
+These are normal fixture/deadline CI feedback; actionable product-review rounds remain2. Postmerge staging8 and host21 tests plus all16 static/sync checks passed. No focused runtime worker remains.
+The gate verifier will now rerun the full local gate from this clean integrated source, then Linux CI follows.
 
 **What landed in this takeover.**
 - `d3ab3f4`, D3 #150–152: Linux Collector-to-viewer bridge routing, promotion-test fresh connections and bounded read

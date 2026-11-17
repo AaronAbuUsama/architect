@@ -7,6 +7,7 @@
   "captions": {
     "01-linux-baseline": "Actual Linux failure:108 passed tests, with staging fixture afterAll EACCES at host removal.",
     "02-local-staging-tests": "All eight existing staging/publication assertions and fixture teardown on real local services.",
-    "03-static-checks": "Prove lint, typecheck and source diff check."
+    "03-static-checks": "Prove lint, typecheck and source diff check.",
+    "04-integrated-staging": "The conductor verifies all eight staging proof/publication cases and owned-registry teardown after integration."
   }
 }
