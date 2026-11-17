@@ -50,8 +50,10 @@ const liveWorlds = () => door("").then((r) => r.json() as Promise<{ worlds: Arra
 const insertAllowance = (id: string) => env.DB.prepare(`INSERT INTO "allowance" ("id", "member", "limit", "state") VALUES (?, 'per_o', '5', 'active')`).bind(id).run();
 const hasAllowance = (id: string) => env.DB.prepare(`SELECT "id" FROM "allowance" WHERE "id" = ?`).bind(id).first();
 
+// These exercise multiple real D1 transactions and Durable Object requests. Match the bounded 60-second
+// integration budget used by the actor race; CI startup/load must not cut off a still-running cleanup at 5 seconds.
 describe("world leases, in real workerd and D1", () => {
-  it("admits exactly one concurrent creation and removes only that world's rows", async () => {
+  it("admits exactly one concurrent creation and removes only that world's rows", { timeout: 60_000 }, async () => {
     const ids = Array.from({ length: 8 }, (_, i) => `race-${i}`);
     await insertAllowance("before-race");
     try {
@@ -75,7 +77,7 @@ describe("world leases, in real workerd and D1", () => {
     }
   });
 
-  it("ends once when alarm-style and explicit teardown overlap, and an old teardown leaves the next world intact", async () => {
+  it("ends once when alarm-style and explicit teardown overlap, and an old teardown leaves the next world intact", { timeout: 60_000 }, async () => {
     const id = "end-race";
     const next = "after-end-race";
     try {
@@ -98,7 +100,7 @@ describe("world leases, in real workerd and D1", () => {
     }
   });
 
-  it("takes marks in the admission transaction when creation races an ending", async () => {
+  it("takes marks in the admission transaction when creation races an ending", { timeout: 60_000 }, async () => {
     for (let i = 0; i < 6; i++) {
       const old = `handover-old-${i}`;
       const next = `handover-next-${i}`;
@@ -120,7 +122,7 @@ describe("world leases, in real workerd and D1", () => {
     }
   });
 
-  it("refuses a used id, and an additive index upgrade never repairs overlapping legacy leases by deleting data", async () => {
+  it("refuses a used id, and an additive index upgrade never repairs overlapping legacy leases by deleting data", { timeout: 60_000 }, async () => {
     expect((await lease("used-world")).status).toBe(201);
     await door("/used-world", "DELETE");
     const reused = await lease("used-world");
