@@ -62,6 +62,12 @@ Historical builder-authored evaluator changes are being dispositioned truthfully
 acceptance, without rewriting history or weakening checks. OAuth count is documented as a local throttle; strict
 concurrent ceiling is cloud hardening before public deployment. Raw diagnostic whitespace stays raw data.
 
+**Round3 workers resumed from `ee35a5c`.** `build/environment-process-owner` owns config/state-specific
+status/reap identity (D3#190, ports9160–9179); `build/immutable-model-create` owns conditional R2 model admission
+(D3#191, ports9280–9299); `build/refusal-namespace` owns compiler namespace validation (D3#193, no services).
+MCP telemetry (D3#192, ports9200–9219) starts when a slot frees. Separate-author evaluator acceptance (D3#194)
+is queued. D3#195/later.md explicitly disposition the soft registration throttle. No full gate is reserved yet.
+
 **Next, in order.**
 1. Push the integrated gate candidate/evidence to `layer/3`; watch all three CI jobs, especially `e2e-layer2` with real
    Linuxbrew. The full local gate is already green. Fix any CI red before new work.

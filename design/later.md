@@ -64,3 +64,6 @@ belongs to, and why it waits.
 - **Architect's own CLI as a single executable** (spike `single-binary`, D3 #9): still blocked by the four breakages the spike lists
   (`import.meta` at load, spawning `process.execPath` as Node, the lint plugin and wrangler as files, nx's native addon). The generated project
   CLI ships as a binary; `architect` stays an npm package.
+- **Atomic OAuth client-registration ceiling before public deployment (D3 #195).** The local count-before-insert guard
+  is a throttle; concurrent registrations can exceed the nominal500 threshold. Keep role/JWT admission unchanged,
+  but enforce a strict ceiling at its authoritative mutation before a public cloud rollout. No such rollout is in goal01.
