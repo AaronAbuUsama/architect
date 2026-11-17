@@ -1,6 +1,7 @@
 // Telemetry for prove: a real OpenTelemetry Collector in Docker, its file exporter read back by trace id
 // (spikes/otlp-from-workerd). What a call did is read from here, never from what the server says about itself.
 import { Data, type Effect, type Scope } from "effect";
+import type { Env, Reader } from "#modules/sinks/types.js";
 
 export interface Span {
   readonly traceId: string;
@@ -29,6 +30,15 @@ export interface Trace {
 
 export class CollectorFailed extends Data.TaggedError("CollectorFailed")<{ readonly message: string }> {}
 
+/** A source that couldn't be read: no credential for it, an edge that wouldn't answer, an answer it refused. Never carries a value. */
+export class SourceFailed extends Data.TaggedError("SourceFailed")<{ readonly message: string }> {}
+
+/**
+ * The first 8 hex characters of every caller span id `prove` makes up for a call's `traceparent`. A trace whose spans point at
+ * a parent that starts so was made by a prove run, which judged it already: `watch` leaves it out of what it counts.
+ */
+export const PROVE_SPAN_PREFIX = "a2c4e700";
+
 /** A trace some caller is waiting on: found by its id, complete once the span that is the caller's child is there. */
 export interface Wanted {
   readonly trace: string;
@@ -51,6 +61,11 @@ export interface TraceSource {
   readonly traces: (wanted: ReadonlyArray<Wanted>) => Effect.Effect<ReadonlyMap<string, Trace>>;
   /** One trace by id, as it is now: no waiting, `undefined` when this source has none of it. */
   readonly find: (trace: string) => Effect.Effect<Trace | undefined>;
+  /**
+   * Every trace with a span that started in the last `since` milliseconds (`now` is the clock's, unless given), whole: what
+   * `watch` judges. It reads what the source has, without waiting for anything to complete.
+   */
+  readonly window: (since: number, now?: number) => Effect.Effect<ReadonlyMap<string, Trace>, SourceFailed>;
 }
 
 export interface Collector extends TraceSource {
@@ -75,6 +90,22 @@ export interface CollectorsApi {
   readonly stop: (name: string) => Effect.Effect<void>;
   /** Read what some collector wrote to `dir`, by trace id. */
   readonly read: (dir: string) => TraceSource;
+}
+
+export interface AxiomSourceApi {
+  /**
+   * Axiom's query API as a source: APL over the dataset `<group>-traces` (and `<group>-logs`, for the logs of refused calls),
+   * the spans of `environment` told apart by `deployment.environment`. The query token is `AXIOM_QUERY_TOKEN`, else the keychain
+   * item `capxul-query`; the edge `AXIOM_DOMAIN`, else `axiom-domain`; the organisation `AXIOM_ORG_ID`, else `axiom-org-id`. Each is
+   * read here, held for the queries and never printed or written. `fetch` is a seam for tests.
+   */
+  readonly open: (options: {
+    readonly group: string;
+    readonly environment: string;
+    readonly env: Env;
+    readonly read?: Reader;
+    readonly fetch?: typeof fetch;
+  }) => Effect.Effect<TraceSource, SourceFailed>;
 }
 
 export interface FileSourceApi {

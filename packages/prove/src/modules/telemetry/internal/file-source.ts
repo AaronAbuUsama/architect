@@ -1,5 +1,5 @@
 // The TraceSource over the collector's files: what prove reads, and what `architect telemetry trace` reads.
-import { Effect, Schedule } from "effect";
+import { Clock, Effect, Schedule } from "effect";
 import type { FileSourceApi, Trace, TraceSource, Wanted } from "../types.ts";
 import { looksComplete, readAll } from "./otlp.ts";
 
@@ -37,6 +37,12 @@ export const FileSource: FileSourceApi = {
         const found = readAll(dirs).byTrace.get(trace);
         return found && (found.spans.length > 0 || found.logs.length > 0) ? found : undefined;
       }),
+      window: (since, given) =>
+        Effect.gen(function* () {
+          const now = given ?? (yield* Clock.currentTimeMillis);
+          const all = readAll(dirs).byTrace;
+          return new Map([...all].filter(([, t]) => t.spans.some((s) => s.start >= now - since)));
+        }),
     };
   },
 };

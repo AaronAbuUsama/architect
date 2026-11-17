@@ -15,6 +15,7 @@ import { Generate } from "#modules/generate/service.js";
 import { Ship } from "#modules/ship/service.js";
 import { Brief } from "#modules/brief/service.js";
 import { TelemetryCommand } from "#modules/telemetry/service.js";
+import { WatchCommand } from "#modules/watch/service.js";
 import { Compiler, nodeSource } from "@architect/compiler";
 
 const model = Command.make(
@@ -203,6 +204,18 @@ const telemetry = Command.make("telemetry").pipe(Command.withSubcommands([
   ),
 ]));
 
+// `architect watch --env <name>`: the evals telemetry can answer, over what the environment recorded (L2.09, D3 #140).
+const watch = Command.make(
+  "watch",
+  {
+    env: Flag.String("env"),
+    source: Flag.Literals("source", ["file", "axiom"]).pipe(Flag.withDefault("file")),
+    since: Flag.String("since").pipe(Flag.withDefault("1h")),
+    root: Flag.String("root").pipe(Flag.withDefault(process.cwd())),
+  },
+  ({ env, source, since, root }) => WatchCommand.run({ root, environment: env, source, since, env: process.env }).pipe(Effect.flatMap(print)),
+);
+
 // `architect publish --dry-run | --local`: the SDK and CLI at the next version (D3 #9, #110). The cloud pass publishes to npmjs.org and GitHub.
 const publish = Command.make(
   "publish",
@@ -291,7 +304,7 @@ const reap = Command.make(
 const worlds = Command.make("worlds").pipe(Command.withSubcommands([reap]));
 
 Command.make("architect").pipe(
-  Command.withSubcommands([model, dev, prove, promote, add, check, generate, brief, impact, version, publish, build, env, worlds, telemetry]),
+  Command.withSubcommands([model, dev, prove, promote, add, check, generate, brief, impact, version, publish, build, env, worlds, telemetry, watch]),
   Command.run({ version: "0.0.0" }),
   Effect.provide(NodeServices.layer),
   NodeRuntime.runMain,

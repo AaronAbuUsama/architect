@@ -6,6 +6,8 @@ import { ownedName, removeCollector, runCollector, sweepOrphans } from "./intern
 import { FileSource } from "./internal/file-source.ts";
 
 export { FileSource } from "./internal/file-source.ts";
+export { AxiomSource } from "./internal/axiom-source.ts";
+export { PROVE_SPAN_PREFIX } from "./types.ts";
 export { exportRoots, rootOf, type JourneyRoot } from "./internal/journey-root.ts";
 export { privateKeys } from "./internal/private-keys.ts";
 

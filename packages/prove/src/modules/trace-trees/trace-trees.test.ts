@@ -57,6 +57,7 @@ describe("a TraceSource that is not a file", () => {
     const source: TraceSource = {
       traces: (wanted) => Effect.succeed(new Map(wanted.map((w) => [w.trace, refusing]))),
       find: () => Effect.succeed(refusing),
+      window: () => Effect.succeed(new Map([["t", refusing]])),
     };
     const call = { journey: "grant", step: "ada grants", actor: "ada", person: "per_ada", operation: "allowance.grant", payload: {}, status: 409, body: { _tag: "AllowanceLimitTooHigh" }, trace: "t".repeat(32), parent: "a", mayCall: true, journal: [] } as CallRecord;
     const traces = await Effect.runPromise(source.traces([{ trace: call.trace, parent: call.parent }]));

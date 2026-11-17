@@ -19,3 +19,12 @@ L2.O (O1, D3 #100 to #109, #120, #121): `TraceSource` is the seam prove reads th
 (`architect-collector-<pid>-<n>`) are removed. While the local viewer runs, a started Collector also exports to it. Every pipeline first
 deletes `user.*` and `organization.id` (the agent SDK's records name the signed-in person), then the model's private keys (L2.P). `rootOf`
 and `exportRoots` make and send the journey's own span, `journey.<name>`, built from the spans the server recorded for the call.
+
+L2.09 (D3 #140 to #143): `TraceSource` gains `window(since, now?)`, every trace with a span newer than the window, whole, read without waiting: what
+`watch` judges. `FileSource.window` reads the Collector's files against the clock (`Clock`, never `Date.now`). `AxiomSource.open({ group,
+environment, env })` is the one over Axiom's query API: APL over `<group>-traces` filtered by `deployment.environment`, spans from the columns
+`attributes.custom`, `status.code`, `_time` and `duration`, and the logs of refused calls from `<group>-logs`; the query token, edge and organisation
+are read by name (`AXIOM_QUERY_TOKEN` / `capxul-query`, `AXIOM_DOMAIN` / `axiom-domain`, `AXIOM_ORG_ID` / `axiom-org-id`) and kept in memory for the queries only.
+The window stops 15 s short of now (Axiom takes a span some seconds after it ended) and reads at most 50 000 spans. Prove's own calls carry a caller
+span id that starts with `PROVE_SPAN_PREFIX`, which is how `watch` tells them from traffic. Tests: `sources.test.ts` (a stand-in for the query API),
+and `watch/watch.live.test.ts` against Axiom with `ARCHITECT_LIVE_AXIOM=1`.

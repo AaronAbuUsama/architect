@@ -1,0 +1,11 @@
+$ pnpm --dir packages/prove exec vitest run src/modules/watch/watch.live
+# commit f159db2 · 2026-11-17T00:54:52Z · exit 0 (expected 0) · 5.4s
+
+
+ RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  00:54:47
+   Duration  4.75s (transform 982ms, setup 0ms, import 761ms, tests 3.90s, environment 0ms)

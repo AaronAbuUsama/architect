@@ -6,6 +6,7 @@ import type { Operation, Read, Principal, Thing } from "@architect/blueprint";
 import { structOf } from "@architect/blueprint/server";
 import { Access, Records, type Instance } from "@architect/target-effect";
 import type { CallRecord } from "../types.ts";
+import { PROVE_SPAN_PREFIX } from "#modules/telemetry/types.js";
 
 type Codec = Schema.Codec<Record<string, unknown>, Record<string, unknown>>;
 
@@ -73,7 +74,7 @@ export const callOperation = (url: string, name: string, op: Operation | Read, p
   Effect.gen(function* () {
     const wire = yield* Schema.encodeUnknownEffect(op.payloadSchema as unknown as Codec)(payload).pipe(Effect.orElseSucceed(() => payload));
     const trace = randomBytes(16).toString("hex");
-    const parent = randomBytes(8).toString("hex");
+    const parent = `${PROVE_SPAN_PREFIX}${randomBytes(4).toString("hex")}`;
     const [thing, verb] = name.split(".");
     const r = yield* fetchJson(`${url}/${thing}/${verb}`, {
       method: "POST",

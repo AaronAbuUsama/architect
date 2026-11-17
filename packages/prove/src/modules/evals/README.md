@@ -17,3 +17,8 @@ against the model, never from what the server says about itself:
 
 `Evals.gather` builds the evidence; `Evals.judge` returns one verdict per operation and eval, then coverage.
 Test: `evals.test.ts`.
+
+`Evals.judgeLive` (L2.09, D3 #143) runs the five evals telemetry alone can answer (answer shape, declared errors, steps, performance,
+explainability) over the calls `watch` saw; who may call, machine path, events and coverage need the world's facts, the journal or a whole run, and stay prove's.
+On live traffic a field that is secret or private, or named `email` (which never leaves the machine for a sink, D3 #120), is not checked, and a
+replayed call (`request.replayed`) is not checked for its answer shape: it answers from the stored answer, not from a span.

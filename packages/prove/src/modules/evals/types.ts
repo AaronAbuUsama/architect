@@ -33,6 +33,14 @@ export interface EvalsApi {
   readonly where: (call: CallRecord) => string;
   /** Every eval over every operation, then coverage over the whole run. */
   readonly judge: (project: Project, evidence: ReadonlyArray<Evidence>) => ReadonlyArray<Verdict>;
+  /**
+   * The evals that telemetry alone can answer, over the calls it saw: answer shape, declared errors, steps, performance and
+   * explainability, for each operation that has a call. Not who may call, machine path or events (they need the world's facts and
+   * the call's journal), and not coverage. A secret or private answer field is not checked (it is on no span).
+   */
+  readonly judgeLive: (project: Project, evidence: ReadonlyArray<Evidence>) => ReadonlyArray<Verdict>;
+  /** The nearest-rank percentile of an ascending list of numbers: what performance reports. */
+  readonly percentile: (sorted: ReadonlyArray<number>, p: number) => number;
   /** The evidence for each call: its spans, its refusal and, for a move, the stored state of what moved, from the call record. */
   readonly gather: (calls: ReadonlyArray<CallRecord>, traces: ReadonlyMap<string, Trace>) => ReadonlyArray<Evidence>;
 }

@@ -1,0 +1,65 @@
+$ pnpm --dir packages/prove exec vitest run src/modules/watch/watch.test.ts src/modules/telemetry/sources.test.ts
+# commit f159db2 · 2026-11-17T00:38:02Z · exit 1 (expected 1) · 1.4s
+
+
+ RUN  v4.1.12 ./packages/prove
+
+ ❯ src/modules/watch/watch.test.ts (0 test)
+ ❯ src/modules/telemetry/sources.test.ts (4 tests | 3 failed) 11ms
+     × asks APL for the environment's spans in the window, with the query token and the organisation, and reads Axiom's columns back as spans 5ms
+     × names the missing item, never a value, when there is no token or no edge; and refuses a name that is not a name 0ms
+     × says what Axiom answered when it refuses, without the token 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/watch/watch.test.ts [ src/modules/watch/watch.test.ts ]
+Error: Cannot find module './service.ts' imported from ./packages/prove/src/modules/watch/watch.test.ts
+ ❯ src/modules/watch/watch.test.ts:10:1
+      8| import type { Span, Trace, TraceSource } from "#modules/telemetry/type…
+      9| import { PROVE_SPAN_PREFIX } from "#modules/telemetry/service.js";
+     10| import { Watch } from "./service.ts";
+       | ^
+     11|
+     12| const visible = (from: string) => !basename(from).startsWith(".");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/telemetry/sources.test.ts > AxiomSource > asks APL for the environment's spans in the window, with the query token and the organisation, and reads Axiom's columns back as spans
+TypeError: Cannot read properties of undefined (reading 'open')
+ ❯ src/modules/telemetry/sources.test.ts:60:58
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/modules/telemetry/sources.test.ts > AxiomSource > names the missing item, never a value, when there is no token or no edge; and refuses a name that is not a name
+TypeError: Cannot read properties of undefined (reading 'open')
+ ❯ src/modules/telemetry/sources.test.ts:84:54
+     82|
+     83|   it("names the missing item, never a value, when there is no token or…
+     84|     const none = await Effect.runPromise(AxiomSource.open({ group: "ca…
+       |                                                      ^
+     85|     expect(none.message).toContain("AXIOM_QUERY_TOKEN");
+     86|     expect(none.message).toContain("capxul-query");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/modules/telemetry/sources.test.ts > AxiomSource > says what Axiom answered when it refuses, without the token
+TypeError: Cannot read properties of undefined (reading 'open')
+ ❯ src/modules/telemetry/sources.test.ts:99:58
+     97|     });
+     98|     try {
+     99|       const source = await Effect.runPromise(AxiomSource.open({ group:…
+       |                                                          ^
+    100|       const failure = await Effect.runPromise(source.window(60_000).pi…
+    101|       expect(JSON.stringify(failure)).toContain("401");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  3 failed | 1 passed (4)
+   Start at  00:38:01
+   Duration  550ms (transform 120ms, setup 0ms, import 377ms, tests 11ms, environment 0ms)
