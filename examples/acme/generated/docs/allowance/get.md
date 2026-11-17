@@ -27,9 +27,9 @@ Read one allowance by its id: organization, member, limit, spent, state.
 
 ## Refusals
 
-| refusal | exit | when |
-|---|---|---|
-| NotAllowed | 3 | the caller isn't the grantee of the allowance, or the owner of its organization; the handler never runs |
+| refusal | exit | code | when |
+|---|---|---|---|
+| NotAllowed | 3 | AR-001 | the caller isn't the grantee of the allowance, or the owner of its organization; the handler never runs |
 
 ## How to call
 

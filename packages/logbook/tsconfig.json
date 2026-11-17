@@ -6,5 +6,11 @@
   ],
   "exclude": [
     "test/fixtures/**"
-  ]
+  ],
+  "compilerOptions": {
+    "types": [
+      "node",
+      "@cloudflare/workers-types"
+    ]
+  }
 }

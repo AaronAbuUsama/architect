@@ -1,0 +1,91 @@
+== packages/portal: wire, snapshot (in memory and against the real logbook, ports 9090 and 9091), site
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-a835556981c7bf3f4/packages/portal
+ ✓ src/modules/wire/wire.test.ts > the blueprint wire > is deterministic: the same model and docs give byte-identical JSON, whatever order the docs arrive in 35ms
+ ✓ src/modules/wire/wire.test.ts > the blueprint wire > is version 1, carries no revision and no clock, and names the model it was made from by digest 7ms
+ ✓ src/modules/wire/wire.test.ts > the blueprint wire > changes its digest when the model changes, and only then 15ms
+ ✓ src/modules/wire/wire.test.ts > the blueprint wire > decodes what it built 9ms
+ ✓ src/modules/wire/wire.test.ts > the blueprint wire > rejects an unknown schema version, naming it 3ms
+ ✓ src/modules/wire/wire.test.ts > the blueprint wire > rejects a digest that is not the content's, and a blueprint edited after it was made 5ms
+ ✓ src/modules/wire/wire.test.ts > the blueprint wire > rejects what is not a blueprint at all 1ms
+ ✓ src/modules/wire/wire.test.ts > the blueprint wire > ignores an extension key it does not know, when the digest still holds 3ms
+ ✓ src/modules/wire/wire.test.ts > a proof's dependencies, from the model's JSON alone > are the operation, its thing and the things its fields and roles refer to 2ms
+ ✓ src/modules/wire/wire.test.ts > a proof's dependencies, from the model's JSON alone > are recorded in the blueprint for every operation, equal to what the adapter works out 3ms
+ ✓ src/modules/wire/wire.test.ts > a proof's dependencies, from the model's JSON alone > give hashOf for a key, and undefined for one that is gone 1ms
+ ✓ src/modules/wire/wire.test.ts > a proof's dependencies, from the model's JSON alone > refuse a model shape they do not know (unavailable, never guessed) 0ms
+ ✓ src/modules/snapshot/snapshot.test.ts > the snapshot > has a proof for every current operation in every declared environment, and says which blueprint it is for 9ms
+ ✓ src/modules/snapshot/snapshot.test.ts > the snapshot > shows a recorded pass, with the exact row it rests on, and never says a journey ran in production 1ms
+ ✓ src/modules/snapshot/snapshot.test.ts > the snapshot > makes an unproven operation unproven, not green, and not unavailable 1ms
+ ✓ src/modules/snapshot/snapshot.test.ts > the snapshot > a budget edit makes spend stale in the environments that proved it, and only spend 2ms
+ ✓ src/modules/snapshot/snapshot.test.ts > the snapshot > the latest failure wins over an older pass 3ms
+ ✓ src/modules/snapshot/snapshot.test.ts > the snapshot > asks only for the main ref, so a pull request's verdict never fills the matrix 1ms
+ ✓ src/modules/snapshot/snapshot.test.ts > the snapshot > a logbook that is down shows nothing green: every proof is unavailable, with the reason 1ms
+ ✓ src/modules/snapshot/snapshot.test.ts > the snapshot > no logbook configured is the same: unavailable, not unproven 0ms
+ ✓ src/modules/snapshot/snapshot.test.ts > the snapshot > a verdict whose revision has no model is unavailable, not a pass 1ms
+ ✓ src/modules/snapshot/snapshot.test.ts > the snapshot > a model of a shape it does not know is unavailable too 2ms
+ ✓ src/modules/snapshot/snapshot.test.ts > the snapshot > an operation the proved model did not have is unavailable, not a pass 1ms
+ ✓ src/modules/snapshot/snapshot.test.ts > the snapshot > the head's model missing falls back to this bundle's model, and says so 0ms
+ ✓ src/modules/snapshot/snapshot.test.ts > the snapshot > a ledger that moved while it was read is read again, and only then trusted 0ms
+ ✓ src/modules/snapshot/snapshot.test.ts > the snapshot > a ledger that never holds still shows nothing green 0ms
+ ✓ src/modules/site/site.test.ts > /portal > is HTML with a row per operation: test ✔ staging ✔ production ✔ 22ms
+ ✓ src/modules/site/site.test.ts > /portal > after a budget edit shows stale on spend and on no other row 5ms
+ ✓ src/modules/site/site.test.ts > /portal > shows no tick at all when the logbook is down, and says it is 1ms
+ ✓ src/modules/site/site.test.ts > /portal > shows no tick when no logbook is configured 0ms
+ ✓ src/modules/site/site.test.ts > /portal > shows a failure as a failure, with no tick for that environment 1ms
+ ✓ src/modules/site/site.test.ts > /portal > escapes what it prints 1ms
+ ✓ src/modules/site/site.test.ts > the pages under /portal > an operation: its contract, who may call it, its proofs with their revision, and its generated docs 1ms
+ ✓ src/modules/site/site.test.ts > the pages under /portal > a thing: its fields, machine and operations 0ms
+ ✓ src/modules/site/site.test.ts > the pages under /portal > an unknown operation or thing is a 404 page, and a name with a path in it is no name 0ms
+ ✓ src/modules/site/site.test.ts > the pages under /portal > falls back to the shell with or without the trailing slash 1ms
+ ✓ src/modules/site/site.test.ts > /_portal/v1 > blueprint: the validated JSON, ETag the digest, 304 when the reader has it 2ms
+ ✓ src/modules/site/site.test.ts > /_portal/v1 > snapshot: for exactly that digest, never cached 1ms
+ ✓ src/modules/site/site.test.ts > /_portal/v1 > snapshot: a different digest is 409 BlueprintChanged, and no digest is a 400 0ms
+ ✓ src/modules/site/site.test.ts > /_portal/v1 > unknown routes are JSON 404s, never the HTML shell; only GET and HEAD are answered 0ms
+ ✓ src/modules/site/site.test.ts > a blueprint it will not serve > an unknown schema version or a wrong digest is a 500 with the reason, and no tick 3ms
+ ✓ src/modules/site/site.test.ts > a blueprint it will not serve > a blueprint that is fine, over a logbook that does not answer, is a page with nothing green 3ms
+ ✓ src/modules/snapshot/logbook.test.ts > the portal over the real logbook > shows spend proved in test, staging and production by signed verdicts 2604ms
+ ✓ src/modules/snapshot/logbook.test.ts > the portal over the real logbook > a pull request's verdict signed by the same issuer never fills the matrix 45ms
+ ✓ src/modules/snapshot/logbook.test.ts > the portal over the real logbook > a budget edit makes spend stale in staging and production, and no other operation 925ms
+ ✓ src/modules/snapshot/logbook.test.ts > the portal over the real logbook > the latest failure wins, and a later pass replaces it 132ms
+ ✓ src/modules/snapshot/logbook.test.ts > the portal over the real logbook > a verdict for a revision whose model the logbook does not hold is unavailable, not green 145ms
+ ✓ src/modules/snapshot/logbook.test.ts > the portal over the real logbook > a logbook that has stopped shows every proof unavailable, none green, with nothing left running 106ms
+ Test Files  4 passed (4)
+      Tests  48 passed (48)
+   Start at  01:08:12
+   Duration  12.70s (transform 538ms, setup 0ms, import 2.39s, tests 12.05s, environment 0ms)
+
+== packages/generators: the portal's projection and the adapter against Compare.dependsOn
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-a835556981c7bf3f4/packages/generators
+ ✓ src/modules/portal/portal.test.ts > generated/portal > is the same bytes every time, and the bytes acme has committed 4ms
+ ✓ src/modules/portal/portal.test.ts > generated/portal > decodes, is version 1, and carries the model, every generated doc and no clock 5ms
+ ✓ src/modules/portal/portal.test.ts > generated/portal > opens its TypeScript with the generated line, and is the only generated file but the Worker that imports the portal 0ms
+ ✓ src/modules/portal/portal.test.ts > the portal's dependency adapter is the compiler's Compare.dependsOn > acme, current: every operation's dependencies, and every dependency's hash, agree 3ms
+ ✓ src/modules/portal/portal.test.ts > the portal's dependency adapter is the compiler's Compare.dependsOn > acme, with a list read: every operation's dependencies, and every dependency's hash, agree 3ms
+ ✓ src/modules/portal/portal.test.ts > the portal's dependency adapter is the compiler's Compare.dependsOn > acme, as the compiler's snapshot recorded it: every operation's dependencies, and every dependency's hash, agree 2ms
+ ✓ src/modules/portal/portal.test.ts > the portal's dependency adapter is the compiler's Compare.dependsOn > the starter: every operation's dependencies, and every dependency's hash, agree 2ms
+ ✓ src/modules/portal/portal.test.ts > the portal stays out of the project's own code > acme: no blueprint, handler or journey imports the portal or the compiler 22ms
+ ✓ src/modules/portal/portal.test.ts > the portal stays out of the project's own code > starter: no blueprint, handler or journey imports the portal or the compiler 17ms
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  01:08:26
+   Duration  1.17s (transform 241ms, setup 0ms, import 980ms, tests 59ms, environment 0ms)
+
+== packages/prove: /portal on an environment's workerd (ports 9094 to 9097), and prove --env test keeping the model
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-a835556981c7bf3f4/packages/prove
+ ✓ src/modules/environments/portal.test.ts > /portal on an environment > shows spend `test ✔ staging ✔ production ✔` for the revision the environment runs, and answers its data routes 11235ms
+ ✓ src/modules/environments/portal.test.ts > /portal on an environment > after a budget edit shows stale on spend and on no other operation, though the environment still runs the old bundle 1567ms
+ ✓ src/modules/environments/portal.test.ts > /portal on an environment > the latest failure wins 69ms
+ ✓ src/modules/environments/portal.test.ts > /portal on an environment > another environment, started after the logbook, reads the same logbook 4333ms
+ ✓ src/modules/environments/portal.test.ts > /portal on an environment > a logbook that stops shows no tick, only that it cannot tell 208ms
+ ✓ src/modules/environments/portal.test.ts > /portal on an environment > env down leaves nothing running 1326ms
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  01:08:28
+   Duration  23.45s (transform 719ms, setup 0ms, import 876ms, tests 22.43s, environment 0ms)
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-a835556981c7bf3f4/packages/prove
+ ✓ src/modules/test-worlds/test-worlds.test.ts > prove --env test > posts a verdict per operation that the logbook reads back, and leaves no world 6054ms
+ ↓ src/modules/test-worlds/test-worlds.test.ts > prove --env test > refuses a second world while one lives, and a run that cannot record its verdicts still destroys its world
+ ↓ src/modules/test-worlds/test-worlds.test.ts > prove --env test > a run killed part-way leaves a world that worlds reap removes after its lifetime
+ Test Files  1 passed (1)
+      Tests  1 passed | 2 skipped (3)
+   Start at  01:08:52
+   Duration  16.57s (transform 979ms, setup 0ms, import 1.66s, tests 14.78s, environment 0ms)

@@ -1,0 +1,36 @@
+$ python3 -c 
+import pathlib, re, subprocess
+
+def run(*args):
+    result = subprocess.run(args, text=True, capture_output=True, check=True)
+    return result.stdout.splitlines()
+
+containers = [n for n in run("docker", "ps", "-a", "--format", "{{.Names}}") if n.startswith("architect-")]
+taps = [n for n in run("brew", "tap") if n.startswith("architect-e2e-")]
+formulas = [n for n in run("brew", "list", "--formula") if n.startswith("acme-")]
+ports = {4890 + check for check in range(1, 9)} | {8900 + 10 * check + delta for check in range(1, 9) for delta in range(7)}
+listeners = subprocess.run(["lsof", "-nP", "-iTCP", "-sTCP:LISTEN", "-Fn"], text=True, capture_output=True)
+assert listeners.returncode in (0, 1), listeners.stderr
+used = {int(line.rsplit(":", 1)[1]) for line in listeners.stdout.splitlines() if line.startswith("n") and re.search(r":\d+$", line)}
+root = str(pathlib.Path.cwd())
+processes = []
+for line in run("ps", "-axo", "pid=,comm=,args="):
+    parts = line.strip().split(None, 2)
+    if len(parts) != 3:
+        continue
+    pid, command, args = parts
+    if pathlib.Path(command).name in ("node", "workerd", "wrangler") and root in args and re.search(r"wrangler|workerd|vitest", args):
+        processes.append(pid)
+for label, left in [("Architect containers", containers), ("gate taps", taps), ("gate formulas", formulas), ("exact gate port listeners", sorted(ports & used)), ("own runtime processes", processes)]:
+    print(f"{label}: {len(left)}")
+    assert not left, f"{label} remain"
+print("Cleanup passed; unrelated listeners were left untouched.")
+
+# commit 2b2aa3c · 2026-11-17T03:50:30Z · exit 0 (expected 0) · 0.4s
+
+Architect containers: 0
+gate taps: 0
+gate formulas: 0
+exact gate port listeners: 0
+own runtime processes: 0
+Cleanup passed; unrelated listeners were left untouched.

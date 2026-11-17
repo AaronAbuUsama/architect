@@ -15,7 +15,7 @@ describe("the starter preset", () => {
 
   it("copies the starter's blueprint, handlers and journeys unchanged", () => {
     for (const f of source.files) expect(tree.read(f.path, "utf8"), f.path).toBe(f.content);
-    expect(source.files.some((f) => f.path === "implementation/handlers/session/sign-in.ts")).toBe(true);
+    expect(source.files.some((f) => f.path === "src/session/sign-in.ts")).toBe(true);
     expect(source.files.some((f) => f.path.startsWith("journeys/"))).toBe(true);
   });
 
@@ -24,7 +24,7 @@ describe("the starter preset", () => {
     expect(tree.read("generated/cli/src/main.ts", "utf8")).toContain("bakery");
     expect(tree.read("generated/cli/src/main.ts", "utf8")).not.toContain("starter");
     // The written handler, not a blank one: a scaffold would reach a BlankReached.
-    expect(tree.read("implementation/handlers/session/sign-in.ts", "utf8")).not.toContain("Blank");
+    expect(tree.read("src/session/sign-in.ts", "utf8")).not.toContain("Blank");
   });
 
   it("writes a project that installs every @architect package at the preset's version", () => {

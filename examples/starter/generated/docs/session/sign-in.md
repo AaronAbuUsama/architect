@@ -12,14 +12,14 @@ Sign in with email and password. The token is the bearer for every later call.
 | field | value |
 |---|---|
 | email | person.email |
-| password | Password |
+| password | Password (secret) |
 
 ## Answer
 
 | field | value |
 |---|---|
-| session | session.id |
-| token | Secret |
+| session | session.id (secret) |
+| token | Secret (secret) |
 
 ## Steps
 
@@ -27,9 +27,9 @@ Sign in with email and password. The token is the bearer for every later call.
 
 ## Refusals
 
-| refusal | exit | when |
-|---|---|---|
-| SessionCredentialsWrong | 10 | declared in errors.ts |
+| refusal | exit | code | when |
+|---|---|---|---|
+| SessionCredentialsWrong | 10 | SE-001 | declared in errors.ts |
 
 ## How to call
 

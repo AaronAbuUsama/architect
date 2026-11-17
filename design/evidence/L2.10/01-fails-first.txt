@@ -1,0 +1,188 @@
+=============== packages/portal wire, snapshot and site tests, with the services they test set aside: Cannot find module './service.ts'
+      3| import { join, resolve } from "node:path";
+      4| import { Wire } from "./service.ts";
+       | ^
+      5| import type { BlueprintWire, ModelWire } from "./types.ts";
+      6|
+ ❯ src/modules/snapshot/snapshot.test.ts:6:1
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/modules/wire/wire.test.ts [ src/modules/wire/wire.test.ts ]
+Error: Cannot find module './service.ts' imported from /Users/abuusama/projects/architect/.claude/worktrees/agent-a835556981c7bf3f4/packages/portal/src/modules/wire/wire.test.ts
+ ❯ src/modules/wire/wire.test.ts:4:1
+      2| import { Effect } from "effect";
+      3| import { describe, expect, it } from "vitest";
+      4| import { Wire } from "./service.ts";
+       | ^
+      5| import { acmeDocs, acmeModel, blueprintOf, withBudget } from "./testin…
+      6|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/modules/site/site.test.ts [ src/modules/site/site.test.ts ]
+Error: Cannot find module './service.ts' imported from /Users/abuusama/projects/architect/.claude/worktrees/agent-a835556981c7bf3f4/packages/portal/src/modules/wire/testing.ts
+ ❯ src/modules/wire/testing.ts:4:1
+      2| import { readFileSync, readdirSync } from "node:fs";
+      3| import { join, resolve } from "node:path";
+      4| import { Wire } from "./service.ts";
+       | ^
+      5| import type { BlueprintWire, ModelWire } from "./types.ts";
+      6|
+ ❯ src/modules/site/site.test.ts:5:1
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  no tests
+   Start at  00:19:37
+   Duration  410ms (transform 118ms, setup 0ms, import 0ms, tests 0ms, environment 0ms)
+
+
+=============== packages/portal snapshot/logbook.test.ts (real logbook, signed verdicts), with Snapshot set aside
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-a835556981c7bf3f4/packages/portal
+ ❯ src/modules/snapshot/logbook.test.ts (0 test)
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  src/modules/snapshot/logbook.test.ts [ src/modules/snapshot/logbook.test.ts ]
+Error: Cannot find module './service.ts' imported from /Users/abuusama/projects/architect/.claude/worktrees/agent-a835556981c7bf3f4/packages/portal/src/modules/snapshot/logbook.test.ts
+ ❯ src/modules/snapshot/logbook.test.ts:16:1
+     14| import { acmeDocs } from "#modules/wire/testing.js";
+     15| import type { ModelWire } from "#modules/wire/types.js";
+     16| import { Snapshot } from "./service.ts";
+       | ^
+     17| import type { PortalSnapshot } from "./types.ts";
+     18|
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  00:24:41
+   Duration  749ms (transform 121ms, setup 0ms, import 0ms, tests 0ms, environment 0ms)
+
+=============== packages/generators portal.test.ts, with the portal's files left out of Render.files
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-a835556981c7bf3f4/packages/generators
+ ❯ src/modules/portal/portal.test.ts (9 tests | 3 failed) 46ms
+     × is the same bytes every time, and the bytes acme has committed 6ms
+     × decodes, is version 1, and carries the model, every generated doc and no clock 0ms
+     × opens its TypeScript with the generated line, and is the only generated file but the Worker that imports the portal 0ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  src/modules/portal/portal.test.ts > generated/portal > is the same bytes every time, and the bytes acme has committed
+AssertionError: expected undefined to be '{\n  "schemaVersion": 1,\n  "project"…' // Object.is equality
+- Expected:
+"{
+  \"schemaVersion\": 1,
+  \"project\": \"acme\",
+  \"revision\": null,
+  \"model\": {
+    \"refusals\": {
+      \"AllowanceExceeded\": \"AL-001\",
+      \"AllowanceLimitTooHigh\": \"AL-003\",
+      \"AllowanceNotActive\": \"AL-900\",
+      \"AllowanceNotFound\": \"AL-002\",
+      \"InvitationNotPending\": \"IN-900\",
+      \"NotAllowed\": \"AR-001\",
+      \"OrganizationNotActive\": \"OR-900\",
+      \"PersonEmailTaken\": \"PE-001\",
+      \"SessionCredentialsWrong\": \"SE-001\"
+    },
+    \"values\": {
+      \"Amount\": {
+        \"type\": \"uint\",
+        \"bits\": 128
+      },
+      \"Memo\": {
+        \"type\": \"text\",
+        \"max\": 200
+      },
+      \"Ok\": {
+        \"type\": \"schema\"
+      },
+      \"Password\": {
+        \"type\": \"text\",
+        \"max\": 128
+
+=============== packages/prove environments/portal.test.ts, the generated Worker without its portal route (rows are not found)
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-a835556981c7bf3f4/packages/prove
+ ❯ src/modules/environments/portal.test.ts (6 tests | 5 failed) 16702ms
+     × shows spend `test ✔ staging ✔ production ✔` for the revision the environment runs, and answers its data routes 7637ms
+     × after a budget edit shows stale on spend and on no other operation, though the environment still runs the old bundle 1371ms
+     × the latest failure wins 67ms
+     × another environment, started after the logbook, reads the same logbook 2794ms
+     × a logbook that stops shows no tick, only that it cannot tell 169ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  src/modules/environments/portal.test.ts > /portal on an environment > shows spend `test ✔ staging ✔ production ✔` for the revision the environment runs, and answers its data routes
+TypeError: .toMatch() expects to receive a string, but got undefined
+ ❯ src/modules/environments/portal.test.ts:96:59
+     94|
+     95|     const rows = await portal(staging.url);
+     96|     expect(row(rows, "allowance.spend"), rows.join("\n")).toMatch(/tes…
+       |                                                           ^
+     97|     for (const op of operations) expect(row(rows, op), op).toMatch(/te…
+     98|     expect(rows.join("\n")).not.toMatch(/\bstale\b/);
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+ FAIL  src/modules/environments/portal.test.ts > /portal on an environment > after a budget edit shows stale on spend and on no other operation, though the environment still runs the old bundle
+TypeError: .toMatch() expects to receive a string, but got undefined
+ ❯ src/modules/environments/portal.test.ts:128:59
+    126|
+    127|     const rows = await portal(url("staging"));
+    128|     expect(row(rows, "allowance.spend"), rows.join("\n")).toMatch(/tes…
+       |                                                           ^
+    129|     const others = rows.filter((r) => /\b[a-z-]+\.[a-z-]+\b.*(test|sta…
+    130|     expect(others.length).toBeGreaterThan(5);
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+ FAIL  src/modules/environments/portal.test.ts > /portal on an environment > the latest failure wins
+TypeError: .toMatch() expects to receive a string, but got undefined
+ ❯ src/modules/environments/portal.test.ts:137:64
+    135|   it("the latest failure wins", { timeout: 300_000 }, async () => {
+    136|     await post(first, "staging", "allowance.get", "fail");
+    137|     expect(row(await portal(url("staging")), "allowance.get")).toMatch…
+       |                                                                ^
+    138|   });
+    139|
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+ FAIL  src/modules/environments/portal.test.ts > /portal on an environment > another environment, started after the logbook, reads the same logbook
+TypeError: .toMatch() expects to receive a string, but got undefined
+ ❯ src/modules/environments/portal.test.ts:142:66
+    140|   it("another environment, started after the logbook, reads the same l…
+    141|     const production = await run(Environments.up({ root, name: "produc…
+    142|     expect(row(await portal(production.url), "allowance.spend")).toMat…
+       |                                                                  ^
+    143|   });
+    144|
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+ FAIL  src/modules/environments/portal.test.ts > /portal on an environment > a logbook that stops shows no tick, only that it cannot tell
+AssertionError: expected '' to contain 'unavailable'
+- Expected
++ Received
+- unavailable
+ ❯ src/modules/environments/portal.test.ts:149:18
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+ Test Files  1 failed (1)
+      Tests  5 failed | 1 passed (6)
+   Start at  00:24:13
+   Duration  17.61s (transform 388ms, setup 0ms, import 786ms, tests 16.70s, environment 0ms)
+
+=============== packages/prove test-worlds.test.ts, prove --env test without keeping the revision's model: the logbook answers 404 for it
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-a835556981c7bf3f4/packages/prove
+ ❯ src/modules/test-worlds/test-worlds.test.ts (3 tests | 1 failed | 2 skipped) 18133ms
+     × posts a verdict per operation that the logbook reads back, and leaves no world 5973ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  src/modules/test-worlds/test-worlds.test.ts > prove --env test > posts a verdict per operation that the logbook reads back, and leaves no world
+AssertionError: expected 404 to be 200 // Object.is equality
+- Expected
++ Received
+- 200
++ 404
+ ❯ src/modules/test-worlds/test-worlds.test.ts:122:25
+    120|     // The logbook keeps the revision's model with its verdicts, so th…
+    121|     const kept = await fetch(`${logbook}/models/${project.revision}`);
+    122|     expect(kept.status).toBe(200);
+       |                         ^
+    123|     expect(Object.keys(((await kept.json()) as { operations: object })…
+    124|
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 skipped (3)
+   Start at  01:02:50
+   Duration  20.47s (transform 1.11s, setup 0ms, import 1.97s, tests 18.13s, environment 0ms)
+

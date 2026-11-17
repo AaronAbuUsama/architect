@@ -1,0 +1,49 @@
+$ pnpm exec vitest run --root packages/prove src/modules/promote/staging.test.ts
+# commit 8f50320 · 2026-11-17T02:26:13Z · exit 1 (expected 1) · 46.3s
+
+
+ RUN  v4.1.12 ./packages/prove
+
+ ❯ src/modules/promote/staging.test.ts (2 tests | 2 failed) 44506ms
+     × rejects a different built revision replacing staging after its initial identity check 21217ms
+     × rejects source mutation at proof completion before model storage, publishing or passing verdicts 16159ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/promote/staging.test.ts > staging's proof-to-publish boundary > rejects a different built revision replacing staging after its initial identity check
+AssertionError: expected 'Success' to be 'Failure' // Object.is equality
+
+Expected: "Failure"
+Received: "Success"
+
+ ❯ src/modules/promote/staging.test.ts:109:25
+    107|     }) }).pipe(Effect.result));
+    108|     expect(changed).toBe(true);
+    109|     expect(result._tag).toBe("Failure");
+       |                         ^
+    110|     if (result._tag === "Failure") expect(result.failure.message).toMa…
+    111|     await noEffects(a.revision, before);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/modules/promote/staging.test.ts > staging's proof-to-publish boundary > rejects source mutation at proof completion before model storage, publishing or passing verdicts
+AssertionError: expected 'Success' to be 'Failure' // Object.is equality
+
+Expected: "Failure"
+Received: "Success"
+
+ ❯ src/modules/promote/staging.test.ts:129:25
+    127|     git("checkout", "--", "src/allowance/spend.ts");
+    128|     expect(changed).toBe(true);
+    129|     expect(result._tag).toBe("Failure");
+       |                         ^
+    130|     if (result._tag === "Failure") expect(result.failure.message).toCo…
+    131|     await noEffects(a.revision, before);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  02:25:27
+   Duration  45.51s (transform 730ms, setup 0ms, import 872ms, tests 44.51s, environment 0ms)

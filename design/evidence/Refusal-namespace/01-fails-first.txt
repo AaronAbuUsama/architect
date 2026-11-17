@@ -1,0 +1,77 @@
+$ pnpm exec vitest run --root packages/compiler src/modules/model/refusal-codes.test.ts
+# commit ee35a5c · 2026-11-17T04:37:18Z · exit 1 (expected 1) · 1.5s
+
+
+ RUN  v4.1.12 ./packages/compiler
+
+ ❯ src/modules/model/refusal-codes.test.ts (5 tests | 4 failed) 123ms
+     × rejects an explicit prefix reserved by a runtime refusal, with the declaration and recovery 40ms
+     × rejects article's automatic runtime prefix and asks for an explicit code 10ms
+     × rejects archive's automatic runtime prefix and asks for an explicit code 5ms
+     × rejects duplicate emitted codes when a declared error reaches the machine's reserved number 54ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/model/refusal-codes.test.ts > refusal code admission > rejects an explicit prefix reserved by a runtime refusal, with the declaration and recovery
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/modules/model/refusal-codes.test.ts:34:34
+     32|   it("rejects an explicit prefix reserved by a runtime refusal, with t…
+     33|     const exit = await modelOf(blueprint("widget", "AR"));
+     34|     expect(Exit.isFailure(exit)).toBe(true);
+       |                                  ^
+     35|     const message = JSON.stringify(exit);
+     36|     expect(message).toContain("blueprint/things/widget/thing.ts");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/modules/model/refusal-codes.test.ts > refusal code admission > rejects article's automatic runtime prefix and asks for an explicit code
+ FAIL  src/modules/model/refusal-codes.test.ts > refusal code admission > rejects archive's automatic runtime prefix and asks for an explicit code
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/modules/model/refusal-codes.test.ts:45:34
+     43|   it.each(["article", "archive"])("rejects %s's automatic runtime pref…
+     44|     const exit = await modelOf(blueprint(name));
+     45|     expect(Exit.isFailure(exit)).toBe(true);
+       |                                  ^
+     46|     const message = JSON.stringify(exit);
+     47|     expect(message).toContain(`blueprint/things/${name}/thing.ts`);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/modules/model/refusal-codes.test.ts > refusal code admission > rejects duplicate emitted codes when a declared error reaches the machine's reserved number
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/modules/model/refusal-codes.test.ts:62:34
+     60|   it("rejects duplicate emitted codes when a declared error reaches th…
+     61|     const exit = await modelOf(blueprint("article", "AT", 900, true));
+     62|     expect(Exit.isFailure(exit)).toBe(true);
+       |                                  ^
+     63|     const message = JSON.stringify(exit);
+     64|     expect(message).toContain("AT-900");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 1 passed (5)
+   Start at  04:37:18
+   Duration  655ms (transform 152ms, setup 0ms, import 405ms, tests 123ms, environment 0ms)

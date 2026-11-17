@@ -3,7 +3,7 @@ import type { Model, OperationModel } from "@architect/compiler";
 import type { Evidence, PerOperation, Verdict } from "../types.ts";
 import { answered, attr } from "./evidence.ts";
 
-const percentile = (sorted: ReadonlyArray<number>, p: number) => sorted[Math.min(sorted.length - 1, Math.ceil((p / 100) * sorted.length) - 1)] ?? 0;
+export const percentile = (sorted: ReadonlyArray<number>, p: number) => sorted[Math.min(sorted.length - 1, Math.ceil((p / 100) * sorted.length) - 1)] ?? 0;
 const ms = (n: number) => `${Math.round(n)}ms`;
 
 /** 7. p50 and p95 of the operation's spans against its budget. Over 1.5 times the budget is a review, never a failure. */

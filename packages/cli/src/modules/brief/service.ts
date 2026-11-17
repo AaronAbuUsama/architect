@@ -19,7 +19,7 @@ const of: BriefApi["of"] = (model, name, journeys): Briefed => {
     lines: [
       `brief ${name}`,
       "",
-      `Write   implementation/handlers/${op.thing}/${op.verb}.ts, and nothing else.`,
+      `Write   src/${op.thing}/${op.verb}.ts, and nothing else.`,
       "",
       "Read",
       `  ${op.file}  the declaration: payload, answer, move, steps, errors`,

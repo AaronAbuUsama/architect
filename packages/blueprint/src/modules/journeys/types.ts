@@ -58,8 +58,8 @@ export interface Actor {
       payload: { readonly [K in keyof PayloadOf<O>]: PayloadOf<O>[K] | Ref },
       options?: { readonly request?: string },
     ): Call;
-    /** A read, by the instance's id. */
-    <R extends Read<any>>(read: R, payload: { readonly id: string | Ref }): Call;
+    /** A read: one instance by its id, or a page of them by the filters it names. */
+    <R extends Read<any, any, any>>(read: R, payload: { readonly [K in keyof PayloadOf<R>]: PayloadOf<R>[K] | Ref }): Call;
   };
 }
 

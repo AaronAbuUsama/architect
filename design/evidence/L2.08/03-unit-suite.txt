@@ -1,0 +1,284 @@
+
+ NX   Running target test for 15 projects:
+
+- host-cloudflare
+- target-solidity
+- target-effect
+- generators
+- blueprint
+- compiler
+- logbook
+- starter
+- portal
+- preset
+- prove
+- acme
+- lint
+- cli
+- std
+
+
+
+> nx run blueprint:test
+
+> vitest run --root packages/blueprint --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/packages/blueprint
+
+
+ Test Files  17 passed (17)
+      Tests  36 passed (36)
+   Start at  00:32:09
+   Duration  2.18s (transform 3.16s, setup 0ms, import 9.32s, tests 88ms, environment 26ms)
+
+
+> nx run target-effect:test
+
+> vitest run --root packages/target-effect --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/packages/target-effect
+
+
+ Test Files  14 passed (14)
+      Tests  49 passed (49)
+   Start at  00:32:09
+   Duration  2.36s (transform 4.40s, setup 0ms, import 13.72s, tests 394ms, environment 1ms)
+
+
+> nx run generators:test
+
+> vitest run --root packages/generators --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/packages/generators
+
+
+ Test Files  3 passed (3)
+      Tests  11 passed (11)
+   Start at  00:32:11
+   Duration  7.65s (transform 561ms, setup 0ms, import 3.65s, tests 13.08s, environment 0ms)
+
+
+> nx run compiler:test
+
+> vitest run --root packages/compiler --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/packages/compiler
+
+
+ Test Files  3 passed (3)
+      Tests  25 passed (25)
+   Start at  00:32:11
+   Duration  14.41s (transform 11.92s, setup 0ms, import 6.30s, tests 13.69s, environment 0ms)
+
+
+> nx run logbook:test
+
+> vitest run --root packages/logbook --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/packages/logbook
+
+
+ Test Files  4 passed (4)
+      Tests  22 passed (22)
+   Start at  00:32:19
+   Duration  11.60s (transform 275ms, setup 0ms, import 1.44s, tests 11.21s, environment 0ms)
+
+
+> nx run host-cloudflare:test
+
+> vitest run --root packages/host-cloudflare --passWithNoTests
+
+[1m[33m
+=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+[39m[22m
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/packages/host-cloudflare
+
+Sourcemap for "/Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js" points to missing source files
+Sourcemap for "/Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js" points to missing source files
+Sourcemap for "/Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js" points to missing source files
+Sourcemap for "/Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js" points to missing source files
+Sourcemap for "/Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js" points to missing source files
+Sourcemap for "/Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js" points to missing source files
+Sourcemap for "/Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js" points to missing source files
+Sourcemap for "/Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js" points to missing source files
+Sourcemap for "/Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js" points to missing source files
+Sourcemap for "/Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/webStandardStreamableHttp.js" points to missing source files
+Sourcemap for "/Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/mediaType.js" points to missing source files
+Sourcemap for "/Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/requestBody.js" points to missing source files
+Sourcemap for "/Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/sseKeepAlive.js" points to missing source files
+Sourcemap for "/Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/cfworker-provider.js" points to missing source files
+
+ Test Files  7 passed (7)
+      Tests  17 passed (17)
+   Start at  00:32:28
+   Duration  51.72s (transform 113.78s, setup 270.21s, import 4.73s, tests 15.45s, environment 2ms)
+
+
+> nx run lint:test
+
+> vitest run --root packages/lint --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/packages/lint
+
+ ❯ test/boundaries.test.ts (4 tests | 1 failed) 15324ms
+     × fails lint when blueprint imports compiler 9335ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/boundaries.test.ts > module boundaries > fails lint when blueprint imports compiler
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ test/boundaries.test.ts:30:5
+     28|     ["blueprint imports a package other than Effect", "packages/bluepr…
+     29|     ["runtime code imports generators", "packages/target-effect/test/f…
+     30|   ])("fails lint when %s", (_, file) => {
+       |     ^
+     31|     const { exit, output } = lint(file);
+     32|     expect(exit).toBe(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 7 passed (8)
+   Start at  00:33:21
+   Duration  17.22s (transform 364ms, setup 0ms, import 509ms, tests 19.73s, environment 0ms)
+
+Warning: command "vitest run --root packages/lint --passWithNoTests" exited with non-zero status code
+> nx run target-solidity:test
+
+> vitest run --root packages/target-solidity --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/packages/target-solidity
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+> nx run starter:test
+
+> vitest run --root examples/starter --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/examples/starter
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+> nx run portal:test
+
+> vitest run --root packages/portal --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/packages/portal
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+> nx run preset:test
+
+> vitest run --root packages/preset --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/packages/preset
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  00:33:46
+   Duration  2.93s (transform 778ms, setup 0ms, import 2.54s, tests 10ms, environment 0ms)
+
+
+> nx run acme:test
+
+> vitest run --root examples/acme --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/examples/acme
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+> nx run cli:test
+
+> vitest run --root packages/cli --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/packages/cli
+
+
+ Test Files  7 passed (7)
+      Tests  26 passed (26)
+   Start at  00:33:52
+   Duration  91.10s (transform 32.34s, setup 0ms, import 20.69s, tests 183.04s, environment 0ms)
+
+
+> nx run std:test
+
+> vitest run --root packages/std --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/packages/std
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+> nx run prove:test
+
+> vitest run --root packages/prove --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/packages/prove
+
+ ❯ src/modules/publish/publish.test.ts (6 tests | 6 skipped) 1608ms
+ ❯ src/modules/test-worlds/test-worlds.test.ts (3 tests | 3 skipped) 1808ms
+ ❯ src/modules/world/mcp.test.ts (1 test | 1 failed) 146938ms
+     × serves one tool per operation and read, behind OAuth, as the person the token names 146935ms
+Warning: command "vitest run --root packages/prove --passWithNoTests" exited with non-zero status code
+
+
+ NX   Running target test for 15 projects failed
+
+Tasks stopped before they finished:
+
+- prove:test
+
+Failed tasks:
+
+- lint:test
+
+  Run duration:      4m 5s
+  Cache:             0/13 hit (0%)
+  Critical path:     3m 43s (1 task)
+  Recoverable time:  22.6s (9% of the run)
+
+  Recommendations:
+    - Drastically reduce your run duration by sharing a cache across your team and CI → https://cloud.nx.app/connect/Y46ioCCb5g.
+    - Speed up or split the longest tasks on the critical path:
+        prove:test    3m 43s

@@ -1,0 +1,13 @@
+{
+  "step": "Refusal-namespace",
+  "stage": "Stage 3 · shipping on local worlds (Gate 2)",
+  "title": "Compiler admission keeps runtime and declared refusal codes unique",
+  "summary": "Runtime refusal prefixes are reserved before admitting a thing’s automatic or explicit prefix. The existing refusal assembly rejects duplicate emitted codes, including a declared error colliding with the machine’s number 900. Invalid blueprints fail closed with an explicit-prefix recovery; nothing is silently renumbered.",
+  "proves": "Actual Compiler.model rejects explicit AR, automatic article and archive prefixes, and the declared/machine AT-900 collision; it accepts article with explicit AT while retaining runtime AR-001. All compiler tests, compiler lint/typecheck and Nx sync check pass. No platform service is needed or started.",
+  "captions": {
+    "01-fails-first": "Four invalid code declarations unexpectedly compile before the fix; the valid custom prefix already passes.",
+    "02-compiler-tests": "Five admission regressions and all existing compiler tests, through the public compiler interface.",
+    "03-static": "Nx reset, sync, compiler lint/typecheck, sync check and whitespace validation.",
+    "04-integrated-compiler": "All30 compiler tests pass after integration, with runtime-prefix and final-code ownership enforced."
+  }
+}

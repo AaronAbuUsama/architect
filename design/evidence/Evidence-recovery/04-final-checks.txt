@@ -1,0 +1,8 @@
+$ python3 tools/evidence/page_test.py
+# commit 38e3586 · 2026-11-17T01:40:11Z · exit 0 (expected 0) · 0.7s
+
+......
+----------------------------------------------------------------------
+Ran 6 tests in 0.638s
+
+OK

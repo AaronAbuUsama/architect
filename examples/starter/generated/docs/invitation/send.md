@@ -30,9 +30,9 @@ Invite someone to an organisation by email.
 
 ## Refusals
 
-| refusal | exit | when |
-|---|---|---|
-| NotAllowed | 3 | the caller isn't the owner of its organization; the handler never runs |
+| refusal | exit | code | when |
+|---|---|---|---|
+| NotAllowed | 3 | AR-001 | the caller isn't the owner of its organization; the handler never runs |
 
 ## How to call
 

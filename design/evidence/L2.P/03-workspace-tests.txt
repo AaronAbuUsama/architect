@@ -1,0 +1,35 @@
+### pnpm nx run-many -t lint,typecheck,test --exclude=prove   (the other 15 projects)
+ NX   Successfully ran targets lint, typecheck, test for 15 projects
+
+Nx read the output from the cache instead of running the command for 12 out of 44 tasks.
+
+  Run duration:      39.5s
+  Cache:             12/44 hit (27%)
+  Critical path:     32.7s (1 task)
+  Recoverable time:  6.8s (17% of the run)
+
+  Recommendations:
+    - Speed up or split the longest tasks on the critical path:
+        host-cloudflare:test    32.7s
+
+### pnpm nx run-many -t lint,typecheck --projects=prove
+
+ NX   Successfully ran targets lint, typecheck for project prove
+
+
+  Run duration:      1.1s
+  Cache:             0/2 hit (0%)
+  Critical path:     1.1s (1 task)
+  Recoverable time:  <1ms
+
+### prove's tests, one file at a time (cd packages/prove && npx vitest run --maxWorkers=1).
+### Run two files at a time, other threads' worlds on the same ports made 3 of them fail by contention; each passes alone.
+ Test Files  15 passed (15)
+      Tests  57 passed (57)
+   Duration  356.13s (transform 7.24s, setup 0ms, import 8.07s, tests 345.42s, environment 1ms)
+
+### pnpm nx sync:check
+ NX   The workspace is up to date
+
+[@architect/generators:sync]: All files are up to date.
+

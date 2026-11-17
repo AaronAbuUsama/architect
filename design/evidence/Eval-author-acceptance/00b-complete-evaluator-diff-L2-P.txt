@@ -1,0 +1,232 @@
+$ git show 43abd99 --format=%H%n%s -- packages/prove/src/modules/evals
+# commit b2aa54e · 2026-11-17T05:10:07Z · exit 0 (expected 0) · 0.0s
+
+43abd99d09ee1db8a1508678403aba49d9a05c6f
+L2.P: privacy-ready seams (visibility, runs, attribute allowlist, refusal codes)
+
+diff --git a/packages/prove/src/modules/evals/README.md b/packages/prove/src/modules/evals/README.md
+index 04a8486..15384cd 100644
+--- a/packages/prove/src/modules/evals/README.md
++++ b/packages/prove/src/modules/evals/README.md
+@@ -3,8 +3,10 @@
+ The nine evals, judged from evidence (each call's record, its telemetry from the collector and the world's facts)
+ against the model, never from what the server says about itself:
+ 
+-1. answer shape: every answer, read from the operation's span, decodes against its declaration.
+-2. declared errors: every refusal is one the operation declares (its errors, its machine's, `NotAllowed`).
++1. answer shape: every answer, read from the operation's span, decodes against its declaration; and no secret or private value, sent
++   or answered, is in any span, log or journal entry of the call (by name and by value; L2.P, D3 #83).
++2. declared errors: every refusal is one the operation declares (its errors, its machine's, `NotAllowed`), and its answer carries the
++   code the model fixed for it.
+ 3. machine path: every move ends in a declared state, and the stored state is where it ended.
+ 4. events: every move that happened journalled its event.
+ 5. who may call: decided before the call from the world's facts and `allowed`; a caller without the role is refused.
+diff --git a/packages/prove/src/modules/evals/evals.test.ts b/packages/prove/src/modules/evals/evals.test.ts
+index a8ade0c..bfdd230 100644
+--- a/packages/prove/src/modules/evals/evals.test.ts
++++ b/packages/prove/src/modules/evals/evals.test.ts
+@@ -1,9 +1,10 @@
+ import { describe, expect, it } from "vitest";
++import { Blueprint } from "@architect/blueprint";
+ import type { Model, OperationModel } from "@architect/compiler";
+ import type { CallRecord } from "#modules/journeys/types.js";
+ import type { Evidence } from "./types.ts";
+ import { coverage, coverageSummary, performance } from "./internal/run.ts";
+-import { declaredErrors, steps, whoMayCall } from "./internal/calls.ts";
++import { answerShape, declaredErrors, steps, whoMayCall } from "./internal/calls.ts";
+ 
+ const op = {
+   name: "allowance.grant", thing: "allowance", verb: "grant", answer: {}, payload: { organization: { value: { type: "id", prefix: "org" } } },
+@@ -11,6 +12,10 @@ const op = {
+   allowed: [{ kind: "role-of", role: "organization.owner", path: "organization" }], steps: {}, budget: { p95Ms: 200 },
+ } as unknown as OperationModel;
+ 
++/** What a run knows of the project: the model's refusal codes, and the declarations an answer is checked against. */
++const run = (refusals: Readonly<Record<string, string>> = {}) =>
++  ({ project: { model: { refusals }, operations: new Map() } as never, all: [] });
++
+ const call = (over: Partial<CallRecord>): CallRecord => ({
+   journey: "grant an allowance", step: "s", actor: "bob", person: "per_b", operation: "allowance.grant", payload: { organization: "org_1" },
+   status: 200, body: {}, trace: "t", parent: "p", mayCall: true, journal: [], ...over,
+@@ -28,10 +33,20 @@ describe("evals on evidence", () => {
+   });
+ 
+   it("declared errors: an undeclared refusal names itself and the declared ones", () => {
+-    const v = declaredErrors(op, [evidence(1, { refusal: "Boom" })], undefined as never);
++    const v = declaredErrors(op, [evidence(1, { refusal: "Boom" })], run());
+     expect(v.failures).toEqual(['grant-an-allowance "s": refused with Boom, not one of AllowanceLimitTooHigh, NotAllowed']);
+   });
+ 
++  it("declared errors: every refusal answer carries the code the model fixed for it, beside its tag", () => {
++    const refused = (body: unknown) => evidence(1, { refusal: "AllowanceLimitTooHigh", call: call({ status: 422, body }) });
++    const codes = run({ AllowanceLimitTooHigh: "AL-003", NotAllowed: "AR-001" });
++    expect(declaredErrors(op, [refused({ _tag: "AllowanceLimitTooHigh", code: "AL-003", cap: "1000" })], codes).failures).toEqual([]);
++    expect(declaredErrors(op, [refused({ _tag: "AllowanceLimitTooHigh", cap: "1000" })], codes).failures).toEqual([
++      'grant-an-allowance "s": AllowanceLimitTooHigh was answered with no code, and the model\'s code for it is AL-003',
++    ]);
++    expect(declaredErrors(op, [refused({ _tag: "AllowanceLimitTooHigh", code: "AL-009", cap: "1000" })], codes).failures[0]).toContain("with code AL-009");
++  });
++
+   it("who may call: judged on mayCall, not on what the server said", () => {
+     const answered = whoMayCall(op, [evidence(1, { call: call({ mayCall: false }) })], undefined as never);
+     expect(answered.failures[0]).toContain("caller bob (person per_b) lacks owner of organization org_1, and was answered, not refused");
+@@ -63,3 +78,43 @@ describe("evals on evidence", () => {
+     expect(coverageSummary(model, all).notes).toEqual(["moves 0/0 · outcomes 0/0 · refusals 1/1 · runtime refusals 0/2"]);
+   });
+ });
++
++describe("answer shape: no secret reaches a span, a log or the journal", () => {
++  const signIn = {
++    name: "session.sign-in", thing: "session", verb: "sign-in", move: null, refusals: [], allowed: [{ kind: "anyone" }], steps: {}, budget: null,
++    payload: { email: { value: { type: "text", max: 254 } }, password: { value: { type: "text", max: 128 }, visibility: "secret" } },
++    answer: { session: { value: { type: "id", prefix: "ses" }, visibility: "secret" }, token: { value: { type: "text", max: 512 }, visibility: "secret" } },
++  } as unknown as OperationModel;
++  const declared = {
++    operations: new Map([["session.sign-in", { answer: { session: Blueprint.visibility.secret(Blueprint.id("ses")), token: Blueprint.visibility.secret(Blueprint.text({ max: 512 })) } }]]),
++  };
++  const span = (attrs: Record<string, unknown>, name = "session.sign-in") => ({ traceId: "t", spanId: name, parentSpanId: "p", name, attrs, status: 1, ms: 1, start: 0 });
++  const signedIn = (over: Partial<Evidence>): Evidence => ({
++    ...evidence(1), call: call({ operation: "session.sign-in", payload: { email: "ada@acme.dev", password: "correct horse battery" }, body: { session: "ses_abc123", token: "tok_0123456789abcdef" } }), ...over,
++  });
++  const judge = (e: Evidence) => answerShape(signIn, [e], { project: declared as never, all: [] }).failures;
++
++  it("passes a call whose spans and logs hold only public values", () => {
++    expect(judge(signedIn({ trace: { spans: [span({ "payload.email": "ada@acme.dev" })], logs: [] } }))).toEqual([]);
++  });
++
++  it("fails an attribute named for a secret field, without repeating the secret", () => {
++    const failures = judge(signedIn({ trace: { spans: [span({ "payload.password": "x" })], logs: [] } }));
++    expect(failures).toEqual(['grant-an-allowance "s": payload.password (not public) appears in span session.sign-in as the attribute payload.password']);
++  });
++
++  it("fails a secret value found in any span attribute, log line or log attribute", () => {
++    const inSpan = judge(signedIn({ trace: { spans: [span({ note: "got tok_0123456789abcdef today" }, "session.sign-in.verify")], logs: [] } }));
++    expect(inSpan).toEqual(['grant-an-allowance "s": answer.token (not public) appears in span session.sign-in.verify, attribute note']);
++    const log = (body: string, attrs: Record<string, unknown> = {}) => ({ traceId: "t", spanId: "s", body, attrs });
++    expect(judge(signedIn({ trace: { spans: [], logs: [log("signing in with correct horse battery")] } }))).toEqual(['grant-an-allowance "s": payload.password (not public) appears in a log line']);
++    expect(judge(signedIn({ trace: { spans: [], logs: [log("ok", { who: "ses_abc123" })] } }))).toEqual(['grant-an-allowance "s": answer.session (not public) appears in a log attribute']);
++  });
++
++  it("fails a secret value in a journal entry", () => {
++    const journal = [{ event: "SignedIn", move: "m", subject: "s", fields: { token: "tok_0123456789abcdef" } }];
++    expect(judge(signedIn({ call: call({ operation: "session.sign-in", payload: { password: "correct horse battery" }, body: { session: "ses_abc123", token: "tok_0123456789abcdef" }, journal }) }))).toEqual([
++      'grant-an-allowance "s": answer.token (not public) appears in a journal entry',
++    ]);
++  });
++});
+diff --git a/packages/prove/src/modules/evals/internal/calls.ts b/packages/prove/src/modules/evals/internal/calls.ts
+index 8d060fd..4431eb6 100644
+--- a/packages/prove/src/modules/evals/internal/calls.ts
++++ b/packages/prove/src/modules/evals/internal/calls.ts
+@@ -4,6 +4,7 @@ import { structOf } from "@architect/blueprint/server";
+ import type { FieldModel } from "@architect/compiler";
+ import type { PerOperation, Verdict } from "../types.ts";
+ import { answered, attr, replayed, subtree, where } from "./evidence.ts";
++import { secretsIn } from "./secrets.ts";
+ 
+ const verdict = (name: string, operation: string, failures: ReadonlyArray<string>, notes: ReadonlyArray<string> = []): Verdict =>
+   ({ eval: name, operation, failures, notes });
+@@ -19,26 +20,42 @@ const fromJson = (text: unknown) => {
+   return parsed._tag === "Some" ? parsed.value : text;
+ };
+ 
+-/** 1. Every answer has its declared shape: read from the operation's span, so an answer the server refused to send counts. */
++/**
++ * 1. Every answer has its declared shape: read from the operation's span, so an answer the server refused to send counts.
++ * A secret or private field is never on the span (L2.P), so its shape is read from what was answered; and the same eval
++ * checks that no secret value, sent or answered, appears in any span or log of the call (`secrets.ts`).
++ */
+ export const answerShape: PerOperation = (op, evidence, { project }) => {
+   const declared = project.operations.get(op.name)?.answer ?? {};
+   const failures = evidence.flatMap((e) => {
+     const fromSpan = Object.fromEntries(Object.entries(e.opSpan?.attrs ?? {}).filter(([k]) => k.startsWith("answer.")).map(([k, v]) => [k.slice(7), v]));
+-    const answer = Object.keys(fromSpan).length > 0 ? fromSpan : answered(e) ? (e.call.body as Record<string, unknown>) : undefined;
+-    if (!answer) return [];
+-    return Object.keys(op.answer).flatMap((k) => {
++    const sent = answered(e) && typeof e.call.body === "object" && e.call.body !== null ? (e.call.body as Record<string, unknown>) : {};
++    const hidden = Object.fromEntries(Object.entries(sent).filter(([k]) => op.answer[k]?.visibility !== undefined));
++    const answer = Object.keys(fromSpan).length > 0 ? { ...hidden, ...fromSpan } : answered(e) ? sent : undefined;
++    const leaks = secretsIn(op, e);
++    if (!answer) return leaks;
++    return [...leaks, ...Object.keys(op.answer).flatMap((k) => {
+       const got = op.answer[k]?.value.type === "schema" ? fromJson(answer[k]) : answer[k];
+       const ok = Schema.decodeUnknownExit(structOf({ [k]: declared[k]! }) as never)({ [k]: got })._tag === "Success";
+-      return ok ? [] : [`${where(e)}: answer.${k}: expected ${expectation(op.answer[k])}, got ${JSON.stringify(answer[k])}`];
+-    });
++      // A secret is not repeated in the report, only said to be wrong.
++      return ok ? [] : [`${where(e)}: answer.${k}: expected ${expectation(op.answer[k])}, got ${op.answer[k]?.visibility === undefined ? JSON.stringify(answer[k]) : "a value that does not fit (hidden: not public)"}`];
++    })];
+   });
+   return verdict("answer shape", op.name, failures);
+ };
+ 
+-/** 2. Every refusal is one the operation declares (its errors, its machine's, NotAllowed). */
+-export const declaredErrors: PerOperation = (op, evidence) =>
+-  verdict("declared errors", op.name, evidence.flatMap((e) =>
+-    e.refusal && !op.refusals.includes(e.refusal) ? [`${where(e)}: refused with ${e.refusal}, not one of ${op.refusals.join(", ")}`] : []));
++/** 2. Every refusal is one the operation declares (its errors, its machine's, NotAllowed), and its answer carries its code. */
++export const declaredErrors: PerOperation = (op, evidence, { project }) =>
++  verdict("declared errors", op.name, evidence.flatMap((e) => {
++    if (!e.refusal) return [];
++    if (!op.refusals.includes(e.refusal)) return [`${where(e)}: refused with ${e.refusal}, not one of ${op.refusals.join(", ")}`];
++    // The answer to a refusal is `{ _tag, code, ...fields }` (L2.P): the code beside the tag, as the model fixed it.
++    const body = e.call.status >= 400 && e.call.status < 500 && typeof e.call.body === "object" && e.call.body !== null ? (e.call.body as { _tag?: unknown; code?: unknown }) : undefined;
++    const code = project.model.refusals[e.refusal];
++    return body && body._tag === e.refusal && code !== undefined && body.code !== code
++      ? [`${where(e)}: ${e.refusal} was answered ${typeof body.code === "string" ? `with code ${body.code}` : "with no code"}, and the model's code for it is ${code}`]
++      : [];
++  }));
+ 
+ /** 3. Every move ends in a declared state, and the stored state is where it ended. */
+ export const machinePath: PerOperation = (op, evidence) => {
+diff --git a/packages/prove/src/modules/evals/internal/secrets.ts b/packages/prove/src/modules/evals/internal/secrets.ts
+new file mode 100644
+index 0000000..02ea9b6
+--- /dev/null
++++ b/packages/prove/src/modules/evals/internal/secrets.ts
+@@ -0,0 +1,45 @@
++// The secrecy half of eval 1 (L2.P): a call that carried a secret or private value leaves none of it in any span, log or
++// journal entry its trace recorded. Two readings, because each catches what the other misses. By name: no attribute is
++// keyed for a non-public field. By value: no span attribute, log body or log attribute, and no journal entry, contains the
++// value that was actually sent or answered (a handler that logged a password in a sentence has no key to find it by).
++import type { FieldsModel, OperationModel } from "@architect/compiler";
++import type { Evidence } from "../types.ts";
++import { where } from "./evidence.ts";
++
++/** A shorter value would match by chance; a secret that short is caught by name only. */
++const MIN = 8;
++
++const textOf = (v: unknown): string => (typeof v === "string" ? v : typeof v === "bigint" ? v.toString() : JSON.stringify(v) ?? "");
++
++const hiddenOf = (fields: FieldsModel, values: Readonly<Record<string, unknown>>) =>
++  Object.entries(fields).flatMap(([k, f]) => (f.visibility !== undefined && values[k] !== undefined ? [{ field: k, value: textOf(values[k]) }] : []));
++
++/** Failures, never the secret itself: the report names the field and where it showed up. */
++export const secretsIn = (op: OperationModel, e: Evidence): ReadonlyArray<string> => {
++  const sent = e.call.payload;
++  const body = e.call.status === 200 && typeof e.call.body === "object" && e.call.body !== null ? (e.call.body as Record<string, unknown>) : {};
++  const secrets = [
++    ...hiddenOf(op.payload, sent).map((s) => ({ ...s, label: `payload.${s.field}` })),
++    ...hiddenOf(op.answer, body).map((s) => ({ ...s, label: `answer.${s.field}` })),
++  ];
++  const names = new Set([...Object.entries(op.payload).flatMap(([k, f]) => (f.visibility ? [`payload.${k}`, k] : [])), ...Object.entries(op.answer).flatMap(([k, f]) => (f.visibility ? [`answer.${k}`, k] : []))]);
++  const found: Array<string> = [];
++  const at = (label: string, where_: string) => found.push(`${where(e)}: ${label} (not public) appears in ${where_}`);
++  for (const span of e.trace.spans) {
++    for (const [key, v] of Object.entries(span.attrs)) {
++      if (names.has(key)) at(key, `span ${span.name} as the attribute ${key}`);
++      for (const s of secrets) if (s.value.length >= MIN && textOf(v).includes(s.value)) at(s.label, `span ${span.name}, attribute ${key}`);
++    }
++  }
++  for (const log of e.trace.logs) {
++    for (const s of secrets) {
++      if (s.value.length < MIN) continue;
++      if (log.body.includes(s.value)) at(s.label, "a log line");
++      else if (Object.entries(log.attrs).some(([, v]) => textOf(v).includes(s.value))) at(s.label, "a log attribute");
++    }
++    for (const key of Object.keys(log.attrs)) if (names.has(key)) at(key, `a log attribute named ${key}`);
++  }
++  const journal = JSON.stringify(e.call.journal);
++  for (const s of secrets) if (s.value.length >= MIN && journal.includes(s.value)) at(s.label, "a journal entry");
++  return found;
++};

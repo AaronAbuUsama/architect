@@ -1,0 +1,13 @@
+{
+  "step": "L2.01",
+  "stage": "Stage 3 · ship it across local worlds (Gate 2)",
+  "title": "Environments and one build per revision (local reading)",
+  "summary": "architect build bundles the revision's Worker once with wrangler's dry run, with no credentials, and prints built <revision> sha256:<hash>; the same revision hashes the same. architect env up, down and status run test, staging and production as long-lived wrangler dev processes on that exact file, each with its own D1 state, port, inspector port and secrets file, and every one answers GET /_architect/bundle with the revision and hash it runs. The declarations (Blueprint.environment, config and secret, Identity, Cloud, Deploy) are read into the model by file path, and acme and the starter carry the four environment files. The Alchemy stack and architect deploy wait for the cloud pass.",
+  "proves": "On a copy of acme under git: two builds hash the same; staging and production run at once and a person who signs up in staging is a stranger to production; a restart of staging keeps its state and runs the same bundle; /_architect/bundle equals the build; the secrets file is mode 0600 and its value is on no command line; env down leaves nothing running and down on a stopped environment is not an error. Every package's lint, typecheck and tests pass, and nx sync:check is clean.",
+  "captions": {
+    "01-tests": "The done-when check: build and environment tests, real wrangler and workerd.",
+    "02-demo": "Build twice, two environments at once, each bundle reported, separate state kept across a restart, nothing left running.",
+    "03-unit-suite": "Every package's lint, typecheck and tests.",
+    "04-sync-check": "Generated files match the blueprint, with the new /_architect/bundle route."
+  }
+}

@@ -1,0 +1,11 @@
+$ pnpm exec vitest run --root packages/logbook src/modules/local/local.test.ts
+# commit ee35a5c · 2026-11-17T04:38:35Z · exit 0 (expected 1) · 10.0s
+
+
+ RUN  v4.1.12 ./packages/logbook
+
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  04:38:26
+   Duration  9.28s (transform 48ms, setup 0ms, import 285ms, tests 8.88s, environment 0ms)

@@ -1,0 +1,11 @@
+$ pnpm exec vitest run --root packages/prove src/modules/environments/environments.test.ts src/modules/environments/process-ownership.test.ts
+# commit ee35a5c · 2026-11-17T04:48:12Z · exit 0 (expected 0) · 25.2s
+
+
+ RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  2 passed (2)
+      Tests  9 passed (9)
+   Start at  04:47:48
+   Duration  23.67s (transform 1.56s, setup 0ms, import 2.39s, tests 41.16s, environment 0ms)

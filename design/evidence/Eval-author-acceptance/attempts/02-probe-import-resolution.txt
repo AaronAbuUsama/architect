@@ -1,0 +1,23 @@
+$ pnpm exec tsx design/evidence/Eval-author/probes/main.ts
+# commit b2aa54e · 2026-11-17T04:52:35Z · exit 1 (expected 1) · 1.1s
+
+node:internal/modules/run_main:111
+    triggerUncaughtException(
+    ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@architect/blueprint' imported from ./design/evidence/Eval-author/probes/main.ts
+Did you mean to import "file://./packages/blueprint/src/index.ts"?
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:343:9)
+    at packageResolve (node:internal/modules/esm/resolve:751:25)
+    at moduleResolve (node:internal/modules/esm/resolve:840:18)
+    at defaultResolve (node:internal/modules/esm/resolve:973:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:708:20)
+    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:728:38)
+    at nextStep (node:internal/modules/customization_hooks:189:26)
+    at resolveBaseSync (file://./node_modules/.pnpm/tsx@4.23.15/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:11092)
+    at resolveDirectorySync (file://./node_modules/.pnpm/tsx@4.23.15/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:12398)
+    at resolveTsPathsSync (file://./node_modules/.pnpm/tsx@4.23.15/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:13605) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+
+Node.js v26.13.1

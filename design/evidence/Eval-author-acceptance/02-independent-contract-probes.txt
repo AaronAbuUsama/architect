@@ -1,0 +1,8 @@
+$ pnpm exec tsx design/evidence/Eval-author/probes/main.ts
+# commit b2aa54e · 2026-11-17T04:53:13Z · exit 1 (expected 1) · 0.9s
+
+{"case":"valid coded refusal","failures":[],"expectedFailure":false}
+{"case":"4xx refusal on span, response object has no tag or code","failures":[],"expectedFailure":true}
+{"case":"4xx refusal on span, response has wrong code and no tag","failures":[],"expectedFailure":true}
+{"case":"valid Schema.String literal null remains text","failures":["independent-evaluator-contract \"observed response\": answer.text: expected its schema, got \"null\""],"expectedFailure":false}
+{"contractGaps":["4xx refusal on span, response object has no tag or code","4xx refusal on span, response has wrong code and no tag","valid Schema.String literal null remains text"]}

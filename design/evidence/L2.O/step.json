@@ -1,0 +1,14 @@
+{
+  "step": "L2.O",
+  "stage": "Stage 3 · shipping on local worlds (Gate 2)",
+  "title": "Seeing traces locally, and the Axiom sink",
+  "summary": "architect telemetry view|stop|trace|open and prove --view: grafana/otel-lgtm pinned by digest with anonymous Grafana, fed by a second Collector exporter while it runs; a Collector whose owner process is gone is removed at the next start; prove exports journey.<name> as each trace's root; a refusal ends its span ok and a defect ends it as an error; a TraceSource seam with a FileSource; the Sink seam (Telemetry.sink.local() and .axiom({ group }) as a list per environment) and an Axiom sink that exports from the Worker to the EU edge with Authorization and X-Axiom-Dataset per signal, every value read by name from the keychain or AXIOM_TOKEN/AXIOM_DOMAIN, skipped with one line when absent, deployment.environment on every span. User and organization identifiers never leave the machine.",
+  "proves": "After telemetry view and a prove of acme, the viewer's Tempo answers the allowance.grant trace with its journey root, its step span and its log by trace id; stop leaves no container and no open port; plain prove starts no viewer; a collector left by a dead process is gone after the next start. A refusal's span ends ok and a defect's ends as an error. A second sink is one line of config and a stand-in for Axiom receives the spans and logs with the token and dataset while no file of the run holds the token. The live send to capxul-test arrived with its step spans and no secret-looking or personal attribute.",
+  "captions": {
+    "01-fails-first": "The conventions' tests before the change: two fail, the defect test already passed.",
+    "02-handler-after": "The handler tests after.",
+    "03-prove-view": "acme's prove with --view: every eval passes and the viewer's address is printed.",
+    "04-telemetry-trace": "architect telemetry trace for the allowance.grant trace: journey root, POST, the operation with its move, the step span.",
+    "05-axiom-live": "The live check against capxul-test: the spans and the attribute keys Axiom holds for the trace."
+  }
+}

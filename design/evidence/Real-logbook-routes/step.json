@@ -1,0 +1,15 @@
+{
+  "step": "Real-logbook-routes",
+  "stage": "Stage 3 · independent author checks",
+  "title": "Run every logbook route and SQL invariant on the real platform",
+  "summary": "The obsolete HTTP fake and in-memory SqlStorage shim are replaced by ten state-isolated route and ledger groups running the actual Worker, Durable Object SQLite, R2 and pinned signed OIDC issuer. Every meaningful old assertion is retained through the public API; runtime sources are unchanged. The original fake failure is a diagnostic of its unsupported conditional writes, not a product failure.",
+  "proves": "pnpm exec vitest run --root packages/logbook --maxWorkers=1 passes all logbook checks, including the migrated public routes and ledger invariants plus the existing persisted-schema upgrade and restart checks. NX_DAEMON=false pnpm nx run-many -p logbook -t lint,typecheck --outputStyle=static passes. Every process and container owned by these tests is stopped.",
+  "captions": {
+    "01-obsolete-fake-diagnostic": "The obsolete HTTP fake fails its model-immutability assertion because its handwritten put ignores R2 conditional admission; this is a diagnostic, not a product failure.",
+    "02-real-route-ledger-checks": "All ten replacement groups pass on real workerd, SQLite Durable Objects, R2 and signed OIDC, before deleting either obsolete suite.",
+    "03-static-checks": "Targeted Nx lint and type checking pass for the logbook package.",
+    "04-whole-logbook-suite": "The whole logbook suite passes serially, including real persisted-schema upgrades and restarts.",
+    "05-cleanup": "No owned test ports, issuer containers or worktree Worker processes remain.",
+    "06-integrated-suite": "Integrated source123eea6: all25real logbook tests pass serially."
+  }
+}

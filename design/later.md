@@ -6,8 +6,13 @@ belongs to, and why it waits.
 - Indexers beyond the generated follower, for views too large for an organisation's index. Later.
 - Safe as a kit, built from its own events and our own small core. Later.
 - Python as a third target. Later.
+- **PostHog as a sink** (O1 L2.O8, L2.O9): error tracking for defects and a `PostHogSource`. Aaron, 16 November 2026: leave it for now; the `Sink` seam keeps it one adapter away.
+- **Axiom as the sink** (O1 steps L2.O5, L2.O6, L2.O8): deployed workers export straight to Axiom per environment
+  dataset, `watch` reads it through an `AxiomSource`. The cloud pass, on Aaron's account and tokens.
+- **Noir on Aztec as a target**, client-proved and private (N1, `design/noir/`). After Gate 5, its own layer. The
+  private Capxul layers in the handoff are a product roadmap built on it, kept with the Noir thread.
 - Each thing as an actor by default. Later.
-- The world's front door (`/_world/cast`, `/_world/facts/*`) closed in staging and production worlds: shipping, layer two (stage three), because only then do non-local worlds exist (D2 #28).
+- ~~The world's front door closed in staging and production worlds~~: done in L2.08 (D3 #126, #127).
 
 ## From stage two (layer one)
 
@@ -22,6 +27,17 @@ belongs to, and why it waits.
   53 entries already in the lockfile (transitives resolved within the last two weeks). The rule binds the versions we
   pin; turning the policy on means rebuilding the lockfile once the window has passed.
 
+- **A durable agent on Architect's own stack** (proposed 16 November 2026, after Aaron pointed at Pi Durable,
+  `@earendil-works/pi-durable` in pi-mono). An agent session as a Durable Object: each model turn and each tool call a
+  declared step with its span, the transcript committed before anything is shown, waits through `Timers`, resumed by
+  the DO alarm after a crash, and the run proven by the same nine evals. Pi Durable's checkpoint-per-phase design is
+  the reference, not a dependency (it is about 36k lines and experimental). Belongs with layer five, time.
+
+- **Architect's own CLI as a single executable.** The `single-binary` spike (`spikes/single-binary/`) found what
+  stops it: the compiler is spawned through `process.execPath`, three modules read `import.meta` at load, `nx`'s
+  native addon is required at load, and the lint plugin and wrangler are resolved as files. Run the compiler
+  in-process or through a hidden subcommand, resolve files lazily, ship the plugin beside the binary, and keep `nx`
+  off the load path; then the `architect` binary can go through the same tap.
 - **A durable agent on Architect's own stack, as declared operations** (proposed 16 November 2026; narrowed by H1). The
   build-time harness is Pi Durable behind an Effect seam (`decisions/H1-agent-harness.md`, build-plan track A). What waits:
   the agent run as a declared `Run` thing with a machine (`briefed`, `working`, `checking`, `proven | failed`), its turns and
@@ -36,3 +52,23 @@ belongs to, and why it waits.
   a mutant only if prove fails on it. Waits until the authored planted breaks (A8) show which evals need more tasks.
 - **Benchmark regressions as a gate** (H2.12). Advisory until baselines have shown how noisy they are; a later decision makes it a gate.
 - **A weekly scheduled baseline in CI** on free models (H2.12), once CI may hold a model key (Aaron's call, H2 question 3).
+
+- **The cloud pass must set `ARCHITECT_ENVIRONMENT` on every deployed Worker, and give `Facts` a D1-API reader (D3 #126, #127).** The front door is closed unless
+  the environment is named and declares a lifetime; a Worker that forgets the name reads as a local world. Staging's proof reads D1 through a file today.
+- **Read `architect.config.ts`'s `outputs` where packages and commands are named (D3 #112).** Nothing reads the config yet: the generators
+  name the CLI from the project's folder and `publish` names `@<folder>/sdk` and `@<folder>/cli`, so `outputs: { sdk: "@acme/sdk", cli: "acme" }`
+  renames nothing. One change for the generators and publish together: the config's names, the folder as the default.
+- **The SDK without Architect's server packages.** `@acme/sdk`'s declarations and runtime import only `effect` and `@architect/blueprint`
+  (and its `/server` entry for the API's schemas); a consumer of the SDK still installs all of `@architect/blueprint`. Splitting the client's
+  schemas from the blueprint's declaration API would slim it; worth doing before the packages are public (the cloud pass).
+- **Architect's own CLI as a single executable** (spike `single-binary`, D3 #9): still blocked by the four breakages the spike lists
+  (`import.meta` at load, spawning `process.execPath` as Node, the lint plugin and wrangler as files, nx's native addon). The generated project
+  CLI ships as a binary; `architect` stays an npm package.
+- **Atomic OAuth client-registration ceiling before public deployment (D3 #195).** The local count-before-insert guard
+  is a throttle; concurrent registrations can exceed the nominal500 threshold. Keep role/JWT admission unchanged,
+  but enforce a strict ceiling at its authoritative mutation before a public cloud rollout. No such rollout is in goal01.
+
+- **Legacy host adapter policy debt (D3 #197).** Before extending the existing publish, world-process or host
+  telemetry adapters, and before public cloud use, remove their remaining literal throw/try and ambient-env policy
+  violations and close the corresponding workspace lint coverage gap. Local Gate2 records this limitation; it
+  does not grant new runtime exceptions or claim every standing-rule syntax restriction was certified.

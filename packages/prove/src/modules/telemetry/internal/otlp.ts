@@ -34,20 +34,28 @@ const text = (path: string): string => (existsSync(path) ? readFileSync(path, "u
 /** Whole lines only: the exporter may be mid-line, and the next read sees that line complete. */
 const docs = (content: string): Array<any> => content.split("\n").slice(0, -1).filter((l) => l.trim() !== "").map((l) => JSON.parse(l));
 
-/** Everything the collector has written so far, by trace id, and how many bytes that was. */
-export const readAll = (dir: string): { readonly byTrace: Map<string, Trace>; readonly size: number } => {
-  const traces = text(`${dir}/traces.jsonl`);
-  const logs = text(`${dir}/logs.jsonl`);
+/** Everything the collector has written so far to these folders, by trace id, and how many bytes that was. */
+export const readAll = (dirs: ReadonlyArray<string>): { readonly byTrace: Map<string, Trace>; readonly size: number } => {
   const byTrace = new Map<string, { spans: Array<Span>; logs: Array<Log> }>();
   const at = (id: string) => byTrace.get(id) ?? byTrace.set(id, { spans: [], logs: [] }).get(id)!;
-  for (const d of docs(traces)) for (const s of spansOf(d)) at(s.traceId).spans.push(s);
-  for (const d of docs(logs)) for (const l of logsOf(d)) at(l.traceId).logs.push(l);
-  return { byTrace, size: traces.length + logs.length };
+  let size = 0;
+  for (const dir of dirs) {
+    const traces = text(`${dir}/traces.jsonl`);
+    const logs = text(`${dir}/logs.jsonl`);
+    size += traces.length + logs.length;
+    for (const d of docs(traces)) for (const s of spansOf(d)) at(s.traceId).spans.push(s);
+    for (const d of docs(logs)) for (const l of logsOf(d)) at(l.traceId).logs.push(l);
+  }
+  return { byTrace, size };
 };
 
-/** Root present (the span whose parent is the caller's), and no span pointing at a parent that isn't there. */
-export const looksComplete = (trace: Trace | undefined, parent: string): boolean => {
+/**
+ * Root present (the span whose parent is the caller's), and no span pointing at a parent that isn't there. A span
+ * with no parent at all is a root of its own: the journey's span, when prove exported it. `rooted` waits for it.
+ */
+export const looksComplete = (trace: Trace | undefined, parent: string, rooted = false): boolean => {
   if (!trace) return false;
   const ids = new Set(trace.spans.map((s) => s.spanId));
-  return trace.spans.some((s) => s.parentSpanId === parent) && trace.spans.every((s) => s.parentSpanId === parent || ids.has(s.parentSpanId));
+  const linked = trace.spans.some((s) => s.parentSpanId === parent) && trace.spans.every((s) => s.parentSpanId === "" || s.parentSpanId === parent || ids.has(s.parentSpanId));
+  return linked && (!rooted || ids.has(parent));
 };

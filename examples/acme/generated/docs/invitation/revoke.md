@@ -27,10 +27,10 @@ Withdraw an invitation that hasn't been accepted.
 
 ## Refusals
 
-| refusal | exit | when |
-|---|---|---|
-| InvitationNotPending | 40 | the invitation is in a state revoke can't start from; carries `state` |
-| NotAllowed | 3 | the caller isn't the owner of its invitation.organization; the handler never runs |
+| refusal | exit | code | when |
+|---|---|---|---|
+| InvitationNotPending | 40 | IN-900 | the invitation is in a state revoke can't start from; carries `state` |
+| NotAllowed | 3 | AR-001 | the caller isn't the owner of its invitation.organization; the handler never runs |
 
 ## How to call
 

@@ -2,7 +2,7 @@
 // builder) fails its own eval in a scratch copy of acme.
 import { spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { basename, join, relative, resolve } from "node:path";
+import { basename, dirname, join, relative, resolve } from "node:path";
 import { Effect } from "effect";
 import { afterAll, describe, expect, it } from "vitest";
 import { FsTree, flushChanges } from "nx/src/generators/tree.js";
@@ -12,6 +12,11 @@ import { Prove } from "./service.ts";
 // Dot-folders (.wrangler, .architect) belong to whatever is running there; a filter also keeps cpSync off its native path,
 // which aborts the process when a folder vanishes mid-copy.
 const visible = (from: string) => !basename(from).startsWith(".");
+const install = (from: string, root: string, to: string) => {
+  if (!to.startsWith("src/") && !to.startsWith("generated/")) return cpSync(from, join(root, to));
+  mkdirSync(dirname(join(root, to)), { recursive: true });
+  writeFileSync(join(root, to), readFileSync(from, "utf8"));
+};
 
 const repo = resolve(import.meta.dirname, "../../../../..");
 const acme = join(repo, "examples/acme");
@@ -26,14 +31,14 @@ const planted = (name: string, installs: ReadonlyArray<readonly [string, string]
     const root = join(scratch, name, "acme");
     rmSync(join(scratch, name), { recursive: true, force: true });
     mkdirSync(root, { recursive: true });
-    for (const part of ["blueprint", "generated", "implementation", "journeys", "package.json"]) {
+    for (const part of ["blueprint", "generated", "src", "journeys", "package.json"]) {
       cpSync(join(acme, part), join(root, part), { recursive: true, filter: visible });
     }
     // acme's own compiler options, from where the copy sits.
     writeFileSync(join(root, "tsconfig.json"), JSON.stringify({ extends: relative(root, join(acme, "tsconfig.json")) }));
-    for (const [from, to] of installs) cpSync(join(fixtures, name, from), join(root, to));
+    for (const [from, to] of installs) install(join(fixtures, name, from), root, to);
     // Sync scaffolds every handler that isn't there: a project whose handlers are all still blank.
-    if (unwritten) rmSync(join(root, "implementation/handlers"), { recursive: true, force: true });
+    if (unwritten) rmSync(join(root, "src"), { recursive: true, force: true });
     if (sync) {
       const tree = new FsTree(repo, false);
       yield* Sync.project(tree, relative(repo, root));
@@ -42,14 +47,15 @@ const planted = (name: string, installs: ReadonlyArray<readonly [string, string]
     return root;
   }));
 
-const GRANT = "implementation/handlers/allowance/grant.ts";
+const GRANT = "src/allowance/grant.ts";
 const nothingRunning = () => {
   const containers = spawnSync("docker", ["ps", "--format", "{{.Names}}"], { encoding: "utf8" }).stdout;
   // This process's collectors only: other test files prove their own projects at the same time.
   expect(containers).not.toContain(`architect-collector-${process.pid}-`);
 };
 
-afterAll(() => rmSync(scratch, { recursive: true, force: true }));
+// A collector may still be flushing its last lines as the scope closes: retry instead of failing on ENOTEMPTY.
+afterAll(() => rmSync(scratch, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }));
 
 describe("architect prove --env local", () => {
   it("passes on acme: every journey, every eval, coverage, and leaves nothing running", { timeout: 180_000 }, async () => {
@@ -88,7 +94,7 @@ describe("architect prove --env local", () => {
     { fixture: "events", installs: [["grant.ts", GRANT]], line: "allowance.grant events ✘", says: "move grant emitted no AllowanceGranted" },
     { fixture: "who-may-call", installs: [["main.ts", "generated/server/main.ts"]], line: "allowance.grant who may call ✘", says: "and was answered, not refused" },
     { fixture: "steps", installs: [["grant.ts", GRANT]], line: "allowance.grant steps ✘", says: "declared step allowance.grant.insert ran no span" },
-    { fixture: "coverage", installs: [["rename.ts", "blueprint/things/organization/verbs/rename.ts"], ["rename.handler.ts", "implementation/handlers/organization/rename.ts"]], line: "organization.rename coverage ✘", says: "organization.rename reached by no journey", sync: true },
+    { fixture: "coverage", installs: [["rename.ts", "blueprint/things/organization/verbs/rename.ts"], ["rename.handler.ts", "src/organization/rename.ts"]], line: "organization.rename coverage ✘", says: "organization.rename reached by no journey", sync: true },
     { fixture: "explainability", installs: [["grant.ts", GRANT]], line: "allowance.grant explainability ✘", says: '"a limit over the cap is refused": AllowanceLimitTooHigh has no deciding log' },
   ];
 

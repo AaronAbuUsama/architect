@@ -1,6 +1,6 @@
 // Planted lint fixture: a declared name written as a string. Names come from paths and exported identifiers (AGENTS.md).
 import { Effect } from "effect";
-import type { Handler } from "../../../generated/api/src/allowance/spend.handler.ts";
+import type { Handler } from "../../generated/api/src/allowance/spend.handler.ts";
 
 const spend: Handler = (_payload, { steps }) =>
   Effect.gen(function* () {

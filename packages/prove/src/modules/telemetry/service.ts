@@ -1,8 +1,15 @@
 import { mkdirSync, rmSync } from "node:fs";
 import { Effect, Schedule } from "effect";
-import { CollectorFailed, type CollectorsApi, type Trace } from "./types.ts";
-import { removeCollector, runCollector } from "./internal/docker.ts";
-import { looksComplete, readAll } from "./internal/otlp.ts";
+import { Viewer } from "#modules/viewer/service.js";
+import { CollectorFailed, type CollectorsApi } from "./types.ts";
+import { ownedName, removeCollector, runCollector, sweepOrphans } from "./internal/docker.ts";
+import { FileSource } from "./internal/file-source.ts";
+
+export { FileSource } from "./internal/file-source.ts";
+export { AxiomSource } from "./internal/axiom-source.ts";
+export { PROVE_SPAN_PREFIX } from "./types.ts";
+export { exportRoots, rootOf, type JourneyRoot } from "./internal/journey-root.ts";
+export { privateKeys } from "./internal/private-keys.ts";
 
 /** An empty export answers `{"partialSuccess":{}}` once the receiver is up: the spike's readiness check. */
 const ready = (url: string) =>
@@ -11,38 +18,39 @@ const ready = (url: string) =>
     catch: () => false,
   }).pipe(Effect.flatMap((ok) => (ok ? Effect.void : Effect.fail(false))));
 
-/** Nothing new for this long after every trace looks complete: the spike's rule C. */
-const QUIET_MS = 250;
-const POLL_MS = 25;
-const LIMIT_MS = 10_000;
+/** Wait until the collector at `url` takes an export. */
+const waitReady = (url: string) =>
+  ready(url).pipe(
+    Effect.retry({ schedule: Schedule.spaced("100 millis"), times: 100 }),
+    Effect.mapError(() => new CollectorFailed({ message: `the collector didn't answer at ${url} within 10 s` })),
+  );
+
+/** Where a collector started now should also send what it hears: the local viewer, if it is running. */
+const viewerEndpoint = Viewer.running().pipe(Effect.map((v) => v?.otlpFromContainers));
 
 export const Collectors: CollectorsApi = {
-  start: (dir) =>
+  start: (dir, options) =>
     Effect.gen(function* () {
+      yield* sweepOrphans();
       rmSync(dir, { recursive: true, force: true });
       mkdirSync(dir, { recursive: true });
-      const name = `architect-collector-${process.pid}-${Math.floor(Math.random() * 1e9)}`;
-      const url = yield* Effect.acquireRelease(runCollector(dir, name), () => removeCollector(name));
-      yield* ready(url).pipe(
-        Effect.retry({ schedule: Schedule.spaced("100 millis"), times: 100 }),
-        Effect.mapError(() => new CollectorFailed({ message: `the collector didn't answer at ${url} within 10 s` })),
-      );
-      const traces = (wanted: ReadonlyArray<{ readonly trace: string; readonly parent: string }>) =>
-        Effect.gen(function* () {
-          let last = readAll(dir);
-          let quietMs = 0;
-          const settled = Effect.sync(() => {
-            const now = readAll(dir);
-            quietMs = now.size === last.size ? quietMs + POLL_MS : 0;
-            last = now;
-            return quietMs >= QUIET_MS && wanted.every((w) => looksComplete(now.byTrace.get(w.trace), w.parent));
-          });
-          yield* settled.pipe(
-            Effect.repeat({ schedule: Schedule.spaced(`${POLL_MS} millis`), until: (done) => done }),
-            Effect.timeoutOption(`${LIMIT_MS} millis`),
-          );
-          return new Map(wanted.map((w): [string, Trace] => [w.trace, last.byTrace.get(w.trace) ?? { spans: [], logs: [] }]));
-        });
-      return { url, traces };
+      const name = ownedName(process.pid);
+      const viewer = yield* viewerEndpoint;
+      const url = yield* Effect.acquireRelease(runCollector(dir, name, { strip: options?.strip ?? [], viewer }), () => removeCollector(name));
+      yield* waitReady(url);
+      return { url, ...FileSource.open(dir) };
     }),
+  launch: ({ dir, name, strip }) =>
+    Effect.gen(function* () {
+      yield* sweepOrphans();
+      rmSync(dir, { recursive: true, force: true });
+      mkdirSync(dir, { recursive: true });
+      yield* removeCollector(name);
+      const viewer = yield* viewerEndpoint;
+      const url = yield* runCollector(dir, name, { strip: strip ?? [], viewer });
+      yield* waitReady(url).pipe(Effect.tapError(() => removeCollector(name)));
+      return url;
+    }),
+  stop: removeCollector,
+  read: (dir) => FileSource.open(dir),
 };

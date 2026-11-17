@@ -2,7 +2,7 @@
 import { Effect } from "effect";
 import type { Assertion, NotFrom, Refusal, Thing } from "@architect/blueprint";
 import { ErrorNames, EventNames, Scripting } from "@architect/blueprint/server";
-import type { CallRecord } from "../types.ts";
+import type { CallRecord, Facts } from "../types.ts";
 import { stateOf } from "./world.ts";
 
 /** Values as they travel: bigints as text, so `500n` and `"500"` compare equal. */
@@ -32,7 +32,7 @@ export const runChecks = (
   checks: ReadonlyArray<Assertion>,
   call: CallRecord,
   env: Readonly<Record<string, unknown>>,
-  world: { readonly url: string; readonly tableOf: (thing: Thing) => string | undefined },
+  world: { readonly facts: Facts; readonly tableOf: (thing: Thing) => string | undefined },
 ) =>
   Effect.gen(function* () {
     const failures: Array<string> = [];
@@ -74,7 +74,7 @@ export const runChecks = (
         if (call.journal.length > 0) failures.push(`expected no events, journal has ${call.journal.map((e) => e.event).join(", ")}`);
       } else if (check.kind === "is-in") {
         const table = world.tableOf(check.thing as Thing);
-        const state = table ? yield* stateOf(world.url, table, String(check.id)) : undefined;
+        const state = table ? yield* stateOf(world.facts, table, String(check.id)) : undefined;
         if (state !== check.state) failures.push(`${String(check.id)} is in ${state === undefined || state === null ? "no state" : `"${String(state)}"`}, expected "${check.state}"`);
       }
     }

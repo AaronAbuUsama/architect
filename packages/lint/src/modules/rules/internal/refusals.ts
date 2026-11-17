@@ -21,7 +21,7 @@ export const refusalHasLog: Rule = {
   create: (context) => {
     const facts = factsOf(context);
     const path = pathOf(context, facts);
-    if (path === undefined || !path.startsWith("implementation/")) return {};
+    if (path === undefined || !path.startsWith("src/")) return {};
     const errors = new Set(facts.errors);
     return {
       NewExpression: (node) => {

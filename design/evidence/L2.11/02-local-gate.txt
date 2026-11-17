@@ -1,0 +1,50 @@
+$ env NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static
+# commit 2b2aa3c · 2026-11-17T03:49:31Z · exit 0 (expected 0) · 283.2s
+
+
+> nx run e2e:layer2
+
+> vitest run --root e2e --config vitest.layer2.config.ts layer2
+
+(node:11464) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ RUN  v4.1.12 ./e2e
+
+(node:11486) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11485) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:19245) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:22318) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:25293) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:27547) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30171) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:31069) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ Test Files  8 passed (8)
+      Tests  10 passed (10)
+   Start at  03:44:49
+   Duration  281.34s (transform 192ms, setup 0ms, import 3.68s, tests 550.66s, environment 0ms)
+
+
+
+
+ NX   Successfully ran target layer2 for project e2e
+
+
+  Run duration:      4m 42s
+  Cache:             0/1 hit (0%)
+  Critical path:     4m 42s (1 task)
+  Recoverable time:  <1ms
+
+  Recommendations:
+    - Drastically reduce your run duration by sharing a cache across your team and CI → https://cloud.nx.app/connect/plYmi62R42.
+    - Speed up or split the longest tasks on the critical path:
+        e2e:layer2    4m 42s

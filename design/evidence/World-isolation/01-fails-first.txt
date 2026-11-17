@@ -1,0 +1,71 @@
+$ pnpm exec vitest run --root packages/host-cloudflare src/modules/world/world.test.ts
+# commit 53d028d · 2026-11-17T02:00:57Z · exit 1 (expected 1) · 15.9s
+
+
+=======================================================================================
+WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+This package will not receive future updates.
+Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+=======================================================================================
+
+
+ RUN  v4.1.12 ./packages/host-cloudflare
+
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/webStandardStreamableHttp.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/mediaType.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/requestBody.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/sseKeepAlive.js" points to missing source files
+Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/cfworker-provider.js" points to missing source files
+ ❯ src/modules/world/world.test.ts (5 tests | 1 failed) 566ms
+     × admits exactly one concurrent creation and removes only that world's rows 94ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/world/world.test.ts > world leases, in real workerd and D1 > admits exactly one concurrent creation and removes only that world's rows
+AssertionError: expected [ 201, 201, 201, 201, 201, 201, …(2) ] to deeply equal [ 201, 409, 409, 409, 409, 409, …(2) ]
+
+- Expected
++ Received
+
+  [
+    201,
+-   409,
+-   409,
+-   409,
+-   409,
+-   409,
+-   409,
+-   409,
++   201,
++   201,
++   201,
++   201,
++   201,
++   201,
++   201,
+  ]
+
+ ❯ src/modules/world/world.test.ts:60:24
+     58|       const responses = await Promise.all(ids.map(lease));
+     59|       const statuses = responses.map((r) => r.status).sort();
+     60|       expect(statuses).toEqual([201, 409, 409, 409, 409, 409, 409, 409…
+       |                        ^
+     61|       const held = (await liveWorlds()).worlds;
+     62|       expect(held).toHaveLength(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  02:00:44
+   Duration  12.88s (transform 4.02s, setup 8.94s, import 11ms, tests 566ms, environment 0ms)

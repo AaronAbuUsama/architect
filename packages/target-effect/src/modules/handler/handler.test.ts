@@ -163,6 +163,39 @@ describe("handler wrapper", () => {
       expect(r.spans[0]!.attributes.get("refusal")).toBe("AllowanceLimitTooHigh");
     });
 
+    // O1's conventions: a refusal is an outcome, so its span ends ok; a defect is the only error.
+    const endedAs = (span: Tracer.NativeSpan | undefined) => (span?.status._tag === "Ended" ? span.status.exit._tag : "not ended");
+
+    it("a refusal ends its span ok, still tagged, and still fails the call", async () => {
+      const r = recording();
+      const exit = await Effect.runPromiseExit(Effect.provide(served.call({ member: "per_olga", limit: "5000" }, ada), r.layer));
+      expect(Exit.isFailure(exit) && Cause.hasFails(exit.cause) && !Cause.hasDies(exit.cause)).toBe(true);
+      expect(endedAs(r.spans[0])).toBe("Success");
+      expect(r.spans[0]!.attributes.get("refusal")).toBe("AllowanceLimitTooHigh");
+      expect(r.spans[0]!.attributes.has("defect")).toBe(false);
+    });
+
+    it("a refusal raised inside a step ends the step's span ok too", async () => {
+      const inStep: Handler<typeof grant> = (_, { steps }) => steps.insert(Effect.fail(new AllowanceLimitTooHigh({ cap: 1000n })));
+      const r = recording();
+      const s = Handlers.serve({ name: "allowance.grant", operation: grant, handler: inStep });
+      await Effect.runPromiseExit(Effect.provide(s.call({ member: "per_olga", limit: "5" }, ada), r.layer));
+      const step = r.spans.find((x) => x.name === "allowance.grant.insert");
+      expect(endedAs(step)).toBe("Success");
+      expect(endedAs(r.spans.find((x) => x.name === "allowance.grant"))).toBe("Success");
+    });
+
+    it("a defect ends its span as an error, tagged defect, and carries no refusal", async () => {
+      const dies: Handler<typeof grant> = () => Effect.die(new Error("the ledger is on fire"));
+      const r = recording();
+      const s = Handlers.serve({ name: "allowance.grant", operation: grant, handler: dies });
+      const exit = await Effect.runPromiseExit(Effect.provide(s.call({ member: "per_olga", limit: "5" }, ada), r.layer));
+      expect(Exit.isFailure(exit) && Cause.hasDies(exit.cause)).toBe(true);
+      expect(endedAs(r.spans[0])).toBe("Failure");
+      expect(String(r.spans[0]!.attributes.get("defect"))).toContain("the ledger is on fire");
+      expect(r.spans[0]!.attributes.has("refusal")).toBe(false);
+    });
+
     it("a refusal carries the log that decided it, and only this attempt's", async () => {
       const decides: Handler<typeof grant> = (payload) =>
         Effect.gen(function* () {

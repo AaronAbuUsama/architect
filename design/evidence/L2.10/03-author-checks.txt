@@ -1,0 +1,100 @@
+=============== The author's check 8, verbatim (a private copy under the gitignored tmp/, check number 19 so its ports are 9090 to 9096: 4898, check 8's registry, is held by an orphan
+=============== container of someone else's killed run). It passes its first portal assertion (spend: test ✔ staging ✔) and the replayed traffic, and stops at the first `architect watch`: L2.09.
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-a835556981c7bf3f4/tmp
+
+ ❯ layer2/08-watch-and-the-portal.test.ts (1 test | 1 failed) 194418ms
+     × p95 against budget and refusal counts; a slow handler drifts; the portal shows verdicts, then stale on spend only 150515ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  layer2/08-watch-and-the-portal.test.ts > check 8: watch and the portal > p95 against budget and refusal counts; a slow handler drifts; the portal shows verdicts, then stale on spend only
+AssertionError: USAGE
+  architect <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  model       
+  dev         
+  prove       
+  promote     
+  add         
+  check       
+  generate    
+  brief       
+  impact      
+  version     
+  publish     
+  build       
+  env         
+  worlds      
+
+ERRORS
+  Unknown subcommand "watch" for "architect"
+  Unrecognized flag: --env in command architect
+  Unrecognized flag: --root in command architect
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ watch layer2/08-watch-and-the-portal.test.ts:42:46
+     40| const watch = (env: Stack["env"], root: string) => {
+     41|   const said = run(root, env, "watch", "--env", "staging");
+     42|   expect(said.status, said.out.slice(-3000)).toBe(0);
+       |                                              ^
+     43|   const spend = said.lines.find((l) => l.startsWith("allowance.spend p…
+     44|   expect(spend, said.out).toBeDefined();
+ ❯ layer2/08-watch-and-the-portal.test.ts:76:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  00:39:03
+   Duration  196.11s (transform 114ms, setup 0ms, import 1.44s, tests 194.42s, environment 0ms)
+
+
+=============== The same check with the watch steps taken out, run in the real flow (release, a slow-spend revision, a looser-budget revision proved in test). Passes.
+=============== Two changes to the author's lines, both about the check and not the portal; see pooled-socket-note.txt and the notes below.
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-a835556981c7bf3f4/tmp
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  01:03:36
+   Duration  151.70s (transform 63ms, setup 0ms, import 451ms, tests 151.11s, environment 0ms)
+
+
+=============== pooled-socket-note.txt
+A hazard in the author's check 08 (and any check shaped like it), found while running its portal half. Not the portal's: any route shows it.
+
+The check calls `portal(url)` (a `fetch`) at its start, then runs only `spawnSync` steps (seed, replay, watch, build, promote, prove), which block the
+Node event loop, and calls `portal(url)` again at its end. `promote --to staging` restarts staging in between: the old workerd dies, a new one listens on
+the same port. Node's fetch (undici) kept the first request's connection in its pool, and with the loop blocked it never saw the server close it, so the
+second fetch is written to a dead socket: `TypeError: fetch failed`, cause `write EPIPE` or `read ECONNRESET`.
+
+Reproduced with the plain `/_architect/bundle` and with `/portal`, on a copy of acme: fetch, `env down`, `env up` on the same port, no async wait, fetch again:
+
+  FIRST 200 {"content-encoding":"gzip","content-type":"application/json","transfer-encoding":"chunked"}
+  SECOND (pooled) FAILED TypeError: fetch failed Error: read ECONNRESET
+  THIRD (connection: close) ok 200
+
+With an async wait of 8 s between (the loop free to see the close) the pooled fetch works. A Worker cannot prevent it: a `Connection: close` header on its response
+is dropped by workerd (the first response's headers show none). The cure is in the check: `fetch(url, { headers: { connection: "close" } })`, or a dispatcher
+without keep-alive. The private copy of the portal half used under `tmp/` does the first.
+
+=============== promote straight after build, as the author wrote it (captured from the real flow before the private copy proved the revision in test first)
+refused: <rev> has no green verdicts in test
+missing: allowance.get, allowance.grant, allowance.revoke, allowance.spend, api-key.create, invitation.accept, invitation.revoke, invitation.send, membership.get, organization.create, organization.get, person.sign-up, session.show, session.sign-in, system.health

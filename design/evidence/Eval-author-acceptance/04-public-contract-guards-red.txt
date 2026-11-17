@@ -1,0 +1,63 @@
+$ pnpm exec vitest run --root packages/prove src/modules/evals/evals.test.ts
+# commit b2aa54e · 2026-11-17T04:59:54Z · exit 1 (expected 1) · 1.1s
+
+
+ RUN  v4.1.12 ./packages/prove
+
+ ❯ src/modules/evals/evals.test.ts (13 tests | 3 failed) 12ms
+     × requires a known 4xx refusal's tag and exact model code, including a response whose tag is missing 2ms
+     × keeps schema-valued string literals as strings in observed responses and live spans 4ms
+     × decodes legitimate encoded objects and lists only when the observed response is unavailable 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/evals/evals.test.ts > independent author: public evaluator response boundaries > requires a known 4xx refusal's tag and exact model code, including a response whose tag is missing
+AssertionError: expected 0 to be greater than 0
+ ❯ src/modules/evals/evals.test.ts:142:135
+    140|     const errors = (body: unknown) => judged(observed(op, {}, body, 42…
+    141|     expect(errors({ _tag: "AllowanceLimitTooHigh", code: "AL-003" })).…
+    142|     for (const body of [{}, { code: "AL-009" }, { _tag: "NotAllowed", …
+       |                                                                                                                                       ^
+    143|   });
+    144|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/modules/evals/evals.test.ts > independent author: public evaluator response boundaries > keeps schema-valued string literals as strings in observed responses and live spans
+AssertionError: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "grant-an-allowance \"s\": answer.value: expected its schema, got \"null\"",
++ ]
+
+ ❯ src/modules/evals/evals.test.ts:148:98
+    146|     for (const value of ["null", "{}", "[]"]) {
+    147|       const fields = { value: Blueprint.value(Schema.String) };
+    148|       expect(shapeOf(observed(schemaAnswer, fields, { value }, 200, { …
+       |                                                                                                  ^
+    149|       expect(shapeOf(observed(schemaAnswer, fields, undefined, 200, { …
+    150|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/modules/evals/evals.test.ts > independent author: public evaluator response boundaries > decodes legitimate encoded objects and lists only when the observed response is unavailable
+AssertionError: expected 0 to be greater than 0
+ ❯ src/modules/evals/evals.test.ts:162:116
+    160|       expect(shapeOf(observed(schemaAnswer, fields, { value }, 200, { …
+    161|       expect(shapeOf(observed(schemaAnswer, fields, undefined, 200, { …
+    162|       expect(shapeOf(observed(schemaAnswer, fields, { value: encoded }…
+       |                                                                                                                    ^
+    163|     }
+    164|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 10 passed (13)
+   Start at  04:59:53
+   Duration  443ms (transform 88ms, setup 0ms, import 321ms, tests 12ms, environment 0ms)

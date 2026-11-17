@@ -19,6 +19,16 @@ export const storeMemory = (initial: ReadonlyArray<readonly [Thing, Instance]> =
       const r = rows[at(thing, id)];
       return r && { instance: r.instance, version: r.version };
     }),
+    list: ({ thing, where, state, order, limit, after }) => Effect.sync(() => {
+      // A row's place in `rows` is the order it was made in, and its cursor.
+      const ordered = rows.flatMap((r, i) => (r.thing === thing ? [{ r, i }] : []));
+      const matching = (order === "newest" ? ordered.reverse() : ordered).filter(({ r, i }) =>
+        Object.entries(where).every(([k, v]) => String(r.instance[k]) === String(v))
+        && (state === undefined || r.instance.state === state)
+        && (after === undefined || (order === "newest" ? i < Number(after) : i > Number(after))));
+      const page = matching.slice(0, limit);
+      return { items: page.map(({ r }) => r.instance), next: matching.length > limit ? String(page[page.length - 1]!.i) : null };
+    }),
     answered: (key) => Effect.sync(() => requests.get(key)),
     commit: ({ writes, entries: events, request }) =>
       Effect.sync(() => {

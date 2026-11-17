@@ -71,10 +71,10 @@ acme/
     journeys/<journey>.ts
     starting-worlds/<name>.ts
     environments/<name>.ts  clock, chain, secrets, destinations
-  implementation/
-    handlers/<thing>/<verb>.ts
+  src/
+    <thing>/<verb>.ts       a thing's handlers, mirroring blueprint/things/<thing>/
+    <thing>/<Thing>.sol     its contract, and its workflows                       (layers 4, 5)
     services.ts
-    contracts/              your Solidity                                         (layer 4)
   generated/
     server/  api/  sdk/  cli/  docs/  model/                                      (layer 1)
     mcp/  portal/  infra/                                                         (layer 2)

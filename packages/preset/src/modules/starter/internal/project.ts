@@ -13,7 +13,7 @@ const DEV = {
 };
 
 export const packageJson = (existing: Record<string, unknown>, name: string, version: string) => {
-  const architect = Object.fromEntries(["blueprint", "host-cloudflare", "target-effect"].map((p) => [`@architect/${p}`, version]));
+  const architect = Object.fromEntries(["blueprint", "host-cloudflare", "portal", "target-effect"].map((p) => [`@architect/${p}`, version]));
   return {
     ...existing,
     type: "module",
@@ -33,7 +33,7 @@ export const TSCONFIG = {
     verbatimModuleSyntax: true, erasableSyntaxOnly: true, allowImportingTsExtensions: true, noEmit: true,
     skipLibCheck: true, resolveJsonModule: true, isolatedModules: true,
   },
-  include: ["blueprint/**/*.ts", "generated/**/*.ts", "implementation/**/*.ts", "journeys/**/*.ts"],
+  include: ["blueprint/**/*.ts", "generated/**/*.ts", "src/**/*.ts", "journeys/**/*.ts"],
 };
 
 export const IGNORES = [".architect/", ".wrangler/", "node_modules/"];

@@ -23,10 +23,14 @@ const stoppedLine = (run: JourneyRun, traces: ReadonlyMap<string, Trace>) => {
 
 export const journeyLines = (runs: ReadonlyArray<JourneyRun>, traces: ReadonlyMap<string, Trace>) => {
   const lines: Array<string> = [];
+  /** The traces of every call that went wrong, for `prove --view` to point at. */
+  const failedTraces: Array<{ readonly trace: string; readonly what: string }> = [];
   let failed = 0;
   for (const run of runs) {
     if (run.stopped) {
       lines.push(stoppedLine(run, traces));
+      const last = run.calls[run.calls.length - 1];
+      if (last) failedTraces.push({ trace: last.trace, what: `journey ${run.name}` });
       failed++;
       continue;
     }
@@ -34,9 +38,10 @@ export const journeyLines = (runs: ReadonlyArray<JourneyRun>, traces: ReadonlyMa
     const bad = steps.filter((x) => x.failures.length > 0);
     lines.push(`journey ${run.name} ${bad.length === 0 ? "✔" : "✘"} ${steps.length - bad.length}/${steps.length} steps`);
     for (const { s, failures } of bad) for (const f of failures) lines.push(`  ✘ "${s.title}": ${f}`);
+    for (const { s } of bad) failedTraces.push({ trace: s.trace, what: `${run.name} "${s.title}"` });
     failed += bad.length;
   }
-  return { lines, failed };
+  return { lines, failed, failedTraces };
 };
 
 export const evalLines = (model: Model, verdicts: ReadonlyArray<Verdict>) => {

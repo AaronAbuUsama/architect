@@ -1,0 +1,48 @@
+$ design/evidence/L2.01/demo.sh
+# commit dfca3a5 · 2026-11-16T21:26:06Z · exit 0 (expected 0) · 19.0s
+
+# build, twice: one revision, one hash
+built b443cd0 sha256:ec79a5313dd490a82a7d4dff127bfca4f5e00d07a870c88eb9d950015ec61822
+built b443cd0 sha256:ec79a5313dd490a82a7d4dff127bfca4f5e00d07a870c88eb9d950015ec61822
+
+# the artefact and its record
+README.md
+bundle.json
+main.js
+main.js.map
+
+# two environments at once, each on its own port
+staging up http://127.0.0.1:8960
+production up http://127.0.0.1:8961
+
+# each reports the bundle it runs
+{"revision":"b443cd0","sha256":"ec79a5313dd490a82a7d4dff127bfca4f5e00d07a870c88eb9d950015ec61822"}
+{"revision":"b443cd0","sha256":"ec79a5313dd490a82a7d4dff127bfca4f5e00d07a870c88eb9d950015ec61822"}
+
+# separate state: ada signs up in staging only
+staging sign-up     200
+staging sign-in     200
+production sign-in  422
+
+# what each keeps, and the secrets file's mode
+bundle.json
+pid
+port
+secrets.env
+state
+wrangler.jsonc
+wrangler.log
+600 <project>/acme/.architect/environments/staging/secrets.env
+
+# restart staging: its state survives
+staging down
+staging down
+staging up http://127.0.0.1:8960
+staging sign-in     200
+production up http://127.0.0.1:8961
+
+# stop both: nothing of this project is left running
+staging down
+production down
+production down
+nothing running

@@ -1,0 +1,28 @@
+$ pnpm exec vitest run --root packages/prove src/modules/evals/evals.test.ts
+# commit b2aa54e · 2026-11-17T05:06:40Z · exit 1 (expected 1) · 1.0s
+
+
+ RUN  v4.1.12 ./packages/prove
+
+ ❯ src/modules/evals/evals.test.ts (14 tests | 1 failed) 11ms
+     × does not use a valid body to bless a public field missing from partial answer telemetry 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/evals/evals.test.ts > independent author: public evaluator response boundaries > does not use a valid body to bless a public field missing from partial answer telemetry
+AssertionError: expected 0 to be greater than 0
+ ❯ src/modules/evals/evals.test.ts:158:156
+    156|     const body = { value: "null", other: "present" };
+    157|     expect(shapeOf(observed(operation, fields, body, 200, { "answer.va…
+    158|     for (const attrs of [{ "answer.other": "present" }, { "answer.valu…
+       |                                                                                                                                                            ^
+    159|     // The existing all-attributes-absent response fallback stays; thi…
+    160|     expect(shapeOf(observed(operation, fields, body, 200, {}))).toEqua…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 13 passed (14)
+   Start at  05:06:40
+   Duration  406ms (transform 78ms, setup 0ms, import 294ms, tests 11ms, environment 0ms)

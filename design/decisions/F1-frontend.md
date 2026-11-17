@@ -600,6 +600,11 @@ the face. Rich docs, agent editing and later target views are additions behind e
 
 No later primitive is implemented by this spike. Stage-three package code and all `layer/*` branches remain untouched.
 
+**Built since (17 November 2026, build/L2.10):** L2.10a, L2.10b and the local half of L2.10c, as `D3.md` decisions #130 to #137 record, with the
+evidence in `design/evidence/L2.10/`. Where the build departs from this record: the portal is a route of each environment's Worker (`/portal`,
+`/_portal/v1/*`), not a separate site; "current" for staleness is the newest revision proved in `test`, else the bundle's model (#132); and
+`Wire.build` and the JSON dependency adapter live in `@architect/portal`, with the conformance test in `generators` (#134). F1.1 onward is not built.
+
 ## 8. Validation and scope
 
 See [`spikes/frontend-dx/README.md`](../../spikes/frontend-dx/README.md) for the runnable validation, browser inspection,

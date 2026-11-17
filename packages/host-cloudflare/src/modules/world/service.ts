@@ -1,12 +1,20 @@
 import { DurableObject } from "cloudflare:workers";
-import { Effect } from "effect";
-import type { WorldEnv } from "./types.ts";
+import { Clock, Effect } from "effect";
+import type { WorldEnv, WorldHost } from "./types.ts";
 import { frontDoor } from "./internal/front-door.ts";
 import { AuthD1 } from "#modules/auth/service.js";
 import type { AuthInstance } from "#modules/auth/types.js";
 import { facts } from "./internal/facts.ts";
+import { end, live } from "./internal/leases.ts";
+import { worldsDoor } from "./internal/worlds.ts";
 
-/** The world's Durable Object. Export it from the Worker's entry; bind it as `WORLD`. */
+const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
+
+/**
+ * The world's Durable Object. Export it from the Worker's entry; bind it as `WORLD`. In a long-lived environment each
+ * world is its own instance, named by the world's id: it holds the cast, and an alarm at the world's expiry that
+ * destroys it (D3 #7, #50). Under `architect dev` and a local prove there is the one, named `world`, and no alarm.
+ */
 export class World extends DurableObject<WorldEnv> {
   private readonly auth: AuthInstance;
 
@@ -17,15 +25,38 @@ export class World extends DurableObject<WorldEnv> {
   }
 
   override fetch(request: Request): Promise<Response> {
+    const { pathname } = new URL(request.url);
+    if (pathname === "/_world/arm" || pathname === "/_world/end") {
+      return request.json().then((body) => (pathname === "/_world/arm" ? this.arm(body as { id: string; expires: number }) : this.finish(body as { id: string; reason: "destroyed" | "expired" })));
+    }
     return Effect.runPromise(frontDoor(this.ctx.storage.sql, this.auth, request));
+  }
+
+  /** Remember the world's id and wake at its expiry. */
+  private arm({ id, expires }: { readonly id: string; readonly expires: number }): Promise<Response> {
+    return this.ctx.storage.put("world", id).then(() => this.ctx.storage.setAlarm(expires)).then(() => json({ armed: id }));
+  }
+
+  /** Delete what the world made, then everything the world itself holds, alarm included. */
+  private finish({ id, reason }: { readonly id: string; readonly reason: "destroyed" | "expired" }): Promise<Response> {
+    return Effect.runPromise(Clock.currentTimeMillis.pipe(Effect.flatMap((now) => end(this.env.DB, id, reason, now)))).then((ended) =>
+      this.ctx.storage.deleteAlarm().then(() => this.ctx.storage.deleteAll()).then(() => json({ ended })));
+  }
+
+  override alarm(): Promise<void> {
+    return this.ctx.storage.get<string>("world").then((id) => (id === undefined ? undefined : this.finish({ id, reason: "expired" }).then(() => undefined)));
   }
 }
 
 /**
- * A `/_world/*` request: facts come straight from the database; everything else goes to the one world of this
- * deployment. Local and test worlds only: a production world has no front door (stage three).
+ * A `/_world/*` request. Facts come straight from the database. `/_world/worlds` is the environment's registry of worlds,
+ * which only an environment that hosts worlds (`leases`) has. Anything else goes to the live world's own Durable Object
+ * in such an environment, and otherwise to the one world of this deployment.
  */
-export const toWorld = (world: { readonly worlds: DurableObjectNamespace; readonly db: D1Database; readonly tables: ReadonlyArray<string> }, request: Request): Promise<Response> =>
-  new URL(request.url).pathname.startsWith("/_world/facts/")
-    ? Effect.runPromise(facts(world.db, world.tables, request))
-    : world.worlds.get(world.worlds.idFromName("world")).fetch(request);
+export const toWorld = (world: WorldHost, request: Request): Promise<Response> => {
+  const { pathname } = new URL(request.url);
+  if (pathname.startsWith("/_world/facts/")) return Effect.runPromise(facts(world.db, world.tables, request));
+  if (!world.leases) return world.worlds.get(world.worlds.idFromName("world")).fetch(request);
+  if (pathname.startsWith("/_world/worlds")) return Effect.runPromise(worldsDoor({ worlds: world.worlds, db: world.db }, request));
+  return Effect.runPromise(live(world.db)).then((held) => world.worlds.get(world.worlds.idFromName(held[0]?.id ?? "world")).fetch(request));
+};

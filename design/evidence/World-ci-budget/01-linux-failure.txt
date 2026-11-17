@@ -1,0 +1,69 @@
+$ python3 -c from pathlib import Path; lines=Path(".architect/world-ci-baseline.log").read_text().splitlines(); start=next(i for i,line in enumerate(lines) if "Failed Tests 2" in line); print("\n".join(line.rstrip() for line in lines[start:start+66]))
+# commit 36607fe · 2026-11-17T04:17:53Z · exit 0 (expected 0) · 0.1s
+
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5324218Z ^[[31m⎯⎯⎯⎯⎯⎯⎯^[[39m^[[1m^[[41m Failed Tests 2 ^[[49m^[[22m^[[31m⎯⎯⎯⎯⎯⎯⎯^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5324878Z
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5325935Z ^[[41m^[[1m FAIL ^[[22m^[[49m src/modules/world/world.test.ts^[[2m > ^[[22mworld leases, in real workerd and D1^[[2m > ^[[22mtakes marks in the admission transaction when creation races an ending
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5326931Z ^[[31m^[[1mError^[[22m: Test timed out in 5000ms.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5327879Z If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5328944Z ^[[36m ^[[2m❯^[[22m src/modules/world/world.test.ts:^[[2m101:3^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5329428Z     ^[[90m 99|^[[39m   })^[[33m;^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5329756Z     ^[[90m100|^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5330296Z     ^[[90m101|^[[39m   it("takes marks in the admission transaction when creation races an …
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5330874Z     ^[[90m   |^[[39m   ^[[31m^^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5331676Z     ^[[90m102|^[[39m     ^[[35mfor^[[39m (^[[35mlet^[[39m i ^[[33m=^[[39m ^[[34m0^[[39m^[[33m;^[[39m i ^[[33m<^[[39m ^[[34m6^[[39m^[[33m;^[[39m i^[[33m++^[[39m) {
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5332744Z     ^[[90m103|^[[39m       ^[[35mconst^[[39m old ^[[33m=^[[39m ^[[32m`handover-old-^[[39m^[[36m${^[[39mi^[[36m}^[[39m^[[32m`^[[39m^[[33m;^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5333224Z
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5333536Z ^[[31m^[[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5333782Z
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5335029Z ^[[41m^[[1m FAIL ^[[22m^[[49m src/modules/world/world.test.ts^[[2m > ^[[22mworld leases, in real workerd and D1^[[2m > ^[[22mrefuses a used id, and an additive index upgrade never repairs overlapping legacy leases by deleting data
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5336344Z ^[[31m^[[1mAssertionError^[[22m: expected 409 to be 201 // Object.is equality^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5336729Z
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5336895Z ^[[32m- Expected^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5337211Z ^[[31m+ Received^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5337387Z
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5337512Z ^[[32m- 201^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5337794Z ^[[31m+ 409^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5337934Z
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5338651Z ^[[36m ^[[2m❯^[[22m src/modules/world/world.test.ts:^[[2m124:48^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5339398Z     ^[[90m122|^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5339975Z     ^[[90m123|^[[39m   it("refuses a used id, and an additive index upgrade never repairs o…
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5341128Z     ^[[90m124|^[[39m     ^[[34mexpect^[[39m((^[[35mawait^[[39m ^[[34mlease^[[39m(^[[32m"used-world"^[[39m))^[[33m.^[[39mstatus)^[[33m.^[[39m^[[34mtoBe^[[39m(^[[34m201^[[39m)^[[33m;^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5342044Z     ^[[90m   |^[[39m                                                ^[[31m^^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5342846Z     ^[[90m125|^[[39m     ^[[35mawait^[[39m ^[[34mdoor^[[39m(^[[32m"/used-world"^[[39m^[[33m,^[[39m ^[[32m"DELETE"^[[39m)^[[33m;^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5343839Z     ^[[90m126|^[[39m     ^[[35mconst^[[39m reused ^[[33m=^[[39m ^[[35mawait^[[39m ^[[34mlease^[[39m(^[[32m"used-world"^[[39m)^[[33m;^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5344528Z
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5344843Z ^[[31m^[[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5345101Z
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5345109Z
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5345657Z ^[[2m Test Files ^[[22m ^[[1m^[[31m1 failed^[[39m^[[22m^[[2m | ^[[22m^[[1m^[[32m6 passed^[[39m^[[22m^[[90m (7)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5346633Z ^[[2m      Tests ^[[22m ^[[1m^[[31m2 failed^[[39m^[[22m^[[2m | ^[[22m^[[1m^[[32m19 passed^[[39m^[[22m^[[90m (21)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5347286Z ^[[2m   Start at ^[[22m 04:01:06
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5348377Z ^[[2m   Duration ^[[22m 77.58s^[[2m (transform 32.67s, setup 179.25s, import 4.05s, tests 31.13s, environment 1ms)^[[22m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5348910Z
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5348917Z
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5352856Z ##[error]Error: Test timed out in 5000ms.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	 ❯ src/modules/world/world.test.ts:101:3
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5355609Z
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5357918Z ##[error]AssertionError: expected 409 to be 201 // Object.is equality
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	- Expected
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	+ Received
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	- 201
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	+ 409
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	 ❯ src/modules/world/world.test.ts:124:48
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5360493Z Warning: command "vitest run --root packages/host-cloudflare --passWithNoTests" exited with non-zero status code
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.5361396Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.6832916Z
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.6835440Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m std:typecheck
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.6835922Z
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.6836387Z ^[[2m> ^[[22mtsc -p packages/std/tsconfig.json
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.6836820Z
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T04:02:24.6837213Z ##[endgroup]

@@ -116,6 +116,23 @@ name) holds: the method, the two targets, the tap and the cross-build from a Mac
 
   Until then the formula's `test do` is `--help`/`--version`, as here.
 
+## What L2.06 took from it (D3 #116, #117)
+
+L2.06 built what ships from this spike as `packages/prove/src/modules/publish/internal/sea.ts` and `tap.ts`, for **the generated project
+CLI** (`acme`), not Architect's own. The generated CLI is a plain client of the API, so none of the four breakages in finding 7 touch it: its
+bundle imports only `effect` and `@effect/platform-node`, reads no `import.meta` at load, spawns nothing and needs no native addon, so the
+three bundle workarounds of finding 8 are not needed either (the CommonJS bundle loads as it is). What changed from the spike:
+
+- Node 24.22.2 and postject 1.0.0-alpha.6 are pinned in code (`NODE_VERSION`; `postject` a dependency of `@architect/prove`), and the
+  official Node binary is downloaded once into a cache (`ARCHITECT_CACHE`, else `~/.cache/architect/`) after its sha256 is checked
+  against nodejs.org's `SHASUMS256.txt`, instead of into the spike's `tmp/`.
+- The version is stamped by the bundler (`define ARCHITECT_VERSION`), so `acme --version` prints `acme <release version>`.
+- Only the platform of the machine is built (macOS arm64 or Linux x64); the blob is made by that platform's own Node. CI builds linux-x64.
+- The tarball is `<project>-<version>-<target>.tar.gz` with the executable named after the project; the formula points at it with a
+  `file://` URL and its sha256, keeps `skip_clean`, and is committed to a tap repository (`ARCHITECT_TAP_REPO`, else `.architect/tap/`).
+  It is installed by full name and untapped only after uninstall, as here.
+- Architect's own CLI is still not a single executable (finding 7 stands); it stays an npm package.
+
 ## Open risks
 
 - **Only ad hoc signing.** `codesign -v` passes, but a downloaded (not locally installed) macOS binary will carry a

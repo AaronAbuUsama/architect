@@ -1,6 +1,6 @@
 // Planted fixture: answers the wrong shape. The declared answer is { allowance: Allowance id }.
 import { Effect } from "effect";
-import type { Handler } from "../../../generated/api/src/allowance/grant.handler.ts";
+import type { Handler } from "../../generated/api/src/allowance/grant.handler.ts";
 
 const grant: Handler = (_payload, { steps }) =>
   Effect.gen(function* () {

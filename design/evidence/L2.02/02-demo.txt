@@ -1,0 +1,41 @@
+# a real OIDC issuer (mock-oauth2-server, by digest): the client ci-main is a CI job on acme/acme's main
+
+# the logbook and the test environment
+logbook up http://127.0.0.1:8975
+test up http://127.0.0.1:8976
+test up http://127.0.0.1:8976
+worlds 0
+
+# prove in a test world: world, journeys and evals, one verdict per operation, world destroyed
+world test-44ef5872 · expires in 2h
+prove ✔
+verdicts allowance.get ✔  allowance.grant ✔  allowance.revoke ✔  allowance.spend ✔  api-key.create ✔  invitation.accept ✔  invitation.revoke ✔  invitation.send ✔  membership.get ✔  organization.create ✔  organization.get ✔  person.sign-up ✔  session.show ✔  session.sign-in ✔  system.health ✔   (revision 216caca)
+world destroyed
+(exit 0)
+
+# the logbook holds one verdict per operation for this revision (revision 216caca)
+15 verdicts, all pass, ref refs/heads/main
+test up http://127.0.0.1:8976
+worlds 0
+
+# a run killed mid-way, with a 20 s lifetime
+world test-d8a224ac · expires in 20s
+(killed with SIGKILL)
+test up http://127.0.0.1:8976
+worlds 1
+reap within the lifetime:
+reaped 0
+
+# the environment goes down; after the lifetime, reap starts it, destroys the world and stops it again
+test down
+reaped 1
+test down
+reaped 0
+test up http://127.0.0.1:8976
+test up http://127.0.0.1:8976
+worlds 0
+
+# stop everything: nothing of this project is left running
+test down
+logbook down
+nothing running

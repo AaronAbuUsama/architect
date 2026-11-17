@@ -4,6 +4,7 @@ import type { Principal } from "@architect/blueprint";
 import type { AuthD1Api, AuthInstance, CastMember } from "./types.ts";
 import { held, instance, statusOf, type BetterAuth } from "./internal/instance.ts";
 import { KEY_PREFIX } from "./internal/options.ts";
+import * as oauth from "./internal/oauth.ts";
 
 const ANONYMOUS: Principal = { kind: "anonymous" };
 
@@ -47,6 +48,22 @@ const layer: AuthD1Api["layer"] = (a) =>
     }),
   );
 
+// A registration is capped before Better Auth sees it (D3 #123); everything else is Better Auth's.
+const handle: AuthD1Api["handle"] = (a, request) =>
+  Effect.gen(function* () {
+    // Better Auth's own tables must exist before the guard counts one.
+    const refused = oauth.isRegistration(request) ? yield* Effect.tryPromise(() => held(a).auth()).pipe(Effect.andThen(oauth.registrationGuard(a))) : undefined;
+    return refused ?? (yield* Effect.tryPromise(() => held(a).auth(originOf(request)).then((auth) => auth.handler(request))));
+  }).pipe(Effect.orDie);
+
+// OAuth's issuer and the MCP resource are the address a request was reached on: each is answered by the instance for its origin.
+const originOf = (request: Request) => new URL(request.url).origin;
+const oauthApi: AuthD1Api["oauth"] = {
+  discovery: (a, request) => Effect.tryPromise(() => held(a).auth(originOf(request))).pipe(Effect.flatMap((auth) => oauth.discovery(auth, request)), Effect.orDie),
+  bearer: (a, request) => Effect.tryPromise(() => held(a).auth(originOf(request))).pipe(Effect.flatMap((auth) => oauth.bearer(a, auth, request)), Effect.orDie),
+  challenge: (request, error) => oauth.challenge(request, error),
+};
+
 const ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz";
 const random = (n: number) => Array.from(crypto.getRandomValues(new Uint8Array(n)), (b) => ALPHABET[b % 36]).join("");
 
@@ -59,4 +76,4 @@ const castMember: AuthD1Api["castMember"] = (a, name, anonymous, stored) =>
     return { person, token, email: member.email, password: member.password } satisfies CastMember;
   });
 
-export const AuthD1: AuthD1Api = { make: instance, layer, castMember };
+export const AuthD1: AuthD1Api = { make: instance, layer, handle, oauth: oauthApi, castMember };

@@ -33,9 +33,9 @@ Found an organisation with its cap. Whoever founds it owns it, and is its first 
 
 ## Refusals
 
-| refusal | exit | when |
-|---|---|---|
-| NotAllowed | 3 | the caller isn't anyone signed in; the handler never runs |
+| refusal | exit | code | when |
+|---|---|---|---|
+| NotAllowed | 3 | AR-001 | the caller isn't anyone signed in; the handler never runs |
 
 ## How to call
 

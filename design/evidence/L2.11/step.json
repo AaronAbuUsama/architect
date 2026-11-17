@@ -1,0 +1,37 @@
+{
+  "step": "L2.11",
+  "stage": "Stage 3 · shipping on local worlds (Gate 2)",
+  "title": "Gate 2: eight shipping checks locally and in Linux CI",
+  "status": "gate-pass-pr-review-pending",
+  "summary": "Gate 2 passes on clean local source and fresh Linux CI: all eight files and ten tests, zero skips, with actual Mac arm64 and Linux x64 Homebrew. The clean local 4516059 proof is unchanged by the subsequent two test-only restart deadlines and documentation; final source 5ff5f6f passes all three Linux CI jobs. All 25 real logbook tests and all 16 projects’ static checks pass after integration. Owned-resource cleanup is complete. Final keyed PR CI, independent exact-head verdict and main landing remain.",
+  "proves": "A PR goes to test, then staging, then production. There is a verdict in each environment, and the npm version equals `architect version --next`.",
+  "captions": {
+    "01-ci-static": "Workspace lint, typecheck, Nx sync and workflow syntax validation; these are static checks.",
+    "02-local-gate": "Full Gate 2 on clean source: eight files, ten tests passed, zero skips; the real Homebrew test ran.",
+    "03-cleanup": "Zero remaining containers, gate taps, formulas, exact gate port listeners or own runtime processes. Unrelated listeners were preserved.",
+    "06-linux-ci": "Fresh Linux run44023299021: all three CI jobs green on c867e21.",
+    "07-linux-gate-summary": "Linux Gate2 passes all eight files and ten tests; Homebrew7.0.13 is present and both publishing tests execute.",
+    "08-post-author-static": "After the author correction integrates: all 16 projects pass lint/typecheck without cache; reset/sync/sync:check also pass.",
+    "09-final-clean-gate": "Final clean 4516059: all eight files and ten tests pass, zero skips, real Mac arm64 Homebrew, 253.1 seconds.",
+    "10-final-cleanup": "Clean preflight/reset/sync and cleanup: zero owned containers, taps, formulas, exact gate listeners or processes; unrelated resources preserved.",
+    "11-corrected-linux-ci": "4516059 Linux: both gates green; workspace job failed the real logbook restart case at its five-second default.",
+    "12-corrected-linux-gate": "4516059 Linux Gate 2: eight files and ten tests pass, no skips, actual Linuxbrew.",
+    "13-restart-budget-static": "Post-merge restart-deadline correction: all 16 projects pass lint/typecheck without cache; reset/sync/sync:check pass.",
+    "14-restart-budget-logbook": "Post-merge serial real logbook suite: all 25 tests pass, including both restart cases.",
+    "15-restart-budget-cleanup": "Post-merge cleanup: no owned containers, exact test-port listeners or worktree runtime processes.",
+    "16-final-linux-ci": "Final source 5ff5f6f, run 44027211261: all three Linux CI jobs green, including real Homebrew Gate 2 and corrected real logbook integration tests."
+  },
+  "local": {
+    "commit": "4516059b27c2013fda885225a7ea2074357ab3b2",
+    "command": "NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static",
+    "filesPassed": 8,
+    "testsPassed": 10,
+    "testsSkipped": 0,
+    "durationSeconds": 253.1,
+    "platform": "darwin-arm64",
+    "nodeVersion": "26.13.1",
+    "pnpmVersion": "11.20.0",
+    "cleanSourceBeforeRun": true,
+    "cleanup": "No Architect containers, gate taps, gate formulas, exact gate port listeners or own runtime processes remain."
+  }
+}

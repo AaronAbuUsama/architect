@@ -1,0 +1,11 @@
+$ pnpm exec vitest run --root packages/logbook src/modules/local/routes.test.ts --maxWorkers=1
+# commit b4e3172 · 2026-11-17T05:00:27Z · exit 0 (expected 0) · 16.7s
+
+
+ RUN  v4.1.12 ./packages/logbook
+
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  05:00:11
+   Duration  16.03s (transform 38ms, setup 0ms, import 230ms, tests 15.70s, environment 0ms)

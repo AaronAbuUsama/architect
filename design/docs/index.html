@@ -720,7 +720,7 @@ export default Blueprint.startingWorld("founded", {
   ],
   gives: (s) => ({ organization: s.last.organization }),
 })` },
-{ p: "acme/implementation/handlers/invitation/accept.ts", k: "scaffold", n: "The logic inside an operation. Scaffolded once its declaration had no blanks left, at the path that mirrors it, with its imports and steps laid out; yours from then on.", c:
+{ p: "acme/src/invitation/accept.ts", k: "scaffold", n: "The logic inside an operation. Scaffolded once its declaration had no blanks left, at the path that mirrors it, with its imports and steps laid out; yours from then on.", c:
 `import { Effect } from "effect"
 import { Handlers } from "@acme/api/server"
 import { Invitations, Memberships } from "../../services"
@@ -734,7 +734,7 @@ export default Handlers.invitation.accept(({ invitation }, { principal, move }) 
     yield* Memberships.join(found.organization, principal, "member")
     return { organization: found.organization, role: "member" as const }
   }))` },
-{ p: "acme/implementation/handlers/organization/create.ts", k: "scaffold", n: "", c:
+{ p: "acme/src/organization/create.ts", k: "scaffold", n: "", c:
 `import { Effect } from "effect"
 import { Handlers } from "@acme/api/server"
 import { Organizations, Memberships } from "../../services"
@@ -746,7 +746,7 @@ export default Handlers.organization.create(({ name, slug }, { principal, move }
     yield* Memberships.join(organization.id, principal, "owner")
     return { organization: organization.id }
   }))` },
-{ p: "acme/implementation/handlers/system/health.ts", k: "scaffold", n: "", c:
+{ p: "acme/src/system/health.ts", k: "scaffold", n: "", c:
 `import { Effect } from "effect"
 import { Handlers } from "@acme/api/server"
 import { Database } from "../../services"
@@ -756,7 +756,7 @@ export default Handlers.system.health(() =>
     yield* Database.ping
     return { status: "ok" as const, database: "ok" as const }
   }))` },
-{ p: "acme/implementation/services.ts", k: "scaffold", n: "Your own Effect services: the database access the handlers use. Architect scaffolds the file; what is in it is yours.", c:
+{ p: "acme/src/services.ts", k: "scaffold", n: "Your own Effect services: the database access the handlers use. Architect scaffolds the file; what is in it is yours.", c:
 `import { Effect, Layer } from "effect"
 import { SqlClient } from "@effect/sql"
 
@@ -765,11 +765,11 @@ export class Invitations extends Effect.Service<Invitations>()("acme/Invitations
 export class Memberships extends Effect.Service<Memberships>()("acme/Memberships", { /* ... */ }) {}
 export class Organizations extends Effect.Service<Organizations>()("acme/Organizations", { /* ... */ }) {}
 export class Database extends Effect.Service<Database>()("acme/Database", { /* ... */ }) {}` },
-{ p: "acme/generated/server/main.ts", k: "generated", n: "The server is a generated application. It wires every handler in implementation/ to its route by path, so nobody writes or edits it.", c:
+{ p: "acme/generated/server/main.ts", k: "generated", n: "The server is a generated application. It wires every handler in src/ to its route by path, so nobody writes or edits it.", c:
 `// Generated from the blueprint. Do not edit.
 import { Server } from "@acme/api/server"
-import * as Handlers from "../../implementation/handlers"   // one import per handler file, by path
-import { Services } from "../../implementation/services"
+import * as Handlers from "../../src"   // one import per handler file, by path
+import { Services } from "../../src/services"
 
 export default Server.make({ handlers: Handlers, services: Services })` },
 { p: "acme/generated/api/src/invitation/accept.ts", k: "generated", n: "The contract: route, payload and answer schemas, the exact error union, the role check, a span per declared step. The server implements it; the SDK calls it.", c:
@@ -990,7 +990,7 @@ export const machinePath = Eval.builtIn("machine-path", (run, model) =>
   return { outOfSyncMessage: "generated/sdk is out of date with the blueprint" }
 }` },
 { p: "architect/packages/lint/src/rules/handler-matches-path.ts", k: "framework", n: "A generated-rule example: what types can't catch, an oxlint rule does. Each rule says which file to fix.", c:
-`// A handler file must sit at implementation/handlers/<thing>/<verb>.ts for a declared operation <thing>.<verb>,
+`// A handler file must sit at src/<thing>/<verb>.ts for a declared operation <thing>.<verb>,
 // and must implement exactly that operation.
 export const handlerMatchesPath = Rule.make("architect/handler-matches-path", (context) => ({
   ExportDefaultDeclaration(node) {
@@ -1302,7 +1302,7 @@ export default Blueprint.journey({
   ],
 })` },
 
-"acme/implementation/handlers/allowance/spend.ts": { k: "scaffold", n: "The handler. The role check, the idempotency key, the move and its event happen around it. From layer four, the signature arrives already checked, and the contract's refusals arrive decoded.", c:
+"acme/src/allowance/spend.ts": { k: "scaffold", n: "The handler. The role check, the idempotency key, the move and its event happen around it. From layer four, the signature arrives already checked, and the contract's refusals arrive decoded.", c:
 `import { Effect } from "effect"
 import { Handlers } from "@acme/api/server"
 import { Allowances } from "../../services"
@@ -1323,7 +1323,7 @@ export default Handlers.allowance.spend(({ allowance, to, amount }, { steps, vau
     return { remaining: receipt.events.AllowanceSpent.remaining, tx: receipt.hash } «4»
   }))` },
 
-"acme/implementation/handlers/allowance/grant.ts": { k: "scaffold", n: "", c:
+"acme/src/allowance/grant.ts": { k: "scaffold", n: "", c:
 `import { Effect } from "effect"
 import { Handlers } from "@acme/api/server"
 import { Allowances } from "../../services"
@@ -1338,7 +1338,7 @@ export default Handlers.allowance.grant((payload, { steps, vault, signature }) =
     return { allowance: allowance.id }
   }))` },
 
-"acme/implementation/services.ts": { k: "scaffold", n: "Your own Effect services. Each function is a span named by a declared step.", c:
+"acme/src/services.ts": { k: "scaffold", n: "Your own Effect services. Each function is a span named by a declared step.", c:
 `import { Effect, Layer } from "effect"
 import { SqlClient } from "@effect/sql"
 
@@ -1348,7 +1348,7 @@ export class Memberships extends Effect.Service<Memberships>()("acme/Memberships
 export class Organizations extends Effect.Service<Organizations>()("acme/Organizations", { /* ... */ }) {}
 export class Database extends Effect.Service<Database>()("acme/Database", { /* ... */ }) {}` },
 
-"acme/implementation/contracts/AllowanceVault.sol": { k: "scaffold", n: "Our contract, one per organisation. Every write checks a signature from the right wallet, through the generated helpers; state only changes through the generated machine.", c:
+"acme/src/allowance/AllowanceVault.sol": { k: "scaffold", n: "Our contract, one per organisation. Every write checks a signature from the right wallet, through the generated helpers; state only changes through the generated machine.", c:
 `// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
@@ -1561,7 +1561,7 @@ abstract contract AllowanceSignatures is EIP712 {
 pragma solidity ^0.8.24;
 
 import {Test} from "forge-std/Test.sol";
-import {AllowanceVault} from "../../../implementation/contracts/AllowanceVault.sol";
+import {AllowanceVault} from "../../../src/allowance/AllowanceVault.sol";
 import {Allowance} from "../AllowanceTypes.sol";
 
 contract AllowanceMachineTest is Test {
@@ -1994,7 +1994,7 @@ published system: every part generated from one blueprint, every part with a pla
 <li><b>The evidence.</b> A verdict per operation per environment, made only by CI, and the same evals watching production.</li>
 </ul>
 <h2>And what you write</h2>
-<p>The declarations in <code>blueprint/</code>, and the blanks in <code>implementation/</code>: handlers, and the body of a contract.
+<p>The declarations in <code>blueprint/</code>, and the blanks in <code>src/</code>: handlers, and the body of a contract.
 You don't get all of it at once: it arrives in <a href="#layers">layers</a>, and the first layer is just a server, an SDK, a CLI and docs.</p>
 <div class="callout">See it built from nothing in <a href="#example">the worked example</a>, or go straight to the <a href="#s1">Explorer</a>.</div>` },
 
@@ -2065,7 +2065,7 @@ The example uses two: ${f("acme/blueprint/kits/wallets.ts", "wallets")} and ${f(
 <li>An operation says who signs: <code>signedBy: grantee</code> in ${f("acme/blueprint/things/allowance/verbs/spend.ts", "spend")}.</li>
 <li>Architect turns its payload into EIP-712 typed data, with a nonce and a deadline: ${f("acme/generated/contracts/AllowanceSignatures.sol", "what each person signs")}.</li>
 <li>The SDK fetches the data, signs it with the signer the caller passes, and sends both. The CLI signs with your local key.</li>
-<li>The server checks the signature belongs to the caller's linked wallet, so the role and the signer agree, and hands it to ${f("acme/implementation/handlers/allowance/spend.ts", "the handler")}.</li>
+<li>The server checks the signature belongs to the caller's linked wallet, so the role and the signer agree, and hands it to ${f("acme/src/allowance/spend.ts", "the handler")}.</li>
 <li>The ${f("architect/packages/std/src/chain/relayer.ts", "relayer")} submits it and pays the gas. Without the person's signature it can do nothing.</li>
 <li>The contract checks it with OpenZeppelin's SignatureChecker, which accepts a plain wallet and a smart account alike, and uses the nonce so a signed request lands once.</li>
 </ol>
@@ -2085,7 +2085,7 @@ that run in its own test runner. Targets differ only in how much their own tooli
 <li>${f("acme/generated/contracts/AllowanceMachine.sol", "the machine, compiled")}: a contract the vault inherits, so state can only change through its step function;</li>
 <li>${f("acme/generated/contracts/AllowanceSignatures.sol", "what each person signs")}, from each operation's payload and its <code>signedBy</code>;</li>
 <li>${f("acme/generated/contracts/test/AllowanceMachine.t.sol", "the Foundry tests")}: every move from every state, every write signed by the wrong wallet, and every signed request sent twice;</li>
-<li>${f("acme/implementation/contracts/AllowanceVault.sol", "the contract itself")}, scaffolded with blanks where the money moves.</li>
+<li>${f("acme/src/allowance/AllowanceVault.sol", "the contract itself")}, scaffolded with blanks where the money moves.</li>
 </ul>
 <p>The compiled contract then owns its ABI. Architect reads it with <code>forge build</code> and generates ${f("acme/generated/api/src/contracts/allowance-vault.ts", "the contract's Effect client")}: every write a span, every custom error decoded into its typed error. Nothing is declared twice.</p>
 <h2>Values</h2>
@@ -2112,7 +2112,7 @@ the server, the database, the keeper and the chain. A thing never owns time; it 
 <li><b>Lazy:</b> worked out the next time anything touches the thing. On chain, that uses the block's own time and costs nothing. The monthly reset is lazy.</li>
 <li><b>Keeper:</b> fired by Architect's built-in caller for time, within a declared <code>late</code> window. Expiry is fired by the keeper, because nobody may touch an allowance for a year.</li>
 </ul>
-<p>See ${f("acme/blueprint/things/allowance/machine.ts", "the allowance's machine")}. The keeper is generated: a grant sets the allowance's own timer, through the world's ${f("acme/generated/keeper/src/allowance.expire.ts", "Timers service")}. In a real world that's a Durable Object alarm; in a stepped world it's a row in the world's timer table, fired when the clock reaches it. On chain the keeper has its own wallet, and ${f("acme/implementation/contracts/AllowanceVault.sol", "the contract")} only lets it make time moves.</p>
+<p>See ${f("acme/blueprint/things/allowance/machine.ts", "the allowance's machine")}. The keeper is generated: a grant sets the allowance's own timer, through the world's ${f("acme/generated/keeper/src/allowance.expire.ts", "Timers service")}. In a real world that's a Durable Object alarm; in a stepped world it's a row in the world's timer table, fired when the clock reaches it. On chain the keeper has its own wallet, and ${f("acme/src/allowance/AllowanceVault.sol", "the contract")} only lets it make time moves.</p>
 <h2>What's checked</h2>
 <p>One more eval, <b>on time</b>: did the move happen within its window, with its event? In a journey, after the clock moves; in production,
 on every move the keeper fires. The keeper is a caller, so its calls are traced and refused like anyone else's.</p>` },
@@ -2132,7 +2132,7 @@ on every move the keeper fires. The keeper is a caller, so its calls are traced 
 <li>that it's idempotent: a retry with the same request key spends once. On chain, the signed nonce does the same job.</li>
 </ul>
 <h2>What the handler is given</h2>
-<p>From that, Architect generates ${f("acme/generated/api/src/allowance/spend.handler.ts", "exactly what the handler is given")}: its steps as span wrappers, its move or the contract's client, a checked signature, and an error type that's the declared union, nothing more. The role check, the idempotency key, the move and its event all happen around ${f("acme/implementation/handlers/allowance/spend.ts", "the handler")}, which only does the work.</p>
+<p>From that, Architect generates ${f("acme/generated/api/src/allowance/spend.handler.ts", "exactly what the handler is given")}: its steps as span wrappers, its move or the contract's client, a checked signature, and an error type that's the declared union, nothing more. The role check, the idempotency key, the move and its event all happen around ${f("acme/src/allowance/spend.ts", "the handler")}, which only does the work.</p>
 <h2>Waits</h2>
 <p>Some things settle later, like a transaction being confirmed. A wait is a step of its own, and may say <code>within</code>. Waits are left out of the budget and measured on their own.</p>
 <h2>Reads</h2>
@@ -2307,7 +2307,7 @@ blank  verbs/spend.ts  allowed: who may spend?</pre>
 <h2>Hand work to an agent</h2>
 <p>A brief is everything an agent needs for one blank: the job, what to read, what not to touch, when it's done, and what the handler is given.</p>
 <pre class="code">$ architect brief allowance.spend
-job        fill implementation/handlers/allowance/spend.ts
+job        fill src/allowance/spend.ts
 read       blueprint/things/allowance/verbs/spend.ts
 don't touch generated/, blueprint/
 done when  journeys spend-within-allowance, revoke-then-spend pass
@@ -2341,7 +2341,7 @@ $ architect promote --to staging</pre>
 version   1.4.0 → 2.0.0 (payload changed)
 stale     allowance.spend in staging, production
 regenerate sdk, cli, docs, api: 7 files
-re-brief  implementation/handlers/allowance/spend.ts
+re-brief  src/allowance/spend.ts
 re-run    spend-within-allowance, revoke-then-spend</pre>
 <p>The version comes from ${f("acme/generated/model/changes.json", "the model's comparison")}.</p>` },
 
@@ -2504,7 +2504,7 @@ not discovered.</p>
 <p class="lede">Every Architect project has the same three folders, named for who writes them, and which one a file is in tells you whether you may edit it.</p>
 <ul>
 <li><code>blueprint/</code> says <b>what the system is</b>: the declarations and journeys. Scaffolded, then yours.</li>
-<li><code>implementation/</code> says <b>how it does it</b>: one handler per operation, the services they use, and the Solidity contracts you own. Scaffolded, then yours.</li>
+<li><code>src/</code> says <b>how it does it</b>: for each thing a folder, mirroring <code>blueprint/things/</code>, holding one handler per operation and the Solidity contract you own; plus the services they use. Scaffolded, then yours.</li>
 <li><code>generated/</code> holds <b>everything Architect builds</b> from the two: the server itself, the API, the SDK, the CLI, the MCP server, the portal, the docs, the Solidity types and tests, the keeper's timers and the infrastructure. Rewritten on every run; never edited.</li>
 </ul>
 <p>The one loose file is <code>architect.config.ts</code> at the root: the project's name, which outputs to generate, and any you want
@@ -2521,11 +2521,11 @@ renamed. Throwaway experiments go in <code>spikes/</code>, which is never built.
 <li><code>starting-worlds/</code>: named setups a journey starts from, such as <code>founded</code> and <code>funded</code>.</li>
 <li><code>environments/</code>: one file per place the application runs: <code>local.ts</code>, <code>test.ts</code>, <code>staging.ts</code>, <code>production.ts</code>.</li>
 </ul>
-<h2>Inside implementation</h2>
+<h2>Inside src</h2>
 <ul>
-<li><code>handlers/&lt;thing&gt;/&lt;verb&gt;.ts</code>: one handler per operation, at the path that mirrors its declaration. Reads have none.</li>
+<li><code>&lt;thing&gt;/&lt;verb&gt;.ts</code>: one handler per operation, in a folder that mirrors <code>blueprint/things/&lt;thing&gt;/</code>. Reads have none.</li>
+<li><code>&lt;thing&gt;/&lt;Thing&gt;.sol</code>: the Solidity you own for that thing, such as <code>allowance/AllowanceVault.sol</code>. Its workflows live there too.</li>
 <li><code>services.ts</code>: your own Effect services.</li>
-<li><code>contracts/</code>: the Solidity you own, such as <code>AllowanceVault.sol</code>.</li>
 </ul>
 <h2>Inside generated</h2>
 <p><code>server</code> is the running application, which wires your handlers to their routes. <code>api</code> is the contract between
@@ -2703,8 +2703,8 @@ Nx runs for you.</p>
 <p>Each is an Nx generator underneath (<code>nx g @architect/generators:&lt;name&gt;</code>), so <code>--dry-run</code> lists every file it
 would write before it writes one.</p>
 <p><b>The handler and the contract come later, by themselves.</b> When <code>allowance.spend</code>'s declaration has no blanks left, the next run writes
-${f("acme/implementation/handlers/allowance/spend.ts", "implementation/handlers/allowance/spend.ts")}: imports done, declared
-steps laid out, blanks where your logic goes. The same run scaffolds ${f("acme/implementation/contracts/AllowanceVault.sol", "the vault contract")},
+${f("acme/src/allowance/spend.ts", "src/allowance/spend.ts")}: imports done, declared
+steps laid out, blanks where your logic goes. The same run scaffolds ${f("acme/src/allowance/AllowanceVault.sol", "the vault contract")},
 with a blank in every function. They wait because only a complete declaration says what they take, answer and may refuse with.</p>
 <h2>Output generators: the ones Nx runs</h2>
 <p>These are Nx <b>sync generators</b>: Nx runs them before every task (build, test, serve), so outputs are never out of date and
@@ -2739,7 +2739,7 @@ disagree with the blueprint. It runs in your editor, in git hooks and in CI, and
 <li><b>Ratchets:</b> no list of known gaps has grown.</li>
 </ol>
 <p>Here is a failure. In the spend handler you try to fail with <code>OrganizationArchived</code>, an error <code>spend</code> doesn't declare:</p>
-<pre class="out">✖ types   implementation/handlers/allowance/spend.ts:9
+<pre class="out">✖ types   src/allowance/spend.ts:9
           OrganizationArchived is not an error allowance.spend declares.
           Add it to errors in blueprint/things/allowance/verbs/spend.ts</pre>
 <p>The fix starts in the declaration. That holds for every change: the declaration first, then the code.</p>
@@ -2878,7 +2878,7 @@ See also ${f("acme/generated/model/model.json", "model.json")} and ${f("architec
 <li><b>Scaffolds the change:</b> the declaration edits, and blanks in every handler or contract function they break.</li>
 <li><b>Writes the brief:</b> one file telling the agent which files to change; what depends on them; which evals must pass, and where; which ratchets it may lower and must not raise; what it must not touch (a builder never edits the journeys, the generated Foundry tests or the built-in evals that judge its work); and the commands to check itself.</li>
 </ol>
-<p>A brief for filling the spend handler, for example, names ${f("acme/implementation/handlers/allowance/spend.ts", "the handler")}, tells
+<p>A brief for filling the spend handler, for example, names ${f("acme/src/allowance/spend.ts", "the handler")}, tells
 it to read the allowance's five declaration files and ${f("acme/generated/api/src/allowance/spend.handler.ts", "what the handler is given")},
 and says it's done when "spend within allowance" and "revoke then spend" pass locally with every eval green.</p>
 <p>The agent works from the brief. <code>architect check</code> and <code>prove</code> tell it what is still wrong, in the same terms. The
@@ -2894,7 +2894,7 @@ const PAGES = PAGE_ORDER.map((id) => ALL_PAGES.find((p) => p.id === id)).filter(
 /* ---------- The walkthrough, in five layers ----------
    Each step adds or changes files. N(path, n) is a file new in this step, as it stands after layer n;
    D(path, n) is a file layer n changes, with its changes marked; a line with Blueprint.todo( or notWritten( is a blank. */
-const EXAMPLE_FILES = /things\/allowance\/|values\/|blueprint\/kits\/|starting-worlds\/funded|journeys\/(spend-within|monthly-reset|revoke-then)|implementation\/(contracts|handlers\/allowance)|generated\/(contracts|keeper|mcp|api\/src\/(allowance|contracts)|sdk\/src\/allowance|sdk\/package|cli\/src\/(allowance|wallet)|cli\/homebrew|docs\/allowance|infra\/src\/production|model\/changes)|spikes\//;
+const EXAMPLE_FILES = /things\/allowance\/|values\/|blueprint\/kits\/|starting-worlds\/funded|journeys\/(spend-within|monthly-reset|revoke-then)|src\/allowance\/|generated\/(contracts|keeper|mcp|api\/src\/(allowance|contracts)|sdk\/src\/allowance|sdk\/package|cli\/src\/(allowance|wallet)|cli\/homebrew|docs\/allowance|infra\/src\/production|model\/changes)|spikes\//;
 const N = (p, n) => ({ p, k: LAYERED[p].k, c: at(p, n) });
 const D = (p, n) => ({ p, k: LAYERED[p].k, c: at(p, n, true) });
 const LAYER_NAMES = ["", "Declare and call", "Prove and ship", "Reach out", "On chain", "Time"];
@@ -2921,7 +2921,7 @@ export { Api } from "./api"           // the whole HttpApi, for the server and t
 const BASE_AT_LAYER_ONE = ["acme/architect.config.ts", "acme/blueprint/environments/local.ts", "acme/blueprint/environments/test.ts",
   "acme/blueprint/environments/staging.ts", "acme/blueprint/environments/production.ts"];
 for (const p of BASE_AT_LAYER_ONE) BASE_OVERRIDES[p] = at(p, 1);
-BASE_OVERRIDES["acme/implementation/services.ts"] = at("acme/implementation/services.ts", 0);
+BASE_OVERRIDES["acme/src/services.ts"] = at("acme/src/services.ts", 0);
 
 const MODEL_1 =
 `{
@@ -2969,7 +2969,7 @@ const STEPS = [
 { t: "Start a project", layer: 1, stage: "Set up", see: "get",
   say: "You start in an empty folder and run one command. Architect writes the layout and the starter: health, sign up and sign in, organisations, memberships and API keys, each with its journeys. Blueprint holds the declarations: what the system is. Implementation holds what you write: how it does it. Generated holds what Architect builds: in this first layer, the server, the API, the SDK, the CLI and the docs, all running on your machine. Check passes before you've declared anything of your own.",
   cmd: "npx create-nx-workspace acme --preset=@architect/preset\ncd acme && pnpm architect check",
-  out: "✔ created acme  (Nx workspace on pnpm)\n  blueprint        6 things · 17 operations · 3 journeys   (the starter)\n  implementation/  handlers and services, scaffolded\n  generated/       server · api · sdk · cli · docs · model\n\n✔ architect check    types ✔  rules ✔  drift ✔  ratchets 0",
+  out: "✔ created acme  (Nx workspace on pnpm)\n  blueprint        6 things · 17 operations · 3 journeys   (the starter)\n  src/             handlers and services, scaffolded\n  generated/       server · api · sdk · cli · docs · model\n\n✔ architect check    types ✔  rules ✔  drift ✔  ratchets 0",
   focus: "acme/architect.config.ts", files: [] },
 
 { t: "Ideate and spike", layer: 1, stage: "Design · ideate and spike", see: "layers",
@@ -3048,10 +3048,10 @@ export const machine = Blueprint.machine(Allowance, {
 { t: "What each handler is given", layer: 1, stage: "Build · build", see: "operations",
   say: "The blueprint has no blanks, so you generate. For every operation and read you get an endpoint, an SDK call, a CLI command and a docs page. For each operation, Architect also generates exactly what its handler is given: its steps as span wrappers, its move, and an error type that is the declared union and nothing more. Then it scaffolds the handler itself, with the blanks where the work goes.",
   cmd: "pnpm architect generate",
-  out: "CREATE generated/api/src/allowance/spend.handler.ts   (and grant, revoke)\nCREATE generated/sdk/src/allowance/spend.ts            (and grant, revoke, get)\nCREATE generated/cli/src/allowance/spend.ts            acme allowance spend\nCREATE generated/docs/allowance/spend.md\nCREATE implementation/handlers/allowance/spend.ts      scaffolded, 4 blanks (and grant, revoke)",
+  out: "CREATE generated/api/src/allowance/spend.handler.ts   (and grant, revoke)\nCREATE generated/sdk/src/allowance/spend.ts            (and grant, revoke, get)\nCREATE generated/cli/src/allowance/spend.ts            acme allowance spend\nCREATE generated/docs/allowance/spend.md\nCREATE src/allowance/spend.ts      scaffolded, 4 blanks (and grant, revoke)",
   focus: "acme/generated/api/src/allowance/spend.handler.ts",
   files: [N("acme/generated/api/src/allowance/spend.handler.ts", 1), { p: "acme/generated/model/model.json", k: "generated", c: MODEL_1 }, N("acme/generated/sdk/src/allowance/spend.ts", 1), N("acme/generated/cli/src/allowance/spend.ts", 1), N("acme/generated/docs/allowance/spend.md", 1),
-    { p: "acme/implementation/handlers/allowance/spend.ts", k: "scaffold", c:
+    { p: "acme/src/allowance/spend.ts", k: "scaffold", c:
 `import { Effect } from "effect"
 import { Handlers } from "@acme/api/server"
 
@@ -3067,9 +3067,9 @@ export default Handlers.allowance.spend(({ allowance, amount, memo }, { steps, m
 { t: "Write the handlers", layer: 1, stage: "Build · build", see: "operations",
   say: "An agent fills the handlers, from a brief you can print yourself with architect brief. It names the handler, the declaration it must read, the files it must not touch, and the evals that must pass. The handler is short because everything around it is generated: the role check runs before it, the idempotency key is checked before it, and the move applies the new state and emits the event. Returning an undeclared error doesn't compile.",
   cmd: "pnpm architect brief allowance.spend\npnpm architect check",
-  out: "Job      fill implementation/handlers/allowance/spend.ts (4 blanks)\nRead     blueprint/things/allowance/ · generated/api/src/allowance/spend.handler.ts\nDon't    touch blueprint/, generated/, or any journey\nDone     spend-within-allowance and revoke-then-spend pass locally; all 9 evals green\n\n✔ types ✔  rules ✔  drift ✔\n✔ every handler's error type is within its declaration\n  blanks left   0",
-  focus: "acme/implementation/handlers/allowance/spend.ts",
-  files: [N("acme/implementation/handlers/allowance/spend.ts", 1), N("acme/implementation/handlers/allowance/grant.ts", 1), D("acme/implementation/services.ts", 1)] },
+  out: "Job      fill src/allowance/spend.ts (4 blanks)\nRead     blueprint/things/allowance/ · generated/api/src/allowance/spend.handler.ts\nDon't    touch blueprint/, generated/, or any journey\nDone     spend-within-allowance and revoke-then-spend pass locally; all 9 evals green\n\n✔ types ✔  rules ✔  drift ✔\n✔ every handler's error type is within its declaration\n  blanks left   0",
+  focus: "acme/src/allowance/spend.ts",
+  files: [N("acme/src/allowance/spend.ts", 1), N("acme/src/allowance/grant.ts", 1), D("acme/src/services.ts", 1)] },
 
 { t: "A starting world, and journeys", layer: 1, stage: "Build · test", see: "worlds",
   say: "Journeys are written by a different agent from the builders, from the declarations alone. They start from a starting world, which is seeded by running declared operations, the same way the system is used: ada owns the organisation and grants olga five hundred. One journey spends within the limit and is refused past it. Another revokes, and spending is then refused with the state it was in.",
@@ -3099,9 +3099,9 @@ export default Handlers.allowance.spend(({ allowance, amount, memo }, { steps, m
   files: [N("acme/blueprint/things/allowance/verbs/list.ts", 2), { p: "acme/generated/model/changes.json", k: "generated", c: CHANGES_2 }] },
 
 { t: "Deploy and publish", layer: 2, stage: "Build · deploy", see: "deploy",
-  say: "Each environment now says where every output goes. Some are deployed: they run somewhere. The server is a worker, the MCP server is a remote server agents connect to with OAuth, and the portal is a site. Some are published: others install them. The SDK goes to npm. The CLI goes to npm, a Homebrew tap and GitHub releases. Their version is the one the model worked out. Production only accepts a revision that's green in staging.",
-  cmd: "pnpm architect promote --to staging\npnpm architect promote --to production",
-  out: "staging      deployed  server · mcp · portal\n             published @acme/sdk@1.1.0-next.1 · acme@1.1.0-next.1\n             verdicts  5/5 ✔\n\nproduction   from staging 3d9e0a1 ✔\n             deployed  server api.acme.dev · mcp mcp.acme.dev · portal acme.dev\n             published @acme/sdk@1.1.0 (npm) · acme@1.1.0 (npm, brew acme/tap, github releases)",
+  say: "Each environment now says where every output goes. Some are deployed: they run somewhere. The server is a worker, the MCP server is a remote server agents connect to with OAuth, and the portal is a site. Some are published: others install them. The SDK goes to npm as @acme/sdk. The CLI goes to npm as @acme/cli, to a Homebrew tap as a single executable, and to GitHub releases. Their version is the one the model worked out: staging publishes a prerelease under the tag next, production the release. On your machine the registry is a local one, and publish --dry-run lists exactly what would go out first. Production only accepts a revision that's green in staging.",
+  cmd: "pnpm architect publish --dry-run\npnpm architect promote --to staging\npnpm architect promote --to production",
+  out: "publish --dry-run: acme 1.1.0, production's publish list; nothing is sent anywhere\nnpm @acme/sdk@1.1.0 --tag latest to http://localhost:4873/  (83 files, 106.5 kB)\nnpm @acme/cli@1.1.0 --tag latest to http://localhost:4873/  (2 files, 51.0 kB)\nbinary acme-1.1.0-darwin-arm64.tar.gz  (Node 24.22.2 single executable, built when published)\nhomebrew acme/tap: Formula/acme.rb in .architect/tap\nskipped github releases (cloud pass)\n\nstaging      from test 3d9e0a1 sha256:9b1c…\n             npm @acme/sdk@1.1.0-next.1 published --tag next\n             npm @acme/cli@1.1.0-next.1 published --tag next\n             verdicts  allowance.get ✔ …   (revision 3d9e0a1)\n\nproduction   from staging 3d9e0a1 sha256:9b1c…\n             released 1.1.0\n             npm @acme/sdk@1.1.0 published --tag latest\n             npm @acme/cli@1.1.0 published --tag latest\n             binary acme-1.1.0-darwin-arm64.tar.gz sha256:8da6…   homebrew acme/tap: Formula/acme.rb committed\n             skipped github releases (cloud pass) · skipped npmjs.org (cloud pass)",
   focus: "acme/blueprint/environments/production.ts",
   files: [D("acme/architect.config.ts", 2), D("acme/blueprint/environments/staging.ts", 2), D("acme/blueprint/environments/production.ts", 2),
     N("acme/generated/infra/src/production.ts", 2), N("acme/generated/sdk/package.json", 2), N("acme/generated/cli/homebrew/acme.rb", 2), N("acme/generated/mcp/src/server.ts", 2)] },
@@ -3135,10 +3135,10 @@ export default Handlers.allowance.spend(({ allowance, amount, memo }, { steps, m
 { t: "Generate the Solidity", layer: 4, stage: "Build · build", see: "targets",
   say: "Generate writes the Solidity side. The allowance's types: its states and moves, its events and its errors. Its machine, compiled into a contract the vault inherits, so state can only change the ways the blueprint allows. What each person signs: every operation's payload as typed data, checked by OpenZeppelin's SignatureChecker, which accepts a plain wallet and a smart account alike, with a nonce so a signed request lands once. Foundry tests for every move from every state, every write signed by the wrong wallet, and every signature replayed. And the vault itself, scaffolded with blanks.",
   cmd: "pnpm architect generate\nforge test",
-  out: "CREATE generated/contracts/AllowanceTypes.sol\nCREATE generated/contracts/AllowanceMachine.sol\nCREATE generated/contracts/AllowanceSignatures.sol\nCREATE generated/contracts/test/AllowanceMachine.t.sol   24 cases\nCREATE implementation/contracts/AllowanceVault.sol      scaffolded, 3 blanks\n\nforge test   0 passed · 24 failed: NotWritten(\"spend: check the limit and the balance, move the money\") …",
+  out: "CREATE generated/contracts/AllowanceTypes.sol\nCREATE generated/contracts/AllowanceMachine.sol\nCREATE generated/contracts/AllowanceSignatures.sol\nCREATE generated/contracts/test/AllowanceMachine.t.sol   24 cases\nCREATE src/allowance/AllowanceVault.sol      scaffolded, 3 blanks\n\nforge test   0 passed · 24 failed: NotWritten(\"spend: check the limit and the balance, move the money\") …",
   focus: "acme/generated/contracts/AllowanceSignatures.sol",
   files: [N("acme/generated/contracts/AllowanceTypes.sol", 4), N("acme/generated/contracts/AllowanceMachine.sol", 4), N("acme/generated/contracts/AllowanceSignatures.sol", 4), N("acme/generated/contracts/test/AllowanceMachine.t.sol", 4),
-    { p: "acme/implementation/contracts/AllowanceVault.sol", k: "scaffold", c:
+    { p: "acme/src/allowance/AllowanceVault.sol", k: "scaffold", c:
 `// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
@@ -3177,8 +3177,8 @@ contract AllowanceVault is AllowanceMachine, AllowanceSignatures {
   say: "An agent fills the contract's blanks. Its brief names the generated types and helpers it must use and the Foundry tests that must pass; it can't change the tests, and it can't change state except through the generated step function. The person's signature is checked before anything moves, so the relayer that submits the transaction can never act on its own. When the tests pass, forge build writes the ABI, which the compiled contract owns: Architect reads it, and doesn't redeclare it.",
   cmd: "forge test\nforge build",
   out: "forge test   24 passed · 0 failed\n  machine      12/12   every move from every state\n  signatures    6/6    every write, signed by the wrong wallet\n  replays       6/6    every signed request, sent twice\n\nforge build  out/AllowanceVault.sol/AllowanceVault.json",
-  focus: "acme/implementation/contracts/AllowanceVault.sol",
-  files: [N("acme/implementation/contracts/AllowanceVault.sol", 4)] },
+  focus: "acme/src/allowance/AllowanceVault.sol",
+  files: [N("acme/src/allowance/AllowanceVault.sol", 4)] },
 
 { t: "What changes for callers", layer: 4, stage: "Build · build", see: "std",
   say: "Generate again. The contract's Effect client comes from the ABI and the blueprint together: every write a span, every custom error decoded into its typed error, every signed payload simulated, then submitted, by the relayer. Each handler is now given the vault's client and a signature already checked against the caller's linked wallet. The SDK takes a signer: it fetches what to sign, signs it with whatever wallet the caller passes, and sends both. The CLI signs with your local key. The SDK's next version is 2.0.0.",
@@ -3192,17 +3192,17 @@ contract AllowanceVault is AllowanceMachine, AllowanceSignatures {
   say: "The handlers change: instead of updating records, they send the signed payload to the vault and wait for the receipt. The journeys barely change, because they're written against operations, not storage: spend now sends to an address. The starting world now deploys a vault for the organisation and funds it on a local chain, which runs as a bench. Each test person signs with their own wallet, made fresh in every world. Every receipt is written straight through to the organisation's index, and the chain follower catches anything that reached the vault some other way. Prove runs it all, and the generated Foundry tests run too.",
   cmd: "pnpm architect prove --env local\npnpm architect chain status",
   out: "world       local · bench anvil · vault for acme-demo 0x5Fb…aa3, funded 10000 TestUSD · wallets: ada, olga, bob\n\nallowance.grant    9 evals ✔   p95 1.1s  budget 3s     signed by ada\nallowance.spend    9 evals ✔   p95 1.4s  budget 4s     signed by olga\nallowance.revoke   9 evals ✔   p95 0.9s  budget 3s     signed by ada\nallowance.get      9 evals ✔   p95 41ms  budget 300ms\nallowance.list     9 evals ✔   p95 38ms  budget 100ms\n\ncoverage    moves 3/3 · outcomes 2/2 · refusals 5/5\nforge       24/24\n\nchain      bench anvil · block 418\nfollower   AllowanceVault  checkpoint 418 · lag 0 · reorgs 0\nrelayer    nonce 12 · queue 0 · simulated 12/12 before sending",
-  focus: "acme/implementation/handlers/allowance/spend.ts",
-  files: [D("acme/implementation/handlers/allowance/spend.ts", 4), D("acme/implementation/handlers/allowance/grant.ts", 4), D("acme/blueprint/journeys/spend-within-allowance.ts", 4), D("acme/blueprint/journeys/revoke-then-spend.ts", 4)] },
+  focus: "acme/src/allowance/spend.ts",
+  files: [D("acme/src/allowance/spend.ts", 4), D("acme/src/allowance/grant.ts", 4), D("acme/blueprint/journeys/spend-within-allowance.ts", 4), D("acme/blueprint/journeys/revoke-then-spend.ts", 4)] },
 
 /* ===== Layer 5: time ===== */
 { t: "Give it time", layer: 5, stage: "Design · specify, again", see: "time",
   say: "Layer five adds time. The machine gets two moves that no caller makes. Reset happens every calendar month, counted from the grant, and fires lazily: the contract works it out on the next spend, from the chain's own clock, so it costs nothing to run. Expire happens a year after the grant, and is fired by the keeper, Architect's built-in caller for time, at most ten minutes late. Nothing scans for it: the grant sets the allowance's own timer through the world's timer service. The keeper has its own wallet, which the contract only lets make time moves. Local and test worlds get a stepped clock, and a journey moves it. Two rules come with time: a plain sleep in a handler is banned by lint, and the local chain's clock stands still between steps.",
   cmd: "pnpm architect generate\nforge test",
-  out: "✔ allowance.machine   4 states · 5 moves · 2 by time (reset: lazy, expire: keeper)\nUPDATE generated/contracts/AllowanceTypes.sol     + Reset, Expire, AllowanceNotDue, NotKeeper\nUPDATE generated/contracts/AllowanceMachine.sol   + _period (calendar months from the grant), _dueAfter\nCREATE generated/contracts/Calendar.sol\nCREATE generated/keeper/src/allowance.expire.ts   a timer per allowance, set by its grant\nUPDATE implementation/contracts/AllowanceVault.sol   2 blanks: _due, expire\n\nforge test   31 passed (after the blanks were filled)",
+  out: "✔ allowance.machine   4 states · 5 moves · 2 by time (reset: lazy, expire: keeper)\nUPDATE generated/contracts/AllowanceTypes.sol     + Reset, Expire, AllowanceNotDue, NotKeeper\nUPDATE generated/contracts/AllowanceMachine.sol   + _period (calendar months from the grant), _dueAfter\nCREATE generated/contracts/Calendar.sol\nCREATE generated/keeper/src/allowance.expire.ts   a timer per allowance, set by its grant\nUPDATE src/allowance/AllowanceVault.sol   2 blanks: _due, expire\n\nforge test   31 passed (after the blanks were filled)",
   focus: "acme/blueprint/things/allowance/machine.ts",
   files: [D("acme/blueprint/things/allowance/machine.ts", 5), D("acme/blueprint/things/allowance/events.ts", 5), D("acme/generated/contracts/AllowanceTypes.sol", 5), D("acme/generated/contracts/AllowanceMachine.sol", 5),
-    D("acme/implementation/contracts/AllowanceVault.sol", 5), N("acme/generated/contracts/Calendar.sol", 5), N("acme/generated/keeper/src/allowance.expire.ts", 5), D("acme/generated/contracts/abi.ts", 5),
+    D("acme/src/allowance/AllowanceVault.sol", 5), N("acme/generated/contracts/Calendar.sol", 5), N("acme/generated/keeper/src/allowance.expire.ts", 5), D("acme/generated/contracts/abi.ts", 5),
     D("acme/blueprint/environments/local.ts", 5), D("acme/blueprint/environments/test.ts", 5), D("acme/blueprint/environments/staging.ts", 5), D("acme/blueprint/environments/production.ts", 5),
     D("acme/blueprint/starting-worlds/funded.ts", 5), N("acme/blueprint/journeys/monthly-reset.ts", 5), D("acme/generated/infra/src/production.ts", 5)] },
 
@@ -3419,7 +3419,7 @@ export const grantee = Blueprint.role(Allowance, { rule: (allowance, principal) 
   budget: { p95: "4 seconds", excludes: ["allowance.spend.confirm"] },
 })` },
   generated: [
-    { p: "implementation/handlers/allowance/spend.ts  (a scaffold, then yours)", c:
+    { p: "src/allowance/spend.ts  (a scaffold, then yours)", c:
 `export default Handlers.allowance.spend(({ allowance, to, amount }, { steps, vault, signature }) =>
   Effect.gen(function* () {
     const found = yield* steps.load(Blueprint.todo("find the allowance"))
@@ -3711,7 +3711,7 @@ function fileAt(step, path) {
 }
 
 /* ---------- Trees ---------- */
-const ORDER = (d) => ({ blueprint: 0, implementation: 1, generated: 2 }[d] ?? 3) + d;
+const ORDER = (d) => ({ blueprint: 0, src: 1, generated: 2 }[d] ?? 3) + d;
 const ancestors = (p) => { const out = []; const parts = p.split("/"); for (let i = 1; i < parts.length; i++) out.push(parts.slice(0, i).join("/") + "/"); return out; };
 const allDirs = (paths) => [...new Set(paths.flatMap(ancestors))];
 const treeTools = '<div class="ttools"><button type="button" data-fold="open">Expand all</button><button type="button" data-fold="close">Collapse all</button></div>';
@@ -3781,7 +3781,7 @@ function derivedLinks(path) {
   if (!m) return "";
   const [, thing, verb] = m;
   const targets = [
-    ["handler", "acme/implementation/handlers/" + thing + "/" + verb + ".ts"],
+    ["handler", "acme/src/" + thing + "/" + verb + ".ts"],
     ["handler is given", "acme/generated/api/src/" + thing + "/" + verb + ".handler.ts"],
     ["api", "acme/generated/api/src/" + thing + "/" + verb + ".ts"],
     ["sdk", "acme/generated/sdk/src/" + thing + "/" + verb + ".ts"],
@@ -3852,9 +3852,9 @@ const MINIS = {
       "acme/blueprint/starting-worlds/funded.ts",
       "acme/blueprint/environments/local.ts",
       "acme/blueprint/environments/production.ts",
-      "acme/implementation/contracts/AllowanceVault.sol",
-      "acme/implementation/handlers/allowance/spend.ts",
-      "acme/implementation/services.ts",
+      "acme/src/allowance/AllowanceVault.sol",
+      "acme/src/allowance/spend.ts",
+      "acme/src/services.ts",
       "acme/generated/server/main.ts",
       "acme/generated/contracts/AllowanceMachine.sol",
       "acme/generated/contracts/AllowanceSignatures.sol",
@@ -3876,8 +3876,8 @@ const MINIS = {
       "acme/blueprint/kits/": "the standard library's kits you use",
       "acme/blueprint/journeys/": "the stories that prove it",
       "acme/blueprint/environments/": "one file per environment: clock, chain, destinations",
-      "acme/implementation/": "how it does it: scaffolded with blanks, then yours",
-      "acme/implementation/contracts/": "your Solidity",
+      "acme/src/": "how it does it: scaffolded with blanks, then yours",
+      "acme/src/allowance/": "the allowance's handlers and its Solidity",
       "acme/generated/": "rewritten every time, never edited",
       "acme/generated/server/": "the server, wiring your handlers to routes",
       "acme/generated/contracts/": "the Solidity target: types, machine, signatures, tests",
@@ -3892,7 +3892,7 @@ const MINIS = {
   spend: {
     paths: [
       "acme/blueprint/things/allowance/verbs/spend.ts",
-      "acme/implementation/handlers/allowance/spend.ts",
+      "acme/src/allowance/spend.ts",
       "acme/generated/api/src/allowance/spend.handler.ts",
       "acme/generated/api/src/contracts/allowance-vault.ts",
       "acme/generated/contracts/AllowanceSignatures.sol",
@@ -3903,7 +3903,7 @@ const MINIS = {
     ],
     notes: {
       "acme/blueprint/things/allowance/verbs/spend.ts": "the declaration",
-      "acme/implementation/handlers/allowance/spend.ts": "the handler",
+      "acme/src/allowance/spend.ts": "the handler",
       "acme/generated/api/src/allowance/spend.handler.ts": "what the handler is given",
       "acme/generated/api/src/contracts/allowance-vault.ts": "the contract's client",
       "acme/generated/contracts/AllowanceSignatures.sol": "what the grantee signs",

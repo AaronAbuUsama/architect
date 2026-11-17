@@ -1,0 +1,12 @@
+{
+  "step": "Immutable-model",
+  "stage": "Stage 3 · Gate 2 whole-layer boundary correction",
+  "title": "Atomic immutable model admission at R2",
+  "summary": "Model writes now conditionally create at R2 instead of checking absence in the route before an unconditional put. A failed condition compares the stored winner for identical retry or conflict; a missing/unreadable winner stays unavailable. Existing objects, HTTP status/body contracts and release uniqueness are preserved. Real local concurrency exposed four accepted different bodies before the fix. The initial two-request schedule did not reproduce and is retained unchanged under attempts/. No cloud account, mock, lock or schema change was introduced.",
+  "proves": "Concurrent different model requests admit one winner and return409 for the rest; identical concurrent retries return200; later conflicting writes cannot replace the stored winner. Existing real OIDC authorization, verdict, release, schema migration and restart checks pass on local workerd/R2. Logbook lint/typecheck and generated drift checks pass. Live cloud R2 was not exercised; the typed missing/unreadable-winner path fails closed without an infrastructure mock.",
+  "captions": {
+    "02-concurrent-fails-first": "Before the fix, real overlapping workerd/R2 writes accepted four different payloads under one revision.",
+    "03-real-r2-admission": "Real local concurrent writes, identical retries, immutable winner and existing logbook lifecycle checks pass.",
+    "04-static-checks": "Logbook lint/typecheck, generated drift and source diff checks."
+  }
+}

@@ -37,6 +37,34 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       # Check 4 runs its agent when this secret exists, and says why it skipped when it doesn't (D2 #41).
+      # The key is given only to pull requests into main and pushes to main, so layer-branch pushes spend nothing
+      # (each run is capped at $5, and the cap across everything is $10 a day; D3 #71).
       - run: pnpm nx run e2e:layer1 --outputStyle=static
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ ((github.event_name == 'pull_request' && github.base_ref == 'main') || github.ref == 'refs/heads/main') && secrets.ANTHROPIC_API_KEY || '' }}
+
+  # Gate 2 (L2.11): all eight authored shipping checks, including the Linux Homebrew install.
+  e2e-layer2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v6.1.0
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24.22.2
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Require Homebrew for Gate 2
+        shell: bash
+        run: |
+          brew_bin=/home/linuxbrew/.linuxbrew/bin
+          if [[ ! -x "$brew_bin/brew" ]]; then
+            echo "::error::Gate 2 requires the runner's preinstalled Homebrew; the install check must run."
+            exit 1
+          fi
+          echo "$brew_bin" >> "$GITHUB_PATH"
+          "$brew_bin/brew" --version
+      - run: NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static

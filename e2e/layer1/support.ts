@@ -1,7 +1,7 @@
 // What every Gate 1 check shares: where things are, a project copied somewhere of its own, and the architect command
 // run as a user runs it, in a real process.
 import { spawnSync, type SpawnSyncReturns } from "node:child_process";
-import { cpSync, mkdirSync, mkdtempSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
 import { expect } from "vitest";
@@ -15,7 +15,7 @@ export const acme = join(repo, "examples/acme");
 export const cli = join(repo, "packages/cli/src/main.ts");
 
 /** A copy of an example outside the repository, wired to the repository's packages through its node_modules. */
-export const copyOf = (example: string, parts: ReadonlyArray<string> = ["blueprint", "generated", "implementation", "journeys", "package.json"]) => {
+export const copyOf = (example: string, parts: ReadonlyArray<string> = ["architect.config.ts", "blueprint", "generated", "src", "journeys", "package.json"].filter((p) => existsSync(join(example, p)))) => {
   // The folder keeps the example's name: the project's name, and so its CLI's and its variables', comes from it.
   const parent = mkdtempSync(join(tmpdir(), "architect-gate1-"));
   const root = join(parent, basename(example));
@@ -31,7 +31,7 @@ export const copyOf = (example: string, parts: ReadonlyArray<string> = ["bluepri
   writeFileSync(join(root, "tsconfig.json"), JSON.stringify({
     extends: join(example, "tsconfig.json"),
     compilerOptions: { typeRoots: [join(repo, "node_modules/@types"), join(example, "node_modules")] },
-    include: ["blueprint/**/*.ts", "generated/**/*.ts", "implementation/**/*.ts", "journeys/**/*.ts"] }));
+    include: ["blueprint/**/*.ts", "generated/**/*.ts", "src/**/*.ts", "journeys/**/*.ts"] }));
   return { root, remove: () => rmSync(parent, { recursive: true, force: true }) };
 };
 

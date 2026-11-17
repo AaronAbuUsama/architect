@@ -1,0 +1,97 @@
+
+> nx run prove:test
+
+> vitest run --root packages/prove --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/packages/prove
+
+ ❯ src/modules/telemetry/telemetry.test.ts (3 tests | 1 failed) 21441ms
+     × removes a collector whose owner process is gone at the next start, and leaves a live owner's alone 5087ms
+ ❯ src/modules/environments/front-door.test.ts (1 test | 1 failed) 43278ms
+     × is closed in staging and production before any handler runs, and open where worlds live 42535ms
+ ❯ src/modules/viewer/viewer.test.ts (1 test | 1 failed) 170682ms
+     × shows prove's allowance.grant trace with its root, step and log, and stop leaves nothing 170677ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/environments/front-door.test.ts > the world's front door > is closed in staging and production before any handler runs, and open where worlds live
+EnvironmentFailed: staging needs Docker for its collector: the collector didn't answer at http://127.0.0.1:51847 within 10 s
+ ❯ failed src/modules/environments/internal/status.ts:11:44
+      9|
+     10| export const NAME = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
+     11| export const failed = (message: string) => new EnvironmentFailed({ mes…
+       |                                            ^
+     12| export const io = <A>(what: string, run: () => A) => Effect.try({ try:…
+     13|
+ ❯ src/modules/environments/service.ts:65:123
+ ❯ ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:281:25
+ ❯ ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:278:34
+ ❯ ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/Function.ts:253:17
+ ❯ OnFailureImpl.~effect/Effect/failureCont ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:3440:70
+ ❯ ~effect/Effect/evaluate ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/core.ts:629:20
+ ❯ FiberImpl.runLoop ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:700:41
+ ❯ FiberImpl.evaluate ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:635:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/modules/telemetry/telemetry.test.ts > the collector, in Docker > removes a collector whose owner process is gone at the next start, and leaves a live owner's alone
+AssertionError: expected [ Array(19) ] to include 'architect-collector-69002-1'
+ ❯ src/modules/telemetry/telemetry.test.ts:63:23
+     61|       }
+     62|       const names = () => spawnSync("docker", ["ps", "-a", "--format",…
+     63|       expect(names()).toContain(orphan);
+       |                       ^
+     64|       yield* Collectors.start(dir);
+     65|       expect(names()).not.toContain(orphan);
+ ❯ ~effect/Effect/successCont ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:1482:27
+ ❯ ~effect/Effect/evaluate ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/core.ts:587:30
+ ❯ FiberImpl.runLoop ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:700:41
+ ❯ FiberImpl.evaluate ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:635:22
+ ❯ ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:5755:8
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/modules/viewer/viewer.test.ts > the local viewer > shows prove's allowance.grant trace with its root, step and log, and stop leaves nothing
+ProveFailed: the collector didn't answer at http://127.0.0.1:52372 within 10 s
+ ❯ failed src/modules/prove/service.ts:14:53
+     12| import { proveInTest } from "./internal/test-run.ts";
+     13|
+     14| const failed = (e: { readonly message: string }) => new ProveFailed({ …
+       |                                                     ^
+     15|
+     16| /** The compiled model and the project's journeys, or why prove can't …
+ ❯ ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:281:25
+ ❯ ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:278:34
+ ❯ ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/Function.ts:253:17
+ ❯ OnFailureImpl.~effect/Effect/failureCont ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:3440:70
+ ❯ ~effect/Effect/evaluate ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/core.ts:629:20
+ ❯ FiberImpl.runLoop ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:700:41
+ ❯ FiberImpl.evaluate ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:635:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  3 failed | 20 passed | 1 skipped (24)
+      Tests  3 failed | 79 passed | 1 skipped (83)
+   Start at  00:36:46
+   Duration  654.20s (transform 39.02s, setup 0ms, import 29.66s, tests 1173.50s, environment 2ms)
+
+Warning: command "vitest run --root packages/prove --passWithNoTests" exited with non-zero status code
+
+
+ NX   Running target test for project prove failed
+
+Failed tasks:
+
+- prove:test
+
+Hint: run the command with --verbose for more details.
+
+  Run duration:      10m 55s
+  Critical path:     10m 55s (1 task)
+  Recoverable time:  <1ms
+
+  Recommendations:
+    - Speed up or split the longest tasks on the critical path:
+        prove:test    10m 55s

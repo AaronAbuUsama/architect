@@ -4,6 +4,7 @@ import { structOf } from "@architect/blueprint/server";
 import type { FieldModel } from "@architect/compiler";
 import type { PerOperation, Verdict } from "../types.ts";
 import { answered, attr, replayed, subtree, where } from "./evidence.ts";
+import { secretsIn } from "./secrets.ts";
 
 const verdict = (name: string, operation: string, failures: ReadonlyArray<string>, notes: ReadonlyArray<string> = []): Verdict =>
   ({ eval: name, operation, failures, notes });
@@ -11,25 +12,63 @@ const verdict = (name: string, operation: string, failures: ReadonlyArray<string
 const expectation = (f: FieldModel | undefined) =>
   !f ? "nothing" : f.value.type === "id" ? `${f.value.prefix}_<id>` : f.value.type === "uint" ? "a whole number, as text" : f.value.type === "text" ? `text up to ${f.value.max}` : "its schema";
 
-/** 1. Every answer has its declared shape: read from the operation's span, so an answer the server refused to send counts. */
+/** A span keeps an object answer as JSON text; a field declared by its schema (a page's `items`, `next`) is read back from it. */
+const fromJson = (text: unknown) => {
+  // Objects, arrays and null were written as JSON; a plain string (a cursor, "2") was written as itself.
+  if (typeof text !== "string" || !/^(\[|\{|null$)/.test(text)) return text;
+  const parsed = Schema.decodeUnknownOption(Schema.fromJsonString(Schema.Unknown))(text);
+  return parsed._tag === "Some" ? parsed.value : text;
+};
+
+/**
+ * 1. Span answers keep their declared shape, including an answer the server refused to send. Hidden fields come
+ * only from the observed response; a present schema-valued field uses that response's unambiguous type. The same eval
+ * checks that no secret value, sent or answered, appears in any span or log of the call (`secrets.ts`).
+ */
 export const answerShape: PerOperation = (op, evidence, { project }) => {
   const declared = project.operations.get(op.name)?.answer ?? {};
   const failures = evidence.flatMap((e) => {
     const fromSpan = Object.fromEntries(Object.entries(e.opSpan?.attrs ?? {}).filter(([k]) => k.startsWith("answer.")).map(([k, v]) => [k.slice(7), v]));
-    const answer = Object.keys(fromSpan).length > 0 ? fromSpan : answered(e) ? (e.call.body as Record<string, unknown>) : undefined;
-    if (!answer) return [];
-    return Object.keys(op.answer).flatMap((k) => {
-      const ok = Schema.decodeUnknownExit(structOf({ [k]: declared[k]! }) as never)({ [k]: answer[k] })._tag === "Success";
-      return ok ? [] : [`${where(e)}: answer.${k}: expected ${expectation(op.answer[k])}, got ${JSON.stringify(answer[k])}`];
-    });
+    const hasResponse = answered(e) && e.call.body !== undefined;
+    const sent = answered(e) && typeof e.call.body === "object" && e.call.body !== null ? (e.call.body as Record<string, unknown>) : {};
+    const hidden = Object.fromEntries(Object.entries(sent).filter(([k]) => op.answer[k]?.visibility !== undefined));
+    const answer = Object.keys(fromSpan).length > 0 ? { ...hidden, ...fromSpan } : answered(e) ? sent : undefined;
+    const leaks = secretsIn(op, e);
+    if (!answer) return leaks;
+    return [...leaks, ...Object.keys(op.answer).flatMap((k) => {
+      const schema = structOf({ [k]: declared[k]! }) as never;
+      const schemaValued = op.answer[k]?.value.type === "schema";
+      // An observed response disambiguates a schema-valued field only after the existing answer selection found it:
+      // a valid body cannot bless a public field missing from partial answer telemetry (D3 #82).
+      const got = schemaValued && hasResponse && Object.hasOwn(answer, k) ? sent[k] : answer[k];
+      const rawFits = Schema.decodeUnknownExit(schema)({ [k]: got })._tag === "Success";
+      // Span-only strings are ambiguous: keep valid text before trying the encoded object/list representation.
+      const ok = rawFits || (!hasResponse && schemaValued && Schema.decodeUnknownExit(schema)({ [k]: fromJson(got) })._tag === "Success");
+      // A secret is not repeated in the report, only said to be wrong.
+      return ok ? [] : [`${where(e)}: answer.${k}: expected ${expectation(op.answer[k])}, got ${op.answer[k]?.visibility === undefined ? JSON.stringify(answer[k]) : "a value that does not fit (hidden: not public)"}`];
+    })];
   });
   return verdict("answer shape", op.name, failures);
 };
 
-/** 2. Every refusal is one the operation declares (its errors, its machine's, NotAllowed). */
-export const declaredErrors: PerOperation = (op, evidence) =>
-  verdict("declared errors", op.name, evidence.flatMap((e) =>
-    e.refusal && !op.refusals.includes(e.refusal) ? [`${where(e)}: refused with ${e.refusal}, not one of ${op.refusals.join(", ")}`] : []));
+/** 2. Every refusal is one the operation declares (its errors, its machine's, NotAllowed), and its answer carries its code. */
+export const declaredErrors: PerOperation = (op, evidence, { project }) =>
+  verdict("declared errors", op.name, evidence.flatMap((e) => {
+    if (!e.refusal) return [];
+    if (!op.refusals.includes(e.refusal)) return [`${where(e)}: refused with ${e.refusal}, not one of ${op.refusals.join(", ")}`];
+    // The answer to a refusal is `{ _tag, code, ...fields }` (L2.P): the code beside the tag, as the model fixed it.
+    // Live telemetry has no response body. When one was observed, its missing/malformed tag cannot bypass the code check.
+    if (e.call.status < 400 || e.call.status >= 500 || e.call.body === undefined) return [];
+    const body = typeof e.call.body === "object" && e.call.body !== null && !Array.isArray(e.call.body) ? (e.call.body as { _tag?: unknown; code?: unknown }) : undefined;
+    if (!body || body._tag !== e.refusal) return [`${where(e)}: ${e.refusal} was answered without its declared refusal tag`];
+    const onSpan = e.opSpan?.attrs["refusal"];
+    if (typeof onSpan === "string" && onSpan !== body._tag) return [`${where(e)}: response refusal ${e.refusal} disagrees with the operation's refusal span`];
+    const code = project.model.refusals[e.refusal];
+    if (code === undefined) return [`${where(e)}: the model has no code for ${e.refusal}`];
+    return body.code !== code
+      ? [`${where(e)}: ${e.refusal} was answered ${typeof body.code === "string" ? `with code ${body.code}` : "with no code"}, and the model's code for it is ${code}`]
+      : [];
+  }));
 
 /** 3. Every move ends in a declared state, and the stored state is where it ended. */
 export const machinePath: PerOperation = (op, evidence) => {

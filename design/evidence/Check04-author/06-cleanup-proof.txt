@@ -1,0 +1,6 @@
+$ python3 .architect/check04-cleanup.py
+# commit c867e21 · 2026-11-17T05:35:41Z · exit 0 (expected 0) · 0.6s
+
+Containers mounted from this worktree: none
+Reserved check04 listening ports: none
+Runtime processes from this worktree: none

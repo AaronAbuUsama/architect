@@ -1,0 +1,6 @@
+$ pnpm nx run-many -t test   (lint, typecheck and nx sync:check were green before it)
+packages: 15 files/28 tests, 11/34, 2/10, 4/22, 2/8, 3/10, 5/18, 1/4, host-cloudflare 7/12: all passed.
+prove: 10 of 11 files passed in that parallel run; impact.test.ts timed out at 240 s (its fixed port 8796 is also used by
+the same test in another builder's worktree). Run alone, and with prove.test.ts, it passes (12 tests, second run
+captured in the thread). test-worlds.test.ts and verdicts.test.ts, the new files, passed in the full run and alone
+(01-done-when.txt).

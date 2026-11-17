@@ -1,0 +1,55 @@
+$ bash -c set -e; pnpm nx reset; NX_DAEMON=false pnpm nx sync; NX_DAEMON=false pnpm nx run host-cloudflare:lint --outputStyle=static; NX_DAEMON=false pnpm nx run host-cloudflare:typecheck --outputStyle=static; NX_DAEMON=false pnpm nx sync:check
+# commit 7f662af · 2026-11-17T04:17:16Z · exit 0 (expected 0) · 9.9s
+
+Stopping the Nx Daemon
+Stopped the Nx Daemon
+Removing the Nx Daemon workspace data
+Removed the Nx Daemon workspace data
+Removing the cache directory
+Removed the cache directory
+Removing the workspace data directory
+Removed the workspace data directory
+
+ NX   Successfully reset the Nx workspace.
+
+
+ NX   The workspace is already up to date
+
+[@architect/generators:sync]: All files are up to date.
+
+
+> nx run host-cloudflare:lint
+
+> oxlint packages/host-cloudflare
+
+(node:73122) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+
+ NX   Successfully ran target lint for project host-cloudflare
+
+
+  Run duration:      918ms
+  Cache:             0/1 hit (0%)
+  Critical path:     914ms (1 task)
+  Recoverable time:  <1ms
+
+> nx run host-cloudflare:typecheck
+
+> tsc -p packages/host-cloudflare/tsconfig.json
+
+
+
+
+ NX   Successfully ran target typecheck for project host-cloudflare
+
+
+  Run duration:      730ms
+  Cache:             0/1 hit (0%)
+  Critical path:     726ms (1 task)
+  Recoverable time:  <1ms
+
+ NX   The workspace is up to date
+
+[@architect/generators:sync]: All files are up to date.

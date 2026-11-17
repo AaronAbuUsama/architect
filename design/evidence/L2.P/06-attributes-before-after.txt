@@ -1,0 +1,24 @@
+# Attribute keys naming a payload or an answer field in the Collector's traces.jsonl, for the same two journeys
+# ("sign up and sign in", "an owner makes an api key") on a real world.
+
+## Before (the failing run, 01-fails-first-secrets.txt)
+      2 "key":"answer.apiKey"
+      2 "key":"answer.key"          <- an API key
+      2 "key":"answer.organization"
+      1 "key":"answer.person"
+      1 "key":"answer.session"      <- a session
+      1 "key":"answer.token"        <- a bearer token
+      2 "key":"payload.cap"
+      4 "key":"payload.email"
+      6 "key":"payload.name"
+      2 "key":"payload.organization"
+      4 "key":"payload.password"    <- a password
+
+## After (the passing run: no Collector processor in this one, so this is the runtime's own allowlist)
+      2 "key":"answer.apiKey"
+      2 "key":"answer.organization"
+      1 "key":"answer.person"
+      2 "key":"payload.cap"
+      4 "key":"payload.email"
+      6 "key":"payload.name"
+      2 "key":"payload.organization"

@@ -1,0 +1,28 @@
+$ pnpm exec vitest run --root packages/logbook src/modules/local
+# commit dfca3a5 · 2026-11-16T21:20:25Z · exit 1 (expected 1) · 2.4s
+
+
+ RUN  v4.1.12 ./packages/logbook
+
+ ❯ src/modules/local/local.test.ts (5 tests | 5 skipped) 1549ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/local/local.test.ts [ src/modules/local/local.test.ts ]
+TypeError: Logbook.start is not a function
+ ❯ start src/modules/local/local.test.ts:75:23
+     73| const start = () => {
+     74|   const scope = Effect.runSync(Scope.make());
+     75|   const run = Logbook.start({
+       |                       ^
+     76|     port: PORTS.logbook, state: join(dir, "state"), log: join(dir, "wr…
+     77|     policy: { issuer, jwksUrl: `${issuer}/jwks`, audience: "architect-…
+ ❯ src/modules/local/local.test.ts:91:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 skipped (5)
+   Start at  21:20:23
+   Duration  1.80s (transform 19ms, setup 0ms, import 156ms, tests 1.55s, environment 0ms)

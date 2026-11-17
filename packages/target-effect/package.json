@@ -7,7 +7,10 @@
   },
   "dependencies": {
     "@architect/blueprint": "workspace:*",
-    "effect": "4.1.1"
+    "@cfworker/json-schema": "4.1.4",
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "effect": "4.1.1",
+    "zod": "4.5.4"
   },
   "imports": {
     "#modules/*.js": "./src/modules/*.ts"

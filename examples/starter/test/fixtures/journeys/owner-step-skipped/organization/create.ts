@@ -2,8 +2,8 @@
 import { Effect } from "effect";
 import type { SqlClient } from "effect/sql";
 import { Ids, Records } from "@architect/target-effect";
-import type { Handler } from "../../../generated/api/src/organization/create.handler.ts";
-import { Organization } from "../../../blueprint/things/organization/thing.ts";
+import type { Handler } from "../../generated/api/src/organization/create.handler.ts";
+import { Organization } from "../../blueprint/things/organization/thing.ts";
 
 const create: Handler<Records | SqlClient.SqlClient> = ({ name }, { principal, steps, move }) =>
   Effect.gen(function* () {

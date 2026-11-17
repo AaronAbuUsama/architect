@@ -1,15 +1,22 @@
 import { describe, expect, it } from "vitest";
+import { Blueprint, type FieldsInput } from "@architect/blueprint";
+import { Schema } from "effect";
 import type { Model, OperationModel } from "@architect/compiler";
-import type { CallRecord } from "#modules/journeys/types.js";
+import type { CallRecord, Project } from "#modules/journeys/types.js";
 import type { Evidence } from "./types.ts";
 import { coverage, coverageSummary, performance } from "./internal/run.ts";
-import { declaredErrors, steps, whoMayCall } from "./internal/calls.ts";
+import { answerShape, declaredErrors, steps, whoMayCall } from "./internal/calls.ts";
+import { Evals } from "./service.ts";
 
 const op = {
   name: "allowance.grant", thing: "allowance", verb: "grant", answer: {}, payload: { organization: { value: { type: "id", prefix: "org" } } },
   move: null, errors: ["AllowanceLimitTooHigh"], refusals: ["AllowanceLimitTooHigh", "NotAllowed"],
   allowed: [{ kind: "role-of", role: "organization.owner", path: "organization" }], steps: {}, budget: { p95Ms: 200 },
 } as unknown as OperationModel;
+
+/** What a run knows of the project: the model's refusal codes, and the declarations an answer is checked against. */
+const run = (refusals: Readonly<Record<string, string>> = {}) =>
+  ({ project: { model: { refusals }, operations: new Map() } as never, all: [] });
 
 const call = (over: Partial<CallRecord>): CallRecord => ({
   journey: "grant an allowance", step: "s", actor: "bob", person: "per_b", operation: "allowance.grant", payload: { organization: "org_1" },
@@ -28,8 +35,18 @@ describe("evals on evidence", () => {
   });
 
   it("declared errors: an undeclared refusal names itself and the declared ones", () => {
-    const v = declaredErrors(op, [evidence(1, { refusal: "Boom" })], undefined as never);
+    const v = declaredErrors(op, [evidence(1, { refusal: "Boom" })], run());
     expect(v.failures).toEqual(['grant-an-allowance "s": refused with Boom, not one of AllowanceLimitTooHigh, NotAllowed']);
+  });
+
+  it("declared errors: every refusal answer carries the code the model fixed for it, beside its tag", () => {
+    const refused = (body: unknown) => evidence(1, { refusal: "AllowanceLimitTooHigh", call: call({ status: 422, body }) });
+    const codes = run({ AllowanceLimitTooHigh: "AL-003", NotAllowed: "AR-001" });
+    expect(declaredErrors(op, [refused({ _tag: "AllowanceLimitTooHigh", code: "AL-003", cap: "1000" })], codes).failures).toEqual([]);
+    expect(declaredErrors(op, [refused({ _tag: "AllowanceLimitTooHigh", cap: "1000" })], codes).failures).toEqual([
+      'grant-an-allowance "s": AllowanceLimitTooHigh was answered with no code, and the model\'s code for it is AL-003',
+    ]);
+    expect(declaredErrors(op, [refused({ _tag: "AllowanceLimitTooHigh", code: "AL-009", cap: "1000" })], codes).failures[0]).toContain("with code AL-009");
   });
 
   it("who may call: judged on mayCall, not on what the server said", () => {
@@ -61,5 +78,99 @@ describe("evals on evidence", () => {
     expect(coverage(op, all, run).failures).toEqual([]);
     expect(coverage(rename, [], run).failures).toEqual(["organization.rename reached by no journey"]);
     expect(coverageSummary(model, all).notes).toEqual(["moves 0/0 · outcomes 0/0 · refusals 1/1 · runtime refusals 0/2"]);
+  });
+});
+
+describe("answer shape: no secret reaches a span, a log or the journal", () => {
+  const signIn = {
+    name: "session.sign-in", thing: "session", verb: "sign-in", move: null, refusals: [], allowed: [{ kind: "anyone" }], steps: {}, budget: null,
+    payload: { email: { value: { type: "text", max: 254 } }, password: { value: { type: "text", max: 128 }, visibility: "secret" } },
+    answer: { session: { value: { type: "id", prefix: "ses" }, visibility: "secret" }, token: { value: { type: "text", max: 512 }, visibility: "secret" } },
+  } as unknown as OperationModel;
+  const declared = {
+    operations: new Map([["session.sign-in", { answer: { session: Blueprint.visibility.secret(Blueprint.id("ses")), token: Blueprint.visibility.secret(Blueprint.text({ max: 512 })) } }]]),
+  };
+  const span = (attrs: Record<string, unknown>, name = "session.sign-in") => ({ traceId: "t", spanId: name, parentSpanId: "p", name, attrs, status: 1, ms: 1, start: 0 });
+  const signedIn = (over: Partial<Evidence>): Evidence => ({
+    ...evidence(1), call: call({ operation: "session.sign-in", payload: { email: "ada@acme.dev", password: "correct horse battery" }, body: { session: "ses_abc123", token: "tok_0123456789abcdef" } }), ...over,
+  });
+  const judge = (e: Evidence) => answerShape(signIn, [e], { project: declared as never, all: [] }).failures;
+
+  it("passes a call whose spans and logs hold only public values", () => {
+    expect(judge(signedIn({ trace: { spans: [span({ "payload.email": "ada@acme.dev" })], logs: [] } }))).toEqual([]);
+  });
+
+  it("fails an attribute named for a secret field, without repeating the secret", () => {
+    const failures = judge(signedIn({ trace: { spans: [span({ "payload.password": "x" })], logs: [] } }));
+    expect(failures).toEqual(['grant-an-allowance "s": payload.password (not public) appears in span session.sign-in as the attribute payload.password']);
+  });
+
+  it("fails a secret value found in any span attribute, log line or log attribute", () => {
+    const inSpan = judge(signedIn({ trace: { spans: [span({ note: "got tok_0123456789abcdef today" }, "session.sign-in.verify")], logs: [] } }));
+    expect(inSpan).toEqual(['grant-an-allowance "s": answer.token (not public) appears in span session.sign-in.verify, attribute note']);
+    const log = (body: string, attrs: Record<string, unknown> = {}) => ({ traceId: "t", spanId: "s", body, attrs });
+    expect(judge(signedIn({ trace: { spans: [], logs: [log("signing in with correct horse battery")] } }))).toEqual(['grant-an-allowance "s": payload.password (not public) appears in a log line']);
+    expect(judge(signedIn({ trace: { spans: [], logs: [log("ok", { who: "ses_abc123" })] } }))).toEqual(['grant-an-allowance "s": answer.session (not public) appears in a log attribute']);
+  });
+
+  it("fails a secret value in a journal entry", () => {
+    const journal = [{ event: "SignedIn", move: "m", subject: "s", fields: { token: "tok_0123456789abcdef" } }];
+    expect(judge(signedIn({ call: call({ operation: "session.sign-in", payload: { password: "correct horse battery" }, body: { session: "ses_abc123", token: "tok_0123456789abcdef" }, journal }) }))).toEqual([
+      'grant-an-allowance "s": answer.token (not public) appears in a journal entry',
+    ]);
+  });
+});
+
+
+/** A response and its real trace representation through the public evidence/judging interface; no service is substituted. */
+const observed = (operation: OperationModel, answer: FieldsInput, body: unknown, status: number, attrs: Record<string, unknown>) => {
+  const project = { model: { operations: { [operation.name]: operation }, refusals: { AllowanceLimitTooHigh: "AL-003", NotAllowed: "AR-001" } },
+    operations: new Map([[operation.name, { answer }]]) } as unknown as Project;
+  const record = call({ body, status, operation: operation.name });
+  const trace: Evidence["trace"] = { spans: [{ traceId: "t", spanId: "s", parentSpanId: "p", name: operation.name, attrs, status: 1, ms: 1, start: 0 }], logs: [] };
+  return { project, evidence: Evals.gather([record], new Map([["t", trace]])) };
+};
+const judged = (seen: ReturnType<typeof observed>) => Evals.judge(seen.project, seen.evidence);
+const shapeOf = (seen: ReturnType<typeof observed>) => judged(seen).find((v) => v.eval === "answer shape")!.failures;
+const liveShapeOf = (seen: ReturnType<typeof observed>) => Evals.judgeLive(seen.project, seen.evidence).find((v) => v.eval === "answer shape")!.failures;
+const schemaAnswer = { ...op, errors: [], refusals: [], answer: { value: { value: { type: "schema" } } } } as unknown as OperationModel;
+
+describe("independent author: public evaluator response boundaries", () => {
+  it("requires a known 4xx refusal's tag and exact model code, including a response whose tag is missing", () => {
+    const errors = (body: unknown) => judged(observed(op, {}, body, 422, { refusal: "AllowanceLimitTooHigh" })).find((v) => v.eval === "declared errors")!.failures;
+    expect(errors({ _tag: "AllowanceLimitTooHigh", code: "AL-003" })).toEqual([]);
+    for (const body of [{}, { code: "AL-009" }, { _tag: "NotAllowed", code: "AR-001" }, null, "refused"]) expect(errors(body).length).toBeGreaterThan(0);
+  });
+
+  it("keeps schema-valued string literals as strings in observed responses and live spans", () => {
+    for (const value of ["null", "{}", "[]"]) {
+      const fields = { value: Blueprint.value(Schema.String) };
+      expect(shapeOf(observed(schemaAnswer, fields, { value }, 200, { "answer.value": value }))).toEqual([]);
+      expect(liveShapeOf(observed(schemaAnswer, fields, undefined, 200, { "answer.value": value }))).toEqual([]);
+    }
+  });
+
+  it("does not use a valid body to bless a public field missing from partial answer telemetry", () => {
+    const operation = { ...schemaAnswer, answer: { ...schemaAnswer.answer, other: { value: { type: "text", max: 200 } } } } as unknown as OperationModel;
+    const fields = { value: Blueprint.value(Schema.String), other: Blueprint.text({ max: 200 }) };
+    const body = { value: "null", other: "present" };
+    expect(shapeOf(observed(operation, fields, body, 200, { "answer.value": "null", "answer.other": "present" }))).toEqual([]);
+    for (const attrs of [{ "answer.other": "present" }, { "answer.value": "null" }]) expect(shapeOf(observed(operation, fields, body, 200, attrs)).length).toBeGreaterThan(0);
+    // The existing all-attributes-absent response fallback stays; this correction does not rewrite observability policy.
+    expect(shapeOf(observed(operation, fields, body, 200, {}))).toEqual([]);
+  });
+
+  it("decodes legitimate encoded objects and lists only when the observed response is unavailable", () => {
+    const cases = [
+      { fields: { value: Blueprint.value(Schema.Struct({ count: Schema.Number })) }, value: { count: 1 } },
+      { fields: { value: Blueprint.value(Schema.Array(Schema.Number)) }, value: [1, 2] },
+    ];
+    for (const { fields, value } of cases) {
+      const encoded = JSON.stringify(value);
+      expect(shapeOf(observed(schemaAnswer, fields, { value }, 200, { "answer.value": encoded }))).toEqual([]);
+      expect(liveShapeOf(observed(schemaAnswer, fields, undefined, 200, { "answer.value": encoded }))).toEqual([]);
+      expect(shapeOf(observed(schemaAnswer, fields, { value: encoded }, 200, { "answer.value": encoded })).length).toBeGreaterThan(0);
+      for (const body of [null, [], "not an object"]) expect(shapeOf(observed(schemaAnswer, fields, body, 200, { "answer.value": encoded })).length).toBeGreaterThan(0);
+    }
   });
 });

@@ -31,7 +31,7 @@ step "build"
 
 step "pack the starter into the preset"
 mkdir -p "$preset_files"
-for part in blueprint implementation journeys; do cp -R "$repo/examples/starter/$part" "$preset_files/$part"; done
+for part in blueprint src journeys; do cp -R "$repo/examples/starter/$part" "$preset_files/$part"; done
 mkdir -p "$preset_files/generated/model" && cp "$repo/examples/starter/generated/model/model.json" "$preset_files/generated/model/"
 
 step "registry on :$port"
@@ -49,7 +49,7 @@ printf '//localhost:%s/:_authToken=%s\n' "$port" "$token" > "$work/npmrc"
 unset token password
 
 step "publish"
-for p in blueprint compiler target-effect lint generators host-cloudflare prove cli preset; do
+for p in blueprint compiler target-effect lint portal generators host-cloudflare logbook prove cli preset; do
   (cd "$repo/packages/$p" && NPM_CONFIG_USERCONFIG="$work/npmrc" pnpm publish --registry "$registry" --no-git-checks >/dev/null)
   echo "published @architect/$p"
 done

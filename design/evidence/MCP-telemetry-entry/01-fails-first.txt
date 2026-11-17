@@ -1,0 +1,42 @@
+$ pnpm exec vitest run --root packages/prove src/modules/world/mcp.test.ts -t exports the first MCP operation
+# commit b2aa54e · 2026-11-17T04:43:45Z · exit 1 (expected 1) · 17.5s
+
+
+ RUN  v4.1.12 ./packages/prove
+
+ ❯ src/modules/world/mcp.test.ts (2 tests | 1 failed | 1 skipped) 16172ms
+     × exports the first MCP operation to an extra Collector sink without a prior API call or local OTLP URL 16171ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/world/mcp.test.ts > the remote MCP server > exports the first MCP operation to an extra Collector sink without a prior API call or local OTLP URL
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/modules/world/mcp.test.ts:117:86
+    115|       expect(textOf(result)).toContain("ok");
+    116|       const traces = yield* collector.traces([{ trace, parent }]);
+    117|       expect(traces.get(trace)?.spans.some((span) => span.name === "sy…
+       |                                                                                      ^
+    118|
+    119|       // The public reader omits resource attributes; inspect the real…
+ ❯ ~effect/Effect/successCont ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:1482:27
+ ❯ ~effect/Effect/evaluate ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/core.ts:587:30
+ ❯ FiberImpl.runLoop ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:700:41
+ ❯ FiberImpl.evaluate ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:635:22
+ ❯ FiberImpl.evaluate ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:624:28
+ ❯ ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:1210:16
+ ❯ Array.<anonymous> ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:1757:10
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 skipped (2)
+   Start at  04:43:28
+   Duration  16.78s (transform 82ms, setup 0ms, import 446ms, tests 16.17s, environment 0ms)

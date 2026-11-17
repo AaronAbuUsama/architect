@@ -1,0 +1,14 @@
+{
+  "step": "MCP-telemetry-entry",
+  "stage": "Stage 3 · shipping on local worlds (Gate 2)",
+  "title": "The first MCP operation exports through its own environment bindings",
+  "summary": "The generated MCP route supplies OTLP_SINKS and ARCHITECT_ENVIRONMENT directly to Telemetry.serve. It no longer requires an earlier ordinary API call to configure the isolate. Both committed example servers were regenerated with Nx sync.",
+  "proves": "A fresh actual workerd, with only real Better Auth signup and OAuth before its first system.health tool call, sends the operation to a real OpenTelemetry Collector configured as an extra sink, with no local OTLP_URL. The trace contains system.health and both deployment environment attributes. The original MCP typed read, role refusal and secret-field checks still pass. Generator, MCP/auth and static checks are captured separately.",
+  "captions": {
+    "01-fails-first": "The first tool succeeds, but no system.health span reaches the real Collector before the fix.",
+    "02-mcp-tests": "The new first-operation telemetry regression and existing real MCP read/role/privacy flow pass.",
+    "03-related-tests": "All generator tests plus the runtime MCP and workerd Better Auth guards.",
+    "04-static": "All-project lint/typecheck, generated drift check and whitespace validation.",
+    "04-integrated-mcp": "The conductor verifies first-MCP actual Collector export and existing OAuth/get/role flows after regeneration."
+  }
+}

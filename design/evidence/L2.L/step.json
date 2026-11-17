@@ -1,0 +1,14 @@
+{
+  "step": "L2.L",
+  "stage": "Stage 3 · project layout",
+  "title": "Handlers live in src/<thing>/",
+  "summary": "Aaron's call: implementation/handlers is gone. A project's handlers are src/<thing>/<operation>.ts, mirroring blueprint/things/<thing>/, and later layers put a thing's contract and workflows in the same folder. The scaffolder, generate, the generated server, check and its lint rules, brief, the preset and the docs all follow.",
+  "proves": "prove passes on acme and on the starter, check passes on acme, tools/e2e/starter.sh passes in a fresh workspace, and a scaffolded handler lands in src/<thing>/ under its 'Scaffolded from' header.",
+  "captions": {
+    "01-prove-acme": "architect prove on acme, handlers read from src/.",
+    "02-prove-starter": "architect prove on the starter.",
+    "03-check-acme": "architect check on acme: rules now target src/.",
+    "04-scaffold": "generate and render tests: scaffolds land in src/<thing>/; the header of a scaffolded handler.",
+    "05-starter-e2e": "tools/e2e/starter.sh: the preset writes src/, check and prove pass in the new workspace."
+  }
+}

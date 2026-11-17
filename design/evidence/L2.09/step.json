@@ -1,0 +1,15 @@
+{
+  "step": "L2.09",
+  "stage": "Stage 3 · shipping on local worlds (Gate 2)",
+  "title": "watch: the evals on live telemetry, and drift as a task",
+  "summary": "architect watch --env <name> [--source file|axiom] [--since 1h]: the evals telemetry alone can answer (answer shape, declared errors, steps, performance, explainability; not coverage) over an environment's recorded traffic, read through the TraceSource seam (window) from the Collector's files or from Axiom's query API (APL on <group>-traces, query token read by name). It prints each operation's p95 against its budget, the refusals by name and code, the defects and the drift; an operation over budget on at least 20 calls is drift and becomes a task file under .architect/tasks/. Prove's own calls are told apart by their caller span id and left out. tools/watch/replay.sh drives staging traffic.",
+  "proves": "On a real staging world, 30 replayed spends and 3 refusals print allowance.spend p95 within its 150ms budget, AllowanceExceeded 3 and drift none; after the author's slow-spend fixture is built, proved in test, promoted and replayed, the same line is over budget with a mark of fail and drift allowance.spend, with its task written. Over Axiom (capxul-test, live) the same evals read what prove left there.",
+  "captions": {
+    "01-fails-first-prove": "The unit tests of watch and AxiomSource before the implementation: they fail.",
+    "01-fails-first-cli": "The CLI's watch test before the implementation: it fails.",
+    "02-prove-tests": "The same tests after: a healthy window, drift and its task, prove's calls left out, a defect, a replayed call, too few calls, an empty window, AxiomSource against a stand-in.",
+    "03-cli-tests": "architect watch as a command over the staging telemetry folder, and its refusals.",
+    "04-axiom-live": "watch over Axiom's query API on capxul-test, behind ARCHITECT_LIVE_AXIOM=1.",
+    "05-staging-replay": "Check 8's watch half against a real staging world: p95 against budget, refusal counts, drift none, then the slow handler as drift."
+  }
+}

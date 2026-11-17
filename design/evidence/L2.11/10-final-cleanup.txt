@@ -1,0 +1,86 @@
+$ python3 -c 
+import pathlib, re, subprocess
+
+print("Captured clean preflight (before the gate):", flush=True)
+print(pathlib.Path(".architect/l211-final-preflight.txt").read_text(), flush=True)
+print("Post-run ownership-scoped cleanup:", flush=True)
+
+def run(*args):
+    result = subprocess.run(args, text=True, capture_output=True, check=True)
+    return result.stdout.splitlines()
+
+print("Local binary target: " + "".join(run("node", "-p", "process.platform + String.fromCharCode(45) + process.arch")), flush=True)
+containers = [name for name in run("docker", "ps", "-a", "--format", "{{.Names}}") if name.startswith("architect-")]
+taps = [name for name in run("brew", "tap") if name.startswith("architect-e2e-")]
+formulas = [name for name in run("brew", "list", "--formula") if name.startswith("acme-")]
+ports = {4890 + check for check in range(1, 9)} | {8900 + 10 * check + delta for check in range(1, 9) for delta in range(7)}
+listeners = subprocess.run(["lsof", "-nP", "-iTCP", "-sTCP:LISTEN", "-Fn"], text=True, capture_output=True)
+assert listeners.returncode in (0, 1), listeners.stderr
+used = {int(line.rsplit(":", 1)[1]) for line in listeners.stdout.splitlines() if line.startswith("n") and re.search(r":\d+$", line)}
+root = str(pathlib.Path.cwd())
+processes = []
+for line in run("ps", "-axo", "pid=,comm=,args="):
+    parts = line.strip().split(None, 2)
+    if len(parts) != 3:
+        continue
+    pid, command, args = parts
+    if pathlib.Path(command).name in ("node", "workerd", "wrangler") and root in args and re.search(r"wrangler|workerd|vitest", args):
+        processes.append(pid)
+for label, left in [("Architect containers", containers), ("gate taps", taps), ("gate formulas", formulas), ("exact gate port listeners", sorted(ports & used)), ("own runtime processes", processes)]:
+    print(f"{label}: {len(left)}", flush=True)
+    assert not left, f"{label} remain"
+print("Cleanup passed; unrelated listeners and user containers were left untouched.")
+
+# commit 4516059 · 2026-11-17T05:43:23Z · exit 0 (expected 0) · 0.4s
+
+Captured clean preflight (before the gate):
++ git rev-parse HEAD
+4516059b27c2013fda885225a7ea2074357ab3b2
+++ git rev-parse HEAD
++ test 4516059b27c2013fda885225a7ea2074357ab3b2 = 4516059b27c2013fda885225a7ea2074357ab3b2
+++ git status --porcelain=v1
++ test -z ''
++ pnpm nx reset
+Stopping the Nx Daemon
+Stopped the Nx Daemon
+Removing the Nx Daemon workspace data
+Removed the Nx Daemon workspace data
+Removing the cache directory
+Removed the cache directory
+Removing the workspace data directory
+Removed the workspace data directory
+
+ NX   Successfully reset the Nx workspace.
+
++ NX_DAEMON=false
++ pnpm nx sync
+
+ NX   The workspace is already up to date
+
+[@architect/generators:sync]: All files are up to date.
+
++ NX_DAEMON=false
++ pnpm nx sync:check
+
+ NX   The workspace is up to date
+
+[@architect/generators:sync]: All files are up to date.
+
++ git diff --exit-code
+++ git status --porcelain=v1
++ test -z ''
++ node --version
+v26.13.1
++ pnpm --version
+11.20.0
++ brew --version
+Homebrew 7.0.13-77-g8679d30
+
+Post-run ownership-scoped cleanup:
+Local binary target: darwin-arm64
+Architect containers: 0
+gate taps: 0
+gate formulas: 0
+exact gate port listeners: 0
+own runtime processes: 0
+Cleanup passed; unrelated listeners and user containers were left untouched.

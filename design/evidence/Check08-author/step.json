@@ -1,0 +1,20 @@
+{
+  "step": "Check08-author",
+  "stage": "Stage 3 · shipping on local worlds (Gate 2)",
+  "title": "Fresh portal requests and complete publishing checks on supported targets",
+  "summary": "Check 08 closes each portal request so its second fetch cannot reuse a socket from the previous staging process. Check 05 runs real Homebrew installation on both Mac arm64 and Linux x64, failing before services start when a supported target lacks brew. Journey phases, fixtures and actual install/version/cleanup assertions remain unchanged.",
+  "proves": "On integrated source a94a183 plus the author changes, real checks 05 and 08 pass sequentially: two files and three tests in 276 seconds. The SDK installs from Verdaccio at the expected version; the Mac-arm64 Homebrew formula installs the real binary and its --version matches. Healthy and slow staging traffic, portal verdicts and spend-only stale assertions all pass across staging restarts. Linux x64 now requires the same authored Homebrew test; its execution remains the CI job’s proof. Cleanup leaves no Architect container, reserved listening socket, test tap/formula or worktree runtime process.",
+  "captions": {
+    "01-baseline-helper": "The original helper, captured before this author's change. This is source evidence, not a reproduced runtime failure.",
+    "02-fixed-helper": "The helper now asks for a closed connection on both portal reads.",
+    "03-static-checks": "E2e lint and typecheck after the narrow author correction.",
+    "04-diff-check": "Whitespace and patch validation; no runtime service starts.",
+    "05-integrated-static-checks": "E2e lint and typecheck after rebasing onto integrated build/proof integrity and world isolation at 8f50320.",
+    "06-baseline-publishing-platform": "The original Mac-only predicate, captured as source evidence before this author expanded supported-target proof.",
+    "07-fixed-publishing-platform": "Both supported binary targets require real brew installation; missing brew fails before stack startup and cleanup still reaches environment teardown.",
+    "08-publishing-static-checks": "E2e lint and typecheck after including Linux x64 in the real install check.",
+    "09-final-source-static-checks": "Fresh e2e lint and typecheck without Nx cache after rebasing onto final proof/publication source and org-ID display fix at a94a183.",
+    "10-real-checks-05-08": "Actual authored checks 05 and 08, unchanged assertions, sequential real-service execution on the final integrated source; all three tests pass.",
+    "11-cleanup-proof": "No Architect containers, reserved check05/check08 ports, test Homebrew taps/formulas or runtime processes from this worktree remain."
+  }
+}

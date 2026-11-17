@@ -1,0 +1,11 @@
+$ pnpm exec vitest run --root packages/prove src/modules/prove/prove.test.ts src/modules/prove/reads.test.ts src/modules/prove/secrets.test.ts
+# commit b2aa54e · 2026-11-17T04:56:17Z · exit 0 (expected 0) · 91.8s
+
+
+ RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  3 passed (3)
+      Tests  16 passed (16)
+   Start at  04:54:46
+   Duration  90.92s (transform 2.46s, setup 0ms, import 2.45s, tests 126.07s, environment 0ms)

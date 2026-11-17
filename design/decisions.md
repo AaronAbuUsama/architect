@@ -23,7 +23,7 @@ Each item names the layer that first needs it.
 
 ## Layout and conventions (decided)
 
-- Three folders, named for who writes them: `blueprint/` (what the system is), `implementation/` (how it does it),
+- Three folders, named for who writes them: `blueprint/` (what the system is), `src/` (how it does it: for each thing a folder with its handlers, and later its contract and workflows),
   `generated/` (everything Architect builds, the server included). The one loose file is `architect.config.ts`.
   `spikes/` is never built.
 - Two kinds of generated code: scaffolds, written once with blanks (`Blueprint.todo(...)`), then yours; and outputs,

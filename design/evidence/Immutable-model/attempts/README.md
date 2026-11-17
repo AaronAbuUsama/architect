@@ -1,0 +1,1 @@
+The unchanged integration capture failed only because the old http/http.test.ts fake R2 ignores conditional writes. Actual Worker/R2 tests passed. A separate author is retaining its checks on real services, rather than teaching the fake conditional semantics. This is not evidence that the conditional real-R2 admission failed.
