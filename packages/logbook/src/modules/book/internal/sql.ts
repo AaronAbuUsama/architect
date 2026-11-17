@@ -11,6 +11,13 @@ export const schema = [
     version TEXT NOT NULL UNIQUE, revision TEXT NOT NULL, ref TEXT NOT NULL, event_name TEXT)`,
 ];
 
+/** Expand the persisted book in place. The original create statements remain unchanged for old databases. */
+export const initialize = (sql: SqlStorage) => {
+  for (const statement of schema) sql.exec(statement);
+  const columns = sql.exec<{ name: string }>("PRAGMA table_info(verdicts)").toArray();
+  if (!columns.some((column) => column.name === "sha256")) sql.exec("ALTER TABLE verdicts ADD COLUMN sha256 TEXT");
+};
+
 const columns = ["revision", "environment", "operation", "ref"] as const;
 
 /** `WHERE a = ? AND b = ?` for the filters given, and their values in order. */
@@ -19,14 +26,14 @@ const where = (filter: VerdictFilter) => {
   return { clause: given.length === 0 ? "" : ` WHERE ${given.map((c) => `${c} = ?`).join(" AND ")}`, values: given.map((c) => filter[c]!) };
 };
 
-const selectVerdicts = "SELECT seq, revision, environment, operation, verdict, repository, ref, workflow, event_name, sha FROM verdicts";
+const selectVerdicts = "SELECT seq, revision, environment, operation, verdict, repository, ref, workflow, event_name, sha, sha256 FROM verdicts";
 
 export const insertVerdict = (sql: SqlStorage, v: VerdictInput, from: Provenance): StoredVerdict =>
   sql.exec<Record<string, SqlStorageValue>>(
-    `INSERT INTO verdicts (revision, environment, operation, verdict, repository, ref, workflow, event_name, sha)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-     RETURNING seq, revision, environment, operation, verdict, repository, ref, workflow, event_name, sha`,
-    v.revision, v.environment, v.operation, v.verdict, from.repository, from.ref, from.workflow, from.eventName, from.sha,
+    `INSERT INTO verdicts (revision, environment, operation, verdict, repository, ref, workflow, event_name, sha, sha256)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+     RETURNING seq, revision, environment, operation, verdict, repository, ref, workflow, event_name, sha, sha256`,
+    v.revision, v.environment, v.operation, v.verdict, from.repository, from.ref, from.workflow, from.eventName, from.sha, v.sha256 ?? null,
   ).one() as unknown as StoredVerdict;
 
 export const selectAll = (sql: SqlStorage, filter: VerdictFilter): ReadonlyArray<StoredVerdict> => {

@@ -1,0 +1,69 @@
+$ pnpm exec vitest run --root packages/logbook src/modules/local/local.test.ts
+# commit 53d028d · 2026-11-17T01:58:26Z · exit 1 (expected 1) · 11.0s
+
+
+ RUN  v4.1.12 ./packages/logbook
+
+ ❯ src/modules/local/local.test.ts (6 tests | 2 failed) 9817ms
+     × rejects a body that isn't a verdict 21ms
+     × expands a legacy persisted book without losing rows, keeps hashless verdicts readable, and retries the upgrade 1270ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/local/local.test.ts > the logbook on local workerd, with a real issuer > rejects a body that isn't a verdict
+AssertionError: expected 200 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 200
+
+ ❯ src/modules/local/local.test.ts:151:93
+    149|     expect((await send("/verdicts", { ...verdict, verdict: "maybe" }, …
+    150|     expect((await send("/verdicts", { revision: "x" }, token)).status)…
+    151|     expect((await send("/verdicts", { ...verdict, sha256: "not-a-sha25…
+       |                                                                                             ^
+    152|   });
+    153|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/modules/local/local.test.ts > the logbook on local workerd, with a real issuer > expands a legacy persisted book without losing rows, keeps hashless verdicts readable, and retries the upgrade
+AssertionError: expected [ { seq: 5, …(9) } ] to match object [ Array(1) ]
+(10 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  [
+    {
+-     "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
++     "environment": "test",
++     "event_name": "push",
++     "operation": "allowance.spend",
++     "ref": "refs/heads/main",
++     "repository": "acme/acme",
++     "revision": "hashbound",
++     "seq": 5,
++     "sha": "0123456789abcdef0123456789abcdef01234567",
++     "verdict": "pass",
++     "workflow": "architect",
+    },
+  ]
+
+ ❯ src/modules/local/local.test.ts:176:56
+    174|     const sha256 = "a".repeat(64);
+    175|     expect((await send("/verdicts", { ...verdict, revision: "hashbound…
+    176|     expect(await read("/verdicts?revision=hashbound")).toMatchObject([…
+       |                                                        ^
+    177|     await stop();
+    178|     stop = undefined;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 4 passed (6)
+   Start at  01:58:16
+   Duration  10.25s (transform 48ms, setup 0ms, import 304ms, tests 9.82s, environment 0ms)

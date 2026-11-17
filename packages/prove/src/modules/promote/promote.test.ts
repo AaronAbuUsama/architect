@@ -77,10 +77,11 @@ const mint = async (client: string) => {
   return ((await r.json()) as { access_token: string }).access_token;
 };
 const post = async (client: string, revision: string, environment: string, operation: string, verdict: "pass" | "fail" = "pass") => {
-  const r = await request(`${logbook}/verdicts`, { method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${await mint(client)}` }, body: JSON.stringify({ revision, environment, operation, verdict }) });
+  const sha256 = (JSON.parse(readFileSync(join(root, ".architect/artefacts", revision, "bundle.json"), "utf8")) as { sha256: string }).sha256;
+  const r = await request(`${logbook}/verdicts`, { method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${await mint(client)}` }, body: JSON.stringify({ revision, environment, operation, verdict, sha256 }) });
   expect(r.status).toBe(200);
 };
-type Row = { operation: string; verdict: string; environment: string; ref: string; revision: string };
+type Row = { operation: string; verdict: string; environment: string; ref: string; revision: string; sha256?: string | null };
 const held = async (revision: string, environment: string) =>
   (await (await request(`${logbook}/verdicts?revision=${revision}&environment=${environment}`)).json()) as Array<Row>;
 /** What the environment itself says it runs, found where it is. */
@@ -170,7 +171,29 @@ describe("architect promote", () => {
     expect(staged.out).toContain(`sha256:${hash}`);
     const verdicts = await held(first, "staging");
     expect(verdicts.map((v) => v.operation).sort()).toEqual([...operations].sort());
-    expect(verdicts.every((v) => v.verdict === "pass" && v.ref === "refs/heads/main")).toBe(true);
+    expect(verdicts.every((v) => v.verdict === "pass" && v.ref === "refs/heads/main" && v.sha256 === hash)).toBe(true);
+
+    // The newest signed verdict closes the gate if it names other bytes or has no bundle identity at all.
+    for (const sha256 of ["0".repeat(64), undefined]) {
+      const response = await request(`${logbook}/verdicts`, { method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${await mint("ci-main")}` }, body: JSON.stringify({ revision: first, environment: "staging", operation: operations[0], verdict: "pass", ...(sha256 ? { sha256 } : {}) }) });
+      expect(response.status).toBe(200);
+      const wrong = architect("promote", "--to", "production");
+      expect(wrong.status, wrong.out).toBe(1);
+      expect(wrong.out).toContain("bundle");
+    }
+    await post("ci-main", first, "staging", operations[0]!);
+
+    // A bundle cannot inherit the clean revision's proof after an uncommitted build and a source restore.
+    const source = join(root, "src/allowance/spend.ts");
+    const text = readFileSync(source, "utf8");
+    const main = join(root, ".architect/artefacts", first, "main.js");
+    const bytes = readFileSync(main, "utf8");
+    writeFileSync(source, text.replace("return { remaining: remaining - amount }", "return { remaining: 0n }"));
+    const dirtyBuild = architect("build");
+    writeFileSync(source, text);
+    expect(dirtyBuild.status, dirtyBuild.out).not.toBe(0);
+    expect(readFileSync(main, "utf8")).toBe(bytes);
+
 
     const released = architect("promote", "--to", "production");
     expect(released.status, released.out.slice(-3000)).toBe(0);
@@ -181,6 +204,7 @@ describe("architect promote", () => {
     for (const name of ["test", "staging", "production"] as const) expect(await bundleOf(name), name).toEqual({ revision: first, sha256: hash });
 
     // Production has a verdict per operation too: staging's, carried to the same bundle, so staleness reaches it.
+    expect((await held(first, "production")).every((v) => v.sha256 === hash)).toBe(true);
     expect((await held(first, "production")).map((v) => `${v.operation}:${v.verdict}`).sort()).toEqual(operations.map((o) => `${o}:pass`).sort());
 
     // The release is in the logbook, with the version the model gave.

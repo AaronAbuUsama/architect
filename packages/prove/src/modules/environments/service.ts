@@ -52,7 +52,8 @@ const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision, policy, 
     const book = yield* status(root, "logbook");
     const logbook = givenLogbook ?? (book.state === "up" ? book.url : undefined);
     const held = existsSync(f.config) ? logbookOf(readFileSync(f.config, "utf8")) : undefined;
-    if (now.state === "up" && (revision === undefined || revision === now.revision) && (!records || now.telemetry !== undefined) && held === logbook) return now;
+    const requested = revision === undefined ? undefined : yield* Build.find(root, revision).pipe(Effect.mapError((e) => failed(e.message)));
+    if (now.state === "up" && (revision === undefined || (revision === now.revision && requested?.sha256 === now.sha256)) && (!records || now.telemetry !== undefined) && held === logbook) return now;
     // Not running, or running another bundle: whatever is left of it goes first. The state stays.
     yield* reap(dir);
 
@@ -60,7 +61,7 @@ const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision, policy, 
     const kept = yield* Build.find(root, rev).pipe(Effect.mapError((e) => failed(e.message)));
     const built = kept ?? (revision !== undefined
       ? yield* failed(`revision ${rev} has no artefact: run \`architect build\` at that commit`)
-      : yield* Build.build(root).pipe(Effect.mapError((e) => failed(e.message))));
+      : yield* Build.build(root, env).pipe(Effect.mapError((e) => failed(e.message))));
 
     const base = join(root, "generated/server/wrangler.jsonc");
     if (!existsSync(base)) return yield* failed(`${base} is missing: run nx sync first`);

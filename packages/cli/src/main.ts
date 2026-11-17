@@ -251,7 +251,7 @@ const build = Command.make(
   "build",
   { root: Flag.String("root").pipe(Flag.withDefault(process.cwd())) },
   ({ root }) =>
-    Build.build(root).pipe(
+    Build.build(root, process.env).pipe(
       Effect.tap((b) => (b.dirty ? Console.error(`warning: the working tree differs from ${b.revision}, so this bundle is not that commit's source`) : Effect.void)),
       Effect.tap((b) => Console.log(`built ${b.revision} sha256:${b.sha256}`)),
       Effect.catchTag("BuildFailed", (e) => fail(e.message, 2)),
@@ -276,7 +276,7 @@ const environment = (verb: "up" | "down" | "status") =>
       const policy = issuer && repository && refs.length > 0 && workflows.length > 0 ? { policy: { issuer, repository, refs, workflows } } : {};
       const said =
         verb === "up"
-          ? Environments.up({ ...name, ...policy, ...(process.env["ARCHITECT_LOGBOOK_URL"] ? { logbook: process.env["ARCHITECT_LOGBOOK_URL"] } : {}), ...(Option.isSome(port) ? { port: port.value } : {}), ...(Option.isSome(revision) ? { revision: revision.value } : {}) }).pipe(Effect.map((s) => [`${env} up ${s.url}`]))
+          ? Environments.up({ ...name, ...policy, env: process.env, ...(process.env["ARCHITECT_LOGBOOK_URL"] ? { logbook: process.env["ARCHITECT_LOGBOOK_URL"] } : {}), ...(Option.isSome(port) ? { port: port.value } : {}), ...(Option.isSome(revision) ? { revision: revision.value } : {}) }).pipe(Effect.map((s) => [`${env} up ${s.url}`]))
           : verb === "down"
             ? Environments.down(name).pipe(Effect.map(() => [`${env} down`]))
             : Environments.status(name).pipe(

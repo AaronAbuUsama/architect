@@ -36,7 +36,7 @@ const to: PromoteApi["to"] = ({ root, env, target, say }) =>
     const logbook = yield* Releases.locate({ root, env }).pipe(Effect.mapError(failed));
     if (logbook === undefined) return yield* new PromoteFailed({ message: "no logbook: start one with `architect env up logbook`, or set ARCHITECT_LOGBOOK_URL" });
     const from = earnedIn(target, environment);
-    yield* verdictsIn(logbook, model, revision, from);
+    yield* verdictsIn(logbook, model, revision, from, built.sha256);
     yield* say(`${target} from ${from} ${revision} sha256:${built.sha256}`);
 
     const up = yield* runningOn(root, target, built);
@@ -54,7 +54,7 @@ const to: PromoteApi["to"] = ({ root, env, target, say }) =>
       // The prerelease goes out only for a revision that proved itself where it runs, and before the verdicts are said.
       if (proved.passed) yield* stagingPrerelease({ root, env, say, logbook, model });
       else yield* say("skipped publish (staging's proof failed: nothing is published for a revision that did not pass)");
-      yield* Verdicts.post({ logbook, token, revision, environment: "staging", results: proved.results }).pipe(Effect.mapError((e) => new PromoteFailed({ message: `the verdicts weren't recorded: ${e.message}` })));
+      yield* Verdicts.post({ logbook, token, revision, sha256: built.sha256, environment: "staging", results: proved.results }).pipe(Effect.mapError((e) => new PromoteFailed({ message: `the verdicts weren't recorded: ${e.message}` })));
       yield* say(`verdicts ${proved.results.map((r) => `${r.operation} ${r.verdict === "pass" ? "✔" : "✘"}`).join("  ")}   (revision ${revision})`);
       for (const line of skipped(environment)) yield* say(line);
       return { revision, sha256: built.sha256, passed: proved.passed } satisfies Promoted;
@@ -76,7 +76,7 @@ const to: PromoteApi["to"] = ({ root, env, target, say }) =>
     // is what puts production in the logbook beside staging, so a change that unproves an operation stales it there too.
     const carried = Object.keys(model.operations).map((operation) => ({ operation, verdict: "pass" as const }));
     const token = yield* Verdicts.sourceOf(env).pipe(Effect.flatMap(Verdicts.mint), Effect.mapError(failed));
-    yield* Verdicts.post({ logbook, token, revision, environment: "production", results: carried }).pipe(Effect.mapError((e) => new PromoteFailed({ message: `the verdicts weren't recorded: ${e.message}` })));
+    yield* Verdicts.post({ logbook, token, revision, sha256: built.sha256, environment: "production", results: carried }).pipe(Effect.mapError((e) => new PromoteFailed({ message: `the verdicts weren't recorded: ${e.message}` })));
     // The release is out in the logbook and in production: now the packages, with `latest` moved to it.
     yield* productionRelease({ root, env, say, version });
     for (const line of skipped(environment)) yield* say(line);

@@ -27,6 +27,8 @@ export interface Held {
   readonly operation: string;
   readonly verdict: string;
   readonly ref: string;
+  /** The signed proof's bundle. Legacy rows may omit it or hold null. */
+  readonly sha256?: string | null;
 }
 
 export interface VerdictsApi {
@@ -44,6 +46,8 @@ export interface VerdictsApi {
     readonly token: Redacted.Redacted<string>;
     readonly revision: string;
     readonly environment: string;
+    /** Omitted only by compatibility callers; such rows cannot authorize a promotion. */
+    readonly sha256?: string;
     readonly results: ReadonlyArray<Result>;
   }) => Effect.Effect<void, VerdictsFailed>;
   /** The newest verdict of each operation among those posted from `ref` for `revision` in `environment` (`GET /verdicts/latest`, D3 #31). */
