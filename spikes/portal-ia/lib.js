@@ -66,7 +66,7 @@ function proof(opName, env) {
   if (S.scenario === "none") return { state: "unavailable", reason: "No logbook is connected to this static mock." };
   const op = M.operations[opName];
   if (opName === "allowance.spend" && (env === "staging" || env === "production"))
-    return { state: "stale", illus: true, reason: "budget p95 changed 150 → 120 ms after the recorded pass", changed: [{ key: "allowance.spend", was: op.hash, now: "(illustrative new hash)" }] };
+    return { state: "stale", illus: true, reason: "budget p95 changed after the recorded pass (illustrative edit)", changed: [{ key: "allowance.spend", was: op.hash, now: "(illustrative new hash)" }] };
   if (opName === "allowance.revoke" && env === "staging") return { state: "failed", illus: true, reason: "latest staging verdict is fail; an older pass exists and is ignored" };
   if (!journeysFor(opName).length) return { state: "unproven", illus: true, reason: "no journey calls this operation" };
   if (env === "production" && !["allowance", "organization", "person", "session", "system"].includes(op.thing)) return { state: "unproven", illus: true, reason: "no verdict row for production" };

@@ -428,6 +428,12 @@ empty design stages.
 
 **The options**
 
+**Today** (F1's mock nav, `spikes/frontend-dx/index.html:27-30` on main)
+```text
+Overview · Specification · Derived work · Things 8 · Operations & reads 15 · Journeys · Environments 4
+· Releases · Docs · Kits, chain & time · Change request (Preview)
+```
+
 **A · Catalog home, loops as lenses (recommended)**
 ```text
 acme ─ Overview: what acme is · thing cards · proof matrix · needs attention · loop card → Board
@@ -456,10 +462,10 @@ acme ─ Board: Specify | Implement | Cover | Prove | Promote · watch   (lanes:
 | Axis | A | B | C |
 |---|---|---|---|
 | Floor-first | ✅ all from today's model | ❌ needs projections | ⚠️ derived only |
-| Reversibility | ✅ lenses are additive | ⚠️ pages re-home | ⚠️ |
-| Blast radius | ✅ | ⚠️ | ⚠️ |
-| Correctness | ✅ one home per fact | ⚠️ | ⚠️ |
-| Fit | ✅ F1's mock already is this | ⚠️ | ⚠️ |
+| Reversibility | ✅ lenses are additive | ⚠️ pages re-home later | ⚠️ task URLs churn as cards close |
+| Blast radius | ✅ one URL per declaration | ⚠️ one thing split over five stages | ⚠️ couples the IA to the plan model |
+| Correctness | ✅ one home per fact | ⚠️ a done stage can hide a stale proof | ⚠️ honest only while derived |
+| Fit | ✅ F1's mock already is this | ⚠️ F1 shows loops, not as nav | ⚠️ F1 puts work after specification |
 
 **Recommendation: A.** It ships now, and the loops still show as the home's loop card and the board.
 
@@ -484,6 +490,11 @@ allowlist". Whether acme's API reference is public is a product call.
 | Visibility | private fields must never appear in a public page |
 
 **The options**
+
+**Today** (`examples/acme/blueprint/environments/staging.ts:10`; nothing declares what is public)
+```ts
+portal: Deploy.site({ domain: "staging.acme.dev" }),
+```
 
 **A · Private by default, public docs by an explicit allowlist (recommended)**
 ```ts
@@ -511,10 +522,10 @@ https://acme.dev/*  → sign-in required
 
 | Axis | A | B | C |
 |---|---|---|---|
-| Floor-first | ✅ ships as C until a list exists | ⚠️ two builds now | ✅ |
-| Reversibility | ✅ | ❌ published pages are cached | ✅ |
-| Blast radius | ✅ per page | ❌ everything | ✅ |
-| Correctness | ✅ visibility checked per page | ⚠️ | ✅ |
+| Floor-first | ✅ ships as C until a list exists | ⚠️ two builds now | ✅ one private build |
+| Reversibility | ✅ a page leaves the list | ❌ published pages are cached | ✅ nothing published |
+| Blast radius | ✅ per page | ❌ everything | ✅ none |
+| Correctness | ✅ visibility checked per page | ⚠️ private names can leak | ✅ nothing exposed |
 | Fit | ✅ F1 §5 | ❌ against F1 §5 | ⚠️ no public story |
 
 **Recommendation: A.** Private by default, with public docs only by an explicit list.
