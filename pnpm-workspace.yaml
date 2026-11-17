@@ -3,8 +3,6 @@ packages:
   - examples/*
   - e2e
 allowBuilds:
-  '@heroui-pro/react': set this to true or false
-  '@zowe/secrets-for-zowe-sdk': set this to true or false
   esbuild: true
   nx: true
   workerd: true
