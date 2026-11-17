@@ -1,0 +1,21 @@
+$ bash -e -c rg -n "^  it|^  it.skipIf|beforeAll|afterAll|timeout:" packages/prove/src/modules/publish/publish.test.ts; cat packages/prove/vitest.config.ts
+# commit 396dab4 · 2026-11-17T06:30:51Z · exit 0 (expected 0) · 0.0s
+
+12:import { afterAll, beforeAll, describe, expect, it } from "vitest";
+64:  const r = spawnSync(process.execPath, [cli, ...args, "--root", root], { cwd: root, encoding: "utf8", env, maxBuffer: 64 * 1024 * 1024, timeout: 900_000 });
+76:const brew = (...args: ReadonlyArray<string>) => spawnSync("brew", args, { encoding: "utf8", env, timeout: 600_000 });
+79:beforeAll(async () => {
+111:afterAll(async () => {
+129:  it("--dry-run lists exactly what would go out, and sends nothing", { timeout: 300_000 }, async () => {
+149:  it("without a registry, --local says so and exits 2; with neither flag it says how to use it", () => {
+169:  it("a prerelease goes out under `next`, numbered one past the last", { timeout: 300_000 }, async () => {
+178:  it("--local puts @acme/sdk@1.1.0 and @acme/cli@1.1.0 on the registry, `latest` on them, and a fresh folder installs and runs them", { timeout: 900_000 }, async () => {
+194:    const installed = spawnSync("npm", ["install", "@acme/sdk@1.1.0", "@acme/cli@1.1.0", "--registry", registry, "--ignore-scripts", "--no-audit", "--no-fund", "--cache", join(parent, "npm-cache"), "--userconfig", join(parent, "npmrc-empty")], { cwd: fresh, encoding: "utf8", timeout: 600_000 });
+211:  it("a prerelease published after a release never takes `latest` from it", { timeout: 300_000 }, async () => {
+219:  it.skipIf(!brewHere)("`brew install <tap>/<formula>` installs the CLI binary, which prints its version and `ok` from a running world", { timeout: 900_000 }, async () => {
+238:    const health = spawnSync(bin, ["system", "health"], { encoding: "utf8", env: { ...env, ACME_URL: running.url }, timeout: 60_000 });
+import { defineConfig } from "vitest/config";
+
+// Each test file starts real worlds (wrangler, workerd, a collector in Docker). Two files at a time keeps world start-up
+// well inside its wait on a laptop and on CI's runners.
+export default defineConfig({ test: { maxWorkers: 2 } });

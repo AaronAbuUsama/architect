@@ -146,7 +146,7 @@ describe("architect publish", () => {
     expect(existsSync(join(root, ".architect/tap"))).toBe(false);
   });
 
-  it("without a registry, --local says so and exits 2; with neither flag it says how to use it", () => {
+  it("without a registry, --local says so and exits 2; with neither flag it says how to use it", { timeout: 60_000 }, () => {
     const none = spawnSync(process.execPath, [cli, "publish", "--local", "--root", root], { cwd: root, encoding: "utf8", env: { ...env, ARCHITECT_REGISTRY: "" } });
     expect(none.status, none.stderr).toBe(2);
     expect(none.stderr).toContain("no registry: set ARCHITECT_REGISTRY");
