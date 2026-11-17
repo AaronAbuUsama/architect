@@ -148,7 +148,7 @@ across test, staging and production, and watch it. Every build step of stage thr
 <li><b>Layer two, prove and ship, is built.</b> Thirteen of its fourteen steps are merged on <code>layer/3</code>: traces, the MCP server, <code>watch</code> and the portal landed today.</li>
 <li><b>Codex has resumed.</b> The CI and evidence-page repairs passed locally and on Linux. World isolation is fixed and passes integration checks. The previous clean local gate passed all ten tests. The four boundary corrections are merged. Independent author acceptance and the real-service logbook migration pass their integrated checks. The fresh clean gate passed nine tests, including Homebrew, but the promotion check hit a connection reset; its separate author is tracing that failure.</li>
 <li><b>Next:</b> repeat the full gate locally and in CI on the frozen corrected source, then land a reviewed candidate on main.</li>
-<li><b>The first Linux gate ran all ten functional tests successfully, including Homebrew.</b> CI is red on registry-storage cleanup and a short world-test timeout. Those focused fixes are merged and their integration checks pass; the full rerun is next. Main’s latest CI is green.</li>
+<li><b>Fresh Linux CI is green across all three jobs.</b> Gate 2 passed all ten tests with actual Linux Homebrew and no skips. The local promotion connection reset still needs author diagnosis and a clean rerun before review and landing.</li>
 <li><b>Layers three to five,</b> the kits, the chain and time, haven't started. Neither has the cloud pass, which needs your yes on credentials.</li>
 </ul>
 <div class="callout">For the detail, see <a href="#layers">the five layers</a>, <a href="#stage3">layer two, step by step</a> and <a href="#left">what's left</a>.</div>` },

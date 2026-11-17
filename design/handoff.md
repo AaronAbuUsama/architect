@@ -62,30 +62,32 @@ Historical builder-authored evaluator changes are being dispositioned truthfully
 acceptance, without rewriting history or weakening checks. OAuth count is documented as a local throttle; strict
 concurrent ceiling is cloud hardening before public deployment. Raw diagnostic whitespace stays raw data.
 
-**Round3 source corrections and separate author acceptance are integrated.** The four bounded source fixes are
-refusal7cbc946, MCP0fec194, immutable-model9a1aebb and ownershipa962de0. Separate author83f6f8b replaced both
-forbidden platform-shim suites with real logbook routes and ledger checks; all25logbooktests passed after integration.
-Separate author6647d76 independently reviewed the historical evaluator changes, found and fixed two semantic gaps,
-and truthfully recorded the author-before-builder process deviation. The conductor reran21pure evaluator/watch guards
-and16real-service planted/list/privacy guards on543611e; all passed. All16projects' lint/typecheck plus Nx sync passed.
-No builder, author or root verifier service remains. Stage3 delivery now owns the exclusive clean full-gate window.
+**Round-three source corrections and separate author acceptance are integrated.** The four bounded source fixes
+are refusal `7cbc946`, MCP `0fec194`, immutable model `9a1aebb` and ownership `a962de0`. Separate author `83f6f8b`
+replaced both forbidden platform-shim suites with real logbook route and ledger checks; all 25 tests passed after
+integration. Separate author `6647d76` independently reviewed historical evaluator changes, found and fixed two
+semantic gaps, and recorded the author-before-builder process deviation. Integrated source `543611e` passed 21 pure
+evaluator/watch guards and 16 real-service planted/list/privacy guards. All 16 projects' lint/typecheck plus Nx sync
+passed. D3 #197 records the remaining legacy adapter policy/enforcement debt without claiming universal compliance.
 
-**Latest clean Gate2 attempt is red, with cleanup complete.** Exact clean candidatec867e21 ran all8files/10tests
-with0skips in282.8s;9tests passed including actualMacHomebrew, while check04 ended with a direct test `fetch`
-ECONNRESET. All Architect containers, gate taps/formulas, exact gate listeners and own runtime processes are gone;
-unrelated resources remain untouched. Raw attempt and preflight/cleanup are retained under
-`evidence/L2.11/attempts/c867e21-*`. The separate author owns request-lifecycle diagnosis and focusedcheck04 alone;
-no product cause is claimed yet and no runtime-source correction has started. Linuxrun44023299021 is still active.
+**Latest clean Gate2 attempt is red, with cleanup complete.** Clean candidate `c867e21` ran all eight files and ten
+tests with zero skips in 282.8 seconds; nine tests passed, including actual Mac Homebrew, while check04 ended with a
+direct test fetch ECONNRESET. All Architect containers, gate taps/formulas, exact gate listeners and own runtime
+processes are gone; unrelated resources remain untouched. Raw attempt and preflight/cleanup are retained under
+`evidence/L2.11/attempts/c867e21-*`. The separate author owns request-lifecycle diagnosis and focused check04 alone.
+No product cause is claimed yet and no runtime-source correction has started. Linux run `44023299021` on the same
+`c867e21` is green across all three jobs, including all ten Gate2 tests and actual Linuxbrew.
 
 **Next, in order.**
-1. Checkpoint integrated receipts and status, then freeze source. Run the clean full local Gate2 alone on that exact
-   committed candidate using stock configuration. Preserve full raw output and ownership-scoped cleanup.
-2. Run fresh Linux CI with all three jobs and actual Linuxbrew. Refresh each layer-two step's current ci.json, the
-   build-plan and pages. Obtain one fresh independent whole-layer verdict on the final candidate and CI evidence.
-   Product-round ledger remains3; ordinary fixture feedback does not create a fourth product head.
-3. Open `layer/3` into main, merge only fresh green CI and independent review, then verify main CI. Stage3 delivery
-   hands the green main commit and cleanup proof back to the root conductor; only root opens stage4 wayfinding.
-   Claude alone republishes the private page links.
+1. Finish the separate author's focused request-lifecycle diagnosis. Integrate only its bounded correction, then
+   reset Nx, sync, lint/typecheck and touched checks. Keep runtime services exclusive.
+2. Repeat the clean full local Gate2 alone on the final committed candidate using stock configuration. Preserve
+   raw output and scoped cleanup, then refresh Linux CI and each layer-two step's current ci.json and pages.
+3. Obtain a fresh independent whole-layer verdict on the final candidate and CI evidence. The product-round ledger
+   remains three; ordinary fixture feedback does not create a fourth product head.
+4. Open `layer/3` into main, merge only fresh green CI and independent review, then verify main CI. Stage3 delivery
+   hands the green main commit and cleanup proof back to root; only root opens Stage4 wayfinding. Claude alone
+   republishes the private page links.
 
 **For the cloud pass, from L2.08:** every deployed Worker must set `ARCHITECT_ENVIRONMENT`, or it reads as a local
 world and opens `/_world/*` (`later.md`); `Facts` reads staging's SQLite file today and needs a D1 API reader behind the

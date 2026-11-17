@@ -141,7 +141,7 @@ This plan takes Architect from an empty repository to all five layers. One local
 
 **L2.11 local proof (17 November 2026):** clean candidate `2b2aa3c`, `nx run e2e:layer2`,8files/10tests passed,
 zero skips, including actual Macarm64 Homebrew. Evidence: `evidence/L2.11/02-local-gate.txt` and cleanup in03.
-Linux CI and final review/landing are pending, so this row is not yet marked done.
+Fresh Linux CI run `44023299021` on `c867e21` passed all three jobs, including all ten Gate2 tests and actual Linuxbrew. The clean local c867e21 run passed nine tests but check04 hit a direct test fetch ECONNRESET; its separate author is diagnosing that request lifecycle. A fresh local pass and final review/landing remain, so this row is not yet marked done.
 
 
 ### The agent harness track (decisions H1, H2)
