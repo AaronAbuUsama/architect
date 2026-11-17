@@ -20,7 +20,7 @@ const STATE: Record<ProofState, [label: string, color: "success" | "warning" | "
   "recorded-pass": ["✔ pass", "success"], stale: ["stale", "warning"], failed: ["✘ failed", "danger"], unproven: ["unproven", "default"], unavailable: ["unavailable", "default"],
 };
 export const StateChip = ({ p }: { p: Proof }) => (
-  <Live><Chip size="sm" variant="soft" color={STATE[p.state][1]}>{STATE[p.state][0]}</Chip></Live>
+  <Live><Chip size="sm" variant="soft" color={STATE[p.state][1]} className="whitespace-nowrap">{STATE[p.state][0]}</Chip></Live>
 );
 
 const EVAL: Record<EvalResult, [label: string, cls: string]> = {

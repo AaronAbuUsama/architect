@@ -5,9 +5,14 @@ import type { Selection, SortDescriptor } from "react-aria-components";
 
 export type Column<R> = { key: string; label: string; cell: (r: R) => ReactNode; sort?: (r: R) => string | number; hidden?: boolean; align?: "start" | "center" | "end"; rowHeader?: boolean };
 export type Filter<R> = { key: string; label: string; of: (r: R) => string };
-export type DataTableProps<R> = { label: string; rows: R[]; rowKey: (r: R) => string; columns: Column<R>[]; filters?: Filter<R>[]; search?: (r: R) => string; sort?: SortDescriptor; footer?: ReactNode };
+export type SubRow = { key: string; cells: Record<string, ReactNode> };
+export type DataTableProps<R> = {
+  label: string; rows: R[]; rowKey: (r: R) => string; columns: Column<R>[]; filters?: Filter<R>[]; search?: (r: R) => string; sort?: SortDescriptor; footer?: ReactNode;
+  /** Rows shown under a row while its key is in `expanded`: same columns, a quieter look. */
+  subRows?: (r: R) => SubRow[]; expanded?: Set<string>; toolbar?: ReactNode;
+};
 
-export function DataTable<R>({ label, rows, rowKey, columns, filters = [], search, sort, footer }: DataTableProps<R>) {
+export function DataTable<R>({ label, rows, rowKey, columns, filters = [], search, sort, footer, subRows, expanded, toolbar }: DataTableProps<R>) {
   const [q, setQ] = useState("");
   const [picked, setPicked] = useState<Record<string, Set<string>>>({});
   const [shown, setShown] = useState<Selection>(new Set(columns.filter((c) => !c.hidden).map((c) => c.key)));
@@ -58,6 +63,18 @@ export function DataTable<R>({ label, rows, rowKey, columns, filters = [], searc
             </Dropdown.Menu>
           </Dropdown.Popover>
         </Dropdown>
+        {columns.some((c) => c.sort) && (
+          <Dropdown>
+            <Button size="sm" variant="secondary">Sort{sortBy ? `: ${columns.find((c) => c.key === sortBy.column)?.label} ${sortBy.direction === "ascending" ? "↑" : "↓"}` : ""}</Button>
+            <Dropdown.Popover>
+              <Dropdown.Menu aria-label="Sort" selectionMode="single" selectedKeys={sortBy ? new Set([String(sortBy.column)]) : new Set()} onAction={(k) =>
+                setSortBy({ column: String(k), direction: sortBy?.column === k && sortBy.direction === "ascending" ? "descending" : "ascending" })}>
+                {columns.filter((c) => c.sort).map((c) => <Dropdown.Item key={c.key} id={c.key} textValue={c.label}><Dropdown.ItemIndicator />{c.label}</Dropdown.Item>)}
+              </Dropdown.Menu>
+            </Dropdown.Popover>
+          </Dropdown>
+        )}
+        {toolbar}
         {search && (
           <SearchField aria-label={`Search ${label}`} value={q} onChange={setQ} className="ml-auto w-56">
             <SearchField.Group><SearchField.SearchIcon /><SearchField.Input placeholder="Search…" /><SearchField.ClearButton /></SearchField.Group>
@@ -69,17 +86,21 @@ export function DataTable<R>({ label, rows, rowKey, columns, filters = [], searc
           <Table.Content aria-label={label} sortDescriptor={sortBy} onSortChange={setSortBy}>
             <Table.Header>
               {visible.map((c) => (
-                <Table.Column key={c.key} id={c.key} isRowHeader={c.rowHeader} allowsSorting={!!c.sort} className={c.align === "center" ? "text-center" : c.align === "end" ? "text-end" : ""}>
+                <Table.Column key={c.key} id={c.key} isRowHeader={c.rowHeader} allowsSorting={!!c.sort} className={align(c)}>
                   {c.label}
                 </Table.Column>
               ))}
             </Table.Header>
             <Table.Body renderEmptyState={() => <span className="text-fd-muted-foreground">Nothing matches.</span>}>
-              {out.map((r) => (
+              {out.flatMap((r) => [
                 <Table.Row key={rowKey(r)} id={rowKey(r)}>
-                  {visible.map((c) => <Table.Cell key={c.key} className={c.align === "center" ? "text-center" : c.align === "end" ? "text-end" : ""}>{c.cell(r)}</Table.Cell>)}
-                </Table.Row>
-              ))}
+                  {visible.map((c) => <Table.Cell key={c.key} className={align(c)}>{c.cell(r)}</Table.Cell>)}
+                </Table.Row>,
+                ...(expanded?.has(rowKey(r)) && subRows ? subRows(r).map((s) => (
+                  <Table.Row key={`${rowKey(r)}/${s.key}`} id={`${rowKey(r)}/${s.key}`} className="bg-fd-muted/40">
+                    {visible.map((c) => <Table.Cell key={c.key} className={`${align(c)} py-1.5 text-sm`}>{s.cells[c.key] ?? null}</Table.Cell>)}
+                  </Table.Row>)) : []),
+              ])}
             </Table.Body>
           </Table.Content>
         </Table.ScrollContainer>
@@ -88,3 +109,5 @@ export function DataTable<R>({ label, rows, rowKey, columns, filters = [], searc
     </div>
   );
 }
+
+const align = (c: { align?: "start" | "center" | "end" }) => (c.align === "center" ? "text-center" : c.align === "end" ? "text-end" : "");

@@ -23,7 +23,7 @@ export function sections(p: PageKind): Section[] {
       { id: "proof", title: "Proof", body: <>{evidenceNote}<ProofMatrix /></> },
     ];
     case "proof": return [
-      { id: "matrix", title: "Every operation", body: <>{evidenceNote}<p>Each cell is a verdict and the nine evals it is made of. Filter by thing, by state in an environment, or by the worst state; hide environments under Columns.</p><ProofMatrix /></> },
+      { id: "matrix", title: "Every operation", body: <>{evidenceNote}<p>One row per operation, one fact per column. Open a row (▸) for the nine evals behind its verdicts, or switch to By eval to see each eval across every operation.</p><ProofMatrix /></> },
       { id: "candidate", title: "What it is judged against", body: <p>The candidate is <Code>{CANDIDATE}</Code>, the newest revision proved in test. A verdict from an older revision still counts when the contract it rests on has not changed; it says so.</p> },
     ];
     case "thing": { const t = M.things[p.thing]!; return [

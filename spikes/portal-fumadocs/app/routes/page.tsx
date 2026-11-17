@@ -21,7 +21,7 @@ export default function Page() {
   return (
     <DocsLayout tree={source.pageTree} nav={{ title: <span className="font-semibold">{BP.project} <span className="font-normal text-fd-muted-foreground">docs</span></span> }}
       sidebar={{ footer: <ViewToggle /> }}>
-      <DocsPage toc={toc}>
+      <DocsPage toc={toc} full={["home", "proof", "reference", "environment"].includes(page.data.page.kind)}>
         <DocsTitle>{page.data.title}</DocsTitle>
         <DocsDescription>{page.data.description}</DocsDescription>
         <DocsBody>{body.map((s) => <section key={s.id}>{s.title && <h2 id={s.id}>{s.title}</h2>}{s.body}</section>)}</DocsBody>
