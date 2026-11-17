@@ -142,11 +142,11 @@ const ALL_PAGES = [
 { id: "now", group: "Start", t: "Where it stands", h: () => `
 <h1>Where it stands</h1>
 <p class="lede">Two of the six stages are done and on main. Architect can declare a system, generate it, call it, prove it, ship it
-across test, staging and production, and watch it. Every build step of stage three is merged. The review corrections and authored checks pass locally; the full Gate 2 is now running.</p>
+across test, staging and production, and watch it. Every build step of stage three is merged. The review corrections and authored checks pass locally; the full Gate 2 passed locally, with Linux CI and final review next.</p>
 <ul>
 <li><b>Layer one, declare and call, is finished.</b> Stages one and two, Gate 1, merged on 16 November.</li>
 <li><b>Layer two, prove and ship, is built.</b> Thirteen of its fourteen steps are merged on <code>layer/3</code>: traces, the MCP server, <code>watch</code> and the portal landed today.</li>
-<li><b>Codex has resumed.</b> The CI and evidence-page repairs passed locally and on Linux. World isolation is fixed and passes integration checks. The integrity repairs and authored publishing/portal checks pass. The full gate is running alone on a clean committed candidate.</li>
+<li><b>Codex has resumed.</b> The CI and evidence-page repairs passed locally and on Linux. World isolation is fixed and passes integration checks. The integrity repairs and authored publishing/portal checks pass. The full gate passed on clean committed source: eight files, ten tests and no skips. Linux CI is next.</li>
 <li><b>Next:</b> finish the full gate locally and in CI, then the independent review and pull request into main.</li>
 <li><b>CI is green on the combined correctness push.</b> Both the general check and layer-one compatibility job passed. Main’s latest CI is green.</li>
 <li><b>Layers three to five,</b> the kits, the chain and time, haven't started. Neither has the cloud pass, which needs your yes on credentials.</li>
@@ -236,7 +236,7 @@ steps, performance, coverage and explainability.</p>
 <tr><td class="k">L2.08</td><td>The MCP server with OAuth, and the world's front door closed outside test worlds.</td><td class="s">${DONE}</td></tr>
 <tr><td class="k">L2.09</td><td><code>watch</code>: the same evals on live telemetry; drift becomes a task.</td><td class="s">${DONE}</td></tr>
 <tr><td class="k">L2.10</td><td>The portal: a read-only page per environment, honest ticks, stale explained.</td><td class="s">${DONE}</td></tr>
-<tr><td class="k">L2.11</td><td>Gate 2, in CI, then the review and the pull request into main.</td><td class="s">${TODO}</td></tr>
+<tr><td class="k">L2.11</td><td>Gate 2 passed locally, including real Homebrew. Linux CI, review and landing remain.</td><td class="s">${WIP}</td></tr>
 </tbody></table></div>
 <p class="muted">Read from the build plan's marks and the merges on <code>layer/3</code>.</p>` },
 
@@ -277,7 +277,7 @@ steps, performance, coverage and explainability.</p>
 <li><b>CI on <code>layer/3</code>:</b> the Docker networking fix and promotion/read repairs pass all six touched tests locally. Linux CI also passed on the recovery push.</li>
 <li><b>World isolation:</b> is fixed at D1’s atomic mutation. Seven world regressions and the existing expiry, restart and reap checks pass after integration; Linux CI also passed on the combined corrections.</li>
 <li><b>Promotion integrity:</b> immutable clean artifacts, signed hashes, stable process identity, captured publication source and matching npm bytes pass all22 integrated regressions. Retry completes partial release facts without duplicating them.</li>
-<li><b>Check 8:</b> fresh-connection checks and the real publishing/portal flow passed in the author’s runtime run. The full gate is now verifying them together with the other checks.</li>
+<li><b>Check 8:</b> fresh-connection checks and the real publishing/portal flow passed in the author’s runtime run. The full local gate also passed all eight checks together.</li>
 <li><b>The evidence page:</b> rebuilds successfully. Eight regression checks pass. Missing capture metadata stays marked unverified.</li>
 </ul>
 <h2>Side threads</h2>

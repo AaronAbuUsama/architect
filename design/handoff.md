@@ -6,18 +6,17 @@
 stages. The rules are `AGENTS.md`; the thread kit (conductor, threads, spike, reviewer, hashtags) is `.agents/skills/`.
 
 **Current frontier.** Stages 1 and 2 (Gate 1) are on `main`. All layer-two build steps and review corrections are
-integrated on the conductor branch; L2.11 (the complete Gate 2) is running now. Framework/author source is
+integrated on the conductor branch; L2.11 passed locally; Linux CI and final independent review are next. Framework/author source is
 `759ebb4`; main has been refreshed through `eb167b2` (F3 brief and separate Noir spike record, no framework imports).
 The conductor uses its managed worktree on `codex/conductor-goal-01`, then pushes verified integration to `layer/3`.
 The original checkout and ignored template files stay untouched.
 
-**Sole runtime reservation: `build/L2.11`.** The gate builder reused its CI-recovery worktree and committed candidate
-`2b2aa3c` from `759ebb4` before starting. `git status --porcelain` was empty. It is running exactly
-`env NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static` through the capture script, with stock two internal
-workers and global teardown. No other builder, author or conductor may start runtime tests until it reports stopped.
-No Architect containers existed before it started. It will leave its new raw captures/local-result metadata uncommitted;
-the conductor merges the one code commit and copies unchanged evidence into a separate receipt commit. Do not amend
-away the clean tested code SHA. CI wiring includes exact Node24.22.2 and a required Linuxbrew PATH/availability check.
+**Local Gate2 is green and runtime reservation is released.** `build/L2.11` ran from clean committed candidate
+`2b2aa3cc77ce9762d43ca98193e9acf2319c3897` (parent `759ebb4`):8files,10tests,0skips,283.2s. Real Macarm64
+Homebrew installation executed. `02-local-gate.txt` and `03-cleanup.txt` were copied unchanged after merging the
+single code commit. Cleanup proves zero Architect containers, exact gate-port listeners, gate taps/formulas and own
+runtime processes. Two unrelated pre-existing Python document viewers on8978/8979 were preserved. No runtime
+worker is active. The integrated CI wiring pins Node24.22.2 and requires Linuxbrew; it must now run in GitHub.
 
 **What landed in this takeover.**
 - `d3ab3f4`, D3 #150–152: Linux Collector-to-viewer bridge routing, promotion-test fresh connections and bounded read
@@ -43,18 +42,18 @@ away the clean tested code SHA. CI wiring includes exact Node24.22.2 and a requi
 **Review state.** Two actionable reviewed heads (`e43aa22`, `8f50320`) and an early three-pass reset are recorded in
 `decisions/D3-proof-publication-reset.md` and private Git ledger `review-loop/architect-goal01-stage3.json`. The two
 causal clusters are D1 lease isolation and proof-to-publication identity. No third correction head was reviewed.
-Original and sibling failures were reproduced and fixed; final whole-layer review is still required on the final
+Both actionable rounds are closed locally at committed source `759ebb4`, awaiting final whole-layer review. Original and sibling failures were reproduced and fixed; final whole-layer review is still required on the final
 candidate. Three trailing spaces in an untouched historical OOM capture under `Staging-proof/attempts/` are raw data,
 not source whitespace defects. Keep those captures intact.
 
 **Next, in order.**
-1. Finish the local full gate alone. If it fails, diagnose from the capture; assign runtime fixes to a builder and
-   check/fixture fixes to the separate author. Never weaken assertions to obtain green.
-2. Merge `2b2aa3c` once green, copy its unchanged raw evidence/local metadata, update build-plan/handoff/pages, push
-   `layer/3`, and prove the new `e2e-layer2` CI job green, including real Linuxbrew. Fix any red before new work.
-3. Add current `ci.json` per layer-two step, rebuild `python3 tools/evidence/page.py`, update/open both pages, refresh
-   main, get one fresh independent reviewer pass on the final exact candidate, open `layer/3` into main and merge
-   green. Check main's CI. Claude alone republishes the private claude.ai page links.
+1. Push the integrated gate candidate/evidence to `layer/3`; watch all three CI jobs, especially `e2e-layer2` with real
+   Linuxbrew. The full local gate is already green. Fix any CI red before new work.
+2. Add the current successful `ci.json` per layer-two step; mark L2.11 with its proof, regenerate evidence and update/open
+   the status page. Refresh main and get one fresh independent reviewer pass on the final exact candidate. Keep the
+   actionable product-round count at2 unless a new valid product finding appears; ordinary development/evidence work is separate.
+3. Open `layer/3` into main, merge once fresh CI and review are green, then check main’s CI. Claude alone republishes
+   the private claude.ai status/evidence links.
 4. Open stage4 with `wayfinding/stage-4.md` only after Gate2 is green on main; continue goal01 through Gate5.
 
 **For the cloud pass, from L2.08:** every deployed Worker must set `ARCHITECT_ENVIRONMENT`, or it reads as a local

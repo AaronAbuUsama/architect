@@ -139,6 +139,10 @@ This plan takes Architect from an empty repository to all five layers. One local
 | L2.10 ✅ | The portal | L2.04 | portal, generators, prove | **Local reading done (D3 #130 to #137); the deployed site waits for the cloud pass, the licensed face for F1.1.** Built as F1 decides it (L2.10a to c): the wire projection (`generated/portal/blueprint.json`: versioned, deterministic, digest-checked, `Wire.decode` rejects an unknown schema or a changed byte); the snapshot adapter over the logbook (per operation and environment: `recorded-pass`, `failed` where the latest failure wins, `stale` naming the changed declarations, `unproven`, `unavailable` for a logbook that is down or a model that is missing, none of which is ever green); and a plain read-only face, a route of each environment's own Worker at `/portal` with the data at `/_portal/v1/*` (no `env up portal`: the same bundle runs everywhere). The original text follows. A read-only site: the blueprint, the docs, verdicts per environment, what is stale. | The deployed portal shows `allowance.spend` with `test ✔ staging ✔`, and after a budget edit, `stale` on spend only. |
 | L2.11 | **Gate 2** | all of L2 | e2e | `nx run e2e:layer2` replays walkthrough steps 9–12 on a sandbox account. | A PR goes to test, then staging, then production. There is a verdict in each environment, and the npm version equals `architect version --next`. |
 
+**L2.11 local proof (17 November 2026):** clean candidate `2b2aa3c`, `nx run e2e:layer2`,8files/10tests passed,
+zero skips, including actual Macarm64 Homebrew. Evidence: `evidence/L2.11/02-local-gate.txt` and cleanup in03.
+Linux CI and final review/landing are pending, so this row is not yet marked done.
+
 
 ### The agent harness track (decisions H1, H2)
 

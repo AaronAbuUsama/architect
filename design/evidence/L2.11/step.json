@@ -2,10 +2,25 @@
   "step": "L2.11",
   "stage": "Stage 3 · shipping on local worlds (Gate 2)",
   "title": "Gate 2: eight shipping checks locally and in Linux CI",
-  "status": "pending",
-  "summary": "Source preparation only: the e2e-layer2 CI job runs on Node 24.22.2 with frozen dependencies and requires the runner's real Homebrew. Local gate execution, Linux CI and final review are pending.",
+  "status": "local-pass-ci-pending",
+  "summary": "The full Gate 2 passed from clean committed source: all eight authored files and ten tests, with no skips, including the real macOS arm64 Homebrew install. The CI job pins Node 24.22.2, frozen dependencies and mandatory Linuxbrew. Linux CI and the independent final review remain pending.",
   "proves": "A PR goes to test, then staging, then production. There is a verdict in each environment, and the npm version equals `architect version --next`.",
   "captions": {
-    "01-ci-static": "Workflow syntax and shell validation only. This is not a gate result."
+    "01-ci-static": "Workspace lint, typecheck, Nx sync and workflow syntax validation; these are static checks.",
+    "02-local-gate": "Full Gate 2 on clean source: eight files, ten tests passed, zero skips; the real Homebrew test ran.",
+    "03-cleanup": "Zero remaining containers, gate taps, formulas, exact gate port listeners or own runtime processes. Unrelated listeners were preserved."
+  },
+  "local": {
+    "commit": "2b2aa3cc77ce9762d43ca98193e9acf2319c3897",
+    "command": "NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static",
+    "filesPassed": 8,
+    "testsPassed": 10,
+    "testsSkipped": 0,
+    "durationSeconds": 283.2,
+    "platform": "darwin-arm64",
+    "nodeVersion": "26.13.1",
+    "pnpmVersion": "11.20.0",
+    "cleanSourceBeforeRun": true,
+    "cleanup": "No Architect containers, gate taps, gate formulas, exact gate port listeners or own runtime processes remain."
   }
 }
