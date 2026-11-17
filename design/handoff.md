@@ -16,7 +16,7 @@ seams, L2.O seeing traces (D3 #100 to #109, #120, #121), L2.08 MCP with OAuth an
 **CI on `layer/3` is the first job.** Latest completed failure inspected: run `43994958256` on `00da1c6`.
 It failed only the viewer test (`viewer.test.ts:52`, “the viewer never had it”); reads passed in about 31 seconds.
 Earlier promotion socket and reads timeout failures remain regression concerns. Run `43996163508` on `cd9d069`
-is still running. Main's latest run `43995723506` on `798ff34` passed.
+then completed with the same viewer-only failure (97 tests passed, one failed, three skipped). Main's latest run `43995723506` on `798ff34` passed.
 
 **Working arrangement.** The conductor uses an isolated managed worktree on `codex/conductor-goal-01`, based on
 `origin/layer/3`. The original checkout and its ignored template files stay untouched. Verified commits will be
@@ -33,11 +33,11 @@ will regenerate the page after that lands. Main through `798ff34` is merged into
 **Independent preliminary review.** A read-only reviewer of layer two found a promotion-integrity blocker:
 `Build.build` labels a dirty-source bundle with HEAD, and `Promote` checks only that the tree is clean now. Restoring
 the source after a dirty build can therefore reuse verdicts for a different bundle. A separate builder must add a
-failing regression and fix artifact provenance before Gate 2. Review is still in progress; this is not a final pass.
+failing regression and fix artifact provenance before Gate 2. Review also found non-atomic lease creation: concurrent world POSTs can both pass the preliminary live-world check, violating D3 #51 and corrupting marks-based cleanup. It needs a real concurrent workerd/D1 regression and one authoritative atomic mutation. Review is still in progress; this is not a final pass.
 
 **Next, in order:**
 1. CI green on `layer/3` (above).
-2. Fix the reviewed dirty-build provenance bypass with a separate builder and regression proof.
+2. Fix the reviewed dirty-build provenance bypass and concurrent lease creation, with separate builders and regression proof.
 3. A ✍️ author fixes check 08's second `portal(url)` fetch: `headers: { connection: "close" }` (Traps, below). Its
    other gap, proving the slow revision in test before promoting, is already fixed (D3 #92).
 4. L2.11 Gate 2: add a CI job `e2e-layer2` beside `e2e-layer1`, run `nx run e2e:layer2` green locally with no other
