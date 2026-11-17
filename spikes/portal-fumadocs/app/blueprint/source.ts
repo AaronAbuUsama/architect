@@ -22,6 +22,7 @@ const files = [
     data: { title: p.title, description: p.description, page: p.page, structuredData: { headings: [], contents: searchText(p.page).map((content) => ({ heading: undefined, content })) } } satisfies PageData,
   })),
   { type: "meta" as const, path: "meta.json", data: { pages: ["index", "proof", "---Things---", ...things.map((t) => `things/${t.name}`), "---Reference---", "...reference", "---Environments---", "...environments", "---Stories---", "journeys"] } },
+  { type: "meta" as const, path: "proof/meta.json", data: { title: "Proof", pages: ["attention"] } },
   { type: "meta" as const, path: "reference/meta.json", data: { title: "Reference", pages: ["machines", "events", "errors", "values", "roles"] } },
   { type: "meta" as const, path: "environments/meta.json", data: { title: "Environments", pages: ["test", "staging", "production", "local"] } },
   ...things.map((t) => ({ type: "meta" as const, path: `things/${t.name}/meta.json`, data: {

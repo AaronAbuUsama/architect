@@ -6,13 +6,14 @@ import type { ReactNode } from "react";
 import { CANDIDATE } from "../blueprint/evidence.ts";
 import { BP, M, opsOf, things, typeText, type Fields } from "../blueprint/model.ts";
 import type { PageKind } from "../blueprint/paths.ts";
-import { MachineDiagram } from "./machine.tsx";
+import { MachineDiagram, MoveStrip } from "./machine.tsx";
 import { OperationProof, ProofMatrix } from "./proof.tsx";
-import { ProofOverview, StatTiles } from "./proof-overview.tsx";
+import { StatTiles } from "./proof-overview.tsx";
+import { AttentionList } from "./attention.tsx";
 import { AccessMatrix, ErrorsTable, EventsTable, MovesTable, OperationsTable, ValuesTable } from "./reference.tsx";
 import { A, Code, Illustration, Sub, to, TypeCell } from "./status.tsx";
 
-export type Section = { id: string; title: string; body: ReactNode };
+export type Section = { id: string; title: string; body: ReactNode; fold?: boolean };
 const fieldsType = (fields: Fields) => Object.fromEntries(Object.entries(fields).map(([n, f]) => [n, { type: <TypeCell f={f} />, required: !f.optional, typeDescription: typeText(f.value) }]));
 const Fields = ({ fields, empty }: { fields: Fields; empty: string }) => (Object.keys(fields).length ? <TypeTable type={fieldsType(fields)} /> : <p className="text-fd-muted-foreground">{empty}</p>);
 const evidenceNote = <Callout title="Proof here is an illustration">The states are made up to show each one; names and hashes are acme's. Per-eval results (the nine squares) do not reach the portal yet: today the logbook keeps one verdict per operation.</Callout>;
@@ -20,21 +21,19 @@ const evidenceNote = <Callout title="Proof here is an illustration">The states a
 export function sections(p: PageKind): Section[] {
   switch (p.kind) {
     case "home": return [
-      { id: "things", title: "Things", body: <ThingsTable /> },
       { id: "proof", title: "Proof", body: <>{evidenceNote}<StatTiles /><ProofMatrix /></> },
     ];
     case "proof": return [
-      { id: "overview", title: "At a glance", body: <>{evidenceNote}<ProofOverview /></> },
-      { id: "matrix", title: "Every operation", body: <><p>Each environment shows the verdict and its nine evals as squares; hover a square for the eval and its note.</p><ProofMatrix /></> },
+      { id: "matrix", title: "Every operation", body: <>{evidenceNote}<StatTiles /><p>Each environment shows the verdict and its nine evals as squares; hover a square for the eval and its note.</p><ProofMatrix /></> },
       { id: "candidate", title: "What it is judged against", body: <p>The candidate is <Code>{CANDIDATE}</Code>, the newest revision proved in test. A verdict from an older revision still counts when the contract it rests on has not changed; it says so.</p> },
     ];
     case "thing": { const t = M.things[p.thing]!; return [
-      { id: "fields", title: "Fields", body: <Fields fields={t.fields} empty="No fields." /> },
-      ...(t.machine ? [{ id: "machine", title: "Machine", body: <><MachineDiagram thing={t.name} /><MovesTable thing={t.name} /></> }] : []),
       { id: "operations", title: "Operations", body: <OperationsTable thing={t.name} /> },
-      ...(Object.keys(t.events ?? {}).length ? [{ id: "events", title: "Events", body: <EventsTable thing={t.name} /> }] : []),
-      { id: "errors", title: "Errors", body: <ErrorsTable thing={t.name} /> },
-      { id: "access", title: "Who may call", body: <AccessMatrix thing={t.name} /> },
+      { id: "fields", title: "Fields", body: <Fields fields={t.fields} empty="No fields." /> },
+      ...(t.machine ? [{ id: "machine", title: "Machine", body: <MachineDiagram thing={t.name} /> }] : []),
+      ...(Object.keys(t.events ?? {}).length ? [{ id: "events", title: "Events", body: <EventsTable thing={t.name} />, fold: true }] : []),
+      { id: "errors", title: "Errors", body: <ErrorsTable thing={t.name} />, fold: true },
+      { id: "access", title: "Who may call", body: <AccessMatrix thing={t.name} />, fold: true },
     ]; }
     case "operation": { const o = M.operations[p.operation]!; const cli = /```sh\n(.*)\n```/.exec(BP.docs[`${o.thing}/${o.verb}.md`] ?? "")?.[1] ?? "";
       const sdkThing = o.thing.replace(/-(\w)/g, (_, c: string) => c.toUpperCase()); const body = JSON.stringify(Object.fromEntries(Object.keys(o.payload).map((k) => [k, `<${k}>`])), null, 2);
@@ -48,12 +47,13 @@ export function sections(p: PageKind): Section[] {
         { id: "answer", title: "Answer", body: <Fields fields={o.answer} empty="No answer." /> },
         ...(o.move ? [{ id: "move", title: "Move", body: <><p>{o.move.from.length ? <>From <b>{o.move.from.join(" or ")}</b></> : "Creates it"}, to <b>{o.move.to.join(" or ")}</b>, emitting <A href={to.event(o.thing, o.move.emits)}>{o.move.emits}</A>.</p><MachineDiagram thing={o.thing} hot={o.move.key} /></> }] : []),
         { id: "refusals", title: "Refusals", body: <ErrorsTable op={o.name} /> },
-        { id: "access", title: "Who may call", body: <AccessMatrix thing={o.thing} /> },
+        { id: "access", title: "Who may call", body: <AccessMatrix thing={o.thing} />, fold: true },
       ]; }
     case "machine": return [{ id: "machine", title: "Machine", body: <><MachineDiagram thing={p.thing} /><MovesTable thing={p.thing} /></> }];
     case "event": { const fields = M.things[p.thing]!.events![p.event]!; const by = opsOf(p.thing).filter((o) => o.move?.emits === p.event); return [
+      { id: "emitted", title: "When it happens", body: by.map((o) => <MoveStrip key={o.name} op={o.name} />) },
       { id: "fields", title: "Carries", body: <Fields fields={fields} empty="Nothing." /> },
-      { id: "emitted", title: "Emitted by", body: by.map((o) => <div key={o.name}><p><A href={to.op(o.name)}>{o.name}</A>, on the move <b>{o.move!.key}</b>.</p><MachineDiagram thing={p.thing} hot={o.move!.key} /></div>) },
+      { id: "machine", title: `In the ${p.thing} machine`, body: <MachineDiagram thing={p.thing} hot={by[0]?.move?.key} />, fold: true },
     ]; }
     case "reference": return [{ id: p.table, title: "", body: { machines: <><MovesTable />{things.filter((t) => t.machine).map((t) => <div key={t.name}><h3 id={t.name}>{t.name}</h3><MachineDiagram thing={t.name} /></div>)}</>,
       events: <EventsTable />, errors: <ErrorsTable />, values: <ValuesTable />, roles: <AccessMatrix /> }[p.table] }];
@@ -61,16 +61,11 @@ export function sections(p: PageKind): Section[] {
       { id: "about", title: "About", body: <EnvironmentAbout name={e.name} /> },
       ...(proved ? [{ id: "proof", title: "Proof", body: <>{evidenceNote}<ProofMatrix label={`Operations in ${e.name}`} /></> }] : []),
     ]; }
+    case "attention": return [{ id: "items", title: "", body: <>{evidenceNote}<AttentionList /></> }];
     case "journeys": return [{ id: "journeys", title: "", body: <Callout type="info" title="Not available yet">{String(BP.extensions.journeys?.reason)}. These pages appear when the compiler projects journeys and worlds (F2.2); nothing here is invented.</Callout> }];
   }
 }
 
-const ThingsTable = () => (
-  <div className="not-prose grid gap-px overflow-hidden rounded-xl border border-fd-border bg-fd-border">
-    {things.map((t) => <div key={t.name} className="grid grid-cols-[10rem_1fr_auto] items-baseline gap-4 bg-fd-card px-4 py-3">
-      <A href={to.thing(t.name)}>{t.name}</A><span className="text-sm text-fd-muted-foreground">{t.description}</span><Sub>{t.code} · {opsOf(t.name).length} operations</Sub></div>)}
-  </div>
-);
 const EnvironmentAbout = ({ name }: { name: string }) => { const e = M.environments[name]!; return (
   <div className="not-prose grid grid-cols-[10rem_1fr] gap-x-6 gap-y-2 text-sm">
     <span className="text-fd-muted-foreground">Runs</span><span>{e.runs}</span>

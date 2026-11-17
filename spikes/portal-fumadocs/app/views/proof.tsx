@@ -3,11 +3,13 @@
 import { Button, Tooltip } from "@heroui/react";
 import { Link } from "react-router";
 import { CANDIDATE, ENVS, EVALS, evalOf, p95Of, proofOf, type ProofState } from "../blueprint/evidence.ts";
-import { M, operations, type Operation } from "../blueprint/model.ts";
+import { operations, type Operation } from "../blueprint/model.ts";
 import { DataTable } from "./data-table.tsx";
-import { worstOf } from "./proof-overview.tsx";
+import { attention } from "./attention.tsx";
+import { SpeedBar, worstOf } from "./proof-overview.tsx";
 import { A, Code, EvalStrip, Live, StateChip, Sub, to } from "./status.tsx";
 
+const items = (op: string) => attention().filter((i) => i.op === op);
 const RANK: Record<ProofState, number> = { failed: 0, stale: 1, unproven: 2, unavailable: 3, "recorded-pass": 4 };
 /** Who may call, in a few words: the role names, or the audience. */
 const whoShort = (o: Operation) => o.allowed.map((a) => a.kind === "anyone" ? "anyone" : a.kind === "signed-in" ? "signed in" : a.path ? `${a.role!.split(".")[1]} of ${a.path.split(".").at(-1)}` : a.role!.split(".")[1]).join(", ");
@@ -28,10 +30,10 @@ export function ProofMatrix({ ops = operations, label = "Operations" }: { ops?: 
         { key: "who", label: "Who may call", sort: (o) => whoShort(o), cell: (o) => <span className="text-sm">{whoShort(o)}</span> },
         ...ENVS.map((e) => ({ key: e, label: e[0]!.toUpperCase() + e.slice(1), sort: (o: Operation) => RANK[proofOf(o.name, e).state], cell: (o: Operation) => (
           <div className="flex flex-col items-start gap-1"><StateChip p={proofOf(o.name, e)} /><EvalStrip op={o.name} env={e} /></div>) })),
-        { key: "status", label: "Needs attention", sort: (o) => RANK[worstOf(o.name).state] * 10 + (EVALS.some(([k]) => ENVS.some((e) => evalOf(o.name, e, k).result === "review")) ? 0 : 5), cell: (o) => {
-          const w = worstOf(o.name); const review = ENVS.find((e) => EVALS.some(([k]) => evalOf(o.name, e, k).result === "review"));
-          const env = w.state !== "recorded-pass" ? w.environment : review;
-          return env ? <Live><span className="text-sm"><b className="font-medium">{env}</b> · {why(o.name, env)}</span></Live> : <Sub>nothing</Sub>; } },
+        { key: "speed", label: "Speed", sort: (o) => Math.max(0, ...ENVS.map((e) => p95Of(o.name, e) ?? 0)) / (o.budget?.p95Ms ?? 1), cell: (o) => <SpeedBar op={o.name} /> },
+        { key: "status", label: "Needs attention", sort: (o) => -items(o.name).length * 10 + RANK[worstOf(o.name).state], cell: (o) => { const its = items(o.name);
+          return its.length ? <Live><Link to={`/proof/attention#${its[0]!.id}`} className="inline-flex items-center gap-1.5 rounded-full border border-fd-border px-3 py-1 text-sm hover:bg-fd-accent">
+            <span className={`size-2 rounded-full ${its.some((i) => i.kind === "failed") ? "bg-red-500" : "bg-amber-500"}`} />{its.length === 1 ? its[0]!.kind : `${its.length} items`}<span aria-hidden>→</span></Link></Live> : <Sub>nothing</Sub>; } },
         { key: "kind", label: "Kind", sort: (o) => o.kind, hidden: true, cell: (o) => <span className="text-sm">{o.kind}</span> },
         { key: "actions", label: "", align: "end", cell: (o) => (
           <div className="flex justify-end gap-1">
@@ -44,16 +46,15 @@ export function ProofMatrix({ ops = operations, label = "Operations" }: { ops?: 
 
 /** An operation's proof: one panel per environment with the verdict, the nine evals, its speed, and where the verdict came from. */
 export function OperationProof({ op }: { op: string }) {
-  const budget = M.operations[op]!.budget?.p95Ms;
   return (
     <div className="not-prose my-4 grid gap-3 md:grid-cols-3">
-      {ENVS.map((e) => { const p = proofOf(op, e), ms = p95Of(op, e), w = p.state === "recorded-pass" && !EVALS.some(([k]) => evalOf(op, e, k).result === "review") ? null : why(op, e); return (
+      {ENVS.map((e) => { const p = proofOf(op, e), w = p.state === "recorded-pass" && !EVALS.some(([k]) => evalOf(op, e, k).result === "review") ? null : why(op, e); return (
         <section key={e} className="flex flex-col gap-3 rounded-2xl border border-fd-border bg-fd-card p-4">
           <div className="flex items-center justify-between"><A href={to.env(e)}>{e}</A><StateChip p={p} /></div>
           <div><Sub>Nine evals</Sub><div className="mt-1"><EvalStrip op={op} env={e} /></div></div>
-          {w && <Live><p className="m-0 text-sm">{w}</p></Live>}
+          {w && <Live><Link to={`/proof/attention#${attention().find((i) => i.op === op && (i.env === e || i.kind === "review"))?.id ?? ""}`} className="text-sm hover:underline">{w} →</Link></Live>}
           <div className="grid grid-cols-2 gap-2 border-t border-fd-border pt-3 text-sm">
-            <div><Sub>p95 / budget</Sub><Live><span className={`tabular-nums ${ms && budget && ms > budget ? "font-semibold text-amber-500" : ""}`}>{ms ?? "–"}</span></Live><span className="text-fd-muted-foreground"> / {budget ?? "–"} ms</span></div>
+            <div><Sub>Speed (p95)</Sub><div className="mt-1"><SpeedBar op={op} env={e} wide /></div></div>
             <div><Sub>From revision</Sub><Live>{p.evidence ? <Code>{p.evidence.revision}</Code> : "none"}</Live></div>
           </div>
           <Live><Sub>{p.changed.length ? p.changed.map((c) => `${c.key}: ${c.was.slice(0, 8)} → ${c.now?.slice(0, 8) ?? "gone"}`).join("; ")

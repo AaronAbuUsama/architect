@@ -1,4 +1,5 @@
 // Every page: Fumadocs' docs layout and page frame around the blueprint's content for this URL.
+import { Accordion, Accordions } from "fumadocs-ui/components/accordion";
 import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import { DocsBody, DocsDescription, DocsPage, DocsTitle } from "fumadocs-ui/layouts/docs/page";
 import { useEffect, useState } from "react";
@@ -21,10 +22,12 @@ export default function Page() {
   return (
     <DocsLayout tree={source.pageTree} nav={{ title: <span className="font-semibold">{BP.project} <span className="font-normal text-fd-muted-foreground">docs</span></span> }}
       sidebar={{ footer: <ViewToggle /> }}>
-      <DocsPage toc={toc} full={["home", "proof", "reference", "environment"].includes(page.data.page.kind)}>
+      <DocsPage toc={toc} full={["home", "proof", "attention", "reference", "environment"].includes(page.data.page.kind)}>
         <DocsTitle>{page.data.title}</DocsTitle>
         <DocsDescription>{page.data.description}</DocsDescription>
-        <DocsBody>{body.map((s) => <section key={s.id}>{s.title && <h2 id={s.id}>{s.title}</h2>}{s.body}</section>)}</DocsBody>
+        <DocsBody>{body.map((s) => s.fold
+          ? <Accordions key={s.id} type="single" collapsible className="my-6"><Accordion id={s.id} title={s.title}>{s.body}</Accordion></Accordions>
+          : <section key={s.id}>{s.title && <h2 id={s.id}>{s.title}</h2>}{s.body}</section>)}</DocsBody>
       </DocsPage>
     </DocsLayout>
   );

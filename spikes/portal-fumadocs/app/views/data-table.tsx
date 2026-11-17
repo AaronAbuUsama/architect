@@ -10,9 +10,13 @@ export type DataTableProps<R> = {
   label: string; rows: R[]; rowKey: (r: R) => string; columns: Column<R>[]; filters?: Filter<R>[]; search?: (r: R) => string; sort?: SortDescriptor; footer?: ReactNode;
   /** Rows shown under a row while its key is in `expanded`: same columns, a quieter look. */
   subRows?: (r: R) => SubRow[]; expanded?: Set<string>; toolbar?: ReactNode;
+  /** Filter, Columns, Sort and Search. Default: only when the table is long enough to need them. */
+  tools?: boolean;
 };
+const TOOLS_FROM = 9;
 
-export function DataTable<R>({ label, rows, rowKey, columns, filters = [], search, sort, footer, subRows, expanded, toolbar }: DataTableProps<R>) {
+export function DataTable<R>({ label, rows, rowKey, columns, filters = [], search, sort, footer, subRows, expanded, toolbar, tools }: DataTableProps<R>) {
+  const withTools = tools ?? rows.length >= TOOLS_FROM;
   const [q, setQ] = useState("");
   const [picked, setPicked] = useState<Record<string, Set<string>>>({});
   const [shown, setShown] = useState<Selection>(new Set(columns.filter((c) => !c.hidden).map((c) => c.key)));
@@ -33,7 +37,7 @@ export function DataTable<R>({ label, rows, rowKey, columns, filters = [], searc
       <div className="flex flex-wrap items-center gap-2">
         <span className="font-semibold">{label}</span>
         <span className="rounded-full border border-fd-border px-2 text-xs text-fd-muted-foreground">{out.length}</span>
-        {filters.length > 0 && (
+        {withTools && filters.length > 0 && (
           <Dropdown>
             <Button size="sm" variant={active ? "primary" : "secondary"}>Filter{active ? ` · ${active}` : ""}</Button>
             <Dropdown.Popover>
@@ -55,15 +59,15 @@ export function DataTable<R>({ label, rows, rowKey, columns, filters = [], searc
             </Dropdown.Popover>
           </Dropdown>
         )}
-        <Dropdown>
+        {withTools && <Dropdown>
           <Button size="sm" variant="secondary">Columns</Button>
           <Dropdown.Popover>
             <Dropdown.Menu aria-label="Columns" selectionMode="multiple" selectedKeys={shown} onSelectionChange={(s) => s !== "all" && s.size && setShown(s)}>
               {columns.map((c) => <Dropdown.Item key={c.key} id={c.key} textValue={c.label}><Dropdown.ItemIndicator />{c.label}</Dropdown.Item>)}
             </Dropdown.Menu>
           </Dropdown.Popover>
-        </Dropdown>
-        {columns.some((c) => c.sort) && (
+        </Dropdown>}
+        {withTools && columns.some((c) => c.sort) && (
           <Dropdown>
             <Button size="sm" variant="secondary">Sort{sortBy ? `: ${columns.find((c) => c.key === sortBy.column)?.label} ${sortBy.direction === "ascending" ? "↑" : "↓"}` : ""}</Button>
             <Dropdown.Popover>
@@ -75,7 +79,7 @@ export function DataTable<R>({ label, rows, rowKey, columns, filters = [], searc
           </Dropdown>
         )}
         {toolbar}
-        {search && (
+        {withTools && search && (
           <SearchField aria-label={`Search ${label}`} value={q} onChange={setQ} className="ml-auto w-56">
             <SearchField.Group><SearchField.SearchIcon /><SearchField.Input placeholder="Search…" /><SearchField.ClearButton /></SearchField.Group>
           </SearchField>

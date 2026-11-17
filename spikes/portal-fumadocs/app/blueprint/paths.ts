@@ -2,14 +2,15 @@
 import { M } from "./model.ts";
 
 export type PageKind =
-  | { kind: "home" } | { kind: "proof" } | { kind: "thing"; thing: string } | { kind: "operation"; operation: string }
+  | { kind: "home" } | { kind: "proof" } | { kind: "attention" } | { kind: "thing"; thing: string } | { kind: "operation"; operation: string }
   | { kind: "event"; thing: string; event: string } | { kind: "machine"; thing: string } | { kind: "environment"; environment: string }
   | { kind: "reference"; table: "machines" | "events" | "errors" | "values" | "roles" } | { kind: "journeys" };
 
 /** Virtual pages: `path` places a page in the sidebar tree, `slugs` give its URL (F2 §5's addresses). */
 export const pages = (): Array<{ path: string; slugs: string[]; title: string; description: string; page: PageKind }> => [
   { path: "index.page", slugs: [], title: "Overview", description: `Everything ${"acme"} declares, and what is proved where.`, page: { kind: "home" } },
-  { path: "proof.page", slugs: ["proof"], title: "Proof", description: "Every operation in every environment, and the nine evals behind each verdict.", page: { kind: "proof" } },
+  { path: "proof/index.page", slugs: ["proof"], title: "Proof", description: "Every operation in every environment, and the nine evals behind each verdict.", page: { kind: "proof" } },
+  { path: "proof/attention.page", slugs: ["proof", "attention"], title: "Needs attention", description: "Everything not proved or over budget, and how to clear it.", page: { kind: "attention" } },
   ...Object.values(M.things).flatMap((t) => [
     { path: `things/${t.name}/index.page`, slugs: ["things", t.name], title: t.name, description: t.description, page: { kind: "thing" as const, thing: t.name } },
     ...Object.values(M.operations).filter((o) => o.thing === t.name).map((o) => ({
