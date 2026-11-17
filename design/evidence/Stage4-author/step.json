@@ -20,6 +20,12 @@
     "13-final-typecheck": "Final authored source typechecks, including the ordinary-operation consumer closure check and tightened response/log oracles.",
     "14-final-lint": "Final authored tests and fixture data lint cleanly.",
     "15-final-cleanup": "All reserved author ports, Architect containers and worktree runtime processes are clear.",
-    "16-consumer-closure-readiness-red": "Ordinary operation uses -> kit selection -> selected pure descriptor root is now included in the closure/type oracle. The current unsupported kit command blocks execution before that oracle."
+    "16-consumer-closure-readiness-red": "Ordinary operation uses -> kit selection -> selected pure descriptor root is now included in the closure/type oracle. The current unsupported kit command blocks execution before that oracle.",
+    "17-inferred-type-oracle-sanity": "Compiler-only oracle sanity: any/never/unknown fail-channel and reply erasure are rejected, readonly/tag refinement accepted; no fake or implemented Pricing service is claimed.",
+    "18-inferred-pricing-readiness-red": "The actual focused Pricing case remains RED at unsupported dependency CLI; generated inference checks remain unreached. Seven cases are merely unselected by the filter.",
+    "19-type-oracle-static": "Authored check source still typechecks after the bounded inference-oracle correction.",
+    "20-type-oracle-lint": "The corrected runtime proof program lints cleanly.",
+    "21-type-oracle-cleanup": "No reserved author listener, Architect container or worktree runtime process remains.",
+    "22-inferred-oracle-sourcehash": "The corrected inferred-channel proof source identity."
   }
 }

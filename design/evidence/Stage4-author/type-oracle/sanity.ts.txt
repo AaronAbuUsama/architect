@@ -1,0 +1,21 @@
+// Compiler-only sanity control, not an implementation or stand-in for generated Pricing.
+import type { Types } from "effect";
+import type { AllowanceNotFound as Selected } from "../../examples/acme/blueprint/things/allowance/errors.ts";
+type Concrete<T> = 0 extends (1 & T) ? false : [T] extends [never] ? false : true;
+type Observable<T, Expected> = { -readonly [K in keyof T]: K extends "_tag" ? K extends keyof Expected ? Expected[K] : T[K] : T[K] };
+type ChannelMatches<T, Expected> = Concrete<T> extends true ? Types.Equals<Observable<T, Expected>, Observable<Expected, Expected>> : false;
+
+type Reply = { readonly value: string };
+type ParserResult = ReturnType<typeof JSON.parse>;
+const sanity: {
+  anyReply: ChannelMatches<ParserResult, Reply>;
+  neverReply: ChannelMatches<never, Reply>;
+  unknownReply: ChannelMatches<unknown, Reply>;
+  exactReply: ChannelMatches<{ value: string }, Reply>;
+  anyFailure: ChannelMatches<ParserResult, Selected>;
+  neverFailure: ChannelMatches<never, Selected>;
+  unknownFailure: ChannelMatches<unknown, Selected>;
+  readonlyTagFailure: ChannelMatches<Readonly<Selected> & { readonly _tag: "Selected" }, Selected>;
+} = { anyReply: false, neverReply: false, unknownReply: false, exactReply: true,
+      anyFailure: false, neverFailure: false, unknownFailure: false, readonlyTagFailure: true };
+void sanity;

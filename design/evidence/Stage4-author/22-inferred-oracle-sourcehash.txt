@@ -1,0 +1,4 @@
+$ git hash-object e2e/fixtures/layer3/dependency-cases/promise-types.ts
+# commit 3e2e7df · 2026-11-17T11:18:53Z · exit 0 (expected 0) · 0.0s
+
+eef997ce44b037b657eefd56bfb2f7557edc76f7

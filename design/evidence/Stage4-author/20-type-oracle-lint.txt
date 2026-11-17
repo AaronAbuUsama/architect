@@ -1,0 +1,4 @@
+$ pnpm exec oxlint e2e/fixtures/layer3/dependency-cases/promise-types.ts
+# commit 3e2e7df · 2026-11-17T11:17:44Z · exit 0 (expected 0) · 1.0s
+
+

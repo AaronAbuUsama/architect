@@ -1,0 +1,4 @@
+$ pnpm exec tsc -p .architect/stage4-type-oracle/tsconfig.json
+# commit 3e2e7df · 2026-11-17T11:17:36Z · exit 0 (expected 0) · 0.6s
+
+

@@ -1,0 +1,61 @@
+$ pnpm exec vitest run --root e2e --config ./e2e/vitest.layer3.config.ts layer3/04-dependency-runtime.test.ts -t Promise success reply
+# commit 3e2e7df · 2026-11-17T11:17:42Z · exit 1 (expected 1) · 5.8s
+
+
+ RUN  v4.1.12 ./e2e
+
+ ❯ layer3/04-dependency-runtime.test.ts (8 tests | 1 failed | 7 skipped) 4144ms
+     × Promise success reply and mapped rejection/throw stay intact; interruption cannot release counted work before actual settlement 4143ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  layer3/04-dependency-runtime.test.ts > L3.01: real dependency call boundaries > Promise success reply and mapped rejection/throw stay intact; interruption cannot release counted work before actual settlement
+AssertionError: USAGE
+  architect add <subcommand> [flags]
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+SUBCOMMANDS
+  thing        
+  operation    
+  read         
+  journey      
+
+ERRORS
+  Unknown subcommand "dependency" for "architect add"
+  Unrecognized flag: --export in command architect add
+  Unrecognized flag: --as in command architect add
+  Unrecognized flag: --step in command architect add
+  Unrecognized flag: --error in command architect add
+  Unrecognized flag: --root in command architect add
+: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ succeeds layer3/support.ts:24:37
+     22| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     23|   const result = run(root, ...args);
+     24|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     25|   return result;
+     26| };
+ ❯ addDependency layer3/dependencies.ts:20:3
+ ❯ ready layer3/04-dependency-runtime.test.ts:52:41
+ ❯ layer3/04-dependency-runtime.test.ts:121:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 skipped (8)
+   Start at  11:17:37
+   Duration  5.12s (transform 349ms, setup 0ms, import 861ms, tests 4.14s, environment 0ms)
