@@ -82,6 +82,10 @@ Only a layer's own primitives are decided before it starts; the rest wait in `pl
 
 ## Layer 3: reach out
 
+- [D4](decisions/D4.md) decides the kit descriptor, separated declaration/Worker/Node entries, canonical provenance,
+  reference-based dependency graph and source integrity, plus one-blank Promise/Effect dependency wrappers.
+  Its selected-kit import amendment is reflected in AGENTS and the package rules. Implementation remains L3.01.
+
 - A standard library, `@architect/std`, of kits: each wraps packages that already exist behind a primitive Architect declares.
   Kits arrive finished, with no blanks; `architect add kit` writes one file of the project's choices; generate folds the
   kit's declarations into the model. A project never imports the wrapped package directly (lint).

@@ -176,7 +176,7 @@ on every move the keeper fires. The keeper is a caller, so its calls are traced 
 <p>viem, any library on npm, any outside API. You don't govern it, so it owns its shape. Its declaration adds what it lacks: the errors each
 call can fail with, and a span on every call. Its types already exist, so nothing is retyped. Architect generates the service's shape and
 its spans, and scaffolds one blank: how its failures map to your errors, because only you know what each one means.</p>
-<p>The standard library has done this for viem already: see ${f("architect/packages/std/src/chain/viem.ts", "its declaration")}, so a project uses the chain kit instead. A dependency with a machine-readable contract, such as an OpenAPI file or an ABI, gets its client generated outright.</p>
+<p>The chain kit owns this boundary for viem: see ${f("architect/packages/std/src/modules/chain/internal/viem.ts", "its declaration")}, so a project uses the chain kit instead. A dependency with a machine-readable contract, such as an OpenAPI file or an ABI, gets its client generated outright.</p>
 <h2>An edge is where something calls you</h2>
 <p>A framework that calls plain functions: a webhook, or a worker's entry. The edge is generated. It decodes its
 input with the blueprint's own schemas, continues the trace, and runs an Effect you write. Being the same language, an edge is fully type-safe.</p>
@@ -292,7 +292,7 @@ story begins. Both are part of the blueprint, and both are written by someone ot
 { id: "chain-kit", group: "Primitives", t: "The chain kit", h: () => `
 <h1>The chain kit</h1>
 <p class="lede">viem is the only real dependency for reaching a chain, and it enters through this one kit. Everything else is adapted into the kit, or built small, so a project never wraps a chain library itself.</p>
-<p>See ${f("acme/blueprint/kits/chain.ts", "how a project uses it")}, and ${f("architect/packages/std/src/chain/viem.ts", "viem's declaration")}.</p>
+<p>See ${f("acme/blueprint/kits/chain.ts", "how a project uses it")}, and ${f("architect/packages/std/src/modules/chain/internal/viem.ts", "viem's declaration")}.</p>
 <h2>Adapted, not depended on</h2>
 <p>From <code>@prb/effect-evm</code>, which is MIT-licensed and built on Effect 4, the kit adapts:</p>
 <ul>

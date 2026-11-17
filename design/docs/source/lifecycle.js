@@ -277,45 +277,44 @@ state  active` } ],
   allowance.spend.confirm  (wait)       1.4 s` } ],
   checked: ["Steps: a span for every declared step whose path ran","Waits: each finished within its declared time","Explainability: the share of the call's time inside declared steps","Performance: p50 and p95 against the budget, waits excluded where declared"] },
 
-{ id: "dependency", name: "Dependency", file: "dependencies/<package>.ts", cmd: "architect add dependency <package>",
-  rule: "A library you call and don't govern. Its types come from the library; the declaration adds what it lacks: the errors each call can fail with, in an exit-code band, and the kind of step each call is. Architect generates the service and a span on every call; the one hand-written part is how the library's failures map to the declared errors. Common ones are declared once by the standard library: viem comes with the chain kit, and projects never wrap it themselves.",
-  scaffold: { p: "dependencies/<package>.ts", c:
-`export default Blueprint.dependency({
-  package: Blueprint.todo("the package"),
-  version: Blueprint.todo("its version"),
-  calls: Blueprint.todo("each call you use: the errors it can fail with, and its kind of step"),
-  errors: Blueprint.todo("an exit-code band"),
-})` },
-  filled: { p: "architect/packages/std/src/chain/viem.ts", c:
-`export default Blueprint.dependency({
-  package: "viem",
-  version: "2.21.0",
-  calls: {
-    write: { errors: ["ChainUnavailable", "ChainRejected"], step: "chain" },
-    waitForReceipt: { errors: ["ChainUnavailable", "ChainTimeout"], step: "wait" },
-    read: { errors: ["ChainUnavailable"], step: "chain" },
-  },
-  errors: { exit: 60 },                        // ChainUnavailable 60, ChainRejected 61, ChainTimeout 62
-})
+{ id: "dependency", name: "Dependency", file: "blueprint/dependencies/<alias>.ts", cmd: "architect add dependency <package> --export <call> --as <alias> --step <kind> --error <file>#<class>",
+  rule: "A library you call and don't govern. Its callable owns argument and answer types. You select an installed exact package, export, step kind and existing error classes; Architect scaffolds exactly one blank, the failure mapping. Promise mode is the default; explicit Effect mode preserves typed failures, defects and interruption. The generated service adds spans and counted work. D4 is decided; L3.01 implementation and authored runtime checks are still required.",
+  scaffold: { p: "blueprint/dependencies/pricing.ts", c:
+`// Scaffolded from @fixture/remote. Yours from now on.
+import { Blueprint } from "@architect/blueprint"
+import { quote as call } from "@fixture/remote"
+import { PriceUnavailable } from "../things/allowance/errors.ts"
 
-// The one hand-written part: what each of viem's failures means.
-export const errorOf = (e: unknown) =>
-  e instanceof TimeoutError ? ChainTimeout() :
-  e instanceof BaseError && e.walk((x) => x instanceof ContractFunctionRevertedError) ? ChainRejected({ reason: e.shortMessage }) :
-  ChainUnavailable({ reason: String(e) })` },
+export const quote = Blueprint.dependency({
+  package: "@fixture/remote",
+  version: "1.0.0",                  // The actual resolved exact pin.
+  mode: "promise",
+  call,
+  errors: [PriceUnavailable],
+  step: "network",
+  failure: Blueprint.todo("map the dependency failure to PriceUnavailable"),
+})` },
+  filled: { p: "blueprint/dependencies/pricing.ts", c:
+`// The only blank becomes a typed mapping to a selected declared error.
+failure: (_failure) => new PriceUnavailable({ reason: "pricing unavailable" })
+
+// A consuming operation declares the dependency by reference.
+uses: [quote]
+
+// Promise mode defers interruption until the returned Promise settles.
+// It does not claim to cancel arbitrary SDK work. Known cancellable SDKs,
+// such as the chain adapter, expose an explicit Effect boundary instead.` },
   generated: [
-    { p: "@architect/std/chain: the Chain service", c:
-`// Generated from the dependency. Do not edit.
-export class Chain extends Effect.Service<Chain>()("std/Chain", { /* write, waitForReceipt, read: each an Effect.fn span; relay; decodeErrors */ }) {}
-export class ChainUnavailable extends Schema.TaggedError<ChainUnavailable>()("ChainUnavailable", { reason: Schema.String }) { static readonly exit = 60 }` },
-    { p: "architect/packages/std/src/chain/relayer.ts", c:
-`// The relayer's key is a gas wallet. The contract never trusts it: every write checks a person's signature.
-export const relay = Effect.fn("chain.relay")(function* (contract, fn, args) {
-  const chain = yield* Chain
-  const hash = yield* chain.write({ account: chain.relayer, address: contract.address, abi: contract.abi, functionName: fn, args })
-  return { hash, receipt: chain.waitForReceipt(hash) }
+    { p: "acme/generated/dependencies/pricing.ts", c:
+`// Generated from blueprint/dependencies/pricing.ts. Do not edit.
+export class Pricing extends Context.Service<Pricing, {
+  readonly quote: Wrapped<typeof declared>
+}>()("dependency:pricing") {}
+
+export const layer = Layer.succeed(Pricing, {
+  quote: Dependencies.wrap(declared, { name: "dependency:pricing.quote" }),
 })` } ],
-  checked: ["Every call to the library is a span of its declared kind","Every failure arrives as one of its declared errors","Explainability counts the library's time inside the step that called it"] },
+  checked: ["Exactly one failure-mapping blank; argument and answer types come from the library", "Real Promise completion remains counted during cancellation; no manufactured quiet", "Effect typed failures map, while defects and interruption stay intact", "Dependency spans, graph edges and source integrity participate in impact and proof staleness"] },
 
 { id: "environment", name: "Environment", file: "environments/<name>.ts", cmd: "architect add environment staging",
   rule: "Somewhere the application runs. One file per environment in environments/: local, test, staging, production. Each says how it runs, who the principals are, which cloud it uses, and, as layers add them, its chain, its clock (stepped or real), the secrets it needs by name, and where every output is deployed or published. Evidence and verdicts are kept per environment.",

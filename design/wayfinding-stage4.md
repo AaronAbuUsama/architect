@@ -86,28 +86,44 @@ implement framework code.
   lifecycle proof. Current Busy and Timers implementations are process-local;
   durable alarms and cross-process quiescence must not be assumed to exist.
 
-## Focused spikes in progress
+## Focused spike results
 
 Each runs in its own existing worktree and touches only its spike directory.
 They are throwaway experiments, never imported by framework packages.
 
-1. `spikes/kit-package-exports/`: published-style package resolution, real Worker
-   execution, and negative checks for Node/runtime code crossing into API or
-   Worker bundles. Reserved ports 19100–19109.
-2. `spikes/world-anvil-container/`: a real native Durable Object Container owns,
-   reaches and destroys pinned Anvil, including failure and expiry. Mac and Linux
-   proof remain distinct. Reserved ports 19120–19129.
-3. `spikes/authenticated-siwe-link/`: real Better Auth/D1 linking preserves the
-   authenticated person/session, with one successful concurrent consume and
-   replay refusal after restart. Reserved ports 19140–19149.
+1. `spikes/kit-package-exports/`, `c9be9c83`: published-style resolution,
+   declaration emit/typechecking, real workerd execution, and negative checks for
+   Node/runtime crossing into API or Worker bundles pass. Capturing the Effect
+   service Context or retaining it with `provideMerge` is necessary. These are
+   representative generated shapes, not production compiler support.
+2. `spikes/world-anvil-container/`, `c28a5d25`: seventeen real Mac checks pass:
+   native DO ownership, Anvil RPC, fixed whole-second timestamps, explicit end,
+   isolation, alarm expiry, failed startup and resurrection refusal. Cleanup also
+   tracks Wrangler's unlabelled proxy sidecars by unique run identity; three
+   Anvil containers and three proxies were removed, nine existing containers
+   preserved. Node 24/Linux CI execution remains unproven.
+3. `spikes/authenticated-siwe-link/`, `b11d5777`: twenty-six real workerd/D1
+   checks pass, including exactly one concurrent successful consume, unchanged
+   person/session/email, and persistent replay refusal after runtime restart.
+   Keys remained in Node client memory. This proves EOA linking, not contract
+   wallets, a keystore, or unchanged starter journeys.
 
-No production implementation has started. Each experiment must capture its own
-commands and cleanup, suppress private-key output, and leave unrelated resources
-untouched. Full gate runs remain exclusive and are not run beside these spikes.
+All three have independent read-only source/retained-receipt passes. The reviewer
+did not rerun the experiments. Each commit is confined to its spike directory;
+each gets its own record pull request into main with fresh CI and serialized
+model-budget reservations. Generic earlier-gate CI does not execute the spike
+scripts and cannot prove their untested portability. The kit record is in PR23;
+the others follow after the paid-job reservation is released. The conductor keeps
+the full goal active while those records land.
 
-The conductor folds the receipts into D4, resolves code/design conflicts with
-evidence, and completes the unresolved spikes before authoring starts. D4 is not yet
-decided or marked complete. A separate author then writes Stage 4 journeys,
+All three experiments stopped their owned services and released ports
+19100–19109, 19120–19129 and 19140–19149. No production implementation has started.
+Future full gate runs remain exclusive.
+
+The conductor has folded the kit/source receipts into [D4](decisions/D4.md),
+including the selected-kit import amendment and raw Promise dependency behavior.
+The package rules and affected documentation now agree with that decision. A
+separate author next writes Stage 4 journeys,
 planted fixtures and checks, with their failure on empty handlers recorded before
 builders start. Builders never edit those checks or the generic eval runner.
 

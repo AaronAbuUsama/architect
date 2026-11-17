@@ -1,43 +1,40 @@
 /* ===== The standard library: framework files, shown as Architect itself ===== */
 const STD = [
-{ p: "architect/packages/std/src/wallets/signer.ts", k: "framework", n: "The signer primitive, and the kits that implement it. Each wraps a package that already exists; the contract checks every one of them the same way.", c:
-`import { Blueprint } from "@architect/blueprint"
-
-// The primitive: given typed data, return a signature and the address that made it.
+{ p: "architect/packages/std/src/modules/wallets/types.ts", k: "framework", n: "The signer primitive. Its declaration and Worker-safe interfaces are separate from the Node keystore entry. D4 defines the kit boundary; the wallet implementation is L3.02.", c:
+`// A person signs in the CLI/prove process; the server gets no person's key.
 export interface Signer {
   readonly address: Effect.Effect<Address>
+  readonly signMessage: (message: string) => Effect.Effect<Signature, SignerRefused | SignerUnavailable>
   readonly signTypedData: (data: TypedData) => Effect.Effect<Signature, SignerRefused | SignerUnavailable>
 }
 
-// The kits. Each one is a dependency wrapped once, here, for everyone.
-export const localKey = Blueprint.kit.signer({ package: "viem/accounts", from: "a key in an encrypted keystore" })
-export const browserWallet = Blueprint.kit.signer({ package: "viem", from: "any EIP-1193 wallet in the browser" })
-export const embedded = Blueprint.kit.signer({ package: "@openfort/openfort-js", from: "an embedded wallet held for the person" })   // later
-export const smartAccount = Blueprint.kit.signer({ from: "an ERC-4337 smart account (kits later: Safe, with our own core)" })   // later
-export const delegated = Blueprint.kit.signer({ package: "viem/experimental/eip7702", from: "a plain wallet delegated to smart-account code (EIP-7702)" })   // same address, batching and sponsored gas
-export const testKeys = Blueprint.kit.signer({ from: "a fresh key per test person, per world" })
+// Blueprint.kit(Wallets, choices) selects the finished package.
+// Its declaration entry imports neither its Worker nor its Node runtime.
+// The Node entry owns encrypted local keystores and fresh world test signers.
+// Delegation and transaction signing follow the wallet/chain service contract.
 
-// Linking: a person proves an address is theirs. Better Auth's Sign-In with Ethereum plugin.
-export const signInWithEthereum = Blueprint.kit.link({ package: "better-auth/plugins/siwe" })` },
-{ p: "architect/packages/std/src/chain/viem.ts", k: "framework", n: "A dependency, declared once by the standard library: viem, a TypeScript library that isn't Effect. Projects use the chain kit and never wrap viem themselves.", c:
+// Wallet linking preserves the existing Better Auth person and session.
+// Better Auth's SIWE sign-in plugin alone does not do that: it signs into
+// the wallet user's account. WalletLinks instead verifies an exact session-bound
+// SIWE challenge, consumes it atomically in D1, and stores only a public link.` },
+{ p: "architect/packages/std/src/modules/chain/internal/viem.ts", k: "framework", n: "The chain kit owns viem's explicit typed Effect boundary. A project uses that kit rather than importing viem. These are the D4/L3.04 adapter contracts, not a completed implementation.", c:
 `import { Blueprint } from "@architect/blueprint"
+import { writeEffect } from "./rpc.ts"
+import { ChainUnavailable, ChainRejected } from "../types.ts"
 
-export default Blueprint.dependency({
+export const write = Blueprint.dependency({
   package: "viem",
-  version: "2.21.0",
-  calls: {
-    write: { errors: ["ChainUnavailable", "ChainRejected"], step: "chain" },
-    waitForReceipt: { errors: ["ChainUnavailable", "ChainTimeout"], step: "wait" },
-    read: { errors: ["ChainUnavailable"], step: "chain" },
-  },
-  errors: { exit: 60 },                        // ChainUnavailable 60, ChainRejected 61, ChainTimeout 62
+  version: "2.57.15",               // Published 3 November; eligible on 17 November.
+  mode: "effect",
+  call: writeEffect,
+  errors: [ChainUnavailable, ChainRejected],
+  step: "chain",
+  failure: (failure) => failure,
 })
 
-// The one hand-written part: what each of viem's failures means.
-export const errorOf = (e: unknown) =>
-  e instanceof TimeoutError ? ChainTimeout() :
-  e instanceof BaseError && e.walk((x) => x instanceof ContractFunctionRevertedError) ? ChainRejected({ reason: e.shortMessage }) :
-  ChainUnavailable({ reason: String(e) })` },
+// The adapter owns actual cancellation, transport retries and bounded polling.
+// Every wait uses Timers. No autonomous viem watcher or hidden retry loop.
+// Keep substantial MIT adaptation notices from the pinned PRB reference.` },
 { p: "architect/packages/std/src/chain/relayer.ts", k: "framework", n: "The relayer: submits a signed payload and pays its gas. Without the person's signature it can do nothing.", c:
 `// The relayer's key is a gas wallet. The contract never trusts it: every write checks a person's signature.
 export const relay = Effect.fn("chain.relay")(function* (contract, fn, args) {

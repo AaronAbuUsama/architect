@@ -1858,44 +1858,41 @@ export default Blueprint.environment({
 
 /* ===== The standard library: framework files, shown as Architect itself ===== */
 const STD = [
-{ p: "architect/packages/std/src/wallets/signer.ts", k: "framework", n: "The signer primitive, and the kits that implement it. Each wraps a package that already exists; the contract checks every one of them the same way.", c:
-`import { Blueprint } from "@architect/blueprint"
-
-// The primitive: given typed data, return a signature and the address that made it.
+{ p: "architect/packages/std/src/modules/wallets/types.ts", k: "framework", n: "The signer primitive. Its declaration and Worker-safe interfaces are separate from the Node keystore entry. D4 defines the kit boundary; the wallet implementation is L3.02.", c:
+`// A person signs in the CLI/prove process; the server gets no person's key.
 export interface Signer {
   readonly address: Effect.Effect<Address>
+  readonly signMessage: (message: string) => Effect.Effect<Signature, SignerRefused | SignerUnavailable>
   readonly signTypedData: (data: TypedData) => Effect.Effect<Signature, SignerRefused | SignerUnavailable>
 }
 
-// The kits. Each one is a dependency wrapped once, here, for everyone.
-export const localKey = Blueprint.kit.signer({ package: "viem/accounts", from: "a key in an encrypted keystore" })
-export const browserWallet = Blueprint.kit.signer({ package: "viem", from: "any EIP-1193 wallet in the browser" })
-export const embedded = Blueprint.kit.signer({ package: "@openfort/openfort-js", from: "an embedded wallet held for the person" })   // later
-export const smartAccount = Blueprint.kit.signer({ from: "an ERC-4337 smart account (kits later: Safe, with our own core)" })   // later
-export const delegated = Blueprint.kit.signer({ package: "viem/experimental/eip7702", from: "a plain wallet delegated to smart-account code (EIP-7702)" })   // same address, batching and sponsored gas
-export const testKeys = Blueprint.kit.signer({ from: "a fresh key per test person, per world" })
+// Blueprint.kit(Wallets, choices) selects the finished package.
+// Its declaration entry imports neither its Worker nor its Node runtime.
+// The Node entry owns encrypted local keystores and fresh world test signers.
+// Delegation and transaction signing follow the wallet/chain service contract.
 
-// Linking: a person proves an address is theirs. Better Auth's Sign-In with Ethereum plugin.
-export const signInWithEthereum = Blueprint.kit.link({ package: "better-auth/plugins/siwe" })` },
-{ p: "architect/packages/std/src/chain/viem.ts", k: "framework", n: "A dependency, declared once by the standard library: viem, a TypeScript library that isn't Effect. Projects use the chain kit and never wrap viem themselves.", c:
+// Wallet linking preserves the existing Better Auth person and session.
+// Better Auth's SIWE sign-in plugin alone does not do that: it signs into
+// the wallet user's account. WalletLinks instead verifies an exact session-bound
+// SIWE challenge, consumes it atomically in D1, and stores only a public link.` },
+{ p: "architect/packages/std/src/modules/chain/internal/viem.ts", k: "framework", n: "The chain kit owns viem's explicit typed Effect boundary. A project uses that kit rather than importing viem. These are the D4/L3.04 adapter contracts, not a completed implementation.", c:
 `import { Blueprint } from "@architect/blueprint"
+import { writeEffect } from "./rpc.ts"
+import { ChainUnavailable, ChainRejected } from "../types.ts"
 
-export default Blueprint.dependency({
+export const write = Blueprint.dependency({
   package: "viem",
-  version: "2.21.0",
-  calls: {
-    write: { errors: ["ChainUnavailable", "ChainRejected"], step: "chain" },
-    waitForReceipt: { errors: ["ChainUnavailable", "ChainTimeout"], step: "wait" },
-    read: { errors: ["ChainUnavailable"], step: "chain" },
-  },
-  errors: { exit: 60 },                        // ChainUnavailable 60, ChainRejected 61, ChainTimeout 62
+  version: "2.57.15",               // Published 3 November; eligible on 17 November.
+  mode: "effect",
+  call: writeEffect,
+  errors: [ChainUnavailable, ChainRejected],
+  step: "chain",
+  failure: (failure) => failure,
 })
 
-// The one hand-written part: what each of viem's failures means.
-export const errorOf = (e: unknown) =>
-  e instanceof TimeoutError ? ChainTimeout() :
-  e instanceof BaseError && e.walk((x) => x instanceof ContractFunctionRevertedError) ? ChainRejected({ reason: e.shortMessage }) :
-  ChainUnavailable({ reason: String(e) })` },
+// The adapter owns actual cancellation, transport retries and bounded polling.
+// Every wait uses Timers. No autonomous viem watcher or hidden retry loop.
+// Keep substantial MIT adaptation notices from the pinned PRB reference.` },
 { p: "architect/packages/std/src/chain/relayer.ts", k: "framework", n: "The relayer: submits a signed payload and pays its gas. Without the person's signature it can do nothing.", c:
 `// The relayer's key is a gas wallet. The contract never trusts it: every write checks a person's signature.
 export const relay = Effect.fn("chain.relay")(function* (contract, fn, args) {
@@ -2145,7 +2142,7 @@ on every move the keeper fires. The keeper is a caller, so its calls are traced 
 <p>viem, any library on npm, any outside API. You don't govern it, so it owns its shape. Its declaration adds what it lacks: the errors each
 call can fail with, and a span on every call. Its types already exist, so nothing is retyped. Architect generates the service's shape and
 its spans, and scaffolds one blank: how its failures map to your errors, because only you know what each one means.</p>
-<p>The standard library has done this for viem already: see ${f("architect/packages/std/src/chain/viem.ts", "its declaration")}, so a project uses the chain kit instead. A dependency with a machine-readable contract, such as an OpenAPI file or an ABI, gets its client generated outright.</p>
+<p>The chain kit owns this boundary for viem: see ${f("architect/packages/std/src/modules/chain/internal/viem.ts", "its declaration")}, so a project uses the chain kit instead. A dependency with a machine-readable contract, such as an OpenAPI file or an ABI, gets its client generated outright.</p>
 <h2>An edge is where something calls you</h2>
 <p>A framework that calls plain functions: a webhook, or a worker's entry. The edge is generated. It decodes its
 input with the blueprint's own schemas, continues the trace, and runs an Effect you write. Being the same language, an edge is fully type-safe.</p>
@@ -2261,7 +2258,7 @@ story begins. Both are part of the blueprint, and both are written by someone ot
 { id: "chain-kit", group: "Primitives", t: "The chain kit", h: () => `
 <h1>The chain kit</h1>
 <p class="lede">viem is the only real dependency for reaching a chain, and it enters through this one kit. Everything else is adapted into the kit, or built small, so a project never wraps a chain library itself.</p>
-<p>See ${f("acme/blueprint/kits/chain.ts", "how a project uses it")}, and ${f("architect/packages/std/src/chain/viem.ts", "viem's declaration")}.</p>
+<p>See ${f("acme/blueprint/kits/chain.ts", "how a project uses it")}, and ${f("architect/packages/std/src/modules/chain/internal/viem.ts", "viem's declaration")}.</p>
 <h2>Adapted, not depended on</h2>
 <p>From <code>@prb/effect-evm</code>, which is MIT-licensed and built on Effect 4, the kit adapts:</p>
 <ul>
@@ -2696,7 +2693,7 @@ Nx runs for you.</p>
 <li><code>architect add operation allowance.spend</code> writes <code>verbs/spend.ts</code>. Its move is already filled in, because <code>spend</code> is a move of the allowance's machine. There's no handler yet.</li>
 <li><code>architect add read allowance.get</code> writes <code>verbs/get.ts</code>. A read never gets a handler.</li>
 <li><code>architect add kit wallets chain</code> writes <code>kits/wallets.ts</code> and <code>kits/chain.ts</code>, one file of your choices each, and gives the CLI its wallet commands. The kits themselves arrive finished; generate folds their declarations into your model, so their operations get endpoints, docs and evals like yours.</li>
-<li><code>architect add dependency &lt;package&gt;</code> writes <code>dependencies/&lt;package&gt;.ts</code>, and its wrapper with one blank: how the library's failures map to your errors.</li>
+<li><code>architect add dependency &lt;package&gt; --export &lt;call&gt; --as &lt;alias&gt; --step &lt;kind&gt; --error &lt;file&gt;#&lt;class&gt;</code> writes <code>blueprint/dependencies/&lt;alias&gt;.ts</code>. Package, callable and declared errors are selected before writing; the failure mapping is the only blank. Promise mode is the default; <code>--mode effect</code> preserves an Effect callable.</li>
 <li><code>architect add journey monthly-reset</code> writes <code>journeys/monthly-reset.ts</code>, which fails until the operations work.</li>
 <li><code>architect add environment staging</code> writes <code>environments/staging.ts</code> and its infrastructure stack.</li>
 </ul>
@@ -3493,45 +3490,44 @@ state  active` } ],
   allowance.spend.confirm  (wait)       1.4 s` } ],
   checked: ["Steps: a span for every declared step whose path ran","Waits: each finished within its declared time","Explainability: the share of the call's time inside declared steps","Performance: p50 and p95 against the budget, waits excluded where declared"] },
 
-{ id: "dependency", name: "Dependency", file: "dependencies/<package>.ts", cmd: "architect add dependency <package>",
-  rule: "A library you call and don't govern. Its types come from the library; the declaration adds what it lacks: the errors each call can fail with, in an exit-code band, and the kind of step each call is. Architect generates the service and a span on every call; the one hand-written part is how the library's failures map to the declared errors. Common ones are declared once by the standard library: viem comes with the chain kit, and projects never wrap it themselves.",
-  scaffold: { p: "dependencies/<package>.ts", c:
-`export default Blueprint.dependency({
-  package: Blueprint.todo("the package"),
-  version: Blueprint.todo("its version"),
-  calls: Blueprint.todo("each call you use: the errors it can fail with, and its kind of step"),
-  errors: Blueprint.todo("an exit-code band"),
-})` },
-  filled: { p: "architect/packages/std/src/chain/viem.ts", c:
-`export default Blueprint.dependency({
-  package: "viem",
-  version: "2.21.0",
-  calls: {
-    write: { errors: ["ChainUnavailable", "ChainRejected"], step: "chain" },
-    waitForReceipt: { errors: ["ChainUnavailable", "ChainTimeout"], step: "wait" },
-    read: { errors: ["ChainUnavailable"], step: "chain" },
-  },
-  errors: { exit: 60 },                        // ChainUnavailable 60, ChainRejected 61, ChainTimeout 62
-})
+{ id: "dependency", name: "Dependency", file: "blueprint/dependencies/<alias>.ts", cmd: "architect add dependency <package> --export <call> --as <alias> --step <kind> --error <file>#<class>",
+  rule: "A library you call and don't govern. Its callable owns argument and answer types. You select an installed exact package, export, step kind and existing error classes; Architect scaffolds exactly one blank, the failure mapping. Promise mode is the default; explicit Effect mode preserves typed failures, defects and interruption. The generated service adds spans and counted work. D4 is decided; L3.01 implementation and authored runtime checks are still required.",
+  scaffold: { p: "blueprint/dependencies/pricing.ts", c:
+`// Scaffolded from @fixture/remote. Yours from now on.
+import { Blueprint } from "@architect/blueprint"
+import { quote as call } from "@fixture/remote"
+import { PriceUnavailable } from "../things/allowance/errors.ts"
 
-// The one hand-written part: what each of viem's failures means.
-export const errorOf = (e: unknown) =>
-  e instanceof TimeoutError ? ChainTimeout() :
-  e instanceof BaseError && e.walk((x) => x instanceof ContractFunctionRevertedError) ? ChainRejected({ reason: e.shortMessage }) :
-  ChainUnavailable({ reason: String(e) })` },
+export const quote = Blueprint.dependency({
+  package: "@fixture/remote",
+  version: "1.0.0",                  // The actual resolved exact pin.
+  mode: "promise",
+  call,
+  errors: [PriceUnavailable],
+  step: "network",
+  failure: Blueprint.todo("map the dependency failure to PriceUnavailable"),
+})` },
+  filled: { p: "blueprint/dependencies/pricing.ts", c:
+`// The only blank becomes a typed mapping to a selected declared error.
+failure: (_failure) => new PriceUnavailable({ reason: "pricing unavailable" })
+
+// A consuming operation declares the dependency by reference.
+uses: [quote]
+
+// Promise mode defers interruption until the returned Promise settles.
+// It does not claim to cancel arbitrary SDK work. Known cancellable SDKs,
+// such as the chain adapter, expose an explicit Effect boundary instead.` },
   generated: [
-    { p: "@architect/std/chain: the Chain service", c:
-`// Generated from the dependency. Do not edit.
-export class Chain extends Effect.Service<Chain>()("std/Chain", { /* write, waitForReceipt, read: each an Effect.fn span; relay; decodeErrors */ }) {}
-export class ChainUnavailable extends Schema.TaggedError<ChainUnavailable>()("ChainUnavailable", { reason: Schema.String }) { static readonly exit = 60 }` },
-    { p: "architect/packages/std/src/chain/relayer.ts", c:
-`// The relayer's key is a gas wallet. The contract never trusts it: every write checks a person's signature.
-export const relay = Effect.fn("chain.relay")(function* (contract, fn, args) {
-  const chain = yield* Chain
-  const hash = yield* chain.write({ account: chain.relayer, address: contract.address, abi: contract.abi, functionName: fn, args })
-  return { hash, receipt: chain.waitForReceipt(hash) }
+    { p: "acme/generated/dependencies/pricing.ts", c:
+`// Generated from blueprint/dependencies/pricing.ts. Do not edit.
+export class Pricing extends Context.Service<Pricing, {
+  readonly quote: Wrapped<typeof declared>
+}>()("dependency:pricing") {}
+
+export const layer = Layer.succeed(Pricing, {
+  quote: Dependencies.wrap(declared, { name: "dependency:pricing.quote" }),
 })` } ],
-  checked: ["Every call to the library is a span of its declared kind","Every failure arrives as one of its declared errors","Explainability counts the library's time inside the step that called it"] },
+  checked: ["Exactly one failure-mapping blank; argument and answer types come from the library", "Real Promise completion remains counted during cancellation; no manufactured quiet", "Effect typed failures map, while defects and interruption stay intact", "Dependency spans, graph edges and source integrity participate in impact and proof staleness"] },
 
 { id: "environment", name: "Environment", file: "environments/<name>.ts", cmd: "architect add environment staging",
   rule: "Somewhere the application runs. One file per environment in environments/: local, test, staging, production. Each says how it runs, who the principals are, which cloud it uses, and, as layers add them, its chain, its clock (stepped or real), the secrets it needs by name, and where every output is deployed or published. Evidence and verdicts are kept per environment.",

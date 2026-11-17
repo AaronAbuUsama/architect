@@ -43,8 +43,11 @@ The rest arrive with their layer.
 Rules, held by Nx module boundaries:
 
 - `blueprint` depends on nothing but Effect. Every other package may import it.
-- `target-effect`'s runtime is the only package generated code imports at run time, besides `blueprint`, the host and
-  the project's own code.
+- Generated code imports `target-effect`'s runtime, `blueprint`, the host and project code. D4 additionally permits
+  the declaration-only entry and matching target/host runtime entry explicitly declared by a selected kit.
+  Generated API/SDK/browser code may import only its declaration entry; a Worker may not import the Node entry.
+  Verify the import closure. This does not permit compiler/generator imports or direct project imports of the
+  kit's wrapped libraries.
 - `agent` is `env:build` (dev and CI tooling, never in production in v0). It may depend on `blueprint`, `compiler`,
   `prove` and the `target-effect` interfaces (`Timers`, `Clock`), and `cli` depends on it. Pi Durable and its closure
   (`pi-ai`, `chord`, `pi-codemode`, `pi-schema`, `pi-telemetry`, all pinned at 1.5.0) are imported only inside

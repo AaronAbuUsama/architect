@@ -50,8 +50,11 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
 - Generated files open with a `// Generated from … Do not edit.` line (naming the blueprint or the declaration's path;
   after a shebang when there is one) and are never edited. Scaffolds start
   with `// Scaffolded from <path>. Yours from now on.`
-- Package rules (Nx module boundaries): `blueprint` depends only on Effect; generated code imports only the target's
-  runtime, `blueprint`, the host and project code; `compiler` and `generators` never run in production.
+- Package rules (Nx module boundaries): `blueprint` depends only on Effect; generated code imports the target's
+  runtime, `blueprint`, the host and project code, plus only the declaration entry and matching target/host runtime
+  entry explicitly declared by a selected kit (D4). Generated API/SDK/browser code imports only the kit's declaration
+  entry; Worker code never imports its Node entry. Check import closures, not tree shaking. `compiler` and
+  `generators` never run in production, including through kit entries.
 - Pin dependency versions exactly, and use versions published at least two weeks before you add them.
 - Inside each package, `src/` follows the six-slot module shape in `~/AGENTS.md` (`main.ts` as the only entry file;
   `modules/<name>/{README.md,types.ts,service.ts,internal/,<name>.test.ts}`), no source file over about 250 lines.

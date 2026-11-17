@@ -195,7 +195,7 @@ Nx runs for you.</p>
 <li><code>architect add operation allowance.spend</code> writes <code>verbs/spend.ts</code>. Its move is already filled in, because <code>spend</code> is a move of the allowance's machine. There's no handler yet.</li>
 <li><code>architect add read allowance.get</code> writes <code>verbs/get.ts</code>. A read never gets a handler.</li>
 <li><code>architect add kit wallets chain</code> writes <code>kits/wallets.ts</code> and <code>kits/chain.ts</code>, one file of your choices each, and gives the CLI its wallet commands. The kits themselves arrive finished; generate folds their declarations into your model, so their operations get endpoints, docs and evals like yours.</li>
-<li><code>architect add dependency &lt;package&gt;</code> writes <code>dependencies/&lt;package&gt;.ts</code>, and its wrapper with one blank: how the library's failures map to your errors.</li>
+<li><code>architect add dependency &lt;package&gt; --export &lt;call&gt; --as &lt;alias&gt; --step &lt;kind&gt; --error &lt;file&gt;#&lt;class&gt;</code> writes <code>blueprint/dependencies/&lt;alias&gt;.ts</code>. Package, callable and declared errors are selected before writing; the failure mapping is the only blank. Promise mode is the default; <code>--mode effect</code> preserves an Effect callable.</li>
 <li><code>architect add journey monthly-reset</code> writes <code>journeys/monthly-reset.ts</code>, which fails until the operations work.</li>
 <li><code>architect add environment staging</code> writes <code>environments/staging.ts</code> and its infrastructure stack.</li>
 </ul>
