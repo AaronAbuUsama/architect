@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": [],
+    "lib": ["es2024", "webworker"],
+    "typeRoots": ["../../node_modules/.pnpm/@cloudflare+workers-types@5.20261101.1/node_modules/@cloudflare"],
+    "noEmit": true
+  },
+  "include": ["src/worker-main.ts", "../../node_modules/.pnpm/@cloudflare+workers-types@5.20261101.1/node_modules/@cloudflare/workers-types/index.d.ts"]
+}
