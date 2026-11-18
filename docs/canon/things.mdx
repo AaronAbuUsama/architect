@@ -422,6 +422,13 @@ secret field at rest. Everything else on it is proved or specified.
   thing declares to live on a chain waits on K7. The change is in [stores](stores.mdx).
 </Note>
 
+<Note kind="question" id="zero-seats">
+  A value can't say "at least one". `Count` is a `uint(32)` (`examples/tickets/blueprint/values/counts.ts:4`), and
+  `Blueprint.uint` takes only its bits (`packages/orthograph/src/modules/values/types.ts:30`), so `event.claim` with
+  `seats: 0` issues a ticket for nobody. The fix is a minimum on a value, or a declared refusal and its journeys.
+  Ledger: THI-06, no slice owns it yet.
+</Note>
+
 <Note kind="question" id="file-as-field">
   K3 says R2 holds files, "which are fields", and [stores](stores.mdx) sends a reader here for them. No value for a
   file exists, and no slice builds one. Until one does, a file is not a field.
