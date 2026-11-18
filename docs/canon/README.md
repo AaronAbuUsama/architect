@@ -12,6 +12,10 @@ is built to the page. When the two disagree, one of them is wrong, and the chang
   drawn from real data. `pnpm nx run canon:preview` writes `docs/canon/.preview/index.html`; open it in any browser.
 - Written so far: layer 1 ([`forman`](forman.mdx), [`blueprint`](blueprint.mdx), [`things`](things.mdx), [`machines`](machines.mdx), [`operations`](operations.mdx), [`handlers`](handlers.mdx)), and the samples [`stores`](stores.mdx) (a draft) and [`traces`](traces.mdx).
 
+The canon teaches with one example, a sign-up sheet in [`examples/signup`](../../examples/signup/README.md) (Aaron, 18
+November 2026): one thing, open to anyone, with nothing it needs explained from outside. The written pages still quote
+acme until they are re-quoted after K5.
+
 `design/docs/index.html` stays the single source until the canon covers what it covers. Then the canon replaces it,
 and the decisions record the switch.
 

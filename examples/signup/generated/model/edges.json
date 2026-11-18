@@ -1,0 +1,37 @@
+[
+  {
+    "from": "sheet.close",
+    "to": "sheet",
+    "kind": "acts-on"
+  },
+  {
+    "from": "sheet.close",
+    "to": "sheet.SheetClosed",
+    "kind": "emits"
+  },
+  {
+    "from": "sheet.get",
+    "to": "sheet",
+    "kind": "reads"
+  },
+  {
+    "from": "sheet.join",
+    "to": "sheet",
+    "kind": "acts-on"
+  },
+  {
+    "from": "sheet.join",
+    "to": "sheet.PlaceTaken",
+    "kind": "emits"
+  },
+  {
+    "from": "sheet.open",
+    "to": "sheet",
+    "kind": "acts-on"
+  },
+  {
+    "from": "sheet.open",
+    "to": "sheet.SheetOpened",
+    "kind": "emits"
+  }
+]

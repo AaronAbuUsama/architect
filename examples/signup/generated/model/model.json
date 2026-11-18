@@ -1,0 +1,435 @@
+{
+  "refusals": {
+    "NotAllowed": "AR-001",
+    "SheetFull": "SH-001",
+    "SheetNotOpen": "SH-900"
+  },
+  "values": {
+    "Count": {
+      "type": "uint",
+      "bits": 32
+    },
+    "Title": {
+      "type": "text",
+      "max": 120
+    }
+  },
+  "things": {
+    "sheet": {
+      "name": "sheet",
+      "identifier": "Sheet",
+      "code": "SH",
+      "description": "A sign-up sheet with a fixed number of places.",
+      "fields": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "sht"
+          }
+        },
+        "title": {
+          "value": {
+            "type": "text",
+            "max": 120
+          },
+          "named": "Title"
+        },
+        "places": {
+          "value": {
+            "type": "uint",
+            "bits": 32
+          },
+          "named": "Count"
+        },
+        "taken": {
+          "value": {
+            "type": "uint",
+            "bits": 32
+          },
+          "named": "Count"
+        }
+      },
+      "lives": "database",
+      "machine": {
+        "states": [
+          "open",
+          "full",
+          "closed"
+        ],
+        "moves": {
+          "open": {
+            "from": [],
+            "to": [
+              "open"
+            ],
+            "emits": "SheetOpened"
+          },
+          "join": {
+            "from": [
+              "open"
+            ],
+            "to": [
+              "open",
+              "full"
+            ],
+            "emits": "PlaceTaken"
+          },
+          "close": {
+            "from": [
+              "open",
+              "full"
+            ],
+            "to": [
+              "closed"
+            ],
+            "emits": "SheetClosed"
+          }
+        },
+        "notFrom": {
+          "error": "SheetNotOpen",
+          "exit": 70,
+          "code": "SH-900"
+        }
+      },
+      "events": {
+        "PlaceTaken": {
+          "sheet": {
+            "value": {
+              "type": "id",
+              "prefix": "sht"
+            },
+            "ref": "sheet.id"
+          },
+          "left": {
+            "value": {
+              "type": "uint",
+              "bits": 32
+            },
+            "named": "Count"
+          }
+        },
+        "SheetClosed": {
+          "sheet": {
+            "value": {
+              "type": "id",
+              "prefix": "sht"
+            },
+            "ref": "sheet.id"
+          }
+        },
+        "SheetOpened": {
+          "sheet": {
+            "value": {
+              "type": "id",
+              "prefix": "sht"
+            },
+            "ref": "sheet.id"
+          },
+          "places": {
+            "value": {
+              "type": "uint",
+              "bits": 32
+            },
+            "named": "Count"
+          }
+        }
+      },
+      "errors": {
+        "SheetFull": {
+          "fields": {
+            "left": {
+              "value": {
+                "type": "uint",
+                "bits": 32
+              },
+              "named": "Count"
+            }
+          },
+          "exit": 71,
+          "code": "SH-001"
+        }
+      },
+      "roles": [],
+      "hash": "009352307cbc683c"
+    }
+  },
+  "operations": {
+    "sheet.close": {
+      "kind": "operation",
+      "name": "sheet.close",
+      "thing": "sheet",
+      "verb": "close",
+      "identifier": "close",
+      "file": "blueprint/things/sheet/verbs/close.ts",
+      "description": "Take a sheet down. Nobody can join it after this.",
+      "payload": {
+        "sheet": {
+          "value": {
+            "type": "id",
+            "prefix": "sht"
+          },
+          "ref": "sheet.id"
+        }
+      },
+      "answer": {},
+      "move": {
+        "key": "close",
+        "from": [
+          "open",
+          "full"
+        ],
+        "to": [
+          "closed"
+        ],
+        "emits": "SheetClosed"
+      },
+      "errors": [],
+      "refusals": [
+        "SheetNotOpen"
+      ],
+      "allowed": [
+        {
+          "kind": "anyone"
+        }
+      ],
+      "steps": {
+        "record": {
+          "name": "sheet.close.record",
+          "type": "database"
+        }
+      },
+      "idempotent": null,
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 150
+      },
+      "hash": "2302ec1b616a2ce6"
+    },
+    "sheet.get": {
+      "kind": "read",
+      "name": "sheet.get",
+      "thing": "sheet",
+      "verb": "get",
+      "identifier": "get",
+      "file": "blueprint/things/sheet/verbs/get.ts",
+      "description": "Read one sheet by its id: title, places, taken, state.",
+      "payload": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "sht"
+          },
+          "ref": "sheet.id"
+        }
+      },
+      "answer": {
+        "title": {
+          "value": {
+            "type": "text",
+            "max": 120
+          },
+          "named": "Title",
+          "ref": "sheet.title"
+        },
+        "places": {
+          "value": {
+            "type": "uint",
+            "bits": 32
+          },
+          "named": "Count",
+          "ref": "sheet.places"
+        },
+        "taken": {
+          "value": {
+            "type": "uint",
+            "bits": 32
+          },
+          "named": "Count",
+          "ref": "sheet.taken"
+        },
+        "state": {
+          "value": {
+            "type": "text",
+            "max": 64
+          }
+        }
+      },
+      "move": null,
+      "errors": [],
+      "refusals": [],
+      "allowed": [
+        {
+          "kind": "anyone"
+        }
+      ],
+      "steps": {},
+      "idempotent": null,
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 50
+      },
+      "hash": "9c5f49e2d899332c"
+    },
+    "sheet.join": {
+      "kind": "operation",
+      "name": "sheet.join",
+      "thing": "sheet",
+      "verb": "join",
+      "identifier": "join",
+      "file": "blueprint/things/sheet/verbs/join.ts",
+      "description": "Take places on a sheet, for yourself and anyone with you.",
+      "payload": {
+        "sheet": {
+          "value": {
+            "type": "id",
+            "prefix": "sht"
+          },
+          "ref": "sheet.id"
+        },
+        "people": {
+          "value": {
+            "type": "uint",
+            "bits": 32
+          },
+          "named": "Count"
+        }
+      },
+      "answer": {
+        "left": {
+          "value": {
+            "type": "uint",
+            "bits": 32
+          },
+          "named": "Count"
+        }
+      },
+      "move": {
+        "key": "join",
+        "from": [
+          "open"
+        ],
+        "to": [
+          "open",
+          "full"
+        ],
+        "emits": "PlaceTaken"
+      },
+      "errors": [
+        "SheetFull"
+      ],
+      "refusals": [
+        "SheetFull",
+        "SheetNotOpen"
+      ],
+      "allowed": [
+        {
+          "kind": "anyone"
+        }
+      ],
+      "steps": {
+        "load": {
+          "name": "sheet.join.load",
+          "type": "database"
+        },
+        "record": {
+          "name": "sheet.join.record",
+          "type": "database"
+        }
+      },
+      "idempotent": "request",
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 150
+      },
+      "hash": "63b36f6626b629f2"
+    },
+    "sheet.open": {
+      "kind": "operation",
+      "name": "sheet.open",
+      "thing": "sheet",
+      "verb": "open",
+      "identifier": "open",
+      "file": "blueprint/things/sheet/verbs/open.ts",
+      "description": "Put up a sheet with a number of places.",
+      "payload": {
+        "title": {
+          "value": {
+            "type": "text",
+            "max": 120
+          },
+          "named": "Title",
+          "ref": "sheet.title"
+        },
+        "places": {
+          "value": {
+            "type": "uint",
+            "bits": 32
+          },
+          "named": "Count",
+          "ref": "sheet.places"
+        }
+      },
+      "answer": {
+        "sheet": {
+          "value": {
+            "type": "id",
+            "prefix": "sht"
+          },
+          "ref": "sheet.id"
+        }
+      },
+      "move": {
+        "key": "open",
+        "from": [],
+        "to": [
+          "open"
+        ],
+        "emits": "SheetOpened"
+      },
+      "errors": [],
+      "refusals": [],
+      "allowed": [
+        {
+          "kind": "anyone"
+        }
+      ],
+      "steps": {
+        "insert": {
+          "name": "sheet.open.insert",
+          "type": "database"
+        }
+      },
+      "idempotent": "request",
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 150
+      },
+      "hash": "b38fe5a25ddac5ec"
+    }
+  },
+  "environments": {
+    "local": {
+      "name": "local",
+      "file": "blueprint/environments/local.ts",
+      "runs": "on this machine",
+      "identity": "test-principals",
+      "lifetimeMs": null,
+      "cloud": null,
+      "database": "d1-local",
+      "secrets": {},
+      "promotesFrom": null,
+      "telemetry": [
+        {
+          "sink": "local"
+        }
+      ],
+      "deploy": {},
+      "publish": {},
+      "hash": "0f14705e03d3bc97"
+    }
+  }
+}
