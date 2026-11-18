@@ -52,7 +52,7 @@ is still the blueprint, and a project's own names stay its own.
 | Today | Becomes | Where it lives | Reach |
 |---|---|---|---|
 | `@formants/forman` | **`orthograph`** | `packages/forman`, to `packages/orthograph`; imported by every project and by all generated code | — |
-| `@formants/<name>` | **`@orthograph/<name>`** | `cli`, `compiler`, `generators`, `host-cloudflare`, `language-effect`, `language-solidity`, `lint`, `logbook`, `portal`, `preset`, `prove`; later `auth`, `organizations`, `work`, `agents`, `stripe`, `resend`, `wallets` | `@formants/` 934 times in 537 files |
+| `@formants/<name>` | **`@orthograph/<name>`** | `cli`, `compiler`, `generators`, `host-cloudflare`, `language-effect`, `language-solidity`, `lint`, `logbook`, `portal`, `preset`, `prove`; later `auth`, `organizations`, `work`, `agents`, `workspaces`, `factory` (K10: the building agents and experiments; the board, manager and dispatch are `work`, K11), `stripe`, `resend`, `wallets` | `@formants/` 934 times in 537 files |
 | `@formants/source`, `@formants/e2e` (private) | `@orthograph/source`, `@orthograph/e2e` | root and `e2e/` `package.json` | 2 |
 | Nx project `forman`, tag `scope:forman`, target `forman:build` | project `orthograph`, tag `scope:orthograph`, `orthograph:build` | `packages/forman/project.json`, the module-boundary rules, two tests | 4 |
 | path `packages/forman` | `packages/orthograph` | tsconfig paths, docs, tests | 32 times in 18 files |

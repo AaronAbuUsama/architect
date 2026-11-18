@@ -46,8 +46,8 @@ belongs to, and why it waits.
   `Timers`, stepped-clock tests of agent waits, and scheduled agents (layer 5). The fallback if the Pi seam fails is H1's
   Option E: Effect AI plus `@effect/platform-cloudflare` (`CloudflareWorkflowEngine`, one Durable Object per execution),
   usable now under the three-day rule (R1), with the `effect` 4.1.3 bump.
-- **Agent sandboxes beyond the machine** (H1 section 10): a Docker sandbox over Pi's `pi-env` daemon (build-plan A7), then
-  Cloudflare Containers, and Dynamic Workers for an *operator* agent whose tools are the app's operations. Layer 2 and later.
+- **Agent sandboxes beyond the machine** (H1 section 10): E2B (K10 section 3; the Docker sandbox over `pi-env`, A7, is dropped with
+  Docker, K10 section 8), then Cloudflare Containers, and Dynamic Workers for an *operator* agent whose tools are the app's operations. Layer 2 and later.
 - **Benchmark verdicts in the logbook, and a portal page comparing runs.** Layer 2 once L2.03 and L2.10 exist.
 - **Mutant repair tasks** (H2.6 b): break a reference handler mechanically (drop an `emit` or a `move`, swap a declared error), keep
   a mutant only if prove fails on it. Waits until the authored planted breaks (A8) show which evals need more tasks.
@@ -73,3 +73,9 @@ belongs to, and why it waits.
   telemetry adapters, and before public cloud use, remove their remaining literal throw/try and ambient-env policy
   violations and close the corresponding workspace lint coverage gap. Local Gate2 records this limitation; it
   does not grant new runtime exceptions or claim every standing-rule syntax restriction was certified.
+
+## From the factory (K10)
+
+- **A `cloudflare` sandbox choice** for `@orthograph/workspaces`, beside `localCopy` and `e2b`, if E2B falls short. Not spiked.
+- **A person's feedback on a run** (HeroUI Pro's Rating and Emoji Reaction Button on a run's answer) as input to the bench (H2). Waits until the bench reports exist (M4.14).
+- **Experiments shared between projects**: a kept experiment's plugin published for another app to mount. Waits on plugins published from their own CI (M2.10).
