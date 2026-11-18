@@ -1,11 +1,13 @@
 import { Cause, Data, Effect, Ref, Schema } from "effect";
 import type { Operation, Principal } from "orthograph";
+import { ErrorNames } from "orthograph/server";
 import { Access } from "#modules/access/service.js";
 import { Unit } from "#modules/records/service.js";
 import { Records, Store } from "#modules/records/types.js";
 import { Busy } from "#modules/work/types.js";
 import { BlankReached, InvalidPayload, type HandlerApi } from "./types.ts";
 import { answerAttributes, payloadAttributes, principalAttributes } from "./internal/attributes.ts";
+import { measureCall } from "./internal/call-metrics.ts";
 import { applyMove, checkFrom, chooseOutcome } from "./internal/move.ts";
 import { recordingLogs } from "./internal/decided.ts";
 import { spanned } from "./internal/span.ts";
@@ -27,6 +29,10 @@ const serve = ({ name, operation, handler, notFrom }: { readonly name: string; r
   const op = operation as Operation;
   const decode = Schema.decodeUnknownEffect(op.payloadSchema as unknown as AnyCodec);
   const check = Schema.encodeEffect(op.answerSchema as unknown as AnyCodec);
+  const refusals = new Set(op.errors.map(ErrorNames.nameOf).filter((tag) => tag !== undefined));
+  if (notFrom !== undefined) refusals.add(notFrom);
+  if (op.allowed.some((role) => role.kind !== "anyone")) refusals.add("NotAllowed");
+  const callRefusals = new Set([...refusals, "InvalidPayload"]);
   const steps = Object.fromEntries(
     // Each step is its own span, marked with its kind: a `database` step's work is the store's, a `wait` step's a timer's.
     Object.entries(op.steps).map(([key, step]) => [
@@ -43,7 +49,7 @@ const serve = ({ name, operation, handler, notFrom }: { readonly name: string; r
       const store = yield* Store;
       const unit = yield* Unit.make(store);
       const withRecords = Effect.provideService(Records, unit.records);
-      yield* Access.check({ allowed: op.allowed, payloadFields: op.payload, payload, principal, thing: op.thing }).pipe(withRecords);
+      yield* Access.check({ allowed: op.allowed, payloadFields: op.payload, payload, principal, thing: op.thing }).pipe(withRecords, Effect.withTracerEnabled(false));
       const logs = yield* recordingLogs(payload, op.payload);
       return yield* Effect.gen(function* () {
         const busy = yield* Busy;
@@ -109,8 +115,9 @@ const serve = ({ name, operation, handler, notFrom }: { readonly name: string; r
       decode(raw).pipe(
         Effect.mapError((e) => new InvalidPayload({ issues: e.message })),
         Effect.flatMap((payload) => run(payload, principal)),
+        measureCall(name, principal, callRefusals),
       ),
-    run,
+    run: (payload: object, principal: Principal, request?: string) => run(payload, principal, request).pipe(measureCall(name, principal, refusals)),
   };
 };
 

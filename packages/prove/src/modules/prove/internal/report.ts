@@ -1,13 +1,18 @@
 // Turning journeys and verdicts into prove's lines.
 import type { Model } from "@orthograph/compiler";
 import type { Verdict } from "#modules/evals/types.js";
-import type { JourneyRun, StepResult } from "#modules/journeys/types.js";
+import type { CallRecord, JourneyRun, StepResult } from "#modules/journeys/types.js";
 import type { Trace } from "#modules/telemetry/types.js";
 
+/** World facts predict the access refusal before the server answers. */
+const refusedBeforeSpan = (call: CallRecord | undefined): boolean =>
+  call?.mayCall === false && call.status === 403 &&
+  typeof call.body === "object" && call.body !== null && "_tag" in call.body && call.body._tag === "NotAllowed";
+
 /** A step's span checks, now that its trace is in. */
-export const spanFailures = (step: StepResult, trace: Trace | undefined): ReadonlyArray<string> => {
+export const spanFailures = (step: StepResult, trace: Trace | undefined, call: CallRecord | undefined): ReadonlyArray<string> => {
   const names = new Set((trace?.spans ?? []).map((s) => s.name));
-  if (!trace || trace.spans.length === 0) return ["telemetry missing: no span of this call reached the collector"];
+  if (names.size === 0 && !refusedBeforeSpan(call)) return ["telemetry missing: no span of this call reached the collector"];
   return [
     ...step.spans.present.filter((n) => !names.has(n)).map((n) => `span ${n} missing`),
     ...step.spans.absent.filter((n) => names.has(n)).map((n) => `span ${n} present, expected absent`),
@@ -34,7 +39,8 @@ export const journeyLines = (runs: ReadonlyArray<JourneyRun>, traces: ReadonlyMa
       failed++;
       continue;
     }
-    const steps = run.steps.map((s) => ({ s, failures: [...s.failures, ...spanFailures(s, traces.get(s.trace))] }));
+    const calls = new Map(run.calls.map((call) => [call.trace, call]));
+    const steps = run.steps.map((s) => ({ s, failures: [...s.failures, ...spanFailures(s, traces.get(s.trace), calls.get(s.trace))] }));
     const bad = steps.filter((x) => x.failures.length > 0);
     lines.push(`journey ${run.name} ${bad.length === 0 ? "✔" : "✘"} ${steps.length - bad.length}/${steps.length} steps`);
     for (const { s, failures } of bad) for (const f of failures) lines.push(`  ✘ "${s.title}": ${f}`);

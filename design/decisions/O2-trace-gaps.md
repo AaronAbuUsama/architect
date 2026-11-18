@@ -61,16 +61,23 @@ and logs for untraced text. `prove` reads the same declarations as the handler, 
 like work. But it also means nobody can see that `spend` refused 400 strangers in an hour.
 
 **The fix.** Every call is counted as a metric, whether or not a span opened:
-- `forman.calls`, a counter, tagged `operation`, `outcome` (`answered`, `refused` or `defect`), `refusal` (the tag)
+- `ortho.calls`, a counter, tagged `operation`, `outcome` (`answered`, `refused` or `defect`), `refusal` (the tag)
   and `principal.kind`. It carries no payload values and no person.
-- `forman.call.duration`, a histogram per operation, for comparing against the declared budget
+- `ortho.call.duration`, a millisecond histogram per operation, for comparing against the declared budget
   (`budget: { p95: "150 millis" }`).
 
-Both go through Effect's `Metric` to OpenTelemetry, into the `<project>-<env>-metrics` dataset O1 reserved (O1 line
-356). Locally they go through the Collector, whose configuration gains a metrics pipeline.
+Both go through Effect's `Metric` to OpenTelemetry, into the `<project>-<env>-metrics` dataset O1 reserved. Axiom routes
+the signal using `x-axiom-metrics-dataset`. Locally the Collector writes `metrics.jsonl`.
+[Axiom's OTLP documentation](https://axiom.co/docs/send-data/opentelemetry)
 
-**Proved by** a world test that sends one bad payload and one stranger, then reads `forman.calls` from the Collector:
-two refusals and no spans.
+The wrapper measures one call across its retries, using the monotonic clock. The HTTP API and MCP can reject a payload
+before invoking the wrapper, so their decoders count those refusals. The HTTP API suppresses its automatic request
+span and keeps the caller's trace context for the operation span after access succeeds. `prove` accepts an empty trace
+for an independently predicted `NotAllowed` response when the journey requires no spans to be present. The Worker
+exports its request's metric deltas once, when its telemetry runtime closes.
+
+**Proved by** a world test that sends one bad payload and one stranger, then reads `ortho.calls` and
+`ortho.call.duration` from the Collector: two refusals, two duration observations, and no spans for either call.
 
 ## What to look for in a trace (for the docs page)
 
