@@ -9,7 +9,7 @@ questions:
   - Where does a database I don't own go?
   - What happens when two calls change the same thing at once?
   - What happens to a call that writes to two stores?
-status: specified
+status: draft
 milestone: M1
 slices: [M1.17, M5.13, M5.06]
 decisions: [K3, D1, D2]
@@ -21,8 +21,8 @@ links: [things, operations, views, adapters, workflows, environments, features]
 A store is a place where things live. One rule decides what counts: **a place is a store when Forman owns its schema
 and every write to it goes through Forman's commit.** The commit takes everything one call changes (its writes, the
 events its move recorded, and the answer kept under its request key) and lands all of it or none of it, guarded by a
-version. The kinds of store are open. A host or a language supplies a kind by implementing one port, and Forman ships
-three: `database`, `actor` and `chain`. KV, R2 and caches can't take that commit, so they are never a home. A
+version. The kinds of store are open. A host or a language supplies a kind by implementing one port. Forman ships
+`database` and `actor`; whether `chain` is a store at all is open (see Notes). KV, R2 and caches can't take that commit, so they are never a home. A
 database someone else owns isn't a store either: it is a source, and you reach it through an adapter.
 
 ## The smallest example
@@ -242,7 +242,7 @@ them. That is why stores land in M1: auth in M2 needs them.
 
 ### Which kind
 
-| | `database` (the default) | `actor` | `chain` |
+| | `database` (the default) | `actor` | `chain` (open: see Notes) |
 |---|---|---|---|
 | What it is | D1, one row per instance, with a version column | one Durable Object per instance: its own SQLite, its own outbox | a contract, generated in the Solidity language |
 | Supplied by | `@formants/host-cloudflare` | `@formants/host-cloudflare` | `@formants/language-solidity` |
@@ -301,7 +301,7 @@ local-first, Noir on Aztec.
 | A list over actors refused | proved | layer 1 | the compiler's describe step |
 | Declared stores, open kinds, typed bindings, migrations per store, plugin stores | specified | M1.17 | a second store in acme, its own D1, its own migrations |
 | The compiler refusing an operation that writes to two stores | specified | M1.17 | a fixture operation over two stores fails `forman check` |
-| The `chain` kind | specified | M6 | the on-chain allowance |
+| The `chain` kind | open | M6 | see the note `chain-is-not-a-commit` |
 | Sources through adapters | specified | M5.13 | a fixture adapter over MariaDB that Forman never migrates |
 | The data map | specified | M5.06 | the map lists every store and source |
 
@@ -322,6 +322,36 @@ local-first, Noir on Aztec.
   Today `lives` takes `"database"` or `"actor"`, an environment binds one database, and the one-store rule is checked
   at run time, not by the compiler. A request key on an actor's operation dies: idempotent actors are in
   `design/later.md`.
+</Note>
+
+<Note kind="status" slice="M1.17">
+  Draft (18 November 2026). Written before the pages it leans on (`things`, `operations`), and three questions below
+  turned out to be open: where a kind's schema comes from, what visibility means per kind, and whether a chain is a
+  store. They are settled in a decision round before the data layer (layer 3) is written.
+</Note>
+
+<Note kind="question" id="schema-per-kind" slice="M1.17">
+  Where does a kind's schema come from? The store port only reads and commits
+  (`packages/language-effect/src/modules/records/types.ts:62`). The schema is hard-coded in the generator, and only for
+  D1: every field becomes `TEXT NOT NULL` (`packages/generators/src/modules/render/internal/worker-config.ts:62`). An
+  actor keeps the whole instance as one JSON value (`packages/host-cloudflare/src/modules/actors/service.ts:34`). If kinds
+  are open, a kind must also say how a thing's fields become its storage, and how that storage migrates.
+</Note>
+
+<Note kind="question" id="visibility-per-kind" slice="M1.17">
+  What does a field's visibility mean in each kind? Today it is only a comment: Solidity "treats everything as public;
+  one that has it, such as Noir on Aztec, uses the roles" (`packages/forman/src/modules/visibility/types.ts:1`). So a
+  private field on a thing that lives on a chain is either refused by the compiler or silently public. Nothing decides
+  which.
+</Note>
+
+<Note kind="question" id="chain-is-not-a-commit" slice="M1.17">
+  Is a chain a store? The commit answers at once, `committed` or `conflict`
+  (`packages/language-effect/src/modules/records/types.ts:41`). A chain write is pending until it is mined, and S25
+  already decided that pending shows as a waiting state on the machine. That does not fit the port. Aaron, 18 November
+  2026: "I wasn't comfortable with this, it being on chain in the first place, because it just doesn't seem like a
+  thing that makes sense." The alternative to weigh: a contract is reached through an adapter, like any system that
+  answers later, and the truth we keep is our own record of what we asked it and what it said.
 </Note>
 
 <Note kind="question" id="kind-capabilities" slice="M1.17">

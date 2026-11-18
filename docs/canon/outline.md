@@ -8,7 +8,23 @@ A page's **job** is the one idea it carries. Its **questions** are the ones a re
 isn't answered on the page, the page isn't done. **Links** are the pages it leans on. **Owns** is the list of glossary
 words this page defines, so the check can find a word explained twice.
 
-Pass 1 writes `stores` and `traces` in full. Pass 2 writes the rest.
+## Layers: the order pages are written in
+
+The canon is written in layers, each one on the layer below it (Aaron, 18 November 2026: "let's start with layers …
+and then we build up as we're going along"). A layer is written, checked, rendered and reviewed by Aaron before the
+next one starts. A page may link forward to a later layer, but never leans on one to make sense.
+
+| Layer | Pages | Why in this order |
+|---|---|---|
+| 1 · the core | `forman`, `blueprint`, `things`, `machines`, `operations`, `handlers` | every other page links into these. Most of it is built, so each page can be proved against the code |
+| 2 · proof | `roles`, `journeys`, `proof`, `traces` | how the core is called and judged. `traces` is written; it is checked again once layer 1 lands |
+| 3 · data | `stores`, `views` | after a decision round on the three gaps in `stores` (its notes). Until then `stores` is a draft |
+| 4 · plugins | `plugins`, `features`, `adapters`, `projections`, `secrets`, `stand-ins` | the core, extended and mounted |
+| 5 · running | `languages-and-hosts`, `workflows`, `environments` | needs the data layer's decisions on chain and private state |
+| 6 · what Forman ships | `auth`, `agents`, `factory`, `agent-kit` | features built from everything above |
+
+`stores` and `traces` were written first, as samples of the template. `stores` showed why layers matter: it leaned on
+things, visibility and operations before they were written, and three of its questions turned out to be open.
 
 ## Part 1: the idea
 
