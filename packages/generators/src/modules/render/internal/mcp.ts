@@ -7,7 +7,8 @@ import type { RenderedFile } from "../types.ts";
 import { GENERATED, lines, opVar } from "./names.ts";
 
 export const renderMcp = (model: Model): ReadonlyArray<RenderedFile> => {
-  const ops = Object.values(model.operations);
+  // MCP is the agent's way in: an operation a mount narrowed without Via.agent has no tool (M1-plugins section 3).
+  const ops = Object.values(model.operations).filter((o) => o.via === undefined || o.via.includes("agent"));
   return [{
     path: "generated/mcp/src/index.ts",
     scaffold: false,

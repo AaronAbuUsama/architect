@@ -5,6 +5,7 @@ import { hashOf } from "#modules/model/internal/hash.js";
 import type { MountModel, MountsApi } from "./types.ts";
 import { chosenOf, choicesIn } from "./internal/choices.ts";
 import { renamed } from "./internal/fold.ts";
+import { applyVerbs } from "./internal/verbs.ts";
 
 const byName = <V>(m: ReadonlyMap<string, V>) => [...m].sort(([a], [b]) => a.localeCompare(b));
 
@@ -37,15 +38,21 @@ export const Mounts: MountsApi = {
 
       const files = yield* source.pluginFiles(plugin.name).pipe(Effect.result);
       if (files._tag === "Failure") { problems.push(`${m.file}: ${files.failure.message}`); continue; }
+      let verbs: { readonly omitted?: ReadonlyArray<string>; readonly narrowed?: Readonly<Record<string, ReadonlyArray<string>>> } = {};
       if (m.kind === "feature") {
         const own = readLayout(files.success.files.filter((f) => f.path.startsWith("things/")), (path) => `${plugin.name}/blueprint/${path}`);
         problems.push(...own.problems);
-        for (const t of renamed(own, name, plugin.name, plugin.version)) {
+        // Each thing gets its own verbs map, so an omit changes only this mount's copy.
+        const mine = renamed(own, name, plugin.name, plugin.version).map((t) => ({ ...t, verbs: new Map(t.verbs) }));
+        const applied = applyVerbs(m.file, plugin.name, m.mount, mine, layout);
+        problems.push(...applied.problems);
+        verbs = { ...(applied.omitted.length > 0 ? { omitted: applied.omitted } : {}), ...(Object.keys(applied.narrowed).length > 0 ? { narrowed: applied.narrowed } : {}) };
+        for (const t of mine) {
           if (layout.things.has(t.name) || things.has(t.name)) problems.push(`${m.file}: ${plugin.name} brings thing ${t.name}, and the blueprint already has one by that name: mount it under another name`);
           else things.set(t.name, t);
         }
       }
-      const entry = { kind: m.kind, file: m.file, package: plugin.name, version: plugin.version, integrity: files.success.integrity, chosen };
+      const entry = { kind: m.kind, file: m.file, package: plugin.name, version: plugin.version, integrity: files.success.integrity, chosen, ...verbs };
       mounts[name] = { ...entry, hash: hashOf({ ...entry, file: undefined }) };
     }
     return { things, mounts, problems };

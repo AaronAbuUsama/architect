@@ -44,6 +44,7 @@ export const journeyLines = (runs: ReadonlyArray<JourneyRun>, traces: ReadonlyMa
     const bad = steps.filter((x) => x.failures.length > 0);
     lines.push(`journey ${run.name} ${bad.length === 0 ? "✔" : "✘"} ${steps.length - bad.length}/${steps.length} steps`);
     for (const { s, failures } of bad) for (const f of failures) lines.push(`  ✘ "${s.title}": ${f}`);
+    for (const s of run.skipped ?? []) lines.push(`  skipped "${s.step}": it runs ${s.operation}, which ${s.file} omits`);
     for (const { s } of bad) failedTraces.push({ trace: s.trace, what: `${run.name} "${s.title}"` });
     failed += bad.length;
   }

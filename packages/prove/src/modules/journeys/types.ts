@@ -48,6 +48,8 @@ export interface JourneyRun {
   readonly steps: ReadonlyArray<StepResult>;
   /** Why the journey stopped before its steps, if it did. */
   readonly stopped: string | undefined;
+  /** Its steps that run an operation a mount omits: not run, and named (M1-plugins section 3). */
+  readonly skipped?: ReadonlyArray<{ readonly step: string; readonly operation: string; readonly file: string }>;
 }
 
 /** What the project declares, loaded once: its operations and things by name, its journeys and starting worlds. */
@@ -59,6 +61,8 @@ export interface Project {
   readonly things: ReadonlyMap<string, Thing>;
   readonly journeys: ReadonlyArray<Journey>;
   readonly startingWorlds: ReadonlyMap<string, StartingWorld>;
+  /** Each operation a mount omits, by its declaration: a journey's step that runs one is skipped. */
+  readonly omitted?: ReadonlyMap<unknown, { readonly operation: string; readonly file: string }>;
 }
 
 export class ProjectFailed extends Data.TaggedError("ProjectFailed")<{ readonly message: string }> {}

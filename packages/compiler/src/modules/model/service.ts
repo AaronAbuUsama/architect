@@ -1,7 +1,8 @@
 import { Effect } from "effect";
 import { ErrorNames, EventNames } from "orthograph/server";
 import { BlueprintSource } from "#modules/source/types.js";
-import { BlueprintInvalid, type CompilerApi } from "./types.ts";
+import { BlueprintInvalid, type CompilerApi, type Model, type MountModel } from "./types.ts";
+import { hashOf } from "./internal/hash.ts";
 import { describe } from "./internal/describe.ts";
 import { readLayout } from "./internal/layout.ts";
 import { Mounts } from "#modules/mounts/service.js";
@@ -25,8 +26,22 @@ export const Compiler: CompilerApi = {
     for (const t of layout.things.values()) for (const [name, event] of t.events) EventNames.name(event, name);
     const { model, problems } = describe(layout);
     if (problems.length > 0) return yield* new BlueprintInvalid({ problems });
-    return Object.keys(folded.mounts).length > 0 ? { ...model, mounts: folded.mounts } : model;
+    return Object.keys(folded.mounts).length > 0 ? { ...narrowed(model, folded.mounts), mounts: folded.mounts } : model;
   }),
+};
+
+/** An operation a mount narrowed keeps only the ways in named: `via` on it, in its hash. */
+const narrowed = (model: Model, mounts: Readonly<Record<string, MountModel>>): Model => {
+  const operations = { ...model.operations };
+  for (const m of Object.values(mounts)) {
+    for (const [name, via] of Object.entries(m.narrowed ?? {})) {
+      const op = operations[name];
+      if (!op) continue;
+      const { hash: _, ...entry } = op;
+      operations[name] = { ...entry, via, hash: hashOf({ ...entry, via }) };
+    }
+  }
+  return { ...model, operations };
 };
 
 export { canonical } from "./internal/hash.ts";
