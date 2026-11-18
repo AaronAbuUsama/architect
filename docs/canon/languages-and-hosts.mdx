@@ -93,7 +93,7 @@ export class Store extends Context.Service<Store, {
 4. **`runs` says where an operation runs.** The declaration can say three places. Only one is accepted:
 
 ```ts file=packages/orthograph/src/modules/operations/types.ts lines=21-22
-/** Where an operation runs: `server` (every target today), on the caller's `client`, or on a `chain`. */
+/** Where an operation runs: `server` (every language today), on the caller's `client`, or on a `chain`. */
 export type Runs = "client" | "server" | "chain";
 ```
 
@@ -135,7 +135,7 @@ A language never chooses where it runs, and a host never gives an operation mean
 Only the first of each is built. `language-solidity` is a placeholder today:
 
 ```ts file=packages/language-solidity/src/index.ts lines=1-2
-// @orthograph/language-solidity: the Solidity target.
+// @orthograph/language-solidity: the Solidity language.
 export {};
 ```
 
@@ -177,7 +177,6 @@ boundaries": "a host's types in a handler" never crosses from host to language).
   `host-cloudflare` ([data](data.mdx), [stores](stores.mdx)).
 - **Not a door.** Where an operation is enforced is the language's; how a caller reaches it is the door's
   ([doors](doors.mdx)).
-- **Not a "target".** That word is retired for language (K2, Aaron's call 2).
 
 ## Where it lives
 
@@ -210,8 +209,8 @@ The page is a draft because the chain half waits on K7. The Effect half is built
 
 ## Notes
 
-<Note kind="decision" decision="K2">"Target" is renamed language (Aaron's call 2). Effect, Solidity, Noir and Python
-are languages; Cloudflare and a chain are hosts.</Note>
+<Note kind="decision" decision="K2">Effect, Solidity, Noir and Python are languages; Cloudflare and a chain are hosts
+(Aaron's call 2).</Note>
 
 <Note kind="decision" decision="K3">A chain is a host (`Host.chain`), and `chain` is the store kind that runs on it,
 supplied by `language-solidity` (K3 item 2, K5 decision 8). This answers ledger `LAH-04`.</Note>
@@ -223,9 +222,6 @@ ABI, what clients may reach, and how Solidity, Noir and Solana share one model. 
 <Note kind="question" id="runs-client">An operation that runs on the caller's device (`runs: "client"`, such as a
 wallet link) is refused by the compiler, and no slice lifts the refusal. Ledger `LAH-02` (high).</Note>
 
-<Note kind="question" id="target-word">The compiler's refusal now says "needs a language" (`describe.ts:167-170`), but
-the retired word is still in the declaration's own comments (`packages/orthograph/src/modules/operations/types.ts:15-16`,
-`:21`, `:49`). No slice owns the rest of the rename. Ledger `G-02`.</Note>
 
 <Note kind="question" id="host-service" slice="M1.09">The build plan says the Effect runtime is host-neutral behind a
 `Host` service, so a Node host is a fallback if workerd bites. No such service exists in `language-effect`: the host

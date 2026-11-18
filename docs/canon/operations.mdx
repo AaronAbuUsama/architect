@@ -508,14 +508,6 @@ sending. It costs one kept answer per key. Leave it off when a second call is ha
   Ledger: OPS-01, high.
 </Note>
 
-<Note kind="question" id="target-means-language">
-  The word "target" still means a language in the operation's own types: the step kinds are "reserved for targets
-  that run on a chain or a client", and `runs` is only `server` "until a target supports another"
-  (`packages/orthograph/src/modules/operations/types.ts:15`, `types.ts:21`, `types.ts:49`). The tests say the same
-  (`packages/orthograph/src/modules/operations/operations.test.ts:60`, `operations.test.ts:72`). The message users see
-  says language now ("it needs a language …", `packages/compiler/src/modules/model/internal/describe.ts:169`). But
-  every generated `errors.ts` says codes are "stable across targets" (`api.ts:56`). No slice owns the rest of the rename.
-</Note>
 
 <Note kind="status" slice="M1.26">
   Today eval 6 requires every declared step on an answered call, and there is no `optional`. A handler that skips a

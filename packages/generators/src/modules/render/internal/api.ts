@@ -53,7 +53,7 @@ const errors = (model: Model): RenderedFile => {
     "/** Each refusal's exit code, for the CLI. */",
     "export const exits = {", exits, "} as const;",
     "",
-    "/** Each refusal's code, stable across targets: `[AL-002] Name { field: value }`. Beside the tag, never in place of it. */",
+    "/** Each refusal's code, stable across languages: `[AL-002] Name { field: value }`. Beside the tag, never in place of it. */",
     "export const codes = {", codes, "} as const;",
     "",
     "/** The fields of each refusal whose values may be shown (printed, logged, put in a span): only the public ones. */",

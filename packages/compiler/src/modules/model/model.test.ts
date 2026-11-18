@@ -181,7 +181,7 @@ describe("model", () => {
       expect(JSON.stringify(exit)).toMatch(/organization and allowance would both have refusal codes starting AL-|allowance and organization would both/);
     });
 
-    it("defaults `runs` to server and `test` to unit, and refuses every other place, naming the target that would run it", async () => {
+    it("defaults `runs` to server and `test` to unit, and refuses every other place, naming the language that would run it", async () => {
       const exit = await modelOf(acme);
       expect(Exit.isSuccess(exit)).toBe(true);
       if (Exit.isSuccess(exit)) expect(Object.values(exit.value.operations).every((o) => o.runs === "server" && o.test === "unit")).toBe(true);

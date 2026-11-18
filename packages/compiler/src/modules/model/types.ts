@@ -71,9 +71,9 @@ export interface OperationModel {
   readonly allowed: ReadonlyArray<AllowedModel>;
   readonly steps: Readonly<Record<string, { readonly name: string; readonly type: string }>>;
   readonly idempotent: "request" | null;
-  /** Where it runs. Always `server`: the compiler refuses the others until a target supports them. */
+  /** Where it runs. Always `server`: the compiler refuses the others until a language supports them. */
   readonly runs: "server";
-  /** `network` when its guarantee needs a network test (a target sets it); `unit` otherwise. */
+  /** `network` when its guarantee needs a network test (a language sets it); `unit` otherwise. */
   readonly test: "unit" | "network";
   readonly budget: { readonly p95Ms: number } | null;
   /** A list read: what it filters by, its order and its page size. Present only for lists. */

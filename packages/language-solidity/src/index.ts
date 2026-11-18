@@ -1,2 +1,2 @@
-// @orthograph/language-solidity: the Solidity target.
+// @orthograph/language-solidity: the Solidity language.
 export {};

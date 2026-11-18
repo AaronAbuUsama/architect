@@ -1,5 +1,5 @@
 // Visibility: who may see a field's value. `public` is the default, and the only visibility whose value may ever be a
-// span attribute, a log line or a journal field (L2.P, N1 decision 3). A target that has no private state, such as
+// span attribute, a log line or a journal field (L2.P, N1 decision 3). A language that has no private state, such as
 // Solidity, treats everything as public; one that has it, such as Noir on Aztec, uses the roles.
 import type { Role } from "#modules/roles/types.js";
 import type { Field } from "#modules/things/types.js";

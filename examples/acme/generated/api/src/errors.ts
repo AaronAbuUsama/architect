@@ -33,7 +33,7 @@ export const exits = {
   NotAllowed: 3,
 } as const;
 
-/** Each refusal's code, stable across targets: `[AL-002] Name { field: value }`. Beside the tag, never in place of it. */
+/** Each refusal's code, stable across languages: `[AL-002] Name { field: value }`. Beside the tag, never in place of it. */
 export const codes = {
   AllowanceExceeded: "AL-001",
   AllowanceNotFound: "AL-002",

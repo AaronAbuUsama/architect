@@ -12,16 +12,16 @@ export interface Step<K extends StepKind = StepKind> {
   readonly type: K;
 }
 /**
- * What a step is. `database` and `wait` are what the Effect target runs. `sync`, `check` and `prove` are reserved for
- * targets that run on a chain or a client (N1): each is a span with its own budget. The union is open, so a target can
- * add kinds, and nothing here matches on all of them.
+ * What a step is. `database` and `wait` are what the Effect language runs. `sync`, `check` and `prove` are reserved for
+ * languages that run on a chain or a client (N1): each is a span with its own budget. The union is open, so a language
+ * can add kinds, and nothing here matches on all of them.
  */
 export type StepKind = "database" | "wait" | "sync" | "check" | "prove" | (string & {});
 
-/** Where an operation runs: `server` (every target today), on the caller's `client`, or on a `chain`. */
+/** Where an operation runs: `server` (every language today), on the caller's `client`, or on a `chain`. */
 export type Runs = "client" | "server" | "chain";
 
-/** How a guarantee is tested: `unit` in the target's own test runner, or `network` on a network the target's tests need. */
+/** How a guarantee is tested: `unit` in the language's own test runner, or `network` on a network the language's tests need. */
 export type TestKind = "unit" | "network";
 export type Steps = { readonly [key: string]: Step };
 
@@ -46,9 +46,9 @@ export interface OperationSpec<P extends FieldsInput, A extends FieldsInput, E e
   readonly steps?: St;
   readonly idempotent?: "request";
   readonly budget?: Budget;
-  /** Where it runs. Only `server` is accepted until a target supports another (N1). */
+  /** Where it runs. Only `server` is accepted until a language supports another (N1). */
   readonly runs?: Runs;
-  /** A target can say a guarantee needs a network test; defaults to `unit`. */
+  /** A language can say a guarantee needs a network test; defaults to `unit`. */
   readonly test?: TestKind;
 }
 

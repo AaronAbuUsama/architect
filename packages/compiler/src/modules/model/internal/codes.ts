@@ -1,4 +1,4 @@
-// Refusal codes, stable across targets: `[AL-002] AllowanceExceeded { limit: 500 }`. A code is its thing's prefix and a
+// Refusal codes, stable across languages: `[AL-002] AllowanceExceeded { limit: 500 }`. A code is its thing's prefix and a
 // number. Declared errors are numbered 1, 2, 3 in the order they are declared in the thing's `errors.ts`; the machine's own
 // refusal is always 900; the runtime's refusals belong to no thing and take the prefix `AR`. The model records every code,
 // so a generator reads it and never works one out, and a number that has shipped does not move when an error is added.
