@@ -402,8 +402,8 @@ forced reorg is corrected; a pending chain call shows its in-between state (S25)
 **Goal.** Every local destination swapped for the real one, each credential created only with Aaron's written yes and
 the spend under $10 a day; then Capxul's first feature running on Orthograph.
 **Staging first** (K10 section 8, Aaron, 18 November): `spikes/staging-pass` any time (acme up on a dedicated
-Cloudflare account, proved there, destroyed, the account listing nothing after); then, after Gate M2, M7.01, M7.03 and
-M7.04 for staging alone. npm, Homebrew and the rest of M7 still wait on the stage 4 gate.
+Cloudflare account, proved there, destroyed, the account listing nothing after); then, after Gate M2, M7.01, M7.03,
+M7.04 and M7.08 for staging alone. npm, Homebrew and the rest of M7 still wait on the stage 4 gate.
 **Gate.** `nx run e2e:m7`: acme goes from a pull request to test, staging and production on Cloudflare with a verdict
 in each, Orthograph's packages are released under `@orthograph` on npm, and everything the gate made is destroyed after.
 Capxul's first feature runs in its staging.
