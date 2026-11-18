@@ -658,7 +658,7 @@ copy rather than install because we'll change its core anyway, and a copy we own
 
 Aaron pointed at Paul Berg's `@prb/effect-evm` (MIT, Effect 4, built on viem) and asked whether to take from it. The
 building agent's call, 18 November 2026: **vendor it, module by module, into `@orthograph/chain-evm`**, keeping the MIT
-notice, never as a dependency.
+notice, never as a dependency. **Aaron approved it on 18 November 2026: "solid on the vendoring, let's do it".**
 - **Now (M1.30).** The transaction manager and tracker (`tx/`, 42 KB), nonces (`nonce/`, 14 KB), viem error mapping
   (`core/errors/`, 45 KB) and event streams (`events/`, 32 KB): about 4,000 lines, the fiddly, tested parts.
 - **Reshaped.** They move into our six-slot module shape, with every wait through `Timers`. `tx/manager.ts` is 20 KB, so
