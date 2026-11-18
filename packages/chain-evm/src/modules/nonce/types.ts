@@ -11,3 +11,9 @@ export interface Broadcast {
   readonly fromBlock: bigint;
   readonly replaces?: Hash;
 }
+
+export interface BroadcastAttempt {
+  readonly broadcast: Broadcast;
+  readonly fresh: boolean;
+  readonly previous?: Broadcast;
+}

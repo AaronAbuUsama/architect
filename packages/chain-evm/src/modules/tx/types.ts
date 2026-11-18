@@ -49,6 +49,8 @@ export type ConfirmationLevel = { readonly depth: number } | { readonly tag: "sa
 
 export interface Intent<TEvent extends DecodedEvent = DecodedEvent> {
   readonly source: EventSource<TEvent>;
+  /** Contract deadline in epoch seconds. A later block cannot execute the intent. */
+  readonly deadline?: bigint;
   readonly matches: (event: TEvent) => boolean;
 }
 
@@ -88,6 +90,7 @@ export interface ChainPortOptions {
   readonly rpcUrl: string;
   readonly pollIntervalMs?: number;
   readonly receiptTimeoutMs?: number;
+  readonly rpcTimeoutMs?: number;
   readonly refusals?: ReadonlyArray<RefusalLockEntry>;
   /** Optional trace provider for recovering data from mined reverts. */
   readonly traceRevert?: (hash: Hash) => Effect.Effect<Hex | undefined, ChainFault>;

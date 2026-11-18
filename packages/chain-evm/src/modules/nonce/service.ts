@@ -1,17 +1,15 @@
 // Adapted from @prb/effect-evm@5.0.3 src/nonce/service.ts. See LICENSE-prb-effect-evm.
 import { Effect } from "effect";
-import type { Address, PublicClient } from "viem";
+import type { Address } from "viem";
 import { rpcFault } from "../faults/service.ts";
+import type { Rpc } from "../tx/internal/rpc.ts";
 import { makeNonceManager } from "./internal/manager.ts";
 
-export const makeNonces = (client: PublicClient) =>
+export const makeNonces = (rpc: Rpc) =>
   Effect.gen(function* () {
     const manager = yield* makeNonceManager;
     const count = (address: Address, blockTag: "pending" | "latest" | "finalized") =>
-      Effect.tryPromise({
-        try: () => client.getTransactionCount({ address, blockTag }),
-        catch: (error) => rpcFault(error, address),
-      });
+      rpc((client) => client.getTransactionCount({ address, blockTag })).pipe(Effect.mapError((error) => rpcFault(error)));
 
     const reserve = (address: Address) => count(address, "pending").pipe(
       Effect.flatMap((startNonce) => manager.reserveNext(address, startNonce)),

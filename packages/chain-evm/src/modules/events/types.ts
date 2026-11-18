@@ -47,6 +47,7 @@ export interface EventPoll<TEvent extends DecodedEvent> {
   readonly checkpoint: EventCheckpoint<TEvent>;
   readonly changes: ReadonlyArray<EventChange<TEvent>>;
   readonly caughtUp: boolean;
+  readonly headTimestamp: bigint;
 }
 
 export interface EventFollower<TEvent extends DecodedEvent> {

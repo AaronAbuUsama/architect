@@ -20,14 +20,23 @@ export const TimersMemory = Layer.effect(
     return Timers.of({
       at: (at, owner, name, work) => add(at, owner, name, busy.spawn(Effect.ignore(work))),
       sleep: (owner, span) =>
-        Effect.gen(function* () {
+        Effect.uninterruptibleMask((restore) => Effect.gen(function* () {
           const now = yield* Clock.currentTimeMillis;
           const woken = yield* Deferred.make<void>();
           // The timer takes a token for the sleeper before waking it, so a woken fiber is never uncounted.
-          yield* add(now + Duration.toMillis(span), owner, "sleep", Effect.andThen(busy.enter, Deferred.succeed(woken, undefined)));
+          const id = yield* add(now + Duration.toMillis(span), owner, "sleep", Effect.andThen(busy.enter, Deferred.succeed(woken, undefined)));
           yield* busy.leave;
-          yield* Deferred.await(woken);
-        }),
+          yield* restore(Deferred.await(woken)).pipe(Effect.onInterrupt(() => Effect.gen(function* () {
+            const pending = table.findIndex((timer) => timer.id === id);
+            if (pending === -1) {
+              // A firing timer has already claimed ownership of the wakeup.
+              yield* Deferred.await(woken);
+            } else {
+              table.splice(pending, 1);
+              yield* busy.enter;
+            }
+          })));
+        })),
       due: (target) =>
         Effect.sync(() => table.reduce<number | undefined>((best, t) => (t.at <= target && (best === undefined || t.at < best) ? t.at : best), undefined)),
       fire: (at) =>

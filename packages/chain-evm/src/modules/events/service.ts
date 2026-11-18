@@ -1,7 +1,7 @@
 // Adapted from @prb/effect-evm@5.0.3 src/events/{stream,cursor,reliable-stream}.ts. See LICENSE-prb-effect-evm.
 import type { Timers } from "@orthograph/language-effect";
 import { Effect, Stream } from "effect";
-import type { PublicClient } from "viem";
+import type { Rpc } from "../tx/internal/rpc.ts";
 import { rpcFault } from "../faults/service.ts";
 import { ChainFault } from "../faults/types.ts";
 import { retryRead } from "../tx/internal/receipt-retry.ts";
@@ -14,14 +14,11 @@ import type { DecodedEvent, EventCheckpoint, EventFollower, EventSource } from "
 export { makeEventSource } from "./internal/decoder.ts";
 
 export const makeFollower = <TEvent extends DecodedEvent>(
-  client: PublicClient, timers: typeof Timers.Service, interval: number, source: EventSource<TEvent>, level: ConfirmationLevel,
+  rpc: Rpc, timers: typeof Timers.Service, interval: number, source: EventSource<TEvent>, level: ConfirmationLevel,
 ): EventFollower<TEvent> => {
   const empty: EventCheckpoint<TEvent> = { through: undefined, window: [], seen: [] };
   const block = (point: { blockNumber: bigint } | { blockTag: "latest" | "safe" | "finalized" }) =>
-    retryRead(timers, Effect.tryPromise({
-      try: () => client.getBlock({ ...point, includeTransactions: false }),
-      catch: (error) => error,
-    })).pipe(Effect.mapError((error) => rpcFault(error, source.address)));
+    retryRead(timers, rpc((client) => client.getBlock({ ...point, includeTransactions: false }))).pipe(Effect.mapError((error) => rpcFault(error, source.address)));
   const hashAt = (number: bigint) => block({ blockNumber: number }).pipe(Effect.map(({ hash }) => hash));
 
   const poll: EventFollower<TEvent>["poll"] = (old = empty) => Effect.gen(function* () {
@@ -36,7 +33,7 @@ export const makeFollower = <TEvent extends DecodedEvent>(
     const through = end === head.number ? head : yield* block({ blockNumber: end });
     const retained = old.window.filter(({ number }) => ancestor !== undefined && number <= ancestor.number);
     const window = yield* buildWindow(retained, through, (n) => block({ blockNumber: n }), source.address);
-    const logs = from > end ? [] : yield* readRange(client, timers, source, from, end);
+    const logs = from > end ? [] : yield* readRange(rpc, timers, source, from, end);
     const confirmedThrough = "depth" in level
       ? head.number + 1n - BigInt(level.depth)
       : (yield* block({ blockTag: level.tag })).number;
@@ -48,6 +45,7 @@ export const makeFollower = <TEvent extends DecodedEvent>(
     const result = applyEvents(old, ancestor, logs, min(end, confirmedThrough), max(0n, end - WINDOW + 1n));
     return {
       caughtUp: end === head.number,
+      headTimestamp: head.timestamp,
       changes: result.changes,
       checkpoint: { through: { number: through.number, hash: through.hash }, window, seen: result.seen },
     };

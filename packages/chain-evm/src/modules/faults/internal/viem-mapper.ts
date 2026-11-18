@@ -1,10 +1,10 @@
 // Adapted from @prb/effect-evm@5.0.3 src/core/errors/{viem-mapper,tx}.ts. See LICENSE-prb-effect-evm.
 import {
-  BlockNotFoundError, HttpRequestError, InsufficientFundsError, NonceTooLowError,
+  FeeCapTooLowError, HttpRequestError, InsufficientFundsError, IntrinsicGasTooLowError, NonceTooLowError, RpcRequestError,
   TimeoutError, TransactionNotFoundError, TransactionReceiptNotFoundError,
-  UserRejectedRequestError,
+  TipAboveFeeCapError, UserRejectedRequestError,
 } from "viem";
-import type { FaultKind } from "../types.ts";
+import { ChainFault, type FaultKind } from "../types.ts";
 
 const NONCE_TOO_LOW = /nonce (?:is )?too low|nonce has already been used|already used nonce/iu;
 const NONCE_FALSE_POSITIVE = /nonce too high|transaction underpriced|already known/iu;
@@ -58,11 +58,16 @@ export const isPendingReceipt = (error: unknown): boolean =>
   Array.from(errorChain(error)).some((cause) =>
     cause instanceof TransactionNotFoundError || cause instanceof TransactionReceiptNotFoundError);
 
-export const isMissingBlock = (error: unknown): boolean =>
-  Array.from(errorChain(error)).some((cause) => cause instanceof BlockNotFoundError);
+export const isDefiniteRejection = (error: unknown): boolean =>
+  Array.from(errorChain(error)).some((cause) =>
+    cause instanceof InsufficientFundsError || cause instanceof IntrinsicGasTooLowError ||
+    cause instanceof TipAboveFeeCapError || cause instanceof FeeCapTooLowError || cause instanceof UserRejectedRequestError ||
+    (isRecord(cause) && cause["code"] === 4001) ||
+    (cause instanceof RpcRequestError && [InsufficientFundsError.nodeMessage, IntrinsicGasTooLowError.nodeMessage,
+      TipAboveFeeCapError.nodeMessage, FeeCapTooLowError.nodeMessage].some((pattern) => pattern.test(cause.details ?? ""))));
 
 export const isTransient = (error: unknown): boolean =>
   Array.from(errorChain(error)).some((cause) =>
-    cause instanceof TimeoutError ||
+    cause instanceof TimeoutError || (cause instanceof ChainFault && cause.kind === "timeout") ||
     (cause instanceof HttpRequestError && (cause.status === 429 || (cause.status ?? 0) >= 500)) ||
     (isRecord(cause) && cause["code"] === -32005)) || hasMessage(error, TRANSIENT);

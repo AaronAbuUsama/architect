@@ -1,17 +1,15 @@
 // Adapted from @prb/effect-evm@5.0.3 src/tx/manager.ts and tx/internal/receipt-retry.ts. See LICENSE-prb-effect-evm.
 import type { Timers } from "@orthograph/language-effect";
 import { Effect } from "effect";
-import type { Hash, PublicClient, TransactionReceipt } from "viem";
+import type { Hash, TransactionReceipt } from "viem";
 import { isPendingReceipt } from "../../faults/internal/viem-mapper.ts";
 import { decodeRevert, rpcFault } from "../../faults/service.ts";
 import type { ChainPortOptions, Submission } from "../types.ts";
+import type { Rpc } from "./rpc.ts";
 import { retryRead } from "./receipt-retry.ts";
 
-export const readReceipt = (client: PublicClient, timers: typeof Timers.Service, hash: Hash) =>
-  retryRead(timers, Effect.tryPromise({
-    try: () => client.getTransactionReceipt({ hash }),
-    catch: (error) => error,
-  })).pipe(
+export const readReceipt = (rpc: Rpc, timers: typeof Timers.Service, hash: Hash) =>
+  retryRead(timers, rpc((client) => client.getTransactionReceipt({ hash }))).pipe(
     Effect.catch((error) => isPendingReceipt(error) ? Effect.succeed(undefined) : Effect.fail(rpcFault(error))),
   );
 

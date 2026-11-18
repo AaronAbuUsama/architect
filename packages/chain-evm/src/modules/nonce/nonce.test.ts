@@ -24,10 +24,35 @@ test("does not recycle a broadcast nonce or let an obsolete reservation release 
     yield* manager.release(cancelled);
     const first = { hash: firstHash, fromBlock: 1n } as const;
     yield* manager.beginBroadcast(tx, first);
-    expect(yield* manager.beginBroadcast(tx, { ...first, fromBlock: 2n })).toEqual(first);
+    expect((yield* manager.beginBroadcast(tx, { ...first, fromBlock: 2n })).broadcast).toEqual(first);
     yield* manager.release(tx);
     expect((yield* manager.reserveNext(sender, 0)).nonce).toBe(1);
     const replacement = { hash: nextHash, fromBlock: 2n, replaces: firstHash } as const;
-    expect(yield* manager.beginBroadcast(tx, replacement)).toEqual({ ...replacement, fromBlock: 1n });
+    expect((yield* manager.beginBroadcast(tx, replacement)).broadcast).toEqual({ ...replacement, fromBlock: 1n });
     expect(yield* manager.beginBroadcast(tx, first).pipe(Effect.flip)).toMatchObject({ kind: "nonce" });
+  })));
+
+test("definite rejection reclaims the first nonce and restores the replaced attempt", () =>
+  Effect.runPromise(Effect.gen(function* () {
+    const manager = yield* makeNonceManager;
+    const first = { hash: firstHash, fromBlock: 1n } as const;
+    const reservation = yield* manager.reserveNext(sender, 3);
+    const rejected = yield* manager.beginBroadcast(reservation, first);
+    yield* manager.rejectBroadcast(reservation, rejected);
+    const next = yield* manager.reserveNext(sender, 3);
+    expect(next.nonce).toBe(3);
+    yield* manager.beginBroadcast(next, first);
+    const retried = yield* manager.beginBroadcast(next, first);
+    yield* manager.rejectBroadcast(next, retried);
+    const replacement = yield* manager.beginBroadcast(next, { hash: nextHash, fromBlock: 2n, replaces: firstHash });
+    yield* manager.rejectBroadcast(next, replacement);
+    expect((yield* manager.beginBroadcast(next, first)).broadcast).toEqual(first);
+  })));
+
+test("a lagging pending count cannot allocate a finalized nonce", () =>
+  Effect.runPromise(Effect.gen(function* () {
+    const manager = yield* makeNonceManager;
+    yield* manager.pruneFinalized(sender, 4);
+    yield* manager.pruneFinalized(sender, 2);
+    expect((yield* manager.reserveNext(sender, 3)).nonce).toBe(4);
   })));

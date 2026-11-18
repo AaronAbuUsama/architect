@@ -68,7 +68,7 @@ export const mapRpcError = (
 
 // viem errors can include a request URL or serialized transaction. Keep only the classification.
 export const rpcFault = (error: unknown, program?: Address): ChainFault =>
-  new ChainFault({
+  error instanceof ChainFault ? error : new ChainFault({
     kind: rpcFaultKind(error),
     ...(program === undefined ? {} : { program }),
     message: "EVM RPC request failed",
