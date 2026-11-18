@@ -101,10 +101,6 @@ declaration.
 
 ## The worked example: the community workshop
 
-**Superseded as the example** by [`K9-growing-example.md`](K9-growing-example.md) (18 November 2026): the example is
-`links`, in four stages. The workshop's governance and votes are dropped; its private membership and ballots become
-stage 4. The seams below still hold.
-
 This record's example is a small DAO for a community workshop. Members edit drafts together, put a frozen revision to
 a vote, and publish the result. It needs every seam: two stores, two languages, a cross-owner workflow, a wallet and,
 later, private membership. Signup's `sheet.join` is used only where the smallest case is clearer.
@@ -377,10 +373,6 @@ export default defineAction({
 
 Two things differ from agent-native's version: `ctx` carries the SDK client and the call's id (agent-native's `ctx` has
 neither, `action.ts:190-270`), and `errors` carry the operation's refusal codes.
-
-**Corrected by [`K9-growing-example.md`](K9-growing-example.md)** ("Agent-native compatibility", from
-`spikes/agent-native-compat/`): this `run` does not compile against agent-native's `ctx`, `retrySafe: true` is
-harmful, and the module exports `options(host)` for the host to wrap. The sketch above stays as written.
 
 Because the field names match, an agent-native app can use these actions as its own: it registers them and calls our
 Worker through the SDK. That is how Orthograph aims to power agent-native apps without being one. M1.22 checks the
@@ -689,3 +681,14 @@ end-to-end example from layer 4 on.
   of their code runs. A change they make reaches us only when we port it.
 - **Noir metadata.** Even with private membership, timing and the fee payer are visible. The portal says so on the
   vote's page.
+
+## Later: K9 (18 November 2026)
+
+These notes sit at the end so the canon's line-numbered quotes of this record stay exact.
+
+- **The worked example is superseded** by [`K9-growing-example.md`](K9-growing-example.md): the example is `links`,
+  in four stages. The workshop's governance and votes are dropped; its private membership and ballots become stage 4.
+  The seams in "The worked example" still hold.
+- **The actions sketch in seam 5 is corrected** by K9's "Agent-native compatibility" (from
+  `spikes/agent-native-compat/`): its `run` does not compile against agent-native's `ctx`, `retrySafe: true` is
+  harmful, and the module exports `options(host)` for the host to wrap. The sketch stays as written.

@@ -73,7 +73,7 @@ M4.14), views, Stripe, Resend, adapters from OpenAPI, MariaDB and a second app (
 never waits on them.
 
 **The gates of M3 to M6 no longer order the work.** Their suites still run, beside, once their slices exist. Where a
-stage's slice `needs` one of those gates, the stage before it stands in:
+stage's slice `needs` one of those gates, a stage gate stands in:
 
 | Slice | Its `needs` says | Read it as |
 |---|---|---|
@@ -81,9 +81,11 @@ stage's slice `needs` one of those gates, the stage before it stands in:
 | M5.01 (the decision M5.03 needs, for stage 2's follower events) | Gate M4 | Gate M2 |
 | M3.01 (workflows, stage 3) | Gate M2 | Gate M2, unchanged |
 | M4.01 (agents, stage 3) | Gate M3 | the stage 2 gate, ST2.06 |
+| M7.01 (the cloud pass, v1.0's release) | Gate M6 | the stage 4 gate, ST4.08 |
 
-Everything downstream of these four follows from them: M6.02 and the K7 wallet slices from M6.01, M5.03 from M5.01,
-M3.02 and M3.03 from M3.01, M4.02 to M4.10 and M4.16 from M4.01. None of them needs a factory, bench or M5 slice.
+Everything downstream of these five follows from them: M6.02 and the K7 wallet slices from M6.01, M5.03 from M5.01,
+M3.02 and M3.03 from M3.01, M4.02 to M4.10 and M4.16 from M4.01, and M7.02 to M7.04 and M7.06 from M7.01. None of
+them needs a factory, bench or M5 slice.
 
 ### Stage 1: links
 
@@ -359,7 +361,7 @@ forced reorg is corrected; a pending chain call shows its in-between state (S25)
 | M6.17 | Contracts in the local pipeline, redeployed only on a new bytecode hash (L4.08, local part) | M6.16 | build | promoting twice with the same bytecode deploys nothing the second time | M |
 | M6.18 ∥ | The no-key and custody checks (S29) | M6.16 | build | a planted private key in a binding fails the check | S |
 | M6.20 | `examples/workshop` (K5): the governance feature, the vote as a contract operation, the publish workflow across D1 and the chain, the forum adapter's stand-in | M6.16, M3.10 | build | a vote twice by one member is refused by the contract through the SDK, the CLI and an action; a publish run links the confirmed proposal to its exact revision | M |
-| M6.19 | **Gate M6** | M6.02 to M6.18, M6.20 | e2e | `nx run e2e:m6` passes on `main` | S |
+| M6.19 | **Gate M6** | M6.02 to M6.18 (M6.20 dropped by K9) | e2e | `nx run e2e:m6` passes on `main` | S |
 
 ## M7: The cloud, then Capxul
 

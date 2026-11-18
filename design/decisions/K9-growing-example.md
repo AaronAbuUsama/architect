@@ -393,7 +393,7 @@ MariaDB and second-app adapters, and M7's Capxul slices, are also beside. Capxul
 
 `milestones.md` keeps every slice id. A new section, "v1.0: four stages", says which slice belongs to which stage and
 gives each stage its gate. The gates of M3 to M6 no longer order the work: where a stage's slice needs one of them,
-the stage before stands in (the table in that section), and their suites run beside.
+a stage gate stands in (the table in that section, M7.01 included), and their suites run beside.
 
 ## Canon changes, for the conductor to relay
 
