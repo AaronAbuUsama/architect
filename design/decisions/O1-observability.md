@@ -344,7 +344,7 @@ Handler (Effect span, step child spans, defect record) → `Telemetry.serve` per
 
 | Environment | Sinks (default) | Where it lands |
 |---|---|---|
-| `local` (dev, env up, prove) | `local`: the Collector in Docker | `traces.jsonl`, `logs.jsonl`; the viewer when running; any other sink named, when its token is present |
+| `local` (dev, env up, prove) | `local`: the Collector in Docker | `traces.jsonl`, `logs.jsonl`, `metrics.jsonl`; the viewer when running; any other sink named, when its token is present |
 | `ci` (prove on a fresh world) | `local` | files only, no credentials |
 | `staging`, `production` | Axiom (traces, logs) and PostHog (defects) | per the next sections |
 
@@ -353,7 +353,7 @@ Handler (Effect span, step child spans, defect record) → `Telemetry.serve` per
 One dataset per environment per signal, named from the project and environment (never typed by hand):
 `acme-dev-traces`, `acme-staging-logs`, `acme-production-traces` and so on. A token is scoped to datasets, so a staging
 token cannot write production; Axiom requires traces and logs in separate datasets. Spans carry
-`deployment.environment.name` and `service.name`. Metrics: none today; `<project>-<env>-metrics` reserved. Edge: one
+`deployment.environment.name` and `service.name`. O2 sends call metrics to `<project>-<env>-metrics`. Edge: one
 region, chosen once (it cannot change); recommendation US East 1.
 
 ### PostHog: projects

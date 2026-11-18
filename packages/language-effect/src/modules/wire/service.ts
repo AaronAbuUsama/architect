@@ -1,5 +1,6 @@
 import { Effect } from "effect";
 import type { WireApi } from "./types.ts";
+export { CallTelemetry } from "./internal/call-telemetry.ts";
 
 const fieldsOf = (e: object): Record<string, unknown> =>
   Object.fromEntries(Object.entries(e).filter(([k]) => k !== "_tag"));

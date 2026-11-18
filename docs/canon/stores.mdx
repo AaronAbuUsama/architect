@@ -78,8 +78,12 @@ export default Blueprint.thing({ description: "An entry in the ledger.", fields:
 A handler never writes to a store. It writes to `Records`, which holds every write back until the call ends. Then
 the handler wrapper makes one commit and looks at the one thing it returns:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=71-72
-const committed = yield* store.commit({ writes: yield* unit.writes, entries, ...request });
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=77-82
+const writes = yield* unit.writes;
+const committed = yield* store.commit({ writes, entries, ...request }).pipe(
+  Effect.tap((outcome) => Effect.annotateCurrentSpan("commit.outcome", outcome)),
+  spanned(`${name}.commit`, { "step.kind": "commit", "commit.writes": writes.length, "commit.entries": entries.length }),
+);
 if (committed === "conflict") return yield* new Conflict();
 ```
 
@@ -157,12 +161,12 @@ return this.ctx.storage.transactionSync((): Committed => {
 A `conflict` never reaches the caller. The wrapper runs the whole call again from the top, reading fresh, up to 64
 times:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=91-98
-const loop = (left: number): Effect.Effect<object, unknown, unknown> =>
-  attempt(payload, principal, key).pipe(
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=102-109
+const loop = (number: number): Effect.Effect<object, unknown, unknown> =>
+  attempt(payload, principal, key, number).pipe(
     Effect.catch((e) =>
       !(e instanceof Conflict) ? Effect.fail(e)
-      : left > 1 ? loop(left - 1)
+      : number < ATTEMPTS ? loop(number + 1)
       : Effect.die(new Error(`${name} lost its version race ${ATTEMPTS} times in a row`)),
     ),
   );
