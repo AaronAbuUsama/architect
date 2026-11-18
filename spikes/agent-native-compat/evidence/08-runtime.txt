@@ -1,0 +1,6 @@
+HTTP : {"status":200,"body":{"voteId":"v1","tally":1}}
+tool : {"status":"completed","output":"{\"voteId\":\"v1\",\"tally\":1}","completedSideEffect":true}
+generated action, worker 500, retrySafe:false -> OUTCOME UNKNOWN (frame saw the fetch POST made inside the Effect fiber)
+pre-aborted signal -> rejected: Error: All fibers interrupted without error
+median ms/call, bare options.run (Effect + fetch): 0.37
+median ms/call, defineAction entry.run (validate+audit+ALS frame): 0.4
