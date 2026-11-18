@@ -197,42 +197,60 @@ Rules around it:
 ## The seam with the factory (K10)
 
 The factory runs the work; it doesn't decide it. Agreed with the 📐 factory thread through the conductor on
-18 November 2026. Its packages: `@orthograph/agents` (runs), `@orthograph/workspaces` (sandboxes, opened by the
-factory's agents, never by work) and `@orthograph/factory` (the building agents and their roster).
+18 November 2026, every point confirmed by K10. Its packages: `@orthograph/agents` (runs), `@orthograph/workspaces`
+(sandboxes, opened by the factory's agents, never by work) and `@orthograph/factory` (the building agents and
+`factory.roster`).
 
 ```ts
 // out: work → agents feature (M4.13): one call per claim
 agents.run.start({
-  agent: roster[item.kind],                 // the factory's roster: builder ← build, fix; author ← write:journey; …
+  agent: factory.roster.for(item.kind),     // declared data: builder ← build, fix; author ← write:journey; …
   budget,
   brief: {
     project, revision,
     task: item.task,                        // a model gap's key; the factory derives the full brief (`bp.brief`)
     item: { id: item.id, text: item.brief, doneWhen: item.check }, // for work that is not a model gap
   },
-  key: claim.id,                            // the request key: a replay starts nothing twice (durable-run finding 3)
+  key: claim.id,                            // the request key: the DO host namespaces tool calls under it
 });
+// refused WorkspacePoolFull or RunPoolFull: a slot signal, dispatch stops the pass for that role
 
 // back: agents feature → work, through `on:`
 on: [
-  Blueprint.on(agents.events.runFinished, (e) => ({ key: e.key, outcome: e.outcome, branch: e.branch,
-    pullRequest: e.pullRequest, changed: e.changed })),    // → item.submit; `changed` checks the touches
-  Blueprint.on(agents.events.runFailed, (e) => ({ key: e.key, transient: e.transient })), // → retry or block
+  Blueprint.on(agents.events.runFinished, (e) => e),   // outcome: "pushed" | "reviewed" | "answered" | "blocked"
+  Blueprint.on(agents.events.runFailed, (e) => e),     // reason: "budget" | "turns" | "wall" | "refused" | "model" | "sandbox" | "crash"
+  Blueprint.on(agents.events.runCancelled, (e) => e),  // never a failure
 ]
 ```
+
+What work does with each answer:
+
+| Event | Work's move |
+|---|---|
+| `runFinished`, `pushed` (branch, pull request, revision, changed) | `item.submit`; `changed` checked against `touches`, a spill flagged in review |
+| `runFinished`, `reviewed` (pass or fail, revision) | none: the verdict is in the logbook, and its event takes `close` or `return` |
+| `runFinished`, `answered` (no branch) | `item.submit` with no branch; such an item's done-when must be a `review` verdict |
+| `runFinished`, `blocked` (a question) | `item.block`, and `attention.raise` with the question; the run has ended |
+| `runFailed`, `model`, `sandbox` or `crash` (transient) | `item.release`, retried with backoff through `Timers`, three attempts, then `block` |
+| `runFailed`, `budget`, `turns`, `wall` or `refused` | `item.block` and attention: the manager re-splits or re-briefs |
+| `runCancelled` | `item.release`, no attempt counted |
 
 The five points, as agreed:
 
 1. **Dispatch is `agents.run.start`**, keyed by the claim. The brief carries the task key when the item is a model
-   gap, and the item's own text and done-when check when it isn't: Aaron's words have no task key.
-2. **Results come back as events.** `runFinished` carries `changed`, the paths the branch changed (the workspace's
-   `diff`). A run never closes an item.
-3. **Review is a fact.** The reviewer agent's pass or fail is a `review` verdict in the logbook, keyed by revision. A
-   person's review lands as the same kind of verdict. An item's done-when names the verdicts it needs (prove, review),
-   and `close` fires when all are recorded for its branch's revision.
-4. **Work owns dispatch policy**: concurrency, the cap's share, and the kind-to-role map, defaulting to the factory's
-   published roster. A refusal from a full pool is a slot signal for dispatch, not a failure.
-5. **The factory opens workspaces.** Work sees run ids, branches, pull requests and changed paths.
+   gap, and the item's own text and done-when check when it isn't: Aaron's words have no task key. The DO host
+   namespaces tool-call keys as (DO id, Pi task id, provider call id), so a replayed dispatch starts nothing and pays
+   nothing twice.
+2. **Results come back as events**, with the closed enums above. A run never closes an item. The pull request is
+   opened by `workspace.push({ workspace, title, body })`, run as the agent acting for whoever started the run,
+   through the github adapter; it answers `{ branch, pullRequest, revision, changed }`, which `runFinished` copies.
+   Without a push a run has no branch.
+3. **Review is a fact.** One `review` verdict kind in the logbook, keyed by revision, whether a person or an agent
+   gives it. An item's done-when names the verdicts it needs (prove, review), and `item.close`, `service(logbook)`
+   only, fires when all are recorded for its branch's revision.
+4. **Work owns dispatch policy**: concurrency, the cap's share, retries, and the kind-to-role map, defaulting to
+   `factory.roster`.
+5. **The factory opens workspaces.** Work sees run ids, branches, pull requests and changed paths. No heartbeat.
 
 ## The board in the portal
 
