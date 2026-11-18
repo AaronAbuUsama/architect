@@ -175,7 +175,8 @@ echo.choices.style.loud                           // an option, an object: { kin
 needs: [auth, Blueprint.need(eip1193, { when: choices.signer.browser.injected })]
 ```
 
-- A need is another plugin's descriptor. The compiler meets it with the app's mount of that descriptor (identity), or
+- A need is another plugin's descriptor. The compiler meets it with the app's mount of that descriptor (identity),
+  whatever the mount is named, or
   refuses: `blueprint/features/wallets.ts: @orthograph/wallets needs @orthograph/auth, which isn't mounted: ortho add
   feature @orthograph/auth`. A need with `when` applies only if the mount picked that option.
 - A need is never met by a copy inside the plugin, so an app has one of each, however many plugins use it.
@@ -218,8 +219,8 @@ feature:wallets -> feature:auth  needs
 `used-by` edges, from an app operation's `step.call` or `step.use` to the mount it reaches, arrive with those steps in
 M1.14. A changed pick, a changed `omit` or `narrow`, or changed bytes in the installed package (even at the same
 version) change the mount's hash and stale only its operations; an unrelated operation keeps its hash. A plugin whose
-`package.json`, declared `blueprint` folder or the handler of an operation it serves is missing fails closed, naming
-the package.
+`package.json` or declared `blueprint` folder is missing fails closed in the model, naming the package; a missing
+handler module is refused at `generate` (section 8).
 
 ## 8. Behaviour, hosts and the import rule
 
@@ -272,8 +273,8 @@ callables and their types never enter a pure entry or a client closure. The step
 
 A feature's `blueprint/journeys/*.js` run on every `ortho prove` of the app that mounts it, in the app's worlds, beside
 the app's own, so a feature's operations are covered by its own journeys. A journey that runs an omitted operation is
-skipped and named. Span names in a journey follow the mount's names, so a plugin's journeys assert spans only through
-declarations, not written names (ledger: feature journeys' span names). Starting-world fragments stay open
+skipped and named, and prove still passes. Span names follow the mount's names and `spans()` takes written names, so a
+plugin's journeys assert no spans in M1; the declared-steps eval still judges them. Starting-world fragments stay open
 (mounting.md).
 
 ## 11. `ortho add feature|adapter|projection`
