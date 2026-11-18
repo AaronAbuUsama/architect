@@ -32,7 +32,7 @@
 //     check never starts: a receiver in this file writes the same lines (a control posts a span to it and reads it back
 //     through `FileSource`). So this check runs in CI as it is. Seeing the same spans in Grafana through the real
 //     Collector is prove's own telemetry test, not repeated here.
-//  7. The portal is imported from its source (`../../packages/portal/src/index.ts`): e2e has no dependency on it.
+//  7. e2e now depends on `@orthograph/portal` (workspace), to call `Portal.serve` as the Worker does.
 import { spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { appendFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -41,9 +41,9 @@ import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Effect } from "effect";
+import { Portal } from "@orthograph/portal";
 import { FileSource } from "@orthograph/prove";
 import { afterEach, describe, expect, it } from "vitest";
-import { Portal } from "../../packages/portal/src/index.ts";
 import { bundle, filesOf } from "./closures.ts";
 import { digest, model, project, run, succeeds, tree, writeMount, type Copy } from "./support.ts";
 
@@ -177,7 +177,8 @@ describe("11 generate: the compiler accepts a client operation whose plugin supp
     const operation = model(copy.root).operations["receipt.stamp"];
     expect(operation, "no receipt.stamp in the model").toBeDefined();
     expect(operation?.runs).toBe("client");
-    expect(operation?.from?.package).toBe("@fixture/device");
+    const from = operation?.from as { readonly kind?: string; readonly package?: string } | undefined;
+    expect(from?.kind === "app" ? undefined : from?.package, "the operation comes from the plugin, not the app").toBe("@fixture/device");
     expect(Object.fromEntries(Object.entries(operation?.["steps"] as Record<string, { name: string; type: string }>).map(([key, step]) => [key, [step.name, step.type]]))).toEqual({
       prepare: ["receipt.stamp.prepare", "wait"], seal: ["receipt.stamp.seal", "wait"],
     });

@@ -26,7 +26,7 @@ slices), or one file: `pnpm exec vitest run --root e2e --config vitest.m1.config
 | `10-empty-and-scaffold` | M1.16, M1.26 | `ortho prove --empty` on acme's `revoke then spend` (two red, one proved by the description, handlers untouched); fresh wired scaffolds compile and name the reached blank; an optional `save` (fixture `optional-edit`) passes eval 6 when skipped and is reported as never exercised both ways when only one path has a journey, in either direction; `ortho check` warns on a required step the handler never calls, and on nothing else | 6 tests, written by the Codex builder run (see K5, "Builder-run checks, audited") |
 | `11-client-operations` | M1.27 | `@fixture/device`'s `runs: "client"` operation (two steps; `node`, `browser` and `world` entries) is accepted by `ortho generate`; the generated SDK and CLI run it in-process while a recording server hears nothing; its steps are spans, read back through `FileSource`, and listed by the portal; the variant without its `browser` entry is refused, naming the operation, the package and the host, and nothing is generated | 8 tests: 2 pass (the recording server sees a server call; the OTLP receiver writes what `FileSource` reads), 6 red until M1.27. Needs no Docker |
 
-Twelve controls pass on `main` and eighty-two tests are red, ninety-four in all.
+Eighteen tests pass on `main` (twelve controls, and check 10's six, which the M1.16 and M1.26 builder run made pass) and eighty-two are red, a hundred in all.
 
 A **control** passes today and keeps passing: it proves the instrument (the fixture, a closure check, a held-request
 observation) or the non-regression (acme without mounts). A **readiness-red** test fails today because the framework
