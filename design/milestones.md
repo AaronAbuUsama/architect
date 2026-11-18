@@ -68,7 +68,7 @@ written yes.
 | 4 · the club | stage 3 on Aztec: private members, private spends, private ballots | (Later's Noir line, brought in) | ST4.01 to ST4.07 | ST4.08 |
 
 **Beside the stages, off v1.0's path:** the factory (M3.04 to M3.14), the builder's tools and the bench (M4.11 to
-M4.14), views, Stripe, Resend, adapters from OpenAPI, MariaDB and a second app (M5.05 to M5.09, M5.11, M5.13), the
+M4.14), workspaces, experiments and the building agents (M4.17 to M4.24, K10), views, Stripe, Resend, adapters from OpenAPI, MariaDB and a second app (M5.05 to M5.09, M5.11, M5.13), the
 `examples/workshop` (M6.20, dropped by K9), and Capxul (M7.07 to M7.11). They run when a thread is free; a stage
 never waits on them.
 
@@ -297,7 +297,13 @@ the join, `workers: agents`.
 an operation marked `.notVia(Via.agent)`; (2) evicting a run's Durable Object mid-turn resumes it with no second model
 call; (3) a mission over acme with `workers: agents` runs: the manager starts builder runs from briefs, a builder using
 only the generated kit and `bp` fills `allowance.revoke`, the verdict closes the task, and the promote waits for a
-person; (4) the run's trace is read back through `bp.telemetry`. CI uses the local stand-in model (S14).
+person; (4) the run's trace is read back through `bp.telemetry`; (5) an experiment started from the portal is
+discarded leaving no workspace, world or branch, and a kept one lands as its package plus one mount file, only after
+its prove and review verdicts. CI uses the local stand-in model (S14).
+**Spikes before the factory slices** (K10, any time, off every gate): `spikes/workspace-e2b` (our E2B template; `ortho
+check` and `prove` inside it; start-up and an hour's cost against the $5 sandbox share; a preview world's port reaching
+the portal) and `spikes/experiment-loop` (start, discard and keep by hand on the local copy, with Claude Code as the
+agent: how long a start takes, and whether anything is left).
 
 | id | what | needs | kind | done when | size |
 |---|---|---|---|---|---|
@@ -307,16 +313,24 @@ person; (4) the run's trace is read back through `bp.telemetry`. CI uses the loc
 | M4.04 | The Pi Durable seam on Node SQLite (A1) | M4.03 | build | a run survives a process kill and resumes its transcript | M |
 | M4.05 ∥ | Model adapters: `@orthograph/anthropic` and an OpenAI-compatible adapter; keys as declared secrets (A2) | M4.04 | build | the same task runs on both behind one interface | M |
 | M4.06 ∥ | The local stand-in model, `Stand.process` (S14) | M4.05 | build | journeys run against it with no key | M |
-| M4.07 ∥ | Tools and skills: `toolsOf(operations)`, shared with MCP; project tools with denied paths; `SKILL.md` folders (A3) | M4.04 | build | an operator agent's tool call is checked by the real server's roles | M |
+| M4.07 ∥ | Tools and skills: `toolsOf(operations)`, shared with MCP and the actions projection, called as `agent for` the run's starter: the one mechanism behind both the chat's tools and the building agents' (K10 section 1); project tools with denied paths; `SKILL.md` folders (A3) | M4.04 | build | an operator agent's tool call is checked by the real server's roles | M |
 | M4.08 ∥ | Run telemetry through the Collector (A4) | M4.04 | build | a run's trace is read back by its id | S |
 | M4.09 | The Durable Object host: one per run, alarms, Pi's closure measured for workerd (A6) | M4.04 | build | evicting mid-turn resumes with no duplicate model call | L |
-| M4.10 | `@orthograph/agents`: Run, its machine, start, steer, cancel, the system's moves, `Blueprint.agent` | M4.02, M4.09 | build | the agents journeys pass, mounted in acme | M |
+| M4.10 | `@orthograph/agents`: Run, its machine, start, steer, cancel, the system's moves, `Blueprint.agent`; `Agent` as a thing read from the declarations; `run.start` keyed by a request key; `runFinished.outcome` closed (`pushed`, `reviewed`, `answered`, `blocked`) and `runFailed.reason` closed with `transient` (K10 section 5); `RunPoolFull` | M4.02, M4.09 | build | the agents journeys pass, mounted in acme | M |
 | M4.11 | The builder's typed API and code mode: `generated/builder/bp.d.ts`, the sandbox, the direct tools | M4.10 | build | a builder script lists blanks and runs one journey through `bp` | L |
 | M4.12 ∥ | `bp.telemetry` over `TraceSource`: trace, calls, refusals, defects, slow | M4.11 | build | a script finds the slowest step of a run | M |
 | M4.13 | The join: `workers: agents`, `Blueprint.need(agents, { when })`, dispatch through `agents.run.start` keyed by the claim, `runFinished` (with the changed paths) and `runFailed` back through `on:`; the kind-to-role map from the factory's roster (K11, the seam with K10) | M4.10, M4.11 | build | an item dispatched to an agents run closes by its verdict; the manager as an agent accepts a failing check under its goal with no one asked | M |
 | M4.14 ∥ | The `pi` runner in the bench (A5) and suites, spend and the report (A8), off the gate | M4.04 | build | `bench` writes one suite's report | M |
-| M4.16 | The portal's chat on a durable agent (K5): one `@orthograph/agents` run per thread, the actions as its tools, approvals through the chat | M4.10, M1.24 | build | evicting a chat's run mid-turn resumes it with no second model call; a refused action shows its typed refusal in the thread | M |
-| M4.15 | **Gate M4** | M4.02 to M4.13, M4.16 | e2e | `nx run e2e:m4` passes on `main` | S |
+| M4.16 | The portal's chat on a durable agent (K5): one `@orthograph/agents` run per thread, the actions as its tools, approvals through the chat; any listed agent addressable (`chat.addressees`); rendered with HeroUI Pro's AI components, `ChatTool` states from the action's (K10 section 6) | M4.10, M1.24 | build | evicting a chat's run mid-turn resumes it with no second model call; a refused action shows its typed refusal in the thread | M |
+| M4.17 | Journeys for workspaces and experiments (K10), by an author who is not the builder: open, fenced writes, check, prove, push, close; experiment start, keep and discard; keep refused without prove and review verdicts; nothing left after discard | Gate M2 | checks | they fail on empty handlers | M |
+| M4.18 | `@orthograph/workspaces` with the `localCopy` choice (K10 section 3): `Workspace` and its machine, `ortho` as its operations (`brief`, `read`, `write`, `check`, `prove`, `add`, `generate`, `diff`, `push`, `close`), writes fenced by `realpath` and case-insensitive paths, `push` through the `github` adapter (its stand-in a bare local repository), `WorkspacePoolFull` | M4.17 | build | a Claude Code session over MCP opens a workspace over acme, writes `allowance.revoke`, `check` and `prove` pass inside it, and `push` opens a pull request on the stand-in; a write outside the allowed paths is refused; `close` leaves nothing | M |
+| M4.19 ∥ | The `e2b` choice: our template, long commands in the background checked on an alarm, a sweep by tag, sandbox spend under its share ($5 a day by default) | M4.18, `spikes/workspace-e2b` | build | M4.18's journeys pass on E2B with Aaron's existing key; evicting the run's Durable Object mid-`prove` resumes and reads the result; 0 sandboxes are left after | M |
+| M4.20 | `@orthograph/factory`'s floor (K10 section 4): `Experiment` (`started → kept \| discarded`), the spike lane, `factory.brief.of`, `factory.roster` as data; usable by people and Claude Code before any Pi agent | M4.18, `spikes/experiment-loop` | build | start then discard leaves 0 workspaces, worlds and branches; keep without prove and review verdicts is refused; keep's pull request changes only the package folder and one mount file; `brief.of` gives the same `write` paths as `ortho brief` | M |
+| M4.21 | The `builder` and `reviewer` agents, and `review` as a logbook verdict kind (K10 section 2) | M4.10, M4.13, M4.20 | build | an item dispatched with `workers: agents` runs the builder in a workspace and ends `pushed` with its changed paths; the reviewer ends `reviewed` and writes a `review` verdict; the builder's write outside its brief is refused; all on the stand-in model | M |
+| M4.22 ∥ | The rest of the roster: `designer`, `author`, `spike`, `planner`, one file each, each addressable from the chat | M4.21, M4.16 | build | each agent, addressed from a chat thread, ends with its declared outcome on the stand-in model; the author's journeys fail on empty handlers | M |
+| M4.23 ∥ | The Factory face (K10 section 6): `Portal.face` with the Factory sidebar group, the roster, the runs list, the live run and the workspace, composed from HeroUI Pro's components; no agent UI code in the canon | M1.13, M4.16, M4.20 | build | the four views render acme's runs and workspaces; a refused action shows `output-error` with its code and never a raw defect; an approval shows `requires-action` and runs once on approve; the lint finds no store handle or `fetch` in the face | M |
+| M4.24 | Promotion by verdicts (K10 section 3): a revision on `main` with its prove and review verdicts goes to staging with nobody asked; production is an attention only a person approves | M3.13, M4.21 | build | a proved and reviewed revision reaches the local staging world unasked; the production promote waits on an attention that an agent acting for Aaron is refused | S |
+| M4.15 | **Gate M4** | M4.02 to M4.13, M4.16 to M4.24 | e2e | `nx run e2e:m4` passes on `main` | S |
 
 ## M5: Reach out
 

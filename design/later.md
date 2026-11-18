@@ -73,3 +73,9 @@ belongs to, and why it waits.
   telemetry adapters, and before public cloud use, remove their remaining literal throw/try and ambient-env policy
   violations and close the corresponding workspace lint coverage gap. Local Gate2 records this limitation; it
   does not grant new runtime exceptions or claim every standing-rule syntax restriction was certified.
+
+## From the factory (K10)
+
+- **A `cloudflare` sandbox choice** for `@orthograph/workspaces`, beside `localCopy` and `e2b`, if E2B falls short. Not spiked.
+- **A person's feedback on a run** (HeroUI Pro's Rating and Emoji Reaction Button on a run's answer) as input to the bench (H2). Waits until the bench reports exist (M4.14).
+- **Experiments shared between projects**: a kept experiment's plugin published for another app to mount. Waits on plugins published from their own CI (M2.10).
