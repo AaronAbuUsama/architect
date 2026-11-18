@@ -57,7 +57,7 @@ the one owner.
               ┌──────────────── a host supplies where it runs ───────────────────────────────────┐
               │ host-cloudflare: workerd · store kinds database (D1) and actor (Durable Object) · │
               │   Timers · secrets · telemetry export · the fetch entry                           │
-              │ Host.chain (EVM, M6: store kind contract) · Host.node · Host.browser               │
+              │ Host.chain (EVM, M6: runs language-solidity's chain store) · Host.node · Host.browser│
               └───────────────────────────────┬────────────────────────────────────────────────────┘
                                               ▼
                           THE SERVED OPERATION  (Handlers.serve: one per operation)
@@ -147,10 +147,10 @@ transaction).
 | `host-cloudflare` (workerd) | store kinds `database` (D1) and `actor` (a Durable Object), alarms, the Worker entry, OTLP export | built |
 | `Host.node` | a process entry, for the CLI and for adapters workerd can't reach (K3's MariaDB fallback) | the CLI today |
 | `Host.browser` | client operations' code, the eip1193 adapter | M6 |
-| `Host.chain` | an EVM: the store kind `contract`, the transaction as the commit | M6 |
+| `Host.chain` | an EVM: runs the `chain` store kind that `language-solidity` supplies; the transaction is the commit | M6 |
 
-**Chain is settled here** (ledger `LAH-04`, `X-18`, `STO-02`). A chain is a host. Its store kind is a contract, which
-`language-solidity` writes and the chain host runs. The commit test of K3 holds at the transaction: it is atomic,
+**Chain is settled here** (ledger `LAH-04`, `X-18`, `STO-02`). A chain is a host. The store kind on it keeps K3's name, `chain`,
+and K3's supplier, `language-solidity`: the language writes the contract, and the chain host runs it. The commit test of K3 holds at the transaction: it is atomic,
 versioned by the nonce and the state, and it has one writer, the contract. "Pending until mined" is not the store's
 problem. It belongs to the caller. A server operation that sends a transaction writes to two stores (its own and the
 chain's), so by K3 item 5 it is a workflow. Its in-between state is the generated waiting state of S25. **Private
@@ -354,7 +354,8 @@ These are the building agent's calls, with the evidence above. Aaron can overrul
    thing ever lives there.
 4. Forman's machines, roles and refusals are never expressed in agent-native's `defineMachine`, `authorize` or
    `access`.
-5. A chain is a host. Its store kind is the contract, and a server call that sends a transaction is a workflow. Private
+5. A chain is a host. Its store kind is K3's `chain`, supplied by `language-solidity`. A server call that sends a
+   transaction is a workflow. Private
    state is a declared capability of a store kind.
 6. A language owns meaning and rendering. A host owns where code runs and the store kinds there. Neither does the
    other's job.
@@ -377,8 +378,8 @@ in. Each section here is updated with his answer.
 
 - **K2.** "Auth is two feature plugins" still stands under Q2 A. Its audiences table gains the app as a projection for
   callers. Projections now include `@formants/app`.
-- **K3.** It gains the fourth kind of place, a projection's own state, and the settlement of chain as a host's store
-  kind.
+- **K3.** Amended in this change: item 11 adds the fourth kind of place, a projection's own state, and item 2 says
+  a chain is a host that runs the `chain` store kind, which passes the commit test at the transaction.
 - **`design/frame/README.md`.** `Host.chain` stays a host. The portal is replaced by the app (F6). The audiences gain
   the app.
 - **`design/frame/projections.md`.** Section 3.8, "the portal", becomes "the app". The doors table above replaces the
