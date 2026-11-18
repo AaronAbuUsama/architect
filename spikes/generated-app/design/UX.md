@@ -108,11 +108,11 @@ His notes, in order, as things to settle before the next drawing:
 1. **Notes belong to a thing.** A thing has its notes; notes live inside it, not in a separate list.
 2. **The tree folds.** Inside a thing, its operations fold down. Machine, events and errors are pages of their own.
 3. **Live spans, not just traces.** On an operation you should watch the program as it runs: the spans as they arrive.
-4. **"Takes and gives" doesn't work.** What is written by a person, and what is drawn from the code, has to be obvious.
-   The operation's one-line description reads as human writing.
+4. **"Takes and gives" doesn't work.** It should be obvious what goes into an operation and what comes out; the
+   layout there isn't. (Corrected by Aaron: this is about in and out, not about who wrote it.)
 5. **The status sentence is badly displayed.** Numbers should be shown as data, not as a sentence in body type.
 6. **The trace drawer showed a poor trace** (two spans). It should show a trace with something to see.
 7. **Home starts with things**, not operations.
 8. **A thing's page starts with its lifecycle**, then its operations.
-9. **HeroUI Pro was bought and not used**: the shell and components should be Pro's.
+9. **HeroUI Pro was bought and not used.** Since settled: agent-native as it is, so no HeroUI.
 10. **Ask before designing.** These screens were drawn without asking what he wants.
