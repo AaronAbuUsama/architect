@@ -1,5 +1,9 @@
 # The app that falls out of `forman generate`
 
+> **Layout superseded by `UX.md` (pass 3).** The parts, the blocks and F6's four answers below still hold. The screens
+> and the page language's look are replaced: see `UX.md` and `shots/`. Pass-1 screens are in `shots/pass-1/`, and
+> agent-native is now a source of ideas, not the shell.
+
 Design for pass 1, 18 November 2026. It replaces "the portal" with one agent-native app. Nothing here is built yet; the
 prototype (pass 2) waits for Aaron's answers to the four questions at the end.
 
