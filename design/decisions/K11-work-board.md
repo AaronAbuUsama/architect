@@ -77,6 +77,7 @@ export const Item = Blueprint.thing({
     goal: Goal.fields.id,
     title: Title,
     brief: Brief,                 // what to do; the agent's whole prompt for an agent worker
+    task: Blueprint.optional(TaskKey), // a model gap's key, `build:link.create`; absent for work from words
     check: DoneWhen,              // the fact that closes it: a journey's verdict, a gate, a README merged
     needs: ItemIds,               // items that must be done first; acyclic, checked by `goal.plan`
     touches: PathGlobs,           // what it may write; two running items never share a path
@@ -170,19 +171,24 @@ finishing. Each wake does one pass:
    the person's `rank`, then age.
 4. **Slots.** `min(board limit − running, the goal's budget slots, the worker pool's free slots per agent type)`.
 5. **Claim and start.** For each item in order, while slots remain and it doesn't overlap one claimed in this pass:
-   `item.claim` (idempotent on item and attempt), then the factory's start (the seam below). The claim carries a lease
-   (ten minutes, renewed by the run's heartbeat).
+   `item.claim` (idempotent on item and attempt), then the factory's start (the seam below).
 
 Rules around it:
 
-- **Leases.** A lease that lapses releases the item (`item.release`, attempt + 1). A person's claim has a longer lease
-  and no heartbeat.
+- **Claims end with their run.** An agent's claim holds while its agents run is working or waiting, and ends on the
+  run's `runFinished` or `runFailed`; a durable run needs no heartbeat. A person's claim carries a lease (a day,
+  renewed by `claim.renew`); a lapsed lease releases the item (`item.release`, attempt + 1).
 - **Retries.** A run that fails for a transient reason (sandbox lost, model error) is retried with backoff through
   `Timers`, three attempts; the fourth failure `block`s the item and raises attention. A run that finishes but whose
   check goes red is not a retry: the item is `return`ed and the manager sees it.
 - **What blocks what.** `needs` (declared), `touches` (overlap at claim time), the board's limit, the goal's budget.
-  After a run, the files its branch actually changed are compared with `touches`: a spill marks the item in review,
-  so the manager can widen `touches` or split.
+  After a run, the paths its branch changed (`runFinished.changed`) are compared with `touches`: a spill marks the
+  item in review, so the manager can widen `touches` or split.
+- **Where `touches` comes from.** For an item with a task key (a model gap), it is the factory's
+  `factory.brief.of({ task }).write`, computed from the model with nothing run (today's `ortho brief`,
+  `packages/cli/src/modules/brief/service.ts:19-43`: one handler file per operation). For an item from words, a spec
+  or the ledger, the manager declares it at plan time. An experiment's write set is its own plugin package and its
+  one mount file, so two experiments never conflict.
 - **Throughput.** Dispatch never tries a claim it knows will be refused: the spike's agents, pushing moves at a full
   board, were refused 14 times in 16 (`spikes/kanban-components`, finding 7).
 - **Work stays small.** A plan whose items mostly overlap serialises; `goal.plan`'s answer says so, and the manager
@@ -190,33 +196,49 @@ Rules around it:
 
 ## The seam with the factory (K10)
 
-The factory runs the work; it doesn't decide it. Proposed to the 📐 factory thread through the conductor:
+The factory runs the work; it doesn't decide it. Agreed with the 📐 factory thread through the conductor on
+18 November 2026. Its packages: `@orthograph/agents` (runs), `@orthograph/workspaces` (sandboxes, opened by the
+factory's agents, never by work) and `@orthograph/factory` (the building agents and their roster).
 
 ```ts
 // out: work → agents feature (M4.13): one call per claim
 agents.run.start({
-  agent: item.worker,                       // `builder`, `author`, `spike`
-  model, budget,
-  brief: item.brief,                        // plus the done-when check and the touches, rendered
-  workspace: { repo, base: "main", branch: `work/${item.id}-${claim.attempt}`, touches: item.touches },
-  key: `${claim.id}`,                       // the request key: a replay starts nothing twice
+  agent: roster[item.kind],                 // the factory's roster: builder ← build, fix; author ← write:journey; …
+  budget,
+  brief: {
+    project, revision,
+    task: item.task,                        // a model gap's key; the factory derives the full brief (`bp.brief`)
+    item: { id: item.id, text: item.brief, doneWhen: item.check }, // for work that is not a model gap
+  },
+  key: claim.id,                            // the request key: a replay starts nothing twice (durable-run finding 3)
 });
 
 // back: agents feature → work, through `on:`
 on: [
-  Blueprint.on(agents.events.runFinished, (e) => ({ claim: e.key, branch: e.branch })), // → item.submit
-  Blueprint.on(agents.events.runFailed,   (e) => ({ claim: e.key, transient: e.transient })), // → retry or block
-  Blueprint.on(agents.events.runHeartbeat, (e) => ({ claim: e.key })),                  // → claim.renew
+  Blueprint.on(agents.events.runFinished, (e) => ({ key: e.key, outcome: e.outcome, branch: e.branch,
+    pullRequest: e.pullRequest, changed: e.changed })),    // → item.submit; `changed` checks the touches
+  Blueprint.on(agents.events.runFailed, (e) => ({ key: e.key, transient: e.transient })), // → retry or block
 ]
 ```
 
-Open for K10: whether `workspace` is the agents feature's or the factory's (sandbox) field; whether the run or work
-opens the pull request; the heartbeat's period.
+The five points, as agreed:
+
+1. **Dispatch is `agents.run.start`**, keyed by the claim. The brief carries the task key when the item is a model
+   gap, and the item's own text and done-when check when it isn't: Aaron's words have no task key.
+2. **Results come back as events.** `runFinished` carries `changed`, the paths the branch changed (the workspace's
+   `diff`). A run never closes an item.
+3. **Review is a fact.** The reviewer agent's pass or fail is a `review` verdict in the logbook, keyed by revision. A
+   person's review lands as the same kind of verdict. An item's done-when names the verdicts it needs (prove, review),
+   and `close` fires when all are recorded for its branch's revision.
+4. **Work owns dispatch policy**: concurrency, the cap's share, and the kind-to-role map, defaulting to the factory's
+   published roster. A refusal from a full pool is a slot signal for dispatch, not a failure.
+5. **The factory opens workspaces.** Work sees run ids, branches, pull requests and changed paths.
 
 ## The board in the portal
 
 An extension of the one portal, built on HeroUI Pro's Kanban parts with our own hook (the spike's
-`useServerColumn`). Needs given to the portal thread (M1.25) through the conductor:
+`useServerColumn`). The portal renders it through `views.list` as `Portal.view.board({ by: machine })` on the item
+thing: the columns are the item's machine states, and every board page belongs to a thing. Needs given to the portal thread (M1.25) through the conductor:
 
 1. An extension slot for a feature's page, with the generated actions of that feature as its only writes.
 2. The item's machine on the client, from the model, so an illegal column refuses a drop before any call.
