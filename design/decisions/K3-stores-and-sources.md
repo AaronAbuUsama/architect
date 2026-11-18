@@ -55,6 +55,10 @@ that does all of that can be where a thing lives.
    | `actor` | `@formants/host-cloudflare` | a Durable Object per instance, its own SQLite, its outbox | no: use a view |
    | `chain` | `@formants/language-solidity` | a contract (M6) | through views |
 
+   `chain` is a family of kinds, one per chain: `evm`, `solana` and `aztec`, each from its language package, with
+   the capabilities `pending`, `accounts` and `private` (K7 Q4, 18 November 2026). A chain kind's commit answers late,
+   as a submission, not as `committed` or `conflict` on the spot.
+
    A chain is a host (`Host.chain`), and `chain` is the store kind that runs on it (K5, 18 November 2026). The
    commit test holds at the transaction: it is atomic, versioned by the nonce and the contract's state, and the
    contract is its only writer. "Pending until mined" belongs to the caller: a server operation that sends a

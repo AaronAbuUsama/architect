@@ -278,7 +278,7 @@ export default Blueprint.operation(Proposal, {
   payload: { proposal: Proposal.fields.id, choice: Choice },
   answer: { yes: Votes, no: Votes },
   move: machine.moves.vote,           // from passed or failed: ProposalNotOpen, the generated refusal
-  errors: [AlreadyVoted, NotAMember],
+  errors: [AlreadyVoted],             // K7: NotAMember dropped; `allowed: [member]` already refuses with NotAllowed
   allowed: [member],
   runs: "chain",                      // new: refused by the compiler today, M6.10
 });
@@ -325,8 +325,8 @@ const edited = yield* draft.edit({ draft, body, version }, { requestKey });
 
 // a chain operation: a submission now, confirmation later
 const sent = yield* proposal.vote({ proposal, choice: "yes" });   // simulated; the wallet signs; the relayer submits
-const tally = yield* sent.confirmed;                              // the follower saw VoteCast for this transaction
-//    Effect<{ yes, no }, AlreadyVoted | NotAMember | ProposalNotOpen | Dropped, Workshop>
+const tally = yield* sent.confirmed;                              // the follower saw VoteCast for this intent (K7 Q3)
+//    Effect<{ yes, no }, AlreadyVoted | NotAllowed | ProposalNotOpen | Dropped, Workshop>
 ```
 
 - **The caller** is set once, on the client's layer: a session, a key, the device flow or an agent's OAuth token.
@@ -361,7 +361,7 @@ export default defineAction({
   description: declaration.description,
   schema: standard(declaration.payloadSchema),        // Standard Schema plus its JSON Schema, from Effect
   outputSchema: standard(declaration.answerSchema),
-  errors: refusalsOf(declaration),                    // AlreadyVoted, NotAMember, ProposalNotOpen: codes kept
+  errors: refusalsOf(declaration),                    // AlreadyVoted, NotAllowed, ProposalNotOpen: codes kept
   readOnly: false,                                    // true only for reads
   retrySafe: true,                                    // because the SDK carries one requestKey across retries
   needsApproval: true,                                // a chain write: the member's wallet signs
