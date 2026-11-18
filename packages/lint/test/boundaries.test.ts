@@ -35,6 +35,13 @@ describe("module boundaries", () => {
     expect(output).toContain(rule);
   });
 
+  it("refuses static, dynamic and type viem imports outside chain-evm", () => {
+    const { exit, output } = lint("packages/lint/test/fixtures/boundaries/imports-viem.ts");
+    expect(exit).toBe(1);
+    expect(output.match(/Import EVM functionality from @orthograph\/chain-evm instead of viem/g)).toHaveLength(4);
+    expect(lint("packages/chain-evm/src/main.ts").exit).toBe(0);
+  });
+
   it("passes when blueprint imports Effect", () => {
     expect(lint("packages/orthograph/test/fixtures/boundaries/imports-effect.ts").exit).toBe(0);
   });

@@ -1,0 +1,96 @@
+// Adapted from @prb/effect-evm@5.0.3 src/tx/{manager,policy,tracker}.ts. See LICENSE-prb-effect-evm.
+import type { Effect, Stream } from "effect";
+import type { Address, Hash, Hex, TransactionReceipt, TransactionSerializableEIP1559, TransactionSerializableLegacy } from "viem";
+import type { ChainError, ChainFault, RefusalLockEntry } from "../faults/types.ts";
+import type { DecodedEvent, EventFollower, EventSource } from "../events/types.ts";
+
+export interface Call {
+  readonly from: Address;
+  readonly to?: Address;
+  readonly data?: Hex;
+  readonly value?: bigint;
+  readonly gas?: bigint;
+}
+
+type Envelope = { readonly chainId: number; readonly nonce: number; readonly gas: bigint };
+
+export type Transaction = Readonly<Envelope & (
+  | (TransactionSerializableEIP1559 & { readonly type: "eip1559"; readonly maxFeePerGas: bigint; readonly maxPriorityFeePerGas: bigint })
+  | (TransactionSerializableLegacy & { readonly type: "legacy"; readonly gasPrice: bigint })
+)>;
+
+export interface Unsigned {
+  readonly from: Address;
+  readonly transaction: Transaction;
+}
+
+export interface Signer {
+  readonly address: Address;
+  readonly signTransaction: (transaction: Transaction) => Effect.Effect<Hex, ChainFault>;
+}
+
+export interface Signed {
+  readonly prepared: Unsigned;
+  readonly serialized: Hex;
+  readonly hash: Hash;
+}
+
+export interface Submission {
+  readonly hash: Hash;
+  readonly from: Address;
+  readonly nonce: number;
+  readonly fromBlock: bigint;
+  readonly to?: Address;
+  readonly data?: Hex;
+  readonly value?: bigint;
+}
+
+export type ConfirmationLevel = { readonly depth: number } | { readonly tag: "safe" | "finalized" };
+
+export interface Intent<TEvent extends DecodedEvent = DecodedEvent> {
+  readonly source: EventSource<TEvent>;
+  readonly matches: (event: TEvent) => boolean;
+}
+
+export type TxState<TEvent extends DecodedEvent = DecodedEvent> =
+  | { readonly _tag: "Included"; readonly receipt: TransactionReceipt }
+  | { readonly _tag: "Reverted"; readonly receipt: TransactionReceipt; readonly error: ChainError }
+  | { readonly _tag: "Replaced"; readonly oldHash: Hash; readonly newHash: Hash }
+  | { readonly _tag: "Dropped"; readonly hash: Hash; readonly reason: "nonce-consumed" | "deadline" }
+  | { readonly _tag: "Confirmed"; readonly event: TEvent }
+  | { readonly _tag: "Corrected"; readonly event: TEvent; readonly wasConfirmed: boolean };
+
+export interface ChainPort {
+  readonly prepare: (call: Call) => Effect.Effect<Unsigned, ChainError>;
+  readonly simulate: (tx: Unsigned) => Effect.Effect<void, ChainError>;
+  readonly sign: (tx: Unsigned, signer: Signer) => Effect.Effect<Signed, ChainFault>;
+  readonly submit: (tx: Signed) => Effect.Effect<Submission, ChainError>;
+  readonly track: <TEvent extends DecodedEvent>(
+    submission: Submission,
+    level: ConfirmationLevel,
+    intent?: Intent<TEvent>,
+  ) => Stream.Stream<TxState<TEvent>, ChainFault>;
+  readonly follow: <TEvent extends DecodedEvent>(
+    source: EventSource<TEvent>,
+    level: ConfirmationLevel,
+  ) => EventFollower<TEvent>;
+  readonly replace: (tx: Signed, signer: Signer, policy: ReplacementPolicy) => Effect.Effect<Signed, ChainFault>;
+  readonly release: (tx: Unsigned) => Effect.Effect<void>;
+}
+
+export interface ReplacementPolicy {
+  readonly strategy: "speedup" | "cancel";
+  readonly maxFeePerGas: bigint;
+}
+
+export interface ChainPortOptions {
+  readonly chainId: number;
+  readonly rpcUrl: string;
+  readonly pollIntervalMs?: number;
+  readonly receiptTimeoutMs?: number;
+  readonly refusals?: ReadonlyArray<RefusalLockEntry>;
+  /** Optional trace provider for recovering data from mined reverts. */
+  readonly traceRevert?: (hash: Hash) => Effect.Effect<Hex | undefined, ChainFault>;
+  /** M1.32 supplies the simulator for this port. */
+  readonly simulate?: ChainPort["simulate"];
+}
