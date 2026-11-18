@@ -9,7 +9,7 @@ questions:
   - What does `idempotent: "request"` promise?
   - What does a budget do, and what doesn't it do?
   - When is it a read instead of an operation?
-status: specified
+status: draft
 milestone: M1
 slices: [M1.20]
 decisions: [O2, N1]
@@ -23,7 +23,7 @@ An operation is a verb on a thing: something a caller asks the system to do. It 
 `allowance.spend`. The file declares everything about the call except how the work is done: what comes in (the
 payload), what goes out (the answer), the move it makes, how it may say no (its errors), who may call, the named
 parts of its work (its steps), whether a retry is safe, and how fast it should be. Every door is made from that one
-declaration: the HTTP endpoint, the SDK, the CLI command, the MCP tool and the docs page. One rule decides it: **if a
+declaration: the HTTP endpoint, the SDK, the CLI command, the MCP tool, the agent-native action and the docs page. One rule decides it: **if a
 caller can see it, the declaration says it.** The handler only fills in the work, and the frame it fits is made from
 this file. An operation that changes nothing is a read: it has no handler and no move, and answers straight from the
 thing's records.
@@ -81,6 +81,26 @@ export default Blueprint.read(Allowance, {
 Two more parts have defaults you rarely change. `runs` says where it runs and is only `server` today, and `test` says
 how its guarantees are tested, `unit` by default
 (`packages/forman/src/modules/operations/types.ts:49`).
+
+### The agent-native action
+
+An operation also becomes one agent-native action, a `defineAction` an app's agent and its UI both call. Every field of
+the action comes from a part of the declaration, so nothing in it is written by hand. This is proved in the
+generated-app spike (PR #41: its generator writes all 15 of acme's actions from the model), not yet on
+`main`, and no slice builds it yet:
+
+| Part of the declaration | Field of the action |
+|---|---|
+| `description` | `description`, with who may call it |
+| `payload` | `schema`, as zod; a secret field is never offered |
+| `answer` | `outputSchema`; a secret field comes back as `•••` |
+| `errors`, the machine's refusal and `NotAllowed` | `errors`, one typed failure per refusal code |
+| a read rather than an operation | `readOnly: true` |
+| `idempotent: "request"` | `retrySafe: true`, and the call sends the request key |
+| `allowed`, once a role can say `notVia(Via.agent)` (M2.01) | `needsApproval` |
+
+Whether the action, with the MCP, CLI and A2A it brings with it, replaces Forman's own MCP and CLI doors or sits
+beside them is open (see the note `action-beside-or-instead`).
 
 ### The payload and the answer
 
@@ -320,4 +340,10 @@ sending. It costs one kept answer per key. Leave it off when a second call is ha
   (`packages/forman/src/modules/operations/operations.test.ts:60`, `operations.test.ts:72`). A message users see
   prints it too: "it needs a target …" (`packages/compiler/src/modules/model/internal/describe.ts:169`). And every
   generated `errors.ts` says codes are "stable across targets" (`api.ts:55`). No slice owns the rename to language.
+</Note>
+
+<Note kind="question" id="action-beside-or-instead">
+  An agent-native action brings its own MCP, CLI and A2A with it. Does the action replace Forman's generated MCP and
+  CLI doors, or sit beside them? Each answer changes what the replay rule must check, and which door the docs show
+  first. This is the projections round's to decide (layer 4); no slice builds the action yet.
 </Note>

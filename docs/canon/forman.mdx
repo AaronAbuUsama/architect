@@ -6,7 +6,7 @@ questions:
   - What is Forman?
   - What is made for me, and what is the only code I write by hand?
   - How does the loop close?
-status: specified
+status: draft
 milestone: M3
 slices: [M1.06, M1.14, M3.09, M3.12, M3.15]
 decisions: [K2, D2]
@@ -17,12 +17,12 @@ links: [blueprint, things, machines, operations, roles, journeys, handlers, plug
 
 Forman is a framework where you describe a system once and everything else is made from that description. You write
 the description as TypeScript declarations in a [`blueprint`](blueprint.mdx) folder. Forman compiles it to a model,
-and from the model it makes the server, the SDK, the CLI, the MCP tools, the docs and the portal. Each of those is a
-**projection**: one view of the same model, made by code, never written by hand. The one thing a description can't
-say is what an operation actually does. So the rule is: **behaviour is the only freehand**. Each operation's body is a
-[handler](handlers.mdx) you write. Everything around it is generated, and stays generated. **The loop** is how the
-pieces meet: you describe, the model compiles, journeys prove it, environments ship it, and what is missing or red
-comes back as new work.
+and from the model it makes the server, the SDK, the CLI, the MCP tools, the agent-native actions, the docs and the
+app. Each of those is a **projection**: one view of the same model, made by code, never written by hand. The one thing
+a description can't say is what an operation actually does. So the rule is: **behaviour is the only freehand**. Each
+operation's body is a [handler](handlers.mdx) you write. Everything around it is generated, and stays generated. **The
+loop** is how the pieces meet: you describe, the model compiles, journeys prove it, environments ship it, and what is
+missing or red comes back as new work.
 
 ## The smallest example
 
@@ -69,6 +69,7 @@ The rest of what `spend` becomes:
 | SDK | `Sdk.allowance.spend(payload)` | `examples/acme/generated/sdk/src/allowance/spend.ts:8` |
 | CLI | `acme allowance spend --allowance … --amount … --memo …` | `examples/acme/generated/cli/src/allowance/spend.ts:9` |
 | MCP | the tool `allowance.spend`, described by the declaration | `examples/acme/generated/mcp/src/index.ts:24` |
+| agent-native action | `defineAction` with its schema, answer, errors and `retrySafe`, for an app's agent and UI | the generated-app spike, PR #41; no slice yet (see [operations](operations.mdx)) |
 | docs | its page: who may call, budget, payload, refusals with their codes | `examples/acme/generated/docs/allowance/spend.md:37` |
 | handler type | what the handler is given and may return | `examples/acme/generated/api/src/allowance/spend.handler.ts:7` |
 
