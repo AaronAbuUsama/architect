@@ -24,8 +24,9 @@ slices), or one file: `pnpm exec vitest run --root e2e --config vitest.m1.config
 | `08-verbs` | M1.07 | choose, narrow and omit change the model, `generated/`, HTTP and MCP; the refusals of `via: []` and a foreign operation; a skipped journey is named | 10 tests, all red |
 | `09-wallet-journeys` | M1.28 | the wallet plugin's four journeys (one per host signer, `e2e/fixtures/m1/wallets/source/blueprint/journeys/`) fail on empty handlers, each naming its first step, none skipped; M1.29's copy is byte for byte; a tripwire for the chain (M1.30, M1.31) | 5 tests: 2 pass (shape, copy rule); the empty-handler control needs Docker; the stand-in as shipped is red until M1.27; the chain tripwire is red until M1.30 and M1.31 |
 | `10-empty-and-scaffold` | M1.16, M1.26 | `ortho prove --empty` on acme's `revoke then spend` (two red, one proved by the description, handlers untouched); fresh wired scaffolds compile and name the reached blank; an optional `save` (fixture `optional-edit`) passes eval 6 when skipped and is reported as never exercised both ways when only one path has a journey, in either direction; `ortho check` warns on a required step the handler never calls, and on nothing else | 6 tests, written by the Codex builder run (see K5, "Builder-run checks, audited") |
+| `11-client-operations` | M1.27 | `@fixture/device`'s `runs: "client"` operation (two steps; `node`, `browser` and `world` entries) is accepted by `ortho generate`; the generated SDK and CLI run it in-process while a recording server hears nothing; its steps are spans, read back through `FileSource`, and listed by the portal; the variant without its `browser` entry is refused, naming the operation, the package and the host, and nothing is generated | 8 tests: 2 pass (the recording server sees a server call; the OTLP receiver writes what `FileSource` reads), 6 red until M1.27. Needs no Docker |
 
-Ten controls pass on `main` and seventy-six tests are red, eighty-six in all.
+Twelve controls pass on `main` and eighty-two tests are red, ninety-four in all.
 
 A **control** passes today and keeps passing: it proves the instrument (the fixture, a closure check, a held-request
 observation) or the non-regression (acme without mounts). A **readiness-red** test fails today because the framework
@@ -50,6 +51,7 @@ resolves them from the project. Until M1.05 lands, `tsc` errors in a source file
 | `@fixture/greet` | feature | `needs: [echo]`; variants `when` (a `Blueprint.need(echo, { when })`) and `name-clash-echo` |
 | `@fixture/plain` | none | a library with no `orthograph` key |
 | `@fixture/wallets` | feature | the stand-in for `@orthograph/wallets` (M1.28): thing `wallet`, five client operations, four journeys, empty `node`, `browser` and `world` entries; variant `server-run` (server handlers instead) |
+| `@fixture/device` | feature | M1.27's smallest plugin: thing `receipt`, one `runs: "client"` operation `stamp` with steps `prepare` and `seal` and `node`, `browser` and `world` entries; variant `no-browser` (the `browser` entry removed) |
 | `@fixture/remote`, `effect-remote`, `node-remote` | adapter | a Promise callable over HTTP, an Effect callable with its own layer, a Node-only callable |
 
 Echo's variants (overlays over `source/`; `REMOVE` lists files to delete): `empty-handler`, `defect-handler`,
@@ -61,7 +63,7 @@ cases; `adapter-cases` holds check 04's planted runner.
 
 Check 00 to 08 use 19260 to 19279 and nothing else (`support.ts`, `PORTS`): 19260 control, 19261 sdk, 19262 mcp, 19263 loud,
 19264 empty, 19265 defect, 19266 prove, 19267 narrow, 19268 omit, 19269 journey, 19270 promise, 19271 effect, 19272 mapper,
-19275 the held-request service of check 04.
+19275 the held-request service of check 04. 19273 and 19274 are check 09's; the range is used up, so check 11's two listeners (a recording "server" and an OTLP receiver) bind port 0 and take what the system gives.
 
 ## Assumptions beyond M1-plugins
 
