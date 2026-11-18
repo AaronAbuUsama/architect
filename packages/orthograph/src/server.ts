@@ -7,3 +7,4 @@ export { EventNames } from "#modules/events/service.js";
 export { Scripting } from "#modules/journeys/service.js";
 export { Names } from "#modules/names/service.js";
 export type { FrameworkNames } from "#modules/names/types.js";
+export { Mounts } from "#modules/plugins/service.js";

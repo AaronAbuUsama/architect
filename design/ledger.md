@@ -998,7 +998,7 @@ they are closed. The unowned items for each page are in section 1, not repeated 
 | `PRJ-19` | The SDK and CLI packages are named from the project's folder; the unread config `outputs` was removed in M0, so the names are to be chosen from the mounts when the sdk and cli projections are mounted. | design/decisions/D3.md:629-631<br>design/later.md:58-60<br>design/milestones.md:333<br>design/milestones.md:66 | open | M1.12 |
 | `PRJ-20` | The SDK still pulls in all of `@formants/forman`; the client's schemas should be split from the declaration API before packages go public. | design/later.md:61-62 | open | M7.02 |
 | `PRJ-27` | The keeper (time moves made as `system`, one Durable Object alarm per time move) is deferred with time. | design/frame/projections.md:378-394<br>design/frame/deployment.md:51<br>design/milestones.md:298 | open | later |
-| `PRJ-32` | Third-party projections (a package exporting `Blueprint.projection(...)`) are impossible today. | design/frame/projections.md:546<br>design/milestones.md:96 | open | M1.05 |
+| `PRJ-32` | Third-party projections (a package exporting `Blueprint.projection(...)`) are impossible today. | design/frame/projections.md:546<br>design/milestones.md:96 | closed: `Blueprint.projection` exists (M1.05); a package can export one | M1.05 |
 | `PRJ-34` | `projections.md` section 3.12 and `python-sdk.md` still say the Python client is built from OpenAPI, but S32 decided it is built from the model. | design/frame/questions.md:430-431<br>design/frame/projections.md:413<br>design/frame/examples/python-sdk.md:45 | open | later |
 
 <details><summary>Closed: 1 fixed or superseded</summary>
@@ -1283,7 +1283,7 @@ they are closed. The unowned items for each page are in section 1, not repeated 
 
 | id | item | source | status | slice |
 |---|---|---|---|---|
-| `API-03` | The package map's list of what the front door exports names only the old declaration kinds, not feature, adapter, projection, store, workflow, secret, view or agent. | design/packages.md:10 | open | M1.05 |
+| `API-03` | The package map's list of what the front door exports names only the old declaration kinds, not feature, adapter, projection, store, workflow, secret, view or agent. | design/packages.md:10 | closed: packages.md lists the descriptors and the mount (M1.05) | M1.05 |
 
 ### reference/glossary
 

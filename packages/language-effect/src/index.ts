@@ -21,3 +21,5 @@ export { Wire } from "#modules/wire/service.js";
 export type { WireClasses } from "#modules/wire/types.js";
 export { BusyLive } from "#modules/work/service.js";
 export { Busy } from "#modules/work/types.js";
+export { Mount } from "#modules/mount/service.js";
+export { Mounted, type MountApi } from "#modules/mount/types.js";

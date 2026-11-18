@@ -13,6 +13,7 @@ import { Checks, Journeys } from "#modules/journeys/service.js";
 import { NotAllowed } from "#modules/errors/types.js";
 import { Machines } from "#modules/machines/service.js";
 import { Operations } from "#modules/operations/service.js";
+import { Plugins, Stand } from "#modules/plugins/service.js";
 import { Roles } from "#modules/roles/service.js";
 import { Things } from "#modules/things/service.js";
 import { Values } from "#modules/values/service.js";
@@ -29,6 +30,7 @@ export const Blueprint = Object.freeze({
   ...Operations,
   ...Journeys,
   ...Environments,
+  ...Plugins,
   ...Secrets,
   config: Configs.config,
   NotAllowed,
@@ -36,7 +38,8 @@ export const Blueprint = Object.freeze({
 });
 
 export { Schema } from "effect";
-export { Auth, Telemetry, Cloud, Deploy, Identity };
+export { Auth, Telemetry, Cloud, Deploy, Identity, Stand };
+export { Via, Host, Door, Ships } from "#modules/plugins/types.js";
 export const { expect, emits, noEvents, refuses, spans } = Checks;
 export { NotAllowed } from "#modules/errors/types.js";
 export type { Value, TypeOf } from "#modules/values/types.js";
@@ -56,3 +59,4 @@ export type { CloudProvider, Database } from "#modules/cloud/types.js";
 export type { Deployment, Publication } from "#modules/deploy/types.js";
 export type { Config, ConfigSpec, AuthKit } from "#modules/config/types.js";
 export type { Sink, LocalSink, AxiomSink } from "#modules/telemetry/types.js";
+export type { Feature, Adapter, Projection, Plugin, Mount, Verb, Choice, Choices, Option, OptionsIn, Need, NeedWhen, Call as AdapterCall, AnyChoice, Setting, StandIn, FeatureSpec, AdapterSpec, ProjectionSpec, ProjectedOperation, ProjectionInput, Output, ViewOf } from "#modules/plugins/types.js";

@@ -9,7 +9,11 @@ version of this page is in [`history/packages-layers-1-2.md`](history/packages-l
 packages/
   orthograph/        orthograph                    the front door: the Blueprint API (Blueprint.thing, machine, event,
                                                    error, role, operation, read, journey, world, environment, value,
-                                                   todo). What projects and their generated code import. Effect only.
+                                                   todo; a plugin's descriptor: feature, adapter, projection, choice,
+                                                   need, call, setting; and the mount, use), with Via, Host, Door,
+                                                   Ships and Stand. Store, workflow, secret, view and agent come with
+                                                   their milestones. What projects and their generated code import.
+                                                   Effect only.
   compiler/          @orthograph/compiler          reads blueprint/ by path and builds the model: every declaration, its
                                                    hash, what it uses; compares two models (versions, stale proofs);
                                                    finds blanks. Bin ortho-model
