@@ -1,0 +1,789 @@
+{
+  "schemaVersion": 1,
+  "project": "tickets",
+  "revision": null,
+  "model": {
+    "refusals": {
+      "EventNotOnSale": "EV-900",
+      "NotAllowed": "AR-001",
+      "SoldOut": "EV-001",
+      "TicketNotIssued": "TI-900"
+    },
+    "values": {
+      "Count": {
+        "type": "uint",
+        "bits": 32
+      },
+      "Holder": {
+        "type": "text",
+        "max": 80
+      },
+      "Title": {
+        "type": "text",
+        "max": 120
+      }
+    },
+    "things": {
+      "event": {
+        "name": "event",
+        "identifier": "Event",
+        "code": "EV",
+        "description": "An event with a fixed number of places, and free tickets for them.",
+        "fields": {
+          "id": {
+            "value": {
+              "type": "id",
+              "prefix": "evt"
+            }
+          },
+          "title": {
+            "value": {
+              "type": "text",
+              "max": 120
+            },
+            "named": "Title"
+          },
+          "places": {
+            "value": {
+              "type": "uint",
+              "bits": 32
+            },
+            "named": "Count"
+          },
+          "claimed": {
+            "value": {
+              "type": "uint",
+              "bits": 32
+            },
+            "named": "Count"
+          }
+        },
+        "lives": "database",
+        "machine": {
+          "states": [
+            "onSale",
+            "soldOut",
+            "over"
+          ],
+          "moves": {
+            "open": {
+              "from": [],
+              "to": [
+                "onSale"
+              ],
+              "emits": "EventOpened"
+            },
+            "claim": {
+              "from": [
+                "onSale"
+              ],
+              "to": [
+                "onSale",
+                "soldOut"
+              ],
+              "emits": "TicketsClaimed"
+            },
+            "close": {
+              "from": [
+                "onSale",
+                "soldOut"
+              ],
+              "to": [
+                "over"
+              ],
+              "emits": "EventOver"
+            }
+          },
+          "notFrom": {
+            "error": "EventNotOnSale",
+            "exit": 70,
+            "code": "EV-900"
+          }
+        },
+        "events": {
+          "EventOpened": {
+            "event": {
+              "value": {
+                "type": "id",
+                "prefix": "evt"
+              },
+              "ref": "event.id"
+            },
+            "places": {
+              "value": {
+                "type": "uint",
+                "bits": 32
+              },
+              "named": "Count"
+            }
+          },
+          "EventOver": {
+            "event": {
+              "value": {
+                "type": "id",
+                "prefix": "evt"
+              },
+              "ref": "event.id"
+            }
+          },
+          "TicketsClaimed": {
+            "event": {
+              "value": {
+                "type": "id",
+                "prefix": "evt"
+              },
+              "ref": "event.id"
+            },
+            "seats": {
+              "value": {
+                "type": "uint",
+                "bits": 32
+              },
+              "named": "Count"
+            },
+            "left": {
+              "value": {
+                "type": "uint",
+                "bits": 32
+              },
+              "named": "Count"
+            }
+          }
+        },
+        "errors": {
+          "SoldOut": {
+            "fields": {
+              "left": {
+                "value": {
+                  "type": "uint",
+                  "bits": 32
+                },
+                "named": "Count"
+              }
+            },
+            "exit": 71,
+            "code": "EV-001"
+          }
+        },
+        "roles": [],
+        "hash": "c507add61d43f9ad"
+      },
+      "ticket": {
+        "name": "ticket",
+        "identifier": "Ticket",
+        "code": "TI",
+        "description": "A free ticket for some seats at an event, held under a name.",
+        "fields": {
+          "id": {
+            "value": {
+              "type": "id",
+              "prefix": "tkt"
+            }
+          },
+          "event": {
+            "value": {
+              "type": "id",
+              "prefix": "evt"
+            },
+            "ref": "event.id"
+          },
+          "holder": {
+            "value": {
+              "type": "text",
+              "max": 80
+            },
+            "named": "Holder"
+          },
+          "seats": {
+            "value": {
+              "type": "uint",
+              "bits": 32
+            },
+            "named": "Count"
+          }
+        },
+        "lives": "database",
+        "machine": {
+          "states": [
+            "issued",
+            "checkedIn",
+            "cancelled"
+          ],
+          "moves": {
+            "checkIn": {
+              "from": [
+                "issued"
+              ],
+              "to": [
+                "checkedIn"
+              ],
+              "emits": "TicketCheckedIn"
+            },
+            "cancel": {
+              "from": [
+                "issued"
+              ],
+              "to": [
+                "cancelled"
+              ],
+              "emits": "TicketCancelled"
+            }
+          },
+          "notFrom": {
+            "error": "TicketNotIssued",
+            "exit": 72,
+            "code": "TI-900"
+          }
+        },
+        "events": {
+          "TicketCancelled": {
+            "ticket": {
+              "value": {
+                "type": "id",
+                "prefix": "tkt"
+              },
+              "ref": "ticket.id"
+            }
+          },
+          "TicketCheckedIn": {
+            "ticket": {
+              "value": {
+                "type": "id",
+                "prefix": "tkt"
+              },
+              "ref": "ticket.id"
+            }
+          }
+        },
+        "errors": {},
+        "roles": [],
+        "hash": "5160cda957b2acd3"
+      }
+    },
+    "operations": {
+      "event.claim": {
+        "kind": "operation",
+        "name": "event.claim",
+        "thing": "event",
+        "verb": "claim",
+        "identifier": "claim",
+        "file": "blueprint/things/event/verbs/claim.ts",
+        "description": "Claim a ticket for one or more seats, held under a name.",
+        "payload": {
+          "event": {
+            "value": {
+              "type": "id",
+              "prefix": "evt"
+            },
+            "ref": "event.id"
+          },
+          "holder": {
+            "value": {
+              "type": "text",
+              "max": 80
+            },
+            "named": "Holder",
+            "ref": "ticket.holder"
+          },
+          "seats": {
+            "value": {
+              "type": "uint",
+              "bits": 32
+            },
+            "named": "Count"
+          }
+        },
+        "answer": {
+          "ticket": {
+            "value": {
+              "type": "id",
+              "prefix": "tkt"
+            },
+            "ref": "ticket.id"
+          },
+          "left": {
+            "value": {
+              "type": "uint",
+              "bits": 32
+            },
+            "named": "Count"
+          }
+        },
+        "move": {
+          "key": "claim",
+          "from": [
+            "onSale"
+          ],
+          "to": [
+            "onSale",
+            "soldOut"
+          ],
+          "emits": "TicketsClaimed"
+        },
+        "errors": [
+          "SoldOut"
+        ],
+        "refusals": [
+          "SoldOut",
+          "EventNotOnSale"
+        ],
+        "allowed": [
+          {
+            "kind": "anyone"
+          }
+        ],
+        "steps": {
+          "load": {
+            "name": "event.claim.load",
+            "type": "database"
+          },
+          "issue": {
+            "name": "event.claim.issue",
+            "type": "database"
+          },
+          "count": {
+            "name": "event.claim.count",
+            "type": "database"
+          }
+        },
+        "idempotent": "request",
+        "runs": "server",
+        "test": "unit",
+        "budget": {
+          "p95Ms": 150
+        },
+        "hash": "0a8835bf73f5d550"
+      },
+      "event.close": {
+        "kind": "operation",
+        "name": "event.close",
+        "thing": "event",
+        "verb": "close",
+        "identifier": "close",
+        "file": "blueprint/things/event/verbs/close.ts",
+        "description": "End the event. No tickets are claimed after this.",
+        "payload": {
+          "event": {
+            "value": {
+              "type": "id",
+              "prefix": "evt"
+            },
+            "ref": "event.id"
+          }
+        },
+        "answer": {},
+        "move": {
+          "key": "close",
+          "from": [
+            "onSale",
+            "soldOut"
+          ],
+          "to": [
+            "over"
+          ],
+          "emits": "EventOver"
+        },
+        "errors": [],
+        "refusals": [
+          "EventNotOnSale"
+        ],
+        "allowed": [
+          {
+            "kind": "anyone"
+          }
+        ],
+        "steps": {
+          "record": {
+            "name": "event.close.record",
+            "type": "database"
+          }
+        },
+        "idempotent": null,
+        "runs": "server",
+        "test": "unit",
+        "budget": {
+          "p95Ms": 150
+        },
+        "hash": "7c33ae7badb293ab"
+      },
+      "event.get": {
+        "kind": "read",
+        "name": "event.get",
+        "thing": "event",
+        "verb": "get",
+        "identifier": "get",
+        "file": "blueprint/things/event/verbs/get.ts",
+        "description": "Read one event by its id: title, places, claimed, state.",
+        "payload": {
+          "id": {
+            "value": {
+              "type": "id",
+              "prefix": "evt"
+            },
+            "ref": "event.id"
+          }
+        },
+        "answer": {
+          "title": {
+            "value": {
+              "type": "text",
+              "max": 120
+            },
+            "named": "Title",
+            "ref": "event.title"
+          },
+          "places": {
+            "value": {
+              "type": "uint",
+              "bits": 32
+            },
+            "named": "Count",
+            "ref": "event.places"
+          },
+          "claimed": {
+            "value": {
+              "type": "uint",
+              "bits": 32
+            },
+            "named": "Count",
+            "ref": "event.claimed"
+          },
+          "state": {
+            "value": {
+              "type": "text",
+              "max": 64
+            }
+          }
+        },
+        "move": null,
+        "errors": [],
+        "refusals": [],
+        "allowed": [
+          {
+            "kind": "anyone"
+          }
+        ],
+        "steps": {},
+        "idempotent": null,
+        "runs": "server",
+        "test": "unit",
+        "budget": {
+          "p95Ms": 50
+        },
+        "hash": "c347c0f0cb963c0d"
+      },
+      "event.open": {
+        "kind": "operation",
+        "name": "event.open",
+        "thing": "event",
+        "verb": "open",
+        "identifier": "open",
+        "file": "blueprint/things/event/verbs/open.ts",
+        "description": "Put an event on sale with a number of places.",
+        "payload": {
+          "title": {
+            "value": {
+              "type": "text",
+              "max": 120
+            },
+            "named": "Title",
+            "ref": "event.title"
+          },
+          "places": {
+            "value": {
+              "type": "uint",
+              "bits": 32
+            },
+            "named": "Count",
+            "ref": "event.places"
+          }
+        },
+        "answer": {
+          "event": {
+            "value": {
+              "type": "id",
+              "prefix": "evt"
+            },
+            "ref": "event.id"
+          }
+        },
+        "move": {
+          "key": "open",
+          "from": [],
+          "to": [
+            "onSale"
+          ],
+          "emits": "EventOpened"
+        },
+        "errors": [],
+        "refusals": [],
+        "allowed": [
+          {
+            "kind": "anyone"
+          }
+        ],
+        "steps": {
+          "insert": {
+            "name": "event.open.insert",
+            "type": "database"
+          }
+        },
+        "idempotent": "request",
+        "runs": "server",
+        "test": "unit",
+        "budget": {
+          "p95Ms": 150
+        },
+        "hash": "c1ff1693b5741409"
+      },
+      "ticket.cancel": {
+        "kind": "operation",
+        "name": "ticket.cancel",
+        "thing": "ticket",
+        "verb": "cancel",
+        "identifier": "cancel",
+        "file": "blueprint/things/ticket/verbs/cancel.ts",
+        "description": "Cancel a ticket before the door. Its seats are not sold again.",
+        "payload": {
+          "ticket": {
+            "value": {
+              "type": "id",
+              "prefix": "tkt"
+            },
+            "ref": "ticket.id"
+          }
+        },
+        "answer": {},
+        "move": {
+          "key": "cancel",
+          "from": [
+            "issued"
+          ],
+          "to": [
+            "cancelled"
+          ],
+          "emits": "TicketCancelled"
+        },
+        "errors": [],
+        "refusals": [
+          "TicketNotIssued"
+        ],
+        "allowed": [
+          {
+            "kind": "anyone"
+          }
+        ],
+        "steps": {
+          "record": {
+            "name": "ticket.cancel.record",
+            "type": "database"
+          }
+        },
+        "idempotent": null,
+        "runs": "server",
+        "test": "unit",
+        "budget": {
+          "p95Ms": 150
+        },
+        "hash": "c094686d643f07a7"
+      },
+      "ticket.check-in": {
+        "kind": "operation",
+        "name": "ticket.check-in",
+        "thing": "ticket",
+        "verb": "check-in",
+        "identifier": "checkIn",
+        "file": "blueprint/things/ticket/verbs/check-in.ts",
+        "description": "Let the holder in at the door. A ticket gets in once.",
+        "payload": {
+          "ticket": {
+            "value": {
+              "type": "id",
+              "prefix": "tkt"
+            },
+            "ref": "ticket.id"
+          }
+        },
+        "answer": {},
+        "move": {
+          "key": "checkIn",
+          "from": [
+            "issued"
+          ],
+          "to": [
+            "checkedIn"
+          ],
+          "emits": "TicketCheckedIn"
+        },
+        "errors": [],
+        "refusals": [
+          "TicketNotIssued"
+        ],
+        "allowed": [
+          {
+            "kind": "anyone"
+          }
+        ],
+        "steps": {
+          "record": {
+            "name": "ticket.check-in.record",
+            "type": "database"
+          }
+        },
+        "idempotent": null,
+        "runs": "server",
+        "test": "unit",
+        "budget": {
+          "p95Ms": 150
+        },
+        "hash": "49c07cb1f3b8b895"
+      },
+      "ticket.get": {
+        "kind": "read",
+        "name": "ticket.get",
+        "thing": "ticket",
+        "verb": "get",
+        "identifier": "get",
+        "file": "blueprint/things/ticket/verbs/get.ts",
+        "description": "Read one ticket by its id: event, holder, seats, state.",
+        "payload": {
+          "id": {
+            "value": {
+              "type": "id",
+              "prefix": "tkt"
+            },
+            "ref": "ticket.id"
+          }
+        },
+        "answer": {
+          "event": {
+            "value": {
+              "type": "id",
+              "prefix": "evt"
+            },
+            "ref": "ticket.event"
+          },
+          "holder": {
+            "value": {
+              "type": "text",
+              "max": 80
+            },
+            "named": "Holder",
+            "ref": "ticket.holder"
+          },
+          "seats": {
+            "value": {
+              "type": "uint",
+              "bits": 32
+            },
+            "named": "Count",
+            "ref": "ticket.seats"
+          },
+          "state": {
+            "value": {
+              "type": "text",
+              "max": 64
+            }
+          }
+        },
+        "move": null,
+        "errors": [],
+        "refusals": [],
+        "allowed": [
+          {
+            "kind": "anyone"
+          }
+        ],
+        "steps": {},
+        "idempotent": null,
+        "runs": "server",
+        "test": "unit",
+        "budget": {
+          "p95Ms": 50
+        },
+        "hash": "51af0d2c16bf6f98"
+      }
+    },
+    "environments": {
+      "local": {
+        "name": "local",
+        "file": "blueprint/environments/local.ts",
+        "runs": "on this machine",
+        "identity": "test-principals",
+        "lifetimeMs": null,
+        "cloud": null,
+        "database": "d1-local",
+        "secrets": {},
+        "promotesFrom": null,
+        "telemetry": [
+          {
+            "sink": "local"
+          }
+        ],
+        "deploy": {},
+        "publish": {},
+        "hash": "0f14705e03d3bc97"
+      }
+    }
+  },
+  "dependsOnByOperation": {
+    "event.claim": {
+      "operation:event.claim": "0a8835bf73f5d550",
+      "thing:event": "c507add61d43f9ad",
+      "thing:ticket": "5160cda957b2acd3"
+    },
+    "event.close": {
+      "operation:event.close": "7c33ae7badb293ab",
+      "thing:event": "c507add61d43f9ad"
+    },
+    "event.get": {
+      "operation:event.get": "c347c0f0cb963c0d",
+      "thing:event": "c507add61d43f9ad"
+    },
+    "event.open": {
+      "operation:event.open": "c1ff1693b5741409",
+      "thing:event": "c507add61d43f9ad"
+    },
+    "ticket.cancel": {
+      "operation:ticket.cancel": "c094686d643f07a7",
+      "thing:event": "c507add61d43f9ad",
+      "thing:ticket": "5160cda957b2acd3"
+    },
+    "ticket.check-in": {
+      "operation:ticket.check-in": "49c07cb1f3b8b895",
+      "thing:event": "c507add61d43f9ad",
+      "thing:ticket": "5160cda957b2acd3"
+    },
+    "ticket.get": {
+      "operation:ticket.get": "51af0d2c16bf6f98",
+      "thing:event": "c507add61d43f9ad",
+      "thing:ticket": "5160cda957b2acd3"
+    }
+  },
+  "docs": {
+    "event/claim.md": "<!-- Generated from the blueprint. Do not edit. -->\n# event.claim\n\nClaim a ticket for one or more seats, held under a name.\n\n**Who may call:** anyone.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| event | event.id |\n| holder | ticket.holder |\n| seats | Count |\n\n## Answer\n\n| field | value |\n|---|---|\n| ticket | ticket.id |\n| left | Count |\n\n## Move\n\n`claim`: from onSale to onSale or soldOut, emitting TicketsClaimed.\n\n## Steps\n\n- `event.claim.load` (database)\n- `event.claim.issue` (database)\n- `event.claim.count` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| SoldOut | 71 | EV-001 | declared in errors.ts, carrying left |\n| EventNotOnSale | 70 | EV-900 | the event is in a state claim can't start from; carries `state` |\n\n## How to call\n\n```sh\ntickets event claim --event <event> --holder <holder> --seats <seats>\n```\n\nHTTP: `POST /event/claim` with the payload as JSON. SDK: `Sdk.event.claim(payload)`.\n",
+    "event/close.md": "<!-- Generated from the blueprint. Do not edit. -->\n# event.close\n\nEnd the event. No tickets are claimed after this.\n\n**Who may call:** anyone.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| event | event.id |\n\n## Answer\n\n(none)\n\n## Move\n\n`close`: from onSale or soldOut to over, emitting EventOver.\n\n## Steps\n\n- `event.close.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| EventNotOnSale | 70 | EV-900 | the event is in a state close can't start from; carries `state` |\n\n## How to call\n\n```sh\ntickets event close --event <event>\n```\n\nHTTP: `POST /event/close` with the payload as JSON. SDK: `Sdk.event.close(payload)`.\n",
+    "event/get.md": "<!-- Generated from the blueprint. Do not edit. -->\n# event.get\n\nRead one event by its id: title, places, claimed, state.\n\n**Who may call:** anyone.\n\n**A read:** answered from the records, with no handler.\n\n**Budget:** p95 50ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| id | event.id |\n\n## Answer\n\n| field | value |\n|---|---|\n| title | event.title |\n| places | event.places |\n| claimed | event.claimed |\n| state | text |\n\n## Refusals\n\n(none)\n\n## How to call\n\n```sh\ntickets event get --id <id>\n```\n\nHTTP: `POST /event/get` with the payload as JSON. SDK: `Sdk.event.get(payload)`.\n",
+    "event/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# event\n\nAn event with a fixed number of places, and free tickets for them.\n\nLives in the database.\n\n## Fields\n\n| field | value |\n|---|---|\n| id | id |\n| title | Title |\n| places | Count |\n| claimed | Count |\n\n## Machine\n\nStates: onSale, soldOut, over. A move from the wrong state is refused EventNotOnSale (exit 70).\n\n| move | from | to | emits |\n|---|---|---|---|\n| open | (creates) | onSale | EventOpened |\n| claim | onSale | onSale, soldOut | TicketsClaimed |\n| close | onSale, soldOut | over | EventOver |\n\n## Operations\n\n- [event.claim](claim.md): Claim a ticket for one or more seats, held under a name.\n- [event.close](close.md): End the event. No tickets are claimed after this.\n- [event.get](get.md): Read one event by its id: title, places, claimed, state.\n- [event.open](open.md): Put an event on sale with a number of places.\n",
+    "event/open.md": "<!-- Generated from the blueprint. Do not edit. -->\n# event.open\n\nPut an event on sale with a number of places.\n\n**Who may call:** anyone.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| title | event.title |\n| places | event.places |\n\n## Answer\n\n| field | value |\n|---|---|\n| event | event.id |\n\n## Move\n\n`open`: from nothing (it creates) to onSale, emitting EventOpened.\n\n## Steps\n\n- `event.open.insert` (database)\n\n## Refusals\n\n(none)\n\n## How to call\n\n```sh\ntickets event open --title <title> --places <places>\n```\n\nHTTP: `POST /event/open` with the payload as JSON. SDK: `Sdk.event.open(payload)`.\n",
+    "ticket/cancel.md": "<!-- Generated from the blueprint. Do not edit. -->\n# ticket.cancel\n\nCancel a ticket before the door. Its seats are not sold again.\n\n**Who may call:** anyone.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| ticket | ticket.id |\n\n## Answer\n\n(none)\n\n## Move\n\n`cancel`: from issued to cancelled, emitting TicketCancelled.\n\n## Steps\n\n- `ticket.cancel.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| TicketNotIssued | 72 | TI-900 | the ticket is in a state cancel can't start from; carries `state` |\n\n## How to call\n\n```sh\ntickets ticket cancel --ticket <ticket>\n```\n\nHTTP: `POST /ticket/cancel` with the payload as JSON. SDK: `Sdk.ticket.cancel(payload)`.\n",
+    "ticket/check-in.md": "<!-- Generated from the blueprint. Do not edit. -->\n# ticket.check-in\n\nLet the holder in at the door. A ticket gets in once.\n\n**Who may call:** anyone.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| ticket | ticket.id |\n\n## Answer\n\n(none)\n\n## Move\n\n`checkIn`: from issued to checkedIn, emitting TicketCheckedIn.\n\n## Steps\n\n- `ticket.check-in.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| TicketNotIssued | 72 | TI-900 | the ticket is in a state checkIn can't start from; carries `state` |\n\n## How to call\n\n```sh\ntickets ticket check-in --ticket <ticket>\n```\n\nHTTP: `POST /ticket/check-in` with the payload as JSON. SDK: `Sdk.ticket.check-in(payload)`.\n",
+    "ticket/get.md": "<!-- Generated from the blueprint. Do not edit. -->\n# ticket.get\n\nRead one ticket by its id: event, holder, seats, state.\n\n**Who may call:** anyone.\n\n**A read:** answered from the records, with no handler.\n\n**Budget:** p95 50ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| id | ticket.id |\n\n## Answer\n\n| field | value |\n|---|---|\n| event | ticket.event |\n| holder | ticket.holder |\n| seats | ticket.seats |\n| state | text |\n\n## Refusals\n\n(none)\n\n## How to call\n\n```sh\ntickets ticket get --id <id>\n```\n\nHTTP: `POST /ticket/get` with the payload as JSON. SDK: `Sdk.ticket.get(payload)`.\n",
+    "ticket/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# ticket\n\nA free ticket for some seats at an event, held under a name.\n\nLives in the database.\n\n## Fields\n\n| field | value |\n|---|---|\n| id | id |\n| event | event.id |\n| holder | Holder |\n| seats | Count |\n\n## Machine\n\nStates: issued, checkedIn, cancelled. A move from the wrong state is refused TicketNotIssued (exit 72).\n\n| move | from | to | emits |\n|---|---|---|---|\n| checkIn | issued | checkedIn | TicketCheckedIn |\n| cancel | issued | cancelled | TicketCancelled |\n\n## Operations\n\n- [ticket.cancel](cancel.md): Cancel a ticket before the door. Its seats are not sold again.\n- [ticket.check-in](check-in.md): Let the holder in at the door. A ticket gets in once.\n- [ticket.get](get.md): Read one ticket by its id: event, holder, seats, state.\n"
+  },
+  "extensions": {
+    "journeys": {
+      "state": "unavailable",
+      "reason": "the compiler's model has no journey projection"
+    },
+    "evals": {
+      "state": "unavailable",
+      "reason": "the logbook stores aggregate verdicts only"
+    },
+    "traces": {
+      "state": "unavailable",
+      "reason": "no trace source is wired to the portal yet"
+    }
+  },
+  "digest": "6c064c72cb1d794e61eab50b299480386f5f2499d16001e096e93defa842cfb4"
+}

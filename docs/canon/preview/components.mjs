@@ -41,7 +41,9 @@ export const components = ({ repo, gh, idOf, read, pageNames }) => {
   const Fence = ({ meta, children }) => {
     const a = attrs(meta);
     const [x, y = x] = (a.lines ?? "").split("-");
-    const head = a.planned
+    const head = a.tree
+      ? [h("span", { key: 1, className: "badge quoted" }, "tree · checked"), " ", h("a", { key: 2, href: gh(a.tree).replace("/blob/", "/tree/") }, h("code", null, `${a.tree}/`))]
+      : a.planned
       ? [h("span", { key: 1, className: "badge planned" }, "designed · not built"), " ", h("code", { key: 2 }, a.path ?? ""), " ", slice(a.planned)]
       : [h("span", { key: 1, className: "badge quoted" }, "quoted · checked"), " ", h("a", { key: 2, href: `${gh(a.file)}#L${x}-L${y}` }, h("code", null, `${a.file}:${x}${y !== x ? `-${y}` : ""}`))];
     return h("figure", { className: `fence ${a.planned ? "is-planned" : ""}` }, h("figcaption", null, head), children);

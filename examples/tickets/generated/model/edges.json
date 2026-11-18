@@ -1,0 +1,67 @@
+[
+  {
+    "from": "ticket.event",
+    "to": "event.id",
+    "kind": "refers"
+  },
+  {
+    "from": "event.claim",
+    "to": "event",
+    "kind": "acts-on"
+  },
+  {
+    "from": "event.claim",
+    "to": "event.TicketsClaimed",
+    "kind": "emits"
+  },
+  {
+    "from": "event.close",
+    "to": "event",
+    "kind": "acts-on"
+  },
+  {
+    "from": "event.close",
+    "to": "event.EventOver",
+    "kind": "emits"
+  },
+  {
+    "from": "event.get",
+    "to": "event",
+    "kind": "reads"
+  },
+  {
+    "from": "event.open",
+    "to": "event",
+    "kind": "acts-on"
+  },
+  {
+    "from": "event.open",
+    "to": "event.EventOpened",
+    "kind": "emits"
+  },
+  {
+    "from": "ticket.cancel",
+    "to": "ticket",
+    "kind": "acts-on"
+  },
+  {
+    "from": "ticket.cancel",
+    "to": "ticket.TicketCancelled",
+    "kind": "emits"
+  },
+  {
+    "from": "ticket.check-in",
+    "to": "ticket",
+    "kind": "acts-on"
+  },
+  {
+    "from": "ticket.check-in",
+    "to": "ticket.TicketCheckedIn",
+    "kind": "emits"
+  },
+  {
+    "from": "ticket.get",
+    "to": "ticket",
+    "kind": "reads"
+  }
+]

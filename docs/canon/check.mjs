@@ -83,6 +83,22 @@ const checkFrontmatter = (file, fm) => {
   for (const l of fm.links ?? []) if (!outlined.has(l)) fail(file, 1, `links to ${l}, which is not a page in outline.md`);
 };
 
+// A tree fence lists a folder, two spaces a level; `name/` is a folder, and text after two spaces is a comment.
+// Every name listed must exist there, so the tree can't drift from the project it draws.
+const checkTree = (file, line, root, body) => {
+  if (!existsSync(at(root))) { fail(file, line, `draws ${root}, which doesn't exist`); return; }
+  const stack = [];
+  body.replace(/\n$/, "").split("\n").forEach((raw, i) => {
+    if (!raw.trim()) return;
+    const depth = (raw.length - raw.trimStart().length) / 2;
+    const name = raw.trim().split(/\s{2,}/)[0];
+    stack.length = depth;
+    const path = join(root, ...stack, name.replace(/\/$/, ""));
+    if (!existsSync(at(path))) fail(file, line + 1 + i, `the tree lists ${path}, which doesn't exist`);
+    if (name.endsWith("/")) stack[depth] = name.replace(/\/$/, "");
+  });
+};
+
 const checkFences = (file, text) => {
   for (const m of text.matchAll(/^( *)```(\w*)([^\n]*)\n([\s\S]*?)^\1```$/gm)) {
     const [, indent, , metaRaw, body] = m;
@@ -92,7 +108,8 @@ const checkFences = (file, text) => {
       if (!slices.has(meta.planned)) fail(file, line, `planned=${meta.planned} is not a slice in design/milestones.md`);
       continue;
     }
-    if (!meta.file || !meta.lines) { fail(file, line, "a fence must quote a file (file=… lines=a-b) or be planned=<slice>"); continue; }
+    if (meta.tree) { checkTree(file, line, meta.tree, body); continue; }
+    if (!meta.file || !meta.lines) { fail(file, line, "a fence must quote a file (file=… lines=a-b), draw a tree (tree=<dir>) or be planned=<slice>"); continue; }
     const source = at(meta.file);
     if (!existsSync(source)) { fail(file, line, `quotes ${meta.file}, which doesn't exist`); continue; }
     const [a, b = a] = meta.lines.split("-").map(Number);
