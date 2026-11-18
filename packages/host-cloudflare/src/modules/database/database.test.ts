@@ -51,7 +51,7 @@ describe("D1 through SqlClient, in workerd", () => {
     const row = await env.DB.prepare(`SELECT "limit", state FROM "allowance" WHERE id = ?`).bind(answer.allowance).first();
     expect(row).toEqual({ limit: most, state: "active" });
     const names = spans.map((s) => s.name);
-    expect(names.slice(0, 2)).toEqual(["allowance.grant", "allowance.grant.insert"]);
+    expect(names.slice(0, 3)).toEqual(["allowance.grant", "allowance.grant.access", "allowance.grant.insert"]);
     expect(spans[0]!.attributes.get("payload.limit")).toBe(most);
   });
 });

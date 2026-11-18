@@ -7,6 +7,7 @@ import type { Entry } from "#modules/journal/types.js";
 import type { Unit } from "#modules/records/types.js";
 import { NotFrom } from "../types.ts";
 import { journalled } from "./attributes.ts";
+import type { Annotate } from "./span.ts";
 
 type Codec = Schema.Codec<Record<string, unknown>, Record<string, unknown>>;
 
@@ -39,13 +40,16 @@ export const checkFrom = (op: Operation, refusal: string | undefined, payload: o
     if (!move.from.includes(state)) return yield* Effect.fail(new NotFrom({ _tag: refusal, state }));
   });
 
-/** The outcome a handler asked for: one of the move's `to`, or it dies naming what it asked for. */
-export const chooseOutcome = (name: string, op: Operation, to: string | undefined) =>
+/**
+ * The outcome a handler asked for: one of the move's `to`, or it dies naming what it asked for. It is written on the
+ * operation's span (`onOperation`), whichever span the handler called `move` from: inside a step it is still the move.
+ */
+export const chooseOutcome = (name: string, op: Operation, to: string | undefined, onOperation: Annotate) =>
   Effect.gen(function* () {
     if (!op.move) return yield* Effect.die(new Error(`${name} has no move, so its handler cannot make one`));
     const outcome = to ?? (op.move.to.length === 1 ? op.move.to[0] : undefined);
     // Written before the check, so a wrong outcome is evidence too, not just a crash.
-    yield* Effect.annotateCurrentSpan({ "move.name": op.move.key, "move.to": String(outcome) });
+    yield* onOperation({ "move.name": op.move.key, "move.to": String(outcome) });
     if (outcome === undefined || !op.move.to.includes(outcome)) {
       return yield* Effect.die(new Error(`${name} moved to ${outcome}, which ${op.move.key} does not declare (${op.move.to.join(", ")})`));
     }

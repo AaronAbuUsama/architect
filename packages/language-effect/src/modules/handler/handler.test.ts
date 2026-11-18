@@ -34,10 +34,10 @@ const handler: Handler<typeof grant> = (payload, { steps }) =>
     : steps.insert(Effect.succeed({ allowance: "alw_1" as never }));
 
 /** The in-memory exporter: every span the runtime opens, kept for the test to read. */
-const recording = () => {
+const recording = (rows?: Parameters<typeof storeMemory>[0]) => {
   const spans: Array<Tracer.NativeSpan> = [];
   const tracer = Tracer.make({ span: (options) => { const s = new Tracer.NativeSpan(options); spans.push(s); return s; } });
-  const store = storeMemory();
+  const store = storeMemory(rows);
   return { spans, store, layer: Layer.mergeAll(BusyLive, store.layer, Layer.succeed(Tracer.Tracer, tracer)) };
 };
 const ada = { kind: "person", person: "per_ada" } as const;
@@ -57,7 +57,7 @@ describe("handler wrapper", () => {
     expect(step?.parent._tag === "Some" && step.parent.value.spanId).toBe(span!.spanId);
   });
 
-  it("runs each declared step in its own span, in order, marked with its kind", async () => {
+  it("runs the role check, then each declared step, in its own span, in order, marked with its kind", async () => {
     const settle = Blueprint.operation(Allowance, {
       description: "Load, wait, then answer.",
       payload: { member: Allowance.fields.member, limit: Allowance.fields.limit },
@@ -75,7 +75,7 @@ describe("handler wrapper", () => {
     await Effect.runPromise(Effect.provide(Handlers.serve({ name: "allowance.settle", operation: settle, handler: h }).call({ member: "per_olga", limit: "1" }, ada), layer));
     const stepSpans = spans.filter((x) => x.name.startsWith("allowance.settle."));
     expect(stepSpans.map((x) => [x.name, x.attributes.get("step.kind")])).toEqual([
-      ["allowance.settle.load", "database"], ["allowance.settle.wait", "wait"],
+      ["allowance.settle.access", "access"], ["allowance.settle.load", "database"], ["allowance.settle.wait", "wait"],
     ]);
   });
 
@@ -97,7 +97,35 @@ describe("handler wrapper", () => {
     const { spans, layer } = recording();
     const exit = await Effect.runPromiseExit(Effect.provide(served.call({ member: "per_olga", limit: "500" }, { kind: "anonymous" }), layer));
     expect(Exit.isFailure(exit) ? Cause.squash(exit.cause) : undefined).toBeInstanceOf(NotAllowed);
-    expect(spans.map((s) => s.name)).toEqual([]); // the handler never ran, so it has no span
+    // The operation's span and its role check, and nothing of the handler: no step ran.
+    expect(spans.map((s) => s.name)).toEqual(["allowance.grant", "allowance.grant.access"]);
+  });
+
+  it("a caller the role refuses leaves the operation's span, naming the caller and the refusal", async () => {
+    const owner = Blueprint.role(Allowance, { rule: (a, p) => a.member === p.person });
+    const revoke = Blueprint.operation(Allowance, {
+      description: "Stop an allowance.",
+      payload: { allowance: Allowance.fields.id },
+      answer: {},
+      allowed: [owner],
+      steps: { update: Blueprint.step.database() },
+    });
+    const ran: Array<string> = [];
+    const h: Handler<typeof revoke> = (_p, { steps }) => steps.update(Effect.sync(() => { ran.push("handler"); return {}; }));
+    // olga's allowance: ada is signed in, but she is not its member.
+    const { spans, layer } = recording([[Allowance, { id: "alw_1", member: "per_olga", limit: 500n }]]);
+    const s = Handlers.serve({ name: "allowance.revoke", operation: revoke, handler: h });
+    const exit = await Effect.runPromiseExit(Effect.provide(s.call({ allowance: "alw_1" }, ada), layer));
+    expect(Exit.isFailure(exit) ? Cause.squash(exit.cause) : undefined).toBeInstanceOf(NotAllowed);
+    expect(ran).toEqual([]);
+    const op = spans.find((x) => x.name === "allowance.revoke");
+    expect(Object.fromEntries(op!.attributes)).toMatchObject({ operation: "allowance.revoke", "principal.person": "per_ada", refusal: "NotAllowed" });
+    expect(op!.status._tag === "Ended" && op!.status.exit._tag).toBe("Success"); // a refusal is an outcome, never red
+    expect([...op!.attributes.keys()].filter((k) => k.startsWith("payload."))).toEqual([]); // nothing they sent is traced
+    const access = spans.find((x) => x.name === "allowance.revoke.access");
+    expect(access?.parent._tag === "Some" && access.parent.value.spanId).toBe(op!.spanId);
+    expect(access?.attributes.get("step.kind")).toBe("access");
+    expect(spans.some((x) => x.name === "allowance.revoke.update")).toBe(false);
   });
 
   it("refuses a payload outside its declaration before the handler runs", async () => {
@@ -145,6 +173,31 @@ describe("handler wrapper", () => {
       ]);
       expect(r.spans[0]!.attributes.get("move.to")).toBe("active");
       expect(r.spans[0]!.attributes.get("answer.allowance")).toBe("alw_7");
+    });
+
+    it("a move made inside a step is written on the operation's span", async () => {
+      const stepped = Blueprint.operation(Allowance, {
+        description: "Grant, moving from inside its step.",
+        payload: { member: Allowance.fields.member, limit: Allowance.fields.limit },
+        answer: { allowance: Allowance.fields.id },
+        move: machine.moves.grant,
+        allowed: [Blueprint.signedIn],
+        steps: { insert: Blueprint.step.database() },
+      });
+      const h: Handler<typeof stepped, Records> = (payload, { steps, move }) =>
+        Effect.gen(function* () {
+          yield* steps.insert(Effect.gen(function* () {
+            yield* (yield* Records).insert(Allowance, { id: "alw_8" as never, member: payload.member, limit: payload.limit });
+            yield* move();
+          }));
+          return { allowance: "alw_8" as never };
+        });
+      const r = recording();
+      await Effect.runPromise(Effect.provide(Handlers.serve({ name: "allowance.grant", operation: stepped, handler: h }).call({ member: "per_olga", limit: "5" }, ada), r.layer));
+      const op = r.spans.find((x) => x.name === "allowance.grant")!;
+      expect(Object.fromEntries(op.attributes)).toMatchObject({ "move.name": "grant", "move.to": "active", "event.name": "Granted" });
+      const step = r.spans.find((x) => x.name === "allowance.grant.insert")!;
+      expect(step.attributes.has("move.name")).toBe(false);
     });
 
     it("an outcome the move doesn't declare dies, and the span says what was asked", async () => {

@@ -1,0 +1,116 @@
+{
+  "source": "examples/acme/.forman/dev-telemetry/traces.jsonl, forman dev on 18 November 2026, attributes filtered to the model names",
+  "traces": {
+    "e9c9c55ce82830eae134d333dba6f210": {
+      "call": "spend by ada, owner not grantee: refused NotAllowed",
+      "spans": [
+        {
+          "name": "sqlite",
+          "spanId": "d7e7deb0852f8e2d",
+          "parentSpanId": "456770f89b3963b4"
+        },
+        {
+          "name": "allowance.spend.access",
+          "spanId": "456770f89b3963b4",
+          "parentSpanId": "ca54240208f14468",
+          "step.kind": "access"
+        },
+        {
+          "name": "allowance.spend",
+          "spanId": "ca54240208f14468",
+          "parentSpanId": "3f2aad460253cc83",
+          "operation": "allowance.spend",
+          "principal.person": "per_zz8cnalewuhy5t2f",
+          "refusal": "NotAllowed"
+        },
+        {
+          "name": "POST",
+          "spanId": "3f2aad460253cc83",
+          "parentSpanId": "d84c0a9cb01496c8"
+        }
+      ]
+    },
+    "b9f1c2c8bd4495921b1d4cee292ef283": {
+      "call": "revoke by ada, move inside steps.update",
+      "spans": [
+        {
+          "name": "sqlite",
+          "spanId": "263d70855e3cd1c9",
+          "parentSpanId": "f1543424b653d1cf"
+        },
+        {
+          "name": "sqlite",
+          "spanId": "b3af6db0151c31e1",
+          "parentSpanId": "f1543424b653d1cf"
+        },
+        {
+          "name": "allowance.revoke.access",
+          "spanId": "f1543424b653d1cf",
+          "parentSpanId": "28cc5fb80385baa2",
+          "step.kind": "access"
+        },
+        {
+          "name": "allowance.revoke.update",
+          "spanId": "b6afc2eee3bc79c0",
+          "parentSpanId": "28cc5fb80385baa2",
+          "step.kind": "database"
+        },
+        {
+          "name": "BATCH",
+          "spanId": "764539d9b261964f",
+          "parentSpanId": "28cc5fb80385baa2"
+        },
+        {
+          "name": "allowance.revoke",
+          "spanId": "28cc5fb80385baa2",
+          "parentSpanId": "3317553258d29069",
+          "operation": "allowance.revoke",
+          "principal.person": "per_zz8cnalewuhy5t2f",
+          "payload.allowance": "alw_cc2ldpc4bedabmy4",
+          "move.name": "revoke",
+          "move.to": "revoked",
+          "event.name": "AllowanceRevoked"
+        },
+        {
+          "name": "POST",
+          "spanId": "3317553258d29069",
+          "parentSpanId": "afff4ae150cef1b1"
+        }
+      ]
+    },
+    "18e2ce2d4cc68282c76aaa9922f8e38c": {
+      "call": "allowance.get by bob: refused NotAllowed",
+      "spans": [
+        {
+          "name": "sqlite",
+          "spanId": "9f03e6bb534c1a5b",
+          "parentSpanId": "125ea1a8ed39c4a2"
+        },
+        {
+          "name": "sqlite",
+          "spanId": "e8549771897a4a82",
+          "parentSpanId": "125ea1a8ed39c4a2"
+        },
+        {
+          "name": "allowance.get.access",
+          "spanId": "125ea1a8ed39c4a2",
+          "parentSpanId": "567e2ab48ff9295b",
+          "step.kind": "access"
+        },
+        {
+          "name": "allowance.get",
+          "spanId": "567e2ab48ff9295b",
+          "parentSpanId": "bf2a041a02d86ba5",
+          "operation": "allowance.get",
+          "principal.person": "per_vps7np3mx39rld1i",
+          "refusal": "NotAllowed"
+        },
+        {
+          "name": "POST",
+          "spanId": "bf2a041a02d86ba5",
+          "parentSpanId": "3ef249079d58723d"
+        }
+      ]
+    }
+  }
+}

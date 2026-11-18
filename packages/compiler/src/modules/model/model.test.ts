@@ -119,6 +119,15 @@ describe("model", () => {
     expect(JSON.stringify(exit)).toContain("blueprint/things/widget/verbs/spin.ts");
   });
 
+  it("refuses a step named after the runtime's own role-check span", async () => {
+    const root = copyOfAcme();
+    const revoke = join(root, "blueprint/things/allowance/verbs/revoke.ts");
+    writeFileSync(revoke, readFileSync(revoke, "utf8").replace("steps: { update:", "steps: { access:"));
+    const exit = await modelOf(root);
+    expect(Exit.isFailure(exit)).toBe(true);
+    expect(JSON.stringify(exit)).toContain('blueprint/things/allowance/verbs/revoke.ts: step \\"access\\" is reserved');
+  });
+
   // L2.P (N1): the seams a later target needs, each with a default that keeps today's behaviour.
   describe("privacy-ready seams", () => {
     const edit = (root: string, file: string, change: (text: string) => string) => {

@@ -9,9 +9,8 @@ doesn't replace any of it.
 
 You never write span code. The declaration produces the spans:
 
-- **The operation's span**, named after it (`spend`). It opens only once the role check has passed:
-  `spanned(name, { operation: name, ...principalAttributes(principal) })` at
-  `packages/language-effect/src/modules/handler/service.ts:83`.
+- **The operation's span**, named after it (`spend`). It opens before the role check, which runs as its first child
+  `spend.access` (O3), so a `NotAllowed` caller leaves the operation's span with `refusal` and no step span.
 - **One span per declared step**, `<operation>.<step>`, tagged `step.kind`, at `service.ts:34`.
 - **Attributes come from the declaration.** Only public fields are written: `payload.*`, `answer.*` and
   `principal.person`. A field the declaration doesn't name is never written (`internal/attributes.ts`).
@@ -55,8 +54,8 @@ traced text field is present, and by the built-in "leaks nothing" eval (S28) ass
 
 ## Gap 3: refusals before the span leave no count
 
-**The problem.** A payload that fails to decode (`InvalidPayload`, `service.ts:104`) and a caller the role refuses
-(`NotAllowed`, `Access.check` at `service.ts:46`) leave no span. That is deliberate: a refused caller must never look
+**The problem.** A payload that fails to decode (`InvalidPayload`, `service.ts:104`) leaves no span. (A caller the role
+refuses now does: O3 opened the operation's span before the role check.) That is deliberate: a refused caller must never look
 like work. But it also means nobody can see that `spend` refused 400 strangers in an hour.
 
 **The fix.** Every call is counted as a metric, whether or not a span opened:
@@ -69,7 +68,8 @@ Both go through Effect's `Metric` to OpenTelemetry, into the `<project>-<env>-me
 356). Locally they go through the Collector, whose configuration gains a metrics pipeline.
 
 **Proved by** a world test that sends one bad payload and one stranger, then reads `forman.calls` from the Collector:
-two refusals and no spans.
+two refusals. The bad payload leaves no span; the stranger leaves only `<operation>` and `<operation>.access` (O3,
+which differs from this record's first wording, "no spans": a refused caller is now traced by name, never by payload).
 
 ## What to look for in a trace (for the docs page)
 
@@ -80,6 +80,13 @@ two refusals and no spans.
   thing.
 - `request.replayed=true` is a retry that changed nothing.
 - Each step's width against the operation's budget shows which step is slow.
+
+## How O3 changes these (18 November 2026)
+
+O3 opens the operation's span before the role check. A `NotAllowed` caller now leaves `<operation>` with `principal.*`
+and `refusal`, plus `<operation>.access`, and no `payload.*`. Gap 1's `<operation>.commit` reserves `commit` as a step
+name, as O3 reserves `access`. Gap 2 governs only an allowed call's payload, since a refused one has none. Gap 3's
+proof is reworded above: the metric still counts both refusals, but only the bad payload leaves no span.
 
 ## Where it lands
 

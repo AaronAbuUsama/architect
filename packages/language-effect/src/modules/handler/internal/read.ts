@@ -4,7 +4,7 @@ import { Access } from "#modules/access/service.js";
 import { Unit } from "#modules/records/service.js";
 import { Records, Store, type Unit as UnitOf } from "#modules/records/types.js";
 import { answerAttributes, payloadAttributes, principalAttributes } from "./attributes.ts";
-import { spanned } from "./span.ts";
+import { accessSpan, spanned } from "./span.ts";
 import type { ReadAnswer, ReadPayload, ReadsApi } from "../types.ts";
 
 type AnyCodec = Schema.Codec<object, unknown>;
@@ -41,7 +41,7 @@ const byList = (read: Read<any, any, any>, payload: ReadPayload) =>
     return { items, next: listed.next } as ReadAnswer;
   });
 
-/** Reads are served beside operations: the same role check, the same span, no handler. */
+/** Reads are served beside operations: the same span, the same role check inside it, no handler. */
 export const Reads: ReadsApi = {
   serve: ({ name, read }) => {
     const decode = Schema.decodeUnknownEffect(read.payloadSchema as unknown as AnyCodec);
@@ -49,10 +49,11 @@ export const Reads: ReadsApi = {
     const run = (payload: ReadPayload, principal: Principal) =>
       Effect.gen(function* () {
         const unit = yield* Unit.make(yield* Store);
-        yield* Access.check({ allowed: read.allowed, payloadFields: read.payload, payload, principal, thing: read.thing }).pipe(
-          Effect.provideService(Records, unit.records),
-        );
         return yield* Effect.gen(function* () {
+          // Who may read, as the operation's first child span: a refused caller's trace still names the read and the caller.
+          yield* accessSpan(name, Access.check({ allowed: read.allowed, payloadFields: read.payload, payload, principal, thing: read.thing }).pipe(
+            Effect.provideService(Records, unit.records),
+          ));
           yield* Effect.annotateCurrentSpan(payloadAttributes(payload, read.payload));
           const answer = read.by === "list" ? yield* byList(read, payload) : yield* byId(read, payload, unit);
           yield* Effect.annotateCurrentSpan(answerAttributes(answer, read.answer, read.by === "list" ? read.thing.fields : undefined));

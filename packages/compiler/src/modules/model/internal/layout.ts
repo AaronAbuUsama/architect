@@ -80,7 +80,13 @@ export const readLayout = (files: ReadonlyArray<LoadedFile>): Layout => {
       const d = exports["default"];
       const kind = kindOf(d);
       if (kind !== "operation" && kind !== "read") layout.problems.push(`blueprint/${path}: the default export must be a Blueprint.operation or a Blueprint.read`);
-      else t.verbs.set(verb, { file: `blueprint/${path}`, declaration: d as Operation | Read });
+      else {
+        // The runtime names its own child spans `<operation>.<name>` too: a step called the same would be two spans in one.
+        for (const step of Object.keys(kind === "operation" ? (d as Operation).steps : {})) {
+          if (RESERVED_STEPS.includes(step)) layout.problems.push(`blueprint/${path}: step "${step}" is reserved, the runtime's role check is the span <operation>.${step}`);
+        }
+        t.verbs.set(verb, { file: `blueprint/${path}`, declaration: d as Operation | Read });
+      }
     } else {
       layout.problems.push(`blueprint/${path}: not a file a thing has (thing, machine, events, errors, roles, verbs/<verb>)`);
     }
@@ -88,6 +94,9 @@ export const readLayout = (files: ReadonlyArray<LoadedFile>): Layout => {
   for (const t of layout.things.values()) if (!t.thing) layout.problems.push(`blueprint/things/${t.name}: has no thing.ts`);
   return layout;
 };
+
+/** Step names the runtime uses for its own spans (O3). */
+export const RESERVED_STEPS: ReadonlyArray<string> = ["access"];
 
 /** `change-role` becomes `changeRole`; `allowance` becomes `Allowance` with `pascal`. */
 export const camel = (name: string): string => name.replace(/-([a-z0-9])/g, (_, c: string) => c.toUpperCase());

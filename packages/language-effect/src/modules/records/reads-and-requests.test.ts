@@ -1,4 +1,4 @@
-import { Cause, Effect, Exit, Layer } from "effect";
+import { Cause, Effect, Exit, Layer, Tracer } from "effect";
 import { describe, expect, it } from "vitest";
 import { Blueprint } from "@formants/forman";
 import { EventNames } from "@formants/forman/server";
@@ -72,5 +72,14 @@ describe("a read", () => {
       const exit = await Effect.runPromiseExit(read.run({ id }, who).pipe(Effect.provide(world().layer)));
       expect(Exit.isFailure(exit) && Cause.squash(exit.cause)).toMatchObject({ _tag: "NotAllowed" });
     }
+  });
+  it("a refused caller still leaves the read's span, with the caller, the refusal and the role check under it", async () => {
+    const spans: Array<Tracer.NativeSpan> = [];
+    const tracer = Tracer.make({ span: (options) => { const s = new Tracer.NativeSpan(options); spans.push(s); return s; } });
+    await Effect.runPromiseExit(read.run({ id: "pur_1" }, bob).pipe(Effect.provide(Layer.merge(world().layer, Layer.succeed(Tracer.Tracer, tracer)))));
+    const op = spans.find((s) => s.name === "purse.get")!;
+    expect(Object.fromEntries(op.attributes)).toMatchObject({ operation: "purse.get", "principal.person": "per_bob", refusal: "NotAllowed" });
+    const access = spans.find((s) => s.name === "purse.get.access");
+    expect(access?.parent._tag === "Some" && access.parent.value.spanId).toBe(op.spanId);
   });
 });

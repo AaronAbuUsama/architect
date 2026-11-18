@@ -8,7 +8,7 @@ import { BlankReached, InvalidPayload, type HandlerApi } from "./types.ts";
 import { answerAttributes, payloadAttributes, principalAttributes } from "./internal/attributes.ts";
 import { applyMove, checkFrom, chooseOutcome } from "./internal/move.ts";
 import { recordingLogs } from "./internal/decided.ts";
-import { spanned } from "./internal/span.ts";
+import { accessSpan, annotateHere, spanned } from "./internal/span.ts";
 export { Reads } from "./internal/read.ts";
 
 type AnyCodec = Schema.Codec<object, unknown>;
@@ -35,19 +35,23 @@ const serve = ({ name, operation, handler, notFrom }: { readonly name: string; r
     ]),
   );
 
-  // One attempt: who may call, then the operation's own span (opened only once the caller may call, so a refused
-  // caller leaves no handler span), the machine's check, the handler, its answer checked, its move, one commit.
+  // One attempt, all inside the operation's own span: who may call (its first child span, so a refused caller's trace
+  // still names the operation, the caller and the refusal, but no handler work or step span runs), the machine's
+  // check, the handler, its answer checked, its move, one commit.
   const decodeAnswer = Schema.decodeUnknownEffect(op.answerSchema as unknown as AnyCodec);
   const attempt = (payload: object, principal: Principal, key: string | undefined) =>
     Effect.gen(function* () {
       const store = yield* Store;
       const unit = yield* Unit.make(store);
       const withRecords = Effect.provideService(Records, unit.records);
-      yield* Access.check({ allowed: op.allowed, payloadFields: op.payload, payload, principal, thing: op.thing }).pipe(withRecords);
       const logs = yield* recordingLogs;
       return yield* Effect.gen(function* () {
-        const busy = yield* Busy;
+        yield* accessSpan(name, Access.check({ allowed: op.allowed, payloadFields: op.payload, payload, principal, thing: op.thing }).pipe(withRecords));
+        // The payload only once the caller may call: a refused caller's span names who and why, never what they sent.
         yield* Effect.annotateCurrentSpan(payloadAttributes(payload, op.payload));
+        const busy = yield* Busy;
+        // The operation's span, held so a move made from inside a step is still written on it.
+        const onOperation = yield* annotateHere;
         // The same request key from the same caller is one call: answer what was answered, and change nothing.
         const kept = key === undefined ? undefined : yield* store.answered(key);
         if (kept !== undefined) {
@@ -56,7 +60,7 @@ const serve = ({ name, operation, handler, notFrom }: { readonly name: string; r
         }
         yield* checkFrom(op, notFrom, payload, unit);
         const chosen = yield* Ref.make<string | undefined>(undefined);
-        const move = (to?: string) => chooseOutcome(name, op, to).pipe(Effect.flatMap((o) => Ref.set(chosen, o)));
+        const move = (to?: string) => chooseOutcome(name, op, to, onOperation).pipe(Effect.flatMap((o) => Ref.set(chosen, o)));
         const answer = yield* busy.counted(handler(payload, { principal, steps, move })).pipe(withRecords, logs.around);
         // Recorded before the check, so an answer outside its declaration is evidence `prove` can name.
         yield* Effect.annotateCurrentSpan(answerAttributes(answer, op.answer));
