@@ -12,7 +12,7 @@ export { acme, copyOf, fixtures, installFixture, nothingRunning, repo };
 /** This milestone's ports: 19260 to 19279, and nothing outside them. */
 export const PORTS = {
   control: 19260, sdk: 19261, mcp: 19262, loud: 19263, empty: 19264, defect: 19265, prove: 19266, narrow: 19267, omit: 19268,
-  journey: 19269, promise: 19270, effect: 19271, mapper: 19272, hold: 19275,
+  journey: 19269, promise: 19270, effect: 19271, mapper: 19272, walletControl: 19273, wallets: 19274, hold: 19275,
 } as const;
 
 export interface Copy {
