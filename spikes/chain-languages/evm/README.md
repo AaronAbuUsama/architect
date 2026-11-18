@@ -159,8 +159,8 @@ Differences from `spec.md`'s literal event list: `VoteCast` also carries `voter`
 
 ### Q7 Local world
 
-26. Start: 160 ms median (154-196 over 10 cold starts) to first `eth_chainId`. Cold `forge build --force` 1.7 s (solc
-    0.8.30 cached after the first download). Default instant mining: 18 ms median send-to-receipt (viem polling set to 20
+26. Start: 156 ms median (154-188 over 10 cold starts) to first `eth_chainId`. Cold `forge build --force` 1.07 s (solc
+    0.8.30 cached after the first download). Default instant mining: 27 ms median send-to-receipt (viem polling set to 20
     ms; **viem's default 4 s polling made a 35-tx script take 2.5 minutes**), one block per tx.
     `--block-time 1`: ~990 ms per tx plus an empty block per second. `evm_setAutomine(false)`: the tx sits in
     `txpool_status` until `evm_mine`. `evm_revert` 0.8 ms (a per-test reset), `anvil_dumpState` 4 ms. **Validated.**
@@ -233,7 +233,7 @@ Differences from `spec.md`'s literal event list: `VoteCast` also carries `voter`
 - One chain, one contract; no upgradeability, proxies, CREATE2 address derivation, multiple contracts per workshop
   (`per: "workshop"` means deploying one per workshop: not exercised), nor gas-cost budgets.
 - Third-party ERC-20s with non-standard returns (USDT-style) not tried; only a standard OZ token and four hostile ones.
-- `viem` 2.57.20 is exactly 3 days old (2.58.0 was too young); the whole npm tree is within the rule (see `versions.json`).
+- `viem` 2.57.20 was published 2026-11-15 08:19 UTC, so it passed the three-day rule only from 08:19 UTC on 18 November (2.58.0 was too young); a package pinning it later should use it, or 2.57.19 if added earlier in the day; the whole npm tree is within the rule (see `versions.json`).
 
 ## Reproduce
 

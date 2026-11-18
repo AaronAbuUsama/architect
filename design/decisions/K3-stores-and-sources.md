@@ -53,19 +53,20 @@ that does all of that can be where a thing lives.
    |---|---|---|---|
    | `database` | `@formants/host-cloudflare` | D1, with a version column | yes |
    | `actor` | `@formants/host-cloudflare` | a Durable Object per instance, its own SQLite, its outbox | no: use a view |
-   | `chain` | `@formants/language-solidity` | a contract (M6) | through views |
+   | `chain` | `@formants/language-solidity` | a contract or program (M6 for `evm`) | through views |
 
    `chain` is a family of kinds, one per chain: `evm`, `solana` and `aztec`, each from its language package, with
-   the capabilities `pending`, `accounts` and `private` (K7 Q4, 18 November 2026). A chain kind's commit answers late,
-   as a submission, not as `committed` or `conflict` on the spot.
+   the capabilities `pending`, `accounts` and `private` (K7 Q4, 18 November 2026).
 
-   A chain is a host (`Host.chain`), and `chain` is the store kind that runs on it (K5, 18 November 2026). The
-   commit test holds at the transaction: it is atomic, versioned by the nonce and the contract's state, and the
-   contract is its only writer. "Pending until mined" belongs to the caller: a server operation that sends a
-   transaction writes two stores, so by item 5 it is a workflow, with S25's generated waiting state in between.
+   A chain is a host (`Host.chain`), and its store kinds run on it (K5 and K7, 18 November 2026). The commit test
+   holds at the transaction: it is atomic, versioned by the nonce and the program's state, and the program is its only
+   writer. What differs is time: the commit answers late, as a submission (`simulated → submitted → included →
+   confirmed`, K7 Q3), not as `committed` or `conflict` on the spot. A server operation that sends a transaction and
+   also writes D1 still writes two stores, so by item 5 it is a workflow, with S25's generated waiting state between
+   the two.
 
    Later kinds are a package each, with nothing else changing: Postgres or MySQL that we own (through Hyperdrive),
-   SQLite on a device for local-first, Noir on Aztec. A kind declares what it can do (lists, search, private state),
+   SQLite on a device for local-first, the `solana` and `aztec` chain kinds (K7). A kind declares what it can do (lists, search, private state),
    and the compiler refuses a read the kind can't serve, as it already refuses a list over actors.
 
 3. **Some places can't hold a thing.** KV, R2 and caches can't take an atomic commit, so no thing ever lives there.

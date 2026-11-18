@@ -42,7 +42,8 @@ those differences, and each one has a rule below.
 
 The example is the community workshop's mini DAO from K5. A member votes once per proposal, and the tally is public.
 Publishing links a D1 revision to a confirmed `ProposalOpened` event. On Aztec, membership is private, a one-use claim
-per proposal stops a second vote, and the tally is still public. The blueprint, with its refusal codes, is
+per proposal stops a second vote (Aztec calls it a nullifier: a public mark that the claim was used, which nobody can link to the
+member), and the tally is still public. The blueprint, with its refusal codes, is
 `spikes/chain-languages/spec.md`:
 
 ```ts
@@ -59,9 +60,9 @@ three chains (S26, the cross-check):
 | | EVM (`evm/`) | Solana (`solana/`) | Aztec (`aztec/`) |
 |---|---|---|---|
 | Stack | Foundry 1.8.6, solc 0.8.30, OpenZeppelin 5.7.0, viem 2.57.20 | Agave 4.1.2, Anchor 1.2.2, `@solana/web3.js` 1.99.0 | Aztec 5.3.0, aztec-nr v5.3.0, nargo 1.0.0-beta.25 |
-| Local chain | Anvil, 160 ms to start | `solana-test-validator`, 0.5 s | in-process network, 1.0 s with proof checks off and 4.9 s with them on; the CLI network takes 26 s |
-| Findings | 31, all validated | 26 | 26 |
-| Cross-check | 5 seeds × 300 steps, 0 divergences, 6–7 s per seed; a planted bug gives 457 | 5 × 300, 0 divergences, 67 s at 100 ms slots; the `init` variant gives 271 | 5 × 40 with real proofs, plus 3 × 300 with mock proofs: 0 divergences once the client pre-checks in the reference order. It was 7 and 126 without |
+| Local chain | Anvil, 156 ms to start | `solana-test-validator`, 0.5 s | in-process network, 1.0 s with proof checks off and 4.9 s with them on; the CLI network takes 26 s |
+| Findings | 31, nearly all validated (one is a prototype) | 26 | 26 |
+| Cross-check | 5 seeds × 300 steps, 0 divergences, about 6 s for all five seeds; a planted bug gives 457 | 5 × 300, 0 divergences, 67 s at 100 ms slots; the `init` variant gives 271 | 5 × 40 with real proofs, plus 3 × 300 with mock proofs: 0 divergences once the client pre-checks in the reference order. It was 7 and 126 without |
 
 Each folder's README has the numbered findings with their evidence files. This record cites them as `evm#n`,
 `solana#n` and `aztec#n`.
@@ -114,7 +115,7 @@ pub fn vote(mut ctx: Context<Vote>, id: u64, choice: Choice) -> Result<()> {
 ```
 
 ```rust
-// spikes/chain-languages/aztec/contracts/governance/src/main.nr:76-84, 95-97: one operation, two functions
+// shape of spikes/chain-languages/aztec/contracts/governance_contract/src/main.nr:76-84, 95-97: one operation, two functions
 #[external("private")]
 fn vote(proposal: Field, choice: bool) {
     let voter = self.msg_sender();
@@ -135,8 +136,8 @@ What each chain's own interface file says, compared with what the generated clie
 | Entry identity | 4-byte selector of `name(types)`; names can be overloaded (`evm#1`) | 8-byte discriminator of `global:<name>` (`solana#2`) | selector, plus a visibility class: private, public or utility (`aztec#2`) |
 | Roles, machine, refusal codes | none (`evm#3`) | none; it doesn't say which signer is "the admin" (`solana#3`) | none; role checks live in the body (`aztec#3`) |
 | Which errors an entry raises | errors are contract-wide, library errors included | errors listed, by number | assert strings in an error table, but not formatted ones (`aztec#2`) |
-| What it carries that the others don't | events with `indexed` | every account, with signer and writable flags and PDA seeds | private or public, `only_self`, `view` |
-| What hides a state change | nothing; the ABI is complete | `remaining_accounts` and CPIs; a read-only instruction can still emit events (`solana#3`) | a public function without `view` looks the same as an operation (`aztec#2`) |
+| What it carries that the others don't | events with `indexed` | every account, with signer and writable flags and PDA seeds (a PDA is an account address derived from fixed words, so the client can work it out) | private or public, `only_self`, `view` |
+| What hides a state change | nothing; the ABI is complete | `remaining_accounts` and CPIs (one program calling another); a read-only instruction can still emit events (`solana#3`) | a public function without `view` looks the same as an operation (`aztec#2`) |
 | The trap for a classifier | match by full signature, never by name (`evm#1`) | the IDL lists everything in `#[program]`; a plain `pub fn` is invisible (`solana#1`) | public functions sit in `nonDispatchPublicFunctions`; reading only `functions` misses three of four (`aztec#1`) |
 
 **What the spike found that decides it.** A behavioural cross-check never finds an undeclared entry such as
@@ -145,7 +146,7 @@ interface catches it, and all three classifiers did: EVM exit code 3 on `forceCl
 undeclared instructions (`solana#1`), Aztec `rewrite_digest` (`aztec#1`). None of the three interfaces says which
 entry belongs to which operation, so that has to come from us.
 
-**Decided** (Aaron's lean, A, now with the evidence; the batched round asks him to confirm it):
+**Decided** (Aaron's lean, A, now with the evidence; fork F1 in the round asks him to confirm it):
 
 1. **Each operation is one generated entry**, or on Aztec one generated pair: a private entry plus an `only_self` public
    continuation. The developer writes only the body.
@@ -163,7 +164,7 @@ entry belongs to which operation, so that has to come from us.
    state.
 4. **Generated helper entries** (`admin()`, `nonces()`, `eip712Domain()` on an EVM, and Solana's
    `initialize_workshop`) are listed in the manifest as `generated`, so the check never asks about them (`evm#2`,
-   `solana#3`).
+   `solana#1`).
 
 ---
 
@@ -218,7 +219,7 @@ each chain?
 
 | | EVM | Solana | Aztec |
 |---|---|---|---|
-| Who agrees | the member's key: a direct transaction, or an EIP-712 signature that any relayer submits (`evm#11`) | the member, as a second signer on a transaction whose fee payer is the relayer (`solana#8`) | the member's own PXE makes the proof, in about 5.6 s; a relayer with no key can submit the proven bytes (`aztec#7`) |
+| Who agrees | the member's key: a direct transaction, or an EIP-712 signature that any relayer submits (`evm#11`) | the member, as a second signer on a transaction whose fee payer is the relayer (`solana#8`) | the member's own PXE (the private execution environment: the wallet-side process that holds keys and notes and proves) makes the proof, in about 5.6 s; a relayer with no key can submit the proven bytes (`aztec#7`) |
 | Who pays | the sender: the member, or the relayer | the fee payer, and whoever is named `payer` pays rent; these are separate roles (`solana#8`) | the sponsor, through sponsored fees; it pays even for a transaction that reverts (`aztec#9`) |
 | How long a signature stays good | until its deadline and nonce | **about 60 s at mainnet speed**: the signature covers a recent blockhash, so a late signature can't be refreshed; a durable nonce makes it wait (`solana#9`) | until the proof's anchor block expires (the prior spike: 23 hours) |
 | Racing submitters | a second relayer's transaction mines as a revert while the vote is on chain (`evm#14`) | the same signature can't land twice | the second submission is "Existing nullifier" |
@@ -229,7 +230,7 @@ each chain?
 landed, and the second mined as a revert, yet the vote was on chain (`evm#14`). "My transaction succeeded" and "the
 vote happened" are different facts.
 
-**Decided** (the level is the fork in the round, Q2):
+**Decided** (the level is fork F2 in the round):
 
 - **A submission has one lifecycle on every chain:** `simulated → submitted → included → confirmed`, ending in either
   `dropped` or `reverted`, and with `corrected` possible after `confirmed`.
@@ -242,9 +243,9 @@ vote happened" are different facts.
   - Aztec: the transaction was dropped.
 - **`reverted`** means it was included but refused. It carries a code only when one could be recovered: by trace on an
   EVM, from the transaction's return data on Solana. On Aztec it carries none, and the client simulates again
-  (`aztec#15`).
+  (`aztec#13`, `#16`).
 - **The level is a setting per environment and per chain**, and an activity that has an outward effect (the publish
-  link, a forum post) can ask for `final`.
+  link, a forum post) waits for `final`.
 - **Signing on Solana is just-in-time.** The client signs at send, or uses a durable nonce when a person signs ahead,
   because a pre-signed transaction dies in about a minute (`solana#9`).
 
@@ -264,7 +265,7 @@ private notes. The client may have to know where they are before it can even mak
 | Where "who voted" lives | a mapping in storage | one VoteRecord account per voter, rent 1,412,880 lamports and never reclaimed (`solana#12`) | a nullifier: public, but unlinkable without the member's key (`aztec#11`) |
 | Where membership lives | a mapping | one Member account per member | a private note held by the member; **the admin knows the list** because it made the notes (`aztec#11`) |
 | What the client must know | the address and the ABI; the EIP-712 domain for the relayed path | **every account**: 8 slots for `vote`, derived from seeds, with no chain read; whether a gate account is needed it can't tell (`solana#11`) | the contract registered in its own PXE, and its own keys; a second device with the same keys sees membership in 628 ms (`aztec#12`) |
-| A limit the blueprint must respect | gas | 1,232 bytes and 64 accounts per transaction; rent; every vote write-locks the same Proposal account (not measured) | proving time; note growth |
+| A limit the blueprint must respect | gas | 1,232 bytes per transaction (the measured vote is 452), and an account limit per transaction not measured here; rent; every vote write-locks the same Proposal account (not measured) | proving time; note growth |
 
 **Decided.**
 - **`chain` is a family, and each chain is a store kind**, supplied by its language package (K3 item 2's open list):
@@ -303,7 +304,7 @@ error NotAllowed();                     // AR-001
 ```
 
 ```rust
-// spikes/chain-languages/solana/programs/governance/src/errors.rs:6-15: numbers pinned by hand, in the 6000 block
+// shape of spikes/chain-languages/solana/programs/governance/src/errors.rs:6-15 (condensed): numbers pinned by hand, in the 6000 block
 #[error_code]
 pub enum GovernanceError {
     #[msg("PR-001 AlreadyVoted")] AlreadyVoted = 1,        // 6001
@@ -312,7 +313,7 @@ pub enum GovernanceError {
 ```
 
 ```rust
-// spikes/chain-languages/aztec/contracts/governance/src/main.nr:80 and :100: the code rides in the assert's text
+// spikes/chain-languages/aztec/contracts/governance_contract/src/main.nr:80 and :100: the code rides in the assert's text
 assert(mine.len() == 1, "[AR-001] NotAllowed");
 assert(state == OPEN, f"[PR-900] ProposalNotOpen {{ state: {state} }}");
 // and AlreadyVoted has no assert at all: a second vote is a nullifier collision
@@ -414,7 +415,7 @@ proof verification (`spikes/noir-private-core/README.md:15`), so nothing it prov
 
 | | Anvil | `solana-test-validator` | Aztec |
 |---|---|---|---|
-| Start | 160 ms; instant mining 18 ms per transaction (`evm#26`) | 0.5 s; deploy 4–5 s; first build downloads 430 MB of platform-tools (`solana#25`) | the CLI network takes 26 s; in process, 1.0 s with proof checks off and 4.9 s with them on (`aztec#24`) |
+| Start | 156 ms; instant mining 27 ms per transaction (`evm#26`) | 0.5 s; deploy 4–5 s; first build downloads 430 MB of platform-tools (`solana#25`) | the CLI network takes 26 s; in process, 1.0 s with proof checks off and 4.9 s with them on (`aztec#24`) |
 | Real | EVM semantics, gas, `ecrecover`, revert data | the SBF VM, compute units, fees, rent, signature checks, write locks, SPL programs | private execution, client proofs (when on), nullifiers, public execution |
 | Not real | consensus, fee market; `safe` and `finalized` are depth (`evm#22`, `#28`) | forks, consensus, leader schedule; no rollback can be forced | real epoch proofs and L1 settlement; gossip verification |
 | Take-back on demand | `anvil_reorg [depth, txs]`, positional (`evm#24`) | none | `rollbackTo(n)` on the admin API, with one unexplained result (`aztec#21`) |
@@ -486,6 +487,10 @@ the state, the tally and the refusal code.
 
 ## Where the three chains differ, at a glance
 
+Said in two sentences: an EVM is the simplest, because the ABI is complete and state is just storage. Solana makes the
+client name every account and checks accounts before our code runs, and Aztec splits each operation between the
+device and the block and hides who did what.
+
 | Question | EVM (Solidity) | Solana (Anchor) | Aztec (Noir) |
 |---|---|---|---|
 | 1 · one operation is | an external function, plus `<op>BySig` when signed | an instruction plus its account list | a private entry plus an `only_self` public continuation, or one public function |
@@ -505,7 +510,9 @@ the state, the tally and the refusal code.
 
 ## The exceptions, and how each is handled
 
-These are what Aaron asked the war game to surface, all found by the spike:
+These are what Aaron asked the war game to surface, all found by the spike. Most come from three causes: a chain
+interface that says less than the blueprint, a chain that checks in a different order, and a chain that can take
+something back.
 
 | # | Exception | Chain | Handled by |
 |---|---|---|---|
@@ -598,7 +605,7 @@ Kept from the frame:
   operations whose plugin supplies a host entry for `node`, `browser` and `world`. A generated client runs such an
   operation in-process, with its steps as spans.
 
-What goes in the first version, and where it sits in the milestones, are forks for Aaron (Q4 and Q5 below).
+What goes in the first version, and where it sits in the milestones, are forks for Aaron (F3 and F4 below).
 
 ---
 
@@ -610,7 +617,7 @@ The building agent's calls, with the evidence above. Aaron can overrule any of t
    submission (`STO-02`, `X-18`).
 2. Each operation is one generated entry, or a private and public pair on Aztec. A surface manifest per program is the
    only source the clients are generated from. `ortho check` refuses an undeclared entry that can change state, unless
-   it is marked `outside` (Q1, Aaron's lean; confirmed in the round).
+   it is marked `outside` (Q1, Aaron's lean; fork F1 asks him to confirm it).
 3. An outside program is an adapter typed from its interface. A call into it is a declared step with one declared
    refusal, and the generator wraps the call (Q2).
 4. One submission lifecycle on every chain. `confirmed` means the declared event for the intent was seen at the
@@ -628,16 +635,16 @@ The building agent's calls, with the evidence above. Aaron can overrule any of t
 
 ## Forks for Aaron: one batched round
 
-The full round, in the grill format, is in the pull request's body. Each question is explained from scratch before
-its options.
+The full round, in the grill format, is in the pull request's body. The forks are numbered F1 to F5, so they are not
+confused with the eight questions above. Each one is explained from scratch before its options.
 
 | # | Joint | Recommendation |
 |---|---|---|
-| Q1 | What the generated clients may call on our own contracts, on all three chains (replaces K5's Q4) | **A**: each operation is one generated entry; the manifest lists them; `ortho check` refuses any other entry that can change state unless it is marked outside |
-| Q2 | What `confirmed` promises | **A**: a level per chain, set per environment (EVM `safe`, Solana `confirmed`, Aztec `proven`); corrections possible; outward steps wait for `final` |
-| Q3 | Which chains get built, and when | **A**: EVM is built (M6, and the wallet's first version); Solana and Aztec are designed now (this record) and built Later, on the same port |
-| Q4 | The wallet's first version and its place | **A**: the device half on EVM (keys, sign, simulate, send, confirm on Anvil) right after plugin mounting in M1, with `runs: "client"` (M1.27); linking after auth in M2; the relayer stays in M6 |
-| Q5 | Who may hold a key that signs | **A**: only the person's device; agents never sign; delegated agent keys come Later (EIP-7702) |
+| F1 | What the generated clients may call on our own contracts, on all three chains (replaces K5's Q4) | **A**: each operation is one generated entry; the manifest lists them; `ortho check` refuses any other entry that can change state unless it is marked outside |
+| F2 | What `confirmed` promises | **A**: a level per chain, set per environment (EVM `safe`, Solana `confirmed`, Aztec `proven`); corrections possible; outward steps wait for `final` |
+| F3 | Which chains get built, and when | **A**: EVM is built (M6, and the wallet's first version); Solana and Aztec are designed now (this record) and built Later, on the same port |
+| F4 | The wallet's first version and its place | **A**: the device half on EVM (keys, sign, simulate, send, confirm on Anvil) right after plugin mounting in M1, with `runs: "client"` (M1.27); linking after auth in M2; the relayer stays in M6 |
+| F5 | Who may hold a key that signs | **A**: only the person's device; agents never sign; delegated agent keys come Later (EIP-7702) |
 
 ## What replaces K5's Q4
 
@@ -650,8 +657,8 @@ K5's Q4 asked how a declared operation maps to a contract's ABI. That question w
 
 ## Milestone slices this changes
 
-The chain slices change now, because they are building-agent calls. The wallet's moves wait on Aaron's answers to Q3
-and Q4, and `milestones.md` gets them after he answers.
+The chain slices change now, because they are building-agent calls. The wallet's moves wait on Aaron's answers to F3
+and F4, and `milestones.md` gets them after he answers.
 
 | Slice | What happens |
 |---|---|
@@ -666,9 +673,11 @@ and Q4, and `milestones.md` gets them after he answers.
 | M6.15 | **Changed.** The submission lifecycle (Q3); `confirmed` matches the intent, not the transaction |
 | M1.27 | **New.** `runs: "client"`: accepted for operations whose plugin supplies `node`, `browser` and `world` entries; run in-process by the generated client (`LAH-02`, `G-10`) |
 | Later | **Changed.** Noir's line: worlds in `proofs: "verified"` mode prove client proofs locally (K7 Q7). **New line:** Solana, `@orthograph/language-solana` and `chain-solana`, designed here |
-| Pending Q4 | The wallet slices M6.03, M6.05, M6.06 and M6.08 move to just after M1.14, and M6.04 (SIWE) to just after M2.05. This is done once Aaron answers |
+| Pending F4 | The wallet slices M6.03, M6.05, M6.06 and M6.08 move to just after M1.14, and M6.04 (SIWE) to just after M2.05. This is done once Aaron answers |
 
 ## Ledger rows this answers
+
+The ledger session records these in `design/ledger.md` once this record lands; this change does not edit the ledger.
 
 `LAH-45` (Q1 and Q2), `STO-02`, `X-18` and `LAH-04` (a chain is a host whose store kinds are `evm`, `solana` and
 `aztec`), `G-04` (the `private` capability), `LAH-02` and `G-10` (M1.27), `PRF-06` and `AZ-10` (Q7), `AZ-02` (Noir is

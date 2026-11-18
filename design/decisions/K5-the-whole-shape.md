@@ -307,8 +307,8 @@ function _vote(Proposal storage p, address member, Choice choice) internal overr
 Today the compiler refuses `runs: "chain"` (`describe.ts:108`, message at `:170`), and `language-solidity` is a
 placeholder (`packages/language-solidity/src/index.ts:1-2`). How an operation maps to what runs on chain, which
 contract functions clients may reach, and how contracts we don't write come in, moves to K7: Solidity, Noir and
-Solana worked out together, so their edge cases show up before any of them is built (Aaron, 18 November). Until K7
-lands, this seam's Solidity sketch is illustrative.
+Solana worked out together, so their edge cases show up before any of them is built (Aaron, 18 November). K7
+([`K7-chain-languages.md`](K7-chain-languages.md)) now answers it; where this seam and K7 disagree on chain, K7 wins.
 
 ### 5. The doors: SDK, CLI, MCP tools, actions
 
@@ -598,7 +598,7 @@ The second round:
 
 | # | Question | Aaron's answer |
 |---|---|---|
-| Q4 | How a declared operation maps to a contract's ABI, and what clients may reach | Only our own contracts: "other people's contracts are sources, reached through adapters" (K3 item 8). He leans to the recommendation, A: the operation is the function. He also asked for Solidity, Noir and Solana to be worked out together first, so Q4 is confirmed or changed by K7, the chain languages war game |
+| Q4 | How a declared operation maps to a contract's ABI, and what clients may reach | Only our own contracts: "other people's contracts are sources, reached through adapters" (K3 item 8). He leans to the recommendation, A: the operation is the function. He also asked for Solidity, Noir and Solana to be worked out together first, so Q4 went to K7, the chain languages war game. **Replaced by K7**: its Q1 (fork F1) asks him to confirm A on three chains |
 | Q5 | Whether an operation with no machine may declare its own event | "B, on the operation." Committed with the call's writes, only on success; proof asserts it present on success and absent on a refusal; steps stay spans. Until M3.01, no event. Seam 3 records one refinement: a call that writes nothing emits nothing |
 
 ## Milestone slices this shape changes
