@@ -66,7 +66,7 @@ is judged by whether it gets us there sooner and truer.
 7. **One growing example, used everywhere, in stages (Aaron, 18 November evening).** It starts as a linktree where
    people claim a username, then gives those users wallets, then a multisig with budgets, then privacy. Each stage is
    a meta-milestone; all four together are v1.0. Each stage is built from reusable pieces (plugins), and the starter
-   and every example change to follow it. The 📐 growing-example thread designed it as K9 ([`decisions/K9-growing-example.md`](decisions/K9-growing-example.md), PR #55), including what the app
+   and every example change to follow it. The 📐 growing-example thread designed it as K9 ([`decisions/K9-growing-example.md`](decisions/K9-growing-example.md), merged in #55), including what the app
    looks like at each stage, the React hooks slice (designed in `frame/projections.md:261`, owned by no slice), and
    whether generated actions really make us compatible with agent-native apps. Until K9 lands, the sign-up sheet
    (`examples/signup`) stays the canon's first example and acme the tests' fixture. The earlier mini DAO example
@@ -76,7 +76,7 @@ is judged by whether it gets us there sooner and truer.
    checks their order. The scaffold writes a wired function: each step in order, the move, a stub per refusal, every
    hole a `Handlers.blank` that `prove --empty` shows red. `ortho check` warns when a required step never runs
    (all three in M1.26).
-9. **Chains (K7, PR #53, all five forks answered by Aaron on 18 November):** EVM now, Solana and Aztec designed and
+9. **Chains (K7, merged in #53, all five forks answered by Aaron on 18 November):** EVM now, Solana and Aztec designed and
    built later; every contract function reachable, with generated roles; the wallet's first version in M1 (M1.27 to
    M1.32), signing on every host, linking after auth (M2.13); each wallet declares where its key lives. The EVM chain
    adapter is vendored from `@prb/effect-evm` into `@orthograph/chain-evm` (M1.30; Aaron: "solid on the vendoring
@@ -88,15 +88,22 @@ is judged by whether it gets us there sooner and truer.
 
 ### Every open line
 
-Five threads, and the conductor (the ledger's closes when #50 merges).
+Seven lines, and the conductor. K7 (#53) and K9 (#55) are merged; the ledger thread records them.
 
 | # | Line | Branch | PR | Done when | State now | Next |
 |---|---|---|---|---|---|---|
 | ① | **Docs canon (MDX)** | `claude/docs-canon-cf2c38` | #38 merged (layer 1) | Pass 2, every page in layers, checked against the ledger before each layer | Layer 1 merged at `b600bb8`. Pass 2 is running locally: the tickets example proves (six journeys, seven operations), three page rewrites in progress | Opens the next canon PR; takes K8's example changes once they land |
-| ⛓ | **Chain languages war game (K7)** | `spike/chain-languages` | #53 | K7 recorded with its spike evidence, and its batch of questions put to Aaron, together with the wallet plugin's scope | EVM and Solana spikes done; waiting on the Aztec spike (holds port 8880). Found: `wallet.link` needs auth (M2), today's wallet values are EVM-only, linking a private Aztec account to a person undoes its privacy | Merges #53 when CI is green, first of the two |
-| 🧭 | **The growing example (K9)** | `design/growing-example` | none yet | K9 written with each stage's capabilities, pieces, slices, app shape and check; `milestones.md` maps the stages and defines v1.0, with the React hooks slice and the agent-native findings in M1.22 and M1.23; starter and example changes as slices; canon changes listed for the conductor; one PR merged | K9 written, 🔍 passed; PR #55 conflicts with #53 on M2.12 | Rebases after #53 merges, then merges |
-| 🧭 | **M1 plugin path** | `m1` | none (M1 lands as one PR at Gate M1) | M1.01, M1.02, M1.05 to M1.08 and M1.10 on `m1`, each green with its check; check `01` passes through one `ortho add feature`; checks `05` and `06` pass; a 🔍 pass so far; a demo from a fresh starter in `design/goals/03-m1-plugin-path.md` | Started 18 November evening on Aaron's yes | M1.01 landed (`b39b30d`); the ✍️ author ports the checks. After M1.10 the wallet path is its too (Aaron's yes): M1.14, M1.27 to M1.32, ending with `acme wallet send` confirming on Anvil |
-| 📒 | **Ledger** | `claude/ledger-canon-k5` | #50 | The ledger matches the merged canon and rename | 🔍 passed at `57f5c89`; 626 items, 190 owned by nothing, 60 high; new row FOR-18 (rule 7 only partly in place) | Merges itself when CI is green |
+| 🧭 | **M1 plugin path and wallet path** | `m1` | none (M1 lands as one PR at Gate M1) | M1.01, M1.02, M1.05 to M1.08 and M1.10 on `m1`, each green with its check; check `01` through one `ortho add feature`; then the wallet path (M1.14, M1.27 to M1.32), ending with `acme wallet send` confirmed on Anvil; a 🔍 pass so far | M1.01, M1.02, M1.05 and M1.06 landed. Running its own subagents for M1.28 (wallet journeys, ✍️) and M1.17 (stores). Merges the Codex PRs into `m1` | M1.07 verbs, then M1.08 and M1.10. Tells the conductor when M1.10 lands, so M1.03/M1.04 and M1.26 can start |
+| 🤖 | **Codex: O2 trace fixes** (M1.18 to M1.20) | `codex/m1-o2` | into `m1`, not yet | Three slices, each with O2's proof; journey change by a separate author; 🔍 pass; CI green | `codex exec` (gpt-6.2-sol) in worktree `codex-m1-o2`, started 18 November | Opens its PR into `m1`; the M1 lead merges |
+| 🤖 | **Codex: `@orthograph/chain-evm`** (M1.30) | `codex/m1-chain-evm` | into `m1`, not yet | Vendored from `@prb/effect-evm` 5.0.3 (MIT notice kept, never a dependency); ERC20 transfer and typed reverts on Anvil; the `viem` lint rule; 🔍 pass; CI green | `codex exec` in worktree `codex-m1-chain-evm`, started 18 November | Opens its PR into `m1`; the M1 lead merges |
+| 🤖 | **Codex: the durable-run spike** | `spike/durable-run` | into `main`, not yet | `spikes/durable-run/README.md` measures one Pi Durable run per Durable Object surviving eviction: model calls per resumed step, commits per tool call, bundle size | `codex exec` in worktree `codex-durable-run`, started 18 November | Merges its PR for the record; feeds M4.01, M4.09 and M4.16 |
+| 📐 | **Portal design (M1.25)** | `design/portal` | none yet | `design/portal.md` agreed with Aaron: the first page, a thing's page, an operation's page, the live rail, the chat; inline grills first, then a mock | Started 18 November | Grills Aaron on the information architecture |
+| 🔗 | **Links stage 1 (Codex, run by Aaron)** | `links/stage-1` | none yet | `examples/links` runs on main's framework, and the starter is its copy, kept identical by a check (Aaron's change to K9: the starter becomes stage 1 as soon as links runs, not at M2.09); then handles as a plugin; then the screens | Prompt given to Aaron 18 November | Opens its first PR into `main` |
+| 📒 | **Ledger** | its own branch per round | #54, then the K7 and K9 round | The ledger matches what's merged, every item with its source and owner | Recording K7 (#53) and K9 (#55) | Merges each round itself when green |
+
+**The Codex runs** are `codex exec` processes on Aaron's machine, started by the conductor, each in its own worktree
+under `.claude/worktrees/codex-*`. They can't receive messages: steer them by commenting on their PRs. Their final
+reports land in the conductor's scratchpad and on their PRs.
 
 **Closed, branches kept:**
 - **#48, span fixes (O3).** It edited journeys and evals, which a builder may not do, and its review found four
@@ -126,7 +133,7 @@ in `main`, then delete); `build/portal-pro`, `design/kits-decision`, `design/wor
 
 ### What waits on Aaron
 
-1. **The portal design (M1.25)**, any time now; it must come before M1.13.
+1. **The portal design rounds (M1.25)** from its 📐 thread; it must come before M1.13.
 2. **Canon's two open choices:** entity or actor, and ticketing.
 
 ### Next on the critical path
