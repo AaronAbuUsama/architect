@@ -101,6 +101,10 @@ declaration.
 
 ## The worked example: the community workshop
 
+**Superseded as the example** by [`K9-growing-example.md`](K9-growing-example.md) (18 November 2026): the example is
+`links`, in four stages. The workshop's governance and votes are dropped; its private membership and ballots become
+stage 4. The seams below still hold.
+
 This record's example is a small DAO for a community workshop. Members edit drafts together, put a frozen revision to
 a vote, and publish the result. It needs every seam: two stores, two languages, a cross-owner workflow, a wallet and,
 later, private membership. Signup's `sheet.join` is used only where the smallest case is clearer.

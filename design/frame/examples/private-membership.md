@@ -5,6 +5,9 @@ Noir spikes (`design/noir/spike-1-member-note.md`, `design/noir/spike-2-role-gat
 places Noir after Gate 5 (`design/decisions/N1-noir-target.md`). **This is the furthest-out example**: nothing here is
 scheduled before layer 5 is on `main`.
 
+**Now stage 4 of the growing example** (K9, 18 November 2026): the members-only club on Aztec, with private
+ballots and private budgets, inside v1.0 (ST4.01 to ST4.08).
+
 **Languages: Effect and Noir.** "Language" is the axis that was called "target" before (Effect, Solidity, Noir,
 Python), packaged as `@orthograph/language-noir`. The host is `Host.chain` (Aztec) for the contract and the caller's own
 device (`Host.node` or `Host.browser`) for the proof; the projection is the private contract plus its client.

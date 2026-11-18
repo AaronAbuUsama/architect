@@ -36,7 +36,8 @@ The build plan's rules, unchanged except for names:
 1. **One slice, one session.** A slice ends green: every existing check passes. It is proved by its *done when*, a
    command and its expected output. A slice that won't fit a session is split before it starts.
 2. **Gates.** Each milestone ends in one e2e suite, `nx run e2e:m<n>`. Nothing in milestone n+1 starts until gate n
-   passes on `main` from a clean checkout, locally and in CI.
+   passes on `main` from a clean checkout, locally and in CI. **After Gate M2 the order is by stage** ("v1.0: four
+   stages" below, K9): a stage's slices may come from any milestone, and each stage ends in its own gate.
 3. **Decisions just in time.** A decision slice sits right before the first slice that needs it and ends with a record
    in `design/decisions/`.
 4. **Checks first.** A checks slice (journeys and checks) is written by a different agent from the builder, and fails
@@ -46,6 +47,83 @@ The build plan's rules, unchanged except for names:
 
 Kinds: **decision**, **spike**, **checks**, **build**, **e2e**. ∥ marks a slice that may run beside the one before it.
 Names below are today's, Orthograph's (K6, `naming.md`).
+
+## v1.0: four stages
+
+Aaron, 18 November 2026: one example grows through four stages, "each stage is a meta milestone. All of them is
+v1.0" ([`decisions/K9-growing-example.md`](decisions/K9-growing-example.md)). The app is `links`, in
+`examples/links`. The milestones below keep their slices and ids; this section says which slices each stage needs,
+adds the slices no milestone had (ids `ST<stage>.<n>`), and gives each stage its gate. Each passing stage is tagged
+`links/stage-<n>`.
+
+**v1.0** is the four stage gates on `main`, plus the release: M7.01 to M7.04 and M7.06 (the cloud pass, the npm
+release, the infra projection, a deploy and destroy that leaves nothing, real releases), each credential with Aaron's
+written yes.
+
+| Stage | A person can… | Needs from the milestones | Its own slices | Gate |
+|---|---|---|---|---|
+| 1 · links | claim `@name`; a public page of links | all of M1 and M2 | ST1.01 to ST1.08 | Gate M2 (M2.12) |
+| 2 · wallets | create or link a wallet; be paid by handle | K7's wallet slices (M1.27; M6.03, M6.05, M6.06, M6.08 after M1.14; M6.04 after M2.05), M6.01, M6.02, M6.07, M6.09, M6.15, M6.18, M5.03 | ST2.01 to ST2.05 | ST2.06 |
+| 3 · the vault | a Safe with the budgets plugin; hats with budgets; owners sign above a budget | M6.10 to M6.14, M6.16, M6.17, M3.01 to M3.03, M4.01 to M4.10, M4.16 | ST3.01 to ST3.07 | ST3.08 |
+| 4 · the club | stage 3 on Aztec: private members, private spends, private ballots | (Later's Noir line, brought in) | ST4.01 to ST4.07 | ST4.08 |
+
+**Beside the stages, off v1.0's path:** the factory (M3.04 to M3.14), the builder's tools and the bench (M4.11 to
+M4.14), views, Stripe, Resend, adapters from OpenAPI, MariaDB and a second app (M5.05 to M5.09, M5.11, M5.13), the
+gates of M3 to M6 as written, `examples/workshop` (M6.20, dropped by K9), and Capxul (M7.07 to M7.11). They run when
+a thread is free; a stage never waits on them.
+
+### Stage 1: links
+
+| id | what | needs | kind | done when | size |
+|---|---|---|---|---|---|
+| ST1.01 ∥ | The react projection ([`frame/projections.md`](frame/projections.md) 3.4): `@orthograph/react`, one mutation hook per operation and one query hook per read, declared refusals as classes in the hook's error, `pending`, one `requestKey` per form open kept across retries; `--through react` replays a journey in headless Chromium, never jsdom | M1.12 | build | acme's `spend twice with one request` passes `--through react`; an overspend arrives as `AllowanceExceeded` with its code; the pending state is observed before the answer | M |
+| ST1.02 | Journeys for `handles` and `links` at stage 1: claim, a taken name, one request twice, release, resolve; add, order and remove a link; a stranger can't edit; anyone reads a page | M1.10 | checks | they fail on empty handlers | M |
+| ST1.03 | `@orthograph/handles`, a feature: handle, claim, release, resolve, `HandleTaken`, a `names` choice; mounted by `ortho add` | ST1.02 | build | the handles journeys pass with `examples/links` mounting it | M |
+| ST1.04 | `examples/links` at stage 1 on auth copied from the starter: `profile`, `link`, their handlers, and three screens in `src/web/` (`/@name`, `/claim`, `/edit`) on the hooks, served by the Worker | ST1.01, ST1.03 | build | `ortho prove --root examples/links` is green; in Chromium a claim and a link show on `/@aaron` | M |
+| ST1.05 ∥ | The host's caller for actions (K9, agent-native finding 4): a host key that acts as `agent for <person>`, named by email, for actions hosted outside our portal | M2.03, M1.22 | build | an agent-native-shaped host claims a handle for ada and the Worker's span says `agent for ada`; a `.notVia(Via.agent)` operation is refused | S |
+| ST1.06 ∥ | Hooks behind a signed-in session (`Via.session`) | ST1.01, M2.06 | build | the links screens sign in and claim through the hooks with the auth plugin mounted | S |
+| ST1.07 | `links` mounts auth: the copied identity deleted | M2.05, ST1.04 | build | `examples/links` has no `person/` or `session/` folder and proves green | S |
+| ST1.08 ∥ | `examples/signup` deleted once the canon quotes `links` (the canon thread's change, K9) | ST1.04 | build | no file outside the records names `examples/signup`; `e2e/layer1/08-*` proves `links` | S |
+
+### Stage 2: wallets
+
+The wallet's shape is K7's ([`decisions/K7-chain-languages.md`](decisions/K7-chain-languages.md), "The wallet plugin";
+its forks F1 to F5 are working assumptions until Aaron answers them).
+
+| id | what | needs | kind | done when | size |
+|---|---|---|---|---|---|
+| ST2.01 | Journeys for stage 2: create on the device, link your own, pay by handle, confirmed then corrected, an agent can't link | M6.02 | checks | they fail on empty handlers | M |
+| ST2.02 ∥ | Adapters from an ABI (K7 Q2): `ortho new adapter --from-abi`, typed calls and events, a stand-in contract deployed into the world; the first is `erc20` over a test token | M6.05, M6.06 | build | the `erc20` adapter's transfer and `Transfer` event are typed; a revert decodes typed; conformance passes against the stand-in | M |
+| ST2.03 ∥ | Hooks for client operations and chain submissions: the submission lifecycle as hook state (`simulated`, `submitted`, `included`, `confirmed`, `dropped`, `reverted`, `corrected`); the wallet's device half in the browser | ST1.01, M1.27, M6.15 | build | in Chromium a payment's hook passes through each state to `confirmed`; a reorg shows `corrected` | M |
+| ST2.04 | `links` at stage 2: `/wallet`, Pay @name, `payment` kept from the follower's events through `on:` | ST2.01 to ST2.03, M6.04, M6.09, M5.03 | build | the stage 2 journeys pass | M |
+| ST2.05 ∥ | The gates' fixture moves from acme to `links`; acme retired (its allowance kept in the history as the budgets feature's source) | ST2.04 | build | every gate suite runs on `links`; `examples/acme` is gone; Gates 1, 2, M0, M1 and M2 still pass | L |
+| ST2.06 | **The stage 2 gate** | ST2.01 to ST2.04, and the stage's milestone slices | e2e | on Anvil: aaron creates a wallet, bob links his; bob pays `@aaron` 5 test tokens, simulated first; the page shows it once confirmed; a forced reorg corrects it; the key-hygiene check passes; an agent's link is refused. `links/stage-2` tagged | S |
+
+### Stage 3: the vault
+
+| id | what | needs | kind | done when | size |
+|---|---|---|---|---|---|
+| ST3.01 | A Safe, Hats Protocol and a module on Anvil: their releases pinned (R1), a module enabled on a Safe executing after a Hats read, the SafeTx signature format | ST2.02 | spike | `spikes/safe-hats-module/README.md` answers it with a run | S |
+| ST3.02 | The budgets feature: a budget per hat and period, what lives in D1 and what on chain, signature collection as a workflow, an agent under its own hat | ST3.01, M6.01, M3.01 | decision | `decisions/ST3-budgets.md` written | S |
+| ST3.03 | Journeys for stage 3 (the gate's list below), and the budgets machine's reference for the fuzz | ST3.02 | checks | they fail on empty handlers | M |
+| ST3.04 ∥ | The `safe` and `hats` adapters from their ABIs | ST2.02, ST3.02 | build | a Safe's owners and threshold and a hat's wearer read typed from the world | M |
+| ST3.05 | `@orthograph/budgets`: acme's allowance machine as a feature; its on-chain half one Solidity module generated by `language-solidity` and filled; the fuzz against the TypeScript machine | ST3.03, ST3.04, M6.13 | build | `forge test` passes on the module; fixed seeds show no divergence; within-budget spends execute from the Safe | L |
+| ST3.06 | Owner signatures as a durable workflow: propose, collect each owner's signature, execute at the threshold, await the confirmed event | ST3.05, M3.03, M6.15 | build | a 2-of-3 spend executes once, even when the workflow's Durable Object is evicted mid-wait | M |
+| ST3.07 | `links` at stage 3: `/@group`, hats, spend, pending; an agent spending under its own hat | ST3.06, M4.10, M4.16, M2.07 | build | the stage 3 journeys pass | M |
+| ST3.08 | **The stage 3 gate** | ST3.01 to ST3.07, and the stage's milestone slices | e2e | on Anvil, `@workshop` has a 2-of-3 Safe with the module enabled: ada wears the spender hat at 100 a month and spends 20 alone; 500 waits for two owners and executes once across an eviction; a revoked hat refuses with `HatNotWorn`; ada's agent under its own 20 hat spends 20 and is refused 21; the fuzz finds no divergence. `links/stage-3` tagged | S |
+
+### Stage 4: the club
+
+| id | what | needs | kind | done when | size |
+|---|---|---|---|---|---|
+| ST4.01 | The budgets declaration in Noir on Aztec: a private budget note spent down, a private ballot with a public tally, in an in-process `proofs: "verified"` network (K7 Q7) | ST3.08 | spike | `spikes/aztec-club/README.md` answers it with a run, a tampered proof rejected | S |
+| ST4.02 | `language-noir`, the `aztec` store kind, `chain-aztec` on the `ChainPort`, `proofs: "verified"` worlds, from K7's design | ST4.01 | decision | `decisions/ST4-aztec.md` written | S |
+| ST4.03 | Journeys for the club | ST4.02 | checks | they fail on empty handlers | M |
+| ST4.04 | `chain-aztec`, and Aztec in a world with proofs verified | ST4.02 | build | a world's Aztec network rejects a tampered proof and is gone when the world ends | M |
+| ST4.05 | `language-noir`: private notes, one-use claims, enqueued public calls; the budgets feature's Aztec choice from the same declaration | ST4.04 | build | the budgets journeys pass on Aztec with `choose(onChain.aztec)` and no change to the declaration | L |
+| ST4.06 ∥ | `@orthograph/ballots`: private ballots, one per member, public tally (K7's governance contract as a feature) | ST4.05 | build | a second ballot by one member is refused by its claim | M |
+| ST4.07 | `links` at stage 4: `/@club`'s public footprint, the members' area, private spends and ballots; casting is `.notVia(Via.agent)` | ST4.05, ST4.06 | build | the club journeys pass; the portal shows nothing that names a member | M |
+| ST4.08 | **The stage 4 gate** | ST4.01 to ST4.07 | e2e | in a verified world: three private members join; one spends 20 privately and the footprint shows the total, not the member; 500 passes by private ballot with a public tally; a second ballot is refused; a tampered proof is rejected. `links/stage-4` tagged | S |
 
 ## M0: Land and rename
 
@@ -109,8 +187,8 @@ own span, free text is absent from spans, and refused calls are counted (O2).
 | M1.19 ∥ | Free text untraced unless marked (O2 gap 2): `Blueprint.traced(x)`; ids, amounts, enums, booleans and times traced when public | Gate M0 | build | `payload.memo` is absent from `spend`'s span; a traced text field is present; the "leaks nothing" eval passes | S |
 | M1.20 ∥ | Every call counted (O2 gap 3): `ortho.calls` and `ortho.call.duration` through Effect `Metric` to OTLP; the local Collector gains a metrics pipeline | Gate M0 | build | a bad payload and a stranger show as two refusals in `ortho.calls`, with no spans | S |
 | M1.21 ∥ | Live steps (K5 seam 10): a step signal as each step starts and ends, sent under `waitUntil`, not at dispose; committed events read from the journal for the portal | M1.18 | build | a slow handler's `load` step shows in the portal before the response; a committed event shows with its commit, a refused call shows none | S |
-| M1.22 ∥ | The actions projection (K5 seam 5): one `defineAction` per operation, in agent-native's field names, built on the SDK, so an agent-native app can use them | M1.12, M1.23 | build | an action's `run` refused by the role check returns the same typed refusal as the SDK; an operation `.notVia(Via.agent)` has no agent tool; a type test checks each generated action against agent-native 0.228.2's recorded `defineAction` field list, with no agent-native package installed | M |
-| M1.23 ∥ | The port from agent-native, part one (K5, "Porting from agent-native"): `defineAction` with agent-native's field names and approvals, in `orthograph`'s `actions` module, in Effect | M1.12 | build | a generated action refused by the role check writes nothing and returns the typed refusal; one with `needsApproval` waits for a yes | S |
+| M1.22 ∥ | The actions projection (K5 seam 5, corrected by K9 from `spikes/agent-native-compat/`): one module per operation exporting `options(host)` in agent-native's field names, never a `defineAction` call; `host` supplies the SDK client, the caller and `requestKey(ctx)`; `run` turns a declared refusal into the no-write `ActionRefusal` and redacts defects; no `retrySafe: true`; payload schemas through Effect's Standard Schema and Standard JSON Schema, optional fields as `optionalKey`; our portal wraps each with our `defineAction` | M1.12, M1.23 | build | an action's `run` refused by the role check returns the same typed refusal as the SDK; an operation `.notVia(Via.agent)` has no agent tool; a type test checks each generated `options(host)` against the field list and the no-write error's fields recorded from agent-native 0.228.2, with no agent-native package installed; every generated action advertises non-empty parameters | M |
+| M1.23 ∥ | The port from agent-native, part one (K5, "Porting from agent-native"; K9): `defineAction` with agent-native's field names and approvals, in `orthograph`'s `actions` module, in Effect. Approvals live in the wrapper, never in `run`, so a host that asks first never asks twice. `ActionRefusal` carries `actionContractError`, `noWrite`, `errorCode`, `statusCode: 422` and `details`, the shape agent-native reads (K9) | M1.12 | build | a generated action refused by the role check writes nothing and returns the typed refusal; one with `needsApproval` waits for a yes; with approval already given by its host, `run` runs once and asks nothing | S |
 | M1.24 ∥ | The port, part two: the shell, the chat's surface (thread, stream, tool-call cards, approvals, refusals) and screen context; threads as things in the portal's store; signed in through acme's own auth until M2.06. The agent behind the chat is M4.16 | M1.17, M1.23 | build | the shell and screen context run on acme's Worker over D1; a stored thread renders with its approval card; no `@agent-native/*` package is installed | L |
 | M1.25 | The portal's design, with Aaron (UX.md's intent; agent-native's templates as the reference). Aaron asks to see UX before it is drawn, so this is his session by his rule, not a block | Gate M0 | decision | `design/portal.md` agreed: the first page, a thing's page, an operation's page, the live rail, the chat | M |
 | M1.26 ∥ | The scaffold as a wired function (K5 seam 3): each declared step in declared order, the move, a stub per refusal, every hole a `Handlers.blank`; `Blueprint.step.<kind>({ optional: true })`, allowed absent by eval 6; `ortho check` warns on a non-optional step the handler never calls; `ortho prove` reports an optional step no journey ran both ways | Gate M0 | build | a fresh scaffold compiles and `ortho prove --empty` shows one red step per blank; a fixture with an unchanged edit that skips its optional `save` passes eval 6; a fixture whose journeys always run its optional step is reported as never exercised both ways; deleting `steps.record` from `spend` gives a check warning | M |
@@ -127,7 +205,9 @@ roles as rules with `holds`; secrets by declaration ([`frame/secrets.md`](frame/
 mounted and nothing copied, and `ortho prove --env local` is green; (2) a new `notes` feature is made with
 `ortho new feature`, proved in its own world, published to the local registry, and mounted into acme and work with
 `ortho add`, with every journey in all three still green; (3) the sign-up and sign-in journeys pass through the SDK,
-the CLI and MCP; (4) no environment file names a secret by string.
+the CLI and MCP; (4) no environment file names a secret by string; (5) the stage 1 check (K9): the scaffold is
+`links` at stage 1, a person signs in, claims `aaron` and adds a link in headless Chromium, and a second claim is
+refused with `HandleTaken` through the SDK, the CLI, MCP, an action and the hook.
 
 | id | what | needs | kind | done when | size |
 |---|---|---|---|---|---|
@@ -139,10 +219,10 @@ the CLI and MCP; (4) no environment file names a secret by string.
 | M2.06 | `@orthograph/auth`, ways in: the device flow, OAuth for MCP, the builder's sign-in to the portal (K5 seam 9), choices (`signIn`, `keys`), settings (`sessionLength`, `allowedOrigins`) | M2.05 | build | `acme login` and MCP sign-in journeys pass | M |
 | M2.07 | `@orthograph/organizations`: organisation, membership, invitation, owner, member, `holds`, starting worlds `founded` and `invited`; acme's copies deleted | M2.05 | build | the tenancy journeys pass from the plugin; acme has no `organization/` folder | M |
 | M2.08 ∥ | Journeys through the clients: a world runs steps through the SDK, with `--through cli\|mcp\|actions` (`journeys/internal/world.ts:85` calls HTTP directly today) | M2.05 | build | the auth journeys pass all three ways | M |
-| M2.09 | `ortho new` replaces the Nx preset: an app with auth and organizations mounted | M2.07 | build | `npm create orthograph demo` from Verdaccio, then `ortho prove --env local` is green | M |
+| M2.09 | `ortho new` replaces the Nx preset: the app it scaffolds is `links` at stage 1 (K9), with auth and handles mounted; `examples/starter` becomes that template | M2.07, ST1.07 | build | `npm create orthograph demo` from Verdaccio, then `ortho prove --env local` is green; the template's `blueprint/` and `src/` are identical to `examples/links` at the tag `links/stage-1` | M |
 | M2.10 | `ortho new feature`, a plugin's own world and CI, `ortho publish --local` for plugins | M2.07 | build | the `notes` feature goes from new to proved to published to mounted | M |
 | M2.11 ∥ | The work app mounts auth and organizations | M2.07 | build | `ortho prove --root examples/work` passes with no copied identity | S |
-| M2.12 | **Gate M2: workable** | M2.02 to M2.11 | e2e | `nx run e2e:m2` passes on `main` | S |
+| M2.12 | **Gate M2: workable**, and the stage 1 gate (K9) | M2.02 to M2.11, ST1.01 to ST1.08 | e2e | `nx run e2e:m2` passes on `main`; `examples/links` is tagged `links/stage-1` | S |
 
 ## M3: The factory, with people as workers
 
@@ -355,6 +435,9 @@ M0.01 → M0.02 → M0.03 → M0.04 → Gate M0
   - M2.09, M2.11 after M2.07.
 
 The M1 and M2 gates need every slice, so the side slices must land before them.
+
+**After workable (K9):** stage 2 (wallets) next, then stage 3 (the vault), stage 4 (the club) and the release. Capxul's
+first plugin, the wallet, is stage 2.
 
 ## Risks
 
