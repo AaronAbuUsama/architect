@@ -7,9 +7,9 @@ Everything open, promised, deferred or stale, with its source, canon page and ow
 
 ## START HERE (18 November 2026): the conductor's handoff
 
-Codex worked Aaron's Orthograph DX discussion (architecture and DX only, the mini DAO walkthrough; no DAO code) and
-handed back to the Claude conductor. Its decisions are carried into K5 below. The whole-shape decision is first: the
-docs canon and the generated app stay paused until it is agreed.
+K5, the whole shape, merged on 18 November (PR #44, `78ecf65`). That evening Aaron cut the work down to three threads
+and one critical path ("we've got too many chats talking to too many chats"). The conductor merged the finished
+record PRs, closed the two that couldn't land, and archived the finished threads.
 
 ### The job you are taking over
 
@@ -20,6 +20,8 @@ threads and how they relate to our goal." So:
 
 - **Don't build.** Each piece of work is a thread with one brief, one branch, one PR and one done-when. You start
   threads, steer them, relate them, and merge or retire them.
+- **Keep threads few.** Three at a time is the working number (Aaron, 18 November). Threads report to the conductor,
+  not to each other. Merges, closes and small fixes are the conductor's own work, not a new thread.
 - **Keep this file current** after every merge, decision, new thread or archive.
 - **Before you report on a thread, read its PR and its last commits**, not its last summary.
 - **Answer "where are we" as a short sitrep.** Aaron listens rather than reads: plain words, short sentences.
@@ -32,7 +34,6 @@ threads and how they relate to our goal." So:
 **How the threads are reached.** The threads below are Claude Code desktop sessions. Their ids (`local_…`) work only
 from a Claude session on Aaron's machine. A Codex conductor reaches the same work through **git and GitHub**: each
 thread's branch, its PR, its PR comments. To steer a thread, comment on its PR, or ask Aaron to forward the message.
-New threads you start are your own, on branches you name.
 
 ### The goal
 
@@ -42,49 +43,55 @@ is judged by whether it gets us there sooner and truer.
 
 ### The direction (Aaron, 17 and 18 November)
 
-1. **Docs first.** The docs canon (MDX) is the spec the code is built to. **M1 is held** until the whole shape (K5),
-   canon layer 1 and the generated app's template are agreed.
+1. **Docs first.** The docs canon (MDX) is the spec the code is built to. **M1 is held** until canon layer 1 is
+   agreed. K5 is agreed.
 2. **Everything falls out of the blueprint.** The blueprint is verbose because agents write it. In return, docs, the
    app, live observability and the agent kit are generated, never configured by hand.
-3. **Design the whole shape together, then the details in layers** (Aaron: "the whole thing has got to be thought
-   about together … we can do the details in the layer, but the overall thing … has to all be making sense now").
-   That covers the core pieces, languages, hosts, plugins, data, doors, auth and the app. This is K5.
-4. **One thing, not two; agent-native forked as our own** (Aaron, 18 November: "we're going to keep the agent
-   native shapes of actions, and reuse the templates, but we're going to make them our own so we can break
-   compatibility with agent native if necessary"). Orthograph is the framework people build their own apps with; those
-   apps use the generated SDK, CLI, MCP tools and actions. **An action keeps agent-native's `defineAction` shape**, is
-   generated from an operation and calls the SDK; the operation keeps its authority. **The portal is the builder's place
-   to understand and plan with the running system: agent-native's templates, forked at 0.228.2 into our own packages and
-   changed freely**, compatible while that costs nothing. Upstream changes are pulled by hand. No agent-native Postgres
-   or auth bridge in the shape K5 was assuming.
-5. **The portal starts from things and their lifecycles**, then operations, machines, events, errors and notes
-   attached to their thing (#41's `UX.md`). It shows declared behaviour and lets live evidence light up that same
-   structure, giving context for planning. **Telemetry, not analytics.** #39's findings are research for the one portal.
-   **Parked:** the plans and factory surfaces, Dispatch, and the skills proposal (#37).
-6. **The worked example is the community workshop mini DAO**: draft text and frozen revisions in D1 (Effect
-   operations), one governance contract owning proposals, eligibility, one vote per member and the tally, publishing as
-   the cross-owner workflow (freeze the revision, wallet approval, the confirmed contract event linked back), Noir for
-   private membership with a public tally. Governance is the reusable feature; a forum integration is the adapter
-   example. At every seam: what the developer writes, what falls out, who enforces it, what the portal shows as evidence.
-7. **The name is Orthograph**, the command `ortho`, the npm scope `@orthograph`, with "blueprint" kept (K6, PR #42).
-   The code still says Forman until the rename sweep, which runs after the design PRs land.
+3. **The whole shape is designed together** ([`decisions/K5-whole-shape.md`](decisions/K5-whole-shape.md)); the
+   details follow in layers.
+4. **Agent-native is ported, not used.** Aaron: "drop Agent Native totally … learn from it … port it … as compatible
+   as possible. But our own thing." Nothing of agent-native runs or is installed. What it taught us is ported into our
+   own Effect code: `defineAction` and its fields and approvals (M1.23), the shell, the chat's surface and screen
+   context (M1.24), and the layouts. It stays compatible by names only, so an agent-native app can register our
+   generated actions (M1.22 proves this with a type test). Not ported: its Postgres and PGlite, its auth and orgs,
+   its MCP, deploy, A2A and telemetry.
+5. **Agents are durable, on our own stack.** The portal's chat agent is a durable run, one per chat thread (M4.16).
+6. **The portal starts from things and their lifecycles**, then operations, machines, events, errors and notes
+   attached to their thing. It shows declared behaviour and lets live evidence light up that same structure.
+   **Telemetry, not analytics.** It's designed with Aaron in M1.25, before the portal slice (M1.13). **Parked:** the
+   plans and factory surfaces, Dispatch, and the skills design (K4, merged as parked in #37).
+7. **The worked example is the community workshop mini DAO**: draft text and frozen revisions in D1, one governance
+   contract owning proposals, eligibility, one vote per member and the tally, publishing as the cross-owner workflow,
+   Noir for private membership with a public tally. The canon's first example is the sign-up sheet
+   (`examples/signup`); acme stays the tests' fixture.
+8. **Operations DX (K5):** an operation-level `emits:` lands in the same commit as its writes, only on success, and a
+   call that writes nothing emits nothing (Q5 = B; built in M3.16). Steps may be declared optional, and eval 6 still
+   checks their order. The scaffold writes a wired function: each step in order, the move, a stub per refusal, every
+   hole a `Handlers.blank` that `prove --empty` shows red. `ortho check` warns when a required step never runs
+   (all three in M1.26).
+9. **Chains are designed together:** Solidity, Noir and Solana, including contracts we don't write (K7, the war game
+   thread). Our own contracts only; other people's are sources behind adapters. K5's Q4 waits on K7.
+10. **The name is Orthograph**, the command `ortho`, the npm scope `@orthograph` (the org exists), with "blueprint"
+    kept (K6). The code still says Forman until the rename sweep.
 
 ### Every open line
 
-The first ledger and the Claude handoff are on `main` (PRs #43 and #46).
+Three threads, and the conductor.
 
-| # | Line | Branch and head | PR | Done when | State now | Next |
+| # | Line | Branch | PR | Done when | State now | Next |
 |---|---|---|---|---|---|---|
-| ⓚ | **The whole shape (K5)** | `design/k5-whole-shape` | #44 | K5 revised around Aaron's DX decisions with the mini DAO end to end; every seam answers what the developer writes, what falls out, who enforces it and what the portal shows; affected slices in `milestones.md` listed (changed, new, parked); only unsettled forks re-asked in one round; merged | **Revising** (brief sent 18 November). Q1 to Q3 largely answered by Aaron's decisions. Gaps to settle or own (verified on `main` at `a116fc9`): the chain binding and operation-to-ABI mapping (`language-solidity` is a placeholder; compiler is server-only; the Noir spike skipped proof verification on its network); the SDK's caller and tool exposure, retry identity, wallet submission and confirmation, typed refusals; in-flight step signals (the Worker flushes after the response, `live.ts:29-49`); journal or chain evidence for committed events; journeys and starting worlds in the model; plugin mounting and the fixed renderer list; operation-level `emits:` (a proposal); the workflow declaration, wake-up, dedup and replay | Review the revision against the decisions, then Aaron's round |
-| ① | **Docs canon (MDX)** | `claude/docs-canon-cf2c38` @ `02d8bc7` | #38 | **Pass 1:** outline, template, components, `stores` and `traces` agreed. **Pass 2:** every page written in layers, in dependency order, checking with the ledger before each layer; the canon check passes on `main` | Layer 1 drafted (forman, blueprint, things, machines, operations, handlers) and **held: no pages while K5 is open**. Example picked by Aaron: **B, a sign-up sheet**, `examples/signup` (one thing, `sheet`: open, full, closed; open, join, close, get; anyone may call), built and proving locally. acme stays the tests' fixture. `stores` is a draft with three gaps for a decision round. Found that secret and private fields are hidden only through MCP, not over HTTP, the SDK or the CLI (note `answers-are-not-redacted`, no slice) | When K5 merges: re-layer `docs/canon/outline.md` on K5's layer order, re-quote layer 1 on signup, then Aaron reviews layer 1 |
-| 📒 | **Open-issues ledger** | `claude/ledger-followup-1`; `claude/ledger-k5` | #45, #47 | Each new gap is sourced, mapped to a canon page, and marked with its owner or need for a slice | The main ledger landed in #43. #45 records the selected name, the sign-up example, and the race journeys cannot stage. #47 adds K5's provisional answers and follows #45 | Land #45, then validate #47 on the new main. Keep provisional items open until K5 merges |
-| ③ | **Generated app (our agent-native template)** | `spike/generated-app` @ `c0f0abd` | #41 | **Pass 1:** the template defined in #41's body on real data (IA, page kinds, generated vs written vs live, what `generate` writes, state, live data, chat). **Pass 2:** working locally, generated from the model | Prototype built against acme (agent-native 0.228.2, one action per operation in `spikes/generated-app/generator/actions.ts`, pages, live spans, chat). Aaron's answers recorded in `spikes/generated-app/design/UX.md`: telemetry not analytics; things with their notes; no plans; one new template. **Structure paused until K5** | After K5: fix the template's structure to K5, then pass 1 for Aaron |
-| ⓢ | **Span gaps: role check and move** | `fix/operation-span-first` @ `335a369` | #48 | A denied call is traceable without running its handler, and a move belongs to the operation's span | Claude committed the recovered patch and local trace evidence. Independent review found denied payload text exported before authorization, a name collision with a declared `access` step, and contradictory O2 and M1.20 checks | Keep the PR open for the reviewed corrections. Coordinate the refusal and free-text behavior with M1.19 and M1.20 before landing |
-| 🏷 | **Naming: Orthograph** | `naming` | #42 | K6 and the name map land and the naming gate passes | Aaron selected Orthograph. The two prose references that failed the existing gate were fixed. All 17 naming tests passed locally on the refreshed branch | Land with fresh CI. Aaron creates the `@orthograph` npm org. The sweep waits for the design PRs listed in K6 |
-| 🔁 | **Rename sweep to Orthograph** | (not started) | — | Every living name is Orthograph, `ortho`, `@orthograph/*`; the old-names lint rule covers "forman"; the gates pass | Session `local_114ab810…` is idle pending the K6 design dependencies: #37, #38, #41, #43 and K5 | Start it only after those land. It's one mechanical sweep, like M0 |
-| ② | **Skills and workflows (K4)** | `claude/build-skills-8a1083` @ `137081d` | #37 | Aaron answers its four questions; K4 updated and merged | **Parked** (Aaron, DX discussion) | Revisit after K5 |
-| ④ | **Portal observability spike** | `spike/portal-observability` @ `ded93d7` | #39 | Merged for the record | Done. A page is a pure function of `model.json` plus a telemetry window, read from the Collector's JSONL files via prove's `FileSource` | Merge for the record |
-| — | **work-real spike** | `spike/work-real` @ `af9f18d` | #28 | Merged for the record before M3 | Parked | Merge before M3 |
+| ① | **Docs canon (MDX)** | `claude/docs-canon-cf2c38` | #38 | Pass 1 (outline, template, components, `stores` and `traces`) agreed with Aaron; then pass 2, every page in layers, checked against the ledger before each layer | Re-layering on K5: sign-up sheet as the example, the operations DX above, the port, chain pages waiting on K7. 🔍 review before Aaron | **Aaron reviews layer 1.** Not merged before that |
+| ⛓ | **Chain languages war game (K7)** | `spike/chain-languages` | none yet | K7 recorded with its spike evidence, and its batch of questions put to Aaron | Running three local spikes, on main since K5 merged | Opens a PR and brings Aaron the K7 round |
+| 🔁 | **Rename sweep to Orthograph** | (not started) | — | Every living name is Orthograph, `ortho`, `@orthograph/*`; the old-names lint rule covers "forman"; the gates pass | Waits on #42 (naming) and #38 (canon) | Starts once both land. One mechanical sweep, like M0 |
+| 📒 | **Ledger follow-up** | `claude/ledger-k5` | #47 | The ledger matches the merged K5 | Rebasing on K5; merges itself when green | Then its thread is archived |
+| 🏷 | **Naming (K6)** | `naming` | #42 | K6 and the name map on `main` | Main merged in for a fresh CI run. Its only red check was Layer 1's check 4, where an agent writes a handler live, which doesn't depend on a docs-only change | The conductor merges it when green |
+
+**Closed, branches kept:**
+- **#48, span fixes (O3).** It edited journeys and evals, which a builder may not do, and its review found four
+  faults. O3's draft stays on `fix/operation-span-first`. M1.18 to M1.20 pick up the work, with journey changes made
+  by their authors.
+- **#28, the work-real spike.** Its answer is on `main` in [`../spikes/work-real/README.md`](../spikes/work-real/README.md).
+  The D1 array fix is ledger STO-23, owned by M1.17. The fuller work app is FAC-15. The work system is parked.
 
 **Other branches not merged into `main`, all parked and owned by nothing:** `layer/4` and `author/stage4-checks` and
 `author/stage4-graph-checks` (kept for the M1 harvest); `author/m0-names`, `build/M0.05` (M0 leftovers: check they're
@@ -97,43 +104,40 @@ in `main`, then delete); `build/portal-pro`, `design/kits-decision`, `design/wor
                         goal: workable at end of M2
                                    ▲
    M1 the complete model and plugins ──► M2 auth and organizations
-     ▲ held until ⓚ, ① layer 1 and ③ pass 1 agree
+     ▲ held until ① layer 1 is agreed; M1.25 portal design before M1.13
      │
- ⓚ K5 the whole shape ──► sets ①'s layer order, ③'s structure, ②'s agent kit, M1.01
-     │                         ▲ reads 📒 (what is open) and ③'s agent-native reading
- 📒 ledger ◄──► ① canon (talk both ways; ① writes, 📒 never edits the canon)
- ③ generated app ── reads ④ (the live data path) ── uses ⑤ (animations)
- 🏷 K6 Orthograph ──► 🔁 rename sweep, after ⓚ ① ③ 📒 land
- decided and merged: K2 frame (partly superseded by K5 and K6) · K3 stores and sources · O2 trace gaps · M0
+ ① canon ◄── K5 (merged) sets its layer order ──► M1.01 plugin mounting first
+ ⛓ K7 chains ──► the chain slices only (not on M1's start path)
+ 🏷 K6 Orthograph + ① ──► 🔁 rename sweep ──► M1
+ 📒 ledger: what's open, with its owner; read before each canon layer and slice
 ```
 
 ### What waits on Aaron
 
-1. **K5's revised round**, PR #44, once the revision lands (only the forks his DX decisions leave open). The critical path; the canon's new seven-layer order (layer 1 · the shape) waits on it too.
-2. Create the **`@orthograph` npm org** at his computer.
-3. The skills design, PR #37: parked.
-4. **Canon layer 1** review, PR #38, after it's re-layered on K5.
-5. **The template's pass 1**, PR #41, after K5.
+1. **Canon layer 1** review, PR #38, once it's re-layered on K5. This is the critical path.
+2. **The portal design (M1.25)**, any time now; it must come before M1.13.
+3. **The K7 round** from the war game, when it opens its PR.
 
 ### Next on the critical path
 
-K5 answered and merged → the canon re-layers and the generated app fixes its structure on K5, in parallel → Aaron
-agrees canon layer 1 and the template → merge #37, #38 and #41 → the rename sweep → M1 starts with M1.01 (the plugin
-descriptor decision), folding in K5. M1.17 to M1.20 (stores, the commit span, untraced text, call counts) run in
-parallel. The M1 harvest takes `layer/4` and the two `author/stage4-*` branches.
+Canon layer 1 agreed → #42 and #38 merged → the rename sweep → M1 starts with M1.01 (the plugin descriptor), folding
+in K5. M1.17 to M1.20 (stores, the commit span, untraced text, call counts) and M1.26 (the wired scaffold) run in
+parallel. K7 runs beside all of this and unblocks the chain slices.
 
 ### Open questions carried by threads
 
-- **Doors:** whether running agent-native's server beside the Worker meets "one thing, not two" (K5 Q1).
 - **Secret and private fields over HTTP, the SDK and the CLI** are sent unredacted. Only MCP hides them. No slice
-  owns it yet (canon note `answers-are-not-redacted`).
-- **Journeys can't force a race** between two calls, so no journey proves a conflict. Tied to M1.18.
-- **The Collector without Docker:** a native `otelcol-contrib`, or OTLP straight into the app (③ decides).
+  owns it yet (OPS-01).
+- **Operations that run on the caller's device** are refused by the compiler (LAH-02). No slice yet.
+- **Journeys can't force a race** between two calls, so no journey proves a conflict (JOU-13). No slice yet.
 - **Journeys aren't in the model** (M1.03), so proof status can't be shown live.
-- **191 ledger items are owned by no slice.** After K5, each becomes a slice or a canon question.
+- **About 193 ledger items are owned by no slice.** Each becomes a slice or a canon question as its layer comes up.
+
 
 ## Done
 
+- **18 November, evening cleanup:** K5 merged in PR #44. The generated-app and portal-observability spikes merged
+  for the record (#41, #39); the skills design merged as parked (#37); #48 and #28 closed with their branches kept.
 - **Visuals spike and the `visuals` skill:** merged in PR #34 (18 November).
 - **This board's last round:** merged in PR #40.
 
