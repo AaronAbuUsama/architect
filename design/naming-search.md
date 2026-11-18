@@ -143,7 +143,7 @@ What each name means:
 - **Ortho**: orthographic projection, one object drawn as plan, front and side views. Forman's idea in a word.
 - **Trazo**: Spanish for the line of a drawing; `trazar un plano` is to draw up a plan. In English it echoes "trace",
   which is what the observability is.
-- **Tekt**: from the Greek *tekton*, builder, the root of "architect".
+- **Tekt**: from the Greek *tekton*, meaning builder or carpenter.
 - **Ozalid**: the print process that replaced the blueprint; every copy is made from one master drawing.
 - **Modela**: "model", the thing the compiler makes.
 - **Irida**: from iris, the rainbow; one light split into many colours.

@@ -89,7 +89,7 @@ is still the blueprint, and a project's own names stay its own.
 
 ### Left as they are
 
-- Every dated record, under rule 6. "Architect" still appears 395 times in 58 files, almost all of them history.
+- Every dated record, under rule 6. The pre-Forman name still appears 395 times in 58 files, almost all of them history.
   Those words stay. Lint ignores `design/**` (`.oxlintrc.json`), and the old-names rule only reads string literals in
   code, so prose anywhere is covered by the sweep's `git grep` check, not by lint.
 - `blueprint/`, `Blueprint.*`, the canon's words, and every project's own names (rules 4 and 5).
