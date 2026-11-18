@@ -1,13 +1,16 @@
 import { spawn, type ChildProcess } from "node:child_process";
 import { randomInt } from "node:crypto";
 import { createServer } from "node:net";
-import { Effect, Option, Stream } from "effect";
+import { Clock, Duration, Effect, Option, Stream } from "effect";
 import { Timers } from "@orthograph/language-effect";
-import { createPublicClient, createTestClient, createWalletClient, decodeEventLog, encodeFunctionData, http, parseAbi, toFunctionSelector } from "viem";
+import {
+  createPublicClient, createTestClient, createWalletClient, decodeEventLog, encodeFunctionData, http, parseAbi,
+  toFunctionSelector, TransactionReceiptNotFoundError, type TransactionReceipt,
+} from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { foundry } from "viem/chains";
 import { test, expect } from "vitest";
-import { makeChainPort } from "../../main.ts";
+import { makeChainPort, makeEventSource } from "../../main.ts";
 // Compiled from internal/anvil-token.sol with solcjs 0.8.30 --optimize --bin.
 const tokenBytecode = "0x6080604052348015600e575f5ffd5b50335f8181526020818152604080832060649081905590519081527fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef910160405180910390a361023f806100615f395ff3fe608060405234801561000f575f5ffd5b506004361061003f575f3560e01c806370a0823114610043578063a9059cbb14610075578063ad50950314610098575b5f5ffd5b610062610051366004610187565b5f6020819052908152604090205481565b6040519081526020015b60405180910390f35b6100886100833660046101a7565b6100a1565b604051901515815260200161006c565b61009f5f5ffd5b005b335f90815260208190526040812054828110156100df5760405163cf47918160e01b8152600481018290526024810184905260440160405180910390fd5b6100e983826101e3565b335f90815260208190526040808220929092556001600160a01b0386168152908120805485929061011b9084906101f6565b90915550506040518381526001600160a01b0385169033907fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef9060200160405180910390a360019150505b92915050565b80356001600160a01b0381168114610182575f5ffd5b919050565b5f60208284031215610197575f5ffd5b6101a08261016c565b9392505050565b5f5f604083850312156101b8575f5ffd5b6101c18361016c565b946020939093013593505050565b634e487b7160e01b5f52601160045260245ffd5b81810381811115610166576101666101cf565b80820180821115610166576101666101cf56fea264697066735822122058493ecce12a37a55d5e8d6f308cd1c95de936a4216d2f8ea1b8fd249107090364736f6c634300081e0033" as const;
 
@@ -68,10 +71,26 @@ function fixtureRpc<A>(request: () => Promise<A>) {
   return Effect.tryPromise({ try: request, catch: () => new Error("Anvil fixture RPC failed") });
 }
 
+function waitForFixtureReceipt(request: () => Promise<TransactionReceipt>) {
+  return Effect.gen(function* () {
+    const timers = yield* Timers;
+    for (let attempt = 0; attempt < 100; attempt++) {
+      const receipt = yield* Effect.tryPromise({ try: request, catch: (cause) => cause }).pipe(
+        Effect.catch((cause) => cause instanceof TransactionReceiptNotFoundError
+          ? Effect.succeed(undefined)
+          : Effect.fail(new Error("Anvil fixture receipt RPC failed"))),
+      );
+      if (receipt) return receipt;
+      yield* timers.sleep("Anvil test receipt", "25 millis");
+    }
+    return yield* Effect.fail(new Error("Anvil fixture receipt did not arrive within the fixture budget"));
+  });
+}
+
 const liveFixtureTimers = Timers.of({
   at: () => Effect.die("Only Timers.sleep is used in the local Anvil proof"),
   // Anvil runs in its own OS process, so the fixture drives the Timers service with real time.
-  sleep: (_owner, span) => Effect.sleep(span),
+  sleep: (_owner, span) => Effect.flatMap(Clock.Clock, (clock) => clock.sleep(Duration.fromInputUnsafe(span))),
   due: () => Effect.succeed(undefined),
   fire: () => Effect.succeed([]),
   pending: Effect.succeed([]),
@@ -100,7 +119,7 @@ const withAnvil = Effect.gen(function* () {
   return yield* Effect.fail(new Error("Anvil RPC did not start within the fixture budget"));
 });
 
-test.skipIf(process.env["ORTHO_CHAIN_EVM_ANVIL"] !== "1")("transfers ERC20 and decodes typed and empty reverts on Anvil", () =>
+test.skipIf(process.env["ORTHO_CHAIN_EVM_ANVIL"] !== "1")("transfers ERC20, decodes reverts, and corrects a reorg on Anvil", () =>
   Effect.runPromise(Effect.gen(function* () {
     const { chain, rpcUrl, transport, publicClient } = yield* withAnvil;
     const account = yield* Effect.sync(() => privateKeyToAccount(generatePrivateKey()));
@@ -109,7 +128,7 @@ test.skipIf(process.env["ORTHO_CHAIN_EVM_ANVIL"] !== "1")("transfers ERC20 and d
     const wallet = createWalletClient({ chain, transport, account });
     yield* fixtureRpc(() => testClient.setBalance({ address: account.address, value: 10n ** 18n }));
     const deployed = yield* fixtureRpc(() => wallet.deployContract({ abi, bytecode: tokenBytecode }));
-    const deployment = yield* fixtureRpc(() => publicClient.getTransactionReceipt({ hash: deployed }));
+    const deployment = yield* waitForFixtureReceipt(() => publicClient.getTransactionReceipt({ hash: deployed }));
     const token = deployment.contractAddress;
     if (!token) return yield* Effect.fail(new Error("The ERC20 fixture failed to deploy"));
 
@@ -120,6 +139,9 @@ test.skipIf(process.env["ORTHO_CHAIN_EVM_ANVIL"] !== "1")("transfers ERC20 and d
       from: account.address, to: token,
       data: encodeFunctionData({ abi, functionName: "transfer", args: [recipient, value] }),
     });
+    // Keep an empty block between deployment and transfer so the follower has a common ancestor to rewind to.
+    yield* fixtureRpc(() => testClient.mine({ blocks: 1 }));
+    const snapshot = yield* fixtureRpc(() => testClient.snapshot());
     const unsigned = yield* port.prepare(transfer(7n));
     const signed = yield* port.sign(unsigned, {
       address: account.address,
@@ -146,10 +168,26 @@ test.skipIf(process.env["ORTHO_CHAIN_EVM_ANVIL"] !== "1")("transfers ERC20 and d
       address: token, abi, functionName: "balanceOf", args: [recipient],
     }))).toBe(7n);
     expect(yield* port.prepare(transfer(94n)).pipe(Effect.flip)).toMatchObject({
-      _tag: "ChainRefusal", code: "TOKEN-001", name: "InsufficientBalance", args: [93n, 94n],
+      _tag: "ChainRefusal", code: "TOKEN-001", name: "InsufficientBalance", args: { available: 93n, requested: 94n },
     });
     const empty = yield* port.prepare({
       from: account.address, to: token, data: encodeFunctionData({ abi, functionName: "refuseEmpty" }),
     }).pipe(Effect.flip);
     expect(empty).toMatchObject({ _tag: "ChainFault", kind: "revert" });
+
+    const source = makeEventSource(abi[3], token, deployment.blockNumber + 1n);
+    const follower = port.follow(source, { depth: 1 });
+    const args = { from: account.address, to: recipient, value: 7n };
+    const observed = yield* follower.poll();
+    expect(observed.changes).toContainEqual(expect.objectContaining({
+      _tag: "Confirmed", event: expect.objectContaining({ args }),
+    }));
+
+    yield* fixtureRpc(() => testClient.revert({ id: snapshot }));
+    yield* fixtureRpc(() => testClient.increaseTime({ seconds: 60 }));
+    yield* fixtureRpc(() => testClient.mine({ blocks: 1 }));
+    const corrected = yield* follower.poll(observed.checkpoint);
+    expect(corrected.changes).toContainEqual(expect.objectContaining({
+      _tag: "Corrected", event: expect.objectContaining({ args }), wasConfirmed: true,
+    }));
   }).pipe(Effect.scoped, Effect.provideService(Timers, liveFixtureTimers))), 15_000);
