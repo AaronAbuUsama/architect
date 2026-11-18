@@ -1,0 +1,59 @@
+== 1. our four refusals: raw revert data -> typed object with the stable code
+outsider vote (AR-001)             0x3d693ada  ->  {"kind":"refusal","name":"NotAllowed","code":"AR-001","args":{}}
+member opens (AR-001)              0x3d693ada  ->  {"kind":"refusal","name":"NotAllowed","code":"AR-001","args":{}}
+outsider closes (AR-001)           0x3d693ada  ->  {"kind":"refusal","name":"NotAllowed","code":"AR-001","args":{}}
+member adds member (AR-001)        0x3d693ada  ->  {"kind":"refusal","name":"NotAllowed","code":"AR-001","args":{}}
+open twice (PR-002)                0x44da54e00000000000000000000000000000000000000000000000000000000000000001  ->  {"kind":"refusal","name":"ProposalExists","code":"PR-002","args":{"proposal":"0x0000000000000000000000000000000000000000000000000000000000000001"}}
+vote, never opened (PR-900 absent) 0xad38e86c0000000000000000000000000000000000000000000000000000000000000000  ->  {"kind":"refusal","name":"ProposalNotOpen","code":"PR-900","args":{"state":0},"state":"absent"}
+vote on closed (PR-900 passed/failed) 0xad38e86c0000000000000000000000000000000000000000000000000000000000000003  ->  {"kind":"refusal","name":"ProposalNotOpen","code":"PR-900","args":{"state":3},"state":"failed"}
+close twice (PR-900)               0xad38e86c0000000000000000000000000000000000000000000000000000000000000003  ->  {"kind":"refusal","name":"ProposalNotOpen","code":"PR-900","args":{"state":3},"state":"failed"}
+vote twice (PR-001)                0xee96e13d0000000000000000000000000000000000000000000000000000000000000001  ->  {"kind":"refusal","name":"AlreadyVoted","code":"PR-001","args":{"proposal":"0x0000000000000000000000000000000000000000000000000000000000000001"}}
+check order: outsider + absent + dup 0x3d693ada  ->  {"kind":"refusal","name":"NotAllowed","code":"AR-001","args":{}}
+
+== 2. refusals that arrive with NO code
+enum out of range (choice=2), calldata-decoded data=0x  decoded={"kind":"empty"}  node="execution reverted" rpc-code=3
+calldata too short (selector only)           data=0x  decoded={"kind":"empty"}  node="execution reverted" rpc-code=3
+unknown selector 0xdeadbeef (no fallback)    data=0x  decoded={"kind":"empty"}  node="execution reverted" rpc-code=3
+eth_call with gas=22000 (out of gas)         data=(none)  decoded={"kind":"empty"}  node="EVM error OutOfGas" rpc-code=-32003
+eth_call with gas=21000 (intrinsic)          data=(none)  decoded={"kind":"empty"}  node="intrinsic gas too high -- CallGasCostMoreThanGasLimit" rpc-code=-32000
+mined with gas=30000 (OOG during execution): {"status":"reverted","gasUsed":"30000n","logs":0}
+eth_estimateGas for a tx that will revert (acct1 already voted): {"code":3,"data":"0xee96e13d0000000000000000000000000000000000000000000000000000000000000001"}
+eth_sendTransaction (unlocked account, no gas given) of that same doomed tx: {"result":"reverted","blocksMined":1}
+trace of the OOG tx: {"error":"out of gas: not enough gas for reentrancy sentry","gasUsed":"0x7530"}
+trace of a mined AlreadyVoted revert (reason is recoverable from the trace, not the receipt): {"error":"execution reverted","output":"0xee96e13d0000000000000000000000000000000000000000000000000000000000000001","decoded":{"kind":"refusal","name":"AlreadyVoted","code":"PR-001","args":{"proposal":"0x0000000000000000000000000000000000000000000000000000000000000001"}}}
+
+== 3. what makes a code unstable? compile 6 shapes of the same two errors, decode with the V0 (old client) ABI
+┌─────────────────┬───────────────────────────────┬─────────────────────────┬────────────────────┬───────────────────────────────────┬─────────────────────────┐
+│ (index)         │ ABI error order               │ sel of 1st declared (a) │ sel ProposalExists │ old client reads a() as           │ old client reads b() as │
+├─────────────────┼───────────────────────────────┼─────────────────────────┼────────────────────┼───────────────────────────────────┼─────────────────────────┤
+│ V0_Original     │ 'AlreadyVoted,ProposalExists' │ '0xee96e13d'            │ '0x44da54e0'       │ 'PR-001'                          │ 'PR-002'                │
+│ V1_Renamed      │ 'HasVoted,ProposalExists'     │ '0x231c3fd3'            │ '0x44da54e0'       │ 'UNDECODABLE(unknown 0x231c3fd3)' │ 'PR-002'                │
+│ V2_FieldAdded   │ 'AlreadyVoted,ProposalExists' │ '0x0bcf2ea3'            │ '0x44da54e0'       │ 'UNDECODABLE(unknown 0x0bcf2ea3)' │ 'PR-002'                │
+│ V3_Reordered    │ 'AlreadyVoted,ProposalExists' │ '0xee96e13d'            │ '0x44da54e0'       │ 'PR-001'                          │ 'PR-002'                │
+│ V4_FieldRenamed │ 'AlreadyVoted,ProposalExists' │ '0xee96e13d'            │ '0x44da54e0'       │ 'PR-001'                          │ 'PR-002'                │
+│ V5_TypeWidened  │ 'AlreadyVoted,ProposalExists' │ '0xc0afe58d'            │ '0x44da54e0'       │ 'UNDECODABLE(unknown 0xc0afe58d)' │ 'PR-002'                │
+└─────────────────┴───────────────────────────────┴─────────────────────────┴────────────────────┴───────────────────────────────────┴─────────────────────────┘
+ordinal code a generator would derive from declaration order, V0: {"AlreadyVoted":"PR-001","ProposalExists":"PR-002"}
+ordinal code, V3 (same selectors, reordered source): {"AlreadyVoted":"PR-002","ProposalExists":"PR-001"}
+the lesson: selector = keccak(name + field TYPES): a rename or type change moves it; field NAMES and source ORDER do not. Order only matters if the code is derived from order.
+
+== 4. the alternative: the code travels inside the error: error Refused(bytes6 code, bytes data)
+vote twice     132 bytes  {"kind":"refusal","code":"PR-001","args":{"proposal":"0x0000000000000000000000000000000000000000000000000000000000000001"}}  raw=0x0339717c50522d3030310000000000000000000000000000000000000000000000000000...
+open twice     132 bytes  {"kind":"refusal","code":"PR-002","args":{"proposal":"0x0000000000000000000000000000000000000000000000000000000000000001"}}  raw=0x0339717c50522d3030320000000000000000000000000000000000000000000000000000...
+outsider       100 bytes  {"kind":"refusal","code":"AR-001","args":{}}  raw=0x0339717c41522d3030310000000000000000000000000000000000000000000000000000...
+never opened   132 bytes  {"kind":"refusal","code":"PR-900","args":{"state":0}}  raw=0x0339717c50522d3930300000000000000000000000000000000000000000000000000000...
+  (the plain-error version of 'vote twice' is 36 bytes: selector + 1 word)
+  robustness, same scenarios as the table above, for the 'Refused' encoding:
+    old client (schema: bytes32 proposal) reads V0 original                          -> {"kind":"refusal","code":"PR-001","args":{"proposal":"0x0000000000000000000000000000000000000000000000000000000000000001"}}
+    old client (schema: bytes32 proposal) reads V1 renamed in source (same code)     -> {"kind":"refusal","code":"PR-001","args":{"proposal":"0x0000000000000000000000000000000000000000000000000000000000000001"}}
+    old client (schema: bytes32 proposal) reads V2 field added (voter)               -> {"kind":"refusal","code":"PR-001","args":{"proposal":"0x0000000000000000000000000000000000000000000000000000000000000001"}}
+    old client (schema: bytes32 proposal) reads V3 reordered source                  -> {"kind":"refusal","code":"PR-001","args":{"proposal":"0x0000000000000000000000000000000000000000000000000000000000000001"}}
+    old client (schema: bytes32 proposal) reads V5 type widened to uint256           -> {"kind":"refusal","code":"PR-001","args":{"proposal":"0x0000000000000000000000000000000000000000000000000000000000000001"}}
+  note: V2 decodes (extra trailing bytes ignored) so a ADDED field is backward compatible; a CHANGED type (V5) decodes silently to the same bytes here but is only safe because bytes32/uint256 are both one word: schema check must be exact.
+
+== 5. a code from an unknown-selector world: what an old client sees when the contract was redeployed with a renamed error
+decoded by a client built before the rename: {"kind":"unknown","selector":"0x231c3fd3","data":"0x231c3fd30000000000000000000000000000000000000000000000000000000000000000"}
+codes registry the blueprint owns: {"AlreadyVoted":"PR-001","ProposalExists":"PR-002","ProposalNotOpen":"PR-900","NotAllowed":"AR-001"}
+
+== 6. their panic reaches us as a panic, with no code and no origin
+vote against a token whose balanceOf divides by zero: {"ok":false,"refusal":{"kind":"panic","code":18,"meaning":"division by zero"},"raw":"0x4e487b710000000000000000000000000000000000000000000000000000000000000012","message":"execution reverted: panic: division or modulo by zero (0x12)"}

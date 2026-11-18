@@ -1,0 +1,19 @@
+{
+  "checkedOn": "2026-11-18",
+  "rule": "every release published at least 3 days before 2026-11-18; compatible pair per Anchor 1.2.2 release notes (recommended Solana 4.1.2, platform-tools v1.57, SBPF v3)",
+  "tools": {
+    "agave (solana-test-validator, solana CLI, cargo-build-sbf)": { "version": "4.1.2", "released": "2026-07-10", "source": "github.com/anza-xyz/agave v4.1.2, solana-release-aarch64-apple-darwin.tar.bz2", "sha256": "51a44318e6fb8be0cfa69cdfdb3252f4c76a5eb2866740694e91de3d2fc5a75b", "installedAt": "tools/agave (git-ignored)" },
+    "anchor-cli": { "version": "1.2.2", "released": "2026-10-28", "source": "github.com/solana-foundation/anchor v1.2.2 release asset anchor-1.2.2-aarch64-apple-darwin", "sha256": "fbfa9dc5c130dde033970aad20271ca10f1d20e9abcb78506c29b6c1684cc7d1", "installedAt": "tools/bin/anchor (git-ignored)" },
+    "platform-tools": { "version": "v1.57", "released": "2026-08-21", "installedAt": "~/.cache/solana/v1.57 (cargo-build-sbf's own user-level cache; not relocatable without changing HOME)" },
+    "rust (host)": { "version": "1.94.1", "installedAt": "~/.cargo/bin (pre-installed)" },
+    "node": { "version": "26.13.1 (pre-installed)" }
+  },
+  "crates": { "anchor-lang": { "version": "=1.2.2", "released": "2026-10-28", "features": ["init-if-needed", "event-cpi"] } },
+  "npm": {
+    "@anchor-lang/core": { "version": "1.2.2", "released": "2026-10-28" },
+    "@solana/web3.js": { "version": "1.99.0", "released": "2026-09-08", "note": "1.x line, because @anchor-lang/core 1.2.2 and @solana/spl-token 0.4.15 depend on it; 3.2.1 exists (2026-11-10)" },
+    "@solana/spl-token": { "version": "0.4.15", "released": "2026-07-09" },
+    "tsx": { "version": "4.23.15", "released": "2026-09-20" },
+    "@types/node": { "version": "26.6.6", "released": "2026-10-28" }
+  }
+}

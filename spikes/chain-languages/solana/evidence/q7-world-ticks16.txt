@@ -1,0 +1,13 @@
+== Q7 (ticks-per-slot 16) ==
+version: {"feature-set":3345198602,"solana-core":"4.1.2"}
+epoch schedule: 432000 slots/epoch, warmup=false
+current slot 5
+airdrop (request + confirmed), 5 samples ms: 284, 67, 130, 109, 283
+ledger dir identity files (names only; contents never read): faucet-keypair.json, stake-account-keypair.json, validator-keypair.json, vote-account-keypair.json
+solana program deploy (223328 byte .so): 4233 ms, exit 0;  | Signature: 2NyT8Y2RdAz2EE5scCgJyh1Mnm9hb1XGPTgEmMVr8uocYsmbGW4y8WdE6rT9tDsvLNpCTYG39X6xqFzWVxNEDxbG
+program account: executable=true owner=BPFLoaderUpgradeab1e11111111111111111111111 (upgradeable loader); id BYXxwh4GCU78XMJYNVmNbj7RiRqWuUoyrAgKL2wz9F8s
+program is live at getAccountInfo: true
+
+
+real: the same SBF VM and compute metering, 5000-lamport signature fees, rent rules, signature verification, the runtime's account locking, Anchor-built .so unmodified, the System / SPL Token / ATA / BPF-loader programs the cluster has.
+faked/different: one node (no consensus, no forks, no leader schedule), airdrop faucet gives free SOL, all feature gates active, slot length is a flag (16 ticks = 100 ms vs ~400 ms on mainnet), no fee market / priority-fee congestion, no stake-weighted QoS, ledger is local and --reset wipes it.

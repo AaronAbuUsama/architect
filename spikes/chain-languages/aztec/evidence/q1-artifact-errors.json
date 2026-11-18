@@ -1,0 +1,448 @@
+{
+ "_tally": {
+  "abi_keys": [
+   "error_types",
+   "parameters",
+   "return_type"
+  ],
+  "attrs": [
+   "abi_public",
+   "abi_only_self"
+  ],
+  "unconstrained": true,
+  "has_vk": false,
+  "bytecode_len": 2140,
+  "coded_errors": [],
+  "fmtstring_errors": [
+   {
+    "selector": "10198493379764527729",
+    "items": [
+     {
+      "kind": "integer",
+      "sign": "unsigned",
+      "width": 8
+     }
+    ],
+    "len": 45
+   }
+  ]
+ },
+ "add_member": {
+  "abi_keys": [
+   "error_types",
+   "parameters",
+   "return_type"
+  ],
+  "attrs": [
+   "abi_private"
+  ],
+  "unconstrained": false,
+  "has_vk": true,
+  "bytecode_len": 51000,
+  "coded_errors": [
+   {
+    "selector": "7090905221728374265",
+    "message": "[AR-001] NotAllowed"
+   }
+  ],
+  "fmtstring_errors": [
+   {
+    "selector": "12820178569648940736",
+    "items": [
+     {
+      "kind": "field"
+     },
+     {
+      "kind": "field"
+     }
+    ],
+    "len": 48
+   },
+   {
+    "selector": "13261004899261897883",
+    "items": [
+     {
+      "kind": "field"
+     },
+     {
+      "kind": "integer",
+      "sign": "unsigned",
+      "width": 32
+     },
+     {
+      "kind": "integer",
+      "sign": "unsigned",
+      "width": 32
+     }
+    ],
+    "len": 98
+   },
+   {
+    "selector": "17110599087403377004",
+    "items": [],
+    "len": 98
+   },
+   {
+    "selector": "5449178635769758673",
+    "items": [
+     {
+      "kind": "field"
+     },
+     {
+      "kind": "field"
+     }
+    ],
+    "len": 61
+   },
+   {
+    "selector": "7217415691812985622",
+    "items": [],
+    "len": 123
+   }
+  ]
+ },
+ "close_proposal": {
+  "abi_keys": [
+   "error_types",
+   "parameters",
+   "return_type"
+  ],
+  "attrs": [
+   "abi_public"
+  ],
+  "unconstrained": true,
+  "has_vk": false,
+  "bytecode_len": 2716,
+  "coded_errors": [
+   {
+    "selector": "7090905221728374265",
+    "message": "[AR-001] NotAllowed"
+   }
+  ],
+  "fmtstring_errors": [
+   {
+    "selector": "10198493379764527729",
+    "items": [
+     {
+      "kind": "integer",
+      "sign": "unsigned",
+      "width": 8
+     }
+    ],
+    "len": 45
+   }
+  ]
+ },
+ "constructor": {
+  "abi_keys": [
+   "error_types",
+   "parameters",
+   "return_type"
+  ],
+  "attrs": [
+   "abi_public",
+   "abi_initializer"
+  ],
+  "unconstrained": true,
+  "has_vk": false,
+  "bytecode_len": 1724,
+  "coded_errors": [],
+  "fmtstring_errors": []
+ },
+ "get": {
+  "abi_keys": [
+   "error_types",
+   "parameters",
+   "return_type"
+  ],
+  "attrs": [
+   "abi_public",
+   "abi_view"
+  ],
+  "unconstrained": true,
+  "has_vk": false,
+  "bytecode_len": 1048,
+  "coded_errors": [],
+  "fmtstring_errors": []
+ },
+ "has_voted": {
+  "abi_keys": [
+   "error_types",
+   "parameters",
+   "return_type"
+  ],
+  "attrs": [
+   "abi_utility"
+  ],
+  "unconstrained": true,
+  "has_vk": false,
+  "bytecode_len": 4512,
+  "coded_errors": [],
+  "fmtstring_errors": [
+   {
+    "selector": "9970201630854352883",
+    "items": [
+     {
+      "fields": [
+       {
+        "name": "inner",
+        "type": {
+         "kind": "field"
+        }
+       }
+      ],
+      "kind": "struct",
+      "path": "aztec::protocol_types::address::aztec_address::AztecAddress"
+     }
+    ],
+    "len": 48
+   }
+  ]
+ },
+ "is_member": {
+  "abi_keys": [
+   "error_types",
+   "parameters",
+   "return_type"
+  ],
+  "attrs": [
+   "abi_utility"
+  ],
+  "unconstrained": true,
+  "has_vk": false,
+  "bytecode_len": 6848,
+  "coded_errors": [],
+  "fmtstring_errors": []
+ },
+ "open_proposal": {
+  "abi_keys": [
+   "error_types",
+   "parameters",
+   "return_type"
+  ],
+  "attrs": [
+   "abi_public"
+  ],
+  "unconstrained": true,
+  "has_vk": false,
+  "bytecode_len": 1716,
+  "coded_errors": [
+   {
+    "selector": "5407710717612454600",
+    "message": "[PR-002] ProposalExists"
+   },
+   {
+    "selector": "7090905221728374265",
+    "message": "[AR-001] NotAllowed"
+   }
+  ],
+  "fmtstring_errors": []
+ },
+ "rewrite_digest": {
+  "abi_keys": [
+   "error_types",
+   "parameters",
+   "return_type"
+  ],
+  "attrs": [
+   "abi_public"
+  ],
+  "unconstrained": true,
+  "has_vk": false,
+  "bytecode_len": 1436,
+  "coded_errors": [
+   {
+    "selector": "7090905221728374265",
+    "message": "[AR-001] NotAllowed"
+   }
+  ],
+  "fmtstring_errors": []
+ },
+ "vote": {
+  "abi_keys": [
+   "error_types",
+   "parameters",
+   "return_type"
+  ],
+  "attrs": [
+   "abi_private"
+  ],
+  "unconstrained": false,
+  "has_vk": true,
+  "bytecode_len": 32132,
+  "coded_errors": [
+   {
+    "selector": "7090905221728374265",
+    "message": "[AR-001] NotAllowed"
+   }
+  ],
+  "fmtstring_errors": [
+   {
+    "selector": "17110599087403377004",
+    "items": [],
+    "len": 98
+   },
+   {
+    "selector": "9970201630854352883",
+    "items": [
+     {
+      "fields": [
+       {
+        "name": "inner",
+        "type": {
+         "kind": "field"
+        }
+       }
+      ],
+      "kind": "struct",
+      "path": "aztec::protocol_types::address::aztec_address::AztecAddress"
+     }
+    ],
+    "len": 48
+   }
+  ]
+ },
+ "offchain_receive": {
+  "abi_keys": [
+   "error_types",
+   "parameters",
+   "return_type"
+  ],
+  "attrs": [
+   "abi_utility"
+  ],
+  "unconstrained": true,
+  "has_vk": false,
+  "bytecode_len": 7448,
+  "coded_errors": [],
+  "fmtstring_errors": []
+ },
+ "public_dispatch": {
+  "abi_keys": [
+   "error_types",
+   "parameters",
+   "return_type"
+  ],
+  "attrs": [
+   "abi_public"
+  ],
+  "unconstrained": true,
+  "has_vk": false,
+  "bytecode_len": 8972,
+  "coded_errors": [
+   {
+    "selector": "5407710717612454600",
+    "message": "[PR-002] ProposalExists"
+   },
+   {
+    "selector": "7090905221728374265",
+    "message": "[AR-001] NotAllowed"
+   }
+  ],
+  "fmtstring_errors": [
+   {
+    "selector": "10198493379764527729",
+    "items": [
+     {
+      "kind": "integer",
+      "sign": "unsigned",
+      "width": 8
+     }
+    ],
+    "len": 45
+   },
+   {
+    "selector": "11194752367584870169",
+    "items": [
+     {
+      "kind": "field"
+     }
+    ],
+    "len": 27
+   }
+  ]
+ },
+ "sync_state": {
+  "abi_keys": [
+   "error_types",
+   "parameters",
+   "return_type"
+  ],
+  "attrs": [
+   "abi_utility"
+  ],
+  "unconstrained": true,
+  "has_vk": false,
+  "bytecode_len": 81800,
+  "coded_errors": [],
+  "fmtstring_errors": [
+   {
+    "selector": "1064022259863234536",
+    "items": [
+     {
+      "kind": "integer",
+      "sign": "unsigned",
+      "width": 32
+     }
+    ],
+    "len": 101
+   },
+   {
+    "selector": "12706857619424059571",
+    "items": [],
+    "len": 37
+   },
+   {
+    "selector": "12820178569648940736",
+    "items": [
+     {
+      "kind": "field"
+     },
+     {
+      "kind": "field"
+     }
+    ],
+    "len": 48
+   },
+   {
+    "selector": "16204057084063766501",
+    "items": [
+     {
+      "fields": [
+       {
+        "name": "inner",
+        "type": {
+         "kind": "field"
+        }
+       }
+      ],
+      "kind": "struct",
+      "path": "aztec::protocol_types::address::aztec_address::AztecAddress"
+     }
+    ],
+    "len": 57
+   },
+   {
+    "selector": "5449178635769758673",
+    "items": [
+     {
+      "kind": "field"
+     },
+     {
+      "kind": "field"
+     }
+    ],
+    "len": 61
+   },
+   {
+    "selector": "9469988605042831545",
+    "items": [
+     {
+      "kind": "field"
+     }
+    ],
+    "len": 36
+   }
+  ]
+ }
+}

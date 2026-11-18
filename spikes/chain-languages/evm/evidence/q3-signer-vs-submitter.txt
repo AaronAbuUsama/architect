@@ -1,0 +1,40 @@
+== 1. direct member transaction: msg.sender is the member, the member pays
+receipt.from (tx sender = voter = payer): acct1
+event: [{"name":"VoteCast","voter":"0x70997970C51812dc3A010C7d01b50e0d17dc79C8","yes":"1n","no":"0n"}]
+acct1 paid (wei): "76676362638484n"
+
+== 2. relayed: acct2 signs, acct7 (not a member, no role) submits and pays
+relayer simulates first: {"ok":true}
+receipt.from (the relayer): relayer acct7
+VoteCast.voter (the signer): ["0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"]
+signer balance delta (wei): "0n"
+relayer paid (wei): "113057395986080n"
+signer nonce before -> after: ["0n","1n"]
+
+== 3. refusals on the relayed path: what the relayer sees (raw revert, same decoder) 
+replay same signature: {"ok":false,"refusal":{"kind":"own-uncoded","name":"InvalidNonce","args":["1n","0n"]},"raw":"0x06427aeb00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000","message":"execution reverted: custom error 0x06427aeb: \u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0001\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000"}
+fresh signature, same member, same proposal (AlreadyVoted): {"ok":false,"refusal":{"kind":"refusal","name":"AlreadyVoted","code":"PR-001","args":{"proposal":"0x0000000000000000000000000000000000000000000000000000000000000001"}},"raw":"0xee96e13d0000000000000000000000000000000000000000000000000000000000000001","message":"execution reverted: custom error 0xee96e13d: \u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0001"}
+expired deadline: {"ok":false,"refusal":{"kind":"own-uncoded","name":"SignatureExpired","args":["1795024881n"]},"raw":"0xcd21db4f000000000000000000000000000000000000000000000000000000006afde7f1","message":"execution reverted: custom error 0xcd21db4f: 000000000000000000000000000000000000000000000000000000006afde7f1"}
+outsider (acct5, never added) signs: {"ok":false,"refusal":{"kind":"refusal","name":"NotAllowed","code":"AR-001","args":{}},"raw":"0x3d693ada","message":"execution reverted: custom error 0x3d693ada"}
+acct3 signed YES, relayer tampers the choice to NO -> recovers a random address: {"ok":false,"refusal":{"kind":"refusal","name":"NotAllowed","code":"AR-001","args":{}},"raw":"0x3d693ada","message":"execution reverted: custom error 0x3d693ada"}
+garbage 65-byte signature: {"ok":false,"refusal":{"kind":"refusal","name":"NotAllowed","code":"AR-001","args":{}},"raw":"0x3d693ada","message":"execution reverted: custom error 0x3d693ada"}
+wrong-length signature: {"ok":false,"refusal":{"kind":"refusal","name":"NotAllowed","code":"AR-001","args":{}},"raw":"0x3d693ada","message":"execution reverted: custom error 0x3d693ada"}
+future nonce 5 (signer is at 0): {"ok":false,"refusal":{"kind":"own-uncoded","name":"InvalidNonce","args":["0n","5n"]},"raw":"0x06427aeb00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005","message":"execution reverted: custom error 0x06427aeb: \u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0005"}
+
+== 4. a reverting relayed tx sent anyway (no simulation): the relayer pays, the signer never learns
+receipt: {"status":"reverted","gasUsed":"30332n","logs":0,"block":"1n"}
+relayer paid for a refusal (wei): "39579941648868n"
+signer balance delta / nonce delta: ["0n","0n"]
+receipt carries a revert reason?: []
+
+== 5. two relayers race the same signature: both simulate OK, one lands, the other's tx is a mined revert
+relayer A sim: true
+relayer B sim: true
+A receipt: {"status":"success","events":1}
+B receipt: {"status":"reverted","events":0}
+B's tx replayed as a call now says (the signer's intent already succeeded): {"ok":false,"refusal":{"kind":"own-uncoded","name":"InvalidNonce","args":["1n","0n"]},"raw":"0x06427aeb00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000","message":"execution reverted: custom error 0x06427aeb: \u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0001\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000"}
+but acct3's vote on proposal 2 IS on chain: ["1","0","1"]
+so 'my tx hash succeeded' is the wrong test for confirmed; 'a VoteCast(proposal, voter=signer) log exists' is the right one: 
+
+== 6. chain time and deadline: Anvil lets us move time
+signature from step 5 (deadline +3600) after +7200s: {"ok":false,"refusal":{"kind":"own-uncoded","name":"SignatureExpired","args":["1795028491n"]},"raw":"0xcd21db4f000000000000000000000000000000000000000000000000000000006afdf60b","message":"execution reverted: custom error 0xcd21db4f: 000000000000000000000000000000000000000000000000000000006afdf60b"}

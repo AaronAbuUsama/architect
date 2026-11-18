@@ -1,0 +1,74 @@
+solana-test-validator --ticks-per-slot 16: RPC healthy 0.48s after launch
+--- src/q5-refusals.ts (ticks-per-slot 16)
+== ours: the four declared refusals ==
+proposal.vote by m1 (first vote)                           -> OK
+AlreadyVoted: m1 votes again via vote (b: init_if_needed + flag) -> {"kind":"refusal","refusal":"AlreadyVoted","code":"PR-001","number":6001}
+   raw err={"InstructionError":[0,{"Custom":6001}]}  returnData=null
+   key logs: Program log: AnchorError occurred. Error Code: AlreadyVoted. Error Number: 6001. Error Message: PR-001 AlreadyVoted. | Program BYXxwh4GCU78XMJYNVmNbj7RiRqWuUoyrAgKL2wz9F8s failed: custom program error: 0x1771
+ProposalExists: open 1 again                               -> {"kind":"refusal","refusal":"ProposalExists","code":"PR-002","number":6002}
+   raw err={"InstructionError":[0,{"Custom":6002}]}  returnData=null
+   key logs: Program log: AnchorError occurred. Error Code: ProposalExists. Error Number: 6002. Error Message: PR-002 ProposalExists. | Program BYXxwh4GCU78XMJYNVmNbj7RiRqWuUoyrAgKL2wz9F8s failed: custom program error: 0x1772
+ProposalNotOpen{absent}: vote on proposal 7                -> {"kind":"refusal","refusal":"ProposalNotOpen","code":"PR-900","number":6900,"state":"absent"}
+   raw err={"InstructionError":[0,{"Custom":6900}]}  returnData=["AA==","base64"]
+   key logs: Program log: refusal PR-900 ProposalNotOpen state=0 | Program log: AnchorError occurred. Error Code: ProposalNotOpen. Error Number: 6900. Error Message: PR-900 ProposalNotOpen. | Program BYXxwh4GCU78XMJYNVmNbj7RiRqWuUoyrAgKL2wz9F8s failed: custom program error: 0x1af4
+ProposalNotOpen{absent}: close proposal 7                  -> {"kind":"refusal","refusal":"ProposalNotOpen","code":"PR-900","number":6900,"state":"absent"}
+   raw err={"InstructionError":[0,{"Custom":6900}]}  returnData=["AA==","base64"]
+   key logs: Program log: refusal PR-900 ProposalNotOpen state=0 | Program log: AnchorError occurred. Error Code: ProposalNotOpen. Error Number: 6900. Error Message: PR-900 ProposalNotOpen. | Program BYXxwh4GCU78XMJYNVmNbj7RiRqWuUoyrAgKL2wz9F8s failed: custom program error: 0x1af4
+ProposalNotOpen{passed}: vote after close                  -> {"kind":"refusal","refusal":"ProposalNotOpen","code":"PR-900","number":6900,"state":"passed"}
+   raw err={"InstructionError":[0,{"Custom":6900}]}  returnData=["Ag==","base64"]
+   key logs: Program log: refusal PR-900 ProposalNotOpen state=2 | Program log: AnchorError occurred. Error Code: ProposalNotOpen. Error Number: 6900. Error Message: PR-900 ProposalNotOpen. | Program BYXxwh4GCU78XMJYNVmNbj7RiRqWuUoyrAgKL2wz9F8s failed: custom program error: 0x1af4
+ProposalNotOpen{passed}: close twice                       -> {"kind":"refusal","refusal":"ProposalNotOpen","code":"PR-900","number":6900,"state":"passed"}
+   raw err={"InstructionError":[0,{"Custom":6900}]}  returnData=["Ag==","base64"]
+   key logs: Program log: refusal PR-900 ProposalNotOpen state=2 | Program log: AnchorError occurred. Error Code: ProposalNotOpen. Error Number: 6900. Error Message: PR-900 ProposalNotOpen. | Program BYXxwh4GCU78XMJYNVmNbj7RiRqWuUoyrAgKL2wz9F8s failed: custom program error: 0x1af4
+NotAllowed: non-admin opens                                -> {"kind":"refusal","refusal":"NotAllowed","code":"AR-001","number":7001}
+   raw err={"InstructionError":[0,{"Custom":7001}]}  returnData=null
+   key logs: Program log: AnchorError occurred. Error Code: NotAllowed. Error Number: 7001. Error Message: AR-001 NotAllowed. | Program BYXxwh4GCU78XMJYNVmNbj7RiRqWuUoyrAgKL2wz9F8s failed: custom program error: 0x1b59
+NotAllowed: non-member votes                               -> {"kind":"refusal","refusal":"NotAllowed","code":"AR-001","number":7001}
+   raw err={"InstructionError":[0,{"Custom":7001}]}  returnData=null
+   key logs: Program log: AnchorError occurred. Error Code: NotAllowed. Error Number: 7001. Error Message: AR-001 NotAllowed. | Program BYXxwh4GCU78XMJYNVmNbj7RiRqWuUoyrAgKL2wz9F8s failed: custom program error: 0x1b59
+NotAllowed: non-admin adds member                          -> {"kind":"refusal","refusal":"NotAllowed","code":"AR-001","number":7001}
+   raw err={"InstructionError":[0,{"Custom":7001}]}  returnData=null
+   key logs: Program log: AnchorError occurred. Error Code: NotAllowed. Error Number: 7001. Error Message: AR-001 NotAllowed. | Program BYXxwh4GCU78XMJYNVmNbj7RiRqWuUoyrAgKL2wz9F8s failed: custom program error: 0x1b59
+
+== (a) vs (b): the one-vote record ==
+(a) vote_init m3 first vote                                -> OK
+(a) vote_init m3 SECOND vote: init of an existing PDA      -> {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   raw err={"InstructionError":[0,{"Custom":0}]}  returnData=null
+   key logs: Allocate: account Address { address: 54n7SktGPPNQcZwZekc1L7eknTjBcnUuE8jqpVuWSRdg, base: None } already in use | Program 11111111111111111111111111111111 failed: custom program error: 0x0 | Program BYXxwh4GCU78XMJYNVmNbj7RiRqWuUoyrAgKL2wz9F8s failed: custom program error: 0x0
+   (a) client gets: {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}  <- a System Program error, number 0 (not ours, not stable, no code PR-001)
+(b) vote m2 first vote on 3                                -> OK
+(b) vote m2 SECOND vote on 3                               -> {"kind":"refusal","refusal":"AlreadyVoted","code":"PR-001","number":6001}
+   raw err={"InstructionError":[0,{"Custom":6001}]}  returnData=null
+   key logs: Program log: AnchorError occurred. Error Code: AlreadyVoted. Error Number: 6001. Error Message: PR-001 AlreadyVoted. | Program BYXxwh4GCU78XMJYNVmNbj7RiRqWuUoyrAgKL2wz9F8s failed: custom program error: 0x1771
+   (b) client gets: {"kind":"refusal","refusal":"AlreadyVoted","code":"PR-001","number":6001}
+
+== refusals with NO code of ours ==
+client passes another wallet's Member PDA (seeds constraint) -> {"kind":"anchor-framework","name":"ConstraintSeeds","number":2006,"account":"member"}
+   raw err={"InstructionError":[0,{"Custom":2006}]}  returnData=null
+   key logs: Program log: AnchorError caused by account: member. Error Code: ConstraintSeeds. Error Number: 2006. Error Message: A seeds constraint was violated. | Program BYXxwh4GCU78XMJYNVmNbj7RiRqWuUoyrAgKL2wz9F8s failed: custom program error: 0x7d6
+voter not marked signer (Anchor AccountNotSigner)          -> {"kind":"anchor-framework","name":"AccountNotSigner","number":3010,"account":"voter"}
+   raw err={"InstructionError":[0,{"Custom":3010}]}  returnData=null
+   key logs: Program log: AnchorError caused by account: voter. Error Code: AccountNotSigner. Error Number: 3010. Error Message: The given account did not sign. | Program BYXxwh4GCU78XMJYNVmNbj7RiRqWuUoyrAgKL2wz9F8s failed: custom program error: 0xbc2
+workshop account that was never initialized (AccountNotInitialized) -> {"kind":"anchor-framework","name":"AccountNotInitialized","number":3012,"account":"workshop"}
+   raw err={"InstructionError":[0,{"Custom":3012}]}  returnData=null
+   key logs: Program log: AnchorError caused by account: workshop. Error Code: AccountNotInitialized. Error Number: 3012. Error Message: The program expected this account to be already initialized. | Program BYXxwh4GCU78XMJYNVmNbj7RiRqWuUoyrAgKL2wz9F8s failed: custom program error: 0xbc4
+client forgets accounts (AccountNotEnoughKeys)             -> {"kind":"anchor-framework","name":"AccountNotEnoughKeys","number":3005,"account":"proposal"}
+   raw err={"InstructionError":[0,{"Custom":3005}]}  returnData=null
+   key logs: Program log: AnchorError caused by account: proposal. Error Code: AccountNotEnoughKeys. Error Number: 3005. Error Message: Not enough account keys given to the instruction. | Program BYXxwh4GCU78XMJYNVmNbj7RiRqWuUoyrAgKL2wz9F8s failed: custom program error: 0xbbd
+relayer cannot afford rent for the new account             -> {"kind":"other-program","program":"11111111111111111111111111111111","custom":1,"summary":"ResultWithNegativeLamports"}
+   raw err={"InstructionError":[0,{"Custom":1}]}  returnData=null
+   key logs: Transfer: insufficient lamports 1490000, need 1517280 | Program 11111111111111111111111111111111 failed: custom program error: 0x1 | Program BYXxwh4GCU78XMJYNVmNbj7RiRqWuUoyrAgKL2wz9F8s failed: custom program error: 0x1
+compute budget 1500 CU for vote (exhaustion)               -> {"kind":"runtime","summary":"{\"InstructionError\":[1,\"ProgramFailedToComplete\"]}"}
+   raw err={"InstructionError":[1,"ProgramFailedToComplete"]}  returnData=null
+   key logs: Program BYXxwh4GCU78XMJYNVmNbj7RiRqWuUoyrAgKL2wz9F8s failed: exceeded CUs meter at BPF instruction
+fee payer has no account at all                            -> {"kind":"runtime","summary":"\"AccountNotFound\""}
+   raw err="AccountNotFound"
+
+== numbers: every error the IDL declares vs what the chain can send ==
+IDL errors: [{"code":6001,"name":"AlreadyVoted","msg":"PR-001 AlreadyVoted"},{"code":6002,"name":"ProposalExists","msg":"PR-002 ProposalExists"},{"code":6900,"name":"ProposalNotOpen","msg":"PR-900 ProposalNotOpen"},{"code":7001,"name":"NotAllowed","msg":"AR-001 NotAllowed"}]
+
+== preflight: simulating catches a refusal before anything is sent ==
+simulated and refused: {"kind":"refusal","refusal":"AlreadyVoted","code":"PR-001","number":6001}; relayer balance change 0 lamports (nothing sent, nothing paid)
+sent anyway: landed in slot 53 with err={"InstructionError":[0,{"Custom":6001}]} decoded={"kind":"refusal","refusal":"AlreadyVoted","code":"PR-001","number":6001}; fee paid 10000 lamports; state unchanged
+landed FAILED tx: decoded={"kind":"refusal","refusal":"ProposalNotOpen","code":"PR-900","number":6900,"state":"absent"}; simulate returnData=["AA==","base64"]; on-chain meta.returnData={"data":["AA==","base64"],"programId":"BYXxwh4GCU78XMJYNVmNbj7RiRqWuUoyrAgKL2wz9F8s"}
+=> the {state} payload of ProposalNotOpen is available from simulation return data and from the log line; a landed FAILED tx keeps meta.returnData too (verified above), so the payload survives into the receipt; logs can be truncated, return data cannot.

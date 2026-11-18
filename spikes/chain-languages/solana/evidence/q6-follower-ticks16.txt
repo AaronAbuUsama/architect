@@ -1,0 +1,36 @@
+== Q6 (ticks-per-slot 16) ==
+== digest link: sha256(frozen revision body) -> ProposalOpened.digest, seen at confirmed ==
+open proposal 2 with digest = sha256(body)                 -> OK
+events parsed from `Program data:` logs: [{"name":"proposalOpened","data":{"workshop":"2k9XMYjVwVbTFJo8VeE18Dr22kUqsmziNDkjKbNc486G","proposal":"02","digest":[156,210,249,71,254,168,237,82,10,32,141,133,124,149,180,42,138,246,231,100,21,176,158,58,191,178,233,105,108,6,155,243]}}]
+digest in event == sha256(body) (9cd2f947fea8ed52...): true
+raw log line: Program data: dm/y9TVzX9EZ6UyRtiSnsvwYVQPAXJ29MOG9sJ5iilwoC0mcB5J8dQIAAAAAAAAAnNL5R/6o7VIKII2FfJW0Kor252QVsJ46v7LpaWwGm/M=  (80 bytes: 8 discriminator + 32 workshop + 8 id + 32 digest)
+
+== commitment timing: send -> first seen at processed / confirmed / finalized ==
+vote #0: poll processed 86ms confirmed 99ms finalized 4169ms | logsSubscribe callback at processed 81ms confirmed 94ms finalized 4165ms
+vote #1: poll processed 216ms confirmed 247ms finalized 4294ms | logsSubscribe callback at processed 214ms confirmed 243ms finalized 4292ms
+vote #2: poll processed 88ms confirmed 112ms finalized 4206ms | logsSubscribe callback at processed 85ms confirmed 113ms finalized 4202ms
+accountSubscribe(Proposal PDA, confirmed) saw:
+   slot 54: yes=0 no=0 state=1
+   slot 55: yes=1 no=0 state=1
+   slot 90: yes=2 no=0 state=1
+   slot 124: yes=3 no=0 state=1
+   (the account change carries the new tally, but not WHO voted nor an event name; two votes in one slot can coalesce into one change)
+
+== events from getSignaturesForAddress + getTransaction (backfill after downtime) ==
+10 signatures for the program; 5 events replayed: proposalOpened,proposalOpened,voteCast,voteCast,voteCast
+
+== emit_cpi!: MemberAdded is in inner instruction data, not logs ==
+EventParser on logs finds: []   (nothing: emit_cpi writes no `Program data:` line)
+decoded from innerInstructions: [{"name":"memberAdded","data":{"workshop":"2k9XMYjVwVbTFJo8VeE18Dr22kUqsmziNDkjKbNc486G","member":"CQkNyq3aFciWuR6LjaSNZEMqbGDg5CFb7VwTnHhFk9sK"}}]
+
+== log truncation: emit! rides in the log, which the runtime caps at 10,000 bytes per transaction ==
+last 3 log lines of the 200 x 50B transaction: ["Program log: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx","Program log: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx","Log truncated"]; 'Program data:' lines in it: 0
+5 x 400B: tx status err=null log lines=10, bytes=2431, ProposalOpened parsed=1, 'Log truncated' present=false
+30 x 400B: tx status err=null log lines=29, bytes=9879, ProposalOpened parsed=1, 'Log truncated' present=true
+200 x 50B: tx status err=null log lines=160, bytes=9998, ProposalOpened parsed=0, 'Log truncated' present=true
+=> the runtime drops any log line that would cross 10,000 bytes (and says "Log truncated" once) but keeps later lines that still fit: the 400 B case kept the event by luck (121 bytes were left),
+   the 50 B case lost it. The transaction SUCCEEDED either way; a log-only follower silently misses the event. emit_cpi! (inner instruction data) and account state are immune.
+
+== rollback ==
+NOT forced: solana-test-validator is a single node producing one linear chain, so no fork or dropped block can be provoked locally.
+Real-chain semantics: processed = in a block the node just saw (may sit on a fork that is dropped); confirmed = supermajority voted (~2/3 stake; practically never reverted, not formally final); finalized = 31+ confirmed blocks on top (rooted: irreversible). A tx that was only `processed` can vanish with no error: the blockhash then expires (150 blocks) and the signature is never found.

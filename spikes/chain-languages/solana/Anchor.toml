@@ -1,0 +1,14 @@
+# Throwaway spike config. Provider wallet is never used (we deploy and send with our own scripts).
+[toolchain]
+package_manager = "npm"
+
+[features]
+resolution = true
+skip-lint = false
+
+[programs.localnet]
+governance = "BYXxwh4GCU78XMJYNVmNbj7RiRqWuUoyrAgKL2wz9F8s"
+
+[provider]
+cluster = "http://127.0.0.1:18899"
+wallet = "target/deploy/governance-keypair.json"

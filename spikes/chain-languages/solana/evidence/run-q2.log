@@ -1,0 +1,42 @@
+solana-test-validator --ticks-per-slot 16: RPC healthy 0.57s after launch
+--- src/q2-spl.ts (ticks-per-slot 16)
+== Q2 (a): the third-party program as a source, read through a TS adapter ==
+mint:    {"supply":"1","authority":"EiQFvMwhzwbvV3nj4DxjsTvZtRL3yr6AxNT2zfpRHsgx"}
+ata(m1): {"owner":"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA","mint":"23kjCDBejBZzMKS7kJHCdd5zru9McAzYfdD935VjMNxz","holder":"9YynLi1L6B3Fr6FEJcyhbtbCd4wfcPQsJWbJqaYgCSAF","amount":"1"}
+mint authority is neither our admin nor our program: true
+onAccountChange(ata2) saw: slot 65: amount 1
+parsed tx instruction: ["mintTo \"1\""]
+logs: ["Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [1]","Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success"]
+=> no typed Event exists for SPL Token: the adapter reads account state or parses instructions/logs by program id.
+
+== Q2 (b): `vote` gated on holding one unit of that token (workshop.gate_mint = mint) ==
+initialize_workshop(gate_mint = mint)                      -> OK
+add_member 9YynLi                                          -> OK
+add_member GwJ7U3                                          -> OK
+open_proposal 1                                            -> OK
+open_proposal 2                                            -> OK
+IDL says vote.gate_token = {"name":"gate_token","optional":true}  (optional: the client must know to pass it; IDL cannot say WHEN)
+m1 votes yes, passing its token account (holds 1)          -> OK
+m2 votes, passing NO gate account                          -> {"kind":"refusal","refusal":"NotAllowed","code":"AR-001","number":7001}
+m2 votes with m1's token account (holder mismatch)         -> {"kind":"refusal","refusal":"NotAllowed","code":"AR-001","number":7001}
+m1 votes with a token account of ANOTHER mint              -> {"kind":"refusal","refusal":"NotAllowed","code":"AR-001","number":7001}
+m2 passes an account owned by OUR program as 'token'       -> {"kind":"refusal","refusal":"NotAllowed","code":"AR-001","number":7001}
+m2 votes with its own token account (holds 1 since the mint above) -> OK
+m2 votes after transferring its unit away (balance 0)      -> {"kind":"refusal","refusal":"NotAllowed","code":"AR-001","number":7001}
+
+== Q2: how SPL Token's OWN errors surface (custom program error without OUR IDL) ==
+our gate_transfer CPI: move 5 units from an ata holding 1  -> {"kind":"other-program","program":"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA","custom":1,"summary":"InsufficientFunds"}
+  raw err: {"InstructionError":[0,{"Custom":1}]}
+  logs:
+    Program BYXxwh4GCU78XMJYNVmNbj7RiRqWuUoyrAgKL2wz9F8s invoke [1]
+    Program log: Instruction: GateTransfer
+    Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [2]
+    Program log: Error: insufficient funds
+    Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA failed: custom program error: 0x1
+    Program BYXxwh4GCU78XMJYNVmNbj7RiRqWuUoyrAgKL2wz9F8s failed: custom program error: 0x1
+direct SPL transfer of 5 (no CPI)                          -> {"kind":"other-program","program":"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA","custom":1,"summary":"InsufficientFunds"}
+  raw err: {"InstructionError":[0,{"Custom":1}]}
+mintTo with the wrong authority (m1 instead of minter)     -> {"kind":"other-program","program":"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA","custom":4,"summary":"OwnerMismatch"}
+  raw err: {"InstructionError":[0,{"Custom":4}]}
+=> the number 1 in `Custom: 1` means InsufficientFunds only because the innermost failing program in the logs is Tokenkeg...; the outer program's own error line repeats the same number.
+   OUR decoder (decode in chain.ts) attributes by program id taken from logs; without logs the number is ambiguous.

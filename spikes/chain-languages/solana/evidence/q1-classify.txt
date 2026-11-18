@@ -1,0 +1,172 @@
+Anchor IDL spec 0.1.0, program governance 0.1.0 at BYXxwh4GCU78XMJYNVmNbj7RiRqWuUoyrAgKL2wz9F8s
+
+instruction               class                     signers                   writable (non-signer)     disc-recomputed
+add_member                operation member.add      admin+payer               member                    sha256(global:name)[..8] matches
+close_proposal            operation proposal.close  admin                     proposal                  sha256(global:name)[..8] matches
+gate_transfer             UNDECLARED state-changing owner                     from+to                   sha256(global:name)[..8] matches
+get_proposal              declared read proposal.ge                                                     sha256(global:name)[..8] matches
+initialize_workshop       lifecycle (generated)     admin                     workshop                  sha256(global:name)[..8] matches
+noisy                     helper outside the surfac who                                                 sha256(global:name)[..8] matches
+open_proposal             operation proposal.open   admin+payer               proposal                  sha256(global:name)[..8] matches
+preview_outcome           helper outside the surfac                                                     sha256(global:name)[..8] matches
+reset_tally               UNDECLARED state-changing admin                     proposal                  sha256(global:name)[..8] matches
+vote                      operation proposal.vote   voter+payer               proposal+vote_record      sha256(global:name)[..8] matches
+vote_init                 UNDECLARED state-changing voter+payer               proposal+vote_record      sha256(global:name)[..8] matches
+
+Full class column:
+  add_member           operation member.add
+  close_proposal       operation proposal.close
+  gate_transfer        UNDECLARED state-changing
+  get_proposal         declared read proposal.get
+  initialize_workshop  lifecycle (generated)
+  noisy                helper outside the surface (read-only)
+  open_proposal        operation proposal.open
+  preview_outcome      helper outside the surface (read-only)
+  reset_tally          UNDECLARED state-changing
+  vote                 operation proposal.vote
+  vote_init            UNDECLARED state-changing
+
+Spec entries missing from the IDL: none
+Instructions the spec does not know: gate_transfer, reset_tally, vote_init
+Rust pub fn tally_passed (helper): in the IDL? false (it cannot be called from outside; the IDL lists #[program] entries only)
+
+What the IDL carries per instruction (excerpt, vote):
+{
+ "name": "vote",
+ "docs": [
+  "proposal.vote { proposal, choice } allowed: [member] move: vote emits VoteCast. VoteRecord via init_if_needed."
+ ],
+ "discriminator": [
+  227,
+  110,
+  155,
+  23,
+  136,
+  126,
+  172,
+  25
+ ],
+ "accounts": [
+  {
+   "name": "workshop"
+  },
+  {
+   "name": "voter",
+   "signer": true
+  },
+  {
+   "name": "payer",
+   "writable": true,
+   "signer": true
+  },
+  {
+   "name": "member",
+   "pda": {
+    "seeds": [
+     {
+      "kind": "const",
+      "value": [
+       109,
+       101,
+       109,
+       98,
+       101,
+       114
+      ]
+     },
+     {
+      "kind": "account",
+      "path": "workshop"
+     },
+     {
+      "kind": "account",
+      "path": "voter"
+     }
+    ]
+   }
+  },
+  {
+   "name": "proposal",
+   "writable": true,
+   "pda": {
+    "seeds": [
+     {
+      "kind": "const",
+      "value": [
+       112,
+       114,
+       111,
+       112,
+       111,
+       115,
+       97,
+       108
+      ]
+     },
+     {
+      "kind": "account",
+      "path": "workshop"
+     },
+     {
+      "kind": "arg",
+      "path": "id"
+     }
+    ]
+   }
+  },
+  {
+   "name": "vote_record",
+   "writable": true,
+   "pda": {
+    "seeds": [
+     {
+      "kind": "const",
+      "value": [
+       118,
+       111,
+       116,
+       101
+      ]
+     },
+     {
+      "kind": "account",
+      "path": "proposal"
+     },
+     {
+      "kind": "account",
+      "path": "voter"
+     }
+    ]
+   }
+  },
+  {
+   "name": "gate_token",
+   "optional": true
+  },
+  {
+   "name": "system_program",
+   "address": "11111111111111111111111111111111"
+  }
+ ],
+ "args": [
+  {
+   "name": "id",
+   "type": "u64"
+  },
+  {
+   "name": "choice",
+   "type": {
+    "defined": {
+     "name": "Choice"
+    }
+   }
+  }
+ ]
+}
+
+IDL errors:
+[{"code":6001,"name":"AlreadyVoted","msg":"PR-001 AlreadyVoted"},{"code":6002,"name":"ProposalExists","msg":"PR-002 ProposalExists"},{"code":6900,"name":"ProposalNotOpen","msg":"PR-900 ProposalNotOpen"},{"code":7001,"name":"NotAllowed","msg":"AR-001 NotAllowed"}]
+
+IDL events: [{"name":"MemberAdded","discriminator":[198,220,228,196,92,235,240,79]},{"name":"ProposalClosed","discriminator":[57,90,47,164,105,55,97,27]},{"name":"ProposalOpened","discriminator":[118,111,242,245,53,115,95,209]},{"name":"VoteCast","discriminator":[39,53,195,104,188,17,225,213]}]
+
+IDL top-level keys: address, metadata, instructions, accounts, events, errors, types
