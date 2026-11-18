@@ -165,7 +165,7 @@ const checkWords = (file) => {
   read(file).split("\n").forEach((line, i) => {
     if (/^\s*```/.test(line)) fence = !fence;
     // A prose-only rule skips code, fences, and a line that names today's spelling on purpose ("today `forman …`").
-    const prose = !code && !fence && !/today `/.test(line);
+    const prose = !code && !fence && !/today `/i.test(line);
     for (const [why, re, only] of RETIRED) if ((only !== "prose" || prose) && re.test(line)) fail(file, i + 1, `${why}: ${line.trim().slice(0, 80)}`);
   });
 };
