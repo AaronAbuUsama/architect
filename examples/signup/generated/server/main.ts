@@ -28,7 +28,7 @@ const sheetGetServed = Reads.serve({ name: "sheet.get", read: sheetGet.declarati
 const sheetJoinServed = Handlers.serve({ name: "sheet.join", operation: sheetJoin.declaration, handler: sheetJoinHandler, notFrom: "SheetNotOpen" });
 const sheetOpenServed = Handlers.serve({ name: "sheet.open", operation: sheetOpen.declaration, handler: sheetOpenHandler });
 
-/** Each thing and its table: a D1 table, or the name its actors go by. */
+/** Each thing and its table: a D1 table, or the name its entities go by. */
 const tables = [[thingIn(sheetThing), "sheet"]] as const;
 
 const refusals = Wire.refusals(Errors.wire);

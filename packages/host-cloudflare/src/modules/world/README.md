@@ -13,7 +13,7 @@ makes one (409 `WorldLive` while another lives), `GET` lists the live ones, `DEL
 destroys every one past its lifetime and answers `{reaped}`, counting each expiry once. A world is its own `World`
 instance, named by its id, holding the cast and an alarm at its expiry. Its data is whatever is above the high-water
 mark of every table (`rowid`), taken when it was made, kept in the `_worlds` table in D1; destroying it deletes those
-rows and the instance's storage. Limits: actors a world created are not deleted yet, and no R2 binding exists to clear.
+rows and the instance's storage. Limits: entities a world created are not deleted yet, and no R2 binding exists to clear.
 
 
 Admission and ending are guarded in D1 itself (D3 #170–172). The guarded insert takes every table's marks in the

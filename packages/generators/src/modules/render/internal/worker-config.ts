@@ -6,7 +6,7 @@ import { GENERATED, lines } from "./names.ts";
 /** The compatibility date every Worker and test uses: the test pool's workerd accepts dates up to 2026-08-22. */
 export const COMPATIBILITY_DATE = "2026-08-01";
 
-export const renderWrangler = (name: string, actors: boolean): RenderedFile => ({
+export const renderWrangler = (name: string, entities: boolean): RenderedFile => ({
   path: "generated/server/wrangler.jsonc",
   scaffold: false,
   content: lines(
@@ -20,11 +20,11 @@ export const renderWrangler = (name: string, actors: boolean): RenderedFile => (
     `  "d1_databases": [`,
     `    { "binding": "DB", "database_name": "${name}", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "migrations" }`,
     "  ],",
-    actors
-      ? `  "durable_objects": { "bindings": [{ "name": "WORLD", "class_name": "World" }, { "name": "ACTORS", "class_name": "Actor" }] },`
+    entities
+      ? `  "durable_objects": { "bindings": [{ "name": "WORLD", "class_name": "World" }, { "name": "ENTITIES", "class_name": "Entity" }] },`
       : `  "durable_objects": { "bindings": [{ "name": "WORLD", "class_name": "World" }] },`,
-    actors
-      ? `  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["World", "Actor"] }],`
+    entities
+      ? `  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["World", "Entity"] }],`
       : `  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["World"] }],`,
     "  // Where telemetry goes. `ortho prove` and `ortho dev --otlp` set it; unset, nothing is exported.",
     `  "vars": { "OTLP_URL": "" }`,
@@ -50,7 +50,7 @@ CREATE TABLE "_requests" (
 
 /**
  * One table per thing that lives in the database: a text column per field (each field's wire form), `state` when it
- * has a machine, and the `version` every update is guarded by (D2 #36). Actors keep their own rows.
+ * has a machine, and the `version` every update is guarded by (D2 #36). Entitys keep their own rows.
  */
 export const renderMigration = (model: Model): RenderedFile => ({
   path: "generated/server/migrations/0001_things.sql",

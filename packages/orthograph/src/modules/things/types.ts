@@ -29,7 +29,7 @@ export interface Thing<F extends FieldsInput = FieldsInput> {
   readonly code: string | undefined;
 }
 
-export type Lives = "database" | "actor";
+export type Lives = "database" | "entity";
 
 export interface ThingsApi {
   readonly thing: <const F extends FieldsInput & { readonly id: FieldInput }>(spec: {

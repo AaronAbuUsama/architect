@@ -145,7 +145,7 @@ records `ref: "organization.id"`.
 
 A thing has two more parts. `lives` says which store it lives in. Leave it out, as the sheet does, and it lives in
 the project's default store: the model above says `"lives": "database"`. What a store is, and the other places data
-lives, is [data](data.mdx). Today the code takes a closed list, `"database"` or `"actor"`
+lives, is [data](data.mdx). Today the code takes a closed list, `"database"` or `"entity"`
 (`packages/orthograph/src/modules/things/types.ts:32`); K3 makes store kinds open, built in M1.17. And `code` is the prefix
 of the thing's refusal codes, `SH` in `SH-001`. When it is unset the compiler takes two letters of the name.
 
@@ -283,7 +283,7 @@ is [data](data.mdx), and in depth [stores](stores.mdx).
 ## What it is not
 
 - **Not a table.** A thing is what the system keeps, not how. A store holds its tables, and a thing that lives as an
-  actor has none. See [stores](stores.mdx).
+  entity has none. See [stores](stores.mdx).
 - **Not its state.** A sheet's state, `open` or `full`, is not a field you write. Its machine owns it and moves it.
   See [machines](machines.mdx).
 - **Not a secret in the `secrets` sense.** A secret field is the user's data, such as a password a person types. A
@@ -374,7 +374,7 @@ secret field at rest. Everything else on it is proved or specified.
 </Note>
 
 <Note kind="question" id="lives-closed-list" slice="M1.17">
-  Ledger `X-17` and `STO-26`. A thing's store is still a closed list in code: `"database"` or `"actor"`
+  Ledger `X-17` and `STO-26`. A thing's store is still a closed list in code: `"database"` or `"entity"`
   (`packages/orthograph/src/modules/things/types.ts:32`, and again in `packages/compiler/src/modules/model/types.ts:41`).
   K3 says a thing lives in a store of an open kind, and K5 makes a chain a host whose store kind is `chain`. What a
   thing declares to live on a chain waits on K7. The change is in [stores](stores.mdx).

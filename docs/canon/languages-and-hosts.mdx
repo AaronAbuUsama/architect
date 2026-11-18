@@ -77,7 +77,7 @@ The compiled model records the operation's place, `runs: "server"`, the only one
 /** The host's side. A failing store dies: it is never the caller's refusal. */
 export class Store extends Context.Service<Store, {
   readonly find: (thing: Thing, id: string) => Effect.Effect<Stored | undefined>;
-  /** One page of a thing's instances, in the order they were made (never a clock). A thing that lives as actors has none to list. */
+  /** One page of a thing's instances, in the order they were made (never a clock). A thing that lives as entities has none to list. */
   readonly list: (query: ListQuery) => Effect.Effect<Listed>;
   /** `conflict` too when another call committed the same request key first: the retry then finds its answer. */
   readonly commit: (commit: Commit) => Effect.Effect<Committed>;
@@ -173,7 +173,7 @@ boundaries": "a host's types in a handler" never crosses from host to language).
 - **Not an environment.** An environment says which place this revision runs in, and binds stores and secrets there
   ([environments](environments.mdx)). An environment's own `runs:` is a sentence describing that place, not an
   operation's `runs` (see the note `two-runs`).
-- **Not a store kind.** A host or a language supplies store kinds, such as `database` and `actor` from
+- **Not a store kind.** A host or a language supplies store kinds, such as `database` and `entity` from
   `host-cloudflare` ([data](data.mdx), [stores](stores.mdx)).
 - **Not a door.** Where an operation is enforced is the language's; how a caller reaches it is the door's
   ([doors](doors.mdx)).

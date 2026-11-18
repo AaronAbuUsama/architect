@@ -61,7 +61,7 @@ export interface Listed {
 /** The host's side. A failing store dies: it is never the caller's refusal. */
 export class Store extends Context.Service<Store, {
   readonly find: (thing: Thing, id: string) => Effect.Effect<Stored | undefined>;
-  /** One page of a thing's instances, in the order they were made (never a clock). A thing that lives as actors has none to list. */
+  /** One page of a thing's instances, in the order they were made (never a clock). A thing that lives as entities has none to list. */
   readonly list: (query: ListQuery) => Effect.Effect<Listed>;
   /** `conflict` too when another call committed the same request key first: the retry then finds its answer. */
   readonly commit: (commit: Commit) => Effect.Effect<Committed>;

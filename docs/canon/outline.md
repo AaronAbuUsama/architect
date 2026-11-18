@@ -49,7 +49,7 @@ says that a chain part waits on K7. It doesn't guess.
 | 2 | `blueprint` | What you write, and the model it compiles to | blueprint, declaration, model, name from path, `ortho check` | What goes in `blueprint/`, and where does each declaration live? How does a name come from its path, and why is it never written as a string? What is the model, and what does `ortho check` tell me? | orthograph, things, operations, journeys, plugins, handlers | built · blanks and journeys in the model M1.03 |
 | 3 | `languages-and-hosts` | What behaviour is written in, and where it runs | language, host, `runs` | What is a language, and what does it own? What is a host, and what does it supply? Why does a language never choose where it runs? Where does a chain fit? | orthograph, doors, data, handlers | Effect and Cloudflare built · chain languages wait on K7 |
 | 4 | `plugins` | Built once, mounted anywhere: the three kinds and the one-file mount | plugin, feature, adapter, projection (as kinds), mount, choose, include, narrow, omit, choice, setting, need | What are the three kinds, and how do I pick? What can a mount say, and why only that? A choice or a setting? | orthograph, features, adapters, projections | M1.06 to M1.13 |
-| 5 | `data` | Where every kind of data lives, and who may write it | `lives`, a projection's own state | Where does my data live? What is a store, a source and a view, and how do I tell them apart? Who may write each? Where does the portal keep its own state? | things, stores, views, adapters, portal | database, actor built · views M5 · chain waits on K7 |
+| 5 | `data` | Where every kind of data lives, and who may write it | `lives`, a projection's own state | Where does my data live? What is a store, a source and a view, and how do I tell them apart? Who may write each? Where does the portal keep its own state? | things, stores, views, adapters, portal | database, entity built · views M5 · chain waits on K7 |
 | 6 | `doors` | One enforcer per operation, and every door that reaches it | door, enforcer, served operation, SDK contract, request key, action | What enforces an operation, and where? What does each door make, and from what? How does the SDK carry the caller, retries and refusals? What is an action, and why does it hold no authority? | operations, handlers, roles, projections, portal | HTTP, SDK, CLI, MCP built · SDK contract M1.12 · actions M1.22, M1.23 |
 
 ## Layer 2: the core
@@ -75,8 +75,8 @@ says that a chain part waits on K7. It doesn't guess.
 
 | # | Page | Job | Owns | Questions a reader brings | Links | Milestone |
 |---|---|---|---|---|---|---|
-| 16 | **`stores`** | Where a thing's state is written, and the commit that makes a place a store | store, store kind, default store, commit, migration | Can I have more than one database? Why can't KV or R2 hold a thing? What does a commit promise? What about a database I don't own? | data, things, views, adapters, workflows, environments | database, actor built · stores M1.17 · chain waits on K7 |
-| 17 | `views` | Lists across stores and sources, kept from events | view, data map | How do I list things that live as actors, or across stores? How fresh is a view? Where do I see all my data? | data, stores, machines, adapters | M5 |
+| 16 | **`stores`** | Where a thing's state is written, and the commit that makes a place a store | store, store kind, default store, commit, migration | Can I have more than one database? Why can't KV or R2 hold a thing? What does a commit promise? What about a database I don't own? | data, things, views, adapters, workflows, environments | database, entity built · stores M1.17 · chain waits on K7 |
+| 17 | `views` | Lists across stores and sources, kept from events | view, data map | How do I list things that live as entities, or across stores? How fresh is a view? Where do I see all my data? | data, stores, machines, adapters | M5 |
 
 ## Layer 5: plugins in depth
 
@@ -115,7 +115,7 @@ says that a chain part waits on K7. It doesn't guess.
 ## What was merged, and why
 
 - **Principals and ways in** are part of `roles`: a reader never asks "who is calling" without asking "may they".
-- **Actors** are a store kind (K3), so they are on `stores`, not a "long work" page. What was left of long work is
+- **Entities** are a store kind (K3), so they are on `stores`, not a "long work" page. What was left of long work is
   `workflows`; agent runs belong to `agents`.
 - **Mounting** is part of `plugins`. A mount is how a plugin is used; it has no meaning without one.
 - **Sources** are part of `adapters`: a source is an adapter whose calls happen to read data (K3 item 8). `data` and

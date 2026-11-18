@@ -72,3 +72,5 @@ belongs to, and why it waits.
   telemetry adapters, and before public cloud use, remove their remaining literal throw/try and ambient-env policy
   violations and close the corresponding workspace lint coverage gap. Local Gate2 records this limitation; it
   does not grant new runtime exceptions or claim every standing-rule syntax restriction was certified.
+- **Entities on `@effect/cluster` (K8).** Today an entity is a Durable Object behind a service shaped like an Effect
+  Cluster `Entity`. Running entities on `@effect/cluster` itself, off Cloudflare, is a host of its own, after M7.

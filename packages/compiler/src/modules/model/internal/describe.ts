@@ -136,7 +136,7 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
     const allowed = read.allowed.map((a) => allowedModel(a, file));
     const list = read.by === "list";
     const t = layout.things.get(thing);
-    if (list && t?.thing?.lives === "actor") problems.push(`${file}: a list read needs a thing that lives in the database, and ${thing} lives as actors`);
+    if (list && t?.thing?.lives === "entity") problems.push(`${file}: a list read needs a thing that lives in the database, and ${thing} lives as entities`);
     if (list && read.where.includes("state") && !t?.machine) problems.push(`${file}: where "state" needs ${thing} to have a machine`);
     if (list && (!Number.isInteger(read.page) || (read.page ?? 0) < 1 || (read.page ?? 0) > 1000)) problems.push(`${file}: page must be a whole number from 1 to 1000`);
     const payload = Object.fromEntries(Object.entries(fieldsModel(read.payload, `${file} payload`)).map(([k, f]) => [k, read.optional.includes(k) ? { ...f, optional: true as const } : f]));

@@ -51,7 +51,7 @@ const insertAllowance = (id: string) => env.DB.prepare(`INSERT INTO "allowance" 
 const hasAllowance = (id: string) => env.DB.prepare(`SELECT "id" FROM "allowance" WHERE "id" = ?`).bind(id).first();
 
 // These exercise multiple real D1 transactions and Durable Object requests. Match the bounded 60-second
-// integration budget used by the actor race; CI startup/load must not cut off a still-running cleanup at 5 seconds.
+// integration budget used by the entity race; CI startup/load must not cut off a still-running cleanup at 5 seconds.
 describe("world leases, in real workerd and D1", () => {
   it("admits exactly one concurrent creation and removes only that world's rows", { timeout: 60_000 }, async () => {
     const ids = Array.from({ length: 8 }, (_, i) => `race-${i}`);

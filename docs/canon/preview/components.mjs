@@ -132,7 +132,7 @@ export const components = ({ repo, gh, idOf, read, pageNames }) => {
     "## `<Note>`", "",
     '<Note kind="question" id="kind-capabilities" slice="M1.17">How does a store kind declare what it can serve?</Note>', "",
     '<Note kind="decision" decision="K3">Option C: a thing lives in a store of an open kind; a system we don\'t own is a source, reached through an adapter.</Note>', "",
-    '<Note kind="status" slice="M1.17">Today `lives` takes `"database"` or `"actor"`.</Note>', "",
+    '<Note kind="status" slice="M1.17">Today `lives` takes `"database"` or `"entity"`.</Note>', "",
     "## `<Scenario>`, one step and a whole journey", "",
     '<Scenario journey="examples/signup/journeys/fill-a-sheet.ts" step="two people are refused: only one place is left" />', "",
     '<Scenario journey="examples/signup/journeys/a-closed-sheet-takes-no-one.ts" />', "",

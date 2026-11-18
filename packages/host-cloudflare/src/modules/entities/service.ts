@@ -1,16 +1,16 @@
 import { DurableObject } from "cloudflare:workers";
 import type { Committed } from "@orthograph/language-effect";
-import type { ActorApi, ActorEntry, ActorRow, ActorWrite } from "./types.ts";
+import type { EntityApi, EntityEntry, EntityRow, EntityWrite } from "./types.ts";
 import { SCHEMA } from "./internal/tables.ts";
 
 interface Stored { readonly row: string; readonly state: string | null; readonly version: number }
 
 /**
- * One instance of a thing that lives as an actor. Export it from the Worker's entry and bind it as `ACTORS`; the
+ * One instance of a thing that lives as an entity. Export it from the Worker's entry and bind it as `ENTITIES`; the
  * store names each one `<table>:<id>`. Its commit is synchronous inside `transactionSync`, so no other request can
  * run between the version check and the write, and a failed write rolls the whole commit back.
  */
-export class Actor extends DurableObject implements ActorApi {
+export class Entity extends DurableObject implements EntityApi {
   constructor(ctx: DurableObjectState, env: unknown) {
     super(ctx, env as never);
     for (const statement of SCHEMA) ctx.storage.sql.exec(statement);
@@ -20,12 +20,12 @@ export class Actor extends DurableObject implements ActorApi {
     return this.ctx.storage.sql.exec<Stored & Record<string, SqlStorageValue>>("SELECT row, state, version FROM instance").toArray()[0];
   }
 
-  find(): ActorRow | null {
+  find(): EntityRow | null {
     const s = this.stored();
     return s ? { row: JSON.parse(s.row) as Record<string, unknown>, state: s.state, version: s.version } : null;
   }
 
-  commit(writes: ReadonlyArray<ActorWrite>, entries: ReadonlyArray<ActorEntry>): Committed {
+  commit(writes: ReadonlyArray<EntityWrite>, entries: ReadonlyArray<EntityEntry>): Committed {
     const sql = this.ctx.storage.sql;
     return this.ctx.storage.transactionSync((): Committed => {
       const now = this.stored();

@@ -54,7 +54,7 @@ const sessionShowServed = Handlers.serve({ name: "session.show", operation: sess
 const sessionSignInServed = Handlers.serve({ name: "session.sign-in", operation: sessionSignIn.declaration, handler: sessionSignInHandler });
 const systemHealthServed = Handlers.serve({ name: "system.health", operation: systemHealth.declaration, handler: systemHealthHandler });
 
-/** Each thing and its table: a D1 table, or the name its actors go by. */
+/** Each thing and its table: a D1 table, or the name its entities go by. */
 const tables = [[thingIn(apiKeyThing), "api-key"], [thingIn(invitationThing), "invitation"], [thingIn(membershipThing), "membership"], [thingIn(organizationThing), "organization"], [thingIn(personThing), "person"], [thingIn(sessionThing), "session"], [thingIn(systemThing), "system"]] as const;
 
 const refusals = Wire.refusals(Errors.wire);

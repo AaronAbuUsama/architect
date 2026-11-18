@@ -54,7 +54,7 @@ const Thing = Schema.Struct({
   name: Schema.String,
   description: Schema.String,
   fields: Fields,
-  lives: Schema.Literals(["database", "actor"]),
+  lives: Schema.Literals(["database", "entity"]),
   machine: Schema.NullOr(Schema.Struct({
     states: Schema.Array(Schema.String),
     moves: Schema.Record(Schema.String, Schema.Struct({ from: Schema.Array(Schema.String), to: Schema.Array(Schema.String), emits: Schema.String })),

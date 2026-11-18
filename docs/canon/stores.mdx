@@ -12,7 +12,7 @@ questions:
 status: draft
 milestone: M1
 slices: [M1.17, M5.13, M5.06]
-decisions: [K3, D1, D2, K5]
+decisions: [K3, D1, D2, K5, K8]
 links: [data, things, operations, views, adapters, workflows, environments, features]
 ---
 
@@ -22,7 +22,7 @@ A store is a place where things live. One rule decides what counts: **a place is
 and every write to it goes through Orthograph's commit.** The commit takes everything one call changes (its writes, the
 events its move recorded, and the answer kept under its request key) and lands all of it or none of it, guarded by a
 version. The kinds of store are open. A host or a language supplies a kind by implementing one port. Orthograph ships
-`database` and `actor`. A chain is a host, and the store kind it runs is `chain` (K3 item 2); its details wait on K7.
+`database` and `entity`. A chain is a host, and the store kind it runs is `chain` (K3 item 2); its details wait on K7.
 KV, R2 and caches can't take that commit, so a thing never lives in one. A
 database someone else owns isn't a store either: it is a source, and you reach it through an adapter.
 
@@ -102,7 +102,7 @@ export type Committed = "committed" | "conflict";
 /** The host's side. A failing store dies: it is never the caller's refusal. */
 export class Store extends Context.Service<Store, {
   readonly find: (thing: Thing, id: string) => Effect.Effect<Stored | undefined>;
-  /** One page of a thing's instances, in the order they were made (never a clock). A thing that lives as actors has none to list. */
+  /** One page of a thing's instances, in the order they were made (never a clock). A thing that lives as entities has none to list. */
   readonly list: (query: ListQuery) => Effect.Effect<Listed>;
   /** `conflict` too when another call committed the same request key first: the retry then finds its answer. */
   readonly commit: (commit: Commit) => Effect.Effect<Committed>;
@@ -141,9 +141,9 @@ const commitD1 = ({ writes, entries, request }: Commit) =>
   });
 ```
 
-The `actor` kind has one Durable Object per instance, so it checks the version inside one SQLite transaction:
+The `entity` kind has one Durable Object per instance, so it checks the version inside one SQLite transaction:
 
-```ts file=packages/host-cloudflare/src/modules/actors/service.ts lines=30-37
+```ts file=packages/host-cloudflare/src/modules/entities/service.ts lines=30-37
 return this.ctx.storage.transactionSync((): Committed => {
   const now = this.stored();
   for (const w of writes) {
@@ -192,7 +192,7 @@ time:
 
 ```ts file=packages/host-cloudflare/src/modules/store/service.ts lines=66-67
 const owners = new Set(commit.writes.map((w) => w.thing.lives));
-if (owners.size > 1) return Effect.die(new Error("a call wrote to both a database thing and an actor: one owner per call in layer one (D2 #38)"));
+if (owners.size > 1) return Effect.die(new Error("a call wrote to both a database thing and an entity: one owner per call in layer one (D2 #38)"));
 ```
 
 From M1.17 the compiler refuses an operation whose steps write to two stores, before anything runs. Work across stores
@@ -200,14 +200,14 @@ runs as a workflow: each step commits to one store, and the workflow remembers w
 
 ### What a kind can do
 
-A kind declares what it can serve, and the compiler refuses a read the kind can't. An actor holds one instance, so it
+A kind declares what it can serve, and the compiler refuses a read the kind can't. An entity holds one instance, so it
 has nothing to list, and the compiler already says so:
 
 ```ts file=packages/compiler/src/modules/model/internal/describe.ts lines=139-139
-if (list && t?.thing?.lives === "actor") problems.push(`${file}: a list read needs a thing that lives in the database, and ${thing} lives as actors`);
+if (list && t?.thing?.lives === "entity") problems.push(`${file}: a list read needs a thing that lives in the database, and ${thing} lives as entities`);
 ```
 
-To list things that live as actors, or across stores, declare a view.
+To list things that live as entities, or across stores, declare a view.
 
 ### Migrations
 
@@ -243,7 +243,7 @@ them. That is why stores land in M1: auth in M2 needs them.
 
 ### Which kind
 
-| | `database` (the default) | `actor` | `chain` (waits on K7) |
+| | `database` (the default) | `entity` | `chain` (waits on K7) |
 |---|---|---|---|
 | What it is | D1, one row per instance, with a version column | one Durable Object per instance: its own SQLite, its own outbox | a contract, generated in the Solidity language |
 | Supplied by | `@orthograph/host-cloudflare` | `@orthograph/host-cloudflare` | `@orthograph/language-solidity` |
@@ -251,7 +251,7 @@ them. That is why stores land in M1: auth in M2 needs them.
 | Contention | every call to any instance shares one database | one writer per instance, so instances never contend | one transaction at a time, and every write costs gas |
 | Pick it when | you need to list and search across many | an instance takes many writes and needs strict order, and nobody lists them | it is money or a public commitment |
 
-Start with the default. Move a thing to `actor` when one instance is hot and you never list it. Later kinds arrive as
+Start with the default. Move a thing to `entity` when one instance is hot and you never list it. Later kinds arrive as
 a package each, with nothing else changing: Postgres or MySQL that you own (through Hyperdrive), SQLite on a device for
 local-first, Noir on Aztec.
 
@@ -284,8 +284,8 @@ local-first, Noir on Aztec.
 | What a commit holds, and its two outcomes | `packages/language-effect/src/modules/records/types.ts:33` | built |
 | The one commit per call, and the rerun on conflict | `packages/language-effect/src/modules/handler/service.ts:71` | built |
 | The `database` kind, on D1 | `packages/host-cloudflare/src/modules/store/service.ts:11` | built |
-| The `actor` kind, a Durable Object per instance | `packages/host-cloudflare/src/modules/actors/service.ts:28` | built |
-| The compiler refusing a list over actors | `packages/compiler/src/modules/model/internal/describe.ts:139` | built |
+| The `entity` kind, a Durable Object per instance | `packages/host-cloudflare/src/modules/entities/service.ts:28` | built |
+| The compiler refusing a list over entities | `packages/compiler/src/modules/model/internal/describe.ts:139` | built |
 | Migrations from the model | `packages/generators/src/modules/render/internal/worker-config.ts:55` | built, one store |
 | `Blueprint.store.<kind>()`, and `lives` taking a store | `packages/orthograph/src/modules/stores/` | planned, M1.17 |
 | The data map | `generated/data/map.md` in each project | planned, M5.06 |
@@ -298,8 +298,8 @@ local-first, Noir on Aztec.
 |---|---|---|---|
 | One commit per call: writes, journal and request answer together | proved | layer 1 | `packages/language-effect/src/modules/records/records.test.ts:33` (one wins, the other is `conflict` and writes nothing) |
 | A retried request changes nothing | proved | layer 1 | the `spend twice with one request` journey |
-| The `database` and `actor` kinds | proved | layer 1 | Gate 1 on `main` |
-| A list over actors refused | proved | layer 1 | the compiler's describe step |
+| The `database` and `entity` kinds | proved | layer 1 | Gate 1 on `main` |
+| A list over entities refused | proved | layer 1 | the compiler's describe step |
 | Declared stores, open kinds, typed bindings, migrations per store, plugin stores | specified | M1.17 | a second store in acme, its own D1, its own migrations |
 | The compiler refusing an operation that writes to two stores | specified | M1.17 | a fixture operation over two stores fails `ortho check` |
 | The `chain` kind | waits on K7 | M6.10 | K3 item 2 and K5 seam 2 (the note under Notes) |
@@ -320,8 +320,8 @@ local-first, Noir on Aztec.
 </Note>
 
 <Note kind="status" slice="M1.17">
-  Today `lives` takes `"database"` or `"actor"`, an environment binds one database, and the one-store rule is checked
-  at run time, not by the compiler. A request key on an actor's operation dies: idempotent actors are in
+  Today `lives` takes `"database"` or `"entity"`, an environment binds one database, and the one-store rule is checked
+  at run time, not by the compiler. A request key on an entity's operation dies: idempotent entities are in
   `design/later.md`.
 </Note>
 
@@ -335,7 +335,7 @@ local-first, Noir on Aztec.
   Where does a kind's schema come from? The store port only reads and commits
   (`packages/language-effect/src/modules/records/types.ts:62`). The schema is hard-coded in the generator, and only for
   D1: every field becomes `TEXT NOT NULL` (`packages/generators/src/modules/render/internal/worker-config.ts:62`). An
-  actor keeps the whole instance as one JSON value (`packages/host-cloudflare/src/modules/actors/service.ts:34`). If kinds
+  entity keeps the whole instance as one JSON value (`packages/host-cloudflare/src/modules/entities/service.ts:34`). If kinds
   are open, a kind must also say how a thing's fields become its storage, and how that storage migrates.
 </Note>
 

@@ -38,7 +38,7 @@ export interface ThingModel {
   readonly description: string;
   readonly fields: FieldsModel;
   /** Who owns its state: D1 rows, or a Durable Object per instance. */
-  readonly lives: "database" | "actor";
+  readonly lives: "database" | "entity";
   readonly machine: MachineModel | null;
   readonly events: Readonly<Record<string, FieldsModel>>;
   /** Each with its code, which never moves once released. */

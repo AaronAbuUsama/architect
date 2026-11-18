@@ -5,16 +5,16 @@ import type { Thing } from "orthograph";
 import { Store, type Commit, type Entry, type Write } from "@orthograph/language-effect";
 import type { StoreD1Api } from "./types.ts";
 import { decodeRow, encodeFields, lostGuard } from "./internal/rows.ts";
-import { actorCommit, actorFind } from "./internal/actors.ts";
+import { entityCommit, entityFind } from "./internal/entities.ts";
 import { listRows } from "./internal/list.ts";
 
 export const StoreD1: StoreD1Api = {
-  layer: ({ tables, actors }) =>
+  layer: ({ tables, entities }) =>
     Layer.effect(Store, Effect.gen(function* () {
       const sql = yield* SqlClient.SqlClient;
       const d1 = yield* D1Client.D1Client;
       const tableOf = (thing: Thing) => tables.find(([t]) => t === thing)?.[1] ?? "";
-      const noActors = Effect.die(new Error("a thing lives as an actor, but the Worker has no ACTORS binding"));
+      const noEntities = Effect.die(new Error("a thing lives as an entity, but the Worker has no ENTITIES binding"));
 
       const statementOf = (w: Write) =>
         Effect.gen(function* () {
@@ -51,12 +51,12 @@ export const StoreD1: StoreD1Api = {
             Effect.orDie,
           ),
         list: (query) =>
-          query.thing.lives === "actor"
-            ? Effect.die(new Error("a list read needs a thing that lives in the database; actors keep one instance each"))
+          query.thing.lives === "entity"
+            ? Effect.die(new Error("a list read needs a thing that lives in the database; entities keep one instance each"))
             : listRows(sql, tableOf(query.thing), query),
         find: (thing, id) =>
-          thing.lives === "actor"
-            ? (actors ? actorFind(actors, thing, tableOf(thing), id) : noActors)
+          thing.lives === "entity"
+            ? (entities ? entityFind(entities, thing, tableOf(thing), id) : noEntities)
             : Effect.gen(function* () {
                 const rows = yield* sql`SELECT * FROM ${sql(tableOf(thing))} WHERE "id" = ${id}`.pipe(Effect.orDie);
                 const row = rows[0] as Record<string, unknown> | undefined;
@@ -64,10 +64,10 @@ export const StoreD1: StoreD1Api = {
               }),
         commit: (commit) => {
           const owners = new Set(commit.writes.map((w) => w.thing.lives));
-          if (owners.size > 1) return Effect.die(new Error("a call wrote to both a database thing and an actor: one owner per call in layer one (D2 #38)"));
-          if (!owners.has("actor")) return commitD1(commit);
-          if (commit.request) return Effect.die(new Error("a request key on an actor's operation: idempotent actors arrive with layer four (design/later.md)"));
-          return actors ? actorCommit(actors, commit, tableOf) : noActors;
+          if (owners.size > 1) return Effect.die(new Error("a call wrote to both a database thing and an entity: one owner per call in layer one (D2 #38)"));
+          if (!owners.has("entity")) return commitD1(commit);
+          if (commit.request) return Effect.die(new Error("a request key on an entity's operation: idempotent entities arrive with layer four (design/later.md)"));
+          return entities ? entityCommit(entities, commit, tableOf) : noEntities;
         },
       });
     })),

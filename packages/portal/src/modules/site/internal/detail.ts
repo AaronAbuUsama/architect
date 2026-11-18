@@ -52,7 +52,7 @@ export const thingPage = (blueprint: BlueprintWire, thing: ThingWire): string =>
   const ops = Object.values(blueprint.model.operations).filter((o) => o.thing === thing.name);
   return page(`${thing.name} portal`, [
     `<h1>${esc(thing.name)}</h1><p>${esc(thing.description)}</p>`,
-    `<p>Lives in ${thing.lives === "actor" ? "its own Durable Object" : "the database"}.</p>`,
+    `<p>Lives in ${thing.lives === "entity" ? "its own Durable Object" : "the database"}.</p>`,
     "<h2>Fields</h2>", table(["Field", "Type", "Detail"], fieldRows(thing.fields)),
     thing.machine
       ? `<h2>Machine</h2><p>States: ${esc(thing.machine.states.join(", "))}.</p>${table(["Move", "From", "To", "Emits"], Object.entries(thing.machine.moves).map(([k, m]) => [esc(k), esc(m.from.join(", ") || "(creates)"), esc(m.to.join(", ")), esc(m.emits)]))}`

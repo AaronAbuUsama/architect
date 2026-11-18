@@ -94,7 +94,7 @@ const runReportServed = Handlers.serve({ name: "run.report", operation: runRepor
 const runStartServed = Handlers.serve({ name: "run.start", operation: runStart.declaration, handler: runStartHandler });
 const runStopServed = Handlers.serve({ name: "run.stop", operation: runStop.declaration, handler: runStopHandler, notFrom: "RunNotRunning" });
 
-/** Each thing and its table: a D1 table, or the name its actors go by. */
+/** Each thing and its table: a D1 table, or the name its entities go by. */
 const tables = [[thingIn(attentionThing), "attention"], [thingIn(milestoneThing), "milestone"], [thingIn(missionThing), "mission"], [thingIn(personThing), "person"], [thingIn(questionThing), "question"], [thingIn(runThing), "run"]] as const;
 
 const refusals = Wire.refusals(Errors.wire);

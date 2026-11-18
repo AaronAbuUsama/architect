@@ -14,7 +14,7 @@ const notFromOf = (model: Model, o: OperationModel) => {
 
 const main = (model: Model, name: string): RenderedFile => {
   const ops = Object.values(model.operations);
-  const actors = Object.values(model.things).some((t) => t.lives === "actor");
+  const entities = Object.values(model.things).some((t) => t.lives === "entity");
   const handled = ops.filter((o) => o.kind === "operation");
   const groups = [...new Set(ops.map((o) => o.thing))];
   const things = Object.values(model.things);
@@ -53,14 +53,14 @@ const main = (model: Model, name: string): RenderedFile => {
       handled.map((o) => `import ${opVar(o)}Handler from "../../src/${o.thing}/${o.verb}.ts";`),
       things.map((t) => `import * as ${camel(t.name)}Thing from "../../blueprint/things/${t.name}/thing.ts";`),
       "",
-      actors ? `export { Actor, World } from "${Names.pkg("host-cloudflare")}";` : `export { World } from "${Names.pkg("host-cloudflare")}";`,
+      entities ? `export { Entity, World } from "${Names.pkg("host-cloudflare")}";` : `export { World } from "${Names.pkg("host-cloudflare")}";`,
       "",
       ops.map((o) =>
         o.kind === "read"
           ? `const ${opVar(o)}Served = Reads.serve({ name: "${o.name}", read: ${opVar(o)}.declaration });`
           : `const ${opVar(o)}Served = Handlers.serve({ name: "${o.name}", operation: ${opVar(o)}.declaration, handler: ${opVar(o)}Handler${notFromOf(model, o)} });`),
       "",
-      "/** Each thing and its table: a D1 table, or the name its actors go by. */",
+      "/** Each thing and its table: a D1 table, or the name its entities go by. */",
       `const tables = [${things.map((t) => `[thingIn(${camel(t.name)}Thing), "${t.name}"]`).join(", ")}] as const;`,
       "",
       "const refusals = Wire.refusals(Errors.wire);",
@@ -80,7 +80,7 @@ const main = (model: Model, name: string): RenderedFile => {
       "export interface Env {",
       "  readonly DB: D1Database;",
       "  readonly WORLD: DurableObjectNamespace;",
-      actors ? "  readonly ACTORS: DurableObjectNamespace;" : [],
+      entities ? "  readonly ENTITIES: DurableObjectNamespace;" : [],
       "  /** Better Auth's secret, at least 32 characters: fresh per local world, a named secret per environment. */",
       "  readonly AUTH_SECRET: string;",
       "  readonly OTLP_URL?: string;",
@@ -106,7 +106,7 @@ const main = (model: Model, name: string): RenderedFile => {
       "  HttpRouter.toWebHandler(",
       "    HttpApiBuilder.layer(Api).pipe(",
       `      Layer.provide([${groups.map((t) => `${pascal(t)}Live`).join(", ")}]),`,
-      `      Layer.provide([StoreD1.layer({ tables${actors ? ", actors: env.ACTORS" : ""} }), JournalD1.layer, BusyLive, AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))]),`,
+      `      Layer.provide([StoreD1.layer({ tables${entities ? ", entities: env.ENTITIES" : ""} }), JournalD1.layer, BusyLive, AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))]),`,
       "      Layer.provideMerge(Database.d1(env.DB)),",
       "      Layer.provide(HttpServer.layerServices),",
       "    ),",
@@ -137,7 +137,7 @@ const main = (model: Model, name: string): RenderedFile => {
       "let mcpRuntime: ManagedRuntime.ManagedRuntime<Services, never> | undefined;",
       "const runtimeOf = (env: Env) =>",
       "  (mcpRuntime ??= ManagedRuntime.make(",
-      `    Layer.mergeAll(StoreD1.layer({ tables${actors ? ", actors: env.ACTORS" : ""} }), JournalD1.layer, BusyLive, AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))).pipe(Layer.provideMerge(Database.d1(env.DB))),`,
+      `    Layer.mergeAll(StoreD1.layer({ tables${entities ? ", entities: env.ENTITIES" : ""} }), JournalD1.layer, BusyLive, AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))).pipe(Layer.provideMerge(Database.d1(env.DB))),`,
       "  ));",
       "",
       "const TRACEPARENT = /^00-([0-9a-f]{32})-([0-9a-f]{16})-[0-9a-f]{2}$/;",
@@ -190,6 +190,6 @@ const main = (model: Model, name: string): RenderedFile => {
 
 export const renderServer = (model: Model, name: string): ReadonlyArray<RenderedFile> => [
   main(model, name),
-  renderWrangler(name, Object.values(model.things).some((t) => t.lives === "actor")),
+  renderWrangler(name, Object.values(model.things).some((t) => t.lives === "entity")),
   renderMigration(model),
 ];

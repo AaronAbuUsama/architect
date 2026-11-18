@@ -10,7 +10,7 @@ questions:
 status: specified
 milestone: M1
 slices: [M1.17, M1.24, M5.05, M5.06]
-decisions: [K3, K5]
+decisions: [K3, K5, K8]
 links: [things, stores, views, adapters, portal, workflows, languages-and-hosts]
 ---
 
@@ -86,7 +86,7 @@ the default is a D1 row:
   readonly code: string | undefined;
 }
 
-export type Lives = "database" | "actor";
+export type Lives = "database" | "entity";
 ```
 
 K3 opens that list: a store is declared under `blueprint/stores/`, named by its path, and `lives` takes it. A
@@ -102,7 +102,8 @@ export default Blueprint.thing({ description: "…", fields: { … }, lives: led
 ```
 
 The kinds are supplied by hosts and languages ([languages-and-hosts](languages-and-hosts.mdx)): `database` (D1) and
-`actor` (a Durable Object per instance) by the Cloudflare host. A chain is a host too, and the store kind that runs
+`entity` by the Cloudflare host. An entity is one addressed instance that commits on its own, named after Effect
+Cluster's `Entity`; on Cloudflare it is a Durable Object per instance (K8). A chain is a host too, and the store kind that runs
 on it is `chain`, supplied by the Solidity language. How a thing that lives on a chain is declared, and what its
 commit looks like, waits on K7.
 
@@ -131,9 +132,9 @@ migrations, every source with its adapter, calls and stand-in, and every view (K
 | You have | Put it in | Because |
 |---|---|---|
 | state your operations change, and the schema is yours | a store, the default unless it must be apart | only a store's commit keeps writes, events and the request key together |
-| one instance that many calls change at once | the `actor` kind | each instance commits on its own, so calls on different instances never race |
+| one instance that many calls change at once | the `entity` kind | each instance commits on its own, so calls on different instances never race |
 | data someone else's system owns, such as a bench of candidates or a contract you didn't write | a source, through an [adapter](adapters.mdx) | Orthograph would otherwise migrate or write a schema it doesn't own |
-| a list across stores, or across ours and a source's | a [view](views.mdx) | an actor has no list, and a source can't join a query of ours |
+| a list across stores, or across ours and a source's | a [view](views.mdx) | an entity has no list, and a source can't join a query of ours |
 | files | a field, with the bytes in R2 | R2 can't take a commit, so it is never where a thing lives |
 
 ## What it is not
@@ -163,7 +164,7 @@ migrations, every source with its adapter, calls and stand-in, and every view (K
 | Part | Status | Slice | Proved by |
 |---|---|---|---|
 | a thing lives in the default store, D1, and its schema is generated | proved | | `e2e/layer1/08-signup-proves.test.ts`, signup proves locally |
-| `actor` as a second kind | proved | | `packages/host-cloudflare/src/modules/actors/actors.test.ts:10`, signup has no actor |
+| `entity` as a second kind | proved | | `packages/host-cloudflare/src/modules/entities/entities.test.ts:10`, the example has no entity |
 | declared stores, and `lives` taking one | specified | M1.17 | K3 |
 | a projection's own state, in its own store | specified | M1.24 | K3 item 7, K5 seam 10 |
 | sources through adapters | specified | M5.07 | K3 item 8 |
