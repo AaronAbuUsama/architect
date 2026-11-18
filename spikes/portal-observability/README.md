@@ -101,6 +101,44 @@ Its install needs a HeroUI Pro login on the machine (`npx heroui-pro login`). Te
 - **HeroUI Pro:** pending Aaron's answer (grill question 3). The spike's recommendation is to keep Pro in the portal
   Forman itself runs, and to let the generated portal render the same `OperationPage` with HeroUI OSS.
 
+## How spans from a local acme run reach the page
+
+```text
+acme Worker (forman dev, workerd)
+  │ OTLP/HTTP
+  ▼
+Collector  otel/opentelemetry-collector-contrib:0.164.0, in Docker, started by @formants/prove (`Collectors.start`)
+  │ strips private keys (`privateKeys(model)`), then two exporters
+  ├──► .forman/dev-telemetry/{traces,logs}.jsonl     ◄── the portal reads this (FileSource.window), ~50 ms
+  └──► forman-viewer (grafana/otel-lgtm 0.39.0)       ◄── "open in Grafana" by trace id only; too slow to poll
+portal server  app/server/main.ts  →  /api/telemetry?since=  →  operationPage(model, name, telemetry)  →  screens
+```
+
+## The Collector and Docker: the options (not settled)
+
+Today the Collector is a Docker container, so a live portal needs Docker running. Two ways out, noted rather than decided:
+
+| Option | What changes | Cost |
+|---|---|---|
+| **Native `otelcol-contrib` binary** | `Collectors.start` runs the same config as a pinned binary (not installed on this machine today) instead of `docker run` | One download per platform to pin and verify; the config, the strip step and the files stay exactly as they are |
+| **OTLP straight into the portal's own server** | The Worker exports to the portal (or to `forman dev` itself), which appends to the same JSONL files | No Collector locally at all, but the private-key strip moves into our code and must match the Collector's; staging still uses a Collector or Axiom |
+
+Either way the portal keeps reading a `TraceSource`, so the page code does not change.
+
+## Hand-over: the generated portal on agent-native
+
+Aaron's new thread builds the generated portal on agent-native (Builder.io, MIT). Not started here. What carries over:
+
+- **The page contract and its maths:** `app/src/page/` (`operationPage`, `traceView`, `OperationPage` in `types.ts`) is pure and
+  renderer-free, with 5 tests on real traces. It is the natural body of the agent-native actions and of the Analytics screens.
+- **The data path:** read `FileSource.window` from a small Node server (agent-native's server is Node too), never Tempo.
+- **The findings** above that the portal must show honestly: `NotAllowed` only at the door, `BATCH` as the unnamed commit,
+  query spans under `POST` rather than the steps, whole-millisecond durations.
+- **Pinning (R1), checked 18 November 2026:** `@agent-native/core` latest is `0.229.0`, published 16 November, too young.
+  The newest release at least three days old is **`0.228.2`, published 13 November 2026**. It ships nightlies several
+  times a day, so record the exact version and date wherever it is pinned.
+- **HeroUI Pro** stays out of the generated portal (finding 9). The screens in `app/src/ui/` are the throwaway part.
+
 ## Open risks
 
 - **No defect was produced.** acme's journeys and the traffic raise none, so the red path (`defect` attribute, status 2)
