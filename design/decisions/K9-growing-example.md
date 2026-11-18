@@ -49,6 +49,12 @@ on npm, the infra projection, and a deploy and destroy that leaves nothing behin
 
 ## Stage 1: links
 
+**Amendment (Aaron, 18 November 2026).** As soon as `links` claims a handle, adds a link and reads the public profile
+through its generated CLI on the current framework, with `ortho check` and local proof passing, it becomes the starter.
+The first version declares handle, profile and link in the app and uses the starter's copied auth. An independent
+author proves the journeys fail on empty handlers first. Keep the two copies in sync with a check. Move handles to
+the feature when M1.10 is ready and add screens when M1.12 is ready.
+
 **What a person can do.** Sign in, claim a free `@name`, and keep a public page of links. A name can be taken only
 once. An unsigned visitor sees any page.
 
@@ -297,7 +303,7 @@ The limits stay explicit, as K5 seam 7 wrote them:
 
 | Today | Becomes | Slice |
 |---|---|---|
-| `examples/starter` (auth copied) | stage 1 as `ortho new` scaffolds it. Until M2.09 it stays as is; then the template is `links` at stage 1, kept identical by a check: to `examples/links` on the same commit until M2.12 tags `links/stage-1`, then to the tag | M2.09 |
+| `examples/starter` (auth copied) | stage 1 as `ortho new` scaffolds it. It becomes a copy of `links` as soon as the Stage 1 CLI and local proof pass. The check compares against `examples/links` on the same commit until M2.12 tags `links/stage-1`, then against the tag | ST1.04; M2.09 changes the scaffolding command |
 | `examples/signup` (the canon's example on `main`) | deleted once the canon quotes `links` | ST1.08 |
 | `examples/tickets` (canon branch, not on `main`) | not merged. The canon thread swaps it for `links` before its next PR | canon list below |
 | `examples/acme` | stays the fixture the existing gates run on, with no new work. Its allowance is the source the budgets feature is ported from. When `links` carries every gate check, acme is retired | ST2.05 |
@@ -443,6 +449,6 @@ The docs canon thread owns `docs/canon/`. These are the changes this record asks
   one Safe execution is new ground. ST3.01 spikes it first.
 - **Aztec in v1.0** brings the furthest-out work forward: `language-noir`, a verifying world, and Aztec's release
   cadence. ST4.01 spikes the budgets declaration in Noir before anything else in stage 4.
-- **The starter and `links` stage 1 are two copies.** The check in M2.09 keeps them identical.
+- **The starter and `links` stage 1 are two copies.** The check in ST1.04 keeps them identical.
 - **A request key can't stop a model re-issuing a call.** A spend that must not repeat needs a domain idempotency key
   (the spend's own id, chosen by the client).
