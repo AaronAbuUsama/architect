@@ -100,3 +100,19 @@ sidebar.
 An internal tool: HeroUI's components and defaults (light, Inter, soft radius, one accent), monospace only for names
 from the code. Status colours mean one thing each: green answered, amber refused (the system said no, as designed),
 red defect (the system broke). Amber is not an alarm.
+
+## Aaron's review of these sketches (18 November 2026)
+
+His notes, in order, as things to settle before the next drawing:
+
+1. **Notes belong to a thing.** A thing has its notes; notes live inside it, not in a separate list.
+2. **The tree folds.** Inside a thing, its operations fold down. Machine, events and errors are pages of their own.
+3. **Live spans, not just traces.** On an operation you should watch the program as it runs: the spans as they arrive.
+4. **"Takes and gives" doesn't work.** What is written by a person, and what is drawn from the code, has to be obvious.
+   The operation's one-line description reads as human writing.
+5. **The status sentence is badly displayed.** Numbers should be shown as data, not as a sentence in body type.
+6. **The trace drawer showed a poor trace** (two spans). It should show a trace with something to see.
+7. **Home starts with things**, not operations.
+8. **A thing's page starts with its lifecycle**, then its operations.
+9. **HeroUI Pro was bought and not used**: the shell and components should be Pro's.
+10. **Ask before designing.** These screens were drawn without asking what he wants.

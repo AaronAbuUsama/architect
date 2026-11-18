@@ -1,4 +1,0 @@
-# Its own install, apart from the repository's workspace. R1: nothing younger than three days (4320 minutes).
-minimumReleaseAge: 4320
-allowBuilds:
-  esbuild: true

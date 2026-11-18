@@ -40,7 +40,7 @@ export const hashOf = (model: Model, about: string): string | undefined => {
 };
 
 const entry = (hash: string): Record<string, unknown> | undefined => {
-  const file = resolve(process.cwd(), "server/forman/entries", `${hash}.json`);
+  const file = resolve(process.cwd(), "server/forman/generated/entries", `${hash}.json`);
   return existsSync(file) ? (JSON.parse(readFileSync(file, "utf8")) as Record<string, unknown>) : undefined;
 };
 
