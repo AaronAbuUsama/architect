@@ -81,10 +81,10 @@ stage's slice `needs` one of those gates, a stage gate stands in:
 | M5.01 (the decision M5.03 needs, for stage 2's follower events) | Gate M4 | Gate M2 |
 | M3.01 (workflows, stage 3) | Gate M2 | Gate M2, unchanged |
 | M4.01 (agents, stage 3) | Gate M3 | the stage 2 gate, ST2.06 |
-| M7.01 (the cloud pass, v1.0's release) | Gate M6 | Gate M2 for staging alone: M7.01, M7.03 and M7.04 on the dedicated staging account (K10, Aaron's Q6); the stage 4 gate, ST4.08, for the release (M7.02, M7.05, M7.06) |
+| M7.01 (the cloud pass for staging) and M7.13 (the release pass) | Gate M6 | M7.01: Gate M2, so M7.01, M7.03, M7.04 and M7.08 run for staging on the dedicated account (K10, Aaron's Q6). M7.13: the stage 4 gate, ST4.08, and every other M7 slice needs it |
 
 Everything downstream of these five follows from them: M6.02 and the K7 wallet slices from M6.01, M5.03 from M5.01,
-M3.02 and M3.03 from M3.01, M4.02 to M4.10 and M4.16 from M4.01, and M7.02 to M7.04 and M7.06 from M7.01. None of
+M3.02 and M3.03 from M3.01, M4.02 to M4.10 and M4.16 from M4.01, M7.03, M7.04 and M7.08 from M7.01, and M7.02, M7.05 to M7.07 and M7.09 to M7.11 from M7.13. None of
 them needs a factory, bench or M5 slice.
 
 ### Stage 1: links
@@ -216,7 +216,7 @@ confirms on Anvil in a world, signed from the CLI and from a server-held key (K7
 | M1.31 | Anvil in a world (was M6.06, L3.05): `Stand.process`, always `--silent`; a process in CI too, never a container (K10 section 8) | M1.30 | build | a world's chain answers `eth_chainId` and is gone when the world ends; nothing it printed holds a key | M |
 | M1.32 ∥ | Simulation, mandatory before every send (was M6.08, L3.07): plain `eth_call`, which works on Anvil (K7 Q5) | M1.30 | build | a reverting call returns its typed error and sends nothing; no SDK path sends without simulating | S |
 | M1.33 ∥ | Processes, not containers (K10 section 8; Aaron quit Docker, 18 November): the Collector as its pinned binary, Verdaccio under Node, an OIDC issuer process of our own over `jose` in place of the navikt image, each started by its world as `Stand.process` and owned by PID; the Grafana viewer removed in favour of the portal's trace view; the gates' teardown sweeps owned PIDs, not `docker ps`; CI drops Docker | Gate M0 | build | with no `docker` on `PATH`, `nx run-many -t test`, `nx run e2e:layer1` and `nx run e2e:layer2` pass on macOS and in CI, and each run ends with no process of ours left | M |
-| M1.15 | **Gate M1** | M1.02 to M1.14, M1.16 to M1.32 | e2e | `nx run e2e:m1` passes on `main` | S |
+| M1.15 | **Gate M1** | M1.02 to M1.14, M1.16 to M1.33 | e2e | `nx run e2e:m1` passes on `main` | S |
 
 ## M2: Auth and organizations (workable)
 
@@ -410,17 +410,18 @@ Capxul's first feature runs in its staging.
 
 | id | what | needs | kind | done when | size |
 |---|---|---|---|---|---|
-| M7.01 | The cloud pass: every credential named, a cost estimate under the cap, which secret store `Cloudflare.secrets` means; first for staging alone, on the `orthograph-staging` account Aaron approved in K10 | Gate M2 (staging); ST4.08 (the release) | decision | `decisions/M7-cloud.md` written, with Aaron's yes per credential | S |
-| M7.02 | The npm org `@orthograph` (Aaron signs in) and Orthograph's first real release | M7.01 | build | `npm view orthograph` shows the release | S |
+| M7.01 | The cloud pass for staging (K10 section 8): the `orthograph-staging` account Aaron approved in K10, its token's scope, a cost estimate under the cap, which secret store `Cloudflare.secrets` means | Gate M2 | decision | `decisions/M7-cloud.md` written, with Aaron's yes per credential | S |
+| M7.02 | The npm org `@orthograph` (Aaron signs in) and Orthograph's first real release | M7.13 | build | `npm view orthograph` shows the release | S |
 | M7.03 | The infra projection: an Alchemy stack per environment from the model and mounts | M7.01 | build | `ortho env up staging` plans the expected resources | L |
 | M7.04 | Deploy and destroy on Cloudflare (L2.01, cloud part) | M7.03 | build | `ortho env destroy` leaves nothing in the account | M |
-| M7.05 | Test worlds and signed verdicts from GitHub Actions (L2.02, L2.03, cloud parts) | M7.04 | build | a pull request gets a verdict signed with GitHub's OIDC token | M |
+| M7.05 | Test worlds and signed verdicts from GitHub Actions (L2.02, L2.03, cloud parts) | M7.04, M7.13 | build | a pull request gets a verdict signed with GitHub's OIDC token | M |
 | M7.06 ∥ | Real releases: npm, Homebrew, GitHub (L2.06, cloud part) | M7.02 | build | `brew install` of acme's CLI works from the real tap | S |
-| M7.07 ∥ | Adapters against the real vendors: Stripe test mode, `provision`, conformance | M7.04 | build | the conformance test passes against Stripe's test mode | M |
+| M7.07 ∥ | Adapters against the real vendors: Stripe test mode, `provision`, conformance | M7.04, M7.13 | build | the conformance test passes against Stripe's test mode | M |
 | M7.08 ∥ | The builder's read-only staging telemetry token (with Aaron's yes) | M7.04 | build | an unattended builder reads staging traces, redacted | S |
-| M7.09 ∥ | Contracts on a testnet (L4.08, cloud part) | M7.04 | build | a changed vault is redeployed and verified | M |
-| M7.10 | Capxul's plugins mapped: which exist, which are new, which are Capxul's own | M7.01 | decision | `decisions/M7-capxul.md` written | S |
+| M7.09 ∥ | Contracts on a testnet (L4.08, cloud part) | M7.04, M7.13 | build | a changed vault is redeployed and verified | M |
+| M7.10 | Capxul's plugins mapped: which exist, which are new, which are Capxul's own | M7.13 | decision | `decisions/M7-capxul.md` written | S |
 | M7.11 | Capxul's first feature on Orthograph, in its staging | M7.10, M7.05 | build | its journeys are green in Capxul's staging | M |
+| M7.13 | The release pass: the credentials the release needs (npm, Homebrew tap, GitHub, Stripe test mode, a testnet), each with Aaron's written yes, and the cost under the cap | ST4.08, M7.01 | decision | `decisions/M7-release.md` written, with Aaron's yes per credential | S |
 | M7.12 | **Gate M7** | all of M7 | e2e | `nx run e2e:m7` passes, and the gate's resources are destroyed | S |
 
 ## Later
@@ -431,7 +432,7 @@ Capxul's first feature runs in its staging.
 - **Time**: one clock per world, moves made by time, the keeper, the on-time eval (D6, L5.01 to L5.03, L5.05 to L5.07),
   and agent waits on the world clock (L5.08). Workflows' durable clocks (M3, M5) cover long waits until then.
 - **EIP-7702** delegation (L3.09), off the path as the old plan allowed.
-- **The Docker sandbox** for agents (A7) and **baselines** (A9).
+- **Baselines** (A9). The Docker sandbox for agents (A7) is dropped: no Docker (K10 section 8); E2B, then Cloudflare Containers, take its place.
 - Sequence diagrams as journeys (S5) and project-wide ratchets (S6).
 
 ## Where every unfinished build-plan step went

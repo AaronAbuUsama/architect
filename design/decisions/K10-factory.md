@@ -273,7 +273,7 @@ stands: every service is real. What changes is where the real services run.
 |---|---|---|
 | OTel Collector | `otel/opentelemetry-collector-contrib:0.164.0` (`packages/prove/src/modules/telemetry/internal/docker.ts:8`) | `ortho prove`, `dev` with the viewer, every gate |
 | The trace viewer | Grafana containers (`packages/prove/src/modules/viewer/README.md:5-15`) | `ortho dev`, by hand |
-| OIDC issuer (GitHub's stand-in) | `ghcr.io/navikt/mock-oauth2-server:6.1.4` (`e2e/layer2/services.ts:11`, and five tests in logbook, cli, portal, prove) | signed verdicts, Gate 2 |
+| OIDC issuer (GitHub's stand-in) | `ghcr.io/navikt/mock-oauth2-server:6.1.4` (`e2e/layer2/services.ts:11`, and about nine test files in logbook, cli, portal and prove) | signed verdicts, Gate 2 |
 | npm registry | `verdaccio/verdaccio:6.11.1` (`e2e/layer2/services.ts:12`) | `publish`, Gate 2 |
 | Anvil | a container in CI (M1.31), and a Durable Object Container locally (`spikes/world-anvil-container`) | chain worlds |
 | Teardown | `docker ps` sweeps (`e2e/layer1/teardown.ts:6`, `e2e/layer2/teardown.ts:6`) | the gates |
@@ -289,8 +289,11 @@ is no faker than what it replaces. The Grafana viewer goes: the portal's own tra
 |---|---|---|
 | **Aaron's Mac** | workerd, Node, and the services as processes: Collector, Verdaccio, the OIDC issuer, Anvil. `ortho check`, `prove` and `dev` work offline | none |
 | **Sandboxes (E2B)** | the factory's workspaces (section 3); a whole project's `prove` and the gates before a push, many at once, with the laptop shut. The same processes in our template | none |
-| **CI (GitHub Actions)** | the gates, unchanged until the process forms land; then the same processes, so CI, the Mac and the sandbox run one setup | dropped once M1.33 lands |
+| **CI (GitHub Actions)** | the gates, unchanged until the process forms land; then the same processes, so CI, the Mac and the sandbox run one setup | the runner image has Docker preinstalled; after M1.33 no step uses it |
 | **Staging (Cloudflare)** | the deployed Workers, D1, Durable Objects and R2, on a dedicated `orthograph-staging` account; Cloudflare Containers where a service must be a container there; the real OTLP sink. A spike now, then real staging after Gate M2 (round 2) | n/a |
+
+**The rule holds for stand-ins still to come**: M5's stripe-mock, Mailpit and real MariaDB (M5.08, M5.09, M5.13) are
+each a process, or run in a sandbox, never a local container. The Docker sandbox for agents (A7) is dropped.
 
 Every world, sandbox and staging deploy is destroyed after use, and all of it stays under the $10 a day. Cloud
 credentials need Aaron's written yes. The E2B key exists already. For Cloudflare, Aaron gave his written yes in round 2
