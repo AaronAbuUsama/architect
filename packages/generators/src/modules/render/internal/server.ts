@@ -3,7 +3,7 @@
 import { Names } from "orthograph/server";
 import type { Model, OperationModel } from "@orthograph/compiler";
 import type { RenderedFile } from "../types.ts";
-import { GENERATED, camel, lines, opVar, pascal } from "./names.ts";
+import { GENERATED, camel, handlerAt, lines, opVar, pascal, thingFileAt } from "./names.ts";
 import { renderMigration, renderWrangler } from "./worker-config.ts";
 
 /** The machine's refusal, passed to the wrapper when the operation's move starts from a state (D2 #37). */
@@ -50,8 +50,8 @@ const main = (model: Model, name: string): RenderedFile => {
       `import * as portal from "../portal/main.ts";`,
       `import { catalog } from "../mcp/src/index.ts";`,
       ops.map((o) => `import * as ${opVar(o)} from "../api/src/${o.thing}/${o.verb}.ts";`),
-      handled.map((o) => `import ${opVar(o)}Handler from "../../src/${o.thing}/${o.verb}.ts";`),
-      things.map((t) => `import * as ${camel(t.name)}Thing from "../../blueprint/things/${t.name}/thing.ts";`),
+      handled.map((o) => `import ${opVar(o)}Handler from "${handlerAt("generated/server/main.ts", o)}";`),
+      things.map((t) => `import * as ${camel(t.name)}Thing from "${thingFileAt("generated/server/main.ts", t, "thing")}";`),
       "",
       actors ? `export { Actor, World } from "${Names.pkg("host-cloudflare")}";` : `export { World } from "${Names.pkg("host-cloudflare")}";`,
       "",

@@ -2,7 +2,7 @@
 import { Names } from "orthograph/server";
 import type { Model, OperationModel } from "@orthograph/compiler";
 import type { RenderedFile } from "../types.ts";
-import { GENERATED, NOT_ALLOWED_EXIT, STATUS, lines, opVar, pascal, toRoot } from "./names.ts";
+import { GENERATED, NOT_ALLOWED_EXIT, STATUS, declarationAt, lines, opVar, pascal, thingFileAt } from "./names.ts";
 
 const file = (path: string, content: string): RenderedFile => ({ path, content, scaffold: false });
 
@@ -46,7 +46,7 @@ const errors = (model: Model): RenderedFile => {
     GENERATED,
     `import { Schema } from "effect";`,
     `import { ErrorNames, structOf } from "${Names.frontDoor}/server";`,
-    declaring.map((t) => `import * as ${t.identifier} from "${toRoot(path)}blueprint/things/${t.name}/errors.ts";`),
+    declaring.map((t) => `import * as ${t.identifier} from "${thingFileAt(path, t, "errors")}";`),
     "",
     body,
     "",
@@ -72,7 +72,7 @@ const endpoint = (op: OperationModel): RenderedFile => {
   return file(path, lines(
     `// Generated from ${op.file}. Do not edit.`,
     `import { HttpApiEndpoint } from "effect/http-api";`,
-    `import declaration from "${toRoot(path)}${op.file}";`,
+    `import declaration from "${declarationAt(path, op.file)}";`,
     `import { ${op.refusals.join(", ")} } from "../errors.ts";`,
     "",
     "export { declaration };",
@@ -92,7 +92,7 @@ const handlerType = (op: OperationModel): RenderedFile => {
     "// What the handler is given: its payload and steps; what it may return: its answer or a declared error.",
     `import type { SqlClient } from "effect/sql";`,
     `import type { Auth, Handler as Of, Records } from "${Names.pkg("language-effect")}";`,
-    `import type declaration from "${toRoot(path)}${op.file}";`,
+    `import type declaration from "${declarationAt(path, op.file)}";`,
     "",
     "export type Handler<R = Records | SqlClient.SqlClient | Auth> = Of<typeof declaration, R>;",
   ));
@@ -125,7 +125,7 @@ const events = (model: Model): RenderedFile => {
   return file(path, lines(
     GENERATED,
     `import { EventNames } from "${Names.frontDoor}/server";`,
-    emitting.map((t) => `import * as ${t.identifier} from "${toRoot(path)}blueprint/things/${t.name}/events.ts";`),
+    emitting.map((t) => `import * as ${t.identifier} from "${thingFileAt(path, t, "events")}";`),
     "",
     emitting.flatMap((t) => Object.keys(t.events).map((e) => `EventNames.name(${t.identifier}.${e}, "${e}");`)),
     "",

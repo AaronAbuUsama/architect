@@ -1,4 +1,4 @@
-import type { OperationModel } from "@orthograph/compiler";
+import type { OperationModel, ThingModel } from "@orthograph/compiler";
 
 export const GENERATED = "// Generated from the blueprint. Do not edit.";
 export const scaffolded = (from: string) => `// Scaffolded from ${from}. Yours from now on.`;
@@ -11,6 +11,17 @@ export const opVar = (op: OperationModel) => `${camel(op.thing)}${pascal(op.verb
 
 /** Climb from a generated file back to the project root. */
 export const toRoot = (from: string) => "../".repeat(from.split("/").length - 1);
+
+/** Import a declaration: the project's own by path from `from`, a plugin's by its package specifier, as written. */
+export const declarationAt = (from: string, file: string) => (file.startsWith("blueprint/") ? `${toRoot(from)}${file}` : file);
+
+/** A thing's own file (`thing`, `errors`, `events`): in the project, or in the plugin it came from. */
+export const thingFileAt = (from: string, thing: ThingModel, file: "thing" | "errors" | "events") =>
+  thing.from ? `${thing.from.package}/blueprint/things/${thing.from.thing}/${file}.js` : `${toRoot(from)}blueprint/things/${thing.name}/${file}.ts`;
+
+/** An operation's handler for the worker: the project's `src/<thing>/<verb>.ts`, or the plugin's `src/<thing>/<verb>.js`. */
+export const handlerAt = (from: string, op: OperationModel) =>
+  op.from ? `${op.from.package}/src/${op.from.thing}/${op.verb}.js` : `${toRoot(from)}src/${op.thing}/${op.verb}.ts`;
 
 export const lines = (...parts: ReadonlyArray<string | ReadonlyArray<string>>) => parts.flat().join("\n") + "\n";
 

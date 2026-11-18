@@ -21,7 +21,8 @@ export const Render: RenderApi = {
       ...renderMcp(model),
       ...renderSdk(model, name),
       ...renderCli(model, name),
-      ...Object.values(model.operations).filter((op) => op.kind === "operation").map(renderHandlerScaffold),
+      // A plugin's handlers are in its package: the project's src/ gains nothing for them (M1-plugins section 8).
+      ...Object.values(model.operations).filter((op) => op.kind === "operation" && !op.from).map(renderHandlerScaffold),
     ];
   },
 };

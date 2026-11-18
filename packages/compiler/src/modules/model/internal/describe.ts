@@ -53,7 +53,7 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
   const things: Record<string, ThingModel> = {};
   for (const [name, t] of [...layout.things].sort(([a], [b]) => a.localeCompare(b))) {
     if (!t.thing) continue;
-    const where = `blueprint/things/${name}`;
+    const where = t.base;
     const fields = Object.fromEntries(
       Object.entries(t.thing.fields).map(([k, f]) => [k, fieldModel(f.from ?? f.value, `${where}/thing.ts field ${k}`)]),
     );
@@ -78,6 +78,7 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
       events: Object.fromEntries(byName(t.events).map(([n, e]) => [n, fieldsModel(e.fields, `${where}/events.ts ${n}`)])),
       errors: Object.fromEntries(inDeclarationOrder(t.errors).map(([n, e], i) => [n, { fields: fieldsModel(e.fields, `${where}/errors.ts ${n}`), exit: e.exit, code: codeOf(prefix.get(name) ?? "??", i + 1) }])),
       roles: [...t.roles.keys()].sort(),
+      ...(t.from ? { from: t.from } : {}),
     };
     things[name] = { ...entry, hash: hashOf(entry) };
   }
@@ -97,7 +98,8 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
         ? { [op.by === "list" ? "where" : "fields"]: op.by === "list" ? op.where : op.fields, allowed: op.allowed }
         : { description: op.description, payload: op.payload, answer: op.answer, allowed: op.allowed, errors: op.errors, steps: op.steps, move: op.move };
       if (blankIn(`${thing}.${verb}`, parts)) continue;
-      operations[`${thing}.${verb}`] = operationModel(thing, verb, file, op);
+      const model = operationModel(thing, verb, file, op);
+      operations[`${thing}.${verb}`] = t.from ? withFrom(model, t.from) : model;
     }
   }
 
@@ -168,6 +170,12 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
 const RUNS_NEEDS: Readonly<Record<string, string>> = {
   client: "it needs a language that runs operations on the caller's own device (language-noir, a later language), and this project's only language, language-effect, runs them all on the server",
   chain: "it needs a language that runs operations on a chain (language-solidity, or language-noir on Aztec), and this project's only language, language-effect, runs them all on the server",
+};
+
+/** A plugin's operation carries where it came from, in its hash too. */
+const withFrom = (op: OperationModel, from: NonNullable<OperationModel["from"]>): OperationModel => {
+  const { hash: _, ...entry } = op;
+  return { ...entry, from, hash: hashOf({ ...entry, from }) };
 };
 
 const problem = (problems: Array<string>, p: string): string => {

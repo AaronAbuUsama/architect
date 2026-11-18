@@ -18,7 +18,7 @@ export const prefixOf = (name: string, thing: Thing): string => thing.code ?? na
 export const codeOf = (prefix: string, n: number): string => `${prefix}-${String(n).padStart(3, "0")}`;
 
 /** Each thing's prefix: valid, distinct from other things, and outside every runtime refusal's namespace. */
-export const prefixes = (things: ReadonlyMap<string, { readonly thing?: Thing | undefined }>, problems: Array<string>): ReadonlyMap<string, string> => {
+export const prefixes = (things: ReadonlyMap<string, { readonly thing?: Thing | undefined; readonly base?: string }>, problems: Array<string>): ReadonlyMap<string, string> => {
   const out = new Map<string, string>();
   const owner = new Map<string, { readonly thing: string } | { readonly runtime: string }>(
     Object.entries(RUNTIME_CODES).map(([name, code]) => [code.slice(0, code.indexOf("-")), { runtime: name }]),
@@ -26,10 +26,11 @@ export const prefixes = (things: ReadonlyMap<string, { readonly thing?: Thing | 
   for (const [name, t] of [...things].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) {
     if (!t.thing) continue;
     const prefix = prefixOf(name, t.thing);
-    if (!PREFIX.test(prefix)) problems.push(`blueprint/things/${name}/thing.ts: the refusal code prefix "${prefix}" must be 2 to 4 capital letters; set \`code\` on the thing`);
+    const file = t.base?.startsWith("blueprint/") === false ? `${t.base}/thing.js` : `blueprint/things/${name}/thing.ts`;
+    if (!PREFIX.test(prefix)) problems.push(`${file}: the refusal code prefix "${prefix}" must be 2 to 4 capital letters; set \`code\` on the thing`);
     const other = owner.get(prefix);
-    if (other && "runtime" in other) problems.push(`blueprint/things/${name}/thing.ts: ${prefix}- is reserved for runtime refusals (${other.runtime}); set \`code\` on the thing to a distinct prefix`);
-    else if (other) problems.push(`blueprint/things/${name}/thing.ts: ${name} and ${other.thing} would both have refusal codes starting ${prefix}-; give one of them a \`code\` of its own`);
+    if (other && "runtime" in other) problems.push(`${file}: ${prefix}- is reserved for runtime refusals (${other.runtime}); set \`code\` on the thing to a distinct prefix`);
+    else if (other) problems.push(`${file}: ${name} and ${other.thing} would both have refusal codes starting ${prefix}-; give one of them a \`code\` of its own`);
     else owner.set(prefix, { thing: name });
     out.set(name, prefix);
   }

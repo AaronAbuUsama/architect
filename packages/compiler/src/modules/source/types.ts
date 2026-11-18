@@ -9,9 +9,33 @@ export interface LoadedFile {
   readonly exports: Readonly<Record<string, unknown>>;
 }
 
+/**
+ * An installed package the project depends on whose `package.json` has an `orthograph` key (M1-plugins section 1): a
+ * plugin. `descriptor` is its root export, the same object a mount imports. `problem` says why it can't be used.
+ */
+export interface PluginPackage {
+  readonly name: string;
+  readonly version: string;
+  readonly kind: string;
+  readonly descriptor: unknown;
+  readonly problem?: string;
+}
+
+/** A plugin's declarations: each `.js` under its declared `blueprint` folder, and a digest of the installed package. */
+export interface PluginFiles {
+  /** `sha256-…` over every file of the installed package: its path inside the package, and its bytes. */
+  readonly integrity: string;
+  /** `path` is relative to the blueprint folder (`things/echo/thing.js`); `specifier` is how code imports it. */
+  readonly files: ReadonlyArray<LoadedFile & { readonly specifier: string }>;
+}
+
 export class BlueprintSource extends Context.Service<BlueprintSource, {
   /** Every `.ts` file under the project's `blueprint/`, sorted, paths relative to it. */
   readonly list: Effect.Effect<ReadonlyArray<string>, SourceError>;
   /** Import one file by its relative path. Blueprint files must have no side effects on import. */
   readonly load: (path: string) => Effect.Effect<LoadedFile, SourceError>;
+  /** The plugins among the project's dependencies, by package name. */
+  readonly plugins: Effect.Effect<ReadonlyArray<PluginPackage>, SourceError>;
+  /** One plugin's declarations, loaded from where the project resolves them. Fails naming the package when it can't. */
+  readonly pluginFiles: (name: string) => Effect.Effect<PluginFiles, SourceError>;
 }>()("@orthograph/compiler/BlueprintSource") {}

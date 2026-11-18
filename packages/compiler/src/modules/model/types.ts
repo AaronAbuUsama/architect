@@ -1,6 +1,17 @@
 // The model: every declaration in the blueprint, named, described and hashed. Generators and evals read only this.
 import { Data, type Effect } from "effect";
 import type { BlueprintSource, SourceError } from "#modules/source/types.js";
+import type { MountModel } from "#modules/mounts/types.js";
+
+export type { MountModel };
+
+/** Where a plugin's thing or operation came from: its mount, package and version, and the plugin's own name for the thing. */
+export interface FromModel {
+  readonly mount: string;
+  readonly package: string;
+  readonly version: string;
+  readonly thing: string;
+}
 
 export type ValueMeta =
   | { readonly type: "id"; readonly prefix: string }
@@ -44,6 +55,8 @@ export interface ThingModel {
   /** Each with its code, which never moves once released. */
   readonly errors: Readonly<Record<string, { readonly fields: FieldsModel; readonly exit: number; readonly code: string }>>;
   readonly roles: ReadonlyArray<string>;
+  /** Present only for a plugin's thing. */
+  readonly from?: FromModel;
   readonly hash: string;
 }
 
@@ -78,6 +91,10 @@ export interface OperationModel {
   readonly budget: { readonly p95Ms: number } | null;
   /** A list read: what it filters by, its order and its page size. Present only for lists. */
   readonly list?: { readonly where: ReadonlyArray<string>; readonly order: string; readonly page: number };
+  /** Present only for a plugin's operation; its `file` is then a package specifier. */
+  readonly from?: FromModel;
+  /** The ways in a mount left it, when the mount narrowed it. */
+  readonly via?: ReadonlyArray<string>;
   readonly hash: string;
 }
 
@@ -122,6 +139,8 @@ export interface Model {
   readonly blanks?: Readonly<Record<string, ReadonlyArray<string>>>;
   /** Where the application runs, by name: present only when the blueprint has an `environments/` folder. */
   readonly environments?: Readonly<Record<string, EnvironmentModel>>;
+  /** Each mount, by its name: present only when the blueprint has a mount. */
+  readonly mounts?: Readonly<Record<string, MountModel>>;
 }
 
 /** A blueprint the compiler refuses, with every problem found, each naming its file. */
