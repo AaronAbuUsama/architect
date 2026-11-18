@@ -4,8 +4,9 @@ Everything here is **proposed**. It walks through writing one feature, `wallets`
 mounts it, using the words in [`README.md`](README.md). The package scope `@blueprint` is a placeholder: the npm scope
 is still open (`decisions/K1-kits.md`, Q2).
 
-**What wallets is.** Keys a person holds on their own device, and a link between one of those keys and their account,
-proved by signing the server's challenge (Sign-In with Ethereum). The server never holds a key. Linking is the part
+**What wallets is.** Keys, held on a person's device or in a server's key store, and a link between a key and a person's
+account, proved by signing the server's challenge (Sign-In with Ethereum). Where a key lives is the app's choice. The
+old rule that the server never holds a key was dropped by Aaron on 18 November 2026 (K7). Linking is the part
 `spikes/authenticated-siwe-link/` proved for real (26 checks, workerd and D1, a concurrent replay and a restart).
 
 **Five rules this walkthrough follows** (`decisions/K1-kits.md` section 3.6, carried into the frame):
@@ -81,7 +82,7 @@ import { Person } from "@orthograph/auth/blueprint";
 import { Address, ChainId } from "../../values/chain.ts";
 
 export const Wallet = Blueprint.thing({
-  description: "A key on someone's device, linked to their account. The server holds the address, never the key.",
+  description: "A key, on a device or in a server's key store as the wallet declares, linked to an account.",
   fields: { id: Blueprint.id("wal"), person: Person.fields.id, address: Address, chain: ChainId },
   unique: [["address", "chain"]], // one account per address on a chain (spike finding 5)
 });
@@ -153,7 +154,8 @@ export const linker = signedIn.notVia(Via.agent);
 
 ### Operations
 
-There are eight. Three run on the device and touch only keys there. Four run on the server. One, `link`, runs on the
+There are eight. This walkthrough covers device wallets; a server key store signs through a server operation instead
+(K7, M1.29). Three run on the device and touch only keys there. Four run on the server. One, `link`, runs on the
 device and calls two of the server's.
 
 | Operation | `runs` | `allowed` | What it does |
@@ -227,7 +229,7 @@ import * as Settings from "./blueprint/settings.ts";
 import * as Exports from "./blueprint/exports/index.ts";
 
 export default Blueprint.feature({
-  description: "Keys on a person's own device, linked to their account by Sign-In with Ethereum.",
+  description: "Keys on a device or in a server's key store, linked to an account by Sign-In with Ethereum.",
   needs: [
     auth,                                                       // sessions, signedIn, the person
     Blueprint.need(eip1193, { when: Choices.signer.browser.injected }), // only if an app picks the injected browser signer

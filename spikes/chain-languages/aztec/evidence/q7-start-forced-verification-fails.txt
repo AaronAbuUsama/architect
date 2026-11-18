@@ -1,0 +1,6 @@
+# --verify at start (DEBUG_FORCE_TX_PROOF_VERIFICATION=true + BB_* set): node aborts during local-network setup; error lines kept by network.ts (banner and secrets filtered out)
+[18:28:01.438] ERROR: embedded-wallet Error: Error: Invalid tx: Invalid proof
+[18:28:01.438] ERROR: cli Error in command execution
+[18:28:01.438] ERROR: cli Error: Invalid tx: Invalid proof
+Error: Invalid tx: Invalid proof
+Error: Invalid tx: Invalid proof

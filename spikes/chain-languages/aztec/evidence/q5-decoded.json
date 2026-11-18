@@ -1,0 +1,139 @@
+[
+  {
+    "case": "open.nonadmin.simulate",
+    "_tag": "NotAllowed",
+    "code": "AR-001",
+    "via": "assert message",
+    "rawMessage": "Assertion failed: [AR-001] NotAllowed 'assert(self.storage.admin.read() == who, \"[AR-001] "
+  },
+  {
+    "case": "add_member.nonadmin.simulate",
+    "_tag": "NotAllowed",
+    "code": "AR-001",
+    "via": "assert message",
+    "rawMessage": "Assertion failed: [AR-001] NotAllowed 'assert(admin == self.msg_sender(), \"[AR-001] NotAll"
+  },
+  {
+    "case": "close.nonadmin.simulate",
+    "_tag": "NotAllowed",
+    "code": "AR-001",
+    "via": "assert message",
+    "rawMessage": "Assertion failed: [AR-001] NotAllowed 'assert(self.storage.admin.read() == who, \"[AR-001] "
+  },
+  {
+    "case": "vote.nonmember.simulate",
+    "_tag": "NotAllowed",
+    "code": "AR-001",
+    "via": "assert message",
+    "rawMessage": "Assertion failed: [AR-001] NotAllowed 'assert(mine.len() == 1, \"[AR-001] NotAllowed\")' | C"
+  },
+  {
+    "case": "vote.nonmember.simulate.absentProposal",
+    "_tag": "NotAllowed",
+    "code": "AR-001",
+    "via": "assert message",
+    "rawMessage": "Assertion failed: [AR-001] NotAllowed 'assert(mine.len() == 1, \"[AR-001] NotAllowed\")' | C"
+  },
+  {
+    "case": "tally.direct.call.only_self",
+    "_tag": "NoCodeOfOurs",
+    "kind": "only_self guard",
+    "message": "Assertion failed: Function _tally can only be called by the same contract 'assert(self.msg_sender() == self.address, $assertion_message)' | Context: | TxExecuti",
+    "rawMessage": "Assertion failed: Function _tally can only be called by the same contract 'assert(self.msg"
+  },
+  {
+    "case": "open.duplicate.simulate",
+    "_tag": "ProposalExists",
+    "code": "PR-002",
+    "via": "assert message",
+    "rawMessage": "Assertion failed: [PR-002] ProposalExists 'assert(current.state == 0, \"[PR-002] ProposalEx"
+  },
+  {
+    "case": "close.absent.simulate",
+    "_tag": "ProposalNotOpen",
+    "code": "PR-900",
+    "state": "absent",
+    "via": "assert message",
+    "rawMessage": "Assertion failed: [PR-900] ProposalNotOpen { state: 0 } 'assert(state == OPEN, f\"[PR-900] "
+  },
+  {
+    "case": "vote.absent.simulate",
+    "_tag": "ProposalNotOpen",
+    "code": "PR-900",
+    "state": "absent",
+    "via": "assert message",
+    "rawMessage": "Assertion failed: [PR-900] ProposalNotOpen { state: 0 } 'assert(state == OPEN, f\"[PR-900] "
+  },
+  {
+    "case": "open.duplicate.skipSimulation.sendTx",
+    "_tag": "NoCodeOfOurs",
+    "kind": "mined-but-reverted (receipt carries a revert code, never the reason)",
+    "message": "Transaction 0x1064dca1edf1329137ada6128a6bf5a34d4308d5c167ed71843ec1ec4d7e40ae reverted: reverted. Reason: unknown",
+    "rawMessage": "Transaction 0x1064dca1edf1329137ada6128a6bf5a34d4308d5c167ed71843ec1ec4d7e40ae reverted: r"
+  },
+  {
+    "case": "vote.second.simulate",
+    "_tag": "AlreadyVoted",
+    "code": "PR-001",
+    "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)",
+    "rawMessage": "C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR!"
+  },
+  {
+    "case": "vote.second.skipSimulation.sendTx",
+    "_tag": "AlreadyVoted",
+    "code": "PR-001",
+    "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)",
+    "rawMessage": "Invalid tx: Existing nullifier"
+  },
+  {
+    "case": "vote.pending.second.afterFirstMined",
+    "_tag": "AlreadyVoted",
+    "code": "PR-001",
+    "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)",
+    "rawMessage": "Invalid tx: Existing nullifier"
+  },
+  {
+    "case": "vote.resend.identicalTx",
+    "_tag": "AlreadyVoted",
+    "code": "PR-001",
+    "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)",
+    "rawMessage": "Invalid tx: Existing nullifier"
+  },
+  {
+    "case": "vote.second.whileFirstPending.sendTx",
+    "_tag": "AlreadyVoted",
+    "code": "PR-001",
+    "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)",
+    "rawMessage": "Nullifier conflict with existing tx 0x1334baecaebf921ee824c19782103872edd64c373bbc022e344d"
+  },
+  {
+    "case": "vote.closedBetweenProveAndSend",
+    "_tag": "NoCodeOfOurs",
+    "kind": "mined-but-reverted (receipt carries a revert code, never the reason)",
+    "message": "Transaction 0x1eff52d9ce0c230969d7ad0589bbe5245d5935c4fd68b0945fa8fb8e9db782cf reverted: reverted. Reason: unknown",
+    "rawMessage": "Transaction 0x1eff52d9ce0c230969d7ad0589bbe5245d5935c4fd68b0945fa8fb8e9db782cf reverted: r"
+  },
+  {
+    "case": "vote.closed.simulate",
+    "_tag": "ProposalNotOpen",
+    "code": "PR-900",
+    "state": "failed",
+    "via": "assert message",
+    "rawMessage": "Assertion failed: [PR-900] ProposalNotOpen { state: 3 } 'assert(state == OPEN, f\"[PR-900] "
+  },
+  {
+    "case": "vote.closed.afterRevert.simulate(again)",
+    "_tag": "ProposalNotOpen",
+    "code": "PR-900",
+    "state": "failed",
+    "via": "assert message",
+    "rawMessage": "Assertion failed: [PR-900] ProposalNotOpen { state: 3 } 'assert(state == OPEN, f\"[PR-900] "
+  },
+  {
+    "case": "client.badArgument",
+    "_tag": "NoCodeOfOurs",
+    "kind": "other",
+    "message": "Tried to create a Fr from an invalid string: not-a-field",
+    "rawMessage": "Tried to create a Fr from an invalid string: not-a-field"
+  }
+]

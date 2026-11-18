@@ -1,0 +1,58 @@
+
+######## 0. tags on a default Anvil  (anvil defaults)
+head 1: {"latest":1,"safe":0,"finalized":0}
+head 5: {"latest":5,"safe":0,"finalized":0}
+head 27: {"latest":27,"safe":0,"finalized":0}
+head 33: {"latest":33,"safe":1,"finalized":0}
+head 40: {"latest":40,"safe":8,"finalized":0}
+head 70: {"latest":70,"safe":38,"finalized":6}
+head 100: {"latest":100,"safe":68,"finalized":36}
+
+######## 0b. same with --slots-in-an-epoch 4  (anvil --slots-in-an-epoch 4)
+head 1: {"latest":1,"safe":0,"finalized":0}
+head 5: {"latest":5,"safe":1,"finalized":0}
+head 9: {"latest":9,"safe":5,"finalized":1}
+head 20: {"latest":20,"safe":16,"finalized":12}
+
+######## A. depth=3: observed -> confirmed, digest matched against the D1 revision  (anvil defaults)
+poll after open(1) [matches revision]: [{"t":"observed","proposal":1,"digest":"...f7961b","block":2}]
+poll after open(2) [digest differs from frozen body] and open(3) [no revision yet]: [{"t":"observed","proposal":2,"digest":"...efde92","block":3},{"t":"observed","proposal":3,"digest":"...e7482b","block":4},{"t":"confirmed","proposal":1,"block":2,"by":"depth>=3","link":"published"}]
+poll +1 block (open(2) reaches depth 3): [{"t":"confirmed","proposal":2,"block":3,"by":"depth>=3","link":"digest-mismatch"}]
+poll +1 more block (open(3) reaches depth 3): [{"t":"confirmed","proposal":3,"block":4,"by":"depth>=3","link":"no-revision"}]
+poll +2 blocks: []
+a failed open (ProposalExists) emits nothing: the follower sees only logs: []
+checkpoint: {"n":9,"hash":"0xcddcd44b"}
+
+######## B. reorg BEFORE confirmation: anvil_reorg(depth 2) drops the open tx  (anvil defaults)
+poll: [{"t":"observed","proposal":4,"digest":"...00002c","block":2}]
+head before: {"n":"3n","hash":"0x48000fc8"}
+anvil_reorg(2, []): null
+head after: {"n":"3n","hash":"0xc70ce15b","sameNumber":true}
+getLogs over the range now: 0
+getLogs by the OLD block hash: 0 logs
+poll after reorg: [{"t":"reorg","ancestor":1,"oldCheckpoint":3,"newHead":3},{"t":"correction","proposal":4,"digest":"...00002c","block":2,"wasConfirmed":false,"why":"block no longer canonical"}]
+poll +5: []
+
+######## C. reorg AFTER depth-confirmation: replays a DIFFERENT open (other digest) for the same proposal  (anvil defaults)
+poll: [{"t":"observed","proposal":5,"digest":"...08f076","block":2},{"t":"confirmed","proposal":5,"block":2,"by":"depth>=3","link":"published"}]
+anvil_reorg(depth 3, replay open(5, other digest) into the first new block): null
+poll after reorg: [{"t":"reorg","ancestor":1,"oldCheckpoint":4,"newHead":4},{"t":"correction","proposal":5,"digest":"...08f076","block":2,"wasConfirmed":true,"why":"block no longer canonical"},{"t":"observed","proposal":5,"digest":"...00029a","block":2},{"t":"confirmed","proposal":5,"block":2,"by":"depth>=3","link":"digest-mismatch"}]
+lesson: a depth policy can confirm something that later disappears: the correction carries wasConfirmed:true
+
+######## D. evm_snapshot / evm_revert (rewinds to a shorter chain), and a restart from the saved checkpoint  (anvil defaults)
+poll: [{"t":"observed","proposal":1,"digest":"...00000b","block":2}]
+poll after more blocks: [{"t":"observed","proposal":2,"digest":"...000016","block":3},{"t":"confirmed","proposal":1,"block":2,"by":"depth>=2","link":"no-revision"},{"t":"confirmed","proposal":2,"block":3,"by":"depth>=2","link":"no-revision"}]
+state saved (bytes): 1334
+restarted follower, no new blocks: emits nothing (no duplicates): []
+evm_revert: true
+head after revert: 2
+restarted follower sees the rewind: [{"t":"reorg","ancestor":2,"oldCheckpoint":6,"newHead":2},{"t":"correction","proposal":2,"digest":"...000016","block":3,"wasConfirmed":true,"why":"block no longer canonical"}]
+the chain moves on; same id, other digest: [{"t":"observed","proposal":2,"digest":"...000017","block":3},{"t":"confirmed","proposal":2,"block":3,"by":"depth>=2","link":"no-revision"}]
+
+######## E. tag policy: confirmed = at or below the node's `safe` (and, separately, `finalized`)  (anvil --slots-in-an-epoch 4)
+policy safe: open at block: 2
+  +0 blocks (head 2, tags {"latest":2,"safe":0,"finalized":0}): [{"t":"observed","proposal":1,"digest":"...000001","block":2}]
+  +4 blocks (head 2, tags {"latest":6,"safe":2,"finalized":0}): [{"t":"confirmed","proposal":1,"block":2,"by":"safe","link":"no-revision"}]
+policy finalized: open at block: 15
+  +0 blocks (head 15, tags {"latest":15,"safe":11,"finalized":7}): [{"t":"observed","proposal":1,"digest":"...000001","block":2},{"t":"observed","proposal":2,"digest":"...000002","block":15},{"t":"confirmed","proposal":1,"block":2,"by":"finalized","link":"no-revision"}]
+  +8 blocks (head 15, tags {"latest":23,"safe":19,"finalized":15}): [{"t":"confirmed","proposal":2,"block":15,"by":"finalized","link":"no-revision"}]

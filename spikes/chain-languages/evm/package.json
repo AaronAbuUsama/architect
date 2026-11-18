@@ -1,0 +1,15 @@
+{
+  "name": "evm-chain-spike",
+  "private": true,
+  "type": "module",
+  "description": "Throwaway spike: EVM leg of the chain-languages spike. Never imported by a package.",
+  "dependencies": {
+    "@openzeppelin/contracts": "5.7.0",
+    "viem": "2.57.20"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2"
+  }
+}

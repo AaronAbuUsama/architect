@@ -158,7 +158,7 @@ Stage 2 depends on each of these. If Aaron answers one differently, this stage c
 
 Handles resolve `@aaron` to the linked address.
 
-**Needs:** K7's wallet slices (M1.27; M6.03, M6.05, M6.06, M6.08 after M1.14; M6.04 after M2.05), M6.01, M6.02, M6.07,
+**Needs:** K7's wallet slices (M1.27 to M1.32, and M2.13 for linking), M6.01, M6.02, M6.07,
 M6.09, M6.15 and M6.18, M5.01 and M5.03 (events in, for the follower), and the stage slices ST2.01 to ST2.05.
 
 **Check (the stage 2 gate, ST2.06).** On Anvil:

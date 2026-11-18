@@ -1,0 +1,14 @@
+== Q1 without Anchor's IDL: hand-built `vote` vs IDL-built `vote` ==
+hand-built data hex: e36e9b17887eac19010000000000000000  (8 disc + 8 id + 1 choice)
+IDL-built   data hex: e36e9b17887eac19010000000000000000
+identical bytes and account metas: true   (gate_token None -> program id in the slot: true)
+event discriminators recomputed:
+  MemberAdded: IDL 198,220,228,196,92,235,240,79 vs sha256("event:MemberAdded") 198,220,228,196,92,235,240,79
+  ProposalClosed: IDL 57,90,47,164,105,55,97,27 vs sha256("event:ProposalClosed") 57,90,47,164,105,55,97,27
+  ProposalOpened: IDL 118,111,242,245,53,115,95,209 vs sha256("event:ProposalOpened") 118,111,242,245,53,115,95,209
+  VoteCast: IDL 39,53,195,104,188,17,225,213 vs sha256("event:VoteCast") 39,53,195,104,188,17,225,213
+account discriminator Proposal: IDL 26,94,189,187,116,136,53,33 vs sha256("account:Proposal") 26,94,189,187,116,136,53,33
+
+What disappears without Anchor (native `solana-program` or Pinocchio): no IDL => no generated surface to classify; the discriminator is whatever the author
+chose (often a 1-byte enum tag), errors are a hand-written ProgramError::Custom(n) enum, and accounts/PDAs are documented only in code.
+Shank (macro annotations) or Codama can emit an IDL from native programs; NOT tested here. The generator would then own the discriminator + error-number scheme itself.

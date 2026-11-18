@@ -1,0 +1,7 @@
+Q8 cross-check: 300 steps per seed, seeds 1,2,3,42,1234, program vs ../../reference.ts (CODES: {"AlreadyVoted":"PR-001","ProposalExists":"PR-002","ProposalNotOpen":"PR-900","NotAllowed":"AR-001"})
+seed 1: 300 steps, ok 36, refused {"AR-001":45,"PR-900":169,"PR-001":7,"PR-002":43}, sent-refusals matched 264/264, divergences 0, 42.1s (140 ms/step)
+seed 2: 300 steps, ok 46, refused {"AR-001":48,"PR-900":135,"PR-001":28,"PR-002":43}, sent-refusals matched 0/0, divergences 0, 6.8s (23 ms/step)
+seed 3: 300 steps, ok 28, refused {"PR-900":187,"AR-001":47,"PR-002":37,"PR-001":1}, sent-refusals matched 0/0, divergences 0, 4.9s (16 ms/step)
+seed 42: 300 steps, ok 44, refused {"PR-900":142,"AR-001":39,"PR-002":48,"PR-001":27}, sent-refusals matched 0/0, divergences 0, 7.4s (25 ms/step)
+seed 1234: 300 steps, ok 39, refused {"PR-900":161,"AR-001":43,"PR-002":55,"PR-001":2}, sent-refusals matched 0/0, divergences 0, 5.8s (19 ms/step)
+TOTAL divergences: 0; wall 67.0s; ticks-per-slot 16

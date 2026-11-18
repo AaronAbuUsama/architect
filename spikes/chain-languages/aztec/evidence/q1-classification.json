@@ -1,0 +1,200 @@
+{
+  "contract": "Governance",
+  "rows": [
+    {
+      "name": "add_member",
+      "selector": "0xb33da59c",
+      "functionType": "private",
+      "isOnlySelf": false,
+      "isStatic": false,
+      "isInitializer": false,
+      "params": [
+        "member: struct"
+      ],
+      "returns": [],
+      "kind": "operation",
+      "why": "declared operation, private"
+    },
+    {
+      "name": "has_voted",
+      "selector": "0xcec0fcf9",
+      "functionType": "utility",
+      "isOnlySelf": false,
+      "isStatic": false,
+      "isInitializer": false,
+      "params": [
+        "proposal: field",
+        "who: struct"
+      ],
+      "returns": [
+        "boolean"
+      ],
+      "kind": "helper (outside the surface)",
+      "why": "utility: unconstrained, device-local, cannot change chain state"
+    },
+    {
+      "name": "is_member",
+      "selector": "0x68b0951b",
+      "functionType": "utility",
+      "isOnlySelf": false,
+      "isStatic": false,
+      "isInitializer": false,
+      "params": [
+        "who: struct"
+      ],
+      "returns": [
+        "boolean"
+      ],
+      "kind": "helper (outside the surface)",
+      "why": "utility: unconstrained, device-local, cannot change chain state"
+    },
+    {
+      "name": "vote",
+      "selector": "0xe506d5a8",
+      "functionType": "private",
+      "isOnlySelf": false,
+      "isStatic": false,
+      "isInitializer": false,
+      "params": [
+        "proposal: field",
+        "choice: boolean"
+      ],
+      "returns": [],
+      "kind": "operation",
+      "why": "declared operation, private"
+    },
+    {
+      "name": "offchain_receive",
+      "selector": "0x5342402f",
+      "functionType": "utility",
+      "isOnlySelf": false,
+      "isStatic": false,
+      "isInitializer": false,
+      "params": [
+        "messages: struct"
+      ],
+      "returns": [],
+      "kind": "protocol",
+      "why": "emitted by the #[aztec] macro"
+    },
+    {
+      "name": "public_dispatch",
+      "selector": "0xd5441b0d",
+      "functionType": "public",
+      "isOnlySelf": false,
+      "isStatic": false,
+      "isInitializer": false,
+      "params": [
+        "selector: field"
+      ],
+      "returns": [],
+      "kind": "protocol",
+      "why": "emitted by the #[aztec] macro"
+    },
+    {
+      "name": "sync_state",
+      "selector": "0x418ef5da",
+      "functionType": "utility",
+      "isOnlySelf": false,
+      "isStatic": false,
+      "isInitializer": false,
+      "params": [
+        "scope: struct"
+      ],
+      "returns": [],
+      "kind": "protocol",
+      "why": "emitted by the #[aztec] macro"
+    },
+    {
+      "name": "_tally",
+      "selector": "0xc357973a",
+      "functionType": "public",
+      "isOnlySelf": true,
+      "isStatic": false,
+      "isInitializer": false,
+      "params": [
+        "proposal: field",
+        "choice: boolean"
+      ],
+      "returns": [],
+      "kind": "helper (outside the surface)",
+      "why": "only_self: callable by the contract itself only"
+    },
+    {
+      "name": "close_proposal",
+      "selector": "0x550ce987",
+      "functionType": "public",
+      "isOnlySelf": false,
+      "isStatic": false,
+      "isInitializer": false,
+      "params": [
+        "proposal: field"
+      ],
+      "returns": [],
+      "kind": "operation",
+      "why": "declared operation, public"
+    },
+    {
+      "name": "constructor",
+      "selector": "0x35393df3",
+      "functionType": "public",
+      "isOnlySelf": false,
+      "isStatic": false,
+      "isInitializer": true,
+      "params": [
+        "admin: struct"
+      ],
+      "returns": [],
+      "kind": "protocol",
+      "why": "initializer (deploy-time)"
+    },
+    {
+      "name": "get",
+      "selector": "0x00aaa652",
+      "functionType": "public",
+      "isOnlySelf": false,
+      "isStatic": true,
+      "isInitializer": false,
+      "params": [
+        "proposal: field"
+      ],
+      "returns": [
+        "struct"
+      ],
+      "kind": "declared read",
+      "why": "declared read, public + #[view] (static)"
+    },
+    {
+      "name": "open_proposal",
+      "selector": "0x7e119656",
+      "functionType": "public",
+      "isOnlySelf": false,
+      "isStatic": false,
+      "isInitializer": false,
+      "params": [
+        "proposal: field",
+        "digest: field"
+      ],
+      "returns": [],
+      "kind": "operation",
+      "why": "declared operation, public"
+    },
+    {
+      "name": "rewrite_digest",
+      "selector": "0x7247a267",
+      "functionType": "public",
+      "isOnlySelf": false,
+      "isStatic": false,
+      "isInitializer": false,
+      "params": [
+        "proposal: field",
+        "digest: field"
+      ],
+      "returns": [],
+      "kind": "undeclared",
+      "why": "externally callable public function with no blueprint entry"
+    }
+  ],
+  "missingFromArtifact": [],
+  "note": "#[internal] fns (_assert_admin) are inlined into callers and do not appear in the artifact at all."
+}
