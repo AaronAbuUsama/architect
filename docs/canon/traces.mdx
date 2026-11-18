@@ -157,7 +157,7 @@ field fails closed. The caller is written as `principal.person`, or `principal.k
   the read.
 - **`attempt` above 1**, after a commit with `commit.outcome=conflict`, is a version race. Many of them mean
   contention on one thing (see `stores`).
-- **`request.replayed=true`** is a retry with the same request key that changed nothing (`service.ts:58`).
+- **`request.replayed=true`** is a retry with the same request key that changed nothing (`service.ts:52`).
 - **Each step's width against the budget** shows which step is slow. `spend` must answer within `p95: "150 millis"`.
 
 To read one trace, `ortho telemetry trace <id>` prints it as a tree from the Collector's files, a refusal marked
