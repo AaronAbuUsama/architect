@@ -1,5 +1,5 @@
 const rawAppName = "shell";
-const rawAppTitle = "Shell";
+const rawAppTitle = "acme · forman app";
 
 const APP_NAME_PLACEHOLDER = "{" + "{APP_NAME}}";
 const APP_TITLE_PLACEHOLDER = "{" + "{APP_TITLE}}";

@@ -83,7 +83,7 @@ function viewForPath(pathname: string): string {
   }
   if (pathname.startsWith("/settings")) return "settings";
   if (pathname.startsWith("/team")) return "settings";
-  return "chat";
+  return "page"; // a page of the project's app: /live, /allowance/spend, …
 }
 
 function pathForView(view?: string): string {
@@ -106,7 +106,7 @@ function pathForView(view?: string): string {
     case "team":
       return "/settings/organization";
     default:
-      return HOME_PATH;
+      return "/live";
   }
 }
 
