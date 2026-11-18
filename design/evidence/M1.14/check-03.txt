@@ -1,39 +1,11 @@
 $ pnpm exec vitest run --root e2e --config vitest.m1.config.ts m1/03
-# commit 14aedb7 · 2026-11-18T23:02:30Z · exit 1 (expected 1) · 25.3s
+# commit 364d8909 · 2026-11-18T23:31:09Z · exit 0 (expected 0) · 25.3s
 
 
  RUN  v4.1.12 ./e2e
 
- ❯ m1/03-adapter-mounting.test.ts (8 tests | 1 failed) 24218ms
-     × a dry run writes nothing; one command writes one mount and pins it; a duplicate and the wrong kind are refused 5124ms
 
-⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
-
- FAIL  m1/03-adapter-mounting.test.ts > 03 adapters: ortho add adapter > a dry run writes nothing; one command writes one mount and pins it; a duplicate and the wrong kind are refused
-AssertionError: expected [ …(4) ] to deeply equal [ StringMatching{…}, …(2) ]
-
-- Expected
-+ Received
-
-  [
-    "wrote blueprint/adapters/pricing.ts",
-    "pinned @fixture/remote 1.0.0 (local: no registry release to age)",
-    "needs none",
-+   "next ortho generate, then ortho check",
-  ]
-
- ❯ m1/03-adapter-mounting.test.ts:29:48
-     27|
-     28|     const added = succeeds(root, "add", "adapter", "@fixture/remote", …
-     29|     expect(added.stdout.trimEnd().split("\n")).toEqual([expect.stringM…
-       |                                                ^
-     30|     expect(tree(root, "blueprint/adapters")).toEqual([PRICING]);
-     31|     const file = textAt(root, PRICING);
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
-
-
- Test Files  1 failed (1)
-      Tests  1 failed | 7 passed (8)
-   Start at  23:02:06
-   Duration  24.65s (transform 120ms, setup 0ms, import 311ms, tests 24.22s, environment 0ms)
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  23:30:44
+   Duration  24.57s (transform 134ms, setup 0ms, import 372ms, tests 24.09s, environment 0ms)
