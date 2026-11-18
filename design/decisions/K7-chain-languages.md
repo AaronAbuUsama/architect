@@ -679,8 +679,7 @@ K5's Q4 asked how a declared operation maps to a contract's ABI. That question w
 
 ## Milestone slices this changes
 
-The chain slices change now, because they are building-agent calls. The wallet's moves wait on Aaron's answers to F3
-and F4, and `milestones.md` gets them after he answers.
+The chain slices are building-agent calls. The wallet's moves followed Aaron's answers to F3 and F4 (18 November 2026).
 
 | Slice | What happens |
 |---|---|
@@ -695,7 +694,7 @@ and F4, and `milestones.md` gets them after he answers.
 | M6.15 | **Changed.** The submission lifecycle (Q3); `confirmed` matches the intent, not the transaction |
 | M1.27 | **New.** `runs: "client"`: accepted for operations whose plugin supplies `node`, `browser` and `world` entries; run in-process by the generated client (`LAH-02`, `G-10`) |
 | Later | **Changed.** Noir's line: worlds in `proofs: "verified"` mode prove client proofs locally (K7 Q7). **New line:** Solana, `@orthograph/language-solana` and `chain-solana`, designed here |
-| Pending F4 | The wallet slices M6.03, M6.05, M6.06 and M6.08 move to just after M1.14, and M6.04 (SIWE) to just after M2.05. This is done once Aaron answers |
+| F4, done | The wallet slices moved after Aaron's answer: M6.02's wallet journeys to M1.28, M6.03 to M1.29, M6.05 to M1.30 (vendored from `@prb/effect-evm`), M6.06 to M1.31, M6.08 to M1.32, and M6.04 (SIWE) to M2.13. The M6 rows above for M6.05, M6.06 and M6.08 now describe M1.30 to M1.32 |
 
 ## Ledger rows this answers
 
