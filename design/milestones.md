@@ -78,13 +78,14 @@ The npm org `@formants` is not needed until M7: every milestone before it publis
 exactly what it judged.
 **Ships.** Plugin descriptors (`Blueprint.feature`, `Blueprint.adapter`, `Blueprint.projection`), mounts under
 `blueprint/{features,adapters,projections}/`, the mount verbs (choose, include, narrow, omit), needs, choices and
-settings, `forman add`, adapter calls out as steps, and the projections re-homed as plugins
+settings, `forman add`, adapter calls out as steps, stores (K3), the three trace fixes (O2), and the projections re-homed as plugins
 ([`frame/mounting.md`](frame/mounting.md), [`frame/projections.md`](frame/projections.md)).
 **Gate.** `nx run e2e:m1`: (1) Codex's checks `00` to `06`, renamed, pass: a fixture plugin mounted with one command,
 its typed SDK and MCP answer, collisions are refused, the graph is whole; (2) acme with its projections mounted
 generates the same `generated/` as before, byte for byte except header paths; (3) editing one handler makes only that
 operation stale; (4) `forman describe --json` lists acme's journeys, starting worlds, role rules and the work app's
-blank.
+blank; (5) a fixture feature brings its own store, and a call writing two stores is refused (K3); (6) a commit has its
+own span, free text is absent from spans, and refused calls are counted (O2).
 
 | id | what | needs | kind | done when | size |
 |---|---|---|---|---|---|
@@ -103,7 +104,11 @@ blank.
 | M1.13 ∥ | Part three: docs, portal | M1.11 | build | acme's docs and portal wire unchanged | M |
 | M1.14 ∥ | Adapter calls out: `Blueprint.step.call`, declared errors, the one mapping blank, a stand-in declared (D4 section 3) | M1.08 | build | checks `03` and `04` pass | M |
 | M1.16 ∥ | `forman prove --empty`: the journeys run against scaffolded handlers; each step that needs behaviour goes red, and one that passes is labelled "proved by the description" (S3) | Gate M0 | build | on acme, `revoke then spend` shows two red steps and one proved by the description | S |
-| M1.15 | **Gate M1** | M1.02 to M1.14, M1.16 | e2e | `nx run e2e:m1` passes on `main` | S |
+| M1.17 ∥ | Stores ([`decisions/K3-stores-and-sources.md`](decisions/K3-stores-and-sources.md)): `Blueprint.store.<kind>()` under `blueprint/stores/`, `lives` takes a store or nothing for the default, kinds supplied by hosts (`database`, `actor`), `stores:` bindings typed in environments, one store per commit (cross-store writes refused), migrations per store, a feature's own stores named by its mount | M1.06 | build | acme unchanged; a fixture feature with its own store mounts beside acme's default and both migrate; an operation writing two stores fails to compile | M |
+| M1.18 ∥ | The commit as a span ([`decisions/O2-trace-gaps.md`](decisions/O2-trace-gaps.md) gap 1): `<op>.commit` with `commit.writes`, `commit.entries`, `commit.outcome`, and `attempt` on the operation's span | Gate M0 | build | a forced conflict shows `attempt=2` after a `conflict` commit; a journey asserts `allowance.spend.commit` | S |
+| M1.19 ∥ | Free text untraced unless marked (O2 gap 2): `Blueprint.traced(x)`; ids, amounts, enums, booleans and times traced when public | Gate M0 | build | `payload.memo` is absent from `spend`'s span; a traced text field is present; the "leaks nothing" eval passes | S |
+| M1.20 ∥ | Every call counted (O2 gap 3): `forman.calls` and `forman.call.duration` through Effect `Metric` to OTLP; the local Collector gains a metrics pipeline | Gate M0 | build | a bad payload and a stranger show as two refusals in `forman.calls`, with no spans | S |
+| M1.15 | **Gate M1** | M1.02 to M1.14, M1.16 to M1.20 | e2e | `nx run e2e:m1` passes on `main` | S |
 
 ## M2: Auth and organizations (workable)
 
@@ -211,13 +216,14 @@ actors; `forman prove` names each adapter's stand-in.
 | M5.03 | Events in, general: doors that verify signatures, `on:` for adapter events and our own as `system`, idempotency by event id | M5.01 | build | a webhook sent twice settles once | M |
 | M5.04 | The outbox for every move: events written with the state, delivered at least once; an undeliverable one is a defect with a redelivery command | M5.03 | build | killing a delivery mid-way delivers once after restart | M |
 | M5.05 | Views at runtime: `Blueprint.view`, kept from events, reads generated in the SDK, CLI and MCP | M5.04 | build | the allowances view lists actor-homed allowances | L |
-| M5.06 ∥ | The data map and the portal's data page | M5.05 | build | `generated/data/map.md` and the page list every home and view | S |
+| M5.06 ∥ | The data map and the portal's data page | M5.05 | build | `generated/data/map.md` and the page list every store (kind, binding, migrations), every source (adapter, calls, stand-in) and every view | S |
 | M5.07 | `forman new adapter --from-openapi` and the conformance harness | M5.03 | build | a generated adapter's calls pass against its stand-in | M |
 | M5.08 | `@formants/stripe`: stripe-mock stand-in, `provision`, money calls `.notVia(Via.agent)` by default (S20, S21) | M5.07 | build | the payments journeys pass | M |
 | M5.09 ∥ | `@formants/resend` over SMTP, Mailpit as the stand-in (S23) | M5.07 | build | the notification journeys read the inbox | S |
 | M5.10 | Declared workflows in apps: notifications, and `invitation.send` once across a kill (absorbs L5.04) | M5.04 | build | one email, not two, after a mid-send kill | M |
+| M5.13 ∥ | A source we don't own (K3 items 8 and 9): first a spike on reaching MariaDB from workerd (TCP sockets or Hyperdrive, with a Node host as the fallback), then a fixture adapter over a MariaDB database it doesn't migrate, its stand-in real MariaDB loaded from a schema dump, conformance against it, and events from it kept in a view | M5.07 | spike, build | a handler reads a candidate through `step.call` with its own span; the conformance test fails when the dump's schema changes; Forman writes no migration for it | M |
 | M5.11 ∥ | Another Forman app as an adapter, `--from-model`, its stand-in a world of that app | M5.07 | build | acme calls a second fixture app through a generated adapter | M |
-| M5.12 | **Gate M5** | M5.02 to M5.10 | e2e | `nx run e2e:m5` passes on `main` | S |
+| M5.12 | **Gate M5** | M5.02 to M5.11, M5.13 | e2e | `nx run e2e:m5` passes on `main` | S |
 
 ## M6: On chain
 
@@ -358,3 +364,6 @@ The M1 and M2 gates need every slice, so the side slices must land before them.
 7. **Workable rests on the least specified slice**, a plugin's own CI (M2.10). M2.01 settles its shape first.
 8. **Time is deferred.** Journeys can't step a month until the world clock lands. That's acceptable until a plugin
    Capxul needs depends on it; then it moves forward as its own milestone.
+
+9. **MariaDB from workerd is unproved** (M5.13). Spiked first; the fallback is the adapter running on a Node host beside
+   the Worker, with the same port.

@@ -169,6 +169,7 @@ footer { margin-top: 72px; border-top: 1px solid var(--rule); padding-top: 14px;
       <li><a href="#journeys">Journeys and starting worlds</a></li>
       <li><a href="#blanks">Blanks and handlers</a></li>
       <li><a href="#data">Data</a></li>
+      <li><a href="#traces">Traces</a></li>
       <li><a href="#plugins">Plugins</a></li>
       <li><a href="#mounting">Mounting</a></li>
       <li><a href="#languages">Languages and hosts</a></li>
@@ -446,26 +447,74 @@ dependencies are given, and nothing reads the environment.</p>
 </section>
 
 <section class="s" id="data">
-<header><h3>Data</h3><span class="chip part">Homes built · views M5 · chain M6</span></header>
-<p>Each thing says where its state lives, in one word. That word is its <b>home</b>.</p>
+<header><h3>Data</h3><span class="chip part">Database and actor built · stores M1 · sources and views M5 · chain M6</span></header>
+<p>One rule sorts every place data can be. <b>If Forman owns the schema and every write goes through Forman's commit, the
+place is a store.</b> If anything else owns it, it is a <b>source</b>, and you reach it through an adapter.</p>
+<p>A thing lives in a store. Say nothing and it lives in the project's default store. To keep a group of things apart,
+declare a store and point the things at it.</p>
+<pre><code class="ts"><span class="file">blueprint/stores/ledger.ts</span>export default Blueprint.store.database();</code></pre>
+<pre><code class="ts"><span class="file">blueprint/things/entry/thing.ts</span>import ledger from "../../stores/ledger.ts";
+export default Blueprint.thing({ description: "…", fields: { … }, lives: ledger });</code></pre>
+<p>The kinds of store are open. A host or a language supplies a kind by implementing one port: take a call's writes,
+events, outbox entries and request key together or not at all, guarded by a version. Forman ships three kinds.</p>
 <div class="table"><table>
-<tr><th>Home</th><th>What it is</th><th>Choose it when</th></tr>
-<tr><td><code>"database"</code> (default)</td><td>a D1 row with a version column</td><td>you need to list and search across many</td></tr>
-<tr><td><code>"actor"</code></td><td>one Durable Object per instance, an Effect Cluster entity: its own SQLite, one writer at a time, an outbox</td><td>you need strict consistency per instance and no lists</td></tr>
-<tr><td><code>"chain"</code></td><td>a contract, generated in the Solidity language</td><td>it is money or a public commitment</td></tr>
+<tr><th>Kind</th><th>What it is</th><th>Choose it when</th></tr>
+<tr><td><code>database</code> (default)</td><td>D1, with a version column</td><td>you need to list and search across many</td></tr>
+<tr><td><code>actor</code></td><td>one Durable Object per instance: its own SQLite, one writer at a time, an outbox</td><td>you need strict consistency per instance and no lists</td></tr>
+<tr><td><code>chain</code></td><td>a contract, generated in the Solidity language</td><td>it is money or a public commitment</td></tr>
 </table></div>
-<p>Lists across homes are <b>views</b>: read models the system keeps up to date from events. You declare a view the
-same way as a thing, and its read is generated in the SDK, CLI and MCP.</p>
+<p>Others arrive as packages: Postgres or MySQL that you own, SQLite on a device. KV, R2 and caches are never homes,
+because they can't commit atomically. Files are fields kept in R2, and search indexes are views.</p>
+<p>Every store gets the host's default binding, its own D1 named from its path. An environment names a store only to bind
+it differently. A call commits to one store; work across stores runs as a workflow. Migrations are generated per store.
+A plugin brings its own stores, named by its mount, so auth's tables never meet yours.</p>
+<p>A system you don't own, like a database another team runs, is a <b>source</b>. You mount an adapter for it, and a
+handler calls it through a step. The call gets its own span and typed errors. The adapter's stand-in is the real
+database software, loaded from the source's schema, and Forman never migrates it.</p>
+<pre><code class="ts"><span class="file">blueprint/things/shortlist/verbs/add.ts</span>steps: {
+  candidate: Blueprint.step.call(bench.calls.candidates.find), // a source, through its adapter
+  save: Blueprint.step.database(),                              // our own store
+},</code></pre>
+<p>Lists across stores and sources are <b>views</b>: read models the system keeps up to date from events. You declare a
+view the same way as a thing, and its read is generated in the SDK, CLI and MCP.</p>
 <pre><code class="ts"><span class="file">blueprint/views/allowances-by-organization.ts</span>export default Blueprint.view(Allowance, {
   from: [allowance.events.granted, allowance.events.spent, allowance.events.revoked],
   key: Allowance.fields.organization,
 });</code></pre>
-<p>Moving a thing from the database to an actor changes one word, and its views keep working. The model also
-generates a <b>data map</b> (<code>generated/data/map.md</code>, and a data page in the portal). It says what exists,
-where it lives, what feeds each view, and which environment binds each home to D1, a Durable Object namespace or R2.</p>
+<p>The model generates a <b>data map</b> (<code>generated/data/map.md</code>, and a data page in the portal): every store
+with its kind, binding and migrations, every source with its adapter and stand-in, and what feeds each view.</p>
 <div class="today"><b>Today.</b> <code>lives</code> takes <code>"database" | "actor"</code>
-(<code>packages/blueprint/src/modules/things/types.ts:35</code>), and a list over actor things isn't possible.
-Each organisation's Durable Object keeps an index of its things.</div>
+(<code>packages/forman/src/modules/things/types.ts:32</code>), an environment binds one database, and a list over actor
+things isn't possible. Decided in <code>design/decisions/K3-stores-and-sources.md</code>.</div>
+</section>
+
+<section class="s" id="traces">
+<header><h3>Traces</h3><span class="chip part">Spans built · commit span, text and counts M1</span></header>
+<p>You never write span code. The declaration produces it. Every operation opens one span named after it, but only
+once the caller has passed the role check, so a refused stranger never looks like work. Every declared step opens a
+child span, <code>&lt;operation&gt;.&lt;step&gt;</code>, and the commit opens one more. Only public fields become
+attributes: <code>payload.*</code>, <code>answer.*</code>, <code>principal.person</code>. Free text is left out unless
+you mark it <code>Blueprint.traced(…)</code>.</p>
+<pre><code class="text">spend                     principal.person=ada  payload.amount=40  answer.remaining=60  attempt=1
+├─ spend.load             step.kind=database
+├─ spend.record           step.kind=database
+└─ spend.commit           commit.writes=1  commit.entries=1  commit.outcome=committed</code></pre>
+<p>What to look for:</p>
+<ul>
+<li><b>Red means a defect, and only a defect.</b> A declared refusal ends its span OK, tagged <code>refusal</code> with the
+log that decided it.</li>
+<li><b>A missing child shows where it stopped.</b> <code>spend.load</code> without <code>spend.record</code> means it was
+refused after the read.</li>
+<li><b><code>attempt</code> above 1</b>, after a commit with <code>commit.outcome=conflict</code>, is a version race.</li>
+<li><b><code>request.replayed=true</code></b> is a retry that changed nothing.</li>
+<li><b>Step widths against the operation's <code>budget</code></b> show which step is slow.</li>
+</ul>
+<p>Calls refused before any span, a bad payload or a wrong role, are still counted: <code>forman.calls</code> and
+<code>forman.call.duration</code> are metrics for every call. An environment's <code>telemetry</code> list says where
+it all goes: <code>Telemetry.sink.local()</code> (the Collector and the local viewer) or <code>Telemetry.sink.axiom({ group })</code>.</p>
+<div class="today"><b>Today.</b> Operation and step spans, the public-only allowlist and refusals ending OK run on
+<code>main</code> (<code>packages/language-effect/src/modules/handler/</code>). The commit span, untraced text and call
+counts are decided in <code>design/decisions/O2-trace-gaps.md</code>.</div>
 </section>
 
 <section class="s" id="plugins">
@@ -1021,7 +1070,8 @@ Stand.process(…)  Stand.vendor(…)  Stand.none</code></pre>
 <tr><td>thing · value · machine · event · error</td><td>a noun with a home · a named field type · states and moves · what a move emits · a declared refusal</td></tr>
 <tr><td>operation · read · step</td><td>a verb on a thing · an operation that changes nothing · a named span inside one</td></tr>
 <tr><td>role · principal · way in</td><td>who may call · who is calling · how they got in (<code>Via.*</code>)</td></tr>
-<tr><td>home · view · data map</td><td>where a thing's state lives · a list kept from events · the generated map of all data</td></tr>
+<tr><td>store · source · view · data map</td><td>a place Forman owns and commits to, of an open kind · a system someone else owns, reached through an adapter · a list kept from events · the generated map of all data</td></tr>
+<tr><td>span · refusal · defect</td><td>one timed piece of a call in a trace, made by the declaration · a declared outcome, ends OK · an undeclared failure, the only red</td></tr>
 <tr><td>blank · handler · scaffold · frame</td><td>what the description leaves open · the code that fills an operation · a file written once into <code>src/</code> · the generated type a handler must fit</td></tr>
 <tr><td>journey · story · starting world · cast</td><td>a story through real operations · its prose form · a setup made by operations · who plays it</td></tr>
 <tr><td>plugin · feature · adapter · projection</td><td>built once, mounted anywhere · adds to what the system is · brings the outside in · what it becomes</td></tr>

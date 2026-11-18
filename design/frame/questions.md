@@ -17,6 +17,10 @@ a rubric, a recommendation. The answer key is at the end.
 
 ## Q1 — How is data declared and shown: homes, views and the data map?
 
+> **Widened on 18 November by [`K3`](../decisions/K3-stores-and-sources.md).** Aaron took the views from C, and then
+> asked for several databases and for sources we don't own. Option B's "every thing imports a store" is avoided by a
+> default store, and the home list is now open.
+
 **The problem, in code.** A thing says where it lives, and that is all the model knows about data. A thing that lives
 as an actor can't be listed (F5), and nothing shows anyone where data is or how to reach it.
 
