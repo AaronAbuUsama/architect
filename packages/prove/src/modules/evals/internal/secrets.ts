@@ -2,7 +2,8 @@
 // also kept out of spans and logs, but remains public in the journal. Check both the field name and, when distinctive
 // enough, the value: a handler may log it in a sentence without an attribute key.
 import type { FieldsModel, OperationModel } from "@orthograph/compiler";
-import type { FieldsInput } from "orthograph";
+import { Schema } from "effect";
+import type { FieldsInput, Operation, Read } from "orthograph";
 import { traceable } from "orthograph/server";
 import type { Evidence } from "../types.ts";
 import { where } from "./evidence.ts";
@@ -13,6 +14,19 @@ const spanMetadata = new Set(["operation", "attempt", "refusal", "defect"]);
 
 const textOf = (v: unknown): string => (typeof v === "string" ? v : typeof v === "bigint" ? v.toString() : JSON.stringify(v) ?? "");
 
+const decodeItems = Schema.decodeUnknownOption(Schema.fromJsonString(Schema.Array(Schema.Unknown)));
+
+const hasState = (item: unknown, state: string): item is Record<string, unknown> =>
+  typeof item === "object" && item !== null && "state" in item && item.state === state;
+
+/** An exact state also seen in the response is a returned machine label. Keep every other value searchable. */
+const withoutReturnedStates = (attribute: unknown, returned: ReadonlyArray<unknown>, state: string): unknown => {
+  const decoded = decodeItems(attribute);
+  if (decoded._tag === "None") return attribute;
+  return decoded.value.map((item, index) =>
+    hasState(item, state) && hasState(returned[index], state) ? { ...item, state: undefined } : item);
+};
+
 const hiddenOf = (side: "payload" | "answer", fields: FieldsModel, declared: FieldsInput, values: Readonly<Record<string, unknown>>) =>
   Object.entries(fields).flatMap(([field, model]) => {
     const spec = declared[field];
@@ -21,8 +35,12 @@ const hiddenOf = (side: "payload" | "answer", fields: FieldsModel, declared: Fie
   });
 
 /** Failures name the field and where it appeared, without including its value. */
-export const secretsIn = (op: OperationModel, declared: { readonly payload: FieldsInput; readonly answer: FieldsInput } | undefined, e: Evidence): ReadonlyArray<string> => {
+export const secretsIn = (op: OperationModel, declared: Operation | Read | undefined, e: Evidence): ReadonlyArray<string> => {
   const body = e.call.status === 200 && typeof e.call.body === "object" && e.call.body !== null ? e.call.body as Record<string, unknown> : {};
+  const filter = e.call.payload["state"];
+  const items = body["items"];
+  const filteredList = declared?.kind === "read" && declared.by === "list" && typeof filter === "string" && Array.isArray(items)
+    ? { filter, items } : undefined;
   const hidden = [
     ...hiddenOf("payload", op.payload, declared?.payload ?? {}, e.call.payload),
     ...hiddenOf("answer", op.answer, declared?.answer ?? {}, body),
@@ -37,7 +55,12 @@ export const secretsIn = (op: OperationModel, declared: { readonly payload: Fiel
       if (key === "operation" && v === op.name) continue;
       const reason = spanMetadata.has(key) ? undefined : names.get(key);
       if (reason !== undefined) at(key, reason, `span ${span.name} as the attribute ${key}`);
-      for (const s of values) if (textOf(v).includes(s.value)) at(s.label, s.reason, `span ${span.name}, attribute ${key}`);
+      const returned = span === e.opSpan && key === "answer.items" && filteredList !== undefined
+        ? withoutReturnedStates(v, filteredList.items, filteredList.filter) : v;
+      for (const s of values) {
+        const value = s.label === "payload.state" && s.reason === "untraced text" ? returned : v;
+        if (textOf(value).includes(s.value)) at(s.label, s.reason, `span ${span.name}, attribute ${key}`);
+      }
     }
   }
   for (const log of e.trace.logs) {

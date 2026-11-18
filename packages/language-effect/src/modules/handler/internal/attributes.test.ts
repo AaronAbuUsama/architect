@@ -47,9 +47,9 @@ const handler: Handler<typeof signIn, Records> = (payload, { move }) =>
 const payload = { memo: "notes for Ada", password: "hunter2-hunter2", pin: "pin-4321" };
 const caller = { kind: "anonymous" } as const;
 
-const call = async (h: Handler<typeof signIn, Records> = handler) => {
+const call = async (h: Handler<typeof signIn, Records> = handler, input = payload) => {
   const r = recording();
-  await Effect.runPromiseExit(Handlers.serve({ name: "account.sign-in", operation: signIn, handler: h }).call(payload, caller).pipe(Effect.provide(r.layer)));
+  await Effect.runPromiseExit(Handlers.serve({ name: "account.sign-in", operation: signIn, handler: h }).call(input, caller).pipe(Effect.provide(r.layer)));
   return r;
 };
 
@@ -96,6 +96,16 @@ describe("span attributes are an allowlist of traceable public fields", () => {
       expect(log).toEqual(expect.stringContaining("Refused"));
       expect(log).not.toContain(payload.memo);
     }));
+
+  it("keeps the label of a structured deciding log without an escaped memo", () => {
+    const memo = "receipt copy\nextra notes";
+    return call((p) => Effect.logInfo("Refused", { memo: p.memo }).pipe(Effect.andThen(Effect.fail(new Refused({})))), { ...payload, memo }).then(({ spans }) => {
+      const log = spans.find((span) => span.name === "account.sign-in")?.attributes.get("refusal.log");
+      expect(log).toEqual(expect.stringContaining("Refused"));
+      expect(log).not.toContain(memo);
+      expect(log).not.toContain(JSON.stringify(memo).slice(1, -1));
+    });
+  });
 
   it("a field the declaration doesn't name is not an attribute either: it fails closed", async () => {
     const { spans } = await call((p, c) => handler(p, c).pipe(Effect.map((a) => ({ ...a, extra: "undeclared-value" }) as never)));

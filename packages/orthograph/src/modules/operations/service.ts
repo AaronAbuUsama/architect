@@ -10,8 +10,9 @@ import { Blanks } from "#modules/blanks/service.js";
 /** Fields not written yet (`Blueprint.todo`) have no schema yet: until they're filled, nothing decodes to them. */
 const filled = (fields: FieldsInput): FieldsInput => (Blanks.isBlank(fields) ? {} : fields);
 
-/** A read's state is a machine label. */
-const State = Visibilities.traced(Values.text({ max: 64 }));
+/** The caller may supply any text as a filter. A returned state is a machine label. */
+const StateFilter = Values.text({ max: 64 });
+const State = Visibilities.traced(StateFilter);
 
 /** Each list item has the thing's fields and the same state field as a read by id. */
 export const listItemFields = (thing: Thing): FieldsInput => ({ ...thing.fields, state: State });
@@ -43,7 +44,7 @@ const Cursor = Values.text({ max: 64 });
 const listRead = (thing: Thing, spec: ListSpec) => {
   const where = Blanks.isBlank(spec.where) ? [] : spec.where;
   const payload: FieldsInput = {
-    ...Object.fromEntries(where.map((f) => [f, f === "state" ? State : thing.fields[f]!] as const)),
+    ...Object.fromEntries(where.map((f) => [f, f === "state" ? StateFilter : thing.fields[f]!] as const)),
     cursor: Cursor,
   };
   const optional = Object.keys(payload);

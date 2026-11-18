@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Blueprint, type FieldsInput } from "orthograph";
+import { traceable } from "orthograph/server";
 import { Schema } from "effect";
 import type { Model, OperationModel } from "@orthograph/compiler";
 import type { CallRecord, Project } from "#modules/journeys/types.js";
@@ -123,10 +124,10 @@ describe("answer shape: no secret reaches a span, a log or the journal", () => {
 
 
 /** A response and its real trace representation through the public evidence/judging interface; no service is substituted. */
-const observed = (operation: OperationModel, answer: FieldsInput, body: unknown, status: number, attrs: Record<string, unknown>, declaration = { answer }) => {
+const observed = (operation: OperationModel, answer: FieldsInput, body: unknown, status: number, attrs: Record<string, unknown>, declaration = { answer }, payload?: CallRecord["payload"]) => {
   const project = { model: { operations: { [operation.name]: operation }, refusals: { AllowanceLimitTooHigh: "AL-003", NotAllowed: "AR-001" } },
     operations: new Map([[operation.name, declaration]]) } as unknown as Project;
-  const record = call({ body, status, operation: operation.name });
+  const record = call({ body, status, operation: operation.name, ...(payload === undefined ? {} : { payload }) });
   const trace: Evidence["trace"] = { spans: [{ traceId: "t", spanId: "s", parentSpanId: "p", name: operation.name, attrs, status: 1, ms: 1, start: 0 }], logs: [] };
   return { project, evidence: Evals.gather([record], new Map([["t", trace]])) };
 };
@@ -198,17 +199,23 @@ describe("independent author: public evaluator response boundaries", () => {
     const Account = Blueprint.thing({ description: "A ledger account.", fields: {
       id: Blueprint.id("acc"), memo: Blueprint.text(), label: Blueprint.traced(Blueprint.text()),
     } });
-    const list = Blueprint.read(Account, { where: [], order: "oldest", page: 2, allowed: [Blueprint.anyone] });
-    const operation = { ...schemaAnswer, name: "account.list", answer: { items: { value: { type: "schema" } }, next: { value: { type: "schema" } } } } as unknown as OperationModel;
-    const seen = (items: ReadonlyArray<object>, body?: object) => observed(operation, list.answer, body, 200, {
-      "answer.items": JSON.stringify(items), "answer.next": "null",
-    }, list);
-    const item = { id: "acc_1", label: "expenses", state: "open" };
+    const list = Blueprint.read(Account, { where: ["state"], order: "oldest", page: 2, allowed: [Blueprint.anyone] });
+    const operation = { ...schemaAnswer, name: "account.list", payload: { state: { value: { type: "text", max: 64 } } },
+      answer: { items: { value: { type: "schema" } }, next: { value: { type: "schema" } } } } as unknown as OperationModel;
+    const seen = (items: ReadonlyArray<object>, body?: object, attrs: Record<string, unknown> = {}) => observed(operation, list.answer, body, 200, {
+      "answer.items": JSON.stringify(items), "answer.next": "null", ...attrs,
+    }, list, body === undefined ? undefined : { state: "published" });
+    const item = { id: "acc_1", label: "expenses", state: "published" };
+    const body = { items: [{ ...item, memo: "public answer" }], next: null };
+    expect(traceable(list.payload["state"]!)).toBe(false);
     expect(liveShapeOf(seen([item]))).toEqual([]);
     expect(liveShapeOf(seen([{ ...item, id: "wrong_1" }]))[0]).toContain("answer.items");
     expect(liveShapeOf(seen([{ ...item, state: "x".repeat(65) }]))[0]).toContain("answer.items");
     expect(liveShapeOf(seen([{ ...item, memo: "omitted from telemetry" }]))[0]).toContain("answer.items");
-    expect(shapeOf(seen([item], { items: [{ ...item, memo: "public answer" }], next: null }))).toEqual([]);
+    expect(shapeOf(seen([item], body))).toEqual([]);
+    expect(shapeOf(seen([item], body, { "payload.state": "published" }))[0]).toContain("payload.state (untraced text)");
+    expect(shapeOf(seen([{ ...item, detail: { text: "published" } }], body))[0]).toContain("payload.state (untraced text)");
+    expect(shapeOf(seen([item], { ...body, items: [{ ...body.items[0]!, state: "different" }] }))[0]).toContain("payload.state (untraced text)");
     expect(shapeOf(seen([item], { items: [item], next: null }))[0]).toContain("answer.items");
   });
 
