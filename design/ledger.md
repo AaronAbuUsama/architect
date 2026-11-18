@@ -9,10 +9,10 @@ what it must settle, what it must not claim, and which words it must not use. Th
 
 ## In numbers
 
-- **608 items**: 506 open, 55 fixed and 47 superseded.
-- **190 of the open items are owned by nothing.** No slice, `later.md` line or milestones "Later" line covers
+- **610 items**: 508 open, 55 fixed and 47 superseded.
+- **191 of the open items are owned by nothing.** No slice, `later.md` line or milestones "Later" line covers
   them. They are in section 1.
-- **59 open items are marked high.** A canon page can't be written correctly until each one is settled.
+- **60 open items are marked high.** A canon page can't be written correctly until each one is settled.
 - **28 gaps and 43 contradictions** that no file lists as open (section 2).
 - **Aztec:** 26 needs. 2 are answered today, 14 partly, 10 not at all
   (section 4).
@@ -30,9 +30,10 @@ what it must settle, what it must not claim, and which words it must not use. Th
    `X-18`, `G-04`, and section 4.
 3. **Secret and private fields are hidden only on MCP.** Only MCP filters answers and refusals by role
    (`design/decisions/D3.md:909-912`). The generated HTTP API sends every declared field of a refusal, private ones
-   included, and acme's sign-in answers its secret fields on purpose. The canon's `traces` page says "secret never;
-   private to its roles" for every caller (`docs/canon/traces.mdx:257` on PR #38), and its review comment saying so is
-   unanswered. No slice owns the fix. `OPS-01`.
+   included. That leaks nothing today only because no error in acme or the starter has a private field yet.
+   acme's sign-in also answers its secret fields, on purpose. The canon's `traces` page said otherwise and was
+   corrected while this ledger was built (07a2d0a on PR #38). The server still sends the fields, and no slice owns
+   that fix. `OPS-01`.
 4. **Operations that run on the caller's device can't be built.** The compiler refuses `runs: "client"`, and no
    slice lifts that refusal. The wallets (M6) and everything Noir needs both depend on it. `LAH-02`, `G-10`.
 5. **The old words are still in code that users see, and no page or slice owns the new ones.** The compiler prints
@@ -58,13 +59,13 @@ what it must settle, what it must not claim, and which words it must not use. Th
 | item | what is wrong or missing, in one sentence. **(high)** means a canon page can't be written correctly until it is settled |
 | source | `path:line`, one per line, every one opened. `(branch x)` or `origin/x:` means the file is on that branch, not on `main`. A PR link means the PR body or a review comment |
 | status | open; fixed, with where; or superseded, with the decision that replaced it |
-| slice | the milestone slice that fixes it (`design/milestones.md`), `later` when it is only parked, or `none: needs a slice` |
+| slice | the milestone slice that fixes it (`design/milestones.md`), `later` when it is only parked, or `none: needs a slice`. On a fixed or superseded row it is the slice the item was tied to, which may not be the one that closed it |
 
 ## Index by canon page
 
 | layer | page | open | of which unowned | high | fixed or superseded |
 |---|---|---|---|---|---|
-| 1 | forman | 9 | 3 | 2 | 6 |
+| 1 | forman | 10 | 3 | 2 | 6 |
 | 1 | blueprint | 9 | 6 | 5 | 1 |
 | 1 | things | 5 | 2 | 0 | 0 |
 | 1 | machines | 5 | 2 | 0 | 1 |
@@ -79,7 +80,7 @@ what it must settle, what it must not claim, and which words it must not use. Th
 | 4 | plugins | 14 | 5 | 2 | 2 |
 | 4 | features | 9 | 3 | 0 | 0 |
 | 4 | adapters | 14 | 4 | 0 | 0 |
-| 4 | projections | 35 | 22 | 4 | 7 |
+| 4 | projections | 36 | 23 | 5 | 7 |
 | 4 | secrets | 9 | 3 | 2 | 2 |
 | 4 | stand-ins | 18 | 3 | 2 | 3 |
 | 5 | languages-and-hosts | 37 | 3 | 4 | 7 |
@@ -136,7 +137,7 @@ slice, a decision, or a line saying it is dropped. Grouped by canon page, in the
 
 | id | item | source | status |
 |---|---|---|---|
-| `OPS-01` | A refusal's private fields still go out over the HTTP wire; only MCP hides them, which matters for private fields such as `AllowanceExceeded { remaining }`. The canon's `traces` page says private fields are always filtered by role, which is true only for MCP. **(high)** | design/decisions/D3.md:912<br>design/decisions/D3.md:594<br>design/decisions/D3.md:592-595<br>design/decisions/D3.md:909-912<br>docs/canon/traces.mdx:257 (PR #38)<br>https://github.com/AaronAbuUsama/architect/pull/38#discussion_r4610733581 | open |
+| `OPS-01` | A refusal's private fields still go out over the HTTP wire; only MCP hides them, For now this is a latent gap rather than a live leak: no error in acme or the starter has a private field today (`design/decisions/D3.md:912`). The canon's `traces` page now says so (fixed in 07a2d0a on PR #38, note `answers-are-not-redacted`); the server-side fix is still owned by nothing. **(high)** | design/decisions/D3.md:912<br>design/decisions/D3.md:594<br>design/decisions/D3.md:592-595<br>design/decisions/D3.md:909-912<br>docs/canon/traces.mdx:257 (PR #38, at 07a2d0a)<br>https://github.com/AaronAbuUsama/architect/pull/38#discussion_r4610733581 | open |
 | `OPS-03` | A client operation cannot yet call a server operation with the same credential (`Blueprint.step.call(op)`); M1.14 builds only adapter calls, and the wallets `link` operation needs the other kind. | design/decisions/K1-kits.md:757<br>design/decisions/K1-kits.md:806<br>design/milestones.md:105 | open |
 | `OPS-05` | Browser signers need a real browser in CI, and conditional exports for client operations are untested. | spikes/kits-dx/README.md:67 | open |
 | `OPS-06` | Code comments give the refusal example `[AL-002] AllowanceExceeded { limit }`, but acme's generated code has AL-001 with `remaining`; the design page also shows an old error and handler shape. | packages/forman/src/modules/things/types.ts:28<br>packages/language-effect/src/modules/wire/types.ts:7<br>examples/acme/generated/api/src/errors.ts<br>canon note code-examples-drift on operations.mdx (PR #38) | open |
@@ -177,7 +178,7 @@ slice, a decision, or a line saying it is dropped. Grouped by canon page, in the
 | id | item | source | status |
 |---|---|---|---|
 | `PRF-02` | Per-operation ratchets (once green, always green; budgets only tighten) are decided (S6) but not built; the only ratchet in the code counts allowed findings per check rule in `.forman/ratchets.json`. **(high)** | design/frame/questions.md:371-372<br>design/frame/story.md:283-285<br>design/frame/examples/factory.md:220-223<br>packages/cli/src/modules/check/internal/ratchets.ts:1 | open |
-| `PRF-03` | The logbook stores one pass or fail per operation and environment; per-eval rows, journey results, timestamps, trace ids, release history and whether proof was run or carried over do not exist, so the generated app cannot show them. **(high)** | design/decisions/F1-frontend.md:22-23<br>design/decisions/F1-frontend.md:593<br>design/decisions/F2-portal-ia.md:69-70<br>design/decisions/F2-portal-ia.md:399<br>design/briefs/F4-portal-plan-and-state.md:75<br>spikes/portal-ia/README.md:17 | open |
+| `PRF-03` | The logbook stores one pass or fail per operation and environment; per-eval rows, journey results, timestamps, trace ids, release history and whether proof was run or carried over do not exist, so the generated app cannot show them. The milestones map F4.1 (eval rows and times) into M3.07 and M3.09 (`design/milestones.md:311`), but neither slice's check names them, so they are owned in name only. **(high)** | design/decisions/F1-frontend.md:22-23<br>design/decisions/F1-frontend.md:593<br>design/decisions/F2-portal-ia.md:69-70<br>design/decisions/F2-portal-ia.md:399<br>design/briefs/F4-portal-plan-and-state.md:75<br>spikes/portal-ia/README.md:17 | open |
 | `PRF-04` | The release staleness code skips non-pass rows, so a latest fail shows 'unproven', while F1 says a latest fail shows failed and F2 says the portal must not reuse that code. **(high)** | design/decisions/F2-portal-ia.md:322-324<br>packages/prove/src/modules/releases/internal/stale.ts:33 | open |
 | `PRF-07` | A test world leaves behind the Durable Objects of actor-homed things when it ends, and the generated server has no R2 binding, so no file prefix is cleared. | design/decisions/D3.md:396-397 | open |
 | `PRF-09` | Accepted local-only limits: reused process ids and hand-edited pid files are not defended against, and edits inside installed dependencies are trusted. | design/decisions/D3.md:1036-1038<br>design/decisions/D3.md:1042-1044<br>design/decisions/D3-proof-publication-reset.md:46-49 | open |
@@ -287,6 +288,7 @@ slice, a decision, or a line saying it is dropped. Grouped by canon page, in the
 | `PRJ-31` | The proof matrix needs a 'not proved here' state per projection, not only per operation, for projections without a replay. | design/frame/projections.md:564-565 | open |
 | `PRJ-33` | `packages/generators` has no app target yet, and the template is a copy of agent-native 0.228.2 that must be kept under our own name, so every upgrade is manual while releases come daily. | PR#41 origin/spike/generated-app:spikes/generated-app/README.md:128-131<br>PR#41 origin/spike/generated-app:spikes/generated-app/README.md:149-150 | open |
 | `PRJ-35` | agent-native's own friction is unresolved: its query hook sends GET to POST-only actions (405), `/mcp` asks for OAuth even with auth disabled, and its action command cuts objects at two levels. | PR#41 origin/spike/generated-app:spikes/generated-app/README.md:100-105 | open |
+| `PRJ-43` | The canon lists the doors an operation is made into as HTTP, the SDK, the CLI, MCP and docs, and leaves out the agent-native action, though the generated-app spike already writes one action per operation. Open: does agent-native's action (with its own MCP, CLI and A2A) replace Forman's MCP and CLI doors, or sit beside them? The projections round in canon layer 4 should settle it. **(high)** | docs/canon/outline.md:61 (branch claude/docs-canon-cf2c38)<br>spikes/generated-app/generator/actions.ts:1 (branch spike/generated-app, PR #41)<br>Aaron, relayed by the conductor session (18 November 2026) | open |
 
 ### secrets
 
@@ -337,7 +339,7 @@ slice, a decision, or a line saying it is dropped. Grouped by canon page, in the
 |---|---|---|---|
 | `AUT-15` | MCP sign-in has not tried DPoP, `private_key_jwt`, key rotation, client discovery by CIMD, the stateful transport or SSE. | spikes/mcp-oauth/README.md:150 | open |
 | `AUT-17` | No crash was injected between the statements of the transactional D1 batch in SIWE linking, and hosted Cloudflare is untried. | spikes/authenticated-siwe-link/README.md:67 | open |
-| `AUT-21` | Real sign-in through the device flow against a deployed server (staging) is done only against local stand-ins and left to the cloud pass, and no M7 slice names it. | design/decisions/D3.md:266<br>design/history/handoff-layers-1-2.md:199<br>design/build-plan.md:140 | open |
+| `AUT-21` | Real sign-in through the device flow against a deployed server (staging) is done only against local stand-ins and left to the cloud pass. M7.04 and M7.05 deploy and sign verdicts, but neither names sign-in against the deployed server. | design/decisions/D3.md:266<br>design/history/handoff-layers-1-2.md:199<br>design/build-plan.md:140 | open |
 | `AUT-23` | SIWE wallet linking is proven for ordinary key accounts only; ERC-1271, ERC-6492 and EIP-7702 smart-account verification is unproved, though the decision says smart accounts are checked the same way (EIP-7702 delegation is parked). | spikes/authenticated-siwe-link/README.md:65<br>design/milestones.md:291 | open |
 | `AUT-24` | The MCP door leaves out idempotency keys for `idempotent: "request"`, CORS and a consent page. | design/history/handoff-layers-1-2.md:77 | open |
 | `AUT-27` | The generated app and the logbook's reads are open on this machine, and protecting them is left to "the cloud pass"; no slice names it. | design/decisions/D3.md:819<br>design/decisions/D3.md:859 | open |
@@ -537,6 +539,7 @@ they are closed. The unowned items for each page are in section 1, not repeated 
 | `FOR-05` | Many generators are still missing: the builder API, the agent kit, the CI plan, the goal file, the root files (`AGENTS.md`, `CLAUDE.md`, `.mcp.json`), adapter-from-contract, the new plugin package, the secrets list and migrations. | design/frame/generators.md:236<br>design/frame/generators.md:37 | open | M4.11, M3.12, M3.13, M2.09, M5.07, M2.10, M2.04, M1.17 |
 | `FOR-06` | The `@formants` npm organisation does not exist (Aaron must be signed in) and nothing is published to npm before M7; until then everything installs from the local Verdaccio. | design/decisions/K2-forman-frame.md:11<br>design/decisions/M0-packages.md:6<br>design/milestones.md:73<br>design/packages.md:41 | open | M7.02 |
 | `FOR-07` | The `forman` command ships from `@formants/cli` until `forman new` lands in M2.09; which internal packages go inside the front door is also left to M2.09, but M2.09's done-when does not say so. | design/decisions/M0-packages.md:39<br>design/handoff.md:26<br>design/milestones.md:136 | open | M2.09 |
+| `FOR-16` | Every canon page is built on acme's allowance, and Aaron wants better examples; the canon thread is proposing three. Outside the canon and the records, acme is named 607 times in 100 files. Most are tests and gates that run on it: `packages/prove` (222 in 29 files), `e2e/layer1` and `e2e/layer2` (63 in 14), `packages/cli`, `generators`, `compiler`, `portal` and `logbook` (123 in 24). Then the design: `design/frame/` (119 in 16), `design/milestones.md` (30) and `design/docs/index.html` (26). Production code names it only in comments (for example `packages/prove/src/modules/publish/internal/plan.ts:9`), so a new example changes the docs and tests, not the framework | Aaron, relayed by the conductor session (18 November 2026)<br>packages/prove/src/modules/publish/internal/plan.ts:9 | open | the canon (PR #38), not a milestone slice |
 
 <details><summary>Closed: 6 fixed or superseded</summary>
 
@@ -1315,12 +1318,16 @@ the old Forman word. Nothing here is fixed in this change: the canon and a later
 | **target** (meaning language) | **language** | **26 lines in 18 files under `packages/` and `examples/`**, plus 3 lines in design files. Two of them reach users: the compiler prints "needs a target … language-noir, a later target" (`packages/compiler/src/modules/model/internal/describe.ts:167-170`), and every generated `api/src/errors.ts` says "stable across targets" (`packages/generators/src/modules/render/internal/api.ts:55`, so acme, starter and work have it too). The rest are code comments and tests: `packages/forman/src/modules/operations/types.ts:15,16,21,24,49,51`, `operations.test.ts:60,72,74`, `values/types.ts:8`, `visibility/types.ts:2`, `packages/compiler/src/modules/model/types.ts:74,76`, `model.test.ts:122,184`, `internal/codes.ts:1`, and the package READMEs: `packages/language-effect/README.md:3` ("The Effect target"), `packages/language-solidity/README.md:3` and `src/index.ts:1`. The 3 design lines: `design/later.md:8` and `:12`, `design/frame/README.md:97`. The other 200 or so uses of "target" in living files are other senses (Nx `targets`, the environment `promote` moves to, a binary's build platform) and stay. | 862 uses in 90 files, including the file name `N1-noir-target.md` |
 | the old project name, as a command, a package scope, a folder and a variable prefix (the forms are listed in `design/decisions/M0-packages.md` sections 1 and 4) | **forman**, `@formants/`, `.forman/`, `FORMAN_` | **None to fix.** The only living file is `e2e/m0/names.test.ts` (72 uses), the check that makes sure the old names stay out. The repository `AaronAbuUsama/architect` and the checkout path are allowed by name (M0-packages section 5): renaming the repository is Aaron's call | 2,913 uses in 178 files |
 | **kit** (meaning plugin) | **feature** or **adapter** | **2 stale:** `design/later.md:7` ("Safe as a kit") and `design/later.md:44` ("a std kit `agent` … once kits exist"; it is the `@formants/agents` feature). **"Kit" on its own for the agent kit:** 16 uses in `design/frame/generators.md` (for example `:7`, `:9-10`, `:69`, `:252`) and `design/milestones.md:180` ("the generated kit"). The canon's check fails on "kit" alone, so the canon must say "agent kit". The rest are file and spike names (`K1-kits.md`, `kit-package-exports`), the visuals render kit (`.agents/skills/visuals/SKILL.md:12,60`, a different sense), and the third-party Axiom skills | 839 uses in 68 files |
-| **home** (where a thing's state lives) | **store** | **5 in design files:** `design/milestones.md:203` ("lists across homes") and `:218` ("actor-homed allowances"); `design/docs/index.html:362` ("a home for its state"), `:466` and `:1070`. **In the canon (PR #38):** `docs/canon/outline.md` row 3 (`things`: "a noun with an id, fields and a home") and row 9, and `docs/canon/stores.mdx:25`. **In code:** the closed type `export type Lives = "database" \| "actor"` (`packages/forman/src/modules/things/types.ts:32`, and the model's copy at `packages/compiler/src/modules/model/types.ts:41`), which M1.17 replaces. K3 itself still says "a thing's home" (`design/decisions/K3-stores-and-sources.md:32`), so no page owns the word (`G-03`). The `HOME` environment variable is a different sense | 153 uses in 48 files |
+| **home** (where a thing's state lives) | **store** | **6 in design files:** `design/frame/delta.md:70` ("a closed list of homes", describing today's code), `design/milestones.md:203` ("lists across homes") and `:218` ("actor-homed allowances"); `design/docs/index.html:362` ("a home for its state"), `:466` and `:1070`. **In the canon (PR #38):** `docs/canon/outline.md` row 3 (`things`: "a noun with an id, fields and a home") and row 9, and `docs/canon/stores.mdx:25`. **In code:** the closed type `export type Lives = "database" \| "actor"` (`packages/forman/src/modules/things/types.ts:32`, and the model's copy at `packages/compiler/src/modules/model/types.ts:41`), which M1.17 replaces. K3 itself still says "a thing's home" (`design/decisions/K3-stores-and-sources.md:32`), so no page owns the word (`G-03`). The `HOME` environment variable is a different sense | 153 uses in 48 files |
 | **portal** | **the generated app** (once F6 merges) | **260 uses in 63 living files**, most in the package itself (`packages/portal/`, `packages/generators/src/modules/portal/`, 34 code files in all) and its tests (`e2e/layer2/08-watch-and-the-portal.test.ts`). In design: `design/milestones.md` (7: M1.13 at `:104`, M3.14 at `:168`, M5.06 at `:219`), `design/frame/projections.md` (12), `frame/deployment.md` (6), `frame/generators.md` (5), `frame/README.md` (4), `frame/story.md` (4), `frame/mounting.md` (3), `design/packages.md` (4) and `design/docs/index.html` (12). The canon's outline row 14 too. F6 (`origin/spike/generated-app:design/decisions/F6-the-app.md:3-5`) "replaces the portal of F1 and F2", but it is not on `main`. Until F6 merges these are not wrong, only about to be (`X-01`) | 847 uses in 69 files |
 | **layer N**, **Gate N** (for planned work) | the milestone (**M1** to **M7**) and its gate | **Stale where they schedule future work:** `design/later.md` (6, for example `:12` "After Gate 5, its own layer" and `:34` "Belongs with layer five"), `design/frame/examples/allowance-on-chain.md` (6), `frame/examples/private-membership.md` (4), `frame/projections.md` (2), `frame/delta.md` (2), and one each in `frame/generators.md`, `deployment.md`, `adapters.md`, `examples/notifications.md`, `packages/language-solidity/README.md:3` ("Arrives in layer 4") and `packages/host-cloudflare/src/modules/store/service.ts`. **"Stage N"** in code: 13 uses in 10 files (`packages/generators/src/modules/render/internal/worker-config.ts` 3, `packages/host-cloudflare/src/modules/world/README.md` 2, the language-effect `principals`, `handler`, `timers` and `work` modules, `packages/prove/src/modules/world/service.ts`, `examples/acme/journeys/README.md`). The gate names `e2e:layer1` and `e2e:layer2` are real, running gates and stay | 712 uses in 50 files |
 | **dependency** (something you call) | **adapter**, or **uses** for what an operation reads | `design/frame/README.md:145` retires it. Still used: `examples/work/blueprint/things/mission/verbs/tasks.ts:16`, inside a `Blueprint.todo` whose text goes into the model ("a declared dependency (L3.01)"), and the portal's wire for a proof's uses (`packages/portal/src/modules/wire/types.ts:20,110,114`, `wire.test.ts:62`) | in D4, K1 and the history |
 | **Codex** (as the builder) | we build Forman ourselves (K2 call 4) | 23 uses in 13 living files. Most are history told in living files (`design/milestones.md:26`, `frame/delta.md:18`). They are fine as history, but the frame should not plan work for Codex | 43 uses in 16 files |
 | **two weeks** (dependency age) | **three days** (R1) | not a word but a rule stated wrongly in six files (`X-02`) | |
+
+**The name may change again.** PR #42 (open) shortlists a new name for the framework and recommends Fanfold. Until
+Aaron picks one, "forman" and `@formants/*` are current, and this ledger uses them. When he picks, the rename sweep
+covers this file too.
 
 Old names kept on purpose, and fine: `e2e/layer1` and `e2e/layer2` (real gates); `AaronAbuUsama/architect`;
 `@formants/portal`, until F6 merges and a slice renames it.

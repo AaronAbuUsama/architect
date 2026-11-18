@@ -3,8 +3,7 @@
 Kept by the builder after every commit, so a fresh or compacted session continues exactly where the last one stopped.
 The narrative of goal 1 (layers 1 and 2, Codex's conductor) is kept as written in
 [`history/handoff-layers-1-2.md`](history/handoff-layers-1-2.md).
-Everything open, promised, deferred or stale, with its source, its canon page and the slice that owns it (or none):
-[`ledger.md`](ledger.md).
+Everything open, promised, deferred or stale, with its source, canon page and owning slice: [`ledger.md`](ledger.md).
 
 ## START HERE (17 November 2026)
 
