@@ -10,7 +10,9 @@ export const listen = (dir: string, strip: ReadonlyArray<string>) =>
   Effect.callback<{ readonly server: Server; readonly url: string }, CollectorFailed>((resume) => {
     const privateKeys = new Set(strip);
     const server = createServer((request, response) => {
-      const signal = request.url === "/v1/traces" ? "traces" : request.url === "/v1/logs" ? "logs" : undefined;
+      const signal = request.url === "/v1/traces" ? "traces"
+        : request.url === "/v1/logs" ? "logs"
+        : request.url === "/v1/metrics" ? "metrics" : undefined;
       if (request.method !== "POST" || signal === undefined) {
         response.writeHead(404).end();
         return;
@@ -29,7 +31,7 @@ export const listen = (dir: string, strip: ReadonlyArray<string>) =>
         const parsed = Effect.runSync(Effect.result(Effect.try(() => {
           const doc = JSON.parse(body);
           if (signal === "traces") spansOf(doc);
-          else logsOf(doc);
+          if (signal === "logs") logsOf(doc);
           return JSON.stringify(doc, (key, value) => key === "attributes" && Array.isArray(value)
             ? value.filter((attr) => typeof attr?.key === "string" && !privateKeys.has(attr.key) && !/^(user\.|organization\.id$)/.test(attr.key))
             : value);

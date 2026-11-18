@@ -85,3 +85,18 @@ jobs:
       - run: pnpm nx run e2e:m0-names --outputStyle=static
       - run: pnpm nx run docs:check --outputStyle=static
       - run: pnpm nx run canon:check --outputStyle=static
+
+  # M1's checks also run together in CI. Some checks are red until their slice lands, so the job reports and never
+  # blocks; Gate M1 (M1.15) makes it required.
+  e2e-m1:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: pnpm/action-setup@v6.1.0
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm nx run e2e:m1-checks --outputStyle=static

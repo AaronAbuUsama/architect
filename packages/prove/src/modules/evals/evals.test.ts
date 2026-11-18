@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Blueprint, type FieldsInput } from "orthograph";
+import { traceable } from "orthograph/server";
 import { Schema } from "effect";
 import type { Model, OperationModel } from "@orthograph/compiler";
 import type { CallRecord, Project } from "#modules/journeys/types.js";
@@ -115,8 +116,8 @@ describe("answer shape: no secret reaches a span, a log or the journal", () => {
   });
   const judge = (e: Evidence) => answerShape(signIn, [e], { project: declared as never, all: [] }).failures;
 
-  it("passes a call whose spans and logs hold only public values", () => {
-    expect(judge(signedIn({ trace: { spans: [span({ "payload.email": "ada@acme.dev" })], logs: [] } }))).toEqual([]);
+  it("passes a call without hidden values in its spans and logs", () => {
+    expect(judge(signedIn({ trace: { spans: [span({ operation: "session.sign-in" })], logs: [] } }))).toEqual([]);
   });
 
   it("fails an attribute named for a secret field, without repeating the secret", () => {
@@ -142,10 +143,10 @@ describe("answer shape: no secret reaches a span, a log or the journal", () => {
 
 
 /** A response and its real trace representation through the public evidence/judging interface; no service is substituted. */
-const observed = (operation: OperationModel, answer: FieldsInput, body: unknown, status: number, attrs: Record<string, unknown>) => {
+const observed = (operation: OperationModel, answer: FieldsInput, body: unknown, status: number, attrs: Record<string, unknown>, declaration = { answer }, payload?: CallRecord["payload"]) => {
   const project = { model: { operations: { [operation.name]: operation }, refusals: { AllowanceLimitTooHigh: "AL-003", NotAllowed: "AR-001" } },
-    operations: new Map([[operation.name, { answer }]]) } as unknown as Project;
-  const record = call({ body, status, operation: operation.name });
+    operations: new Map([[operation.name, declaration]]) } as unknown as Project;
+  const record = call({ body, status, operation: operation.name, ...(payload === undefined ? {} : { payload }) });
   const trace: Evidence["trace"] = { spans: [{ traceId: "t", spanId: "s", parentSpanId: "p", name: operation.name, attrs, status: 1, ms: 1, start: 0 }], logs: [] };
   return { project, evidence: Evals.gather([record], new Map([["t", trace]])) };
 };
@@ -169,14 +170,72 @@ describe("independent author: public evaluator response boundaries", () => {
     }
   });
 
-  it("does not use a valid body to bless a public field missing from partial answer telemetry", () => {
-    const operation = { ...schemaAnswer, answer: { ...schemaAnswer.answer, other: { value: { type: "text", max: 200 } } } } as unknown as OperationModel;
-    const fields = { value: Blueprint.value(Schema.String), other: Blueprint.text({ max: 200 }) };
+  it("does not use a valid body to bless a traceable field missing from partial answer telemetry", () => {
+    const operation = { ...schemaAnswer, answer: { ...schemaAnswer.answer, other: { value: { type: "schema" } } } } as unknown as OperationModel;
+    const fields = { value: Blueprint.value(Schema.String), other: Blueprint.value(Schema.String) };
     const body = { value: "null", other: "present" };
     expect(shapeOf(observed(operation, fields, body, 200, { "answer.value": "null", "answer.other": "present" }))).toEqual([]);
     for (const attrs of [{ "answer.other": "present" }, { "answer.value": "null" }]) expect(shapeOf(observed(operation, fields, body, 200, attrs)).length).toBeGreaterThan(0);
     // The existing all-attributes-absent response fallback stays; this correction does not rewrite observability policy.
     expect(shapeOf(observed(operation, fields, body, 200, {}))).toEqual([]);
+  });
+
+  it("checks untraced text in the response and accepts its absence from the span", () => {
+    const operation = { ...schemaAnswer, answer: { ...schemaAnswer.answer, memo: { value: { type: "text", max: 200 } } } } as unknown as OperationModel;
+    const fields = { value: Blueprint.value(Schema.String), memo: Blueprint.text() };
+    const attrs = { "answer.value": "label" };
+    expect(shapeOf(observed(operation, fields, { value: "label", memo: "private notes" }, 200, attrs))).toEqual([]);
+    expect(shapeOf(observed(operation, fields, { value: "label", memo: 12 }, 200, attrs))[0]).toContain("answer.memo");
+    expect(liveShapeOf(observed(operation, fields, undefined, 200, attrs))).toEqual([]);
+  });
+
+  it("flags untraced text in a child span or log but permits it in an event", () => {
+    const memo = "customer's private notes";
+    const memoOperation = { ...op, payload: { memo: { value: { type: "text", max: 200 } } } } as unknown as OperationModel;
+    const project = { operations: new Map([[memoOperation.name, { payload: { memo: Blueprint.text() }, answer: {} }]]) } as unknown as Project;
+    const recorded = call({ payload: { memo }, journal: [{ event: "Granted", move: "grant", subject: "alw_1", fields: { memo } }] });
+    const seen = evidence(1, { call: recorded });
+    const judge = (trace: Evidence["trace"]) => answerShape(memoOperation, [{ ...seen, trace }], { project, all: [] }).failures;
+    const child = { ...seen.opSpan!, name: "allowance.grant.insert", spanId: "child", parentSpanId: "s" };
+    expect(judge({ spans: [], logs: [] })).toEqual([]);
+    expect(judge({ spans: [{ ...child, attrs: { "payload.memo": "x" } }], logs: [] })[0]).toContain("payload.memo (untraced text)");
+    expect(judge({ spans: [{ ...child, attrs: { note: memo } }], logs: [] })[0]).toContain("payload.memo (untraced text)");
+    expect(judge({ spans: [], logs: [{ traceId: "t", spanId: "child", body: "read memo", attrs: { memo } }] })[0]).toContain("(untraced text)");
+  });
+
+  it("permits framework metadata even if an untraced field has its name and value", () => {
+    const operation = { ...op, payload: { operation: { value: { type: "text", max: 200 } }, memo: { value: { type: "text", max: 200 } } } } as unknown as OperationModel;
+    const declaration = { payload: { operation: Blueprint.text(), memo: Blueprint.text() }, answer: {} };
+    const project = { operations: new Map([[operation.name, declaration]]) } as unknown as Project;
+    const seen = evidence(1, { call: call({ payload: { operation: operation.name, memo: "hi" } }) });
+    const judge = (attrs: Record<string, unknown>) => answerShape(operation, [{ ...seen, trace: { spans: [{ ...seen.opSpan!, attrs }], logs: [] } }], { project, all: [] }).failures;
+    expect(judge({ operation: operation.name })).toEqual([]);
+    expect(judge({ operation: operation.name, memo: "hi" })[0]).toContain("memo (untraced text)");
+    expect(judge({ "payload.operation": operation.name })[0]).toContain("payload.operation (untraced text)");
+  });
+
+  it("checks a list's projected items in live spans and its full items in responses", () => {
+    const Account = Blueprint.thing({ description: "A ledger account.", fields: {
+      id: Blueprint.id("acc"), memo: Blueprint.text(), label: Blueprint.traced(Blueprint.text()),
+    } });
+    const list = Blueprint.read(Account, { where: ["state"], order: "oldest", page: 2, allowed: [Blueprint.anyone] });
+    const operation = { ...schemaAnswer, name: "account.list", payload: { state: { value: { type: "text", max: 64 } } },
+      answer: { items: { value: { type: "schema" } }, next: { value: { type: "schema" } } } } as unknown as OperationModel;
+    const seen = (items: ReadonlyArray<object>, body?: object, attrs: Record<string, unknown> = {}) => observed(operation, list.answer, body, 200, {
+      "answer.items": JSON.stringify(items), "answer.next": "null", ...attrs,
+    }, list, body === undefined ? undefined : { state: "published" });
+    const item = { id: "acc_1", label: "expenses", state: "published" };
+    const body = { items: [{ ...item, memo: "public answer" }], next: null };
+    expect(traceable(list.payload["state"]!)).toBe(false);
+    expect(liveShapeOf(seen([item]))).toEqual([]);
+    expect(liveShapeOf(seen([{ ...item, id: "wrong_1" }]))[0]).toContain("answer.items");
+    expect(liveShapeOf(seen([{ ...item, state: "x".repeat(65) }]))[0]).toContain("answer.items");
+    expect(liveShapeOf(seen([{ ...item, memo: "omitted from telemetry" }]))[0]).toContain("answer.items");
+    expect(shapeOf(seen([item], body))).toEqual([]);
+    expect(shapeOf(seen([item], body, { "payload.state": "published" }))[0]).toContain("payload.state (untraced text)");
+    expect(shapeOf(seen([{ ...item, detail: { text: "published" } }], body))[0]).toContain("payload.state (untraced text)");
+    expect(shapeOf(seen([item], { ...body, items: [{ ...body.items[0]!, state: "different" }] }))[0]).toContain("payload.state (untraced text)");
+    expect(shapeOf(seen([item], { items: [item], next: null }))[0]).toContain("answer.items");
   });
 
   it("decodes legitimate encoded objects and lists only when the observed response is unavailable", () => {

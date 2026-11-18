@@ -1,5 +1,8 @@
 # telemetry
 
+`Collectors.local(dir, strip)` receives local prove's traces, logs and metrics on a scoped loopback port. It applies
+the same private and personal attribute guard before writing JSON lines for `FileSource`.
+
 `Collectors.start(dir)`: a real OpenTelemetry Collector (`otel/opentelemetry-collector-contrib:0.164.0`) in Docker,
 its OTLP/HTTP receiver on a port Docker picks, its file exporter writing OTLP JSON lines to `dir` (flushed every
 10 ms). Removed when the scope closes. `traces(wanted)` reads each trace back once complete, by the rule from

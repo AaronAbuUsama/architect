@@ -79,7 +79,7 @@ workshop, from layer 4.
 `lives` is the one place a declaration says where a thing's state is. Today it takes one of two built-in kinds, and
 the default is a D1 row:
 
-```ts file=packages/orthograph/src/modules/things/types.ts lines=26-32
+```ts file=packages/orthograph/src/modules/things/types.ts lines=28-34
   /** Who owns its state: a D1 row with a version column (the default), or a Durable Object per instance (D1 #1). */
   readonly lives: Lives;
   /** The prefix of this thing's refusal codes (`AL` in `[AL-002]`); the compiler takes two letters of its name when unset. */

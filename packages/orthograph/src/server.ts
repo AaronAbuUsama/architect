@@ -3,6 +3,8 @@ export { ErrorNames } from "#modules/errors/service.js";
 export { Blanks } from "#modules/blanks/service.js";
 export { structOf } from "#modules/things/service.js";
 export { isValue } from "#modules/values/service.js";
+export { traceable } from "#modules/visibility/service.js";
+export { listItemFields } from "#modules/operations/service.js";
 export { EventNames } from "#modules/events/service.js";
 export { Scripting } from "#modules/journeys/service.js";
 export { Names } from "#modules/names/service.js";

@@ -1,13 +1,18 @@
 // Turning journeys and verdicts into prove's lines.
 import type { Model } from "@orthograph/compiler";
 import type { Evidence, Verdict } from "#modules/evals/types.js";
-import type { JourneyRun, StepResult } from "#modules/journeys/types.js";
+import type { CallRecord, JourneyRun, StepResult } from "#modules/journeys/types.js";
 import type { Trace } from "#modules/telemetry/types.js";
 
+/** World facts predict the access refusal before the server answers. */
+const refusedBeforeSpan = (call: CallRecord | undefined): boolean =>
+  call?.mayCall === false && call.status === 403 &&
+  typeof call.body === "object" && call.body !== null && "_tag" in call.body && call.body._tag === "NotAllowed";
+
 /** A step's span checks, now that its trace is in. */
-export const spanFailures = (step: StepResult, trace: Trace | undefined): ReadonlyArray<string> => {
+export const spanFailures = (step: StepResult, trace: Trace | undefined, call: CallRecord | undefined): ReadonlyArray<string> => {
   const names = new Set((trace?.spans ?? []).map((s) => s.name));
-  if (!trace || trace.spans.length === 0) return ["telemetry missing: no span of this call reached the collector"];
+  if (names.size === 0 && !refusedBeforeSpan(call)) return ["telemetry missing: no span of this call reached the collector"];
   return [
     ...step.spans.present.filter((n) => !names.has(n)).map((n) => `span ${n} missing`),
     ...step.spans.absent.filter((n) => names.has(n)).map((n) => `span ${n} present, expected absent`),
@@ -34,10 +39,13 @@ export const journeyLines = (runs: ReadonlyArray<JourneyRun>, traces: ReadonlyMa
       failed++;
       continue;
     }
+    const calls = new Map(run.calls.map((call) => [call.trace, call]));
     const steps = run.steps.map((s) => {
       const trace = traces.get(s.trace);
+      const call = calls.get(s.trace);
       const defect = empty ? trace?.spans.find((span) => typeof span.attrs["defect"] === "string")?.attrs["defect"] : undefined;
-      return { s, failures: [...(typeof defect === "string" ? [defect] : []), ...s.failures, ...spanFailures(s, trace)] };
+      const failedCall = typeof defect === "string" ? [defect] : empty && call && call.status >= 500 ? [`failed with ${call.status}`] : [];
+      return { s, failures: [...failedCall, ...s.failures, ...spanFailures(s, trace, call)] };
     });
     const bad = steps.filter((x) => x.failures.length > 0);
     lines.push(`journey ${run.name} ${bad.length === 0 ? "✔" : "✘"} ${steps.length - bad.length}/${steps.length} steps`);
@@ -87,7 +95,8 @@ export const optionalStepLines = (model: Model, runs: ReadonlyArray<JourneyRun>,
   const journeyTraces = new Set(runs.flatMap((run) => run.steps.map((step) => step.trace)));
   const calls = evidence.flatMap(({ call, trace }) => {
     if (call.status !== 200 || !journeyTraces.has(call.trace)) return [];
-    const answer = trace.spans.find((span) => span.name === call.operation && span.attrs["refusal"] === undefined);
+    const answer = trace.spans.filter((span) => span.name === call.operation)
+      .sort((a, b) => Number(b.attrs["attempt"] ?? 0) - Number(a.attrs["attempt"] ?? 0) || b.start - a.start)[0];
     if (!answer || answer.attrs["request.replayed"] === true) return [];
     const parents = new Set([answer.spanId]);
     const names = new Set<string>();

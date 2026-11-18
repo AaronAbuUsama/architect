@@ -1,6 +1,7 @@
-import { Effect, Schema } from "effect";
+import { Clock, Effect, Schema } from "effect";
 import type { Principal, Role } from "orthograph";
 import { Access } from "#modules/access/service.js";
+import { recordCall } from "#modules/handler/internal/call-metrics.js";
 import { Unit } from "#modules/records/service.js";
 import { Records, Store } from "#modules/records/types.js";
 import type { McpEntry, McpOperation, McpRefusals, McpResult, McpServed, McpTool } from "../types.ts";
@@ -52,10 +53,11 @@ export const toolOf = <R>(name: string, entry: McpEntry, served: McpServed<R>, r
   const hidden = new Set(hiddenInputs(op.payload));
   const items = op.kind === "read" && op.by === "list" ? op.thing.fields : {};
 
-  const call = (args: Fields, principal: Principal): Effect.Effect<McpResult, never, R | Store> =>
-    decode(Object.fromEntries(Object.entries(args).filter(([k]) => !hidden.has(k)))).pipe(
+  const call = (args: Fields, principal: Principal): Effect.Effect<McpResult, never, R | Store> => Effect.gen(function* () {
+    const start = yield* Clock.monotonicTimeNanos;
+    return yield* decode(Object.fromEntries(Object.entries(args).filter(([k]) => !hidden.has(k)))).pipe(
       Effect.matchEffect({
-        onFailure: (e) => Effect.succeed(failed(`InvalidPayload: ${e.message}`)),
+        onFailure: (e) => recordCall(name, principal.kind, start, { outcome: "refused", refusal: "InvalidPayload" }).pipe(Effect.as(failed(`InvalidPayload: ${e.message}`))),
         onSuccess: (payload) =>
           served.run(payload as never, principal).pipe(
             Effect.flatMap((answer) => encode(answer as object).pipe(Effect.orDie)),
@@ -79,6 +81,7 @@ export const toolOf = <R>(name: string, entry: McpEntry, served: McpServed<R>, r
       // A defect (the handler's bug, a store that failed) is the operator's to read in telemetry, never the caller's.
       Effect.catchCause(() => Effect.succeed(failed(DEFECT))),
     );
+  });
 
   return { name, description: entry.description, input: inputSchema(op.payloadSchema as unknown as Schema.Top, op.payload), readOnly: op.kind === "read", call };
 };

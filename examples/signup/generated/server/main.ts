@@ -7,7 +7,7 @@ import { HttpApiBuilder } from "effect/http-api";
 import { SqlClient } from "effect/sql";
 import type { Principal } from "orthograph";
 import { AuthD1, Database, JournalD1, StoreD1, Telemetry, toWorld } from "@orthograph/host-cloudflare";
-import { Auth, Busy, BusyLive, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@orthograph/language-effect";
+import { Auth, Busy, BusyLive, CallTelemetry, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@orthograph/language-effect";
 import { Mcp, type McpResult } from "@orthograph/language-effect";
 import { Api, Errors } from "../api/src/index.ts";
 import * as portal from "../portal/main.ts";
@@ -32,18 +32,20 @@ const sheetOpenServed = Handlers.serve({ name: "sheet.open", operation: sheetOpe
 const tables = [[thingIn(sheetThing), "sheet"]] as const;
 
 const refusals = Wire.refusals(Errors.wire);
+const CallApi = Api.middleware(CallTelemetry);
 type Services = SqlClient.SqlClient | Store | Busy | Principals | Journal | Auth;
 
 /** Who is calling, then the operation or read, its refusals sent as their wire classes. */
 type Run = (payload: never, principal: Principal, request?: string) => Effect.Effect<unknown, unknown, unknown>;
 const call = <P>(served: { readonly run: Run }, payload: P, headers: Readonly<Record<string, string | undefined>>) =>
   Effect.flatMap(Principals, (principals) => principals.of(headers["authorization"])).pipe(
+    Effect.withTracerEnabled(false),
     // The caller's idempotency key: for an operation declared `idempotent: "request"`, the same key is one call.
     Effect.flatMap((principal: Principal) => served.run(payload as never, principal, headers["idempotency-key"])),
     refusals,
   ) as Effect.Effect<never, never, Services>;
 
-const SheetLive = HttpApiBuilder.group(Api, "sheet", Effect.fn(function* (handlers) {
+const SheetLive = HttpApiBuilder.group(CallApi, "sheet", Effect.fn(function* (handlers) {
   // The services are taken once, when the routes are built; each request keeps its own tracer and span.
   const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
   return handlers
@@ -79,8 +81,9 @@ const routesOf = (env: Env) => (routes ??= AuthD1.make({ db: env.DB, secret: env
 
 const build = (env: Env) =>
   HttpRouter.toWebHandler(
-    HttpApiBuilder.layer(Api).pipe(
+    HttpApiBuilder.layer(CallApi).pipe(
       Layer.provide([SheetLive]),
+      Layer.provideMerge(CallTelemetry.layer),
       Layer.provide([StoreD1.layer({ tables }), JournalD1.layer, BusyLive, AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))]),
       Layer.provideMerge(Database.d1(env.DB)),
       Layer.provide(HttpServer.layerServices),

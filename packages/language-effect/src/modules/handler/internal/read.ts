@@ -4,6 +4,7 @@ import { Access } from "#modules/access/service.js";
 import { Unit } from "#modules/records/service.js";
 import { Records, Store, type Unit as UnitOf } from "#modules/records/types.js";
 import { answerAttributes, payloadAttributes, principalAttributes } from "./attributes.ts";
+import { measureCall } from "./call-metrics.ts";
 import { spanned } from "./span.ts";
 import type { ReadAnswer, ReadPayload, ReadsApi } from "../types.ts";
 
@@ -22,6 +23,8 @@ const byId = (read: Read<any, any, any>, payload: ReadPayload, unit: UnitOf) =>
 
 /** A cursor is the position of the last instance of the page before; anything else is not one this read handed out. */
 const CURSOR = /^[0-9]{1,15}$/;
+const refusals = new Set(["NotAllowed"]);
+const callRefusals = new Set([...refusals, "SchemaError"]);
 
 /** A page: the instances matching the filters the caller gave, `page` of them, in the read's order. */
 const byList = (read: Read<any, any, any>, payload: ReadPayload) =>
@@ -51,6 +54,7 @@ export const Reads: ReadsApi = {
         const unit = yield* Unit.make(yield* Store);
         yield* Access.check({ allowed: read.allowed, payloadFields: read.payload, payload, principal, thing: read.thing }).pipe(
           Effect.provideService(Records, unit.records),
+          Effect.withTracerEnabled(false),
         );
         return yield* Effect.gen(function* () {
           yield* Effect.annotateCurrentSpan(payloadAttributes(payload, read.payload));
@@ -66,8 +70,8 @@ export const Reads: ReadsApi = {
       });
     return {
       name,
-      run,
-      call: (raw, principal) => decode(raw).pipe(Effect.flatMap((p) => run(p as ReadPayload, principal))),
+      run: (payload, principal) => run(payload, principal).pipe(measureCall(name, principal, refusals)),
+      call: (raw, principal) => decode(raw).pipe(Effect.flatMap((p) => run(p as ReadPayload, principal)), measureCall(name, principal, callRefusals)),
     };
   },
 };

@@ -52,7 +52,8 @@
         "allowCircularSelfDependency": true
       }
     ],
-    "ortho/no-old-names": "error"
+    "ortho/no-old-names": "error",
+    "ortho/no-viem-outside-chain": "error"
   },
   "overrides": [
     {

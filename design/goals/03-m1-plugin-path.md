@@ -72,8 +72,9 @@ answer from the plugin's own handler, collisions and unmet needs are refused by 
 | M1.27 | `runs: "client"` | its row's check |
 | M1.28 | the wallet journeys, by a ✍️ author subagent | they fail on empty handlers for the right reason |
 | M1.30 | `@orthograph/chain-evm`, vendored from `@prb/effect-evm` 5.0.3 by Codex on `codex/m1-chain-evm` | a transfer on Anvil (after M1.14 and M1.31) |
-| M1.31 | Anvil in a world | its row's check |
+| M1.31 | Anvil in a world: a process locally and in CI, never a container (K10 section 8, PR #62) | its row's check |
 | M1.32 | simulation | its row's check |
+| M1.33 | Processes, not containers (K10 section 8): starts only once #62 is on main | its row's check, with no `docker` on `PATH` |
 | M1.29 | `@orthograph/wallets` | `acme wallet create && acme wallet send` confirms on Anvil from the CLI |
 
 ## The loop, for every slice
@@ -91,8 +92,29 @@ Each slice's "done when" run is captured with `tools/evidence/capture.sh M1.<nn>
 
 ## The demo
 
-Written when M1.10 lands: a fresh copy of `examples/starter`, one `ortho add feature` of the fixture feature, then
-`ortho check` and `ortho prove` green.
+A fresh copy of `examples/starter`, one `ortho add feature` of the fixture feature, then `ortho check` and `ortho prove`
+green. The demo runs `add`, `generate` and `check`. With `--prove`, it also runs local proof, whose loopback OTLP
+receiver runs without Docker. M1.33 covers the remaining process migration.
+
+```bash
+tools/demo/m1-plugin.sh
+```
+
+It builds `@fixture/echo` for real (tsc, esbuild, `npm pack`), installs it in a scratch copy of the starter, and runs:
+
+```text
+$ ortho add feature @fixture/echo
+wrote blueprint/features/echo.ts
+pinned @fixture/echo 1.0.0 (local: no registry release to age)
+needs none
+next ortho generate, then ortho check
+$ ortho generate        (the feature's api, sdk, cli, mcp, docs and server entries)
+$ ortho check
+check ✔
+```
+
+Evidence: [`evidence/goal-03/demo.txt`](../evidence/goal-03/demo.txt). Check 02 in CI's `e2e-m1` job also runs proof
+with the feature mounted.
 
 ## Reporting
 

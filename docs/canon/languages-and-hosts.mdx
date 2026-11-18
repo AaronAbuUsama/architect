@@ -30,7 +30,7 @@ language, `language-effect`. Everything that is about the place comes from the h
 
 ```ts file=examples/signup/generated/server/main.ts lines=9-10
 import { AuthD1, Database, JournalD1, StoreD1, Telemetry, toWorld } from "@orthograph/host-cloudflare";
-import { Auth, Busy, BusyLive, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@orthograph/language-effect";
+import { Auth, Busy, BusyLive, CallTelemetry, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@orthograph/language-effect";
 ```
 
 `Handlers.serve` is the language's enforcer. It wraps each handler in the same fixed order, whatever host it runs on:
@@ -99,11 +99,11 @@ export type Runs = "client" | "server" | "chain";
 
    The compiler refuses the other two, and says what a project would need to run them:
 
-```ts file=packages/compiler/src/modules/model/internal/describe.ts lines=108
+```ts file=packages/compiler/src/modules/model/internal/describe.ts lines=110
 if (op.runs !== "server") problems.push(`${file}: runs "${op.runs}" is not supported yet: ${RUNS_NEEDS[op.runs] ?? "an unknown place"}`);
 ```
 
-```ts file=packages/compiler/src/modules/model/internal/describe.ts lines=167-171
+```ts file=packages/compiler/src/modules/model/internal/describe.ts lines=173-177
 /** What an operation that doesn't run on the server needs: a language that does. Only the Effect language exists today. */
 const RUNS_NEEDS: Readonly<Record<string, string>> = {
   client: "it needs a language that runs operations on the caller's own device (language-noir, a later language), and this project's only language, language-effect, runs them all on the server",
