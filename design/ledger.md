@@ -1,0 +1,1349 @@
+# The ledger: everything open, promised, deferred or stale
+
+One list of every open issue, promised fix, deferred item and stale word in the Forman repository, each with where it
+came from. It exists so the docs canon (PR #38, `docs/canon/`) can be written right the first time, on everything we
+know rather than on recent memory.
+
+This is a record of what the files say, not the canon. Don't copy rows into the canon. A page uses the ledger to find
+what it must settle, what it must not claim, and which words it must not use. Then it cites the ledger id in a Note.
+
+## In numbers
+
+- **608 items**: 506 open, 55 fixed and 47 superseded.
+- **190 of the open items are owned by nothing.** No slice, `later.md` line or milestones "Later" line covers
+  them. They are in section 1.
+- **59 open items are marked high.** A canon page can't be written correctly until each one is settled.
+- **28 gaps and 43 contradictions** that no file lists as open (section 2).
+- **Aztec:** 26 needs. 2 are answered today, 14 partly, 10 not at all
+  (section 4).
+
+## The five that matter most for the canon
+
+1. **The generated app has no slice, and the plan still builds the portal.** F6 (decided, on PR #41's branch only)
+   replaces the portal with one generated app. M1.13, M3.14, M5.06 and the canon's own `projections` row still say
+   "portal", and nothing builds the app. Until this is settled, `projections` can't say what docs and the portal
+   become, and M1 is held on it. `PRJ-01`, `PRJ-03`, `G-01`, `X-01`.
+2. **Is a chain a store, and what is "private state"?** K3 lists `chain` as a store kind. But a chain write is pending
+   until it is mined, so it fails K3's own test (one commit, answered at once). The frame also calls chain a host. K3
+   names "private state" as a capability a store kind declares (that is how Noir on Aztec would arrive), and nothing
+   defines it. `stores` and `languages-and-hosts` can't be finished until this is settled. `STO-02`, `LAH-04`,
+   `X-18`, `G-04`, and section 4.
+3. **Secret and private fields are hidden only on MCP.** Only MCP filters answers and refusals by role
+   (`design/decisions/D3.md:909-912`). The generated HTTP API sends every declared field of a refusal, private ones
+   included, and acme's sign-in answers its secret fields on purpose. The canon's `traces` page says "secret never;
+   private to its roles" for every caller (`docs/canon/traces.mdx:257` on PR #38), and its review comment saying so is
+   unanswered. No slice owns the fix. `OPS-01`.
+4. **Operations that run on the caller's device can't be built.** The compiler refuses `runs: "client"`, and no
+   slice lifts that refusal. The wallets (M6) and everything Noir needs both depend on it. `LAH-02`, `G-10`.
+5. **The old words are still in code that users see, and no page or slice owns the new ones.** The compiler prints
+   "target" to users where K2 renamed it "language". "Home" is used for where a thing lives (in the outline, the
+   glossary and K3 itself), but no page owns the word, and K3 says a thing lives in a store. `G-02`, `G-03`, and
+   section 5.
+
+## How the ledger and the canon talk to each other
+
+- **Ledger to canon.** Every row names the one canon page it belongs to, using the page names in
+  `docs/canon/outline.md` on PR #38. The index below shows how many open items each page has.
+- **Canon to ledger.** A canon page cites a row by its id in a `<Note>`, for example `STO-02`. Ids are stable: a row
+  that is fixed or superseded keeps its id and moves to the folded "closed" list for its page. Ids are never reused.
+- **Keeping it current.** When a slice lands, the builder marks its rows fixed, with where. When a canon page finds
+  something new, it adds a row here first and then cites it. The canon thread has done this already: eleven rows came
+  from writing the layer 1 pages (the sources marked "canon note").
+
+## How to read a row
+
+| Column | What it says |
+|---|---|
+| id | the page's prefix and a number (`OPS-01`). Prefixes: FOR forman, BLU blueprint, THI things, MAC machines, OPS operations, HAN handlers, ROL roles, JOU journeys, PRF proof, TRA traces, STO stores, VIE views, PLU plugins, FEA features, ADA adapters, PRJ projections, SEC secrets, STA stand-ins, LAH languages-and-hosts, WOR workflows, ENV environments, AUT auth, AGE agents, FAC factory, KIT agent-kit, CMD, API and GLO for the three reference pages, PRC for process (repository and CI items that belong on no page) |
+| item | what is wrong or missing, in one sentence. **(high)** means a canon page can't be written correctly until it is settled |
+| source | `path:line`, one per line, every one opened. `(branch x)` or `origin/x:` means the file is on that branch, not on `main`. A PR link means the PR body or a review comment |
+| status | open; fixed, with where; or superseded, with the decision that replaced it |
+| slice | the milestone slice that fixes it (`design/milestones.md`), `later` when it is only parked, or `none: needs a slice` |
+
+## Index by canon page
+
+| layer | page | open | of which unowned | high | fixed or superseded |
+|---|---|---|---|---|---|
+| 1 | forman | 9 | 3 | 2 | 6 |
+| 1 | blueprint | 9 | 6 | 5 | 1 |
+| 1 | things | 5 | 2 | 0 | 0 |
+| 1 | machines | 5 | 2 | 0 | 1 |
+| 1 | operations | 12 | 8 | 1 | 1 |
+| 1 | handlers | 6 | 4 | 1 | 1 |
+| 2 | roles | 11 | 3 | 2 | 3 |
+| 2 | journeys | 12 | 5 | 3 | 0 |
+| 2 | proof | 44 | 16 | 5 | 16 |
+| 2 | traces | 35 | 22 | 1 | 7 |
+| 3 | stores | 22 | 2 | 5 | 5 |
+| 3 | views | 8 | 2 | 1 | 0 |
+| 4 | plugins | 14 | 5 | 2 | 2 |
+| 4 | features | 9 | 3 | 0 | 0 |
+| 4 | adapters | 14 | 4 | 0 | 0 |
+| 4 | projections | 35 | 22 | 4 | 7 |
+| 4 | secrets | 9 | 3 | 2 | 2 |
+| 4 | stand-ins | 18 | 3 | 2 | 3 |
+| 5 | languages-and-hosts | 37 | 3 | 4 | 7 |
+| 5 | workflows | 10 | 1 | 3 | 1 |
+| 5 | environments | 16 | 8 | 3 | 7 |
+| 6 | auth | 37 | 6 | 2 | 4 |
+| 6 | agents | 33 | 5 | 2 | 5 |
+| 6 | factory | 21 | 8 | 2 | 4 |
+| 6 | agent-kit | 23 | 9 | 2 | 1 |
+| ref | reference/commands | 14 | 4 | 1 | 6 |
+| ref | reference/blueprint-api | 3 | 2 | 1 | 0 |
+| ref | reference/glossary | 2 | 2 | 1 | 1 |
+| — | (process) | 33 | 27 | 2 | 11 |
+
+## 1. Owned by nothing
+
+Each of these is open, and no milestone slice, `later.md` line or milestones "Later" line owns it. Each needs a
+slice, a decision, or a line saying it is dropped. Grouped by canon page, in the order the canon is written.
+
+### forman
+
+| id | item | source | status |
+|---|---|---|---|
+| `FOR-04` | M1 is held until the canon's first pass and the generated app's design are agreed. | https://github.com/AaronAbuUsama/architect/pull/40<br>design/handoff.md:18 (branch conductor/direction) | open |
+| `FOR-08` | The other 23 canon pages and the three reference pages are unwritten; pass 2 waits until the outline and template are agreed. | https://github.com/AaronAbuUsama/architect/pull/38<br>docs/canon/outline.md:3 (branch claude/docs-canon-cf2c38) | open |
+| `FOR-09` | The public npm name `create-formants` is not checked or claimed; M7.02 claims only the `@formants` organisation. | design/decisions/K1-kits.md:374<br>design/milestones.md:136<br>design/milestones.md:273 | open |
+
+### blueprint
+
+| id | item | source | status |
+|---|---|---|---|
+| `BLU-03` | The design shows `forman check` printing a model hash and counts, but the real command prints five checks with ✔ or ✘, and the model has no hash of its own (only each declaration does). **(high)** | design/docs/index.html:323-324<br>packages/cli/src/modules/check/check.test.ts:59<br>canon note on blueprint.mdx (PR #38) | open |
+| `BLU-05` | `forman check --ready` (exit non-zero while any blank remains) and `Blueprint.question` (a decision not made yet, as a second kind of blank) are written in the design but not built or owned. **(high)** | design/decisions/K1-kits.md:566<br>design/frame/writing-a-feature.md:318<br>design/briefs/K1-kits-and-surfaces.md:452 | open |
+| `BLU-06` | Side-by-side versions "once real callers exist" and derivations are named as later with no owner. | design/decisions.md:127 | open |
+| `BLU-07` | The compiler should refuse field names `message`, `stack` and `cause`, because they collide with fields `Data.Error` sets on an error. | design/spikes/names-from-paths.md:79 | open |
+| `BLU-08` | The design's example says 17 operations, but acme has 15. | design/docs/index.html:324<br>packages/compiler/src/modules/model/model.test.ts:31<br>canon note on blueprint.mdx (PR #38) | open |
+| `BLU-09` | The error-name convention depends on TypeScript continuing to allow merging an interface into a class through module augmentation. | design/spikes/names-from-paths.md:105 | open |
+
+### things
+
+| id | item | source | status |
+|---|---|---|---|
+| `THI-02` | A value whose type is a free `schema` shows "detail not projected" in the model and docs because no JSON-schema projection exists, and no slice builds one. | design/decisions/F1-frontend.md:355<br>design/decisions/F2-portal-ia.md:32 | open |
+| `THI-03` | An array value (a question's options) has no length bound. | design/decisions/F5-work-blueprint.md:72 | open |
+
+### machines
+
+| id | item | source | status |
+|---|---|---|---|
+| `MAC-02` | A machine's refusal for a move from the wrong state is named after the first state, so `mission.pause` refuses with `MissionNotIntake` though it moves from `running`; the refusal carries the real state but the name misleads. | design/decisions/F5-work-blueprint.md:75<br>examples/work/generated/server/main.ts:81 | open |
+| `MAC-03` | The frame promises that Forman can draw a machine back as a diagram and read a FigJam or Mermaid state diagram; neither is built and no slice owns it (only sequence diagrams are parked as later). | design/frame/questions.md:371<br>design/frame/story.md:48<br>design/milestones.md:293 | open |
+
+### operations
+
+| id | item | source | status |
+|---|---|---|---|
+| `OPS-01` | A refusal's private fields still go out over the HTTP wire; only MCP hides them, which matters for private fields such as `AllowanceExceeded { remaining }`. The canon's `traces` page says private fields are always filtered by role, which is true only for MCP. **(high)** | design/decisions/D3.md:912<br>design/decisions/D3.md:594<br>design/decisions/D3.md:592-595<br>design/decisions/D3.md:909-912<br>docs/canon/traces.mdx:257 (PR #38)<br>https://github.com/AaronAbuUsama/architect/pull/38#discussion_r4610733581 | open |
+| `OPS-03` | A client operation cannot yet call a server operation with the same credential (`Blueprint.step.call(op)`); M1.14 builds only adapter calls, and the wallets `link` operation needs the other kind. | design/decisions/K1-kits.md:757<br>design/decisions/K1-kits.md:806<br>design/milestones.md:105 | open |
+| `OPS-05` | Browser signers need a real browser in CI, and conditional exports for client operations are untested. | spikes/kits-dx/README.md:67 | open |
+| `OPS-06` | Code comments give the refusal example `[AL-002] AllowanceExceeded { limit }`, but acme's generated code has AL-001 with `remaining`; the design page also shows an old error and handler shape. | packages/forman/src/modules/things/types.ts:28<br>packages/language-effect/src/modules/wire/types.ts:7<br>examples/acme/generated/api/src/errors.ts<br>canon note code-examples-drift on operations.mdx (PR #38) | open |
+| `OPS-07` | Every caller that isn't a person shares the request key `anonymous`, so an agent, a service or the system can't keep their idempotency keys apart. | packages/language-effect/src/modules/handler/service.ts:88-89<br>canon note anonymous-request-keys on operations.mdx (PR #38) | open |
+| `OPS-08` | In the generated app, the UI's retry is not safe: a retry gets a fresh request key, so it is not recognised as the same request. | https://github.com/AaronAbuUsama/architect/pull/41<br>spikes/generated-app/README.md:106 (branch spike/generated-app)<br>spikes/generated-app/README.md:153 (branch spike/generated-app) | open |
+| `OPS-09` | MCP calls send no idempotency key, MCP has no CORS for browser clients, and an MCP tool's p95 is not watched ("not done, on purpose"). | design/decisions/D3.md:885 | open |
+| `OPS-12` | The rule that a client operation may only use `anyone` or `signedIn`, with `check` refusing a thing role on it, is written but not built or owned. | design/decisions/K1-kits.md:246 | open |
+
+### handlers
+
+| id | item | source | status |
+|---|---|---|---|
+| `HAN-02` | An undeclared failure (`Effect.die`) reaches the client as a bare 500 with an empty body and a decode error; the spike suggests a catch-all declared error so clients always get a typed shape. | spikes/effect4-worker-chain/README.md:362 | open |
+| `HAN-03` | Handlers and callers still write identifiers such as `.spend`, so renaming a declaration is guided by compile errors, not automatic. | design/spikes/names-from-paths.md:107 | open |
+| `HAN-05` | The handler frame's comment names the handler file `<verb>.handler.ts`, which is not the file a project writes. | packages/language-effect/src/modules/handler/types.ts:29<br>canon note frame-file-name on handlers.mdx (PR #38) | open |
+| `HAN-06` | `Handlers.blank` being reached is built, but no test covers it. | canon status on handlers.mdx (PR #38)<br>packages/language-effect/src/index.ts:9 | open |
+
+### roles
+
+| id | item | source | status |
+|---|---|---|---|
+| `ROL-03` | A `Blueprint.todo` placed in `allowed` fails with 'uses a role not exported from a roles.ts', so an undecided role cannot be left as a blank. | design/decisions/F5-work-blueprint.md:73-74<br>packages/compiler/src/modules/model/internal/describe.ts:88<br>design/decisions/F5-work-blueprint.md:73 | open |
+| `ROL-08` | The compiler check that a feature's `allowed` names only its own roles and its needs' roles is not written. | design/frame/writing-a-feature.md:213-214<br>design/frame/writing-a-feature.md:607-608 | open |
+| `ROL-11` | `mission.list` is `signedIn` and cannot be held to the caller's own rows, so any signed-in person could list every owner's missions; the fix is a list rule `where: { owner: principal }`. | design/decisions/F5-work-blueprint.md:69-71<br>examples/work/blueprint/things/mission/verbs/list.ts:4-5<br>design/frame/examples/factory.md:274<br>design/decisions/F5-work-blueprint.md:69 | open |
+
+### journeys
+
+| id | item | source | status |
+|---|---|---|---|
+| `JOU-03` | Journeys can only be written as executable steps: the prose stage (`story:` first, `steps:` added later) and a planning step that leaves only the blueprint and its blanks (S1, S4) are decided but built nowhere, and planning is lost in chat. **(high)** | design/decisions/K2-forman-frame.md:52-54<br>design/frame/questions.md:363-364<br>design/frame/story.md:137-139 | open |
+| `JOU-05` | A plugin's journeys re-run in the app's worlds; one that uses an operation the app omitted or narrowed should report 'not in this app' with the mount file and line, not fail; nothing builds this report. | design/decisions/K1-kits.md:911-915 | open |
+| `JOU-06` | Acme's journeys still live at `examples/acme/journeys`, not `blueprint/journeys/` where K1 and the frame say they live; K1 said they would move when next touched. | design/decisions/K1-kits.md:41-44<br>design/frame/generators.md:129 | open |
+| `JOU-10` | Starting-world fragments (`Blueprint.startingWorld.fragment`, `after:`) are only designed: which worlds a feature's journeys run in is undecided, and two features seeding the same cast must order cleanly. | design/frame/mounting.md:187-188<br>design/frame/writing-a-feature.md:449-457<br>design/frame/writing-a-feature.md:593<br>design/frame/writing-a-feature.md:605-606 | open |
+| `JOU-12` | The rule that any agent but the builder turns a story into steps (S2) is decided, but nothing checks it; the scorer was meant to read the run's authorship. | design/frame/questions.md:365-366<br>design/history/spec-drafts.md:81-83<br>design/decisions/K2-forman-frame.md:51<br>AGENTS.md | open (decided: design/decisions/K2-forman-frame.md:51) |
+
+### proof
+
+| id | item | source | status |
+|---|---|---|---|
+| `PRF-02` | Per-operation ratchets (once green, always green; budgets only tighten) are decided (S6) but not built; the only ratchet in the code counts allowed findings per check rule in `.forman/ratchets.json`. **(high)** | design/frame/questions.md:371-372<br>design/frame/story.md:283-285<br>design/frame/examples/factory.md:220-223<br>packages/cli/src/modules/check/internal/ratchets.ts:1 | open |
+| `PRF-03` | The logbook stores one pass or fail per operation and environment; per-eval rows, journey results, timestamps, trace ids, release history and whether proof was run or carried over do not exist, so the generated app cannot show them. **(high)** | design/decisions/F1-frontend.md:22-23<br>design/decisions/F1-frontend.md:593<br>design/decisions/F2-portal-ia.md:69-70<br>design/decisions/F2-portal-ia.md:399<br>design/briefs/F4-portal-plan-and-state.md:75<br>spikes/portal-ia/README.md:17 | open |
+| `PRF-04` | The release staleness code skips non-pass rows, so a latest fail shows 'unproven', while F1 says a latest fail shows failed and F2 says the portal must not reuse that code. **(high)** | design/decisions/F2-portal-ia.md:322-324<br>packages/prove/src/modules/releases/internal/stale.ts:33 | open |
+| `PRF-07` | A test world leaves behind the Durable Objects of actor-homed things when it ends, and the generated server has no R2 binding, so no file prefix is cleared. | design/decisions/D3.md:396-397 | open |
+| `PRF-09` | Accepted local-only limits: reused process ids and hand-edited pid files are not defended against, and edits inside installed dependencies are trusted. | design/decisions/D3.md:1036-1038<br>design/decisions/D3.md:1042-1044<br>design/decisions/D3-proof-publication-reset.md:46-49 | open |
+| `PRF-12` | Browser signers (passkey, injected wallet) and the React replay need a real browser in CI and on the Mac (headless Chromium against Anvil as the wallet), and a proof against that stand-in is not proof against MetaMask; nothing builds it. | design/decisions/K1-kits.md:948-949<br>design/decisions/K1-kits.md:1041-1043<br>design/frame/projections.md:556-557<br>design/frame/writing-a-feature.md:482-485<br>design/frame/writing-a-feature.md:597-598 | open |
+| `PRF-14` | Comparing a handler to its scaffold must survive a formatter, so the scaffold's normalised hash must be recorded when it is rendered. | design/briefs/F4-portal-plan-and-state.md:104 | open |
+| `PRF-20` | Live evals cannot certify a refusal's wire tag or code, and schema strings seen only on a span lose the difference between text and structure. | design/decisions/D3-eval-author-acceptance.md:45-46<br>design/decisions/D3-eval-author-acceptance.md:51-52 | open |
+| `PRF-22` | Only one test world can live at a time; a per-world lease with a tag on every row is the way out, and would need the store and the auth plugin to carry the tag. | design/decisions/D3.md:398-403 | open |
+| `PRF-23` | Production verdicts may carry staging evidence, and the generated app must not relabel them as live production proof. | spikes/frontend-dx/README.md:79 | open |
+| `PRF-31` | The animation scenes are hand-drawn one per take; only the trace waterfall and the machine journey are codified as kinds, and other kinds (such as a handler lifecycle) have no generator. | https://github.com/AaronAbuUsama/architect/pull/34 | open |
+| `PRF-32` | The canon's `<Scene>` still takes its visuals from the `spike/visual-content` branch, though PR #34 has merged. | https://github.com/AaronAbuUsama/architect/pull/38 | open (stale) |
+| `PRF-35` | The logbook has no atomic snapshot read, so the portal reader uses a bounded stability check (read, fetch the model, read again). | design/decisions/F1-frontend.md:119-123 | open |
+| `PRF-36` | The logbook should file a plugin's verdicts under its mount, so the generated app can show app and plugin proofs apart; nothing builds this. | design/decisions/K1-kits.md:938-941 | open |
+| `PRF-43` | `forman watch` runs only five of the nine evals on live data (answer shape, declared errors, steps, performance, explainability); who may call, machine path, events and coverage stay in `prove`. | design/decisions/D3.md:772-776<br>design/decisions/D3-eval-author-acceptance.md:48-53 | open |
+| `PRF-44` | `prove` waits with Effect `Schedule`, not `Timers`, because it is a build tool; this is a standing exception to the rule that every wait goes through `Timers`. | design/decisions/D2.md:149-152<br>AGENTS.md | open |
+
+### traces
+
+| id | item | source | status |
+|---|---|---|---|
+| `TRA-04` | A shared, long-lived runtime for exporting spans from a Worker was not tried. | spikes/otlp-from-workerd/README.md:218 | open |
+| `TRA-05` | An Axiom monitor that alerts on a defect (error status plus the `defect` tag) is the only defect route now that PostHog is parked, and nobody creates it. | design/decisions/O1-observability.md:515-517 | open |
+| `TRA-06` | An id with a secret-looking public field (`answer.apiKey` is a public key id) trips any check that guesses secrets from key names. | design/decisions/D3.md:746-749 | open |
+| `TRA-07` | Durations are whole milliseconds because workerd's clock is coarse, so steps under a millisecond cannot be shown. | spikes/portal-observability/README.md:64 (PR #39) | open |
+| `TRA-08` | Effect's OTLP exporter has no per-request timeout, so a hung Collector during a long run could stall it. | spikes/otlp-from-workerd/README.md:229 | open |
+| `TRA-09` | File-event timing for the Collector's files on other hosts or CI may differ from the Mac. | spikes/otlp-from-workerd/README.md:226 | open |
+| `TRA-11` | Grafana's anonymous access (used by the local trace viewer) was never tested. | spikes/local-trace-viewer/README.md:79 | open |
+| `TRA-12` | Jaeger's `api/v3` response shape, which the spike used to cross-check, is not a stable contract. | spikes/otlp-from-workerd/README.md:228 | open |
+| `TRA-13` | No defect trace was produced in the portal-observability spike, so the red path is coded but never seen live. | spikes/portal-observability/README.md:144 (PR #39) | open |
+| `TRA-18` | Query spans hang off the HTTP span rather than the step, so a step reads under 1 ms; the portal-observability spike asks for a line about it in O2. | https://github.com/AaronAbuUsama/architect/pull/39 (finding 3) | open |
+| `TRA-20` | Tempo is unusable as a live trace source (30 second lag, 300-trace cap, bucketed p95, overload; its image is large and its search lag was not measured); the call is files locally and Axiom on staging, 'to be folded into O1', and O1 does not yet say so. | spikes/portal-observability/README.md:97 (PR #39)<br>spikes/local-trace-viewer/README.md:76<br>spikes/local-trace-viewer/README.md:77 | open (not yet folded into O1) |
+| `TRA-22` | The Collector needs Docker; a pinned native `otelcol-contrib` build was weighed and deferred, and the other option is OTLP straight into the generated app's server, which would then have to strip private keys itself. | design/decisions/O1-observability.md:174-179<br>design/decisions/O1-observability.md:333<br>design/handoff.md:79-80 (PR #40)<br>https://github.com/AaronAbuUsama/architect/pull/39 | open |
+| `TRA-23` | The Tempo overload had two causes mixed together (per-trace fetches and overlapping polls) and they were not separated. | spikes/portal-observability/README.md:152 (PR #39) | open |
+| `TRA-24` | The `TraceSource` comment still says `watch` comes later and an Axiom source comes in the cloud pass, though `forman watch` and `AxiomSource` exist. | packages/prove/src/modules/telemetry/types.ts:52-53<br>packages/prove/src/index.ts:12<br>packages/cli/src/main.ts:207 | open (the stale comment is still there) |
+| `TRA-25` | The `capxul-*-events` datasets are meant to hold the blueprint's declared events as flat typed fields, and nothing writes them. | design/decisions/O1-observability.md:497 | open |
+| `TRA-27` | The deep link from `forman telemetry` into Grafana's Explore was written from the URL shape and never clicked. | spikes/local-trace-viewer/README.md:80 | open |
+| `TRA-28` | The file trace reader rereads whole files each poll (50 ms at 6 MB), keeps every trace in memory and recomputes every call in the window on each poll, so it needs a cache or rotation, window-sized eviction, and a measurement at 24 hours. | spikes/portal-observability/README.md:146 (PR #39)<br>spikes/generated-app/README.md:145 (PR #41)<br>spikes/generated-app/README.md:147 (PR #41) | open |
+| `TRA-31` | Trace sampling was not exercised and large traces (early flushes at 64 spans) were not stressed. | spikes/otlp-from-workerd/README.md:225 | open |
+| `TRA-32` | What Axiom accepts (JSON OTLP, attribute paths, the log-to-trace link, ingest lag, query limits) is learned only from real sends, and no record of the answers exists. | design/decisions/O1-observability.md:462-471 | open |
+| `TRA-33` | Whether production keeps every trace or samples them is unanswered; the recommendation is to keep every trace at today's scale. | design/decisions/O1-observability.md:460-461 | open |
+| `TRA-34` | `allowance.revoke`'s span has no `move.name`, so the generated app counts moves from events instead. | spikes/generated-app/README.md:109 (PR #41) | open |
+| `TRA-35` | `forman dev` writes no telemetry unless the viewer runs; it should start its Collector every time. | packages/prove/src/modules/prove/service.ts:49-50<br>spikes/generated-app/README.md:132 (PR #41)<br>design/decisions/F6-the-app.md (origin/spike/generated-app) | open |
+
+### stores
+
+| id | item | source | status |
+|---|---|---|---|
+| `STO-01` | Actors commit by a version check alone: no one-permit lock around a move exists in code, though D2 item 38 says the actor commits under one, and a lock added later needs a timeout on waiting for the permit. **(high)** | design/decisions/D2-stage-two.md:27<br>design/spikes.md:7<br>design/spikes/durable-object.md:64<br>design/spikes/durable-object.md:65<br>packages/host-cloudflare/src/modules/actors/service.ts:30 | open |
+| `STO-13` | Postgres or MySQL that we own (through Hyperdrive) and SQLite on a device are named as later store kinds only in K3; neither `later.md` nor milestones parks them, and older files still say Postgres would come 'as a kit'. | design/decisions/K3-stores-and-sources.md:58<br>design/decisions.md:62<br>design/build-plan.md:64<br>design/later.md:1 | open |
+
+### views
+
+| id | item | source | status |
+|---|---|---|---|
+| `VIE-03` | KV, R2 and caches are never a thing's home, and a search or vector index is a kind of view kept from events, but no slice builds an index view. | design/decisions/K3-stores-and-sources.md:62<br>design/milestones.md:218 | open |
+| `VIE-06` | Q1 recommends 'a generated map and console', but no file defines the console. | design/frame/questions.md:64 | open |
+
+### plugins
+
+| id | item | source | status |
+|---|---|---|---|
+| `PLU-10` | Should `narrow` also tighten by the app's own roles? K1 limited it to `via` and `omit` so it is provably tighter; revisit if apps keep needing it. | design/frame/mounting.md:189<br>spikes/kits-dx/README.md:70 | open |
+| `PLU-11` | The design says plugins `@formants/work`, `agent-kit`, `agents`, `stripe`, `resend` and `wallets` are coming, but leaves out `@formants/anthropic` (M4.05), the organisations plugin's later packages and `create-formants` (M2.09). | design/packages.md:39 | open |
+| `PLU-12` | Upgrading a plugin or an adapter has no slice: `forman upgrade` should compare the two models, name the app operations and verdicts now stale, call new operations minor and changed payloads or errors major, and a feature upgrade that changes a table is a major change to the app. | design/decisions/K1-kits.md:916<br>design/frame/mounting.md:146<br>design/frame/writing-a-feature.md:565<br>design/frame/adapters.md:192<br>design/frame/deployment.md:90 | open |
+| `PLU-13` | `check` rules for a narrowing that empties an operation, an app operation calling an omitted one, and an adapter event no operation takes are not in M1.07 or M1.08. | design/frame/mounting.md:141<br>design/milestones.md:98<br>design/milestones.md:99 | open |
+| `PLU-14` | `forman remove <plugin>` (refuses while anything of the app uses it) has no slice. | design/frame/mounting.md:147 | open |
+
+### features
+
+| id | item | source | status |
+|---|---|---|---|
+| `FEA-05` | The Node signer is an encrypted keystore file, not the OS keychain; a keychain would be a later second choice or adapter that no `later.md` or milestones line parks. | design/frame/writing-a-feature.md:267<br>design/frame/adapters.md:131 | open |
+| `FEA-07` | `Blueprint.export` (typed functions a feature offers handlers), `Blueprint.step.use` and `Blueprint.step.compute()` appear in the feature examples but no slice builds them. | design/frame/writing-a-feature.md:189<br>design/frame/writing-a-feature.md:193<br>design/frame/writing-a-feature.md:208 | open |
+| `FEA-08` | `Blueprint.need(modelProvider, { atLeast: 1 })` in the agents feature is not decided by M1.01, which covers only `{ when }`. | design/frame/examples/agents.md:205<br>design/milestones.md:92 | open |
+
+### adapters
+
+| id | item | source | status |
+|---|---|---|---|
+| `ADA-05` | Delivery receipts from Resend would be a later `on:` event; nothing parks it. | design/frame/examples/notifications.md:133 | open |
+| `ADA-11` | Tenderly as an opt-in simulation plugin is mentioned in the old decisions and no slice or later line owns it. | design/decisions.md:90 | open |
+| `ADA-12` | The `eip1193` browser-wallet adapter (host browser, stand-in Anvil) is used by the wallets feature, but no slice builds it. | design/frame/adapters.md:134<br>design/frame/writing-a-feature.md:233 | open |
+| `ADA-13` | The factory feature's `github` adapter (push a branch, open a pull request, `pullRequest.merged` in, Gitea as stand-in) has no slice. | design/frame/examples/factory.md:171 | open |
+
+### projections
+
+| id | item | source | status |
+|---|---|---|---|
+| `PRJ-01` | F6 (one generated app, our own template) is decided but exists only on the spike branch, and the handoff still says the template is undefined and nothing is built until it is. **(high)** | PR#41 origin/spike/generated-app:design/decisions/F6-the-app.md:1-5<br>PR#40 origin/conductor/direction:design/handoff.md:24-27 | open |
+| `PRJ-02` | The default `takes` rule (a projection includes an operation only if it can host it and its callers' way in is admitted) is in no slice, since M1.11 to M1.13 promise unchanged output; it is what keeps `settle` out of the SDK, CLI and MCP and refund out of MCP. **(high)** | design/frame/projections.md:98-106<br>design/frame/examples/payments.md:172-174<br>design/milestones.md:102-104 | open |
+| `PRJ-04` | There is no OpenAPI document yet; the API projection should write one for callers who never use our SDK (M5.07 only reads OpenAPI). **(high)** | design/frame/projections.md:219-235<br>design/milestones.md:220 | open |
+| `PRJ-05` | A projection that reads environments must re-render when one changes, so `impact` must know it. | design/frame/projections.md:561-563 | open |
+| `PRJ-06` | Aaron wants a visual app that can also change the blueprint (a change asked for in the app becomes an agent's blueprint change); the portal is read-only apart from answering questions. | design/history/blueprint-context-pack.md:20-22<br>design/history/spec-drafts.md:557-558<br>design/decisions/F1-frontend.md:596 | open |
+| `PRJ-07` | F2's question on whether generated docs are public was recommended as private by default with a public allowlist (`Deploy.site({ public })`) but never recorded as answered; F2's question on the home page is settled by F6 (Live is the home). | design/decisions/F2-portal-ia.md:473-532<br>PR#41 origin/spike/generated-app:design/decisions/F6-the-app.md | open |
+| `PRJ-08` | Flagging prose as stale needs a history of declarations (`model.json` keeps only today's hash), and the compiler's `Compare` must move somewhere the app may import. | PR#41 origin/spike/generated-app:spikes/generated-app/README.md:137-139 | open |
+| `PRJ-10` | MCP is served at `/mcp` and also declared as its own Worker in acme's production environment; it should be one door of the one Worker. | design/frame/delta.md:47<br>examples/acme/blueprint/environments/production.ts:10<br>design/decisions/K2-forman-frame.md:17-19 | open |
+| `PRJ-11` | New edge kinds (calls, expects, expects-refusal, seeds, raises, uses-value) and a map of which operations have a handler are planned for the model, with no slice. | design/decisions/F2-portal-ia.md:368-374 | open |
+| `PRJ-13` | Plugins must show in `forman describe`, in the generated docs (a page per primitive kind and per mount, an origin badge on every thing and operation), in the app's System view and through `bp.describe()`; only `describe` and `bp` have slices. | design/decisions/K2-forman-frame.md:46-47<br>design/milestones.md:94<br>design/milestones.md:195 | open |
+| `PRJ-15` | Prose written beside a declaration (F6 decision 3) has never been tried in this repository, because the spike mirrored prose instead. | PR#41 origin/spike/generated-app:spikes/generated-app/README.md:155-156<br>PR#41 origin/spike/generated-app:design/decisions/F6-the-app.md | open |
+| `PRJ-18` | The React projection (hooks over the SDK, replayed in a real browser) has no slice. | design/frame/projections.md:259-277 | open |
+| `PRJ-21` | The app must read only generated data and the logbook, never project source, and that contract is not written down for the generated app. | design/briefs/F1-frontend.md:56 | open |
+| `PRJ-22` | The app shell's code uses `async`, `Date.now` and throws against the Effect rules, and generated code importing a shipped renderer package needs a named exception that AGENTS.md does not have. | PR#41 origin/spike/generated-app:spikes/generated-app/README.md:151-152<br>design/decisions/F1-frontend.md:494-498<br>AGENTS.md:54-56 | open |
+| `PRJ-23` | The app shows a refused call (acme's 403) as 'You don't have permission'; refusals should leave the shell as 422, as a rule of the template. | PR#41 origin/spike/generated-app:spikes/generated-app/README.md:136 | open |
+| `PRJ-24` | The app's derived pages (one per thing, operation, machine, event, error and environment; machine diagram, proof matrix, staleness explainer; plugin origin, chain receipt and time lateness views) are designed in F2 and F6 but no slice builds them. | design/decisions/F2-portal-ia.md:393-397<br>design/decisions/F2-portal-ia.md:400<br>design/decisions/F1-frontend.md:597-599 | open |
+| `PRJ-25` | The app's live and evidence pages do not exist: traces (the route is a 404), event and error pages (sketches only), per-eval results, journey outcomes and release history show as unavailable; reading traces through prove's `TraceSource` is decided in F6. | design/decisions/D3.md:857-860<br>design/decisions/F1-frontend.md:90<br>design/decisions/F2-portal-ia.md:146-148<br>spikes/portal-docs/README.md:19<br>PR#39 origin/spike/portal-observability:spikes/portal-observability/README.md:155<br>PR#41 origin/spike/generated-app:design/decisions/F6-the-app.md | open |
+| `PRJ-26` | The derived operation board (Specify, Implement, Cover, Prove, Promote) has no slice; M3.14's board is the factory's mission board, a different thing. | design/decisions/F2-portal-ia.md:150-152<br>design/decisions/F2-portal-ia.md:396<br>design/milestones.md:168<br>design/briefs/F3-portal-upgrade.md:89 | open |
+| `PRJ-28` | The mobile client projection is marked later but is in neither `later.md` nor the milestones' Later list. | design/frame/projections.md:433-450 | open |
+| `PRJ-31` | The proof matrix needs a 'not proved here' state per projection, not only per operation, for projections without a replay. | design/frame/projections.md:564-565 | open |
+| `PRJ-33` | `packages/generators` has no app target yet, and the template is a copy of agent-native 0.228.2 that must be kept under our own name, so every upgrade is manual while releases come daily. | PR#41 origin/spike/generated-app:spikes/generated-app/README.md:128-131<br>PR#41 origin/spike/generated-app:spikes/generated-app/README.md:149-150 | open |
+| `PRJ-35` | agent-native's own friction is unresolved: its query hook sends GET to POST-only actions (405), `/mcp` asks for OAuth even with auth disabled, and its action command cuts objects at two levels. | PR#41 origin/spike/generated-app:spikes/generated-app/README.md:100-105 | open |
+
+### secrets
+
+| id | item | source | status |
+|---|---|---|---|
+| `SEC-01` | Three kinds of secret (runtime, release, builder) and a `check` that refuses a projection asking for one in the wrong place are designed, but M2.04 only covers names, `Redacted` and `secrets set`. **(high)** | design/frame/secrets.md:39-48<br>design/milestones.md:131 | open |
+| `SEC-04` | Prove's local worlds pass a throwaway `AUTH_SECRET` as a command-line `--var`, so `ps` shows it; it could move to a file when someone needs it. | design/decisions/D3.md:190-192<br>packages/prove/src/modules/world/service.ts:21 | open |
+| `SEC-05` | Secret rotation (two valid values for a while, new one tried first) is not designed and is not parked in any later file. | design/frame/secrets.md:182-183 | open |
+
+### stand-ins
+
+| id | item | source | status |
+|---|---|---|---|
+| `STA-02` | The stand-ins we already have are not labelled on the ladder: the mock OIDC issuer, Verdaccio, and hand-written servers in tests that play Axiom, GitHub's token endpoint and the logbook, against the rule of no fakes of our own. **(high)** | design/frame/delta.md:55<br>packages/prove/src/modules/sinks/sinks.standin.test.ts:1-3<br>packages/prove/src/modules/telemetry/sources.test.ts:32<br>packages/prove/src/modules/verdicts/verdicts.test.ts:1-2<br>design/decisions/K2-forman-frame.md:17-18 | open |
+| `STA-07` | In staging, the free Command Code models are the stand-in for a model (the provider's own service), but no slice sets that up. | design/frame/examples/agents.md:218-222 | open |
+| `STA-18` | Work that waits (every wait is counted) has no owner once Anvil runs in its own container, because counting across processes is not in any slice. | spikes/world-anvil-container/README.md:89<br>AGENTS.md:47-48 | open |
+
+### languages-and-hosts
+
+| id | item | source | status |
+|---|---|---|---|
+| `LAH-02` | Operations that run at the caller (`runs: "client"`, such as wallet link and create) are refused by the compiler, whose message says it needs Noir; no slice lifts the refusal, and the runs-client spike (S-RC) was proposed and never scheduled. **(high)** | packages/compiler/src/modules/model/internal/describe.ts:169<br>design/frame/writing-a-feature.md:588<br>design/frame/projections.md:545<br>design/frame/projections.md:556-557<br>design/decisions/K1-kits.md:1004<br>design/frame/examples/private-membership.md:58<br>design/decisions/K1-kits.md:56<br>packages/forman/src/modules/operations/types.ts:49<br>design/briefs/K1-kits-and-surfaces.md:447<br>design/decisions/D3.md:596 | open |
+| `LAH-04` | Whether `chain` is a host (`Host.chain`), a store kind supplied by `language-solidity`, or both is not settled: the frame lists it as a host, K3 lists it as a store kind. **(high)** | design/frame/README.md:129<br>design/decisions/K3-stores-and-sources.md:55 | open (K3 says store kind: design/decisions/K3-stores-and-sources.md:55; the frame glossary still lists `Host.chain`) |
+| `LAH-12` | M6's gate drops the build plan's Gate 3 check that acme has no hand-written viem import, enforced by lint; M6.05 wraps viem once but nothing enforces it. | design/milestones.md:235-238<br>design/milestones.md:246<br>design/build-plan.md:194 | open |
+
+### workflows
+
+| id | item | source | status |
+|---|---|---|---|
+| `WOR-04` | A dead-letter thing the app declares, for failures an app needs to act on, is wanted "once a real app needs" it and is not parked anywhere. | design/frame/examples/notifications.md:183-184<br>design/frame/questions.md:417-418 | open |
+
+### environments
+
+| id | item | source | status |
+|---|---|---|---|
+| `ENV-03` | The environment file's new shape (`places` by mount, `promotesFrom` by import, `settings`, and `check` cross-checking mounts against environments) has no slice: acme's files still use `deploy:` and `publish:` with `promotesFrom: "staging"`, M1.17 adds only `stores:` and M2.03 only `issues:`. **(high)** | design/frame/deployment.md:61-82<br>design/frame/deployment.md:127<br>design/frame/projections.md:179-183<br>examples/acme/blueprint/environments/production.ts:4-17 | open |
+| `ENV-04` | A deployed environment may name only an `https` issuer and the environment check should fail the build otherwise; the logbook does not refuse a non-https issuer and no check exists. | design/decisions/D3.md:41-42<br>design/decisions/D3.md:260 | open |
+| `ENV-05` | A redeploy of a vault that holds money is a migration: `promote` is meant to name it and refuse until the migration is declared, but M6.17 only redeploys on a new bytecode hash. | design/frame/examples/allowance-on-chain.md:142<br>design/milestones.md:258 | open |
+| `ENV-06` | Cloudflare's built-in trace export (the reserved `capxul-cloudflare-*` datasets) is unbuilt, and it needs `persist: false` because persisted data is billed from 1 December 2026. | design/decisions/O1-observability.md:104-105<br>design/decisions/O1-observability.md:116-117<br>design/decisions/O1-observability.md:495 | open |
+| `ENV-09` | MCP is meant to be a door of the one Worker with an optional domain, but acme's `production.ts` still declares a separate MCP Worker at its own domain. | design/frame/deployment.md:128<br>examples/acme/blueprint/environments/production.ts:10 | open |
+| `ENV-11` | Rollback (`promote` of an earlier revision, blocked by a migration that cannot run backwards) has no slice. | design/frame/deployment.md:100-101 | open |
+| `ENV-14` | The project's name still lives in `forman.config.ts` with no named mount (auth moves in M2.05 and M2.09, and telemetry sinks already moved into each environment file, D3 #106). | design/decisions/M0-packages.md:64-65<br>design/decisions/D3.md:710-714<br>examples/acme/forman.config.ts:4 | open |
+| `ENV-16` | `session show --env` still reads `ACME_URL` (the generated CLI's `<NAME>_URL`, default 127.0.0.1:8787); the declared environment's own URL was to replace it and no record shows that done. | design/decisions/D3.md:294-296<br>packages/generators/src/modules/render/internal/cli-session.ts:42 | open |
+
+### auth
+
+| id | item | source | status |
+|---|---|---|---|
+| `AUT-15` | MCP sign-in has not tried DPoP, `private_key_jwt`, key rotation, client discovery by CIMD, the stateful transport or SSE. | spikes/mcp-oauth/README.md:150 | open |
+| `AUT-17` | No crash was injected between the statements of the transactional D1 batch in SIWE linking, and hosted Cloudflare is untried. | spikes/authenticated-siwe-link/README.md:67 | open |
+| `AUT-21` | Real sign-in through the device flow against a deployed server (staging) is done only against local stand-ins and left to the cloud pass, and no M7 slice names it. | design/decisions/D3.md:266<br>design/history/handoff-layers-1-2.md:199<br>design/build-plan.md:140 | open |
+| `AUT-23` | SIWE wallet linking is proven for ordinary key accounts only; ERC-1271, ERC-6492 and EIP-7702 smart-account verification is unproved, though the decision says smart accounts are checked the same way (EIP-7702 delegation is parked). | spikes/authenticated-siwe-link/README.md:65<br>design/milestones.md:291 | open |
+| `AUT-24` | The MCP door leaves out idempotency keys for `idempotent: "request"`, CORS and a consent page. | design/history/handoff-layers-1-2.md:77 | open |
+| `AUT-27` | The generated app and the logbook's reads are open on this machine, and protecting them is left to "the cloud pass"; no slice names it. | design/decisions/D3.md:819<br>design/decisions/D3.md:859 | open |
+
+### agents
+
+| id | item | source | status |
+|---|---|---|---|
+| `AGE-03` | Aaron's long-term intent is to move off Claude Code and Codex onto a Pi-based harness with a chat face; no slice owns the chat face. | design/history/blueprint-context-pack.md:23 | open |
+| `AGE-15` | H2 questions 3 to 5 are unanswered: whether CI may hold a free-model key, whether free models may train on prompts, and which Command Code plan and $1 credit the account has. | design/decisions/H2-agent-runs-and-benchmarks.md:332 | open (needs Aaron) |
+| `AGE-21` | Spike S-H2a (do Command Code's free models return tool calls through `pi-ai`) is not run and needs Aaron's key. | design/decisions/H2-agent-runs-and-benchmarks.md:31<br>design/decisions/H2-agent-runs-and-benchmarks.md:289 | open (needs Aaron, a credential) |
+| `AGE-23` | Streaming `client.run.watch(id)` in the SDK and a run page in the generated app showing transcript, turns and cost have no slice. | design/frame/examples/agents.md:259 | open |
+| `AGE-30` | The generated app's chat ran as a stand-in because there is no model key on the machine; the one ask of Aaron is a model key. | origin/spike/generated-app:spikes/generated-app/README.md:143 (PR#41)<br>https://github.com/AaronAbuUsama/architect/pull/41 | open (needs Aaron, a credential) |
+
+### factory
+
+| id | item | source | status |
+|---|---|---|---|
+| `FAC-03` | A question's answer is not kept: the question thing has no field for the option picked, so the board can say a question was answered but not how. | origin/spike/work-real:spikes/work-real/README.md:47<br>design/frame/examples/factory.md:275 | open |
+| `FAC-05` | F1 lists "later.md" entries for planning and durable orchestration and for two-way requests (request service, draft editor, reviewed diff); `later.md` has neither. | design/decisions/F1-frontend.md:595<br>design/decisions/F1-frontend.md:596<br>design/later.md:1 | open |
+| `FAC-08` | Live updates of the board (WebSocket hibernation, "seq moved" pushes) were designed for F4's Plan and Book objects and no slice builds them. | design/briefs/F4-portal-plan-and-state.md:97 | open |
+| `FAC-09` | Nothing builds or checks that the factory runs on the last released Forman (S17), upgraded only by an approved promote; and a Forman release that fails its gate must never be offered to the factory as an upgrade. | design/decisions/K2-forman-frame.md:58<br>design/frame/questions.md:401<br>design/frame/examples/factory.md:207<br>design/frame/examples/factory.md:262 | open |
+| `FAC-10` | One logbook per project is a single writer; F4 said to revisit it with real numbers. | design/briefs/F4-portal-plan-and-state.md:107 | open |
+| `FAC-16` | The logbook is hand-written, with no declared contract an adapter can be built against; S18 says the adapter is generated once the logbook publishes a model, and no slice does that. | design/frame/questions.md:402<br>design/frame/examples/factory.md:271<br>design/milestones.md:161 | open |
+| `FAC-19` | `forman tasks` is shown in the story and assumed by the skills, but no slice builds that command (the factory has `work mission tasks`), and `work task claim` arrives only in M3.11. | design/frame/story.md:252<br>origin/claude/build-skills-8a1083:design/frame/skills.md:66<br>origin/claude/build-skills-8a1083:design/frame/skills.md:67<br>design/milestones.md:165 | open |
+| `FAC-20` | `watch` only reports today: it writes a drift task file under `.forman/tasks/`, not a fact, so the factory cannot turn an over-budget operation into an `improve` task, and nothing records watch measures in the logbook. | design/decisions/D3.md:777<br>design/frame/story.md:347<br>design/frame/story.md:358<br>design/frame/questions.md:373 | open |
+
+### agent-kit
+
+| id | item | source | status |
+|---|---|---|---|
+| `KIT-02` | Whether "workable" at the end of M2 includes the first skills is Aaron's call; PR #37 recommends a new slice, M2.13, with the neutral kit and shell commands only, but no milestone has it. **(high)** | origin/claude/build-skills-8a1083:design/frame/skills-questions.md:20<br>origin/claude/build-skills-8a1083:design/frame/skills.md:524<br>https://github.com/AaronAbuUsama/architect/pull/37<br>origin/conductor/direction:design/handoff.md:57 | open |
+| `KIT-10` | No tool turns a conversation or a FigJam or Mermaid diagram into a blueprint; the planning agent writes the files by hand, and the proposal is to write through the builder's `bp.write`. | design/frame/story.md:55 | open |
+| `KIT-11` | PR #37 asks where an idea starts before any project exists; it recommends making the project first and rethinking a published plugin at M7, and no slice names that. | origin/claude/build-skills-8a1083:design/frame/skills-questions.md:261<br>https://github.com/AaronAbuUsama/architect/pull/37 | open |
+| `KIT-12` | PR #37 asks whether an agent may loosen the contract (raise a budget, widen a role, drop an error) without a person, and recommends a new classifier beside the version bump; no slice builds it. | origin/claude/build-skills-8a1083:design/frame/skills-questions.md:95<br>https://github.com/AaronAbuUsama/architect/pull/37 | open |
+| `KIT-13` | Plugins are meant to ship their own skills and agent-definition fragments, added to the kit under the mount's name; no slice builds it. | design/frame/generators.md:272 | open |
+| `KIT-14` | The `voice` choice, how agents report to the owner, is declared in the kit sketch and no slice builds it. | design/frame/generators.md:78<br>design/frame/generators.md:259 | open |
+| `KIT-18` | The plain-tool switch (`bp_prove`, `bp_trace` and the like) for weak models on the `pi` runner is described but no slice builds it. | design/frame/builder.md:185 | open |
+| `KIT-20` | This repository is meant to switch to the generated kit, so `forman generate` rewrites our reviewer, conductor and goal files; anything still hand-written is a missing template slot. No slice does the switch. | design/frame/generators.md:268 | open |
+| `KIT-22` | `forman goal new` and the goal-file template (bound left blank for a person) are "missing", and no slice builds them. | design/frame/generators.md:196<br>design/frame/generators.md:239 | open |
+
+### reference/commands
+
+| id | item | source | status |
+|---|---|---|---|
+| `CMD-10` | The `forman model --surfaces` table (what agents can do in production, per environment) and `forman model --graph` (a Mermaid graph with edges for runs-in, calls and inbound moves) are designed but built by no slice. | design/decisions/K1-kits.md:273<br>design/decisions/K1-kits.md:659<br>design/briefs/K1-kits-and-surfaces.md:452 | open |
+| `CMD-11` | The import-extension rewrite only handles relative paths, so a bare `.ts` specifier in another form (a package self-reference, other `imports` keys) would still be emitted as `.ts`. | spikes/preset-verdaccio/README.md:181 | open |
+| `CMD-13` | `forman add environment --kind local\|test\|always-on --agents` is designed but built by no slice. | design/decisions/K1-kits.md:605 | open |
+| `CMD-14` | `forman add thing`, `add operation` and `add journey` have none of the designed flags (`--fields`, `--states`, `--role`, `--code`, `--from`, `--to`, `--emits`, `--move`, `--starts`, `--cast`) and `add` still knows only four kinds; no slice owns them. | design/decisions/K1-kits.md:472<br>packages/cli/src/modules/add/types.ts:11<br>design/briefs/K1-kits-and-surfaces.md:451 | open |
+
+### reference/blueprint-api
+
+| id | item | source | status |
+|---|---|---|---|
+| `API-01` | The generated CLI and SDK send no idempotency key (only the server and docs know the `idempotency-key` header), so a retried call through them is not safe for idempotent operations. **(high)** | design/decisions/D2-stage-two.md:101<br>packages/generators/src/modules/render/internal/server.ts:73 | open |
+| `API-02` | Editor error messages on the deep mapped types may grow with the number of operations; this was not tested past three. | design/spikes/names-from-paths.md:103 | open |
+
+### reference/glossary
+
+| id | item | source | status |
+|---|---|---|---|
+| `GLO-01` | Frame documents still use old command words for the framework: `frame/builder.md` and `frame/projections.md` say `blueprint mcp` where the command is `forman mcp`, and the README's own fix is only "read Forman". **(high)** | design/frame/README.md:31<br>design/frame/builder.md:21<br>design/frame/projections.md:457<br>https://github.com/AaronAbuUsama/architect/pull/37 (design/decisions/K4-agent-skills.md:52) | open |
+| `GLO-02` | Three spec questions are still open in the drafts: whether "work" verbs that no server serves stay, which word to use for operation or verb, and who owns starting worlds; the glossary has since fixed "operation" and made starting worlds a primitive. | design/history/spec-drafts.md:107<br>design/frame/README.md:101<br>design/frame/README.md:107 | open (3.2 and 3.3 settled by design/frame/README.md:101,107; the "work" verbs question 3.1 is not answered anywhere) |
+
+### (process)
+
+| id | item | source | status |
+|---|---|---|---|
+| `PRC-01` | Nothing checks the code's own shape rules from AGENTS.md: lint has only the package-boundary rule and six Forman rules, none stops one module importing another's `internal/` (L1.40 promised it), none checks the six slots or the 250-line cap (`packages/cli/src/main.ts` is 311 lines), and none bans async, try or throw. **(high)** | design/decisions/D2.md:47<br>AGENTS.md:45<br>AGENTS.md:60<br>packages/lint/src/modules/rules/service.ts:10<br>.oxlintrc.json:14 | open |
+| `PRC-02` | `decisions.md` and `later.md` still use retired words: K1's list of changes for them was never done, so `decisions.md` describes kits, the old command's `add kit` and the old std package (removed in M0), and `later.md` says "Safe as a kit", "Python as a third target", "After Gate 5" and "layer five, time". **(high)** | design/decisions/K1-kits.md:1022<br>design/decisions.md:43<br>design/decisions.md:85<br>design/later.md:7<br>design/later.md:8<br>design/later.md:12<br>design/later.md:34 | open |
+| `PRC-03` | A killed Gate 2 run can leave its registry container behind, which makes the next run of that check fail at `docker run`. | design/history/handoff-layers-1-2.md:106 | open |
+| `PRC-04` | A type-performance budget in CI (`tsc --extendedDiagnostics`, failing on a regression) was the containment for the type-complexity risk, and no slice and no CI step carries it. | design/build-plan.md:273<br>.github/workflows/ci.yml:24 | open |
+| `PRC-05` | AGENTS.md says work runs as goal files, but only goals 01 and 02 exist; M1 to M7 have none. | design/goals/02-m0-land-and-rename.md:1<br>AGENTS.md:30 | open |
+| `PRC-07` | Gate 1 and Gate 2 cannot run together: Gate 2's teardown removes any new `forman-*` container, another run's too, and the checks share ports 8900 to 8999. | e2e/layer2/teardown.ts:1<br>design/history/handoff-layers-1-2.md:282 | open |
+| `PRC-09` | PR #28 (the work-real spike) is still open with no completed review (Codex's review failed on its usage limit), `cli:test` and `prove:test` were not run for want of Docker, and the handoff only says to merge it for the record before M3; PR #9 was closed with the same failed review. | https://github.com/AaronAbuUsama/architect/pull/28<br>https://github.com/AaronAbuUsama/architect/pull/9<br>origin/conductor/direction:design/handoff.md:61 | open |
+| `PRC-10` | PR #33 merged with four Codex findings never answered, all still in `spikes/portal-fumadocs`: "Show in transcript" uses two native `setTimeout` calls outside `Timers`, uncancelled on navigation. | https://github.com/AaronAbuUsama/architect/pull/33#discussion_r4610317644<br>spikes/portal-fumadocs/app/work/thread.tsx:35 | open |
+| `PRC-11` | PR #33's spike `ManagerPage` keeps `sent` and `draft` across missions, so one mission's messages show under another's manager. | https://github.com/AaronAbuUsama/architect/pull/33#discussion_r4610317675<br>spikes/portal-fumadocs/app/work/manager.tsx:77 | open |
+| `PRC-12` | PR #33's spike declares `isbot` as `^5`, against the exact-pin rule. | https://github.com/AaronAbuUsama/architect/pull/33#discussion_r4610317655<br>spikes/portal-fumadocs/package.json:33 | open |
+| `PRC-13` | PR #33's spike nests a `<form>` (`limits.tsx`) inside another (`agent-settings.tsx`) on the agent settings page, which forces hydration recovery. | https://github.com/AaronAbuUsama/architect/pull/33#discussion_r4610317666<br>spikes/portal-fumadocs/app/work/agents/limits.tsx:66<br>spikes/portal-fumadocs/app/work/agent-settings.tsx:36 | open |
+| `PRC-14` | PR #34 (the visuals spike) says "Not for merge until you've reviewed the look" yet merged, and the look is still not approved by Aaron. | https://github.com/AaronAbuUsama/architect/pull/34<br>origin/conductor/direction:design/handoff.md:60<br>spikes/visual-content/README.md:118 | open |
+| `PRC-15` | Renaming the GitHub repository `AaronAbuUsama/architect` (and the checkout path) is outward-facing and Aaron's call, left out of M0 and goal 2 with no slice for it. | design/decisions/M0-packages.md:87<br>design/goals/02-m0-land-and-rename.md:31 | open |
+| `PRC-18` | The author-before-builder rule was broken for D3's evaluator widening (builder-labelled commits); it was accepted after the fact and history is not rewritten, and nothing in CI checks that a builder does not edit journeys, evals or generic checks. | design/decisions/D3-eval-author-acceptance.md:14<br>design/decisions/D3-eval-author-acceptance.md:80<br>AGENTS.md:40<br>.github/workflows/ci.yml:1 | open |
+| `PRC-19` | The build plan's table gives S2 to S6, I1, I2 and D3 no tick, and `design/spikes.md` still lists items 4 to 8 (chain, D1 race, evals, Nx scaffolds, lint rules) under "Still to run", though Gates 1 and 2 passed after them. | design/milestones.md:318<br>design/build-plan.md:45<br>design/spikes.md:24 | open |
+| `PRC-20` | The evidence page shows records that lack capture metadata as "unverified", and they cannot make a step green; historical records stay that way. | design/decisions/E1-evidence-captures.md:13 | open |
+| `PRC-21` | The evidence page's masking of paths, emails and token forms is a display guard only; source records are never rewritten, so capture authors must keep secrets and personal details out. | design/decisions/E1-evidence-captures.md:19<br>design/decisions/E1-evidence-captures.md:37 | open |
+| `PRC-23` | The publish and model test timeouts are fixed in code (60 second deadlines in `publish.test.ts` and `model.test.ts`) and main CI is green, but `design/evidence/Publish-CLI-timeout/ci.json` still records the failed run and no recovery run is recorded. | design/decisions/D3.md:1307<br>design/decisions/CI-model-integration-deadlines.md:48<br>design/history/handoff-layers-1-2.md:63<br>design/evidence/Publish-CLI-timeout/README.md:5<br>design/evidence/Publish-CLI-timeout/ci.json:5<br>packages/prove/src/modules/publish/publish.test.ts:149<br>packages/cli/src/modules/model/model.test.ts:14 | open |
+| `PRC-25` | The visual renders are committed binaries (7.2 MB for three scenes; render in CI at dozens), and ffmpeg comes from the machine, not the lockfile, so a different ffmpeg can change the bytes. | spikes/visual-content/README.md:112<br>spikes/visual-content/README.md:114 | open |
+| `PRC-26` | The visual-content render code lives in `spikes/visual-content/`, which is treated as throwaway, and should move to `tools/visuals/` once the look is approved. | spikes/visual-content/README.md:109 | open |
+| `PRC-27` | The workers test pool (`@cloudflare/vitest-pool-workers` 0.23.0) is renamed upstream to `@cloudflare/vitest-plugin` and pins its own wrangler and miniflare, so tests and `wrangler dev` may behave differently. | design/wayfinding/stage-1.md:68<br>spikes/better-auth-workerd/README.md:241<br>packages/host-cloudflare/package.json:27 | open |
+| `PRC-28` | Visual scenes drift from the code they draw, and nothing checks it. | spikes/visual-content/README.md:116 | open |
+| `PRC-29` | `@effect/vitest` is not used because it needs vitest 5, so a small local Effect test helper stands in; nothing says when to switch. | design/decisions/D1.md:21 | open |
+| `PRC-30` | `design/handoff.md` on `main` still says M0 is in progress and PR #32 merges it, while the milestones say M0 is done and M1 is next; PR #40 rewrites it and is unmerged. | design/handoff.md:9<br>design/handoff.md:24<br>design/milestones.md:69<br>https://github.com/AaronAbuUsama/architect/pull/40 | open |
+| `PRC-31` | `frame/delta.md` ends with "Still open: Nothing", but K3 has open risks and the adapters, mounting, secrets, projections and writing-a-feature frame files still carry open question or risk sections. | design/frame/delta.md:116<br>design/decisions/K3-stores-and-sources.md:121<br>design/frame/adapters.md:219<br>design/frame/mounting.md:185<br>design/frame/secrets.md:180<br>design/frame/projections.md:549<br>design/frame/writing-a-feature.md:595 | open |
+| `PRC-32` | `kysely` is still held at 0.29.7 by a workspace override whose comment gives the two-week window as a reason; under the three-day rule that reason is gone, and only "one copy keeps Better Auth's types whole" may remain. | pnpm-workspace.yaml:11<br>design/decisions/D2-stage-two.md:153 | open |
+| `PRC-33` | `typescript` is aliased to `@typescript/typescript6@6.0.2` because Nx and typescript-eslint cannot use TypeScript 7's API until 7.1; the alias is still in `package.json` and no slice removes it. | package.json:22<br>design/decisions/D1.md:16<br>design/wayfinding/stage-1.md:60 | open |
+
+## 2. What nobody is thinking about
+
+These are not in any one file's list of open items. Each was found by reading two files side by side, or by noticing
+a word or a piece the plan uses that no page defines and no slice builds.
+
+### Gaps: used, but defined or owned by nothing
+
+| id | what nobody owns | where it is used | why it matters | page |
+|---|---|---|---|---|
+| `G-01` | No slice builds the generated app (F6): the agent-native template, its pages, the history of declarations that flags stale prose, the call log that says who a call was made as, and the Collector without Docker. The slices that build 'the portal' still stand. | origin/spike/generated-app design/decisions/F6-the-app.md:3-5,28-30<br>spikes/generated-app/README.md:128,133,137 (PR #41)<br>origin/conductor/direction design/handoff.md:22-28,42,79<br>milestones.md:104,168,219 | The `projections` page cannot say what docs and the portal become, and M1 is held until this is settled. | projections |
+| `G-02` | The word 'target' is still printed to users where K2 renamed it 'language', and no slice owns the rename. | packages/compiler/src/modules/model/internal/describe.ts:167-170 (printed in the refusal for `runs: client` and `chain`)<br>packages/compiler/src/modules/model/types.ts:74<br>design/frame/README.md:97 ('every target')<br>design/decisions.md:103,127 | M0.02 renamed the packages and M0.04's lint rule only catches the old project name, so the word survives in messages users read. | languages-and-hosts |
+| `G-03` | The word 'home' is used for where a thing lives (the outline, the glossary, K3) but no page owns it and K3 now says a thing lives in a store. | canon outline.md rows 3 and 9 (`things`: 'a home'; `stores`: 'makes a place a home')<br>design/docs/index.html:362,1070 ('a noun with a home')<br>K3-stores-and-sources.md:32,62<br>docs/canon/things.mdx:24,284-285,351 | Two pages would explain 'home' differently; one word must be chosen (store, or home as the plain word for it) and given one owner. | things |
+| `G-04` | 'Private state' as a capability a store kind declares (and the note and nullifier it rests on) is named in K3 but never defined, and the store port has no place for it. | K3-stores-and-sources.md:59-60<br>docs/canon/stores.mdx:359 ('not written yet')<br>packages/forman/src/modules/visibility/types.ts:2<br>frame/examples/private-membership.md:67,78 (nullifier) | The `stores` page asks how a kind declares lists, search and private state; the answer does not exist. | stores |
+| `G-05` | Noir's follow-ups (NPC-01 to NPC-03, the Aztec fee payer, a device-held cast member, client-side telemetry, disclosure keys, a public-footprint eval, and the study's proposed custody, takesEffect and holders words) have one parked line and no plan. | spikes/noir-private-core/follow-ups.md:5-7 ('must be promoted into a later-target plan')<br>design/later.md:12<br>milestones.md:287<br>design/noir/addendum.md:49-50,123<br>design/noir/design-study.md:814-828,931-938<br>design/decisions/N1-noir-target.md:34 | Noir is Later, but the page that lists languages needs to say what is and is not decided. | languages-and-hosts |
+| `G-06` | Idempotency by request key on actors has no owner: later.md points at a retired 'layer four', M6 is only the chain, and M5.03 covers event ids only. | packages/host-cloudflare/src/modules/store/service.ts:69<br>design/later.md:21<br>frame/delta.md:69 (F5)<br>K3-stores-and-sources.md:29 (a store's commit takes a request key)<br>milestones.md:216 (M5.03) | K3's commit test says a store takes a request key; the actor store does not, so `idempotent: "request"` is refused on actors. | stores |
+| `G-07` | A list read cannot be held to the caller's own rows (row scoping), and no slice or decision owns the fix. | design/decisions/F5-work-blueprint.md:69<br>examples/work/blueprint/things/mission/verbs/list.ts:4-5 | Any signed-in person can list every mission in the factory app until it is solved. | roles |
+| `G-08` | The MCP door leaves out CORS, idempotency keys and a consent page, and M2.06 does not list them. | design/history/handoff-layers-1-2.md:77<br>design/decisions/D3.md:886,895<br>milestones.md:133 (M2.06) | The `projections` page must say what MCP does not do today. | projections |
+| `G-09` | The old words 'stage one to three' and 'layer one, four, five' still sit in code comments and messages, and no file maps them to slices. | packages/generators/src/modules/render/internal/worker-config.ts:14,60<br>packages/host-cloudflare/src/modules/store/service.ts:68-69<br>packages/language-effect/src/modules/principals/service.ts:4<br>packages/prove/src/modules/telemetry/types.ts:52-53 (says `watch` and Axiom are later; both exist)<br>examples/acme/test/fixtures/evals/performance/grant.ts:2 | Readers cannot tell which milestone 'layer four' means; some comments are now wrong. | (process) |
+| `G-10` | Client operations (`runs: "client"`, a client step that calls an operation, a journey runner acting as a client) are defined only in K1 and no slice builds them, though the wallets proof needs them. | design/decisions/K1-kits.md:742-770,1004<br>frame/writing-a-feature.md:185,287,588<br>milestones.md:244 (M6.03)<br>spikes/kits-dx/README.md:67 (S-RC)<br>describe.ts:108 | The compiler refuses `runs: client` today; the `languages-and-hosts` page owns `runs`. | languages-and-hosts |
+| `G-11` | The browser pieces of the wallets proof (the `eip1193` adapter, the `react` projection, Playwright browser replay) belong to no slice. | frame/writing-a-feature.md:233,466,482<br>frame/adapters.md:135<br>design/docs/index.html:545<br>milestones.md:244 (M6.03) | M6.03 cannot pass without them. | projections |
+| `G-12` | `Blueprint.question`, `forman check --ready`, `model --surfaces`, `model --graph`, `add environment` and `add operation --move` are decided in K1 and used by the frame, but no slice builds them. | design/decisions/K1-kits.md:566-659<br>frame/writing-a-feature.md:318-331<br>design/briefs/K1-kits-and-surfaces.md:163-164,437-452 | The `blueprint` page's `forman check` section cannot list a 'ready' check that is not built. | blueprint |
+| `G-13` | `forman upgrade`, `forman remove`, a plugin's major version taken from its model diff, and 'impact after an upgrade' are in the frame and in no slice or command table. | frame/mounting.md:146-147<br>frame/writing-a-feature.md:568,575-579<br>K1-kits.md:916-919<br>milestones.md:95 (M1.04 impact by handler hash only) | A mount has no way out or up; the `plugins` page would describe commands that do not exist. | plugins |
+| `G-14` | `forman goal new` and `forman prove --all` are named in the frame and appear in no slice and no command table. | frame/generators.md:197<br>frame/projections.md:507<br>design/docs/index.html (command table lacks both) | The generated `reference/commands` page is built from the CLI, so these will never show. | proof |
+| `G-15` | Parts of the Blueprint API used by the frame have no slice: `Blueprint.step.use`, `step.compute`, `Blueprint.startingWorld.fragment` (with `after:`), and `Blueprint.need(x, { atLeast })` (M1.01 names only `when`). | frame/writing-a-feature.md:192,208,285,453<br>frame/README.md:103,118<br>frame/examples/agents.md:205<br>milestones.md:92 (M1.01), :110 (M2.07 worlds) | The wallets, agents and factory examples cannot compile without them. | plugins |
+| `G-16` | Secret kinds (`Secret.release`, `Secret.builder`), secret rotation and an OS keychain adapter are called 'later' in the frame and parked nowhere. | frame/secrets.md:71,166,182<br>frame/adapters.md:132<br>milestones.md:131 (M2.04 builds stored and generated only) | The outline's `secrets` page owns 'runtime / release / builder'; only runtime is built. | secrets |
+| `G-17` | The new environment file shape (`places`, `promotesFrom`, `settings`, `telemetry`) and rollback have no slice; only `stores:` (M1.17) and `issues:` (M2.03) do. | frame/deployment.md:70-81,100<br>design/docs/index.html (Blueprint.environment)<br>milestones.md:107,130 | The outline gives `environments` the word 'rollback'; nothing builds it, not even in M7. | environments |
+| `G-18` | The per-operation ratchet (once an operation is green, turning it red is refused) is decided and has no slice; project-wide ratchets are Later; the built `check` ratchet counts rule findings, a different thing under the same word. | K2-forman-frame.md:53 (S6)<br>design/docs/index.html:902<br>frame/story.md:283<br>milestones.md:293<br>docs/canon/blueprint.mdx:141<br>design/build-plan.md:112 (L1.40) | The `proof` page owns 'ratchet' and the `blueprint` page already uses it for another meaning. | proof |
+| `G-19` | Watch findings and drift files becoming factory tasks and logbook facts have no slice: nothing writes the measure into the logbook, and M3.09 derives tasks from the model and the facts only. | K2-forman-frame.md:53 (S7)<br>frame/story.md:347-352<br>frame/examples/factory.md:220-223<br>design/decisions/D3.md:777-781<br>milestones.md:163 | The `improve` tasks the factory page shows would never appear. | factory |
+| `G-20` | The logbook publishing a model (S18) and the facts the factory reads (per-eval rows, per-row times, `implementation: missing\|scaffold\|written`) have no slice; M3.07 hand-writes the adapter. | K2-forman-frame.md:60 (S18)<br>design/briefs/F4-portal-plan-and-state.md:75-76<br>milestones.md:161 (M3.07), :163 (M3.09), :94 (M1.03 blanks only) | M3.09's `build` task needs the implementation state and nothing records it. | factory |
+| `G-21` | The package map lacks packages the milestones name: `create-formants`, `@formants/anthropic` and the OpenAI-compatible adapter, the bench's home, and where the `forman` bin lives after M2.09. | design/packages.md:6,39-42<br>milestones.md:120,136,189,198 (M4.14)<br>origin/conductor/direction design/handoff.md:26<br>decisions/H1-agent-harness.md:161-164 (Command Code provider)<br>milestones.md:273 (M7.02 org only) | Anyone adding a package would not know where it is meant to live; the npm name `create-formants` is not claimed by M7.02. | (process) |
+| `G-22` | The word 'agents' names three things: the feature `@formants/agents`, the projection built on `builder` (K2 S11, called `agents` in M3.12), and the package `@formants/agent-kit` (packages.md). | design/packages.md:40<br>milestones.md:166 (M3.12)<br>K2-forman-frame.md:44,53 (S11)<br>canon outline.md rows 23 and 25 | The canon already splits `agents` and `agent-kit`; the package and slice names must follow. | agent-kit |
+| `G-23` | O1's Axiom monitor (the only route for defects) and the `-events` datasets of product events have no slice. | design/decisions/O1-observability.md:497,513-517<br>milestones.md:110 (M1.20 counts only)<br>design/later.md:10-11 | Defects are found only through the monitor, so a `traces` page promising 'defects' cannot be proved. | traces |
+| `G-24` | Verdicts and journeys filed per mount ('not in this app') have no slice, so a mounted plugin's journeys are not reported apart from the app's. | design/decisions/K1-kits.md:914 (a mounted plugin's check 'not in this app')<br>frame/writing-a-feature.md:575-579<br>milestones.md:95 (M1.04) | The `proof` page cannot say who owns a verdict for a mounted operation. | proof |
+| `G-25` | The type-performance budget (`tsc --extendedDiagnostics` in CI) is promised and nothing runs it. | design/build-plan.md:273<br>nx.json<br>design/milestones.md | A promised guard that does not exist. | (process) |
+| `G-26` | The M6 gate lacks the 'no hand-written viem import' lint check that the old Gate 3 had. | design/build-plan.md:194<br>milestones.md:237,246 (M6.05 wraps viem once) | M6.05 says viem is wrapped once; nothing enforces it. | adapters |
+| `G-27` | Counted work across processes is used as a rule and flagged for the container Anvil, but no slice builds it. | AGENTS.md:47-49<br>spikes/world-anvil-container/README.md:89<br>milestones.md:247 (M6.06) | A world that runs a process outside the worker cannot count its work, so 'the world is idle' is not true for it. | workflows |
+| `G-28` | A redeploy of a vault that holds money should be refused until a migration is declared; M6.17 only skips an unchanged bytecode. | frame/examples/allowance-on-chain.md:142<br>milestones.md:258 (M6.17) | Migrations are per store (K3 item 6); chain migrations have no check. | stores |
+
+### Contradictions: two files that disagree today
+
+Both sides were opened. Where one side was already fixed, the entry was dropped.
+
+| id | what disagrees | one side | the other side | which side current decisions favour | page |
+|---|---|---|---|---|---|
+| `X-01` | The plan still builds 'the portal' and the canon lists it as a projection, but F6 replaces the portal with one generated app. | design/milestones.md:104 (M1.13 'acme's docs and portal wire unchanged'), :168 (M3.14 the portal's Work side), :219 (M5.06 the portal's data page); canon outline.md row 14 `projections` ('server, SDK, CLI, MCP, docs, portal'); design/decisions/K2-forman-frame.md:46-47 (portal System view); design/decisions/F2-portal-ia.md:561-567 (keeps a Portal Pro face, draft PR #16, 'paused for Codex') | origin/spike/generated-app design/decisions/F6-the-app.md:3-5 ('replaces the portal of F1 and F2'); origin/conductor/direction design/handoff.md:22-24 (no HeroUI) and :42 (the app replaces the docs and portal projections, M1.13); K2-forman-frame.md:15 (Codex dropped) | F6 (decided 18 November, Aaron 'Yes, all four'); the three slices, the K2 portal line, the F2 Pro face and the outline row must be reworded when F6 merges. | projections |
+| `X-02` | The release-age rule is three days, but six files still say two weeks or say the policy is not on. | AGENTS.md:57-59, design/decisions/R1-release-age.md:7-9 and pnpm-workspace.yaml:14 (`minimumReleaseAge: 4320`, three days); K2-forman-frame.md:14 (Aaron's call 3) | design/later.md:26-28 (says 20160 and 'rejects 53 entries'); design/decisions/K1-kits.md:638-640 (`add kit` refuses under two weeks); design/decisions/H1-agent-harness.md:145-148; design/briefs/F3-portal-upgrade.md:142; spikes/better-auth-workerd/README.md:15; design/decisions/D2-stage-two.md:208-212 (history) | K2 call 3 and R1: three days with a named override. `forman add` (M1.10) must use three days. | plugins |
+| `X-03` | The 'leaks nothing' check is called a built-in eval of its own, a tenth eval, and part of eval 1, and the count of evals disagrees across files. | K2-forman-frame.md:63-64 (S28 built-in eval); O2-trace-gaps.md:54; milestones.md:109 (M1.19 'the leaks nothing eval passes'); frame/examples/private-membership.md:137-139 (recommends a tenth eval) | design/decisions/D3.md:569-570 (part of eval 1, answer shape, not a tenth); decisions.md:48-52 (nine evals) and :119 (a tenth for time); frame/README.md:142 (nine built in, a tenth for time) | K2 S28 and O2 treat it as its own built-in eval, so the count is wrong everywhere else; but D3 #83 says it is part of eval 1. One must be chosen before the `proof` page gives a number. | proof |
+| `X-04` | An environment file is said to declare secret names, while the frame and M2 say nobody writes a secret name as a string. | frame/secrets.md:9 ('Nobody types a secret's name as a string'); milestones.md:124 (Gate M2 check 4) and :131 (M2.04 'acme's environments name no secret') | design/decisions/D3.md:11-13 (`environments/<env>.ts` declares secret names); frame/secrets.md:23-24 and packages/forman/src/modules/environments/environments.test.ts:14 (`secrets: { RELAYER_KEY: ... }` by string) | The frame and M2.04: the plugin declares the secret, the environment only says where its value comes from. | secrets |
+| `X-05` | The frame puts the MCP projection on its own Worker, while other frame files make it a door of the one Worker. | frame/projections.md:170 (`mcp.at(Cloudflare.worker({ domain: "mcp.acme.dev" }))`) | frame/deployment.md:48 and frame/delta.md:47 (a door of the server, K2 Q2); K2-forman-frame.md Aaron's call 7 | K2 Q2: MCP is a door of the one Worker, with an optional routed domain. | projections |
+| `X-06` | Old notes say the CLI and MCP are built on the SDK, but the built MCP runs the served operation directly. | design/decisions.md:36 ('the CLI and the MCP server on the SDK') | design/decisions/D3.md:874-879 (#122: a tool runs the served operation, `Handlers.serve`'s `run`) | D3 #122, which is built; decisions.md is the older proposal. | projections |
+| `X-07` | The Python client is built from the OpenAPI document in two files and from the model in two others. | frame/projections.md:413,418; frame/examples/python-sdk.md:45,141-143 | frame/questions.md:430-431 and K2-forman-frame.md S32 (from the model, which keeps refusal codes and visibility) | K2 S32 (decided): from the model. | projections |
+| `X-08` | The empty-handler check is called `prove --unbuilt` in two places and `prove --empty` in the plan. | design/decisions/K1-kits.md:990; frame/writing-a-feature.md:406 (`--unbuilt`) | milestones.md:106 (M1.16 `--empty`); frame/story.md:204; design/docs/index.html command table | M1.16 and the docs index: `--empty`. | proof |
+| `X-09` | Several frame files still use the pre-K2 names and say undecided things are open. | K2-forman-frame.md:11,29 (command `forman`, org `@formants`, decided); frame/delta.md:118 ('Every question is decided'); frame/questions.md:3-4 | frame/builder.md:21,27,258 and frame/projections.md:455-457 (`blueprint mcp`); frame/writing-a-feature.md:4,25,490 (`@blueprint` placeholder, `blueprint prove`); frame/examples/payments.md:6 ('still open in delta.md'); frame/README.md:3-7 ('not yet a decision') | K2: the command is `forman`, the scope is `@formants`, the frame is decided. | blueprint |
+| `X-10` | The frame's plugin package names do not match the package map. | design/decisions/M0-packages.md:17 (`@formants/cli` is the command package); python-sdk.md:7 (`@formants/language-python`) | frame/projections.md:127 (`cli` projection imported from `@formants/cli`); frame/questions.md:255 (`@formants/sdk`); frame/examples/python-sdk.md:35 (`@formants/python`) | M0-packages: a projection and a command cannot share `@formants/cli`; the projection package names need deciding in M1.01. | projections |
+| `X-11` | Whether a mount may narrow an operation by the app's own roles is an open question in one file and done in an example. | frame/mounting.md:28-29,189-190 (narrow only removes ways in or operations; tightening by roles is open) | frame/examples/factory.md:34 (`a.narrow(a.operations.start, { allowed: [manager] })`); K2-forman-frame.md S15 ('unless the mount allows agents') | Not settled: K2 S15 only implies a mount can allow agents. M1.01 should decide and fix mounting.md or the example. | plugins |
+| `X-12` | The factory's task kinds are listed four different ways. | milestones.md:163 (M3.09: `write:journey`, `build`, `fix`, `improve`, plus attention) | frame/story.md:253-255,351 (`specify`, `build`, `prove`, `improve`); frame/examples/factory.md:222,240-245 (`spike`, `validate`, `machine`, `specify`, `prove`, `promote`, `watch:`); design/briefs/F4-portal-plan-and-state.md:48,126 | M3.09, because it is the slice that builds them; the factory example and F4 need aligning to it. | factory |
+| `X-13` | Agent runs and factory tasks are said to be actors in some files and database rows in others. | frame/questions.md:40 ('runs and tasks are actors; their lists are views'); design/decisions/H1-agent-harness.md:305-306 (`Run` with `lives: "actor"`) | frame/examples/agents.md:47 (`Run` `lives: "database"`); frame/examples/factory.md:186-187 (runs in D1, tasks nowhere); design/decisions/F5-work-blueprint.md:45-47 (database rows, because lists over actors are refused) | F5 and the examples (database rows) hold today; K3 and M5.05 (views) could reopen it, so the `agents` page should say 'a row, the loop in its own Durable Object'. | agents |
+| `X-14` | The frame writes the cloud binding as `Cloudflare.d1()`, while K3 and the code write `Cloud.d1()` and `Cloud.d1.local()`. | frame/deployment.md:74 (`Cloudflare.worker({ ..., database: Cloudflare.d1() })`) | K3-stores-and-sources.md:72; milestones.md:107; examples/acme/blueprint/environments/production.ts:6 (`Cloud.cloudflare({ database: Cloud.d1() })`) | The code and K3 (`Cloud.*`); the frame needs the same words. | environments |
+| `X-15` | The frame says nothing is open while several of its own files list open questions and risks. | frame/delta.md:118 ('Nothing. Every question is decided') | K3-stores-and-sources.md:121-127; frame/secrets.md:180-187; frame/adapters.md:219-227; frame/mounting.md:185-190; frame/builder.md:267-285; frame/writing-a-feature.md:595-608; frame/projections.md:549-565 | The open lists are the truth: the questions are decided, the risks and sub-questions are not. delta.md should say so. | blueprint |
+| `X-16` | Old Gate and layer numbers survive in the chain and Noir docs, but the plan has milestones M0 to M7 and no Gate 5. | milestones.md:5 (layers 3 to 5 retired), :260 (Gate M6), :287 (Noir under Later, no gate) | design/decisions/N1-noir-target.md:16 and design/later.md:12 ('after Gate 5, its own layer'); frame/examples/allowance-on-chain.md:109 ('Gate 4'); frame/examples/private-membership.md:5,128,141 ('Gate 5') | milestones.md (M0 to M7); the Noir order is just 'Later'. | languages-and-hosts |
+| `X-17` | A thing's place is described as a closed list of `database`, `actor`, `chain` in the frame, while K3 makes stores an open list. | frame/README.md:96 and frame/questions.md:11 (`lives`: database, actor or chain); frame/builder.md:70 (`lives: "database" \| "actor" \| "chain"`); packages/forman/src/modules/things/types.ts:32 (`Lives = "database" \| "actor"`, true until M1.17) | K3-stores-and-sources.md:36-50 (a thing lives in a store of an open kind) | K3 (decided 18 November); M1.17 builds it. The `things` page must describe today's closed list and the store, not the three words. | stores |
+| `X-18` | `chain` is called a host, a store kind and a language-supplied kind, and a chain does not obviously pass K3's commit test. | K3-stores-and-sources.md:29-32 (a store takes one call's writes, journal events, outbox and request key together, guarded by a version) | K3 :55 (`chain` is a store kind from `language-solidity`) and :58-59 (Noir on Aztec a later kind); frame/README.md:129 and projections.md:364 (`Host.chain`); frame/examples/private-membership.md:8-9 (`Host.chain (Aztec)` plus a language) | Unsettled: K3 item 2 needs one line saying how a chain commits (or that `chain` is not a store), before M6.10. | stores |
+| `X-19` | `Blueprint.chain` is written with three different shapes. | design/decisions.md:103 (`{ contract, key, per }`) | frame/examples/allowance-on-chain.md:31 (`{ contract, per }`); frame/examples/private-membership.md:36 (`{ contract, per, network: Aztec }`) | The allowance example is the later one (decisions.md is the first proposal); M6.10 should fix the shape. | stores |
+| `X-20` | Organizations, memberships and invitations are said to stay the app's own things, but K2 makes them the `@formants/organizations` plugin. | frame/mounting.md:182-183 (cites D2 #61) | K2-forman-frame.md:34-36 (two feature plugins, nothing copied); milestones.md:136-139 (M2.07 deletes acme's copies) | K2 and M2.07. | auth |
+| `X-21` | AGENTS.md says every wait goes through `Timers`, but handlers cannot reach `Timers` until the time work, which is parked. | AGENTS.md:47-48 (every wait through `Timers`; handler work is counted work) | design/decisions/D2-stage-two.md:197-203 (the generated server does not provide `Timers`); milestones.md:289-290 (Time is Later) | AGENTS.md is the rule; today it cannot be followed inside a handler. The `handlers` page must say so until Time lands. | handlers |
+| `X-22` | AGENTS.md says lint and check enforce the code rules, but D3 says the green gates do not cover every no-throw, no-try and no-ambient-environment rule and names live violations. | AGENTS.md:45-48 ('enforced by lint and check as soon as they exist') | design/decisions/D3.md:1248-1249 and :1264-1266 (#197) | D3 #197 describes today; AGENTS.md should say 'partly enforced'. | (process) |
+| `X-23` | Old notes run the local Anvil as a Cloudflare Container owned by a Durable Object, while the decision and the plan run it as a local process or Docker container. | design/decisions.md:59-60 ('benches: Cloudflare Containers owned by a Durable Object') | design/decisions/G1-local-first.md:9-10 (Containers on Docker); milestones.md:247 (M6.06 `Stand.process`, a container in CI) | G1 and M6.06. | stand-ins |
+| `X-24` | `decisions.md` still calls Solidity and Python 'targets', and G1 names an old wrangler. | K2-forman-frame.md:13 ('target' is now 'language'); packages/cli/package.json:13 and packages/host-cloudflare/package.json:30 (wrangler 4.156.1) | design/decisions.md:103,127-128 ('Solidity is a target', 'Python as a third target'); design/decisions/G1-local-first.md:25 (wrangler 4.45) | K2 call 2 and the package files. | languages-and-hosts |
+| `X-25` | The consent page and the `/device` page are handed to the portal in one place, and the portal is read-only in others. | design/decisions/D3.md:309-311 and :894-895 (the portal, L2.10, builds the pages) | D3.md:857-860 (the portal has no write); decisions.md:39 (read only, apart from answering asks); milestones.md:133 (M2.06 builds the device flow, not the page) | Unsettled, and F6 changes the owner: the generated app is the only place that could host them, so M2.06 should name it. | auth |
+| `X-26` | O1's top sections still send defects to PostHog and name the old tokens and datasets, while its amendment says Axiom only and uses `capxul-*` groups; O2 still cites the old dataset. | design/decisions/O1-observability.md:490-517 (Aaron, 16 November: Axiom only; `capxul-test` and `capxul-real` groups, keychain names) | O1:250-254, :353-357 and :371-375 (PostHog for defects, `AXIOM_INGEST_TOKEN`, `acme-staging-traces`); design/decisions/O2-trace-gaps.md:68-69 (metrics dataset 'O1 line 356') | O1's amendment (Aaron's call). | traces |
+| `X-27` | AGENTS.md says generated code imports only the language runtime, `forman`, the host and project code, but K1 and F1 widen it to plugin entries and the portal runtime. | AGENTS.md:55 | design/decisions/K1-kits.md:878-881 (generated code may import a mounted plugin's entries, 'amends AGENTS.md'); design/decisions/F1-frontend.md:494-498 (portal runtime) | K1 and K2 (plugins). AGENTS.md and the Nx rule need widening in M1.09; F1's portal part goes away with F6. | plugins |
+| `X-28` | F5 says the work project moves to `apps/work`, but K2 and the plan make it the `@formants/work` plugin. | design/decisions/F5-work-blueprint.md:43 | K2-forman-frame.md:42-45; milestones.md:159 (M3.05) | K2 and M3.05. | factory |
+| `X-29` | `design/packages.md` says `language-effect` has locks and an outbox; the actor commit has neither and M5.04 builds the outbox. | design/packages.md:17-21 ('locks, outbox, idempotency') | packages/host-cloudflare/src/modules/actors/service.ts:30-36 (a version check and journal entries only); milestones.md:217 (M5.04 outbox); design/later.md:22 | The code and the milestones. | languages-and-hosts |
+| `X-30` | The spikes file says spikes 2 to 6 are still to run, and the plan says they are done in substance. | design/spikes.md:24 ('Still to run, before layer one') | milestones.md:318 (S2 to S6 done in substance); design/build-plan.md:45 (no tick) | milestones.md. | (process) |
+| `X-31` | later.md still describes the agent run as a 'std kit' that only references Pi Durable, while K2 and M4 make it the `@formants/agents` feature built on Pi Durable. | design/later.md:33 ('the reference, not a dependency', 'belongs with layer five') and :41 ('shipped as a std kit `agent`') | K2-forman-frame.md:27 (Q2 Pi Durable) and :44 (`@formants/agents` feature); milestones.md:188 (M4.04 builds the Pi Durable seam) | K2 Q2 and M4.04. | agents |
+| `X-32` | AGENTS.md sends ideas for later to `design/later.md`, but the plan keeps its own Later list with items later.md lacks. | AGENTS.md ('Ideas for later go in design/later.md'); milestones.md:46 | milestones.md:285-293 (Time, EIP-7702, Docker sandbox, baselines, sequence diagrams, project-wide ratchets), not in later.md | Not decided. Two parking lots; pick one home. | (process) |
+| `X-33` | The sandbox a builder run uses is named three ways: E2B, a Cloudflare container with Docker locally, and 'Docker later'. | spikes/e2b-sandbox/README.md:44 (E2B is the first sandbox); design/decisions/F5-work-blueprint.md:89 (needs the E2B spike) | design/briefs/F4-portal-plan-and-state.md:122 (call 8.3: Cloudflare container, Docker locally); milestones.md:292 (the Docker sandbox is Later); :185 (M4.01 'where Pi runs' does not say) | Unsettled; M4.01 must choose. | agents |
+| `X-34` | The skills design expects a shell `forman describe` in M4.11, while the docs index and M1.03 put it in M1, and the CLI has no such command today. | milestones.md:94 (M1.03 exit check `forman describe --json`); design/docs/index.html command table (`forman describe` M1) | origin/claude/build-skills-8a1083 design/frame/skills.md:520 (`forman describe` with M4.11); milestones.md:195 (M4.11 is the builder API); packages/cli/src/main.ts (no `describe` command) | M1.03 and the docs index: `describe` ships in M1. | agent-kit |
+| `X-35` | The canon's traces page says secrets are never answered and private fields are always role-filtered, but D3 limits that to MCP. | origin/claude/docs-canon-cf2c38 docs/canon/traces.mdx:255-259 (secret never answered; private to its roles) | design/decisions/D3.md:906-912 (#125: redaction is MCP's; the HTTP API still sends every declared field of a refusal); PR #38 review comment (P1) | D3 #125 and the code: say it per projection. | traces |
+| `X-36` | The Noir addendum promises instant private revoke and that nobody outside sees anything; the spike refutes both, and the example's proving budget is below the measured time. | design/noir/addendum.md:10-12 and :30; frame/examples/private-membership.md:47 (`budget: p95 15 seconds`) | spikes/noir-private-core/README.md:48 (refuted), :94 and :158 (a spend can invalidate a pre-proved revoke); :72 (spend 22 s median, 33 s worst) | The spike's measured results; the addendum's promises and the budget must be reworded. | languages-and-hosts |
+| `X-37` | Three Noir documents disagree on where the money sits. | design/noir/design-study.md:773 and :455-460 (recommends a funded pocket per allowance; a shared vault shows members every amount) | design/noir/addendum.md:14-21 (a shared organisation account, internal visibility accepted); frame/examples/private-membership.md:18-19 (still shows the E2 public marker) | The addendum (the later call); the example is stale. | languages-and-hosts |
+| `X-38` | K2 says custody is proved first in Solidity so Noir inherits it, and the clock moves the chain with it, but the Noir spikes found Aztec custody and time work differently. | K2-forman-frame.md:64 (S29); frame/examples/private-membership.md:140-142; milestones.md:259 (M6.18 no key in a binding); design/decisions.md:116 (moving a stepped clock moves the chain) | spikes/noir-private-core/README.md:106-108 (a key shared on purpose by roles) and :162; frame/examples/private-membership.md:46 (`custody: "caller"`); design/noir/spike-2-role-gate-e2.md:89 (steps under 23 hours, about 130 L1 blocks of finality) | The spikes; Noir is Later, so the claim 'Noir inherits it' should be dropped from S29 wording. | languages-and-hosts |
+| `X-39` | The wallets decision says a plain wallet and a smart account are checked the same way, but the SIWE spike proved externally owned accounts only. | design/decisions.md:109 | spikes/authenticated-siwe-link/README.md:65 (no claim of ERC-1271, ERC-6492 or EIP-7702) | The spike: label smart-account checking unproven until M6 proves it. | roles |
+| `X-40` | Tests use hand-written servers that play Axiom, the OIDC issuer and the logbook, but the frame bans our own fakes. | frame/delta.md:55 (the stand-in ladder: real process, real compatible software, the vendor's own mock or sandbox; never our own fake); K2-forman-frame.md Aaron's call 7 | packages/prove/src/modules/sinks/sinks.standin.test.ts:1-3; packages/prove/src/modules/verdicts/verdicts.test.ts:1-2 | The ladder; those tests need a label on the ladder or to move to real software (M5 stand-ins). | stand-ins |
+| `X-41` | Noir and chain examples point at documents that do not exist or at a branch that is not main. | frame/examples/allowance-on-chain.md:153 and private-membership.md:128 ('Today (`origin/layer/3`)') | design/noir/addendum.md:5 (cites `noir-evidence/`, which is under spikes/noir-private-core/evidence/noir-evidence/) | Point at main and the real path. | (process) |
+| `X-42` | An old wayfinding note says the test-runner conflict is undecided; D1 decided it. | design/wayfinding/stage-1.md:34 ('decision pending') | design/decisions/D1.md:21 (vitest 4.1.12, `@effect/vitest` not used) | D1. | (process) |
+| `X-43` | PR #34 is merged, but the handoff and PR #38 still treat it as waiting on Aaron's look. | PR #34 merged (commit 40ff66f, 18 November) | origin/conductor/direction design/handoff.md:60 ('waits on Aaron's look'); PR #38 body ('until #34 merges') | The merge; update both. | (process) |
+
+## 3. Everything else, by canon page
+
+Open items that a slice already owns, then (folded) the items that are fixed or superseded, so the canon can say
+they are closed. The unowned items for each page are in section 1, not repeated here.
+
+### forman
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `FOR-01` | "Behaviour is the only freehand code" has an exception: an adapter's mapping blank is also hand-written, and M1.14 doesn't say whether it is a handler. **(high)** | design/milestones.md:105<br>canon note mapping-blank on forman.mdx (PR #38) | open | M1.14 |
+| `FOR-02` | `forman.config.ts` still holds the project's name and sign-in choice and the compiler does not read it; both are meant to move into mounts, and the package map still says it also holds telemetry, which no longer lives there. **(high)** | design/decisions/D3.md:205<br>design/decisions/M0-packages.md:63<br>design/packages.md:58<br>packages/forman/src/modules/config/types.ts:1 | open | M1.11, M2.05 |
+| `FOR-03` | Framework and Capxul facts are tangled in Capxul's code (Capxul paths in its blueprint tools, rules in lint, generated code beside declarations). | design/history/blueprint-context-pack.md:46<br>design/milestones.md:281 | open | M7.10 |
+| `FOR-05` | Many generators are still missing: the builder API, the agent kit, the CI plan, the goal file, the root files (`AGENTS.md`, `CLAUDE.md`, `.mcp.json`), adapter-from-contract, the new plugin package, the secrets list and migrations. | design/frame/generators.md:236<br>design/frame/generators.md:37 | open | M4.11, M3.12, M3.13, M2.09, M5.07, M2.10, M2.04, M1.17 |
+| `FOR-06` | The `@formants` npm organisation does not exist (Aaron must be signed in) and nothing is published to npm before M7; until then everything installs from the local Verdaccio. | design/decisions/K2-forman-frame.md:11<br>design/decisions/M0-packages.md:6<br>design/milestones.md:73<br>design/packages.md:41 | open | M7.02 |
+| `FOR-07` | The `forman` command ships from `@formants/cli` until `forman new` lands in M2.09; which internal packages go inside the front door is also left to M2.09, but M2.09's done-when does not say so. | design/decisions/M0-packages.md:39<br>design/handoff.md:26<br>design/milestones.md:136 | open | M2.09 |
+
+<details><summary>Closed: 6 fixed or superseded</summary>
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `FOR-10` | The config file's `outputs` field was never read and is removed. | design/decisions/K1-kits.md:425<br>design/milestones.md:66 | fixed (M0.03: design/milestones.md:66) | M0.03 |
+| `FOR-11` | The package layout (one front door, one package per plugin, language and host) is decided and renamed; the payments example still says the layout is open. | design/frame/questions.md:231<br>design/frame/examples/payments.md:5<br>design/decisions/K2-forman-frame.md:29<br>design/decisions/M0-packages.md:1 | fixed (design/decisions/K2-forman-frame.md:29; M0.01 and M0.02) | M0.01 |
+| `FOR-12` | K1 and the frame's feature page still call the npm scope a placeholder or an open question; the scope is `@formants`. | design/decisions/K1-kits.md:1132<br>design/frame/writing-a-feature.md:4<br>design/decisions/K2-forman-frame.md:11 | superseded (K2-forman-frame.md:11: `@formants`) | M7.02 |
+| `FOR-13` | The old design docs were left with a review still running and a build script pointing at the design session's folder, and cannot be rebuilt because their inputs were lost; they are kept as a record. | design/history/handoff-layers-1-2.md:262<br>design/history/docs-layers-1-2/README.md:4 | superseded (docs rewritten as one page in M0.05: design/milestones.md:68; old docs kept as a record, design/history/docs-layers-1-2/README.md:3) | M0.05 |
+| `FOR-14` | The old five-layer plan (declare, prove, reach out, chain, time) and its "Later" list are replaced by milestones M0 to M7. | design/decisions.md:43<br>design/milestones.md:285<br>design/decisions/K2-forman-frame.md:68 | superseded (milestones.md M0 to M7; K2-forman-frame.md:68-70) | M0.01 |
+| `FOR-15` | `design/decisions.md` still uses the old names (the old name of `@formants/forman`, the old command, the old config file name, kits, targets); it is kept as a record only. | design/decisions.md:31<br>design/decisions/M0-packages.md:74<br>design/decisions/K2-forman-frame.md:11 | superseded (K2-forman-frame.md:11-14 names; M0-packages.md:74 keeps this file as a record) | M0.03 |
+
+</details>
+
+### blueprint
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `BLU-01` | An operation that still has a blank is dropped from the model, so an unfinished model looks smaller instead of unfinished; the design also wants an `implementation: missing \| scaffold \| written` marker per operation, which M1.03 does not name. **(high)** | design/frame/delta.md:28<br>design/frame/README.md:221<br>design/briefs/F4-portal-plan-and-state.md:76 | open | M1.03 |
+| `BLU-02` | Journeys live in two places: prove reads both `blueprint/journeys/` and the root `journeys/`, acme keeps its journeys at the root, while `forman add journey` and the canon use `blueprint/journeys/`. **(high)** | packages/prove/src/modules/journeys/internal/load.ts:35-36<br>canon note on blueprint.mdx (PR #38) | open | M1.03 |
+| `BLU-04` | The model leaves out journeys, starting worlds and role rules, so agents and projections cannot see them; the frame's "where today falls short" list repeats this with several other gaps that have their own slices. **(high)** | design/frame/delta.md:27<br>design/frame/README.md:221 | open | M1.03 |
+
+<details><summary>Closed: 1 fixed or superseded</summary>
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `BLU-10` | Blueprint files must have no side effects on import, because the compiler runs them before `tsc`. | design/spikes/names-from-paths.md:77<br>design/build-plan.md:50 | fixed (names from paths, L1.11: design/build-plan.md:50) | M1.06 |
+
+</details>
+
+### things
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `THI-01` | A value carries only its schema; its Solidity type is added in a later slice. | packages/forman/src/modules/values/types.ts:1 | open | M6.10 |
+| `THI-04` | On chain, a relayer actor and a chain follower actor are not built, and reads through the follower and the no-person's-key check are not built either. | design/frame/examples/allowance-on-chain.md:101 | open | M6.07, M6.09, M6.18 |
+| `THI-05` | There is to be one vault per organisation (S27); nothing is built. | design/frame/questions.md:423 | open | M6.01, M6.16 |
+
+### machines
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `MAC-01` | A handler cannot reach `Timers` (the generated server has no clock driver in the worker), so slow-handler test fixtures burn time with 2000 sequential database queries instead. | design/decisions/D2-stage-two.md:197<br>examples/acme/test/fixtures/evals/performance/grant.ts:2<br>examples/acme/test/fixtures/layer2/slow-spend/spend.ts:2<br>design/milestones.md:289 | open | later (design/milestones.md:289, Time) |
+| `MAC-04` | Time is not built: one clock per world, `every` and `after` moves, the keeper, the on-time eval, calendar-month anchors and durable workflows for long waits. | design/decisions.md:114<br>design/milestones.md:289 | open | later (design/milestones.md:289) |
+| `MAC-05` | While a handler waits on a chain call, the actor holds its lock for the whole call; the plan is a generated in-between state on the machine (`spending`, S25) so callers see the wait. | design/later.md:22<br>design/frame/questions.md:419<br>design/decisions/K2-forman-frame.md:63<br>design/spikes.md:11<br>design/spikes/durable-object.md:66 | open | M6.15 |
+
+<details><summary>Closed: 1 fixed or superseded</summary>
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `MAC-06` | Calendar months against 30-day periods, and the period anchor, were open in the world-clock spike; the decision is calendar months from the grant. | design/spikes/world-clock.md:118<br>design/build-plan.md:68 | fixed (decided: calendar months from the grant, design/build-plan.md:68) | none (decided) |
+
+</details>
+
+### operations
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `OPS-02` | A bad payload has no single name: depending on the door it is `InvalidPayload`, a `SchemaError` or exit 2, and it carries no refusal code. | packages/language-effect/src/modules/handler/types.ts:10<br>packages/language-effect/src/modules/handler/types.ts:73<br>canon note bad-payload-name on operations.mdx (PR #38) | open | M1.20 |
+| `OPS-04` | An operation can only be idempotent by request key; the notifications example needs idempotency by a field (`{ by: "cause" }`) so one email is sent per event. | design/frame/examples/notifications.md:53<br>design/frame/examples/notifications.md:172 | open | M5.03 |
+| `OPS-10` | Noir needs `custody` and `takesEffect` primitives, which do not exist yet. | design/frame/examples/private-membership.md:23<br>design/milestones.md:287 | open | later (design/milestones.md:287, Noir) |
+| `OPS-11` | The Noir example declares a 15 second p95 budget, but a measured spend took 22.3 s median and 33.4 s worst, so the budget is too low. | design/frame/examples/private-membership.md:47<br>spikes/noir-private-core/README.md:72<br>design/milestones.md:287 | open | later (design/milestones.md:287, Noir) |
+
+<details><summary>Closed: 1 fixed or superseded</summary>
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `OPS-13` | The cheap first steps for private seams (visibility on fields and arguments, `runs`, the telemetry allowlist, stable refusal codes, open step kinds, the test-kind marker) were built. | design/decisions/N1-noir-target.md:20<br>design/decisions/D3.md:541 | fixed (built as L2.P: design/decisions/D3.md:541-601, items 80 to 86) | none (built as L2.P) |
+
+</details>
+
+### handlers
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `HAN-01` | Every handler is offered a raw `SqlClient`, so a handler can write to the database outside the commit that guards a store. **(high)** | packages/generators/src/modules/render/internal/api.ts:96<br>packages/generators/src/modules/render/internal/server.ts:27<br>canon note raw-sql-in-a-handler on handlers.mdx (PR #38) | open | M1.17 |
+| `HAN-04` | The compiler only looks for blanks at the top level of a declaration, so a `Blueprint.todo` inside `steps` (work's `mission.tasks`) is never counted and the operation isn't marked unfinished. | packages/compiler/src/modules/model/internal/describe.ts:47<br>examples/work/blueprint/things/mission/verbs/tasks.ts:16<br>canon note nested-blank on handlers.mdx (PR #38) | open | M1.03 |
+
+<details><summary>Closed: 1 fixed or superseded</summary>
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `HAN-07` | A handler may construct only the errors its operation declares; lint closes the gap that matching error shapes leave. | design/decisions/D2-stage-two.md:72<br>packages/lint/src/modules/rules/internal/refusals.ts:38 | fixed (the `declared-errors-only` lint rule: packages/lint/src/modules/rules/internal/refusals.ts:38; packages/lint/src/modules/rules/service.ts:13) | none (built in layer one) |
+
+</details>
+
+### roles
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `ROL-01` | A person and an agent acting for them look the same (`Principal` is `anonymous \| person`), so `attention.approve`, `mission.stop` and `mission.pause` cannot demand the owner in person; the fix is `owner.notVia(Via.agent)`. **(high)** | design/decisions/F5-work-blueprint.md:66-68<br>examples/work/blueprint/things/mission/roles.ts:4-5<br>design/frame/examples/factory.md:273<br>design/milestones.md:130 | open | M2.03 |
+| `ROL-02` | Two role models disagreed (`holds` and the code's rule); decided: the rule is the model, and the organizations plugin's `holds` is a shortcut that produces a rule. The shortcut is not built yet. **(high)** | design/decisions/K2-forman-frame.md:30<br>design/frame/delta.md:62<br>design/frame/questions.md:292-354<br>design/milestones.md:134 | open (decided: design/decisions/K2-forman-frame.md:30, K2 Q5) | M2.07 |
+| `ROL-04` | A modified member prover could make its successor right note undiscoverable so the admin's revoke cannot land; source reading refuted it but the attack was never run. | spikes/noir-private-core/follow-ups.md:5<br>design/later.md:12 | open | later (design/later.md:12; design/milestones.md:287) |
+| `ROL-05` | Noir's shared nullifier key needs a security review: anyone holding the plaintext can consume the note, and retry after sync is untested. | design/noir/spike-1-member-note.md:175-179<br>design/later.md:12 | open | later (design/later.md:12; design/milestones.md:287) |
+| `ROL-06` | Revoking a Noir right has no ordering priority: a spend that wins admission can invalidate a pre-proved revoke, so clients must sync and prove again. | spikes/noir-private-core/README.md:158<br>design/later.md:12 | open | later (design/later.md:12; design/milestones.md:287) |
+| `ROL-07` | Role rule text is not part of the model, so role pages in the generated app stay thin; M1.03 puts role rules in the model. | design/decisions/F2-portal-ia.md:56<br>design/decisions/F2-portal-ia.md:128-129<br>design/milestones.md:94<br>design/decisions/F6-the-app.md (origin/spike/generated-app) | open | M1.03 |
+| `ROL-09` | Two members spending at once from shared token notes is untested in the Noir private-core spike; their rights are separate but token-note contention may still force re-proving. | spikes/noir-private-core/README.md:160<br>design/later.md:12 | open | later (design/later.md:12; design/milestones.md:287) |
+| `ROL-10` | Whether the owner of a private organisation can see who its recipients are is undecided; the study calls it a one-word change in an audience. | design/noir/design-study.md:975<br>design/later.md:12<br>design/milestones.md:287 | open | later (design/later.md:12; design/milestones.md:287) |
+
+<details><summary>Closed: 3 fixed or superseded</summary>
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `ROL-12` | A bare role in `allowed` once could not allow anything until the runtime check landed; it is now judged on the operation's own subject. | design/decisions/D2.md:104-105<br>design/decisions/D2-stage-two.md:62-63 | fixed (design/decisions/D2-stage-two.md:62-63, #46) | n/a (closed in layer one) |
+| `ROL-13` | Spec questions on scoped role rules, whether to ship identity adapters and fixed principal kinds were settled by K2 (the rule is the model; five principals). | design/history/spec-drafts.md:438-442<br>design/decisions/K2-forman-frame.md:30<br>design/decisions/K2-forman-frame.md:36-38 | superseded (K2 Q5 and principals, design/decisions/K2-forman-frame.md:30, :36-38) | M2.03 |
+| `ROL-14` | The Noir revoke options (an instant public check, a delayed lock with a one-hour or 24-hour delay, and whether it is on by default) are no longer needed: spike 3 revokes by consuming the current right, and it takes effect at once. | design/noir/design-study.md:976<br>design/noir/spike-2-role-gate-e2.md:124<br>design/noir/spike-2-role-gate-e2.md:175-180<br>spikes/noir-private-core/README.md:84<br>spikes/noir-private-core/README.md:92 | superseded (spikes/noir-private-core/README.md:92: the public list and delayed revoke are unnecessary; revoke takes effect on commit) | later (design/later.md:12; design/milestones.md:287) |
+
+</details>
+
+### journeys
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `JOU-01` | Journeys are not in the model yet, so the generated app cannot show proof status live, its `<Scenario>` block was not built, and the spike server reads journey files as a stopgap. **(high)** | design/milestones.md:94<br>spikes/portal-observability/README.md:52 (PR #39)<br>design/handoff.md:83 (PR #40)<br>spikes/generated-app/README.md:111 (PR #41) | open | M1.03 |
+| `JOU-02` | Journeys call the server over raw HTTP, so the SDK, CLI and MCP are never proved by a journey; the replay rule (the same evidence through each projection) is designed but not built. **(high)** | design/frame/delta.md:36<br>design/frame/README.md:189-190<br>design/frame/projections.md:466-498<br>design/briefs/K1-kits-and-surfaces.md:428<br>design/milestones.md:135 | open | M2.08 |
+| `JOU-04` | A journey cannot read private fields except from the acting member's own device, so a Noir journey cast must hold a device and keys per person. | design/frame/examples/private-membership.md:73-78<br>design/later.md:12 | open | later (design/later.md:12; design/milestones.md:287) |
+| `JOU-07` | Journeys pick the way in (`s.olga.via("agent")`, `/_world/credential`); the proposed `refusesVia` assertion is replaced by `lacks(...ops)`, which checks an MCP catalog. | design/decisions/K1-kits.md:961-974<br>design/briefs/K1-kits-and-surfaces.md:431 | open (`lacks(...ops)` replaces `refusesVia`: design/decisions/K1-kits.md:974) | M2.02 |
+| `JOU-08` | Notifications journeys need a new `inbox(...)` check, `s.world.settles()` counting the outbox, and `s.world.redeliver`; none exist. | design/frame/examples/notifications.md:89-109<br>design/milestones.md:222 | open | M5.04, M5.09 |
+| `JOU-09` | Sequence diagrams as journeys (S5) and project-wide ratchets (S6) are parked in the milestones' Later list and appear nowhere else. | design/milestones.md:293<br>design/decisions/K2-forman-frame.md:53-54<br>design/frame/questions.md:371-372 | open | later (design/milestones.md:293) |
+| `JOU-11` | The Python client's cast needs API keys, made by calling `api-key.create` as each member. | design/frame/examples/python-sdk.md:99-101<br>design/milestones.md:288<br>design/later.md:8 | open | later (design/later.md:8; design/milestones.md:288) |
+
+### proof
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `PRF-01` | A verdict is keyed only by the blueprint's hash, not by the handler code or journeys it judged, and the logbook keeps one pass or fail per run rather than one per operation per journey, so an unchanged contract does not prove the same implementation ran. **(high)** | design/decisions/D2-stage-two.md:122-125<br>design/later.md:23-25<br>design/frame/delta.md:34-35<br>design/frame/story.md:323-326<br>spikes/frontend-dx/README.md:78<br>design/milestones.md:95 | open | M1.04 |
+| `PRF-05` | Time (one clock per world, moves made by time, the keeper, the on-time eval, agent waits on the world clock) is parked in the milestones' Later list, so the keeper has no owner and journeys cannot step a month until it lands. **(high)** | design/milestones.md:289<br>design/milestones.md:308<br>design/milestones.md:366<br>design/build-plan.md:219 | open | later (design/milestones.md:289) |
+| `PRF-06` | A proof the local network did not verify must be labelled in the verdict and production must need a verdict from a verifying network (S30); it is decided but no slice builds the label. | design/frame/examples/private-membership.md:143<br>design/decisions/K2-forman-frame.md:65<br>design/frame/questions.md:428-429<br>design/milestones.md:287<br>design/later.md:12 | open (decided: design/decisions/K2-forman-frame.md:65) | later (design/later.md:12; design/milestones.md:287) |
+| `PRF-08` | A world must mint an agent sign-in token that the provider accepts; if it cannot, the world has to run the real OAuth dance with a loopback client. | design/decisions/K1-kits.md:1038-1040 | open | M2.08 |
+| `PRF-10` | Any workflow in the repository with the allowed `name`, on an allowed ref, mints an acceptable CI token, and allowing `refs/pull/*/merge` widens trust to everyone with push access. | spikes/ci-oidc/README.md:116 | open | M7.05 |
+| `PRF-11` | Aztec journeys do not run in repository CI, and the cloud code review on the Noir spike (PR #19) never ran, so an independent agent review stood in for it. | https://github.com/AaronAbuUsama/architect/pull/19#issuecomment-6935524738<br>design/later.md:12 | open | later (design/later.md:12; design/milestones.md:287) |
+| `PRF-13` | Codex's checks carry the old shape and are rewritten where the frame differs. | design/milestones.md:356<br>design/milestones.md:93 | open | M1.02 |
+| `PRF-15` | Custody (no key in a binding) is proved first in Solidity with wallets, so Noir inherits it (S29). | design/frame/questions.md:426-427<br>design/milestones.md:259 | open | M6.18 |
+| `PRF-16` | Each projection must declare its transport span names so that 'the same evidence' can be compared across projections. | design/frame/projections.md:558-560 | open | M2.08 |
+| `PRF-17` | Fork pull requests get no `id-token` and so cannot post signed verdicts; GitHub's documented behaviour is no token, and the spike did not check it. | design/wayfinding/stage-3.md:59<br>spikes/ci-oidc/README.md:124 | open | M7.05 |
+| `PRF-18` | Fuzzing the TypeScript machine against the Solidity contract is designed but not built; K2 S26 replaced '10k sequences' with fixed seeds in `check`, the long run in CI, and the CI seed in the verdict. | design/frame/questions.md:421-422<br>design/frame/examples/allowance-on-chain.md:115-124<br>design/build-plan.md:208<br>design/decisions/K2-forman-frame.md:63 | open (decided: design/decisions/K2-forman-frame.md:63, S26) | M6.13 |
+| `PRF-19` | GitHub's key set is fetched live in each isolate, so a deployed logbook needs outbound fetch. | spikes/ci-oidc/README.md:121 | open | M7.05 |
+| `PRF-21` | No Noir run has used a network that verifies proofs: the local network runs with `realProofs: false` and accepts without verifying, so only a cloud network can fully prove `pool.spend`. | spikes/noir-private-core/follow-ups.md:7<br>design/frame/examples/private-membership.md:77<br>design/frame/examples/private-membership.md:123-124<br>design/later.md:12 | open | later (design/later.md:12; design/milestones.md:287) |
+| `PRF-24` | Proof status in the generated app's matrix is not live: the logbook keeps one verdict per operation and is not wired in. | spikes/portal-observability/README.md:150 (PR #39) | open | M3.07 |
+| `PRF-25` | Running journeys against empty handlers is still a manual check; `forman prove --empty` makes it a command, and a step that passes there is labelled 'proved by the description' (S3). | design/decisions/M0-build.md:44-47<br>design/frame/questions.md:367-368<br>design/frame/story.md:201-204<br>design/milestones.md:106 | open | M1.16 |
+| `PRF-26` | The CI proof of signed verdicts runs `wrangler dev` on the runner, not a deployed Worker. | spikes/ci-oidc/README.md:123 | open | M7.05 |
+| `PRF-27` | The CLI replay spawns a process per step; it may need an in-process mode, which would prove the parser but not the binary. | design/frame/projections.md:553-555 | open | M2.08 |
+| `PRF-28` | The GitHub Action that makes a `test-pr-<n>` world per pull request, proves in it, posts the signed verdict and destroys it in an `always()` step is not built; local worlds work, but the Action belongs to the cloud pass. | design/decisions/D3.md:34-35<br>design/decisions/D3.md:381-383<br>design/history/handoff-layers-1-2.md:240<br>design/build-plan.md:133<br>design/milestones.md:276 | open | M7.05 |
+| `PRF-29` | The Noir spike's harness is fragile: the Aztec clock only moves in steps under 23 hours plus about 130 settlement blocks (one batch is not always enough), the forge binary must be chosen with `FORGE_BIN`, and long temp paths break macOS sockets. | design/noir/spike-2-role-gate-e2.md:89<br>spikes/noir-private-core/README.md:162<br>design/later.md:12 | open | later (design/later.md:12; design/milestones.md:287) |
+| `PRF-30` | The Noir test sandbox cannot check who may read or whether a transaction has expired, so those guarantees need a `network` kind of test; the model carries `test: network` but nothing reads it yet. | design/noir/design-study.md:389<br>design/noir/spike-2-role-gate-e2.md:48<br>design/decisions/D3.md:601<br>design/later.md:12<br>design/milestones.md:287 | open (the spike confirmed the sandbox does not enforce expiry: design/noir/spike-2-role-gate-e2.md:48) | later (design/later.md:12; design/milestones.md:287) |
+| `PRF-33` | The eval list says nine built in and a tenth for time; time is deferred, so there are nine. | design/frame/README.md:142<br>design/milestones.md:289 | open | later (design/milestones.md:289) |
+| `PRF-34` | The local replay subset (the API plus projections whose output changed) and `forman prove --all` are a guess that needs measuring. | design/frame/projections.md:506-507<br>design/frame/projections.md:551-552 | open | M2.08 |
+| `PRF-37` | The nine evals are proposed to carry over to Noir's client-side spans, with the 'on time' check done as guards in network tests; this is only a proposal. | design/noir/addendum.md:129-130<br>design/later.md:12<br>design/milestones.md:287 | open | later (design/later.md:12; design/milestones.md:287) |
+| `PRF-38` | The prove facts are parsed from the CLI's printed lines; the evidence ledger (`.forman/evidence/proven.json`) is the stable source and should be what the logbook records. | spikes/work-real/README.md:63 (PR #28) | open | M3.07 |
+| `PRF-39` | The world clock does not work the same on Aztec as on Anvil: `moveTo` is one call on Anvil but a stepped warp plus a wait for finality on Aztec. | design/noir/spike-2-role-gate-e2.md:89<br>design/later.md:12 | open | later (design/later.md:12; design/milestones.md:287) |
+| `PRF-40` | Two edges of a spend racing a revoke are untested: whether the losing transaction pays a fee, and two conflicting transactions forced into one block or a fee-bump replacement (the ordinary node refuses the second one). | design/noir/design-study.md:447<br>spikes/noir-private-core/README.md:156-157<br>design/later.md:12<br>design/milestones.md:287 | open | later (design/later.md:12; design/milestones.md:287) |
+| `PRF-41` | When time is built, a stepped world clock must settle: quiescence across processes needs every process to report work in flight, the database's `now()` must read the world's clock, timers due at one instant need an order rule, and moving the chain mines a block per step. | design/spikes/world-clock.md:113<br>design/spikes/world-clock.md:115<br>design/spikes/world-clock.md:116<br>design/spikes/world-clock.md:119<br>design/build-plan.md:265 | open | later (design/milestones.md:289) |
+| `PRF-42` | `Facts` reads staging's SQLite file; in the cloud it needs a D1 API reader with the operator's credential, and every deployed Worker must set `FORMAN_ENVIRONMENT`. | packages/prove/src/modules/journeys/internal/database-facts.ts:3<br>design/later.md:56 | open | later (design/later.md:56) |
+
+<details><summary>Closed: 16 fixed or superseded</summary>
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `PRF-45` | The 'leaks nothing' check (S28) is part of eval 1, answer shape, not a tenth built-in eval; it is built, but K2, the questions list and the Noir example still call it a tenth eval. **(high)** | design/decisions/D3.md:569-570<br>packages/prove/src/modules/evals/internal/calls.ts:36<br>design/decisions/K2-forman-frame.md:64<br>design/frame/questions.md:424-425<br>design/frame/examples/private-membership.md:137-139<br>design/decisions.md:50-51<br>design/milestones.md:109 | fixed (the leak check runs inside the answer-shape eval: packages/prove/src/modules/evals/internal/calls.ts:36; design/decisions/D3.md:569) | M1.19 (its done-when expects the check to pass) |
+| `PRF-46` | Check 04 failed with a connection reset on a reused socket after a synchronous promotion; the check now closes each connection. | design/evidence/Check04-author/README.md:25-26<br>design/history/handoff-layers-1-2.md:101-105<br>e2e/layer2/support.ts:130 | fixed (e2e/layer2/support.ts:130 `connection: close`; D3 #180) | n/a (closed in Gate 2) |
+| `PRF-47` | Check 4's agent needs `ANTHROPIC_API_KEY` (`claude -p --bare` takes no other sign-in), so it is skipped on any keyless run; CI gives it the key on pull requests into `main` and pushes to `main`, and skips it elsewhere. | design/milestones.md:66<br>design/wayfinding/stage-2.md:73<br>design/decisions/D3.md:459-462 | fixed (design/decisions/D3.md:459-462: the key is given to pull requests into main and pushes to main) | M4.06 (keyless stand-in model: design/milestones.md:190) |
+| `PRF-48` | E2E check 05 expected the old CLI refusal line; it now expects the current one. | design/history/handoff-layers-1-2.md:220-221<br>e2e/layer1/05-the-generated-surfaces.test.ts:40 | fixed (e2e/layer1/05-the-generated-surfaces.test.ts:40) | n/a (closed in layer one) |
+| `PRF-49` | E2E files still said `implementation/` after handlers moved to `src/<thing>/<operation>.ts`; one now asserts the old path is absent. | design/history/handoff-layers-1-2.md:242<br>e2e/layer1/06-check-and-the-authoring-loop.test.ts:39 | fixed (e2e/layer1/06-check-and-the-authoring-loop.test.ts:39) | n/a (closed in layer one) |
+| `PRF-50` | Gate 2's Linux CI run (Homebrew on Linux, registry cleanup, 60 second budgets) was left to the conductor's integration run; it has passed. | design/decisions/D3.md:1088-1090<br>design/decisions/D3.md:1101<br>design/decisions/Gate2-ci.md:15-16<br>design/milestones.md:14 | fixed (design/milestones.md:14: Gate 2 passed Linux CI run 44027211261) | n/a (closed in Gate 2) |
+| `PRF-51` | Gate 2's closing steps (keyed pull-request run, final exact-head verdict, main landing) were pending; they are done. | design/build-plan.md:151<br>design/milestones.md:71 | fixed (design/milestones.md:71: CI on `main`) | M0.06 |
+| `PRF-52` | Spec questions on which evals are generic and what 'proven' means per environment are answered: nine evals, `proven.json`, test earns staging earns production. | design/history/spec-drafts.md:138-141<br>design/history/handoff-layers-1-2.md:168-175<br>design/history/handoff-layers-1-2.md:268-271 | fixed (design/history/handoff-layers-1-2.md:168-175, :268-271) | n/a (closed in layer two) |
+| `PRF-53` | The Collector lost its folder and config under Docker Desktop on the Mac; the folder is now emptied instead of replaced and the config is passed inline. | design/decisions/M0-build.md:5-14 | fixed (design/decisions/M0-build.md:11-14) | n/a (closed in M0) |
+| `PRF-54` | The portal's `LogbookReader.model` return was not checked for a shape; it now returns `ModelUnsupported` for a shape it cannot judge. | packages/portal/src/modules/reader/types.ts:35<br>packages/portal/src/modules/wire/service.ts:41-43 | fixed (packages/portal/src/modules/wire/service.ts:41-43) | n/a (closed in M0) |
+| `PRF-55` | The staging-promote checks (04, 05 and 08) called `promote --to staging` without first proving in the test environment, which staging requires; the checks now run `prove --env test` first. | design/decisions/D3.md:488-493<br>design/decisions/D3.md:792-794<br>design/history/handoff-layers-1-2.md:101-103<br>e2e/layer2/flow.ts:22-24<br>e2e/layer2/05-publishing.test.ts:79 | fixed (e2e/layer2/flow.ts:22-24 `proveInTest`; e2e/layer2/05-publishing.test.ts:79) | n/a (closed in Gate 2) |
+| `PRF-56` | The three allowance-on-chain questions (the chain call's waiting state, how much fuzzing runs, one vault per organisation) are decided. | design/frame/examples/allowance-on-chain.md:162-168<br>design/decisions/K2-forman-frame.md:63<br>design/frame/questions.md:419-422 | fixed (decided: design/decisions/K2-forman-frame.md:63) | M6.15 |
+| `PRF-57` | The two functions that mint a logbook token were to share one; they now do, through `Verdicts.sourceOf`. | design/decisions/D3.md:369-371<br>design/decisions/D3.md:469-474 | fixed (design/decisions/D3.md:469-474, #90 `Verdicts.sourceOf`) | n/a (closed in layer two) |
+| `PRF-58` | The verdict-acceptance policy for CI tokens (two ref shapes, `job_workflow_ref`) is decided. | spikes/ci-oidc/README.md:95<br>design/decisions/D3.md:45 | fixed (design/decisions/D3.md:45) | M7.05 |
+| `PRF-59` | Two review findings on the portal-observability spike (an `async`/`await` Tempo adapter, an event chip that overwrote the hash route) were fixed and their threads resolved. | https://github.com/AaronAbuUsama/architect/pull/39#discussion_r4611034723<br>https://github.com/AaronAbuUsama/architect/pull/39#discussion_r4611034731 | fixed (reply in ded93d7: `tempoWindow` is an Effect run at the entry file; the chip uses `scrollIntoView`) | n/a (spike review, closed) |
+| `PRF-60` | `@effect/vitest` needs vitest 5 while the pool needs vitest 4.1, so the test-runner choice was pending; Forman uses a local Effect test helper. | design/wayfinding/stage-1.md:34<br>design/decisions/D1.md:21 | fixed (design/decisions/D1.md:21) | M0.06 |
+
+</details>
+
+### traces
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `TRA-01` | Deployed workers exporting straight to Axiom per environment, and Axiom datasets, monitors and dashboards made from declarations, are filed as the cloud pass, though the Axiom sink and `AxiomSource` already work and were checked live; no M7 slice names the deployed part. **(high)** | design/later.md:10-11<br>design/decisions/D3.md:710-721<br>design/decisions/D3.md:742-745<br>design/history/blueprint-context-pack.md:60-61 | open | later (design/later.md:10-11) |
+| `TRA-02` | A Durable Object that is evicted or crashes between its response and the export (`waitUntil`) loses its spans; this was not tried. | spikes/otlp-from-workerd/README.md:221 | open | M4.09 |
+| `TRA-03` | A call refused before its operation span (bad payload, stranger) leaves no count; add `forman.calls` and `forman.call.duration` metrics, which are also needed for calls that do not arrive over HTTP. | design/decisions/O2-trace-gaps.md:56-72<br>design/milestones.md:110<br>docs/canon/traces.mdx:234 (PR #38)<br>spikes/portal-observability/README.md:54 (PR #39) | open | M1.20 |
+| `TRA-10` | Free text is traced by default (acme's `memo` is on every trace); it should be left off spans unless marked with `Blueprint.traced`. | design/decisions/O2-trace-gaps.md:37-54<br>design/milestones.md:109<br>examples/acme/blueprint/things/allowance/verbs/spend.ts:10<br>docs/canon/traces.mdx:208 (PR #38) | open | M1.19 |
+| `TRA-14` | O2 reserves a `<project>-<env>-metrics` dataset 'O1 line 356', but O1's amendment replaced it with Capxul's dataset groups, so the metrics dataset name is out of date. | design/decisions/O2-trace-gaps.md:68-69<br>design/decisions/O1-observability.md:356<br>design/decisions/O1-observability.md:490-497 | open | M1.20 |
+| `TRA-15` | Open question: whether a call's attempts should be children of one parent span, which would change the root span's name that journeys assert on. | docs/canon/traces.mdx:323 (PR #38) | open | M1.18 |
+| `TRA-16` | Open question: whether views (the generated app, MCP) need the same untraced-text rule, since untraced text is still kept in events. | docs/canon/traces.mdx:329 (PR #38) | open | M1.19 |
+| `TRA-17` | PostHog as a sink (error tracking for defects, `PostHogSource`) is parked by Aaron's call of 16 November; how PostHog accepts a defect over OTLP is undocumented and untried. | design/later.md:9<br>design/decisions/O1-observability.md:264-267<br>design/decisions/O1-observability.md:441-442<br>design/decisions/O1-observability.md:513-517<br>design/decisions/D3.md:678-679 | open (parked by Aaron: design/later.md:9) | later (design/later.md:9) |
+| `TRA-19` | Span export was only tried on localhost: no TLS, auth headers, compression or real network latency. | spikes/otlp-from-workerd/README.md:223 | open | M7.04 |
+| `TRA-21` | The Aztec SDK's debug and verbose logs print decrypted note contents and its info logs print private addresses, so a Noir client must suppress raw SDK messages; only the spike has a scrubber. | design/noir/spike-1-member-note.md:141<br>spikes/noir-private-core/README.md:44<br>design/later.md:12 | open | later (design/later.md:12; design/milestones.md:287) |
+| `TRA-26` | The commit has no span of its own (the Collector shows it as an unnamed `BATCH` span); it should be `<op>.commit` with `commit.writes`, `commit.entries`, `commit.outcome`, and `attempt` on the operation's span. | design/decisions/O2-trace-gaps.md:21-40<br>design/milestones.md:108<br>design/frame/delta.md:38<br>docs/canon/traces.mdx:99 (PR #38)<br>docs/canon/traces.mdx:188 (PR #38)<br>spikes/portal-observability/README.md:59 (PR #39) | open | M1.18 |
+| `TRA-29` | The skills' `MetricSource`, `counts` and new `slow` fields need M1.20 for the reader and M4.12 for the builder's `bp`. | design/frame/skills.md:519 (PR #37) | open | M1.20 |
+| `TRA-30` | The span inspector shows every attribute, so any private value leaked upstream would appear there. | spikes/portal-observability/README.md:148 (PR #39) | open | M1.19 |
+
+<details><summary>Closed: 7 fixed or superseded</summary>
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `TRA-36` | 'A declared step that is missing fails the call' and 'one log where each refusal is decided' were not built; the steps eval now checks declared order and a refusal's span carries `refusal.log`. | design/history/blueprint-context-pack.md:69-71<br>design/history/handoff-layers-1-2.md:166-169 | fixed (design/history/handoff-layers-1-2.md:166-169) | n/a (closed in layer one) |
+| `TRA-37` | A Collector from a killed run stayed up and held its port; collectors are now named by their owner's pid so orphans are removed. | design/history/handoff-layers-1-2.md:98-99<br>packages/prove/src/modules/telemetry/internal/docker.ts:71 | fixed (packages/prove/src/modules/telemetry/internal/docker.ts:71) | n/a (closed in layer two) |
+| `TRA-38` | O1's local trace viewer, conventions, `TraceSource` with `FileSource`, the `Sink` seam, the private-attribute check with the Collector's delete step, the Axiom sink with `AxiomSource`, and `forman watch` over a `TraceSource` are built. | design/decisions/O1-observability.md:434-440<br>design/decisions/O1-observability.md:443<br>packages/prove/src/index.ts:12<br>packages/prove/src/modules/telemetry/internal/private-keys.ts:1<br>packages/cli/src/main.ts:180<br>packages/cli/src/main.ts:207 | fixed (packages/prove telemetry, viewer and watch modules; packages/cli/src/main.ts:180 and :207) | M0.03 |
+| `TRA-39` | O1's rules that only public fields become span attributes and that a refusal ends its span ok while a defect ends in error are built. | design/decisions/O1-observability.md:391-408<br>design/decisions/O1-observability.md:208-210<br>design/decisions/O2-trace-gaps.md:16-18 | fixed (design/decisions/O2-trace-gaps.md:16-18) | M1.19 |
+| `TRA-40` | Prove's traces used to be headless, recorded payload attributes before the allowlist, and lost spans silently when the Collector was down; prove now traces under model names, the allowlist runs first, and `prove` checks the Collector is up first. | design/frame/delta.md:37<br>design/wayfinding/stage-1.md:92<br>spikes/otlp-from-workerd/README.md:214<br>design/build-plan.md:84<br>packages/prove/src/index.ts:12 | fixed (design/build-plan.md:84, L1.15; packages/prove/src/index.ts:12 `PROVE_SPAN_PREFIX`) | n/a (closed in layer one) |
+| `TRA-41` | The 'what to look for in a trace' list is to become a docs page; the traces canon page in PR #38 now has it. | design/decisions/O2-trace-gaps.md:74-82<br>docs/canon/traces.mdx:151 (PR #38) | fixed (written in the traces canon page, PR #38: docs/canon/traces.mdx:151; not merged yet) | n/a (canon page) |
+| `TRA-42` | O1's questions 2 to 4 (PostHog region, Axiom signup, datasets by hand) were answered by Capxul's existing organisation and datasets. | design/decisions/O1-observability.md:451-459<br>design/decisions/O1-observability.md:485-511 | superseded (O1 amendment of 16 November, design/decisions/O1-observability.md:485) | later (design/later.md:9-11) |
+
+</details>
+
+### stores
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `STO-02` | Is a chain a store? A store answers `committed` or `conflict` at once, but a chain write is pending until it is mined, which the machine already shows as a waiting state; K3 still lists `chain` as a store kind, and Aaron was not comfortable with it. **(high)** | origin/claude/docs-canon-cf2c38:docs/canon/stores.mdx:348<br>design/decisions/K3-stores-and-sources.md:29<br>packages/language-effect/src/modules/records/types.ts:41<br>design/decisions/K3-stores-and-sources.md:56 | open | M1.17, M6.10 |
+| `STO-03` | Stores are specified but not built: a thing's home is still the closed `database` or `actor`, an environment binds one database, and there is no `blueprint/stores/`, no declared stores, no typed `stores:` bindings and no stores owned by a plugin. **(high)** | design/decisions/K3-stores-and-sources.md:11<br>design/decisions/K3-stores-and-sources.md:36<br>design/decisions/K3-stores-and-sources.md:66<br>design/milestones.md:107<br>packages/forman/src/modules/things/types.ts:32<br>origin/claude/docs-canon-cf2c38:docs/canon/stores.mdx:321 | open | M1.17 |
+| `STO-04` | What does a field's visibility mean in each store kind? Today it is only a comment, so a private field on a thing that lives on a chain is either refused by the compiler or silently public, and nothing decides which. **(high)** | origin/claude/docs-canon-cf2c38:docs/canon/stores.mdx:341<br>packages/forman/src/modules/visibility/types.ts:1 | open | M1.17 |
+| `STO-05` | Where does a store kind's schema come from? The store port only reads and commits; the generator hard-codes the schema for D1 alone (every field `TEXT NOT NULL`), and an actor keeps the whole instance as one JSON value, so an open kind has to say how fields become storage and how that storage migrates. **(high)** | origin/claude/docs-canon-cf2c38:docs/canon/stores.mdx:333<br>packages/language-effect/src/modules/records/types.ts:62<br>packages/generators/src/modules/render/internal/worker-config.ts:62<br>packages/host-cloudflare/src/modules/actors/service.ts:34 | open | M1.17 |
+| `STO-06` | A call that writes to both a database thing and an actor dies at run time today; K3 wants the compiler to refuse any operation whose steps write to two stores, with cross-store work run as a workflow. | design/decisions/K3-stores-and-sources.md:76<br>design/milestones.md:107<br>packages/host-cloudflare/src/modules/store/service.ts:68<br>origin/claude/docs-canon-cf2c38:docs/canon/stores.mdx:321 | open | M1.17 |
+| `STO-07` | A store kind should declare what it can serve (lists, search, private state) so the compiler can refuse a read it can't serve, but no shape for that declaration on the store port is written and M1.17's done-when doesn't test it. | design/decisions/K3-stores-and-sources.md:58<br>design/decisions/K3-stores-and-sources.md:59<br>design/milestones.md:107<br>origin/claude/docs-canon-cf2c38:docs/canon/stores.mdx:357 | open | M1.17 |
+| `STO-08` | An actor's journal entries live in its own Durable Object, so the facts door that `forman prove` reads can't see them. | design/later.md:19<br>packages/host-cloudflare/src/modules/store/service.ts:69 | open | later |
+| `STO-09` | Keys cannot be rotated: a revoked member keeps read access to the pool for ever, and only a new pool with a new key ends it. Not tested. | design/noir/spike-2-role-gate-e2.md:120<br>spikes/noir-private-core/README.md:159<br>design/milestones.md:287<br>design/later.md:12 | open | later |
+| `STO-10` | Making each thing an actor by default is parked for later. | design/later.md:14 | open | later |
+| `STO-11` | No outbox exists for an actor's moves: the thing writes its state and then calls its index, so if that call fails the two disagree, and a slow index would slow every move while the lock is held. | design/spikes.md:11<br>design/spikes/durable-object.md:61<br>design/spikes/durable-object.md:62<br>design/milestones.md:217 | open | M5.04 |
+| `STO-12` | Operations on a thing that lives as an actor can't carry a request key today: the call dies, because the request row would have to commit inside the actor. The code message still says 'layer four'. | design/decisions/D2-stage-two.md:57<br>design/later.md:21<br>packages/host-cloudflare/src/modules/store/service.ts:69<br>origin/claude/docs-canon-cf2c38:docs/canon/stores.mdx:321<br>design/frame/delta.md:69 | open | later |
+| `STO-14` | Rollback is a promote of an earlier revision, refused when a migration can't run backwards; with several stores it is undecided whether that is judged per store or one irreversible migration blocks the whole rollback. | origin/claude/docs-canon-cf2c38:docs/canon/stores.mdx:362<br>design/decisions/K3-stores-and-sources.md:80 | open | M1.17 |
+| `STO-15` | The `stores:` keys in an environment are identifiers checked against generated types; if that reads as writing a declared name by hand, the fallback is `Store.bind(ledger, ...)`. | design/decisions/K3-stores-and-sources.md:126<br>origin/claude/docs-canon-cf2c38:docs/canon/stores.mdx:367<br>https://github.com/AaronAbuUsama/architect/pull/38 | open | M1.17 |
+| `STO-16` | The generated `wrangler.jsonc` uses a placeholder D1 database id until a deploy names a real one. | packages/generators/src/modules/render/internal/worker-config.ts:14<br>design/milestones.md:275 | open | M7.04 |
+| `STO-17` | The local database is rebuilt on every `forman dev` and no versioned migrations exist (the generated comment still says 'stage three'); K3 wants migrations generated per store from the model diff, ordered per environment. | design/decisions.md:127<br>design/frame/delta.md:73<br>design/decisions/D2.md:111<br>packages/generators/src/modules/render/internal/worker-config.ts:60<br>design/decisions/K3-stores-and-sources.md:80 | open | M1.17 |
+| `STO-18` | The private-membership example writes `Blueprint.chain({ contract, per, network: Aztec })`, but K3 makes Noir on Aztec a later store kind, so the example's chain wording has to change when Noir is built. | design/frame/examples/private-membership.md:36<br>design/decisions/K3-stores-and-sources.md:58<br>design/milestones.md:287<br>design/later.md:12 | open | later |
+| `STO-19` | The shape of `Blueprint.chain(...)` is written three ways (`{contract, key, per}`, `{contract, per}`, `{contract, per, network}`), and K3 still cites the step that builds it by its old name L4.01 (now M6.10). | design/decisions.md:103<br>design/frame/examples/private-membership.md:36<br>design/decisions/K3-stores-and-sources.md:37<br>design/milestones.md:251 | open | M6.10 |
+| `STO-20` | When a handler awaits a chain call, the actor must hold its lock across the whole call, not only the commit. | design/decisions/D2-stage-two.md:30<br>design/later.md:22 | open | later |
+| `STO-21` | `packages.md` has no `blueprint/stores/` folder in the project layout and describes mounts in one line. | design/packages.md:71<br>design/decisions/K3-stores-and-sources.md:36 | open | M1.17 |
+| `STO-22` | `packages.md` says `language-effect` holds 'locks, outbox', but the actor store has neither today. | design/packages.md:19 | open | M5.04 |
+
+<details><summary>Closed: 5 fixed or superseded</summary>
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `STO-23` | D1 could not bind array or struct fields (`D1_TYPE_ERROR`); the fix, storing them as JSON, is only on the unmerged work-real branch. | origin/spike/work-real:spikes/work-real/README.md:39<br>origin/spike/work-real:packages/host-cloudflare/src/modules/store/internal/rows.ts:13<br>https://github.com/AaronAbuUsama/architect/pull/28 | fixed in PR #28 (open, not yet merged): rows.ts:13-16 on spike/work-real | M1.17 |
+| `STO-24` | The move's state, event and insert are now one commit per call: one commit wins, the other is `conflict` and writes nothing. | packages/language-effect/src/modules/records/records.test.ts:33<br>https://github.com/AaronAbuUsama/architect/pull/1<br>origin/claude/docs-canon-cf2c38:docs/canon/stores.mdx:298 | fixed (packages/language-effect/src/modules/records/records.test.ts:33-45, proved on main) | M1.17 |
+| `STO-25` | K1 listed `runs: "actor"` as a fourth value of `runs`; K3 makes an actor a store kind instead. | design/decisions/K1-kits.md:135<br>design/decisions/K3-stores-and-sources.md:55 | superseded (K3-stores-and-sources.md:55, actor is a store kind) | M1.17 |
+| `STO-26` | Older design files still call a thing's home a closed list of `database`, `actor` or `chain`; K3 made the list open store kinds, so each of them needs the new words. | design/frame/builder.md:70<br>design/decisions/D1.md:6<br>design/decisions/K2-forman-frame.md:26<br>design/frame/delta.md:70<br>design/frame/README.md:96<br>design/frame/questions.md:18<br>design/build-plan.md:57<br>design/decisions/K3-stores-and-sources.md:36 | superseded (K3-stores-and-sources.md items 1 and 2, lines 36-50) | M1.17 |
+| `STO-27` | PR #35, the first attempt at K3 and O2, was closed and replaced by #36. | https://github.com/AaronAbuUsama/architect/pull/35<br>https://github.com/AaronAbuUsama/architect/pull/36 | superseded (PR #36, merged: K3 and O2 on main) | M1.17 |
+
+</details>
+
+### views
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `VIE-01` | A list over things that live as actors is refused today; views kept from events (M5.05) are the way to list them, and may change F5's reason for keeping missions and runs as database rows. **(high)** | design/decisions/F5-work-blueprint.md:45<br>design/frame/delta.md:68<br>design/milestones.md:218 | open | M5.05 |
+| `VIE-02` | Indexers beyond the generated follower, for views too large for an organisation's index, are parked for later. | design/later.md:6 | open | later |
+| `VIE-04` | Lists that join our events with a source's need the adapter to emit events (a change feed, a poll on a timer or a webhook) kept in a view. | design/decisions/K3-stores-and-sources.md:105<br>design/milestones.md:224 | open | M5.13 |
+| `VIE-05` | One world index object takes every move of every thing, a throughput bottleneck, so an index per organisation is needed under load. | design/spikes/durable-object.md:63<br>design/milestones.md:218 | open | M5.05 |
+| `VIE-07` | The data map and the generated app's data page must list every store (kind, binding, migrations) and every source (adapter, calls, stand-in), and every view. | design/decisions/K3-stores-and-sources.md:109<br>design/milestones.md:219<br>origin/claude/docs-canon-cf2c38:docs/canon/stores.mdx:306 | open | M5.06 |
+| `VIE-08` | Where a view lives and how it is rebuilt is decided as option C but not yet designed; M5.01 must settle it, along with the general outbox. | design/frame/questions.md:66<br>design/milestones.md:214 | open | M5.01 |
+
+### plugins
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `PLU-01` | Plugins and mounts, adapters and calls out as steps, `Blueprint.kit`-style provenance, namespaces, collision checks, impact edges and wrappers are not built anywhere, and nothing calls out to another system or receives a webhook. **(high)** | design/milestones.md:28<br>spikes/kit-package-exports/README.md:56<br>design/frame/delta.md:53 | open | M1.06, M1.14, M5.03 |
+| `PLU-02` | The plugin descriptor decisions are still open: choices against settings, `Blueprint.need(x, { when })`, runtime entries per host, and how aliases, error-class names and schema-affecting choices behave. **(high)** | design/milestones.md:92<br>spikes/kit-package-exports/README.md:60 | open | M1.01 |
+| `PLU-03` | A mount may narrow or omit an operation but never widen it. | design/decisions/K1-kits.md:905<br>design/milestones.md:98 | open | M1.07 |
+| `PLU-04` | A plugin's own loop is least specified: `forman new feature` should write a placeholder operation, a journey and an example app that pass, each plugin ships its compiled model and verdict digest, CI publishes only a green revision, and every feature journey also runs in each app's worlds. | design/frame/writing-a-feature.md:21<br>design/frame/writing-a-feature.md:498<br>design/frame/writing-a-feature.md:562<br>design/milestones.md:137<br>design/milestones.md:364 | open | M2.10 |
+| `PLU-05` | Codex's unmerged `layer/4` work (D4 and the six author checks `00` to `06`) is to be harvested into M1 under the new words, and until M1.02 ports the checks they stay unmerged and red. | design/decisions/K2-forman-frame.md:5<br>design/frame/delta.md:18<br>design/frame/questions.md:169<br>design/milestones.md:26<br>design/goals/02-m0-land-and-rename.md:31 | open | M1.02 |
+| `PLU-06` | Generated code and projects may import a plugin's declaration and runtime entries only through the right entry, which needs an explicit rule change and a lint or bundle check, since an export map alone doesn't stop the wrong import; no later record says the lint exists. | design/decisions.md:87<br>spikes/kit-package-exports/README.md:50<br>spikes/kit-package-exports/README.md:59<br>design/milestones.md:100 | open | M1.09 |
+| `PLU-07` | M7.10 must map which Capxul plugins exist, which are new, and which are Capxul's own. | design/milestones.md:281 | open | M7.10 |
+| `PLU-08` | Mounting one plugin twice prefixes its names with the mount name, a name clash fails `check` naming both files, and error codes are prefixed per mount; none of it is built. | design/decisions/K1-kits.md:885<br>design/frame/mounting.md:170<br>design/milestones.md:97 | open | M1.06, M1.08 |
+| `PLU-09` | Plugin authors get extra checks: no blanks in a published plugin, a stand-in for every adapter-like piece on each host, and no runtime code in the declaration entry's imports. | design/decisions/K1-kits.md:593<br>design/decisions/K1-kits.md:926<br>design/milestones.md:100<br>design/milestones.md:137 | open | M1.09, M2.10 |
+
+<details><summary>Closed: 2 fixed or superseded</summary>
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `PLU-15` | The old kit design (K1: kit package, `kit-<name>` names, `Blueprint.kit`, `kit:` namespace, the words dependency and inbound, `Blueprint.step.service` and `Blueprint.inbound`) is replaced by features, adapters and projections, one package per plugin, but older files still use the kit words. | design/decisions/K1-kits.md:14<br>design/decisions/K1-kits.md:46<br>design/decisions/K2-forman-frame.md:29<br>design/frame/adapters.md:28<br>design/milestones.md:323<br>design/milestones.md:325<br>design/build-plan.md:181<br>design/briefs/K1-kits-and-surfaces.md:449<br>design/briefs/K1-kits-and-surfaces.md:455 | superseded (K2-forman-frame.md Q3 and Q4, lines 28-29) | M1.01 |
+| `PLU-16` | The standard library of kits (the old std package (removed in M0), with auth, wallets, chain, erc20, safe and an Aztec kit) is gone: the old std package is removed and each plugin is its own package. | design/decisions.md:85<br>design/decisions.md:88<br>design/history/packages-layers-1-2.md:26<br>design/noir/addendum.md:125<br>design/decisions/M0-packages.md:24 | superseded (design/decisions/M0-packages.md:24 removes std; K2-forman-frame.md:29, one package per plugin) | M0.02 |
+
+</details>
+
+### features
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `FEA-01` | Deploying the wallets feature behind several origins and chains is not decided; the spike used one chain and one origin. | design/frame/writing-a-feature.md:601 | open | M6.01 |
+| `FEA-02` | EIP-7702 wallet delegation is parked off the path in milestones' Later list. | design/decisions.md:95<br>design/milestones.md:291<br>design/build-plan.md:190 | open | later |
+| `FEA-03` | Passkeys are not offered, and ERC-1271, ERC-6492 and EIP-7702 verification are unproved. | design/frame/writing-a-feature.md:272 | open | M6.01 |
+| `FEA-04` | Safe as its own plugin, built from its own events and a small core, is parked for later (the files still say 'kit'). | design/decisions.md:126<br>design/later.md:7 | open | later |
+| `FEA-06` | The wallets keystore needs its own checks: encrypted keystores on Linux CI and Node 24 are untested, and native encryption and storage behaviour is unchecked. | design/frame/writing-a-feature.md:603<br>spikes/kit-package-exports/README.md:58 | open | M6.03 |
+| `FEA-09` | acme's `invitation.send` records an invitation and sends no email. | design/decisions/K1-kits.md:1210<br>design/milestones.md:223 | open | M5.10 |
+
+### adapters
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `ADA-01` | A production fee payer for Aztec members is untested: the sponsored fee contract is 'FOR TESTING ONLY' and the fee payer is public. | design/noir/design-study.md:340<br>design/noir/spike-2-role-gate-e2.md:122<br>design/milestones.md:287<br>design/later.md:12 | open | later |
+| `ADA-02` | A source we don't own is reached only through an adapter (typed calls with declared errors, real MariaDB loaded from a schema dump as its stand-in, conformance against staging) and Forman never migrates it; nothing of this is built. | design/decisions/K3-stores-and-sources.md:87<br>design/frame/delta.md:71<br>design/milestones.md:224<br>origin/claude/docs-canon-cf2c38:docs/canon/stores.mdx:305 | open | M5.13 |
+| `ADA-03` | An adapter for another Forman app is generated from its model, with a world of that app as its stand-in. | design/frame/adapters.md:114<br>design/milestones.md:225 | open | M5.11 |
+| `ADA-04` | An adapter's `provision` step registers its webhook at `promote` with a restricted release key and reads back the signing secret, or `promote` prints the manual line and refuses until confirmed. | design/frame/questions.md:412<br>design/frame/deployment.md:92<br>design/frame/examples/payments.md:157<br>design/milestones.md:221 | open | M5.08 |
+| `ADA-06` | Events that arrive out of order or twice are handled by `idempotent: "request"` keyed by event id, but whether that fits every vendor's retry rules is unchecked. | design/frame/adapters.md:226<br>design/milestones.md:216 | open | M5.03 |
+| `ADA-07` | Money going out is `.notVia(Via.agent)` by default, set by the adapter that marks money-moving calls. | design/frame/questions.md:409<br>design/milestones.md:221 | open | M5.08 |
+| `ADA-08` | Outside systems with no machine-readable contract get hand-written adapters, only as good as their conformance test. | design/frame/adapters.md:224<br>design/milestones.md:220 | open | M5.07 |
+| `ADA-09` | Payments and email are plugins (`@formants/stripe`, `@formants/resend`), not standard kits, and email goes out over SMTP so Mailpit stands in; neither is built. | design/decisions/K1-kits.md:1206<br>design/frame/questions.md:415<br>design/milestones.md:221<br>design/milestones.md:222 | open | M5.08, M5.09 |
+| `ADA-10` | Reaching MariaDB from workerd is unproved: a spike comes first, and if it fails the adapter runs in a small Node host beside the Worker. | design/decisions/K3-stores-and-sources.md:123<br>design/milestones.md:224<br>design/milestones.md:368 | open | M5.13 |
+| `ADA-14` | `forman new adapter` generators `--from-abi ... --chain` and `--from-model` are specified but not built. | design/frame/adapters.md:200<br>design/milestones.md:225<br>design/milestones.md:246 | open | M6.05, M5.11 |
+
+### projections
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `PRJ-03` | The generated app replaces the docs and portal projections, but M1.13 still says 'docs and portal wire unchanged' and no slice builds the app. **(high)** | PR#40 origin/conductor/direction:design/handoff.md:41-43<br>design/milestones.md:104<br>design/decisions/F1-frontend.md:486-494<br>design/frame/projections.md:338-351 | open | M1.13 |
+| `PRJ-09` | Logbook reads are unauthenticated, so before the app is served from a deployed environment readers must be authorised and data and search files protected, and the deployed read-only site itself waits for the cloud pass. | design/decisions/F1-frontend.md:24-26<br>spikes/frontend-dx/README.md:80<br>design/build-plan.md:143<br>design/milestones.md:275 | open | M7.04 |
+| `PRJ-12` | On chain, the Solidity projection and the chain adapter mount automatically when a thing lives on chain. | design/frame/examples/allowance-on-chain.md:47-51<br>design/milestones.md:251-252 | open | M6.10, M6.11 |
+| `PRJ-14` | Projections are fixed renderers today (the builder's `bp.d.ts` is missing and blanks are dropped from the model); they are to become plugins mounted one file each under `blueprint/projections/`. | design/frame/delta.md:44<br>design/frame/story.md:240-244<br>design/milestones.md:102-104 | open | M1.11, M1.12, M1.13, M1.03, M4.11 |
+| `PRJ-16` | The 'identical output' promise for M1.11 to M1.13 may hide real changes; only header paths may differ, and the diff is part of each slice's evidence. | design/milestones.md:354-355 | open | M1.11 |
+| `PRJ-17` | The Python client projection (client only, raising typed exceptions) is parked. | design/frame/projections.md:411-431<br>design/frame/questions.md:429<br>design/milestones.md:288 | open | later |
+| `PRJ-19` | The SDK and CLI packages are named from the project's folder; the unread config `outputs` was removed in M0, so the names are to be chosen from the mounts when the sdk and cli projections are mounted. | design/decisions/D3.md:629-631<br>design/later.md:58-60<br>design/milestones.md:324<br>design/milestones.md:66 | open | M1.12 |
+| `PRJ-20` | The SDK still pulls in all of `@formants/forman`; the client's schemas should be split from the declaration API before packages go public. | design/later.md:61-62 | open | M7.02 |
+| `PRJ-27` | The keeper (time moves made as `system`, one Durable Object alarm per time move) is deferred with time. | design/frame/projections.md:378-394<br>design/frame/deployment.md:51<br>design/milestones.md:289 | open | later |
+| `PRJ-29` | The model does not yet hold journeys and starting worlds (the portal parse in `fixtures.py` is a stand-in), and the portal's F2.2 projection of them is in no milestone by name. | design/decisions/F2-portal-ia.md:25-26<br>design/decisions/F1-frontend.md:28<br>design/milestones.md:94<br>design/briefs/F3-portal-upgrade.md:89<br>spikes/portal-ia/README.md:23 | open | M1.03 |
+| `PRJ-30` | The portal's wire accepts a ratchets extension marked unavailable, so the portal shows no ratchets; project-wide ratchets are parked. | packages/portal/src/modules/wire/wire.test.ts:57<br>design/milestones.md:293<br>design/history/spec-drafts.md:149-150 | open | later |
+| `PRJ-32` | Third-party projections (a package exporting `Blueprint.projection(...)`) are impossible today. | design/frame/projections.md:546<br>design/milestones.md:96 | open | M1.05 |
+| `PRJ-34` | `projections.md` section 3.12 and `python-sdk.md` still say the Python client is built from OpenAPI, but S32 decided it is built from the model. | design/frame/questions.md:430-431<br>design/frame/projections.md:413<br>design/frame/examples/python-sdk.md:45 | open | later |
+
+<details><summary>Closed: 7 fixed or superseded</summary>
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `PRJ-36` | Fumadocs pages inside a non-Fumadocs shell are verified by the spike; the pins in it are exact and at least two weeks old. | spikes/portal-fumadocs/README.md:30-34<br>spikes/portal-ia/README.md:23<br>design/decisions/F2-portal-ia.md:210-211<br>design/briefs/codex-handoff.md:356 | fixed (spikes/portal-fumadocs/README.md:30) | n/a (spike done) |
+| `PRJ-37` | The read-only portal is built and local only: the F2 page plan, the wire, the snapshot adapter, stale reasons and the routes `/portal` and `/_portal/v1/*` on each environment's Worker (the spike's claim that the snapshot adapter is unimplemented is stale). | design/decisions/F1-frontend.md:603-606<br>design/build-plan.md:143<br>design/briefs/F2-portal-ia.md:93<br>packages/portal/src/modules/snapshot/service.ts<br>spikes/frontend-dx/README.md:77 | fixed (D3 #130 to #137; packages/portal) | M1.13 |
+| `PRJ-38` | The HeroUI Pro face (Portal Pro, F1.1) is dropped: the generated app uses agent-native's own UI with no HeroUI, so its licence, distribution scope, version pins, closed PR #16 and Pro-out-of-the-repository rule no longer matter. **(high)** | design/decisions/D3.md:802-803<br>design/decisions/F1-frontend.md:393-399<br>design/decisions/F2-portal-ia.md:561-567<br>design/build-plan.md:143<br>design/briefs/F1-frontend.md:41<br>design/briefs/F3-portal-upgrade.md:68<br>spikes/frontend-dx/README.md:75-76<br>PR#39 origin/spike/portal-observability:spikes/portal-observability/README.md:140,154<br>PR#16 body<br>PR#40 origin/conductor/direction:design/handoff.md:21-25 | superseded (handoff direction, 'no HeroUI'; F6 decision: our own agent-native template) | n/a (superseded) |
+| `PRJ-39` | PR #39's three grill questions (page shape, live data source, HeroUI Pro) have no recorded answer, but F6 settles all three: one tree with live data in each page, the Collector's files read through `TraceSource`, and no HeroUI. | PR#39 body, 'At a glance' and 'Hand-over'<br>PR#41 origin/spike/generated-app:design/decisions/F6-the-app.md | superseded (F6 decisions 1 and 4 and its telemetry path) | n/a (superseded) |
+| `PRJ-40` | The Figma import of the HeroUI Pro kit that Aaron was asked to make is no longer needed, since the app does not use HeroUI. | design/decisions/F1-frontend.md:630-634<br>design/briefs/codex-handoff.md:327 | superseded (handoff direction, 'no HeroUI') | n/a (superseded) |
+| `PRJ-41` | The compiler was to write each operation's reach and surfaces into the model and renderers to filter by them; projections now say which operations they take through `takes` and `via`. | design/decisions/K1-kits.md:225-237<br>design/frame/projections.md:66-70<br>design/frame/projections.md:307 | superseded (projection `takes` and `via`, frame/projections.md:68-69) | M1.11 |
+| `PRJ-42` | The static Fumadocs-style portal site (L3.11 proposal, slot filling by HTMLRewriter, a build-time `portal-site` package, a wider portal wire) is superseded by the one generated app where live data sits inside each page. | design/briefs/F3-portal-upgrade.md:46<br>design/briefs/F3-portal-upgrade.md:73<br>design/briefs/F3-portal-upgrade.md:78<br>design/briefs/F3-portal-upgrade.md:148<br>spikes/portal-fumadocs/README.md:33 | superseded (F6 decision 1, one app with live inside each page) | n/a (superseded) |
+
+</details>
+
+### secrets
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `SEC-02` | Today environment files name secrets by string and no handler can read one; secrets are meant to be declared by the plugin that needs them and read only as `Redacted` through its layer. **(high)** | design/frame/delta.md:54<br>design/milestones.md:28<br>design/milestones.md:131 | open | M2.04 |
+| `SEC-03` | A sponsored fee payer for Noir on Aztec would be a runtime secret and is unvalidated: paying your own fee leaks who sent it. | design/frame/examples/private-membership.md:98-101<br>design/milestones.md:287 | open | later |
+| `SEC-06` | Sink tokens (Axiom ingest and query, organisation id) are read from the developer's keychain by service name, outside the declared-secret scheme. | design/decisions/O1-observability.md:500-511<br>packages/prove/src/modules/sinks/internal/keychain.ts | open | M7.01 |
+| `SEC-07` | Which Cloudflare secret store `Cloudflare.secrets` means (per Worker or the account-level store) is a cloud-pass decision. | design/frame/secrets.md:184-185<br>design/milestones.md:272 | open | M7.01 |
+| `SEC-08` | `AUTH_SECRET` is built into the host today; under the frame the auth feature declares it. | design/frame/secrets.md:30<br>packages/host-cloudflare/src/modules/world/types.ts:8<br>design/milestones.md:132 | open | M2.05 |
+| `SEC-09` | `forman secrets` (a listing) and `forman secrets set` (no echo, straight to the store) are designed but not built. | design/frame/secrets.md:141-156<br>design/milestones.md:131 | open | M2.04 |
+
+<details><summary>Closed: 2 fixed or superseded</summary>
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `SEC-10` | Old records still say environment files name secrets and that a mounted plugin's secrets join every environment automatically; the frame now has each plugin declare its secrets, named from mount and export. | design/decisions/D3.md:11-13<br>design/decisions/K1-kits.md:653-655<br>design/frame/secrets.md:39-48<br>design/milestones.md:131 | superseded (secrets by declaration, frame/secrets.md; M2.04) | M2.04 |
+| `SEC-11` | Whether the build-time harness may be told a secret by name only is answered: a builder-kind secret held where the harness runs, declared by name. | design/decisions/H1-agent-harness.md:362<br>design/frame/secrets.md:45<br>design/milestones.md:189 | superseded (frame/secrets.md builder kind; M4.05) | M4.05 |
+
+</details>
+
+### stand-ins
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `STA-01` | The chain example says Anvil runs as a child process locally and in a container in CI, but the spike proved the container path locally on Docker; a child-process Anvil is a separate adapter nobody has decided to build. **(high)** | spikes/world-anvil-container/README.md:84<br>design/frame/examples/allowance-on-chain.md:137-139 | open | M6.06 |
+| `STA-03` | A stepped clock for a container Anvil (block timestamp interval 0, whole seconds) is not built; it waits with the world clock. | spikes/world-anvil-container/README.md:39<br>design/milestones.md:289 | open | later |
+| `STA-04` | An adapter with no possible stand-in (and a journey that needs a real stored secret) runs only in the cloud pass, and `prove` must say so per call or per journey. | design/frame/adapters.md:169<br>design/frame/secrets.md:186-187 | open | M5.12, M7.07 |
+| `STA-05` | Anvil in a world is proved only on one Mac: Linux CI, Node 24, deployed Cloudflare, crash recovery and cloud billing are untested, and no Linux receipt exists. | spikes/world-anvil-container/README.md:5<br>spikes/world-anvil-container/README.md:88 | open | M6.06 |
+| `STA-06` | Every local Anvil also starts an unlabelled proxy sidecar, so the CLI's cleanup list must track the whole set it owns and never prune other Docker resources. | spikes/world-anvil-container/README.md:91<br>spikes/world-anvil-container/README.md:44 | open | M6.06 |
+| `STA-08` | Noir on Aztec is parked, and its planned stand-in, Aztec's local network, does not verify proofs, so it must be labelled and block production (S30). | design/frame/examples/private-membership.md:96<br>design/milestones.md:287<br>design/later.md:12 | open | later |
+| `STA-09` | Stripe's mock keeps no state and sends no webhooks, so a world sends the signed event itself (`s.<mount>.sends`); that Stripe really sends such events is proved only by a conformance test against Stripe test mode in staging. | design/frame/questions.md:407-408<br>design/frame/examples/payments.md:150-155<br>design/milestones.md:216<br>design/milestones.md:221 | open | M5.03, M5.08, M7.07 |
+| `STA-10` | The Anvil spike left the real work unbuilt: the bench declaration, generated wiring, relayer, chain follower, wallet handling and receipt spans. | spikes/world-anvil-container/README.md:89<br>design/milestones.md:246-250 | open | M6.03, M6.05, M6.07, M6.09, M6.16 |
+| `STA-11` | The Python client's local stand-in for the package index (a local index in place of PyPI, with a pre-release for staging) is decided but parked with the Python client. | design/frame/questions.md:432-433<br>design/frame/examples/python-sdk.md:125-126<br>design/milestones.md:288 | open | later |
+| `STA-12` | The first image download needs its own 600-second preparation budget, separate from the 180-second startup budget. | spikes/world-anvil-container/README.md:45 | open | M6.06 |
+| `STA-13` | The journey helpers that evict a Durable Object mid-turn and wait for a state (`s.world.evict`, `s.world.until`, `usage.continues`) are only proposed in the agents example. | design/frame/examples/agents.md:143-147<br>design/milestones.md:193 | open | M4.02, M4.09 |
+| `STA-14` | The local model stand-in for agent runs (a small open model on an OpenAI-compatible server; Pi's own fake only in the harness's unit tests) is decided but not built. | design/frame/questions.md:394-396<br>design/milestones.md:190 | open | M4.06 |
+| `STA-15` | The native Container policy is beta, and Wrangler's proxy image is pinned by the installed Miniflare runtime, so a Wrangler upgrade can change what a world runs. | spikes/world-anvil-container/README.md:90 | open | M6.06 |
+| `STA-16` | The spike's runner refuses a machine with an existing legacy Wrangler home directory; whether the product CLI keeps that rule is undecided. | spikes/world-anvil-container/README.md:92 | open | M6.06 |
+| `STA-17` | The spike-only `fact` thing in the work spike stands in for the logbook and must be deleted when the logbook adapter lands, not promoted into the blueprint. | PR#28 origin/spike/work-real:spikes/work-real/README.md:55<br>design/milestones.md:161 | open | M3.07 |
+
+<details><summary>Closed: 3 fixed or superseded</summary>
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `STA-19` | An old logbook test used a fake object store that ignored conditional writes; it is gone and the checks now run on real workerd. | design/evidence/Immutable-model/attempts/README.md:1<br>packages/logbook/src/modules/local/routes.test.ts:1 | fixed (packages/logbook/src/modules/local/routes.test.ts; the old http test file is gone) | none (done) |
+| `STA-20` | Payments and email stand-ins (stripe-mock, a mail sink) are extra local processes like Anvil; the ladder's process stand-in settles who owns them, and M4.06 builds it. | design/decisions/K1-kits.md:1044-1045<br>spikes/kits-dx/README.md:69<br>design/frame/adapters.md:167-168 | superseded (K2 Q1, the labelled stand-in ladder; frame/adapters.md:167-168) | M4.06 |
+| `STA-21` | The question whether a vendor's own mock counts as real is answered: it is a declared, labelled stand-in, never silent. | design/frame/adapters.md:221-223<br>design/decisions/K2-forman-frame.md:17-18 | superseded (K2, Q1) | M5.08 |
+
+</details>
+
+### languages-and-hosts
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `LAH-01` | Noir on Aztec is parked in milestones' `Later` with no slice, while N1, `later.md` and the private-membership example still say it comes "after Gate 5", which no longer exists; its private-core spike is merged but framework work is "later". **(high)** | design/milestones.md:287<br>design/later.md:12<br>design/decisions/N1-noir-target.md:16-17<br>design/frame/examples/private-membership.md:3-6<br>design/history/handoff-layers-1-2.md:119 | open | later |
+| `LAH-03` | The addendum still says "Revoke is instant and private" and "nobody outside can see anything"; spike 3 refutes both as stated, and generated docs and client guarantees must not promise them. **(high)** | design/noir/addendum.md:30-31<br>spikes/noir-private-core/README.md:86<br>spikes/noir-private-core/README.md:94 | open (the addendum was not corrected; spikes/noir-private-core/README.md:94 asks the lead to fold in the corrections) | later |
+| `LAH-05` | Aztec events must be declared inside the contract module, so a Noir generator would have to inject a marked events region into the scaffold. | design/noir/spike-1-member-note.md:123 | open | later |
+| `LAH-06` | Aztec's APIs move fast: spike 1 reached raw `pxe.proveTx` and `completeFeeOptions` through protected methods that may change. | design/noir/spike-1-member-note.md:182 | open | later |
+| `LAH-07` | Gate 4's check that the relayer key can only submit already-signed payloads has only the planted-private-key check in its slice. | design/build-plan.md:213<br>design/milestones.md:259 | open | M6.18 |
+| `LAH-08` | How an organisation's private account is funded (how many months ahead, who tops it up) is Aaron's call and nobody has made it. | design/noir/design-study.md:974<br>design/noir/addendum.md:138<br>design/decisions/N1-noir-target.md:41-42 | open | later |
+| `LAH-09` | How long the owner waits to see a spend (note discovery after inclusion) was a spike question and no report measures it. | design/noir/design-study.md:968 | open | later |
+| `LAH-10` | In CI, Anvil is planned as a Cloudflare Container owned by the world's Durable Object, and cloud worlds use a testnet instead (M7.09). | design/build-plan.md:186<br>design/milestones.md:247 | open | M6.06 |
+| `LAH-11` | Layers 2 to 6 of a private Capxul (roles, budgets, payments and payroll to outsiders, bridging, disclosure to auditors and migration) are a product roadmap; only the core is spiked. | design/noir/addendum.md:41-47 | open | later |
+| `LAH-13` | M6.01 (the decision on values across languages, `signedBy` and custody) does not say it must read `design/noir/` so Noir's client-proved shape stays open. | design/milestones.md:242<br>design/decisions/N1-noir-target.md:34-35 | open | M6.01 |
+| `LAH-14` | M6.01 must decide values across languages, `signedBy` as EIP-712, one vault per organisation, the wallets signer and keystore surface, and the SIWE link declarations. | design/milestones.md:242 | open | M6.01 |
+| `LAH-15` | Moving money in and out of Aztec and L1-to-L2 messages are untested; only the contract APIs exist. | design/noir/spike-1-member-note.md:240<br>spikes/noir-private-core/README.md:161 | open | later |
+| `LAH-16` | N1 deliberately did not take `custody`, `takesEffect`, time moves as guards, fees or the `std/aztec` kit; each needs a chain language to prove it. | design/decisions/N1-noir-target.md:34-35<br>design/frame/examples/private-membership.md:133 | open | later |
+| `LAH-17` | N1 promised that the Solidity and time wayfinding would read `design/noir/` so the clock primitive declares, per language, what time it can trust; Time is parked in `Later` and its line does not carry that requirement. | design/decisions/N1-noir-target.md:35-37<br>design/milestones.md:289 | open | later |
+| `LAH-18` | N1's list of things still open for Noir was never updated after spike 3: spike 3 settled racing and a sponsored fee payer locally, and left key rotation, proof verification and bridging untested. | design/decisions/N1-noir-target.md:41-42<br>spikes/noir-private-core/README.md:159-161<br>design/noir/addendum.md:132-138 | open | later |
+| `LAH-19` | Operations that run on a chain (`runs: "chain"`) are refused "not supported yet" until a language that runs on a chain exists. | packages/compiler/src/modules/model/internal/describe.ts:108<br>packages/compiler/src/modules/model/internal/describe.ts:170 | open | M6.10, M6.11 |
+| `LAH-20` | Proving one spend on a laptop is measured (about 12 s proving, 22 s whole operation, median); proving in a browser is untested, and the generated client must sync before proving. | spikes/noir-private-core/README.md:72<br>design/noir/design-study.md:963<br>design/frame/examples/private-membership.md:89-92<br>design/frame/examples/private-membership.md:117 | open (laptop done; browser not: spikes/noir-private-core/README.md:161) | later |
+| `LAH-21` | Spike 3 did not test RPC and IP anonymity, a malicious peer or PXE, collusion, mobile proving, a production fee sponsor, payroll or audit disclosure. | spikes/noir-private-core/README.md:161<br>spikes/noir-private-core/follow-ups.md:5-7 | open | later |
+| `LAH-22` | The Aztec compiler prints "bug:" lints from aztec-nr's `get_note` (42 in the earlier contract). | design/noir/spike-2-role-gate-e2.md:126 | open | later |
+| `LAH-23` | The Aztec team's `DelayedPrivateMutable` (a private kill switch) is in neither 5.3.0 nor 6.0.0; watch for it. | design/noir/design-study.md:162 | open | later |
+| `LAH-24` | The Escrow standard (DeFi Wonderland) the study leans on must be checked for maintenance before anything depends on it. | design/noir/design-study.md:1034-1035 | open | later |
+| `LAH-25` | The Python client (`@formants/language-python`, the `python` projection, PyPI) is parked in milestones' `Later` with no slice; the old name `target-python` survives only in history. | design/milestones.md:288<br>design/frame/examples/python-sdk.md:3-9<br>design/decisions/K2-forman-frame.md:65-66<br>design/history/packages-layers-1-2.md:58-60 | open | milestones.md#Later |
+| `LAH-26` | The `runs`, `test: "network"` and visibility seams are in the model with defaults that keep today's behaviour, but nothing reads `test: "network"` and client and chain are refused; they wait for a later language. | design/decisions/D3.md:596-601<br>packages/forman/src/modules/operations/operations.test.ts:60<br>packages/compiler/src/modules/model/model.test.ts:122 | open | later |
+| `LAH-27` | The build plan says the Effect runtime is host-neutral behind a `Host` service so a Node host is a fallback if workerd bites; no `Host` service exists in `language-effect`. | design/build-plan.md:63<br>design/build-plan.md:259-263<br>design/milestones.md:360-361 | open | M1.09 |
+| `LAH-28` | The import rule (generated code may import a mounted plugin's declaration entry and its runtime entry for its host; a project never imports a plugin's runtime entry) is not yet written into AGENTS.md, which still allows only the language's runtime, `forman`, the host and project code. | design/decisions/K1-kits.md:878-881<br>AGENTS.md:55<br>design/milestones.md:100 | open | M1.09 |
+| `LAH-29` | The optional spike of the machine in Solidity with Foundry tests, and reading `@prb/effect-evm`, was never run. | design/spikes.md:33 | open | M6.11 |
+| `LAH-30` | The private-membership example still shows the superseded design (a public salted marker in `DelayedPublicMutable`, `takesEffect: 1 hour`), which spike 3 replaced with private notes. | design/frame/examples/private-membership.md:18-19<br>design/frame/examples/private-membership.md:54<br>spikes/noir-private-core/README.md:5<br>design/milestones.md:287 | open | later |
+| `LAH-31` | The whole Aztec stack is alpha and unaudited, and its example contracts are proofs of concept; production readiness is explicitly untested. | design/noir/design-study.md:395<br>spikes/noir-private-core/README.md:161 | open | later |
+| `LAH-32` | Whether someone who already knows an organisation's address can recognise payments to it, and whether node queries show who asked, is untested; follow-up NPC-02 is a watcher test nobody has run. | design/noir/design-study.md:662<br>spikes/noir-private-core/README.md:153<br>spikes/noir-private-core/follow-ups.md:6 | open | later |
+| `LAH-33` | Whether the Noir core could omit even the one-off class publication is untested. | spikes/noir-private-core/README.md:62 | open | later |
+| `LAH-34` | Which Aztec line to target (stay on 5.3 or move to 6.0, with its new repository and one-hour minimum delay) is undecided, and version 6 behaviour was never tested; every spike stayed on 5.3.0. | design/noir/design-study.md:969-970<br>design/noir/spike-2-role-gate-e2.md:125<br>spikes/noir-private-core/README.md:161 | open | later |
+| `LAH-35` | `language-solidity` is a placeholder and no Solidity language is built anywhere until M6. | design/milestones.md:28<br>design/packages.md:21 | open | M6.11 |
+| `LAH-36` | `later.md` and `decisions.md` still say "Python as a third target" (server-side Python, much bigger than the client) using the old word "target" for language. | design/later.md:8<br>design/decisions.md:127-128<br>design/frame/examples/python-sdk.md:9 | open | later |
+| `LAH-37` | `privately_check_timestamp` and expiry-style time rules (where an earlier anchor favours the caller) were untested in spike 1; spike 2 tested the expiration bound but not the public-check flavour. | design/noir/spike-1-member-note.md:299<br>design/noir/spike-1-member-note.md:181 | open | later |
+
+<details><summary>Closed: 7 fixed or superseded</summary>
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `LAH-38` | The Noir design study compiled and ran nothing; its Noir was sketches against Aztec 5.3.0 names. | design/noir/design-study.md:13<br>spikes/noir-private-core/README.md:5 | fixed (spike 1, 2 and 3 ran real code: design/noir/spike-1-member-note.md:21, design/noir/spike-2-role-gate-e2.md:80, spikes/noir-private-core/README.md:5) | n/a (closed) |
+| `LAH-39` | The addendum asked for Noir to go on `later.md` and for the cheap layer-one items to be taken in D2. | design/noir/addendum.md:5-7<br>design/later.md:12-13<br>design/decisions/N1-noir-target.md:20-33 | fixed (design/later.md:12-13; N1 decision 3, design/decisions/N1-noir-target.md:20-33) | n/a (closed) |
+| `LAH-40` | The addendum's list of things for the next spike to prove (unpublished contract, admin consuming a member's note, revoke beating an earlier proof, anchor month, shared fees, public view) was run by spike 3 and mostly validated with cooperative clients. | design/noir/addendum.md:37-39<br>spikes/noir-private-core/README.md:5-48 | fixed (spikes/noir-private-core/README.md:5-48) | n/a (closed) |
+| `LAH-41` | The official Aztec installer edits `~/.bashrc`, so spike 1 installed by hand; spike 3 has an install script that does not touch a shell profile. | design/noir/spike-1-member-note.md:10<br>spikes/noir-private-core/README.md:173 | fixed (spikes/noir-private-core/README.md:173) | n/a (closed) |
+| `LAH-42` | The test pool's workerd rejected compatibility date 2026-11-01, so Worker and tests could behave differently; every Worker and test now uses 2026-08-01, which the pool accepts (it accepts dates only up to 2026-08-22). | spikes/effect4-worker-chain/README.md:27<br>design/wayfinding/stage-1.md:84 | fixed (packages/generators/src/modules/render/internal/worker-config.ts:7 pins 2026-08-01) | n/a (closed) |
+| `LAH-43` | Whether a Noir assertion can carry a typed payload the client decodes was a question for the spike. | design/noir/design-study.md:873 | fixed (design/noir/spike-1-member-note.md:66 and design/noir/spike-2-role-gate-e2.md:80: refusals come back as typed errors) | n/a (closed) |
+| `LAH-44` | The study recommended a funded pocket per allowance; Aaron then chose one shared organisation account, and spike 3 built that instead. | design/noir/design-study.md:773<br>design/noir/addendum.md:22-24 | superseded (design/noir/addendum.md:22-24, Aaron's 16 November direction; built in spikes/noir-private-core/README.md:5) | n/a (superseded) |
+
+</details>
+
+### workflows
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `WOR-01` | Effect's Cloudflare Workflow engine is experimental and its replay after eviction (do finished activities get skipped?) is unproved; it is adopted behind a seam, with a hand-written Durable Object workflow as the fallback. **(high)** | design/decisions/K2-forman-frame.md:27<br>design/milestones.md:157<br>design/milestones.md:358-359<br>design/frame/delta.md:83 | open | M3.03 |
+| `WOR-02` | M3.01 must decide the workflow shape (steps, `step.await` on an event, durable clocks), where it lives, and the Effect and platform-cloudflare pins. **(high)** | design/milestones.md:155 | open | M3.01 |
+| `WOR-03` | One owner per call: cross-actor and cross-store work is to run as a workflow rather than one call, and apps cannot declare workflows until M5.10. **(high)** | design/frame/delta.md:72<br>design/milestones.md:223 | open | M5.10 |
+| `WOR-05` | A reminder ("remind them in three days") is a workflow that waits on layer 5's time, which is parked in `Later`. | design/frame/examples/notifications.md:76-78<br>design/milestones.md:289 | open | later |
+| `WOR-06` | An event that cannot be delivered after its retries is a defect with a redelivery command (S24). | design/frame/questions.md:417-418<br>design/frame/examples/notifications.md:182-184<br>design/milestones.md:217 | open | M5.04 |
+| `WOR-07` | Our own events should drive operations through `on:` as `system`, with one mechanism for adapter events and our own (S22). | design/frame/questions.md:413-414<br>design/milestones.md:216 | open | M5.03 |
+| `WOR-08` | The outbox is built for actors only and not designed for every move: events should be written with the state in one transaction, drained by alarm, delivered at least once and keyed for idempotency. | design/frame/delta.md:74<br>design/frame/examples/notifications.md:60-66<br>design/milestones.md:217 | open | M5.04 |
+| `WOR-09` | The world-clock spike did not exercise real durable sleeps or a workflow instance being parked; `Timers` must record rather than sleep in each runtime. | design/spikes/world-clock.md:109<br>design/milestones.md:155 | open | M3.01 |
+| `WOR-10` | `effect` is still pinned at 4.1.1 everywhere; Workflow on Durable Objects needs `@effect/platform-cloudflare` 4.1.3 with `effect` 4.1.3, which the three-day rule now allows, and the bump is its own slice. | design/decisions/D1.md:14<br>design/decisions/R1-release-age.md:13-15<br>design/decisions/R1-release-age.md:29<br>design/frame/examples/agents.md:236<br>design/wayfinding/stage-1.md:31-32<br>design/milestones.md:156<br>package.json:18 | open | M3.02 |
+
+<details><summary>Closed: 1 fixed or superseded</summary>
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `WOR-11` | Q2, what runs long work, is decided: Pi Durable for agent runs and Effect Workflow for declared processes, including the factory's manager loop. | design/frame/questions.md:100-106<br>design/decisions/K2-forman-frame.md:27 | fixed (design/decisions/K2-forman-frame.md:27; built in M3.01 and M4.01) | M3.01, M4.01 |
+
+</details>
+
+### environments
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `ENV-01` | Everything runs locally and no cloud destination is built; the real Cloudflare, npm, Homebrew, Axiom and real staging sign-in are the cloud pass (M7). **(high)** | design/frame/delta.md:91<br>design/milestones.md:28<br>design/milestones.md:14<br>design/goals/01-the-whole-framework-locally.md:47 | open | M7.01, M7.04 |
+| `ENV-02` | The Alchemy stack (the infra projection) is not built: `generated/infra` holds only wrangler configs, Alchemy 2 `deploy` and `destroy` always need a Cloudflare account, and the `cloudflare` destination says it is not built. **(high)** | design/decisions/D3.md:23-27<br>design/frame/deployment.md:52<br>design/frame/deployment.md:129<br>design/build-plan.md:132<br>design/wayfinding/stage-3.md:48-49<br>design/history/handoff-layers-1-2.md:228<br>spikes/e2b-sandbox/README.md:56 | open | M7.03 |
+| `ENV-07` | Contracts are to be redeployed only when the bytecode hash changes (promoting twice deploys nothing the second time), first locally and then on a testnet. | design/frame/examples/allowance-on-chain.md:140-141<br>design/milestones.md:258<br>design/milestones.md:280 | open | M6.17, M7.09 |
+| `ENV-08` | Every deployed Worker must have `FORMAN_ENVIRONMENT` set, or it reads as a local world and opens `/_world/*`; the cloud pass must also give `Facts` a D1-API reader (staging's proof reads a D1 file today). | design/later.md:56-57<br>design/decisions/D3.md:916-922<br>design/history/handoff-layers-1-2.md:75-77<br>packages/generators/src/modules/render/internal/server.ts:126 | open | later |
+| `ENV-10` | O1 L2.O11: creating Axiom datasets and setting ingest secrets in deploy, with `destroy` removing the datasets, waits for the cloud pass. | design/decisions/O1-observability.md:444<br>design/later.md:10-11<br>design/milestones.md:274-275 | open | later |
+| `ENV-12` | The Durable Object spike was only tried locally, never on deployed Cloudflare or under real network latency. | design/spikes/durable-object.md:67 | open | M7.04 |
+| `ENV-13` | The cloud pass goes one destination at a time, each credential with Aaron's written yes. | design/frame/deployment.md:131<br>design/milestones.md:272 | open | M7.01 |
+| `ENV-15` | `promote` prints `skipped <provider> (cloud pass)` and `skipped ... domain` for the destinations the local pass cannot reach, including the portal and MCP domains. | packages/prove/src/modules/promote/service.ts:39-40<br>design/decisions/D3.md:811-812 | open | M7.04 |
+
+<details><summary>Closed: 7 fixed or superseded</summary>
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `ENV-17` | Publishing the SDK and CLI and deploying MCP and the portal were not yet built when promote's seams were written; locally they are done (prerelease and release publishing, MCP as a route, the portal as a route of the one Worker); only the real npm, GitHub and domain steps remain skipped. | design/decisions/D3.md:517-521<br>design/decisions/D3.md:622-628<br>design/decisions/D3.md:808-814<br>design/decisions/D3.md:874-886<br>design/build-plan.md:138 | fixed (D3.md:622-628 #111 publish; D3.md:808-814 #130 portal route; D3.md:874-886 #122 MCP; real cloud steps are M7.04 and M7.06) | n/a (closed in L2.06, L2.08, L2.10) |
+| `ENV-18` | The world's `/_world/*` front door was open on every environment, production included; it is now closed unless the environment is named and declares a lifetime (staging and production answer 404). | design/decisions/D2.md:144-146<br>design/decisions/D3.md:522-528<br>design/decisions/D3.md:913-918<br>design/later.md:15<br>https://github.com/AaronAbuUsama/architect/pull/1 | fixed (design/decisions/D3.md:913-918, #126, #127; design/later.md:15 struck through) | n/a (closed in L2.08) |
+| `ENV-19` | `forman env down` for a long-lived local environment is built (`env destroy` for the cloud is M7.04). | design/frame/deployment.md:102-103<br>packages/cli/src/main.ts:262<br>design/decisions/D3.md:810 | fixed (packages/cli/src/main.ts:262-292; design/decisions/D3.md:183) | n/a (closed) |
+| `ENV-20` | An environment must issue the credential kinds its deploys need, and `check` must fail otherwise (K1: an MCP deploy needs `agent` issued, a CLI publish needs `device` or `key`); the rule is now `issues:` per environment and a way in the environment does not issue is a check error. | design/decisions/K1-kits.md:267-271<br>design/frame/projections.md:183<br>design/briefs/K1-kits-and-surfaces.md:312 | superseded (design/frame/projections.md:183 and design/decisions/K2-forman-frame.md: MCP is a door of the one Worker, so the check is on `issues:`) | M2.03 |
+| `ENV-21` | G1 re-sliced Gate 2 into `deploy --env sandbox` (under the old command name) against a local world ("Gate 2 changes meaning"); that command no longer exists. | design/decisions/G1-local-first.md:13-15<br>design/decisions/D3.md:114-119 | superseded (design/decisions/D3.md:114-119: `env up` and `promote`; the real deploy and destroy are M7.04, design/milestones.md:275) | n/a (superseded) |
+| `ENV-22` | Per-environment choices (the chain `network`) were to be inserted into each environment file by `add`; a choice is now fixed at mount time and only settings vary by environment. | design/decisions/K1-kits.md:655-657<br>design/frame/README.md:122-123 | superseded (design/frame/README.md:122-123, mount verbs: choices against settings; M1.07) | M1.07 |
+| `ENV-23` | The old spec's open questions 13.1 to 13.4 (default cloud and database, default telemetry sink, organisations in the starter, where the logbook runs) were answered by D1, D2, the frame and the auth and organizations plugins. | design/history/spec-drafts.md:474-478<br>design/milestones.md:134 | superseded (D1 and D2 on Cloudflare with the Axiom sink; design/decisions/K2-forman-frame.md:34-37, auth and organizations as plugins; M2.07) | M2.07 |
+
+</details>
+
+### auth
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `AUT-01` | Principals in code are only `anonymous` or `person`; the `agent`, `service` and `system` principals are not built, so nothing can say an agent is spending for a person (the work app uses `owner.of("mission")` as a stand-in). **(high)** | packages/forman/src/modules/roles/types.ts:6<br>design/frame/delta.md:61<br>design/milestones.md:28<br>design/frame/story.md:108<br>design/decisions/F5-work-blueprint.md:65 | open (F5's gap is superseded by K2's principals and `Via.agent`; the code is not built) | M2.03 |
+| `AUT-02` | The page behind `/device` (where a person approves a device code) and the OAuth consent page are unbuilt; D3 gave them to the portal, which F6 replaces with the generated app, and no slice names them, though K1 lists them as the auth plugin's own pages. **(high)** | design/decisions/D3.md:309<br>design/decisions/D3.md:894<br>design/decisions/K1-kits.md:823<br>origin/spike/generated-app:design/decisions/F6-the-app.md:3 | open | M2.06 |
+| `AUT-03` | A device-login session must be marked `via: device` in the database, not guessed from a header, and it is not known whether Better Auth 1.7.15's session hook sees the device-token path (fallback: mark the row in `AuthD1.handle`). | design/decisions/K1-kits.md:202<br>design/decisions/K1-kits.md:1036<br>spikes/kits-dx/README.md:65 | open | M2.06 |
+| `AUT-04` | Agents must never complete a wallet link (`challenge`, `complete`, `link` are `notVia(Agent)`; agents get `wallet.list`), and no M6 done-when asserts it. | design/decisions/K1-kits.md:838<br>design/milestones.md:245 | open | M6.04 |
+| `AUT-05` | An agent's OAuth token on the HTTP API reads as anonymous today because session lookup does not understand the token; once an agent uses the SDK it would pass any `signedIn` operation until every route resolves every credential kind. | design/decisions/K1-kits.md:217<br>packages/host-cloudflare/src/modules/auth/service.ts:15 | open | M2.03 |
+| `AUT-06` | An invitation can be accepted by anyone who signs up with the invited address (unverified) and learns the invitation id, because email verification on invitations is off. | spikes/better-auth-workerd/README.md:224 | open | M2.07 |
+| `AUT-07` | An organisation-scoped API key used as a principal needs Forman's own mapping, since permissions on keys and the organisation role gate belong to Better Auth. | spikes/better-auth-workerd/README.md:230 | open | M2.05 |
+| `AUT-08` | Auth still runs inside the Cloudflare host on Better Auth; it moves into `@formants/auth` as a plugin only in M2.05 (the old plan said a kit built from the layer-one adapter). | design/packages.md:22<br>design/build-plan.md:66<br>design/briefs/K1-kits-and-surfaces.md:422 | open | M2.05 |
+| `AUT-09` | Better Auth accepts unsigned bearer tokens (only the session token's randomness protects them). | spikes/better-auth-workerd/README.md:228 | open | M2.05 |
+| `AUT-10` | Better Auth schema comes from a script that uses internal migration code, and no upgrade (1.7.25 is out) has been tried. | spikes/better-auth-workerd/README.md:234<br>spikes/better-auth-workerd/README.md:243 | open | M2.05 |
+| `AUT-11` | Better Auth's email flows (verification, reset, invitation email) were never tried. | spikes/better-auth-workerd/README.md:242 | open | M5.09 |
+| `AUT-12` | Better Auth's origin check refuses CLI clients unless they send a trusted `Origin`; `trustedOrigins` and what the CLI sends are undecided. | spikes/better-auth-workerd/README.md:232 | open | M2.06 |
+| `AUT-13` | Building Better Auth anew on every request is unmeasured. | spikes/better-auth-workerd/README.md:237 | open | M2.05 |
+| `AUT-14` | M2.01 must still decide how acme's copied auth things move into the two plugins and what a plugin's own CI is. | design/milestones.md:128 | open | M2.01 |
+| `AUT-16` | Minting an agent token inside a world that the auth provider's own check accepts is untried. | spikes/kits-dx/README.md:66<br>design/decisions/K1-kits.md:1038 | open | M2.03 |
+| `AUT-18` | OAuth consent shows again on every SDK-driven authorization; skipping consent for a vetted client or dropping `offline_access` is a product call. | spikes/mcp-oauth/README.md:143 | open | M2.06 |
+| `AUT-19` | Open dynamic OAuth client registration is limited only by a count-before-insert throttle (500 clients), which concurrent requests can exceed; a strict atomic ceiling is needed before any public deployment. | design/decisions/D3.md:1127<br>design/decisions/D3-whole-layer-reset.md:46<br>design/later.md:67<br>packages/host-cloudflare/src/modules/auth/internal/oauth.ts:58<br>spikes/mcp-oauth/README.md:146<br>design/history/handoff-layers-1-2.md:44 | open (local throttle built; strict ceiling not) | later |
+| `AUT-20` | Password hashing (scrypt) costs about 50 ms of CPU per sign-in, which a free-plan Worker would not survive, and real Cloudflare CPU limits were never run. | spikes/better-auth-workerd/README.md:239<br>spikes/mcp-oauth/README.md:148 | open | M7.04 |
+| `AUT-22` | SIWE linking has not been run on Node 24 or Linux CI (the spike ran on Node 26 on macOS). | spikes/authenticated-siwe-link/README.md:70 | open | M6.04 |
+| `AUT-25` | The `zod` pin (4.5.4 in language-effect, because 4.6.7 stops the Worker starting) and the Better Auth instance that can hang when first used in a later request (worked around by answering one request at make time) are still live workarounds. | design/decisions/D3.md:901<br>packages/language-effect/package.json:13 | open | M2.05 |
+| `AUT-26` | The allowed chain and origin policy, multi-origin behaviour and cross-chain wallet identity uniqueness for SIWE linking are not decided. | spikes/authenticated-siwe-link/README.md:66<br>design/milestones.md:242 | open | M6.01 |
+| `AUT-28` | The generators name the starter's `session.sign-in` and `session.show` by hand in one place (`cli-session.ts`); once auth is a plugin and a second identity provider can exist, a marker on the operation should replace that. | design/decisions/D3.md:298<br>packages/generators/src/modules/render/internal/cli-session.ts:1 | open | M2.06 |
+| `AUT-29` | The principal comment in the language-effect Principals layer still says "Everyone is anonymous ... Better Auth in stage two", which is stale now that Better Auth is in place. | packages/language-effect/src/modules/principals/service.ts:4 | open | M2.03 |
+| `AUT-30` | The remote D1 latency of the JWKS lookup made on every `/mcp` call is unchecked. | spikes/mcp-oauth/README.md:152 | open | M7.04 |
+| `AUT-31` | The session-show declaration must explicitly add wallet output, and the request adapter must supply the session as well as the person. | spikes/authenticated-siwe-link/README.md:61 | open | M6.04 |
+| `AUT-32` | The starter journeys and earlier gates were never run against the SIWE linking service, and the keystore, wallet CLI, auth migration, generated API change, retry policy, challenge quota and pruning and full typed errors are not built. | spikes/authenticated-siwe-link/README.md:68<br>spikes/authenticated-siwe-link/README.md:69 | open | M6.03, M6.04 |
+| `AUT-33` | The starter still copies the auth things, including organisations, memberships and invitations, into every project instead of mounting auth. | design/frame/delta.md:45<br>design/milestones.md:22<br>design/milestones.md:21<br>design/handoff.md:26 | open | M2.07, M2.09 |
+| `AUT-34` | The ways in (`Via.session`, `Via.key`, `Via.device`, `Via.agent`) and the `.via` and `.notVia` role checks are decided in K2 but not in the code, and the principal does not yet record which credential it came by. | design/decisions/K1-kits.md:143<br>design/decisions/K2-forman-frame.md:37<br>design/briefs/K1-kits-and-surfaces.md:445<br>packages/forman/src/modules/roles/types.ts:6 | open | M2.03 |
+| `AUT-35` | When the generated app runs locally it calls acme as a member of the world's cast, so `NotAllowed` names nobody in telemetry for calls the app did not make until a principal is put on that path. | origin/spike/generated-app:spikes/generated-app/README.md:135<br>design/milestones.md:110<br>design/milestones.md:128 | open | M2.03 |
+| `AUT-36` | `@formants/auth` keeps Better Auth's tables in its own store, so stores (M1.17) must land before M2.05. | design/decisions/K3-stores-and-sources.md:83<br>design/milestones.md:132 | open | M2.05 |
+| `AUT-37` | `signedBy` mapping to the caller's own Aztec account is proposed and not tested; M6.01 decides `signedBy` as EIP-712 only, and Noir is parked. | design/noir/addendum.md:127<br>design/milestones.md:242<br>design/milestones.md:287 | open | later |
+
+<details><summary>Closed: 4 fixed or superseded</summary>
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `AUT-38` | The SIWE spike's `handle` is a throwaway adapter, not the plugin API; the real one is auth as a plugin (M2.05) with SIWE linking on top (M6.04). | spikes/authenticated-siwe-link/README.md:59<br>design/milestones.md:302 | fixed (design/milestones.md:302: L3.03 to M2.05 and M6.04) | M6.04 |
+| `AUT-39` | Where custody is proved first is decided (in Solidity with the wallets feature, S29, built by M6.18), but the private-membership example still lists it as an open question. | design/frame/examples/private-membership.md:140<br>design/frame/questions.md:426<br>design/milestones.md:259 | fixed (design/frame/questions.md:426; design/milestones.md:259) | M6.18 |
+| `AUT-40` | Organisations, memberships and invitations (and acme's `api-key.create`) are written as staying the app's own things, but K2 gives them to the organizations plugin, so the mounting page and K1's rule that anything needing the app's roles stays the app's are out of date. **(high)** | design/frame/mounting.md:182<br>design/decisions/K1-kits.md:832<br>design/decisions/K2-forman-frame.md:34 | superseded (design/decisions/K2-forman-frame.md:34-36: auth plus `@formants/organizations`) | M2.07 |
+| `AUT-41` | D2 says the identity issuer for staging sign-in is Dex in Docker, but nothing uses Dex: sign-in is Better Auth's own device flow and the mock OIDC server only signs CI verdicts. | design/decisions/D2-stage-two.md:38<br>design/decisions/D3.md:266 | superseded (design/decisions/D3.md:266: staging sign-in is Better Auth's device flow, left to the cloud pass) | M7.04 |
+
+</details>
+
+### agents
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `AGE-01` | The H1 second pass (the Durable Object host is Cloudflare's `PiHarness` from `agents` 0.33.0, skill tools named `activate_skill` and `read_skill_resource`, GenAI span names, sharper facts) sits only on the unmerged branch `claude/design-agent-harness-e6e8ff`; PR #9 was closed unmerged and no record says whether its edits to build-plan A3 to A6 were taken. **(high)** | https://github.com/AaronAbuUsama/architect/pull/9<br>https://github.com/AaronAbuUsama/architect/pull/9#issuecomment-6930603084<br>origin/claude/design-agent-harness-e6e8ff:design/decisions/H1-agent-harness.md (commit 1e1cd9b) | open | M4.01 |
+| `AGE-02` | Where a run lives is contradictory: H1 makes the Run thing `lives: actor`, F5 says runs and missions are database rows because lists need a database while each run's loop is its own Durable Object; M4.01 must settle it. **(high)** | design/decisions/H1-agent-harness.md:305<br>design/decisions/F5-work-blueprint.md:45<br>design/decisions/K3-stores-and-sources.md:83 | open | M4.01 |
+| `AGE-04` | Agent waits on the world's stepped clock and scheduled agents wait for the time milestone. | design/decisions/H1-agent-harness.md:159<br>design/milestones.md:289 | open | later |
+| `AGE-05` | Bench tasks are derived per (project, operation, variant), 49 today, with author-written planted breaks for every operation under `test/fixtures/bench/`; nothing in M4 names this. | design/decisions/H2-agent-runs-and-benchmarks.md:167<br>design/build-plan.md:169 | open | M4.14 |
+| `AGE-06` | Benchmark follow-ups are parked: mutant repair tasks, regressions as a gate (advisory first), a weekly free-model baseline in CI once CI may hold a model key, and the committed baselines (A9). | design/later.md:51<br>design/later.md:53<br>design/later.md:54<br>design/decisions/H2-agent-runs-and-benchmarks.md:189<br>design/build-plan.md:171<br>design/milestones.md:292 | open | later |
+| `AGE-07` | Benchmark verdicts in the logbook and a page comparing runs are parked, and the entry still says "Layer 2" and "portal" (the page would live in the generated app). | design/later.md:50<br>design/decisions/H2-agent-runs-and-benchmarks.md:159 | open | later |
+| `AGE-08` | Check 4 becomes the first runner (`sdk`), with a run folder per run (record, transcript, spans, output, score) and a trusted scorer; files now, R2 plus D1 behind one `RunStore` later. | design/decisions/H2-agent-runs-and-benchmarks.md:36<br>design/decisions/H2-agent-runs-and-benchmarks.md:107<br>design/milestones.md:187 | open | M4.03 |
+| `AGE-09` | Cloudflare container cold start and cost against the $10 a day cap are unmeasured, and a manager that steers too often wastes tokens. | design/briefs/F4-portal-plan-and-state.md:149 | open | M4.09 |
+| `AGE-10` | Command Code is a model provider in H1 (`createProvider`, a price table read from `/models`) but M4.05 names only Anthropic and an OpenAI-compatible adapter. | design/decisions/H1-agent-harness.md:161<br>design/milestones.md:189 | open | M4.05 |
+| `AGE-11` | Docker sandbox for agents (A7), then Cloudflare Containers, then Dynamic Workers for an operator agent, plus a sandbox provider adapter for the factory, are parked; until then scoring runs model-written code on the host, and the scorer must move to Docker for an unknown model or any shell tool. | design/milestones.md:292<br>design/later.md:48<br>design/decisions/H1-agent-harness.md:278<br>design/decisions/H1-agent-harness.md:283<br>design/build-plan.md:169<br>design/frame/examples/factory.md:176<br>design/briefs/F4-portal-plan-and-state.md:79 | open | later |
+| `AGE-12` | E2B keys cannot be scoped, so runs should use a separate E2B team. | spikes/e2b-sandbox/README.md:55 | open | M4.01 |
+| `AGE-13` | E2B sandbox cost is not measured against the $10 cap, and crashed objects may leave sandboxes running. | spikes/e2b-sandbox/README.md:52 | open | M4.01 |
+| `AGE-14` | H1 and H2's questions for Aaron were answered on 16 November (Command Code is commandcode.ai, paid open models allowed inside the $10 cap, the machine is an acceptable first sandbox), but only on the unmerged branch `claude/design-agent-harness-e6e8ff`; main's H1 and H2 still list them open, and M4.05 does not name Command Code. | design/decisions/H1-agent-harness.md:359<br>design/decisions/H2-agent-runs-and-benchmarks.md:327<br>design/briefs/codex-handoff.md:429<br>design/history/handoff-layers-1-2.md:118<br>design/decisions/H1-agent-harness.md:161<br>origin/claude/design-agent-harness-e6e8ff:design/decisions/H1-agent-harness.md (commit 8809cb0) | open (answered on an unmerged branch) | M4.01 |
+| `AGE-16` | M4.01 must decide where Pi runs (a Durable Object per run, Node for the bench) and pin the local model server and model. | design/milestones.md:185 | open | M4.01 |
+| `AGE-17` | Pi Durable is experimental and broke two public APIs in 1.5.0; it is held only by an exact pin, the seam and a conformance suite. | design/decisions/H1-agent-harness.md:40 | open | M4.04 |
+| `AGE-18` | Pi Durable is pinned at 1.5.0 under the old two-week rule; the age rule is now three days (1.5.2 is allowed), so the pin must be chosen again. | design/decisions/H1-agent-harness.md:145<br>design/decisions/K2-forman-frame.md:14<br>design/frame/examples/agents.md:281 | open | M4.01 |
+| `AGE-19` | Runs and attention in the real work app spike are written by a script; nothing runs an agent, so `run.report` and budgets are untested against a live model. | origin/spike/work-real:spikes/work-real/README.md:65 (PR#28) | open | M4.13 |
+| `AGE-20` | Skill names as identifiers in `Blueprint.agent` wait on M4.10. | origin/claude/build-skills-8a1083:design/frame/skills.md:522 (PR#37) | open | M4.10 |
+| `AGE-22` | Spike S-H2b (how many `prove` runs fit at once on one machine) is not run and decides the scoring queue's width. | design/decisions/H2-agent-runs-and-benchmarks.md:32<br>design/decisions/H2-agent-runs-and-benchmarks.md:290 | open | M4.14 |
+| `AGE-24` | Telemetry from Pi is to be adapted into Effect spans through the same exporter as the handlers, with content never in span attributes. | design/decisions/H1-agent-harness.md:184<br>design/milestones.md:192 | open | M4.08 |
+| `AGE-25` | The E2B sandbox spike left open risks: its own template (Node 24, pnpm, warm repo copy) is untried and decides start-up time. | spikes/e2b-sandbox/README.md:50<br>https://github.com/AaronAbuUsama/architect/pull/20 | open | M4.01 |
+| `AGE-26` | The E2B sandbox spike only ran in local workerd, not a deployed Worker. | spikes/e2b-sandbox/README.md:54 | open | M4.09 |
+| `AGE-27` | The `oracle` and `null` runners are meant to run in CI on every change to the bench, evals or examples; M4.03's done-when names only check 4. | design/decisions/H2-agent-runs-and-benchmarks.md:55<br>design/milestones.md:187 | open | M4.03 |
+| `AGE-28` | The agents feature is designed (H1, H2, the agents example) but not built anywhere: there is no `packages/agent`, no harness, no scorer or run record beyond check 4. | design/milestones.md:28<br>design/frame/delta.md:16<br>design/frame/delta.md:81<br>design/frame/story.md:290 | open | M4.10 |
+| `AGE-29` | The bench's spend ledger with reservations ($5 a day bench cap, never above $10), suites, report and committed baselines are designed but not built. | design/decisions/H2-agent-runs-and-benchmarks.md:233<br>design/milestones.md:198 | open | M4.14 |
+| `AGE-31` | The triggers for switching from Pi Durable to Effect Workflow (the seam cannot keep Pi's promise API out, its API breaks twice in a quarter, it fails to bundle, or an agent run becomes a declared workflow) are written but nothing watches for them. | design/decisions/H1-agent-harness.md:236<br>design/frame/questions.md:166 | open | M3.03, M4.09 |
+| `AGE-32` | Whether `pi-ai` and `chord` bundle for workerd, and small enough, is unrun; the fallback is running agent runs on the Node host. | design/decisions/H1-agent-harness.md:36<br>design/frame/delta.md:82<br>design/milestones.md:360 | open | M4.09 |
+| `AGE-33` | Who may start an agent run: only a person, unless the app's mount allows agents (S15). | design/frame/questions.md:397 | open | M4.10 |
+
+<details><summary>Closed: 5 fixed or superseded</summary>
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `AGE-34` | Check 4 needs `ANTHROPIC_API_KEY` in CI; Aaron set the repository secret, with check 4 getting it only on pull requests into main and pushes to main. | design/decisions/D2-stage-two.md:43<br>design/decisions/D3.md:459 | fixed (design/decisions/D3.md:459-462, #71: Aaron set the repository secret) | M4.03 |
+| `AGE-35` | Old design names a package an old-scope `agent` (Pi Durable behind an Effect seam, services Agent, Runs, Models, Sandbox, Skills, Bench, the Run thing as plain design) and calls H1 and H2 "proposed, nothing built"; it is now the `@formants/agents` feature with a Run thing, re-decided in M4.01. **(high)** | design/decisions.md:132<br>design/decisions/H1-agent-harness.md:3<br>design/decisions/H2-agent-runs-and-benchmarks.md:5<br>design/decisions/K2-forman-frame.md:44<br>design/history/packages-layers-1-2.md:31<br>design/decisions/H1-agent-harness.md:305 | superseded (design/decisions/K2-forman-frame.md:44: `@formants/agents` is a feature) | M4.01 |
+| `AGE-36` | Older entries in later.md and the examples call the durable agent "a std kit `agent` (layer 3)", Pi "the reference, not a dependency" and a declared `Run` "considered for L5.08"; Pi Durable is adopted behind a seam and agents is a feature. | design/later.md:30<br>design/later.md:41<br>design/decisions/H1-agent-harness.md:357<br>design/frame/examples/agents.md:285 | superseded (design/decisions/K2-forman-frame.md:44-45; design/decisions/H1-agent-harness.md:357) | M4.10 |
+| `AGE-37` | The run Durable Object and manager Durable Object steps (F4.6 to F4.8, intake as the manager's first phase) are now the Durable Object host (M4.09) and the manager as a declared workflow (M3.10). | design/briefs/F4-portal-plan-and-state.md:80<br>design/decisions/K2-forman-frame.md:44 | superseded (design/milestones.md M3.10 and M4.09) | M3.10, M4.09 |
+| `AGE-38` | The track A0 to A6 and A8 is called "a side track in layer 2" in the build plan; M4 replaces it. | design/build-plan.md:155<br>design/milestones.md:5 | superseded (design/milestones.md:5, M4) | M4.03 |
+
+</details>
+
+### factory
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `FAC-01` | M3.09 names four task kinds (`write:journey`, `build`, `fix`, `improve`), but the factory's own example lists more (specify, machine, validate, prove, promote) and F4 had its own seven; the canon must say which kinds exist. **(high)** | design/milestones.md:163<br>design/frame/examples/factory.md:241<br>design/briefs/F4-portal-plan-and-state.md:50 | open | M3.09 |
+| `FAC-02` | The portal's Work side (board, progress, burn-down, KPIs, the manager's conversation) is still a mock in `spikes/portal-fumadocs`; M3.14 still says "portal" although F6 replaces the portal with one generated app. **(high)** | design/decisions/F5-work-blueprint.md:88<br>design/frame/examples/factory.md:201<br>design/briefs/F4-portal-plan-and-state.md:78<br>design/milestones.md:168<br>origin/spike/generated-app:design/decisions/F6-the-app.md:3 | open | M3.14 |
+| `FAC-04` | A renamed operation orphans its tasks until the mission is regenerated; the task list is meant to show orphans, not hide them. | design/briefs/F4-portal-plan-and-state.md:106 | open | M3.09 |
+| `FAC-06` | F5's builder runs need a sandbox (the E2B spike, PR 20, merged), but no milestone names E2B; the milestones list only the Docker sandbox for agents as later. | design/decisions/F5-work-blueprint.md:89<br>design/milestones.md:292 | open | later |
+| `FAC-07` | Facts keep no history, so the board's burn-down and KPIs have no per-day numbers; the spike's mock shows today's value for every day. | origin/spike/work-real:spikes/work-real/README.md:50 | open | M3.14 |
+| `FAC-11` | The factory has no journeys and no handlers yet: its journeys are to be written by another agent first (M3.04), then the handlers (M3.06). | design/decisions/F5-work-blueprint.md:85<br>design/decisions/F5-work-blueprint.md:86<br>design/milestones.md:158<br>design/milestones.md:160 | open | M3.04, M3.06 |
+| `FAC-12` | The factory must reference an agents run and never contain it, so the two features stay apart; the join is built in M4. | design/frame/questions.md:399<br>design/milestones.md:197 | open | M4.13 |
+| `FAC-13` | The factory's `mission.tasks` still has a blank step for the facts (`Blueprint.todo`, "a declared dependency"); it must become a call to the hand-written logbook adapter, with the logbook's events coming in through `on:`. The spike's board reads facts with raw SQL, and its cost on a big project is unmeasured. | examples/work/blueprint/things/mission/verbs/tasks.ts:16<br>design/frame/examples/factory.md:62<br>design/frame/examples/factory.md:72<br>design/decisions/F5-work-blueprint.md:46<br>design/decisions/F5-work-blueprint.md:87<br>design/build-plan.md:193<br>design/milestones.md:161<br>design/milestones.md:163<br>origin/spike/work-real:spikes/work-real/README.md:61 | open | M3.07, M3.09 |
+| `FAC-14` | The factory's manager loop is not built anywhere; it is designed as one workflow per mission that waits on durable deferreds and a daily clock. | design/milestones.md:28<br>design/milestones.md:164<br>design/frame/examples/factory.md:192 | open | M3.10 |
+| `FAC-15` | The fuller work app (real facts, a session thing so owners can sign in, array fields stored as JSON in D1) lives only on `spike/work-real`, PR #28, still open and never reviewed; main's `examples/work` has its own `person` thing, which M2.11 replaces with the auth plugin. | design/milestones.md:24<br>design/decisions/F5-work-blueprint.md:44<br>design/milestones.md:138<br>origin/spike/work-real:spikes/work-real/README.md:43<br>origin/conductor/direction:design/handoff.md:61<br>https://github.com/AaronAbuUsama/architect/pull/28 | open | M3.05, M2.11 |
+| `FAC-17` | Watch findings about money or security must go to a person as attention, not become tasks (S7); M3.09 lists `fix` and `improve` task kinds but not this rule. | design/decisions/K2-forman-frame.md:54<br>design/frame/questions.md:373<br>design/milestones.md:163 | open | M3.09 |
+| `FAC-18` | `forman ci <stage>` and the short scaffolded workflow with a generated `generated/ci/plan.json` do not exist; acme has no CI of its own. | design/frame/questions.md:381<br>design/frame/generators.md:190<br>design/frame/generators.md:238<br>design/milestones.md:167 | open | M3.13 |
+| `FAC-21` | npm can fail partway through a multi-package publish, so a release can be left half published; the failure shows, but nothing finishes or removes the partial release. | design/decisions/D3.md:1054<br>design/decisions/D3-proof-publication-reset.md:47 | open | M7.02 |
+
+<details><summary>Closed: 4 fixed or superseded</summary>
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `FAC-22` | The old docs call the factory a project named `examples/work` that later moves to `apps/work`; the decided shape is the `@formants/work` plugin, mounted by `examples/work`, so decisions.md and the work decision (F5) need the new words. **(high)** | design/decisions.md:145<br>design/decisions/F5-work-blueprint.md:12<br>design/decisions/F5-work-blueprint.md:43<br>design/decisions/K2-forman-frame.md:40<br>design/milestones.md:159 | superseded (design/decisions/K2-forman-frame.md:40-43; M3.05) | M3.05 |
+| `FAC-23` | F2's board lanes from Codex's plan declarations, and the portal's "ask" question primitive, are replaced by the factory's missions and `attention`. | design/decisions/F2-portal-ia.md:152<br>design/history/spec-drafts.md:559<br>design/decisions/K2-forman-frame.md:40<br>design/milestones.md:168 | superseded (design/decisions/K2-forman-frame.md:40-43; factory attention, M3.14) | M3.14 |
+| `FAC-24` | F4's hand-written Plan Durable Object, its `/plan/v1` route, the Codex handoff's phases 5 and 6, and F4's "built on layer 3 after the gate" are all replaced by the work blueprint and milestones M3 and M4. | design/briefs/F4-portal-plan-and-state.md:77<br>design/briefs/F4-portal-plan-and-state.md:147<br>design/briefs/codex-handoff.md:390<br>design/briefs/codex-handoff.md:411<br>design/decisions/F5-work-blueprint.md:11 | superseded (design/decisions/F5-work-blueprint.md; design/milestones.md:3-6, M3.05, M3.10) | M3.05 |
+| `FAC-25` | The old `task start` command (scaffold plus brief for one task) is replaced by `work task claim`, which writes the brief and a branch. | design/history/spec-drafts.md:493<br>design/milestones.md:165 | superseded (design/milestones.md:165, M3.11) | M3.11 |
+
+</details>
+
+### agent-kit
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `KIT-01` | The agent kit's package is `@formants/agent-kit` (M0-build, packages.md), but `generators.md` still mounts the kit from `@formants/agents`; PR #37 corrects it and is unmerged. **(high)** | design/decisions/M0-build.md:41<br>design/packages.md:40<br>design/frame/generators.md:75<br>design/frame/generators.md:237<br>https://github.com/AaronAbuUsama/architect/pull/37 | open | M3.12 |
+| `KIT-03` | A new project is to get its agent files from the generated kit under `generated/agents/` (one projection, header as an HTML comment, neutral plus Claude Code and Pi forms, each role's slice inline); the old design had six hand-copied skills, and none of the kit exists yet. | design/decisions/K1-kits.md:391<br>design/decisions/K1-kits.md:976<br>design/frame/questions.md:378<br>design/frame/questions.md:383<br>design/milestones.md:166 | open | M3.12 |
+| `KIT-04` | Agent tools are to be derived from operations (`replay: "safe"` only for `idempotent: "request"`), and skills are `SKILL.md` folders loaded by a `load_skill` tool; neither is built. | design/decisions/H1-agent-harness.md:166<br>design/decisions/H1-agent-harness.md:178<br>design/milestones.md:191 | open | M4.07 |
+| `KIT-05` | An outside agent with a shell, such as Claude Code, can read the journeys, and the kit cannot fence that by words; PR #37 asks how hard to fence it and recommends a copy without journeys made by the claim plus deny rules. | design/frame/builder.md:282<br>origin/claude/build-skills-8a1083:design/frame/skills.md:534<br>origin/claude/build-skills-8a1083:design/frame/skills-questions.md:181<br>https://github.com/AaronAbuUsama/architect/pull/37 | open | M3.11 |
+| `KIT-06` | An unattended builder may read staging telemetry only, redacted, through a read-only token created with Aaron's yes; production telemetry is never read by it (`Env` has no production). Not built until M7.08. | design/decisions/K2-forman-frame.md:18<br>design/frame/builder.md:216<br>design/frame/builder.md:271<br>design/milestones.md:279<br>design/frame/secrets.md:164-167 | open | M7.08 |
+| `KIT-07` | Before code mode exists the watch skills read `forman watch` text, not structured data, so the shell floor is weaker than the builder's typed tools. | origin/claude/build-skills-8a1083:design/frame/skills.md:532 | open | M4.12 |
+| `KIT-08` | Each skill needs an eval that fails with nothing and passes with the answer (twenty-three skills in PR #37), and each eval must also run with the skill listed but not named, since a poor description means it never fires. | origin/claude/build-skills-8a1083:design/frame/skills.md:529<br>origin/claude/build-skills-8a1083:design/frame/skills.md:536<br>https://github.com/AaronAbuUsama/architect/pull/37 | open | M3.12 |
+| `KIT-09` | How well builders actually build, including weak models writing bad code-mode scripts, is measured only in the bench with a real model, off the gate, because the gate's small local model cannot build much. | design/frame/builder.md:281<br>design/milestones.md:362<br>design/milestones.md:198 | open | M4.14 |
+| `KIT-15` | The builder's telemetry tools are not built: `bp.telemetry` (trace, calls, refusals, defects, slow) over `TraceSource`, which replaces O1's harness tool and optional read-only PostHog MCP. | design/frame/builder.md:189<br>design/decisions/O1-observability.md:443<br>design/decisions/O1-observability.md:295<br>design/milestones.md:196 | open | M4.12 |
+| `KIT-16` | The builder's tool layer is not built: a `BuilderTools` module in the CLI, a stdio server `forman mcp` (describe, run, brief, write), and code mode in a QuickJS sandbox (10 s, 64 MB, 8 KB return) over a typed `bp.d.ts`; today the builder agent has only the CLI. | design/frame/delta.md:80<br>design/frame/builder.md:26<br>design/frame/builder.md:44<br>design/frame/generators.md:41<br>design/frame/generators.md:209<br>design/milestones.md:195 | open | M4.11 |
+| `KIT-17` | The code-mode sandbox's host bindings are an attack surface: keep few, read-only except `world`, and test them as their own module. | design/frame/builder.md:277 | open | M4.11 |
+| `KIT-19` | The shell commands the skills need (`forman describe [name]`, `forman run`, `forman mcp`) do not exist; PR #37 and its Codex review say they arrive only in M4.11, yet M1.03 already builds `forman describe --json`, so the kit's first release would ship skills that call missing commands. | origin/claude/build-skills-8a1083:design/frame/skills.md:56<br>origin/claude/build-skills-8a1083:design/frame/skills.md:57<br>origin/claude/build-skills-8a1083:design/frame/skills.md:520<br>design/milestones.md:94<br>design/milestones.md:195<br>https://github.com/AaronAbuUsama/architect/pull/37#discussion_r4610729461 | open | M1.03, M4.11 |
+| `KIT-21` | `bp.world.start` must reuse a warm local world per run, because a world takes seconds to start. | design/frame/builder.md:284 | open | M4.11 |
+| `KIT-23` | `pi-codemode` changes whenever Pi does; the fallback is using `quickjs-emscripten` directly. | design/frame/builder.md:279 | open | M4.11 |
+
+<details><summary>Closed: 1 fixed or superseded</summary>
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `KIT-24` | A planning conversation leaves only the blueprint and its blanks, never the chat saved as a source of truth; a rule, nothing to build. | design/frame/questions.md:369<br>design/decisions/K2-forman-frame.md:52 | superseded (design/decisions/K2-forman-frame.md:52-53) | n/a |
+
+</details>
+
+### reference/commands
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `CMD-01` | The design says `forman prove --unbuilt` but the slice builds `forman prove --empty`; the two names disagree. **(high)** | design/decisions/K1-kits.md:990<br>design/frame/writing-a-feature.md:406<br>design/milestones.md:106 | open | M1.16 |
+| `CMD-02` | A macOS single-executable CLI is only ad hoc signed; a downloaded binary also needs a Developer ID signature and notarization, which needs Aaron's Apple credentials. | packages/prove/src/modules/publish/internal/sea.ts:84<br>spikes/single-binary/README.md:138<br>design/decisions/D3.md:62-63<br>design/milestones.md:277 | open | M7.06 (it doesn't name signing or notarization) |
+| `CMD-03` | A new workspace's lockfile has no registry, so installs depend on environment variables. | spikes/preset-verdaccio/README.md:182 | open | M2.09 |
+| `CMD-04` | Dev runs `.ts` source while consumers run built `dist/*.js`, so a project mixing both could load two copies of `Blueprint`. | spikes/preset-verdaccio/README.md:184 | open | M2.09 |
+| `CMD-05` | Every package is version `0.0.0` and the `latest` tags are managed by hand. | spikes/preset-verdaccio/README.md:183 | open | M7.02 |
+| `CMD-06` | Forman's own CLI cannot be a single executable yet (it spawns `process.execPath`, reads `import.meta` at load, finds the lint plugin and wrangler as files, and loads nx's native addon); only the generated project CLI ships as a binary. | design/later.md:36<br>design/later.md:64<br>design/decisions/D3.md:59<br>spikes/single-binary/README.md:105 | open | later (design/later.md:36) |
+| `CMD-07` | Publishing to real npmjs.org and making GitHub releases are refused today and wait for the cloud pass (the CLI prints them as skipped). | design/decisions/D3.md:63<br>packages/prove/src/modules/publish/service.ts:43<br>packages/cli/src/main.ts:230<br>design/build-plan.md:139 | open | M7.06 |
+| `CMD-08` | Release builds are unchecked: two builds giving the same hash, the code cache, and Linux arm64, macOS x64 and musl were never tried. | spikes/single-binary/README.md:144<br>spikes/single-binary/README.md:146 | open | M7.06 |
+| `CMD-09` | The Nx preset that makes a starter project is kept until `forman new` replaces it. | design/packages.md:29<br>design/milestones.md:136 | open | M2.09 |
+| `CMD-12` | Type resolution of subpath exports was checked only for the front door's root export. | spikes/preset-verdaccio/README.md:179 | open | M2.09 |
+
+<details><summary>Closed: 6 fixed or superseded</summary>
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `CMD-15` | Only the front-door package, the compiler and a toy preset had been published to the local registry; the other packages were untried. | spikes/preset-verdaccio/README.md:176<br>design/wayfinding/stage-3.md:13 | fixed (the nine packages publish to Verdaccio: design/wayfinding/stage-3.md:13) | M2.09 |
+| `CMD-16` | What `check` is made of (types, generated lint rules, drift) was settled: `forman check` runs all three. | design/history/spec-drafts.md:126<br>design/history/handoff-layers-1-2.md:172 | fixed (design/history/handoff-layers-1-2.md:172-174, L1.40) | none (built in layer one) |
+| `CMD-17` | K1's question about whether the builder's generators ship in "stage 4" or after Gate 3 was never answered, and stage 4 no longer exists; the builder's generators are now M3.12 and M4.11. | design/decisions/K1-kits.md:1056<br>design/milestones.md:166<br>design/milestones.md:195 | superseded (milestones.md M3.12 and M4.11) | M3.12, M4.11 |
+| `CMD-18` | The authoring commands `new kit`, `add dependency` and `add inbound` are replaced by `forman new feature` and `forman new adapter`. | design/decisions/K1-kits.md:668<br>design/milestones.md:137<br>design/milestones.md:220 | superseded (`forman new feature` M2.10, `forman new adapter` M5.07) | M2.10 |
+| `CMD-19` | `forman add feature` pins exactly and refuses a version under two weeks old; the rule is now three days. | design/decisions/K1-kits.md:638<br>design/decisions/K2-forman-frame.md:14<br>design/milestones.md:101 | superseded (R1 release age, K2 call 3: design/decisions/K2-forman-frame.md:14) | M1.10 |
+| `CMD-20` | `pnpm create` under the old name over the Nx preset is replaced by `npm create formants` and `forman new`. | design/decisions/K1-kits.md:366<br>design/milestones.md:136 | superseded (`npm create formants`, M2.09: design/milestones.md:136) | M2.09 |
+
+</details>
+
+### reference/blueprint-api
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `API-03` | The package map's list of what the front door exports names only the old declaration kinds, not feature, adapter, projection, store, workflow, secret, view or agent. | design/packages.md:10 | open | M1.05 |
+
+### reference/glossary
+
+Every open item on this page is in the unowned section above.
+
+<details><summary>Closed: 1 fixed or superseded</summary>
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `GLO-03` | "Dependency" and "output" each meant three things; there is one glossary and "dependency" is retired. | design/frame/delta.md:46<br>design/frame/README.md:129 | fixed (design/frame/README.md glossary, M0.05) | M0.05 |
+
+</details>
+
+### (process)
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `PRC-06` | Capxul's paused pull requests (the CLI grammar, retiring `app.spans`, the speed lane) wait in the capxul-next repository, not merged. | design/history/blueprint-context-pack.md:90 | open | M7.10 |
+| `PRC-08` | Legacy host adapters (`prove` publish and world-process, host telemetry) still use literal `throw`, `try` and ambient environment reads, and the lint covers only configured checks, not a workspace-wide ban; `later.md` says to clean them before extending them or going public. | design/decisions/D3.md:1248<br>design/later.md:71<br>design/history/handoff-layers-1-2.md:42<br>design/evidence/L2.11/review.md:12<br>packages/prove/src/modules/publish/internal/stage.ts:38<br>packages/prove/src/modules/world/internal/wrangler.ts:16 | open | later |
+| `PRC-16` | The M1 harvest of unmerged branches is only partly owned: `layer/4` (15 commits), `author/stage4-checks` and `author/stage4-graph-checks` (10 each) are not on `main`, M1.01 and M1.02 port Codex's checks, and nothing retires the local `master` branch (22 commits not on `main`). | origin/conductor/direction:design/handoff.md:74<br>design/milestones.md:26<br>design/milestones.md:93 | open | M1.02 |
+| `PRC-17` | The Noir records are loose: the addendum points at a `noir-evidence/` folder that is not under `design/` (the copies are in `spikes/noir-private-core/evidence/noir-evidence/`), and the spike's follow-up tasks are not linked from `later.md`, which has one Noir line. | design/noir/addendum.md:5<br>spikes/noir-private-core/follow-ups.md:3<br>design/later.md:12<br>design/milestones.md:287 | open | later |
+| `PRC-22` | The preset-verdaccio spike notes that `tsc` 7 and Node 26 type stripping are both moving targets (`stripTypeScriptTypes` is experimental), which the `forman new` build step depends on. | spikes/preset-verdaccio/README.md:185 | open | M2.09 |
+| `PRC-24` | The single-executable CLI item appears twice in `later.md`. | design/later.md:36<br>design/later.md:64 | open | later |
+
+<details><summary>Closed: 11 fixed or superseded</summary>
+
+| id | item | source | status | slice |
+|---|---|---|---|---|
+| `PRC-34` | Aaron's HeroUI Pro template files were left uncommitted in his main checkout; they are gone now (the checkout is clean, on `layer/3`). | design/history/handoff-layers-1-2.md:79 | fixed (the main checkout at ~/projects/architect has no uncommitted files, no `.env`, zip or `template-dashboard/`) | n/a |
+| `PRC-35` | Gate 2's D3 acceptance still said the full gate, CI and a final independent review were required; Gate 2 has since passed on Linux CI. | design/decisions/D3-eval-author-acceptance.md:78<br>design/milestones.md:14 | fixed (design/milestones.md:14: Gate 2 green on CI, run 44027211261) | n/a |
+| `PRC-36` | Gate M0 passed, so goal 2 is done and the rename risk (risk 1) is contained. | design/goals/02-m0-land-and-rename.md:53<br>design/milestones.md:71<br>design/milestones.md:352 | fixed (design/milestones.md:67-71, M0.04 and Gate M0) | n/a |
+| `PRC-37` | Stage notes still read as undone though they are done: build-plan.md heads D2 "primitives still open", stage 3's notes say three spikes remain (`mcp-oauth`, `single-binary`, `ci-oidc`) and that the portal and logbook are empty stubs. | design/build-plan.md:68<br>design/wayfinding/stage-3.md:74<br>design/wayfinding/stage-3.md:11<br>design/build-plan.md:134<br>design/build-plan.md:143 | fixed (design/decisions/D2.md; `spikes/mcp-oauth`, `spikes/single-binary`, `spikes/ci-oidc`; design/build-plan.md:134, 143 L2.03 and L2.10) | n/a |
+| `PRC-38` | The S1 status page's full-height shell (player removed, sidebar to the bottom) was rebuilt and checked in a real browser. | design/decisions/S1-status-page-shell.md:7 | fixed (design/decisions/S1-status-page-shell.md:7) | n/a |
+| `PRC-39` | F1's questions for Aaron (the HeroUI Pro distribution scope and the Figma destination) are moot now that the generated app is our own template with no HeroUI. | design/briefs/F1-frontend.md:72<br>design/decisions/F1-frontend.md:618<br>origin/spike/generated-app:design/decisions/F6-the-app.md:1 | superseded (F6-the-app.md on spike/generated-app: one generated app, our own template; handoff direction 3: no HeroUI) | n/a |
+| `PRC-40` | Goal 1 still bounds the work at "all five layers" with the old command, `std/*`, kits, `target-*` and one claude.ai evidence page per goal; the milestones, K2 and goal 2 replaced all of it, and handoff notes still say stage 4 is not started. | design/goals/01-the-whole-framework-locally.md:27<br>design/goals/01-the-whole-framework-locally.md:140<br>design/goals/01-the-whole-framework-locally.md:142<br>design/goals/01-the-whole-framework-locally.md:187<br>design/history/handoff-layers-1-2.md:11<br>design/milestones.md:3 | superseded (design/milestones.md:3-6, 289; K2; M0 rename) | n/a |
+| `PRC-41` | Old briefs and records still work for Codex, who is dropped: F2's addendum says layer 2 is paused for Codex, the Codex conductor and handoff briefs still stand, the handoff tells Codex to write `decisions/P1-portal.md` (never written), and Codex was to keep the status and evidence pages current. | design/decisions/F2-portal-ia.md:566<br>design/briefs/codex-conductor.md:6<br>design/briefs/codex-conductor.md:38<br>design/briefs/codex-handoff.md:244<br>design/decisions/K2-forman-frame.md:15 | superseded (design/decisions/K2-forman-frame.md:15: Codex is dropped) | n/a |
+| `PRC-42` | The frame, its examples and its delta still carry pre-decision wording: "not yet a decision", "proposed", "Questions this raised" that repeat S1 to S13, milestones "still to be litigated", a layer rule at odds with side tracks, a docs-drift item, and example tables headed "Today (`origin/layer/3`)"; K2 and the milestones decided all of it. | design/frame/README.md:3<br>design/frame/delta.md:89<br>design/frame/delta.md:90<br>design/frame/delta.md:103<br>design/frame/story.md:400<br>design/frame/generators.md:298<br>design/frame/examples/README.md:22<br>design/frame/examples/allowance-on-chain.md:153<br>design/decisions/K2-forman-frame.md:3<br>design/milestones.md:38 | superseded (design/decisions/K2-forman-frame.md:3-7, 49-72; design/milestones.md:38-47, 228-260) | n/a |
+| `PRC-43` | The kits-dx spike's questions for Aaron (do builder generators ship in stage 4, the public npm scope, are payments and email standard kits) are answered: npm org `@formants`, the builder tools in M4, Stripe and Resend as adapters in M5. | spikes/kits-dx/README.md:72<br>design/decisions/K2-forman-frame.md:11<br>design/milestones.md:195 | superseded (design/decisions/K2-forman-frame.md:11-13; M4.11, M5.08, M5.09) | n/a |
+| `PRC-44` | The two-week package rule (`minimumReleaseAge: 20160`, the 53 lockfile entries) is still written in D2 stage two, K1, `later.md` and the F3 brief; the rule is now three days (`minimumReleaseAge: 4320`). | design/decisions/D2-stage-two.md:208<br>design/decisions/K1-kits.md:638<br>design/later.md:26<br>design/briefs/F3-portal-upgrade.md:142<br>design/decisions/R1-release-age.md:8<br>pnpm-workspace.yaml:14 | superseded (design/decisions/R1-release-age.md:7-9: three days, 4320) | n/a |
+
+</details>
+
+## 4. Aztec and Noir: what it needed, and what the architecture still leaves open
+
+Aaron asked what Aztec needed, and which of those needs the current architecture still leaves open. The Aztec and Noir
+work is `design/noir/` (the design study, the addendum and two spikes), `design/decisions/N1-noir-target.md`,
+`spikes/noir-private-core/` and the private-membership example. Today, Noir on Aztec is parked in the milestones'
+"Later" list (`design/milestones.md:287`). K3 (`design/decisions/K3-stores-and-sources.md:58-60`) names it as a later
+store kind with a "private state" capability, and `@formants/language-noir` as its language
+(`design/packages.md:51`).
+
+"Answers" means a line in K2, K3 or the milestones settles it. "Partly" means the idea is there but the Aztec case
+isn't covered. "Unanswered" means nothing covers it. The individual issues found on the Aztec work are rows under
+`languages-and-hosts`, `stores`, `roles` and `proof` above. This table is the view across them.
+
+The short version is that K3 makes room for Aztec but doesn't describe it. A store is defined by Forman's own commit:
+a version, a journal, an outbox and a request key, all written together. Aztec's state is private notes, guarded by
+nullifiers, proved on the caller's device. Several things are left without an answer: how a note store meets that commit, how
+a key shared by a role fits custody, how a view lists events only their recipients can read, and how a call the server
+never sees is traced or counted.
+
+| id | what Aztec needed | where it showed | answered today? | what answers it, or none |
+|---|---|---|---|---|
+| `AZ-01` | Private state as notes: the thing's state is private notes, each move consumes one and writes a new one. | design/noir/spike-1-member-note.md:213 (primitive 4: one note per thing instance) | partly | design/decisions/K3-stores-and-sources.md:58-60 names "Noir on Aztec" as a later store kind with a "private state" capability, but K3:29-32 defines a store by Forman's own commit (version, journal, outbox, request key) and nothing says how a note store meets it; no milestone slice (only design/milestones.md:287 "Later"). |
+| `AZ-02` | A language for Noir versus a store kind for Aztec: which package supplies what. | design/frame/examples/private-membership.md:8-10 ("`Host.chain` (Aztec)", `@formants/language-noir`) | partly | design/decisions/K2-forman-frame.md:13 (language) and design/packages.md:51 (`language-noir` later); K3:55 has `chain` supplied by `language-solidity`, so a Noir/Aztec store kind would come from `language-noir`. Host versus store kind for chain is not settled (design/frame/README.md:129). |
+| `AZ-03` | Proofs generated client side: `runs: "client"`, a `prove` step, the caller's device does the work, the server never sees inputs. | design/noir/addendum.md:115-116; design/noir/spike-1-member-note.md:199-209 | partly | `runs` and the open `StepKind` exist and are carried in the model (design/decisions/D3.md:596-601), but "only `server` is accepted" (design/decisions/N1-noir-target.md:26; design/frame/examples/private-membership.md:58-59). `Host.node`/`Host.browser` exist as words (design/frame/README.md:129). No slice runs an operation on the client. |
+| `AZ-04` | A PXE (private execution environment) on each caller's device, which must also `sync` before proving and register peers and contracts. | design/noir/spike-1-member-note.md:209, 250-253 (primitives 3 and 10) | partly | Adapter idea: an outside system on a host (design/frame/adapters.md:130), and PM names the PXE as the Aztec adapter (design/frame/examples/private-membership.md:96). `sync` is a reserved step kind (D3.md:597). Nothing builds the adapter; later.md only. |
+| `AZ-05` | Who holds keys: a key shared by the people in a role (organisation key, nullifier key), never the server; custody as a declared choice. | design/noir/design-study.md:825; spikes/noir-private-core/README.md:106-108 | unanswered | S29 puts custody first in Solidity (design/decisions/K2-forman-frame.md:64) and M6.18 only checks that no private key sits in a binding (design/milestones.md:259). Aztec custody is the opposite shape (a key deliberately shared among roles); `custody` is "not taken" (design/decisions/N1-noir-target.md:34). |
+| `AZ-06` | Nullifiers as the guard: "state can only move as declared" is enforced by nullifier uniqueness, not by a version column or a stored enum; first-to-land is the only race rule. | design/noir/design-study.md:874; design/noir/design-study.md:818 | unanswered | None. The machine is a compiled step function (design/frame/examples/allowance-on-chain.md:85-87) and a store's guard is a version (K3:29-32). `takesEffect` / "when a move takes effect" is "not taken" (N1:34). |
+| `AZ-07` | Derived state: the machine's state computed from notes and a lower bound on time, not stored. | design/noir/design-study.md:821 | unanswered | None. |
+| `AZ-08` | Refusals decided in three places (in simulation, at inclusion with no reason, in public) and typed from the prove error; a dropped transaction carries no reason. | design/noir/design-study.md:822; design/noir/spike-2-role-gate-e2.md:80 | partly | Refusal codes are stable across languages (D3.md:578-585). S25 gives a chain call's waiting state (K2:63). `check` is a reserved step kind (D3.md:597). Nothing says how a client names a dropped transaction. |
+| `AZ-09` | Journeys and proof on the Aztec sandbox: journeys that run on the local network, with one device per person. | design/noir/spike-1-member-note.md:254 (primitive 11, one PXE per person) | partly | Journeys run in worlds with a cast (design/frame/examples/allowance-on-chain.md:70-72) and Anvil is the chain stand-in (M6.06, design/milestones.md:247). Aztec's local network is the same rung ("a real program"): design/frame/adapters.md:165-167. No slice runs it; a cast member holding a private device is not designed. |
+| `AZ-10` | An unverified proof: the local network does not verify proofs, so the verdict must say so and production must need a verifying network. | design/noir/spike-2-role-gate-e2.md:123; spikes/noir-private-core/follow-ups.md:7 | partly | Decided as S30 (design/decisions/K2-forman-frame.md:64). Not built: only named in `Later` (design/milestones.md:287). NPC-03 is the proof task. |
+| `AZ-11` | Stand-ins for Aztec. | design/frame/examples/private-membership.md:96 | answers (the rule), not built | "Local, never fake" ladder (K2:18; design/frame/adapters.md:160-176): the real local network is `Stand.process`, labelled. No slice. |
+| `AZ-12` | A test kind for what the Noir test environment cannot enforce (expiration, who may read, races). | design/noir/spike-2-role-gate-e2.md:142 | partly | `test: unit \| network` exists in the model and is read by nothing (design/decisions/D3.md:599-601). |
+| `AZ-13` | Tracing private calls without leaking: spans produced on the device, an attribute allowlist, outcome tag only, tx hash stripped, SDK logs suppressed. | design/noir/spike-1-member-note.md:217-231 (primitive 5); spikes/noir-private-core/README.md:48 | partly | Server side answered: allowlist from `visibility` (D3.md:554), free text untraced (O2:37-49, M1.19), "leaks nothing" eval (K2:64). Unanswered: spans that start on the client (O2 describes the server handler only: O2:10-19), and raw SDK logs. |
+| `AZ-14` | Counting private calls: the server never sees a private spend, so `forman.calls` cannot count it. | design/noir/design-study.md:931-938 | unanswered | O2 gap 3 counts calls the handler sees (design/decisions/O2-trace-gaps.md:62-66); nothing counts a client-proved call. |
+| `AZ-15` | Cost and time of proving: a `prove` budget, measured on the caller's kind of device. | design/noir/design-study.md:941; spikes/noir-private-core/README.md:72 | partly | Budgets exist per operation (O2:66 `budget: { p95 }`); `prove` is a reserved step kind. No per-device budget; the example's 15 seconds is already wrong. |
+| `AZ-16` | Visibility per role (`private(organisation)`, `private(caller)`) on fields, events, arguments, refusal payloads. | design/noir/addendum.md:112-114 | partly | `visibility.private(x, role, ...)` exists (D3.md:544-552) and the model records it. The wire still sends every declared error field (D3.md:594, 912), and delivering to a role list is Noir's generator job (later.md). |
+| `AZ-17` | A public footprint check ("privacy, measured"): compare a transaction's public effects with the declaration. | design/noir/design-study.md:827 | unanswered | None. The "leaks nothing" eval covers spans, not the chain. |
+| `AZ-18` | Time on a private target: a time move is a guard, never a transaction; the clock primitive declares per target what time it can trust. | design/noir/addendum.md:84-89; design/decisions/N1-noir-target.md:35-38 | partly | Time is `Later` (design/milestones.md:289-290, risk 8). The per-target time promise is not on that line. The Anvil `moveTo` clock design (design/spikes/world-clock.md:31) does not drive Aztec. |
+| `AZ-19` | Who pays fees: a sponsored shared fee payer so members hold no fee token, and the payer must not be specific to one organisation. | design/noir/addendum.md:123 | unanswered | `fees` is "not taken" (N1:34). The EVM analogue is the relayer actor (M6.07, design/milestones.md:248), which does not cover a sponsored private fee. |
+| `AZ-20` | Reading and lists: views are built from events, but private events reach only their recipients, so a follower cannot index them. | design/noir/design-study.md:357-363 (private events only for named recipients) | unanswered | K2 Q1 (design/decisions/K2-forman-frame.md:26) says lists across homes are views built from events; the chain follower reads logs (M6.09, design/milestones.md:250). Nothing covers private state. |
+| `AZ-21` | One call, one store: an Aztec operation is a client proof, while the non-private part (create a pool, add a member) runs on the server. | design/frame/examples/private-membership.md:118 | partly | K3:76-78 refuses writes to two stores in one call and sends cross-store work to a workflow. Nothing says a client-proved operation plus a server operation is a workflow. |
+| `AZ-22` | An instance per thing with its own keys, never published, whose address commits to its terms; a changed term means a new instance. | design/noir/design-study.md:823; spikes/noir-private-core/README.md:15 | unanswered | `per: "organization"` exists for Solidity (design/frame/examples/allowance-on-chain.md:31); migrations are per store (K3:80-81) but a key rotation or a new pocket is not a migration of the kind Forman generates. |
+| `AZ-23` | Key rotation and migration to a new key (when internal privacy needs tightening, or after a revoke). | design/noir/spike-2-role-gate-e2.md:120; design/noir/addendum.md:49-50 | unanswered | None (K3:80-81 migrations are for databases). |
+| `AZ-24` | Tooling: pin the Aztec toolchain (aztec, nargo, aztec.js), fetched without editing a shell profile; follow the three-day release-age rule. | design/noir/spike-1-member-note.md:10; AGENTS.md rule on pinned versions | partly | The release-age rule exists (design/decisions/K2-forman-frame.md:14); spike 3 has an install script. No slice installs the toolchain. |
+| `AZ-25` | Disclosure to auditors (read but not act) as a role separate from "may consume". | design/noir/addendum.md:49-50; design/noir/design-study.md:80 | unanswered | None. Roles are the code's rule (K2:29, Q5); "read key without write" is not a role concept. |
+| `AZ-26` | Agents and MCP: private spends cannot be done by an agent that holds no key. | design/frame/examples/private-membership.md:119 | answers | Signed operations are out of MCP (design/frame/examples/allowance-on-chain.md:149); money out is `.notVia(Via.agent)` (K2:60-61, S20). |
+
+## 5. Stale words
+
+Where the old words are still used, with counts. **Living** files describe Forman as it is now, so a stale word
+there gets fixed. **Records** say what happened in the words used at the time, so they are left alone. The split is the
+one `design/decisions/M0-packages.md` section 5 makes. Records are `design/history/`, `design/decisions/` and
+`decisions.md`, `design/evidence/`, `briefs/`, `wayfinding/`, `design/spikes/`, `design/noir/`, `design/state/`,
+`build-plan.md`, goal 1, `frame/questions.md` and `spikes/`. Everything else is living.
+
+The counts come from a word search of the repository's text files, leaving out `node_modules`, build output and
+`generated/` folders. They were checked by hand, which is how a word used in its plain English sense was told apart from
+the old Forman word. Nothing here is fixed in this change: the canon and a later sweep do that.
+
+| Old word | New word | Living: fix these | Records: leave them |
+|---|---|---|---|
+| **target** (meaning language) | **language** | **26 lines in 18 files under `packages/` and `examples/`**, plus 3 lines in design files. Two of them reach users: the compiler prints "needs a target … language-noir, a later target" (`packages/compiler/src/modules/model/internal/describe.ts:167-170`), and every generated `api/src/errors.ts` says "stable across targets" (`packages/generators/src/modules/render/internal/api.ts:55`, so acme, starter and work have it too). The rest are code comments and tests: `packages/forman/src/modules/operations/types.ts:15,16,21,24,49,51`, `operations.test.ts:60,72,74`, `values/types.ts:8`, `visibility/types.ts:2`, `packages/compiler/src/modules/model/types.ts:74,76`, `model.test.ts:122,184`, `internal/codes.ts:1`, and the package READMEs: `packages/language-effect/README.md:3` ("The Effect target"), `packages/language-solidity/README.md:3` and `src/index.ts:1`. The 3 design lines: `design/later.md:8` and `:12`, `design/frame/README.md:97`. The other 200 or so uses of "target" in living files are other senses (Nx `targets`, the environment `promote` moves to, a binary's build platform) and stay. | 862 uses in 90 files, including the file name `N1-noir-target.md` |
+| the old project name, as a command, a package scope, a folder and a variable prefix (the forms are listed in `design/decisions/M0-packages.md` sections 1 and 4) | **forman**, `@formants/`, `.forman/`, `FORMAN_` | **None to fix.** The only living file is `e2e/m0/names.test.ts` (72 uses), the check that makes sure the old names stay out. The repository `AaronAbuUsama/architect` and the checkout path are allowed by name (M0-packages section 5): renaming the repository is Aaron's call | 2,913 uses in 178 files |
+| **kit** (meaning plugin) | **feature** or **adapter** | **2 stale:** `design/later.md:7` ("Safe as a kit") and `design/later.md:44` ("a std kit `agent` … once kits exist"; it is the `@formants/agents` feature). **"Kit" on its own for the agent kit:** 16 uses in `design/frame/generators.md` (for example `:7`, `:9-10`, `:69`, `:252`) and `design/milestones.md:180` ("the generated kit"). The canon's check fails on "kit" alone, so the canon must say "agent kit". The rest are file and spike names (`K1-kits.md`, `kit-package-exports`), the visuals render kit (`.agents/skills/visuals/SKILL.md:12,60`, a different sense), and the third-party Axiom skills | 839 uses in 68 files |
+| **home** (where a thing's state lives) | **store** | **5 in design files:** `design/milestones.md:203` ("lists across homes") and `:218` ("actor-homed allowances"); `design/docs/index.html:362` ("a home for its state"), `:466` and `:1070`. **In the canon (PR #38):** `docs/canon/outline.md` row 3 (`things`: "a noun with an id, fields and a home") and row 9, and `docs/canon/stores.mdx:25`. **In code:** the closed type `export type Lives = "database" \| "actor"` (`packages/forman/src/modules/things/types.ts:32`, and the model's copy at `packages/compiler/src/modules/model/types.ts:41`), which M1.17 replaces. K3 itself still says "a thing's home" (`design/decisions/K3-stores-and-sources.md:32`), so no page owns the word (`G-03`). The `HOME` environment variable is a different sense | 153 uses in 48 files |
+| **portal** | **the generated app** (once F6 merges) | **260 uses in 63 living files**, most in the package itself (`packages/portal/`, `packages/generators/src/modules/portal/`, 34 code files in all) and its tests (`e2e/layer2/08-watch-and-the-portal.test.ts`). In design: `design/milestones.md` (7: M1.13 at `:104`, M3.14 at `:168`, M5.06 at `:219`), `design/frame/projections.md` (12), `frame/deployment.md` (6), `frame/generators.md` (5), `frame/README.md` (4), `frame/story.md` (4), `frame/mounting.md` (3), `design/packages.md` (4) and `design/docs/index.html` (12). The canon's outline row 14 too. F6 (`origin/spike/generated-app:design/decisions/F6-the-app.md:3-5`) "replaces the portal of F1 and F2", but it is not on `main`. Until F6 merges these are not wrong, only about to be (`X-01`) | 847 uses in 69 files |
+| **layer N**, **Gate N** (for planned work) | the milestone (**M1** to **M7**) and its gate | **Stale where they schedule future work:** `design/later.md` (6, for example `:12` "After Gate 5, its own layer" and `:34` "Belongs with layer five"), `design/frame/examples/allowance-on-chain.md` (6), `frame/examples/private-membership.md` (4), `frame/projections.md` (2), `frame/delta.md` (2), and one each in `frame/generators.md`, `deployment.md`, `adapters.md`, `examples/notifications.md`, `packages/language-solidity/README.md:3` ("Arrives in layer 4") and `packages/host-cloudflare/src/modules/store/service.ts`. **"Stage N"** in code: 13 uses in 10 files (`packages/generators/src/modules/render/internal/worker-config.ts` 3, `packages/host-cloudflare/src/modules/world/README.md` 2, the language-effect `principals`, `handler`, `timers` and `work` modules, `packages/prove/src/modules/world/service.ts`, `examples/acme/journeys/README.md`). The gate names `e2e:layer1` and `e2e:layer2` are real, running gates and stay | 712 uses in 50 files |
+| **dependency** (something you call) | **adapter**, or **uses** for what an operation reads | `design/frame/README.md:145` retires it. Still used: `examples/work/blueprint/things/mission/verbs/tasks.ts:16`, inside a `Blueprint.todo` whose text goes into the model ("a declared dependency (L3.01)"), and the portal's wire for a proof's uses (`packages/portal/src/modules/wire/types.ts:20,110,114`, `wire.test.ts:62`) | in D4, K1 and the history |
+| **Codex** (as the builder) | we build Forman ourselves (K2 call 4) | 23 uses in 13 living files. Most are history told in living files (`design/milestones.md:26`, `frame/delta.md:18`). They are fine as history, but the frame should not plan work for Codex | 43 uses in 16 files |
+| **two weeks** (dependency age) | **three days** (R1) | not a word but a rule stated wrongly in six files (`X-02`) | |
+
+Old names kept on purpose, and fine: `e2e/layer1` and `e2e/layer2` (real gates); `AaronAbuUsama/architect`;
+`@formants/portal`, until F6 merges and a slice renames it.
+
+
+## How this was made
+
+- **Read in full:** `design/decisions/` (every record), `design/later.md`, `design/frame/` (every file and example),
+  `design/milestones.md`, `design/packages.md`, `design/spikes.md`, `design/briefs/`, `design/wayfinding/`,
+  `design/goals/`, `design/history/`, `design/handoff.md`, `design/build-plan.md`, `design/noir/`, and every
+  `spikes/*/README.md`. Two exceptions: the three long design spikes (`design/spikes/durable-object.md`,
+  `names-from-paths.md`, `world-clock.md`) were read in their summary and open-risk sections, because the rest is code
+  listings. `design/history/docs-layers-1-2/index.html` (about 300 KB, superseded) was searched for deferral words
+  rather than read.
+- **Code:** `TODO`, `FIXME`, `XXX`, "for now", "temporary", "placeholder", "not yet", "later" and admitted stand-ins in
+  `packages/`, `examples/`, `e2e/` and `tools/`, outside `generated/`.
+- **GitHub:** the body, comments, review comments and reviews of every pull request, #1 to #41, open and closed. No
+  Mira review exists on any of them. The only bot reviewer is Codex, which hit its usage limit on #9, #19 and #28, so
+  those were never reviewed.
+- **Sources:** each row was written by one reader and then checked by a second, who opened every cited line and
+  merged duplicates. 1,010 rows came in, and 608 remain after merging. 10 were dropped because the line didn't support
+  them or nothing was left open. A script then checked that every cited file exists and that every line number falls
+  inside it. Lines on files that aren't on `main` are marked with their branch.
+- **Not done here:** nothing in the canon, the decisions or the milestones was edited, and no stale word was fixed.
+  "Owned by nothing" means no slice owns the item. It doesn't mean nobody should own it: each one needs a slice, a
+  decision, or a line saying it is dropped.
