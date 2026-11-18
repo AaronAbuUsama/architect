@@ -13,3 +13,5 @@ coverage/
 .forman/
 packages/preset/files/
 .claude/worktrees/
+# The canon's preview: built by `nx run canon:preview`, never committed.
+docs/canon/.preview/

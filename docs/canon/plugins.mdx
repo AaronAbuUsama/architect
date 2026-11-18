@@ -1,0 +1,188 @@
+---
+title: Plugins
+concept: plugin
+owns: [plugin, feature, adapter, projection, mount, choose, include, narrow, omit, choice, setting, need]
+questions:
+  - What is a plugin, and what are its three kinds?
+  - What does mounting one put in my project?
+  - What can a mount change, and what can it never change?
+  - How is a choice different from a setting?
+  - How does a plugin get the plugins it needs?
+status: draft
+milestone: M1
+slices: [M1.01, M1.05, M1.06, M1.07, M1.08, M1.09, M1.10, M1.11, M1.12, M1.13, M1.14]
+decisions: [K2, K5]
+links: [forman, features, adapters, projections, environments, languages-and-hosts]
+---
+
+## The idea
+
+A **plugin** is a blueprint someone else wrote, proved in its own CI, and shipped as a package. There are three kinds,
+and they answer three questions about a system. A **feature** is what else the system is: its things, operations and
+journeys (governance, wallets, auth). An **adapter** is what is outside it: an outside system's calls and events (a
+forum, Stripe, a browser wallet). A **projection** is what the system becomes: the API, the SDK, the CLI, the docs,
+the portal. You use a plugin by **mounting** it: one small file that says "use this plugin here, like this". Four
+verbs shape a mount (**choose**, **include**, **narrow**, **omit**), and every one of them keeps the plugin's proof
+true. None of this is built yet. It is planned for M1.06 to M1.13.
+
+## The smallest example
+
+The sign-up sheet mounts no plugins, so it can't show one. Its blueprint is all its own things, and its outputs come
+from a fixed list. So this page uses K5's sketch: a governance feature and a forum adapter, one mount file each.
+
+```ts file=design/decisions/K5-the-whole-shape.md lines=443-447
+// blueprint/features/governance.ts: the app mounts the reusable feature
+export default Blueprint.use(governance, (g) => [g.choose(g.choices.voting.onChain)]);
+
+// blueprint/adapters/forum.ts: the outside forum, its calls and events
+export default Blueprint.use(discourse, (f) => [f.include(f.calls.topics.create, f.events.postCreated)]);
+```
+
+The feature's mount chooses on-chain voting out of the options governance offers. The adapter's mount names the
+forum's one call and one event the app may reach, and nothing else of the forum is reachable. From these two files:
+
+- the feature brings Draft, Revision, Proposal, the publish workflow, their journeys and its own stores;
+- the adapter brings typed calls, events in through `on:`, a stand-in for worlds, and a conformance test;
+- the portal shows an origin badge on every thing and operation that came from a plugin.
+
+What signup has today in place of mounted projections is this list, fixed in the generator:
+
+```ts file=packages/generators/src/modules/render/service.ts lines=1-9
+import { PortalRender } from "#modules/portal/service.js";
+import type { RenderApi } from "./types.ts";
+import { renderApi } from "./internal/api.ts";
+import { renderCli } from "./internal/cli.ts";
+import { renderDocs, renderEdges } from "./internal/docs.ts";
+import { renderMcp } from "./internal/mcp.ts";
+import { renderHandlerScaffold } from "./internal/scaffold.ts";
+import { renderSdk } from "./internal/sdk.ts";
+import { renderServer } from "./internal/server.ts";
+```
+
+Every project gets every renderer, the portal included. When M1.11 to M1.13 land, each of these becomes a projection
+the blueprint mounts, and the portal is mounted the same way.
+
+## How it works
+
+1. **A mount is a file, named by its path.** It lives in one of three folders, one per kind:
+   `blueprint/features/<name>.ts`, `blueprint/adapters/<name>.ts`, `blueprint/projections/<name>.ts`. The mount's
+   name is its file's name, never a string (M1.06).
+2. **The plugin stays in its package.** Its declarations, handlers and journeys are pinned to one version and never
+   copied in. Compile folds them into the model under the mount's name, each carrying where it came from (M1.06).
+3. **The four verbs shape it** (M1.07):
+
+   | Verb | What it does | Used by |
+   |---|---|---|
+   | **choose** | picks one of the options the plugin proved, such as a signer or a CLI's command name | features, adapters, projections |
+   | **include** | names which of an adapter's calls and events are reachable | adapters |
+   | **narrow** | removes ways in or operations | features, projections |
+   | **omit** | drops an operation; `check` fails if anything of the app's calls it | features |
+
+   Each one only takes away or picks among proved options. None can widen what the plugin does, so a journey that
+   passed in the plugin's CI still passes in the app, or is skipped and named.
+4. **A plugin names what it needs, and mounting finds it** (M1.08). A need is never met by a copy inside the plugin,
+   so an app has one auth and one browser wallet however many features use them:
+
+```ts planned=M1.08 path=@formants/wallets/blueprint/feature.ts
+export default Blueprint.feature({
+  needs: [auth, Blueprint.need(eip1193, { when: signer.browser.injected })], // eip1193 only with a browser signer
+});
+```
+
+5. **`check` names every clash.** Two things with one name, an unmet need, an omitted operation still called, or a
+   narrowing that would empty an operation: each is an error naming both files (M1.08).
+6. **Each plugin brings runtime entries per host** (`worker`, `node`), and only the right ones reach a Worker (M1.09).
+   A plugin never chooses its host ([languages and hosts](languages-and-hosts.mdx)).
+7. **`ortho add` writes the mount** (M1.10). It pins the package exactly, refuses a version under three days old, writes
+   the mount with the plugin's default choices, and offers to meet its needs.
+
+## Choices
+
+**A choice or a setting?** A **choice** is part of what the system is, and it never varies by environment: on-chain
+voting, a browser signer. A **setting** is a value that must differ between environments, such as which chains a
+wallet links for. The plugin declares it and each environment gives it:
+
+```ts planned=M1.07 path=blueprint/environments/production.ts
+settings: [wallets.settings.chains.is([1, 8453])],
+```
+
+**Narrow or omit?** Narrow keeps an operation but takes ways in away from it. Omit drops the operation:
+
+```ts planned=M1.07 path=blueprint/features/wallets.ts
+export default Blueprint.use(wallets, (w) => [
+  w.signer.browser.injected,                                        // choose: a signer wallets has proved
+  w.narrow(w.operations.list, { via: [w.via.session, w.via.device] }), // narrow: fewer ways in
+  w.omit(w.operations.import),                                      // omit: acme doesn't import keys
+]);
+```
+
+**Mount a plugin twice?** Name the second mount's file differently. If a mount's name matches the plugin's own, its
+things keep their names; if it differs (`usdc.ts` for an ERC-20 plugin), they are prefixed with it (`usdc-token`).
+
+**The app needs an operation to behave differently?** Write your own operation over what the feature exports. There
+is no override.
+
+## What it is not
+
+- **Not a copy.** A mount puts one file in your project. The plugin's code stays in its package and is upgraded by
+  version, not edited.
+- **Not an override.** A mount can choose, include, narrow and omit. It can never widen or rewrite.
+- **Not a language or a host.** A language is what behaviour is written in, and a host is where it runs
+  ([languages and hosts](languages-and-hosts.mdx)). A plugin is a piece of a blueprint; it runs wherever the app does.
+- **Not an environment.** A mount says what the system is, once. An environment gives settings per place
+  ([environments](environments.mdx)).
+
+## Where it lives
+
+| What | Where | |
+|---|---|---|
+| the fixed renderer list mounting replaces | `packages/generators/src/modules/render/service.ts:1` | built |
+| the portal, rendered today as one more fixed renderer | `packages/generators/src/modules/render/service.ts:1` | built |
+| the plugin descriptor decisions | M1.01, `decisions/M1-plugins.md` | planned |
+| the descriptors in `forman` | M1.05 | planned |
+| mounts, the verbs, needs and clashes | M1.06 to M1.08 | planned |
+| runtime entries per host | M1.09 | planned |
+| `ortho add feature\|adapter\|projection` | M1.10 | planned |
+| projections as plugins, the portal among them | M1.11 to M1.13 | planned |
+| adapter calls out | M1.14 | planned |
+
+## Status
+
+<Status />
+
+| Part | Status | Slice | Proved by |
+|---|---|---|---|
+| a fixed renderer list, every projection always on | proved | | the layer 1 generate checks |
+| the three kinds, the four verbs, choices and settings | specified | M1.01 | K2, K5 seam 8, `design/frame/mounting.md` |
+| mounts read from the three folders | open | M1.06 | check `01` |
+| choose, include, narrow, omit | open | M1.07 | a narrowed fixture generates without the omitted operation |
+| needs and clashes | open | M1.08 | checks `05` and `06` |
+| projections, and the portal, as plugins | open | M1.11 | acme mounts them; its generated server is unchanged |
+
+The page is a draft because the descriptor itself is not decided yet: M1.01 writes it.
+
+## Notes
+
+<Note kind="decision" decision="K2">One front door (`forman`) and one package per plugin, language and host (K2 Q4).
+The three kinds and the mount API are K2's frame.</Note>
+
+<Note kind="decision" decision="K5">K5 seam 8 sets what a mount writes and what falls out of it, and K5's portal row
+makes the portal a mounted projection (M1.11 to M1.13).</Note>
+
+<Note kind="status" slice="M1.06">Nothing here is built: no mount is read, and every renderer always runs. Ledger
+`PLU-01` (high).</Note>
+
+<Note kind="question" id="descriptor" slice="M1.01">The plugin descriptor's own fields are not decided yet. Ledger
+`PLU-02` (high).</Note>
+
+<Note kind="question" id="narrow-roles">Whether `narrow` can take roles away, as well as ways in, is open. Ledger
+`PLU-10`.</Note>
+
+<Note kind="question" id="never-widen" slice="M1.07">That no verb can widen a plugin is stated, but the check that
+refuses a widening is not named in any slice. Ledgers `PLU-03` and `PLU-13`.</Note>
+
+<Note kind="question" id="twice" slice="M1.08">Mounting one plugin twice prefixes its names, and its codes; how the
+prefix reaches generated clients is not yet shown. Ledger `PLU-08`.</Note>
+
+<Note kind="question" id="upgrade-remove">Upgrading a mounted plugin and removing one (`ortho upgrade`,
+`ortho remove`) have no slice. Ledgers `PLU-12` and `PLU-14`.</Note>

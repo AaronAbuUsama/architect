@@ -1,0 +1,261 @@
+---
+title: Blueprint
+concept: blueprint
+owns: [blueprint, declaration, model, name from path, ortho check]
+questions:
+  - What goes in `blueprint/`, and where does each declaration live?
+  - How does a name come from its path, and why is it never written as a string?
+  - What is the model, and what does `ortho check` tell me?
+status: specified
+milestone: M1
+slices: [M1.03, M1.06]
+decisions: [K5, K2, D2]
+links: [forman, things, operations, journeys, plugins, handlers, data]
+---
+
+## The idea
+
+The **blueprint** is the `blueprint/` folder in your project: TypeScript files written with `Blueprint.*` from
+`@formants/forman`. Each file holds **declarations**. A declaration is a value that says what something is (a thing,
+its machine, an operation, a role) and does nothing when it runs. The compiler reads the folder and makes the
+**model**: one JSON contract with every name, every field, every refusal and every step, with each declaration hashed.
+Every projection is made from the model ([forman](forman.mdx)). One rule holds it together: **a declaration's name is
+its place**. The path gives the name, or the exported identifier does in a file that holds several. A declared name is
+never written as a string. `ortho check` is the command that compiles the blueprint and tells you whether everything
+made from it still holds.
+
+## The smallest example
+
+The sign-up sheet's blueprint, and the name each file gives:
+
+| File | Declares | Its name |
+|---|---|---|
+| `examples/signup/blueprint/things/sheet/thing.ts` | the thing | `sheet`, from the folder |
+| `examples/signup/blueprint/things/sheet/machine.ts` | its machine | the sheet's machine |
+| `examples/signup/blueprint/things/sheet/verbs/join.ts` | an operation | `sheet.join`, from the folder and the file |
+| `examples/signup/blueprint/things/sheet/verbs/get.ts` | a read | `sheet.get` |
+| `examples/signup/blueprint/things/sheet/errors.ts` | refusals | `SheetFull`, from the export |
+| `examples/signup/blueprint/things/sheet/events.ts` | events | `SheetOpened`, `PlaceTaken`, `SheetClosed`, from the exports |
+| `examples/signup/blueprint/values/counts.ts` | values | `Count` and `Title`, from the exports |
+| `examples/signup/blueprint/environments/local.ts` | an environment | `local`, from the file |
+| `examples/signup/blueprint/starting-worlds/opened.ts` | a starting world | read by prove, not the compiler |
+
+The sign-up sheet has no roles, because anyone may call. A role would sit in the thing's `roles.ts`, named by its
+export, as acme's `allowance.grantee` is.
+
+The operation's file never says its own name. It imports everything else it means, so each name it uses is a
+reference the compiler can follow:
+
+```ts file=examples/signup/blueprint/things/sheet/verbs/join.ts lines=1-7
+import { Blueprint } from "@formants/forman";
+import { Sheet } from "../thing.ts";
+import { machine } from "../machine.ts";
+import { SheetFull } from "../errors.ts";
+import { Count } from "../../../values/counts.ts";
+
+export default Blueprint.operation(Sheet, {
+```
+
+This is what the model says about it, rendered from the sign-up sheet's compiled model:
+
+<Model project="examples/signup" operation="sheet.join" show="all" />
+
+## How it works
+
+1. **The folder is listed.** `nodeSource` walks `blueprint/` and loads each `.ts` file with Node's own module loader
+   (`packages/compiler/src/modules/source/service.ts:18` and `service.ts:23`). Nothing is parsed by hand: a
+   declaration is the value the file exports.
+2. **Proof inputs are set aside.** Starting worlds and journeys are what prove reads, not the API's shape, so the
+   compiler leaves them out for now (`packages/compiler/src/modules/model/service.ts:9`).
+3. **The path says what a file is.** `readLayout` splits each path and decides from it alone. Under `blueprint/things/`,
+   the folder is the thing's name, and the rest of the path says which part of it the file holds:
+
+```ts file=packages/compiler/src/modules/model/internal/layout.ts lines=54-61
+if (parts[0] !== "things" || parts.length < 3) {
+  layout.problems.push(`blueprint/${path}: not a place the blueprint reads (values/<file>.ts, environments/<name>.ts or things/<thing>/...)`);
+  continue;
+}
+const name = parts[1]!;
+if (!NAME.test(name)) layout.problems.push(`blueprint/${path}: thing folder "${name}" must be lowercase words joined by dashes`);
+const t = thingFiles(name);
+const file = parts.slice(2).join("/");
+```
+
+   A file in a thing's `verbs` folder is one operation, named by its file and nothing else:
+
+```ts file=packages/compiler/src/modules/model/internal/layout.ts lines=77-83
+} else if (parts[2] === "verbs" && parts.length === 4) {
+const verb = parts[3]!;
+if (!NAME.test(verb)) layout.problems.push(`blueprint/${path}: verb "${verb}" must be lowercase words joined by dashes`);
+const d = exports["default"];
+const kind = kindOf(d);
+if (kind !== "operation" && kind !== "read") layout.problems.push(`blueprint/${path}: the default export must be a Blueprint.operation or a Blueprint.read`);
+else t.verbs.set(verb, { file: `blueprint/${path}`, declaration: d as Operation | Read });
+```
+
+4. **Names are joined.** The model names an operation `thing.verb` and each of its steps `thing.verb.step`
+   (`packages/compiler/src/modules/model/internal/describe.ts:100` and `describe.ts:126`), so `join`'s steps are
+   `sheet.join.load` and `sheet.join.record`. A role is `thing.role` (`describe.ts:21`). Events, errors and values keep
+   their exported identifier (`layout.ts:72`, `layout.ts:74`, `layout.ts:43`).
+5. **The model is written.** The generators write it to `generated/model/model.json`, beside everything made from it
+   (`packages/generators/src/modules/render/service.ts:15`).
+
+**Why never a string.** Rename `join.ts` to `take.ts` and the operation is `sheet.take` everywhere at once: its route,
+its SDK function, its CLI command, its spans. The compiler's test proves it on acme, renaming `grant.ts` to `award.ts`
+(`packages/compiler/src/modules/model/model.test.ts:40`). A string written somewhere else would still say the old
+name, and nothing would notice. So `ortho check` refuses one: the rule `no-name-as-string` reports any declared name
+written as a string outside `generated/` (`packages/lint/src/modules/rules/internal/names.ts:13`). Import the
+declaration instead.
+
+### The model
+
+The model is the one contract every projection is made from (K5, seam 1). Today it has six parts. This is its type:
+
+```ts file=packages/compiler/src/modules/model/types.ts lines=112-125
+export interface Model {
+  /** Every refusal in the project and its code: declared errors, each machine's, and the runtime's (`NotAllowed`). */
+  readonly refusals: Readonly<Record<string, string>>;
+  readonly values: Readonly<Record<string, ValueMeta>>;
+  readonly things: Readonly<Record<string, ThingModel>>;
+  readonly operations: Readonly<Record<string, OperationModel>>;
+  /**
+   * What is still `Blueprint.todo`, by declaration (`allowance`, `allowance.spend`): present only when something is.
+   * An operation with a blank is left out of `operations`, so nothing is generated for it until it is filled.
+   */
+  readonly blanks?: Readonly<Record<string, ReadonlyArray<string>>>;
+  /** Where the application runs, by name: present only when the blueprint has an `environments/` folder. */
+  readonly environments?: Readonly<Record<string, EnvironmentModel>>;
+}
+```
+
+K5 names what else falls out of it from M1.03: journeys, starting worlds, role rules and marked blanks, so the portal
+and the projections can see them too (`design/decisions/K5-the-whole-shape.md:180`). Every thing and operation carries
+a hash of its declaration, so a change that only reformats a file changes nothing (`model.test.ts:50`). `ortho model`
+prints the model's short form, one line per thing and operation; `ortho model --json` prints all of it
+(`packages/cli/src/main.ts:21`).
+
+### What `ortho check` tells you
+
+`ortho check` runs five parts and prints each with ✔ or ✘, every finding named by file, line and rule
+(`packages/cli/src/modules/check/README.md`):
+
+- **blanks**: every `Blueprint.todo` left in `blueprint/`, grouped by its thing. Any blank fails. What a blank is
+  belongs to [handlers](handlers.mdx).
+- **types**: the TypeScript compiler on the whole project.
+- **rules**: Orthograph's lint rules, given the names and errors from the model.
+- **drift**: `generated/` must be exactly what the model renders. An edited file fails as `no-edited-output`.
+- **ratchets**: a rule may be allowed some findings for now, and the count only goes down.
+
+On a clean project, this is the whole output. The check's own test pins it on acme, and the sign-up sheet prints the
+same six lines:
+
+```ts file=packages/cli/src/modules/check/check.test.ts lines=59
+expect(said.lines).toEqual(["blanks left 0", "types ✔", "rules ✔", "drift ✔", "ratchets 0", "check ✔"]);
+```
+
+With blanks left, the first lines name each one:
+
+```ts file=packages/cli/src/modules/add/add.test.ts lines=60-63
+expect(lines[0]).toBe("allowance has 3 blanks");
+const thing = readFileSync(join(fresh, "blueprint/things/allowance/thing.ts"), "utf8").split("\n");
+const at = thing.findIndex((l) => l.includes("Blueprint.todo")) + 1;
+expect(lines).toContain(`  blueprint/things/allowance/thing.ts:${at}  what an allowance is, in one sentence`);
+```
+
+If the blueprint doesn't compile at all, check stops there and says so
+(`packages/cli/src/modules/check/service.ts:23`). From M1.26, `ortho check` also warns when a required step is never
+called in its handler ([handlers](handlers.mdx)).
+
+## Choices
+
+**Where does a declaration go?** There is one place for each kind, and the compiler refuses any other place
+(`layout.ts:55`, `layout.ts:85`):
+
+| Declaration | Its place | One per file? |
+|---|---|---|
+| a thing | `blueprint/things/` then the thing's folder, `thing.ts` | yes, exactly one |
+| its machine | `machine.ts` in the thing's folder | yes, exactly one |
+| an operation or a read | the thing's `verbs` folder, one file per verb | yes, the default export |
+| roles, events, errors | `roles.ts`, `events.ts`, `errors.ts` in the thing's folder | no, each export is one |
+| values | any file in `blueprint/values/` | no, each export is one |
+| an environment | `blueprint/environments/`, one file per environment | yes, the default export |
+| a starting world | `blueprint/starting-worlds/` | read by prove |
+| a journey | `blueprint/journeys/` | read by prove; see the notes |
+| a plugin's mount | `blueprint/features/`, `blueprint/adapters/`, `blueprint/projections/` | M1.06 |
+
+Folder and file names are lowercase words joined by dashes, because they become names (`layout.ts:28`). Where a
+thing's data lives, when it isn't the default store, is said on the thing itself ([data](data.mdx)).
+
+**`ortho check` or `ortho model`?** Run `ortho model` while you write: it only compiles, and prints what the
+blueprint declares. Run `ortho check` before you commit: it is what CI runs, and it fails on anything that wouldn't
+hold.
+
+## What it is not
+
+- **Not the code that runs.** A declaration does nothing when it runs. Behaviour is a [handler](handlers.mdx).
+- **Not the generated code.** `generated/` is made from the model, and editing it fails the drift part of
+  `ortho check` ([forman](forman.mdx)).
+- **Not the journeys.** Journeys prove the blueprint; they are written by a different agent and stay out of the model
+  until M1.03 ([journeys](journeys.mdx)).
+- **Not a plugin.** A plugin is built once and mounted into a blueprint ([plugins](plugins.mdx)). Each thing and
+  operation has its own page: [things](things.mdx), [operations](operations.mdx).
+
+## Where it lives
+
+| What | Where | |
+|---|---|---|
+| the folder, listed and loaded | `packages/compiler/src/modules/source/service.ts:14` | built |
+| the layout: names from paths | `packages/compiler/src/modules/model/internal/layout.ts:30` | built |
+| the model, described | `packages/compiler/src/modules/model/internal/describe.ts:93` | built |
+| the model's type | `packages/compiler/src/modules/model/types.ts:112` | built |
+| `ortho check` (today `forman check`) | `packages/cli/src/modules/check/service.ts:17` | built |
+| blanks, found and printed | `packages/cli/src/modules/check/internal/blanks.ts:7` | built |
+| `no-name-as-string` | `packages/lint/src/modules/rules/internal/names.ts:5` | built |
+| journeys, starting worlds and role rules in the model | `packages/compiler/src/modules/model/service.ts:9` | planned, M1.03 |
+| mounts read from the blueprint | `blueprint/features/` | planned, M1.06 |
+
+## Status
+
+<Status />
+
+| Part | Status | Slice | Proved by |
+|---|---|---|---|
+| the model, compiled from acme | proved | | `packages/compiler/src/modules/model/model.test.ts:27`, "describes acme" |
+| the sign-up sheet compiles and checks clean | proved | | `e2e/layer1/08-signup-proves.test.ts:10`, which proves its generated project |
+| a name comes from its path | proved | | `model.test.ts:40`, "names an operation after its file" |
+| a reformat changes no hash | proved | | `model.test.ts:50` |
+| a name written as a string is refused | proved | | `packages/cli/src/modules/check/check.test.ts:76`, the `name-as-string` fixture |
+| `ortho check` on a clean project | proved | | `check.test.ts:57`, "passes clean acme" |
+| `ortho check` names each blank | proved | | `packages/cli/src/modules/add/add.test.ts:41` |
+| blanks, journeys, starting worlds and role rules in the model | specified | M1.03 | `ortho describe --json` on acme and work lists them all |
+| plugin mounts in the blueprint | specified | M1.06 | check `01` |
+
+## Notes
+
+<Note kind="decision" decision="K5">The model is the one contract every projection is made from, including the
+portal. Seam 1: one declaration per file, named by its path; from M1.03 the model also holds journeys, starting
+worlds, role rules and blanks.</Note>
+
+<Note kind="question" id="model-completeness" slice="M1.03">Blanks, journeys, starting worlds and role rules aren't in
+the compiled model yet (`BLU-04`). Today an operation with a blank is left out of `operations` altogether
+(`describe.ts:99`), and only its name appears under `blanks`, so an unfinished model looks smaller instead of
+unfinished (`BLU-01`). M1.03 must say how a marked blank sits in the model, and what a projection makes for an
+operation that has one.</Note>
+
+<Note kind="status" slice="M1.03">Journeys have two places (`BLU-02`). Prove reads both `blueprint/journeys/` and a
+`journeys` folder at the project's root (`packages/prove/src/modules/journeys/internal/load.ts:36`). The design and
+`ortho add journey` use `blueprint/journeys/` (`packages/cli/src/modules/add/internal/templates.ts:94`); acme's and
+the sign-up sheet's journeys are both at the root, in `examples/signup/journeys/`. The canon teaches
+`blueprint/journeys/`, the place the picture draws them; the examples move there when M1.03 puts journeys in the
+model.</Note>
+
+<Note kind="status">The design shows `ortho check` printing the model's hash and counts (`BLU-03`). The real output
+is the five parts above, with no hash and no counts, and the model has no hash of its own: only each declaration has
+one. The design's example also counts 17 operations where acme has 15 (`BLU-08`).</Note>
+
+<Note kind="question" id="ready-and-questions">`ortho check --ready`, which would exit non-zero while any blank
+remains, and `Blueprint.question`, a decision not made yet as a second kind of blank, are in the design but not built
+or owned by a slice (`BLU-05`).</Note>
+
+<Note kind="decision" decision="D2">Journeys are plain descriptions in the blueprint, and prove runs them. The model
+stays the API's shape, so for now the compiler leaves starting worlds and journeys to prove.</Note>

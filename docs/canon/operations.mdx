@@ -1,0 +1,523 @@
+---
+title: Operations
+concept: operation
+owns: [operation, read, payload, answer, error (refusal), step, optional step, budget, idempotent, emits]
+questions:
+  - What does an operation declare, and why each part?
+  - What is a refusal?
+  - What is a step, and when is one optional?
+  - What does `idempotent: "request"` promise?
+  - When does an operation emit its own event?
+status: specified
+milestone: M1
+slices: [M1.20, M1.26, M3.16]
+decisions: [K5, O2, N1]
+links: [machines, roles, handlers, doors, traces]
+---
+
+## The idea
+
+An operation is a verb on a thing: something a caller asks the system to do. It lives in one file,
+`blueprint/things/<thing>/verbs/<verb>.ts`, and its name comes from that path, so `join` on the sheet is `sheet.join`.
+The file declares everything about the call except how the work is done:
+
+- what comes in (the payload) and what goes out (the answer);
+- the move it makes, and how it may say no (its errors);
+- who may call;
+- the named parts of its work (its steps);
+- whether a retry is safe, and how fast it should be.
+
+One rule decides it: **if a caller can see it, the declaration says it.** Every door is made from this one file, and so
+is the frame the handler must fit. The handler only does the work. An operation that changes nothing is a read: it has
+no handler and no move, and answers straight from the thing's records.
+
+## The smallest example
+
+This is signup's `join`. Each line is one part of the declaration:
+
+```ts file=examples/signup/blueprint/things/sheet/verbs/join.ts lines=7-17
+export default Blueprint.operation(Sheet, {
+  description: "Take places on a sheet, for yourself and anyone with you.",
+  payload: { sheet: Sheet.fields.id, people: Count },
+  answer: { left: Count },
+  move: machine.moves.join,
+  errors: [SheetFull],
+  allowed: [Blueprint.anyone],
+  steps: { load: Blueprint.step.database(), record: Blueprint.step.database() },
+  idempotent: "request", // sent twice with one request, it takes its places once
+  budget: { p95: "150 millis" },
+});
+```
+
+This is what the compiler made of it, rendered from signup's compiled model:
+
+<Model project="examples/signup" operation="sheet.join" show="all" />
+
+And this is a read, the smallest kind of operation. It names the fields it answers and who may ask:
+
+```ts file=examples/signup/blueprint/things/sheet/verbs/get.ts lines=4-10
+// A read. It changes nothing, so it has no move and no handler: it answers from the sheet's record.
+export default Blueprint.read(Sheet, {
+  by: "id",
+  fields: ["title", "places", "taken", "state"],
+  allowed: [Blueprint.anyone],
+  budget: { p95: "50 millis" },
+});
+```
+
+## How it works
+
+### What each part is for
+
+| Part | What it says | Who reads it |
+|---|---|---|
+| `description` | one sentence on what the call does | the docs page, the CLI's help, the MCP tool, the handler's scaffold |
+| `payload` | the fields that come in, each a named value or a thing's field | every door decodes against it before anything runs |
+| `answer` | the fields that go out | the handler's frame, and the check after the handler answers |
+| `move` | the machine move it makes, if any | the machine's check before the handler, and the event after it (see `machines`) |
+| `errors` | the refusals that depend on data | the handler's frame, the endpoint, the exit codes |
+| `allowed` | the roles that may call | the role check, before anything else runs (see `roles`) |
+| `steps` | the named parts of the work | the handler, as `steps.<key>(…)`; one span each (see `traces`) |
+| `idempotent` | whether the same request twice is one call | the server, which keeps the answer by request key |
+| `budget` | how fast it should answer, at p95 | `ortho prove`'s performance eval, and `ortho watch` |
+| `emits` | the operation's own event, when it has no move (M3.16) | the commit, beside the call's writes |
+
+Two more parts have defaults you rarely change. `runs` says where it runs and is only `server` today (see
+`languages-and-hosts`). `test` says how its guarantees are tested, `unit` by default
+(`packages/forman/src/modules/operations/types.ts:49`).
+
+Signup's `open` is the same shape, with one step and no declared errors. Putting up a sheet can't fail on its data:
+
+```ts file=examples/signup/blueprint/things/sheet/verbs/open.ts lines=5-15
+export default Blueprint.operation(Sheet, {
+  description: "Put up a sheet with a number of places.",
+  payload: { title: Sheet.fields.title, places: Sheet.fields.places },
+  answer: { sheet: Sheet.fields.id },
+  move: machine.moves.open,
+  errors: [],
+  allowed: [Blueprint.anyone],
+  steps: { insert: Blueprint.step.database() },
+  idempotent: "request", // sent twice with one request, it puts up one sheet
+  budget: { p95: "150 millis" },
+});
+```
+
+### The payload and the answer
+
+The payload and the answer are lists of fields. Each field is a named value, never a bare type. `people` is a `Count`,
+the same value the answer's `left` is, so a page, a CLI flag and a Solidity type all agree on what it means (see
+`things`). A field that names another thing, like `sheet: Sheet.fields.id`, is how an operation says which instance
+it acts on. The role check and the machine's check both find the instance through it.
+
+A payload that doesn't fit is refused before anything else runs. An answer that doesn't fit its declaration is never
+sent: it is the handler's bug, so the call dies (see `handlers`).
+
+### Refusals
+
+A refusal is an answer the operation was built to give: the caller asked, and the system said no, on purpose. Every
+refusal has a name, a code and an exit code. Every door shows the name and the code, and the CLI exits with the exit
+code. A refusal can come from three places.
+
+**Declared errors** depend on the data, and only the handler can know them. They live in the thing's `errors.ts`, each
+with the fields it carries and its exit code:
+
+```ts file=examples/signup/blueprint/things/sheet/errors.ts lines=4-5
+// Depends on the data: more people than there are places left.
+export class SheetFull extends Blueprint.error({ left: Count }, { exit: 71 }) {}
+```
+
+An operation lists the ones it may give in `errors`. A handler that fails with one it doesn't list doesn't compile.
+
+<Scenario journey="examples/signup/journeys/fill-a-sheet.ts" step="two people are refused: only one place is left" />
+
+**The machine's refusal** is made for you. A move from a state it can't start from is refused as
+`<Thing>Not<State>`, here `SheetNotOpen`, carrying the state it was in. The machine declares only its exit code,
+`notFrom: { exit: 70 }` (see `machines`). It is checked before the handler runs, so the handler never sees a full or
+closed sheet:
+
+<Scenario journey="examples/signup/journeys/fill-a-sheet.ts" step="a third join is refused: a full sheet is not open" />
+
+**The runtime's refusals** belong to no thing. `NotAllowed` is a caller the operation's roles refuse. A read gives
+the same `NotAllowed` for an id that doesn't exist, so a read never tells an outsider what exists. Signup can't show a
+stranger refused: every one of its operations allows `Blueprint.anyone`. Acme's `allowance.spend` is the example
+there, where only the grantee may spend (see `roles`).
+
+**Codes.** The compiler numbers every refusal, and the model records the number, so no generator works one out:
+
+```ts file=packages/compiler/src/modules/model/internal/codes.ts lines=7-11
+/** The refusal of a machine's move that starts from the wrong state. */
+export const MACHINE_NUMBER = 900;
+
+/** Refusals the runtime makes for every thing: who may call, before any handler runs. */
+export const RUNTIME_CODES = { NotAllowed: "AR-001" } as const;
+```
+
+A code is the thing's prefix and a number. Declared errors are 1, 2, 3 in the order `errors.ts` declares them, the
+machine's is always 900, and the runtime's take `AR`. So signup's refusals are `SH-001` for `SheetFull`, `SH-900` for
+`SheetNotOpen` and `AR-001` for `NotAllowed`. The generated code carries each one's exit code and its code:
+
+```ts file=examples/signup/generated/api/src/errors.ts lines=12-16
+export const exits = {
+  SheetFull: 71,
+  SheetNotOpen: 70,
+  NotAllowed: 3,
+} as const;
+```
+
+```ts file=examples/signup/generated/api/src/errors.ts lines=19-23
+export const codes = {
+  SheetFull: "SH-001",
+  SheetNotOpen: "SH-900",
+  NotAllowed: "AR-001",
+} as const;
+```
+
+A refusal is not a failure. The call worked, and the span ends OK (see `traces`, which owns the difference between a
+refusal and a defect in a trace).
+
+### Steps
+
+A step is a named part of the handler's work. The operation declares them, and the handler runs its work through
+them: `steps.load(…)` and `steps.record(…)`. Each step is one span named `<thing>.<verb>.<key>`, so
+`sheet.join.load`, and a journey can say a step ran or didn't. When two people are refused above,
+`sheet.join.record` is absent, and that is how the journey proves nothing was written.
+
+Three rules decide what a step is (K5, seam 3):
+
+- **A step is a span inside one attempt.** It is not durable work, and nothing resumes it. Durable work is a workflow.
+- **The handler chooses which steps run.** The declaration names the parts; the handler's own code takes the path.
+- **A rerun runs them again.** When the commit loses a race with another call, the whole attempt is run again, steps
+  and all, up to a fixed number of times:
+
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=91-99
+const loop = (left: number): Effect.Effect<object, unknown, unknown> =>
+  attempt(payload, principal, key).pipe(
+    Effect.catch((e) =>
+      !(e instanceof Conflict) ? Effect.fail(e)
+      : left > 1 ? loop(left - 1)
+      : Effect.die(new Error(`${name} lost its version race ${ATTEMPTS} times in a row`)),
+    ),
+  );
+return loop(ATTEMPTS);
+```
+
+An operation may declare no steps at all (`packages/forman/src/modules/operations/types.ts:46`). A step's kind says
+what does the work. `database` is the store's, `wait` is a timer's. The kinds are an open list: `sync`, `check` and
+`prove` are named for languages that run on a chain or a client (N1), and nothing matches on all of them
+(`packages/forman/src/modules/operations/types.ts:19`). Every chain detail waits on K7.
+
+**Every declared step must run, in order.** Eval 6 checks it on every answered call:
+
+```ts file=packages/prove/src/modules/evals/internal/calls.ts lines=114-126
+/** 6. Every declared step of an answered call ran in its own span, in the order the operation declares them. */
+export const steps: PerOperation = (op, evidence) =>
+  verdict("steps", op.name, evidence.flatMap((e) => {
+    if (!answered(e) || replayed(e)) return [];
+    const declared = Object.values(op.steps);
+    const ran = declared.flatMap((s) => {
+      const span = e.trace.spans.find((x) => x.name === s.name);
+      return span ? [{ name: s.name, start: span.start }] : [];
+    });
+    const missing = declared.filter((s) => !ran.some((r) => r.name === s.name)).map((s) => `${where(e)}: declared step ${s.name} ran no span`);
+    const late = ran.slice(1).flatMap((r, i) => (r.start < ran[i]!.start ? [`${where(e)}: step ${r.name} ran before ${ran[i]!.name}, which is declared first`] : []));
+    return [...missing, ...late];
+  }));
+```
+
+A refusal and a replay are skipped, so `SheetFull` without its `record` span passes. A successful call that skips a
+step fails it.
+
+### Optional steps
+
+Some handlers skip a step on a path that still succeeds. An edit that changes nothing has nothing to save. Making
+every step mandatory would mean always running `save`, which writes for nothing, or splitting the operation, which
+moves the handler's choice onto a caller who can't know the text is unchanged. So a step can be marked optional
+(K5, decided; built in M1.26):
+
+```ts planned=M1.26 path=blueprint/things/draft/verbs/edit.ts
+steps: { load: Blueprint.step.database(), save: Blueprint.step.database({ optional: true }) },
+```
+
+Every signup operation runs all its steps when it succeeds, so this example is K5's edit of a draft, not signup.
+Three things change with it:
+
+- **Eval 6** lets an optional step be absent, and still checks the order of the steps that ran.
+- **`ortho prove`** reports an optional step that no journey ever ran, or that every journey ran, as never exercised
+  both ways. So both paths get a journey.
+- **`ortho check`** warns when a required step's runner, such as `steps.record`, never appears in the handler's
+  source. Deleting `steps.record` from `join` would give that warning. The handler's type stays as it is: TypeScript
+  can't prove a function calls something on some path without changing every handler's shape, so the warning plus
+  eval 6 is the proof.
+
+### Its own event: `emits`
+
+An operation's event usually comes from its move: `join` makes the `join` move, and the move emits `PlaceTaken`
+(see `machines`). An operation with no machine can declare its own event (K5, Q5; built in M3.16):
+
+```ts planned=M3.16 path=blueprint/things/draft/verbs/edit.ts
+export default Blueprint.operation(Draft, {
+  description: "Change a draft's text.",
+  payload: { draft: Draft.fields.id, body: Body, version: Version },
+  answer: { version: Version },
+  errors: [DraftChanged],
+  allowed: [author],
+  steps: { load: Blueprint.step.database(), save: Blueprint.step.database({ optional: true }) },
+  emits: DraftEdited,
+  idempotent: "request",
+});
+```
+
+Every signup operation has a move, so signup can't show this either. Its rules:
+
+- **It is committed in the same commit as the call's writes**, the same rule a move's event follows
+  (`packages/language-effect/src/modules/handler/service.ts:68-71`).
+- **Only on success.** A refusal emits nothing.
+- **Only when the call wrote.** A successful edit that changed nothing emits nothing, so "edited" is never said of a
+  draft that didn't change.
+
+A move's event is unchanged: it is emitted when the move is made. Until M3.16, an operation with no machine emits
+nothing.
+
+### `idempotent: "request"`
+
+A client that retries after a timeout doesn't know if the first call landed. `idempotent: "request"` promises this:
+**the same request key, from the same caller, to the same operation, is one call.** The second time, the server
+answers what it answered the first time and changes nothing. No step runs, no event is written, and the span says
+`request.replayed`:
+
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=51-56
+// The same request key from the same caller is one call: answer what was answered, and change nothing.
+const kept = key === undefined ? undefined : yield* store.answered(key);
+if (kept !== undefined) {
+  yield* Effect.annotateCurrentSpan({ "request.replayed": true });
+  return yield* decodeAnswer(JSON.parse(kept)).pipe(Effect.orDie);
+}
+```
+
+The key is the operation, the caller and the request together, so one caller's key never answers another's call:
+
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=88-90
+// Keyed by operation and caller as well, so one caller's key never answers another's call.
+const who = principal.kind === "person" ? principal.person : "anonymous";
+const key = op.idempotent === "request" && request !== undefined ? `${name}|${who}|${request}` : undefined;
+```
+
+The answer is kept in the same commit as the work, so either the call landed with its answer kept, or neither
+happened. The replay comes after the role check, so a stranger who guesses a key still gets `NotAllowed`. How each
+door carries the key is on `doors`.
+
+<Scenario journey="examples/signup/journeys/join-twice-with-one-request.ts" step="the same request again gives the same answer and takes nothing" />
+
+Without a key, or without `idempotent`, every call is its own call.
+
+### The budget
+
+A budget is how fast the operation should answer, as a p95. It is a target for review, never a failure:
+
+```ts file=packages/forman/src/modules/operations/types.ts lines=28-31
+export interface Budget {
+  /** A target for review, never a failure. */
+  readonly p95: Duration.Input;
+}
+```
+
+`ortho prove` times every call's span against it, and a p95 over one and a half times the budget is a review note
+(`packages/prove/src/modules/evals/internal/run.ts:17`). In a running environment, `ortho watch` writes a task for an
+operation over its budget, and removes it when the operation is back under. Loosening a budget is a decision, so it
+makes the operation's verdicts stale (see `proof`).
+
+### What you get for free: the nine evals
+
+You write the declaration, the handler and the journeys. `ortho prove` runs the journeys, reads every call's trace,
+and judges every operation by the same nine evals
+(`packages/prove/src/modules/evals/service.ts:7`). Nothing about them is written per operation:
+
+| # | Eval | What it checks | Where |
+|---|---|---|---|
+| 1 | answer shape | every answer keeps its declared shape, and no secret shows up in a span or a log | `calls.ts:23` |
+| 2 | declared errors | every refusal is one the operation declares, and carries its code | `calls.ts:54` |
+| 3 | machine path | every move ends in a declared state, and the stored state is where it ended | `calls.ts:73` |
+| 4 | events | every move that happened journalled its event | `calls.ts:88` |
+| 5 | who may call | decided from the world's facts before the call, never from what the server did | `calls.ts:101` |
+| 6 | steps | every declared step ran in its own span, in declared order | `calls.ts:114` |
+| 7 | performance | p50 and p95 against the budget; over 1.5 times is a review, never a failure | `run.ts:9` |
+| 8 | coverage | called, its move made, every outcome reached, every declared error refused | `run.ts:52` |
+| 9 | explainability | every declared refusal has the log that decided it | `calls.ts:128` |
+
+The short references are in `packages/prove/src/modules/evals/internal/calls.ts` and
+`packages/prove/src/modules/evals/internal/run.ts`. On signup, `ortho prove --env local` prints this for `sheet.join`:
+
+- `sheet.join answer shape ✔`, `declared errors ✔`, `machine path ✔`, `events ✔`, `who may call ✔`, `steps ✔`
+- `sheet.join performance ✔ p50 3ms p95 4ms budget p95 150ms`
+- `sheet.join coverage ✔`, `explainability ✔`
+- and in one line: `sheet.join 9 evals ✔ p50 3ms p95 4ms budget p95 150ms`
+
+The run ends with the whole project's coverage, `coverage ✔ moves 3/3 · outcomes 3/3 · refusals 1/1 · runtime
+refusals 2/2`, and `prove ✔`. The end-to-end test holds signup to exactly that:
+
+```ts file=e2e/layer1/08-signup-proves.test.ts lines=14-17
+expect(lines.filter((l) => /^journey .* ✔ \d+\/\d+ steps$/.test(l))).toHaveLength(4);
+expect(lines.filter((l) => / 9 evals ✔ /.test(l))).toHaveLength(4);
+expect(lines).toContain("coverage ✔ moves 3/3 · outcomes 3/3 · refusals 1/1 · runtime refusals 2/2");
+expect(lines.at(-1)).toBe("prove ✔");
+```
+
+### Reads
+
+A read has no handler and no move. It names the thing, how it finds instances (`by: "id"`, or `by: "list"` with the
+fields a caller may filter by), the fields it answers, who may read, and a budget. Its answer comes straight from the
+thing's records, with `state` as text. A list answers a page, `items` and `next`, and `next` goes back as the
+`cursor` for the page after it (`packages/forman/src/modules/operations/types.ts:102`).
+
+### The doors
+
+Every door is made from the one declaration: the HTTP endpoint, the SDK, the CLI command, the MCP tool, the action and
+the docs page. Each kind of door exists once per operation, and every door reaches the same enforcer, so a call is
+checked the same way whichever door it came through. The action sits beside the other doors, as one more door
+(K5, PRJ-43). What each door makes, and how it carries the caller, the request key and the refusals, is on `doors`.
+
+## Choices
+
+### An operation or a read
+
+| | `Blueprint.operation` | `Blueprint.read` |
+|---|---|---|
+| Changes anything | yes, through its handler and its move | never |
+| Has a handler | yes, written by you | no |
+| Refuses | its declared errors, the machine's, `NotAllowed` | `NotAllowed` only, for a missing id as well |
+| Pick it when | the call changes a thing, or its answer needs work | the answer is fields the thing already holds |
+
+If the answer is fields the thing holds, make it a read. A read you didn't have to write can't have a bug in it.
+
+### A declared error or the machine's refusal
+
+If the answer depends only on the instance's state, let the machine refuse: you write nothing, and it is checked
+before the handler runs. Declare an error only when it depends on data the handler reads, like people against the
+places left.
+
+### A required step or an optional one
+
+| | required (the default) | `{ optional: true }` (M1.26) |
+|---|---|---|
+| A successful call that skips it | fails eval 6 | passes, if the steps that ran are in order |
+| `ortho check` | warns if the handler never calls it | says nothing |
+| `ortho prove` | nothing more | reports it unless some journey runs it and some journey skips it |
+| Pick it when | every successful path does this work | a successful path truly has nothing to do here |
+
+Make a step required by default. Mark it optional only for a path that succeeds without it, and write the journey
+for each path.
+
+### Idempotent or not
+
+Declare `idempotent: "request"` on any operation a client might retry that would do harm twice: joining, spending,
+sending. It costs one kept answer per key. Leave it off when a second call is harmless, or meant.
+
+## What it is not
+
+- **Not the handler.** The operation says what the call is; the handler does the work, in the frame the operation
+  makes. See `handlers`.
+- **Not the move.** A move is a machine's step from one state to another, with its event. An operation names the
+  move it makes; the machine owns it. See `machines`.
+- **Not the role.** `allowed` names roles; what a role is and how it is checked is on `roles`.
+- **Not a span.** A step makes a span, but the span, its attributes and how a refusal looks in a trace are on
+  `traces`.
+- **Not a door.** An operation says what a call is; `doors` says what reaches it and from where.
+- **Not a workflow.** A step lives inside one attempt and is run again on a rerun. Work that must survive a crash,
+  or wait for something, is a workflow (M3.01).
+- **Not the commit.** An operation's writes land in one commit at the end. What that is, and where, is on `stores`.
+
+## Where it lives
+
+| What | Where | |
+|---|---|---|
+| What an operation declares | `packages/forman/src/modules/operations/types.ts:39` | built |
+| A read's shape | `packages/forman/src/modules/operations/types.ts:102` | built |
+| Refusal codes, numbered by the compiler | `packages/compiler/src/modules/model/internal/codes.ts:18` | built |
+| The payload decoded, `InvalidPayload` | `packages/language-effect/src/modules/handler/service.ts:105` | built |
+| The machine's refusal, before the handler | `packages/language-effect/src/modules/handler/internal/move.ts:39` | built |
+| The request key and the replay | `packages/language-effect/src/modules/handler/service.ts:90` | built |
+| A rerun after a conflict | `packages/language-effect/src/modules/handler/service.ts:91` | built |
+| The nine evals | `packages/prove/src/modules/evals/service.ts:7` | built |
+| Each refusal's code and exit code in every door | `packages/generators/src/modules/render/internal/api.ts:55` | built |
+| Optional steps, eval 6 and the unused-step warning | `packages/prove/src/modules/evals/internal/calls.ts:114` and `ortho check` | planned, M1.26 |
+| An operation's own event | `packages/language-effect/src/modules/handler/service.ts:69` | planned, M3.16 |
+| A bad payload counted as a refusal | `packages/language-effect/src/modules/handler/` | planned, M1.20 |
+
+## Status
+
+<Status />
+
+| Part | Status | Slice | Proved by |
+|---|---|---|---|
+| The declaration, compiled into the model and every door | proved | layer 2 | `packages/generators/src/modules/render/render.test.ts:13`, and signup's journeys |
+| Undeclared errors don't compile | proved | layer 2 | `packages/generators/src/modules/render/handler-type.test.ts:40` |
+| Refusal codes, stable and unique | proved | layer 2 | `packages/compiler/src/modules/model/refusal-codes.test.ts:61`, `packages/prove/src/modules/evals/evals.test.ts:42` |
+| The machine's refusal before the handler | proved | layer 2 | `packages/language-effect/src/modules/handler/handler.test.ts:260`, signup's `fill a sheet` |
+| One call per request key | proved | layer 2 | `packages/language-effect/src/modules/records/reads-and-requests.test.ts:42`, signup's `join twice with one request` |
+| The nine evals on every operation | proved | layer 2 | `e2e/layer1/08-signup-proves.test.ts:15` |
+| The budget, reviewed and never failed | proved | layer 2 | `packages/prove/src/modules/evals/evals.test.ts:31` |
+| Reads, and a missing id refused as `NotAllowed` | proved | layer 2 | `packages/language-effect/src/modules/records/reads-and-requests.test.ts:70` |
+| Optional steps, the unused-step warning, "never exercised both ways" | specified (K5) | M1.26 | a fixture that skips its optional `save` passes eval 6; deleting `steps.record` gives a check warning |
+| An operation's own event | specified (K5, Q5) | M3.16 | journeys assert `DraftEdited` present after an edit, absent after a refusal and after an unchanged edit |
+| A bad payload counted as one refusal | specified (O2), its name open | M1.20 | a bad payload and a stranger show as two refusals in `forman.calls` |
+
+## Notes
+
+<Note kind="decision" decision="K5">
+  Steps are spans inside one attempt; the handler chooses which run, and a rerun runs them again. A step can be
+  `optional`, and an unused required step is an `ortho check` warning plus eval 6, not a type error (M1.26). An
+  operation with no machine may declare `emits:`, committed with its writes, only on success and only when it wrote
+  (M3.16). The action is one more door beside the others, and each door exists once per operation: this answers the
+  old question `action-beside-or-instead` (ledger PRJ-43).
+</Note>
+
+<Note kind="decision" decision="O2">
+  Every call is counted, a bad payload and a stranger included, as `forman.calls` with an `outcome` and a `refusal`
+  tag (M1.20). That needs a bad payload to have one name.
+</Note>
+
+<Note kind="question" id="bad-payload-name" slice="M1.20">
+  A bad payload has no single name. `call` refuses it as `InvalidPayload`
+  (`packages/language-effect/src/modules/handler/types.ts:10`), but a read refuses it as `Schema.SchemaError`
+  (`types.ts:73`), the server decodes it itself before `run`, and the generated CLI exits 2 for `SchemaError` and 1
+  for anything else (`examples/signup/generated/cli/src/output.ts:14`). It has no code and no exit code in the model,
+  unlike `NotAllowed`. Should it be a runtime refusal, `AR-002`, with an exit code, the same at every door? Ledger:
+  OPS-02.
+</Note>
+
+<Note kind="question" id="anonymous-request-keys">
+  A request key is kept per person. Every caller that isn't a person is keyed as `anonymous` (`service.ts:89`), so
+  two different systems or agents sending the same key to the same operation get one answer between them. Every
+  signup caller is `anyone`, so today all of signup's callers share it. Should the key use the principal's own id for
+  every kind? This matters once agents and system callers land (M2). Ledger: OPS-07.
+</Note>
+
+<Note kind="question" id="code-examples-drift">
+  The comment that explains codes gives `[AL-002] AllowanceExceeded { limit: 500 }`
+  (`packages/compiler/src/modules/model/internal/codes.ts:1`), and every generated `errors.ts` repeats `[AL-002]`,
+  signup's included (`examples/signup/generated/api/src/errors.ts:18`), from
+  `packages/generators/src/modules/render/internal/api.ts:55`. In acme, `AllowanceExceeded` is `AL-001` and carries
+  `remaining`, not `limit`. The design docs also show `Blueprint.error("AllowanceExceeded", …)` with a name string
+  (`design/docs/index.html:373`); the code takes no name, because names come from paths and identifiers. Both should
+  match the code. Ledger: OPS-06.
+</Note>
+
+<Note kind="question" id="private-fields-over-http">
+  A refusal's private fields still go out over the HTTP wire; only MCP hides them. No error in signup or acme has a
+  private field yet, so it is a latent gap, not a live leak, and no slice owns the server-side fix (see `traces`).
+  Ledger: OPS-01, high.
+</Note>
+
+<Note kind="question" id="target-means-language">
+  The word "target" still means a language in the operation's own types: the step kinds are "reserved for targets
+  that run on a chain or a client", and `runs` is only `server` "until a target supports another"
+  (`packages/forman/src/modules/operations/types.ts:15`, `types.ts:21`, `types.ts:49`). The tests say the same
+  (`packages/forman/src/modules/operations/operations.test.ts:60`, `operations.test.ts:72`). A message users see
+  prints it too: "it needs a target …" (`packages/compiler/src/modules/model/internal/describe.ts:169`). And every
+  generated `errors.ts` says codes are "stable across targets" (`api.ts:55`). No slice owns the rename to language.
+</Note>
+
+<Note kind="status" slice="M1.26">
+  Today eval 6 requires every declared step on an answered call, and there is no `optional`. A handler that skips a
+  step on a successful path fails prove, and nothing warns about a step the handler never calls until prove runs.
+</Note>
