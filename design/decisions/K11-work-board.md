@@ -1,8 +1,7 @@
 # K11: the work board
 
-Draft, 18 November 2026, by the 🗂 work-board thread under "Who decides" in `AGENTS.md`. The architecture below is
-decided. The board's UX waits on Aaron's answers to the grill round (Q1 to Q5 at the end); each answer is recorded
-here with its date before anything is drawn.
+Decided 18 November 2026: the architecture by the 🗂 work-board thread under "Who decides" in `AGENTS.md`, the
+board's behaviour by Aaron's answers to the grill round the same evening ("Aaron's answers" at the end).
 
 ## Aaron's words (18 November 2026, by speech)
 
@@ -15,12 +14,14 @@ here with its date before anything is drawn.
 
 ## The answer in one paragraph
 
-Work is a feature, `@orthograph/work`, mounted with one file. A **work item** is stored: a title, a brief, a done-when
-check, the items it needs, the paths it will touch, and a column given by its machine. People and agents move items
-with the same operations, so the board is those operations drawn. Only a fact closes an item: the `close` move belongs
-to the logbook's verdict, never to a person or the agent that did the work (F5 call 5 kept). The **manager** is an
-agent with the work operations as its tools: it turns a goal (Aaron's words, a spec, a failing check, ledger rows, or
-the model's own gaps) into a plan of items with their needs and touches, which lands on the board in one call.
+Work is a feature, `@orthograph/work`, mounted with one file. Anything that might be work arrives in an **inbox**:
+a GitHub issue, a Slack message, an alert, Aaron's words. What comes from an **authority** is work at once; anything
+else is triaged and may become work. A **work item** is stored: a title, a brief, a done-when check, the items it
+needs, the paths it will touch, and a column given by its machine. People and agents move items with the same
+operations, so the board is those operations drawn. An item is closed by a fact (a verdict) or by an authority in
+person, which is recorded as a fact; never by an agent, including the one that did the work. An authority agrees a
+**goal** once; the **manager** is an agent that then carries as much of that authority as it can: it proposes the
+goal's milestones and items, with their needs and touches, and runs them without asking again.
 **Dispatch** is a workflow per board: it claims ready items whose needs are done and whose touches don't overlap
 anything running, critical path first, up to the board's limit, and starts each as an agents-feature run in a
 sandbox. The factory (K10) runs the work; the board never knows a sandbox exists. The board is an extension of the
@@ -31,7 +32,9 @@ one portal, built on HeroUI Pro's Kanban parts with our own state (`spikes/kanba
 | Was | Now | Why |
 |---|---|---|
 | F5 call 2: "a task is not a thing … worked out, never stored" | An **item** is stored. The derived view (each kind over each subject, F5's `mission.tasks`) becomes one **source** the manager reads to file items | A board you can put work on needs work that exists before a fact does: Aaron's words, a spike, a fix. A stored item can't disagree with its facts because its `close` move is taken only by a verdict |
-| F5's `mission`, `milestone` | `goal` (the why, with an owner and a source). Milestones become the plan's groups, a field on the item | One level fewer; the board's lanes do what milestones did |
+| F5 call 5: only a fact moves a card to done | A fact, or an authority in person, closes an item; the person's close is written to the logbook as an `accepted` verdict, so a fact still exists. An agent never closes | Aaron, Q2: "person … can close a thing" |
+| F5's `mission`, `milestone` | `goal` (an outcome an authority agreed: finite or standing) and `milestone` (a step the manager proposes toward it) | Aaron, Q3: the goal is agreed, the manager suggests the milestones |
+| F5's mission start ("only when you press Start") and a plan approval | One agreement per goal. The manager's plan, milestones and items need no further yes | Aaron, Q3: "you give one authority and the manager carries as much authority as possible" |
 | F5's `run` | `claim`: who works an item, until when, and which agents-feature run (if any) | FAC-12: the factory references an agents run and never contains it |
 | K5 decision 2 parked "separate plans and factory surfaces" | The board is an **extension** of the one portal, not a separate surface | It keeps K5's rule (one portal) and serves Aaron's ask |
 | K4 parked Dispatch | Dispatch is decided here, as the work feature's workflow | Aaron asked for it by name, with "maximum bandwidth" |
@@ -51,7 +54,7 @@ import work from "@orthograph/work";
 
 export default Blueprint.use(work, (w) => [
   w.choose(w.choices.workers.people),          // `agents` once M4.13 lands: dispatch starts agents-feature runs
-  w.choose(w.choices.closer.logbook),          // what may take `close`: the logbook's verdicts
+  w.authority([owner]),                        // who may agree goals and close in person; signals from them skip the inbox
 ]);
 ```
 
@@ -59,12 +62,25 @@ Its things, in its own package (`@orthograph/work/blueprint/things/…`):
 
 | Thing | Lives | What it is |
 |---|---|---|
-| `goal` | database | Why work exists: title, owner, source (`words`, `spec`, `check`, `ledger`, `model`), state |
-| `item` | database | One unit of work a worker can finish in one sitting, with a done-when check |
+| `goal` | database | An outcome an authority agreed: finite (done when its check passes) or standing (a measure kept or climbed) |
+| `milestone` | database | A step toward a goal, proposed by the manager: a group of items with its own check |
+| `item` | database | One unit of work a worker can finish in one sitting, with a done-when check; starts in the inbox unless an authority filed it |
 | `claim` | database | One worker on one item: holder, lease until, attempt, the agents run (if any) |
 | `board` | database | A view: which goals, lanes, column limits, the running limit (the concurrency) |
 | `question` | database | Intake, as F5: asked by the manager, answered by a person, or spiked |
-| `attention` | database | What only a person decides, as F5: promote, money, credential, question, plus `plan` |
+| `attention` | database | What only a person decides, as F5: promote, money, credential, question, plus `goal` (a goal the manager proposes from a signal) |
+
+## Words
+
+| Word | Meaning |
+|---|---|
+| **Signal** | Something that arrived: a GitHub issue, a Slack message, an alert, a failing check, Aaron's words. It lands as an item in `inbox`. It is not yet work |
+| **Authority** | Who may make work and agree goals: the board's owner (Aaron), and whoever he names. A signal from an authority skips the inbox |
+| **Goal** | An outcome an authority agreed. **Finite**: done when its check passes ("links stage 1"). **Standing**: a measure to keep or climb, never done ("p95 under 200 ms", "no ledger item without an owner") |
+| **Milestone** | A step toward a goal, proposed by the manager, with its own check. A standing goal's milestones are its next climbs |
+| **Plan** | The manager's current milestones and items for a goal. It changes freely, without asking: the goal is what was agreed |
+| **Item** | One unit of work, finished in one sitting, with one done-when check |
+| **Triage** | Deciding what a signal from a non-authority is: an item under an agreed goal, a proposed new goal, or nothing |
 
 The item:
 
@@ -74,7 +90,7 @@ export const Item = Blueprint.thing({
   description: "One unit of work, finished in one sitting, closed only by a fact.",
   fields: {
     id: Blueprint.id("itm"),
-    goal: Goal.fields.id,
+    goal: Blueprint.optional(Goal.fields.id), // set by triage; an inbox item may have none
     title: Title,
     brief: Brief,                 // what to do; the agent's whole prompt for an agent worker
     task: Blueprint.optional(TaskKey), // a model gap's key, `build:link.create`; absent for work from words
@@ -82,28 +98,33 @@ export const Item = Blueprint.thing({
     needs: ItemIds,               // items that must be done first; acyclic, checked by `goal.plan`
     touches: PathGlobs,           // what it may write; two running items never share a path
     worker: WorkerKind,           // `person`, or an agent type (`builder`, `author`, `spike`)
-    group: GroupName,             // the plan's slice: what milestones were
+    milestone: Blueprint.optional(Milestone.fields.id), // the step it belongs to; none while in the inbox
+    source: Source,               // `words`, `github`, `slack`, `alert`, `check`, `ledger`, `model`, with a link back
     rank: Rank,                   // the person's order within a column; dispatch's tie-breaker
   },
   code: "WI",
 });
 ```
 
-Its machine. The columns are these states (Q1 asks whether the board shows them as they are):
+Its machine. The board's columns are these states, `inbox` first (Aaron, Q1); `blocked` shows as a badge in place
+and `dropped` is hidden:
 
 ```ts
 // @orthograph/work/blueprint/things/item/machine.ts
 export const machine = Blueprint.machine(Item, {
-  states: ["backlog", "ready", "running", "review", "done", "blocked", "dropped"],
+  states: ["inbox", "backlog", "ready", "running", "review", "done", "blocked", "dropped"],
   moves: {
-    file:    { from: [], to: "backlog", emits: Events.ItemFiled },             // the manager or a person
+    receive: { from: [], to: "inbox", emits: Events.ItemReceived },            // a signal from anyone else
+    file:    { from: [], to: "backlog", emits: Events.ItemFiled },             // an authority, or the manager
+    accept:  { from: ["inbox"], to: ["backlog", "ready"], emits: Events.ItemAccepted }, // triage: it is work
+    dismiss: { from: ["inbox"], to: "dropped", emits: Events.ItemDismissed },  // triage: it is not
     ready:   { from: ["backlog", "blocked"], to: "ready", emits: Events.ItemReady },
     shelve:  { from: ["ready"], to: "backlog", emits: Events.ItemShelved },
     claim:   { from: ["ready"], to: "running", emits: Events.ItemClaimed },    // dispatch, or a person taking it
     release: { from: ["running"], to: "ready", emits: Events.ItemReleased },   // lease lapsed, or handed back
     submit:  { from: ["running"], to: "review", emits: Events.ItemSubmitted }, // a branch or a pull request exists
     return:  { from: ["review"], to: "ready", emits: Events.ItemReturned },    // CI red, review asked for changes
-    close:   { from: ["review"], to: "done", emits: Events.ItemClosed },       // a fact: the check's verdict passed
+    close:   { from: ["backlog", "ready", "review", "blocked"], to: "done", emits: Events.ItemClosed }, // a verdict, or an authority in person
     block:   { from: ["ready", "running"], to: "blocked", emits: Events.ItemBlocked }, // retries spent; attention raised
     drop:    { from: ["backlog", "ready", "blocked"], to: "dropped", emits: Events.ItemDropped },
   },
@@ -114,16 +135,24 @@ Its operations, one per move plus the reads, all generated into the CLI, SDK, MC
 
 | Operation | Allowed | Refusals |
 |---|---|---|
-| `goal.open`, `goal.plan`, `goal.start`, `goal.stop` | the goal's owner; `plan` also the manager, via agent | `PlanHasCycle`, `PlanTouchesOverlap` (warning, see below), `GoalHasOpenQuestions` |
-| `item.file`, `item.edit`, `item.ready`, `item.shelve`, `item.rank`, `item.drop` | the goal's owner, the manager | `MoveNotAllowed`, `ItemClaimed` |
-| `item.claim` | dispatch (`service(work)`), or a person for a `person` item | `NeedsOpen`, `FilesBusy`, `BoardFull`, `ItemClaimed` |
+| `goal.open`, `goal.agree`, `goal.stop` | an authority; `open` also the manager, which then waits on a `goal` attention | `GoalHasOpenQuestions` |
+| `goal.plan` | the manager, under an agreed goal | `GoalNotAgreed`, `PlanHasCycle`, `PlanTouchesOverlap` (a warning, see below) |
+| `item.receive` | any signal source: an adapter's event through `on:`, or anyone signed in | |
+| `item.accept`, `item.dismiss` | an authority, or the manager under an agreed goal | `GoalNotAgreed` |
+| `item.file`, `item.edit`, `item.ready`, `item.shelve`, `item.rank`, `item.drop` | an authority, the manager | `MoveNotAllowed`, `ItemClaimed` |
+| `item.claim` | dispatch (`service(work)`) only: a person puts work in ready, dispatch starts it | `NeedsOpen`, `FilesBusy`, `BoardFull`, `ItemClaimed` |
 | `item.release`, `item.submit` | the claim's holder; dispatch on lease expiry | `NotYourClaim` |
 | `item.return` | the reviewer, or `service(logbook)` on a red verdict | |
-| `item.close` | `service(logbook)` only: `on: logbook.events.verdictRecorded` | `OnlyAFactCloses` for anyone else |
+| `item.close` | `service(logbook)` on a verdict; or an authority in person (`authority.notVia(Via.agent)`), which writes an `accepted` verdict first | `OnlyAFactCloses` for an agent, `ItemClaimed` while running |
 | `claim.renew` | the holder | `ClaimLapsed` |
 | `board.get`, `board.items`, `item.get`, `goal.list` | the owner, the manager | |
 
-`goal.plan` files a whole plan in one commit: the items, their needs (checked acyclic) and their touches. Two items
+A person drags an item into backlog or ready, reorders within them, and drags to done to close it (Aaron, Q2). Every
+other column is the system's: dispatch claims, runs submit, verdicts close or return. On the board those columns refuse
+a person's drop on hover, from the item's machine and the caller's roles in the model.
+
+`goal.plan` files a whole plan in one commit: the milestones, the items, their needs (checked acyclic) and their
+touches. Two items
 with overlapping touches and no `needs` edge between them are allowed (dispatch keeps them apart), but the answer
 lists the overlaps, because they serialise and so cost throughput.
 
@@ -137,25 +166,33 @@ operations through the CLI or MCP: the floor.
 // blueprint/agents/manager.ts
 export default Blueprint.agent({
   instructions: "./manager.md",
-  operations: [goal.open, question.ask, goal.plan, item.edit, item.drop, attention.raise, board.items],
+  operations: [item.accept, item.dismiss, item.file, goal.open, question.ask, goal.plan, item.edit, item.drop,
+    attention.raise, board.items],
   limits: { maxUsd: 3, wall: "1 day" },
 });
 ```
 
-Its flow, the same for every source:
+Its flow:
 
-1. **A goal arrives.** `goal.open` with a source: Aaron's words (from the portal's chat, M4.16), a spec or decision
-   file, a failing check (a red verdict through `on:`), ledger rows with no owner, or the model's gaps (blanks,
-   journeys red on empty handlers: F5's derivation, now a source).
-2. **Intake.** The manager asks what it can't work out (`question.ask`). `goal.start` is refused while a question is
-   open, as F5.
-3. **Plan.** It splits the goal into items, each finishable in one sitting with one done-when check, each with its
-   `needs` and `touches`, and calls `goal.plan` once. Splitting rules it follows: an item touches as few paths as it
-   can; journeys and checks are their own items, by a different worker, needed by the build items (AGENTS.md); a
-   decision is its own item, needed by what depends on it; two items that must land together are one item.
-4. **Approval** (Q3 asks how much). The plan lands as an `attention` of kind `plan`, or straight into `ready`.
-5. **Replan on events.** An item blocked, returned twice, or a new failing check wakes the manager, which edits,
-   splits or drops items. It never moves an item to `done`.
+1. **A signal arrives.** From an authority (Aaron's words in the portal's chat, M4.16, or a file he names) it is
+   work: `item.file`, or `goal.open` when it is an outcome rather than a task. From anywhere else (a GitHub issue, a
+   Slack message, an alert, a failing check, a ledger row, a model gap) it lands in the inbox with `item.receive`.
+2. **Triage.** The manager reads each inbox item. If it serves an agreed goal (an alert on a measure a standing goal
+   keeps, a failing check on a finite goal's work), it accepts it under that goal with no one asked: the goal's
+   agreement is the authority. If it suggests a new outcome, the manager opens a proposed goal and raises a `goal`
+   attention. Otherwise it dismisses it, with the reason.
+3. **Agreement, once.** An authority agrees a goal (`goal.agree`), after the manager's questions (`question.ask`;
+   `goal.agree` is refused while one is open). That is the only yes the goal needs.
+4. **Plan.** The manager proposes the goal's milestones and splits each into items, each finishable in one sitting with
+   one done-when check, with its `needs` and `touches`, and calls `goal.plan`. It runs at once. Splitting rules: an item
+   touches as few paths as it can; journeys and checks are their own items, by a different worker, needed by the build
+   items (AGENTS.md); a decision is its own item, needed by what depends on it; two items that must land together are
+   one item.
+5. **Climb a standing goal.** A standing goal has a measure, not an end. The manager plans the next milestone that
+   moves the measure, and replans when a signal says it slipped.
+6. **Replan on events.** An item blocked, returned twice, or a new failing check wakes the manager, which edits,
+   splits or drops items. It never closes an item. What it can't decide alone (money over the goal's share, a
+   credential, a promote) is attention, as F5.
 
 The manager's loop is a workflow per goal (M3.10's shape): it waits on events, not on a clock, and each decision is
 one agents run, so a replay never plans twice.
@@ -265,6 +302,9 @@ thing: the columns are the item's machine states, and every board page belongs t
 5. The `attention` items as a "needs you" surface the portal shows everywhere, not only on the board.
 6. The manager's conversation (M4.16) bound to a goal.
 7. HeroUI Pro's `DataGrid` (virtualised) for the long backlog and done columns.
+8. From Aaron's answers: `inbox` as the first column; one lane per goal with "Needs you" pinned on top (Q4); live
+   updates held still while a card is held, then applied with the changed cards highlighted (Q5); a person's drop
+   refused on hover for every column but backlog, ready and done (Q2).
 
 ## The order
 
@@ -272,17 +312,25 @@ thing: the columns are the item's machine states, and every board page belongs t
 |---|---|---|---|
 | now | 🧪 `spikes/kanban-components` | nothing | merged (this PR) |
 | now | 🧪 `spikes/dispatch-sim`: the dispatch rules on a synthetic plan with fake workers, critical path first against first-in first-out, touches on and off | K11 | its README gives makespan and conflicts for each rule |
-| now | 🧪 `spikes/work-board`: the board over `examples/work`'s generated API, the manager as a Claude Code session calling the CLI, on goal "links stage 1" | K11's Q1 to Q5 | one real goal planned, dispatched to people, closed by facts |
+| now | 🧪 `spikes/work-board`: the board over `examples/work`'s generated API, the inbox fed by this repository's GitHub issues, the manager as a Claude Code session calling the CLI, on the agreed goal "links stage 1" | K11 | one real goal planned, dispatched to people, closed by facts |
 | M3 | M3.04 to M3.11 reshaped by K11 (journeys, the package, handlers, dispatch, the manager) | M1.10, Gate M2 | see `milestones.md` |
 | M3 | M3.17 the board extension (replaces parked M3.14) | M1.13, M1.25 | the board in the portal matches `work board items` |
+| M5 | M5.14 signals from Slack and alerts: their adapters' events received into the inbox through `on:` | M5.03, M3.19 | a Slack message and a fired alert each land once in the inbox, and an alert on a standing goal's measure is accepted under it |
 | M4 | M4.13 the join: dispatch starts agents runs | M4.10, K10 | an item dispatched to an agents run closes by its verdict |
 
-## The grill: what waits on Aaron
+## Aaron's answers (18 November 2026, by speech)
 
-Put to Aaron on 18 November 2026; answers recorded here with their date.
-
-- **Q1.** What are the board's columns: the item's states as they are, or columns a person names?
-- **Q2.** What may a person drag?
-- **Q3.** When the manager plans a goal, does the plan start by itself?
-- **Q4.** What are the lanes?
-- **Q5.** What happens when an agent moves a card while you're looking at it?
+- **Q1, the columns: the item's states, with an inbox before them.** "I think there is one before, like an inbox. It
+  could be from GitHub issue, Slack channel, anywhere. It's not specified as worthy of work. Like if it came from an
+  authority source (me) it's definitely work, but something like an observability alert may turn into work." Hence
+  the `inbox` state, `receive`, `accept`, `dismiss`, and authority.
+- **Q2, what a person drags: into backlog or ready, and to done.** "Person can drag something into to-do or backlog,
+  and can close a thing." Hence `item.close` for an authority in person, recorded as an `accepted` verdict, and
+  `item.claim` for dispatch only.
+- **Q3, a plan's start: the goal is agreed once, and the manager carries the authority.** "A plan has got to be agreed
+  in the first place, or a goal has got to be agreed in the first place, right? And then the agent is suggesting the
+  milestones for that goal, or it might be a continuous goal that you just hill-climb towards … You give one authority
+  and the manager carries as much authority as possible." Hence "Words", finite and standing goals, `goal.agree`, and
+  no plan approval.
+- **Q4, lanes: one per goal, "Needs you" pinned on top.** "Agreed."
+- **Q5, live moves: live, held still while a card is held, changed cards highlighted.** "Agreed."
