@@ -1,0 +1,34 @@
+{
+ "kind": "operation",
+ "name": "system.health",
+ "thing": "system",
+ "verb": "health",
+ "identifier": "health",
+ "file": "blueprint/things/system/verbs/health.ts",
+ "description": "Is the application up?",
+ "payload": {},
+ "answer": {
+  "status": {
+   "value": {
+    "type": "schema"
+   },
+   "named": "Ok"
+  }
+ },
+ "move": null,
+ "errors": [],
+ "refusals": [],
+ "allowed": [
+  {
+   "kind": "anyone"
+  }
+ ],
+ "steps": {},
+ "idempotent": null,
+ "runs": "server",
+ "test": "unit",
+ "budget": {
+  "p95Ms": 50
+ },
+ "hash": "354821b9c37665dc"
+}

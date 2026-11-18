@@ -1,0 +1,71 @@
+{
+ "kind": "operation",
+ "name": "api-key.create",
+ "thing": "api-key",
+ "verb": "create",
+ "identifier": "create",
+ "file": "blueprint/things/api-key/verbs/create.ts",
+ "description": "Create an API key in an organisation. The key itself is shown once.",
+ "payload": {
+  "organization": {
+   "value": {
+    "type": "id",
+    "prefix": "org"
+   },
+   "ref": "api-key.organization"
+  },
+  "name": {
+   "value": {
+    "type": "text",
+    "max": 200
+   },
+   "ref": "api-key.name"
+  }
+ },
+ "answer": {
+  "apiKey": {
+   "value": {
+    "type": "id",
+    "prefix": "key"
+   },
+   "ref": "api-key.id"
+  },
+  "key": {
+   "value": {
+    "type": "text",
+    "max": 512
+   },
+   "named": "Secret",
+   "visibility": "secret"
+  }
+ },
+ "move": null,
+ "errors": [],
+ "refusals": [
+  "NotAllowed"
+ ],
+ "allowed": [
+  {
+   "kind": "role-of",
+   "role": "organization.owner",
+   "path": "organization"
+  }
+ ],
+ "steps": {
+  "issue": {
+   "name": "api-key.create.issue",
+   "type": "database"
+  },
+  "insert": {
+   "name": "api-key.create.insert",
+   "type": "database"
+  }
+ },
+ "idempotent": null,
+ "runs": "server",
+ "test": "unit",
+ "budget": {
+  "p95Ms": 250
+ },
+ "hash": "08aae6601d29ec9c"
+}

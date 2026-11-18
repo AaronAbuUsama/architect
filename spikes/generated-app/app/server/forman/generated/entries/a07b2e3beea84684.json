@@ -1,0 +1,67 @@
+{
+ "kind": "operation",
+ "name": "person.sign-up",
+ "thing": "person",
+ "verb": "sign-up",
+ "identifier": "signUp",
+ "file": "blueprint/things/person/verbs/sign-up.ts",
+ "description": "Sign up with an email address and a password.",
+ "payload": {
+  "email": {
+   "value": {
+    "type": "text",
+    "max": 254
+   },
+   "ref": "person.email"
+  },
+  "password": {
+   "value": {
+    "type": "text",
+    "max": 128
+   },
+   "named": "Password",
+   "visibility": "secret"
+  },
+  "name": {
+   "value": {
+    "type": "text",
+    "max": 200
+   },
+   "ref": "person.name"
+  }
+ },
+ "answer": {
+  "person": {
+   "value": {
+    "type": "id",
+    "prefix": "per"
+   },
+   "ref": "person.id"
+  }
+ },
+ "move": null,
+ "errors": [
+  "PersonEmailTaken"
+ ],
+ "refusals": [
+  "PersonEmailTaken"
+ ],
+ "allowed": [
+  {
+   "kind": "anyone"
+  }
+ ],
+ "steps": {
+  "create": {
+   "name": "person.sign-up.create",
+   "type": "database"
+  }
+ },
+ "idempotent": null,
+ "runs": "server",
+ "test": "unit",
+ "budget": {
+  "p95Ms": 400
+ },
+ "hash": "a07b2e3beea84684"
+}

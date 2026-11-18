@@ -1,0 +1,40 @@
+{
+ "name": "api-key",
+ "identifier": "ApiKey",
+ "code": "AP",
+ "description": "A key an agent or a service calls with, on behalf of whoever created it. Better Auth keeps its hash.",
+ "fields": {
+  "id": {
+   "value": {
+    "type": "id",
+    "prefix": "key"
+   }
+  },
+  "organization": {
+   "value": {
+    "type": "id",
+    "prefix": "org"
+   },
+   "ref": "organization.id"
+  },
+  "name": {
+   "value": {
+    "type": "text",
+    "max": 200
+   }
+  },
+  "createdBy": {
+   "value": {
+    "type": "id",
+    "prefix": "per"
+   },
+   "ref": "person.id"
+  }
+ },
+ "lives": "database",
+ "machine": null,
+ "events": {},
+ "errors": {},
+ "roles": [],
+ "hash": "6e46b72b0aa08b14"
+}
