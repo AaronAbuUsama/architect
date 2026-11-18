@@ -28,91 +28,185 @@ journeys prove it, environments ship it, and what is missing or red comes back a
 
 ## The smallest example
 
-This is the sign-up sheet's `join`, declared in the blueprint. It says what joining is, and nothing about how it is
-done:
+The example is **tickets**: free tickets for events, and nothing else. No money, no accounts. An `event` has a fixed
+number of places; a `ticket` is claimed for some of them, then checked in at the door or cancelled. This is the whole
+project, so you can see where each thing sits:
 
-```ts file=examples/signup/blueprint/things/sheet/verbs/join.ts lines=7-17
-export default Blueprint.operation(Sheet, {
-  description: "Take places on a sheet, for yourself and anyone with you.",
-  payload: { sheet: Sheet.fields.id, people: Count },
-  answer: { left: Count },
-  move: machine.moves.join,
-  errors: [SheetFull],
+```text tree=examples/tickets
+blueprint/  what you write: the description
+  values/
+    counts.ts  Count, Title, Holder
+  things/
+    event/  an event with a fixed number of places
+      thing.ts  the thing
+      machine.ts  its states and moves
+      events.ts  what its moves emit
+      errors.ts  SoldOut
+      verbs/
+        open.ts
+        claim.ts  the operation this page follows
+        close.ts
+        get.ts  a read
+    ticket/  a ticket for some seats, held under a name
+      thing.ts
+      machine.ts
+      events.ts
+      verbs/
+        check-in.ts
+        cancel.ts
+        get.ts
+  environments/
+    local.ts
+  starting-worlds/
+    on-sale.ts
+    ticket-claimed.ts
+journeys/  written first, by a different agent
+  sell-out-an-event.ts
+  claim-twice-with-one-request.ts
+  put-an-event-on-sale.ts
+  an-event-that-is-over-sells-nothing.ts
+  check-in-at-the-door.ts
+  cancel-a-ticket.ts
+src/  the five handlers: the only code written by hand
+  event/
+    open.ts
+    claim.ts
+    close.ts
+  ticket/
+    check-in.ts
+    cancel.ts
+generated/  made from the blueprint, never edited
+  model/
+  api/
+  server/
+  sdk/
+  cli/
+  mcp/
+  docs/
+  portal/
+```
+
+The loop runs through four of those folders. You **declare** in `blueprint/`, Orthograph **generates** into
+`generated/`, you **write the handler** in the `src` folder, and the **journeys** prove the whole. Take one operation, claiming a
+ticket, and follow it round.
+
+**Declare.** This is the whole file `event.claim` lives in. It says what claiming is, and nothing about how it is done.
+It imports the thing, the machine and the error it means, and the ticket thing it writes:
+
+```ts file=examples/tickets/blueprint/things/event/verbs/claim.ts lines=1-18
+import { Blueprint } from "orthograph";
+import { Event } from "../thing.ts";
+import { machine } from "../machine.ts";
+import { SoldOut } from "../errors.ts";
+import { Ticket } from "../../ticket/thing.ts";
+import { Count } from "../../../values/counts.ts";
+
+export default Blueprint.operation(Event, {
+  description: "Claim a ticket for one or more seats, held under a name.",
+  payload: { event: Event.fields.id, holder: Ticket.fields.holder, seats: Count },
+  answer: { ticket: Ticket.fields.id, left: Count },
+  move: machine.moves.claim,
+  errors: [SoldOut],
   allowed: [Blueprint.anyone],
-  steps: { load: Blueprint.step.database(), record: Blueprint.step.database() },
-  idempotent: "request", // sent twice with one request, it takes its places once
+  steps: { load: Blueprint.step.database(), issue: Blueprint.step.database(), count: Blueprint.step.database() },
+  idempotent: "request", // sent twice with one request, it issues one ticket
   budget: { p95: "150 millis" },
 });
 ```
 
-From those eleven lines Orthograph makes every way in. Each file opens with a line saying it was generated and must
-not be edited. The HTTP endpoint takes its route, payload, answer and refusals from the declaration:
+**Generate.** From those eighteen lines Orthograph makes every way in. Each file opens with a line saying it was
+generated and must not be edited. This is the whole HTTP endpoint: its route, payload, answer and refusals come from the
+declaration:
 
-```ts file=examples/signup/generated/api/src/sheet/join.ts lines=1-12
-// Generated from blueprint/things/sheet/verbs/join.ts. Do not edit.
+```ts file=examples/tickets/generated/api/src/event/claim.ts lines=1-12
+// Generated from blueprint/things/event/verbs/claim.ts. Do not edit.
 import { HttpApiEndpoint } from "effect/http-api";
-import declaration from "../../../../blueprint/things/sheet/verbs/join.ts";
-import { SheetFull, SheetNotOpen } from "../errors.ts";
+import declaration from "../../../../blueprint/things/event/verbs/claim.ts";
+import { SoldOut, EventNotOnSale } from "../errors.ts";
 
 export { declaration };
-export const endpoint = HttpApiEndpoint.post("join", "/sheet/join", {
+export const endpoint = HttpApiEndpoint.post("claim", "/event/claim", {
   payload: declaration.payloadSchema,
   success: declaration.answerSchema,
-  error: [SheetFull, SheetNotOpen],
+  error: [SoldOut, EventNotOnSale],
 });
-export const steps = ["sheet.join.load", "sheet.join.record"] as const;
+export const steps = ["event.claim.load", "event.claim.issue", "event.claim.count"] as const;
 ```
 
-One of those refusals was never written: `SheetNotOpen` comes from the machine. The rest of what `join` becomes:
+One of those refusals was never written: `EventNotOnSale` comes from the event's machine. The rest of what `claim`
+becomes:
 
-| Projection | What it makes for `join` | Where |
+| Projection | What it makes for `claim` | Where |
 |---|---|---|
-| server | the served operation: the one wrapper that enforces `sheet.join` | `examples/signup/generated/server/main.ts:28` |
-| SDK | `join(payload)` | `examples/signup/generated/sdk/src/sheet/join.ts:8` |
-| CLI | the command `sheet join --sheet … --people …`, built on the SDK | `examples/signup/generated/cli/src/sheet/join.ts:9` |
-| MCP | the tool `sheet.join`, described by the declaration | `examples/signup/generated/mcp/src/index.ts:12` |
-| docs | its page: who may call, budget, payload, refusals with their codes | `examples/signup/generated/docs/sheet/join.md:38` |
-| handler type | what the handler is given and may return | `examples/signup/generated/api/src/sheet/join.handler.ts:7` |
+| server | the served operation: the one wrapper that enforces `event.claim` | `examples/tickets/generated/server/main.ts:32` |
+| SDK | `claim(payload)` | `examples/tickets/generated/sdk/src/event/claim.ts:8` |
+| CLI | the command `event claim --event … --holder … --seats …`, built on the SDK | `examples/tickets/generated/cli/src/event/claim.ts:9` |
+| MCP | the tool `event.claim`, described by the declaration | `examples/tickets/generated/mcp/src/index.ts:13` |
+| docs | its page: who may call, budget, payload, refusals with their codes | `examples/tickets/generated/docs/event/claim.md:37` |
+| handler type | what the handler is given and may return | `examples/tickets/generated/api/src/event/claim.handler.ts:7` |
 | action | a `defineAction` in agent-native's field names, built on the SDK | planned, M1.22 ([doors](doors.mdx)) |
 
 Every one of them reaches the same served operation; none of them checks anything on its own. What each door is, and
 why it holds no authority, is [doors](doors.mdx).
 
-And this is the only part of `join` someone wrote. Orthograph scaffolded it once, from the declaration; from then on it
-is yours:
+**Write the handler.** This is the only part of `claim` someone wrote. Orthograph scaffolded it once, from the
+declaration; from then on it is yours. It imports the generated `Handler` type, so the declaration decides what it is
+given and what it may return:
 
-```ts file=examples/signup/src/sheet/join.ts lines=1-27
-// Scaffolded from blueprint/things/sheet/verbs/join.ts. Yours from now on.
+```ts file=examples/tickets/src/event/claim.ts lines=1-31
+// Scaffolded from blueprint/things/event/verbs/claim.ts. Yours from now on.
 import { Effect } from "effect";
-import { Records } from "@orthograph/language-effect";
-import type { Handler } from "../../generated/api/src/sheet/join.handler.ts";
-import { Sheet } from "../../blueprint/things/sheet/thing.ts";
-import { SheetFull } from "../../blueprint/things/sheet/errors.ts";
+import { Ids, Records } from "@orthograph/language-effect";
+import type { Handler } from "../../generated/api/src/event/claim.handler.ts";
+import { Event } from "../../blueprint/things/event/thing.ts";
+import { SoldOut } from "../../blueprint/things/event/errors.ts";
+import { Ticket } from "../../blueprint/things/ticket/thing.ts";
 
-/** Take places on a sheet, for yourself and anyone with you. */
-const join: Handler = ({ sheet, people }, { steps, move }) =>
+/** Claim a ticket for one or more seats, held under a name. */
+const claim: Handler = ({ event, holder, seats }, { steps, move }) =>
   Effect.gen(function* () {
     const records = yield* Records;
-    // The machine's check already found the sheet open, so it exists.
-    const found = yield* steps.load(records.find(Sheet, sheet));
-    if (!found) return yield* Effect.die(new Error(`sheet ${sheet} was checked and then not found`));
+    // The machine's check already found the event on sale, so it exists.
+    const found = yield* steps.load(records.find(Event, event));
+    if (!found) return yield* Effect.die(new Error(`event ${event} was checked and then not found`));
     const places = found["places"] as bigint;
-    const taken = found["taken"] as bigint;
-    const left = places - taken;
-    if (people > left) {
-      yield* Effect.logInfo("more people than places left").pipe(Effect.annotateLogs({ people: String(people), left: String(left) }));
-      return yield* new SheetFull({ left });
+    const claimed = found["claimed"] as bigint;
+    const left = places - claimed;
+    if (seats > left) {
+      yield* Effect.logInfo("more seats asked for than places left").pipe(Effect.annotateLogs({ seats: String(seats), left: String(left) }));
+      return yield* new SoldOut({ left });
     }
-    yield* steps.record(records.update(Sheet, sheet, { taken: taken + people }));
-    yield* move(people === left ? "full" : "open");
-    return { left: left - people };
+    // The ticket is written in the same commit as the claim, already issued.
+    const ticket = yield* Ids.of(Ticket.fields.id);
+    yield* steps.issue(records.insert(Ticket, { id: ticket, event, holder, seats }, "issued"));
+    yield* steps.count(records.update(Event, event, { claimed: claimed + seats }));
+    yield* move(seats === left ? "soldOut" : "onSale");
+    return { ticket, left: left - seats };
   });
 
-export default join;
+export default claim;
 ```
 
-The handler counts the places, records the join and picks the next state. It never checks who is calling or whether
-the sheet is open, never parses a request and never names a route. The declaration already said all of that.
+The handler counts the places left, refuses with `SoldOut` when there are too few, writes the ticket and the new count,
+and picks the next state. It never checks who is calling or whether the event is on sale, never parses a request and
+never names a route. The declaration already said all of that.
+
+**Prove.** A different agent wrote the journeys before the handler existed, so they failed on a blank one. This step
+of `sell-out-an-event` asks for two seats when one is left, and expects the refusal, no event and no work past the load:
+
+```ts file=examples/tickets/journeys/sell-out-an-event.ts lines=22-29
+s.step(
+  "two more seats are refused: only one place is left",
+  s.guest.run(claim, { event: s.world.event, holder: "Bilal", seats: 2n }, { request: "claim-2-seats" }),
+  refuses(SoldOut, { left: 1n }),
+  noEvents(),
+  machine.isIn(s.world.event, "onSale"),
+  spans({ present: ["event.claim.load"], absent: ["event.claim.issue", "event.claim.count"] }),
+),
+```
+
+The step is the declaration's promise, checked against the running operation: the refusal, the state and the spans
+(the evidence it leaves) all agree. `ortho prove` runs every journey and reports whether the loop closed.
 
 ## How it works
 
@@ -239,7 +333,7 @@ changes, and each reaches the same enforcer. A hand-written client drifts the da
 | the blueprint compiles to a model | proved | | `packages/compiler/src/modules/model/model.test.ts:27`, "describes acme" |
 | `generated/` is exactly what the model renders | proved | | `packages/cli/src/modules/check/check.test.ts:57`, "passes clean acme": `drift ✔` |
 | a handler is scaffolded once and never overwritten | proved | | `packages/cli/src/modules/generate/generate.test.ts:20` |
-| the sign-up sheet proves: every journey, every eval, nothing left running | proved | | `e2e/layer1/08-signup-proves.test.ts:10` |
+| tickets proves: every journey, every eval, nothing left running | proved | | `e2e/layer1/08-tickets-proves.test.ts:11` |
 | one enforcer per operation, every door through it | specified | M1.12 | K5 decision 1; the SDK contract in M1.12 |
 | plugins mounted into the blueprint | specified | M1.06 | check `01` |
 | actions, built on the SDK | specified | M1.22 | one `defineAction` per operation |
@@ -247,7 +341,7 @@ changes, and each reaches the same enforcer. A hand-written client drifts the da
 | the factory closes the loop | specified | M3.09 | gate M3.15 |
 
 The page is specified because the loop doesn't close until M3. Every part a change passes through today is built;
-the model, the drift check and prove are proved on acme, and prove on the sign-up sheet too.
+the model, the drift check and prove are proved on acme, and prove on tickets too.
 
 ## Notes
 

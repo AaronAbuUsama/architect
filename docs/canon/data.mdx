@@ -27,40 +27,162 @@ view only by the events it keeps.
 
 ## The smallest example
 
-The sign-up sheet says nothing about where it lives, so it lives in the project's default store:
+Tickets keeps two things, an `event` and a `ticket`. Here is where each sits, in the blueprint, in the one handler that
+writes them, and in what Orthograph generates:
 
-```ts file=examples/signup/blueprint/things/sheet/thing.ts lines=4-7
-export const Sheet = Blueprint.thing({
-  description: "A sign-up sheet with a fixed number of places.",
-  fields: { id: Blueprint.id("sht"), title: Title, places: Count, taken: Count },
+```text tree=examples/tickets
+blueprint/
+  things/
+    event/  an event with a fixed number of places
+      thing.ts
+    ticket/  a ticket for some seats, held under a name
+      thing.ts
+src/
+  event/
+    claim.ts  the handler that writes both
+generated/
+  server/
+    migrations/
+      0001_things.sql  both tables, the journal and the request keys
+    wrangler.jsonc  the one D1 binding
+```
+
+Neither thing says where it lives, so both live in the project's default store:
+
+```ts file=examples/tickets/blueprint/things/event/thing.ts lines=1-7
+import { Blueprint } from "orthograph";
+import { Count, Title } from "../../values/counts.ts";
+
+export const Event = Blueprint.thing({
+  description: "An event with a fixed number of places, and free tickets for them.",
+  fields: { id: Blueprint.id("evt"), title: Title, places: Count, claimed: Count },
 });
 ```
 
-On Cloudflare the default store is D1. Orthograph writes its schema from the model, and nobody writes it by hand. A
-sheet's row carries its fields, its state and the version every commit is guarded by:
+```ts file=examples/tickets/blueprint/things/ticket/thing.ts lines=1-8
+import { Blueprint } from "orthograph";
+import { Event } from "../event/thing.ts";
+import { Count, Holder } from "../../values/counts.ts";
 
-```sql file=examples/signup/generated/server/migrations/0001_things.sql lines=3-10
-CREATE TABLE "sheet" (
+export const Ticket = Blueprint.thing({
+  description: "A free ticket for some seats at an event, held under a name.",
+  fields: { id: Blueprint.id("tkt"), event: Event.fields.id, holder: Holder, seats: Count },
+});
+```
+
+On Cloudflare the default store is D1. Orthograph writes its schema from the model, and nobody writes it by hand. This
+is the whole file. Each thing is a table, and a row carries its fields, its state and the version every commit is
+guarded by. The journal of events and the answers kept under request keys are tables in the same database, because
+they are committed with the rows:
+
+```sql file=examples/tickets/generated/server/migrations/0001_things.sql lines=1-34
+-- Generated from the blueprint. Do not edit.
+-- Stage one rebuilds the local database on every `ortho dev`; migrations between versions arrive in stage three.
+CREATE TABLE "event" (
   "id" TEXT PRIMARY KEY,
   "title" TEXT NOT NULL,
   "places" TEXT NOT NULL,
-  "taken" TEXT NOT NULL,
+  "claimed" TEXT NOT NULL,
   "state" TEXT,
   "version" INTEGER NOT NULL DEFAULT 0
 );
+CREATE TABLE "ticket" (
+  "id" TEXT PRIMARY KEY,
+  "event" TEXT NOT NULL,
+  "holder" TEXT NOT NULL,
+  "seats" TEXT NOT NULL,
+  "state" TEXT,
+  "version" INTEGER NOT NULL DEFAULT 0
+);
+-- Every event a move emitted, with the trace of the call that made it (language-effect's Journal).
+CREATE TABLE "_journal" (
+  "seq" INTEGER PRIMARY KEY AUTOINCREMENT,
+  "trace" TEXT NOT NULL,
+  "operation" TEXT NOT NULL,
+  "move" TEXT NOT NULL,
+  "subject" TEXT NOT NULL,
+  "event" TEXT NOT NULL,
+  "fields" TEXT NOT NULL
+);
+CREATE INDEX "_journal_trace" ON "_journal" ("trace");
+-- Each idempotent call's answer, under its operation, caller and request key, committed with the call itself.
+CREATE TABLE "_requests" (
+  "key" TEXT PRIMARY KEY,
+  "answer" TEXT NOT NULL
+);
 ```
 
-The same file holds the journal of events and the answers kept under request keys, because they are committed with the
-row (`examples/signup/generated/server/migrations/0001_things.sql:12` and `0001_things.sql:23`). The Worker reaches the
-database through one binding:
+The Worker reaches that database through one binding:
 
-```jsonc file=examples/signup/generated/server/wrangler.jsonc lines=8-10
+```jsonc file=examples/tickets/generated/server/wrangler.jsonc lines=1-15
+// Generated from the blueprint. Do not edit.
+// Local only: the database id is a placeholder until a deploy names a real one (stage two).
+{
+  "name": "tickets",
+  "main": "main.ts",
+  "compatibility_date": "2026-08-01",
+  "compatibility_flags": ["nodejs_compat"],
   "d1_databases": [
-    { "binding": "DB", "database_name": "signup", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "migrations" }
+    { "binding": "DB", "database_name": "tickets", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "migrations" }
   ],
+  "durable_objects": { "bindings": [{ "name": "WORLD", "class_name": "World" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["World"] }],
+  // Where telemetry goes. `ortho prove` and `ortho dev --otlp` set it; unset, nothing is exported.
+  "vars": { "OTLP_URL": "" }
+}
 ```
 
-Signup has one store, so it has no source, no view and no projection with state of its own. Those come with the
+`WORLD` is not a store. It serves `/_world/*`, the test worlds of `ortho dev` and `ortho prove`, and
+`generated/server/main.ts` answers that path only where worlds live. No ticket or event lives in it.
+
+Now the one operation that writes both. `event.claim` writes a ticket and updates its event, and the enforcer commits
+them together, with the event it emits and the request key. This is the whole handler, as scaffolded and then edited:
+
+```ts file=examples/tickets/src/event/claim.ts lines=1-31
+// Scaffolded from blueprint/things/event/verbs/claim.ts. Yours from now on.
+import { Effect } from "effect";
+import { Ids, Records } from "@orthograph/language-effect";
+import type { Handler } from "../../generated/api/src/event/claim.handler.ts";
+import { Event } from "../../blueprint/things/event/thing.ts";
+import { SoldOut } from "../../blueprint/things/event/errors.ts";
+import { Ticket } from "../../blueprint/things/ticket/thing.ts";
+
+/** Claim a ticket for one or more seats, held under a name. */
+const claim: Handler = ({ event, holder, seats }, { steps, move }) =>
+  Effect.gen(function* () {
+    const records = yield* Records;
+    // The machine's check already found the event on sale, so it exists.
+    const found = yield* steps.load(records.find(Event, event));
+    if (!found) return yield* Effect.die(new Error(`event ${event} was checked and then not found`));
+    const places = found["places"] as bigint;
+    const claimed = found["claimed"] as bigint;
+    const left = places - claimed;
+    if (seats > left) {
+      yield* Effect.logInfo("more seats asked for than places left").pipe(Effect.annotateLogs({ seats: String(seats), left: String(left) }));
+      return yield* new SoldOut({ left });
+    }
+    // The ticket is written in the same commit as the claim, already issued.
+    const ticket = yield* Ids.of(Ticket.fields.id);
+    yield* steps.issue(records.insert(Ticket, { id: ticket, event, holder, seats }, "issued"));
+    yield* steps.count(records.update(Event, event, { claimed: claimed + seats }));
+    yield* move(seats === left ? "soldOut" : "onSale");
+    return { ticket, left: left - seats };
+  });
+
+export default claim;
+```
+
+Lines 25 and 26 write two things, a ticket and an event. Neither writes to the database yet. They are queued, and the
+enforcer commits them as one set of writes with the `TicketsClaimed` event and the kept answer
+(`packages/language-effect/src/modules/handler/service.ts:71`). If another claim changed the event meanwhile, the version
+guard conflicts and the whole call runs again, so a ticket is never written without its count.
+
+That is why the event is not an entity. An entity is one addressed instance that commits on its own, and a call has
+one owner. Make the event an entity and the ticket would sit in another store, and this operation would write two
+(K3 item 5). The compiler refuses that, and the claim becomes a workflow with a waiting state between two commits.
+Both things in one database keep it one call and one commit.
+
+Tickets has one store, so it has no source, no view and no projection with state of its own. Those come with the
 workshop, from layer 4.
 
 ## How it works
@@ -90,7 +212,7 @@ export type Lives = "database" | "entity";
 ```
 
 K3 opens that list: a store is declared under `blueprint/stores/`, named by its path, and `lives` takes it. A
-one-store app, like signup, changes nothing:
+one-store app, like tickets, changes nothing:
 
 ```ts planned=M1.17 path=blueprint/stores/ledger.ts
 // blueprint/stores/ledger.ts: the name is the path, "ledger"
@@ -151,7 +273,7 @@ migrations, every source with its adapter, calls and stand-in, and every view (K
 |---|---|---|
 | `lives` today | `packages/orthograph/src/modules/things/types.ts:32` | built |
 | the store port: find, list, commit | `packages/language-effect/src/modules/records/types.ts:62` | built |
-| the D1 schema, generated from the model | `examples/signup/generated/server/migrations/0001_things.sql:3` | built |
+| the D1 schema, generated from the model | `examples/tickets/generated/server/migrations/0001_things.sql:3` | built |
 | declared stores, `lives` taking one | `blueprint/stores/` | planned, M1.17 |
 | the portal's notes and threads in its own store | the portal feature | planned, M1.24 |
 | views | `Blueprint.view` | planned, M5.05 |
@@ -163,8 +285,8 @@ migrations, every source with its adapter, calls and stand-in, and every view (K
 
 | Part | Status | Slice | Proved by |
 |---|---|---|---|
-| a thing lives in the default store, D1, and its schema is generated | proved | | `e2e/layer1/08-signup-proves.test.ts`, signup proves locally |
-| `entity` as a second kind | proved | | `packages/host-cloudflare/src/modules/entities/entities.test.ts:10`, the example has no entity |
+| a thing lives in the default store, D1, and its schema is generated | proved | | `e2e/layer1/08-tickets-proves.test.ts`, tickets proves locally |
+| `entity` as a second kind | proved | | `packages/host-cloudflare/src/modules/entities/entities.test.ts:10`, tickets has no entity |
 | declared stores, and `lives` taking one | specified | M1.17 | K3 |
 | a projection's own state, in its own store | specified | M1.24 | K3 item 7, K5 seam 10 |
 | sources through adapters | specified | M5.07 | K3 item 8 |

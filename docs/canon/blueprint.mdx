@@ -26,39 +26,134 @@ made from it still holds.
 
 ## The smallest example
 
-The sign-up sheet's blueprint, and the name each file gives:
+The blueprint of tickets, the canon's example: free tickets for events. This is the whole `blueprint/` folder. Every
+file in it is one declaration, or a few of one kind:
+
+```text tree=examples/tickets/blueprint
+values/  shared field types
+  counts.ts  Count, Title, Holder
+things/
+  event/  an event with a fixed number of places
+    thing.ts  the thing
+    machine.ts  its states and moves
+    events.ts  what its moves emit
+    errors.ts  its own refusals
+    verbs/
+      open.ts  an operation
+      claim.ts  an operation
+      close.ts  an operation
+      get.ts  a read
+  ticket/  a ticket for some seats, held under a name
+    thing.ts
+    machine.ts
+    events.ts
+    verbs/
+      check-in.ts
+      cancel.ts
+      get.ts
+environments/
+  local.ts  where it runs on this machine
+starting-worlds/
+  on-sale.ts  a world for journeys to start from
+  ticket-claimed.ts
+```
+
+The name each file gives:
 
 | File | Declares | Its name |
 |---|---|---|
-| `examples/signup/blueprint/things/sheet/thing.ts` | the thing | `sheet`, from the folder |
-| `examples/signup/blueprint/things/sheet/machine.ts` | its machine | the sheet's machine |
-| `examples/signup/blueprint/things/sheet/verbs/join.ts` | an operation | `sheet.join`, from the folder and the file |
-| `examples/signup/blueprint/things/sheet/verbs/get.ts` | a read | `sheet.get` |
-| `examples/signup/blueprint/things/sheet/errors.ts` | refusals | `SheetFull`, from the export |
-| `examples/signup/blueprint/things/sheet/events.ts` | events | `SheetOpened`, `PlaceTaken`, `SheetClosed`, from the exports |
-| `examples/signup/blueprint/values/counts.ts` | values | `Count` and `Title`, from the exports |
-| `examples/signup/blueprint/environments/local.ts` | an environment | `local`, from the file |
-| `examples/signup/blueprint/starting-worlds/opened.ts` | a starting world | read by prove, not the compiler |
+| `examples/tickets/blueprint/things/event/thing.ts` | the thing | `event`, from the folder |
+| `examples/tickets/blueprint/things/event/machine.ts` | its machine | the event's machine |
+| `examples/tickets/blueprint/things/event/verbs/claim.ts` | an operation | `event.claim`, from the folder and the file |
+| `examples/tickets/blueprint/things/event/verbs/get.ts` | a read | `event.get` |
+| `examples/tickets/blueprint/things/event/errors.ts` | a refusal | `SoldOut`, from the export |
+| `examples/tickets/blueprint/things/event/events.ts` | events | `EventOpened`, `TicketsClaimed`, `EventOver`, from the exports |
+| `examples/tickets/blueprint/things/ticket/thing.ts` | a second thing | `ticket` |
+| `examples/tickets/blueprint/values/counts.ts` | values | `Count`, `Title` and `Holder`, from the exports |
+| `examples/tickets/blueprint/environments/local.ts` | an environment | `local`, from the file |
+| `examples/tickets/blueprint/starting-worlds/on-sale.ts` | a starting world | read by prove, not the compiler |
 
-The sign-up sheet has no roles, because anyone may call. A role would sit in the thing's `roles.ts`, named by its
-export, as acme's `allowance.grantee` is.
+Tickets has no roles, because anyone may call. A role would sit in the thing's `roles.ts`, named by its export, as
+acme's `allowance.grantee` is. Two refusals have no file: `EventNotOnSale` and `TicketNotIssued` are generated from the
+machines' `notFrom`.
 
-The operation's file never says its own name. It imports everything else it means, so each name it uses is a
-reference the compiler can follow:
+Start with the smallest declaration, a thing. This is the whole file, and it is the whole of what `event` is:
 
-```ts file=examples/signup/blueprint/things/sheet/verbs/join.ts lines=1-7
+```ts file=examples/tickets/blueprint/things/event/thing.ts lines=1-7
 import { Blueprint } from "orthograph";
-import { Sheet } from "../thing.ts";
-import { machine } from "../machine.ts";
-import { SheetFull } from "../errors.ts";
-import { Count } from "../../../values/counts.ts";
+import { Count, Title } from "../../values/counts.ts";
 
-export default Blueprint.operation(Sheet, {
+export const Event = Blueprint.thing({
+  description: "An event with a fixed number of places, and free tickets for them.",
+  fields: { id: Blueprint.id("evt"), title: Title, places: Count, claimed: Count },
+});
 ```
 
-This is what the model says about it, rendered from the sign-up sheet's compiled model:
+An operation is a larger file, and it never says its own name. It imports everything else it means (the thing, the
+machine, the refusal, the ticket it writes, the value types), so each name it uses is a reference the compiler can
+follow. This is the whole file:
 
-<Model project="examples/signup" operation="sheet.join" show="all" />
+```ts file=examples/tickets/blueprint/things/event/verbs/claim.ts lines=1-18
+import { Blueprint } from "orthograph";
+import { Event } from "../thing.ts";
+import { machine } from "../machine.ts";
+import { SoldOut } from "../errors.ts";
+import { Ticket } from "../../ticket/thing.ts";
+import { Count } from "../../../values/counts.ts";
+
+export default Blueprint.operation(Event, {
+  description: "Claim a ticket for one or more seats, held under a name.",
+  payload: { event: Event.fields.id, holder: Ticket.fields.holder, seats: Count },
+  answer: { ticket: Ticket.fields.id, left: Count },
+  move: machine.moves.claim,
+  errors: [SoldOut],
+  allowed: [Blueprint.anyone],
+  steps: { load: Blueprint.step.database(), issue: Blueprint.step.database(), count: Blueprint.step.database() },
+  idempotent: "request", // sent twice with one request, it issues one ticket
+  budget: { p95: "150 millis" },
+});
+```
+
+`ortho generate` makes `generated/` beside it. These are the folders it fills, and the file for `event.claim` inside each:
+
+```text tree=examples/tickets/generated
+model/  the model: the one contract the rest is made from
+  model.json
+  edges.json
+api/  the HTTP API and the typed refusals
+  src/
+    errors.ts  every refusal, with its code
+    event/
+      claim.ts  the endpoint
+      claim.handler.ts  the type the handler is written to
+server/  the Worker that serves every operation
+  main.ts
+  wrangler.jsonc
+  migrations/
+    0001_things.sql
+sdk/  the typed client
+  src/
+    event/
+      claim.ts
+cli/  the command
+  src/
+    event/
+      claim.ts
+mcp/  the agent tools
+  src/
+    index.ts
+docs/  a page per operation
+  event/
+    claim.md
+portal/  the portal's data
+  blueprint.json
+```
+
+Every file in it opens with a line saying it was generated. None is written by hand, and none is edited.
+
+This is what the model says about `event.claim`, rendered from tickets' compiled model:
+
+<Model project="examples/tickets" operation="event.claim" show="all" />
 
 ## How it works
 
@@ -94,13 +189,13 @@ else t.verbs.set(verb, { file: `blueprint/${path}`, declaration: d as Operation 
 ```
 
 4. **Names are joined.** The model names an operation `thing.verb` and each of its steps `thing.verb.step`
-   (`packages/compiler/src/modules/model/internal/describe.ts:100` and `describe.ts:126`), so `join`'s steps are
-   `sheet.join.load` and `sheet.join.record`. A role is `thing.role` (`describe.ts:21`). Events, errors and values keep
+   (`packages/compiler/src/modules/model/internal/describe.ts:100` and `describe.ts:126`), so `claim`'s steps are
+   `event.claim.load`, `event.claim.issue` and `event.claim.count`. A role is `thing.role` (`describe.ts:21`). Events, errors and values keep
    their exported identifier (`layout.ts:72`, `layout.ts:74`, `layout.ts:43`).
 5. **The model is written.** The generators write it to `generated/model/model.json`, beside everything made from it
    (`packages/generators/src/modules/render/service.ts:15`).
 
-**Why never a string.** Rename `join.ts` to `take.ts` and the operation is `sheet.take` everywhere at once: its route,
+**Why never a string.** Rename `claim.ts` to `take.ts` and the operation is `event.take` everywhere at once: its route,
 its SDK function, its CLI command, its spans. The compiler's test proves it on acme, renaming `grant.ts` to `award.ts`
 (`packages/compiler/src/modules/model/model.test.ts:40`). A string written somewhere else would still say the old
 name, and nothing would notice. So `ortho check` refuses one: the rule `no-name-as-string` reports any declared name
@@ -146,8 +241,8 @@ prints the model's short form, one line per thing and operation; `ortho model --
 - **drift**: `generated/` must be exactly what the model renders. An edited file fails as `no-edited-output`.
 - **ratchets**: a rule may be allowed some findings for now, and the count only goes down.
 
-On a clean project, this is the whole output. The check's own test pins it on acme, and the sign-up sheet prints the
-same six lines:
+On a clean project, this is the whole output. The check's own test pins it on acme, and tickets prints the same
+six lines:
 
 ```ts file=packages/cli/src/modules/check/check.test.ts lines=59
 expect(said.lines).toEqual(["blanks left 0", "types ✔", "rules ✔", "drift ✔", "ratchets 0", "check ✔"]);
@@ -221,7 +316,7 @@ hold.
 | Part | Status | Slice | Proved by |
 |---|---|---|---|
 | the model, compiled from acme | proved | | `packages/compiler/src/modules/model/model.test.ts:27`, "describes acme" |
-| the sign-up sheet compiles and checks clean | proved | | `e2e/layer1/08-signup-proves.test.ts:10`, which proves its generated project |
+| tickets compiles and checks clean | proved | | `e2e/layer1/08-tickets-proves.test.ts:11`, which proves its generated project |
 | a name comes from its path | proved | | `model.test.ts:40`, "names an operation after its file" |
 | a reformat changes no hash | proved | | `model.test.ts:50` |
 | a name written as a string is refused | proved | | `packages/cli/src/modules/check/check.test.ts:76`, the `name-as-string` fixture |
@@ -245,7 +340,7 @@ operation that has one.</Note>
 <Note kind="status" slice="M1.03">Journeys have two places (`BLU-02`). Prove reads both `blueprint/journeys/` and a
 `journeys` folder at the project's root (`packages/prove/src/modules/journeys/internal/load.ts:36`). The design and
 `ortho add journey` use `blueprint/journeys/` (`packages/cli/src/modules/add/internal/templates.ts:95`); acme's and
-the sign-up sheet's journeys are both at the root, in `examples/signup/journeys/`. The canon teaches
+tickets' journeys are both at the root, in `examples/tickets/journeys/`. The canon teaches
 `blueprint/journeys/`, the place the picture draws them; the examples move there when M1.03 puts journeys in the
 model.</Note>
 

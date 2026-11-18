@@ -20,7 +20,7 @@ links: [blueprint, data, machines, stores, operations, roles, secrets, traces, v
 
 ## The idea
 
-A thing is a noun your system keeps: a sign-up sheet, a person, a draft. It has an id and a set of named fields, and it
+A thing is a noun your system keeps: an event, a ticket, a person. It has an id and a set of named fields, and it
 lives in a store (which store, and who may write it, is [data](data.mdx)). Each field is made of a value, a named type
 such as `Count` or `Title`, declared once and used everywhere. Every value and every field also says who may see it:
 its visibility. It is public unless you mark it secret, or private to some roles. One rule decides what a reader sees:
@@ -30,30 +30,73 @@ Three doors don't yet narrow a private field as MCP does: see the note `private-
 
 ## The smallest example
 
-The sign-up sheet is a thing. It has an id, a title, and two counts:
+Tickets keeps two things, an event and a ticket. Here is where they and their values sit:
 
-```ts file=examples/signup/blueprint/things/sheet/thing.ts lines=4-7
-export const Sheet = Blueprint.thing({
-  description: "A sign-up sheet with a fixed number of places.",
-  fields: { id: Blueprint.id("sht"), title: Title, places: Count, taken: Count },
+```text tree=examples/tickets/blueprint
+values/
+  counts.ts  Count, Title and Holder, named once
+things/
+  event/  an event with a fixed number of places
+    thing.ts  the event, whole
+  ticket/  a ticket for some seats, held under a name
+    thing.ts  the ticket, whole
+```
+
+The values come first, because a thing's fields are made of them:
+
+```ts file=examples/tickets/blueprint/values/counts.ts lines=1-8
+import { Blueprint } from "orthograph";
+
+/** How many of something. */
+export const Count = Blueprint.value(Blueprint.uint(32));
+/** An event's name, as it appears on the ticket. */
+export const Title = Blueprint.value(Blueprint.text({ max: 120 }));
+/** The name a ticket is held under, read out at the door. */
+export const Holder = Blueprint.value(Blueprint.text({ max: 80 }));
+```
+
+The event is a thing. It has an id, a title, and two counts:
+
+```ts file=examples/tickets/blueprint/things/event/thing.ts lines=1-7
+import { Blueprint } from "orthograph";
+import { Count, Title } from "../../values/counts.ts";
+
+export const Event = Blueprint.thing({
+  description: "An event with a fixed number of places, and free tickets for them.",
+  fields: { id: Blueprint.id("evt"), title: Title, places: Count, claimed: Count },
 });
 ```
 
-`Count` and `Title` are values, named once in `examples/signup/blueprint/values/counts.ts`:
+The ticket is a thing that points at the event. Its `event` field is `Event.fields.id`: the ticket imports the event's
+file and takes the event's own id field as its own. That one line links the two things:
 
-```ts file=examples/signup/blueprint/values/counts.ts lines=3-6
-/** How many of something. */
-export const Count = Blueprint.value(Blueprint.uint(32));
-/** A short name a person types. */
-export const Title = Blueprint.value(Blueprint.text({ max: 120 }));
+```ts file=examples/tickets/blueprint/things/ticket/thing.ts lines=1-8
+import { Blueprint } from "orthograph";
+import { Event } from "../event/thing.ts";
+import { Count, Holder } from "../../values/counts.ts";
+
+export const Ticket = Blueprint.thing({
+  description: "A free ticket for some seats at an event, held under a name.",
+  fields: { id: Blueprint.id("tkt"), event: Event.fields.id, holder: Holder, seats: Count },
+});
+```
+
+The compiler records that link as an edge, from the ticket's `event` field to the event's `id`:
+
+```json file=examples/tickets/generated/model/edges.json lines=2-6
+  {
+    "from": "ticket.event",
+    "to": "event.id",
+    "kind": "refers"
+  },
 ```
 
 The compiled model is rendered here, not copied. Every field says its value, and the name of that value:
 
-<Model project="examples/signup" thing="sheet" show="fields" />
+<Model project="examples/tickets" thing="ticket" show="fields" />
 
-None of the sheet's fields is marked, so all of them are public. A sign-up sheet has nothing to hide, so secret and
-private are shown with acme, whose starter signs people in with a password. In acme, a password and a bearer token are
+None of the event's or the ticket's fields is marked, so all of them are public. A free ticket has nothing to hide, so
+secret and private are shown with acme, whose starter signs people in with a password. In acme, a password and a bearer token are
 values marked secret, once:
 
 ```ts file=examples/acme/blueprint/values/identity.ts lines=3-6
@@ -89,7 +132,7 @@ export interface ValuesApi {
 Values are named for three reasons:
 
 - **One meaning everywhere.** The model records each field's value and its name (`named: "Count"`). So every output
-  reads the same type: a `bigint` in Effect, a decimal string on the wire. `places` and `taken` are both a `Count`, so
+  reads the same type: a `bigint` in Effect, a decimal string on the wire. `places`, `claimed` and `seats` are all a `Count`, so
   they can never drift apart, and changing `Count` once changes both. A value's type in a chain language waits on K7
   (ledger `THI-01`).
 - **One mark everywhere.** Visibility rides on the value. acme's `Password` is marked secret once, and every payload
@@ -97,20 +140,20 @@ Values are named for three reasons:
 - **A name a reader can say.** `places: Count` says what the field is. `places: Blueprint.uint(32)` only says how big
   it is.
 
-There is no value for a time, a yes-or-no or a list of choices yet. That is one reason the sheet has no closing date.
+There is no value for a time, a yes-or-no or a list of choices yet. That is one reason the event has no closing date.
 
 ### An id is a value with a prefix
 
-`Blueprint.id("sht")` makes text that starts with `sht_` and is branded as a sheet's id. Ids of different things never
+`Blueprint.id("evt")` makes text that starts with `evt_` and is branded as an event's id. Ids of different things never
 mix: a field that takes an organisation's id takes `org_1` and refuses `alw_1`
 (`packages/orthograph/src/modules/things/things.test.ts:24`). A new id is the prefix and random base-36, and the random
 comes from Effect, so a test world can seed it (`packages/language-effect/src/modules/ids/types.ts:1`). Every thing
 must have a field called `id`: the type of `Blueprint.thing` asks for one
-(`packages/orthograph/src/modules/things/types.ts:35`). The sheet's handler for `open` makes one:
+(`packages/orthograph/src/modules/things/types.ts:35`). The event's handler for `open` makes one:
 
-```ts file=examples/signup/src/sheet/open.ts lines=11-12
-const sheet = yield* Ids.of(Sheet.fields.id);
-yield* steps.insert(records.insert(Sheet, { id: sheet, title, places, taken: 0n }));
+```ts file=examples/tickets/src/event/open.ts lines=11-12
+const event = yield* Ids.of(Event.fields.id);
+yield* steps.insert(records.insert(Event, { id: event, title, places, claimed: 0n }));
 ```
 
 ### A field is a value in a place
@@ -132,27 +175,26 @@ export interface Field<V extends Value = Value> {
 ```
 
 You declare a field as a value (`places: Count`), or as another thing's field. Payloads and answers are made of fields
-too, so `sheet.join` takes `Sheet.fields.id` and gets the same id type the thing has:
+too, so `event.claim` takes `Event.fields.id` and gets the same id type the thing has:
 
-```ts file=examples/signup/blueprint/things/sheet/verbs/join.ts lines=9-10
-payload: { sheet: Sheet.fields.id, people: Count },
-answer: { left: Count },
+```ts file=examples/tickets/blueprint/things/event/verbs/claim.ts lines=10-11
+payload: { event: Event.fields.id, holder: Ticket.fields.holder, seats: Count },
+answer: { ticket: Ticket.fields.id, left: Count },
 ```
 
 A thing's field taken from another thing is an edge: the model records `ref`, and the field takes that field's type
-and visibility. The sheet stands alone, so acme shows one: its allowance's `organization: Organization.fields.id`
-records `ref: "organization.id"`.
+and visibility. The ticket's `event: Event.fields.id` is one: the edge above, with `ref: "event.id"` on the ticket's `event` field in the model.
 
-A thing has two more parts. `lives` says which store it lives in. Leave it out, as the sheet does, and it lives in
+A thing has two more parts. `lives` says which store it lives in. Leave it out, as the event and the ticket do, and it lives in
 the project's default store: the model above says `"lives": "database"`. What a store is, and the other places data
 lives, is [data](data.mdx). Today the code takes a closed list, `"database"` or `"entity"`
 (`packages/orthograph/src/modules/things/types.ts:32`); K3 makes store kinds open, built in M1.17. And `code` is the prefix
-of the thing's refusal codes, `SH` in `SH-001`. When it is unset the compiler takes two letters of the name.
+of the thing's refusal codes, `EV` in `EV-001`. When it is unset the compiler takes two letters of the name.
 
 ### A name comes from a path
 
-You never write a thing's name. The folder `blueprint/things/sheet/` names it `sheet`, and the compiler gives it the
-identifier `Sheet`. A value is named by its export, so `export const Count` is `Count` in the model. The prefix you
+You never write a thing's name. The folder `blueprint/things/event/` names it `event`, and the compiler gives it the
+identifier `Event`. A value is named by its export, so `export const Count` is `Count` in the model. The prefix you
 pass to `Blueprint.id` is part of the value, not a name. How the folders map to names, and why a name is never written
 as a string, is on [blueprint](blueprint.mdx).
 
@@ -239,8 +281,8 @@ Where each row is decided:
   from a `roles.ts` is a problem `ortho check` reports
   (`packages/compiler/src/modules/model/internal/describe.ts:29`).
 
-Free text is the one public value that is still traced. The sheet's `title` ("Saturday clean-up") is a public `text`,
-so today it is written on every `sheet.open` span as `payload.title`. M1.19 stops that: a public `Blueprint.text()`
+Free text is the one public value that is still traced. The event's `title` ("Saturday clean-up") is a public `text`,
+so today it is written on every `event.open` span as `payload.title`. M1.19 stops that: a public `Blueprint.text()`
 stays in answers and events, but is never a span attribute unless it is marked. A title is something a person types,
 so it stays unmarked; a short code you search by would be marked:
 
@@ -284,7 +326,7 @@ is [data](data.mdx), and in depth [stores](stores.mdx).
 
 - **Not a table.** A thing is what the system keeps, not how. A store holds its tables, and a thing that lives as an
   entity has none. See [stores](stores.mdx).
-- **Not its state.** A sheet's state, `open` or `full`, is not a field you write. Its machine owns it and moves it.
+- **Not its state.** An event's state, `onSale`, `soldOut` or `over`, is not a field you write. Its machine owns it and moves it.
   See [machines](machines.mdx).
 - **Not a secret in the `secrets` sense.** A secret field is the user's data, such as a password a person types. A
   value in `secrets` is the project's own, such as Stripe's key, named by the description and never held by it.
@@ -314,11 +356,11 @@ is [data](data.mdx), and in depth [stores](stores.mdx).
 |---|---|---|---|
 | Things, fields and ids, and ids that never mix | proved | layer 1 | `packages/orthograph/src/modules/things/things.test.ts:14` |
 | Values and their schemas | proved | layer 1 | `packages/orthograph/src/modules/values/values.test.ts:9` |
-| The sheet, its fields and values, compiled and proved | proved | | `e2e/layer1/08-signup-proves.test.ts:10` |
+| The event and the ticket, their fields and values, compiled and proved | proved | | `e2e/layer1/08-tickets-proves.test.ts:9` |
 | Public by default, secret, private, and marking one field | proved | layer 2 | `packages/orthograph/src/modules/visibility/visibility.test.ts:10` |
 | No secret or private value on a span; the journal keeps public fields only | proved | layer 2 | `packages/language-effect/src/modules/handler/internal/attributes.test.ts:53` |
 | MCP shows public fields, a private one only to its role, a secret never | proved | layer 2 | `packages/language-effect/src/modules/mcp/mcp.test.ts:62` |
-| Free text untraced unless marked | specified | M1.19 | `payload.title` absent from `sheet.open`'s span (O2 gap 2) |
+| Free text untraced unless marked | specified | M1.19 | `payload.title` absent from `event.open`'s span (O2 gap 2) |
 | A thing lives in a store of an open kind | specified | M1.17 | see [stores](stores.mdx) |
 | A private field redacted at every door | open | none | `OPS-01` |
 

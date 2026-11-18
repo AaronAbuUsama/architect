@@ -27,54 +27,323 @@ caller is set once on the client, one request key holds across retries, and ever
 
 ## The smallest example
 
-`sheet.join` is declared once. Its served operation is the wrapper around the handler you wrote, built in the
-generated Worker:
+`event.claim` is declared once, and every door below is made from that declaration. Here is where each file sits:
 
-```ts file=examples/signup/generated/server/main.ts lines=26-29
-const sheetCloseServed = Handlers.serve({ name: "sheet.close", operation: sheetClose.declaration, handler: sheetCloseHandler, notFrom: "SheetNotOpen" });
-const sheetGetServed = Reads.serve({ name: "sheet.get", read: sheetGet.declaration });
-const sheetJoinServed = Handlers.serve({ name: "sheet.join", operation: sheetJoin.declaration, handler: sheetJoinHandler, notFrom: "SheetNotOpen" });
-const sheetOpenServed = Handlers.serve({ name: "sheet.open", operation: sheetOpen.declaration, handler: sheetOpenHandler });
+```text tree=examples/tickets
+blueprint/
+  things/
+    event/
+      verbs/
+        claim.ts  the declaration: payload, answer, refusals, who may call
+src/
+  event/
+    claim.ts  the handler you write
+generated/
+  api/
+    src/
+      event/
+        claim.ts  the HTTP endpoint
+  sdk/
+    src/
+      event/
+        claim.ts  the SDK function
+  cli/
+    src/
+      event/
+        claim.ts  the CLI command
+  mcp/
+    src/
+      index.ts  the MCP catalog, one entry per operation
+  server/
+    main.ts  the Worker: every route and the MCP door, each calling the enforcer
 ```
 
-The HTTP door is the endpoint, made from the declaration's payload, answer and refusals:
+The declaration is the only file a door reads. It says what goes in, what comes out, what may be refused and who may
+call:
 
-```ts file=examples/signup/generated/api/src/sheet/join.ts lines=7-11
-export const endpoint = HttpApiEndpoint.post("join", "/sheet/join", {
-  payload: declaration.payloadSchema,
-  success: declaration.answerSchema,
-  error: [SheetFull, SheetNotOpen],
+```ts file=examples/tickets/blueprint/things/event/verbs/claim.ts lines=1-18
+import { Blueprint } from "orthograph";
+import { Event } from "../thing.ts";
+import { machine } from "../machine.ts";
+import { SoldOut } from "../errors.ts";
+import { Ticket } from "../../ticket/thing.ts";
+import { Count } from "../../../values/counts.ts";
+
+export default Blueprint.operation(Event, {
+  description: "Claim a ticket for one or more seats, held under a name.",
+  payload: { event: Event.fields.id, holder: Ticket.fields.holder, seats: Count },
+  answer: { ticket: Ticket.fields.id, left: Count },
+  move: machine.moves.claim,
+  errors: [SoldOut],
+  allowed: [Blueprint.anyone],
+  steps: { load: Blueprint.step.database(), issue: Blueprint.step.database(), count: Blueprint.step.database() },
+  idempotent: "request", // sent twice with one request, it issues one ticket
+  budget: { p95: "150 millis" },
 });
 ```
 
-The MCP door is on the same Worker, and calls the same served operations:
+**The SDK door** is one function, built on the endpoint's client:
 
-```ts file=examples/signup/generated/server/main.ts lines=104-109
-/** One tool per operation and read: the same served operations as the API, called as the person the access token names. */
-const tools = Mcp.tools<Services>({
-  catalog,
-  served: { "sheet.close": sheetCloseServed, "sheet.get": sheetGetServed, "sheet.join": sheetJoinServed, "sheet.open": sheetOpenServed },
-  refusals: { codes: Errors.codes, declared: Errors.declared },
-});
+```ts file=examples/tickets/generated/sdk/src/event/claim.ts lines=1-9
+// Generated from the blueprint. Do not edit.
+import { Effect } from "effect";
+import type { PayloadOf } from "orthograph";
+import type { declaration } from "../../../api/src/event/claim.ts";
+import { Tickets } from "../client.ts";
+
+/** Claim a ticket for one or more seats, held under a name. */
+export const claim = (payload: PayloadOf<typeof declaration>) =>
+  Effect.flatMap(Tickets, (client) => client.event.claim({ payload }));
 ```
 
-The SDK is one function per operation, and the CLI is built on it:
+**The CLI door** is a command built on the SDK function. Its flags are the payload's fields, and the declaration
+decodes them:
 
-```ts file=examples/signup/generated/sdk/src/sheet/join.ts lines=7-9
-/** Take places on a sheet, for yourself and anyone with you. */
-export const join = (payload: PayloadOf<typeof declaration>) =>
-  Effect.flatMap(Signup, (client) => client.sheet.join({ payload }));
-```
+```ts file=examples/tickets/generated/cli/src/event/claim.ts lines=1-13
+// Generated from the blueprint. Do not edit.
+import { Effect, Schema } from "effect";
+import { Command, Flag } from "effect/cli";
+import { declaration as Declaration } from "../../../api/src/event/claim.ts";
+import * as Sdk from "../../../sdk/src/index.ts";
+import * as Output from "../output.ts"; // a namespace, so a verb named like a helper (answer) cannot clash
 
-```ts file=examples/signup/generated/cli/src/sheet/join.ts lines=9-13
-export const join = Command.make(
-  "join",
-  { sheet: Flag.String("sheet"), people: Flag.String("people"), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
-  ({ json, ...flags }) => Schema.decodeUnknownEffect(Declaration.payloadSchema)(flags).pipe(Effect.flatMap(Sdk.sheet.join), Output.answer(json)),
+/** Claim a ticket for one or more seats, held under a name. Every flag is text; the declaration decodes it. `--json` prints the whole answer as JSON. */
+export const claim = Command.make(
+  "claim",
+  { event: Flag.String("event"), holder: Flag.String("holder"), seats: Flag.String("seats"), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
+  ({ json, ...flags }) => Schema.decodeUnknownEffect(Declaration.payloadSchema)(flags).pipe(Effect.flatMap(Sdk.event.claim), Output.answer(json)),
 );
 ```
 
-Nothing above was written by hand. `SheetFull` reaches every door with its code because the enforcer refused it, not
+**The HTTP door** is an endpoint, made from the declaration's payload, answer and refusals. `SoldOut` and
+`EventNotOnSale` are its two refusals, one declared by the operation and one by the machine:
+
+```ts file=examples/tickets/generated/api/src/event/claim.ts lines=1-12
+// Generated from blueprint/things/event/verbs/claim.ts. Do not edit.
+import { HttpApiEndpoint } from "effect/http-api";
+import declaration from "../../../../blueprint/things/event/verbs/claim.ts";
+import { SoldOut, EventNotOnSale } from "../errors.ts";
+
+export { declaration };
+export const endpoint = HttpApiEndpoint.post("claim", "/event/claim", {
+  payload: declaration.payloadSchema,
+  success: declaration.answerSchema,
+  error: [SoldOut, EventNotOnSale],
+});
+export const steps = ["event.claim.load", "event.claim.issue", "event.claim.count"] as const;
+```
+
+**The MCP door** is a catalog entry per operation, with the declaration's own description:
+
+```ts file=examples/tickets/generated/mcp/src/index.ts lines=1-20
+// Generated from the blueprint. Do not edit.
+import type { McpEntry } from "@orthograph/language-effect";
+import { declaration as eventClaim } from "../../api/src/event/claim.ts";
+import { declaration as eventClose } from "../../api/src/event/close.ts";
+import { declaration as eventGet } from "../../api/src/event/get.ts";
+import { declaration as eventOpen } from "../../api/src/event/open.ts";
+import { declaration as ticketCancel } from "../../api/src/ticket/cancel.ts";
+import { declaration as ticketCheckIn } from "../../api/src/ticket/check-in.ts";
+import { declaration as ticketGet } from "../../api/src/ticket/get.ts";
+
+/** One tool per operation and read, named as the operation is. */
+export const catalog = {
+  "event.claim": { description: "Claim a ticket for one or more seats, held under a name.", operation: eventClaim },
+  "event.close": { description: "End the event. No tickets are claimed after this.", operation: eventClose },
+  "event.get": { description: "Read one event by its id: title, places, claimed, state.", operation: eventGet },
+  "event.open": { description: "Put an event on sale with a number of places.", operation: eventOpen },
+  "ticket.cancel": { description: "Cancel a ticket before the door. Its seats are not sold again.", operation: ticketCancel },
+  "ticket.check-in": { description: "Let the holder in at the door. A ticket gets in once.", operation: ticketCheckIn },
+  "ticket.get": { description: "Read one ticket by its id: event, holder, seats, state.", operation: ticketGet },
+} as const satisfies { readonly [name: string]: McpEntry };
+```
+
+**The enforcer and the routes** are in the Worker. This is the whole file. `eventClaimServed` (line 32) is the
+wrapper around the handler you wrote, and the same served operation is called by the HTTP route (line 59) and by the MCP
+tool (line 124). The request key is read from the `idempotency-key` header (line 51):
+
+```ts file=examples/tickets/generated/server/main.ts lines=1-178
+// Generated from the blueprint. Do not edit.
+// The Worker: each operation's route runs its handler through the runtime's wrapper; /_world/* goes to the world.
+import { Context, Effect, Layer } from "effect";
+import { ManagedRuntime, Tracer } from "effect";
+import { HttpRouter, HttpServer } from "effect/http";
+import { HttpApiBuilder } from "effect/http-api";
+import { SqlClient } from "effect/sql";
+import type { Principal } from "orthograph";
+import { AuthD1, Database, JournalD1, StoreD1, Telemetry, toWorld } from "@orthograph/host-cloudflare";
+import { Auth, Busy, BusyLive, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@orthograph/language-effect";
+import { Mcp, type McpResult } from "@orthograph/language-effect";
+import { Api, Errors } from "../api/src/index.ts";
+import * as portal from "../portal/main.ts";
+import { catalog } from "../mcp/src/index.ts";
+import * as eventClaim from "../api/src/event/claim.ts";
+import * as eventClose from "../api/src/event/close.ts";
+import * as eventGet from "../api/src/event/get.ts";
+import * as eventOpen from "../api/src/event/open.ts";
+import * as ticketCancel from "../api/src/ticket/cancel.ts";
+import * as ticketCheckIn from "../api/src/ticket/check-in.ts";
+import * as ticketGet from "../api/src/ticket/get.ts";
+import eventClaimHandler from "../../src/event/claim.ts";
+import eventCloseHandler from "../../src/event/close.ts";
+import eventOpenHandler from "../../src/event/open.ts";
+import ticketCancelHandler from "../../src/ticket/cancel.ts";
+import ticketCheckInHandler from "../../src/ticket/check-in.ts";
+import * as eventThing from "../../blueprint/things/event/thing.ts";
+import * as ticketThing from "../../blueprint/things/ticket/thing.ts";
+
+export { World } from "@orthograph/host-cloudflare";
+
+const eventClaimServed = Handlers.serve({ name: "event.claim", operation: eventClaim.declaration, handler: eventClaimHandler, notFrom: "EventNotOnSale" });
+const eventCloseServed = Handlers.serve({ name: "event.close", operation: eventClose.declaration, handler: eventCloseHandler, notFrom: "EventNotOnSale" });
+const eventGetServed = Reads.serve({ name: "event.get", read: eventGet.declaration });
+const eventOpenServed = Handlers.serve({ name: "event.open", operation: eventOpen.declaration, handler: eventOpenHandler });
+const ticketCancelServed = Handlers.serve({ name: "ticket.cancel", operation: ticketCancel.declaration, handler: ticketCancelHandler, notFrom: "TicketNotIssued" });
+const ticketCheckInServed = Handlers.serve({ name: "ticket.check-in", operation: ticketCheckIn.declaration, handler: ticketCheckInHandler, notFrom: "TicketNotIssued" });
+const ticketGetServed = Reads.serve({ name: "ticket.get", read: ticketGet.declaration });
+
+/** Each thing and its table: a D1 table, or the name its entities go by. */
+const tables = [[thingIn(eventThing), "event"], [thingIn(ticketThing), "ticket"]] as const;
+
+const refusals = Wire.refusals(Errors.wire);
+type Services = SqlClient.SqlClient | Store | Busy | Principals | Journal | Auth;
+
+/** Who is calling, then the operation or read, its refusals sent as their wire classes. */
+type Run = (payload: never, principal: Principal, request?: string) => Effect.Effect<unknown, unknown, unknown>;
+const call = <P>(served: { readonly run: Run }, payload: P, headers: Readonly<Record<string, string | undefined>>) =>
+  Effect.flatMap(Principals, (principals) => principals.of(headers["authorization"])).pipe(
+    // The caller's idempotency key: for an operation declared `idempotent: "request"`, the same key is one call.
+    Effect.flatMap((principal: Principal) => served.run(payload as never, principal, headers["idempotency-key"])),
+    refusals,
+  ) as Effect.Effect<never, never, Services>;
+
+const EventLive = HttpApiBuilder.group(Api, "event", Effect.fn(function* (handlers) {
+  // The services are taken once, when the routes are built; each request keeps its own tracer and span.
+  const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
+  return handlers
+      .handle("claim", ({ payload, request }) => call(eventClaimServed, payload, request.headers).pipe(Effect.provideContext(services)))
+      .handle("close", ({ payload, request }) => call(eventCloseServed, payload, request.headers).pipe(Effect.provideContext(services)))
+      .handle("get", ({ payload, request }) => call(eventGetServed, payload, request.headers).pipe(Effect.provideContext(services)))
+      .handle("open", ({ payload, request }) => call(eventOpenServed, payload, request.headers).pipe(Effect.provideContext(services)));
+}));
+const TicketLive = HttpApiBuilder.group(Api, "ticket", Effect.fn(function* (handlers) {
+  // The services are taken once, when the routes are built; each request keeps its own tracer and span.
+  const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
+  return handlers
+      .handle("cancel", ({ payload, request }) => call(ticketCancelServed, payload, request.headers).pipe(Effect.provideContext(services)))
+      .handle("check-in", ({ payload, request }) => call(ticketCheckInServed, payload, request.headers).pipe(Effect.provideContext(services)))
+      .handle("get", ({ payload, request }) => call(ticketGetServed, payload, request.headers).pipe(Effect.provideContext(services)));
+}));
+
+export interface Env {
+  readonly DB: D1Database;
+  readonly WORLD: DurableObjectNamespace;
+  /** Better Auth's secret, at least 32 characters: fresh per local world, a named secret per environment. */
+  readonly AUTH_SECRET: string;
+  readonly OTLP_URL?: string;
+  /** The environment's telemetry sinks beside the collector, as JSON: each one's OTLP endpoints and headers. A secret. */
+  readonly OTLP_SINKS?: string;
+  /** The environment's name, written on every span as `deployment.environment`: `local` for a world of dev or prove. */
+  readonly ORTHO_ENVIRONMENT?: string;
+  /** Which build this environment runs, set by `ortho env up`; unset for a world made by `ortho dev` or prove. */
+  readonly ORTHO_REVISION?: string;
+  readonly ORTHO_BUNDLE_SHA256?: string;
+  /** The portal's: where the logbook is, which environment this is. Read by `portal.serve`; neither is sent to a browser. */
+  readonly ORTHO_LOGBOOK_URL?: string;
+  /** `1` in an environment that hosts worlds with lifetimes (a test environment), set by `ortho env up`. */
+  readonly ORTHO_WORLDS?: string;
+}
+
+// Better Auth's own routes at /api/auth/*: the device sign-in of this project's CLI. Same database and secret as the
+// layer's instance, so a session either one issues is a person to both.
+let routes: ReturnType<typeof AuthD1.make> | undefined;
+const routesOf = (env: Env) => (routes ??= AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET, cli: "tickets-cli" }));
+
+const build = (env: Env) =>
+  HttpRouter.toWebHandler(
+    HttpApiBuilder.layer(Api).pipe(
+      Layer.provide([EventLive, TicketLive]),
+      Layer.provide([StoreD1.layer({ tables }), JournalD1.layer, BusyLive, AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))]),
+      Layer.provideMerge(Database.d1(env.DB)),
+      Layer.provide(HttpServer.layerServices),
+    ),
+  );
+
+// Built once per isolate, from the first request's bindings.
+let built: ReturnType<typeof build> | undefined;
+
+/** The environments of the blueprint that host worlds: those that declare a `lifetime` (D3 #126). */
+const WORLD_ENVIRONMENTS: ReadonlyArray<string> = [];
+
+/**
+ * `/_world/*` (the cast that signs people up with known passwords, the facts, the registry of worlds) answers only where
+ * worlds live: a world made by `ortho dev` or prove (`local`, or no environment), and an environment that declares a lifetime and
+ * was started to host worlds. Anywhere else, staging and production included, it is a 404 before any handler runs.
+ */
+const hostsWorlds = (env: Env) =>
+  !env.ORTHO_ENVIRONMENT || env.ORTHO_ENVIRONMENT === "local" || (env.ORTHO_WORLDS === "1" && WORLD_ENVIRONMENTS.includes(env.ORTHO_ENVIRONMENT));
+
+/** One tool per operation and read: the same served operations as the API, called as the person the access token names. */
+const tools = Mcp.tools<Services>({
+  catalog,
+  served: { "event.claim": eventClaimServed, "event.close": eventCloseServed, "event.get": eventGetServed, "event.open": eventOpenServed, "ticket.cancel": ticketCancelServed, "ticket.check-in": ticketCheckInServed, "ticket.get": ticketGetServed },
+  refusals: { codes: Errors.codes, declared: Errors.declared },
+});
+
+// The MCP server's own runtime, built once per isolate: the same store, journal, busy count and auth as the API's.
+let mcpRuntime: ManagedRuntime.ManagedRuntime<Services, never> | undefined;
+const runtimeOf = (env: Env) =>
+  (mcpRuntime ??= ManagedRuntime.make(
+    Layer.mergeAll(StoreD1.layer({ tables }), JournalD1.layer, BusyLive, AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))).pipe(Layer.provideMerge(Database.d1(env.DB))),
+  ));
+
+const TRACEPARENT = /^00-([0-9a-f]{32})-([0-9a-f]{16})-[0-9a-f]{2}$/;
+
+/** `/mcp`: a person's access token (OAuth, by Better Auth's provider) or a 401 that says where to get one; then the tool call. */
+const mcp = (env: Env, request: Request, context: Context.Context<never> | undefined): Promise<Response> =>
+  Effect.runPromise(AuthD1.oauth.bearer(routesOf(env), request)).then((who) => {
+    if (who.kind !== "person") {
+      const invalid = who.kind === "invalid";
+      return Response.json({ error: invalid ? "invalid_token" : "unauthorized" }, { status: 401, headers: { "www-authenticate": AuthD1.oauth.challenge(request, invalid ? "invalid_token" : undefined) } });
+    }
+    // The caller's span, when it sent one, is the parent of every span of the call.
+    const sent = request.headers.get("traceparent")?.match(TRACEPARENT);
+    const parent = sent ? Tracer.externalSpan({ traceId: sent[1]!, spanId: sent[2]!, sampled: true }) : undefined;
+    const run = (effect: Effect.Effect<McpResult, never, Services>) => {
+      const traced = parent ? Effect.withParentSpan(effect, parent) : effect;
+      return runtimeOf(env).runPromise(context ? Effect.provideContext(traced, context) : traced);
+    };
+    return Mcp.handle({ name: "tickets", version: env.ORTHO_REVISION ?? "0.0.0", tools, principal: who.principal, run }, request);
+  });
+
+export default {
+  fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    // Closed before anything reads it: outside worlds there is no door to cast, to read facts, or to register a world.
+    if (new URL(request.url).pathname.startsWith("/_world/") && !hostsWorlds(env)) return Promise.resolve(Response.json({ error: "not found" }, { status: 404 }));
+    if (new URL(request.url).pathname.startsWith("/_world/")) {
+      return toWorld({ worlds: env.WORLD, db: env.DB, tables: tables.map(([, table]) => table), leases: env.ORTHO_WORLDS === "1" }, request);
+    }
+    if (new URL(request.url).pathname === "/_ortho/bundle") {
+      return env.ORTHO_REVISION && env.ORTHO_BUNDLE_SHA256
+        ? Promise.resolve(Response.json({ revision: env.ORTHO_REVISION, sha256: env.ORTHO_BUNDLE_SHA256 }))
+        : Promise.resolve(Response.json({ _tag: "NotAnEnvironment" }, { status: 404 }));
+    }
+    if (portal.owns(new URL(request.url).pathname)) return portal.serve(request, env);
+    if (new URL(request.url).pathname.startsWith("/api/auth/")) return Effect.runPromise(AuthD1.handle(routesOf(env), request));
+    if (new URL(request.url).pathname.startsWith("/.well-known/")) {
+      return Effect.runPromise(AuthD1.oauth.discovery(routesOf(env), request)).then((found) => found ?? Response.json({ error: "not found" }, { status: 404 }));
+    }
+    if (new URL(request.url).pathname === "/mcp") {
+      return Telemetry.serve({ url: env.OTLP_URL || undefined, sinks: env.OTLP_SINKS, environment: env.ORTHO_ENVIRONMENT, service: "tickets", handler: (req, context) => mcp(env, req, context), waitUntil: (p) => ctx.waitUntil(p) }, request);
+    }
+    const app = (built ??= build(env));
+    Telemetry.configure({ sinks: env.OTLP_SINKS, environment: env.ORTHO_ENVIRONMENT });
+    return Telemetry.serve({ url: env.OTLP_URL || undefined, service: "tickets", handler: app.handler, waitUntil: (p) => ctx.waitUntil(p) }, request);
+  },
+};
+```
+
+Nothing above was written by hand. `SoldOut` reaches every door with its code because the enforcer refused it, not
 because the door checked.
 
 ## How it works
@@ -137,16 +406,16 @@ that is `.notVia(Via.agent)` is never one ([roles](roles.mdx)).
 
 Today the caller's token is set once, on the client's layer, and an SDK function takes only a payload. The Worker
 already keeps an answer under a request key, read from the `idempotency-key` header
-(`examples/signup/generated/server/main.ts:41-42`), but no generated client sends one yet. M1.12 makes the SDK the
+(`examples/tickets/generated/server/main.ts:51`), but no generated client sends one yet. M1.12 makes the SDK the
 contract every other door builds on:
 
-```ts planned=M1.12 path=examples/signup/caller.ts
+```ts planned=M1.12 path=examples/tickets/caller.ts
 // the caller is the client's, not the call's
-const client = Signup.layer({ url, credential: Credential.session(cookie) });
+const client = Tickets.layer({ url, credential: Credential.session(cookie) });
 
 // typed refusals in the error channel; one request key across retries
-const joined = yield* Sdk.sheet.join({ sheet, people: 2n }, { requestKey });
-//    Effect<{ left }, SheetFull | SheetNotOpen | InvalidPayload, Signup>
+const claimed = yield* Sdk.event.claim({ event, holder: "Amina", seats: 2n }, { requestKey });
+//    Effect<{ ticket, left }, SoldOut | EventNotOnSale | InvalidPayload, Tickets>
 ```
 
 - **The caller** is set once, on the client's layer: a session, a key, the device flow or an agent's OAuth token.
@@ -164,24 +433,24 @@ reaches its contract.
 An action is one more door: generated from an operation, for a screen or an agent tool to bind to, and built on the
 SDK. It keeps agent-native's `defineAction` field names, so agent-native's templates, docs and skills read naturally
 against it. That is all the compatibility there is: the shape is ported into our own `actions` module, in Effect, and
-nothing of agent-native runs or is installed (K5, "Porting from agent-native"). For `sheet.join`, each field comes from
+nothing of agent-native runs or is installed (K5, "Porting from agent-native"). For `event.claim`, each field comes from
 a part of the declaration:
 
-```ts planned=M1.22 path=examples/signup/generated/actions/sheet/join.ts
-// Generated from blueprint/things/sheet/verbs/join.ts. Do not edit.
+```ts planned=M1.22 path=examples/tickets/generated/actions/event/claim.ts
+// Generated from blueprint/things/event/verbs/claim.ts. Do not edit.
 import { defineAction } from "orthograph/actions";   // our port of the shape, M1.23
 
 export default defineAction({
-  description: declaration.description,             // "Take places on a sheet, for yourself and anyone with you."
-  schema: standard(declaration.payloadSchema),      // the payload: sheet, people
-  outputSchema: standard(declaration.answerSchema), // the answer: left
-  errors: refusalsOf(declaration),                  // SheetFull, SheetNotOpen, with their codes
-  readOnly: false,                                  // true only for a read, such as sheet.get
+  description: declaration.description,             // "Claim a ticket for one or more seats, held under a name."
+  schema: standard(declaration.payloadSchema),      // the payload: event, holder, seats
+  outputSchema: standard(declaration.answerSchema), // the answer: ticket, left
+  errors: refusalsOf(declaration),                  // SoldOut, EventNotOnSale, with their codes
+  readOnly: false,                                  // true only for a read, such as event.get
   retrySafe: true,                                  // idempotent: "request", and the SDK keeps one key
   needsApproval: false,                             // nothing to sign; a chain write would be true
   agentTool: true,                                  // false when the operation is .notVia(Via.agent)
   mcpTool: false,                                   // MCP is the Worker's own door, once per operation
-  run: (args, ctx) => ctx.sdk(Sdk.sheet.join(args, { requestKey: ctx.callId })),
+  run: (args, ctx) => ctx.sdk(Sdk.event.claim(args, { requestKey: ctx.callId })),
 });
 ```
 
@@ -218,12 +487,12 @@ the doors a journey checks ([projections](projections.mdx), the replay rule).
 | What | Where | |
 |---|---|---|
 | the enforcer: `Handlers.serve` | `packages/language-effect/src/modules/handler/service.ts:26` | built |
-| served operations, in the Worker | `examples/signup/generated/server/main.ts:26` | built |
-| MCP tools on the same Worker | `examples/signup/generated/server/main.ts:105` | built |
-| the request key, read on the Worker | `examples/signup/generated/server/main.ts:42` | built |
-| the HTTP endpoint | `examples/signup/generated/api/src/sheet/join.ts:7` | built |
-| the SDK and its client | `examples/signup/generated/sdk/src/client.ts:10` | built |
-| the CLI, on the SDK | `examples/signup/generated/cli/src/sheet/join.ts:9` | built |
+| served operations, in the Worker | `examples/tickets/generated/server/main.ts:32` | built |
+| MCP tools on the same Worker | `examples/tickets/generated/server/main.ts:122` | built |
+| the request key, read on the Worker | `examples/tickets/generated/server/main.ts:51` | built |
+| the HTTP endpoint | `examples/tickets/generated/api/src/event/claim.ts:7` | built |
+| the SDK and its client | `examples/tickets/generated/sdk/src/client.ts:10` | built |
+| the CLI, on the SDK | `examples/tickets/generated/cli/src/event/claim.ts:9` | built |
 | the SDK contract | `@orthograph/language-effect` and the sdk projection | planned, M1.12 |
 | `defineAction`, ported | `orthograph`'s `actions` module | planned, M1.23 |
 | the actions projection | `generated/actions/` | planned, M1.22 |
@@ -235,7 +504,7 @@ the doors a journey checks ([projections](projections.mdx), the replay rule).
 
 | Part | Status | Slice | Proved by |
 |---|---|---|---|
-| one enforcer per Effect operation, in the fixed order | proved | | `e2e/layer1/08-signup-proves.test.ts`: every operation's nine evals, among them who may call, machine path and steps |
+| one enforcer per Effect operation, in the fixed order | proved | | `e2e/layer1/08-tickets-proves.test.ts`: every operation's nine evals, among them who may call, machine path and steps |
 | HTTP, SDK, CLI and MCP from the model, all through it | proved | | acme's surfaces, `e2e/layer1/05-the-generated-surfaces.test.ts` |
 | the SDK contract: request key across retries, typed refusals | specified | M1.12 | K5 seam 5 |
 | actions, in agent-native's field names, on the SDK | specified | M1.22, M1.23 | K5 seam 5 |

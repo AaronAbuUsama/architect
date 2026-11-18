@@ -27,38 +27,93 @@ machine makes for you.
 
 ## The smallest example
 
-The sign-up sheet has three states and three moves:
+The tickets example has two things with a machine each, an `event` and a `ticket`. Here is where they sit:
 
-```ts file=examples/signup/blueprint/things/sheet/machine.ts lines=5-13
-export const machine = Blueprint.machine(Sheet, {
-  states: ["open", "full", "closed"],
+```text tree=examples/tickets/blueprint
+things/
+  event/  an event with a fixed number of places
+    thing.ts
+    events.ts  what its moves emit
+    errors.ts  SoldOut, a refusal that depends on data
+    machine.ts  its states and moves
+    verbs/
+      open.ts
+      claim.ts  the operation that makes the `claim` move
+      close.ts
+      get.ts
+  ticket/  a ticket for some seats, held under a name
+    thing.ts
+    events.ts
+    machine.ts
+    verbs/
+      check-in.ts
+      cancel.ts
+      get.ts
+```
+
+The event's machine is the whole file. It has three states and three moves:
+
+```ts file=examples/tickets/blueprint/things/event/machine.ts lines=1-13
+import { Blueprint } from "orthograph";
+import { Event } from "./thing.ts";
+import * as Events from "./events.ts";
+
+export const machine = Blueprint.machine(Event, {
+  states: ["onSale", "soldOut", "over"],
   moves: {
-    open: { from: [], to: "open", emits: Events.SheetOpened },
-    join: { from: ["open"], to: ["open", "full"], emits: Events.PlaceTaken }, // the last place fills it
-    close: { from: ["open", "full"], to: "closed", emits: Events.SheetClosed },
+    open: { from: [], to: "onSale", emits: Events.EventOpened },
+    claim: { from: ["onSale"], to: ["onSale", "soldOut"], emits: Events.TicketsClaimed }, // the last places sell it out
+    close: { from: ["onSale", "soldOut"], to: "over", emits: Events.EventOver },
   },
-  notFrom: { exit: 70 }, // generates SheetNotOpen
+  notFrom: { exit: 70 }, // generates EventNotOnSale
 });
 ```
 
-`join` has two outcomes: the sheet stays `open`, or the last place fills it. Each move emits an event, declared beside
-it in `examples/signup/blueprint/things/sheet/events.ts`. An event is named by its export:
+The machine imports the thing it is for, and the events its moves emit. `claim` has two outcomes: the event stays
+`onSale`, or the last places sell it out. Each move emits an event, declared beside the machine in `events.ts`. An
+event is named by its export, and its fields come from the thing's:
 
-```ts file=examples/signup/blueprint/things/sheet/events.ts lines=5-7
-export const SheetOpened = Blueprint.event({ sheet: Sheet.fields.id, places: Count });
-export const PlaceTaken = Blueprint.event({ sheet: Sheet.fields.id, left: Count });
-export const SheetClosed = Blueprint.event({ sheet: Sheet.fields.id });
+```ts file=examples/tickets/blueprint/things/event/events.ts lines=1-7
+import { Blueprint } from "orthograph";
+import { Event } from "./thing.ts";
+import { Count } from "../../values/counts.ts";
+
+export const EventOpened = Blueprint.event({ event: Event.fields.id, places: Count });
+export const TicketsClaimed = Blueprint.event({ event: Event.fields.id, seats: Count, left: Count });
+export const EventOver = Blueprint.event({ event: Event.fields.id });
 ```
 
-The compiled model draws the machine, and the refusal it made: `SheetNotOpen`, code `SH-900`, exit 70.
+The compiled model draws the machine, and the refusal it made: `EventNotOnSale`, code `EV-900`, exit 70.
 
-<Model project="examples/signup" thing="sheet" show="machine" />
+<Model project="examples/tickets" thing="event" show="machine" />
 
-An operation says which move it makes. `sheet.join` makes `join`:
+An operation says which move it makes. `event.claim` makes `claim`. Its whole declaration is on
+[operations](operations.mdx); this is the line that names the move, and the machine it imports on line 3:
 
-```ts file=examples/signup/blueprint/things/sheet/verbs/join.ts lines=11-11
-move: machine.moves.join,
+```ts file=examples/tickets/blueprint/things/event/verbs/claim.ts lines=12-12
+move: machine.moves.claim,
 ```
+
+The ticket has a machine too, and it has no move that creates it:
+
+```ts file=examples/tickets/blueprint/things/ticket/machine.ts lines=1-13
+import { Blueprint } from "orthograph";
+import { Ticket } from "./thing.ts";
+import * as Events from "./events.ts";
+
+// A ticket starts issued: `event.claim` writes it in that state, in the same commit as the claim.
+export const machine = Blueprint.machine(Ticket, {
+  states: ["issued", "checkedIn", "cancelled"],
+  moves: {
+    checkIn: { from: ["issued"], to: "checkedIn", emits: Events.TicketCheckedIn },
+    cancel: { from: ["issued"], to: "cancelled", emits: Events.TicketCancelled },
+  },
+  notFrom: { exit: 72 }, // generates TicketNotIssued
+});
+```
+
+Nothing in it starts from `[]`. Another operation creates the ticket, in a state of its own choosing (see "A thing
+another operation creates", below).
 
 ## How it works
 
@@ -85,7 +140,7 @@ export const checkFrom = (op: Operation, refusal: string | undefined, payload: o
 ```
 
 - A move with `from: []` creates the thing, so there is nothing to check. That is `open`.
-- The instance is the payload's field declared as the thing's own id: `join`'s `sheet: Sheet.fields.id`
+- The instance is the payload's field declared as the thing's own id: `claim`'s `event: Event.fields.id`
   (`packages/language-effect/src/modules/handler/internal/move.ts:14`). If it isn't found, the machine says nothing:
   see the note `missing-instance`.
 - If the state isn't one the move starts from, the call fails with the machine's refusal, carrying the state it
@@ -93,38 +148,62 @@ export const checkFrom = (op: Operation, refusal: string | undefined, payload: o
 
 That refusal is generated, never written. The compiler names it after the thing and its first state, gives it the
 number 900 so adding an error never moves it, and takes the exit you gave (`notFrom: { exit: 70 }`). Over HTTP it is a
-409 (`examples/signup/generated/api/src/errors.ts:8`). A journey names it as `machine.notFrom`, with the state it
-expects. Once both places are taken, the sheet is full, and a third join is refused by the machine:
+409 (`examples/tickets/generated/api/src/errors.ts:8`). A journey names it as `machine.notFrom`, with the state it
+expects. Once the last places are claimed, the event is sold out, and a further claim is refused by the machine:
 
-<Scenario journey="examples/signup/journeys/fill-a-sheet.ts" step="a third join is refused: a full sheet is not open" />
+<Scenario journey="examples/tickets/journeys/sell-out-an-event.ts" step="a further claim is refused: a sold out event is not on sale" />
 
-The same refusal covers every move that starts from the wrong state. A closed sheet refuses a join, and refuses a
-second close too, though `close` may start from `full` as well as `open`. That name is the note `refusal-name`:
+The same refusal covers every move that starts from the wrong state. An event that is over refuses a claim, and would
+refuse a second close too, though `close` may start from `soldOut` as well as `onSale`. That name is the note
+`refusal-name`:
 
-<Scenario journey="examples/signup/journeys/a-closed-sheet-takes-no-one.ts" step="closing it again is refused" />
+<Scenario journey="examples/tickets/journeys/an-event-that-is-over-sells-nothing.ts" step="a claim is refused: an event that is over is not on sale" />
+
+The ticket's machine refuses in the same way, under its own name. A cancelled ticket is not issued, so checking it in
+is refused as `TicketNotIssued`, code `TI-900`, exit 72:
+
+<Scenario journey="examples/tickets/journeys/cancel-a-ticket.ts" step="checking in a cancelled ticket is refused" />
 
 Reading the instance here also fixes the version the commit is guarded by. So if a close lands between this check and
-a join's commit, the join's commit is a conflict and runs again, and then the check refuses it. How the version guard
-works is on [stores](stores.mdx).
+a claim's commit, the claim's commit is a conflict and runs again, and then the check refuses it. How the version
+guard works is on [stores](stores.mdx).
 
 ### Inside the handler: choosing the outcome
 
 The handler gets `move` and calls it once, with the state it ends in. A move with one `to` may be called with
-nothing, or its one state, as `close` does (`examples/signup/src/sheet/close.ts:8`). A move with several must be told
-which. This is the sheet's join:
+nothing, or its one state, as `close` does (`examples/tickets/src/event/close.ts:8`). A move with several must be
+told which. This is the end of the event's claim, the whole handler being on [handlers](handlers.mdx):
 
-```ts file=examples/signup/src/sheet/join.ts lines=22-24
-yield* steps.record(records.update(Sheet, sheet, { taken: taken + people }));
-yield* move(people === left ? "full" : "open");
-return { left: left - people };
+```ts file=examples/tickets/src/event/claim.ts lines=26-28
+yield* steps.count(records.update(Event, event, { claimed: claimed + seats }));
+yield* move(seats === left ? "soldOut" : "onSale");
+return { ticket, left: left - seats };
 ```
 
 An outcome the move doesn't declare dies as the handler's bug. The span says what was asked first, as `move.to`, so
 the wrong outcome is evidence too (`packages/language-effect/src/modules/handler/internal/move.ts:48`). A handler that
-refuses never calls `move`, so nothing moves. When two people ask for the one place left, the handler refuses with
-`SheetFull`, a refusal of its own, and the sheet stays open:
+refuses never calls `move`, so nothing moves. When two seats are asked for and only one place is left, the handler
+refuses with `SoldOut`, a refusal of its own, and the event stays on sale:
 
-<Scenario journey="examples/signup/journeys/fill-a-sheet.ts" step="two people are refused: only one place is left" />
+<Scenario journey="examples/tickets/journeys/sell-out-an-event.ts" step="two more seats are refused: only one place is left" />
+
+### A thing another operation creates
+
+The event's `open` has `from: []`, so it creates the event. A ticket has no such move: it comes into being inside
+`event.claim`, which is an operation of another thing, with the event's move. The handler inserts the ticket and names
+the state it starts in:
+
+```ts file=examples/tickets/src/event/claim.ts lines=23-25
+// The ticket is written in the same commit as the claim, already issued.
+const ticket = yield* Ids.of(Ticket.fields.id);
+yield* steps.issue(records.insert(Ticket, { id: ticket, event, holder, seats }, "issued"));
+```
+
+So the one commit holds the ticket in `issued`, the event's new count and state, and the claim's event. The ticket's own
+machine takes over from there: `checkIn` and `cancel` both start from `issued`, and nothing leaves `checkedIn` or
+`cancelled`. A claim emits the event's `TicketsClaimed`; the ticket's events are for its own two moves. A move belongs
+to the operation of its own thing, so a cancelled ticket does not put its seats back: that would be a move of the
+event, made from the ticket's operation.
 
 What a handler gets and returns is [handlers](handlers.mdx).
 
@@ -132,8 +211,8 @@ What a handler gets and returns is [handlers](handlers.mdx).
 
 Once the handler has answered and its answer is checked, the move is applied
 (`packages/language-effect/src/modules/handler/internal/move.ts:56`). The event's fields are taken from the instance
-as this call left it, then the payload, then the answer. A field found in none of them dies. `PlaceTaken`'s `left` is
-in the answer. Then:
+as this call left it, then the payload, then the answer. A field found in none of them dies. `TicketsClaimed`'s `left`
+is in the answer, and its `event` and `seats` are in the payload. Then:
 
 ```ts file=packages/language-effect/src/modules/handler/internal/move.ts lines=69-74
 // The journal is a record anyone who reads it can see: a secret or private field of the event is not written to it.
@@ -160,12 +239,12 @@ An event is the record of a move: what happened, to which instance, in which cal
   fields (`packages/language-effect/src/modules/journal/types.ts:4`). It is the system's own history, written with the
   state it explains.
 - **Proof.** `ortho prove` finds a step's events by its trace. That is how a journey checks a move happened, with
-  `emits(PlaceTaken, …)`, or that nothing moved, with `noEvents()`.
+  `emits(TicketsClaimed, …)`, or that nothing moved, with `noEvents()`.
 - **The trace.** The operation's span carries `move.name`, `move.to` and `event.name`. See [traces](traces.mdx).
 
-Here a journey checks both the event and the state the move left, when the last place fills the sheet:
+Here a journey checks both the event and the state the move left, when the last place is claimed:
 
-<Scenario journey="examples/signup/journeys/fill-a-sheet.ts" step="the second join takes the last place and the sheet is full" />
+<Scenario journey="examples/tickets/journeys/sell-out-an-event.ts" step="the last place is claimed and the event is sold out" />
 
 Two more are designed. The outbox delivers every move's event at least once, to whatever listens (M5.04). And a view
 is a list kept from events, so it can list things across stores and entities (M5.05, on [views](views.mdx)).
@@ -192,7 +271,7 @@ export default Blueprint.operation(Draft, {
 
 A status field is a value any handler can set to anything. A machine makes four things true that a field can't:
 
-- **Only declared moves.** `close` can't start from `closed`, and `join` can't end in `closed`. The runtime checks
+- **Only declared moves.** `close` can't start from `over`, and `claim` can't end in `over`. The runtime checks
   `from` before the handler and `to` after it, so a handler can't move the thing anywhere the machine doesn't allow.
 - **One refusal, made for you.** A call from the wrong state is refused the same way at every door: the same name,
   the same code, the same exit, and a journey can name it. With a status field, each handler writes its own check, or
@@ -206,34 +285,36 @@ A status field is a value any handler can set to anything. A machine makes four 
 
 ### One outcome, or several
 
-Give `to` one state when the move always ends there: `close` always ends `closed`. Give a list when the handler
-decides from the data: `join` ends `open` or `full`, depending on how many places are left. The handler must then say
+Give `to` one state when the move always ends there: `close` always ends `over`. Give a list when the handler decides
+from the data: `claim` ends `onSale` or `soldOut`, depending on how many places are left. The handler must then say
 which, and a wrong one dies.
 
 ### Where a move may start
 
-`from: []` makes a move that creates the thing, like `open`. Otherwise list every state it may start from. A state you
-leave out is refused by the machine, before any of your code runs.
+`from: []` makes a move that creates the thing, like the event's `open`. Otherwise list every state it may start from.
+A state you leave out is refused by the machine, before any of your code runs. A thing that another operation
+creates, like the ticket, has no `from: []` move at all, and its first state is the one that operation writes.
 
 ### Which fields an event carries
 
 Put in an event what a reader of the journal needs to know what happened: the instance's id, and the facts of the
-move. `PlaceTaken` carries the sheet and how many places are left. Only public fields are written, so a secret or
-private field in an event is dropped from the journal (see [things](things.mdx)). Fields a call doesn't have die, so
-each one must come from the instance, the payload or the answer.
+move. `TicketsClaimed` carries the event, the seats claimed and how many places are left. Only public fields are
+written, so a secret or private field in an event is dropped from the journal (see [things](things.mdx)). Fields a
+call doesn't have die, so each one must come from the instance, the payload or the answer.
 
 ### A machine, or none
 
-A thing whose life has stages gets a machine: a sheet, an invitation, an organisation. A thing that is only kept and
+A thing whose life has stages gets a machine: an event, a ticket, an invitation. A thing that is only kept and
 changed, like a person, needs none. Its operations declare no `move` and, until M3.16, emit no events.
 
 ## What it is not
 
 - **Not a field.** The state is not one of the thing's fields, and a handler doesn't write it. See [things](things.mdx).
-- **Not a data refusal.** `SheetFull` depends on how many people ask, so it is declared in `errors.ts` and raised by
-  the handler. The machine's refusal depends only on the state. Refusals in general are [operations](operations.mdx).
-- **Not a role check.** `NotAllowed` says who may call, and it comes first. Everyone may call the sheet's operations
-  (`Blueprint.anyone`), so signup never shows it: see [roles](roles.mdx).
+- **Not a data refusal.** `SoldOut` depends on how many seats are asked for, so it is declared in `errors.ts` and
+  raised by the handler. The machine's refusal depends only on the state. Refusals in general are
+  [operations](operations.mdx).
+- **Not a role check.** `NotAllowed` says who may call, and it comes first. Everyone may call the event's and the
+  ticket's operations (`Blueprint.anyone`), so tickets never shows it: see [roles](roles.mdx).
 - **Not a workflow.** A machine doesn't wait or run on its own. Every move is one call. Work that waits is
   [workflows](workflows.mdx).
 - **Not a view.** An event is one move's record. A list built from many events is a view: see [views](views.mdx).
@@ -262,8 +343,9 @@ changed, like a person, needs none. Its operations declare no `move` and, until 
 | Part | Status | Slice | Proved by |
 |---|---|---|---|
 | Moves named by key, outcomes listed, an unknown state refused | proved | layer 1 | `packages/orthograph/src/modules/machines/machines.test.ts:20` |
-| The wrong-state refusal before the handler, carrying the state | proved | layer 1 | `packages/language-effect/src/modules/handler/handler.test.ts:260`, and the `fill a sheet` and `a closed sheet takes no one` journeys |
-| Two outcomes on one move, chosen by the handler | proved | | the `fill a sheet` journey, in `e2e/layer1/08-signup-proves.test.ts:10` |
+| The wrong-state refusal before the handler, carrying the state | proved | layer 1 | `packages/language-effect/src/modules/handler/handler.test.ts:260`, and the `sell out an event` and `an event that is over sells nothing` journeys |
+| Two outcomes on one move, chosen by the handler | proved | | the `sell out an event` journey, in `e2e/layer1/08-tickets-proves.test.ts:10` |
+| A thing created by another operation starts in the state that operation names | proved | | the `check in at the door` and `cancel a ticket` journeys, which start from a ticket that `event.claim` made, in `e2e/layer1/08-tickets-proves.test.ts:10` |
 | An undeclared outcome dies, and the span says what was asked | proved | layer 1 | `packages/language-effect/src/modules/handler/handler.test.ts:150` |
 | The state and the event committed together after the answer | proved | layer 1 | `packages/language-effect/src/modules/handler/handler.test.ts:135` |
 | Only an event's public fields are journalled | proved | layer 2 | `packages/language-effect/src/modules/handler/internal/attributes.test.ts:63` |
@@ -303,8 +385,8 @@ and a missing instance.
 
 <Note kind="question" id="refusal-name">
   Ledger `MAC-02`. The machine has one refusal, named after its first state
-  (`packages/compiler/src/modules/model/internal/describe.ts:72`). So closing a closed sheet is refused as
-  `SheetNotOpen`, though `close` may also start from `full`. The comment on the type says `<Thing>Not<State>`
+  (`packages/compiler/src/modules/model/internal/describe.ts:72`). So closing an event that is over is refused as
+  `EventNotOnSale`, though `close` may also start from `soldOut`. The comment on the type says `<Thing>Not<State>`
   (`packages/orthograph/src/modules/machines/types.ts:23`), which reads as if the name followed the move. Should the name
   say what is wrong for every move, such as a refusal per move, or one neutral name? Renaming it is a major change
   once released, since clients match on the name.
@@ -320,7 +402,7 @@ and a missing instance.
 <Note kind="question" id="missing-instance">
   A move on an instance that doesn't exist is refused by nobody. `checkFrom` returns when the instance isn't found
   (`packages/language-effect/src/modules/handler/internal/move.ts:30`), and in acme the role check has already refused
-  the call. But the sheet's operations are open to anyone, so a join on a sheet id that was never opened reaches the
-  handler, which dies (`examples/signup/src/sheet/join.ts:14`): a defect, not a refusal a caller can name. Should the
-  machine refuse a missing instance, with a generated `NotFound` beside `SheetNotOpen`? Ledger: MAC-07, no slice owns it yet.
+  the call. But the event's operations are open to anyone, so a claim on an event id that was never opened reaches the
+  handler, which dies (`examples/tickets/src/event/claim.ts:15`): a defect, not a refusal a caller can name. Should the
+  machine refuse a missing instance, with a generated `NotFound` beside `EventNotOnSale`? Ledger: MAC-07, no slice owns it yet.
 </Note>

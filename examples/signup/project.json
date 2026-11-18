@@ -1,7 +1,0 @@
-{
-  "name": "signup",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "projectType": "application",
-  "tags": ["scope:project"],
-  "targets": { "lint": {}, "typecheck": {}, "test": {} }
-}

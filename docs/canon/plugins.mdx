@@ -27,8 +27,20 @@ true. None of this is built yet. It is planned for M1.06 to M1.13.
 
 ## The smallest example
 
-The sign-up sheet mounts no plugins, so it can't show one. Its blueprint is all its own things, and its outputs come
-from a fixed list. So this page uses K5's sketch: a governance feature and a forum adapter, one mount file each.
+Tickets, the canon's example, mounts no plugins. Look at its blueprint: every folder is its own things, and there is no
+`blueprint/features/`, `blueprint/adapters/` or `blueprint/projections/` folder to mount into.
+
+```text tree=examples/tickets/blueprint
+values/
+things/
+  event/  its own thing
+  ticket/  its own thing
+environments/
+starting-worlds/
+```
+
+So it can't show a mount, and this page uses K5's sketch: a governance feature and a forum adapter, one mount file
+each.
 
 ```ts file=design/decisions/K5-the-whole-shape.md lines=443-447
 // blueprint/features/governance.ts: the app mounts the reusable feature
@@ -45,7 +57,21 @@ forum's one call and one event the app may reach, and nothing else of the forum 
 - the adapter brings typed calls, events in through `on:`, a stand-in for worlds, and a conformance test;
 - the portal shows an origin badge on every thing and operation that came from a plugin.
 
-What signup has today in place of mounted projections is this list, fixed in the generator:
+What tickets has today in place of mounted projections is the same fixed list for every project. Its `generated/`
+folder holds one folder per renderer:
+
+```text tree=examples/tickets/generated
+model/  the model
+api/  the HTTP API
+server/  the Worker
+sdk/  the typed client
+cli/  the command
+mcp/  the agent tools
+docs/  a page per operation
+portal/  the portal's data
+```
+
+The list is fixed in the generator:
 
 ```ts file=packages/generators/src/modules/render/service.ts lines=1-9
 import { PortalRender } from "#modules/portal/service.js";

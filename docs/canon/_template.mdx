@@ -40,9 +40,17 @@ links: [things, views]
 ## The smallest example
 
 {/*
-  The smallest real example from the layer's example project (examples/signup for layers 1 and 2). A fence that quotes a file names it, with its lines:
+  The smallest real example from the layer's example project (examples/tickets for layers 1 and 2). Open wide, then zoom: a tree fence of the folder first, then the whole file the concept lives in, then narrow quotes. A tree fence is checked against the folder:
 
-    ```ts file=examples/signup/blueprint/things/sheet/thing.ts lines=4-7
+    ```text tree=examples/tickets/blueprint
+    things/
+      event/  an event with places
+        thing.ts
+    ```
+
+  A fence that quotes a file names it, with its lines:
+
+    ```ts file=examples/tickets/blueprint/things/event/thing.ts lines=4-7
     …the exact lines…
     ```
 
@@ -53,8 +61,8 @@ links: [things, views]
     export default Blueprint.store.database();
     ```
 
-  A journey is pulled in, never retold as prose: <Scenario journey="examples/signup/journeys/…" step="…" />.
-  Model data is rendered, never copied: <Model project="examples/signup" thing="sheet" show="fields" />.
+  A journey is pulled in, never retold as prose: <Scenario journey="examples/tickets/journeys/…" step="…" />.
+  Model data is rendered, never copied: <Model project="examples/tickets" thing="event" show="fields" />.
 */}
 
 ## How it works

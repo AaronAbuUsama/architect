@@ -29,6 +29,6 @@ Nothing here has people, organisations or auth: every operation is `allowed: [Bl
 
 ## Where the docs were silent
 
-- **Refusal names.** The generated `EventNotOnSale` and `TicketNotIssued` are the machines' `notFrom`, so journeys write `refuses(machine.notFrom, { state })`, as signup does for `SheetNotOpen`.
+- **Refusal names.** The generated `EventNotOnSale` and `TicketNotIssued` are the machines' `notFrom`, so journeys write `refuses(machine.notFrom, { state })`.
 - **Spans.** `<thing>.<verb>` and `<thing>.<verb>.<step>` from each operation's declared steps: `event.open.insert`, `event.claim.load` / `.issue` / `.count`, `event.close.record`, `ticket.check-in.record`, `ticket.cancel.record`. A refused `SoldOut` is assumed to stop after `load`.
 - **Ticket id.** A step's refs only see the previous answer, so the ticket journeys start from `ticket-claimed`, which gives `ticket`.

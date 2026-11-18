@@ -12,8 +12,9 @@ is built to the page. When the two disagree, one of them is wrong, and the chang
   drawn from real data. `pnpm nx run canon:preview` writes `docs/canon/.preview/index.html`; open it in any browser.
 - Written so far: layer 1, the shape ([`orthograph`](orthograph.mdx), [`blueprint`](blueprint.mdx), [`languages-and-hosts`](languages-and-hosts.mdx), [`plugins`](plugins.mdx), [`data`](data.mdx), [`doors`](doors.mdx)); from layer 2, [`things`](things.mdx), [`machines`](machines.mdx), [`operations`](operations.mdx) and [`handlers`](handlers.mdx); and the samples [`stores`](stores.mdx) (a draft, rewritten in layer 4) and [`traces`](traces.mdx).
 
-Layers 1 and 2 teach with one example, a sign-up sheet in [`examples/signup`](../../examples/signup/README.md) (Aaron,
-18 November 2026): one thing, open to anyone, with nothing it needs explained from outside. From layer 4 on, K5's
+Layers 1 and 2 teach with one example, free event tickets in [`examples/tickets`](../../examples/tickets/README.md) (Aaron,
+18 November 2026, [`K8`](../../design/decisions/K8-canon-review-one.md)): an event and a ticket, open to anyone, with
+nothing they need explained from outside. From layer 4 on, K5's
 community workshop carries the rest. acme stays the fixture the tests and gates run on.
 
 `design/docs/index.html` stays the single source until the canon covers what it covers. Then the canon replaces it,
@@ -27,9 +28,9 @@ A page explains one concept that a reader needs and can't get from another page.
    other page links to the owner and never explains the word again.
 2. **Answer its questions.** Its `questions` are the ones a reader brings. A question the page doesn't answer means
    the page isn't done.
-3. **Show it in the layer's example.** The smallest example is real code from `examples/signup` (layers 1 and 2;
-   K5's workshop from layer 4), quoted with its file and lines, or
-   designed code marked with the slice that builds it.
+3. **Show it in the layer's example.** Open wide, then zoom: the example's folder tree first, then the whole file the
+   concept lives in, then narrow quotes. The code is real, from `examples/tickets` (layers 1 and 2; K5's workshop
+   from layer 4), quoted with its file and lines, or designed code marked with the slice that builds it.
 4. **Say what it is not.** The near-misses, each pointing at the page that owns it. This is what stops two pages from
    drifting into explaining the same idea.
 5. **Carry its own open questions.** Anything unsettled is a `<Note kind="question">` on the page, with the slice that
@@ -46,7 +47,7 @@ add its own section between them, as `traces.mdx` adds "The three gaps".
 | Section | What it holds |
 |---|---|
 | The idea | one paragraph, and the one rule that decides it |
-| The smallest example | the smallest real example from the layer's example project (`examples/signup` for layers 1 and 2) |
+| The smallest example | the smallest real example from the layer's example project (`examples/tickets` for layers 1 and 2) |
 | How it works | the path, in the order the code runs it, with a scene where the path matters |
 | Choices | each choice a reader makes, and what each option costs |
 | What it is not | the near-misses, each linked to its owner |
@@ -84,7 +85,7 @@ that is the 🔍 reviewer's job, against the code.
 Some of each page is the model's, not ours. The compiled model already knows every thing's fields, every operation's
 payload, errors and steps, and every store's kind and binding. Copying that into a page would make it drift. So:
 
-- **`<Model>` is rendered, not written.** `<Model project="examples/signup" thing="sheet" show="fields" />` is filled
+- **`<Model>` is rendered, not written.** `<Model project="examples/tickets" thing="event" show="fields" />` is filled
   from `ortho check`'s model when the site builds. Add a field to the blueprint and the page shows it.
 - **"Where it lives" becomes partly generated.** The model knows each declaration's path and hash. The site will add
   the generated files each declaration produces, beside the hand-written references to the runtime code.

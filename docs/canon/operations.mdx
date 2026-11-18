@@ -18,7 +18,7 @@ links: [machines, roles, handlers, doors, traces]
 ## The idea
 
 An operation is a verb on a thing: something a caller asks the system to do. It lives in one file,
-`blueprint/things/<thing>/verbs/<verb>.ts`, and its name comes from that path, so `join` on the sheet is `sheet.join`.
+`blueprint/things/<thing>/verbs/<verb>.ts`, and its name comes from that path, so `claim` on the event is `event.claim`.
 The file declares everything about the call except how the work is done:
 
 - what comes in (the payload) and what goes out (the answer);
@@ -33,33 +33,86 @@ no handler and no move, and answers straight from the thing's records.
 
 ## The smallest example
 
-This is signup's `join`. Each line is one part of the declaration:
+The tickets example has two things, and each has its operations in a `verbs` folder. The operation this page opens
+on is `claim`, on the event. Here is where it sits, and what it imports:
 
-```ts file=examples/signup/blueprint/things/sheet/verbs/join.ts lines=7-17
-export default Blueprint.operation(Sheet, {
-  description: "Take places on a sheet, for yourself and anyone with you.",
-  payload: { sheet: Sheet.fields.id, people: Count },
-  answer: { left: Count },
-  move: machine.moves.join,
-  errors: [SheetFull],
+```text tree=examples/tickets/blueprint
+values/
+  counts.ts  Count, Title and Holder, the named values a payload is made of
+things/
+  event/
+    thing.ts  the Event it is a verb on
+    errors.ts  SoldOut
+    machine.ts  the move it makes
+    verbs/
+      open.ts
+      claim.ts  this page's operation
+      close.ts
+      get.ts  a read
+  ticket/
+    thing.ts  the Ticket it writes, and the fields it borrows
+    machine.ts
+    verbs/
+      check-in.ts
+      cancel.ts
+      get.ts
+```
+
+This is the whole of `claim.ts`. It is a file of imports and one declaration, and every line of the declaration is one
+part of the call:
+
+```ts file=examples/tickets/blueprint/things/event/verbs/claim.ts lines=1-18
+import { Blueprint } from "orthograph";
+import { Event } from "../thing.ts";
+import { machine } from "../machine.ts";
+import { SoldOut } from "../errors.ts";
+import { Ticket } from "../../ticket/thing.ts";
+import { Count } from "../../../values/counts.ts";
+
+export default Blueprint.operation(Event, {
+  description: "Claim a ticket for one or more seats, held under a name.",
+  payload: { event: Event.fields.id, holder: Ticket.fields.holder, seats: Count },
+  answer: { ticket: Ticket.fields.id, left: Count },
+  move: machine.moves.claim,
+  errors: [SoldOut],
   allowed: [Blueprint.anyone],
-  steps: { load: Blueprint.step.database(), record: Blueprint.step.database() },
-  idempotent: "request", // sent twice with one request, it takes its places once
+  steps: { load: Blueprint.step.database(), issue: Blueprint.step.database(), count: Blueprint.step.database() },
+  idempotent: "request", // sent twice with one request, it issues one ticket
   budget: { p95: "150 millis" },
 });
 ```
 
-This is what the compiler made of it, rendered from signup's compiled model:
+The imports say what the call is made of: the thing it is a verb on, its machine, its error, the other thing it
+writes (`Ticket`), and the named value `Count`. What each line declares:
 
-<Model project="examples/signup" operation="sheet.join" show="all" />
+| Line | It declares |
+|---|---|
+| 8 | the thing this is a verb on, `Event`. With the file's name, that makes `event.claim` |
+| 9 | one sentence for the docs, the CLI's help, the MCP tool and the handler's scaffold |
+| 10 | what comes in: the event's id, the holder (a field the ticket declares, borrowed), and `seats`, a `Count` |
+| 11 | what goes out: the new ticket's id, and how many places are left |
+| 12 | the move it makes, so the machine checks the event is on sale before the handler runs, and writes the event after |
+| 13 | the one refusal the handler may give, because it depends on the data |
+| 14 | who may call: anyone |
+| 15 | the three named parts of the work, in the order they run |
+| 16 | a retry with the same request key is one call |
+| 17 | how fast it should answer, at p95 |
 
-And this is a read, the smallest kind of operation. It names the fields it answers and who may ask:
+This is what the compiler made of it, rendered from the compiled model:
 
-```ts file=examples/signup/blueprint/things/sheet/verbs/get.ts lines=4-10
-// A read. It changes nothing, so it has no move and no handler: it answers from the sheet's record.
-export default Blueprint.read(Sheet, {
+<Model project="examples/tickets" operation="event.claim" show="all" />
+
+And this is a read, the smallest kind of operation. It is the whole file. It names the fields it answers and who may
+ask:
+
+```ts file=examples/tickets/blueprint/things/event/verbs/get.ts lines=1-10
+import { Blueprint } from "orthograph";
+import { Event } from "../thing.ts";
+
+// A read. It changes nothing, so it has no move and no handler: it answers from the event's record.
+export default Blueprint.read(Event, {
   by: "id",
-  fields: ["title", "places", "taken", "state"],
+  fields: ["title", "places", "claimed", "state"],
   allowed: [Blueprint.anyone],
   budget: { p95: "50 millis" },
 });
@@ -86,28 +139,30 @@ Two more parts have defaults you rarely change. `runs` says where it runs and is
 `languages-and-hosts`). `test` says how its guarantees are tested, `unit` by default
 (`packages/orthograph/src/modules/operations/types.ts:49`).
 
-Signup's `open` is the same shape, with one step and no declared errors. Putting up a sheet can't fail on its data:
+The event's `open` is the same shape, with one step and no declared errors. Putting an event on sale can't fail on its
+data:
 
-```ts file=examples/signup/blueprint/things/sheet/verbs/open.ts lines=5-15
-export default Blueprint.operation(Sheet, {
-  description: "Put up a sheet with a number of places.",
-  payload: { title: Sheet.fields.title, places: Sheet.fields.places },
-  answer: { sheet: Sheet.fields.id },
+```ts file=examples/tickets/blueprint/things/event/verbs/open.ts lines=5-15
+export default Blueprint.operation(Event, {
+  description: "Put an event on sale with a number of places.",
+  payload: { title: Event.fields.title, places: Event.fields.places },
+  answer: { event: Event.fields.id },
   move: machine.moves.open,
   errors: [],
   allowed: [Blueprint.anyone],
   steps: { insert: Blueprint.step.database() },
-  idempotent: "request", // sent twice with one request, it puts up one sheet
+  idempotent: "request", // sent twice with one request, it puts one event on sale
   budget: { p95: "150 millis" },
 });
 ```
 
 ### The payload and the answer
 
-The payload and the answer are lists of fields. Each field is a named value, never a bare type. `people` is a `Count`,
+The payload and the answer are lists of fields. Each field is a named value, never a bare type. `seats` is a `Count`,
 the same value the answer's `left` is, so a page, a CLI flag and a Solidity type all agree on what it means (see
-`things`). A field that names another thing, like `sheet: Sheet.fields.id`, is how an operation says which instance
-it acts on. The role check and the machine's check both find the instance through it.
+`things`). A field that names another thing's field, like `event: Event.fields.id`, is how an operation says which
+instance it acts on. The role check and the machine's check both find the instance through it. `holder:
+Ticket.fields.holder` borrows the ticket's field, so a name read out at the door is the same value whoever asks.
 
 A payload that doesn't fit is refused before anything else runs. An answer that doesn't fit its declaration is never
 sent: it is the handler's bug, so the call dies (see `handlers`).
@@ -121,25 +176,25 @@ code. A refusal can come from three places.
 **Declared errors** depend on the data, and only the handler can know them. They live in the thing's `errors.ts`, each
 with the fields it carries and its exit code:
 
-```ts file=examples/signup/blueprint/things/sheet/errors.ts lines=4-5
-// Depends on the data: more people than there are places left.
-export class SheetFull extends Blueprint.error({ left: Count }, { exit: 71 }) {}
+```ts file=examples/tickets/blueprint/things/event/errors.ts lines=4-5
+// Depends on the data: more seats asked for than there are places left.
+export class SoldOut extends Blueprint.error({ left: Count }, { exit: 71 }) {}
 ```
 
 An operation lists the ones it may give in `errors`. A handler that fails with one it doesn't list doesn't compile.
 
-<Scenario journey="examples/signup/journeys/fill-a-sheet.ts" step="two people are refused: only one place is left" />
+<Scenario journey="examples/tickets/journeys/sell-out-an-event.ts" step="two more seats are refused: only one place is left" />
 
 **The machine's refusal** is made for you. A move from a state it can't start from is refused as
-`<Thing>Not<State>`, here `SheetNotOpen`, carrying the state it was in. The machine declares only its exit code,
-`notFrom: { exit: 70 }` (see `machines`). It is checked before the handler runs, so the handler never sees a full or
-closed sheet:
+`<Thing>Not<State>`, here `EventNotOnSale`, carrying the state it was in. The machine declares only its exit code,
+`notFrom: { exit: 70 }` (see `machines`). It is checked before the handler runs, so the handler never sees a sold out
+or finished event:
 
-<Scenario journey="examples/signup/journeys/fill-a-sheet.ts" step="a third join is refused: a full sheet is not open" />
+<Scenario journey="examples/tickets/journeys/sell-out-an-event.ts" step="a further claim is refused: a sold out event is not on sale" />
 
 **The runtime's refusals** belong to no thing. `NotAllowed` is a caller the operation's roles refuse. A read gives
-the same `NotAllowed` for an id that doesn't exist, so a read never tells an outsider what exists. Signup can't show a
-stranger refused: every one of its operations allows `Blueprint.anyone`. Acme's `allowance.spend` is the example
+the same `NotAllowed` for an id that doesn't exist, so a read never tells an outsider what exists. Tickets can't show
+a stranger refused: every one of its operations allows `Blueprint.anyone`. Acme's `allowance.spend` is the example
 there, where only the grantee may spend (see `roles`).
 
 **Codes.** The compiler numbers every refusal, and the model records the number, so no generator works one out:
@@ -153,21 +208,24 @@ export const RUNTIME_CODES = { NotAllowed: "AR-001" } as const;
 ```
 
 A code is the thing's prefix and a number. Declared errors are 1, 2, 3 in the order `errors.ts` declares them, the
-machine's is always 900, and the runtime's take `AR`. So signup's refusals are `SH-001` for `SheetFull`, `SH-900` for
-`SheetNotOpen` and `AR-001` for `NotAllowed`. The generated code carries each one's exit code and its code:
+machine's is always 900, and the runtime's take `AR`. So the event's refusals are `EV-001` for `SoldOut` and `EV-900` for
+`EventNotOnSale`, the ticket's is `TI-900` for `TicketNotIssued`, and the runtime's is `AR-001` for `NotAllowed`.
+The generated code carries each one's exit code and its code:
 
-```ts file=examples/signup/generated/api/src/errors.ts lines=12-16
+```ts file=examples/tickets/generated/api/src/errors.ts lines=13-18
 export const exits = {
-  SheetFull: 71,
-  SheetNotOpen: 70,
+  SoldOut: 71,
+  EventNotOnSale: 70,
+  TicketNotIssued: 72,
   NotAllowed: 3,
 } as const;
 ```
 
-```ts file=examples/signup/generated/api/src/errors.ts lines=19-23
+```ts file=examples/tickets/generated/api/src/errors.ts lines=21-26
 export const codes = {
-  SheetFull: "SH-001",
-  SheetNotOpen: "SH-900",
+  SoldOut: "EV-001",
+  EventNotOnSale: "EV-900",
+  TicketNotIssued: "TI-900",
   NotAllowed: "AR-001",
 } as const;
 ```
@@ -178,9 +236,9 @@ refusal and a defect in a trace).
 ### Steps
 
 A step is a named part of the handler's work. The operation declares them, and the handler runs its work through
-them: `steps.load(…)` and `steps.record(…)`. Each step is one span named `<thing>.<verb>.<key>`, so
-`sheet.join.load`, and a journey can say a step ran or didn't. When two people are refused above,
-`sheet.join.record` is absent, and that is how the journey proves nothing was written.
+them: `steps.load(…)`, `steps.issue(…)` and `steps.count(…)`. Each step is one span named `<thing>.<verb>.<key>`, so
+`event.claim.load`, and a journey can say a step ran or didn't. When two seats are refused above, `event.claim.issue`
+and `event.claim.count` are absent, and that is how the journey proves nothing was written.
 
 Three rules decide what a step is (K5, seam 3):
 
@@ -224,8 +282,8 @@ export const steps: PerOperation = (op, evidence) =>
   }));
 ```
 
-A refusal and a replay are skipped, so `SheetFull` without its `record` span passes. A successful call that skips a
-step fails it.
+A refusal and a replay are skipped, so `SoldOut` without its `issue` and `count` spans passes. A successful call that skips
+a step fails it.
 
 ### Optional steps
 
@@ -238,20 +296,20 @@ moves the handler's choice onto a caller who can't know the text is unchanged. S
 steps: { load: Blueprint.step.database(), save: Blueprint.step.database({ optional: true }) },
 ```
 
-Every signup operation runs all its steps when it succeeds, so this example is K5's edit of a draft, not signup.
+Every tickets operation runs all its steps when it succeeds, so this example is K5's edit of a draft, not tickets.
 Three things change with it:
 
 - **Eval 6** lets an optional step be absent, and still checks the order of the steps that ran.
 - **`ortho prove`** reports an optional step that no journey ever ran, or that every journey ran, as never exercised
   both ways. So both paths get a journey.
 - **`ortho check`** warns when a required step's runner, such as `steps.record`, never appears in the handler's
-  source. Deleting `steps.record` from `join` would give that warning. The handler's type stays as it is: TypeScript
+  source. Deleting `steps.count` from `claim` would give that warning. The handler's type stays as it is: TypeScript
   can't prove a function calls something on some path without changing every handler's shape, so the warning plus
   eval 6 is the proof.
 
 ### Its own event: `emits`
 
-An operation's event usually comes from its move: `join` makes the `join` move, and the move emits `PlaceTaken`
+An operation's event usually comes from its move: `claim` makes the `claim` move, and the move emits `TicketsClaimed`
 (see `machines`). An operation with no machine can declare its own event (K5, Q5; built in M3.16):
 
 ```ts planned=M3.16 path=blueprint/things/draft/verbs/edit.ts
@@ -267,7 +325,7 @@ export default Blueprint.operation(Draft, {
 });
 ```
 
-Every signup operation has a move, so signup can't show this either. Its rules:
+Every tickets operation that changes anything has a move, so tickets can't show this either. Its rules:
 
 - **It is committed in the same commit as the call's writes**, the same rule a move's event follows
   (`packages/language-effect/src/modules/handler/service.ts:68-71`).
@@ -306,7 +364,7 @@ The answer is kept in the same commit as the work, so either the call landed wit
 happened. The replay comes after the role check, so a stranger who guesses a key still gets `NotAllowed`. How each
 door carries the key is on `doors`.
 
-<Scenario journey="examples/signup/journeys/join-twice-with-one-request.ts" step="the same request again gives the same answer and takes nothing" />
+<Scenario journey="examples/tickets/journeys/claim-twice-with-one-request.ts" step="the same request again gives the same ticket and claims nothing" />
 
 Without a key, or without `idempotent`, every call is its own call.
 
@@ -345,20 +403,20 @@ and judges every operation by the same nine evals
 | 9 | explainability | every declared refusal has the log that decided it | `calls.ts:128` |
 
 The short references are in `packages/prove/src/modules/evals/internal/calls.ts` and
-`packages/prove/src/modules/evals/internal/run.ts`. On signup, `ortho prove --env local` prints this for `sheet.join`:
+`packages/prove/src/modules/evals/internal/run.ts`. On tickets, `ortho prove --env local` prints this for `event.claim`:
 
-- `sheet.join answer shape ✔`, `declared errors ✔`, `machine path ✔`, `events ✔`, `who may call ✔`, `steps ✔`
-- `sheet.join performance ✔ p50 3ms p95 4ms budget p95 150ms`
-- `sheet.join coverage ✔`, `explainability ✔`
-- and in one line: `sheet.join 9 evals ✔ p50 3ms p95 4ms budget p95 150ms`
+- `event.claim answer shape ✔`, `declared errors ✔`, `machine path ✔`, `events ✔`, `who may call ✔`, `steps ✔`
+- `event.claim performance ✔ p50 4ms p95 6ms budget p95 150ms`
+- `event.claim coverage ✔`, `explainability ✔`
+- and in one line: `event.claim 9 evals ✔ p50 4ms p95 6ms budget p95 150ms`
 
-The run ends with the whole project's coverage, `coverage ✔ moves 3/3 · outcomes 3/3 · refusals 1/1 · runtime
-refusals 2/2`, and `prove ✔`. The end-to-end test holds signup to exactly that:
+The run ends with the whole project's coverage, `coverage ✔ moves 5/5 · outcomes 5/5 · refusals 1/1 · runtime
+refusals 4/4`, and `prove ✔`. The end-to-end test holds tickets to exactly that, with six journeys and seven operations:
 
-```ts file=e2e/layer1/08-signup-proves.test.ts lines=14-17
-expect(lines.filter((l) => /^journey .* ✔ \d+\/\d+ steps$/.test(l))).toHaveLength(4);
-expect(lines.filter((l) => / 9 evals ✔ /.test(l))).toHaveLength(4);
-expect(lines).toContain("coverage ✔ moves 3/3 · outcomes 3/3 · refusals 1/1 · runtime refusals 2/2");
+```ts file=e2e/layer1/08-tickets-proves.test.ts lines=14-17
+expect(lines.filter((l) => /^journey .* ✔ \d+\/\d+ steps$/.test(l))).toHaveLength(6);
+expect(lines.filter((l) => / 9 evals ✔ /.test(l))).toHaveLength(7);
+expect(lines).toContain("coverage ✔ moves 5/5 · outcomes 5/5 · refusals 1/1 · runtime refusals 4/4");
 expect(lines.at(-1)).toBe("prove ✔");
 ```
 
@@ -449,12 +507,12 @@ sending. It costs one kept answer per key. Leave it off when a second call is ha
 
 | Part | Status | Slice | Proved by |
 |---|---|---|---|
-| The declaration, compiled into the model and every door | proved | layer 2 | `packages/generators/src/modules/render/render.test.ts:13`, and signup's journeys |
+| The declaration, compiled into the model and every door | proved | layer 2 | `packages/generators/src/modules/render/render.test.ts:13`, and tickets' journeys |
 | Undeclared errors don't compile | proved | layer 2 | `packages/generators/src/modules/render/handler-type.test.ts:40` |
 | Refusal codes, stable and unique | proved | layer 2 | `packages/compiler/src/modules/model/refusal-codes.test.ts:61`, `packages/prove/src/modules/evals/evals.test.ts:42` |
-| The machine's refusal before the handler | proved | layer 2 | `packages/language-effect/src/modules/handler/handler.test.ts:260`, signup's `fill a sheet` |
-| One call per request key | proved | layer 2 | `packages/language-effect/src/modules/records/reads-and-requests.test.ts:42`, signup's `join twice with one request` |
-| The nine evals on every operation | proved | layer 2 | `e2e/layer1/08-signup-proves.test.ts:15` |
+| The machine's refusal before the handler | proved | layer 2 | `packages/language-effect/src/modules/handler/handler.test.ts:260`, tickets' `sell out an event` |
+| One call per request key | proved | layer 2 | `packages/language-effect/src/modules/records/reads-and-requests.test.ts:42`, tickets' `claim twice with one request` |
+| The nine evals on every operation | proved | layer 2 | `e2e/layer1/08-tickets-proves.test.ts:15` |
 | The budget, reviewed and never failed | proved | layer 2 | `packages/prove/src/modules/evals/evals.test.ts:31` |
 | Reads, and a missing id refused as `NotAllowed` | proved | layer 2 | `packages/language-effect/src/modules/records/reads-and-requests.test.ts:70` |
 | Optional steps, the unused-step warning, "never exercised both ways" | specified (K5) | M1.26 | a fixture that skips its optional `save` passes eval 6; deleting `steps.record` gives a check warning |
@@ -480,7 +538,7 @@ sending. It costs one kept answer per key. Leave it off when a second call is ha
   A bad payload has no single name. `call` refuses it as `InvalidPayload`
   (`packages/language-effect/src/modules/handler/types.ts:10`), but a read refuses it as `Schema.SchemaError`
   (`types.ts:73`), the server decodes it itself before `run`, and the generated CLI exits 2 for `SchemaError` and 1
-  for anything else (`examples/signup/generated/cli/src/output.ts:14`). It has no code and no exit code in the model,
+  for anything else (`examples/tickets/generated/cli/src/output.ts:14`). It has no code and no exit code in the model,
   unlike `NotAllowed`. Should it be a runtime refusal, `AR-002`, with an exit code, the same at every door? Ledger:
   OPS-02.
 </Note>
@@ -488,14 +546,14 @@ sending. It costs one kept answer per key. Leave it off when a second call is ha
 <Note kind="question" id="anonymous-request-keys">
   A request key is kept per person. Every caller that isn't a person is keyed as `anonymous` (`service.ts:89`), so
   two different systems or agents sending the same key to the same operation get one answer between them. Every
-  signup caller is `anyone`, so today all of signup's callers share it. Should the key use the principal's own id for
+  tickets caller is `anyone`, so today all of tickets' callers share it. Should the key use the principal's own id for
   every kind? This matters once agents and system callers land (M2). Ledger: OPS-07.
 </Note>
 
 <Note kind="question" id="code-examples-drift">
   The comment that explains codes gives `[AL-002] AllowanceExceeded { limit: 500 }`
   (`packages/compiler/src/modules/model/internal/codes.ts:1`), and every generated `errors.ts` repeats `[AL-002]`,
-  signup's included (`examples/signup/generated/api/src/errors.ts:18`), from
+  tickets' included (`examples/tickets/generated/api/src/errors.ts:20`), from
   `packages/generators/src/modules/render/internal/api.ts:56`. In acme, `AllowanceExceeded` is `AL-001` and carries
   `remaining`, not `limit`. The design docs also show `Blueprint.error("AllowanceExceeded", …)` with a name string
   (`design/docs/index.html:373`); the code takes no name, because names come from paths and identifiers. Both should
@@ -503,7 +561,7 @@ sending. It costs one kept answer per key. Leave it off when a second call is ha
 </Note>
 
 <Note kind="question" id="private-fields-over-http">
-  A refusal's private fields still go out over the HTTP wire; only MCP hides them. No error in signup or acme has a
+  A refusal's private fields still go out over the HTTP wire; only MCP hides them. No error in tickets or acme has a
   private field yet, so it is a latent gap, not a live leak, and no slice owns the server-side fix (see `traces`).
   Ledger: OPS-01, high.
 </Note>

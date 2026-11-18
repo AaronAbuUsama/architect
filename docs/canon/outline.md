@@ -29,8 +29,8 @@ level, and the details wait for the layers that own them.
 | 6 · running | `workflows`, `environments` | 4 and 5 |
 | 7 · what Orthograph ships | `auth`, `agents`, `factory`, `agent-kit` | everything above |
 
-**Examples.** Layers 1 and 2 teach with the sign-up sheet, `examples/signup` (Aaron, 18 November 2026): one thing,
-open to anyone, and nothing in it that needs explaining from outside. From layer 4 on, the end-to-end example is K5's
+**Examples.** Layers 1 and 2 teach with free event tickets, `examples/tickets` (Aaron, 18 November 2026, K8): an event
+and a ticket, open to anyone, and nothing in it that needs explaining from outside. From layer 4 on, the end-to-end example is K5's
 community workshop: drafts in D1, a governance contract, a publish workflow, and later Noir. acme stays the fixture
 the tests and gates run on.
 
