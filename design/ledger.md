@@ -9,8 +9,8 @@ what it must settle, what it must not claim, and which words it must not use. Th
 
 ## In numbers
 
-- **626 items**: 515 open, 57 fixed and 54 superseded.
-- **190 of the open items are owned by nothing.** No slice, `later.md` line or milestones "Later" line covers
+- **627 items**: 516 open, 57 fixed and 54 superseded.
+- **191 of the open items are owned by nothing.** No slice, `later.md` line or milestones "Later" line covers
   them. They are in section 1.
 - **60 open items are marked high.** A canon page can't be written correctly until each one is settled.
 - **28 gaps and 43 contradictions** that no file lists as open (section 2).
@@ -79,7 +79,7 @@ also brings five new items, each now owned by a slice: `OPS-14` (M3.16), `PRJ-44
 | 1 | plugins | 14 | 5 | 2 | 3 |
 | 1 | data | 1 | 0 | 0 | 1 |
 | 1 | doors | 3 | 1 | 1 | 1 |
-| 2 | things | 5 | 2 | 0 | 0 |
+| 2 | things | 6 | 3 | 0 | 0 |
 | 2 | machines | 6 | 3 | 1 | 1 |
 | 2 | operations | 13 | 7 | 1 | 1 |
 | 2 | roles | 11 | 3 | 2 | 3 |
@@ -162,6 +162,7 @@ slice, a decision, or a line saying it is dropped. Grouped by canon page, in the
 |---|---|---|---|
 | `THI-02` | A value whose type is a free `schema` shows "detail not projected" in the model and docs because no JSON-schema projection exists, and no slice builds one. | design/decisions/F1-frontend.md:355<br>design/decisions/F2-portal-ia.md:32 | open |
 | `THI-03` | An array value (a question's options) has no length bound. | design/decisions/F5-work-blueprint.md:72 | open |
+| `THI-06` | A value can't say a smallest allowed number: `Blueprint.uint` takes only a bit width. So in the tickets example a claim with `seats: 0` passes, and the handler issues a ticket for no seats. Open: a minimum on values, or a declared refusal with journeys that prove it. | examples/tickets/blueprint/things/event/verbs/claim.ts:10 (branch claude/docs-canon-cf2c38 at 5c84827)<br>examples/tickets/blueprint/values/counts.ts:4 (branch claude/docs-canon-cf2c38 at 5c84827)<br>examples/tickets/src/event/claim.ts:19,25 (branch claude/docs-canon-cf2c38 at 5c84827)<br>packages/orthograph/src/modules/values/types.ts:30 | open |
 
 ### machines
 
