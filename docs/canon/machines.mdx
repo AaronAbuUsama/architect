@@ -322,5 +322,5 @@ and a missing instance.
   (`packages/language-effect/src/modules/handler/internal/move.ts:30`), and in acme the role check has already refused
   the call. But the sheet's operations are open to anyone, so a join on a sheet id that was never opened reaches the
   handler, which dies (`examples/signup/src/sheet/join.ts:14`): a defect, not a refusal a caller can name. Should the
-  machine refuse a missing instance, with a generated `NotFound` beside `SheetNotOpen`? No ledger row owns it yet.
+  machine refuse a missing instance, with a generated `NotFound` beside `SheetNotOpen`? Ledger: MAC-07, no slice owns it yet.
 </Note>
