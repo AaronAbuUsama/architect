@@ -4,8 +4,9 @@ Everything here is **proposed**. It walks through writing one feature, `wallets`
 mounts it, using the words in [`README.md`](README.md). The package scope `@blueprint` is a placeholder: the npm scope
 is still open (`decisions/K1-kits.md`, Q2).
 
-**What wallets is.** Keys a person holds on their own device, and a link between one of those keys and their account,
-proved by signing the server's challenge (Sign-In with Ethereum). The server never holds a key. Linking is the part
+**What wallets is.** Keys, held on a person's device or in a server's vault, and a link between a key and a person's
+account, proved by signing the server's challenge (Sign-In with Ethereum). Where a key lives is the app's choice; the
+old rule that the server never holds a key was dropped (Aaron, 18 November 2026, `decisions/K7-chain-languages.md`). Linking is the part
 `spikes/authenticated-siwe-link/` proved for real (26 checks, workerd and D1, a concurrent replay and a restart).
 
 **Five rules this walkthrough follows** (`decisions/K1-kits.md` section 3.6, carried into the frame):

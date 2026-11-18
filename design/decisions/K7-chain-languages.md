@@ -146,7 +146,10 @@ interface catches it, and all three classifiers did: EVM exit code 3 on `forceCl
 undeclared instructions (`solana#1`), Aztec `rewrite_digest` (`aztec#1`). None of the three interfaces says which
 entry belongs to which operation, so that has to come from us.
 
-**Decided** (Aaron's lean, A, now with the evidence; fork F1 in the round asks him to confirm it):
+**Decided, then changed by Aaron's F1 answer (18 November 2026).** He wants every function reachable, for programmatic
+access, with roles generated into our opinionated scaffold. Items 1, 2 and 4 stand. Item 3 becomes a warning: a
+hand-written external function that changes state must use a generated role modifier, and `ortho check` warns when it
+has none, rather than refusing it. The original items:
 
 1. **Each operation is one generated entry**, or on Aztec one generated pair: a private entry plus an `only_self` public
    continuation. The developer writes only the body.
@@ -545,7 +548,7 @@ Aaron wants the first plugin we build to be one that goes on chain: a wallet. Th
 writing `wallets` (`design/frame/writing-a-feature.md`):
 - eight operations, three of which run on the person's device (`create`, `import`, `keys`);
 - `link` as a client operation over two server operations;
-- the server never holds a key;
+- the server never holds a key (dropped by Aaron in F5, see below);
 - "wallets needs auth, not chain".
 
 The SIWE linking spike proved linking for real (26 checks, `spikes/authenticated-siwe-link/README.md`). The war game
@@ -590,8 +593,8 @@ changes four things in that walkthrough.
    privately. An Aztec link is left out of the wallet until a blueprint asks for one.
 
 Kept from the frame:
-- the server never holds a person's key, and the relayer's key only submits payloads someone already signed (L4.09,
-  M6.18);
+- each wallet declares where its key lives, on a device or in a server's vault; no key is ever in plain text in a
+  binding, a commit or a log (M6.18). The frame's "the server never holds a key" is dropped (F5);
 - agents never link a wallet;
 - the Node signer is an encrypted keystore file (Web3 Secret Storage v3);
 - the browser signs through EIP-1193, which is an adapter.
@@ -615,9 +618,10 @@ The building agent's calls, with the evidence above. Aaron can overrule any of t
 
 1. Our programs are stores and theirs are sources (K3's rule on chain). A chain store answers a commit late, as a
    submission (`STO-02`, `X-18`).
-2. Each operation is one generated entry, or a private and public pair on Aztec. A surface manifest per program is the
-   only source the clients are generated from. `ortho check` refuses an undeclared entry that can change state, unless
-   it is marked `outside` (Q1, Aaron's lean; fork F1 asks him to confirm it).
+2. Our contracts are scaffolded in one opinionated shape, with roles generated in (OpenZeppelin-style `onlyRole`,
+   generated rather than imported). Every external function is reachable from the generated clients, the developer's
+   own included. A hand-written external function that changes state uses a generated role modifier, and `ortho check`
+   warns when one has none (F1, Aaron's direction, 18 November 2026; this replaces the manifest-and-refuse version).
 3. An outside program is an adapter typed from its interface. A call into it is a declared step with one declared
    refusal, and the generator wraps the call (Q2).
 4. One submission lifecycle on every chain. `confirmed` means the declared event for the intent was seen at the
@@ -640,11 +644,11 @@ confused with the eight questions above. Each one is explained from scratch befo
 
 | # | Joint | Recommendation |
 |---|---|---|
-| F1 | What the generated clients may call on our own contracts, on all three chains (replaces K5's Q4) | **A**: each operation is one generated entry; the manifest lists them; `ortho check` refuses any other entry that can change state unless it is marked outside |
+| F1 | What the generated clients may call on our own contracts, on all three chains (replaces K5's Q4) | **Answered** (Aaron, 18 November 2026): every function, for programmatic access. Contracts are scaffolded opinionated, with roles generated in (OpenZeppelin-style, vendored); a hand-written writer without a role is a check warning, not a refusal |
 | F2 | What `confirmed` promises | **A**: a level per chain, set per environment (EVM `safe`, Solana `confirmed`, Aztec `proven`); corrections possible; outward steps wait for `final` |
 | F3 | Which chains get built, and when | **Answered A** (Aaron, 18 November 2026: "EVM now, rest design"). Was: EVM is built (M6, and the wallet's first version); Solana and Aztec are designed now (this record) and built Later, on the same port |
 | F4 | The wallet's first version and its place | **A**: the device half on EVM (keys, sign, simulate, send, confirm on Anvil) right after plugin mounting in M1, with `runs: "client"` (M1.27); linking after auth in M2; the relayer stays in M6 |
-| F5 | Who may hold a key that signs | **A**: only the person's device; agents never sign; delegated agent keys come Later (EIP-7702) |
+| F5 | Who may hold a key that signs | **Answered** (Aaron, 18 November 2026): drop "the server never holds a person's key". Apps keep keys where they choose, on a device or a server; each wallet declares it, and no key is ever in plain text |
 
 ## What replaces K5's Q4
 

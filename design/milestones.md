@@ -236,15 +236,15 @@ actors; `ortho prove` names each adapter's stand-in.
 
 ## M6: On chain
 
-**Goal.** The allowance can live on chain, written once and generated in two languages, with no person's key on the
-server.
+**Goal.** The allowance can live on chain, written once and generated in two languages. Where each key lives is declared, on a device
+or in a server's vault (Aaron, 18 November 2026, K7).
 **Ships.** `@orthograph/wallets` ([`frame/writing-a-feature.md`](frame/writing-a-feature.md)), the chain adapter,
 `@orthograph/language-solidity`, Anvil in worlds, the relayer and follower, one vault per organisation (S27);
 [`frame/examples/allowance-on-chain.md`](frame/examples/allowance-on-chain.md).
 **Gate.** `nx run e2e:m6` (old Gates 3 and 4 together): `acme wallet create` and `link` work with a local key;
 `forge test` passes on the filled vault; the fixed-seed fuzz of the TypeScript machine against the Solidity one finds
 no divergence (S26); journeys pass on Anvil with each person signing; 100 relayed submissions take nonces 0 to 99; a
-forced reorg is corrected; a pending chain call shows its in-between state (S25); the no-key check passes.
+forced reorg is corrected; a pending chain call shows its in-between state (S25); the key-hygiene check passes.
 
 | id | what | needs | kind | done when | size |
 |---|---|---|---|---|---|
@@ -258,14 +258,14 @@ forced reorg is corrected; a pending chain call shows its in-between state (S25)
 | M6.08 ∥ | Simulation, mandatory before every send (L3.07; K7 Q5: Anvil mines a doomed transaction) | M6.05 | build | a reverting call returns its typed error and sends nothing; no SDK path sends without simulating | S |
 | M6.09 | The chain follower (L3.08), which also feeds the portal's committed chain events (K5 seam 10); its checkpoint is a block number plus a window of block hashes, and a take-back emits `<Event>Corrected { wasConfirmed }` (K7 Q6) | M6.07 | build | an `anvil_reorg` that replays a different digest emits a correction and then the new event; a restart doesn't double count | M |
 | M6.10 | Values with Solidity types and `lives: Blueprint.chain.evm(...)` (`chain` as a family of store kinds, K7 Q4); the compiler accepts `runs: "chain"` (L4.01; `describe.ts:108` refuses it today); `blueprint/refusals.lock` for every language, so codes no longer come from declaration order (`describe.ts:79`; K7 Q5) | M6.01 | build | `ortho check` reports the change as major; swapping two declared errors keeps both codes; renaming a published code is refused | M |
-| M6.11 | `language-solidity`, no longer a placeholder: types, the compiled machine, roles and refusals compiled in (one custom error per declared error), the ABI, and `generated/solidity/surface.json`; `ortho check` classifies the compiled ABI against it by full signature (L4.02; K7 Q1) | M6.10 | build | `forge build` compiles the generated files; an undeclared external function that writes state fails the check unless marked outside | M |
+| M6.11 | `language-solidity`, no longer a placeholder: types, the compiled machine, roles and refusals compiled in (one custom error per declared error), the ABI, roles generated in (OpenZeppelin-style `onlyRole`, generated, not imported), and `generated/solidity/surface.json` listing every external function for the clients; `ortho check` warns on a hand-written external writer with no role modifier (L4.02; K7 Q1, F1) | M6.10 | build | `forge build` compiles the generated files; the SDK reaches every external function; a hand-written writer with no role gives a check warning | M |
 | M6.12 | Signatures and generated Foundry tests (L4.03) | M6.11 | build | the scaffold gives `0 passed · 24 failed: NotWritten` | M |
 | M6.13 | The contract scaffold, its brief, the fuzz cross-check against the reference machine generated from the blueprint, driving the generated client with its pre-check (L4.04; K7 Q8) | M6.12 | build | the filled vault gives `24 passed`; fixed seeds show no divergence; the planted mutant diverges | M |
 | M6.14 | The contract's client from the ABI (L4.05) | M6.13, M6.05 | build | a planted revert reaches the handler as `AllowanceExceeded` | S |
 | M6.15 | The signing flow and the in-between state (L4.06, S25); the SDK's submission lifecycle (`simulated → submitted → included → confirmed`, `dropped`, `reverted`, `corrected`), where `confirmed` matches the intent's event, not the transaction (K7 Q3) | M6.14, M6.03, M6.07 | build | `acme allowance spend --wallet olga` succeeds; bob's signature is refused before sending; a second relayer's mined revert still ends `confirmed` | M |
 | M6.16 | Worlds with a chain: a vault per organisation, journeys on Anvil (L4.07) | M6.15, M6.06, M6.09 | build | `ortho prove --env local` shows each operation signed by its person | M |
 | M6.17 | Contracts in the local pipeline, redeployed only on a new bytecode hash (L4.08, local part) | M6.16 | build | promoting twice with the same bytecode deploys nothing the second time | M |
-| M6.18 ∥ | The no-key and custody checks (S29) | M6.16 | build | a planted private key in a binding fails the check | S |
+| M6.18 ∥ | The key-hygiene and custody checks (S29): each wallet declares where its key lives (`device` or `vault`), and no key appears in plain text in a binding, a commit or a log. A server may hold keys (Aaron, 18 November 2026, K7) | M6.16 | build | a planted plain-text private key in a binding fails the check; a vault-held server key passes | S |
 | M6.20 | `examples/workshop` (K5): the governance feature, the vote as a contract operation, the publish workflow across D1 and the chain, the forum adapter's stand-in | M6.16, M3.10 | build | a vote twice by one member is refused by the contract through the SDK, the CLI and an action; a publish run links the confirmed proposal to its exact revision | M |
 | M6.19 | **Gate M6** | M6.02 to M6.18, M6.20 | e2e | `nx run e2e:m6` passes on `main` | S |
 
