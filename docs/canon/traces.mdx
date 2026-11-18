@@ -43,6 +43,10 @@ export default Blueprint.operation(Allowance, {
 });
 ```
 
+The compiler has already worked out each span's name. This is rendered from acme's compiled model:
+
+<Model project="examples/acme" operation="allowance.spend" show="steps" />
+
 From that, one call leaves this trace. The two steps are the two children, named `<operation>.<step>`, and the
 attributes come from the payload, the answer and the caller:
 

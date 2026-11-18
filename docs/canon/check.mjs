@@ -143,6 +143,10 @@ const checkComponents = (file, text) => {
     if (name === "Model") {
       if (!a.project || !existsSync(at(join(a.project, "blueprint")))) bad(`project ${a.project} has no blueprint/`);
       else if (a.thing && !existsSync(at(join(a.project, "blueprint/things", a.thing)))) bad(`no thing ${a.thing} in ${a.project}`);
+      else if (a.operation) {
+        const model = at(join(a.project, "generated/model/model.json"));
+        if (!existsSync(model) || !JSON.parse(read(model)).operations?.[a.operation]) bad(`no operation ${a.operation} in ${a.project}'s model`);
+      }
     }
     if (name === "Scene") {
       const merged = existsSync(at(`spikes/visual-content/scenes/${a.name}.js`));

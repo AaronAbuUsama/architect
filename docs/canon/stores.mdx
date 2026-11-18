@@ -42,8 +42,12 @@ export const Allowance = Blueprint.thing({
 });
 ```
 
-So it lives in the project's default store, a `database`. The local environment binds that store to D1, emulated on
-your machine:
+So it lives in the project's default store, a `database`. The compiled model says so, and this table is rendered
+from it, not written:
+
+<Model project="examples/acme" thing="allowance" show="fields" />
+
+The local environment binds that store to D1, emulated on your machine:
 
 ```ts file=examples/acme/blueprint/environments/local.ts lines=3-8
 export default Blueprint.environment({
