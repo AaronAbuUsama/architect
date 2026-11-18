@@ -5,7 +5,7 @@ payload (refusing with `InvalidPayload` before the handler runs), checks who may
 handler's span opens, so a refused caller leaves no handler span), runs the handler as counted work inside a span named
 after the operation with `payload.<field>` and `answer.<field>` attributes for declared public fields, with public text
 included only when marked `Blueprint.traced(...)` (O2). The journal keeps public event fields. The wrapper gives each
-declared step its own span `<name>.<key>` and checks
+declared step its own span `<name>.<key>` (a call step runs the adapter's callable through `calls`, in the same span, kind `call`, and `Handlers.blank(what, "failure")` stands in the mapping's place until it is written) and checks
 the answer against its declaration (an answer outside it dies, as the handler's bug). Machines and events join it in
 stage one's later steps.
 

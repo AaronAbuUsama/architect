@@ -68,6 +68,17 @@ export type AllowedModel =
   | { readonly kind: "role"; readonly role: string }
   | { readonly kind: "role-of"; readonly role: string; readonly path: string };
 
+/** A step of an operation: its span's name and kind, and, for a call out, the adapter's call it makes. */
+export interface StepModel {
+  readonly name: string;
+  readonly type: string;
+  /** The things a database step writes, when it names them (stores). */
+  readonly writes?: ReadonlyArray<string>;
+  /** Present only when the step may be skipped (K5): eval 6 lets an answered call run without it. */
+  readonly optional?: boolean;
+  readonly call?: { readonly mount: string; readonly call: string; readonly mode: "promise" | "effect" };
+}
+
 export interface OperationModel {
   /** A read is answered from the thing's records with no handler. */
   readonly kind: "operation" | "read";
@@ -84,12 +95,7 @@ export interface OperationModel {
   readonly errors: ReadonlyArray<string>;
   readonly refusals: ReadonlyArray<string>;
   readonly allowed: ReadonlyArray<AllowedModel>;
-  readonly steps: Readonly<Record<string, {
-    readonly name: string;
-    readonly type: string;
-    readonly writes?: ReadonlyArray<string>;
-    readonly optional?: boolean;
-  }>>;
+  readonly steps: Readonly<Record<string, StepModel>>;
   readonly idempotent: "request" | null;
   /** Where it runs. Always `server`: the compiler refuses the others until a target supports them. */
   readonly runs: "server";

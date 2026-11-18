@@ -1,7 +1,7 @@
 // Folding a mounted feature into the layout, against an in-memory source: names, provenance, picks, and refusals.
 import { Effect, Layer } from "effect";
 import { describe, expect, it } from "vitest";
-import { Blueprint, Via } from "orthograph";
+import { Blueprint, Stand, Via } from "orthograph";
 import { BlueprintSource, SourceError } from "#modules/source/types.js";
 import { readLayout } from "#modules/model/internal/layout.js";
 import { Mounts } from "./service.ts";
@@ -85,5 +85,42 @@ describe("mounts", () => {
     const met = await folded([["features/greet.ts", Blueprint.use(greet, (p) => [p.choose(p.choices.mode.echoing)])], ["features/loud.ts", Blueprint.use(echo)]]);
     expect(met.problems).toEqual([]);
     expect(met.mounts["greet"]?.needs).toEqual(["feature:loud"]);
+  });
+
+  describe("an adapter", () => {
+    class PriceUnavailable extends Blueprint.error({}, { exit: 76 }) {}
+    const Pricing = Blueprint.thing({ description: "What the outside service quotes.", fields: { id: Blueprint.id("prc") }, code: "PC" });
+    const quote = Blueprint.call({ mode: "promise", errors: [PriceUnavailable] });
+    const refund = Blueprint.call({ mode: "effect" });
+    const pricing = Blueprint.adapter({ description: "Prices.", calls: { quote, refund }, standIn: Stand.process("a local pricing service") });
+    const adapters = Layer.succeed(BlueprintSource, {
+      list: Effect.succeed([]), load: (path) => Effect.succeed({ path, exports: {} }),
+      plugins: Effect.succeed([{ name: "@fixture/remote", version: "1.0.0", kind: "adapter", descriptor: pricing }]),
+      pluginFiles: (name) => Effect.succeed({ integrity: "sha256-x", layer: true, files: [
+        { path: "things/pricing/thing.js", specifier: `${name}/blueprint/things/pricing/thing.js`, exports: { Pricing } },
+        { path: "things/pricing/errors.js", specifier: `${name}/blueprint/things/pricing/errors.js`, exports: { PriceUnavailable } },
+      ] }),
+    });
+    const foldAdapter = (mount: unknown) => Effect.runPromise(Mounts.fold(readLayout([{ path: "adapters/pricing.ts", exports: { default: mount } }])).pipe(Effect.provide(adapters)));
+
+    it("reaches only what it includes: each call is known by name, the included ones are in the model, and its errors' thing is folded", async () => {
+      const folded = await foldAdapter(Blueprint.use(pricing, (p) => [p.include(p.calls.quote)]));
+      expect(folded.problems).toEqual([]);
+      expect(folded.mounts["pricing"]).toMatchObject({ kind: "adapter", package: "@fixture/remote", calls: ["quote"], layer: true, standIn: { how: "process", what: "a local pricing service" } });
+      expect(folded.calls.get(quote)).toMatchObject({ mount: "pricing", call: "quote", included: true, file: "blueprint/adapters/pricing.ts" });
+      expect(folded.calls.get(refund)).toMatchObject({ call: "refund", included: false });
+      expect([...folded.things.keys()]).toEqual(["pricing-pricing"]);
+      expect(folded.things.get("pricing-pricing")?.errors.has("PriceUnavailable")).toBe(true);
+      const none = await foldAdapter(Blueprint.use(pricing));
+      expect(none.mounts["pricing"]?.calls).toBeUndefined();
+      expect(none.mounts["pricing"]?.hash).not.toBe(folded.mounts["pricing"]?.hash);
+    });
+
+    it("refuses an include of a call the adapter doesn't have, or of something that isn't a call, naming the mount's file", async () => {
+      const missing = await foldAdapter(Blueprint.use(pricing, (p) => [p.include((p.calls as unknown as Record<string, never>)["notExported"])]));
+      expect(missing.problems).toEqual(["blueprint/adapters/pricing.ts: includes the call notExported, which @fixture/remote doesn't have (its calls: quote, refund)"]);
+      const other = await foldAdapter(Blueprint.use(pricing, (p) => [p.include("quote" as never)]));
+      expect(other.problems[0]).toMatch(/^blueprint\/adapters\/pricing\.ts: include takes one of @fixture\/remote's calls, written p\.calls\.<call> \(quote, refund\)/);
+    });
   });
 });

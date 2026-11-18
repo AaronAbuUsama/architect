@@ -47,10 +47,11 @@ forum's one call and one event the app may reach, and nothing else of the forum 
 
 What signup has today in place of mounted projections is this list, fixed in the generator:
 
-```ts file=packages/generators/src/modules/render/service.ts lines=1-9
+```ts file=packages/generators/src/modules/render/service.ts lines=1-10
 import { PortalRender } from "#modules/portal/service.js";
 import type { RenderApi } from "./types.ts";
 import { renderApi } from "./internal/api.ts";
+import { renderHandlerTypes } from "./internal/calls.ts";
 import { renderCli } from "./internal/cli.ts";
 import { renderDocs, renderEdges } from "./internal/docs.ts";
 import { renderMcp } from "./internal/mcp.ts";

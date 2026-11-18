@@ -76,19 +76,21 @@ Journeys assert on spans by name, so a trace is checked, not just looked at. Whe
    stranger never looks like work (`service.ts:52`).
 3. **The operation's span opens**, named after the operation, with the caller on it:
 
-   ```ts file=packages/language-effect/src/modules/handler/service.ts lines=94-94
+   ```ts file=packages/language-effect/src/modules/handler/service.ts lines=102-102
    spanned(name, { operation: name, attempt: number, ...principalAttributes(principal) }),
    ```
 
 4. **Traceable payload fields are written on it** (`service.ts:56`).
 5. **Each step is its own span**, marked with its kind:
 
-   ```ts file=packages/language-effect/src/modules/handler/service.ts lines=36-42
+   ```ts file=packages/language-effect/src/modules/handler/service.ts lines=42-50
    const steps = Object.fromEntries(
      // Each step is its own span, marked with its kind: a `database` step's work is the store's, a `wait` step's a timer's.
      Object.entries(op.steps).map(([key, step]) => [
        key,
-       <A, E, R>(work: Effect.Effect<A, E, R>) => spanned(`${name}.${key}`, { "step.kind": step.type })(work),
+       step.type === "call"
+         ? callStep(`${name}.${key}`, Calls.runner({ label: `${name}.${key}`, step: step as CallStep, wiring: calls?.[key] }))
+         : <A, E, R>(work: Effect.Effect<A, E, R>) => spanned(`${name}.${key}`, { "step.kind": step.type })(work),
      ]),
    );
    ```
@@ -99,7 +101,7 @@ Journeys assert on spans by name, so a trace is checked, not just looked at. Whe
 8. **The outcome is written on the span.** A defect gets `defect`; a refusal gets `refusal` and, when the handler
    logged something just before refusing, `refusal.log`:
 
-   ```ts file=packages/language-effect/src/modules/handler/service.ts lines=87-93
+   ```ts file=packages/language-effect/src/modules/handler/service.ts lines=95-101
    Effect.tapCause((cause) => {
      if (Cause.hasDies(cause)) return Effect.annotateCurrentSpan({ defect: Cause.pretty(cause).split("\n")[0] ?? "" });
      const refusal = Cause.squash(cause);
@@ -191,7 +193,7 @@ O2 records the three changes and their proof.
 
 `store.commit(…)` runs inside the `<operation>.commit` span.
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=77-82
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=85-90
 const writes = yield* unit.writes;
 const committed = yield* store.commit({ writes, entries, ...request }).pipe(
   Effect.tap((outcome) => Effect.annotateCurrentSpan("commit.outcome", outcome)),

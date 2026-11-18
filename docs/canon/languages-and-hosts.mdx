@@ -92,7 +92,7 @@ export class Store extends Context.Service<Store, {
    (`examples/signup/generated/server/wrangler.jsonc:8-11`).
 4. **`runs` says where an operation runs.** The declaration can say three places. Only one is accepted:
 
-```ts file=packages/orthograph/src/modules/operations/types.ts lines=24-25
+```ts file=packages/orthograph/src/modules/operations/types.ts lines=30-31
 /** Where an operation runs: `server` (every target today), on the caller's `client`, or on a `chain`. */
 export type Runs = "client" | "server" | "chain";
 ```
@@ -103,7 +103,7 @@ export type Runs = "client" | "server" | "chain";
 if (op.runs !== "server") problems.push(`${file}: runs "${op.runs}" is not supported yet: ${RUNS_NEEDS[op.runs] ?? "an unknown place"}`);
 ```
 
-```ts file=packages/compiler/src/modules/model/internal/describe.ts lines=187-191
+```ts file=packages/compiler/src/modules/model/internal/describe.ts lines=209-213
 /** What an operation that doesn't run on the server needs: a language that does. Only the Effect language exists today. */
 const RUNS_NEEDS: Readonly<Record<string, string>> = {
   client: "it needs a language that runs operations on the caller's own device (language-noir, a later language), and this project's only language, language-effect, runs them all on the server",

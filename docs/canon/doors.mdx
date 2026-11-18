@@ -94,7 +94,7 @@ The wrapper runs every call to an Effect operation through the same order (`pack
 
 The last four, as code:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=63-83
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=71-91
 yield* checkFrom(op, notFrom, payload, unit);
 const chosen = yield* Ref.make<string | undefined>(undefined);
 const move = (to?: string) => chooseOutcome(name, op, to).pipe(Effect.flatMap((o) => Ref.set(chosen, o)));

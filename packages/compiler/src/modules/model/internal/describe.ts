@@ -1,7 +1,7 @@
 // Turns the layout into the model: every declaration named, every reference resolved, every entry hashed.
 import { Duration } from "effect";
-import type { Allowed, Field, FieldsInput, Operation, Read, Thing, Value, Visibility } from "orthograph";
-import type { AllowedModel, FieldModel, FieldsModel, Model, OperationModel, ThingModel, VisibilityModel } from "../types.ts";
+import type { AnyErrorClass, Allowed, CallStep, Field, FieldsInput, Operation, Read, Step, Thing, Value, Visibility } from "orthograph";
+import type { AllowedModel, FieldModel, FieldsModel, Model, OperationModel, StepModel, ThingModel, VisibilityModel } from "../types.ts";
 import { Blanks } from "orthograph/server";
 import { MACHINE_NUMBER, codeOf, inDeclarationOrder, prefixes, refusalsOf } from "./codes.ts";
 import { environmentsOf } from "./environments.ts";
@@ -138,9 +138,7 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
       name: `${thing}.${verb}`, thing, verb, identifier: camel(verb), file, description: op.description,
       payload: fieldsModel(op.payload, `${file} payload`), answer: fieldsModel(op.answer, `${file} answer`),
       move, errors, refusals, allowed,
-      steps: Object.fromEntries(Object.entries(op.steps).map(([k, s]) => [k, {
-        name: `${thing}.${verb}.${k}`, type: s.type, ...writesOf(s.writes, file), ...(s.optional ? { optional: true } : {}),
-      }])),
+      steps: Object.fromEntries(Object.entries(op.steps).map(([k, s]) => [k, stepModel(thing, verb, k, s, op.errors, file)])),
       idempotent: op.idempotent ?? null,
       runs: "server" as const, test: op.test,
       budget: op.budget ? { p95Ms: Duration.toMillis(op.budget.p95) } : null,
@@ -148,6 +146,30 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
     const split = crossStore(file, `${thing}.${verb}`, thing, move !== null, entry.steps, things);
     if (split) problems.push(split);
     return { ...entry, hash: hashOf(entry) };
+  }
+
+  /** A step: a span named after it; a call step also says which call of which mounted adapter, or why it can't. */
+  function stepModel(thing: string, verb: string, key: string, step: Step, declared: ReadonlyArray<AnyErrorClass>, file: string): StepModel {
+    const plain = {
+      name: `${thing}.${verb}.${key}`, type: step.type, ...writesOf((step as { readonly writes?: ReadonlyArray<Thing> }).writes, file),
+      ...(step.optional ? { optional: true } : {}),
+    };
+    if (step.type !== "call") return plain;
+    const { call } = step as CallStep;
+    const reach = layout.calls.get(call);
+    const where = `${file}: step ${key}`;
+    if (!reach) {
+      const missing = (call as { readonly kind?: string } | undefined)?.kind === "missing-call";
+      problems.push(missing
+        ? `${where} calls ${(call as unknown as { name: string }).name}, which the adapter doesn't have`
+        : `${where} calls something that no mounted adapter offers: mount its adapter (ortho add adapter <package>) and write the call as <mount>.calls.<call>`);
+      return plain;
+    }
+    if (!reach.included) problems.push(`${where} calls ${reach.call} of ${reach.package}, which ${reach.file} doesn't include: add p.include(p.calls.${reach.call}) there`);
+    for (const e of call.errors) {
+      if (!declared.includes(e)) problems.push(`${where} calls ${reach.call}, which may fail as ${errorNames.get(e) ?? "an error that is not declared"}: declare it in the operation's errors`);
+    }
+    return { ...plain, call: { mount: reach.mount, call: reach.call, mode: call.mode } };
   }
 
   /** A read: answered from the thing's records with no handler, so no move, no steps, no declared errors. */

@@ -56,4 +56,15 @@ describe("Compare", () => {
     expect(Compare.edges(mounted)).toEqual(["feature:echo -> echo.repeat  provides", "feature:greet -> feature:echo  needs"]);
     expect(Compare.edges(model)).toEqual([]);
   });
+
+  it("an operation that calls an adapter rests on its mount, and the edges say who uses it", () => {
+    const calling = edited((m) => {
+      m.mounts = { pricing: { kind: "adapter", file: "blueprint/adapters/pricing.ts", package: "@x/remote", version: "1.0.0", integrity: "sha256-a", chosen: {}, calls: ["quote"], hash: "pricinghash" } };
+      m.operations["allowance.spend"] = { ...m.operations["allowance.spend"], steps: { price: { name: "allowance.spend.price", type: "call", call: { mount: "pricing", call: "quote", mode: "promise" } } } };
+    });
+    expect(Compare.dependsOn(calling, "allowance.spend")["adapter:pricing"]).toBe("pricinghash");
+    expect(Compare.hashOf(calling, "adapter:pricing")).toBe("pricinghash");
+    expect(Object.keys(Compare.dependsOn(calling, "allowance.grant"))).not.toContain("adapter:pricing");
+    expect(Compare.edges(calling)).toEqual(["adapter:pricing -> allowance.spend  used-by"]);
+  });
 });

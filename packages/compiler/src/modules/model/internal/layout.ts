@@ -1,6 +1,7 @@
 // Reads the blueprint's layout: which file holds what, and the name each declaration takes from its path or export.
 import type { AnyErrorClass, Environment, Event, Machine, Mount, Operation, Read, Role, Store, Thing, Value } from "orthograph";
 import type { LoadedFile } from "#modules/source/types.js";
+import type { CallReach } from "#modules/mounts/types.js";
 
 /** Where a plugin's thing came from (M1-plugins section 7): `thing` is the plugin's own name for it. */
 export interface From {
@@ -48,6 +49,8 @@ export interface Layout {
   readonly things: Map<string, ThingFiles>;
   /** Mounts by the name their file gives them: `features/echo.ts` is `echo`. */
   readonly mounts: Map<string, MountFile>;
+  /** What each mounted adapter's call is, by the call object a step holds (filled in when the mounts are folded). */
+  readonly calls: Map<unknown, CallReach>;
   readonly problems: Array<string>;
 }
 
@@ -71,7 +74,7 @@ export const NAME = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
  * `blueprint/<path>`; a plugin's are its package specifier, `@x/y/blueprint/<path>`, and only its `things/` are read.
  */
 export const readLayout = (files: ReadonlyArray<LoadedFile>, at: (path: string) => string = (path) => `blueprint/${path}`): Layout => {
-  const layout: Layout = { values: new Map(), environments: new Map(), stores: new Map(), things: new Map(), mounts: new Map(), problems: [] };
+  const layout: Layout = { values: new Map(), environments: new Map(), stores: new Map(), things: new Map(), mounts: new Map(), calls: new Map(), problems: [] };
   const thingFiles = (name: string): ThingFiles => {
     const found = layout.things.get(name);
     if (found) return found;

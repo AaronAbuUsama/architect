@@ -20,6 +20,7 @@ export const Compiler: CompilerApi = {
     // Each mount's plugin, folded in: its things beside the project's own, under the names the mount gives them.
     const folded = yield* Mounts.fold(layout);
     for (const [name, t] of folded.things) layout.things.set(name, t);
+    for (const [call, reach] of folded.calls) layout.calls.set(call, reach);
     for (const [name, s] of folded.stores) layout.stores.set(name, s);
     layout.problems.push(...folded.problems);
     // Errors take their names from their exports; stamping them here lets the loaded classes be used by name.

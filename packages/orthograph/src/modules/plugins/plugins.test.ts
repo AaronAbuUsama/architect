@@ -41,6 +41,19 @@ describe("plugins", () => {
     expect(Plugins.use(echo).verbs).toEqual([]);
   });
 
+  it("an adapter's mount hands its calls to the operations that call them, and a call it has none of names itself", () => {
+    const quote = Plugins.call({ mode: "effect" });
+    const pricing = Plugins.adapter({ description: "Prices.", calls: { quote } });
+    const mount = Plugins.use(pricing, (p) => [p.include(p.calls.quote)]);
+    expect(mount.calls.quote).toBe(quote);
+    expect(mount.verbs[0]).toMatchObject({ verb: "include", items: [quote] });
+    expect(Operations.step.call(mount.calls.quote)).toMatchObject({ kind: "step", type: "call", call: quote });
+    // @ts-expect-error the adapter has no such call
+    const missing = Plugins.use(pricing, (p) => [p.include(p.calls.refund)]).verbs[0];
+    expect(missing).toMatchObject({ items: [{ kind: "missing-call", name: "refund" }] });
+    expect(Plugins.use(echo).calls).toEqual({});
+  });
+
   it("a need may apply only when an option is picked", () => {
     const greet = Plugins.feature({ description: "Greets.", needs: [echo, Plugins.need(echo, { when: style.loud })] });
     expect(greet.needs?.[1]).toMatchObject({ kind: "need", plugin: echo, when: style.loud });

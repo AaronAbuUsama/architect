@@ -1,7 +1,9 @@
 import { Cause, Data, Effect, Ref, Schema } from "effect";
-import type { Operation, Principal } from "orthograph";
+import type { CallStep, Operation, Principal } from "orthograph";
 import { ErrorNames } from "orthograph/server";
 import { Access } from "#modules/access/service.js";
+import { Calls } from "#modules/calls/service.js";
+import type { CallRunner, CallWiring } from "#modules/calls/types.js";
 import { Unit } from "#modules/records/service.js";
 import { Records, Store } from "#modules/records/types.js";
 import { Busy } from "#modules/work/types.js";
@@ -22,10 +24,14 @@ class Conflict extends Data.TaggedError("Conflict")<{}> {}
 /** Every round of contenders has at least one winner, so this many attempts outlasts any fair race (D2 #36). */
 const ATTEMPTS = 64;
 
+/** A call step: the adapter's call in a span named after the step, marked `call`. */
+const callStep = (span: string, run: CallRunner) => (args: ReadonlyArray<unknown>, failure: (failure: never) => never) =>
+  spanned(span, { "step.kind": "call" })(run(args as never, failure as never));
+
 const tagOf = (e: unknown): string =>
   typeof e === "object" && e !== null && typeof (e as { _tag?: unknown })._tag === "string" ? (e as { _tag: string })._tag : String(e);
 
-const serve = ({ name, operation, handler, notFrom }: { readonly name: string; readonly operation: unknown; readonly handler: AnyHandler; readonly notFrom?: string }) => {
+const serve = ({ name, operation, handler, notFrom, calls }: { readonly name: string; readonly operation: unknown; readonly handler: AnyHandler; readonly notFrom?: string; readonly calls?: Readonly<Record<string, CallWiring>> }) => {
   const op = operation as Operation;
   const decode = Schema.decodeUnknownEffect(op.payloadSchema as unknown as AnyCodec);
   const check = Schema.encodeEffect(op.answerSchema as unknown as AnyCodec);
@@ -37,7 +43,9 @@ const serve = ({ name, operation, handler, notFrom }: { readonly name: string; r
     // Each step is its own span, marked with its kind: a `database` step's work is the store's, a `wait` step's a timer's.
     Object.entries(op.steps).map(([key, step]) => [
       key,
-      <A, E, R>(work: Effect.Effect<A, E, R>) => spanned(`${name}.${key}`, { "step.kind": step.type })(work),
+      step.type === "call"
+        ? callStep(`${name}.${key}`, Calls.runner({ label: `${name}.${key}`, step: step as CallStep, wiring: calls?.[key] }))
+        : <A, E, R>(work: Effect.Effect<A, E, R>) => spanned(`${name}.${key}`, { "step.kind": step.type })(work),
     ]),
   );
 
@@ -124,5 +132,5 @@ const serve = ({ name, operation, handler, notFrom }: { readonly name: string; r
 /** Typed at the edge (`HandlerApi`); inside, one untyped implementation serves every operation. */
 export const Handlers: HandlerApi = {
   serve: serve as unknown as HandlerApi["serve"],
-  blank: (what) => Effect.die(new BlankReached({ what })),
+  blank: ((what: string, kind?: "failure") => (kind === "failure" ? () => new BlankReached({ what }) : Effect.die(new BlankReached({ what })))) as unknown as HandlerApi["blank"],
 };

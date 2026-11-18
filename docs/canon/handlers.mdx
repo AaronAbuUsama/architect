@@ -71,18 +71,18 @@ Three kinds of line carry the declaration: the declared steps (`steps.load`, `st
 
 The frame is one type, made from the operation:
 
-```ts file=packages/language-effect/src/modules/handler/types.ts lines=29-30
+```ts file=packages/language-effect/src/modules/handler/types.ts lines=35-36
 /** What a project writes in `<verb>.handler.ts`: the declared payload in, the declared answer or a declared error out. */
-export type Handler<O, R = never> = (payload: PayloadOf<O>, context: HandlerContext<O>) => Effect.Effect<AnswerOf<O>, ErrorOf<O>, R>;
+export type Handler<O, R = never, C = {}> = (payload: PayloadOf<O>, context: HandlerContext<O, C>) => Effect.Effect<AnswerOf<O>, ErrorOf<O>, R>;
 ```
 
 - **The payload**, already decoded against the declaration. `people` is a `bigint` here, never a string.
 - **The context**: the caller as a `principal`, one runner per declared step, and `move`:
 
-  ```ts file=packages/language-effect/src/modules/handler/types.ts lines=17-25
-  export interface HandlerContext<O> {
+  ```ts file=packages/language-effect/src/modules/handler/types.ts lines=23-31
+  export interface HandlerContext<O, C = {}> {
     readonly principal: Principal;
-    readonly steps: StepRunners<StepsOf<O>>;
+    readonly steps: StepRunners<StepsOf<O>, C>;
     /**
      * Make the operation's move, ending in `to` (or its only outcome). Applied once the handler answers: the instance's
      * state is set and the move's event journalled. A handler that never calls it makes no move and emits nothing.
@@ -98,7 +98,7 @@ refuses a handler that fails with an error its operation doesn't list
 (`packages/generators/src/modules/render/handler-type.test.ts:40`). At run time, an answer outside its declaration
 is never sent. It dies as the handler's bug:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=69-73
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=77-81
 // An answer that breaks its declaration is the handler's bug, never the caller's: it dies, loudly.
 const wire = yield* check(answer).pipe(
   Effect.mapError((e) => new Error(`${name} answered outside its declaration: ${e.message}`)),
@@ -175,7 +175,7 @@ That is the point: the compiler tells you what to change, and nothing you wrote 
 order, the move when one is declared, and a stub for each declared refusal. Every hole is a `Handlers.blank`, so the
 file compiles. This is the part of the generator that writes the body:
 
-```ts file=packages/generators/src/modules/render/internal/scaffold.ts lines=27-41
+```ts file=packages/generators/src/modules/render/internal/scaffold.ts lines=78-92
 `/** ${op.description} */`,
 `const ${camel(op.verb)}: Handler = (_payload, ${context.length === 0 ? "_context" : `{ ${context.join(", ")} }`}) =>`,
 "  Effect.gen(function* () {",
@@ -242,10 +242,10 @@ roles a `roles.ts` exports (F5). Signup has no blank left, so this example is wo
 **A blank in a handler** is `Handlers.blank("…")`, what every fresh scaffold holds. It type-checks as anything, and
 reaching it at run time is a defect that names what is missing:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=125-128
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=133-136
 export const Handlers: HandlerApi = {
   serve: serve as unknown as HandlerApi["serve"],
-  blank: (what) => Effect.die(new BlankReached({ what })),
+  blank: ((what: string, kind?: "failure") => (kind === "failure" ? () => new BlankReached({ what }) : Effect.die(new BlankReached({ what })))) as unknown as HandlerApi["blank"],
 };
 ```
 
