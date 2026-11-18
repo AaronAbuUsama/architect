@@ -66,4 +66,24 @@ describe("mounts", () => {
     const stranger = await fold("features/other.ts", Blueprint.use(Blueprint.feature({ description: "Other." })));
     expect(stranger.problems[0]).toMatch(/^blueprint\/features\/other\.ts: mounts a feature that no installed dependency/);
   });
+
+  it("a need is met by the mount of that descriptor, whatever its name, and `when` applies only to its pick", async () => {
+    const mode = Blueprint.choice({ plain: "Alone.", echoing: "With the echo." });
+    const greet = Blueprint.feature({ description: "Greets.", choices: { mode }, needs: [Blueprint.need(echo, { when: mode.echoing })] });
+    const both = Layer.succeed(BlueprintSource, {
+      list: Effect.succeed([]), load: (path) => Effect.succeed({ path, exports: {} }),
+      plugins: Effect.succeed([{ name: "@fixture/echo", version: "1.0.0", kind: "feature", descriptor: echo }, { name: "@fixture/greet", version: "1.0.0", kind: "feature", descriptor: greet }]),
+      pluginFiles: () => Effect.succeed({ integrity: "sha256-x", files: [] }),
+    });
+    const folded = (files: ReadonlyArray<readonly [string, unknown]>) =>
+      Effect.runPromise(Mounts.fold(readLayout(files.map(([path, mount]) => ({ path, exports: { default: mount } })))).pipe(Effect.provide(both)));
+    const alone = await folded([["features/greet.ts", Blueprint.use(greet)]]);
+    expect(alone.problems).toEqual([]);
+    expect(alone.mounts["greet"]?.needs).toBeUndefined();
+    const unmet = await folded([["features/greet.ts", Blueprint.use(greet, (p) => [p.choose(p.choices.mode.echoing)])]]);
+    expect(unmet.problems).toEqual(["blueprint/features/greet.ts: @fixture/greet needs @fixture/echo, which isn't mounted: ortho add feature @fixture/echo"]);
+    const met = await folded([["features/greet.ts", Blueprint.use(greet, (p) => [p.choose(p.choices.mode.echoing)])], ["features/loud.ts", Blueprint.use(echo)]]);
+    expect(met.problems).toEqual([]);
+    expect(met.mounts["greet"]?.needs).toEqual(["feature:loud"]);
+  });
 });

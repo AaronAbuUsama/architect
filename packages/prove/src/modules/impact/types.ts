@@ -11,6 +11,8 @@ export interface Ledger {
 }
 
 export interface Impact {
+  /** What each mount provides and needs, printed first (M1-plugins section 7). */
+  readonly edges?: ReadonlyArray<string>;
   /** What changed since the ledger's model. */
   readonly changes: ReadonlyArray<Change>;
   /** Proven once, but something its proof rests on has changed since. */

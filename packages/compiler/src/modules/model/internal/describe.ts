@@ -114,6 +114,10 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
       : null;
     if (op.move && op.move.machine !== layout.things.get(thing)?.machine) problems.push(`${file}: moves another thing's machine`);
     const errors = op.errors.map((e) => errorNames.get(e) ?? problem(problems, `${file}: declares an error not exported from an errors.ts`));
+    // Each refusal goes on the wire by its name: two classes of one name in one union can't be told apart.
+    for (const tag of new Set(errors.filter((n, i) => errors.indexOf(n) !== i && n !== "?"))) {
+      problems.push(`${file}: ${thing}.${verb}'s errors are a union with two classes tagged ${tag}, so the refusal is ambiguous on the wire: rename one`);
+    }
     const allowed = op.allowed.map((a) => allowedModel(a, file));
     const refusals = [
       ...errors,

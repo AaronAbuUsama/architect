@@ -17,9 +17,20 @@
 >   evals or the runner's generic checks; a 🔍 reviewer that wrote none of it passes the branch.
 > - **Landing:** M1 reaches `main` only as one pull request at Gate M1. This goal opens no `m1` → `main` pull request.
 >
-> Don't do M1.03, M1.04, M1.11 onward, M1.17 to M1.26, or M1.27: other threads and later goals take them.
+> Don't do M1.03, M1.04, M1.11 to M1.13, M1.15, M1.16, M1.21 to M1.26: other threads and later goals take them.
+>
+> **Scope change, 18 November 2026 (Aaron: "solid on the vendoring lets do it", then "kick it all off").** After M1.10
+> the wallet path is this goal's too: M1.14, M1.27, M1.31, M1.32 and M1.29 by the lead; M1.28 (the wallet journeys) by
+> a ✍️ author subagent and M1.17 (stores) by a 🔨 builder subagent, each on a branch off `m1` that the lead merges;
+> M1.18 to M1.20 (`codex/m1-o2`) and M1.30 (`codex/m1-chain-evm`) by Codex, each a PR into `m1` with its own 🔍
+> reviewer, merged by the lead after the lead's own check. Codex is steered by PR comments only. Only the lead runs
+> `e2e:layer2` or `e2e:m1` locally, one at a time: Gate 2's teardown removes every container with the framework's
+> prefix. Everyone else leaves the gates to CI.
 
 ## The bound
+
+**The end state:** `acme wallet create && acme wallet send` confirms on Anvil from the CLI (M1.29's check), with
+plugins mounting by one file and one command on the way.
 
 Plugins mount, with one file and one command. A fixture feature is mounted in a fresh copy of the starter by
 `ortho add feature`, its operations appear in the model under their names from paths, the generated SDK, HTTP and MCP
@@ -27,10 +38,9 @@ answer from the plugin's own handler, collisions and unmet needs are refused by 
 
 - **Local only.** No cloud, no keys, no registry beyond the local Verdaccio. Every world, stage and container made is
   destroyed. Ports 19260 to 19279 for `e2e/m1` (another session may hold 8880).
-- **Not in this goal:** adapters' calls out (M1.14, though checks `03` and `04` are ported now and stay red), the
-  complete model (M1.03), verdict keys (M1.04), projections as plugins (M1.11 to M1.13), stores (M1.17), traces
-  (M1.18 to M1.20), the port from agent-native (M1.22 to M1.24), the portal (M1.25), the wired scaffold (M1.26),
-  `runs: "client"` (M1.27), and K7 F1's manifest.
+- **Not in this goal:** the complete model (M1.03), verdict keys (M1.04), projections as plugins (M1.11 to M1.13), the
+  port from agent-native (M1.22 to M1.24), the portal (M1.25), the wired scaffold (M1.26; it and M1.03/M1.04 start
+  only after M1.10 lands, and the conductor is told when it has), and K7 F1's manifest.
 
 ## The rules that shape the slices
 
@@ -56,6 +66,15 @@ answer from the plugin's own handler, collisions and unmet needs are refused by 
 | M1.08 | needs and collisions | checks `05` and `06` pass |
 | M1.09 | runtime entries per host and import closures (taken if it fits) | check `02` passes |
 | M1.10 | `ortho add feature\|adapter\|projection`, pinned exactly under R1 | check `01` passes through one command |
+| M1.17 | stores (K3, STO-23), by a 🔨 builder subagent on its own branch | its row's check in `milestones.md` |
+| M1.18 to M1.20 | O2's trace fixes, by Codex on `codex/m1-o2` | their rows' checks; merged by the lead |
+| M1.14 | adapters' calls out | checks `03` and `04` pass |
+| M1.27 | `runs: "client"` | its row's check |
+| M1.28 | the wallet journeys, by a ✍️ author subagent | they fail on empty handlers for the right reason |
+| M1.30 | `@orthograph/chain-evm`, vendored from `@prb/effect-evm` 5.0.3 by Codex on `codex/m1-chain-evm` | a transfer on Anvil (after M1.14 and M1.31) |
+| M1.31 | Anvil in a world | its row's check |
+| M1.32 | simulation | its row's check |
+| M1.29 | `@orthograph/wallets` | `acme wallet create && acme wallet send` confirms on Anvil from the CLI |
 
 ## The loop, for every slice
 
