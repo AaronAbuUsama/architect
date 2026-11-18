@@ -97,7 +97,8 @@ export const Item = Blueprint.thing({
     check: DoneWhen,              // the fact that closes it: a journey's verdict, a gate, a README merged
     needs: ItemIds,               // items that must be done first; acyclic, checked by `goal.plan`
     touches: PathGlobs,           // what it may write; two running items never share a path
-    worker: WorkerKind,           // `person`, or an agent type (`builder`, `author`, `spike`)
+    kind: ItemKind,               // `build`, `fix`, `improve`, `write:journey`, `review`, `spike`, `specify` (K10, M3.09)
+    worker: Worker,               // `person` or `agent`; an agent's role is `factory.roster.for(kind)`, a board may override it
     milestone: Blueprint.optional(Milestone.fields.id), // the step it belongs to; none while in the inbox
     source: Source,               // `words`, `github`, `slack`, `alert`, `check`, `ledger`, `model`, with a link back
     rank: Rank,                   // the person's order within a column; dispatch's tie-breaker
@@ -207,9 +208,13 @@ finishing. Each wake does one pass:
 2. **Remove conflicts.** Drop any item whose `touches` overlap a running item's. The rest may run together.
 3. **Order.** Longest remaining dependency chain first (the critical path, so the whole plan finishes soonest), then
    the person's `rank`, then age.
-4. **Slots.** `min(board limit − running, the goal's budget slots, the worker pool's free slots per agent type)`.
+4. **Slots.** `min(board limit − running, the goal's budget slots, the worker pool's free slots per role)`.
 5. **Claim and start.** For each item in order, while slots remain and it doesn't overlap one claimed in this pass:
    `item.claim` (idempotent on item and attempt), then the factory's start (the seam below).
+6. **Review pass.** Each item in `review` with no `review` verdict for its branch's revision and no live review run
+   gets one: a claim that leaves the item in `review`, and a run of `factory.roster.for("review")` on the item and
+   revision. It writes nothing, so it never conflicts, but it takes a slot. Its outcome is `reviewed`; the verdict it
+   records closes or returns the item through the logbook's event.
 
 Rules around it:
 
@@ -267,7 +272,7 @@ What work does with each answer:
 | Event | Work's move |
 |---|---|
 | `runFinished`, `pushed` (branch, pull request, revision, changed) | `item.submit`; `changed` checked against `touches`, a spill flagged in review |
-| `runFinished`, `reviewed` (pass or fail, revision) | none: the verdict is in the logbook, and its event takes `close` or `return` |
+| `runFinished`, `reviewed` (pass or fail, revision) | the review claim ends; the verdict is in the logbook, and its event takes `close` or `return` |
 | `runFinished`, `answered` (no branch) | `item.submit` with no branch; such an item's done-when must be a `review` verdict |
 | `runFinished`, `blocked` (a question) | `item.block`, and `attention.raise` with the question; the run has ended |
 | `runFailed`, `model`, `sandbox` or `crash` (transient) | `item.release`, retried with backoff through `Timers`, three attempts, then `block` |
@@ -285,10 +290,13 @@ The five points, as agreed:
    through the github adapter; it answers `{ branch, pullRequest, revision, changed }`, which `runFinished` copies.
    Without a push a run has no branch.
 3. **Review is a fact.** One `review` verdict kind in the logbook, keyed by revision, whether a person or an agent
-   gives it. An item's done-when names the verdicts it needs (prove, review), and `item.close`, `service(logbook)`
+   gives it, built early in M3.20 (K10) because the board and K10's experiments both close on it; `accepted`, an
+   authority's close in person, is a verdict kind beside it. Dispatch sends every item in `review` to the reviewer
+   (step 6 above). An item's done-when names the verdicts it needs (prove, review), and `item.close`, `service(logbook)`
    only, fires when all are recorded for its branch's revision.
 4. **Work owns dispatch policy**: concurrency, the cap's share, retries, and the kind-to-role map, defaulting to
-   `factory.roster`.
+   `factory.roster` (builder: build, fix, improve; author: write:journey; reviewer: review; spike: spike; planner:
+   specify; the designer is chat only). An item carries its `kind`, never a role, so the roster is written once.
 5. **The factory opens workspaces.** Work sees run ids, branches, pull requests and changed paths. No heartbeat.
 
 ## The board in the portal
@@ -314,10 +322,10 @@ thing: the columns are the item's machine states, and every board page belongs t
 |---|---|---|---|
 | now | 🧪 `spikes/kanban-components` | nothing | merged (this PR) |
 | now | 🧪 `spikes/dispatch-sim`: the dispatch rules on a synthetic plan with fake workers, critical path first against first-in first-out, touches on and off | K11 | its README gives makespan and conflicts for each rule |
-| now | 🧪 `spikes/work-board`: the board over `examples/work`'s generated API, the inbox fed by this repository's GitHub issues, the manager as a Claude Code session calling the CLI, on the agreed goal "links stage 1" | K11 | one real goal planned, dispatched to people, closed by facts |
+| now | 🧪 `spikes/work-board`: the board over `examples/work`'s generated API, the inbox fed by this repository's GitHub issues through `gh` (throwaway; the real path is M4.25's adapter), the manager as a Claude Code session calling the CLI, on the agreed goal "links stage 1" | K11 | one real goal planned, dispatched to people, closed by facts |
 | M3 | M3.04 to M3.11 reshaped by K11 (journeys, the package, handlers, dispatch, the manager) | M1.10, Gate M2 | see `milestones.md` |
 | M3 | M3.17 the board extension (replaces parked M3.14) | M3.06, M1.13, M1.25 | the board in the portal matches `work board items` |
-| M5 | M5.14 signals from Slack and alerts: their adapters' events received into the inbox through `on:` | M5.03, M3.19 | a Slack message and a fired alert each land once in the inbox, and an alert on a standing goal's measure is accepted under it |
+| M5 | M5.14 signals from GitHub issues (the github adapter of M4.25, not a second one), Slack and alerts: their adapters' events received into the inbox through `on:` | M5.03, M3.19, M4.25 | a Slack message and a fired alert each land once in the inbox, and an alert on a standing goal's measure is accepted under it |
 | M4 | M4.13 the join: dispatch starts agents runs; the manager as an agent triages and plans | M4.10, M4.11, the K10 seam | an item dispatched to an agents run closes by its verdict; a failing check is accepted under its goal with no one asked |
 
 ## Aaron's answers (18 November 2026, by speech)
