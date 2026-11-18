@@ -18,10 +18,12 @@ refining Forman as he goes. Everything below is judged by whether it gets us the
    built to. **M1 is held** until canon pass 1 and the generated app's design are agreed.
 2. **Everything falls out of the blueprint.** The description is verbose because agents write it; the payoff is that
    docs, the app, live observability and the agent kit are generated, never hand-configured.
-3. **Spine and shell.** Forman is the spine and owns all the truth: blueprint, model, Worker, stores, proof,
-   telemetry. agent-native (Builder.io, MIT) is the shell. **What `generate` produces is one app, our own template**,
-   built from parts of agent-native's Content, Analytics, Plans and Chat. The shell reads the model, calls operations
-   through generated actions and reads telemetry. It never owns domain data.
+3. **Spine and a purpose-built app.** Forman is the spine and owns all the truth: blueprint, model, Worker, stores,
+   proof, telemetry. **What `generate` produces is one simple app of our own** (Aaron, 18 November: "not 100%
+   convinced of going all in on agent-native … something simple and purpose built … maybe we take the ideas").
+   From agent-native we take ideas, not the runtime: one action per operation with flags from the declaration, chat
+   that knows the screen, derived blocks beside written prose, approvals. HeroUI Pro is fine as the UI kit; it is an
+   internal app. The UX of how generated, written and live content fit together is designed before more is built.
 4. **Content is the central context area**: people's and agents' own notes, plans, research and conversations, plus
    the generated pages, which are mostly derived from the code with some prose people write.
 5. **Analytics is for building and measuring the system**: events flowing through, errors, refusals, each operation
@@ -39,7 +41,7 @@ refining Forman as he goes. Everything below is judged by whether it gets us the
  ① docs canon ── defines each concept ───────┤ portal projections (M1.13) and is the
      │  its <Model> blocks are ③'s pages     │ face over M3 factory and M4 agents
  ② skills design ── the agent kit (S8) ── used inside ③
- ③ generated app (spine + agent-native shell)
+ ③ generated app (spine + our own purpose-built app)
      ▲ reads ④ (live data path)  ▲ uses ⑤ (animations)
  ④ portal-observability spike (done)   ⑤ visuals spike (done)
  decided and merged: K2 frame · K3 stores and sources · O2 trace gaps · M0 rename
@@ -51,7 +53,7 @@ refining Forman as he goes. Everything below is judged by whether it gets us the
 |---|---|---|---|---|---|
 | ① | Docs canon in MDX | #38 | **Pass 1:** Aaron agrees the outline, the template and the `stores` and `traces` pages. **Pass 2:** every page in the outline written; the canon check passes on `main` | M1's contracts; the generated app's Content pages | pass 1 done, **waits on Aaron's review** |
 | ② | Skills and workflows for Blueprint (K4) | #37 | Aaron answers its four questions; K4 updated with the answers and merged | the agent kit (S8, S11, S12); what agents do in ③; M3 and M4 | **waits on Aaron's four answers** |
-| ③ | Generated app on agent-native | #41 | **Pass 1:** design PR with IA options and sketches inline, Aaron lightly agrees. **Pass 2:** on acme, locally, generated from the model: one action per operation; derived pages for things, operations, machines, events, errors and environments; live spans, events and errors; chat answers "why did spend refuse ada?" from the screen and the trace | proves "falls out for free"; becomes the app projection in M1 | design done, **waits on Aaron's four answers** |
+| ③ | Generated app (purpose-built) | #41 | **Pass 1:** design PR with IA options and sketches inline, Aaron lightly agrees. **Pass 2:** on acme, locally, generated from the model: one action per operation; derived pages for things, operations, machines, events, errors and environments; live spans, events and errors; chat answers "why did spend refuse ada?" from the screen and the trace | proves "falls out for free"; becomes the app projection in M1 | design done, **waits on Aaron's four answers** |
 | ④ | Portal observability spike | #39 | Merged for the record | ③'s data path: a page is a pure function of `model.json` plus a telemetry window, read from the Collector's files | done, merge for the record |
 | ⑤ | Animated visuals and the `visuals` skill | #34 | Aaron approves the look; merged | ① and ③'s animations | **waits on Aaron's look** |
 | — | work-real spike | #28 | Merged for the record before M3 | M3, the factory | parked |
