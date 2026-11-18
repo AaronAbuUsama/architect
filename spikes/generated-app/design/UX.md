@@ -116,3 +116,16 @@ His notes, in order, as things to settle before the next drawing:
 8. **A thing's page starts with its lifecycle**, then its operations.
 9. **HeroUI Pro was bought and not used.** Since settled: agent-native as it is, so no HeroUI.
 10. **Ask before designing.** These screens were drawn without asking what he wants.
+
+## Aaron's answers to the steelman (18 November 2026)
+
+- **Telemetry, not analytics.** "A proper analytics platform" means the system's telemetry: calls, refusals, timings,
+  paths. Business numbers (money spent this month) are out of scope.
+- **No plans.** Things and their notes. Notes are not canon.
+- **One new template**, combining the agent-native parts we need, with the map built ourselves inside it.
+- **The middle of the shape:** the runtime's order is fixed (payload check, role check, replay, machine check, handler,
+  answer check, move, commit), so the framework already knows it. Only where a declared error is raised among the
+  handler's steps is unknown, and a trace shows it. Nothing new needs declaring.
+- **Two framework fixes**, so every call lights up the shape: the role check gets a span inside the operation's span
+  (language-effect handler/service.ts:46 runs before the span opens at :83), and the move is written on the operation's
+  span, not whichever span is current (internal/move.ts:48; revoke calls `move` inside `steps.update`).
