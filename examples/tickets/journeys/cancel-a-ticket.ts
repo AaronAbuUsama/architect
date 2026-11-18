@@ -28,7 +28,7 @@ export default Blueprint.journey("cancel a ticket", {
       s.guest.run(checkIn, { ticket: s.world.ticket }),
       refuses(machine.notFrom, { state: "cancelled" }),
       noEvents(),
-      spans({ absent: ["ticket.checkIn.record"] }),
+      spans({ absent: ["ticket.check-in.record"] }),
     ),
   ],
 });

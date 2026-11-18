@@ -23,5 +23,12 @@ export default Blueprint.journey("an event that is over sells nothing", {
       noEvents(),
       spans({ absent: ["event.claim.issue", "event.claim.count"] }),
     ),
+    s.step(
+      "closing it again is refused: it is already over",
+      s.organiser.run(close, { event: s.world.event }),
+      refuses(machine.notFrom, { state: "over" }),
+      noEvents(),
+      spans({ absent: ["event.close.record"] }),
+    ),
   ],
 });

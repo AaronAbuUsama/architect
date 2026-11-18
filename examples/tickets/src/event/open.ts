@@ -1,15 +1,17 @@
 // Scaffolded from blueprint/things/event/verbs/open.ts. Yours from now on.
 import { Effect } from "effect";
-import { Handlers } from "@orthograph/language-effect";
+import { Ids, Records } from "@orthograph/language-effect";
 import type { Handler } from "../../generated/api/src/event/open.handler.ts";
+import { Event } from "../../blueprint/things/event/thing.ts";
 
 /** Put an event on sale with a number of places. */
-const open: Handler = (_payload, _context) =>
+const open: Handler = ({ title, places }, { steps, move }) =>
   Effect.gen(function* () {
-    // Payload: title, places.
-    // Answer: event.
-    // Steps, each its own span: steps.insert(...).
-    return yield* Handlers.blank("this handler is not written yet");
+    const records = yield* Records;
+    const event = yield* Ids.of(Event.fields.id);
+    yield* steps.insert(records.insert(Event, { id: event, title, places, claimed: 0n }));
+    yield* move("onSale");
+    return { event };
   });
 
 export default open;

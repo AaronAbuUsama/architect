@@ -2,6 +2,7 @@
 import { Blueprint, emits, expect, noEvents, refuses, spans } from "orthograph";
 import { machine } from "../blueprint/things/ticket/machine.ts";
 import { TicketCheckedIn } from "../blueprint/things/ticket/events.ts";
+import cancel from "../blueprint/things/ticket/verbs/cancel.ts";
 import checkIn from "../blueprint/things/ticket/verbs/check-in.ts";
 import get from "../blueprint/things/ticket/verbs/get.ts";
 
@@ -14,7 +15,7 @@ export default Blueprint.journey("check in at the door", {
       s.guest.run(checkIn, { ticket: s.world.ticket }),
       emits(TicketCheckedIn, { ticket: s.world.ticket }),
       machine.isIn(s.world.ticket, "checkedIn"),
-      spans({ present: ["ticket.checkIn", "ticket.checkIn.record"] }),
+      spans({ present: ["ticket.check-in", "ticket.check-in.record"] }),
     ),
     s.step(
       "reading it back shows a checked in ticket",
@@ -27,7 +28,14 @@ export default Blueprint.journey("check in at the door", {
       s.guest.run(checkIn, { ticket: s.world.ticket }),
       refuses(machine.notFrom, { state: "checkedIn" }),
       noEvents(),
-      spans({ absent: ["ticket.checkIn.record"] }),
+      spans({ absent: ["ticket.check-in.record"] }),
+    ),
+    s.step(
+      "a used ticket cannot be cancelled",
+      s.guest.run(cancel, { ticket: s.world.ticket }),
+      refuses(machine.notFrom, { state: "checkedIn" }),
+      noEvents(),
+      spans({ absent: ["ticket.cancel.record"] }),
     ),
   ],
 });

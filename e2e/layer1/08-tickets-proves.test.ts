@@ -13,7 +13,7 @@ describe("ortho prove --env local on tickets, the canon's example", () => {
     const lines = run.stdout.trimEnd().split("\n");
     expect(lines.filter((l) => /^journey .* ✔ \d+\/\d+ steps$/.test(l))).toHaveLength(6);
     expect(lines.filter((l) => / 9 evals ✔ /.test(l))).toHaveLength(7);
-    expect(lines).toContain("coverage ✔ moves 3/3 · outcomes 3/3 · refusals 1/1 · runtime refusals 2/2");
+    expect(lines).toContain("coverage ✔ moves 5/5 · outcomes 5/5 · refusals 1/1 · runtime refusals 4/4");
     expect(lines.at(-1)).toBe("prove ✔");
     nothingRunning(project.root);
   });
