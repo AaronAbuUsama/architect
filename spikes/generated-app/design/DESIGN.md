@@ -59,8 +59,11 @@ it, and write around it.
   versioner uses). Two buttons: show the change, or "still true", which re-pins it to the new hash.
 - **Generate never touches prose.** A regenerated page keeps its prose slots by their anchor. If a declaration is
   removed, its page becomes an orphan with its prose kept, flagged, until someone deletes it.
-- **Agents write as suggestions.** An agent's prose arrives as a suggestion (agent-native's review suggestions) until a
+- **Agents write as suggestions.** An agent's prose arrives as a suggestion (Content's `suggest-document-edit`) until a
   person accepts it. The note page in the sketches shows one.
+- **What we borrow, and what we add.** Content keeps Markdown documents in a tree, with Yjs live editing and comments
+  anchored to quoted text. It has no locked or derived regions; the blocks are what we add, as MDX-style components the
+  editor renders but won't let you type into.
 
 ## The page kinds
 
@@ -142,7 +145,10 @@ export default defineAction({
 });
 ```
 
-A refusal comes back as `errors.fail(message, "AllowanceExceeded", { details })`, with the error's carried fields
+Actions live one per file under `actions/`, named from the file in kebab case, and are served at
+`POST /_agent-native/actions/allowance-spend`, to the UI (`useActionMutation`), the chat, MCP, A2A and
+`pnpm action allowance-spend '{json}'`. agent-native has no general idempotency key, so `run` sends spend's request key
+itself. A refusal comes back as `errors.fail(message, "AllowanceExceeded", { details })`, with the error's carried fields
 (`remaining`) in `details`. That is agent-native's typed failure, so a chat can switch on it. Forman's errors stay
 values inside the Worker; the shell turns the answer into agent-native's failure only at its edge.
 
@@ -153,7 +159,8 @@ The shell's own actions are hand-written once in the template, not per project: 
 
 The chat is agent-native's. It knows the current screen, and Forman gives it tools to read the rest:
 
-- **the screen**: the page, the environment and window in scope, the trace or call that is open;
+- **the screen**: the page writes agent-native's `navigation` and `selection:<tab>` keys (the page, the scope, the open
+  trace), and the app's `view-screen` action turns them into the `<current-screen>` block core injects on every turn;
 - **the docs**: `describe` (the model), `read-page` (any page, prose included);
 - **the traces**: `calls`, `trace`, `refusals`, `events`, over the same `TraceSource`.
 
