@@ -17,8 +17,7 @@ export type ValueMeta =
   | { readonly type: "id"; readonly prefix: string }
   | { readonly type: "uint"; readonly bits: number }
   | { readonly type: "text"; readonly max: number }
-  | { readonly type: "ref-any" }
-  | { readonly type: "schema" };
+  | { readonly type: "schema"; readonly format?: "ref-any" };
 
 /** The TypeScript type a value holds. */
 export type TypeOf<V extends Value> = V["schema"]["Type"];

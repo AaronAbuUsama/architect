@@ -32,7 +32,7 @@ export const Values: ValuesApi = {
     described(Schema.Struct({
       declaration: Schema.String.check(Schema.isPattern(/^[a-z][a-z0-9]*(-[a-z0-9]+)*$/)),
       id: Schema.String.check(Schema.isMinLength(1)),
-    }), { type: "ref-any" }),
+    }), { type: "schema", format: "ref-any" }),
   email: () => described(Schema.String.check(Schema.isMaxLength(254), Schema.isPattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)), { type: "text", max: 254 }),
 };
 

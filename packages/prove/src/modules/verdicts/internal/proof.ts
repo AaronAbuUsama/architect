@@ -43,18 +43,7 @@ const stories = (model: Model, operation: string) =>
     return scenario.operationNames.has(operation) ? [{ journey, worlds: scenario.worlds }] : [];
   }).sort((a, b) => a.journey.file.localeCompare(b.journey.file));
 
-const hashStories = (declared: ReturnType<typeof stories>) => digest(canonical(declared.map(({ journey, worlds }) => ({
-  worlds,
-  journey: {
-    ...journey,
-    // Source bytes identify authored predicates independently of how a loader prints them.
-    steps: journey.sourceHash ? journey.steps.map((step) => "call" in step ? {
-      ...step, checks: step.checks.map((check) => ({ ...check, pick: undefined })),
-    } : step) : journey.steps,
-  },
-}))));
-
-export const storyHash = (model: Model, operation: string) => hashStories(stories(model, operation));
+export const storyHash = (model: Model, operation: string) => digest(canonical(stories(model, operation)));
 
 /** Compare the specific handler and journey definitions this operation's proof used. */
 export const evidenceHolds = (
@@ -67,5 +56,5 @@ export const evidenceHolds = (
   const declared = stories(model, operation);
   const judged = verdicts.map((v) => v.journey).sort((a, b) => a.localeCompare(b));
   return declared.length === judged.length && declared.every((s, i) => s.journey.file === judged[i])
-    && hashStories(declared) === story;
+    && digest(canonical(declared)) === story;
 };

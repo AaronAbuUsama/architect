@@ -577,7 +577,6 @@
             "checks": [
               {
                 "kind": "expect-equal",
-                "pick": "(a) => [a.taken, a.state]",
                 "value": [
                   "0",
                   "closed"
@@ -617,7 +616,6 @@
             "checks": [
               {
                 "kind": "expect-equal",
-                "pick": "(a) => a.left",
                 "value": "1"
               },
               {
@@ -723,7 +721,6 @@
             "checks": [
               {
                 "kind": "expect-equal",
-                "pick": "(a) => a.left",
                 "value": "0"
               },
               {
@@ -805,7 +802,6 @@
             "checks": [
               {
                 "kind": "expect-equal",
-                "pick": "(a) => [a.places, a.taken, a.state]",
                 "value": [
                   "2",
                   "2",
@@ -849,7 +845,6 @@
             "checks": [
               {
                 "kind": "expect-equal",
-                "pick": "(a) => a.left",
                 "value": "1"
               },
               {
@@ -886,7 +881,6 @@
             "checks": [
               {
                 "kind": "expect-equal",
-                "pick": "(a) => a.left",
                 "value": "1"
               },
               {
@@ -918,7 +912,6 @@
             "checks": [
               {
                 "kind": "expect-equal",
-                "pick": "(a) => [a.taken, a.state]",
                 "value": [
                   "1",
                   "open"
@@ -952,7 +945,6 @@
             "checks": [
               {
                 "kind": "expect",
-                "pick": "(a) => a.sheet",
                 "match": "^sht_",
                 "flags": ""
               },
@@ -1007,7 +999,6 @@
             "checks": [
               {
                 "kind": "expect-equal",
-                "pick": "(a) => [a.title, a.places, a.taken, a.state]",
                 "value": [
                   "Book club",
                   "3",
@@ -1116,5 +1107,5 @@
       "reason": "no trace source is wired to the portal yet"
     }
   },
-  "digest": "6cd2d8fe1ada7dd077bf6ab7e1e5fa3f2f2a5de07ade54b6cd346902aa307e74"
+  "digest": "353fd9e70e29baab67ac67e74a602e0d60a02ca0b75140ff2a55e7b6c0ddc1e2"
 }

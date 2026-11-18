@@ -5,12 +5,13 @@ The conductor's 18 November 2026 call is represented by `from: { kind: "app" }` 
 The existing package paths and mount names continue to drive imports.
 
 `Blueprint.refAny()` declares a value with `{ declaration, id }` on the wire. The declaration is a compiled
-thing name, including any mount prefix. The schema checks the name's shape and requires a nonempty id.
+thing name, including any mount prefix. The model marks the format as `ref-any` under the structured schema kind,
+so the same records and verdict code can handle the object. The schema checks the name's shape and requires a nonempty id.
 Checking whether that instance exists belongs to the operation using the reference. API, SDK and MCP use the
 declaration's schema. A generated CLI flag accepts the reference as JSON.
 
 The model keys journeys by their project-relative file or package specifier. It names their cast, starting world,
-calls, symbolic references and assertions. Starting worlds are keyed by their declared name. Role rules include
+calls, symbolic references and assertions. Selectors are identified by the authored file and assertion position. Starting worlds are keyed by their declared name. Role rules include
 the predicate source. Marked private call and assertion fields redact literals. The original journey declarations
 remain the proof runner's input. A step whose operation was omitted is marked as skipped in the model.
 

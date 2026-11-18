@@ -1153,7 +1153,6 @@
             "checks": [
               {
                 "kind": "expect-equal",
-                "pick": "(a) => a.organization",
                 "value": {
                   "ref": [
                     "world",
@@ -1163,7 +1162,6 @@
               },
               {
                 "kind": "expect",
-                "pick": "(a) => a.membership",
                 "match": "^mem_[0-9a-z]+$",
                 "flags": ""
               },
@@ -1355,13 +1353,11 @@
             "checks": [
               {
                 "kind": "expect",
-                "pick": "(a) => a.apiKey",
                 "match": "^key_[0-9a-z]+$",
                 "flags": ""
               },
               {
                 "kind": "expect",
-                "pick": "(a) => a.key",
                 "match": "^.+$",
                 "flags": ""
               },
@@ -1388,7 +1384,6 @@
             "checks": [
               {
                 "kind": "expect",
-                "pick": "(a) => a.organization",
                 "match": "^org_[0-9a-z]+$",
                 "flags": ""
               },
@@ -1473,13 +1468,11 @@
             "checks": [
               {
                 "kind": "expect",
-                "pick": "(a) => a.apiKey",
                 "match": "^key_[0-9a-z]+$",
                 "flags": ""
               },
               {
                 "kind": "expect",
-                "pick": "(a) => a.key",
                 "match": "^.+$",
                 "flags": ""
               }
@@ -1508,7 +1501,6 @@
             "checks": [
               {
                 "kind": "expect-equal",
-                "pick": "(a) => a.status",
                 "value": "ok"
               },
               {
@@ -1553,7 +1545,6 @@
             "checks": [
               {
                 "kind": "expect-equal",
-                "pick": "(a) => a.person",
                 "value": {
                   "ref": [
                     "cast",
@@ -1564,7 +1555,6 @@
               },
               {
                 "kind": "expect-equal",
-                "pick": "(a) => a.email",
                 "value": {
                   "ref": [
                     "cast",
@@ -1602,12 +1592,10 @@
             "checks": [
               {
                 "kind": "expect-equal",
-                "pick": "(a) => a.name",
                 "value": "Acme Demo"
               },
               {
                 "kind": "expect-equal",
-                "pick": "(a) => a.owner",
                 "value": {
                   "ref": [
                     "cast",
@@ -1618,7 +1606,6 @@
               },
               {
                 "kind": "expect-equal",
-                "pick": "(a) => a.state",
                 "value": "active"
               },
               {
@@ -1701,7 +1688,6 @@
             "checks": [
               {
                 "kind": "expect",
-                "pick": "(a) => a.invitation",
                 "match": "^inv_[0-9a-z]+$",
                 "flags": ""
               },
@@ -1806,7 +1792,6 @@
             "checks": [
               {
                 "kind": "expect-equal",
-                "pick": "(a) => a.organization",
                 "value": {
                   "ref": [
                     "world",
@@ -1816,7 +1801,6 @@
               },
               {
                 "kind": "expect",
-                "pick": "(a) => a.membership",
                 "match": "^mem_[0-9a-z]+$",
                 "flags": ""
               },
@@ -1881,7 +1865,6 @@
             "checks": [
               {
                 "kind": "expect-equal",
-                "pick": "(a) => a.organization",
                 "value": {
                   "ref": [
                     "world",
@@ -1891,7 +1874,6 @@
               },
               {
                 "kind": "expect-equal",
-                "pick": "(a) => a.person",
                 "value": {
                   "ref": [
                     "cast",
@@ -1902,7 +1884,6 @@
               },
               {
                 "kind": "expect-equal",
-                "pick": "(a) => a.role",
                 "value": "member"
               },
               {
@@ -1934,7 +1915,6 @@
             "checks": [
               {
                 "kind": "expect",
-                "pick": "(a) => a.invitation",
                 "match": "^inv_[0-9a-z]+$",
                 "flags": ""
               },
@@ -2097,7 +2077,6 @@
             "checks": [
               {
                 "kind": "expect",
-                "pick": "(a) => a.person",
                 "match": "^per_[0-9a-z]+$",
                 "flags": ""
               },
@@ -2213,13 +2192,11 @@
             "checks": [
               {
                 "kind": "expect",
-                "pick": "(a) => a.session",
                 "match": "^ses_[0-9a-z]+$",
                 "flags": ""
               },
               {
                 "kind": "expect",
-                "pick": "(a) => a.token",
                 "match": "^.+$",
                 "flags": ""
               },
@@ -2522,5 +2499,5 @@
       "reason": "no trace source is wired to the portal yet"
     }
   },
-  "digest": "1cfcebd9feea305f7909cde99a0d4698a441cd03be51451bd23b8de2f53f5237"
+  "digest": "0f65e6a24537230dd7196be804adde714267a15a9d28a94157ea437223fc812f"
 }

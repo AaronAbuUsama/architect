@@ -37,8 +37,8 @@ export const storiesOf = (
 
   const checkOf = (check: Assertion): { readonly kind: Assertion["kind"]; readonly [key: string]: unknown } => {
     switch (check.kind) {
-      case "expect": return { kind: check.kind, pick: check.pick.toString(), match: check.match.source, flags: check.match.flags };
-      case "expect-equal": return { kind: check.kind, pick: check.pick.toString(), value: data(check.value) };
+      case "expect": return { kind: check.kind, match: check.match.source, flags: check.match.flags };
+      case "expect-equal": return { kind: check.kind, value: data(check.value) };
       case "emits": return {
         kind: check.kind, event: EventNames.nameOf(check.event),
         fields: Object.fromEntries(Object.entries(check.fields).map(([k, v]) => [k, check.event.fields[k]?.visibility === "public" ? data(v) : { redacted: true }])),

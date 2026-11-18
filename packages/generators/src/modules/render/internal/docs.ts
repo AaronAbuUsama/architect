@@ -11,7 +11,7 @@ const MARK = "<!-- Generated from the blueprint. Do not edit. -->";
 const fieldRows = (fields: FieldsModel) =>
   Object.keys(fields).length === 0
     ? ["(none)"]
-    : ["| field | value |", "|---|---|", ...Object.entries(fields).map(([k, f]) => `| ${k}${f.optional ? " (optional)" : ""} | ${f.ref ?? f.named ?? (f.value.type === "ref-any" ? "any thing (declaration and id)" : f.value.type)}${f.visibility ? ` (${f.visibility === "secret" ? "secret" : `private to ${f.visibility.private.join(", ")}`})` : ""} |`)];
+    : ["| field | value |", "|---|---|", ...Object.entries(fields).map(([k, f]) => `| ${k}${f.optional ? " (optional)" : ""} | ${f.ref ?? f.named ?? (f.value.type === "schema" && f.value.format === "ref-any" ? "any thing (declaration and id)" : f.value.type)}${f.visibility ? ` (${f.visibility === "secret" ? "secret" : `private to ${f.visibility.private.join(", ")}`})` : ""} |`)];
 
 const who = (op: OperationModel) =>
   op.allowed.map((a) => (a.kind === "anyone" ? "anyone" : a.kind === "signed-in" ? "anyone signed in" : a.kind === "role" ? `the ${a.role.split(".").pop()} of the ${op.thing}` : `the ${a.role.split(".").pop()} of its ${a.path}`)).join(", or ");
@@ -63,7 +63,7 @@ const thingPage = (model: Model, t: ThingModel): RenderedFile => {
       `# ${t.name}`,
       "",
       t.description,
-      "", `Lives in ${t.lives === "actor" ? "its own Durable Object" : "the database"}.`,
+      "", `Lives in ${t.lives === "actor" ? "its own Durable Object" : "the database"}${t.store ? `, in the store ${t.store}` : ""}.`,
       "", "## Fields", "", fieldRows(t.fields),
       t.machine ? ["", "## Machine", "", `States: ${t.machine.states.join(", ")}. A move from the wrong state is refused ${t.machine.notFrom.error} (exit ${t.machine.notFrom.exit}).`, "",
         "| move | from | to | emits |", "|---|---|---|---|",

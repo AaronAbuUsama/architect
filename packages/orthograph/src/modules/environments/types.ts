@@ -16,6 +16,11 @@ export interface EnvironmentSpec {
   readonly cloud?: CloudProvider;
   /** Where it lives locally. */
   readonly database?: Database;
+  /**
+   * Only the stores that differ from the default: each names a declared store (`blueprint/stores/<name>.ts`) and where
+   * it lives here. The compiler refuses a name that isn't a store. By default every store gets its own database.
+   */
+  readonly stores?: Readonly<Record<string, Database>>;
   /** Secrets by name, and how each gets its value. */
   readonly secrets?: Readonly<Record<string, Secret>>;
   /** Where its traces and logs go: a list, so one sink or several is the same line. Absent: the local Collector only. */

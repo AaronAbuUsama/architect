@@ -1,4 +1,4 @@
-import type { OperationModel, ThingModel } from "@orthograph/compiler";
+import type { Model, OperationModel, StoreModel, ThingModel } from "@orthograph/compiler";
 
 export const GENERATED = "// Generated from the blueprint. Do not edit.";
 export const scaffolded = (from: string) => `// Scaffolded from ${from}. Yours from now on.`;
@@ -18,6 +18,17 @@ export const declarationAt = (from: string, file: string) => (file.startsWith("b
 /** A thing's own file (`thing`, `errors`, `events`): in the project, or in the plugin it came from. */
 export const thingFileAt = (from: string, thing: ThingModel, file: "thing" | "errors" | "events") =>
   thing.from.kind !== "app" ? `${thing.from.package}/blueprint/things/${thing.from.thing}/${file}.js` : `${toRoot(from)}blueprint/things/${thing.name}/${file}.ts`;
+
+/** A store's own file: the project's `blueprint/stores/<name>.ts`, or the plugin's `stores/<store>.js`. */
+export const storeFileAt = (from: string, store: StoreModel) =>
+  store.from ? `${store.from.package}/blueprint/stores/${store.from.store}.js` : `${toRoot(from)}blueprint/stores/${store.name}.ts`;
+
+/** The Worker binding of a declared database store's D1: `ledger` is `DB_LEDGER`, `echo-ledger` is `DB_ECHO_LEDGER`. */
+export const bindingOf = (store: StoreModel) => `DB_${store.name.toUpperCase().replaceAll("-", "_")}`;
+
+/** The declared stores the Worker binds a D1 for: a database store, in name order. */
+export const databaseStores = (model: Model): ReadonlyArray<StoreModel> =>
+  Object.values(model.stores ?? {}).filter((s) => s.kind === "database");
 
 /** An operation's handler for the worker: the project's `src/<thing>/<verb>.ts`, or the plugin's `src/<thing>/<verb>.js`. */
 export const handlerAt = (from: string, op: OperationModel) =>

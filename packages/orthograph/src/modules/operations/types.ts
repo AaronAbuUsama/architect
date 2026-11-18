@@ -10,6 +10,8 @@ import type { TypeOf } from "#modules/values/types.js";
 export interface Step<K extends StepKind = StepKind> {
   readonly kind: "step";
   readonly type: K;
+  /** A `database` step: the things it writes, when not just the operation's own. The compiler refuses writes to two stores (K3 item 5). */
+  readonly writes?: ReadonlyArray<Thing>;
 }
 /**
  * What a step is. `database` and `wait` are what the Effect target runs. `sync`, `check` and `prove` are reserved for
@@ -154,5 +156,9 @@ export interface OperationsApi {
       readonly budget?: Budget;
     }): Read<T, ListPayload<T, W>, Page<ListItem<T>>>;
   };
-  readonly step: { readonly database: () => Step<"database">; readonly wait: () => Step<"wait"> };
+  readonly step: {
+    /** Writes the operation's thing, or the things named: all of them must live in one store. */
+    readonly database: (spec?: { readonly writes?: ReadonlyArray<Thing> }) => Step<"database">;
+    readonly wait: () => Step<"wait">;
+  };
 }

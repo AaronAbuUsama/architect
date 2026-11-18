@@ -1667,7 +1667,6 @@
           "checks": [
             {
               "kind": "expect-equal",
-              "pick": "(a) => a.organization",
               "value": {
                 "ref": [
                   "world",
@@ -1677,7 +1676,6 @@
             },
             {
               "kind": "expect",
-              "pick": "(a) => a.membership",
               "match": "^mem_[0-9a-z]+$",
               "flags": ""
             },
@@ -1869,13 +1867,11 @@
           "checks": [
             {
               "kind": "expect",
-              "pick": "(a) => a.apiKey",
               "match": "^key_[0-9a-z]+$",
               "flags": ""
             },
             {
               "kind": "expect",
-              "pick": "(a) => a.key",
               "match": "^.+$",
               "flags": ""
             },
@@ -1903,7 +1899,6 @@
           "checks": [
             {
               "kind": "expect",
-              "pick": "(a) => a.organization",
               "match": "^org_[0-9a-z]+$",
               "flags": ""
             },
@@ -1988,13 +1983,11 @@
           "checks": [
             {
               "kind": "expect",
-              "pick": "(a) => a.apiKey",
               "match": "^key_[0-9a-z]+$",
               "flags": ""
             },
             {
               "kind": "expect",
-              "pick": "(a) => a.key",
               "match": "^.+$",
               "flags": ""
             }
@@ -2045,7 +2038,6 @@
           "checks": [
             {
               "kind": "expect",
-              "pick": "(a) => a.allowance",
               "match": "^alw_[0-9a-z]+$",
               "flags": ""
             },
@@ -2191,7 +2183,6 @@
           "checks": [
             {
               "kind": "expect-equal",
-              "pick": "(a) => a.status",
               "value": "ok"
             },
             {
@@ -2236,7 +2227,6 @@
           "checks": [
             {
               "kind": "expect-equal",
-              "pick": "(a) => a.person",
               "value": {
                 "ref": [
                   "cast",
@@ -2247,7 +2237,6 @@
             },
             {
               "kind": "expect-equal",
-              "pick": "(a) => a.email",
               "value": {
                 "ref": [
                   "cast",
@@ -2285,12 +2274,10 @@
           "checks": [
             {
               "kind": "expect-equal",
-              "pick": "(a) => a.name",
               "value": "Acme Demo"
             },
             {
               "kind": "expect-equal",
-              "pick": "(a) => a.owner",
               "value": {
                 "ref": [
                   "cast",
@@ -2301,7 +2288,6 @@
             },
             {
               "kind": "expect-equal",
-              "pick": "(a) => a.state",
               "value": "active"
             },
             {
@@ -2384,7 +2370,6 @@
           "checks": [
             {
               "kind": "expect",
-              "pick": "(a) => a.invitation",
               "match": "^inv_[0-9a-z]+$",
               "flags": ""
             },
@@ -2489,7 +2474,6 @@
           "checks": [
             {
               "kind": "expect-equal",
-              "pick": "(a) => a.organization",
               "value": {
                 "ref": [
                   "world",
@@ -2499,7 +2483,6 @@
             },
             {
               "kind": "expect",
-              "pick": "(a) => a.membership",
               "match": "^mem_[0-9a-z]+$",
               "flags": ""
             },
@@ -2564,7 +2547,6 @@
           "checks": [
             {
               "kind": "expect-equal",
-              "pick": "(a) => a.organization",
               "value": {
                 "ref": [
                   "world",
@@ -2574,7 +2556,6 @@
             },
             {
               "kind": "expect-equal",
-              "pick": "(a) => a.person",
               "value": {
                 "ref": [
                   "cast",
@@ -2585,7 +2566,6 @@
             },
             {
               "kind": "expect-equal",
-              "pick": "(a) => a.role",
               "value": "member"
             },
             {
@@ -2617,7 +2597,6 @@
           "checks": [
             {
               "kind": "expect",
-              "pick": "(a) => a.invitation",
               "match": "^inv_[0-9a-z]+$",
               "flags": ""
             },
@@ -2810,17 +2789,14 @@
           "checks": [
             {
               "kind": "expect-equal",
-              "pick": "(a) => a.state",
               "value": "active"
             },
             {
               "kind": "expect-equal",
-              "pick": "(a) => a.limit",
               "value": "500"
             },
             {
               "kind": "expect-equal",
-              "pick": "(a) => a.spent",
               "value": "0"
             },
             {
@@ -2845,7 +2821,6 @@
           "checks": [
             {
               "kind": "expect-equal",
-              "pick": "(a) => a.member",
               "value": {
                 "ref": [
                   "cast",
@@ -2856,7 +2831,6 @@
             },
             {
               "kind": "expect-equal",
-              "pick": "(a) => [a.state, a.limit, a.spent]",
               "value": [
                 "active",
                 "500",
@@ -3085,7 +3059,6 @@
           "checks": [
             {
               "kind": "expect",
-              "pick": "(a) => a.person",
               "match": "^per_[0-9a-z]+$",
               "flags": ""
             },
@@ -3201,13 +3174,11 @@
           "checks": [
             {
               "kind": "expect",
-              "pick": "(a) => a.session",
               "match": "^ses_[0-9a-z]+$",
               "flags": ""
             },
             {
               "kind": "expect",
-              "pick": "(a) => a.token",
               "match": "^.+$",
               "flags": ""
             },
@@ -3255,7 +3226,6 @@
           "checks": [
             {
               "kind": "expect-equal",
-              "pick": "(a) => a.remaining",
               "value": "400"
             },
             {
@@ -3294,7 +3264,6 @@
           "checks": [
             {
               "kind": "expect-equal",
-              "pick": "(a) => a.remaining",
               "value": "400"
             },
             {
@@ -3326,7 +3295,6 @@
           "checks": [
             {
               "kind": "expect-equal",
-              "pick": "(a) => a.spent",
               "value": "100"
             }
           ]
@@ -3364,7 +3332,6 @@
           "checks": [
             {
               "kind": "expect-equal",
-              "pick": "(a) => a.remaining",
               "value": "380"
             },
             {
@@ -3463,7 +3430,6 @@
           "checks": [
             {
               "kind": "expect-equal",
-              "pick": "(a) => a.remaining",
               "value": "0"
             },
             {
