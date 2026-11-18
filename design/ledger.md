@@ -45,8 +45,7 @@ K5, the whole shape (PR #44 at ce6ed2d, not merged yet), answers 1, 2 and the "h
 portal stays: M1.13 becomes "docs and the portal", our own design on pieces ported from agent-native. None of
 agent-native's code runs (M1.23 to M1.25). The rows say how. 3 and 4 are still open. K5 also brings five new items,
 owned so far only by slices in K5: `OPS-14`, `PRJ-44`, `TRA-43`, `TRA-44` and `LAH-45` (LAH-45 by K7,
-then M6.01). Aaron has since
-answered Q5 (`OPS-14`).
+then M6.01). Aaron has since answered Q5 (`OPS-14`).
 
 ## How the ledger and the canon talk to each other
 
