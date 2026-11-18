@@ -113,11 +113,10 @@ The manager is K11's and lives in `@orthograph/work`, not here.
 - **The roster is declared data.** `factory.roster` is generated from the agents' files, and
   `factory.roster.for(kind)` gives the agent for an item kind: builder for `build`, `fix` and `improve` (M3.09's
   kinds); author for `write:journey`; reviewer for `review`; spike for `spike`; planner for `specify`. The designer is
-  reached from the chat, not dispatched. K11's dispatch calls `roster.for`, so no string names an agent. Two things K11
-  must carry for this to work (sent to 🗂 through the conductor): its items need a `kind` that `roster.for` reads
-  (K11's seam already calls `roster.for(item.kind)`, but its item has only `worker`), and its `WorkerKind` must grow
-  from `builder | author | spike` to the roster's agents. Until then, the reviewer and planner are reached from the
-  chat only.
+  reached from the chat, not dispatched. K11's dispatch calls `roster.for`, so no string names an agent. K11 carries
+  it the same way (the conductor's call, 18 November): an item has a `kind`, its `worker` is `person | agent`, and an
+  agent worker's role is `factory.roster.for(kind)`, with no second copy of the roster. Dispatch has a review pass that
+  starts the reviewer for items in `review`.
 - **First two, then the rest.** The builder and reviewer come first. The others follow, each one file.
 
 ## 3. Sandboxes and environments
