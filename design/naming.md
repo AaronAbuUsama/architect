@@ -5,9 +5,10 @@ place that says how each name is spelled, where it lives, and the rule that form
 (`docs/canon/`) owns what concepts *mean*; this page owns how identifiers are *spelled*. When a new kind of name
 appears, it gets a row here before it gets used.
 
-**Status: specified, not swept.** The code on `main` still says Forman, `forman` and `@formants`. The sweep is one
-slice, run after the open design pull requests land (K6, "Order"). The counts below were taken on `main` at `40ff66f`
-on 18 November 2026, outside `spikes/`.
+**Status: swept** (18 November 2026, the slice after K6's "Order"). The code and every living document say Orthograph,
+`ortho` and `@orthograph`; the old-names lint rule and Gate M0's name check (`e2e/m0/names.test.ts`) catch any old
+name that comes back. The "Reach" counts below are from before the sweep, on `main` at `40ff66f`, outside `spikes/`;
+they stay as the record of what it changed. "What the sweep found" at the end lists what this map was missing.
 
 ## In short, for the ear
 
@@ -43,6 +44,7 @@ is still the blueprint, and a project's own names stay its own.
 |---|---|---|---|
 | Forman (prose) | **Orthograph** | READMEs, `design/`, the portal, CLI help text, `docs/canon/forman.mdx` (to `orthograph.mdx`) | "Forman" 137 times in 44 files |
 | the command `forman` | **`ortho`** | the `bin` of `@formants/cli`; commands quoted in docs, help and tests (`forman dev`, `forman prove --env`, `forman env up`, `forman check`, …) | 291 times in 125 files |
+| `npm create formants` (planned, M2.09) | **`npm create orthograph`**, the package `create-orthograph` | the milestones and the frame | 8 |
 | compiler binary `forman-model` | **`ortho-model`** | `packages/compiler/package.json` | 1 |
 
 ### npm and Nx
@@ -72,6 +74,11 @@ is still the blueprint, and a project's own names stay its own.
 | `FORMAN_*` variables (`ENVIRONMENT`, `LOGBOOK_URL`, `LOGBOOK_TOKEN`, `REVISION`, `REGISTRY`, `WORLDS`, `VERSION`, `BUNDLE_SHA`, `OIDC_ISSUER`, `OIDC_CLIENT`, `OIDC_REPOSITORY`, `OIDC_WORKFLOW`, `OIDC_REF`, `TAP_REPO`, `FORMULA`, `LIFETIME`, `LIVE_AXIOM`, `HOME`, `CACHE`) | **`ORTHO_*`**, same suffixes | CLI, prove, logbook, the generated server, e2e | 239 times in 60 files |
 | URL path `/_forman/bundle` | **`/_ortho/bundle`** | the reserved route every generated Worker answers | 24 times in 20 files |
 | OIDC audience `forman-logbook`, issuer `forman`, workflow `forman` | `ortho-logbook`, `ortho`, `ortho` | logbook tokens, ship, portal, e2e | 31 times in 21 files |
+| telemetry counters `forman.calls`, `forman.call.duration` | `ortho.calls`, `ortho.call.duration` | the handler wrapper's metrics, the canon | 23 |
+| the trace viewer container `forman-viewer`, the prove service `forman-prove` | `ortho-viewer`, `ortho-prove` | prove's viewer and journey spans | 5 |
+| the builder's MCP tools `mcp__forman__*` | `mcp__ortho__*` | the frame's skills design | 6 |
+| the agent kit link `.agents/skills/forman` | `.agents/skills/ortho` | the frame's generators and skills design | 5 |
+| Better Auth's placeholder origin `http://forman.local` | `http://ortho.local` | `host-cloudflare` | 3 |
 | containers and temp names `forman-collector-…`, `forman-staging-proof-…` | `ortho-collector-…`, `ortho-staging-proof-…` | prove's environments and tests | 15 times in 9 files |
 | telemetry scope `forman.prove` | `ortho.prove` | prove's journey spans | 1 |
 | symbol keys `forman/ref-path`, `forman/error-name` | `ortho/ref-path`, `ortho/error-name` | the front door's journeys and errors | 2 |
@@ -89,7 +96,12 @@ is still the blueprint, and a project's own names stay its own.
 
 ### Left as they are
 
-- Every dated record, under rule 6. The pre-Forman name still appears 395 times in 58 files, almost all of them history.
+- Every dated record, under rule 6. Gate M0's name check lists them (`records` in `e2e/m0/names.test.ts`). Beyond
+  `design/decisions/`, `design/history/` and `design/evidence/`, they are M0's own list (the briefs, wayfinding,
+  spikes, noir, state, `build-plan.md`, goal 1 and `frame/questions.md`), and the sweep added three more that record
+  what the files said: M0's goal (`goals/02-m0-land-and-rename.md`), the name search (`naming-search.md`) and the
+  ledger (`ledger.md`, whose rows quote the old names by line). This page is exempt too: it maps the old names.
+  Links to the record `decisions/K2-forman-frame.md` keep its file name. The pre-Forman name still appears 395 times in 58 files, almost all of them history.
   Those words stay. Lint ignores `design/**` (`.oxlintrc.json`), and the old-names rule only reads string literals in
   code, so prose anywhere is covered by the sweep's `git grep` check, not by lint.
 - `blueprint/`, `Blueprint.*`, the canon's words, and every project's own names (rules 4 and 5).
@@ -106,5 +118,21 @@ One slice, in the order of the tables, each category ending green:
 3. Rename by table: npm and Nx, a project's files, the names machines see, then the prose people see.
 4. Regenerate the examples (`generated/` is never edited by hand) and run every gate.
 
-**Done when:** lint passes with the extended rule; `git grep -i -E "formants|forman"` outside history, `spikes/` and
-the lint rule itself returns nothing; every e2e gate passes locally and in CI.
+**Done when:** lint passes with the extended rule; `git grep -i -P "(?<![Pp]er|[Cc]on)forman"` outside the records,
+`spikes/` and the lint rule itself finds only links to `K2-forman-frame.md` (a plain `-i -E "formants|forman"`
+also finds every "performance" and "conformance"); every e2e gate passes locally and in CI.
+
+## What the sweep found
+
+- **The map missed six machine names**, now rows above: the telemetry counters, the viewer container and prove's
+  service name, the builder's MCP tool names, the agent kit's link folder, Better Auth's placeholder origin, and the
+  planned `npm create` package.
+- **The done check's `git grep` matched ordinary words.** "performance" and "conformance" contain the old name, so the
+  check above excludes them; Gate M0's name check and the lint rule do the same.
+- **Rule 7 is in place for what builds names.** `Names` (`packages/orthograph/src/modules/names/`, exported from
+  `orthograph/server`) holds the three spellings, and the code that builds package names, the command, the
+  `.ortho/` folder and `ORTHO_` variables reads it: the preset, the generators' import lines, the CLI and prove. Still
+  spelled out: messages people read (`run \`ortho build\``), typed environments (`readonly ORTHO_REVISION`), generated
+  code and tests. The next rename changes `Names` and lets the lint rule list the rest.
+- **The front door is a package, the command is not.** Where the old docs wrote `forman` for the front door (the
+  module-boundary rules, `packages.md`, the canon's page `forman`), it became `orthograph`, not `ortho`.
