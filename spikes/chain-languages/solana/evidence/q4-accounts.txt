@@ -1,0 +1,89 @@
+== accounts each instruction needs, straight from the IDL (what a generated client has to supply) ==
+add_member(member_wallet)
+    workshop         ro                   FREE: the Workshop address is deployment config, like an EVM contract address (IDL gives no seeds here)
+    admin            ro  signer           caller's wallet (signature)
+    payer            mut signer           caller's wallet (signature)
+    member           mut                  PDA seeds "member" + workshop + arg:member_wallet
+    system_program   ro                   const 11111111...
+    event_authority  ro                   event_cpi: IDL has only the NAME; the TS client special-cases it (PDA [__event_authority]; program = this program)
+    program          ro                   event_cpi: IDL has only the NAME; the TS client special-cases it (PDA [__event_authority]; program = this program)
+close_proposal(id)
+    workshop         ro                   FREE: the Workshop address is deployment config, like an EVM contract address (IDL gives no seeds here)
+    admin            ro  signer           caller's wallet (signature)
+    proposal         mut                  PDA seeds "proposal" + workshop + arg:id
+gate_transfer(amount)
+    from             mut                  FREE: client must choose
+    to               mut                  FREE: client must choose
+    owner            ro  signer           caller's wallet (signature)
+    token_program    ro                   const Tokenkeg...
+get_proposal(_id)
+    workshop         ro                   FREE: the Workshop address is deployment config, like an EVM contract address (IDL gives no seeds here)
+    proposal         ro                   PDA seeds "proposal" + workshop + arg:id
+initialize_workshop(gate_mint)
+    workshop         mut                  FREE: the Workshop address is deployment config, like an EVM contract address (IDL gives no seeds here)
+    admin            mut signer           caller's wallet (signature)
+    system_program   ro                   const 11111111...
+noisy(n, width)
+    who              ro  signer           caller's wallet (signature)
+open_proposal(id, digest)
+    workshop         ro                   FREE: the Workshop address is deployment config, like an EVM contract address (IDL gives no seeds here)
+    admin            ro  signer           caller's wallet (signature)
+    payer            mut signer           caller's wallet (signature)
+    proposal         mut                  PDA seeds "proposal" + workshop + arg:id
+    system_program   ro                   const 11111111...
+preview_outcome(_id)
+    workshop         ro                   FREE: the Workshop address is deployment config, like an EVM contract address (IDL gives no seeds here)
+    proposal         ro                   PDA seeds "proposal" + workshop + arg:id
+reset_tally(_id)
+    workshop         ro                   FREE: the Workshop address is deployment config, like an EVM contract address (IDL gives no seeds here)
+    admin            ro  signer           caller's wallet (signature)
+    proposal         mut                  PDA seeds "proposal" + workshop + arg:id
+vote(id, choice)
+    workshop         ro                   FREE: the Workshop address is deployment config, like an EVM contract address (IDL gives no seeds here)
+    voter            ro  signer           caller's wallet (signature)
+    payer            mut signer           caller's wallet (signature)
+    member           ro                   PDA seeds "member" + workshop + voter
+    proposal         mut                  PDA seeds "proposal" + workshop + arg:id
+    vote_record      mut                  PDA seeds "vote" + proposal + voter
+    gate_token       ro         optional  FREE: client must choose
+    system_program   ro                   const 11111111...
+vote_init(id, choice)
+    workshop         ro                   FREE: the Workshop address is deployment config, like an EVM contract address (IDL gives no seeds here)
+    voter            ro  signer           caller's wallet (signature)
+    payer            mut signer           caller's wallet (signature)
+    member           ro                   PDA seeds "member" + workshop + voter
+    proposal         mut                  PDA seeds "proposal" + workshop + arg:id
+    vote_record      mut                  PDA seeds "vote" + proposal + voter
+    gate_token       ro         optional  FREE: client must choose
+    system_program   ro                   const 11111111...
+
+free = the IDL gives no way to derive it: payer (any funded signer), gate_token, gate_transfer.from/to, workshop (derivable only if the admin is known).
+
+== rent, measured (3480 lamports per byte-year x 2 years; 128 bytes of account overhead; data = 8-byte discriminator + fields) ==
+account     data bytes  lamports (measured on chain)    who paid here
+Workshop    73          1398960 (= minimum for 73: 1398960)admin
+Member      73          1398960 (= minimum for 73: 1398960)relayer (payer)
+Proposal    90          1517280 (= minimum for 90: 1517280)relayer (payer)
+VoteRecord  75          1412880 (= minimum for 75: 1412880)relayer (payer)
+per member that joins and votes on one proposal the chain holds 2 accounts: ~2811840 lamports locked (refundable only by a close instruction, which this program does not have)
+serialized size of the signed vote transaction: 452 bytes of the 1232-byte limit; accounts in message: 8
+
+== compute units per operation (simulated; default budget 200,000 per instruction, 1.4M per transaction) ==
+open_proposal            10042 CU  err=null
+vote (new VoteRecord)    22036 CU  err=null
+close_proposal           8215 CU  err=null
+add_member (emit_cpi!)   12417 CU  err=null
+get_proposal (view)      7422 CU  err=null
+
+== where each fact lives ==
+admin / gate        : Workshop PDA [workshop, admin]               (config account, program-owned)
+membership          : Member PDA [member, workshop, wallet]        (exists <=> member; absent account IS the 'not a member' state)
+proposal + tally    : Proposal PDA [proposal, workshop, id u64 LE] (digest, yes, no, state; the tally is public: anyone can read the account)
+one-vote fact       : VoteRecord PDA [vote, proposal, wallet]      (existence or voted flag)
+
+== what the client can and cannot know ==
+derives alone : every PDA address above, from (program id, admin wallet, proposal id, voter wallet): no chain read
+cannot know   : whether a PDA exists (needs getAccountInfo), whether the workshop is gated (needs Workshop.gate_mint), which token account to pass for the gate
+               (ATA is the convention, not a rule), the rent a not-yet-existing account will cost (depends on size, known from the IDL types but not exposed as a number)
+               which accounts a THIRD-PARTY program will touch in a CPI: the caller must list them all (remaining accounts); the IDL cannot say
+on EVM the same call needs only (contract address, function, args)

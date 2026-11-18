@@ -38,6 +38,7 @@ describe("06 collisions: a clean mounted project checks (the control)", () => {
     expect(got.mounts?.["greet"]?.needs).toEqual(["feature:echo"]);
     expect(got.mounts?.["echo"]?.needs ?? []).toEqual([]);
     expect(Object.keys(got.operations)).toEqual(expect.arrayContaining(["echo.repeat", "greet.hello"]));
+    succeeds(root, "generate");
     const checked = run(root, "check");
     expect(checked.status, checked.out).toBe(0);
   });
@@ -148,6 +149,7 @@ describe("06 needs", () => {
     mountEcho(copy.root);
     const got = model(copy.root);
     expect(got.mounts?.["greet"]).toMatchObject({ chosen: { mode: "echoing" }, needs: ["feature:echo"] });
+    succeeds(copy.root, "generate");
     const checked = run(copy.root, "check");
     expect(checked.status, checked.out).toBe(0);
   });

@@ -10,6 +10,8 @@ import { Build, Environments, Prove, ProveFailed, Promote, TestWorlds, Verdicts 
 import { spawn } from "node:child_process";
 import { ModelCommand } from "#modules/model/service.js";
 import { Add } from "#modules/add/service.js";
+import { Mounting } from "#modules/mounting/service.js";
+import type { Kind } from "#modules/mounting/types.js";
 import { AddRefused, type What } from "#modules/add/types.js";
 import { Check } from "#modules/check/service.js";
 import { Generate } from "#modules/generate/service.js";
@@ -136,7 +138,25 @@ const addOne = (what: What) =>
       });
     },
   );
-const add = Command.make("add").pipe(Command.withSubcommands([addOne("thing"), addOne("operation"), addOne("read"), addOne("journey")]));
+// `ortho add feature|adapter|projection <package>`: one mount file, the version pinned exactly, and what it needs.
+const addPlugin = (kind: Kind) =>
+  Command.make(
+    kind,
+    {
+      pkg: Argument.String("package"),
+      as: Flag.String("as").pipe(Flag.optional),
+      dryRun: Flag.Boolean("dry-run").pipe(Flag.withDefault(false)),
+      root: Flag.String("root").pipe(Flag.withDefault(process.cwd())),
+    },
+    ({ pkg, as, dryRun, root }) =>
+      Mounting.add({ root, kind, pkg, dryRun, registry: process.env["npm_config_registry"] ?? "https://registry.npmjs.org", ...(Option.isSome(as) ? { as: as.value } : {}) }).pipe(
+        Effect.flatMap((added) => Console.log(added.lines.join("\n"))),
+        Effect.catchTag("MountRefused", (e) => fail(e.message, 2)),
+      ),
+  );
+const add = Command.make("add").pipe(
+  Command.withSubcommands([addOne("thing"), addOne("operation"), addOne("read"), addOne("journey"), addPlugin("feature"), addPlugin("adapter"), addPlugin("projection")]),
+);
 
 const tsFiles = (dir: string): ReadonlyArray<string> =>
   existsSync(dir) ? readdirSync(dir, { withFileTypes: true }).flatMap((d) => (d.isDirectory() ? tsFiles(join(dir, d.name)) : d.name.endsWith(".ts") ? [join(dir, d.name)] : [])) : [];

@@ -2,7 +2,7 @@
 
 Authored by the ✍️ Author for slice M1.02, from [`design/decisions/M1-plugins.md`](../../design/decisions/M1-plugins.md)
 (the contract) and Codex's `layer/4:e2e/layer3/00` to `06` (the rigour), in the frame's words: a feature, an adapter or a
-projection is mounted by one file; there are no kits, dependencies or `@architect/*` names. **A builder never edits anything
+projection is mounted by one file; there are no kits, dependencies or retired package names. **A builder never edits anything
 here or in `e2e/fixtures/m1`** (AGENTS.md, "Journeys and checks come first"). If a check is wrong, the lead says so in a
 decision and a new author fixes it.
 
@@ -22,6 +22,7 @@ slices), or one file: `pnpm exec vitest run --root e2e --config vitest.m1.config
 | `06-collisions-and-needs` | M1.08 | every refusal of section 12, each after a successful control; needs met, unmet, and `when` | 16 tests, all red |
 | `07-descriptors` | M1.05 | the three descriptors type-check; wrong field, missing description, another choice's option and a wrong `render` do not | 4 tests: 1 control passes (each negative case holds exactly one directive), 3 red |
 | `08-verbs` | M1.07 | choose, narrow and omit change the model, `generated/`, HTTP and MCP; the refusals of `via: []` and a foreign operation; a skipped journey is named | 10 tests, all red |
+| `09-wallet-journeys` | M1.28 | the wallet plugin's four journeys (one per host signer, `e2e/fixtures/m1/wallets/source/blueprint/journeys/`) fail on empty handlers, each naming its first step, none skipped; M1.29's copy is byte for byte; a tripwire for the chain (M1.30, M1.31) | 5 tests: 2 pass (shape, copy rule); the empty-handler control needs Docker; the stand-in as shipped is red until M1.27; the chain tripwire is red until M1.30 and M1.31 |
 
 Ten controls pass on `main` and seventy-six tests are red, eighty-six in all.
 
@@ -47,6 +48,7 @@ resolves them from the project. Until M1.05 lands, `tsc` errors in a source file
 | `@fixture/echo` | feature | thing `echo` (code `EC`), operations `repeat` and `shout`, a `style` choice (`plain`, `loud`) read by `Mount.picked`, a journey, node and browser code beside the handler |
 | `@fixture/greet` | feature | `needs: [echo]`; variants `when` (a `Blueprint.need(echo, { when })`) and `name-clash-echo` |
 | `@fixture/plain` | none | a library with no `orthograph` key |
+| `@fixture/wallets` | feature | the stand-in for `@orthograph/wallets` (M1.28): thing `wallet`, five client operations, four journeys, empty `node`, `browser` and `world` entries; variant `server-run` (server handlers instead) |
 | `@fixture/remote`, `effect-remote`, `node-remote` | adapter | a Promise callable over HTTP, an Effect callable with its own layer, a Node-only callable |
 
 Echo's variants (overlays over `source/`; `REMOVE` lists files to delete): `empty-handler`, `defect-handler`,

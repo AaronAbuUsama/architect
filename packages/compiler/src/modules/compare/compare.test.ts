@@ -40,4 +40,20 @@ describe("Compare", () => {
     expect(Object.keys(depends)).toEqual(["operation:allowance.grant", "thing:allowance", "thing:organization", "thing:person"]);
     for (const [key, hash] of Object.entries(depends)) expect(Compare.hashOf(model, key)).toBe(hash);
   });
+
+  it("a plugin's operation depends on its mount, which hashOf answers, and the edges say what each mount provides and needs", () => {
+    const mounted = edited((m) => {
+      m.mounts = {
+        echo: { kind: "feature", file: "blueprint/features/echo.ts", package: "@x/echo", version: "1.0.0", integrity: "sha256-a", chosen: {}, hash: "echohash" },
+        greet: { kind: "feature", file: "blueprint/features/greet.ts", package: "@x/greet", version: "1.0.0", integrity: "sha256-b", chosen: {}, needs: ["feature:echo"], hash: "greethash" },
+      };
+      m.operations["echo.repeat"] = { ...m.operations["system.health"], name: "echo.repeat", thing: "system", from: { mount: "echo", package: "@x/echo", version: "1.0.0", thing: "echo" } };
+    });
+    expect(Compare.dependsOn(mounted, "echo.repeat")["feature:echo"]).toBe("echohash");
+    expect(Compare.hashOf(mounted, "feature:echo")).toBe("echohash");
+    expect(Compare.hashOf(mounted, "adapter:echo")).toBeUndefined();
+    expect(Object.keys(Compare.dependsOn(mounted, "allowance.spend")).some((k) => k.startsWith("feature:"))).toBe(false);
+    expect(Compare.edges(mounted)).toEqual(["feature:echo -> echo.repeat  provides", "feature:greet -> feature:echo  needs"]);
+    expect(Compare.edges(model)).toEqual([]);
+  });
 });

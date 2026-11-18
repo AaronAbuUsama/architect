@@ -8,7 +8,7 @@ afterAll(project.remove);
 
 describe("ortho prove --env local on signup, the canon's example", () => {
   it("passes four journeys and four operations with nine evals each, and leaves nothing running", () => {
-    const run = ortho(project.root, "prove", "--env", "local", "--port", "8875");
+    const run = ortho(project.root, "prove", "--env", "local", "--port", "8887");
     expect(run.status, run.stdout + run.stderr).toBe(0);
     const lines = run.stdout.trimEnd().split("\n");
     expect(lines.filter((l) => /^journey .* ✔ \d+\/\d+ steps$/.test(l))).toHaveLength(4);

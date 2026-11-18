@@ -5,6 +5,9 @@ Noir spikes (`design/noir/spike-1-member-note.md`, `design/noir/spike-2-role-gat
 places Noir after Gate 5 (`design/decisions/N1-noir-target.md`). **This is the furthest-out example**: nothing here is
 scheduled before layer 5 is on `main`.
 
+**Now stage 4 of the growing example** (K9, 18 November 2026): the members-only club on Aztec, with private
+ballots and private budgets, inside v1.0 (ST4.01 to ST4.08).
+
 **Languages: Effect and Noir.** "Language" is the axis that was called "target" before (Effect, Solidity, Noir,
 Python), packaged as `@orthograph/language-noir`. The host is `Host.chain` (Aztec) for the contract and the caller's own
 device (`Host.node` or `Host.browser`) for the proof; the projection is the private contract plus its client.
@@ -138,7 +141,7 @@ cloud pass adds a network that verifies proofs, and only there is `pool.spend` f
    private field. (b) A journey check, written where it matters. *Recommend (a)*: privacy shouldn't depend on someone
    remembering to check it.
 2. **Where does `custody` get proved first?** (a) In Solidity with the wallets feature (the caller's key, never the
-   server's), so Noir inherits it. (b) Only when Noir arrives. *Recommend (a)*: Gate 4's "the server holds no key" is
-   already custody in all but name.
+   server's), so Noir inherits it. (b) Only when Noir arrives. *Recommend (a)*: each wallet declaring where its key lives
+   (K7 F5) is already custody in all but name.
 3. **How do we label a proof the local network didn't verify?** (a) The verdict carries "proofs not verified", and
    `promote` to production requires a verdict from a verifying network. (b) Treat local as enough. *Recommend (a)*.

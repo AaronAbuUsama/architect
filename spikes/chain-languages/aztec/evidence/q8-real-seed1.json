@@ -1,0 +1,459 @@
+{
+  "seed": 1,
+  "mode": "real",
+  "steps": 40,
+  "wallMs": 205058,
+  "txSent": 16,
+  "sendMsTotal": 169156,
+  "expectedMix": {
+    "ok": 16,
+    "AR-001": 5,
+    "PR-900": 10,
+    "PR-001": 7,
+    "PR-002": 2
+  },
+  "divergenceRawDecode": 3,
+  "divergenceWithOrderedPrecheck": 0,
+  "divergences": [
+    {
+      "i": 34,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 2,
+        "proposal": 1,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 35,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 2,
+        "proposal": 1,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 37,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 3,
+        "proposal": 1,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    }
+  ],
+  "rows": [
+    {
+      "i": 0,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 10895
+    },
+    {
+      "i": 1,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 11225
+    },
+    {
+      "i": 2,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 15740
+    },
+    {
+      "i": 3,
+      "op": "proposal.open",
+      "caller": 2,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 547
+    },
+    {
+      "i": 4,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 9675
+    },
+    {
+      "i": 5,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 964
+    },
+    {
+      "i": 6,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 1174
+    },
+    {
+      "i": 7,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 11045
+    },
+    {
+      "i": 8,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-001",
+      "raw": "PR-001",
+      "final": "PR-001",
+      "ms": 739
+    },
+    {
+      "i": 9,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 352
+    },
+    {
+      "i": 10,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 422
+    },
+    {
+      "i": 11,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 9742
+    },
+    {
+      "i": 12,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 379
+    },
+    {
+      "i": 13,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 11070
+    },
+    {
+      "i": 14,
+      "op": "member.add",
+      "caller": 4,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 468
+    },
+    {
+      "i": 15,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 645
+    },
+    {
+      "i": 16,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 252
+    },
+    {
+      "i": 17,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 681
+    },
+    {
+      "i": 18,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-001",
+      "raw": "PR-001",
+      "final": "PR-001",
+      "ms": 692
+    },
+    {
+      "i": 19,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 10354
+    },
+    {
+      "i": 20,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 9550
+    },
+    {
+      "i": 21,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 11577
+    },
+    {
+      "i": 22,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-001",
+      "raw": "PR-001",
+      "final": "PR-001",
+      "ms": 759
+    },
+    {
+      "i": 23,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 13468
+    },
+    {
+      "i": 24,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 13553
+    },
+    {
+      "i": 25,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 10771
+    },
+    {
+      "i": 26,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 10674
+    },
+    {
+      "i": 27,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 10577
+    },
+    {
+      "i": 28,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-001",
+      "raw": "PR-001",
+      "final": "PR-001",
+      "ms": 1044
+    },
+    {
+      "i": 29,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-001",
+      "raw": "PR-001",
+      "final": "PR-001",
+      "ms": 1240
+    },
+    {
+      "i": 30,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-001",
+      "raw": "PR-001",
+      "final": "PR-001",
+      "ms": 582
+    },
+    {
+      "i": 31,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-001",
+      "raw": "PR-001",
+      "final": "PR-001",
+      "ms": 407
+    },
+    {
+      "i": 32,
+      "op": "proposal.vote",
+      "caller": 4,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 618
+    },
+    {
+      "i": 33,
+      "op": "proposal.open",
+      "caller": 1,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 161
+    },
+    {
+      "i": 34,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 707
+    },
+    {
+      "i": 35,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 361
+    },
+    {
+      "i": 36,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 10060
+    },
+    {
+      "i": 37,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 861
+    },
+    {
+      "i": 38,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 1103
+    },
+    {
+      "i": 39,
+      "op": "proposal.close",
+      "caller": 1,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 199
+    }
+  ]
+}

@@ -1,0 +1,380 @@
+{
+  "seed": 42,
+  "mode": "real",
+  "steps": 40,
+  "wallMs": 164676,
+  "txSent": 14,
+  "sendMsTotal": 130132,
+  "expectedMix": {
+    "ok": 14,
+    "PR-900": 13,
+    "AR-001": 5,
+    "PR-002": 7,
+    "PR-001": 1
+  },
+  "divergenceRawDecode": 0,
+  "divergenceWithOrderedPrecheck": 0,
+  "divergences": [],
+  "rows": [
+    {
+      "i": 0,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 9133
+    },
+    {
+      "i": 1,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 9524
+    },
+    {
+      "i": 2,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 10689
+    },
+    {
+      "i": 3,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 9174
+    },
+    {
+      "i": 4,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 691
+    },
+    {
+      "i": 5,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 332
+    },
+    {
+      "i": 6,
+      "op": "proposal.open",
+      "caller": 1,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 314
+    },
+    {
+      "i": 7,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 9125
+    },
+    {
+      "i": 8,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 739
+    },
+    {
+      "i": 9,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 8774
+    },
+    {
+      "i": 10,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 392
+    },
+    {
+      "i": 11,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 8890
+    },
+    {
+      "i": 12,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 8928
+    },
+    {
+      "i": 13,
+      "op": "proposal.vote",
+      "caller": 0,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 756
+    },
+    {
+      "i": 14,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 9606
+    },
+    {
+      "i": 15,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 351
+    },
+    {
+      "i": 16,
+      "op": "proposal.close",
+      "caller": 3,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 507
+    },
+    {
+      "i": 17,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 9704
+    },
+    {
+      "i": 18,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 347
+    },
+    {
+      "i": 19,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 10347
+    },
+    {
+      "i": 20,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 544
+    },
+    {
+      "i": 21,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 277
+    },
+    {
+      "i": 22,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 288
+    },
+    {
+      "i": 23,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 779
+    },
+    {
+      "i": 24,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 671
+    },
+    {
+      "i": 25,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 2145
+    },
+    {
+      "i": 26,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 13369
+    },
+    {
+      "i": 27,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 868
+    },
+    {
+      "i": 28,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 11122
+    },
+    {
+      "i": 29,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 822
+    },
+    {
+      "i": 30,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 709
+    },
+    {
+      "i": 31,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 355
+    },
+    {
+      "i": 32,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 713
+    },
+    {
+      "i": 33,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 387
+    },
+    {
+      "i": 34,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-001",
+      "raw": "PR-001",
+      "final": "PR-001",
+      "ms": 370
+    },
+    {
+      "i": 35,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 10410
+    },
+    {
+      "i": 36,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 390
+    },
+    {
+      "i": 37,
+      "op": "proposal.close",
+      "caller": 2,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 306
+    },
+    {
+      "i": 38,
+      "op": "proposal.vote",
+      "caller": 5,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 596
+    },
+    {
+      "i": 39,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 1596
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+solana-test-validator --ticks-per-slot 16: RPC healthy 0.50s after launch
+--- src/q8-crosscheck.ts (ticks-per-slot 16)
+Q8 cross-check (VARIANT a: vote_init): 300 steps per seed, seeds 1,2,3,42,1234, program vs ../../reference.ts (CODES: {"AlreadyVoted":"PR-001","ProposalExists":"PR-002","ProposalNotOpen":"PR-900","NotAllowed":"AR-001"})
+seed 1: 300 steps, ok 36, refused {"AR-001":45,"PR-900":169,"PR-001":7,"PR-002":43}, sent-refusals matched 220/220, divergences 44, 40.4s (135 ms/step)
+   DIVERGENCE seed 1 step 8 proposal.vote caller=2: expected PR-001, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 1 step 18 proposal.vote caller=3: expected PR-001, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 1 step 22 proposal.vote caller=3: expected PR-001, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 1 step 28 proposal.vote caller=3: expected PR-001, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 1 step 29 proposal.vote caller=1: expected PR-001, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 1 step 30 proposal.vote caller=3: expected PR-001, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 1 step 31 proposal.vote caller=3: expected PR-001, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 1 step 34 proposal.vote caller=2: expected PR-900, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 1 step 35 proposal.vote caller=2: expected PR-900, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 1 step 37 proposal.vote caller=3: expected PR-900, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+seed 2: 300 steps, ok 46, refused {"AR-001":48,"PR-900":135,"PR-001":28,"PR-002":43}, sent-refusals matched 0/0, divergences 81, 7.9s (26 ms/step)
+   DIVERGENCE seed 2 step 32 proposal.vote caller=3: expected PR-001, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 2 step 45 proposal.vote caller=3: expected PR-001, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 2 step 47 proposal.vote caller=1: expected PR-001, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 2 step 48 proposal.vote caller=1: expected PR-900, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 2 step 51 proposal.vote caller=1: expected PR-001, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 2 step 55 proposal.vote caller=1: expected PR-900, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 2 step 59 proposal.vote caller=2: expected PR-001, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 2 step 61 proposal.vote caller=1: expected PR-001, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 2 step 75 proposal.vote caller=3: expected PR-001, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 2 step 78 proposal.vote caller=1: expected PR-001, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+seed 3: 300 steps, ok 28, refused {"PR-900":187,"AR-001":47,"PR-002":37,"PR-001":1}, sent-refusals matched 0/0, divergences 28, 4.5s (15 ms/step)
+   DIVERGENCE seed 3 step 64 proposal.vote caller=2: expected PR-001, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 3 step 69 proposal.vote caller=1: expected PR-900, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 3 step 78 proposal.vote caller=2: expected PR-900, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 3 step 82 proposal.vote caller=1: expected PR-900, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 3 step 89 proposal.vote caller=2: expected PR-900, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 3 step 96 proposal.vote caller=1: expected PR-900, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 3 step 101 proposal.vote caller=2: expected PR-900, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 3 step 108 proposal.vote caller=3: expected PR-900, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 3 step 122 proposal.vote caller=1: expected PR-900, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 3 step 129 proposal.vote caller=2: expected PR-900, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+seed 42: 300 steps, ok 44, refused {"PR-900":142,"AR-001":39,"PR-002":48,"PR-001":27}, sent-refusals matched 0/0, divergences 44, 6.3s (21 ms/step)
+   DIVERGENCE seed 42 step 34 proposal.vote caller=2: expected PR-001, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 42 step 43 proposal.vote caller=2: expected PR-001, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 42 step 48 proposal.vote caller=1: expected PR-001, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 42 step 54 proposal.vote caller=3: expected PR-001, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 42 step 58 proposal.vote caller=3: expected PR-001, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 42 step 63 proposal.vote caller=3: expected PR-001, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 42 step 70 proposal.vote caller=1: expected PR-001, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 42 step 78 proposal.vote caller=2: expected PR-001, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 42 step 87 proposal.vote caller=1: expected PR-001, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 42 step 90 proposal.vote caller=1: expected PR-001, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+seed 1234: 300 steps, ok 39, refused {"PR-900":161,"AR-001":43,"PR-002":55,"PR-001":2}, sent-refusals matched 0/0, divergences 74, 5.9s (20 ms/step)
+   DIVERGENCE seed 1234 step 23 proposal.vote caller=1: expected PR-900, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 1234 step 31 proposal.vote caller=2: expected PR-900, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 1234 step 33 proposal.vote caller=3: expected PR-001, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 1234 step 36 proposal.vote caller=1: expected PR-900, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 1234 step 39 proposal.vote caller=3: expected PR-900, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 1234 step 47 proposal.vote caller=3: expected PR-001, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 1234 step 49 proposal.vote caller=1: expected PR-900, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 1234 step 55 proposal.vote caller=1: expected PR-900, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 1234 step 57 proposal.vote caller=2: expected PR-900, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+   DIVERGENCE seed 1234 step 61 proposal.vote caller=2: expected PR-900, simulation says {"kind":"other-program","program":"11111111111111111111111111111111","custom":0,"summary":"AccountAlreadyInUse"}
+TOTAL divergences: 271; wall 65.1s; ticks-per-slot 16
+FAILED: src/q8-crosscheck.ts

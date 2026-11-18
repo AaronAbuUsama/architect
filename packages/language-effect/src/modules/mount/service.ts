@@ -9,4 +9,5 @@ export const Mount: MountApi = {
     return Mounts.picked(mount ?? noMount, option);
   }),
   under: (mount) => (effect) => Effect.provideService(effect, Mounted, mount),
+  serving: (mount, handler) => (...args) => Effect.provideService(handler(...args), Mounted, mount),
 };

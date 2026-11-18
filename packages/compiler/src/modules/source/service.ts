@@ -27,7 +27,10 @@ export const nodeSource = (given: string) => {
 
   const plugin = (name: string): Effect.Effect<PluginPackage | undefined, SourceError> => Effect.gen(function* () {
     const dir = packageDir(projectRoot, name);
-    if (!dir) return undefined;
+    // Installed but with no package.json: it may be the plugin a mount imports, so it is named, never passed over.
+    if (!dir) return existsSync(join(projectRoot, "node_modules", name))
+      ? { name, version: "", kind: "", descriptor: undefined, problem: `${name}: is installed with no package.json, so it can't be read as a plugin: reinstall it` }
+      : undefined;
     const manifest = yield* sync(`can't read ${name}'s package.json`, () => readManifest(join(dir, "package.json")));
     if (!manifest.orthograph) return undefined;
     const known = { name, version: manifest.version ?? "0.0.0", kind: manifest.orthograph.kind ?? "" };
@@ -63,4 +66,4 @@ export const nodeSource = (given: string) => {
 };
 
 /** Where the project has a package installed, and a plugin's blueprint folder: for the loaders that run journeys. */
-export { packageDir, pluginFolder } from "./internal/plugins.ts";
+export { packageDir, pluginFolder, resolveFrom } from "./internal/plugins.ts";
