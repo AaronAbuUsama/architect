@@ -1,5 +1,6 @@
 // The handler lifecycle: one call to allowance.spend through `Handlers.serve`, drawn from
-// packages/target-effect/src/modules/handler/service.ts and internal/move.ts on main (18 November 2026).
+// packages/language-effect/src/modules/handler/service.ts and internal/move.ts on main (18 November 2026;
+// packages/target-effect before the Forman rename).
 // Order as the code runs it: decode (InvalidPayload) → Access.check (NotAllowed, before the span) → the operation's span
 // opens → checkFrom (the machine's notFrom refusal) → the handler as counted work, each step its own span → the answer
 // checked against its declaration (outside it: a defect) → one commit of writes, journal entries and the request's

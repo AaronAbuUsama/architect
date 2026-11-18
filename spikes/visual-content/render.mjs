@@ -2,7 +2,7 @@
 // Renders scenes to MP4, GIF and a poster PNG, frame by frame, with no clock involved: headless Chromium is told the
 // time for each frame, screenshotted, and ffmpeg encodes the frames. The same source gives the same frames every run.
 //
-//   node render.mjs <scene>... | all  [--theme dark|light|both] [--still <seconds>] [--serve] [--out <dir>]
+//   node render.mjs <scene>... | all  [--theme dark|light|both] [--still <seconds>] [--beats] [--serve] [--out <dir>]
 //                                     [--fps 30] [--gif-fps 15] [--gif-width 960] [--scale 2] [--jobs 3]
 //
 // Needs `ffmpeg` on the PATH and Playwright's headless shell (`npx playwright install chromium-headless-shell`).
@@ -23,6 +23,7 @@ const { values: opts, positionals } = parseArgs({
   options: {
     theme: { type: "string", default: "both" },
     still: { type: "string" },
+    beats: { type: "boolean", default: false },
     serve: { type: "boolean", default: false },
     out: { type: "string", default: join(root, "renders") },
     fps: { type: "string", default: "30" },
@@ -62,20 +63,28 @@ const kb = (bytes) => `${(bytes / 1024).toFixed(0)} KB`;
 const renderOne = async (browser, base, name, theme) => {
   const scale = Number(opts.scale);
   const page = await browser.newPage({ deviceScaleFactor: scale });
-  page.on("pageerror", (e) => console.error(`  ${name}: ${e.message}`));
   await page.goto(`${base}/lib/page.html?scene=${name}&theme=${theme}&render`);
   await page.waitForFunction(() => window.__stage !== undefined, null, { timeout: 15000 });
   const stage = await page.evaluate(() => ({ ...window.__stage, seek: undefined }));
+  if (stage.error) {
+    await page.close();
+    throw new Error(`${name}: ${stage.error}`);
+  }
   await page.setViewportSize({ width: stage.width, height: stage.height });
   await mkdir(opts.out, { recursive: true });
   const stem = join(opts.out, `${name}.${theme}`);
 
-  if (opts.still !== undefined) {
-    await page.evaluate((t) => window.__stage.seek(t), Number(opts.still));
-    const file = `${stem}.at-${opts.still}s.png`;
-    await page.screenshot({ path: file });
+  // Stills to look at while working: one time, or one frame at the end of every beat the scene declares.
+  if (opts.still !== undefined || opts.beats) {
+    const times = opts.beats ? [...(stage.beats ?? []).map((b) => b.at), stage.poster] : [Number(opts.still)];
+    for (const t of times) {
+      await page.evaluate((x) => window.__stage.seek(x), t);
+      const file = `${stem}.at-${t}s.png`;
+      await page.screenshot({ path: file });
+      const what = stage.beats?.find((b) => b.at === t)?.what ?? (t === stage.poster ? "poster" : "");
+      console.log(`  ${file}${what ? `  (${what})` : ""}`);
+    }
     await page.close();
-    console.log(`  ${file}`);
     return;
   }
 
@@ -145,4 +154,7 @@ const main = async () => {
   }
 };
 
-await main();
+await main().catch((e) => {
+  console.error(e.message);
+  process.exit(1);
+});

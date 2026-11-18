@@ -33,7 +33,7 @@ renders well but brings a Python toolchain and lays text out poorly for diagrams
    overlaps were found and fixed here (the token covering box labels, a refusal line crossing the step bars, the
    "answer" label on the span frame) before any full render.
 3. **Drawn from the code, and the code differs from the brief in one place.** The brief's commit has "state plus
-   journal event plus outbox". On `main` (`packages/target-effect/src/modules/handler/service.ts`,
+   journal event plus outbox". On `main` (`packages/language-effect/src/modules/handler/service.ts`, then `target-effect`;
    `records/types.ts`) a commit holds the writes, the journal entries and, for an idempotent operation, the request's
    answer; there is no outbox anywhere in `packages/`. The lifecycle scene draws what is there: state, journal event,
    request answer. Two more details the code adds and the scene shows: `NotAllowed` is decided before the operation's
@@ -80,6 +80,23 @@ node render.mjs all                      # or one scene by name; --still <s> for
 
 Needs `ffmpeg` on the PATH (`brew install ffmpeg`). Sources are `scenes/*.js`, renders are `renders/`, the kit is
 `lib/`. How to write a scene, the size limits and the style guide are in `.agents/skills/visuals/SKILL.md`.
+
+## The two kinds (added after the first review)
+
+Aaron asked for the waterfall and the hand-drawn journey styles to be codified, so they are now kinds: a scene is
+data, and the style, layout and timing live in one place.
+
+- `lib/kinds/waterfall.js`, skill `trace-waterfall`. It takes spans and words and derives every time from the spans.
+  `tools/trace-to-waterfall.mjs` writes the scene from a Tempo or OTLP trace file. Run on
+  `allowance-grant.tempo-trace.json`, it produces exactly the spans that were written by hand. The scene re-expressed
+  as data rendered a **byte-identical MP4**, so the kind is the same style, not an imitation of it.
+- `lib/kinds/journey.js` with `lib/kinds/sketch-geometry.js`, skill `machine-journey`. It takes states (centres
+  only), moves (from, to, bend), the cast and the steps, and works out arrows, loops, heads, labels, refusal crosses,
+  doors, the card and the timing. The look is the same; arrow curves and the note placement now come from rules
+  rather than hand-placed coordinates, so the frames differ slightly from the first render.
+- `--beats` renders a still at each moment a kind declares (each span in, each step done), so an agent checks every
+  step without guessing times. A scene that fails to build (for example, one with a `TODO` left in it) stops the
+  render at once with the reason.
 
 ## The decision it supports
 

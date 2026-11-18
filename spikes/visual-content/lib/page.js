@@ -7,7 +7,12 @@ const name = params.get("scene");
 const theme = params.get("theme") === "light" ? "light" : "dark";
 const rendering = params.has("render");
 
-const { default: scene } = await import(`/scenes/${name}.js`);
+// A scene that fails to load or build says why, so render.mjs can stop at once with the reason.
+const fail = (e) => {
+  window.__stage = { error: String(e?.message ?? e) };
+  throw e;
+};
+const { default: scene } = await import(`/scenes/${name}.js`).catch(fail);
 await document.fonts.load(`14px ${fonts.sans}`);
 await document.fonts.load(`600 14px ${fonts.sans}`);
 await document.fonts.load(`14px ${fonts.mono}`);
@@ -24,7 +29,12 @@ svg.setAttribute("viewBox", `0 0 ${scene.width} ${scene.height}`);
 document.body.style.background = colors.bg;
 el("rect", { x: 0, y: 0, width: scene.width, height: scene.height, fill: colors.bg }, svg);
 
-const draw = scene.build({ svg, colors, theme });
+let draw;
+try {
+  draw = scene.build({ svg, colors, theme });
+} catch (e) {
+  fail(e);
+}
 draw(0);
 
 window.__stage = {
@@ -32,6 +42,7 @@ window.__stage = {
   height: scene.height,
   duration: scene.duration,
   poster: scene.poster ?? scene.duration,
+  beats: scene.beats ?? [],
   seek: (t) => draw(t),
 };
 

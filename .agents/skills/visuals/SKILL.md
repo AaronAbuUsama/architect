@@ -12,6 +12,14 @@ so the same source gives byte-identical output every run, and any frame can be c
 The kit lives in `spikes/visual-content/` until the docs site has a home for it (the spike's README says why, and what
 was tried against it). Three finished scenes there are the models to copy.
 
+Two kinds of scene have their own skill, because their style is fixed and only the data changes. Use them whenever
+they fit:
+
+- `trace-waterfall`: one recorded call, built up span by span. A converter writes the scene from the trace's JSON.
+- `machine-journey`: a journey drawn by hand across a machine.
+
+Write a scene by hand, as below, only for anything else, like the handler lifecycle.
+
 ## Animate, or a still?
 
 Animate when the point is **order or a path**: the route a call takes, which check refuses first, a journey walking a
@@ -31,6 +39,7 @@ pnpm install --ignore-workspace && npx playwright install chromium-headless-shel
 node render.mjs handler-lifecycle            # one scene, dark and light: MP4, GIF and poster PNG each
 node render.mjs all                          # every scene in scenes/
 node render.mjs trace-waterfall --still 6.5 --theme dark   # one frame as a PNG, to look at while you work
+node render.mjs trace-waterfall --beats --scale 1          # a still at each beat the scene declares, then the poster
 node render.mjs journey-revoke-then-spend --serve          # a local URL that plays it on a loop; Ctrl-C stops it
 ```
 
@@ -47,6 +56,7 @@ fix overlaps, then render the whole thing once. All three scenes render in about
   the code or evidence it draws from, with the date, so it can be checked when that code changes.
 - `renders/<name>.<theme>.{mp4,gif,png}`: the output, committed beside the source. The PNG is the poster (the
   scene's `poster` time, by default its end): use it as the video's poster and as the still for print or a README.
+- `lib/kinds/`: the two kinds (`waterfall.js`, `journey.js` with `sketch-geometry.js`); `tools/trace-to-waterfall.mjs`.
 - `lib/stage.js`: the kit (palettes, fonts, easing, `beat`, `drawn`, `along`, `pill`, `captions`, `sketch` for
   rough.js). `lib/page.html` and `lib/page.js` load a scene; `render.mjs` drives them.
 
