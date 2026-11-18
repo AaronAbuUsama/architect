@@ -10,7 +10,8 @@ belongs to, and why it waits.
 - **Axiom as the sink** (O1 steps L2.O5, L2.O6, L2.O8): deployed workers export straight to Axiom per environment
   dataset, `watch` reads it through an `AxiomSource`. The cloud pass, on Aaron's account and tokens.
 - **Noir on Aztec as a target**, client-proved and private (N1, `design/noir/`). After Gate 5, its own layer. The
-  private Capxul layers in the handoff are a product roadmap built on it, kept with the Noir thread.
+  private Capxul layers in the handoff are a product roadmap built on it, kept with the Noir thread. **Moved into
+  v1.0** as stage 4 of the growing example (K9, ST4.01 to ST4.08).
 - Each thing as an actor by default. Later.
 - ~~The world's front door closed in staging and production worlds~~: done in L2.08 (D3 #126, #127).
 

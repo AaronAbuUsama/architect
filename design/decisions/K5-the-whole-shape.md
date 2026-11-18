@@ -681,3 +681,14 @@ end-to-end example from layer 4 on.
   of their code runs. A change they make reaches us only when we port it.
 - **Noir metadata.** Even with private membership, timing and the fee payer are visible. The portal says so on the
   vote's page.
+
+## Later: K9 (18 November 2026)
+
+These notes sit at the end so the canon's line-numbered quotes of this record stay exact.
+
+- **The worked example is superseded** by [`K9-growing-example.md`](K9-growing-example.md): the example is `links`,
+  in four stages. The workshop's governance and votes are dropped; its private membership and ballots become stage 4.
+  The seams in "The worked example" still hold.
+- **The actions sketch in seam 5 is corrected** by K9's "Agent-native compatibility" (from
+  `spikes/agent-native-compat/`): its `run` does not compile against agent-native's `ctx`, `retrySafe: true` is
+  harmful, and the module exports `options(host)` for the host to wrap. The sketch stays as written.
