@@ -1,0 +1,26 @@
+{
+  "name": "@orthograph/chain-evm",
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/main.ts"
+  },
+  "dependencies": {
+    "@orthograph/language-effect": "workspace:*",
+    "effect": "4.1.1",
+    "viem": "2.57.20"
+  },
+  "files": [
+    "dist",
+    "LICENSE-prb-effect-evm"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/main.d.ts",
+        "default": "./dist/main.js"
+      }
+    }
+  }
+}

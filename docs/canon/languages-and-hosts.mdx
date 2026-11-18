@@ -30,7 +30,7 @@ language, `language-effect`. Everything that is about the place comes from the h
 
 ```ts file=examples/signup/generated/server/main.ts lines=9-10
 import { AuthD1, Database, JournalD1, StoreD1, Telemetry, toWorld } from "@orthograph/host-cloudflare";
-import { Auth, Busy, BusyLive, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@orthograph/language-effect";
+import { Auth, Busy, BusyLive, CallTelemetry, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@orthograph/language-effect";
 ```
 
 `Handlers.serve` is the language's enforcer. It wraps each handler in the same fixed order, whatever host it runs on:

@@ -1799,7 +1799,8 @@
             }
           ]
         }
-      ]
+      ],
+      "sourceHash": "9e88e14681fb4c9b0feedcffe750b2b1023275bdb5074d165162516b901e0b74"
     },
     "journeys/an-owner-makes-an-api-key.ts": {
       "name": "an owner makes an api key",
@@ -1999,7 +2000,8 @@
             }
           ]
         }
-      ]
+      ],
+      "sourceHash": "6e38e6048257141387a11c370f4ad225bd3518b605756fcb4e322c00e50fc66a"
     },
     "journeys/grant-an-allowance.ts": {
       "name": "grant an allowance",
@@ -2166,7 +2168,8 @@
             }
           ]
         }
-      ]
+      ],
+      "sourceHash": "714190d2303a8acc5f362ff99cabb4cbab5a793b1df41dda27617fbdacef2ecf"
     },
     "journeys/health-is-up.ts": {
       "name": "health is up",
@@ -2203,7 +2206,8 @@
             }
           ]
         }
-      ]
+      ],
+      "sourceHash": "75ae85ee5a4bfcfccba6436d8ca16a29a741227a90db4ed87c9c0d1bec330b03"
     },
     "journeys/invite-and-accept.ts": {
       "name": "invite and accept",
@@ -2712,7 +2716,8 @@
             }
           ]
         }
-      ]
+      ],
+      "sourceHash": "cf697a8e531f10316e6513348e93486c809fb842fca372774d580eeef91fbb4a"
     },
     "journeys/outsider-cannot-revoke.ts": {
       "name": "an outsider cannot revoke",
@@ -2767,7 +2772,8 @@
             }
           ]
         }
-      ]
+      ],
+      "sourceHash": "c7cedafa4af0b41f4500524f623c6e86e943e918e7d7df06a4254a3a39f2e48a"
     },
     "journeys/read-an-allowance.ts": {
       "name": "read an allowance",
@@ -2881,7 +2887,8 @@
             }
           ]
         }
-      ]
+      ],
+      "sourceHash": "edb8aec75ce92e04d6b282710cd753144bbbf576d8fd52db3a6931c0dd7dfb47"
     },
     "journeys/revoke-then-spend.ts": {
       "name": "revoke then spend",
@@ -3014,7 +3021,8 @@
             }
           ]
         }
-      ]
+      ],
+      "sourceHash": "1eaa0025feaa355e11c4e9075e0ebaa14abdc09dd6c9237a351ffcbfb8c4e19e"
     },
     "journeys/sign-up-and-sign-in.ts": {
       "name": "sign up and sign in",
@@ -3213,7 +3221,8 @@
             }
           ]
         }
-      ]
+      ],
+      "sourceHash": "59cd73d467f68f7747f707b3f32e2fe02e5807444a42aef338d5bfa697e7cd87"
     },
     "journeys/spend-twice-with-one-request.ts": {
       "name": "spend twice with one request",
@@ -3322,7 +3331,8 @@
             }
           ]
         }
-      ]
+      ],
+      "sourceHash": "ace4fdec7a12ce2f5626af65135b694cab98e929df05455974ec47bbdac59019"
     },
     "journeys/spend-within-allowance.ts": {
       "name": "spend within an allowance",
@@ -3388,7 +3398,8 @@
               "present": [
                 "allowance.spend",
                 "allowance.spend.load",
-                "allowance.spend.record"
+                "allowance.spend.record",
+                "allowance.spend.commit"
               ],
               "absent": []
             }
@@ -3529,7 +3540,8 @@
             }
           ]
         }
-      ]
+      ],
+      "sourceHash": "b8f1e4a789475e702fc6b803e1e0554274c4fe1bc83fe46f369e4706ddceee10"
     }
   },
   "startingWorlds": {
@@ -3543,6 +3555,7 @@
           "role": "organization.owner"
         }
       },
+      "sourceHash": "f73ca5909193a1ee7facf96b60ad5250ca0c678988d048e36756324c423c9589",
       "makes": [
         {
           "actor": "ada",
@@ -3576,6 +3589,7 @@
           "role": "allowance.grantee"
         }
       },
+      "sourceHash": "2422e33865f3c48a0bbfbe3e8d8c379e1e19103d6e7d9c1f8b364f142a7efdb2",
       "makes": [
         {
           "actor": "ada",
@@ -3626,6 +3640,7 @@
           "kind": "signed-in"
         }
       },
+      "sourceHash": "496b865f4b984f114c22472960e4d221dd1fa428b97f46d74da7e35a3e5487fa",
       "makes": [
         {
           "actor": "ada",

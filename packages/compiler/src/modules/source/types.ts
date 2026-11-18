@@ -7,6 +7,7 @@ export class SourceError extends Data.TaggedError("SourceError")<{ readonly mess
 export interface LoadedFile {
   readonly path: string;
   readonly exports: Readonly<Record<string, unknown>>;
+  readonly sourceHash?: string;
 }
 
 /**

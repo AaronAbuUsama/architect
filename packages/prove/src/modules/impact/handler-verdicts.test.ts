@@ -3,7 +3,7 @@ import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:f
 import { join, resolve } from "node:path";
 import { Effect } from "effect";
 import { expect, it } from "vitest";
-import type { Model } from "@orthograph/compiler";
+import { Compiler, nodeSource } from "@orthograph/compiler";
 import { Journeys } from "#modules/journeys/service.js";
 import type { CallRecord } from "#modules/journeys/types.js";
 import { proofVerdicts } from "#modules/prove/internal/proof-verdicts.js";
@@ -16,10 +16,12 @@ const cli = join(repo, "packages/cli/src/main.ts");
 
 it("retains one verdict per operation per journey and stales only the edited handler", { timeout: 120_000 }, async () => {
   const root = mkdtempSync(join(acme, ".handler-proof-"));
-  const run = (...args: Array<string>) => execFileSync(process.execPath, [cli, ...args, "--root", root], { encoding: "utf8" });
+  const run = (...args: Array<string>) => execFileSync(process.execPath, [cli, ...args, "--root", root], {
+    encoding: "utf8", env: { ...process.env, ORTHO_LOGBOOK_URL: "" },
+  });
   try {
     for (const part of ["blueprint", "generated", "src", "journeys", "package.json"]) cpSync(join(acme, part), join(root, part), { recursive: true });
-    const model = JSON.parse(run("describe", "--json")) as Model;
+    const model = await Effect.runPromise(Compiler.model.pipe(Effect.provide(nodeSource(root))));
     const project = await Effect.runPromise(Journeys.load(root, model));
     const handlers = handlerHashes(root, model);
     const judged = Object.keys(model.operations).map((operation) => ({ operation, eval: "coverage" as const, failures: [], notes: [] }));

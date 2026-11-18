@@ -7,7 +7,7 @@ import { HttpApiBuilder } from "effect/http-api";
 import { SqlClient } from "effect/sql";
 import type { Principal } from "orthograph";
 import { AuthD1, Database, JournalD1, StoreD1, Telemetry, toWorld } from "@orthograph/host-cloudflare";
-import { Auth, Busy, BusyLive, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@orthograph/language-effect";
+import { Auth, Busy, BusyLive, CallTelemetry, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@orthograph/language-effect";
 import { Mcp, type McpResult } from "@orthograph/language-effect";
 import { Api, Errors } from "../api/src/index.ts";
 import * as portal from "../portal/main.ts";
@@ -98,18 +98,20 @@ const runStopServed = Handlers.serve({ name: "run.stop", operation: runStop.decl
 const tables = [[thingIn(attentionThing), "attention"], [thingIn(milestoneThing), "milestone"], [thingIn(missionThing), "mission"], [thingIn(personThing), "person"], [thingIn(questionThing), "question"], [thingIn(runThing), "run"]] as const;
 
 const refusals = Wire.refusals(Errors.wire);
+const CallApi = Api.middleware(CallTelemetry);
 type Services = SqlClient.SqlClient | Store | Busy | Principals | Journal | Auth;
 
 /** Who is calling, then the operation or read, its refusals sent as their wire classes. */
 type Run = (payload: never, principal: Principal, request?: string) => Effect.Effect<unknown, unknown, unknown>;
 const call = <P>(served: { readonly run: Run }, payload: P, headers: Readonly<Record<string, string | undefined>>) =>
   Effect.flatMap(Principals, (principals) => principals.of(headers["authorization"])).pipe(
+    Effect.withTracerEnabled(false),
     // The caller's idempotency key: for an operation declared `idempotent: "request"`, the same key is one call.
     Effect.flatMap((principal: Principal) => served.run(payload as never, principal, headers["idempotency-key"])),
     refusals,
   ) as Effect.Effect<never, never, Services>;
 
-const AttentionLive = HttpApiBuilder.group(Api, "attention", Effect.fn(function* (handlers) {
+const AttentionLive = HttpApiBuilder.group(CallApi, "attention", Effect.fn(function* (handlers) {
   // The services are taken once, when the routes are built; each request keeps its own tracer and span.
   const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
   return handlers
@@ -118,7 +120,7 @@ const AttentionLive = HttpApiBuilder.group(Api, "attention", Effect.fn(function*
       .handle("list", ({ payload, request }) => call(attentionListServed, payload, request.headers).pipe(Effect.provideContext(services)))
       .handle("raise", ({ payload, request }) => call(attentionRaiseServed, payload, request.headers).pipe(Effect.provideContext(services)));
 }));
-const MilestoneLive = HttpApiBuilder.group(Api, "milestone", Effect.fn(function* (handlers) {
+const MilestoneLive = HttpApiBuilder.group(CallApi, "milestone", Effect.fn(function* (handlers) {
   // The services are taken once, when the routes are built; each request keeps its own tracer and span.
   const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
   return handlers
@@ -126,7 +128,7 @@ const MilestoneLive = HttpApiBuilder.group(Api, "milestone", Effect.fn(function*
       .handle("drop", ({ payload, request }) => call(milestoneDropServed, payload, request.headers).pipe(Effect.provideContext(services)))
       .handle("list", ({ payload, request }) => call(milestoneListServed, payload, request.headers).pipe(Effect.provideContext(services)));
 }));
-const MissionLive = HttpApiBuilder.group(Api, "mission", Effect.fn(function* (handlers) {
+const MissionLive = HttpApiBuilder.group(CallApi, "mission", Effect.fn(function* (handlers) {
   // The services are taken once, when the routes are built; each request keeps its own tracer and span.
   const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
   return handlers
@@ -140,7 +142,7 @@ const MissionLive = HttpApiBuilder.group(Api, "mission", Effect.fn(function* (ha
       .handle("stop", ({ payload, request }) => call(missionStopServed, payload, request.headers).pipe(Effect.provideContext(services)))
       .handle("tasks", ({ payload, request }) => call(missionTasksServed, payload, request.headers).pipe(Effect.provideContext(services)));
 }));
-const QuestionLive = HttpApiBuilder.group(Api, "question", Effect.fn(function* (handlers) {
+const QuestionLive = HttpApiBuilder.group(CallApi, "question", Effect.fn(function* (handlers) {
   // The services are taken once, when the routes are built; each request keeps its own tracer and span.
   const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
   return handlers
@@ -149,7 +151,7 @@ const QuestionLive = HttpApiBuilder.group(Api, "question", Effect.fn(function* (
       .handle("list", ({ payload, request }) => call(questionListServed, payload, request.headers).pipe(Effect.provideContext(services)))
       .handle("spike", ({ payload, request }) => call(questionSpikeServed, payload, request.headers).pipe(Effect.provideContext(services)));
 }));
-const RunLive = HttpApiBuilder.group(Api, "run", Effect.fn(function* (handlers) {
+const RunLive = HttpApiBuilder.group(CallApi, "run", Effect.fn(function* (handlers) {
   // The services are taken once, when the routes are built; each request keeps its own tracer and span.
   const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
   return handlers
@@ -187,8 +189,9 @@ const routesOf = (env: Env) => (routes ??= AuthD1.make({ db: env.DB, secret: env
 
 const build = (env: Env) =>
   HttpRouter.toWebHandler(
-    HttpApiBuilder.layer(Api).pipe(
+    HttpApiBuilder.layer(CallApi).pipe(
       Layer.provide([AttentionLive, MilestoneLive, MissionLive, QuestionLive, RunLive]),
+      Layer.provideMerge(CallTelemetry.layer),
       Layer.provide([StoreD1.layer({ tables }), JournalD1.layer, BusyLive, AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))]),
       Layer.provideMerge(Database.d1(env.DB)),
       Layer.provide(HttpServer.layerServices),

@@ -20,8 +20,9 @@ export const proofVerdicts = (
     if (journey === undefined) continue;
     const declared = model.journeys[journey];
     if (!declared) continue;
+    const byTrace = new Map(run.calls.map((call) => [call.trace, call]));
     const failed = run.stopped !== undefined || run.steps.some((step) =>
-      step.failures.length > 0 || spanFailures(step, traces.get(step.trace)).length > 0);
+      step.failures.length > 0 || spanFailures(step, traces.get(step.trace), byTrace.get(step.trace)).length > 0);
     const operations = scenarioOf(model, declared).operationNames;
     const called = new Set(run.calls.map((call) => call.operation));
     for (const operation of operations) {

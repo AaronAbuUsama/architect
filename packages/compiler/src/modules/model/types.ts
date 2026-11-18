@@ -128,11 +128,12 @@ export interface JourneyCallModel {
 
 export interface JourneyModel {
   readonly file: string;
+  readonly sourceHash?: string;
   readonly name: string;
   readonly cast: Readonly<Record<string, AllowedModel>>;
   readonly starts: string | null;
   readonly steps: ReadonlyArray<{ readonly title: string } & (
-    | { readonly call: JourneyCallModel; readonly checks: ReadonlyArray<{ readonly kind: string }> }
+    | { readonly call: JourneyCallModel; readonly checks: ReadonlyArray<{ readonly kind: string; readonly pick?: string }> }
     | { readonly skipped: string }
   )>;
 }
@@ -140,6 +141,7 @@ export interface JourneyModel {
 export interface StartingWorldModel {
   readonly name: string;
   readonly file: string;
+  readonly sourceHash?: string;
   readonly from: string | null;
   readonly cast: Readonly<Record<string, AllowedModel>>;
   readonly makes: ReadonlyArray<JourneyCallModel | null>;

@@ -585,7 +585,8 @@
               }
             ]
           }
-        ]
+        ],
+        "sourceHash": "2428f97a2fb9b5e7685f08410074b388bb2fa774bef47fe1e76e5bb7bbfc93cb"
       },
       "journeys/fill-a-sheet.ts": {
         "name": "fill a sheet",
@@ -816,7 +817,8 @@
               }
             ]
           }
-        ]
+        ],
+        "sourceHash": "4e6c6467f4eb8025e7500dde64a8212c88df5adc59c172d3fce534ae04380299"
       },
       "journeys/join-twice-with-one-request.ts": {
         "name": "join twice with one request",
@@ -924,7 +926,8 @@
               }
             ]
           }
-        ]
+        ],
+        "sourceHash": "454df45f527a3fa4d66e210c21aabc5bf44532e07f9cef04ca68548bf14c26ae"
       },
       "journeys/put-up-a-sheet.ts": {
         "name": "put up a sheet",
@@ -1017,7 +1020,8 @@
               }
             ]
           }
-        ]
+        ],
+        "sourceHash": "770b0170b7ff7079eb3cc237b20bc6a7f813c98c13455db9f69cc2df658972a5"
       }
     },
     "startingWorlds": {
@@ -1030,6 +1034,7 @@
             "kind": "anyone"
           }
         },
+        "sourceHash": "3bf74b4ce3701851b64abadfd11c2dcbaf77cf8b7c50dba2307e6d4702f15253",
         "makes": [
           {
             "actor": "visitor",
@@ -1111,5 +1116,5 @@
       "reason": "no trace source is wired to the portal yet"
     }
   },
-  "digest": "e2069dfd7ca331e4042a92fb2a4a329255d129190ba5921551dc98d47fb743e5"
+  "digest": "6cd2d8fe1ada7dd077bf6ab7e1e5fa3f2f2a5de07ade54b6cd346902aa307e74"
 }

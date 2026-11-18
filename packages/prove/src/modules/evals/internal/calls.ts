@@ -1,6 +1,6 @@
 // Evals 1 to 6 and 9: each looks at every call of one operation.
 import { Schema } from "effect";
-import { structOf } from "orthograph/server";
+import { listItemFields, structOf, traceable } from "orthograph/server";
 import type { FieldModel } from "@orthograph/compiler";
 import type { PerOperation, Verdict } from "../types.ts";
 import { answered, attr, replayed, subtree, where } from "./evidence.ts";
@@ -21,21 +21,35 @@ const fromJson = (text: unknown) => {
 };
 
 /**
- * 1. Span answers keep their declared shape, including an answer the server refused to send. Hidden fields come
- * only from the observed response; a present schema-valued field uses that response's unambiguous type. The same eval
- * checks that no secret value, sent or answered, appears in any span or log of the call (`secrets.ts`).
+ * 1. Span answers keep their declared shape, including an answer the server refused to send. Fields kept out of
+ * telemetry come from the observed response, when there is one. A present schema-valued field uses that response's
+ * unambiguous type. The same eval checks for values that should never appear in traces (`secrets.ts`).
  */
 export const answerShape: PerOperation = (op, evidence, { project }) => {
-  const declared = project.operations.get(op.name)?.answer ?? {};
+  const operation = project.operations.get(op.name);
+  const declared = operation?.answer ?? {};
+  const traceItems = operation?.kind === "read" && operation.by === "list"
+    ? Schema.Array(structOf(Object.fromEntries(Object.entries(listItemFields(operation.thing)).filter(([, field]) => traceable(field)))))
+    : undefined;
+  const shown = (key: string) => {
+    const field = declared[key];
+    return field !== undefined && traceable(field);
+  };
   const failures = evidence.flatMap((e) => {
     const fromSpan = Object.fromEntries(Object.entries(e.opSpan?.attrs ?? {}).filter(([k]) => k.startsWith("answer.")).map(([k, v]) => [k.slice(7), v]));
     const hasResponse = answered(e) && e.call.body !== undefined;
     const sent = answered(e) && typeof e.call.body === "object" && e.call.body !== null ? (e.call.body as Record<string, unknown>) : {};
-    const hidden = Object.fromEntries(Object.entries(sent).filter(([k]) => op.answer[k]?.visibility !== undefined));
+    const hidden = Object.fromEntries(Object.entries(sent).filter(([k]) => !shown(k)));
     const answer = Object.keys(fromSpan).length > 0 ? { ...hidden, ...fromSpan } : answered(e) ? sent : undefined;
-    const leaks = secretsIn(op, e);
+    const leaks = secretsIn(op, operation, e);
     if (!answer) return leaks;
     return [...leaks, ...Object.keys(op.answer).flatMap((k) => {
+      // Live telemetry has no response and an external sink also drops email (D3 #120).
+      if (!hasResponse && (!shown(k) || k === "email")) return [];
+      if (!hasResponse && k === "items" && traceItems !== undefined) {
+        const decoded = Schema.decodeUnknownExit(traceItems as never)(fromJson(answer[k]), { onExcessProperty: "error" });
+        return decoded._tag === "Success" ? [] : [`${where(e)}: answer.items: expected traceable item fields and state`];
+      }
       const schema = structOf({ [k]: declared[k]! }) as never;
       const schemaValued = op.answer[k]?.value.type === "schema";
       // An observed response disambiguates a schema-valued field only after the existing answer selection found it:
@@ -44,8 +58,10 @@ export const answerShape: PerOperation = (op, evidence, { project }) => {
       const rawFits = Schema.decodeUnknownExit(schema)({ [k]: got })._tag === "Success";
       // Span-only strings are ambiguous: keep valid text before trying the encoded object/list representation.
       const ok = rawFits || (!hasResponse && schemaValued && Schema.decodeUnknownExit(schema)({ [k]: fromJson(got) })._tag === "Success");
-      // A secret is not repeated in the report, only said to be wrong.
-      return ok ? [] : [`${where(e)}: answer.${k}: expected ${expectation(op.answer[k])}, got ${op.answer[k]?.visibility === undefined ? JSON.stringify(answer[k]) : "a value that does not fit (hidden: not public)"}`];
+      if (ok) return [];
+      // A value kept out of telemetry is also kept out of the report.
+      const display = shown(k) && !(k === "items" && traceItems !== undefined) ? JSON.stringify(answer[k]) : "a value that does not fit (hidden from telemetry)";
+      return [`${where(e)}: answer.${k}: expected ${expectation(op.answer[k])}, got ${display}`];
     })];
   });
   return verdict("answer shape", op.name, failures);

@@ -49,7 +49,7 @@ export const endpoint = HttpApiEndpoint.post("join", "/sheet/join", {
 
 The MCP door is on the same Worker, and calls the same served operations:
 
-```ts file=examples/signup/generated/server/main.ts lines=104-109
+```ts file=examples/signup/generated/server/main.ts lines=107-112
 /** One tool per operation and read: the same served operations as the API, called as the person the access token names. */
 const tools = Mcp.tools<Services>({
   catalog,
@@ -94,24 +94,28 @@ The wrapper runs every call to an Effect operation through the same order (`pack
 
 The last four, as code:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=57-73
-        yield* checkFrom(op, notFrom, payload, unit);
-        const chosen = yield* Ref.make<string | undefined>(undefined);
-        const move = (to?: string) => chooseOutcome(name, op, to).pipe(Effect.flatMap((o) => Ref.set(chosen, o)));
-        const answer = yield* busy.counted(handler(payload, { principal, steps, move })).pipe(withRecords, logs.around);
-        // Recorded before the check, so an answer outside its declaration is evidence `prove` can name.
-        yield* Effect.annotateCurrentSpan(answerAttributes(answer, op.answer));
-        // An answer that breaks its declaration is the handler's bug, never the caller's: it dies, loudly.
-        const wire = yield* check(answer).pipe(
-          Effect.mapError((e) => new Error(`${name} answered outside its declaration: ${e.message}`)),
-          Effect.orDie,
-        );
-        const outcome = yield* Ref.get(chosen);
-        const entries = outcome === undefined ? [] : [yield* applyMove(name, op, payload, answer, outcome, unit)];
-        const request = key === undefined ? {} : { request: { key, answer: JSON.stringify(wire) } };
-        const committed = yield* store.commit({ writes: yield* unit.writes, entries, ...request });
-        if (committed === "conflict") return yield* new Conflict();
-        return answer;
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=63-83
+yield* checkFrom(op, notFrom, payload, unit);
+const chosen = yield* Ref.make<string | undefined>(undefined);
+const move = (to?: string) => chooseOutcome(name, op, to).pipe(Effect.flatMap((o) => Ref.set(chosen, o)));
+const answer = yield* busy.counted(handler(payload, { principal, steps, move })).pipe(withRecords, logs.around);
+// Recorded before the check, so an answer outside its declaration is evidence `prove` can name.
+yield* Effect.annotateCurrentSpan(answerAttributes(answer, op.answer));
+// An answer that breaks its declaration is the handler's bug, never the caller's: it dies, loudly.
+const wire = yield* check(answer).pipe(
+  Effect.mapError((e) => new Error(`${name} answered outside its declaration: ${e.message}`)),
+  Effect.orDie,
+);
+const outcome = yield* Ref.get(chosen);
+const entries = outcome === undefined ? [] : [yield* applyMove(name, op, payload, answer, outcome, unit)];
+const request = key === undefined ? {} : { request: { key, answer: JSON.stringify(wire) } };
+const writes = yield* unit.writes;
+const committed = yield* store.commit({ writes, entries, ...request }).pipe(
+  Effect.tap((outcome) => Effect.annotateCurrentSpan("commit.outcome", outcome)),
+  spanned(`${name}.commit`, { "step.kind": "commit", "commit.writes": writes.length, "commit.entries": entries.length }),
+);
+if (committed === "conflict") return yield* new Conflict();
+return answer;
 ```
 
 A `conflict` reruns the whole attempt, up to 64 times (`service.ts:21`). For a chain operation the enforcer is the

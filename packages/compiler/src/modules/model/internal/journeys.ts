@@ -59,7 +59,7 @@ export const storiesOf = (
   };
 
   const journeys: Record<string, JourneyModel> = {};
-  for (const [file, j] of [...layout.journeys].sort(([a], [b]) => a.localeCompare(b))) {
+  for (const [file, { declaration: j, sourceHash }] of [...layout.journeys].sort(([a], [b]) => a.localeCompare(b))) {
     const cast = castOf(j.cast, file);
     const steps = j.steps(Scripting.script(j.cast)).map((step) => {
       const call = callOf(step.call);
@@ -67,11 +67,11 @@ export const storiesOf = (
         ? { title: step.title, skipped: "operation is outside the model" }
         : { title: step.title, call, checks: step.checks.map(checkOf) };
     });
-    journeys[file] = { name: j.name, file, cast, starts: j.starts ?? null, steps };
+    journeys[file] = { name: j.name, file, cast, starts: j.starts ?? null, steps, ...(sourceHash ? { sourceHash } : {}) };
   }
 
   const startingWorlds: Record<string, StartingWorldModel> = {};
-  for (const [name, { file, declaration: w }] of layout.startingWorlds) {
+  for (const [name, { file, declaration: w, sourceHash }] of layout.startingWorlds) {
     const cast = castOf(w.cast, file);
     const members = { ...w.cast };
     const seen = new Set([name]);
@@ -83,7 +83,7 @@ export const storiesOf = (
     }
     const script = Scripting.script(members);
     startingWorlds[name] = {
-      name, file, from: w.from ?? null, cast,
+      name, file, from: w.from ?? null, cast, ...(sourceHash ? { sourceHash } : {}),
       makes: w.makes(script).map((call) => callOf(call) ?? null), gives: data(w.gives(script)),
     };
   }

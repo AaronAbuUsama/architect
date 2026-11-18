@@ -1,8 +1,9 @@
-import { existsSync, readdirSync, realpathSync, statSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { readFileSync, existsSync, readdirSync, realpathSync, statSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 import { Effect, Layer } from "effect";
-import { BlueprintSource, SourceError, type PluginPackage } from "./types.ts";
+import { BlueprintSource, SourceError, type LoadedFile, type PluginPackage } from "./types.ts";
 import { blueprintFilesOf, dependenciesOf, integrityOf, packageDir, readManifest, resolveFrom } from "./internal/plugins.ts";
 
 const walk = (dir: string): Array<string> =>
@@ -24,6 +25,12 @@ export const nodeSource = (given: string) => {
   const projectRoot = existsSync(given) ? realpathSync(given) : given;
   const root = join(projectRoot, "blueprint");
   const sync = <A>(what: string, f: () => A) => Effect.try({ try: f, catch: (e) => new SourceError({ message: `${what}: ${String(e)}` }) });
+
+  const loadFile = (path: string, file: string, label: string) => importing(pathToFileURL(file).href, label).pipe(
+    Effect.flatMap((exports): Effect.Effect<LoadedFile, SourceError> => /(?:^|\/)(?:journeys|starting-worlds)\//.test(path)
+      ? sync(`can't hash ${label}`, () => ({ path, exports, sourceHash: createHash("sha256").update(readFileSync(file)).digest("hex") }))
+      : Effect.succeed({ path, exports })),
+  );
 
   const plugin = (name: string): Effect.Effect<PluginPackage | undefined, SourceError> => Effect.gen(function* () {
     const dir = packageDir(projectRoot, name);
@@ -48,7 +55,7 @@ export const nodeSource = (given: string) => {
         .filter((f) => f.isFile() && f.name.endsWith(".ts") && !f.name.endsWith(".d.ts"))
         .map((f) => `../journeys/${f.name}`) : []),
     ].sort()),
-    load: (path) => importing(pathToFileURL(join(root, path)).href, `blueprint/${path}`).pipe(Effect.map((exports) => ({ path, exports }))),
+    load: (path) => loadFile(path, join(root, path), path.startsWith("../") ? path.slice(3) : `blueprint/${path}`),
     plugins: Effect.gen(function* () {
       const manifest = yield* sync("can't read the project's package.json", () => readManifest(join(projectRoot, "package.json")));
       const found = yield* Effect.forEach(dependenciesOf(manifest), plugin);
@@ -64,8 +71,8 @@ export const nodeSource = (given: string) => {
       }
       const integrity = yield* sync(`can't read ${name}`, () => integrityOf(dir));
       const files = yield* Effect.forEach(blueprintFilesOf(folder), (path) =>
-        importing(pathToFileURL(join(folder, path)).href, `${name}/blueprint/${path}`).pipe(
-          Effect.map((exports) => ({ path, exports, specifier: `${name}/blueprint/${path}` }))));
+        loadFile(path, join(folder, path), `${name}/blueprint/${path}`).pipe(
+          Effect.map((loaded) => ({ ...loaded, specifier: `${name}/blueprint/${path}` }))));
       return { integrity, files };
     }),
   });

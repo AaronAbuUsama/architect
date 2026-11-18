@@ -8,7 +8,10 @@ planned to exercise. Repeated calls to the same operation in one journey share o
 The local proof ledger keeps the verdicts and an operation-specific fingerprint of their journey and starting-world
 definitions. `ortho impact` checks those definitions, the operation's existing model dependencies and its own
 handler file. The full model hash identifies the model that was judged. A change to an unrelated model declaration
-or handler does not stale that proof. An unreadable handler cannot establish a new pass.
+or handler does not stale that proof. The journey fingerprint uses the authored source bytes for predicates,
+so different renderings of the same function by module loaders do not stale it. App handler hashes cover the
+handler module itself. Mounted operations also retain the dependency on their package's installed bytes.
+An unreadable handler cannot establish a new pass.
 
 The signed logbook keeps the journey verdicts on the existing operation record. The operation verdict still requires
 its evals and the journey evidence to pass. Production carries the evidence from the environment that earned the
