@@ -11,6 +11,8 @@ export interface ProjectFacts {
   readonly errors: ReadonlyArray<string>;
   /** Each handler file (from the root) and the errors its operation declares. */
   readonly handlers: Readonly<Record<string, ReadonlyArray<string>>>;
+  /** Required runner keys per handler file. */
+  readonly requiredSteps?: Readonly<Record<string, ReadonlyArray<string>>>;
 }
 
 /** The subset of oxlint's (ESLint's) rule context the rules use. */

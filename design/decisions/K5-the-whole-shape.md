@@ -202,9 +202,9 @@ until mined" belongs to the caller, so a server call that sends a transaction is
 **What the scaffold writes.** `ortho` writes the handler once, as a real function, already wired. Each declared step
 is in place, in declared order (the order eval 6 checks, `packages/prove/src/modules/evals/internal/calls.ts:114`).
 The move is in place when one is declared, and so is a stub for each declared refusal. Every hole is a
-`Handlers.blank`, so the file compiles, and `ortho prove --empty` shows each blank as a red step (M1.16). Today the
-scaffold writes all of this only as comments (`packages/generators/src/modules/render/internal/scaffold.ts:8-13`,
-`:26`). New slice M1.26 makes it the function below.
+`Handlers.blank`, so the file compiles, and `ortho prove --empty` names the reached blank on each red journey step
+(M1.16). M1.26 wires those calls in the generated scaffold. The example below shows how the draft's handler can
+name those holes.
 
 ```ts
 // src/draft/edit.ts. Scaffolded from blueprint/things/draft/verbs/edit.ts. Yours from now on.

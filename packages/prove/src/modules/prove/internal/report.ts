@@ -1,6 +1,6 @@
 // Turning journeys and verdicts into prove's lines.
 import type { Model } from "@orthograph/compiler";
-import type { Verdict } from "#modules/evals/types.js";
+import type { Evidence, Verdict } from "#modules/evals/types.js";
 import type { JourneyRun, StepResult } from "#modules/journeys/types.js";
 import type { Trace } from "#modules/telemetry/types.js";
 
@@ -77,4 +77,30 @@ export const evalLines = (model: Model, verdicts: ReadonlyArray<Verdict>) => {
     if (v.failures.length > 0) failed++;
   }
   return { lines, failed };
+};
+
+/** Optional paths are counted from successful journey calls that actually ran the handler. */
+export const optionalStepLines = (model: Model, runs: ReadonlyArray<JourneyRun>, evidence: ReadonlyArray<Evidence>) => {
+  const optional = Object.values(model.operations).flatMap((op) =>
+    Object.values(op.steps).filter((step) => step.optional).map((step) => ({ operation: op.name, step: step.name })));
+  if (optional.length === 0) return [];
+  const journeyTraces = new Set(runs.flatMap((run) => run.steps.map((step) => step.trace)));
+  const calls = evidence.flatMap(({ call, trace }) => {
+    if (call.status !== 200 || !journeyTraces.has(call.trace)) return [];
+    const answer = trace.spans.find((span) => span.name === call.operation && span.attrs["refusal"] === undefined);
+    if (!answer || answer.attrs["request.replayed"] === true) return [];
+    const parents = new Set([answer.spanId]);
+    const names = new Set<string>();
+    for (const id of parents) {
+      for (const span of trace.spans.filter((item) => item.parentSpanId === id)) {
+        parents.add(span.spanId);
+        names.add(span.name);
+      }
+    }
+    return [{ operation: call.operation, names }];
+  });
+  return optional.flatMap(({ operation, step }) => {
+    const observed = new Set(calls.filter((call) => call.operation === operation).map(({ names }) => names.has(step)));
+    return observed.size === 2 ? [] : [`warning: ${step} never exercised both ways (${observed.has(true) ? "always ran" : "never ran"})`];
+  });
 };

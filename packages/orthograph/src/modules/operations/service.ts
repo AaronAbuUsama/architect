@@ -74,7 +74,7 @@ export const Operations: OperationsApi = {
     }) as unknown as Operation<typeof thing, typeof spec.payload, typeof spec.answer, never, never> as never,
   read: ((thing: Thing, spec: ReadSpec) => ("where" in spec ? listRead(thing, spec) : idRead(thing, spec))) as OperationsApi["read"],
   step: {
-    database: () => Object.freeze({ kind: "step", type: "database" }) as Step<"database">,
-    wait: () => Object.freeze({ kind: "step", type: "wait" }) as Step<"wait">,
+    database: (options) => Object.freeze({ kind: "step", type: "database", ...(options?.optional ? { optional: true } : {}) }) as Step<"database">,
+    wait: (options) => Object.freeze({ kind: "step", type: "wait", ...(options?.optional ? { optional: true } : {}) }) as Step<"wait">,
   },
 };

@@ -129,7 +129,7 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
       name: `${thing}.${verb}`, thing, verb, identifier: camel(verb), file, description: op.description,
       payload: fieldsModel(op.payload, `${file} payload`), answer: fieldsModel(op.answer, `${file} answer`),
       move, errors, refusals, allowed,
-      steps: Object.fromEntries(Object.entries(op.steps).map(([k, s]) => [k, { name: `${thing}.${verb}.${k}`, type: s.type }])),
+      steps: Object.fromEntries(Object.entries(op.steps).map(([k, s]) => [k, { name: `${thing}.${verb}.${k}`, type: s.type, ...(s.optional ? { optional: true } : {}) }])),
       idempotent: op.idempotent ?? null,
       runs: "server" as const, test: op.test,
       budget: op.budget ? { p95Ms: Duration.toMillis(op.budget.p95) } : null,

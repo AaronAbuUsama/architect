@@ -82,7 +82,7 @@ export interface OperationModel {
   readonly errors: ReadonlyArray<string>;
   readonly refusals: ReadonlyArray<string>;
   readonly allowed: ReadonlyArray<AllowedModel>;
-  readonly steps: Readonly<Record<string, { readonly name: string; readonly type: string }>>;
+  readonly steps: Readonly<Record<string, { readonly name: string; readonly type: string; readonly optional?: boolean }>>;
   readonly idempotent: "request" | null;
   /** Where it runs. Always `server`: the compiler refuses the others until a target supports them. */
   readonly runs: "server";

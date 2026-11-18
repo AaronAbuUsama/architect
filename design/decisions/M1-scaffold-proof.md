@@ -14,3 +14,15 @@ the viewer is explicitly requested, and removes its temporary world and traces a
 
 The author check on acme's existing journey found two red steps and one description proof. It also checked
 that the original files were unchanged and the Worker stopped.
+
+The wired scaffold uses the operation's declared order, its move and its declared refusal classes. A reached
+blank dies and names the hole in that journey's red step. Downstream holes become reachable as earlier ones
+are filled. Required runners get a source warning for missing statically named calls in app handlers. Eval 6
+judges the steps that actually ran. Optional coverage counts answered journey calls that ran a handler. Setup
+calls, refusals and request replays cannot supply a missing path.
+
+Run the four author acceptance checks locally with:
+
+```sh
+pnpm exec vitest run --root e2e --config vitest.m1.config.ts m1/10-empty-and-scaffold.test.ts
+```

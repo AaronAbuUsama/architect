@@ -7,7 +7,7 @@ import { Journeys } from "#modules/journeys/service.js";
 import type { Facts, Project } from "#modules/journeys/types.js";
 import { exportRoots, rootOf } from "#modules/telemetry/service.js";
 import type { TraceSource } from "#modules/telemetry/types.js";
-import { evalLines, journeyLines } from "./report.ts";
+import { evalLines, journeyLines, optionalStepLines } from "./report.ts";
 
 export interface Exercised {
   readonly journeys: ReturnType<typeof journeyLines>;
@@ -41,7 +41,8 @@ export const exercise = (model: Model, project: Project, url: string, collector:
     const named = calls.filter((c) => verdicts.some((v) => v.failures.some((f) => f.startsWith(`${Evals.where(c)}:`))));
     const failedTraces = [...journeys.failedTraces, ...named.map((c) => ({ trace: c.trace, what: `${c.journey} "${c.step}"` }))]
       .filter((f, i, all) => all.findIndex((o) => o.trace === f.trace) === i);
-    return { journeys, evals: evalLines(model, verdicts), verdicts, judged, failedTraces };
+    const evals = evalLines(model, verdicts);
+    return { journeys, evals: { ...evals, lines: [...evals.lines, ...optionalStepLines(model, runs, evidence)] }, verdicts, judged, failedTraces };
   });
 
 /** The last line: every journey and every eval passed, or how many did not. */

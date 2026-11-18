@@ -10,6 +10,7 @@ import type { TypeOf } from "#modules/values/types.js";
 export interface Step<K extends StepKind = StepKind> {
   readonly kind: "step";
   readonly type: K;
+  readonly optional?: boolean;
 }
 /**
  * What a step is. `database` and `wait` are what the Effect target runs. `sync`, `check` and `prove` are reserved for
@@ -154,5 +155,8 @@ export interface OperationsApi {
       readonly budget?: Budget;
     }): Read<T, ListPayload<T, W>, Page<ListItem<T>>>;
   };
-  readonly step: { readonly database: () => Step<"database">; readonly wait: () => Step<"wait"> };
+  readonly step: {
+    readonly database: (options?: { readonly optional?: boolean }) => Step<"database">;
+    readonly wait: (options?: { readonly optional?: boolean }) => Step<"wait">;
+  };
 }
