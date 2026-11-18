@@ -520,9 +520,9 @@ import { Blueprint } from "orthograph";
 import wallets from "@orthograph/wallets";
 
 export default Blueprint.use(wallets, (w) => [
-  w.signer.node.keystore,                 // choose, from what wallets has proved
-  w.signer.browser.injected,
-  w.omit(w.operations.import),            // acme won't take imported keys
+  w.choose(w.choices.signer.node.keystore),   // choose, from what wallets has proved
+  w.choose(w.choices.signer.browser.injected),
+  w.omit(importKey),                          // acme won't take imported keys (the plugin's own declaration, imported)
 ]);
 ```
 

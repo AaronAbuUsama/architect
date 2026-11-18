@@ -124,7 +124,7 @@ A projection is mounted like any plugin: one file, and the file's name is the mo
 ```ts
 // blueprint/projections/cli.ts: the public CLI, command `acme`
 import { Blueprint } from "orthograph";
-import { cli } from "@orthograph/cli";
+import { cli } from "@orthograph/projections";
 
 export default Blueprint.use(cli, (c) => [
   c.command.fromProject,            // `acme`, from package.json's name
@@ -135,7 +135,7 @@ export default Blueprint.use(cli, (c) => [
 ```ts
 // blueprint/projections/cli-admin.ts: a second CLI from the same plugin, for operators
 import { Blueprint } from "orthograph";
-import { cli } from "@orthograph/cli";
+import { cli } from "@orthograph/projections";
 import { operator } from "../things/system/roles.ts";
 
 export default Blueprint.use(cli, (c) => [

@@ -89,7 +89,7 @@ own span, free text is absent from spans, and refused calls are counted (O2).
 
 | id | what | needs | kind | done when | size |
 |---|---|---|---|---|---|
-| M1.01 | The plugin descriptor, harvested from D4 sections 1 to 3 under the frame's words: three kinds, mount files named by path, the verbs, choices against settings, `Blueprint.need(x, { when })`, runtime entries per host | Gate M0 | decision | `decisions/M1-plugins.md` written | S |
+| M1.01 ✅ | The plugin descriptor, harvested from D4 sections 1 to 3 under the frame's words: three kinds, mount files named by path, the verbs, choices against settings, `Blueprint.need(x, { when })`, runtime entries per host | Gate M0 | decision | `decisions/M1-plugins.md` written. **Proof:** [`decisions/M1-plugins.md`](decisions/M1-plugins.md); goal file [`goals/03-m1-plugin-path.md`](goals/03-m1-plugin-path.md) | S |
 | M1.02 | Port `layer/4:e2e/layer3/00` to `06` and their fixtures to `e2e/m1` in the new words | M1.01 | checks | they run and fail for the right reason on `main` | M |
 | M1.03 ∥ | The complete model: journeys, starting worlds, role rules and operations with blanks (marked) are in it (`describe.ts:99`) | Gate M0 | build | `ortho describe --json` on acme and work lists them all | M |
 | M1.04 ∥ | Verdicts keyed by the model's hash and each handler body's hash, one per operation per journey | M1.03 | build | editing `src/allowance/spend.ts` makes `ortho impact` name `allowance.spend` alone | M |
