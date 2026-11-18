@@ -1,5 +1,14 @@
 # Spike: generated-app
 
+> **Status, 18 November 2026: research only.** K5 (PR #44, bc24ca9) drops agent-native: none of its code runs in
+> Orthograph and no `@agent-native/*` package is installed. What this spike found feeds three slices:
+> - **M1.23:** the action shape and approvals, ported into forman's actions module. It keeps `defineAction`'s field names.
+> - **M1.24:** the shell, a narrow chat and screen context, rewritten in Effect.
+> - **M1.25:** the portal's design, with Aaron.
+>
+> The UX direction and Aaron's review are in `design/UX.md`. The "decision it supports" below is superseded where it
+> says to keep agent-native's template.
+
 **Question.** Can `forman generate` write one working agent-native app from acme's `model.json`? It would hold one
 action per operation, a page per declaration with its live calls on it, and a chat that answers "why did spend refuse
 ada?" from the screen and the trace.
