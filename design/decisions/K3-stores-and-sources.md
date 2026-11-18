@@ -114,10 +114,9 @@ that does all of that can be a thing's home.
 10. **The data map shows both.** `generated/data/map.md` and the portal's data page list every store, with its kind,
     binding and migrations, and every source, with its adapter, calls and stand-in.
 
-11. **A projection's own state is a fourth kind of place** (K5, 18 November 2026). This is the app's agent-native
-    Postgres, holding chats, threads, runs, application state, settings and its sessions. It is not a store: no thing
-    lives there and no commit goes there. It is not a source: no handler reads it. It belongs to the projection, the
-    way a browser's local storage belongs to a page.
+11. *(Withdrawn, 18 November 2026.)* An earlier K5 draft added "a projection's own state" as a fourth kind of place,
+    for agent-native's Postgres. K5's revision builds the portal on Orthograph instead, so nothing needs it: the
+    portal's notes are things in the portal feature's own store (item 7).
 
 ## Why not the external database as a store (option B)
 
