@@ -95,7 +95,7 @@ in `main`, then delete); `build/portal-pro`, `design/kits-decision`, `design/wor
 
 ### What waits on Aaron
 
-1. **K5's three forks**, PR #44: the critical path.
+1. **K5's three forks**, PR #44: where an operation runs, whose identity, who the app is for. The critical path; the canon's new seven-layer order (layer 1 · the shape) waits on it too.
 2. Create the **`@orthograph` npm org** at his computer.
 3. The skills design's **four questions**, PR #37, after K5.
 4. **Canon layer 1** review, PR #38, after it's re-layered on K5.
