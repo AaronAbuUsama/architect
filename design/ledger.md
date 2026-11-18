@@ -9,8 +9,8 @@ what it must settle, what it must not claim, and which words it must not use. Th
 
 ## In numbers
 
-- **617 items**: 515 open, 55 fixed and 47 superseded.
-- **198 of the open items are owned by nothing.** No slice, `later.md` line or milestones "Later" line covers
+- **620 items**: 518 open, 55 fixed and 47 superseded.
+- **201 of the open items are owned by nothing.** No slice, `later.md` line or milestones "Later" line covers
   them. They are in section 1.
 - **65 open items are marked high.** A canon page can't be written correctly until each one is settled.
 - **28 gaps and 43 contradictions** that no file lists as open (section 2).
@@ -44,7 +44,8 @@ what it must settle, what it must not claim, and which words it must not use. Th
 K5, the whole shape (PR #44 at bc24ca9, not merged yet), answers 1, 2 and the "home" half of 5 provisionally. For 1, the
 portal stays: M1.13 becomes "docs and the portal", our own design on pieces ported from agent-native. None of
 agent-native's code runs (M1.23 to M1.25). The rows say how. 3 and 4 are still open. K5 also brings five new items,
-owned so far only by slices in K5: `OPS-14`, `PRJ-44`, `TRA-43`, `TRA-44` and `LAH-45`.
+owned so far only by slices in K5: `OPS-14`, `PRJ-44`, `TRA-43`, `TRA-44` and `LAH-45`. Aaron has since
+answered Q5 (`OPS-14`).
 
 ## How the ledger and the canon talk to each other
 
@@ -76,11 +77,11 @@ owned so far only by slices in K5: `OPS-14`, `PRJ-44`, `TRA-43`, `TRA-44` and `L
 | 1 | blueprint | 9 | 6 | 5 | 1 |
 | 1 | things | 5 | 2 | 0 | 0 |
 | 1 | machines | 5 | 2 | 0 | 1 |
-| 1 | operations | 13 | 9 | 2 | 1 |
-| 1 | handlers | 6 | 4 | 1 | 1 |
+| 1 | operations | 13 | 9 | 1 | 1 |
+| 1 | handlers | 8 | 6 | 1 | 1 |
 | 2 | roles | 11 | 3 | 2 | 3 |
 | 2 | journeys | 13 | 6 | 4 | 0 |
-| 2 | proof | 44 | 16 | 5 | 16 |
+| 2 | proof | 45 | 17 | 6 | 16 |
 | 2 | traces | 37 | 24 | 1 | 7 |
 | 3 | stores | 22 | 2 | 5 | 5 |
 | 3 | views | 8 | 2 | 1 | 0 |
@@ -153,7 +154,7 @@ slice, a decision, or a line saying it is dropped. Grouped by canon page, in the
 | `OPS-08` | In the generated app, the UI's retry is not safe: a retry gets a fresh request key, so it is not recognised as the same request. | https://github.com/AaronAbuUsama/architect/pull/41<br>spikes/generated-app/README.md:106 (branch spike/generated-app)<br>spikes/generated-app/README.md:153 (branch spike/generated-app)<br>design/decisions/K5-the-whole-shape.md:277-278 (branch design/k5-whole-shape at bc24ca9, PR #44) | open; **K5 settles it, provisionally:** the SDK keeps one `requestKey` across its own retries, and a screen makes one when its form opens (M1.12). Open until K5 merges. |
 | `OPS-09` | MCP calls send no idempotency key, MCP has no CORS for browser clients, and an MCP tool's p95 is not watched ("not done, on purpose"). | design/decisions/D3.md:885 | open |
 | `OPS-12` | The rule that a client operation may only use `anyone` or `signedIn`, with `check` refusing a thing role on it, is written but not built or owned. | design/decisions/K1-kits.md:246 | open |
-| `OPS-14` | An operation with no machine can't declare an event: today a domain event comes only from a machine's move. Whether an operation may say `emits:`, and what that means for its commit and its proof, is K5's fork Q5 for Aaron. **(high)** | design/decisions/K5-the-whole-shape.md:50-51,355,532 (branch design/k5-whole-shape at bc24ca9, PR #44) | open. K5 recommends `emits:` on the operation, written in the same commit, checked by the events eval, at most one per successful commit. Until M3.01 builds it, a move to the same state is the floor |
+| `OPS-14` | An operation with no machine can't declare an event: today a domain event comes only from a machine's move. Whether an operation may say `emits:`, and what that means for its commit and its proof, was K5's fork Q5. | design/decisions/K5-the-whole-shape.md:50-51,355,532 (branch design/k5-whole-shape at bc24ca9, PR #44)<br>Aaron, relayed by the conductor session (18 November 2026): Q5 is B | open: decided, not built. Aaron chose B: `emits:` on the operation, written in the same commit, checked by the events eval, at most one per successful commit. M3.01 builds it (in K5 only); until then a move to the same state is the floor |
 
 ### handlers
 
@@ -163,6 +164,8 @@ slice, a decision, or a line saying it is dropped. Grouped by canon page, in the
 | `HAN-03` | Handlers and callers still write identifiers such as `.spend`, so renaming a declaration is guided by compile errors, not automatic. | design/spikes/names-from-paths.md:107 | open |
 | `HAN-05` | The handler frame's comment names the handler file `<verb>.handler.ts`, which is not the file a project writes. | packages/language-effect/src/modules/handler/types.ts:29<br>canon note frame-file-name on handlers.mdx (PR #38) | open |
 | `HAN-06` | `Handlers.blank` being reached is built, but no test covers it. | canon status on handlers.mdx (PR #38)<br>packages/language-effect/src/index.ts:9 | open |
+| `HAN-08` | The handler scaffold lists the payload, answer, steps and refusals only as comments and returns a blank, so the steps aren't pre-wired in their declared order and the move isn't mentioned at all. Aaron's proposal: scaffold the steps in declared order, the order eval 6 already enforces. | packages/generators/src/modules/render/internal/scaffold.ts:8-12,26,28<br>packages/prove/src/modules/evals/internal/calls.ts:114<br>Aaron, relayed by the conductor session (18 November 2026) | open. Owned by K5's DX seam; no slice yet |
+| `HAN-09` | A declared step the handler never calls still compiles: the handler is given every step as a runner, nothing checks that it uses them, and only eval 6 at prove time catches it. | packages/language-effect/src/modules/handler/types.ts:19<br>packages/prove/src/modules/evals/internal/calls.ts:123<br>Aaron, relayed by the conductor session (18 November 2026) | open. Owned by K5's DX seam; no slice yet. See `TRA-36` |
 
 ### roles
 
@@ -203,6 +206,7 @@ slice, a decision, or a line saying it is dropped. Grouped by canon page, in the
 | `PRF-36` | The logbook should file a plugin's verdicts under its mount, so the generated app can show app and plugin proofs apart; nothing builds this. | design/decisions/K1-kits.md:938-941 | open |
 | `PRF-43` | `forman watch` runs only five of the nine evals on live data (answer shape, declared errors, steps, performance, explainability); who may call, machine path, events and coverage stay in `prove`. | design/decisions/D3.md:772-776<br>design/decisions/D3-eval-author-acceptance.md:48-53 | open |
 | `PRF-44` | `prove` waits with Effect `Schedule`, not `Timers`, because it is a build tool; this is a standing exception to the rule that every wait goes through `Timers`. | design/decisions/D2.md:149-152<br>AGENTS.md | open |
+| `PRF-61` | Eval 6 requires every declared step on an answered call, in declared order, so a handler that takes a branch skipping a step on success fails it. Open: optional steps, or declared alternative paths. **(high)** | packages/prove/src/modules/evals/internal/calls.ts:114,123-124<br>Aaron, relayed by the conductor session (18 November 2026) | open. Owned by K5's DX seam; no slice yet |
 
 ### traces
 
