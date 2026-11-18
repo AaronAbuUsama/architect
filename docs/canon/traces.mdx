@@ -72,16 +72,16 @@ Journeys assert on spans by name, so a trace is checked, not just looked at. Whe
 <Scene name="handler-lifecycle" caption="Watch where each refusal leaves: two before the operation's span opens, the rest inside it, ending OK." />
 
 1. **The payload is decoded.** A payload that doesn't fit is refused as `InvalidPayload` before anything else runs,
-   so it leaves no span (`packages/language-effect/src/modules/handler/service.ts:104`).
+   so it leaves no span (`packages/language-effect/src/modules/handler/service.ts:113`).
 2. **The role is checked.** A caller the role refuses gets `NotAllowed`, still before the operation's span opens, so a
    stranger never looks like work (`service.ts:46`).
 3. **The operation's span opens**, named after the operation, with the caller on it:
 
-   ```ts file=packages/language-effect/src/modules/handler/service.ts lines=83-83
+   ```ts file=packages/language-effect/src/modules/handler/service.ts lines=92-92
    spanned(name, { operation: name, ...principalAttributes(principal) }),
    ```
 
-4. **The payload is written on it**, public fields only (`service.ts:50`).
+4. **The payload is written on it**, public fields only (`service.ts:57`).
 5. **Each step is its own span**, marked with its kind:
 
    ```ts file=packages/language-effect/src/modules/handler/service.ts lines=30-36
@@ -95,12 +95,12 @@ Journeys assert on spans by name, so a trace is checked, not just looked at. Whe
    ```
 
 6. **The answer is written on it** before it is checked, so an answer outside its declaration is evidence `prove` can
-   name (`service.ts:62`).
+   name (`service.ts:66`).
 7. **The commit runs.** Today it runs inside the operation's span but not as a span of its own (gap 1, below).
 8. **The outcome is written on the span.** A defect gets `defect`; a refusal gets `refusal` and, when the handler
    logged something just before refusing, `refusal.log`:
 
-   ```ts file=packages/language-effect/src/modules/handler/service.ts lines=77-82
+   ```ts file=packages/language-effect/src/modules/handler/service.ts lines=86-91
    Effect.tapCause((cause) =>
      Cause.hasDies(cause)
        ? Effect.annotateCurrentSpan({ defect: Cause.pretty(cause).split("\n")[0] ?? "" })
@@ -157,7 +157,7 @@ field fails closed. The caller is written as `principal.person`, or `principal.k
   the read.
 - **`attempt` above 1**, after a commit with `commit.outcome=conflict`, is a version race. Many of them mean
   contention on one thing (see `stores`).
-- **`request.replayed=true`** is a retry with the same request key that changed nothing (`service.ts:54`).
+- **`request.replayed=true`** is a retry with the same request key that changed nothing (`service.ts:58`).
 - **Each step's width against the budget** shows which step is slow. `spend` must answer within `p95: "150 millis"`.
 
 To read one trace, `ortho telemetry trace <id>` prints it as a tree from the Collector's files, a refusal marked
@@ -189,7 +189,7 @@ Found while reading the handler wrapper (O2). Each is one slice of M1, and each 
 
 **Today.** `store.commit(…)` runs inside the operation's span but not as a span of its own:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=71-72
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=75-76
 const committed = yield* store.commit({ writes: yield* unit.writes, entries, ...request });
 if (committed === "conflict") return yield* new Conflict();
 ```
@@ -283,15 +283,15 @@ Mark text traced only when it is a code you search by. If a person typed it, lea
 
 | What | Where | |
 |---|---|---|
-| The operation's span, opened after the role check | `packages/language-effect/src/modules/handler/service.ts:83` | built |
+| The operation's span, opened after the role check | `packages/language-effect/src/modules/handler/service.ts:92` | built |
 | One span per step | `packages/language-effect/src/modules/handler/service.ts:34` | built |
-| Refusal and defect written on the span | `packages/language-effect/src/modules/handler/service.ts:77` | built |
+| Refusal and defect written on the span | `packages/language-effect/src/modules/handler/service.ts:86` | built |
 | Refusals end OK, defects in error | `packages/language-effect/src/modules/handler/internal/span.ts:10` | built |
 | The public-only allowlist | `packages/language-effect/src/modules/handler/internal/attributes.ts:10` | built |
 | `spans({ present, absent })` in journeys | `packages/orthograph/src/modules/journeys/types.ts:119` | built |
 | Sinks | `packages/orthograph/src/modules/telemetry/types.ts:23` | built |
 | `ortho telemetry trace` | `packages/cli/src/modules/telemetry/types.ts:23` | built |
-| The commit span and `attempt` | `packages/language-effect/src/modules/handler/service.ts:71` | planned, M1.18 |
+| The commit span and `attempt` | `packages/language-effect/src/modules/handler/service.ts:75` | planned, M1.18 |
 | `Blueprint.traced` | `packages/orthograph/src/modules/visibility/` | planned, M1.19 |
 | `ortho.calls`, `ortho.call.duration` | `packages/language-effect/src/modules/handler/` | planned, M1.20 |
 

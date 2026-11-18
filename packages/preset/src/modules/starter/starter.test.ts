@@ -1,6 +1,7 @@
 // The preset writes the starter under a new name: the starter's own blueprint, handlers and journeys, generated/
 // rendered for the new name, and a project around them that installs @orthograph at the preset's version.
-import { resolve } from "node:path";
+import { readFileSync, readdirSync } from "node:fs";
+import { join, relative, resolve } from "node:path";
 import { createTreeWithEmptyWorkspace } from "nx/src/generators/testing-utils/create-tree-with-empty-workspace.js";
 import { describe, expect, it } from "vitest";
 import { Starter } from "./service.ts";
@@ -8,6 +9,15 @@ import { WORKSPACE, mergeWorkspace } from "./internal/project.ts";
 
 const starter = resolve(import.meta.dirname, "../../../../../examples/starter");
 const links = resolve(starter, "../links");
+const jsonAt = (root: string, name: string) => JSON.parse(readFileSync(join(root, name), "utf8")) as Record<string, unknown>;
+const fixturesAt = (root: string) => new Map(
+  readdirSync(join(root, "test/fixtures"), { recursive: true, withFileTypes: true })
+    .filter((entry) => entry.isFile())
+    .map((entry) => {
+      const path = join(entry.parentPath, entry.name);
+      return [relative(root, path), readFileSync(path, "utf8")];
+    }),
+);
 
 describe("the starter preset", () => {
   const tree = createTreeWithEmptyWorkspace();
@@ -26,6 +36,14 @@ describe("the starter preset", () => {
     expect(source.files.map((file) => file.path).sort()).toEqual([...stageFiles.keys()].sort());
     for (const file of source.files) expect(file.content, file.path).toBe(stageFiles.get(file.path));
     expect(source.model).toBe(stage.model);
+    expect(readFileSync(join(starter, "tsconfig.json"), "utf8")).toBe(readFileSync(join(links, "tsconfig.json"), "utf8"));
+    expect(fixturesAt(starter)).toEqual(fixturesAt(links));
+
+    const manifest = jsonAt(links, "package.json");
+    const { links: cli, ...bins } = manifest["bin"] as Record<string, string>;
+    expect(cli).toBe("./generated/cli/src/main.ts");
+    expect(jsonAt(starter, "package.json")).toEqual({ ...manifest, name: "@starter/source", bin: { ...bins, starter: cli } });
+    expect(jsonAt(starter, "project.json")).toEqual({ ...jsonAt(links, "project.json"), name: "starter" });
   });
 
   it("renders generated/ under the new name, and writes no scaffold over a handler", () => {
@@ -39,6 +57,7 @@ describe("the starter preset", () => {
   it("writes a project that installs every @orthograph package at the preset's version", () => {
     const pkg = JSON.parse(tree.read("package.json", "utf8")!) as Record<string, Record<string, string>>;
     expect(pkg["scripts"]!["ortho"]).toBe("ortho");
+    expect(pkg["imports"]).toEqual({ "#modules/*.js": "./src/modules/*.ts" });
     expect(pkg["devDependencies"]!["@orthograph/cli"]).toBe("1.2.3");
     expect(pkg["dependencies"]!["@orthograph/host-cloudflare"]).toBe("1.2.3");
     expect(tree.read(".gitignore", "utf8")).toContain(".ortho/");

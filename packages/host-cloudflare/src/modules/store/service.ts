@@ -21,9 +21,7 @@ export const StoreD1: StoreD1Api = {
           const table = sql(tableOf(w.thing));
           if (w.kind === "insert") {
             const row = yield* encodeFields(w.thing, w.fields, false);
-            // Another attempt can reserve the same id first. Fail the batch through the same guard as stale updates.
-            return sql`INSERT INTO ${table} ${sql.insert({ ...row, ...(w.state ? { state: w.state } : {}), version: 0 })}
-              ON CONFLICT ("id") DO UPDATE SET "version" = NULL`;
+            return sql`INSERT INTO ${table} ${sql.insert({ ...row, ...(w.state ? { state: w.state } : {}), version: 0 })}`;
           }
           const row = { ...(yield* encodeFields(w.thing, w.changes, true)), ...(w.state ? { state: w.state } : {}) };
           // The guard: a stale version becomes NULL on a NOT NULL column, which fails the whole batch (D2 #36).

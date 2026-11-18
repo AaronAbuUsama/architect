@@ -189,16 +189,16 @@ Three rules decide what a step is (K5, seam 3):
 - **A rerun runs them again.** When the commit loses a race with another call, the whole attempt is run again, steps
   and all, up to a fixed number of times:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=91-99
-const loop = (left: number): Effect.Effect<object, unknown, unknown> =>
-  attempt(payload, principal, key).pipe(
-    Effect.catch((e) =>
-      !(e instanceof Conflict) ? Effect.fail(e)
-      : left > 1 ? loop(left - 1)
-      : Effect.die(new Error(`${name} lost its version race ${ATTEMPTS} times in a row`)),
-    ),
-  );
-return loop(ATTEMPTS);
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=100-108
+    const loop = (left: number): Effect.Effect<object, unknown, unknown> =>
+      attempt(payload, principal, key).pipe(
+        Effect.catch((e) =>
+          !(e instanceof Conflict) ? Effect.fail(e)
+          : left > 1 ? loop(left - 1)
+          : Effect.die(new Error(`${name} lost its version race ${ATTEMPTS} times in a row`)),
+        ),
+      );
+    return loop(ATTEMPTS);
 ```
 
 An operation may declare no steps at all (`packages/orthograph/src/modules/operations/types.ts:46`). A step's kind says
@@ -270,7 +270,7 @@ export default Blueprint.operation(Draft, {
 Every signup operation has a move, so signup can't show this either. Its rules:
 
 - **It is committed in the same commit as the call's writes**, the same rule a move's event follows
-  (`packages/language-effect/src/modules/handler/service.ts:68-71`).
+  (`packages/language-effect/src/modules/handler/service.ts:72-75`).
 - **Only on success.** A refusal emits nothing.
 - **Only when the call wrote.** A successful edit that changed nothing emits nothing, so "edited" is never said of a
   draft that didn't change.
@@ -282,29 +282,31 @@ nothing.
 
 A client that retries after a timeout doesn't know if the first call landed. `idempotent: "request"` promises this:
 **the same request key, from the same caller, to the same operation, is one call.** The second time, the server
-answers what it answered the first time and changes nothing. No step runs, no event is written, and the span says
-`request.replayed`:
+answers what it answered the first time and changes nothing. If the answer is already saved when the attempt starts,
+the handler and its steps do not run. The span says `request.replayed`:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=51-56
-// The same request key from the same caller is one call: answer what was answered, and change nothing.
-const kept = key === undefined ? undefined : yield* store.answered(key);
-if (kept !== undefined) {
-  yield* Effect.annotateCurrentSpan({ "request.replayed": true });
-  return yield* decodeAnswer(JSON.parse(kept)).pipe(Effect.orDie);
-}
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=48-54
+      const savedAnswer = Effect.gen(function* () {
+        if (key === undefined) return;
+        const saved = yield* store.answered(key);
+        if (saved === undefined) return;
+        yield* Effect.annotateCurrentSpan({ "request.replayed": true });
+        return yield* decodeAnswer(JSON.parse(saved)).pipe(Effect.orDie);
+      });
 ```
 
 The key is the operation, the caller and the request together, so one caller's key never answers another's call:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=88-90
-// Keyed by operation and caller as well, so one caller's key never answers another's call.
-const who = principal.kind === "person" ? principal.person : "anonymous";
-const key = op.idempotent === "request" && request !== undefined ? `${name}|${who}|${request}` : undefined;
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=97-99
+    // Keyed by operation and caller as well, so one caller's key never answers another's call.
+    const who = principal.kind === "person" ? principal.person : "anonymous";
+    const key = op.idempotent === "request" && request !== undefined ? `${name}|${who}|${request}` : undefined;
 ```
 
 The answer is kept in the same commit as the work, so either the call landed with its answer kept, or neither
-happened. The replay comes after the role check, so a stranger who guesses a key still gets `NotAllowed`. How each
-door carries the key is on `doors`.
+happened. If two calls overlap and the later attempt would refuse after the first has committed, it rechecks the
+saved answer and returns it. The replay comes after the role check, so a stranger who guesses a key still gets
+`NotAllowed`. How each door carries the key is on `doors`.
 
 <Scenario journey="examples/signup/journeys/join-twice-with-one-request.ts" step="the same request again gives the same answer and takes nothing" />
 
@@ -433,14 +435,14 @@ sending. It costs one kept answer per key. Leave it off when a second call is ha
 | What an operation declares | `packages/orthograph/src/modules/operations/types.ts:39` | built |
 | A read's shape | `packages/orthograph/src/modules/operations/types.ts:102` | built |
 | Refusal codes, numbered by the compiler | `packages/compiler/src/modules/model/internal/codes.ts:18` | built |
-| The payload decoded, `InvalidPayload` | `packages/language-effect/src/modules/handler/service.ts:105` | built |
+| The payload decoded, `InvalidPayload` | `packages/language-effect/src/modules/handler/service.ts:114` | built |
 | The machine's refusal, before the handler | `packages/language-effect/src/modules/handler/internal/move.ts:39` | built |
-| The request key and the replay | `packages/language-effect/src/modules/handler/service.ts:90` | built |
-| A rerun after a conflict | `packages/language-effect/src/modules/handler/service.ts:91` | built |
+| The request key and the replay | `packages/language-effect/src/modules/handler/service.ts:99` | built |
+| A rerun after a conflict | `packages/language-effect/src/modules/handler/service.ts:100` | built |
 | The nine evals | `packages/prove/src/modules/evals/service.ts:7` | built |
 | Each refusal's code and exit code in every door | `packages/generators/src/modules/render/internal/api.ts:56` | built |
 | Optional steps, eval 6 and the unused-step warning | `packages/prove/src/modules/evals/internal/calls.ts:114` and `ortho check` | planned, M1.26 |
-| An operation's own event | `packages/language-effect/src/modules/handler/service.ts:69` | planned, M3.16 |
+| An operation's own event | `packages/language-effect/src/modules/handler/service.ts:73` | planned, M3.16 |
 | A bad payload counted as a refusal | `packages/language-effect/src/modules/handler/` | planned, M1.20 |
 
 ## Status

@@ -5,15 +5,15 @@ import type { Handler } from "../../generated/api/src/handle/claim.handler.ts";
 import { Handle } from "../../blueprint/things/handle/thing.ts";
 import { HandleAlreadyOwned, HandleTaken } from "../../blueprint/things/handle/errors.ts";
 import { Profile } from "../../blueprint/things/profile/thing.ts";
-import { find, handleId, profileId, signedInPerson } from "../modules/page/internal/records.ts";
+import { PageRecords } from "#modules/page/service.js";
 
 const claim: Handler = ({ name }, { principal, steps, move }) =>
   Effect.gen(function* () {
     const records = yield* Records;
-    const owner = yield* signedInPerson(principal);
-    const handle = yield* handleId(name);
-    const profile = yield* profileId(owner);
-    const [named, page] = yield* steps.load(Effect.all([find(Handle, handle), find(Profile, profile)]));
+    const owner = yield* PageRecords.signedInPerson(principal);
+    const handle = yield* PageRecords.handleId(name);
+    const profile = yield* PageRecords.profileId(owner);
+    const [named, page] = yield* steps.load(Effect.all([PageRecords.find(Handle, handle), PageRecords.find(Profile, profile)]));
     if (named?.state === "claimed") {
       yield* Effect.logInfo("the name has already been claimed");
       return yield* new HandleTaken({});

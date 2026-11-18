@@ -1,4 +1,4 @@
-import { Cause, Effect, Exit, Layer } from "effect";
+import { Cause, Deferred, Effect, Exit, Fiber, Layer, Ref } from "effect";
 import { describe, expect, it } from "vitest";
 import { Blueprint } from "orthograph";
 import { EventNames } from "orthograph/server";
@@ -48,6 +48,48 @@ describe("a request key", () => {
     expect([a, b]).toEqual([{ spent: 100n }, { spent: 100n }]);
     expect(memory.rows[0]!.instance["spent"]).toBe(100n);
     expect(memory.entries).toHaveLength(1);
+  });
+
+  it("returns the saved answer if a same-key attempt sees the other call's write and refuses", () => {
+    class AlreadySpent extends Blueprint.error({}, { exit: 3 }) {}
+    const spendOnce = Blueprint.operation(Purse, {
+      description: "Spend from this purse once.",
+      payload: spend.payload,
+      answer: spend.answer,
+      errors: [AlreadySpent],
+      allowed: [Blueprint.signedIn],
+      idempotent: "request",
+    });
+    const memory = world();
+    return Effect.runPromise(Effect.gen(function* () {
+      const beforeRead = yield* Deferred.make<void>();
+      const committed = yield* Deferred.make<void>();
+      const firstAttempt = yield* Ref.make(true);
+      const handler: Handler<typeof spendOnce, Records> = ({ purse, amount }) =>
+        Effect.gen(function* () {
+          // By the time the first attempt reaches its handler, its request lookup has missed.
+          if (yield* Ref.getAndSet(firstAttempt, false)) {
+            yield* Deferred.succeed(beforeRead, undefined);
+            yield* Deferred.await(committed);
+          }
+          const records = yield* Records;
+          const row = yield* records.find(Purse, purse);
+          if (row?.["spent"] !== 0n) return yield* new AlreadySpent({});
+          yield* records.update(Purse, purse, { spent: amount });
+          return { spent: amount };
+        });
+      const call = Handlers.serve({ name: "purse.spend-once", operation: spendOnce, handler })
+        .run({ purse: "pur_1" as never, amount: 100n }, olga, "one-spend");
+      const delayed = yield* Effect.forkChild(call);
+      yield* Deferred.await(beforeRead);
+      const winner = yield* call;
+      yield* Deferred.succeed(committed, undefined);
+      const replay = yield* Effect.exit(Fiber.join(delayed));
+
+      expect(winner).toEqual({ spent: 100n });
+      expect(replay).toEqual(Exit.succeed(winner));
+      expect(memory.rows[0]).toMatchObject({ version: 1, instance: { spent: 100n } });
+    }).pipe(Effect.provide(Layer.mergeAll(BusyLive, memory.layer))));
   });
 
   it("another key, or no key, is another call", async () => {

@@ -78,9 +78,9 @@ export default Blueprint.thing({ description: "An entry in the ledger.", fields:
 A handler never writes to a store. It writes to `Records`, which holds every write back until the call ends. Then
 the handler wrapper makes one commit and looks at the one thing it returns:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=71-72
-const committed = yield* store.commit({ writes: yield* unit.writes, entries, ...request });
-if (committed === "conflict") return yield* new Conflict();
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=75-76
+        const committed = yield* store.commit({ writes: yield* unit.writes, entries, ...request });
+        if (committed === "conflict") return yield* new Conflict();
 ```
 
 What goes in, and what comes back, is the port every store kind implements:
@@ -154,18 +154,18 @@ return this.ctx.storage.transactionSync((): Committed => {
     if (!now || now.version !== w.version) return "conflict";
 ```
 
-A `conflict` never reaches the caller. The wrapper runs the whole call again from the top, reading fresh, up to 64
-times:
+In D1, a duplicate thing ID or request key also rolls back the batch as a conflict. A conflict never reaches the
+caller. The wrapper runs the whole call again from the top, reading fresh, up to 64 times:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=91-98
-const loop = (left: number): Effect.Effect<object, unknown, unknown> =>
-  attempt(payload, principal, key).pipe(
-    Effect.catch((e) =>
-      !(e instanceof Conflict) ? Effect.fail(e)
-      : left > 1 ? loop(left - 1)
-      : Effect.die(new Error(`${name} lost its version race ${ATTEMPTS} times in a row`)),
-    ),
-  );
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=100-107
+    const loop = (left: number): Effect.Effect<object, unknown, unknown> =>
+      attempt(payload, principal, key).pipe(
+        Effect.catch((e) =>
+          !(e instanceof Conflict) ? Effect.fail(e)
+          : left > 1 ? loop(left - 1)
+          : Effect.die(new Error(`${name} lost its version race ${ATTEMPTS} times in a row`)),
+        ),
+      );
 ```
 
 The request key rides in the same commit, so a retried request can never spend twice. When the second call arrives
@@ -282,7 +282,7 @@ local-first, Noir on Aztec.
 | Where a thing lives, today a closed list | `packages/orthograph/src/modules/things/types.ts:32` | built |
 | The store port | `packages/language-effect/src/modules/records/types.ts:62` | built |
 | What a commit holds, and its two outcomes | `packages/language-effect/src/modules/records/types.ts:33` | built |
-| The one commit per call, and the rerun on conflict | `packages/language-effect/src/modules/handler/service.ts:71` | built |
+| The one commit per call, and the rerun on conflict | `packages/language-effect/src/modules/handler/service.ts:75` | built |
 | The `database` kind, on D1 | `packages/host-cloudflare/src/modules/store/service.ts:11` | built |
 | The `actor` kind, a Durable Object per instance | `packages/host-cloudflare/src/modules/actors/service.ts:28` | built |
 | The compiler refusing a list over actors | `packages/compiler/src/modules/model/internal/describe.ts:139` | built |

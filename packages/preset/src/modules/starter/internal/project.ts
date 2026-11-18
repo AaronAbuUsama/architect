@@ -11,6 +11,7 @@ const DEV = {
   "@typescript/native": "npm:typescript@7.0.2",
   oxlint: "1.90.0",
   wrangler: "4.156.1",
+  vitest: "4.1.12",
 };
 
 export const packageJson = (existing: Record<string, unknown>, name: string, version: string) => {
@@ -21,6 +22,7 @@ export const packageJson = (existing: Record<string, unknown>, name: string, ver
     packageManager: "pnpm@11.20.0",
     scripts: { ...(existing["scripts"] as object | undefined), [Names.short]: Names.short },
     bin: { [name]: "./generated/cli/src/main.ts" },
+    imports: { ...(existing["imports"] as object | undefined), "#modules/*.js": "./src/modules/*.ts" },
     dependencies: { ...(existing["dependencies"] as object | undefined), ...framework, ...EXACT },
     devDependencies: { ...(existing["devDependencies"] as object | undefined), [Names.pkg("cli")]: version, ...DEV },
   };

@@ -98,12 +98,12 @@ refuses a handler that fails with an error its operation doesn't list
 (`packages/generators/src/modules/render/handler-type.test.ts:40`). At run time, an answer outside its declaration
 is never sent. It dies as the handler's bug:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=63-67
-// An answer that breaks its declaration is the handler's bug, never the caller's: it dies, loudly.
-const wire = yield* check(answer).pipe(
-  Effect.mapError((e) => new Error(`${name} answered outside its declaration: ${e.message}`)),
-  Effect.orDie,
-);
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=67-71
+        // An answer that breaks its declaration is the handler's bug, never the caller's: it dies, loudly.
+        const wire = yield* check(answer).pipe(
+          Effect.mapError((e) => new Error(`${name} answered outside its declaration: ${e.message}`)),
+          Effect.orDie,
+        );
 ```
 
 ### What runs around it
@@ -237,7 +237,7 @@ roles a `roles.ts` exports (F5). Signup has no blank left, so this example is wo
 **A blank in a handler** is `Handlers.blank("…")`, what every fresh scaffold holds. It type-checks as anything, and
 reaching it at run time is a defect that names what is missing:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=113-116
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=122-125
 export const Handlers: HandlerApi = {
   serve: serve as unknown as HandlerApi["serve"],
   blank: (what) => Effect.die(new BlankReached({ what })),
@@ -320,7 +320,7 @@ would be committed for a call that changed nothing (see `operations`).
 |---|---|---|
 | The frame: `Handler` and `HandlerContext` | `packages/language-effect/src/modules/handler/types.ts:30` | built |
 | The wrapper that runs a handler | `packages/language-effect/src/modules/handler/service.ts:41` | built |
-| `Handlers.blank` and `BlankReached` | `packages/language-effect/src/modules/handler/service.ts:115` | built |
+| `Handlers.blank` and `BlankReached` | `packages/language-effect/src/modules/handler/service.ts:124` | built |
 | The scaffold, comments only today | `packages/generators/src/modules/render/internal/scaffold.ts:7` | built |
 | Scaffolds never overwritten | `packages/generators/src/modules/sync/service.ts:17` | built |
 | `Blueprint.todo` | `packages/orthograph/src/modules/blanks/service.ts:4` | built |

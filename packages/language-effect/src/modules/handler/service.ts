@@ -45,15 +45,19 @@ const serve = ({ name, operation, handler, notFrom }: { readonly name: string; r
       const withRecords = Effect.provideService(Records, unit.records);
       yield* Access.check({ allowed: op.allowed, payloadFields: op.payload, payload, principal, thing: op.thing }).pipe(withRecords);
       const logs = yield* recordingLogs;
+      const savedAnswer = Effect.gen(function* () {
+        if (key === undefined) return;
+        const saved = yield* store.answered(key);
+        if (saved === undefined) return;
+        yield* Effect.annotateCurrentSpan({ "request.replayed": true });
+        return yield* decodeAnswer(JSON.parse(saved)).pipe(Effect.orDie);
+      });
       return yield* Effect.gen(function* () {
         const busy = yield* Busy;
         yield* Effect.annotateCurrentSpan(payloadAttributes(payload, op.payload));
         // The same request key from the same caller is one call: answer what was answered, and change nothing.
-        const kept = key === undefined ? undefined : yield* store.answered(key);
-        if (kept !== undefined) {
-          yield* Effect.annotateCurrentSpan({ "request.replayed": true });
-          return yield* decodeAnswer(JSON.parse(kept)).pipe(Effect.orDie);
-        }
+        const kept = yield* savedAnswer;
+        if (kept !== undefined) return kept;
         yield* checkFrom(op, notFrom, payload, unit);
         const chosen = yield* Ref.make<string | undefined>(undefined);
         const move = (to?: string) => chooseOutcome(name, op, to).pipe(Effect.flatMap((o) => Ref.set(chosen, o)));
@@ -72,6 +76,11 @@ const serve = ({ name, operation, handler, notFrom }: { readonly name: string; r
         if (committed === "conflict") return yield* new Conflict();
         return answer;
       }).pipe(
+        // A peer can commit this request after the first lookup and before this attempt refuses.
+        Effect.catch((error) =>
+          key === undefined || error instanceof Conflict
+            ? Effect.fail(error)
+            : Effect.flatMap(savedAnswer, (kept) => kept === undefined ? Effect.fail(error) : Effect.succeed(kept))),
         // Every refusal and every defect is written on the operation's span: what `prove` reads.
         // A refusal also carries the log that decided it, when the handler logged one before refusing.
         Effect.tapCause((cause) =>

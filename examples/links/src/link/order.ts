@@ -4,14 +4,14 @@ import { Records } from "@orthograph/language-effect";
 import type { Handler } from "../../generated/api/src/link/order.handler.ts";
 import { LinkAlreadyRemoved } from "../../blueprint/things/link/errors.ts";
 import { Profile } from "../../blueprint/things/profile/thing.ts";
-import { find, profileId, signedInPerson } from "../modules/page/internal/records.ts";
+import { PageRecords } from "#modules/page/service.js";
 
 const order: Handler = ({ link, position }, { principal, steps }) =>
   Effect.gen(function* () {
     const records = yield* Records;
-    const person = yield* signedInPerson(principal);
-    const profile = yield* profileId(person);
-    const page = yield* steps.load(find(Profile, profile));
+    const person = yield* PageRecords.signedInPerson(principal);
+    const profile = yield* PageRecords.profileId(person);
+    const page = yield* steps.load(PageRecords.find(Profile, profile));
     if (!page?.links.includes(link)) {
       yield* Effect.logInfo("the link is no longer on the profile");
       return yield* new LinkAlreadyRemoved({});

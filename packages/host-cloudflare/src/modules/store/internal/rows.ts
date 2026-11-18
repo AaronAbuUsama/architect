@@ -25,13 +25,14 @@ export const encodeFields = (thing: Thing, fields: Instance, partial: boolean) =
     return yield* Schema.encodeEffect(codecOf(thing, partial ? keys : undefined))(values);
   }).pipe(Effect.orDie);
 
-/** Did this failure come from a version guard that lost? (`version` set to NULL on a `NOT NULL` column.) */
+/** A version guard lost, or another call committed the same thing id or request key first. */
 export const lostGuard = (error: unknown): boolean => {
   // D1's message sits a few causes down: SqlError, then its UnknownError, then D1's own Error.
   for (let e: unknown = error, depth = 0; e !== undefined && e !== null && depth < 8; e = (e as { cause?: unknown }).cause, depth++) {
     const message = String((e as { message?: unknown }).message ?? e);
-    // A stale version, or another call that committed the same request key first: either way, run the call again.
-    if (/NOT NULL constraint failed: [\w"]+\.version\b/.test(message) || /UNIQUE constraint failed: _requests\.key/.test(message)) return true;
+    const stale = /NOT NULL constraint failed: [\w"-]+\.version\b/;
+    const occupied = /UNIQUE constraint failed: (?:_requests\.key|[\w"-]+\.id)\b/;
+    if (stale.test(message) || occupied.test(message)) return true;
   }
   return false;
 };
