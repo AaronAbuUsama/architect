@@ -645,10 +645,28 @@ confused with the eight questions above. Each one is explained from scratch befo
 | # | Joint | Recommendation |
 |---|---|---|
 | F1 | What the generated clients may call on our own contracts, on all three chains (replaces K5's Q4) | **Answered** (Aaron, 18 November 2026): every function, for programmatic access. Contracts are scaffolded opinionated, with roles generated in (OpenZeppelin-style, vendored); a hand-written writer without a role is a check warning, not a refusal |
-| F2 | What `confirmed` promises | **A**: a level per chain, set per environment (EVM `safe`, Solana `confirmed`, Aztec `proven`); corrections possible; outward steps wait for `final` |
+| F2 | What `confirmed` promises | **Answered A** (Aaron, 18 November 2026): a level per chain, set per environment (EVM `safe`, Solana `confirmed`, Aztec `proven`); corrections possible; outward steps wait for `final` |
 | F3 | Which chains get built, and when | **Answered A** (Aaron, 18 November 2026: "EVM now, rest design"). Was: EVM is built (M6, and the wallet's first version); Solana and Aztec are designed now (this record) and built Later, on the same port |
-| F4 | The wallet's first version and its place | **A**: the device half on EVM (keys, sign, simulate, send, confirm on Anvil) right after plugin mounting in M1, with `runs: "client"` (M1.27); linking after auth in M2; the relayer stays in M6 |
+| F4 | The wallet's first version and its place | **Answered A** (Aaron, 18 November 2026), widened by his F5 answer: the wallet is the first real plugin, right after plugin mounting in M1 (M1.28 to M1.32), with a signer for every host (browser, node keystore, server vault, world); linking after auth (M2.13); the relayer stays in M6 |
 | F5 | Who may hold a key that signs | **Answered** (Aaron, 18 November 2026): drop "the server never holds a person's key". Apps keep keys where they choose, on a device or a server; each wallet declares it, and no key is ever in plain text |
+
+## Taking from `@prb/effect-evm`: vendored, not a dependency
+
+Aaron pointed at Paul Berg's `@prb/effect-evm` (MIT, Effect 4, built on viem) and asked whether to take from it. The
+building agent's call, 18 November 2026: **vendor it, module by module, into `@orthograph/chain-evm`**, keeping the MIT
+notice, never as a dependency.
+- **Now (M1.30).** The transaction manager and tracker (`tx/`, 42 KB), nonces (`nonce/`, 14 KB), viem error mapping
+  (`core/errors/`, 45 KB) and event streams (`events/`, 32 KB): about 4,000 lines, the fiddly, tested parts.
+- **Reshaped.** They move into our six-slot module shape, with every wait through `Timers`. `tx/manager.ts` is 20 KB, so
+  it gets split. Errors are mapped onto `ChainFault` and the refusal lock, and events gain the block-hash window (Q6).
+- **Ours.** Simulation is written by us, because theirs calls the Tenderly cloud API only and can't run on Anvil.
+  Signers for the node keystore and the server vault are also ours, because theirs are for browser wallets.
+- **Later.** Their browser wallet lifecycle (`wallet/`, 37 KB) and React hooks come in when we target React. They have
+  to be vendored too: once our core differs from theirs, their wallet module can't sit on top of it as a dependency.
+- **Why not depend.** The package is 2.06 MB and beta, with three major versions in about two months. Our code rules
+  (`Timers`, counted work, files under 250 lines) can't reach inside a dependency, and we'd change its core anyway.
+- **Why not rewrite.** Replacement handling, receipt retries and viem's error zoo are tested there. Rewriting them
+  throws that away.
 
 ## What replaces K5's Q4
 

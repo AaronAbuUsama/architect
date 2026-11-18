@@ -78,14 +78,16 @@ The npm org `@orthograph` is not needed until M7: every milestone before it publ
 exactly what it judged.
 **Ships.** Plugin descriptors (`Blueprint.feature`, `Blueprint.adapter`, `Blueprint.projection`), mounts under
 `blueprint/{features,adapters,projections}/`, the mount verbs (choose, include, narrow, omit), needs, choices and
-settings, `ortho add`, adapter calls out as steps, stores (K3), the three trace fixes (O2), and the projections re-homed as plugins
+settings, `ortho add`, adapter calls out as steps, stores (K3), the three trace fixes (O2), the projections re-homed as plugins,
+and the first real plugin, `@orthograph/wallets`, on `@orthograph/chain-evm` with Anvil in worlds (K7 F4)
 ([`frame/mounting.md`](frame/mounting.md), [`frame/projections.md`](frame/projections.md)).
 **Gate.** `nx run e2e:m1`: (1) Codex's checks `00` to `06`, renamed, pass: a fixture plugin mounted with one command,
 its typed SDK and MCP answer, collisions are refused, the graph is whole; (2) acme with its projections mounted
 generates the same `generated/` as before, byte for byte except header paths; (3) editing one handler makes only that
 operation stale; (4) `ortho describe --json` lists acme's journeys, starting worlds, role rules and the work app's
 blank; (5) a fixture feature brings its own store, and a call writing two stores is refused (K3); (6) a commit has its
-own span, free text is absent from spans, and refused calls are counted (O2).
+own span, free text is absent from spans, and refused calls are counted (O2); (7) `acme wallet create && acme wallet send`
+confirms on Anvil in a world, signed from the CLI and from a server's vault key (K7 F4).
 
 | id | what | needs | kind | done when | size |
 |---|---|---|---|---|---|
@@ -115,7 +117,12 @@ own span, free text is absent from spans, and refused calls are counted (O2).
 | M1.25 | The portal's design, with Aaron (UX.md's intent; agent-native's templates as the reference). Aaron asks to see UX before it is drawn, so this is his session by his rule, not a block | Gate M0 | decision | `design/portal.md` agreed: the first page, a thing's page, an operation's page, the live rail, the chat | M |
 | M1.26 ∥ | The scaffold as a wired function (K5 seam 3): each declared step in declared order, the move, a stub per refusal, every hole a `Handlers.blank`; `Blueprint.step.<kind>({ optional: true })`, allowed absent by eval 6; `ortho check` warns on a non-optional step the handler never calls; `ortho prove` reports an optional step no journey ran both ways | Gate M0 | build | a fresh scaffold compiles and `ortho prove --empty` shows one red step per blank; a fixture with an unchanged edit that skips its optional `save` passes eval 6; a fixture whose journeys always run its optional step is reported as never exercised both ways; deleting `steps.record` from `spend` gives a check warning | M |
 | M1.27 ∥ | Operations that run on the device (K7, ledger `LAH-02`, `G-10`): the compiler accepts `runs: "client"` (`describe.ts:108` refuses it today) for an operation whose plugin supplies `node`, `browser` and `world` entries, adding the `browser` and `world` host entries M1.09 doesn't cover; the generated client runs it in-process with its steps as spans | M1.09, M1.14 | build | a fixture plugin's client operation runs from the SDK and the CLI with no server call, and shows its steps in the portal; one missing its `browser` entry is refused | M |
-| M1.15 | **Gate M1** | M1.02 to M1.14, M1.16 to M1.27 | e2e | `nx run e2e:m1` passes on `main` | S |
+| M1.28 | Journeys for the wallet plugin's first version (K7 F4), written by a different agent: create and import a key, list keys, sign, send on Anvil and see it confirmed, a doomed send refused before sending; one journey per host signer | M1.01 | checks | they fail on empty handlers | M |
+| M1.29 | `@orthograph/wallets`, the first real plugin (was M6.03, L3.02): `create`, `import`, `keys`, `sign`, `send`; one `Signer` per host: `browser` (EIP-1193), `node` (encrypted keystore), `vault` (a server's key), `world` (test wallets); each wallet declares where its key lives (K7 F5); values are CAIP-10 accounts | M1.27, M1.28, M1.30 | build | `acme wallet create && acme wallet send` confirms on Anvil from the CLI, and from a server operation signing with a vault key | M |
+| M1.30 | The chain adapter `@orthograph/chain-evm` (was M6.05, L3.04): the per-family `ChainPort` (prepare, simulate, sign, submit, track), its transaction manager, nonces, viem error mapping and event streams vendored from `@prb/effect-evm` (MIT, notice kept), reshaped to our module shape with every wait through `Timers`; `ChainFault` typed; receipts as spans (K7) | M1.14 | build | a fixture ERC20 transfer on Anvil; a revert decodes typed; an empty revert arrives as `ChainFault`; a hand-written `viem` import outside `chain-evm` fails lint | M |
+| M1.31 | Anvil in a world (was M6.06, L3.05): `Stand.process`, always `--silent`; a container in CI | M1.30 | build | a world's chain answers `eth_chainId` and is gone when the world ends; nothing it printed holds a key | M |
+| M1.32 ∥ | Simulation, mandatory before every send (was M6.08, L3.07): plain `eth_call`, which works on Anvil (K7 Q5) | M1.30 | build | a reverting call returns its typed error and sends nothing; no SDK path sends without simulating | S |
+| M1.15 | **Gate M1** | M1.02 to M1.14, M1.16 to M1.32 | e2e | `nx run e2e:m1` passes on `main` | S |
 
 ## M2: Auth and organizations (workable)
 
@@ -143,7 +150,8 @@ the CLI and MCP; (4) no environment file names a secret by string.
 | M2.09 | `ortho new` replaces the Nx preset: an app with auth and organizations mounted | M2.07 | build | `npm create orthograph demo` from Verdaccio, then `ortho prove --env local` is green | M |
 | M2.10 | `ortho new feature`, a plugin's own world and CI, `ortho publish --local` for plugins | M2.07 | build | the `notes` feature goes from new to proved to published to mounted | M |
 | M2.11 ∥ | The work app mounts auth and organizations | M2.07 | build | `ortho prove --root examples/work` passes with no copied identity | S |
-| M2.12 | **Gate M2: workable** | M2.02 to M2.11 | e2e | `nx run e2e:m2` passes on `main` | S |
+| M2.13 ∥ | SIWE linking in the wallet plugin (was M6.04, L3.03): `challenge`, `complete`, `link`, `unlink`, `list`; agents never link (`notVia(Agent)`) | M2.05, M1.29 | build | `acme wallet link`, then `acme session show` lists the address; an agent's link is refused | M |
+| M2.12 | **Gate M2: workable** | M2.02 to M2.11, M2.13 | e2e | `nx run e2e:m2` passes on `main` | S |
 
 ## M3: The factory, with people as workers
 
@@ -238,10 +246,9 @@ actors; `ortho prove` names each adapter's stand-in.
 
 **Goal.** The allowance can live on chain, written once and generated in two languages. Where each key lives is declared, on a device
 or in a server's vault (Aaron, 18 November 2026, K7).
-**Ships.** `@orthograph/wallets` ([`frame/writing-a-feature.md`](frame/writing-a-feature.md)), the chain adapter,
-`@orthograph/language-solidity`, Anvil in worlds, the relayer and follower, one vault per organisation (S27);
+**Ships.** `@orthograph/language-solidity`, the relayer and follower, one vault per organisation (S27);
 [`frame/examples/allowance-on-chain.md`](frame/examples/allowance-on-chain.md).
-**Gate.** `nx run e2e:m6` (old Gates 3 and 4 together): `acme wallet create` and `link` work with a local key;
+**Gate.** `nx run e2e:m6` (old Gates 3 and 4 together; the wallet, the chain adapter and Anvil in worlds landed in M1 and M2):
 `forge test` passes on the filled vault; the fixed-seed fuzz of the TypeScript machine against the Solidity one finds
 no divergence (S26); journeys pass on Anvil with each person signing; 100 relayed submissions take nonces 0 to 99; a
 forced reorg is corrected; a pending chain call shows its in-between state (S25); the key-hygiene check passes.
@@ -249,25 +256,25 @@ forced reorg is corrected; a pending chain call shows its in-between state (S25)
 | id | what | needs | kind | done when | size |
 |---|---|---|---|---|---|
 | M6.01 | Starts from [`decisions/K7-chain-languages.md`](decisions/K7-chain-languages.md), which settles the operation-to-chain mapping, client exposure, refusals, the submission lifecycle and `confirmed`. What is left: D5 (values across languages, `signedBy` as EIP-712, one vault per organisation) and the exact schema of `surface.json` and `refusals.lock` | Gate M5 | decision | `decisions/M6-chain.md` written | S |
-| M6.02 | Journeys for wallets and the chain (Codex's planned files `05` to `08`) | M6.01 | checks | they fail on empty handlers | M |
-| M6.03 | `@orthograph/wallets`: signer, encrypted keystore, test wallets per world, CLI (L3.02) | M6.02 | build | `acme wallet create && acme wallet list` shows the address | M |
-| M6.04 ∥ | SIWE linking in auth (L3.03) | M6.03 | build | `acme wallet link`, then `acme session show` lists the address | M |
-| M6.05 | The chain adapter `chain-evm`: viem wrapped once behind the per-family `ChainPort` (prepare, simulate, sign, submit, track; K7), typed errors and `ChainFault`, receipts as spans (L3.04) | M6.02 | build | a fixture ERC20 transfer on Anvil; a revert decodes typed; an empty revert and an out-of-gas arrive as `ChainFault` | M |
-| M6.06 | Anvil in a world, `Stand.process`, always `--silent` (its banner prints dev keys); a container in CI (L3.05) | M6.05 | build | a world's chain answers `eth_chainId` and is gone when the world ends; nothing it printed holds a key | M |
-| M6.07 | The relayer actor (L3.06) | M6.06 | build | 100 concurrent submissions, nonces 0 to 99, a dropped one replaced | M |
-| M6.08 ∥ | Simulation, mandatory before every send (L3.07; K7 Q5: Anvil mines a doomed transaction) | M6.05 | build | a reverting call returns its typed error and sends nothing; no SDK path sends without simulating | S |
+| M6.02 | Journeys for the chain: contracts, the relayer and the follower (Codex's planned files `06` to `08`; the wallet's are M1.28 and M2.13) | M6.01 | checks | they fail on empty handlers | M |
+| M6.03 | Moved to M1.29 (K7 F4: the wallet is the first plugin) | | | | |
+| M6.04 | Moved to M2.13 (K7 F4: the wallet is the first plugin) | | | | |
+| M6.05 | Moved to M1.30 (K7 F4: the wallet is the first plugin) | | | | |
+| M6.06 | Moved to M1.31 (K7 F4: the wallet is the first plugin) | | | | |
+| M6.07 | The relayer actor (L3.06) | M1.31 | build | 100 concurrent submissions, nonces 0 to 99, a dropped one replaced | M |
+| M6.08 | Moved to M1.32 (K7 F4: the wallet is the first plugin) | | | | |
 | M6.09 | The chain follower (L3.08), which also feeds the portal's committed chain events (K5 seam 10); its checkpoint is a block number plus a window of block hashes, and a take-back emits `<Event>Corrected { wasConfirmed }` (K7 Q6) | M6.07 | build | an `anvil_reorg` that replays a different digest emits a correction and then the new event; a restart doesn't double count | M |
 | M6.10 | Values with Solidity types and `lives: Blueprint.chain.evm(...)` (`chain` as a family of store kinds, K7 Q4); the compiler accepts `runs: "chain"` (L4.01; `describe.ts:108` refuses it today); `blueprint/refusals.lock` for every language, so codes no longer come from declaration order (`describe.ts:79`; K7 Q5) | M6.01 | build | `ortho check` reports the change as major; swapping two declared errors keeps both codes; renaming a published code is refused | M |
 | M6.11 | `language-solidity`, no longer a placeholder: types, the compiled machine, roles and refusals compiled in (one custom error per declared error), the ABI, roles generated in (OpenZeppelin-style `onlyRole`, generated, not imported), and `generated/solidity/surface.json` listing every external function for the clients; `ortho check` warns on a hand-written external writer with no role modifier (L4.02; K7 Q1, F1) | M6.10 | build | `forge build` compiles the generated files; the SDK reaches every external function; a hand-written writer with no role gives a check warning | M |
 | M6.12 | Signatures and generated Foundry tests (L4.03) | M6.11 | build | the scaffold gives `0 passed · 24 failed: NotWritten` | M |
 | M6.13 | The contract scaffold, its brief, the fuzz cross-check against the reference machine generated from the blueprint, driving the generated client with its pre-check (L4.04; K7 Q8) | M6.12 | build | the filled vault gives `24 passed`; fixed seeds show no divergence; the planted mutant diverges | M |
-| M6.14 | The contract's client from the ABI (L4.05) | M6.13, M6.05 | build | a planted revert reaches the handler as `AllowanceExceeded` | S |
-| M6.15 | The signing flow and the in-between state (L4.06, S25); the SDK's submission lifecycle (`simulated → submitted → included → confirmed`, `dropped`, `reverted`, `corrected`), where `confirmed` matches the intent's event, not the transaction (K7 Q3) | M6.14, M6.03, M6.07 | build | `acme allowance spend --wallet olga` succeeds; bob's signature is refused before sending; a second relayer's mined revert still ends `confirmed` | M |
-| M6.16 | Worlds with a chain: a vault per organisation, journeys on Anvil (L4.07) | M6.15, M6.06, M6.09 | build | `ortho prove --env local` shows each operation signed by its person | M |
+| M6.14 | The contract's client from the ABI (L4.05) | M6.13, M1.30 | build | a planted revert reaches the handler as `AllowanceExceeded` | S |
+| M6.15 | The signing flow and the in-between state (L4.06, S25); the SDK's submission lifecycle (`simulated → submitted → included → confirmed`, `dropped`, `reverted`, `corrected`), where `confirmed` matches the intent's event, not the transaction (K7 Q3) | M6.14, M1.29, M6.07 | build | `acme allowance spend --wallet olga` succeeds; bob's signature is refused before sending; a second relayer's mined revert still ends `confirmed` | M |
+| M6.16 | Worlds with a chain: a vault per organisation, journeys on Anvil (L4.07) | M6.15, M1.31, M6.09 | build | `ortho prove --env local` shows each operation signed by its person | M |
 | M6.17 | Contracts in the local pipeline, redeployed only on a new bytecode hash (L4.08, local part) | M6.16 | build | promoting twice with the same bytecode deploys nothing the second time | M |
 | M6.18 ∥ | The key-hygiene and custody checks (S29): each wallet declares where its key lives (`device` or `vault`), and no key appears in plain text in a binding, a commit or a log. A server may hold keys (Aaron, 18 November 2026, K7) | M6.16 | build | a planted plain-text private key in a binding fails the check; a vault-held server key passes | S |
 | M6.20 | `examples/workshop` (K5): the governance feature, the vote as a contract operation, the publish workflow across D1 and the chain, the forum adapter's stand-in | M6.16, M3.10 | build | a vote twice by one member is refused by the contract through the SDK, the CLI and an action; a publish run links the confirmed proposal to its exact revision | M |
-| M6.19 | **Gate M6** | M6.02 to M6.18, M6.20 | e2e | `nx run e2e:m6` passes on `main` | S |
+| M6.19 | **Gate M6** | M6.02, M6.07, M6.09 to M6.18, M6.20 | e2e | `nx run e2e:m6` passes on `main` | S |
 
 ## M7: The cloud, then Capxul
 
@@ -309,12 +316,12 @@ Capxul's first feature runs in its staging.
 |---|---|---|---|---|
 | D4 | M1.01 | | L4.01 | M6.10 |
 | L3.01 | M1.05 to M1.10, M1.14 | | L4.02 | M6.11 |
-| L3.02 | M6.03 | | L4.03 | M6.12 |
-| L3.03 | M2.05 (auth as a plugin), M6.04 (SIWE) | | L4.04 | M6.13 |
-| L3.04 | M6.05 | | L4.05 | M6.14 |
-| L3.05 | M6.06 | | L4.06 | M6.15 |
+| L3.02 | M1.29 | | L4.03 | M6.12 |
+| L3.03 | M2.05 (auth as a plugin), M2.13 (SIWE) | | L4.04 | M6.13 |
+| L3.04 | M1.30 | | L4.05 | M6.14 |
+| L3.05 | M1.31 | | L4.06 | M6.15 |
 | L3.06 | M6.07 | | L4.07 | M6.16 |
-| L3.07 | M6.08 | | L4.08 | M6.17 (local), M7.09 (testnet) |
+| L3.07 | M1.32 | | L4.08 | M6.17 (local), M7.09 (testnet) |
 | L3.08 | M6.09 | | L4.09 | M6.19 |
 | L3.09 | Later | | D6, L5.01 to L5.03, L5.05 to L5.08 | Later |
 | W1 | M3.04 | | L5.04 | M3.10 (factory), M5.10 (apps) |
