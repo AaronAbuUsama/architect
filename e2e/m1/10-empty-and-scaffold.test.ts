@@ -80,6 +80,32 @@ describe("M1.26: the wired scaffold and optional steps", () => {
     nothingRunning(root);
   });
 
+  it("reports an optional save that only the unchanged path ran, as the same one-way gap", () => {
+    const root = fresh();
+    for (const path of [edit, "src/allowance/edit.ts", "journeys/keep-the-limit.ts"]) {
+      copyFileSync(join(fixture, path), join(root, path));
+    }
+    succeeds(root, "generate");
+    const unchanged = succeeds(root, "prove", "--port", "19279").out;
+    expect(unchanged).toContain("journey keep the limit ✔ 1/1 steps");
+    expect(unchanged).toMatch(/allowance\.edit\.save[^\n]*never exercised both ways|never exercised both ways[^\n]*allowance\.edit\.save/);
+    nothingRunning(root);
+  });
+
+  it("warns about nothing on acme as shipped, nor on an optional step the handler never calls", () => {
+    const root = fresh();
+    expect(succeeds(root, "check").out).not.toMatch(/\bwarning\b/i);
+    for (const path of [edit, "src/allowance/edit.ts", "journeys/change-the-limit.ts"]) {
+      copyFileSync(join(fixture, path), join(root, path));
+    }
+    const source = textAt(root, "src/allowance/edit.ts");
+    const edited = source.replace("yield* steps.save(records.update(Allowance, allowance, { limit }))", "yield* records.update(Allowance, allowance, { limit })");
+    expect(edited).not.toBe(source);
+    writeFileSync(join(root, "src/allowance/edit.ts"), edited);
+    succeeds(root, "generate");
+    expect(succeeds(root, "check").out).not.toMatch(/\bwarning\b/i);
+  });
+
   it("warns when spend updates the record without calling its required step", () => {
     const root = fresh();
     const source = textAt(root, spend);
