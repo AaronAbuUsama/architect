@@ -37,3 +37,16 @@ it("keeps explicit span assertions for an access refusal", () => {
   };
   expect(check(refused, step.spans, trace).lines).toContain(`  ✘ "${step.title}": span allowance.spend present, expected absent`);
 });
+
+it("a step whose call died names the defect its span recorded", () => {
+  const died: CallRecord = { ...refused, status: 500, body: null, mayCall: true };
+  const trace: Trace = {
+    ...missing,
+    spans: [{ traceId: step.trace, spanId: "op", parentSpanId: "journey", name: "echo.repeat", attrs: { defect: "BlankReached: " }, status: 2, ms: 1, start: 1 }],
+  };
+  const failed = { ...step, failures: ["expected an answer, failed with 500"], spans: { present: [], absent: [] } };
+  const lines = journeyLines([{ name: step.journey, stopped: undefined, steps: [failed], calls: [died] }], new Map([[step.trace, trace]])).lines;
+  expect(lines).toContain(`  ✘ "${step.title}": the server died: BlankReached`);
+  const answered = journeyLines([{ name: step.journey, stopped: undefined, steps: [{ ...failed, failures: [] }], calls: [{ ...died, status: 200 }] }], new Map([[step.trace, trace]])).lines;
+  expect(answered.join("\n")).not.toContain("the server died");
+});
