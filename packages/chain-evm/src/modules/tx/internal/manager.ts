@@ -10,13 +10,17 @@ import type { Call, ChainPort, ChainPortOptions, Submission, Transaction, Unsign
 import { estimateFees, replacementTransaction } from "./fees.ts";
 import type { Rpc } from "./rpc.ts";
 import { signTransaction } from "./sign.ts";
+import { simulateCall } from "./simulate.ts";
 
+const unsimulated = () => new ChainFault({ kind: "unsimulated", message: "The transaction was not simulated before it was signed or sent" });
 const unavailable = () => new ChainFault({ kind: "nonce", message: "The transaction was not prepared by this EVM port" });
 
 export const makeTransactionManager = (rpc: Rpc, options: ChainPortOptions) =>
   Effect.gen(function* () {
     const nonces = yield* makeNonces(rpc);
     const reservations = new WeakMap<Unsigned, { readonly nonce: NonceReservation; readonly send: Semaphore.Semaphore }>();
+    // Only a transaction that simulated cleanly may be signed or sent. Nothing else adds to this set.
+    const simulated = new WeakSet<Unsigned>();
     const signedTransactions = new WeakMap<Signed, { readonly transaction: Transaction; readonly replaces?: Hash }>();
 
     const prepare: ChainPort["prepare"] = (call: Call) => Effect.gen(function* () {
@@ -43,8 +47,16 @@ export const makeTransactionManager = (rpc: Rpc, options: ChainPortOptions) =>
       return result;
     }).pipe(Effect.withSpan("chain.evm.prepare", { attributes: { chainId: options.chainId } }));
 
+    const simulateOnce = simulateCall(rpc, options);
+    const simulate: ChainPort["simulate"] = (prepared) => Effect.gen(function* () {
+      if (!reservations.has(prepared)) return yield* unavailable();
+      yield* simulateOnce(prepared);
+      simulated.add(prepared);
+    });
+
     const sign: ChainPort["sign"] = (prepared, signer) => Effect.gen(function* () {
       if (!reservations.has(prepared)) return yield* unavailable();
+      if (!simulated.has(prepared)) return yield* unsimulated();
       const signed = yield* signTransaction(prepared, signer);
       signedTransactions.set(signed, { transaction: prepared.transaction });
       return signed;
@@ -54,6 +66,7 @@ export const makeTransactionManager = (rpc: Rpc, options: ChainPortOptions) =>
       const reserved = reservations.get(signed.prepared);
       const context = signedTransactions.get(signed);
       if (reserved === undefined || context === undefined) return yield* unavailable();
+      if (!simulated.has(signed.prepared)) return yield* unsimulated();
       const { transaction, replaces } = context;
       const reservation = reserved.nonce;
       return yield* reserved.send.withPermit(Effect.gen(function* () {
@@ -104,5 +117,5 @@ export const makeTransactionManager = (rpc: Rpc, options: ChainPortOptions) =>
         Option.match({ onNone: () => Effect.void, onSome: nonces.release }),
       ));
 
-    return { prepare, sign, submit, replace, release, nonces };
+    return { prepare, simulate, sign, submit, replace, release, nonces };
   });
