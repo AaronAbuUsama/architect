@@ -1,0 +1,42 @@
+<style>
+  :root { color-scheme: dark; font: 13px system-ui, sans-serif; color: #efeff2; }
+  body { margin: 0; }
+  section { border: 1px solid #333439; border-radius: 9px; padding: 10px 12px; }
+  header { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  strong { font-size: 13px; }
+  output { display: block; margin-top: 5px; color: #b6b6c1; }
+  select { background: #222328; color: inherit; border: 1px solid #44454b; border-radius: 4px; }
+</style>
+<section>
+  <header><strong>Proof summary</strong><label hidden>Operation <select id="operations"></select></label></header>
+  <output id="summary">Waiting for portal context…</output>
+</section>
+<script>
+  const select = document.getElementById("operations");
+  const summary = document.getElementById("summary");
+  const render = (operation, environment) => {
+    summary.textContent = "Reading proof…";
+    appAction("read-proof", { operation, environment }).then((proof) => {
+      const passed = proof.checks.filter((check) => check.passed).length;
+      const timing = proof.checks.find((check) => check.timing)?.timing;
+      summary.textContent = `${operation} · ${passed}/${proof.checks.length} evals passed${timing ? ` · p95 ${timing.p95Ms} ms` : ""}`;
+    }, () => { summary.textContent = "No recorded proof for this operation and environment."; });
+  };
+  addEventListener("slot-context", () => {
+    const { operation, environment = "local" } = window.slotContext;
+    if (operation) {
+      select.parentElement.hidden = true;
+      render(operation, environment);
+      return;
+    }
+    select.parentElement.hidden = false;
+    appAction("list-operations", {}).then(({ operations }) => {
+      select.replaceChildren(...operations.map(({ name }) => new Option(name, name)));
+      const preferred = operations[0];
+      if (!preferred) return;
+      select.value = preferred.name;
+      render(preferred.name, environment);
+      select.onchange = () => render(select.value, environment);
+    });
+  });
+</script>

@@ -1,0 +1,8 @@
+{
+  "id": "proof-summary",
+  "name": "Proof summary",
+  "description": "Shows the recorded eval result and p95 for an operation.",
+  "entry": "index.html",
+  "slots": ["operation.contract.bottom"],
+  "permissions": { "appActions": ["list-operations", "read-proof"] }
+}

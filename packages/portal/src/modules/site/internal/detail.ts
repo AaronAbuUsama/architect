@@ -41,7 +41,7 @@ export const operationPage = (blueprint: BlueprintWire, s: PortalSnapshot, op: O
     "<h3>Answer</h3>", table(["Field", "Type", "Detail"], fieldRows(op.answer)),
     op.move ? `<p>Move <code>${esc(op.move.key)}</code>: from ${esc(op.move.from.join(" or ") || "nothing (it creates)")} to ${esc(op.move.to.join(" or "))}, emitting ${esc(op.move.emits)}.</p>` : "",
     `<h3>Refusals</h3><ul>${op.refusals.map((r) => `<li>${esc(r)}</li>`).join("")}</ul>`,
-    Object.keys(op.steps).length ? `<h3>Steps</h3><ul>${Object.values(op.steps).map((st) => `<li>${esc(st.name)} (${esc(st.type)})</li>`).join("")}</ul>` : "",
+    Object.keys(op.steps).length ? `<h3>Steps</h3><ul>${Object.values(op.steps).map((st) => `<li>${esc(st.name)} (${esc(st.type ?? "type undeclared")})</li>`).join("")}</ul>` : "",
     `<h3>Its proof rests on</h3>`, table(["Declaration", "Hash"], depends),
     `<p><a href="/portal/things/${encodeURIComponent(op.thing)}">${esc(op.thing)}</a></p>`,
     doc(blueprint, `${op.thing}/${op.verb}.md`),

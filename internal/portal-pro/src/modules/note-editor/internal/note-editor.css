@@ -1,0 +1,15 @@
+.workspace-note { margin-bottom: 16px; border-top: 1px solid var(--separator); padding: 10px 0 0; }
+.workspace-note-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 5px; }
+.workspace-note-head h2 { font-weight: 630; font-size: 15px; }
+.workspace-note-toolbar { display: flex; align-items: center; gap: 3px; }
+.workspace-editor { margin-top: 6px; border: 1px solid var(--separator); border-radius: 8px; background: var(--surface); }
+.workspace-editor:focus-within { border-color: var(--accent); }
+.workspace-editor .tiptap { min-height: 83px; padding: 10px 12px; outline: none; font-size: 14px; line-height: 1.55; }
+.workspace-editor .tiptap p:only-child:has(> br.ProseMirror-trailingBreak)::before { content: "Start writing…"; color: var(--muted); position: absolute; pointer-events: none; }
+.workspace-editor .tiptap p + p { margin-top: 5px; }
+.workspace-editor .tiptap h2 { font-size: 18px; font-weight: 640; margin-block: 10px 4px; }
+.workspace-editor .tiptap ul { list-style: disc; padding-inline-start: 19px; }
+.workspace-editor .tiptap ol { list-style: decimal; padding-inline-start: 19px; }
+.workspace-editor .tiptap a { color: var(--accent); }
+.workspace-note-status, .workspace-loading { min-height: 19px; padding-top: 4px; font-size: 12px; color: var(--muted); }
+.workspace-note-warning { color: var(--warning); font-size: 12px; margin: 5px 0; }

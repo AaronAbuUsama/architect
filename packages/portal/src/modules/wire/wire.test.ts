@@ -35,6 +35,20 @@ describe("the blueprint wire", () => {
     expect(decoded._tag, JSON.stringify(decoded)).toBe("Success");
   });
 
+  it("keeps an unfinished step by name when the compiler has no type for it", async () => {
+    const model = acmeModel();
+    const operation = model.operations["allowance.spend"]!;
+    const step = { name: "allowance.spend.pending" };
+    const withUnfinishedStep = {
+      ...model,
+      operations: { ...model.operations, [operation.name]: { ...operation, steps: { ...operation.steps, pending: step } } },
+    };
+    const wire = Wire.build({ project: "acme", model: withUnfinishedStep, docs: acmeDocs() });
+    const result = await decode(wire);
+    expect(result._tag).toBe("Success");
+    if (result._tag === "Success") expect(result.success.model.operations[operation.name]?.steps["pending"]).toEqual(step);
+  });
+
   it("rejects an unknown schema version, naming it", async () => {
     const result = await decode({ ...blueprintOf(), schemaVersion: 2 });
     expect(result).toMatchObject({ _tag: "Failure", failure: { _tag: "BlueprintRejected", reason: expect.stringContaining("schema version 2") } });

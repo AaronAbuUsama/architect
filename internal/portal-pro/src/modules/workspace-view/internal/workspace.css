@@ -1,0 +1,14 @@
+.workspace-page-tree { margin: 14px 5px 0; padding-top: 12px; border-top: 1px solid var(--separator); }
+.workspace-search { margin: 0 0 9px; }
+.workspace-tree-current { background: var(--surface-secondary, var(--surface)); }
+.workspace-tree-empty { margin: 10px 5px; color: var(--muted); font-size: 12px; }
+.workspace-document-head { display: flex; justify-content: space-between; align-items: end; max-width: 1090px; gap: 12px; margin: 0 auto 23px; }
+.workspace-document-head h1 { margin: 5px 0 0; font-size: clamp(30px, 4vw, 43px); letter-spacing: -.035em; font-weight: 680; line-height: 1.13; }
+.workspace-breadcrumb { color: var(--muted); font-size: 13px; }
+.workspace-breadcrumb a:hover { color: var(--foreground); text-decoration: underline; }
+.workspace-operation-link { display: flex; align-items: center; gap: 6px; align-self: center; color: var(--accent); font-size: 13px; white-space: nowrap; }
+.workspace-operation-link:hover { text-decoration: underline; }
+@media (max-width: 550px) {
+  .workspace-document-head { align-items: start; flex-direction: column; }
+  .workspace-operation-link { align-self: start; }
+}

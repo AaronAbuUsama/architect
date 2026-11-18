@@ -44,7 +44,8 @@ const Operation = Schema.Struct({
   errors: Schema.Array(Schema.String),
   refusals: Schema.Array(Schema.String),
   allowed: Schema.Array(Schema.Struct({ kind: Schema.String, role: Schema.optionalKey(Schema.String), path: Schema.optionalKey(Schema.String) })),
-  steps: Schema.Record(Schema.String, Schema.Struct({ name: Schema.String, type: Schema.String })),
+  // A generated step with an open Blueprint.todo has a name before it has a type.
+  steps: Schema.Record(Schema.String, Schema.Struct({ name: Schema.String, type: Schema.optionalKey(Schema.String) })),
   idempotent: Schema.NullOr(Schema.Literal("request")),
   budget: Schema.NullOr(Schema.Struct({ p95Ms: Schema.Number })),
   hash: Schema.String,
