@@ -24,6 +24,11 @@ export const environmentsOf = (layout: Layout, problems: Array<string>): Readonl
     }
     for (const secret of Object.keys(e.secrets ?? {})) if (!SECRET.test(secret)) problems.push(`${file}: secret "${secret}" must be UPPER_SNAKE_CASE`);
     if ((e.deploy !== undefined || e.publish !== undefined) && e.cloud === undefined) problems.push(`${file}: deploys or publishes, so it needs a cloud`);
+    for (const bound of Object.keys(e.stores ?? {})) {
+      const declared = layout.stores.get(bound);
+      if (!declared) problems.push(`${file}: stores binds "${bound}", which isn't a declared store (${layout.stores.size > 0 ? `the stores are ${[...layout.stores.keys()].join(", ")}` : "the blueprint declares none"})`);
+      else if (declared.store.of !== "database") problems.push(`${file}: stores binds "${bound}", a ${declared.store.of} store, to a database: only a database store is bound this way`);
+    }
     const sinks = e.telemetry ?? [];
     for (const s of sinks) if (s.which === "axiom" && !GROUP.test(s.group)) problems.push(`${file}: the Axiom group "${s.group}" isn't a dataset group name (letters, digits, - _ .)`);
     const named = sinks.map((s) => JSON.stringify(sinkOf(s)));
@@ -33,6 +38,7 @@ export const environmentsOf = (layout: Layout, problems: Array<string>): Readonl
       lifetimeMs: Option.isSome(lifetime) ? Duration.toMillis(lifetime.value) : null,
       cloud: e.cloud ? { provider: e.cloud.provider, database: e.cloud.database.which } : null,
       database: e.database?.which ?? null,
+      ...(e.stores && Object.keys(e.stores).length > 0 ? { stores: Object.fromEntries(byKey(Object.entries(e.stores)).map(([k, d]) => [k, d.which])) } : {}),
       secrets: Object.fromEntries(byKey(Object.entries(e.secrets ?? {})).map(([k, s]) => [k, s.how])),
       promotesFrom: e.promotesFrom ?? null,
       ...(e.telemetry === undefined ? {} : { telemetry: sinks.map(sinkOf) }),
