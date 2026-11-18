@@ -1,0 +1,8 @@
+minimumReleaseAge: 4320
+overrides:
+  '@smithy/core': 3.40.0
+allowBuilds:
+  '@google/genai': false
+  esbuild: true
+  protobufjs: false
+  workerd: true
