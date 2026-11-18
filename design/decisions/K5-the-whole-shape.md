@@ -3,7 +3,7 @@
 First written 18 November 2026 by the building agent, then revised the same day with Aaron's decisions from his
 Orthograph DX discussion with Codex (relayed by the conductor). Where the first version disagreed with those
 decisions, they won: the first version had agent-native running the app, with its own Postgres and an auth bridge, and
-that is gone. This record holds the whole of Orthograph on one page: every primitive, every seam, who owns it and what
+that is gone. A later, sharper word from Aaron made agent-native a fork we own (decision 1 below). This record holds the whole of Orthograph on one page: every primitive, every seam, who owns it and what
 crosses it. Where it disagrees with the K2 frame, this record wins. The details stay with the canon's layers.
 
 **Names.** The framework is now **Orthograph**, with the command `ortho` and the npm scope `@orthograph` (K6, PR #42).
@@ -22,7 +22,9 @@ His decisions from the Orthograph DX discussion, carried here as they were given
 
 1. **Orthograph is the framework people use to build their own apps.** Those apps use the generated SDK, CLI, MCP tools
    and actions. **The portal is the builder's place to understand and plan with the running system.** We build our own
-   portal template on Orthograph. agent-native's templates and interactions are design references only.
+   portal template on Orthograph. Sharpened by Aaron the same day: "we're going to keep the agent native shapes of
+   actions, and reuse the templates, but we're going to make them our own so we can break compatibility with agent
+   native if necessary." So agent-native is **a fork we own**, taken at 0.228.2 ("The agent-native fork" below).
 2. **The portal keeps the intent from PR #41's direct feedback** (`spikes/generated-app/design/UX.md` at `c0f0abd`).
    - It starts with things and their lifecycles, then shows operations, machines, events, errors, and the notes
      attached to their thing.
@@ -281,26 +283,30 @@ The doors:
 | MCP tools | nothing | one tool per operation the rule admits, on the Worker | the same | the tool span |
 | Actions | where they bind | from the model, built on the SDK | the same | the action's span as the parent |
 
-**An action** is Orthograph's own generated primitive (decision 3). It is plain data, and it is not tied to any app
-framework:
+**An action** is generated from an operation, in agent-native's action shape (decision 1), from our fork of
+`core/action`. The fields are `defineAction`'s own: `description`, `schema`, `outputSchema`, `errors`, `readOnly`,
+`retrySafe`, `needsApproval`.
 
 ```ts
 // generated/actions/proposal/vote.ts. Generated from blueprint/things/proposal/verbs/vote.ts. Do not edit.
-export const vote = Action.of({
-  operation: "proposal.vote",
-  description: declaration.description,
-  input: standard(declaration.payloadSchema),       // Standard Schema and its JSON Schema, from Effect
-  output: standard(declaration.answerSchema),
-  refusals: ["AlreadyVoted", "NotAMember", "ProposalNotOpen"],
-  exposure: { screen: true, agentTool: true },       // from allowed + via
-  run: (input, { requestKey }) => proposal.vote(input, { requestKey }).pipe(Effect.flatMap((s) => s.confirmed)),
-});
+import { defineAction } from "@orthograph/portal-kit/action";   // the fork of @agent-native/core/action at 0.228.2
 
-// binding it, in the app a person builds:
-const { run, pending, refusal } = useAction(vote);  // a screen (React)
-const tool = Actions.toAiSdkTool(vote);             // an agent tool
-const anAction = Actions.toAgentNative(vote);       // agent-native's defineAction, for an app built on agent-native
+export default defineAction({
+  description: declaration.description,
+  schema: standard(declaration.payloadSchema),        // Standard Schema plus its JSON Schema, from Effect
+  outputSchema: standard(declaration.answerSchema),
+  errors: refusalsOf(declaration),                    // AlreadyVoted, NotAMember, ProposalNotOpen: codes kept
+  readOnly: false,                                    // true only for reads
+  retrySafe: true,                                    // because the SDK carries one requestKey across retries
+  needsApproval: true,                                // a chain write: the member's wallet signs
+  mcpTool: false,                                     // MCP is the Worker's door, once per operation (X-05)
+  run: (args, ctx) => ctx.sdk(proposal.vote(args, { requestKey: ctx.callId }).pipe(Effect.flatMap((s) => s.confirmed))),
+});
 ```
+
+Two things change in the fork at once so that this works: `ctx` gains the SDK client and the call's id (agent-native's
+`ctx` has neither, `action.ts:190-270`), and `errors` carry the operation's refusal codes. An operation that is
+`.notVia(Via.agent)` gets `agentTool: false` as well, so the chat never offers it.
 
 The action holds no authority. Its `run` is the SDK, so the operation's enforcer decides every time. Its `exposure` is
 a convenience for screens and tools, never a check.
@@ -388,13 +394,13 @@ with the same auth and hand the SDK their credential.
 ### 10. The portal
 
 - **Writes:** nothing for its pages, and notes attached to a thing.
-- **Falls out:** our own portal template, built on Orthograph:
+- **Falls out:** the portal template, forked from agent-native's templates at 0.228.2 and made our own:
+  - **shell and chat:** the forked app shell and chat, with screen awareness, running on the project's Worker;
   - **pages:** every page is drawn from the model;
   - **notes:** a note is a thing in the portal feature's own store (K3 item 7), with prose about a declaration kept
     beside it in the repository (F6 Q3);
+  - **chat state:** threads and runs are things in the same store, not agent-native's Postgres tables;
   - **live evidence:** read from the Collector's files, as PR #39 found.
-
-  agent-native's templates and interactions are references only.
 - **Enforced by:** the portal changes nothing on its own. Its "Try it" calls through the SDK as the signed-in builder,
   or as the cast in a world.
 - **Portal shows:** things and their lifecycles first. Then operations, machines, events, errors, and notes on their
@@ -407,7 +413,7 @@ Live evidence needs four things that `main` doesn't have yet:
 
 | Gap | Evidence today | Settled, or its owner |
 |---|---|---|
-| Work in flight. The Worker flushes spans only after the response | `packages/host-cloudflare/src/modules/telemetry/service.ts:44-50`; the spike read only finished traces (`spikes/generated-app/app/server/forman/live.ts:29-49` at `c0f0abd`) | **Settled:** the runtime sends a step signal (start, end, outcome) as each step starts and ends, under `waitUntil`, not batched at dispose. New slice **M1.21** |
+| Work in flight. OTLP exports only ended spans, and the Worker flushes after the response | one runtime per request, exported every 100 ms, disposed and flushed under `waitUntil` (`packages/host-cloudflare/src/modules/telemetry/service.ts:10`, `:44-50`); the spike builds a call only from a finished trace (`spikes/generated-app/app/server/forman/live.ts:29-53` at `c0f0abd`) and measured 150 to 174 ms from call to screen, for calls of 1 to 11 ms | **Settled:** the runtime emits a step signal, an OTLP log record with the trace id, span id, step and phase (start, end, outcome), as each step starts and ends. The portal joins starts to ends by span id. The latency floor is the export interval, plus the Collector's flush, plus the portal's push. New slice **M1.21**, which also measures whether the 100 ms interval exports ended steps while a long request runs |
 | Committed events. A span is not proof that an event was committed | events are written in the commit (`packages/language-effect/src/modules/handler/service.ts:68-71`) | **Settled:** the portal reads committed events from the journal for D1 and actor stores (M1.21), and from the chain follower for contracts (M6.09) |
 | Journeys and starting worlds are not in the model | `describe.ts:162` | **Owner:** M1.03 |
 | A fixed renderer list. Plugin mounting is only planned | `packages/generators/src/modules/render/service.ts:1-9` | **Owner:** M1.11 to M1.13 (projections as plugins). The portal is mounted as a projection |
@@ -444,27 +450,37 @@ the enforcer's meaning and the clients written in it:
 
 A language never chooses where it runs, and a host never gives an operation meaning.
 
-## What agent-native's source settled
+## The agent-native fork
 
-These findings are from `@agent-native/core` 0.228.2 at release commit `49a844c1b`. They are why agent-native is a
-reference and not a runtime. The full notes are in the session group's shared notes, `k5-an-actions.md` and
-`k5-an-runtime-auth-data.md`.
+agent-native is MIT licensed. We fork it at **0.228.2** (release commit `49a844c1b`): `@agent-native/core`, `toolkit`
+and `agentkit` at 0.228.2, and `otel` at 0.1.39. The fork is **vendored**: the parts we use are copied into our own
+package, `@orthograph/portal-kit`, with agent-native's licence and a note of the fork point. Pinning the npm packages and
+changing only the template can't work, for two reasons. Postgres, auth and the runtime live in `core/server` and
+`core/client`, not in the template. And the spike's hand-written code already imports from `core/action`,
+`core/server`, `core/client`, `core/settings`, `core/org`, `toolkit/app-shell`, `toolkit/app/chat`, `agentkit` and
+`agentkit-chat` (the generated-app session's count, about 20 places).
 
-1. **An action's `run` could host an Effect handler.** It is a plain function (`action.ts:1037`) over Standard Schema
-   (`:1011-1018`). But it gets no bindings (`action.ts:190-270`), so it can't reach D1 or Durable Objects.
-2. **It is Postgres only.** Commit `cc2a915ad` (4 September 2026) removed D1, SQLite and libSQL, and `db/client.ts:1938`
-   throws on anything else. On Cloudflare it deploys only as `cloudflare_module`, with Postgres outside the Worker
-   (`deploy/build.ts:142`, `:786-788`).
-3. **It brings its own Better Auth (1.7.6) and organisations**, about 170 tables in all. It can be told the person
-   through `getSession` (`server/auth.ts:468`).
-4. **It has no OpenAPI, no typed SDK for outside callers, no versioned paths and no HTTP request key.**
+**Breaking compatibility** means this: upstream changes come in only by hand, one change at a time, when we want them,
+read and tested like our own code. Nothing updates automatically, and no agent-native release is a dependency. While
+staying compatible costs nothing, we stay compatible, so that a hand-pulled change applies cleanly.
 
-What we take as reference:
-- one action seen from a screen, a chat tool and MCP at once (`isActionExposedToExternalAgents`, `action.ts:1871`);
-- refusals as "no write" so an agent may retry with other arguments (`action.ts:1572-1645`);
-- screen awareness for the chat.
+| Part | At the fork | Why |
+|---|---|---|
+| The action shape, `defineAction` and its fields (`core/action`) | **taken as it is** | decision 1; it is small, and the exposure rules are good (`isActionExposedToExternalAgents`, `action.ts:1871`) |
+| Refusals as "no write", so an agent may retry with other arguments (`action.ts:1572-1645`) | **taken as it is** | it is how a declared refusal should look to an agent |
+| The templates, the app shell and the chat, with screen awareness (`toolkit`, `agentkit`, `agentkit-chat`, `composer`) | **taken as they are**, then changed freely | decision 1; they are most of the weight and most of the value |
+| `ctx` in an action's `run` | **changed at once** | it gains the SDK client and the call's id; today it has neither (`action.ts:190-270`) |
+| The database (`core/server`, `db/client.ts:1938` throws on anything but Postgres) | **changed at once** | the portal runs on the project's Worker, and its state is things in the portal feature's store on D1 (K3 item 7) |
+| Auth and organisations (Better Auth 1.7.6, `OrgRole`, `getSession` at `server/auth.ts:468`) | **changed at once** | the builder signs in through `@orthograph/auth` and `@orthograph/organizations`; there is no second login |
+| The runtime and deploy (`cloudflare_module` with `nodejs_compat`, `deploy/build.ts:142`, `:786-788`) | **changed at once** | it is served by the project's Worker, as `portal.owns` is today |
+| Telemetry (`otel`, `registerObservabilityProvider`) | **changed at once** | it reports through Orthograph's tracer, so `traceparent` joins the trace |
+| Its own MCP server and `/mcp` | **dropped** | MCP is the Worker's door, once per operation (X-05) |
+| Its own about 170 tables, its orgs, settings storage and sessions | **dropped** | replaced by Orthograph's stores and auth |
+| A2A writes through the LLM loop, and its deploy builder | **dropped** | writes go through the SDK; deploys go through `ortho` |
 
-An app a person builds on agent-native binds Orthograph's actions with `Actions.toAgentNative`.
+The vendored code is not written in Effect, so it is the one exception to the code's own rules. It lives under
+`packages/portal-kit/vendor/agent-native/`, lint skips that folder, and our changes sit in the six-slot modules around
+it. Each hand-pulled upstream change is a commit naming the upstream commit.
 
 ## Decided here
 
@@ -475,15 +491,17 @@ These are the building agent's calls, with the evidence above. Aaron can overrul
 2. The SDK contract: the caller is set on the client's layer; a stable `requestKey` is kept across retries; declared
    refusals are typed in the error channel; a chain operation returns a submission with `confirmed`; tool exposure
    follows `allowed` and `via`.
-3. An action is framework-free data with a `run` over the SDK. Bindings for React, AI SDK tools and agent-native are
-   thin wrappers.
-4. The portal is a projection plus a small feature. Its notes are things in the portal's own store. Its live data comes
-   from the Collector, the journal and the chain follower.
-5. Step signals are sent as each step starts and ends (M1.21), so work in flight is visible.
-6. A workflow activity is keyed by run id and activity name, and a wait wakes on `on:` or `Timers`. The rest belongs to
+3. An action keeps agent-native's `defineAction` shape, from our fork, with a `run` over the SDK. `ctx` carries the SDK
+   and the call's id.
+4. agent-native is vendored at 0.228.2 into `@orthograph/portal-kit`, with changes pulled by hand. The table above says
+   what is taken as it is, changed at once, or dropped.
+5. The portal is a projection plus a small feature, built from the forked templates. Its notes and chat state are
+   things in the portal's own store. Its live data comes from the Collector, the journal and the chain follower.
+6. Step signals are OTLP log records sent as each step starts and ends (M1.21), so work in flight is visible.
+7. A workflow activity is keyed by run id and activity name, and a wait wakes on `on:` or `Timers`. The rest belongs to
    M3.01.
-7. A chain is a host, and its store kind is K3's `chain`. A server call that sends a transaction is a workflow.
-8. Noir's limits are part of the contract: metadata is visible, proving time is in the budget, and an unverified proof
+8. A chain is a host, and its store kind is K3's `chain`. A server call that sends a transaction is a workflow.
+9. Noir's limits are part of the contract: metadata is visible, proving time is in the budget, and an unverified proof
    blocks production.
 
 ## Forks for Aaron
@@ -493,7 +511,7 @@ The first round's three questions are answered by his decisions:
 | # | First round's question | Answered by | His words |
 |---|---|---|---|
 | Q1 | Where an operation runs, and who serves its doors | decisions 1 and 3 | "Those apps use the generated SDK, CLI, MCP tools and actions"; "it uses the SDK. The underlying operation keeps its authority" |
-| Q2 | Whose identity | decision 1: no agent-native portal, so no second login | "agent-native's templates and interactions are design references only" |
+| Q2 | Whose identity | decision 1: the fork changes auth at once, so there is no second login | "make them our own so we can break compatibility with agent native if necessary" |
 | Q3 | Who the generated app is for | decision 1 | "The portal is the builder's place to understand and plan with the running system" |
 
 Two forks remain. Both are his "open" items, and both shape what a developer writes. They are in the pull request's
@@ -511,10 +529,11 @@ The build plan stays. These are the slices it touches:
 | Slice | What happens |
 |---|---|
 | M1.03 | **Unchanged**, now needed by the portal as well: journeys and starting worlds in the model |
-| M1.11 to M1.13 | **Changed.** The fixed renderer list becomes mounts. M1.13 becomes "docs and the portal": our own template, from the model plus live evidence. It no longer renders an agent-native app |
+| M1.11 to M1.13 | **Changed.** The fixed renderer list becomes mounts. M1.13 becomes "docs and the portal": the forked template, from the model plus live evidence, served by the project's Worker |
 | M1.12 | **Changed.** sdk, cli and mcp, plus the SDK contract (caller on the layer, `requestKey`, typed refusals, exposure from `allowed` and `via`) |
 | M1.21 | **New.** Live steps: step signals as they start and end, and committed events read from the journal for the portal |
-| M1.22 | **New.** The actions projection: one action per operation, built on the SDK, with React, AI SDK and agent-native bindings; replay `--through actions` |
+| M1.22 | **New.** The actions projection: one `defineAction` per operation, built on the SDK; replay `--through actions` |
+| M1.23 | **New.** The fork: agent-native 0.228.2 vendored into `@orthograph/portal-kit`; the database, auth, runtime, telemetry and `ctx` changed; its MCP, tables and deploy dropped |
 | M2.06 | **Changed.** Builders sign in to the portal through `@orthograph/auth` |
 | M2.08 | **Changed.** `--through cli\|mcp\|actions` |
 | M3.01 | **Changed.** Starts from decision 4 and the settled activity key; workshop's publish is its example |
@@ -529,22 +548,22 @@ The build plan stays. These are the slices it touches:
 | M6.20 | **New.** `examples/workshop` on chain: the governance feature, the vote, the publish workflow and the forum adapter's stand-in |
 | Later | **New line.** The workshop's private membership on Noir, proved on a verifying network before any claim (S30) |
 
-PR #41's agent-native prototype is kept as research, the way PR #39 is. F6 is amended: the app it describes is the
-portal, on our own template.
+PR #41's agent-native prototype is kept as research, the way PR #39 is, and is the starting point for M1.23. F6 is
+amended: the app it describes is the portal, on the forked template.
 
 ## What changes elsewhere
 
 - **K2.** It stands. Its "portal" is the portal of decision 1. Actions join the projections.
 - **K3.** Item 2 says a chain is a host that runs the `chain` store kind. The first version's "projection's own state"
   item is withdrawn, because nothing in the shape needs it now.
-- **F6 (PR #41).** The app is the portal on our own template. Its UX intent stands (decision 2). agent-native is a
-  reference.
-- **The ledger (PR #47).** These provisional answers change:
-  - `PRJ-43`: actions are Orthograph's own primitive over the SDK. `mcpTool: false` no longer applies;
-  - `G-01`, `PRJ-01` and `X-01`: M1.13 is the portal on our own template, not an `app` projection.
-
-  These still hold: `LAH-04`, `STO-02`, `X-18` (chain), `G-04` (private state), `G-03` ("home" retired) and `X-05`
-  (MCP on the one Worker).
+- **F6 (PR #41).** The app is the portal, on the forked template. Its UX intent stands (decision 2).
+- **The ledger (PR #47).**
+  - `PRJ-43` holds: an action keeps agent-native's shape, sits beside the doors, and each door exists once per
+    operation. Generated actions set `mcpTool: false`; in the fork, agent-native's MCP is dropped anyway.
+  - `G-01`, `PRJ-01` and `X-01` change: M1.13 is "docs and the portal", built from the forked template. M3.14 is
+    parked, not moved. M5.06 stays its own slice, as a portal page.
+  - These still hold: `LAH-04`, `STO-02`, `X-18` (chain), `G-04` (private state), `G-03` ("home" retired) and `X-05`
+    (MCP on the one Worker).
 
 ## The corrected layer order for the canon
 
@@ -573,5 +592,9 @@ end-to-end example from layer 4 on.
   event (M6.09), not a second answer.
 - **Step signals cost requests.** One small send per step start and end, under `waitUntil`. They are measured in
   M1.21 against the budget.
+- **The fork drifts.** Upstream moves fast (0.228 in a few months). Pulling by hand costs time, and skipping pulls
+  loses fixes. M1.23 records each pull as its own commit, so the drift is visible.
+- **The vendored code is outside the rules.** It is not Effect, and it is larger than our own packages. It is kept in
+  one folder and wrapped, and the wrapping is what grows.
 - **Noir metadata.** Even with private membership, timing and the fee payer are visible. The portal says so on the
   vote's page.
