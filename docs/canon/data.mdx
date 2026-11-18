@@ -76,17 +76,23 @@ workshop, from layer 4.
 
 ### A thing lives in a store
 
-`lives` is the one place a declaration says where a thing's state is. Today it takes one of two built-in kinds, and
-the default is a D1 row:
+`lives` is the one place a declaration says where a thing's state is. It takes a built-in kind or a declared store,
+and the default is a D1 row:
 
-```ts file=packages/orthograph/src/modules/things/types.ts lines=28-34
-  /** Who owns its state: a D1 row with a version column (the default), or a Durable Object per instance (D1 #1). */
-  readonly lives: Lives;
+```ts file=packages/orthograph/src/modules/things/types.ts lines=29-41
+  /** The kind of place its state is kept: a D1 row with a version column (the default), or a Durable Object per instance (D1 #1). */
+  readonly lives: StoreKind;
+  /** The declared store it lives in (K3), when `lives` named one; absent for the project's default store. */
+  readonly store: Store | undefined;
   /** The prefix of this thing's refusal codes (`AL` in `[AL-002]`); the compiler takes two letters of its name when unset. */
   readonly code: string | undefined;
 }
 
-export type Lives = "database" | "actor";
+/** The kinds of store; open, because a host or a language supplies more (`chain`). */
+export type StoreKind = "database" | "actor" | (string & {});
+
+/** What `lives` takes: a word for a built-in kind, or a declared store. Nothing means the project's default store. */
+export type Lives = "database" | "actor" | Store;
 ```
 
 K3 opens that list: a store is declared under `blueprint/stores/`, named by its path, and `lives` takes it. A

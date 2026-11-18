@@ -171,24 +171,29 @@ That is the point: the compiler tells you what to change, and nothing you wrote 
 
 ### What the scaffold writes for you
 
-**Today** the scaffold is one blank with the declaration repeated as comments:
+**The wired scaffold** (K5; built in M1.26) writes a real function, already wired: each declared step in declared
+order, the move when one is declared, and a stub for each declared refusal. Every hole is a `Handlers.blank`, so the
+file compiles. This is the part of the generator that writes the body:
 
-```ts file=packages/generators/src/modules/render/internal/scaffold.ts lines=24-29
+```ts file=packages/generators/src/modules/render/internal/scaffold.ts lines=27-41
 `/** ${op.description} */`,
-`const ${camel(op.verb)}: Handler = (_payload, _context) =>`,
+`const ${camel(op.verb)}: Handler = (_payload, ${context.length === 0 ? "_context" : `{ ${context.join(", ")} }`}) =>`,
 "  Effect.gen(function* () {",
-said.map((s) => `    // ${s}`),
-`    return yield* Handlers.blank("this handler is not written yet");`,
+steps.map(([key, step]) => `    yield* ${runner(key)}(Handlers.blank(${JSON.stringify(`${key}: the work this step does`)}));${step.optional ? " // optional: may be skipped" : ""}`),
+op.errors.flatMap((error) => [
+  `    if (yield* Handlers.blank<boolean>("refuse ${error} when?")) {`,
+  `      yield* Effect.logInfo(yield* Handlers.blank("why ${error} was refused"));`,
+  `      return yield* new ${error}(yield* Handlers.blank("${error}'s fields"));`,
+  "    }",
+]),
+move,
+`    return yield* Handlers.blank("the answer");`,
 "  });",
+"",
+`export default ${camel(op.verb)};`,
 ```
 
-For `join` the comments say `Payload: sheet, people.`, `Answer: left.`, `Steps, each its own span: steps.load(...),
-steps.record(...).` and `May refuse with SheetFull.` (`scaffold.ts:9-14`). They give no order, no move and no
-refusal in place.
-
-**The wired scaffold** (K5, decided; built in M1.26) writes a real function, already wired: each declared step in
-declared order, the move when one is declared, and a stub for each declared refusal. Every hole is a
-`Handlers.blank`, so the file compiles. For signup's `join` it will write:
+For signup's `join` it writes:
 
 ```ts planned=M1.26 path=src/sheet/join.ts
 // Scaffolded from blueprint/things/sheet/verbs/join.ts. Yours from now on.
