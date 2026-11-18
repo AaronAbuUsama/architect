@@ -70,8 +70,11 @@ const prove = Command.make(
     root: Flag.String("root").pipe(Flag.withDefault(process.cwd())),
     port: Flag.Int("port").pipe(Flag.withDefault(8799)),
     view: Flag.Boolean("view").pipe(Flag.withDefault(false)),
+    empty: Flag.Boolean("empty").pipe(Flag.withDefault(false)),
+    only: Flag.String("only").pipe(Flag.optional),
   },
-  ({ env, root, port, view }) => {
+  ({ env, root, port, view, empty, only }) => {
+    if (env === "test" && (empty || Option.isSome(only))) return fail("--empty and --only require --env local", 2);
     const proved = env === "test"
       ? attestation(root).pipe(
           Effect.flatMap(({ token, logbook }) => {
@@ -81,7 +84,7 @@ const prove = Command.make(
           Effect.tap((report) => Effect.sync(() => (process.exitCode = report.passed ? 0 : 1))),
           Effect.catchTag("EnvironmentFailed", (e) => Effect.fail(new ProveFailed({ message: e.message }))),
         )
-      : Effect.scoped(Prove.run({ root, port, view, env: process.env })).pipe(
+      : Effect.scoped(Prove.run({ root, port, view, empty, env: process.env, ...(Option.isSome(only) ? { only: only.value } : {}) })).pipe(
           Effect.tap((report) => Effect.sync(() => process.stdout.write(report.lines.join("\n") + "\n"))),
           Effect.tap((report) => Effect.sync(() => (process.exitCode = report.passed ? 0 : 1))),
         );

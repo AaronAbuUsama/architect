@@ -8,6 +8,7 @@
   "dependencies": {
     "orthograph": "workspace:*",
     "@orthograph/compiler": "workspace:*",
+    "@orthograph/generators": "workspace:*",
     "@orthograph/logbook": "workspace:*",
     "@orthograph/language-effect": "workspace:*",
     "effect": "4.1.1",
@@ -19,7 +20,6 @@
     "#modules/*.js": "./src/modules/*.ts"
   },
   "devDependencies": {
-    "@orthograph/generators": "workspace:*",
     "@orthograph/logbook": "workspace:*",
     "@modelcontextprotocol/sdk": "1.32.2",
     "nx": "24.0.3"

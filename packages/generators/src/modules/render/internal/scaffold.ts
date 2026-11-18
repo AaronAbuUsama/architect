@@ -4,8 +4,7 @@ import type { OperationModel } from "@orthograph/compiler";
 import type { RenderedFile } from "../types.ts";
 import { camel, lines, scaffolded, toRoot } from "./names.ts";
 
-export const renderHandlerScaffold = (op: OperationModel): RenderedFile => {
-  const path = `src/${op.thing}/${op.verb}.ts`;
+export const renderHandlerScaffold = (op: OperationModel, path = `src/${op.thing}/${op.verb}.ts`): RenderedFile => {
   const said = [
     `Payload: ${Object.keys(op.payload).join(", ") || "none"}.`,
     `Answer: ${Object.keys(op.answer).join(", ") || "nothing"}.`,

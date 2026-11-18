@@ -74,6 +74,8 @@ export interface Collector extends TraceSource {
 }
 
 export interface CollectorsApi {
+  /** A scoped loopback OTLP/HTTP receiver, writing scrubbed OTLP JSON lines to `dir`. */
+  readonly local: (dir: string, strip: ReadonlyArray<string>) => Effect.Effect<Collector, CollectorFailed, Scope.Scope>;
   /**
    * Start a collector in Docker writing to `dir`; removed when the scope closes. First removes every collector whose
    * owner process is gone (a killed prove's leak), and exports to the local viewer too if it is running. `strip` are

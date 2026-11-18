@@ -44,7 +44,9 @@ export interface Served<O, R> {
 export class NotFrom extends Data.Error<{ readonly _tag: string; readonly state: string }> {}
 
 /** A scaffolded handler not written yet. Reaching it is a defect that names what's missing. */
-export class BlankReached extends Data.TaggedError("BlankReached")<{ readonly what: string }> {}
+export class BlankReached extends Data.TaggedError("BlankReached")<{ readonly what: string }> {
+  override get message() { return this.what; }
+}
 
 export interface HandlerApi {
   /** `name` comes from the generated code, which got it from the operation's path. */

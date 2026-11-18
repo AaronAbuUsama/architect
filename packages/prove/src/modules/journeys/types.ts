@@ -78,5 +78,5 @@ export interface JourneysApi {
    * `facts` is where the rows and journal are read: by default the world's own front door at `url`; an environment that has
    * closed the door (staging) gives its database instead.
    */
-  readonly run: (project: Project, url: string, journey: Journey, index: number, people?: "world" | "sign-up", facts?: Facts) => Effect.Effect<JourneyRun>;
+  readonly run: (project: Project, url: string, journey: Journey, index: number, people?: "world" | "sign-up", facts?: Facts, empty?: boolean) => Effect.Effect<JourneyRun>;
 }

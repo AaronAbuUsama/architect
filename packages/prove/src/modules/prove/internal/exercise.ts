@@ -23,17 +23,18 @@ export interface Exercised {
  * Run every journey, then read each call's trace back. When prove can reach the collector (`otlp`), it first exports
  * the journey's own span as each trace's root, `journey.<name>` (O1), and reads the traces again with it in.
  */
-export const exercise = (model: Model, project: Project, url: string, collector: TraceSource, people?: "world" | "sign-up", otlp?: string, facts?: Facts): Effect.Effect<Exercised> =>
+export const exercise = (model: Model, project: Project, url: string, collector: TraceSource, people?: "world" | "sign-up", otlp?: string, facts?: Facts, empty = false): Effect.Effect<Exercised> =>
   Effect.gen(function* () {
-    const runs = yield* Effect.forEach(project.journeys, (j, i) => Journeys.run(project, url, j, i, people, facts));
+    const runs = yield* Effect.forEach(project.journeys, (j, i) => Journeys.run(project, url, j, i, people, facts, empty));
     const calls = runs.flatMap((r) => r.calls);
     const first = yield* collector.traces(calls.map((c) => ({ trace: c.trace, parent: c.parent })));
     const roots = otlp === undefined ? [] : calls.flatMap((c) => rootOf({ trace: c.trace, span: c.parent, journey: c.journey, step: c.step, operation: c.operation, status: c.status }, first.get(c.trace)) ?? []);
     if (otlp !== undefined) yield* exportRoots(otlp, roots);
     const rooted = new Set(roots.map((r) => r.traceId));
     const traces = roots.length === 0 ? first : yield* collector.traces(calls.map((c) => ({ trace: c.trace, parent: c.parent, rooted: rooted.has(c.trace) })));
+    const journeys = journeyLines(runs, traces, empty);
+    if (empty) return { journeys, evals: { lines: [], failed: 0 }, verdicts: [], judged: [], failedTraces: journeys.failedTraces };
     const evidence = Evals.gather(calls, traces);
-    const journeys = journeyLines(runs, traces);
     const verdicts = Evals.judge(project, evidence);
     const judged = journeys.failed === 0 ? verdicts : verdicts.map((v) => ({ ...v, failures: [...v.failures, "a journey failed"] }));
     // The traces of what went wrong: a journey's own, and the calls an eval named by their `where`.

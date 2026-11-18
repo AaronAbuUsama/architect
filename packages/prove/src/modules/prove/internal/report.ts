@@ -21,7 +21,7 @@ const stoppedLine = (run: JourneyRun, traces: ReadonlyMap<string, Trace>) => {
   return `journey ${run.name} ✘ ${run.stopped}${defect ? ` (${String(defect)})` : ""}; no step ran`;
 };
 
-export const journeyLines = (runs: ReadonlyArray<JourneyRun>, traces: ReadonlyMap<string, Trace>) => {
+export const journeyLines = (runs: ReadonlyArray<JourneyRun>, traces: ReadonlyMap<string, Trace>, empty = false) => {
   const lines: Array<string> = [];
   /** The traces of every call that went wrong, for `prove --view` to point at. */
   const failedTraces: Array<{ readonly trace: string; readonly what: string }> = [];
@@ -34,10 +34,22 @@ export const journeyLines = (runs: ReadonlyArray<JourneyRun>, traces: ReadonlyMa
       failed++;
       continue;
     }
-    const steps = run.steps.map((s) => ({ s, failures: [...s.failures, ...spanFailures(s, traces.get(s.trace))] }));
+    const steps = run.steps.map((s) => {
+      const trace = traces.get(s.trace);
+      const defect = empty ? trace?.spans.find((span) => typeof span.attrs["defect"] === "string")?.attrs["defect"] : undefined;
+      return { s, failures: [...(typeof defect === "string" ? [defect] : []), ...s.failures, ...spanFailures(s, trace)] };
+    });
     const bad = steps.filter((x) => x.failures.length > 0);
     lines.push(`journey ${run.name} ${bad.length === 0 ? "✔" : "✘"} ${steps.length - bad.length}/${steps.length} steps`);
-    for (const { s, failures } of bad) for (const f of failures) lines.push(`  ✘ "${s.title}": ${f}`);
+    if (empty) {
+      for (const { s, failures } of steps) {
+        lines.push(failures.length === 0
+          ? `  ✔ "${s.title}": proved by the description`
+          : `  ✘ "${s.title}": ${failures.join("; ")}`);
+      }
+    } else {
+      for (const { s, failures } of bad) for (const f of failures) lines.push(`  ✘ "${s.title}": ${f}`);
+    }
     for (const s of run.skipped ?? []) lines.push(`  skipped "${s.step}": it runs ${s.operation}, which ${s.file} omits`);
     for (const { s } of bad) failedTraces.push({ trace: s.trace, what: `${run.name} "${s.title}"` });
     failed += bad.length;

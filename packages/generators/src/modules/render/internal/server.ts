@@ -5,6 +5,9 @@ import type { Model, OperationModel } from "@orthograph/compiler";
 import type { RenderedFile } from "../types.ts";
 import { GENERATED, camel, handlerAt, lines, opVar, pascal, thingFileAt, toRoot } from "./names.ts";
 import { renderMigration, renderWrangler } from "./worker-config.ts";
+import { renderHandlerScaffold } from "./scaffold.ts";
+
+const emptyPath = (o: OperationModel) => `empty/${o.thing}/${o.verb}.ts`;
 
 /** The machine's refusal, passed to the wrapper when the operation's move starts from a state (D2 #37). */
 const notFromOf = (model: Model, o: OperationModel) => {
@@ -12,7 +15,7 @@ const notFromOf = (model: Model, o: OperationModel) => {
   return o.move && o.move.from.length > 0 && machine ? `, notFrom: "${machine.notFrom.error}"` : "";
 };
 
-const main = (model: Model, name: string): RenderedFile => {
+const main = (model: Model, name: string, empty: boolean): RenderedFile => {
   const ops = Object.values(model.operations);
   const actors = Object.values(model.things).some((t) => t.lives === "actor");
   const handled = ops.filter((o) => o.kind === "operation");
@@ -25,7 +28,12 @@ const main = (model: Model, name: string): RenderedFile => {
   const group = (t: string) => {
     const handles = ops
       .filter((o) => o.thing === t)
-      .map((o) => `      .handle("${o.verb}", ({ payload, request }) => call(${opVar(o)}Served, payload, request.headers).pipe(Effect.provideContext(services)))`);
+      .map((o) => {
+        const serve = empty && o.kind === "operation"
+          ? `request.headers["x-ortho-starting-world"] === "1" ? ${opVar(o)}Served : ${opVar(o)}Scaffolded`
+          : `${opVar(o)}Served`;
+        return `      .handle("${o.verb}", ({ payload, request }) => call(${serve}, payload, request.headers).pipe(Effect.provideContext(services)))`;
+      });
     return [
       `const ${pascal(t)}Live = HttpApiBuilder.group(Api, "${t}", Effect.fn(function* (handlers) {`,
       "  // The services are taken once, when the routes are built; each request keeps its own tracer and span.",
@@ -55,6 +63,7 @@ const main = (model: Model, name: string): RenderedFile => {
       `import { catalog } from "../mcp/src/index.ts";`,
       ops.map((o) => `import * as ${opVar(o)} from "../api/src/${o.thing}/${o.verb}.ts";`),
       handled.map((o) => `import ${opVar(o)}Handler from "${handlerAt("generated/server/main.ts", o)}";`),
+      empty ? handled.map((o) => `import ${opVar(o)}Blank from "./${emptyPath(o)}";`) : [],
       mounted.map((m) => `import ${mountVar(m)} from "${toRoot("generated/server/main.ts")}${model.mounts![m]!.file}";`),
       things.map((t) => `import * as ${camel(t.name)}Thing from "${thingFileAt("generated/server/main.ts", t, "thing")}";`),
       "",
@@ -64,6 +73,7 @@ const main = (model: Model, name: string): RenderedFile => {
         o.kind === "read"
           ? `const ${opVar(o)}Served = Reads.serve({ name: "${o.name}", read: ${opVar(o)}.declaration });`
           : `const ${opVar(o)}Served = Handlers.serve({ name: "${o.name}", operation: ${opVar(o)}.declaration, handler: ${served(o)}${notFromOf(model, o)} });`),
+      empty ? handled.map((o) => `const ${opVar(o)}Scaffolded = Handlers.serve({ name: "${o.name}", operation: ${opVar(o)}.declaration, handler: ${opVar(o)}Blank${notFromOf(model, o)} });`) : [],
       "",
       "/** Each thing and its table: a D1 table, or the name its actors go by. */",
       `const tables = [${things.map((t) => `[thingIn(${camel(t.name)}Thing), "${t.name}"]`).join(", ")}] as const;`,
@@ -193,8 +203,9 @@ const main = (model: Model, name: string): RenderedFile => {
   };
 };
 
-export const renderServer = (model: Model, name: string): ReadonlyArray<RenderedFile> => [
-  main(model, name),
+export const renderServer = (model: Model, name: string, empty = false): ReadonlyArray<RenderedFile> => [
+  main(model, name, empty),
   renderWrangler(name, Object.values(model.things).some((t) => t.lives === "actor")),
   renderMigration(model),
+  ...(empty ? Object.values(model.operations).filter((o) => o.kind === "operation").map((o) => renderHandlerScaffold(o, `generated/server/${emptyPath(o)}`)) : []),
 ];

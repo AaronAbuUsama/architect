@@ -12,7 +12,7 @@ const value = (v: any): unknown =>
   : JSON.stringify(v);
 const attrs = (kvs: ReadonlyArray<any> = []) => Object.fromEntries(kvs.map((kv) => [kv.key, value(kv.value)]));
 
-const spansOf = (doc: any): Array<Span> =>
+export const spansOf = (doc: any): Array<Span> =>
   (doc.resourceSpans ?? []).flatMap((rs: any) =>
     (rs.scopeSpans ?? []).flatMap((ss: any) =>
       (ss.spans ?? []).map((s: any): Span => ({
@@ -21,7 +21,7 @@ const spansOf = (doc: any): Array<Span> =>
         start: Number(BigInt(s.startTimeUnixNano) / 1000n) / 1e3,
       }))));
 
-const logsOf = (doc: any): Array<Log> =>
+export const logsOf = (doc: any): Array<Log> =>
   (doc.resourceLogs ?? []).flatMap((rl: any) =>
     (rl.scopeLogs ?? []).flatMap((sl: any) =>
       (sl.logRecords ?? []).map((l: any): Log => {

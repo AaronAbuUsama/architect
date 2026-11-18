@@ -2,7 +2,7 @@ import { Effect, Schema } from "effect";
 import type { Call, Journey, Operation, Principal, Read, StartingWorld, Thing } from "orthograph";
 import { Blueprint } from "orthograph";
 import { Scripting } from "orthograph/server";
-import type { CallRecord, Facts, JourneyRun, JourneysApi, Project, StepResult } from "./types.ts";
+import type { CallRecord, JourneyRun, JourneysApi, Project, StepResult } from "./types.ts";
 import { loadProject } from "./internal/load.ts";
 import { callOperation, castPeople, doorFacts, mayCall, signUpPeople, stateOf } from "./internal/world.ts";
 import { databaseFacts } from "./internal/database-facts.ts";
@@ -14,7 +14,7 @@ type Codec = Schema.Codec<Record<string, unknown>, Record<string, unknown>>;
 const nameOfOperation = (project: Project, op: Operation | Read) => [...project.operations].find(([, o]) => o === op)?.[0];
 const tableOf = (project: Project) => (thing: Thing) => [...project.things].find(([, t]) => t === thing)?.[0];
 
-const run = (project: Project, url: string, journey: Journey, index: number, how: "world" | "sign-up" = "world", given?: Facts) =>
+const run: JourneysApi["run"] = (project, url, journey, index, how = "world", given, empty = false) =>
   Effect.gen(function* () {
     const world = journey.starts === undefined ? undefined : project.startingWorlds.get(journey.starts);
     // A starting world may begin from another: make the oldest first, so each sees what the one before it gave.
@@ -42,7 +42,7 @@ const run = (project: Project, url: string, journey: Journey, index: number, how
     const env: Record<string, unknown> = { cast: people };
     const facts = { facts: given ?? doorFacts(url), tableOf: tableOf(project) };
 
-    const make = (step: string, call: Call) =>
+    const make = (step: string, call: Call, startingWorld = false) =>
       Effect.gen(function* () {
         const operation = nameOfOperation(project, call.operation) ?? "an undeclared operation";
         const resolved = Scripting.resolve(call.payload, env);
@@ -51,7 +51,7 @@ const run = (project: Project, url: string, journey: Journey, index: number, how
         const person = who?.person ?? "";
         const principal: Principal = who?.person ? { kind: "person", person: who.person, email: who.email } : { kind: "anonymous" };
         const may = yield* mayCall(facts.facts, facts.tableOf, call.operation, payload, principal);
-        const r = yield* callOperation(url, facts.facts, operation, call.operation, payload, people[call.actor]?.token ?? "", call.request);
+        const r = yield* callOperation(url, facts.facts, operation, call.operation, payload, people[call.actor]?.token ?? "", call.request, empty && startingWorld);
         const model = project.model.operations[operation];
         const id = model?.move && r.status === 200 ? subjectId(model, r.wire, r.body) : undefined;
         const state = id === undefined ? undefined : yield* stateOf(facts.facts, model!.thing, id);
@@ -69,7 +69,7 @@ const run = (project: Project, url: string, journey: Journey, index: number, how
     for (const w of lineage) {
       const script = Scripting.script(Object.fromEntries(names.map((n) => [n, Blueprint.signedIn])));
       for (const call of w.makes(script)) {
-        const { record } = yield* make(`starting world ${w.name}`, call);
+        const { record } = yield* make(`starting world ${w.name}`, call, true);
         if (record.status !== 200) return done(`starting world ${w.name}: ${record.operation} ${record.status === 500 ? "died" : `answered ${record.status}`}: ${show(record.body)}`);
       }
       const gives = Scripting.resolve(w.gives(script), env);

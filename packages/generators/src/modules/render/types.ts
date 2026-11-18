@@ -17,4 +17,6 @@ export interface Project {
 
 export interface RenderApi {
   readonly files: (project: Project) => ReadonlyArray<RenderedFile>;
+  /** A temporary local Worker with the original handlers for setup and scaffolds for journey calls. */
+  readonly emptyServer: (project: Project) => ReadonlyArray<RenderedFile>;
 }

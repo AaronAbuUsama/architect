@@ -76,7 +76,7 @@ export const doorFacts = (url: string): Facts => ({
   journal: (trace) => fetchJson(`${url}/_world/facts/journal?trace=${trace}`).pipe(Effect.map((r) => r.body as CallRecord["journal"])),
 });
 
-export const callOperation = (url: string, facts: Facts, name: string, op: Operation | Read, payload: Record<string, unknown>, token: string, request: string | undefined) =>
+export const callOperation = (url: string, facts: Facts, name: string, op: Operation | Read, payload: Record<string, unknown>, token: string, request: string | undefined, startingWorld = false) =>
   Effect.gen(function* () {
     const wire = yield* Schema.encodeUnknownEffect(op.payloadSchema as unknown as Codec)(payload).pipe(Effect.orElseSucceed(() => payload));
     const trace = randomBytes(16).toString("hex");
@@ -87,6 +87,7 @@ export const callOperation = (url: string, facts: Facts, name: string, op: Opera
       headers: {
         "content-type": "application/json", ...(token ? { authorization: `Bearer ${token}` } : {}), traceparent: `00-${trace}-${parent}-01`,
         ...(request === undefined ? {} : { "idempotency-key": request }),
+        ...(startingWorld ? { "x-ortho-starting-world": "1" } : {}),
       },
       body: JSON.stringify(wire),
     });

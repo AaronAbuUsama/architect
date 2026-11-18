@@ -14,12 +14,16 @@ export interface Report {
 export interface ProveApi {
   /**
    * Prove the project at `root` on a local world served on `port`. Nothing is left running when the scope closes:
-   * wrangler is stopped and the collector container removed. Fails only when it can't run at all (no model, no
-   * Docker, no world); a project that runs and fails its journeys or evals is a report with `passed: false`.
+   * wrangler is stopped and the collector is closed. A project that runs and fails its journeys or evals is a
+   * report with `passed: false`.
    */
   readonly run: (options: {
     readonly root: string;
     readonly port: number;
+    /** Run journey calls on scaffolds and print results without recording proof verdicts. */
+    readonly empty?: boolean;
+    /** Run one journey by its declared name, without recording proof verdicts. */
+    readonly only?: string;
     /** Start the local viewer first (it stays up: `telemetry stop` ends it) and, for every failure, print its trace id and link. */
     readonly view?: boolean;
     /** The process environment, for the sinks' tokens (`AXIOM_TOKEN`): only an entry file reads it. */

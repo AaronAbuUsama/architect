@@ -5,6 +5,7 @@ import { Viewer } from "#modules/viewer/service.js";
 import { CollectorFailed, type CollectorsApi } from "./types.ts";
 import { ownedName, removeCollector, runCollector, sweepOrphans } from "./internal/docker.ts";
 import { FileSource } from "./internal/file-source.ts";
+import { close, listen } from "./internal/local.ts";
 
 export { FileSource } from "./internal/file-source.ts";
 export { AxiomSource } from "./internal/axiom-source.ts";
@@ -39,6 +40,11 @@ const emptied = (dir: string) => {
 const viewerEndpoint = Viewer.running().pipe(Effect.map((v) => v?.otlpFromContainers));
 
 export const Collectors: CollectorsApi = {
+  local: (dir, strip) =>
+    Effect.try({ try: () => emptied(dir), catch: () => new CollectorFailed({ message: `couldn't prepare the collector folder ${dir}` }) }).pipe(
+      Effect.andThen(Effect.acquireRelease(listen(dir, strip), close)),
+      Effect.map(({ url }) => ({ url, ...FileSource.open(dir) })),
+    ),
   start: (dir, options) =>
     Effect.gen(function* () {
       yield* sweepOrphans();
