@@ -78,8 +78,12 @@ export default Blueprint.thing({ description: "An entry in the ledger.", fields:
 A handler never writes to a store. It writes to `Records`, which holds every write back until the call ends. Then
 the handler wrapper makes one commit and looks at the one thing it returns:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=71-72
-const committed = yield* store.commit({ writes: yield* unit.writes, entries, ...request });
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=85-90
+const writes = yield* unit.writes;
+const committed = yield* store.commit({ writes, entries, ...request }).pipe(
+  Effect.tap((outcome) => Effect.annotateCurrentSpan("commit.outcome", outcome)),
+  spanned(`${name}.commit`, { "step.kind": "commit", "commit.writes": writes.length, "commit.entries": entries.length }),
+);
 if (committed === "conflict") return yield* new Conflict();
 ```
 
@@ -123,22 +127,21 @@ Every update carries the version this call read. The commit lands only if the st
 kind enforces it in its own way. The `database` kind turns a stale version into a NULL on a NOT NULL column, which
 fails D1's whole batch:
 
-```ts file=packages/host-cloudflare/src/modules/store/service.ts lines=27-28
+```ts file=packages/host-cloudflare/src/modules/store/internal/commit.ts lines=23-24
 // The guard: a stale version becomes NULL on a NOT NULL column, which fails the whole batch (D2 #36).
 const guard = sql`"version" = CASE WHEN "version" = ${w.version} THEN "version" + 1 ELSE NULL END`;
 ```
 
-```ts file=packages/host-cloudflare/src/modules/store/service.ts lines=36-45
-const commitD1 = ({ writes, entries, request }: Commit) =>
-  Effect.gen(function* () {
-    const keep = request ? [sql`INSERT INTO "_requests" ${sql.insert({ key: request.key, answer: request.answer })}`] : [];
-    const statements = [...(yield* Effect.forEach(writes, statementOf)), ...entries.map(journalOf), ...keep];
-    if (statements.length === 0) return "committed" as const;
-    return yield* d1.batch(statements).pipe(
-      Effect.as("committed" as const),
-      Effect.catch((e) => (lostGuard(e) ? Effect.succeed("conflict" as const) : Effect.die(e))),
-    );
-  });
+```ts file=packages/host-cloudflare/src/modules/store/internal/commit.ts lines=32-40
+return Effect.gen(function* () {
+  const keep = request ? [sql`INSERT INTO "_requests" ${sql.insert({ key: request.key, answer: request.answer })}`] : [];
+  const statements = [...(yield* Effect.forEach(writes, statementOf)), ...entries.map(journalOf), ...keep];
+  if (statements.length === 0) return "committed" as const;
+  return yield* d1.batch(statements).pipe(
+    Effect.as("committed" as const),
+    Effect.catch((e) => (lostGuard(e) ? Effect.succeed("conflict" as const) : Effect.die(e))),
+  );
+});
 ```
 
 The `actor` kind has one Durable Object per instance, so it checks the version inside one SQLite transaction:
@@ -157,12 +160,12 @@ return this.ctx.storage.transactionSync((): Committed => {
 A `conflict` never reaches the caller. The wrapper runs the whole call again from the top, reading fresh, up to 64
 times:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=91-98
-const loop = (left: number): Effect.Effect<object, unknown, unknown> =>
-  attempt(payload, principal, key).pipe(
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=110-117
+const loop = (number: number): Effect.Effect<object, unknown, unknown> =>
+  attempt(payload, principal, key, number).pipe(
     Effect.catch((e) =>
       !(e instanceof Conflict) ? Effect.fail(e)
-      : left > 1 ? loop(left - 1)
+      : number < ATTEMPTS ? loop(number + 1)
       : Effect.die(new Error(`${name} lost its version race ${ATTEMPTS} times in a row`)),
     ),
   );
@@ -190,9 +193,9 @@ The rule isn't about which software it is. It is about whether a place can take 
 A call's writes all land in its thing's store. Today the `database` kind refuses a commit that mixes owners, at run
 time:
 
-```ts file=packages/host-cloudflare/src/modules/store/service.ts lines=66-67
-const owners = new Set(commit.writes.map((w) => w.thing.lives));
-if (owners.size > 1) return Effect.die(new Error("a call wrote to both a database thing and an actor: one owner per call in layer one (D2 #38)"));
+```ts file=packages/host-cloudflare/src/modules/store/service.ts lines=49-50
+const owners = new Set(commit.writes.map((w) => ownerOf(w.thing)));
+if (owners.size > 1) return Effect.die(new Error("a call wrote to more than one store: one call commits to one store, and work across stores is a workflow (K3 item 5)"));
 ```
 
 From M1.17 the compiler refuses an operation whose steps write to two stores, before anything runs. Work across stores
@@ -203,7 +206,7 @@ runs as a workflow: each step commits to one store, and the workflow remembers w
 A kind declares what it can serve, and the compiler refuses a read the kind can't. An actor holds one instance, so it
 has nothing to list, and the compiler already says so:
 
-```ts file=packages/compiler/src/modules/model/internal/describe.ts lines=139-139
+```ts file=packages/compiler/src/modules/model/internal/describe.ts lines=177-177
 if (list && t?.thing?.lives === "actor") problems.push(`${file}: a list read needs a thing that lives in the database, and ${thing} lives as actors`);
 ```
 
@@ -214,8 +217,8 @@ To list things that live as actors, or across stores, declare a view.
 Migrations are generated from the model, one set per store, and never for a source. Today there is one store, so
 there is one file, with a version column on every table:
 
-```ts file=packages/generators/src/modules/render/internal/worker-config.ts lines=61-66
-Object.values(model.things).filter((t) => t.lives === "database").map((t) => {
+```ts file=packages/generators/src/modules/render/internal/worker-config.ts lines=59-64
+things.map((t) => {
   const columns = Object.keys(t.fields).map((f) => (f === "id" ? `  "id" TEXT PRIMARY KEY` : `  "${f}" TEXT NOT NULL`));
   // Empty until the thing's first move sets it.
   if (t.machine) columns.push(`  "state" TEXT`);

@@ -2,6 +2,7 @@ import { Schema } from "effect";
 import { structOf, valueOf } from "#modules/things/service.js";
 import type { Allowed } from "#modules/roles/types.js";
 import { Values } from "#modules/values/service.js";
+import { Visibilities } from "#modules/visibility/service.js";
 import type { FieldsInput, Thing } from "#modules/things/types.js";
 import type { Budget, CallStep, Operation, OperationsApi, Order, Step } from "./types.ts";
 import { Blanks } from "#modules/blanks/service.js";
@@ -9,8 +10,12 @@ import { Blanks } from "#modules/blanks/service.js";
 /** Fields not written yet (`Blueprint.todo`) have no schema yet: until they're filled, nothing decodes to them. */
 const filled = (fields: FieldsInput): FieldsInput => (Blanks.isBlank(fields) ? {} : fields);
 
-/** A machine state as a read answers it: text. */
-const State = Values.text({ max: 64 });
+/** The caller may supply any text as a filter. A returned state is a machine label. */
+const StateFilter = Values.text({ max: 64 });
+const State = Visibilities.traced(StateFilter);
+
+/** Each list item has the thing's fields and the same state field as a read by id. */
+export const listItemFields = (thing: Thing): FieldsInput => ({ ...thing.fields, state: State });
 
 type ByIdSpec = { readonly by: "id"; readonly fields: ReadonlyArray<string>; readonly allowed: ReadonlyArray<Allowed>; readonly budget?: Budget };
 type ListSpec = { readonly where: ReadonlyArray<string>; readonly order: Order; readonly page: number; readonly allowed: ReadonlyArray<Allowed>; readonly budget?: Budget };
@@ -39,12 +44,12 @@ const Cursor = Values.text({ max: 64 });
 const listRead = (thing: Thing, spec: ListSpec) => {
   const where = Blanks.isBlank(spec.where) ? [] : spec.where;
   const payload: FieldsInput = {
-    ...Object.fromEntries(where.map((f) => [f, f === "state" ? State : thing.fields[f]!] as const)),
+    ...Object.fromEntries(where.map((f) => [f, f === "state" ? StateFilter : thing.fields[f]!] as const)),
     cursor: Cursor,
   };
   const optional = Object.keys(payload);
   const fields = [...Object.keys(thing.fields), "state"];
-  const item = structOf({ ...thing.fields, state: State });
+  const item = structOf(listItemFields(thing));
   const answer: FieldsInput = { items: Values.value(Schema.Array(item)), next: Values.value(Schema.NullOr(Schema.String)) };
   const payloadSchema = Schema.Struct(Object.fromEntries(Object.entries(payload).map(([k, f]) => [k, Schema.optionalKey(valueOf(f).schema)])));
   return Object.freeze({
@@ -74,7 +79,7 @@ export const Operations: OperationsApi = {
     }) as unknown as Operation<typeof thing, typeof spec.payload, typeof spec.answer, never, never> as never,
   read: ((thing: Thing, spec: ReadSpec) => ("where" in spec ? listRead(thing, spec) : idRead(thing, spec))) as OperationsApi["read"],
   step: {
-    database: () => Object.freeze({ kind: "step", type: "database" }) as Step<"database">,
+    database: (spec) => Object.freeze({ kind: "step", type: "database", ...(spec?.writes ? { writes: Object.freeze([...spec.writes]) } : {}) }) as Step<"database">,
     wait: () => Object.freeze({ kind: "step", type: "wait" }) as Step<"wait">,
     call: (call) => Object.freeze({ kind: "step", type: "call", call }) as CallStep,
   },

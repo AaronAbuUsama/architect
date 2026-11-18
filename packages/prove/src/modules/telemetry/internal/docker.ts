@@ -30,11 +30,13 @@ export const collectorConfig = ({ strip, viewer }: CollectorOptions) => {
     "  attributes/personal:", "    actions:", "      - { pattern: '^(user\\..*|organization\\.id)$', action: delete }",
     "  resource/personal:", "    attributes:", "      - { pattern: '^(user\\..*|organization\\.id)$', action: delete }",
     ...(strip.length > 0 ? ["  attributes/private:", "    actions:", ...strip.flatMap((k) => [`      - key: ${JSON.stringify(k)}`, "        action: delete"])] : []),
-    "exporters:", "  file/traces:", "    path: /out/traces.jsonl", "    flush_interval: 10ms", "  file/logs:", "    path: /out/logs.jsonl", "    flush_interval: 10ms",
+    "exporters:",
+    ...["traces", "logs", "metrics"].flatMap((signal) => [`  file/${signal}:`, `    path: /out/${signal}.jsonl`, "    flush_interval: 10ms"]),
     ...(viewer ? ["  otlphttp/viewer:", `    endpoint: ${viewer}`, "    timeout: 2s", "    retry_on_failure: { enabled: false }", "    sending_queue: { enabled: true, queue_size: 1000 }"] : []),
     "service:", "  pipelines:",
     `    traces: { receivers: [otlp], processors: [${chain.join(", ")}], exporters: ${to("file/traces")} }`,
     `    logs: { receivers: [otlp], processors: [${chain.join(", ")}], exporters: ${to("file/logs")} }`,
+    `    metrics: { receivers: [otlp], processors: [${chain.join(", ")}], exporters: ${to("file/metrics")} }`,
     "",
   ].join("\n");
 };

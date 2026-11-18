@@ -20,7 +20,7 @@ const fixturesConfig = (): string => {
 };
 
 const lint = (file: string) => {
-  const run = spawnSync("pnpm", ["exec", "oxlint", "-c", fixturesConfig(), file], { cwd: root, encoding: "utf8" });
+  const run = spawnSync(join(root, "node_modules/.bin/oxlint"), [ "-c", fixturesConfig(), file], { cwd: root, encoding: "utf8" });
   return { exit: run.status, output: run.stdout + run.stderr };
 };
 
@@ -33,6 +33,13 @@ describe("module boundaries", () => {
     const { exit, output } = lint(file);
     expect(exit).toBe(1);
     expect(output).toContain(rule);
+  });
+
+  it("refuses static, dynamic and type viem imports outside chain-evm", { timeout: 60_000 }, () => {
+    const { exit, output } = lint("packages/lint/test/fixtures/boundaries/imports-viem.ts");
+    expect(exit).toBe(1);
+    expect(output.match(/Import EVM functionality from @orthograph\/chain-evm instead of viem/g)).toHaveLength(4);
+    expect(lint("packages/chain-evm/src/main.ts").exit).toBe(0);
   });
 
   it("passes when blueprint imports Effect", () => {

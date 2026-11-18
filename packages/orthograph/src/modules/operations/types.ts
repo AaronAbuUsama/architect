@@ -11,6 +11,8 @@ import type { TypeOf } from "#modules/values/types.js";
 export interface Step<K extends StepKind = StepKind> {
   readonly kind: "step";
   readonly type: K;
+  /** A `database` step: the things it writes, when not just the operation's own. The compiler refuses writes to two stores (K3 item 5). */
+  readonly writes?: ReadonlyArray<Thing>;
 }
 /** A step that calls out through a mounted adapter: `call` is what the mount offers, `<mount>.calls.<name>`. */
 export interface CallStep extends Step<"call"> {
@@ -161,7 +163,8 @@ export interface OperationsApi {
     }): Read<T, ListPayload<T, W>, Page<ListItem<T>>>;
   };
   readonly step: {
-    readonly database: () => Step<"database">;
+    /** Writes the operation's thing, or the things named: all of them must live in one store. */
+    readonly database: (spec?: { readonly writes?: ReadonlyArray<Thing> }) => Step<"database">;
     readonly wait: () => Step<"wait">;
     /** A call out through an adapter the app mounted and `include`d the call of (M1-plugins section 9). */
     readonly call: (call: Call) => CallStep;

@@ -1,5 +1,6 @@
 import { Cause, Data, Effect, Ref, Schema } from "effect";
 import type { CallStep, Operation, Principal } from "orthograph";
+import { ErrorNames } from "orthograph/server";
 import { Access } from "#modules/access/service.js";
 import { Calls } from "#modules/calls/service.js";
 import type { CallRunner, CallWiring } from "#modules/calls/types.js";
@@ -8,6 +9,7 @@ import { Records, Store } from "#modules/records/types.js";
 import { Busy } from "#modules/work/types.js";
 import { BlankReached, InvalidPayload, type HandlerApi } from "./types.ts";
 import { answerAttributes, payloadAttributes, principalAttributes } from "./internal/attributes.ts";
+import { measureCall } from "./internal/call-metrics.ts";
 import { applyMove, checkFrom, chooseOutcome } from "./internal/move.ts";
 import { recordingLogs } from "./internal/decided.ts";
 import { spanned } from "./internal/span.ts";
@@ -33,6 +35,10 @@ const serve = ({ name, operation, handler, notFrom, calls }: { readonly name: st
   const op = operation as Operation;
   const decode = Schema.decodeUnknownEffect(op.payloadSchema as unknown as AnyCodec);
   const check = Schema.encodeEffect(op.answerSchema as unknown as AnyCodec);
+  const refusals = new Set(op.errors.map(ErrorNames.nameOf).filter((tag) => tag !== undefined));
+  if (notFrom !== undefined) refusals.add(notFrom);
+  if (op.allowed.some((role) => role.kind !== "anyone")) refusals.add("NotAllowed");
+  const callRefusals = new Set([...refusals, "InvalidPayload"]);
   const steps = Object.fromEntries(
     // Each step is its own span, marked with its kind: a `database` step's work is the store's, a `wait` step's a timer's.
     Object.entries(op.steps).map(([key, step]) => [
@@ -46,13 +52,13 @@ const serve = ({ name, operation, handler, notFrom, calls }: { readonly name: st
   // One attempt: who may call, then the operation's own span (opened only once the caller may call, so a refused
   // caller leaves no handler span), the machine's check, the handler, its answer checked, its move, one commit.
   const decodeAnswer = Schema.decodeUnknownEffect(op.answerSchema as unknown as AnyCodec);
-  const attempt = (payload: object, principal: Principal, key: string | undefined) =>
+  const attempt = (payload: object, principal: Principal, key: string | undefined, number: number) =>
     Effect.gen(function* () {
       const store = yield* Store;
       const unit = yield* Unit.make(store);
       const withRecords = Effect.provideService(Records, unit.records);
-      yield* Access.check({ allowed: op.allowed, payloadFields: op.payload, payload, principal, thing: op.thing }).pipe(withRecords);
-      const logs = yield* recordingLogs;
+      yield* Access.check({ allowed: op.allowed, payloadFields: op.payload, payload, principal, thing: op.thing }).pipe(withRecords, Effect.withTracerEnabled(false));
+      const logs = yield* recordingLogs(payload, op.payload);
       return yield* Effect.gen(function* () {
         const busy = yield* Busy;
         yield* Effect.annotateCurrentSpan(payloadAttributes(payload, op.payload));
@@ -76,19 +82,24 @@ const serve = ({ name, operation, handler, notFrom, calls }: { readonly name: st
         const outcome = yield* Ref.get(chosen);
         const entries = outcome === undefined ? [] : [yield* applyMove(name, op, payload, answer, outcome, unit)];
         const request = key === undefined ? {} : { request: { key, answer: JSON.stringify(wire) } };
-        const committed = yield* store.commit({ writes: yield* unit.writes, entries, ...request });
+        const writes = yield* unit.writes;
+        const committed = yield* store.commit({ writes, entries, ...request }).pipe(
+          Effect.tap((outcome) => Effect.annotateCurrentSpan("commit.outcome", outcome)),
+          spanned(`${name}.commit`, { "step.kind": "commit", "commit.writes": writes.length, "commit.entries": entries.length }),
+        );
         if (committed === "conflict") return yield* new Conflict();
         return answer;
       }).pipe(
         // Every refusal and every defect is written on the operation's span: what `prove` reads.
         // A refusal also carries the log that decided it, when the handler logged one before refusing.
-        Effect.tapCause((cause) =>
-          Cause.hasDies(cause)
-            ? Effect.annotateCurrentSpan({ defect: Cause.pretty(cause).split("\n")[0] ?? "" })
-            : logs.last.pipe(Effect.flatMap((log) =>
-                Effect.annotateCurrentSpan({ refusal: tagOf(Cause.squash(cause)), ...(log === undefined ? {} : { "refusal.log": log }) }))),
-        ),
-        spanned(name, { operation: name, ...principalAttributes(principal) }),
+        Effect.tapCause((cause) => {
+          if (Cause.hasDies(cause)) return Effect.annotateCurrentSpan({ defect: Cause.pretty(cause).split("\n")[0] ?? "" });
+          const refusal = Cause.squash(cause);
+          if (refusal instanceof Conflict) return Effect.void;
+          return logs.last.pipe(Effect.flatMap((log) =>
+            Effect.annotateCurrentSpan({ refusal: tagOf(refusal), ...(log === undefined ? {} : { "refusal.log": log }) })));
+        }),
+        spanned(name, { operation: name, attempt: number, ...principalAttributes(principal) }),
       );
     });
 
@@ -96,15 +107,15 @@ const serve = ({ name, operation, handler, notFrom, calls }: { readonly name: st
     // Keyed by operation and caller as well, so one caller's key never answers another's call.
     const who = principal.kind === "person" ? principal.person : "anonymous";
     const key = op.idempotent === "request" && request !== undefined ? `${name}|${who}|${request}` : undefined;
-    const loop = (left: number): Effect.Effect<object, unknown, unknown> =>
-      attempt(payload, principal, key).pipe(
+    const loop = (number: number): Effect.Effect<object, unknown, unknown> =>
+      attempt(payload, principal, key, number).pipe(
         Effect.catch((e) =>
           !(e instanceof Conflict) ? Effect.fail(e)
-          : left > 1 ? loop(left - 1)
+          : number < ATTEMPTS ? loop(number + 1)
           : Effect.die(new Error(`${name} lost its version race ${ATTEMPTS} times in a row`)),
         ),
       );
-    return loop(ATTEMPTS);
+    return loop(1);
   };
   return {
     name,
@@ -112,8 +123,9 @@ const serve = ({ name, operation, handler, notFrom, calls }: { readonly name: st
       decode(raw).pipe(
         Effect.mapError((e) => new InvalidPayload({ issues: e.message })),
         Effect.flatMap((payload) => run(payload, principal)),
+        measureCall(name, principal, callRefusals),
       ),
-    run,
+    run: (payload: object, principal: Principal, request?: string) => run(payload, principal, request).pipe(measureCall(name, principal, refusals)),
   };
 };
 

@@ -70,7 +70,7 @@ export const Secret = Blueprint.visibility.secret(Blueprint.text({ max: 512 }));
 A value is a schema with a name and a visibility. Orthograph gives you five makers, and `Blueprint.value` names
 anything else, such as an Effect `Schema.Literals`:
 
-```ts file=packages/orthograph/src/modules/values/types.ts lines=23-35
+```ts file=packages/orthograph/src/modules/values/types.ts lines=25-37
 export interface ValuesApi {
   /** Name a type: `export const Amount = Blueprint.value(Blueprint.uint(128))`. */
   readonly value: <S extends Schema.Constraint>(schema: S | Value<S>) => Value<S>;
@@ -117,7 +117,7 @@ yield* steps.insert(records.insert(Sheet, { id: sheet, title, places, taken: 0n 
 
 A field is a value that belongs to a thing, under a key. It knows its thing, its key and what it was made from:
 
-```ts file=packages/orthograph/src/modules/things/types.ts lines=5-15
+```ts file=packages/orthograph/src/modules/things/types.ts lines=6-18
 /** A field of one thing, which another thing or a payload can reuse: `Organization.fields.id`. */
 export interface Field<V extends Value = Value> {
   readonly kind: "field";
@@ -128,6 +128,8 @@ export interface Field<V extends Value = Value> {
   readonly from: Field | undefined;
   /** Who may see this field's value: its own mark, or that of the value or field it was made from. */
   readonly visibility: Visibility;
+  /** Explicit opt-in to tracing a public text field, inherited from its declaration. */
+  readonly traced?: true;
 }
 ```
 
@@ -160,11 +162,13 @@ as a string, is on [blueprint](blueprint.mdx).
 
 There are three visibilities. Public is the default:
 
-```ts file=packages/orthograph/src/modules/visibility/types.ts lines=14-29
+```ts file=packages/orthograph/src/modules/visibility/types.ts lines=14-31
 /** `public`; `secret` (a password, token, key or session: nobody's, recorded nowhere); or private to some roles. */
 export type Visibility = "public" | "secret" | PrivateTo;
 
 export interface VisibilityApi {
+  /** Allow a public text value or field to appear in traces. Preserves its visibility and schema. */
+  readonly traced: <const X extends Value | Field>(x: X) => X;
   readonly visibility: {
     /**
      * Mark a value, or one field of a thing, as secret: `Blueprint.visibility.secret(Blueprint.text({ max: 128 }))`.
@@ -179,7 +183,8 @@ export interface VisibilityApi {
 }
 ```
 
-- **public**: anyone the operation answers may see it, and it may be written anywhere. This is the default.
+- **public**: anyone the operation answers may see it. This is the default. A public text field needs a separate mark
+  to appear in telemetry.
 - **secret**: a password, a token, a key. It goes to the caller who asked for it and nowhere else.
 - **private to roles**: a value only some roles may see, such as a balance an admin may read.
 
@@ -231,18 +236,15 @@ Where each row is decided:
   `packages/language-effect/src/modules/handler/internal/attributes.ts:39`). The journal is a record anyone who
   reads it can see. So a journey can check a secret field of an event only through the answer, never through the
   event. How events reach the journal is [machines](machines.mdx).
-- **Spans** take an allowlist: only a declared public field becomes `payload.<field>` or `answer.<field>`
-  (`packages/language-effect/src/modules/handler/internal/attributes.ts:10`). A field the declaration doesn't name is
-  left out too, so it fails closed. Logs your handler writes are yours, but `ortho prove` checks that no secret value
-  it sent or was answered appears in any span or log of the call. What a span says is [traces](traces.mdx).
+- **Spans** take `payload.<field>` and `answer.<field>` from declared public fields. Public text needs
+  `Blueprint.traced(...)` (`packages/language-effect/src/modules/handler/internal/attributes.ts:10`). `ortho prove`
+  checks spans and logs for secret, private and untraced text values. What a span says is [traces](traces.mdx).
 - **The model** leaves public out, writes `"secret"`, or names the roles. A private field whose role isn't exported
   from a `roles.ts` is a problem `ortho check` reports
   (`packages/compiler/src/modules/model/internal/describe.ts:29`).
 
-Free text is the one public value that is still traced. The sheet's `title` ("Saturday clean-up") is a public `text`,
-so today it is written on every `sheet.open` span as `payload.title`. M1.19 stops that: a public `Blueprint.text()`
-stays in answers and events, but is never a span attribute unless it is marked. A title is something a person types,
-so it stays unmarked; a short code you search by would be marked:
+The sheet's public `title` stays in answers and events. Its `Blueprint.text()` declaration keeps it out of the
+operation's span. A short code you search by can opt in with `Blueprint.traced(...)`:
 
 ```ts planned=M1.19 path=blueprint/values/codes.ts
 export const Ref = Blueprint.traced(Blueprint.value(Blueprint.text({ max: 12 })));
@@ -255,7 +257,7 @@ export const Ref = Blueprint.traced(Blueprint.value(Blueprint.text({ max: 12 }))
 | | public | secret | private to roles |
 |---|---|---|---|
 | Use it for | ids, counts, states, names you search by | passwords, tokens, keys, a session handed over once | a value some roles may read and others may not |
-| You can find it in a trace | yes (free text from M1.19 only if marked) | no | no |
+| You can find it in a trace | yes, with `Blueprint.traced` required for free text | no | no |
 | It is in the event, so a view or a journey's `emits` can read it | yes | no | no |
 | An agent can send it or read it over MCP | yes | no | only an agent acting for someone who holds the role |
 

@@ -79,14 +79,17 @@ workshop, from layer 4.
 `lives` is the one place a declaration says where a thing's state is. Today it takes one of two built-in kinds, and
 the default is a D1 row:
 
-```ts file=packages/orthograph/src/modules/things/types.ts lines=26-32
-  /** Who owns its state: a D1 row with a version column (the default), or a Durable Object per instance (D1 #1). */
-  readonly lives: Lives;
+```ts file=packages/orthograph/src/modules/things/types.ts lines=29-38
+  /** The kind of place its state is kept: a D1 row with a version column (the default), or a Durable Object per instance (D1 #1). */
+  readonly lives: StoreKind;
+  /** The declared store it lives in (K3), when `lives` named one; absent for the project's default store. */
+  readonly store: Store | undefined;
   /** The prefix of this thing's refusal codes (`AL` in `[AL-002]`); the compiler takes two letters of its name when unset. */
   readonly code: string | undefined;
 }
 
-export type Lives = "database" | "actor";
+/** The kinds of store; open, because a host or a language supplies more (`chain`). */
+export type StoreKind = "database" | "actor" | (string & {});
 ```
 
 K3 opens that list: a store is declared under `blueprint/stores/`, named by its path, and `lives` takes it. A

@@ -1,11 +1,11 @@
 import { Effect } from "effect";
 import { BlueprintSource, type PluginPackage } from "#modules/source/types.js";
-import { readLayout, type ThingFiles } from "#modules/model/internal/layout.js";
+import { readLayout, type StoreFile, type ThingFiles } from "#modules/model/internal/layout.js";
 import { hashOf } from "#modules/model/internal/hash.js";
 import type { CallReach, MountModel, MountsApi } from "./types.ts";
 import { chosenOf, choicesIn } from "./internal/choices.ts";
 import { callsOf } from "./internal/calls.ts";
-import { renamed } from "./internal/fold.ts";
+import { renamed, renamedStores } from "./internal/fold.ts";
 import { applyVerbs } from "./internal/verbs.ts";
 import { needsOf, type Matched } from "./internal/needs.ts";
 import { attributed } from "./internal/attribute.ts";
@@ -41,13 +41,14 @@ const standInOf = (descriptor: unknown): MountModel["standIn"] => {
 
 export const Mounts: MountsApi = {
   fold: (layout) => Effect.gen(function* () {
-    if (layout.mounts.size === 0) return { things: new Map(), mounts: {}, calls: new Map(), problems: [] };
+    if (layout.mounts.size === 0) return { things: new Map(), stores: new Map(), mounts: {}, calls: new Map(), problems: [] };
     const source = yield* BlueprintSource;
     const problems: Array<string> = [];
     const plugins = yield* source.plugins.pipe(Effect.catch((e) => Effect.sync(() => { problems.push(e.message); return [] as ReadonlyArray<PluginPackage>; })));
     const matched = match(layout, plugins, problems);
     const things = new Map<string, ThingFiles>();
     const calls = new Map<unknown, CallReach>();
+    const stores = new Map<string, StoreFile>();
     const brought = new Map<string, Matched>();
     const mounts: Record<string, MountModel> = {};
 
@@ -60,12 +61,19 @@ export const Mounts: MountsApi = {
       let verbs: Pick<MountModel, "omitted" | "narrowed" | "calls" | "layer" | "standIn"> = {};
       if (me.kind === "feature" || me.kind === "adapter") {
         // An adapter adds no operations, but its errors are declared in its things, which the model names like a feature's.
-        const own = readLayout(files.success.files.filter((f) => f.path.startsWith("things/")), (path) => `${plugin.name}/blueprint/${path}`);
+        const own = readLayout(files.success.files.filter((f) => f.path.startsWith("things/") || (me.kind === "feature" && f.path.startsWith("stores/"))), (path) => `${plugin.name}/blueprint/${path}`);
         problems.push(...own.problems);
         // Each thing gets its own verbs map, so an omit changes only this mount's copy.
         const mine = renamed(own, name, plugin.name, plugin.version).map((t) => ({ ...t, verbs: new Map(t.verbs) }));
         const applied = applyVerbs(file, plugin.name, mount, mine, layout);
         problems.push(...applied.problems);
+        for (const s of renamedStores(own, name, plugin.name, plugin.version)) {
+          const app = layout.stores.get(s.name);
+          const other = stores.get(s.name);
+          if (app) problems.push(`${file}: ${plugin.name} brings store ${s.name}, and the blueprint has one by that name, ${app.file}: mount it under another name`);
+          else if (other) problems.push(`${file}: ${plugin.name} brings store ${s.name}, and ${other.file} brings one by that name: mount one under another name`);
+          else stores.set(s.name, s);
+        }
         verbs = { ...(applied.omitted.length > 0 ? { omitted: applied.omitted } : {}), ...(Object.keys(applied.narrowed).length > 0 ? { narrowed: applied.narrowed } : {}) };
         for (const t of mine) {
           const app = layout.things.get(t.name);
@@ -87,7 +95,7 @@ export const Mounts: MountsApi = {
       const entry = { kind: me.kind as MountModel["kind"], file, package: plugin.name, version: plugin.version, integrity: files.success.integrity, chosen, ...verbs, ...(needs.needs.length > 0 ? { needs: needs.needs } : {}) };
       mounts[name] = { ...entry, hash: hashOf({ ...entry, file: undefined }) };
     }
-    return { things, mounts, calls, problems };
+    return { things, stores, mounts, calls, problems };
   }),
   attributed,
 };

@@ -1,5 +1,5 @@
 // Reads the blueprint's layout: which file holds what, and the name each declaration takes from its path or export.
-import type { AnyErrorClass, Environment, Event, Machine, Mount, Operation, Read, Role, Thing, Value } from "orthograph";
+import type { AnyErrorClass, Environment, Event, Machine, Mount, Operation, Read, Role, Store, Thing, Value } from "orthograph";
 import type { LoadedFile } from "#modules/source/types.js";
 import type { CallReach } from "#modules/mounts/types.js";
 
@@ -9,6 +9,22 @@ export interface From {
   readonly package: string;
   readonly version: string;
   readonly thing: string;
+}
+
+/** Where a plugin's store came from (M1-plugins section 7): `store` is the plugin's own name for it. */
+export interface StoreFrom {
+  readonly mount: string;
+  readonly package: string;
+  readonly version: string;
+  readonly store: string;
+}
+
+/** A store declared in `blueprint/stores/<name>.ts`, or brought by a mount under the name `<mount>-<name>`. */
+export interface StoreFile {
+  readonly name: string;
+  readonly file: string;
+  readonly store: Store;
+  readonly from?: StoreFrom;
 }
 
 export interface ThingFiles {
@@ -28,6 +44,8 @@ export interface Layout {
   readonly values: Map<string, Value>;
   /** Environments by the name their file gives them: `environments/staging.ts` is `staging`. */
   readonly environments: Map<string, { readonly file: string; readonly declaration: Environment }>;
+  /** Stores by the name their file gives them: `stores/ledger.ts` is `ledger`. */
+  readonly stores: Map<string, StoreFile>;
   readonly things: Map<string, ThingFiles>;
   /** Mounts by the name their file gives them: `features/echo.ts` is `echo`. */
   readonly mounts: Map<string, MountFile>;
@@ -56,7 +74,7 @@ export const NAME = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
  * `blueprint/<path>`; a plugin's are its package specifier, `@x/y/blueprint/<path>`, and only its `things/` are read.
  */
 export const readLayout = (files: ReadonlyArray<LoadedFile>, at: (path: string) => string = (path) => `blueprint/${path}`): Layout => {
-  const layout: Layout = { values: new Map(), environments: new Map(), things: new Map(), mounts: new Map(), calls: new Map(), problems: [] };
+  const layout: Layout = { values: new Map(), environments: new Map(), stores: new Map(), things: new Map(), mounts: new Map(), calls: new Map(), problems: [] };
   const thingFiles = (name: string): ThingFiles => {
     const found = layout.things.get(name);
     if (found) return found;
@@ -80,6 +98,14 @@ export const readLayout = (files: ReadonlyArray<LoadedFile>, at: (path: string) 
       for (const [k, v] of Object.entries(exports)) if (kindOf(v) === "value") layout.values.set(k, v as Value);
       continue;
     }
+    if (parts[0] === "stores" && parts.length === 2) {
+      const name = parts[1]!;
+      if (!NAME.test(name)) layout.problems.push(`${at(path)}: store "${name}" must be lowercase words joined by dashes`);
+      const d = exports["default"];
+      if (kindOf(d) !== "store") layout.problems.push(`${at(path)}: the default export must be a Blueprint.store.<kind>()`);
+      else layout.stores.set(name, { name, file: at(path), store: d as Store });
+      continue;
+    }
     if (parts[0] === "environments" && parts.length === 2) {
       const name = parts[1]!;
       if (!NAME.test(name)) layout.problems.push(`${at(path)}: environment "${name}" must be lowercase words joined by dashes`);
@@ -89,7 +115,7 @@ export const readLayout = (files: ReadonlyArray<LoadedFile>, at: (path: string) 
       continue;
     }
     if (parts[0] !== "things" || parts.length < 3) {
-      layout.problems.push(`${at(path)}: not a place the blueprint reads (values/<file>.ts, environments/<name>.ts, things/<thing>/..., or a mount in features/, adapters/ or projections/)`);
+      layout.problems.push(`${at(path)}: not a place the blueprint reads (values/<file>.ts, environments/<name>.ts, stores/<name>.ts, things/<thing>/..., or a mount in features/, adapters/ or projections/)`);
       continue;
     }
     const name = parts[1]!;

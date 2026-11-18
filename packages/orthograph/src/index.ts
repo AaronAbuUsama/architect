@@ -15,6 +15,7 @@ import { Machines } from "#modules/machines/service.js";
 import { Operations } from "#modules/operations/service.js";
 import { Plugins, Stand } from "#modules/plugins/service.js";
 import { Roles } from "#modules/roles/service.js";
+import { Stores } from "#modules/stores/service.js";
 import { Things } from "#modules/things/service.js";
 import { Values } from "#modules/values/service.js";
 import { Visibilities } from "#modules/visibility/service.js";
@@ -23,6 +24,7 @@ export const Blueprint = Object.freeze({
   ...Values,
   ...Visibilities,
   ...Things,
+  ...Stores,
   ...Events,
   ...Errors,
   ...Machines,
@@ -44,7 +46,8 @@ export const { expect, emits, noEvents, refuses, spans } = Checks;
 export { NotAllowed } from "#modules/errors/types.js";
 export type { Value, TypeOf } from "#modules/values/types.js";
 export type { Visibility, PrivateTo } from "#modules/visibility/types.js";
-export type { Thing, Field, FieldsInput, Lives } from "#modules/things/types.js";
+export type { Thing, Field, FieldsInput, Lives, StoreKind } from "#modules/things/types.js";
+export type { Store } from "#modules/stores/types.js";
 export type { Event } from "#modules/events/types.js";
 export type { BlueprintError, ErrorClass, AnyErrorClass } from "#modules/errors/types.js";
 export type { Machine, Move, NotFrom } from "#modules/machines/types.js";

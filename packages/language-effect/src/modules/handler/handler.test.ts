@@ -73,7 +73,7 @@ describe("handler wrapper", () => {
       });
     const { spans, layer } = recording();
     await Effect.runPromise(Effect.provide(Handlers.serve({ name: "allowance.settle", operation: settle, handler: h }).call({ member: "per_olga", limit: "1" }, ada), layer));
-    const stepSpans = spans.filter((x) => x.name.startsWith("allowance.settle."));
+    const stepSpans = spans.filter((x) => x.name.startsWith("allowance.settle.") && x.name !== "allowance.settle.commit");
     expect(stepSpans.map((x) => [x.name, x.attributes.get("step.kind")])).toEqual([
       ["allowance.settle.load", "database"], ["allowance.settle.wait", "wait"],
     ]);

@@ -189,16 +189,16 @@ Three rules decide what a step is (K5, seam 3):
 - **A rerun runs them again.** When the commit loses a race with another call, the whole attempt is run again, steps
   and all, up to a fixed number of times:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=91-99
-const loop = (left: number): Effect.Effect<object, unknown, unknown> =>
-  attempt(payload, principal, key).pipe(
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=110-118
+const loop = (number: number): Effect.Effect<object, unknown, unknown> =>
+  attempt(payload, principal, key, number).pipe(
     Effect.catch((e) =>
       !(e instanceof Conflict) ? Effect.fail(e)
-      : left > 1 ? loop(left - 1)
+      : number < ATTEMPTS ? loop(number + 1)
       : Effect.die(new Error(`${name} lost its version race ${ATTEMPTS} times in a row`)),
     ),
   );
-return loop(ATTEMPTS);
+return loop(1);
 ```
 
 An operation may declare no steps at all (`packages/orthograph/src/modules/operations/types.ts:46`). A step's kind says
@@ -208,7 +208,7 @@ what does the work. `database` is the store's, `wait` is a timer's. The kinds ar
 
 **Every declared step must run, in order.** Eval 6 checks it on every answered call:
 
-```ts file=packages/prove/src/modules/evals/internal/calls.ts lines=114-126
+```ts file=packages/prove/src/modules/evals/internal/calls.ts lines=130-142
 /** 6. Every declared step of an answered call ran in its own span, in the order the operation declares them. */
 export const steps: PerOperation = (op, evidence) =>
   verdict("steps", op.name, evidence.flatMap((e) => {
@@ -285,7 +285,7 @@ A client that retries after a timeout doesn't know if the first call landed. `id
 answers what it answered the first time and changes nothing. No step runs, no event is written, and the span says
 `request.replayed`:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=51-56
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=65-70
 // The same request key from the same caller is one call: answer what was answered, and change nothing.
 const kept = key === undefined ? undefined : yield* store.answered(key);
 if (kept !== undefined) {
@@ -296,7 +296,7 @@ if (kept !== undefined) {
 
 The key is the operation, the caller and the request together, so one caller's key never answers another's call:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=88-90
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=107-109
 // Keyed by operation and caller as well, so one caller's key never answers another's call.
 const who = principal.kind === "person" ? principal.person : "anonymous";
 const key = op.idempotent === "request" && request !== undefined ? `${name}|${who}|${request}` : undefined;
@@ -314,7 +314,7 @@ Without a key, or without `idempotent`, every call is its own call.
 
 A budget is how fast the operation should answer, as a p95. It is a target for review, never a failure:
 
-```ts file=packages/orthograph/src/modules/operations/types.ts lines=28-31
+```ts file=packages/orthograph/src/modules/operations/types.ts lines=36-39
 export interface Budget {
   /** A target for review, never a failure. */
   readonly p95: Duration.Input;

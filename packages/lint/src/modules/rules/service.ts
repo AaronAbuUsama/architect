@@ -2,6 +2,7 @@ import type { Plugin } from "./types.ts";
 import { noNameAsString } from "./internal/names.ts";
 import { declaredErrorsOnly, refusalHasLog } from "./internal/refusals.ts";
 import { handlerMatchesPath, noWallClock } from "./internal/place.ts";
+import { noViemOutsideChain } from "./internal/viem.ts";
 import { noOldNames } from "./internal/old-names.ts";
 
 /** The oxlint plugin. `ortho check` registers it by path and passes every rule the same `ProjectFacts`. */
@@ -14,5 +15,6 @@ export const plugin: Plugin = {
     "no-wall-clock": noWallClock,
     "handler-matches-path": handlerMatchesPath,
     "no-old-names": noOldNames,
+    "no-viem-outside-chain": noViemOutsideChain,
   },
 };

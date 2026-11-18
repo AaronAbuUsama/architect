@@ -5,3 +5,6 @@ the thing it belongs to, so `Organization.fields.id` used in the allowance is an
 
 Invariants: no names (the folder names the thing); every thing has an `id` field; `structOf` turns any declared
 fields into one Effect schema. Test: `things.test.ts`.
+
+`lives` takes `"database"`, `"actor"` or a declared store (`stores`); the thing keeps the kind in `lives` and the store in
+`store`.

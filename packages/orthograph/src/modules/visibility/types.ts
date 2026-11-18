@@ -15,6 +15,8 @@ export interface PrivateTo {
 export type Visibility = "public" | "secret" | PrivateTo;
 
 export interface VisibilityApi {
+  /** Allow a public text value or field to appear in traces. Preserves its visibility and schema. */
+  readonly traced: <const X extends Value | Field>(x: X) => X;
   readonly visibility: {
     /**
      * Mark a value, or one field of a thing, as secret: `Blueprint.visibility.secret(Blueprint.text({ max: 128 }))`.
