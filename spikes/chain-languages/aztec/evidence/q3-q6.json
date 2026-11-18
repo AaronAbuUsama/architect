@@ -1,0 +1,127 @@
+{
+  "open": {
+    "ms": 8920,
+    "receiptStatus": "proven"
+  },
+  "prove": {
+    "ms": 5638,
+    "provingMs": 4518.889500000005,
+    "txBytes": 195180,
+    "proofBytes": 112292
+  },
+  "visibleInTx": {
+    "feePayerIsSponsor": true,
+    "feePayerAddress": "0x2b83400ed7aba9904f74ed92f66b5371b78437991faec5e9dece2e4395af5806",
+    "msgSenderOrFromPresent": "no field: the account entrypoint runs inside the private kernel",
+    "noteHashes": 0,
+    "nullifiers": 2,
+    "privateLogs": 0,
+    "publicCallRequests": 1,
+    "publicCalldata": [
+      [
+        "0x00000000000000000000000000000000000000000000000000000000c357973a",
+        "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "0x0000000000000000000000000000000000000000000000000000000000000001"
+      ]
+    ],
+    "anchorBlock": 46,
+    "expirationTimestamp": "1795110691",
+    "gasLimits": "{\"daGas\":55882,\"l2Gas\":6540000}"
+  },
+  "relayedVote": {
+    "sendTxMs": 67,
+    "timeline": [
+      {
+        "status": "pending",
+        "ms": 68
+      },
+      {
+        "status": "proposed",
+        "ms": 2293,
+        "block": 47,
+        "exec": "success"
+      },
+      {
+        "status": "proven",
+        "ms": 2565,
+        "block": 47,
+        "exec": "success"
+      }
+    ],
+    "tipsAfter": {
+      "proposed": 47,
+      "checkpointed": 47,
+      "proven": 47,
+      "finalized": 15
+    },
+    "effect": {
+      "noteHashes": 0,
+      "nullifiers": 2,
+      "privateLogs": 0,
+      "publicLogs": 1,
+      "publicDataWrites": 5,
+      "fee": "7981667200000"
+    }
+  },
+  "follower": {
+    "proposalOpened": [
+      {
+        "proposal": "1",
+        "digest": "282885658977181106400851051738933432180469939941934813656684291027276395846",
+        "block": 45,
+        "metadataKeys": [
+          "l2BlockNumber",
+          "l2BlockHash",
+          "txHash",
+          "contractAddress"
+        ]
+      }
+    ],
+    "digestMatchesRevision": true,
+    "voteCast": [
+      {
+        "proposal": "1",
+        "choice": "true",
+        "yes": "1",
+        "no": "0"
+      }
+    ]
+  },
+  "rollback": {
+    "blockBefore": 47,
+    "txBlock": 48,
+    "pre": {
+      "receipt": "proven",
+      "eventsSeen": 1,
+      "tips": {
+        "proposed": 48,
+        "checkpointed": 48,
+        "proven": 48,
+        "finalized": 16
+      }
+    },
+    "rollback": "rollbackTo accepted",
+    "rightAfter": {
+      "status": "pending",
+      "block": null,
+      "events": [],
+      "tips": {
+        "proposed": 47,
+        "checkpointed": 47,
+        "proven": 47,
+        "finalized": 16
+      }
+    },
+    "laterOn": {
+      "status": "pending",
+      "block": null,
+      "events": [],
+      "tips": {
+        "proposed": 47,
+        "checkpointed": 47,
+        "proven": 47,
+        "finalized": 16
+      }
+    }
+  }
+}

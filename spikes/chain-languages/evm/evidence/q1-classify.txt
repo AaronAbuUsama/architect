@@ -1,0 +1,72 @@
+contract MiniDao: 29 ABI entries
+┌─────────┬──────────────────────────────┬──────────────────────────────────────────────────┬──────────────┬───────────────────────────────────────────────────────────────────────┐
+│ (index) │ kind                         │ entry                                            │ selector     │ note                                                                  │
+├─────────┼──────────────────────────────┼──────────────────────────────────────────────────┼──────────────┼───────────────────────────────────────────────────────────────────────┤
+│ 0       │ 'constructor'                │ 'constructor'                                    │ ''           │ ''                                                                    │
+│ 1       │ 'helper outside the surface' │ 'VOTE_TYPEHASH()'                                │ '0x86522973' │ 'view; callable by anyone, not typed by the blueprint'                │
+│ 2       │ 'operation'                  │ 'addMember(address)'                             │ '0xca6d56dc' │ 'member.add'                                                          │
+│ 3       │ 'helper outside the surface' │ 'admin()'                                        │ '0xf851a440' │ 'view; callable by anyone, not typed by the blueprint'                │
+│ 4       │ 'operation'                  │ 'close(bytes32)'                                 │ '0x39c79e0c' │ 'proposal.close'                                                      │
+│ 5       │ 'helper outside the surface' │ 'eip712Domain()'                                 │ '0x84b0196e' │ 'view; callable by anyone, not typed by the blueprint'                │
+│ 6       │ 'UNDECLARED'                 │ 'forceClose(bytes32)'                            │ '0x267656cc' │ 'nonpayable and not in the operation list: a check must fail here'    │
+│ 7       │ 'helper outside the surface' │ 'get(bytes32,bool)'                              │ '0x1e3509e1' │ 'view; callable by anyone, not typed by the blueprint'                │
+│ 8       │ 'declared read'              │ 'get(bytes32)'                                   │ '0x8eaa6ac0' │ 'proposal.get'                                                        │
+│ 9       │ 'helper outside the surface' │ 'isMember(address)'                              │ '0xa230c524' │ 'view; callable by anyone, not typed by the blueprint'                │
+│ 10      │ 'helper outside the surface' │ 'nonces(address)'                                │ '0x7ecebe00' │ 'view; callable by anyone, not typed by the blueprint'                │
+│ 11      │ 'operation'                  │ 'open(bytes32,bytes32)'                          │ '0xbe42c1a8' │ 'proposal.open'                                                       │
+│ 12      │ 'helper outside the surface' │ 'tallyOf(bytes32,address)'                       │ '0xa7ced12d' │ 'view; callable by anyone, not typed by the blueprint'                │
+│ 13      │ 'helper outside the surface' │ 'tallyOf(bytes32)'                               │ '0xb4a6def1' │ 'view; callable by anyone, not typed by the blueprint'                │
+│ 14      │ 'operation'                  │ 'vote(bytes32,uint8)'                            │ '0xc9a28cb9' │ 'proposal.vote'                                                       │
+│ 15      │ 'operation'                  │ 'voteBySig(bytes32,uint8,uint256,uint256,bytes)' │ '0x0cbb8b05' │ 'proposal.vote (relayed)'                                             │
+│ 16      │ 'event'                      │ 'EIP712DomainChanged()'                          │ ''           │ 'other (OZ/infra)'                                                    │
+│ 17      │ 'event'                      │ 'MemberAdded(address)'                           │ ''           │ 'declared'                                                            │
+│ 18      │ 'event'                      │ 'ProposalClosed(bytes32,bool)'                   │ ''           │ 'declared'                                                            │
+│ 19      │ 'event'                      │ 'ProposalOpened(bytes32,bytes32)'                │ ''           │ 'declared'                                                            │
+│ 20      │ 'event'                      │ 'VoteCast(bytes32,address,uint8,uint64,uint64)'  │ ''           │ 'declared'                                                            │
+│ 21      │ 'error'                      │ 'AlreadyVoted(bytes32)'                          │ '0xee96e13d' │ 'PR-001'                                                              │
+│ 22      │ 'error'                      │ 'InvalidNonce(uint256,uint256)'                  │ '0x06427aeb' │ 'not one of the four codes (relayed path / library / their contract)' │
+│ 23      │ 'error'                      │ 'InvalidShortString()'                           │ '0xb3512b0c' │ 'not one of the four codes (relayed path / library / their contract)' │
+│ 24      │ 'error'                      │ 'NotAllowed()'                                   │ '0x3d693ada' │ 'AR-001'                                                              │
+│ 25      │ 'error'                      │ 'ProposalExists(bytes32)'                        │ '0x44da54e0' │ 'PR-002'                                                              │
+│ 26      │ 'error'                      │ 'ProposalNotOpen(uint8)'                         │ '0xad38e86c' │ 'PR-900'                                                              │
+│ 27      │ 'error'                      │ 'SignatureExpired(uint256)'                      │ '0xcd21db4f' │ 'not one of the four codes (relayed path / library / their contract)' │
+│ 28      │ 'error'                      │ 'StringTooLong(string)'                          │ '0x305a27a9' │ 'not one of the four codes (relayed path / library / their contract)' │
+└─────────┴──────────────────────────────┴──────────────────────────────────────────────────┴──────────────┴───────────────────────────────────────────────────────────────────────┘
+overloaded names (name-only matching would be wrong): [ 'get', 'tallyOf' ]
+undeclared state-changing entries: [ 'forceClose(bytes32)' ]
+declared but MISSING from the ABI: []
+
+What the ABI carries: names, input/output types + names, mutability (view/pure/nonpayable/payable), events (+indexed), error names and field types, constructor.
+What it lacks: roles (who may call), the machine (which state a call needs / leaves), refusal codes (PR-001...), which errors a given function may raise (errors are contract-wide), internal/private functions, and the blueprint operation name.
+
+Optional side channel: natspec @custom tags survive in the artifact's metadata.output.devdoc (not in the ABI, and `forge inspect devdoc` drops them for inherited functions):
+{
+ "addMember(address)": {
+  "custom:allowed": "admin",
+  "custom:operation": "member.add"
+ },
+ "close(bytes32)": {
+  "custom:allowed": "admin",
+  "custom:operation": "proposal.close"
+ },
+ "eip712Domain()": {
+  "details": "returns the fields and values that describe the domain separator used by this contract for EIP-712 signature."
+ },
+ "get(bytes32)": {
+  "custom:read": "proposal.get"
+ },
+ "open(bytes32,bytes32)": {
+  "custom:allowed": "admin",
+  "custom:errors": "PR-002 AR-001",
+  "custom:operation": "proposal.open"
+ },
+ "vote(bytes32,uint8)": {
+  "custom:allowed": "member",
+  "custom:errors": "PR-001 PR-900 AR-001",
+  "custom:operation": "proposal.vote"
+ },
+ "voteBySig(bytes32,uint8,uint256,uint256,bytes)": {
+  "custom:operation": "proposal.vote"
+ }
+}
+classifier exit code 3 (3 = an undeclared state-changing entry was found)

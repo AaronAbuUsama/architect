@@ -1,0 +1,59 @@
+{
+ "divergences": [],
+ "hist": {
+  "ok": 193,
+  "AR-001": 222,
+  "PR-900:absent": 49,
+  "PR-001": 65,
+  "PR-002": 226,
+  "PR-900:failed": 527,
+  "PR-900:passed": 218
+ },
+ "perSeed": [
+  {
+   "seed": 1,
+   "steps": 300,
+   "simRefused": 264,
+   "sent": 36,
+   "viaSig": 51,
+   "simOkButReverted": 0,
+   "ms": 1199
+  },
+  {
+   "seed": 2,
+   "steps": 300,
+   "simRefused": 254,
+   "sent": 46,
+   "viaSig": 55,
+   "simOkButReverted": 0,
+   "ms": 1311
+  },
+  {
+   "seed": 3,
+   "steps": 300,
+   "simRefused": 272,
+   "sent": 28,
+   "viaSig": 57,
+   "simOkButReverted": 0,
+   "ms": 845
+  },
+  {
+   "seed": 42,
+   "steps": 300,
+   "simRefused": 256,
+   "sent": 44,
+   "viaSig": 52,
+   "simOkButReverted": 0,
+   "ms": 1700
+  },
+  {
+   "seed": 1234,
+   "steps": 300,
+   "simRefused": 261,
+   "sent": 39,
+   "viaSig": 53,
+   "simOkButReverted": 0,
+   "ms": 1376
+  }
+ ]
+}

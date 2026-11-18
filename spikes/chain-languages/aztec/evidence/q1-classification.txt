@@ -1,0 +1,18 @@
+┌─────────┬────────────────────┬───────────┬──────────┬────────┬──────────────┬────────────────────────────────┐
+│ (index) │ name               │ type      │ onlySelf │ static │ selector     │ kind                           │
+├─────────┼────────────────────┼───────────┼──────────┼────────┼──────────────┼────────────────────────────────┤
+│ 0       │ 'add_member'       │ 'private' │ false    │ false  │ '0xb33da59c' │ 'operation'                    │
+│ 1       │ 'has_voted'        │ 'utility' │ false    │ false  │ '0xcec0fcf9' │ 'helper (outside the surface)' │
+│ 2       │ 'is_member'        │ 'utility' │ false    │ false  │ '0x68b0951b' │ 'helper (outside the surface)' │
+│ 3       │ 'vote'             │ 'private' │ false    │ false  │ '0xe506d5a8' │ 'operation'                    │
+│ 4       │ 'offchain_receive' │ 'utility' │ false    │ false  │ '0x5342402f' │ 'protocol'                     │
+│ 5       │ 'public_dispatch'  │ 'public'  │ false    │ false  │ '0xd5441b0d' │ 'protocol'                     │
+│ 6       │ 'sync_state'       │ 'utility' │ false    │ false  │ '0x418ef5da' │ 'protocol'                     │
+│ 7       │ '_tally'           │ 'public'  │ true     │ false  │ '0xc357973a' │ 'helper (outside the surface)' │
+│ 8       │ 'close_proposal'   │ 'public'  │ false    │ false  │ '0x550ce987' │ 'operation'                    │
+│ 9       │ 'constructor'      │ 'public'  │ false    │ false  │ '0x35393df3' │ 'protocol'                     │
+│ 10      │ 'get'              │ 'public'  │ false    │ true   │ '0x00aaa652' │ 'declared read'                │
+│ 11      │ 'open_proposal'    │ 'public'  │ false    │ false  │ '0x7e119656' │ 'operation'                    │
+│ 12      │ 'rewrite_digest'   │ 'public'  │ false    │ false  │ '0x7247a267' │ 'undeclared'                   │
+└─────────┴────────────────────┴───────────┴──────────┴────────┴──────────────┴────────────────────────────────┘
+missing from artifact: [] | #[internal] fns (_assert_admin) are inlined into callers and do not appear in the artifact at all.

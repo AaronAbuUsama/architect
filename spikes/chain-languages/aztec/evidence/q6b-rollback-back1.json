@@ -1,0 +1,125 @@
+[
+  {
+    "label": "A mined",
+    "tips": {
+      "proposed": 211,
+      "checkpointed": 211,
+      "proven": 210,
+      "finalized": 179
+    },
+    "events": [
+      {
+        "proposal": "1",
+        "block": 211
+      }
+    ],
+    "tx": {
+      "status": "checkpointed",
+      "block": 211
+    }
+  },
+  {
+    "label": "+1s after rollbackTo(210)",
+    "tips": {
+      "proposed": 211,
+      "checkpointed": 211,
+      "proven": 211,
+      "finalized": 179
+    },
+    "events": [
+      {
+        "proposal": "1",
+        "block": 211
+      }
+    ],
+    "tx": {
+      "status": "proven",
+      "block": 211
+    }
+  },
+  {
+    "label": "+5s after rollbackTo(210)",
+    "tips": {
+      "proposed": 211,
+      "checkpointed": 211,
+      "proven": 211,
+      "finalized": 179
+    },
+    "events": [
+      {
+        "proposal": "1",
+        "block": 211
+      }
+    ],
+    "tx": {
+      "status": "proven",
+      "block": 211
+    }
+  },
+  {
+    "label": "+15s after rollbackTo(210)",
+    "tips": {
+      "proposed": 211,
+      "checkpointed": 211,
+      "proven": 211,
+      "finalized": 179
+    },
+    "events": [
+      {
+        "proposal": "1",
+        "block": 211
+      }
+    ],
+    "tx": {
+      "status": "proven",
+      "block": 211
+    }
+  },
+  {
+    "label": "+30s after rollbackTo(210)",
+    "tips": {
+      "proposed": 211,
+      "checkpointed": 211,
+      "proven": 211,
+      "finalized": 179
+    },
+    "events": [
+      {
+        "proposal": "1",
+        "block": 211
+      }
+    ],
+    "tx": {
+      "status": "proven",
+      "block": 211
+    }
+  },
+  {
+    "poke": "mined",
+    "ms": 15446,
+    "block": 212
+  },
+  {
+    "label": "after poke",
+    "tips": {
+      "proposed": 212,
+      "checkpointed": 212,
+      "proven": 212,
+      "finalized": 180
+    },
+    "events": [
+      {
+        "proposal": "1",
+        "block": 211
+      },
+      {
+        "proposal": "2",
+        "block": 212
+      }
+    ],
+    "tx": {
+      "status": "proven",
+      "block": 211
+    }
+  }
+]
