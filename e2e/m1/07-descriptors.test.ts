@@ -23,9 +23,14 @@ const tsc = (folder: string, files: ReadonlyArray<string>) => {
   const dir = join(copy.root, ".ortho", folder);
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, "tsconfig.json"), JSON.stringify({ extends: join(copy.root, "tsconfig.json"), compilerOptions: { noEmit: true, noUnusedLocals: false }, include: files.map((file) => `./${file}`) }));
-  const result = spawnSync(join(copy.root, "node_modules/.bin/tsc"), ["-p", join(dir, "tsconfig.json")], { cwd: copy.root, encoding: "utf8", timeout: 180_000 });
+  const result = spawnSync(join(copy.root, "node_modules/.bin/tsc"), ["-p", join(dir, "tsconfig.json"), "--pretty", "false"], { cwd: copy.root, encoding: "utf8", timeout: 180_000 });
   const out = `${result.stdout}${result.stderr}`;
-  const errors = [...out.matchAll(/([^\s(]+\.ts)\((\d+),\d+\): error (TS\d+): (.*)/g)].map((m) => ({ file: m[1]!.split("/").at(-1)!, line: Number(m[2]), code: m[3]!, message: m[4]! }));
+  const errors = [
+    ...[...out.matchAll(/([^\s(]+\.ts)\((\d+),\d+\): error (TS\d+): (.*)/g)].map((m) => ({ file: m[1]!, line: Number(m[2]), code: m[3]!, message: m[4]! })),
+    // The pretty format, should a tsc ignore `--pretty false`: `file.ts:3:37 - error TS2322: message`.
+    ...[...out.replace(/\u001b\[[0-9;]*m/g, "").matchAll(/([^\s:]+\.ts):(\d+):\d+ - error (TS\d+): (.*)/g)].map((m) => ({ file: m[1]!, line: Number(m[2]), code: m[3]!, message: m[4]! })),
+  ].map((e) => ({ ...e, file: e.file.split("/").at(-1)! }));
+  if (result.status !== 0 && errors.length === 0) throw new Error(`tsc failed (status ${String(result.status)}) with no parseable error line:\n${out}`);
   return { status: result.status, out, errors };
 };
 const put = (folder: string, name: string, text: string) => {
