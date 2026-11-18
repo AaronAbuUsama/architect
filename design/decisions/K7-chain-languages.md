@@ -642,7 +642,7 @@ confused with the eight questions above. Each one is explained from scratch befo
 |---|---|---|
 | F1 | What the generated clients may call on our own contracts, on all three chains (replaces K5's Q4) | **A**: each operation is one generated entry; the manifest lists them; `ortho check` refuses any other entry that can change state unless it is marked outside |
 | F2 | What `confirmed` promises | **A**: a level per chain, set per environment (EVM `safe`, Solana `confirmed`, Aztec `proven`); corrections possible; outward steps wait for `final` |
-| F3 | Which chains get built, and when | **A**: EVM is built (M6, and the wallet's first version); Solana and Aztec are designed now (this record) and built Later, on the same port |
+| F3 | Which chains get built, and when | **Answered A** (Aaron, 18 November 2026: "EVM now, rest design"). Was: EVM is built (M6, and the wallet's first version); Solana and Aztec are designed now (this record) and built Later, on the same port |
 | F4 | The wallet's first version and its place | **A**: the device half on EVM (keys, sign, simulate, send, confirm on Anvil) right after plugin mounting in M1, with `runs: "client"` (M1.27); linking after auth in M2; the relayer stays in M6 |
 | F5 | Who may hold a key that signs | **A**: only the person's device; agents never sign; delegated agent keys come Later (EIP-7702) |
 
