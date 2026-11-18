@@ -1,0 +1,323 @@
+---
+title: Handlers
+concept: handler
+owns: [blank, handler, frame, scaffold, generated vs scaffolded]
+questions:
+  - What does a handler get, and what may it return?
+  - What runs before and after it, so I don't write it myself?
+  - Which files are mine, and which are never to be edited?
+  - What is a blank, and who fills it?
+status: specified
+milestone: M1
+slices: [M1.03, M1.04, M1.16]
+decisions: [K2, F5]
+links: [operations, machines, roles, traces, stores, journeys, proof, blueprint, factory, agent-kit]
+---
+
+## The idea
+
+A handler is the work inside one operation, and it is the only code in a Forman project written freehand. Everything
+around it is made from the declaration: the decoding, the role check, the machine's check, the spans, the commit, and
+every door. The handler gets the decoded payload and a context, and gives back the declared answer or a declared
+error. The shape it must fit is its **frame**, a type generated from the operation, so a handler that returns the
+wrong thing doesn't compile. The file it lives in starts as a **scaffold**, written once, and is yours from then on.
+One rule decides which files you touch: **a file that says "Generated from" is never edited; a file that says
+"Scaffolded from" is yours.** A **blank** is a part not written yet, in a declaration or in a handler. It compiles,
+and `forman check` names it, so a project can be honest about what is left.
+
+## The smallest example
+
+`forman generate` makes two files for acme's `spend`. The frame, regenerated every time:
+
+```ts file=examples/acme/generated/api/src/allowance/spend.handler.ts lines=1-7
+// Generated from the blueprint. Do not edit.
+// What the handler is given: its payload and steps; what it may return: its answer or a declared error.
+import type { SqlClient } from "effect/sql";
+import type { Auth, Handler as Of, Records } from "@formants/language-effect";
+import type declaration from "../../../../blueprint/things/allowance/verbs/spend.ts";
+
+export type Handler<R = Records | SqlClient.SqlClient | Auth> = Of<typeof declaration, R>;
+```
+
+And the scaffold, written once into `src/`. A fresh one is a blank that says what the declaration asks for. This is
+one in the work example, not written yet:
+
+```ts file=examples/work/src/mission/open.ts lines=1-15
+// Scaffolded from blueprint/things/mission/verbs/open.ts. Yours from now on.
+import { Effect } from "effect";
+import { Handlers } from "@formants/language-effect";
+import type { Handler } from "../../generated/api/src/mission/open.handler.ts";
+
+/** Open a mission over the blueprint revision named. The manager starts by asking about the blueprint's gaps. */
+const open: Handler = (_payload, _context) =>
+  Effect.gen(function* () {
+    // Payload: title, target, blueprint.
+    // Answer: mission.
+    // Steps, each its own span: steps.insert(...).
+    return yield* Handlers.blank("this handler is not written yet");
+  });
+
+export default open;
+```
+
+Acme's `spend`, written. This is all the freehand code the operation has:
+
+```ts file=examples/acme/src/allowance/spend.ts lines=9-25
+const spend: Handler = ({ allowance, amount }, { steps, move }) =>
+  Effect.gen(function* () {
+    const records = yield* Records;
+    // Only the allowance's grantee may spend, so the runtime has already found it before this runs.
+    const found = yield* steps.load(records.find(Allowance, allowance));
+    if (!found) return yield* Effect.die(new Error(`allowance ${allowance} was checked and then not found`));
+    const limit = found["limit"] as bigint;
+    const spent = found["spent"] as bigint;
+    const remaining = limit - spent;
+    if (amount > remaining) {
+      yield* Effect.logInfo("the amount is more than is left").pipe(Effect.annotateLogs({ amount: String(amount), remaining: String(remaining) }));
+      return yield* new AllowanceExceeded({ remaining });
+    }
+    yield* steps.record(records.update(Allowance, allowance, { spent: spent + amount }));
+    yield* move(amount === remaining ? "exhausted" : "active");
+    return { remaining: remaining - amount };
+  });
+```
+
+## How it works
+
+### What a handler gets, and what it returns
+
+The frame is one type, made from the operation:
+
+```ts file=packages/language-effect/src/modules/handler/types.ts lines=29-30
+/** What a project writes in `<verb>.handler.ts`: the declared payload in, the declared answer or a declared error out. */
+export type Handler<O, R = never> = (payload: PayloadOf<O>, context: HandlerContext<O>) => Effect.Effect<AnswerOf<O>, ErrorOf<O>, R>;
+```
+
+- **The payload**, already decoded against the declaration. `amount` is a `bigint` here, never a string.
+- **The context**: the caller as a `principal`, one runner per declared step, and `move`:
+
+  ```ts file=packages/language-effect/src/modules/handler/types.ts lines=17-25
+  export interface HandlerContext<O> {
+    readonly principal: Principal;
+    readonly steps: StepRunners<StepsOf<O>>;
+    /**
+     * Make the operation's move, ending in `to` (or its only outcome). Applied once the handler answers: the instance's
+     * state is set and the move's event journalled. A handler that never calls it makes no move and emits nothing.
+     */
+    readonly move: (to?: MoveTo<O>) => Effect.Effect<void>;
+  }
+  ```
+
+- **Services**, from the frame's `R`: `Records` to find and change the thing's records, and `Auth`.
+
+It returns an Effect of the declared answer, failing only with a declared error. Both are checked twice. The compiler
+refuses a handler that fails with an error its operation doesn't list
+(`packages/generators/src/modules/render/handler-type.test.ts:40`). At run time, an answer outside its declaration
+is never sent. It dies as the handler's bug:
+
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=63-67
+// An answer that breaks its declaration is the handler's bug, never the caller's: it dies, loudly.
+const wire = yield* check(answer).pipe(
+  Effect.mapError((e) => new Error(`${name} answered outside its declaration: ${e.message}`)),
+  Effect.orDie,
+);
+```
+
+### What runs around it
+
+<Scene name="handler-lifecycle" caption="Watch how much happens before the handler starts, and that its writes land only in the commit at the end." />
+
+Before the handler runs, the runtime has decoded the payload, checked the caller's role, answered a repeated request
+key, and checked the machine can make the move. So a handler never refuses `NotAllowed` or `AllowanceNotActive`
+itself, and never checks the payload's shape. That is why `spend` can say the allowance was "checked and then not
+found": not finding it is a defect, not a refusal.
+
+After it answers, the runtime checks the answer, applies the move it chose, and commits every write and the move's
+event together. A handler that dies after writing leaves nothing behind
+(`packages/language-effect/src/modules/handler/handler.test.ts:267`). A handler's writes go through `Records`, never
+straight to a store, so they land in that one commit (see `stores`).
+
+Three habits the frame can't enforce, which `forman brief` asks for:
+
+- **Run work through its step.** `steps.load(records.find(…))`, so each part of the work is its own span, and a
+  journey can say it ran (see `traces`).
+- **Choose the outcome, don't set the state.** `move("exhausted")` picks one of the move's declared outcomes; the
+  runtime sets the state and writes the event. An outcome the move doesn't declare dies.
+- **Log why, then refuse.** An `Effect.logInfo` just before a declared error is kept on the span as the reason.
+
+### Generated or scaffolded
+
+`forman generate` writes two kinds of file, and their first line says which:
+
+```ts file=packages/generators/src/modules/render/internal/names.ts lines=3-4
+export const GENERATED = "// Generated from the blueprint. Do not edit.";
+export const scaffolded = (from: string) => `// Scaffolded from ${from}. Yours from now on.`;
+```
+
+| | Generated | Scaffolded |
+|---|---|---|
+| Where | `generated/`: the model, the frames, the endpoints, the server, SDK, CLI, MCP and docs | `src/<thing>/<verb>.ts`, one per operation with a handler |
+| First line | `// Generated from …. Do not edit.` | `// Scaffolded from <declaration>. Yours from now on.` |
+| Written | every time, and removed when its declaration goes | once, when the file is missing, then never again |
+| Who edits it | nobody. Change the blueprint, and it follows | you, or the agent the brief names |
+
+A scaffold is never overwritten, because the sync skips any scaffold that already exists:
+
+```ts file=packages/generators/src/modules/sync/service.ts lines=15-19
+for (const f of files) {
+  const path = `${root}/${f.path}`;
+  if (f.scaffold && tree.exists(path)) continue;
+  tree.write(path, f.content);
+}
+```
+
+So when a declaration changes, the frame changes with it, and your handler stops compiling where it no longer fits.
+That is the point: the compiler tells you what to change, and nothing you wrote is lost.
+
+### Blanks
+
+A blank is a part that isn't written yet. There are two kinds, and both compile.
+
+**A blank in a declaration** is `Blueprint.todo("…")`, which fits anywhere a declaration needs a value:
+
+```ts file=packages/forman/src/modules/blanks/types.ts lines=7-11
+export interface BlanksApi {
+  /** `Blueprint.todo("who may call")` fits wherever a declaration needs something, until it is filled. */
+  readonly todo: <T = never>(what: string) => T;
+  readonly isBlank: (x: unknown) => x is Blank;
+}
+```
+
+`forman check` finds each one and names it with its file and line, as `mission has 1 blank`. The compiler leaves an
+operation with a blank part out of the model, so it gets no frame and no scaffold until it is filled
+(`packages/cli/src/modules/generate/generate.test.ts:20`). A blank can't stand in for a role: `allowed` must name
+roles a `roles.ts` exports (F5).
+
+**A blank in a handler** is `Handlers.blank("…")`, what every fresh scaffold returns. It type-checks as any answer,
+and reaching it at run time is a defect that names what is missing:
+
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=113-116
+export const Handlers: HandlerApi = {
+  serve: serve as unknown as HandlerApi["serve"],
+  blank: (what) => Effect.die(new BlankReached({ what })),
+};
+```
+
+So a project with every handler blank still compiles, serves, and runs its journeys. Each step that needs behaviour
+goes red with `BlankReached`, and a step that passes anyway is proved by the description alone. That run is
+`forman prove --empty` (M1.16), and it is how a journey is shown to fail before the builder starts (see `journeys`).
+
+### Who fills a blank
+
+Whoever the brief names. `forman brief <thing>.<verb>` prints everything needed to write one handler: the files to
+read, the one file to write, the files never to touch, and the checks that must pass:
+
+```ts file=packages/cli/src/modules/brief/service.ts lines=3-5
+const forbidden = [
+  "blueprint/**", "blueprint/journeys/**", "blueprint/starting-worlds/**", "journeys/**", "generated/**", "test/**",
+] as const;
+```
+
+A person can follow it, and so can an agent; the factory hands it out as a task (see `factory` and `agent-kit`). The
+builder writes `src/<thing>/<verb>.ts` and nothing else. The journeys were written first, by someone else, and the
+builder never edits them.
+
+## Choices
+
+### Write it now, or leave it blank
+
+Leave a handler blank while its journeys are being written: `prove --empty` shows which steps need it. Write it once
+its journeys fail for the right reasons. A blank left in a declaration is fine while a dependency is missing, as work's
+`mission.tasks` waits on one, but it keeps the operation out of the model until it is filled.
+
+### A declared error or a defect
+
+| | Declared error | Defect |
+|---|---|---|
+| When | the caller asked for something the data says no to | something that can't happen did |
+| How | `return yield* new AllowanceExceeded({ … })` | `Effect.die(…)` |
+| The caller gets | the refusal, its code and exit code | a failure no client can match |
+
+If a caller could fix it by asking differently, declare it. If only a code change could fix it, let it die.
+
+## What it is not
+
+- **Not the operation.** The operation declares the call; the handler only does the work. See `operations`.
+- **Not where roles or state are checked.** The runtime does both before the handler runs. See `roles` and
+  `machines`.
+- **Not where data is committed.** The handler's writes go into one commit after it answers. See `stores`.
+- **Not where spans are made.** Steps make spans; the handler only runs its work through them. See `traces`.
+- **Not a journey.** A journey proves the handler from outside, through real operations. See `journeys`.
+
+## Where it lives
+
+| What | Where | |
+|---|---|---|
+| The frame: `Handler` and `HandlerContext` | `packages/language-effect/src/modules/handler/types.ts:30` | built |
+| The wrapper that runs a handler | `packages/language-effect/src/modules/handler/service.ts:41` | built |
+| `Handlers.blank` and `BlankReached` | `packages/language-effect/src/modules/handler/service.ts:115` | built |
+| The scaffold, written from the declaration | `packages/generators/src/modules/render/internal/scaffold.ts:6` | built |
+| Scaffolds never overwritten | `packages/generators/src/modules/sync/service.ts:17` | built |
+| `Blueprint.todo` | `packages/forman/src/modules/blanks/service.ts:4` | built |
+| `forman check` naming blanks | `packages/cli/src/modules/check/internal/blanks.ts:7` | built |
+| `forman brief` | `packages/cli/src/modules/brief/service.ts:10` | built |
+| Blanks in the model | `packages/compiler/src/modules/model/internal/describe.ts:45` | planned, M1.03 |
+| Verdicts keyed by each handler's hash | `packages/prove/src/modules/impact/` | planned, M1.04 |
+| `forman prove --empty` | `packages/prove/src/` | planned, M1.16 |
+
+## Status
+
+<Status />
+
+| Part | Status | Slice | Proved by |
+|---|---|---|---|
+| The frame refuses an undeclared error | proved | layer 2 | `packages/generators/src/modules/render/handler-type.test.ts:40` |
+| An answer outside its declaration dies | proved | layer 2 | `packages/language-effect/src/modules/handler/handler.test.ts:110` |
+| A handler that dies leaves nothing behind | proved | layer 2 | `packages/language-effect/src/modules/handler/handler.test.ts:267` |
+| Generated and scaffolded files, each marked | proved | layer 2 | `packages/generators/src/modules/render/render.test.ts:22` |
+| A scaffold written once, none for an operation with blanks | proved | layer 2 | `packages/cli/src/modules/generate/generate.test.ts:20` |
+| `forman check` names each blank | proved | layer 2 | `packages/cli/src/modules/check/check.test.ts:5` |
+| `forman brief` | proved | layer 2 | `packages/cli/src/modules/brief/brief.test.ts:11` |
+| Reaching `Handlers.blank` is a defect | built, no test of its own | M1.16 | `forman prove --empty` on acme |
+| Blanks in the model | specified | M1.03 | `forman describe --json` on acme and work lists them |
+| Verdicts per handler | specified | M1.04 | editing `examples/acme/src/allowance/spend.ts` makes `forman impact` name `allowance.spend` alone |
+| `forman prove --empty`, and "proved by the description" | specified | M1.16 | on acme, `revoke then spend` shows two red steps and one proved by the description |
+
+## Notes
+
+<Note kind="decision" decision="F5">
+  Work's `mission.tasks` keeps one blank until its dependency lands, and a blank can't sit in `allowed`: an undecided
+  role is never left as a blank.
+</Note>
+
+<Note kind="status" slice="M1.16">
+  `forman prove --empty` and "proved by the description" don't exist yet (`design/milestones.md:106`). Today nothing
+  runs a journey against blank handlers, and no test reaches `BlankReached`.
+</Note>
+
+<Note kind="status" slice="M1.03">
+  Blanks aren't in the model yet (`design/milestones.md:94`). Today `forman check` finds them by reading the
+  blueprint's text, and the model only leaves the operation out.
+</Note>
+
+<Note kind="question" id="nested-blank" slice="M1.03">
+  The compiler looks for a blank only in an operation's top-level parts
+  (`packages/compiler/src/modules/model/internal/describe.ts:47`). Work's `mission.tasks` has its blank inside `steps`
+  (`examples/work/blueprint/things/mission/verbs/tasks.ts:16`), so the compiler sees no blank: `mission.tasks` is in
+  the model and has a scaffold, while `forman check` counts one blank. Should a blank anywhere in a part make the
+  operation blank?
+</Note>
+
+<Note kind="question" id="frame-file-name">
+  The frame's own comment says a project writes its handler in `<verb>.handler.ts`
+  (`packages/language-effect/src/modules/handler/types.ts:29`). That is the generated frame's name; the project
+  writes `src/<thing>/<verb>.ts`. The design docs' handler example uses an `instance` in the context and
+  `steps.record` with a patch (`design/docs/index.html:435`); the real handler reads through `Records` and passes
+  each step its work. Both should match the code.
+</Note>
+
+<Note kind="question" id="raw-sql-in-a-handler" slice="M1.17">
+  The frame offers `SqlClient` beside `Records`. A handler that writes through `SqlClient` writes outside the commit,
+  so its write isn't all-or-nothing with the move and its event, and won't work for a thing in another kind of store.
+  Should the frame offer `Records` only, with raw SQL as a declared step kind?
+</Note>

@@ -1,0 +1,281 @@
+---
+title: Machines
+concept: machine
+owns:
+  - machine
+  - state
+  - move
+  - event
+questions:
+  - Why a machine and not a status field?
+  - What happens on a move from the wrong state?
+  - What is an event for?
+status: specified
+milestone: M5
+slices: [M5.04, M5.05]
+decisions: [D2, D3]
+links: [things, operations, views, stores, journeys, handlers, traces]
+---
+
+## The idea
+
+A machine is a thing's states and the moves between them. A move names the states it may start from, the states it
+may end in, and the event it emits. An operation makes at most one move, and says which. One rule decides it: **a
+thing's state changes only through a declared move, and every move writes its event in the same commit as the new
+state.** A call from a state the move can't start from is refused before your handler runs, with a refusal the
+machine makes for you.
+
+## The smallest example
+
+Acme's allowance has three states and three moves:
+
+```ts file=examples/acme/blueprint/things/allowance/machine.ts lines=5-13
+export const machine = Blueprint.machine(Allowance, {
+  states: ["active", "exhausted", "revoked"],
+  moves: {
+    grant: { from: [], to: "active", emits: Events.AllowanceGranted },
+    spend: { from: ["active"], to: ["active", "exhausted"], emits: Events.AllowanceSpent }, // two outcomes
+    revoke: { from: ["active", "exhausted"], to: "revoked", emits: Events.AllowanceRevoked },
+  },
+  notFrom: { exit: 40 }, // generates AllowanceNotActive, carrying the state it was in
+});
+```
+
+Each move emits an event, declared beside it in `examples/acme/blueprint/things/allowance/events.ts`. An event is
+named by its export:
+
+```ts file=examples/acme/blueprint/things/allowance/events.ts lines=5-7
+export const AllowanceGranted = Blueprint.event({ allowance: Allowance.fields.id, limit: Amount });
+export const AllowanceSpent = Blueprint.event({ allowance: Allowance.fields.id, amount: Amount, memo: Memo, remaining: Amount });
+export const AllowanceRevoked = Blueprint.event({ allowance: Allowance.fields.id });
+```
+
+The compiled model draws the machine, and the refusal it made: `AllowanceNotActive`, code `AL-900`, exit 40.
+
+<Model project="examples/acme" thing="allowance" show="machine" />
+
+An operation says which move it makes. `allowance.spend` makes `spend`:
+
+```ts file=examples/acme/blueprint/things/allowance/verbs/spend.ts lines=12-12
+move: machine.moves.spend,
+```
+
+## How it works
+
+A move happens in three places in one call: a check before the handler, a choice inside it, and the state and event
+in the commit after it.
+
+<Scene name="journey-revoke-then-spend" caption="Watch the state change once, on the revoke; the spend after it is refused by the machine before the handler runs, and leaves no event." />
+
+### Before the handler: the wrong-state check
+
+Once the caller has passed the role check, the machine checks the state
+(`packages/language-effect/src/modules/handler/service.ts:57`):
+
+```ts file=packages/language-effect/src/modules/handler/internal/move.ts lines=30-40
+export const checkFrom = (op: Operation, refusal: string | undefined, payload: object, unit: Unit) =>
+  Effect.gen(function* () {
+    const move = op.move;
+    if (!move || move.from.length === 0 || refusal === undefined) return;
+    const subject = subjectOf(op, payload);
+    if (subject === undefined) return;
+    const found = yield* unit.read(op.thing, subject);
+    if (!found) return;
+    const state = found.state ?? "none";
+    if (!move.from.includes(state)) return yield* Effect.fail(new NotFrom({ _tag: refusal, state }));
+  });
+```
+
+- A move with `from: []` creates the thing, so there is nothing to check. That is `grant`.
+- The instance is the payload's field declared as the thing's own id
+  (`packages/language-effect/src/modules/handler/internal/move.ts:14`). If it isn't found, the machine says nothing.
+  In acme the role check has already refused the call: `grantee` can't hold for an allowance that isn't there.
+- If the state isn't one the move starts from, the call fails with the machine's refusal, carrying the state it
+  found. The handler never runs, and nothing is written.
+
+That refusal is generated, never written. The compiler names it after the thing and its first state, gives it
+the number 900 so adding an error never moves it, and takes the exit you gave (`notFrom: { exit: 40 }`). Over HTTP it
+is a 409 (`examples/acme/generated/api/src/errors.ts:18`). A journey names it as `machine.notFrom`, with the state it
+expects:
+
+<Scenario journey="examples/acme/journeys/revoke-then-spend.ts" step="olga can't spend" />
+
+The order matters. Olga holds the `grantee` role, so she passes the role check and the machine refuses her. In the
+next step she tries to revoke, which only an owner may do, and the role check refuses her first, with `NotAllowed`:
+
+<Scenario journey="examples/acme/journeys/revoke-then-spend.ts" step="olga can't revoke it either" />
+
+Reading the instance here also fixes the version the commit is guarded by. So if a revoke lands between this check and
+the spend's commit, the spend's commit is a conflict and runs again, and then the check refuses it. How the version
+guard works is on `stores`.
+
+### Inside the handler: choosing the outcome
+
+The handler gets `move` and calls it once, with the state it ends in. A move with one `to` may be called with
+nothing. A move with several must be told which. This is acme's spend:
+
+```ts file=examples/acme/src/allowance/spend.ts lines=22-24
+yield* steps.record(records.update(Allowance, allowance, { spent: spent + amount }));
+yield* move(amount === remaining ? "exhausted" : "active");
+return { remaining: remaining - amount };
+```
+
+An outcome the move doesn't declare dies as the handler's bug. The span says what was asked first, as `move.to`, so
+the wrong outcome is evidence too (`packages/language-effect/src/modules/handler/internal/move.ts:48`). A handler that
+refuses never calls `move`, so nothing moves. What a handler gets and returns is `handlers`.
+
+### After the answer: the state and the event, in one commit
+
+Once the handler has answered and its answer is checked, the move is applied
+(`packages/language-effect/src/modules/handler/internal/move.ts:56`). The event's fields are taken from the instance
+as this call left it, then the payload, then the answer. A field found in none of them dies. Then:
+
+```ts file=packages/language-effect/src/modules/handler/internal/move.ts lines=69-74
+// The journal is a record anyone who reads it can see: a secret or private field of the event is not written to it.
+const fields = Object.fromEntries(Object.entries(encoded).filter(([k]) => journalled(move.emits.fields, k)));
+yield* unit.setState(op.thing, subject, outcome);
+const trace = yield* Effect.currentSpan.pipe(Effect.map((s) => s.traceId), Effect.orElseSucceed(() => ""));
+yield* Effect.annotateCurrentSpan({ "event.name": event });
+return { trace, operation: name, move: move.key, subject, event, fields } satisfies Entry;
+```
+
+The new state goes into this call's writes, and the event becomes a journal entry. Both go into the one commit with
+the handler's own writes (`packages/language-effect/src/modules/handler/service.ts:71`). So the state and its event
+land together or not at all. A handler that dies after writing leaves nothing behind
+(`packages/language-effect/src/modules/handler/handler.test.ts:267`). The commit itself is `stores`.
+
+The state is kept beside the thing's fields, not as one of them. In D1 it is a `state` column, empty until the first
+move sets it (`packages/generators/src/modules/render/internal/worker-config.ts:64`).
+
+### What an event is for
+
+An event is the record of a move: what happened, to which instance, in which call. Today it is used in three ways:
+
+- **The journal.** Every entry names the call's trace, the operation, the move, the instance and the event's public
+  fields (`packages/language-effect/src/modules/journal/types.ts:4`). It is the system's own history, written with the
+  state it explains.
+- **Proof.** `prove` finds a step's events by its trace. That is how a journey checks a move happened, with
+  `emits(AllowanceRevoked, …)`, or that nothing moved, with `noEvents()`.
+- **The trace.** The operation's span carries `move.name`, `move.to` and `event.name`. See `traces`.
+
+Here a journey checks both the event and the state the move left:
+
+<Scenario journey="examples/acme/journeys/revoke-then-spend.ts" step="ada revokes it" />
+
+Two more are designed. The outbox delivers every move's event at least once, to whatever listens (M5.04). And a view
+is a list kept from events, so it can list things across stores and actors (M5.05, on `views`).
+
+### Why a machine, and not a status field
+
+A status field is a value any handler can set to anything. A machine makes four things true that a field can't:
+
+- **Only declared moves.** `revoke` can't start from `revoked`, and `spend` can't end in `revoked`. The runtime checks
+  `from` before the handler and `to` after it, so a handler can't move the thing anywhere the machine doesn't allow.
+- **One refusal, made for you.** A call from the wrong state is refused the same way in every client: the same name,
+  the same code, the same exit, and a journey can name it. With a status field, each handler writes its own check, or
+  forgets to.
+- **Every change leaves an event.** A move writes its event in the same commit as the state. Setting a field leaves
+  nothing to prove from, and nothing a view can be kept from.
+- **The model can draw it.** States and moves are in the model, so the docs and the portal show the machine as a
+  diagram, not a column.
+
+## Choices
+
+### One outcome, or several
+
+Give `to` one state when the move always ends there: `revoke` always ends `revoked`. Give a list when the handler
+decides from the data: `spend` ends `active` or `exhausted`, depending on what is left. The handler must then say
+which, and a wrong one dies.
+
+### Where a move may start
+
+`from: []` makes a move that creates the thing, like `grant`. Otherwise list every state it may start from. A state
+you leave out is refused by the machine, before any of your code runs.
+
+### Which fields an event carries
+
+Put in an event what a reader of the journal needs to know what happened: the instance's id, and the facts of the
+move. Only public fields are written, so a secret or private field in an event is dropped from the journal (see
+`things`). Fields a call doesn't have die, so each one must come from the instance, the payload or the answer.
+
+### A machine, or none
+
+A thing whose life has stages gets a machine: an allowance, an invitation, an organisation. A thing that is only kept
+and changed, like a person, needs none. Its operations declare no `move`, and emit no events.
+
+## What it is not
+
+- **Not a field.** The state is not one of the thing's fields, and a handler doesn't write it. See `things`.
+- **Not a data refusal.** `AllowanceExceeded` depends on the amount, so it is declared in `errors.ts` and raised by
+  the handler. The machine's refusal depends only on the state. Refusals in general are `operations`.
+- **Not a role check.** `NotAllowed` says who may call, and it comes first. See `roles`.
+- **Not a workflow.** A machine doesn't wait or run on its own. Every move is one call. Work that waits is
+  `workflows`.
+- **Not a view.** An event is one move's record. A list built from many events is a view: see `views`.
+
+## Where it lives
+
+| What | Where | |
+|---|---|---|
+| A machine, its moves and its refusal | `packages/forman/src/modules/machines/types.ts:30` | built |
+| An event | `packages/forman/src/modules/events/types.ts:5` | built |
+| The refusal's name, code and exit in the model | `packages/compiler/src/modules/model/internal/describe.ts:72` | built |
+| The machine's refusal number, 900 | `packages/compiler/src/modules/model/internal/codes.ts:8` | built |
+| The wrong-state check, before the handler | `packages/language-effect/src/modules/handler/internal/move.ts:30` | built |
+| The handler's outcome | `packages/language-effect/src/modules/handler/internal/move.ts:43` | built |
+| The state and the journal entry | `packages/language-effect/src/modules/handler/internal/move.ts:56` | built |
+| The one commit that carries them | `packages/language-effect/src/modules/handler/service.ts:71` | built |
+| The journal | `packages/language-effect/src/modules/journal/types.ts:17` | built |
+| The outbox: every event delivered at least once | M5.04 | planned |
+| Views kept from events | M5.05 | planned |
+
+## Status
+
+<Status />
+
+| Part | Status | Slice | Proved by |
+|---|---|---|---|
+| Moves named by key, outcomes listed, an unknown state refused | proved | layer 1 | `packages/forman/src/modules/machines/machines.test.ts:20` |
+| The wrong-state refusal before the handler, carrying the state | proved | layer 1 | `packages/language-effect/src/modules/handler/handler.test.ts:260`, and the `revoke then spend` journey |
+| An undeclared outcome dies, and the span says what was asked | proved | layer 1 | `packages/language-effect/src/modules/handler/handler.test.ts:150` |
+| The state and the event committed together after the answer | proved | layer 1 | `packages/language-effect/src/modules/handler/handler.test.ts:135` |
+| Only an event's public fields are journalled | proved | layer 2 | `packages/language-effect/src/modules/handler/internal/attributes.test.ts:63` |
+| Events delivered beyond the journal | specified | M5.04 | killing a delivery mid-way still delivers it |
+| Views kept from events | specified | M5.05 | the allowances view lists actor-homed allowances |
+
+## Notes
+
+<Note kind="decision" decision="D2">
+  A handler makes its move with `move(to?)`, and the wrapper applies it after the answer (#25). The outcome is written
+  on the span before it is checked, so an undeclared one dies and is still evidence.
+</Note>
+
+<Note kind="decision" decision="D3">
+  Refusal codes are stable across languages, and the machine's own refusal is always 900 (`AL-900`), so adding an
+  error never moves it.
+</Note>
+
+<Note kind="status" slice="M5.04">
+  Today an event reaches the journal and nothing else. Nothing listens to it yet.
+</Note>
+
+<Note kind="status">
+  D2 #25 says an event's fields come from the answer, then the payload. The code also reads the instance as the call
+  left it (`packages/language-effect/src/modules/handler/internal/move.ts:62`), so an event can carry a fact of the
+  instance that is in neither the payload nor the answer. This page follows the code.
+</Note>
+
+<Note kind="question" id="refusal-name">
+  The machine has one refusal, named after its first state
+  (`packages/compiler/src/modules/model/internal/describe.ts:72`). So revoking a revoked allowance is refused as
+  `AllowanceNotActive`, though revoke may also start from `exhausted`. The comment on the type says `<Thing>Not<State>`
+  (`packages/forman/src/modules/machines/types.ts:23`), which reads as if the name followed the move. Should the name
+  say what is wrong for every move, such as a refusal per move, or one neutral name? Renaming it is a major change
+  once released, since clients match on the name.
+</Note>
+
+<Note kind="question" id="move-not-made">
+  An operation that declares a move, and whose handler answers without calling `move`, commits with no new state and
+  no event. Nothing refuses it. For a move with one outcome, should the runtime make the move when the handler
+  answers? Or should a handler that answers without moving die, as an undeclared outcome does?
+</Note>

@@ -37,7 +37,7 @@ things, visibility and operations before they were written, and three of its que
 
 | # | Page | Job | Owns | Questions a reader brings | Links | Milestone |
 |---|---|---|---|---|---|---|
-| 3 | `things` | A noun with an id, fields and a home | thing, value, field, id, visibility (public, secret, private) | What is a thing? Why are values named? Who may see a field? How is a name made from a path? | machines, stores, traces | built |
+| 3 | `things` | A noun with an id, fields and a home | thing, value, field, id, visibility (public, secret, private) | What is a thing? Why are values named? Who may see a field? | blueprint, machines, stores, traces | built |
 | 4 | `machines` | A thing's states, the moves between them, and what each move records | machine, state, move, event | Why a machine and not a status field? What happens on a move from the wrong state? What is an event for? | things, operations, views | built |
 | 5 | `operations` | A verb on a thing, and everything it declares | operation, read, payload, answer, error (refusal), step, budget, idempotent | What does an operation declare, and why each part? What is a refusal? What is a step? What does `idempotent: "request"` promise? | machines, roles, handlers, traces | built |
 | 6 | `roles` | Who may call, and how they got in | role, principal, way in (`Via.*`), `anyone`, `signedIn`, `system` | When is a role checked? Which principals are there? How does an agent acting for Ada pass Ada's roles? | operations, auth, agents | person built · the rest M2 |

@@ -1,0 +1,225 @@
+---
+title: Forman
+concept: the loop
+owns: [the loop, projection (as an idea), behaviour as the only freehand]
+questions:
+  - What is Forman?
+  - What is made for me, and what is the only code I write by hand?
+  - How does the loop close?
+status: specified
+milestone: M3
+slices: [M1.06, M1.14, M3.09, M3.12, M3.15]
+decisions: [K2, D2]
+links: [blueprint, things, machines, operations, roles, journeys, handlers, plugins, projections, proof, environments, factory, agent-kit]
+---
+
+## The idea
+
+Forman is a framework where you describe a system once and everything else is made from that description. You write
+the description as TypeScript declarations in a [`blueprint`](blueprint.mdx) folder. Forman compiles it to a model,
+and from the model it makes the server, the SDK, the CLI, the MCP tools, the docs and the portal. Each of those is a
+**projection**: one view of the same model, made by code, never written by hand. The one thing a description can't
+say is what an operation actually does. So the rule is: **behaviour is the only freehand**. Each operation's body is a
+[handler](handlers.mdx) you write. Everything around it is generated, and stays generated. **The loop** is how the
+pieces meet: you describe, the model compiles, journeys prove it, environments ship it, and what is missing or red
+comes back as new work.
+
+## The smallest example
+
+This is acme's `spend`, declared in the blueprint. It says what spending is, and nothing about how it is done:
+
+```ts file=examples/acme/blueprint/things/allowance/verbs/spend.ts lines=8-18
+export default Blueprint.operation(Allowance, {
+  description: "Spend from what is left of this month's allowance.",
+  payload: { allowance: Allowance.fields.id, amount: Amount, memo: Memo },
+  answer: { remaining: Amount },
+  move: machine.moves.spend,
+  errors: [AllowanceExceeded],
+  allowed: [grantee],
+  steps: { load: Blueprint.step.database(), record: Blueprint.step.database() },
+  idempotent: "request", // retried with the same request key, it spends once
+  budget: { p95: "150 millis" },
+});
+```
+
+From those eleven lines Forman makes every way in. Each file opens with a line saying it was generated and must not be
+edited. The HTTP endpoint takes its route, payload, answer and errors from the declaration:
+
+```ts file=examples/acme/generated/api/src/allowance/spend.ts lines=1-12
+// Generated from blueprint/things/allowance/verbs/spend.ts. Do not edit.
+import { HttpApiEndpoint } from "effect/http-api";
+import declaration from "../../../../blueprint/things/allowance/verbs/spend.ts";
+import { AllowanceExceeded, AllowanceNotActive, NotAllowed } from "../errors.ts";
+
+export { declaration };
+export const endpoint = HttpApiEndpoint.post("spend", "/allowance/spend", {
+  payload: declaration.payloadSchema,
+  success: declaration.answerSchema,
+  error: [AllowanceExceeded, AllowanceNotActive, NotAllowed],
+});
+export const steps = ["allowance.spend.load", "allowance.spend.record"] as const;
+```
+
+Two of those refusals were never written: `AllowanceNotActive` comes from the machine, and `NotAllowed` from the role.
+The rest of what `spend` becomes:
+
+| Projection | What it makes for `spend` | Where |
+|---|---|---|
+| server | the route, served with the role check, idempotency and the handler | `examples/acme/generated/server/main.ts:56` |
+| SDK | `Sdk.allowance.spend(payload)` | `examples/acme/generated/sdk/src/allowance/spend.ts:8` |
+| CLI | `acme allowance spend --allowance … --amount … --memo …` | `examples/acme/generated/cli/src/allowance/spend.ts:9` |
+| MCP | the tool `allowance.spend`, described by the declaration | `examples/acme/generated/mcp/src/index.ts:24` |
+| docs | its page: who may call, budget, payload, refusals with their codes | `examples/acme/generated/docs/allowance/spend.md:37` |
+| handler type | what the handler is given and may return | `examples/acme/generated/api/src/allowance/spend.handler.ts:7` |
+
+And this is the only part of `spend` someone wrote. Forman scaffolded it once, from the declaration; from then on it is
+yours:
+
+```ts file=examples/acme/src/allowance/spend.ts lines=1-27
+// Scaffolded from blueprint/things/allowance/verbs/spend.ts. Yours from now on.
+import { Effect } from "effect";
+import { Records } from "@formants/language-effect";
+import type { Handler } from "../../generated/api/src/allowance/spend.handler.ts";
+import { Allowance } from "../../blueprint/things/allowance/thing.ts";
+import { AllowanceExceeded } from "../../blueprint/things/allowance/errors.ts";
+
+/** Spend from what is left of this month's allowance. */
+const spend: Handler = ({ allowance, amount }, { steps, move }) =>
+  Effect.gen(function* () {
+    const records = yield* Records;
+    // Only the allowance's grantee may spend, so the runtime has already found it before this runs.
+    const found = yield* steps.load(records.find(Allowance, allowance));
+    if (!found) return yield* Effect.die(new Error(`allowance ${allowance} was checked and then not found`));
+    const limit = found["limit"] as bigint;
+    const spent = found["spent"] as bigint;
+    const remaining = limit - spent;
+    if (amount > remaining) {
+      yield* Effect.logInfo("the amount is more than is left").pipe(Effect.annotateLogs({ amount: String(amount), remaining: String(remaining) }));
+      return yield* new AllowanceExceeded({ remaining });
+    }
+    yield* steps.record(records.update(Allowance, allowance, { spent: spent + amount }));
+    yield* move(amount === remaining ? "exhausted" : "active");
+    return { remaining: remaining - amount };
+  });
+
+export default spend;
+```
+
+The handler checks the amount, records the spend and picks the next state. It never checks who is calling, never
+parses a request and never names a route. The declaration already said all of that.
+
+## How it works
+
+Everything sits on one loop. This is the loop as the design draws it:
+
+```text file=design/docs/index.html lines=238-254
+          │
+          ▼
+  blueprint/ ── the description ─────────────── plugins mounted into it
+  things · machines · operations · roles          features/     what else the system is   (auth, organizations, agents)
+  events · journeys (stories first) · views       adapters/     what is outside it        (stripe, anthropic, a chain)
+          │                                       projections/  what it becomes           (server, sdk, cli, mcp, docs)
+          │ forman check
+          ▼
+        model ── one contract, every name, every blank
+          │
+   ┌──────┼───────────────────┬─────────────────────────┬──────────────────────────┐
+   ▼      ▼                   ▼                         ▼                          ▼
+ generated/              the agent kit             worlds + journeys           environments
+ server · sdk · cli      skills · agent roles      evidence · nine evals       promote · release
+ mcp · docs · portal     CI · bp tools             verdicts in the logbook     watch
+                              │                         │                          │
+                              └──── the factory ────────┘◀──── drift is a fact ────┘
+```
+
+Each part, in the order a change moves through it:
+
+1. **You describe.** You and your agent write declarations under `blueprint/`: [things](things.mdx),
+   [machines](machines.mdx), [operations](operations.mdx) and [roles](roles.mdx). Built. Plugins mounted into the
+   blueprint ([plugins](plugins.mdx)) come in M1.06.
+2. **It compiles.** `forman check` compiles the blueprint to the model and checks types, rules and drift
+   ([blueprint](blueprint.mdx)). Built. Blanks and journeys join the model in M1.03.
+3. **Projections make the outputs.** The generators render `generated/` from the model
+   ([projections](projections.mdx)). Built. If a generated file differs from what the model renders, `forman check`
+   fails, so nobody can edit one and keep it.
+4. **Handlers fill in behaviour.** `forman generate` scaffolds a handler for each operation with no blanks left, once,
+   and never overwrites it ([handlers](handlers.mdx)). Built.
+5. **Journeys prove it.** A different agent writes [journeys](journeys.mdx) through the real operations. `forman prove`
+   runs them in a world, the evals judge the evidence, and a verdict is recorded ([proof](proof.mdx)). Built.
+6. **Environments ship it.** `forman promote` moves one exact build from environment to environment
+   ([environments](environments.mdx)). Built locally; the cloud is M7.
+7. **The loop closes.** The [factory](factory.mdx) turns blanks, red verdicts and drift in production into tasks, and
+   only a fact closes one (M3.09). The [agent kit](agent-kit.mdx) tells any agent how to pick up a task (M3.12). Until
+   M3 lands, you close the loop yourself: you read what `forman check` and `forman prove` say, and act on it.
+
+## Choices
+
+**Declaration or handler?** Put it in the declaration whenever the declaration can say it. Each thing a declaration
+says is generated into every projection, checked and traced. Each thing a handler does is only in that handler.
+
+| You want to say | Say it in | Because |
+|---|---|---|
+| who may call | the operation's `allowed` | the runtime refuses before the handler runs, in every projection |
+| a state it must be in | the machine's move | the refusal is generated |
+| a way it can fail | the operation's `errors` | it gets a code, an exit code and a docs row |
+| how it decides and what it writes | the handler | only behaviour is freehand |
+
+**Generated client or your own?** Use the generated SDK, CLI and MCP tools. Each is remade when the blueprint changes,
+and each leaves the same evidence a journey checks. A hand-written client drifts the day an operation changes.
+
+## What it is not
+
+- **Not a one-off code generator.** Generated files are never yours. They are remade from the model, and editing one
+  fails `forman check`. Only scaffolds become yours ([handlers](handlers.mdx)).
+- **Not low-code.** A handler is ordinary Effect code. Forman takes away the code around behaviour, not behaviour.
+- **Not the blueprint.** Forman is the framework and its command. The [blueprint](blueprint.mdx) is what you write
+  with it.
+- **Not a host.** Forman makes what runs; a host such as Cloudflare runs it ([languages-and-hosts](languages-and-hosts.mdx)).
+- **Not the agent kit.** Agents building your app use the [agent kit](agent-kit.mdx); agents inside your app are a
+  feature ([agents](agents.mdx)).
+
+## Where it lives
+
+| What | Where | |
+|---|---|---|
+| the command, `forman` | `packages/cli/src/main.ts:307` | built |
+| the compiler: blueprint to model | `packages/compiler/src/modules/model/service.ts:12` | built |
+| the generators: model to `generated/` | `packages/generators/src/modules/render/service.ts:15` | built |
+| the drift check | `packages/cli/src/modules/check/service.ts:26` | built |
+| scaffolds, once | `packages/cli/src/modules/generate/README.md` | built |
+| prove: worlds, journeys, evals, verdicts | `packages/prove/src/modules/prove/service.ts:16` | built |
+| plugins mounted into the blueprint | `blueprint/features/`, `blueprint/adapters/`, `blueprint/projections/` | planned, M1.06 |
+| the factory | `@formants/work` | planned, M3.05 |
+| the agent kit | `generated/agents/` | planned, M3.12 |
+
+## Status
+
+<Status />
+
+| Part | Status | Slice | Proved by |
+|---|---|---|---|
+| the blueprint compiles to a model | proved | | `packages/compiler/src/modules/model/model.test.ts:27`, "describes acme" |
+| `generated/` is exactly what the model renders | proved | | `packages/cli/src/modules/check/check.test.ts:57`, "passes clean acme": `drift ✔` |
+| a handler is scaffolded once and never overwritten | proved | | `packages/cli/src/modules/generate/generate.test.ts:20` |
+| journeys prove it: every journey, every eval, nothing left running | proved | | `packages/prove/src/modules/prove/prove.test.ts:61`, "passes on acme" |
+| plugins mounted into the blueprint | specified | M1.06 | check `01` |
+| the factory closes the loop | specified | M3.09 | gate M3.15 |
+| the agent kit | specified | M3.12 | a model change rewrites it |
+
+The page is specified because the loop doesn't close until M3. Every part a change passes through today is built.
+
+## Notes
+
+<Note kind="decision" decision="K2">Forman is the framework and `forman` its command; the blueprint is what you write
+with it. Plugins come in three kinds: features, adapters and projections.</Note>
+
+<Note kind="question" id="mapping-blank" slice="M1.14">Is behaviour really the only freehand? An adapter's mapping
+blank (M1.14) is hand-written code too, and it isn't a handler. Either it counts as behaviour and the
+[handlers](handlers.mdx) page owns it, or the rule needs a second freehand place. M1.14 must say which.</Note>
+
+<Note kind="status" slice="M3.12">The design draws the agent kit as its own branch of the loop, beside `generated/`.
+M3.12 builds it as a projection that writes `generated/agents/`. The drawing keeps it apart because it is for
+builders, not callers; it is still made from the model like any other projection.</Note>
+
+<Note kind="status" slice="M3.09">Today nothing turns a blank or a red verdict into a task. `forman check` names
+every blank and `forman prove` every red step; a person or an agent reads them and acts.</Note>
