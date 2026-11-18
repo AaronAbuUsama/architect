@@ -191,3 +191,30 @@ the GitHub org `orthojs`.
    times in 540 files and `forman` as a whole word about 1,400 times in 521 files, so the sweep is mechanical and
    the lint rule proves it is complete.
 3. Availability can change at any moment; recheck the chosen name's npm scope just before creating the org.
+
+## Round two: Orthograph, and Open Harness as the org (18 November 2026)
+
+Aaron asked what orthographic means, whether **Orthograph** works, and whether the framework could live under his
+**Open Harness** organization, for example as "Open Harness Blueprint". He is optimizing for a good npm name and a
+short command. Checked the same way as above:
+
+| Name | npm scope | Plain npm package | GitHub | Domains | Seen on the web |
+|---|---|---|---|---|---|
+| orthograph | free | free | `orthograph` org taken (OrthoGraph, 2013, 0 repos); `orthograph-dev`, `orthographhq` free | `orthograph.dev`, `.com` registered; `.sh` no NS | OrthoGraph, a Hungarian floor plan and building survey app (iPad, Android, BIM export), sold since 2004 |
+| orthographic | free | not checked | not checked | not checked | |
+| open-harness | taken: `@open-harness/vitest` and others, maintained by npm user `pythonpete32` | | `Open-Harness` org exists (4 repos); Aaron's GitHub account is a member | | |
+| openharness | taken: `@openharness/core`, "Building blocks for capable, general-purpose agents", by another maintainer (`MaxGfeller/open-harness`) | free | `openharness` org taken (2026, 0 repos) | `.dev`, `.sh`, `.com` all registered | |
+| oharness | taken: `@oharness/engine` | taken: `oharness` 0.19.3, "a model-agnostic AI coding agent", published 17 November 2026 | free | `.dev`, `.com` registered | |
+
+What follows from it:
+
+- **Orthograph as the name, `ortho` as the command.** The product name and the scope can be long; the command is
+  what gets typed. `@orthograph/core`, `@orthograph/auth`, `@orthograph/host-cloudflare`, and a binary called
+  `ortho`. The plain npm package `ortho` is someone else's, but its binary is `orth`, and nothing called `ortho` is
+  on this machine or in Homebrew, so the command itself is clear. The risk is OrthoGraph the floor plan app: a
+  different field, but an architecture product with the same name.
+- **Under Open Harness.** The GitHub org `Open-Harness` already holds Aaron's work. The npm scope `@open-harness`
+  exists and is held by `pythonpete32`; if that account is Aaron's, the packages could be
+  `@open-harness/blueprint`, `@open-harness/blueprint-auth` and so on, with a short command of its own. Two near
+  neighbours are other people's agent projects: `@openharness` (no hyphen) and `oharness`, which makes the name easy
+  to confuse in the agent space.
