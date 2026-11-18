@@ -9,7 +9,8 @@ import { Journeys } from "#modules/journeys/service.js";
 import { Worlds } from "#modules/world/service.js";
 import { Impact } from "#modules/impact/service.js";
 import { ProveFailed, type ProveApi } from "./types.ts";
-import { closing, exercise, resultsOf } from "./internal/exercise.ts";
+import { handlerHashes } from "#modules/verdicts/internal/proof.js";
+import { closing, exercise } from "./internal/exercise.ts";
 import { proveInTest } from "./internal/test-run.ts";
 
 const failed = (e: { readonly message: string }) => new ProveFailed({ message: e.message });
@@ -30,14 +31,15 @@ export const Prove: ProveApi = {
   run: ({ root, port, view, env }) =>
     Effect.gen(function* () {
       const { model, project } = yield* load(root);
+      const bodies = handlerHashes(root, model);
       // The viewer first, so the collector started next also exports to it.
       const viewing = view ? yield* Viewer.start().pipe(Effect.mapError(failed)) : undefined;
       const collector = yield* Collectors.start(resolve(root, Names.folder, "prove-telemetry"), { strip: privateKeys(model) }).pipe(Effect.mapError(failed));
       const sinks = yield* Sinks.resolve({ sinks: model.environments?.["local"]?.telemetry ?? [{ sink: "local" }], env: env ?? {} });
       const { url } = yield* Worlds.start({ root, port, name: "prove", otlp: collector.url, environment: "local", secretEnv: sinks.secretEnv }).pipe(Effect.mapError(failed));
-      const done = yield* exercise(model, project, url, collector, undefined, collector.url);
+      const done = yield* exercise(model, project, url, collector, undefined, collector.url, undefined, bodies);
       // A run with a failing journey proves nothing: its operations are recorded as judged and not passed (D2 #80).
-      yield* Impact.record(root, model, done.judged);
+      yield* Impact.record(root, model, done.judged, done.results);
       const verdict = closing(done);
       const seen = viewing === undefined ? [] : [`viewer ${viewing.url}`, ...done.failedTraces.map((f) => `  ${f.what}: trace ${f.trace}  ${Viewer.link(viewing, f.trace)}`)];
       return { lines: [...sinks.notes, ...done.journeys.lines, ...done.evals.lines, verdict.line, ...seen], passed: verdict.passed };
@@ -61,6 +63,6 @@ export const Prove: ProveApi = {
       for (const line of [...done.journeys.lines, ...done.evals.lines]) yield* say(line);
       const verdict = closing(done);
       yield* say(verdict.line);
-      return { passed: verdict.passed, results: resultsOf(model, done) };
+      return { passed: verdict.passed, results: done.results };
     }),
 };

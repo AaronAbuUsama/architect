@@ -1,7 +1,7 @@
 // Loading what a project declares, by path, so every declaration is the same object the journeys import.
 import { existsSync, readdirSync, realpathSync } from "node:fs";
 import { createRequire } from "node:module";
-import { join } from "node:path";
+import { join, relative, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 import { Effect } from "effect";
 import type { Journey, Operation, Read, StartingWorld, Thing } from "orthograph";
@@ -38,14 +38,20 @@ export const loadProject = (given: string, model: Model): Effect.Effect<Project,
       if (thing) things.set(t.name, thing);
     }
     const journeys: Array<Journey> = [];
+    const journeyFiles: Array<string> = [];
     // The docs' place is blueprint/journeys/; a journey written at the project's root journeys/ is read too (D2 #24).
     // A feature's own journeys run beside the app's, in the app's worlds (M1-plugins section 10).
     const features = Object.values(model.mounts ?? {}).filter((m) => m.kind === "feature");
-    const plugins = features.flatMap((m) => { const folder = pluginFolder(root, m.package); return folder ? filesIn(join(folder, "journeys"), ".js") : []; });
-    for (const file of [...filesIn(join(root, "blueprint/journeys")), ...filesIn(join(root, "journeys")), ...plugins]) {
+    const plugins = features.flatMap((m) => {
+      const folder = pluginFolder(root, m.package);
+      return folder ? filesIn(join(folder, "journeys"), ".js").map((file) => [file, `${m.package}/blueprint/${relative(folder, file).split(sep).join("/")}`] as const) : [];
+    });
+    const app = [...filesIn(join(root, "blueprint/journeys")), ...filesIn(join(root, "journeys"))];
+    for (const [file, name] of [...app.map((f) => [f, relative(root, f).split(sep).join("/")] as const), ...plugins]) {
       const d = (yield* importFile(file))["default"];
       if (kindOf(d) !== "journey") return yield* new ProjectFailed({ message: `${file}: the default export must be a Blueprint.journey` });
       journeys.push(d as Journey);
+      journeyFiles.push(name);
     }
     // A journey's step that runs an operation a mount omits is skipped and named when it runs (M1-plugins section 3).
     const omitted = yield* omittedBy(root, model);
@@ -55,7 +61,7 @@ export const loadProject = (given: string, model: Model): Effect.Effect<Project,
       if (kindOf(d) !== "starting-world") return yield* new ProjectFailed({ message: `${file}: the default export must be a Blueprint.startingWorld` });
       startingWorlds.set((d as StartingWorld).name, d as StartingWorld);
     }
-    return { root: given, model, operations, things, journeys, startingWorlds, ...(omitted.size > 0 ? { omitted } : {}) } satisfies Project;
+    return { root: given, model, operations, things, journeys, journeyFiles, startingWorlds, ...(omitted.size > 0 ? { omitted } : {}) } satisfies Project;
   });
 
 /** Each operation a mount omits, by its declaration: the plugin's own file, found from the operation's final name. */

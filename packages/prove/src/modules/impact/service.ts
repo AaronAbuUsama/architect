@@ -1,21 +1,35 @@
 import { Effect } from "effect";
 import { Compare, type Depends, type Model, type Versioned } from "@orthograph/compiler";
 import type { Impact as Impacted, ImpactApi, Shipped } from "./types.ts";
+import { evidenceHolds, modelHash, storyHash } from "#modules/verdicts/internal/proof.js";
 import { readLedger, writeLedger } from "./internal/ledger.ts";
 
 const holds = (model: Model, depends: Depends) => Object.entries(depends).every(([key, hash]) => Compare.hashOf(model, key) === hash);
 
-const record: ImpactApi["record"] = (root, model, verdicts) =>
+const record: ImpactApi["record"] = (root, model, verdicts, results) =>
   Effect.sync(() => {
-    const before = readLedger(root)?.proven ?? {};
+    const prior = readLedger(root);
+    const before = prior?.proven ?? {};
+    const hash = results === undefined ? undefined : modelHash(model);
+    const proofs = new Map(results?.map(({ operation, journeys }) => [operation, { storyHash: storyHash(model, operation), journeys: journeys ?? [] }]));
     // Still proven from before, unless this run judged it.
-    const kept = Object.entries(before).filter(([op, depends]) => holds(model, depends) && !verdicts.some((v) => v.operation === op));
+    const kept = Object.entries(before).filter(([op, depends]) => {
+      const evidence = prior?.verdicts?.[op];
+      return holds(model, depends) && !verdicts.some((v) => v.operation === op)
+        && (evidence === undefined || evidenceHolds(root, model, op, evidence.storyHash, evidence.journeys));
+    });
     const passed = Object.keys(model.operations).filter((op) => {
       const mine = verdicts.filter((v) => v.operation === op);
-      return mine.length > 0 && mine.every((v) => v.failures.length === 0);
+      const evidence = proofs.get(op);
+      return mine.length > 0 && mine.every((v) => v.failures.length === 0)
+        && (evidence === undefined || (evidence.journeys.every((v) => v.modelHash === hash) && evidenceHolds(root, model, op, evidence.storyHash, evidence.journeys)));
     });
     const proven = Object.fromEntries([...kept, ...passed.map((op) => [op, Compare.dependsOn(model, op)] as const)].sort(([a], [b]) => a.localeCompare(b)));
-    writeLedger(root, { model, proven });
+    for (const [op] of kept) {
+      const evidence = prior?.verdicts?.[op];
+      if (evidence) proofs.set(op, evidence);
+    }
+    writeLedger(root, { model, proven, ...(proofs.size === 0 ? {} : { verdicts: Object.fromEntries(proofs) }) });
   });
 
 const of: ImpactApi["of"] = (root, model) =>
@@ -23,7 +37,10 @@ const of: ImpactApi["of"] = (root, model) =>
     const ledger = readLedger(root);
     const ops = Object.keys(model.operations);
     const proven = ledger?.proven ?? {};
-    const stale = Object.keys(proven).filter((op) => op in model.operations && !holds(model, proven[op]!));
+    const stale = Object.keys(proven).filter((op) => {
+      const evidence = ledger?.verdicts?.[op];
+      return op in model.operations && (!holds(model, proven[op]!) || (evidence !== undefined && !evidenceHolds(root, model, op, evidence.storyHash, evidence.journeys)));
+    });
     const edges = Compare.edges(model);
     return {
       ...(edges.length > 0 ? { edges } : {}),

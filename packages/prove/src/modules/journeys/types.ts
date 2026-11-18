@@ -60,6 +60,7 @@ export interface Project {
   readonly operations: ReadonlyMap<string, Operation | Read>;
   readonly things: ReadonlyMap<string, Thing>;
   readonly journeys: ReadonlyArray<Journey>;
+  readonly journeyFiles?: ReadonlyArray<string>;
   readonly startingWorlds: ReadonlyMap<string, StartingWorld>;
   /** Each operation a mount omits, by its declaration: a journey's step that runs one is skipped. */
   readonly omitted?: ReadonlyMap<unknown, { readonly operation: string; readonly file: string }>;
