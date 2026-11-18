@@ -72,30 +72,23 @@ The kit is the output of one projection, `agents`, built on the builder projecti
 ```ts
 // blueprint/projections/agents.ts: the mount
 import { Blueprint } from "@formants/forman";
-import agents from "@formants/agents";
+import agentKit from "@formants/agent-kit";
 
-export default Blueprint.use(agents, (a) => [
-  a.choose(a.choices.for.claudeCode, a.choices.for.pi),  // which agents' file forms to render (question 5)
-  a.choose(a.choices.voice.spoken),                       // how agents report to the owner: "Talking to Aaron", generalised
+export default Blueprint.use(agentKit, (k) => [
+  k.choose(k.choices.for.claudeCode, k.choices.for.pi),  // which agents' file forms to render (question 5)
+  k.choose(k.choices.voice.spoken),                       // how agents report to the owner: "Talking to Aaron", generalised
 ]);
 ```
 
-`@formants/agents` ships templates. The model fills them. The project's choices pick the forms.
+`@formants/agent-kit` ships templates. The model fills them. The project's choices pick the forms. It never depends on
+`@formants/agents` (M4): skills are core, agents are one of their users
+([`../decisions/K4-agent-skills.md`](../decisions/K4-agent-skills.md)).
 
 ### Skills
 
-| Skill | Used by | Filled from the model | Changes when |
-|---|---|---|---|
-| `describe-this-app` | everyone, first | every thing, operation, feature, adapter and projection by name; the open blanks; stale verdicts | anything in the model changes |
-| `add-a-thing`, `add-an-operation` | planner | the folder layout; this app's values and roles to reuse | a value or role is added |
-| `write-a-journey` | journey writer | the cast kinds this app's roles admit; its starting worlds; operations with no journey yet | an operation or starting world is added |
-| `make-a-journey-executable` | check writer | the step forms each mounted projection replays; how a prose step becomes a call and a check | a projection with a replay is mounted |
-| `fill-a-blank` | builder | the brief format, the evals, the paths a builder may write | an eval or the layout changes |
-| `read-telemetry` | builder, operator | `bp.telemetry` with this app's operation names and budgets | a budget changes |
-| `mount-a-feature`, `add-an-adapter` | planner | what is mounted, what each need still lacks | a mount changes |
-| `prove-and-promote` | builder, manager | the environments by name, what `promote` needs to go from each to the next | an environment changes |
-| `review-a-change` | reviewer | the project's rules, the layout, the evals | the rules change |
-| `turn-drift-into-tasks` | manager | the measures `watch` reads, the ratchets | a ratchet or budget changes |
+The catalogue (twenty-three skills across the loop, each with its trigger, what it reads and writes, its done check and
+its eval), the roles as bundles of skills, and the workflows that chain them are in [`skills.md`](skills.md). This
+document keeps how the kit is generated.
 
 Most skill text is fixed and ships with the package. A skill regenerates only where it quotes the model. A sketch:
 
@@ -145,7 +138,7 @@ name: builder
 description: Fills one blank in acme against its brief. Use it when the manager hands you a brief.
 tools: mcp__forman__brief, mcp__forman__describe, mcp__forman__run, mcp__forman__write
 ---
-<!-- Generated from the model of acme and @formants/agents 1.0.0 (templates/builder.md). Do not edit. -->
+<!-- Generated from the model of acme and @formants/agent-kit 1.0.0 (templates/builder.md). Do not edit. -->
 
 You are a builder for acme. You fill exactly one blank, the one your brief names. You did not write its journeys and
 you cannot read them; you prove your work through `bp.prove`, which runs them for you.
@@ -171,16 +164,17 @@ set as `Tool`s.
 | add an operation | `describe-this-app`, the open blanks in `fill-a-blank`, `bp.d.ts` |
 | add a journey | the "operations with no journey yet" list in `write-a-journey` |
 | mount an adapter | its shipped skills appear under the mount's name (section 8); `add-an-adapter` drops it from "missing" |
-| add an environment | `prove-and-promote`, `generated/ci/plan.json` |
-| change a budget | `read-telemetry`, `turn-drift-into-tasks` |
-| upgrade `@formants/agents` | every template-derived file; `impact` names it as a kit change, not an app change |
+| add an environment | `promote-a-revision`, `generated/ci/plan.json` |
+| change a budget | `watch-an-environment`, `why-is-it-slow`, `turn-a-finding-into-a-task` |
+| declare a store, or mount an adapter over a source | `choose-a-home`, `add-a-store`, `describe-this-app` (K3) |
+| upgrade `@formants/agent-kit` | every template-derived file; `impact` names it as a kit change, not an app change |
 
 ## 4. Workflows
 
 **CI.** `forman new` scaffolds one thin workflow. Each job runs one stage, and the stages come from the model:
 
 ```yaml
-# .github/workflows/forman.yml (Scaffolded from @formants/agents. Yours from now on.)
+# .github/workflows/forman.yml (Scaffolded from @formants/agent-kit. Yours from now on.)
 jobs:
   check:   { steps: [{ run: pnpm install --frozen-lockfile }, { run: pnpm forman ci check }] }
   world:   { needs: check, steps: [{ run: pnpm forman ci prove --env test }] }   # a fresh world per pull request
@@ -234,7 +228,7 @@ needs it, unless it also runs a factory.
 | starter | `examples/starter` | a whole workspace | S | built as an Nx preset (`preset/src/modules/starter`), copying auth's things into the project | **replaced** by `forman new`, auth mounted |
 | brief | model, journeys | printed, not a file | G | built (`cli/src/modules/brief/service.ts:19-43`) | also rendered into `generated/builder/` |
 | builder API | model, mounts, environments | `generated/builder/bp.d.ts` | G | **missing** | [`builder.md`](builder.md) |
-| agent kit: rules, skills, definitions | model, `@formants/agents`, mounts | `generated/agents/` | G | **missing**; hand-written for this repository only | section 3 |
+| agent kit: rules, skills, definitions | model, `@formants/agent-kit`, mounts | `generated/agents/` | G | **missing**; hand-written for this repository only | section 3 |
 | CI plan | environments, projections, adapters | `generated/ci/plan.json`, a thin workflow | G and S | **missing**; acme has no CI | section 4 |
 | goal file | blanks, verdicts | `goals/<n>-<name>.md` | S | **missing**; one hand-written goal | section 4 |
 | root files | the starter | `AGENTS.md`, `CLAUDE.md`, `.mcp.json`, `pnpm-workspace.yaml` | S | partly (`package.json`, `tsconfig.json`, ignores) | section 2 |
@@ -256,7 +250,7 @@ become a template with a few slots.
 
 | Ours, by hand | What it does | As generated |
 |---|---|---|
-| `.agents/skills/threads` | thread types, their finish lines, "Talking to Aaron" | the role list and finish lines ship in `@formants/agents`; how the owner wants to be spoken to is the `voice` choice |
+| `.agents/skills/threads` | thread types, their finish lines, "Talking to Aaron" | the role list and finish lines ship in `@formants/agent-kit`; how the owner wants to be spoken to is the `voice` choice |
 | `.agents/skills/conductor` | starts, briefs and lands threads; keeps the owner's view current | the manager definition; the factory automates its loop |
 | `.agents/skills/spike` | one question, throwaway code, a README | ships as is; it has nothing project-specific |
 | `.agents/skills/reviewer` and `.claude/agents/reviewer.md` (a link to it) | judges a diff against its brief and the rules | the reviewer definition; its "standing rules" (builders never change journeys, generated files never edited, no secrets) are the framework's and come from `RULES.md`; the layout comes from the model |

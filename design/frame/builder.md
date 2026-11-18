@@ -101,10 +101,11 @@ type Call<O extends Operation> =
 
 interface Telemetry {
   trace(id: string, o?: { env?: Env }): TraceTree;
-  calls(o: { operation?: Operation; outcome?: "answered" | "refused" | "defect"; since: string; env?: Env }): Array<{ operation: Operation; outcome: string; tag?: string; ms: number; trace: string; principal: string }>;
-  refusals(o: { since: string; env?: Env }): Array<{ operation: Operation; tag: string; count: number; sample: string }>;
+  counts(o: { operation?: Operation; since: string; env?: Env }): Array<{ operation: Operation; outcome: "answered" | "refused" | "defect"; refusal?: string; principalKind: string; count: number }>; // forman.calls: every call, span or not (O2 gap 3)
+  calls(o: { operation?: Operation; outcome?: "answered" | "refused" | "defect"; since: string; env?: Env }): Array<{ operation: Operation; outcome: string; tag?: string; ms: number; trace: string; principal: string }>; // calls that opened a span
+  refusals(o: { since: string; env?: Env }): Array<{ operation: Operation; tag: string; count: number; sample?: string }>; // counted from forman.calls; a sample when a span opened
   defects(o: { since: string; env?: Env }): Array<{ fingerprint: string; operation: Operation; type: string; message: string; count: number; first: string; last: string; sample: string }>;
-  slow(o: { since: string; env?: Env }): Array<{ operation: Operation; p95: number; budget: number; over: number; worstStep: string }>;
+  slow(o: { since: string; env?: Env }): Array<{ operation: Operation; p95: number; budget: number; over: number; worstStep: string; retried: number }>; // worstStep may be "commit" or "handler" (O2 gap 1)
 }
 
 type TraceTree = { name: string; ms: number; outcome: "ok" | `refused ${string}` | `defect ${string}`; attrs: Record<string, unknown>; logs: string[]; children: TraceTree[] };
@@ -202,7 +203,7 @@ O1 already chose one tool, `forman telemetry trace`, "the one agent surface"
 | **The same reader everywhere.** `FileSource` reads the local Collector's `traces.jsonl`; `AxiomSource` reads a deployed environment | `prove/src/modules/telemetry/internal/{file-source,axiom-source}.ts` |
 | **Joins the agent's own calls.** A world call sends a `traceparent` and gets `x-trace-id` back, so the agent's script holds the trace id of every call it makes | `packages/host-cloudflare/src/modules/telemetry/service.ts:32-39` |
 
-`refusals`, `defects` and `slow` are pure functions over `window(since)`. They group and summarise in the host, so only
+`refusals`, `defects` and `slow` are pure functions over `window(since)`, and `counts` over a `MetricSource` beside it ([`skills.md`](skills.md) section 4.3). They group and summarise in the host, so only
 summaries cross into the sandbox, and only what the script returns crosses into context.
 
 ## 6. Boundaries, and what holds each one

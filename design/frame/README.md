@@ -18,6 +18,7 @@ records are brought in line.
 | [`writing-a-feature.md`](writing-a-feature.md) | writing the wallets feature, step by step |
 | [`story.md`](story.md) | **start here**: one allowance from an idea to production and back, the spine of the frame |
 | [`generators.md`](generators.md) | everything Forman generates and scaffolds, including the agent files that close the loop |
+| [`skills.md`](skills.md) | the skills any agent uses to build on Blueprint, from an idea to a watched operation; the workflows; the tools ([`skills-questions.md`](skills-questions.md): Aaron's round) |
 | [`examples/`](examples/README.md) | worked examples: agents, the factory, payments, notifications, on chain, Noir, Python |
 | [`questions.md`](questions.md) | every open question, in one round |
 | [`../milestones.md`](../milestones.md) | the recut: milestones M0 to M7, their slices and gates; workable at the end of M2 |
