@@ -158,7 +158,7 @@ export const scaffolded = (from: string) => `// Scaffolded from ${from}. Yours f
 
 A scaffold is never overwritten, because the sync skips any scaffold that already exists:
 
-```ts file=packages/generators/src/modules/sync/service.ts lines=15-19
+```ts file=packages/generators/src/modules/sync/service.ts lines=19-23
 for (const f of files) {
   const path = `${root}/${f.path}`;
   if (f.scaffold && tree.exists(path)) continue;
