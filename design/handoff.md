@@ -9,7 +9,10 @@ Everything open, promised, deferred or stale, with its source, canon page and ow
 
 K5, the whole shape, merged on 18 November (PR #44, `78ecf65`). That evening Aaron cut the work down to three threads
 and one critical path ("we've got too many chats talking to too many chats"). The conductor merged the finished
-record PRs, closed the two that couldn't land, and archived the finished threads.
+record PRs, closed the two that couldn't land, and archived the finished threads. Later that evening the canon's layer
+1 (#38, merged by Aaron), naming (#42), the rename sweep (#51) and the ledger round (#47) all merged, and Aaron set the
+growing example (direction item 7). The hello world runs on `main`: `examples/signup` checks, proves 9 evals on every
+operation, runs under `ortho dev`, and its generated CLI opens, joins and reads a sheet.
 
 ### The job you are taking over
 
@@ -60,10 +63,14 @@ is judged by whether it gets us there sooner and truer.
    attached to their thing. It shows declared behaviour and lets live evidence light up that same structure.
    **Telemetry, not analytics.** It's designed with Aaron in M1.25, before the portal slice (M1.13). **Parked:** the
    plans and factory surfaces, Dispatch, and the skills design (K4, merged as parked in #37).
-7. **The worked example is the community workshop mini DAO**: draft text and frozen revisions in D1, one governance
-   contract owning proposals, eligibility, one vote per member and the tally, publishing as the cross-owner workflow,
-   Noir for private membership with a public tally. The canon's first example is the sign-up sheet
-   (`examples/signup`); acme stays the tests' fixture.
+7. **One growing example, used everywhere, in stages (Aaron, 18 November evening).** It starts as a linktree where
+   people claim a username, then gives those users wallets, then a multisig with budgets, then privacy. Each stage is
+   a meta-milestone; all four together are v1.0. Each stage is built from reusable pieces (plugins), and the starter
+   and every example change to follow it. The 📐 growing-example thread designs it as K8, including what the app
+   looks like at each stage, the React hooks slice (designed in `frame/projections.md:261`, owned by no slice), and
+   whether generated actions really make us compatible with agent-native apps. Until K8 lands, the sign-up sheet
+   (`examples/signup`) stays the canon's first example and acme the tests' fixture. The earlier mini DAO example
+   (governance, private membership) is folded into stages 3 and 4 or retired by K8.
 8. **Operations DX (K5):** an operation-level `emits:` lands in the same commit as its writes, only on success, and a
    call that writes nothing emits nothing (Q5 = B; built in M3.16). Steps may be declared optional, and eval 6 still
    checks their order. The scaffold writes a wired function: each step in order, the move, a stub per refusal, every
@@ -76,15 +83,14 @@ is judged by whether it gets us there sooner and truer.
 
 ### Every open line
 
-Three threads, and the conductor.
+Four threads, and the conductor.
 
 | # | Line | Branch | PR | Done when | State now | Next |
 |---|---|---|---|---|---|---|
-| ① | **Docs canon (MDX)** | `claude/docs-canon-cf2c38` | #38 | Pass 1 (outline, template, components, `stores` and `traces`) agreed with Aaron; then pass 2, every page in layers, checked against the ledger before each layer | Re-layering on K5: sign-up sheet as the example, the operations DX above, the port, chain pages waiting on K7. 🔍 review before Aaron | **Aaron reviews layer 1.** Not merged before that |
-| ⛓ | **Chain languages war game (K7)** | `spike/chain-languages` | none yet | K7 recorded with its spike evidence, and its batch of questions put to Aaron | Running three local spikes, on main since K5 merged | Opens a PR and brings Aaron the K7 round |
-| 🔁 | **Rename sweep to Orthograph** | (not started) | — | Every living name is Orthograph, `ortho`, `@orthograph/*`; the old-names lint rule covers the retired name; the gates pass | Waits on #42 (naming) and #38 (canon) | Starts once both land. One mechanical sweep, like M0 |
-| 📒 | **Ledger follow-up** | `claude/ledger-k5` | #47 | The ledger matches the merged K5 | Rebasing on K5; merges itself when green | Then its thread is archived |
-| 🏷 | **Naming (K6)** | `naming` | #42 | K6 and the name map on `main` | Main merged in for a fresh CI run. Its only red check was Layer 1's check 4, where an agent writes a handler live, which doesn't depend on a docs-only change | The conductor merges it when green |
+| ① | **Docs canon (MDX)** | `claude/docs-canon-cf2c38` | #38 merged (layer 1) | Pass 2, every page in layers, checked against the ledger before each layer | Layer 1 merged at `b600bb8`. Pass 2 is running locally: the tickets example proves (six journeys, seven operations), three page rewrites in progress | Opens the next canon PR; takes K8's example changes once they land |
+| ⛓ | **Chain languages war game (K7)** | `spike/chain-languages` | none yet | K7 recorded with its spike evidence, and its batch of questions put to Aaron, together with the wallet plugin's scope | EVM and Solana spikes done; waiting on the Aztec spike (holds port 8880). Found: `wallet.link` needs auth (M2), today's wallet values are EVM-only, linking a private Aztec account to a person undoes its privacy | Opens a PR and brings Aaron the K7 and wallet round |
+| 🧭 | **The growing example (K8)** | `design/growing-example` | none yet | K8 written with each stage's capabilities, pieces, slices, app shape and check; `milestones.md` maps the stages and defines v1.0, with the React hooks slice and the agent-native findings in M1.22 and M1.23; starter and example changes as slices; canon changes listed for the conductor; one PR merged | Started 18 November evening | Grills Aaron on the stages and what the app looks like at each |
+| 📒 | **Ledger** | `claude/ledger-canon-k5` | #50 | The ledger matches the merged canon and rename | 🔍 passed at `57f5c89`; 626 items, 190 owned by nothing, 60 high; new row FOR-18 (rule 7 only partly in place) | Merges itself when CI is green |
 
 **Closed, branches kept:**
 - **#48, span fixes (O3).** It edited journeys and evals, which a builder may not do, and its review found four
@@ -114,14 +120,17 @@ in `main`, then delete); `build/portal-pro`, `design/kits-decision`, `design/wor
 
 ### What waits on Aaron
 
-1. **Canon layer 1** review, PR #38, once it's re-layered on K5. This is the critical path.
-2. **The portal design (M1.25)**, any time now; it must come before M1.13.
-3. **The K7 round** from the war game, when it opens its PR.
+1. **The K8 rounds** from the growing-example thread: the stages and what the app looks like at each.
+2. **The K7 and wallet round** from the war game, when it opens its PR.
+3. **The portal design (M1.25)**, any time now; it must come before M1.13.
+4. **Whether M1 starts now with plugin mounting** (M1.01 to M1.10), asked 18 November. The conductor recommends yes:
+   it is under the wallet plugin, the agents package and K8's stage pieces alike.
+5. **Canon's two open choices:** entity or actor, and ticketing.
 
 ### Next on the critical path
 
-Canon layer 1 agreed → #42 and #38 merged → the rename sweep → M1 starts with M1.01 (the plugin descriptor), folding
-in K5. M1.17 to M1.20 (stores, the commit span, untraced text, call counts) and M1.26 (the wired scaffold) run in
+Canon layer 1, naming and the rename sweep are merged, so M1 can start with M1.01 (the plugin descriptor), folding
+in K5, once Aaron says go. M1.17 to M1.20 (stores, the commit span, untraced text, call counts) and M1.26 (the wired scaffold) run in
 parallel. K7 runs beside all of this and unblocks the chain slices.
 
 ### Open questions carried by threads
@@ -136,6 +145,8 @@ parallel. K7 runs beside all of this and unblocks the chain slices.
 
 ## Done
 
+- **18 November, late evening:** canon layer 1 (#38), naming (#42), the rename sweep (#51) and the ledger round (#47)
+  merged. The growing example set as direction item 7, with its 📐 thread started.
 - **18 November, evening cleanup:** K5 merged in PR #44. The generated-app and portal-observability spikes merged
   for the record (#41, #39); the skills design merged as parked (#37); #48 and #28 closed with their branches kept.
 - **Visuals spike and the `visuals` skill:** merged in PR #34 (18 November).
