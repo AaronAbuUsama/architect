@@ -47,7 +47,7 @@ is judged by whether it gets us there sooner and truer.
    agreed. K5 is agreed.
 2. **Everything falls out of the blueprint.** The blueprint is verbose because agents write it. In return, docs, the
    app, live observability and the agent kit are generated, never configured by hand.
-3. **The whole shape is designed together** ([`decisions/K5-whole-shape.md`](decisions/K5-whole-shape.md)); the
+3. **The whole shape is designed together** ([`decisions/K5-the-whole-shape.md`](decisions/K5-whole-shape.md)); the
    details follow in layers.
 4. **Agent-native is ported, not used.** Aaron: "drop Agent Native totally … learn from it … port it … as compatible
    as possible. But our own thing." Nothing of agent-native runs or is installed. What it taught us is ported into our
