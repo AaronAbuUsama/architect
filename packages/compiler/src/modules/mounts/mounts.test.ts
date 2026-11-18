@@ -1,7 +1,7 @@
 // Folding a mounted feature into the layout, against an in-memory source: names, provenance, picks, and refusals.
 import { Effect, Layer } from "effect";
 import { describe, expect, it } from "vitest";
-import { Blueprint } from "orthograph";
+import { Blueprint, Via } from "orthograph";
 import { BlueprintSource, SourceError } from "#modules/source/types.js";
 import { readLayout } from "#modules/model/internal/layout.js";
 import { Mounts } from "./service.ts";
@@ -40,6 +40,20 @@ describe("mounts", () => {
     const folded = await fold("features/fixture.ts", Blueprint.use(echo));
     expect([...folded.things.keys()]).toEqual(["fixture-echo"]);
     expect(folded.mounts["fixture"]?.chosen).toEqual({ style: "plain" });
+  });
+
+  it("omit drops the plugin's operation, narrow keeps the ways in named; another's operation or an empty via is refused", async () => {
+    const omitted = await fold("features/echo.ts", Blueprint.use(echo, (p) => [p.omit(repeat)]));
+    expect(omitted.things.get("echo")?.verbs.has("repeat")).toBe(false);
+    expect(omitted.mounts["echo"]?.omitted).toEqual(["echo.repeat"]);
+    const narrowed = await fold("features/echo.ts", Blueprint.use(echo, (p) => [p.narrow(repeat, { via: [Via.session, Via.key, Via.key] })]));
+    expect(narrowed.mounts["echo"]?.narrowed).toEqual({ "echo.repeat": ["key", "session"] });
+    expect(narrowed.mounts["echo"]?.hash).not.toBe(omitted.mounts["echo"]?.hash);
+    const empty = await fold("features/echo.ts", Blueprint.use(echo, (p) => [p.narrow(repeat, { via: [] })]));
+    expect(empty.problems).toEqual(["blueprint/features/echo.ts: narrows echo.repeat to no ways in (an empty via): omit is how an operation goes, p.omit(...)"]);
+    const other = Blueprint.operation(Echo, { description: "Not the plugin's.", payload: {}, answer: {}, allowed: [Blueprint.anyone] });
+    const stranger = await fold("features/echo.ts", Blueprint.use(echo, (p) => [p.omit(other)]));
+    expect(stranger.problems[0]).toMatch(/^blueprint\/features\/echo\.ts: omits an operation, which isn't one of @fixture\/echo's operations/);
   });
 
   it("refuses, naming the mount's file: a pick that isn't an option, the wrong folder, a package that can't be read", async () => {

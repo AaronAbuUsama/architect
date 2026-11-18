@@ -23,7 +23,8 @@ const run = (project: Project, url: string, journey: Journey, index: number, how
     const missingParent = lineage[0]?.from;
     const calls: Array<CallRecord> = [];
     const steps: Array<StepResult> = [];
-    const done = (stopped: string | undefined): JourneyRun => ({ name: journey.name, calls, steps, stopped });
+    const skipped: Array<{ readonly step: string; readonly operation: string; readonly file: string }> = [];
+    const done = (stopped: string | undefined): JourneyRun => ({ name: journey.name, calls, steps, stopped, ...(skipped.length > 0 ? { skipped } : {}) });
     if (journey.starts !== undefined && !world) return done(`starting world ${journey.starts} is not in blueprint/starting-worlds`);
     if (missingParent !== undefined) return done(`starting world ${lineage[0]!.name} begins from ${missingParent}, which is not in blueprint/starting-worlds`);
 
@@ -77,6 +78,8 @@ const run = (project: Project, url: string, journey: Journey, index: number, how
     }
 
     for (const step of journey.steps(Scripting.script(journey.cast))) {
+      const gone = project.omitted?.get(step.call.operation);
+      if (gone) { skipped.push({ step: step.title, ...gone }); continue; }
       const { record, missing } = yield* make(step.title, step.call);
       const checked = yield* runChecks(step.checks, record, env, facts);
       steps.push({

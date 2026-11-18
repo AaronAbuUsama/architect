@@ -1,5 +1,4 @@
-import { readdirSync, statSync } from "node:fs";
-import { existsSync } from "node:fs";
+import { existsSync, readdirSync, realpathSync, statSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 import { Effect, Layer } from "effect";
@@ -19,7 +18,10 @@ const importing = (url: string, what: string) =>
   });
 
 /** The blueprint as it is on disk, loaded with Node's own module loader; plugins as the project resolves them. */
-export const nodeSource = (projectRoot: string) => {
+export const nodeSource = (given: string) => {
+  // By its real path: a module loader that resolves imports to real paths (Vite's does) would otherwise load a file
+  // twice, once under a symlinked path such as macOS's /var and once under /private/var, and identity would break.
+  const projectRoot = existsSync(given) ? realpathSync(given) : given;
   const root = join(projectRoot, "blueprint");
   const sync = <A>(what: string, f: () => A) => Effect.try({ try: f, catch: (e) => new SourceError({ message: `${what}: ${String(e)}` }) });
 
