@@ -67,7 +67,7 @@ type Through = "api" | "sdk" | "cli" | "mcp" | "react"; // generated from the mo
 
 interface Bp {
   model: {
-    things: Record<string, { fields: string[]; states: string[]; roles: string[]; lives: "database" | "actor" | "chain" }>;
+    things: Record<string, { fields: string[]; states: string[]; roles: string[]; lives: "database" | "entity" | "chain" }>;
     operation(name: Operation): { payload: object; answer: object; errors: string[]; move?: string; allowed: string[]; steps: string[]; budget?: string; runs: "server" | "client" | "chain"; from: "app" | `feature:${string}` };
     uses(name: Operation): { things: string[]; roles: string[]; adapters: string[] };   // what a change to it makes stale
   };

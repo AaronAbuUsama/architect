@@ -18,7 +18,7 @@ belongs to, and why it waits.
 
 - An actor's journal entries live in its own Durable Object, so `prove`'s facts door doesn't see them yet. Layer four
   reads them through the actor.
-- Idempotency by request for things that `lives: "actor"`: the `_requests` row has to commit inside the actor.
+- Idempotency by request for things that `lives: "entity"`: the `_requests` row has to commit inside the entity.
 - When a handler awaits a chain call (layer four), the actor holds its lock across the whole call, not only the commit.
 - **Key proofs by handler source and journeys too** (D2 #60). Today impact keys a proof by blueprint hashes only.
   When prove gets slow enough that skipping proven operations pays, add the handler file's hash and the hashes of the

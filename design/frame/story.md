@@ -101,7 +101,7 @@ export default Blueprint.operation(Allowance, {
 
 `grant` and `revoke` are the same shape, allowed to `owner.of("organization")`. A thing also says where it lives. The
 allowance lives in the database (the default), because the owner will want to list them. A thing that needs one writer
-at a time and no lists would say `lives: "actor"`: one Durable Object per allowance, as an Effect Cluster entity.
+at a time and no lists would say `lives: "entity"`: one Durable Object per allowance, as an Effect Cluster entity (K8).
 
 This is the whole contract. Everything else in the story is made from these files or judged against them.
 

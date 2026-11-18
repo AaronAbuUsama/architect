@@ -483,7 +483,7 @@ view the same way as a thing, and its read is generated in the SDK, CLI and MCP.
 });</code></pre>
 <p>The model generates a <b>data map</b> (<code>generated/data/map.md</code>, and a data page in the portal): every store
 with its kind, binding and migrations, every source with its adapter and stand-in, and what feeds each view.</p>
-<div class="today"><b>Today.</b> <code>lives</code> takes <code>"database" | "actor"</code>
+<div class="today"><b>Today.</b> <code>lives</code> takes <code>"database" | "entity"</code>
 (<code>packages/orthograph/src/modules/things/types.ts:32</code>), an environment binds one database, and a list over actor
 things isn't possible. Decided in <code>design/decisions/K3-stores-and-sources.md</code>.</div>
 </section>
@@ -663,11 +663,11 @@ stored secret, and names it.</p>
 </section>
 
 <section class="s" id="long-work">
-<header><h3>Long work: actors, workflows, agent runs</h3><span class="chip part">Actors built · workflows M3 · runs M4</span></header>
+<header><h3>Long work: entities, workflows, agent runs</h3><span class="chip part">Entities built · workflows M3 · runs M4</span></header>
 <p>Three shapes of durable work, each on its own Durable Objects:</p>
 <div class="table"><table>
 <tr><th>Shape</th><th>Runs on</th><th>Use it for</th></tr>
-<tr><td><b>actor</b></td><td>a thing with <code>lives: "actor"</code>: an Effect Cluster entity, one Durable Object per instance</td><td>one writer at a time, its own storage, an outbox</td></tr>
+<tr><td><b>entity</b></td><td>a thing with <code>lives: "entity"</code>: an Effect Cluster entity (K8), one Durable Object per instance</td><td>one writer at a time, its own storage, an outbox</td></tr>
 <tr><td><b>workflow</b></td><td>Effect Workflow on Cloudflare: one execution per Durable Object, each step remembered</td><td>processes that wait: a webhook, a day, a verdict; work across actors</td></tr>
 <tr><td><b>agent run</b></td><td>Pi Durable inside each run's own Durable Object</td><td>a model loop with a transcript, steering, compaction and crash recovery</td></tr>
 </table></div>

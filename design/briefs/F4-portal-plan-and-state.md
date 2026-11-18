@@ -24,7 +24,7 @@ manager reads its tasks from the plan below.
 | **Journal** | acme's own event log, in acme's D1 | one row per state-machine move, written in the same transaction as the row (`trace, operation, move, subject, event, fields`) | `host-cloudflare/src/modules/store/service.ts:33`; read by `Journal.ofTrace` for the Events and Machine path evals |
 | **Logbook** | Architect's record about acme: one `Book` Durable Object, SQLite | `verdicts` (one pass/fail per operation, environment, revision) and `releases`; no time | `logbook/src/modules/book/internal/sql.ts:4` |
 | **Models** | R2 | each compiled blueprint, by digest | `logbook` `http` module |
-| **Actors** | acme's things with `lives: "actor"` | one DO per instance | `host-cloudflare/src/modules/actors` |
+| **Entities** | acme's things with `lives: "entity"` (K8) | one DO per instance | `host-cloudflare/src/modules/entities` |
 
 The journal is about acme's data, never about our work; it stays as it is. Work state goes in the logbook's Worker.
 
