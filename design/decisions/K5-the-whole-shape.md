@@ -31,7 +31,10 @@ His decisions from the Orthograph DX discussion, carried here as they were given
    it as compatible as possible. But our own thing … So we don't have to deal with this PG light and all this other
    type of stuff. And their MCPs and our MCPs are just our stuff." So **we port, we don't fork**: the pieces we need are
    rewritten into our own packages under our rules ("Porting from agent-native" below). The portal itself still needs
-   designing, with agent-native's templates as the reference.
+   designing, with agent-native's templates as the reference. And
+   later: "we're going to be able to power agent native apps. But we're a different thing altogether … we want to do
+   durable agents in the first place so we want to use a different stack anyway." So our actions keep agent-native's
+   shape so that an agent-native app can use them, and the portal's agent is one of our own durable agents (M4).
 2. **The portal keeps the intent from PR #41's direct feedback** (`spikes/generated-app/design/UX.md` at `c0f0abd`).
    - It starts with things and their lifecycles, then shows operations, machines, events, errors, and the notes
      attached to their thing.
@@ -250,8 +253,10 @@ function _vote(Proposal storage p, address member, Choice choice) internal overr
   and the confirmed `VoteCast` event from the chain follower (M6.09).
 
 Today the compiler refuses `runs: "chain"` (`describe.ts:108`, message at `:170`), and `language-solidity` is a
-placeholder (`packages/language-solidity/src/index.ts:1-2`). **How an operation maps to an ABI entry, and which
-contract functions clients may reach, is fork Q4.**
+placeholder (`packages/language-solidity/src/index.ts:1-2`). How an operation maps to what runs on chain, which
+contract functions clients may reach, and how contracts we don't write come in, moves to K7: Solidity, Noir and
+Solana worked out together, so their edge cases show up before any of them is built (Aaron, 18 November). Until K7
+lands, this seam's Solidity sketch is illustrative.
 
 ### 5. The doors: SDK, CLI, MCP tools, actions
 
@@ -315,6 +320,9 @@ export default defineAction({
 Two things differ from agent-native's version: `ctx` carries the SDK client and the call's id (agent-native's `ctx` has
 neither, `action.ts:190-270`), and `errors` carry the operation's refusal codes. An operation that is
 `.notVia(Via.agent)` gets `agentTool: false` as well, so the chat never offers it.
+
+Because the field names match, an agent-native app can use these actions as its own: it registers them and calls our
+Worker through the SDK. That is how Orthograph powers agent-native apps without being one.
 
 The action holds no authority. Its `run` is the SDK, so the operation's enforcer decides every time. Its `exposure` is
 a convenience for screens and tools, never a check.
@@ -479,12 +487,13 @@ What we port, sized from the 0.228.2 packages (non-test TypeScript lines, or bui
 | The action shape and its exposure rules | `core` `action.js`, 1,883 lines, plus the `action-*` helpers | `defineAction` in `forman`'s `actions` module: fields, Standard Schema, `ctx` with the SDK and call id, the exposure rule from `allowed` and `via` | S, about 400 lines |
 | Approvals | `toolkit/app/mcp-approval`, 913 lines; `needsApproval` in `core` | an approval step in the chat and on screens: show the call, wait for yes, then run through the SDK; for a chain write, the wallet prompt | S, about 400 lines |
 | The app shell | `toolkit/app-shell`, 2,540 lines | the portal's frame: navigation by thing, the reading column, the live rail, the drawer (UX.md's five rules) | M, about 1,500 lines |
-| The chat | `toolkit/app/chat`, 43,862 lines; `composer`, 22,979; `agentkit`, 11,286 built | a narrow chat: thread, streamed answer, tool-call cards, approvals and refusals; the model loop on Effect's AI packages with actions as tools; threads and runs as things in the portal's store | L, about 5,000 lines, grown later |
+| The chat | `toolkit/app/chat`, 43,862 lines; `composer`, 22,979; `agentkit`, 11,286 built | a narrow chat surface: thread, streamed answer, tool-call cards, approvals and refusals; threads as things in the portal's store. The agent behind it is not ported: it is one of our own durable agents (M4, a run per thread on a Durable Object), with actions as its tools | L, about 4,000 lines, grown later |
 | Screen context | `toolkit/context-ui`, 1,179 lines | what the builder is looking at (thing, operation, trace), given to the chat as context | S, about 500 lines |
 | Template layouts | `core/src/templates` (`default`, `chat`, `workspace-core`) | the portal's own layouts, after the portal's design (M1.25) | M |
 
-The whole port is about 8,000 lines of our own code, set against more than 80,000 in the parts of agent-native it
-learns from. The chat is most of it, so the chat starts narrow.
+The whole port is about 7,000 lines of our own code, set against more than 80,000 in the parts of agent-native it
+learns from. The chat is most of it, so the chat starts narrow. agent-native's agent loop (`agentkit`) is learned from
+and not ported: our agents are durable, on a different stack.
 
 What we learn from but don't port: its Postgres client (`db/client.ts:1938` throws on anything but Postgres) and the
 PGlite that came with it, its own Better Auth and organisations (`server/auth.ts:468`, `OrgRole`), its roughly 170
@@ -523,12 +532,11 @@ The first round's three questions are answered by his decisions:
 | Q2 | Whose identity | decision 1: nothing of agent-native runs, so there is no second login | "drop Agent Native totally … our own thing … their MCPs and our MCPs are just our stuff" |
 | Q3 | Who the generated app is for | decision 1 | "The portal is the builder's place to understand and plan with the running system" |
 
-Two forks remain. Both are his "open" items, and both shape what a developer writes. They are in the pull request's
-body in the grill format:
+The first version's Q4 (how an operation maps to a contract's ABI) moves to K7, the chain languages war game across
+Solidity, Noir and Solana. One fork remains here, in the pull request's body in the grill format:
 
 | # | Joint | Recommendation |
 |---|---|---|
-| Q4 | How a declared operation maps to a contract's ABI, and what clients may reach | **A**: the operation *is* the contract function. The ABI is generated, helpers stay `internal`, and any other public function is declared as an operation or marked outside the surface |
 | Q5 | Whether an operation with no machine may declare its own event | **B**: `emits:` on the operation, written in the same commit, checked by the events eval, and one per successful commit. Until M3.01 lands it, a move to the same state (A) is the floor |
 
 ## Milestone slices this shape changes
@@ -543,7 +551,7 @@ The build plan stays. These are the slices it touches:
 | M1.21 | **New.** Live steps: step signals as they start and end, and committed events read from the journal for the portal |
 | M1.22 | **New.** The actions projection: one `defineAction` per operation, built on the SDK; replay `--through actions` |
 | M1.23 | **New.** The port, part one: `defineAction` and approvals in `forman`'s `actions` module |
-| M1.24 | **New.** The port, part two: the shell, the narrow chat with its model loop, and screen context, in Effect, over D1; signed in through the project's auth (`@orthograph/auth` from M2.06) |
+| M1.24 | **New.** The port, part two: the shell, the chat's surface, and screen context, in Effect, over D1; signed in through the project's auth (`@orthograph/auth` from M2.06) |
 | M1.25 | **New.** The portal's design, worked through with Aaron (UX.md's intent, agent-native's templates as the reference), before M1.13 builds it |
 | M2.06 | **Changed.** Builders sign in to the portal through `@orthograph/auth` |
 | M2.08 | **Changed.** `--through cli\|mcp\|actions` |
@@ -552,7 +560,8 @@ The build plan stays. These are the slices it touches:
 | M3.14 | **Parked**: the portal's separate Work surfaces (decision 2) |
 | M5.06 | **Unchanged**: the data map is a portal page |
 | M5.07 | **Unchanged**; the forum adapter is made with it |
-| M6.01 | **Changed.** It settles Q4's details, the generated client contract for chain operations and wallet submission |
+| M6.01 | **Changed.** It starts from K7 (chain languages), and settles the generated client contract for chain operations and wallet submission |
+| M4.16 | **New.** The portal's chat on a durable agent: one run per thread, the actions as its tools, approvals through the chat |
 | M6.09 | **Changed.** The follower also feeds the portal's committed chain events |
 | M6.10, M6.11 | **Changed.** `runs: "chain"` is lifted, and `language-solidity` stops being a placeholder |
 | M6.15 | **Changed.** It builds the SDK's `submission.confirmed` |
@@ -597,13 +606,11 @@ end-to-end example from layer 4 on.
 
 ## Open risks
 
-- **Contract helpers and the surface.** If Q4 lands on A, a contract a person extends by hand may grow public functions
-  that no operation declares. The check refuses them unless they are marked outside the surface.
 - **Chain confirmation in the SDK.** `confirmed` waits on the follower. A reorg after confirmation is a correction
   event (M6.09), not a second answer.
 - **Step signals cost requests.** One small send per step start and end, under `waitUntil`. They are measured in
   M1.21 against the budget.
-- **The port is mostly the chat.** About 5,000 of its 8,000 lines are the chat and its model loop. agent-native's
+- **The port is mostly the chat.** About 4,000 of its 7,000 lines are the chat's surface. agent-native's
   chat is about ten times that size, so ours starts narrow (thread, stream, tool calls, approvals, refusals) and grows
   only as the portal's design asks.
 - **Compatible by names only.** agent-native's templates and skills read naturally against our field names, but none

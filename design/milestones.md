@@ -109,9 +109,9 @@ own span, free text is absent from spans, and refused calls are counted (O2).
 | M1.19 ∥ | Free text untraced unless marked (O2 gap 2): `Blueprint.traced(x)`; ids, amounts, enums, booleans and times traced when public | Gate M0 | build | `payload.memo` is absent from `spend`'s span; a traced text field is present; the "leaks nothing" eval passes | S |
 | M1.20 ∥ | Every call counted (O2 gap 3): `forman.calls` and `forman.call.duration` through Effect `Metric` to OTLP; the local Collector gains a metrics pipeline | Gate M0 | build | a bad payload and a stranger show as two refusals in `forman.calls`, with no spans | S |
 | M1.21 ∥ | Live steps (K5 seam 10): a step signal as each step starts and ends, sent under `waitUntil`, not at dispose; committed events read from the journal for the portal | M1.18 | build | a slow handler's `load` step shows in the portal before the response; a committed event shows with its commit, a refused call shows none | S |
-| M1.22 ∥ | The actions projection (K5 seam 5): one `defineAction` per operation, in agent-native's field names, built on the SDK | M1.12, M1.23 | build | an action's `run` refused by the role check returns the same typed refusal as the SDK; an operation `.notVia(Via.agent)` has no agent tool | M |
+| M1.22 ∥ | The actions projection (K5 seam 5): one `defineAction` per operation, in agent-native's field names, built on the SDK, so an agent-native app can use them | M1.12, M1.23 | build | an action's `run` refused by the role check returns the same typed refusal as the SDK; an operation `.notVia(Via.agent)` has no agent tool; a fixture agent-native 0.228.2 app, in a test only, registers a generated action and calls acme through it | M |
 | M1.23 ∥ | The port from agent-native, part one (K5, "Porting from agent-native"): `defineAction` with agent-native's field names and approvals, in `forman`'s `actions` module, in Effect | M1.12 | build | a generated action refused by the role check writes nothing and returns the typed refusal; one with `needsApproval` waits for a yes | S |
-| M1.24 ∥ | The port, part two: the shell, a narrow chat (thread, stream, tool calls, approvals, refusals) with its model loop on Effect's AI packages, and screen context; threads and runs as things in the portal's store; signed in through acme's own auth until M2.06 | M1.23 | build | the chat on acme's Worker over D1 calls `allowance.spend` as a tool after a yes; no `@agent-native/*` package is installed | L |
+| M1.24 ∥ | The port, part two: the shell, the chat's surface (thread, stream, tool-call cards, approvals, refusals) and screen context; threads as things in the portal's store; signed in through acme's own auth until M2.06. The agent behind the chat is M4.16 | M1.23 | build | the shell and screen context run on acme's Worker over D1; a stored thread renders with its approval card; no `@agent-native/*` package is installed | L |
 | M1.25 | The portal's design, with Aaron (UX.md's intent; agent-native's templates as the reference) | Gate M0 | decision | `design/portal.md` agreed: the first page, a thing's page, an operation's page, the live rail, the chat | M |
 | M1.15 | **Gate M1** | M1.02 to M1.14, M1.16 to M1.25 | e2e | `nx run e2e:m1` passes on `main` | S |
 
@@ -201,7 +201,8 @@ person; (4) the run's trace is read back through `bp.telemetry`. CI uses the loc
 | M4.12 ∥ | `bp.telemetry` over `TraceSource`: trace, calls, refusals, defects, slow | M4.11 | build | a script finds the slowest step of a run | M |
 | M4.13 | The join: `workers: agents`, `Blueprint.need(agents, { when })`, dispatch through `agents.run.start`, `runFinished` back through `on:` | M4.10, M4.11 | build | a task dispatched to an agents run closes by its verdict | M |
 | M4.14 ∥ | The `pi` runner in the bench (A5) and suites, spend and the report (A8), off the gate | M4.04 | build | `bench` writes one suite's report | M |
-| M4.15 | **Gate M4** | M4.02 to M4.13 | e2e | `nx run e2e:m4` passes on `main` | S |
+| M4.16 | The portal's chat on a durable agent (K5): one `@formants/agents` run per thread, the actions as its tools, approvals through the chat | M4.10, M1.24 | build | evicting a chat's run mid-turn resumes it with no second model call; a refused action shows its typed refusal in the thread | M |
+| M4.15 | **Gate M4** | M4.02 to M4.13, M4.16 | e2e | `nx run e2e:m4` passes on `main` | S |
 
 ## M5: Reach out
 
@@ -244,7 +245,7 @@ forced reorg is corrected; a pending chain call shows its in-between state (S25)
 
 | id | what | needs | kind | done when | size |
 |---|---|---|---|---|---|
-| M6.01 | D5 (values across languages, `signedBy` as EIP-712, one vault per organisation) and the wallets signer and keystore surface, SIWE link declarations; the operation-to-ABI mapping and client exposure (K5 Q4); the generated client contract for chain operations: a submission, then `confirmed` | Gate M5 | decision | `decisions/M6-chain.md` written | S |
+| M6.01 | Starts from K7 (Solidity, Noir and Solana worked out together). D5 (values across languages, `signedBy` as EIP-712, one vault per organisation) and the wallets signer and keystore surface, SIWE link declarations; the operation-to-chain mapping and client exposure (K7); the generated client contract for chain operations: a submission, then `confirmed` | Gate M5 | decision | `decisions/M6-chain.md` written | S |
 | M6.02 | Journeys for wallets and the chain (Codex's planned files `05` to `08`) | M6.01 | checks | they fail on empty handlers | M |
 | M6.03 | `@formants/wallets`: signer, encrypted keystore, test wallets per world, CLI (L3.02) | M6.02 | build | `acme wallet create && acme wallet list` shows the address | M |
 | M6.04 ∥ | SIWE linking in auth (L3.03) | M6.03 | build | `acme wallet link`, then `acme session show` lists the address | M |
