@@ -1,11 +1,12 @@
 // Turns the layout into the model: every declaration named, every reference resolved, every entry hashed.
 import { Duration } from "effect";
-import type { Allowed, Field, FieldsInput, Operation, Read, Value, Visibility } from "orthograph";
+import type { Allowed, Field, FieldsInput, Operation, Read, Thing, Value, Visibility } from "orthograph";
 import type { AllowedModel, FieldModel, FieldsModel, Model, OperationModel, ThingModel, VisibilityModel } from "../types.ts";
 import { Blanks } from "orthograph/server";
 import { MACHINE_NUMBER, codeOf, inDeclarationOrder, prefixes, refusalsOf } from "./codes.ts";
 import { environmentsOf } from "./environments.ts";
 import { hashOf } from "./hash.ts";
+import { crossStore, storesOf } from "./stores.ts";
 import { camel, pascal, type Layout } from "./layout.ts";
 
 /** A module's exports in name order: a namespace's own order differs between loaders, and the model must not. */
@@ -49,6 +50,14 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
     return found.length > 0;
   };
 
+  const storeNames = new Map([...layout.stores].map(([n, s]) => [s.store, n] as const));
+  /** The declared store a thing lives in, by name: absent for the default store. */
+  const storeOf = (store: Thing["store"], where: string) =>
+    store ? { store: storeNames.get(store) ?? problem(problems, `${where}/thing.ts: lives in a store that isn't a default export of a stores/<name>.ts`) } : {};
+  /** The names of the things a step writes: only when it names any. */
+  const writesOf = (writes: ReadonlyArray<Thing> | undefined, where: string) =>
+    writes ? { writes: writes.map((w) => thingNames.get(w) ?? problem(problems, `${where}: a step writes a thing that isn't in the blueprint`)) } : {};
+
   const prefix = prefixes(layout.things, problems);
   const things: Record<string, ThingModel> = {};
   for (const [name, t] of [...layout.things].sort(([a], [b]) => a.localeCompare(b))) {
@@ -74,7 +83,7 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
       : null;
     if (m && m.thing !== t.thing) problems.push(`${where}/machine.ts: is a machine of another thing`);
     const entry = {
-      name, identifier: pascal(name), code: prefix.get(name) ?? "??", description: Blanks.isBlank(t.thing.description) ? "" : t.thing.description, fields, lives: t.thing.lives ?? "database", machine,
+      name, identifier: pascal(name), code: prefix.get(name) ?? "??", description: Blanks.isBlank(t.thing.description) ? "" : t.thing.description, fields, lives: (t.thing.lives ?? "database") as ThingModel["lives"], ...storeOf(t.thing.store, where), machine,
       events: Object.fromEntries(byName(t.events).map(([n, e]) => [n, fieldsModel(e.fields, `${where}/events.ts ${n}`)])),
       errors: Object.fromEntries(inDeclarationOrder(t.errors).map(([n, e], i) => [n, { fields: fieldsModel(e.fields, `${where}/errors.ts ${n}`), exit: e.exit, code: codeOf(prefix.get(name) ?? "??", i + 1) }])),
       roles: [...t.roles.keys()].sort(),
@@ -129,11 +138,15 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
       name: `${thing}.${verb}`, thing, verb, identifier: camel(verb), file, description: op.description,
       payload: fieldsModel(op.payload, `${file} payload`), answer: fieldsModel(op.answer, `${file} answer`),
       move, errors, refusals, allowed,
-      steps: Object.fromEntries(Object.entries(op.steps).map(([k, s]) => [k, { name: `${thing}.${verb}.${k}`, type: s.type, ...(s.optional ? { optional: true } : {}) }])),
+      steps: Object.fromEntries(Object.entries(op.steps).map(([k, s]) => [k, {
+        name: `${thing}.${verb}.${k}`, type: s.type, ...writesOf(s.writes, file), ...(s.optional ? { optional: true } : {}),
+      }])),
       idempotent: op.idempotent ?? null,
       runs: "server" as const, test: op.test,
       budget: op.budget ? { p95Ms: Duration.toMillis(op.budget.p95) } : null,
     };
+    const split = crossStore(file, `${thing}.${verb}`, thing, move !== null, entry.steps, things);
+    if (split) problems.push(split);
     return { ...entry, hash: hashOf(entry) };
   }
 
@@ -164,8 +177,9 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
   const refusals = refusalsOf(things, problems);
   const values = Object.fromEntries([...layout.values].sort(([a], [b]) => a.localeCompare(b)).map(([n, v]) => [n, v.meta]));
   const environments = environmentsOf(layout, problems);
+  const stores = storesOf(layout, problems);
   return {
-    model: { refusals, values, things, operations, ...(Object.keys(blanks).length > 0 ? { blanks } : {}), ...(Object.keys(environments).length > 0 ? { environments } : {}) },
+    model: { refusals, values, things, ...(Object.keys(stores).length > 0 ? { stores } : {}), operations, ...(Object.keys(blanks).length > 0 ? { blanks } : {}), ...(Object.keys(environments).length > 0 ? { environments } : {}) },
     problems,
   };
 };

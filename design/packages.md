@@ -66,6 +66,7 @@ acme/
     journeys/<journey>.ts
     starting-worlds/<name>.ts
     environments/<name>.ts  clock, secrets, destinations
+    stores/<name>.ts        a place things live besides the default: `Blueprint.store.<kind>()` (K3)
   src/
     <thing>/<verb>.ts       a thing's handlers, mirroring blueprint/things/<thing>/
   generated/

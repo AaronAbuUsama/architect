@@ -63,7 +63,7 @@ const thingPage = (model: Model, t: ThingModel): RenderedFile => {
       `# ${t.name}`,
       "",
       t.description,
-      "", `Lives in ${t.lives === "actor" ? "its own Durable Object" : "the database"}.`,
+      "", `Lives in ${t.lives === "actor" ? "its own Durable Object" : "the database"}${t.store ? `, in the store ${t.store}` : ""}.`,
       "", "## Fields", "", fieldRows(t.fields),
       t.machine ? ["", "## Machine", "", `States: ${t.machine.states.join(", ")}. A move from the wrong state is refused ${t.machine.notFrom.error} (exit ${t.machine.notFrom.exit}).`, "",
         "| move | from | to | emits |", "|---|---|---|---|",

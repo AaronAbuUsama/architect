@@ -11,6 +11,8 @@ export interface Step<K extends StepKind = StepKind> {
   readonly kind: "step";
   readonly type: K;
   readonly optional?: boolean;
+  /** A `database` step: the things it writes, when not just the operation's own. The compiler refuses writes to two stores (K3 item 5). */
+  readonly writes?: ReadonlyArray<Thing>;
 }
 /**
  * What a step is. `database` and `wait` are what the Effect target runs. `sync`, `check` and `prove` are reserved for
@@ -156,7 +158,8 @@ export interface OperationsApi {
     }): Read<T, ListPayload<T, W>, Page<ListItem<T>>>;
   };
   readonly step: {
-    readonly database: (options?: { readonly optional?: boolean }) => Step<"database">;
-    readonly wait: (options?: { readonly optional?: boolean }) => Step<"wait">;
+    /** Writes the operation's thing, or the things named: all of them must live in one store. */
+    readonly database: (spec?: { readonly writes?: ReadonlyArray<Thing>; readonly optional?: boolean }) => Step<"database">;
+    readonly wait: (spec?: { readonly optional?: boolean }) => Step<"wait">;
   };
 }

@@ -7,15 +7,22 @@ import { WorldFailed } from "../types.ts";
 
 const bin = join(dirname(fileURLToPath(import.meta.resolve("wrangler/package.json"))), "bin/wrangler.js");
 
-/** Apply the generated migrations to the local database. `CI=1` stops wrangler asking to confirm. */
+/** The D1 bindings a config migrates: each `d1_databases` entry names its `migrations_dir`. The default is `DB`; each declared store (K3) has its own. */
+export const databasesOf = (configText: string): ReadonlyArray<string> =>
+  [...configText.matchAll(/"binding"\s*:\s*"([A-Za-z0-9_]+)"[^}]*"migrations_dir"/g)].map((m) => m[1]!);
+
+/** Apply the generated migrations to each local database. `CI=1` stops wrangler asking to confirm. */
 export const applyMigrations = (config: string, state: string) =>
   Effect.try({
     try: () => {
-      const run = spawnSync(process.execPath, [bin, "d1", "migrations", "apply", "DB", "--local", "--config", config, "--persist-to", state], {
-        encoding: "utf8",
-        env: { ...process.env, CI: "1", WRANGLER_SEND_METRICS: "false" },
-      });
-      if (run.status !== 0) throw new Error(run.stderr || run.stdout);
+      const found = databasesOf(readFileSync(config, "utf8"));
+      for (const binding of found.length > 0 ? found : ["DB"]) {
+        const run = spawnSync(process.execPath, [bin, "d1", "migrations", "apply", binding, "--local", "--config", config, "--persist-to", state], {
+          encoding: "utf8",
+          env: { ...process.env, CI: "1", WRANGLER_SEND_METRICS: "false" },
+        });
+        if (run.status !== 0) throw new Error(run.stderr || run.stdout);
+      }
     },
     catch: (e) => new WorldFailed({ message: `the local database couldn't be made: ${String(e)}` }),
   });
