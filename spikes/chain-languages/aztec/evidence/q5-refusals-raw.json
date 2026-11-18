@@ -1,0 +1,323 @@
+{
+  "open.nonadmin.simulate": {
+    "ok": false,
+    "ms": 293,
+    "class": "SimulationError",
+    "keys": [
+      "stack",
+      "message",
+      "originalMessage",
+      "functionErrorStack",
+      "revertData",
+      "noirErrorStack",
+      "aztecContext"
+    ],
+    "message": "Assertion failed: [AR-001] NotAllowed 'assert(self.storage.admin.read() == who, \"[AR-001] NotAllowed\")' | Context: | TxExecutionRequest(0x18937104aee76d16aaa4bc28f0fadcae5a98b97c64ccb76f7eebfb7da5b69abc called 0x9d57a239)",
+    "hasCallStack": false
+  },
+  "add_member.nonadmin.simulate": {
+    "ok": false,
+    "ms": 263,
+    "class": "SimulationError",
+    "keys": [
+      "stack",
+      "message",
+      "originalMessage",
+      "functionErrorStack",
+      "revertData",
+      "noirErrorStack",
+      "aztecContext"
+    ],
+    "message": "Assertion failed: [AR-001] NotAllowed 'assert(admin == self.msg_sender(), \"[AR-001] NotAllowed\")' | Context: | TxExecutionRequest(0x18937104aee76d16aaa4bc28f0fadcae5a98b97c64ccb76f7eebfb7da5b69abc called 0x9d57a239)",
+    "cause": "Assertion failed: [AR-001] NotAllowed",
+    "hasCallStack": false
+  },
+  "close.nonadmin.simulate": {
+    "ok": false,
+    "ms": 227,
+    "class": "SimulationError",
+    "keys": [
+      "stack",
+      "message",
+      "originalMessage",
+      "functionErrorStack",
+      "revertData",
+      "noirErrorStack",
+      "aztecContext"
+    ],
+    "message": "Assertion failed: [AR-001] NotAllowed 'assert(self.storage.admin.read() == who, \"[AR-001] NotAllowed\")' | Context: | TxExecutionRequest(0x18937104aee76d16aaa4bc28f0fadcae5a98b97c64ccb76f7eebfb7da5b69abc called 0x9d57a239)",
+    "hasCallStack": false
+  },
+  "vote.nonmember.simulate": {
+    "ok": false,
+    "ms": 194,
+    "class": "SimulationError",
+    "keys": [
+      "stack",
+      "message",
+      "originalMessage",
+      "functionErrorStack",
+      "revertData",
+      "noirErrorStack",
+      "aztecContext"
+    ],
+    "message": "Assertion failed: [AR-001] NotAllowed 'assert(mine.len() == 1, \"[AR-001] NotAllowed\")' | Context: | TxExecutionRequest(0x18937104aee76d16aaa4bc28f0fadcae5a98b97c64ccb76f7eebfb7da5b69abc called 0x9d57a239)",
+    "cause": "Assertion failed: [AR-001] NotAllowed",
+    "hasCallStack": false
+  },
+  "vote.nonmember.simulate.absentProposal": {
+    "ok": false,
+    "ms": 175,
+    "class": "SimulationError",
+    "keys": [
+      "stack",
+      "message",
+      "originalMessage",
+      "functionErrorStack",
+      "revertData",
+      "noirErrorStack",
+      "aztecContext"
+    ],
+    "message": "Assertion failed: [AR-001] NotAllowed 'assert(mine.len() == 1, \"[AR-001] NotAllowed\")' | Context: | TxExecutionRequest(0x18937104aee76d16aaa4bc28f0fadcae5a98b97c64ccb76f7eebfb7da5b69abc called 0x9d57a239)",
+    "cause": "Assertion failed: [AR-001] NotAllowed",
+    "hasCallStack": false
+  },
+  "tally.direct.call.only_self": {
+    "ok": false,
+    "ms": 330,
+    "class": "SimulationError",
+    "keys": [
+      "stack",
+      "message",
+      "originalMessage",
+      "functionErrorStack",
+      "revertData",
+      "noirErrorStack",
+      "aztecContext"
+    ],
+    "message": "Assertion failed: Function _tally can only be called by the same contract 'assert(self.msg_sender() == self.address, $assertion_message)' | Context: | TxExecutionRequest(0x2f2aa18b75b73ed627fd6e9a957c29ab51acce66b34f7d735634f093a2e634ea called 0x9d57a239)",
+    "hasCallStack": false
+  },
+  "open.duplicate.simulate": {
+    "ok": false,
+    "ms": 345,
+    "class": "SimulationError",
+    "keys": [
+      "stack",
+      "message",
+      "originalMessage",
+      "functionErrorStack",
+      "revertData",
+      "noirErrorStack",
+      "aztecContext"
+    ],
+    "message": "Assertion failed: [PR-002] ProposalExists 'assert(current.state == 0, \"[PR-002] ProposalExists\")' | Context: | TxExecutionRequest(0x02277fd41ba2e1fdf0f3ae7ca8099291623792eea2cb9422c4ecb91cbe3f64fd called 0x9d57a239)",
+    "hasCallStack": false
+  },
+  "close.absent.simulate": {
+    "ok": false,
+    "ms": 212,
+    "class": "SimulationError",
+    "keys": [
+      "stack",
+      "message",
+      "originalMessage",
+      "functionErrorStack",
+      "revertData",
+      "noirErrorStack",
+      "aztecContext"
+    ],
+    "message": "Assertion failed: [PR-900] ProposalNotOpen { state: 0 } 'assert(state == OPEN, f\"[PR-900] ProposalNotOpen {{ state: {state} }}\")' | Context: | TxExecutionRequest(0x02277fd41ba2e1fdf0f3ae7ca8099291623792eea2cb9422c4ecb91cbe3f64fd called 0x9d57a239)",
+    "hasCallStack": false
+  },
+  "vote.absent.simulate": {
+    "ok": false,
+    "ms": 307,
+    "class": "SimulationError",
+    "keys": [
+      "stack",
+      "message",
+      "originalMessage",
+      "functionErrorStack",
+      "revertData",
+      "noirErrorStack",
+      "aztecContext"
+    ],
+    "message": "Assertion failed: [PR-900] ProposalNotOpen { state: 0 } 'assert(state == OPEN, f\"[PR-900] ProposalNotOpen {{ state: {state} }}\")' | Context: | TxExecutionRequest(0x2f2aa18b75b73ed627fd6e9a957c29ab51acce66b34f7d735634f093a2e634ea called 0x9d57a239)",
+    "hasCallStack": false
+  },
+  "open.duplicate.skipSimulation.sendTx": {
+    "ok": false,
+    "ms": 8509,
+    "class": "Error",
+    "keys": [],
+    "message": "Transaction 0x1064dca1edf1329137ada6128a6bf5a34d4308d5c167ed71843ec1ec4d7e40ae reverted: reverted. Reason: unknown",
+    "hasCallStack": false
+  },
+  "vote.second.simulate": {
+    "ok": false,
+    "ms": 504,
+    "class": "Error",
+    "keys": [],
+    "message": "C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x1ac6c789ae5fd7ace18c28faf643e003d1fbd0aa23f3280925fff8f1a43dcc0c.",
+    "cause": "C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x1ac6c789ae5fd7ace18c28faf643e003d1fbd0aa2",
+    "hasCallStack": false
+  },
+  "vote.second.skipSimulation.sendTx": {
+    "ok": false,
+    "ms": 6560,
+    "class": "Error",
+    "keys": [],
+    "message": "Invalid tx: Existing nullifier",
+    "cause": "Invalid tx: Existing nullifier",
+    "hasCallStack": false
+  },
+  "vote.pending.first": {
+    "ok": true,
+    "ms": 2556,
+    "value": {
+      "status": "checkpointed",
+      "executionResult": "success",
+      "block": 36
+    }
+  },
+  "vote.pending.second.afterFirstMined": {
+    "ok": false,
+    "ms": 74,
+    "class": "Error",
+    "keys": [],
+    "message": "Invalid tx: Existing nullifier",
+    "cause": "Invalid tx: Existing nullifier",
+    "hasCallStack": false
+  },
+  "vote.resend.identicalTx": {
+    "ok": false,
+    "ms": 54,
+    "class": "Error",
+    "keys": [],
+    "message": "Invalid tx: Existing nullifier",
+    "cause": "Invalid tx: Existing nullifier",
+    "hasCallStack": false
+  },
+  "vote.second.whileFirstPending.sendTx": {
+    "ok": false,
+    "ms": 59,
+    "class": "Error",
+    "keys": [],
+    "message": "Nullifier conflict with existing tx 0x1334baecaebf921ee824c19782103872edd64c373bbc022e344dc3694f7d2389. Minimum required fee: 1, got: 0",
+    "cause": "Nullifier conflict with existing tx 0x1334baecaebf921ee824c19782103872edd64c373bbc022e344dc3694f7d2389. Minimum required fee: 1, got: 0",
+    "hasCallStack": false
+  },
+  "vote.closedBetweenProveAndSend": {
+    "ok": false,
+    "ms": 2795,
+    "class": "Error",
+    "keys": [],
+    "message": "Transaction 0x1eff52d9ce0c230969d7ad0589bbe5245d5935c4fd68b0945fa8fb8e9db782cf reverted: reverted. Reason: unknown",
+    "hasCallStack": false
+  },
+  "vote.revertedTx.claimNullifierRolledBack(has_voted)": {
+    "ok": true,
+    "ms": 148,
+    "value": false
+  },
+  "vote.revertedTx.receiptShape": {
+    "keys": [
+      "txHash",
+      "error",
+      "executionResult",
+      "transactionFee",
+      "blockHash",
+      "blockNumber",
+      "slotNumber",
+      "txIndexInBlock",
+      "epochNumber",
+      "txEffect",
+      "debugLogs",
+      "status",
+      "tx"
+    ],
+    "status": "proven",
+    "executionResult": "reverted",
+    "fee": "7279812000000",
+    "effectKeys": [
+      "revertCode",
+      "txHash",
+      "transactionFee",
+      "noteHashes",
+      "nullifiers",
+      "l2ToL1Msgs",
+      "publicDataWrites",
+      "privateLogs",
+      "publicLogs",
+      "contractClassLogs"
+    ],
+    "revertCode": "1",
+    "nullifiers": 1,
+    "publicLogs": 0
+  },
+  "vote.closed.simulate": {
+    "ok": false,
+    "ms": 366,
+    "class": "SimulationError",
+    "keys": [
+      "stack",
+      "message",
+      "originalMessage",
+      "functionErrorStack",
+      "revertData",
+      "noirErrorStack",
+      "aztecContext"
+    ],
+    "message": "Assertion failed: [PR-900] ProposalNotOpen { state: 3 } 'assert(state == OPEN, f\"[PR-900] ProposalNotOpen {{ state: {state} }}\")' | Context: | TxExecutionRequest(0x2f2aa18b75b73ed627fd6e9a957c29ab51acce66b34f7d735634f093a2e634ea called 0x9d57a239)",
+    "hasCallStack": false
+  },
+  "vote.closed.afterRevert.simulate(again)": {
+    "ok": false,
+    "ms": 174,
+    "class": "SimulationError",
+    "keys": [
+      "stack",
+      "message",
+      "originalMessage",
+      "functionErrorStack",
+      "revertData",
+      "noirErrorStack",
+      "aztecContext"
+    ],
+    "message": "Assertion failed: [PR-900] ProposalNotOpen { state: 3 } 'assert(state == OPEN, f\"[PR-900] ProposalNotOpen {{ state: {state} }}\")' | Context: | TxExecutionRequest(0x216edbe2e661f43495812a4bdae391b79689cc911ec43c4ea353e05fd2495584 called 0x9d57a239)",
+    "hasCallStack": false
+  },
+  "client.badArgument": {
+    "ok": false,
+    "ms": 0,
+    "class": "Error",
+    "keys": [],
+    "message": "Tried to create a Fr from an invalid string: not-a-field",
+    "hasCallStack": false
+  },
+  "client.unregisteredContract": {
+    "ok": true,
+    "ms": 264,
+    "value": {
+      "result": {
+        "state": "1",
+        "digest": "111",
+        "yes": "3",
+        "no": "0"
+      },
+      "offchainEffects": [],
+      "offchainMessages": []
+    }
+  },
+  "client.unknownProposalGet": {
+    "ok": true,
+    "ms": 58,
+    "value": {
+      "state": "0",
+      "digest": "0",
+      "yes": "0",
+      "no": "0"
+    }
+  }
+}

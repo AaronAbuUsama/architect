@@ -1,0 +1,104 @@
+[
+  {
+    "realProofs": true,
+    "nodeReportsRealProofs": true,
+    "networkStartMs": 4909,
+    "results": [
+      {
+        "proveMs": 4865,
+        "proofBytes": 112292,
+        "label": "honest proof",
+        "accepted": true,
+        "sendTxMs": 79,
+        "totalMs": 2325,
+        "tallyAfter": "1 yes / 0 no"
+      },
+      {
+        "label": "4 bytes flipped in the serialized (compressed) proof buffer",
+        "accepted": true,
+        "sendTxMs": 77,
+        "totalMs": 2334,
+        "tallyAfter": "2 yes / 0 no"
+      },
+      {
+        "label": "one proof field element +1 (fields[300])",
+        "accepted": false,
+        "sendTxMs": 34,
+        "error": "Invalid tx: Invalid proof",
+        "tallyAfter": "2 yes / 0 no"
+      },
+      {
+        "label": "empty proof (what a mock-proof PXE emits)",
+        "accepted": false,
+        "sendTxMs": 16,
+        "error": "Invalid tx: Invalid proof",
+        "tallyAfter": "2 yes / 0 no"
+      },
+      {
+        "label": "random proof bytes",
+        "accepted": false,
+        "sendTxMs": 22,
+        "error": "Invalid tx: Invalid proof",
+        "tallyAfter": "2 yes / 0 no"
+      },
+      {
+        "label": "public calldata edited, proof untouched",
+        "accepted": false,
+        "sendTxMs": 75,
+        "error": "Invalid tx: Incorrect calldata for public call",
+        "tallyAfter": "2 yes / 0 no"
+      }
+    ]
+  },
+  {
+    "realProofs": false,
+    "nodeReportsRealProofs": false,
+    "networkStartMs": 1008,
+    "results": [
+      {
+        "proveMs": 5438,
+        "proofBytes": 112292,
+        "label": "honest proof",
+        "accepted": true,
+        "sendTxMs": 27,
+        "totalMs": 2283,
+        "tallyAfter": "1 yes / 0 no"
+      },
+      {
+        "label": "4 bytes flipped in the serialized (compressed) proof buffer",
+        "accepted": true,
+        "sendTxMs": 29,
+        "totalMs": 2251,
+        "tallyAfter": "2 yes / 0 no"
+      },
+      {
+        "label": "one proof field element +1 (fields[300])",
+        "accepted": true,
+        "sendTxMs": 29,
+        "totalMs": 2281,
+        "tallyAfter": "3 yes / 0 no"
+      },
+      {
+        "label": "empty proof (what a mock-proof PXE emits)",
+        "accepted": true,
+        "sendTxMs": 27,
+        "totalMs": 2254,
+        "tallyAfter": "4 yes / 0 no"
+      },
+      {
+        "label": "random proof bytes",
+        "accepted": true,
+        "sendTxMs": 29,
+        "totalMs": 2250,
+        "tallyAfter": "5 yes / 0 no"
+      },
+      {
+        "label": "public calldata edited, proof untouched",
+        "accepted": false,
+        "sendTxMs": 23,
+        "error": "Invalid tx: Incorrect calldata for public call",
+        "tallyAfter": "5 yes / 0 no"
+      }
+    ]
+  }
+]

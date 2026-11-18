@@ -1,0 +1,243 @@
+[18:52:56.756] ERROR: embedded-wallet:pxe:service Error: Error: C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x062258d377f3227f256f3f833a20c49cb7e958c098bad03f2a98a42e1aef88a6.
+    at request (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/json-rpc/client/safe_json_rpc_client.js:168:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async #simulatePublicCalls (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:283:28)
+    at async #simulateTx (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:357:28)
+    at async runOperation (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_lifecycle.js:19:24)
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_queue.js:73:24
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/serial_queue.js:58:33
+    at async FifoMemoryQueue.process (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/base_memory_queue.js:110:17) {
+  [cause]: {
+    code: -32702,
+    message: 'C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x062258d377f3227f256f3f833a20c49cb7e958c098bad03f2a98a42e1aef88a6.'
+  }
+}
+[18:53:21.457] ERROR: embedded-wallet:pxe:service Error: Error: C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x06e17ff3ab64c758cfa136da0a3de8494cd742bb626420edb55e93ed02d56a70.
+    at request (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/json-rpc/client/safe_json_rpc_client.js:168:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async #simulatePublicCalls (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:283:28)
+    at async #simulateTx (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:357:28)
+    at async runOperation (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_lifecycle.js:19:24)
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_queue.js:73:24
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/serial_queue.js:58:33
+    at async FifoMemoryQueue.process (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/base_memory_queue.js:110:17) {
+  [cause]: {
+    code: -32702,
+    message: 'C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x06e17ff3ab64c758cfa136da0a3de8494cd742bb626420edb55e93ed02d56a70.'
+  }
+}
+[18:53:53.680] ERROR: embedded-wallet:pxe:service Error: Error: C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x0cc314ca0335038752d450c4680a9e61072dd66c24be4f7a58f5644776fe346b.
+    at request (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/json-rpc/client/safe_json_rpc_client.js:168:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async #simulatePublicCalls (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:283:28)
+    at async #simulateTx (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:357:28)
+    at async runOperation (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_lifecycle.js:19:24)
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_queue.js:73:24
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/serial_queue.js:58:33
+    at async FifoMemoryQueue.process (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/base_memory_queue.js:110:17) {
+  [cause]: {
+    code: -32702,
+    message: 'C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x0cc314ca0335038752d450c4680a9e61072dd66c24be4f7a58f5644776fe346b.'
+  }
+}
+[18:54:53.656] ERROR: embedded-wallet:pxe:service Error: Error: C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x06e17ff3ab64c758cfa136da0a3de8494cd742bb626420edb55e93ed02d56a70.
+    at request (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/json-rpc/client/safe_json_rpc_client.js:168:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async #simulatePublicCalls (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:283:28)
+    at async #simulateTx (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:357:28)
+    at async runOperation (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_lifecycle.js:19:24)
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_queue.js:73:24
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/serial_queue.js:58:33
+    at async FifoMemoryQueue.process (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/base_memory_queue.js:110:17) {
+  [cause]: {
+    code: -32702,
+    message: 'C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x06e17ff3ab64c758cfa136da0a3de8494cd742bb626420edb55e93ed02d56a70.'
+  }
+}
+[18:54:54.994] ERROR: embedded-wallet:pxe:service Error: Error: C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x0123e6642eeab9ff37b6281c79b88b262d3fea65fad1f1ae0cfa16b415d515b1.
+    at request (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/json-rpc/client/safe_json_rpc_client.js:168:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async #simulatePublicCalls (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:283:28)
+    at async #simulateTx (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:357:28)
+    at async runOperation (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_lifecycle.js:19:24)
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_queue.js:73:24
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/serial_queue.js:58:33
+    at async FifoMemoryQueue.process (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/base_memory_queue.js:110:17) {
+  [cause]: {
+    code: -32702,
+    message: 'C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x0123e6642eeab9ff37b6281c79b88b262d3fea65fad1f1ae0cfa16b415d515b1.'
+  }
+}
+[18:54:55.500] ERROR: embedded-wallet:pxe:service Error: Error: C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x0cc314ca0335038752d450c4680a9e61072dd66c24be4f7a58f5644776fe346b.
+    at request (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/json-rpc/client/safe_json_rpc_client.js:168:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async #simulatePublicCalls (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:283:28)
+    at async #simulateTx (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:357:28)
+    at async runOperation (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_lifecycle.js:19:24)
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_queue.js:73:24
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/serial_queue.js:58:33
+    at async FifoMemoryQueue.process (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/base_memory_queue.js:110:17) {
+  [cause]: {
+    code: -32702,
+    message: 'C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x0cc314ca0335038752d450c4680a9e61072dd66c24be4f7a58f5644776fe346b.'
+  }
+}
+[18:54:56.022] ERROR: embedded-wallet:pxe:service Error: Error: C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x0cc314ca0335038752d450c4680a9e61072dd66c24be4f7a58f5644776fe346b.
+    at request (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/json-rpc/client/safe_json_rpc_client.js:168:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async #simulatePublicCalls (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:283:28)
+    at async #simulateTx (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:357:28)
+    at async runOperation (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_lifecycle.js:19:24)
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_queue.js:73:24
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/serial_queue.js:58:33
+    at async FifoMemoryQueue.process (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/base_memory_queue.js:110:17) {
+  [cause]: {
+    code: -32702,
+    message: 'C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x0cc314ca0335038752d450c4680a9e61072dd66c24be4f7a58f5644776fe346b.'
+  }
+}
+[18:54:57.534] ERROR: embedded-wallet:pxe:service Error: Error: C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x173d4de5f08adfeefea9428a8bdab1ec3e80d5f9de244219a42b3d851eef033d.
+    at request (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/json-rpc/client/safe_json_rpc_client.js:168:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async #simulatePublicCalls (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:283:28)
+    at async #simulateTx (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:357:28)
+    at async runOperation (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_lifecycle.js:19:24)
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_queue.js:73:24
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/serial_queue.js:58:33
+    at async FifoMemoryQueue.process (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/base_memory_queue.js:110:17) {
+  [cause]: {
+    code: -32702,
+    message: 'C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x173d4de5f08adfeefea9428a8bdab1ec3e80d5f9de244219a42b3d851eef033d.'
+  }
+}
+[18:54:57.900] ERROR: embedded-wallet:pxe:service Error: Error: C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x173d4de5f08adfeefea9428a8bdab1ec3e80d5f9de244219a42b3d851eef033d.
+    at request (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/json-rpc/client/safe_json_rpc_client.js:168:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async #simulatePublicCalls (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:283:28)
+    at async #simulateTx (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:357:28)
+    at async runOperation (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_lifecycle.js:19:24)
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_queue.js:73:24
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/serial_queue.js:58:33
+    at async FifoMemoryQueue.process (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/base_memory_queue.js:110:17) {
+  [cause]: {
+    code: -32702,
+    message: 'C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x173d4de5f08adfeefea9428a8bdab1ec3e80d5f9de244219a42b3d851eef033d.'
+  }
+}
+[18:55:08.742] ERROR: embedded-wallet:pxe:service Error: Error: C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x2229da950e4476ef50c3e3e5cefe3769ff794471eee5611e8500c48cc722e09e.
+    at request (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/json-rpc/client/safe_json_rpc_client.js:168:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async #simulatePublicCalls (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:283:28)
+    at async #simulateTx (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:357:28)
+    at async runOperation (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_lifecycle.js:19:24)
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_queue.js:73:24
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/serial_queue.js:58:33
+    at async FifoMemoryQueue.process (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/base_memory_queue.js:110:17) {
+  [cause]: {
+    code: -32702,
+    message: 'C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x2229da950e4476ef50c3e3e5cefe3769ff794471eee5611e8500c48cc722e09e.'
+  }
+}
+{"seed":1,"mode":"real","steps":40,"wallMs":205058,"txSent":16,"sendMsTotal":169156,"expectedMix":{"ok":16,"AR-001":5,"PR-900":10,"PR-001":7,"PR-002":2},"divergenceRawDecode":3,"divergenceWithOrderedPrecheck":0,"divergences":3}
+[18:57:22.576] ERROR: embedded-wallet:pxe:service Error: Error: C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x05f03f243425fe148499cade4e8a6ded43c71ded5eff89045f0520ab5d8f432c.
+    at request (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/json-rpc/client/safe_json_rpc_client.js:168:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async #simulatePublicCalls (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:283:28)
+    at async #simulateTx (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:357:28)
+    at async runOperation (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_lifecycle.js:19:24)
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_queue.js:73:24
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/serial_queue.js:58:33
+    at async FifoMemoryQueue.process (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/base_memory_queue.js:110:17) {
+  [cause]: {
+    code: -32702,
+    message: 'C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x05f03f243425fe148499cade4e8a6ded43c71ded5eff89045f0520ab5d8f432c.'
+  }
+}
+{"seed":2,"mode":"real","steps":40,"wallMs":171977,"txSent":15,"sendMsTotal":140392,"expectedMix":{"ok":15,"AR-001":11,"PR-900":12,"PR-001":1,"PR-002":1},"divergenceRawDecode":0,"divergenceWithOrderedPrecheck":0,"divergences":0}
+{"seed":3,"mode":"real","steps":40,"wallMs":111627,"txSent":9,"sendMsTotal":82423,"expectedMix":{"ok":9,"PR-900":15,"AR-001":15,"PR-002":1},"divergenceRawDecode":0,"divergenceWithOrderedPrecheck":0,"divergences":0}
+[19:02:25.124] ERROR: embedded-wallet:pxe:service Error: Error: C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x0ce39b6c5f343738af64d3ffaf1d63bdd86c1c4f022925740133c910ad0881ad.
+    at request (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/json-rpc/client/safe_json_rpc_client.js:168:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async #simulatePublicCalls (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:283:28)
+    at async #simulateTx (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:357:28)
+    at async runOperation (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_lifecycle.js:19:24)
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_queue.js:73:24
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/serial_queue.js:58:33
+    at async FifoMemoryQueue.process (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/base_memory_queue.js:110:17) {
+  [cause]: {
+    code: -32702,
+    message: 'C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x0ce39b6c5f343738af64d3ffaf1d63bdd86c1c4f022925740133c910ad0881ad.'
+  }
+}
+{"seed":42,"mode":"real","steps":40,"wallMs":164676,"txSent":14,"sendMsTotal":130132,"expectedMix":{"ok":14,"PR-900":13,"AR-001":5,"PR-002":7,"PR-001":1},"divergenceRawDecode":0,"divergenceWithOrderedPrecheck":0,"divergences":0}
+[19:05:14.044] ERROR: embedded-wallet:pxe:service Error: Error: C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x09be81e3869081d61d65b05d07f643a843d473244918cb87758ef58f86a2cea1.
+    at request (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/json-rpc/client/safe_json_rpc_client.js:168:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async #simulatePublicCalls (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:283:28)
+    at async #simulateTx (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:357:28)
+    at async runOperation (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_lifecycle.js:19:24)
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_queue.js:73:24
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/serial_queue.js:58:33
+    at async FifoMemoryQueue.process (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/base_memory_queue.js:110:17) {
+  [cause]: {
+    code: -32702,
+    message: 'C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x09be81e3869081d61d65b05d07f643a843d473244918cb87758ef58f86a2cea1.'
+  }
+}
+[19:05:59.107] ERROR: embedded-wallet:pxe:service Error: Error: C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x168b0870b9fd916ed3a355a5c7f78bbe101fbb83042ca133fcf60dedd4f2d2d5.
+    at request (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/json-rpc/client/safe_json_rpc_client.js:168:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async #simulatePublicCalls (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:283:28)
+    at async #simulateTx (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:357:28)
+    at async runOperation (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_lifecycle.js:19:24)
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_queue.js:73:24
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/serial_queue.js:58:33
+    at async FifoMemoryQueue.process (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/base_memory_queue.js:110:17) {
+  [cause]: {
+    code: -32702,
+    message: 'C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x168b0870b9fd916ed3a355a5c7f78bbe101fbb83042ca133fcf60dedd4f2d2d5.'
+  }
+}
+[19:06:00.615] ERROR: embedded-wallet:pxe:service Error: Error: C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x19871bba2a10062cc17c5c452c66b5439ebf477d54790f7710d1ecd04b3ca28d.
+    at request (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/json-rpc/client/safe_json_rpc_client.js:168:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async #simulatePublicCalls (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:283:28)
+    at async #simulateTx (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:357:28)
+    at async runOperation (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_lifecycle.js:19:24)
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_queue.js:73:24
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/serial_queue.js:58:33
+    at async FifoMemoryQueue.process (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/base_memory_queue.js:110:17) {
+  [cause]: {
+    code: -32702,
+    message: 'C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x19871bba2a10062cc17c5c452c66b5439ebf477d54790f7710d1ecd04b3ca28d.'
+  }
+}
+[19:06:01.799] ERROR: embedded-wallet:pxe:service Error: Error: C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x09be81e3869081d61d65b05d07f643a843d473244918cb87758ef58f86a2cea1.
+    at request (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/json-rpc/client/safe_json_rpc_client.js:168:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async #simulatePublicCalls (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:283:28)
+    at async #simulateTx (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:357:28)
+    at async runOperation (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_lifecycle.js:19:24)
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_queue.js:73:24
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/serial_queue.js:58:33
+    at async FifoMemoryQueue.process (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/base_memory_queue.js:110:17) {
+  [cause]: {
+    code: -32702,
+    message: 'C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x09be81e3869081d61d65b05d07f643a843d473244918cb87758ef58f86a2cea1.'
+  }
+}
+{"seed":1234,"mode":"real","steps":40,"wallMs":213927,"txSent":17,"sendMsTotal":175288,"expectedMix":{"ok":17,"PR-900":9,"AR-001":7,"PR-002":6,"PR-001":1},"divergenceRawDecode":4,"divergenceWithOrderedPrecheck":0,"divergences":4}
+[19:06:12.294] ERROR: embedded-wallet:pxe:service Error: Error: C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x1af1f1aeec7b774455aaae91fe8a9ce6c1ee90669348177e90e54022c98d0d03.
+    at request (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/json-rpc/client/safe_json_rpc_client.js:168:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async #simulatePublicCalls (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:283:28)
+    at async #simulateTx (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/pxe.js:357:28)
+    at async runOperation (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_lifecycle.js:19:24)
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/pxe/dest/operation_queue.js:73:24
+    at async file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/serial_queue.js:58:33
+    at async FifoMemoryQueue.process (file:///Users/abuusama/projects/architect/.claude/worktrees/peaceful-gauss-d7f962/spikes/chain-languages/aztec/client/node_modules/@aztec/foundation/dest/queue/base_memory_queue.js:110:17) {
+  [cause]: {
+    code: -32702,
+    message: 'C++ simulation failed: AVM simulation failed: [R_NULLIFIER_INSERTION] UNRECOVERABLE ERROR! Nullifier collision: Attempted to emit duplicate siloed nullifier 0x1af1f1aeec7b774455aaae91fe8a9ce6c1ee90669348177e90e54022c98d0d03.'
+  }
+}

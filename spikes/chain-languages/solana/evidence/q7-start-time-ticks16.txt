@@ -1,0 +1,1 @@
+solana-test-validator --ticks-per-slot 16: RPC healthy 0.48s after launch

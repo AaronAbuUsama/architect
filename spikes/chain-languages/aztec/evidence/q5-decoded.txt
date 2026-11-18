@@ -1,0 +1,23 @@
+┌─────────┬───────────────────────────────────────────┬───────────────────┬───────────────────────────────────────────────────────────────────────────┬──────────┐
+│ (index) │ case                                      │ tag               │ code                                                                      │ state    │
+├─────────┼───────────────────────────────────────────┼───────────────────┼───────────────────────────────────────────────────────────────────────────┼──────────┤
+│ 0       │ 'open.nonadmin.simulate'                  │ 'NotAllowed'      │ 'AR-001'                                                                  │ ''       │
+│ 1       │ 'add_member.nonadmin.simulate'            │ 'NotAllowed'      │ 'AR-001'                                                                  │ ''       │
+│ 2       │ 'close.nonadmin.simulate'                 │ 'NotAllowed'      │ 'AR-001'                                                                  │ ''       │
+│ 3       │ 'vote.nonmember.simulate'                 │ 'NotAllowed'      │ 'AR-001'                                                                  │ ''       │
+│ 4       │ 'vote.nonmember.simulate.absentProposal'  │ 'NotAllowed'      │ 'AR-001'                                                                  │ ''       │
+│ 5       │ 'tally.direct.call.only_self'             │ 'NoCodeOfOurs'    │ '-- only_self guard'                                                      │ ''       │
+│ 6       │ 'open.duplicate.simulate'                 │ 'ProposalExists'  │ 'PR-002'                                                                  │ ''       │
+│ 7       │ 'close.absent.simulate'                   │ 'ProposalNotOpen' │ 'PR-900'                                                                  │ 'absent' │
+│ 8       │ 'vote.absent.simulate'                    │ 'ProposalNotOpen' │ 'PR-900'                                                                  │ 'absent' │
+│ 9       │ 'open.duplicate.skipSimulation.sendTx'    │ 'NoCodeOfOurs'    │ '-- mined-but-reverted (receipt carries a revert code, never the reason)' │ ''       │
+│ 10      │ 'vote.second.simulate'                    │ 'AlreadyVoted'    │ 'PR-001'                                                                  │ ''       │
+│ 11      │ 'vote.second.skipSimulation.sendTx'       │ 'AlreadyVoted'    │ 'PR-001'                                                                  │ ''       │
+│ 12      │ 'vote.pending.second.afterFirstMined'     │ 'AlreadyVoted'    │ 'PR-001'                                                                  │ ''       │
+│ 13      │ 'vote.resend.identicalTx'                 │ 'AlreadyVoted'    │ 'PR-001'                                                                  │ ''       │
+│ 14      │ 'vote.second.whileFirstPending.sendTx'    │ 'AlreadyVoted'    │ 'PR-001'                                                                  │ ''       │
+│ 15      │ 'vote.closedBetweenProveAndSend'          │ 'NoCodeOfOurs'    │ '-- mined-but-reverted (receipt carries a revert code, never the reason)' │ ''       │
+│ 16      │ 'vote.closed.simulate'                    │ 'ProposalNotOpen' │ 'PR-900'                                                                  │ 'failed' │
+│ 17      │ 'vote.closed.afterRevert.simulate(again)' │ 'ProposalNotOpen' │ 'PR-900'                                                                  │ 'failed' │
+│ 18      │ 'client.badArgument'                      │ 'NoCodeOfOurs'    │ '-- other'                                                                │ ''       │
+└─────────┴───────────────────────────────────────────┴───────────────────┴───────────────────────────────────────────────────────────────────────────┴──────────┘

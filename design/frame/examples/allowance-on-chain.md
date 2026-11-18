@@ -3,6 +3,8 @@
 Part of the frame's worked examples ([`../README.md`](../README.md)). Proposed, 17 November 2026; it follows layer 4 of
 the build plan (L4.01 to L4.09) and the chain pieces of layer 3 (L3.04 to L3.08).
 
+**Built as the budgets feature** of the growing example's stage 3 (K9, ST3.05): a Safe module, the allowance per hat.
+
 **Languages: Effect and Solidity.** "Language" is the axis that was called "target" before: the language the code
 comes out in (Effect, Solidity, Noir, Python), packaged as `@orthograph/language-effect`, `@orthograph/language-solidity`.
 It is not a host (where the code runs: here `Host.worker` and `Host.chain`) and not a projection (what is shipped:
@@ -12,7 +14,8 @@ here the server, the SDK and the contracts).
 
 acme's allowance today lives in the database: the server holds the money's record, and you trust the server. Moved on
 chain, each organisation's money sits in a vault contract. A member spends by signing; the server relays the signed
-call but holds no person's key and can't spend for anyone. The rules (the limit, the states, who may do what) are the
+call, and its relayer key can only submit payloads someone already signed. Where a member's own key lives is declared
+per wallet (K7 F5). The rules (the limit, the states, who may do what) are the
 same rules, enforced by the contract.
 
 The point of this example: **the same machine** produces both the TypeScript and the Solidity, and the two are tested
@@ -106,8 +109,8 @@ signer signs it, and the relayer submits it (L4.06). The server checks the signa
 | chain follower | contract | follows the vault's logs with a checkpoint, handles reorgs, emits corrections | L3.08 |
 
 Both are Durable Objects inside the environment's one Worker, so each is a single writer with its own storage. The
-relayer's key can only submit payloads someone already signed. Gate 4 checks that no person's key is anywhere in the
-server's secrets or bindings (L4.09).
+relayer's key can only submit payloads someone already signed. M6.18 checks that no key is ever in plain text in a
+binding, a commit or a log, and that each wallet declares where its key lives (K7 F5).
 
 Reads come back through the follower: `allowance.get` reads the follower's view, not the chain, so a read is fast and a
 reorg is corrected rather than silently wrong.

@@ -1,0 +1,15 @@
+## 4/5 ctx that reaches run
+{"via":"HTTP (no frontend header)","ctx":{"userEmail":"alice@example.com","orgId":null,"appId":"spike","caller":"http","requestHeaders":{"content-type":"application/json"},"signal":"[AbortSignal]","actionName":"who"}}
+{"via":"frontend header (useActionMutation shape, unproven UI)","ctx":{"userEmail":"alice@example.com","orgId":null,"appId":"spike","caller":"frontend","requestHeaders":{"content-type":"application/json","idempotency-key":"k-123","x-agent-native-browser-tab":"tab-1","x-agent-native-frontend":"1","x-request-source":"tab-1"},"signal":"[AbortSignal]","actionName":"who"}}
+{"via":"agent tool (real loop, executeAgentToolCall)","ctx":{"send":"[fn]","settle":"[fn]","userEmail":"alice@example.com","orgId":null,"appId":"spike","caller":"tool","threadId":"th_1","runId":"run_1","turnId":"turn_1","blockedA2ATargets":{},"signal":"[AbortSignal]","actionName":"who","toolCallId":"toolu_01ABC","maxResultChars":50000}}
+{"via":"CLI runner (ctx per scripts/runner, read not run)","ctx":{"caller":"cli","userEmail":"dev@local.test"}}
+## 5 retry identity: two tool calls with the same args, as a model retry makes them
+worker saw keys: ["tool:toolu_A","tool:toolu_A","tool:toolu_B"] committed votes: 2
+HTTP vote with needsApproval:true -> {"status":409,"body":{"error":"\"vote-gated\" requires human approval for these arguments, which an HTTP action call cannot grant. Ask the user to approve it in the app's agent chat, or call it as an MCP tool, where the approval flow exists.","errorCode":"approval_required"}}
+## 6 approvals
+HTTP plain      : {"status":409,"body":{"error":"\"vote-gated-counting\" requires human approval for these arguments, which an HTTP action call cannot grant. Ask the user to approve it in the app's agent chat, or call it as an MCP tool, where the approval flow exists.","errorCode":"approval_required"}}
+frontend header : {"status":403,"body":{"error":"\"vote-gated-counting\" requires approval for these arguments, which only the signed-in app can give.","errorCode":"ui_capability_required"}}
+agent tool      : {"status":"approval_required","output":"Awaiting human approval to run \"vote\". This action did NOT execute. The turn is paused until this specific call is approved; do not retry it before then. Once approved, re-emit this exact call once so it can run, then summarize its result.","completedSideEffect":false,"approvalKey":"vote:{\"choice\":\"yes\",\"proposal\":\"p1\",\"stake\":\"1\",\"weight\":1}","approval":"approval_required event"}
+run() invocations after those three: 0
+after the person approves (approvedToolCalls=[key]): {"status":"completed","output":"{\"voteId\":\"v3\",\"tally\":3}","ctxSeenByRun":[{"approvedToolCallKey":"vote:{\"choice\":\"yes\",\"proposal\":\"p1\",\"stake\":\"1\",\"weight\":1}","toolCallId":"toolu_01ABC"}]}
+exposure: mcpTool:false -> false ; agent tool list: ["vote"]
