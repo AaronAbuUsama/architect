@@ -14,52 +14,47 @@ questions:
 status: draft
 milestone: M1
 slices: [M1.19, M1.17]
-decisions: [N1, D3, O2, D1]
-links: [blueprint, machines, stores, traces, operations, roles, secrets]
+decisions: [N1, D3, O2, K3, K5]
+links: [blueprint, data, machines, stores, operations, roles, secrets, traces, views, doors]
 ---
 
 ## The idea
 
-A thing is a noun your system keeps: an allowance, a person, an organisation. It has an id, a set of named fields,
-and a home. Each field is made of a value, a named type such as `Amount` or `Memo`, declared once and used
-everywhere. Every value and every field also says who may see it: its visibility. It is public unless you mark it
-secret, or private to some roles. One rule decides what a reader sees: **the declaration's mark is the only thing
-that decides who sees a field, and every output Forman makes reads that one mark.** The answer to a caller, the
-journal, a span, the model and the docs all read it. Nothing downstream can widen it.
+A thing is a noun your system keeps: a sign-up sheet, a person, a draft. It has an id and a set of named fields, and it
+lives in a store (which store, and who may write it, is [data](data.mdx)). Each field is made of a value, a named type
+such as `Count` or `Title`, declared once and used everywhere. Every value and every field also says who may see it:
+its visibility. It is public unless you mark it secret, or private to some roles. One rule decides what a reader sees:
+**the declaration's mark is the only thing that decides who sees a field, and every output Orthograph makes reads that
+one mark.** The model, the docs, the journal, a span and the MCP door all read it, and nothing downstream can widen it.
+Three doors don't yet narrow a private field as MCP does: see the note `private-over-http`.
 
 ## The smallest example
 
-Acme's allowance is a thing. It has an id, two fields taken from other things, and two amounts:
+The sign-up sheet is a thing. It has an id, a title, and two counts:
 
-```ts file=examples/acme/blueprint/things/allowance/thing.ts lines=6-15
-export const Allowance = Blueprint.thing({
-  description: "Money a member may spend from their organisation, up to a limit each month.",
-  fields: {
-    id: Blueprint.id("alw"),
-    organization: Organization.fields.id,
-    member: Person.fields.id,
-    limit: Amount,
-    spent: Amount,
-  },
+```ts file=examples/signup/blueprint/things/sheet/thing.ts lines=4-7
+export const Sheet = Blueprint.thing({
+  description: "A sign-up sheet with a fixed number of places.",
+  fields: { id: Blueprint.id("sht"), title: Title, places: Count, taken: Count },
 });
 ```
 
-`Amount` and `Memo` are values, named once in `examples/acme/blueprint/values/money.ts`:
+`Count` and `Title` are values, named once in `examples/signup/blueprint/values/counts.ts`:
 
-```ts file=examples/acme/blueprint/values/money.ts lines=3-6
-export const Amount = Blueprint.value(Blueprint.uint(128));
-
-/** What a spend was for, in a few words. */
-export const Memo = Blueprint.value(Blueprint.text());
+```ts file=examples/signup/blueprint/values/counts.ts lines=3-6
+/** How many of something. */
+export const Count = Blueprint.value(Blueprint.uint(32));
+/** A short name a person types. */
+export const Title = Blueprint.value(Blueprint.text({ max: 120 }));
 ```
 
-The compiled model is rendered here, not copied. Every field says its value, the name of that value, and the field
-of another thing it came from:
+The compiled model is rendered here, not copied. Every field says its value, and the name of that value:
 
-<Model project="examples/acme" thing="allowance" show="fields" />
+<Model project="examples/signup" thing="sheet" show="fields" />
 
-None of the allowance's fields is marked, so all of them are public. Acme's secrets are in
-`examples/acme/blueprint/values/identity.ts`. A password and a bearer token are values marked secret, once:
+None of the sheet's fields is marked, so all of them are public. A sign-up sheet has nothing to hide, so secret and
+private are shown with acme, whose starter signs people in with a password. In acme, a password and a bearer token are
+values marked secret, once:
 
 ```ts file=examples/acme/blueprint/values/identity.ts lines=3-6
 /** What a person signs in with. Never stored by the project: Better Auth keeps only its hash. Secret: never in telemetry. */
@@ -72,8 +67,8 @@ export const Secret = Blueprint.visibility.secret(Blueprint.text({ max: 512 }));
 
 ### A value is a named type
 
-A value is a schema with a name and a visibility. Forman gives you five makers, and `Blueprint.value` names anything
-else, such as an Effect `Schema.Literals`:
+A value is a schema with a name and a visibility. Orthograph gives you five makers, and `Blueprint.value` names
+anything else, such as an Effect `Schema.Literals`:
 
 ```ts file=packages/forman/src/modules/values/types.ts lines=23-35
 export interface ValuesApi {
@@ -93,21 +88,30 @@ export interface ValuesApi {
 
 Values are named for three reasons:
 
-- **One meaning everywhere.** The model records each field's value and its name (`named: "Amount"`). So every
-  output reads the same type: a `bigint` in Effect, a decimal string on the wire, and later a `uint128` in Solidity.
-  Change `Amount` once and every field made of it changes.
-- **One mark everywhere.** Visibility rides on the value. `Password` is marked secret once, and every payload field
-  made of it, in `sign-up` and `sign-in`, is secret with no further word.
-- **A name a reader can say.** `limit: Amount` says what the field is. `limit: Blueprint.uint(128)` only says how
-  big it is.
+- **One meaning everywhere.** The model records each field's value and its name (`named: "Count"`). So every output
+  reads the same type: a `bigint` in Effect, a decimal string on the wire. `places` and `taken` are both a `Count`, so
+  they can never drift apart, and changing `Count` once changes both. A value's type in a chain language waits on K7
+  (ledger `THI-01`).
+- **One mark everywhere.** Visibility rides on the value. acme's `Password` is marked secret once, and every payload
+  field made of it, in `sign-up` and `sign-in`, is secret with no further word.
+- **A name a reader can say.** `places: Count` says what the field is. `places: Blueprint.uint(32)` only says how big
+  it is.
+
+There is no value for a time, a yes-or-no or a list of choices yet. That is one reason the sheet has no closing date.
 
 ### An id is a value with a prefix
 
-`Blueprint.id("alw")` makes text that starts with `alw_` and is branded as an allowance's id. Ids of different things
-never mix: the organisation field takes `org_1` and refuses `alw_1`
+`Blueprint.id("sht")` makes text that starts with `sht_` and is branded as a sheet's id. Ids of different things never
+mix: a field that takes an organisation's id takes `org_1` and refuses `alw_1`
 (`packages/forman/src/modules/things/things.test.ts:24`). A new id is the prefix and random base-36, and the random
 comes from Effect, so a test world can seed it (`packages/language-effect/src/modules/ids/types.ts:1`). Every thing
-must have a field called `id`: the type of `Blueprint.thing` asks for one (`packages/forman/src/modules/things/types.ts:35`).
+must have a field called `id`: the type of `Blueprint.thing` asks for one
+(`packages/forman/src/modules/things/types.ts:35`). The sheet's handler for `open` makes one:
+
+```ts file=examples/signup/src/sheet/open.ts lines=11-12
+const sheet = yield* Ids.of(Sheet.fields.id);
+yield* steps.insert(records.insert(Sheet, { id: sheet, title, places, taken: 0n }));
+```
 
 ### A field is a value in a place
 
@@ -127,22 +131,30 @@ export interface Field<V extends Value = Value> {
 }
 ```
 
-You declare a field as a value (`limit: Amount`), or as another thing's field (`organization:
-Organization.fields.id`). The second is an edge: the model records `ref: "organization.id"`, and the field takes
-that field's type and visibility. Payloads and answers are made of fields too, so `allowance.spend` takes
-`Allowance.fields.id` and gets the same id type the thing has.
+You declare a field as a value (`places: Count`), or as another thing's field. Payloads and answers are made of fields
+too, so `sheet.join` takes `Sheet.fields.id` and gets the same id type the thing has:
 
-A thing has two more parts. `lives` says which store holds it: today `"database"` (the default) or `"actor"`
-(`packages/forman/src/modules/things/types.ts:32`). Where that is, and what a store does, is `stores`. And `code` is
-the prefix of the thing's refusal codes, `AL` in `AL-900`. When it is unset the compiler takes two letters of the
-name.
+```ts file=examples/signup/blueprint/things/sheet/verbs/join.ts lines=9-10
+payload: { sheet: Sheet.fields.id, people: Count },
+answer: { left: Count },
+```
+
+A thing's field taken from another thing is an edge: the model records `ref`, and the field takes that field's type
+and visibility. The sheet stands alone, so acme shows one: its allowance's `organization: Organization.fields.id`
+records `ref: "organization.id"`.
+
+A thing has two more parts. `lives` says which store it lives in. Leave it out, as the sheet does, and it lives in
+the project's default store: the model above says `"lives": "database"`. What a store is, and the other places data
+lives, is [data](data.mdx). Today the code takes a closed list, `"database"` or `"actor"`
+(`packages/forman/src/modules/things/types.ts:32`); K3 makes store kinds open, built in M1.17. And `code` is the prefix
+of the thing's refusal codes, `SH` in `SH-001`. When it is unset the compiler takes two letters of the name.
 
 ### A name comes from a path
 
-You never write a thing's name. The folder `blueprint/things/allowance/` names it `allowance`, and the compiler
-gives it the identifier `Allowance`. A value is named by its export, so `export const Amount` is `Amount` in the
-model. The prefix you pass to `Blueprint.id` is part of the value, not a name. How the folders map to names, and why a
-name is never written as a string, is on `blueprint`.
+You never write a thing's name. The folder `blueprint/things/sheet/` names it `sheet`, and the compiler gives it the
+identifier `Sheet`. A value is named by its export, so `export const Count` is `Count` in the model. The prefix you
+pass to `Blueprint.id` is part of the value, not a name. How the folders map to names, and why a name is never written
+as a string, is on [blueprint](blueprint.mdx).
 
 ### Who may see a field
 
@@ -172,7 +184,7 @@ export interface VisibilityApi {
 - **private to roles**: a value only some roles may see, such as a balance an admin may read.
 
 A mark gives back a copy of the same kind, so a marked value goes wherever the original went. You can mark a value,
-as `Password` is, or one use of a field. Acme's `sign-in` answers the session's own id, marked secret for this one
+as `Password` is, or one use of a field. acme's `sign-in` answers the session's own id, marked secret for this one
 answer, without touching the session thing's field:
 
 ```ts file=examples/acme/blueprint/things/session/verbs/sign-in.ts lines=9-10
@@ -180,7 +192,7 @@ payload: { email: Person.fields.email, password: Password },
 answer: { session: Blueprint.visibility.secret(Session.fields.id), token: Secret },
 ```
 
-Acme has no private field yet. This is the test that proves the mark, with a role made for it:
+No example has a private field yet. This is the test that proves the mark, with a role made for it:
 
 ```ts file=packages/forman/src/modules/visibility/visibility.test.ts lines=41-47
 it("is private to a list of roles", () => {
@@ -212,26 +224,28 @@ Where each row is decided:
 - **The answer over MCP** goes through one test of what a caller has seen
   (`packages/language-effect/src/modules/mcp/internal/shown.ts:9`). The roles the caller holds are asked only when
   some field is private, the way the role check decides them (D3 #125). A field the declaration doesn't name is never
-  shown. This is why `session.sign-in` can't be called through MCP: a password never passes through an agent.
+  shown. This is why acme's `session.sign-in` can't be called through MCP: a password never passes through an agent.
+  Every door and what it reaches is [doors](doors.mdx).
 - **The journal** keeps only an event's public fields
   (`packages/language-effect/src/modules/handler/internal/move.ts:70`, through
   `packages/language-effect/src/modules/handler/internal/attributes.ts:39`). The journal is a record anyone who
   reads it can see. So a journey can check a secret field of an event only through the answer, never through the
-  event. How events reach the journal is `machines`.
+  event. How events reach the journal is [machines](machines.mdx).
 - **Spans** take an allowlist: only a declared public field becomes `payload.<field>` or `answer.<field>`
   (`packages/language-effect/src/modules/handler/internal/attributes.ts:10`). A field the declaration doesn't name is
-  left out too, so it fails closed. Logs your handler writes are yours, but `prove` checks that no secret value it
-  sent or was answered appears in any span or log of the call. What a span says is `traces`.
+  left out too, so it fails closed. Logs your handler writes are yours, but `ortho prove` checks that no secret value
+  it sent or was answered appears in any span or log of the call. What a span says is [traces](traces.mdx).
 - **The model** leaves public out, writes `"secret"`, or names the roles. A private field whose role isn't exported
-  from a `roles.ts` is a problem `forman check` reports
+  from a `roles.ts` is a problem `ortho check` reports
   (`packages/compiler/src/modules/model/internal/describe.ts:29`).
 
-Free text is the one public value that is still traced. Acme's `memo` ("lunch", "hotel") is a public `text`, so it
-is written on every `spend` span today. M1.19 stops that: a public `Blueprint.text()` stays in answers and events,
-but is never a span attribute unless it is marked:
+Free text is the one public value that is still traced. The sheet's `title` ("Saturday clean-up") is a public `text`,
+so today it is written on every `sheet.open` span as `payload.title`. M1.19 stops that: a public `Blueprint.text()`
+stays in answers and events, but is never a span attribute unless it is marked. A title is something a person types,
+so it stays unmarked; a short code you search by would be marked:
 
-```ts planned=M1.19 path=blueprint/values/money.ts
-export const Memo = Blueprint.traced(Blueprint.value(Blueprint.text()));
+```ts planned=M1.19 path=blueprint/values/codes.ts
+export const Ref = Blueprint.traced(Blueprint.value(Blueprint.text({ max: 12 })));
 ```
 
 ## Choices
@@ -240,7 +254,7 @@ export const Memo = Blueprint.traced(Blueprint.value(Blueprint.text()));
 
 | | public | secret | private to roles |
 |---|---|---|---|
-| Use it for | ids, amounts, states, names you search by | passwords, tokens, keys, a session handed over once | a value some roles may read and others may not |
+| Use it for | ids, counts, states, names you search by | passwords, tokens, keys, a session handed over once | a value some roles may read and others may not |
 | You can find it in a trace | yes (free text from M1.19 only if marked) | no | no |
 | It is in the event, so a view or a journey's `emits` can read it | yes | no | no |
 | An agent can send it or read it over MCP | yes | no | only an agent acting for someone who holds the role |
@@ -257,32 +271,32 @@ answer that hands it over.
 
 ### A value, or another thing's field
 
-Declare a field as another thing's field when it points at that thing: `member: Person.fields.id`. You get the same
-id type, the visibility that field has, and an edge in the model. Declare it as a value when it is the thing's own
-fact: `limit: Amount`.
+Declare a field as another thing's field when it points at that thing, such as acme's `member: Person.fields.id`. You
+get the same id type, the visibility that field has, and an edge in the model. Declare it as a value when it is the
+thing's own fact: `places: Count`.
 
 ### Where it lives
 
 Leave `lives` out, and the thing lives in the project's default store. Choosing a store, and what each kind can do,
-is on `stores`.
+is [data](data.mdx), and in depth [stores](stores.mdx).
 
 ## What it is not
 
 - **Not a table.** A thing is what the system keeps, not how. A store holds its tables, and a thing that lives as an
-  actor has none. See `stores`.
-- **Not its state.** A thing's state, `active` or `revoked`, is not a field you write. Its machine owns it and moves
-  it. See `machines`.
+  actor has none. See [stores](stores.mdx).
+- **Not its state.** A sheet's state, `open` or `full`, is not a field you write. Its machine owns it and moves it.
+  See [machines](machines.mdx).
 - **Not a secret in the `secrets` sense.** A secret field is the user's data, such as a password a person types. A
   value in `secrets` is the project's own, such as Stripe's key, named by the description and never held by it.
-- **Not a role.** Private visibility names roles, but who may call an operation at all is `roles`.
-- **Not a list.** A thing is one instance. A list across things, or across stores, is a view: see `views`.
+- **Not a role.** Private visibility names roles, but who may call an operation at all is [roles](roles.mdx).
+- **Not a list.** A thing is one instance. A list across things, or across stores, is a view: see [views](views.mdx).
 
 ## Where it lives
 
 | What | Where | |
 |---|---|---|
-| A thing, its field and its home | `packages/forman/src/modules/things/types.ts:22` | built |
-| A thing's home, a closed list | `packages/forman/src/modules/things/types.ts:32` | built, open kinds M1.17 |
+| A thing and its fields | `packages/forman/src/modules/things/types.ts:22` | built |
+| Where a thing lives, a closed list today | `packages/forman/src/modules/things/types.ts:32` | built, open kinds M1.17 |
 | The value makers | `packages/forman/src/modules/values/types.ts:23` | built |
 | The three visibilities and their marks | `packages/forman/src/modules/visibility/types.ts:15` | built |
 | Visibility in the model | `packages/compiler/src/modules/model/internal/describe.ts:29` | built |
@@ -300,11 +314,16 @@ is on `stores`.
 |---|---|---|---|
 | Things, fields and ids, and ids that never mix | proved | layer 1 | `packages/forman/src/modules/things/things.test.ts:14` |
 | Values and their schemas | proved | layer 1 | `packages/forman/src/modules/values/values.test.ts:9` |
+| The sheet, its fields and values, compiled and proved | proved | | `e2e/layer1/08-signup-proves.test.ts:10` |
 | Public by default, secret, private, and marking one field | proved | layer 2 | `packages/forman/src/modules/visibility/visibility.test.ts:10` |
 | No secret or private value on a span; the journal keeps public fields only | proved | layer 2 | `packages/language-effect/src/modules/handler/internal/attributes.test.ts:53` |
 | MCP shows public fields, a private one only to its role, a secret never | proved | layer 2 | `packages/language-effect/src/modules/mcp/mcp.test.ts:62` |
-| Free text untraced unless marked | specified | M1.19 | `payload.memo` absent from `spend`'s span (O2 gap 2) |
-| A thing lives in a store of an open kind | specified | M1.17 | see `stores` |
+| Free text untraced unless marked | specified | M1.19 | `payload.title` absent from `sheet.open`'s span (O2 gap 2) |
+| A thing lives in a store of an open kind | specified | M1.17 | see [stores](stores.mdx) |
+| A private field redacted at every door | open | none | `OPS-01` |
+
+The page is a draft because two questions about what a mark means are open: a private field over HTTP (`OPS-01`) and a
+secret field at rest. Everything else on it is proved or specified.
 
 ## Notes
 
@@ -322,18 +341,25 @@ is on `stores`.
   Gap 2: free text is not traced unless it is marked. Ids, amounts, enums, booleans and times stay traced when public.
 </Note>
 
+<Note kind="decision" decision="K3">
+  A thing lives in a store, and store kinds are an open list (item 2). The word "home" is retired (ledger `G-03`); a
+  thing's `lives` is owned by [data](data.mdx).
+</Note>
+
 <Note kind="question" id="private-over-http">
-  Should the HTTP API, the SDK and the CLI redact a private field the way MCP does? Today they send every declared
-  field to any caller the operation allows, and D3 #125 says so: "the redaction is MCP's". No acme field is private, so
-  nothing shows the gap yet. If "private to roles" is to mean the same in every client, the server must redact, not
-  the MCP door.
+  Ledger `OPS-01`. Should the HTTP API, the SDK and the CLI redact a private field the way MCP does? Today they send
+  every declared field to any caller the operation allows, and D3 #125 says so: "the redaction is MCP's". No example's
+  field is private, so nothing shows the gap yet. K5 puts each operation's enforcer in one place, the wrapper on the
+  Worker, and every door reaches it ([doors](doors.mdx)). That is where a private field would have to be redacted for
+  "private to roles" to mean the same in every door. No slice owns it yet.
 </Note>
 
 <Note kind="question" id="secret-at-rest">
   What does secret mean for a thing's own field, at rest? The mark keeps it out of telemetry, the journal and MCP. But
   the store keeps every field as it came: D1 gets a `TEXT` column for each one
-  (`packages/generators/src/modules/render/internal/worker-config.ts:62`). Acme avoids this by never storing its
-  secrets (Better Auth keeps only a hash). Nothing refuses, hashes or encrypts a secret field on a thing.
+  (`packages/generators/src/modules/render/internal/worker-config.ts:62`). acme avoids this by never storing its
+  secrets (Better Auth keeps only a hash). Nothing refuses, hashes or encrypts a secret field on a thing. No ledger
+  row or slice owns it yet.
 </Note>
 
 <Note kind="question" id="value-visibility-in-model" slice="M1.03">
@@ -343,23 +369,24 @@ is on `stores`.
 </Note>
 
 <Note kind="question" id="visibility-on-a-store" slice="M1.17">
-  What each visibility means in each kind of store is open, above all for a chain or private state. That question
-  belongs to `stores`, as its note `visibility-per-kind`.
+  What each visibility means in each kind of store is open, above all for private state on a chain (ledger `G-04`).
+  Chain store kinds wait on K7. That question belongs to [stores](stores.mdx), as its note `visibility-per-kind`.
 </Note>
 
 <Note kind="question" id="lives-closed-list" slice="M1.17">
-  A thing's home is still a closed list: `"database"` or `"actor"`
+  Ledger `X-17` and `STO-26`. A thing's store is still a closed list in code: `"database"` or `"actor"`
   (`packages/forman/src/modules/things/types.ts:32`, and again in `packages/compiler/src/modules/model/types.ts:41`).
-  K3 says a thing lives in a store of an open kind. The change is in `stores`.
+  K3 says a thing lives in a store of an open kind, and K5 makes a chain a host whose store kind is `chain`. What a
+  thing declares to live on a chain waits on K7. The change is in [stores](stores.mdx).
 </Note>
 
 <Note kind="question" id="file-as-field">
-  K3 says R2 holds files, "which are fields", and `stores` sends a reader here for them. No value for a file exists,
-  and no slice builds one. Until one does, a file is not a field.
+  K3 says R2 holds files, "which are fields", and [stores](stores.mdx) sends a reader here for them. No value for a
+  file exists, and no slice builds one. Until one does, a file is not a field.
 </Note>
 
 <Note kind="question" id="target-word">
-  The retired word "target" still means language in two comments the page leans on:
+  Ledger `G-02`. The retired word "target" still means language in two comments the page leans on:
   `packages/forman/src/modules/values/types.ts:8` ("readable by every target") and
   `packages/forman/src/modules/visibility/types.ts:2` ("A target that has no private state"). It is due to be renamed
   to language.

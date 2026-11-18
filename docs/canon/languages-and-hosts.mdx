@@ -1,0 +1,238 @@
+---
+title: Languages and hosts
+concept: language
+owns: [language, host, runs]
+questions:
+  - What is a language, and what does it own?
+  - What is a host, and what does it supply?
+  - Why does a language never choose where it runs?
+  - Where does a chain fit?
+status: draft
+milestone: M6
+slices: [M1.09, M6.01, M6.10, M6.11]
+decisions: [K2, K3, K5]
+links: [forman, doors, data, handlers, stores, projections, environments]
+---
+
+## The idea
+
+Two words, two jobs. A **language** is what behaviour is written in, and what the model is rendered into. It owns the
+frame a handler fits, the blanks, what the enforcer means, and the clients written in it. A **host** is where code
+runs. It supplies what the runtime needs in that place: a database, a clock, somewhere to send spans. One rule keeps
+them apart: **a language never chooses where it runs, and a host never gives an operation meaning.** An operation's
+**`runs`** says which place it runs in. Today there is one answer, the server, and Orthograph has one language and one
+host that serve it: Effect, on Cloudflare.
+
+## The smallest example
+
+The sign-up sheet's generated Worker is where the two meet. Everything that gives a call its meaning comes from the
+language, `language-effect`. Everything that is about the place comes from the host, `host-cloudflare`:
+
+```ts file=examples/signup/generated/server/main.ts lines=9-10
+import { AuthD1, Database, JournalD1, StoreD1, Telemetry, toWorld } from "@formants/host-cloudflare";
+import { Auth, Busy, BusyLive, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@formants/language-effect";
+```
+
+`Handlers.serve` is the language's enforcer. It wraps each handler in the same fixed order, whatever host it runs on:
+
+```ts file=examples/signup/generated/server/main.ts lines=26-29
+const sheetCloseServed = Handlers.serve({ name: "sheet.close", operation: sheetClose.declaration, handler: sheetCloseHandler, notFrom: "SheetNotOpen" });
+const sheetGetServed = Reads.serve({ name: "sheet.get", read: sheetGet.declaration });
+const sheetJoinServed = Handlers.serve({ name: "sheet.join", operation: sheetJoin.declaration, handler: sheetJoinHandler, notFrom: "SheetNotOpen" });
+const sheetOpenServed = Handlers.serve({ name: "sheet.open", operation: sheetOpen.declaration, handler: sheetOpenHandler });
+```
+
+And the handler someone wrote is in the language, with nothing of the host in it. It never names D1, a Worker or a
+binding:
+
+```ts file=examples/signup/src/sheet/close.ts lines=1-12
+// Scaffolded from blueprint/things/sheet/verbs/close.ts. Yours from now on.
+import { Effect } from "effect";
+import type { Handler } from "../../generated/api/src/sheet/close.handler.ts";
+
+/** Take a sheet down. Nobody can join it after this. The machine's check already passed. */
+const close: Handler = (_payload, { steps, move }) =>
+  Effect.gen(function* () {
+    yield* steps.record(move("closed"));
+    return {};
+  });
+
+export default close;
+```
+
+The compiled model records the operation's place, `runs: "server"`, the only one accepted today:
+
+<Model project="examples/signup" operation="sheet.close" show="declaration" />
+
+## How it works
+
+1. **The language renders the model.** `language-effect` gives each operation its frame (the generated `Handler`
+   type) and its enforcer, `Handlers.serve` (`packages/language-effect/src/modules/handler/service.ts:26`). The
+   enforcer decodes, checks the role, opens the span, replays a request key, checks the machine, runs the handler and
+   commits ([doors](doors.mdx) owns what that means for callers).
+2. **The language names what it needs from a host, as services.** The store is one of them. The language declares the
+   port and says what a store must do; it never says how:
+
+```ts file=packages/language-effect/src/modules/records/types.ts lines=61-70
+/** The host's side. A failing store dies: it is never the caller's refusal. */
+export class Store extends Context.Service<Store, {
+  readonly find: (thing: Thing, id: string) => Effect.Effect<Stored | undefined>;
+  /** One page of a thing's instances, in the order they were made (never a clock). A thing that lives as actors has none to list. */
+  readonly list: (query: ListQuery) => Effect.Effect<Listed>;
+  /** `conflict` too when another call committed the same request key first: the retry then finds its answer. */
+  readonly commit: (commit: Commit) => Effect.Effect<Committed>;
+  /** The answer already committed under a request key, as wire JSON, if there is one. */
+  readonly answered: (key: string) => Effect.Effect<string | undefined>;
+}>()("@formants/language-effect/Store") {}
+```
+
+3. **The host supplies each service for its place.** `host-cloudflare` implements the store over D1
+   (`packages/host-cloudflare/src/modules/store/service.ts:11`), and the journal, telemetry and the world the same
+   way. The Worker's config is the host's too: a D1 binding and a Durable Object for the world
+   (`examples/signup/generated/server/wrangler.jsonc:8-11`).
+4. **`runs` says where an operation runs.** The declaration can say three places. Only one is accepted:
+
+```ts file=packages/forman/src/modules/operations/types.ts lines=21-22
+/** Where an operation runs: `server` (every target today), on the caller's `client`, or on a `chain`. */
+export type Runs = "client" | "server" | "chain";
+```
+
+   The compiler refuses the other two, and says what a project would need to run them:
+
+```ts file=packages/compiler/src/modules/model/internal/describe.ts lines=108
+if (op.runs !== "server") problems.push(`${file}: runs "${op.runs}" is not supported yet: ${RUNS_NEEDS[op.runs] ?? "an unknown place"}`);
+```
+
+```ts file=packages/compiler/src/modules/model/internal/describe.ts lines=167-171
+/** What an operation that doesn't run on the server needs: a target that does. Only the Effect target exists today. */
+const RUNS_NEEDS: Readonly<Record<string, string>> = {
+  client: "it needs a target that runs operations on the caller's own device (language-noir, a later target), and this project's only target, language-effect, runs them all on the server",
+  chain: "it needs a target that runs operations on a chain (language-solidity, or language-noir on Aztec), and this project's only target, language-effect, runs them all on the server",
+};
+```
+
+   That message still says "target", the word K2 retired for language (see the note `target-word`).
+
+### Every language and host
+
+K5 names them all:
+
+```md file=design/decisions/K5-the-whole-shape.md lines=511-524
+**A language** is what behaviour is written in and what the model is rendered into. It owns the frame, the blanks,
+the enforcer's meaning and the clients written in it:
+- `language-effect`: the wrapper and the TypeScript SDK;
+- `language-solidity`: the contract, the ABI and the contract's client;
+- `language-noir`: later;
+- `language-python`: clients only.
+
+**A host** is where code runs, and it supplies what the runtime needs there:
+- `host-cloudflare`: workerd, D1, Durable Objects, alarms, OTLP;
+- `Host.chain`: an EVM, running the `chain` store kind;
+- `Host.node`: the CLI, and adapters workerd can't reach;
+- `Host.browser`: client operations and the wallet adapter.
+
+A language never chooses where it runs, and a host never gives an operation meaning.
+```
+
+Only the first of each is built. `language-solidity` is a placeholder today:
+
+```ts file=packages/language-solidity/src/index.ts lines=1-2
+// @formants/language-solidity: the Solidity target.
+export {};
+```
+
+### Where a chain fits
+
+A chain is a host, `Host.chain`, and `chain` is the store kind that runs on it, supplied by `language-solidity` (K3
+item 2). That much is decided. How an operation maps to a contract function, which contract functions clients may
+reach, and how Solidity, Noir and Solana fit together all wait on K7, the chain languages worked out together (Aaron,
+18 November 2026). This page says no more about them until K7 lands.
+
+## Choices
+
+**Which language does an operation's behaviour go in?** Today, Effect, always: it is the only language that runs an
+operation. A chain or client language becomes a choice when K7 and M6 build one.
+
+**Which host runs it?** You don't choose per operation. An environment picks the host's place (this machine, or
+Cloudflare), and the language's enforcer runs there unchanged:
+
+```ts file=examples/signup/blueprint/environments/local.ts lines=3-8
+export default Blueprint.environment({
+  runs: "on this machine",
+  identity: Identity.testPrincipals, // fixed test people, no sign-in
+  database: Cloud.d1.local(), // the local runtime emulates D1: no database process
+  telemetry: [Telemetry.sink.local()], // prove's Collector, and the viewer while `forman telemetry view` runs
+});
+```
+
+**What do I write by hand?** Only the handler, in the language. A host's types never appear in it (K5, "The
+boundaries": "a host's types in a handler" never crosses from host to language).
+
+## What it is not
+
+- **Not a projection.** A projection is what the model becomes: the SDK, the CLI, the docs
+  ([projections](projections.mdx)). The TypeScript SDK is written in a language, but the SDK projection makes it.
+- **Not an environment.** An environment says which place this revision runs in, and binds stores and secrets there
+  ([environments](environments.mdx)). An environment's own `runs:` is a sentence describing that place, not an
+  operation's `runs` (see the note `two-runs`).
+- **Not a store kind.** A host or a language supplies store kinds, such as `database` and `actor` from
+  `host-cloudflare` ([data](data.mdx), [stores](stores.mdx)).
+- **Not a door.** Where an operation is enforced is the language's; how a caller reaches it is the door's
+  ([doors](doors.mdx)).
+- **Not a "target".** That word is retired for language (K2, Aaron's call 2).
+
+## Where it lives
+
+| What | Where | |
+|---|---|---|
+| the Effect language: frame, wrapper, ports | `packages/language-effect/src/modules/handler/service.ts:26` | built |
+| the store port a host implements | `packages/language-effect/src/modules/records/types.ts:62` | built |
+| the Cloudflare host: D1, Durable Objects, journal, telemetry | `packages/host-cloudflare/src/modules/store/service.ts:11` | built |
+| `runs` in the declaration | `packages/forman/src/modules/operations/types.ts:22` | built |
+| the compiler's refusal of `client` and `chain` | `packages/compiler/src/modules/model/internal/describe.ts:108` | built |
+| runtime entries per host (`worker`, `node`) | M1.09 | planned |
+| `language-solidity`, no longer a placeholder | `packages/language-solidity/src/index.ts:1` | planned, M6.11, after K7 |
+| `runs: "chain"` accepted | M6.10 | planned, after K7 |
+| `language-noir`, `language-python`, `Host.browser` | not in any slice | later |
+
+## Status
+
+<Status />
+
+| Part | Status | Slice | Proved by |
+|---|---|---|---|
+| Effect, served on Cloudflare | proved | | `e2e/layer1/08-signup-proves.test.ts:10`, and acme's `e2e/layer1/02-acme-proves.test.ts` |
+| `runs` defaults to server and refuses every other place | proved | | `packages/compiler/src/modules/model/model.test.ts:184` |
+| a language and a host apart, by services | specified | | K5, "Languages and hosts" and "The boundaries" |
+| runtime entries per host | specified | M1.09 | check `02` |
+| chain languages and `Host.chain` | open | M6.01 | waits on K7 |
+| `runs: "client"`, Noir, Python, the browser host | open | | no slice yet |
+
+The page is a draft because the chain half waits on K7. The Effect half is built and proved.
+
+## Notes
+
+<Note kind="decision" decision="K2">"Target" is renamed language (Aaron's call 2). Effect, Solidity, Noir and Python
+are languages; Cloudflare and a chain are hosts.</Note>
+
+<Note kind="decision" decision="K3">A chain is a host (`Host.chain`), and `chain` is the store kind that runs on it,
+supplied by `language-solidity` (K3 item 2, K5 decision 8). This answers ledger `LAH-04`.</Note>
+
+<Note kind="status" slice="M6.01">Everything about chain languages waits on K7: how an operation maps to a contract's
+ABI, what clients may reach, and how Solidity, Noir and Solana share one model. M6.01 starts from K7. Until then
+`language-solidity` stays a placeholder (ledger `LAH-35`) and `runs: "chain"` is refused (ledger `LAH-19`).</Note>
+
+<Note kind="question" id="runs-client">An operation that runs on the caller's device (`runs: "client"`, such as a
+wallet link) is refused by the compiler, and no slice lifts the refusal. Ledger `LAH-02` (high).</Note>
+
+<Note kind="question" id="target-word">The retired word still reaches users: the compiler's refusal says "needs a
+target" (`describe.ts:167-170`), and the declaration's own comments use it
+(`packages/forman/src/modules/operations/types.ts:15-16`, `:21`, `:49`). No slice owns the rename. Ledger `G-02`.</Note>
+
+<Note kind="question" id="host-service" slice="M1.09">The build plan says the Effect runtime is host-neutral behind a
+`Host` service, so a Node host is a fallback if workerd bites. No such service exists in `language-effect`: the host
+is chosen by which package the generated Worker imports. Ledger `LAH-27`.</Note>
+
+<Note kind="question" id="two-runs">Two things are called `runs`. An operation's `runs` is a place (`server`, `client`,
+`chain`); an environment's `runs:` is a sentence about where the environment is ("on this machine"). One of them
+should be renamed before the reference pages are generated. Not yet in the ledger.</Note>

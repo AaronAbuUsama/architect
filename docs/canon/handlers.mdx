@@ -1,86 +1,69 @@
 ---
 title: Handlers
 concept: handler
-owns: [blank, handler, frame, scaffold, generated vs scaffolded]
+owns: [blank, handler, frame, scaffold, wired scaffold, generated vs scaffolded]
 questions:
-  - What does a handler get, and what may it return?
-  - What runs before and after it, so I don't write it myself?
-  - Which files are mine, and which are never to be edited?
+  - What does a handler get and return?
+  - Which files are mine?
+  - What does the scaffold write for me?
   - What is a blank, and who fills it?
-status: draft
+status: specified
 milestone: M1
-slices: [M1.03, M1.04, M1.16]
-decisions: [K2, F5]
-links: [operations, machines, roles, traces, stores, journeys, proof, blueprint, factory, agent-kit]
+slices: [M1.26, M1.16, M1.03]
+decisions: [K5, F5]
+links: [operations, doors, journeys, proof]
 ---
 
 ## The idea
 
-A handler is the work inside one operation, and it is the only code in a Forman project written freehand. Everything
-around it is made from the declaration: the decoding, the role check, the machine's check, the spans, the commit, and
-every door. The handler gets the decoded payload and a context, and gives back the declared answer or a declared
-error. The shape it must fit is its **frame**, a type generated from the operation, so a handler that returns the
-wrong thing doesn't compile. The file it lives in starts as a **scaffold**, written once, and is yours from then on.
-One rule decides which files you touch: **a file that says "Generated from" is never edited; a file that says
+A handler is the work inside one operation, and it is the only code in an Orthograph project written freehand.
+Everything around it is made from the declaration: the decoding, the role check, the machine's check, the spans, the
+commit, and every door. The handler gets the decoded payload and a context, and gives back the declared answer or a
+declared error. The shape it must fit is its **frame**, a type generated from the operation, so a handler that returns
+the wrong thing doesn't compile. The file it lives in starts as a **scaffold**, written once, and is yours from then
+on. One rule decides which files you touch: **a file that says "Generated from" is never edited; a file that says
 "Scaffolded from" is yours.** A **blank** is a part not written yet, in a declaration or in a handler. It compiles,
-and `forman check` names it, so a project can be honest about what is left.
+and `ortho check` names it, so a project can be honest about what is left.
 
 ## The smallest example
 
-`forman generate` makes two files for acme's `spend`. The frame, regenerated every time:
+`ortho generate` makes two files for signup's `join`. The frame, regenerated every time:
 
-```ts file=examples/acme/generated/api/src/allowance/spend.handler.ts lines=1-7
+```ts file=examples/signup/generated/api/src/sheet/join.handler.ts lines=1-7
 // Generated from the blueprint. Do not edit.
 // What the handler is given: its payload and steps; what it may return: its answer or a declared error.
 import type { SqlClient } from "effect/sql";
 import type { Auth, Handler as Of, Records } from "@formants/language-effect";
-import type declaration from "../../../../blueprint/things/allowance/verbs/spend.ts";
+import type declaration from "../../../../blueprint/things/sheet/verbs/join.ts";
 
 export type Handler<R = Records | SqlClient.SqlClient | Auth> = Of<typeof declaration, R>;
 ```
 
-And the scaffold, written once into `src/`. A fresh one is a blank that says what the declaration asks for. This is
-one in the work example, not written yet:
+And the handler, `examples/signup/src/sheet/join.ts`, scaffolded once and then written. This is all the freehand
+code the operation has:
 
-```ts file=examples/work/src/mission/open.ts lines=1-15
-// Scaffolded from blueprint/things/mission/verbs/open.ts. Yours from now on.
-import { Effect } from "effect";
-import { Handlers } from "@formants/language-effect";
-import type { Handler } from "../../generated/api/src/mission/open.handler.ts";
-
-/** Open a mission over the blueprint revision named. The manager starts by asking about the blueprint's gaps. */
-const open: Handler = (_payload, _context) =>
-  Effect.gen(function* () {
-    // Payload: title, target, blueprint.
-    // Answer: mission.
-    // Steps, each its own span: steps.insert(...).
-    return yield* Handlers.blank("this handler is not written yet");
-  });
-
-export default open;
-```
-
-Acme's `spend`, written. This is all the freehand code the operation has:
-
-```ts file=examples/acme/src/allowance/spend.ts lines=9-25
-const spend: Handler = ({ allowance, amount }, { steps, move }) =>
+```ts file=examples/signup/src/sheet/join.ts lines=9-25
+const join: Handler = ({ sheet, people }, { steps, move }) =>
   Effect.gen(function* () {
     const records = yield* Records;
-    // Only the allowance's grantee may spend, so the runtime has already found it before this runs.
-    const found = yield* steps.load(records.find(Allowance, allowance));
-    if (!found) return yield* Effect.die(new Error(`allowance ${allowance} was checked and then not found`));
-    const limit = found["limit"] as bigint;
-    const spent = found["spent"] as bigint;
-    const remaining = limit - spent;
-    if (amount > remaining) {
-      yield* Effect.logInfo("the amount is more than is left").pipe(Effect.annotateLogs({ amount: String(amount), remaining: String(remaining) }));
-      return yield* new AllowanceExceeded({ remaining });
+    // The machine's check already found the sheet open, so it exists.
+    const found = yield* steps.load(records.find(Sheet, sheet));
+    if (!found) return yield* Effect.die(new Error(`sheet ${sheet} was checked and then not found`));
+    const places = found["places"] as bigint;
+    const taken = found["taken"] as bigint;
+    const left = places - taken;
+    if (people > left) {
+      yield* Effect.logInfo("more people than places left").pipe(Effect.annotateLogs({ people: String(people), left: String(left) }));
+      return yield* new SheetFull({ left });
     }
-    yield* steps.record(records.update(Allowance, allowance, { spent: spent + amount }));
-    yield* move(amount === remaining ? "exhausted" : "active");
-    return { remaining: remaining - amount };
+    yield* steps.record(records.update(Sheet, sheet, { taken: taken + people }));
+    yield* move(people === left ? "full" : "open");
+    return { left: left - people };
   });
 ```
+
+Three kinds of line carry the declaration: the declared steps (`steps.load`, `steps.record`), the declared refusal
+(`SheetFull`), and the move's outcome (`"full"` or `"open"`). The rest is arithmetic on the record.
 
 ## How it works
 
@@ -93,7 +76,7 @@ The frame is one type, made from the operation:
 export type Handler<O, R = never> = (payload: PayloadOf<O>, context: HandlerContext<O>) => Effect.Effect<AnswerOf<O>, ErrorOf<O>, R>;
 ```
 
-- **The payload**, already decoded against the declaration. `amount` is a `bigint` here, never a string.
+- **The payload**, already decoded against the declaration. `people` is a `bigint` here, never a string.
 - **The context**: the caller as a `principal`, one runner per declared step, and `move`:
 
   ```ts file=packages/language-effect/src/modules/handler/types.ts lines=17-25
@@ -125,29 +108,41 @@ const wire = yield* check(answer).pipe(
 
 ### What runs around it
 
-<Scene name="handler-lifecycle" caption="Watch how much happens before the handler starts, and that its writes land only in the commit at the end." />
+The wrapper runs in a fixed order (K5, seam 3), all in
+`packages/language-effect/src/modules/handler/service.ts`:
 
-Before the handler runs, the runtime has decoded the payload, checked the caller's role, answered a repeated request
-key, and checked the machine can make the move. So a handler never refuses `NotAllowed` or `AllowanceNotActive`
-itself, and never checks the payload's shape. That is why `spend` can say the allowance was "checked and then not
-found": not finding it is a defect, not a refusal.
+1. decode the payload (`service.ts:104`);
+2. check the caller's role (`service.ts:46`);
+3. open the operation's span (`service.ts:83`);
+4. answer a repeated request key, and stop (`service.ts:52`);
+5. check the machine can make the move (`service.ts:57`);
+6. run the handler and its steps, as counted work (`service.ts:60`);
+7. check the answer (`service.ts:64`);
+8. commit the writes, the move and its event together (`service.ts:71`).
 
-After it answers, the runtime checks the answer, applies the move it chose, and commits every write and the move's
-event together. A handler that dies after writing leaves nothing behind
+<Scene name="handler-lifecycle" caption="Drawn with acme's spend; join runs in the same order. Watch how much happens before the handler starts, and that its writes land only in the commit at the end." />
+
+So a handler never refuses `NotAllowed` or `SheetNotOpen` itself, and never checks the payload's shape. That is why
+`join` can say the sheet was "checked and then not found": not finding it is a defect, not a refusal.
+
+A handler that dies after writing leaves nothing behind
 (`packages/language-effect/src/modules/handler/handler.test.ts:267`). A handler's writes go through `Records`, never
-straight to a store, so they land in that one commit (see `stores`).
+straight to a store, so they land in that one commit (see `stores`). If the commit loses a race with another call,
+the whole attempt runs again, handler and all, so a handler must not do anything outside its steps that can't be done
+twice (see `operations`).
 
-Three habits the frame can't enforce, which `forman brief` asks for:
+Three habits the frame can't enforce, which `ortho brief` asks for:
 
 - **Run work through its step.** `steps.load(records.find(…))`, so each part of the work is its own span, and a
   journey can say it ran (see `traces`).
-- **Choose the outcome, don't set the state.** `move("exhausted")` picks one of the move's declared outcomes; the
-  runtime sets the state and writes the event. An outcome the move doesn't declare dies.
-- **Log why, then refuse.** An `Effect.logInfo` just before a declared error is kept on the span as the reason.
+- **Choose the outcome, don't set the state.** `move("full")` picks one of the move's declared outcomes; the runtime
+  sets the state and writes the event. An outcome the move doesn't declare dies.
+- **Log why, then refuse.** An `Effect.logInfo` just before a declared error is kept on the span as the reason. Eval 9
+  checks every declared refusal has one.
 
 ### Generated or scaffolded
 
-`forman generate` writes two kinds of file, and their first line says which:
+`ortho generate` writes two kinds of file, and their first line says which:
 
 ```ts file=packages/generators/src/modules/render/internal/names.ts lines=3-4
 export const GENERATED = "// Generated from the blueprint. Do not edit.";
@@ -174,6 +169,52 @@ for (const f of files) {
 So when a declaration changes, the frame changes with it, and your handler stops compiling where it no longer fits.
 That is the point: the compiler tells you what to change, and nothing you wrote is lost.
 
+### What the scaffold writes for you
+
+**Today** the scaffold is one blank with the declaration repeated as comments:
+
+```ts file=packages/generators/src/modules/render/internal/scaffold.ts lines=23-28
+`/** ${op.description} */`,
+`const ${camel(op.verb)}: Handler = (_payload, _context) =>`,
+"  Effect.gen(function* () {",
+said.map((s) => `    // ${s}`),
+`    return yield* Handlers.blank("this handler is not written yet");`,
+"  });",
+```
+
+For `join` the comments say `Payload: sheet, people.`, `Answer: left.`, `Steps, each its own span: steps.load(...),
+steps.record(...).` and `May refuse with SheetFull.` (`scaffold.ts:8-13`). They give no order, no move and no
+refusal in place.
+
+**The wired scaffold** (K5, decided; built in M1.26) writes a real function, already wired: each declared step in
+declared order, the move when one is declared, and a stub for each declared refusal. Every hole is a
+`Handlers.blank`, so the file compiles. For signup's `join` it will write:
+
+```ts planned=M1.26 path=src/sheet/join.ts
+// Scaffolded from blueprint/things/sheet/verbs/join.ts. Yours from now on.
+import { Effect } from "effect";
+import { Handlers } from "@formants/language-effect";
+import type { Handler } from "../../generated/api/src/sheet/join.handler.ts";
+import { SheetFull } from "../../blueprint/things/sheet/errors.ts";
+
+/** Take places on a sheet, for yourself and anyone with you. */
+const join: Handler = ({ sheet, people }, { steps, move }) =>
+  Effect.gen(function* () {
+    const loaded = yield* steps.load(Handlers.blank("load: read what this step needs"));
+    if (yield* Handlers.blank<boolean>("refuse SheetFull when?"))
+      return yield* new SheetFull(yield* Handlers.blank("SheetFull's fields"));
+    yield* steps.record(Handlers.blank("record: write what this step changes"));
+    yield* move(yield* Handlers.blank("which outcome: open or full?"));
+    return yield* Handlers.blank("the answer");
+  });
+
+export default join;
+```
+
+Compare it with the filled `join` above: each blank became one line of real work, and nothing else moved. The order
+of the steps is the order eval 6 checks, so a scaffold left in place can't fail eval 6 by order. An optional step
+is scaffolded like any other, with a comment that it may be skipped (see `operations`).
+
 ### Blanks
 
 A blank is a part that isn't written yet. There are two kinds, and both compile.
@@ -188,13 +229,13 @@ export interface BlanksApi {
 }
 ```
 
-`forman check` finds each one and names it with its file and line, as `mission has 1 blank`. The compiler leaves an
+`ortho check` finds each one and names it with its file and line, as `mission has 1 blank`. The compiler leaves an
 operation with a blank part out of the model, so it gets no frame and no scaffold until it is filled
 (`packages/cli/src/modules/generate/generate.test.ts:20`). A blank can't stand in for a role: `allowed` must name
-roles a `roles.ts` exports (F5).
+roles a `roles.ts` exports (F5). Signup has no blank left, so this example is work's `mission`.
 
-**A blank in a handler** is `Handlers.blank("…")`, what every fresh scaffold returns. It type-checks as any answer,
-and reaching it at run time is a defect that names what is missing:
+**A blank in a handler** is `Handlers.blank("…")`, what every fresh scaffold holds. It type-checks as anything, and
+reaching it at run time is a defect that names what is missing:
 
 ```ts file=packages/language-effect/src/modules/handler/service.ts lines=113-116
 export const Handlers: HandlerApi = {
@@ -203,13 +244,30 @@ export const Handlers: HandlerApi = {
 };
 ```
 
-So a project with every handler blank still compiles, serves, and runs its journeys. Each step that needs behaviour
-goes red with `BlankReached`, and a step that passes anyway is proved by the description alone. That run is
-`forman prove --empty` (M1.16), and it is how a journey is shown to fail before the builder starts (see `journeys`).
+### `ortho prove --empty`
+
+A project with every handler blank still compiles, serves, and runs its journeys. Each step that needs behaviour goes
+red with `BlankReached`, and a step that passes anyway is labelled "proved by the description". That run is
+`ortho prove --empty` (M1.16). It is how a journey is shown to fail before the builder starts (see `journeys`).
+
+Signup's journeys were held to that by hand. They were written first, by someone other than the builder, and run
+against blank handlers: `prove ✘`, every failure a `BlankReached`. Only then were the handlers written. With the
+wired scaffold, `--empty` shows one red step per blank, so the run says which blank each journey needs filled.
+
+### Unused steps
+
+A declared step the handler never calls compiles: the frame's type can't tell. Two things catch it instead
+(K5, decided; built in M1.26):
+
+- **`ortho check` warns** when a required step's runner never appears in the handler's source. Deleting
+  `steps.record(…)` from `join` gives that warning.
+- **Eval 6 is the proof.** At `ortho prove`, a successful call whose declared step ran no span fails, and so does a
+  step run before one declared earlier (`packages/prove/src/modules/evals/internal/calls.ts:114`; quoted on
+  `operations`). An optional step may be absent; its order is still checked.
 
 ### Who fills a blank
 
-Whoever the brief names. `forman brief <thing>.<verb>` prints everything needed to write one handler: the files to
+Whoever the brief names. `ortho brief <thing>.<verb>` prints everything needed to write one handler: the files to
 read, the one file to write, the files never to touch, and the checks that must pass:
 
 ```ts file=packages/cli/src/modules/brief/service.ts lines=3-5
@@ -218,33 +276,40 @@ const forbidden = [
 ] as const;
 ```
 
-A person can follow it, and so can an agent; the factory hands it out as a task (see `factory` and `agent-kit`). The
-builder writes `src/<thing>/<verb>.ts` and nothing else. The journeys were written first, by someone else, and the
-builder never edits them.
+A person can follow it, and so can an agent; the factory hands it out as a task (see `factory`). The builder writes
+`src/<thing>/<verb>.ts` and nothing else. The journeys were written first, by someone else, and the builder never
+edits them.
 
 ## Choices
 
 ### Write it now, or leave it blank
 
-Leave a handler blank while its journeys are being written: `prove --empty` shows which steps need it. Write it once
-its journeys fail for the right reasons. A blank left in a declaration is fine while a dependency is missing, as work's
-`mission.tasks` waits on one, but it keeps the operation out of the model until it is filled.
+Leave a handler blank while its journeys are being written: `ortho prove --empty` shows which steps need it. Write it
+once its journeys fail for the right reasons. A blank left in a declaration is fine while a dependency is missing, as
+work's `mission.tasks` waits on one, but it keeps the operation out of the model until it is filled.
 
 ### A declared error or a defect
 
 | | Declared error | Defect |
 |---|---|---|
 | When | the caller asked for something the data says no to | something that can't happen did |
-| How | `return yield* new AllowanceExceeded({ … })` | `Effect.die(…)` |
+| How | `return yield* new SheetFull({ … })` | `Effect.die(…)` |
 | The caller gets | the refusal, its code and exit code | a failure no client can match |
 
 If a caller could fix it by asking differently, declare it. If only a code change could fix it, let it die.
+
+### Skip a step, or mark it optional
+
+If a successful path truly has nothing to do in a step, mark the step optional in the declaration and let the
+handler skip it. Don't run a step for nothing to satisfy eval 6: it writes for nothing, and an operation's own event
+would be committed for a call that changed nothing (see `operations`).
 
 ## What it is not
 
 - **Not the operation.** The operation declares the call; the handler only does the work. See `operations`.
 - **Not where roles or state are checked.** The runtime does both before the handler runs. See `roles` and
   `machines`.
+- **Not a door.** Every door reaches the handler through the same wrapper; none calls it directly. See `doors`.
 - **Not where data is committed.** The handler's writes go into one commit after it answers. See `stores`.
 - **Not where spans are made.** Steps make spans; the handler only runs its work through them. See `traces`.
 - **Not a journey.** A journey proves the handler from outside, through real operations. See `journeys`.
@@ -256,14 +321,14 @@ If a caller could fix it by asking differently, declare it. If only a code chang
 | The frame: `Handler` and `HandlerContext` | `packages/language-effect/src/modules/handler/types.ts:30` | built |
 | The wrapper that runs a handler | `packages/language-effect/src/modules/handler/service.ts:41` | built |
 | `Handlers.blank` and `BlankReached` | `packages/language-effect/src/modules/handler/service.ts:115` | built |
-| The scaffold, written from the declaration | `packages/generators/src/modules/render/internal/scaffold.ts:6` | built |
+| The scaffold, comments only today | `packages/generators/src/modules/render/internal/scaffold.ts:6` | built |
 | Scaffolds never overwritten | `packages/generators/src/modules/sync/service.ts:17` | built |
 | `Blueprint.todo` | `packages/forman/src/modules/blanks/service.ts:4` | built |
-| `forman check` naming blanks | `packages/cli/src/modules/check/internal/blanks.ts:7` | built |
-| `forman brief` | `packages/cli/src/modules/brief/service.ts:10` | built |
+| `ortho check` naming blanks | `packages/cli/src/modules/check/internal/blanks.ts:7` | built |
+| `ortho brief` | `packages/cli/src/modules/brief/service.ts:10` | built |
+| The wired scaffold, and the unused-step warning | `packages/generators/src/modules/render/internal/scaffold.ts` and `packages/cli/src/modules/check/` | planned, M1.26 |
+| `ortho prove --empty` | `packages/prove/src/` | planned, M1.16 |
 | Blanks in the model | `packages/compiler/src/modules/model/internal/describe.ts:45` | planned, M1.03 |
-| Verdicts keyed by each handler's hash | `packages/prove/src/modules/impact/` | planned, M1.04 |
-| `forman prove --empty` | `packages/prove/src/` | planned, M1.16 |
 
 ## Status
 
@@ -276,14 +341,21 @@ If a caller could fix it by asking differently, declare it. If only a code chang
 | A handler that dies leaves nothing behind | proved | layer 2 | `packages/language-effect/src/modules/handler/handler.test.ts:267` |
 | Generated and scaffolded files, each marked | proved | layer 2 | `packages/generators/src/modules/render/render.test.ts:22` |
 | A scaffold written once, none for an operation with blanks | proved | layer 2 | `packages/cli/src/modules/generate/generate.test.ts:20` |
-| `forman check` names each blank | proved | layer 2 | `packages/cli/src/modules/check/check.test.ts:5` |
-| `forman brief` | proved | layer 2 | `packages/cli/src/modules/brief/brief.test.ts:11` |
-| Reaching `Handlers.blank` is a defect | built, no test of its own | M1.16 | `forman prove --empty` on acme |
-| Blanks in the model | specified | M1.03 | `forman describe --json` on acme and work lists them |
-| Verdicts per handler | specified | M1.04 | editing `examples/acme/src/allowance/spend.ts` makes `forman impact` name `allowance.spend` alone |
-| `forman prove --empty`, and "proved by the description" | specified | M1.16 | on acme, `revoke then spend` shows two red steps and one proved by the description |
+| `ortho check` names each blank | proved | layer 2 | `packages/cli/src/modules/check/check.test.ts:5` |
+| `ortho brief` | proved | layer 2 | `packages/cli/src/modules/brief/brief.test.ts:11` |
+| Reaching `Handlers.blank` is a defect | built, no test of its own | M1.16 | `ortho prove --empty` |
+| The wired scaffold | specified (K5) | M1.26 | a fresh scaffold compiles, and `ortho prove --empty` shows one red step per blank |
+| The unused-step warning | specified (K5) | M1.26 | deleting `steps.record` from acme's `spend` gives a check warning |
+| `ortho prove --empty`, and "proved by the description" | specified | M1.16 | on acme, `revoke then spend` shows two red steps and one proved by the description |
+| Blanks in the model | specified | M1.03 | `ortho describe --json` on acme and work lists them |
 
 ## Notes
+
+<Note kind="decision" decision="K5">
+  The scaffold is a wired function: the steps in declared order, the move, and a stub per refusal, each hole a
+  `Handlers.blank` (M1.26). An unused step is an `ortho check` warning plus eval 6, not a type error: the frame's type
+  stays as it is.
+</Note>
 
 <Note kind="decision" decision="F5">
   Work's `mission.tasks` keeps one blank until its dependency lands, and a blank can't sit in `allowed`: an undecided
@@ -291,21 +363,29 @@ If a caller could fix it by asking differently, declare it. If only a code chang
 </Note>
 
 <Note kind="status" slice="M1.16">
-  `forman prove --empty` and "proved by the description" don't exist yet (`design/milestones.md:106`). Today nothing
-  runs a journey against blank handlers, and no test reaches `BlankReached`.
+  `ortho prove --empty` and "proved by the description" don't exist yet (`design/milestones.md:106`). Signup's
+  journeys were run against blank handlers by hand, but no test reaches `BlankReached`. Ledger: HAN-06.
 </Note>
 
-<Note kind="status" slice="M1.03">
-  Blanks aren't in the model yet (`design/milestones.md:94`). Today `forman check` finds them by reading the
-  blueprint's text, and the model only leaves the operation out.
+<Note kind="status" slice="M1.26">
+  Today's scaffold writes the steps and refusals only as comments (`scaffold.ts:8-13`), and nothing warns about a
+  step the handler never calls until eval 6 runs.
 </Note>
 
 <Note kind="question" id="nested-blank" slice="M1.03">
   The compiler looks for a blank only in an operation's top-level parts
   (`packages/compiler/src/modules/model/internal/describe.ts:47`). Work's `mission.tasks` has its blank inside `steps`
   (`examples/work/blueprint/things/mission/verbs/tasks.ts:16`), so the compiler sees no blank: `mission.tasks` is in
-  the model and has a scaffold, while `forman check` counts one blank. Should a blank anywhere in a part make the
-  operation blank?
+  the model and has a scaffold, while `ortho check` counts one blank. Should a blank anywhere in a part make the
+  operation blank? Ledger: HAN-04.
+</Note>
+
+<Note kind="question" id="raw-sql-in-a-handler" slice="M1.17">
+  The frame offers `SqlClient` beside `Records`: the generated `Handler` type allows `Records | SqlClient.SqlClient | Auth`
+  (`packages/generators/src/modules/render/internal/api.ts:96`), signup's `join` included. A handler that writes
+  through `SqlClient` writes outside the commit, so its write isn't all-or-nothing with the move and its event, and
+  won't work for a thing in another kind of store. Should the frame offer `Records` only, with raw SQL as a declared
+  step kind? Ledger: HAN-01, high.
 </Note>
 
 <Note kind="question" id="frame-file-name">
@@ -313,12 +393,10 @@ If a caller could fix it by asking differently, declare it. If only a code chang
   (`packages/language-effect/src/modules/handler/types.ts:29`). That is the generated frame's name; the project
   writes `src/<thing>/<verb>.ts`. The design docs' handler example uses an `instance` in the context and
   `steps.record` with a patch (`design/docs/index.html:435`); the real handler reads through `Records` and passes
-  each step its work. Both should match the code.
+  each step its work. Both should match the code. Ledger: HAN-05.
 </Note>
 
-<Note kind="question" id="raw-sql-in-a-handler" slice="M1.17">
-  The frame offers `SqlClient` beside `Records`: the generated `Handler` type allows `Records | SqlClient.SqlClient | Auth`
-  (`packages/generators/src/modules/render/internal/api.ts:96`). A handler that writes through `SqlClient` writes outside the commit,
-  so its write isn't all-or-nothing with the move and its event, and won't work for a thing in another kind of store.
-  Should the frame offer `Records` only, with raw SQL as a declared step kind?
+<Note kind="question" id="defect-is-a-bare-500">
+  A defect, `BlankReached` included, reaches a client as a bare 500 with an empty body and a decode error. Should
+  there be one catch-all declared shape, so a client always gets a typed failure? Ledger: HAN-02.
 </Note>

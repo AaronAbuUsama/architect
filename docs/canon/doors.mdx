@@ -1,0 +1,259 @@
+---
+title: Doors
+concept: door
+owns: [door, enforcer, served operation, SDK contract, request key, action]
+questions:
+  - What enforces an operation, and where?
+  - What does each door make, and from what?
+  - How does the SDK carry the caller, retries and refusals?
+  - What is an action, and why does it hold no authority?
+status: specified
+milestone: M1
+slices: [M1.12, M1.22, M1.23, M6.10]
+decisions: [K5, K2]
+links: [operations, handlers, roles, projections, portal, languages-and-hosts, traces]
+---
+
+## The idea
+
+Every operation is **enforced in exactly one place**. For an Effect operation, that place is the wrapper on the Worker,
+which runs the role check, the machine's check, the handler, the answer check and the commit, in a fixed order. For a
+chain operation, it is the contract. That place is the operation's **enforcer**, and the operation it serves is the
+**served operation**. A **door** is a way in: the HTTP API, the SDK, the CLI, an MCP tool, or an **action** that a
+screen or an agent binds to. Every door is made from the operation's declaration, and every door reaches the same
+enforcer. So the rule is: **a door never decides anything.** It carries a payload, a caller and a **request key** in,
+and an answer, a refusal with its code, or a defect out. The **SDK contract** is how the other doors do that: the
+caller is set once on the client, one request key holds across retries, and every declared refusal is a typed error.
+
+## The smallest example
+
+`sheet.join` is declared once. Its served operation is the wrapper around the handler you wrote, built in the
+generated Worker:
+
+```ts file=examples/signup/generated/server/main.ts lines=26-29
+const sheetCloseServed = Handlers.serve({ name: "sheet.close", operation: sheetClose.declaration, handler: sheetCloseHandler, notFrom: "SheetNotOpen" });
+const sheetGetServed = Reads.serve({ name: "sheet.get", read: sheetGet.declaration });
+const sheetJoinServed = Handlers.serve({ name: "sheet.join", operation: sheetJoin.declaration, handler: sheetJoinHandler, notFrom: "SheetNotOpen" });
+const sheetOpenServed = Handlers.serve({ name: "sheet.open", operation: sheetOpen.declaration, handler: sheetOpenHandler });
+```
+
+The HTTP door is the endpoint, made from the declaration's payload, answer and refusals:
+
+```ts file=examples/signup/generated/api/src/sheet/join.ts lines=7-11
+export const endpoint = HttpApiEndpoint.post("join", "/sheet/join", {
+  payload: declaration.payloadSchema,
+  success: declaration.answerSchema,
+  error: [SheetFull, SheetNotOpen],
+});
+```
+
+The MCP door is on the same Worker, and calls the same served operations:
+
+```ts file=examples/signup/generated/server/main.ts lines=104-109
+/** One tool per operation and read: the same served operations as the API, called as the person the access token names. */
+const tools = Mcp.tools<Services>({
+  catalog,
+  served: { "sheet.close": sheetCloseServed, "sheet.get": sheetGetServed, "sheet.join": sheetJoinServed, "sheet.open": sheetOpenServed },
+  refusals: { codes: Errors.codes, declared: Errors.declared },
+});
+```
+
+The SDK is one function per operation, and the CLI is built on it:
+
+```ts file=examples/signup/generated/sdk/src/sheet/join.ts lines=7-9
+/** Take places on a sheet, for yourself and anyone with you. */
+export const join = (payload: PayloadOf<typeof declaration>) =>
+  Effect.flatMap(Signup, (client) => client.sheet.join({ payload }));
+```
+
+```ts file=examples/signup/generated/cli/src/sheet/join.ts lines=9-13
+export const join = Command.make(
+  "join",
+  { sheet: Flag.String("sheet"), people: Flag.String("people"), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
+  ({ json, ...flags }) => Schema.decodeUnknownEffect(Declaration.payloadSchema)(flags).pipe(Effect.flatMap(Sdk.sheet.join), Output.answer(json)),
+);
+```
+
+Nothing above was written by hand. `SheetFull` reaches every door with its code because the enforcer refused it, not
+because the door checked.
+
+## How it works
+
+### The enforcer, in order
+
+The wrapper runs every call to an Effect operation through the same order (`packages/language-effect/src/modules/handler/service.ts`):
+
+1. **decode** the payload against the declaration, or refuse `InvalidPayload` (`service.ts:104`);
+2. **role**: may this caller call? (`service.ts:46`);
+3. **span**: the operation's own span opens only once the caller may call (`service.ts:83`);
+4. **replay**: a request key already answered gets the kept answer, and nothing changes (`service.ts:52`);
+5. **machine**: is the thing in a state this move starts from? (`service.ts:57`);
+6. **handler** and its steps, counted (`service.ts:60`);
+7. **answer check**: an answer outside its declaration is the handler's bug, and dies (`service.ts:64`);
+8. **commit**: the writes, the move's events and the kept answer, all or nothing (`service.ts:71`).
+
+The last four, as code:
+
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=57-73
+        yield* checkFrom(op, notFrom, payload, unit);
+        const chosen = yield* Ref.make<string | undefined>(undefined);
+        const move = (to?: string) => chooseOutcome(name, op, to).pipe(Effect.flatMap((o) => Ref.set(chosen, o)));
+        const answer = yield* busy.counted(handler(payload, { principal, steps, move })).pipe(withRecords, logs.around);
+        // Recorded before the check, so an answer outside its declaration is evidence `prove` can name.
+        yield* Effect.annotateCurrentSpan(answerAttributes(answer, op.answer));
+        // An answer that breaks its declaration is the handler's bug, never the caller's: it dies, loudly.
+        const wire = yield* check(answer).pipe(
+          Effect.mapError((e) => new Error(`${name} answered outside its declaration: ${e.message}`)),
+          Effect.orDie,
+        );
+        const outcome = yield* Ref.get(chosen);
+        const entries = outcome === undefined ? [] : [yield* applyMove(name, op, payload, answer, outcome, unit)];
+        const request = key === undefined ? {} : { request: { key, answer: JSON.stringify(wire) } };
+        const committed = yield* store.commit({ writes: yield* unit.writes, entries, ...request });
+        if (committed === "conflict") return yield* new Conflict();
+        return answer;
+```
+
+A `conflict` reruns the whole attempt, up to 64 times (`service.ts:21`). For a chain operation the enforcer is the
+contract, with the machine, roles and refusals compiled into it. How an operation maps to a contract function, and
+which functions a client may reach, waits on K7.
+
+### The doors
+
+Each door kind exists once per operation (K5 seam 5):
+
+| Door | You write | Falls out | Enforced by | Its evidence |
+|---|---|---|---|---|
+| HTTP API and OpenAPI | nothing | from the model | the wrapper, on the Worker | the request's span as the parent |
+| SDK | nothing | from the model, per language | the operation's enforcer | the caller's span and the request key |
+| CLI | nothing | built on the SDK | the same | the process span, and the exit code against the error's code |
+| MCP tools | nothing | one tool per operation the rule admits, on the Worker | the same | the tool span |
+| actions | where they bind | from the model, built on the SDK | the same | the action's span as the parent |
+
+Which operations become an MCP tool or an agent tool follows `allowed` and `via` (K2's inclusion rule): an operation
+that is `.notVia(Via.agent)` is never one ([roles](roles.mdx)).
+
+### The SDK contract
+
+Today the caller's token is set once, on the client's layer, and an SDK function takes only a payload. The Worker
+already keeps an answer under a request key, read from the `idempotency-key` header
+(`examples/signup/generated/server/main.ts:41-42`), but no generated client sends one yet. M1.12 makes the SDK the
+contract every other door builds on:
+
+```ts planned=M1.12 path=examples/signup/caller.ts
+// the caller is the client's, not the call's
+const client = Signup.layer({ url, credential: Credential.session(cookie) });
+
+// typed refusals in the error channel; one request key across retries
+const joined = yield* Sdk.sheet.join({ sheet, people: 2n }, { requestKey });
+//    Effect<{ left }, SheetFull | SheetNotOpen | InvalidPayload, Signup>
+```
+
+- **The caller** is set once, on the client's layer: a session, a key, the device flow or an agent's OAuth token.
+  Never per call.
+- **The request key** is the caller's, or the SDK makes one when the call starts and keeps it across its own retries.
+  A screen makes one when its form opens, and an agent tool uses its tool call's id. For an operation declared
+  `idempotent: "request"`, the same key from the same caller is one call ([operations](operations.mdx)).
+- **Typed refusals**: every declared error is a class in the error channel, with its refusal code. A defect is a die.
+
+A chain operation's SDK call returns a submission, with its confirmation later, once K7 has settled how a chain call
+reaches its contract.
+
+### Actions
+
+An action is one more door: generated from an operation, for a screen or an agent tool to bind to, and built on the
+SDK. It keeps agent-native's `defineAction` field names, so agent-native's templates, docs and skills read naturally
+against it. That is all the compatibility there is: the shape is ported into our own `actions` module, in Effect, and
+nothing of agent-native runs or is installed (K5, "Porting from agent-native"). For `sheet.join`, each field comes from
+a part of the declaration:
+
+```ts planned=M1.22 path=examples/signup/generated/actions/sheet/join.ts
+// Generated from blueprint/things/sheet/verbs/join.ts. Do not edit.
+import { defineAction } from "@formants/forman/actions";   // our port of the shape, M1.23
+
+export default defineAction({
+  description: declaration.description,             // "Take places on a sheet, for yourself and anyone with you."
+  schema: standard(declaration.payloadSchema),      // the payload: sheet, people
+  outputSchema: standard(declaration.answerSchema), // the answer: left
+  errors: refusalsOf(declaration),                  // SheetFull, SheetNotOpen, with their codes
+  readOnly: false,                                  // true only for a read, such as sheet.get
+  retrySafe: true,                                  // idempotent: "request", and the SDK keeps one key
+  needsApproval: false,                             // nothing to sign; a chain write would be true
+  agentTool: true,                                  // false when the operation is .notVia(Via.agent)
+  mcpTool: false,                                   // MCP is the Worker's own door, once per operation
+  run: (args, ctx) => ctx.sdk(Sdk.sheet.join(args, { requestKey: ctx.callId })),
+});
+```
+
+**An action holds no authority.** Its `run` is the SDK, so the enforcer decides every time. `agentTool` and `mcpTool`
+decide what a screen or a tool is offered, never what is allowed. `mcpTool` is `false` because MCP already has its
+door, on the Worker; a second MCP tool for the same operation would be a second door of the same kind.
+
+## Choices
+
+| You want | Use | Because |
+|---|---|---|
+| to call an operation from your own TypeScript | the SDK | typed refusals and one request key, and it is remade when the blueprint changes |
+| to call it from a shell or a script | the CLI | it is the SDK, with the refusal's exit code |
+| an agent elsewhere to call it | the MCP tool | it is on the Worker, signed in with the person's own token |
+| a screen or your app's agent to call it | the action | it binds to a screen or an agent tool and calls through the SDK |
+| a client in another language | the SDK for that language | every SDK keeps the same contract |
+
+A hand-written client is never a door. It drifts the day an operation changes, and it leaves different evidence from
+the doors a journey checks ([projections](projections.mdx), the replay rule).
+
+## What it is not
+
+- **Not where an operation is declared.** What an operation says is on [operations](operations.mdx); what the handler
+  does is on [handlers](handlers.mdx).
+- **Not where doors are made.** How each output is generated and mounted as a plugin is on
+  [projections](projections.mdx).
+- **Not the portal.** The portal's "Try it" calls through the SDK as the builder; it is not a door of its own
+  ([portal](portal.mdx)).
+- **Not an agent-native app.** Actions keep agent-native's field names so an agent-native app could use them, but
+  Orthograph is not one, and doesn't run any of it.
+
+## Where it lives
+
+| What | Where | |
+|---|---|---|
+| the enforcer: `Handlers.serve` | `packages/language-effect/src/modules/handler/service.ts:26` | built |
+| served operations, in the Worker | `examples/signup/generated/server/main.ts:26` | built |
+| MCP tools on the same Worker | `examples/signup/generated/server/main.ts:105` | built |
+| the request key, read on the Worker | `examples/signup/generated/server/main.ts:42` | built |
+| the HTTP endpoint | `examples/signup/generated/api/src/sheet/join.ts:7` | built |
+| the SDK and its client | `examples/signup/generated/sdk/src/client.ts:10` | built |
+| the CLI, on the SDK | `examples/signup/generated/cli/src/sheet/join.ts:9` | built |
+| the SDK contract | `@formants/language-effect` and the sdk projection | planned, M1.12 |
+| `defineAction`, ported | `forman`'s `actions` module | planned, M1.23 |
+| the actions projection | `generated/actions/` | planned, M1.22 |
+| a contract as the enforcer | `language-solidity` | waits on K7, then M6.10 |
+
+## Status
+
+<Status />
+
+| Part | Status | Slice | Proved by |
+|---|---|---|---|
+| one enforcer per Effect operation, in the fixed order | proved | | `e2e/layer1/08-signup-proves.test.ts`: every operation's nine evals, among them who may call, machine path and steps |
+| HTTP, SDK, CLI and MCP from the model, all through it | proved | | acme's surfaces, `e2e/layer1/05-the-generated-surfaces.test.ts` |
+| the SDK contract: request key across retries, typed refusals | specified | M1.12 | K5 seam 5 |
+| actions, in agent-native's field names, on the SDK | specified | M1.22, M1.23 | K5 seam 5 |
+| a contract as the enforcer for a chain operation | waits on K7 | M6.10 | |
+
+## Notes
+
+<Note kind="decision" decision="K5">Each operation has one enforcer, and every door reaches it. An action sits beside
+the other doors as one more door; it doesn't replace the MCP tool or the CLI. Each door kind exists once per
+operation, so a generated action sets `mcpTool: false`. This answers ledger `PRJ-43`, and `X-05`: MCP is a door of
+the one Worker.</Note>
+
+<Note kind="decision" decision="K5">Nothing of agent-native runs. Its action shape is ported into our own Effect code
+(M1.23), compatible by field names only, and a change it makes reaches us only when we port it again.</Note>
+
+<Note kind="status" slice="M1.12">Today no generated client sends a request key, so a retry through the SDK or the
+CLI is a second call. The Worker already honours the `idempotency-key` header when one is sent.</Note>
+
+<Note kind="status">Chain operations wait on K7. Q4 (how a declared operation maps to a contract's ABI, and which
+functions clients may reach) is confirmed or changed there, so this page says nothing more about a contract as an
+enforcer.</Note>

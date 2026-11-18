@@ -1,0 +1,184 @@
+---
+title: Data
+concept: lives
+owns: [lives, a projection's own state]
+questions:
+  - Where does my data live?
+  - What is a store, a source and a view, and how do I tell them apart?
+  - Who may write each?
+  - Where does the portal keep its own state?
+status: specified
+milestone: M1
+slices: [M1.17, M1.24, M5.05, M5.06]
+decisions: [K3, K5]
+links: [things, stores, views, adapters, portal, workflows, languages-and-hosts]
+---
+
+## The idea
+
+Every piece of data in an Orthograph system sits in one of four places, and one rule sorts it: **if Orthograph owns
+the schema and every write goes through Orthograph's commit, the place is a store. If anything else owns it, it is a
+source, reached through an adapter** (K3, "The rule that sorts every case"). A thing **lives** in a store: its `lives`
+names one, or says nothing and gets the project's default. A **source** is someone else's data. A **view** is a list
+kept from events, ours and a source's, and can always be rebuilt. And **a projection's own state** is data a
+projection needs for itself, such as the portal's notes and chat threads: they are things too, in that projection's
+own store. Each place has exactly one writer. A store is written only by its commit, a source only by its owner, and a
+view only by the events it keeps.
+
+## The smallest example
+
+The sign-up sheet says nothing about where it lives, so it lives in the project's default store:
+
+```ts file=examples/signup/blueprint/things/sheet/thing.ts lines=4-7
+export const Sheet = Blueprint.thing({
+  description: "A sign-up sheet with a fixed number of places.",
+  fields: { id: Blueprint.id("sht"), title: Title, places: Count, taken: Count },
+});
+```
+
+On Cloudflare the default store is D1. Orthograph writes its schema from the model, and nobody writes it by hand. A
+sheet's row carries its fields, its state and the version every commit is guarded by:
+
+```sql file=examples/signup/generated/server/migrations/0001_things.sql lines=3-10
+CREATE TABLE "sheet" (
+  "id" TEXT PRIMARY KEY,
+  "title" TEXT NOT NULL,
+  "places" TEXT NOT NULL,
+  "taken" TEXT NOT NULL,
+  "state" TEXT,
+  "version" INTEGER NOT NULL DEFAULT 0
+);
+```
+
+The same file holds the journal of events and the answers kept under request keys, because they are committed with the
+row (`examples/signup/generated/server/migrations/0001_things.sql:12` and `0001_things.sql:23`). The Worker reaches the
+database through one binding:
+
+```jsonc file=examples/signup/generated/server/wrangler.jsonc lines=8-10
+  "d1_databases": [
+    { "binding": "DB", "database_name": "signup", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "migrations" }
+  ],
+```
+
+Signup has one store, so it has no source, no view and no projection with state of its own. Those come with the
+workshop, from layer 4.
+
+## How it works
+
+### The four places
+
+| Place | Who owns the schema | Who writes it | How a handler reaches it | Explained on |
+|---|---|---|---|---|
+| a store | Orthograph, from the model | only the commit: one call's writes, its events and its request key, all or nothing | `Records`, inside a step | [stores](stores.mdx) |
+| a source | someone else | its owner, never us | an adapter's typed calls, as steps | [adapters](adapters.mdx) |
+| a view | Orthograph | only the events it keeps, ours and a source's | the reads generated for it | [views](views.mdx) |
+| a projection's own state | the projection | its own operations, through its own store's commit | it is a store, so as above | [portal](portal.mdx) |
+
+### A thing lives in a store
+
+`lives` is the one place a declaration says where a thing's state is. Today it takes one of two built-in kinds, and
+the default is a D1 row:
+
+```ts file=packages/forman/src/modules/things/types.ts lines=26-32
+  /** Who owns its state: a D1 row with a version column (the default), or a Durable Object per instance (D1 #1). */
+  readonly lives: Lives;
+  /** The prefix of this thing's refusal codes (`AL` in `[AL-002]`); the compiler takes two letters of its name when unset. */
+  readonly code: string | undefined;
+}
+
+export type Lives = "database" | "actor";
+```
+
+K3 opens that list: a store is declared under `blueprint/stores/`, named by its path, and `lives` takes it. A
+one-store app, like signup, changes nothing:
+
+```ts planned=M1.17 path=blueprint/stores/ledger.ts
+// blueprint/stores/ledger.ts: the name is the path, "ledger"
+export default Blueprint.store.database();
+
+// blueprint/things/entry/thing.ts
+import ledger from "../../stores/ledger.ts";
+export default Blueprint.thing({ description: "…", fields: { … }, lives: ledger });
+```
+
+The kinds are supplied by hosts and languages ([languages-and-hosts](languages-and-hosts.mdx)): `database` (D1) and
+`actor` (a Durable Object per instance) by the Cloudflare host. A chain is a host too, and the store kind that runs
+on it is `chain`, supplied by the Solidity language. How a thing that lives on a chain is declared, and what its
+commit looks like, waits on K7.
+
+### What crosses the edge of a store
+
+One call commits to one store: the compiler refuses an operation whose steps write to two (K3 item 5). Work that
+changes two stores, or a store and a chain, is a [workflow](workflows.mdx), with a waiting state between the two
+commits (K5 seam 6). A source is never migrated and never committed to. A handler only calls it, through a step the
+operation declares, so the call shows in the trace with its declared errors (K3 item 8).
+
+### A projection's own state
+
+Some projections keep data. The portal keeps notes about declarations and chat threads, and neither is part of the
+app the developer is building. Both are things in the portal's own store, declared by the portal feature, so they get
+the same commit, migrations and journal as the app's own things. A plugin's store is named by its mount plus the
+store's path, so it never collides with the app's (K3 item 7). Nothing of agent-native's database comes with it: the
+portal's pieces are ported into our own code, over D1 (K5, "Porting from agent-native").
+
+### Seeing all of it
+
+The data map, `generated/data/map.md`, and the portal's data page list every store with its kind, binding and
+migrations, every source with its adapter, calls and stand-in, and every view (K3 item 10, slice M5.06).
+
+## Choices
+
+| You have | Put it in | Because |
+|---|---|---|
+| state your operations change, and the schema is yours | a store, the default unless it must be apart | only a store's commit keeps writes, events and the request key together |
+| one instance that many calls change at once | the `actor` kind | each instance commits on its own, so calls on different instances never race |
+| data someone else's system owns, such as a bench of candidates or a contract you didn't write | a source, through an [adapter](adapters.mdx) | Orthograph would otherwise migrate or write a schema it doesn't own |
+| a list across stores, or across ours and a source's | a [view](views.mdx) | an actor has no list, and a source can't join a query of ours |
+| files | a field, with the bytes in R2 | R2 can't take a commit, so it is never where a thing lives |
+
+## What it is not
+
+- **Not where the detail of a commit is explained.** The version guard, migrations, binding a store per environment
+  and kinds in depth are on [stores](stores.mdx), in layer 4.
+- **Not a "home".** That word is retired: a thing lives in a store (K3, ledger `G-03`).
+- **Not a cache, KV or R2.** None of them can take an atomic commit, so no thing lives in one (K3 item 3).
+- **Not how a field is hidden.** Who may see a field is visibility, on [things](things.mdx).
+
+## Where it lives
+
+| What | Where | |
+|---|---|---|
+| `lives` today | `packages/forman/src/modules/things/types.ts:32` | built |
+| the store port: find, list, commit | `packages/language-effect/src/modules/records/types.ts:62` | built |
+| the D1 schema, generated from the model | `examples/signup/generated/server/migrations/0001_things.sql:3` | built |
+| declared stores, `lives` taking one | `blueprint/stores/` | planned, M1.17 |
+| the portal's notes and threads in its own store | the portal feature | planned, M1.24 |
+| views | `Blueprint.view` | planned, M5.05 |
+| the data map | `generated/data/map.md` | planned, M5.06 |
+
+## Status
+
+<Status />
+
+| Part | Status | Slice | Proved by |
+|---|---|---|---|
+| a thing lives in the default store, D1, and its schema is generated | proved | | `e2e/layer1/08-signup-proves.test.ts`, signup proves locally |
+| `actor` as a second kind | proved | | `packages/host-cloudflare/src/modules/actors/actors.test.ts:10`, signup has no actor |
+| declared stores, and `lives` taking one | specified | M1.17 | K3 |
+| a projection's own state, in its own store | specified | M1.24 | K3 item 7, K5 seam 10 |
+| sources through adapters | specified | M5.07 | K3 item 8 |
+| views | specified | M5.05 | K3 item 9 |
+| a thing on a chain | waits on K7 | M6.10 | |
+
+## Notes
+
+<Note kind="decision" decision="K3">A place is a store when Orthograph owns its schema and every write goes through
+its commit. Anything else is a source, reached through an adapter. The word "home" is retired (ledger `G-03`).</Note>
+
+<Note kind="decision" decision="K5">A chain is a host, and its store kind is `chain`. A server call that sends a
+transaction writes two stores, so it is a workflow. Everything else about chain data (how a thing is declared on one,
+what its commit returns to a caller, where private state fits, ledger `G-04`, `STO-02` and `X-18`) waits on K7.</Note>
+
+<Note kind="question" id="kind-capabilities" slice="M1.17">A store kind is to declare what it can serve (lists,
+search, private state), so the compiler can refuse a read it can't serve. No shape for that declaration exists yet
+(ledger `STO-07`).</Note>
