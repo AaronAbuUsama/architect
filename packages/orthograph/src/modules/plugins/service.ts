@@ -1,6 +1,15 @@
 import type { Mount, Option, PluginsApi, StandApi, Verb } from "./types.ts";
 import { firstOption, picked } from "./internal/picked.ts";
 
+/** An adapter's calls, where a name it has no call by answers a `MissingCall` that names it, so a mount can say what it asked for. */
+const callsOf = (calls: object): never =>
+  new Proxy(calls, {
+    get: (target, key, receiver) =>
+      typeof key !== "string" || key in target || key in Object.prototype || key === "toJSON" || key === "then"
+        ? Reflect.get(target, key, receiver)
+        : Object.freeze({ kind: "missing-call", name: key }),
+  }) as never;
+
 const verb = (v: Record<string, unknown>): Verb => Object.freeze({ kind: "verb", ...v }) as Verb;
 
 export const Plugins: PluginsApi = {
@@ -20,15 +29,16 @@ export const Plugins: PluginsApi = {
     list: (value, spec) => Object.freeze({ kind: "setting", shape: "list", value, ...(spec?.min !== undefined ? { min: spec.min } : {}) }),
   },
   use: (plugin, verbs) => {
+    const calls = "calls" in plugin ? callsOf(plugin.calls) : undefined;
     const view = {
       choices: plugin.choices,
-      ...("calls" in plugin ? { calls: plugin.calls } : {}),
+      ...(calls ? { calls } : {}),
       choose: (option: Option) => verb({ verb: "choose", option }),
       include: (...items: ReadonlyArray<unknown>) => verb({ verb: "include", items }),
       narrow: (operation: never, spec: { readonly via: ReadonlyArray<never> }) => verb({ verb: "narrow", operation, via: Object.freeze([...spec.via]) }),
       omit: (operation: never) => verb({ verb: "omit", operation }),
     };
-    return Object.freeze({ kind: "mount", plugin, verbs: Object.freeze([...(verbs ? verbs(view as never) : [])]) }) as Mount<typeof plugin>;
+    return Object.freeze({ kind: "mount", plugin, verbs: Object.freeze([...(verbs ? verbs(view as never) : [])]), calls: calls ?? {} }) as Mount<typeof plugin>;
   },
 };
 

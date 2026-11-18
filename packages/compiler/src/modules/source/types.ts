@@ -25,6 +25,8 @@ export interface PluginPackage {
 export interface PluginFiles {
   /** `sha256-…` over every file of the installed package: its path inside the package, and its bytes. */
   readonly integrity: string;
+  /** Whether its declared `src` folder has a `layer.js`: the services its handlers and calls need. */
+  readonly layer?: boolean;
   /** `path` is relative to the blueprint folder (`things/echo/thing.js`); `specifier` is how code imports it. */
   readonly files: ReadonlyArray<LoadedFile & { readonly specifier: string }>;
 }

@@ -271,6 +271,63 @@ blank is the handler's error mapping, scaffolded as a `Handlers.blank`; an unmap
 callables and their types never enter a pure entry or a client closure. The step's span is
 `<thing>.<verb>.<step>` with `kind: call`; foreign failure payloads are not logged.
 
+### 9.1 As built in M1.14 (what the surface above became)
+
+Recorded by M1.14's builder, 18 November 2026. Each line refines or fixes a place section 9 left open; the evidence is
+checks `03` and `04` and the unit tests named in the module READMEs.
+
+**The mount hands out the adapter's calls; the compiler decides reach.** `Blueprint.use(adapter, …)` returns a mount with
+`calls`, the adapter's own call objects, so `pricing.calls.quote` always loads; a name the adapter has no call by answers
+`{ kind: "missing-call", name }` (a `Proxy`), so a refusal can name it. `include` is checked when mounts are folded and
+`step.call` when operations are described, and every problem names the mount file:
+
+```text
+blueprint/adapters/pricing.ts: includes the call notExported, which @fixture/remote doesn't have (its calls: quote)
+blueprint/things/probe/verbs/quote.ts: step price calls quote of @fixture/remote, which blueprint/adapters/pricing.ts doesn't include: add p.include(p.calls.quote) there
+blueprint/things/probe/verbs/quote.ts: step price calls quote, which may fail as PriceUnavailable: declare it in the operation's errors
+```
+
+The last is new: a call's `errors` are the errors its mapping may return, so the operation must declare each of them
+(they are its wire refusals). A call is matched by identity, never by a written name.
+
+**What the model records.** `mounts.<name>` of an adapter gains `calls` (the included ones, by the adapter's name for
+each), `layer: true` (its declared `src` folder has a `layer.js`) and `standIn` (`{ how: "process" | "vendor", what }` or
+`{ how: "none" }`, as `Stand.process`, `Stand.vendor` or `Stand.none` declared it on the adapter), all in the mount's
+hash. An operation's step gains `call: { mount, call, mode }` (`steps.price.type` is `call`). The adapter's `things/`
+(where its errors are declared, with their code prefix) are folded like a feature's, so its errors have codes and wire
+classes: a thing named as a feature's is (`<mount>-<thing>` unless the mount has the adapter's own name), with no
+operations. `Compare.dependsOn` gives an operation that calls `adapter:<mount>` with the mount's hash, and `edges`
+prints `adapter:pricing -> probe.quote  used-by`.
+
+**The step's runner (`@orthograph/language-effect`, module `calls`).** The generated server imports each callable
+(`<package>/src/calls/<call>.js`, its default export) and the adapter's `layer`, and gives them to `Handlers.serve` as
+`calls: { price: { run, layer } }`; the handler never imports either (project code never imports a plugin's `src/*`),
+and neither enters `generated/api` or `generated/sdk`. The handler holds the step as
+`steps.price(args, failure)`: the callable's arguments as a tuple, and the one mapping, `(failure: unknown) => <error>`.
+Its types come from the callable: `generated/server/handlers/<thing>/<verb>.ts` carries `Handler` with each call step
+typed by `typeof` its callable, in `generated/server` where no client reaches it.
+
+- Promise mode: `Effect.uninterruptible(Effect.tryPromise(...))` around the call alone; the mapping runs outside it.
+- Effect mode: `Effect.suspend` of the callable, with the adapter's layer provided (a layer that fails to build is a
+  defect); the mapping sees only the typed failure, so a defect and an interruption pass through unmapped.
+- Whatever the mapping gives is checked against the call's declared `errors` by class: anything else (a throw, an
+  undeclared error, an unwritten blank) is a defect, never a refusal. The step logs `<step> failed, and was refused as
+  <Error>` itself, inside the operation's span, naming the refusal and never the foreign failure; that is the deciding
+  log `explainability` looks for, so the lint rule `refusal-has-log` exempts a `new <Error>(…)` that is the body of the
+  mapping function given to a `steps.<key>(…)` call.
+- A layer is provided per call (built each time). Sharing one build across calls waits for an adapter whose layer holds
+  a resource.
+
+**The one blank.** The scaffold of an operation with call steps (`src/<thing>/<verb>.ts`, written once) wires the
+callable by the payload's field names and leaves `Handlers.blank("…", "failure")` in the mapping's place: typed as a
+function, so the file type-checks until it is written, and a call that reaches it is a defect naming what is missing.
+When the call is the whole operation, the scaffold returns what the callable answered, so the answer is the callable's.
+The scaffold names no error: the author imports the one the mapping returns.
+
+**Not built here.** Events in (`include` of `p.events.*`, the door and the `service(<mount>)` principal), an adapter's
+secrets, and running a stand-in in a world are adapters.md's other five things; M1.14 declares and records the stand-in
+and nothing runs it yet (the world that starts it is the host's, with M1.27 and M1.30).
+
 ## 10. A plugin's journeys
 
 A feature's `blueprint/journeys/*.js` run on every `ortho prove` of the app that mounts it, in the app's worlds, beside

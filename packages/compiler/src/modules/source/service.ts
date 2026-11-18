@@ -51,7 +51,8 @@ export const nodeSource = (given: string) => {
     pluginFiles: (name) => Effect.gen(function* () {
       const dir = packageDir(projectRoot, name);
       if (!dir) return yield* new SourceError({ message: `${name}: isn't installed` });
-      const declared = readManifest(join(dir, "package.json")).orthograph?.blueprint;
+      const manifest = readManifest(join(dir, "package.json")).orthograph;
+      const declared = manifest?.blueprint;
       const folder = declared ? join(dir, declared) : undefined;
       if (!folder || !existsSync(folder)) {
         return yield* new SourceError({ message: `${name}: its package.json declares no blueprint folder that exists (orthograph.blueprint is ${JSON.stringify(declared ?? null)})` });
@@ -60,7 +61,7 @@ export const nodeSource = (given: string) => {
       const files = yield* Effect.forEach(blueprintFilesOf(folder), (path) =>
         importing(pathToFileURL(join(folder, path)).href, `${name}/blueprint/${path}`).pipe(
           Effect.map((exports) => ({ path, exports, specifier: `${name}/blueprint/${path}` }))));
-      return { integrity, files };
+      return { integrity, layer: manifest?.src !== undefined && existsSync(join(dir, manifest.src, "layer.js")), files };
     }),
   });
 };

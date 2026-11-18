@@ -48,7 +48,8 @@ export interface CompareApi {
   readonly hashOf: (model: Model, key: string) => string | undefined;
   /**
    * What each mount provides and needs, one line each, sorted and without duplicates:
-   * `feature:echo -> echo.repeat  provides`, `feature:greet -> feature:echo  needs`. None without mounts.
+   * `feature:echo -> echo.repeat  provides`, `feature:greet -> feature:echo  needs`, and for an adapter the
+   * operation that calls it, `adapter:pricing -> probe.quote  used-by`. None without mounts.
    */
   readonly edges: (model: Model) => ReadonlyArray<string>;
 }

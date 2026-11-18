@@ -3,6 +3,7 @@
 import { Names } from "orthograph/server";
 import type { Model, OperationModel } from "@orthograph/compiler";
 import type { RenderedFile } from "../types.ts";
+import { callImports, wired } from "./calls.ts";
 import { GENERATED, camel, handlerAt, lines, opVar, pascal, thingFileAt, toRoot } from "./names.ts";
 import { renderMigration, renderWrangler } from "./worker-config.ts";
 
@@ -55,6 +56,7 @@ const main = (model: Model, name: string): RenderedFile => {
       `import { catalog } from "../mcp/src/index.ts";`,
       ops.map((o) => `import * as ${opVar(o)} from "../api/src/${o.thing}/${o.verb}.ts";`),
       handled.map((o) => `import ${opVar(o)}Handler from "${handlerAt("generated/server/main.ts", o)}";`),
+      callImports(model),
       mounted.map((m) => `import ${mountVar(m)} from "${toRoot("generated/server/main.ts")}${model.mounts![m]!.file}";`),
       things.map((t) => `import * as ${camel(t.name)}Thing from "${thingFileAt("generated/server/main.ts", t, "thing")}";`),
       "",
@@ -63,7 +65,7 @@ const main = (model: Model, name: string): RenderedFile => {
       ops.map((o) =>
         o.kind === "read"
           ? `const ${opVar(o)}Served = Reads.serve({ name: "${o.name}", read: ${opVar(o)}.declaration });`
-          : `const ${opVar(o)}Served = Handlers.serve({ name: "${o.name}", operation: ${opVar(o)}.declaration, handler: ${served(o)}${notFromOf(model, o)} });`),
+          : `const ${opVar(o)}Served = Handlers.serve({ name: "${o.name}", operation: ${opVar(o)}.declaration, handler: ${served(o)}${notFromOf(model, o)}${wired(model, o)} });`),
       "",
       "/** Each thing and its table: a D1 table, or the name its actors go by. */",
       `const tables = [${things.map((t) => `[thingIn(${camel(t.name)}Thing), "${t.name}"]`).join(", ")}] as const;`,

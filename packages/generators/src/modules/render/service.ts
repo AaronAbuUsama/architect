@@ -1,6 +1,7 @@
 import { PortalRender } from "#modules/portal/service.js";
 import type { RenderApi } from "./types.ts";
 import { renderApi } from "./internal/api.ts";
+import { renderHandlerTypes } from "./internal/calls.ts";
 import { renderCli } from "./internal/cli.ts";
 import { renderDocs, renderEdges } from "./internal/docs.ts";
 import { renderMcp } from "./internal/mcp.ts";
@@ -18,6 +19,7 @@ export const Render: RenderApi = {
       ...PortalRender.files({ name, model, docs }),
       ...renderApi(model, name),
       ...renderServer(model, name),
+      ...renderHandlerTypes(model),
       ...renderMcp(model),
       ...renderSdk(model, name),
       ...renderCli(model, name),

@@ -66,6 +66,28 @@ describe("render", () => {
     expect(byPath.get("generated/docs/session/sign-in.md")!.content).toContain("| password | Password (secret) |");
   });
 
+  it("wires an operation's call out in the server, types its handler beside it, and scaffolds the one blank, none of it in a client", () => {
+    const quote = { ...model.operations["system.health"]!, name: "system.quote", verb: "quote", file: "blueprint/things/system/verbs/quote.ts",
+      payload: { origin: model.operations["person.sign-up"]!.payload["email"]!, mode: model.operations["person.sign-up"]!.payload["email"]! },
+      steps: { price: { name: "system.quote.price", type: "call", call: { mount: "pricing", call: "quote", mode: "promise" as const } } } };
+    const calling: Model = {
+      ...model,
+      operations: { ...model.operations, "system.quote": quote },
+      mounts: { pricing: { kind: "adapter", file: "blueprint/adapters/pricing.ts", package: "@fixture/remote", version: "1.0.0", integrity: "sha256-x", chosen: {}, calls: ["quote"], layer: true, hash: "h" } },
+    };
+    const made = new Map(Render.files({ name: "acme", model: calling }).map((f) => [f.path, f]));
+    const server = made.get("generated/server/main.ts")!.content;
+    expect(server).toContain('import pricingQuoteCall from "@fixture/remote/src/calls/quote.js";');
+    expect(server).toContain('import { layer as pricingLayer } from "@fixture/remote/src/layer.js";');
+    expect(server).toContain("calls: { price: { run: pricingQuoteCall, layer: pricingLayer } }");
+    expect(made.get("generated/server/handlers/system/quote.ts")!.content).toContain("{ price: typeof priceCall }");
+    const scaffold = made.get("src/system/quote.ts")!.content;
+    expect(scaffold.match(/Handlers\.blank\(/g)).toHaveLength(1);
+    expect(scaffold).toContain("steps.price([payload.origin, payload.mode], Handlers.blank(");
+    expect(scaffold).not.toContain("@fixture/remote");
+    for (const [path, file] of made) if (path.startsWith("generated/api/") || path.startsWith("generated/sdk/")) expect(file.content, path).not.toMatch(/@fixture\/remote|\/src\/calls\//);
+  });
+
   it("is deterministic", () => {
     expect(Render.files({ name: "acme", model })).toEqual(files);
   });

@@ -2,6 +2,7 @@
 import type { Duration, Schema } from "effect";
 import type { AnyErrorClass } from "#modules/errors/types.js";
 import type { Move } from "#modules/machines/types.js";
+import type { Call } from "#modules/plugins/types.js";
 import type { Allowed, Builtin, Role, RoleOf } from "#modules/roles/types.js";
 import type { FieldsInput, Thing, ValueOf } from "#modules/things/types.js";
 import type { TypeOf } from "#modules/values/types.js";
@@ -11,12 +12,17 @@ export interface Step<K extends StepKind = StepKind> {
   readonly kind: "step";
   readonly type: K;
 }
+/** A step that calls out through a mounted adapter: `call` is what the mount offers, `<mount>.calls.<name>`. */
+export interface CallStep extends Step<"call"> {
+  readonly call: Call;
+}
+
 /**
- * What a step is. `database` and `wait` are what the Effect target runs. `sync`, `check` and `prove` are reserved for
+ * What a step is. `database`, `wait` and `call` are what the Effect target runs. `sync`, `check` and `prove` are reserved for
  * targets that run on a chain or a client (N1): each is a span with its own budget. The union is open, so a target can
  * add kinds, and nothing here matches on all of them.
  */
-export type StepKind = "database" | "wait" | "sync" | "check" | "prove" | (string & {});
+export type StepKind = "database" | "wait" | "call" | "sync" | "check" | "prove" | (string & {});
 
 /** Where an operation runs: `server` (every target today), on the caller's `client`, or on a `chain`. */
 export type Runs = "client" | "server" | "chain";
@@ -154,5 +160,10 @@ export interface OperationsApi {
       readonly budget?: Budget;
     }): Read<T, ListPayload<T, W>, Page<ListItem<T>>>;
   };
-  readonly step: { readonly database: () => Step<"database">; readonly wait: () => Step<"wait"> };
+  readonly step: {
+    readonly database: () => Step<"database">;
+    readonly wait: () => Step<"wait">;
+    /** A call out through an adapter the app mounted and `include`d the call of (M1-plugins section 9). */
+    readonly call: (call: Call) => CallStep;
+  };
 }

@@ -1,0 +1,11 @@
+$ sh -c sed "s|, \"needs none\"\]);|, \"needs none\", \"next ortho generate, then ortho check\"]);|" e2e/m1/03-adapter-mounting.test.ts > e2e/m1/03tmp.test.ts; pnpm exec vitest run --root e2e --config vitest.m1.config.ts m1/03tmp; code=$?; rm -f e2e/m1/03tmp.test.ts; exit $code
+# commit 14aedb7 · 2026-11-18T23:03:05Z · exit 0 (expected 0) · 31.0s
+
+
+ RUN  v4.1.12 ./e2e
+
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  23:02:35
+   Duration  30.18s (transform 152ms, setup 0ms, import 376ms, tests 29.68s, environment 0ms)

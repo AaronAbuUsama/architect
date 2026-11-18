@@ -2,8 +2,9 @@ import { Effect } from "effect";
 import { BlueprintSource, type PluginPackage } from "#modules/source/types.js";
 import { readLayout, type ThingFiles } from "#modules/model/internal/layout.js";
 import { hashOf } from "#modules/model/internal/hash.js";
-import type { MountModel, MountsApi } from "./types.ts";
+import type { CallReach, MountModel, MountsApi } from "./types.ts";
 import { chosenOf, choicesIn } from "./internal/choices.ts";
+import { callsOf } from "./internal/calls.ts";
 import { renamed } from "./internal/fold.ts";
 import { applyVerbs } from "./internal/verbs.ts";
 import { needsOf, type Matched } from "./internal/needs.ts";
@@ -32,14 +33,21 @@ const match = (layout: Parameters<MountsApi["fold"]>[0], plugins: ReadonlyArray<
   return matched;
 };
 
+/** What an adapter declared to stand in for its outside system, as the model records it. */
+const standInOf = (descriptor: unknown): MountModel["standIn"] => {
+  const stand = (descriptor as { readonly standIn?: { readonly how?: string; readonly what?: string } }).standIn;
+  return stand?.how === "process" || stand?.how === "vendor" ? { how: stand.how, ...(stand.what === undefined ? {} : { what: stand.what }) } : stand?.how === "none" ? { how: "none" } : undefined;
+};
+
 export const Mounts: MountsApi = {
   fold: (layout) => Effect.gen(function* () {
-    if (layout.mounts.size === 0) return { things: new Map(), mounts: {}, problems: [] };
+    if (layout.mounts.size === 0) return { things: new Map(), mounts: {}, calls: new Map(), problems: [] };
     const source = yield* BlueprintSource;
     const problems: Array<string> = [];
     const plugins = yield* source.plugins.pipe(Effect.catch((e) => Effect.sync(() => { problems.push(e.message); return [] as ReadonlyArray<PluginPackage>; })));
     const matched = match(layout, plugins, problems);
     const things = new Map<string, ThingFiles>();
+    const calls = new Map<unknown, CallReach>();
     const brought = new Map<string, Matched>();
     const mounts: Record<string, MountModel> = {};
 
@@ -49,8 +57,9 @@ export const Mounts: MountsApi = {
       problems.push(...picks);
       const files = yield* source.pluginFiles(plugin.name).pipe(Effect.result);
       if (files._tag === "Failure") { problems.push(`${file}: ${files.failure.message}`); continue; }
-      let verbs: Pick<MountModel, "omitted" | "narrowed"> = {};
-      if (me.kind === "feature") {
+      let verbs: Pick<MountModel, "omitted" | "narrowed" | "calls" | "layer" | "standIn"> = {};
+      if (me.kind === "feature" || me.kind === "adapter") {
+        // An adapter adds no operations, but its errors are declared in its things, which the model names like a feature's.
         const own = readLayout(files.success.files.filter((f) => f.path.startsWith("things/")), (path) => `${plugin.name}/blueprint/${path}`);
         problems.push(...own.problems);
         // Each thing gets its own verbs map, so an omit changes only this mount's copy.
@@ -66,12 +75,19 @@ export const Mounts: MountsApi = {
           else { things.set(t.name, t); brought.set(t.name, me); }
         }
       }
+      if (me.kind === "adapter") {
+        const reached = callsOf(file, plugin.name, name, mount);
+        problems.push(...reached.problems);
+        for (const [call, reach] of reached.reach) calls.set(call, reach);
+        const stand = standInOf(mount.plugin);
+        verbs = { ...verbs, ...(reached.included.length > 0 ? { calls: reached.included } : {}), ...(files.success.layer ? { layer: true as const } : {}), ...(stand ? { standIn: stand } : {}) };
+      }
       const needs = needsOf(me, matched, plugins);
       problems.push(...needs.problems);
       const entry = { kind: me.kind as MountModel["kind"], file, package: plugin.name, version: plugin.version, integrity: files.success.integrity, chosen, ...verbs, ...(needs.needs.length > 0 ? { needs: needs.needs } : {}) };
       mounts[name] = { ...entry, hash: hashOf({ ...entry, file: undefined }) };
     }
-    return { things, mounts, problems };
+    return { things, mounts, calls, problems };
   }),
   attributed,
 };

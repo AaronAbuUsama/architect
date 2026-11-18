@@ -65,6 +65,12 @@ export interface Call<M extends "promise" | "effect" = "promise" | "effect"> {
   readonly errors: ReadonlyArray<AnyErrorClass>;
 }
 
+/** What an adapter's `calls` answers for a name it has no call by: a mount's `include` and a step name it, and the compiler refuses. */
+export interface MissingCall {
+  readonly kind: "missing-call";
+  readonly name: string;
+}
+
 /** What stands in for an adapter's outside system in a world, said honestly. */
 export type StandIn =
   | { readonly kind: "stand-in"; readonly how: "process" | "vendor"; readonly what: string }
@@ -164,11 +170,19 @@ export type ViewOf<P> =
   }
   : never;
 
-/** A mount: the plugin and what the app chose of it. It has no name: its file's name is the mount's. */
+/** The calls an adapter offers, which a mounted adapter's file hands to the operations that call them. */
+export type CallsOf<P> = P extends Adapter<any, infer Ca> ? Ca : {};
+
+/**
+ * A mount: the plugin and what the app chose of it. It has no name: its file's name is the mount's. `calls` is the
+ * adapter's, so an operation writes `Blueprint.step.call(pricing.calls.quote)`; the compiler refuses a call the mount
+ * did not `include`.
+ */
 export interface Mount<P extends Plugin = Plugin> {
   readonly kind: "mount";
   readonly plugin: P;
   readonly verbs: ReadonlyArray<Verb>;
+  readonly calls: CallsOf<P>;
 }
 
 export interface PluginsApi {
