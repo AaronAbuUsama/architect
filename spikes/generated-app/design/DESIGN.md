@@ -169,8 +169,12 @@ never called spend under her name in that window, but 92 spend calls were refuse
 them, because the role check runs before the operation's span opens (O2 gap 3). The model says spend is open only to
 `allowance.grantee`, and ada is `organization.owner`, so if one of them was ada, that's why.
 
-When the call goes **through the app**, the app knows who it called as. It records the caller next to the trace id the
-Worker answered with. Then "run it as ada" gives an exact answer. That is the prototype's check.
+When the call goes **through the app**, the app knows who it called as (`ctx.userEmail`, and the cast name it acted
+as). Better still, agent-native can export its own spans over OTLP (`@agent-native/otel`, when
+`OTEL_EXPORTER_OTLP_ENDPOINT` is set). Pointed at the same local Collector, and with the action passing `traceparent`
+to the Worker, the app's action span becomes the parent of acme's `POST` span: one trace, from the button to the
+commit, with the caller named on the app's side. So It records the caller next to the trace id the
+Worker answered with. "run it as ada" gives an exact answer. That is the prototype's check.
 
 ## Gaps found while drawing
 
@@ -185,6 +189,20 @@ Worker answered with. Then "run it as ada" gives an exact answer. That is the pr
    would call as a read action. Not in pass 2.
 5. **workerd's clock moves only on I/O,** so most spans read 0 ms. Fine against a 150 ms budget, but the waterfall is
    coarse. Nothing to fix on our side.
+
+## What agent-native already has that the brief didn't expect
+
+Read from its source at commit `49a844c1b` (13 November, version 0.228.2); the full notes are
+`agent-native-0.228.2.md` beside this file.
+
+- **A state machine** (`packages/core/src/state-machine/index.ts`, `defineMachine`): a typed lifecycle for rows in its
+  own SQL. It is for the shell's own records. acme's machines stay Forman's; the app only draws them.
+- **Its own observability** of agent runs (tokens, cost, latency, tool calls) in its SQL, and OTLP export. It emits
+  OTLP; it doesn't accept it, which fits reading the Collector's files.
+- **Local-folder sync for Content** (`contentDatabaseSource*` tables), which is what question 3's option C leans on.
+- **Templates are copied, not mounted.** There is no way to mount Content's pages inside another app; borrowing means
+  copying source, and `agent-native eject` records what was taken. So "our own template" is a template we keep.
+- **Port 8080** for `agent-native dev`, beside `forman dev` on 8787. Node 22.22 or later.
 
 ## Not now
 
