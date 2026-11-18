@@ -3,8 +3,8 @@
 import { Names } from "orthograph/server";
 import type { Model, OperationModel } from "@orthograph/compiler";
 import type { RenderedFile } from "../types.ts";
-import { GENERATED, camel, handlerAt, lines, opVar, pascal, thingFileAt } from "./names.ts";
-import { renderMigration, renderWrangler } from "./worker-config.ts";
+import { GENERATED, bindingOf, camel, databaseStores, handlerAt, lines, opVar, pascal, storeFileAt, thingFileAt } from "./names.ts";
+import { renderMigration, renderStoreMigrations, renderWrangler } from "./worker-config.ts";
 
 /** The machine's refusal, passed to the wrapper when the operation's move starts from a state (D2 #37). */
 const notFromOf = (model: Model, o: OperationModel) => {
@@ -18,6 +18,14 @@ const main = (model: Model, name: string): RenderedFile => {
   const handled = ops.filter((o) => o.kind === "operation");
   const groups = [...new Set(ops.map((o) => o.thing))];
   const things = Object.values(model.things);
+  // Each declared database store (K3) has a D1 binding of its own, and its own journal and request keys.
+  const stores = databaseStores(model);
+  const storeOption = stores.length > 0 ? `, stores: [${stores.map((s) => `[${camel(s.name)}Store, env.${bindingOf(s)}]`).join(", ")}]` : "";
+  const journal = stores.length > 0 ? `JournalD1.across([${stores.map((s) => `env.${bindingOf(s)}`).join(", ")}])` : "JournalD1.layer";
+  const apart = new Set(Object.values(model.things).filter((t) => t.store !== undefined && stores.some((s) => s.name === t.store)).map((t) => t.name));
+  const world = stores.length > 0
+    ? `tables: [${Object.values(model.things).filter((t) => !apart.has(t.name)).map((t) => `"${t.name}"`).join(", ")}], stores: [${stores.map((s) => `{ db: env.${bindingOf(s)}, tables: [${Object.values(model.things).filter((t) => t.store === s.name).map((t) => `"${t.name}"`).join(", ")}] }`).join(", ")}]`
+    : "tables: tables.map(([, table]) => table)";
   const group = (t: string) => {
     const handles = ops
       .filter((o) => o.thing === t)
@@ -52,6 +60,7 @@ const main = (model: Model, name: string): RenderedFile => {
       ops.map((o) => `import * as ${opVar(o)} from "../api/src/${o.thing}/${o.verb}.ts";`),
       handled.map((o) => `import ${opVar(o)}Handler from "${handlerAt("generated/server/main.ts", o)}";`),
       things.map((t) => `import * as ${camel(t.name)}Thing from "${thingFileAt("generated/server/main.ts", t, "thing")}";`),
+      stores.map((s) => `import ${camel(s.name)}Store from "${storeFileAt("generated/server/main.ts", s)}";`),
       "",
       actors ? `export { Actor, World } from "${Names.pkg("host-cloudflare")}";` : `export { World } from "${Names.pkg("host-cloudflare")}";`,
       "",
@@ -79,6 +88,7 @@ const main = (model: Model, name: string): RenderedFile => {
       "",
       "export interface Env {",
       "  readonly DB: D1Database;",
+      stores.map((s) => `  /** The database of store ${s.name}: its own tables, journal and request keys. */\n  readonly ${bindingOf(s)}: D1Database;`),
       "  readonly WORLD: DurableObjectNamespace;",
       actors ? "  readonly ACTORS: DurableObjectNamespace;" : [],
       "  /** Better Auth's secret, at least 32 characters: fresh per local world, a named secret per environment. */",
@@ -106,7 +116,7 @@ const main = (model: Model, name: string): RenderedFile => {
       "  HttpRouter.toWebHandler(",
       "    HttpApiBuilder.layer(Api).pipe(",
       `      Layer.provide([${groups.map((t) => `${pascal(t)}Live`).join(", ")}]),`,
-      `      Layer.provide([StoreD1.layer({ tables${actors ? ", actors: env.ACTORS" : ""} }), JournalD1.layer, BusyLive, AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))]),`,
+      `      Layer.provide([StoreD1.layer({ tables${actors ? ", actors: env.ACTORS" : ""}${storeOption} }), ${journal}, BusyLive, AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))]),`,
       "      Layer.provideMerge(Database.d1(env.DB)),",
       "      Layer.provide(HttpServer.layerServices),",
       "    ),",
@@ -137,7 +147,7 @@ const main = (model: Model, name: string): RenderedFile => {
       "let mcpRuntime: ManagedRuntime.ManagedRuntime<Services, never> | undefined;",
       "const runtimeOf = (env: Env) =>",
       "  (mcpRuntime ??= ManagedRuntime.make(",
-      `    Layer.mergeAll(StoreD1.layer({ tables${actors ? ", actors: env.ACTORS" : ""} }), JournalD1.layer, BusyLive, AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))).pipe(Layer.provideMerge(Database.d1(env.DB))),`,
+      `    Layer.mergeAll(StoreD1.layer({ tables${actors ? ", actors: env.ACTORS" : ""}${storeOption} }), ${journal}, BusyLive, AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))).pipe(Layer.provideMerge(Database.d1(env.DB))),`,
       "  ));",
       "",
       "const TRACEPARENT = /^00-([0-9a-f]{32})-([0-9a-f]{16})-[0-9a-f]{2}$/;",
@@ -164,7 +174,7 @@ const main = (model: Model, name: string): RenderedFile => {
       "    // Closed before anything reads it: outside worlds there is no door to cast, to read facts, or to register a world.",
       "    if (new URL(request.url).pathname.startsWith(\"/_world/\") && !hostsWorlds(env)) return Promise.resolve(Response.json({ error: \"not found\" }, { status: 404 }));",
       "    if (new URL(request.url).pathname.startsWith(\"/_world/\")) {",
-      "      return toWorld({ worlds: env.WORLD, db: env.DB, tables: tables.map(([, table]) => table), leases: env.ORTHO_WORLDS === \"1\" }, request);",
+      `      return toWorld({ worlds: env.WORLD, db: env.DB, ${world}, leases: env.ORTHO_WORLDS === "1" }, request);`,
       "    }",
       "    if (new URL(request.url).pathname === \"/_ortho/bundle\") {",
       "      return env.ORTHO_REVISION && env.ORTHO_BUNDLE_SHA256",
@@ -190,6 +200,7 @@ const main = (model: Model, name: string): RenderedFile => {
 
 export const renderServer = (model: Model, name: string): ReadonlyArray<RenderedFile> => [
   main(model, name),
-  renderWrangler(name, Object.values(model.things).some((t) => t.lives === "actor")),
+  renderWrangler(name, Object.values(model.things).some((t) => t.lives === "actor"), databaseStores(model)),
   renderMigration(model),
+  ...renderStoreMigrations(model),
 ];

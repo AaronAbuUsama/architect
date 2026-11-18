@@ -48,8 +48,10 @@ export interface ThingModel {
   readonly code: string;
   readonly description: string;
   readonly fields: FieldsModel;
-  /** Who owns its state: D1 rows, or a Durable Object per instance. */
+  /** The kind of place its state is kept: D1 rows, or a Durable Object per instance. */
   readonly lives: "database" | "actor";
+  /** The declared store it lives in (a key of `Model.stores`); absent when it lives in the project's default store. */
+  readonly store?: string;
   readonly machine: MachineModel | null;
   readonly events: Readonly<Record<string, FieldsModel>>;
   /** Each with its code, which never moves once released. */
@@ -82,7 +84,7 @@ export interface OperationModel {
   readonly errors: ReadonlyArray<string>;
   readonly refusals: ReadonlyArray<string>;
   readonly allowed: ReadonlyArray<AllowedModel>;
-  readonly steps: Readonly<Record<string, { readonly name: string; readonly type: string }>>;
+  readonly steps: Readonly<Record<string, { readonly name: string; readonly type: string; readonly writes?: ReadonlyArray<string> }>>;
   readonly idempotent: "request" | null;
   /** Where it runs. Always `server`: the compiler refuses the others until a target supports them. */
   readonly runs: "server";
@@ -116,6 +118,8 @@ export interface EnvironmentModel {
   readonly lifetimeMs: number | null;
   readonly cloud: { readonly provider: "cloudflare"; readonly database: "d1" | "d1-local" } | null;
   readonly database: "d1" | "d1-local" | null;
+  /** Only the stores it binds differently from the default, by store name; present only when it binds any. */
+  readonly stores?: Readonly<Record<string, "d1" | "d1-local">>;
   /** Secret names, and how each gets its value. Never a value. */
   readonly secrets: Readonly<Record<string, "generated" | "stored">>;
   readonly promotesFrom: string | null;
@@ -126,10 +130,31 @@ export interface EnvironmentModel {
   readonly hash: string;
 }
 
+/** Where a plugin's store came from: its mount, package and version, and the plugin's own name for the store. */
+export interface StoreFromModel {
+  readonly mount: string;
+  readonly package: string;
+  readonly version: string;
+  readonly store: string;
+}
+
+/** A store, named by its file (`blueprint/stores/ledger.ts` is `ledger`), or by its mount and path (`echo-ledger`). */
+export interface StoreModel {
+  readonly name: string;
+  readonly file: string;
+  /** Which host supplies it: `database` or `actor` on Cloudflare. */
+  readonly kind: string;
+  /** Present only for a plugin's store; its `file` is then a package specifier. */
+  readonly from?: StoreFromModel;
+  readonly hash: string;
+}
+
 export interface Model {
   /** Every refusal in the project and its code: declared errors, each machine's, and the runtime's (`NotAllowed`). */
   readonly refusals: Readonly<Record<string, string>>;
   readonly values: Readonly<Record<string, ValueMeta>>;
+  /** The declared stores, by name: present only when the blueprint (or a mount) declares any. */
+  readonly stores?: Readonly<Record<string, StoreModel>>;
   readonly things: Readonly<Record<string, ThingModel>>;
   readonly operations: Readonly<Record<string, OperationModel>>;
   /**

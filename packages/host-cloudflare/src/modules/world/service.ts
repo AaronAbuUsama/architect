@@ -55,7 +55,7 @@ export class World extends DurableObject<WorldEnv> {
  */
 export const toWorld = (world: WorldHost, request: Request): Promise<Response> => {
   const { pathname } = new URL(request.url);
-  if (pathname.startsWith("/_world/facts/")) return Effect.runPromise(facts(world.db, world.tables, request));
+  if (pathname.startsWith("/_world/facts/")) return Effect.runPromise(facts(world, request));
   if (!world.leases) return world.worlds.get(world.worlds.idFromName("world")).fetch(request);
   if (pathname.startsWith("/_world/worlds")) return Effect.runPromise(worldsDoor({ worlds: world.worlds, db: world.db }, request));
   return Effect.runPromise(live(world.db)).then((held) => world.worlds.get(world.worlds.idFromName(held[0]?.id ?? "world")).fetch(request));

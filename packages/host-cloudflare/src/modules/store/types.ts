@@ -3,7 +3,7 @@
 import type { Layer } from "effect";
 import type { SqlClient } from "effect/sql";
 import type { D1Client } from "@effect/sql-d1";
-import type { Thing } from "orthograph";
+import type { Store as Declared, Thing } from "orthograph";
 import type { Store } from "@orthograph/language-effect";
 
 export interface StoreD1Options {
@@ -11,6 +11,12 @@ export interface StoreD1Options {
   readonly tables: ReadonlyArray<readonly [Thing, string]>;
   /** The Durable Object namespace that holds one actor per instance, for things that `lives: "actor"`. */
   readonly actors?: DurableObjectNamespace;
+  /**
+   * Each declared database store and the D1 binding it lives in (K3). A thing that lives in one is read and committed
+   * there, with its journal entries and request keys; a thing in no declared store lives in the default database,
+   * `SqlClient`'s. One call commits to one store: writes to two are refused.
+   */
+  readonly stores?: ReadonlyArray<readonly [Declared, D1Database]>;
 }
 
 export interface StoreD1Api {
