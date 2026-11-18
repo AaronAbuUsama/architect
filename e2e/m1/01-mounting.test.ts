@@ -26,13 +26,19 @@ describe("01 mounting: a feature mounted by hand (M1.06)", () => {
     expect(got.operations["echo.shout"]).toMatchObject({ name: "echo.shout", thing: "echo", verb: "shout" });
     // The operation's file is the specifier of its pure declaration, which every loader resolves from the project.
     expect(got.operations["echo.repeat"]!.file).toBe("@fixture/echo/blueprint/things/echo/verbs/repeat.js");
-    expect(got.operations["echo.repeat"]!.from).toEqual({ mount: "echo", package: "@fixture/echo", version: "1.0.0", thing: "echo" });
-    expect(got.things["echo"]!.from).toEqual({ mount: "echo", package: "@fixture/echo", version: "1.0.0", thing: "echo" });
+    const from = { kind: "feature", mount: "echo", package: "@fixture/echo", version: "1.0.0", thing: "echo" };
+    expect(got.things["echo"]!.from).toEqual(from);
+    expect(got.operations["echo.repeat"]!.from).toEqual(from);
+    expect(got.operations["echo.shout"]!.from).toEqual(from);
     expect(got.refusals["EchoProblem"]).toMatch(/^EC-\d{3}$/);
-    // The app's own declarations are exactly as they were, with their own paths and no provenance.
+    // Mounting leaves the app's own declarations, origins and paths intact.
+    for (const [name, thing] of Object.entries(before.things)) {
+      expect(got.things[name]).toEqual(thing);
+      expect(thing.from).toEqual({ kind: "app" });
+    }
     for (const [name, operation] of Object.entries(before.operations)) {
       expect(got.operations[name]).toEqual(operation);
-      expect(operation.from).toBeUndefined();
+      expect(operation.from).toEqual({ kind: "app" });
       expect(operation.file.startsWith("blueprint/things/")).toBe(true);
     }
     expect(Object.keys(got.operations).sort()).toEqual([...Object.keys(before.operations), "echo.repeat", "echo.shout"].sort());
@@ -75,7 +81,9 @@ describe("01 mounting: a feature mounted by hand (M1.06)", () => {
     expect(Object.keys(got.things)).not.toContain("echo");
     expect(got.things["fixture-echo"]).toMatchObject({ name: "fixture-echo", identifier: "FixtureEcho", code: "EC" });
     expect(got.operations["fixture-echo.repeat"]).toMatchObject({ name: "fixture-echo.repeat", thing: "fixture-echo", verb: "repeat" });
-    expect(got.operations["fixture-echo.repeat"]!.from).toEqual({ mount: "fixture", package: "@fixture/echo", version: "1.0.0", thing: "echo" });
+    const from = { kind: "feature", mount: "fixture", package: "@fixture/echo", version: "1.0.0", thing: "echo" };
+    expect(got.things["fixture-echo"]!.from).toEqual(from);
+    expect(got.operations["fixture-echo.repeat"]!.from).toEqual(from);
     expect(Object.keys(got.mounts ?? {})).toEqual(["fixture"]);
     succeeds(root, "generate");
     for (const path of ["generated/api/src/fixture-echo/repeat.ts", "generated/sdk/src/fixture-echo/repeat.ts", "generated/sdk/src/fixture-echo/index.ts"]) {

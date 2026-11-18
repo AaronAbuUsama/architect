@@ -89,7 +89,9 @@ export const declaration = (name: string, thing: string, verb: string, pkg = "@f
 
 export interface OperationJson {
   readonly name: string; readonly thing: string; readonly verb: string; readonly identifier: string; readonly file: string; readonly hash: string;
-  readonly from?: { readonly mount: string; readonly package: string; readonly version: string; readonly thing: string };
+  readonly from:
+    | { readonly kind: "app" }
+    | { readonly kind: "feature" | "adapter"; readonly mount: string; readonly package: string; readonly version: string; readonly thing: string };
   readonly via?: ReadonlyArray<string>;
   readonly [key: string]: unknown;
 }
@@ -100,7 +102,7 @@ export interface MountJson {
 }
 export interface ModelJson {
   readonly refusals: Record<string, string>;
-  readonly things: Record<string, { readonly name: string; readonly identifier: string; readonly code: string; readonly hash: string; readonly errors?: unknown; readonly from?: OperationJson["from"] }>;
+  readonly things: Record<string, { readonly name: string; readonly identifier: string; readonly code: string; readonly hash: string; readonly errors?: unknown; readonly from: OperationJson["from"] }>;
   readonly operations: Record<string, OperationJson>;
   readonly mounts?: Record<string, MountJson>;
   readonly [key: string]: unknown;
