@@ -3,6 +3,8 @@
 Part of the frame's worked examples ([`../README.md`](../README.md)). Proposed, 17 November 2026; it follows layer 4 of
 the build plan (L4.01 to L4.09) and the chain pieces of layer 3 (L3.04 to L3.08).
 
+**Built as the budgets feature** of the growing example's stage 3 (K9, ST3.05): a Safe module, the allowance per hat.
+
 **Languages: Effect and Solidity.** "Language" is the axis that was called "target" before: the language the code
 comes out in (Effect, Solidity, Noir, Python), packaged as `@orthograph/language-effect`, `@orthograph/language-solidity`.
 It is not a host (where the code runs: here `Host.worker` and `Host.chain`) and not a projection (what is shipped:

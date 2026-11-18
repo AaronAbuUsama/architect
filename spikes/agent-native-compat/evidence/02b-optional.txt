@@ -1,0 +1,12 @@
+optional(String) advertised note: {"anyOf":[{"type":"string"},{"type":"null"}]} required: ["id"]
+    {"id":"a"} -> {"id":"a"}
+    {"id":"a","note":null} -> ERR Invalid action parameters — note: Expected string 
+    {"id":"a","note":"n"} -> {"id":"a","note":"n"}
+optionalKey(String) advertised note: {"type":"string"} required: ["id"]
+    {"id":"a"} -> {"id":"a"}
+    {"id":"a","note":null} -> ERR Invalid action parameters — note: Expected string.
+    {"id":"a","note":"n"} -> {"id":"a","note":"n"}
+optional(NullOr(String)) advertised note: {"anyOf":[{"type":"string"},{"type":"null"},{"type":"null"}]} required: ["id"]
+    {"id":"a"} -> {"id":"a"}
+    {"id":"a","note":null} -> {"id":"a","note":null}
+    {"id":"a","note":"n"} -> {"id":"a","note":"n"}
