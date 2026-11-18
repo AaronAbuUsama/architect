@@ -66,4 +66,4 @@ export const nodeSource = (given: string) => {
 };
 
 /** Where the project has a package installed, and a plugin's blueprint folder: for the loaders that run journeys. */
-export { packageDir, pluginFolder } from "./internal/plugins.ts";
+export { packageDir, pluginFolder, resolveFrom } from "./internal/plugins.ts";
