@@ -23,9 +23,9 @@ const main = (model: Model, name: string, empty: boolean): RenderedFile => {
   const groups = [...new Set(ops.map((o) => o.thing))];
   const things = Object.values(model.things);
   // Each mount a served operation came from, imported once: its plugin's handlers run under it (Mount.serving).
-  const mounted = [...new Set(handled.flatMap((o) => (o.from ? [o.from.mount] : [])))].filter((m) => model.mounts?.[m]);
+  const mounted = [...new Set(handled.flatMap((o) => (o.from.kind !== "app" ? [o.from.mount] : [])))].filter((m) => model.mounts?.[m]);
   const mountVar = (mount: string) => `${camel(mount)}Mount`;
-  const served = (o: OperationModel) => (o.from && mounted.includes(o.from.mount) ? `Mount.serving(${mountVar(o.from.mount)}, ${opVar(o)}Handler)` : `${opVar(o)}Handler`);
+  const served = (o: OperationModel) => (o.from.kind !== "app" && mounted.includes(o.from.mount) ? `Mount.serving(${mountVar(o.from.mount)}, ${opVar(o)}Handler)` : `${opVar(o)}Handler`);
   // Each declared database store (K3) has a D1 binding of its own, and its own journal and request keys.
   const stores = databaseStores(model);
   const storeOption = stores.length > 0 ? `, stores: [${stores.map((s) => `[${camel(s.name)}Store, env.${bindingOf(s)}]`).join(", ")}]` : "";

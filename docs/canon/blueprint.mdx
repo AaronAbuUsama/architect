@@ -70,7 +70,7 @@ This is what the model says about it, rendered from the sign-up sheet's compiled
 3. **The path says what a file is.** `readLayout` splits each path and decides from it alone. Under `blueprint/things/`,
    the folder is the thing's name, and the rest of the path says which part of it the file holds:
 
-```ts file=packages/compiler/src/modules/model/internal/layout.ts lines=117-124
+```ts file=packages/compiler/src/modules/model/internal/layout.ts lines=132-139
 if (parts[0] !== "things" || parts.length < 3) {
   layout.problems.push(`${at(path)}: not a place the blueprint reads (values/<file>.ts, environments/<name>.ts, stores/<name>.ts, things/<thing>/..., or a mount in features/, adapters/ or projections/)`);
   continue;
@@ -83,7 +83,7 @@ const file = parts.slice(2).join("/");
 
    A file in a thing's `verbs` folder is one operation, named by its file and nothing else:
 
-```ts file=packages/compiler/src/modules/model/internal/layout.ts lines=140-146
+```ts file=packages/compiler/src/modules/model/internal/layout.ts lines=155-161
 } else if (parts[2] === "verbs" && parts.length === 4) {
   const verb = parts[3]!;
   if (!NAME.test(verb)) layout.problems.push(`${at(path)}: verb "${verb}" must be lowercase words joined by dashes`);
@@ -109,9 +109,9 @@ declaration instead.
 
 ### The model
 
-The model is the one contract every projection is made from (K5, seam 1). Today it has eight parts. This is its type:
+The model is the one contract every projection is made from (K5, seam 1). Today it has eleven parts. This is its type:
 
-```ts file=packages/compiler/src/modules/model/types.ts lines=163-180
+```ts file=packages/compiler/src/modules/model/types.ts lines=188-209
 export interface Model {
   /** Every refusal in the project and its code: declared errors, each machine's, and the runtime's (`NotAllowed`). */
   readonly refusals: Readonly<Record<string, string>>;
@@ -120,9 +120,13 @@ export interface Model {
   readonly stores?: Readonly<Record<string, StoreModel>>;
   readonly things: Readonly<Record<string, ThingModel>>;
   readonly operations: Readonly<Record<string, OperationModel>>;
+  readonly journeys: Readonly<Record<string, JourneyModel>>;
+  readonly startingWorlds: Readonly<Record<string, StartingWorldModel>>;
+  /** Incomplete operations are described here and have no generated entry points. */
+  readonly blankOperations?: Readonly<Record<string, BlankOperationModel>>;
   /**
    * What is still `Blueprint.todo`, by declaration (`allowance`, `allowance.spend`): present only when something is.
-   * An operation with a blank is left out of `operations`, so nothing is generated for it until it is filled.
+   * An incomplete operation is described under `blankOperations` until its blanks are filled.
    */
   readonly blanks?: Readonly<Record<string, ReadonlyArray<string>>>;
   /** Where the application runs, by name: present only when the blueprint has an `environments/` folder. */
@@ -215,7 +219,7 @@ hold.
 | `ortho check` | `packages/cli/src/modules/check/service.ts:17` | built |
 | blanks, found and printed | `packages/cli/src/modules/check/internal/blanks.ts:7` | built |
 | `no-name-as-string` | `packages/lint/src/modules/rules/internal/names.ts:5` | built |
-| journeys, starting worlds and role rules in the model | `packages/compiler/src/modules/model/service.ts:9` | planned, M1.03 |
+| journeys, starting worlds and role rules in the model | `packages/compiler/src/modules/model/internal/describe.ts` | built in M1.03 |
 | mounts read from the blueprint | `blueprint/features/` | planned, M1.06 |
 
 ## Status
@@ -231,7 +235,7 @@ hold.
 | a name written as a string is refused | proved | | `packages/cli/src/modules/check/check.test.ts:76`, the `name-as-string` fixture |
 | `ortho check` on a clean project | proved | | `check.test.ts:57`, "passes clean acme" |
 | `ortho check` names each blank | proved | | `packages/cli/src/modules/add/add.test.ts:41` |
-| blanks, journeys, starting worlds and role rules in the model | specified | M1.03 | `ortho describe --json` on acme and work lists them all |
+| blanks, journeys, starting worlds and role rules in the model | proved | M1.03 | `ortho describe --json` on acme and work lists them all |
 | plugin mounts in the blueprint | specified | M1.06 | check `01` |
 
 ## Notes
@@ -240,11 +244,7 @@ hold.
 portal. Seam 1: one declaration per file, named by its path; from M1.03 the model also holds journeys, starting
 worlds, role rules and blanks.</Note>
 
-<Note kind="question" id="model-completeness" slice="M1.03">Blanks, journeys, starting worlds and role rules aren't in
-the compiled model yet (`BLU-04`). Today an operation with a blank is left out of `operations` altogether
-(`describe.ts:99`), and only its name appears under `blanks`, so an unfinished model looks smaller instead of
-unfinished (`BLU-01`). M1.03 must say how a marked blank sits in the model, and what a projection makes for an
-operation that has one.</Note>
+
 
 <Note kind="status" slice="M1.03">Journeys have two places (`BLU-02`). Prove reads both `blueprint/journeys/` and a
 `journeys` folder at the project's root (`packages/prove/src/modules/journeys/internal/load.ts:36`). The design and

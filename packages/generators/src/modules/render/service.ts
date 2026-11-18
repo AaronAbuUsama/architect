@@ -24,7 +24,7 @@ export const Render: RenderApi = {
       ...renderSdk(model, name),
       ...renderCli(model, name),
       // A plugin's handlers are in its package: the project's src/ gains nothing for them (M1-plugins section 8).
-      ...Object.values(model.operations).filter((op) => op.kind === "operation" && !op.from).map((op) => renderHandlerScaffold(op)),
+      ...Object.values(model.operations).filter((op) => op.kind === "operation" && op.from.kind === "app").map((op) => renderHandlerScaffold(op)),
     ];
   },
   emptyServer: ({ name, model }) => renderServer(model, name, true),

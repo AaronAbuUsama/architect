@@ -2,12 +2,17 @@
 // rests on; impact compares today's model with them, so only what a change touches has to be proven again.
 import type { Effect } from "effect";
 import type { Change, Depends, Model, Versioned } from "@orthograph/compiler";
+import type { JourneyVerdict, Result } from "#modules/verdicts/types.js";
 import type { Verdict } from "#modules/evals/types.js";
 
 /** `.ortho/evidence/proven.json`: the model last proven, and each proven operation's dependencies then. */
 export interface Ledger {
   readonly model: Model;
   readonly proven: Readonly<Record<string, Depends>>;
+  readonly verdicts?: Readonly<Record<string, {
+    readonly storyHash: string;
+    readonly journeys: ReadonlyArray<JourneyVerdict>;
+  }>>;
 }
 
 export interface Impact {
@@ -35,7 +40,7 @@ export interface Shipped {
 
 export interface ImpactApi {
   /** After a prove: operations whose evals all passed become proven at today's hashes; failing ones are dropped. */
-  readonly record: (root: string, model: Model, verdicts: ReadonlyArray<Verdict>) => Effect.Effect<void>;
+  readonly record: (root: string, model: Model, verdicts: ReadonlyArray<Verdict>, results?: ReadonlyArray<Result>) => Effect.Effect<void>;
   /** Today's model against the ledger. With no ledger every operation is unproven. */
   readonly of: (root: string, model: Model) => Effect.Effect<Impact>;
   /**
