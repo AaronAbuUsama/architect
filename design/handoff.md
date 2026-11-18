@@ -96,10 +96,11 @@ Seven lines, and the conductor. K7 (#53) and K9 (#55) are merged; the ledger thr
 | 🧭 | **M1 plugin path and wallet path** | `m1` | none (M1 lands as one PR at Gate M1) | M1.01, M1.02, M1.05 to M1.08 and M1.10 on `m1`, each green with its check; check `01` through one `ortho add feature`; then the wallet path (M1.14, M1.27 to M1.32), ending with `acme wallet send` confirmed on Anvil; a 🔍 pass so far | M1.01, M1.02, M1.05 and M1.06 landed. Running its own subagents for M1.28 (wallet journeys, ✍️) and M1.17 (stores). Merges the Codex PRs into `m1` | M1.07 verbs, then M1.08 and M1.10. Tells the conductor when M1.10 lands, so M1.03/M1.04 and M1.26 can start |
 | 🤖 | **Codex: O2 trace fixes** (M1.18 to M1.20) | `codex/m1-o2` | into `m1`, not yet | Three slices, each with O2's proof; journey change by a separate author; 🔍 pass; CI green | `codex exec` (gpt-6.2-sol) in worktree `codex-m1-o2`, started 18 November | Opens its PR into `m1`; the M1 lead merges |
 | 🤖 | **Codex: `@orthograph/chain-evm`** (M1.30) | `codex/m1-chain-evm` | into `m1`, not yet | Vendored from `@prb/effect-evm` 5.0.3 (MIT notice kept, never a dependency); ERC20 transfer and typed reverts on Anvil; the `viem` lint rule; 🔍 pass; CI green | `codex exec` in worktree `codex-m1-chain-evm`, started 18 November | Opens its PR into `m1`; the M1 lead merges |
-| 🤖 | **Codex: the durable-run spike** | `spike/durable-run` | into `main`, not yet | `spikes/durable-run/README.md` measures one Pi Durable run per Durable Object surviving eviction: model calls per resumed step, commits per tool call, bundle size | `codex exec` in worktree `codex-durable-run`, started 18 November | Merges its PR for the record; feeds M4.01, M4.09 and M4.16 |
-| 📐 | **Portal design (M1.25)** | `design/portal` | none yet | `design/portal.md` agreed with Aaron: the first page, a thing's page, an operation's page, the live rail, the chat; inline grills first, then a mock | Started 18 November | Grills Aaron on the information architecture |
+| 📐 | **Portal design (M1.25)** | `design/portal` | none yet | `design/portal.md` agreed with Aaron: the first page, a thing's page, an operation's page, the live rail, the chat; inline grills first, then a mock | Round 1 put to Aaron; he answered Q1 (the chat is Pi Durable, with our own layer reaching every action) and Q8 (HeroUI Pro, used privately; clean-room if the licence ever bites). Round 2 adds: everything is an action, the portal's own auth, extensions, and monitoring local, staging and production | Puts Q2 to Q7 back with round 2 |
 | 🔗 | **Links stage 1 (Codex, run by Aaron)** | `links/stage-1` | none yet | `examples/links` runs on main's framework, and the starter is its copy, kept identical by a check (Aaron's change to K9: the starter becomes stage 1 as soon as links runs, not at M2.09); then handles as a plugin; then the screens | Prompt given to Aaron 18 November | Opens its first PR into `main` |
-| 📒 | **Ledger** | its own branch per round | #54, then the K7 and K9 round | The ledger matches what's merged, every item with its source and owner | Recording K7 (#53) and K9 (#55) | Merges each round itself when green |
+| 📐 | **The factory (K10)** | `design/factory` | none yet | K10: the agent layer on Pi Durable that reaches every action (shared by the portal's chat and the building agents), the building agents and their tools, sandboxes and environments, the experiment loop, the seams with the work board and the portal; slices in `milestones.md`; one PR merged | Started 18 November evening; reopens K4's parked factory | Grills Aaron, starting with what his Pi Durable UI session covers |
+| 🗂 | **The work board (K11)** | `design/work-board` | none yet | A Kanban components spike on HeroUI Pro; K11: work as a plugin, the manager agent that puts work on the board, dispatch for maximum throughput onto the factory's agents; slices; one PR merged | Started 18 November evening | Spikes the components, then grills Aaron on the board |
+| 📒 | **Ledger** | its own branch per round | #58, the K7 and K9 round | The ledger matches what's merged, every item with its source and owner | Recording K7 (#53) and K9 (#55) | Merges each round itself when green |
 
 **The Codex runs** are `codex exec` processes on Aaron's machine, started by the conductor, each in its own worktree
 under `.claude/worktrees/codex-*`. They can't receive messages: steer them by commenting on their PRs. Their final
@@ -111,6 +112,13 @@ reports land in the conductor's scratchpad and on their PRs.
   by their authors.
 - **#28, the work-real spike.** Its answer is on `main` in [`../spikes/work-real/README.md`](../spikes/work-real/README.md).
   The D1 array fix is ledger STO-23, owned by M1.17. The fuller work app is FAC-15. The work system is parked.
+
+**Done this evening:** the durable-run spike (Codex, #57): one Pi Durable run per SQLite Durable Object survives
+eviction mid-tool-call, one commit and one model call per step; an eviction before the model's reply repeats that
+request; the bundle is about 420 KB gzipped. Left for M4: the provider path's 17 ambient clock reads and two timeouts.
+
+**Aaron's aim (18 November):** small, modular, reusable pieces, so we can run lots of experiments and spikes with
+plugins and extensions; most won't stick, the kept ones are refactored, and production stays clean.
 
 **Other branches not merged into `main`, all parked and owned by nothing:** `layer/4` and `author/stage4-checks` and
 `author/stage4-graph-checks` (kept for the M1 harvest); `author/m0-names`, `build/M0.05` (M0 leftovers: check they're
