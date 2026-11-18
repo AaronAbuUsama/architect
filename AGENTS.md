@@ -4,8 +4,9 @@
 
 ## What this repository is
 
-Forman, the framework (command `forman`, packages `@formants/*`); what you write with it is the blueprint. Its design
-is in `design/`: the frame (`frame/`), the milestones (`milestones.md`: M0 to M7, each slice with what it needs and the
+Orthograph, the framework (command `ortho`, packages `@orthograph/*`); what you write with it is the blueprint. The
+name was decided on 18 November 2026 (`design/decisions/K6-orthograph.md`). Until the rename sweep runs, the code still
+says Forman, `forman` and `@formants/*`; `design/naming.md` maps every name. Its design is in `design/`: the frame (`frame/`), the milestones (`milestones.md`: M0 to M7, each slice with what it needs and the
 check that proves it), the decisions (`decisions/`), `packages.md`, `spikes.md` and `spikes/`, and the design docs in
 `design/docs/`. Layers 1 and 2 are recorded in `build-plan.md`.
 

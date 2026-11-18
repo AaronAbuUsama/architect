@@ -23,12 +23,13 @@ records are brought in line.
 | [`../milestones.md`](../milestones.md) | the recut: milestones M0 to M7, their slices and gates; workable at the end of M2 |
 | [`delta.md`](delta.md) | every weakness found, how this frame answers it, and the order to close the gap |
 
-## The name (Aaron, 17 November 2026)
+## The name (Aaron, 18 November 2026)
 
-The framework is **Forman**: the command `forman`, the npm org `@formants` (`decisions/K2-forman-frame.md`).
-**Blueprint** is what you write: the `blueprint/` folder and the `Blueprint.*` API, imported from the front door
-`@formants/forman`. The packages, command, folders and variables were renamed in M0 (`decisions/M0-packages.md`).
-Where a frame document still says Blueprint for the framework itself, read Forman.
+The framework is **Orthograph**: the command `ortho`, the npm scope `@orthograph`, and the front door the plain
+package `orthograph` (`decisions/K6-orthograph.md`). **Blueprint** is still what you write: the `blueprint/` folder
+and the `Blueprint.*` API. How every name is spelled, and where it lives, is in [`../naming.md`](../naming.md).
+The code and these documents still say Forman, `forman` and `@formants` until the rename sweep runs; read them as
+Orthograph. Where a frame document says Blueprint for the framework itself, read Orthograph too.
 
 ## In one breath
 
