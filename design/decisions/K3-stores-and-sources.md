@@ -114,10 +114,6 @@ that does all of that can be where a thing lives.
 10. **The data map shows both.** `generated/data/map.md` and the portal's data page list every store, with its kind,
     binding and migrations, and every source, with its adapter, calls and stand-in.
 
-11. *(Withdrawn, 18 November 2026.)* An earlier K5 draft added "a projection's own state" as a fourth kind of place,
-    for agent-native's Postgres. K5's revision builds the portal on Orthograph instead, so nothing needs it: the
-    portal's notes are things in the portal feature's own store (item 7).
-
 ## Why not the external database as a store (option B)
 
 B looked fine, and it would be right if Capxul owned the bench through Forman. The problem is ownership, not MariaDB.

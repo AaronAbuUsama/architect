@@ -1,11 +1,12 @@
 # K5: the whole shape
 
-First written 18 November 2026 by the building agent, then revised the same day with Aaron's decisions from his
-Orthograph DX discussion with Codex (relayed by the conductor). Where the first version disagreed with those
-decisions, they won: the first version had agent-native running the app, with its own Postgres and an auth bridge, and
-that is gone. Two later, sharper words from Aaron settled agent-native's place: we port what we need from it into our
-own packages, and nothing of theirs runs (decision 1 below). This record holds the whole of Orthograph on one page:
-every primitive, every seam, who owns it and what crosses it. Where it disagrees with the K2 frame, this record wins. The details stay with the canon's layers.
+Written 18 November 2026 by the building agent, and revised the same day with Aaron's decisions.
+
+This record holds the whole of Orthograph on one page: every primitive, every seam, who owns it and what crosses it.
+The details stay with the canon's layers. Where Aaron's decisions disagreed with the first version, they won. The
+first version had agent-native running the app, with its own Postgres and an auth bridge. That is gone: we port what
+we need from agent-native, and nothing of theirs runs. K2 still stands; where this record refines it, K2 carries a
+note pointing here.
 
 **Names.** The framework is now **Orthograph**, with the command `ortho` and the npm scope `@orthograph` (K6, PR #42).
 "Blueprint" stays as the name of what you write. The code on `main` still says `forman` and `@formants` until the
@@ -47,7 +48,7 @@ His decisions from the Orthograph DX discussion, carried here as they were given
    - A Solidity contract may have helper or ABI functions outside the generated app surface.
    - Open: the exact interface that maps a declared operation to an ABI entry and to deliberate client exposure. Aaron:
      this concerns only our own contracts. Other people's contracts are sources, reached through adapters (K3 item 8).
-4. **Steps and workflows are different.** Operation steps are already optional on `main`.
+4. **Steps and workflows are different.** On `main`, an operation may already declare no steps.
    - A named step is a span inside one attempt of an operation, and the handler chooses which steps run.
    - A durable workflow's activity or wait records a run's progress across attempts and across owners.
    - Open: the exact workflow declaration, wake-up, deduplication and replay.
@@ -117,7 +118,8 @@ later, private membership. Signup's `sheet.join` is used only where the smallest
 - **Later, on Noir:** private membership credentials with a public tally.
 - **Governance is the reusable feature.** A forum integration is the example of an adapter.
 
-The blueprint, in brief (a sketch in today's API; the chain parts follow `frame/examples/allowance-on-chain.md`):
+The blueprint, in brief. It is a sketch in today's API, except where a line says `new`: those don't exist yet. The
+chain parts follow `frame/examples/allowance-on-chain.md`.
 
 ```ts
 // blueprint/things/draft/thing.ts: lives in the default store (D1)
@@ -136,7 +138,7 @@ export const Revision = Blueprint.thing({
 export const Proposal = Blueprint.thing({
   description: "A question put to the members, decided by one vote each.",
   fields: { id: ProposalId, digest: Digest, yes: Votes, no: Votes, closesAt: Blueprint.time() },
-  lives: Blueprint.chain({ contract: "Governance", per: "workshop" }),
+  lives: Blueprint.chain({ contract: "Governance", per: "workshop" }),   // new: M6.10, shape from K7
 });
 
 // blueprint/things/proposal/machine.ts
@@ -168,8 +170,8 @@ export default Blueprint.operation(Draft, {
   answer: { version: Version },
   errors: [DraftChanged],            // someone saved first: reload and try again
   allowed: [author],
-  steps: { load: Blueprint.step.database(), save: Blueprint.step.database({ optional: true }) },
-  emits: DraftEdited,                // Q5: committed with the call's writes
+  steps: { load: Blueprint.step.database(), save: Blueprint.step.database({ optional: true }) },   // new: optional, M1.26
+  emits: DraftEdited,                // new: Q5, built in M3.16
   idempotent: "request",
 });
 ```
@@ -240,7 +242,7 @@ const edit: Handler = ({ draft, body, version }, { steps }) =>
   in the journal when the call wrote.
 
 **Steps are spans, not durable work.** A named step is a span inside one attempt, and the handler decides which steps
-run. A rerun after `Conflict` runs them again. Steps themselves are optional on an operation
+run. A rerun after `Conflict` runs them again. An operation may declare no steps at all
 (`packages/forman/src/modules/operations/types.ts:46`).
 
 **Branching.** Eval 6 requires every declared step on an answered call, so a handler that skips a step on a
@@ -278,7 +280,7 @@ export default Blueprint.operation(Proposal, {
   move: machine.moves.vote,           // from passed or failed: ProposalNotOpen, the generated refusal
   errors: [AlreadyVoted, NotAMember],
   allowed: [member],
-  runs: "chain",
+  runs: "chain",                      // new: refused by the compiler today, M6.10
 });
 ```
 
@@ -345,14 +347,15 @@ The doors:
 | MCP tools | nothing | one tool per operation the rule admits, on the Worker | the same | the tool span |
 | Actions | where they bind | from the model, built on the SDK | the same | the action's span as the parent |
 
-**An action** is generated from an operation, in agent-native's action shape (decision 1), ported into our own
-`actions` module in Effect. The field names are `defineAction`'s own, so agent-native templates and skills read
-naturally: `description`, `schema`, `outputSchema`, `errors`, `readOnly`,
-`retrySafe`, `needsApproval`.
+**An action** is generated from an operation, in agent-native's action shape (decision 1), ported into an `actions`
+module of `forman` (which depends only on Effect). The field names are `defineAction`'s own
+(`packages/core/src/action.ts:1011-1153` at 0.228.2), so agent-native templates and skills read naturally:
+`description`, `schema`, `outputSchema`, `errors`, `readOnly`, `retrySafe`, `needsApproval`, and the two exposure
+fields, `agentTool` and `mcpTool`.
 
 ```ts
 // generated/actions/proposal/vote.ts. Generated from blueprint/things/proposal/verbs/vote.ts. Do not edit.
-import { defineAction } from "@orthograph/forman/actions";   // our port of agent-native's shape, in Effect
+import { defineAction } from "@formants/forman/actions";   // new, M1.23: our port of agent-native's shape, in Effect
 
 export default defineAction({
   description: declaration.description,
@@ -362,20 +365,22 @@ export default defineAction({
   readOnly: false,                                    // true only for reads
   retrySafe: true,                                    // because the SDK carries one requestKey across retries
   needsApproval: true,                                // a chain write: the member's wallet signs
-  mcpTool: false,                                     // the name is kept; MCP is the Worker's door, once per operation (X-05)
+  agentTool: true,                                    // false when the operation is .notVia(Via.agent)
+  mcpTool: false,                                     // MCP is the Worker's own door, once per operation (X-05)
   run: (args, ctx) => ctx.sdk(proposal.vote(args, { requestKey: ctx.callId }).pipe(Effect.flatMap((s) => s.confirmed))),
 });
 ```
 
 Two things differ from agent-native's version: `ctx` carries the SDK client and the call's id (agent-native's `ctx` has
-neither, `action.ts:190-270`), and `errors` carry the operation's refusal codes. An operation that is
-`.notVia(Via.agent)` gets `agentTool: false` as well, so the chat never offers it.
+neither, `action.ts:190-270`), and `errors` carry the operation's refusal codes.
 
 Because the field names match, an agent-native app can use these actions as its own: it registers them and calls our
-Worker through the SDK. That is how Orthograph powers agent-native apps without being one.
+Worker through the SDK. That is how Orthograph aims to power agent-native apps without being one. M1.22 checks the
+shape with a type test against agent-native 0.228.2's recorded field list, without installing agent-native.
 
-The action holds no authority. Its `run` is the SDK, so the operation's enforcer decides every time. Its `exposure` is
-a convenience for screens and tools, never a check.
+The action holds no authority. Its `run` is the SDK, so the operation's enforcer decides every time. `agentTool` and
+`mcpTool` decide what is offered to screens and tools, never what is allowed. The React bindings and the portal's UI
+live in a separate package, `@formants/portal` (to be `@orthograph/portal`), so `forman` stays Effect only.
 
 ### 6. Steps and workflows: publishing
 
@@ -410,8 +415,8 @@ Settled here:
 - a wait wakes on an event through `on:` or on a durable timer through `Timers`.
 
 The exact declaration, wake-up, deduplication and replay stay open for M3.01 (decision 4), proved by the M3.03 spike.
-An operation with no machine may declare its own event (Q5, seam 3). M3.01 lands it; until then such an operation
-emits nothing.
+An operation with no machine may declare its own event (Q5, seam 3). M3.01 settles its place beside workflows, M3.16
+builds it, and until then such an operation emits nothing.
 
 ### 7. Private membership on Noir (later)
 
@@ -540,14 +545,14 @@ What we port, sized from the 0.228.2 packages (non-test TypeScript lines, or bui
 | The app shell | `toolkit/app-shell`, 2,540 lines | the portal's frame: navigation by thing, the reading column, the live rail, the drawer (UX.md's five rules) | M, about 1,500 lines |
 | The chat | `toolkit/app/chat`, 43,862 lines; `composer`, 22,979; `agentkit`, 11,286 built | a narrow chat surface: thread, streamed answer, tool-call cards, approvals and refusals; threads as things in the portal's store. The agent behind it is not ported: it is one of our own durable agents (M4, a run per thread on a Durable Object), with actions as its tools | L, about 4,000 lines, grown later |
 | Screen context | `toolkit/context-ui`, 1,179 lines | what the builder is looking at (thing, operation, trace), given to the chat as context | S, about 500 lines |
-| Template layouts | `core/src/templates` (`default`, `chat`, `workspace-core`) | the portal's own layouts, after the portal's design (M1.25) | M |
+| Template layouts | `core/src/templates` (`default`, `chat`, `workspace-core`) | the portal's own layouts, after the portal's design (M1.25) | M, about 700 lines |
 
-The whole port is about 7,000 lines of our own code, set against more than 80,000 in the parts of agent-native it
+The whole port is about 7,500 lines of our own code, set against more than 80,000 in the parts of agent-native it
 learns from. The chat is most of it, so the chat starts narrow. agent-native's agent loop (`agentkit`) is learned from
 and not ported: our agents are durable, on a different stack.
 
-What we learn from but don't port: its Postgres client (`db/client.ts:1938` throws on anything but Postgres) and the
-PGlite that came with it, its own Better Auth and organisations (`server/auth.ts:468`, `OrgRole`), its roughly 170
+What we learn from but don't port: its Postgres client (`db/client.ts:1938` throws on anything but a Postgres or PGlite URL) and
+the PGlite that comes with it, its own Better Auth and organisations (`server/auth.ts:470`, `OrgRole`), its roughly 170
 tables, its own MCP server, its deploy (`cloudflare_module`, `deploy/build.ts:142`), A2A writes through the LLM loop,
 and its `otel` package. Our stores, auth, Worker, MCP, `ortho` and tracer already do each of these.
 
@@ -606,14 +611,15 @@ The build plan stays. These are the slices it touches:
 | M1.11 to M1.13 | **Changed.** The fixed renderer list becomes mounts. M1.13 becomes "docs and the portal": our designed template on the ported pieces, from the model plus live evidence, served by the project's Worker |
 | M1.12 | **Changed.** sdk, cli and mcp, plus the SDK contract (caller on the layer, `requestKey`, typed refusals, exposure from `allowed` and `via`) |
 | M1.21 | **New.** Live steps: step signals as they start and end, and committed events read from the journal for the portal |
-| M1.22 | **New.** The actions projection: one `defineAction` per operation, built on the SDK; replay `--through actions` |
+| M1.22 | **New.** The actions projection: one `defineAction` per operation, built on the SDK. The `--through actions` replay is M2.08 |
 | M1.23 | **New.** The port, part one: `defineAction` and approvals in `forman`'s `actions` module |
 | M1.24 | **New.** The port, part two: the shell, the chat's surface, and screen context, in Effect, over D1; signed in through the project's auth (`@orthograph/auth` from M2.06) |
 | M1.26 | **New.** The scaffold as a wired function; `optional` steps in eval 6; the unused-step warning in `ortho check` |
-| M1.25 | **New.** The portal's design, worked through with Aaron (UX.md's intent, agent-native's templates as the reference), before M1.13 builds it |
+| M1.25 | **New.** The portal's design, worked through with Aaron (UX.md's intent, agent-native's templates as the reference), before M1.13 builds it. Aaron asks to see UX before it is drawn, so this is his session by his rule, not a block |
 | M2.06 | **Changed.** Builders sign in to the portal through `@orthograph/auth` |
 | M2.08 | **Changed.** `--through cli\|mcp\|actions` |
 | M3.01 | **Changed.** Starts from decision 4 and the settled activity key; workshop's publish is its example |
+| M3.16 | **New.** `emits:` on an operation (Q5), built: present on success, absent on a refusal, absent when the call wrote nothing |
 | M3.12 | **Parked**, with the skills design (PR #37) |
 | M3.14 | **Parked**: the portal's separate Work surfaces (decision 2) |
 | M5.06 | **Unchanged**: the data map is a portal page |
@@ -631,9 +637,9 @@ is amended: the app it describes is the portal, our own design on the ported pie
 
 ## What changes elsewhere
 
-- **K2.** It stands. Its "portal" is the portal of decision 1. Actions join the projections.
-- **K3.** Item 2 says a chain is a host that runs the `chain` store kind. The first version's "projection's own state"
-  item is withdrawn, because nothing in the shape needs it now.
+- **K2.** It stands, with a note at its top pointing here. Its "portal" is the portal of decision 1. Actions join the
+  projections.
+- **K3.** Item 2 says a chain is a host that runs the `chain` store kind.
 - **F6 (PR #41).** The app is the portal, our own design on the ported pieces. Its UX intent stands (decision 2).
 - **The ledger (PR #47).**
   - `PRJ-43` holds: an action keeps agent-native's shape, sits beside the doors, and each door exists once per
@@ -668,7 +674,7 @@ end-to-end example from layer 4 on.
   event (M6.09), not a second answer.
 - **Step signals cost requests.** One small send per step start and end, under `waitUntil`. They are measured in
   M1.21 against the budget.
-- **The port is mostly the chat.** About 4,000 of its 7,000 lines are the chat's surface. agent-native's
+- **The port is mostly the chat.** About 4,000 of its 7,500 lines are the chat's surface. agent-native's
   chat is about ten times that size, so ours starts narrow (thread, stream, tool calls, approvals, refusals) and grows
   only as the portal's design asks.
 - **Compatible by names only.** agent-native's templates and skills read naturally against our field names, but none

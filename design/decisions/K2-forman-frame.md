@@ -1,5 +1,9 @@
 # K2: the Forman frame, decided
 
+> K5 ([`K5-the-whole-shape.md`](K5-the-whole-shape.md), 18 November 2026) refines this frame: the portal is our own
+> design on pieces ported from agent-native, actions keep `defineAction`'s field names, and steps and workflows are
+> apart. K2 stands where K5 is silent.
+
 Decided 17 November 2026. Aaron took the recommendations on every open question in
 [`../frame/questions.md`](../frame/questions.md) ("All open questions are your recommendations … I'm allowing you to
 go with your recommendation"), plus the calls he made himself in the same conversation. This record supersedes
