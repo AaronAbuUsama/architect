@@ -7,7 +7,7 @@ import { WorldFailed, type WorldsApi } from "./types.ts";
 import { applyMigrations, bringUp, stop } from "./internal/wrangler.ts";
 
 export const Worlds: WorldsApi = {
-  start: ({ root, port, name, otlp, environment, secretEnv }) =>
+  start: ({ root, port, name, otlp, environment, secretEnv, chain }) =>
     Effect.gen(function* () {
       const config = resolve(root, "generated/server/wrangler.jsonc");
       if (!existsSync(config)) return yield* new WorldFailed({ message: `${config} is missing: run nx sync first` });
@@ -16,12 +16,14 @@ export const Worlds: WorldsApi = {
       rmSync(state, { recursive: true, force: true });
       mkdirSync(state, { recursive: true });
       yield* applyMigrations(config, state);
+      // The chain is acquired first, so it is released last: the Worker never outlives the chain it talks to.
+      const stood = chain === undefined ? undefined : yield* chain;
       const log = join(state, "wrangler.log");
       const secret = randomBytes(32).toString("hex");
       const url = `http://127.0.0.1:${port}`;
       const vars = { AUTH_SECRET: secret, [Names.variable("ENVIRONMENT")]: environment ?? "local", ...(otlp ? { OTLP_URL: otlp } : {}) };
       yield* Effect.acquireRelease(bringUp({ config, state, port, log, vars, ...(secretEnv ? { secretEnv } : {}) }, "/_world/health"), stop);
-      return { url, log };
+      return { url, log, ...(stood ? { chain: stood } : {}) };
     }),
   launch: ({ config, state, port, log, pidFile, envFile, secretEnv, ready }) =>
     Effect.gen(function* () {
