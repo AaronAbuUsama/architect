@@ -12,4 +12,4 @@ An optional contract deadline is measured in chain block timestamps. A tracking
 timeout means the observer exhausted its budget. RPC requests are cancelled by
 the timer when the per-request or remaining tracking budget expires.
 Each observed receipt gets a span. Tracking and the follower run as the caller's
-counted work. The host supplies the signer and the M1.32 simulator.
+counted work. The host supplies the signer. Simulation (M1.32) is an `eth_call` that `sign` and `submit` require first.

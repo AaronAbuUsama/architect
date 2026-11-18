@@ -5,7 +5,7 @@ import type { Abi, Address, Hex } from "viem";
 export type FaultKind =
   | "configuration" | "transport" | "timeout" | "nonce" | "funds"
   | "rejected" | "resource" | "revert" | "panic" | "signing"
-  | "unsupported" | "event" | "reorg";
+  | "unsupported" | "event" | "reorg" | "unsimulated";
 
 export class ChainFault extends Data.TaggedError("ChainFault")<{
   readonly kind: FaultKind;

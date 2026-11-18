@@ -64,6 +64,7 @@ export type TxState<TEvent extends DecodedEvent = DecodedEvent> =
 
 export interface ChainPort {
   readonly prepare: (call: Call) => Effect.Effect<Unsigned, ChainError>;
+  /** An `eth_call` of the prepared transaction. `sign` and `submit` refuse a transaction that has not passed it. On failure, `release` it. */
   readonly simulate: (tx: Unsigned) => Effect.Effect<void, ChainError>;
   readonly sign: (tx: Unsigned, signer: Signer) => Effect.Effect<Signed, ChainFault>;
   readonly submit: (tx: Signed) => Effect.Effect<Submission, ChainError>;
@@ -94,6 +95,4 @@ export interface ChainPortOptions {
   readonly refusals?: ReadonlyArray<RefusalLockEntry>;
   /** Optional trace provider for recovering data from mined reverts. */
   readonly traceRevert?: (hash: Hash) => Effect.Effect<Hex | undefined, ChainFault>;
-  /** M1.32 supplies the simulator for this port. */
-  readonly simulate?: ChainPort["simulate"];
 }

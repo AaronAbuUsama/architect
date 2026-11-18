@@ -444,6 +444,9 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: 1.32.2
         version: 1.32.2(@cfworker/json-schema@4.1.4)(supports-color@10.2.2)(zod@4.6.7)
+      '@orthograph/chain-evm':
+        specifier: workspace:*
+        version: link:../chain-evm
       nx:
         specifier: 24.0.3
         version: 24.0.3

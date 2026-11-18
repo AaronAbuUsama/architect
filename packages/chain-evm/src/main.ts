@@ -10,3 +10,5 @@ export type {
   BlockIdentity, DecodedEvent, EventAbi, EventChange, EventCheckpoint, EventFollower, EventFor, EventPoll, EventSource,
 } from "./modules/events/types.ts";
 export type { Address, Hash, Hex, TransactionReceipt } from "viem";
+export { Anvil } from "./modules/anvil/service.ts";
+export { AnvilFailed, type AnvilOptions, type RunningAnvil, type TestAccount } from "./modules/anvil/types.ts";

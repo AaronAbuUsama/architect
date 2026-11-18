@@ -89,7 +89,8 @@ export const callOperation = (url: string, facts: Facts, name: string, op: Opera
         ...(request === undefined ? {} : { "idempotency-key": request }),
         ...(startingWorld ? { "x-ortho-starting-world": "1" } : {}),
       },
-      body: JSON.stringify(wire),
+      // A payload its schema could not encode is sent as it is, with bigints as text (as the wire carries them).
+      body: JSON.stringify(wire, (_, v: unknown) => (typeof v === "bigint" ? v.toString() : v)),
     });
     const journal = yield* facts.journal(trace);
     return { wire, status: r.status, body: r.body, trace, parent, journal };

@@ -12,6 +12,10 @@ process group, on a config the caller made, with a `--persist-to` folder that su
 and its secrets in an env file. Migrations are applied first, a taken socket starts it again, and it is ready once the
 `ready` path answers. The caller keeps the pid and stops it: this is what `environments` builds on (D3 #4).
 
+`chain` (M1.31): an effect the caller supplies that stands up the world's chain (`Anvil.start` from
+`@orthograph/chain-evm`, wired by the composition root). It is acquired in the world's scope before the Worker and
+released after it, and `Running.chain` carries its `rpcUrl` and `chainId`, so the chain is gone when the world ends.
+
 Test: `world.test.ts`.
 
 L2.O: `environment` (default `local`) is the `ORTHO_ENVIRONMENT` var, written on every span as `deployment.environment`. `secretEnv` (from

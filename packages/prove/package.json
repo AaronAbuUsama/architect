@@ -20,8 +20,10 @@
     "#modules/*.js": "./src/modules/*.ts"
   },
   "devDependencies": {
-    "@orthograph/logbook": "workspace:*",
     "@modelcontextprotocol/sdk": "1.32.2",
+    "@orthograph/chain-evm": "workspace:*",
+    "@orthograph/generators": "workspace:*",
+    "@orthograph/logbook": "workspace:*",
     "nx": "24.0.3"
   },
   "files": [

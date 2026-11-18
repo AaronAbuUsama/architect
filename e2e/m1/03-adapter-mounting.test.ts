@@ -26,7 +26,7 @@ describe("03 adapters: ortho add adapter", () => {
     expect(textAt(root, "package.json")).toBe(manifest);
 
     const added = succeeds(root, "add", "adapter", "@fixture/remote", "--as", "pricing");
-    expect(added.stdout.trimEnd().split("\n")).toEqual([expect.stringMatching(/^wrote blueprint\/adapters\/pricing\.ts$/), expect.stringMatching(/^pinned @fixture\/remote 1\.0\.0 /), "needs none"]);
+    expect(added.stdout.trimEnd().split("\n")).toEqual([expect.stringMatching(/^wrote blueprint\/adapters\/pricing\.ts$/), expect.stringMatching(/^pinned @fixture\/remote 1\.0\.0 /), "needs none", "next ortho generate, then ortho check"]);
     expect(tree(root, "blueprint/adapters")).toEqual([PRICING]);
     const file = textAt(root, PRICING);
     expect(file.split("\n")[0]).toMatch(/Scaffolded from @fixture\/remote 1\.0\.0\. Yours from now on\.$/);

@@ -73,7 +73,7 @@ Where the contract is silent the checks go through the CLI, HTTP, files and the 
 2. `mounts.<name>` has `kind`, `file`, `package`, `version`, `integrity` (`sha256-…`), `chosen`, `hash`, and `omitted`,
    `narrowed` (kept ways in, compared as a set) and `needs` (`["feature:echo"]`) where there are some.
 3. A thing's and an operation's `from` is `{ mount, package, version, thing }` as section 7 shows.
-4. `ortho add` prints `wrote <file>`, `pinned <pkg> <version> (local …)`, `needs none` on three lines in that order; the
+4. `ortho add` prints `wrote <file>`, `pinned <pkg> <version> (local …)`, `needs none`, `next ortho generate, then ortho check` on four lines in that order (section 11); the
    scaffold's first line contains `Scaffolded from <pkg> <version>. Yours from now on.`; an existing mount is refused with
    `<file> already exists`; `--dry-run` prints `would write <file>`; a package that is not installed is refused naming it and
    `pnpm add --save-exact <package>`.

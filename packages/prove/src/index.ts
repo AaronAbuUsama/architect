@@ -2,7 +2,7 @@
 export { Prove } from "#modules/prove/service.js";
 export { ProveFailed, type Report } from "#modules/prove/types.js";
 export { Worlds } from "#modules/world/service.js";
-export { WorldFailed, type Running } from "#modules/world/types.js";
+export { WorldFailed, type ChainStand, type Running } from "#modules/world/types.js";
 export { Build } from "#modules/build/service.js";
 export { BuildFailed, type Built } from "#modules/build/types.js";
 export { Environments } from "#modules/environments/service.js";

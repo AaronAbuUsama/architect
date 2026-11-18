@@ -33,8 +33,5 @@ export const makeChainPort = (options: ChainPortOptions): Effect.Effect<ChainPor
       rpc, timers, options, interval, timeout, manager.nonces.nonceAtHead, submission, intent,
       intent === undefined ? undefined : follow(intent.source, level),
     );
-    const simulate: ChainPort["simulate"] = options.simulate ?? (() => Effect.fail(
-      new ChainFault({ kind: "unsupported", message: "The EVM port has no simulator configured" }),
-    ));
-    return { prepare: manager.prepare, simulate, sign: manager.sign, submit: manager.submit, replace: manager.replace, track, follow, release: manager.release };
+    return { prepare: manager.prepare, simulate: manager.simulate, sign: manager.sign, submit: manager.submit, replace: manager.replace, track, follow, release: manager.release };
   });

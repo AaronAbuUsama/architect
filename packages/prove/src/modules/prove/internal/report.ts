@@ -19,11 +19,24 @@ export const spanFailures = (step: StepResult, trace: Trace | undefined, call: C
   ];
 };
 
+/** The defect a call's span recorded when the server died (`BlankReached`, or the error's message), if any. */
+const defectOf = (trace: Trace | undefined): string | undefined => {
+  const defect = trace?.spans.find((s) => typeof s.attrs["defect"] === "string")?.attrs["defect"];
+  const said = typeof defect === "string" ? defect.replace(/:\s*$/, "").trim() : "";
+  return said === "" ? undefined : said;
+};
+
 /** Why a starting world stopped, with the defect the operation's span recorded when the server died. */
 const stoppedLine = (run: JourneyRun, traces: ReadonlyMap<string, Trace>) => {
   const last = run.calls[run.calls.length - 1];
-  const defect = last ? traces.get(last.trace)?.spans.find((s) => typeof s.attrs["defect"] === "string")?.attrs["defect"] : undefined;
-  return `journey ${run.name} ✘ ${run.stopped}${defect ? ` (${String(defect)})` : ""}; no step ran`;
+  const defect = last ? defectOf(traces.get(last.trace)) : undefined;
+  return `journey ${run.name} ✘ ${run.stopped}${defect ? ` (${defect})` : ""}; no step ran`;
+};
+
+/** A failed step whose call died says what it died of, from the call's own span. */
+const diedOf = (trace: Trace | undefined, call: CallRecord | undefined): ReadonlyArray<string> => {
+  const defect = call !== undefined && call.status >= 500 ? defectOf(trace) : undefined;
+  return defect ? [`the server died: ${defect}`] : [];
 };
 
 export const journeyLines = (runs: ReadonlyArray<JourneyRun>, traces: ReadonlyMap<string, Trace>, empty = false) => {
@@ -43,9 +56,14 @@ export const journeyLines = (runs: ReadonlyArray<JourneyRun>, traces: ReadonlyMa
     const steps = run.steps.map((s) => {
       const trace = traces.get(s.trace);
       const call = calls.get(s.trace);
-      const defect = empty ? trace?.spans.find((span) => typeof span.attrs["defect"] === "string")?.attrs["defect"] : undefined;
-      const failedCall = typeof defect === "string" ? [defect] : empty && call && call.status >= 500 ? [`failed with ${call.status}`] : [];
-      return { s, failures: [...failedCall, ...s.failures, ...spanFailures(s, trace, call)] };
+      if (empty) {
+        // prove --empty (M1.16): a step whose handler is blank fails by the defect it reached, first.
+        const defect = trace?.spans.find((span) => typeof span.attrs["defect"] === "string")?.attrs["defect"];
+        const failedCall = typeof defect === "string" ? [defect] : call && call.status >= 500 ? [`failed with ${call.status}`] : [];
+        return { s, failures: [...failedCall, ...s.failures, ...spanFailures(s, trace, call)] };
+      }
+      const failures = [...s.failures, ...spanFailures(s, trace, call)];
+      return { s, failures: failures.length > 0 ? [...failures, ...diedOf(trace, call)] : failures };
     });
     const bad = steps.filter((x) => x.failures.length > 0);
     lines.push(`journey ${run.name} ${bad.length === 0 ? "✔" : "✘"} ${steps.length - bad.length}/${steps.length} steps`);
