@@ -63,6 +63,8 @@ refining Forman as he goes. Everything below is judged by whether it gets us the
 
 ### What waits on Aaron
 
+0. Create the `@orthograph` npm org when at his computer (the name is Orthograph, command `ortho`, decision K6 in PR #42). The code rename is one sweep after #38, #41, #43 and K5 land.
+
 1. Review the canon's layer 1, PR #38, when its thread asks.
 2. Answer the skills design's four questions, PR #37.
 3. Look at the animations, PR #34.
