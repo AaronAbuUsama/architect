@@ -1,0 +1,38 @@
+{
+ "name": "person",
+ "identifier": "Person",
+ "code": "PE",
+ "description": "Someone who signs in. Better Auth keeps people; the project refers to them by id.",
+ "fields": {
+  "id": {
+   "value": {
+    "type": "id",
+    "prefix": "per"
+   }
+  },
+  "email": {
+   "value": {
+    "type": "text",
+    "max": 254
+   }
+  },
+  "name": {
+   "value": {
+    "type": "text",
+    "max": 200
+   }
+  }
+ },
+ "lives": "database",
+ "machine": null,
+ "events": {},
+ "errors": {
+  "PersonEmailTaken": {
+   "fields": {},
+   "exit": 11,
+   "code": "PE-001"
+  }
+ },
+ "roles": [],
+ "hash": "1595aad527217150"
+}

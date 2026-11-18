@@ -1,0 +1,18 @@
+// Generated from blueprint/things/system/verbs/health.ts. Do not edit.
+import { defineAction } from "@agent-native/core/action";
+import { z } from "zod";
+import { acme } from "../server/forman/acme.ts";
+
+export const errors = undefined;
+
+export default defineAction({
+  description: "Is the application up? (acme's system.health; open to anyone.)",
+  schema: z.object({}),
+  outputSchema: z.object({
+    status: z.unknown().describe("Ok"),
+  }),
+  readOnly: false,
+  retrySafe: false,
+  needsApproval: false, // no .notVia(Via.agent) in the model yet (M2.01)
+  run: (args, ctx) => acme.call({"operation":"system.health","route":"system/health","requestKey":false,"secret":{"payload":[],"answer":[]}}, args, ctx, errors),
+});

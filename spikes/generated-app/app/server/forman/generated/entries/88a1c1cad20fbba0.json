@@ -1,0 +1,69 @@
+{
+ "kind": "operation",
+ "name": "organization.create",
+ "thing": "organization",
+ "verb": "create",
+ "identifier": "create",
+ "file": "blueprint/things/organization/verbs/create.ts",
+ "description": "Found an organisation with its cap. Whoever founds it owns it, and is its first member.",
+ "payload": {
+  "name": {
+   "value": {
+    "type": "text",
+    "max": 200
+   },
+   "ref": "organization.name"
+  },
+  "cap": {
+   "value": {
+    "type": "uint",
+    "bits": 128
+   },
+   "named": "Amount",
+   "ref": "organization.cap"
+  }
+ },
+ "answer": {
+  "organization": {
+   "value": {
+    "type": "id",
+    "prefix": "org"
+   },
+   "ref": "organization.id"
+  }
+ },
+ "move": {
+  "key": "create",
+  "from": [],
+  "to": [
+   "active"
+  ],
+  "emits": "OrganizationCreated"
+ },
+ "errors": [],
+ "refusals": [
+  "NotAllowed"
+ ],
+ "allowed": [
+  {
+   "kind": "signed-in"
+  }
+ ],
+ "steps": {
+  "insert": {
+   "name": "organization.create.insert",
+   "type": "database"
+  },
+  "owner": {
+   "name": "organization.create.owner",
+   "type": "database"
+  }
+ },
+ "idempotent": "request",
+ "runs": "server",
+ "test": "unit",
+ "budget": {
+  "p95Ms": 250
+ },
+ "hash": "88a1c1cad20fbba0"
+}
