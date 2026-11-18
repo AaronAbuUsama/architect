@@ -59,7 +59,9 @@ const links = (base) => () => (tree) =>
     if (node.tagName === "a" && node.properties?.href) {
       const href = String(node.properties.href).replace(/^\.\//, "");
       const key = base ? `${base}/${href}`.replace(/^components\/\.\.\//, "") : href;
-      if (FILES[key] ?? FILES[href]) node.properties.href = `#${idOf(FILES[key] ?? FILES[href])}`;
+      const page = /^([a-z-]+)\.mdx(#.*)?$/.exec(href)?.[1];
+      const target = FILES[key] ?? FILES[href] ?? (pageNames.has(page) ? page : undefined);
+      if (target) node.properties.href = `#${idOf(target)}`;
       return;
     }
     if (node.tagName !== "code" || parent?.tagName === "pre" || parent?.tagName === "a") return;
