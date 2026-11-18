@@ -34,10 +34,11 @@ export const buildWindow = (
   const start = max(0n, through.number - WINDOW + 1n);
   const known = new Map(retained.map((block) => [block.number, block]));
   const numbers = Array.from({ length: Number(through.number - start + 1n) }, (_, index) => start + BigInt(index));
+  // Each RPC parks the caller's work token. Read serially within this follower job.
   const headers = yield* Effect.forEach(numbers, (n) => {
     const existing = known.get(n);
     return existing === undefined ? headerAt(n) : Effect.succeed(existing);
-  }, { concurrency: 8 });
+  });
 
   let previous: BlockIdentity | undefined;
   for (const header of headers) {
