@@ -227,7 +227,7 @@ hold.
 | a name written as a string is refused | proved | | `packages/cli/src/modules/check/check.test.ts:76`, the `name-as-string` fixture |
 | `ortho check` on a clean project | proved | | `check.test.ts:57`, "passes clean acme" |
 | `ortho check` names each blank | proved | | `packages/cli/src/modules/add/add.test.ts:41` |
-| blanks, journeys, starting worlds and role rules in the model | specified | M1.03 | `forman describe --json` on acme and work lists them all |
+| blanks, journeys, starting worlds and role rules in the model | specified | M1.03 | `ortho describe --json` on acme and work lists them all |
 | plugin mounts in the blueprint | specified | M1.06 | check `01` |
 
 ## Notes
@@ -244,12 +244,12 @@ operation that has one.</Note>
 
 <Note kind="status" slice="M1.03">Journeys have two places (`BLU-02`). Prove reads both `blueprint/journeys/` and a
 `journeys` folder at the project's root (`packages/prove/src/modules/journeys/internal/load.ts:36`). The design and
-`forman add journey` use `blueprint/journeys/` (`packages/cli/src/modules/add/internal/templates.ts:94`); acme's and
+`ortho add journey` use `blueprint/journeys/` (`packages/cli/src/modules/add/internal/templates.ts:94`); acme's and
 the sign-up sheet's journeys are both at the root, in `examples/signup/journeys/`. The canon teaches
 `blueprint/journeys/`, the place the picture draws them; the examples move there when M1.03 puts journeys in the
 model.</Note>
 
-<Note kind="status">The design shows `forman check` printing the model's hash and counts (`BLU-03`). The real output
+<Note kind="status">The design shows `ortho check` printing the model's hash and counts (`BLU-03`). The real output
 is the five parts above, with no hash and no counts, and the model has no hash of its own: only each declaration has
 one. The design's example also counts 17 operations where acme has 15 (`BLU-08`).</Note>
 

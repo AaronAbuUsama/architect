@@ -160,8 +160,8 @@ field fails closed. The caller is written as `principal.person`, or `principal.k
 - **`request.replayed=true`** is a retry with the same request key that changed nothing (`service.ts:54`).
 - **Each step's width against the budget** shows which step is slow. `spend` must answer within `p95: "150 millis"`.
 
-To read one trace, `forman telemetry trace <id>` prints it as a tree from the Collector's files, a refusal marked
-`refused` and a defect marked `✘ defect`. It needs no viewer and works over SSH. `forman telemetry view` starts the
+To read one trace, `ortho telemetry trace <id>` prints it as a tree from the Collector's files, a refusal marked
+`refused` and a defect marked `✘ defect`. It needs no viewer and works over SSH. `ortho telemetry view` starts the
 local viewer.
 
 ### Where it goes
@@ -266,8 +266,8 @@ Mark text traced only when it is a code you search by. If a person typed it, lea
 | | `Telemetry.sink.local()` | `Telemetry.sink.axiom({ group })` |
 |---|---|---|
 | Needs | Docker for the viewer; nothing for the files | a token, read from the keychain or CI, never written in the blueprint |
-| Use it for | worlds, `prove`, `forman dev` | staging and production |
-| Read with | `forman telemetry trace`, the local viewer | Axiom's trace view; `forman watch` |
+| Use it for | worlds, `prove`, `ortho dev` | staging and production |
+| Read with | `ortho telemetry trace`, the local viewer | Axiom's trace view; `ortho watch` |
 
 ## What it is not
 
@@ -290,7 +290,7 @@ Mark text traced only when it is a code you search by. If a person typed it, lea
 | The public-only allowlist | `packages/language-effect/src/modules/handler/internal/attributes.ts:10` | built |
 | `spans({ present, absent })` in journeys | `packages/forman/src/modules/journeys/types.ts:119` | built |
 | Sinks | `packages/forman/src/modules/telemetry/types.ts:23` | built |
-| `forman telemetry trace` | `packages/cli/src/modules/telemetry/types.ts:23` | built |
+| `ortho telemetry trace` | `packages/cli/src/modules/telemetry/types.ts:23` | built |
 | The commit span and `attempt` | `packages/language-effect/src/modules/handler/service.ts:71` | planned, M1.18 |
 | `Blueprint.traced` | `packages/forman/src/modules/visibility/` | planned, M1.19 |
 | `forman.calls`, `forman.call.duration` | `packages/language-effect/src/modules/handler/` | planned, M1.20 |
@@ -304,7 +304,7 @@ Mark text traced only when it is a code you search by. If a person typed it, lea
 | Operation and step spans, made from the declaration | proved | layer 2 | the `spans(…)` assertions in acme's journeys |
 | Refusals end OK, defects in error | proved | layer 2 | `packages/language-effect/src/modules/handler/handler.test.ts:169` |
 | Public fields only | proved | layer 2 | `packages/language-effect/src/modules/handler/internal/attributes.test.ts` |
-| Local and Axiom sinks, `forman telemetry trace` | proved | layer 2 | `packages/prove/src/modules/sinks/sinks.test.ts`, `packages/cli/src/modules/telemetry/telemetry.test.ts` |
+| Local and Axiom sinks, `ortho telemetry trace` | proved | layer 2 | `packages/prove/src/modules/sinks/sinks.test.ts`, `packages/cli/src/modules/telemetry/telemetry.test.ts` |
 | The commit span and `attempt` | specified | M1.18 | a forced conflict shows both spans and both attributes |
 | Free text untraced unless marked | specified | M1.19 | `payload.memo` absent from `spend`'s span |
 | Every call counted | specified | M1.20 | a bad payload and a stranger: two refusals, no spans |

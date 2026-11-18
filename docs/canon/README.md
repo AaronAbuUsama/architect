@@ -1,6 +1,6 @@
 # The canon
 
-The canon is Forman's documentation: one MDX page per concept, each explained once, in its own place. It is also the
+The canon is Orthograph's documentation: one MDX page per concept, each explained once, in its own place. It is also the
 spec. We build documentation first now, so a page says what the code must do before the code does it, and the code
 is built to the page. When the two disagree, one of them is wrong, and the change that fixes it fixes both.
 
@@ -27,7 +27,8 @@ A page explains one concept that a reader needs and can't get from another page.
    other page links to the owner and never explains the word again.
 2. **Answer its questions.** Its `questions` are the ones a reader brings. A question the page doesn't answer means
    the page isn't done.
-3. **Show it in acme.** The smallest example is real code from `examples/acme`, quoted with its file and lines, or
+3. **Show it in the layer's example.** The smallest example is real code from `examples/signup` (layers 1 and 2;
+   K5's workshop from layer 4), quoted with its file and lines, or
    designed code marked with the slice that builds it.
 4. **Say what it is not.** The near-misses, each pointing at the page that owns it. This is what stops two pages from
    drifting into explaining the same idea.
@@ -45,7 +46,7 @@ add its own section between them, as `traces.mdx` adds "The three gaps".
 | Section | What it holds |
 |---|---|
 | The idea | one paragraph, and the one rule that decides it |
-| The smallest example | the smallest real example from acme |
+| The smallest example | the smallest real example from the layer's example project (`examples/signup` for layers 1 and 2) |
 | How it works | the path, in the order the code runs it, with a scene where the path matters |
 | Choices | each choice a reader makes, and what each option costs |
 | What it is not | the near-misses, each linked to its owner |
@@ -83,8 +84,8 @@ that is the 🔍 reviewer's job, against the code.
 Some of each page is the model's, not ours. The compiled model already knows every thing's fields, every operation's
 payload, errors and steps, and every store's kind and binding. Copying that into a page would make it drift. So:
 
-- **`<Model>` is rendered, not written.** `<Model project="examples/acme" thing="allowance" show="fields" />` is filled
-  from `forman check`'s model when the site builds. Add a field to the blueprint and the page shows it.
+- **`<Model>` is rendered, not written.** `<Model project="examples/signup" thing="sheet" show="fields" />` is filled
+  from `ortho check`'s model when the site builds. Add a field to the blueprint and the page shows it.
 - **"Where it lives" becomes partly generated.** The model knows each declaration's path and hash. The site will add
   the generated files each declaration produces, beside the hand-written references to the runtime code.
 - **The reference pages are wholly generated.** Commands from the CLI's own command tree, the `Blueprint.*` API from

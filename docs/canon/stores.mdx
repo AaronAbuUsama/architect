@@ -18,10 +18,10 @@ links: [data, things, operations, views, adapters, workflows, environments, feat
 
 ## The idea
 
-A store is a place where things live. One rule decides what counts: **a place is a store when Forman owns its schema
-and every write to it goes through Forman's commit.** The commit takes everything one call changes (its writes, the
+A store is a place where things live. One rule decides what counts: **a place is a store when Orthograph owns its schema
+and every write to it goes through Orthograph's commit.** The commit takes everything one call changes (its writes, the
 events its move recorded, and the answer kept under its request key) and lands all of it or none of it, guarded by a
-version. The kinds of store are open. A host or a language supplies a kind by implementing one port. Forman ships
+version. The kinds of store are open. A host or a language supplies a kind by implementing one port. Orthograph ships
 `database` and `actor`. A chain is a host, and the store kind it runs is `chain` (K3 item 2); its details wait on K7.
 KV, R2 and caches can't take that commit, so a thing never lives in one. A
 database someone else owns isn't a store either: it is a source, and you reach it through an adapter.
@@ -267,7 +267,7 @@ local-first, Noir on Aztec.
 ## What it is not
 
 - **Not a source.** A database another team runs, like Capxul's bench on MariaDB, is reached through an adapter's
-  calls, with typed errors and its own stand-in. Forman never migrates it. See `adapters`.
+  calls, with typed errors and its own stand-in. Orthograph never migrates it. See `adapters`.
 - **Not a view.** A view is a list kept from events, across stores and sources. It can be rebuilt. A store holds the
   truth. See `views`.
 - **Not a table.** A store holds the tables of every thing that lives in it, plus its journal and its kept answers.
@@ -301,16 +301,16 @@ local-first, Noir on Aztec.
 | The `database` and `actor` kinds | proved | layer 1 | Gate 1 on `main` |
 | A list over actors refused | proved | layer 1 | the compiler's describe step |
 | Declared stores, open kinds, typed bindings, migrations per store, plugin stores | specified | M1.17 | a second store in acme, its own D1, its own migrations |
-| The compiler refusing an operation that writes to two stores | specified | M1.17 | a fixture operation over two stores fails `forman check` |
+| The compiler refusing an operation that writes to two stores | specified | M1.17 | a fixture operation over two stores fails `ortho check` |
 | The `chain` kind | waits on K7 | M6.10 | K3 item 2 and K5 seam 2 (the note under Notes) |
-| Sources through adapters | specified | M5.13 | a fixture adapter over MariaDB that Forman never migrates |
+| Sources through adapters | specified | M5.13 | a fixture adapter over MariaDB that Orthograph never migrates |
 | The data map | specified | M5.06 | the map lists every store and source |
 
 ## Notes
 
 <Note kind="decision" decision="K3">
   Option C: a thing lives in a store of an open kind, and a system we don't own is a source, reached through an
-  adapter. Chosen over making an outside database a store (option B), because a store needs Forman to be the only
+  adapter. Chosen over making an outside database a store (option B), because a store needs Orthograph to be the only
   writer.
 </Note>
 
@@ -350,7 +350,7 @@ local-first, Noir on Aztec.
   Is a chain a store? Settled by K3 item 2 and K5 seam 2: a chain is a host, and the store kind it runs is `chain`.
   The contract commits per transaction, with one writer. "Pending until mined" belongs to the caller, so a server call
   that sends a transaction is a workflow, not a commit that answers later. How an operation maps to a contract, and
-  everything else about chain storage, waits on K7. Aaron's doubt (18 November 2026: "it just doesn't seem like a
+  everything else about chain storage, waits on K7. Aaron's doubt (18 November 2026, said in the canon session on PR #38: "it just doesn't seem like a
   thing that makes sense") is why the pending part moved to the caller.
 </Note>
 

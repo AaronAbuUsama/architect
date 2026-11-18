@@ -39,7 +39,7 @@ retellings of a journey are not allowed anywhere in the canon: if a page needs o
 <Model project="examples/acme" stores />
 ```
 
-The site runs `forman check` on the project and renders from the model, so a field added to the blueprint appears on
+The site runs `ortho check` on the project and renders from the model, so a field added to the blueprint appears on
 the page with nothing else changing. Until the site exists, the check confirms the project exists and the thing has a
 folder under `blueprint/things/`.
 
