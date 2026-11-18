@@ -1,0 +1,90 @@
+# The canon
+
+The canon is Forman's documentation: one MDX page per concept, each explained once, in its own place. It is also the
+spec. We build documentation first now, so a page says what the code must do before the code does it, and the code
+is built to the page. When the two disagree, one of them is wrong, and the change that fixes it fixes both.
+
+- [`outline.md`](outline.md): every page, its one job, the questions it answers, and the order to read them in.
+- [`_template.mdx`](_template.mdx): the shape every page follows.
+- [`components/`](components/README.md): the MDX components pages use, with their props.
+- [`check.mjs`](check.mjs): the check that keeps pages true. `pnpm nx run canon:check` runs it.
+- Written so far: [`stores.mdx`](stores.mdx) and [`traces.mdx`](traces.mdx).
+
+`design/docs/index.html` stays the single source until the canon covers what it covers. Then the canon replaces it,
+and the decisions record the switch.
+
+## How a page earns its place
+
+A page explains one concept that a reader needs and can't get from another page. To earn its place it must:
+
+1. **Own its words.** Its frontmatter's `owns` lists the glossary words it defines. No two pages own a word. Every
+   other page links to the owner and never explains the word again.
+2. **Answer its questions.** Its `questions` are the ones a reader brings. A question the page doesn't answer means
+   the page isn't done.
+3. **Show it in acme.** The smallest example is real code from `examples/acme`, quoted with its file and lines, or
+   designed code marked with the slice that builds it.
+4. **Say what it is not.** The near-misses, each pointing at the page that owns it. This is what stops two pages from
+   drifting into explaining the same idea.
+5. **Carry its own open questions.** Anything unsettled is a `<Note kind="question">` on the page, with the slice that
+   must settle it. A doc with no open questions is either proved or hiding something.
+
+Merge two concepts when a reader never asks about one without the other. Split one only when a reader looking for
+one half would get lost in the other. `outline.md` records each merge and split, and why.
+
+## The eight sections
+
+Every page has the same eight sections, in this order. The check refuses a page that drops or reorders one. A page may
+add its own section between them, as `traces.mdx` adds "The three gaps".
+
+| Section | What it holds |
+|---|---|
+| The idea | one paragraph, and the one rule that decides it |
+| The smallest example | the smallest real example from acme |
+| How it works | the path, in the order the code runs it, with a scene where the path matters |
+| Choices | each choice a reader makes, and what each option costs |
+| What it is not | the near-misses, each linked to its owner |
+| Where it lives | the code, as checked references, built or planned |
+| Status | `<Status />`, then each part's status and the check that proves it |
+| Notes | the page's questions, decisions and status remarks |
+
+A page's status is one of three:
+
+- **draft**: written, but the design still has open questions.
+- **specified**: decided in a record in `design/decisions/`. The page is the spec the code is built to.
+- **proved**: the code on `main` does what the page says, and a named check proves it.
+
+A page's status is its least-proved part's. The Status section breaks it down, part by part.
+
+## How it stays true
+
+Docs drift when nothing checks them. `check.mjs` reads every page and refuses it when:
+
+- **a quote has drifted.** A fence with `file=` and `lines=` must match those lines of that file, line for line. Change
+  the code, and the page that quotes it fails until it is updated.
+- **a reference is broken.** Every inline `path:line` must open and have that line. A short one, like
+  `service.ts:46`, must match a full path given elsewhere on the page.
+- **a component points at nothing.** A `<Scenario>` names a journey file that exists and a step in it. A
+  `<Note kind="decision">` names a record in `design/decisions/`. Every `slice` is in `design/milestones.md`.
+- **designed code isn't labelled.** A fence that quotes nothing must say `planned=<slice>`, so a reader always knows
+  what runs today and what doesn't.
+- **a word is owned twice**, a page is missing from the outline, or a retired word or old name appears.
+
+It runs in CI beside the docs check. It doesn't yet check that a quote is the right quote, or that the prose is true:
+that is the 🔍 reviewer's job, against the code.
+
+## How pages will be partly generated from the model
+
+Some of each page is the model's, not ours. The compiled model already knows every thing's fields, every operation's
+payload, errors and steps, and every store's kind and binding. Copying that into a page would make it drift. So:
+
+- **`<Model>` is rendered, not written.** `<Model project="examples/acme" thing="allowance" show="fields" />` is filled
+  from `forman check`'s model when the site builds. Add a field to the blueprint and the page shows it.
+- **"Where it lives" becomes partly generated.** The model knows each declaration's path and hash. The site will add
+  the generated files each declaration produces, beside the hand-written references to the runtime code.
+- **The reference pages are wholly generated.** Commands from the CLI's own command tree, the `Blueprint.*` API from
+  its types, and the glossary from every page's `owns` and its first paragraph (`outline.md`, "Reference").
+- **Status will read from verdicts.** Once per-operation verdicts land (M1), a part marked "proved" names its verdict,
+  and the site shows it stale when the code changes under it.
+
+The rest stays written by hand: the idea, how it works, the choices, what it is not, and the notes. That is what a
+model can't know.

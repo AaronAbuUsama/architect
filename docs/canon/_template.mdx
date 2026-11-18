@@ -1,0 +1,105 @@
+---
+# The page's name, as a reader would say it. One or two words.
+title: Stores
+# The one concept this page explains. It must be a word in the glossary.
+concept: store
+# The glossary words this page owns. No other page may own them (docs/canon/check.mjs).
+owns: [store, store kind, default store, commit, migration]
+# The questions a reader brings. Each must be answered on the page.
+questions:
+  - Where does my data live?
+# draft: written, but the design has open questions (see Notes).
+# specified: decided in a design/decisions record; this page is the spec the code is built to.
+# proved: the code on main does what the page says, and a named check proves it.
+# A page's status is that of its least-proved part. The Status section breaks it down.
+status: specified
+milestone: M1
+# The milestone slices that build what this page specifies.
+slices: [M1.17]
+# The decisions this page is written from.
+decisions: [K3]
+# The pages this one leans on, by file name without .mdx.
+links: [things, views]
+---
+
+{/*
+  The template. Copy this file to <page>.mdx and replace every section. Keep the eight headings, in this order:
+  docs/canon/check.mjs refuses a page that drops, renames or reorders one. Delete these comments.
+
+  How to write: short sentences, real code, nothing vague. Name things the way the code names them. Write for someone
+  who listens rather than reads (the threads skill, "Talking to Aaron").
+*/}
+
+## The idea
+
+{/*
+  One paragraph. What the concept is, in plain words, and the one rule that decides it. A reader who stops here should
+  be able to say it back.
+*/}
+
+## The smallest example
+
+{/*
+  The smallest real example from examples/acme. A fence that quotes a file names it, with its lines:
+
+    ```ts file=examples/acme/blueprint/things/allowance/thing.ts lines=6-15
+    …the exact lines…
+    ```
+
+  The check compares the fence with the file, so a quote that drifts from the code fails. Code that is designed but
+  not built yet is marked with the slice that builds it, and is not compared:
+
+    ```ts planned=M1.17 path=blueprint/stores/ledger.ts
+    export default Blueprint.store.database();
+    ```
+
+  A journey is pulled in, never retold as prose: <Scenario journey="examples/acme/journeys/…" step="…" />.
+  Model data is rendered, never copied: <Model project="examples/acme" thing="allowance" show="fields" />.
+*/}
+
+## How it works
+
+{/*
+  The path, in the order the code runs it, with file:line references. Where order or a path matters, show it moving:
+  <Scene name="…" />, a scene from the visuals skill. A still is enough when the point is shape.
+*/}
+
+## Choices
+
+{/*
+  Each choice a reader makes about this concept, and what each option costs. A table works when the options share
+  axes. Say which to pick by default.
+*/}
+
+## What it is not
+
+{/*
+  The near-misses: the words and ideas a reader confuses with this one, each with a line on the difference and a link
+  to the page that owns it.
+*/}
+
+## Where it lives
+
+{/*
+  A table: what, where (a checked path:line), and whether it is built or planned. The check opens every reference.
+*/}
+
+## Status
+
+<Status />
+
+{/*
+  A table of the page's parts: each part's status, its milestone slice, and the check that proves it (or will).
+*/}
+
+## Notes
+
+{/*
+  The page's own open questions, decisions and status remarks, so a doc carries what is unsettled about it:
+
+    <Note kind="question" id="store-capabilities" slice="M1.17">How does a kind declare what it can do?</Note>
+    <Note kind="decision" decision="K3">Option C: stores are open kinds; sources are adapters.</Note>
+    <Note kind="status" slice="M1.17">Today lives is a closed list.</Note>
+
+  A question is closed by a decision record, and its note then becomes a decision note naming it.
+*/}
