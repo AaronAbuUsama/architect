@@ -15,9 +15,13 @@ virtualised column broke its layout, so long columns stay unvirtualised (or pagi
 HeroUI Pro `@heroui-pro/react` 1.0.0-beta.11 (the version `internal/portal-pro` and `spikes/portal-fumadocs` pin), on
 `@heroui/react` 3.2.7, `react-aria-components` 1.22.1, React 19.3.1, Vite 8.3.5, Tailwind 4.3.4. It installs from Aaron's
 `heroui-pro login` on this machine (its postinstall downloads the licensed build), in this spike's own pnpm workspace,
-so CI never installs it. No Pro code is committed; the repository is public and the licence forbids redistribution.
+so CI never installs it. All of our board code is committed: the cases, our drag hook, the stand-in server and its
+tests. Pro's own package is not: the repository is public, and Pro's licence (section 3) forbids publishing any part
+of its source.
 
-Four cases in one page, `?case=`:
+![The board as Aaron decided it: lanes per goal, Needs you pinned, an inbox, a refusal and a change shown on the card](screenshots/decided.png)
+
+Five cases in one page, `?case=`:
 
 1. **`stock`**: Pro's Kanban exactly as its hooks intend (`useKanban`, `useKanbanColumn`), 40 fake work items in five
    columns (backlog, ready, running, review, done).
@@ -27,6 +31,17 @@ Four cases in one page, `?case=`:
    the answer is "moved". `&agents=1` adds agents moving cards through the same requests every 1.2 s.
 3. **`lanes`**: the actions board split into a People lane and an Agents lane.
 4. **`scale`**: one column of N cards, plain and inside React Aria's `Virtualizer` (`&n=5000&virtual=1`).
+5. **`decided`**: the board as Aaron decided it in K11's grill (above): an inbox column, one lane per goal (finite or
+   standing) with "Needs you" pinned on top, a person dropping only into backlog, ready and done, and a refusal, a
+   change and a block shown on the card. A drawing: drops apply locally, the real board sends them as actions.
+
+| `stock` (Pro's own state) | `actions` (server-owned, refusals) |
+|---|---|
+| ![stock](screenshots/stock.png) | ![actions](screenshots/actions.png) |
+
+| `lanes` | `scale&n=5000&virtual=1` |
+|---|---|
+| ![lanes](screenshots/lanes.png) | ![virtualised column; the gaps are rows whose estimated height hasn't settled](screenshots/scale-virtual.png) |
 
 The spike uses `setTimeout` and `Date.now` freely: it is throwaway code outside the package rules. The server's rules
 have their own tests (`src/board.test.ts`, six cases, `node --test`). Driven in the desktop app's
@@ -130,5 +145,5 @@ pnpm test
 pnpm dev
 ```
 
-Then open `http://127.0.0.1:45690/?case=actions&agents=1` (or `stock`, `lanes`, `scale&n=5000&virtual=1`). Stop the
+Then open `http://127.0.0.1:45690/?case=actions&agents=1` (or `decided`, `stock`, `lanes`, `scale&n=5000&virtual=1`). Stop the
 dev server afterwards; it leaves only `node_modules/` and `dist/`, both ignored.
