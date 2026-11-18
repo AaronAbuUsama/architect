@@ -317,7 +317,8 @@ If a caller could fix it by asking differently, declare it. If only a code chang
 </Note>
 
 <Note kind="question" id="raw-sql-in-a-handler" slice="M1.17">
-  The frame offers `SqlClient` beside `Records`. A handler that writes through `SqlClient` writes outside the commit,
+  The frame offers `SqlClient` beside `Records`: the generated `Handler` type allows `Records | SqlClient.SqlClient | Auth`
+  (`packages/generators/src/modules/render/internal/api.ts:96`). A handler that writes through `SqlClient` writes outside the commit,
   so its write isn't all-or-nothing with the move and its event, and won't work for a thing in another kind of store.
   Should the frame offer `Records` only, with raw SQL as a declared step kind?
 </Note>
