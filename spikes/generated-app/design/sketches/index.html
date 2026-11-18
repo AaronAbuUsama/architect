@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Forman app sketches</title><link rel="stylesheet" href="style.css">
+<script src="data.js"></script><script src="blocks.js"></script><script src="frame.js"></script><script src="pages.js"></script><script src="ia.js"></script>
+</head><body><div id="root"></div><script>
+// One sketch per hash: #operation #machine #environments #live #thing #page #ia-b #ia-c. Real acme model and spans throughout.
+const sp = A.ops["allowance.spend"];
+const tool = (name, args, out) => `<div class="tool"><b>${name}</b>(${args}) → ${out}</div>`;
+const askAda = `<div class="msg u">why did spend refuse ada?</div>
+  ${tool("screen", "", "page allowance.spend · env local · trace 7d49f315 open")}
+  ${tool("describe", '"allowance.spend"', "allowed: allowance.grantee")}
+  ${tool("calls", '{ op: "allowance.spend", who: "ada" }', "0 calls with a person")}
+  ${tool("calls", '{ op: "allowance.spend", refusal: "NotAllowed" }', `${sp.refused.NotAllowed} · HTTP 403 · no person`)}
+  <div class="msg a">I can't see ada calling spend in the last ${A.source.minutes} minutes under her name. What I can see: <b>${sp.refused.NotAllowed}</b> spend calls refused <code>NotAllowed</code>. The role check turns those away before the operation's span opens, so the trace doesn't say who.<br><br>
+  If one was ada, that's why: spend is open only to <code>allowance.grantee</code>, and ada is <code>organization.owner</code>. An owner grants and revokes; only the member it was granted to spends.<br><br>
+  The trace open on your screen is olga, not ada: <code>AllowanceExceeded</code> at ${clock(A.samples.exceeded.call.at)}, ${A.samples.exceeded.call.payload.amount} asked, "${A.samples.exceeded.call.log}".</div>
+  <div class="msg u">run it as ada and show me</div>
+  ${tool("allowance-spend", '{ allowance: "alw_33d5…", amount: "1", memo: "test" } as ada', "NotAllowed · AR-001 · trace 9c41…")}
+  <div class="msg a">Refused <code>NotAllowed</code>. This time I know it was ada, because I made the call: the app keeps who it called as, next to the trace id.</div>`;
+const pages = {
+  operation: () => frame("allowance.spend", "System / allowance / <b>spend</b>", operationPage("allowance.spend"), chat("screen: <code>allowance.spend</code> · env <code>local</code> · trace <code>7d49f315</code> selected", askAda)),
+  machine: () => frame("machine", "System / allowance / <b>machine</b>", machinePage("allowance"), chat("screen: <code>allowance.machine</code> · env <code>local</code>", `<div class="msg u">why can't an exhausted allowance be spent?</div>${tool("describe", '"allowance.machine"', "spend from: active")}<div class="msg a">spend moves only from <code>active</code>. From exhausted or revoked, the machine refuses with <code>AllowanceNotActive</code> (AL-900). That happened ${sp.refused.AllowanceNotActive} times in this window.</div>`)),
+  environments: () => frame("envs", "<b>Environments</b>", envPage(), chat("screen: <code>environments</code>", `<div class="msg u">is staging up?</div>${tool("environments", "", "staging: declared, no deploy recorded")}<div class="msg a">No. Staging is declared (Cloudflare, D1, api.staging.acme.dev) but nothing has been deployed to it. Only local is running.</div>`)),
+  live: () => frame("live", "<b>Live</b>", livePage(), chat("screen: <code>live</code> · env <code>local</code> · last 24 min", `<div class="msg u">what's refusing most?</div>${tool("refusals", "{ window: 24m }", "3 tags on spend")}<div class="msg a">All refusals are on spend: ${sp.refused.AllowanceNotActive} AllowanceNotActive (spent out or revoked), ${sp.refused.NotAllowed} NotAllowed (not a grantee), ${sp.refused.AllowanceExceeded} AllowanceExceeded (asked for more than was left). None are defects.</div>`)),
+  thing: () => frame("thing", "System / <b>allowance</b>", thingPage("allowance"), null),
+  page: () => frame("note", "Pages / <b>How allowances should feel</b>", notePage(), chat("screen: <code>page/how-allowances-should-feel</code>", `<div class="msg u">anything I'm missing here?</div><div class="msg a">One thing, left as a suggestion on the page: ${sp.refused.NotAllowed} NotAllowed refusals on spend.</div>`)),
+  "ia-b": iaB,
+  "ia-c": iaC,
+};
+const render = () => (document.getElementById("root").innerHTML = (pages[location.hash.slice(1)] ?? pages.operation)());
+addEventListener("hashchange", render); render();
+</script></body></html>
