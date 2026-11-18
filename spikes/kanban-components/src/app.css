@@ -1,0 +1,5 @@
+@import "tailwindcss";
+@import "@heroui/styles";
+@import "@heroui-pro/react/css";
+
+@source "../node_modules/@heroui-pro/react/dist/**/*.js";
