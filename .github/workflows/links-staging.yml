@@ -1,0 +1,95 @@
+name: Links staging
+
+on:
+  push:
+    branches: [codex/links-staging]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: links-staging
+  cancel-in-progress: false
+
+jobs:
+  stage:
+    if: github.ref == 'refs/heads/codex/links-staging'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    timeout-minutes: 15
+    environment: links-staging
+    env:
+      LINKS_SOURCE_SHA: ce7ff5b6b47dd6cf7ccb9ad86fe581ba12bb2703
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      WRANGLER_SEND_METRICS: "false"
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Confirm the reviewed Links source
+        run: |
+          git diff --exit-code "$LINKS_SOURCE_SHA" HEAD -- . \
+            ':(exclude).github/workflows/links-staging.yml' ':(exclude)tools/links-staging/**'
+      - uses: pnpm/action-setup@v6.1.0
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24.22.2
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build the staging bundle
+        run: |
+          config="$RUNNER_TEMP/links-staging.json"
+          node tools/links-staging/main.ts configure "$config" 00000000-0000-0000-0000-000000000000
+          pnpm --filter @orthograph/prove exec wrangler deploy --dry-run --config "$config" --outdir "$RUNNER_TEMP/links-bundle"
+      - name: Check staging configuration
+        id: ready
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          LINKS_STAGING_AUTH_SECRET: ${{ secrets.LINKS_STAGING_AUTH_SECRET }}
+        run: |
+          if [[ -z "$CLOUDFLARE_ACCOUNT_ID" || -z "$CLOUDFLARE_API_TOKEN" || -z "$LINKS_STAGING_AUTH_SECRET" ]]; then
+            echo '::notice::Bundle verified. Set the Cloudflare account ID, deploy token, and auth secret in links-staging to enable deployment.'
+          else
+            if [[ ${#LINKS_STAGING_AUTH_SECRET} -lt 32 ]]; then
+              echo '::error::The staging auth secret must be at least 32 characters.'
+              exit 1
+            fi
+            echo 'deploy=true' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Apply staging migrations and deploy
+        id: stage
+        if: steps.ready.outputs.deploy == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          LINKS_STAGING_AUTH_SECRET: ${{ secrets.LINKS_STAGING_AUTH_SECRET }}
+        run: |
+          stage=orthograph-links-staging
+          config="$RUNNER_TEMP/links-staging.json"
+          wrangler() { pnpm --filter @orthograph/prove exec wrangler "$@"; }
+          database_id() {
+            wrangler d1 list --json | jq -r --arg name "$stage" '.[] | select(.name == $name) | .uuid'
+          }
+
+          id=$(database_id)
+          if [[ -z "$id" ]]; then
+            wrangler d1 create "$stage" --update-config=false >/dev/null
+            id=$(database_id)
+          fi
+          node tools/links-staging/main.ts configure "$config" "$id"
+          wrangler d1 migrations apply "$stage" --remote --config "$config"
+          WRANGLER_OUTPUT_FILE_PATH="$RUNNER_TEMP/links-deploy.jsonl" wrangler deploy --config "$config" --tag "${LINKS_SOURCE_SHA:0:12}" \
+            --secrets-file <(node -p 'JSON.stringify({ AUTH_SECRET: process.env.LINKS_STAGING_AUTH_SECRET })')
+          host=$(jq -ers '
+            map(select(.type == "deploy")) | last | .targets[]
+            | select(type == "string")
+            | select(test("^(https://)?orthograph-links-staging\\.[a-z0-9-]+\\.workers\\.dev/?$"))
+          ' "$RUNNER_TEMP/links-deploy.jsonl")
+          echo "url=https://${host#https://}" >> "$GITHUB_OUTPUT"
+      - name: Verify the real staging Worker
+        if: steps.ready.outputs.deploy == 'true'
+        env:
+          LINKS_STAGING_URL: ${{ steps.stage.outputs.url }}
+        run: node tools/links-staging/main.ts smoke "$LINKS_STAGING_URL"
