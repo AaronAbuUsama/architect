@@ -53,7 +53,7 @@ refining Forman as he goes. Everything below is judged by whether it gets us the
 |---|---|---|---|---|---|
 | ① | Docs canon in MDX | #38 | **Pass 1:** Aaron agrees the outline, the template and the `stores` and `traces` pages. **Pass 2:** every page in the outline written; the canon check passes on `main` | M1's contracts; the generated app's Content pages | pass 1 done, **waits on Aaron's review** |
 | ② | Skills and workflows for Blueprint (K4) | #37 | Aaron answers its four questions; K4 updated with the answers and merged | the agent kit (S8, S11, S12); what agents do in ③; M3 and M4 | **waits on Aaron's four answers** |
-| ③ | Generated app (purpose-built) | #41 | **Pass 1:** design PR with IA options and sketches inline, Aaron lightly agrees. **Pass 2:** on acme, locally, generated from the model: one action per operation; derived pages for things, operations, machines, events, errors and environments; live spans, events and errors; chat answers "why did spend refuse ada?" from the screen and the trace | proves "falls out for free"; becomes the app projection in M1 | design done, **waits on Aaron's four answers** |
+| ③ | Generated app (purpose-built) | #41 | **Pass 1:** design PR with IA options and sketches inline, Aaron lightly agrees. **Pass 2:** on acme, locally, generated from the model: one action per operation; derived pages for things, operations, machines, events, errors and environments; live spans, events and errors; chat answers "why did spend refuse ada?" from the screen and the trace | proves "falls out for free"; becomes the app projection in M1 | UX pass on generated, written and live content, then a working app Aaron can see |
 | ④ | Portal observability spike | #39 | Merged for the record | ③'s data path: a page is a pure function of `model.json` plus a telemetry window, read from the Collector's files | done, merge for the record |
 | ⑤ | Animated visuals and the `visuals` skill | #34 | Aaron approves the look; merged | ① and ③'s animations | **waits on Aaron's look** |
 | — | work-real spike | #28 | Merged for the record before M3 | M3, the factory | parked |
@@ -63,7 +63,7 @@ refining Forman as he goes. Everything below is judged by whether it gets us the
 1. Review the canon, PR #38 (pass 1).
 2. Answer the skills design's four questions, PR #37.
 3. Look at the animations, PR #34.
-4. Answer the generated app's four design questions, PR #41 (layout, derived versus written, where prose lives, who the app calls acme as).
+4. The generated app's revised UX, PR #41, when its thread asks.
 
 ### Next on the critical path
 
