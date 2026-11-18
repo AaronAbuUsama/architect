@@ -1,0 +1,69 @@
+{
+ "kind": "operation",
+ "name": "session.sign-in",
+ "thing": "session",
+ "verb": "sign-in",
+ "identifier": "signIn",
+ "file": "blueprint/things/session/verbs/sign-in.ts",
+ "description": "Sign in with email and password. The token is the bearer for every later call.",
+ "payload": {
+  "email": {
+   "value": {
+    "type": "text",
+    "max": 254
+   },
+   "ref": "person.email"
+  },
+  "password": {
+   "value": {
+    "type": "text",
+    "max": 128
+   },
+   "named": "Password",
+   "visibility": "secret"
+  }
+ },
+ "answer": {
+  "session": {
+   "value": {
+    "type": "id",
+    "prefix": "ses"
+   },
+   "ref": "session.id",
+   "visibility": "secret"
+  },
+  "token": {
+   "value": {
+    "type": "text",
+    "max": 512
+   },
+   "named": "Secret",
+   "visibility": "secret"
+  }
+ },
+ "move": null,
+ "errors": [
+  "SessionCredentialsWrong"
+ ],
+ "refusals": [
+  "SessionCredentialsWrong"
+ ],
+ "allowed": [
+  {
+   "kind": "anyone"
+  }
+ ],
+ "steps": {
+  "verify": {
+   "name": "session.sign-in.verify",
+   "type": "database"
+  }
+ },
+ "idempotent": null,
+ "runs": "server",
+ "test": "unit",
+ "budget": {
+  "p95Ms": 400
+ },
+ "hash": "631917ddeff4685a"
+}

@@ -29,7 +29,7 @@ it, the place is a source, and it is reached through an adapter.**
 The commit is the test. A store has to take one call's writes, its journal events, its outbox entries and its request
 key together or not at all, guarded by a version (`Store.commit` in
 `packages/language-effect/src/modules/records/types.ts:62`, which returns `committed` or `conflict`). Only something
-that does all of that can be a thing's home.
+that does all of that can be where a thing lives.
 
 ## Decided
 
@@ -55,11 +55,16 @@ that does all of that can be a thing's home.
    | `actor` | `@formants/host-cloudflare` | a Durable Object per instance, its own SQLite, its outbox | no: use a view |
    | `chain` | `@formants/language-solidity` | a contract (M6) | through views |
 
+   A chain is a host (`Host.chain`), and `chain` is the store kind that runs on it (K5, 18 November 2026). The
+   commit test holds at the transaction: it is atomic, versioned by the nonce and the contract's state, and the
+   contract is its only writer. "Pending until mined" belongs to the caller: a server operation that sends a
+   transaction writes two stores, so by item 5 it is a workflow, with S25's generated waiting state in between.
+
    Later kinds are a package each, with nothing else changing: Postgres or MySQL that we own (through Hyperdrive),
    SQLite on a device for local-first, Noir on Aztec. A kind declares what it can do (lists, search, private state),
    and the compiler refuses a read the kind can't serve, as it already refuses a list over actors.
 
-3. **Some places are not homes.** KV, R2 and caches can't take an atomic commit, so they are never a thing's home.
+3. **Some places can't hold a thing.** KV, R2 and caches can't take an atomic commit, so no thing ever lives there.
    R2 holds files, which are fields. A search or vector index is a kind of view. Both are kept from events and can be
    rebuilt.
 

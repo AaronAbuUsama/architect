@@ -1,0 +1,7 @@
+# Its own workspace: a spike, outside the repository's packages. AGENTS.md: versions at least three days old.
+packages: []
+minimumReleaseAge: 4320
+allowBuilds:
+  esbuild: true
+  "@heroui-pro/react": true
+  "@zowe/secrets-for-zowe-sdk": false

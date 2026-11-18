@@ -1,0 +1,123 @@
+{
+ "name": "invitation",
+ "identifier": "Invitation",
+ "code": "IN",
+ "description": "An offer to join an organisation, sent to an email address.",
+ "fields": {
+  "id": {
+   "value": {
+    "type": "id",
+    "prefix": "inv"
+   }
+  },
+  "organization": {
+   "value": {
+    "type": "id",
+    "prefix": "org"
+   },
+   "ref": "organization.id"
+  },
+  "email": {
+   "value": {
+    "type": "text",
+    "max": 254
+   },
+   "ref": "person.email"
+  },
+  "invitedBy": {
+   "value": {
+    "type": "id",
+    "prefix": "per"
+   },
+   "ref": "person.id"
+  }
+ },
+ "lives": "database",
+ "machine": {
+  "states": [
+   "pending",
+   "accepted",
+   "revoked"
+  ],
+  "moves": {
+   "send": {
+    "from": [],
+    "to": [
+     "pending"
+    ],
+    "emits": "InvitationSent"
+   },
+   "accept": {
+    "from": [
+     "pending"
+    ],
+    "to": [
+     "accepted"
+    ],
+    "emits": "InvitationAccepted"
+   },
+   "revoke": {
+    "from": [
+     "pending"
+    ],
+    "to": [
+     "revoked"
+    ],
+    "emits": "InvitationRevoked"
+   }
+  },
+  "notFrom": {
+   "error": "InvitationNotPending",
+   "exit": 40,
+   "code": "IN-900"
+  }
+ },
+ "events": {
+  "InvitationAccepted": {
+   "invitation": {
+    "value": {
+     "type": "id",
+     "prefix": "inv"
+    },
+    "ref": "invitation.id"
+   },
+   "membership": {
+    "value": {
+     "type": "id",
+     "prefix": "mem"
+    },
+    "ref": "membership.id"
+   }
+  },
+  "InvitationRevoked": {
+   "invitation": {
+    "value": {
+     "type": "id",
+     "prefix": "inv"
+    },
+    "ref": "invitation.id"
+   }
+  },
+  "InvitationSent": {
+   "invitation": {
+    "value": {
+     "type": "id",
+     "prefix": "inv"
+    },
+    "ref": "invitation.id"
+   },
+   "email": {
+    "value": {
+     "type": "text",
+     "max": 254
+    },
+    "ref": "invitation.email"
+   }
+  }
+ },
+ "errors": {},
+ "roles": [
+  "invitee"
+ ],
+ "hash": "c480108780ac255d"
+}

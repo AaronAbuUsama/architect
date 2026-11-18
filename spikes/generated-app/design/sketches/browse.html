@@ -1,0 +1,56 @@
+<title>Forman App Sketches</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="style.css">
+<style>
+  /* The sketches are one deliberate light look (an internal tool), so this page sets its colours explicitly. */
+  body { background: #fff; color: #11181c; }
+  .tour { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: #11181c; color: #e4e4e7; font: 13px/1.4 Inter, -apple-system, sans-serif;
+    padding-block: 8px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+  .tour b { font-weight: 600; color: #fff; margin-right: 6px; }
+  .tour a { color: #a1a1aa; padding: 2px 9px; border-radius: 999px; border: 1px solid #3f3f46; cursor: pointer; }
+  .tour a.on { background: #fff; color: #11181c; border-color: #fff; }
+  .tour .say { flex-basis: 100%; color: #a1a1aa; font-size: 12.5px; }
+  .stage { overflow-x: auto; }
+  .stage .app { min-width: 1180px; height: calc(100vh - 64px); }
+  .side .node, .btn, .calls .c, .drawer .x, a { cursor: pointer; }
+</style>
+<div class="tour" id="tour"></div>
+<div class="stage" id="root"></div>
+<script src="data.js"></script><script src="blocks.js"></script><script src="frame.js"></script><script src="pages.js"></script>
+<script>
+// The pass-3 sketches, browsable. Real acme model and one local run (1,631 traces, 24 min); prose marked "sample" is sample text.
+const na = A.samples.notAllowed.call, ex = A.samples.exceeded.call;
+const withMine = [callRow(na, { sel: true, as: "ada" }), ...A.recent.filter((c) => c.op === "allowance.spend").slice(-6).reverse().map((c) => callRow(c))];
+const tried = [callRow(ex, { isNew: true, as: "olga" }), ...withMine.slice(0, 6)];
+const op = "<a>allowance</a> › <b>spend</b>";
+const screens = [
+  ["home", "Home", "Answers “is anything wrong right now?” Attention first, then every operation against its budget. Live rail on the right.", () => frame("home", "<b>Home</b>", homePage())],
+  ["thing", "Thing", "allowance: written words, then its operations and refusals joined with live counts, the lifecycle, a stale note in place.", () => frame("allowance", "<b>allowance</b>", thingPage("allowance"))],
+  ["operation", "Operation", "spend: reading column (prose, then the contract) and live rail. Place tells you what kind of content you are looking at.", () => frame("allowance.spend", op, operationPage("allowance.spend"))],
+  ["trace", "Trace drawer", "Click a call in the rail. Who the app called as, why it was refused, then the waterfall.", () => frame("allowance.spend", op, operationPage("allowance.spend", { calls: withMine }), traceDrawer())],
+  ["try", "Try it", "The form generated from the payload. “Acting as” lives here, not on every page. The answer lands at the top of the rail.", () => frame("allowance.spend", op, operationPage("allowance.spend", { calls: tried }), tryDrawer())],
+  ["chat", "Ask", "The chat knows the page, the window and the open trace. A conversation can be kept as a note.", () => frame("allowance.spend", op, operationPage("allowance.spend", { calls: withMine }), chatDrawer())],
+  ["note", "Note", "A page a person wrote, with blocks by reference that are drawn fresh each time.", () => frame("note", "Notes › <b>How allowances should feel</b>", notePage())],
+  ["environments", "Environments", "What is declared and what is running.", () => frame("envs", "<b>Environments</b>", envPage())],
+];
+const go = (id) => { location.hash = id; };
+const clicks = { "Home": "home", "allowance": "thing", "spend": "operation", "How allowances should feel": "note", "Environments": "environments", "Why did spend refuse ada?": "chat", "Try it": "try", "Ask": "chat" };
+const render = () => {
+  const id = location.hash.slice(1);
+  const s = screens.find((x) => x[0] === id) ?? screens[2];
+  document.getElementById("tour").innerHTML = `<b>Forman app · pass 3 sketches</b>${screens.map((x) => `<a data-id="${x[0]}" class="${x === s ? "on" : ""}">${x[1]}</a>`).join("")}<span class="say">${s[2]} Click around: the sidebar, “Try it”, “Ask” and the rows under Last calls all work.</span>`;
+  document.getElementById("root").innerHTML = s[3]();
+};
+document.addEventListener("click", (e) => {
+  const t = e.target.closest("[data-id], .node, .btn, .calls .c, .drawer .x, .ph a, .top a");
+  if (!t) return;
+  if (t.dataset.id) return go(t.dataset.id);
+  if (t.matches(".calls .c")) return go("trace");
+  if (t.matches(".drawer .x")) return go("operation");
+  const label = t.textContent.replace(/[\d,]+$/, "").replace(/chat$/, "").replace(/⌘\w/, "").trim();
+  if (clicks[label]) go(clicks[label]);
+});
+addEventListener("keydown", (e) => { if (e.key === "Escape" && document.querySelector(".drawer")) go("operation"); });
+addEventListener("hashchange", render); render();
+</script>

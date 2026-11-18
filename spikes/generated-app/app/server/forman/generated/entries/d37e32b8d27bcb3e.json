@@ -1,0 +1,80 @@
+{
+ "kind": "read",
+ "name": "allowance.get",
+ "thing": "allowance",
+ "verb": "get",
+ "identifier": "get",
+ "file": "blueprint/things/allowance/verbs/get.ts",
+ "description": "Read one allowance by its id: organization, member, limit, spent, state.",
+ "payload": {
+  "id": {
+   "value": {
+    "type": "id",
+    "prefix": "alw"
+   },
+   "ref": "allowance.id"
+  }
+ },
+ "answer": {
+  "organization": {
+   "value": {
+    "type": "id",
+    "prefix": "org"
+   },
+   "ref": "allowance.organization"
+  },
+  "member": {
+   "value": {
+    "type": "id",
+    "prefix": "per"
+   },
+   "ref": "allowance.member"
+  },
+  "limit": {
+   "value": {
+    "type": "uint",
+    "bits": 128
+   },
+   "named": "Amount",
+   "ref": "allowance.limit"
+  },
+  "spent": {
+   "value": {
+    "type": "uint",
+    "bits": 128
+   },
+   "named": "Amount",
+   "ref": "allowance.spent"
+  },
+  "state": {
+   "value": {
+    "type": "text",
+    "max": 64
+   }
+  }
+ },
+ "move": null,
+ "errors": [],
+ "refusals": [
+  "NotAllowed"
+ ],
+ "allowed": [
+  {
+   "kind": "role",
+   "role": "allowance.grantee"
+  },
+  {
+   "kind": "role-of",
+   "role": "organization.owner",
+   "path": "organization"
+  }
+ ],
+ "steps": {},
+ "idempotent": null,
+ "runs": "server",
+ "test": "unit",
+ "budget": {
+  "p95Ms": 50
+ },
+ "hash": "d37e32b8d27bcb3e"
+}

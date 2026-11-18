@@ -1,0 +1,42 @@
+{
+ "name": "membership",
+ "identifier": "Membership",
+ "code": "ME",
+ "description": "A person's place in an organisation.",
+ "fields": {
+  "id": {
+   "value": {
+    "type": "id",
+    "prefix": "mem"
+   }
+  },
+  "organization": {
+   "value": {
+    "type": "id",
+    "prefix": "org"
+   },
+   "ref": "organization.id"
+  },
+  "person": {
+   "value": {
+    "type": "id",
+    "prefix": "per"
+   },
+   "ref": "person.id"
+  },
+  "role": {
+   "value": {
+    "type": "schema"
+   },
+   "named": "Role"
+  }
+ },
+ "lives": "database",
+ "machine": null,
+ "events": {},
+ "errors": {},
+ "roles": [
+  "holder"
+ ],
+ "hash": "7c2dc564f0e86a98"
+}

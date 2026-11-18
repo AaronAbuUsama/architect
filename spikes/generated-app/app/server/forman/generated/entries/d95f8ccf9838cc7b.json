@@ -1,0 +1,77 @@
+{
+ "name": "organization",
+ "identifier": "Organization",
+ "code": "OR",
+ "description": "A company whose owner hands out allowances, up to a cap each.",
+ "fields": {
+  "id": {
+   "value": {
+    "type": "id",
+    "prefix": "org"
+   }
+  },
+  "name": {
+   "value": {
+    "type": "text",
+    "max": 200
+   }
+  },
+  "owner": {
+   "value": {
+    "type": "id",
+    "prefix": "per"
+   },
+   "ref": "person.id"
+  },
+  "cap": {
+   "value": {
+    "type": "uint",
+    "bits": 128
+   },
+   "named": "Amount"
+  }
+ },
+ "lives": "database",
+ "machine": {
+  "states": [
+   "active"
+  ],
+  "moves": {
+   "create": {
+    "from": [],
+    "to": [
+     "active"
+    ],
+    "emits": "OrganizationCreated"
+   }
+  },
+  "notFrom": {
+   "error": "OrganizationNotActive",
+   "exit": 20,
+   "code": "OR-900"
+  }
+ },
+ "events": {
+  "OrganizationCreated": {
+   "organization": {
+    "value": {
+     "type": "id",
+     "prefix": "org"
+    },
+    "ref": "organization.id"
+   },
+   "owner": {
+    "value": {
+     "type": "id",
+     "prefix": "per"
+    },
+    "ref": "organization.owner"
+   }
+  }
+ },
+ "errors": {},
+ "roles": [
+  "owner"
+ ],
+ "hash": "d95f8ccf9838cc7b"
+}

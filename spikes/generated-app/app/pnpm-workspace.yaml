@@ -1,0 +1,17 @@
+# R1: nothing younger than three days (4320 minutes), no exclusions.
+minimumReleaseAge: 4320
+allowBuilds:
+  tesseract.js: true
+  node-pty: true
+  ffmpeg-static: true
+  esbuild: true
+
+overrides:
+  nf3: "0.3.17"
+  "@assistant-ui/tap": "^0.5.14"
+  "@assistant-ui/store": ">=0.2.9 <0.2.14"
+
+packageExtensions:
+  node-pty@*:
+    dependencies:
+      node-gyp: ^12.4.0
