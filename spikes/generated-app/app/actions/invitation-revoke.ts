@@ -5,15 +5,17 @@ import { acme } from "../server/forman/acme.ts";
 
 export const errors = defineActionErrors("InvitationNotPending", "NotAllowed");
 
+const answer = z.object({});
+
 export default defineAction({
   description: "Withdraw an invitation that hasn't been accepted. (acme's invitation.revoke; open to organization.owner of its invitation.organization.)",
   schema: z.object({
     invitation: z.string().startsWith("inv_").describe("the invitation.id"),
   }),
-  outputSchema: z.object({}),
+  outputSchema: answer,
   errors,
   readOnly: false,
   retrySafe: false,
   needsApproval: false, // no .notVia(Via.agent) in the model yet (M2.01)
-  run: (args, ctx) => acme.call({"operation":"invitation.revoke","route":"invitation/revoke","requestKey":false,"secret":{"payload":[],"answer":[]}}, args, ctx, errors),
+  run: (args, ctx) => acme.call<z.output<typeof answer>>({"operation":"invitation.revoke","route":"invitation/revoke","requestKey":false,"secret":{"payload":[],"answer":[]}}, args, ctx, errors),
 });

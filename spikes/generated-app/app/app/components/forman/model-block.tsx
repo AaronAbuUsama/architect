@@ -12,35 +12,32 @@ const fields = (rows: Any[] | undefined) =>
 
 const Machine = ({ m }: { m: Any }) => {
   const states: string[] = m.states;
-  const w = 150;
+  const w = 170;
+  const x0 = 90;
+  const box = (i: number) => x0 + i * w;
+  const edges = Object.entries(m.moves as Record<string, Any>).flatMap(([k, mv]) =>
+    (mv.to as string[]).flatMap((to) => (mv.from.length ? mv.from : [null]).map((from: string | null) => ({ k, from, to }))));
   return (
     <div>
-      <svg viewBox={`0 0 ${states.length * w + 20} 110`} className="w-full max-w-2xl">
+      <svg viewBox={`0 0 ${x0 + states.length * w} 170`} className="w-full max-w-3xl">
+        <defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" className="fill-indigo-400" /></marker></defs>
+        {edges.map(({ k, from, to }, j) => {
+          const ti = states.indexOf(to);
+          if (from === null) return <g key={j}><line x1={10} y1={85} x2={box(ti) - 2} y2={85} className="stroke-indigo-400" markerEnd="url(#arr)" /><text x={40} y={78} textAnchor="middle" className="fill-indigo-600 text-[12px]">{k}</text></g>;
+          const fi = states.indexOf(from);
+          if (fi === ti) return <g key={j}><path d={`M${box(fi) + 40},102 C${box(fi) + 30},140 ${box(fi) + 90},140 ${box(fi) + 80},102`} fill="none" className="stroke-indigo-400" markerEnd="url(#arr)" /><text x={box(fi) + 60} y={152} textAnchor="middle" className="fill-indigo-600 text-[12px]">{k}</text></g>;
+          if (ti === fi + 1) return <g key={j}><line x1={box(fi) + 120} y1={85} x2={box(ti) - 2} y2={85} className="stroke-indigo-400" markerEnd="url(#arr)" /><text x={box(fi) + 145} y={78} textAnchor="middle" className="fill-indigo-600 text-[12px]">{k}</text></g>;
+          const x1 = box(fi) + 60;
+          const x2 = box(ti) + 60;
+          const lift = 30 + Math.abs(ti - fi) * 12;
+          return <g key={j}><path d={`M${x1},68 C${x1},${68 - lift} ${x2},${68 - lift} ${x2},70`} fill="none" className="stroke-indigo-400" markerEnd="url(#arr)" /><text x={(x1 + x2) / 2} y={68 - lift * 0.75 - 4} textAnchor="middle" className="fill-indigo-600 text-[12px]">{k}</text></g>;
+        })}
         {states.map((s, i) => (
           <g key={s}>
-            <rect x={10 + i * w} y={40} width={110} height={34} rx={8} className="fill-white stroke-slate-300" />
-            <text x={65 + i * w} y={61} textAnchor="middle" className="fill-slate-700 text-[13px]">{s}</text>
+            <rect x={box(i)} y={68} width={120} height={34} rx={8} className="fill-white stroke-slate-300" />
+            <text x={box(i) + 60} y={90} textAnchor="middle" className="fill-slate-700 text-[13px]">{s}</text>
           </g>
         ))}
-        {Object.entries(m.moves as Record<string, Any>).map(([k, mv], j) =>
-          (mv.to as string[]).map((to) => {
-            const ti = states.indexOf(to);
-            const fi = mv.from.length ? states.indexOf(mv.from[0]) : -1;
-            const x1 = fi < 0 ? ti * w - 10 : 120 + fi * w;
-            const x2 = 10 + ti * w;
-            const self = fi === ti;
-            const y = 18 + (j % 2) * 72;
-            return self ? (
-              <text key={k + to} x={65 + ti * w} y={y + 6} textAnchor="middle" className="fill-indigo-600 text-[11px]">↻ {k}</text>
-            ) : (
-              <g key={k + to}>
-                <line x1={x1} y1={57} x2={x2} y2={57} className="stroke-indigo-400" markerEnd="url(#arr)" />
-                <text x={(x1 + x2) / 2} y={y + 6} textAnchor="middle" className="fill-indigo-600 text-[11px]">{k}</text>
-              </g>
-            );
-          }),
-        )}
-        <defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" className="fill-indigo-400" /></marker></defs>
       </svg>
       {m.notFrom ? <p className="text-xs text-slate-500">Any other move is refused <code>{m.notFrom.error}</code> ({m.notFrom.code}, exit {m.notFrom.exit}).</p> : null}
     </div>

@@ -5,6 +5,10 @@ import { acme } from "../server/forman/acme.ts";
 
 export const errors = defineActionErrors("PersonEmailTaken");
 
+const answer = z.object({
+  person: z.string().startsWith("per_").describe("the person.id"),
+});
+
 export default defineAction({
   description: "Sign up with an email address and a password. (acme's person.sign-up; open to anyone.)",
   schema: z.object({
@@ -12,12 +16,10 @@ export default defineAction({
     password: z.string().max(128).describe("Password; secret: never shown, never logged"),
     name: z.string().max(200).describe("the person.name"),
   }),
-  outputSchema: z.object({
-    person: z.string().startsWith("per_").describe("the person.id"),
-  }),
+  outputSchema: answer,
   errors,
   readOnly: false,
   retrySafe: false,
   needsApproval: false, // no .notVia(Via.agent) in the model yet (M2.01)
-  run: (args, ctx) => acme.call({"operation":"person.sign-up","route":"person/sign-up","requestKey":false,"secret":{"payload":["password"],"answer":[]}}, args, ctx, errors),
+  run: (args, ctx) => acme.call<z.output<typeof answer>>({"operation":"person.sign-up","route":"person/sign-up","requestKey":false,"secret":{"payload":["password"],"answer":[]}}, args, ctx, errors),
 });

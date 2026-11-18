@@ -32,7 +32,7 @@ const Stat = ({ l, v, s }: { l: string; v: React.ReactNode; s?: React.ReactNode 
   <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900"><div className="text-[11px] text-slate-400">{l}</div><div className="text-xl font-semibold tabular-nums">{v}</div>{s ? <div className="text-xs text-slate-500">{s}</div> : null}</div>
 );
 
-const Recent = ({ rows, pick }: { rows: Any[]; pick?: (t: string) => void }) =>
+const Recent = ({ rows, pick }: { rows: Any[]; pick?: ((t: string) => void) | undefined }) =>
   rows.length === 0 ? <Empty>No calls in this window.</Empty> : (
     <Table head={["when", "operation", "outcome", "who", "ms", "trace"]} rows={rows.map((c) => [ago(c.at), <code key="o">{c.op}</code>, outcome(c), who(c), c.ms, <button key="t" type="button" className="font-mono text-[11px] text-indigo-600 hover:underline" onClick={() => pick?.(c.trace)}>{c.trace.slice(0, 10)}</button>])} />
   );
@@ -61,7 +61,7 @@ const Waterfall = ({ w }: { w: Any }) => {
   );
 };
 
-export const LiveBlock = ({ show, of, data, scopeSays, pick }: { show: string; of: string; data: Any; scopeSays: string; pick?: (t: string) => void }) => {
+export const LiveBlock = ({ show, of, data, scopeSays, pick }: { show: string; of: string; data: Any; scopeSays: string; pick?: ((t: string) => void) | undefined }) => {
   const name = of.split(":")[1] ?? "";
   if (data === undefined || data === null) return <Live title={show} src={scopeSays}><Empty>Nothing in this window yet.</Empty></Live>;
   switch (show) {

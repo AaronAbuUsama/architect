@@ -60,7 +60,7 @@ const redact = (o: Record<string, unknown>, keys: ReadonlyArray<string>) =>
   Object.fromEntries(Object.entries(o).map(([k, v]) => [k, keys.includes(k) ? "•••" : v]));
 
 export const acme = {
-  call: async (spec: CallSpec, args: Record<string, unknown>, ctx: ActionRunContext | undefined, errors: ActionErrors<string> | undefined) => {
+  call: async <A>(spec: CallSpec, args: Record<string, unknown>, ctx: ActionRunContext | undefined, errors: ActionErrors<string> | undefined): Promise<A> => {
     const as = await actingAs();
     if (!as) fail(`Nobody to call ${spec.operation} as: choose ada, olga or bob in the top bar (or run act-as).`, { errorCode: "NoCaller", statusCode: 400 });
     const who = (await castOf())[as];
@@ -83,10 +83,12 @@ export const acme = {
       at: Date.now(), operation: spec.operation, as, person: who.person, trace, status: r.status, outcome: r.ok ? "answered" : (tag ?? `HTTP ${r.status}`),
       args: redact(args, spec.secret.payload), ...(answer ? { answer } : {}), ...(requestKey ? { requestKey } : {}), via: ctx?.caller ?? "unknown",
     });
-    if (r.ok) return answer;
-    const details = { ...redact(body, spec.secret.answer), trace, calledAs: as, person: who.person };
+    if (r.ok) return answer as A; // outputSchema checks it at the edge
+    // acme's refusal leaves the shell as 422, whatever acme's own status: agent-native reads a 403 as "the app's user
+    // lacks permission" and toasts that, which is wrong here. acme's status stays in details.
+    const details = { ...redact(body, spec.secret.answer), trace, calledAs: as, person: who.person, acmeStatus: r.status };
     const message = `acme refused ${spec.operation} called as ${as}: ${tag ?? `HTTP ${r.status}`} (trace ${trace})`;
-    if (tag && errors?.codes.includes(tag)) errors.fail(message, tag, { statusCode: r.status, details });
-    return fail(message, { errorCode: tag ?? `HTTP${r.status}`, statusCode: r.status, details });
+    if (tag && errors?.codes.includes(tag)) errors.fail(message, tag, { statusCode: 422, details });
+    return fail(message, { errorCode: tag ?? `HTTP${r.status}`, statusCode: r.status >= 500 ? 502 : 422, details });
   },
 };

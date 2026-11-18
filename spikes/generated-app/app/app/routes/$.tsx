@@ -20,7 +20,7 @@ const ActingAs = () => {
     <span className="flex items-center gap-1 text-xs text-slate-500">
       acting as
       {["ada", "olga", "bob", "nobody"].map((n) => (
-        <button key={n} type="button" onClick={() => set.mutate({ name: n })} className={`rounded-full border px-2 py-px ${now === n ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-white"}`}>{n}</button>
+        <button key={n} type="button" onClick={() => set.mutate({ name: n as "ada" | "olga" | "bob" | "nobody" })} className={`rounded-full border px-2 py-px ${now === n ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-white"}`}>{n}</button>
       ))}
     </span>
   );

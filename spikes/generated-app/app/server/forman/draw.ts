@@ -1,6 +1,6 @@
 // A page, drawn: its generated block list resolved against today's model, the telemetry in scope and its prose.
 // The UI and the chat both read pages through this, so the chat sees what the screen shows.
-import { callLog, type LoggedCall } from "./acme.ts";
+import { callLog, people, type LoggedCall } from "./acme.ts";
 import { config } from "./config.ts";
 import { pages } from "./generated/pages.ts";
 import { callsOf, moves, series, stats, waterfall, type Call } from "./live.ts";
@@ -11,16 +11,20 @@ import type { Model, Page } from "./types.ts";
 
 export const source = fileSource(config.telemetry);
 
-export interface Scope { readonly windowMin: number; readonly trace?: string }
+export interface Scope { readonly windowMin: number; readonly trace?: string | undefined }
 
 /** The calls in scope, each joined to the app's own log when the app made it: then it says who it was called as. */
 export const scopedCalls = async (model: Model, scope: Scope, now: number) => {
   const log = await callLog();
   const byTrace = new Map(log.map((c) => [c.trace, c]));
   const calls = callsOf(model, source.window(scope.windowMin * 60_000, now));
-  return calls.map((c) => ({ ...c, calledAs: byTrace.get(c.trace)?.as, via: byTrace.get(c.trace)?.via }));
+  const names = await castNames();
+  return calls.map((c) => ({ ...c, calledAs: byTrace.get(c.trace)?.as, via: byTrace.get(c.trace)?.via, personIs: c.person ? names[c.person] : undefined }));
 };
-type Scoped = Call & { calledAs?: string; via?: string };
+/** person id → cast name, for the local world (empty when acme isn't answering). */
+export const castNames = async (): Promise<Record<string, string>> =>
+  Object.fromEntries(Object.entries(await people().catch(() => ({}))).map(([n, id]) => [id, n]));
+type Scoped = Call & { calledAs?: string | undefined; via?: string | undefined; personIs?: string | undefined };
 
 const recent = (cs: ReadonlyArray<Scoped>, n = 12) => [...cs].sort((a, b) => b.at - a.at).slice(0, n);
 

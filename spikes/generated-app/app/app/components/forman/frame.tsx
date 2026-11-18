@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-export const Derived = ({ title, src, children }: { title: string; src?: string; children: ReactNode }) => (
+export const Derived = ({ title, src, children }: { title: string; src?: string | undefined; children: ReactNode }) => (
   <section className="my-3 overflow-hidden rounded-lg border border-slate-200 bg-slate-50/60 dark:border-slate-700 dark:bg-slate-900/40">
     <header className="flex items-center gap-2 border-b border-slate-200 bg-slate-100/70 px-3 py-1.5 text-[11px] text-slate-500 dark:border-slate-700 dark:bg-slate-800/60">
       <span className="font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">{title}</span>
@@ -14,7 +14,7 @@ export const Derived = ({ title, src, children }: { title: string; src?: string;
   </section>
 );
 
-export const Live = ({ title, src, children }: { title: string; src?: string; children: ReactNode }) => (
+export const Live = ({ title, src, children }: { title: string; src?: string | undefined; children: ReactNode }) => (
   <section className="my-3 overflow-hidden rounded-lg border border-emerald-200 bg-emerald-50/30 dark:border-emerald-900 dark:bg-emerald-950/20">
     <header className="flex items-center gap-2 border-b border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs text-slate-500 dark:border-emerald-900 dark:bg-emerald-950/40">
       <span className="inline-block size-1.5 rounded-full bg-emerald-500" />

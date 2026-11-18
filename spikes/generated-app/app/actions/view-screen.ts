@@ -7,8 +7,9 @@ import { drawPage, findPage } from "../server/forman/draw.ts";
 // What the chat sees on every turn as <current-screen>: the route, who the app calls acme as, and, on a page of the
 // project's app, a short form of what that page shows (its live numbers, latest calls, the open trace). The full page
 // is one `read-page` away.
-const brief = (page: Awaited<ReturnType<typeof drawPage>>) => {
-  if (!page || !("blocks" in page)) return page;
+const brief = (drawn: Awaited<ReturnType<typeof drawPage>>) => {
+  if (!drawn || !("scope" in drawn)) return drawn;
+  const page = drawn;
   const live = (show: string) => (page.blocks as Array<{ block: string; show?: string; data?: unknown }>).find((b) => b.block === "Live" && b.show === show)?.data;
   const calls = live("calls") as { series?: unknown } | undefined;
   const recent = live("recent") as Array<Record<string, unknown>> | undefined;

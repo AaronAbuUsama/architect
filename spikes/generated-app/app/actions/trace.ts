@@ -2,7 +2,7 @@
 import { defineAction } from "@agent-native/core/action";
 import { z } from "zod";
 import { callLog } from "../server/forman/acme.ts";
-import { source } from "../server/forman/draw.ts";
+import { castNames, source } from "../server/forman/draw.ts";
 import { callOf, waterfall } from "../server/forman/live.ts";
 import { readModel } from "../server/forman/model.ts";
 
@@ -13,6 +13,14 @@ export default defineAction({
   run: async ({ id }) => {
     const t = source.find(id);
     if (!t) return { error: `no trace ${id} in ${source.stats().dir} (${source.stats().traces} traces read)` };
-    return { ...waterfall(t), call: callOf(readModel(), t), appCall: (await callLog()).find((l) => l.trace === id) };
+    const call = callOf(readModel(), t);
+    const appCall = (await callLog()).find((l) => l.trace === id);
+    const names = await castNames();
+    return {
+      ...waterfall(t), call,
+      madeBy: appCall ? `this app, called as ${appCall.as} (via ${appCall.via})` : "not this app: no entry in its call log (another client, a script, prove)",
+      principal: call?.person ? { id: call.person, castName: names[call.person] ?? "not in the local cast" } : "none recorded (NotAllowed is refused before the operation's span opens)",
+      appCall,
+    };
   },
 });

@@ -16,7 +16,7 @@ export interface Prose {
 const parse = (file: string, raw: string): Prose | undefined => {
   const m = raw.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
   if (!m) return undefined;
-  const head = Object.fromEntries(m[1]!.split("\n").map((l) => l.split(/:\s*/, 2) as [string, string]).map(([k, v]) => [k.trim(), (v ?? "").trim()]));
+  const head = Object.fromEntries(m[1]!.split("\n").map((l) => [l.slice(0, l.indexOf(":")).trim(), l.slice(l.indexOf(":") + 1).trim()]));
   const [about = "", hash = ""] = (head["about"] ?? "").split("@");
   return { file, about, hash, by: head["by"] ?? "person", text: m[2]!.trim() };
 };

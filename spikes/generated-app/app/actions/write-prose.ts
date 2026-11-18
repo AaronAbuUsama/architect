@@ -16,7 +16,7 @@ export default defineAction({
     const before = readProse(page.prose);
     const body = stillTrue ? before?.text : text;
     if (body === undefined) return { error: stillTrue ? "there is no prose to re-pin" : "give text or stillTrue" };
-    writeProse(page.prose, page.about, hash, stillTrue ? (before?.by ?? "person") : ctx?.caller === "agent" ? "agent" : "person", body);
+    writeProse(page.prose, page.about, hash, stillTrue ? (before?.by ?? "person") : ctx?.caller === "tool" ? "agent" : "person", body);
     return { file: page.prose, pinned: `${page.about}@${hash}` };
   },
 });

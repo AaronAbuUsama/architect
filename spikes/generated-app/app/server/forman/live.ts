@@ -10,16 +10,16 @@ export interface Call {
   readonly at: number;
   readonly ms: number;
   readonly outcome: "answered" | "refused" | "defect";
-  readonly refusal?: string;
-  readonly log?: string;
-  readonly person?: string;
+  readonly refusal?: string | undefined;
+  readonly log?: string | undefined;
+  readonly person?: string | undefined;
   readonly replayed: boolean;
-  readonly http?: string;
+  readonly http?: string | undefined;
   readonly payload: Record<string, unknown>;
   readonly answer: Record<string, unknown>;
-  readonly move?: string;
-  readonly to?: string;
-  readonly event?: string;
+  readonly move?: string | undefined;
+  readonly to?: string | undefined;
+  readonly event?: string | undefined;
   readonly seenOn: "operation span" | "http span (no operation span opened)";
 }
 
