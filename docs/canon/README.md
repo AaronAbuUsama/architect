@@ -8,6 +8,8 @@ is built to the page. When the two disagree, one of them is wrong, and the chang
 - [`_template.mdx`](_template.mdx): the shape every page follows.
 - [`components/`](components/README.md): the MDX components pages use, with their props.
 - [`check.mjs`](check.mjs): the check that keeps pages true. `pnpm nx run canon:check` runs it.
+- [`preview/`](preview/build.mjs): renders the whole canon into one HTML file you can click through, every component
+  drawn from real data. `pnpm nx run canon:preview` writes `docs/canon/.preview/index.html`; open it in any browser.
 - Written so far: [`stores.mdx`](stores.mdx) and [`traces.mdx`](traces.mdx).
 
 `design/docs/index.html` stays the single source until the canon covers what it covers. Then the canon replaces it,
