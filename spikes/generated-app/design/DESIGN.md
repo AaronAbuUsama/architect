@@ -4,7 +4,7 @@ Design for pass 1, 18 November 2026. It replaces "the portal" with one agent-nat
 prototype (pass 2) waits for Aaron's answers to the four questions at the end.
 
 The sketches are real: every name, field, count and span in them comes from acme's `generated/model/model.json` and
-one local run's Collector file (1,631 traces over 24 minutes, from the `portal-observability` spike's traffic). The
+one local run's Collector file (1,631 traces over 24 minutes, from the `portal-observability` spike's traffic, PR #39). The
 extractor is `tools/extract.py`; the screens are `sketches/index.html`; `tools/shoot.mjs` makes `shots/`.
 
 ## In one paragraph
@@ -96,7 +96,7 @@ One scope and one reader:
 
 The shell reads the Collector's files. It does not receive OTLP itself, and it does not use Tempo.
 
-- **Not Tempo.** The spike measured it: search lags about 30 seconds, caps at 300 traces, and fell over after 15 minutes
+- **Not Tempo.** The observability spike (PR #39) measured it: search lags about 30 seconds, caps at 300 traces, and fell over after 15 minutes
   of polling (550% CPU, 5.5 GB).
 - **Not OTLP straight into the shell.** The Collector is where private attributes are stripped
   (`.forman/dev-telemetry/collector.yaml`: `attributes/private` deletes `payload.password`, `answer.token` and more).
