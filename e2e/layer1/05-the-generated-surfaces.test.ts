@@ -37,7 +37,7 @@ describe("check 5: the generated CLI, SDK and docs", () => {
       const spent = acmeCli("olga", "allowance", "spend", "--allowance", allowance, "--amount", "200", "--memo", "lunch", "--json");
       expect([spent.status, JSON.parse(spent.stdout)]).toEqual([0, { remaining: "300" }]);
       const over = acmeCli("olga", "allowance", "spend", "--allowance", allowance, "--amount", "301", "--memo", "too much");
-      expect([over.status, over.stderr.trim()]).toEqual([41, 'AllowanceExceeded: {"remaining":"300"}']);
+      expect([over.status, over.stderr.trim()]).toEqual([41, '[AL-001] AllowanceExceeded { remaining: 300 }']);
       expect(acmeCli("bob", "allowance", "revoke", "--allowance", allowance).status).toBe(3);
 
       // The SDK, from a program of the project's own.

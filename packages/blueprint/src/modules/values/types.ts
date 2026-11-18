@@ -1,11 +1,14 @@
 // Values: the named types fields are made of. A value carries its schema; later layers add its Solidity type.
 import type { Schema } from "effect";
+import type { Visibility } from "#modules/visibility/types.js";
 
 export interface Value<S extends Schema.Constraint = Schema.Constraint> {
   readonly kind: "value";
   readonly schema: S;
   /** What the value is, for the model: stable across reformatting, and readable by every target. */
   readonly meta: ValueMeta;
+  /** Who may see a value of this type: `public` unless marked (`Blueprint.visibility.secret(...)`). */
+  readonly visibility: Visibility;
 }
 
 export type ValueMeta =

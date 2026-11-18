@@ -1,0 +1,62 @@
+$ pnpm exec vitest run --root packages/prove src/modules/promote/staging.test.ts -t publication identity
+# commit 8f50320 · 2026-11-17T02:38:26Z · exit 1 (expected 1) · 39.0s
+
+
+ RUN  v4.1.12 ./packages/prove
+
+ ❯ src/modules/promote/staging.test.ts (6 tests | 3 failed | 3 skipped) 36938ms
+     × installs the captured SDK and CLI even if source changes after capture during publication 21062ms
+     × owns package and SEA outputs per invocation and preserves earlier tarballs and formula URLs 3680ms
+     × refuses pre-existing different same-version package bytes instead of claiming successful reuse 3007ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/promote/staging.test.ts > publication identity > installs the captured SDK and CLI even if source changes after capture during publication
+AssertionError: expected 'uncommitted-B' to be 'committed-A' // Object.is equality
+
+Expected: "committed-A"
+Received: "uncommitted-B"
+
+ ❯ src/modules/promote/staging.test.ts:169:43
+    167|     const sdk = spawnSync(process.execPath, ["--input-type=module", "-…
+    168|     const cli = spawnSync(join(install, "node_modules/.bin/acme"), ["-…
+    169|     expect(sdk.stdout.trim(), sdk.stderr).toBe("committed-A");
+       |                                           ^
+    170|     expect(cli.stdout, cli.stderr).toContain("committed-A");
+    171|     expect(cli.stdout).toContain(`acme ${version}`);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/modules/promote/staging.test.ts > publication identity > owns package and SEA outputs per invocation and preserves earlier tarballs and formula URLs
+AssertionError: expected '/private/var/folders/4r/x7bvvh3x6053m…' not to be '/private/var/folders/4r/x7bvvh3x6053m…' // Object.is equality
+ ❯ src/modules/promote/staging.test.ts:182:41
+    180|     const sdkBytes = readFileSync(join(first.packages[0]!.dir, "dist/i…
+    181|     const second = await publish(version, sourceRevision);
+    182|     expect(second.packages[0]!.dir).not.toBe(first.packages[0]!.dir);
+       |                                         ^
+    183|     expect(readFileSync(join(first.packages[0]!.dir, "dist/index.js"),…
+    184|     const binaryEnv = { ...env, ARCHITECT_REGISTRY: "" };
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/modules/promote/staging.test.ts > publication identity > refuses pre-existing different same-version package bytes instead of claiming successful reuse
+AssertionError: expected 'Success' to be 'Failure' // Object.is equality
+
+Expected: "Failure"
+Received: "Success"
+
+ ❯ src/modules/promote/staging.test.ts:200:25
+    198|     const result = await run(Publish.run({ root, env, environment: "st…
+    199|     git("checkout", "--", "src/publication-source.ts");
+    200|     expect(result._tag).toBe("Failure");
+       |                         ^
+    201|     if (result._tag === "Failure") expect(result.failure.message).toMa…
+    202|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 3 skipped (6)
+   Start at  02:37:48
+   Duration  38.00s (transform 574ms, setup 0ms, import 915ms, tests 36.94s, environment 0ms)

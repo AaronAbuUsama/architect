@@ -30,10 +30,10 @@ describe("impact", () => {
   it("after a prove, names only what a change unproves", { timeout: 240_000 }, async () => {
     rmSync(scratch, { recursive: true, force: true });
     mkdirSync(root, { recursive: true });
-    for (const part of ["blueprint", "generated", "implementation", "journeys", "package.json"]) cpSync(join(acme, part), join(root, part), { recursive: true, filter: visible });
+    for (const part of ["blueprint", "generated", "src", "journeys", "package.json"]) cpSync(join(acme, part), join(root, part), { recursive: true, filter: visible });
     writeFileSync(join(root, "tsconfig.json"), JSON.stringify({
       extends: relative(root, join(acme, "tsconfig.json")),
-      include: ["blueprint/**/*.ts", "generated/**/*.ts", "implementation/**/*.ts", "journeys/**/*.ts"],
+      include: ["blueprint/**/*.ts", "generated/**/*.ts", "src/**/*.ts", "journeys/**/*.ts"],
     }));
     expect(await impact()).toContain("stale none");
 

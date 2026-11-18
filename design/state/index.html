@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Architect Status</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600&display=swap">
+<style>
+/* A viewport-sized reading shell. Navigation and content scroll independently. */
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --panel: #eef1f5; --fg: #19202c; --muted: #5b6577; --line: #dbe0e8;
+  --accent: #2d5bd0; --accent-soft: #e5ecfb; --code-bg: #f3f5f9;
+  --done: #1d7a52; --done-soft: #dff1e8; --wip: #8a5a00; --wip-soft: #f7ecd8; --todo: #6b7486; --todo-soft: #eceff4;
+  --del: #b3261e; --del-soft: #fbe4e2;
+  --display: "Space Grotesk", "IBM Plex Sans", system-ui, sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #10141b; --surface: #161b24; --panel: #1b212c; --fg: #e4e8ef; --muted: #98a2b4; --line: #283040;
+  --accent: #7fa3ff; --accent-soft: #1c2640; --code-bg: #131821;
+  --done: #5ccb98; --done-soft: #12301f; --wip: #e3ac4f; --wip-soft: #33280f; --todo: #98a2b4; --todo-soft: #222a36;
+  --del: #ff8a80; --del-soft: #3a1714; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #10141b; --surface: #161b24; --panel: #1b212c; --fg: #e4e8ef; --muted: #98a2b4; --line: #283040;
+  --accent: #7fa3ff; --accent-soft: #1c2640; --code-bg: #131821;
+  --done: #5ccb98; --done-soft: #12301f; --wip: #e3ac4f; --wip-soft: #33280f; --todo: #98a2b4; --todo-soft: #222a36;
+  --del: #ff8a80; --del-soft: #3a1714; color-scheme: dark }
+* { box-sizing: border-box; }
+html { height: 100%; }
+body { margin: 0; height: 100vh; height: 100dvh; overflow: hidden; display: grid; grid-template-rows: auto minmax(0, 1fr);
+  background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.6; }
+header { background: var(--surface); border-bottom: 1px solid var(--line); min-width: 0;
+  display: flex; align-items: center; gap: 24px; min-height: 64px; padding-block: max(12px, env(safe-area-inset-top, 0px)) 12px;
+  padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); }
+.brand { font-family: var(--display); font-weight: 600; font-size: 18px; }
+.brand small { font-family: var(--mono); font-size: 11px; color: var(--muted); font-weight: 400; margin-left: 8px; }
+.legend { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+.pages-toggle { display: none; align-items: center; gap: 8px; min-height: 44px; padding: 0 12px; margin-left: auto;
+  color: var(--fg); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; font: 500 14px var(--body); cursor: pointer; }
+.pages-toggle svg { width: 16px; height: 16px; }
+.pages-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+.skip-link { position: fixed; top: 8px; left: 8px; z-index: 10; transform: translateY(-160%); padding: 8px 16px;
+  color: var(--fg); background: var(--surface); border: 1px solid var(--accent); border-radius: 6px; }
+.skip-link:focus { transform: translateY(0); }
+.badge { font: 500 11px var(--mono); letter-spacing: .03em; padding: 1px 7px; border-radius: 4px; white-space: nowrap; }
+.s-done { background: var(--done-soft); color: var(--done); }
+.s-wip { background: var(--wip-soft); color: var(--wip); }
+.s-todo { background: var(--todo-soft); color: var(--todo); }
+.s-red { background: var(--del-soft); color: var(--del); }
+main { display: grid; grid-template-columns: 248px minmax(0, 1fr); min-height: 0; min-width: 0; overflow: hidden; }
+nav { height: 100%; min-height: 0; background: var(--surface); border-right: 1px solid var(--line); padding: 20px 12px max(24px, env(safe-area-inset-bottom, 0px));
+  overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+nav h4 { font: 600 11px var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 16px 8px 6px; }
+nav a { display: flex; align-items: center; min-height: 40px; color: var(--fg); text-decoration: none; padding: 8px 12px; border-radius: 6px; font-size: 14px; line-height: 1.4; }
+nav a:hover { background: var(--panel); }
+nav a[aria-current="page"] { background: var(--accent-soft); color: var(--accent); font-weight: 500; }
+a:focus-visible, button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+article { padding: 40px clamp(24px, 4vw, 64px) max(48px, env(safe-area-inset-bottom, 0px)); min-width: 0; min-height: 0;
+  overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; }
+article:focus { outline: none; }
+article > * { max-width: 760px; }
+article h1 { font: 600 28px/1.2 var(--display); margin: 0 0 10px; text-wrap: balance; }
+article h2 { font: 600 19px/1.25 var(--display); margin: 28px 0 8px; }
+article h3 { font: 600 15px/1.3 var(--display); margin: 20px 0 6px; }
+article p, article li { max-width: 68ch; }
+article .lede { color: var(--muted); font-size: 16px; }
+article a { color: var(--accent); }
+article code { font-family: var(--mono); font-size: .9em; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+article ul, article ol { padding-left: 1.3em; }
+article li { margin: 5px 0; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; margin: 8px 0 14px; }
+.tablewrap { overflow-x: auto; max-width: 760px; }
+th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 600 12px var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+td.k { font: 500 13px var(--mono); white-space: nowrap; }
+td.s { white-space: nowrap; }
+.callout { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 10px 14px; border-radius: 0 6px 6px 0; margin: 12px 0; max-width: 760px; }
+.open { border-left-color: var(--wip); background: var(--wip-soft); }
+.red { border-left-color: var(--del); background: var(--del-soft); }
+.muted { color: var(--muted); font-size: 13px; }
+/* the layer track */
+.track { display: flex; flex-direction: column; gap: 10px; margin: 14px 0; }
+.layer { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 12px 14px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: baseline; }
+.layer .name { font: 600 16px var(--display); }
+.layer .name span { font: 500 12px var(--mono); color: var(--muted); margin-left: 8px; }
+.layer .meta { grid-column: 1 / -1; color: var(--muted); font-size: 13.5px; }
+.bar { grid-column: 1 / -1; height: 6px; border-radius: 3px; background: var(--todo-soft); overflow: hidden; margin-top: 4px; }
+.bar i { display: block; height: 100%; background: var(--done); }
+.bar.w i { background: var(--wip); }
+/* the two loops, from the docs */
+.loops { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin: 18px 0 8px; max-width: 760px; }
+.loop { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: var(--surface); }
+.loop-name { font: 600 13px var(--display); text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.loop-stages { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin: 10px 0 8px; }
+.loop-stages span { font: 600 15px var(--display); border-radius: 6px; padding: 5px 10px; }
+.loop-stages span + span::before { content: "→"; color: var(--muted); font-weight: 400; margin: 0 6px 0 -2px; }
+.loop-out { font-size: 13px; color: var(--muted); }
+[hidden] { display: none !important; }
+@media (max-width: 1040px) {
+  .brand small { display: block; margin: 2px 0 0; }
+  .legend { gap: 6px; }
+}
+@media (max-width: 700px) {
+  header { gap: 12px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .brand small { font: 12px var(--body); }
+  .legend { display: none; }
+  .pages-toggle { display: flex; }
+  main { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+  nav { display: none; height: auto; max-height: 55dvh; border-right: 0; border-bottom: 1px solid var(--line); padding: 8px 12px 16px; }
+  body[data-navigation-open="true"] nav { display: block; }
+  nav a { min-height: 44px; }
+  article { grid-row: 2; padding: 28px 20px max(32px, env(safe-area-inset-bottom, 0px)); }
+  article h1 { font-size: 26px; }
+  .layer { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .layer > .badge { justify-self: start; }
+  .layer .name span { display: block; margin: 4px 0 0; }
+}
+</style>
+
+<a class="skip-link" href="#doc">Skip to content</a>
+<header>
+  <div class="brand">Architect <small>status · read from the repo · 17 November 2026</small></div>
+  <div class="legend" aria-label="States">
+    <span class="badge s-done">built</span>
+    <span class="badge s-wip">being built</span>
+    <span class="badge s-todo">not started</span>
+  </div>
+  <button class="pages-toggle" id="pages-toggle" type="button" aria-expanded="false" aria-controls="docnav">
+    Pages <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+  </button>
+</header>
+
+<main id="docs-view">
+  <nav id="docnav" aria-label="Pages"></nav>
+  <article id="doc" tabindex="-1" aria-labelledby="page-title"></article>
+</main>
+
+<script>
+const B = (s, t) => '<span class="badge s-' + s + '">' + t + '</span>';
+const DONE = B("done", "built"), WIP = B("wip", "being built"), TODO = B("todo", "not started"), LATER = B("todo", "later"), CLOUD = B("todo", "cloud pass");
+
+const ALL_PAGES = [
+{ id: "now", group: "Start", t: "Where it stands", h: () => `
+<h1>Where it stands</h1>
+<p class="lede">Stage three has merged into main after all three keyed pull-request checks and the independent review passed. The exact main local gate passed; main CI passed both gates but found a short test deadline around two real CLI starts. A separate author owns that narrow recovery before the stage closes.</p>
+<ul>
+<li><b>Layer one, declare and call, is finished.</b> Stages one and two, Gate 1, are on main.</li>
+<li><b>Layer two, prove and ship, is merged.</b> All fourteen steps are on main: real local environments, signed proof, promotion, publishing, OAuth MCP, watch and the portal.</li>
+<li><b>The complete shipping gate passes.</b> Clean local and Linux runs passed all ten tests with zero skips and real Homebrew. The final keyed pull-request run and independent exact-head review also passed.</li>
+<li><b>Next:</b> recover the main workspace check’s CLI integration deadline, then verify corrected main CI and cleanup. Stage 4 waits for green main.</li>
+<li><b>Boundaries remain explicit.</b> Test, staging and production are local workerd deployments. The historical author-rule deviation and accepted legacy-adapter policy debt remain recorded; no public cloud or universal compliance claim is made.</li>
+<li><b>Layers three to five</b> and the cloud pass have not started.</li>
+</ul>
+<div class="callout">For the detail, see <a href="#layers">the five layers</a>, <a href="#stage3">layer two, step by step</a> and <a href="#left">what's left</a>.</div>` },
+
+{ id: "intro", group: "Start", t: "What Architect is", h: () => `
+<h1>What Architect is</h1>
+<p class="lede">Architect is Effect, one level up. You declare the whole system as typed code: its things, their state machines,
+the events and errors, the steps, who may call each operation, how fast it must be and where it runs. That is the blueprint.</p>
+<p>Everything else falls out of the blueprint: the server, the API, the SDK, the CLI, the docs, and later the MCP server and the portal.
+Generated files are never edited by hand.</p>
+<p>You, or an agent, fill in only the blanks: a handler for each operation, in a scaffold at <code>src/&lt;thing&gt;/&lt;operation&gt;.ts</code> that already fits.</p>
+<p>Every operation is measured by nine evals, read from real telemetry: answer shape, declared errors, machine path, events, who may call,
+steps, performance, coverage and explainability.</p>
+<p>It's built in five layers, each closed by a gate, and everything runs for real on your Mac, in Cloudflare's own local runtime, with nothing mocked.</p>
+<div class="loops">
+  <div class="loop"><div class="loop-name">Design loop</div><div class="loop-stages"><span class="s-done">Ideate</span><span class="s-done">Spike</span><span class="s-done">Specify</span></div><div class="loop-out">The blueprint, blanks and scaffolds work today.</div></div>
+  <div class="loop"><div class="loop-name">Build loop</div><div class="loop-stages"><span class="s-done">Build</span><span class="s-done">Test</span><span class="s-done">Deploy</span><span class="s-done">Watch</span></div><div class="loop-out">All four run across local environments.</div></div>
+</div>
+<p class="muted">The worked example is acme: the starter project (sign-up, organisations, members, invitations, API keys) plus the allowance, an owner letting a member spend up to a limit.</p>` },
+
+{ id: "get", group: "Start", t: "What you get, today", h: () => `
+<h1>What you get, today</h1>
+<p class="lede">The design docs list what Architect gives you. Here is each item with what is real now.</p>
+<h2>Deployed: what runs</h2>
+<div class="tablewrap"><table><tbody>
+<tr><td><b>The server</b>, every operation as an endpoint with its role check, spans and typed refusals</td><td class="s">${DONE}</td></tr>
+<tr><td colspan="2" class="muted">Runs locally in workerd, in test, staging and production at once. A real Cloudflare deploy waits for the cloud pass.</td></tr>
+<tr><td><b>The MCP server</b>, one tool per operation, with OAuth</td><td class="s">${DONE}</td></tr>
+<tr><td><b>The portal</b>, the blueprint and what's proven where</td><td class="s">${DONE}</td></tr>
+<tr><td colspan="2" class="muted">A plain read-only page at <code>/portal</code> on every environment. A designed docs site on top of it is next (F2, F3).</td></tr>
+<tr><td><b>The world</b> as a Durable Object, with its clock and test worlds</td><td class="s">${DONE}</td></tr>
+<tr><td><b>The contracts</b>, for things that live on chain</td><td class="s">${TODO}</td></tr>
+<tr><td><b>The keeper</b>, for moves made by time</td><td class="s">${TODO}</td></tr>
+</tbody></table></div>
+<h2>Published: what others install</h2>
+<div class="tablewrap"><table><tbody>
+<tr><td><b>The SDK</b>, one typed call per operation</td><td class="s">${DONE}</td></tr>
+<tr><td><b>The CLI</b>, one command per operation, with exit codes and device sign-in</td><td class="s">${DONE}</td></tr>
+<tr><td colspan="2" class="muted">Both publish to a real local npm registry, and the CLI installs from a local Homebrew tap. The real npm and GitHub releases wait for the cloud pass.</td></tr>
+</tbody></table></div>
+<h2>Kept for you</h2>
+<div class="tablewrap"><table><tbody>
+<tr><td><b>The docs</b>, a page per thing and operation</td><td class="s">${DONE}</td></tr>
+<tr><td><b>The model</b>, with versions and staleness worked out from it</td><td class="s">${DONE}</td></tr>
+<tr><td><b>The evidence</b>, signed verdicts per operation per environment, in the logbook</td><td class="s">${DONE}</td></tr>
+<tr><td><b>The same evals watching production</b></td><td class="s">${DONE}</td></tr>
+<tr><td colspan="2" class="muted"><code>architect watch</code> reads local files or Axiom. Traces show locally in a viewer, and in Axiom by config.</td></tr>
+<tr><td><b>The infrastructure</b>, an Alchemy stack per environment</td><td class="s">${CLOUD}</td></tr>
+</tbody></table></div>` },
+
+{ id: "layers", group: "Progress", t: "The five layers", h: () => `
+<h1>The five layers</h1>
+<p class="lede">The goal is all five layers proven locally, in six stages with a gate at the end of each layer. Percent is merged steps from the build plan.</p>
+<div class="track">
+  <div class="layer"><div class="name">1. Declare and call <span>stages 1–2 · Gate 1</span></div>${DONE}
+    <div class="bar"><i style="width:100%"></i></div>
+    <div class="meta">22 of 22 steps. On main since 16 November, pull requests 1 and 2. Gate 1's seven checks pass locally and in CI.</div></div>
+  <div class="layer"><div class="name">2. Prove and ship <span>stage 3 · Gate 2</span></div>${WIP}
+    <div class="bar w"><i style="width:100%"></i></div>
+    <div class="meta">14 of 14 steps merged on <code>main</code>. Gate 2 and all three Linux CI jobs pass. The keyed pull-request check and independent review passed; exact-main verification is running.</div></div>
+  <div class="layer"><div class="name">3. Reach out <span>stage 4 · Gate 3</span></div>${TODO}
+    <div class="meta">Kits, wallets, sign-in with Ethereum, the chain kit on viem, Anvil in a world, the relayer, the chain follower.</div></div>
+  <div class="layer"><div class="name">4. On chain <span>stage 5 · Gate 4</span></div>${TODO}
+    <div class="meta">The Solidity target, signed operations, a vault per organisation on Anvil.</div></div>
+  <div class="layer"><div class="name">5. Time <span>stage 6 · Gate 5</span></div>${TODO}
+    <div class="meta">One stepped clock for the chain, alarms and workflows; the keeper; the tenth eval, on time.</div></div>
+</div>
+<div class="callout">Layer one is split into two stages: the skeleton with every eval (stage 1), then the allowance's whole life (stage 2, Gate 1).</div>` },
+
+{ id: "stage3", group: "Progress", t: "Layer two, step by step", h: () => `
+<h1>Layer two, step by step</h1>
+<p class="lede">Prove and ship, across local environments. Each merged step has its decisions in D3 and its evidence in the repo.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Step</th><th>What it does</th><th>State</th></tr></thead><tbody>
+<tr><td class="k">L2.01</td><td>Environments: one build per revision, and test, staging and production running side by side.</td><td class="s">${DONE}</td></tr>
+<tr><td class="k">L2.02</td><td>Test worlds: prove in a fresh world, post verdicts, destroy the world.</td><td class="s">${DONE}</td></tr>
+<tr><td class="k">L2.03</td><td>The logbook: verdicts signed with an OIDC token, kept per revision.</td><td class="s">${DONE}</td></tr>
+<tr><td class="k">L2.04</td><td>Versions worked out from the model, and what a change made stale.</td><td class="s">${DONE}</td></tr>
+<tr><td class="k">L2.05</td><td>Promote the same bundle from test to staging to production.</td><td class="s">${DONE}</td></tr>
+<tr><td class="k">L2.06</td><td>Publish the SDK and CLI to npm and a Homebrew tap.</td><td class="s">${DONE}</td></tr>
+<tr><td class="k">L2.07</td><td>Device sign-in for the generated CLI.</td><td class="s">${DONE}</td></tr>
+<tr><td class="k">L2.L</td><td>Your layout: handlers at <code>src/&lt;thing&gt;/&lt;operation&gt;.ts</code>.</td><td class="s">${DONE}</td></tr>
+<tr><td class="k">L2.P</td><td>Privacy seams for Noir later: secret and private fields, coded refusals.</td><td class="s">${DONE}</td></tr>
+<tr><td class="k">L2.O</td><td>Seeing traces locally, with Axiom as a sink by config.</td><td class="s">${DONE}</td></tr>
+<tr><td class="k">L2.08</td><td>The MCP server with OAuth, and the world's front door closed outside test worlds.</td><td class="s">${DONE}</td></tr>
+<tr><td class="k">L2.09</td><td><code>watch</code>: the same evals on live telemetry; drift becomes a task.</td><td class="s">${DONE}</td></tr>
+<tr><td class="k">L2.10</td><td>The portal: a read-only page per environment, honest ticks, stale explained.</td><td class="s">${DONE}</td></tr>
+<tr><td class="k">L2.11</td><td>Gate 2, keyed PR checks and review pass; merged into main, whose final verification is running.</td><td class="s">${WIP}</td></tr>
+</tbody></table></div>
+<p class="muted">Read from the build plan and the layer merged into <code>main</code>.</p>` },
+
+{ id: "works", group: "Progress", t: "What works on your Mac", h: () => `
+<h1>What works on your Mac</h1>
+<p class="lede">Each line is checked against a captured run in the repo's evidence.</p>
+<h2>Declare and call</h2>
+<ul>
+<li><code>architect prove --env local</code> proves acme's eleven journeys, with nine evals on each of fifteen operations, in about eight seconds.</li>
+<li><code>architect check</code> fails whenever the code and the blueprint disagree.</li>
+<li><code>architect add</code> and <code>generate</code> scaffold a new thing or operation, with its blanks marked.</li>
+<li><code>architect brief</code> tells an agent exactly what to write, what not to touch, and which evals must pass.</li>
+<li><code>architect impact</code> says which proofs a change made stale.</li>
+<li>An agent wrote the allowance's spend handler from its brief alone, and it passed, for five cents.</li>
+<li>A new project made from the preset passes check and prove.</li>
+</ul>
+<h2>Prove and ship</h2>
+<ul>
+<li><code>architect build</code> turns one revision into one bundle with one hash.</li>
+<li><code>architect env up</code> runs test, staging and production side by side, each with its own state.</li>
+<li><code>architect prove --env test</code> proves in a fresh world, signs a verdict per operation, and destroys the world.</li>
+<li><code>architect worlds reap</code> removes worlds that outlived their lifetime.</li>
+<li><code>architect version --next</code> works out the next version from what changed.</li>
+<li><code>architect promote</code> moves the same bundle from test to staging to production, only on green verdicts.</li>
+<li><code>architect publish --local</code> puts the SDK and CLI on a local npm registry, and the CLI in a Homebrew tap.</li>
+<li><code>acme session sign-in</code> signs the generated CLI in with a device code.</li>
+<li><code>architect telemetry view</code> and <code>prove --view</code> show each trace in a local viewer; Axiom is one line of config.</li>
+<li>An MCP client signs in with OAuth and calls acme's operations as tools; a caller without the role is refused.</li>
+<li><code>architect watch --env staging</code> prints p95 against budget and refusal counts, and a planted slow handler shows as drift.</li>
+<li><code>/portal</code> on staging shows every operation per environment: proven, failed, stale with the reason, or unproven.</li>
+</ul>` },
+
+{ id: "flight", group: "Progress", t: "In flight", h: () => `
+<h1>In flight</h1>
+<p class="lede">Recovery is green locally and in CI. World isolation has passed integration checks. The hash-bound proof repair passes integration checks. A follow-up is closing staging’s identity and source check after proof. The author waits for that correction before running check 8.</p>
+<h2>On the critical path</h2>
+<ul>
+<li><b>CI on <code>layer/3</code>:</b> the Docker networking fix and promotion/read repairs pass all six touched tests locally. Linux CI also passed on the recovery push.</li>
+<li><b>World isolation:</b> is fixed at D1’s atomic mutation. Seven world regressions and the existing expiry, restart and reap checks pass after integration; Linux CI also passed on the combined corrections.</li>
+<li><b>Promotion integrity:</b> immutable clean artifacts, signed hashes, stable process identity, captured publication source and matching npm bytes pass all22 integrated regressions. Retry completes partial release facts without duplicating them.</li>
+<li><b>Check 8:</b> fresh-connection checks and the real publishing/portal flow passed in the author’s runtime run. The full local gate also passed all eight checks together.</li>
+<li><b>The evidence page:</b> rebuilds successfully. Eight regression checks pass. Missing capture metadata stays marked unverified.</li>
+</ul>
+<h2>Side threads</h2>
+<ul>
+<li><b>The portal's information architecture</b> is on main (pull request 17). The designed docs-site brief is also on main (pull request 18).</li>
+<li><b>Your HeroUI Pro template</b> is on its own branch, <code>portal/heroui-pro-template</code>.</li>
+<li><a href="https://github.com/AaronAbuUsama/architect/pull/9">Pull request 9</a>, the agent harness, still waits on your answers.</li>
+</ul>` },
+
+{ id: "left", group: "Progress", t: "What's left", h: () => `
+<h1>What's left</h1>
+<p class="lede">In order. Nothing in a layer starts until the previous gate passes on main.</p>
+<ol>
+<li><b>Finish Gate 2.</b> Gate 2, keyed PR checks and independent review passed; finish the exact-main local run, CI and cleanup.</li>
+<li><b>Layer three, Gate 3.</b> Opens with wayfinding, then the kit format and ten steps.</li>
+<li><b>Layer four, Gate 4.</b> The allowance on chain, nine steps.</li>
+<li><b>Layer five, Gate 5.</b> Time, eight steps.</li>
+<li><b>The cloud pass,</b> only with your yes: real Cloudflare deploys, the real npm and Homebrew, Axiom, and sign-in on a real staging host.</li>
+</ol>
+<h2>What the cloud pass reads, by name only</h2>
+<ul>
+<li>Axiom tokens in your keychain: <code>capxul-ingest-test</code>, <code>capxul-ingest-real</code>, <code>capxul-ingest-agents</code>, <code>capxul-ingest-cloudflare</code> and <code>capxul-query</code>, with <code>axiom-org-id</code> and <code>axiom-domain</code>, in EU Central 1.</li>
+<li><code>ANTHROPIC_API_KEY</code>, a repository secret, given only to pull requests into main.</li>
+<li>Cloudflare, npm and Homebrew: no credential exists yet, and making one needs your written yes.</li>
+</ul>` },
+
+{ id: "calls", group: "Decisions", t: "Your calls", h: () => `
+<h1>Your calls</h1>
+<p class="lede">Decisions dated with your name, and the questions still waiting on you.</p>
+<h2>Decided</h2>
+<ul>
+<li><b>Local, never fake.</b> Real workerd, D1, Durable Objects and Anvil, with no mocks.</li>
+<li><b>The database is Cloudflare-native:</b> D1, each Durable Object's own SQLite, and R2. No Postgres.</li>
+<li><b>The monthly reset</b> counts calendar months from the grant.</li>
+<li><b>Sign-in</b> in layer one is Better Auth.</li>
+<li><b>The repository is public,</b> so CI minutes are free.</li>
+<li><b>Handlers live</b> at <code>src/&lt;thing&gt;/&lt;operation&gt;.ts</code>, with no <code>implementation/</code> folder.</li>
+<li><b>Observability is Axiom only for now;</b> PostHog waits.</li>
+<li><b>The agent harness:</b> Command Code is commandcode.ai; paid runs on open models and on Codex through your ChatGPT plan; your machine is fine as the first sandbox.</li>
+<li><b>At most ten dollars a day</b> on cloud, across everything.</li>
+</ul>
+<h2>Waiting on you</h2>
+<div class="callout open">These hold up only the agent harness, not Gate 2.</div>
+<ul>
+<li>Which Command Code plan is the key on? The harness needs GOAT or higher.</li>
+<li>Will you set the key once as <code>COMMANDCODE_API_KEY</code> on your machine, read by name only?</li>
+<li>Do model tokens count toward the ten dollars a day?</li>
+<li>May CI hold a model key, for a weekly baseline on free models?</li>
+<li>Is it all right that free Command Code models may train on prompts holding Architect's own code?</li>
+<li>Is the account on the fifteen-dollar Provider plan, or should open models wait?</li>
+</ul>` },
+
+{ id: "side", group: "Decisions", t: "Side tracks", h: () => `
+<h1>Side tracks</h1>
+<p class="lede">Work beside the main line. None of it is built into the layers yet.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Track</th><th>What it is</th><th>State</th></tr></thead><tbody>
+<tr><td class="k">H1 · H2</td><td>The agent harness, and agent runs with internal benchmarks.</td><td class="s">${B("wip", "designed · PR 9 open")}</td></tr>
+<tr><td class="k">F1</td><td>The portal's design and the data it reads.</td><td class="s">${B("done", "designed · merged")}</td></tr>
+<tr><td class="k">Codex</td><td>A brief for Codex: the portal, then the plan as blueprint things, then an agent fleet. Codex hasn't pushed a branch yet.</td><td class="s">${B("done", "brief merged")}</td></tr>
+<tr><td class="k">N1</td><td>Noir on Aztec: the private-core spike is recorded on main. Framework integration follows layer five; cooperative-client and privacy limits remain explicit.</td><td class="s">${LATER}</td></tr>
+<tr><td class="k">O1</td><td>Observability: the core speaks only OpenTelemetry, and sinks are config.</td><td class="s">${B("done", "built")}</td></tr>
+<tr><td class="k">F2 · F3</td><td>The portal's information architecture, then a brief for the designed docs site generated from the blueprint.</td><td class="s">${B("wip", "F2 and F3 brief merged")}</td></tr>
+<tr><td class="k">Spikes</td><td>CI's OIDC token, OAuth for MCP, and a single executable. All answered.</td><td class="s">${B("done", "done")}</td></tr>
+</tbody></table></div>` },
+
+{ id: "risks", group: "Decisions", t: "Risks and known issues", h: () => `
+<h1>Risks and known issues</h1>
+<p class="lede">What could bite, from CI and from the handoff's list of traps already hit.</p>
+<div class="callout open"><b>CI recovery passes locally and in CI.</b> The viewer, promotion and read tests pass together after integration. The current CI corrections handle registry-owned fixture storage and an integration-test deadline; product assertions remain unchanged.</div>
+<ul>
+<li><b>Shared ports and Docker.</b> Builders running tests at once collide on ports. Gate 2's cleanup removes every Architect container, other agents' too, so it must run alone.</li>
+<li><b>Leftover containers.</b> A killed Gate 2 run can leave a registry container holding its port. Collectors now clean themselves up.</li>
+<li><b>One flaky check.</b> One run in three of the promotion check lost its connection to staging after a restart, and passed on retry.</li>
+<li><b>The cloud pass must set the environment's name</b> on every deployed server, or it would open the world's front door.</li>
+<li><b>The agent check is skipped in CI</b> on <code>layer/3</code>, because the model key only reaches pull requests into main.</li>
+</ul>` },
+
+{ id: "sources", group: "Decisions", t: "How this was checked", h: () => `
+<h1>How this was checked</h1>
+<p class="lede">Every claim here was read from the repository, its pull requests and CI, on 17 November 2026, not from memory.</p>
+<ul>
+<li><b>Plan and state:</b> the handoff's START HERE, the goal file with its six stages and five gates, and the build plan's marks, on <code>layer/3</code> after the last merge.</li>
+<li><b>Decisions:</b> <code>design/decisions.md</code> and <code>design/decisions/</code>.</li>
+<li><b>What works:</b> each step's evidence in <code>design/evidence/</code>. Some older raw logs lack capture metadata; their provenance is unverified until a fresh run supplies it.</li>
+<li><b>Branches, pull requests and CI:</b> the remote branches, the pull request list, and the last CI runs on main and <code>layer/3</code>.</li>
+</ul>
+<p>The design docs: <a href="https://claude.ai/artifact/K7KtHJwu7YzZe43BeSPHo2">Architect design docs</a>. Every captured run: <a href="https://claude.ai/artifact/ChdX1m7bdTxTS1FGF2EZxB">the evidence page</a>.</p>` },
+];
+const PAGES = ALL_PAGES;
+
+/* ---------- Docs ---------- */
+const nav = document.getElementById("docnav");
+{
+  let group = "";
+  nav.innerHTML = PAGES.map((pg) => {
+    const head = pg.group !== group ? "<h4>" + pg.group + "</h4>" : "";
+    group = pg.group;
+    return head + '<a href="#' + pg.id + '" data-id="' + pg.id + '">' + pg.t + "</a>";
+  }).join("");
+}
+let currentPage = null;
+function renderDoc(id) {
+  const page = PAGES.find((p) => p.id === id) || PAGES[0];
+  document.getElementById("doc").innerHTML = page.h();
+  document.querySelector("#doc h1").id = "page-title";
+  document.title = page.t + " · Architect status";
+  nav.querySelectorAll("a").forEach((a) => a.setAttribute("aria-current", a.dataset.id === page.id ? "page" : "false"));
+  const moved = currentPage !== page.id;
+  currentPage = page.id;
+  return moved;
+}
+
+/* ---------- Navigation ---------- */
+const doc = document.getElementById("doc");
+const pagesToggle = document.getElementById("pages-toggle");
+function setNavigation(open) {
+  document.body.dataset.navigationOpen = String(open);
+  pagesToggle.setAttribute("aria-expanded", String(open));
+}
+pagesToggle.addEventListener("click", () => setNavigation(pagesToggle.getAttribute("aria-expanded") !== "true"));
+document.querySelector(".skip-link").addEventListener("click", (event) => {
+  event.preventDefault();
+  doc.focus({ preventScroll: true });
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && pagesToggle.getAttribute("aria-expanded") === "true") {
+    setNavigation(false);
+    pagesToggle.focus();
+  }
+});
+
+/* ---------- Routing ---------- */
+function route() {
+  const navigating = currentPage !== null;
+  const fromNavigation = nav.contains(document.activeElement);
+  const moved = renderDoc(location.hash.slice(1) || "now");
+  if (moved) doc.scrollTop = 0;
+  setNavigation(false);
+  if (navigating && fromNavigation) doc.focus({ preventScroll: true });
+}
+window.addEventListener("hashchange", route);
+route();
+</script>
+
+</body></html>

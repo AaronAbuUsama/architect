@@ -1,0 +1,8 @@
+[package]
+name = "private_core_test"
+type = "lib"
+
+[dependencies]
+# Vendored from AztecProtocol/aztec-packages v5.3.0 by setup.
+aztec = { path = "../../tools/aztec-packages/noir-projects/aztec-nr/aztec" }
+private_core_contract = { path = "../private_core_contract" }

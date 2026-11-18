@@ -1,0 +1,27 @@
+$ pnpm --dir packages/cli exec vitest run src/modules/watch
+# commit f159db2 · 2026-11-17T00:38:03Z · exit 1 (expected 1) · 0.9s
+
+
+ RUN  v4.1.12 ./packages/cli
+
+ ❯ src/modules/watch/watch.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/watch/watch.test.ts [ src/modules/watch/watch.test.ts ]
+Error: Cannot find module './service.ts' imported from ./packages/cli/src/modules/watch/watch.test.ts
+ ❯ src/modules/watch/watch.test.ts:8:1
+      6| import { Effect } from "effect";
+      7| import { afterAll, beforeAll, describe, expect, it } from "vitest";
+      8| import { WatchCommand } from "./service.ts";
+       | ^
+      9|
+     10| const visible = (from: string) => !basename(from).startsWith(".");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  00:38:03
+   Duration  326ms (transform 19ms, setup 0ms, import 0ms, tests 0ms, environment 0ms)

@@ -19,5 +19,5 @@ export const Generate: GenerateApi = {
   lines: (changes) =>
     changes.length === 0
       ? ["nothing to change"]
-      : changes.map((c) => `${c.kind} ${c.path}${c.path.startsWith("implementation/") ? " (scaffold: yours from now on)" : ""}`),
+      : changes.map((c) => `${c.kind} ${c.path}${c.path.startsWith("src/") ? " (scaffold: yours from now on)" : ""}`),
 };

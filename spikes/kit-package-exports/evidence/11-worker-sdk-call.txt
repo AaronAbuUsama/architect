@@ -1,0 +1,2 @@
+{"descriptor":"resolved by package exports","exports":["Choices","Echo","repeat"],"nodeEntry":"actual node:crypto executed"}
+{"sdk":{"text":"configured: hello"}}

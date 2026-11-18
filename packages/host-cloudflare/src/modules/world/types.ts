@@ -15,3 +15,12 @@ export interface WorldEnv {
 export interface Cast {
   readonly [name: string]: CastMember;
 }
+
+/** What `toWorld` needs from the Worker's bindings. */
+export interface WorldHost {
+  readonly worlds: DurableObjectNamespace;
+  readonly db: D1Database;
+  readonly tables: ReadonlyArray<string>;
+  /** This environment hosts worlds with lifetimes (a test environment): `/_world/worlds` is open, and each world is its own Durable Object. */
+  readonly leases?: boolean;
+}

@@ -1,0 +1,9 @@
+trace 34017518bb7bfafd97ccd591871fb41e  7 spans
+journey.spend within an allowance  5.0 ms
+  POST  5.0 ms
+    · Sent HTTP response
+    sqlite  1.0 ms
+    allowance.grant  2.0 ms  move grant → active
+      allowance.grant.insert  0.0 ms  step database
+      sqlite  1.0 ms
+      BATCH  1.0 ms

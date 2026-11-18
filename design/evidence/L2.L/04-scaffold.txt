@@ -1,0 +1,29 @@
+$ vitest run generate.test.ts render.test.ts (scaffolded handlers land in src/<thing>/ with the header)
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-a6a1c449fa2ce7cef/packages/cli
+
+ ✓ src/modules/generate/generate.test.ts > architect generate > scaffolds each finished operation's handler once, and nothing for one with blanks 3598ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  22:26:50
+   Duration  3.78s (transform 22ms, setup 0ms, import 31ms, tests 3.62s, environment 0ms)
+
+
+ ✓ src/modules/render/render.test.ts > render > writes the four outputs for every operation 1ms
+ ✓ src/modules/render/render.test.ts > render > marks every generated file do-not-edit, and every scaffold with where it came from 1ms
+ ✓ src/modules/render/render.test.ts > render > writes a docs page per thing and operation, each refusal with its exit code, and the model's edges 0ms
+ ✓ src/modules/render/render.test.ts > render > declares each operation's refusals on its endpoint, with their exit codes 0ms
+ ✓ src/modules/render/render.test.ts > render > is deterministic 2ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  22:26:55
+   Duration  847ms (transform 64ms, setup 0ms, import 644ms, tests 6ms, environment 0ms)
+
+
+$ head -4 examples/starter/src/session/sign-in.ts
+// Scaffolded from blueprint/things/session/verbs/sign-in.ts. Yours from now on.
+import { Effect } from "effect";
+import { Auth } from "@architect/target-effect";
+import type { Handler } from "../../generated/api/src/session/sign-in.handler.ts";

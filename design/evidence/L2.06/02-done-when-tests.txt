@@ -1,0 +1,15 @@
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-aa8ccf3ef2023a89a/packages/prove
+
+ ✓ src/modules/publish/publish.test.ts > architect publish > --dry-run lists exactly what would go out, and sends nothing 3953ms
+ ✓ src/modules/publish/publish.test.ts > architect publish > without a registry, --local says so and exits 2; with neither flag it says how to use it 2193ms
+ ✓ src/modules/publish/publish.test.ts > architect publish > a prerelease goes out under `next`, numbered one past the last 6226ms
+ ✓ src/modules/publish/publish.test.ts > architect publish > --local puts @acme/sdk@1.1.0 and @acme/cli@1.1.0 on the registry, `latest` on them, and a fresh folder installs and runs them 79794ms
+ ✓ src/modules/publish/publish.test.ts > architect publish > a prerelease published after a release never takes `latest` from it 5111ms
+ ✓ src/modules/publish/publish.test.ts > architect publish > `brew install <tap>/<formula>` installs the CLI binary, which prints its version and `ok` from a running world 24386ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  23:50:47
+   Duration  135.32s (transform 1.11s, setup 0ms, import 2.09s, tests 133.07s, environment 0ms)
+

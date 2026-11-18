@@ -1,8 +1,8 @@
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
-import { openSync } from "node:fs";
+import { existsSync, openSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { Effect } from "effect";
+import { Effect, Schedule } from "effect";
 import { WorldFailed } from "../types.ts";
 
 const bin = join(dirname(fileURLToPath(import.meta.resolve("wrangler/package.json"))), "bin/wrangler.js");
@@ -20,20 +20,91 @@ export const applyMigrations = (config: string, state: string) =>
     catch: (e) => new WorldFailed({ message: `the local database couldn't be made: ${String(e)}` }),
   });
 
-/** `wrangler dev`, its output in `log`. Vars (the world secret among them) travel as arguments, never through a file. */
-export const startWrangler = (config: string, state: string, port: number, vars: Readonly<Record<string, string>>, log: string) =>
+/** How to run one `wrangler dev`: its own state, its own inspector port, its output in `log`. */
+export interface Wrangle {
+  readonly config: string;
+  readonly state: string;
+  readonly port: number;
+  readonly log: string;
+  /** Vars travel as arguments: only for a throwaway secret. A real one goes in `envFile`. */
+  readonly vars?: Readonly<Record<string, string>>;
+  /** A file of secrets (`NAME=value` lines), read by wrangler and never shown by `ps`. */
+  readonly envFile?: string;
+  /**
+   * Secrets that must never reach a file or an argument (a telemetry token): given to wrangler through its process
+   * environment, which wrangler hands to the Worker as secret bindings. wrangler then runs with a small allowlist of
+   * the caller's environment and not all of it, so nothing else in the shell becomes a binding of the Worker.
+   */
+  readonly secretEnv?: Readonly<Record<string, string>>;
+  /** Own process group, outliving this process: a long-lived environment. */
+  readonly detached?: boolean;
+  /** Written with the process id as soon as it exists, so a caller killed part-way can still find what it started. */
+  readonly pidFile?: string;
+}
+
+/**
+ * `wrangler dev`, its output appended to `log`. `--inspector-port 0` keeps two of them off the same inspector port (9229).
+ */
+export const startWrangler = (w: Wrangle) =>
   Effect.sync((): ChildProcess => {
-    const out = openSync(log, "a");
-    return spawn(
-      process.execPath,
-      [bin, "dev", "--config", config, "--port", String(port), "--ip", "127.0.0.1", "--persist-to", state, ...Object.entries(vars).flatMap(([k, v]) => ["--var", `${k}:${v}`])],
-      { stdio: ["ignore", out, out], env: { ...process.env, CI: "1", WRANGLER_SEND_METRICS: "false" } },
-    );
+    const out = openSync(w.log, "a");
+    const args = [
+      bin, "dev", "--config", w.config, "--port", String(w.port), "--ip", "127.0.0.1", "--persist-to", w.state, "--inspector-port", "0",
+      ...(w.envFile ? ["--env-file", w.envFile] : []),
+      ...Object.entries(w.vars ?? {}).flatMap(([k, v]) => ["--var", `${k}:${v}`]),
+    ];
+    const child = spawn(process.execPath, args, { stdio: ["ignore", out, out], detached: w.detached === true, env: childEnv(w.secretEnv) });
+    if (w.detached) child.unref();
+    if (w.pidFile) writeFileSync(w.pidFile, `${child.pid}\n`);
+    return child;
   });
+
+/** What wrangler needs from the shell to run, and nothing it doesn't: no key of the user's reaches the Worker. */
+const KEPT = /^(PATH|HOME|USER|LOGNAME|SHELL|TMPDIR|TERM|TZ|LANG|LC_[A-Z]+|XDG_[A-Z_]+|SSL_CERT_FILE|SSL_CERT_DIR|NODE_EXTRA_CA_CERTS|HTTPS?_PROXY|NO_PROXY|https?_proxy|no_proxy)$/;
+
+/** The environment wrangler runs in: unchanged, unless there are secrets to hand it, and then the allowlist plus them. */
+const childEnv = (secrets: Readonly<Record<string, string>> | undefined): NodeJS.ProcessEnv => {
+  const base = { CI: "1", WRANGLER_SEND_METRICS: "false" };
+  if (secrets === undefined || Object.keys(secrets).length === 0) return { ...process.env, ...base };
+  const kept = Object.fromEntries(Object.entries(process.env).filter(([k]) => KEPT.test(k)));
+  return { ...kept, ...base, ...secrets, CLOUDFLARE_INCLUDE_PROCESS_ENV: "true" };
+};
 
 export const stop = (child: ChildProcess) =>
   Effect.callback<void>((resume) => {
-    if (child.exitCode !== null) return resume(Effect.void);
+    if (child.exitCode !== null || child.signalCode !== null) return resume(Effect.void);
     child.once("exit", () => resume(Effect.void));
     child.kill("SIGTERM");
   });
+
+const answers = (url: string) =>
+  Effect.tryPromise({ try: () => fetch(url).then((r) => r.ok), catch: () => false }).pipe(
+    Effect.flatMap((ok) => (ok ? Effect.void : Effect.fail(false))),
+  );
+
+/**
+ * Start wrangler and wait until `ready` answers. wrangler picks the worker's internal sockets itself, and two of them
+ * starting together can pick the same one; it then exits at once, so an early exit for a taken address starts it again.
+ * A process that never comes up is stopped. One that does is the caller's.
+ */
+export const bringUp = (w: Wrangle, ready: string) => {
+  const url = `http://127.0.0.1:${w.port}${ready}`;
+  const attempt = Effect.gen(function* () {
+    const from = readLog(w.log).length;
+    const child = yield* startWrangler(w);
+    const up = Effect.suspend((): Effect.Effect<void, "exited" | "silent"> =>
+      child.exitCode !== null ? Effect.fail("exited") : answers(url).pipe(Effect.mapError(() => "silent" as const)));
+    yield* up.pipe(
+      Effect.retry({ schedule: Schedule.spaced("250 millis"), times: 480, while: (e) => e !== "exited" }),
+      Effect.tapError(() => stop(child)),
+      Effect.mapError((e) => new WorldFailed({
+        message: e === "exited" ? `the world exited (${child.exitCode}); see ${w.log}` : `the world didn't answer within 120 s; see ${w.log}`,
+        taken: e === "exited" && readLog(w.log).slice(from).includes("Address already in use"),
+      })),
+    );
+    return child;
+  });
+  return attempt.pipe(Effect.retry({ times: 3, while: (e) => e.taken === true }));
+};
+
+const readLog = (log: string) => (existsSync(log) ? readFileSync(log, "utf8") : "");

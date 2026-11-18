@@ -40,9 +40,29 @@ export interface Commit {
 /** `conflict`: an update's version had moved on, so nothing was written and the call runs again. */
 export type Committed = "committed" | "conflict";
 
+/** A page of a thing's instances: those matching every filter, in the order they were made, `limit` at most. */
+export interface ListQuery {
+  readonly thing: Thing;
+  /** Fields that must equal these values (decoded). A filter on `state` is `state`, not here. */
+  readonly where: Instance;
+  readonly state: string | undefined;
+  readonly order: "newest" | "oldest";
+  readonly limit: number;
+  /** The `next` of the page before: continue after the instance it names. */
+  readonly after: string | undefined;
+}
+
+/** `next` names the last instance of this page when more follow it, and is null otherwise. */
+export interface Listed {
+  readonly items: ReadonlyArray<Instance>;
+  readonly next: string | null;
+}
+
 /** The host's side. A failing store dies: it is never the caller's refusal. */
 export class Store extends Context.Service<Store, {
   readonly find: (thing: Thing, id: string) => Effect.Effect<Stored | undefined>;
+  /** One page of a thing's instances, in the order they were made (never a clock). A thing that lives as actors has none to list. */
+  readonly list: (query: ListQuery) => Effect.Effect<Listed>;
   /** `conflict` too when another call committed the same request key first: the retry then finds its answer. */
   readonly commit: (commit: Commit) => Effect.Effect<Committed>;
   /** The answer already committed under a request key, as wire JSON, if there is one. */

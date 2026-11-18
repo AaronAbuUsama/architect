@@ -8,6 +8,7 @@ import { BlankReached, InvalidPayload, type HandlerApi } from "./types.ts";
 import { answerAttributes, payloadAttributes, principalAttributes } from "./internal/attributes.ts";
 import { applyMove, checkFrom, chooseOutcome } from "./internal/move.ts";
 import { recordingLogs } from "./internal/decided.ts";
+import { spanned } from "./internal/span.ts";
 export { Reads } from "./internal/read.ts";
 
 type AnyCodec = Schema.Codec<object, unknown>;
@@ -30,7 +31,7 @@ const serve = ({ name, operation, handler, notFrom }: { readonly name: string; r
     // Each step is its own span, marked with its kind: a `database` step's work is the store's, a `wait` step's a timer's.
     Object.entries(op.steps).map(([key, step]) => [
       key,
-      <A, E, R>(work: Effect.Effect<A, E, R>) => Effect.withSpan(work, `${name}.${key}`, { attributes: { "step.kind": step.type } }),
+      <A, E, R>(work: Effect.Effect<A, E, R>) => spanned(`${name}.${key}`, { "step.kind": step.type })(work),
     ]),
   );
 
@@ -46,7 +47,7 @@ const serve = ({ name, operation, handler, notFrom }: { readonly name: string; r
       const logs = yield* recordingLogs;
       return yield* Effect.gen(function* () {
         const busy = yield* Busy;
-        yield* Effect.annotateCurrentSpan(payloadAttributes(payload));
+        yield* Effect.annotateCurrentSpan(payloadAttributes(payload, op.payload));
         // The same request key from the same caller is one call: answer what was answered, and change nothing.
         const kept = key === undefined ? undefined : yield* store.answered(key);
         if (kept !== undefined) {
@@ -58,7 +59,7 @@ const serve = ({ name, operation, handler, notFrom }: { readonly name: string; r
         const move = (to?: string) => chooseOutcome(name, op, to).pipe(Effect.flatMap((o) => Ref.set(chosen, o)));
         const answer = yield* busy.counted(handler(payload, { principal, steps, move })).pipe(withRecords, logs.around);
         // Recorded before the check, so an answer outside its declaration is evidence `prove` can name.
-        yield* Effect.annotateCurrentSpan(answerAttributes(answer));
+        yield* Effect.annotateCurrentSpan(answerAttributes(answer, op.answer));
         // An answer that breaks its declaration is the handler's bug, never the caller's: it dies, loudly.
         const wire = yield* check(answer).pipe(
           Effect.mapError((e) => new Error(`${name} answered outside its declaration: ${e.message}`)),
@@ -79,7 +80,7 @@ const serve = ({ name, operation, handler, notFrom }: { readonly name: string; r
             : logs.last.pipe(Effect.flatMap((log) =>
                 Effect.annotateCurrentSpan({ refusal: tagOf(Cause.squash(cause)), ...(log === undefined ? {} : { "refusal.log": log }) }))),
         ),
-        Effect.withSpan(name, { attributes: { operation: name, ...principalAttributes(principal) } }),
+        spanned(name, { operation: name, ...principalAttributes(principal) }),
       );
     });
 

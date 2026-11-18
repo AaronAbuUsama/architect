@@ -1,0 +1,478 @@
+warning: Return variable contains a constant value
+    ┌─ /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/macros/internals_functions_generation/external/private.nr:166:34
+    │
+166 │     let context_finish = quote { self.context.finish() };
+    │                                  --------------------- This variable contains a value which is constrained to be a constant. Consider removing this value as additional return values increase proving/verification time
+    │
+    = Call stack:
+      1: generate_private_external
+              at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/macros/internals_functions_generation/external/private.nr:166:34
+
+warning: Return variable contains a constant value
+    ┌─ /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/macros/internals_functions_generation/external/private.nr:166:34
+    │
+166 │     let context_finish = quote { self.context.finish() };
+    │                                  --------------------- This variable contains a value which is constrained to be a constant. Consider removing this value as additional return values increase proving/verification time
+    │
+    = Call stack:
+      1: generate_private_external
+              at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/macros/internals_functions_generation/external/private.nr:166:34
+
+warning: Return variable contains a constant value
+    ┌─ /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/macros/internals_functions_generation/external/private.nr:166:34
+    │
+166 │     let context_finish = quote { self.context.finish() };
+    │                                  --------------------- This variable contains a value which is constrained to be a constant. Consider removing this value as additional return values increase proving/verification time
+    │
+    = Call stack:
+      1: generate_private_external
+              at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/macros/internals_functions_generation/external/private.nr:166:34
+
+warning: Return variable contains a constant value
+    ┌─ /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/macros/internals_functions_generation/external/private.nr:166:34
+    │
+166 │     let context_finish = quote { self.context.finish() };
+    │                                  --------------------- This variable contains a value which is constrained to be a constant. Consider removing this value as additional return values increase proving/verification time
+    │
+    = Call stack:
+      1: generate_private_external
+              at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/macros/internals_functions_generation/external/private.nr:166:34
+
+bug: Brillig function call isn't properly covered by a manual constraint
+   ┌─ /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/oracle/get_contract_instance.nr:18:29
+   │
+18 │     let instance = unsafe { get_contract_instance_internal(address) };
+   │                             --------------------------------------- This Brillig call's inputs and its return values haven't been sufficiently constrained. This should be done to prevent potential soundness vulnerabilities
+   │
+   = Call stack:
+     1: generate_private_external
+             at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/macros/internals_functions_generation/external/private.nr:86:17
+     2: assert_initialization_matches_address_preimage_private
+             at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/macros/functions/initialization_utils.nr:167:20
+     3: get_contract_instance
+             at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/oracle/get_contract_instance.nr:18:29
+
+bug: Brillig function call isn't properly covered by a manual constraint
+    ┌─ /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/context/private_context.nr:561:38
+    │
+561 │         let is_revertible = unsafe { is_execution_in_revertible_phase(current_counter) };
+    │                                      ------------------------------------------------- This Brillig call's inputs and its return values haven't been sufficiently constrained. This should be done to prevent potential soundness vulnerabilities
+    │
+    = Call stack:
+      1: generate_private_external
+              at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/macros/internals_functions_generation/external/private.nr:105:53
+      2: PrivateContext::in_revertible_phase
+              at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/context/private_context.nr:561:38
+
+bug: Brillig function call isn't properly covered by a manual constraint
+   ┌─ /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/oracle/get_contract_instance.nr:18:29
+   │
+18 │     let instance = unsafe { get_contract_instance_internal(address) };
+   │                             --------------------------------------- This Brillig call's inputs and its return values haven't been sufficiently constrained. This should be done to prevent potential soundness vulnerabilities
+   │
+   = Call stack:
+     1: generate_private_external
+             at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/macros/internals_functions_generation/external/private.nr:96:17
+     2: assert_is_initialized_private
+             at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/macros/functions/initialization_utils.nr:114:20
+     3: get_contract_instance
+             at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/oracle/get_contract_instance.nr:18:29
+
+bug: Brillig function call isn't properly covered by a manual constraint
+    ┌─ /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/context/private_context.nr:561:38
+    │
+561 │         let is_revertible = unsafe { is_execution_in_revertible_phase(current_counter) };
+    │                                      ------------------------------------------------- This Brillig call's inputs and its return values haven't been sufficiently constrained. This should be done to prevent potential soundness vulnerabilities
+    │
+    = Call stack:
+      1: generate_private_external
+              at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/macros/internals_functions_generation/external/private.nr:105:53
+      2: PrivateContext::in_revertible_phase
+              at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/context/private_context.nr:561:38
+
+bug: Brillig function call isn't properly covered by a manual constraint
+   ┌─ /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/nullifier/utils.nr:18:52
+   │
+18 │     let should_use_pending_read_request = unsafe { is_nullifier_pending(unsiloed_nullifier, contract_address) };
+   │                                                    ---------------------------------------------------------- This Brillig call's inputs and its return values haven't been sufficiently constrained. This should be done to prevent potential soundness vulnerabilities
+   │
+   = Call stack:
+     1: generate_private_external
+             at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/macros/internals_functions_generation/external/private.nr:96:17
+     2: assert_is_initialized_private
+             at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/macros/functions/initialization_utils.nr:116:39
+     3: compute_nullifier_existence_request
+             at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/nullifier/utils.nr:18:52
+
+bug: Brillig function call isn't properly covered by a manual constraint
+   ┌─ /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/oracle/get_contract_instance.nr:18:29
+   │
+18 │     let instance = unsafe { get_contract_instance_internal(address) };
+   │                             --------------------------------------- This Brillig call's inputs and its return values haven't been sufficiently constrained. This should be done to prevent potential soundness vulnerabilities
+   │
+   = Call stack:
+     1: generate_private_external
+             at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/macros/internals_functions_generation/external/private.nr:96:17
+     2: assert_is_initialized_private
+             at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/macros/functions/initialization_utils.nr:114:20
+     3: get_contract_instance
+             at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/oracle/get_contract_instance.nr:18:29
+
+bug: Brillig function call isn't properly covered by a manual constraint
+    ┌─ /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/context/private_context.nr:561:38
+    │
+561 │         let is_revertible = unsafe { is_execution_in_revertible_phase(current_counter) };
+    │                                      ------------------------------------------------- This Brillig call's inputs and its return values haven't been sufficiently constrained. This should be done to prevent potential soundness vulnerabilities
+    │
+    = Call stack:
+      1: generate_private_external
+              at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/macros/internals_functions_generation/external/private.nr:105:53
+      2: PrivateContext::in_revertible_phase
+              at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/context/private_context.nr:561:38
+
+bug: Brillig function call isn't properly covered by a manual constraint
+   ┌─ /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/nullifier/utils.nr:18:52
+   │
+18 │     let should_use_pending_read_request = unsafe { is_nullifier_pending(unsiloed_nullifier, contract_address) };
+   │                                                    ---------------------------------------------------------- This Brillig call's inputs and its return values haven't been sufficiently constrained. This should be done to prevent potential soundness vulnerabilities
+   │
+   = Call stack:
+     1: generate_private_external
+             at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/macros/internals_functions_generation/external/private.nr:96:17
+     2: assert_is_initialized_private
+             at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/macros/functions/initialization_utils.nr:116:39
+     3: compute_nullifier_existence_request
+             at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/nullifier/utils.nr:18:52
+
+bug: Brillig function call isn't properly covered by a manual constraint
+   ┌─ /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/oracle/get_contract_instance.nr:18:29
+   │
+18 │     let instance = unsafe { get_contract_instance_internal(address) };
+   │                             --------------------------------------- This Brillig call's inputs and its return values haven't been sufficiently constrained. This should be done to prevent potential soundness vulnerabilities
+   │
+   = Call stack:
+     1: generate_private_external
+             at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/macros/internals_functions_generation/external/private.nr:96:17
+     2: assert_is_initialized_private
+             at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/macros/functions/initialization_utils.nr:114:20
+     3: get_contract_instance
+             at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/oracle/get_contract_instance.nr:18:29
+
+bug: Brillig function call isn't properly covered by a manual constraint
+   ┌─ /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/nullifier/utils.nr:18:52
+   │
+18 │     let should_use_pending_read_request = unsafe { is_nullifier_pending(unsiloed_nullifier, contract_address) };
+   │                                                    ---------------------------------------------------------- This Brillig call's inputs and its return values haven't been sufficiently constrained. This should be done to prevent potential soundness vulnerabilities
+   │
+   = Call stack:
+     1: generate_private_external
+             at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/macros/internals_functions_generation/external/private.nr:96:17
+     2: assert_is_initialized_private
+             at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/macros/functions/initialization_utils.nr:116:39
+     3: compute_nullifier_existence_request
+             at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/nullifier/utils.nr:18:52
+
+bug: Brillig function call isn't properly covered by a manual constraint
+    ┌─ /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/context/private_context.nr:561:38
+    │
+561 │         let is_revertible = unsafe { is_execution_in_revertible_phase(current_counter) };
+    │                                      ------------------------------------------------- This Brillig call's inputs and its return values haven't been sufficiently constrained. This should be done to prevent potential soundness vulnerabilities
+    │
+    = Call stack:
+      1: generate_private_external
+              at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/macros/internals_functions_generation/external/private.nr:105:53
+      2: PrivateContext::in_revertible_phase
+              at /Users/abuusama/.codex/worktrees/architect-frontend/architect-spike-noir/spikes/noir-private-core/tools/aztec-packages/noir-projects/aztec-nr/aztec/src/context/private_context.nr:561:38
+
+Postprocessing contracts...
+Scheme is: ultra_honk, num threads: 10 (mem: 13.45 MiB)
+Transpiling: target/private_core_contract-PrivateCore.json -> target/private_core_contract-PrivateCore.json (mem: 13.47 MiB)
+Transpiled: target/private_core_contract-PrivateCore.json -> target/private_core_contract-PrivateCore.json (mem: 32.64 MiB)
+Generating verification keys for functions in private_core_contract-PrivateCore.json (mem: 32.64 MiB)
+Cache directory: /Users/abuusama/.bb/5.3.0/vk_cache (mem: 32.64 MiB)
+Generating verification key: 2a4c31cd4cf77a9565b067b47012179cee19788bc2be08ed7ce1d7d4abda27c0 (mem: 34.62 MiB)
+Generating verification key: 807812bf94b431df23bcc9436c42275d449fd3c90233c7fef4ee9db07d495e12 (mem: 34.66 MiB)
+ChonkComputeVk - deriving Chonk verification key for circuit 'spend' (mem: 34.67 MiB)
+Generating verification key: a5af1ffedd3602c62f7a54213263f78ae545484a63e78916053a6ae2c19d4bbc (mem: 34.67 MiB)
+ChonkComputeVk - deriving Chonk verification key for circuit 'revoke' (mem: 34.70 MiB)
+Generating verification key: 16470533601abd6f9a15afe9682afdf99be0115d6b193e958154ff393a654d69 (mem: 34.77 MiB)
+ChonkComputeVk - deriving Chonk verification key for circuit 'constructor' (mem: 34.91 MiB)
+ChonkComputeVk - deriving Chonk verification key for circuit 'grant' (mem: 35.12 MiB)
+ChonkComputeVk - VK derived, size: 5216 bytes (mem: 82.39 MiB)
+ChonkComputeVk - VK derived, size: 5216 bytes (mem: 82.39 MiB)
+ChonkComputeVk - VK derived, size: 5216 bytes (mem: 82.39 MiB)
+ChonkComputeVk - VK derived, size: 5216 bytes (mem: 82.39 MiB)
+Successfully processed: target/private_core_contract-PrivateCore.json -> target/private_core_contract-PrivateCore.json (mem: 82.39 MiB)
+Compilation complete!
+COMPILE_EXIT=0
+No source changes detected, skipping compilation.
+[23:37:44.787] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[23:37:44.779] INFO: cli Setting up TXE...
+[23:37:44.786] INFO: cli TXE listening on port 8081
+[private_core_test] Running 16 test functions
+[23:37:52.762] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[23:37:52.929] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[23:37:53.007] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[23:37:53.018] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[23:37:53.495] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[23:37:53.445] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[23:37:53.666] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[23:37:53.601] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[23:37:53.644] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-Lur7PC/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[23:37:53.689] INFO: txe_node Aztec Node version: txe
+[23:37:53.689] INFO: txe_node Aztec Node started on chain 0x1
+[23:37:53.796] INFO: txe:top_level_context Created block 1 with timestamp 1794872273
+[23:37:53.820] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[23:37:53.828] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-RSwatI/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[23:37:53.933] INFO: txe_node Aztec Node version: txe
+[23:37:53.933] INFO: txe_node Aztec Node started on chain 0x1
+[23:37:53.714] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[23:37:53.723] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-bq50DS/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[23:37:53.774] INFO: txe_node Aztec Node version: txe
+[23:37:53.774] INFO: txe_node Aztec Node started on chain 0x1
+[23:37:53.937] INFO: txe:top_level_context Created block 1 with timestamp 1794872273
+[23:37:53.914] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[23:37:53.936] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-VuGLfG/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[23:37:53.999] INFO: txe_node Aztec Node version: txe
+[23:37:53.999] INFO: txe_node Aztec Node started on chain 0x1
+[23:37:54.053] INFO: txe:top_level_context Created block 1 with timestamp 1794872273
+[23:37:53.794] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-NtXyvV/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[23:37:53.826] INFO: txe_node Aztec Node version: txe
+[23:37:53.826] INFO: txe_node Aztec Node started on chain 0x1
+[23:37:53.968] INFO: txe:top_level_context Created block 1 with timestamp 1794872273
+[23:37:54.012] INFO: txe:top_level_context Created block 1 with timestamp 1794872273
+[23:37:54.005] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[23:37:54.011] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-nxEhKu/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[23:37:54.122] INFO: txe_node Aztec Node version: txe
+[23:37:54.122] INFO: txe_node Aztec Node started on chain 0x1
+[23:37:54.213] INFO: txe:top_level_context Created block 1 with timestamp 1794872274
+[23:37:54.388] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[23:37:54.371] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[23:37:54.427] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[23:37:54.042] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[23:37:54.054] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[23:37:54.060] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-G8RvJb/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[23:37:54.195] INFO: txe_node Aztec Node version: txe
+[23:37:54.195] INFO: txe_node Aztec Node started on chain 0x1
+[23:37:54.279] INFO: txe:top_level_context Created block 1 with timestamp 1794872274
+[23:37:53.915] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[23:37:54.391] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[23:37:54.402] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-vv0e3V/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[23:37:54.447] INFO: txe_node Aztec Node version: txe
+[23:37:54.447] INFO: txe_node Aztec Node started on chain 0x1
+[23:37:53.559] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[23:37:53.834] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[23:37:53.905] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-PwTxv8/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[23:37:53.981] INFO: txe_node Aztec Node version: txe
+[23:37:53.981] INFO: txe_node Aztec Node started on chain 0x1
+[23:37:54.173] INFO: txe:top_level_context Created block 1 with timestamp 1794872273
+[23:37:54.606] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[23:37:54.486] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[23:37:54.654] INFO: txe:top_level_context Created block 1 with timestamp 1794872274
+[23:37:53.950] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[23:37:53.976] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[23:37:53.988] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-p9j2BL/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[23:37:54.019] INFO: txe_node Aztec Node version: txe
+[23:37:54.019] INFO: txe_node Aztec Node started on chain 0x1
+[23:37:54.075] INFO: txe:top_level_context Created block 1 with timestamp 1794872274
+[23:37:54.544] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[23:37:54.642] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[23:37:54.832] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[23:37:54.747] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[23:37:54.863] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[23:37:54.937] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[23:37:54.972] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[23:37:54.951] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[23:37:55.123] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[23:37:54.974] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[23:37:55.027] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[23:37:54.793] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[23:37:55.040] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[23:37:55.264] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[23:37:55.007] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[23:37:56.010] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.030298000000002503s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.030298000000002503,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":224,"l2Gas":472000},"totalSizeInBytes":224,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:37:56.021] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.05232200000000012s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.05232200000000012,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":224,"l2Gas":472000},"totalSizeInBytes":224,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:37:56.065] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.041614999999997966s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.041614999999997966,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":224,"l2Gas":472000},"totalSizeInBytes":224,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:37:56.048] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.02465208300000086s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.02465208300000086,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":224,"l2Gas":472000},"totalSizeInBytes":224,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:37:56.014] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.03492762500000026s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.03492762500000026,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":224,"l2Gas":472000},"totalSizeInBytes":224,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:37:56.197] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.07892237499999828s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.07892237499999828,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":224,"l2Gas":472000},"totalSizeInBytes":224,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:37:56.136] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.06376133299999856s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.06376133299999856,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":224,"l2Gas":472000},"totalSizeInBytes":224,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:37:56.204] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.066804666s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.066804666,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":224,"l2Gas":472000},"totalSizeInBytes":224,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:37:57.175] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.014526582999998936s {"blockNumber":5,"successfulCount":1,"failedCount":0,"duration":0.014526582999998936,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:37:56.244] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.025105625000000145s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.025105625000000145,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":224,"l2Gas":472000},"totalSizeInBytes":224,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:37:57.182] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.021376125000002504s {"blockNumber":5,"successfulCount":1,"failedCount":0,"duration":0.021376125000002504,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:37:57.165] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.012596792000000278s {"blockNumber":5,"successfulCount":1,"failedCount":0,"duration":0.012596792000000278,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:37:57.328] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.009363832999999431s {"blockNumber":5,"successfulCount":1,"failedCount":0,"duration":0.009363832999999431,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:37:57.212] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.024182458000002953s {"blockNumber":5,"successfulCount":1,"failedCount":0,"duration":0.024182458000002953,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:37:56.422] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.025187332999998036s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.025187332999998036,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":224,"l2Gas":472000},"totalSizeInBytes":224,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:37:57.418] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.014871916000000056s {"blockNumber":5,"successfulCount":1,"failedCount":0,"duration":0.014871916000000056,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:37:57.510] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.00792804199999955s {"blockNumber":5,"successfulCount":1,"failedCount":0,"duration":0.00792804199999955,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:37:57.311] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.02940674999999828s {"blockNumber":5,"successfulCount":1,"failedCount":0,"duration":0.02940674999999828,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:37:57.296] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.012112958000001527s {"blockNumber":5,"successfulCount":1,"failedCount":0,"duration":0.012112958000001527,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:37:58.198] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.009950917000001936s {"blockNumber":6,"successfulCount":1,"failedCount":0,"duration":0.009950917000001936,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:37:58.030] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.007646584000001894s {"blockNumber":6,"successfulCount":1,"failedCount":0,"duration":0.007646584000001894,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:37:58.093] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.028275249999998777s {"blockNumber":6,"successfulCount":1,"failedCount":0,"duration":0.028275249999998777,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:37:58.058] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.02667329100000279s {"blockNumber":6,"successfulCount":1,"failedCount":0,"duration":0.02667329100000279,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:37:58.137] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.010149875000002794s {"blockNumber":6,"successfulCount":1,"failedCount":0,"duration":0.010149875000002794,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:37:58.453] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.017993750000001456s {"blockNumber":6,"successfulCount":1,"failedCount":0,"duration":0.017993750000001456,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[private_core_test] Testing conformance::non_member_with_shared_key_cannot_spend ... [0m[31mFAIL
+error: Test passed when it should have failed
+[0m
+[private_core_test] Testing conformance::a_duplicate_grant_cannot_create_a_second_active_right ... [0m[31mFAIL
+error: Test passed when it should have failed
+[0m
+[private_core_test] Testing conformance::shared_key_member_cannot_change_their_limit ... [0m[31mFAIL
+error: Test passed when it should have failed
+[0m
+[23:37:59.362] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.009369666999999027s {"blockNumber":7,"successfulCount":1,"failedCount":0,"duration":0.009369666999999027,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:37:58.560] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.014256833999999798s {"blockNumber":6,"successfulCount":1,"failedCount":0,"duration":0.014256833999999798,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:37:58.636] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.013820499999997992s {"blockNumber":6,"successfulCount":1,"failedCount":0,"duration":0.013820499999997992,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[private_core_test] Testing conformance::an_ungranted_member_has_no_active_right ... [0m[32mok[0m
+[private_core_test] Testing conformance::another_members_larger_limit_does_not_authorise_spend ... [0m[31mFAIL
+error: Test passed when it should have failed
+[0m
+[private_core_test] Testing conformance::revoked_member_cannot_spend_even_with_shared_key ... [0m[31mFAIL
+error: Test passed when it should have failed
+[0m
+[23:37:59.946] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.014882667000001674s {"blockNumber":7,"successfulCount":1,"failedCount":0,"duration":0.014882667000001674,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:37:59.716] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.01237066699999923s {"blockNumber":7,"successfulCount":1,"failedCount":0,"duration":0.01237066699999923,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[private_core_test] Testing conformance::admin_grants_a_private_member_right ... [0m[31mFAIL
+Failed to solve program: 'Failed to solve brillig function'
+[0m
+error: Failed to solve program: 'Failed to solve brillig function'
+  ┌─ private_core_test/src/conformance.nr:7:5
+  │
+7 │     assert_eq(p.right(p.member), (true, LIMIT, 0, MONTH));
+  │     -----------------------------------------------------
+  │
+  = Call stack:
+    1: admin_grants_a_private_member_right
+            at private_core_test/src/conformance.nr:7:5
+
+[private_core_test] Testing conformance::admin_consumes_the_members_active_right ... [0m[32mok[0m
+[private_core_test] Testing conformance::each_member_has_their_own_limit ... [0m[31mFAIL
+Failed to solve program: 'Failed to solve brillig function'
+[0m
+error: Failed to solve program: 'Failed to solve brillig function'
+   ┌─ private_core_test/src/conformance.nr:14:5
+   │
+14 │     assert_eq(p.right(p.member), (true, LIMIT, 0, MONTH));
+   │     -----------------------------------------------------
+   │
+   = Call stack:
+     1: each_member_has_their_own_limit
+             at private_core_test/src/conformance.nr:14:5
+
+[23:38:02.537] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[23:38:02.551] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-RwN1MP/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[23:38:02.608] INFO: txe_node Aztec Node version: txe
+[23:38:02.608] INFO: txe_node Aztec Node started on chain 0x1
+[23:38:02.669] INFO: txe:top_level_context Created block 1 with timestamp 1794872282
+[23:38:02.935] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[23:38:03.263] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[23:38:02.537] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[23:38:02.555] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-swKSQH/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[23:38:02.607] INFO: txe_node Aztec Node version: txe
+[23:38:02.607] INFO: txe_node Aztec Node started on chain 0x1
+[23:38:02.669] INFO: txe:top_level_context Created block 1 with timestamp 1794872282
+[23:38:02.926] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[23:38:03.263] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[23:38:02.537] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[23:38:02.551] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-ICkgIj/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[23:38:02.610] INFO: txe_node Aztec Node version: txe
+[23:38:02.610] INFO: txe_node Aztec Node started on chain 0x1
+[23:38:02.669] INFO: txe:top_level_context Created block 1 with timestamp 1794872282
+[23:38:02.954] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[23:38:03.420] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[23:38:03.987] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[23:38:03.993] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-rJhcYC/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[23:38:04.018] INFO: txe_node Aztec Node version: txe
+[23:38:04.018] INFO: txe_node Aztec Node started on chain 0x1
+[23:38:04.059] INFO: txe:top_level_context Created block 1 with timestamp 1794872284
+[23:38:04.363] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[23:38:04.897] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[23:38:04.699] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[23:38:04.760] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-MSOE9M/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[23:38:04.897] INFO: txe_node Aztec Node version: txe
+[23:38:04.898] INFO: txe_node Aztec Node started on chain 0x1
+[23:38:05.203] INFO: txe:top_level_context Created block 1 with timestamp 1794872284
+[23:38:05.570] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[23:38:05.880] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[23:38:05.327] INFO: kv-store:lmdb-v2 Starting data store with maxReaders 2
+[23:38:05.504] INFO: world-state:database Creating world state data store at directory /var/folders/4r/x7bvvh3x6053m_zvmnrwq2680000gn/T/aztec-world-state-yIIolE/world_state with map sizes {"archiveTreeMapSizeKb":10485760,"nullifierTreeMapSizeKb":10485760,"noteHashTreeMapSizeKb":10485760,"messageTreeMapSizeKb":10485760,"publicDataTreeMapSizeKb":10485760} and 10 threads (ephemeral=true).
+[23:38:05.578] INFO: txe_node Aztec Node version: txe
+[23:38:05.578] INFO: txe_node Aztec Node started on chain 0x1
+[23:38:05.728] INFO: txe:top_level_context Created block 1 with timestamp 1794872285
+[23:38:05.537] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.04791012499999851s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.04791012499999851,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":224,"l2Gas":472000},"totalSizeInBytes":224,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:38:05.927] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.11000395900000148s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.11000395900000148,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":224,"l2Gas":472000},"totalSizeInBytes":224,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:38:05.780] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.0609600840000021s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.0609600840000021,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":224,"l2Gas":472000},"totalSizeInBytes":224,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:38:06.589] INFO: txe:top_level_context Created block 2 with timestamp 1894665600
+[23:38:07.298] INFO: txe:top_level_context Created block 3 with timestamp 1894665600
+[23:38:07.875] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.12604525000000286s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.12604525000000286,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":224,"l2Gas":472000},"totalSizeInBytes":224,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:38:08.548] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.023187457999996695s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.023187457999996695,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":224,"l2Gas":472000},"totalSizeInBytes":224,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:38:08.728] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.0227712500000016s {"blockNumber":4,"successfulCount":1,"failedCount":0,"duration":0.0227712500000016,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":224,"l2Gas":472000},"totalSizeInBytes":224,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[private_core_test] Testing conformance::revoke_leaves_other_members_right_unchanged ... [0m[31mFAIL
+Failed to solve program: 'Failed to solve brillig function'
+[0m
+error: Failed to solve program: 'Failed to solve brillig function'
+   ┌─ private_core_test/src/conformance.nr:61:5
+   │
+61 │     assert_eq(p.right(p.other), (true, 37, 0, MONTH));
+   │     -------------------------------------------------
+   │
+   = Call stack:
+     1: revoke_leaves_other_members_right_unchanged
+             at private_core_test/src/conformance.nr:61:5
+
+[23:38:09.237] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.01823741599999994s {"blockNumber":5,"successfulCount":1,"failedCount":0,"duration":0.01823741599999994,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:38:08.986] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.021747666000002937s {"blockNumber":5,"successfulCount":1,"failedCount":0,"duration":0.021747666000002937,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:38:09.265] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.027824082999999517s {"blockNumber":5,"successfulCount":1,"failedCount":0,"duration":0.027824082999999517,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:38:10.081] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.010575666000000638s {"blockNumber":6,"successfulCount":1,"failedCount":0,"duration":0.010575666000000638,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:38:09.919] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.016641167000001587s {"blockNumber":5,"successfulCount":1,"failedCount":0,"duration":0.016641167000001587,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:38:09.692] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.014375041999999666s {"blockNumber":5,"successfulCount":1,"failedCount":0,"duration":0.014375041999999666,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:38:10.065] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.014410625000000437s {"blockNumber":5,"successfulCount":1,"failedCount":0,"duration":0.014410625000000437,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:38:10.496] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.008965875000001688s {"blockNumber":6,"successfulCount":1,"failedCount":0,"duration":0.008965875000001688,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[private_core_test] Testing conformance::shared_key_member_cannot_grant_a_right ... [0m[31mFAIL
+error: Test passed when it should have failed
+[0m
+[23:38:10.753] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.022071625000000494s {"blockNumber":6,"successfulCount":1,"failedCount":0,"duration":0.022071625000000494,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:38:10.484] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.011623834000001807s {"blockNumber":6,"successfulCount":1,"failedCount":0,"duration":0.011623834000001807,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[private_core_test] Testing conformance::shared_key_member_cannot_revoke_themselves ... [0m[31mFAIL
+error: Test passed when it should have failed
+[0m
+[private_core_test] Testing conformance::shared_key_non_member_cannot_grant ... [0m[31mFAIL
+error: Test passed when it should have failed
+[0m
+[23:38:11.011] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.007927457999998297s {"blockNumber":6,"successfulCount":1,"failedCount":0,"duration":0.007927457999998297,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[private_core_test] Testing conformance::spend_over_own_limit_refuses_before_token_call ... [0m[31mFAIL
+error: Test passed when it should have failed
+[0m
+[private_core_test] Testing conformance::ungranted_admin_cannot_spend ... [0m[31mFAIL
+error: Test passed when it should have failed
+[0m
+[23:38:11.069] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.008025250000002416s {"blockNumber":6,"successfulCount":1,"failedCount":0,"duration":0.008025250000002416,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[private_core_test] Testing conformance::shared_key_member_cannot_revoke_another_member ... [0m[31mFAIL
+error: Test passed when it should have failed
+[0m
+
+[private_core_test] Failures:
+     conformance::non_member_with_shared_key_cannot_spend
+     conformance::a_duplicate_grant_cannot_create_a_second_active_right
+     conformance::shared_key_member_cannot_change_their_limit
+     conformance::another_members_larger_limit_does_not_authorise_spend
+     conformance::revoked_member_cannot_spend_even_with_shared_key
+     conformance::admin_grants_a_private_member_right
+     conformance::each_member_has_their_own_limit
+     conformance::revoke_leaves_other_members_right_unchanged
+     conformance::shared_key_member_cannot_grant_a_right
+     conformance::shared_key_member_cannot_revoke_themselves
+     conformance::shared_key_non_member_cannot_grant
+     conformance::spend_over_own_limit_refuses_before_token_call
+     conformance::ungranted_admin_cannot_spend
+     conformance::shared_key_member_cannot_revoke_another_member
+
+[private_core_test] [0m[32m2 tests passed, [0m[31m14 tests failed
+
+[0mTEST_EXIT=1
+[23:38:11.363] INFO: simulator:public-processor Processed 1 successful txs and 0 failed txs (0 silently skipped, 0ms wasted) in 0.0078193339999998s {"blockNumber":7,"successfulCount":1,"failedCount":0,"duration":0.0078193339999998,"rate":0,"totalPublicGas":{"daGas":0,"l2Gas":0},"totalBlockGas":{"daGas":192,"l2Gas":456000},"totalSizeInBytes":192,"silentlySkippedCount":0,"silentlySkippedDurationMs":0}
+[23:38:11.754] INFO: cli Shutting down... {"exitCode":143}

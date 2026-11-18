@@ -1,0 +1,372 @@
+[
+  {
+    "from": "attention.mission",
+    "to": "mission.id",
+    "kind": "refers"
+  },
+  {
+    "from": "milestone.mission",
+    "to": "mission.id",
+    "kind": "refers"
+  },
+  {
+    "from": "mission.owner",
+    "to": "person.id",
+    "kind": "refers"
+  },
+  {
+    "from": "question.mission",
+    "to": "mission.id",
+    "kind": "refers"
+  },
+  {
+    "from": "run.mission",
+    "to": "mission.id",
+    "kind": "refers"
+  },
+  {
+    "from": "attention.approve",
+    "to": "attention",
+    "kind": "acts-on"
+  },
+  {
+    "from": "attention.approve",
+    "to": "attention.AttentionApproved",
+    "kind": "emits"
+  },
+  {
+    "from": "attention.approve",
+    "to": "mission.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "attention.decline",
+    "to": "attention",
+    "kind": "acts-on"
+  },
+  {
+    "from": "attention.decline",
+    "to": "attention.AttentionDeclined",
+    "kind": "emits"
+  },
+  {
+    "from": "attention.decline",
+    "to": "mission.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "attention.list",
+    "to": "attention",
+    "kind": "reads"
+  },
+  {
+    "from": "attention.list",
+    "to": "mission.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "attention.raise",
+    "to": "attention",
+    "kind": "acts-on"
+  },
+  {
+    "from": "attention.raise",
+    "to": "attention.AttentionRaised",
+    "kind": "emits"
+  },
+  {
+    "from": "attention.raise",
+    "to": "mission.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "milestone.add",
+    "to": "milestone",
+    "kind": "acts-on"
+  },
+  {
+    "from": "milestone.add",
+    "to": "milestone.MilestoneAdded",
+    "kind": "emits"
+  },
+  {
+    "from": "milestone.add",
+    "to": "mission.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "milestone.drop",
+    "to": "milestone",
+    "kind": "acts-on"
+  },
+  {
+    "from": "milestone.drop",
+    "to": "milestone.MilestoneDropped",
+    "kind": "emits"
+  },
+  {
+    "from": "milestone.drop",
+    "to": "mission.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "milestone.list",
+    "to": "milestone",
+    "kind": "reads"
+  },
+  {
+    "from": "milestone.list",
+    "to": "mission.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "mission.finish",
+    "to": "mission",
+    "kind": "acts-on"
+  },
+  {
+    "from": "mission.finish",
+    "to": "mission.MissionFinished",
+    "kind": "emits"
+  },
+  {
+    "from": "mission.finish",
+    "to": "mission.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "mission.get",
+    "to": "mission",
+    "kind": "reads"
+  },
+  {
+    "from": "mission.get",
+    "to": "mission.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "mission.list",
+    "to": "mission",
+    "kind": "reads"
+  },
+  {
+    "from": "mission.open",
+    "to": "mission",
+    "kind": "acts-on"
+  },
+  {
+    "from": "mission.open",
+    "to": "mission.MissionOpened",
+    "kind": "emits"
+  },
+  {
+    "from": "mission.pause",
+    "to": "mission",
+    "kind": "acts-on"
+  },
+  {
+    "from": "mission.pause",
+    "to": "mission.MissionPaused",
+    "kind": "emits"
+  },
+  {
+    "from": "mission.pause",
+    "to": "mission.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "mission.resume",
+    "to": "mission",
+    "kind": "acts-on"
+  },
+  {
+    "from": "mission.resume",
+    "to": "mission.MissionResumed",
+    "kind": "emits"
+  },
+  {
+    "from": "mission.resume",
+    "to": "mission.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "mission.start",
+    "to": "mission",
+    "kind": "acts-on"
+  },
+  {
+    "from": "mission.start",
+    "to": "mission.MissionStarted",
+    "kind": "emits"
+  },
+  {
+    "from": "mission.start",
+    "to": "mission.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "mission.stop",
+    "to": "mission",
+    "kind": "acts-on"
+  },
+  {
+    "from": "mission.stop",
+    "to": "mission.MissionStopped",
+    "kind": "emits"
+  },
+  {
+    "from": "mission.stop",
+    "to": "mission.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "mission.tasks",
+    "to": "mission",
+    "kind": "acts-on"
+  },
+  {
+    "from": "mission.tasks",
+    "to": "mission.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "question.answer",
+    "to": "question",
+    "kind": "acts-on"
+  },
+  {
+    "from": "question.answer",
+    "to": "question.QuestionAnswered",
+    "kind": "emits"
+  },
+  {
+    "from": "question.answer",
+    "to": "mission.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "question.ask",
+    "to": "question",
+    "kind": "acts-on"
+  },
+  {
+    "from": "question.ask",
+    "to": "question.QuestionAsked",
+    "kind": "emits"
+  },
+  {
+    "from": "question.ask",
+    "to": "mission.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "question.list",
+    "to": "question",
+    "kind": "reads"
+  },
+  {
+    "from": "question.list",
+    "to": "mission.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "question.spike",
+    "to": "question",
+    "kind": "acts-on"
+  },
+  {
+    "from": "question.spike",
+    "to": "question.QuestionSpiked",
+    "kind": "emits"
+  },
+  {
+    "from": "question.spike",
+    "to": "mission.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "run.fail",
+    "to": "run",
+    "kind": "acts-on"
+  },
+  {
+    "from": "run.fail",
+    "to": "run.RunFailed",
+    "kind": "emits"
+  },
+  {
+    "from": "run.fail",
+    "to": "mission.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "run.finish",
+    "to": "run",
+    "kind": "acts-on"
+  },
+  {
+    "from": "run.finish",
+    "to": "run.RunFinished",
+    "kind": "emits"
+  },
+  {
+    "from": "run.finish",
+    "to": "mission.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "run.list",
+    "to": "run",
+    "kind": "reads"
+  },
+  {
+    "from": "run.list",
+    "to": "mission.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "run.report",
+    "to": "run",
+    "kind": "acts-on"
+  },
+  {
+    "from": "run.report",
+    "to": "run.RunReported",
+    "kind": "emits"
+  },
+  {
+    "from": "run.report",
+    "to": "mission.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "run.start",
+    "to": "run",
+    "kind": "acts-on"
+  },
+  {
+    "from": "run.start",
+    "to": "run.RunStarted",
+    "kind": "emits"
+  },
+  {
+    "from": "run.start",
+    "to": "mission.owner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "run.stop",
+    "to": "run",
+    "kind": "acts-on"
+  },
+  {
+    "from": "run.stop",
+    "to": "run.RunStopped",
+    "kind": "emits"
+  },
+  {
+    "from": "run.stop",
+    "to": "mission.owner",
+    "kind": "allowed-by"
+  }
+]

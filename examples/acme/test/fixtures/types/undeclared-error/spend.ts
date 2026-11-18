@@ -1,8 +1,8 @@
 // Planted type fixture: spend returns a refusal it never declared. AllowanceLimitTooHigh belongs to grant; spend
 // declares only AllowanceExceeded and AllowanceNotFound.
 import { Effect } from "effect";
-import type { Handler } from "../../../generated/api/src/allowance/spend.handler.ts";
-import { AllowanceLimitTooHigh } from "../../../blueprint/things/allowance/errors.ts";
+import type { Handler } from "../../generated/api/src/allowance/spend.handler.ts";
+import { AllowanceLimitTooHigh } from "../../blueprint/things/allowance/errors.ts";
 
 const spend: Handler = (_payload, { steps }) =>
   Effect.gen(function* () {

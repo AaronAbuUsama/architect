@@ -1,0 +1,6 @@
+$ python3 .architect/publish-cli-timeout-cleanup.py
+# commit 396dab4 · 2026-11-17T06:33:53Z · exit 0 (expected 0) · 0.5s
+
+Publishing fixture containers: none
+Reserved publish listening ports: none
+Runtime processes from this worktree: none

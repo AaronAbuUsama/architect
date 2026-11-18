@@ -1,0 +1,32 @@
+$ pnpm exec vitest run --root packages/prove src/modules/promote/staging.test.ts -t rollback=true
+# commit 8f50320 · 2026-11-17T02:39:52Z · exit 1 (expected 1) · 33.1s
+
+
+ RUN  v4.1.12 ./packages/prove
+
+ ❯ src/modules/promote/staging.test.ts (6 tests | 1 failed | 5 skipped) 31418ms
+     × rejects staging replacement after its initial check, including rollback=true 24723ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/promote/staging.test.ts > staging's proof-to-publish boundary > rejects staging replacement after its initial check, including rollback=true
+AssertionError: expected 'Success' to be 'Failure' // Object.is equality
+
+Expected: "Failure"
+Received: "Success"
+
+ ❯ src/modules/promote/staging.test.ts:114:25
+    112|     }) }).pipe(Effect.result));
+    113|     expect(changed).toBe(true);
+    114|     expect(result._tag).toBe("Failure");
+       |                         ^
+    115|     if (result._tag === "Failure" && "message" in result.failure) expe…
+    116|     await noEffects(a.revision, before);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 skipped (6)
+   Start at  02:39:20
+   Duration  32.35s (transform 634ms, setup 0ms, import 821ms, tests 31.42s, environment 0ms)

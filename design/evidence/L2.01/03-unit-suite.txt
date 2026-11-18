@@ -1,0 +1,18 @@
+$ pnpm nx run-many -t lint,typecheck,test --skip-nx-cache
+# commit dfca3a5 · 2026-11-16T21:27:47Z · exit 0 (expected 0) · 97.6s
+
+
+ NX   47 tasks: 47 succeeded
+
+
+Re-run with --output-style=static to inline logs.
+
+  Run duration:      1m 37s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     1m 33s (1 task)
+  Recoverable time:  3.7s (4% of the run)
+
+  Recommendations:
+    - Cache: drop --skip-nx-cache to restore unchanged tasks instantly.
+    - Speed up or split the longest tasks on the critical path:
+        prove:test    1m 33s

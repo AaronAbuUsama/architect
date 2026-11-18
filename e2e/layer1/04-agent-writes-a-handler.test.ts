@@ -12,7 +12,7 @@ import { z } from "zod";
 import { afterAll, describe, expect, it } from "vitest";
 import { acme, architect, cli, copyOf, nothingRunning, repo } from "./support.ts";
 
-const SPEND = "implementation/handlers/allowance/spend.ts";
+const SPEND = "src/allowance/spend.ts";
 // What the agent may not read. The brief's own forbidden list is about writing (blueprint and generated are read-only to
 // it but readable); this one is about reading, so the agent can't learn the journeys or the planted answers.
 const DENIED = ["journeys/", "blueprint/journeys/", "blueprint/starting-worlds/", "test/", "node_modules/", ".architect/"];

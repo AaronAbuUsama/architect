@@ -1,0 +1,16 @@
+watch staging  last 1h  from files .architect/environments/staging/telemetry  (57 traces from prove runs left out)
+allowance.grant p95 14ms (budget 200ms) ✔
+allowance.spend p95 17ms (budget 150ms) ✔
+organization.create p95 13ms (budget 250ms) ✔
+person.sign-up p95 225ms (budget 400ms) ✔
+session.sign-in p95 115ms (budget 400ms) ✔
+calls: allowance.grant 1  allowance.spend 33  organization.create 1  person.sign-up 3  session.sign-in 3
+refusals: AllowanceExceeded 3 (AL-001)
+defects: none
+evals: answer shape ✔  declared errors ✔  steps ✔  explainability ✔  (judged by prove only: who may call, machine path, events, coverage)
+drift none
+
+Above: `architect watch --env staging` after 30 replayed spends and 3 refusals against a real staging world (check 8's healthy phase; a scratch test of
+check 8 without its portal half, not committed). The final scratch run passed: healthy p95 <= 150 with mark ✔, `AllowanceExceeded 3`, drift none;
+then the author's slow-spend fixture built, proved in test, promoted to staging, 30 spends replayed with tools/watch/replay.sh: p95 over 150, mark ✘, drift allowance.spend (371 s).
+(Its first two runs found the author's missing prove-in-test step before the slow promote, and a p95 over 1 to 3 calls reported as drift: the 20-call minimum, D3 #146.)

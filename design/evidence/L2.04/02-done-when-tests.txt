@@ -1,0 +1,20 @@
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-af6c657309d2f0575/packages/prove
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  21:58:18
+   Duration  9.85s (transform 148ms, setup 0ms, import 362ms, tests 9.38s, environment 0ms)
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-af6c657309d2f0575/packages/cli
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  21:58:29
+   Duration  8.76s (transform 1.02s, setup 0ms, import 716ms, tests 7.94s, environment 0ms)
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-af6c657309d2f0575/packages/target-effect
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  21:58:38
+   Duration  365ms (transform 85ms, setup 0ms, import 251ms, tests 11ms, environment 0ms)
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-af6c657309d2f0575/packages/compiler
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  21:58:39
+   Duration  593ms (transform 61ms, setup 0ms, import 487ms, tests 9ms, environment 0ms)

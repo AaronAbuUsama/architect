@@ -1,0 +1,117 @@
+$ bash -o pipefail -c gh run view 44014044365 --job 133807598193 --log-failed | rg -A16 -B2 "EACCES|10 passed|services.ts:117"
+# commit 7f662af · 2026-11-17T04:11:08Z · exit 0 (expected 0) · 2.5s
+
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6829156Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6829680Z ^[[41m^[[1m FAIL ^[[22m^[[49m layer2/03-a-read-is-minor-a-budget-is-stale.test.ts^[[2m [ layer2/03-a-read-is-minor-a-budget-is-stale.test.ts ]^[[22m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6831578Z ^[[31m^[[1mError^[[22m: EACCES, Permission denied: '/tmp/architect-gate2-v1s3Jy'^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6832097Z ^[[36m ^[[2m❯^[[22m Object.stop layer2/services.ts:^[[2m117:5^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6832563Z     ^[[90m115|^[[39m     running^[[33m.^[[39m^[[34mclear^[[39m()^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6833409Z     ^[[90m116|^[[39m     ^[[35mfor^[[39m (^[[35mconst^[[39m name ^[[35mof^[[39m containers) ^[[34mremove^[[39m(name)^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6834144Z     ^[[90m117|^[[39m     ^[[34mrmSync^[[39m(dir^[[33m,^[[39m { recursive^[[33m:^[[39m ^[[35mtrue^[[39m^[[33m,^[[39m force^[[33m:^[[39m ^[[35mtrue^[[39m })^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6834652Z     ^[[90m   |^[[39m     ^[[31m^^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6834961Z     ^[[90m118|^[[39m     ^[[35mreturn^[[39m problems^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6835356Z     ^[[90m119|^[[39m   }^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6835904Z ^[[90m ^[[2m❯^[[22m finish layer2/services.ts:^[[2m156:27^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6836708Z ^[[90m ^[[2m❯^[[22m layer2/03-a-read-is-minor-a-budget-is-stale.test.ts:^[[2m20:36^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6837144Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6837412Z ^[[31m^[[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6837576Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6837900Z ^[[41m^[[1m FAIL ^[[22m^[[49m layer2/04-promotion.test.ts^[[2m [ layer2/04-promotion.test.ts ]^[[22m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6838454Z ^[[31m^[[1mError^[[22m: EACCES, Permission denied: '/tmp/architect-gate2-2iYx1e'^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6838914Z ^[[36m ^[[2m❯^[[22m Object.stop layer2/services.ts:^[[2m117:5^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6839306Z     ^[[90m115|^[[39m     running^[[33m.^[[39m^[[34mclear^[[39m()^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6839829Z     ^[[90m116|^[[39m     ^[[35mfor^[[39m (^[[35mconst^[[39m name ^[[35mof^[[39m containers) ^[[34mremove^[[39m(name)^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6840501Z     ^[[90m117|^[[39m     ^[[34mrmSync^[[39m(dir^[[33m,^[[39m { recursive^[[33m:^[[39m ^[[35mtrue^[[39m^[[33m,^[[39m force^[[33m:^[[39m ^[[35mtrue^[[39m })^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6841200Z     ^[[90m   |^[[39m     ^[[31m^^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6841510Z     ^[[90m118|^[[39m     ^[[35mreturn^[[39m problems^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6841802Z     ^[[90m119|^[[39m   }^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6842152Z ^[[90m ^[[2m❯^[[22m finish layer2/services.ts:^[[2m156:27^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6842550Z ^[[90m ^[[2m❯^[[22m layer2/04-promotion.test.ts:^[[2m22:36^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6842738Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6842914Z ^[[31m^[[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6843073Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6843401Z ^[[41m^[[1m FAIL ^[[22m^[[49m layer2/05-publishing.test.ts^[[2m [ layer2/05-publishing.test.ts ]^[[22m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6843947Z ^[[31m^[[1mError^[[22m: EACCES, Permission denied: '/tmp/architect-gate2-Y6sBQZ'^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6844404Z ^[[36m ^[[2m❯^[[22m Object.stop layer2/services.ts:^[[2m117:5^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6844794Z     ^[[90m115|^[[39m     running^[[33m.^[[39m^[[34mclear^[[39m()^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6845294Z     ^[[90m116|^[[39m     ^[[35mfor^[[39m (^[[35mconst^[[39m name ^[[35mof^[[39m containers) ^[[34mremove^[[39m(name)^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6845987Z     ^[[90m117|^[[39m     ^[[34mrmSync^[[39m(dir^[[33m,^[[39m { recursive^[[33m:^[[39m ^[[35mtrue^[[39m^[[33m,^[[39m force^[[33m:^[[39m ^[[35mtrue^[[39m })^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6846451Z     ^[[90m   |^[[39m     ^[[31m^^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6846763Z     ^[[90m118|^[[39m     ^[[35mreturn^[[39m problems^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6847060Z     ^[[90m119|^[[39m   }^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6847395Z ^[[90m ^[[2m❯^[[22m finish layer2/services.ts:^[[2m156:27^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6847791Z ^[[90m ^[[2m❯^[[22m layer2/05-publishing.test.ts:^[[2m58:11^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6847986Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6848172Z ^[[31m^[[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6848325Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6848738Z ^[[41m^[[1m FAIL ^[[22m^[[49m layer2/08-watch-and-the-portal.test.ts^[[2m [ layer2/08-watch-and-the-portal.test.ts ]^[[22m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6849338Z ^[[31m^[[1mError^[[22m: EACCES, Permission denied: '/tmp/architect-gate2-sq5Q1x'^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6850086Z ^[[36m ^[[2m❯^[[22m Object.stop layer2/services.ts:^[[2m117:5^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6850868Z     ^[[90m115|^[[39m     running^[[33m.^[[39m^[[34mclear^[[39m()^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6851391Z     ^[[90m116|^[[39m     ^[[35mfor^[[39m (^[[35mconst^[[39m name ^[[35mof^[[39m containers) ^[[34mremove^[[39m(name)^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6852085Z     ^[[90m117|^[[39m     ^[[34mrmSync^[[39m(dir^[[33m,^[[39m { recursive^[[33m:^[[39m ^[[35mtrue^[[39m^[[33m,^[[39m force^[[33m:^[[39m ^[[35mtrue^[[39m })^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6852543Z     ^[[90m   |^[[39m     ^[[31m^^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6852876Z     ^[[90m118|^[[39m     ^[[35mreturn^[[39m problems^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6853266Z     ^[[90m119|^[[39m   }^[[33m;^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6853597Z ^[[90m ^[[2m❯^[[22m finish layer2/services.ts:^[[2m156:27^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6854045Z ^[[90m ^[[2m❯^[[22m layer2/08-watch-and-the-portal.test.ts:^[[2m24:36^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6854264Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6854451Z ^[[31m^[[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯^[[22m^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6854616Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6854628Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6854957Z ^[[2m Test Files ^[[22m ^[[1m^[[31m4 failed^[[39m^[[22m^[[2m | ^[[22m^[[1m^[[32m4 passed^[[39m^[[22m^[[90m (8)^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6855439Z ^[[2m      Tests ^[[22m ^[[1m^[[32m10 passed^[[39m^[[22m^[[90m (10)^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6855759Z ^[[2m   Start at ^[[22m 04:00:22
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6856281Z ^[[2m   Duration ^[[22m 379.65s^[[2m (transform 133ms, setup 0ms, import 1.18s, tests 724.10s, environment 1ms)^[[22m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6856583Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6856588Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6879041Z ##[error]Error: EACCES, Permission denied: '/tmp/architect-gate2-v1s3Jy'
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	 ❯ Object.stop layer2/services.ts:117:5
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	 ❯ finish layer2/services.ts:156:27
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	 ❯ layer2/03-a-read-is-minor-a-budget-is-stale.test.ts:20:36
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	Serialized Error: { errno: 13, code: 'EACCES', path: '/tmp/architect-gate2-v1s3Jy', syscall: 'rm' }
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6887598Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6890006Z ##[error]Error: EACCES, Permission denied: '/tmp/architect-gate2-2iYx1e'
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	 ❯ Object.stop layer2/services.ts:117:5
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	 ❯ finish layer2/services.ts:156:27
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	 ❯ layer2/04-promotion.test.ts:22:36
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	Serialized Error: { errno: 13, code: 'EACCES', path: '/tmp/architect-gate2-2iYx1e', syscall: 'rm' }
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6891749Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6893779Z ##[error]Error: EACCES, Permission denied: '/tmp/architect-gate2-Y6sBQZ'
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	 ❯ Object.stop layer2/services.ts:117:5
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	 ❯ finish layer2/services.ts:156:27
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	 ❯ layer2/05-publishing.test.ts:58:11
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	Serialized Error: { errno: 13, code: 'EACCES', path: '/tmp/architect-gate2-Y6sBQZ', syscall: 'rm' }
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6894910Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6896959Z ##[error]Error: EACCES, Permission denied: '/tmp/architect-gate2-sq5Q1x'
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	 ❯ Object.stop layer2/services.ts:117:5
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	 ❯ finish layer2/services.ts:156:27
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	 ❯ layer2/08-watch-and-the-portal.test.ts:24:36
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	Serialized Error: { errno: 13, code: 'EACCES', path: '/tmp/architect-gate2-sq5Q1x', syscall: 'rm' }
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6898473Z Warning: command "vitest run --root e2e --config vitest.layer2.config.ts layer2" exited with non-zero status code
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6899028Z ##[endgroup]
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6899180Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6899556Z ^[[7m^[[1m^[[31m NX ^[[39m^[[22m^[[27m  ^[[31mRunning target ^[[1mlayer2^[[22m for project e2e failed^[[39m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6899835Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6899958Z ^[[2mFailed tasks:^[[22m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6900074Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6900188Z ^[[2m-^[[22m e2e:layer2
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6900303Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6900561Z ^[[2mHint: run the command with^[[22m --verbose ^[[2mfor more details.^[[22m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6900960Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6900968Z 
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6901077Z ^[[2m^[[31m^[[39m^[[22m
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6901275Z   Run duration:      6m 20s
+e2e-layer2	Run NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static	2026-11-17T04:06:42.6901513Z   Critical path:     6m 20s (1 task)

@@ -1,0 +1,11 @@
+$ pnpm exec vitest run --root packages/prove src/modules/publish/publish.test.ts -t without a registry
+# commit 396dab4 · 2026-11-17T06:31:01Z · exit 0 (expected 0) · 9.5s
+
+
+ RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 5 skipped (6)
+   Start at  06:30:52
+   Duration  8.79s (transform 202ms, setup 0ms, import 930ms, tests 7.76s, environment 0ms)

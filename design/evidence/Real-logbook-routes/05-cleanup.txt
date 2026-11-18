@@ -1,0 +1,6 @@
+$ python3 -c import os,subprocess; ports=[9320,9321,9120,9121,9122]; listeners=[p for p in ports if subprocess.run(["lsof","-t",f"-iTCP:{p}","-sTCP:LISTEN"],capture_output=True,text=True).stdout.strip()]; names=subprocess.run(["docker","ps","-a","--format","{{.Names}}"],capture_output=True,text=True,check=True).stdout.splitlines(); owned=[n for n in names if n.startswith(("logbook-routes-issuer-","logbook-test-issuer-","logbook-test-rogue-"))]; processes=subprocess.run(["ps","-axo","args="],capture_output=True,text=True,check=True).stdout.splitlines(); workers=[line for line in processes if os.getcwd() in line and ("wrangler" in line or "workerd" in line)]; print("Owned test ports listening:",len(listeners)); print("Owned issuer containers remaining:",len(owned)); print("Worktree Worker processes remaining:",len(workers)); assert not listeners and not owned and not workers
+# commit b4e3172 · 2026-11-17T05:02:32Z · exit 0 (expected 0) · 0.5s
+
+Owned test ports listening: 0
+Owned issuer containers remaining: 0
+Worktree Worker processes remaining: 0

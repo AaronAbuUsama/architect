@@ -12,3 +12,4 @@ coverage/
 !examples/acme/test/fixtures/evals/coverage/
 .architect/
 packages/preset/files/
+.claude/worktrees/

@@ -1,0 +1,15 @@
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-a8c944c00ecfdfc65/packages/prove
+
+ ✓ src/modules/verdicts/verdicts.test.ts > verdicts > mints from an issuer as a client, and keeps the token out of anything printable 24ms
+ ✓ src/modules/verdicts/verdicts.test.ts > verdicts > mints from GitHub's endpoint for the logbook's audience, with the job's bearer 3ms
+ ✓ src/modules/verdicts/verdicts.test.ts > verdicts > posts one verdict per operation, in order, signed, and stops at the first refusal without naming the token 4ms
+ ✓ src/modules/test-worlds/test-worlds.test.ts > prove --env test > posts a verdict per operation that the logbook reads back, and leaves no world 5088ms
+ ✓ src/modules/test-worlds/test-worlds.test.ts > prove --env test > refuses a second world while one lives, and a run that cannot record its verdicts still destroys its world 4718ms
+ ✓ src/modules/test-worlds/test-worlds.test.ts > prove --env test > a run killed part-way leaves a world that worlds reap removes after its lifetime 32403ms
+
+ Test Files  2 passed (2)
+      Tests  6 passed (6)
+   Start at  22:06:10
+   Duration  50.60s (transform 553ms, setup 0ms, import 1.28s, tests 49.55s, environment 0ms)
+

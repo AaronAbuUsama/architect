@@ -5,5 +5,28 @@
   "exports": {
     ".": "./src/index.ts"
   },
-  "dependencies": {}
+  "dependencies": {
+    "effect": "4.1.1"
+  },
+  "imports": {
+    "#modules/*.js": "./src/modules/*.ts"
+  },
+  "devDependencies": {
+    "@architect/logbook": "workspace:*"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    },
+    "imports": {
+      "#modules/*.js": "./dist/modules/*.js"
+    }
+  }
 }

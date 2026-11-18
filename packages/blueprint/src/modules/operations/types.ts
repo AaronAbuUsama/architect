@@ -4,13 +4,25 @@ import type { AnyErrorClass } from "#modules/errors/types.js";
 import type { Move } from "#modules/machines/types.js";
 import type { Allowed, Builtin, Role, RoleOf } from "#modules/roles/types.js";
 import type { FieldsInput, Thing, ValueOf } from "#modules/things/types.js";
+import type { TypeOf } from "#modules/values/types.js";
 
 /** A named part of a handler's work, recorded as its own span. Named `<thing>.<verb>.<key>` by the compiler. */
 export interface Step<K extends StepKind = StepKind> {
   readonly kind: "step";
   readonly type: K;
 }
-export type StepKind = "database" | "wait";
+/**
+ * What a step is. `database` and `wait` are what the Effect target runs. `sync`, `check` and `prove` are reserved for
+ * targets that run on a chain or a client (N1): each is a span with its own budget. The union is open, so a target can
+ * add kinds, and nothing here matches on all of them.
+ */
+export type StepKind = "database" | "wait" | "sync" | "check" | "prove" | (string & {});
+
+/** Where an operation runs: `server` (every target today), on the caller's `client`, or on a `chain`. */
+export type Runs = "client" | "server" | "chain";
+
+/** How a guarantee is tested: `unit` in the target's own test runner, or `network` on a network the target's tests need. */
+export type TestKind = "unit" | "network";
 export type Steps = { readonly [key: string]: Step };
 
 export interface Budget {
@@ -34,6 +46,10 @@ export interface OperationSpec<P extends FieldsInput, A extends FieldsInput, E e
   readonly steps?: St;
   readonly idempotent?: "request";
   readonly budget?: Budget;
+  /** Where it runs. Only `server` is accepted until a target supports another (N1). */
+  readonly runs?: Runs;
+  /** A target can say a guarantee needs a network test; defaults to `unit`. */
+  readonly test?: TestKind;
 }
 
 export interface Operation<
@@ -56,27 +72,60 @@ export interface Operation<
   readonly steps: St;
   readonly idempotent: "request" | undefined;
   readonly budget: Budget | undefined;
+  readonly runs: Runs;
+  readonly test: TestKind;
 }
 
-export interface Read<T extends Thing = Thing> {
+/** What a read by id answers: the fields it names, decoded, with `state` as text. */
+export type ReadAnswer = { readonly [field: string]: unknown };
+
+/** `newest` is the last inserted first, `oldest` the first inserted first: the order rows were made in, never a clock. */
+export type Order = "newest" | "oldest";
+
+/** A page of a list read: the items, and the cursor for the page after them (null on the last page). */
+export interface Page<I> {
+  readonly items: ReadonlyArray<I>;
+  readonly next: string | null;
+}
+
+/** The payload of a list read: each `where` field, and the cursor, all optional (an omitted filter filters nothing). */
+export type ListPayload<T extends Thing, W extends ReadonlyArray<string>> = {
+  readonly [K in W[number] as K extends "state" ? never : K]?: K extends keyof T["fields"] ? TypeOf<T["fields"][K]["value"]> : never;
+} & { readonly state?: string; readonly cursor?: string };
+
+export type ListItem<T extends Thing> = { readonly [K in keyof T["fields"]]: TypeOf<T["fields"][K]["value"]> } & { readonly state: string };
+
+/**
+ * A read answers from the thing's records with no handler: one instance by its id (`by: "id"`), or a page of them
+ * (`by: "list"`) filtered by `where` and ordered by `order`.
+ */
+export interface Read<T extends Thing = Thing, P = { readonly id: string }, A = ReadAnswer> {
   readonly kind: "read";
   readonly thing: T;
-  readonly by: "id";
-  readonly fields: ReadonlyArray<keyof T["fields"] | "state">;
+  readonly by: "id" | "list";
+  /** What it answers: the fields it names (by id), or every field of the thing and its `state` (a list's items). */
+  readonly fields: ReadonlyArray<string>;
+  /** A list's filters: the fields a caller may narrow it by. Empty for a read by id. */
+  readonly where: ReadonlyArray<string>;
+  readonly order: Order | undefined;
+  /** A list's page size. */
+  readonly page: number | undefined;
   readonly allowed: ReadonlyArray<Allowed>;
   readonly budget: Budget | undefined;
-  /** `{ id }`, the thing's own id field. */
+  /** `{ id }`, the thing's own id field; or a list's `where` fields and its `cursor`. */
   readonly payload: FieldsInput;
-  /** The fields it names, with `state` as text. */
+  /** The payload fields a caller may leave out. */
+  readonly optional: ReadonlyArray<string>;
+  /** The fields it names, with `state` as text; or a list's `items` and `next`. */
   readonly answer: FieldsInput;
-  readonly payloadSchema: Schema.Codec<{ readonly id: string }, { readonly id: string }>;
-  readonly answerSchema: Schema.Codec<{ readonly [field: string]: unknown }, { readonly [field: string]: unknown }>;
+  readonly payloadSchema: Schema.Codec<P, unknown>;
+  readonly answerSchema: Schema.Codec<A, unknown>;
 }
 
 export type PayloadOf<O> =
-  O extends Operation<any, infer P, any, any, any> ? StructOf<P>["Type"] : O extends Read<any> ? { readonly id: string } : never;
+  O extends Operation<any, infer P, any, any, any> ? StructOf<P>["Type"] : O extends Read<any, infer P, any> ? P : never;
 export type AnswerOf<O> =
-  O extends Operation<any, any, infer A, any, any> ? StructOf<A>["Type"] : O extends Read<any> ? { readonly [field: string]: unknown } : never;
+  O extends Operation<any, any, infer A, any, any> ? StructOf<A>["Type"] : O extends Read<any, any, infer A> ? A : never;
 export type ErrorOf<O> = O extends Operation<any, any, any, infer E, any> ? InstanceType<E[number]> : never;
 export type StepsOf<O> = O extends Operation<any, any, any, any, infer St> ? St : never;
 
@@ -88,11 +137,22 @@ export interface OperationsApi {
     const E extends ReadonlyArray<AnyErrorClass> = readonly [],
     const St extends Steps = {},
   >(thing: T, spec: OperationSpec<P, A, E, St>) => Operation<T, P, A, E, St>;
-  readonly read: <T extends Thing>(thing: T, spec: {
-    readonly by: "id";
-    readonly fields: ReadonlyArray<keyof T["fields"] | "state">;
-    readonly allowed: readonly [Allowed, ...Array<Allowed>];
-    readonly budget?: Budget;
-  }) => Read<T>;
+  readonly read: {
+    /** One instance by its id, answering the fields it names. */
+    <T extends Thing>(thing: T, spec: {
+      readonly by: "id";
+      readonly fields: ReadonlyArray<keyof T["fields"] | "state">;
+      readonly allowed: readonly [Allowed, ...Array<Allowed>];
+      readonly budget?: Budget;
+    }): Read<T>;
+    /** A page of instances: filtered by `where`, in `order`, `page` to a page. Answers `{ items, next }`. */
+    <T extends Thing, const W extends ReadonlyArray<(keyof T["fields"] & string) | "state">>(thing: T, spec: {
+      readonly where: W;
+      readonly order: Order;
+      readonly page: number;
+      readonly allowed: readonly [Allowed, ...Array<Allowed>];
+      readonly budget?: Budget;
+    }): Read<T, ListPayload<T, W>, Page<ListItem<T>>>;
+  };
   readonly step: { readonly database: () => Step<"database">; readonly wait: () => Step<"wait"> };
 }

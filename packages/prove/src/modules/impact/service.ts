@@ -1,6 +1,6 @@
 import { Effect } from "effect";
-import { Compare, type Depends, type Model } from "@architect/compiler";
-import type { Impact as Impacted, ImpactApi } from "./types.ts";
+import { Compare, type Depends, type Model, type Versioned } from "@architect/compiler";
+import type { Impact as Impacted, ImpactApi, Shipped } from "./types.ts";
 import { readLedger, writeLedger } from "./internal/ledger.ts";
 
 const holds = (model: Model, depends: Depends) => Object.entries(depends).every(([key, hash]) => Compare.hashOf(model, key) === hash);
@@ -34,11 +34,35 @@ const of: ImpactApi["of"] = (root, model) =>
 
 const list = (names: ReadonlyArray<string>) => (names.length === 0 ? "none" : names.join(", "));
 
-const lines: ImpactApi["lines"] = (impact) => [
-  ...impact.changes.map((c) => `${c.change} ${c.kind} ${c.name}${c.parts.length ? `: ${c.parts.join(", ")}` : ""}`),
-  `stale ${list(impact.stale)}`,
-  `proven ${list(impact.proven)}`,
-  ...(impact.unproven.length > 0 ? [`unproven ${list(impact.unproven)}`] : []),
-];
+const staleLine = (shipped: Shipped) =>
+  shipped.stale.length === 0
+    ? "stale none"
+    : `stale ${list(shipped.stale.map((s) => s.operation))} in ${list([...new Set(shipped.stale.flatMap((s) => s.environments))])}`;
+
+const line = (c: Versioned) => `${c.kind} ${c.what} ${c.bump}${c.detail ? ` (${c.detail})` : ""}`;
+
+/** What the logbook says, with the local ledger only for what it alone knows: the declarations and what is stale on this machine. */
+const shippedLines = (impact: Impacted, shipped: Shipped): ReadonlyArray<string> => {
+  const stale = new Set(shipped.stale.map((s) => s.operation));
+  const everything = [...impact.proven, ...impact.stale, ...impact.unproven].sort();
+  return [
+    ...(shipped.from === null ? [] : [`changes since ${shipped.from}`, ...shipped.changes.map(line)]),
+    `next ${shipped.version}`,
+    staleLine(shipped),
+    ...(impact.stale.length > 0 ? [`locally stale ${list(impact.stale)}`] : []),
+    `proven ${list(shipped.proven)}`,
+    ...(everything.some((op) => !shipped.proven.includes(op) && !stale.has(op)) ? [`unproven ${list(everything.filter((op) => !shipped.proven.includes(op) && !stale.has(op)))}`] : []),
+  ];
+};
+
+const lines: ImpactApi["lines"] = (impact, shipped) =>
+  shipped
+    ? shippedLines(impact, shipped)
+    : [
+        ...impact.changes.map((c) => `${c.change} ${c.kind} ${c.name}${c.parts.length ? `: ${c.parts.join(", ")}` : ""}`),
+        `stale ${list(impact.stale)}`,
+        `proven ${list(impact.proven)}`,
+        ...(impact.unproven.length > 0 ? [`unproven ${list(impact.unproven)}`] : []),
+      ];
 
 export const Impact: ImpactApi = { record, of, lines };

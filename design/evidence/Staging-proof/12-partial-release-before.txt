@@ -1,0 +1,35 @@
+$ pnpm exec vitest run --root packages/prove src/modules/promote/staging.test.ts -t repairs a persisted partial release
+# commit 8f50320 · 2026-11-17T03:08:02Z · exit 1 (expected 1) · 20.4s
+
+
+ RUN  v4.1.12 ./packages/prove
+
+ ❯ src/modules/promote/staging.test.ts (8 tests | 1 failed | 7 skipped) 18314ms
+     × repairs a persisted partial release on retry without duplicating complete carried facts 10112ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/promote/staging.test.ts > publication identity > repairs a persisted partial release on retry without duplicating complete carried facts
+AssertionError: expected [] to have a length of 15 but got +0
+
+- Expected
++ Received
+
+- 15
++ 0
+
+ ❯ src/modules/promote/staging.test.ts:234:22
+    232|     const complete = await request(query).then((r) => r.json()) as Arr…
+    233|     const operations = Object.keys((JSON.parse(readFileSync(join(root,…
+    234|     expect(complete).toHaveLength(operations.length);
+       |                      ^
+    235|     expect(complete.every((v) => v.sha256 === built.sha256 && v.verdic…
+    236|     await run(Promote.to({ root, env, target: "production", say: () =>…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 skipped (8)
+   Start at  03:07:43
+   Duration  19.43s (transform 711ms, setup 0ms, import 978ms, tests 18.31s, environment 0ms)

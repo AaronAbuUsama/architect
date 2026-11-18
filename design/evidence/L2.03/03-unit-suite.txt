@@ -1,0 +1,17 @@
+$ env NX_DAEMON=false pnpm nx run-many -t lint,typecheck,test
+# commit dfca3a5 · 2026-11-16T21:22:06Z · exit 0 (expected 0) · 92.6s
+
+
+ NX   47 tasks: 47 succeeded, 5 cached
+
+
+Re-run with --output-style=static to inline logs.
+
+  Run duration:      1m 32s
+  Cache:             5/47 hit (11%)
+  Critical path:     1m 29s (1 task)
+  Recoverable time:  3.1s (3% of the run)
+
+  Recommendations:
+    - Speed up or split the longest tasks on the critical path:
+        prove:test    1m 29s

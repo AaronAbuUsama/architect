@@ -1,0 +1,14 @@
+The live check (sinks.live.test.ts, ARCHITECT_LIVE_AXIOM=1): acme's prove with [local, axiom({ group: "capxul-test" })] on the EU edge,
+then Axiom's query API (APL on capxul-test-traces, token capxul-query) for the allowance.grant trace.
+
+  Test Files  1 passed (1)      Tests  1 passed (1)
+
+What Axiom returned for the trace (spans, parent, attribute keys; values omitted):
+  POST
+  sqlite                  attributes: effect.sql.method
+  allowance.grant         attributes: event.name operation move.name principal.person payload.member answer.allowance move.to payload.organization payload.limit
+  allowance.grant.insert  attributes: step.kind
+  sqlite                  attributes: effect.sql.method
+  BATCH
+  resource.custom: deployment.environment = local      (also resource.deployment.environment.name = local)
+No key contains password, token, session or apiKey; none is user.* or *.email; journey.<name> stays local.

@@ -1,9 +1,10 @@
 {
   "extends": "../../tsconfig.base.json",
   "include": [
+    "architect.config.ts",
     "blueprint/**/*.ts",
     "generated/**/*.ts",
-    "implementation/**/*.ts",
+    "src/**/*.ts",
     "journeys/**/*.ts"
   ],
   "exclude": [

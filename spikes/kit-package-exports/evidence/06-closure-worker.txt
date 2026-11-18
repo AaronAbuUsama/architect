@@ -1,0 +1,10 @@
+{
+  "tier": "worker",
+  "inputs": 343,
+  "fixtureInputs": [
+    "project/node_modules/@architect/spike-fixture-kit/dist/worker.js",
+    "project/node_modules/@architect/spike-fixture-kit/dist/blueprint.js",
+    "project/node_modules/@architect/spike-fixture-kit/dist/descriptor.js"
+  ],
+  "violations": []
+}

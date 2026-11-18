@@ -1,0 +1,14 @@
+{
+  "step": "L2.02",
+  "stage": "Stage 3 · shipping on local worlds (Gate 2)",
+  "title": "Test worlds, and the logbook as an environment",
+  "summary": "architect prove --env test makes world test-<id> inside the long-lived test environment (started if down), with the blueprint's lifetime or ARCHITECT_LIFETIME. The world is its own Durable Object with an alarm at its expiry; its data is whatever is above the high-water mark of every table, so destroying it (alarm, reap or explicit) deletes exactly that. The journeys and evals run against it, one verdict per operation is posted to the logbook with an OIDC token (the local issuer, or the CI job's own) that is never printed, and the world is destroyed. architect worlds reap starts the environment if it is down, destroys every world past its lifetime and stops it again; env status test adds worlds <n>; env up logbook runs the logbook worker through Logbook.launch. The test environment has a collector of its own, removed by env down.",
+  "proves": "prove --env test posts fifteen passing verdicts that the logbook reads back with their ref, leaves no world and no row, and a run that fails to record its verdicts still destroys its world. A run killed with SIGKILL and a 20 s lifetime leaves a world that reap leaves alone within its lifetime and removes after it; the second reap says 0. The author's checks 01 and 02 pass. Nothing is left running. The tests were written alongside the build, not before it.",
+  "captions": {
+    "01-done-when": "The done-when tests, on ports 8970 to 8989 with the real issuer, logbook and test environment.",
+    "02-demo": "A session: logbook and test up, prove in a world, the killed run, reap before and after the lifetime.",
+    "03-author-checks-01-02": "The author's Gate 2 checks 01 and 02 (the teardown notice is another thread's collector).",
+    "04-unit-suite": "Every package's tests.",
+    "05-sync-check": "nx sync:check stays green."
+  }
+}

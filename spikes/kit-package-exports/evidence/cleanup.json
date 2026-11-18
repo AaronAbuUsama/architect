@@ -1,0 +1,19 @@
+{
+  "ports": {
+    "19100": "free",
+    "19101": "free",
+    "19102": "free",
+    "19103": "free",
+    "19104": "free",
+    "19105": "free",
+    "19106": "free",
+    "19107": "free",
+    "19108": "free",
+    "19109": "free"
+  },
+  "owned_process_groups": [
+    31863
+  ],
+  "remaining_owned_processes": [],
+  "own_worker_process_group_terminated": true
+}

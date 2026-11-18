@@ -2,9 +2,9 @@
 import { Effect } from "effect";
 import type { SqlClient } from "effect/sql";
 import { Ids, Records } from "@architect/target-effect";
-import type { Handler } from "../../../generated/api/src/invitation/accept.handler.ts";
-import { Invitation } from "../../../blueprint/things/invitation/thing.ts";
-import { Membership } from "../../../blueprint/things/membership/thing.ts";
+import type { Handler } from "../../generated/api/src/invitation/accept.handler.ts";
+import { Invitation } from "../../blueprint/things/invitation/thing.ts";
+import { Membership } from "../../blueprint/things/membership/thing.ts";
 
 const accept: Handler<Records | SqlClient.SqlClient> = ({ invitation }, { steps, move }) =>
   Effect.gen(function* () {

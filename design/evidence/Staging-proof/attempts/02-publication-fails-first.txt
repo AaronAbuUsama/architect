@@ -1,0 +1,41 @@
+$ pnpm exec vitest run --root packages/prove src/modules/promote/staging.test.ts -t publication identity
+# commit 8f50320 · 2026-11-17T02:35:37Z · exit 1 (expected 1) · 20.8s
+
+
+ RUN  v4.1.12 ./packages/prove
+
+ ❯ src/modules/promote/staging.test.ts (5 tests | 3 failed | 2 skipped) 18847ms
+     × installs the captured SDK and CLI even if source changes after capture during publication 2913ms
+     × owns package and SEA outputs per invocation and preserves earlier tarballs and formula URLs 1422ms
+     × refuses pre-existing different same-version package bytes instead of claiming successful reuse 1815ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/promote/staging.test.ts > publication identity > installs the captured SDK and CLI even if source changes after capture during publication
+ FAIL  src/modules/promote/staging.test.ts > publication identity > owns package and SEA outputs per invocation and preserves earlier tarballs and formula URLs
+ FAIL  src/modules/promote/staging.test.ts > publication identity > refuses pre-existing different same-version package bytes instead of claiming successful reuse
+PublishFailed: couldn't bundle generated/cli/src/main.ts: Build failed with 1 error:
+generated/cli/src/main.ts:3:1: ERROR: Syntax error "!"
+ ❯ catch src/modules/publish/internal/bundle.ts:61:19
+     59|         return { imports: [...new Set(external)].sort() };
+     60|       }),
+     61|     catch: (e) => new PublishFailed({ message: `couldn't bundle ${opti…
+       |                   ^
+     62|   });
+     63|
+ ❯ ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:1165:41
+ ❯ ~effect/Utils/internal ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/Utils.ts:198:13
+ ❯ ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:1165:22
+ ❯ ~effect/Effect/evaluate ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:1032:11
+ ❯ FiberImpl.runLoop ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:700:41
+ ❯ FiberImpl.evaluate ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:635:22
+ ❯ FiberImpl.evaluate ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:624:28
+ ❯ ../../node_modules/.pnpm/effect@4.1.1/node_modules/effect/src/internal/effect.ts:1210:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 2 skipped (5)
+   Start at  02:35:17
+   Duration  19.91s (transform 672ms, setup 0ms, import 917ms, tests 18.85s, environment 0ms)

@@ -1,0 +1,9 @@
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-adba2d61061296f01/e2e
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  00:52:59
+   Duration  38.24s (transform 233ms, setup 0ms, import 2.04s, tests 35.87s, environment 0ms)
+

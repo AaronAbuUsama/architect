@@ -1,0 +1,9 @@
+$ sh .architect/check05-source.sh
+# commit d428228 · 2026-11-17T02:50:53Z · exit 0 (expected 0) · 0.2s
+
+16:// - The macOS arm64 binary is the one a Mac builds (D3 #9); on any other machine the brew half is skipped.
+54:    if (brew("list", "--formula").stdout.split("\n").some((l) => l === formula)) brew("uninstall", "--force", full);
+55:    if (brew("tap").stdout.split("\n").includes(tap)) brew("untap", tap);
+65:const mac = process.platform === "darwin" && process.arch === "arm64";
+91:  it.skipIf(!mac)("brew install <tap>/<formula> runs acme --version, printing the release version", () => {
+102:    expect(version.stdout.trim().split(/\s+/).at(-1)).toBe(released);

@@ -1,0 +1,37 @@
+$ pnpm typecheck
+# commit 6a4fe088027e1df1b21bae7350356c9d0909b823; 2026-11-17T07:31:41.038484+00:00; exit 0; 3.277s
+
+$ tsc6 --noEmit
+
+$ pnpm prove
+# commit 6a4fe088027e1df1b21bae7350356c9d0909b823; 2026-11-17T07:31:45.929220+00:00; exit 0; 4.89s
+
+$ node scripts/main.ts
+PASS reserved HTTP and inspector ports initially free
+PASS real existing bearer session has no wallet initially
+PASS anonymous cannot issue a challenge
+PASS garbage bearer cannot issue a challenge
+PASS unconfigured chain rejected
+PASS another person cannot complete challenge
+PASS another session of same person cannot complete challenge
+PASS genuinely signed altered domain rejected
+PASS genuinely signed altered URI rejected
+PASS genuinely signed altered chain rejected
+PASS genuinely signed altered address rejected
+PASS genuinely signed altered nonce rejected
+PASS genuinely signed altered expiry rejected
+PASS genuinely signed altered not-before rejected
+PASS another EOA signature rejected
+PASS server challenge expiry rejected
+PASS all invalid attempts leave associations empty
+PASS two concurrent valid completions have exactly one winner
+PASS link issues no replacement token or cookie
+PASS link preserves existing person session and email
+PASS existing session lists exactly the signed address
+PASS completed challenge cannot replay
+PASS association uniqueness prevents reassignment
+PASS same persisted D1 retains original bearer person session and wallet across runtime restart
+PASS consumed challenge remains consumed after runtime restart
+PASS unconsumed challenge completes after runtime restart
+CLEANUP PASS: child processes stopped; temporary D1 removed; ports released
+RESULT 26 checks; restart 1509ms; duration 4311ms; exit 0

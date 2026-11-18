@@ -1,0 +1,7 @@
+# Its own workspace: a spike, outside the repository's packages. AGENTS.md: everything at least two weeks old.
+packages: []
+minimumReleaseAge: 20160
+allowBuilds:
+  esbuild: true
+  workerd: true
+  sharp: false

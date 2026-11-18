@@ -1,0 +1,11 @@
+$ pnpm exec vitest run --root packages/prove src/modules/test-worlds/test-worlds.test.ts
+# commit 53d028d · 2026-11-17T02:10:19Z · exit 0 (expected 0) · 62.5s
+
+
+ RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  02:09:17
+   Duration  61.82s (transform 536ms, setup 0ms, import 998ms, tests 60.71s, environment 0ms)

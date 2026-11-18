@@ -1,6 +1,7 @@
 import type { Model } from "#modules/model/types.js";
 import type { CompareApi, Depends } from "./types.ts";
 import { diff } from "./internal/diff.ts";
+import { next, release } from "./internal/versions.ts";
 
 const dependsOn = (model: Model, name: string): Depends => {
   const op = model.operations[name];
@@ -20,4 +21,4 @@ const hashOf = (model: Model, key: string): string | undefined => {
   return kind === "operation" ? model.operations[name]?.hash : kind === "thing" ? model.things[name]?.hash : undefined;
 };
 
-export const Compare: CompareApi = { models: diff, dependsOn, hashOf };
+export const Compare: CompareApi = { models: diff, release, next, dependsOn, hashOf };

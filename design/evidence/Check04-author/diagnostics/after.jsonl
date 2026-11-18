@@ -1,0 +1,14 @@
+{"event":"undici:client:sendHeaders","request":1,"url":"http://127.0.0.1:8941/_architect/bundle","localPort":61353,"remotePort":8941,"connection":"close"}
+{"event":"undici:request:headers","request":1,"url":"http://127.0.0.1:8941/_architect/bundle","status":200}
+{"event":"undici:client:sendHeaders","request":2,"url":"http://localhost:4894/@acme%2fsdk","localPort":61355,"remotePort":4894,"connection":"close"}
+{"event":"undici:request:headers","request":2,"url":"http://localhost:4894/@acme%2fsdk","status":200}
+{"event":"undici:client:sendHeaders","request":3,"url":"http://127.0.0.1:8942/_architect/bundle","localPort":61374,"remotePort":8942,"connection":"close"}
+{"event":"undici:request:headers","request":3,"url":"http://127.0.0.1:8942/_architect/bundle","status":200}
+{"event":"undici:client:sendHeaders","request":4,"url":"http://localhost:4894/@acme%2fsdk","localPort":61376,"remotePort":4894,"connection":"close"}
+{"event":"undici:request:headers","request":4,"url":"http://localhost:4894/@acme%2fsdk","status":200}
+{"event":"undici:client:sendHeaders","request":5,"url":"http://127.0.0.1:8941/_architect/bundle","localPort":61502,"remotePort":8941,"connection":"close"}
+{"event":"undici:request:headers","request":5,"url":"http://127.0.0.1:8941/_architect/bundle","status":200}
+{"event":"undici:client:sendHeaders","request":6,"url":"http://127.0.0.1:8942/_architect/bundle","localPort":61550,"remotePort":8942,"connection":"close"}
+{"event":"undici:request:headers","request":6,"url":"http://127.0.0.1:8942/_architect/bundle","status":200}
+{"event":"undici:client:sendHeaders","request":7,"url":"http://localhost:4894/@acme%2fsdk","localPort":61552,"remotePort":4894,"connection":"close"}
+{"event":"undici:request:headers","request":7,"url":"http://localhost:4894/@acme%2fsdk","status":200}

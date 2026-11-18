@@ -1,0 +1,11 @@
+$ pnpm exec vitest run --root packages/compiler
+# commit ee35a5c · 2026-11-17T04:38:49Z · exit 0 (expected 0) · 2.8s
+
+
+ RUN  v4.1.12 ./packages/compiler
+
+
+ Test Files  4 passed (4)
+      Tests  30 passed (30)
+   Start at  04:38:47
+   Duration  2.11s (transform 1.53s, setup 0ms, import 2.19s, tests 1.79s, environment 0ms)

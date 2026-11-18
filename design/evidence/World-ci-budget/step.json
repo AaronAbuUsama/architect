@@ -1,0 +1,13 @@
+{
+  "step": "World-ci-budget",
+  "stage": "Stage 3 · shipping on local worlds (Gate 2)",
+  "title": "Bounded integration budgets for the real world-lease checks",
+  "summary": "The four multi-transaction world-lease checks receive explicit 60-second budgets, matching the existing actor race. Runtime algorithms, requests, concurrency and assertions are unchanged.",
+  "proves": "The actual Linux failure is retained: six handovers exceeded the implicit five-second timeout, and the following check encountered the timed-out predecessor’s world. All 21 host tests pass locally with the explicit bounded budgets, with lint/typecheck and generated drift checks green. Linux confirmation remains the conductor’s integration check.",
+  "captions": {
+    "01-linux-failure": "Captured Linux failure from run 44014044365: five-second timeout and consequent 409 in the following check.",
+    "02-host-suite": "The whole real-workerd host suite with explicit lease-test integration budgets.",
+    "03-workspace-checks": "Nx reset/sync, host lint/typecheck and generation drift check.",
+    "04-integrated-host": "The conductor runs the full21-test host suite after integration, preserving all concurrency and lifecycle assertions."
+  }
+}

@@ -1,0 +1,17 @@
+// Empty handlers used for the independent checks' initial rejection run.
+use aztec::macros::aztec;
+#[aztec]
+pub contract PrivateCore {
+    use aztec::{macros::functions::{external, initializer}, protocol::address::AztecAddress};
+    #[external("private")]
+    #[initializer]
+    fn constructor(_admin: AztecAddress, _token: AztecAddress) {}
+    #[external("private")]
+    fn grant(_member: AztecAddress, _limit: u128) {}
+    #[external("private")]
+    fn revoke(_member: AztecAddress) {}
+    #[external("private")]
+    fn spend(_to: AztecAddress, _amount: u128) -> u128 { 0 }
+    #[external("utility")]
+    unconstrained fn read_right(_member: AztecAddress) -> pub (bool, u128, u128, u32) { (false, 0, 0, 0) }
+}

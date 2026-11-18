@@ -1,0 +1,11 @@
+$ pnpm exec vitest run --root packages/prove src/modules/promote/staging.test.ts
+# commit 3a06e85 · 2026-11-17T04:21:10Z · exit 0 (expected 0) · 131.5s
+
+
+ RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  04:18:59
+   Duration  130.68s (transform 1.47s, setup 0ms, import 697ms, tests 129.85s, environment 0ms)

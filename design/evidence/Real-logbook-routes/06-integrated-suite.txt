@@ -1,0 +1,11 @@
+$ pnpm exec vitest run --root packages/logbook --maxWorkers 1
+# commit 123eea6 · 2026-11-17T05:03:41Z · exit 0 (expected 0) · 23.6s
+
+
+ RUN  v4.1.12 ./packages/logbook
+
+
+ Test Files  3 passed (3)
+      Tests  25 passed (25)
+   Start at  05:03:18
+   Duration  22.95s (transform 69ms, setup 0ms, import 537ms, tests 22.11s, environment 0ms)

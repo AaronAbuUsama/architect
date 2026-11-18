@@ -1,0 +1,14 @@
+$ sh .architect/check08-source.sh
+# commit 53d028d · 2026-11-17T01:54:39Z · exit 0 (expected 0) · 0.0s
+
+
+/** The portal's rows as plain text, one per operation. */
+const portal = async (url: string) => {
+  const html = await (await fetch(`${url}/portal`)).text();
+  return html.split(/<\/tr>/i).map((row) => row.replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim());
+};
+const row = (rows: ReadonlyArray<string>, op: string) => rows.find((r) => new RegExp(`(^|\\s)${escape(op)}(\\s|$)`).test(r));
+
+describe("check 8: watch and the portal", () => {
+  it("p95 against budget and refusal counts; a slow handler drifts; the portal shows verdicts, then stale on spend only", async () => {
+    const s = stack!;

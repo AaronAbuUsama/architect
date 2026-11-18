@@ -1,0 +1,13 @@
+{
+  "tier": "client",
+  "inputs": 250,
+  "fixtureInputs": [
+    "project/node_modules/@architect/spike-fixture-kit/dist/node.js",
+    "project/node_modules/@architect/spike-fixture-kit/dist/worker.js"
+  ],
+  "violations": [
+    "project/node_modules/@architect/spike-fixture-kit/dist/node.js",
+    "project/node_modules/@architect/spike-fixture-kit/dist/worker.js",
+    "node:crypto"
+  ]
+}

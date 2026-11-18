@@ -61,9 +61,153 @@ describe("model", () => {
     expect(after.value).toEqual(before.value);
   });
 
+  it("reads environments, each named by its file", async () => {
+    const exit = await modelOf(acme);
+    expect(Exit.isSuccess(exit)).toBe(true);
+    if (!Exit.isSuccess(exit)) return;
+    const environments = exit.value.environments!;
+    expect(Object.keys(environments)).toEqual(["local", "production", "staging", "test"]);
+    expect(environments["test"]).toMatchObject({ lifetimeMs: 7_200_000, identity: "test-principals", cloud: { provider: "cloudflare", database: "d1" } });
+    expect(environments["production"]).toMatchObject({ promotesFrom: "staging", deploy: { server: { how: "worker", domain: "api.acme.dev" } } });
+    expect(environments["production"]?.publish["cli"]?.map((p) => p.how)).toEqual(["npm", "homebrew", "binaries"]);
+    expect(environments["local"]?.database).toBe("d1-local");
+  });
+
+  it("reads an environment's telemetry sinks as a list, and a second sink is one more line of config", async () => {
+    const before = await modelOf(acme);
+    expect(Exit.isSuccess(before) && before.value.environments?.["local"]?.telemetry).toEqual([{ sink: "local" }]);
+    const root = copyOfAcme();
+    const file = join(root, "blueprint/environments/local.ts");
+    writeFileSync(file, readFileSync(file, "utf8").replace("[Telemetry.sink.local()]", '[Telemetry.sink.local(), Telemetry.sink.axiom({ group: "capxul-test" })]'));
+    const after = await modelOf(root);
+    expect(Exit.isSuccess(after) && after.value.environments?.["local"]?.telemetry).toEqual([{ sink: "local" }, { sink: "axiom", group: "capxul-test" }]);
+    // The hash moves with it, so what depends on the environment sees the change.
+    if (Exit.isSuccess(before) && Exit.isSuccess(after)) expect(after.value.environments?.["local"]?.hash).not.toBe(before.value.environments?.["local"]?.hash);
+    // An environment that names none has no telemetry key at all.
+    expect(Exit.isSuccess(before) && "telemetry" in before.value.environments!["test"]!).toBe(false);
+  });
+
+  it("refuses a sink named twice and an Axiom group that is no dataset name", async () => {
+    const root = copyOfAcme();
+    const file = join(root, "blueprint/environments/local.ts");
+    writeFileSync(file, readFileSync(file, "utf8").replace("[Telemetry.sink.local()]", '[Telemetry.sink.local(), Telemetry.sink.local(), Telemetry.sink.axiom({ group: "a b" })]'));
+    const exit = await modelOf(root);
+    expect(Exit.isFailure(exit)).toBe(true);
+    const text = JSON.stringify(exit);
+    expect(text).toContain("telemetry names the same sink twice");
+    expect(text).toContain("isn't a dataset group name");
+  });
+
+  it("names an environment after its file, and refuses a promotesFrom that no file answers to", async () => {
+    const root = copyOfAcme();
+    renameSync(join(root, "blueprint/environments/staging.ts"), join(root, "blueprint/environments/preview.ts"));
+    const exit = await modelOf(root);
+    expect(Exit.isFailure(exit)).toBe(true);
+    expect(JSON.stringify(exit)).toContain('blueprint/environments/production.ts: promotesFrom \\"staging\\" isn');
+    // Node caches a module by its path, so the fixed copy is a copy of its own.
+    const fixed = copyOfAcme();
+    renameSync(join(fixed, "blueprint/environments/staging.ts"), join(fixed, "blueprint/environments/preview.ts"));
+    writeFileSync(join(fixed, "blueprint/environments/production.ts"), readFileSync(join(fixed, "blueprint/environments/production.ts"), "utf8").replace('"staging"', '"preview"'));
+    const renamed = await modelOf(fixed);
+    expect(Exit.isSuccess(renamed)).toBe(true);
+    if (Exit.isSuccess(renamed)) expect(Object.keys(renamed.value.environments!)).toEqual(["local", "preview", "production", "test"]);
+  });
+
   it("refuses a verb file that holds no operation", async () => {
     const exit = await modelOf(resolve(import.meta.dirname, "../../../test/fixtures/not-an-operation"));
     expect(Exit.isFailure(exit)).toBe(true);
     expect(JSON.stringify(exit)).toContain("blueprint/things/widget/verbs/spin.ts");
+  });
+
+  // L2.P (N1): the seams a later target needs, each with a default that keeps today's behaviour.
+  describe("privacy-ready seams", () => {
+    const edit = (root: string, file: string, change: (text: string) => string) => {
+      const path = join(root, "blueprint", file);
+      writeFileSync(path, change(readFileSync(path, "utf8")));
+    };
+
+    it("carries `visibility` into the model: the declared secrets are marked, everything else is public by absence", async () => {
+      const exit = await modelOf(acme);
+      expect(Exit.isSuccess(exit)).toBe(true);
+      if (!Exit.isSuccess(exit)) return;
+      const ops = exit.value.operations;
+      expect(ops["session.sign-in"]?.payload["password"]?.visibility).toBe("secret");
+      expect(ops["session.sign-in"]?.answer["token"]?.visibility).toBe("secret");
+      expect(ops["session.sign-in"]?.answer["session"]?.visibility).toBe("secret");
+      expect(ops["session.sign-in"]?.payload["email"]).not.toHaveProperty("visibility");
+      expect(ops["person.sign-up"]?.payload["password"]?.visibility).toBe("secret");
+      expect(ops["api-key.create"]?.answer["key"]?.visibility).toBe("secret");
+      expect(ops["allowance.grant"]?.payload["limit"]).not.toHaveProperty("visibility");
+      // The things' own fields are public: a session id declared elsewhere is not secret because one answer marks it.
+      expect(exit.value.things["session"]?.fields["id"]).not.toHaveProperty("visibility");
+    });
+
+    it("carries `private(role)` into the model, the role named as thing.role", async () => {
+      const root = copyOfAcme();
+      edit(root, "things/allowance/verbs/grant.ts", (t) => t.replace("limit: Allowance.fields.limit }", "limit: Blueprint.visibility.private(Allowance.fields.limit, owner) }"));
+      edit(root, "things/allowance/errors.ts", (t) => t.replace('import { Amount }', 'import { owner } from "../organization/roles.ts";\nimport { Amount }').replace("remaining: Amount", "remaining: Blueprint.visibility.private(Amount, owner)"));
+      const exit = await modelOf(root);
+      expect(Exit.isSuccess(exit)).toBe(true);
+      if (!Exit.isSuccess(exit)) return;
+      expect(exit.value.operations["allowance.grant"]?.payload["limit"]?.visibility).toEqual({ private: ["organization.owner"] });
+      expect(exit.value.things["allowance"]?.errors["AllowanceExceeded"]?.fields["remaining"]?.visibility).toEqual({ private: ["organization.owner"] });
+      // Only what was marked: the same field elsewhere is public.
+      expect(exit.value.things["allowance"]?.events["AllowanceGranted"]?.["limit"]).not.toHaveProperty("visibility");
+    });
+
+    it("numbers refusal codes by declaration order, and a new error never moves one that shipped", async () => {
+      const before = await modelOf(acme);
+      expect(Exit.isSuccess(before)).toBe(true);
+      if (!Exit.isSuccess(before)) return;
+      expect(before.value.things["allowance"]?.code).toBe("AL");
+      expect(Object.fromEntries(Object.entries(before.value.things["allowance"]!.errors).map(([n, e]) => [n, e.code]))).toEqual({
+        AllowanceExceeded: "AL-001", AllowanceNotFound: "AL-002", AllowanceLimitTooHigh: "AL-003",
+      });
+      expect(before.value.refusals).toMatchObject({ AllowanceNotActive: "AL-900", NotAllowed: "AR-001", PersonEmailTaken: "PE-001", SessionCredentialsWrong: "SE-001" });
+
+      const root = copyOfAcme();
+      edit(root, "things/allowance/errors.ts", (t) => `${t}export class AllowanceFrozen extends Blueprint.error({}, { exit: 45 }) {}\n`);
+      const after = await modelOf(root);
+      expect(Exit.isSuccess(after)).toBe(true);
+      if (!Exit.isSuccess(after)) return;
+      expect(after.value.refusals).toMatchObject({ AllowanceExceeded: "AL-001", AllowanceNotFound: "AL-002", AllowanceLimitTooHigh: "AL-003", AllowanceFrozen: "AL-004", AllowanceNotActive: "AL-900" });
+    });
+
+    it("refuses two things that would share a code prefix, naming both", async () => {
+      const root = copyOfAcme();
+      edit(root, "things/organization/thing.ts", (t) => t.replace('  description: "A company', '  code: "AL",\n  description: "A company'));
+      const exit = await modelOf(root);
+      expect(Exit.isFailure(exit)).toBe(true);
+      expect(JSON.stringify(exit)).toMatch(/organization and allowance would both have refusal codes starting AL-|allowance and organization would both/);
+    });
+
+    it("defaults `runs` to server and `test` to unit, and refuses every other place, naming the target that would run it", async () => {
+      const exit = await modelOf(acme);
+      expect(Exit.isSuccess(exit)).toBe(true);
+      if (Exit.isSuccess(exit)) expect(Object.values(exit.value.operations).every((o) => o.runs === "server" && o.test === "unit")).toBe(true);
+
+      const client = copyOfAcme();
+      edit(client, "things/allowance/verbs/grant.ts", (t) => t.replace("  idempotent:", '  runs: "client",\n  idempotent:'));
+      const refusedClient = await modelOf(client);
+      expect(Exit.isFailure(refusedClient)).toBe(true);
+      expect(JSON.stringify(refusedClient)).toContain('blueprint/things/allowance/verbs/grant.ts: runs \\"client\\" is not supported yet');
+      expect(JSON.stringify(refusedClient)).toContain("target-noir");
+
+      const chain = copyOfAcme();
+      edit(chain, "things/allowance/verbs/grant.ts", (t) => t.replace("  idempotent:", '  runs: "chain",\n  idempotent:'));
+      const refusedChain = await modelOf(chain);
+      expect(Exit.isFailure(refusedChain)).toBe(true);
+      expect(JSON.stringify(refusedChain)).toContain("target-solidity");
+    });
+
+    it("carries a test kind a target set, `unit` otherwise", async () => {
+      const root = copyOfAcme();
+      edit(root, "things/allowance/verbs/grant.ts", (t) => t.replace("  idempotent:", '  test: "network",\n  idempotent:'));
+      const exit = await modelOf(root);
+      expect(Exit.isSuccess(exit)).toBe(true);
+      if (!Exit.isSuccess(exit)) return;
+      expect(exit.value.operations["allowance.grant"]?.test).toBe("network");
+      expect(exit.value.operations["allowance.spend"]?.test).toBe("unit");
+    });
   });
 });

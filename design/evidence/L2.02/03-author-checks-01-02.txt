@@ -1,0 +1,20 @@
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-a8c944c00ecfdfc65/e2e
+
+ ✓ layer2/02-the-logbook-takes-signed-verdicts.test.ts > check 2: the logbook and signed verdicts > takes a token from the trusted issuer, and refuses forged, foreign and unsigned ones with 401 317ms
+ ✓ layer2/01-prove-in-a-test-world.test.ts > check 1: prove --env test > makes a world with a lifetime, posts a signed verdict per operation, and destroys the world 11569ms
+ ✓ layer2/01-prove-in-a-test-world.test.ts > check 1: prove --env test > a run killed part-way leaves a world that worlds reap removes after its lifetime 36329ms
+
+ Test Files  2 passed (2)
+      Tests  3 passed (3)
+   Start at  22:07:02
+   Duration  54.60s (transform 43ms, setup 0ms, import 836ms, tests 61.10s, environment 0ms)
+
+error during close Error: left behind: architect-collector-65725-892260599
+    at Object.teardown (/Users/abuusama/projects/architect/.claude/worktrees/agent-a8c944c00ecfdfc65/e2e/layer2/teardown.ts:22:30)
+    at TestProject._teardownGlobalSetup (file:///Users/abuusama/projects/architect/.claude/worktrees/agent-a8c944c00ecfdfc65/node_modules/.pnpm/vitest@4.1.12_@opentelemetry+api@1.10.0_@types+node@24.19.2_vite@8.3.5_@types+node@24.1_86da054293acb62b0cc0edcca3196042/node_modules/vitest/dist/chunks/cli-api.B0Pz1_R7.js:10825:100)
+    at file:///Users/abuusama/projects/architect/.claude/worktrees/agent-a8c944c00ecfdfc65/node_modules/.pnpm/vitest@4.1.12_@opentelemetry+api@1.10.0_@types+node@24.19.2_vite@8.3.5_@types+node@24.1_86da054293acb62b0cc0edcca3196042/node_modules/vitest/dist/chunks/cli-api.B0Pz1_R7.js:14004:68
+    at Vitest.close (file:///Users/abuusama/projects/architect/.claude/worktrees/agent-a8c944c00ecfdfc65/node_modules/.pnpm/vitest@4.1.12_@opentelemetry+api@1.10.0_@types+node@24.19.2_vite@8.3.5_@types+node@24.1_86da054293acb62b0cc0edcca3196042/node_modules/vitest/dist/chunks/cli-api.B0Pz1_R7.js:14025:5)
+    at startVitest (file:///Users/abuusama/projects/architect/.claude/worktrees/agent-a8c944c00ecfdfc65/node_modules/.pnpm/vitest@4.1.12_@opentelemetry+api@1.10.0_@types+node@24.19.2_vite@8.3.5_@types+node@24.1_86da054293acb62b0cc0edcca3196042/node_modules/vitest/dist/chunks/cli-api.B0Pz1_R7.js:14643:14)
+    at async start (file:///Users/abuusama/projects/architect/.claude/worktrees/agent-a8c944c00ecfdfc65/node_modules/.pnpm/vitest@4.1.12_@opentelemetry+api@1.10.0_@types+node@24.19.2_vite@8.3.5_@types+node@24.1_86da054293acb62b0cc0edcca3196042/node_modules/vitest/dist/chunks/cac.DzDtg8hz.js:2340:15)
+    at async CAC.run (file:///Users/abuusama/projects/architect/.claude/worktrees/agent-a8c944c00ecfdfc65/node_modules/.pnpm/vitest@4.1.12_@opentelemetry+api@1.10.0_@types+node@24.19.2_vite@8.3.5_@types+node@24.1_86da054293acb62b0cc0edcca3196042/node_modules/vitest/dist/chunks/cac.DzDtg8hz.js:2318:2)

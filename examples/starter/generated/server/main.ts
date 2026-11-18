@@ -1,13 +1,17 @@
 // Generated from the blueprint. Do not edit.
 // The Worker: each operation's route runs its handler through the runtime's wrapper; /_world/* goes to the world.
 import { Context, Effect, Layer } from "effect";
+import { ManagedRuntime, Tracer } from "effect";
 import { HttpRouter, HttpServer } from "effect/http";
 import { HttpApiBuilder } from "effect/http-api";
 import { SqlClient } from "effect/sql";
 import type { Principal } from "@architect/blueprint";
 import { AuthD1, Database, JournalD1, StoreD1, Telemetry, toWorld } from "@architect/host-cloudflare";
 import { Auth, Busy, BusyLive, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@architect/target-effect";
+import { Mcp, type McpResult } from "@architect/target-effect";
 import { Api, Errors } from "../api/src/index.ts";
+import * as portal from "../portal/main.ts";
+import { catalog } from "../mcp/src/index.ts";
 import * as apiKeyCreate from "../api/src/api-key/create.ts";
 import * as invitationAccept from "../api/src/invitation/accept.ts";
 import * as invitationRevoke from "../api/src/invitation/revoke.ts";
@@ -19,15 +23,15 @@ import * as personSignUp from "../api/src/person/sign-up.ts";
 import * as sessionShow from "../api/src/session/show.ts";
 import * as sessionSignIn from "../api/src/session/sign-in.ts";
 import * as systemHealth from "../api/src/system/health.ts";
-import apiKeyCreateHandler from "../../implementation/handlers/api-key/create.ts";
-import invitationAcceptHandler from "../../implementation/handlers/invitation/accept.ts";
-import invitationRevokeHandler from "../../implementation/handlers/invitation/revoke.ts";
-import invitationSendHandler from "../../implementation/handlers/invitation/send.ts";
-import organizationCreateHandler from "../../implementation/handlers/organization/create.ts";
-import personSignUpHandler from "../../implementation/handlers/person/sign-up.ts";
-import sessionShowHandler from "../../implementation/handlers/session/show.ts";
-import sessionSignInHandler from "../../implementation/handlers/session/sign-in.ts";
-import systemHealthHandler from "../../implementation/handlers/system/health.ts";
+import apiKeyCreateHandler from "../../src/api-key/create.ts";
+import invitationAcceptHandler from "../../src/invitation/accept.ts";
+import invitationRevokeHandler from "../../src/invitation/revoke.ts";
+import invitationSendHandler from "../../src/invitation/send.ts";
+import organizationCreateHandler from "../../src/organization/create.ts";
+import personSignUpHandler from "../../src/person/sign-up.ts";
+import sessionShowHandler from "../../src/session/show.ts";
+import sessionSignInHandler from "../../src/session/sign-in.ts";
+import systemHealthHandler from "../../src/system/health.ts";
 import * as apiKeyThing from "../../blueprint/things/api-key/thing.ts";
 import * as invitationThing from "../../blueprint/things/invitation/thing.ts";
 import * as membershipThing from "../../blueprint/things/membership/thing.ts";
@@ -118,7 +122,23 @@ export interface Env {
   /** Better Auth's secret, at least 32 characters: fresh per local world, a named secret per environment. */
   readonly AUTH_SECRET: string;
   readonly OTLP_URL?: string;
+  /** The environment's telemetry sinks beside the collector, as JSON: each one's OTLP endpoints and headers. A secret. */
+  readonly OTLP_SINKS?: string;
+  /** The environment's name, written on every span as `deployment.environment`: `local` for a world of dev or prove. */
+  readonly ARCHITECT_ENVIRONMENT?: string;
+  /** Which build this environment runs, set by `architect env up`; unset for a world made by `architect dev` or prove. */
+  readonly ARCHITECT_REVISION?: string;
+  readonly ARCHITECT_BUNDLE_SHA256?: string;
+  /** The portal's: where the logbook is, which environment this is. Read by `portal.serve`; neither is sent to a browser. */
+  readonly ARCHITECT_LOGBOOK_URL?: string;
+  /** `1` in an environment that hosts worlds with lifetimes (a test environment), set by `architect env up`. */
+  readonly ARCHITECT_WORLDS?: string;
 }
+
+// Better Auth's own routes at /api/auth/*: the device sign-in of this project's CLI. Same database and secret as the
+// layer's instance, so a session either one issues is a person to both.
+let routes: ReturnType<typeof AuthD1.make> | undefined;
+const routesOf = (env: Env) => (routes ??= AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET, cli: "starter-cli" }));
 
 const build = (env: Env) =>
   HttpRouter.toWebHandler(
@@ -133,12 +153,72 @@ const build = (env: Env) =>
 // Built once per isolate, from the first request's bindings.
 let built: ReturnType<typeof build> | undefined;
 
+/** The environments of the blueprint that host worlds: those that declare a `lifetime` (D3 #126). */
+const WORLD_ENVIRONMENTS: ReadonlyArray<string> = ["test"];
+
+/**
+ * `/_world/*` (the cast that signs people up with known passwords, the facts, the registry of worlds) answers only where
+ * worlds live: a world made by `architect dev` or prove (`local`, or no environment), and an environment that declares a lifetime and
+ * was started to host worlds. Anywhere else, staging and production included, it is a 404 before any handler runs.
+ */
+const hostsWorlds = (env: Env) =>
+  !env.ARCHITECT_ENVIRONMENT || env.ARCHITECT_ENVIRONMENT === "local" || (env.ARCHITECT_WORLDS === "1" && WORLD_ENVIRONMENTS.includes(env.ARCHITECT_ENVIRONMENT));
+
+/** One tool per operation and read: the same served operations as the API, called as the person the access token names. */
+const tools = Mcp.tools<Services>({
+  catalog,
+  served: { "api-key.create": apiKeyCreateServed, "invitation.accept": invitationAcceptServed, "invitation.revoke": invitationRevokeServed, "invitation.send": invitationSendServed, "membership.get": membershipGetServed, "organization.create": organizationCreateServed, "organization.get": organizationGetServed, "person.sign-up": personSignUpServed, "session.show": sessionShowServed, "session.sign-in": sessionSignInServed, "system.health": systemHealthServed },
+  refusals: { codes: Errors.codes, declared: Errors.declared },
+});
+
+// The MCP server's own runtime, built once per isolate: the same store, journal, busy count and auth as the API's.
+let mcpRuntime: ManagedRuntime.ManagedRuntime<Services, never> | undefined;
+const runtimeOf = (env: Env) =>
+  (mcpRuntime ??= ManagedRuntime.make(
+    Layer.mergeAll(StoreD1.layer({ tables }), JournalD1.layer, BusyLive, AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))).pipe(Layer.provideMerge(Database.d1(env.DB))),
+  ));
+
+const TRACEPARENT = /^00-([0-9a-f]{32})-([0-9a-f]{16})-[0-9a-f]{2}$/;
+
+/** `/mcp`: a person's access token (OAuth, by Better Auth's provider) or a 401 that says where to get one; then the tool call. */
+const mcp = (env: Env, request: Request, context: Context.Context<never> | undefined): Promise<Response> =>
+  Effect.runPromise(AuthD1.oauth.bearer(routesOf(env), request)).then((who) => {
+    if (who.kind !== "person") {
+      const invalid = who.kind === "invalid";
+      return Response.json({ error: invalid ? "invalid_token" : "unauthorized" }, { status: 401, headers: { "www-authenticate": AuthD1.oauth.challenge(request, invalid ? "invalid_token" : undefined) } });
+    }
+    // The caller's span, when it sent one, is the parent of every span of the call.
+    const sent = request.headers.get("traceparent")?.match(TRACEPARENT);
+    const parent = sent ? Tracer.externalSpan({ traceId: sent[1]!, spanId: sent[2]!, sampled: true }) : undefined;
+    const run = (effect: Effect.Effect<McpResult, never, Services>) => {
+      const traced = parent ? Effect.withParentSpan(effect, parent) : effect;
+      return runtimeOf(env).runPromise(context ? Effect.provideContext(traced, context) : traced);
+    };
+    return Mcp.handle({ name: "starter", version: env.ARCHITECT_REVISION ?? "0.0.0", tools, principal: who.principal, run }, request);
+  });
+
 export default {
   fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    // Closed before anything reads it: outside worlds there is no door to cast, to read facts, or to register a world.
+    if (new URL(request.url).pathname.startsWith("/_world/") && !hostsWorlds(env)) return Promise.resolve(Response.json({ error: "not found" }, { status: 404 }));
     if (new URL(request.url).pathname.startsWith("/_world/")) {
-      return toWorld({ worlds: env.WORLD, db: env.DB, tables: tables.map(([, table]) => table) }, request);
+      return toWorld({ worlds: env.WORLD, db: env.DB, tables: tables.map(([, table]) => table), leases: env.ARCHITECT_WORLDS === "1" }, request);
+    }
+    if (new URL(request.url).pathname === "/_architect/bundle") {
+      return env.ARCHITECT_REVISION && env.ARCHITECT_BUNDLE_SHA256
+        ? Promise.resolve(Response.json({ revision: env.ARCHITECT_REVISION, sha256: env.ARCHITECT_BUNDLE_SHA256 }))
+        : Promise.resolve(Response.json({ _tag: "NotAnEnvironment" }, { status: 404 }));
+    }
+    if (portal.owns(new URL(request.url).pathname)) return portal.serve(request, env);
+    if (new URL(request.url).pathname.startsWith("/api/auth/")) return Effect.runPromise(AuthD1.handle(routesOf(env), request));
+    if (new URL(request.url).pathname.startsWith("/.well-known/")) {
+      return Effect.runPromise(AuthD1.oauth.discovery(routesOf(env), request)).then((found) => found ?? Response.json({ error: "not found" }, { status: 404 }));
+    }
+    if (new URL(request.url).pathname === "/mcp") {
+      return Telemetry.serve({ url: env.OTLP_URL || undefined, sinks: env.OTLP_SINKS, environment: env.ARCHITECT_ENVIRONMENT, service: "starter", handler: (req, context) => mcp(env, req, context), waitUntil: (p) => ctx.waitUntil(p) }, request);
     }
     const app = (built ??= build(env));
+    Telemetry.configure({ sinks: env.OTLP_SINKS, environment: env.ARCHITECT_ENVIRONMENT });
     return Telemetry.serve({ url: env.OTLP_URL || undefined, service: "starter", handler: app.handler, waitUntil: (p) => ctx.waitUntil(p) }, request);
   },
 };

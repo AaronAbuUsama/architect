@@ -9,6 +9,7 @@ export const Wire: WireApi = {
     Effect.catch(effect, (e) => {
       const tag = typeof e === "object" && e !== null ? (e as { readonly _tag?: unknown })._tag : undefined;
       const Class = typeof tag === "string" ? classes[tag] : undefined;
-      return Class ? Effect.fail(new Class(fieldsOf(e as object) as never)) : Effect.die(e);
+      // The code is the class's own, set beside the tag.
+      return Class ? Effect.fail(new Class({ ...fieldsOf(e as object), code: Class.code } as never)) : Effect.die(e);
     }),
 };

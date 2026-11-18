@@ -1,0 +1,11 @@
+$ pnpm --dir packages/cli exec vitest run src/modules/watch
+# commit f159db2 · 2026-11-17T00:54:46Z · exit 0 (expected 0) · 2.5s
+
+
+ RUN  v4.1.12 ./packages/cli
+
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  00:54:44
+   Duration  1.83s (transform 1.05s, setup 0ms, import 1.04s, tests 681ms, environment 0ms)

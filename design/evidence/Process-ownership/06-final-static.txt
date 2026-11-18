@@ -1,0 +1,40 @@
+$ bash -c set -e; NX_DAEMON=false pnpm nx run prove:lint --outputStyle=static; NX_DAEMON=false pnpm nx run prove:typecheck --outputStyle=static; NX_DAEMON=false pnpm nx sync:check
+# commit ee35a5c · 2026-11-17T04:49:44Z · exit 0 (expected 0) · 5.3s
+
+
+> nx run prove:lint
+
+> oxlint packages/prove
+
+(node:24363) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+packages/prove/src/modules/world/device-sign-in.test.ts:3:33: warning eslint(no-unused-vars): Type 'ChildProcess' is imported but never used. help: Consider removing this import.
+
+
+
+ NX   Successfully ran target lint for project prove
+
+
+  Run duration:      991ms
+  Cache:             0/1 hit (0%)
+  Critical path:     987ms (1 task)
+  Recoverable time:  <1ms
+
+> nx run prove:typecheck
+
+> tsc -p packages/prove/tsconfig.json
+
+
+
+
+ NX   Successfully ran target typecheck for project prove
+
+
+  Run duration:      459ms
+  Cache:             0/1 hit (0%)
+  Critical path:     455ms (1 task)
+  Recoverable time:  <1ms
+
+ NX   The workspace is up to date
+
+[@architect/generators:sync]: All files are up to date.

@@ -1,0 +1,18 @@
+{
+  "name": "authenticated-siwe-link",
+  "private": true,
+  "type": "module",
+  "scripts": { "prove": "node scripts/main.ts", "typecheck": "tsc6 --noEmit" },
+  "dependencies": {
+    "@architect/host-cloudflare": "link:../../packages/host-cloudflare",
+    "@architect/target-effect": "link:../../packages/target-effect",
+    "effect": "4.1.1",
+    "viem": "2.57.15"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20261101.1",
+    "@types/node": "24.19.2",
+    "typescript": "npm:@typescript/typescript6@6.0.2",
+    "wrangler": "4.156.1"
+  }
+}

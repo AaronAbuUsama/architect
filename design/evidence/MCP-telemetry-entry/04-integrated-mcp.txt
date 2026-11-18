@@ -1,0 +1,11 @@
+$ pnpm exec vitest run --root packages/prove src/modules/world/mcp.test.ts
+# commit 4b39290 · 2026-11-17T04:48:02Z · exit 0 (expected 0) · 15.5s
+
+
+ RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  04:47:47
+   Duration  14.48s (transform 159ms, setup 0ms, import 703ms, tests 13.58s, environment 0ms)

@@ -1,0 +1,46 @@
+$ pnpm exec vitest run --root packages/prove src/modules/promote/promote.test.ts
+# commit 53d028d · 2026-11-17T01:59:17Z · exit 1 (expected 1) · 41.7s
+
+
+ RUN  v4.1.12 ./packages/prove
+
+ ❯ src/modules/promote/promote.test.ts (3 tests | 1 failed) 39994ms
+     × production is refused without staging verdicts, then takes what staging proved: one bundle in test, staging and production 27575ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/promote/promote.test.ts > architect promote > production is refused without staging verdicts, then takes what staging proved: one bundle in test, staging and production
+AssertionError: production from staging 6f5f35b sha256:3cdbecde717f4191a38fd555eb2f9869c69aed766c4da0a2f02a564d94c1d265
+production up http://127.0.0.1:9033   bundle 6f5f35b sha256:3cdbecde717f4191a38fd555eb2f9869c69aed766c4da0a2f02a564d94c1d265 ✔
+released 1.0.0
+publish acme 1.0.0, production's publish list
+skipped npm (set ARCHITECT_REGISTRY to a registry on this machine to publish to)
+skipped homebrew (set ARCHITECT_TAP_REPO to a git repository to commit the formula to)
+skipped github releases (cloud pass)
+skipped cloudflare (cloud pass)
+skipped mcp domain mcp.acme.dev (cloud pass)
+skipped portal domain acme.dev (cloud pass)
+skipped server domain api.acme.dev (cloud pass)
+: expected +0 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ src/modules/promote/promote.test.ts:181:39
+    179|       expect(response.status).toBe(200);
+    180|       const wrong = architect("promote", "--to", "production");
+    181|       expect(wrong.status, wrong.out).toBe(1);
+       |                                       ^
+    182|       expect(wrong.out).toContain("bundle");
+    183|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  01:58:36
+   Duration  40.92s (transform 163ms, setup 0ms, import 805ms, tests 39.99s, environment 0ms)

@@ -1,0 +1,25 @@
+session.show explainability ✔
+session.show 9 evals ✔ p50 0ms p95 0ms budget p95 100ms
+session.sign-in answer shape ✔
+session.sign-in declared errors ✔
+session.sign-in machine path ✔
+session.sign-in events ✔
+session.sign-in who may call ✔
+session.sign-in steps ✔
+session.sign-in performance ✔ p50 62ms p95 67ms budget p95 400ms
+session.sign-in coverage ✔
+session.sign-in explainability ✔
+session.sign-in 9 evals ✔ p50 62ms p95 67ms budget p95 400ms
+system.health answer shape ✔
+system.health declared errors ✔
+system.health machine path ✔
+system.health events ✔
+system.health who may call ✔
+system.health steps ✔
+system.health performance ✔ p50 0ms p95 0ms budget p95 50ms
+system.health coverage ✔
+system.health explainability ✔
+system.health 9 evals ✔ p50 0ms p95 0ms budget p95 50ms
+coverage ✔ moves 4/4 · outcomes 4/4 · refusals 2/2 · runtime refusals 9/10
+prove ✔
+bash tools/e2e/starter.sh  42.40s user 26.03s system 47% cpu 2:23.09 total

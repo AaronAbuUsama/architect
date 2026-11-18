@@ -1,0 +1,11 @@
+$ pnpm exec vitest run --root packages/prove packages/prove/src/modules/world/device-sign-in.test.ts
+# commit 9f19cfd · 2026-11-16T21:37:54Z · exit 0 (expected 0) · 20.7s
+
+
+ RUN  v4.1.12 ./packages/prove
+
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  21:37:34
+   Duration  20.10s (transform 26ms, setup 0ms, import 183ms, tests 19.81s, environment 0ms)

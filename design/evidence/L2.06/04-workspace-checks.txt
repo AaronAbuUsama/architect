@@ -1,0 +1,148 @@
+nx run-many -t lint,typecheck: success (16 projects; 1 warning in e2e/layer1/04, not this change)
+nx sync:check: The workspace is up to date (acme and the starter regenerated their generated/cli/src/main.ts for the version stamp)
+architect prove --env local in examples/acme: prove ✔ (every operation 9 evals ✔, runtime refusals 13/16)
+architect prove --env local in examples/starter: prove ✔
+architect check in examples/acme: check ✔
+tools/e2e/starter.sh: exit 0 (05-starter-e2e.txt)
+nx run-many -t test for blueprint, generators, cli, prove, compiler, acme: every file passes except one assertion of publish.test.ts in that one
+run (the tap's git log had two identical commit subjects, because the idempotent re-run builds the binary again and recommits its formula); the
+assertion was fixed to read the newest commit and the file re-run alone: 02-done-when-tests.txt, 6 of 6.
+
+---- the run, as it was ----
+
+
+ NX   Running target test for 6 projects:
+
+- blueprint
+- generators
+- cli
+- prove
+- compiler
+- acme
+
+
+
+> nx run blueprint:test
+
+> vitest run --root packages/blueprint --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-aa8ccf3ef2023a89a/packages/blueprint
+
+
+ Test Files  16 passed (16)
+      Tests  34 passed (34)
+   Start at  23:19:55
+   Duration  938ms (transform 796ms, setup 0ms, import 4.12s, tests 61ms, environment 1ms)
+
+
+> nx run compiler:test
+
+> vitest run --root packages/compiler --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-aa8ccf3ef2023a89a/packages/compiler
+
+
+ Test Files  3 passed (3)
+      Tests  23 passed (23)
+   Start at  23:19:56
+   Duration  3.03s (transform 1.97s, setup 0ms, import 1.88s, tests 2.55s, environment 0ms)
+
+
+> nx run generators:test
+
+> vitest run --root packages/generators --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-aa8ccf3ef2023a89a/packages/generators
+
+
+ Test Files  3 passed (3)
+      Tests  11 passed (11)
+   Start at  23:19:59
+   Duration  3.06s (transform 236ms, setup 0ms, import 1.47s, tests 4.70s, environment 0ms)
+
+
+> nx run prove:test
+
+> vitest run --root packages/prove --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-aa8ccf3ef2023a89a/packages/prove
+
+ ❯ src/modules/publish/publish.test.ts (6 tests | 1 failed) 90232ms
+     × `brew install <tap>/<formula>` installs the CLI binary, which prints its version and `ok` from a running world 63ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/publish/publish.test.ts > architect publish > `brew install <tap>/<formula>` installs the CLI binary, which prints its version and `ok` from a running world
+AssertionError: expected 'acme-l206-fd07d4 1.1.0\nacme-l206-fd0…' to be 'acme-l206-fd07d4 1.1.0' // Object.is equality
+
+- Expected
++ Received
+
+  acme-l206-fd07d4 1.1.0
++ acme-l206-fd07d4 1.1.0
+
+ ❯ src/modules/publish/publish.test.ts:224:69
+    222|     expect(text).toContain(`url "file://${join(root, `.architect/publi…
+    223|     expect(text).toContain(`sha256 "${(await import("node:crypto")).cr…
+    224|     expect(git(join(root, ".architect/tap"), "log", "--format=%s")).to…
+       |                                                                     ^
+    225|
+    226|     expect(brew("tap", tap, join(root, ".architect/tap")).status).toBe…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 16 passed (17)
+      Tests  1 failed | 65 passed (66)
+   Start at  23:20:03
+   Duration  223.02s (transform 5.41s, setup 0ms, import 8.59s, tests 423.60s, environment 1ms)
+
+Warning: command "vitest run --root packages/prove --passWithNoTests" exited with non-zero status code
+> nx run cli:test
+
+> vitest run --root packages/cli --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-aa8ccf3ef2023a89a/packages/cli
+
+
+ Test Files  6 passed (6)
+      Tests  22 passed (22)
+   Start at  23:23:46
+   Duration  13.16s (transform 4.82s, setup 0ms, import 1.99s, tests 44.06s, environment 0ms)
+
+
+> nx run acme:test
+
+> vitest run --root examples/acme --passWithNoTests
+
+
+ RUN  v4.1.12 /Users/abuusama/projects/architect/.claude/worktrees/agent-aa8ccf3ef2023a89a/examples/acme
+
+No test files found, exiting with code 0
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+
+
+ NX   Running target test for 6 projects failed
+
+Failed tasks:
+
+- prove:test
+
+  Run duration:      4m 5s
+  Cache:             0/5 hit (0%)
+  Critical path:     3m 43s (1 task)
+  Recoverable time:  21.8s (9% of the run)
+
+  Recommendations:
+    - Drastically reduce your run duration by sharing a cache across your team and CI → https://cloud.nx.app/connect/N6Bb5PDNOM.
+    - Speed up or split the longest tasks on the critical path:
+        prove:test    3m 43s

@@ -1,0 +1,250 @@
+{
+  "platform": "darwin",
+  "arch": "arm64",
+  "realClientProofs": true,
+  "networkVerifiesProofs": false,
+  "samples": [
+    {
+      "operation": "publishClass",
+      "provingMs": 10124.250666000004,
+      "proveMs": 12375.440458999998,
+      "totalMs": 15241.84925
+    },
+    {
+      "operation": "initialize",
+      "provingMs": 6927.596917000003,
+      "proveMs": 8779.309374999997,
+      "totalMs": 11658.4945
+    },
+    {
+      "operation": "deposit",
+      "provingMs": 10767.795750000005,
+      "proveMs": 14086.756958000013,
+      "totalMs": 17130.73874999999
+    },
+    {
+      "operation": "deposit",
+      "provingMs": 7872.599625000003,
+      "proveMs": 11183.798666999995,
+      "totalMs": 14113.495291000014
+    },
+    {
+      "operation": "deposit",
+      "provingMs": 8706.934624999994,
+      "proveMs": 11050.360375000004,
+      "totalMs": 14071.498124999998
+    },
+    {
+      "operation": "grant",
+      "provingMs": 5170.163874999998,
+      "proveMs": 6894.456833000004,
+      "totalMs": 9638.49433300001
+    },
+    {
+      "operation": "grant",
+      "provingMs": 5911.791874999995,
+      "proveMs": 7756.505999999994,
+      "totalMs": 10698.09425000001
+    },
+    {
+      "operation": "spend",
+      "provingMs": 10686.995292000007,
+      "proveMs": 13968.885290999984,
+      "totalMs": 16832.551124999998
+    },
+    {
+      "operation": "spend",
+      "provingMs": 9584.829333000001,
+      "proveMs": 12839.100957999995,
+      "totalMs": 16105.494750000013
+    },
+    {
+      "operation": "spend",
+      "provingMs": 17626.85708300001,
+      "proveMs": 26982.899249999988,
+      "totalMs": 33373.209458999976
+    },
+    {
+      "operation": "spend",
+      "provingMs": 14550.784291999997,
+      "proveMs": 28028.512832999986,
+      "totalMs": 32500.998416000017
+    },
+    {
+      "operation": "spend",
+      "provingMs": 13138.309875000006,
+      "proveMs": 21148.03895800002,
+      "totalMs": 27715.02220800001
+    },
+    {
+      "operation": "revoke",
+      "provingMs": 8910.331999999995,
+      "proveMs": 12738.522125000018,
+      "totalMs": 16476.85475
+    },
+    {
+      "operation": "grant",
+      "provingMs": 10805.55716700002,
+      "proveMs": 16322.560083000048,
+      "totalMs": 19867.630749999953
+    },
+    {
+      "operation": "revoke",
+      "provingMs": 7354.298749999958,
+      "proveMs": 10719.93395799998,
+      "totalMs": 13876.583665999991
+    },
+    {
+      "operation": "grant",
+      "provingMs": 6679.262749999994,
+      "proveMs": 9458.797625000007,
+      "totalMs": 12304.682207999984
+    },
+    {
+      "operation": "grant",
+      "provingMs": 9080.85387500003,
+      "proveMs": 14469.244750000013,
+      "totalMs": 17904.50920899998
+    },
+    {
+      "operation": "revoke",
+      "provingMs": 20443.35699999996,
+      "proveMs": 45938.698334000015,
+      "totalMs": 53500.97862499999
+    },
+    {
+      "operation": "ordinary",
+      "provingMs": -1,
+      "proveMs": 12049.008416000055,
+      "totalMs": 18333.261500000022
+    },
+    {
+      "operation": "ordinary",
+      "provingMs": -1,
+      "proveMs": 14624.868625000003,
+      "totalMs": 23672.610957999947
+    },
+    {
+      "operation": "ordinary",
+      "provingMs": -1,
+      "proveMs": 14154.687999999966,
+      "totalMs": 18581.24174999993
+    },
+    {
+      "operation": "ordinary",
+      "provingMs": -1,
+      "proveMs": 18704.39312500006,
+      "totalMs": 23352.438749999972
+    },
+    {
+      "operation": "ordinary",
+      "provingMs": -1,
+      "proveMs": 11770.990791000077,
+      "totalMs": 16191.35379199998
+    },
+    {
+      "operation": "ordinary",
+      "provingMs": -1,
+      "proveMs": 10273.06691699999,
+      "totalMs": 15258.317291999934
+    },
+    {
+      "operation": "ordinary",
+      "provingMs": -1,
+      "proveMs": 10272.79545799992,
+      "totalMs": 14834.246500000008
+    },
+    {
+      "operation": "ordinary",
+      "provingMs": -1,
+      "proveMs": 1766.6734579999465,
+      "totalMs": 4838.139457999961
+    },
+    {
+      "operation": "ordinary",
+      "provingMs": -1,
+      "proveMs": 4462.6270409999415,
+      "totalMs": 7315.369916999945
+    },
+    {
+      "operation": "ordinary",
+      "provingMs": -1,
+      "proveMs": 1318.0942909999285,
+      "totalMs": 4404.306875000009
+    },
+    {
+      "operation": "ordinary",
+      "provingMs": -1,
+      "proveMs": 1964.1260839999886,
+      "totalMs": 4845.186958000064
+    },
+    {
+      "operation": "ordinary",
+      "provingMs": -1,
+      "proveMs": 2391.231000000029,
+      "totalMs": 5603.233541999944
+    },
+    {
+      "operation": "ordinary",
+      "provingMs": -1,
+      "proveMs": 3843.4784169999184,
+      "totalMs": 7182.18191699998
+    },
+    {
+      "operation": "ordinary",
+      "provingMs": -1,
+      "proveMs": 7624.319042000105,
+      "totalMs": 11327.589208999998
+    },
+    {
+      "operation": "ordinary",
+      "provingMs": -1,
+      "proveMs": 5090.495916999993,
+      "totalMs": 8703.737208000035
+    },
+    {
+      "operation": "ordinary",
+      "provingMs": -1,
+      "proveMs": 6316.866167000029,
+      "totalMs": 9927.722124999971
+    },
+    {
+      "operation": "ordinary",
+      "provingMs": -1,
+      "proveMs": 3051.2621250000084,
+      "totalMs": 6098.998249999946
+    },
+    {
+      "operation": "ordinary",
+      "provingMs": -1,
+      "proveMs": 2407.23666699999,
+      "totalMs": 5713.847084000008
+    },
+    {
+      "operation": "ordinary",
+      "provingMs": 6425.130083000055,
+      "proveMs": 9506.542292000027,
+      "totalMs": 15932.037459000014
+    },
+    {
+      "operation": "ordinary",
+      "provingMs": -1,
+      "proveMs": 2199.5333339999197,
+      "totalMs": 5246.087582999957
+    },
+    {
+      "operation": "ordinary",
+      "provingMs": -1,
+      "proveMs": 1919.3692499999888,
+      "totalMs": 4894.817041000002
+    },
+    {
+      "operation": "spend",
+      "provingMs": 9092.480083000031,
+      "proveMs": 11499.456375000067,
+      "totalMs": 14358.272999999928
+    }
+  ],
+  "partiesWithFeeJuice": 0,
+  "organisationPubliclyDeployed": false
+}

@@ -26,10 +26,10 @@ describe("architect generate", () => {
     const first = architect("generate");
     expect(first.status).toBe(0);
     expect(scaffolds(first.stdout)).toEqual([
-      "implementation/handlers/allowance/grant.ts", "implementation/handlers/allowance/revoke.ts", "implementation/handlers/allowance/spend.ts",
-      "implementation/handlers/api-key/create.ts", "implementation/handlers/invitation/accept.ts", "implementation/handlers/invitation/revoke.ts",
-      "implementation/handlers/invitation/send.ts", "implementation/handlers/organization/create.ts", "implementation/handlers/person/sign-up.ts",
-      "implementation/handlers/session/show.ts", "implementation/handlers/session/sign-in.ts", "implementation/handlers/system/health.ts",
+      "src/allowance/grant.ts", "src/allowance/revoke.ts", "src/allowance/spend.ts",
+      "src/api-key/create.ts", "src/invitation/accept.ts", "src/invitation/revoke.ts",
+      "src/invitation/send.ts", "src/organization/create.ts", "src/person/sign-up.ts",
+      "src/session/show.ts", "src/session/sign-in.ts", "src/system/health.ts",
     ]);
     expect(existsSync(join(root, "generated/api/src/allowance/pause.ts"))).toBe(false);
 
@@ -46,7 +46,7 @@ export default Blueprint.operation(Allowance, {
 });
 `);
     const second = architect("generate");
-    expect(scaffolds(second.stdout)).toEqual(["implementation/handlers/allowance/pause.ts"]);
+    expect(scaffolds(second.stdout)).toEqual(["src/allowance/pause.ts"]);
     expect(existsSync(join(root, "generated/api/src/allowance/pause.handler.ts"))).toBe(true);
 
     expect(architect("generate").stdout.trim()).toBe("nothing to change");

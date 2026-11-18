@@ -1,0 +1,8 @@
+{
+  "tier": "client",
+  "inputs": 340,
+  "fixtureInputs": [
+    "project/node_modules/@architect/spike-fixture-kit/dist/blueprint.js"
+  ],
+  "violations": []
+}

@@ -1,0 +1,1057 @@
+$ gh run view 44025466900 --job 133844609932 --log
+# commit 4516059 · 2026-11-17T05:48:07Z · exit 0 (expected 0) · 2.0s
+
+check	Set up job	﻿2026-11-17T05:38:03.1466518Z Current runner version: '2.338.2'
+check	Set up job	2026-11-17T05:38:03.1483330Z ##[group]Runner Image Provisioner
+check	Set up job	2026-11-17T05:38:03.1483968Z Hosted Compute Agent
+check	Set up job	2026-11-17T05:38:03.1484326Z Version: 20261103.629
+check	Set up job	2026-11-17T05:38:03.1484701Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+check	Set up job	2026-11-17T05:38:03.1485201Z Build Date: 2026-11-03T17:26:59Z
+check	Set up job	2026-11-17T05:38:03.1485616Z Worker ID: {8cc6b25b-d378-4bc1-92a2-83cc69cfc280}
+check	Set up job	2026-11-17T05:38:03.1486015Z Region: westus3
+check	Set up job	2026-11-17T05:38:03.1486386Z Cloud: Azure
+check	Set up job	2026-11-17T05:38:03.1486977Z ##[endgroup]
+check	Set up job	2026-11-17T05:38:03.1487807Z ##[group]Operating System
+check	Set up job	2026-11-17T05:38:03.1488165Z Ubuntu
+check	Set up job	2026-11-17T05:38:03.1488680Z 24.04.5
+check	Set up job	2026-11-17T05:38:03.1488984Z LTS
+check	Set up job	2026-11-17T05:38:03.1489278Z ##[endgroup]
+check	Set up job	2026-11-17T05:38:03.1489673Z ##[group]Runner Image
+check	Set up job	2026-11-17T05:38:03.1490021Z Image: ubuntu-24.04
+check	Set up job	2026-11-17T05:38:03.1490375Z Version: 20261111.370.1
+check	Set up job	2026-11-17T05:38:03.1490975Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261111.370/images/ubuntu/Ubuntu2404-Readme.md
+check	Set up job	2026-11-17T05:38:03.1492009Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261111.370
+check	Set up job	2026-11-17T05:38:03.1492543Z ##[endgroup]
+check	Set up job	2026-11-17T05:38:03.1493220Z ##[group]GITHUB_TOKEN Permissions
+check	Set up job	2026-11-17T05:38:03.1494317Z Contents: read
+check	Set up job	2026-11-17T05:38:03.1494693Z Metadata: read
+check	Set up job	2026-11-17T05:38:03.1495066Z ##[endgroup]
+check	Set up job	2026-11-17T05:38:03.1496309Z Secret source: Actions
+check	Set up job	2026-11-17T05:38:03.1496905Z Cache mode: write
+check	Set up job	2026-11-17T05:38:03.1497309Z Prepare workflow directory
+check	Set up job	2026-11-17T05:38:03.1693754Z Prepare all required actions
+check	Set up job	2026-11-17T05:38:03.1724193Z Getting action download info
+check	Set up job	2026-11-17T05:38:03.4647747Z Download action repository 'actions/checkout@v7.0.1' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+check	Set up job	2026-11-17T05:38:03.5723578Z Download action repository 'pnpm/action-setup@v6.1.0' (SHA:ea17c68df8912ef543352723c149a84f56e3d413)
+check	Set up job	2026-11-17T05:38:04.0102377Z Download action repository 'actions/setup-node@v7.1.0' (SHA:949feb2413d6458794dcd2491c4babbbce0c15c1)
+check	Set up job	2026-11-17T05:38:04.1568299Z Complete job name: check
+check	Run actions/checkout@v7.0.1	﻿2026-11-17T05:38:04.2056811Z ##[group]Run actions/checkout@v7.0.1
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.2057232Z with:
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.2057454Z   fetch-depth: 0
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.2057735Z   repository: AaronAbuUsama/architect
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.2059945Z   token: ***
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.2060165Z   ssh-strict: true
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.2060397Z   ssh-user: git
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.2060630Z   persist-credentials: true
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.2060883Z   clean: true
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.2061115Z   sparse-checkout-cone-mode: true
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.2061385Z   fetch-tags: false
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.2061615Z   show-progress: true
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.2061846Z   lfs: false
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.2062057Z   submodules: false
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.2062287Z   set-safe-directory: true
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.2062550Z   allow-unsafe-pr-checkout: false
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.2062891Z ##[endgroup]
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.3802902Z Syncing repository: AaronAbuUsama/architect
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.3804103Z ##[group]Getting Git version info
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.3804683Z Working directory is '/home/runner/work/architect/architect'
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.3805508Z [command]/usr/bin/git version
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.3868771Z git version 2.56.1
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.3882152Z ##[endgroup]
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.3888857Z Temporarily overriding HOME='/home/runner/work/_temp/d4791010-358c-4dba-9a4e-d75db3a7fb2e' before making global git config changes
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.3889972Z Adding repository directory to the temporary git global config as a safe directory
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.3892553Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/architect/architect
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.3930531Z Deleting the contents of '/home/runner/work/architect/architect'
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.3932665Z ##[group]Determining repository object format
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.3933681Z ##[endgroup]
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.3934050Z ##[group]Initializing the repository
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.3936511Z [command]/usr/bin/git init /home/runner/work/architect/architect
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4015634Z hint: Using 'master' as the name for the initial branch. This default branch name
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4016708Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4017604Z hint: to use in all of your new repositories, which will suppress this warning,
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4018442Z hint: call:
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4018859Z hint:
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4019280Z hint: 	git config --global init.defaultBranch <name>
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4019723Z hint:
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4020021Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4020494Z hint: 'development'. The just-created branch can be renamed via this command:
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4020871Z hint:
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4021090Z hint: 	git branch -m <name>
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4021338Z hint:
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4021798Z hint: Disable this message with "git config set advice.defaultBranchName false"
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4022564Z Initialized empty Git repository in /home/runner/work/architect/architect/.git/
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4030869Z [command]/usr/bin/git remote add origin https://github.com/AaronAbuUsama/architect
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4106505Z ##[endgroup]
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4107145Z ##[group]Disabling automatic garbage collection
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4109819Z [command]/usr/bin/git config --local gc.auto 0
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4140328Z ##[endgroup]
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4140825Z ##[group]Setting up auth
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4146439Z Removing SSH command configuration
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4156052Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4212989Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4475336Z Removing HTTP extra header
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4480019Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4518230Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4697749Z Removing includeIf entries pointing to credentials config files
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4701562Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4743330Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4925559Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-a7c26161-7123-4e98-87ca-891a091805c2.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.4966229Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/architect/architect/.git.path /home/runner/work/_temp/git-credentials-a7c26161-7123-4e98-87ca-891a091805c2.config
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.5002556Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/architect/architect/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-a7c26161-7123-4e98-87ca-891a091805c2.config
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.5039781Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-a7c26161-7123-4e98-87ca-891a091805c2.config
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.5075933Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-a7c26161-7123-4e98-87ca-891a091805c2.config
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.5110725Z ##[endgroup]
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.5111143Z ##[group]Fetching the repository
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:04.5115040Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5702820Z From https://github.com/AaronAbuUsama/architect
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5704411Z  * [new branch]      author/check08-prove-test -> origin/author/check08-prove-test
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5705677Z  * [new branch]      author/gate-2           -> origin/author/gate-2
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5706625Z  * [new branch]      author/layout           -> origin/author/layout
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5707644Z  * [new branch]      author/refusal-codes    -> origin/author/refusal-codes
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5708756Z  * [new branch]      build/L2.01             -> origin/build/L2.01
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5709678Z  * [new branch]      build/L2.02             -> origin/build/L2.02
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5710785Z  * [new branch]      build/L2.03             -> origin/build/L2.03
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5711725Z  * [new branch]      build/L2.04             -> origin/build/L2.04
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5712701Z  * [new branch]      build/L2.05             -> origin/build/L2.05
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5713661Z  * [new branch]      build/L2.06             -> origin/build/L2.06
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5714687Z  * [new branch]      build/L2.07             -> origin/build/L2.07
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5715648Z  * [new branch]      build/L2.08             -> origin/build/L2.08
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5716627Z  * [new branch]      build/L2.09             -> origin/build/L2.09
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5717654Z  * [new branch]      build/L2.10             -> origin/build/L2.10
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5718881Z  * [new branch]      build/L2.L              -> origin/build/L2.L
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5719920Z  * [new branch]      build/L2.O              -> origin/build/L2.O
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5721006Z  * [new branch]      build/L2.P              -> origin/build/L2.P
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5722173Z  * [new branch]      build/portal-pro        -> origin/build/portal-pro
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5723762Z  * [new branch]      claude/codex-handoff-1a51aa -> origin/claude/codex-handoff-1a51aa
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5725384Z  * [new branch]      claude/codex-handoff-console -> origin/claude/codex-handoff-console
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5727180Z  * [new branch]      claude/design-agent-bench-e3a2ca -> origin/claude/design-agent-bench-e3a2ca
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5729389Z  * [new branch]      claude/design-agent-harness-e6e8ff -> origin/claude/design-agent-harness-e6e8ff
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5731061Z  * [new branch]      design/agent-harness    -> origin/design/agent-harness
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5732344Z  * [new branch]      design/f2-addendum      -> origin/design/f2-addendum
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5733844Z  * [new branch]      design/f3-portal-upgrade-brief -> origin/design/f3-portal-upgrade-brief
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5735274Z  * [new branch]      design/frontend         -> origin/design/frontend
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5736533Z  * [new branch]      design/observability    -> origin/design/observability
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5737933Z  * [new branch]      design/observability-sinks -> origin/design/observability-sinks
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5739516Z  * [new branch]      design/portal-ia        -> origin/design/portal-ia
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5740684Z  * [new branch]      layer/1                 -> origin/layer/1
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5741824Z  * [new branch]      layer/2                 -> origin/layer/2
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5742866Z  * [new branch]      layer/3                 -> origin/layer/3
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5743862Z  * [new branch]      main                    -> origin/main
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5745074Z  * [new branch]      portal/heroui-pro-template -> origin/portal/heroui-pro-template
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5746413Z  * [new branch]      spike/ci-oidc           -> origin/spike/ci-oidc
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5747579Z  * [new branch]      spike/e2b-sandbox       -> origin/spike/e2b-sandbox
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5748882Z  * [new branch]      spike/mcp-oauth         -> origin/spike/mcp-oauth
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5750133Z  * [new branch]      spike/noir-private-core -> origin/spike/noir-private-core
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5751388Z  * [new branch]      spike/portal-docs       -> origin/spike/portal-docs
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5752579Z  * [new branch]      spike/single-binary     -> origin/spike/single-binary
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5755253Z [command]/usr/bin/git branch --list --remote origin/layer/3
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5756275Z   origin/layer/3
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5761824Z [command]/usr/bin/git rev-parse refs/remotes/origin/layer/3
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5794236Z 4516059b27c2013fda885225a7ea2074357ab3b2
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5798223Z ##[endgroup]
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5799439Z ##[group]Determining the checkout info
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5800663Z ##[endgroup]
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5801446Z [command]/usr/bin/git sparse-checkout disable
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5855848Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5893810Z ##[group]Checking out the ref
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.5896105Z [command]/usr/bin/git checkout --progress --force -B layer/3 refs/remotes/origin/layer/3
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.6860066Z Switched to a new branch 'layer/3'
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.6861791Z branch 'layer/3' set up to track 'origin/layer/3'.
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.6874747Z ##[endgroup]
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.6927763Z [command]/usr/bin/git log -1 --format=%H
+check	Run actions/checkout@v7.0.1	2026-11-17T05:38:05.6968653Z 4516059b27c2013fda885225a7ea2074357ab3b2
+check	Run pnpm/action-setup@v6.1.0	﻿2026-11-17T05:38:05.7273948Z ##[group]Run pnpm/action-setup@v6.1.0
+check	Run pnpm/action-setup@v6.1.0	2026-11-17T05:38:05.7274671Z with:
+check	Run pnpm/action-setup@v6.1.0	2026-11-17T05:38:05.7275111Z   dest: ~/setup-pnpm
+check	Run pnpm/action-setup@v6.1.0	2026-11-17T05:38:05.7275620Z   run_install: null
+check	Run pnpm/action-setup@v6.1.0	2026-11-17T05:38:05.7276105Z   cache: false
+check	Run pnpm/action-setup@v6.1.0	2026-11-17T05:38:05.7276618Z   cache_dependency_path: pnpm-lock.yaml
+check	Run pnpm/action-setup@v6.1.0	2026-11-17T05:38:05.7277324Z   package_json_file: package.json
+check	Run pnpm/action-setup@v6.1.0	2026-11-17T05:38:05.7277957Z   standalone: false
+check	Run pnpm/action-setup@v6.1.0	2026-11-17T05:38:05.7278542Z ##[endgroup]
+check	Run pnpm/action-setup@v6.1.0	2026-11-17T05:38:05.8281640Z ##[group]Running self-installer...
+check	Run pnpm/action-setup@v6.1.0	2026-11-17T05:38:06.7608399Z 
+check	Run pnpm/action-setup@v6.1.0	2026-11-17T05:38:06.7609016Z added 1 package, and audited 2 packages in 739ms
+check	Run pnpm/action-setup@v6.1.0	2026-11-17T05:38:06.7609243Z 
+check	Run pnpm/action-setup@v6.1.0	2026-11-17T05:38:06.7609352Z 1 package is looking for funding
+check	Run pnpm/action-setup@v6.1.0	2026-11-17T05:38:06.7609593Z   run `npm fund` for details
+check	Run pnpm/action-setup@v6.1.0	2026-11-17T05:38:06.7612263Z 
+check	Run pnpm/action-setup@v6.1.0	2026-11-17T05:38:06.7612374Z found 0 vulnerabilities
+check	Run pnpm/action-setup@v6.1.0	2026-11-17T05:38:07.1709631Z Checking for updates...
+check	Run pnpm/action-setup@v6.1.0	2026-11-17T05:38:07.3340659Z Switching pnpm from v11.25.0 to v11.20.0...
+check	Run pnpm/action-setup@v6.1.0	2026-11-17T05:38:07.9706534Z .../v11/8ab-1a1e803392e-100e4e11f28a4a17 | Progress: resolved 1, reused 0, downloaded 0, added 0
+check	Run pnpm/action-setup@v6.1.0	2026-11-17T05:38:07.9723285Z .../v11/8ab-1a1e803392e-100e4e11f28a4a17 |   +1 +
+check	Run pnpm/action-setup@v6.1.0	2026-11-17T05:38:08.5649701Z .../v11/8ab-1a1e803392e-100e4e11f28a4a17 | Progress: resolved 1, reused 0, downloaded 1, added 1, done
+check	Run pnpm/action-setup@v6.1.0	2026-11-17T05:38:08.9778519Z [WARN] Detected a pnpm v10 installation layout at PNPM_HOME. The pnpm shims at PNPM_HOME have been refreshed so the new version is active, but pnpm v11 expects bins in PNPM_HOME/bin. Run "pnpm setup" to migrate your PATH to the v11 layout.
+check	Run pnpm/action-setup@v6.1.0	2026-11-17T05:38:08.9843963Z Successfully updated pnpm to v11.20.0
+check	Run pnpm/action-setup@v6.1.0	2026-11-17T05:38:09.0161287Z ##[endgroup]
+check	Run pnpm/action-setup@v6.1.0	2026-11-17T05:38:09.0161719Z Installation Completed!
+check	Run actions/setup-node@v7.1.0	﻿2026-11-17T05:38:09.0307630Z ##[group]Run actions/setup-node@v7.1.0
+check	Run actions/setup-node@v7.1.0	2026-11-17T05:38:09.0307795Z with:
+check	Run actions/setup-node@v7.1.0	2026-11-17T05:38:09.0307907Z   node-version: 24
+check	Run actions/setup-node@v7.1.0	2026-11-17T05:38:09.0308041Z   cache: pnpm
+check	Run actions/setup-node@v7.1.0	2026-11-17T05:38:09.0308150Z   check-latest: false
+check	Run actions/setup-node@v7.1.0	2026-11-17T05:38:09.0309743Z   token: ***
+check	Run actions/setup-node@v7.1.0	2026-11-17T05:38:09.0309863Z   package-manager-cache: true
+check	Run actions/setup-node@v7.1.0	2026-11-17T05:38:09.0309997Z env:
+check	Run actions/setup-node@v7.1.0	2026-11-17T05:38:09.0310128Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+check	Run actions/setup-node@v7.1.0	2026-11-17T05:38:09.0310292Z ##[endgroup]
+check	Run actions/setup-node@v7.1.0	2026-11-17T05:38:09.1145891Z Found in cache @ /opt/hostedtoolcache/node/24.22.2/x64
+check	Run actions/setup-node@v7.1.0	2026-11-17T05:38:11.4144306Z ##[group]Environment details
+check	Run actions/setup-node@v7.1.0	2026-11-17T05:38:16.6000411Z node: v24.22.2
+check	Run actions/setup-node@v7.1.0	2026-11-17T05:38:16.6000872Z npm: 11.19.1
+check	Run actions/setup-node@v7.1.0	2026-11-17T05:38:16.6001079Z yarn: 1.22.22
+check	Run actions/setup-node@v7.1.0	2026-11-17T05:38:16.6001607Z ##[endgroup]
+check	Run actions/setup-node@v7.1.0	2026-11-17T05:38:16.6014637Z [command]/home/runner/setup-pnpm/node_modules/.bin/bin/pnpm store path --silent
+check	Run actions/setup-node@v7.1.0	2026-11-17T05:38:17.9082624Z /home/runner/setup-pnpm/node_modules/.bin/store/v11
+check	Run actions/setup-node@v7.1.0	2026-11-17T05:38:18.1362393Z Cache hit for: node-cache-Linux-x64-pnpm-719cb6577cc67b18ff174ec2039b02a46a2c49aee9131eb9043e9787707caa88
+check	Run actions/setup-node@v7.1.0	2026-11-17T05:38:19.3714060Z Received 50331648 of 381957292 (13.2%), 48.0 MBs/sec
+check	Run actions/setup-node@v7.1.0	2026-11-17T05:38:20.3718729Z Received 230686720 of 381957292 (60.4%), 109.9 MBs/sec
+check	Run actions/setup-node@v7.1.0	2026-11-17T05:38:21.3421285Z Received 381957292 of 381957292 (100.0%), 122.6 MBs/sec
+check	Run actions/setup-node@v7.1.0	2026-11-17T05:38:21.3421737Z Cache Size: ~364 MB (381957292 B)
+check	Run actions/setup-node@v7.1.0	2026-11-17T05:38:21.3469575Z [command]/usr/bin/tar -xf /home/runner/work/_temp/ee56756c-c908-4031-99a2-1b8393daf095/cache.tzst -P -C /home/runner/work/architect/architect --use-compress-program unzstd
+check	Run actions/setup-node@v7.1.0	2026-11-17T05:38:23.4331243Z Cache restored successfully
+check	Run actions/setup-node@v7.1.0	2026-11-17T05:38:23.5471395Z Cache restored from key: node-cache-Linux-x64-pnpm-719cb6577cc67b18ff174ec2039b02a46a2c49aee9131eb9043e9787707caa88
+check	Run pnpm install --frozen-lockfile	﻿2026-11-17T05:38:23.6664800Z ##[group]Run pnpm install --frozen-lockfile
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:23.6665081Z ^[[36;1mpnpm install --frozen-lockfile^[[0m
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:23.6737299Z shell: /usr/bin/bash -e {0}
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:23.6737455Z env:
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:23.6737604Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:23.6737791Z ##[endgroup]
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:23.9695703Z Scope: all 17 workspace projects
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:24.1929031Z ? Verifying lockfile against supply-chain policies (983 entries)...
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:24.1989115Z Lockfile is up to date, resolution step is skipped
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:24.3700197Z Progress: resolved 1, reused 0, downloaded 0, added 0
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:24.4295979Z Packages: +800
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:24.4296496Z ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:25.2777835Z Packages are hard linked from the content-addressable store to the virtual store.
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:25.2779213Z   Content-addressable store is at: /home/runner/setup-pnpm/node_modules/.bin/store/v11
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:25.2794866Z   Virtual store is at:             node_modules/.pnpm
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:25.3709701Z Progress: resolved 800, reused 798, downloaded 0, added 4
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:26.3720137Z Progress: resolved 800, reused 798, downloaded 0, added 450
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:26.7019243Z Progress: resolved 800, reused 798, downloaded 0, added 800, done
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:32.7452728Z ✓ Lockfile passes supply-chain policies (983 entries in 8.5s)
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:32.7508760Z .../.pnpm/nx@24.0.3/node_modules/nx postinstall$ node -e "try{require('./dist/bin/post-install')}catch(e){}"
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:32.9907341Z .../.pnpm/nx@24.0.3/node_modules/nx postinstall: Done
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:33.3109275Z 
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:33.3110144Z devDependencies:
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:33.3110544Z + @nx/js 24.0.3
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:33.3110932Z + @nx/oxlint 24.0.3
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:33.3111289Z + @types/node 24.19.2
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:33.3111686Z + @typescript/native <- typescript 7.0.2
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:33.3112122Z + effect 4.1.1
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:33.3112478Z + nx 24.0.3
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:33.3112783Z + oxlint 1.90.0
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:33.3113101Z + tsx 4.23.15
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:33.3113483Z + typescript <- @typescript/typescript6 6.0.2
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:33.3113879Z + verdaccio 6.11.1
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:33.3114247Z + vite 8.3.5
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:33.3114558Z + vitest 4.1.12
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:33.3114831Z 
+check	Run pnpm install --frozen-lockfile	2026-11-17T05:38:33.4052391Z Done in 9.7s using pnpm v11.20.0
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	﻿2026-11-17T05:38:33.4794936Z ##[group]Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:33.4795267Z ^[[36;1mpnpm nx run-many -t lint,typecheck,test --outputStyle=static^[[0m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:33.4812531Z shell: /usr/bin/bash -e {0}
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:33.4812682Z env:
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:33.4812823Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:33.4812997Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:34.7519462Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:34.7520938Z ^[[7m^[[1m^[[36m NX ^[[39m^[[22m^[[27m  ^[[36mRunning targets ^[[1mlint^[[22m, ^[[1mtypecheck^[[22m, ^[[1mtest^[[22m for 16 projects:^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:34.7521387Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:34.7521660Z ^[[2m-^[[22m host-cloudflare
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:34.7521936Z ^[[2m-^[[22m target-solidity
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:34.7522184Z ^[[2m-^[[22m target-effect
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:34.7522431Z ^[[2m-^[[22m generators
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:34.7522652Z ^[[2m-^[[22m blueprint
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:34.7523230Z ^[[2m-^[[22m compiler
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:34.7523430Z ^[[2m-^[[22m logbook
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:34.7523641Z ^[[2m-^[[22m starter
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:34.7523908Z ^[[2m-^[[22m portal
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:34.7524116Z ^[[2m-^[[22m preset
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:34.7524325Z ^[[2m-^[[22m prove
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:34.7524520Z ^[[2m-^[[22m acme
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:34.7524705Z ^[[2m-^[[22m lint
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:34.7524884Z ^[[2m-^[[22m cli
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:34.7525061Z ^[[2m-^[[22m std
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:34.7525236Z ^[[2m-^[[22m e2e
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:34.7525331Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:34.7525434Z ^[[2m^[[36m^[[39m^[[22m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:35.2318867Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:35.2344860Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m blueprint:typecheck
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:35.2345310Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:35.2345743Z ^[[2m> ^[[22mtsc -p packages/blueprint/tsconfig.json
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:35.2346052Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:35.2346366Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:36.1968934Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:36.2032178Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m blueprint:lint
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:36.2055902Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:36.2135830Z ^[[2m> ^[[22moxlint packages/blueprint
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:36.2159061Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:36.2229174Z Found 0 warnings and 0 errors.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:36.2277570Z Finished in 1.3s on 56 files with 97 rules using 4 threads.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:36.2333883Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:36.8112152Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:36.8150322Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m logbook:lint
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:36.8219112Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:36.8255488Z ^[[2m> ^[[22moxlint packages/logbook
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:36.8295836Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:36.8361402Z ##[warning]packages/logbook/src/modules/local/local.test.ts:85:156: "body" is not allowed when method is "GET"
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:36.8370904Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:36.8371172Z Found 1 warning and 0 errors.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:36.8371560Z Finished in 1.5s on 21 files with 97 rules using 4 threads.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:36.8372060Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:36.8834996Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:36.8865382Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m logbook:typecheck
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:36.8888873Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:36.8889630Z ^[[2m> ^[[22mtsc -p packages/logbook/tsconfig.json
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:36.8889895Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:36.8890198Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7188976Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7236575Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m blueprint:test
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7237246Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7271663Z ^[[2m> ^[[22mvitest run --root packages/blueprint --passWithNoTests
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7298588Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7328645Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7329699Z ^[[1m^[[30m^[[46m RUN ^[[49m^[[39m^[[22m ^[[36mv4.1.12 ^[[39m^[[90m/home/runner/work/architect/architect/packages/blueprint^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7358641Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7382245Z  ^[[32m✓^[[39m src/modules/operations/operations.test.ts ^[[2m(^[[22m^[[2m6 tests^[[22m^[[2m)^[[22m^[[32m 7^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7441434Z  ^[[32m✓^[[39m src/modules/visibility/visibility.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[32m 5^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7454029Z  ^[[32m✓^[[39m src/modules/journeys/journeys.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[32m 4^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7479249Z  ^[[32m✓^[[39m src/modules/things/things.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[32m 6^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7519426Z  ^[[32m✓^[[39m src/modules/values/values.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[32m 15^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7549249Z  ^[[32m✓^[[39m src/modules/machines/machines.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 9^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7579263Z  ^[[32m✓^[[39m src/modules/telemetry/telemetry.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 10^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7580207Z  ^[[32m✓^[[39m src/modules/environments/environments.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 6^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7615765Z  ^[[32m✓^[[39m src/modules/deploy/deploy.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 4^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7639550Z  ^[[32m✓^[[39m src/modules/roles/roles.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 3^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7670635Z  ^[[32m✓^[[39m src/modules/errors/errors.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 5^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7699124Z  ^[[32m✓^[[39m src/modules/config/config.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 3^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7700028Z  ^[[32m✓^[[39m src/modules/secrets/secrets.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 3^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7736207Z  ^[[32m✓^[[39m src/modules/cloud/cloud.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 3^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7754177Z  ^[[32m✓^[[39m src/modules/identity/identity.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 3^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7792741Z  ^[[32m✓^[[39m src/modules/blanks/blanks.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 5^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7828854Z  ^[[32m✓^[[39m src/modules/events/events.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 9^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7858579Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7889202Z ^[[2m Test Files ^[[22m ^[[1m^[[32m17 passed^[[39m^[[22m^[[90m (17)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7889930Z ^[[2m      Tests ^[[22m ^[[1m^[[32m36 passed^[[39m^[[22m^[[90m (36)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7919103Z ^[[2m   Start at ^[[22m 05:38:35
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7949201Z ^[[2m   Duration ^[[22m 2.42s^[[2m (transform 317ms, setup 0ms, import 3.27s, tests 100ms, environment 1ms)^[[22m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7949563Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:37.7949932Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:38.3189635Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:38.3190942Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m portal:lint
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:38.3193573Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:38.3194157Z ^[[2m> ^[[22moxlint packages/portal
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:38.3194378Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:38.3194552Z Found 0 warnings and 0 errors.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:38.3194915Z Finished in 1.3s on 23 files with 97 rules using 4 threads.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:38.3195334Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:38.3256608Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:38.3257280Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m portal:typecheck
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:38.3257507Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:38.3257759Z ^[[2m> ^[[22mtsc -p packages/portal/tsconfig.json
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:38.3258115Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:38.3258557Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:39.5832234Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:39.5872196Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m target-effect:lint
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:39.5879668Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:39.5880959Z ^[[2m> ^[[22moxlint packages/target-effect
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:39.5881747Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:39.5882052Z Found 0 warnings and 0 errors.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:39.5883513Z Finished in 1.2s on 47 files with 97 rules using 4 threads.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:39.5885461Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:40.4588861Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:40.4589995Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m target-effect:typecheck
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:40.4590176Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:40.4590378Z ^[[2m> ^[[22mtsc -p packages/target-effect/tsconfig.json
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:40.4590507Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:40.4590782Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7221146Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7222409Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m target-effect:test
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7222639Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7222967Z ^[[2m> ^[[22mvitest run --root packages/target-effect --passWithNoTests
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7223250Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7223255Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7223687Z ^[[1m^[[30m^[[46m RUN ^[[49m^[[39m^[[22m ^[[36mv4.1.12 ^[[39m^[[90m/home/runner/work/architect/architect/packages/target-effect^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7224215Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7224527Z  ^[[32m✓^[[39m src/modules/handler/internal/attributes.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[32m 13^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7225189Z ^[[90mstdout^[[2m | src/modules/handler/handler.test.ts^[[2m > ^[[22m^[[2mhandler wrapper^[[2m > ^[[22m^[[2mmoves^[[2m > ^[[22m^[[2ma refusal carries the log that decided it, and only this attempt's
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7225652Z ^[[22m^[[39m[05:38:41.205] INFO (#97): looked it up
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7225966Z [05:38:41.206] INFO (#97): the limit is over the cap { limit: ^[[32m'5000'^[[39m }
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7226116Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7226322Z  ^[[32m✓^[[39m src/modules/mcp/mcp.test.ts ^[[2m(^[[22m^[[2m6 tests^[[22m^[[2m)^[[22m^[[32m 57^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7226859Z  ^[[32m✓^[[39m src/modules/handler/handler.test.ts ^[[2m(^[[22m^[[2m16 tests^[[22m^[[2m)^[[22m^[[32m 291^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7227301Z  ^[[32m✓^[[39m src/modules/records/reads-and-requests.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[32m 19^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7227750Z  ^[[32m✓^[[39m src/modules/records/list-reads.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[32m 14^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7228156Z  ^[[32m✓^[[39m src/modules/records/records.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 8^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7228894Z  ^[[32m✓^[[39m src/modules/access/access.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[32m 9^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7229374Z  ^[[32m✓^[[39m src/modules/timers/timers.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 9^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7229751Z  ^[[32m✓^[[39m src/modules/wire/wire.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 6^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7230118Z  ^[[32m✓^[[39m src/modules/ids/ids.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[32m 35^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7230494Z  ^[[32m✓^[[39m src/modules/auth/auth.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 5^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7230861Z  ^[[32m✓^[[39m src/modules/work/work.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 7^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7231244Z  ^[[32m✓^[[39m src/modules/journal/journal.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 2^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7231658Z  ^[[32m✓^[[39m src/modules/principals/principals.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 3^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7231862Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7232015Z ^[[2m Test Files ^[[22m ^[[1m^[[32m14 passed^[[39m^[[22m^[[90m (14)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7232289Z ^[[2m      Tests ^[[22m ^[[1m^[[32m49 passed^[[39m^[[22m^[[90m (49)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7232516Z ^[[2m   Start at ^[[22m 05:38:40
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7232855Z ^[[2m   Duration ^[[22m 1.96s^[[2m (transform 405ms, setup 0ms, import 3.51s, tests 479ms, environment 1ms)^[[22m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7233060Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:42.7233234Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:43.3720886Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:43.3722049Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m compiler:lint
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:43.3722274Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:43.3722446Z ^[[2m> ^[[22moxlint packages/compiler
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:43.3722590Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:43.3738157Z Found 0 warnings and 0 errors.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:43.3739339Z Finished in 599ms on 19 files with 97 rules using 4 threads.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:43.3739825Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:43.6155222Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:43.6156254Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m compiler:typecheck
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:43.6156438Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:43.6156640Z ^[[2m> ^[[22mtsc -p packages/compiler/tsconfig.json
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:43.6156767Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:43.6156919Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:47.4909894Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:47.4911145Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m compiler:test
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:47.4911390Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:47.4911714Z ^[[2m> ^[[22mvitest run --root packages/compiler --passWithNoTests
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:47.4911999Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:47.4912011Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:47.4912457Z ^[[1m^[[30m^[[46m RUN ^[[49m^[[39m^[[22m ^[[36mv4.1.12 ^[[39m^[[90m/home/runner/work/architect/architect/packages/compiler^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:47.4913093Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:47.4913529Z  ^[[32m✓^[[39m src/modules/model/refusal-codes.test.ts ^[[2m(^[[22m^[[2m5 tests^[[22m^[[2m)^[[22m^[[32m 211^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:47.4914504Z  ^[[32m✓^[[39m src/modules/compare/versions.test.ts ^[[2m(^[[22m^[[2m7 tests^[[22m^[[2m)^[[22m^[[32m 20^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:47.4914922Z  ^[[32m✓^[[39m src/modules/compare/compare.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[32m 8^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:47.4915403Z  ^[[32m✓^[[39m src/modules/model/model.test.ts ^[[2m(^[[22m^[[2m14 tests^[[22m^[[2m)^[[22m^[[33m 3243^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:47.4915792Z      ^[[33m^[[2m✓^[[22m^[[39m describes acme ^[[33m 375^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:47.4916321Z      ^[[33m^[[2m✓^[[22m^[[39m names an operation after its file: grant.ts renamed to award.ts is allowance.award ^[[33m 336^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:47.4917091Z      ^[[33m^[[2m✓^[[22m^[[39m refuses a sink named twice and an Axiom group that is no dataset name ^[[33m 308^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:47.4917884Z      ^[[33m^[[2m✓^[[22m^[[39m names an environment after its file, and refuses a promotesFrom that no file answers to ^[[33m 587^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:47.4918280Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:47.4918663Z ^[[2m Test Files ^[[22m ^[[1m^[[32m4 passed^[[39m^[[22m^[[90m (4)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:47.4919111Z ^[[2m      Tests ^[[22m ^[[1m^[[32m30 passed^[[39m^[[22m^[[90m (30)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:47.4919465Z ^[[2m   Start at ^[[22m 05:38:43
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:47.4920007Z ^[[2m   Duration ^[[22m 3.64s^[[2m (transform 1.70s, setup 0ms, import 1.66s, tests 3.48s, environment 0ms)^[[22m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:47.4920323Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:47.4920598Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:48.8193656Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:48.8210022Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m generators:lint
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:48.8245392Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:48.8253387Z ^[[2m> ^[[22moxlint packages/generators
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:48.8253967Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:48.8254298Z Found 0 warnings and 0 errors.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:48.8254807Z Finished in 1.2s on 24 files with 97 rules using 4 threads.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:48.8255508Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:50.2287386Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:50.2310875Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m generators:typecheck
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:50.2337253Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:50.2338227Z ^[[2m> ^[[22mtsc -p packages/generators/tsconfig.json
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:50.2339184Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:50.2339702Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:59.0057607Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:59.0103402Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m generators:test
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:59.0113753Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:59.0120822Z ^[[2m> ^[[22mvitest run --root packages/generators --passWithNoTests
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:59.0121253Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:59.0121371Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:59.0121958Z ^[[1m^[[30m^[[46m RUN ^[[49m^[[39m^[[22m ^[[36mv4.1.12 ^[[39m^[[90m/home/runner/work/architect/architect/packages/generators^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:59.0122480Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:59.0122974Z  ^[[32m✓^[[39m src/modules/render/render.test.ts ^[[2m(^[[22m^[[2m6 tests^[[22m^[[2m)^[[22m^[[32m 66^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:59.0123771Z  ^[[32m✓^[[39m src/modules/portal/portal.test.ts ^[[2m(^[[22m^[[2m9 tests^[[22m^[[2m)^[[22m^[[32m 103^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:59.0221990Z  ^[[32m✓^[[39m src/modules/sync/sync.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[33m 3460^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:59.0274874Z      ^[[33m^[[2m✓^[[22m^[[39m changes nothing when generated/ matches the blueprint ^[[33m 1014^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:59.0276043Z      ^[[33m^[[2m✓^[[22m^[[39m puts back a hand edit and removes a file the blueprint doesn't explain ^[[33m 1184^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:59.0277694Z      ^[[33m^[[2m✓^[[22m^[[39m never overwrites a scaffold that exists ^[[33m 1256^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:59.0278917Z  ^[[32m✓^[[39m src/modules/render/handler-type.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[33m 7412^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:59.0279817Z      ^[[33m^[[2m✓^[[22m^[[39m rejects a handler that fails with an error its operation doesn't declare ^[[33m 4075^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:59.0281106Z      ^[[33m^[[2m✓^[[22m^[[39m accepts acme as written: the same copy, without the plant, compiles ^[[33m 3229^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:59.0281531Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:59.0281861Z ^[[2m Test Files ^[[22m ^[[1m^[[32m4 passed^[[39m^[[22m^[[90m (4)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:59.0282409Z ^[[2m      Tests ^[[22m ^[[1m^[[32m20 passed^[[39m^[[22m^[[90m (20)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:59.0282845Z ^[[2m   Start at ^[[22m 05:38:50
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:59.0283503Z ^[[2m   Duration ^[[22m 8.02s^[[2m (transform 774ms, setup 0ms, import 5.78s, tests 11.04s, environment 0ms)^[[22m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:59.0283918Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:38:59.0284348Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:00.5837757Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:00.5839363Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m prove:lint
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:00.5839749Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:00.5840292Z ^[[2m> ^[[22moxlint packages/prove
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:00.5848206Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:00.5850909Z ##[warning]packages/prove/src/modules/world/device-sign-in.test.ts:3:33: Type 'ChildProcess' is imported but never used.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:00.5852294Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:00.5852429Z Found 1 warning and 0 errors.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:00.5852656Z Finished in 1.5s on 116 files with 97 rules using 4 threads.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:00.5852956Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:01.8399130Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:01.8416314Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m prove:typecheck
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:01.8517031Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:01.8692790Z ^[[2m> ^[[22mtsc -p packages/prove/tsconfig.json
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:01.8755570Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:01.8812768Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:02.4839635Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:02.4930987Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m portal:test
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:02.4931697Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:02.5009641Z ^[[2m> ^[[22mvitest run --root packages/portal --passWithNoTests
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:02.5061532Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:02.5098731Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:02.5120411Z ^[[1m^[[30m^[[46m RUN ^[[49m^[[39m^[[22m ^[[36mv4.1.12 ^[[39m^[[90m/home/runner/work/architect/architect/packages/portal^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:02.5188702Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:02.5230089Z  ^[[32m✓^[[39m src/modules/snapshot/snapshot.test.ts ^[[2m(^[[22m^[[2m14 tests^[[22m^[[2m)^[[22m^[[32m 45^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:02.5249494Z  ^[[32m✓^[[39m src/modules/site/site.test.ts ^[[2m(^[[22m^[[2m16 tests^[[22m^[[2m)^[[22m^[[32m 146^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:02.5302757Z  ^[[32m✓^[[39m src/modules/wire/wire.test.ts ^[[2m(^[[22m^[[2m12 tests^[[22m^[[2m)^[[22m^[[32m 82^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:02.5335077Z  ^[[32m✓^[[39m src/modules/snapshot/logbook.test.ts ^[[2m(^[[22m^[[2m6 tests^[[22m^[[2m)^[[22m^[[33m 23371^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:02.5371928Z      ^[[33m^[[2m✓^[[22m^[[39m shows spend proved in test, staging and production by signed verdicts ^[[33m 3494^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:02.5430234Z      ^[[33m^[[2m✓^[[22m^[[39m a budget edit makes spend stale in staging and production, and no other operation ^[[33m 1161^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:02.5471829Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:02.5499544Z ^[[2m Test Files ^[[22m ^[[1m^[[32m4 passed^[[39m^[[22m^[[90m (4)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:02.5561744Z ^[[2m      Tests ^[[22m ^[[1m^[[32m48 passed^[[39m^[[22m^[[90m (48)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:02.5595533Z ^[[2m   Start at ^[[22m 05:38:38
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:02.5620420Z ^[[2m   Duration ^[[22m 23.87s^[[2m (transform 320ms, setup 0ms, import 1.53s, tests 23.64s, environment 1ms)^[[22m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:02.5645788Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:02.5679286Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:04.4220279Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:04.4234206Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m host-cloudflare:lint
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:04.4256136Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:04.4285439Z ^[[2m> ^[[22moxlint packages/host-cloudflare
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:04.4291549Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:04.4292056Z Found 0 warnings and 0 errors.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:04.4349313Z Finished in 1.8s on 41 files with 97 rules using 4 threads.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:04.4408787Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:08.6349207Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:08.6351275Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m host-cloudflare:typecheck
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:08.6363262Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:08.6365572Z ^[[2m> ^[[22mtsc -p packages/host-cloudflare/tsconfig.json
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:08.6366140Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:08.6366653Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2080035Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2119414Z ##[group]❌ ^[[2m> ^[[22m^[[2mnx run^[[22m logbook:test
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2151510Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2182961Z ^[[2m> ^[[22mvitest run --root packages/logbook --passWithNoTests
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2207192Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2232384Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2235246Z ^[[1m^[[30m^[[46m RUN ^[[49m^[[39m^[[22m ^[[36mv4.1.12 ^[[39m^[[90m/home/runner/work/architect/architect/packages/logbook^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2235919Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2236324Z  ^[[32m✓^[[39m src/modules/tokens/tokens.test.ts ^[[2m(^[[22m^[[2m7 tests^[[22m^[[2m)^[[22m^[[32m 223^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2236751Z  ^[[32m✓^[[39m src/modules/local/local.test.ts ^[[2m(^[[22m^[[2m8 tests^[[22m^[[2m)^[[22m^[[33m 32542^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2237571Z      ^[[33m^[[2m✓^[[22m^[[39m refuses forged, foreign, wrong-ref, unsigned and not-a-token requests with 401, and stores nothing ^[[33m 743^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2238940Z      ^[[33m^[[2m✓^[[22m^[[39m admits one concurrent different model and preserves that stored winner ^[[33m 482^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2239796Z      ^[[33m^[[2m✓^[[22m^[[39m expands a legacy persisted book without losing rows, keeps hashless verdicts readable, and retries the upgrade ^[[33m 6501^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2240367Z      ^[[33m^[[2m✓^[[22m^[[39m keeps its state across a restart ^[[33m 3915^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2258267Z  ^[[31m❯^[[39m src/modules/local/routes.test.ts ^[[2m(^[[22m^[[2m10 tests^[[22m^[[2m | ^[[22m^[[31m1 failed^[[39m^[[2m)^[[22m^[[33m 50195^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2299538Z      ^[[33m^[[2m✓^[[22m^[[39m answers health, unknown routes and unsupported methods ^[[33m 4504^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2300788Z      ^[[33m^[[2m✓^[[22m^[[39m refuses unsigned and bad-token writes before body decoding, leaving every store empty ^[[33m 2599^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2302014Z ^[[31m     ^[[31m×^[[31m reports only the missing policy setting through the real worker^[[39m^[[33m 8163^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2303080Z      ^[[33m^[[2m✓^[[22m^[[39m accepts a valid verdict and rejects every original invalid body without extra records ^[[33m 2497^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2304169Z      ^[[33m^[[2m✓^[[22m^[[39m keeps one immutable R2 model, permits identical retries and rejects a non-object model ^[[33m 2083^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2305222Z      ^[[33m^[[2m✓^[[22m^[[39m requires a model, admits a release once per version and rejects invalid release bodies ^[[33m 3099^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2306316Z      ^[[33m^[[2m✓^[[22m^[[39m keeps every append oldest first with real verified provenance and nullable or supplied bundle hashes ^[[33m 3069^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2307361Z      ^[[33m^[[2m✓^[[22m^[[39m conjoins the revision, environment, operation and ref filters ^[[33m 2915^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2308579Z      ^[[33m^[[2m✓^[[22m^[[39m selects the latest per operation and environment after filtering, without a PR hiding main ^[[33m 2925^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2309691Z      ^[[33m^[[2m✓^[[22m^[[39m keeps the last release and finds old versions after newer releases advance the ledger ^[[33m 2556^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2310370Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2310817Z ^[[31m⎯⎯⎯⎯⎯⎯⎯^[[39m^[[1m^[[41m Failed Tests 1 ^[[49m^[[22m^[[31m⎯⎯⎯⎯⎯⎯⎯^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2311196Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2312142Z ^[[41m^[[1m FAIL ^[[22m^[[49m src/modules/local/routes.test.ts^[[2m > ^[[22mthe public logbook routes on real platform storage^[[2m > ^[[22mreports only the missing policy setting through the real worker
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2313077Z ^[[31m^[[1mError^[[22m: Test timed out in 5000ms.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2313937Z If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2314762Z ^[[36m ^[[2m❯^[[22m src/modules/local/routes.test.ts:^[[2m92:3^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2315320Z     ^[[90m 90|^[[39m   })^[[33m;^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2315733Z     ^[[90m 91|^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2316302Z     ^[[90m 92|^[[39m   it("reports only the missing policy setting through the real worker"…
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2317320Z     ^[[90m   |^[[39m   ^[[31m^^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2317955Z     ^[[90m 93|^[[39m     ^[[35mawait^[[39m ^[[34mstop^[[39m^[[33m?.^[[39m()^[[33m;^[[39m stop ^[[33m=^[[39m undefined^[[33m;^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2318811Z     ^[[90m 94|^[[39m     ^[[35mawait^[[39m ^[[34mstart^[[39m(^[[32m""^[[39m)^[[33m;^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2319219Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2319585Z ^[[31m^[[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2319924Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2320067Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2320598Z ^[[2m Test Files ^[[22m ^[[1m^[[31m1 failed^[[39m^[[22m^[[2m | ^[[22m^[[1m^[[32m2 passed^[[39m^[[22m^[[90m (3)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2321420Z ^[[2m      Tests ^[[22m ^[[1m^[[31m1 failed^[[39m^[[22m^[[2m | ^[[22m^[[1m^[[32m24 passed^[[39m^[[22m^[[90m (25)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2322005Z ^[[2m   Start at ^[[22m 05:38:37
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2322706Z ^[[2m   Duration ^[[22m 50.82s^[[2m (transform 154ms, setup 0ms, import 1.11s, tests 82.96s, environment 0ms)^[[22m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2323440Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2323594Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2327407Z ##[error]Error: Test timed out in 5000ms.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	 ❯ src/modules/local/routes.test.ts:92:3
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2330054Z Warning: command "vitest run --root packages/logbook --passWithNoTests" exited with non-zero status code
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:28.2330825Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:29.3619594Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:29.3651921Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m lint:lint
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:29.3660182Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:29.3660935Z ^[[2m> ^[[22moxlint packages/lint
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:29.3661289Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:29.3661490Z Found 0 warnings and 0 errors.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:29.3661916Z Finished in 1.1s on 10 files with 97 rules using 4 threads.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:29.3662534Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:29.5350418Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:29.5354252Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m lint:typecheck
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:29.5360276Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:29.5370210Z ^[[2m> ^[[22mtsc -p packages/lint/tsconfig.json
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:29.5370705Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:29.5371190Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:37.1148744Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:37.1187957Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m lint:test
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:37.1199176Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:37.1246442Z ^[[2m> ^[[22mvitest run --root packages/lint --passWithNoTests
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:37.1256989Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:37.1257320Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:37.1258454Z ^[[1m^[[30m^[[46m RUN ^[[49m^[[39m^[[22m ^[[36mv4.1.12 ^[[39m^[[90m/home/runner/work/architect/architect/packages/lint^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:37.1259005Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:37.1259579Z  ^[[32m✓^[[39m src/modules/rules/rules.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[33m 1600^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:37.1260634Z      ^[[33m^[[2m✓^[[22m^[[39m refusal-has-log and declared-errors-only: a refusal says why first, and is one its operation declares ^[[33m 376^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:37.1261815Z      ^[[33m^[[2m✓^[[22m^[[39m no-wall-clock: Date.now, new Date(), setTimeout and raw Effect.sleep, but not new Date(at) ^[[33m 355^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:37.1262832Z      ^[[33m^[[2m✓^[[22m^[[39m handler-matches-path: a handler file belongs to a declared operation ^[[33m 576^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:37.1263815Z  ^[[32m✓^[[39m test/boundaries.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[33m 7018^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:37.1264478Z      ^[[33m^[[2m✓^[[22m^[[39m fails lint when blueprint imports compiler ^[[33m 2289^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:37.1265141Z      ^[[33m^[[2m✓^[[22m^[[39m fails lint when blueprint imports a package other than Effect ^[[33m 1521^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:37.1265839Z      ^[[33m^[[2m✓^[[22m^[[39m fails lint when runtime code imports generators ^[[33m 1430^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:37.1266442Z      ^[[33m^[[2m✓^[[22m^[[39m passes when blueprint imports Effect ^[[33m 1776^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:37.1266736Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:37.1267009Z ^[[2m Test Files ^[[22m ^[[1m^[[32m2 passed^[[39m^[[22m^[[90m (2)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:37.1267501Z ^[[2m      Tests ^[[22m ^[[1m^[[32m8 passed^[[39m^[[22m^[[90m (8)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:37.1280360Z ^[[2m   Start at ^[[22m 05:39:29
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:37.1281354Z ^[[2m   Duration ^[[22m 7.27s^[[2m (transform 43ms, setup 0ms, import 82ms, tests 8.62s, environment 0ms)^[[22m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:37.1281703Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:37.1282066Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:38.1064268Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:38.1114975Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m target-solidity:lint
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:38.1124419Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:38.1139604Z ^[[2m> ^[[22moxlint packages/target-solidity
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:38.1164041Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:38.1164764Z Found 0 warnings and 0 errors.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:38.1165417Z Finished in 905ms on 1 file with 97 rules using 4 threads.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:38.1166298Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:38.3121598Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:38.3175996Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m target-solidity:typecheck
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:38.3176409Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:38.3206869Z ^[[2m> ^[[22mtsc -p packages/target-solidity/tsconfig.json
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:38.3207512Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:38.3208087Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:38.7069347Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:38.7120716Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m target-solidity:test
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:38.7155830Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:38.7180624Z ^[[2m> ^[[22mvitest run --root packages/target-solidity --passWithNoTests
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:38.7181273Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:38.7181434Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:38.7182166Z ^[[1m^[[30m^[[46m RUN ^[[49m^[[39m^[[22m ^[[36mv4.1.12 ^[[39m^[[90m/home/runner/work/architect/architect/packages/target-solidity^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:38.7182785Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:38.7183088Z No test files found, exiting with code 0
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:38.7183619Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:38.7184059Z ^[[2minclude: ^[[22m^[[33m**/*.{test,spec}.?(c|m)[jt]s?(x)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:38.7184700Z ^[[2mexclude:  ^[[22m^[[33m**/node_modules/**^[[2m, ^[[22m**/.git/**^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:38.7185072Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:38.7185553Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:40.1294801Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:40.1340349Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m starter:lint
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:40.1349430Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:40.1350177Z ^[[2m> ^[[22moxlint examples/starter
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:40.1350661Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:40.1350961Z Found 0 warnings and 0 errors.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:40.1351451Z Finished in 1.3s on 48 files with 97 rules using 4 threads.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:40.1352082Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:42.4861435Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:42.4906654Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m starter:typecheck
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:42.4971259Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:42.5008985Z ^[[2m> ^[[22mtsc -p examples/starter/tsconfig.json
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:42.5059489Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:42.5077410Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:42.9934365Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:42.9971677Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m starter:test
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:42.9983764Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:42.9985030Z ^[[2m> ^[[22mvitest run --root examples/starter --passWithNoTests
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:42.9985502Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:42.9985660Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:42.9986295Z ^[[1m^[[30m^[[46m RUN ^[[49m^[[39m^[[22m ^[[36mv4.1.12 ^[[39m^[[90m/home/runner/work/architect/architect/examples/starter^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:42.9986839Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:42.9987123Z No test files found, exiting with code 0
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:42.9987431Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:42.9987812Z ^[[2minclude: ^[[22m^[[33m**/*.{test,spec}.?(c|m)[jt]s?(x)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:42.9988690Z ^[[2mexclude:  ^[[22m^[[33m**/node_modules/**^[[2m, ^[[22m**/.git/**^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:42.9989057Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:42.9989499Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:44.3697404Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:44.3741599Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m preset:lint
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:44.3789586Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:44.3839919Z ^[[2m> ^[[22moxlint packages/preset
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:44.3840719Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:44.3841012Z Found 0 warnings and 0 errors.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:44.3850676Z Finished in 1.3s on 6 files with 97 rules using 4 threads.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:44.3851755Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:44.9282781Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:44.9284462Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m preset:typecheck
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:44.9284931Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:44.9285554Z ^[[2m> ^[[22mtsc -p packages/preset/tsconfig.json
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:44.9286626Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:44.9287014Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:46.3110195Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:46.3140574Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m preset:test
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:46.3152216Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:46.3184321Z ^[[2m> ^[[22mvitest run --root packages/preset --passWithNoTests
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:46.3213070Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:46.3213172Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:46.3214209Z ^[[1m^[[30m^[[46m RUN ^[[49m^[[39m^[[22m ^[[36mv4.1.12 ^[[39m^[[90m/home/runner/work/architect/architect/packages/preset^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:46.3214629Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:46.3225853Z  ^[[32m✓^[[39m src/modules/starter/starter.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[32m 6^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:46.3235115Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:46.3272269Z ^[[2m Test Files ^[[22m ^[[1m^[[32m1 passed^[[39m^[[22m^[[90m (1)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:46.3279493Z ^[[2m      Tests ^[[22m ^[[1m^[[32m4 passed^[[39m^[[22m^[[90m (4)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:46.3281951Z ^[[2m   Start at ^[[22m 05:39:45
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:46.3339309Z ^[[2m   Duration ^[[22m 997ms^[[2m (transform 270ms, setup 0ms, import 864ms, tests 6ms, environment 0ms)^[[22m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:46.3340109Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:46.3369149Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:47.9222279Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:47.9223741Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m acme:lint
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:47.9224377Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:47.9224738Z ^[[2m> ^[[22moxlint examples/acme
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:47.9225016Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:47.9225251Z Found 0 warnings and 0 errors.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:47.9225701Z Finished in 1.5s on 69 files with 97 rules using 4 threads.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:47.9226280Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:49.8277003Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:49.8349675Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m acme:typecheck
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:49.8378586Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:49.8389099Z ^[[2m> ^[[22mtsc -p examples/acme/tsconfig.json
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:49.8449253Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:49.8479042Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:50.2535952Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:50.2549821Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m acme:test
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:50.2562377Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:50.2589206Z ^[[2m> ^[[22mvitest run --root examples/acme --passWithNoTests
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:50.2618540Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:50.2658678Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:50.2672083Z ^[[1m^[[30m^[[46m RUN ^[[49m^[[39m^[[22m ^[[36mv4.1.12 ^[[39m^[[90m/home/runner/work/architect/architect/examples/acme^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:50.2703565Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:50.2779787Z No test files found, exiting with code 0
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:50.2828643Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:50.2833794Z ^[[2minclude: ^[[22m^[[33m**/*.{test,spec}.?(c|m)[jt]s?(x)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:50.2851672Z ^[[2mexclude:  ^[[22m^[[33m**/node_modules/**^[[2m, ^[[22m**/.git/**^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:50.2939635Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:50.2965089Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:51.6208904Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:51.6220088Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m cli:lint
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:51.6246563Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:51.6247200Z ^[[2m> ^[[22moxlint packages/cli
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:51.6247537Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:51.6247885Z Found 0 warnings and 0 errors.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:51.6249678Z Finished in 1.3s on 33 files with 97 rules using 4 threads.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:51.6250377Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:52.9148728Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:52.9150129Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m cli:typecheck
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:52.9150371Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:52.9150626Z ^[[2m> ^[[22mtsc -p packages/cli/tsconfig.json
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:52.9150803Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:39:52.9151139Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8011485Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8013400Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m cli:test
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8013839Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8014530Z ^[[2m> ^[[22mvitest run --root packages/cli --passWithNoTests
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8014933Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8015078Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8015680Z ^[[1m^[[30m^[[46m RUN ^[[49m^[[39m^[[22m ^[[36mv4.1.12 ^[[39m^[[90m/home/runner/work/architect/architect/packages/cli^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8016156Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8016672Z  ^[[32m✓^[[39m src/modules/watch/watch.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[33m 2766^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8017691Z      ^[[33m^[[2m✓^[[22m^[[39m prints each operation's p95 against its budget, the refusal counts and `drift none`, and exits 0 ^[[33m 2182^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8019414Z      ^[[33m^[[2m✓^[[22m^[[39m refuses with the way forward when the environment has recorded nothing, or the source is Axiom and the sink isn't named ^[[33m 304^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8020363Z  ^[[32m✓^[[39m src/modules/add/add.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[33m 14637^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8021264Z      ^[[33m^[[2m✓^[[22m^[[39m writes a thing with 3 blanks that compiles, and check names each with its file and line ^[[33m 14624^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8022150Z  ^[[32m✓^[[39m src/modules/telemetry/telemetry.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[32m 133^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8022930Z  ^[[32m✓^[[39m src/modules/ship/ship.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[33m 25335^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8023821Z      ^[[33m^[[2m✓^[[22m^[[39m with no logbook: impact is the local ledger's lines, and version --next says how to start one ^[[33m 1328^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8025195Z      ^[[33m^[[2m✓^[[22m^[[39m a logbook with no release: 1.0.0, and nothing stale ^[[33m 1342^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8026203Z      ^[[33m^[[2m✓^[[22m^[[39m after a 1.0.0 release: the read is minor with nothing stale; a looser budget stales only spend in staging and production ^[[33m 12396^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8030494Z      ^[[33m^[[2m✓^[[22m^[[39m a logbook that does not answer is a warning on the local lines, never a wrong `stale none` ^[[33m 633^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8031419Z  ^[[32m✓^[[39m src/modules/check/check.test.ts ^[[2m(^[[22m^[[2m7 tests^[[22m^[[2m)^[[22m^[[33m 33844^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8032134Z      ^[[33m^[[2m✓^[[22m^[[39m passes clean acme with ratchets 0 ^[[33m 4209^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8032949Z      ^[[33m^[[2m✓^[[22m^[[39m lets a ratchet allow a rule's findings, and asks for it to be lowered once they are gone ^[[33m 10093^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8033856Z      ^[[33m^[[2m✓^[[22m^[[39m fails on edited-output, naming generated/api/src/allowance/get.ts ^[[33m 4984^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8034669Z      ^[[33m^[[2m✓^[[22m^[[39m fails on name-as-string, naming src/allowance/spend.ts ^[[33m 5123^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8035440Z      ^[[33m^[[2m✓^[[22m^[[39m fails on undeclared-error, naming src/allowance/spend.ts ^[[33m 4516^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8036229Z      ^[[33m^[[2m✓^[[22m^[[39m fails on refusal-without-log, naming src/allowance/spend.ts ^[[33m 4652^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8037092Z  ^[[32m✓^[[39m src/modules/generate/generate.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[33m 12369^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8037960Z      ^[[33m^[[2m✓^[[22m^[[39m scaffolds each finished operation's handler once, and nothing for one with blanks ^[[33m 12329^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8038943Z  ^[[32m✓^[[39m src/modules/model/model.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[33m 7442^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8039755Z      ^[[33m^[[2m✓^[[22m^[[39m --json on acme prints the model snapshot, from a real process ^[[33m 2080^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8040534Z      ^[[33m^[[2m✓^[[22m^[[39m summarises things and operations without --json ^[[33m 714^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8041211Z      ^[[33m^[[2m✓^[[22m^[[39m --json is optional on the real command line ^[[33m 2548^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8042011Z      ^[[33m^[[2m✓^[[22m^[[39m an invalid blueprint lists its problems and exits 2 ^[[33m 2094^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8042748Z  ^[[32m✓^[[39m src/modules/brief/brief.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[33m 2821^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8043571Z      ^[[33m^[[2m✓^[[22m^[[39m names the declaration to read, the files not to touch and the evals that must pass ^[[33m 1739^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8044436Z      ^[[33m^[[2m✓^[[22m^[[39m refuses a read or an unknown name, listing the operations that have handlers ^[[33m 1078^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8044926Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8045275Z ^[[2m Test Files ^[[22m ^[[1m^[[32m8 passed^[[39m^[[22m^[[90m (8)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8046076Z ^[[2m      Tests ^[[22m ^[[1m^[[32m29 passed^[[39m^[[22m^[[90m (29)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8046560Z ^[[2m   Start at ^[[22m 05:39:53
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8047241Z ^[[2m   Duration ^[[22m 38.44s^[[2m (transform 12.79s, setup 0ms, import 9.23s, tests 99.35s, environment 1ms)^[[22m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8047695Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:31.8048139Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0250341Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0320428Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m host-cloudflare:test
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0326902Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0330861Z ^[[2m> ^[[22mvitest run --root packages/host-cloudflare --passWithNoTests
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0331276Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0331497Z ^[[1m^[[33m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0331866Z =======================================================================================
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0332496Z WARNING: @cloudflare/vitest-pool-workers has been renamed to @cloudflare/vitest-plugin.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0555023Z This package will not receive future updates.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0555554Z Run `npx @cloudflare/codemods vitest:pool-workers-to-vitest-plugin` to migrate.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0556046Z =======================================================================================
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0556576Z ^[[39m^[[22m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0556680Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0557168Z ^[[1m^[[30m^[[46m RUN ^[[49m^[[39m^[[22m ^[[36mv4.1.12 ^[[39m^[[90m/home/runner/work/architect/architect/packages/host-cloudflare^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0557528Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0558761Z Sourcemap for "/home/runner/work/architect/architect/node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js" points to missing source files
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0560748Z Sourcemap for "/home/runner/work/architect/architect/node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js" points to missing source files
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0562735Z Sourcemap for "/home/runner/work/architect/architect/node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js" points to missing source files
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0564634Z Sourcemap for "/home/runner/work/architect/architect/node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js" points to missing source files
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0566603Z Sourcemap for "/home/runner/work/architect/architect/node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js" points to missing source files
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0568759Z Sourcemap for "/home/runner/work/architect/architect/node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js" points to missing source files
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0570799Z Sourcemap for "/home/runner/work/architect/architect/node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js" points to missing source files
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0572829Z Sourcemap for "/home/runner/work/architect/architect/node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js" points to missing source files
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0574945Z Sourcemap for "/home/runner/work/architect/architect/node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js" points to missing source files
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0580305Z Sourcemap for "/home/runner/work/architect/architect/node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/webStandardStreamableHttp.js" points to missing source files
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0582374Z Sourcemap for "/home/runner/work/architect/architect/node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/mediaType.js" points to missing source files
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0584361Z Sourcemap for "/home/runner/work/architect/architect/node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/requestBody.js" points to missing source files
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0586657Z Sourcemap for "/home/runner/work/architect/architect/node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/server/sseKeepAlive.js" points to missing source files
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0589033Z Sourcemap for "/home/runner/work/architect/architect/node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+json-schema@4.1.4_supports-color@10.2.2_zod@4.5.4/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/cfworker-provider.js" points to missing source files
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0591641Z ^[[90mstderr^[[2m | src/modules/auth/auth.test.ts^[[2m > ^[[22m^[[2mBetter Auth on D1^[[2m > ^[[22m^[[2msigns up once, signs in with the right password, and a session or API key becomes the person
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0592631Z ^[[22m^[[39m2026-11-17T05:39:42.769Z WARN [Better Auth]: Invalid password
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0592928Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0593378Z  ^[[32m✓^[[39m src/modules/auth/auth.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[33m 995^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0594320Z      ^[[33m^[[2m✓^[[22m^[[39m signs up once, signs in with the right password, and a session or API key becomes the person ^[[33m 637^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0595489Z      ^[[33m^[[2m✓^[[22m^[[39m registers a client, and says 429 once the cap is held by clients that are in use or new; a stale unused one makes room ^[[33m 344^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0597077Z ^[[90mstdout^[[2m | src/modules/telemetry/telemetry.test.ts^[[2m > ^[[22m^[[2msinks beside the collector^[[2m > ^[[22m^[[2msends each signal to every exporter's own endpoint, with its own headers, and tags every span with the environment
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0598036Z ^[[22m^[[39m[05:39:44.550] INFO (#8): hello
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0598217Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0598763Z  ^[[32m✓^[[39m src/modules/telemetry/telemetry.test.ts ^[[2m(^[[22m^[[2m6 tests^[[22m^[[2m)^[[22m^[[32m 76^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0599552Z  ^[[32m✓^[[39m src/modules/world/world.test.ts ^[[2m(^[[22m^[[2m7 tests^[[22m^[[2m)^[[22m^[[33m 3228^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0600548Z      ^[[33m^[[2m✓^[[22m^[[39m signs the cast up once through Better Auth, with tokens the Worker accepts; an anonymous member only gets credentials ^[[33m 863^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0601564Z      ^[[33m^[[2m✓^[[22m^[[39m admits exactly one concurrent creation and removes only that world's rows ^[[33m 558^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0602414Z      ^[[33m^[[2m✓^[[22m^[[39m takes marks in the admission transaction when creation races an ending ^[[33m 1383^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0603216Z  ^[[32m✓^[[39m src/modules/database/database.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 64^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0603962Z  ^[[32m✓^[[39m src/modules/actors/actors.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[33m 7222^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0604826Z      ^[[33m^[[2m✓^[[22m^[[39m S3's race: 50 concurrent spends of 10 against 500 all land in its Durable Object, none lost ^[[33m 7220^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0605663Z  ^[[32m✓^[[39m src/modules/store/store.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[33m 7194^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0653576Z      ^[[33m^[[2m✓^[[22m^[[39m S3's race: 50 concurrent spends of 10 against 500 all land, none lost, and it ends exhausted ^[[33m 7190^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0654459Z  ^[[32m✓^[[39m src/modules/journal/journal.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 18^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0654820Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0655091Z ^[[2m Test Files ^[[22m ^[[1m^[[32m7 passed^[[39m^[[22m^[[90m (7)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0655573Z ^[[2m      Tests ^[[22m ^[[1m^[[32m21 passed^[[39m^[[22m^[[90m (21)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0655963Z ^[[2m   Start at ^[[22m 05:39:10
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0656618Z ^[[2m   Duration ^[[22m 81.22s^[[2m (transform 27.80s, setup 191.70s, import 4.23s, tests 18.80s, environment 1ms)^[[22m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0657001Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.0657350Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.2297036Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.2328967Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m std:typecheck
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.2338679Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.2347498Z ^[[2m> ^[[22mtsc -p packages/std/tsconfig.json
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.2347928Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.2348479Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.6028812Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.6054842Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m std:test
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.6069801Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.6087721Z ^[[2m> ^[[22mvitest run --root packages/std --passWithNoTests
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.6094818Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.6094994Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.6095780Z ^[[1m^[[30m^[[46m RUN ^[[49m^[[39m^[[22m ^[[36mv4.1.12 ^[[39m^[[90m/home/runner/work/architect/architect/packages/std^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.6096265Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.6096526Z No test files found, exiting with code 0
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.6096824Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.6097215Z ^[[2minclude: ^[[22m^[[33m**/*.{test,spec}.?(c|m)[jt]s?(x)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.6097813Z ^[[2mexclude:  ^[[22m^[[33m**/node_modules/**^[[2m, ^[[22m**/.git/**^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.6098201Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:32.6098796Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:33.0087426Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:33.0088960Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m std:lint
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:33.0096366Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:33.0097000Z ^[[2m> ^[[22moxlint packages/std
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:33.0104886Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:33.0105253Z Found 0 warnings and 0 errors.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:33.0105671Z Finished in 1.1s on 1 file with 97 rules using 4 threads.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:33.0106208Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:34.1749032Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:34.1790227Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m e2e:lint
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:34.1812924Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:34.1839550Z ^[[2m> ^[[22moxlint e2e
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:34.1868461Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:34.1900833Z ##[warning]e2e/layer1/04-agent-writes-a-handler.test.ts:13:27: Identifier 'cli' is imported but never used.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:34.1902461Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:34.1929186Z Found 1 warning and 0 errors.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:34.1959185Z Finished in 1.5s on 24 files with 97 rules using 4 threads.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:34.1985911Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:34.3919087Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:34.3929436Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m e2e:typecheck
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:34.3929914Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:34.3930246Z ^[[2m> ^[[22mtsc -p e2e/tsconfig.json
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:34.3930427Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:40:34.3930673Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4012802Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4013806Z ##[group]✅ ^[[2m> ^[[22m^[[2mnx run^[[22m prove:test
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4013970Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4014189Z ^[[2m> ^[[22mvitest run --root packages/prove --passWithNoTests
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4014340Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4014345Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4014614Z ^[[1m^[[30m^[[46m RUN ^[[49m^[[39m^[[22m ^[[36mv4.1.12 ^[[39m^[[90m/home/runner/work/architect/architect/packages/prove^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4014822Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4015143Z  ^[[32m✓^[[39m src/modules/publish/publish.test.ts ^[[2m(^[[22m^[[2m6 tests^[[22m^[[2m | ^[[22m^[[33m1 skipped^[[39m^[[2m)^[[22m^[[33m 101026^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4015623Z      ^[[33m^[[2m✓^[[22m^[[39m --dry-run lists exactly what would go out, and sends nothing ^[[33m 7821^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4016142Z      ^[[33m^[[2m✓^[[22m^[[39m without a registry, --local says so and exits 2; with neither flag it says how to use it ^[[33m 2675^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4016875Z      ^[[33m^[[2m✓^[[22m^[[39m a prerelease goes out under `next`, numbered one past the last ^[[33m 7863^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4017439Z      ^[[33m^[[2m✓^[[22m^[[39m --local puts @acme/sdk@1.1.0 and @acme/cli@1.1.0 on the registry, `latest` on them, and a fresh folder installs and runs them ^[[33m 60829^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4017976Z      ^[[33m^[[2m✓^[[22m^[[39m a prerelease published after a release never takes `latest` from it ^[[33m 2260^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4018614Z  ^[[32m✓^[[39m src/modules/promote/promote.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[33m 47631^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4019079Z      ^[[33m^[[2m✓^[[22m^[[39m refuses a dirty tree and a revision with no built bundle, each naming what is wrong ^[[33m 4769^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4019769Z      ^[[33m^[[2m✓^[[22m^[[39m refuses a revision without main test verdicts, naming what is missing, and accepts one that has them ^[[33m 3997^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4020389Z      ^[[33m^[[2m✓^[[22m^[[39m production is refused without staging verdicts, then takes what staging proved: one bundle in test, staging and production ^[[33m 34312^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4020898Z  ^[[32m✓^[[39m src/modules/world/mcp.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[33m 10199^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4021385Z      ^[[33m^[[2m✓^[[22m^[[39m exports the first MCP operation to an extra Collector sink without a prior API call or local OTLP URL ^[[33m 5282^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4021903Z      ^[[33m^[[2m✓^[[22m^[[39m serves one tool per operation and read, behind OAuth, as the person the token names ^[[33m 4915^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4022333Z  ^[[32m✓^[[39m src/modules/evals/evals.test.ts ^[[2m(^[[22m^[[2m14 tests^[[22m^[[2m)^[[22m^[[32m 12^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4022748Z  ^[[32m✓^[[39m src/modules/promote/staging.test.ts ^[[2m(^[[22m^[[2m8 tests^[[22m^[[2m)^[[22m^[[33m 167445^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4023208Z      ^[[33m^[[2m✓^[[22m^[[39m rejects staging replacement after its initial check, including rollback=false ^[[33m 40564^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4023683Z      ^[[33m^[[2m✓^[[22m^[[39m rejects staging replacement after its initial check, including rollback=true ^[[33m 39456^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4024205Z      ^[[33m^[[2m✓^[[22m^[[39m rejects source mutation at proof completion before model storage, publishing or passing verdicts ^[[33m 11721^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4024743Z      ^[[33m^[[2m✓^[[22m^[[39m installs the captured SDK and CLI even if source changes after capture during publication ^[[33m 12808^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4025273Z      ^[[33m^[[2m✓^[[22m^[[39m owns package and SEA outputs per invocation and preserves earlier tarballs and formula URLs ^[[33m 19209^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4025812Z      ^[[33m^[[2m✓^[[22m^[[39m refuses pre-existing different same-version package bytes instead of claiming successful reuse ^[[33m 2630^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4026359Z      ^[[33m^[[2m✓^[[22m^[[39m repairs a persisted partial release on retry without duplicating complete carried facts ^[[33m 11464^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4026866Z      ^[[33m^[[2m✓^[[22m^[[39m records no new production release or carried pass when existing package bytes conflict ^[[33m 10299^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4027330Z  ^[[32m✓^[[39m src/modules/environments/portal.test.ts ^[[2m(^[[22m^[[2m6 tests^[[22m^[[2m)^[[22m^[[33m 17283^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4027868Z      ^[[33m^[[2m✓^[[22m^[[39m shows spend `test ✔ staging ✔ production ✔` for the revision the environment runs, and answers its data routes ^[[33m 8603^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4028670Z      ^[[33m^[[2m✓^[[22m^[[39m after a budget edit shows stale on spend and on no other operation, though the environment still runs the old bundle ^[[33m 1174^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4029212Z      ^[[33m^[[2m✓^[[22m^[[39m another environment, started after the logbook, reads the same logbook ^[[33m 3113^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4029925Z      ^[[33m^[[2m✓^[[22m^[[39m env down leaves nothing running ^[[33m 915^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4030335Z  ^[[32m✓^[[39m src/modules/releases/releases.test.ts ^[[2m(^[[22m^[[2m7 tests^[[22m^[[2m)^[[22m^[[33m 7391^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4030795Z      ^[[33m^[[2m✓^[[22m^[[39m records a release (the model, then the version), and refuses the same version twice ^[[33m 2874^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4031191Z      ^[[33m^[[2m✓^[[22m^[[39m a new read is minor, and stales nothing ^[[33m 311^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4031667Z      ^[[33m^[[2m✓^[[22m^[[39m a looser budget is a patch and makes exactly spend stale, in staging and production ^[[33m 600^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4032473Z      ^[[33m^[[2m✓^[[22m^[[39m a verdict from a pull request never un-stales or stales anything: only main's count ^[[33m 320^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4033067Z  ^[[32m✓^[[39m src/modules/environments/process-ownership.test.ts ^[[2m(^[[22m^[[2m5 tests^[[22m^[[2m)^[[22m^[[33m 10597^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4033587Z      ^[[33m^[[2m✓^[[22m^[[39m up preserves a stale sentinel, then status and down recognize the actual long-path wrangler ^[[33m 4757^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4034092Z      ^[[33m^[[2m✓^[[22m^[[39m another environment's genuine wrangler survives stale markers that point at it ^[[33m 2670^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4034626Z      ^[[33m^[[2m✓^[[22m^[[39m recognizes its real logbook and preserves another logbook sharing the config but using different state ^[[33m 2616^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4035128Z  ^[[32m✓^[[39m src/modules/test-worlds/test-worlds.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[33m 58135^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4035588Z      ^[[33m^[[2m✓^[[22m^[[39m posts a verdict per operation that the logbook reads back, and leaves no world ^[[33m 5737^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4036120Z      ^[[33m^[[2m✓^[[22m^[[39m refuses a second world while one lives, and a run that cannot record its verdicts still destroys its world ^[[33m 5170^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4036648Z      ^[[33m^[[2m✓^[[22m^[[39m a run killed part-way leaves a world that worlds reap removes after its lifetime ^[[33m 36246^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4037090Z  ^[[32m✓^[[39m src/modules/prove/secrets.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[33m 15775^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4037583Z      ^[[33m^[[2m✓^[[22m^[[39m sign-in and api-key.create leave no password, token, key or session in the Collector's spans or logs ^[[33m 5545^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4038104Z      ^[[33m^[[2m✓^[[22m^[[39m deletes the attribute keys it is given from every span and every log, and keeps the rest ^[[33m 748^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4038868Z      ^[[33m^[[2m✓^[[22m^[[39m leaves `payload.member` off every span of allowance.grant, and prove still passes ^[[33m 9446^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4039299Z  ^[[32m✓^[[39m src/modules/watch/watch.test.ts ^[[2m(^[[22m^[[2m7 tests^[[22m^[[2m)^[[22m^[[33m 531^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4039737Z  ^[[32m✓^[[39m src/modules/environments/environments.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[33m 14852^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4040218Z      ^[[33m^[[2m✓^[[22m^[[39m runs staging and production at once, each with its own state, which a restart keeps ^[[33m 14055^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4040696Z      ^[[33m^[[2m✓^[[22m^[[39m down leaves nothing running, and down on a stopped environment is not an error ^[[33m 592^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4041133Z  ^[[32m✓^[[39m src/modules/telemetry/sources.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[32m 40^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4041562Z  ^[[32m✓^[[39m src/modules/world/device-sign-in.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[33m 22434^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4042105Z      ^[[33m^[[2m✓^[[22m^[[39m signs the generated CLI in as ada, who approves with her own session; bob's approval is a 403; session show prints ada ^[[33m 11948^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4042841Z      ^[[33m^[[2m✓^[[22m^[[39m answers a poll sooner than its interval with slow_down, and a used code only once ^[[33m 10485^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4043649Z  ^[[32m✓^[[39m src/modules/prove/reads.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[33m 21768^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4044331Z      ^[[33m^[[2m✓^[[22m^[[39m the author's allowance.list passes every eval, and its journey's answers are pages ^[[33m 11030^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4044876Z      ^[[33m^[[2m✓^[[22m^[[39m filters, orders and pages, and refuses who is not the owner ^[[33m 10664^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4045299Z  ^[[32m✓^[[39m src/modules/sinks/sinks.standin.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[33m 20678^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4046007Z      ^[[33m^[[2m✓^[[22m^[[39m receives acme's spans and logs with the token and dataset, tags every span with the environment, and leaves the token in no file ^[[33m 11129^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4046733Z      ^[[33m^[[2m✓^[[22m^[[39m skips a sink with no token, with one line, and the run still proves ^[[33m 9486^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4047191Z  ^[[2m^[[90m↓^[[39m^[[22m src/modules/sinks/sinks.live.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m | ^[[22m^[[33m1 skipped^[[39m^[[2m)^[[22m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4047612Z  ^[[32m✓^[[39m src/modules/build/build.test.ts ^[[2m(^[[22m^[[2m5 tests^[[22m^[[2m)^[[22m^[[33m 4772^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4048082Z      ^[[33m^[[2m✓^[[22m^[[39m builds a revision once: the same revision hashes the same, and the bundle is kept at its path ^[[33m 2109^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4048801Z      ^[[33m^[[2m✓^[[22m^[[39m refuses a legacy manifest, then rebuilds after its local cache is preserved aside ^[[33m 2495^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4049303Z  ^[[32m✓^[[39m src/modules/prove/prove.test.ts ^[[2m(^[[22m^[[2m11 tests^[[22m^[[2m)^[[22m^[[33m 95236^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4049750Z      ^[[33m^[[2m✓^[[22m^[[39m passes on acme: every journey, every eval, coverage, and leaves nothing running ^[[33m 9637^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4050241Z      ^[[33m^[[2m✓^[[22m^[[39m fails on the scaffolded handlers: the starting world can't be made, so no step runs ^[[33m 8699^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4050681Z      ^[[33m^[[2m✓^[[22m^[[39m fails the planted answer-shape fixture on its own eval ^[[33m 9050^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4051081Z      ^[[33m^[[2m✓^[[22m^[[39m fails the planted declared-errors fixture on its own eval ^[[33m 9296^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4051476Z      ^[[33m^[[2m✓^[[22m^[[39m fails the planted machine-path fixture on its own eval ^[[33m 8682^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4051858Z      ^[[33m^[[2m✓^[[22m^[[39m fails the planted events fixture on its own eval ^[[33m 9531^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4052233Z      ^[[33m^[[2m✓^[[22m^[[39m fails the planted who-may-call fixture on its own eval ^[[33m 9613^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4052605Z      ^[[33m^[[2m✓^[[22m^[[39m fails the planted steps fixture on its own eval ^[[33m 10504^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4052976Z      ^[[33m^[[2m✓^[[22m^[[39m fails the planted coverage fixture on its own eval ^[[33m 9644^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4053373Z      ^[[33m^[[2m✓^[[22m^[[39m fails the planted explainability fixture on its own eval ^[[33m 10249^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4053917Z  ^[[32m✓^[[39m src/modules/telemetry/telemetry.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[33m 25868^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4054693Z      ^[[33m^[[2m✓^[[22m^[[39m takes an OTLP span over HTTP and reads it back by trace id once complete ^[[33m 798^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4055345Z      ^[[33m^[[2m✓^[[22m^[[39m drops the person from a record before anything else sees it: user.*, organization.id, on spans and resources ^[[33m 15482^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4056025Z      ^[[33m^[[2m✓^[[22m^[[39m removes a collector whose owner process is gone at the next start, and leaves a live owner's alone ^[[33m 9586^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4056642Z  ^[[32m✓^[[39m src/modules/world/world.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[33m 13751^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4057223Z      ^[[33m^[[2m✓^[[22m^[[39m serves acme on workerd: the world casts ada, ada founds an organisation and grants olga 500 ^[[33m 4161^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4058017Z      ^[[33m^[[2m✓^[[22m^[[39m the generated CLI: spending past the limit exits 41, a revoked allowance 40, an outsider 3; --json prints the answer ^[[33m 9588^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4058736Z  ^[[32m✓^[[39m src/modules/viewer/viewer.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[33m 49084^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4059326Z      ^[[33m^[[2m✓^[[22m^[[39m shows prove's allowance.grant trace with its root, step and log, and stop leaves nothing ^[[33m 49063^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4059925Z  ^[[2m^[[90m↓^[[39m^[[22m src/modules/watch/watch.live.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m | ^[[22m^[[33m1 skipped^[[39m^[[2m)^[[22m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4068815Z  ^[[32m✓^[[39m src/modules/environments/front-door.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[33m 13441^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4070055Z      ^[[33m^[[2m✓^[[22m^[[39m is closed in staging and production before any handler runs, and open where worlds live ^[[33m 12700^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4070881Z  ^[[32m✓^[[39m src/modules/verdicts/verdicts.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[32m 32^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4071551Z  ^[[32m✓^[[39m src/modules/impact/impact.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[33m 10936^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4072178Z      ^[[33m^[[2m✓^[[22m^[[39m after a prove, names only what a change unproves ^[[33m 10895^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4072841Z  ^[[32m✓^[[39m src/modules/trace-trees/trace-trees.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[32m 4^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4073498Z  ^[[32m✓^[[39m src/modules/sinks/sinks.test.ts ^[[2m(^[[22m^[[2m5 tests^[[22m^[[2m)^[[22m^[[32m 6^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4074141Z  ^[[32m✓^[[39m src/modules/journeys/journeys.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 106^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4074818Z  ^[[32m✓^[[39m src/modules/prove/starter.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[33m 22200^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4075507Z      ^[[33m^[[2m✓^[[22m^[[39m proves: five journeys, eleven operations with nine evals each ^[[33m 5662^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4076099Z      ^[[33m^[[2m✓^[[22m^[[39m fails on wrong-password-signs-in ^[[33m 5440^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4076601Z      ^[[33m^[[2m✓^[[22m^[[39m fails on accept-without-membership ^[[33m 5530^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4076910Z      ^[[33m^[[2m✓^[[22m^[[39m fails on owner-step-skipped ^[[33m 5495^[[2mms^[[22m^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4077129Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4077351Z ^[[2m Test Files ^[[22m ^[[1m^[[32m28 passed^[[39m^[[22m^[[2m | ^[[22m^[[33m2 skipped^[[39m^[[90m (30)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4077807Z ^[[2m      Tests ^[[22m ^[[1m^[[32m118 passed^[[39m^[[22m^[[2m | ^[[22m^[[33m3 skipped^[[39m^[[90m (121)^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4078072Z ^[[2m   Start at ^[[22m 05:39:02
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4078635Z ^[[2m   Duration ^[[22m 393.88s^[[2m (transform 8.84s, setup 0ms, import 11.84s, tests 751.23s, environment 2ms)^[[22m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4078968Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4079262Z ##[endgroup]
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4079412Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4079885Z ^[[7m^[[1m^[[31m NX ^[[39m^[[22m^[[27m  ^[[31mRunning targets ^[[1mlint^[[22m, ^[[1mtypecheck^[[22m, ^[[1mtest^[[22m for 16 projects failed^[[39m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4080247Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4080366Z ^[[2mFailed tasks:^[[22m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4080487Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4080596Z ^[[2m-^[[22m logbook:test
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4080714Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4080720Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4080822Z ^[[2m^[[31m^[[39m^[[22m
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4081005Z   Run duration:      7m 2s
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4081231Z   Cache:             0/46 hit (0%)
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4081478Z   Critical path:     6m 35s (1 task)
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4081735Z   Recoverable time:  27.1s (6% of the run)
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4081895Z 
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4081971Z   Recommendations:
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4082539Z     - Drastically reduce your run duration by sharing a cache across your team and CI → https://cloud.nx.app/connect/Tek9ioYBOf.
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4082994Z     - Speed up or split the longest tasks on the critical path:
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.4083303Z         prove:test    6m 35s
+check	Run pnpm nx run-many -t lint,typecheck,test --outputStyle=static	2026-11-17T05:45:36.5280606Z ##[error]Process completed with exit code 1.
+check	Post Run pnpm/action-setup@v6.1.0	﻿2026-11-17T05:45:36.5353745Z Post job cleanup.
+check	Post Run pnpm/action-setup@v6.1.0	2026-11-17T05:45:36.6261309Z Pruning is unnecessary.
+check	Post Run actions/checkout@v7.0.1	﻿2026-11-17T05:45:36.6390709Z Post job cleanup.
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.6989789Z [command]/usr/bin/git version
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.7028797Z git version 2.56.1
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.7056098Z Temporarily overriding HOME='/home/runner/work/_temp/64299f3a-3795-4e57-97d7-0d9c9c886511' before making global git config changes
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.7057015Z Adding repository directory to the temporary git global config as a safe directory
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.7059240Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/architect/architect
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.7093791Z Removing SSH command configuration
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.7098978Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.7151145Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.7416717Z Removing HTTP extra header
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.7421811Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.7484083Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.7715517Z Removing includeIf entries pointing to credentials config files
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.7720904Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.7753409Z includeif.gitdir:/home/runner/work/architect/architect/.git.path
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.7754114Z includeif.gitdir:/home/runner/work/architect/architect/.git/worktrees/*.path
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.7754715Z includeif.gitdir:/github/workspace/.git.path
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.7755187Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.7759750Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/architect/architect/.git.path
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.7790812Z /home/runner/work/_temp/git-credentials-a7c26161-7123-4e98-87ca-891a091805c2.config
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.7798914Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/architect/architect/.git.path \/home\/runner\/work\/_temp\/git\-credentials\-a7c26161\-7123\-4e98\-87ca\-891a091805c2\.config
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.7837088Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/architect/architect/.git/worktrees/*.path
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.7868201Z /home/runner/work/_temp/git-credentials-a7c26161-7123-4e98-87ca-891a091805c2.config
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.7873969Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/architect/architect/.git/worktrees/*.path \/home\/runner\/work\/_temp\/git\-credentials\-a7c26161\-7123\-4e98\-87ca\-891a091805c2\.config
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.7910648Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.7939061Z /github/runner_temp/git-credentials-a7c26161-7123-4e98-87ca-891a091805c2.config
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.7943490Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-a7c26161\-7123\-4e98\-87ca\-891a091805c2\.config
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.7980418Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.8008953Z /github/runner_temp/git-credentials-a7c26161-7123-4e98-87ca-891a091805c2.config
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.8013598Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-a7c26161\-7123\-4e98\-87ca\-891a091805c2\.config
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.8050147Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+check	Post Run actions/checkout@v7.0.1	2026-11-17T05:45:36.8246008Z Removing credentials config '/home/runner/work/_temp/git-credentials-a7c26161-7123-4e98-87ca-891a091805c2.config'
+check	Complete job	﻿2026-11-17T05:45:36.8402258Z Cleaning up orphan processes

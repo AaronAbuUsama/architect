@@ -15,6 +15,8 @@ export interface ErrorClass<F extends FieldsInput = FieldsInput> {
   readonly schema: Schema.Struct<{ readonly [K in keyof F]: ValueOf<F[K]>["schema"] }>;
   /** The exit code the CLI ends with on this refusal. */
   readonly exit: number;
+  /** Its place among the errors made so far: within one `errors.ts`, the order they are declared in. */
+  readonly sequence: number;
 }
 
 /** Any declared error class. `args: any` because constructor parameters are contravariant. */
@@ -23,6 +25,7 @@ export interface AnyErrorClass {
   readonly fields: FieldsInput;
   readonly schema: Schema.Top;
   readonly exit: number;
+  readonly sequence: number;
 }
 
 export interface ErrorsApi {

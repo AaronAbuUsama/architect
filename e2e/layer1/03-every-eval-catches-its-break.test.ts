@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { acme, architect, copyOf, nothingRunning } from "./support.ts";
 
-const GRANT = "implementation/handlers/allowance/grant.ts";
+const GRANT = "src/allowance/grant.ts";
 const planted: ReadonlyArray<{ readonly fixture: string; readonly installs: ReadonlyArray<readonly [string, string]>; readonly line: string; readonly generate?: boolean; readonly review?: true }> = [
   { fixture: "answer-shape", installs: [["grant.ts", GRANT]], line: "allowance.grant answer shape ✘" },
   { fixture: "declared-errors", installs: [["grant.ts", GRANT]], line: "allowance.grant declared errors ✘" },
@@ -13,7 +13,7 @@ const planted: ReadonlyArray<{ readonly fixture: string; readonly installs: Read
   { fixture: "events", installs: [["grant.ts", GRANT]], line: "allowance.grant events ✘" },
   { fixture: "who-may-call", installs: [["main.ts", "generated/server/main.ts"]], line: "allowance.grant who may call ✘" },
   { fixture: "steps", installs: [["grant.ts", GRANT]], line: "allowance.grant steps ✘" },
-  { fixture: "coverage", installs: [["rename.ts", "blueprint/things/organization/verbs/rename.ts"], ["rename.handler.ts", "implementation/handlers/organization/rename.ts"]], line: "organization.rename coverage ✘", generate: true },
+  { fixture: "coverage", installs: [["rename.ts", "blueprint/things/organization/verbs/rename.ts"], ["rename.handler.ts", "src/organization/rename.ts"]], line: "organization.rename coverage ✘", generate: true },
   { fixture: "performance", installs: [["grant.ts", GRANT]], line: "allowance.grant performance ✔", review: true },
   { fixture: "explainability", installs: [["grant.ts", GRANT]], line: "allowance.grant explainability ✘" },
 ];

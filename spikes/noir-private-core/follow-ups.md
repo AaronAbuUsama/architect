@@ -1,0 +1,7 @@
+# Follow-up proof tasks
+
+These are unresolved proof tasks for the lead, not implemented product work. All remain open. They should be promoted into the later-target plan before that target is built.
+
+- **NPC-01 — Successor-witness availability under a modified member PXE.** Reproduce the corrupt/undiscoverable successor-log attack on v5.3.0, then test a delivery design that guarantees every authorised mutator receives the required preimage. Done when an adversarial spend cannot prevent the honest admin from obtaining and consuming the current right, including any handshake-state replacement. Blocks an unconditional revoke-availability promise. Source evidence: `evidence/delivery-risk.md`.
+- **NPC-02 — Known-address discovery and RPC privacy.** Given an organisation address without its keys, attempt to recognize default constrained Token discovery messages and correlate node queries with transactions. Done when the documented public/RPC privacy boundary is demonstrated by a watcher test, or the relevant claim is explicitly rejected. Blocks a promise that outsiders who know the address learn nothing.
+- **NPC-03 — Proof verification.** Run the retained journeys on a locally verifying configuration with real client proofs. Done when the verifier accepts the successful operations and rejects the negative cases. Default local-network acceptance is not this proof. No public network or cloud credential is authorised by this task file.

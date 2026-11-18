@@ -1,0 +1,13 @@
+{
+  "step": "L2.05",
+  "stage": "Stage 3 · shipping on local worlds (Gate 2)",
+  "title": "architect promote: staging proved where it runs, production by what staging proved",
+  "summary": "architect promote --to staging|production moves the exact bundle architect build kept, never a rebuild. It refuses a dirty tree, an unbuilt or altered bundle and a revision without main verdicts (test for staging, staging for production, every operation), naming what is missing, and starts nothing for a refusal. It then starts or restarts the target on that bundle and checks /_architect/bundle. Staging is proved where it runs (journeys with people signing up through Better Auth, evals from staging's own collector) and posts environment staging verdicts; production records the release through Releases.record and carries staging's verdicts to production. Verdicts and Releases now share one token source.",
+  "proves": "On a copy of acme under git with the real logbook, issuer, collectors and three environments: a revision with no test verdicts, a pull request's verdicts, and a failing and a missing one are each refused with the operations named; a dirty tree and an unbuilt bundle are refused; production is refused without staging verdicts; after prove --env test, staging takes the revision and posts fifteen passing verdicts; production takes what staging proved, test, staging and production report the same revision and sha256, release 1.0.0 is recorded and promoting again records nothing. Author's checks 01, 02, 03 and 06 pass; check 04 passes except for its missing prove --env test and the registry assertions (L2.06).",
+  "captions": {
+    "01-fails-first": "The done-when tests before the command existed: unknown subcommand promote.",
+    "02-done-when-tests": "The done-when tests passing.",
+    "03-author-checks": "The author's Gate 2 checks and what each still needs.",
+    "04-workspace-checks": "Lint, typecheck, tests, sync check, local prove."
+  }
+}

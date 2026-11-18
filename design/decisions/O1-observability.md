@@ -481,3 +481,37 @@ Axiom: `axiom.co/docs/send-data/opentelemetry`, `/reference/tokens`, `/reference
 `grafana.com/docs/opentelemetry/docker-lgtm/`. Image tags and digests: Docker Hub `grafana/otel-lgtm`. Collector:
 `opentelemetry-collector-releases` v0.164.0. Effect: `OtlpTracer.ts:57` (`headers`), `OtlpSerialization.ts`
 (`layerJson`, `layerProtobuf`). The local spike: `spikes/local-trace-viewer/`.
+
+## Amendment, 16 November 2026 (the conductor): use the datasets Aaron already has
+
+Aaron's Axiom organisation already has a dataset layout, which replaces the proposed `<project>-<env>-<signal>`
+names. Each group is an Axiom correlation group (logs, traces, metrics linked for investigation):
+
+| Group | Datasets | What goes there |
+|---|---|---|
+| `capxul-test` | `-traces`, `-logs`, `-metrics`, `-events` | test worlds: local, `test` and CI runs |
+| `capxul-real` | `-traces`, `-logs`, `-metrics`, `-events` | real worlds: staging and production, told apart by `deployment.environment` |
+| `capxul-agents` | `-traces`, `-logs`, `-metrics` | agent sessions (the harness, H1/H2) |
+| `capxul-cloudflare` | `-traces`, `-logs` | Cloudflare Workers' own platform export, kept apart from ours |
+
+The `-events` datasets hold product events as flat, typed fields (the blueprint's declared events), not OTLP.
+
+The organisation id and the region are not secrets, but this repository is public, so neither is written in it: the
+Axiom sink reads `AXIOM_ORG_ID` and the token by name from the keychain (`security find-generic-password -a architect
+-s <name> -w`), and `architect.config.ts` names only the dataset group.
+
+The organisation's edge deployment is EU Central 1, so ingest and query go to that edge's domain, not
+`api.axiom.co`. The sink reads the domain by name too (`axiom-domain` in the keychain, or `AXIOM_DOMAIN`), and the
+MCP server for supervised sessions is `https://mcp.eu.axiom.co/mcp`, which keeps query results in the EU.
+
+Aaron's tokens already exist, one per dataset group, each in the keychain under its own name: `capxul-ingest-test`
+(capxul-test-*), `capxul-ingest-real` (capxul-real-*), `capxul-ingest-agents` (capxul-agents-*),
+`capxul-ingest-cloudflare` (capxul-cloudflare-*), all ingest-only, and `capxul-query`, query-only with a cost cap of
+$1 an hour and $5 a day, for `watch`. The sink reads them by those service names; `axiom-org-id` and `axiom-domain`
+hold the organisation and its EU Central 1 edge.
+
+## Aaron's call, 16 November 2026: Axiom only for now
+
+"Let's leave PostHog for now." The default sink list is Axiom (traces, logs and defects, defects found by their span
+status and `defect` tag through an Axiom monitor) plus the local viewer. The `Sink` seam stays, so PostHog is one
+adapter added later by config; L2.O8 and L2.O9 move to `later.md`.

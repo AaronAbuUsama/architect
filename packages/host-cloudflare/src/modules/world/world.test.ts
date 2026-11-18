@@ -39,3 +39,109 @@ describe("the world Durable Object, in workerd", () => {
     expect((await toWorld(world, new Request("http://world/_world/facts/record?table=secrets&id=x"))).status).toBe(404);
   });
 });
+
+
+const leased = { ...world, leases: true };
+const door = (path: string, method = "GET", body?: object) => toWorld(leased, new Request(`http://world/_world/worlds${path}`, {
+  method, ...(body ? { body: JSON.stringify(body) } : {}),
+}));
+const lease = (id: string) => door("", "POST", { id, lifetimeMs: 60_000 });
+const liveWorlds = () => door("").then((r) => r.json() as Promise<{ worlds: Array<{ id: string; expires: number }> }>);
+const insertAllowance = (id: string) => env.DB.prepare(`INSERT INTO "allowance" ("id", "member", "limit", "state") VALUES (?, 'per_o', '5', 'active')`).bind(id).run();
+const hasAllowance = (id: string) => env.DB.prepare(`SELECT "id" FROM "allowance" WHERE "id" = ?`).bind(id).first();
+
+// These exercise multiple real D1 transactions and Durable Object requests. Match the bounded 60-second
+// integration budget used by the actor race; CI startup/load must not cut off a still-running cleanup at 5 seconds.
+describe("world leases, in real workerd and D1", () => {
+  it("admits exactly one concurrent creation and removes only that world's rows", { timeout: 60_000 }, async () => {
+    const ids = Array.from({ length: 8 }, (_, i) => `race-${i}`);
+    await insertAllowance("before-race");
+    try {
+      const responses = await Promise.all(ids.map(lease));
+      const statuses = responses.map((r) => r.status).sort();
+      expect(statuses).toEqual([201, 409, 409, 409, 409, 409, 409, 409]);
+      const held = (await liveWorlds()).worlds;
+      expect(held).toHaveLength(1);
+      const winner = held[0]!;
+      for (const refused of responses.filter((r) => r.status === 409)) {
+        expect(await refused.json()).toEqual({ error: "WorldLive", id: winner.id, expires: winner.expires });
+      }
+      await insertAllowance("during-race");
+      expect((await door(`/${winner.id}`, "DELETE")).status).toBe(200);
+      expect((await liveWorlds()).worlds).toEqual([]);
+      expect(await hasAllowance("before-race")).not.toBeNull();
+      expect(await hasAllowance("during-race")).toBeNull();
+    } finally {
+      for (const id of ids) await door(`/${id}`, "DELETE");
+      await env.DB.prepare(`DELETE FROM "allowance" WHERE "id" IN ('before-race', 'during-race')`).run();
+    }
+  });
+
+  it("ends once when alarm-style and explicit teardown overlap, and an old teardown leaves the next world intact", { timeout: 60_000 }, async () => {
+    const id = "end-race";
+    const next = "after-end-race";
+    try {
+      expect((await lease(id)).status).toBe(201);
+      await insertAllowance("ending-world");
+      const object = env.WORLD.get(env.WORLD.idFromName(id));
+      const endings = await Promise.all(Array.from({ length: 8 }, (_, i) => object.fetch(new Request("http://world/_world/end", {
+        method: "POST", body: JSON.stringify({ id, reason: i % 2 === 0 ? "expired" : "destroyed" }),
+      })).then((r) => r.json() as Promise<{ ended: boolean }>)));
+      expect(endings.filter((r) => r.ended)).toHaveLength(1);
+      expect(await hasAllowance("ending-world")).toBeNull();
+      expect((await lease(next)).status).toBe(201);
+      await insertAllowance("next-world");
+      await Promise.all(Array.from({ length: 8 }, () => door(`/${id}`, "DELETE")));
+      expect((await liveWorlds()).worlds.map((w) => w.id)).toEqual([next]);
+      expect(await hasAllowance("next-world")).not.toBeNull();
+    } finally {
+      await door(`/${id}`, "DELETE");
+      await door(`/${next}`, "DELETE");
+    }
+  });
+
+  it("takes marks in the admission transaction when creation races an ending", { timeout: 60_000 }, async () => {
+    for (let i = 0; i < 6; i++) {
+      const old = `handover-old-${i}`;
+      const next = `handover-next-${i}`;
+      const row = `handover-row-${i}`;
+      try {
+        expect((await lease(old)).status).toBe(201);
+        await insertAllowance(`handover-old-row-${i}`);
+        const [, admission] = await Promise.all([door(`/${old}`, "DELETE"), lease(next)]);
+        expect([201, 409]).toContain(admission.status);
+        if (admission.status === 409) expect((await lease(next)).status).toBe(201);
+        await insertAllowance(row);
+        await door(`/${next}`, "DELETE");
+        expect(await hasAllowance(row)).toBeNull();
+        expect((await liveWorlds()).worlds).toEqual([]);
+      } finally {
+        await door(`/${old}`, "DELETE");
+        await door(`/${next}`, "DELETE");
+      }
+    }
+  });
+
+  it("refuses a used id, and an additive index upgrade never repairs overlapping legacy leases by deleting data", { timeout: 60_000 }, async () => {
+    expect((await lease("used-world")).status).toBe(201);
+    await door("/used-world", "DELETE");
+    const reused = await lease("used-world");
+    expect(reused.status).toBe(409);
+    expect(await reused.json()).toEqual({ error: "WorldUsed", id: "used-world" });
+    await env.DB.prepare(`DROP INDEX "_worlds_one_live"`).run();
+    await env.DB.prepare(`INSERT INTO "_worlds" ("id", "created", "expires", "marks") VALUES
+      ('legacy-overlap-a', 1, 9999999999999, '{}'), ('legacy-overlap-b', 1, 9999999999999, '{}')`).run();
+    await insertAllowance("legacy-row");
+    try {
+      await expect(door("")).rejects.toThrow(/UNIQUE constraint failed/);
+      const held = await env.DB.prepare(`SELECT id FROM "_worlds" WHERE "ended" IS NULL`).all<{ id: string }>();
+      expect(held.results.map((r) => r.id).sort()).toEqual(["legacy-overlap-a", "legacy-overlap-b"]);
+      expect(await hasAllowance("legacy-row")).not.toBeNull();
+    } finally {
+      await env.DB.prepare(`DELETE FROM "_worlds" WHERE "id" IN ('legacy-overlap-a', 'legacy-overlap-b')`).run();
+      await env.DB.prepare(`DELETE FROM "allowance" WHERE "id" = 'legacy-row'`).run();
+      expect((await door("")).status).toBe(200);
+    }
+  });
+
+});

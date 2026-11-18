@@ -1,0 +1,6 @@
+[package]
+name = "private_core_contract"
+type = "contract"
+
+[dependencies]
+aztec = { path = "../../tools/aztec-packages/noir-projects/aztec-nr/aztec" }

@@ -6,6 +6,7 @@ import { EventNames } from "@architect/blueprint/server";
 import type { Entry } from "#modules/journal/types.js";
 import type { Unit } from "#modules/records/types.js";
 import { NotFrom } from "../types.ts";
+import { journalled } from "./attributes.ts";
 
 type Codec = Schema.Codec<Record<string, unknown>, Record<string, unknown>>;
 
@@ -15,7 +16,8 @@ export const subjectOf = (op: Operation, payload: object, answer: object = {}): 
   for (const [fields, values] of [[op.answer, answer], [op.payload, payload]] as const) {
     for (const [k, f] of Object.entries(fields)) {
       const v = (values as Record<string, unknown>)[k];
-      if (f === idField && typeof v === "string") return v;
+      // By place, not by identity: a field marked secret is a copy of the thing's own, and still is it.
+      if (f.kind === "field" && idField && f.of === idField.of && f.key === idField.key && typeof v === "string") return v;
     }
   }
   return undefined;
@@ -63,7 +65,9 @@ export const applyMove = (name: string, op: Operation, payload: object, answer: 
     const missing = Object.keys(move.emits.fields).filter((k) => !(k in source));
     if (missing.length > 0) return yield* Effect.die(new Error(`${name}: ${event} needs ${missing.join(", ")}, found in neither its instance, answer nor payload`));
     const picked = Object.fromEntries(Object.keys(move.emits.fields).map((k) => [k, source[k]]));
-    const fields = yield* Schema.encodeEffect(move.emits.schema as unknown as Codec)(picked).pipe(Effect.orDie);
+    const encoded = yield* Schema.encodeEffect(move.emits.schema as unknown as Codec)(picked).pipe(Effect.orDie);
+    // The journal is a record anyone who reads it can see: a secret or private field of the event is not written to it.
+    const fields = Object.fromEntries(Object.entries(encoded).filter(([k]) => journalled(move.emits.fields, k)));
     yield* unit.setState(op.thing, subject, outcome);
     const trace = yield* Effect.currentSpan.pipe(Effect.map((s) => s.traceId), Effect.orElseSucceed(() => ""));
     yield* Effect.annotateCurrentSpan({ "event.name": event });

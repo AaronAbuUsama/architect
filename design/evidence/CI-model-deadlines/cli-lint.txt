@@ -1,0 +1,4 @@
+$ pnpm exec oxlint packages/cli
+# parent commit 6a4fe088027e1df1b21bae7350356c9d0909b823; changed test sha256 9815015ec36f36e018a63d36721fa6ab44a208c3e0d621e415e0aa0dad2635cb
+# 2026-11-17T08:28:27.505255+00:00; exit 0; duration 2.821s
+

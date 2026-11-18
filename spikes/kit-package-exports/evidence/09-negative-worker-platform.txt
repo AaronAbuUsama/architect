@@ -1,0 +1,30 @@
+✘ [ERROR] Could not resolve "node:crypto"
+
+    project/node_modules/@architect/spike-fixture-kit/dist/node.js:1:27:
+      1 │ import { createHash } from "node:crypto";
+        ╵                            ~~~~~~~~~~~~~
+
+  The package "node:crypto" wasn't found on the file system but is built into node. Are you trying to bundle for node? You can use "platform: 'node'" to do that, which will remove this error.
+
+1 error
+/Users/abuusama/.codex/worktrees/architect-build-integrity/architect/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1752
+  let error = new Error(text);
+              ^
+
+Error: Build failed with 1 error:
+project/node_modules/@architect/spike-fixture-kit/dist/node.js:1:27: ERROR: Could not resolve "node:crypto"
+    at failureErrorWithLog (/Users/abuusama/.codex/worktrees/architect-build-integrity/architect/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1752:15)
+    at /Users/abuusama/.codex/worktrees/architect-build-integrity/architect/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1211:25
+    at /Users/abuusama/.codex/worktrees/architect-build-integrity/architect/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1163:52
+    at buildResponseToResult (/Users/abuusama/.codex/worktrees/architect-build-integrity/architect/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1209:7)
+    at /Users/abuusama/.codex/worktrees/architect-build-integrity/architect/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1236:16
+    at responseCallbacks.<computed> (/Users/abuusama/.codex/worktrees/architect-build-integrity/architect/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:886:9)
+    at handleIncomingPacket (/Users/abuusama/.codex/worktrees/architect-build-integrity/architect/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:941:12)
+    at Socket.readFromStdout (/Users/abuusama/.codex/worktrees/architect-build-integrity/architect/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:864:7)
+    at Socket.emit (node:events:514:20)
+    at addChunk (node:internal/streams/readable:605:12) {
+  errors: [Getter/Setter],
+  warnings: [Getter/Setter]
+}
+
+Node.js v26.13.1

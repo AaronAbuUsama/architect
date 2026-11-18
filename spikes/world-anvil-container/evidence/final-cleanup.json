@@ -1,0 +1,29 @@
+{
+  "observedAt": "2026-11-17T07:53:30.900348+00:00",
+  "scope": "only this spike prefix; all existing user containers preserved",
+  "containers": {
+    "command": [
+      "docker",
+      "ps",
+      "-a",
+      "--filter",
+      "name=architect-spike-anvil-",
+      "--format",
+      "{{.ID}} {{.Names}}"
+    ],
+    "exitCode": 0,
+    "stdout": ""
+  },
+  "port": {
+    "command": [
+      "lsof",
+      "-nP",
+      "-iTCP:19120",
+      "-sTCP:LISTEN"
+    ],
+    "exitCode": 1,
+    "stdout": ""
+  },
+  "remainingWranglerProcesses": [],
+  "passed": true
+}

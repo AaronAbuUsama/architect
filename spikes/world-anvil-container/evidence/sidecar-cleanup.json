@@ -1,0 +1,23 @@
+{
+  "source": "Manual receipt of the observed Docker inspect and exact cleanup command. A later daemon-event query returned no retained events for this earlier run; it is not historical event proof.",
+  "run": "architect-spike-anvil-68281",
+  "events": [],
+  "exactRemovalCommand": [
+    "docker",
+    "rm",
+    "-f",
+    "9b7e10c48b62",
+    "25e519ee5f44"
+  ],
+  "observedRemovalExitCode": 0,
+  "observedContainers": [
+    {
+      "id": "9b7e10c48b626149415895edeffbe265b6bcd97df6626acd203634709bac768f",
+      "name": "workerd-architect-spike-anvil-68281-World-6a8b527865e5fe25aef9823e8b5234fc8f08a36bfb802239888c75e086f62999-proxy"
+    },
+    {
+      "id": "25e519ee5f4482f648a0b7330c5f06493ff385a13dd7374af1bbe9c3d658548a",
+      "name": "workerd-architect-spike-anvil-68281-World-8562193b482a10cca596b4d985511a3af2c0a71afa7472af7841b4da70edb8c2-proxy"
+    }
+  ]
+}

@@ -1,17 +1,21 @@
 #!/usr/bin/env node
 // The architect command. The only file here that reads the process, prints or exits.
 import { NodeRuntime, NodeServices } from "@effect/platform-node";
-import { Console, Effect } from "effect";
+import { Console, Effect, Option } from "effect";
 import { Argument, Command, Flag } from "effect/cli";
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
-import { Impact, Prove, Worlds } from "@architect/prove";
+import { Build, Environments, Prove, ProveFailed, Promote, TestWorlds, Verdicts } from "@architect/prove";
+import { spawn } from "node:child_process";
 import { ModelCommand } from "#modules/model/service.js";
 import { Add } from "#modules/add/service.js";
 import { AddRefused, type What } from "#modules/add/types.js";
 import { Check } from "#modules/check/service.js";
 import { Generate } from "#modules/generate/service.js";
+import { Ship } from "#modules/ship/service.js";
 import { Brief } from "#modules/brief/service.js";
+import { TelemetryCommand } from "#modules/telemetry/service.js";
+import { WatchCommand } from "#modules/watch/service.js";
 import { Compiler, nodeSource } from "@architect/compiler";
 
 const model = Command.make(
@@ -36,29 +40,75 @@ const dev = Command.make(
   },
   ({ root, port }) =>
     Effect.scoped(
-      Worlds.start({ root, port, name: "dev" }).pipe(
+      Prove.dev({ root, port, env: process.env }).pipe(
+        Effect.tap(({ notes }) => Effect.forEach(notes, (n) => Console.log(n))),
         Effect.tap(({ url, log }) => Console.log(`running at ${url}  (world at ${url}/_world, wrangler output in ${log})`)),
         Effect.andThen(Effect.never),
       ),
-    ).pipe(Effect.catchTag("WorldFailed", (e) => Console.error(e.message).pipe(Effect.tap(() => Effect.sync(() => (process.exitCode = 1)))))),
+    ).pipe(Effect.catchTag("ProveFailed", (e) => Console.error(e.message).pipe(Effect.tap(() => Effect.sync(() => (process.exitCode = 1)))))),
 );
+
+const fail = (message: string, exit: number) => Console.error(message).pipe(Effect.tap(() => Effect.sync(() => (process.exitCode = exit))));
+
+/** Where the logbook is (ARCHITECT_LOGBOOK_URL, else the running `logbook` environment) and who signs for the run (D3 #14, #54). */
+const attestation = (root: string) =>
+  Effect.gen(function* () {
+    const token = yield* Verdicts.sourceOf(process.env).pipe(Effect.mapError((e) => e.message));
+    const given = process.env["ARCHITECT_LOGBOOK_URL"];
+    const logbook = given ?? (yield* Environments.status({ root, name: "logbook" }).pipe(Effect.map((s) => (s.state === "up" ? s.url : undefined))));
+    if (!logbook) return yield* Effect.fail("the logbook isn't running: `architect env up logbook`, or set ARCHITECT_LOGBOOK_URL");
+    return { token, logbook };
+  });
 
 const prove = Command.make(
   "prove",
   {
-    env: Flag.Literals("env", ["local"]).pipe(Flag.withDefault("local")),
+    env: Flag.Literals("env", ["local", "test"]).pipe(Flag.withDefault("local")),
     root: Flag.String("root").pipe(Flag.withDefault(process.cwd())),
     port: Flag.Int("port").pipe(Flag.withDefault(8799)),
+    view: Flag.Boolean("view").pipe(Flag.withDefault(false)),
   },
-  ({ root, port }) =>
-    Effect.scoped(Prove.run({ root, port })).pipe(
-      Effect.tap((report) => Effect.sync(() => process.stdout.write(report.lines.join("\n") + "\n"))),
-      Effect.tap((report) => Effect.sync(() => (process.exitCode = report.passed ? 0 : 1))),
+  ({ env, root, port, view }) => {
+    const proved = env === "test"
+      ? attestation(root).pipe(
+          Effect.flatMap(({ token, logbook }) => {
+            const lifetime = process.env["ARCHITECT_LIFETIME"];
+            return Prove.test({ root, logbook, token, env: process.env, ...(lifetime ? { lifetime } : {}), say: (line) => Console.log(line) });
+          }),
+          Effect.tap((report) => Effect.sync(() => (process.exitCode = report.passed ? 0 : 1))),
+          Effect.catchTag("EnvironmentFailed", (e) => Effect.fail(new ProveFailed({ message: e.message }))),
+        )
+      : Effect.scoped(Prove.run({ root, port, view, env: process.env })).pipe(
+          Effect.tap((report) => Effect.sync(() => process.stdout.write(report.lines.join("\n") + "\n"))),
+          Effect.tap((report) => Effect.sync(() => (process.exitCode = report.passed ? 0 : 1))),
+        );
+    return proved.pipe(
       Effect.catchTag("ProveFailed", (e) => Console.error(`prove couldn't run: ${e.message}`).pipe(Effect.tap(() => Effect.sync(() => (process.exitCode = 2))))),
-    ),
+      Effect.catch((message: string) => fail(message, 2)),
+    );
+  },
 );
 
-const fail = (message: string, exit: number) => Console.error(message).pipe(Effect.tap(() => Effect.sync(() => (process.exitCode = exit))));
+const print = (said: { readonly out: string; readonly err: string; readonly exit: number }) =>
+  Effect.sync(() => {
+    if (said.out) process.stdout.write(said.out);
+    if (said.err) process.stderr.write(said.err);
+    process.exitCode = said.exit;
+  });
+
+// `architect promote --to staging|production`: the exact built bundle, moved on only with the verdicts that earn it (D3 #14, #92).
+const promote = Command.make(
+  "promote",
+  { to: Flag.Literals("to", ["staging", "production"]), root: Flag.String("root").pipe(Flag.withDefault(process.cwd())) },
+  ({ to, root }) =>
+    Promote.to({ root, env: process.env, target: to, say: (line) => Console.log(line) }).pipe(
+      Effect.tap((promoted) => Effect.sync(() => (process.exitCode = promoted.passed ? 0 : 1))),
+      Effect.catchTags({
+        PromoteRefused: (e) => Console.log(e.lines.join("\n")).pipe(Effect.tap(() => Effect.sync(() => (process.exitCode = 1)))),
+        PromoteFailed: (e) => fail(`promote couldn't run: ${e.message}`, 2),
+      }),
+    ),
+);
 
 // `architect add <what> <name>`: writes the planned files, or with --dry-run prints them and writes nothing.
 const addOne = (what: What) =>
@@ -108,20 +158,76 @@ const generate = Command.make(
   ({ root }) =>
     Generate.run(root).pipe(
       Effect.tap((changes) => Effect.sync(() => process.stdout.write(Generate.lines(changes).join("\n") + "\n"))),
+      Effect.tap(() => Ship.changes({ root, env: process.env })),
       Effect.catchTag("ModelFailed", (e) => fail(e.problems, 2)),
     ),
 );
 
+// What a change does: the local ledger's lines, and with a logbook the next version and what is stale in staging and production.
 const impact = Command.make(
   "impact",
   { root: Flag.String("root").pipe(Flag.withDefault(process.cwd())) },
-  ({ root }) =>
-    Compiler.model.pipe(
-      Effect.provide(nodeSource(root)),
-      Effect.flatMap((m) => Impact.of(root, m)),
-      Effect.flatMap((said) => Effect.sync(() => process.stdout.write(Impact.lines(said).join("\n") + "\n"))),
-      Effect.catchTags({ BlueprintInvalid: (e) => fail(e.problems.join("\n"), 2), SourceError: (e) => fail(e.message, 2) }),
-    ),
+  ({ root }) => Ship.impact({ root, env: process.env }).pipe(Effect.flatMap(print)),
+);
+
+// `architect version --next`: the version the working model would release as, worked out from the last production release.
+const version = Command.make(
+  "version",
+  { next: Flag.Boolean("next").pipe(Flag.withDefault(false)), root: Flag.String("root").pipe(Flag.withDefault(process.cwd())) },
+  ({ next, root }) => (next ? Ship.next({ root, env: process.env }).pipe(Effect.flatMap(print)) : fail("usage: architect version --next", 2)),
+);
+
+// `architect telemetry view | stop | trace <id> | open <id>`: the local viewer, and a trace read from the files (O1).
+const open = (url: string) =>
+  Effect.sync(() => {
+    const [cmd, ...args] = process.platform === "darwin" ? ["open", url] : process.platform === "win32" ? ["cmd", "/c", "start", "", url] : ["xdg-open", url];
+    spawn(cmd!, args, { stdio: "ignore", detached: true }).on("error", () => undefined).unref();
+  });
+const telemetryEnv = Flag.optional(Flag.String("env"));
+const telemetry = Command.make("telemetry").pipe(Command.withSubcommands([
+  Command.make("view", {}, () =>
+    Console.log("starting the viewer (the first start pulls its image once; it is large)").pipe(Effect.andThen(TelemetryCommand.view()), Effect.flatMap(print))),
+  Command.make("stop", {}, () => TelemetryCommand.stop().pipe(Effect.flatMap(print))),
+  Command.make(
+    "trace",
+    { id: Argument.String("id"), env: telemetryEnv, root: Flag.String("root").pipe(Flag.withDefault(process.cwd())) },
+    ({ id, env, root }) => TelemetryCommand.trace({ root, id, ...(Option.isSome(env) ? { env: env.value } : {}) }).pipe(Effect.flatMap(print)),
+  ),
+  Command.make(
+    "open",
+    { id: Argument.String("id"), env: telemetryEnv, root: Flag.String("root").pipe(Flag.withDefault(process.cwd())) },
+    ({ id, env, root }) =>
+      TelemetryCommand.open({ root, id, ...(Option.isSome(env) ? { env: env.value } : {}) }).pipe(
+        Effect.tap((said) => (said.open ? open(said.open) : Effect.void)),
+        Effect.flatMap(print),
+      ),
+  ),
+]));
+
+// `architect watch --env <name>`: the evals telemetry can answer, over what the environment recorded (L2.09, D3 #140).
+const watch = Command.make(
+  "watch",
+  {
+    env: Flag.String("env"),
+    source: Flag.Literals("source", ["file", "axiom"]).pipe(Flag.withDefault("file")),
+    since: Flag.String("since").pipe(Flag.withDefault("1h")),
+    root: Flag.String("root").pipe(Flag.withDefault(process.cwd())),
+  },
+  ({ env, source, since, root }) => WatchCommand.run({ root, environment: env, source, since, env: process.env }).pipe(Effect.flatMap(print)),
+);
+
+// `architect publish --dry-run | --local`: the SDK and CLI at the next version (D3 #9, #110). The cloud pass publishes to npmjs.org and GitHub.
+const publish = Command.make(
+  "publish",
+  {
+    dryRun: Flag.Boolean("dry-run").pipe(Flag.withDefault(false)),
+    local: Flag.Boolean("local").pipe(Flag.withDefault(false)),
+    root: Flag.String("root").pipe(Flag.withDefault(process.cwd())),
+  },
+  ({ dryRun, local, root }) =>
+    dryRun || local
+      ? Ship.publish({ root, env: process.env, mode: dryRun ? "dry-run" : "local", say: (line) => Console.log(line) }).pipe(Effect.flatMap(print))
+      : fail("usage: architect publish --dry-run | --local (npmjs.org and GitHub releases are the cloud pass's)", 2),
 );
 
 const brief = Command.make(
@@ -140,8 +246,65 @@ const brief = Command.make(
     ),
 );
 
+// `architect build`: the revision's bundle, once. Every environment runs this file unchanged (D3 #6).
+const build = Command.make(
+  "build",
+  { root: Flag.String("root").pipe(Flag.withDefault(process.cwd())) },
+  ({ root }) =>
+    Build.build(root, process.env).pipe(
+      Effect.tap((b) => (b.dirty ? Console.error(`warning: the working tree differs from ${b.revision}, so this bundle is not that commit's source`) : Effect.void)),
+      Effect.tap((b) => Console.log(`built ${b.revision} sha256:${b.sha256}`)),
+      Effect.catchTag("BuildFailed", (e) => fail(e.message, 2)),
+    ),
+);
+
+// `architect env up|down|status <env>`: a long-lived local environment (D3 #4).
+const environment = (verb: "up" | "down" | "status") =>
+  Command.make(
+    verb,
+    {
+      env: Argument.String("env"),
+      port: Flag.optional(Flag.Int("port")),
+      revision: Flag.optional(Flag.String("revision")),
+      root: Flag.String("root").pipe(Flag.withDefault(process.cwd())),
+    },
+    ({ env, port, revision, root }) => {
+      const name = { root, name: env };
+      // The logbook trusts one issuer, a repository, refs and workflows: from the environment, like a prove's token (D3 #33).
+      const list = (text: string | undefined) => (text ?? "").split(",").map((s) => s.trim()).filter((s) => s !== "");
+      const [issuer, repository, refs, workflows] = [process.env["ARCHITECT_OIDC_ISSUER"], process.env["ARCHITECT_OIDC_REPOSITORY"], list(process.env["ARCHITECT_OIDC_REF"]), list(process.env["ARCHITECT_OIDC_WORKFLOW"])];
+      const policy = issuer && repository && refs.length > 0 && workflows.length > 0 ? { policy: { issuer, repository, refs, workflows } } : {};
+      const said =
+        verb === "up"
+          ? Environments.up({ ...name, ...policy, env: process.env, ...(process.env["ARCHITECT_LOGBOOK_URL"] ? { logbook: process.env["ARCHITECT_LOGBOOK_URL"] } : {}), ...(Option.isSome(port) ? { port: port.value } : {}), ...(Option.isSome(revision) ? { revision: revision.value } : {}) }).pipe(Effect.map((s) => [`${env} up ${s.url}`]))
+          : verb === "down"
+            ? Environments.down(name).pipe(Effect.map(() => [`${env} down`]))
+            : Environments.status(name).pipe(
+                Effect.flatMap((s) =>
+                  s.state === "up"
+                    ? TestWorlds.live(s.url).pipe(Effect.map((worlds) => [`${env} up ${s.url}`, ...(worlds === undefined ? [] : [`worlds ${worlds}`])]))
+                    : Effect.succeed([`${env} down`]),
+                ),
+              );
+      return said.pipe(Effect.flatMap((lines) => Console.log(lines.join("\n"))), Effect.catchTag("EnvironmentFailed", (e) => fail(e.message, 2)));
+    },
+  );
+const env = Command.make("env").pipe(Command.withSubcommands([environment("up"), environment("down"), environment("status")]));
+
+// `architect worlds reap`: destroys every world of the test environment that is past its lifetime (D3 #7, #50).
+const reap = Command.make(
+  "reap",
+  { root: Flag.String("root").pipe(Flag.withDefault(process.cwd())) },
+  ({ root }) =>
+    TestWorlds.reap({ root, name: "test" }).pipe(
+      Effect.flatMap((n) => Console.log(`reaped ${n}`)),
+      Effect.catchTag("TestWorldFailed", (e) => fail(e.message, 2)),
+    ),
+);
+const worlds = Command.make("worlds").pipe(Command.withSubcommands([reap]));
+
 Command.make("architect").pipe(
-  Command.withSubcommands([model, dev, prove, add, check, generate, brief, impact]),
+  Command.withSubcommands([model, dev, prove, promote, add, check, generate, brief, impact, version, publish, build, env, worlds, telemetry, watch]),
   Command.run({ version: "0.0.0" }),
   Effect.provide(NodeServices.layer),
   NodeRuntime.runMain,

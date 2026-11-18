@@ -1,0 +1,14 @@
+{
+  "step": "CI-recovery",
+  "stage": "Stage 3 · shipping on local worlds (Gate 2)",
+  "title": "Reliable local telemetry networking and CI command tests",
+  "summary": "The Collector addresses the viewer on Docker’s bridge, keeping host ports loopback-only. Promotion test requests close their sockets across synchronous commands. List-read integration sessions have a bounded 600-second startup and journey budget.",
+  "proves": "The viewer regression fails first on the old host-gateway endpoint; the real Collector delivers the journey root, allowance.grant.insert child and trace-linked log to Tempo and Loki on Docker Desktop. Viewer, promotion and list-read tests pass with their original assertions. Lint, typecheck and generated drift checks pass. Linux CI run 43997952028 on integrated head 53d028d passed check and e2e-layer1.",
+  "captions": {
+    "01-fails-first": "The new bridge endpoint assertion fails on the baseline implementation.",
+    "02-viewer": "The real viewer integration passes with the container address.",
+    "03-touched-tests": "Viewer, promotion and list-read integration checks, running real services.",
+    "04-workspace-checks": "Nx reset, sync, lint, typecheck and sync check.",
+    "00-ci-baseline": "Captured failures from the existing Linux CI runs, before this fix."
+  }
+}

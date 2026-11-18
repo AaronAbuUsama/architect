@@ -1,5 +1,5 @@
 // Reads the blueprint's layout: which file holds what, and the name each declaration takes from its path or export.
-import type { AnyErrorClass, Event, Machine, Operation, Read, Role, Thing, Value } from "@architect/blueprint";
+import type { AnyErrorClass, Environment, Event, Machine, Operation, Read, Role, Thing, Value } from "@architect/blueprint";
 import type { LoadedFile } from "#modules/source/types.js";
 
 export interface ThingFiles {
@@ -14,6 +14,8 @@ export interface ThingFiles {
 
 export interface Layout {
   readonly values: Map<string, Value>;
+  /** Environments by the name their file gives them: `environments/staging.ts` is `staging`. */
+  readonly environments: Map<string, { readonly file: string; readonly declaration: Environment }>;
   readonly things: Map<string, ThingFiles>;
   readonly problems: Array<string>;
 }
@@ -26,7 +28,7 @@ const isErrorClass = (x: unknown): x is AnyErrorClass =>
 const NAME = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
 
 export const readLayout = (files: ReadonlyArray<LoadedFile>): Layout => {
-  const layout: Layout = { values: new Map(), things: new Map(), problems: [] };
+  const layout: Layout = { values: new Map(), environments: new Map(), things: new Map(), problems: [] };
   const thingFiles = (name: string): ThingFiles => {
     const found = layout.things.get(name);
     if (found) return found;
@@ -41,8 +43,16 @@ export const readLayout = (files: ReadonlyArray<LoadedFile>): Layout => {
       for (const [k, v] of Object.entries(exports)) if (kindOf(v) === "value") layout.values.set(k, v as Value);
       continue;
     }
+    if (parts[0] === "environments" && parts.length === 2) {
+      const name = parts[1]!;
+      if (!NAME.test(name)) layout.problems.push(`blueprint/${path}: environment "${name}" must be lowercase words joined by dashes`);
+      const d = exports["default"];
+      if (kindOf(d) !== "environment") layout.problems.push(`blueprint/${path}: the default export must be a Blueprint.environment`);
+      else layout.environments.set(name, { file: `blueprint/${path}`, declaration: d as Environment });
+      continue;
+    }
     if (parts[0] !== "things" || parts.length < 3) {
-      layout.problems.push(`blueprint/${path}: not a place the blueprint reads (values/<file>.ts or things/<thing>/...)`);
+      layout.problems.push(`blueprint/${path}: not a place the blueprint reads (values/<file>.ts, environments/<name>.ts or things/<thing>/...)`);
       continue;
     }
     const name = parts[1]!;

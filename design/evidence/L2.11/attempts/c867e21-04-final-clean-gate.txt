@@ -1,0 +1,65 @@
+$ env NX_DAEMON=false pnpm nx run e2e:layer2 --outputStyle=static
+# commit c867e21 · 2026-11-17T05:25:36Z · exit 1 (expected 0) · 282.8s
+
+
+> nx run e2e:layer2
+
+> vitest run --root e2e --config vitest.layer2.config.ts layer2
+
+(node:94957) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ RUN  v4.1.12 ./e2e
+
+(node:94978) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:94977) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3352) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ layer2/04-promotion.test.ts (1 test | 1 failed) 82131ms
+     × production refuses an unproven revision, takes the staging-proven one with the same bundle, and releases 1.0.0 then 1.1.0 68899ms
+(node:9345) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12086) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15286) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:16717) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17840) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  layer2/04-promotion.test.ts > check 4: promote > production refuses an unproven revision, takes the staging-proven one with the same bundle, and releases 1.0.0 then 1.1.0
+TypeError: fetch failed
+Caused by: Error: read ECONNRESET
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { errno: -54, code: 'ECONNRESET', syscall: 'read' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 7 passed (8)
+      Tests  1 failed | 9 passed (10)
+   Start at  05:20:55
+   Duration  281.11s (transform 243ms, setup 0ms, import 3.80s, tests 556.26s, environment 0ms)
+
+Warning: command "vitest run --root e2e --config vitest.layer2.config.ts layer2" exited with non-zero status code
+
+
+ NX   Running target layer2 for project e2e failed
+
+Failed tasks:
+
+- e2e:layer2
+
+Hint: run the command with --verbose for more details.
+
+  Run duration:      4m 42s
+  Critical path:     4m 42s (1 task)
+  Recoverable time:  <1ms
+
+  Recommendations:
+    - Speed up or split the longest tasks on the critical path:
+        e2e:layer2    4m 42s
