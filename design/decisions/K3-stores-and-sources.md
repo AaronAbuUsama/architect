@@ -29,7 +29,7 @@ it, the place is a source, and it is reached through an adapter.**
 The commit is the test. A store has to take one call's writes, its journal events, its outbox entries and its request
 key together or not at all, guarded by a version (`Store.commit` in
 `packages/language-effect/src/modules/records/types.ts:62`, which returns `committed` or `conflict`). Only something
-that does all of that can be a thing's home.
+that does all of that can be where a thing lives.
 
 ## Decided
 
@@ -64,7 +64,7 @@ that does all of that can be a thing's home.
    SQLite on a device for local-first, Noir on Aztec. A kind declares what it can do (lists, search, private state),
    and the compiler refuses a read the kind can't serve, as it already refuses a list over actors.
 
-3. **Some places are not homes.** KV, R2 and caches can't take an atomic commit, so they are never a thing's home.
+3. **Some places can't hold a thing.** KV, R2 and caches can't take an atomic commit, so no thing ever lives there.
    R2 holds files, which are fields. A search or vector index is a kind of view. Both are kept from events and can be
    rebuilt.
 
