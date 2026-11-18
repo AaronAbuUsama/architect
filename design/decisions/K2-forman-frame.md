@@ -9,6 +9,8 @@ go with your recommendation"), plus the calls he made himself in the same conver
 ## Aaron's own calls
 
 1. The framework is **Forman**, command `forman`, npm org **`@formants`** (not yet created: needs Aaron signed in).
+   **Superseded 18 November 2026 by [`K4-orthograph.md`](K4-orthograph.md):** the framework is Orthograph, command
+   `ortho`, npm scope `@orthograph`.
    **Blueprint** is what you write: the `blueprint/` folder and the `Blueprint.*` API. Capxul keeps `@capxul`.
 2. "Target" is renamed **language** (Effect, Solidity, Noir, Python).
 3. Dependencies may be three days old, with a named override ([`R1-release-age.md`](R1-release-age.md)).

@@ -3,6 +3,9 @@
 Written 18 November 2026, after Aaron said: "I don't like Formant.js either, to be honest with you … can we create a new
 thread to think about what this new name should be and come up with some options and we'll search npm as well."
 
+**Decided (Aaron, 18 November 2026): Orthograph**, command `ortho`, npm scope `@orthograph`, blueprint kept. The
+call and the names that follow from it are in [`decisions/K4-orthograph.md`](decisions/K4-orthograph.md).
+
 Nothing is renamed here. This file holds the candidates, what was actually seen when each was checked, and a
 shortlist for Aaron to pick from. Signing in, creating the npm org, the GitHub org or a domain is Aaron's to do.
 
