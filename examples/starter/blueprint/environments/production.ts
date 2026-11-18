@@ -1,4 +1,4 @@
-import { Blueprint, Cloud, Deploy, Identity } from "@architect/blueprint";
+import { Blueprint, Cloud, Deploy, Identity } from "@formants/forman";
 
 export default Blueprint.environment({
   runs: "always on",

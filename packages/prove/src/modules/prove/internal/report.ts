@@ -1,5 +1,5 @@
 // Turning journeys and verdicts into prove's lines.
-import type { Model } from "@architect/compiler";
+import type { Model } from "@formants/compiler";
 import type { Verdict } from "#modules/evals/types.js";
 import type { JourneyRun, StepResult } from "#modules/journeys/types.js";
 import type { Trace } from "#modules/telemetry/types.js";

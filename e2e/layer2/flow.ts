@@ -5,20 +5,20 @@ import { expect } from "vitest";
 import type { Stack } from "./services.ts";
 import { type Said, install, run, sha256 } from "./support.ts";
 
-/** `architect build`: `built <revision> sha256:<hash>`, the bundle kept at `.architect/artefacts/<revision>/main.js` (D3 #6, #14). */
+/** `forman build`: `built <revision> sha256:<hash>`, the bundle kept at `.forman/artefacts/<revision>/main.js` (D3 #6, #14). */
 export const build = (root: string, stack: Stack, rev: string) => {
   const built = run(root, stack.env, "build");
   expect(built.status, built.out.slice(-3000)).toBe(0);
   const match = /^built (\S+) sha256:([0-9a-f]{64})$/m.exec(built.stdout);
   expect(match, built.out).not.toBeNull();
   expect(match![1]).toBe(rev);
-  const kept = join(root, ".architect/artefacts", rev, "main.js");
+  const kept = join(root, ".forman/artefacts", rev, "main.js");
   expect(existsSync(kept), kept).toBe(true);
   expect(sha256(kept)).toBe(match![2]);
   return { rev, hash: match![2]! };
 };
 
-/** `architect prove --env test`: the passing `main`-ref verdicts a revision needs before it can reach staging (D3). */
+/** `forman prove --env test`: the passing `main`-ref verdicts a revision needs before it can reach staging (D3). */
 export const proveInTest = (root: string, stack: Stack) => {
   const proved = run(root, stack.env, "prove", "--env", "test");
   expect(proved.status, proved.out.slice(-3000)).toBe(0);
@@ -40,7 +40,7 @@ export const release = (root: string, stack: Stack, rev: string) => {
   return { staging, production, rev };
 };
 
-/** The docs' step 10: `architect add read allowance.list`, then the user writes list.ts; the journey for it; generate. */
+/** The docs' step 10: `forman add read allowance.list`, then the user writes list.ts; the journey for it; generate. */
 export const addList = (root: string, stack: Stack) => {
   const added = run(root, stack.env, "add", "read", "allowance.list");
   expect(added.status, added.out).toBe(0);

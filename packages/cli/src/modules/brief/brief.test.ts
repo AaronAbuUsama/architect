@@ -5,11 +5,11 @@ import { Brief } from "./service.ts";
 
 const main = resolve(import.meta.dirname, "../../main.ts");
 const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
-const architect = (...args: ReadonlyArray<string>) => spawnSync("node", [main, ...args, "--root", acme], { encoding: "utf8" });
+const forman = (...args: ReadonlyArray<string>) => spawnSync("node", [main, ...args, "--root", acme], { encoding: "utf8" });
 
-describe("architect brief", () => {
+describe("forman brief", () => {
   it("names the declaration to read, the files not to touch and the evals that must pass", { timeout: 60_000 }, () => {
-    const run = architect("brief", "allowance.spend");
+    const run = forman("brief", "allowance.spend");
     expect(run.status).toBe(0);
     const out = run.stdout;
     expect(out).toContain("Write   src/allowance/spend.ts, and nothing else.");
@@ -23,7 +23,7 @@ describe("architect brief", () => {
   });
 
   it("refuses a read or an unknown name, listing the operations that have handlers", { timeout: 60_000 }, () => {
-    const run = architect("brief", "allowance.get");
+    const run = forman("brief", "allowance.get");
     expect(run.status).toBe(2);
     expect(run.stderr).toContain("allowance.get is not an operation with a handler: allowance.grant, allowance.revoke, allowance.spend, api-key.create, invitation.accept, invitation.revoke, invitation.send, organization.create, person.sign-up, session.show, session.sign-in, system.health");
   });

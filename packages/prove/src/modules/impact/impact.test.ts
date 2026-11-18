@@ -5,11 +5,11 @@ import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs"
 import { basename, join, relative, resolve } from "node:path";
 import { Effect } from "effect";
 import { afterAll, describe, expect, it } from "vitest";
-import type { Model } from "@architect/compiler";
+import type { Model } from "@formants/compiler";
 import { Prove } from "#modules/prove/service.js";
 import { Impact } from "./service.ts";
 
-// Dot-folders (.wrangler, .architect) belong to whatever is running there; a filter also keeps cpSync off its native path,
+// Dot-folders (.wrangler, .forman) belong to whatever is running there; a filter also keeps cpSync off its native path,
 // which aborts the process when a folder vanishes mid-copy.
 const visible = (from: string) => !basename(from).startsWith(".");
 

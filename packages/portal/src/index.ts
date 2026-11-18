@@ -1,4 +1,4 @@
-// @architect/portal: the read-only portal every project gets (F1, D3 #130). The wire is what the generator writes and the app
+// @formants/portal: the read-only portal every project gets (F1, D3 #130). The wire is what the generator writes and the app
 // reads; the reader is the logbook's open reads; the snapshot judges proof; the site answers `/portal` and `/_portal/v1/*`.
 export { Wire } from "#modules/wire/service.js";
 export { BlueprintRejected, ModelUnsupported, SCHEMA_VERSION, type Availability, type BlueprintWire, type Depends, type ModelCore, type ModelWire } from "#modules/wire/types.js";

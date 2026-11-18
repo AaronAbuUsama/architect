@@ -1,0 +1,67 @@
+$ (clean clone of m0 at 091cc86) NX_DAEMON=false pnpm nx run e2e:m0
+# commit 091cc86 · 2026-11-17T20:14:30Z · exit 0 (expected 0)
+
+
+> nx run e2e:m0
+
+> nx run e2e:layer1
+
+
+ NX   1 task: 1 succeeded
+
+
+Re-run with --output-style=static to inline logs.
+
+  Run duration:      3m 41s
+  Cache:             0/1 hit (0%)
+  Critical path:     3m 41s (1 task)
+  Recoverable time:  <1ms
+
+  Recommendations:
+    - Drastically reduce your run duration by sharing a cache across your team and CI → https://cloud.nx.app/get-started?utm_source=nx-cli&utm_medium=cli&utm_campaign=performance-report&utm_content=remote-cache.
+    - Speed up or split the longest tasks on the critical path:
+        e2e:layer1    3m 41s
+> nx run e2e:layer2
+
+
+ NX   1 task: 1 succeeded
+
+
+Re-run with --output-style=static to inline logs.
+
+  Run duration:      4m 42s
+  Cache:             0/1 hit (0%)
+  Critical path:     4m 42s (1 task)
+  Recoverable time:  <1ms
+
+  Recommendations:
+    - Drastically reduce your run duration by sharing a cache across your team and CI → https://cloud.nx.app/get-started?utm_source=nx-cli&utm_medium=cli&utm_campaign=performance-report&utm_content=remote-cache.
+    - Speed up or split the longest tasks on the critical path:
+        e2e:layer2    4m 42s
+> nx run e2e:m0-names
+
+
+ NX   1 task: 1 succeeded
+
+
+Re-run with --output-style=static to inline logs.
+
+  Run duration:      772ms
+  Cache:             0/1 hit (0%)
+  Critical path:     767ms (1 task)
+  Recoverable time:  <1ms
+
+
+
+ NX   Successfully ran target m0 for project e2e
+
+
+  Run duration:      8m 27s
+  Cache:             0/1 hit (0%)
+  Critical path:     8m 27s (1 task)
+  Recoverable time:  <1ms
+
+  Recommendations:
+    - Drastically reduce your run duration by sharing a cache across your team and CI → https://cloud.nx.app/get-started?utm_source=nx-cli&utm_medium=cli&utm_campaign=performance-report&utm_content=remote-cache.
+    - Speed up or split the longest tasks on the critical path:
+        e2e:m0    8m 27s

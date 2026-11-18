@@ -1,5 +1,5 @@
 // Things that `lives: "actor"`: one Durable Object per instance owns its row, its version and its journal (D2 #38).
-import type { Committed } from "@architect/target-effect";
+import type { Committed } from "@formants/language-effect";
 
 /** An instance's row as the actor keeps it: fields in wire form, its state, its version. */
 export interface ActorRow {

@@ -8,7 +8,7 @@ export class VerdictsFailed extends Data.TaggedError("VerdictsFailed")<{ readonl
 
 /** Where the token that signs a write to the logbook comes from. */
 export type TokenSource =
-  /** A token already in hand (`ARCHITECT_LOGBOOK_TOKEN`): another job's, or one a person minted. */
+  /** A token already in hand (`FORMAN_LOGBOOK_TOKEN`): another job's, or one a person minted. */
   | { readonly kind: "given"; readonly token: Redacted.Redacted<string> }
   /** An OIDC server that mints a token for a client (the local issuer, `ci-main`): client credentials. */
   | { readonly kind: "issuer"; readonly issuer: string; readonly client: string }
@@ -33,12 +33,12 @@ export interface Held {
 
 export interface VerdictsApi {
   /**
-   * The one place a write's token source is decided, for verdicts and releases alike: `ARCHITECT_LOGBOOK_TOKEN` when set,
-   * else the local issuer (`ARCHITECT_OIDC_ISSUER`, client `ARCHITECT_OIDC_CLIENT`, default `ci-main`), else the CI job's own
+   * The one place a write's token source is decided, for verdicts and releases alike: `FORMAN_LOGBOOK_TOKEN` when set,
+   * else the local issuer (`FORMAN_OIDC_ISSUER`, client `FORMAN_OIDC_CLIENT`, default `ci-main`), else the CI job's own
    * (`ACTIONS_ID_TOKEN_REQUEST_URL` and `_TOKEN`, which needs `id-token: write`).
    */
   readonly sourceOf: (env: Env) => Effect.Effect<TokenSource, VerdictsFailed>;
-  /** A token for audience `architect-logbook`. Redacted: it is never printed, logged or put in an error. */
+  /** A token for audience `forman-logbook`. Redacted: it is never printed, logged or put in an error. */
   readonly mint: (source: TokenSource) => Effect.Effect<Redacted.Redacted<string>, VerdictsFailed>;
   /** One `POST <logbook>/verdicts` per result, in order; the first the logbook refuses stops it. */
   readonly post: (options: {

@@ -10,6 +10,6 @@ tmp/
 coverage/
 # The coverage eval's planted fixture is not a coverage report.
 !examples/acme/test/fixtures/evals/coverage/
-.architect/
+.forman/
 packages/preset/files/
 .claude/worktrees/

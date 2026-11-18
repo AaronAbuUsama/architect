@@ -1,5 +1,5 @@
 // The Worker's configuration and its database, both from the model.
-import type { Model } from "@architect/compiler";
+import type { Model } from "@formants/compiler";
 import type { RenderedFile } from "../types.ts";
 import { GENERATED, lines } from "./names.ts";
 
@@ -26,7 +26,7 @@ export const renderWrangler = (name: string, actors: boolean): RenderedFile => (
     actors
       ? `  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["World", "Actor"] }],`
       : `  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["World"] }],`,
-    "  // Where telemetry goes. `architect prove` and `architect dev --otlp` set it; unset, nothing is exported.",
+    "  // Where telemetry goes. `forman prove` and `forman dev --otlp` set it; unset, nothing is exported.",
     `  "vars": { "OTLP_URL": "" }`,
     "}",
   ),
@@ -57,7 +57,7 @@ export const renderMigration = (model: Model): RenderedFile => ({
   scaffold: false,
   content: lines(
     "-- Generated from the blueprint. Do not edit.",
-    "-- Stage one rebuilds the local database on every `architect dev`; migrations between versions arrive in stage three.",
+    "-- Stage one rebuilds the local database on every `forman dev`; migrations between versions arrive in stage three.",
     Object.values(model.things).filter((t) => t.lives === "database").map((t) => {
       const columns = Object.keys(t.fields).map((f) => (f === "id" ? `  "id" TEXT PRIMARY KEY` : `  "${f}" TEXT NOT NULL`));
       // Empty until the thing's first move sets it.
@@ -65,7 +65,7 @@ export const renderMigration = (model: Model): RenderedFile => ({
       columns.push(`  "version" INTEGER NOT NULL DEFAULT 0`);
       return `CREATE TABLE "${t.name}" (\n${columns.join(",\n")}\n);`;
     }),
-    "-- Every event a move emitted, with the trace of the call that made it (target-effect's Journal).",
+    "-- Every event a move emitted, with the trace of the call that made it (language-effect's Journal).",
     JOURNAL,
   ),
 });

@@ -32,7 +32,7 @@ describe("the local viewer", () => {
     // Plain prove starts no viewer.
     expect((await proveAcme(false)).passed).toBe(true);
     expect(await Effect.runPromise(Viewer.running())).toBeUndefined();
-    expect(containers().filter((n) => n.startsWith("architect-collector-") && n.includes(`-${process.pid}-`))).toEqual([]);
+    expect(containers().filter((n) => n.startsWith("forman-collector-") && n.includes(`-${process.pid}-`))).toEqual([]);
 
     const viewing = await Effect.runPromise(Viewer.start());
     expect(viewing.url).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/);
@@ -40,7 +40,7 @@ describe("the local viewer", () => {
     expect(viewing.anonymous).toBe(true);
     // Container traffic must stay on Docker's bridge. A host loopback-only published port is unreachable through
     // host-gateway on Linux, although Docker Desktop routes it on macOS.
-    const bridge = spawnSync("docker", ["inspect", "-f", '{{(index .NetworkSettings.Networks "bridge").IPAddress}}', "architect-viewer"], { encoding: "utf8" });
+    const bridge = spawnSync("docker", ["inspect", "-f", '{{(index .NetworkSettings.Networks "bridge").IPAddress}}', "forman-viewer"], { encoding: "utf8" });
     expect(bridge.status, bridge.stderr).toBe(0);
     expect(viewing.otlpFromContainers).toBe(`http://${bridge.stdout.trim()}:4318`);
     expect((await Effect.runPromise(Viewer.running()))?.otlpFromContainers).toBe(viewing.otlpFromContainers);
@@ -50,8 +50,8 @@ describe("the local viewer", () => {
     expect(report.lines.some((l) => l === `viewer ${viewing.url}`)).toBe(true);
 
     // The trace id of a granted allowance, from the files prove read.
-    const files = FileSource.open(join(acme, ".architect/prove-telemetry"));
-    const text = readFileSync(join(acme, ".architect/prove-telemetry/traces.jsonl"), "utf8");
+    const files = FileSource.open(join(acme, ".forman/prove-telemetry"));
+    const text = readFileSync(join(acme, ".forman/prove-telemetry/traces.jsonl"), "utf8");
     const trace = text.split("\n").filter(Boolean).flatMap((l) => JSON.parse(l).resourceSpans.flatMap((rs: any) => rs.scopeSpans.flatMap((ss: any) => ss.spans)))
       .find((s: any) => s.name === "allowance.grant" && !s.attributes.some((a: any) => a.key === "refusal"))?.traceId as string;
     expect(trace).toMatch(/^[0-9a-f]{32}$/);
@@ -77,7 +77,7 @@ describe("the local viewer", () => {
 
     // `stop` leaves no container and no open port.
     await Effect.runPromise(Viewer.stop());
-    expect(containers()).not.toContain("architect-viewer");
+    expect(containers()).not.toContain("forman-viewer");
     expect(await fetch(viewing.url).then(() => true, () => false)).toBe(false);
     expect(await fetch(viewing.otlp).then(() => true, () => false)).toBe(false);
   });

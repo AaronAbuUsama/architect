@@ -1,0 +1,4 @@
+$ pnpm exec oxlint packages/forman/src/planted.ts
+# commit 9aab18f · 2026-11-17T19:49:43Z · exit 1 (expected 1) · 0.9s
+
+packages/forman/src/planted.ts:1:27: error forman(no-old-names): `@architect/blueprint` uses the framework's old name: it is @formants/ now

@@ -3,9 +3,9 @@
 `Environments.up|down|status({ root, name })`: a long-lived local environment (`test`, `staging`, `production`) as D3 #4
 decided. Each runs the revision's built `main.js` unchanged (`no_bundle: true`, from `Build`) on its own `wrangler dev`
 through `Worlds.launch`, so it has its own D1 and Durable Object state, its own inspector port and its own secrets.
-Everything it keeps is under `.architect/environments/<name>/`: `wrangler.jsonc` (the generated server's config with its
+Everything it keeps is under `.forman/environments/<name>/`: `wrangler.jsonc` (the generated server's config with its
 source swapped for the bundle, its worker and database named for the environment, and the bundle's revision and hash as
-vars, which is what `GET /_architect/bundle` answers), `secrets.env` (mode 0600, passed to wrangler as `--env-file`,
+vars, which is what `GET /_forman/bundle` answers), `secrets.env` (mode 0600, passed to wrangler as `--env-file`,
 never as `--var`), `state/` (`--persist-to`, kept across restarts), `pid`, `port`, `bundle.json` and `wrangler.log`.
 Which environments exist, and that `local` is not one of them, comes from the model's `environments`.
 
@@ -17,12 +17,12 @@ Three environments are more than the revision's bundle (D3 #50 to #52, #91):
 
 - **One that declares a `lifetime` hosts worlds** (the test environment). `up` starts a collector of its own first
   (`Collectors.launch`, a container named for the folder, writing `telemetry/`), and puts `OTLP_URL` and
-  `ARCHITECT_WORLDS=1` in its config, which opens `/_world/worlds` (see `test-worlds`). `down` removes the container.
+  `FORMAN_WORLDS=1` in its config, which opens `/_world/worlds` (see `test-worlds`). `down` removes the container.
 - **One that another environment is promoted from** (`promotesFrom`: staging) records telemetry too: the same collector and
-  `OTLP_URL`, without `ARCHITECT_WORLDS`, because `promote --to staging` proves it where it runs and `watch` reads the same
+  `OTLP_URL`, without `FORMAN_WORLDS`, because `promote --to staging` proves it where it runs and `watch` reads the same
   folder. Such an environment needs Docker to start, and one already running without a collector is restarted onto one.
-- **`logbook` is the logbook's own worker** (`@architect/logbook`, L2.03), started with `policy` (issuer, repository,
-  refs, workflows: `ARCHITECT_OIDC_*` in the CLI) through `Logbook.launch`, with its state, pid and port beside the
+- **`logbook` is the logbook's own worker** (`@formants/logbook`, L2.03), started with `policy` (issuer, repository,
+  refs, workflows: `FORMAN_OIDC_*` in the CLI) through `Logbook.launch`, with its state, pid and port beside the
   others'. It has no bundle, so its status carries no revision.
 
 L2.O: `up` resolves the environment's `telemetry` sinks (`Sinks.resolve`) and hands the secrets to the process through its environment (`env`, a

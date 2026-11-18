@@ -1,5 +1,5 @@
 // generated/portal: the wire projection the portal app reads instead of project source (F1 §1, D3 #130). Pure: no file system.
-import type { Model } from "@architect/compiler";
+import type { Model } from "@formants/compiler";
 import type { RenderedFile } from "#modules/render/types.js";
 
 export interface PortalRenderApi {

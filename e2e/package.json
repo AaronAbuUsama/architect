@@ -1,12 +1,12 @@
 {
-  "name": "@architect/e2e",
+  "name": "@formants/e2e",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "dependencies": {
-    "@architect/compiler": "workspace:*",
-    "@architect/generators": "workspace:*",
-    "@architect/prove": "workspace:*"
+    "@formants/compiler": "workspace:*",
+    "@formants/generators": "workspace:*",
+    "@formants/prove": "workspace:*"
   },
   "devDependencies": {
     "@anthropic-ai/claude-agent-sdk": "0.3.316",

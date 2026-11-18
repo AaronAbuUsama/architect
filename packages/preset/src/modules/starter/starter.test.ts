@@ -1,5 +1,5 @@
 // The preset writes the starter under a new name: the starter's own blueprint, handlers and journeys, generated/
-// rendered for the new name, and a project around them that installs @architect at the preset's version.
+// rendered for the new name, and a project around them that installs @formants at the preset's version.
 import { resolve } from "node:path";
 import { createTreeWithEmptyWorkspace } from "nx/src/generators/testing-utils/create-tree-with-empty-workspace.js";
 import { describe, expect, it } from "vitest";
@@ -27,21 +27,21 @@ describe("the starter preset", () => {
     expect(tree.read("src/session/sign-in.ts", "utf8")).not.toContain("Blank");
   });
 
-  it("writes a project that installs every @architect package at the preset's version", () => {
+  it("writes a project that installs every @formants package at the preset's version", () => {
     const pkg = JSON.parse(tree.read("package.json", "utf8")!) as Record<string, Record<string, string>>;
-    expect(pkg["scripts"]!["architect"]).toBe("architect");
-    expect(pkg["devDependencies"]!["@architect/cli"]).toBe("1.2.3");
-    expect(pkg["dependencies"]!["@architect/host-cloudflare"]).toBe("1.2.3");
-    expect(tree.read(".gitignore", "utf8")).toContain(".architect/");
+    expect(pkg["scripts"]!["forman"]).toBe("forman");
+    expect(pkg["devDependencies"]!["@formants/cli"]).toBe("1.2.3");
+    expect(pkg["dependencies"]!["@formants/host-cloudflare"]).toBe("1.2.3");
+    expect(tree.read(".gitignore", "utf8")).toContain(".forman/");
     expect(pkg["packageManager"]).toBe("pnpm@11.20.0" as never);
     expect(tree.read("pnpm-workspace.yaml", "utf8")).toMatch(/allowBuilds:\n  esbuild: true\n  nx: true\n  workerd: true/);
     expect(typeof install).toBe("function");
   });
 
   it("merges its pnpm settings into the workspace's own, keeping what Nx wrote", () => {
-    const nx = "autoInstallPeers: true\nallowBuilds:\n  nx: true\n  '@architect/preset': false\nminimumReleaseAgeExclude:\n  - 'x@1'\n";
+    const nx = "autoInstallPeers: true\nallowBuilds:\n  nx: true\n  '@formants/preset': false\nminimumReleaseAgeExclude:\n  - 'x@1'\n";
     expect(mergeWorkspace(nx, WORKSPACE)).toBe(
-      "autoInstallPeers: true\nallowBuilds:\n  nx: true\n  '@architect/preset': false\n  esbuild: true\n  workerd: true\nminimumReleaseAgeExclude:\n  - 'x@1'\noverrides:\n  kysely: 0.29.7\n",
+      "autoInstallPeers: true\nallowBuilds:\n  nx: true\n  '@formants/preset': false\n  esbuild: true\n  workerd: true\nminimumReleaseAgeExclude:\n  - 'x@1'\noverrides:\n  kysely: 0.29.7\n",
     );
     expect(mergeWorkspace(mergeWorkspace(nx, WORKSPACE), WORKSPACE)).toBe(mergeWorkspace(nx, WORKSPACE));
   });

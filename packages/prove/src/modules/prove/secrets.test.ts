@@ -5,7 +5,7 @@ import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } fr
 import { basename, join, relative, resolve } from "node:path";
 import { Effect } from "effect";
 import { afterAll, describe, expect, it } from "vitest";
-import { Compiler, nodeSource } from "@architect/compiler";
+import { Compiler, nodeSource } from "@formants/compiler";
 import { Collectors } from "#modules/telemetry/service.js";
 import { Journeys } from "#modules/journeys/service.js";
 import { Worlds } from "#modules/world/service.js";
@@ -14,7 +14,7 @@ import { Prove } from "./service.ts";
 
 const repo = resolve(import.meta.dirname, "../../../../..");
 const acme = resolve(repo, "examples/acme");
-const dir = resolve(acme, ".architect/secrets-telemetry");
+const dir = resolve(acme, ".forman/secrets-telemetry");
 const PORT = 9100;
 
 const rawOf = (d: string) => ["traces.jsonl", "logs.jsonl"].map((f) => (existsSync(`${d}/${f}`) ? readFileSync(`${d}/${f}`, "utf8") : "")).join("\n");
@@ -79,7 +79,7 @@ const hex = (n: number, seed: number) => Array.from({ length: n }, (_, i) => ((i
 describe("the Collector's second guard (L2.P)", () => {
   it("deletes the attribute keys it is given from every span and every log, and keeps the rest", { timeout: 60_000 }, () =>
     Effect.runPromise(Effect.scoped(Effect.gen(function* () {
-      const guarded = resolve(acme, ".architect/secrets-guard");
+      const guarded = resolve(acme, ".forman/secrets-guard");
       const collector = yield* Collectors.start(guarded, { strip: ["payload.password", "answer.token", "token"] });
       const trace = hex(32, 3);
       const parent = "00000000000000aa";
@@ -108,7 +108,7 @@ describe("a field declared private(owner) never appears (L2.P)", () => {
     const root = join(scratch, "acme");
     rmSync(scratch, { recursive: true, force: true });
     mkdirSync(root, { recursive: true });
-    for (const part of ["blueprint", "generated", "src", "journeys", "package.json", "architect.config.ts"]) cpSync(join(acme, part), join(root, part), { recursive: true, filter: visible });
+    for (const part of ["blueprint", "generated", "src", "journeys", "package.json", "forman.config.ts"]) cpSync(join(acme, part), join(root, part), { recursive: true, filter: visible });
     writeFileSync(join(root, "tsconfig.json"), JSON.stringify({ extends: relative(root, join(acme, "tsconfig.json")) }));
     const grant = join(root, "blueprint/things/allowance/verbs/grant.ts");
     writeFileSync(grant, readFileSync(grant, "utf8").replace("member: Allowance.fields.member,", "member: Blueprint.visibility.private(Allowance.fields.member, owner),"));
@@ -122,7 +122,7 @@ describe("a field declared private(owner) never appears (L2.P)", () => {
     expect(report.lines.some((l) => l.startsWith("allowance.grant 9 evals ✔ p50 "))).toBe(true);
     expect(report.passed).toBe(true);
 
-    const grants = spansIn(join(root, ".architect/prove-telemetry")).filter((s) => s.name === "allowance.grant");
+    const grants = spansIn(join(root, ".forman/prove-telemetry")).filter((s) => s.name === "allowance.grant");
     expect(grants.length).toBeGreaterThan(0);
     for (const s of grants) {
       const keys = (s.attributes ?? []).map((a) => a.key);

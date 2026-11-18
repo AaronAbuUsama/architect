@@ -9,8 +9,8 @@ your project. The plugin's declarations, handlers and journeys stay in its packa
 
 ```ts
 // blueprint/features/wallets.ts: the mount is called `wallets`, after its file
-import { Blueprint } from "@blueprint/blueprint";
-import wallets from "@blueprint/wallets";
+import { Blueprint } from "@formants/forman";
+import wallets from "@formants/wallets";
 
 export default Blueprint.use(wallets, (w) => [
   w.signer.browser.injected,                                        // choose: a signer wallets has proved
@@ -55,12 +55,12 @@ package.json             the plugins' packages, pinned exactly
 
 ## Q: Where do projections live?
 
-Aaron asked to push on this. The first sketch put features in `blueprint/` and projections in `architect.config.ts`.
+Aaron asked to push on this. The first sketch put features in `blueprint/` and projections in the project's config file.
 
 **The problem, in code.** Today the config names the outputs, and nothing reads it:
 
 ```ts
-// examples/acme/architect.config.ts (origin/layer/3)
+// examples/acme's config file (origin/layer/3, before M0)
 export default Blueprint.config({
   name: "acme",
   outputs: { server: true, api: true, sdk: "@acme/sdk", cli: "acme", docs: true, mcp: true, portal: true },
@@ -84,7 +84,7 @@ export default Blueprint.config({
 A · Projections in the config:
 
 ```ts
-// blueprint.config.ts
+// forman.config.ts
 export default Blueprint.config({
   projections: [server(), sdk({ package: "@acme/sdk" }), cli({ command: "acme" }), mcp(), docs(), portal()],
 });
@@ -116,7 +116,7 @@ outputs: { server: true, sdk: "@acme/sdk", cli: "acme", mcp: true },   // one of
 | Turn off MCP | delete a line | delete a file | `mcp: false` |
 | An environment places the CLI | needs a name for an array entry | imports the mount by path | a fixed key |
 | A newcomer asks "what does this app become?" | one file | one folder listing | one file |
-| A third party ships a new projection (say, a Python SDK) | add to the array | `blueprint add projection` | a framework change |
+| A third party ships a new projection (say, a Python SDK) | add to the array | `forman add projection` | a framework change |
 
 **Rubric**
 
@@ -128,7 +128,7 @@ outputs: { server: true, sdk: "@acme/sdk", cli: "acme", mcp: true },   // one of
 | Correctness | ⚠️ array entries have no names | ✅ names from paths, one per mount | ✅ |
 | Fit | ⚠️ a second way to add a plugin | ✅ one way for all three kinds; no loose file | ❌ projections stay special |
 
-**Recommendation: B.** One verb for every plugin (`blueprint add <kind> <package> [--as <name>]`), one file per mount,
+**Recommendation: B.** One verb for every plugin (`forman add <kind> <package> [--as <name>]`), one file per mount,
 names from paths, and no loose config file. The question "what does this app become?" is answered by
 `ls blueprint/projections`, the same way "what is it?" is answered by `ls blueprint/things`.
 
@@ -136,22 +136,22 @@ names from paths, and no loose config file. The question "what does this app bec
 
 | Stage | What happens |
 |---|---|
-| `blueprint add feature @blueprint/wallets` | pins the package exactly, refusing a version under three days old, unless overridden; writes the mount with the plugin's default choices; resolves the plugin's needs (below) |
+| `forman add feature @formants/wallets` | pins the package exactly, refusing a version under three days old, unless overridden; writes the mount with the plugin's default choices; resolves the plugin's needs (below) |
 | compile | folds the plugin's declarations into the model under the mount's name; each carries `from: wallets@1.2.0` |
 | check | names clashes, unmet needs, a narrowing that would empty an operation, an app operation that calls an omitted one, an adapter event the mount includes that no operation takes |
 | generate | every projection sees the feature's operations like the app's own; the feature's handlers are imported from its package, never copied |
 | scaffold | nothing for a feature (it arrives with no blanks); for an adapter call, the error mapping in your handler is the blank |
 | secrets | the plugin's secrets join every environment, named from mount and export ([`secrets.md`](secrets.md)) |
 | prove | the feature's journeys run in the app's worlds, through the app's projections, beside the app's own |
-| `blueprint upgrade wallets` | compares the two versions' models: new operations are a minor change to the app, a changed payload a major one; `impact` names what in the app is now stale |
-| `blueprint remove wallets` | refuses while anything of the app's uses it; otherwise removes the mount, and generate removes the rest |
+| `forman upgrade wallets` | compares the two versions' models: new operations are a minor change to the app, a changed payload a major one; `impact` names what in the app is now stale |
+| `forman remove wallets` | refuses while anything of the app's uses it; otherwise removes the mount, and generate removes the rest |
 
 ## Needs
 
 A plugin names the plugins it needs in its own descriptor, and mounting resolves them:
 
 ```ts
-// @blueprint/wallets/blueprint/feature.ts
+// @formants/wallets/blueprint/feature.ts
 export default Blueprint.feature({
   needs: [auth, Blueprint.need(eip1193, { when: signer.browser.injected })], // eip1193 only with a browser signer
   // choices, exports … (writing-a-feature.md)
@@ -161,14 +161,14 @@ export default Blueprint.feature({
 The calls a plugin uses of a needed adapter (wallets uses `eip1193.calls.personalSign`) are checked against what the
 app's mount of that adapter includes.
 
-`blueprint add feature @blueprint/wallets` finds a mount that satisfies each need, or offers to add one. A need is never
+`forman add feature @formants/wallets` finds a mount that satisfies each need, or offers to add one. A need is never
 satisfied by a copy inside the plugin, so the app has one auth, one Stripe and one browser wallet, however many features
 use them.
 
 ## Names and clashes
 
-- A mount's name is its file's name. If it matches the plugin's own name (`wallets.ts` for `@blueprint/wallets`), the
-  plugin's things keep their names: `wallet`, `wallet.link`. If it differs (`usdc.ts` for `@blueprint/erc20`), they
+- A mount's name is its file's name. If it matches the plugin's own name (`wallets.ts` for `@formants/wallets`), the
+  plugin's things keep their names: `wallet`, `wallet.link`. If it differs (`usdc.ts` for `@formants/erc20`), they
   are prefixed with it: `usdc-token`, `usdc-token.transfer`. That is how one plugin is mounted twice.
 - Two things with the same name, from the app and a feature or from two features, are a `check` error naming both files.
   The fix is to rename a mount.
@@ -177,7 +177,7 @@ use them.
 ## Auth, mounted rather than copied
 
 Today the starter copies `person` and `session` into every new project, and they become the project's own
-(D2 #61, `examples/starter`). Under this frame, auth is a feature like any other: `pnpm create blueprint acme` mounts
+(D2 #61, `examples/starter`). Under this frame, auth is a feature like any other: `npm create formants acme` mounts
 `blueprint/features/auth.ts`, and `person`, `session` and the sign-in pages come from its package. A project that wants
 its own sign-in writes its own feature and mounts that instead. Organizations, memberships and invitations stay acme's
 own things, as D2 #61 decided.

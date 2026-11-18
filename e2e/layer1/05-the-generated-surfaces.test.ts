@@ -20,7 +20,7 @@ const until = async (url: string) => {
 };
 
 describe("check 5: the generated CLI, SDK and docs", () => {
-  it("against architect dev: exit codes, --json, a typed SDK call, and docs with every refusal", async () => {
+  it("against forman dev: exit codes, --json, a typed SDK call, and docs with every refusal", async () => {
     const { root } = project;
     const dev = spawn(process.execPath, [cli, "dev", "--root", root, "--port", String(PORT)], { stdio: "ignore" });
     try {

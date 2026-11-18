@@ -80,8 +80,8 @@ const serve: SiteApi["serve"] = (blueprint, request, env: PortalEnv) => {
     const isData = new URL(request.url).pathname.startsWith("/_portal/");
     return Effect.succeed(isData ? json({ _tag: "BlueprintRejected", reason }, 500) : html(page("portal", `<h1>This portal's blueprint was rejected</h1><p>${esc(reason)}</p>`), 500));
   }
-  const logbook = env.ARCHITECT_LOGBOOK_URL;
-  return handle({ blueprint: accepted.blueprint, reader: logbook ? Reader.http(logbook) : null, bundleRevision: env.ARCHITECT_REVISION ?? null }, request);
+  const logbook = env.FORMAN_LOGBOOK_URL;
+  return handle({ blueprint: accepted.blueprint, reader: logbook ? Reader.http(logbook) : null, bundleRevision: env.FORMAN_REVISION ?? null }, request);
 };
 
 export const Portal: SiteApi = { owns, handle, serve };

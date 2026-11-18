@@ -1,13 +1,13 @@
 {
-  "name": "@architect/host-cloudflare",
+  "name": "@formants/host-cloudflare",
   "version": "0.0.0",
   "type": "module",
   "exports": {
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@architect/blueprint": "workspace:*",
-    "@architect/target-effect": "workspace:*",
+    "@formants/forman": "workspace:*",
+    "@formants/language-effect": "workspace:*",
     "@better-auth/api-key": "1.7.15",
     "@better-auth/core": "1.7.15",
     "@better-auth/oauth-provider": "1.7.15",

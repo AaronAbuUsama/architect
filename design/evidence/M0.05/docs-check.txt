@@ -1,0 +1,13 @@
+$ pnpm nx run docs:check
+# commit eef4c04 · 2026-11-17T19:54:46Z · exit 0 (expected 0) · 1.3s
+
+
+ NX   1 task: 1 succeeded
+
+
+Re-run with --output-style=static to inline logs.
+
+  Run duration:      137ms
+  Cache:             0/1 hit (0%)
+  Critical path:     59ms (1 task)
+  Recoverable time:  <1ms

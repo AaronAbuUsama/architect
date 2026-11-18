@@ -1,4 +1,4 @@
-// `architect watch --env <name>`: the evals that telemetry can answer, run over what an environment has recorded (L2.09, O1).
+// `forman watch --env <name>`: the evals that telemetry can answer, run over what an environment has recorded (L2.09, O1).
 import { Data, type Effect } from "effect";
 import type { Env, Reader } from "#modules/sinks/types.js";
 import type { TraceSource } from "#modules/telemetry/types.js";
@@ -22,10 +22,10 @@ export interface Watched {
 export interface WatchApi {
   /**
    * Judge the last `since` milliseconds of `environment`'s traffic. Reads through a `TraceSource`: `file` is the folder the
-   * environment's Collector writes (`.architect/environments/<name>/telemetry`), `axiom` is Axiom's query API for the group of the
+   * environment's Collector writes (`.forman/environments/<name>/telemetry`), `axiom` is Axiom's query API for the group of the
    * `Telemetry.sink.axiom` the environment names (and fails, saying so, when it names none). Prints, for each operation seen, its
    * p95 against its budget; the refusals by name and code; the defects; each live-judgeable eval; and the operations that drift,
-   * each of which becomes a task file under `.architect/tasks/` (and a task whose operation is back under budget is removed).
+   * each of which becomes a task file under `.forman/tasks/` (and a task whose operation is back under budget is removed).
    * Calls that `prove` made (their caller span carries `PROVE_SPAN_PREFIX`) are not counted.
    */
   readonly run: (options: {

@@ -5,7 +5,7 @@ import { SCHEMA } from "./schema.ts";
 
 /** An instance that knows its origin names it, so OAuth's issuer and the MCP resource are that address; else a placeholder. */
 const make = (o: AuthOptions, origin: string | undefined) =>
-  betterAuth({ ...optionsFor(o.cli ?? "cli", origin), database: o.db, secret: o.secret, baseURL: origin ?? "http://architect.local" });
+  betterAuth({ ...optionsFor(o.cli ?? "cli", origin), database: o.db, secret: o.secret, baseURL: origin ?? "http://forman.local" });
 export type BetterAuth = ReturnType<typeof make>;
 
 interface Held extends AuthInstance {
@@ -37,7 +37,7 @@ export const instance = (o: AuthOptions): AuthInstance => {
         // request waits on forever (found with the MCP route: a first call in a later request hung). So the instance is
         // used once, here, before it is handed out.
         const fresh = make(o, origin);
-        const ready = fresh.handler(new Request(`${origin ?? "http://architect.local"}/api/auth/ok`)).then(() => fresh);
+        const ready = fresh.handler(new Request(`${origin ?? "http://forman.local"}/api/auth/ok`)).then(() => fresh);
         made.set(key, ready);
         return ready;
       }),

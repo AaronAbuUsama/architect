@@ -1,7 +1,7 @@
 import { env } from "cloudflare:workers";
 import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
-import { Auth, Principals } from "@architect/target-effect";
+import { Auth, Principals } from "@formants/language-effect";
 import { AuthD1 } from "./service.ts";
 import { SCHEMA } from "./internal/schema.ts";
 import { compile } from "../../../scripts/auth-schema.ts";

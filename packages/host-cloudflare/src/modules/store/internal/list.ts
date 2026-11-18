@@ -1,7 +1,7 @@
 // A page of a thing's rows: filtered by the fields it is asked for, in the order the rows were made (SQLite's rowid).
 import { Effect } from "effect";
 import type { SqlClient } from "effect/sql";
-import type { Listed, ListQuery } from "@architect/target-effect";
+import type { Listed, ListQuery } from "@formants/language-effect";
 import { decodeRow, encodeFields } from "./rows.ts";
 
 /**

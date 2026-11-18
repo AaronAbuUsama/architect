@@ -1,5 +1,5 @@
 // Journey-author file. The builder of allowance.revoke never edits it (AGENTS.md, "Journeys and checks come first").
-import { Blueprint, noEvents, refuses, spans } from "@architect/blueprint";
+import { Blueprint, noEvents, refuses, spans } from "@formants/forman";
 import { machine } from "../blueprint/things/allowance/machine.ts";
 import revoke from "../blueprint/things/allowance/verbs/revoke.ts";
 

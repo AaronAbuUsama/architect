@@ -13,7 +13,7 @@ const json = (body: unknown, status = 200) => new Response(JSON.stringify(body),
 /**
  * The world's Durable Object. Export it from the Worker's entry; bind it as `WORLD`. In a long-lived environment each
  * world is its own instance, named by the world's id: it holds the cast, and an alarm at the world's expiry that
- * destroys it (D3 #7, #50). Under `architect dev` and a local prove there is the one, named `world`, and no alarm.
+ * destroys it (D3 #7, #50). Under `forman dev` and a local prove there is the one, named `world`, and no alarm.
  */
 export class World extends DurableObject<WorldEnv> {
   private readonly auth: AuthInstance;

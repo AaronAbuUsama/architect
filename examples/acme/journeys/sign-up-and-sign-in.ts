@@ -1,5 +1,5 @@
 // Journey-author file. The builder of person.sign-up and session.sign-in never edits it (AGENTS.md, "Journeys and checks come first").
-import { Blueprint, expect, noEvents, refuses, spans } from "@architect/blueprint";
+import { Blueprint, expect, noEvents, refuses, spans } from "@formants/forman";
 import { PersonEmailTaken } from "../blueprint/things/person/errors.ts";
 import { SessionCredentialsWrong } from "../blueprint/things/session/errors.ts";
 import signUp from "../blueprint/things/person/verbs/sign-up.ts";

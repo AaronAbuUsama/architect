@@ -1,7 +1,8 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "jsPlugins": [
-    "@nx/oxlint/boundaries-plugin"
+    "@nx/oxlint/boundaries-plugin",
+    "./packages/lint/src/main.ts"
   ],
   "ignorePatterns": [
     "**/node_modules/**",
@@ -19,7 +20,7 @@
         "allow": [],
         "depConstraints": [
           {
-            "sourceTag": "scope:blueprint",
+            "sourceTag": "scope:forman",
             "onlyDependOnLibsWithTags": [],
             "allowedExternalImports": [
               "effect",
@@ -42,16 +43,16 @@
           {
             "sourceTag": "scope:project",
             "onlyDependOnLibsWithTags": [
-              "scope:blueprint",
-              "scope:target",
-              "scope:host",
-              "scope:std"
+              "scope:forman",
+              "scope:language",
+              "scope:host"
             ]
           }
         ],
         "allowCircularSelfDependency": true
       }
-    ]
+    ],
+    "forman/no-old-names": "error"
   },
   "overrides": [
     {
@@ -66,7 +67,7 @@
             "allow": [],
             "depConstraints": [
               {
-                "sourceTag": "scope:blueprint",
+                "sourceTag": "scope:forman",
                 "onlyDependOnLibsWithTags": [],
                 "allowedExternalImports": [
                   "effect",
@@ -90,16 +91,23 @@
               {
                 "sourceTag": "scope:project",
                 "onlyDependOnLibsWithTags": [
-                  "scope:blueprint",
-                  "scope:target",
-                  "scope:host",
-                  "scope:std"
+                  "scope:forman",
+                  "scope:language",
+                  "scope:host"
                 ]
               }
             ],
             "allowCircularSelfDependency": true
           }
         ]
+      }
+    },
+    {
+      "files": [
+        "e2e/m0/names.test.ts"
+      ],
+      "rules": {
+        "forman/no-old-names": "off"
       }
     }
   ]

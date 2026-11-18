@@ -37,9 +37,9 @@ const of: BriefApi["of"] = (model, name, journeys): Briefed => {
       ...forbidden.map((f) => `  ${f}`),
       "",
       "Done when",
-      `  architect prove --env local passes, with ${name}'s 9 evals: ${EVALS.join(", ")}`,
+      `  forman prove --env local passes, with ${name}'s 9 evals: ${EVALS.join(", ")}`,
       ...(calling.length ? [`  and the journeys that call it: ${calling.join(", ")}`] : [`  (no journey calls ${name} yet: coverage will fail until one does)`]),
-      "  architect check passes",
+      "  forman check passes",
     ],
   };
 };

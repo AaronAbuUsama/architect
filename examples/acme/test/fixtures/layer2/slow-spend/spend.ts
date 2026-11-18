@@ -3,7 +3,7 @@
 // Install over src/allowance/spend.ts.
 import { Effect } from "effect";
 import { SqlClient } from "effect/sql";
-import { Records } from "@architect/target-effect";
+import { Records } from "@formants/language-effect";
 import type { Handler } from "../../generated/api/src/allowance/spend.handler.ts";
 import { Allowance } from "../../blueprint/things/allowance/thing.ts";
 import { AllowanceExceeded } from "../../blueprint/things/allowance/errors.ts";

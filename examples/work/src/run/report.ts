@@ -1,6 +1,6 @@
 // Scaffolded from blueprint/things/run/verbs/report.ts. Yours from now on.
 import { Effect } from "effect";
-import { Handlers } from "@architect/target-effect";
+import { Handlers } from "@formants/language-effect";
 import type { Handler } from "../../generated/api/src/run/report.handler.ts";
 
 /** Say how the run is going. It moves no card. */

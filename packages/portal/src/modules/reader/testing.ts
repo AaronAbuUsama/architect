@@ -24,7 +24,7 @@ export const fakeLogbook = (): FakeLogbook => {
     down: false,
     onRead: () => undefined,
     post: (v) => {
-      const row: Verdict = { seq: rows.length + 1, revision: v.revision, environment: v.environment, operation: v.operation, verdict: v.verdict, repository: "acme/acme", ref: v.ref ?? "refs/heads/main", workflow: "architect", event_name: "push", sha: null };
+      const row: Verdict = { seq: rows.length + 1, revision: v.revision, environment: v.environment, operation: v.operation, verdict: v.verdict, repository: "acme/acme", ref: v.ref ?? "refs/heads/main", workflow: "forman", event_name: "push", sha: null };
       rows.push(row);
       return row;
     },

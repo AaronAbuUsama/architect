@@ -8,7 +8,7 @@ import { tmpdir } from "node:os";
 import { basename, join, relative, resolve } from "node:path";
 import { Effect, Exit, Scope } from "effect";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { Logbook } from "@architect/logbook";
+import { Logbook } from "@formants/logbook";
 import { Reader } from "#modules/reader/service.js";
 import { Wire } from "#modules/wire/service.js";
 import { acmeDocs } from "#modules/wire/testing.js";
@@ -19,7 +19,7 @@ import type { PortalSnapshot } from "./types.ts";
 const IMAGE = "ghcr.io/navikt/mock-oauth2-server:6.1.4@sha256:647dd8c78a54f0e6fcd58d79c884e612f8f998a0662276f3e1db22e464a50192";
 const PORTS = { logbook: 9090, issuer: 9091 };
 const REPO = "acme/acme";
-const container = `architect-l210-issuer-${process.pid}`;
+const container = `forman-l210-issuer-${process.pid}`;
 
 const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
 const compiler = resolve(import.meta.dirname, "../../../../compiler/src/main.ts");
@@ -28,9 +28,9 @@ const visible = (from: string) => !basename(from).startsWith(".");
 
 const scenario = (client: string, ref: string) => ({
   requestParam: "client_id", match: client,
-  claims: { sub: `repo:${REPO}:ref:${ref}`, aud: ["architect-logbook"], repository: REPO, ref, workflow: "architect", event_name: "push", sha: "0123456789abcdef0123456789abcdef01234567", job_workflow_ref: `${REPO}/.github/workflows/architect.yml@${ref}` },
+  claims: { sub: `repo:${REPO}:ref:${ref}`, aud: ["forman-logbook"], repository: REPO, ref, workflow: "forman", event_name: "push", sha: "0123456789abcdef0123456789abcdef01234567", job_workflow_ref: `${REPO}/.github/workflows/forman.yml@${ref}` },
 });
-const issuerConfig = JSON.stringify({ interactiveLogin: false, tokenCallbacks: [{ issuerId: "architect", tokenExpiry: 600, requestMappings: [scenario("ci-main", "refs/heads/main"), scenario("ci-pr", "refs/pull/7/merge")] }] });
+const issuerConfig = JSON.stringify({ interactiveLogin: false, tokenCallbacks: [{ issuerId: "forman", tokenExpiry: 600, requestMappings: [scenario("ci-main", "refs/heads/main"), scenario("ci-pr", "refs/pull/7/merge")] }] });
 
 const docker = (...args: string[]) => spawnSync("docker", args, { encoding: "utf8" });
 let dir = "";
@@ -79,12 +79,12 @@ beforeAll(async () => {
   docker("rm", "-f", container);
   const started = docker("run", "-d", "--name", container, "-p", `127.0.0.1:${PORTS.issuer}:8080`, "-e", `JSON_CONFIG=${issuerConfig}`, IMAGE);
   expect(started.status, started.stderr).toBe(0);
-  issuer = `http://127.0.0.1:${PORTS.issuer}/architect`;
+  issuer = `http://127.0.0.1:${PORTS.issuer}/forman`;
   for (let i = 0; i < 300 && !(await fetch(`${issuer}/.well-known/openid-configuration`).then((r) => r.ok, () => false)); i++) await new Promise((r) => setTimeout(r, 200));
   const scope = Effect.runSync(Scope.make());
   await Effect.runPromise(Logbook.start({
     port: PORTS.logbook, state: join(dir, "state"), log: join(dir, "wrangler.log"),
-    policy: { issuer, jwksUrl: `${issuer}/jwks`, audience: "architect-logbook", repository: REPO, refs: ["refs/heads/main", "refs/pull/*/merge"], workflows: ["architect"] },
+    policy: { issuer, jwksUrl: `${issuer}/jwks`, audience: "forman-logbook", repository: REPO, refs: ["refs/heads/main", "refs/pull/*/merge"], workflows: ["forman"] },
   }).pipe(Scope.provide(scope)));
   stop = () => (stopped ? Promise.resolve() : ((stopped = true), Effect.runPromise(Scope.close(scope, Exit.void))));
   logbook = `http://127.0.0.1:${PORTS.logbook}`;
@@ -106,7 +106,7 @@ describe("the portal over the real logbook", () => {
     expect(stateOf(s, "allowance.spend")).toEqual({ test: "recorded-pass", staging: "recorded-pass", production: "recorded-pass" });
     expect(s.proofs.every((p) => p.state === "recorded-pass")).toBe(true);
     const spend = s.proofs.find((p) => p.operation === "allowance.spend" && p.environment === "staging")!;
-    expect(spend.evidence).toMatchObject({ value: { revision: "rev1", ref: "refs/heads/main", repository: REPO, workflow: "architect", event_name: "push" } });
+    expect(spend.evidence).toMatchObject({ value: { revision: "rev1", ref: "refs/heads/main", repository: REPO, workflow: "forman", event_name: "push" } });
   }, 300_000);
 
   it("a pull request's verdict signed by the same issuer never fills the matrix", async () => {

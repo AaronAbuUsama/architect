@@ -1,11 +1,11 @@
 {
-  "name": "@architect/generators",
+  "name": "@formants/generators",
   "version": "0.0.0",
   "type": "module",
   "dependencies": {
-    "@architect/blueprint": "workspace:*",
-    "@architect/compiler": "workspace:*",
-    "@architect/portal": "workspace:*",
+    "@formants/forman": "workspace:*",
+    "@formants/compiler": "workspace:*",
+    "@formants/portal": "workspace:*",
     "@nx/devkit": "24.0.3",
     "effect": "4.1.1"
   },

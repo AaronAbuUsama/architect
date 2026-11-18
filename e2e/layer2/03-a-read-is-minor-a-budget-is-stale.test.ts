@@ -2,8 +2,8 @@
 // `allowance.list 9 evals ✔`; loosening spend's budget makes exactly spend stale in staging and production.
 //
 // Chosen where D3 #14 is open:
-// - `architect version --next` prints the version alone on one line (`1.0.0`, with no production release; `1.1.0` after the read).
-// - `architect impact` prints `next <version>` and `stale none`, or `stale <ops> in <envs>` with the operation names and the
+// - `forman version --next` prints the version alone on one line (`1.0.0`, with no production release; `1.1.0` after the read).
+// - `forman impact` prints `next <version>` and `stale none`, or `stale <ops> in <envs>` with the operation names and the
 //   environment names each separated by commas and/or spaces (`stale allowance.spend in staging, production`). "Stale in" means
 //   the working model differs from the model the logbook holds verdicts for in that environment, and only the shipped
 //   environments (staging, production) are listed: the test environment is proven afresh on every push.

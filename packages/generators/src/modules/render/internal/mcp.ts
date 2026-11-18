@@ -1,7 +1,7 @@
 // generated/mcp: the remote MCP server's catalog, one entry per operation and read (D3 #122). The tool's name is the
 // operation's, its description the model's, its input schema the declaration's own payload (made at run time by the
 // runtime's `Mcp`, which leaves out whatever is not public). The server wires each entry to its served operation.
-import type { Model } from "@architect/compiler";
+import type { Model } from "@formants/compiler";
 import type { RenderedFile } from "../types.ts";
 import { GENERATED, lines, opVar } from "./names.ts";
 
@@ -12,7 +12,7 @@ export const renderMcp = (model: Model): ReadonlyArray<RenderedFile> => {
     scaffold: false,
     content: lines(
       GENERATED,
-      `import type { McpEntry } from "@architect/target-effect";`,
+      `import type { McpEntry } from "@formants/language-effect";`,
       ops.map((o) => `import { declaration as ${opVar(o)} } from "../../api/src/${o.thing}/${o.verb}.ts";`),
       "",
       "/** One tool per operation and read, named as the operation is. */",

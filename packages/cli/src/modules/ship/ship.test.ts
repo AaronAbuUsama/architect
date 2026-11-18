@@ -9,9 +9,9 @@ import { tmpdir } from "node:os";
 import { basename, join, relative, resolve } from "node:path";
 import { Effect, Exit, Scope } from "effect";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { Logbook } from "@architect/logbook";
-import { Releases } from "@architect/prove";
-import type { Model } from "@architect/compiler";
+import { Logbook } from "@formants/logbook";
+import { Releases } from "@formants/prove";
+import type { Model } from "@formants/compiler";
 import { Ship } from "./service.ts";
 
 const IMAGE = "ghcr.io/navikt/mock-oauth2-server:6.1.4@sha256:647dd8c78a54f0e6fcd58d79c884e612f8f998a0662276f3e1db22e464a50192";
@@ -26,10 +26,10 @@ const visible = (from: string) => !basename(from).startsWith(".");
 
 const issuerConfig = JSON.stringify({
   interactiveLogin: false,
-  tokenCallbacks: [{ issuerId: "architect", tokenExpiry: 600, requestMappings: [{
+  tokenCallbacks: [{ issuerId: "forman", tokenExpiry: 600, requestMappings: [{
     requestParam: "client_id", match: "ci-main",
-    claims: { sub: `repo:${REPO}:ref:refs/heads/main`, aud: ["architect-logbook"], repository: REPO, ref: "refs/heads/main", workflow: "architect", event_name: "push",
-      sha: "0123456789abcdef0123456789abcdef01234567", job_workflow_ref: `${REPO}/.github/workflows/architect.yml@refs/heads/main` },
+    claims: { sub: `repo:${REPO}:ref:refs/heads/main`, aud: ["forman-logbook"], repository: REPO, ref: "refs/heads/main", workflow: "forman", event_name: "push",
+      sha: "0123456789abcdef0123456789abcdef01234567", job_workflow_ref: `${REPO}/.github/workflows/forman.yml@refs/heads/main` },
   }] }],
 });
 
@@ -66,16 +66,16 @@ beforeAll(async () => {
   docker("rm", "-f", container);
   const started = docker("run", "-d", "--name", container, "-p", `127.0.0.1:${PORTS.issuer}:8080`, "-e", `JSON_CONFIG=${issuerConfig}`, IMAGE);
   expect(started.status, started.stderr).toBe(0);
-  issuer = `http://127.0.0.1:${PORTS.issuer}/architect`;
+  issuer = `http://127.0.0.1:${PORTS.issuer}/forman`;
   for (let i = 0; i < 300 && !(await fetch(`${issuer}/.well-known/openid-configuration`).then((r) => r.ok, () => false)); i++) await new Promise((r) => setTimeout(r, 200));
   const scope = Effect.runSync(Scope.make());
   await Effect.runPromise(Logbook.start({
     port: PORTS.logbook, state: join(dir, "state"), log: join(dir, "wrangler.log"),
-    policy: { issuer, jwksUrl: `${issuer}/jwks`, audience: "architect-logbook", repository: REPO, refs: ["refs/heads/main"], workflows: ["architect"] },
+    policy: { issuer, jwksUrl: `${issuer}/jwks`, audience: "forman-logbook", repository: REPO, refs: ["refs/heads/main"], workflows: ["forman"] },
   }).pipe(Scope.provide(scope)));
   stop = () => Effect.runPromise(Scope.close(scope, Exit.void));
   logbook = `http://127.0.0.1:${PORTS.logbook}`;
-  env = { ARCHITECT_LOGBOOK_URL: logbook, ARCHITECT_OIDC_ISSUER: issuer, ARCHITECT_OIDC_CLIENT: "ci-main" };
+  env = { FORMAN_LOGBOOK_URL: logbook, FORMAN_OIDC_ISSUER: issuer, FORMAN_OIDC_CLIENT: "ci-main" };
 }, 240_000);
 
 afterAll(async () => {
@@ -85,7 +85,7 @@ afterAll(async () => {
   rmSync(scratch, { recursive: true, force: true });
 }, 60_000);
 
-describe("architect version --next and architect impact", () => {
+describe("forman version --next and forman impact", () => {
   it("with no logbook: impact is the local ledger's lines, and version --next says how to start one", async () => {
     const root = copy("nobook");
     const impact = await Effect.runPromise(Ship.impact({ root, env: {} }));
@@ -94,7 +94,7 @@ describe("architect version --next and architect impact", () => {
     expect(lines(impact).some((l) => l.startsWith("next "))).toBe(false);
     const next = await Effect.runPromise(Ship.next({ root, env: {} }));
     expect(next.exit).toBe(2);
-    expect(next.err).toContain("architect env up logbook");
+    expect(next.err).toContain("forman env up logbook");
     expect(existsSync(join(root, "generated/model/changes.json"))).toBe(false);
   }, 120_000);
 
@@ -135,10 +135,10 @@ describe("architect version --next and architect impact", () => {
 
   it("a logbook that does not answer is a warning on the local lines, never a wrong `stale none`", async () => {
     const root = copy("down");
-    const said = await Effect.runPromise(Ship.impact({ root, env: { ARCHITECT_LOGBOOK_URL: "http://127.0.0.1:9019" } }));
+    const said = await Effect.runPromise(Ship.impact({ root, env: { FORMAN_LOGBOOK_URL: "http://127.0.0.1:9019" } }));
     expect(said.exit).toBe(0);
     expect(said.err).toContain("the logbook was not consulted");
     expect(lines(said).some((l) => l.startsWith("next "))).toBe(false);
-    expect((await Effect.runPromise(Ship.next({ root, env: { ARCHITECT_LOGBOOK_URL: "http://127.0.0.1:9019" } }))).exit).toBe(2);
+    expect((await Effect.runPromise(Ship.next({ root, env: { FORMAN_LOGBOOK_URL: "http://127.0.0.1:9019" } }))).exit).toBe(2);
   }, 120_000);
 });

@@ -25,7 +25,7 @@ export interface Bundled {
 }
 
 /**
- * The release version reaches the generated CLI as a constant the bundler replaces (`ARCHITECT_VERSION`), not as text in the
+ * The release version reaches the generated CLI as a constant the bundler replaces (`FORMAN_VERSION`), not as text in the
  * generated source: generated files are the same on every machine and every release, and a CLI run from source says 0.0.0.
  */
 export const bundle = (options: {
@@ -49,7 +49,7 @@ export const bundle = (options: {
         platform: options.platform,
         target: "node24",
         ...(options.inline ? { mainFields: ["module", "main"] } : { packages: "external" as const, mainFields: ["module", "main"] }),
-        define: { ARCHITECT_VERSION: JSON.stringify(options.version) },
+        define: { FORMAN_VERSION: JSON.stringify(options.version) },
         legalComments: "none",
         metafile: true,
         logLevel: "silent",

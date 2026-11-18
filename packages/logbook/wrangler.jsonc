@@ -2,10 +2,10 @@
 // and a deployed environment run the same bundle. The token policy (OIDC_ISSUER, OIDC_JWKS_URL, OIDC_AUDIENCE,
 // ALLOWED_REPOSITORY, ALLOWED_REFS, ALLOWED_WORKFLOWS) is not set here: `Logbook.launch` passes it as `--var`s.
 {
-  "name": "architect-logbook",
+  "name": "forman-logbook",
   "main": "src/main.ts",
   "compatibility_date": "2026-08-01",
   "durable_objects": { "bindings": [{ "name": "BOOK", "class_name": "Book" }] },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Book"] }],
-  "r2_buckets": [{ "binding": "MODELS", "bucket_name": "architect-logbook-models" }]
+  "r2_buckets": [{ "binding": "MODELS", "bucket_name": "forman-logbook-models" }]
 }

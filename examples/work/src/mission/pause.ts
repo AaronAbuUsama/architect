@@ -1,6 +1,6 @@
 // Scaffolded from blueprint/things/mission/verbs/pause.ts. Yours from now on.
 import { Effect } from "effect";
-import { Handlers } from "@architect/target-effect";
+import { Handlers } from "@formants/language-effect";
 import type { Handler } from "../../generated/api/src/mission/pause.handler.ts";
 
 /** Pause the mission, saying why. */

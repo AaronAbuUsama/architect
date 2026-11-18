@@ -1,5 +1,5 @@
 // Journey-author file: a starting world is made by declared operations, never by hand (D2 #4).
-import { Blueprint } from "@architect/blueprint";
+import { Blueprint } from "@formants/forman";
 import { owner } from "../things/organization/roles.ts";
 import send from "../things/invitation/verbs/send.ts";
 

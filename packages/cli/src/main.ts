@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-// The architect command. The only file here that reads the process, prints or exits.
+// The forman command. The only file here that reads the process, prints or exits.
 import { NodeRuntime, NodeServices } from "@effect/platform-node";
 import { Console, Effect, Option } from "effect";
 import { Argument, Command, Flag } from "effect/cli";
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
-import { Build, Environments, Prove, ProveFailed, Promote, TestWorlds, Verdicts } from "@architect/prove";
+import { Build, Environments, Prove, ProveFailed, Promote, TestWorlds, Verdicts } from "@formants/prove";
 import { spawn } from "node:child_process";
 import { ModelCommand } from "#modules/model/service.js";
 import { Add } from "#modules/add/service.js";
@@ -16,7 +16,7 @@ import { Ship } from "#modules/ship/service.js";
 import { Brief } from "#modules/brief/service.js";
 import { TelemetryCommand } from "#modules/telemetry/service.js";
 import { WatchCommand } from "#modules/watch/service.js";
-import { Compiler, nodeSource } from "@architect/compiler";
+import { Compiler, nodeSource } from "@formants/compiler";
 
 const model = Command.make(
   "model",
@@ -50,13 +50,13 @@ const dev = Command.make(
 
 const fail = (message: string, exit: number) => Console.error(message).pipe(Effect.tap(() => Effect.sync(() => (process.exitCode = exit))));
 
-/** Where the logbook is (ARCHITECT_LOGBOOK_URL, else the running `logbook` environment) and who signs for the run (D3 #14, #54). */
+/** Where the logbook is (FORMAN_LOGBOOK_URL, else the running `logbook` environment) and who signs for the run (D3 #14, #54). */
 const attestation = (root: string) =>
   Effect.gen(function* () {
     const token = yield* Verdicts.sourceOf(process.env).pipe(Effect.mapError((e) => e.message));
-    const given = process.env["ARCHITECT_LOGBOOK_URL"];
+    const given = process.env["FORMAN_LOGBOOK_URL"];
     const logbook = given ?? (yield* Environments.status({ root, name: "logbook" }).pipe(Effect.map((s) => (s.state === "up" ? s.url : undefined))));
-    if (!logbook) return yield* Effect.fail("the logbook isn't running: `architect env up logbook`, or set ARCHITECT_LOGBOOK_URL");
+    if (!logbook) return yield* Effect.fail("the logbook isn't running: `forman env up logbook`, or set FORMAN_LOGBOOK_URL");
     return { token, logbook };
   });
 
@@ -72,7 +72,7 @@ const prove = Command.make(
     const proved = env === "test"
       ? attestation(root).pipe(
           Effect.flatMap(({ token, logbook }) => {
-            const lifetime = process.env["ARCHITECT_LIFETIME"];
+            const lifetime = process.env["FORMAN_LIFETIME"];
             return Prove.test({ root, logbook, token, env: process.env, ...(lifetime ? { lifetime } : {}), say: (line) => Console.log(line) });
           }),
           Effect.tap((report) => Effect.sync(() => (process.exitCode = report.passed ? 0 : 1))),
@@ -96,7 +96,7 @@ const print = (said: { readonly out: string; readonly err: string; readonly exit
     process.exitCode = said.exit;
   });
 
-// `architect promote --to staging|production`: the exact built bundle, moved on only with the verdicts that earn it (D3 #14, #92).
+// `forman promote --to staging|production`: the exact built bundle, moved on only with the verdicts that earn it (D3 #14, #92).
 const promote = Command.make(
   "promote",
   { to: Flag.Literals("to", ["staging", "production"]), root: Flag.String("root").pipe(Flag.withDefault(process.cwd())) },
@@ -110,7 +110,7 @@ const promote = Command.make(
     ),
 );
 
-// `architect add <what> <name>`: writes the planned files, or with --dry-run prints them and writes nothing.
+// `forman add <what> <name>`: writes the planned files, or with --dry-run prints them and writes nothing.
 const addOne = (what: What) =>
   Command.make(
     what,
@@ -170,14 +170,14 @@ const impact = Command.make(
   ({ root }) => Ship.impact({ root, env: process.env }).pipe(Effect.flatMap(print)),
 );
 
-// `architect version --next`: the version the working model would release as, worked out from the last production release.
+// `forman version --next`: the version the working model would release as, worked out from the last production release.
 const version = Command.make(
   "version",
   { next: Flag.Boolean("next").pipe(Flag.withDefault(false)), root: Flag.String("root").pipe(Flag.withDefault(process.cwd())) },
-  ({ next, root }) => (next ? Ship.next({ root, env: process.env }).pipe(Effect.flatMap(print)) : fail("usage: architect version --next", 2)),
+  ({ next, root }) => (next ? Ship.next({ root, env: process.env }).pipe(Effect.flatMap(print)) : fail("usage: forman version --next", 2)),
 );
 
-// `architect telemetry view | stop | trace <id> | open <id>`: the local viewer, and a trace read from the files (O1).
+// `forman telemetry view | stop | trace <id> | open <id>`: the local viewer, and a trace read from the files (O1).
 const open = (url: string) =>
   Effect.sync(() => {
     const [cmd, ...args] = process.platform === "darwin" ? ["open", url] : process.platform === "win32" ? ["cmd", "/c", "start", "", url] : ["xdg-open", url];
@@ -204,7 +204,7 @@ const telemetry = Command.make("telemetry").pipe(Command.withSubcommands([
   ),
 ]));
 
-// `architect watch --env <name>`: the evals telemetry can answer, over what the environment recorded (L2.09, D3 #140).
+// `forman watch --env <name>`: the evals telemetry can answer, over what the environment recorded (L2.09, D3 #140).
 const watch = Command.make(
   "watch",
   {
@@ -216,7 +216,7 @@ const watch = Command.make(
   ({ env, source, since, root }) => WatchCommand.run({ root, environment: env, source, since, env: process.env }).pipe(Effect.flatMap(print)),
 );
 
-// `architect publish --dry-run | --local`: the SDK and CLI at the next version (D3 #9, #110). The cloud pass publishes to npmjs.org and GitHub.
+// `forman publish --dry-run | --local`: the SDK and CLI at the next version (D3 #9, #110). The cloud pass publishes to npmjs.org and GitHub.
 const publish = Command.make(
   "publish",
   {
@@ -227,7 +227,7 @@ const publish = Command.make(
   ({ dryRun, local, root }) =>
     dryRun || local
       ? Ship.publish({ root, env: process.env, mode: dryRun ? "dry-run" : "local", say: (line) => Console.log(line) }).pipe(Effect.flatMap(print))
-      : fail("usage: architect publish --dry-run | --local (npmjs.org and GitHub releases are the cloud pass's)", 2),
+      : fail("usage: forman publish --dry-run | --local (npmjs.org and GitHub releases are the cloud pass's)", 2),
 );
 
 const brief = Command.make(
@@ -246,7 +246,7 @@ const brief = Command.make(
     ),
 );
 
-// `architect build`: the revision's bundle, once. Every environment runs this file unchanged (D3 #6).
+// `forman build`: the revision's bundle, once. Every environment runs this file unchanged (D3 #6).
 const build = Command.make(
   "build",
   { root: Flag.String("root").pipe(Flag.withDefault(process.cwd())) },
@@ -258,7 +258,7 @@ const build = Command.make(
     ),
 );
 
-// `architect env up|down|status <env>`: a long-lived local environment (D3 #4).
+// `forman env up|down|status <env>`: a long-lived local environment (D3 #4).
 const environment = (verb: "up" | "down" | "status") =>
   Command.make(
     verb,
@@ -272,11 +272,11 @@ const environment = (verb: "up" | "down" | "status") =>
       const name = { root, name: env };
       // The logbook trusts one issuer, a repository, refs and workflows: from the environment, like a prove's token (D3 #33).
       const list = (text: string | undefined) => (text ?? "").split(",").map((s) => s.trim()).filter((s) => s !== "");
-      const [issuer, repository, refs, workflows] = [process.env["ARCHITECT_OIDC_ISSUER"], process.env["ARCHITECT_OIDC_REPOSITORY"], list(process.env["ARCHITECT_OIDC_REF"]), list(process.env["ARCHITECT_OIDC_WORKFLOW"])];
+      const [issuer, repository, refs, workflows] = [process.env["FORMAN_OIDC_ISSUER"], process.env["FORMAN_OIDC_REPOSITORY"], list(process.env["FORMAN_OIDC_REF"]), list(process.env["FORMAN_OIDC_WORKFLOW"])];
       const policy = issuer && repository && refs.length > 0 && workflows.length > 0 ? { policy: { issuer, repository, refs, workflows } } : {};
       const said =
         verb === "up"
-          ? Environments.up({ ...name, ...policy, env: process.env, ...(process.env["ARCHITECT_LOGBOOK_URL"] ? { logbook: process.env["ARCHITECT_LOGBOOK_URL"] } : {}), ...(Option.isSome(port) ? { port: port.value } : {}), ...(Option.isSome(revision) ? { revision: revision.value } : {}) }).pipe(Effect.map((s) => [`${env} up ${s.url}`]))
+          ? Environments.up({ ...name, ...policy, env: process.env, ...(process.env["FORMAN_LOGBOOK_URL"] ? { logbook: process.env["FORMAN_LOGBOOK_URL"] } : {}), ...(Option.isSome(port) ? { port: port.value } : {}), ...(Option.isSome(revision) ? { revision: revision.value } : {}) }).pipe(Effect.map((s) => [`${env} up ${s.url}`]))
           : verb === "down"
             ? Environments.down(name).pipe(Effect.map(() => [`${env} down`]))
             : Environments.status(name).pipe(
@@ -291,7 +291,7 @@ const environment = (verb: "up" | "down" | "status") =>
   );
 const env = Command.make("env").pipe(Command.withSubcommands([environment("up"), environment("down"), environment("status")]));
 
-// `architect worlds reap`: destroys every world of the test environment that is past its lifetime (D3 #7, #50).
+// `forman worlds reap`: destroys every world of the test environment that is past its lifetime (D3 #7, #50).
 const reap = Command.make(
   "reap",
   { root: Flag.String("root").pipe(Flag.withDefault(process.cwd())) },
@@ -303,7 +303,7 @@ const reap = Command.make(
 );
 const worlds = Command.make("worlds").pipe(Command.withSubcommands([reap]));
 
-Command.make("architect").pipe(
+Command.make("forman").pipe(
   Command.withSubcommands([model, dev, prove, promote, add, check, generate, brief, impact, version, publish, build, env, worlds, telemetry, watch]),
   Command.run({ version: "0.0.0" }),
   Effect.provide(NodeServices.layer),

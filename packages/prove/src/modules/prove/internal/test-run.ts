@@ -2,7 +2,7 @@
 // per operation in the logbook, then the world destroyed (D3 #14, #50, #53).
 import { randomBytes } from "node:crypto";
 import { Effect } from "effect";
-import type { Model } from "@architect/compiler";
+import type { Model } from "@formants/compiler";
 import { Build } from "#modules/build/service.js";
 import { Environments } from "#modules/environments/service.js";
 import type { Project } from "#modules/journeys/types.js";
@@ -20,7 +20,7 @@ const failed = (e: { readonly message: string }) => new ProveFailed({ message: e
 const lifetimeOf = (model: Model, asked: string | undefined) => {
   const own = model.environments?.[TEST]?.lifetimeMs ?? null;
   if (asked === undefined) {
-    return own === null ? new ProveFailed({ message: `environment ${TEST} declares no lifetime, and no ARCHITECT_LIFETIME was given` }) : { ms: own, text: TestWorlds.formatLifetime(own) };
+    return own === null ? new ProveFailed({ message: `environment ${TEST} declares no lifetime, and no FORMAN_LIFETIME was given` }) : { ms: own, text: TestWorlds.formatLifetime(own) };
   }
   const ms = TestWorlds.parseLifetime(asked);
   return ms === undefined ? new ProveFailed({ message: `"${asked}" is not a lifetime (try 20s, 30m or 2 hours)` }) : { ms, text: asked };

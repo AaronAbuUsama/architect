@@ -15,7 +15,7 @@ const provider = (captured: { url: URL | undefined }): OAuthClientProvider & { s
   let verifier = "";
   return {
     redirectUrl,
-    clientMetadata: { client_name: "architect gate 2", redirect_uris: [redirectUrl], grant_types: ["authorization_code", "refresh_token"], response_types: ["code"], token_endpoint_auth_method: "none" },
+    clientMetadata: { client_name: "forman gate 2", redirect_uris: [redirectUrl], grant_types: ["authorization_code", "refresh_token"], response_types: ["code"], token_endpoint_auth_method: "none" },
     state: () => randomBytes(8).toString("hex"),
     clientInformation: () => client,
     saveClientInformation: (info) => { client = info; },
@@ -83,7 +83,7 @@ export const callAs = async (origin: string, who: { readonly email: string; read
   const captured: { url: URL | undefined } = { url: undefined };
   const auth = provider(captured);
   const first = new StreamableHTTPClientTransport(new URL(mcpUrl), { authProvider: auth });
-  const asked = new Client({ name: "architect-gate-2", version: "0.0.0" });
+  const asked = new Client({ name: "forman-gate-2", version: "0.0.0" });
   try {
     await asked.connect(first);
     throw new Error("the server let an unauthenticated client in");
@@ -95,7 +95,7 @@ export const callAs = async (origin: string, who: { readonly email: string; read
   await asked.close().catch(() => undefined);
 
   const transport = new StreamableHTTPClientTransport(new URL(mcpUrl), { authProvider: auth });
-  const client = new Client({ name: "architect-gate-2", version: "0.0.0" });
+  const client = new Client({ name: "forman-gate-2", version: "0.0.0" });
   try {
     await client.connect(transport);
     const result = await client.callTool({ name, arguments: args });

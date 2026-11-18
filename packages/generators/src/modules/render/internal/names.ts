@@ -1,4 +1,4 @@
-import type { OperationModel } from "@architect/compiler";
+import type { OperationModel } from "@formants/compiler";
 
 export const GENERATED = "// Generated from the blueprint. Do not edit.";
 export const scaffolded = (from: string) => `// Scaffolded from ${from}. Yours from now on.`;

@@ -11,14 +11,14 @@ export const Worlds: WorldsApi = {
       const config = resolve(root, "generated/server/wrangler.jsonc");
       if (!existsSync(config)) return yield* new WorldFailed({ message: `${config} is missing: run nx sync first` });
       // A fresh world each run: stage one has no migrations between versions.
-      const state = resolve(root, ".architect", name);
+      const state = resolve(root, ".forman", name);
       rmSync(state, { recursive: true, force: true });
       mkdirSync(state, { recursive: true });
       yield* applyMigrations(config, state);
       const log = join(state, "wrangler.log");
       const secret = randomBytes(32).toString("hex");
       const url = `http://127.0.0.1:${port}`;
-      const vars = { AUTH_SECRET: secret, ARCHITECT_ENVIRONMENT: environment ?? "local", ...(otlp ? { OTLP_URL: otlp } : {}) };
+      const vars = { AUTH_SECRET: secret, FORMAN_ENVIRONMENT: environment ?? "local", ...(otlp ? { OTLP_URL: otlp } : {}) };
       yield* Effect.acquireRelease(bringUp({ config, state, port, log, vars, ...(secretEnv ? { secretEnv } : {}) }, "/_world/health"), stop);
       return { url, log };
     }),

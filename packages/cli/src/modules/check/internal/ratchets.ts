@@ -1,11 +1,11 @@
-// Ratchets: `.architect/ratchets.json` holds how many findings of a rule a project still allows itself. A count may
+// Ratchets: `.forman/ratchets.json` holds how many findings of a rule a project still allows itself. A count may
 // only go down: more findings than it allows fail, and fewer say the file should be lowered.
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Finding } from "../types.ts";
 
 export const ratchetsOf = (root: string): Readonly<Record<string, number>> => {
-  const file = join(root, ".architect/ratchets.json");
+  const file = join(root, ".forman/ratchets.json");
   return existsSync(file) ? (JSON.parse(readFileSync(file, "utf8")) as Record<string, number>) : {};
 };
 

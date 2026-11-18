@@ -1,5 +1,5 @@
 {
-  "name": "@architect/compiler",
+  "name": "@formants/compiler",
   "version": "0.0.0",
   "type": "module",
   "exports": {
@@ -7,14 +7,14 @@
     "./main": "./src/main.ts"
   },
   "dependencies": {
-    "@architect/blueprint": "workspace:*",
+    "@formants/forman": "workspace:*",
     "effect": "4.1.1"
   },
   "imports": {
     "#modules/*.js": "./src/modules/*.ts"
   },
   "bin": {
-    "architect-model": "./src/main.ts"
+    "forman-model": "./src/main.ts"
   },
   "files": [
     "dist"
@@ -35,7 +35,7 @@
       "#modules/*.js": "./dist/modules/*.js"
     },
     "bin": {
-      "architect-model": "./dist/main.js"
+      "forman-model": "./dist/main.js"
     }
   }
 }

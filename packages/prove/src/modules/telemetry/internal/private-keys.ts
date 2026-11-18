@@ -1,6 +1,6 @@
 // The Collector's second guard (L2.P): every attribute key the model says may carry a non-public value. The first guard is
 // the runtime's allowlist, which never writes such a value; this one deletes the key if something else does anyway.
-import type { FieldsModel, Model } from "@architect/compiler";
+import type { FieldsModel, Model } from "@formants/compiler";
 
 const nonPublic = (fields: FieldsModel) => Object.entries(fields).filter(([, f]) => f.visibility !== undefined).map(([k]) => k);
 

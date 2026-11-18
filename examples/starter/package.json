@@ -4,10 +4,10 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@architect/blueprint": "workspace:*",
-    "@architect/host-cloudflare": "workspace:*",
-    "@architect/portal": "workspace:*",
-    "@architect/target-effect": "workspace:*",
+    "@formants/forman": "workspace:*",
+    "@formants/host-cloudflare": "workspace:*",
+    "@formants/portal": "workspace:*",
+    "@formants/language-effect": "workspace:*",
     "@effect/platform-node": "4.1.1",
     "@effect/sql-d1": "4.1.1",
     "effect": "4.1.1"

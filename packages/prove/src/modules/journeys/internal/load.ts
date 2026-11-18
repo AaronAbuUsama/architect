@@ -3,8 +3,8 @@ import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { Effect } from "effect";
-import type { Journey, Operation, Read, StartingWorld, Thing } from "@architect/blueprint";
-import type { Model } from "@architect/compiler";
+import type { Journey, Operation, Read, StartingWorld, Thing } from "@formants/forman";
+import type { Model } from "@formants/compiler";
 import { ProjectFailed, type Project } from "../types.ts";
 
 const importFile = (path: string) =>

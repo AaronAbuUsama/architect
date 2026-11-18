@@ -24,7 +24,7 @@ import { basename, dirname, join, relative, resolve } from "node:path";
 import { Effect } from "effect";
 import { afterAll } from "vitest";
 
-// Dot-folders (.wrangler, .architect) belong to whatever is running there; a filter also keeps cpSync off its native path,
+// Dot-folders (.wrangler, .forman) belong to whatever is running there; a filter also keeps cpSync off its native path,
 // which aborts the process when a folder vanishes mid-copy.
 const visible = (from: string) => !basename(from).startsWith(".");
 const install = (from: string, root: string, to: string) => {
@@ -53,7 +53,7 @@ const checked = (root: string) => Effect.runPromise(Check.run(root));
 
 afterAll(() => rmSync(scratch, { recursive: true, force: true }));
 
-describe("architect check on acme", () => {
+describe("forman check on acme", () => {
   it("passes clean acme with ratchets 0", { timeout: 180_000 }, async () => {
     const said = await checked(copy("clean", []));
     expect(said.lines).toEqual(["blanks left 0", "types ✔", "rules ✔", "drift ✔", "ratchets 0", "check ✔"]);
@@ -62,8 +62,8 @@ describe("architect check on acme", () => {
 
   it("lets a ratchet allow a rule's findings, and asks for it to be lowered once they are gone", { timeout: 180_000 }, async () => {
     const root = copy("ratchet", [["test/fixtures/check/name-as-string/spend.ts", "src/allowance/spend.ts"]]);
-    mkdirSync(join(root, ".architect"), { recursive: true });
-    writeFileSync(join(root, ".architect/ratchets.json"), JSON.stringify({ "no-name-as-string": 1 }));
+    mkdirSync(join(root, ".forman"), { recursive: true });
+    writeFileSync(join(root, ".forman/ratchets.json"), JSON.stringify({ "no-name-as-string": 1 }));
     const allowed = await checked(root);
     expect([allowed.passed, allowed.lines.includes("ratchets 1")]).toEqual([true, true]);
     cpSync(join(acme, "src/allowance/spend.ts"), join(root, "src/allowance/spend.ts"));

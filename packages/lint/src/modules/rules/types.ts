@@ -1,7 +1,7 @@
-// The architect lint rules: what the types can't see, as an oxlint JS plugin (`architect/*`). Each rule gets what the
-// project declares through one options object, which `architect check` writes from the model (rules have no types).
+// The forman lint rules: what the types can't see, as an oxlint JS plugin (`forman/*`). Each rule gets what the
+// project declares through one options object, which `forman check` writes from the model (rules have no types).
 
-/** What `architect check` tells every rule about the project. */
+/** What `forman check` tells every rule about the project. */
 export interface ProjectFacts {
   /** The project's root, absolute: rules see absolute file names and judge them by their path from here. */
   readonly root: string;
@@ -33,6 +33,6 @@ export interface Rule {
 }
 
 export interface Plugin {
-  readonly meta: { readonly name: "architect" };
+  readonly meta: { readonly name: "forman" };
   readonly rules: Readonly<Record<string, Rule>>;
 }

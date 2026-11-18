@@ -19,11 +19,11 @@ const names = [`logbook-test-issuer-${process.pid}`, `logbook-test-rogue-${proce
 const scenario = (client: string, o: { aud?: string; ref?: string; event?: string; repository?: string; workflow?: string }) => {
   const ref = o.ref ?? "refs/heads/main";
   const repository = o.repository ?? REPO;
-  const workflow = o.workflow ?? "architect";
+  const workflow = o.workflow ?? "forman";
   return {
     requestParam: "client_id", match: client,
     claims: {
-      sub: `repo:${repository}:ref:${ref}`, aud: [o.aud ?? "architect-logbook"], repository, ref, workflow,
+      sub: `repo:${repository}:ref:${ref}`, aud: [o.aud ?? "forman-logbook"], repository, ref, workflow,
       event_name: o.event ?? "push", sha: "0123456789abcdef0123456789abcdef01234567",
       job_workflow_ref: `${repository}/.github/workflows/${workflow}.yml@${ref}`,
     },
@@ -31,7 +31,7 @@ const scenario = (client: string, o: { aud?: string; ref?: string; event?: strin
 };
 const config = JSON.stringify({
   interactiveLogin: false,
-  tokenCallbacks: [{ issuerId: "architect", tokenExpiry: 600, requestMappings: [
+  tokenCallbacks: [{ issuerId: "forman", tokenExpiry: 600, requestMappings: [
     scenario("ci-main", {}),
     scenario("ci-pr", { ref: "refs/pull/7/merge", event: "pull_request" }),
     scenario("ci-other-branch", { ref: "refs/heads/feature/x" }),
@@ -47,7 +47,7 @@ const startIssuer = async (name: string, port: number) => {
   docker("rm", "-f", name);
   const started = docker("run", "-d", "--name", name, "-p", `127.0.0.1:${port}:8080`, "-e", `JSON_CONFIG=${config}`, IMAGE);
   expect(started.status, started.stderr).toBe(0);
-  const url = `http://127.0.0.1:${port}/architect`;
+  const url = `http://127.0.0.1:${port}/forman`;
   for (let i = 0; i < 300; i++) {
     if (await fetch(`${url}/.well-known/openid-configuration`).then((r) => r.ok, () => false)) return url;
     await new Promise((r) => setTimeout(r, 200));
@@ -75,7 +75,7 @@ const start = () => {
   const scope = Effect.runSync(Scope.make());
   const run = Logbook.start({
     port: PORTS.logbook, state: join(dir, "state"), log: join(dir, "wrangler.log"),
-    policy: { issuer, jwksUrl: `${issuer}/jwks`, audience: "architect-logbook", repository: REPO, refs: ["refs/heads/main", "refs/pull/*/merge"], workflows: ["architect"] },
+    policy: { issuer, jwksUrl: `${issuer}/jwks`, audience: "forman-logbook", repository: REPO, refs: ["refs/heads/main", "refs/pull/*/merge"], workflows: ["forman"] },
   }).pipe(Scope.provide(scope));
   return Effect.runPromise(run).then(() => () => Effect.runPromise(Scope.close(scope, Exit.void)));
 };

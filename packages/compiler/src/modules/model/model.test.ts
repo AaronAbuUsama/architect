@@ -5,7 +5,7 @@ import { afterAll, describe, expect, it } from "vitest";
 import { nodeSource } from "#modules/source/service.js";
 import { Compiler } from "./service.ts";
 
-// Dot-folders (.wrangler, .architect) belong to whatever is running there; a filter also keeps cpSync off its native path,
+// Dot-folders (.wrangler, .forman) belong to whatever is running there; a filter also keeps cpSync off its native path,
 // which aborts the process when a folder vanishes mid-copy.
 const visible = (from: string) => !basename(from).startsWith(".");
 
@@ -191,13 +191,13 @@ describe("model", () => {
       const refusedClient = await modelOf(client);
       expect(Exit.isFailure(refusedClient)).toBe(true);
       expect(JSON.stringify(refusedClient)).toContain('blueprint/things/allowance/verbs/grant.ts: runs \\"client\\" is not supported yet');
-      expect(JSON.stringify(refusedClient)).toContain("target-noir");
+      expect(JSON.stringify(refusedClient)).toContain("language-noir");
 
       const chain = copyOfAcme();
       edit(chain, "things/allowance/verbs/grant.ts", (t) => t.replace("  idempotent:", '  runs: "chain",\n  idempotent:'));
       const refusedChain = await modelOf(chain);
       expect(Exit.isFailure(refusedChain)).toBe(true);
-      expect(JSON.stringify(refusedChain)).toContain("target-solidity");
+      expect(JSON.stringify(refusedChain)).toContain("language-solidity");
     });
 
     it("carries a test kind a target set, `unit` otherwise", async () => {

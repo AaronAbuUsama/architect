@@ -3,8 +3,8 @@
 import type { Layer } from "effect";
 import type { SqlClient } from "effect/sql";
 import type { D1Client } from "@effect/sql-d1";
-import type { Thing } from "@architect/blueprint";
-import type { Store } from "@architect/target-effect";
+import type { Thing } from "@formants/forman";
+import type { Store } from "@formants/language-effect";
 
 export interface StoreD1Options {
   /** Each thing and its table name; the generated server writes the list from the things' paths. */

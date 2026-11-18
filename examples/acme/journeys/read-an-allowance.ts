@@ -1,5 +1,5 @@
 // Journey-author file. The builder of allowance.get never edits it (AGENTS.md, "Journeys and checks come first").
-import { Blueprint, expect, noEvents, refuses } from "@architect/blueprint";
+import { Blueprint, expect, noEvents, refuses } from "@formants/forman";
 import { owner } from "../blueprint/things/organization/roles.ts";
 import { grantee } from "../blueprint/things/allowance/roles.ts";
 import get from "../blueprint/things/allowance/verbs/get.ts";

@@ -1,17 +1,17 @@
-// Check 5 (D3 #15.5, D3 #9): `@acme/sdk` installs from Verdaccio at exactly `architect version --next`, and
+// Check 5 (D3 #15.5, D3 #9): `@acme/sdk` installs from Verdaccio at exactly `forman version --next`, and
 // `brew install <tap>/<formula>` from a local tap runs `acme --version`, printing that version.
 //
 // Chosen where D3 #14 is open:
-// - `ARCHITECT_TAP_REPO` is a local git repository (here with one commit); a production promote writes `Formula/<ARCHITECT_FORMULA>.rb`
+// - `FORMAN_TAP_REPO` is a local git repository (here with one commit); a production promote writes `Formula/<FORMAN_FORMULA>.rb`
 //   into it and commits. The formula points at `file://` tarballs with their sha256 (D3 #9). The check taps that repository AFTER the
 //   promote, as `brew tap <tap> <repo>`, then installs by the full name `<tap>/<formula>`.
-// - The tap and the formula are unique to this run (`architect-e2e-<id>/gate2-<id>`, `acme-<id>`), so the formula is not named `acme`
+// - The tap and the formula are unique to this run (`forman-e2e-<id>/gate2-<id>`, `acme-<id>`), so the formula is not named `acme`
 //   but installs the binary `acme`. HOMEBREW_NO_AUTO_UPDATE and HOMEBREW_NO_ANALYTICS are set; afterAll uninstalls, then untaps,
 //   this tap and nothing else.
 // - The binary is run from the formula's keg (`brew --prefix <tap>/<formula>`), so nothing is linked into Homebrew's bin.
 // - `acme --version` prints the version, which the check reads as the last word of its output.
 // - The SDK is installed with npm into an empty folder, from the registry for the project's names (everything else from npm).
-//   The check's own setup first builds and publishes every `@architect/*` package to its Verdaccio, as tools/e2e/starter.sh does
+//   The check's own setup first builds and publishes every `@formants/*` package to its Verdaccio, as tools/e2e/starter.sh does
 //   (D3 #16), with a throwaway user whose token stays in a temp npmrc, so `@acme/sdk`'s dependencies all resolve locally.
 // - Mac arm64 and Linux x64 build their own supported binary (D3 #9, #116); each must run the real brew half.
 //   Other targets skip that half. Missing Homebrew on a supported target is a failure, never a skip.
@@ -22,14 +22,14 @@ import { join } from "node:path";
 import { randomBytes } from "node:crypto";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { promote, proveInTest } from "./flow.ts";
-import { type Stack, finish, publishArchitect, startStack } from "./services.ts";
+import { type Stack, finish, publishForman, startStack } from "./services.ts";
 import { project, run } from "./support.ts";
 
 const id = randomBytes(4).toString("hex");
-const tap = `architect-e2e-${id}/gate2-${id}`;
+const tap = `forman-e2e-${id}/gate2-${id}`;
 const formula = `acme-${id}`;
 const full = `${tap}/${formula}`;
-const scratch = mkdtempSync(join(tmpdir(), "architect-gate2-publish-"));
+const scratch = mkdtempSync(join(tmpdir(), "forman-gate2-publish-"));
 const tapRepo = join(scratch, "tap");
 const brewEnv = { ...process.env, HOMEBREW_NO_AUTO_UPDATE: "1", HOMEBREW_NO_ANALYTICS: "1", HOMEBREW_NO_INSTALL_CLEANUP: "1", HOMEBREW_NO_ENV_HINTS: "1" };
 const brew = (...args: ReadonlyArray<string>) => spawnSync("brew", args, { encoding: "utf8", env: brewEnv, timeout: 600_000 });
@@ -43,12 +43,12 @@ let stack: Stack | undefined;
 beforeAll(async () => {
   if (supportedBinary) expect(brew("--version").status, "Homebrew must be on PATH for the supported binary target").toBe(0);
   mkdirSync(tapRepo);
-  writeFileSync(join(tapRepo, "README.md"), `A local tap for Architect's Gate 2 (${id}).\n`);
+  writeFileSync(join(tapRepo, "README.md"), `A local tap for Forman's Gate 2 (${id}).\n`);
   git(tapRepo, "init", "-q", "-b", "main");
   git(tapRepo, "add", "-A");
   git(tapRepo, "commit", "-q", "-m", "tap");
-  stack = await startStack(copy.root, 5, { registry: true, env: { ARCHITECT_TAP_REPO: tapRepo, ARCHITECT_FORMULA: formula } });
-  publishArchitect(stack);
+  stack = await startStack(copy.root, 5, { registry: true, env: { FORMAN_TAP_REPO: tapRepo, FORMAN_FORMULA: formula } });
+  publishForman(stack);
 });
 afterAll(async () => {
   try {
@@ -62,12 +62,12 @@ afterAll(async () => {
   }
 });
 
-// What `architect version --next` printed before the release; the first test sets it, the second needs it.
+// What `forman version --next` printed before the release; the first test sets it, the second needs it.
 let released = "";
 const supportedBinary = (process.platform === "darwin" && process.arch === "arm64") || (process.platform === "linux" && process.arch === "x64");
 
 describe("check 5: publishing", () => {
-  it("@acme/sdk installs from Verdaccio at exactly architect version --next", () => {
+  it("@acme/sdk installs from Verdaccio at exactly forman version --next", () => {
     const s = stack!;
     const { root } = copy;
     const next = run(root, s.env, "version", "--next").stdout.trim();

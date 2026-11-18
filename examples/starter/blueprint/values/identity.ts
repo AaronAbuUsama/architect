@@ -1,4 +1,4 @@
-import { Blueprint, Schema } from "@architect/blueprint";
+import { Blueprint, Schema } from "@formants/forman";
 
 /** What a person signs in with. Never stored by the project: Better Auth keeps only its hash. Secret: never in telemetry. */
 export const Password = Blueprint.visibility.secret(Blueprint.text({ max: 128 }));

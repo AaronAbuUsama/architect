@@ -41,7 +41,7 @@ Three things follow from this:
 
 - **Adding a projection means changing the framework.** You cannot add a React projection or a Python SDK without
   editing `service.ts`.
-- **Nothing can be left out.** `outputs` in `architect.config.ts` is read by nothing (D3 #112). Where each output goes
+- **Nothing can be left out.** `outputs` in the config file was read by nothing (D3 #112) and was removed in M0. Where each output goes
   is a fixed set of keys on the environment (`deploy: { server, mcp, portal }`, `publish: { sdk, cli }` in
   `examples/acme/blueprint/environments/production.ts`).
 - **Only the server is proved.** Journeys call the server directly over HTTP:
@@ -60,7 +60,7 @@ projection is around it.
 ## 1. The contract
 
 ```ts
-// @blueprint/projection: what every projection plugin exports
+// @formants/projection: what every projection plugin exports
 export interface Projection<Choices> {
   readonly host: ReadonlyArray<Host>;          // where its output runs; empty when nothing runs (docs, types)
   readonly builtOn?: Projection<unknown>;      // another projection it is layered on (the CLI on the SDK)
@@ -123,8 +123,8 @@ A projection is mounted like any plugin: one file, and the file's name is the mo
 
 ```ts
 // blueprint/projections/cli.ts: the public CLI, command `acme`
-import { Blueprint } from "@blueprint/blueprint";
-import { cli } from "@blueprint/cli";
+import { Blueprint } from "@formants/forman";
+import { cli } from "@formants/cli";
 
 export default Blueprint.use(cli, (c) => [
   c.command.fromProject,            // `acme`, from package.json's name
@@ -134,8 +134,8 @@ export default Blueprint.use(cli, (c) => [
 
 ```ts
 // blueprint/projections/cli-admin.ts: a second CLI from the same plugin, for operators
-import { Blueprint } from "@blueprint/blueprint";
-import { cli } from "@blueprint/cli";
+import { Blueprint } from "@formants/forman";
+import { cli } from "@formants/cli";
 import { operator } from "../things/system/roles.ts";
 
 export default Blueprint.use(cli, (c) => [
@@ -155,7 +155,7 @@ The environment places each mount. It refers to mounts by import, never by a str
 
 ```ts
 // blueprint/environments/production.ts
-import { Blueprint, Cloudflare, Npm, Homebrew, Via } from "@blueprint/blueprint";
+import { Blueprint, Cloudflare, Npm, Homebrew, Via } from "@formants/forman";
 import server from "../projections/server.ts";
 import mcp from "../projections/mcp.ts";
 import sdk from "../projections/sdk.ts";
@@ -176,7 +176,7 @@ export default Blueprint.environment({
 });
 ```
 
-`blueprint check` cross-checks the mounts against the environments:
+`forman check` cross-checks the mounts against the environments:
 
 - a mount the environment does not place is fine; it just isn't shipped there;
 - a place whose kind the projection does not accept is an error (a `Release` given to the server);
@@ -213,7 +213,7 @@ export const server = Blueprint.projection({
 - **What it opens:** `server.api`; `server.mcp` once MCP is mounted; `server.inbound`, one per adapter event an
   operation takes; and in a world, the world door. Today the world door lives in the server renderer (`server.ts:1-2`).
 - **Proving it:** it has no replay of its own, because it is the far end of every other replay.
-- **Hosts:** one per host plugin. `@blueprint/server-cloudflare` is the one that exists. A Node server is the fallback
+- **Hosts:** one per host plugin. `@formants/host-cloudflare` is the one that exists. A Node server is the fallback
   seam (`decisions.md`, "a seam for another host kept but unused").
 
 ### 3.2 The HTTP API and its OpenAPI document
@@ -369,7 +369,7 @@ export const solidity = Blueprint.projection({
 });
 ```
 
-- **Today:** `packages/target-solidity/src/index.ts` is a shell. Layer 4 builds it.
+- **Today:** `packages/language-solidity/src/index.ts` is a shell. Layer 4 builds it.
 - **Mounting:** it mounts automatically when a thing first `lives` on chain, because you cannot have one without the
   other. The mount file is written for you, with no choices.
 - **Note:** this projection is the only one that renders scaffolds into `src/` (`<Thing>.sol`). Every other scaffold
@@ -401,11 +401,11 @@ Infrastructure is the Alchemy stack per environment: Workers, D1, R2, Durable Ob
 export const infra = Blueprint.projection({
   host: [],
   render: ({ model, mounts, environments }) => Effect.succeed(environments.map(stack)),
-  ships: [Kept],     // applied by `blueprint promote`, in the cloud pass
+  ships: [Kept],     // applied by `forman promote`, in the cloud pass
 });
 ```
 
-- **Today:** D3 #5 deferred Alchemy to the cloud pass. Wrangler configs live in `.architect/environments/` (D3 #17).
+- **Today:** D3 #5 deferred Alchemy to the cloud pass. Wrangler configs live in `.forman/environments/` (D3 #17).
 - **Inputs:** this projection reads the environments, not just the model. That is why `render` is given them.
 
 ### 3.12 A Python SDK
@@ -503,8 +503,8 @@ Replay multiplies prove time by the number of projections that take a step. Toda
 door. With the server API, SDK, CLI, MCP and React, most steps run four or five times.
 
 - **In CI:** every journey through every projection, every time. Verdicts are only written there.
-- **Locally:** `blueprint prove` replays through the API, plus each projection whose output changed since the last
-  green run. `blueprint prove --all` replays through every projection.
+- **Locally:** `forman prove` replays through the API, plus each projection whose output changed since the last
+  green run. `forman prove --all` replays through every projection.
 - **Worlds:** each projection replays in its own world from the same starting world, in parallel, so wall-clock time
   grows less than the work does.
 
@@ -527,10 +527,10 @@ A projection builds on another for three reasons.
    server on the SDK").
 2. **Client operations come for free.** `wallet.link`'s local code lives in the SDK. The CLI and React get it by
    building on the SDK.
-3. **Staleness is exact.** `builtOn` is in the model, so `blueprint impact` knows that a change to the SDK
+3. **Staleness is exact.** `builtOn` is in the model, so `forman impact` knows that a change to the SDK
    projection's version re-renders the CLI, the MCP server and the React hooks, and re-runs their replays.
 
-A projection may only build on a projection that is mounted. `blueprint add projection react` mounts the SDK too if it
+A projection may only build on a projection that is mounted. `forman add projection react` mounts the SDK too if it
 is missing, the same way a feature's needs are met ([`mounting.md`](mounting.md)).
 
 ## 6. Today and proposed
@@ -544,7 +544,7 @@ is missing, the same way a feature's needs are met ([`mounting.md`](mounting.md)
 | Proving clients | none; journeys use raw HTTP (`world.ts:85`) | each projection's `replay`, compared by the replay rule |
 | Client operations | refused by the compiler (`operations/types.ts:49-50`) | carried by projections whose host the feature ships code for |
 | Third-party projections | impossible | a package exporting `Blueprint.projection(...)` |
-| Solidity, keeper, infra | a shell (`target-solidity/src/index.ts`), later layers | projections mounted with their layer |
+| Solidity, keeper, infra | a shell (`language-solidity/src/index.ts`), later layers | projections mounted with their layer |
 
 ## 7. Open risks
 

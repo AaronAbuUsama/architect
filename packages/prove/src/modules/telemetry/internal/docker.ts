@@ -48,8 +48,10 @@ export const runCollector = (dir: string, name: string, options: CollectorOption
       docker(["rm", "-f", name]);
       return docker([
         "run", "-d", "--rm", "--name", name, "--network", "bridge", "--user", "0:0", "-p", "127.0.0.1::4318",
-        "-v", `${dir}:/out`, "-v", `${dir}/collector.yaml:/etc/otelcol/config.yaml:ro`,
-        IMAGE, "--config=/etc/otelcol/config.yaml",
+        "-v", `${dir}:/out`,
+        // The config goes inline, not as a mounted file: a file just rewritten may not be visible yet through Docker
+        // Desktop's file sharing, and the collector would exit before it answers. collector.yaml is kept to read.
+        IMAGE, `--config=yaml:${collectorConfig(options)}`,
       ]);
     });
     // Docker Desktop's file sharing can lag a moment behind a file just written ("mkdir ... no such file"): another try is enough.
@@ -66,10 +68,10 @@ export const runCollector = (dir: string, name: string, options: CollectorOption
 
 export const removeCollector = (name: string) => Effect.sync(() => void docker(["rm", "-f", name]));
 
-/** `architect-collector-<owner pid>-<random>`: the name a collector started by a process carries, scoped to it. */
-export const ownedName = (pid: number) => `architect-collector-${pid}-${Math.floor(Math.random() * 1e9)}`;
+/** `forman-collector-<owner pid>-<random>`: the name a collector started by a process carries, scoped to it. */
+export const ownedName = (pid: number) => `forman-collector-${pid}-${Math.floor(Math.random() * 1e9)}`;
 
-const OWNED = /^architect-collector-(\d+)-\d+$/;
+const OWNED = /^forman-collector-(\d+)-\d+$/;
 
 /** Whether a process is still there. Not being allowed to signal it means it is: someone else's, and alive. */
 const alive = (pid: number): boolean => {
@@ -88,7 +90,7 @@ const alive = (pid: number): boolean => {
  */
 export const sweepOrphans = (): Effect.Effect<ReadonlyArray<string>> =>
   Effect.sync(() => {
-    const listed = docker(["ps", "-a", "--filter", "name=architect-collector-", "--format", "{{.Names}}"]);
+    const listed = docker(["ps", "-a", "--filter", "name=forman-collector-", "--format", "{{.Names}}"]);
     if (listed.status !== 0) return [];
     const orphans = listed.stdout.split("\n").map((n) => n.trim()).filter((n) => {
       const owner = OWNED.exec(n)?.[1];

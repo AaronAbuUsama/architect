@@ -14,4 +14,4 @@ export class BlueprintSource extends Context.Service<BlueprintSource, {
   readonly list: Effect.Effect<ReadonlyArray<string>, SourceError>;
   /** Import one file by its relative path. Blueprint files must have no side effects on import. */
   readonly load: (path: string) => Effect.Effect<LoadedFile, SourceError>;
-}>()("@architect/compiler/BlueprintSource") {}
+}>()("@formants/compiler/BlueprintSource") {}

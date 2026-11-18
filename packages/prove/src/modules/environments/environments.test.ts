@@ -1,5 +1,5 @@
 // L2.01's done-when check, on a copy of acme under git: two builds of a revision hash the same; staging and production
-// run at once with their own D1 state; a restart keeps state; /_architect/bundle equals the build; env down leaves
+// run at once with their own D1 state; a restart keeps state; /_forman/bundle equals the build; env down leaves
 // nothing running. Real wrangler and workerd, ports 8950 to 8999.
 import { spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, symlinkSync, writeFileSync } from "node:fs";
@@ -18,12 +18,12 @@ const git = (root: string, ...args: ReadonlyArray<string>) =>
 
 /** A copy of acme under git, outside the repository: its revision is a commit of its own. */
 const copyUnderGit = () => {
-  const parent = mkdtempSync(join(realpathSync(tmpdir()), "architect-l201-"));
+  const parent = mkdtempSync(join(realpathSync(tmpdir()), "forman-l201-"));
   const root = join(parent, "acme");
   for (const part of ["blueprint", "generated", "src", "journeys", "package.json"]) cpSync(join(acme, part), join(root, part), { recursive: true, filter: visible });
   mkdirSync(join(root, "node_modules"));
   for (const entry of readdirSync(join(acme, "node_modules"))) if (entry !== ".bin") symlinkSync(join(acme, "node_modules", entry), join(root, "node_modules", entry));
-  writeFileSync(join(root, ".gitignore"), "node_modules/\n.architect/\n.wrangler/\n");
+  writeFileSync(join(root, ".gitignore"), "node_modules/\n.forman/\n.wrangler/\n");
   git(root, "init", "-q", "-b", "main");
   git(root, "add", "-A");
   git(root, "commit", "-q", "-m", "acme");
@@ -39,7 +39,7 @@ const post = async (base: string, path: string, body: unknown) => {
 };
 const signUp = (base: string, email: string) => post(base, "/person/sign-up", { email, password: "correct-horse-battery", name: "Ada" });
 const signIn = (base: string, email: string) => post(base, "/session/sign-in", { email, password: "correct-horse-battery" });
-const bundle = (base: string) => fetch(`${base}/_architect/bundle`).then((r) => r.json());
+const bundle = (base: string) => fetch(`${base}/_forman/bundle`).then((r) => r.json());
 const running = () => spawnSync("pgrep", ["-fl", project.root], { encoding: "utf8" }).stdout.trim();
 
 afterAll(async () => {
@@ -47,7 +47,7 @@ afterAll(async () => {
   project.remove();
 });
 
-describe("architect env", () => {
+describe("forman env", () => {
   it("runs staging and production at once, each with its own state, which a restart keeps", { timeout: 600_000 }, async () => {
     const { root } = project;
     const built = await run(Build.build(root));
@@ -64,9 +64,9 @@ describe("architect env", () => {
     expect((await signIn(staging.url, "ada@acme.test")).status).toBe(200);
     expect((await signIn(production.url, "ada@acme.test")).status).not.toBe(200);
 
-    // Each has its own folder under .architect/environments, its pid and its port.
+    // Each has its own folder under .forman/environments, its pid and its port.
     for (const [name, port] of [["staging", 8950], ["production", 8951]] as const) {
-      const dir = join(root, ".architect/environments", name);
+      const dir = join(root, ".forman/environments", name);
       expect(Number(readFileSync(join(dir, "pid"), "utf8"))).toBeGreaterThan(1);
       expect(Number(readFileSync(join(dir, "port"), "utf8"))).toBe(port);
       expect(existsSync(join(dir, "state"))).toBe(true);
@@ -87,13 +87,13 @@ describe("architect env", () => {
 
   it("puts secrets in a file only its owner reads, never on a command line", { timeout: 60_000 }, async () => {
     const { root } = project;
-    const file = join(root, ".architect/environments/staging/secrets.env");
+    const file = join(root, ".forman/environments/staging/secrets.env");
     expect(statSync(file).mode & 0o777).toBe(0o600);
     const secret = /^AUTH_SECRET=(.+)$/m.exec(readFileSync(file, "utf8"))![1]!;
     expect(secret.length).toBeGreaterThanOrEqual(32);
     expect(spawnSync("ps", ["-axww", "-o", "command"], { encoding: "utf8" }).stdout).not.toContain(secret);
     // The file is not in the generated config either.
-    expect(readFileSync(join(root, ".architect/environments/staging/wrangler.jsonc"), "utf8")).not.toContain(secret);
+    expect(readFileSync(join(root, ".forman/environments/staging/wrangler.jsonc"), "utf8")).not.toContain(secret);
   });
 
   it("is told which of an environment's name it may start, and which it may not", async () => {
@@ -110,6 +110,6 @@ describe("architect env", () => {
     await run(Environments.down({ root, name: "production" }));
     expect(running()).toBe("");
     expect(await run(Environments.status({ root, name: "production" }))).toEqual({ state: "down", name: "production" });
-    expect(existsSync(join(root, ".architect/environments/production/pid"))).toBe(false);
+    expect(existsSync(join(root, ".forman/environments/production/pid"))).toBe(false);
   });
 });

@@ -1,6 +1,6 @@
 // What an environment's `publish` list comes to at a version: pure, so the rules (the project's names, the dist-tag) are plain to test.
 import { basename, resolve } from "node:path";
-import type { EnvironmentModel, PublicationModel } from "@architect/compiler";
+import type { EnvironmentModel, PublicationModel } from "@formants/compiler";
 
 export type Kind = "sdk" | "cli";
 

@@ -3,7 +3,7 @@
 Part of the frame's worked examples ([`../README.md`](../README.md)). Proposed, 17 November 2026. It uses the Stripe
 adapter from [`../adapters.md`](../adapters.md) and the secrets from [`../secrets.md`](../secrets.md); this page shows
 them working together in one app, acme. Package names under `@formants/*` follow the layout still open in
-[`../delta.md`](../delta.md); `@formants/forman` is today's `@architect/blueprint` (package layout: questions Q4). Language: Effect only.
+[`../delta.md`](../delta.md); `@formants/forman` is the front door, the `Blueprint` API (`decisions/M0-packages.md`). Language: Effect only.
 "Language" is the axis that was called "target" before (Effect, Solidity, Noir, Python); it is not a host or a
 projection.
 
@@ -189,7 +189,7 @@ payment.start   9 evals ✔   payment.settle   9 evals ✔   payment.refund   9 
 |---|---|---|
 | Calling Stripe | nothing calls out; a step is only `Blueprint.step.database()` (`examples/acme/blueprint/things/allowance/verbs/spend.ts:15`) | `Blueprint.step.call` of an adapter's call |
 | Webhooks | no inbound door | `on:` plus the adapter's door, as `service(stripe)` |
-| Principal | `anonymous \| person` (`packages/blueprint/src/modules/roles/types.ts:6-8`) | adds `service` |
+| Principal | `anonymous \| person` (`packages/forman/src/modules/roles/types.ts:6-8`) | adds `service` |
 | Idempotency | `idempotent: "request"` exists for a caller's retry (`spend.ts:16`) | the same field, keyed by the event id at a door |
 | Secrets | named by string per environment | declared by the adapter, names derived |
 

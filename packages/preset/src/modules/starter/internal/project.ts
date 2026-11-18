@@ -13,15 +13,15 @@ const DEV = {
 };
 
 export const packageJson = (existing: Record<string, unknown>, name: string, version: string) => {
-  const architect = Object.fromEntries(["blueprint", "host-cloudflare", "portal", "target-effect"].map((p) => [`@architect/${p}`, version]));
+  const forman = Object.fromEntries(["forman", "host-cloudflare", "portal", "language-effect"].map((p) => [`@formants/${p}`, version]));
   return {
     ...existing,
     type: "module",
     packageManager: "pnpm@11.20.0",
-    scripts: { ...(existing["scripts"] as object | undefined), architect: "architect" },
+    scripts: { ...(existing["scripts"] as object | undefined), forman: "forman" },
     bin: { [name]: "./generated/cli/src/main.ts" },
-    dependencies: { ...(existing["dependencies"] as object | undefined), ...architect, ...EXACT },
-    devDependencies: { ...(existing["devDependencies"] as object | undefined), "@architect/cli": version, ...DEV },
+    dependencies: { ...(existing["dependencies"] as object | undefined), ...forman, ...EXACT },
+    devDependencies: { ...(existing["devDependencies"] as object | undefined), "@formants/cli": version, ...DEV },
   };
 };
 
@@ -36,9 +36,9 @@ export const TSCONFIG = {
   include: ["blueprint/**/*.ts", "generated/**/*.ts", "src/**/*.ts", "journeys/**/*.ts"],
 };
 
-export const IGNORES = [".architect/", ".wrangler/", "node_modules/"];
+export const IGNORES = [".forman/", ".wrangler/", "node_modules/"];
 
-/** pnpm settings the project needs: workerd and esbuild build for the local world; kysely held as in Architect (D2 #68). */
+/** pnpm settings the project needs: workerd and esbuild build for the local world; kysely held as in Forman (D2 #68). */
 export const WORKSPACE: Readonly<Record<string, Readonly<Record<string, string>>>> = {
   allowBuilds: { esbuild: "true", nx: "true", workerd: "true" },
   overrides: { kysely: "0.29.7" },

@@ -1,6 +1,6 @@
 // Scaffolded from blueprint/things/person/verbs/sign-up.ts. Yours from now on.
 import { Effect } from "effect";
-import { Auth } from "@architect/target-effect";
+import { Auth } from "@formants/language-effect";
 import type { Handler } from "../../generated/api/src/person/sign-up.handler.ts";
 import { PersonEmailTaken } from "../../blueprint/things/person/errors.ts";
 

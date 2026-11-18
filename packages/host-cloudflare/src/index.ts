@@ -1,4 +1,4 @@
-// @architect/host-cloudflare: Cloudflare's side of the runtime. Layers that put Architect's services on workerd.
+// @formants/host-cloudflare: Cloudflare's side of the runtime. Layers that put Forman's services on workerd.
 export { Database } from "#modules/database/service.js";
 export type { DatabaseApi } from "#modules/database/types.js";
 export { JournalD1 } from "#modules/journal/service.js";

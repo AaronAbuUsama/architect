@@ -4,9 +4,9 @@ import { Effect } from "effect";
 import { PublishFailed, type Env } from "../types.ts";
 import { cleanEnv } from "./env.ts";
 
-/** The registry from `ARCHITECT_REGISTRY`, with its trailing slash; undefined when none is set. */
+/** The registry from `FORMAN_REGISTRY`, with its trailing slash; undefined when none is set. */
 export const registryOf = (env: Env): string | undefined => {
-  const given = env["ARCHITECT_REGISTRY"]?.trim();
+  const given = env["FORMAN_REGISTRY"]?.trim();
   return given ? given.replace(/\/*$/, "/") : undefined;
 };
 

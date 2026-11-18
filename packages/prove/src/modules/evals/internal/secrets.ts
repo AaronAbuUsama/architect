@@ -2,7 +2,7 @@
 // journal entry its trace recorded. Two readings, because each catches what the other misses. By name: no attribute is
 // keyed for a non-public field. By value: no span attribute, log body or log attribute, and no journal entry, contains the
 // value that was actually sent or answered (a handler that logged a password in a sentence has no key to find it by).
-import type { FieldsModel, OperationModel } from "@architect/compiler";
+import type { FieldsModel, OperationModel } from "@formants/compiler";
 import type { Evidence } from "../types.ts";
 import { where } from "./evidence.ts";
 

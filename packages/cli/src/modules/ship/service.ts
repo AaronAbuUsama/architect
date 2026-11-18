@@ -1,9 +1,9 @@
 import { Effect } from "effect";
-import { Compiler, nodeSource, type Model } from "@architect/compiler";
-import { Impact, Publish, Releases, type Shipping } from "@architect/prove";
+import { Compiler, nodeSource, type Model } from "@formants/compiler";
+import { Impact, Publish, Releases, type Shipping } from "@formants/prove";
 import type { Said, ShipApi, ShipOptions } from "./types.ts";
 
-const NO_LOGBOOK = "no logbook: start one with `architect env up logbook`, or set ARCHITECT_LOGBOOK_URL";
+const NO_LOGBOOK = "no logbook: start one with `forman env up logbook`, or set FORMAN_LOGBOOK_URL";
 
 const modelOf = (root: string) => Compiler.model.pipe(Effect.provide(nodeSource(root)));
 
@@ -56,7 +56,7 @@ const publish: ShipApi["publish"] = ({ root, env, mode, say }) =>
     const model = yield* modelOf(root);
     const logbook = yield* Releases.locate({ root, env });
     if (logbook === undefined) return refused(NO_LOGBOOK);
-    if (mode === "local" && Publish.registry(env) === undefined) return refused("no registry: set ARCHITECT_REGISTRY to the registry to publish to (Verdaccio, on this machine)");
+    if (mode === "local" && Publish.registry(env) === undefined) return refused("no registry: set FORMAN_REGISTRY to the registry to publish to (Verdaccio, on this machine)");
     const version = yield* Releases.next(logbook, model);
     yield* Publish.run({ root, env, environment: "production", version, mode: mode === "local" ? "publish" : "dry-run", localTap: true, say });
     return { out: "", err: "", exit: 0 } satisfies Said;

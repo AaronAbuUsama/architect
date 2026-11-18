@@ -1,7 +1,7 @@
 import { env } from "cloudflare:workers";
 import { Cause, Effect, Exit, Layer } from "effect";
 import { describe, expect, it } from "vitest";
-import type { Thing } from "@architect/blueprint";
+import type { Thing } from "@formants/forman";
 import { Database } from "#modules/database/service.js";
 import { race } from "../../../test/race.ts";
 import { StoreD1 } from "./service.ts";

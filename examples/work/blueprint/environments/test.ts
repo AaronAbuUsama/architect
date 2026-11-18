@@ -1,4 +1,4 @@
-import { Blueprint, Cloud, Identity } from "@architect/blueprint";
+import { Blueprint, Cloud, Identity } from "@formants/forman";
 
 export default Blueprint.environment({
   runs: "a fresh world for each pull request",

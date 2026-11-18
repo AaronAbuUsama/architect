@@ -1,4 +1,4 @@
-import { Blueprint } from "@architect/blueprint";
+import { Blueprint } from "@formants/forman";
 
 export const Amount = Blueprint.value(Blueprint.uint(128));
 

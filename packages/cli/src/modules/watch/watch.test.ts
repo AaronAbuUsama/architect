@@ -1,4 +1,4 @@
-// `architect watch --env staging` as a command: it reads the environment's own telemetry folder (what staging's Collector
+// `forman watch --env staging` as a command: it reads the environment's own telemetry folder (what staging's Collector
 // wrote) and prints what the check of Gate 2 looks for. The traffic here is written by hand in the Collector's format; the
 // replayed-traffic version is Gate 2's check 8.
 import { cpSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
@@ -11,7 +11,7 @@ const visible = (from: string) => !basename(from).startsWith(".");
 const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
 const scratch = join(acme, "tmp/cli-watch");
 const root = join(scratch, "acme");
-const folder = join(root, ".architect/environments/staging/telemetry");
+const folder = join(root, ".forman/environments/staging/telemetry");
 
 const kv = (key: string, value: string) => ({ key, value: { stringValue: value } });
 const nanos = (ms: number) => String(BigInt(Math.round(ms)) * 1_000_000n);
@@ -49,7 +49,7 @@ afterAll(() => rmSync(scratch, { recursive: true, force: true }));
 const watch = (extra: Partial<Parameters<typeof WatchCommand.run>[0]> = {}) =>
   Effect.runPromise(WatchCommand.run({ root, environment: "staging", source: "file", since: "1h", env: {}, ...extra }));
 
-describe("architect watch --env staging", { timeout: 120_000 }, () => {
+describe("forman watch --env staging", { timeout: 120_000 }, () => {
   it("prints each operation's p95 against its budget, the refusal counts and `drift none`, and exits 0", async () => {
     record([...Array.from({ length: 30 }, () => call(14)), ...Array.from({ length: 3 }, () => call(6, "AllowanceExceeded"))]);
     const said = await watch();
@@ -67,12 +67,12 @@ describe("architect watch --env staging", { timeout: 120_000 }, () => {
     expect(said.exit).toBe(0);
     expect(lines).toContain("allowance.spend p95 800ms (budget 150ms) ✘");
     expect(lines).toContain("drift allowance.spend");
-    expect(lines).toContain("task .architect/tasks/drift-staging-allowance.spend.md");
+    expect(lines).toContain("task .forman/tasks/drift-staging-allowance.spend.md");
   });
 
   it("refuses with the way forward when the environment has recorded nothing, or the source is Axiom and the sink isn't named", async () => {
     const none = await watch({ environment: "production" });
-    expect([none.exit, none.err]).toEqual([2, expect.stringContaining("architect env up production")]);
+    expect([none.exit, none.err]).toEqual([2, expect.stringContaining("forman env up production")]);
     const axiom = await watch({ source: "axiom" });
     expect(axiom.exit).toBe(2);
     expect(axiom.err).toContain("Telemetry.sink.axiom");

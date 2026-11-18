@@ -1,8 +1,8 @@
 // A thing's rows in their wire form: every field as its schema encodes it (text for ids and amounts).
 import { Effect, Schema } from "effect";
-import type { Thing } from "@architect/blueprint";
-import { structOf } from "@architect/blueprint/server";
-import type { Instance } from "@architect/target-effect";
+import type { Thing } from "@formants/forman";
+import { structOf } from "@formants/forman/server";
+import type { Instance } from "@formants/language-effect";
 
 type Codec = Schema.Codec<Record<string, unknown>, Record<string, unknown>>;
 

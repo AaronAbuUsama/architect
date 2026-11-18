@@ -5,6 +5,6 @@ its `SqlClient` (real D1 work; the same pattern and the same count as `test/fixt
 0.4 ms a query, so about 800 ms a call against spend's 150 ms budget). No wall clock: handlers cannot reach `Timers` before layer 5.
 Install over `src/allowance/spend.ts`. Retune `COUNT` if a machine is much faster or slower.
 
-**What must catch it:** `architect watch --env staging`, after the revision is promoted to staging and traffic replayed, prints
+**What must catch it:** `forman watch --env staging`, after the revision is promoted to staging and traffic replayed, prints
 `allowance.spend p95 <n>ms (budget 150ms) ✘` with `<n>` over 150, and `drift allowance.spend` (Gate 2 check 8). Journeys and `prove` still
-pass: performance is review only. Declarations are untouched, so `architect impact` sees no change.
+pass: performance is review only. Declarations are untouched, so `forman impact` sees no change.

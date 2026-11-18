@@ -1,4 +1,4 @@
-import { Blueprint } from "@architect/blueprint";
+import { Blueprint } from "@formants/forman";
 import { System } from "../thing.ts";
 import { Ok } from "../../../values/identity.ts";
 

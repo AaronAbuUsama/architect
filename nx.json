@@ -43,7 +43,7 @@
   },
   "sync": {
     "globalGenerators": [
-      "@architect/generators:sync"
+      "@formants/generators:sync"
     ]
   }
 }

@@ -2,8 +2,8 @@
 // one from another issuer and an unsigned one.
 //
 // Chosen where D3 is open:
-// - `architect env up logbook --port <n>` runs the logbook worker; it trusts the issuer named by ARCHITECT_OIDC_ISSUER and, in
-//   the token, audience `architect-logbook` and the repository, ref and workflow of ARCHITECT_OIDC_REPOSITORY / _REF / _WORKFLOW.
+// - `forman env up logbook --port <n>` runs the logbook worker; it trusts the issuer named by FORMAN_OIDC_ISSUER and, in
+//   the token, audience `forman-logbook` and the repository, ref and workflow of FORMAN_OIDC_REPOSITORY / _REF / _WORKFLOW.
 // - A verdict is `POST <logbook>/verdicts` with `authorization: Bearer <token>` and a JSON body
 //   `{ revision, environment, operation, verdict }` (`verdict` is `"pass"` or `"fail"`); an accepted one answers 2xx.
 // - `GET <logbook>/verdicts?revision=<rev>` is open and answers a JSON array of what is held, in that same shape.

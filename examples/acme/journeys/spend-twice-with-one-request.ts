@@ -1,5 +1,5 @@
 // Journey-author file. The builder of allowance.spend never edits it (AGENTS.md, "Journeys and checks come first").
-import { Blueprint, emits, expect, noEvents, spans } from "@architect/blueprint";
+import { Blueprint, emits, expect, noEvents, spans } from "@formants/forman";
 import { grantee } from "../blueprint/things/allowance/roles.ts";
 import { AllowanceSpent } from "../blueprint/things/allowance/events.ts";
 import spend from "../blueprint/things/allowance/verbs/spend.ts";

@@ -1,4 +1,4 @@
-import { Blueprint } from "@architect/blueprint";
+import { Blueprint } from "@formants/forman";
 import { Membership } from "./thing.ts";
 
 // The person the membership belongs to.

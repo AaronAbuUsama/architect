@@ -1,4 +1,4 @@
-import { Blueprint } from "@architect/blueprint";
+import { Blueprint } from "@formants/forman";
 import { Invitation } from "./thing.ts";
 import * as Events from "./events.ts";
 

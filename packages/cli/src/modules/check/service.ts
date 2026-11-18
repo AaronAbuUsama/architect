@@ -1,7 +1,7 @@
 import { existsSync, realpathSync } from "node:fs";
 import { resolve } from "node:path";
 import { Effect } from "effect";
-import { Compiler, nodeSource } from "@architect/compiler";
+import { Compiler, nodeSource } from "@formants/compiler";
 import type { CheckApi, Finding } from "./types.ts";
 import { blankLines, blanks } from "./internal/blanks.ts";
 import { textsUnder } from "./internal/files.ts";
@@ -20,7 +20,7 @@ const run: CheckApi["run"] = (at) =>
     const root = existsSync(at) ? realpathSync(at) : resolve(at);
     const left = blanks(textsUnder(root, "blueprint"));
     const model = yield* Compiler.model.pipe(Effect.provide(nodeSource(root)), Effect.option);
-    if (model._tag === "None") return { lines: [...blankLines(left), "model ✘ the blueprint doesn't compile: run architect model"], passed: false };
+    if (model._tag === "None") return { lines: [...blankLines(left), "model ✘ the blueprint doesn't compile: run forman model"], passed: false };
     const typed = yield* Effect.sync(() => types(root));
     const ruled = yield* Effect.sync(() => rules(root, model.value));
     const drifted = yield* Effect.sync(() => drift(root, model.value));

@@ -1,7 +1,7 @@
 // What a promotion publishes (D3 #111): staging the prerelease of the next version, production the release, as each environment's
-// `publish` list in the blueprint says, to the registry in `ARCHITECT_REGISTRY` (Verdaccio, on this machine).
+// `publish` list in the blueprint says, to the registry in `FORMAN_REGISTRY` (Verdaccio, on this machine).
 import { Effect } from "effect";
-import type { Model } from "@architect/compiler";
+import type { Model } from "@formants/compiler";
 import { Publish } from "#modules/publish/service.js";
 import { Releases } from "#modules/releases/service.js";
 import { PromoteFailed } from "../types.ts";
@@ -17,7 +17,7 @@ const failed = (e: { readonly message: string }) => new PromoteFailed({ message:
  */
 export const stagingPrerelease = ({ root, revision, env, say, logbook, model }: Common & { readonly logbook: string; readonly model: Model }) =>
   Effect.gen(function* () {
-    if (Publish.registry(env) === undefined) return yield* say("skipped npm (set ARCHITECT_REGISTRY to a registry on this machine to publish to)");
+    if (Publish.registry(env) === undefined) return yield* say("skipped npm (set FORMAN_REGISTRY to a registry on this machine to publish to)");
     const next = yield* Releases.next(logbook, model).pipe(Effect.mapError(failed));
     const version = yield* Publish.prerelease({ root, env, version: next }).pipe(Effect.mapError(failed));
     yield* Publish.run({ root, sourceRevision: revision, env, environment: "staging", version, mode: "publish", localTap: false, say }).pipe(Effect.mapError(failed));

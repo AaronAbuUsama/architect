@@ -1,6 +1,6 @@
 import { Effect, Layer } from "effect";
 import { SqlClient } from "effect/sql";
-import { Journal, type Entry } from "@architect/target-effect";
+import { Journal, type Entry } from "@formants/language-effect";
 import type { JournalD1Api } from "./types.ts";
 
 interface Row { readonly trace: string; readonly operation: string; readonly move: string; readonly subject: string; readonly event: string; readonly fields: string }

@@ -1,6 +1,6 @@
 // Scaffolded from blueprint/things/run/verbs/stop.ts. Yours from now on.
 import { Effect } from "effect";
-import { Handlers } from "@architect/target-effect";
+import { Handlers } from "@formants/language-effect";
 import type { Handler } from "../../generated/api/src/run/stop.handler.ts";
 
 /** Stop the run. A person's act, or the mission stopping. */

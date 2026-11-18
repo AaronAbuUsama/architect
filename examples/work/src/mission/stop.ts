@@ -1,6 +1,6 @@
 // Scaffolded from blueprint/things/mission/verbs/stop.ts. Yours from now on.
 import { Effect } from "effect";
-import { Handlers } from "@architect/target-effect";
+import { Handlers } from "@formants/language-effect";
 import type { Handler } from "../../generated/api/src/mission/stop.handler.ts";
 
 /** Stop the mission for good. Its runs are stopped with it. */

@@ -1,8 +1,7 @@
 # The builder agent
 
 How the agent that builds a Blueprint app runs, what it is given, and how it reaches the app it is building. A frame,
-17 November 2026, part of [`README.md`](README.md). Today's names are kept where they cite code (`architect`,
-`@architect/agent`); the frame's names (`blueprint`, the builder projection) are where it is going.
+17 November 2026, part of [`README.md`](README.md). Commands are Forman's (`forman`); `@formants/agents` is designed (H1, H2), not built; the builder projection is where it is going.
 
 The short version: one tool layer, used three ways. Its main interface is **code mode**. The agent writes a few lines of
 TypeScript against a typed `bp` object generated from the model, the script runs in a sandbox, and only what it returns
@@ -18,7 +17,7 @@ tools never drift from the app.
 
 | | Interactive | Unattended | In CI |
 |---|---|---|---|
-| Who | Claude Code or Codex on the developer's machine, with a person watching | the harness, `@architect/agent` (H1), on Pi Durable 1.5.0 behind an Effect seam | check 4 today; the benchmark suites (H2) |
+| Who | Claude Code or Codex on the developer's machine, with a person watching | the harness, `@formants/agents` (H1), on Pi Durable 1.5.0 behind an Effect seam | check 4 today; the benchmark suites (H2) |
 | How it reaches the tools | `blueprint mcp`, a stdio MCP server the project's `.mcp.json` names | the same tool layer, in process, as the harness's `Tool`s (H1.5) | the same tool layer, through the `Runner` kinds `sdk`, `pi`, `oracle`, `null` (H2, `H2-agent-runs-and-benchmarks.md:45`) |
 | Where its code runs | the project itself | a throwaway tools-only copy of the project (H1.7) | a copy, with the journeys taken out while it works (`e2e/layer1/04-agent-writes-a-handler.test.ts:68-69`) |
 | Its own shell | yes, governed by the agent's own permission settings | none | none |
@@ -189,7 +188,7 @@ switch, for the `pi` runner on open models. H2's benchmarks then measure which w
 
 ## 5. Our own telemetry tools, not a vendor's MCP
 
-O1 already chose one tool, `architect telemetry trace`, "the one agent surface"
+O1 already chose one tool, `forman telemetry trace`, "the one agent surface"
 (`packages/cli/src/modules/telemetry/README.md`). It allowed PostHog's MCP read-only at most and Axiom's never
 (`O1-observability.md:293-295`). `bp.telemetry` takes that to its end: the builder needs no vendor MCP at all.
 
@@ -212,9 +211,9 @@ summaries cross into the sandbox, and only what the script returns crosses into 
 |---|---|---|
 | What it writes | only the brief's `write` paths | the `write` tool refuses any other path, using `realpath` and case-insensitive matching (check 4's rule, `04-agent-writes-a-handler.test.ts:27-32`); `check`'s forbidden list (`brief/service.ts:3-5`) |
 | What it never reads | journeys, starting worlds, tests, the evals' fixtures | `bp.files` treats them as absent (check 4's `DENIED`, `:18`); unattended, the copy has no journeys in it at all |
-| What it never sees | secret values; private and secret fields | worlds generate their own secrets and the tool layer never holds a value ([`secrets.md`](secrets.md)); fields are cut by visibility, as the generated MCP already does (`target-effect/src/modules/mcp/README.md:9`) |
+| What it never sees | secret values; private and secret fields | worlds generate their own secrets and the tool layer never holds a value ([`secrets.md`](secrets.md)); fields are cut by visibility, as the generated MCP already does (`language-effect/src/modules/mcp/README.md:9`) |
 | Which worlds it may call into | fresh local worlds, made for the script and destroyed after it | `bp.world.start` makes only local worlds; there is no binding that calls a deployed environment |
-| Which telemetry it may read | local and test whole; staging redacted; production never, unattended | `Env` has no `production`; a supervised session reads production through `blueprint watch` like a person |
+| Which telemetry it may read | local and test whole; staging redacted; production never, unattended | `Env` has no `production`; a supervised session reads production through `forman watch` like a person |
 | How much it may spend | turns, dollars and wall clock per run | the harness's limits (H1.7: default $1 a run inside the $10 a day) |
 | Who judges it | not itself | the scorer is a separate, trusted stage (H1.7, H2.7); the builder's own `prove` is a hint, the verdict is CI's |
 
@@ -255,13 +254,13 @@ Eight calls in all, and the agent's context never held a raw trace.
 
 | Piece | Today | Proposed |
 |---|---|---|
-| Brief | `architect brief`, `packages/cli/src/modules/brief/service.ts:19-43` | the same text, also `bp.brief` returning structure |
+| Brief | `forman brief`, `packages/cli/src/modules/brief/service.ts:19-43` | the same text, also `bp.brief` returning structure |
 | Project tools | check 4's four tools, written into the test (`04-agent-writes-a-handler.test.ts:27-56`) | `BuilderTools` in the CLI package; `blueprint mcp`; the harness wraps the same |
 | Agent harness | not on `layer/3`; designed in H1 and H2, steps A0 to A9 (`build-plan.md:159-167`) | the same, with code mode switched on |
 | Code mode | `pi-codemode` named in H1 and "unused at first" (H1 line 69) | the main interface: `run` plus `bp.d.ts` |
-| Telemetry | `TraceSource` (`prove/src/modules/telemetry/types.ts:55`); `architect telemetry trace <id>` (`cli/src/modules/telemetry/README.md`) | `bp.telemetry`: `trace`, `calls`, `refusals`, `defects`, `slow` |
+| Telemetry | `TraceSource` (`prove/src/modules/telemetry/types.ts:55`); `forman telemetry trace <id>` (`cli/src/modules/telemetry/README.md`) | `bp.telemetry`: `trace`, `calls`, `refusals`, `defects`, `slow` |
 | Worlds from a script | prove makes worlds for journeys only | `bp.world.start(startingWorld).as(member).call(...)` |
-| Impact | `architect impact` (`cli/src/main.ts:168`) | `bp.impact`, structured |
+| Impact | `forman impact` (`cli/src/main.ts:168`) | `bp.impact`, structured |
 | Replay through projections | journeys go over raw HTTP (`prove/.../journeys/internal/world.ts:85`) | `prove({ through })`, [`projections.md`](projections.md) |
 | The typed API | none | `generated/builder/bp.d.ts`, from the builder projection |
 

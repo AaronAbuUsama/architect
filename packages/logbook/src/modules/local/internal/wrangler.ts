@@ -12,7 +12,7 @@ export const launch = ({ port, state, policy }: LaunchOptions): Launch => {
   const vars = {
     OIDC_ISSUER: policy.issuer,
     OIDC_JWKS_URL: policy.jwksUrl,
-    OIDC_AUDIENCE: policy.audience ?? "architect-logbook",
+    OIDC_AUDIENCE: policy.audience ?? "forman-logbook",
     ALLOWED_REPOSITORY: policy.repository,
     ALLOWED_REFS: policy.refs.join(","),
     ALLOWED_WORKFLOWS: policy.workflows.join(","),

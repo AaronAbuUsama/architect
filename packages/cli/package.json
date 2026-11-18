@@ -1,22 +1,22 @@
 {
-  "name": "@architect/cli",
+  "name": "@formants/cli",
   "version": "0.0.0",
   "type": "module",
   "dependencies": {
-    "@architect/compiler": "workspace:*",
-    "@architect/generators": "workspace:*",
-    "@architect/lint": "workspace:*",
-    "@architect/prove": "workspace:*",
+    "@formants/compiler": "workspace:*",
+    "@formants/generators": "workspace:*",
+    "@formants/lint": "workspace:*",
+    "@formants/prove": "workspace:*",
     "@effect/platform-node": "4.1.1",
     "effect": "4.1.1",
     "nx": "24.0.3",
     "wrangler": "4.156.1"
   },
   "devDependencies": {
-    "@architect/logbook": "workspace:*"
+    "@formants/logbook": "workspace:*"
   },
   "bin": {
-    "architect": "./src/main.ts"
+    "forman": "./src/main.ts"
   },
   "imports": {
     "#modules/*.js": "./src/modules/*.ts"
@@ -30,7 +30,7 @@
       "#modules/*.js": "./dist/modules/*.js"
     },
     "bin": {
-      "architect": "./dist/main.js"
+      "forman": "./dist/main.js"
     }
   }
 }

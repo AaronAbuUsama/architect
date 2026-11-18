@@ -2,7 +2,7 @@
 // queries through the handler's SqlClient (D1). No wall clock, no Timers: handlers cannot reach Timers before layer 5.
 import { Effect } from "effect";
 import { SqlClient } from "effect/sql";
-import { Ids, Records } from "@architect/target-effect";
+import { Ids, Records } from "@formants/language-effect";
 import type { Handler } from "../../generated/api/src/allowance/grant.handler.ts";
 import { Allowance } from "../../blueprint/things/allowance/thing.ts";
 import { AllowanceLimitTooHigh } from "../../blueprint/things/allowance/errors.ts";

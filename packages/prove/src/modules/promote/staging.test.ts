@@ -5,7 +5,7 @@ import { basename, join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { createHash, randomBytes } from "node:crypto";
 import { Effect } from "effect";
-import { Compiler, nodeSource } from "@architect/compiler";
+import { Compiler, nodeSource } from "@formants/compiler";
 import { Releases } from "#modules/releases/service.js";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { Build } from "#modules/build/service.js";
@@ -15,11 +15,11 @@ import { Publish } from "#modules/publish/service.js";
 
 const repo = resolve(import.meta.dirname, "../../../../..");
 const acme = join(repo, "examples/acme");
-const parent = mkdtempSync(join(realpathSync(tmpdir()), "architect-staging-proof-"));
+const parent = mkdtempSync(join(realpathSync(tmpdir()), "forman-staging-proof-"));
 const root = join(parent, "acme");
 const ports = { logbook: 9123, issuer: 9124, staging: 9125, registry: 9126 };
-const names = [`architect-staging-proof-issuer-${process.pid}`, `architect-staging-proof-registry-${process.pid}`];
-const issuer = `http://127.0.0.1:${ports.issuer}/architect`;
+const names = [`forman-staging-proof-issuer-${process.pid}`, `forman-staging-proof-registry-${process.pid}`];
+const issuer = `http://127.0.0.1:${ports.issuer}/forman`;
 const registry = `http://localhost:${ports.registry}/`;
 const logbook = `http://127.0.0.1:${ports.logbook}`;
 const issuerImage = "ghcr.io/navikt/mock-oauth2-server:6.1.4@sha256:647dd8c78a54f0e6fcd58d79c884e612f8f998a0662276f3e1db22e464a50192";
@@ -33,9 +33,9 @@ const git = (...args: ReadonlyArray<string>) => {
 const commit = (message: string) => { git("add", "-A"); git("commit", "-q", "-m", message); return git("rev-parse", "--short", "HEAD"); };
 const request = (url: string, init?: RequestInit) => fetch(url, { ...init, headers: { ...init?.headers, connection: "close" } });
 const env: Record<string, string | undefined> = {
-  ...process.env, ARCHITECT_OIDC_ISSUER: issuer, ARCHITECT_OIDC_CLIENT: "ci-main", ARCHITECT_OIDC_REPOSITORY: "acme/acme",
-  ARCHITECT_OIDC_REF: "refs/heads/main", ARCHITECT_OIDC_WORKFLOW: "architect", ARCHITECT_LOGBOOK_URL: logbook,
-  ARCHITECT_REGISTRY: registry, NPM_CONFIG_USERCONFIG: join(parent, "npmrc"),
+  ...process.env, FORMAN_OIDC_ISSUER: issuer, FORMAN_OIDC_CLIENT: "ci-main", FORMAN_OIDC_REPOSITORY: "acme/acme",
+  FORMAN_OIDC_REF: "refs/heads/main", FORMAN_OIDC_WORKFLOW: "forman", FORMAN_LOGBOOK_URL: logbook,
+  FORMAN_REGISTRY: registry, NPM_CONFIG_USERCONFIG: join(parent, "npmrc"),
 };
 const ready = async (url: string) => {
   for (let i = 0; i < 300; i++) {
@@ -51,16 +51,16 @@ const versions = async () => {
 };
 
 beforeAll(async () => {
-  for (const part of ["architect.config.ts", "blueprint", "generated", "src", "journeys", "package.json"]) cpSync(join(acme, part), join(root, part), { recursive: true, filter: (p) => !basename(p).startsWith(".") });
+  for (const part of ["forman.config.ts", "blueprint", "generated", "src", "journeys", "package.json"]) cpSync(join(acme, part), join(root, part), { recursive: true, filter: (p) => !basename(p).startsWith(".") });
   mkdirSync(join(root, "node_modules/.bin"), { recursive: true });
   for (const entry of readdirSync(join(acme, "node_modules"))) if (entry !== ".bin") symlinkSync(join(acme, "node_modules", entry), join(root, "node_modules", entry));
   writeFileSync(join(root, "node_modules/.bin/tsc"), `#!/bin/sh\nexec "${join(repo, "node_modules/.bin/tsc")}" "$@"\n`, { mode: 0o755 });
   writeFileSync(join(root, "tsconfig.json"), JSON.stringify({ extends: join(acme, "tsconfig.json"), compilerOptions: { typeRoots: [join(repo, "node_modules/@types"), join(acme, "node_modules")] }, include: ["blueprint/**/*.ts", "generated/**/*.ts", "src/**/*.ts", "journeys/**/*.ts"] }));
-  writeFileSync(join(root, ".gitignore"), "node_modules/\n.architect/\n.wrangler/\n");
+  writeFileSync(join(root, ".gitignore"), "node_modules/\n.forman/\n.wrangler/\n");
   git("init", "-q", "-b", "main");
   commit("the proof candidate");
   const config = join(parent, "issuer.json");
-  writeFileSync(config, JSON.stringify({ interactiveLogin: false, tokenCallbacks: [{ issuerId: "architect", tokenExpiry: 600, requestMappings: [{ requestParam: "client_id", match: "ci-main", claims: { sub: "repo:acme/acme:ref:refs/heads/main", aud: ["architect-logbook"], repository: "acme/acme", ref: "refs/heads/main", workflow: "architect" } }] }] }));
+  writeFileSync(config, JSON.stringify({ interactiveLogin: false, tokenCallbacks: [{ issuerId: "forman", tokenExpiry: 600, requestMappings: [{ requestParam: "client_id", match: "ci-main", claims: { sub: "repo:acme/acme:ref:refs/heads/main", aud: ["forman-logbook"], repository: "acme/acme", ref: "refs/heads/main", workflow: "forman" } }] }] }));
   chmodSync(config, 0o644);
   mkdirSync(join(parent, "registry"));
   chmodSync(join(parent, "registry"), 0o777);
@@ -70,11 +70,11 @@ beforeAll(async () => {
   await ready(`${registry}-/ping`);
   const created = await request(`${registry}-/user/org.couchdb.user:proof`, { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ name: "proof", password: randomBytes(12).toString("hex") }) });
   writeFileSync(env["NPM_CONFIG_USERCONFIG"]!, `//localhost:${ports.registry}/:_authToken=${((await created.json()) as { token: string }).token}\n`, { mode: 0o600 });
-  const built = spawnSync("pnpm", ["nx", "run", "blueprint:build", "--outputStyle=static"], { cwd: repo, encoding: "utf8", env: { ...env, NX_DAEMON: "false" } });
+  const built = spawnSync("pnpm", ["nx", "run", "forman:build", "--outputStyle=static"], { cwd: repo, encoding: "utf8", env: { ...env, NX_DAEMON: "false" } });
   expect(built.status, built.stdout + built.stderr).toBe(0);
-  const published = spawnSync("pnpm", ["publish", "--registry", registry, "--no-git-checks"], { cwd: join(repo, "packages/blueprint"), encoding: "utf8", env });
+  const published = spawnSync("pnpm", ["publish", "--registry", registry, "--no-git-checks"], { cwd: join(repo, "packages/forman"), encoding: "utf8", env });
   expect(published.status, published.stdout + published.stderr).toBe(0);
-  await run(Environments.up({ root, name: "logbook", port: ports.logbook, policy: { issuer, repository: "acme/acme", refs: ["refs/heads/main"], workflows: ["architect"] } }));
+  await run(Environments.up({ root, name: "logbook", port: ports.logbook, policy: { issuer, repository: "acme/acme", refs: ["refs/heads/main"], workflows: ["forman"] } }));
 }, 180_000);
 afterAll(async () => {
   for (const name of ["production", "staging", "logbook"]) await run(Environments.down({ root, name }));
@@ -198,7 +198,7 @@ describe("publication identity", () => {
     const second = await publish(version, sourceRevision);
     expect(second.packages[0]!.dir).not.toBe(first.packages[0]!.dir);
     expect(readFileSync(join(first.packages[0]!.dir, "dist/index.js"), "utf8")).toBe(sdkBytes);
-    const binaryEnv = { ...env, ARCHITECT_REGISTRY: "" };
+    const binaryEnv = { ...env, FORMAN_REGISTRY: "" };
     const a = await publish("4.0.0", sourceRevision, undefined, binaryEnv, "production", true);
     const digest = a.binary!.sha256;
     const formula = readFileSync(a.formula!, "utf8");

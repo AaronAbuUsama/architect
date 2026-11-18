@@ -1,0 +1,7 @@
+$ pnpm nx sync:check
+# commit 2acb59d · 2026-11-17T19:31:01Z · exit 0 (expected 0) · 2.0s
+
+
+ NX   The workspace is up to date
+
+[@formants/generators:sync]: All files are up to date.

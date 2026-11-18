@@ -1,5 +1,5 @@
 // Journey-author file. The builder of api-key.create and organization.create never edits it (AGENTS.md, "Journeys and checks come first").
-import { Blueprint, emits, expect, noEvents, refuses, spans } from "@architect/blueprint";
+import { Blueprint, emits, expect, noEvents, refuses, spans } from "@formants/forman";
 import { owner } from "../blueprint/things/organization/roles.ts";
 import { machine } from "../blueprint/things/organization/machine.ts";
 import { OrganizationCreated } from "../blueprint/things/organization/events.ts";

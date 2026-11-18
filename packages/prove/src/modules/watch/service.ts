@@ -1,6 +1,6 @@
 import { resolve } from "node:path";
 import { Effect } from "effect";
-import { Compiler, nodeSource } from "@architect/compiler";
+import { Compiler, nodeSource } from "@formants/compiler";
 import { Journeys } from "#modules/journeys/service.js";
 import { WatchFailed, type WatchApi } from "./types.ts";
 import { choose } from "./internal/choose.ts";

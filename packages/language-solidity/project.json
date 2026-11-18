@@ -1,0 +1,16 @@
+{
+  "name": "language-solidity",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/language-solidity/src",
+  "projectType": "library",
+  "tags": [
+    "scope:language-solidity",
+    "env:build",
+    "layer:4"
+  ],
+  "targets": {
+    "lint": {},
+    "typecheck": {},
+    "test": {}
+  }
+}

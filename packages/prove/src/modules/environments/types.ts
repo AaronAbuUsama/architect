@@ -24,7 +24,7 @@ export type Status =
 
 export type Up = Extract<Status, { state: "up" }>;
 
-/** What the logbook trusts, from `ARCHITECT_OIDC_*` (D3 #33). `ref` may list several, as a comma-separated allow-list. */
+/** What the logbook trusts, from `FORMAN_OIDC_*` (D3 #33). `ref` may list several, as a comma-separated allow-list. */
 export interface LogbookSetup {
   readonly issuer: string;
   readonly repository: string;
@@ -35,7 +35,7 @@ export interface LogbookSetup {
 export interface EnvironmentsApi {
   /**
    * Start environment `name` on a revision's bundle, building the revision first when it has no artefact. Everything it
-   * keeps is under `.architect/environments/<name>/`: its generated wrangler config, `secrets.env` (mode 0600), its
+   * keeps is under `.forman/environments/<name>/`: its generated wrangler config, `secrets.env` (mode 0600), its
    * `state/`, `pid`, `port` and wrangler's log. An environment already running is left alone, unless a `revision` is
    * asked for that it isn't running: it is then restarted on that bundle with its state kept. `port` defaults to the one
    * it last had, then to any free port. An environment whose blueprint declares a `lifetime` hosts worlds: it gets a
@@ -53,7 +53,7 @@ export interface EnvironmentsApi {
     readonly policy?: LogbookSetup;
     /** The process environment, for the telemetry sinks' tokens (`AXIOM_TOKEN`); only an entry file reads it. */
     readonly env?: Readonly<Record<string, string | undefined>>;
-    /** Where the logbook is, for the portal route an environment serves (`ARCHITECT_LOGBOOK_URL`). Default: the running `logbook` environment, if there is one (D3 #131). */
+    /** Where the logbook is, for the portal route an environment serves (`FORMAN_LOGBOOK_URL`). Default: the running `logbook` environment, if there is one (D3 #131). */
     readonly logbook?: string;
   }) => Effect.Effect<Up, EnvironmentFailed>;
   /** Stop it, and everything it started. An environment that isn't running is not an error. */

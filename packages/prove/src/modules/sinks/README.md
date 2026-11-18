@@ -17,4 +17,4 @@ Everything is read by name, at the moment the world starts, and kept nowhere:
 The keychain is `security find-generic-password -s <name> -w` on macOS and nothing elsewhere. A sink with no token or
 no domain is skipped with one line saying which name was missing, and is never an error, so CI and forks still prove.
 
-Test: `sinks.test.ts`. The live check, `sinks.live.test.ts`, sends for real and runs only with `ARCHITECT_LIVE_AXIOM=1`.
+Test: `sinks.test.ts`. The live check, `sinks.live.test.ts`, sends for real and runs only with `FORMAN_LIVE_AXIOM=1`.

@@ -73,7 +73,7 @@ export const stage = (options: { readonly root: string; readonly env: Env; reado
     const dir = join(options.out, kind);
     yield* Effect.try({ try: () => { rmSync(dir, { recursive: true, force: true }); mkdirSync(join(dir, "dist"), { recursive: true }); }, catch: (e) => new PublishFailed({ message: String(e) }) });
     const entry = kind === "sdk" ? "generated/sdk/src/index.ts" : "generated/cli/src/main.ts";
-    if (!existsSync(join(resolve(root), entry))) return yield* new PublishFailed({ message: `${entry} is missing: run \`architect generate\` first` });
+    if (!existsSync(join(resolve(root), entry))) return yield* new PublishFailed({ message: `${entry} is missing: run \`forman generate\` first` });
     const bundled = yield* bundle({ root, entry, outfile: join(dir, "dist", kind === "sdk" ? "index.js" : "main.js"), format: "esm", platform: kind === "sdk" ? "neutral" : "node", version });
     const dependencies: Record<string, string> = {};
     for (const name of bundled.imports) {

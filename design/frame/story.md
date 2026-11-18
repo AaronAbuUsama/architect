@@ -5,8 +5,8 @@ whole way round, so every other frame document has a place to hang. Where anothe
 to it and moves on.
 
 Names: the framework is **Forman** (command `forman`, npm org `@formants`). **Blueprint** stays the name of what you
-write: the `blueprint/` folder and the `Blueprint.*` API. Package names below are provisional. Today's command is
-`architect` and today's packages are `@architect/*`.
+write: the `blueprint/` folder and the `Blueprint.*` API. The packages are mapped in `decisions/M0-packages.md`; plugin
+packages named below don't exist yet.
 
 ## The example, and why it
 
@@ -52,7 +52,7 @@ projection), so the picture and the code are the same thing seen twice.
 Anything you don't know yet stays a **blank**: `Blueprint.todo("what happens at the month's end")`. A blank is a
 question, not a gap. It is written down, it shows in the model, and it becomes a task.
 
-> **Today.** Blanks exist: `Blueprint.todo` (`packages/blueprint/src/index.ts:35`), found by the compiler
+> **Today.** Blanks exist: `Blueprint.todo` (`packages/forman/src/index.ts:35`), found by the compiler
 > (`compiler/src/modules/model/internal/describe.ts:44-48`). There is no tool that turns a conversation or a diagram
 > into a blueprint. The agent writes the files by hand.
 > **Proposed.** The planning agent writes straight into `blueprint/` through the builder's `bp.write`
