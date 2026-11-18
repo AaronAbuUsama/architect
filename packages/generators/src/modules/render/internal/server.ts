@@ -3,7 +3,7 @@
 import { Names } from "orthograph/server";
 import type { Model, OperationModel } from "@orthograph/compiler";
 import type { RenderedFile } from "../types.ts";
-import { GENERATED, camel, handlerAt, lines, opVar, pascal, thingFileAt } from "./names.ts";
+import { GENERATED, camel, handlerAt, lines, opVar, pascal, thingFileAt, toRoot } from "./names.ts";
 import { renderMigration, renderWrangler } from "./worker-config.ts";
 
 /** The machine's refusal, passed to the wrapper when the operation's move starts from a state (D2 #37). */
@@ -18,6 +18,10 @@ const main = (model: Model, name: string): RenderedFile => {
   const handled = ops.filter((o) => o.kind === "operation");
   const groups = [...new Set(ops.map((o) => o.thing))];
   const things = Object.values(model.things);
+  // Each mount a served operation came from, imported once: its plugin's handlers run under it (Mount.serving).
+  const mounted = [...new Set(handled.flatMap((o) => (o.from ? [o.from.mount] : [])))].filter((m) => model.mounts?.[m]);
+  const mountVar = (mount: string) => `${camel(mount)}Mount`;
+  const served = (o: OperationModel) => (o.from && mounted.includes(o.from.mount) ? `Mount.serving(${mountVar(o.from.mount)}, ${opVar(o)}Handler)` : `${opVar(o)}Handler`);
   const group = (t: string) => {
     const handles = ops
       .filter((o) => o.thing === t)
@@ -44,13 +48,14 @@ const main = (model: Model, name: string): RenderedFile => {
       `import { SqlClient } from "effect/sql";`,
       `import type { Principal } from "${Names.frontDoor}";`,
       `import { AuthD1, Database, JournalD1, StoreD1, Telemetry, toWorld } from "${Names.pkg("host-cloudflare")}";`,
-      `import { Auth, Busy, BusyLive, CallTelemetry, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "${Names.pkg("language-effect")}";`,
+      `import { Auth, Busy, BusyLive, CallTelemetry, Handlers, Journal, ${mounted.length > 0 ? "Mount, " : ""}Principals, Reads, Store, Wire, thingIn } from "${Names.pkg("language-effect")}";`,
       `import { Mcp, type McpResult } from "${Names.pkg("language-effect")}";`,
       `import { Api, Errors } from "../api/src/index.ts";`,
       `import * as portal from "../portal/main.ts";`,
       `import { catalog } from "../mcp/src/index.ts";`,
       ops.map((o) => `import * as ${opVar(o)} from "../api/src/${o.thing}/${o.verb}.ts";`),
       handled.map((o) => `import ${opVar(o)}Handler from "${handlerAt("generated/server/main.ts", o)}";`),
+      mounted.map((m) => `import ${mountVar(m)} from "${toRoot("generated/server/main.ts")}${model.mounts![m]!.file}";`),
       things.map((t) => `import * as ${camel(t.name)}Thing from "${thingFileAt("generated/server/main.ts", t, "thing")}";`),
       "",
       actors ? `export { Actor, World } from "${Names.pkg("host-cloudflare")}";` : `export { World } from "${Names.pkg("host-cloudflare")}";`,
@@ -58,7 +63,7 @@ const main = (model: Model, name: string): RenderedFile => {
       ops.map((o) =>
         o.kind === "read"
           ? `const ${opVar(o)}Served = Reads.serve({ name: "${o.name}", read: ${opVar(o)}.declaration });`
-          : `const ${opVar(o)}Served = Handlers.serve({ name: "${o.name}", operation: ${opVar(o)}.declaration, handler: ${opVar(o)}Handler${notFromOf(model, o)} });`),
+          : `const ${opVar(o)}Served = Handlers.serve({ name: "${o.name}", operation: ${opVar(o)}.declaration, handler: ${served(o)}${notFromOf(model, o)} });`),
       "",
       "/** Each thing and its table: a D1 table, or the name its actors go by. */",
       `const tables = [${things.map((t) => `[thingIn(${camel(t.name)}Thing), "${t.name}"]`).join(", ")}] as const;`,

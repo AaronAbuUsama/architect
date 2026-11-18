@@ -1,0 +1,51 @@
+{
+  "txEffects": {
+    "open": {
+      "noteHashes": 0,
+      "nullifiers": 1,
+      "privateLogs": 0,
+      "publicLogs": 1,
+      "publicDataWrites": 5
+    },
+    "add_member": {
+      "noteHashes": 2,
+      "nullifiers": 2,
+      "privateLogs": 3,
+      "publicLogs": 0,
+      "publicDataWrites": 1
+    },
+    "vote": {
+      "noteHashes": 0,
+      "nullifiers": 2,
+      "privateLogs": 0,
+      "publicLogs": 1,
+      "publicDataWrites": 5
+    }
+  },
+  "publicStorageRawProposal1": {
+    "slot": "0x19d85eb93cdc773ceebf95f44d6135aceea42db777461ac3e29a1bb1249273d3",
+    "words": [
+      "0x0000000000000000000000000000000000000000000000000000000000000001",
+      "0x0000000000000000000000000000000000000000000000000000000000001092",
+      "0x0000000000000000000000000000000000000000000000000000000000000001"
+    ],
+    "note": "packed Proposal {state,digest,yes,no} = 4 consecutive slots from the map slot; first three shown"
+  },
+  "lateDevice": {
+    "sameAddress": true,
+    "beforeAnySyncOrSenderRegistration": {
+      "is_member": true,
+      "has_voted": true
+    },
+    "afterRegisterSender(admin)_noExplicitSync": {
+      "is_member": true,
+      "has_voted": true
+    },
+    "afterExplicitSync": {
+      "is_member": true,
+      "has_voted": true
+    },
+    "syncAndProbeMs": 628
+  },
+  "outsiderAsksHasVoted": "ERROR Assertion failed: Public keys not registered for account AztecAddress { inner: 0x2abd95f381a8bfdb5af"
+}

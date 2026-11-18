@@ -1,0 +1,21 @@
+warning: unused macro definition: `numbers`
+ --> src/lib.rs:4:14
+  |
+4 | macro_rules! numbers { ($m:ident: $($v:ident),*) => { vec![$((stringify!($v), u32::from($m::E::$v))),*] } }
+  |              ^^^^^^^
+  |
+  = note: `#[warn(unused_macros)]` (part of `#[warn(unused)]`) on by default
+v1_positional (declaration order)
+  [("AlreadyVoted", 6000), ("ProposalExists", 6001), ("ProposalNotOpen", 6002), ("NotAllowed", 6003)]
+v2_reordered (first two swapped)
+  [("ProposalExists", 6000), ("AlreadyVoted", 6001), ("ProposalNotOpen", 6002), ("NotAllowed", 6003)]
+v3_inserted_first (new variant at top)
+  [("Brand", 6000), ("AlreadyVoted", 6001), ("ProposalExists", 6002), ("ProposalNotOpen", 6003), ("NotAllowed", 6004)]
+v4_explicit (= 1, 2, 900, 1001; default offset 6000)
+  [("AlreadyVoted", 6001), ("ProposalExists", 6002), ("ProposalNotOpen", 6900), ("NotAllowed", 7001)]
+v5_explicit_reordered + Brand inserted
+  [("NotAllowed", 7001), ("ProposalNotOpen", 6900), ("ProposalExists", 6002), ("Brand", 6007), ("AlreadyVoted", 6001)]
+v6_offset0_explicit (offset = 0)
+  [("AlreadyVoted", 1), ("ProposalExists", 2), ("ProposalNotOpen", 900), ("NotAllowed", 1001)]
+Error::AnchorError code=6900 name=ProposalNotOpen msg=ProposalNotOpen
+.

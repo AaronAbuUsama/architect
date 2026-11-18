@@ -1,0 +1,16 @@
+Action "proposal-vote" failed: Action "proposal-vote" requires human approval. Ask the person to approve this call, then rerun:
+pnpm action proposal-vote '{"proposal":"p1","choice":"maybe","weight":1,"stake":"1"}' --approved
+  packageName: '@opentelemetry/api',
+  code: 'ERR_AGENT_NATIVE_OPTIONAL_PEER',
+  [cause]: Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@opentelemetry/api' imported from /Users/abuusama/projects/architect/.claude/worktrees/suspicious-poincare-218e55/spikes/agent-native-compat/node_modules/.pnpm/@agent-native+core@0.228.2_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.2_@electric_73498d7dfedcc9d71b97cd60d2960c58/node_modules/@agent-native/core/dist/observability/tracing.js
+    code: 'ERR_MODULE_NOT_FOUND'
+  }
+}
+Action "proposal-vote" failed: Invalid action parameters — choice: Expected "yes" | "no" | "abstain". Received: {"proposal":"p1","choice":"maybe","weight":1,"stake":"1"}. Expected: { proposal*: string, choice*: "yes"|"no"|"abstain", note?: string | null, weight*: number | "Infinity"|"-Infinity"|"NaN", stake*: string } (where * = required, ? = optional).
+  packageName: '@opentelemetry/api',
+  code: 'ERR_AGENT_NATIVE_OPTIONAL_PEER',
+  [cause]: Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@opentelemetry/api' imported from /Users/abuusama/projects/architect/.claude/worktrees/suspicious-poincare-218e55/spikes/agent-native-compat/node_modules/.pnpm/@agent-native+core@0.228.2_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.2_@electric_73498d7dfedcc9d71b97cd60d2960c58/node_modules/@agent-native/core/dist/observability/tracing.js
+    code: 'ERR_MODULE_NOT_FOUND'
+  }
+}
+Action "proposal-vote" failed: SdkDown: TypeError: Failed to parse URL from /proposal/vote

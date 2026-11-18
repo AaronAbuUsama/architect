@@ -30,4 +30,6 @@ export interface Folded {
 export interface MountsApi {
   /** Match each mount in the layout to its installed plugin and fold the plugin in. Problems name the mount's file. */
   readonly fold: (layout: Layout) => Effect.Effect<Folded, never, BlueprintSource>;
+  /** Each problem that names a plugin's path, prefixed with the mount file that brought the plugin in. */
+  readonly attributed: (problems: ReadonlyArray<string>, mounts: Readonly<Record<string, MountModel>>) => ReadonlyArray<string>;
 }

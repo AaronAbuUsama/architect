@@ -1,0 +1,22 @@
+== Q3: relayer = fee payer + rent payer, member = second signer (partial signing) ==
+message account keys (signers first): relayer(fee payer), member
+fresh tx:                0:EMPTY 1:EMPTY
+after member signs:      0:EMPTY 1:signed
+relayer can simulate the half-signed tx (sigVerify:false): err=null
+sending half-signed tx fails: Simulation failed. Message: Transaction simulation failed: Transaction did not pass signature verification. Logs: []. Catch the `SendTransactionError` and call  | logs: []
+vote landed. relayer paid 1422880 lamports = 2 sigs x 5000 fee + 1412880 for the new VoteRecord PDA (rent-exempt min for 75 bytes = 1412880); member paid 0.
+(the member's account has no SOL needed: a signer need not hold lamports, and `payer` in our program is the relayer)
+
+== who pays what, when the member is its own fee payer instead ==
+member-as-payer vote: member paid 1417880 lamports (fee 5000 + rent); tx err=null
+
+== blockhash expiry on a pre-signed transaction ==
+pre-signed at block height 47; lastValidBlockHeight=197 (= 150 blocks of validity)
+blockhash became invalid after 20.0s (block height now 199)
+relayer signs and simulates the stale tx: err="BlockhashNotFound" => {"kind":"runtime","summary":"\"BlockhashNotFound\""}
+the admin's signature covers the blockhash, so it cannot be refreshed by the relayer: the signer must sign again.
+
+== durable nonce: a pre-signed tx that does not expire with the blockhash ==
+nonce account rent (80 bytes) = 1447680 lamports; admin pre-signed with nonce 9y9oRqk7...
+after 20s of waiting the durable-nonce tx landed: status=confirmed (first seen as processed, polled until confirmed) err=null
+nonce value after landing: 7VHzVB7u... (was 9y9oRqk7...): advanced=true, so the signed message no longer matches the nonce and cannot land twice

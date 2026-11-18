@@ -9,8 +9,8 @@ what it must settle, what it must not claim, and which words it must not use. Th
 
 ## In numbers
 
-- **626 items**: 515 open, 57 fixed and 54 superseded.
-- **190 of the open items are owned by nothing.** No slice, `later.md` line or milestones "Later" line covers
+- **627 items**: 516 open, 57 fixed and 54 superseded.
+- **191 of the open items are owned by nothing.** No slice, `later.md` line or milestones "Later" line covers
   them. They are in section 1.
 - **60 open items are marked high.** A canon page can't be written correctly until each one is settled.
 - **28 gaps and 43 contradictions** that no file lists as open (section 2).
@@ -79,7 +79,7 @@ also brings five new items, each now owned by a slice: `OPS-14` (M3.16), `PRJ-44
 | 1 | plugins | 14 | 5 | 2 | 3 |
 | 1 | data | 1 | 0 | 0 | 1 |
 | 1 | doors | 3 | 1 | 1 | 1 |
-| 2 | things | 5 | 2 | 0 | 0 |
+| 2 | things | 6 | 3 | 0 | 0 |
 | 2 | machines | 6 | 3 | 1 | 1 |
 | 2 | operations | 13 | 7 | 1 | 1 |
 | 2 | roles | 11 | 3 | 2 | 3 |
@@ -162,6 +162,7 @@ slice, a decision, or a line saying it is dropped. Grouped by canon page, in the
 |---|---|---|---|
 | `THI-02` | A value whose type is a free `schema` shows "detail not projected" in the model and docs because no JSON-schema projection exists, and no slice builds one. | design/decisions/F1-frontend.md:355<br>design/decisions/F2-portal-ia.md:32 | open |
 | `THI-03` | An array value (a question's options) has no length bound. | design/decisions/F5-work-blueprint.md:72 | open |
+| `THI-06` | A value can't say a smallest allowed number: `Blueprint.uint` takes only a bit width. So in the tickets example a claim with `seats: 0` passes, and the handler issues a ticket for no seats. Open: a minimum on values, or a declared refusal with journeys that prove it. | examples/tickets/blueprint/things/event/verbs/claim.ts:10 (branch claude/docs-canon-cf2c38 at 5c84827)<br>examples/tickets/blueprint/values/counts.ts:4 (branch claude/docs-canon-cf2c38 at 5c84827)<br>examples/tickets/src/event/claim.ts:19,25 (branch claude/docs-canon-cf2c38 at 5c84827)<br>packages/orthograph/src/modules/values/types.ts:30 | open |
 
 ### machines
 
@@ -650,14 +651,14 @@ they are closed. The unowned items for each page are in section 1, not repeated 
 
 | id | item | source | status | slice |
 |---|---|---|---|---|
-| `PLU-01` | Plugins and mounts, adapters and calls out as steps, `Blueprint.kit`-style provenance, namespaces, collision checks, impact edges and wrappers are not built anywhere, and nothing calls out to another system or receives a webhook. **(high)** | design/milestones.md:28<br>spikes/kit-package-exports/README.md:56<br>design/frame/delta.md:53 | partly fixed: mounts and provenance (`from`) built in M1.06; collisions and impact edges M1.08, adapters and calls M1.14, webhooks M5.03 | M1.06, M1.14, M5.03 |
+| `PLU-01` | Plugins and mounts, adapters and calls out as steps, `Blueprint.kit`-style provenance, namespaces, collision checks, impact edges and wrappers are not built anywhere, and nothing calls out to another system or receives a webhook. **(high)** | design/milestones.md:28<br>spikes/kit-package-exports/README.md:56<br>design/frame/delta.md:53 | partly fixed: mounts and provenance (`from`) built in M1.06; collisions and impact edges M1.08, adapters and calls M1.14, webhooks M5.03 | M1.06, M1.14, M5.03 **Now:** partly fixed: mounts and provenance (M1.06), collisions, needs and impact edges (M1.08) built; adapters and calls M1.14, webhooks M5.03 |
 | `PLU-02` | The plugin descriptor decisions are still open: choices against settings, `Blueprint.need(x, { when })`, runtime entries per host, and how aliases, error-class names and schema-affecting choices behave. **(high)** | design/milestones.md:92<br>spikes/kit-package-exports/README.md:60 | closed (decisions/M1-plugins.md, sections 2 to 6) | M1.01 |
 | `PLU-03` | A mount may narrow or omit an operation but never widen it. | design/decisions/K1-kits.md:905<br>design/milestones.md:98 | fixed: `narrow` only removes ways in and there is no widening verb; an empty `via` is refused (M1.07) | M1.07 |
 | `PLU-04` | A plugin's own loop is least specified: `forman new feature` should write a placeholder operation, a journey and an example app that pass, each plugin ships its compiled model and verdict digest, CI publishes only a green revision, and every feature journey also runs in each app's worlds. | design/frame/writing-a-feature.md:21<br>design/frame/writing-a-feature.md:498<br>design/frame/writing-a-feature.md:562<br>design/milestones.md:143<br>design/milestones.md:373 | open | M2.10 |
 | `PLU-05` | Codex's unmerged `layer/4` work (D4 and the six author checks `00` to `06`) is to be harvested into M1 under the new words, and until M1.02 ports the checks they stay unmerged and red. | design/decisions/K2-forman-frame.md:5<br>design/frame/delta.md:18<br>design/frame/questions.md:169<br>design/milestones.md:26<br>design/goals/02-m0-land-and-rename.md:31 | open; **M1-plugins:** D4 sections 1 to 3 harvested; checks ported by M1.02 | M1.02 |
 | `PLU-06` | Generated code and projects may import a plugin's declaration and runtime entries only through the right entry, which needs an explicit rule change and a lint or bundle check, since an export map alone doesn't stop the wrong import; no later record says the lint exists. | design/decisions.md:87<br>spikes/kit-package-exports/README.md:50<br>spikes/kit-package-exports/README.md:59<br>design/milestones.md:100 | open | M1.09 |
 | `PLU-07` | M7.10 must map which Capxul plugins exist, which are new, and which are Capxul's own. | design/milestones.md:290 | open | M7.10 |
-| `PLU-08` | Mounting one plugin twice prefixes its names with the mount name, a name clash fails `check` naming both files, and error codes are prefixed per mount; none of it is built. | design/decisions/K1-kits.md:885<br>design/frame/mounting.md:170<br>design/milestones.md:97 | partly fixed: a mount under another name prefixes its things, and a second mount of one plugin is refused naming both files (M1.06); clashes in `check` M1.08; per-mount error names wait in later.md | M1.06, M1.08 |
+| `PLU-08` | Mounting one plugin twice prefixes its names with the mount name, a name clash fails `check` naming both files, and error codes are prefixed per mount; none of it is built. | design/decisions/K1-kits.md:885<br>design/frame/mounting.md:170<br>design/milestones.md:97 | partly fixed: a mount under another name prefixes its things, and a second mount of one plugin is refused naming both files (M1.06); clashes in `check` M1.08; per-mount error names wait in later.md | M1.06, M1.08 **Now:** partly fixed: a mount under another name prefixes its things, a second mount of one plugin is refused naming both files (M1.06), and every clash fails `check` naming both sides (M1.08); per-mount error names wait in later.md |
 | `PLU-09` | Plugin authors get extra checks: no blanks in a published plugin, a stand-in for every adapter-like piece on each host, and no runtime code in the declaration entry's imports. | design/decisions/K1-kits.md:593<br>design/decisions/K1-kits.md:926<br>design/milestones.md:100<br>design/milestones.md:143 | open | M1.09, M2.10 |
 
 <details><summary>Closed: 3 fixed or superseded</summary>

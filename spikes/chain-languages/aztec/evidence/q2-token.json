@@ -1,0 +1,14 @@
+{
+  "publicBalanceAlice": "95",
+  "publicBalanceIssuer": "5",
+  "totalSupply": "140",
+  "admin": "15490771544287314938566273333641770491547253213310198513888697970565567885902",
+  "privateBalanceAliceAsReader": "0",
+  "privateBalanceAliceAsAlice": "40",
+  "privateBalanceAliceAsIssuerPxe": "0",
+  "publicTransferEventsSeenByOutsider": 0,
+  "refusalFromTokenAsSeen": {
+    "name": "SimulationError",
+    "message": "Assertion failed: attempt to subtract with overflow 'self - other'"
+  }
+}

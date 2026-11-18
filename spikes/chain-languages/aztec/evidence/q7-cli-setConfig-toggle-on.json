@@ -1,0 +1,53 @@
+{
+  "mode": "on",
+  "setConfigMs": 7,
+  "realProofsFlag": true,
+  "results": [
+    {
+      "proveMs": 5644,
+      "provingMs": 4461.720165999999,
+      "proofBytes": 112292,
+      "label": "honest proof",
+      "accepted": true,
+      "sendTxMs": 118,
+      "totalMs": 2883,
+      "executionResult": "success",
+      "block": 12,
+      "tallyAfter": "1 yes / 0 no"
+    },
+    {
+      "label": "proof bytes flipped (4 bytes at offset 4000)",
+      "accepted": true,
+      "sendTxMs": 67,
+      "totalMs": 2827,
+      "executionResult": "success",
+      "block": 13,
+      "tallyAfter": "2 yes / 0 no"
+    },
+    {
+      "label": "empty proof (ChonkProof.empty, what a mock-proof PXE emits)",
+      "accepted": true,
+      "sendTxMs": 49,
+      "totalMs": 2494,
+      "executionResult": "success",
+      "block": 14,
+      "tallyAfter": "3 yes / 0 no"
+    },
+    {
+      "label": "random proof bytes (ChonkProof.random)",
+      "accepted": true,
+      "sendTxMs": 50,
+      "totalMs": 2798,
+      "executionResult": "success",
+      "block": 15,
+      "tallyAfter": "4 yes / 0 no"
+    },
+    {
+      "label": "public calldata edited (choice yes->no), proof untouched",
+      "accepted": false,
+      "sendTxMs": 60,
+      "error": "Invalid tx: Incorrect calldata for public call",
+      "tallyAfter": "4 yes / 0 no"
+    }
+  ]
+}

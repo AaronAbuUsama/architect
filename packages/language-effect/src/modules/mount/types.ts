@@ -10,4 +10,6 @@ export interface MountApi {
   readonly picked: (option: Option) => Effect.Effect<boolean>;
   /** Run a plugin's handler under its app's mount: the generated server does this for each plugin operation. */
   readonly under: (mount: Pick<MountOf, "verbs">) => <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R>;
+  /** A plugin's handler, every call of it run under `mount`: what the generated server serves for a plugin operation. */
+  readonly serving: <P extends ReadonlyArray<unknown>, A, E, R>(mount: Pick<MountOf, "verbs">, handler: (...args: P) => Effect.Effect<A, E, R>) => (...args: P) => Effect.Effect<A, E, R>;
 }

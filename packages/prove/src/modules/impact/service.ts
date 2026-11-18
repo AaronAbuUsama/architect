@@ -24,7 +24,9 @@ const of: ImpactApi["of"] = (root, model) =>
     const ops = Object.keys(model.operations);
     const proven = ledger?.proven ?? {};
     const stale = Object.keys(proven).filter((op) => op in model.operations && !holds(model, proven[op]!));
+    const edges = Compare.edges(model);
     return {
+      ...(edges.length > 0 ? { edges } : {}),
       changes: ledger ? Compare.models(ledger.model, model) : [],
       stale,
       proven: ops.filter((op) => op in proven && !stale.includes(op)),
@@ -55,14 +57,13 @@ const shippedLines = (impact: Impacted, shipped: Shipped): ReadonlyArray<string>
   ];
 };
 
-const lines: ImpactApi["lines"] = (impact, shipped) =>
-  shipped
+const lines: ImpactApi["lines"] = (impact, shipped) => [...(impact.edges ?? []), ...(shipped
     ? shippedLines(impact, shipped)
     : [
         ...impact.changes.map((c) => `${c.change} ${c.kind} ${c.name}${c.parts.length ? `: ${c.parts.join(", ")}` : ""}`),
         `stale ${list(impact.stale)}`,
         `proven ${list(impact.proven)}`,
         ...(impact.unproven.length > 0 ? [`unproven ${list(impact.unproven)}`] : []),
-      ];
+      ])];
 
 export const Impact: ImpactApi = { record, of, lines };

@@ -271,7 +271,8 @@ export const react = Blueprint.projection({
 });
 ```
 
-- **Today:** nothing. F1 says customer UIs are consumers of the SDK.
+- **Today:** nothing. F1 says customer UIs are consumers of the SDK. Built in ST1.01, ST1.06 and ST2.03
+  ([`../decisions/K9-growing-example.md`](../decisions/K9-growing-example.md)).
 - **Scope:** it renders hooks, not screens. Screens are the app's own code in `src/`, scaffolded once if asked.
 - **Replay:** a headless browser runs a tiny harness page that calls the hook. The browser signer of wallets is proved
   here, which is how risk 3 in `spikes/kits-dx/README.md` is closed.

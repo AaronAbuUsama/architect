@@ -1,0 +1,100 @@
+[
+  {
+    "label": "A mined",
+    "tips": {
+      "proposed": 214,
+      "checkpointed": 214,
+      "proven": 214,
+      "finalized": 182
+    },
+    "events": [
+      {
+        "proposal": "1",
+        "block": 214
+      }
+    ],
+    "tx": {
+      "status": "proven",
+      "block": 214
+    }
+  },
+  {
+    "rollbackTo": 209,
+    "accepted": true
+  },
+  {
+    "label": "+1s after rollbackTo(209)",
+    "tips": {
+      "proposed": 209,
+      "checkpointed": 209,
+      "proven": 209,
+      "finalized": 182
+    },
+    "events": [],
+    "tx": {
+      "status": "dropped",
+      "block": null
+    }
+  },
+  {
+    "label": "+5s after rollbackTo(209)",
+    "tips": {
+      "proposed": 210,
+      "checkpointed": 209,
+      "proven": 209,
+      "finalized": 182
+    },
+    "events": [],
+    "tx": {
+      "status": "dropped",
+      "block": null
+    }
+  },
+  {
+    "label": "+15s after rollbackTo(209)",
+    "tips": {
+      "proposed": 209,
+      "checkpointed": 209,
+      "proven": 209,
+      "finalized": 182
+    },
+    "events": [],
+    "tx": {
+      "status": "dropped",
+      "block": null
+    }
+  },
+  {
+    "label": "+30s after rollbackTo(209)",
+    "tips": {
+      "proposed": 209,
+      "checkpointed": 209,
+      "proven": 209,
+      "finalized": 182
+    },
+    "events": [],
+    "tx": {
+      "status": "dropped",
+      "block": null
+    }
+  },
+  {
+    "poke": "failed",
+    "ms": 1091,
+    "error": "Contract 0xa0140916276d3b7d4dd57f6af3b7d7989ce68836061347b15a6f1d8e29f5f18 is not deployed"
+  },
+  {
+    "label": "after poke",
+    "tips": {
+      "proposed": 209,
+      "checkpointed": 209,
+      "proven": 209,
+      "finalized": 182
+    },
+    "events": [],
+    "tx": {
+      "status": "dropped",
+      "block": null
+    }
+  }
+]

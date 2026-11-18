@@ -1,0 +1,32 @@
+== 1. start time: spawn -> first eth_chainId answer (ms), 10 cold starts
+anvil start ms: {"min":154,"median":156,"max":188,"n":10}
+forge build --force (7 contracts + OZ, solc cached) ms: 1068
+
+== 2. instant mining (default): one block per tx
+send->receipt ms, 20 txs: {"latency":{"min":10,"median":27,"max":32,"n":20},"blocksForTxs":20}
+
+== 3. --block-time 1: txs wait for the next tick; empty blocks are mined too
+blocks mined in 3.3s with no txs: 3
+send->receipt ms, 6 txs: {"latency":{"min":965,"median":1004,"max":1042,"n":6},"blocksForTxs":6}
+
+== 4. manual mining: automine off, the test drives the clock
+tx sent, 300ms later receipt: none (pending)
+txpool_status: {"pending":"0x1","queued":"0x0"}
+after evm_mine: success
+
+== 5. time: wall clock vs the world's clock
+block 0 timestamp - wall clock (s): -1
+two blocks 2.1s apart differ by (s): 2
+evm_increaseTime(+3600) then mine, no interval set: jump (s): 3600
+with anvil_setBlockTimestampInterval(12): blocks 1.2s apart differ by (s): time moves only when the world moves it: 12
+evm_increaseTime(+1 day) then mine WHILE the fixed interval is set: total jump since last (s); 12 + 12 means increaseTime was ignored: 24
+
+== 6. reset speed: evm_snapshot / evm_revert vs a fresh process
+evm_revert after 20 txs ms: 0.7
+anvil_dumpState ms / bytes: [5.5,14488]
+
+== 7. what is real
+anvil_nodeInfo: {"currentBlockNumber":"0x0","currentBlockTimestamp":1795024918,"currentBlockHash":"0x3e37c589dc25d9cf02e734e1a91cd762f3aaadd80e3f3463d8635a310a2fbbb0","hardFork":"Bpo1","transactionOrder":"fees","environment":{"baseFee":"0x3b9aca00","chainId":31337,"gasLimit":"0x1c9c380","gasPrice":"0x77359400"},"forkConfig":{"forkUrl":null,"forkBlockNumber":null,"forkRetryBackoff":null},"network":"ethereum"}
+chainId: 31337
+accounts / balance of #0 (ETH): [10,10000]
+net_listening / eth_syncing / txpool: [true,false,{"pending":"0x0","queued":"0x0"}]

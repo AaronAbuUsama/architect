@@ -178,7 +178,7 @@ describe("model", () => {
       edit(root, "things/organization/thing.ts", (t) => t.replace('  description: "A company', '  code: "AL",\n  description: "A company'));
       const exit = await modelOf(root);
       expect(Exit.isFailure(exit)).toBe(true);
-      expect(JSON.stringify(exit)).toMatch(/organization and allowance would both have refusal codes starting AL-|allowance and organization would both/);
+      expect(JSON.stringify(exit)).toMatch(/organization and allowance \(blueprint\/things\/allowance\/thing\.ts\) would both have refusal codes starting AL-/);
     });
 
     it("defaults `runs` to server and `test` to unit, and refuses every other place, naming the target that would run it", async () => {

@@ -111,7 +111,7 @@ A mount is one file. Its name is the file's name. It is the only thing a plugin 
 import { Blueprint } from "orthograph";
 import echo from "@fixture/echo";
 
-export default Blueprint.use(echo, (echo) => [echo.choose(echo.choices.style.plain)]);
+export default Blueprint.use(echo, (p) => [p.choose(p.choices.style.plain)]);
 ```
 
 `Blueprint.use(plugin, verbs)` returns a frozen mount (`kind: "mount"`). The callback receives a view of the plugin
@@ -146,7 +146,9 @@ is changed to omit and via).
   `generated/api/src/fixture-echo/repeat.ts`, `generated/sdk/src/fixture-echo/repeat.ts`, `Sdk.fixtureEcho.repeat`,
   HTTP `POST /fixture-echo/repeat`, MCP tool `fixture-echo.repeat`, span `fixture-echo.repeat`, identifier `FixtureEcho`.
 - Refusal codes use the thing's prefix as for an app's things (`code` on the thing, else two letters of its final
-  name). Error class names keep their export names: two mounts can't be told apart by them, so one plugin is mounted
+  name). Their numbers follow declaration order in `errors`, as for an app's things (D3 #193: a code is never
+  silently renumbered), so two errors declared the other way round swap numbers: reordering a released plugin's errors is
+  a code change, a major bump. Names, identifiers and tags never depend on order. (Decided in M1.08.) Error class names keep their export names: two mounts can't be told apart by them, so one plugin is mounted
   **once** in M1. A second mount of the same descriptor is refused, naming both files. Mounting one plugin twice waits
   for per-mount error names, recorded in `later.md`.
 - Nothing about a plugin is written as a string by the app: the mount imports the package; names come from paths.
@@ -286,6 +288,7 @@ $ ortho add feature @fixture/echo
 wrote blueprint/features/echo.ts
 pinned @fixture/echo 1.0.0 (local: no registry release to age)
 needs none
+next ortho generate, then ortho check
 ```
 
 - Arguments: `<package> [--as <name>] [--dry-run]`. `--dry-run` prints `would write …` and writes nothing.
@@ -295,11 +298,21 @@ needs none
 - R1, three days: when the package came from a registry, its version's publish time is read from that registry and a
   version under three days old is refused unless the package is named in the project's `minimumReleaseAgeExclude`
   (pnpm's own override, with its reason). A package from no registry (a local tarball or link) says so and is pinned.
-- It writes the mount with each choice's first option picked, and refuses to overwrite an existing mount
+- It writes the mount with each choice's first option picked (`p.choose(p.choices.style.plain)`, the callback's
+  parameter `p` so it never shadows the import), and refuses to overwrite an existing mount
   (`blueprint/features/echo.ts already exists`), leaving it byte for byte.
-- It is one command: after it, `ortho generate`, `ortho check` and `ortho prove` work with no other step.
+- It is one command: after it, `ortho generate`, `ortho check` and `ortho prove` work with no other step. Its last line
+  says to generate first, because `check` holds `generated/` to the blueprint (section 12).
+- Each need is listed at the first picks: `needs @x/auth: met by blueprint/features/auth.ts`, or
+  `needs @x/auth: not mounted: ortho add feature @x/auth`. Nothing is mounted for it.
+- Whether a release came from a registry is read from the project's `pnpm-lock.yaml` (an `integrity` with no `tarball`
+  or `directory`); its publish time from `npm_config_registry`, else npm's registry.
 
 ## 12. What `check` refuses, each naming its files
+
+`check` keeps its drift rule after a mount is written by hand: `generated/` must be what the blueprint gives, so a
+hand-made mount is followed by `ortho generate` before `ortho check` passes (`ortho add` says so in its next steps).
+A problem found in a plugin's own files names its package path and is prefixed with the mount file that brought it in.
 
 Two things with one name (app and plugin, or two plugins); two refusals with one name; two things with one code
 prefix; a plugin thing using `AR`, reserved for the runtime; one descriptor mounted twice; a mount name that isn't

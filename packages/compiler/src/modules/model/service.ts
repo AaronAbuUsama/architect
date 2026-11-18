@@ -25,7 +25,7 @@ export const Compiler: CompilerApi = {
     for (const t of layout.things.values()) for (const [name, cls] of t.errors) ErrorNames.name(cls, name);
     for (const t of layout.things.values()) for (const [name, event] of t.events) EventNames.name(event, name);
     const { model, problems } = describe(layout);
-    if (problems.length > 0) return yield* new BlueprintInvalid({ problems });
+    if (problems.length > 0) return yield* new BlueprintInvalid({ problems: Mounts.attributed(problems, folded.mounts) });
     return Object.keys(folded.mounts).length > 0 ? { ...narrowed(model, folded.mounts), mounts: folded.mounts } : model;
   }),
 };

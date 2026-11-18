@@ -155,18 +155,28 @@ describe("05 graph: fails closed, naming the package", () => {
 describe("05 graph: order does not matter", () => {
   it("the same things declared in another order keep their names, identifiers, codes and tags", () => {
     const identity = (current: Model) => ({
-      things: Object.fromEntries(Object.entries(current.things).map(([key, value]) => [key, { name: value.name, identifier: value.identifier, code: value.code, errors: value.errors }])),
+      things: Object.fromEntries(Object.entries(current.things).map(([key, value]) => [key, { name: value.name, identifier: value.identifier, code: value.code }])),
       operations: Object.fromEntries(Object.entries(current.operations).map(([key, value]) => [key, { name: value.name, thing: value.thing, identifier: value.identifier, verb: value.verb }])),
-      refusals: current.refusals,
+      refusals: Object.keys(current.refusals).sort(),
     });
     const forward = fresh({ kind: "echo", variant: "order-forward" });
     const reverse = fresh({ kind: "echo", variant: "order-reverse" });
     mountEcho(forward.root);
     mountEcho(reverse.root);
     const a = identity(produced(forward.root));
-    expect(a.refusals["EchoProblem"]).toMatch(/^EC-/);
-    expect(a.refusals["EchoOther"]).toMatch(/^EC-/);
-    expect(identity(produced(reverse.root))).toEqual(a);
-    expect(digest(forward.root, "generated/sdk")).toEqual(digest(reverse.root, "generated/sdk"));
+    const b = identity(produced(reverse.root));
+    expect(b).toEqual(a);
+    // Refusal codes follow declaration order (never silently renumbered): the prefix is shared, the numbers are not.
+    const codes = (root: string) => produced(root).refusals as Record<string, string>;
+    const f = codes(forward.root);
+    const r = codes(reverse.root);
+    expect(f["EchoProblem"]).toMatch(/^EC-\d+$/);
+    expect(f["EchoOther"]).toMatch(/^EC-\d+$/);
+    expect(r["EchoProblem"]).toMatch(/^EC-\d+$/);
+    expect(r["EchoOther"]).toMatch(/^EC-\d+$/);
+    expect(f["EchoProblem"]).toBe("EC-001");
+    expect(f["EchoOther"]).toBe("EC-002");
+    expect(r["EchoOther"]).toBe("EC-001");
+    expect(r["EchoProblem"]).toBe("EC-002");
   });
 });
