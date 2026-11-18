@@ -1,23 +1,15 @@
 // The model: every declaration in the blueprint, named, described and hashed. Generators and evals read only this.
 import { Data, type Effect } from "effect";
 import type { BlueprintSource, SourceError } from "#modules/source/types.js";
+import type { ValueMeta } from "orthograph";
 import type { MountModel } from "#modules/mounts/types.js";
 
-export type { MountModel };
+export type { MountModel, ValueMeta };
 
-/** Where a plugin's thing or operation came from: its mount, package and version, and the plugin's own name for the thing. */
-export interface FromModel {
-  readonly mount: string;
-  readonly package: string;
-  readonly version: string;
-  readonly thing: string;
-}
-
-export type ValueMeta =
-  | { readonly type: "id"; readonly prefix: string }
-  | { readonly type: "uint"; readonly bits: number }
-  | { readonly type: "text"; readonly max: number }
-  | { readonly type: "schema" };
+/** A declaration belongs to the app or to a mount, with its original name inside that plugin. */
+export type FromModel =
+  | { readonly kind: "app" }
+  | { readonly kind: "feature" | "adapter"; readonly mount: string; readonly package: string; readonly version: string; readonly thing: string };
 
 /** Who may see a field's value, when it is not everyone: `secret`, or private to some roles (`thing.role`). Public is absent. */
 export type VisibilityModel = "secret" | { readonly private: ReadonlyArray<string> };
@@ -55,8 +47,8 @@ export interface ThingModel {
   /** Each with its code, which never moves once released. */
   readonly errors: Readonly<Record<string, { readonly fields: FieldsModel; readonly exit: number; readonly code: string }>>;
   readonly roles: ReadonlyArray<string>;
-  /** Present only for a plugin's thing. */
-  readonly from?: FromModel;
+  readonly roleRules: Readonly<Record<string, string | null>>;
+  readonly from: FromModel;
   readonly hash: string;
 }
 
@@ -91,8 +83,9 @@ export interface OperationModel {
   readonly budget: { readonly p95Ms: number } | null;
   /** A list read: what it filters by, its order and its page size. Present only for lists. */
   readonly list?: { readonly where: ReadonlyArray<string>; readonly order: string; readonly page: number };
-  /** Present only for a plugin's operation; its `file` is then a package specifier. */
-  readonly from?: FromModel;
+  /** A plugin operation’s `file` is a package specifier. */
+  readonly from: FromModel;
+  readonly blanks?: ReadonlyArray<string>;
   /** The ways in a mount left it, when the mount narrowed it. */
   readonly via?: ReadonlyArray<string>;
   readonly hash: string;
@@ -126,15 +119,49 @@ export interface EnvironmentModel {
   readonly hash: string;
 }
 
+export interface JourneyCallModel {
+  readonly actor: string;
+  readonly operation: string;
+  readonly payload: Readonly<Record<string, unknown>>;
+  readonly request?: string;
+}
+
+export interface JourneyModel {
+  readonly file: string;
+  readonly name: string;
+  readonly cast: Readonly<Record<string, AllowedModel>>;
+  readonly starts: string | null;
+  readonly steps: ReadonlyArray<{ readonly title: string } & (
+    | { readonly call: JourneyCallModel; readonly checks: ReadonlyArray<{ readonly kind: string }> }
+    | { readonly skipped: string }
+  )>;
+}
+
+export interface StartingWorldModel {
+  readonly name: string;
+  readonly file: string;
+  readonly from: string | null;
+  readonly cast: Readonly<Record<string, AllowedModel>>;
+  readonly makes: ReadonlyArray<JourneyCallModel | null>;
+  readonly gives: unknown;
+}
+
+export type BlankOperationModel = Pick<OperationModel, "kind" | "name" | "thing" | "verb" | "file" | "from">
+  & { readonly description?: string; readonly blanks: ReadonlyArray<string> };
+
 export interface Model {
   /** Every refusal in the project and its code: declared errors, each machine's, and the runtime's (`NotAllowed`). */
   readonly refusals: Readonly<Record<string, string>>;
   readonly values: Readonly<Record<string, ValueMeta>>;
   readonly things: Readonly<Record<string, ThingModel>>;
   readonly operations: Readonly<Record<string, OperationModel>>;
+  readonly journeys: Readonly<Record<string, JourneyModel>>;
+  readonly startingWorlds: Readonly<Record<string, StartingWorldModel>>;
+  /** Incomplete operations are described here and have no generated entry points. */
+  readonly blankOperations?: Readonly<Record<string, BlankOperationModel>>;
   /**
    * What is still `Blueprint.todo`, by declaration (`allowance`, `allowance.spend`): present only when something is.
-   * An operation with a blank is left out of `operations`, so nothing is generated for it until it is filled.
+   * An incomplete operation is described under `blankOperations` until its blanks are filled.
    */
   readonly blanks?: Readonly<Record<string, ReadonlyArray<string>>>;
   /** Where the application runs, by name: present only when the blueprint has an `environments/` folder. */

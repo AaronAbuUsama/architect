@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 import { BlueprintSource, type PluginPackage } from "#modules/source/types.js";
-import { readLayout, type ThingFiles } from "#modules/model/internal/layout.js";
+import { readLayout, type Layout, type ThingFiles } from "#modules/model/internal/layout.js";
 import { hashOf } from "#modules/model/internal/hash.js";
 import type { MountModel, MountsApi } from "./types.ts";
 import { chosenOf, choicesIn } from "./internal/choices.ts";
@@ -34,12 +34,13 @@ const match = (layout: Parameters<MountsApi["fold"]>[0], plugins: ReadonlyArray<
 
 export const Mounts: MountsApi = {
   fold: (layout) => Effect.gen(function* () {
-    if (layout.mounts.size === 0) return { things: new Map(), mounts: {}, problems: [] };
+    if (layout.mounts.size === 0) return { things: new Map(), journeys: new Map(), mounts: {}, problems: [] };
     const source = yield* BlueprintSource;
     const problems: Array<string> = [];
     const plugins = yield* source.plugins.pipe(Effect.catch((e) => Effect.sync(() => { problems.push(e.message); return [] as ReadonlyArray<PluginPackage>; })));
     const matched = match(layout, plugins, problems);
     const things = new Map<string, ThingFiles>();
+    const journeys: Layout["journeys"] = new Map();
     const brought = new Map<string, Matched>();
     const mounts: Record<string, MountModel> = {};
 
@@ -51,8 +52,9 @@ export const Mounts: MountsApi = {
       if (files._tag === "Failure") { problems.push(`${file}: ${files.failure.message}`); continue; }
       let verbs: Pick<MountModel, "omitted" | "narrowed"> = {};
       if (me.kind === "feature") {
-        const own = readLayout(files.success.files.filter((f) => f.path.startsWith("things/")), (path) => `${plugin.name}/blueprint/${path}`);
+        const own = readLayout(files.success.files.filter((f) => f.path.startsWith("things/") || f.path.startsWith("journeys/")), (path) => `${plugin.name}/blueprint/${path}`);
         problems.push(...own.problems);
+        for (const [path, journey] of own.journeys) journeys.set(path, journey);
         // Each thing gets its own verbs map, so an omit changes only this mount's copy.
         const mine = renamed(own, name, plugin.name, plugin.version).map((t) => ({ ...t, verbs: new Map(t.verbs) }));
         const applied = applyVerbs(file, plugin.name, mount, mine, layout);
@@ -71,7 +73,7 @@ export const Mounts: MountsApi = {
       const entry = { kind: me.kind as MountModel["kind"], file, package: plugin.name, version: plugin.version, integrity: files.success.integrity, chosen, ...verbs, ...(needs.needs.length > 0 ? { needs: needs.needs } : {}) };
       mounts[name] = { ...entry, hash: hashOf({ ...entry, file: undefined }) };
     }
-    return { things, mounts, problems };
+    return { things, journeys, mounts, problems };
   }),
   attributed,
 };

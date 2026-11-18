@@ -6,7 +6,7 @@ import { packageDir, type Model } from "@orthograph/compiler";
 
 export const missingHandlers = (absoluteRoot: string, model: Model): ReadonlyArray<string> =>
   Object.values(model.operations).flatMap((op) => {
-    if (op.kind !== "operation" || !op.from) return [];
+    if (op.kind !== "operation" || op.from.kind === "app") return [];
     const mount = model.mounts?.[op.from.mount];
     const dir = packageDir(absoluteRoot, op.from.package);
     const src = dir ? (JSON.parse(readFileSync(join(dir, "package.json"), "utf8")) as { orthograph?: { src?: string } }).orthograph?.src ?? "./dist/src" : undefined;

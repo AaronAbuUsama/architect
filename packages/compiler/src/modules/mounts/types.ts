@@ -23,6 +23,7 @@ export interface MountModel {
 export interface Folded {
   /** The plugins' things, under their final names, each with `from`. */
   readonly things: ReadonlyMap<string, ThingFiles>;
+  readonly journeys: Layout["journeys"];
   readonly mounts: Readonly<Record<string, MountModel>>;
   readonly problems: ReadonlyArray<string>;
 }

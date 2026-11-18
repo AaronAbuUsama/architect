@@ -17,11 +17,11 @@ export const declarationAt = (from: string, file: string) => (file.startsWith("b
 
 /** A thing's own file (`thing`, `errors`, `events`): in the project, or in the plugin it came from. */
 export const thingFileAt = (from: string, thing: ThingModel, file: "thing" | "errors" | "events") =>
-  thing.from ? `${thing.from.package}/blueprint/things/${thing.from.thing}/${file}.js` : `${toRoot(from)}blueprint/things/${thing.name}/${file}.ts`;
+  thing.from.kind !== "app" ? `${thing.from.package}/blueprint/things/${thing.from.thing}/${file}.js` : `${toRoot(from)}blueprint/things/${thing.name}/${file}.ts`;
 
 /** An operation's handler for the worker: the project's `src/<thing>/<verb>.ts`, or the plugin's `src/<thing>/<verb>.js`. */
 export const handlerAt = (from: string, op: OperationModel) =>
-  op.from ? `${op.from.package}/src/${op.from.thing}/${op.verb}.js` : `${toRoot(from)}src/${op.thing}/${op.verb}.ts`;
+  op.from.kind !== "app" ? `${op.from.package}/src/${op.from.thing}/${op.verb}.js` : `${toRoot(from)}src/${op.thing}/${op.verb}.ts`;
 
 export const lines = (...parts: ReadonlyArray<string | ReadonlyArray<string>>) => parts.flat().join("\n") + "\n";
 

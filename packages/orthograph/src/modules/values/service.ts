@@ -28,6 +28,11 @@ export const Values: ValuesApi = {
     const max = options?.max ?? 200;
     return described(Schema.String.check(Schema.isMinLength(1), Schema.isMaxLength(max)), { type: "text", max });
   },
+  refAny: () =>
+    described(Schema.Struct({
+      declaration: Schema.String.check(Schema.isPattern(/^[a-z][a-z0-9]*(-[a-z0-9]+)*$/)),
+      id: Schema.String.check(Schema.isMinLength(1)),
+    }), { type: "ref-any" }),
   email: () => described(Schema.String.check(Schema.isMaxLength(254), Schema.isPattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)), { type: "text", max: 254 }),
 };
 

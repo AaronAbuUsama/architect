@@ -188,8 +188,7 @@ needs: [auth, Blueprint.need(eip1193, { when: choices.signer.browser.injected })
 
 ## 7. What a mount adds to the model
 
-The model gains a `mounts` section, present only when there are mounts, so a project without any keeps its model and
-its `generated/` byte for byte (gate M1 item 2):
+The model gains a `mounts` section, present only when there are mounts, so plugin mounting alone adds no mount metadata to a project that mounts nothing:
 
 ```jsonc
 "mounts": {
@@ -204,10 +203,10 @@ its `generated/` byte for byte (gate M1 item 2):
 }
 ```
 
-Each thing and operation that came from a plugin carries `from: { "mount": "echo", "package": "@fixture/echo",
+Each thing and operation that came from a plugin carries `from: { "kind": "feature", "mount": "echo", "package": "@fixture/echo",
 "version": "1.0.0", "thing": "echo" }` (`thing` is the plugin's own name for it). A plugin operation's `file` is the
 specifier of its pure declaration, `@fixture/echo/blueprint/things/echo/verbs/repeat.js`, which generated code imports
-and every loader resolves from the project's root. An app's own declarations keep `blueprint/…` paths and no `from`.
+and every loader resolves from the project's root. An app's own declarations keep `blueprint/…` paths and carry `from: { kind: "app" }`. See [M1.03](M1-model.md).
 
 **The graph.** `Compare.dependsOn` adds `feature:<mount>` (or `adapter:` or `projection:`) with the mount's hash to every
 operation that came from it, and `Compare.hashOf` answers those keys. `ortho impact` prints the edges first, sorted

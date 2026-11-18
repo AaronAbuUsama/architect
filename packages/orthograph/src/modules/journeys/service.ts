@@ -1,5 +1,5 @@
 import type { Assertion, Call, ChecksApi, JourneysApi, Script, Scripts } from "./types.ts";
-import { isRef, refTo, resolve } from "./internal/refs.ts";
+import { isRef, pathOf, refTo, resolve } from "./internal/refs.ts";
 
 const script = <C extends Record<string, unknown>>(cast: C): Script<any> => {
   const actors = Object.fromEntries(
@@ -40,4 +40,4 @@ export const Checks: ChecksApi = {
   spans: ({ present = [], absent = [] }) => ({ kind: "spans", present, absent }),
 };
 
-export const Scripting: Scripts = { script: script as Scripts["script"], isRef, resolve };
+export const Scripting: Scripts = { script: script as Scripts["script"], isRef, pathOf, resolve };

@@ -8,7 +8,7 @@ import { blueprintFilesOf, dependenciesOf, integrityOf, packageDir, readManifest
 const walk = (dir: string): Array<string> =>
   readdirSync(dir).flatMap((entry) => {
     const full = join(dir, entry);
-    return statSync(full).isDirectory() ? walk(full) : full.endsWith(".ts") ? [full] : [];
+    return statSync(full).isDirectory() ? walk(full) : full.endsWith(".ts") && !full.endsWith(".d.ts") ? [full] : [];
   });
 
 const importing = (url: string, what: string) =>
@@ -40,8 +40,14 @@ export const nodeSource = (given: string) => {
       : { ...known, descriptor: undefined, problem: `${name}: its root export can't be loaded (${loaded.failure.message})` };
   });
 
+  const journeys = join(projectRoot, "journeys");
   return Layer.succeed(BlueprintSource, {
-    list: sync(`can't list ${root}`, () => walk(root).map((f) => relative(root, f).split(sep).join("/")).sort()),
+    list: sync(`can't list ${root}`, () => [
+      ...walk(root).map((f) => relative(root, f).split(sep).join("/")),
+      ...(existsSync(journeys) ? readdirSync(journeys, { withFileTypes: true })
+        .filter((f) => f.isFile() && f.name.endsWith(".ts") && !f.name.endsWith(".d.ts"))
+        .map((f) => `../journeys/${f.name}`) : []),
+    ].sort()),
     load: (path) => importing(pathToFileURL(join(root, path)).href, `blueprint/${path}`).pipe(Effect.map((exports) => ({ path, exports }))),
     plugins: Effect.gen(function* () {
       const manifest = yield* sync("can't read the project's package.json", () => readManifest(join(projectRoot, "package.json")));

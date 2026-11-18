@@ -11,11 +11,13 @@ const dependsOn = (model: Model, name: string): Depends => {
   const roles = op.allowed.flatMap((a) => ("role" in a ? thingOf(a.role) : []));
   const things = [...new Set([op.thing, ...fields.flatMap((f) => thingOf(f.ref)), ...roles])].sort();
   // A plugin's operation rests on its mount: the picks, the verbs and the installed package's bytes (M1-plugins section 7).
-  const mount = op.from ? model.mounts?.[op.from.mount] : undefined;
+  // Stored models from before M1.03 may have no discriminator.
+  const from = op.from?.kind === "app" ? undefined : op.from;
+  const mount = from ? model.mounts?.[from.mount] : undefined;
   return {
     [`operation:${name}`]: op.hash,
     ...Object.fromEntries(things.flatMap((t) => (model.things[t] ? [[`thing:${t}`, model.things[t]!.hash]] : []))),
-    ...(mount && op.from ? { [`${mount.kind}:${op.from.mount}`]: mount.hash } : {}),
+    ...(mount && from ? { [`${mount.kind}:${from.mount}`]: mount.hash } : {}),
   };
 };
 
@@ -29,7 +31,7 @@ const hashOf = (model: Model, key: string): string | undefined => {
 
 const edges = (model: Model): ReadonlyArray<string> => {
   const lines = Object.entries(model.mounts ?? {}).flatMap(([name, m]) => [
-    ...Object.values(model.operations).filter((op) => op.from?.mount === name).map((op) => `${m.kind}:${name} -> ${op.name}  provides`),
+    ...Object.values(model.operations).filter((op) => op.from?.kind !== "app" && op.from?.mount === name).map((op) => `${m.kind}:${name} -> ${op.name}  provides`),
     ...(m.needs ?? []).map((need) => `${m.kind}:${name} -> ${need}  needs`),
   ]);
   return [...new Set(lines)].sort();

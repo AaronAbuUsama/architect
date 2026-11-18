@@ -15,6 +15,7 @@ export type ValueMeta =
   | { readonly type: "id"; readonly prefix: string }
   | { readonly type: "uint"; readonly bits: number }
   | { readonly type: "text"; readonly max: number }
+  | { readonly type: "ref-any" }
   | { readonly type: "schema" };
 
 /** The TypeScript type a value holds. */
@@ -30,6 +31,8 @@ export interface ValuesApi {
   readonly uint: (bits: number) => Value<Schema.BigIntFromString>;
   /** Text, never empty, at most `max` characters (default 200). */
   readonly text: (options?: { readonly max?: number }) => Value<Schema.String>;
+  /** A reference carrying a thing’s declaration name and the id of one instance. */
+  readonly refAny: () => Value<Schema.Struct<{ readonly declaration: Schema.String; readonly id: Schema.String }>>;
   /** An email address: text of at most 254 characters, with an `@` and a dot after it. */
   readonly email: () => Value<Schema.String>;
 }

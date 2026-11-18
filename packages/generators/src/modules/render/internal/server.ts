@@ -19,9 +19,9 @@ const main = (model: Model, name: string): RenderedFile => {
   const groups = [...new Set(ops.map((o) => o.thing))];
   const things = Object.values(model.things);
   // Each mount a served operation came from, imported once: its plugin's handlers run under it (Mount.serving).
-  const mounted = [...new Set(handled.flatMap((o) => (o.from ? [o.from.mount] : [])))].filter((m) => model.mounts?.[m]);
+  const mounted = [...new Set(handled.flatMap((o) => (o.from.kind !== "app" ? [o.from.mount] : [])))].filter((m) => model.mounts?.[m]);
   const mountVar = (mount: string) => `${camel(mount)}Mount`;
-  const served = (o: OperationModel) => (o.from && mounted.includes(o.from.mount) ? `Mount.serving(${mountVar(o.from.mount)}, ${opVar(o)}Handler)` : `${opVar(o)}Handler`);
+  const served = (o: OperationModel) => (o.from.kind !== "app" && mounted.includes(o.from.mount) ? `Mount.serving(${mountVar(o.from.mount)}, ${opVar(o)}Handler)` : `${opVar(o)}Handler`);
   const group = (t: string) => {
     const handles = ops
       .filter((o) => o.thing === t)

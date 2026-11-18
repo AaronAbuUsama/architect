@@ -213,7 +213,7 @@ hold.
 | `ortho check` | `packages/cli/src/modules/check/service.ts:17` | built |
 | blanks, found and printed | `packages/cli/src/modules/check/internal/blanks.ts:7` | built |
 | `no-name-as-string` | `packages/lint/src/modules/rules/internal/names.ts:5` | built |
-| journeys, starting worlds and role rules in the model | `packages/compiler/src/modules/model/service.ts:9` | planned, M1.03 |
+| journeys, starting worlds and role rules in the model | `packages/compiler/src/modules/model/internal/describe.ts` | built in M1.03 |
 | mounts read from the blueprint | `blueprint/features/` | planned, M1.06 |
 
 ## Status
@@ -229,7 +229,7 @@ hold.
 | a name written as a string is refused | proved | | `packages/cli/src/modules/check/check.test.ts:76`, the `name-as-string` fixture |
 | `ortho check` on a clean project | proved | | `check.test.ts:57`, "passes clean acme" |
 | `ortho check` names each blank | proved | | `packages/cli/src/modules/add/add.test.ts:41` |
-| blanks, journeys, starting worlds and role rules in the model | specified | M1.03 | `ortho describe --json` on acme and work lists them all |
+| blanks, journeys, starting worlds and role rules in the model | proved | M1.03 | `ortho describe --json` on acme and work lists them all |
 | plugin mounts in the blueprint | specified | M1.06 | check `01` |
 
 ## Notes
@@ -238,11 +238,7 @@ hold.
 portal. Seam 1: one declaration per file, named by its path; from M1.03 the model also holds journeys, starting
 worlds, role rules and blanks.</Note>
 
-<Note kind="question" id="model-completeness" slice="M1.03">Blanks, journeys, starting worlds and role rules aren't in
-the compiled model yet (`BLU-04`). Today an operation with a blank is left out of `operations` altogether
-(`describe.ts:99`), and only its name appears under `blanks`, so an unfinished model looks smaller instead of
-unfinished (`BLU-01`). M1.03 must say how a marked blank sits in the model, and what a projection makes for an
-operation that has one.</Note>
+
 
 <Note kind="status" slice="M1.03">Journeys have two places (`BLU-02`). Prove reads both `blueprint/journeys/` and a
 `journeys` folder at the project's root (`packages/prove/src/modules/journeys/internal/load.ts:36`). The design and

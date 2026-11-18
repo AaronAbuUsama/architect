@@ -1,20 +1,14 @@
 // Reads the blueprint's layout: which file holds what, and the name each declaration takes from its path or export.
-import type { AnyErrorClass, Environment, Event, Machine, Mount, Operation, Read, Role, Thing, Value } from "orthograph";
+import type { AnyErrorClass, Environment, Event, Journey, Machine, Mount, Operation, Read, Role, StartingWorld, Thing, Value } from "orthograph";
 import type { LoadedFile } from "#modules/source/types.js";
 
-/** Where a plugin's thing came from (M1-plugins section 7): `thing` is the plugin's own name for it. */
-export interface From {
-  readonly mount: string;
-  readonly package: string;
-  readonly version: string;
-  readonly thing: string;
-}
+import type { FromModel } from "../types.ts";
 
 export interface ThingFiles {
   readonly name: string;
   /** Its folder, as messages name it: `blueprint/things/<name>`, or `<package>/blueprint/things/<thing>`. */
   readonly base: string;
-  readonly from?: From;
+  readonly from: FromModel;
   thing?: Thing;
   machine?: Machine;
   readonly events: Map<string, Event>;
@@ -24,6 +18,8 @@ export interface ThingFiles {
 }
 
 export interface Layout {
+  readonly journeys: Map<string, Journey>;
+  readonly startingWorlds: Map<string, { readonly file: string; readonly declaration: StartingWorld }>;
   readonly values: Map<string, Value>;
   /** Environments by the name their file gives them: `environments/staging.ts` is `staging`. */
   readonly environments: Map<string, { readonly file: string; readonly declaration: Environment }>;
@@ -52,18 +48,31 @@ export const NAME = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
  * Read files laid out as a blueprint. `at` says how a file is named in messages and imports: the project's own are
  * `blueprint/<path>`; a plugin's are its package specifier, `@x/y/blueprint/<path>`, and only its `things/` are read.
  */
-export const readLayout = (files: ReadonlyArray<LoadedFile>, at: (path: string) => string = (path) => `blueprint/${path}`): Layout => {
-  const layout: Layout = { values: new Map(), environments: new Map(), things: new Map(), mounts: new Map(), problems: [] };
+export const readLayout = (files: ReadonlyArray<LoadedFile>, at: (path: string) => string = (path) => path.startsWith("../") ? path.slice(3) : `blueprint/${path}`): Layout => {
+  const layout: Layout = { values: new Map(), environments: new Map(), things: new Map(), mounts: new Map(), journeys: new Map(), startingWorlds: new Map(), problems: [] };
   const thingFiles = (name: string): ThingFiles => {
     const found = layout.things.get(name);
     if (found) return found;
-    const fresh: ThingFiles = { name, base: at(`things/${name}`), events: new Map(), errors: new Map(), roles: new Map(), verbs: new Map() };
+    const fresh: ThingFiles = { name, base: at(`things/${name}`), from: { kind: "app" }, events: new Map(), errors: new Map(), roles: new Map(), verbs: new Map() };
     layout.things.set(name, fresh);
     return fresh;
   };
 
   for (const { path, exports } of files) {
     const parts = path.replace(/\.(ts|js)$/, "").split("/");
+    if ((parts[0] === "journeys" && parts.length === 2) || (parts[0] === ".." && parts[1] === "journeys" && parts.length === 3)) {
+      const d = exports["default"];
+      if (kindOf(d) !== "journey") layout.problems.push(`${at(path)}: the default export must be a Blueprint.journey`);
+      else layout.journeys.set(at(path), d as Journey);
+      continue;
+    }
+    if (parts[0] === "starting-worlds" && parts.length === 2) {
+      const d = exports["default"] as StartingWorld;
+      if (kindOf(d) !== "starting-world") layout.problems.push(`${at(path)}: the default export must be a Blueprint.startingWorld`);
+      else if (layout.startingWorlds.has(d.name)) layout.problems.push(`${at(path)}: starting world "${d.name}" is already declared`);
+      else layout.startingWorlds.set(d.name, { file: at(path), declaration: d });
+      continue;
+    }
     const folder = parts[0] as keyof typeof MOUNT_FOLDERS;
     if (Object.hasOwn(MOUNT_FOLDERS, folder) && parts.length === 2) {
       const name = parts[1]!;

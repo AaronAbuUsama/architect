@@ -7,19 +7,16 @@ import { describe } from "./internal/describe.ts";
 import { readLayout } from "./internal/layout.ts";
 import { Mounts } from "#modules/mounts/service.js";
 
-/** Blueprint sections the model leaves out: `prove` reads starting worlds itself (D2 #24). */
-const LATER = ["starting-worlds", "journeys"] as const;
-
 export const Compiler: CompilerApi = {
   model: Effect.gen(function* () {
     const source = yield* BlueprintSource;
     const paths = yield* source.list;
-    // The model is the API's shape; starting worlds and journeys are prove's input, read by prove.
-    const files = yield* Effect.forEach(paths.filter((p) => !LATER.some((l) => p.startsWith(`${l}/`))), source.load);
+    const files = yield* Effect.forEach(paths, source.load);
     const layout = readLayout(files);
     // Each mount's plugin, folded in: its things beside the project's own, under the names the mount gives them.
     const folded = yield* Mounts.fold(layout);
     for (const [name, t] of folded.things) layout.things.set(name, t);
+    for (const [file, journey] of folded.journeys) layout.journeys.set(file, journey);
     layout.problems.push(...folded.problems);
     // Errors take their names from their exports; stamping them here lets the loaded classes be used by name.
     for (const t of layout.things.values()) for (const [name, cls] of t.errors) ErrorNames.name(cls, name);

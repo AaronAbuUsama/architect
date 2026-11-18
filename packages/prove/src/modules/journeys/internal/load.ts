@@ -33,7 +33,7 @@ export const loadProject = (given: string, model: Model): Effect.Effect<Project,
     }
     const things = new Map<string, Thing>();
     for (const t of Object.values(model.things)) {
-      const module = yield* importFile(t.from ? fileOf(root, `${t.from.package}/blueprint/things/${t.from.thing}/thing.js`) : join(root, "blueprint/things", t.name, "thing.ts"));
+      const module = yield* importFile(t.from.kind !== "app" ? fileOf(root, `${t.from.package}/blueprint/things/${t.from.thing}/thing.js`) : join(root, "blueprint/things", t.name, "thing.ts"));
       const thing = Object.values(module).find((x) => kindOf(x) === "thing") as Thing | undefined;
       if (thing) things.set(t.name, thing);
     }

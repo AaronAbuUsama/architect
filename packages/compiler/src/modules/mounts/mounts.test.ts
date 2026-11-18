@@ -31,7 +31,7 @@ describe("mounts", () => {
     const folded = await fold("features/echo.ts", Blueprint.use(echo, (p) => [p.choose(p.choices.style.loud)]));
     expect(folded.problems).toEqual([]);
     expect([...folded.things.keys()]).toEqual(["echo"]);
-    expect(folded.things.get("echo")?.from).toEqual({ mount: "echo", package: "@fixture/echo", version: "1.0.0", thing: "echo" });
+    expect(folded.things.get("echo")?.from).toEqual({ kind: "feature", mount: "echo", package: "@fixture/echo", version: "1.0.0", thing: "echo" });
     expect(folded.things.get("echo")?.verbs.get("repeat")?.file).toBe("@fixture/echo/blueprint/things/echo/verbs/repeat.js");
     expect(folded.mounts["echo"]).toMatchObject({ kind: "feature", file: "blueprint/features/echo.ts", integrity: "sha256-x", chosen: { style: "loud" } });
   });

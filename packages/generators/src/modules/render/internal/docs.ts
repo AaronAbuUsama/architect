@@ -11,7 +11,7 @@ const MARK = "<!-- Generated from the blueprint. Do not edit. -->";
 const fieldRows = (fields: FieldsModel) =>
   Object.keys(fields).length === 0
     ? ["(none)"]
-    : ["| field | value |", "|---|---|", ...Object.entries(fields).map(([k, f]) => `| ${k}${f.optional ? " (optional)" : ""} | ${f.ref ?? f.named ?? f.value.type}${f.visibility ? ` (${f.visibility === "secret" ? "secret" : `private to ${f.visibility.private.join(", ")}`})` : ""} |`)];
+    : ["| field | value |", "|---|---|", ...Object.entries(fields).map(([k, f]) => `| ${k}${f.optional ? " (optional)" : ""} | ${f.ref ?? f.named ?? (f.value.type === "ref-any" ? "any thing (declaration and id)" : f.value.type)}${f.visibility ? ` (${f.visibility === "secret" ? "secret" : `private to ${f.visibility.private.join(", ")}`})` : ""} |`)];
 
 const who = (op: OperationModel) =>
   op.allowed.map((a) => (a.kind === "anyone" ? "anyone" : a.kind === "signed-in" ? "anyone signed in" : a.kind === "role" ? `the ${a.role.split(".").pop()} of the ${op.thing}` : `the ${a.role.split(".").pop()} of its ${a.path}`)).join(", or ");

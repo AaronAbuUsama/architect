@@ -1,3 +1,4 @@
+import type { FromModel } from "../types.ts";
 // Refusal codes, stable across targets: `[AL-002] AllowanceExceeded { limit: 500 }`. A code is its thing's prefix and a
 // number. Declared errors are numbered 1, 2, 3 in the order they are declared in the thing's `errors.ts`; the machine's own
 // refusal is always 900; the runtime's refusals belong to no thing and take the prefix `AR`. The model records every code,
@@ -43,7 +44,7 @@ export const inDeclarationOrder = (errors: ReadonlyMap<string, AnyErrorClass>): 
 
 /** Every refusal's name and code in the project: the declared ones, each machine's, and the runtime's. */
 export const refusalsOf = (
-  things: Readonly<Record<string, { readonly errors: Readonly<Record<string, { readonly code: string }>>; readonly machine: { readonly notFrom: { readonly error: string; readonly code: string } } | null; readonly from?: { readonly package: string; readonly thing: string } }>>,
+  things: Readonly<Record<string, { readonly errors: Readonly<Record<string, { readonly code: string }>>; readonly machine: { readonly notFrom: { readonly error: string; readonly code: string } } | null; readonly from: FromModel }>>,
   problems: Array<string>,
 ): Readonly<Record<string, string>> => {
   const out: Record<string, string> = { ...RUNTIME_CODES };
@@ -58,7 +59,7 @@ export const refusalsOf = (
     out[name] = code;
   };
   for (const [thing, t] of Object.entries(things)) {
-    const at = (file: string) => (t.from ? `${t.from.package}/blueprint/things/${t.from.thing}/${file}.js` : `blueprint/things/${thing}/${file}.ts`);
+    const at = (file: string) => (t.from.kind !== "app" ? `${t.from.package}/blueprint/things/${t.from.thing}/${file}.js` : `blueprint/things/${thing}/${file}.ts`);
     for (const [name, e] of Object.entries(t.errors)) add(name, e.code, at("errors"));
     if (t.machine) add(t.machine.notFrom.error, t.machine.notFrom.code, at("machine"));
   }
