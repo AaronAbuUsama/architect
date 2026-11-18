@@ -45,13 +45,14 @@ His decisions from the Orthograph DX discussion, carried here as they were given
 3. **An action is a generated, app-facing primitive derived from an operation.** It can bind to a screen or an agent
    tool, and it uses the SDK. The underlying operation keeps its authority.
    - A Solidity contract may have helper or ABI functions outside the generated app surface.
-   - Open: the exact interface that maps a declared operation to an ABI entry and to deliberate client exposure.
+   - Open: the exact interface that maps a declared operation to an ABI entry and to deliberate client exposure. Aaron:
+     this concerns only our own contracts. Other people's contracts are sources, reached through adapters (K3 item 8).
 4. **Steps and workflows are different.** Operation steps are already optional on `main`.
    - A named step is a span inside one attempt of an operation, and the handler chooses which steps run.
    - A durable workflow's activity or wait records a run's progress across attempts and across owners.
    - Open: the exact workflow declaration, wake-up, deduplication and replay.
    - Today a domain event comes only from a machine's move. An operation-level `emits: DraftEdited`, for a successful
-     edit with no machine, is a proposal. Its commit and proof semantics are settled before it joins the contract.
+     edit with no machine, was a proposal. Aaron settled it as Q5: "B, on the operation" (see "Forks for Aaron").
 
 ## In one breath
 
@@ -167,7 +168,8 @@ export default Blueprint.operation(Draft, {
   answer: { version: Version },
   errors: [DraftChanged],            // someone saved first: reload and try again
   allowed: [author],
-  steps: { load: Blueprint.step.database(), save: Blueprint.step.database() },
+  steps: { load: Blueprint.step.database(), save: Blueprint.step.database({ optional: true }) },
+  emits: DraftEdited,                // Q5: committed with the call's writes
   idempotent: "request",
 });
 ```
@@ -195,12 +197,34 @@ until mined" belongs to the caller, so a server call that sends a transaction is
 
 ### 3. An Effect operation: editing a draft
 
+**What the scaffold writes.** `ortho` writes the handler once, as a real function, already wired. Each declared step
+is in place, in declared order (the order eval 6 checks, `packages/prove/src/modules/evals/internal/calls.ts:114`).
+The move is in place when one is declared, and so is a stub for each declared refusal. Every hole is a
+`Handlers.blank`, so the file compiles, and `ortho prove --empty` shows each blank as a red step (M1.16). Today the
+scaffold writes all of this only as comments (`packages/generators/src/modules/render/internal/scaffold.ts:8-13`,
+`:26`). New slice M1.26 makes it the function below.
+
 ```ts
-// src/draft/edit.ts (scaffolded once, then the developer's)
+// src/draft/edit.ts. Scaffolded from blueprint/things/draft/verbs/edit.ts. Yours from now on.
+const edit: Handler = ({ draft, body, version }, { steps }) =>
+  Effect.gen(function* () {
+    const loaded = yield* steps.load(Handlers.blank<Draft>("load: read what this step needs"));
+    if (yield* Handlers.blank<boolean>("refuse DraftChanged when?"))
+      return yield* new DraftChanged(yield* Handlers.blank("DraftChanged's fields"));
+    yield* steps.save(Handlers.blank("save: write what this step changes"));   // optional: may be skipped
+    return yield* Handlers.blank<Answer>("the answer");
+  });
+```
+
+**What the developer writes.** The developer fills the blanks:
+
+```ts
+// src/draft/edit.ts, filled
 const edit: Handler = ({ draft, body, version }, { steps }) =>
   Effect.gen(function* () {
     const current = yield* steps.load(Drafts.get(draft));
     if (current.version !== version) return yield* new DraftChanged({ draft, version: current.version });
+    if (current.body === body) return { version };                              // unchanged: no save, no event
     yield* steps.save(Drafts.put({ ...current, body, version: version + 1 }));
     return { version: version + 1 };
   });
@@ -212,10 +236,36 @@ const edit: Handler = ({ draft, body, version }, { steps }) =>
 - **Enforced by:** the wrapper, in fixed order: decode (`:104`), role (`:46`), span (`:83`), replay a request key
   (`:52`), machine (`:57`), the counted handler and its steps (`:60`), answer check (`:64`), commit (`:71`).
 - **Portal shows:** the operation's span with its step spans (`draft.edit.load`, `draft.edit.save`), the commit's span
-  with `committed` or `conflict` (M1.18), the refusal by code, and the role check's span (PR #48, O3).
+  with `committed` or `conflict` (M1.18), the refusal by code, the role check's span (PR #48, O3), and `DraftEdited`
+  in the journal when the call wrote.
 
-Steps are optional (`packages/forman/src/modules/operations/types.ts:46`). A named step is a span inside one attempt,
-and the handler decides which steps run. A step is not durable: a rerun after `Conflict` runs it again.
+**Steps are spans, not durable work.** A named step is a span inside one attempt, and the handler decides which steps
+run. A rerun after `Conflict` runs them again. Steps themselves are optional on an operation
+(`packages/forman/src/modules/operations/types.ts:46`).
+
+**Branching.** Eval 6 requires every declared step on an answered call, so a handler that skips a step on a
+successful path fails it. The unchanged edit above is that case. Three ways were weighed:
+- making every step mandatory on success, and splitting the operation or always running the step;
+- marking a step `optional`;
+- declaring alternative paths.
+
+Splitting moves a choice the handler makes onto the caller, who can't know the text is unchanged. Always running
+`save` writes for nothing, and it would commit a `DraftEdited` for nothing. Alternative paths are a second language
+inside the declaration. **Decided: `Blueprint.step.<kind>({ optional: true })`.** Eval 6 lets an optional step be
+absent, and still checks the order of the steps that ran. `ortho prove` reports an optional step that no journey ever
+ran, or that every journey ran, as never exercised both ways, so both paths get a journey.
+
+**Unused steps at compile time.** A declared step the handler never calls compiles today, and only eval 6 catches it
+at prove. TypeScript can't prove that a function calls something on some path without changing the handler's shape
+(for example, making it return a receipt per step), and that costs every handler for a rare mistake. **Decided:** the
+frame's type stays as it is. `ortho check` warns when a non-optional step's runner (`steps.save`) never appears in the
+handler's source, and eval 6 stays the proof. Both land in M1.26.
+
+**The event (Q5).** `emits: DraftEdited` is committed in the same commit as the call's writes, only when the call
+succeeds: the same rule a move's event follows (`service.ts:68-71`). The proof asserts it is present on a successful
+call and absent on a refusal. One refinement, which this record makes and Aaron can overrule: a successful call that
+writes nothing, like the unchanged edit, emits nothing. "Edited" would otherwise be said of a draft that didn't change,
+and the forum adapter would post it. A move's event is unchanged.
 
 ### 4. A chain operation: voting
 
@@ -360,7 +410,8 @@ Settled here:
 - a wait wakes on an event through `on:` or on a durable timer through `Timers`.
 
 The exact declaration, wake-up, deduplication and replay stay open for M3.01 (decision 4), proved by the M3.03 spike.
-**Whether an operation with no machine may declare its own event is fork Q5.**
+An operation with no machine may declare its own event (Q5, seam 3). M3.01 lands it; until then such an operation
+emits nothing.
 
 ### 7. Private membership on Noir (later)
 
@@ -521,6 +572,12 @@ These are the building agent's calls, with the evidence above. Aaron can overrul
 8. A chain is a host, and its store kind is K3's `chain`. A server call that sends a transaction is a workflow.
 9. Noir's limits are part of the contract: metadata is visible, proving time is in the budget, and an unverified proof
    blocks production.
+10. The scaffold is a wired function: the steps in declared order, the move, and a stub per refusal, each hole a
+    `Handlers.blank` (M1.26).
+11. A step can be `optional`, and eval 6 allows it to be absent. Prove reports an optional step that no journey ran
+    both ways.
+12. Unused steps are an `ortho check` warning plus eval 6, not a type error.
+13. An operation's own event (Q5) is committed with the call's writes, only on success, and only when the call wrote.
 
 ## Forks for Aaron
 
@@ -532,12 +589,12 @@ The first round's three questions are answered by his decisions:
 | Q2 | Whose identity | decision 1: nothing of agent-native runs, so there is no second login | "drop Agent Native totally … our own thing … their MCPs and our MCPs are just our stuff" |
 | Q3 | Who the generated app is for | decision 1 | "The portal is the builder's place to understand and plan with the running system" |
 
-The first version's Q4 (how an operation maps to a contract's ABI) moves to K7, the chain languages war game across
-Solidity, Noir and Solana. One fork remains here, in the pull request's body in the grill format:
+The second round:
 
-| # | Joint | Recommendation |
+| # | Question | Aaron's answer |
 |---|---|---|
-| Q5 | Whether an operation with no machine may declare its own event | **B**: `emits:` on the operation, written in the same commit, checked by the events eval, and one per successful commit. Until M3.01 lands it, a move to the same state (A) is the floor |
+| Q4 | How a declared operation maps to a contract's ABI, and what clients may reach | Only our own contracts: "other people's contracts are sources, reached through adapters" (K3 item 8). He leans to the recommendation, A: the operation is the function. He also asked for Solidity, Noir and Solana to be worked out together first, so Q4 is confirmed or changed by K7, the chain languages war game |
+| Q5 | Whether an operation with no machine may declare its own event | "B, on the operation." Committed with the call's writes, only on success; proof asserts it present on success and absent on a refusal; steps stay spans. Until M3.01, no event. Seam 3 records one refinement: a call that writes nothing emits nothing |
 
 ## Milestone slices this shape changes
 
@@ -552,6 +609,7 @@ The build plan stays. These are the slices it touches:
 | M1.22 | **New.** The actions projection: one `defineAction` per operation, built on the SDK; replay `--through actions` |
 | M1.23 | **New.** The port, part one: `defineAction` and approvals in `forman`'s `actions` module |
 | M1.24 | **New.** The port, part two: the shell, the chat's surface, and screen context, in Effect, over D1; signed in through the project's auth (`@orthograph/auth` from M2.06) |
+| M1.26 | **New.** The scaffold as a wired function; `optional` steps in eval 6; the unused-step warning in `ortho check` |
 | M1.25 | **New.** The portal's design, worked through with Aaron (UX.md's intent, agent-native's templates as the reference), before M1.13 builds it |
 | M2.06 | **Changed.** Builders sign in to the portal through `@orthograph/auth` |
 | M2.08 | **Changed.** `--through cli\|mcp\|actions` |

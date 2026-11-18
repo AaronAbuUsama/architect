@@ -113,7 +113,8 @@ own span, free text is absent from spans, and refused calls are counted (O2).
 | M1.23 ∥ | The port from agent-native, part one (K5, "Porting from agent-native"): `defineAction` with agent-native's field names and approvals, in `forman`'s `actions` module, in Effect | M1.12 | build | a generated action refused by the role check writes nothing and returns the typed refusal; one with `needsApproval` waits for a yes | S |
 | M1.24 ∥ | The port, part two: the shell, the chat's surface (thread, stream, tool-call cards, approvals, refusals) and screen context; threads as things in the portal's store; signed in through acme's own auth until M2.06. The agent behind the chat is M4.16 | M1.23 | build | the shell and screen context run on acme's Worker over D1; a stored thread renders with its approval card; no `@agent-native/*` package is installed | L |
 | M1.25 | The portal's design, with Aaron (UX.md's intent; agent-native's templates as the reference) | Gate M0 | decision | `design/portal.md` agreed: the first page, a thing's page, an operation's page, the live rail, the chat | M |
-| M1.15 | **Gate M1** | M1.02 to M1.14, M1.16 to M1.25 | e2e | `nx run e2e:m1` passes on `main` | S |
+| M1.26 ∥ | The scaffold as a wired function (K5 seam 3): each declared step in declared order, the move, a stub per refusal, every hole a `Handlers.blank`; `Blueprint.step.<kind>({ optional: true })`, allowed absent by eval 6; `ortho check` warns on a non-optional step the handler never calls | Gate M0 | build | a fresh scaffold compiles and `prove --empty` shows one red step per blank; acme's `draft`-style fixture with an unchanged edit passes eval 6; deleting `steps.record` from `spend` gives a check warning | M |
+| M1.15 | **Gate M1** | M1.02 to M1.14, M1.16 to M1.26 | e2e | `nx run e2e:m1` passes on `main` | S |
 
 ## M2: Auth and organizations (workable)
 
@@ -157,7 +158,7 @@ twice; `generated/agents/` passes its drift check.
 
 | id | what | needs | kind | done when | size |
 |---|---|---|---|---|---|
-| M3.01 | `Blueprint.workflow`: its shape (activities, `await` on an event, durable clocks), where it lives, and the Effect and platform-cloudflare pins. Starts from K5 seam 6: an activity is keyed by run id and activity name; the workshop's publish is the example; settles wake-up, deduplication and replay, and whether an operation may declare `emits` with no machine (K5 Q5) | Gate M2 | decision | `decisions/M3-workflows.md` written | S |
+| M3.01 | `Blueprint.workflow`: its shape (activities, `await` on an event, durable clocks), where it lives, and the Effect and platform-cloudflare pins. Starts from K5 seam 6: an activity is keyed by run id and activity name; the workshop's publish is the example; settles wake-up, deduplication and replay, and lands `emits:` on an operation with no machine (K5 Q5, Aaron: "B, on the operation": committed with the call's writes, only on success) | Gate M2 | decision | `decisions/M3-workflows.md` written | S |
 | M3.02 | `effect` 4.1.1 to 4.1.3 everywhere, as its own slice | M3.01 | build | every existing gate still green | M |
 | M3.03 | `CloudflareWorkflowEngine` under local workerd: does a replay after eviction skip finished activities? | M3.02 | spike | `spikes/effect-workflow-workerd/README.md` answers it with a run | S |
 | M3.04 | Journeys for the factory (W1): its operations, and "derived, never stored", "only a fact closes", claims, attention | M3.01 | checks | they fail on empty handlers | M |
