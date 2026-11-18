@@ -254,7 +254,7 @@ two refusals and no spans.
 
 | | Public (the default) | Public text, marked `Blueprint.traced` | Secret or private |
 |---|---|---|---|
-| Answered to callers | yes | yes | secret never; private to its roles |
+| Answered to callers | yes | yes | over MCP: secret never, private only to its roles. Over HTTP, the SDK and the CLI: sent (see the note `answers-are-not-redacted`) |
 | Kept in events | yes | yes | no |
 | Written on spans | yes, except free text (from M1.19) | yes | never |
 | Pick it when | ids, amounts, states, times | short codes you search by, never what people type | passwords, tokens, keys, anything personal |
@@ -334,4 +334,11 @@ Mark text traced only when it is a code you search by. If a person typed it, lea
 <Note kind="status" slice="M1.18">
   Today the commit shows only as D1's own `BATCH` span, and a version race shows as two operation spans with nothing
   saying why.
+</Note>
+
+<Note kind="question" id="answers-are-not-redacted">
+  A field's visibility keeps it off spans and out of events everywhere, but it is redacted from an answer only over
+  MCP. The HTTP API, the SDK and the CLI send every declared field (D3 #125, `design/decisions/D3.md:911`), and acme's
+  sign-in answers its secret fields on purpose (D3 #80). This page owns what is traced, not what is answered; the
+  question of answers is [things](things.mdx)' note `private-over-http`. No slice owns the fix yet.
 </Note>
