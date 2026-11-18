@@ -53,7 +53,7 @@ refining Forman as he goes. Everything below is judged by whether it gets us the
 | # | Thread | PR | Done when | What it feeds | State |
 |---|---|---|---|---|---|
 | 📒 | Open-issues ledger | — | `design/ledger.md` on `main`: every open, deferred or promised item from `design/`, the Aztec and Noir work, the layer records, code TODOs and PR reviews, each sourced and mapped to a canon page and a slice; unowned items first; a stale-vocabulary sweep with counts | ① pass 2; new slices for unowned items | **working** |
-| ① | Docs canon in MDX | #38 | **Pass 1:** Aaron agrees the outline, the template and the `stores` and `traces` pages. **Pass 2:** written in dependency order, after the ledger, every page in the outline; the canon check passes on `main` | M1's contracts; the generated app's Content pages | pass 1 done; **waits on Aaron's yes to dependency order** (conductor agrees) |
+| ① | Docs canon in MDX | #38 | **Pass 1:** Aaron agrees the outline, the template and the `stores` and `traces` pages. **Pass 2:** written in layers, in dependency order (Aaron, 18 November: "let's start with layers … and then we build up"), checking with the ledger before each layer; every page in the outline; the canon check passes on `main` | M1's contracts; the generated app's Content pages | **writing layer 1**: forman, blueprint, things, machines, operations, handlers. `stores` is a draft with three gaps (schema per kind, visibility per kind, whether a chain is a store), settled by a decision round before layer 3 |
 | ② | Skills and workflows for Blueprint (K4) | #37 | Aaron answers its four questions; K4 updated with the answers and merged | the agent kit (S8, S11, S12); what agents do in ③; M3 and M4 | **waits on Aaron's four answers** |
 | ③ | Generated app (our agent-native template) | #41 | **Pass 1:** the template defined in PR #41's body on real acme data: IA, every page kind, generated vs written vs live, what `generate` writes, state, live data, chat; what is taken from, changed in or left out of agent-native's Content, Analytics, Plans and Chat. Aaron agrees. **Pass 2:** on acme, locally, generated from the model: one action per operation; derived pages for things, operations, machines, events, errors and environments; live spans, events and errors; chat answers "why did spend refuse ada?" from the screen and the trace | proves "falls out for free"; becomes the app projection in M1 | **defining the template, no build** |
 | ④ | Portal observability spike | #39 | Merged for the record | ③'s data path: a page is a pure function of `model.json` plus a telemetry window, read from the Collector's files | done, merge for the record |
@@ -62,7 +62,7 @@ refining Forman as he goes. Everything below is judged by whether it gets us the
 
 ### What waits on Aaron
 
-1. Review the canon, PR #38 (pass 1), and say yes or no to writing it in dependency order.
+1. Review the canon's layer 1, PR #38, when its thread asks.
 2. Answer the skills design's four questions, PR #37.
 3. Look at the animations, PR #34.
 4. The template's definition, PR #41, when its thread asks.
