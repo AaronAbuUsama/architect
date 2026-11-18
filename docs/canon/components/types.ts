@@ -41,7 +41,7 @@ export interface ScenarioProps {
 
 /**
  * Something rendered from a compiled model, never copied into the page. Exactly one subject. The site compiles the
- * project (`forman check`) and renders from its model, so the page changes when the blueprint does.
+ * project (`ortho check`) and renders from its model, so the page changes when the blueprint does.
  */
 export type ModelProps = { readonly project: RepoPath } & (
   | { readonly thing: string; readonly show?: "fields" | "machine" | "operations" | "all" }

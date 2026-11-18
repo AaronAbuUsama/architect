@@ -6,7 +6,7 @@ import { Effect } from "effect";
 import { afterAll, describe, expect, it } from "vitest";
 import { Prove } from "./service.ts";
 
-// Dot-folders (.wrangler, .forman) belong to whatever is running there; a filter also keeps cpSync off its native path,
+// Dot-folders (.wrangler, .ortho) belong to whatever is running there; a filter also keeps cpSync off its native path,
 // which aborts the process when a folder vanishes mid-copy.
 const visible = (from: string) => !basename(from).startsWith(".");
 const install = (from: string, root: string, to: string) => {
@@ -51,7 +51,7 @@ describe("the starter", () => {
       const report = await prove(root, 8811 + i);
       expect(report.passed).toBe(false);
       // A failed run proves nothing, even operations whose own evals passed (D2 #80).
-      expect(JSON.parse(readFileSync(join(root, ".forman/evidence/proven.json"), "utf8")).proven).toEqual({});
+      expect(JSON.parse(readFileSync(join(root, ".ortho/evidence/proven.json"), "utf8")).proven).toEqual({});
       expect(report.lines.some((l) => l.startsWith(journey)), report.lines.join("\n")).toBe(true);
       expect(report.lines.some((l) => l.includes(detail)), report.lines.join("\n")).toBe(true);
     });

@@ -1,12 +1,13 @@
 // The npm registry on this machine (Verdaccio): what versions a package has, the next free prerelease, and `npm publish` to it.
+import { Names } from "orthograph/server";
 import { spawnSync } from "node:child_process";
 import { Effect } from "effect";
 import { PublishFailed, type Env } from "../types.ts";
 import { cleanEnv } from "./env.ts";
 
-/** The registry from `FORMAN_REGISTRY`, with its trailing slash; undefined when none is set. */
+/** The registry from `ORTHO_REGISTRY`, with its trailing slash; undefined when none is set. */
 export const registryOf = (env: Env): string | undefined => {
-  const given = env["FORMAN_REGISTRY"]?.trim();
+  const given = env[Names.variable("REGISTRY")]?.trim();
   return given ? given.replace(/\/*$/, "/") : undefined;
 };
 

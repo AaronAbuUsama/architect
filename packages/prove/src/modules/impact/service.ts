@@ -1,5 +1,5 @@
 import { Effect } from "effect";
-import { Compare, type Depends, type Model, type Versioned } from "@formants/compiler";
+import { Compare, type Depends, type Model, type Versioned } from "@orthograph/compiler";
 import type { Impact as Impacted, ImpactApi, Shipped } from "./types.ts";
 import { readLedger, writeLedger } from "./internal/ledger.ts";
 

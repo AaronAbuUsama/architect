@@ -79,7 +79,7 @@ workshop, from layer 4.
 `lives` is the one place a declaration says where a thing's state is. Today it takes one of two built-in kinds, and
 the default is a D1 row:
 
-```ts file=packages/forman/src/modules/things/types.ts lines=26-32
+```ts file=packages/orthograph/src/modules/things/types.ts lines=26-32
   /** Who owns its state: a D1 row with a version column (the default), or a Durable Object per instance (D1 #1). */
   readonly lives: Lives;
   /** The prefix of this thing's refusal codes (`AL` in `[AL-002]`); the compiler takes two letters of its name when unset. */
@@ -148,7 +148,7 @@ migrations, every source with its adapter, calls and stand-in, and every view (K
 
 | What | Where | |
 |---|---|---|
-| `lives` today | `packages/forman/src/modules/things/types.ts:32` | built |
+| `lives` today | `packages/orthograph/src/modules/things/types.ts:32` | built |
 | the store port: find, list, commit | `packages/language-effect/src/modules/records/types.ts:62` | built |
 | the D1 schema, generated from the model | `examples/signup/generated/server/migrations/0001_things.sql:3` | built |
 | declared stores, `lives` taking one | `blueprint/stores/` | planned, M1.17 |

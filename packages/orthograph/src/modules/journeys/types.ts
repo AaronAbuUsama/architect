@@ -105,7 +105,7 @@ export interface JourneysApi {
   }) => StartingWorld<C>;
 }
 
-/** The checks a step can make, imported by name: `import { emits, expect } from "@formants/forman"`. */
+/** The checks a step can make, imported by name: `import { emits, expect } from "orthograph"`. */
 export interface ChecksApi {
   readonly expect: (pick: (answer: any) => unknown) => {
     readonly toMatch: (match: RegExp) => Assertion;

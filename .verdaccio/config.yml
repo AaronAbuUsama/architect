@@ -1,4 +1,4 @@
-# Local npm registry for e2e: only @formants/* and @acme/* are published here; everything else proxies to npmjs.
+# Local npm registry for e2e: only @orthograph/* and @acme/* are published here; everything else proxies to npmjs.
 storage: ../tmp/local-registry/storage
 auth:
   htpasswd:
@@ -7,7 +7,7 @@ uplinks:
   npmjs:
     url: https://registry.npmjs.org/
 packages:
-  '@formants/*':
+  '@orthograph/*':
     access: $all
     publish: $all
     unpublish: $all

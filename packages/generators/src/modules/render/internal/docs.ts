@@ -1,6 +1,6 @@
 // generated/docs: a page per thing (its fields, machine and roles) and per operation (who may call, what goes in and
 // out, its move, every refusal with its exit code, and how to call it). Markdown, read by people and by agents.
-import type { FieldModel, Model, OperationModel, ThingModel } from "@formants/compiler";
+import type { FieldModel, Model, OperationModel, ThingModel } from "@orthograph/compiler";
 
 type FieldsModel = Readonly<Record<string, FieldModel>>;
 import type { RenderedFile } from "../types.ts";

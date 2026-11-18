@@ -68,10 +68,10 @@ export const runCollector = (dir: string, name: string, options: CollectorOption
 
 export const removeCollector = (name: string) => Effect.sync(() => void docker(["rm", "-f", name]));
 
-/** `forman-collector-<owner pid>-<random>`: the name a collector started by a process carries, scoped to it. */
-export const ownedName = (pid: number) => `forman-collector-${pid}-${Math.floor(Math.random() * 1e9)}`;
+/** `ortho-collector-<owner pid>-<random>`: the name a collector started by a process carries, scoped to it. */
+export const ownedName = (pid: number) => `ortho-collector-${pid}-${Math.floor(Math.random() * 1e9)}`;
 
-const OWNED = /^forman-collector-(\d+)-\d+$/;
+const OWNED = /^ortho-collector-(\d+)-\d+$/;
 
 /** Whether a process is still there. Not being allowed to signal it means it is: someone else's, and alive. */
 const alive = (pid: number): boolean => {
@@ -90,7 +90,7 @@ const alive = (pid: number): boolean => {
  */
 export const sweepOrphans = (): Effect.Effect<ReadonlyArray<string>> =>
   Effect.sync(() => {
-    const listed = docker(["ps", "-a", "--filter", "name=forman-collector-", "--format", "{{.Names}}"]);
+    const listed = docker(["ps", "-a", "--filter", "name=ortho-collector-", "--format", "{{.Names}}"]);
     if (listed.status !== 0) return [];
     const orphans = listed.stdout.split("\n").map((n) => n.trim()).filter((n) => {
       const owner = OWNED.exec(n)?.[1];

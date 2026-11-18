@@ -1,9 +1,9 @@
 {
-  "name": "@formants/canon",
+  "name": "@orthograph/canon",
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Forman's docs as MDX pages, the check that keeps them true, and a preview you can click through.",
+  "description": "Orthograph's docs as MDX pages, the check that keeps them true, and a preview you can click through.",
   "devDependencies": {
     "@mdx-js/mdx": "3.1.1",
     "highlight.js": "11.12.0",

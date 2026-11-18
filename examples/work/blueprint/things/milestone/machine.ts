@@ -1,4 +1,4 @@
-import { Blueprint } from "@formants/forman";
+import { Blueprint } from "orthograph";
 import { Milestone } from "./thing.ts";
 import * as Events from "./events.ts";
 

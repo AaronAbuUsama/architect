@@ -1,6 +1,6 @@
 // Who may call: an operation's `allowed`, checked before its handler runs.
 import type { Effect } from "effect";
-import { NotAllowed, type Allowed, type Principal, type Role, type Thing } from "@formants/forman";
+import { NotAllowed, type Allowed, type Principal, type Role, type Thing } from "orthograph";
 import type { Records } from "#modules/records/types.js";
 
 /** The caller has none of the operation's roles. The handler never runs. Exit 3. Declared in blueprint for journeys. */

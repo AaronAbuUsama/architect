@@ -4,7 +4,7 @@ import type { TokenPolicy } from "#modules/tokens/types.js";
 
 export class LogbookFailed extends Data.TaggedError("LogbookFailed")<{ readonly message: string }> {}
 
-/** The token policy and where the issuer's keys are. `audience` is `forman-logbook` unless a test needs another. */
+/** The token policy and where the issuer's keys are. `audience` is `ortho-logbook` unless a test needs another. */
 export interface LogbookPolicy extends Omit<TokenPolicy, "audience"> {
   readonly jwksUrl: string;
   readonly audience?: string;

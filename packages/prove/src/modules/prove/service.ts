@@ -1,6 +1,7 @@
+import { Names } from "orthograph/server";
 import { resolve } from "node:path";
 import { Effect } from "effect";
-import { Compiler, nodeSource } from "@formants/compiler";
+import { Compiler, nodeSource } from "@orthograph/compiler";
 import { Collectors, privateKeys } from "#modules/telemetry/service.js";
 import { Sinks } from "#modules/sinks/service.js";
 import { Viewer } from "#modules/viewer/service.js";
@@ -31,7 +32,7 @@ export const Prove: ProveApi = {
       const { model, project } = yield* load(root);
       // The viewer first, so the collector started next also exports to it.
       const viewing = view ? yield* Viewer.start().pipe(Effect.mapError(failed)) : undefined;
-      const collector = yield* Collectors.start(resolve(root, ".forman/prove-telemetry"), { strip: privateKeys(model) }).pipe(Effect.mapError(failed));
+      const collector = yield* Collectors.start(resolve(root, Names.folder, "prove-telemetry"), { strip: privateKeys(model) }).pipe(Effect.mapError(failed));
       const sinks = yield* Sinks.resolve({ sinks: model.environments?.["local"]?.telemetry ?? [{ sink: "local" }], env: env ?? {} });
       const { url } = yield* Worlds.start({ root, port, name: "prove", otlp: collector.url, environment: "local", secretEnv: sinks.secretEnv }).pipe(Effect.mapError(failed));
       const done = yield* exercise(model, project, url, collector, undefined, collector.url);
@@ -47,7 +48,7 @@ export const Prove: ProveApi = {
       const sinks = yield* Sinks.resolve({ sinks: model.environments?.["local"]?.telemetry ?? [{ sink: "local" }], env: env ?? {} });
       // dev needs no Docker of its own: it gets a collector only while the viewer runs, so what it does can be seen there.
       const viewing = yield* Viewer.running();
-      const collector = viewing ? yield* Collectors.start(resolve(root, ".forman/dev-telemetry"), { strip: privateKeys(model) }).pipe(Effect.mapError(failed)) : undefined;
+      const collector = viewing ? yield* Collectors.start(resolve(root, Names.folder, "dev-telemetry"), { strip: privateKeys(model) }).pipe(Effect.mapError(failed)) : undefined;
       const { url, log } = yield* Worlds.start({ root, port, name: "dev", environment: "local", secretEnv: sinks.secretEnv, ...(collector ? { otlp: collector.url } : {}) }).pipe(Effect.mapError(failed));
       return { url, log, notes: [...sinks.notes, ...(viewing ? [`traces go to the viewer at ${viewing.url}`] : [])] };
     }),

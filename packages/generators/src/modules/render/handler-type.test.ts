@@ -5,7 +5,7 @@ import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs"
 import { basename, dirname, join, relative, resolve } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
 
-// Dot-folders (.wrangler, .forman) belong to whatever is running there; a filter also keeps cpSync off its native path,
+// Dot-folders (.wrangler, .ortho) belong to whatever is running there; a filter also keeps cpSync off its native path,
 // which aborts the process when a folder vanishes mid-copy.
 const visible = (from: string) => !basename(from).startsWith(".");
 const install = (from: string, root: string, to: string) => {

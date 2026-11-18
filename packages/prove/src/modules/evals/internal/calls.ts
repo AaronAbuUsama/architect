@@ -1,7 +1,7 @@
 // Evals 1 to 6 and 9: each looks at every call of one operation.
 import { Schema } from "effect";
-import { structOf } from "@formants/forman/server";
-import type { FieldModel } from "@formants/compiler";
+import { structOf } from "orthograph/server";
+import type { FieldModel } from "@orthograph/compiler";
 import type { PerOperation, Verdict } from "../types.ts";
 import { answered, attr, replayed, subtree, where } from "./evidence.ts";
 import { secretsIn } from "./secrets.ts";

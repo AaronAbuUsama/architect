@@ -17,4 +17,4 @@ export interface Entry {
 export class Journal extends Context.Service<Journal, {
   /** Every entry a trace wrote, in order. */
   readonly ofTrace: (trace: string) => Effect.Effect<ReadonlyArray<Entry>>;
-}>()("@formants/language-effect/Journal") {}
+}>()("@orthograph/language-effect/Journal") {}

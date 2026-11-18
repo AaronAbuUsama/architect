@@ -1,5 +1,5 @@
 // The services around Gate 2's environments, each started and stopped by the check that needs it: the local OIDC issuer
-// (D3 #8), Verdaccio (D3 #9, as tools/e2e/starter.sh starts it) and the logbook and environments through forman itself.
+// (D3 #8), Verdaccio (D3 #9, as tools/e2e/starter.sh starts it) and the logbook and environments through ortho itself.
 import { generateKeyPairSync, createSign, randomBytes } from "node:crypto";
 import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -14,21 +14,21 @@ const REGISTRY_IMAGE = "verdaccio/verdaccio:6.11.1";
 const docker = (...args: ReadonlyArray<string>) => spawnSync("docker", args, { encoding: "utf8" });
 const remove = (name: string) => void docker("rm", "-f", name);
 
-/** The claims a GitHub Actions job would carry for `forman-logbook`, per scenario (D3 #8). */
+/** The claims a GitHub Actions job would carry for `ortho-logbook`, per scenario (D3 #8). */
 const scenarios = {
   interactiveLogin: false,
   tokenCallbacks: [{
-    issuerId: "forman",
+    issuerId: "ortho",
     tokenExpiry: 600,
     requestMappings: [{
       requestParam: "client_id",
       match: "ci-main",
-      claims: { sub: "repo:acme/acme:ref:refs/heads/main", aud: ["forman-logbook"], repository: "acme/acme", ref: "refs/heads/main", workflow: "forman" },
+      claims: { sub: "repo:acme/acme:ref:refs/heads/main", aud: ["ortho-logbook"], repository: "acme/acme", ref: "refs/heads/main", workflow: "ortho" },
     }],
   }],
 };
 
-export const trusted = { repository: "acme/acme", ref: "refs/heads/main", workflow: "forman" };
+export const trusted = { repository: "acme/acme", ref: "refs/heads/main", workflow: "ortho" };
 
 /** A real OIDC server: a scenario is a client id, and a token for it carries that scenario's claims. */
 export const startIssuer = async (name: string, port: number, dir: string) => {
@@ -38,7 +38,7 @@ export const startIssuer = async (name: string, port: number, dir: string) => {
   remove(name);
   const started = docker("run", "-d", "--name", name, "-p", `127.0.0.1:${port}:8080`, "-e", "JSON_CONFIG_PATH=/config/issuer.json", "-v", `${config}:/config/issuer.json:ro`, ISSUER_IMAGE);
   expect(started.status, started.stderr).toBe(0);
-  const url = `http://127.0.0.1:${port}/forman`;
+  const url = `http://127.0.0.1:${port}/ortho`;
   await until(`issuer ${url}`, () => fetch(`${url}/.well-known/openid-configuration`).then((r) => r.ok, () => false), 60_000);
   return url;
 };
@@ -99,12 +99,12 @@ export type Stack = {
   readonly stop: () => ReadonlyArray<string>;
 };
 
-/** The local OIDC issuer, the logbook (`forman env up logbook`) and, if asked, a rogue second issuer and Verdaccio. */
+/** The local OIDC issuer, the logbook (`ortho env up logbook`) and, if asked, a rogue second issuer and Verdaccio. */
 export const startStack = async (root: string, check: number, options: { readonly registry?: boolean; readonly rogue?: boolean; readonly env?: Readonly<Record<string, string>> } = {}): Promise<Stack> => {
   const p = ports(check);
-  const dir = mkdtempSync(join(tmpdir(), "forman-gate2-"));
+  const dir = mkdtempSync(join(tmpdir(), "ortho-gate2-"));
   const id = `${process.pid}-${check}`;
-  const containers = [`forman-l2-issuer-${id}`, `forman-l2-rogue-${id}`, `forman-l2-registry-${id}`];
+  const containers = [`ortho-l2-issuer-${id}`, `ortho-l2-rogue-${id}`, `ortho-l2-registry-${id}`];
   const running = new Set<string>();
   const problems: Array<string> = [];
   const stop = () => {
@@ -132,10 +132,10 @@ export const startStack = async (root: string, check: number, options: { readonl
     const rogue = options.rogue ? await startIssuer(containers[1]!, p.rogue, dir) : undefined;
     const registry = options.registry ? await startRegistry(containers[2]!, p.registry, dir) : undefined;
     Object.assign(env, {
-      FORMAN_OIDC_ISSUER: issuer, FORMAN_OIDC_CLIENT: "ci-main",
-      FORMAN_OIDC_REPOSITORY: trusted.repository, FORMAN_OIDC_REF: trusted.ref, FORMAN_OIDC_WORKFLOW: trusted.workflow,
+      ORTHO_OIDC_ISSUER: issuer, ORTHO_OIDC_CLIENT: "ci-main",
+      ORTHO_OIDC_REPOSITORY: trusted.repository, ORTHO_OIDC_REF: trusted.ref, ORTHO_OIDC_WORKFLOW: trusted.workflow,
       HOMEBREW_NO_AUTO_UPDATE: "1", HOMEBREW_NO_ANALYTICS: "1", ...options.env,
-      ...(registry ? { FORMAN_REGISTRY: registry.url, NPM_CONFIG_USERCONFIG: registry.npmrc } : {}),
+      ...(registry ? { ORTHO_REGISTRY: registry.url, NPM_CONFIG_USERCONFIG: registry.npmrc } : {}),
     });
     const up = (name: string, port: number, extra: Readonly<Record<string, string>> = {}) => {
       const said = run(root, { ...env, ...extra }, "env", "up", name, "--port", String(port));
@@ -168,19 +168,19 @@ export const finish = async (root: string, stack: Stack | undefined) => {
   expect(problems).toEqual([]);
 };
 
-const formanPackages = ["forman", "compiler", "language-effect", "lint", "generators", "host-cloudflare", "logbook", "prove", "cli", "preset"] as const;
+const orthographPackages = ["orthograph", "compiler", "language-effect", "lint", "generators", "host-cloudflare", "logbook", "prove", "cli", "preset"] as const;
 
 /**
- * Every `@formants/*` package, built and published to the stack's registry as tools/e2e/starter.sh does, so that what promote
+ * Every `@orthograph/*` package, built and published to the stack's registry as tools/e2e/starter.sh does, so that what promote
  * publishes (`@acme/sdk`) resolves all its dependencies locally. The throwaway user's token stays in the temp npmrc; nothing prints it.
  */
-export const publishForman = (stack: Stack) => {
+export const publishOrthograph = (stack: Stack) => {
   const registry = stack.registry;
   const npmrc = stack.env["NPM_CONFIG_USERCONFIG"];
   if (registry === undefined || npmrc === undefined) throw new Error("the stack has no registry");
   const built = spawnSync("pnpm", ["nx", "run-many", "-t", "build", "--outputStyle=static"], { cwd: repo, encoding: "utf8", env: { ...process.env, NX_DAEMON: "false" }, timeout: 900_000 });
   expect(built.status, built.stdout.slice(-2000) + built.stderr.slice(-2000)).toBe(0);
-  for (const name of formanPackages) {
+  for (const name of orthographPackages) {
     const published = spawnSync("pnpm", ["publish", "--registry", registry, "--no-git-checks"], {
       cwd: join(repo, "packages", name), encoding: "utf8", env: { ...process.env, NPM_CONFIG_USERCONFIG: npmrc }, timeout: 300_000 });
     expect(published.status, `${name}: ${published.stderr.slice(-1500)}`).toBe(0);

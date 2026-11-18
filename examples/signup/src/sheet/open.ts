@@ -1,6 +1,6 @@
 // Scaffolded from blueprint/things/sheet/verbs/open.ts. Yours from now on.
 import { Effect } from "effect";
-import { Ids, Records } from "@formants/language-effect";
+import { Ids, Records } from "@orthograph/language-effect";
 import type { Handler } from "../../generated/api/src/sheet/open.handler.ts";
 import { Sheet } from "../../blueprint/things/sheet/thing.ts";
 

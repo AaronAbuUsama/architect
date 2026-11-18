@@ -1,8 +1,8 @@
 // Running journeys: each starting world made by its declared calls, each step called as its cast member, every call
 // recorded with its trace so the evals can read what really happened.
 import { Data, type Effect } from "effect";
-import type { Journey, Operation, Read, StartingWorld, Thing } from "@formants/forman";
-import type { Model } from "@formants/compiler";
+import type { Journey, Operation, Read, StartingWorld, Thing } from "orthograph";
+import type { Model } from "@orthograph/compiler";
 
 /** One HTTP call to the world, as `prove` saw it. */
 export interface CallRecord {

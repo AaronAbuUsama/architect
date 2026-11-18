@@ -1,4 +1,4 @@
-import { Blueprint } from "@formants/forman";
+import { Blueprint } from "orthograph";
 
 export const System = Blueprint.thing({
   description: "The running application itself.",

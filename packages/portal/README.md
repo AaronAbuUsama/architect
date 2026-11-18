@@ -1,8 +1,8 @@
-# @formants/portal
+# @orthograph/portal
 
 The read-only portal every project gets (layer 2, L2.10; F1, D3 #130 to #138). It is not an app of its own: the generated Worker of an
 environment routes `/portal` and `/_portal/v1/*` to `Portal.serve`, with `generated/portal/blueprint.json` (this package's wire, made by
-`@formants/generators`) and the logbook's address from the Worker's variables. The browser never imports project source, the
+`@orthograph/generators`) and the logbook's address from the Worker's variables. The browser never imports project source, the
 compiler or a credential.
 
 - `wire`: the versioned JSON the app reads, its digest, the decoder that rejects an unknown schema or a digest mismatch, and the

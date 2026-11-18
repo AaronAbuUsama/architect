@@ -1,4 +1,4 @@
-import { Blueprint } from "@formants/forman";
+import { Blueprint } from "orthograph";
 import { Person } from "../thing.ts";
 import { PersonEmailTaken } from "../errors.ts";
 import { Password } from "../../../values/identity.ts";

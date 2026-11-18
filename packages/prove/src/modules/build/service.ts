@@ -1,3 +1,4 @@
+import { Names } from "orthograph/server";
 import { existsSync, mkdirSync, mkdtempSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -7,7 +8,7 @@ import { BuildFailed, type BuildApi } from "./types.ts";
 import { digest, io, read } from "./internal/manifest.ts";
 
 const wrangler = join(dirname(fileURLToPath(import.meta.resolve("wrangler/package.json"))), "bin/wrangler.js");
-const artefacts = (root: string, revision: string) => join(resolve(root), ".forman/artefacts", revision);
+const artefacts = (root: string, revision: string) => join(resolve(root), Names.folder, "artefacts", revision);
 
 const git = (root: string, ...args: ReadonlyArray<string>) =>
   Effect.gen(function* () {

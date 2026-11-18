@@ -1,4 +1,4 @@
-import { Blueprint } from "@formants/forman";
+import { Blueprint } from "orthograph";
 import { Sheet } from "../thing.ts";
 
 // A read. It changes nothing, so it has no move and no handler: it answers from the sheet's record.

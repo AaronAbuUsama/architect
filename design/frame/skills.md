@@ -1,19 +1,19 @@
 # Skills: how any agent builds on Blueprint
 
 Part of the frame ([`README.md`](README.md)). Proposed, 18 November 2026. The skills, workflows and tools that agents
-use to build a Forman project, from an idea to a proved, watched operation. The calls made here are recorded in
+use to build a Orthograph project, from an idea to a proved, watched operation. The calls made here are recorded in
 [`../decisions/K4-agent-skills.md`](../decisions/K4-agent-skills.md); the ones that are Aaron's are in
 [`skills-questions.md`](skills-questions.md).
 
 The short version. **Skills are core; agents are not.** A skill is a plain `SKILL.md` folder that says how to do one
 job on a Blueprint project, in words any agent can follow: Claude Code, Codex, Amp, Pi's coding agent, our own Pi
-harness, or a person reading it. Skills ship in `@formants/agent-kit` (M3.12), which depends on the builder's tools and
-never on `@formants/agents` (M4). Every skill names **actions** (`describe`, `brief`, `prove`, `watch` …), never one
-agent's tool names, and every action has a `forman` command, so a skill works in any agent that has a shell. The
+harness, or a person reading it. Skills ship in `@orthograph/agent-kit` (M3.12), which depends on the builder's tools and
+never on `@orthograph/agents` (M4). Every skill names **actions** (`describe`, `brief`, `prove`, `watch` …), never one
+agent's tool names, and every action has a `ortho` command, so a skill works in any agent that has a shell. The
 part of a skill that quotes the model is generated; the rest is fixed text that ships with the package.
 
-This is not the kit we use to build Forman itself (`.agents/skills/`: `threads`, `conductor`, `spike`, `reviewer`,
-`hashtags`). That one is about this repository's threads and milestones. This one is what every Forman project gets.
+This is not the kit we use to build Orthograph itself (`.agents/skills/`: `threads`, `conductor`, `spike`, `reviewer`,
+`hashtags`). That one is about this repository's threads and milestones. This one is what every Orthograph project gets.
 
 ## 1. Skills, roles and agents, kept apart
 
@@ -21,9 +21,9 @@ Three words, three different things. Keeping them apart is what lets any agent u
 
 | | What it is | Where it lives | Example |
 |---|---|---|---|
-| **Skill** | how to do one job: its trigger, its steps, its done check | `generated/agents/skills/<name>/SKILL.md`, from `@formants/agent-kit` and plugins | `fill-a-blank` |
+| **Skill** | how to do one job: its trigger, its steps, its done check | `generated/agents/skills/<name>/SKILL.md`, from `@orthograph/agent-kit` and plugins | `fill-a-blank` |
 | **Role** | who does it: a bundle of skills, a tool set and the paths it may write | `generated/agents/<form>/<role>.*`, one per form | builder = `fill-a-blank` + `debug-a-failing-eval` + `prove-an-operation`, tools `brief`, `describe`, `run`, `write` (one path) |
-| **Agent** | what runs: a model in a loop with tools | outside Forman (Claude Code, Codex, Pi) or `@formants/agents` runs (M4) | a Claude Code session; a Pi Durable run |
+| **Agent** | what runs: a model in a loop with tools | outside Orthograph (Claude Code, Codex, Pi) or `@orthograph/agents` runs (M4) | a Claude Code session; a Pi Durable run |
 
 A person in Claude Code uses skills with no role at all: the skill's trigger fires and its steps are followed. The
 factory (M3) hands a claimed task to whoever claims it, with the skill named in the brief. An agents run (M4) is
@@ -39,10 +39,10 @@ is the only part an agent sees before it loads the body. The generated header is
 name: why-is-it-slow
 description: Find where an acme operation spends its time when it is over budget. Use it when watch or prove says an operation's p95 is over its budget, or someone asks why a call is slow.
 metadata:
-  forman-skill: 1             # the template's version inside @formants/agent-kit
-  forman-needs: bp-telemetry, commit-span
+  ortho-skill: 1             # the template's version inside @orthograph/agent-kit
+  ortho-needs: bp-telemetry, commit-span
 ---
-<!-- Generated from the model of acme (model 4c1e…) and @formants/agent-kit 0.3.0 (skills/why-is-it-slow). Do not edit. -->
+<!-- Generated from the model of acme (model 4c1e…) and @orthograph/agent-kit 0.3.0 (skills/why-is-it-slow). Do not edit. -->
 ```
 
 ## 2. Actions: the only words a skill uses
@@ -51,23 +51,23 @@ A skill says "`brief allowance.spend`" or "`prove` the operation", and each agen
 table, generated into `generated/agents/RULES.md`, holds the mapping per form, the same way the `threads` skill holds
 one table of "Threads in your agent" for this repository.
 
-| Action | Does | Claude Code (`forman mcp`) | Any shell | Pi harness (H1.5) | Today |
+| Action | Does | Claude Code (`ortho mcp`) | Any shell | Pi harness (H1.5) | Today |
 |---|---|---|---|---|---|
-| `describe` | the model, or one name's slice of `bp.d.ts` | `mcp__forman__describe` | `forman describe [name]` | `describe` | **missing**; `forman check` prints counts and blanks |
-| `run` | a code-mode script over `bp` | `mcp__forman__run` | `forman run <file.ts>` | Pi code mode, `bp` bound | **missing** (M4.11) |
-| `brief` | one job: write, read, do, done when | `mcp__forman__brief` | `forman brief <op>` | `brief` | built (`cli/src/modules/brief/service.ts:19-43`) |
-| `write` | one whole file, at a path the role allows | `mcp__forman__write` | the agent's own editor, fenced by `check` | `write` | check 4's `write_handler` (`e2e/layer1/04-agent-writes-a-handler.test.ts:27-56`) |
-| `add` | scaffold a declaration with its blanks | through `run` | `forman add thing\|operation\|read\|journey` | through `run` | built (`cli/src/main.ts:138`) |
-| `check` | compile, types, rules, drift | `bp.check()` | `forman check` | `bp.check()` | built |
-| `prove` | worlds, journeys, the nine evals | `bp.prove(…)` | `forman prove --env local [--only] [--empty]` | `bp.prove(…)` | built; `--empty` is M1.16 |
-| `impact` | what a change makes stale, and the version | `bp.impact(file)` | `forman impact` | `bp.impact(file)` | built (`cli/src/main.ts:168`) |
-| `trace` | one trace tree by id | `bp.telemetry.trace(id)` | `forman telemetry trace <id>` | `bp.telemetry.trace(id)` | built |
-| `watch` | the live evals over an environment | `bp.telemetry.*` | `forman watch --env <name>` | `bp.telemetry.*` | built (`prove/src/modules/watch/types.ts`) |
-| `tasks` | the derived tasks | through `run` | `forman tasks` | through `run` | **missing** (M3.09) |
+| `describe` | the model, or one name's slice of `bp.d.ts` | `mcp__ortho__describe` | `ortho describe [name]` | `describe` | **missing**; `ortho check` prints counts and blanks |
+| `run` | a code-mode script over `bp` | `mcp__ortho__run` | `ortho run <file.ts>` | Pi code mode, `bp` bound | **missing** (M4.11) |
+| `brief` | one job: write, read, do, done when | `mcp__ortho__brief` | `ortho brief <op>` | `brief` | built (`cli/src/modules/brief/service.ts:19-43`) |
+| `write` | one whole file, at a path the role allows | `mcp__ortho__write` | the agent's own editor, fenced by `check` | `write` | check 4's `write_handler` (`e2e/layer1/04-agent-writes-a-handler.test.ts:27-56`) |
+| `add` | scaffold a declaration with its blanks | through `run` | `ortho add thing\|operation\|read\|journey` | through `run` | built (`cli/src/main.ts:139`) |
+| `check` | compile, types, rules, drift | `bp.check()` | `ortho check` | `bp.check()` | built |
+| `prove` | worlds, journeys, the nine evals | `bp.prove(…)` | `ortho prove --env local [--only] [--empty]` | `bp.prove(…)` | built; `--empty` is M1.16 |
+| `impact` | what a change makes stale, and the version | `bp.impact(file)` | `ortho impact` | `bp.impact(file)` | built (`cli/src/main.ts:169`) |
+| `trace` | one trace tree by id | `bp.telemetry.trace(id)` | `ortho telemetry trace <id>` | `bp.telemetry.trace(id)` | built |
+| `watch` | the live evals over an environment | `bp.telemetry.*` | `ortho watch --env <name>` | `bp.telemetry.*` | built (`prove/src/modules/watch/types.ts`) |
+| `tasks` | the derived tasks | through `run` | `ortho tasks` | through `run` | **missing** (M3.09) |
 | `claim` | take a factory task, get its brief and branch | the factory's MCP | `work task claim <task>` | `run.start` from the manager | **missing** (M3.11) |
 
-**The floor is the shell column.** Before `forman mcp` and code mode exist (M4.11), a skill's steps still run:
-`forman brief`, `forman prove`, `forman watch`. When code mode is there, the skill says so in one generated line ("in
+**The floor is the shell column.** Before `ortho mcp` and code mode exist (M4.11), a skill's steps still run:
+`ortho brief`, `ortho prove`, `ortho watch`. When code mode is there, the skill says so in one generated line ("in
 code mode, this is one `run`: …"), and the agent takes the cheaper path. A skill never needs a tool only one agent has.
 
 ## 3. The catalogue
@@ -89,7 +89,7 @@ a gate. **The scorer is never a skill.** An agent that judged its own work would
 
 ### 3.0 Orient
 
-**`describe-this-app`** (everyone, first). *Trigger:* the start of any session or brief in a Forman project; "what is
+**`describe-this-app`** (everyone, first). *Trigger:* the start of any session or brief in a Orthograph project; "what is
 this app", "what's left". *Reads:* every thing, operation, feature, adapter, store, source and projection by name; the
 open blanks; stale verdicts; the tasks; through `describe`, `bp.verdicts()`, `tasks`. *Writes:* nothing. *Done when:*
 it can say what is here, what is open and what is stale, in a few lines. *Eval:* twenty questions about acme with
@@ -103,7 +103,7 @@ app's values and roles to reuse; the questions that turn talk into facts (story 
 states, who may do each move, what is refused, what a retry does). A Mermaid or FigJam state diagram is read as a
 machine and drawn back from one. *Writes:* `blueprint/` only: things, machines, operations with `Blueprint.todo` where
 the answer is unknown, and journeys as prose stories (`story:`). Never a handler. Each open question is a blank in
-plain words; the chat is not kept (S4). *Done when:* `forman check` compiles, every unanswered question is a blank, and
+plain words; the chat is not kept (S4). *Done when:* `ortho check` compiles, every unanswered question is a blank, and
 the person has read the stories back and said yes (a person's step, never the agent's). *Eval:* the allowance
 conversation of story section 1, played by a scripted owner on the stand-in model (S14); scored by a structural diff
 of the model: a thing with states `active`, `exhausted`, `revoked`; `grant`, `spend`, `revoke`; `spend` refusing
@@ -129,7 +129,7 @@ workflow (K3 item 5), not forced into one call.
 the declared stores and the store kinds the mounted hosts supply (what each can do: lists, search, private state), the
 sources. *Writes:* nothing; it hands on to `add-a-store`, `add-an-adapter` or the default store. *Done when:* the answer
 is one of the default store, a declared store of a named kind, a source behind an adapter, a view, or a field (a
-file), with the reason in the rule's words: does Forman own the schema and make every write? *Eval:* twelve cases with
+file), with the reason in the rule's words: does Orthograph own the schema and make every write? *Eval:* twelve cases with
 fixed answers: Capxul's bench on MariaDB (a source), a ledger in its own database (a store), a cache in KV (never a
 home), files in R2 (a field), a search index (a view), a list over actors (a view) and six more.
 
@@ -142,9 +142,9 @@ two-store operation must be split.
 **`add-an-adapter`** (planner). *Trigger:* a source or service we don't own: the bench, Stripe, another app. *Reads:*
 its contract (OpenAPI, an ABI, a schema dump, another app's model), the stand-in ladder (Q1 of the frame: the real
 software first), the secrets list. *Writes:* the mount at `blueprint/adapters/<name>.ts` (or a package, through
-`forman add adapter`), its calls with declared errors, its secret by name, its stand-in, its conformance test, and
+`ortho add adapter`), its calls with declared errors, its secret by name, its stand-in, its conformance test, and
 `Blueprint.step.call(...)` in each operation that uses it. Never a migration for it, never a fake of our own. *Done
-when:* conformance passes against the stand-in, each use is a `call` step with its own span, and `forman secrets` names
+when:* conformance passes against the stand-in, each use is a `call` step with its own span, and `ortho secrets` names
 its secret with no value. *Eval:* M5.13's fixture: a MariaDB dump; the eval then changes a column in the dump, and the
 conformance test the agent wrote must go red.
 
@@ -155,9 +155,9 @@ conformance test the agent wrote must go red.
 
 **`change-a-declaration`** (planner). *Trigger:* something declared must change: a field, an error, a role, a budget.
 *Reads:* `impact`. *Writes:* the declaration, never a journey. *Done when:* the report gives the version bump, the
-operations made stale and the journeys to revisit, all matching `forman impact`; a change that loosens the contract
+operations made stale and the journeys to revisit, all matching `ortho impact`; a change that loosens the contract
 (a budget raised, a role widened, an error removed) waits for a person ([`skills-questions.md`](skills-questions.md)
-Q2). *Eval:* six changes to acme; the agent's reported impact must equal `forman impact`'s, and the two loosening
+Q2). *Eval:* six changes to acme; the agent's reported impact must equal `ortho impact`'s, and the two loosening
 changes must stop for a person.
 
 ### 3.3 Journeys (never the builder of what they call)
@@ -176,7 +176,7 @@ it and its `gives` facts are there. *Eval:* the world builds from `from:`, and l
 **`make-a-journey-executable`** (check writer). *Trigger:* a prose journey. *Reads:* the step forms each mounted
 projection replays; the checks (`emits`, `refuses`, `noEvents`, `machine.isIn`, `spans({ present, absent })`). *Writes:*
 the same journey file, with `steps:`; the sentences stay as step names. Span checks use model names only, include
-`<op>.commit` once it exists, and never assert free text on a span (section 4.2). *Done when:* `forman prove --empty
+`<op>.commit` once it exists, and never assert free text on a span (section 4.2). *Done when:* `ortho prove --empty
 --only <journey>` turns every step that needs behaviour red, and labels the rest "proved by the description" (S3).
 *Eval:* acme's journeys with their steps removed. Scored three ways: red on empty handlers, green on the reference
 handlers, and red on each of eight planted bugs (records before it checks, emits the wrong event, skips the request
@@ -221,7 +221,7 @@ hand-edited, a role widened); scored on faults found and clean diffs passed.
 
 **`promote-a-revision`** (manager or person). *Trigger:* a revision is green in an environment. *Reads:* the
 environments by name, what `promote` needs to go from each to the next, the ratchets. *Writes:* nothing itself; it runs
-`forman promote --to <env>` for test and staging, and raises an attention for production, which only a person
+`ortho promote --to <env>` for test and staging, and raises an attention for production, which only a person
 approves. *Done when:* the same bundle's verdicts are green in the target. *Eval:* three fixtures: staging red (must
 refuse), staging green (must promote), production (must raise an attention and never promote).
 
@@ -229,7 +229,7 @@ refuse), staging green (must promote), production (must raise an attention and n
 
 **`watch-an-environment`** (operator or manager). *Trigger:* the factory's daily clock, or a person asking "how is
 staging". *Reads:* `watch`, `bp.telemetry.counts`, `refusals`, `defects`, `slow`, over the window asked. *Writes:*
-findings: facts, not a dashboard (today, watch's task files under `.forman/tasks/`). *Done when:* each operation seen
+findings: facts, not a dashboard (today, watch's task files under `.ortho/tasks/`). *Done when:* each operation seen
 has its p95 against its budget, its refusal rate against the last window, and any new defect. *Eval:* recorded
 telemetry (a Collector's traces and metrics files) with three planted findings: one operation drifting over budget, a
 burst of `NotAllowed` strangers that left no span, one new defect. All three must be reported.
@@ -241,7 +241,7 @@ four fixtures: a slow `load` step, a slow commit, contention (`attempt` above 1 
 Section 4.1 says what it can tell apart before the commit span exists.
 
 **`who-is-refused`** (operator). *Trigger:* a refusal-rate finding, or "who is being turned away". *Reads:*
-`bp.telemetry.counts` (every call, from `forman.calls`), by operation, refusal and principal kind; a sample trace only
+`bp.telemetry.counts` (every call, from `ortho.calls`), by operation, refusal and principal kind; a sample trace only
 for refusals that opened a span. *Writes:* a finding. It never names a person: the metric carries none. *Done when:*
 counts are given per refusal, including `InvalidPayload` and `NotAllowed`. *Eval:* 400 strangers refused `NotAllowed`
 (no spans) and 3 `AllowanceExceeded`; both must be reported. A reader of spans alone reports 3, and fails.
@@ -303,7 +303,7 @@ that answer for the slow-commit and contention fixtures until the gate opens.
 
 ### 4.2 Free text is traced by default (O2 gap 2, M1.19)
 
-**Today.** Visibility is public by default (`packages/forman/src/modules/visibility/types.ts:1`) and public fields
+**Today.** Visibility is public by default (`packages/orthograph/src/modules/visibility/types.ts:1`) and public fields
 become span attributes, so acme's `memo` is on every trace.
 
 **Who reads it.** Every skill that reads traces, the "leaks nothing" eval (S28), and every skill that writes a
@@ -337,11 +337,11 @@ spans, so a stranger turned away leaves nothing it can count.
 counts(o: { since: string; operation?: Operation; env?: Env }): Array<{
   operation: Operation; outcome: "answered" | "refused" | "defect";
   refusal?: string; principalKind: "anonymous" | "person" | "agent" | "service" | "system"; count: number;
-}>;                                                           // forman.calls: every call, span or not
+}>;                                                           // ortho.calls: every call, span or not
 refusals(o: { since: string; env?: Env }): Array<{ operation: Operation; tag: string; count: number; sample?: string }>;
-                                                              // counted from forman.calls; a sample only when a span opened
+                                                              // counted from ortho.calls; a sample only when a span opened
 slow(o: { since: string; env?: Env }): Array<{ operation: Operation; p95: number; budget: number; over: number;
-  worstStep: string; retried: number }>;                      // p95 from forman.call.duration; worstStep from spans
+  worstStep: string; retried: number }>;                      // p95 from ortho.call.duration; worstStep from spans
 ```
 
 `calls()` stays as it is in [`builder.md`](builder.md) section 2, and means what it lists: calls that opened a span,
@@ -372,8 +372,8 @@ data, not prose. The data map (`generated/data/map.md`, M5.06) is what `describe
 Who does each step:
 
 - **Person**: the owner, or anyone on the team.
-- **Outside agent**: Claude Code, Codex, Amp or Pi's coding agent, with the kit and `forman mcp` (or a shell).
-- **Factory**: `@formants/work` (M3). Its manager derives tasks and hands them out. Its workers are people, who may
+- **Outside agent**: Claude Code, Codex, Amp or Pi's coding agent, with the kit and `ortho mcp` (or a shell).
+- **Factory**: `@orthograph/work` (M3). Its manager derives tasks and hands them out. Its workers are people, who may
   use an outside agent (M3), or agents runs (M4, `workers: agents`).
 
 A step's hand-off is always a fact (a compiled model, a red or green prove, a verdict, a finding), never a message
@@ -441,7 +441,7 @@ saying "done".
 ### 6.1 Which is which
 
 **The rule: shapes are generated, behaviour is written.** What varies with the model (names, unions, which operations
-exist, what a skill quotes) is rendered on every compile. What a tool does is code in a Forman package, the same for
+exist, what a skill quotes) is rendered on every compile. What a tool does is code in a Orthograph package, the same for
 every project, tested once.
 
 | Piece | Kind | Made from | Where |
@@ -452,22 +452,22 @@ every project, tested once.
 | `RULES.md`, with the actions table per form | generated | the mounted languages, lint, the forms chosen | `generated/agents/RULES.md` |
 | skill names as identifiers | generated | the kit | `generated/agents/skills.ts`, so `Blueprint.agent({ skills: [skills.fillABlank] })` takes no strings |
 | the brief | generated | the model, the journeys | printed by `brief`; also `generated/builder/` |
-| `describe`, `run`, `brief`, `write` (`BuilderTools`) | hand-written | `@formants/cli` | one module, three doors: `forman mcp`, the shell, the harness |
-| the code-mode sandbox and `bp`'s host functions | hand-written | `@formants/cli` | QuickJS (builder.md section 2) |
-| the telemetry summaries (`counts`, `refusals`, `defects`, `slow`) | hand-written | `@formants/prove` over `TraceSource` and `MetricSource` | pure functions, summarised before the sandbox |
-| the scorer | hand-written | `@formants/agents` bench (H2.7) and CI | never a skill, never in the agent's reach |
-| skill templates' fixed text, and each skill's eval | hand-written | `@formants/agent-kit` | `templates/skills/<name>/`, `evals/<name>/` |
+| `describe`, `run`, `brief`, `write` (`BuilderTools`) | hand-written | `@orthograph/cli` | one module, three doors: `ortho mcp`, the shell, the harness |
+| the code-mode sandbox and `bp`'s host functions | hand-written | `@orthograph/cli` | QuickJS (builder.md section 2) |
+| the telemetry summaries (`counts`, `refusals`, `defects`, `slow`) | hand-written | `@orthograph/prove` over `TraceSource` and `MetricSource` | pure functions, summarised before the sandbox |
+| the scorer | hand-written | `@orthograph/agents` bench (H2.7) and CI | never a skill, never in the agent's reach |
+| skill templates' fixed text, and each skill's eval | hand-written | `@orthograph/agent-kit` | `templates/skills/<name>/`, `evals/<name>/` |
 | plugin skills | hand-written template, generated output | the plugin's `agents/skills/`, filled from the mount | `generated/agents/skills/<mount>-<name>/` |
-| the project's own skills | scaffolded, then yours | `forman add skill <name>` | `.agents/skills/<name>/` |
+| the project's own skills | scaffolded, then yours | `ortho add skill <name>` | `.agents/skills/<name>/` |
 
 ### 6.2 How the kit is generated
 
-The `agents` projection (S11) is mounted by `forman new` in every project, from `@formants/agent-kit`:
+The `agents` projection (S11) is mounted by `ortho new` in every project, from `@orthograph/agent-kit`:
 
 ```ts
-// blueprint/projections/agents.ts (Scaffolded by forman new. Yours from now on.)
-import { Blueprint } from "@formants/forman";
-import agentKit from "@formants/agent-kit";
+// blueprint/projections/agents.ts (Scaffolded by ortho new. Yours from now on.)
+import { Blueprint } from "orthograph";
+import agentKit from "@orthograph/agent-kit";
 
 export default Blueprint.use(agentKit, (k) => [
   k.choose(k.choices.for.claudeCode, k.choices.for.pi),   // the neutral form is always rendered (S12)
@@ -479,15 +479,15 @@ Each template is fixed text with **slots**, and with sections **gated** on what 
 capability the model or the runtime reports (`commit-span`, `metrics`, `code-mode`, `stores`, `factory`). A section
 whose gate is shut renders its floor instead: the shell commands rather than `run`, or "this app can't yet tell the
 commit from the handler". So one template serves acme today and acme after M1.18 without forking. The skill's
-`metadata.forman-needs` lists its gates, so a reader sees why a section reads as it does.
+`metadata.ortho-needs` lists its gates, so a reader sees why a section reads as it does.
 
-On every `forman generate` and `forman check`, the projection renders `generated/agents/`. The drift rule
-(`no-edited-output`) covers it like any output, and the links (`.agents/skills/forman`, `.claude/skills`,
+On every `ortho generate` and `ortho check`, the projection renders `generated/agents/`. The drift rule
+(`no-edited-output`) covers it like any output, and the links (`.agents/skills/ortho`, `.claude/skills`,
 `.claude/agents`) point into it ([`generators.md`](generators.md) section 2).
 
 ### 6.3 Versioning, and keeping in step
 
-- **Two versions in every header:** the model's hash and `@formants/agent-kit`'s version with the template's path. A
+- **Two versions in every header:** the model's hash and `@orthograph/agent-kit`'s version with the template's path. A
   skill's hash (of its rendered file) goes in every run record (H1.6), so two runs are compared only on equal skills,
   or the record says they differ.
 - **Kit changes are not app changes.** `impact` lists them on their own line ("kit: `why-is-it-slow` gained its commit
@@ -495,17 +495,17 @@ On every `forman generate` and `forman check`, the projection renders `generated
 - **The model drives the kit.** Add an operation and `describe-this-app` and `fill-a-blank`'s open blanks change; add
   a store and `choose-a-home` lists it; change a budget and the watch skills quote it. The table in
   [`generators.md`](generators.md) section 3 is the full list.
-- **Upgrading `@formants/agent-kit`** rewrites every template-derived file in one generate, with its diff in the pull
-  request, like any dependency bump. Its version is pinned exactly, like every `@formants/*` package.
+- **Upgrading `@orthograph/agent-kit`** rewrites every template-derived file in one generate, with its diff in the pull
+  request, like any dependency bump. Its version is pinned exactly, like every `@orthograph/*` package.
 - **Plugins version their own skills.** A plugin's skills move with the plugin's version. Two mounts never collide,
   because each skill is prefixed with its mount's name.
-- **The evals run where the templates live.** `@formants/agent-kit`'s CI runs every skill's eval against acme with
+- **The evals run where the templates live.** `@orthograph/agent-kit`'s CI runs every skill's eval against acme with
   the `null` and `oracle` runners and the stand-in model on each change. Real-model runs are H2's bench, off the gate,
   inside the spending cap. A project runs no skill evals; it runs the drift check.
 
 ### 6.4 The switch-over test
 
-The kit is right when this repository could use it. Once Forman's own design is a Forman model (the factory, F5), our
+The kit is right when this repository could use it. Once Orthograph's own design is a Orthograph model (the factory, F5), our
 `reviewer` becomes the generated `review-a-change` plus the reviewer role, and `spike` becomes a skill that ships as is.
 What stays hand-written is ours alone: `threads`, `conductor` and `hashtags`, which are about how Aaron runs this
 repository's threads, and the voice he wants (the `voice` choice).
@@ -514,10 +514,10 @@ repository's threads, and the voice he wants (the `voice` choice).
 
 | Piece | Lands in | Needs |
 |---|---|---|
-| The catalogue's templates and evals, the forms, `RULES.md` | M3.12 (`@formants/agent-kit`) | the builder projection's `bp.d.ts` shape; the floor commands |
+| The catalogue's templates and evals, the forms, `RULES.md` | M3.12 (`@orthograph/agent-kit`) | the builder projection's `bp.d.ts` shape; the floor commands |
 | Gated sections for the commit span, metrics, stores | M3.12, rendered from whatever M1.17 to M1.20 delivered | M1.17 to M1.20 |
 | `MetricSource`, `counts`, the new `slow` fields | with M1.20 for the reader; in `bp` with M4.12 | M1.20 |
-| `forman describe`, `forman run`, `forman mcp` | M4.11 | M4.10 |
+| `ortho describe`, `ortho run`, `ortho mcp` | M4.11 | M4.10 |
 | `tasks`, `claim`, the brief naming its skill | M3.09, M3.11 | the factory |
 | Skill names as identifiers in `Blueprint.agent` | M4.10 | M3.12 |
 
@@ -529,7 +529,7 @@ When the first skills reach a project is Aaron's call, because it decides what "
 - **Triggers are only descriptions.** An agent loads a skill when its description matches. A poor description means a
   skill that never fires. Each eval also runs once with the skill listed but not named in the task, and counts whether
   the agent loaded it.
-- **The floor is weaker than code mode.** Before M4.11, the watch skills read `forman watch` text, not structured data.
+- **The floor is weaker than code mode.** Before M4.11, the watch skills read `ortho watch` text, not structured data.
   The text is stable and tested (`prove/src/modules/watch/watch.test.ts`), which is enough for the floor.
 - **An outside agent with a shell can read the journeys.** The kit can't fence that by words. Q3 in
   [`skills-questions.md`](skills-questions.md) is how hard to fence it.

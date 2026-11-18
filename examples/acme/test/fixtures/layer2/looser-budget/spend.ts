@@ -1,6 +1,6 @@
 // Planted fixture: the real spend declaration with its budget loosened from 150 to 300 millis. Install over
 // blueprint/things/allowance/verbs/spend.ts.
-import { Blueprint } from "@formants/forman";
+import { Blueprint } from "orthograph";
 import { Allowance } from "../thing.ts";
 import { machine } from "../machine.ts";
 import { grantee } from "../roles.ts";

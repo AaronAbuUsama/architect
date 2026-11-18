@@ -1,5 +1,5 @@
-// `forman prove --env local`: a fresh local world and a real collector, every journey run, the nine evals judged.
-// `forman prove --env test`: the same, in a world of the long-lived test environment, with a signed verdict per operation.
+// `ortho prove --env local`: a fresh local world and a real collector, every journey run, the nine evals judged.
+// `ortho prove --env test`: the same, in a world of the long-lived test environment, with a signed verdict per operation.
 import { Data, type Effect, type Scope } from "effect";
 import type { Result, TokenSource } from "#modules/verdicts/types.js";
 
@@ -27,7 +27,7 @@ export interface ProveApi {
   }) => Effect.Effect<Report, ProveFailed, Scope.Scope>;
 
   /**
-   * `forman dev`: a local world on `port` that stays up while the scope is open. While the viewer runs it also has a
+   * `ortho dev`: a local world on `port` that stays up while the scope is open. While the viewer runs it also has a
    * collector, so its traces are in the viewer; the local environment's other sinks get what they are named for.
    */
   readonly dev: (options: {
@@ -66,7 +66,7 @@ export interface ProveApi {
     readonly url: string;
     readonly telemetry: string;
     /**
-     * The environment's state folder (`.forman/environments/<env>/state`). Its `/_world/*` is closed, so the rows and
+     * The environment's state folder (`.ortho/environments/<env>/state`). Its `/_world/*` is closed, so the rows and
      * journal the evals read come from its database file instead (D3 #127). Without it, from the world's own front door.
      */
     readonly state?: string;

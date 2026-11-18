@@ -1,8 +1,8 @@
 // Better Auth on D1: who is calling, and the `Auth` service handlers sign people up and in with. Built once per
 // isolate from the Worker's bindings; its tables (all `auth_*`) are created on first use.
 import type { Effect, Layer } from "effect";
-import type { Principal } from "@formants/forman";
-import type { Auth, Principals } from "@formants/language-effect";
+import type { Principal } from "orthograph";
+import type { Auth, Principals } from "@orthograph/language-effect";
 
 export interface AuthOptions {
   readonly db: D1Database;

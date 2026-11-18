@@ -55,7 +55,7 @@ export default Blueprint.environment({
   runs: "on this machine",
   identity: Identity.testPrincipals, // fixed test people, no sign-in
   database: Cloud.d1.local(), // the local runtime emulates D1: no database process
-  telemetry: [Telemetry.sink.local()], // prove's Collector, and the viewer while `forman telemetry view` runs
+  telemetry: [Telemetry.sink.local()], // prove's Collector, and the viewer while `ortho telemetry view` runs
 });
 ```
 
@@ -108,7 +108,7 @@ export class Store extends Context.Service<Store, {
   readonly commit: (commit: Commit) => Effect.Effect<Committed>;
   /** The answer already committed under a request key, as wire JSON, if there is one. */
   readonly answered: (key: string) => Effect.Effect<string | undefined>;
-}>()("@formants/language-effect/Store") {}
+}>()("@orthograph/language-effect/Store") {}
 ```
 
 There are only two outcomes. `committed` means the writes, the journal entries and the request's answer all landed.
@@ -236,7 +236,7 @@ stores: { ledger: Cloud.d1.local() },        // only when it needs saying
 ### Stores that plugins bring
 
 A feature can declare its own stores. Mounted, a store's name is the mount's name plus the store's path, so two
-plugins never collide. `@formants/auth` keeps Better Auth's tables in a store of its own, and your project never sees
+plugins never collide. `@orthograph/auth` keeps Better Auth's tables in a store of its own, and your project never sees
 them. That is why stores land in M1: auth in M2 needs them.
 
 ## Choices
@@ -246,7 +246,7 @@ them. That is why stores land in M1: auth in M2 needs them.
 | | `database` (the default) | `actor` | `chain` (waits on K7) |
 |---|---|---|---|
 | What it is | D1, one row per instance, with a version column | one Durable Object per instance: its own SQLite, its own outbox | a contract, generated in the Solidity language |
-| Supplied by | `@formants/host-cloudflare` | `@formants/host-cloudflare` | `@formants/language-solidity` |
+| Supplied by | `@orthograph/host-cloudflare` | `@orthograph/host-cloudflare` | `@orthograph/language-solidity` |
 | Lists and search | yes | no: declare a view | through views |
 | Contention | every call to any instance shares one database | one writer per instance, so instances never contend | one transaction at a time, and every write costs gas |
 | Pick it when | you need to list and search across many | an instance takes many writes and needs strict order, and nobody lists them | it is money or a public commitment |
@@ -279,7 +279,7 @@ local-first, Noir on Aztec.
 
 | What | Where | |
 |---|---|---|
-| Where a thing lives, today a closed list | `packages/forman/src/modules/things/types.ts:32` | built |
+| Where a thing lives, today a closed list | `packages/orthograph/src/modules/things/types.ts:32` | built |
 | The store port | `packages/language-effect/src/modules/records/types.ts:62` | built |
 | What a commit holds, and its two outcomes | `packages/language-effect/src/modules/records/types.ts:33` | built |
 | The one commit per call, and the rerun on conflict | `packages/language-effect/src/modules/handler/service.ts:71` | built |
@@ -287,7 +287,7 @@ local-first, Noir on Aztec.
 | The `actor` kind, a Durable Object per instance | `packages/host-cloudflare/src/modules/actors/service.ts:28` | built |
 | The compiler refusing a list over actors | `packages/compiler/src/modules/model/internal/describe.ts:139` | built |
 | Migrations from the model | `packages/generators/src/modules/render/internal/worker-config.ts:55` | built, one store |
-| `Blueprint.store.<kind>()`, and `lives` taking a store | `packages/forman/src/modules/stores/` | planned, M1.17 |
+| `Blueprint.store.<kind>()`, and `lives` taking a store | `packages/orthograph/src/modules/stores/` | planned, M1.17 |
 | The data map | `generated/data/map.md` in each project | planned, M5.06 |
 
 ## Status
@@ -341,7 +341,7 @@ local-first, Noir on Aztec.
 
 <Note kind="question" id="visibility-per-kind" slice="M1.17">
   What does a field's visibility mean in each kind? Today it is only a comment: Solidity "treats everything as public;
-  one that has it, such as Noir on Aztec, uses the roles" (`packages/forman/src/modules/visibility/types.ts:1`). So a
+  one that has it, such as Noir on Aztec, uses the roles" (`packages/orthograph/src/modules/visibility/types.ts:1`). So a
   private field on a thing that lives on a chain is either refused by the compiler or silently public. Nothing decides
   which.
 </Note>

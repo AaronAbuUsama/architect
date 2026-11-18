@@ -1,6 +1,7 @@
+import { Names } from "orthograph/server";
 import { join, resolve } from "node:path";
 import { Effect } from "effect";
-import { Compiler, nodeSource, type EnvironmentModel, type Model } from "@formants/compiler";
+import { Compiler, nodeSource, type EnvironmentModel, type Model } from "@orthograph/compiler";
 import { Environments } from "#modules/environments/service.js";
 import type { Built } from "#modules/build/types.js";
 import type { Up } from "#modules/environments/types.js";
@@ -54,7 +55,7 @@ const to: PromoteApi["to"] = ({ root, env, target, say }) =>
     const built = yield* bundleOf(root, revision);
     yield* Build.unchanged(root, built.commit).pipe(Effect.mapError(failed));
     const logbook = yield* Releases.locate({ root, env }).pipe(Effect.mapError(failed));
-    if (logbook === undefined) return yield* new PromoteFailed({ message: "no logbook: start one with `forman env up logbook`, or set FORMAN_LOGBOOK_URL" });
+    if (logbook === undefined) return yield* new PromoteFailed({ message: "no logbook: start one with `ortho env up logbook`, or set ORTHO_LOGBOOK_URL" });
     const from = earnedIn(target, environment);
     yield* verdictsIn(logbook, model, revision, from, built.sha256);
     yield* say(`${target} from ${from} ${revision} sha256:${built.sha256}`);
@@ -65,7 +66,7 @@ const to: PromoteApi["to"] = ({ root, env, target, say }) =>
     if (target === "staging") {
       // The staging verdicts: the journeys and evals, run where staging runs, by people who really sign up.
       if (up.telemetry === undefined) return yield* new PromoteFailed({ message: "staging records no telemetry, so its evals have nothing to judge: another environment must declare promotesFrom: \"staging\"" });
-      const proved = yield* Prove.against({ root, url: up.url, telemetry: up.telemetry, state: join(resolve(root), ".forman/environments", target, "state"), say }).pipe(Effect.mapError(failed));
+      const proved = yield* Prove.against({ root, url: up.url, telemetry: up.telemetry, state: join(resolve(root), Names.folder, "environments", target, "state"), say }).pipe(Effect.mapError(failed));
       yield* stable(root, target, up, built);
       // Staleness judges these verdicts against the model of the revision they proved, so the logbook keeps that model first.
       yield* Releases.keep({ logbook, env, model, revision }).pipe(Effect.mapError(failed));

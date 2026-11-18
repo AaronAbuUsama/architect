@@ -1,10 +1,10 @@
 {
-  "name": "forman",
+  "name": "orthograph",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/forman/src",
+  "sourceRoot": "packages/orthograph/src",
   "projectType": "library",
   "tags": [
-    "scope:forman",
+    "scope:orthograph",
     "env:runtime",
     "layer:1"
   ],

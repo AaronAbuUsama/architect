@@ -1,4 +1,4 @@
-// L2.06's done-when checks, through the `forman publish` command on a copy of acme under git: the dry run lists exactly what would
+// L2.06's done-when checks, through the `ortho publish` command on a copy of acme under git: the dry run lists exactly what would
 // go out and sends nothing; `--local` puts `@acme/sdk@1.1.0` and `@acme/cli@1.1.0` on a real Verdaccio, installable in a fresh folder;
 // the formula it commits to the tap installs with `brew` and runs; a prerelease never takes `latest`. Real wrangler and workerd for the
 // logbook, a real OIDC server and a real registry (verdaccio/verdaccio:6.11.1) in Docker, real Homebrew. Ports 9050 to 9069 are this file's.
@@ -8,7 +8,7 @@ import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
 import { randomBytes } from "node:crypto";
 import { Effect, Exit, Scope } from "effect";
-import type { Model } from "@formants/compiler";
+import type { Model } from "@orthograph/compiler";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { Environments } from "#modules/environments/service.js";
 import { Releases } from "#modules/releases/service.js";
@@ -23,7 +23,7 @@ const repo = resolve(import.meta.dirname, "../../../../..");
 const acme = join(repo, "examples/acme");
 const cli = join(repo, "packages/cli/src/main.ts");
 const id = randomBytes(3).toString("hex");
-const containers = { issuer: `forman-l206-issuer-${process.pid}`, registry: `forman-l206-registry-${process.pid}` };
+const containers = { issuer: `ortho-l206-issuer-${process.pid}`, registry: `ortho-l206-registry-${process.pid}` };
 const docker = (...args: ReadonlyArray<string>) => spawnSync("docker", args, { encoding: "utf8" });
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 const git = (cwd: string, ...args: ReadonlyArray<string>) => {
@@ -33,34 +33,34 @@ const git = (cwd: string, ...args: ReadonlyArray<string>) => {
 };
 
 // A copy of acme under git, outside the repository (its revision is a commit of its own), named `acme` as the project is.
-const parent = mkdtempSync(join(realpathSync(tmpdir()), "forman-l206-"));
+const parent = mkdtempSync(join(realpathSync(tmpdir()), "ortho-l206-"));
 const root = join(parent, "acme");
 for (const part of ["blueprint", "generated", "journeys", "src", "package.json"]) cpSync(join(acme, part), join(root, part), { recursive: true, filter: (from) => !basename(from).startsWith(".") });
 mkdirSync(join(root, "node_modules/.bin"), { recursive: true });
 for (const entry of readdirSync(join(acme, "node_modules"))) if (entry !== ".bin") symlinkSync(join(acme, "node_modules", entry), join(root, "node_modules", entry));
 writeFileSync(join(root, "node_modules/.bin/tsc"), `#!/bin/sh\nexec "${join(repo, "node_modules/.bin/tsc")}" "$@"\n`, { mode: 0o755 });
 writeFileSync(join(root, "tsconfig.json"), JSON.stringify({ extends: join(acme, "tsconfig.json"), compilerOptions: { typeRoots: [join(repo, "node_modules/@types"), join(acme, "node_modules")] }, include: ["blueprint/**/*.ts", "generated/**/*.ts", "src/**/*.ts", "journeys/**/*.ts"] }));
-writeFileSync(join(root, ".gitignore"), "node_modules/\n.forman/\n.wrangler/\n");
+writeFileSync(join(root, ".gitignore"), "node_modules/\n.ortho/\n.wrangler/\n");
 git(root, "init", "-q", "-b", "main");
 git(root, "add", "-A");
 git(root, "commit", "-q", "-m", "acme");
 const first = git(root, "rev-parse", "--short", "HEAD");
 
-const issuer = `http://127.0.0.1:${PORTS.issuer}/forman`;
+const issuer = `http://127.0.0.1:${PORTS.issuer}/ortho`;
 const registry = `http://localhost:${PORTS.registry}/`;
 const npmrc = join(parent, "npmrc");
-const tap = `forman-l206-${id}/pub`;
+const tap = `ortho-l206-${id}/pub`;
 const formula = `acme-l206-${id}`;
 const full = `${tap}/${formula}`;
 const env: Record<string, string> = {
   ...(process.env as Record<string, string>),
-  FORMAN_OIDC_ISSUER: issuer, FORMAN_OIDC_CLIENT: "ci-main", FORMAN_OIDC_REPOSITORY: "acme/acme", FORMAN_OIDC_REF: "refs/heads/main", FORMAN_OIDC_WORKFLOW: "forman",
-  FORMAN_REGISTRY: registry, NPM_CONFIG_USERCONFIG: npmrc, FORMAN_FORMULA: formula,
+  ORTHO_OIDC_ISSUER: issuer, ORTHO_OIDC_CLIENT: "ci-main", ORTHO_OIDC_REPOSITORY: "acme/acme", ORTHO_OIDC_REF: "refs/heads/main", ORTHO_OIDC_WORKFLOW: "ortho",
+  ORTHO_REGISTRY: registry, NPM_CONFIG_USERCONFIG: npmrc, ORTHO_FORMULA: formula,
   HOMEBREW_NO_AUTO_UPDATE: "1", HOMEBREW_NO_ANALYTICS: "1", HOMEBREW_NO_INSTALL_CLEANUP: "1", HOMEBREW_NO_ENV_HINTS: "1",
 };
 
-/** What `forman <args>` printed and how it ended. */
-const forman = (...args: ReadonlyArray<string>) => {
+/** What `ortho <args>` printed and how it ended. */
+const ortho = (...args: ReadonlyArray<string>) => {
   const r = spawnSync(process.execPath, [cli, ...args, "--root", root], { cwd: root, encoding: "utf8", env, maxBuffer: 64 * 1024 * 1024, timeout: 900_000 });
   const out = `${r.stdout}${r.stderr}`;
   return { status: r.status, out, lines: out.split("\n") };
@@ -80,8 +80,8 @@ beforeAll(async () => {
   const dir = join(parent, "services");
   mkdirSync(dir);
   // The OIDC server the logbook trusts, and the logbook; a release 1.0.0 recorded from a model without `allowance.revoke`, so that today's model is a minor.
-  writeFileSync(join(dir, "issuer.json"), JSON.stringify({ interactiveLogin: false, tokenCallbacks: [{ issuerId: "forman", tokenExpiry: 600, requestMappings: [{
-    requestParam: "client_id", match: "ci-main", claims: { sub: "repo:acme/acme:ref:refs/heads/main", aud: ["forman-logbook"], repository: "acme/acme", ref: "refs/heads/main", workflow: "forman" } }] }] }));
+  writeFileSync(join(dir, "issuer.json"), JSON.stringify({ interactiveLogin: false, tokenCallbacks: [{ issuerId: "ortho", tokenExpiry: 600, requestMappings: [{
+    requestParam: "client_id", match: "ci-main", claims: { sub: "repo:acme/acme:ref:refs/heads/main", aud: ["ortho-logbook"], repository: "acme/acme", ref: "refs/heads/main", workflow: "ortho" } }] }] }));
   chmodSync(join(dir, "issuer.json"), 0o644);
   docker("rm", "-f", containers.issuer, containers.registry);
   const started = docker("run", "-d", "--name", containers.issuer, "-p", `127.0.0.1:${PORTS.issuer}:8080`, "-e", "JSON_CONFIG_PATH=/config/issuer.json", "-v", `${join(dir, "issuer.json")}:/config/issuer.json:ro`, ISSUER_IMAGE);
@@ -95,13 +95,13 @@ beforeAll(async () => {
   // A throwaway user on this registry; its token goes to a file and nowhere else.
   const created = await fetch(`${registry}-/user/org.couchdb.user:l206`, { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ name: "l206", password: randomBytes(12).toString("hex") }) });
   writeFileSync(npmrc, `//localhost:${PORTS.registry}/:_authToken=${((await created.json()) as { token: string }).token}\n`, { mode: 0o600 });
-  // The SDK and the CLI depend on @formants/forman, so the registry holds it, as the starter's script publishes it.
-  const built = spawnSync("pnpm", ["nx", "run", "forman:build", "--outputStyle=static"], { cwd: repo, encoding: "utf8", env: { ...env, NX_DAEMON: "false" } });
+  // The SDK and the CLI depend on orthograph, so the registry holds it, as the starter's script publishes it.
+  const built = spawnSync("pnpm", ["nx", "run", "orthograph:build", "--outputStyle=static"], { cwd: repo, encoding: "utf8", env: { ...env, NX_DAEMON: "false" } });
   expect(built.status, built.stdout + built.stderr).toBe(0);
-  const pushed = spawnSync("pnpm", ["publish", "--registry", registry, "--no-git-checks"], { cwd: join(repo, "packages/forman"), encoding: "utf8", env });
+  const pushed = spawnSync("pnpm", ["publish", "--registry", registry, "--no-git-checks"], { cwd: join(repo, "packages/orthograph"), encoding: "utf8", env });
   expect(pushed.status, pushed.stderr).toBe(0);
 
-  const policy = { issuer, repository: "acme/acme", refs: ["refs/heads/main"], workflows: ["forman"] };
+  const policy = { issuer, repository: "acme/acme", refs: ["refs/heads/main"], workflows: ["ortho"] };
   const logbook = (await Effect.runPromise(Environments.up({ root, name: "logbook", port: PORTS.logbook, policy }))).url;
   const model = JSON.parse(readFileSync(join(root, "generated/model/model.json"), "utf8")) as { operations: Record<string, unknown> };
   delete model.operations["allowance.revoke"];
@@ -122,13 +122,13 @@ afterAll(async () => {
   docker("exec", containers.registry, "sh", "-c", "rm -rf /verdaccio/storage/*");
   docker("rm", "-f", containers.issuer, containers.registry);
   rmSync(parent, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
-  rmSync(join(repo, "packages/forman/dist"), { recursive: true, force: true });
+  rmSync(join(repo, "packages/orthograph/dist"), { recursive: true, force: true });
 });
 
-describe("forman publish", () => {
+describe("ortho publish", () => {
   it("--dry-run lists exactly what would go out, and sends nothing", { timeout: 300_000 }, async () => {
-    expect(forman("version", "--next").lines).toContain("1.1.0");
-    const said = forman("publish", "--dry-run");
+    expect(ortho("version", "--next").lines).toContain("1.1.0");
+    const said = ortho("publish", "--dry-run");
     expect(said.status, said.out).toBe(0);
     const target = hostTarget() ?? `${process.platform}-${process.arch}`;
     expect(said.lines, said.out).toEqual(expect.arrayContaining([
@@ -137,22 +137,22 @@ describe("forman publish", () => {
       expect.stringMatching(/^ {2}dist\/index\.js {2}\d+ B$/), expect.stringMatching(/^ {2}dist\/main\.js {2}\d+ B$/),
       expect.stringMatching(/^ {2}types\/generated\/sdk\/src\/index\.d\.ts {2}\d+ B$/),
       expect.stringMatching(new RegExp(`^binary acme-1\\.1\\.0-${target}\\.tar\\.gz `)),
-      `homebrew acme/tap: Formula/${formula}.rb in .forman/tap`,
+      `homebrew acme/tap: Formula/${formula}.rb in .ortho/tap`,
       "skipped github releases (cloud pass)", "skipped npmjs.org (cloud pass)",
     ]));
     // Nothing went anywhere: the registry has neither package, and there is no tap.
     expect(await dist("@acme/sdk")).toBeUndefined();
     expect(await dist("@acme/cli")).toBeUndefined();
-    expect(existsSync(join(root, ".forman/tap"))).toBe(false);
+    expect(existsSync(join(root, ".ortho/tap"))).toBe(false);
   });
 
   it("without a registry, --local says so and exits 2; with neither flag it says how to use it", { timeout: 60_000 }, () => {
-    const none = spawnSync(process.execPath, [cli, "publish", "--local", "--root", root], { cwd: root, encoding: "utf8", env: { ...env, FORMAN_REGISTRY: "" } });
+    const none = spawnSync(process.execPath, [cli, "publish", "--local", "--root", root], { cwd: root, encoding: "utf8", env: { ...env, ORTHO_REGISTRY: "" } });
     expect(none.status, none.stderr).toBe(2);
-    expect(none.stderr).toContain("no registry: set FORMAN_REGISTRY");
-    const bare = forman("publish");
+    expect(none.stderr).toContain("no registry: set ORTHO_REGISTRY");
+    const bare = ortho("publish");
     expect(bare.status, bare.out).toBe(2);
-    expect(bare.out).toContain("usage: forman publish --dry-run | --local");
+    expect(bare.out).toContain("usage: ortho publish --dry-run | --local");
   });
 
   // The registry itself gives a package's very first version `latest`, whatever tag it was published under (Verdaccio does, and
@@ -176,7 +176,7 @@ describe("forman publish", () => {
   });
 
   it("--local puts @acme/sdk@1.1.0 and @acme/cli@1.1.0 on the registry, `latest` on them, and a fresh folder installs and runs them", { timeout: 900_000 }, async () => {
-    const said = forman("publish", "--local");
+    const said = ortho("publish", "--local");
     expect(said.status, said.out).toBe(0);
     expect(said.lines, said.out).toEqual(expect.arrayContaining([
       `npm @acme/sdk@1.1.0 published --tag latest to ${registry}`, `npm @acme/cli@1.1.0 published --tag latest to ${registry}`,
@@ -203,7 +203,7 @@ describe("forman publish", () => {
     expect(typed.stdout + typed.stderr, "tsc over a consumer of @acme/sdk").toBe("");
 
     // Again: what is already on the registry is left alone.
-    const again = forman("publish", "--local");
+    const again = ortho("publish", "--local");
     expect(again.status, again.out).toBe(0);
     expect(again.lines).toContain(`npm @acme/sdk@1.1.0 is already on ${registry}: left alone`);
   });
@@ -217,16 +217,16 @@ describe("forman publish", () => {
   });
 
   it.skipIf(!brewHere)("`brew install <tap>/<formula>` installs the CLI binary, which prints its version and `ok` from a running world", { timeout: 900_000 }, async () => {
-    const formulaFile = join(root, ".forman/tap/Formula", `${formula}.rb`);
+    const formulaFile = join(root, ".ortho/tap/Formula", `${formula}.rb`);
     const text = readFileSync(formulaFile, "utf8");
     const tarball = /url "file:\/\/([^"\n]+)"/.exec(text)![1]!;
     const sums = readFileSync(tarball);
-    expect(tarball).toContain(join(root, ".forman/publish/1.1.0/run-"));
+    expect(tarball).toContain(join(root, ".ortho/publish/1.1.0/run-"));
     expect(text).toContain(`sha256 "${(await import("node:crypto")).createHash("sha256").update(sums).digest("hex")}"`);
     // One commit per run that changed the formula (the binary is built again each run, so its hash is new): the newest is this version's.
-    expect(git(join(root, ".forman/tap"), "log", "--format=%s").split("\n")[0]).toBe(`${formula} 1.1.0`);
+    expect(git(join(root, ".ortho/tap"), "log", "--format=%s").split("\n")[0]).toBe(`${formula} 1.1.0`);
 
-    expect(brew("tap", tap, join(root, ".forman/tap")).status).toBe(0);
+    expect(brew("tap", tap, join(root, ".ortho/tap")).status).toBe(0);
     const installed = brew("install", full);
     expect(installed.status, installed.stdout + installed.stderr).toBe(0);
     const bin = join(brew("--prefix", full).stdout.trim(), "bin/acme");

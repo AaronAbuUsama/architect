@@ -1,5 +1,5 @@
 // Generated from the blueprint. Do not edit.
-import { EventNames } from "@formants/forman/server";
+import { EventNames } from "orthograph/server";
 import * as Sheet from "../../../blueprint/things/sheet/events.ts";
 
 EventNames.name(Sheet.PlaceTaken, "PlaceTaken");

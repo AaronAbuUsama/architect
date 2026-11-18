@@ -1,4 +1,4 @@
-import { Blueprint } from "@formants/forman";
+import { Blueprint } from "orthograph";
 import { Membership } from "./thing.ts";
 
 // The person the membership belongs to.

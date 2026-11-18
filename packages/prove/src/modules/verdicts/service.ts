@@ -1,7 +1,8 @@
+import { Names } from "orthograph/server";
 import { Effect, Redacted, Schema } from "effect";
 import { VerdictsFailed, type Held, type TokenSource, type VerdictsApi } from "./types.ts";
 
-const AUDIENCE = "forman-logbook";
+const AUDIENCE = "ortho-logbook";
 
 const failed = (message: string) => new VerdictsFailed({ message });
 
@@ -42,11 +43,11 @@ const minted = (source: TokenSource) =>
 
 export const Verdicts: VerdictsApi = {
   sourceOf: (env) => {
-    const [given, issuer, requestUrl, requestToken] = [env["FORMAN_LOGBOOK_TOKEN"], env["FORMAN_OIDC_ISSUER"], env["ACTIONS_ID_TOKEN_REQUEST_URL"], env["ACTIONS_ID_TOKEN_REQUEST_TOKEN"]];
+    const [given, issuer, requestUrl, requestToken] = [env[Names.variable("LOGBOOK_TOKEN")], env[Names.variable("OIDC_ISSUER")], env["ACTIONS_ID_TOKEN_REQUEST_URL"], env["ACTIONS_ID_TOKEN_REQUEST_TOKEN"]];
     if (given) return Effect.succeed({ kind: "given", token: Redacted.make(given) });
-    if (issuer) return Effect.succeed({ kind: "issuer", issuer, client: env["FORMAN_OIDC_CLIENT"] || "ci-main" });
+    if (issuer) return Effect.succeed({ kind: "issuer", issuer, client: env[Names.variable("OIDC_CLIENT")] || "ci-main" });
     if (requestUrl && requestToken) return Effect.succeed({ kind: "github", requestUrl, requestToken: Redacted.make(requestToken) });
-    return Effect.fail(failed("no way to sign a write to the logbook: set FORMAN_OIDC_ISSUER (and FORMAN_OIDC_CLIENT), or FORMAN_LOGBOOK_TOKEN, or run in a GitHub Actions job with id-token: write"));
+    return Effect.fail(failed("no way to sign a write to the logbook: set ORTHO_OIDC_ISSUER (and ORTHO_OIDC_CLIENT), or ORTHO_LOGBOOK_TOKEN, or run in a GitHub Actions job with id-token: write"));
   },
   mint: (source: TokenSource) => minted(source).pipe(Effect.map(Redacted.make)),
   latest: ({ logbook, revision, environment, ref }) =>

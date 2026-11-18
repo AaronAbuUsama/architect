@@ -1,7 +1,7 @@
 // Planted fixture: accepts the invitation but never creates the membership it answers with.
 import { Effect } from "effect";
 import type { SqlClient } from "effect/sql";
-import { Ids, Records } from "@formants/language-effect";
+import { Ids, Records } from "@orthograph/language-effect";
 import type { Handler } from "../../generated/api/src/invitation/accept.handler.ts";
 import { Invitation } from "../../blueprint/things/invitation/thing.ts";
 import { Membership } from "../../blueprint/things/membership/thing.ts";

@@ -17,7 +17,7 @@ records are brought in line.
 | [`deployment.md`](deployment.md) | from a commit to a running system: build once, verdicts, promote, release, watch, rollback |
 | [`writing-a-feature.md`](writing-a-feature.md) | writing the wallets feature, step by step |
 | [`story.md`](story.md) | **start here**: one allowance from an idea to production and back, the spine of the frame |
-| [`generators.md`](generators.md) | everything Forman generates and scaffolds, including the agent files that close the loop |
+| [`generators.md`](generators.md) | everything Orthograph generates and scaffolds, including the agent files that close the loop |
 | [`skills.md`](skills.md) | the skills any agent uses to build on Blueprint, from an idea to a watched operation; the workflows; the tools ([`skills-questions.md`](skills-questions.md): Aaron's round) |
 | [`examples/`](examples/README.md) | worked examples: agents, the factory, payments, notifications, on chain, Noir, Python |
 | [`questions.md`](questions.md) | every open question, in one round |
@@ -29,8 +29,7 @@ records are brought in line.
 The framework is **Orthograph**: the command `ortho`, the npm scope `@orthograph`, and the front door the plain
 package `orthograph` (`decisions/K6-orthograph.md`). **Blueprint** is still what you write: the `blueprint/` folder
 and the `Blueprint.*` API. How every name is spelled, and where it lives, is in [`../naming.md`](../naming.md).
-The code and these documents still say Forman, `forman` and `@formants` until the rename sweep runs; read them as
-Orthograph. Where a frame document says Blueprint for the framework itself, read Orthograph too.
+Where a frame document says Blueprint for the framework itself, read Orthograph.
 
 ## In one breath
 
@@ -93,7 +92,7 @@ description and judged against it.
 
 | Word | One meaning |
 |---|---|
-| **blueprint** | the description and the folder `blueprint/`, written with the `Blueprint.*` API; the framework itself is Forman |
+| **blueprint** | the description and the folder `blueprint/`, written with the `Blueprint.*` API; the framework itself is Orthograph |
 | **model** | the compiled blueprint: one JSON, every declaration with its hash, every name written once |
 | **thing** | a noun with an identity, fields and an owner of its state (`lives`: the database, an actor, a chain) |
 | **value** | a named field type that says what it is in every target (`Amount`: bigint in Effect, uint128 in Solidity) |

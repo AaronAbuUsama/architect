@@ -1,4 +1,4 @@
-# Local registry for the starter e2e: anyone may read and publish @formants/*, everything else is proxied to npmjs.
+# Local registry for the starter e2e: anyone may read and publish @orthograph/*, everything else is proxied to npmjs.
 storage: /verdaccio/storage
 auth:
   htpasswd:
@@ -16,7 +16,7 @@ uplinks:
       keepAlive: true
       maxSockets: 32
 packages:
-  '@formants/*':
+  '@orthograph/*':
     access: $all
     publish: $all
     unpublish: $all

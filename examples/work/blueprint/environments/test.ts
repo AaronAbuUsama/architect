@@ -1,4 +1,4 @@
-import { Blueprint, Cloud, Identity } from "@formants/forman";
+import { Blueprint, Cloud, Identity } from "orthograph";
 
 export default Blueprint.environment({
   runs: "a fresh world for each pull request",

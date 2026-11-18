@@ -1,6 +1,6 @@
 ---
 name: visuals
-description: How to make animated visuals for Forman's docs (MP4, GIF and a still) from plain-text SVG scenes, rendered headless and the same every run. Use it when a doc needs a diagram, when you are about to draw an ASCII or static diagram of a route, a lifecycle, a machine or a trace, or when Aaron asks for an animation, a GIF or a video.
+description: How to make animated visuals for Orthograph's docs (MP4, GIF and a still) from plain-text SVG scenes, rendered headless and the same every run. Use it when a doc needs a diagram, when you are about to draw an ASCII or static diagram of a route, a lifecycle, a machine or a trace, or when Aaron asks for an animation, a GIF or a video.
 ---
 
 # Visuals

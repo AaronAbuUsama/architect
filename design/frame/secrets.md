@@ -11,7 +11,7 @@ a secret's name as a string, and nothing prints, logs or traces a value.
 ## Today, in code (`origin/layer/3`)
 
 ```ts
-// packages/forman/src/modules/secrets/types.ts
+// packages/orthograph/src/modules/secrets/types.ts
 export interface Secret {
   readonly kind: "secret";
   /** `generated` is made for each world or environment; `stored` is put there by whoever runs it. */
@@ -20,11 +20,11 @@ export interface Secret {
 ```
 
 ```ts
-// packages/forman/src/modules/environments/environments.test.ts:14: an environment names its secrets by string
+// packages/orthograph/src/modules/environments/environments.test.ts:14: an environment names its secrets by string
 secrets: { RELAYER_KEY: Secrets.secret.stored() },
 ```
 
-- Locally, `prove` writes every named secret into `.forman/environments/<env>/secrets.env`, mode 0600, and hands it
+- Locally, `prove` writes every named secret into `.ortho/environments/<env>/secrets.env`, mode 0600, and hands it
   to wrangler as `--env-file`, so no value is on a command line (`prove/src/modules/environments/internal/secrets.ts`,
   D3 #2 and #20). Every name, `stored` included, gets a generated value locally.
 - Today `AUTH_SECRET` is built in (under this frame, the auth feature declares it). A world makes a fresh one per run (`host-cloudflare/src/modules/world/types.ts:7-8`).
@@ -52,8 +52,8 @@ which, so `check` can refuse a projection that asks for one in the wrong place.
 The plugin that needs a secret declares it, by export, in its own `blueprint/secrets.ts`:
 
 ```ts
-// @formants/stripe/blueprint/secrets.ts
-import { Blueprint } from "@formants/forman";
+// @orthograph/stripe/blueprint/secrets.ts
+import { Blueprint } from "orthograph";
 
 export const apiKey = Blueprint.secret.stored({ describe: "Stripe's secret API key, sk_…", test: "sk_test_…" });
 export const webhookSigning = Blueprint.secret.stored({ describe: "The endpoint's signing secret, whsec_…" });
@@ -67,7 +67,7 @@ export const invoiceSigning = Blueprint.secret.generated({ bytes: 32 });
 A secret is a runtime secret unless it says otherwise:
 
 ```ts
-// @formants/npm/blueprint/secrets.ts: the npm release projection's token, held by CI only
+// @orthograph/npm/blueprint/secrets.ts: the npm release projection's token, held by CI only
 export const publishToken = Blueprint.secret.stored({ kind: Secret.release, describe: "An npm automation token" });
 ```
 
@@ -75,10 +75,10 @@ The secret's name in the environment comes from the mount and the export, so it 
 
 | Declared | Mount | Name in the environment |
 |---|---|---|
-| `apiKey` in `@formants/stripe` | `blueprint/adapters/stripe.ts` | `STRIPE_API_KEY` |
-| `apiKey` in `@formants/stripe` | `blueprint/adapters/stripe-eu.ts` | `STRIPE_EU_API_KEY` |
+| `apiKey` in `@orthograph/stripe` | `blueprint/adapters/stripe.ts` | `STRIPE_API_KEY` |
+| `apiKey` in `@orthograph/stripe` | `blueprint/adapters/stripe-eu.ts` | `STRIPE_EU_API_KEY` |
 | `invoiceSigning` in the app | the app | `INVOICE_SIGNING` |
-| `secret` in `@formants/auth` | `blueprint/features/auth.ts` | `AUTH_SECRET` |
+| `secret` in `@orthograph/auth` | `blueprint/features/auth.ts` | `AUTH_SECRET` |
 
 Two mounts of the same adapter get two secrets automatically. Mounting a plugin adds its secrets to every environment;
 unmounting removes them.
@@ -89,7 +89,7 @@ Only the code of the plugin that declared a secret can read it, and it is given 
 composition root. A handler never reads the environment:
 
 ```ts
-// @formants/stripe, its /worker entry: the adapter's own layer, given its secret by the generated server
+// @orthograph/stripe, its /worker entry: the adapter's own layer, given its secret by the generated server
 export const layer = Blueprint.layer(stripe, ({ secrets }) =>
   Effect.gen(function* () {
     const key = yield* secrets.apiKey;            // stripe.secrets.apiKey, as Redacted<string>: printing it shows <redacted>
@@ -133,7 +133,7 @@ export default Blueprint.environment({
 |---|---|---|
 | a world (prove, dev) | fresh each run | the adapter's declared `test` value, or the stand-in's own credential; never a real key |
 | local, test | made once, kept in `secrets.env` (0600) so sessions survive a restart | the `test` value, unless set |
-| staging, production | made once by `promote`, put straight into the store | set by a person, once, with `forman secrets set` |
+| staging, production | made once by `promote`, put straight into the store | set by a person, once, with `ortho secrets set` |
 
 Layer one's "no cloud, no key" holds: every world and local environment runs with no real credential, because every
 stored secret has a test value or a stand-in that accepts one.
@@ -141,7 +141,7 @@ stored secret has a test value or a stand-in that accepts one.
 ## The commands
 
 ```text
-$ forman secrets --env production
+$ ortho secrets --env production
 STRIPE_API_KEY          stored     runtime   set 12 Nov
 STRIPE_WEBHOOK_SIGNING  stored     runtime   missing
 AUTH_SECRET             generated  runtime   set 2 Nov
@@ -149,7 +149,7 @@ NPM_TOKEN               stored     release   in CI
 ```
 
 ```bash
-forman secrets set stripe.apiKey --env production   # prompts without echo, or reads stdin; writes to the store
+ortho secrets set stripe.apiKey --env production   # prompts without echo, or reads stdin; writes to the store
 ```
 
 It never prints a value, never takes one as an argument (where `ps` and shell history would see it), and never writes
@@ -175,7 +175,7 @@ created only with Aaron's written yes.
 | Who reads | nothing but auth's built-in `AUTH_SECRET` | only the declaring plugin's layer, as `Redacted` |
 | Kinds | one | runtime, release, builder |
 | Local values | generated for every name | generated, or the declared test value |
-| Setting a value | not designed (cloud pass) | `forman secrets set`, no echo, straight to the store |
+| Setting a value | not designed (cloud pass) | `ortho secrets set`, no echo, straight to the store |
 
 ## Open questions and risks
 

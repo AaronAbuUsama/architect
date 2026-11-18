@@ -5,8 +5,8 @@ import { cpSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } f
 import { basename, join, relative, resolve } from "node:path";
 import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
-import { Compare, type Model } from "@formants/compiler";
-import { Wire } from "@formants/portal";
+import { Compare, type Model } from "@orthograph/compiler";
+import { Wire } from "@orthograph/portal";
 import { Render } from "#modules/render/service.js";
 
 const repo = resolve(import.meta.dirname, "../../../../..");
@@ -38,7 +38,7 @@ describe("generated/portal", () => {
 
   it("opens its TypeScript with the generated line, and is the only generated file but the Worker that imports the portal", () => {
     expect(files.get("generated/portal/main.ts")!.split("\n")[0]).toBe("// Generated from the blueprint. Do not edit.");
-    const importing = [...files].filter(([path, text]) => path.endsWith(".ts") && text.includes("@formants/portal")).map(([path]) => path).sort();
+    const importing = [...files].filter(([path, text]) => path.endsWith(".ts") && text.includes("@orthograph/portal")).map(([path]) => path).sort();
     expect(importing).toEqual(["generated/portal/main.ts"]);
     expect(files.get("generated/server/main.ts")).toContain(`import * as portal from "../portal/main.ts"`);
     expect(files.get("generated/server/main.ts")).toContain("portal.serve(request, env)");
@@ -84,7 +84,7 @@ describe("the portal stays out of the project's own code", () => {
     const root = join(repo, "examples", example);
     for (const file of tsFiles(root)) {
       const text = readFileSync(file, "utf8");
-      expect(text, relative(repo, file)).not.toMatch(/@formants\/(portal|compiler|generators)/);
+      expect(text, relative(repo, file)).not.toMatch(/@orthograph\/(portal|compiler|generators)/);
     }
   });
 });

@@ -33,8 +33,8 @@ import { report as runReport } from "./run/report.ts";
 import { start as runStart } from "./run/start.ts";
 import { stop as runStop } from "./run/stop.ts";
 
-// The release version is stamped in when the CLI is published (`forman publish`); run from source, it says 0.0.0.
-declare const FORMAN_VERSION: string | undefined;
+// The release version is stamped in when the CLI is published (`ortho publish`); run from source, it says 0.0.0.
+declare const ORTHO_VERSION: string | undefined;
 
 const attention = Command.make("attention").pipe(Command.withSubcommands([attentionApprove, attentionDecline, attentionList, attentionRaise]));
 const milestone = Command.make("milestone").pipe(Command.withSubcommands([milestoneAdd, milestoneDrop, milestoneList]));
@@ -44,7 +44,7 @@ const run = Command.make("run").pipe(Command.withSubcommands([runFail, runFinish
 
 Command.make("work").pipe(
   Command.withSubcommands([attention, milestone, mission, question, run]),
-  Command.run({ version: typeof FORMAN_VERSION === "string" ? FORMAN_VERSION : "0.0.0" }),
+  Command.run({ version: typeof ORTHO_VERSION === "string" ? ORTHO_VERSION : "0.0.0" }),
   Effect.provide(CliOutput.layer({ ...CliOutput.defaultFormatter(), formatVersion: (name, version) => `${name} ${version}` })),
   Effect.provide(Sdk.layer(process.env["WORK_URL"] ?? "http://127.0.0.1:8787", process.env["WORK_TOKEN"])),
   Effect.provide(Layer.succeed(ExitCode, ExitCode.of({ set: (code) => Effect.sync(() => void (process.exitCode = code)) }))),

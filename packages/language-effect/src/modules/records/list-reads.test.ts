@@ -2,7 +2,7 @@
 // role decided on the thing a filter names.
 import { Cause, Effect, Exit } from "effect";
 import { describe, expect, it } from "vitest";
-import { Blueprint } from "@formants/forman";
+import { Blueprint } from "orthograph";
 import { Reads } from "#modules/handler/service.js";
 import { storeMemory } from "./service.ts";
 

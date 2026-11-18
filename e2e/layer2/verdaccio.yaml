@@ -1,4 +1,4 @@
-# Local registry for Gate 2: anyone may read, publish and unpublish the project's own names (@acme/*, acme) and Forman's,
+# Local registry for Gate 2: anyone may read, publish and unpublish the project's own names (@acme/*, acme) and Orthograph's,
 # none of which is ever proxied to npm (the unscoped `acme` exists there); everything else is proxied, so an install of
 # @acme/sdk finds its dependencies.
 storage: /verdaccio/storage
@@ -24,7 +24,7 @@ packages:
     access: $all
     publish: $all
     unpublish: $all
-  '@formants/*':
+  '@orthograph/*':
     access: $all
     publish: $all
     unpublish: $all

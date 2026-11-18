@@ -1,16 +1,16 @@
-// Check 1 (D3 #15.1, walkthrough step 9): `forman prove --env test` makes a test world with a lifetime, posts a signed
+// Check 1 (D3 #15.1, walkthrough step 9): `ortho prove --env test` makes a test world with a lifetime, posts a signed
 // verdict per operation to the logbook, and destroys the world; a run killed part-way leaves a world that
-// `forman worlds reap` removes after its lifetime.
+// `ortho worlds reap` removes after its lifetime.
 //
 // Chosen where D3 #14 is open:
 // - Output, in this order: `world test-<id> · expires in <lifetime>`, one line `verdicts <op> ✔  <op> ✔ …   (revision <rev>)`
 //   naming every operation by its full name (`allowance.spend`), then `world destroyed`; exit 0. The lifetime is printed as
-//   given: FORMAN_LIFETIME=20s prints `expires in 20s`; with none set, the environment's own (any non-empty text).
+//   given: ORTHO_LIFETIME=20s prints `expires in 20s`; with none set, the environment's own (any non-empty text).
 // - The logbook answers `GET <logbook>/verdicts?revision=<rev>&environment=test` with a JSON array of
 //   `{ revision, environment, operation, verdict }`, `verdict` being `"pass"` for a green one.
-// - `forman env status test` prints `test up <url>` or `test down`, and for the test environment adds `worlds <n>`: the
+// - `ortho env status test` prints `test up <url>` or `test down`, and for the test environment adds `worlds <n>`: the
 //   worlds it holds now.
-// - `forman worlds reap` with the test environment down starts it, lets past-due alarms fire, and prints `reaped <n>`.
+// - `ortho worlds reap` with the test environment down starts it, lets past-due alarms fire, and prints `reaped <n>`.
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { type Stack, finish, startStack } from "./services.ts";
 import { escape, getJson, operations, project, run, sleep, start, until } from "./support.ts";
@@ -53,7 +53,7 @@ describe("check 1: prove --env test", () => {
   it("a run killed part-way leaves a world that worlds reap removes after its lifetime", async () => {
     const s = stack!;
     const lifetime = 20;
-    const env = { ...s.env, FORMAN_LIFETIME: `${lifetime}s` };
+    const env = { ...s.env, ORTHO_LIFETIME: `${lifetime}s` };
     const child = start(copy.root, env, "prove", "--env", "test");
     let seen = "";
     child.stdout!.on("data", (chunk: Buffer) => { seen += chunk.toString(); });

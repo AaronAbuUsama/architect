@@ -6,7 +6,7 @@ places Noir after Gate 5 (`design/decisions/N1-noir-target.md`). **This is the f
 scheduled before layer 5 is on `main`.
 
 **Languages: Effect and Noir.** "Language" is the axis that was called "target" before (Effect, Solidity, Noir,
-Python), packaged as `@formants/language-noir`. The host is `Host.chain` (Aztec) for the contract and the caller's own
+Python), packaged as `@orthograph/language-noir`. The host is `Host.chain` (Aztec) for the contract and the caller's own
 device (`Host.node` or `Host.browser`) for the proof; the projection is the private contract plus its client.
 
 ## The idea
@@ -111,7 +111,7 @@ The organisation actor knowing who the members are is fine. What no one learns i
 
 ## Projections and what gets generated
 
-- **noir** (projection over `@formants/language-noir`): types, events and refusals; the compiled machine over private
+- **noir** (projection over `@orthograph/language-noir`): types, events and refusals; the compiled machine over private
   notes; the scaffold; conformance tests in the TXE. Spike 1 ran all of these: 22 conformance tests pass, and a planted
   wrong test fails as it should.
 - **sdk**: an Effect client over the artifact, including the sync step. Browser proving is untested.
@@ -127,7 +127,7 @@ cloud pass adds a network that verifies proofs, and only there is `pool.spend` f
 
 | | Today (`origin/layer/3`) | Proposed (after Gate 5) |
 |---|---|---|
-| Noir | none; a later language (N1 decision 1, `design/later.md`) | `@formants/language-noir` plus the noir projection |
+| Noir | none; a later language (N1 decision 1, `design/later.md`) | `@orthograph/language-noir` plus the noir projection |
 | `visibility` | built in L2.P, defaulting to `public` | used for private fields, payloads and the leak check |
 | `runs: "client"` | the field exists; only `server` is accepted (N1 decision 3) | accepted for languages that prove on the caller's host |
 | `custody`, `takesEffect` | not taken (N1 decision 4) | primitives, each proved by a chain language first |

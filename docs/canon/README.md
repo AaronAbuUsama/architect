@@ -10,7 +10,7 @@ is built to the page. When the two disagree, one of them is wrong, and the chang
 - [`check.mjs`](check.mjs): the check that keeps pages true. `pnpm nx run canon:check` runs it.
 - [`preview/`](preview/build.mjs): renders the whole canon into one HTML file you can click through, every component
   drawn from real data. `pnpm nx run canon:preview` writes `docs/canon/.preview/index.html`; open it in any browser.
-- Written so far: layer 1, the shape ([`forman`](forman.mdx), [`blueprint`](blueprint.mdx), [`languages-and-hosts`](languages-and-hosts.mdx), [`plugins`](plugins.mdx), [`data`](data.mdx), [`doors`](doors.mdx)); from layer 2, [`things`](things.mdx), [`machines`](machines.mdx), [`operations`](operations.mdx) and [`handlers`](handlers.mdx); and the samples [`stores`](stores.mdx) (a draft, rewritten in layer 4) and [`traces`](traces.mdx).
+- Written so far: layer 1, the shape ([`orthograph`](orthograph.mdx), [`blueprint`](blueprint.mdx), [`languages-and-hosts`](languages-and-hosts.mdx), [`plugins`](plugins.mdx), [`data`](data.mdx), [`doors`](doors.mdx)); from layer 2, [`things`](things.mdx), [`machines`](machines.mdx), [`operations`](operations.mdx) and [`handlers`](handlers.mdx); and the samples [`stores`](stores.mdx) (a draft, rewritten in layer 4) and [`traces`](traces.mdx).
 
 Layers 1 and 2 teach with one example, a sign-up sheet in [`examples/signup`](../../examples/signup/README.md) (Aaron,
 18 November 2026): one thing, open to anyone, with nothing it needs explained from outside. From layer 4 on, K5's

@@ -71,13 +71,13 @@ importers:
 
   e2e:
     dependencies:
-      '@formants/compiler':
+      '@orthograph/compiler':
         specifier: workspace:*
         version: link:../packages/compiler
-      '@formants/generators':
+      '@orthograph/generators':
         specifier: workspace:*
         version: link:../packages/generators
-      '@formants/prove':
+      '@orthograph/prove':
         specifier: workspace:*
         version: link:../packages/prove
     devDependencies:
@@ -102,21 +102,21 @@ importers:
       '@effect/sql-d1':
         specifier: 4.1.1
         version: 4.1.1(effect@4.1.1)
-      '@formants/forman':
-        specifier: workspace:*
-        version: link:../../packages/forman
-      '@formants/host-cloudflare':
+      '@orthograph/host-cloudflare':
         specifier: workspace:*
         version: link:../../packages/host-cloudflare
-      '@formants/language-effect':
+      '@orthograph/language-effect':
         specifier: workspace:*
         version: link:../../packages/language-effect
-      '@formants/portal':
+      '@orthograph/portal':
         specifier: workspace:*
         version: link:../../packages/portal
       effect:
         specifier: 4.1.1
         version: 4.1.1
+      orthograph:
+        specifier: workspace:*
+        version: link:../../packages/orthograph
     devDependencies:
       '@cloudflare/workers-types':
         specifier: 5.20261101.1
@@ -130,21 +130,21 @@ importers:
       '@effect/sql-d1':
         specifier: 4.1.1
         version: 4.1.1(effect@4.1.1)
-      '@formants/forman':
-        specifier: workspace:*
-        version: link:../../packages/forman
-      '@formants/host-cloudflare':
+      '@orthograph/host-cloudflare':
         specifier: workspace:*
         version: link:../../packages/host-cloudflare
-      '@formants/language-effect':
+      '@orthograph/language-effect':
         specifier: workspace:*
         version: link:../../packages/language-effect
-      '@formants/portal':
+      '@orthograph/portal':
         specifier: workspace:*
         version: link:../../packages/portal
       effect:
         specifier: 4.1.1
         version: 4.1.1
+      orthograph:
+        specifier: workspace:*
+        version: link:../../packages/orthograph
     devDependencies:
       '@cloudflare/workers-types':
         specifier: 5.20261101.1
@@ -158,21 +158,21 @@ importers:
       '@effect/sql-d1':
         specifier: 4.1.1
         version: 4.1.1(effect@4.1.1)
-      '@formants/forman':
-        specifier: workspace:*
-        version: link:../../packages/forman
-      '@formants/host-cloudflare':
+      '@orthograph/host-cloudflare':
         specifier: workspace:*
         version: link:../../packages/host-cloudflare
-      '@formants/language-effect':
+      '@orthograph/language-effect':
         specifier: workspace:*
         version: link:../../packages/language-effect
-      '@formants/portal':
+      '@orthograph/portal':
         specifier: workspace:*
         version: link:../../packages/portal
       effect:
         specifier: 4.1.1
         version: 4.1.1
+      orthograph:
+        specifier: workspace:*
+        version: link:../../packages/orthograph
     devDependencies:
       '@cloudflare/workers-types':
         specifier: 5.20261101.1
@@ -186,21 +186,21 @@ importers:
       '@effect/sql-d1':
         specifier: 4.1.1
         version: 4.1.1(effect@4.1.1)
-      '@formants/forman':
-        specifier: workspace:*
-        version: link:../../packages/forman
-      '@formants/host-cloudflare':
+      '@orthograph/host-cloudflare':
         specifier: workspace:*
         version: link:../../packages/host-cloudflare
-      '@formants/language-effect':
+      '@orthograph/language-effect':
         specifier: workspace:*
         version: link:../../packages/language-effect
-      '@formants/portal':
+      '@orthograph/portal':
         specifier: workspace:*
         version: link:../../packages/portal
       effect:
         specifier: 4.1.1
         version: 4.1.1
+      orthograph:
+        specifier: workspace:*
+        version: link:../../packages/orthograph
     devDependencies:
       '@cloudflare/workers-types':
         specifier: 5.20261101.1
@@ -211,16 +211,16 @@ importers:
       '@effect/platform-node':
         specifier: 4.1.1
         version: 4.1.1(effect@4.1.1)(redis@6.3.1(@opentelemetry/api@1.10.0))
-      '@formants/compiler':
+      '@orthograph/compiler':
         specifier: workspace:*
         version: link:../compiler
-      '@formants/generators':
+      '@orthograph/generators':
         specifier: workspace:*
         version: link:../generators
-      '@formants/lint':
+      '@orthograph/lint':
         specifier: workspace:*
         version: link:../lint
-      '@formants/prove':
+      '@orthograph/prove':
         specifier: workspace:*
         version: link:../prove
       effect:
@@ -229,46 +229,43 @@ importers:
       nx:
         specifier: 24.0.3
         version: 24.0.3
+      orthograph:
+        specifier: workspace:*
+        version: link:../orthograph
       wrangler:
         specifier: 4.156.1
         version: 4.156.1(@cloudflare/workers-types@5.20261101.1)(@types/node@24.19.2)
     devDependencies:
-      '@formants/logbook':
+      '@orthograph/logbook':
         specifier: workspace:*
         version: link:../logbook
 
   packages/compiler:
     dependencies:
-      '@formants/forman':
+      effect:
+        specifier: 4.1.1
+        version: 4.1.1
+      orthograph:
         specifier: workspace:*
-        version: link:../forman
-      effect:
-        specifier: 4.1.1
-        version: 4.1.1
-
-  packages/forman:
-    dependencies:
-      effect:
-        specifier: 4.1.1
-        version: 4.1.1
+        version: link:../orthograph
 
   packages/generators:
     dependencies:
-      '@formants/compiler':
-        specifier: workspace:*
-        version: link:../compiler
-      '@formants/forman':
-        specifier: workspace:*
-        version: link:../forman
-      '@formants/portal':
-        specifier: workspace:*
-        version: link:../portal
       '@nx/devkit':
         specifier: 24.0.3
         version: 24.0.3(nx@24.0.3)
+      '@orthograph/compiler':
+        specifier: workspace:*
+        version: link:../compiler
+      '@orthograph/portal':
+        specifier: workspace:*
+        version: link:../portal
       effect:
         specifier: 4.1.1
         version: 4.1.1
+      orthograph:
+        specifier: workspace:*
+        version: link:../orthograph
     devDependencies:
       nx:
         specifier: 24.0.3
@@ -294,10 +291,7 @@ importers:
       '@effect/sql-d1':
         specifier: 4.1.1
         version: 4.1.1(effect@4.1.1)
-      '@formants/forman':
-        specifier: workspace:*
-        version: link:../forman
-      '@formants/language-effect':
+      '@orthograph/language-effect':
         specifier: workspace:*
         version: link:../language-effect
       better-auth:
@@ -312,6 +306,9 @@ importers:
       jose:
         specifier: 6.2.15
         version: 6.2.15
+      orthograph:
+        specifier: workspace:*
+        version: link:../orthograph
       zod:
         specifier: 4.6.7
         version: 4.6.7
@@ -334,15 +331,15 @@ importers:
       '@cfworker/json-schema':
         specifier: 4.1.4
         version: 4.1.4
-      '@formants/forman':
-        specifier: workspace:*
-        version: link:../forman
       '@modelcontextprotocol/sdk':
         specifier: 1.32.2
         version: 1.32.2(@cfworker/json-schema@4.1.4)(supports-color@10.2.2)(zod@4.5.4)
       effect:
         specifier: 4.1.1
         version: 4.1.1
+      orthograph:
+        specifier: workspace:*
+        version: link:../orthograph
       zod:
         specifier: 4.5.4
         version: 4.5.4
@@ -367,27 +364,36 @@ importers:
         specifier: 5.20261101.1
         version: 5.20261101.1
 
+  packages/orthograph:
+    dependencies:
+      effect:
+        specifier: 4.1.1
+        version: 4.1.1
+
   packages/portal:
     dependencies:
       effect:
         specifier: 4.1.1
         version: 4.1.1
     devDependencies:
-      '@formants/logbook':
+      '@orthograph/logbook':
         specifier: workspace:*
         version: link:../logbook
 
   packages/preset:
     dependencies:
-      '@formants/compiler':
-        specifier: workspace:*
-        version: link:../compiler
-      '@formants/generators':
-        specifier: workspace:*
-        version: link:../generators
       '@nx/devkit':
         specifier: 24.0.3
         version: 24.0.3(nx@24.0.3)
+      '@orthograph/compiler':
+        specifier: workspace:*
+        version: link:../compiler
+      '@orthograph/generators':
+        specifier: workspace:*
+        version: link:../generators
+      orthograph:
+        specifier: workspace:*
+        version: link:../orthograph
     devDependencies:
       nx:
         specifier: 24.0.3
@@ -395,16 +401,13 @@ importers:
 
   packages/prove:
     dependencies:
-      '@formants/compiler':
+      '@orthograph/compiler':
         specifier: workspace:*
         version: link:../compiler
-      '@formants/forman':
-        specifier: workspace:*
-        version: link:../forman
-      '@formants/language-effect':
+      '@orthograph/language-effect':
         specifier: workspace:*
         version: link:../language-effect
-      '@formants/logbook':
+      '@orthograph/logbook':
         specifier: workspace:*
         version: link:../logbook
       effect:
@@ -413,6 +416,9 @@ importers:
       esbuild:
         specifier: 0.28.2
         version: 0.28.2
+      orthograph:
+        specifier: workspace:*
+        version: link:../orthograph
       postject:
         specifier: 1.0.0-alpha.6
         version: 1.0.0-alpha.6
@@ -420,12 +426,12 @@ importers:
         specifier: 4.156.1
         version: 4.156.1(@cloudflare/workers-types@5.20261101.1)(@types/node@24.19.2)
     devDependencies:
-      '@formants/generators':
-        specifier: workspace:*
-        version: link:../generators
       '@modelcontextprotocol/sdk':
         specifier: 1.32.2
         version: 1.32.2(@cfworker/json-schema@4.1.4)(supports-color@10.2.2)(zod@4.6.7)
+      '@orthograph/generators':
+        specifier: workspace:*
+        version: link:../generators
       nx:
         specifier: 24.0.3
         version: 24.0.3

@@ -1,8 +1,8 @@
-# Building the factory with Forman
+# Building the factory with Orthograph
 
 A worked example in the frame ([`../README.md`](../README.md)). Proposed, 17 November 2026. The factory is the system
-that builds Forman apps, Forman included. It is itself a Forman app: `examples/work` (F5), which becomes `apps/work`
-when it is deployed. Names as in [`agents.md`](agents.md): Forman, `forman`, `@formants/*`, and "language" for what
+that builds Orthograph apps, Orthograph included. It is itself a Orthograph app: `examples/work` (F5), which becomes `apps/work`
+when it is deployed. Names as in [`agents.md`](agents.md): Orthograph, `ortho`, `@orthograph/*`, and "language" for what
 was called a target.
 
 ## The idea
@@ -204,20 +204,20 @@ board, KPIs and the manager's conversation, reads that API (W4).
 
 ## The recursion
 
-The factory is a Forman app, so it is built and proved by Forman. It also builds Forman. To keep that from biting its
+The factory is a Orthograph app, so it is built and proved by Orthograph. It also builds Orthograph. To keep that from biting its
 own tail:
 
-- The factory runs on a **released** Forman, pinned exactly (`@formants/forman@1.4.0`), deployed and promoted like any
+- The factory runs on a **released** Orthograph, pinned exactly (`orthograph@1.4.0`), deployed and promoted like any
   app.
-- Its missions target a project at a revision. When the project is Forman itself, the builders work on Forman's next
+- Its missions target a project at a revision. When the project is Orthograph itself, the builders work on Orthograph's next
   revision, in a copy, and CI proves that revision.
-- The factory upgrades to the new Forman only after that release passes its gate, through an ordinary promote that
+- The factory upgrades to the new Orthograph only after that release passes its gate, through an ordinary promote that
   Ada approves.
 
-So no change ever judges itself: the scorer that proves Forman N+1 is the CI of Forman N+1, and the factory that
-asked for it runs on Forman N.
+So no change ever judges itself: the scorer that proves Orthograph N+1 is the CI of Orthograph N+1, and the factory that
+asked for it runs on Orthograph N.
 
-**Drift and ratchets close the loop.** `forman watch` runs the evals on what production records. A measure that gets
+**Drift and ratchets close the loop.** `ortho watch` runs the evals on what production records. A measure that gets
 worse (a p95 over budget, a refusal rate up, a defect) is a fact in the logbook. The board shows it as a
 `watch:allowance.spend` task, and the manager treats it like any other open task. Ratchets keep it one-way: a budget
 can be tightened by a passing verdict, never loosened by one.
@@ -259,7 +259,7 @@ done), none moved by hand (`origin/spike/work-real:spikes/work-real/README.md`).
   (`design/build-plan.md:187`).
 - The nine evals on all 26 operations: the same roles, refusal codes and spans as acme.
 - The bench's planted checks hold for the factory's own runs: the oracle solves every task, the null runner none.
-- The recursion's own check: a Forman release that fails its gate is never offered to the factory as an upgrade.
+- The recursion's own check: a Orthograph release that fails its gate is never offered to the factory as an upgrade.
 
 ## Today and proposed
 
@@ -268,7 +268,7 @@ done), none moved by hand (`origin/spike/work-real:spikes/work-real/README.md`).
 | The blueprint | on `main`: 6 things, 26 operations, 26 MCP tools, one blank (`mission.tasks`'s `facts` step, F5) | 6 things of its own plus auth and agents mounted |
 | Sign-in | none in F5; `person` and `session` copied from acme in the spike (`origin/spike/work-real`) | the auth feature, mounted |
 | Facts | a spike-only `fact` thing stood in for the logbook | the logbook as an adapter, events in through `mission.notice` |
-| The logbook | a hand-written package (`origin/layer/3:packages/logbook/src/modules/book/`), not a Forman app | the same, with a declared contract an adapter can be written against |
+| The logbook | a hand-written package (`origin/layer/3:packages/logbook/src/modules/book/`), not a Orthograph app | the same, with a declared contract an adapter can be written against |
 | The manager and runs | Durable Objects designed only (F4 8.2, W5) | a workflow per mission; agents-feature runs per builder |
 | In person, not an agent | `Principal` can't tell them apart; `attention.approve` is `owner.of("mission")` either way (F5 section 4) | `owner.notVia(Via.agent)` |
 | Scoped lists | `mission.list` returns every owner's missions to anyone signed in (F5 section 4) | a list rule, `where: { owner: principal }` |
@@ -289,13 +289,13 @@ done), none moved by hand (`origin/spike/work-real:spikes/work-real/README.md`).
    **Recommend A.** It waits on facts rather than polling, and a replay never starts a builder twice. B pays tokens to
    wait. C is late by up to an hour and has no memory between ticks.
 3. **What does the factory run on?**
-   A. The last released Forman, upgraded by an approved promote.
-   B. Forman's `main` at its latest commit.
+   A. The last released Orthograph, upgraded by an approved promote.
+   B. Orthograph's `main` at its latest commit.
    C. The revision it is building.
    **Recommend A.** B lets a bad merge break the factory that would fix it. C has the change judging itself.
 4. **How does the factory read the logbook?**
    A. A hand-written adapter over the logbook's HTTP routes now; generated once the logbook publishes a model.
-   B. Rebuild the logbook as a Forman app first, then generate the adapter.
+   B. Rebuild the logbook as a Orthograph app first, then generate the adapter.
    C. Keep the spike's `fact` thing, fed by a script.
    **Recommend A.** It unblocks W3 now, and B can follow without changing the factory. C is our own copy of facts,
    which can drift from the real ones.

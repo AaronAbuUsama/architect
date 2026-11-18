@@ -4,7 +4,7 @@ Part of the frame ([`README.md`](README.md)). Written 17 November 2026. This is 
 whole way round, so every other frame document has a place to hang. Where another document goes deeper, this one links
 to it and moves on.
 
-Names: the framework is **Forman** (command `forman`, npm org `@formants`). **Blueprint** stays the name of what you
+Names: the framework is **Orthograph** (command `ortho`, npm org `@orthograph`). **Blueprint** stays the name of what you
 write: the `blueprint/` folder and the `Blueprint.*` API. The packages are mapped in `decisions/M0-packages.md`; plugin
 packages named below don't exist yet.
 
@@ -46,17 +46,17 @@ What comes out is not code yet. It is three kinds of fact, each with a place in 
 | "the owner revokes, then the member can't spend" | a **journey**, written as a story |
 
 A state diagram drawn in FigJam or as UML is the machine. Three boxes and three arrows are exactly `states` and
-`moves`. Forman can draw the machine back as the same diagram ([`projections.md`](projections.md), the docs
+`moves`. Orthograph can draw the machine back as the same diagram ([`projections.md`](projections.md), the docs
 projection), so the picture and the code are the same thing seen twice.
 
 Anything you don't know yet stays a **blank**: `Blueprint.todo("what happens at the month's end")`. A blank is a
 question, not a gap. It is written down, it shows in the model, and it becomes a task.
 
-> **Today.** Blanks exist: `Blueprint.todo` (`packages/forman/src/index.ts:35`), found by the compiler
+> **Today.** Blanks exist: `Blueprint.todo` (`packages/orthograph/src/index.ts:35`), found by the compiler
 > (`compiler/src/modules/model/internal/describe.ts:44-48`). There is no tool that turns a conversation or a diagram
 > into a blueprint. The agent writes the files by hand.
 > **Proposed.** The planning agent writes straight into `blueprint/` through the builder's `bp.write`
-> ([`builder.md`](builder.md)), and `forman check` answers in the same turn. A FigJam or Mermaid state diagram is read
+> ([`builder.md`](builder.md)), and `ortho check` answers in the same turn. A FigJam or Mermaid state diagram is read
 > as a machine, and drawn back from one.
 
 ## 2. The description
@@ -187,7 +187,7 @@ Then the rule that proves the checks mean something: **they must fail on empty h
 written, the journey author runs them against the scaffolds and every step that needs behaviour must go red.
 
 ```text
-$ forman prove --env local --only "revoke then spend"
+$ ortho prove --env local --only "revoke then spend"
 revoke then spend   (handlers: scaffold)
   ✘ ada revokes it                 allowance.revoke answered nothing; AllowanceRevoked not emitted
   ✘ olga can't spend               not refused: the allowance is still active, so the empty spend ran
@@ -205,11 +205,11 @@ Here the role keeps olga out with no code at all.
 
 ## 5. Compile
 
-`forman check` compiles the blueprint into the **model**: one JSON, every declaration with its hash, every name written
+`ortho check` compiles the blueprint into the **model**: one JSON, every declaration with its hash, every name written
 once. Then each mounted projection renders from it ([`projections.md`](projections.md)).
 
 ```text
-$ forman check
+$ ortho check
 model 53d0…28de   things 8   operations 17   journeys 11   blanks 2
 blanks  allowance: "what happens at the month's end"   journey "month rolls over": 2 steps unwritten
 types ✔  rules ✔  drift ✔
@@ -249,7 +249,7 @@ Nobody writes a to-do list. **Tasks are worked out** from the model and the fact
 right now there are three:
 
 ```text
-$ forman tasks --of allowance
+$ ortho tasks --of allowance
 specify  allowance                    1 blank: "what happens at the month's end"
 build    allowance.spend              handler is still the scaffold
 prove    allowance.spend              0 of 9 evals in test
@@ -300,7 +300,7 @@ A **world** is a running copy of an environment, made for a purpose and destroye
 cast. `prove` makes one, builds each starting world by running operations, plays every journey, and judges the evidence.
 
 ```text
-$ forman prove --env local
+$ ortho prove --env local
 world w_4k2 (test, 2 hours)   adapters: none   cast: ada, olga, bob
 journeys 11/11 ✔   through: api ✔  sdk ✔  cli ✔  mcp ✔
 allowance.spend   evals 9/9 ✔   p95 41ms / 150ms   journeys: spend within an allowance, spend twice with one request, revoke then spend
@@ -330,24 +330,24 @@ not just the server.
 A revision is built once and moved, never rebuilt ([`deployment.md`](deployment.md)).
 
 ```text
-$ forman promote --to staging
+$ ortho promote --to staging
 bundle 7f3e…c21 (rev a91c2e0)   test ✔ 17/17 operations
 proving in staging … 17/17 ✔   released @acme/sdk@1.4.0-next.1, @acme/cli@1.4.0-next.1
-$ forman promote --to production
+$ ortho promote --to production
 released 1.4.0   (a new operation since 1.3.0: minor)
 ```
 
 Then **watch** runs the same evals on what production records:
 
 ```text
-$ forman watch --env production
+$ ortho watch --env production
 allowance.spend   p95 188ms / 150ms ✘   refused 9% (AllowanceExceeded)
 ```
 
 That red line is not a dashboard to stare at. It is a fact, and a fact makes a task:
 
 ```text
-$ forman tasks --of allowance
+$ ortho tasks --of allowance
 improve  allowance.spend    over budget in production: p95 188ms against 150ms (watch, last 24 hours)
 ```
 
@@ -356,7 +356,7 @@ goes through the same loop: check, prove, verdicts, promote. A change to the des
 `spend.ts`, and exactly what uses it goes stale and comes back round. Nothing else does.
 
 > **Today.** `promote`, versioning from the model diff, release to a local npm and Homebrew tap, and `watch` all run
-> locally (`cli/src/main.ts:99`, L2.04 to L2.09). `watch` reports; it doesn't make tasks. There is no cloud yet.
+> locally (`cli/src/main.ts:100`, L2.04 to L2.09). `watch` reports; it doesn't make tasks. There is no cloud yet.
 > **Proposed.** Watch findings as a task kind; the cloud pass, one destination at a time, with Aaron's yes on each
 > credential.
 

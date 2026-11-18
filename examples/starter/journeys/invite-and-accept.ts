@@ -1,6 +1,6 @@
 // Journey-author file. The builder of invitation.send, invitation.accept, invitation.revoke, membership.get,
 // organization.get and session.show never edits it (AGENTS.md, "Journeys and checks come first").
-import { Blueprint, emits, expect, noEvents, refuses, spans } from "@formants/forman";
+import { Blueprint, emits, expect, noEvents, refuses, spans } from "orthograph";
 import { owner } from "../blueprint/things/organization/roles.ts";
 import { machine as organization } from "../blueprint/things/organization/machine.ts";
 import { machine as invitation } from "../blueprint/things/invitation/machine.ts";

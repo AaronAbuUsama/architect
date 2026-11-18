@@ -1,4 +1,4 @@
-// @formants/prove: worlds (made and destroyed), journeys, evidence from telemetry, the evals. Never runs in production.
+// @orthograph/prove: worlds (made and destroyed), journeys, evidence from telemetry, the evals. Never runs in production.
 export { Prove } from "#modules/prove/service.js";
 export { ProveFailed, type Report } from "#modules/prove/types.js";
 export { Worlds } from "#modules/world/service.js";

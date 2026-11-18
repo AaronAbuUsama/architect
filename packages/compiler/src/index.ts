@@ -1,4 +1,4 @@
-// @formants/compiler: reads blueprint/ by path and builds the model. Never runs in production.
+// @orthograph/compiler: reads blueprint/ by path and builds the model. Never runs in production.
 export { Compiler, canonical } from "#modules/model/service.js";
 export { BlueprintInvalid } from "#modules/model/types.js";
 export type { Model, ThingModel, OperationModel, FieldModel, FieldsModel, VisibilityModel, AllowedModel, ValueMeta, EnvironmentModel, PublicationModel, SinkModel } from "#modules/model/types.js";

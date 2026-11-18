@@ -1,6 +1,6 @@
 // Scaffolded from blueprint/things/run/verbs/fail.ts. Yours from now on.
 import { Effect } from "effect";
-import { Handlers } from "@formants/language-effect";
+import { Handlers } from "@orthograph/language-effect";
 import type { Handler } from "../../generated/api/src/run/fail.handler.ts";
 
 /** The run gave up, saying why. */

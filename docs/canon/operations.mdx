@@ -84,7 +84,7 @@ export default Blueprint.read(Sheet, {
 
 Two more parts have defaults you rarely change. `runs` says where it runs and is only `server` today (see
 `languages-and-hosts`). `test` says how its guarantees are tested, `unit` by default
-(`packages/forman/src/modules/operations/types.ts:49`).
+(`packages/orthograph/src/modules/operations/types.ts:49`).
 
 Signup's `open` is the same shape, with one step and no declared errors. Putting up a sheet can't fail on its data:
 
@@ -201,10 +201,10 @@ const loop = (left: number): Effect.Effect<object, unknown, unknown> =>
 return loop(ATTEMPTS);
 ```
 
-An operation may declare no steps at all (`packages/forman/src/modules/operations/types.ts:46`). A step's kind says
+An operation may declare no steps at all (`packages/orthograph/src/modules/operations/types.ts:46`). A step's kind says
 what does the work. `database` is the store's, `wait` is a timer's. The kinds are an open list: `sync`, `check` and
 `prove` are named for languages that run on a chain or a client (N1), and nothing matches on all of them
-(`packages/forman/src/modules/operations/types.ts:19`). Every chain detail waits on K7.
+(`packages/orthograph/src/modules/operations/types.ts:19`). Every chain detail waits on K7.
 
 **Every declared step must run, in order.** Eval 6 checks it on every answered call:
 
@@ -314,7 +314,7 @@ Without a key, or without `idempotent`, every call is its own call.
 
 A budget is how fast the operation should answer, as a p95. It is a target for review, never a failure:
 
-```ts file=packages/forman/src/modules/operations/types.ts lines=28-31
+```ts file=packages/orthograph/src/modules/operations/types.ts lines=28-31
 export interface Budget {
   /** A target for review, never a failure. */
   readonly p95: Duration.Input;
@@ -367,7 +367,7 @@ expect(lines.at(-1)).toBe("prove ✔");
 A read has no handler and no move. It names the thing, how it finds instances (`by: "id"`, or `by: "list"` with the
 fields a caller may filter by), the fields it answers, who may read, and a budget. Its answer comes straight from the
 thing's records, with `state` as text. A list answers a page, `items` and `next`, and `next` goes back as the
-`cursor` for the page after it (`packages/forman/src/modules/operations/types.ts:102`).
+`cursor` for the page after it (`packages/orthograph/src/modules/operations/types.ts:102`).
 
 ### The doors
 
@@ -430,15 +430,15 @@ sending. It costs one kept answer per key. Leave it off when a second call is ha
 
 | What | Where | |
 |---|---|---|
-| What an operation declares | `packages/forman/src/modules/operations/types.ts:39` | built |
-| A read's shape | `packages/forman/src/modules/operations/types.ts:102` | built |
+| What an operation declares | `packages/orthograph/src/modules/operations/types.ts:39` | built |
+| A read's shape | `packages/orthograph/src/modules/operations/types.ts:102` | built |
 | Refusal codes, numbered by the compiler | `packages/compiler/src/modules/model/internal/codes.ts:18` | built |
 | The payload decoded, `InvalidPayload` | `packages/language-effect/src/modules/handler/service.ts:105` | built |
 | The machine's refusal, before the handler | `packages/language-effect/src/modules/handler/internal/move.ts:39` | built |
 | The request key and the replay | `packages/language-effect/src/modules/handler/service.ts:90` | built |
 | A rerun after a conflict | `packages/language-effect/src/modules/handler/service.ts:91` | built |
 | The nine evals | `packages/prove/src/modules/evals/service.ts:7` | built |
-| Each refusal's code and exit code in every door | `packages/generators/src/modules/render/internal/api.ts:55` | built |
+| Each refusal's code and exit code in every door | `packages/generators/src/modules/render/internal/api.ts:56` | built |
 | Optional steps, eval 6 and the unused-step warning | `packages/prove/src/modules/evals/internal/calls.ts:114` and `ortho check` | planned, M1.26 |
 | An operation's own event | `packages/language-effect/src/modules/handler/service.ts:69` | planned, M3.16 |
 | A bad payload counted as a refusal | `packages/language-effect/src/modules/handler/` | planned, M1.20 |
@@ -459,7 +459,7 @@ sending. It costs one kept answer per key. Leave it off when a second call is ha
 | Reads, and a missing id refused as `NotAllowed` | proved | layer 2 | `packages/language-effect/src/modules/records/reads-and-requests.test.ts:70` |
 | Optional steps, the unused-step warning, "never exercised both ways" | specified (K5) | M1.26 | a fixture that skips its optional `save` passes eval 6; deleting `steps.record` gives a check warning |
 | An operation's own event | specified (K5, Q5) | M3.16 | journeys assert `DraftEdited` present after an edit, absent after a refusal and after an unchanged edit |
-| A bad payload counted as one refusal | specified (O2), its name open | M1.20 | a bad payload and a stranger show as two refusals in `forman.calls` |
+| A bad payload counted as one refusal | specified (O2), its name open | M1.20 | a bad payload and a stranger show as two refusals in `ortho.calls` |
 
 ## Notes
 
@@ -472,7 +472,7 @@ sending. It costs one kept answer per key. Leave it off when a second call is ha
 </Note>
 
 <Note kind="decision" decision="O2">
-  Every call is counted, a bad payload and a stranger included, as `forman.calls` with an `outcome` and a `refusal`
+  Every call is counted, a bad payload and a stranger included, as `ortho.calls` with an `outcome` and a `refusal`
   tag (M1.20). That needs a bad payload to have one name.
 </Note>
 
@@ -496,7 +496,7 @@ sending. It costs one kept answer per key. Leave it off when a second call is ha
   The comment that explains codes gives `[AL-002] AllowanceExceeded { limit: 500 }`
   (`packages/compiler/src/modules/model/internal/codes.ts:1`), and every generated `errors.ts` repeats `[AL-002]`,
   signup's included (`examples/signup/generated/api/src/errors.ts:18`), from
-  `packages/generators/src/modules/render/internal/api.ts:55`. In acme, `AllowanceExceeded` is `AL-001` and carries
+  `packages/generators/src/modules/render/internal/api.ts:56`. In acme, `AllowanceExceeded` is `AL-001` and carries
   `remaining`, not `limit`. The design docs also show `Blueprint.error("AllowanceExceeded", …)` with a name string
   (`design/docs/index.html:373`); the code takes no name, because names come from paths and identifiers. Both should
   match the code. Ledger: OPS-06.
@@ -511,10 +511,10 @@ sending. It costs one kept answer per key. Leave it off when a second call is ha
 <Note kind="question" id="target-means-language">
   The word "target" still means a language in the operation's own types: the step kinds are "reserved for targets
   that run on a chain or a client", and `runs` is only `server` "until a target supports another"
-  (`packages/forman/src/modules/operations/types.ts:15`, `types.ts:21`, `types.ts:49`). The tests say the same
-  (`packages/forman/src/modules/operations/operations.test.ts:60`, `operations.test.ts:72`). A message users see
-  prints it too: "it needs a target …" (`packages/compiler/src/modules/model/internal/describe.ts:169`). And every
-  generated `errors.ts` says codes are "stable across targets" (`api.ts:55`). No slice owns the rename to language.
+  (`packages/orthograph/src/modules/operations/types.ts:15`, `types.ts:21`, `types.ts:49`). The tests say the same
+  (`packages/orthograph/src/modules/operations/operations.test.ts:60`, `operations.test.ts:72`). The message users see
+  says language now ("it needs a language …", `packages/compiler/src/modules/model/internal/describe.ts:169`). But
+  every generated `errors.ts` says codes are "stable across targets" (`api.ts:56`). No slice owns the rest of the rename.
 </Note>
 
 <Note kind="status" slice="M1.26">

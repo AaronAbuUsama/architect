@@ -1,4 +1,4 @@
-// Check 4: a fresh agent, given only `forman brief allowance.spend`, writes the spend handler, and prove passes.
+// Check 4: a fresh agent, given only `ortho brief allowance.spend`, writes the spend handler, and prove passes.
 // The agent runs on the Claude Agent SDK with no built-in tools at all: it gets three tools of ours, so what it may do is
 // fixed by construction (read files outside the denied folders, write the one handler, run check). Its telemetry goes
 // to the same OpenTelemetry Collector prove uses, and is kept beside the run (D2 #41, #76).
@@ -6,20 +6,20 @@ import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } fr
 import { join, normalize, relative } from "node:path";
 import { spawnSync } from "node:child_process";
 import { createSdkMcpServer, query, tool } from "@anthropic-ai/claude-agent-sdk";
-import { Collectors } from "@formants/prove";
+import { Collectors } from "@orthograph/prove";
 import { Effect } from "effect";
 import { z } from "zod";
 import { afterAll, describe, expect, it } from "vitest";
-import { acme, forman, cli, copyOf, nothingRunning, repo } from "./support.ts";
+import { acme, ortho, cli, copyOf, nothingRunning, repo } from "./support.ts";
 
 const SPEND = "src/allowance/spend.ts";
 // What the agent may not read. The brief's own forbidden list is about writing (blueprint and generated are read-only to
 // it but readable); this one is about reading, so the agent can't learn the journeys or the planted answers.
-const DENIED = ["journeys/", "blueprint/journeys/", "blueprint/starting-worlds/", "test/", "node_modules/", ".forman/"];
+const DENIED = ["journeys/", "blueprint/journeys/", "blueprint/starting-worlds/", "test/", "node_modules/", ".ortho/"];
 const ci = process.env["CI"] === "true" && !process.env["ANTHROPIC_API_KEY"];
 const project = copyOf(acme);
 afterAll(project.remove);
-const telemetry = join(repo, "e2e/.forman/agent-telemetry");
+const telemetry = join(repo, "e2e/.ortho/agent-telemetry");
 
 const text = (t: string) => ({ content: [{ type: "text" as const, text: t }] });
 
@@ -47,8 +47,8 @@ const tools = (root: string) => {
         writeFileSync(join(root, SPEND), content);
         return text(`wrote ${SPEND}`);
       }),
-      tool("check", "Run forman check on the project: types, rules, drift.", {}, async () => {
-        const r = forman(root, "check");
+      tool("check", "Run ortho check on the project: types, rules, drift.", {}, async () => {
+        const r = ortho(root, "check");
         return text(`${r.stdout}${r.stderr}`);
       }),
     ],
@@ -61,8 +61,8 @@ describe.skipIf(ci)("check 4: an agent writes allowance.spend from its brief alo
       const { root } = project;
       // The handler as generate first scaffolds it: every line a blank.
       rmSync(join(root, SPEND));
-      expect(forman(root, "generate").stdout).toContain(`created ${SPEND}`);
-      const brief = forman(root, "brief", "allowance.spend");
+      expect(ortho(root, "generate").stdout).toContain(`created ${SPEND}`);
+      const brief = ortho(root, "brief", "allowance.spend");
       expect(brief.status).toBe(0);
       // The journeys are out of the copy while the agent works; they come back for the proof.
       cpSync(join(root, "journeys"), join(root, "..", "journeys"), { recursive: true });
@@ -71,7 +71,7 @@ describe.skipIf(ci)("check 4: an agent writes allowance.spend from its brief alo
       mkdirSync(telemetry, { recursive: true });
       const collector = yield* Collectors.start(telemetry);
       const prompt = [
-        "You are writing one handler in a Forman project. Your tools are read, list, write_handler and check.",
+        "You are writing one handler in a Orthograph project. Your tools are read, list, write_handler and check.",
         "Here is your brief:", "", brief.stdout, "",
         "Work from the brief, the declarations and the project's other handlers. Finish when check passes.",
       ].join("\n");
@@ -101,8 +101,8 @@ describe.skipIf(ci)("check 4: an agent writes allowance.spend from its brief alo
 
       cpSync(join(root, "..", "journeys"), join(root, "journeys"), { recursive: true });
       expect(readFileSync(join(root, SPEND), "utf8")).not.toContain("Handlers.blank");
-      expect(forman(root, "check").stdout).toContain("check ✔");
-      const prove = forman(root, "prove", "--env", "local", "--port", "8864");
+      expect(ortho(root, "check").stdout).toContain("check ✔");
+      const prove = ortho(root, "prove", "--env", "local", "--port", "8864");
       expect(prove.stdout).toMatch(/^allowance\.spend 9 evals ✔/m);
       for (const j of ["revoke then spend", "spend twice with one request", "spend within an allowance"]) expect(prove.stdout).toContain(`journey ${j} ✔`);
       expect(prove.stdout.trimEnd().split("\n").at(-1)).toBe("prove ✔");

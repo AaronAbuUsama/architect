@@ -1,4 +1,4 @@
-import { Blueprint } from "@formants/forman";
+import { Blueprint } from "orthograph";
 
 export const Amount = Blueprint.value(Blueprint.uint(128));
 

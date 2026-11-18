@@ -6,7 +6,7 @@ import { Tokens } from "./service.ts";
 import type { TokenPolicy } from "./types.ts";
 
 const policy: TokenPolicy = {
-  issuer: "https://issuer.test", audience: "forman-logbook", repository: "acme/acme",
+  issuer: "https://issuer.test", audience: "ortho-logbook", repository: "acme/acme",
   refs: ["refs/heads/main", "refs/pull/*/merge"], workflows: ["ci", ".github/workflows/prove.yml"],
 };
 const good = { repository: "acme/acme", ref: "refs/heads/main", workflow: "ci", event_name: "push", sha: "abc", job_workflow_ref: "acme/acme/.github/workflows/ci.yml@refs/heads/main" };
@@ -70,11 +70,11 @@ describe("the token policy", () => {
 });
 
 describe("the policy from the worker's variables", () => {
-  const vars = { OIDC_ISSUER: "https://i", OIDC_JWKS_URL: "https://i/jwks", OIDC_AUDIENCE: "forman-logbook", ALLOWED_REPOSITORY: "a/b", ALLOWED_REFS: "refs/heads/main, refs/pull/*/merge", ALLOWED_WORKFLOWS: "ci" };
+  const vars = { OIDC_ISSUER: "https://i", OIDC_JWKS_URL: "https://i/jwks", OIDC_AUDIENCE: "ortho-logbook", ALLOWED_REPOSITORY: "a/b", ALLOWED_REFS: "refs/heads/main, refs/pull/*/merge", ALLOWED_WORKFLOWS: "ci" };
   it("reads them, trimming the lists", async () => {
     const read = await Effect.runPromise(Tokens.fromVars(vars));
     expect(read.jwksUrl).toBe("https://i/jwks");
-    expect(read.policy).toEqual({ issuer: "https://i", audience: "forman-logbook", repository: "a/b", refs: ["refs/heads/main", "refs/pull/*/merge"], workflows: ["ci"] });
+    expect(read.policy).toEqual({ issuer: "https://i", audience: "ortho-logbook", repository: "a/b", refs: ["refs/heads/main", "refs/pull/*/merge"], workflows: ["ci"] });
   });
   it("names what is missing, and nothing else", async () => {
     const exit = await Effect.runPromiseExit(Tokens.fromVars({ ...vars, OIDC_ISSUER: "", ALLOWED_REFS: undefined }));

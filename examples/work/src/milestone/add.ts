@@ -1,6 +1,6 @@
 // Scaffolded from blueprint/things/milestone/verbs/add.ts. Yours from now on.
 import { Effect } from "effect";
-import { Handlers } from "@formants/language-effect";
+import { Handlers } from "@orthograph/language-effect";
 import type { Handler } from "../../generated/api/src/milestone/add.handler.ts";
 
 /** Add a milestone to a mission. Its tasks appear at once: its kinds over its subject. */

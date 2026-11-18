@@ -1,5 +1,5 @@
 // Generated from the blueprint. Do not edit.
-import type { McpEntry } from "@formants/language-effect";
+import type { McpEntry } from "@orthograph/language-effect";
 import { declaration as sheetClose } from "../../api/src/sheet/close.ts";
 import { declaration as sheetGet } from "../../api/src/sheet/get.ts";
 import { declaration as sheetJoin } from "../../api/src/sheet/join.ts";

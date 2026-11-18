@@ -1,7 +1,7 @@
 import { resolve } from "node:path";
 import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
-import { Compiler, nodeSource } from "@formants/compiler";
+import { Compiler, nodeSource } from "@orthograph/compiler";
 import { Journeys } from "./service.ts";
 
 const acme = resolve(import.meta.dirname, "../../../../../examples/acme");

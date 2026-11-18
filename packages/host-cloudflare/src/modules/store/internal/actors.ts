@@ -1,7 +1,7 @@
 // The Worker's side of an actor: name it from the thing's table and the instance id, then find or commit over RPC.
 import { Effect } from "effect";
-import type { Thing } from "@formants/forman";
-import type { Commit, Instance, Stored } from "@formants/language-effect";
+import type { Thing } from "orthograph";
+import type { Commit, Instance, Stored } from "@orthograph/language-effect";
 import type { ActorApi, ActorWrite } from "#modules/actors/types.js";
 import { decodeRow, encodeFields } from "./rows.ts";
 

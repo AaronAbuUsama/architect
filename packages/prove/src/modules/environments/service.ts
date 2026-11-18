@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { Effect } from "effect";
-import { Compiler, nodeSource } from "@formants/compiler";
+import { Compiler, nodeSource } from "@orthograph/compiler";
 import { Build } from "#modules/build/service.js";
 import { Collectors, privateKeys } from "#modules/telemetry/service.js";
 import { Sinks } from "#modules/sinks/service.js";
@@ -26,7 +26,7 @@ const declared = (root: string, name: string) =>
     const environment = model.environments?.[name];
     const known = Object.keys(model.environments ?? {}).filter((n) => n !== "local");
     if (!environment) return yield* failed(`no environment "${name}" in blueprint/environments/ (there is ${known.join(", ") || "none"})`);
-    if (name === "local") return yield* failed(`"local" is not kept running: it is what \`forman dev\` and \`forman prove --env local\` start`);
+    if (name === "local") return yield* failed(`"local" is not kept running: it is what \`ortho dev\` and \`ortho prove --env local\` start`);
     return { environment, model, strip: privateKeys(model) };
   });
 
@@ -38,7 +38,7 @@ const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision, policy, 
       if (!NAME.test(name)) return yield* failed(`"${name}" isn't an environment name`);
       const running = yield* status(root, name);
       if (running.state === "up") return running;
-      if (!policy) return yield* failed("the logbook needs a policy: FORMAN_OIDC_ISSUER, FORMAN_OIDC_REPOSITORY, FORMAN_OIDC_REF and FORMAN_OIDC_WORKFLOW");
+      if (!policy) return yield* failed("the logbook needs a policy: ORTHO_OIDC_ISSUER, ORTHO_OIDC_REPOSITORY, ORTHO_OIDC_REF and ORTHO_OIDC_WORKFLOW");
       return yield* startLogbook(dir, port, policy);
     }
     const { environment, model, strip } = yield* declared(root, name);
@@ -61,7 +61,7 @@ const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision, policy, 
     const rev = revision ?? (yield* Build.revision(root).pipe(Effect.mapError((e) => failed(e.message))));
     const kept = yield* Build.find(root, rev).pipe(Effect.mapError((e) => failed(e.message)));
     const built = kept ?? (revision !== undefined
-      ? yield* failed(`revision ${rev} has no artefact: run \`forman build\` at that commit`)
+      ? yield* failed(`revision ${rev} has no artefact: run \`ortho build\` at that commit`)
       : yield* Build.build(root, env).pipe(Effect.mapError((e) => failed(e.message))));
 
     const base = join(root, "generated/server/wrangler.jsonc");
@@ -81,7 +81,7 @@ const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision, policy, 
     // The environment's sinks, read by name now and handed to its process alone: never in its config or its secrets file.
     const sinks = yield* Sinks.resolve({ sinks: environment.telemetry ?? [{ sink: "local" }], env: env ?? {} });
     const launched = yield* Worlds.launch({
-      config: f.config, state: f.state, port: chosen, log: f.log, pidFile: f.pid, envFile: f.secrets, secretEnv: sinks.secretEnv, ready: "/_forman/bundle",
+      config: f.config, state: f.state, port: chosen, log: f.log, pidFile: f.pid, envFile: f.secrets, secretEnv: sinks.secretEnv, ready: "/_ortho/bundle",
     }).pipe(
       Effect.tapError(() => reap(dir)),
       Effect.mapError((e) => failed(`${name} didn't start: ${e.message}`)),

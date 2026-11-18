@@ -1,13 +1,13 @@
 // Check 2: acme proves locally. Every journey passes, every operation shows its nine evals, and coverage holds.
 import { afterAll, describe, expect, it } from "vitest";
-import { acme, forman, copyOf, nothingRunning } from "./support.ts";
+import { acme, ortho, copyOf, nothingRunning } from "./support.ts";
 
 const project = copyOf(acme);
 afterAll(project.remove);
 
-describe("check 2: forman prove --env local on acme", () => {
+describe("check 2: ortho prove --env local on acme", () => {
   it("passes eleven journeys and fifteen operations with nine evals each, and leaves nothing running", () => {
-    const run = forman(project.root, "prove", "--env", "local", "--port", "8870");
+    const run = ortho(project.root, "prove", "--env", "local", "--port", "8870");
     expect(run.status, run.stdout + run.stderr).toBe(0);
     const lines = run.stdout.trimEnd().split("\n");
     expect(lines.filter((l) => /^journey .* ✔ \d+\/\d+ steps$/.test(l))).toHaveLength(11);

@@ -1,10 +1,10 @@
 <!doctype html>
-<!-- The Forman docs: one self-contained page, the single source (decisions/M0-build.md #7). Edit it here. -->
+<!-- The Orthograph docs: one self-contained page, the single source (decisions/M0-build.md #7). Edit it here. -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Forman Docs</title>
+<title>Orthograph Docs</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -159,10 +159,10 @@ footer { margin-top: 72px; border-top: 1px solid var(--rule); padding-top: 14px;
 <div class="shell">
 <nav class="toc" aria-label="Contents">
 <details id="toc-details" open>
-<summary class="brand"><b>Forman</b><span>docs · 17 Nov 2026</span><span class="toc-menu">Contents</span></summary>
+<summary class="brand"><b>Orthograph</b><span>docs · 17 Nov 2026</span><span class="toc-menu">Contents</span></summary>
 <ol>
   <li><div class="ch"><a href="#overview">1 · Start</a></div>
-    <ol><li><a href="#overview">Forman in one breath</a></li><li><a href="#the-loop">The loop</a></li><li><a href="#quickstart">Quickstart</a></li></ol></li>
+    <ol><li><a href="#overview">Orthograph in one breath</a></li><li><a href="#the-loop">The loop</a></li><li><a href="#quickstart">Quickstart</a></li></ol></li>
   <li><div class="ch"><a href="#description">2 · Concepts</a></div>
     <ol>
       <li><a href="#description">The description</a></li>
@@ -197,9 +197,9 @@ footer { margin-top: 72px; border-top: 1px solid var(--rule); padding-top: 14px;
 
 <main>
 <div class="cover">
-  <div class="eyebrow">Framework manual · Forman · <code>@formants/forman</code></div>
+  <div class="eyebrow">Framework manual · Orthograph · <code>orthograph</code></div>
   <h1>Describe it once. Everything else is made from it.</h1>
-  <p>Forman turns one description of a system into its server, clients, docs, tests, deploys and the tools its agents
+  <p>Orthograph turns one description of a system into its server, clients, docs, tests, deploys and the tools its agents
   build with. The only code anyone writes by hand is behaviour, and every piece of it is judged against the description.</p>
   <div class="legend"><span class="chip built">Built today</span> runs on <code>main</code> now<span class="chip planned">Planned · M2</span> designed and decided, landing in that milestone</div>
 </div>
@@ -210,9 +210,9 @@ footer { margin-top: 72px; border-top: 1px solid var(--rule); padding-top: 14px;
 <h2>Start</h2>
 
 <section class="s" id="overview">
-<header><h3>Forman in one breath</h3><span class="chip part">Design decided · K2</span></header>
+<header><h3>Orthograph in one breath</h3><span class="chip part">Design decided · K2</span></header>
 <p class="lead">You write one description of a system: what exists, how it changes, who may change it, what is
-recorded, and what must hold. Forman compiles it into a <b>model</b>. Every output is a projection of that model.
+recorded, and what must hold. Orthograph compiles it into a <b>model</b>. Every output is a projection of that model.
 Behaviour, inside generated frames, is the only freehand. Everything that runs is judged against the description by the
 same names.</p>
 <div class="grid2">
@@ -225,14 +225,14 @@ same names.</p>
   <div class="card"><h5>Facts, not claims</h5><p>Journeys run in real worlds, evals judge the evidence, and CI writes signed
   verdicts. Only a verdict says an operation works.</p></div>
 </div>
-<p><b>Names.</b> The framework is Forman, and its command is <code>forman</code>. Packages live under
-<code>@formants/*</code>, and <code>@formants/forman</code> is the one you install. <b>Blueprint</b> is what you write:
+<p><b>Names.</b> The framework is Orthograph, and its command is <code>ortho</code>. Packages live under
+<code>@orthograph/*</code>, and <code>orthograph</code> is the one you install. <b>Blueprint</b> is what you write:
 the <code>blueprint/</code> folder and the <code>Blueprint.*</code> API.</p>
 </section>
 
 <section class="s" id="the-loop">
 <header><h3>The loop</h3><span class="chip part">Parts built · loop closes at M3</span></header>
-<p>Everything in Forman sits on one loop. You plan, the description compiles, checks come first, the factory fills the
+<p>Everything in Orthograph sits on one loop. You plan, the description compiles, checks come first, the factory fills the
 blanks, worlds prove it, environments ship it, and what production records comes back as new work.</p>
 <pre class="diagram">  you + your agent ── chat, a diagram, Figma
           │
@@ -241,7 +241,7 @@ blanks, worlds prove it, environments ship it, and what production records comes
   things · machines · operations · roles          features/     what else the system is   (auth, organizations, agents)
   events · journeys (stories first) · views       adapters/     what is outside it        (stripe, anthropic, a chain)
           │                                       projections/  what it becomes           (server, sdk, cli, mcp, docs)
-          │ forman check
+          │ ortho check
           ▼
         model ── one contract, every name, every blank
           │
@@ -257,20 +257,20 @@ blanks, worlds prove it, environments ship it, and what production records comes
 
 <section class="s" id="quickstart">
 <header><h3>Quickstart</h3><span class="chip planned">Planned · M2</span></header>
-<p>This is the day-one path once M2 lands. Today the same steps run under <code>forman</code>, with the Nx starter
+<p>This is the day-one path once M2 lands. Today the same steps run under <code>ortho</code>, with the Nx starter
 copying auth's things into the project instead of mounting them.</p>
 
 <h4>1. Make a project</h4>
-<pre><code class="sh">$ npm create formants acme
-created  acme/   blueprint/  src/  generated/  AGENTS.md  .agents/skills/  .github/workflows/forman.yml
-mounted  blueprint/features/auth.ts           @formants/auth 1.0.0
-         blueprint/features/organizations.ts  @formants/organizations 1.0.0
+<pre><code class="sh">$ npm create orthograph acme
+created  acme/   blueprint/  src/  generated/  AGENTS.md  .agents/skills/  .github/workflows/ortho.yml
+mounted  blueprint/features/auth.ts           @orthograph/auth 1.0.0
+         blueprint/features/organizations.ts  @orthograph/organizations 1.0.0
          blueprint/projections/{server,sdk,cli,mcp,docs,portal,builder,agents}.ts
-$ cd acme &amp;&amp; forman dev
+$ cd acme &amp;&amp; ortho dev
 world local ✔   api http://localhost:8787   portal /portal   mcp /mcp</code></pre>
 
 <h4>2. Add a thing, a machine, an operation and a role</h4>
-<pre><code class="ts"><span class="file">blueprint/things/allowance/thing.ts</span>import { Blueprint } from "@formants/forman";
+<pre><code class="ts"><span class="file">blueprint/things/allowance/thing.ts</span>import { Blueprint } from "orthograph";
 import auth from "../../features/auth.ts";
 import organizations from "../../features/organizations.ts";
 import { Amount } from "../../values/money.ts";
@@ -320,10 +320,10 @@ export const grantee = Blueprint.role(Allowance, { rule: (allowance, who) =&gt; 
 empty (<a href="#journeys">Journeys</a>).</p>
 
 <h4>4. Check, fill the blank, prove</h4>
-<pre><code class="sh">$ forman check
+<pre><code class="sh">$ ortho check
 model 53d0…28de   things 8   operations 17   journeys 11   blanks 1
 blanks  allowance.spend: handler is still the scaffold (src/allowance/spend.ts)
-$ forman prove --env local
+$ ortho prove --env local
 world w_4k2 (test, 2 hours)   cast: ada, olga, bob
 journeys 11/11 <span class="ok">✔</span>   through: api <span class="ok">✔</span> sdk <span class="ok">✔</span> cli <span class="ok">✔</span> mcp <span class="ok">✔</span>
 allowance.spend   evals 9/9 <span class="ok">✔</span>   p95 41ms / 150ms
@@ -341,9 +341,9 @@ const r = await client.allowance.spend({ allowance, amount: 12n, memo: "train" }
 <code>allowance_spend</code> as a tool.</p>
 
 <h4>6. Ship the exact build</h4>
-<pre><code class="sh">$ forman promote --to staging
+<pre><code class="sh">$ ortho promote --to staging
 bundle 7f3e…c21 (rev a91c2e0)   test <span class="ok">✔</span> 17/17 operations   released @acme/sdk@1.4.0-next.1
-$ forman promote --to production
+$ ortho promote --to production
 released 1.4.0   (a new operation since 1.3.0: minor)</code></pre>
 </section>
 </div>
@@ -411,7 +411,7 @@ checks honest: whoever fills a handler never wrote the test it must pass.</p>
 <p><b>The empty-handler rule.</b> Before any behaviour exists, the journey author runs the checks against the
 scaffolds. Every step that needs behaviour must go red. A step that passes on an empty handler is labelled "proved by
 the description", because the role or state already guarantees it.</p>
-<pre><code class="sh">$ forman prove --empty --only "revoke then spend"
+<pre><code class="sh">$ ortho prove --empty --only "revoke then spend"
   <span class="bad">✘</span> ada revokes it                 AllowanceRevoked not emitted
   <span class="bad">✘</span> olga can't spend               not refused: the empty spend ran
   <span class="ok">✔</span> olga can't revoke it either    proved by the description (the role refuses her)</code></pre>
@@ -425,7 +425,7 @@ stage yet, and the model leaves journeys out. Journeys call the server over raw 
 <p>A <b>blank</b> is anything the description leaves open: a handler body, a journey that is still a story, a question
 only a person can answer (<code>Blueprint.todo("what happens at the month's end")</code>). The compiler counts blanks,
 and the factory turns each into a task.</p>
-<p>For every operation, Forman generates a <b>handler frame</b>: a type that says what the handler is given and what it
+<p>For every operation, Orthograph generates a <b>handler frame</b>: a type that says what the handler is given and what it
 may return. It also writes a <b>scaffold</b> once into <code>src/</code>, which is yours from then on.</p>
 <pre><code class="ts"><span class="file">src/allowance/spend.ts</span>// Scaffolded from blueprint/things/allowance/verbs/spend.ts. Yours from now on.
 import { Effect } from "effect";
@@ -448,7 +448,7 @@ dependencies are given, and nothing reads the environment.</p>
 
 <section class="s" id="data">
 <header><h3>Data</h3><span class="chip part">Database and actor built · stores M1 · sources and views M5 · chain M6</span></header>
-<p>One rule sorts every place data can be. <b>If Forman owns the schema and every write goes through Forman's commit, the
+<p>One rule sorts every place data can be. <b>If Orthograph owns the schema and every write goes through Orthograph's commit, the
 place is a store.</b> If anything else owns it, it is a <b>source</b>, and you reach it through an adapter.</p>
 <p>A thing lives in a store. Say nothing and it lives in the project's default store. To keep a group of things apart,
 declare a store and point the things at it.</p>
@@ -456,7 +456,7 @@ declare a store and point the things at it.</p>
 <pre><code class="ts"><span class="file">blueprint/things/entry/thing.ts</span>import ledger from "../../stores/ledger.ts";
 export default Blueprint.thing({ description: "…", fields: { … }, lives: ledger });</code></pre>
 <p>The kinds of store are open. A host or a language supplies a kind by implementing one port: take a call's writes,
-events, outbox entries and request key together or not at all, guarded by a version. Forman ships three kinds.</p>
+events, outbox entries and request key together or not at all, guarded by a version. Orthograph ships three kinds.</p>
 <div class="table"><table>
 <tr><th>Kind</th><th>What it is</th><th>Choose it when</th></tr>
 <tr><td><code>database</code> (default)</td><td>D1, with a version column</td><td>you need to list and search across many</td></tr>
@@ -470,7 +470,7 @@ it differently. A call commits to one store; work across stores runs as a workfl
 A plugin brings its own stores, named by its mount, so auth's tables never meet yours.</p>
 <p>A system you don't own, like a database another team runs, is a <b>source</b>. You mount an adapter for it, and a
 handler calls it through a step. The call gets its own span and typed errors. The adapter's stand-in is the real
-database software, loaded from the source's schema, and Forman never migrates it.</p>
+database software, loaded from the source's schema, and Orthograph never migrates it.</p>
 <pre><code class="ts"><span class="file">blueprint/things/shortlist/verbs/add.ts</span>steps: {
   candidate: Blueprint.step.call(bench.calls.candidates.find), // a source, through its adapter
   save: Blueprint.step.database(),                              // our own store
@@ -484,7 +484,7 @@ view the same way as a thing, and its read is generated in the SDK, CLI and MCP.
 <p>The model generates a <b>data map</b> (<code>generated/data/map.md</code>, and a data page in the portal): every store
 with its kind, binding and migrations, every source with its adapter and stand-in, and what feeds each view.</p>
 <div class="today"><b>Today.</b> <code>lives</code> takes <code>"database" | "actor"</code>
-(<code>packages/forman/src/modules/things/types.ts:32</code>), an environment binds one database, and a list over actor
+(<code>packages/orthograph/src/modules/things/types.ts:32</code>), an environment binds one database, and a list over actor
 things isn't possible. Decided in <code>design/decisions/K3-stores-and-sources.md</code>.</div>
 </section>
 
@@ -509,8 +509,8 @@ refused after the read.</li>
 <li><b><code>request.replayed=true</code></b> is a retry that changed nothing.</li>
 <li><b>Step widths against the operation's <code>budget</code></b> show which step is slow.</li>
 </ul>
-<p>Calls refused before any span, a bad payload or a wrong role, are still counted: <code>forman.calls</code> and
-<code>forman.call.duration</code> are metrics for every call. An environment's <code>telemetry</code> list says where
+<p>Calls refused before any span, a bad payload or a wrong role, are still counted: <code>ortho.calls</code> and
+<code>ortho.call.duration</code> are metrics for every call. An environment's <code>telemetry</code> list says where
 it all goes: <code>Telemetry.sink.local()</code> (the Collector and the local viewer) or <code>Telemetry.sink.axiom({ group })</code>.</p>
 <div class="today"><b>Today.</b> Operation and step spans, the public-only allowlist and refusals ending OK run on
 <code>main</code> (<code>packages/language-effect/src/modules/handler/</code>). The commit span, untraced text and call
@@ -523,12 +523,12 @@ counts are decided in <code>design/decisions/O2-trace-gaps.md</code>.</div>
 kind is the whole difference between them.</p>
 <div class="table"><table>
 <tr><th>Kind</th><th>Adds</th><th>Examples</th></tr>
-<tr><td><b>feature</b></td><td>to what the system <i>is</i>: things, operations, handlers, journeys, exports. Your app is the root feature</td><td><code>@formants/auth</code>, <code>@formants/organizations</code>, <code>@formants/agents</code>, <code>@formants/work</code>, <code>@formants/wallets</code></td></tr>
-<tr><td><b>adapter</b></td><td>something <i>outside</i>: calls out, events in, a <code>service</code> principal, secrets, a stand-in, a conformance test. No things of its own</td><td><code>@formants/stripe</code>, <code>@formants/resend</code>, <code>@formants/anthropic</code>, <code>@formants/eip1193</code></td></tr>
+<tr><td><b>feature</b></td><td>to what the system <i>is</i>: things, operations, handlers, journeys, exports. Your app is the root feature</td><td><code>@orthograph/auth</code>, <code>@orthograph/organizations</code>, <code>@orthograph/agents</code>, <code>@orthograph/work</code>, <code>@orthograph/wallets</code></td></tr>
+<tr><td><b>adapter</b></td><td>something <i>outside</i>: calls out, events in, a <code>service</code> principal, secrets, a stand-in, a conformance test. No things of its own</td><td><code>@orthograph/stripe</code>, <code>@orthograph/resend</code>, <code>@orthograph/anthropic</code>, <code>@orthograph/eip1193</code></td></tr>
 <tr><td><b>projection</b></td><td>what it <i>becomes</i>: renders outputs, replays journeys, says where it runs and how it ships</td><td>server, sdk, react, cli, mcp, docs, portal, builder, agents, solidity, python</td></tr>
 </table></div>
 <p>Every plugin has the same layout:</p>
-<pre><code class="txt">@formants/auth/
+<pre><code class="txt">@orthograph/auth/
   blueprint/
     feature.ts         the descriptor: needs, choices, settings, exports
     things/            person/, session/, api-key/   with verbs/, roles.ts, errors.ts
@@ -541,7 +541,7 @@ kind is the whole difference between them.</p>
   src/node.ts          its runtime on Node
   skills/              shipped into each app's agent kit
   README.md</code></pre>
-<pre><code class="ts"><span class="file">@formants/wallets/blueprint/feature.ts · a descriptor imports only Effect and the Blueprint API</span>export default Blueprint.feature({
+<pre><code class="ts"><span class="file">@orthograph/wallets/blueprint/feature.ts · a descriptor imports only Effect and the Blueprint API</span>export default Blueprint.feature({
   needs: [auth, Blueprint.need(eip1193, { when: Choices.signer.browser.injected })],  // only if that signer is picked
   choices: Choices,
   settings: Settings,
@@ -569,8 +569,8 @@ name. There is no config file.</p>
 <tr><td><b>narrow</b></td><td>fewer ways in, fewer callers on an operation</td><td>fewer callers can't break a journey that passed with more</td></tr>
 <tr><td><b>omit</b></td><td>drops an operation</td><td><code>check</code> fails if anything still calls it</td></tr>
 </table></div>
-<pre><code class="ts"><span class="file">blueprint/features/wallets.ts</span>import { Blueprint } from "@formants/forman";
-import wallets from "@formants/wallets";
+<pre><code class="ts"><span class="file">blueprint/features/wallets.ts</span>import { Blueprint } from "orthograph";
+import wallets from "@orthograph/wallets";
 
 export default Blueprint.use(wallets, (w) =&gt; [
   w.choose(w.choices.signer.node.keystore, w.choices.signer.browser.injected),
@@ -579,10 +579,10 @@ export default Blueprint.use(wallets, (w) =&gt; [
 <p><b>Choices against settings.</b> A choice changes the model, so it never varies by environment. A setting is a value
 each environment gives, such as which chains a wallet links for:
 <code>settings: [wallets.settings.chains.is([1, 8453])]</code> in <code>environments/production.ts</code>.</p>
-<p><b>Needs.</b> A plugin names what it requires. <code>forman add</code> finds an existing mount that already meets
+<p><b>Needs.</b> A plugin names what it requires. <code>ortho add</code> finds an existing mount that already meets
 the need, offers to widen one, or mounts it for you. An app mounts each plugin once.</p>
-<pre><code class="sh">$ forman add feature @formants/wallets
-pinned  @formants/wallets 1.1.0 (published over three days ago)
+<pre><code class="sh">$ ortho add feature @orthograph/wallets
+pinned  @orthograph/wallets 1.1.0 (published over three days ago)
 needs   auth ✔ mounted   eip1193: only if you choose the injected browser signer
 wrote   blueprint/features/wallets.ts</code></pre>
 <p>There is no override. If you need a feature's operation to behave differently, write your own operation over what
@@ -600,10 +600,10 @@ the feature exports.</p>
 </ul>
 <div class="table"><table>
 <tr><th>Language</th><th>Package</th><th>Used for</th><th>Status</th></tr>
-<tr><td>Effect TypeScript</td><td><code>@formants/language-effect</code></td><td>the server, the SDK, the CLI, handlers</td><td><span class="chip built">Built</span></td></tr>
-<tr><td>Solidity</td><td><code>@formants/language-solidity</code></td><td>things that live on chain; the machine fuzzed against the TypeScript one</td><td><span class="chip planned">M6</span></td></tr>
-<tr><td>Noir</td><td><code>@formants/language-noir</code></td><td>proofs made on the client, verified on chain</td><td><span class="chip planned">Later</span></td></tr>
-<tr><td>Python</td><td><code>@formants/language-python</code></td><td>a Python client, built from the model</td><td><span class="chip planned">Later</span></td></tr>
+<tr><td>Effect TypeScript</td><td><code>@orthograph/language-effect</code></td><td>the server, the SDK, the CLI, handlers</td><td><span class="chip built">Built</span></td></tr>
+<tr><td>Solidity</td><td><code>@orthograph/language-solidity</code></td><td>things that live on chain; the machine fuzzed against the TypeScript one</td><td><span class="chip planned">M6</span></td></tr>
+<tr><td>Noir</td><td><code>@orthograph/language-noir</code></td><td>proofs made on the client, verified on chain</td><td><span class="chip planned">Later</span></td></tr>
+<tr><td>Python</td><td><code>@orthograph/language-python</code></td><td>a Python client, built from the model</td><td><span class="chip planned">Later</span></td></tr>
 </table></div>
 <p>The hosts are <code>Host.worker</code>, <code>Host.node</code>, <code>Host.browser</code>, <code>Host.chain</code>,
 <code>Host.native</code>, <code>Host.python</code>, and <code>Host.world</code> (code used only inside worlds). An
@@ -639,9 +639,9 @@ allowed: [Blueprint.system]                                       // only the sy
 <header><h3>Secrets</h3><span class="chip planned">Planned · M2</span></header>
 <p>A secret is a value the description names but never holds. The plugin that needs it declares it. Its name comes
 from the mount and the export. Only that plugin's layer ever reads the value, and only as a <code>Redacted</code>.</p>
-<pre><code class="ts"><span class="file">@formants/stripe/blueprint/secrets.ts</span>export const apiKey = Blueprint.secret.stored({ describe: "Stripe's secret API key, sk_…", test: "sk_test_…" });
+<pre><code class="ts"><span class="file">@orthograph/stripe/blueprint/secrets.ts</span>export const apiKey = Blueprint.secret.stored({ describe: "Stripe's secret API key, sk_…", test: "sk_test_…" });
 export const webhookSigning = Blueprint.secret.stored({ describe: "The endpoint's signing secret, whsec_…" });</code></pre>
-<pre><code class="ts"><span class="file">@formants/stripe/src/worker.ts · the adapter's layer is handed its secret at the composition root</span>export const layer = Blueprint.layer(stripe, ({ secrets }) =&gt;
+<pre><code class="ts"><span class="file">@orthograph/stripe/src/worker.ts · the adapter's layer is handed its secret at the composition root</span>export const layer = Blueprint.layer(stripe, ({ secrets }) =&gt;
   Effect.gen(function* () {
     const key = yield* secrets.apiKey;          // Redacted&lt;string&gt;: printing it shows &lt;redacted&gt;
     return makeClient({ apiKey: Redacted.value(key) });
@@ -652,11 +652,11 @@ export const webhookSigning = Blueprint.secret.stored({ describe: "The endpoint'
 <tr><td><b>release</b></td><td><code>promote</code> and <code>publish</code></td><td>CI's secrets, never a Worker</td></tr>
 <tr><td><b>builder</b></td><td>the tools that build: the agent harness, benches</td><td>the developer's machine or CI</td></tr>
 </table></div>
-<pre><code class="sh">$ forman secrets --env production
+<pre><code class="sh">$ ortho secrets --env production
 STRIPE_API_KEY          stored     runtime   set 12 Nov
 STRIPE_WEBHOOK_SIGNING  stored     runtime   missing
 AUTH_SECRET             generated  runtime   set 2 Nov
-$ forman secrets set stripe.apiKey --env production     # prompts without echo; never an argument</code></pre>
+$ ortho secrets set stripe.apiKey --env production     # prompts without echo; never an argument</code></pre>
 <p>Worlds and local environments never need a real key. Generated secrets are made fresh, and stored ones use their
 declared test value or the stand-in's own credential. <code>promote</code> refuses an environment with a missing
 stored secret, and names it.</p>
@@ -692,28 +692,28 @@ charged or sent twice.</p>
 <header><h3>Auth and organizations, end to end</h3><span class="chip part">Identity built in the host · plugins M2</span></header>
 <p>Auth is two plugins, because it does two separate jobs:</p>
 <div class="grid2">
-  <div class="card"><h5><code>@formants/auth</code>: who is calling</h5><p>People, passwords and passkeys, sessions, API keys,
+  <div class="card"><h5><code>@orthograph/auth</code>: who is calling</h5><p>People, passwords and passkeys, sessions, API keys,
   the CLI's device sign-in, OAuth so a remote agent can use MCP. It declares <code>AUTH_SECRET</code>. Better Auth on D1
   runs underneath.</p></div>
-  <div class="card"><h5><code>@formants/organizations</code>: what you belong to</h5><p>Organisations, memberships,
+  <div class="card"><h5><code>@orthograph/organizations</code>: what you belong to</h5><p>Organisations, memberships,
   invitations, the owner and member roles, <code>holds</code>, and the starting worlds <code>founded</code> and
   <code>invited</code>. It needs auth.</p></div>
 </div>
 
 <h4>Mount and configure</h4>
-<pre><code class="sh">$ forman add feature @formants/auth
-$ forman add feature @formants/organizations
+<pre><code class="sh">$ ortho add feature @orthograph/auth
+$ ortho add feature @orthograph/organizations
 adds    things person, session, api-key, organization, membership, invitation
         secrets AUTH_SECRET (generated)   journeys 9   starting worlds signed-up, founded, invited</code></pre>
-<pre><code class="ts"><span class="file">blueprint/features/auth.ts · the whole configuration, in one file you own</span>import { Blueprint } from "@formants/forman";
-import auth from "@formants/auth";
+<pre><code class="ts"><span class="file">blueprint/features/auth.ts · the whole configuration, in one file you own</span>import { Blueprint } from "orthograph";
+import auth from "@orthograph/auth";
 
 export default Blueprint.use(auth, (a) =&gt; [
   a.choose(a.choices.signIn.password, a.choices.signIn.passkey),
   a.omit(a.operations.person.delete),          // no self-deletion yet
 ]);</code></pre>
 <p>Auth's choices, picked once when you mount it:</p>
-<pre><code class="ts"><span class="file">@formants/auth/blueprint/choices.ts</span>export const signIn = Blueprint.choice.many({
+<pre><code class="ts"><span class="file">@orthograph/auth/blueprint/choices.ts</span>export const signIn = Blueprint.choice.many({
   password: { default: true },
   passkey: {},
   magicLink: { needs: [email] },                                  // then you must mount an email adapter
@@ -756,12 +756,12 @@ into each project by the starter.</div>
 
 <section class="s" id="guide-feature">
 <header><h3>Writing a feature</h3><span class="chip planned">Planned · M2 (tooling) · wallets M6</span></header>
-<p>A feature is a small Forman project of its own, with its own world and its own CI. The wallets feature is the worked example.</p>
-<pre><code class="sh">$ forman new feature wallets
+<p>A feature is a small Orthograph project of its own, with its own world and its own CI. The wallets feature is the worked example.</p>
+<pre><code class="sh">$ ortho new feature wallets
 created  wallets/  blueprint/{feature,choices,settings,secrets}.ts  blueprint/things/  journeys/  src/worker.ts  src/node.ts
-$ cd wallets &amp;&amp; forman prove --env local        # proved in its own world, with an example app
-$ forman publish --local                        # to the local registry
-$ cd ../acme &amp;&amp; forman add feature @formants/wallets</code></pre>
+$ cd wallets &amp;&amp; ortho prove --env local        # proved in its own world, with an example app
+$ ortho publish --local                        # to the local registry
+$ cd ../acme &amp;&amp; ortho add feature @orthograph/wallets</code></pre>
 <pre><code class="ts"><span class="file">wallets/blueprint/things/wallet/verbs/link.ts</span>export default Blueprint.operation(Wallet, {
   description: "Link a wallet to the caller by a signed message.",
   payload: { address: Address, signature: Signature },
@@ -770,7 +770,7 @@ $ cd ../acme &amp;&amp; forman add feature @formants/wallets</code></pre>
   steps: { verify: Blueprint.step.use(Signer.verify) },   // an export, implemented per host
 });</code></pre>
 <p>What you write is what the feature is for: its things, operations, exports, choices, settings, secrets and
-journeys. Everything else comes from Forman, the same as for an app. Full walkthrough in
+journeys. Everything else comes from Orthograph, the same as for an app. Full walkthrough in
 <code>design/frame/writing-a-feature.md</code>.</p>
 </section>
 
@@ -778,8 +778,8 @@ journeys. Everything else comes from Forman, the same as for an app. Full walkth
 <header><h3>An adapter, both ways: Stripe</h3><span class="chip planned">Planned · core M1 · Stripe M5</span></header>
 <p>An adapter covers both directions of one outside system: calls going out and events coming in. Both share one
 secret store, one shape and one stand-in.</p>
-<pre><code class="ts"><span class="file">blueprint/adapters/stripe.ts</span>import { Blueprint } from "@formants/forman";
-import stripe from "@formants/stripe";
+<pre><code class="ts"><span class="file">blueprint/adapters/stripe.ts</span>import { Blueprint } from "orthograph";
+import stripe from "@orthograph/stripe";
 
 export default Blueprint.use(stripe, (s) =&gt; [
   s.include(s.calls.checkout.sessions.create),
@@ -807,16 +807,16 @@ if (r._tag === "Left") return yield* Effect.die(r.left);     // anything unmappe
 the trace, and calls <code>payment.settle</code> as <code>service(stripe)</code>. After the door it is an ordinary
 operation call. In a world, a journey sends the event itself with <code>s.stripe.sends(…)</code>, signed by the world.
 At <code>promote</code>, the adapter's <code>provision</code> step registers the webhook.</p>
-<pre><code class="sh">$ forman new adapter stripe --from-openapi https://raw.githubusercontent.com/stripe/openapi/…/spec3.json
-$ forman new adapter billing --from-model @acme-billing/sdk       # another Forman app is an adapter, generated</code></pre>
+<pre><code class="sh">$ ortho new adapter stripe --from-openapi https://raw.githubusercontent.com/stripe/openapi/…/spec3.json
+$ ortho new adapter billing --from-model @acme-billing/sdk       # another Orthograph app is an adapter, generated</code></pre>
 </section>
 
 <section class="s" id="guide-agents">
 <header><h3>Agents</h3><span class="chip planned">Planned · M4</span></header>
-<p><code>@formants/agents</code> is a feature. It adds a <code>Run</code> thing and a new kind of declaration,
+<p><code>@orthograph/agents</code> is a feature. It adds a <code>Run</code> thing and a new kind of declaration,
 <code>Blueprint.agent</code>. It needs auth, so every run belongs to someone. Model providers are adapters.</p>
-<pre><code class="sh">$ forman add feature @formants/agents
-$ forman add adapter @formants/anthropic
+<pre><code class="sh">$ ortho add feature @orthograph/agents
+$ ortho add adapter @orthograph/anthropic
 adds  thing run (start, steer, cancel; finish and fail by system)   secrets ANTHROPIC_API_KEY (stored)
       stand-in: a small open model on a local OpenAI-compatible server</code></pre>
 <pre><code class="ts"><span class="file">blueprint/agents/support.ts · an agent's name comes from its path</span>export default Blueprint.agent({
@@ -837,7 +837,7 @@ only a person can start a run. A mount can allow agents to start runs, but you h
 
 <section class="s" id="guide-factory">
 <header><h3>The factory</h3><span class="chip part">Work app declared · factory M3 · agents join M4</span></header>
-<p><code>@formants/work</code> is a feature that builds other projects. It needs auth and organizations. Its own
+<p><code>@orthograph/work</code> is a feature that builds other projects. It needs auth and organizations. Its own
 things are missions, milestones, questions, runs and attention. It reaches the project it builds, and the logbook,
 through adapters.</p>
 <p><b>Tasks are worked out, never stored.</b> They come from the project's model and the facts, and only a fact closes one.</p>
@@ -852,7 +852,7 @@ through adapters.</p>
 <p>A <b>milestone</b> is a named set of operations and journeys that must be green. It's done when every task under it
 is closed by a fact.</p>
 <h4>Workers: people, agents, or both</h4>
-<pre><code class="ts"><span class="file">@formants/work/blueprint/feature.ts</span>export default Blueprint.feature({
+<pre><code class="ts"><span class="file">@orthograph/work/blueprint/feature.ts</span>export default Blueprint.feature({
   needs: [auth, organizations, Blueprint.need(agents, { when: Choices.workers.agents })],
   choices: Choices,             // workers: people (default) and/or agents
 });</code></pre>
@@ -871,7 +871,7 @@ milestone grant and spend                      4 tasks, 2 closed by facts
   build:allowance.revoke            open       brief ready: work task claim build:allowance.revoke
   attention: promote to staging     waiting on you</code></pre>
 <p>The manager is a workflow, one per mission. It waits on verdicts rather than polling, and each decision it makes
-is a short agent run. The factory runs on the last released Forman, so no change ever judges itself.</p>
+is a short agent run. The factory runs on the last released Orthograph, so no change ever judges itself.</p>
 </section>
 </div>
 
@@ -908,14 +908,14 @@ its own verdict <b>stale</b> and nothing else's.</p>
 in, from the highest rung it can reach. The evidence records which rung was used.</p>
 <div class="table"><table>
 <tr><th>Rung</th><th>What it is</th><th>Examples</th></tr>
-<tr><td>1 · real process</td><td>the real software, run locally</td><td>Anvil for a chain; another Forman app's world</td></tr>
+<tr><td>1 · real process</td><td>the real software, run locally</td><td>Anvil for a chain; another Orthograph app's world</td></tr>
 <tr><td>2 · compatible real software</td><td>a real program that speaks the same protocol</td><td>Mailpit over SMTP; a local OpenAI-compatible model server; Verdaccio for npm</td></tr>
 <tr><td>3 · the vendor's own mock</td><td>the vendor's code, labelled</td><td>stripe-mock</td></tr>
 <tr><td>4 · the vendor's sandbox</td><td>staging only, with a test key</td><td>Stripe test mode</td></tr>
 </table></div>
 <p>Never our own fakes. A conformance test runs the adapter's calls against its stand-in, and in the cloud against the
 real service, so the stand-in stays honest.</p>
-<pre><code class="sh">$ forman prove --env local
+<pre><code class="sh">$ ortho prove --env local
 adapters   stripe → stripe-mock (vendor mock)   chain → anvil (process)   email → mailpit (compatible)</code></pre>
 </section>
 
@@ -923,7 +923,7 @@ adapters   stripe → stripe-mock (vendor mock)   chain → anvil (process)   em
 <header><h3>Shipping</h3><span class="chip part">Built locally · places by mount M1 · cloud M7</span></header>
 <p>A revision is built once. Every artifact it ships is that one build, moved and never rebuilt. An environment accepts
 a revision only with the verdicts that earn it.</p>
-<pre><code class="ts"><span class="file">blueprint/environments/production.ts</span>import { Blueprint, Cloudflare, GitHub, Homebrew, Npm, Secrets, Telemetry, Via } from "@formants/forman";
+<pre><code class="ts"><span class="file">blueprint/environments/production.ts</span>import { Blueprint, Cloudflare, GitHub, Homebrew, Npm, Secrets, Telemetry, Via } from "orthograph";
 import staging from "./staging.ts";
 import server from "../projections/server.ts";
 import sdk from "../projections/sdk.ts";
@@ -944,14 +944,14 @@ export default Blueprint.environment({
 });</code></pre>
 <p>The file doesn't list tables, actors, buckets, secrets or doors. The model already knows them from the mounts.</p>
 <pre><code class="sh">$ git push                                    # CI: build, a test world, check, prove, signed verdicts
-$ forman impact
+$ ortho impact
 changes since 1.3.0   + wallet.link (wallets 1.2.0)   ~ allowance.spend budget
 next 1.4.0            stale allowance.spend in staging, production
-$ forman promote --to staging
+$ ortho promote --to staging
 bundle 7f3e…c21   test <span class="ok">✔</span> 31/31   secrets <span class="ok">✔</span>   stripe webhook registered <span class="ok">✔</span>   released 1.4.0-next.1
-$ forman promote --to production
+$ ortho promote --to production
 released 1.4.0: @acme/sdk, @acme/cli, brew acme/tap/acme
-$ forman watch --env production
+$ ortho watch --env production
 allowance.spend  p95 88ms / 150ms   refused 3% (AllowanceExceeded)   <span class="ok">✔</span></code></pre>
 <ul>
   <li><b>Versions</b> are worked out from the model's diff: a new operation is minor, a changed payload is major, a
@@ -959,7 +959,7 @@ allowance.spend  p95 88ms / 150ms   refused 3% (AllowanceExceeded)   <span class
   <li><b>Watch</b> runs the same evals on what production records. A finding becomes an <code>improve</code> task, and
   anything about money or security goes to a person.</li>
   <li><b>Rollback</b> is <code>promote</code> of an earlier revision. A migration that can't run backwards blocks it, and <code>promote</code> names the migration.</li>
-  <li><b>Destroy:</b> a world expires on its own alarm, and <code>forman env destroy &lt;name&gt;</code> removes a cloud environment. Nothing is left running.</li>
+  <li><b>Destroy:</b> a world expires on its own alarm, and <code>ortho env destroy &lt;name&gt;</code> removes a cloud environment. Nothing is left running.</li>
 </ul>
 </section>
 
@@ -976,7 +976,7 @@ allowance.spend  p95 88ms / 150ms   refused 3% (AllowanceExceeded)   <span class
 <tr><td>builder</td><td><code>bp.operations["allowance.spend"]</code> in <code>generated/builder/bp.d.ts</code>, for code mode</td><td><span class="chip planned">M4</span></td></tr>
 <tr><td>agents</td><td>its entry in the agent kit: the open-blank list, the briefs, the skills</td><td><span class="chip planned">M3</span></td></tr>
 </table></div>
-<p><b>The agent kit closes the loop for every project, not just ours.</b> <code>forman new</code> gives each app the
+<p><b>The agent kit closes the loop for every project, not just ours.</b> <code>ortho new</code> gives each app the
 same way of working: rules, skills, an agent definition for each factory role, CI, and typed tools, all filled from
 its own model.</p>
 <div class="table"><table>
@@ -984,17 +984,17 @@ its own model.</p>
 <tr><td><code>AGENTS.md</code>, <code>CLAUDE.md</code></td><td>S</td><td>the project's rules, short; CLAUDE.md points at AGENTS.md</td></tr>
 <tr><td><code>generated/agents/skills/</code></td><td>G</td><td><code>describe-this-app</code>, <code>write-a-journey</code>, <code>make-a-journey-executable</code>, <code>fill-a-blank</code>, <code>read-telemetry</code>, <code>prove-and-promote</code>, <code>review-a-change</code>, <code>turn-drift-into-tasks</code></td></tr>
 <tr><td><code>generated/agents/claude/</code>, <code>pi/</code></td><td>G</td><td>agent definitions: planner, journey writer, check writer, builder, scorer, reviewer, manager</td></tr>
-<tr><td><code>.agents/skills/forman</code>, <code>.claude/agents</code></td><td>link</td><td>where each agent looks, linked into <code>generated/agents/</code></td></tr>
-<tr><td><code>.github/workflows/forman.yml</code></td><td>S</td><td>short: each job runs <code>forman ci &lt;stage&gt;</code></td></tr>
+<tr><td><code>.agents/skills/ortho</code>, <code>.claude/agents</code></td><td>link</td><td>where each agent looks, linked into <code>generated/agents/</code></td></tr>
+<tr><td><code>.github/workflows/ortho.yml</code></td><td>S</td><td>short: each job runs <code>ortho ci &lt;stage&gt;</code></td></tr>
 <tr><td><code>generated/ci/plan.json</code></td><td>G</td><td>the stages and what each needs, from the environments</td></tr>
 <tr><td><code>generated/builder/bp.d.ts</code></td><td>G</td><td>the typed API agents script against in code mode</td></tr>
-<tr><td><code>.mcp.json</code></td><td>S</td><td>names <code>forman mcp</code>, the builder's stdio server</td></tr>
+<tr><td><code>.mcp.json</code></td><td>S</td><td>names <code>ortho mcp</code>, the builder's stdio server</td></tr>
 <tr><td><code>src/&lt;thing&gt;/&lt;verb&gt;.ts</code></td><td>S</td><td>one handler scaffold per operation</td></tr>
 <tr><td><code>pnpm-workspace.yaml</code></td><td>S</td><td>exact pins, <code>minimumReleaseAge: 4320</code> (three days), an empty override list</td></tr>
 </table></div>
 <p>G means generated: rewritten on every compile, never edited. S means scaffolded: written once, then yours. Each
 role's definition keeps to what that role may touch. For example, a builder's tools have no path into the journeys.
-Plugins ship skills of their own: <code>@formants/stripe</code> brings "map a Stripe error".</p>
+Plugins ship skills of their own: <code>@orthograph/stripe</code> brings "map a Stripe error".</p>
 </section>
 </div>
 
@@ -1007,24 +1007,24 @@ Plugins ship skills of their own: <code>@formants/stripe</code> brings "map a St
 <header><h3>Commands</h3><span class="chip part">Renamed in M0</span></header>
 <div class="table"><table>
 <tr><th>Command</th><th>What it does</th><th>Status</th></tr>
-<tr><td><code>npm create formants &lt;app&gt;</code> · <code>forman new</code></td><td>a new app, with auth and organizations mounted</td><td><span class="chip planned">M2</span></td></tr>
-<tr><td><code>forman new feature|adapter &lt;name&gt;</code></td><td>a new plugin with its own world and CI; <code>--from-openapi</code>, <code>--from-abi</code>, <code>--from-model</code> for adapters</td><td><span class="chip planned">M2 · M5</span></td></tr>
-<tr><td><code>forman add feature|adapter|projection &lt;pkg&gt;</code></td><td>pins it, writes the mount, resolves its needs</td><td><span class="chip planned">M1</span></td></tr>
-<tr><td><code>forman check</code></td><td>compiles the model; types, rules, drift; counts blanks</td><td><span class="chip built">Built</span></td></tr>
-<tr><td><code>forman describe [mount] [--json]</code></td><td>every primitive and mount, or what one plugin adds</td><td><span class="chip planned">M1</span></td></tr>
-<tr><td><code>forman generate</code></td><td>renders every mounted projection</td><td><span class="chip built">Built</span></td></tr>
-<tr><td><code>forman dev</code></td><td>a long-lived local world</td><td><span class="chip built">Built</span></td></tr>
-<tr><td><code>forman prove [--env] [--only] [--through sdk|cli|mcp] [--empty]</code></td><td>a world, every journey, every eval</td><td><span class="chip part">Built · flags M1–M2</span></td></tr>
-<tr><td><code>forman brief &lt;operation&gt;</code></td><td>a builder's brief: the one file, what to read, the done check</td><td><span class="chip built">Built</span></td></tr>
-<tr><td><code>forman impact</code></td><td>what a change makes stale, and the next version</td><td><span class="chip built">Built</span></td></tr>
-<tr><td><code>forman tasks [--of &lt;thing&gt;]</code></td><td>tasks worked out from the model and the facts</td><td><span class="chip planned">M3</span></td></tr>
-<tr><td><code>forman secrets [set &lt;mount.export&gt;] --env</code></td><td>lists secrets and whether each is set; sets one without echo</td><td><span class="chip planned">M2</span></td></tr>
-<tr><td><code>forman promote --to &lt;env&gt;</code></td><td>moves the exact bundle, refused without its verdicts</td><td><span class="chip built">Built</span></td></tr>
-<tr><td><code>forman publish [--local]</code></td><td>releases packages and binaries</td><td><span class="chip built">Built (local)</span></td></tr>
-<tr><td><code>forman watch --env &lt;env&gt;</code></td><td>the evals over live traces</td><td><span class="chip built">Built</span></td></tr>
-<tr><td><code>forman env down|destroy &lt;name&gt;</code></td><td>stops a local environment; removes a cloud one</td><td><span class="chip part">Built · cloud M7</span></td></tr>
-<tr><td><code>forman mcp</code></td><td>the builder's tools over stdio</td><td><span class="chip planned">M4</span></td></tr>
-<tr><td><code>forman ci &lt;stage&gt;</code></td><td>one CI stage, from the generated plan</td><td><span class="chip planned">M3</span></td></tr>
+<tr><td><code>npm create orthograph &lt;app&gt;</code> · <code>ortho new</code></td><td>a new app, with auth and organizations mounted</td><td><span class="chip planned">M2</span></td></tr>
+<tr><td><code>ortho new feature|adapter &lt;name&gt;</code></td><td>a new plugin with its own world and CI; <code>--from-openapi</code>, <code>--from-abi</code>, <code>--from-model</code> for adapters</td><td><span class="chip planned">M2 · M5</span></td></tr>
+<tr><td><code>ortho add feature|adapter|projection &lt;pkg&gt;</code></td><td>pins it, writes the mount, resolves its needs</td><td><span class="chip planned">M1</span></td></tr>
+<tr><td><code>ortho check</code></td><td>compiles the model; types, rules, drift; counts blanks</td><td><span class="chip built">Built</span></td></tr>
+<tr><td><code>ortho describe [mount] [--json]</code></td><td>every primitive and mount, or what one plugin adds</td><td><span class="chip planned">M1</span></td></tr>
+<tr><td><code>ortho generate</code></td><td>renders every mounted projection</td><td><span class="chip built">Built</span></td></tr>
+<tr><td><code>ortho dev</code></td><td>a long-lived local world</td><td><span class="chip built">Built</span></td></tr>
+<tr><td><code>ortho prove [--env] [--only] [--through sdk|cli|mcp] [--empty]</code></td><td>a world, every journey, every eval</td><td><span class="chip part">Built · flags M1–M2</span></td></tr>
+<tr><td><code>ortho brief &lt;operation&gt;</code></td><td>a builder's brief: the one file, what to read, the done check</td><td><span class="chip built">Built</span></td></tr>
+<tr><td><code>ortho impact</code></td><td>what a change makes stale, and the next version</td><td><span class="chip built">Built</span></td></tr>
+<tr><td><code>ortho tasks [--of &lt;thing&gt;]</code></td><td>tasks worked out from the model and the facts</td><td><span class="chip planned">M3</span></td></tr>
+<tr><td><code>ortho secrets [set &lt;mount.export&gt;] --env</code></td><td>lists secrets and whether each is set; sets one without echo</td><td><span class="chip planned">M2</span></td></tr>
+<tr><td><code>ortho promote --to &lt;env&gt;</code></td><td>moves the exact bundle, refused without its verdicts</td><td><span class="chip built">Built</span></td></tr>
+<tr><td><code>ortho publish [--local]</code></td><td>releases packages and binaries</td><td><span class="chip built">Built (local)</span></td></tr>
+<tr><td><code>ortho watch --env &lt;env&gt;</code></td><td>the evals over live traces</td><td><span class="chip built">Built</span></td></tr>
+<tr><td><code>ortho env down|destroy &lt;name&gt;</code></td><td>stops a local environment; removes a cloud one</td><td><span class="chip part">Built · cloud M7</span></td></tr>
+<tr><td><code>ortho mcp</code></td><td>the builder's tools over stdio</td><td><span class="chip planned">M4</span></td></tr>
+<tr><td><code>ortho ci &lt;stage&gt;</code></td><td>one CI stage, from the generated plan</td><td><span class="chip planned">M3</span></td></tr>
 </table></div>
 </section>
 
@@ -1070,7 +1070,7 @@ Stand.process(…)  Stand.vendor(…)  Stand.none</code></pre>
 <tr><td>thing · value · machine · event · error</td><td>a noun with a home · a named field type · states and moves · what a move emits · a declared refusal</td></tr>
 <tr><td>operation · read · step</td><td>a verb on a thing · an operation that changes nothing · a named span inside one</td></tr>
 <tr><td>role · principal · way in</td><td>who may call · who is calling · how they got in (<code>Via.*</code>)</td></tr>
-<tr><td>store · source · view · data map</td><td>a place Forman owns and commits to, of an open kind · a system someone else owns, reached through an adapter · a list kept from events · the generated map of all data</td></tr>
+<tr><td>store · source · view · data map</td><td>a place Orthograph owns and commits to, of an open kind · a system someone else owns, reached through an adapter · a list kept from events · the generated map of all data</td></tr>
 <tr><td>span · refusal · defect</td><td>one timed piece of a call in a trace, made by the declaration · a declared outcome, ends OK · an undeclared failure, the only red</td></tr>
 <tr><td>blank · handler · scaffold · frame</td><td>what the description leaves open · the code that fills an operation · a file written once into <code>src/</code> · the generated type a handler must fit</td></tr>
 <tr><td>journey · story · starting world · cast</td><td>a story through real operations · its prose form · a setup made by operations · who plays it</td></tr>
@@ -1110,22 +1110,22 @@ Stand.process(…)  Stand.vendor(…)  Stand.none</code></pre>
 <section class="s" id="roadmap">
 <header><h3>Milestones</h3><span class="chip part">Recut 17 Nov 2026 · <code>design/milestones.md</code></span></header>
 <p>Each milestone ends in one gate, <code>nx run e2e:m&lt;n&gt;</code>. Nothing in the next one starts until that gate
-passes on <code>main</code>. Forman is <b>workable at the end of M2</b>: from there, Capxul's plugins are built on it.</p>
+passes on <code>main</code>. Orthograph is <b>workable at the end of M2</b>: from there, Capxul's plugins are built on it.</p>
 <div class="table"><table>
 <tr><th>#</th><th>Milestone</th><th>Ships</th><th>Proved when</th></tr>
-<tr><td>M0</td><td>Land and rename</td><td>Forman, <code>@formants/*</code>, the <code>forman</code> command, these docs</td><td>Gates 1 and 2 green under the new names; no old name left</td></tr>
+<tr><td>M0</td><td>Land and rename</td><td>Orthograph, <code>@orthograph/*</code>, the <code>ortho</code> command, these docs</td><td>Gates 1 and 2 green under the new names; no old name left</td></tr>
 <tr><td>M1</td><td>The complete model and plugins</td><td>mounts, projections as plugins, blanks and journeys in the model, per-operation verdicts</td><td>acme rebuilt on mounts with identical output; the harvested checks pass</td></tr>
-<tr><td>M2</td><td><b>Auth and organizations · workable</b></td><td>the two plugins, the new principals, secrets by declaration, journeys through every client, <code>forman new</code></td><td>a new feature goes from created to proved, published and mounted into two apps</td></tr>
-<tr><td>M3</td><td>The factory, with people as workers</td><td><code>@formants/work</code>, derived tasks, the manager workflow, the agent kit</td><td>a mission on acme closes tasks only by facts</td></tr>
-<tr><td>M4</td><td>Agents, with the factory</td><td><code>@formants/agents</code>, model adapters, builder tools, the join</td><td>a mission runs end to end with agents as workers</td></tr>
+<tr><td>M2</td><td><b>Auth and organizations · workable</b></td><td>the two plugins, the new principals, secrets by declaration, journeys through every client, <code>ortho new</code></td><td>a new feature goes from created to proved, published and mounted into two apps</td></tr>
+<tr><td>M3</td><td>The factory, with people as workers</td><td><code>@orthograph/work</code>, derived tasks, the manager workflow, the agent kit</td><td>a mission on acme closes tasks only by facts</td></tr>
+<tr><td>M4</td><td>Agents, with the factory</td><td><code>@orthograph/agents</code>, model adapters, builder tools, the join</td><td>a mission runs end to end with agents as workers</td></tr>
 <tr><td>M5</td><td>Reach out</td><td>adapters both ways, Stripe and email, views, the outbox, workflows for processes</td><td>the payments and notifications examples green in worlds</td></tr>
 <tr><td>M6</td><td>On chain</td><td>wallets, the Solidity language, Anvil, the relayer and follower</td><td>the on-chain allowance, with no key on the server</td></tr>
-<tr><td>M7</td><td>The cloud, then Capxul</td><td>the cloud pass, then Capxul rebuilt on Forman</td><td>acme in staging and production; Capxul's first feature</td></tr>
+<tr><td>M7</td><td>The cloud, then Capxul</td><td>the cloud pass, then Capxul rebuilt on Orthograph</td><td>acme in staging and production; Capxul's first feature</td></tr>
 <tr><td>Later</td><td></td><td>Noir, the Python client, the world clock and moves made by time</td><td></td></tr>
 </table></div>
 </section>
 
-<footer>Forman docs, written from the decided design (<code>design/decisions/K2-forman-frame.md</code>,
+<footer>Orthograph docs, written from the decided design (<code>design/decisions/K2-forman-frame.md</code>,
 <code>design/frame/</code>, <code>design/milestones.md</code>) on 17 November 2026. Code under "Today" is on
 <code>main</code>; everything else is designed and decided, with its milestone marked.</footer>
 </div>

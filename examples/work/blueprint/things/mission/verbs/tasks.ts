@@ -1,4 +1,4 @@
-import { Blueprint } from "@formants/forman";
+import { Blueprint } from "orthograph";
 import { Mission } from "../thing.ts";
 import { owner } from "../roles.ts";
 import { Tasks } from "../../../values/work.ts";

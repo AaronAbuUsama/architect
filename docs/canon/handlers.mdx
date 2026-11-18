@@ -33,7 +33,7 @@ and `ortho check` names it, so a project can be honest about what is left.
 // Generated from the blueprint. Do not edit.
 // What the handler is given: its payload and steps; what it may return: its answer or a declared error.
 import type { SqlClient } from "effect/sql";
-import type { Auth, Handler as Of, Records } from "@formants/language-effect";
+import type { Auth, Handler as Of, Records } from "@orthograph/language-effect";
 import type declaration from "../../../../blueprint/things/sheet/verbs/join.ts";
 
 export type Handler<R = Records | SqlClient.SqlClient | Auth> = Of<typeof declaration, R>;
@@ -173,7 +173,7 @@ That is the point: the compiler tells you what to change, and nothing you wrote 
 
 **Today** the scaffold is one blank with the declaration repeated as comments:
 
-```ts file=packages/generators/src/modules/render/internal/scaffold.ts lines=23-28
+```ts file=packages/generators/src/modules/render/internal/scaffold.ts lines=24-29
 `/** ${op.description} */`,
 `const ${camel(op.verb)}: Handler = (_payload, _context) =>`,
 "  Effect.gen(function* () {",
@@ -183,7 +183,7 @@ said.map((s) => `    // ${s}`),
 ```
 
 For `join` the comments say `Payload: sheet, people.`, `Answer: left.`, `Steps, each its own span: steps.load(...),
-steps.record(...).` and `May refuse with SheetFull.` (`scaffold.ts:8-13`). They give no order, no move and no
+steps.record(...).` and `May refuse with SheetFull.` (`scaffold.ts:9-14`). They give no order, no move and no
 refusal in place.
 
 **The wired scaffold** (K5, decided; built in M1.26) writes a real function, already wired: each declared step in
@@ -193,7 +193,7 @@ declared order, the move when one is declared, and a stub for each declared refu
 ```ts planned=M1.26 path=src/sheet/join.ts
 // Scaffolded from blueprint/things/sheet/verbs/join.ts. Yours from now on.
 import { Effect } from "effect";
-import { Handlers } from "@formants/language-effect";
+import { Handlers } from "@orthograph/language-effect";
 import type { Handler } from "../../generated/api/src/sheet/join.handler.ts";
 import { SheetFull } from "../../blueprint/things/sheet/errors.ts";
 
@@ -221,7 +221,7 @@ A blank is a part that isn't written yet. There are two kinds, and both compile.
 
 **A blank in a declaration** is `Blueprint.todo("…")`, which fits anywhere a declaration needs a value:
 
-```ts file=packages/forman/src/modules/blanks/types.ts lines=7-11
+```ts file=packages/orthograph/src/modules/blanks/types.ts lines=7-11
 export interface BlanksApi {
   /** `Blueprint.todo("who may call")` fits wherever a declaration needs something, until it is filled. */
   readonly todo: <T = never>(what: string) => T;
@@ -321,9 +321,9 @@ would be committed for a call that changed nothing (see `operations`).
 | The frame: `Handler` and `HandlerContext` | `packages/language-effect/src/modules/handler/types.ts:30` | built |
 | The wrapper that runs a handler | `packages/language-effect/src/modules/handler/service.ts:41` | built |
 | `Handlers.blank` and `BlankReached` | `packages/language-effect/src/modules/handler/service.ts:115` | built |
-| The scaffold, comments only today | `packages/generators/src/modules/render/internal/scaffold.ts:6` | built |
+| The scaffold, comments only today | `packages/generators/src/modules/render/internal/scaffold.ts:7` | built |
 | Scaffolds never overwritten | `packages/generators/src/modules/sync/service.ts:17` | built |
-| `Blueprint.todo` | `packages/forman/src/modules/blanks/service.ts:4` | built |
+| `Blueprint.todo` | `packages/orthograph/src/modules/blanks/service.ts:4` | built |
 | `ortho check` naming blanks | `packages/cli/src/modules/check/internal/blanks.ts:7` | built |
 | `ortho brief` | `packages/cli/src/modules/brief/service.ts:10` | built |
 | The wired scaffold, and the unused-step warning | `packages/generators/src/modules/render/internal/scaffold.ts` and `packages/cli/src/modules/check/` | planned, M1.26 |
@@ -368,7 +368,7 @@ would be committed for a call that changed nothing (see `operations`).
 </Note>
 
 <Note kind="status" slice="M1.26">
-  Today's scaffold writes the steps and refusals only as comments (`scaffold.ts:8-13`), and nothing warns about a
+  Today's scaffold writes the steps and refusals only as comments (`scaffold.ts:9-14`), and nothing warns about a
   step the handler never calls until eval 6 runs.
 </Note>
 
@@ -382,7 +382,7 @@ would be committed for a call that changed nothing (see `operations`).
 
 <Note kind="question" id="raw-sql-in-a-handler" slice="M1.17">
   The frame offers `SqlClient` beside `Records`: the generated `Handler` type allows `Records | SqlClient.SqlClient | Auth`
-  (`packages/generators/src/modules/render/internal/api.ts:96`), signup's `join` included. A handler that writes
+  (`packages/generators/src/modules/render/internal/api.ts:97`), signup's `join` included. A handler that writes
   through `SqlClient` writes outside the commit, so its write isn't all-or-nothing with the move and its event, and
   won't work for a thing in another kind of store. Should the frame offer `Records` only, with raw SQL as a declared
   step kind? Ledger: HAN-01, high.

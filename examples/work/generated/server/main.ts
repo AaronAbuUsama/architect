@@ -5,10 +5,10 @@ import { ManagedRuntime, Tracer } from "effect";
 import { HttpRouter, HttpServer } from "effect/http";
 import { HttpApiBuilder } from "effect/http-api";
 import { SqlClient } from "effect/sql";
-import type { Principal } from "@formants/forman";
-import { AuthD1, Database, JournalD1, StoreD1, Telemetry, toWorld } from "@formants/host-cloudflare";
-import { Auth, Busy, BusyLive, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@formants/language-effect";
-import { Mcp, type McpResult } from "@formants/language-effect";
+import type { Principal } from "orthograph";
+import { AuthD1, Database, JournalD1, StoreD1, Telemetry, toWorld } from "@orthograph/host-cloudflare";
+import { Auth, Busy, BusyLive, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@orthograph/language-effect";
+import { Mcp, type McpResult } from "@orthograph/language-effect";
 import { Api, Errors } from "../api/src/index.ts";
 import * as portal from "../portal/main.ts";
 import { catalog } from "../mcp/src/index.ts";
@@ -65,7 +65,7 @@ import * as personThing from "../../blueprint/things/person/thing.ts";
 import * as questionThing from "../../blueprint/things/question/thing.ts";
 import * as runThing from "../../blueprint/things/run/thing.ts";
 
-export { World } from "@formants/host-cloudflare";
+export { World } from "@orthograph/host-cloudflare";
 
 const attentionApproveServed = Handlers.serve({ name: "attention.approve", operation: attentionApprove.declaration, handler: attentionApproveHandler, notFrom: "AttentionNotOpen" });
 const attentionDeclineServed = Handlers.serve({ name: "attention.decline", operation: attentionDecline.declaration, handler: attentionDeclineHandler, notFrom: "AttentionNotOpen" });
@@ -170,14 +170,14 @@ export interface Env {
   /** The environment's telemetry sinks beside the collector, as JSON: each one's OTLP endpoints and headers. A secret. */
   readonly OTLP_SINKS?: string;
   /** The environment's name, written on every span as `deployment.environment`: `local` for a world of dev or prove. */
-  readonly FORMAN_ENVIRONMENT?: string;
-  /** Which build this environment runs, set by `forman env up`; unset for a world made by `forman dev` or prove. */
-  readonly FORMAN_REVISION?: string;
-  readonly FORMAN_BUNDLE_SHA256?: string;
+  readonly ORTHO_ENVIRONMENT?: string;
+  /** Which build this environment runs, set by `ortho env up`; unset for a world made by `ortho dev` or prove. */
+  readonly ORTHO_REVISION?: string;
+  readonly ORTHO_BUNDLE_SHA256?: string;
   /** The portal's: where the logbook is, which environment this is. Read by `portal.serve`; neither is sent to a browser. */
-  readonly FORMAN_LOGBOOK_URL?: string;
-  /** `1` in an environment that hosts worlds with lifetimes (a test environment), set by `forman env up`. */
-  readonly FORMAN_WORLDS?: string;
+  readonly ORTHO_LOGBOOK_URL?: string;
+  /** `1` in an environment that hosts worlds with lifetimes (a test environment), set by `ortho env up`. */
+  readonly ORTHO_WORLDS?: string;
 }
 
 // Better Auth's own routes at /api/auth/*: the device sign-in of this project's CLI. Same database and secret as the
@@ -203,11 +203,11 @@ const WORLD_ENVIRONMENTS: ReadonlyArray<string> = ["test"];
 
 /**
  * `/_world/*` (the cast that signs people up with known passwords, the facts, the registry of worlds) answers only where
- * worlds live: a world made by `forman dev` or prove (`local`, or no environment), and an environment that declares a lifetime and
+ * worlds live: a world made by `ortho dev` or prove (`local`, or no environment), and an environment that declares a lifetime and
  * was started to host worlds. Anywhere else, staging and production included, it is a 404 before any handler runs.
  */
 const hostsWorlds = (env: Env) =>
-  !env.FORMAN_ENVIRONMENT || env.FORMAN_ENVIRONMENT === "local" || (env.FORMAN_WORLDS === "1" && WORLD_ENVIRONMENTS.includes(env.FORMAN_ENVIRONMENT));
+  !env.ORTHO_ENVIRONMENT || env.ORTHO_ENVIRONMENT === "local" || (env.ORTHO_WORLDS === "1" && WORLD_ENVIRONMENTS.includes(env.ORTHO_ENVIRONMENT));
 
 /** One tool per operation and read: the same served operations as the API, called as the person the access token names. */
 const tools = Mcp.tools<Services>({
@@ -239,7 +239,7 @@ const mcp = (env: Env, request: Request, context: Context.Context<never> | undef
       const traced = parent ? Effect.withParentSpan(effect, parent) : effect;
       return runtimeOf(env).runPromise(context ? Effect.provideContext(traced, context) : traced);
     };
-    return Mcp.handle({ name: "work", version: env.FORMAN_REVISION ?? "0.0.0", tools, principal: who.principal, run }, request);
+    return Mcp.handle({ name: "work", version: env.ORTHO_REVISION ?? "0.0.0", tools, principal: who.principal, run }, request);
   });
 
 export default {
@@ -247,11 +247,11 @@ export default {
     // Closed before anything reads it: outside worlds there is no door to cast, to read facts, or to register a world.
     if (new URL(request.url).pathname.startsWith("/_world/") && !hostsWorlds(env)) return Promise.resolve(Response.json({ error: "not found" }, { status: 404 }));
     if (new URL(request.url).pathname.startsWith("/_world/")) {
-      return toWorld({ worlds: env.WORLD, db: env.DB, tables: tables.map(([, table]) => table), leases: env.FORMAN_WORLDS === "1" }, request);
+      return toWorld({ worlds: env.WORLD, db: env.DB, tables: tables.map(([, table]) => table), leases: env.ORTHO_WORLDS === "1" }, request);
     }
-    if (new URL(request.url).pathname === "/_forman/bundle") {
-      return env.FORMAN_REVISION && env.FORMAN_BUNDLE_SHA256
-        ? Promise.resolve(Response.json({ revision: env.FORMAN_REVISION, sha256: env.FORMAN_BUNDLE_SHA256 }))
+    if (new URL(request.url).pathname === "/_ortho/bundle") {
+      return env.ORTHO_REVISION && env.ORTHO_BUNDLE_SHA256
+        ? Promise.resolve(Response.json({ revision: env.ORTHO_REVISION, sha256: env.ORTHO_BUNDLE_SHA256 }))
         : Promise.resolve(Response.json({ _tag: "NotAnEnvironment" }, { status: 404 }));
     }
     if (portal.owns(new URL(request.url).pathname)) return portal.serve(request, env);
@@ -260,10 +260,10 @@ export default {
       return Effect.runPromise(AuthD1.oauth.discovery(routesOf(env), request)).then((found) => found ?? Response.json({ error: "not found" }, { status: 404 }));
     }
     if (new URL(request.url).pathname === "/mcp") {
-      return Telemetry.serve({ url: env.OTLP_URL || undefined, sinks: env.OTLP_SINKS, environment: env.FORMAN_ENVIRONMENT, service: "work", handler: (req, context) => mcp(env, req, context), waitUntil: (p) => ctx.waitUntil(p) }, request);
+      return Telemetry.serve({ url: env.OTLP_URL || undefined, sinks: env.OTLP_SINKS, environment: env.ORTHO_ENVIRONMENT, service: "work", handler: (req, context) => mcp(env, req, context), waitUntil: (p) => ctx.waitUntil(p) }, request);
     }
     const app = (built ??= build(env));
-    Telemetry.configure({ sinks: env.OTLP_SINKS, environment: env.FORMAN_ENVIRONMENT });
+    Telemetry.configure({ sinks: env.OTLP_SINKS, environment: env.ORTHO_ENVIRONMENT });
     return Telemetry.serve({ url: env.OTLP_URL || undefined, service: "work", handler: app.handler, waitUntil: (p) => ctx.waitUntil(p) }, request);
   },
 };

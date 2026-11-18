@@ -1,4 +1,4 @@
-// The preset generator Nx runs for `create-nx-workspace --preset=@formants/preset`.
+// The preset generator Nx runs for `create-nx-workspace --preset=@orthograph/preset`.
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Tree } from "@nx/devkit";

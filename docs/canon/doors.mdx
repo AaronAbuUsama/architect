@@ -169,7 +169,7 @@ a part of the declaration:
 
 ```ts planned=M1.22 path=examples/signup/generated/actions/sheet/join.ts
 // Generated from blueprint/things/sheet/verbs/join.ts. Do not edit.
-import { defineAction } from "@formants/forman/actions";   // our port of the shape, M1.23
+import { defineAction } from "orthograph/actions";   // our port of the shape, M1.23
 
 export default defineAction({
   description: declaration.description,             // "Take places on a sheet, for yourself and anyone with you."
@@ -224,8 +224,8 @@ the doors a journey checks ([projections](projections.mdx), the replay rule).
 | the HTTP endpoint | `examples/signup/generated/api/src/sheet/join.ts:7` | built |
 | the SDK and its client | `examples/signup/generated/sdk/src/client.ts:10` | built |
 | the CLI, on the SDK | `examples/signup/generated/cli/src/sheet/join.ts:9` | built |
-| the SDK contract | `@formants/language-effect` and the sdk projection | planned, M1.12 |
-| `defineAction`, ported | `forman`'s `actions` module | planned, M1.23 |
+| the SDK contract | `@orthograph/language-effect` and the sdk projection | planned, M1.12 |
+| `defineAction`, ported | `orthograph`'s `actions` module | planned, M1.23 |
 | the actions projection | `generated/actions/` | planned, M1.22 |
 | a contract as the enforcer | `language-solidity` | waits on K7, then M6.10 |
 

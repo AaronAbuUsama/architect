@@ -1,5 +1,5 @@
 // Journey-author file. The builder never edits it (AGENTS.md, "Journeys and checks come first").
-import { Blueprint, emits, expect, noEvents, spans } from "@formants/forman";
+import { Blueprint, emits, expect, noEvents, spans } from "orthograph";
 import { PlaceTaken } from "../blueprint/things/sheet/events.ts";
 import join from "../blueprint/things/sheet/verbs/join.ts";
 import get from "../blueprint/things/sheet/verbs/get.ts";

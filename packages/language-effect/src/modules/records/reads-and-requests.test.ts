@@ -1,7 +1,7 @@
 import { Cause, Effect, Exit, Layer } from "effect";
 import { describe, expect, it } from "vitest";
-import { Blueprint } from "@formants/forman";
-import { EventNames } from "@formants/forman/server";
+import { Blueprint } from "orthograph";
+import { EventNames } from "orthograph/server";
 import { BusyLive } from "#modules/work/service.js";
 import { Handlers, Reads } from "#modules/handler/service.js";
 import type { Handler } from "#modules/handler/types.js";

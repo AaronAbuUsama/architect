@@ -1,5 +1,5 @@
 // Which instance a call moves: the answer or payload field that names the operation's own thing.
-import type { OperationModel } from "@formants/compiler";
+import type { OperationModel } from "@orthograph/compiler";
 
 /** The answer field that names the operation's own thing: the instance a move moves. */
 export const subjectField = (op: OperationModel): { readonly from: "answer" | "payload"; readonly key: string } | undefined => {

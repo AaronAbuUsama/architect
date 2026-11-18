@@ -1,4 +1,4 @@
-import { Blueprint, Cloud, Deploy, Identity } from "@formants/forman";
+import { Blueprint, Cloud, Deploy, Identity } from "orthograph";
 
 export default Blueprint.environment({
   runs: "always on",

@@ -1,4 +1,4 @@
-// The `forman model` command: what the compiler sees in a project, as JSON or as a short summary.
+// The `ortho model` command: what the compiler sees in a project, as JSON or as a short summary.
 import type { Effect } from "effect";
 
 /** What the command has to say. `main.ts` prints it and exits with `exit`; the module never prints. */

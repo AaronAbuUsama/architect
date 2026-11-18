@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# The starter, the way a user gets it: publish Forman's packages to a local Verdaccio, create a workspace with
-# `create-nx-workspace --preset=@formants/preset`, then `forman check` and `forman prove --env local` in it.
+# The starter, the way a user gets it: publish Orthograph's packages to a local Verdaccio, create a workspace with
+# `create-nx-workspace --preset=@orthograph/preset`, then `ortho check` and `ortho prove --env local` in it.
 # Leaves nothing running: the registry, its storage and the workspace are removed on any exit.
 set -euo pipefail
 
 repo=$(cd "$(dirname "$0")/../.." && pwd)
-port=${FORMAN_E2E_REGISTRY_PORT:-4880}
-name=${FORMAN_E2E_NAME:-bakery}
+port=${ORTHO_E2E_REGISTRY_PORT:-4880}
+name=${ORTHO_E2E_NAME:-bakery}
 registry="http://localhost:$port/"
-container="forman-e2e-verdaccio-$$"
-work=$(mktemp -d "${TMPDIR:-/tmp}/forman-e2e.XXXXXX")
+container="ortho-e2e-verdaccio-$$"
+work=$(mktemp -d "${TMPDIR:-/tmp}/ortho-e2e.XXXXXX")
 preset_files="$repo/packages/preset/files"
 
 cleanup() {
@@ -49,21 +49,21 @@ printf '//localhost:%s/:_authToken=%s\n' "$port" "$token" > "$work/npmrc"
 unset token password
 
 step "publish"
-for p in forman compiler language-effect lint portal generators host-cloudflare logbook prove cli preset; do
+for p in ortho compiler language-effect lint portal generators host-cloudflare logbook prove cli preset; do
   (cd "$repo/packages/$p" && NPM_CONFIG_USERCONFIG="$work/npmrc" pnpm publish --registry "$registry" --no-git-checks >/dev/null)
-  echo "published @formants/$p"
+  echo "published @orthograph/$p"
 done
 
 export npm_config_registry="$registry" pnpm_config_registry="$registry"
 # Every run publishes 0.0.0 again, so nothing may come from a cache another run filled.
 export npm_config_cache="$work/npm-cache" pnpm_config_cache_dir="$work/pnpm-cache" pnpm_config_store_dir="$work/pnpm-store"
 cd "$work"
-step "create-nx-workspace $name --preset=@formants/preset"
-npx --yes create-nx-workspace@24.0.3 "$name" --preset=@formants/preset --no-interactive \
-  --nxCloud=skip --trustThirdPartyPreset --pm=pnpm --skipGit ${FORMAN_E2E_VERBOSE:+--verbose}
+step "create-nx-workspace $name --preset=@orthograph/preset"
+npx --yes create-nx-workspace@24.0.3 "$name" --preset=@orthograph/preset --no-interactive \
+  --nxCloud=skip --trustThirdPartyPreset --pm=pnpm --skipGit ${ORTHO_E2E_VERBOSE:+--verbose}
 
 cd "$work/$name"
-step "forman check"
-pnpm forman check
-step "forman prove --env local"
-pnpm forman prove --env local
+step "ortho check"
+pnpm ortho check
+step "ortho prove --env local"
+pnpm ortho prove --env local

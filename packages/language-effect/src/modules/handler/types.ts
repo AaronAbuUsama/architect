@@ -1,7 +1,7 @@
 // The handler wrapper: what every generated operation runs through. Decode, check who may call, run the handler as
 // counted work inside the operation's span, check the answer, give it back.
 import { Data, type Effect, type Schema } from "effect";
-import type { AnswerOf, ErrorOf, PayloadOf, Principal, Read, StepsOf } from "@formants/forman";
+import type { AnswerOf, ErrorOf, PayloadOf, Principal, Read, StepsOf } from "orthograph";
 import type { NotAllowed } from "#modules/access/types.js";
 import type { Records, Store } from "#modules/records/types.js";
 import type { Busy } from "#modules/work/types.js";

@@ -1,6 +1,6 @@
 // Scaffolded from blueprint/things/allowance/verbs/spend.ts. Yours from now on.
 import { Effect } from "effect";
-import { Records } from "@formants/language-effect";
+import { Records } from "@orthograph/language-effect";
 import type { Handler } from "../../generated/api/src/allowance/spend.handler.ts";
 import { Allowance } from "../../blueprint/things/allowance/thing.ts";
 import { AllowanceExceeded } from "../../blueprint/things/allowance/errors.ts";

@@ -1,4 +1,4 @@
-// @formants/forman: the declaration language projects import. `import { Blueprint } from "@formants/forman"`.
+// orthograph: the declaration language projects import. `import { Blueprint } from "orthograph"`.
 import { Blanks } from "#modules/blanks/service.js";
 import { Cloud } from "#modules/cloud/service.js";
 import { Auth, Configs } from "#modules/config/service.js";

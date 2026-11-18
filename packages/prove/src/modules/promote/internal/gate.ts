@@ -1,6 +1,6 @@
 // What a promotion needs before anything starts: a clean tree, the revision's own built bundle, and its verdicts.
 import { Effect } from "effect";
-import type { Model } from "@formants/compiler";
+import type { Model } from "@orthograph/compiler";
 import { Build } from "#modules/build/service.js";
 import type { Built } from "#modules/build/types.js";
 import { Verdicts } from "#modules/verdicts/service.js";
@@ -11,7 +11,7 @@ const MAIN = "refs/heads/main";
 
 const failed = (e: { readonly message: string }) => new PromoteFailed({ message: e.message });
 
-/** The revision's bundle, as `forman build` kept it: refused when the tree isn't that commit, or there is no bundle, or it was altered. */
+/** The revision's bundle, as `ortho build` kept it: refused when the tree isn't that commit, or there is no bundle, or it was altered. */
 export const bundleOf = (root: string, revision: string): Effect.Effect<Built, PromoteRefused | PromoteFailed> =>
   Effect.gen(function* () {
     const problems: Array<string> = [];
@@ -21,7 +21,7 @@ export const bundleOf = (root: string, revision: string): Effect.Effect<Built, P
     const kept = yield* Build.find(root, revision).pipe(
       Effect.catchTag("BuildFailed", (e) => Effect.sync(() => void problems.push(`refused: the bundle of ${revision} is not what was built: ${e.message}`)).pipe(Effect.as(undefined))),
     );
-    if (kept === undefined && problems.length === 0) problems.push(`refused: ${revision} has no built bundle: run \`forman build\``);
+    if (kept === undefined && problems.length === 0) problems.push(`refused: ${revision} has no built bundle: run \`ortho build\``);
     if (problems.length > 0 || kept === undefined) return yield* new PromoteRefused({ lines: problems });
     return kept;
   });

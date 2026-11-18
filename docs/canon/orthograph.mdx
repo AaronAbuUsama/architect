@@ -26,9 +26,6 @@ is: **behaviour is the only freehand**. Each operation's body is a [handler](han
 around it is generated, and stays generated. **The loop** is how the pieces meet: you describe, the model compiles,
 journeys prove it, environments ship it, and what is missing or red comes back as new work.
 
-The code on `main` still says `forman` and `@formants`, and will until the rename sweep (K6). This page says
-Orthograph and `ortho`, and quotes the code as it is.
-
 ## The smallest example
 
 This is the sign-up sheet's `join`, declared in the blueprint. It says what joining is, and nothing about how it is
@@ -87,7 +84,7 @@ is yours:
 ```ts file=examples/signup/src/sheet/join.ts lines=1-27
 // Scaffolded from blueprint/things/sheet/verbs/join.ts. Yours from now on.
 import { Effect } from "effect";
-import { Records } from "@formants/language-effect";
+import { Records } from "@orthograph/language-effect";
 import type { Handler } from "../../generated/api/src/sheet/join.handler.ts";
 import { Sheet } from "../../blueprint/things/sheet/thing.ts";
 import { SheetFull } from "../../blueprint/things/sheet/errors.ts";
@@ -221,17 +218,17 @@ changes, and each reaches the same enforcer. A hand-written client drifts the da
 
 | What | Where | |
 |---|---|---|
-| the command, `forman` until the rename | `packages/cli/src/main.ts:307` | built |
+| the command, `ortho` | `packages/cli/src/main.ts:308` | built |
 | the compiler: blueprint to model | `packages/compiler/src/modules/model/service.ts:12` | built |
 | the generators: model to `generated/` | `packages/generators/src/modules/render/service.ts:15` | built |
 | the enforcer for Effect: the served operation | `packages/language-effect/src/modules/handler/service.ts:26` | built |
 | the drift check | `packages/cli/src/modules/check/service.ts:26` | built |
 | scaffolds, once | `packages/cli/src/modules/generate/README.md` | built |
-| prove: worlds, journeys, evals, verdicts | `packages/prove/src/modules/prove/service.ts:16` | built |
+| prove: worlds, journeys, evals, verdicts | `packages/prove/src/modules/prove/service.ts:17` | built |
 | plugins mounted into the blueprint | `blueprint/features/`, `blueprint/adapters/`, `blueprint/projections/` | planned, M1.06 |
-| actions | `forman`'s `actions` module | planned, M1.22 and M1.23 |
+| actions | `orthograph`'s `actions` module | planned, M1.22 and M1.23 |
 | the portal | a projection plus a small feature | planned, M1.13 (designed in M1.25) |
-| the factory | `@formants/work` | planned, M3.05 |
+| the factory | `@orthograph/work` | planned, M3.05 |
 
 ## Status
 
@@ -261,8 +258,7 @@ and parts of its app are ported into our packages, compatible by field names onl
 <Note kind="decision" decision="K2">Orthograph is the framework and `ortho` its command; the blueprint is what you
 write with it. Plugins come in three kinds: features, adapters and projections.</Note>
 
-<Note kind="status">The rename is decided but not done: the code still says `forman` and `@formants` until the sweep,
-which has no slice yet (`FOR-17`).</Note>
+<Note kind="status">The rename is done: since the sweep, the code says `ortho` and `@orthograph` too (`FOR-17`).</Note>
 
 <Note kind="question" id="mapping-blank" slice="M1.14">Is behaviour really the only freehand? An adapter's mapping
 blank (M1.14) is hand-written code too, and it isn't a handler. Either it counts as behaviour and the

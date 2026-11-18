@@ -1,7 +1,7 @@
 // Records: a thing's stored instances. Two sides: the host's `Store`, which reads and commits, and the handler's
 // `Records`, which reads through the store and holds its writes back until the call commits them with its move.
 import { Context, type Effect } from "effect";
-import type { InstanceOf, Thing } from "@formants/forman";
+import type { InstanceOf, Thing } from "orthograph";
 import type { Entry } from "#modules/journal/types.js";
 
 /** A thing's fields, decoded: what a handler stores. */
@@ -67,7 +67,7 @@ export class Store extends Context.Service<Store, {
   readonly commit: (commit: Commit) => Effect.Effect<Committed>;
   /** The answer already committed under a request key, as wire JSON, if there is one. */
   readonly answered: (key: string) => Effect.Effect<string | undefined>;
-}>()("@formants/language-effect/Store") {}
+}>()("@orthograph/language-effect/Store") {}
 
 /** The handler's side, during one attempt at a call. */
 export class Records extends Context.Service<Records, {
@@ -77,7 +77,7 @@ export class Records extends Context.Service<Records, {
   readonly insert: <T extends Thing>(thing: T, fields: FieldsOf<T>, state?: string) => Effect.Effect<void>;
   /** Change some fields of an instance. Guarded by the version this call read it at. */
   readonly update: <T extends Thing>(thing: T, id: string, changes: Partial<FieldsOf<T>>) => Effect.Effect<void>;
-}>()("@formants/language-effect/Records") {}
+}>()("@orthograph/language-effect/Records") {}
 
 export interface UnitApi {
   /** A fresh attempt's `Records` over `store`, and what it holds back. */

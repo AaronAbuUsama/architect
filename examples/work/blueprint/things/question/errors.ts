@@ -1,4 +1,4 @@
-import { Blueprint } from "@formants/forman";
+import { Blueprint } from "orthograph";
 
 /** The letter is not one of the question's options. */
 export class QuestionNoSuchOption extends Blueprint.error({}, { exit: 54 }) {}

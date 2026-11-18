@@ -21,7 +21,7 @@ const PENDING_SCENES = ["handler-lifecycle", "journey-revoke-then-spend", "trace
 const RETIRED = [
   ["the plugin word that was renamed to feature and adapter", new RegExp(`(?<!agent[ -])\\b${"ki"}${"ts?"}\\b`, "i")],
   ["the old framework name", new RegExp(`${"archi"}${"tect"}`, "i")],
-  // Prose says Orthograph and `ortho` (K5, "Names"); quoted code keeps today's paths, and "today `forman …`" is allowed.
+  // Prose says Orthograph and `ortho` (K5, "Names"; K6); the old name stays caught in prose, so it can't creep back.
   ["the framework's name before Orthograph, in prose", new RegExp(`\\b${"For"}${"man"}\\b`), "prose"],
   ["the command before `ortho`, in prose", new RegExp(`\`${"for"}${"man"} (check|prove|dev|watch|telemetry|add|describe|model|generate|promote|new|build)\\b`), "prose"],
 ];
@@ -164,7 +164,7 @@ const checkWords = (file) => {
   let fence = false;
   read(file).split("\n").forEach((line, i) => {
     if (/^\s*```/.test(line)) fence = !fence;
-    // A prose-only rule skips code, fences, and a line that names today's spelling on purpose ("today `forman …`").
+    // A prose-only rule skips code, fences, and a line that names today's spelling on purpose ("today `…`").
     const prose = !code && !fence && !/today `/i.test(line);
     for (const [why, re, only] of RETIRED) if ((only !== "prose" || prose) && re.test(line)) fail(file, i + 1, `${why}: ${line.trim().slice(0, 80)}`);
   });

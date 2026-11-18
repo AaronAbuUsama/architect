@@ -1,6 +1,6 @@
 // Scaffolded from blueprint/things/mission/verbs/tasks.ts. Yours from now on.
 import { Effect } from "effect";
-import { Handlers } from "@formants/language-effect";
+import { Handlers } from "@orthograph/language-effect";
 import type { Handler } from "../../generated/api/src/mission/tasks.handler.ts";
 
 /** The mission's tasks, each in the column its facts put it in. */

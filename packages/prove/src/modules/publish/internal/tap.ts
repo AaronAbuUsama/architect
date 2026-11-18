@@ -44,7 +44,7 @@ export const formulaText = (options: { readonly formula: string; readonly projec
   ].join("\n");
 
 const git = (repo: string, ...args: ReadonlyArray<string>) => {
-  const r = spawnSync("git", ["-c", "user.name=forman", "-c", "user.email=forman@localhost", "-c", "commit.gpgsign=false", ...args], { cwd: repo, encoding: "utf8" });
+  const r = spawnSync("git", ["-c", "user.name=ortho", "-c", "user.email=ortho@localhost", "-c", "commit.gpgsign=false", ...args], { cwd: repo, encoding: "utf8" });
   if (r.status !== 0) throw new Error(`git ${args[0]} in ${repo} failed: ${(r.stderr || r.stdout).trim()}`);
   return r.stdout.trim();
 };

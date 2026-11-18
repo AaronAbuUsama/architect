@@ -3,13 +3,13 @@ import { Data, type Effect } from "effect";
 
 export class BuildFailed extends Data.TaggedError("BuildFailed")<{ readonly message: string }> {}
 
-/** One revision's artefact, kept at `.forman/artefacts/<revision>/main.js`. */
+/** One revision's artefact, kept at `.ortho/artefacts/<revision>/main.js`. */
 export interface Built {
   /** The git commit, `git rev-parse --short HEAD`. */
   readonly revision: string;
   /** Full source commit, captured by the immutable manifest. */
   readonly commit: string;
-  /** Bare hex, as `/_forman/bundle` reports it. */
+  /** Bare hex, as `/_ortho/bundle` reports it. */
   readonly sha256: string;
   /** Absolute path of the bundle. */
   readonly main: string;

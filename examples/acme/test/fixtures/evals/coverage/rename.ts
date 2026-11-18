@@ -1,6 +1,6 @@
 // Planted fixture: a new operation, organization.rename, that no journey calls. New file at
 // blueprint/things/organization/verbs/rename.ts.
-import { Blueprint } from "@formants/forman";
+import { Blueprint } from "orthograph";
 import { Organization } from "../thing.ts";
 import { owner } from "../roles.ts";
 

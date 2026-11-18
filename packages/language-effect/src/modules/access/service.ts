@@ -1,5 +1,5 @@
 import { Effect } from "effect";
-import type { Allowed, Principal, Role, Thing } from "@formants/forman";
+import type { Allowed, Principal, Role, Thing } from "orthograph";
 import { Records } from "#modules/records/types.js";
 import { NotAllowed, type AccessApi } from "./types.ts";
 import { referencedThing } from "./internal/path.ts";

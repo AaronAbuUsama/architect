@@ -4,8 +4,8 @@
 //
 // Chosen where D3 #14 is open:
 // - Traffic is real calls to staging through the generated acme CLI (ACME_URL, ACME_TOKEN) as signed-in people; staging's
-//   telemetry reaches the local OTLP sink that `forman watch` reads (D3 #12) with no step of the check's.
-// - `forman watch --env staging` prints a line per operation seen, `<op> p95 <n>ms (budget <n>ms) ✔` or `… ✘` (✘ is p95 over
+//   telemetry reaches the local OTLP sink that `ortho watch` reads (D3 #12) with no step of the check's.
+// - `ortho watch --env staging` prints a line per operation seen, `<op> p95 <n>ms (budget <n>ms) ✔` or `… ✘` (✘ is p95 over
 //   budget), then `refusals: <Error> <n>  <Error> <n>` (counts of every refusal in the window), then `drift <ops>|none`, the
 //   operations separated by spaces or commas. An operation drifts when its p95 is over its budget.
 // - Staging (and so the sink's window) keeps its state across a promote: the same people, tokens and allowance still work.

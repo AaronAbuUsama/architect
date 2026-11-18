@@ -1,2 +1,2 @@
-// @formants/language-solidity: the Solidity target.
+// @orthograph/language-solidity: the Solidity target.
 export {};

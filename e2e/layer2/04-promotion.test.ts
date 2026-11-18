@@ -5,10 +5,10 @@
 // - `promote --to production` refuses with `refused: <rev> has no green verdicts in staging`, exit 1, on stdout or stderr.
 // - `promote` deploys to an environment that is up (`env up staging`, `env up production`), restarting it on the new bundle with
 //   its state kept; `promote --to staging` also posts staging's verdicts; `promote --to production` also publishes the release.
-// - Each environment's worker reports its bundle: `GET <env url>/_forman/bundle` answers `{ "revision", "sha256" }`, the
-//   sha256 being the bare hex of `.forman/artefacts/<rev>/main.js`.
-// - With a registry in FORMAN_REGISTRY, staging publishes `@acme/sdk@<next>-next.<n>` under the dist-tag `next` and
-//   production publishes `@acme/sdk@<next>` under `latest`. With no FORMAN_TAP_REPO the Homebrew step is skipped.
+// - Each environment's worker reports its bundle: `GET <env url>/_ortho/bundle` answers `{ "revision", "sha256" }`, the
+//   sha256 being the bare hex of `.ortho/artefacts/<rev>/main.js`.
+// - With a registry in ORTHO_REGISTRY, staging publishes `@acme/sdk@<next>-next.<n>` under the dist-tag `next` and
+//   production publishes `@acme/sdk@<next>` under `latest`. With no ORTHO_TAP_REPO the Homebrew step is skipped.
 // - Destinations the local pass can't reach print `skipped <destination> (cloud pass)` (the GitHub release, at least, in
 //   a production promote).
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -23,7 +23,7 @@ afterAll(async () => { try { await finish(copy.root, stack); } finally { copy.re
 
 type Packument = { "dist-tags": Record<string, string> };
 const sdk = (registry: string) => getJson<Packument>(`${registry}@acme%2fsdk`);
-const bundle = (url: string) => getJson<{ revision: string; sha256: string }>(`${url}/_forman/bundle`);
+const bundle = (url: string) => getJson<{ revision: string; sha256: string }>(`${url}/_ortho/bundle`);
 
 describe("check 4: promote", () => {
   it("production refuses an unproven revision, takes the staging-proven one with the same bundle, and releases 1.0.0 then 1.1.0", async () => {

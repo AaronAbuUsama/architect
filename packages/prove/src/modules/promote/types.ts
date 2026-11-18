@@ -1,4 +1,4 @@
-// `forman promote --to staging|production`: the exact built bundle, moved on only with the verdicts that earn it (D3 #14, #92).
+// `ortho promote --to staging|production`: the exact built bundle, moved on only with the verdicts that earn it (D3 #14, #92).
 import { Data, type Effect } from "effect";
 import type { Env } from "#modules/verdicts/types.js";
 
@@ -25,12 +25,12 @@ export interface PromoteApi {
    * Move the revision at `root` (the git commit) to `target`. In order:
    *
    * 1. It refuses a dirty working tree, and a revision with no built bundle or one whose file no longer matches the hash
-   *    recorded when it was built. The bundle is never rebuilt here: it is the one `forman build` made.
+   *    recorded when it was built. The bundle is never rebuilt here: it is the one `ortho build` made.
    * 2. It refuses a revision whose verdicts, among those posted from `main` (a pull request's never count), are not all
    *    passing for every operation and naming this exact bundle hash: `test` for staging, `staging` (the environment's `promotesFrom`) for production. Nothing
    *    is started for a refused promotion.
    * 3. It starts the target environment on that bundle, or restarts it onto it with its state kept, and checks
-   *    `GET /_forman/bundle` answers the bundle's own revision and sha256.
+   *    `GET /_ortho/bundle` answers the bundle's own revision and sha256.
    * 4. Staging: the journeys and evals run against it, the people signing up for real, and a verdict per operation is
    *    posted with `environment: "staging"`. Production: the release is recorded in the logbook with the version the
    *    model gives (`Releases.next`), unless this revision is already the last release.

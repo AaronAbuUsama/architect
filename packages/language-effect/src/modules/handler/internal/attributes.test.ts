@@ -1,8 +1,8 @@
 // L2.P: a span's attributes come from an allowlist built from `visibility`. Only a public field's value is one.
 import { Effect, Layer, Tracer } from "effect";
 import { describe, expect, it } from "vitest";
-import { Blueprint } from "@formants/forman";
-import { EventNames } from "@formants/forman/server";
+import { Blueprint } from "orthograph";
+import { EventNames } from "orthograph/server";
 import { BusyLive } from "#modules/work/service.js";
 import { storeMemory } from "#modules/records/service.js";
 import { Records } from "#modules/records/types.js";

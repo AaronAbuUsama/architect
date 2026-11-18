@@ -46,9 +46,9 @@ export interface PublishApi {
    *
    * - `dry-run` builds the packages and lists exactly what would go out (each package's files, the binary, the formula) and
    *   publishes, writes and downloads nothing.
-   * - `publish` sends the packages to the registry in `FORMAN_REGISTRY` (Verdaccio on this machine) and, when the
+   * - `publish` sends the packages to the registry in `ORTHO_REGISTRY` (Verdaccio on this machine) and, when the
    *   environment declares them, builds the CLI binary for this machine's platform, writes the formula into the tap
-   *   repository (`FORMAN_TAP_REPO`, else `.forman/tap/` when `tap: "default"`) and says what it can't reach
+   *   repository (`ORTHO_TAP_REPO`, else `.ortho/tap/` when `tap: "default"`) and says what it can't reach
    *   (`skipped npmjs.org (cloud pass)`, `skipped github releases (cloud pass)`).
    *
    * A prerelease (`1.1.0-next.2`) is always published under a dist-tag that is not `latest`, whatever the blueprint says.
@@ -63,11 +63,11 @@ export interface PublishApi {
     readonly environment: PublishTarget;
     readonly version: string;
     readonly mode: "dry-run" | "publish";
-    /** With `publish`: the formula goes to `.forman/tap/` when `FORMAN_TAP_REPO` is not set, and the binary is built for it. */
+    /** With `publish`: the formula goes to `.ortho/tap/` when `ORTHO_TAP_REPO` is not set, and the binary is built for it. */
     readonly localTap: boolean;
     readonly say: (line: string) => Effect.Effect<void>;
   }) => Effect.Effect<Published, PublishFailed>;
-  /** The registry a run publishes to: `FORMAN_REGISTRY` with its trailing slash; undefined when none is set (a run then skips npm and says so). */
+  /** The registry a run publishes to: `ORTHO_REGISTRY` with its trailing slash; undefined when none is set (a run then skips npm and says so). */
   readonly registry: (env: Env) => string | undefined;
   /** The next free prerelease of `version` on the registry: `<version>-next.<n>`, one past the highest `n` either package has. */
   readonly prerelease: (options: {

@@ -1,4 +1,4 @@
-import { Blueprint } from "@formants/forman";
+import { Blueprint } from "orthograph";
 import { Allowance } from "./thing.ts";
 
 // The person the allowance was granted to.

@@ -2,9 +2,9 @@
 import { randomBytes } from "node:crypto";
 import { request } from "node:http";
 import { Effect, Layer, Option, Schema } from "effect";
-import type { Operation, Read, Principal, Thing } from "@formants/forman";
-import { structOf } from "@formants/forman/server";
-import { Access, Records, type Instance } from "@formants/language-effect";
+import type { Operation, Read, Principal, Thing } from "orthograph";
+import { structOf } from "orthograph/server";
+import { Access, Records, type Instance } from "@orthograph/language-effect";
 import type { CallRecord, Facts } from "../types.ts";
 import { PROVE_SPAN_PREFIX } from "#modules/telemetry/types.js";
 

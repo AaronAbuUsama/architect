@@ -169,7 +169,7 @@ local viewer.
 The core speaks only OpenTelemetry. Where it goes is an environment's `telemetry` list of sinks, so one sink or
 several is the same line:
 
-```ts file=packages/forman/src/modules/telemetry/types.ts lines=23-28
+```ts file=packages/orthograph/src/modules/telemetry/types.ts lines=23-28
 export interface TelemetryApi {
   readonly sink: {
     readonly local: () => Sink;
@@ -208,7 +208,7 @@ asserts `spans({ present: ["allowance.spend.commit"] })`.
 ### Gap 2: free text is traced by default (M1.19)
 
 **Today.** Visibility is public by default
-(`packages/forman/src/modules/visibility/types.ts:1`), and public fields become attributes. Acme's memo is free text:
+(`packages/orthograph/src/modules/visibility/types.ts:1`), and public fields become attributes. Acme's memo is free text:
 
 ```ts file=examples/acme/blueprint/values/money.ts lines=5-6
 /** What a spend was for, in a few words. */
@@ -238,14 +238,14 @@ look like work. But nobody can see that `spend` refused 400 strangers in an hour
 
 **The fix.** Every call is counted as a metric, whether or not a span opened:
 
-- `forman.calls`, a counter tagged `operation`, `outcome` (`answered`, `refused` or `defect`), `refusal` and
+- `ortho.calls`, a counter tagged `operation`, `outcome` (`answered`, `refused` or `defect`), `refusal` and
   `principal.kind`. No payload values, and no person.
-- `forman.call.duration`, a histogram per operation, to compare against the declared budget.
+- `ortho.call.duration`, a histogram per operation, to compare against the declared budget.
 
 Both go through Effect's `Metric` to OpenTelemetry, into the `<project>-<env>-metrics` dataset O1 reserved. Locally
 they go through the Collector, which gains a metrics pipeline.
 
-**Proved by** a world test that sends one bad payload and one stranger, then reads `forman.calls` from the Collector:
+**Proved by** a world test that sends one bad payload and one stranger, then reads `ortho.calls` from the Collector:
 two refusals and no spans.
 
 ## Choices
@@ -277,7 +277,7 @@ Mark text traced only when it is a code you search by. If a person typed it, lea
   tree comes from the declaration, not from your logging.
 - **Not a place for personal details.** What a span may say is decided by visibility. See `things`.
 - **Not the verdict.** Spans are evidence. Evals judge them, and only CI writes a verdict. See `proof`.
-- **Not metrics.** Spans exist only for calls that got past the role check. Counts of every call are `forman.calls`.
+- **Not metrics.** Spans exist only for calls that got past the role check. Counts of every call are `ortho.calls`.
 
 ## Where it lives
 
@@ -288,12 +288,12 @@ Mark text traced only when it is a code you search by. If a person typed it, lea
 | Refusal and defect written on the span | `packages/language-effect/src/modules/handler/service.ts:77` | built |
 | Refusals end OK, defects in error | `packages/language-effect/src/modules/handler/internal/span.ts:10` | built |
 | The public-only allowlist | `packages/language-effect/src/modules/handler/internal/attributes.ts:10` | built |
-| `spans({ present, absent })` in journeys | `packages/forman/src/modules/journeys/types.ts:119` | built |
-| Sinks | `packages/forman/src/modules/telemetry/types.ts:23` | built |
+| `spans({ present, absent })` in journeys | `packages/orthograph/src/modules/journeys/types.ts:119` | built |
+| Sinks | `packages/orthograph/src/modules/telemetry/types.ts:23` | built |
 | `ortho telemetry trace` | `packages/cli/src/modules/telemetry/types.ts:23` | built |
 | The commit span and `attempt` | `packages/language-effect/src/modules/handler/service.ts:71` | planned, M1.18 |
-| `Blueprint.traced` | `packages/forman/src/modules/visibility/` | planned, M1.19 |
-| `forman.calls`, `forman.call.duration` | `packages/language-effect/src/modules/handler/` | planned, M1.20 |
+| `Blueprint.traced` | `packages/orthograph/src/modules/visibility/` | planned, M1.19 |
+| `ortho.calls`, `ortho.call.duration` | `packages/language-effect/src/modules/handler/` | planned, M1.20 |
 
 ## Status
 

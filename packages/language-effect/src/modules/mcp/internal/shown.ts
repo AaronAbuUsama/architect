@@ -1,7 +1,7 @@
 // What a caller may see (L2.P, D3 #125). `public` is shown to everyone; `secret` to no one; `private` to the roles it names,
 // for a caller who holds one of them in this call. A field the declaration doesn't name is never shown: this fails closed.
-import type { Role, Visibility } from "@formants/forman";
-import type { FieldsInput } from "@formants/forman";
+import type { Role, Visibility } from "orthograph";
+import type { FieldsInput } from "orthograph";
 
 export type Seen = (visibility: Visibility | undefined) => boolean;
 

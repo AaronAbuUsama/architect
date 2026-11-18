@@ -1,4 +1,4 @@
-# Examples: building things with Forman
+# Examples: building things with Orthograph
 
 Part of the frame ([`../README.md`](../README.md)). Each example is something we have to build anyway, walked through
 in the same shape: the idea, the description, journeys (prose, then executable), blanks and handlers, adapters and
@@ -11,7 +11,7 @@ examples assume it.
 | Example | What it exercises |
 |---|---|
 | [`agents.md`](agents.md) | durable agent runs with Pi Durable, the `agent` principal, model providers as adapters |
-| [`factory.md`](factory.md) | the factory itself as a Forman app: missions, tasks, the manager, builders, scorer, verdicts |
+| [`factory.md`](factory.md) | the factory itself as a Orthograph app: missions, tasks, the manager, builders, scorer, verdicts |
 | [`../writing-a-feature.md`](../writing-a-feature.md) | the wallets feature, written as a plugin, end to end |
 | [`payments.md`](payments.md) | an adapter both ways: Stripe calls out, its webhook in, a refund only a person may make |
 | [`notifications.md`](notifications.md) | our own events driving work, the outbox, email through a real local stand-in |

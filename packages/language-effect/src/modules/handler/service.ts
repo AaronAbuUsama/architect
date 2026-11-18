@@ -1,5 +1,5 @@
 import { Cause, Data, Effect, Ref, Schema } from "effect";
-import type { Operation, Principal } from "@formants/forman";
+import type { Operation, Principal } from "orthograph";
 import { Access } from "#modules/access/service.js";
 import { Unit } from "#modules/records/service.js";
 import { Records, Store } from "#modules/records/types.js";

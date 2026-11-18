@@ -1,6 +1,6 @@
 // What `watch` prints: p95 against budget, the refusals, the defects, the evals, and the drift. One line each, and the
 // lines Gate 2's check 8 reads are exact: `<op> p95 <n>ms (budget <n>ms) ✔|✘`, `refusals: <Error> <n> …`, `drift <ops>|none`.
-import type { Model } from "@formants/compiler";
+import type { Model } from "@orthograph/compiler";
 import type { Evidence, Verdict } from "#modules/evals/types.js";
 import { Evals } from "#modules/evals/service.js";
 
@@ -10,7 +10,7 @@ export interface Drifting {
   readonly p95: number;
   readonly budget: number;
   readonly calls: number;
-  /** The slowest calls' trace ids, slowest first: what to read with `forman telemetry trace`. */
+  /** The slowest calls' trace ids, slowest first: what to read with `ortho telemetry trace`. */
   readonly slowest: ReadonlyArray<string>;
 }
 

@@ -1,4 +1,4 @@
-import { Blueprint } from "@formants/forman";
+import { Blueprint } from "orthograph";
 import { Cents } from "../../values/work.ts";
 
 /** Starting it would take the mission past its share of the day's cap. */

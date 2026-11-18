@@ -6,10 +6,10 @@ import { basename, dirname, join, relative, resolve } from "node:path";
 import { Effect } from "effect";
 import { afterAll, describe, expect, it } from "vitest";
 import { FsTree, flushChanges } from "nx/src/generators/tree.js";
-import { Sync } from "@formants/generators/sync";
+import { Sync } from "@orthograph/generators/sync";
 import { Prove } from "./service.ts";
 
-// Dot-folders (.wrangler, .forman) belong to whatever is running there; a filter also keeps cpSync off its native path,
+// Dot-folders (.wrangler, .ortho) belong to whatever is running there; a filter also keeps cpSync off its native path,
 // which aborts the process when a folder vanishes mid-copy.
 const visible = (from: string) => !basename(from).startsWith(".");
 const install = (from: string, root: string, to: string) => {
@@ -51,13 +51,13 @@ const GRANT = "src/allowance/grant.ts";
 const nothingRunning = () => {
   const containers = spawnSync("docker", ["ps", "--format", "{{.Names}}"], { encoding: "utf8" }).stdout;
   // This process's collectors only: other test files prove their own projects at the same time.
-  expect(containers).not.toContain(`forman-collector-${process.pid}-`);
+  expect(containers).not.toContain(`ortho-collector-${process.pid}-`);
 };
 
 // A collector may still be flushing its last lines as the scope closes: retry instead of failing on ENOTEMPTY.
 afterAll(() => rmSync(scratch, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }));
 
-describe("forman prove --env local", () => {
+describe("ortho prove --env local", () => {
   it("passes on acme: every journey, every eval, coverage, and leaves nothing running", { timeout: 180_000 }, async () => {
     const report = await prove(acme, 8800);
     expect(report.lines).toContain("journey grant an allowance ✔ 3/3 steps");

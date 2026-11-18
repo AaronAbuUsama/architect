@@ -1,12 +1,12 @@
-# Building agents with Forman
+# Building agents with Orthograph
 
 A worked example in the frame ([`../README.md`](../README.md)). Proposed, 17 November 2026. It shows the agents
-feature, `@formants/agents`, built the way any feature is built. The factory ([`factory.md`](factory.md)) mounts it,
+feature, `@orthograph/agents`, built the way any feature is built. The factory ([`factory.md`](factory.md)) mounts it,
 and so can any app that wants an agent working on its behalf.
 
 Words are used as the frame's glossary defines them. Two names are new since that glossary was written: the framework
-is **Forman** (command `forman`, packages under `@formants/*`), and what was called a target is now a **language**
-(`@formants/language-effect`, `language-solidity`, `language-noir`, `language-python`). Blueprint stays the name of what
+is **Orthograph** (command `ortho`, packages under `@orthograph/*`), and what was called a target is now a **language**
+(`@orthograph/language-effect`, `language-solidity`, `language-noir`, `language-python`). Blueprint stays the name of what
 you write.
 
 ## The idea
@@ -15,7 +15,7 @@ An agent run is one model working one brief, with tools, inside a budget, until 
 or stopped. It can run for twenty minutes and cost dollars, so it must survive a crash, a deploy and an eviction
 without losing a turn or paying for one twice.
 
-In Forman that splits cleanly into three parts:
+In Orthograph that splits cleanly into three parts:
 
 1. **The run's lifecycle is declared.** A `Run` thing with a machine, and operations to start, steer, cancel and read
    it. Roles, refusals, spans, the SDK, the CLI, the MCP tools and the nine evals all come from that, as for any thing.
@@ -29,8 +29,8 @@ The boundary H1 drew stays: Pi owns the transcript; the blueprint's machine owns
 ## The description
 
 ```ts
-// @formants/agents/blueprint/things/run/thing.ts
-import { Blueprint } from "@formants/forman";
+// @orthograph/agents/blueprint/things/run/thing.ts
+import { Blueprint } from "orthograph";
 import { AgentName, Brief, Cents, ModelRef } from "../../values/agents.ts";
 
 export const Run = Blueprint.thing({
@@ -49,7 +49,7 @@ export const Run = Blueprint.thing({
 ```
 
 ```ts
-// @formants/agents/blueprint/things/run/machine.ts
+// @orthograph/agents/blueprint/things/run/machine.ts
 export const machine = Blueprint.machine(Run, {
   states: ["working", "waiting", "done", "failed", "cancelled"],
   moves: {
@@ -65,7 +65,7 @@ export const machine = Blueprint.machine(Run, {
 ```
 
 ```ts
-// @formants/agents/blueprint/things/run/verbs/start.ts
+// @orthograph/agents/blueprint/things/run/verbs/start.ts
 export default Blueprint.operation(Run, {
   description: "Start an agent on a brief. It runs until done, out of budget, or cancelled.",
   payload: { agent: Run.fields.agent, model: Run.fields.model, brief: Run.fields.brief, budget: Run.fields.budget },
@@ -87,7 +87,7 @@ a key or an agent acting for them.
 `finish`, `fail`, `wait` and `wake` are called by the loop itself, as the `system` principal, never by a caller:
 
 ```ts
-// @formants/agents/blueprint/things/run/verbs/finish.ts
+// @orthograph/agents/blueprint/things/run/verbs/finish.ts
 export default Blueprint.operation(Run, {
   payload: { run: Run.fields.id, outcome: Outcome, spent: Run.fields.spent },
   move: machine.moves.finish,
@@ -132,7 +132,7 @@ A journey author writes the story in plain words before any code exists. These a
 Then the same author turns each into code. Number 5, executable:
 
 ```ts
-// @formants/agents/journeys/a-run-survives-eviction.ts (journey author's file)
+// @orthograph/agents/journeys/a-run-survives-eviction.ts (journey author's file)
 export default Blueprint.journey("a run survives eviction", {
   cast: { ada: signedIn },
   steps: (s) => [
@@ -160,7 +160,7 @@ and a null runner that must solve none (H2.1, H2.6).
 The handlers are short, because the work is in the export:
 
 ```ts
-// @formants/agents/src/run/start.ts (scaffolded, then written)
+// @orthograph/agents/src/run/start.ts (scaffolded, then written)
 const start: Handler = ({ agent, model, brief, budget }, { steps, ids }) =>
   Effect.gen(function* () {
     const run = ids.run();
@@ -172,7 +172,7 @@ const start: Handler = ({ agent, model, brief, budget }, { steps, ids }) =>
 The export has one implementation per host, written once in the feature:
 
 ```ts
-// @formants/agents/src/exports/open.worker.ts (Host.worker)
+// @orthograph/agents/src/exports/open.worker.ts (Host.worker)
 export const open = Agent.open.implement(Host.worker, ({ run, agent, model, brief, budget }) =>
   Effect.gen(function* () {
     const object = yield* RunObjects.get(run);                  // one SQLite Durable Object per run
@@ -277,10 +277,10 @@ $ acme run cancel run_9Kx1
 | | Today | Proposed |
 |---|---|---|
 | An agent run | check 4 only: the Agent SDK with `tools: []`, four tools of ours, `maxBudgetUsd: 5` (`origin/layer/3:e2e/layer1/04-agent-writes-a-handler.test.ts:90`), denied paths at `:18` | the agents feature, with a declared `Run` |
-| The harness | an agent package designed (H1, H2), not built; steps A0 to A9 (`design/build-plan.md:149-166`) | the same seam, shipped inside `@formants/agents` |
+| The harness | an agent package designed (H1, H2), not built; steps A0 to A9 (`design/build-plan.md:149-166`) | the same seam, shipped inside `@orthograph/agents` |
 | Pi version | 1.5.0, the newest under the two-week rule (H1.1) | 1.5.2 (10 November) is allowed under the three-day rule; bumped only when wanted |
 | Effect Workflow on Cloudflare | 4.1.3 not allowed until 24 November (H1 section 8) | allowed now; used for processes that span runs |
-| An agent as a caller | `Principal` is `anonymous` or `person` (`origin/layer/3:packages/forman/src/modules/roles/types.ts:6-8`); an agent looks like its person (F5 section 4) | `agent`, through `Via.agent`, and `system` for the loop |
+| An agent as a caller | `Principal` is `anonymous` or `person` (`origin/layer/3:packages/orthograph/src/modules/roles/types.ts:6-8`); an agent looks like its person (F5 section 4) | `agent`, through `Via.agent`, and `system` for the loop |
 | A run in the factory | `run` is a row in `examples/work` (F5 call 3), its Durable Object is design only (W5) | the factory mounts this feature ([`factory.md`](factory.md)) |
 | A declared Run | considered for L5.08 (`build-plan.md:224`) | now, as this feature |
 

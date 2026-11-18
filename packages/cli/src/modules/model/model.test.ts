@@ -10,7 +10,7 @@ const acme = resolve(repo, "examples/acme");
 const main = resolve(import.meta.dirname, "../../main.ts");
 const snapshot = resolve(repo, "packages/compiler/src/modules/model/__snapshots__/acme.model.json");
 
-describe("forman model", () => {
+describe("ortho model", () => {
   it("--json on acme prints the model snapshot, from a real process", { timeout: 60_000 }, () => {
     const out = execFileSync("node", [main, "model", "--json", "--root", acme], { encoding: "utf8" });
     expect(out).toBe(readFileSync(snapshot, "utf8"));

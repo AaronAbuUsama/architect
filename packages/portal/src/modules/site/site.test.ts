@@ -138,7 +138,7 @@ describe("/_portal/v1", () => {
 
 describe("a blueprint it will not serve", () => {
   const serve = (json: unknown, path = "/portal") =>
-    Effect.runPromise(Portal.serve(json, new Request(`http://portal${path}`), { FORMAN_LOGBOOK_URL: "http://127.0.0.1:1" }));
+    Effect.runPromise(Portal.serve(json, new Request(`http://portal${path}`), { ORTHO_LOGBOOK_URL: "http://127.0.0.1:1" }));
 
   it("an unknown schema version or a wrong digest is a 500 with the reason, and no tick", async () => {
     for (const bad of [{ ...blueprint, schemaVersion: 2 }, { ...blueprint, digest: "0".repeat(64) }]) {

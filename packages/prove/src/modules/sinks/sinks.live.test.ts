@@ -1,6 +1,6 @@
 // The live check of O1 step 4: acme's prove with the Axiom sink on `capxul-test`, then Axiom's own query API says the
 // allowance.grant trace arrived with its step spans and with no attribute whose key looks like a secret. It sends real
-// data to a third party, so it runs only when asked: `FORMAN_LIVE_AXIOM=1`. Every credential is read by name (the
+// data to a third party, so it runs only when asked: `ORTHO_LIVE_AXIOM=1`. Every credential is read by name (the
 // ingest token through the sink, `capxul-query` and the edge here); none is printed, written or kept.
 import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { basename, join, relative, resolve } from "node:path";
@@ -9,7 +9,7 @@ import { describe, expect, it } from "vitest";
 import { Prove } from "#modules/prove/service.js";
 import { Sinks } from "./service.ts";
 
-const live = process.env["FORMAN_LIVE_AXIOM"] === "1";
+const live = process.env["ORTHO_LIVE_AXIOM"] === "1";
 const visible = (from: string) => !basename(from).startsWith(".");
 const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
 const scratch = join(acme, "tmp/sinks-live");
@@ -41,7 +41,7 @@ describe.skipIf(!live)("Axiom, live (capxul-test, EU Central 1)", () => {
     expect(report.lines.filter((l) => l.startsWith("axiom "))).toEqual([]); // the sink was not skipped
     expect(report.passed).toBe(true);
 
-    const text = readFileSync(join(root, ".forman/prove-telemetry/traces.jsonl"), "utf8");
+    const text = readFileSync(join(root, ".ortho/prove-telemetry/traces.jsonl"), "utf8");
     const trace = text.split("\n").filter(Boolean).flatMap((l) => JSON.parse(l).resourceSpans.flatMap((rs: any) => rs.scopeSpans.flatMap((ss: any) => ss.spans)))
       .find((s: any) => s.name === "allowance.grant" && !s.attributes.some((a: any) => a.key === "refusal"))?.traceId as string;
     expect(trace).toMatch(/^[0-9a-f]{32}$/);

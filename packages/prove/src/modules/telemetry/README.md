@@ -16,7 +16,7 @@ from the model's `visibility`; `prove` and `env up` pass it. Test: `prove/secret
 
 L2.O (O1, D3 #100 to #109, #120, #121): `TraceSource` is the seam prove reads through (`traces(wanted)`, which waits until complete, and `find(id)`), and
 `FileSource.open(dirs)` is the one over the Collector's files. Before any `start` or `launch`, collectors whose owner process is gone
-(`forman-collector-<pid>-<n>`) are removed. While the local viewer runs, a started Collector also exports to it. Every pipeline first
+(`ortho-collector-<pid>-<n>`) are removed. While the local viewer runs, a started Collector also exports to it. Every pipeline first
 deletes `user.*` and `organization.id` (the agent SDK's records name the signed-in person), then the model's private keys (L2.P). `rootOf`
 and `exportRoots` make and send the journey's own span, `journey.<name>`, built from the spans the server recorded for the call.
 
@@ -27,4 +27,4 @@ environment, env })` is the one over Axiom's query API: APL over `<group>-traces
 are read by name (`AXIOM_QUERY_TOKEN` / `capxul-query`, `AXIOM_DOMAIN` / `axiom-domain`, `AXIOM_ORG_ID` / `axiom-org-id`) and kept in memory for the queries only.
 The window stops 15 s short of now (Axiom takes a span some seconds after it ended) and reads at most 50 000 spans. Prove's own calls carry a caller
 span id that starts with `PROVE_SPAN_PREFIX`, which is how `watch` tells them from traffic. Tests: `sources.test.ts` (a stand-in for the query API),
-and `watch/watch.live.test.ts` against Axiom with `FORMAN_LIVE_AXIOM=1`.
+and `watch/watch.live.test.ts` against Axiom with `ORTHO_LIVE_AXIOM=1`.

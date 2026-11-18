@@ -1,7 +1,7 @@
 // Planted fixture: answers a session even when Auth says the credentials are wrong.
 import { Effect } from "effect";
 import type { SqlClient } from "effect/sql";
-import { Auth, type Records } from "@formants/language-effect";
+import { Auth, type Records } from "@orthograph/language-effect";
 import type { Handler } from "../../generated/api/src/session/sign-in.handler.ts";
 
 const signIn: Handler<Records | SqlClient.SqlClient | Auth> = ({ email, password }, { steps }) =>

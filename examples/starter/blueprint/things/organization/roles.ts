@@ -1,4 +1,4 @@
-import { Blueprint } from "@formants/forman";
+import { Blueprint } from "orthograph";
 import { Organization } from "./thing.ts";
 
 // Whoever founded the organisation.

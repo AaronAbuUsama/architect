@@ -1,7 +1,7 @@
 // One attempt at a call: reads go to the store and their versions are remembered; writes are held back, merged per
 // instance, until the call commits them with its move.
 import { Effect } from "effect";
-import type { Thing } from "@formants/forman";
+import type { Thing } from "orthograph";
 import type { Instance, Store, Unit, Write } from "../types.ts";
 
 type Held = { thing: Thing; id: string; kind: "insert" | "update"; version: number; fields: Record<string, unknown>; state: string | undefined };

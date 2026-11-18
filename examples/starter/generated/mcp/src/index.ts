@@ -1,5 +1,5 @@
 // Generated from the blueprint. Do not edit.
-import type { McpEntry } from "@formants/language-effect";
+import type { McpEntry } from "@orthograph/language-effect";
 import { declaration as apiKeyCreate } from "../../api/src/api-key/create.ts";
 import { declaration as invitationAccept } from "../../api/src/invitation/accept.ts";
 import { declaration as invitationRevoke } from "../../api/src/invitation/revoke.ts";

@@ -1,5 +1,5 @@
 // The local trace viewer: `grafana/otel-lgtm` (Grafana, Tempo, Loki and an OTLP receiver in one container), started
-// by `forman telemetry view`, fed by the Collector's second exporter while it runs (O1, spikes/local-trace-viewer).
+// by `ortho telemetry view`, fed by the Collector's second exporter while it runs (O1, spikes/local-trace-viewer).
 import { Data, type Effect } from "effect";
 
 export class ViewerFailed extends Data.TaggedError("ViewerFailed")<{ readonly message: string }> {}

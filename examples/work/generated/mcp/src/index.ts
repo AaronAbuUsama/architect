@@ -1,5 +1,5 @@
 // Generated from the blueprint. Do not edit.
-import type { McpEntry } from "@formants/language-effect";
+import type { McpEntry } from "@orthograph/language-effect";
 import { declaration as attentionApprove } from "../../api/src/attention/approve.ts";
 import { declaration as attentionDecline } from "../../api/src/attention/decline.ts";
 import { declaration as attentionList } from "../../api/src/attention/list.ts";

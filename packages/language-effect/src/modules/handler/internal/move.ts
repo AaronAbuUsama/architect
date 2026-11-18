@@ -1,8 +1,8 @@
 // The operation's move: the machine's check before the handler, the outcome the handler chose, and the state and
 // journal entry the commit carries.
 import { Effect, Schema } from "effect";
-import type { Operation } from "@formants/forman";
-import { EventNames } from "@formants/forman/server";
+import type { Operation } from "orthograph";
+import { EventNames } from "orthograph/server";
 import type { Entry } from "#modules/journal/types.js";
 import type { Unit } from "#modules/records/types.js";
 import { NotFrom } from "../types.ts";

@@ -2,8 +2,8 @@ import { env } from "cloudflare:workers";
 import { Effect, Layer, Tracer } from "effect";
 import { SqlClient } from "effect/sql";
 import { describe, expect, it } from "vitest";
-import { Blueprint } from "@formants/forman";
-import { BusyLive, Handlers, Ids, Records, Store, type Handler } from "@formants/language-effect";
+import { Blueprint } from "orthograph";
+import { BusyLive, Handlers, Ids, Records, Store, type Handler } from "@orthograph/language-effect";
 import { StoreD1 } from "#modules/store/service.js";
 import { Database } from "./service.ts";
 

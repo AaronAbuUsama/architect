@@ -44,7 +44,7 @@ version answers each, and for the gap between today and the goal. This is that l
 | Projections are fixed renderers; `outputs` in the config is never read | `render/service.ts:13-24`, D3 #112 | Projections are plugins, mounted one file each under `blueprint/projections/` ([`mounting.md`](mounting.md)) |
 | The starter copies the auth things into every project | `examples/acme` | Auth is a feature, mounted, upgraded like any package |
 | "Dependency" and "output" each mean three different things | design docs | One glossary, one meaning each; "dependency" retired ([`README.md`](README.md)) |
-| MCP is served at `/mcp` and also declared as its own Worker | `render/internal/server.ts:144-146`, `environments/production.ts` | MCP is a door of the one Worker, with an optional domain routed to it (decided, Q2) |
+| MCP is served at `/mcp` and also declared as its own Worker | `render/internal/server.ts:145-147`, `environments/production.ts` | MCP is a door of the one Worker, with an optional domain routed to it (decided, Q2) |
 
 ### The outside world and secrets
 
@@ -92,18 +92,18 @@ version answers each, and for the gap between today and the goal. This is that l
 
 ## Decided in this frame (Aaron, 17 November 2026)
 
-- The framework is **Forman**, command `forman`. **Blueprint** stays the name of what you write (the `blueprint/`
-  folder and the `Blueprint.*` API). The npm org is **`@formants`** (npm names are lowercase); not yet created, it
+- The framework is **Orthograph** (its name since K6, 18 November 2026), command `ortho`. **Blueprint** stays the name of what you write (the `blueprint/`
+  folder and the `Blueprint.*` API). The npm scope is **`@orthograph`**; not yet created, it
   needs Aaron signed in. The Capxul app keeps `@capxul`.
 - "Target" is renamed **language** (Effect, Solidity, Noir, Python), never confused with a host or a projection.
 - Dependencies may be three days old, with a named override (`decisions/R1-release-age.md`).
-- Codex is dropped; we build Forman ourselves.
+- Codex is dropped; we build Orthograph ourselves.
 - **Workable means the end of M2**: plugins mounted and proved, auth and organizations as plugins, the new
-  principals, secrets by declaration. From there Aaron builds Capxul's plugins on Forman, refining it as he goes;
+  principals, secrets by declaration. From there Aaron builds Capxul's plugins on Orthograph, refining it as he goes;
   the factory (M3) and agents (M4) speed that up but don't gate it. Milestones M0 to M7 are proposed in the chat
   walkthrough of 17 November and still to be litigated.
 - **The factory comes before agents, and each works without the other** (Aaron, 17 November 2026). The factory is a
-  feature, `@formants/work`, with a choice of workers: people (the default: a person, or an outside agent such as
+  feature, `@orthograph/work`, with a choice of workers: people (the default: a person, or an outside agent such as
   Claude Code, claims a task through the factory's CLI or MCP) and agents. Picking agents adds an optional need,
   `Blueprint.need(agents, { when: workers.agents })`: the manager starts an agents run on the task's brief, and the
   run's finished event comes back through `on:`. The agents feature knows nothing of the factory. Either way, only a
