@@ -83,13 +83,14 @@ is judged by whether it gets us there sooner and truer.
 
 ### Every open line
 
-Four threads, and the conductor.
+Five threads, and the conductor (the ledger's closes when #50 merges).
 
 | # | Line | Branch | PR | Done when | State now | Next |
 |---|---|---|---|---|---|---|
 | ① | **Docs canon (MDX)** | `claude/docs-canon-cf2c38` | #38 merged (layer 1) | Pass 2, every page in layers, checked against the ledger before each layer | Layer 1 merged at `b600bb8`. Pass 2 is running locally: the tickets example proves (six journeys, seven operations), three page rewrites in progress | Opens the next canon PR; takes K8's example changes once they land |
 | ⛓ | **Chain languages war game (K7)** | `spike/chain-languages` | none yet | K7 recorded with its spike evidence, and its batch of questions put to Aaron, together with the wallet plugin's scope | EVM and Solana spikes done; waiting on the Aztec spike (holds port 8880). Found: `wallet.link` needs auth (M2), today's wallet values are EVM-only, linking a private Aztec account to a person undoes its privacy | Opens a PR and brings Aaron the K7 and wallet round |
 | 🧭 | **The growing example (K8)** | `design/growing-example` | none yet | K8 written with each stage's capabilities, pieces, slices, app shape and check; `milestones.md` maps the stages and defines v1.0, with the React hooks slice and the agent-native findings in M1.22 and M1.23; starter and example changes as slices; canon changes listed for the conductor; one PR merged | Started 18 November evening | Grills Aaron on the stages and what the app looks like at each |
+| 🧭 | **M1 plugin path** | `m1` | none (M1 lands as one PR at Gate M1) | M1.01, M1.02, M1.05 to M1.08 and M1.10 on `m1`, each green with its check; check `01` passes through one `ortho add feature`; checks `05` and `06` pass; a 🔍 pass so far; a demo from a fresh starter in `design/goals/03-m1-plugin-path.md` | Started 18 November evening on Aaron's yes | Writes goal 3, then M1.01, the plugin descriptor decision |
 | 📒 | **Ledger** | `claude/ledger-canon-k5` | #50 | The ledger matches the merged canon and rename | 🔍 passed at `57f5c89`; 626 items, 190 owned by nothing, 60 high; new row FOR-18 (rule 7 only partly in place) | Merges itself when CI is green |
 
 **Closed, branches kept:**
@@ -123,14 +124,12 @@ in `main`, then delete); `build/portal-pro`, `design/kits-decision`, `design/wor
 1. **The K8 rounds** from the growing-example thread: the stages and what the app looks like at each.
 2. **The K7 and wallet round** from the war game, when it opens its PR.
 3. **The portal design (M1.25)**, any time now; it must come before M1.13.
-4. **Whether M1 starts now with plugin mounting** (M1.01 to M1.10), asked 18 November. The conductor recommends yes:
-   it is under the wallet plugin, the agents package and K8's stage pieces alike.
-5. **Canon's two open choices:** entity or actor, and ticketing.
+4. **Canon's two open choices:** entity or actor, and ticketing.
 
 ### Next on the critical path
 
-Canon layer 1, naming and the rename sweep are merged, so M1 can start with M1.01 (the plugin descriptor), folding
-in K5, once Aaron says go. M1.17 to M1.20 (stores, the commit span, untraced text, call counts) and M1.26 (the wired scaffold) run in
+Canon layer 1, naming and the rename sweep are merged, and M1 has started (Aaron's yes, 18 November): the 🧭 thread
+runs M1.01 (the plugin descriptor) to M1.10 (`ortho add feature`) on `m1`, folding in K5. M1.17 to M1.20 (stores, the commit span, untraced text, call counts) and M1.26 (the wired scaffold) run in
 parallel. K7 runs beside all of this and unblocks the chain slices.
 
 ### Open questions carried by threads
