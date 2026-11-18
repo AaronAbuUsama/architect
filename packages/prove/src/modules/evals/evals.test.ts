@@ -70,6 +70,25 @@ describe("evals on evidence", () => {
     expect(steps(two, [missing], undefined as never).failures).toEqual(['grant-an-allowance "s": declared step allowance.spend.record ran no span']);
   });
 
+  it("steps: an answered edit may skip save but must still run the other steps in order", () => {
+    const edit = { ...op, name: "allowance.edit", steps: {
+      load: { name: "allowance.edit.load", type: "database" },
+      save: { name: "allowance.edit.save", type: "database", optional: true },
+      verify: { name: "allowance.edit.verify", type: "database" },
+    } };
+    const observed = (names: ReadonlyArray<string>, over: Partial<Evidence> = {}) => evidence(1, {
+      trace: { spans: names.map((step, start) => ({ traceId: "t", spanId: step, parentSpanId: "s", name: `allowance.edit.${step}`, attrs: {}, status: 1, ms: 1, start })), logs: [] },
+      ...over,
+    });
+    const judge = (e: Evidence) => steps(edit, [e], run()).failures;
+
+    expect(judge(observed(["load", "verify"]))).toEqual([]);
+    expect(judge(observed(["load", "save", "verify"]))).toEqual([]);
+    expect(judge(observed(["load", "verify", "save"]))[0]).toContain("step allowance.edit.verify ran before allowance.edit.save");
+    expect(judge(observed(["load"]))[0]).toContain("declared step allowance.edit.verify ran no span");
+    expect(judge(observed([], { call: call({ status: 422 }) }))).toEqual([]);
+  });
+
   it("coverage: an operation no journey reaches fails on its own, and the run's line counts what was reached", () => {
     const rename = { ...op, name: "organization.rename", errors: [], refusals: ["NotAllowed"] } as unknown as OperationModel;
     const model = { operations: { "allowance.grant": op, "organization.rename": rename } } as unknown as Model;
