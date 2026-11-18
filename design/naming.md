@@ -5,7 +5,7 @@ place that says how each name is spelled, where it lives, and the rule that form
 (`docs/canon/`) owns what concepts *mean*; this page owns how identifiers are *spelled*. When a new kind of name
 appears, it gets a row here before it gets used.
 
-**Status: swept** (18 November 2026, the slice after K6's "Order"). The code and every living document say Orthograph,
+**Status: swept, rule 7 in part** (18 November 2026, the slice after K6's "Order"). The code and every living document say Orthograph,
 `ortho` and `@orthograph`; the old-names lint rule and Gate M0's name check (`e2e/m0/names.test.ts`) catch any old
 name that comes back. The "Reach" counts below are from before the sweep, on `main` at `40ff66f`, outside `spikes/`;
 they stay as the record of what it changed. "What the sweep found" at the end lists what this map was missing.

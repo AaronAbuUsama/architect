@@ -30,6 +30,8 @@ architecture product with the same name). The evidence is in [`../naming-search.
 
 ## Order
 
+> **Done 18 November 2026:** the sweep ran as one slice; what it changed and found is in [`../naming.md`](../naming.md).
+
 1. **No code is renamed yet.** The sweep is one mechanical slice, like M0. It runs after the open design pull
    requests land (#37 skills, #38 the canon, #41 the generated app, #43 the ledger, and K5, the whole shape), so it
    doesn't conflict with all of them at once.
