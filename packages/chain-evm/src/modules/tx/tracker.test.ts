@@ -5,6 +5,7 @@ import { createPublicClient, custom, parseAbi } from "viem";
 import { expect, test } from "vitest";
 import type { DecodedEvent, EventFollower, EventPoll } from "../events/types.ts";
 import { makeEventSource } from "../events/service.ts";
+import { receiptError } from "./internal/receipt.ts";
 import { trackTransaction } from "./internal/tracker.ts";
 import type { Rpc } from "./internal/rpc.ts";
 import type { Intent, Submission } from "./types.ts";
@@ -54,3 +55,9 @@ test("a late confirmation remains valid when the checkpoint has already pruned t
 test("the on-chain intent deadline drops an intent that has no matching event", () =>
   Effect.runPromise(track({ source, matches: () => true, deadline: 9n }, () => Effect.succeed(empty)).pipe(Stream.runCollect))
     .then((changes) => expect(changes).toMatchObject([{ _tag: "Dropped", reason: "deadline", hash: submission.hash }])));
+
+test("a stalled optional trace returns the uncoded mined revert", () =>
+  Effect.runPromise(receiptError(
+    { chainId: 1, rpcUrl: "http://unused.invalid", traceRevert: () => Effect.never },
+    timers, submission, submission.hash,
+  )).then((error) => expect(error).toMatchObject({ _tag: "ChainFault", kind: "revert" })));

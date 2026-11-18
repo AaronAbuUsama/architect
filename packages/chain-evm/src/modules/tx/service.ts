@@ -1,6 +1,6 @@
 // Adapted from @prb/effect-evm@5.0.3 src/tx/{manager,policy}.ts. See LICENSE-prb-effect-evm.
-import { Busy, Timers } from "@orthograph/language-effect";
-import { Effect, Option } from "effect";
+import { Timers } from "@orthograph/language-effect";
+import { Effect } from "effect";
 import { makeFollower } from "../events/service.ts";
 import { rpcFault, validateRefusalLock } from "../faults/service.ts";
 import { ChainFault } from "../faults/types.ts";
@@ -22,8 +22,7 @@ export const makeChainPort = (options: ChainPortOptions): Effect.Effect<ChainPor
       return yield* new ChainFault({ kind: "configuration", message: "Invalid EVM RPC URL, chain ID or polling policy" });
     }
     yield* validateRefusalLock(options.refusals ?? []);
-    const busy = Option.getOrUndefined(yield* Effect.serviceOption(Busy));
-    const rpc = makeRpc(options.rpcUrl, timers, busy, rpcTimeout);
+    const rpc = makeRpc(options.rpcUrl, timers, rpcTimeout);
     const chainId = yield* rpc((client) => client.getChainId()).pipe(Effect.mapError((error) => rpcFault(error)));
     if (chainId !== options.chainId) {
       return yield* new ChainFault({ kind: "configuration", message: "EVM RPC chain ID does not match the port's chain ID" });

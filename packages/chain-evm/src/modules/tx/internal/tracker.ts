@@ -57,7 +57,7 @@ export const trackTransaction = <TEvent extends DecodedEvent>(
         yield* receiptSpan(options.chainId, receipt);
         states.push({ _tag: "Included", receipt });
         if (receipt.status === "reverted") {
-          states.push({ _tag: "Reverted", receipt, error: yield* receiptError(options, submission, receipt.transactionHash) });
+          states.push({ _tag: "Reverted", receipt, error: yield* receiptError(options, timers, submission, receipt.transactionHash) });
         }
       }
       const dropped = replacement !== undefined && !replacement.sameCall;

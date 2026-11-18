@@ -1,4 +1,4 @@
-import { Clock, Deferred, Duration, Effect, Layer } from "effect";
+import { Clock, Deferred, Duration, Effect, Layer, Option } from "effect";
 import { Busy } from "#modules/work/types.js";
 import { Timers, type Timer } from "./types.ts";
 
@@ -17,6 +17,12 @@ export const TimersMemory = Layer.effect(
         table.push({ id, at, owner, name, run });
         return id;
       });
+    const remove = (id: number) => {
+      const pending = table.findIndex((timer) => timer.id === id);
+      if (pending === -1) return false;
+      table.splice(pending, 1);
+      return true;
+    };
     return Timers.of({
       at: (at, owner, name, work) => add(at, owner, name, busy.spawn(Effect.ignore(work))),
       sleep: (owner, span) =>
@@ -27,15 +33,29 @@ export const TimersMemory = Layer.effect(
           const id = yield* add(now + Duration.toMillis(span), owner, "sleep", Effect.andThen(busy.enter, Deferred.succeed(woken, undefined)));
           yield* busy.leave;
           yield* restore(Deferred.await(woken)).pipe(Effect.onInterrupt(() => Effect.gen(function* () {
-            const pending = table.findIndex((timer) => timer.id === id);
-            if (pending === -1) {
-              // A firing timer has already claimed ownership of the wakeup.
-              yield* Deferred.await(woken);
-            } else {
-              table.splice(pending, 1);
-              yield* busy.enter;
-            }
+            if (remove(id)) yield* busy.enter;
+            // A firing timer has already claimed ownership of the wakeup.
+            else yield* Deferred.await(woken);
           })));
+        })),
+      within: (owner, span, wait) =>
+        Effect.uninterruptibleMask((restore) => Effect.gen(function* () {
+          const now = yield* Clock.currentTimeMillis;
+          const ended = yield* Deferred.make<void>();
+          const counted = yield* Deferred.make<void>();
+          let claimed = false;
+          const resume = Effect.suspend(() => {
+            if (claimed) return Deferred.await(counted);
+            claimed = true;
+            return busy.enter.pipe(Effect.andThen(Deferred.succeed(counted, undefined)), Effect.asVoid);
+          });
+          const id = yield* add(now + Duration.toMillis(span), owner, "deadline", Effect.andThen(resume, Deferred.succeed(ended, undefined)));
+          // Publish the deadline before releasing our work token so the world can advance it.
+          yield* busy.leave;
+          return yield* restore(Effect.raceFirst(
+            Effect.map(wait, Option.some),
+            Deferred.await(ended).pipe(Effect.as(Option.none())),
+          )).pipe(Effect.ensuring(Effect.sync(() => remove(id)).pipe(Effect.andThen(resume))));
         })),
       due: (target) =>
         Effect.sync(() => table.reduce<number | undefined>((best, t) => (t.at <= target && (best === undefined || t.at < best) ? t.at : best), undefined)),

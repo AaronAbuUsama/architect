@@ -5,7 +5,7 @@ import type { Hash, TransactionReceipt } from "viem";
 import { isPendingReceipt } from "../../faults/internal/viem-mapper.ts";
 import { decodeRevert, rpcFault } from "../../faults/service.ts";
 import type { ChainPortOptions, Submission } from "../types.ts";
-import type { Rpc } from "./rpc.ts";
+import { withinRpcDeadline, type Rpc } from "./rpc.ts";
 import { retryRead } from "./receipt-retry.ts";
 
 export const readReceipt = (rpc: Rpc, timers: typeof Timers.Service, hash: Hash) =>
@@ -24,8 +24,10 @@ export const receiptSpan = (chainId: number, receipt: TransactionReceipt) =>
     "block.hash": receipt.blockHash,
   } }));
 
-export const receiptError = (options: ChainPortOptions, submission: Submission, hash: Hash) =>
-  (options.traceRevert?.(hash).pipe(Effect.catch(() => Effect.succeed(undefined))) ?? Effect.succeed(undefined)).pipe(
-    Effect.flatMap((data) => decodeRevert(data, submission.to, options.refusals)),
-    Effect.flip,
-  );
+export const receiptError = (options: ChainPortOptions, timers: typeof Timers.Service, submission: Submission, hash: Hash) => {
+  const trace = options.traceRevert;
+  const data = trace === undefined ? Effect.succeed(undefined) : withinRpcDeadline(
+    timers, options.rpcTimeoutMs ?? 10_000, "chain.evm.trace", Effect.suspend(() => trace(hash)),
+  ).pipe(Effect.catch(() => Effect.succeed(undefined)));
+  return data.pipe(Effect.flatMap((data) => decodeRevert(data, submission.to, options.refusals)), Effect.flip);
+};
