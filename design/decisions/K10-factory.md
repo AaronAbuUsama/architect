@@ -261,6 +261,45 @@ defect (`errorText` from the `ActionRefusal`, never a raw defect message), and `
 (M1.23). The run view renders the run's committed transcript (Pi Durable is the source of truth, H1.9). Experiments need
 no view of their own: their moves are buttons on their lifecycle page.
 
+## 8. No Docker: where everything runs (Aaron, 18 November, about 22:35)
+
+> "I'm quitting Docker. I want to move everything to staging and sandboxes."
+
+Aaron quit Docker Desktop on purpose, so nothing on his machine runs a container any more. "Local, not fake" still
+stands: every service is real. What changes is where the real services run.
+
+**What needs Docker today**, found by searching the repository:
+
+| Service | Image today | Used by |
+|---|---|---|
+| OTel Collector | `otel/opentelemetry-collector-contrib:0.164.0` (`packages/prove/src/modules/telemetry/internal/docker.ts:8`) | `ortho prove`, `dev` with the viewer, every gate |
+| The trace viewer | Grafana containers (`packages/prove/src/modules/viewer/README.md:5-15`) | `ortho dev`, by hand |
+| OIDC issuer (GitHub's stand-in) | `ghcr.io/navikt/mock-oauth2-server:6.1.4` (`e2e/layer2/services.ts:11`, and five tests in logbook, cli, portal, prove) | signed verdicts, Gate 2 |
+| npm registry | `verdaccio/verdaccio:6.11.1` (`e2e/layer2/services.ts:12`) | `publish`, Gate 2 |
+| Anvil | a container in CI (M1.31), and a Durable Object Container locally (`spikes/world-anvil-container`) | chain worlds |
+| Teardown | `docker ps` sweeps (`e2e/layer1/teardown.ts:6`, `e2e/layer2/teardown.ts:6`) | the gates |
+
+**The architecture call: services are processes, the same in every place.** Each of these has a real form that isn't
+a container. The Collector ships as a single pinned binary. Verdaccio is an npm package that runs under Node. Anvil is
+Foundry's binary. A world starts each one as `Stand.process`, owns its PID and kills it at the end, the way prove
+already owns workerd (`packages/prove/src/modules/environments/README.md:32-37`). The OIDC issuer becomes a small
+issuer process of our own over `jose`. It stands in for GitHub's issuer exactly as the navikt image does today, so it
+is no faker than what it replaces. The Grafana viewer goes: the portal's own trace view (K5) replaces it. So:
+
+| Place | What runs there | Docker |
+|---|---|---|
+| **Aaron's Mac** | workerd, Node, and the services as processes: Collector, Verdaccio, the OIDC issuer, Anvil. `ortho check`, `prove` and `dev` work offline | none |
+| **Sandboxes (E2B)** | the factory's workspaces (section 3); a whole project's `prove` and the gates before a push, many at once, with the laptop shut. The same processes in our template | none |
+| **CI (GitHub Actions)** | the gates, unchanged until the process forms land; then the same processes, so CI, the Mac and the sandbox run one setup | dropped once M1.33 lands |
+| **Staging (Cloudflare)** | the deployed Workers, D1, Durable Objects and R2; Cloudflare Containers where a service must be a container there; the real OTLP sink. Its timing and its credential are round 2 (below) | n/a |
+
+Every world, sandbox and staging deploy is destroyed after use, and all of it stays under the $10 a day. Cloud
+credentials need Aaron's written yes. The E2B key exists already; a Cloudflare one doesn't.
+
+**Slices.** M1.33 ∥ replaces each container with its process, and M1.31's "a container in CI" becomes a process
+everywhere. `spikes/workspace-e2b` now also checks that the process forms run in our template. Staging's slices wait
+on round 2.
+
 ## 7. The order: floor, spikes, later
 
 **Spikes, any time, off every gate:**
@@ -297,13 +336,15 @@ are reused, not duplicated. M4.13 is K11's. Run's reference to any thing is M1.0
 4. `ortho`'s steps are operations of `Workspace`, so each is an action, a CLI command, an MCP tool and an agent tool.
 5. Building agents have no shell. They write only their allowed paths, and leave only through `workspace.push`.
 6. A workspace is a sandbox driven by the run's Durable Object, through adapters: `localCopy`, then `e2b`.
-7. `review` is a logbook verdict kind. Staging is automatic after prove and review; production is a person's yes.
+7. `review` is a logbook verdict kind, built early (M3.20). Staging is automatic after prove and review; production is a person's yes.
 8. An experiment is a plugin in its own workspace. It is kept only as a package plus one mount file. Spikes are the
    other lane.
 9. The factory's face, and the portal's agent UI in general, is composed from HeroUI Pro's components. **No agent UI
    code is canon**: the docs canon shows the declarations (`Blueprint.agent`, Run, Workspace, Experiment) and their
    actions, never a page's code (Aaron, 18 November).
 10. The seams with K11 and the portal are as sections 5 and 6 record.
+11. No Docker anywhere we run. Services are processes owned by their world, the same on the Mac, in E2B and in CI.
+    The Grafana viewer gives way to the portal's trace view (section 8).
 
 ## Evidence
 
