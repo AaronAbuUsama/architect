@@ -1,0 +1,26 @@
+{
+  "name": "agent-native-compat-spike",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "dependencies": {
+    "@agent-native/core": "0.228.2",
+    "effect": "4.1.1"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.16",
+    "@types/node": "24.19.2",
+    "h3": "2.0.8",
+    "tsx": "4.23.15",
+    "typescript": "6.0.2"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "typecheck:k5": "tsc -p tsconfig.k5.json",
+    "check:02": "node checks/02-schema.ts",
+    "check:03": "node checks/03-errors.ts",
+    "check:04-06": "node checks/04-06-identity-retry-approval.ts",
+    "check:07": "node checks/07-registration.ts",
+    "check:08": "node checks/08-runtime.ts"
+  }
+}

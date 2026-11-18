@@ -1,0 +1,1 @@
+{ "extends": "./tsconfig.json", "include": ["src/k5-shape.ts", "src/generated/**/*.ts", "src/stand-in.ts"], "exclude": [] }

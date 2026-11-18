@@ -1,0 +1,4593 @@
+{
+  "seed": 1234,
+  "mode": "mock",
+  "steps": 300,
+  "wallMs": 270670,
+  "txSent": 39,
+  "sendMsTotal": 146222,
+  "expectedMix": {
+    "ok": 39,
+    "PR-900": 161,
+    "AR-001": 43,
+    "PR-002": 55,
+    "PR-001": 2
+  },
+  "divergenceRawDecode": 72,
+  "divergenceWithOrderedPrecheck": 0,
+  "divergences": [
+    {
+      "i": 23,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 4,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 31,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 2,
+        "proposal": 4,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 36,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 4,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 39,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 3,
+        "proposal": 4,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 49,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 4,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 55,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 3,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 57,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 2,
+        "proposal": 4,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 61,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 2,
+        "proposal": 3,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 69,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 2,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "passed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "passed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 70,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 3,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 74,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 3,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 75,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 3,
+        "proposal": 4,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 80,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 2,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "passed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "passed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 81,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 3,
+        "proposal": 3,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 82,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 2,
+        "proposal": 4,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 84,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 4,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 85,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 3,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 87,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 2,
+        "proposal": 4,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 89,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 2,
+        "proposal": 3,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 92,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 3,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 94,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 3,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 98,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 3,
+        "proposal": 3,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 102,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 2,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "passed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "passed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 104,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 3,
+        "proposal": 3,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 105,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 2,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "passed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "passed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 106,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 2,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "passed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "passed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 107,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 2,
+        "proposal": 4,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 111,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 2,
+        "proposal": 3,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 112,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 4,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 115,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 3,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 120,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 2,
+        "proposal": 3,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 123,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 2,
+        "proposal": 4,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 125,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 4,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 127,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 3,
+        "proposal": 4,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 134,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 3,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 135,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 3,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 136,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 3,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 141,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 3,
+        "proposal": 3,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 142,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 3,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 149,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 3,
+        "proposal": 4,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 155,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 4,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 166,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 3,
+        "proposal": 4,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 172,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 2,
+        "proposal": 3,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 176,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 2,
+        "proposal": 3,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 179,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 2,
+        "proposal": 4,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 180,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 3,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 181,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 2,
+        "proposal": 3,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 184,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 2,
+        "proposal": 4,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 189,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 2,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "passed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "passed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 199,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 2,
+        "proposal": 3,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 200,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 2,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "passed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "passed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 216,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 2,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "passed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "passed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 219,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 3,
+        "proposal": 3,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 222,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 3,
+        "proposal": 3,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 228,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 3,
+        "proposal": 4,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 229,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 2,
+        "proposal": 3,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 231,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 2,
+        "proposal": 3,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 238,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 5,
+        "proposal": 3,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 241,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 3,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 252,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 2,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "passed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "passed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 254,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 3,
+        "proposal": 3,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 255,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 3,
+        "proposal": 3,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 258,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 3,
+        "proposal": 3,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 260,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 2,
+        "proposal": 4,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 264,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 4,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 270,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 2,
+        "proposal": 3,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 278,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 1,
+        "proposal": 3,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 282,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 3,
+        "proposal": 3,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 284,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 2,
+        "proposal": 4,
+        "choice": "yes"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 289,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 3,
+        "proposal": 4,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 293,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 2,
+        "proposal": 4,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    },
+    {
+      "i": 299,
+      "step": {
+        "op": "proposal.vote",
+        "caller": 2,
+        "proposal": 3,
+        "choice": "no"
+      },
+      "expected": {
+        "ok": false,
+        "refusal": "ProposalNotOpen",
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "raw": {
+        "ok": false,
+        "code": "PR-001",
+        "via": "nullifier refusal (simulation: AVM collision; node: Existing nullifier / pending conflict)"
+      },
+      "ordered": {
+        "ok": false,
+        "code": "PR-900",
+        "state": "failed"
+      },
+      "tallyOk": true
+    }
+  ],
+  "rows": [
+    {
+      "i": 0,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4354
+    },
+    {
+      "i": 1,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4335
+    },
+    {
+      "i": 2,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4244
+    },
+    {
+      "i": 3,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 704
+    },
+    {
+      "i": 4,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 397
+    },
+    {
+      "i": 5,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 379
+    },
+    {
+      "i": 6,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 773
+    },
+    {
+      "i": 7,
+      "op": "proposal.vote",
+      "caller": 4,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 565
+    },
+    {
+      "i": 8,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4130
+    },
+    {
+      "i": 9,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4438
+    },
+    {
+      "i": 10,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4466
+    },
+    {
+      "i": 11,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4072
+    },
+    {
+      "i": 12,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4119
+    },
+    {
+      "i": 13,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 437
+    },
+    {
+      "i": 14,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4438
+    },
+    {
+      "i": 15,
+      "op": "proposal.open",
+      "caller": 3,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 322
+    },
+    {
+      "i": 16,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4127
+    },
+    {
+      "i": 17,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4862
+    },
+    {
+      "i": 18,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 373
+    },
+    {
+      "i": 19,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4392
+    },
+    {
+      "i": 20,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 334
+    },
+    {
+      "i": 21,
+      "op": "proposal.vote",
+      "caller": 5,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 531
+    },
+    {
+      "i": 22,
+      "op": "proposal.open",
+      "caller": 3,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 289
+    },
+    {
+      "i": 23,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 602
+    },
+    {
+      "i": 24,
+      "op": "proposal.close",
+      "caller": 1,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 151
+    },
+    {
+      "i": 25,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4383
+    },
+    {
+      "i": 26,
+      "op": "proposal.vote",
+      "caller": 0,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 642
+    },
+    {
+      "i": 27,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 3895
+    },
+    {
+      "i": 28,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4121
+    },
+    {
+      "i": 29,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4126
+    },
+    {
+      "i": 30,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 346
+    },
+    {
+      "i": 31,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 619
+    },
+    {
+      "i": 32,
+      "op": "proposal.vote",
+      "caller": 4,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 633
+    },
+    {
+      "i": 33,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-001",
+      "raw": "PR-001",
+      "final": "PR-001",
+      "ms": 605
+    },
+    {
+      "i": 34,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 256
+    },
+    {
+      "i": 35,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 253
+    },
+    {
+      "i": 36,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 616
+    },
+    {
+      "i": 37,
+      "op": "proposal.vote",
+      "caller": 0,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 547
+    },
+    {
+      "i": 38,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4054
+    },
+    {
+      "i": 39,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 726
+    },
+    {
+      "i": 40,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 357
+    },
+    {
+      "i": 41,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 694
+    },
+    {
+      "i": 42,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4257
+    },
+    {
+      "i": 43,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4511
+    },
+    {
+      "i": 44,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4190
+    },
+    {
+      "i": 45,
+      "op": "proposal.vote",
+      "caller": 5,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4422
+    },
+    {
+      "i": 46,
+      "op": "member.add",
+      "caller": 3,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 429
+    },
+    {
+      "i": 47,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-001",
+      "raw": "PR-001",
+      "final": "PR-001",
+      "ms": 741
+    },
+    {
+      "i": 48,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4253
+    },
+    {
+      "i": 49,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 626
+    },
+    {
+      "i": 50,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 338
+    },
+    {
+      "i": 51,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 255
+    },
+    {
+      "i": 52,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4012
+    },
+    {
+      "i": 53,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 406
+    },
+    {
+      "i": 54,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 703
+    },
+    {
+      "i": 55,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 595
+    },
+    {
+      "i": 56,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 253
+    },
+    {
+      "i": 57,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 368
+    },
+    {
+      "i": 58,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 258
+    },
+    {
+      "i": 59,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 642
+    },
+    {
+      "i": 60,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 361
+    },
+    {
+      "i": 61,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 356
+    },
+    {
+      "i": 62,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 252
+    },
+    {
+      "i": 63,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 253
+    },
+    {
+      "i": 64,
+      "op": "proposal.close",
+      "caller": 2,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 144
+    },
+    {
+      "i": 65,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 485
+    },
+    {
+      "i": 66,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 251
+    },
+    {
+      "i": 67,
+      "op": "member.add",
+      "caller": 3,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 112
+    },
+    {
+      "i": 68,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 539
+    },
+    {
+      "i": 69,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 389
+    },
+    {
+      "i": 70,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 365
+    },
+    {
+      "i": 71,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 264
+    },
+    {
+      "i": 72,
+      "op": "member.add",
+      "caller": 1,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 119
+    },
+    {
+      "i": 73,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 271
+    },
+    {
+      "i": 74,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 462
+    },
+    {
+      "i": 75,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 363
+    },
+    {
+      "i": 76,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 252
+    },
+    {
+      "i": 77,
+      "op": "proposal.close",
+      "caller": 1,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 147
+    },
+    {
+      "i": 78,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 377
+    },
+    {
+      "i": 79,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 264
+    },
+    {
+      "i": 80,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 492
+    },
+    {
+      "i": 81,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 371
+    },
+    {
+      "i": 82,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 348
+    },
+    {
+      "i": 83,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 362
+    },
+    {
+      "i": 84,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 356
+    },
+    {
+      "i": 85,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 374
+    },
+    {
+      "i": 86,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 366
+    },
+    {
+      "i": 87,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 338
+    },
+    {
+      "i": 88,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 349
+    },
+    {
+      "i": 89,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 349
+    },
+    {
+      "i": 90,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 261
+    },
+    {
+      "i": 91,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 253
+    },
+    {
+      "i": 92,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 339
+    },
+    {
+      "i": 93,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 268
+    },
+    {
+      "i": 94,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 345
+    },
+    {
+      "i": 95,
+      "op": "proposal.open",
+      "caller": 2,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 145
+    },
+    {
+      "i": 96,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 265
+    },
+    {
+      "i": 97,
+      "op": "member.add",
+      "caller": 1,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 117
+    },
+    {
+      "i": 98,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 350
+    },
+    {
+      "i": 99,
+      "op": "proposal.close",
+      "caller": 2,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 184
+    },
+    {
+      "i": 100,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 247
+    },
+    {
+      "i": 101,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4091
+    },
+    {
+      "i": 102,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 610
+    },
+    {
+      "i": 103,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 373
+    },
+    {
+      "i": 104,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 623
+    },
+    {
+      "i": 105,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 339
+    },
+    {
+      "i": 106,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 353
+    },
+    {
+      "i": 107,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 582
+    },
+    {
+      "i": 108,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 362
+    },
+    {
+      "i": 109,
+      "op": "proposal.vote",
+      "caller": 0,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 534
+    },
+    {
+      "i": 110,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 136
+    },
+    {
+      "i": 111,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 347
+    },
+    {
+      "i": 112,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 383
+    },
+    {
+      "i": 113,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 368
+    },
+    {
+      "i": 114,
+      "op": "proposal.vote",
+      "caller": 0,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 514
+    },
+    {
+      "i": 115,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 352
+    },
+    {
+      "i": 116,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 367
+    },
+    {
+      "i": 117,
+      "op": "proposal.vote",
+      "caller": 0,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 339
+    },
+    {
+      "i": 118,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 138
+    },
+    {
+      "i": 119,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 348
+    },
+    {
+      "i": 120,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 350
+    },
+    {
+      "i": 121,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 348
+    },
+    {
+      "i": 122,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 242
+    },
+    {
+      "i": 123,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 349
+    },
+    {
+      "i": 124,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 249
+    },
+    {
+      "i": 125,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 353
+    },
+    {
+      "i": 126,
+      "op": "proposal.vote",
+      "caller": 0,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 483
+    },
+    {
+      "i": 127,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 367
+    },
+    {
+      "i": 128,
+      "op": "proposal.close",
+      "caller": 1,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 143
+    },
+    {
+      "i": 129,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 135
+    },
+    {
+      "i": 130,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 464
+    },
+    {
+      "i": 131,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 245
+    },
+    {
+      "i": 132,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 261
+    },
+    {
+      "i": 133,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 360
+    },
+    {
+      "i": 134,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 349
+    },
+    {
+      "i": 135,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 350
+    },
+    {
+      "i": 136,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 353
+    },
+    {
+      "i": 137,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4055
+    },
+    {
+      "i": 138,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 624
+    },
+    {
+      "i": 139,
+      "op": "proposal.close",
+      "caller": 2,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 300
+    },
+    {
+      "i": 140,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 530
+    },
+    {
+      "i": 141,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 648
+    },
+    {
+      "i": 142,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 352
+    },
+    {
+      "i": 143,
+      "op": "proposal.vote",
+      "caller": 0,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 632
+    },
+    {
+      "i": 144,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 373
+    },
+    {
+      "i": 145,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 136
+    },
+    {
+      "i": 146,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 346
+    },
+    {
+      "i": 147,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 358
+    },
+    {
+      "i": 148,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 355
+    },
+    {
+      "i": 149,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 355
+    },
+    {
+      "i": 150,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 248
+    },
+    {
+      "i": 151,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 247
+    },
+    {
+      "i": 152,
+      "op": "proposal.open",
+      "caller": 5,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 271
+    },
+    {
+      "i": 153,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 346
+    },
+    {
+      "i": 154,
+      "op": "proposal.vote",
+      "caller": 5,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 576
+    },
+    {
+      "i": 155,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 370
+    },
+    {
+      "i": 156,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 387
+    },
+    {
+      "i": 157,
+      "op": "proposal.close",
+      "caller": 3,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 144
+    },
+    {
+      "i": 158,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4052
+    },
+    {
+      "i": 159,
+      "op": "proposal.open",
+      "caller": 2,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 291
+    },
+    {
+      "i": 160,
+      "op": "proposal.vote",
+      "caller": 5,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 660
+    },
+    {
+      "i": 161,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 330
+    },
+    {
+      "i": 162,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 250
+    },
+    {
+      "i": 163,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 677
+    },
+    {
+      "i": 164,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 249
+    },
+    {
+      "i": 165,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4058
+    },
+    {
+      "i": 166,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 709
+    },
+    {
+      "i": 167,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 622
+    },
+    {
+      "i": 168,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 338
+    },
+    {
+      "i": 169,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4098
+    },
+    {
+      "i": 170,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 339
+    },
+    {
+      "i": 171,
+      "op": "proposal.open",
+      "caller": 2,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 307
+    },
+    {
+      "i": 172,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 655
+    },
+    {
+      "i": 173,
+      "op": "proposal.vote",
+      "caller": 0,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 618
+    },
+    {
+      "i": 174,
+      "op": "proposal.vote",
+      "caller": 4,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 698
+    },
+    {
+      "i": 175,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 144
+    },
+    {
+      "i": 176,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 346
+    },
+    {
+      "i": 177,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 250
+    },
+    {
+      "i": 178,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 268
+    },
+    {
+      "i": 179,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 349
+    },
+    {
+      "i": 180,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 678
+    },
+    {
+      "i": 181,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 356
+    },
+    {
+      "i": 182,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 257
+    },
+    {
+      "i": 183,
+      "op": "proposal.open",
+      "caller": 3,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 285
+    },
+    {
+      "i": 184,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 347
+    },
+    {
+      "i": 185,
+      "op": "proposal.vote",
+      "caller": 4,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 384
+    },
+    {
+      "i": 186,
+      "op": "proposal.open",
+      "caller": 2,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 148
+    },
+    {
+      "i": 187,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 270
+    },
+    {
+      "i": 188,
+      "op": "proposal.vote",
+      "caller": 0,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 504
+    },
+    {
+      "i": 189,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 386
+    },
+    {
+      "i": 190,
+      "op": "proposal.vote",
+      "caller": 0,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 340
+    },
+    {
+      "i": 191,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 138
+    },
+    {
+      "i": 192,
+      "op": "proposal.vote",
+      "caller": 4,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 394
+    },
+    {
+      "i": 193,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 604
+    },
+    {
+      "i": 194,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 599
+    },
+    {
+      "i": 195,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 298
+    },
+    {
+      "i": 196,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 430
+    },
+    {
+      "i": 197,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 252
+    },
+    {
+      "i": 198,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 255
+    },
+    {
+      "i": 199,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 493
+    },
+    {
+      "i": 200,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 378
+    },
+    {
+      "i": 201,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 259
+    },
+    {
+      "i": 202,
+      "op": "proposal.vote",
+      "caller": 0,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 508
+    },
+    {
+      "i": 203,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 143
+    },
+    {
+      "i": 204,
+      "op": "proposal.vote",
+      "caller": 0,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 484
+    },
+    {
+      "i": 205,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 141
+    },
+    {
+      "i": 206,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 349
+    },
+    {
+      "i": 207,
+      "op": "proposal.vote",
+      "caller": 0,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 487
+    },
+    {
+      "i": 208,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 351
+    },
+    {
+      "i": 209,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 3998
+    },
+    {
+      "i": 210,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 528
+    },
+    {
+      "i": 211,
+      "op": "proposal.open",
+      "caller": 3,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 357
+    },
+    {
+      "i": 212,
+      "op": "proposal.vote",
+      "caller": 4,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 811
+    },
+    {
+      "i": 213,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4171
+    },
+    {
+      "i": 214,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4219
+    },
+    {
+      "i": 215,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 363
+    },
+    {
+      "i": 216,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 659
+    },
+    {
+      "i": 217,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 268
+    },
+    {
+      "i": 218,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 278
+    },
+    {
+      "i": 219,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 705
+    },
+    {
+      "i": 220,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 400
+    },
+    {
+      "i": 221,
+      "op": "proposal.open",
+      "caller": 2,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 288
+    },
+    {
+      "i": 222,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 370
+    },
+    {
+      "i": 223,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 256
+    },
+    {
+      "i": 224,
+      "op": "proposal.close",
+      "caller": 3,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 145
+    },
+    {
+      "i": 225,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 254
+    },
+    {
+      "i": 226,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 530
+    },
+    {
+      "i": 227,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 261
+    },
+    {
+      "i": 228,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 522
+    },
+    {
+      "i": 229,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 348
+    },
+    {
+      "i": 230,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 381
+    },
+    {
+      "i": 231,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 338
+    },
+    {
+      "i": 232,
+      "op": "member.add",
+      "caller": 3,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 113
+    },
+    {
+      "i": 233,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 532
+    },
+    {
+      "i": 234,
+      "op": "proposal.vote",
+      "caller": 4,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 659
+    },
+    {
+      "i": 235,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 249
+    },
+    {
+      "i": 236,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 250
+    },
+    {
+      "i": 237,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 250
+    },
+    {
+      "i": 238,
+      "op": "proposal.vote",
+      "caller": 5,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 612
+    },
+    {
+      "i": 239,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 251
+    },
+    {
+      "i": 240,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4125
+    },
+    {
+      "i": 241,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 662
+    },
+    {
+      "i": 242,
+      "op": "proposal.vote",
+      "caller": 5,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 617
+    },
+    {
+      "i": 243,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4200
+    },
+    {
+      "i": 244,
+      "op": "member.add",
+      "caller": 2,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 406
+    },
+    {
+      "i": 245,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 346
+    },
+    {
+      "i": 246,
+      "op": "proposal.open",
+      "caller": 1,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 284
+    },
+    {
+      "i": 247,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 255
+    },
+    {
+      "i": 248,
+      "op": "proposal.open",
+      "caller": 1,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 191
+    },
+    {
+      "i": 249,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 487
+    },
+    {
+      "i": 250,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 690
+    },
+    {
+      "i": 251,
+      "op": "proposal.vote",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 698
+    },
+    {
+      "i": 252,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 585
+    },
+    {
+      "i": 253,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 3939
+    },
+    {
+      "i": 254,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 726
+    },
+    {
+      "i": 255,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 361
+    },
+    {
+      "i": 256,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 710
+    },
+    {
+      "i": 257,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 325
+    },
+    {
+      "i": 258,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 365
+    },
+    {
+      "i": 259,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 250
+    },
+    {
+      "i": 260,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 608
+    },
+    {
+      "i": 261,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 258
+    },
+    {
+      "i": 262,
+      "op": "proposal.vote",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 687
+    },
+    {
+      "i": 263,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 141
+    },
+    {
+      "i": 264,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 387
+    },
+    {
+      "i": 265,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4088
+    },
+    {
+      "i": 266,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 720
+    },
+    {
+      "i": 267,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4228
+    },
+    {
+      "i": 268,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 400
+    },
+    {
+      "i": 269,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 670
+    },
+    {
+      "i": 270,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 613
+    },
+    {
+      "i": 271,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 378
+    },
+    {
+      "i": 272,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 716
+    },
+    {
+      "i": 273,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 259
+    },
+    {
+      "i": 274,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 259
+    },
+    {
+      "i": 275,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 249
+    },
+    {
+      "i": 276,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 373
+    },
+    {
+      "i": 277,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 365
+    },
+    {
+      "i": 278,
+      "op": "proposal.vote",
+      "caller": 1,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 374
+    },
+    {
+      "i": 279,
+      "op": "proposal.vote",
+      "caller": 4,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 716
+    },
+    {
+      "i": 280,
+      "op": "proposal.open",
+      "caller": 1,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 147
+    },
+    {
+      "i": 281,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 296
+    },
+    {
+      "i": 282,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 617
+    },
+    {
+      "i": 283,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 262
+    },
+    {
+      "i": 284,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 367
+    },
+    {
+      "i": 285,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4128
+    },
+    {
+      "i": 286,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 360
+    },
+    {
+      "i": 287,
+      "op": "proposal.close",
+      "caller": 3,
+      "expected": "AR-001",
+      "raw": "AR-001",
+      "final": "AR-001",
+      "ms": 270
+    },
+    {
+      "i": 288,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 631
+    },
+    {
+      "i": 289,
+      "op": "proposal.vote",
+      "caller": 3,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 570
+    },
+    {
+      "i": 290,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 255
+    },
+    {
+      "i": 291,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 257
+    },
+    {
+      "i": 292,
+      "op": "proposal.vote",
+      "caller": 5,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 693
+    },
+    {
+      "i": 293,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 352
+    },
+    {
+      "i": 294,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4114
+    },
+    {
+      "i": 295,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 347
+    },
+    {
+      "i": 296,
+      "op": "proposal.open",
+      "caller": 0,
+      "expected": "PR-002",
+      "raw": "PR-002",
+      "final": "PR-002",
+      "ms": 249
+    },
+    {
+      "i": 297,
+      "op": "proposal.close",
+      "caller": 0,
+      "expected": "PR-900",
+      "raw": "PR-900",
+      "final": "PR-900",
+      "ms": 250
+    },
+    {
+      "i": 298,
+      "op": "member.add",
+      "caller": 0,
+      "expected": "ok",
+      "raw": "ok",
+      "final": "ok",
+      "ms": 4127
+    },
+    {
+      "i": 299,
+      "op": "proposal.vote",
+      "caller": 2,
+      "expected": "PR-900",
+      "raw": "PR-001",
+      "final": "PR-900",
+      "ms": 634
+    }
+  ]
+}

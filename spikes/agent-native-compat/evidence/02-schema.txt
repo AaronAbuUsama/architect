@@ -1,0 +1,66 @@
+== good: toStandardJSONSchemaV1(toStandardSchemaV1(payload))
+{
+  "type": "object",
+  "properties": {
+    "proposal": {
+      "type": "string"
+    },
+    "choice": {
+      "type": "string",
+      "enum": [
+        "yes",
+        "no",
+        "abstain"
+      ]
+    },
+    "note": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "weight": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "string",
+          "enum": [
+            "Infinity",
+            "-Infinity",
+            "NaN"
+          ]
+        }
+      ]
+    },
+    "stake": {
+      "type": "string",
+      "pattern": "^-?\\d+$"
+    }
+  },
+  "required": [
+    "proposal",
+    "choice",
+    "weight",
+    "stake"
+  ],
+  "additionalProperties": true
+}
+== trap: only ~standard.validate
+{"type":"object","properties":{}}
+== jsonSchema only (no validate): keys of ~standard = [ 'version', 'vendor', 'jsonSchema' ]
+== run with valid wire input -> "ERR SdkDown: TypeError: Failed to parse URL from /proposal/vote"
+== run with invalid input -> ERR Invalid action parameters — choice: Expected "yes" | "no" | "abstain"; weight: Expected number; stake: Expected a string representing a bigint. Received: {"proposal":"p1","choice":"maybe","weight":"x","stake":"1.5"}. Expected: { proposal*: string, choice*: "yes"|"no"|"abstain", note?: string | null, weight*: number | "Infinity"|"-Infinity"|"NaN", stake*: string } (where * = required, ? = optional).
+== raw Effect note/required/additionalProperties: {"note":{"anyOf":[{"type":"string"},{"type":"null"}]},"required":["proposal","choice","weight","stake"],"additionalProperties":true}
+input {"proposal":"p","choice":"no","weight":1,"stake":"7"} -> ok
+input {"proposal":"p","choice":"no","weight":1,"stake":"7","note":null} -> ERR Invalid action parameters — note: Expected string | undefined. Received: {"proposal":"p","
+input {"proposal":"p","choice":"no","weight":1,"stake":7} -> ERR Invalid action parameters — stake: Expected string. Received: {"proposal":"p","choice":"no
+run received (decoded): [ '{"proposal":"p","choice":"no","weight":1,"stake":"7n"}' ]
+engine tool vote inputSchema.properties = ["proposal","choice","note","weight","stake"] | trap action advertised? false
+engine tool trap inputSchema.properties = [] | trap action advertised? true
+engine tool names: ["vote","trap"]

@@ -1,0 +1,15 @@
+{
+  "checkedOn": "2026-11-18",
+  "rule": "every version published at least three days before 2026-11-18; exact pins; same stack as spikes/noir-private-core",
+  "aztec": { "packages": "5.3.0 (all direct @aztec/* deps, see client/package-lock.json)", "published": "2026-10-26", "sourceTag": "v5.3.0", "sourceCommit": "ddb0adbd157e193275733a8ed862903d1fe3707b (sparse noir-projects checkout in tools/aztec-packages)" },
+  "aztec-nr": "v5.3.0 (path dependency inside the aztec-packages checkout)",
+  "nargo": { "version": "1.0.0-beta.25+75061fab15986eedee4e7d9104ff87dd9fa4ca10", "published": "2026-07-22" },
+  "bb": "5.3.0 (native binary shipped in @aztec/bb.js; compile also caches verification keys in ~/.bb/5.3.0, a user-level location)",
+  "node": { "version": "24.12.0", "published": "2025-12-10" },
+  "foundry": { "version": "1.4.1 (anvil + forge, used as the L1 of the local network)", "published": "2025-10-14" },
+  "typescript": { "version": "7.0.2", "published": "2026-07-08" },
+  "tsx": { "version": "4.23.15", "published": "2026-09-20" },
+  "effect": { "version": "4.1.2", "published": "2026-11-02", "note": "copied from the prior spike's package.json, not imported by this spike" },
+  "host": "Darwin arm64, 10 logical CPUs, 16 GiB; shared with two sibling spikes, so every timing is noisy",
+  "upgraded": "nothing"
+}

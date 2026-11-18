@@ -1,0 +1,2 @@
+defineAction result .errorCodes: ["PR-001","AR-001"]
+after static registry .errorCodes: undefined

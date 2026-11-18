@@ -1,0 +1,1 @@
+tsc -p tsconfig.json (strict, exactOptionalPropertyTypes): exit 0, no diagnostics. Includes app/actions/proposal-vote.ts: export default defineAction(options(host))
