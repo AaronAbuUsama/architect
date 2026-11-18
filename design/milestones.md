@@ -63,14 +63,27 @@ written yes.
 | Stage | A person can… | Needs from the milestones | Its own slices | Gate |
 |---|---|---|---|---|
 | 1 · links | claim `@name`; a public page of links | all of M1 and M2 | ST1.01 to ST1.08 | Gate M2 (M2.12) |
-| 2 · wallets | create or link a wallet; be paid by handle | K7's wallet slices (M1.27; M6.03, M6.05, M6.06, M6.08 after M1.14; M6.04 after M2.05), M6.01, M6.02, M6.07, M6.09, M6.15, M6.18, M5.03 | ST2.01 to ST2.05 | ST2.06 |
+| 2 · wallets | create or link a wallet; be paid by handle | K7's wallet slices (M1.27; M6.03, M6.05, M6.06, M6.08 after M1.14; M6.04 after M2.05), M6.01, M6.02, M6.07, M6.09, M6.15, M6.18, M5.01, M5.03 | ST2.01 to ST2.05 | ST2.06 |
 | 3 · the vault | a Safe with the budgets plugin; hats with budgets; owners sign above a budget | M6.10 to M6.14, M6.16, M6.17, M3.01 to M3.03, M4.01 to M4.10, M4.16 | ST3.01 to ST3.07 | ST3.08 |
 | 4 · the club | stage 3 on Aztec: private members, private spends, private ballots | (Later's Noir line, brought in) | ST4.01 to ST4.07 | ST4.08 |
 
 **Beside the stages, off v1.0's path:** the factory (M3.04 to M3.14), the builder's tools and the bench (M4.11 to
 M4.14), views, Stripe, Resend, adapters from OpenAPI, MariaDB and a second app (M5.05 to M5.09, M5.11, M5.13), the
-gates of M3 to M6 as written, `examples/workshop` (M6.20, dropped by K9), and Capxul (M7.07 to M7.11). They run when
-a thread is free; a stage never waits on them.
+`examples/workshop` (M6.20, dropped by K9), and Capxul (M7.07 to M7.11). They run when a thread is free; a stage
+never waits on them.
+
+**The gates of M3 to M6 no longer order the work.** Their suites still run, beside, once their slices exist. Where a
+stage's slice `needs` one of those gates, the stage before it stands in:
+
+| Slice | Its `needs` says | Read it as |
+|---|---|---|
+| M6.01 (stage 2's chain decision) | Gate M5 | Gate M2 |
+| M5.01 (the decision M5.03 needs, for stage 2's follower events) | Gate M4 | Gate M2 |
+| M3.01 (workflows, stage 3) | Gate M2 | Gate M2, unchanged |
+| M4.01 (agents, stage 3) | Gate M3 | the stage 2 gate, ST2.06 |
+
+Everything downstream of these four follows from them: M6.02 and the K7 wallet slices from M6.01, M5.03 from M5.01,
+M3.02 and M3.03 from M3.01, M4.02 to M4.10 and M4.16 from M4.01. None of them needs a factory, bench or M5 slice.
 
 ### Stage 1: links
 
@@ -83,7 +96,7 @@ a thread is free; a stage never waits on them.
 | ST1.05 ∥ | The host's caller for actions (K9, agent-native finding 4): a host key that acts as `agent for <person>`, named by email, for actions hosted outside our portal | M2.03, M1.22 | build | an agent-native-shaped host claims a handle for ada and the Worker's span says `agent for ada`; a `.notVia(Via.agent)` operation is refused | S |
 | ST1.06 ∥ | Hooks behind a signed-in session (`Via.session`) | ST1.01, M2.06 | build | the links screens sign in and claim through the hooks with the auth plugin mounted | S |
 | ST1.07 | `links` mounts auth: the copied identity deleted | M2.05, ST1.04 | build | `examples/links` has no `person/` or `session/` folder and proves green | S |
-| ST1.08 ∥ | `examples/signup` deleted once the canon quotes `links` (the canon thread's change, K9) | ST1.04 | build | no file outside the records names `examples/signup`; `e2e/layer1/08-*` proves `links` | S |
+| ST1.08 ∥ | `examples/signup` deleted once the canon quotes `links` (the canon thread's change, K9); `e2e/layer1/08-*` moved onto `links`. A checks slice: it edits a gate's suite, so an author writes it, never the builder | ST1.04 | checks | no file outside the records names `examples/signup`; `e2e/layer1/08-*` proves `links` | S |
 
 ### Stage 2: wallets
 
@@ -96,7 +109,7 @@ its forks F1 to F5 are working assumptions until Aaron answers them).
 | ST2.02 ∥ | Adapters from an ABI (K7 Q2): `ortho new adapter --from-abi`, typed calls and events, a stand-in contract deployed into the world; the first is `erc20` over a test token | M6.05, M6.06 | build | the `erc20` adapter's transfer and `Transfer` event are typed; a revert decodes typed; conformance passes against the stand-in | M |
 | ST2.03 ∥ | Hooks for client operations and chain submissions: the submission lifecycle as hook state (`simulated`, `submitted`, `included`, `confirmed`, `dropped`, `reverted`, `corrected`); the wallet's device half in the browser | ST1.01, M1.27, M6.15 | build | in Chromium a payment's hook passes through each state to `confirmed`; a reorg shows `corrected` | M |
 | ST2.04 | `links` at stage 2: `/wallet`, Pay @name, `payment` kept from the follower's events through `on:` | ST2.01 to ST2.03, M6.04, M6.09, M5.03 | build | the stage 2 journeys pass | M |
-| ST2.05 ∥ | The gates' fixture moves from acme to `links`; acme retired (its allowance kept in the history as the budgets feature's source) | ST2.04 | build | every gate suite runs on `links`; `examples/acme` is gone; Gates 1, 2, M0, M1 and M2 still pass | L |
+| ST2.05 ∥ | The gates' fixture moves from acme to `links`; acme retired (its allowance kept in the history as the budgets feature's source). A checks slice: it rewrites the gates' suites, so an author writes it, never the builder | ST2.04 | checks | every gate suite runs on `links`; `examples/acme` is gone; Gates 1, 2, M0, M1 and M2 still pass | L |
 | ST2.06 | **The stage 2 gate** | ST2.01 to ST2.04, and the stage's milestone slices | e2e | on Anvil: aaron creates a wallet, bob links his; bob pays `@aaron` 5 test tokens, simulated first; the page shows it once confirmed; a forced reorg corrects it; the key-hygiene check passes; an agent's link is refused. `links/stage-2` tagged | S |
 
 ### Stage 3: the vault
@@ -219,7 +232,7 @@ refused with `HandleTaken` through the SDK, the CLI, MCP, an action and the hook
 | M2.06 | `@orthograph/auth`, ways in: the device flow, OAuth for MCP, the builder's sign-in to the portal (K5 seam 9), choices (`signIn`, `keys`), settings (`sessionLength`, `allowedOrigins`) | M2.05 | build | `acme login` and MCP sign-in journeys pass | M |
 | M2.07 | `@orthograph/organizations`: organisation, membership, invitation, owner, member, `holds`, starting worlds `founded` and `invited`; acme's copies deleted | M2.05 | build | the tenancy journeys pass from the plugin; acme has no `organization/` folder | M |
 | M2.08 ∥ | Journeys through the clients: a world runs steps through the SDK, with `--through cli\|mcp\|actions` (`journeys/internal/world.ts:85` calls HTTP directly today) | M2.05 | build | the auth journeys pass all three ways | M |
-| M2.09 | `ortho new` replaces the Nx preset: the app it scaffolds is `links` at stage 1 (K9), with auth and handles mounted; `examples/starter` becomes that template | M2.07, ST1.07 | build | `npm create orthograph demo` from Verdaccio, then `ortho prove --env local` is green; the template's `blueprint/` and `src/` are identical to `examples/links` at the tag `links/stage-1` | M |
+| M2.09 | `ortho new` replaces the Nx preset: the app it scaffolds is `links` at stage 1 (K9), with auth and handles mounted; `examples/starter` becomes that template | M2.07, ST1.07 | build | `npm create orthograph demo` from Verdaccio, then `ortho prove --env local` is green; the template's `blueprint/` and `src/` are identical to `examples/links`'s on the same commit; once `links/stage-1` is tagged (M2.12), the check compares against the tag | M |
 | M2.10 | `ortho new feature`, a plugin's own world and CI, `ortho publish --local` for plugins | M2.07 | build | the `notes` feature goes from new to proved to published to mounted | M |
 | M2.11 ∥ | The work app mounts auth and organizations | M2.07 | build | `ortho prove --root examples/work` passes with no copied identity | S |
 | M2.12 | **Gate M2: workable**, and the stage 1 gate (K9) | M2.02 to M2.11, ST1.01 to ST1.08 | e2e | `nx run e2e:m2` passes on `main`; `examples/links` is tagged `links/stage-1` | S |

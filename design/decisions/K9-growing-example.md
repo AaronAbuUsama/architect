@@ -44,8 +44,8 @@ stays small: its profile and its links. Everything else is mounted.
 | 3 · the vault | run a group's Safe; give hats; spend within a hat's budget alone; collect owner signatures above it | `@orthograph/organizations`, the `safe` and `hats` adapters, `@orthograph/budgets` (a Safe module), `@orthograph/agents` | auth, handles, wallets, chain-evm |
 | 4 · the club | join a members-only club on Aztec; spend privately within budget; decide big spends by private ballot | `@orthograph/chain-aztec`, `language-noir`, `@orthograph/ballots`, the budgets feature's Aztec choice | auth, handles, budgets |
 
-**v1.0 is the four stage gates on `main`, plus the release** (M7.01, M7.02, M7.04 and M7.06: the packages on npm and
-a deploy and destroy that leaves nothing behind).
+**v1.0 is the four stage gates on `main`, plus the release** (M7.01 to M7.04 and M7.06: the cloud pass, the packages
+on npm, the infra projection, and a deploy and destroy that leaves nothing behind).
 
 ## Stage 1: links
 
@@ -153,7 +153,7 @@ Stage 2 depends on each of these. If Aaron answers one differently, this stage c
 Handles resolve `@aaron` to the linked address.
 
 **Needs:** K7's wallet slices (M1.27; M6.03, M6.05, M6.06, M6.08 after M1.14; M6.04 after M2.05), M6.01, M6.02, M6.07,
-M6.09, M6.15 and M6.18, M5.03 (events in, for the follower), and the stage slices ST2.01 to ST2.05.
+M6.09, M6.15 and M6.18, M5.01 and M5.03 (events in, for the follower), and the stage slices ST2.01 to ST2.05.
 
 **Check (the stage 2 gate, ST2.06).** On Anvil:
 
@@ -297,7 +297,7 @@ The limits stay explicit, as K5 seam 7 wrote them:
 
 | Today | Becomes | Slice |
 |---|---|---|
-| `examples/starter` (auth copied) | stage 1 as `ortho new` scaffolds it. Until M2.09 it stays as is; then the template is `links` at stage 1, kept identical to the tag `links/stage-1` by a check | M2.09 |
+| `examples/starter` (auth copied) | stage 1 as `ortho new` scaffolds it. Until M2.09 it stays as is; then the template is `links` at stage 1, kept identical by a check: to `examples/links` on the same commit until M2.12 tags `links/stage-1`, then to the tag | M2.09 |
 | `examples/signup` (the canon's example on `main`) | deleted once the canon quotes `links` | ST1.08 |
 | `examples/tickets` (canon branch, not on `main`) | not merged. The canon thread swaps it for `links` before its next PR | canon list below |
 | `examples/acme` | stays the fixture the existing gates run on, with no new work. Its allowance is the source the budgets feature is ported from. When `links` carries every gate check, acme is retired | ST2.05 |
@@ -350,8 +350,10 @@ What K5 got wrong or left out:
 2. **Refusals must leave as agent-native's "no write" error.** agent-native detects error kinds by their shape, not by
    class (`dist/action.js:82-89, 128-131`). A generated `ActionRefusal` that carries `actionContractError`, `noWrite`,
    `errorCode`, `statusCode: 422` and `details` gets a 422 with its body over HTTP, and the agent loop classes it as
-   "no write". Any other error is a hidden 500 over HTTP, and "outcome unknown" to the agent. The agent's tool path
-   shows defects' raw messages, so the generated code redacts them.
+   "no write". Without `noWrite`, the agent treats any failure of a write as "outcome unknown", even one that leaves
+   HTTP as a 422 (agent-native's own `fail()`, or a bare `statusCode: 422`). A plain error, or an Effect
+   `FiberFailure`, is a hidden 500 over HTTP. The agent's tool path shows defects' raw messages, so the generated code
+   redacts them.
 3. **`retrySafe: true` is harmful.** It makes a Worker 500, which may have committed, look like "no write".
    - It is not emitted.
    - `toolCallId` survives the loop's own replay, but not the model sending the call again: calls with ids A, A, B
@@ -390,7 +392,8 @@ v1.0's path, as the milestones already said ("make that faster but don't gate it
 MariaDB and second-app adapters, and M7's Capxul slices, are also beside. Capxul's first plugin, the wallet, is stage 2.
 
 `milestones.md` keeps every slice id. A new section, "v1.0: four stages", says which slice belongs to which stage and
-gives each stage its gate. The gates of M3 to M6 give way to the stage gates.
+gives each stage its gate. The gates of M3 to M6 no longer order the work: where a stage's slice needs one of them,
+the stage before stands in (the table in that section), and their suites run beside.
 
 ## Canon changes, for the conductor to relay
 
@@ -419,7 +422,7 @@ The docs canon thread owns `docs/canon/`. These are the changes this record asks
 ## Decided here
 
 1. One app, `links`, in `examples/links`, grows through four stages. Each passing stage is tagged `links/stage-<n>`.
-2. v1.0 is the four stage gates plus the release slices of M7.
+2. v1.0 is the four stage gates plus M7.01 to M7.04 and M7.06.
 3. The pieces:
    - `handles` and `budgets` are new features;
    - `ballots` is K7's governance contract as a feature;

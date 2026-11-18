@@ -17,7 +17,7 @@ class DuckError extends Error {
 const errors = defineActionErrors("SoldOut");
 
 export const probeThrowers: Record<string, () => unknown> = {
-  "a-plain-error": afterWorkerWrite(() => { throw new Error("boom: postgres://user:hunter2@db/prod"); }),
+  "a-plain-error": afterWorkerWrite(() => { throw new Error("boom: postgres://user:REDACTED-FAKE@db/prod"); }),
   "b-fiber-failure": afterWorkerWrite(() => Effect.runPromise(Effect.fail(new SoldOut({ code: "PR-001", remaining: 0 })))),
   "c-duck-422": afterWorkerWrite(() => { throw new DuckError(); }),
   "d1-fail": afterWorkerWrite(() => fail("Sold out", { errorCode: "SoldOut", statusCode: 422, details: { remaining: 0 } })),

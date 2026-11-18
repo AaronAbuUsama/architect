@@ -378,6 +378,10 @@ export default defineAction({
 Two things differ from agent-native's version: `ctx` carries the SDK client and the call's id (agent-native's `ctx` has
 neither, `action.ts:190-270`), and `errors` carry the operation's refusal codes.
 
+**Corrected by [`K9-growing-example.md`](K9-growing-example.md)** ("Agent-native compatibility", from
+`spikes/agent-native-compat/`): this `run` does not compile against agent-native's `ctx`, `retrySafe: true` is
+harmful, and the module exports `options(host)` for the host to wrap. The sketch above stays as written.
+
 Because the field names match, an agent-native app can use these actions as its own: it registers them and calls our
 Worker through the SDK. That is how Orthograph aims to power agent-native apps without being one. M1.22 checks the
 shape with a type test against agent-native 0.228.2's recorded field list, without installing agent-native.

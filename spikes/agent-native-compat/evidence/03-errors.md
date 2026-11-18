@@ -1,7 +1,7 @@
 | case | HTTP status | HTTP body | loop classification | text the model sees |
 |---|---|---|---|---|
-| a-plain-error-rs0 | 500 | {"error":"Internal server error"} | OUTCOME UNKNOWN (run stops) | "Error running a-plain-error-rs0: boom: postgres://user:hunter2@db/prod" |
-| a-plain-error-rs1 | 500 | {"error":"Internal server error"} | no write (rejected, model may retry) | "Error running a-plain-error-rs1: boom: postgres://user:hunter2@db/prod" |
+| a-plain-error-rs0 | 500 | {"error":"Internal server error"} | OUTCOME UNKNOWN (run stops) | "Error running a-plain-error-rs0: boom: postgres://user:REDACTED-FAKE@db/prod" |
+| a-plain-error-rs1 | 500 | {"error":"Internal server error"} | no write (rejected, model may retry) | "Error running a-plain-error-rs1: boom: postgres://user:REDACTED-FAKE@db/prod" |
 | b-fiber-failure-rs0 | 500 | {"error":"Internal server error"} | OUTCOME UNKNOWN (run stops) | "Error running b-fiber-failure-rs0: Sold out: 0 places left" |
 | b-fiber-failure-rs1 | 500 | {"error":"Internal server error"} | no write (rejected, model may retry) | "Error running b-fiber-failure-rs1: Sold out: 0 places left" |
 | c-duck-422-rs0 | 422 | {"error":"Sold out: 0 places left","errorCode":"SoldOut"} | OUTCOME UNKNOWN (run stops) | "Error running c-duck-422-rs0: Sold out: 0 places left" |
