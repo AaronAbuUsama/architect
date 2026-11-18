@@ -28,7 +28,8 @@ Four cases in one page, `?case=`:
 3. **`lanes`**: the actions board split into a People lane and an Agents lane.
 4. **`scale`**: one column of N cards, plain and inside React Aria's `Virtualizer` (`&n=5000&virtual=1`).
 
-The server's rules have their own tests (`src/board.test.ts`, six cases, `node --test`). Driven in the desktop app's
+The spike uses `setTimeout` and `Date.now` freely: it is throwaway code outside the package rules. The server's rules
+have their own tests (`src/board.test.ts`, six cases, `node --test`). Driven in the desktop app's
 built-in browser with real key presses and mouse drags.
 
 ## What was found
@@ -76,8 +77,9 @@ built-in browser with real key presses and mouse drags.
 
 ## Measurements
 
-Render time from the entry module to the first paint after React's commit, Vite dev server, one column, measured in
-an iframe per case. Dev build, so read the ratios, not the numbers.
+Render time from the entry module to the first paint after React's commit (`window.__rendered`, set in `src/main.tsx`),
+Vite dev server, one column, one iframe per case, read by a snippet run in the page (not committed). Dev build, so read
+the ratios, not the numbers.
 
 | Cards | Virtualised | Rows in the DOM | Render, ms |
 |---:|---|---:|---:|

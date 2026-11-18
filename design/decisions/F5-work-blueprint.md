@@ -5,6 +5,11 @@ Aaron asked for it: "I want the blueprint designed and landed properly", after a
 thing? Have we even got a thing for that? Do we have tools for that?". It changes F4 (`design/briefs/F4-portal-plan-and-state.md`)
 where it said a hand-written `Plan` Durable Object would hold missions.
 
+> **Partly superseded by [K11](K11-work-board.md) (18 November 2026).** Work items are now stored, not worked out
+> (call 2): the derivation below becomes one source the manager files items from. `mission` and `milestone` become
+> `goal` and `milestone`, `run` becomes `claim`, and an authority in person may close an item, recorded as a verdict
+> (call 5). Calls 3, 4, 6, 7 and 8 stand.
+
 **The answer in one paragraph.** Missions, milestones, intake questions, agent runs and what waits on you are declared
 as an Architect project, `examples/work`, in the same language acme uses. Architect then generates the work system's
 server, SDK, `work` CLI, MCP server (the manager's and the runs' tools), docs and portal wire, and proves it with the same

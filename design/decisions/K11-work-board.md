@@ -115,12 +115,12 @@ export const machine = Blueprint.machine(Item, {
   states: ["inbox", "backlog", "ready", "running", "review", "done", "blocked", "dropped"],
   moves: {
     receive: { from: [], to: "inbox", emits: Events.ItemReceived },            // a signal from anyone else
-    file:    { from: [], to: "backlog", emits: Events.ItemFiled },             // an authority, or the manager
+    file:    { from: [], to: ["backlog", "ready"], emits: Events.ItemFiled },  // an authority, or the manager; a plan files into ready
     accept:  { from: ["inbox"], to: ["backlog", "ready"], emits: Events.ItemAccepted }, // triage: it is work
     dismiss: { from: ["inbox"], to: "dropped", emits: Events.ItemDismissed },  // triage: it is not
     ready:   { from: ["backlog", "blocked"], to: "ready", emits: Events.ItemReady },
     shelve:  { from: ["ready"], to: "backlog", emits: Events.ItemShelved },
-    claim:   { from: ["ready"], to: "running", emits: Events.ItemClaimed },    // dispatch, or a person taking it
+    claim:   { from: ["ready"], to: "running", emits: Events.ItemClaimed },    // dispatch only; for a person worker it assigns the item
     release: { from: ["running"], to: "ready", emits: Events.ItemReleased },   // lease lapsed, or handed back
     submit:  { from: ["running"], to: "review", emits: Events.ItemSubmitted }, // a branch or a pull request exists
     return:  { from: ["review"], to: "ready", emits: Events.ItemReturned },    // CI red, review asked for changes
@@ -136,11 +136,12 @@ Its operations, one per move plus the reads, all generated into the CLI, SDK, MC
 | Operation | Allowed | Refusals |
 |---|---|---|
 | `goal.open`, `goal.agree`, `goal.stop` | an authority; `open` also the manager, which then waits on a `goal` attention | `GoalHasOpenQuestions` |
-| `goal.plan` | the manager, under an agreed goal | `GoalNotAgreed`, `PlanHasCycle`, `PlanTouchesOverlap` (a warning, see below) |
+| `goal.plan` | the manager, under an agreed goal | `GoalNotAgreed`, `PlanHasCycle`; overlapping touches are not refused but listed in the answer (below) |
 | `item.receive` | any signal source: an adapter's event through `on:`, or anyone signed in | |
 | `item.accept`, `item.dismiss` | an authority, or the manager under an agreed goal | `GoalNotAgreed` |
 | `item.file`, `item.edit`, `item.ready`, `item.shelve`, `item.rank`, `item.drop` | an authority, the manager | `MoveNotAllowed`, `ItemClaimed` |
-| `item.claim` | dispatch (`service(work)`) only: a person puts work in ready, dispatch starts it | `NeedsOpen`, `FilesBusy`, `BoardFull`, `ItemClaimed` |
+| `item.claim` | dispatch (`service(work)`) only: a person puts work in ready, dispatch starts it; a person never calls `claim` | `NeedsOpen`, `FilesBusy`, `BoardFull`, `ItemClaimed` |
+| `item.block` | dispatch (`service(work)`), when retries are spent or a run ends `blocked`; raises attention in the same call | `MoveNotAllowed` |
 | `item.release`, `item.submit` | the claim's holder; dispatch on lease expiry | `NotYourClaim` |
 | `item.return` | the reviewer, or `service(logbook)` on a red verdict | |
 | `item.close` | `service(logbook)` on a verdict; or an authority in person (`authority.notVia(Via.agent)`), which writes an `accepted` verdict first | `OnlyAFactCloses` for an agent, `ItemClaimed` while running |
@@ -151,8 +152,8 @@ A person drags an item into backlog or ready, reorders within them, and drags to
 other column is the system's: dispatch claims, runs submit, verdicts close or return. On the board those columns refuse
 a person's drop on hover, from the item's machine and the caller's roles in the model.
 
-`goal.plan` files a whole plan in one commit: the milestones, the items, their needs (checked acyclic) and their
-touches. Two items
+`goal.plan` files a whole plan in one commit, straight into `ready` (the goal is already agreed): the milestones, the
+items, their needs (checked acyclic) and their touches. Dispatch's ready set then waits on each item's needs. Two items
 with overlapping touches and no `needs` edge between them are allowed (dispatch keeps them apart), but the answer
 lists the overlaps, because they serialise and so cost throughput.
 
@@ -166,7 +167,7 @@ operations through the CLI or MCP: the floor.
 // blueprint/agents/manager.ts
 export default Blueprint.agent({
   instructions: "./manager.md",
-  operations: [item.accept, item.dismiss, item.file, goal.open, question.ask, goal.plan, item.edit, item.drop,
+  operations: [item.accept, item.dismiss, item.file, item.ready, goal.open, question.ask, goal.plan, item.edit, item.drop,
     attention.raise, board.items],
   limits: { maxUsd: 3, wall: "1 day" },
 });
@@ -213,8 +214,9 @@ finishing. Each wake does one pass:
 Rules around it:
 
 - **Claims end with their run.** An agent's claim holds while its agents run is working or waiting, and ends on the
-  run's `runFinished` or `runFailed`; a durable run needs no heartbeat. A person's claim carries a lease (a day,
-  renewed by `claim.renew`); a lapsed lease releases the item (`item.release`, attempt + 1).
+  run's `runFinished` or `runFailed`; a durable run needs no heartbeat (from M4.13). A claim dispatch makes for a
+  person worker assigns the item to them and carries a lease (a day, renewed by `claim.renew`); a lapsed lease
+  releases the item (`item.release`, attempt + 1).
 - **Retries.** A run that fails for a transient reason (sandbox lost, model error) is retried with backoff through
   `Timers`, three attempts; the fourth failure `block`s the item and raises attention. A run that finishes but whose
   check goes red is not a retry: the item is `return`ed and the manager sees it.
@@ -234,7 +236,7 @@ Rules around it:
 ## The seam with the factory (K10)
 
 The factory runs the work; it doesn't decide it. Agreed with the 📐 factory thread through the conductor on
-18 November 2026, every point confirmed by K10. Its packages: `@orthograph/agents` (runs), `@orthograph/workspaces`
+18 November 2026, every point confirmed by the factory thread (K10, recorded in its own decision). Its packages: `@orthograph/agents` (runs), `@orthograph/workspaces`
 (sandboxes, opened by the factory's agents, never by work) and `@orthograph/factory` (the building agents and
 `factory.roster`).
 
@@ -314,9 +316,9 @@ thing: the columns are the item's machine states, and every board page belongs t
 | now | 🧪 `spikes/dispatch-sim`: the dispatch rules on a synthetic plan with fake workers, critical path first against first-in first-out, touches on and off | K11 | its README gives makespan and conflicts for each rule |
 | now | 🧪 `spikes/work-board`: the board over `examples/work`'s generated API, the inbox fed by this repository's GitHub issues, the manager as a Claude Code session calling the CLI, on the agreed goal "links stage 1" | K11 | one real goal planned, dispatched to people, closed by facts |
 | M3 | M3.04 to M3.11 reshaped by K11 (journeys, the package, handlers, dispatch, the manager) | M1.10, Gate M2 | see `milestones.md` |
-| M3 | M3.17 the board extension (replaces parked M3.14) | M1.13, M1.25 | the board in the portal matches `work board items` |
+| M3 | M3.17 the board extension (replaces parked M3.14) | M3.06, M1.13, M1.25 | the board in the portal matches `work board items` |
 | M5 | M5.14 signals from Slack and alerts: their adapters' events received into the inbox through `on:` | M5.03, M3.19 | a Slack message and a fired alert each land once in the inbox, and an alert on a standing goal's measure is accepted under it |
-| M4 | M4.13 the join: dispatch starts agents runs | M4.10, K10 | an item dispatched to an agents run closes by its verdict |
+| M4 | M4.13 the join: dispatch starts agents runs; the manager as an agent triages and plans | M4.10, M4.11, the K10 seam | an item dispatched to an agents run closes by its verdict; a failing check is accepted under its goal with no one asked |
 
 ## Aaron's answers (18 November 2026, by speech)
 
