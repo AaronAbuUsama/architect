@@ -4,7 +4,7 @@ Part of the frame's worked examples ([`../README.md`](../README.md)). Proposed, 
 the build plan (L4.01 to L4.09) and the chain pieces of layer 3 (L3.04 to L3.08).
 
 **Languages: Effect and Solidity.** "Language" is the axis that was called "target" before: the language the code
-comes out in (Effect, Solidity, Noir, Python), packaged as `@formants/language-effect`, `@formants/language-solidity`.
+comes out in (Effect, Solidity, Noir, Python), packaged as `@orthograph/language-effect`, `@orthograph/language-solidity`.
 It is not a host (where the code runs: here `Host.worker` and `Host.chain`) and not a projection (what is shipped:
 here the server, the SDK and the contracts).
 
@@ -37,10 +37,10 @@ export const Allowance = Blueprint.thing({
 export const Amount = Blueprint.value(Blueprint.uint(128));   // bigint in Effect, uint128 in Solidity
 ```
 
-`forman impact` sees what the change means before anything is built:
+`ortho impact` sees what the change means before anything is built:
 
 ```text
-$ forman impact
+$ ortho impact
 allowance lives: database → chain              major, next 2.0.0
   payload of allowance.spend gains a signature   (signed by the caller's wallet)
   stale: allowance.grant, .spend, .revoke, .get in every environment
@@ -51,7 +51,7 @@ The Solidity projection mounts itself, because a thing on chain can't exist with
 section 3.9). The chain adapter mounts too; its stand-in is Anvil.
 
 ```ts
-// blueprint/adapters/chain.ts: written by `forman add`, the mount is called `chain`
+// blueprint/adapters/chain.ts: written by `ortho add`, the mount is called `chain`
 export default Blueprint.use(evm, (c) => [c.choose(c.choices.relayer.ownKey)]);
 // blueprint/environments/staging.ts: the setting each environment gives
 settings: [chain.settings.network.is("base-sepolia")],
@@ -152,8 +152,8 @@ signature replayed (projections section 3.9). A disagreement is a failed check b
 
 | | Today (`origin/layer/3`) | Proposed (layer 4) |
 |---|---|---|
-| Where it lives | `Lives = "database" \| "actor"` (`packages/forman/src/modules/things/types.ts:32`) | adds `Blueprint.chain({ contract, per })` |
-| Solidity | a shell: "Arrives in layer 4" (`packages/language-solidity/README.md`) | `@formants/language-solidity` plus the solidity projection |
+| Where it lives | `Lives = "database" \| "actor"` (`packages/orthograph/src/modules/things/types.ts:32`) | adds `Blueprint.chain({ contract, per })` |
+| Solidity | a shell: "Arrives in layer 4" (`packages/language-solidity/README.md`) | `@orthograph/language-solidity` plus the solidity projection |
 | Relayer, follower | not built (L3.06, L3.08 on layer 3) | two actors |
 | Conformance between languages | none | generated fuzz, Effect machine against contract |
 

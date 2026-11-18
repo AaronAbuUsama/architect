@@ -1,5 +1,5 @@
 // Rendering: the model in, the files of `generated/` (and the scaffolds a project lacks) out. Pure: no file system.
-import type { Model } from "@formants/compiler";
+import type { Model } from "@orthograph/compiler";
 
 export interface RenderedFile {
   /** Relative to the project root, forward slashes. */

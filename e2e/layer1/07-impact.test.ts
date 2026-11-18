@@ -3,27 +3,27 @@
 import { cpSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
-import { acme, forman, copyOf, nothingRunning } from "./support.ts";
+import { acme, ortho, copyOf, nothingRunning } from "./support.ts";
 
 const project = copyOf(acme);
 afterAll(project.remove);
 
-describe("check 7: forman impact", () => {
+describe("check 7: ortho impact", () => {
   it("stale exactly allowance.spend after its budget is loosened; allowance.list unproven once added", () => {
     const { root } = project;
-    expect(forman(root, "prove", "--env", "local", "--port", "8886").status).toBe(0);
-    expect(forman(root, "impact").stdout).toMatch(/^stale none$/m);
+    expect(ortho(root, "prove", "--env", "local", "--port", "8886").status).toBe(0);
+    expect(ortho(root, "impact").stdout).toMatch(/^stale none$/m);
 
     const spend = join(root, "blueprint/things/allowance/verbs/spend.ts");
     const declared = readFileSync(spend, "utf8");
     writeFileSync(spend, declared.replace('budget: { p95: "150 millis" }', 'budget: { p95: "300 millis" }'));
-    const looser = forman(root, "impact").stdout.split("\n");
+    const looser = ortho(root, "impact").stdout.split("\n");
     expect(looser).toContain("changed operation allowance.spend: budget");
     expect(looser).toContain("stale allowance.spend");
 
     writeFileSync(spend, declared);
     cpSync(join(root, "blueprint/things/allowance/verbs/get.ts"), join(root, "blueprint/things/allowance/verbs/list.ts"));
-    const added = forman(root, "impact").stdout.split("\n");
+    const added = ortho(root, "impact").stdout.split("\n");
     expect(added).toContain("added operation allowance.list");
     expect(added).toContain("stale none");
     expect(added).toContain("unproven allowance.list");

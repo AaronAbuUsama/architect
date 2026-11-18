@@ -1,4 +1,4 @@
-import { Blueprint } from "@formants/forman";
+import { Blueprint } from "orthograph";
 import { Count, Title } from "../../values/counts.ts";
 
 export const Sheet = Blueprint.thing({

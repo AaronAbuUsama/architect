@@ -1,4 +1,4 @@
-// Blanks: a part of a declaration not written yet. A blank compiles; `forman check` names it with file and line.
+// Blanks: a part of a declaration not written yet. A blank compiles; `ortho check` names it with file and line.
 export interface Blank {
   readonly kind: "blank";
   readonly what: string;

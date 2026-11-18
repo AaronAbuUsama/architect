@@ -1,6 +1,6 @@
 ---
 name: machine-journey
-description: Make an animated, hand-drawn journey across a machine for Forman's docs, in the house style. The machine is sketched in pencil, then a token walks the journey's moves while refusals are drawn where they happen, with a card that ticks off each step. Use it when a doc needs to show a journey or a thing's lifecycle (which moves happen, which the machine refuses, which roles turn away), or when Aaron asks for "the state machine one" or a hand-drawn diagram of a journey.
+description: Make an animated, hand-drawn journey across a machine for Orthograph's docs, in the house style. The machine is sketched in pencil, then a token walks the journey's moves while refusals are drawn where they happen, with a card that ticks off each step. Use it when a doc needs to show a journey or a thing's lifecycle (which moves happen, which the machine refuses, which roles turn away), or when Aaron asks for "the state machine one" or a hand-drawn diagram of a journey.
 ---
 
 # Machine journey

@@ -1,6 +1,6 @@
 // What every prove does once it has a world to talk to: run each journey, read back what the collector heard, judge.
 import { Effect } from "effect";
-import type { Model } from "@formants/compiler";
+import type { Model } from "@orthograph/compiler";
 import { Evals } from "#modules/evals/service.js";
 import type { Verdict } from "#modules/evals/types.js";
 import { Journeys } from "#modules/journeys/service.js";

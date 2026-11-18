@@ -1,6 +1,6 @@
 ---
 name: trace-waterfall
-description: Make an animated trace waterfall for Forman's docs, in the house style, from a real recorded trace. Spans appear as a cursor sweeps time, each with a one-line caption, ending with the operation span's attributes. Use it when a doc needs to show what one call did in time order, or when Aaron asks for a waterfall, a trace animation or "the trace one".
+description: Make an animated trace waterfall for Orthograph's docs, in the house style, from a real recorded trace. Spans appear as a cursor sweeps time, each with a one-line caption, ending with the operation span's attributes. Use it when a doc needs to show what one call did in time order, or when Aaron asks for a waterfall, a trace animation or "the trace one".
 ---
 
 # Trace waterfall

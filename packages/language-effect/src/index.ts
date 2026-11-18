@@ -1,4 +1,4 @@
-// @formants/language-effect: the runtime generated code runs on. Effect only, no host.
+// @orthograph/language-effect: the runtime generated code runs on. Effect only, no host.
 export { Access } from "#modules/access/service.js";
 export { authMemory } from "#modules/auth/service.js";
 export { Auth, AuthRefused } from "#modules/auth/types.js";

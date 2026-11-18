@@ -1,6 +1,6 @@
 // What the logbook's verdicts say about the working model: a proof is stale when what it rested on has changed since.
 import { Effect, Schema } from "effect";
-import { Compare, type Model } from "@formants/compiler";
+import { Compare, type Model } from "@orthograph/compiler";
 import { ReleaseFailed, SHIPPED, type StaleIn } from "../types.ts";
 import { call, ok } from "./http.ts";
 

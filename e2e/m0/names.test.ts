@@ -1,7 +1,9 @@
-// Gate M0's name check: after the rename, the old names (Architect: `@architect/`, the `architect` command,
-// `ARCHITECT_*` variables, `.architect/` folders, `architect.config`, `architect-*` names) appear nowhere in the
-// repository except the records, which say what happened in the words used then (design/decisions/M0-packages.md,
-// section 5). It scans every git-tracked file (so ignored and untracked files never count), and file names too.
+// Gate M0's name check: after each rename, the old names appear nowhere in the repository except the records, which say
+// what happened in the words used then (design/decisions/M0-packages.md section 5; design/naming.md rule 6). M0 retired
+// Architect (`@architect/`, the `architect` command, `ARCHITECT_*`, `.architect/`, `architect.config`, `architect-*`);
+// the K6 sweep retired Forman (`@formants/*`, the `forman` command, `FORMAN_*`, `.forman/`, `/_forman/`,
+// `forman.config`, `forman-*`). It scans every git-tracked file (so ignored and untracked files never count), and file
+// names too.
 import { execFileSync } from "node:child_process";
 import { lstatSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
@@ -23,17 +25,26 @@ export const records: ReadonlyArray<string> = [
   "design/build-plan.md",
   "design/goals/01-the-whole-framework-locally.md",
   "design/frame/questions.md",
+  // Added by the K6 sweep: M0's own goal, the name search and the ledger (each a dated record of what the files said),
+  // and the naming map, which has to spell every old name to map it.
+  "design/goals/02-m0-land-and-rename.md",
+  "design/naming-search.md",
+  "design/naming.md",
+  "design/ledger.md",
   "spikes/",
 ];
 
 // The only exceptions beyond the records, each with its reason:
 //  - this file: it has to spell every old name to look for it, and to plant them in its own tests;
 //  - the GitHub repository `AaronAbuUsama/architect` (outward-facing; renaming it is Aaron's call, section 5);
-//  - the local checkout path `projects/architect`, e.g. `~/projects/architect` (section 5).
+//  - the local checkout path `projects/architect`, e.g. `~/projects/architect` (section 5);
+//  - the lint rule against the old names, which spells them in pieces but must name them to map them;
+//  - the file name of the dated record `design/decisions/K2-forman-frame.md`, wherever a living file links to it.
 export const selfPath = "e2e/m0/names.test.ts";
-const allowedForms: ReadonlyArray<RegExp> = [/AaronAbuUsama\/architect(?![\w-])/g, /projects\/architect(?![\w-])/g];
+const lintRule = "packages/lint/src/modules/rules/internal/old-names.ts";
+const allowedForms: ReadonlyArray<RegExp> = [/AaronAbuUsama\/architect(?![\w-])/g, /projects\/architect(?![\w-])/g, /K2-forman-frame\.md/g];
 
-export const isRecord = (path: string): boolean => path === selfPath || records.some((r) => (r.endsWith("/") ? path.startsWith(r) : path === r));
+export const isRecord = (path: string): boolean => path === selfPath || path === lintRule || records.some((r) => (r.endsWith("/") ? path.startsWith(r) : path === r));
 
 /** The patterns, most specific first: a piece of text is reported once, under the first rule that claims it. */
 export const rules: ReadonlyArray<{ readonly name: string; readonly pattern: RegExp }> = [
@@ -46,6 +57,14 @@ export const rules: ReadonlyArray<{ readonly name: string; readonly pattern: Reg
   { name: "architect command or leftover name", pattern: /\barchitect\b/g },
   // Glued after "_" or a digit, where \b sees no word edge: `/_architect/bundle`, `v2architect`, `MY_ARCHITECT_HOME`, any case.
   { name: "architect glued after _ or a digit", pattern: /(?<=[_\d])architect(?![A-Za-z])/gi },
+  { name: "@formants package", pattern: /@formants\b\/?/g },
+  { name: "FORMAN_ variable", pattern: /(?<![A-Z])FORMAN_[A-Z0-9_]*/g },
+  { name: ".forman folder", pattern: /(?<!\w)\.forman(?![\w-])/g },
+  { name: "forman.config file", pattern: /(?<![a-z])forman\.config\b/gi },
+  { name: "forman- name (container, Worker, audience)", pattern: /(?<![a-z])forman-[\w-]*/gi },
+  { name: "Forman product name", pattern: /Forman|(?<![A-Z])FORMAN/g },
+  // Lowercase anywhere a word doesn't continue into it: the command, `/_forman/`, `formanPackages`; never performance.
+  { name: "forman command or leftover name", pattern: /(?<![a-z])forman/g },
 ];
 
 export interface Hit {
@@ -145,6 +164,25 @@ describe("the matcher catches a planted old name", () => {
   });
 });
 
+describe("the matcher catches the names K6 retired", () => {
+  it("@formants, in an import or as the scope", () => {
+    expect(rulesHit('import { Blueprint } from "@formants/forman"')).toEqual(["@formants package", "forman command or leftover name"]);
+    expect(rulesHit("the npm org @formants")).toEqual(["@formants package"]);
+  });
+  it("FORMAN_ variables, .forman folders, /_forman/ and forman.config", () => {
+    expect(rulesHit("process.env.FORMAN_LOGBOOK_URL")).toEqual(["FORMAN_ variable"]);
+    expect(rulesHit('join(root, ".forman", "tap")')).toEqual([".forman folder"]);
+    expect(rulesHit("/_forman/bundle")).toEqual(["forman command or leftover name"]);
+    expect(rulesHit("examples/acme/forman.config.ts")).toEqual(["forman.config file"]);
+  });
+  it("the forman command, forman- names, the product name and camelCase", () => {
+    expect(rulesHit("$ forman prove --env local")).toEqual(["forman command or leftover name"]);
+    expect(rulesHit('aud: ["forman-logbook"]')).toEqual(["forman- name (container, Worker, audience)"]);
+    expect(rulesHit("Forman is a framework")).toEqual(["Forman product name"]);
+    expect(rulesHit("const formanPackages = publishForman()")).toEqual(["forman command or leftover name", "Forman product name"]);
+  });
+});
+
 describe("the matcher leaves the allowed forms and ordinary words alone", () => {
   it("the GitHub slug, in any URL", () => {
     expect(findHits("https://github.com/AaronAbuUsama/architect")).toEqual([]);
@@ -166,7 +204,10 @@ describe("the matcher leaves the allowed forms and ordinary words alone", () => 
     expect(findHits("/_architecture/bundle, my_architects, v2architectural, _Architecture")).toEqual([]);
   });
   it("the new names", () => {
-    expect(findHits('import { Blueprint } from "@formants/forman"; FORMAN_HOME; .forman/; forman.config.ts; forman-model')).toEqual([]);
+    expect(findHits('import { Blueprint } from "orthograph"; @orthograph/cli; ORTHO_HOME; .ortho/; ortho.config.ts; ortho-model; Orthograph')).toEqual([]);
+  });
+  it("performance, conformance and the record K2-forman-frame.md", () => {
+    expect(findHits("performance.now(), Conformance, PERFORMANCE, design/decisions/K2-forman-frame.md")).toEqual([]);
   });
 });
 
@@ -186,6 +227,9 @@ describe("the records", () => {
     expect(isRecord("design/decisions-new.md")).toBe(false);
     expect(isRecord("examples/spikes/x.ts")).toBe(false);
     expect(isRecord("README.md")).toBe(false);
+    expect(isRecord("design/naming.md")).toBe(true);
+    expect(isRecord("packages/lint/src/modules/rules/internal/old-names.ts")).toBe(true);
+    expect(isRecord("packages/lint/src/modules/rules/rules.test.ts")).toBe(false);
   });
 });
 

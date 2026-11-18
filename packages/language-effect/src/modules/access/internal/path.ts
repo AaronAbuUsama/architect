@@ -1,4 +1,4 @@
-import type { Field, Thing } from "@formants/forman";
+import type { Field, Thing } from "orthograph";
 
 const isField = (x: unknown): x is Field => typeof x === "object" && x !== null && (x as { kind?: unknown }).kind === "field";
 

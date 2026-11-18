@@ -1,7 +1,7 @@
 // Telemetry sinks, resolved for a world: the environment's `telemetry: [...]` list read into what a Worker needs to
 // export to each, with every credential read by name at the moment the world starts and never kept (O1, D3 #100 to #104).
 import { Data, type Effect } from "effect";
-import type { SinkModel } from "@formants/compiler";
+import type { SinkModel } from "@orthograph/compiler";
 
 export class SinksFailed extends Data.TaggedError("SinksFailed")<{ readonly message: string }> {}
 

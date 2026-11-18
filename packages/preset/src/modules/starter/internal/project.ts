@@ -1,4 +1,5 @@
 // The files around the blueprint that make the workspace a project: its package.json, tsconfig and ignores.
+import { Names } from "orthograph/server";
 const EXACT = {
   effect: "4.1.1",
   "@effect/platform-node": "4.1.1",
@@ -13,15 +14,15 @@ const DEV = {
 };
 
 export const packageJson = (existing: Record<string, unknown>, name: string, version: string) => {
-  const forman = Object.fromEntries(["forman", "host-cloudflare", "portal", "language-effect"].map((p) => [`@formants/${p}`, version]));
+  const framework = Object.fromEntries([Names.frontDoor, ...(["host-cloudflare", "portal", "language-effect"] as const).map(Names.pkg)].map((p) => [p, version]));
   return {
     ...existing,
     type: "module",
     packageManager: "pnpm@11.20.0",
-    scripts: { ...(existing["scripts"] as object | undefined), forman: "forman" },
+    scripts: { ...(existing["scripts"] as object | undefined), [Names.short]: Names.short },
     bin: { [name]: "./generated/cli/src/main.ts" },
-    dependencies: { ...(existing["dependencies"] as object | undefined), ...forman, ...EXACT },
-    devDependencies: { ...(existing["devDependencies"] as object | undefined), "@formants/cli": version, ...DEV },
+    dependencies: { ...(existing["dependencies"] as object | undefined), ...framework, ...EXACT },
+    devDependencies: { ...(existing["devDependencies"] as object | undefined), [Names.pkg("cli")]: version, ...DEV },
   };
 };
 
@@ -36,9 +37,9 @@ export const TSCONFIG = {
   include: ["blueprint/**/*.ts", "generated/**/*.ts", "src/**/*.ts", "journeys/**/*.ts"],
 };
 
-export const IGNORES = [".forman/", ".wrangler/", "node_modules/"];
+export const IGNORES = [`${Names.folder}/`, ".wrangler/", "node_modules/"];
 
-/** pnpm settings the project needs: workerd and esbuild build for the local world; kysely held as in Forman (D2 #68). */
+/** pnpm settings the project needs: workerd and esbuild build for the local world; kysely held as in Orthograph (D2 #68). */
 export const WORKSPACE: Readonly<Record<string, Readonly<Record<string, string>>>> = {
   allowBuilds: { esbuild: "true", nx: "true", workerd: "true" },
   overrides: { kysely: "0.29.7" },

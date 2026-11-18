@@ -20,7 +20,7 @@
         "allow": [],
         "depConstraints": [
           {
-            "sourceTag": "scope:forman",
+            "sourceTag": "scope:orthograph",
             "onlyDependOnLibsWithTags": [],
             "allowedExternalImports": [
               "effect",
@@ -43,7 +43,7 @@
           {
             "sourceTag": "scope:project",
             "onlyDependOnLibsWithTags": [
-              "scope:forman",
+              "scope:orthograph",
               "scope:language",
               "scope:host"
             ]
@@ -52,7 +52,7 @@
         "allowCircularSelfDependency": true
       }
     ],
-    "forman/no-old-names": "error"
+    "ortho/no-old-names": "error"
   },
   "overrides": [
     {
@@ -67,7 +67,7 @@
             "allow": [],
             "depConstraints": [
               {
-                "sourceTag": "scope:forman",
+                "sourceTag": "scope:orthograph",
                 "onlyDependOnLibsWithTags": [],
                 "allowedExternalImports": [
                   "effect",
@@ -91,7 +91,7 @@
               {
                 "sourceTag": "scope:project",
                 "onlyDependOnLibsWithTags": [
-                  "scope:forman",
+                  "scope:orthograph",
                   "scope:language",
                   "scope:host"
                 ]
@@ -107,7 +107,7 @@
         "e2e/m0/names.test.ts"
       ],
       "rules": {
-        "forman/no-old-names": "off"
+        "ortho/no-old-names": "off"
       }
     }
   ]

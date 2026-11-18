@@ -23,11 +23,11 @@ const run = <A, E>(effect: Effect.Effect<A, E>) => Effect.runPromise(effect);
 
 describe("verdicts", () => {
   it("mints from an issuer as a client, and keeps the token out of anything printable", async () => {
-    const token = await run(Verdicts.mint({ kind: "issuer", issuer: `${base}/forman`, client: "ci-main" }));
+    const token = await run(Verdicts.mint({ kind: "issuer", issuer: `${base}/ortho`, client: "ci-main" }));
     expect(Redacted.value(token)).toBe("issued-token");
     expect(String(token)).not.toContain("issued-token");
     expect(JSON.stringify(token)).not.toContain("issued-token");
-    expect(seen.at(-1)).toMatchObject({ method: "POST", url: "/forman/token" });
+    expect(seen.at(-1)).toMatchObject({ method: "POST", url: "/ortho/token" });
     expect(new URLSearchParams(seen.at(-1)!.body).get("client_id")).toBe("ci-main");
   });
 
@@ -35,7 +35,7 @@ describe("verdicts", () => {
     const token = await run(Verdicts.mint({ kind: "github", requestUrl: `${base}/github?api-version=2.0`, requestToken: Redacted.make("job-bearer") }));
     expect(Redacted.value(token)).toBe("gh-token");
     expect(seen.at(-1)).toMatchObject({ method: "GET", authorization: "Bearer job-bearer" });
-    expect(seen.at(-1)!.url).toBe("/github?api-version=2.0&audience=forman-logbook");
+    expect(seen.at(-1)!.url).toBe("/github?api-version=2.0&audience=ortho-logbook");
   });
 
   it("posts one verdict per operation, in order, signed, and stops at the first refusal without naming the token", async () => {

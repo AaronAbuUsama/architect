@@ -1,4 +1,4 @@
-import { Blueprint } from "@formants/forman";
+import { Blueprint } from "orthograph";
 import { Invitation } from "./thing.ts";
 
 // Whoever signed in with the address the invitation was sent to.

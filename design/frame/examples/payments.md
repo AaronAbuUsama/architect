@@ -2,8 +2,8 @@
 
 Part of the frame's worked examples ([`../README.md`](../README.md)). Proposed, 17 November 2026. It uses the Stripe
 adapter from [`../adapters.md`](../adapters.md) and the secrets from [`../secrets.md`](../secrets.md); this page shows
-them working together in one app, acme. Package names under `@formants/*` follow the layout still open in
-[`../delta.md`](../delta.md); `@formants/forman` is the front door, the `Blueprint` API (`decisions/M0-packages.md`). Language: Effect only.
+them working together in one app, acme. Package names under `@orthograph/*` follow the layout still open in
+[`../delta.md`](../delta.md); `orthograph` is the front door, the `Blueprint` API (`decisions/M0-packages.md`). Language: Effect only.
 "Language" is the axis that was called "target" before (Effect, Solidity, Noir, Python); it is not a host or a
 projection.
 
@@ -20,8 +20,8 @@ call out again (the refund). One adapter mount carries all three.
 
 ```ts
 // blueprint/adapters/stripe.ts: the mount is called `stripe`, after its file
-import { Blueprint } from "@formants/forman";
-import stripe from "@formants/stripe";
+import { Blueprint } from "orthograph";
+import stripe from "@orthograph/stripe";
 
 export default Blueprint.use(stripe, (s) => [
   s.include(s.calls.checkout.sessions.create),
@@ -176,7 +176,7 @@ is refused at decode, not at Stripe.
 
 ## Proof
 
-`forman prove --env local` runs the journeys through the API, SDK, CLI and MCP replays, and prints what stood in:
+`ortho prove --env local` runs the journeys through the API, SDK, CLI and MCP replays, and prints what stood in:
 
 ```text
 adapters   stripe → stripe-mock (vendor)   events from the world door, signed by the world
@@ -189,7 +189,7 @@ payment.start   9 evals ✔   payment.settle   9 evals ✔   payment.refund   9 
 |---|---|---|
 | Calling Stripe | nothing calls out; a step is only `Blueprint.step.database()` (`examples/acme/blueprint/things/allowance/verbs/spend.ts:15`) | `Blueprint.step.call` of an adapter's call |
 | Webhooks | no inbound door | `on:` plus the adapter's door, as `service(stripe)` |
-| Principal | `anonymous \| person` (`packages/forman/src/modules/roles/types.ts:6-8`) | adds `service` |
+| Principal | `anonymous \| person` (`packages/orthograph/src/modules/roles/types.ts:6-8`) | adds `service` |
 | Idempotency | `idempotent: "request"` exists for a caller's retry (`spend.ts:16`) | the same field, keyed by the event id at a door |
 | Secrets | named by string per environment | declared by the adapter, names derived |
 

@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
-import { Blueprint } from "@formants/forman";
+import { Blueprint } from "orthograph";
 import { storeMemory, Unit } from "./service.ts";
 import { Store } from "./types.ts";
 

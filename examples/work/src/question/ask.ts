@@ -1,6 +1,6 @@
 // Scaffolded from blueprint/things/question/verbs/ask.ts. Yours from now on.
 import { Effect } from "effect";
-import { Handlers } from "@formants/language-effect";
+import { Handlers } from "@orthograph/language-effect";
 import type { Handler } from "../../generated/api/src/question/ask.handler.ts";
 
 /** Ask the mission's owner about one gap in the blueprint, with lettered answers. */

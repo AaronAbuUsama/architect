@@ -1,5 +1,5 @@
 import { Cause, Effect, Schema } from "effect";
-import { NotAllowed, type Principal, type Read } from "@formants/forman";
+import { NotAllowed, type Principal, type Read } from "orthograph";
 import { Access } from "#modules/access/service.js";
 import { Unit } from "#modules/records/service.js";
 import { Records, Store, type Unit as UnitOf } from "#modules/records/types.js";

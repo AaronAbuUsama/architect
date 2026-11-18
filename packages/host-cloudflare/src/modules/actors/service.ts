@@ -1,5 +1,5 @@
 import { DurableObject } from "cloudflare:workers";
-import type { Committed } from "@formants/language-effect";
+import type { Committed } from "@orthograph/language-effect";
 import type { ActorApi, ActorEntry, ActorRow, ActorWrite } from "./types.ts";
 import { SCHEMA } from "./internal/tables.ts";
 

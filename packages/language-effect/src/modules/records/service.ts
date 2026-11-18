@@ -1,5 +1,5 @@
 import { Effect, Layer } from "effect";
-import type { Thing } from "@formants/forman";
+import type { Thing } from "orthograph";
 import type { Entry } from "#modules/journal/types.js";
 import { Journal } from "#modules/journal/types.js";
 import { journalOf } from "#modules/journal/service.js";

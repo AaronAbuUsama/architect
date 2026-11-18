@@ -1,6 +1,6 @@
 // Scaffolded from blueprint/things/mission/verbs/open.ts. Yours from now on.
 import { Effect } from "effect";
-import { Handlers } from "@formants/language-effect";
+import { Handlers } from "@orthograph/language-effect";
 import type { Handler } from "../../generated/api/src/mission/open.handler.ts";
 
 /** Open a mission over the blueprint revision named. The manager starts by asking about the blueprint's gaps. */

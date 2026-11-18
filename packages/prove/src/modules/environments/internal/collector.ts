@@ -7,4 +7,4 @@ import { basename, join } from "node:path";
 export const telemetryDir = (dir: string) => join(dir, "telemetry");
 
 /** Stable for the folder, so `down` finds it from the pid file's folder alone. */
-export const collectorName = (dir: string) => `forman-collector-env-${basename(dir)}-${createHash("sha1").update(dir).digest("hex").slice(0, 8)}`;
+export const collectorName = (dir: string) => `ortho-collector-env-${basename(dir)}-${createHash("sha1").update(dir).digest("hex").slice(0, 8)}`;

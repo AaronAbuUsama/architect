@@ -1,5 +1,6 @@
 // A generated entry file (the SDK's index, the CLI's main) bundled into one file, with the project's own sources inside it and every
 // package it imports left outside, as a dependency. Shared by the npm packages (ESM) and the single executable (CommonJS).
+import { Names } from "orthograph/server";
 import { existsSync, readFileSync } from "node:fs";
 import { isBuiltin } from "node:module";
 import { dirname, join, resolve } from "node:path";
@@ -25,7 +26,7 @@ export interface Bundled {
 }
 
 /**
- * The release version reaches the generated CLI as a constant the bundler replaces (`FORMAN_VERSION`), not as text in the
+ * The release version reaches the generated CLI as a constant the bundler replaces (`ORTHO_VERSION`), not as text in the
  * generated source: generated files are the same on every machine and every release, and a CLI run from source says 0.0.0.
  */
 export const bundle = (options: {
@@ -49,7 +50,7 @@ export const bundle = (options: {
         platform: options.platform,
         target: "node24",
         ...(options.inline ? { mainFields: ["module", "main"] } : { packages: "external" as const, mainFields: ["module", "main"] }),
-        define: { FORMAN_VERSION: JSON.stringify(options.version) },
+        define: { [Names.variable("VERSION")]: JSON.stringify(options.version) },
         legalComments: "none",
         metafile: true,
         logLevel: "silent",

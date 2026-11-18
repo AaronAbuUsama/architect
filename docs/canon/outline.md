@@ -21,7 +21,7 @@ level, and the details wait for the layers that own them.
 
 | Layer | Pages | Leans on |
 |---|---|---|
-| 1 · the shape | `forman` (to be `orthograph`), `blueprint`, `languages-and-hosts`, `plugins`, `data`, `doors` | nothing |
+| 1 · the shape | `orthograph`, `blueprint`, `languages-and-hosts`, `plugins`, `data`, `doors` | nothing |
 | 2 · the core | `things`, `machines`, `operations` (with steps), `roles`, `handlers` | 1 |
 | 3 · proof | `journeys`, `proof`, `traces`, `stand-ins` | 2, and the doors (replay) |
 | 4 · data in depth | `stores`, `views`, sources (on `adapters`) | 2 and 3 |
@@ -35,8 +35,7 @@ community workshop: drafts in D1, a governance contract, a publish workflow, and
 the tests and gates run on.
 
 **Names.** The framework is Orthograph, its command `ortho` (K5, "Names"). Pages say Orthograph and `ortho` in prose,
-and quote code by today's paths and output, which still say `forman` and `@formants` until the rename sweep (K6). A
-page's file name stays as it is here until then.
+and quote code by today's paths and output (K6, `design/naming.md`).
 
 **Chain.** A chain is a host, and its store kind is `chain` (K3 item 2). How an operation maps to a contract, which
 functions clients may reach, and how Solidity, Noir and Solana fit together all wait on K7. Until K7 lands, a page
@@ -46,10 +45,10 @@ says that a chain part waits on K7. It doesn't guess.
 
 | # | Page | Job | Owns | Questions a reader brings | Links | Milestone |
 |---|---|---|---|---|---|---|
-| 1 | `forman` | Describe a system once; each operation is enforced in one place, and everything else falls out | the loop, projection (as an idea), behaviour as the only freehand, Orthograph | What is Orthograph? What is made for me, and what is the only code I write by hand? How does the loop close? | blueprint, languages-and-hosts, plugins, data, doors | built (the loop closes at M3) |
-| 2 | `blueprint` | What you write, and the model it compiles to | blueprint, declaration, model, name from path, `ortho check` | What goes in `blueprint/`, and where does each declaration live? How does a name come from its path, and why is it never written as a string? What is the model, and what does `ortho check` tell me? | forman, things, operations, journeys, plugins, handlers | built · blanks and journeys in the model M1.03 |
-| 3 | `languages-and-hosts` | What behaviour is written in, and where it runs | language, host, `runs` | What is a language, and what does it own? What is a host, and what does it supply? Why does a language never choose where it runs? Where does a chain fit? | forman, doors, data, handlers | Effect and Cloudflare built · chain languages wait on K7 |
-| 4 | `plugins` | Built once, mounted anywhere: the three kinds and the one-file mount | plugin, feature, adapter, projection (as kinds), mount, choose, include, narrow, omit, choice, setting, need | What are the three kinds, and how do I pick? What can a mount say, and why only that? A choice or a setting? | forman, features, adapters, projections | M1.06 to M1.13 |
+| 1 | `orthograph` | Describe a system once; each operation is enforced in one place, and everything else falls out | the loop, projection (as an idea), behaviour as the only freehand, Orthograph | What is Orthograph? What is made for me, and what is the only code I write by hand? How does the loop close? | blueprint, languages-and-hosts, plugins, data, doors | built (the loop closes at M3) |
+| 2 | `blueprint` | What you write, and the model it compiles to | blueprint, declaration, model, name from path, `ortho check` | What goes in `blueprint/`, and where does each declaration live? How does a name come from its path, and why is it never written as a string? What is the model, and what does `ortho check` tell me? | orthograph, things, operations, journeys, plugins, handlers | built · blanks and journeys in the model M1.03 |
+| 3 | `languages-and-hosts` | What behaviour is written in, and where it runs | language, host, `runs` | What is a language, and what does it own? What is a host, and what does it supply? Why does a language never choose where it runs? Where does a chain fit? | orthograph, doors, data, handlers | Effect and Cloudflare built · chain languages wait on K7 |
+| 4 | `plugins` | Built once, mounted anywhere: the three kinds and the one-file mount | plugin, feature, adapter, projection (as kinds), mount, choose, include, narrow, omit, choice, setting, need | What are the three kinds, and how do I pick? What can a mount say, and why only that? A choice or a setting? | orthograph, features, adapters, projections | M1.06 to M1.13 |
 | 5 | `data` | Where every kind of data lives, and who may write it | `lives`, a projection's own state | Where does my data live? What is a store, a source and a view, and how do I tell them apart? Who may write each? Where does the portal keep its own state? | things, stores, views, adapters, portal | database, actor built · views M5 · chain waits on K7 |
 | 6 | `doors` | One enforcer per operation, and every door that reaches it | door, enforcer, served operation, SDK contract, request key, action | What enforces an operation, and where? What does each door make, and from what? How does the SDK carry the caller, retries and refusals? What is an action, and why does it hold no authority? | operations, handlers, roles, projections, portal | HTTP, SDK, CLI, MCP built · SDK contract M1.12 · actions M1.22, M1.23 |
 
@@ -69,7 +68,7 @@ says that a chain part waits on K7. It doesn't guess.
 |---|---|---|---|---|---|---|
 | 12 | `journeys` | Proof written as stories through real operations | journey, story, starting world, cast, the empty-handler rule | Why does a different agent write the journey? Why are starting worlds made by operations? What does "proved by the description" mean? | operations, proof | executable built · stories M1 · `prove --empty` M1.16 |
 | 13 | `proof` | Facts, not claims: worlds, evidence, evals, verdicts | world, evidence, eval, verdict, stale, ratchet | What does `prove` do, step by step? What do the nine evals check? Who may write a verdict? What makes a verdict stale? | journeys, traces, stand-ins | built · per-operation verdicts M1.04 |
-| 14 | **`traces`** | What a call leaves behind, made from the declaration | span, refusal vs defect (in a trace), attribute, `forman.calls`, sink, step signal | Where do spans come from? Why is a refusal not red? What do I look for? What is never traced? | operations, proof, environments | spans built · gaps M1.18 to M1.20 · step signals M1.21 |
+| 14 | **`traces`** | What a call leaves behind, made from the declaration | span, refusal vs defect (in a trace), attribute, `ortho.calls`, sink, step signal | Where do spans come from? Why is a refusal not red? What do I look for? What is never traced? | operations, proof, environments | spans built · gaps M1.18 to M1.20 · step signals M1.21 |
 | 15 | `stand-ins` | Local, never fake | stand-in, the ladder, conformance | What plays Stripe in a world? Why never our own fake? How does a stand-in stay honest? | adapters, proof | the ladder M5 |
 
 ## Layer 4: data in depth
@@ -100,7 +99,7 @@ says that a chain part waits on K7. It doesn't guess.
 
 | # | Page | Job | Owns | Questions a reader brings | Links | Milestone |
 |---|---|---|---|---|---|---|
-| 25 | `auth` | Identity and tenancy, as two features | `@formants/auth`, `@formants/organizations`, membership, invitation, `holds` | Why two plugins? What do I mount, and what do I get in each client? How do my roles use organisations? | roles, features, secrets | M2 |
+| 25 | `auth` | Identity and tenancy, as two features | `@orthograph/auth`, `@orthograph/organizations`, membership, invitation, `holds` | Why two plugins? What do I mount, and what do I get in each client? How do my roles use organisations? | roles, features, secrets | M2 |
 | 26 | `agents` | Durable agents inside the app: runs, declarations, model providers | run, `Blueprint.agent`, model provider | What is a run, and where does its loop live? Who may start one? How is an agent limited? How does the portal's chat use one? | features, roles, adapters, workflows | M4 · the portal's chat M4.16 |
 | 27 | `factory` | The feature that builds projects: work worked out from facts | mission, milestone, task, attention, fact, worker | Where do tasks come from? What closes one? People or agents? | agents, proof, handlers | M3 · its portal surfaces parked (M3.14) |
 | 28 | `agent-kit` | How any agent builds an Orthograph app | agent kit, skill, role definition, code mode, `bp` | What does `ortho new` give my agents? What may a builder touch? Why code mode? | factory, handlers, journeys | parked with the skills design (M3.12) |
@@ -110,7 +109,7 @@ says that a chain part waits on K7. It doesn't guess.
 | # | Page | Made from | Milestone |
 |---|---|---|---|
 | R1 | `reference/commands` | the CLI's own command tree (`packages/cli/src/main.ts`) | after pass 2 |
-| R2 | `reference/blueprint-api` | the `Blueprint.*` types in `@formants/forman` | after pass 2 |
+| R2 | `reference/blueprint-api` | the `Blueprint.*` types in `orthograph` | after pass 2 |
 | R3 | `reference/glossary` | every page's `owns` list and its one-paragraph idea | after pass 2 |
 
 ## What was merged, and why
@@ -129,7 +128,7 @@ says that a chain part waits on K7. It doesn't guess.
 
 ## What was split, and why
 
-- **`blueprint`** has its own page, apart from `forman`. `forman` is why: one description, one enforcer per
+- **`blueprint`** has its own page, apart from `orthograph`. `orthograph` is why: one description, one enforcer per
   operation, and the loop. `blueprint` is what you actually write: the folder, one declaration per file, names from
   paths, and the model `ortho check` compiles.
 - **`data`** is apart from `stores` and `views` (K5). Layer 2 needs to know where a thing lives and who writes it

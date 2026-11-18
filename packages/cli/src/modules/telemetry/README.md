@@ -1,8 +1,8 @@
 # telemetry
 
-`forman telemetry view | stop | trace <id> | open <id>` (O1, D3 #100 to #104).
+`ortho telemetry view | stop | trace <id> | open <id>` (O1, D3 #100 to #104).
 
-- `view` starts the local viewer (`Viewer` in `@formants/prove`: `grafana/otel-lgtm` by digest, loopback only, no
+- `view` starts the local viewer (`Viewer` in `@orthograph/prove`: `grafana/otel-lgtm` by digest, loopback only, no
   volume, anonymous Grafana) and prints its address. The next Collector (`prove`, `dev`) also exports to it.
 - `stop` removes it; nothing stays running or open.
 - `trace <id> [--env local|test]` prints the trace as a tree with its logs, read from the files the Collector wrote

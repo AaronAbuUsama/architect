@@ -1,4 +1,4 @@
-import { Blueprint } from "@formants/forman";
+import { Blueprint } from "orthograph";
 import { Attention } from "./thing.ts";
 import { Note } from "../../values/work.ts";
 

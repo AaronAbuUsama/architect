@@ -1,4 +1,4 @@
-// Each forman rule, run by real oxlint on a small project: what it reports, and what it lets through.
+// Each ortho rule, run by real oxlint on a small project: what it reports, and what it lets through.
 import { spawnSync } from "node:child_process";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -14,8 +14,9 @@ const facts: ProjectFacts = {
   handlers: { "src/allowance/spend.ts": ["AllowanceExceeded"] },
 };
 const RULES = ["no-name-as-string", "refusal-has-log", "declared-errors-only", "no-wall-clock", "handler-matches-path", "no-old-names"];
-// The framework's names before M0, spelled in pieces so this file holds none of them.
+// The framework's names before M0 and before K6, spelled in pieces so this file holds none of them.
 const OLD = "arch" + "itect";
+const FOR = "for" + "man";
 
 /** Lays `files` out under the project, lints them, and gives back `<path> <rule>` per report. */
 const lint = (files: Record<string, string>): ReadonlyArray<string> => {
@@ -24,11 +25,11 @@ const lint = (files: Record<string, string>): ReadonlyArray<string> => {
     mkdirSync(dirname(join(root, path)), { recursive: true });
     writeFileSync(join(root, path), text);
   }
-  const config = { jsPlugins: [resolve(import.meta.dirname, "../../main.ts")], categories: { correctness: "off" }, plugins: [], rules: Object.fromEntries(RULES.map((r) => [`forman/${r}`, ["error", facts]])) };
+  const config = { jsPlugins: [resolve(import.meta.dirname, "../../main.ts")], categories: { correctness: "off" }, plugins: [], rules: Object.fromEntries(RULES.map((r) => [`ortho/${r}`, ["error", facts]])) };
   writeFileSync(join(root, "oxlintrc.json"), JSON.stringify(config));
   const run = spawnSync(join(repo, "node_modules/.bin/oxlint"), ["-c", "oxlintrc.json", "--no-ignore", "--format", "unix", ...Object.keys(files)], { cwd: root, encoding: "utf8" });
   return run.stdout.split("\n").flatMap((l) => {
-    const m = /^(.+?):\d+:\d+: .* \[Error\/forman\((.+?)\)\]$/.exec(l);
+    const m = /^(.+?):\d+:\d+: .* \[Error\/ortho\((.+?)\)\]$/.exec(l);
     return m ? [`${m[1]} ${m[2]}`] : [];
   });
 };
@@ -37,7 +38,7 @@ afterAll(() => rmSync(root, { recursive: true, force: true }));
 
 const spend = "src/allowance/spend.ts";
 
-describe("the forman rules", () => {
+describe("the ortho rules", () => {
   it("no-name-as-string: a declared name as a literal outside generated/", { timeout: 60_000 }, () => {
     expect(lint({
       [spend]: `export const a = "allowance.spend";\nexport const b = "not.a.name";\n`,
@@ -66,18 +67,29 @@ describe("the forman rules", () => {
     })).toEqual(Array(4).fill(`${spend} no-wall-clock`));
   });
 
-  it("no-old-names: an import from the old package scope, the old variable prefix and the old folder", { timeout: 60_000 }, () => {
+  it("no-old-names: an import from an old package scope, an old variable prefix, folder, config file or name", { timeout: 60_000 }, () => {
     expect(lint({
       [spend]: [
         `import { Blueprint } from "@${OLD}/blueprint";`,
         `export const a = process.env.${OLD.toUpperCase()}_ENVIRONMENT;`,
         `export const b = "${OLD.toUpperCase()}_REVISION";`,
         `export const c = ".${OLD}/prove";`,
-        `export const d = "@formants/forman";`,
-        `export const e = ".forman/prove";`,
-        `export const f = "${OLD}ure";`,
+        `export const d = "@${FOR}ts/${FOR}";`,
+        `export const e = "@${FOR}ts/cli";`,
+        `export const f = process.env.${FOR.toUpperCase()}_REVISION;`,
+        `export const g = ".${FOR}/prove";`,
+        `export const h = "/_${FOR}/bundle";`,
+        `export const i = "./${FOR}.config.ts";`,
+        `export const j = "${FOR[0]!.toUpperCase()}${FOR.slice(1)} check";`,
+        `export const k = "${FOR}-logbook";`,
+        `export const ${FOR}Packages = [];`,
+        `export const l = "orthograph";`,
+        `export const m = ".ortho/prove";`,
+        `export const n = "@orthograph/cli ORTHO_REVISION ortho.config.ts";`,
+        `export const o = "${OLD}ure, performance, conformance, PERFORMANCE";`,
+        `export const p = "design/decisions/K2-${FOR}-frame.md";`,
       ].join("\n"),
-    })).toEqual(Array(4).fill(`${spend} no-old-names`));
+    })).toEqual(Array(13).fill(`${spend} no-old-names`));
   });
 
   it("handler-matches-path: a handler file belongs to a declared operation", { timeout: 60_000 }, () => {

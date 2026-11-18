@@ -1,4 +1,4 @@
-import { Blueprint, Schema } from "@formants/forman";
+import { Blueprint, Schema } from "orthograph";
 
 /** A short name a person reads: a mission's title, a question, what needs you. */
 export const Title = Blueprint.value(Blueprint.text({ max: 200 }));
@@ -14,7 +14,7 @@ export const Subject = Blueprint.value(Blueprint.text({ max: 120 }));
 export const TaskKey = Blueprint.value(Blueprint.text({ max: 160 }));
 /** A compiled blueprint revision, by its digest. */
 export const Digest = Blueprint.value(Blueprint.text({ max: 64 }));
-/** An agent type declared in `forman/workers/<id>.ts`: `builder`, `sre`. */
+/** An agent type declared in `ortho/workers/<id>.ts`: `builder`, `sre`. */
 export const AgentType = Blueprint.value(Blueprint.text({ max: 60 }));
 /** A model id: `claude-sonnet-5-5`. */
 export const ModelName = Blueprint.value(Blueprint.text({ max: 80 }));

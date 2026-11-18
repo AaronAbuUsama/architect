@@ -19,7 +19,7 @@ proved by signing the server's challenge (Sign-In with Ethereum). The server nev
 ## Step 1: make the package
 
 ```bash
-forman new feature wallets
+ortho new feature wallets
 ```
 
 It writes a feature with one placeholder operation, one journey and an example app, all of which pass `blueprint
@@ -43,7 +43,7 @@ wallets/
 ```jsonc
 // wallets/package.json: one entry per host, as the kit-package-exports spike found
 {
-  "name": "@formants/wallets",
+  "name": "@orthograph/wallets",
   "type": "module",
   "exports": {
     ".": "./dist/feature.js",              // the descriptor: pure, no runtime code
@@ -52,7 +52,7 @@ wallets/
     "./node": "./dist/node.js",            // device behaviour, for the CLI and Node SDK
     "./browser": "./dist/browser.js"       // device behaviour, for the browser SDK
   },
-  "peerDependencies": { "@formants/forman": "1.0.0", "@formants/auth": "1.0.0" }
+  "peerDependencies": { "orthograph": "1.0.0", "@orthograph/auth": "1.0.0" }
 }
 ```
 
@@ -67,7 +67,7 @@ on, and nothing else.
 
 ```ts
 // wallets/blueprint/values/chain.ts
-import { Blueprint } from "@formants/forman";
+import { Blueprint } from "orthograph";
 
 export const Address = Blueprint.value.hex({ bytes: 20, checksum: true, description: "An Ethereum account address." });
 export const ChainId = Blueprint.value.int({ min: 1, description: "An EIP-155 chain id." });
@@ -76,8 +76,8 @@ export const Signature = Blueprint.value.hex({ bytes: 65, description: "An EIP-1
 
 ```ts
 // wallets/blueprint/things/wallet/thing.ts
-import { Blueprint } from "@formants/forman";
-import { Person } from "@formants/auth/blueprint";
+import { Blueprint } from "orthograph";
+import { Person } from "@orthograph/auth/blueprint";
 import { Address, ChainId } from "../../values/chain.ts";
 
 export const Wallet = Blueprint.thing({
@@ -139,9 +139,9 @@ export class ChallengeExpired extends Blueprint.error({}, { exit: 46 }) {}
 
 ```ts
 // wallets/blueprint/things/wallet/roles.ts
-import { Blueprint } from "@formants/forman";
-import { signedIn } from "@formants/auth/blueprint";
-import { Via } from "@formants/forman";
+import { Blueprint } from "orthograph";
+import { signedIn } from "@orthograph/auth/blueprint";
+import { Via } from "orthograph";
 import { Wallet } from "./thing.ts";
 
 /** The person whose wallet it is. */
@@ -171,7 +171,7 @@ device and calls two of the server's.
 
 ```ts
 // wallets/blueprint/things/wallet/verbs/link.ts: a client operation over two server operations
-import { Blueprint } from "@formants/forman";
+import { Blueprint } from "orthograph";
 import { Wallet } from "../thing.ts";
 import { linker } from "../roles.ts";
 import { KeyLocked, NoSuchKey } from "../errors.ts";
@@ -219,9 +219,9 @@ export default Blueprint.operation(Wallet, {
 
 ```ts
 // wallets/feature.ts: the descriptor, the package's root export
-import { Blueprint } from "@formants/forman";
-import auth from "@formants/auth";
-import eip1193 from "@formants/eip1193";
+import { Blueprint } from "orthograph";
+import auth from "@orthograph/auth";
+import eip1193 from "@orthograph/eip1193";
 import * as Choices from "./blueprint/choices.ts";
 import * as Settings from "./blueprint/settings.ts";
 import * as Exports from "./blueprint/exports/index.ts";
@@ -246,7 +246,7 @@ to the extension shares that mount.
 
 ```ts
 // wallets/blueprint/choices.ts
-import { Blueprint } from "@formants/forman";
+import { Blueprint } from "orthograph";
 export const signer = {
   /** How a key is kept on a Node device (the CLI, a Node SDK). */
   node: Blueprint.choice({ keystore: "an encrypted keystore file in the user's config folder" }),
@@ -257,7 +257,7 @@ export const signer = {
 
 ```ts
 // wallets/blueprint/settings.ts: values each environment gives, not choices (a choice never varies by environment)
-import { Blueprint } from "@formants/forman";
+import { Blueprint } from "orthograph";
 import { ChainId } from "./values/chain.ts";
 
 /** Which chains a link is for: local is Anvil's 31337, production is mainnet and Base. */
@@ -277,10 +277,10 @@ proved.
 
 ```ts
 // wallets/blueprint/exports/signer.ts: used inside the feature by link, and offered to the app's own client code
-import { Blueprint } from "@formants/forman";
+import { Blueprint } from "orthograph";
 import { Address, Signature } from "../values/chain.ts";
 import { KeyLocked, NoSuchKey } from "../things/wallet/errors.ts";
-import { Host } from "@formants/forman";
+import { Host } from "orthograph";
 
 export const Signer = Blueprint.export({
   description: "Sign a message with a key on this device.",
@@ -315,7 +315,7 @@ anything and needs no key of its own. Nonces are random and live in D1. Sessions
 ## Step 4: until there are no blanks, then scaffold
 
 ```bash
-forman check --ready
+ortho check --ready
 ```
 
 ```text
@@ -327,8 +327,8 @@ forman check --ready
 Each blank is a question (it shows in the portal's plan). Once it is answered:
 
 ```bash
-forman check --ready     # exit 0
-forman generate          # scaffolds each handler once, with its brief; never overwrites one
+ortho check --ready     # exit 0
+ortho generate          # scaffolds each handler once, with its brief; never overwrites one
 ```
 
 ```text
@@ -347,7 +347,7 @@ Three of them filled:
 import { Effect } from "effect";
 import { verifyMessage } from "viem";
 import type { Handler } from "../../generated/api/src/wallet/complete.handler.ts";
-import { Records } from "@formants/language-effect";
+import { Records } from "@orthograph/language-effect";
 import { Challenge } from "../../blueprint/things/challenge/thing.ts";
 import { Wallet } from "../../blueprint/things/wallet/thing.ts";
 import { SignatureInvalid, AddressTaken } from "../../blueprint/things/wallet/errors.ts";
@@ -390,7 +390,7 @@ the server allows.
 // wallets/src/exports/signer/world.ts: test keys, for prove's worlds
 import { Effect } from "effect";
 import { privateKeyToAccount } from "viem/accounts";
-import { CastKeys } from "@formants/prove/world";
+import { CastKeys } from "@orthograph/prove/world";
 
 /** Each cast member has a key made from the world's seed and their name: the same in every run of that world. */
 export default Signer.implement(({ address, message }) =>
@@ -403,7 +403,7 @@ export default Signer.implement(({ address, message }) =>
 ## Step 5: journeys, written by a different agent
 
 The ✍️ author reads the declarations and writes the journeys before the 🔨 builder starts. The journeys fail on the
-empty scaffolds (`forman prove --unbuilt` exits 0 only if every failure is an unwritten handler). The builder's
+empty scaffolds (`ortho prove --unbuilt` exits 0 only if every failure is an unwritten handler). The builder's
 brief forbids `blueprint/journeys/`.
 
 ```ts
@@ -437,7 +437,7 @@ export default Blueprint.journey("an agent cannot link a wallet", {
 A third journey, `an-address-links-once`, covers the spike's replay and `AddressTaken`. A fourth, `unlink-then-link`,
 covers unlinking and linking again.
 
-**One journey, every projection.** A journey names operations, never a way in. `forman prove` replays it through
+**One journey, every projection.** A journey names operations, never a way in. `ortho prove` replays it through
 each projection that can reach each step ([`projections.md`](projections.md)):
 
 | Step | api | sdk (node) | react (browser) | cli | mcp |
@@ -468,7 +468,7 @@ wallets/example/blueprint/
 ```
 
 ```bash
-cd example && forman prove --env local
+cd example && ortho prove --env local
 ```
 
 ```text
@@ -491,7 +491,7 @@ blueprint version      # compares this model with the last published one
 ```
 
 ```text
-@formants/wallets 1.0.0 → 1.1.0   minor: added wallet.rename
+@orthograph/wallets 1.0.0 → 1.1.0   minor: added wallet.rename
                                    no payload changed, no refusal code changed
 ```
 
@@ -502,22 +502,22 @@ change is a patch. CI publishes only a revision whose example is green. The pack
 ## Step 8: mounting it in acme
 
 ```bash
-forman add feature @formants/wallets
+ortho add feature @orthograph/wallets
 ```
 
 ```text
-@formants/wallets 1.1.0 needs
+@orthograph/wallets 1.1.0 needs
   feature  auth      mounted at blueprint/features/auth.ts ✔
   adapter  eip1193   for the browser signer: mount it? [Y/n] y
 wrote  blueprint/features/wallets.ts
 wrote  blueprint/adapters/eip1193.ts
-pinned @formants/wallets 1.1.0, @formants/eip1193 1.0.2 (both published over three days ago)
+pinned @orthograph/wallets 1.1.0, @orthograph/eip1193 1.0.2 (both published over three days ago)
 ```
 
 ```ts
 // acme/blueprint/features/wallets.ts. The mount's name is this file's name: wallets.
-import { Blueprint } from "@formants/forman";
-import wallets from "@formants/wallets";
+import { Blueprint } from "orthograph";
+import wallets from "@orthograph/wallets";
 
 export default Blueprint.use(wallets, (w) => [
   w.signer.node.keystore,                 // choose, from what wallets has proved
@@ -559,21 +559,21 @@ export default Blueprint.journey("a large spend needs the owner's wallet", {
 });
 ```
 
-Every `wallets` journey also runs in acme's worlds on every `forman prove`, under acme's own projections, so
+Every `wallets` journey also runs in acme's worlds on every `ortho prove`, under acme's own projections, so
 mounting can't quietly break the feature.
 
 ### Upgrading
 
 ```bash
-forman upgrade wallets
+ortho upgrade wallets
 ```
 
 ```text
-@formants/wallets 1.1.0 → 2.0.0
+@orthograph/wallets 1.1.0 → 2.0.0
   major  wallet.complete: payload adds `chain`   (your SDK's callers must pass it)
   acme   1.4.0 → 2.0.0   (a payload in acme's API changed)
   stale  12 verdicts: wallet.*, and acme's approve-a-large-spend (it uses Verify.linked)
-re-run forman prove to clear them
+re-run ortho prove to clear them
 ```
 
 An upgrade is a change to the description like any other. It marks exactly what uses the feature as stale and sends
@@ -584,7 +584,7 @@ it round again.
 | Piece | Today, on `layer/3` | Here |
 |---|---|---|
 | A feature's package and descriptor | none; `packages/std` is an empty shell | `feature.ts`, the export map from the spike |
-| Mounting | none | `forman add feature`, one file per mount |
+| Mounting | none | `ortho add feature`, one file per mount |
 | `runs: "client"` | the compiler refuses it (`operations/types.ts:49`, D3 #86) | client operations, behaviour per host |
 | `step.call`, `step.use` | `Blueprint.step.database()` and kin only | both |
 | `via`, `.notVia(Via.agent)` | `Principal` is `anonymous | person` | as in K1 section 1 |

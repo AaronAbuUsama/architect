@@ -1,6 +1,6 @@
 // Releases against the logbook: what the next version is, what is stale where, and recording a release (D3 #1, #31).
 import { Data, type Effect } from "effect";
-import type { Bump, Model, Versioned } from "@formants/compiler";
+import type { Bump, Model, Versioned } from "@orthograph/compiler";
 import type { TokenSource } from "#modules/verdicts/types.js";
 
 export class ReleaseFailed extends Data.TaggedError("ReleaseFailed")<{ readonly message: string }> {}
@@ -33,15 +33,15 @@ export interface Shipping {
 
 export interface ReleasesApi {
   /**
-   * Where the logbook is: `FORMAN_LOGBOOK_URL` when set, otherwise the running `logbook` environment's URL (its pidfile
-   * and port under `.forman/environments/logbook/`, as `forman env up logbook` keeps them). Undefined when neither.
+   * Where the logbook is: `ORTHO_LOGBOOK_URL` when set, otherwise the running `logbook` environment's URL (its pidfile
+   * and port under `.ortho/environments/logbook/`, as `ortho env up logbook` keeps them). Undefined when neither.
    */
   readonly locate: (options: { readonly root: string; readonly env: Env }) => Effect.Effect<string | undefined, ReleaseFailed>;
   /** The last production release, or undefined when there has been none. */
   readonly last: (logbook: string) => Effect.Effect<{ readonly version: string; readonly revision: string } | undefined, ReleaseFailed>;
   /** The working model against the last production release's model, and the logbook's latest `main` verdicts. */
   readonly shipping: (logbook: string, model: Model) => Effect.Effect<Shipping, ReleaseFailed>;
-  /** `forman version --next`: the version the working model would release as. */
+  /** `ortho version --next`: the version the working model would release as. */
   readonly next: (logbook: string, model: Model) => Effect.Effect<string, ReleaseFailed>;
   /**
    * Keep a revision's model in the logbook (`PUT /models/<revision>`; a revision's model is written once, and the same model
@@ -58,7 +58,7 @@ export interface ReleasesApi {
   }) => Effect.Effect<void, ReleaseFailed>;
   /**
    * Record a release: the model is kept, then `POST /releases { version, revision }`. Both are writes, so they carry a
-   * verified OIDC token from `Verdicts.sourceOf`, the one token source verdicts use too (`FORMAN_LOGBOOK_TOKEN`, else the
+   * verified OIDC token from `Verdicts.sourceOf`, the one token source verdicts use too (`ORTHO_LOGBOOK_TOKEN`, else the
    * local issuer, else GitHub's own). `promote --to production` calls it.
    */
   readonly record: (options: {

@@ -25,7 +25,7 @@ jobs:
       # Nx 24 skips task-level sync generators in CI, so drift is checked explicitly.
       - run: pnpm nx sync:check
 
-  # Gate 1 (L1.60): the seven checks of layer one, run as a user runs Forman (D2 #74).
+  # Gate 1 (L1.60): the seven checks of layer one, run as a user runs Orthograph (D2 #74).
   e2e-layer1:
     runs-on: ubuntu-latest
     steps:

@@ -1,8 +1,8 @@
 // Generated from the blueprint. Do not edit.
 // The portal's host entry: this project's blueprint (blueprint.json, from the model and the generated docs), served by
-// @formants/portal over the logbook. `/portal` is for people and `/_portal/v1/*` for data; nothing else is the portal's.
+// @orthograph/portal over the logbook. `/portal` is for people and `/_portal/v1/*` for data; nothing else is the portal's.
 import { Effect } from "effect";
-import { Portal, type PortalEnv } from "@formants/portal";
+import { Portal, type PortalEnv } from "@orthograph/portal";
 import blueprint from "./blueprint.json" with { type: "json" };
 
 export type { PortalEnv };

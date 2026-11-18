@@ -1,4 +1,4 @@
-import { Auth, Blueprint } from "@formants/forman";
+import { Auth, Blueprint } from "orthograph";
 
 export default Blueprint.config({
   name: "acme",

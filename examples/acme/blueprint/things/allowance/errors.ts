@@ -1,4 +1,4 @@
-import { Blueprint } from "@formants/forman";
+import { Blueprint } from "orthograph";
 import { Amount } from "../../values/money.ts";
 
 // Refusals that depend on data. The machine's own refusal, AllowanceNotActive, is generated and never written here.

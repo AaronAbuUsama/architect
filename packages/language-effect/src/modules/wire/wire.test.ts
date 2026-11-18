@@ -1,7 +1,7 @@
 import { Cause, Effect, Exit, Schema } from "effect";
 import { describe, expect, it } from "vitest";
-import { Blueprint } from "@formants/forman";
-import { ErrorNames } from "@formants/forman/server";
+import { Blueprint } from "orthograph";
+import { ErrorNames } from "orthograph/server";
 import { Wire } from "./service.ts";
 
 class LimitTooHigh extends Blueprint.error({ cap: Blueprint.uint(128) }, { exit: 44 }) {}

@@ -2,8 +2,8 @@
 // one from another issuer and an unsigned one.
 //
 // Chosen where D3 is open:
-// - `forman env up logbook --port <n>` runs the logbook worker; it trusts the issuer named by FORMAN_OIDC_ISSUER and, in
-//   the token, audience `forman-logbook` and the repository, ref and workflow of FORMAN_OIDC_REPOSITORY / _REF / _WORKFLOW.
+// - `ortho env up logbook --port <n>` runs the logbook worker; it trusts the issuer named by ORTHO_OIDC_ISSUER and, in
+//   the token, audience `ortho-logbook` and the repository, ref and workflow of ORTHO_OIDC_REPOSITORY / _REF / _WORKFLOW.
 // - A verdict is `POST <logbook>/verdicts` with `authorization: Bearer <token>` and a JSON body
 //   `{ revision, environment, operation, verdict }` (`verdict` is `"pass"` or `"fail"`); an accepted one answers 2xx.
 // - `GET <logbook>/verdicts?revision=<rev>` is open and answers a JSON array of what is held, in that same shape.

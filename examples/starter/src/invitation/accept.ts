@@ -1,6 +1,6 @@
 // Scaffolded from blueprint/things/invitation/verbs/accept.ts. Yours from now on.
 import { Effect } from "effect";
-import { Ids, Records } from "@formants/language-effect";
+import { Ids, Records } from "@orthograph/language-effect";
 import type { Handler } from "../../generated/api/src/invitation/accept.handler.ts";
 import { Invitation } from "../../blueprint/things/invitation/thing.ts";
 import { Membership } from "../../blueprint/things/membership/thing.ts";

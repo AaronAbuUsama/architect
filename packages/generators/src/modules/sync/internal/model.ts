@@ -1,10 +1,10 @@
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { Effect } from "effect";
-import type { Model } from "@formants/compiler";
+import type { Model } from "@orthograph/compiler";
 import { ModelFailed } from "../types.ts";
 
-const compiler = fileURLToPath(import.meta.resolve("@formants/compiler/main"));
+const compiler = fileURLToPath(import.meta.resolve("@orthograph/compiler/main"));
 
 /** The model, from a fresh process: a long-lived Nx daemon would otherwise keep blueprint files it imported earlier. */
 export const modelOf = (absoluteRoot: string, root: string): Effect.Effect<Model, ModelFailed> =>

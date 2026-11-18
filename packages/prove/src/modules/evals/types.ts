@@ -1,6 +1,6 @@
 // The nine evals: what every call in every journey must show, judged from telemetry and the world's facts against
 // the model. Eval 7 (performance) only ever raises a review; every other failure fails `prove`.
-import type { OperationModel } from "@formants/compiler";
+import type { OperationModel } from "@orthograph/compiler";
 import type { CallRecord, Project } from "#modules/journeys/types.js";
 import type { Span, Trace } from "#modules/telemetry/types.js";
 

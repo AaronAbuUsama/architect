@@ -18,8 +18,8 @@ const ISSUER_IMAGE = "ghcr.io/navikt/mock-oauth2-server:6.1.4@sha256:647dd8c78a5
 const PORTS = { logbook: 8970, test: 8971, issuer: 8972 };
 const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
 const cli = resolve(import.meta.dirname, "../../../../cli/src/main.ts");
-const trusted = { repository: "acme/acme", ref: "refs/heads/main", workflow: "forman" };
-const container = `forman-l202-issuer-${process.pid}`;
+const trusted = { repository: "acme/acme", ref: "refs/heads/main", workflow: "ortho" };
+const container = `ortho-l202-issuer-${process.pid}`;
 const visible = (from: string) => !basename(from).startsWith(".");
 const docker = (...args: ReadonlyArray<string>) => spawnSync("docker", args, { encoding: "utf8" });
 const run = <A, E>(effect: Effect.Effect<A, E>) => Effect.runPromise(effect);
@@ -30,12 +30,12 @@ const git = (root: string, ...args: ReadonlyArray<string>) =>
 
 /** A copy of acme under git, outside the repository: its revision is a commit of its own. */
 const copyUnderGit = () => {
-  const parent = mkdtempSync(join(realpathSync(tmpdir()), "forman-l202-"));
+  const parent = mkdtempSync(join(realpathSync(tmpdir()), "ortho-l202-"));
   const root = join(parent, "acme");
   for (const part of ["blueprint", "generated", "src", "journeys", "package.json"]) cpSync(join(acme, part), join(root, part), { recursive: true, filter: visible });
   mkdirSync(join(root, "node_modules"));
   for (const entry of readdirSync(join(acme, "node_modules"))) if (entry !== ".bin") symlinkSync(join(acme, "node_modules", entry), join(root, "node_modules", entry));
-  writeFileSync(join(root, ".gitignore"), "node_modules/\n.forman/\n.wrangler/\n");
+  writeFileSync(join(root, ".gitignore"), "node_modules/\n.ortho/\n.wrangler/\n");
   git(root, "init", "-q", "-b", "main");
   git(root, "add", "-A");
   git(root, "commit", "-q", "-m", "acme");
@@ -44,26 +44,26 @@ const copyUnderGit = () => {
 
 const project = copyUnderGit();
 const { root } = project;
-const issuer = `http://127.0.0.1:${PORTS.issuer}/forman`;
+const issuer = `http://127.0.0.1:${PORTS.issuer}/ortho`;
 const logbook = `http://127.0.0.1:${PORTS.logbook}`;
 const testUrl = `http://127.0.0.1:${PORTS.test}`;
 const env = {
-  FORMAN_OIDC_ISSUER: issuer, FORMAN_OIDC_CLIENT: "ci-main",
-  FORMAN_OIDC_REPOSITORY: trusted.repository, FORMAN_OIDC_REF: trusted.ref, FORMAN_OIDC_WORKFLOW: trusted.workflow,
+  ORTHO_OIDC_ISSUER: issuer, ORTHO_OIDC_CLIENT: "ci-main",
+  ORTHO_OIDC_REPOSITORY: trusted.repository, ORTHO_OIDC_REF: trusted.ref, ORTHO_OIDC_WORKFLOW: trusted.workflow,
 };
 const source = { kind: "issuer", issuer, client: "ci-main" } as const;
 
-/** The claims a GitHub Actions job would carry for `forman-logbook` (D3 #8). */
+/** The claims a GitHub Actions job would carry for `ortho-logbook` (D3 #8). */
 const scenarios = {
   interactiveLogin: false,
-  tokenCallbacks: [{ issuerId: "forman", tokenExpiry: 600, requestMappings: [
-    { requestParam: "client_id", match: "ci-main", claims: { sub: "repo:acme/acme:ref:refs/heads/main", aud: ["forman-logbook"], ...trusted } },
+  tokenCallbacks: [{ issuerId: "ortho", tokenExpiry: 600, requestMappings: [
+    { requestParam: "client_id", match: "ci-main", claims: { sub: "repo:acme/acme:ref:refs/heads/main", aud: ["ortho-logbook"], ...trusted } },
   ] }],
 };
 
 /** What is in the test environment's D1 right now, table by table (the app's, not the registry's). */
 const rows = () => {
-  const dir = join(root, ".forman/environments/test/state/v3/d1");
+  const dir = join(root, ".ortho/environments/test/state/v3/d1");
   const file = (existsSync(dir) ? readdirSync(dir, { recursive: true, encoding: "utf8" }) : []).find((f) => f.endsWith(".sqlite") && !f.includes("metadata"));
   expect(file, "the environment's D1 file").toBeDefined();
   const db = new DatabaseSync(join(dir, file!), { readOnly: true });
@@ -149,7 +149,7 @@ describe("prove --env test", () => {
 
   it("a run killed part-way leaves a world that worlds reap removes after its lifetime", { timeout: 600_000 }, async () => {
     const lifetime = 20;
-    const child = spawn(process.execPath, [cli, "prove", "--env", "test", "--root", root], { cwd: root, env: { ...process.env, ...env, FORMAN_LIFETIME: `${lifetime}s` }, stdio: ["ignore", "pipe", "pipe"] });
+    const child = spawn(process.execPath, [cli, "prove", "--env", "test", "--root", root], { cwd: root, env: { ...process.env, ...env, ORTHO_LIFETIME: `${lifetime}s` }, stdio: ["ignore", "pipe", "pipe"] });
     let seen = "";
     child.stdout.on("data", (chunk: Buffer) => { seen += chunk.toString(); });
     for (let i = 0; i < 960 && !/^world test-[0-9a-f]{8} · expires in 20s/m.test(seen); i++) await sleep(250);

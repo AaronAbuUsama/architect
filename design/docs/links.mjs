@@ -11,7 +11,7 @@ const docs = dirname(fileURLToPath(import.meta.url));
 const page = join(docs, "index.html");
 
 // The retired words, written in pieces so this file does not trip its own check. "Agent kit" is not one: it is the
-// agents projection's name (frame/generators.md section 3), and its package is @formants/agent-kit.
+// agents projection's name (frame/generators.md section 3), and its package is @orthograph/agent-kit.
 const RETIRED = [
   ["the plugin word that was renamed to feature and adapter", new RegExp(`(?<!agent[ -])\\b${"ki"}${"ts?"}\\b`, "i")],
   ["the old framework name (any case, any form)", new RegExp(`${"archi"}${"tect"}`, "i")],

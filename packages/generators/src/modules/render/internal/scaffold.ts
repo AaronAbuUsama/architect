@@ -1,5 +1,6 @@
 // src/<thing>/<verb>.ts: written once per operation, then the project's own. Never overwritten.
-import type { OperationModel } from "@formants/compiler";
+import { Names } from "orthograph/server";
+import type { OperationModel } from "@orthograph/compiler";
 import type { RenderedFile } from "../types.ts";
 import { camel, lines, scaffolded, toRoot } from "./names.ts";
 
@@ -17,7 +18,7 @@ export const renderHandlerScaffold = (op: OperationModel): RenderedFile => {
     content: lines(
       scaffolded(op.file),
       `import { Effect } from "effect";`,
-      `import { Handlers } from "@formants/language-effect";`,
+      `import { Handlers } from "${Names.pkg("language-effect")}";`,
       `import type { Handler } from "${toRoot(path)}generated/api/src/${op.thing}/${op.verb}.handler.ts";`,
       "",
       `/** ${op.description} */`,

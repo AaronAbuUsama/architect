@@ -1,6 +1,6 @@
 import { Effect, Exit } from "effect";
 import { describe, expect, it } from "vitest";
-import { Blueprint, type Principal } from "@formants/forman";
+import { Blueprint, type Principal } from "orthograph";
 import { recordsMemory } from "#modules/records/service.js";
 import { Access } from "./service.ts";
 

@@ -20,4 +20,4 @@ export class Timers extends Context.Service<Timers, {
   /** Fire every timer due at exactly `at`, in the order they were set; returns what fired. */
   readonly fire: (at: number) => Effect.Effect<ReadonlyArray<Timer>>;
   readonly pending: Effect.Effect<ReadonlyArray<Timer>>;
-}>()("@formants/language-effect/Timers") {}
+}>()("@orthograph/language-effect/Timers") {}

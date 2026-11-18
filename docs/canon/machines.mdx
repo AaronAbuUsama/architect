@@ -242,8 +242,8 @@ changed, like a person, needs none. Its operations declare no `move` and, until 
 
 | What | Where | |
 |---|---|---|
-| A machine, its moves and its refusal | `packages/forman/src/modules/machines/types.ts:30` | built |
-| An event | `packages/forman/src/modules/events/types.ts:5` | built |
+| A machine, its moves and its refusal | `packages/orthograph/src/modules/machines/types.ts:30` | built |
+| An event | `packages/orthograph/src/modules/events/types.ts:5` | built |
 | The refusal's name, code and exit in the model | `packages/compiler/src/modules/model/internal/describe.ts:72` | built |
 | The machine's refusal number, 900 | `packages/compiler/src/modules/model/internal/codes.ts:8` | built |
 | The wrong-state check, before the handler | `packages/language-effect/src/modules/handler/internal/move.ts:30` | built |
@@ -261,7 +261,7 @@ changed, like a person, needs none. Its operations declare no `move` and, until 
 
 | Part | Status | Slice | Proved by |
 |---|---|---|---|
-| Moves named by key, outcomes listed, an unknown state refused | proved | layer 1 | `packages/forman/src/modules/machines/machines.test.ts:20` |
+| Moves named by key, outcomes listed, an unknown state refused | proved | layer 1 | `packages/orthograph/src/modules/machines/machines.test.ts:20` |
 | The wrong-state refusal before the handler, carrying the state | proved | layer 1 | `packages/language-effect/src/modules/handler/handler.test.ts:260`, and the `fill a sheet` and `a closed sheet takes no one` journeys |
 | Two outcomes on one move, chosen by the handler | proved | | the `fill a sheet` journey, in `e2e/layer1/08-signup-proves.test.ts:10` |
 | An undeclared outcome dies, and the span says what was asked | proved | layer 1 | `packages/language-effect/src/modules/handler/handler.test.ts:150` |
@@ -305,7 +305,7 @@ and a missing instance.
   Ledger `MAC-02`. The machine has one refusal, named after its first state
   (`packages/compiler/src/modules/model/internal/describe.ts:72`). So closing a closed sheet is refused as
   `SheetNotOpen`, though `close` may also start from `full`. The comment on the type says `<Thing>Not<State>`
-  (`packages/forman/src/modules/machines/types.ts:23`), which reads as if the name followed the move. Should the name
+  (`packages/orthograph/src/modules/machines/types.ts:23`), which reads as if the name followed the move. Should the name
   say what is wrong for every move, such as a refusal per move, or one neutral name? Renaming it is a major change
   once released, since clients match on the name.
 </Note>

@@ -13,4 +13,4 @@ export class Busy extends Context.Service<Busy, {
   readonly count: Effect.Effect<number>;
   /** Wait until no work holds a token. */
   readonly quiet: Effect.Effect<void>;
-}>()("@formants/language-effect/Busy") {}
+}>()("@orthograph/language-effect/Busy") {}

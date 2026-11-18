@@ -1,6 +1,6 @@
 // Scaffolded from blueprint/things/attention/verbs/raise.ts. Yours from now on.
 import { Effect } from "effect";
-import { Handlers } from "@formants/language-effect";
+import { Handlers } from "@orthograph/language-effect";
 import type { Handler } from "../../generated/api/src/attention/raise.handler.ts";
 
 /** Ask the mission's owner for a decision only they can make. */

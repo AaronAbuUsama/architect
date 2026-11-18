@@ -1,6 +1,6 @@
 // Scaffolded from blueprint/things/question/verbs/answer.ts. Yours from now on.
 import { Effect } from "effect";
-import { Handlers } from "@formants/language-effect";
+import { Handlers } from "@orthograph/language-effect";
 import type { Handler } from "../../generated/api/src/question/answer.handler.ts";
 
 /** Answer a question with one of its letters. */

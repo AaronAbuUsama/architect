@@ -5,8 +5,7 @@
 ## What this repository is
 
 Orthograph, the framework (command `ortho`, packages `@orthograph/*`); what you write with it is the blueprint. The name
-was decided on 18 November 2026 (`design/decisions/K6-orthograph.md`). Until the rename sweep runs, the code still says
-Forman, `forman` and `@formants/*`; `design/naming.md` maps every name. Its design is in `design/`: the frame
+was decided on 18 November 2026 (`design/decisions/K6-orthograph.md`), and `design/naming.md` maps every name. Its design is in `design/`: the frame
 (`frame/`), the milestones (`milestones.md`: M0 to M7, each slice with what it needs and the check that proves it), the
 decisions (`decisions/`), `packages.md`, `spikes.md` and `spikes/`, and the design docs in `design/docs/`. Layers 1 and
 2 are recorded in `build-plan.md`.
@@ -26,7 +25,7 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
 
 ## How work flows
 
-- **Milestones.** Forman is built in milestones M0 to M7 (`design/milestones.md`; layers 1 and 2 came first). Nothing
+- **Milestones.** Orthograph is built in milestones M0 to M7 (`design/milestones.md`; layers 1 and 2 came first). Nothing
   in a milestone starts until the previous milestone's gate passes on `main`. Ideas for later go in `design/later.md`,
   never into code.
 - **Goals.** Work runs as goals in `design/goals/`: one long autonomous run with a bound and a single done check. A
@@ -53,8 +52,8 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
 - Generated files open with a `// Generated from … Do not edit.` line (naming the blueprint or the declaration's path;
   after a shebang when there is one) and are never edited. Scaffolds start
   with `// Scaffolded from <path>. Yours from now on.`
-- Package rules (Nx module boundaries): `forman` (the front door, the `Blueprint` API) depends only on Effect;
-  generated code imports only the language's runtime, `forman`, the host and project code; `compiler` and `generators`
+- Package rules (Nx module boundaries): `orthograph` (the front door, the `Blueprint` API) depends only on Effect;
+  generated code imports only the language's runtime, `orthograph`, the host and project code; `compiler` and `generators`
   never run in production.
 - Pin dependency versions exactly, and use versions published at least three days before you add them (Aaron, 17
   November 2026). A younger version needs an override: its name in `minimumReleaseAgeExclude` in

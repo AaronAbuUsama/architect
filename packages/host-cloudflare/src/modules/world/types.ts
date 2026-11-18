@@ -4,7 +4,7 @@ import type { CastMember } from "#modules/auth/types.js";
 
 export interface WorldEnv {
   readonly DB: D1Database;
-  /** Better Auth's secret. Made fresh by `forman dev` for each run; never written to a file. */
+  /** Better Auth's secret. Made fresh by `ortho dev` for each run; never written to a file. */
   readonly AUTH_SECRET: string;
 }
 

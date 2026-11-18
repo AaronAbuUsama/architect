@@ -1,13 +1,13 @@
 {
-  "name": "@formants/host-cloudflare",
+  "name": "@orthograph/host-cloudflare",
   "version": "0.0.0",
   "type": "module",
   "exports": {
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@formants/forman": "workspace:*",
-    "@formants/language-effect": "workspace:*",
+    "orthograph": "workspace:*",
+    "@orthograph/language-effect": "workspace:*",
     "@better-auth/api-key": "1.7.15",
     "@better-auth/core": "1.7.15",
     "@better-auth/oauth-provider": "1.7.15",

@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # Replays staging traffic: real calls to a running staging world through the project's generated CLI, as people who signed
-# up for real (the way a person would on a real environment), so that `forman watch --env staging` has something to read.
+# up for real (the way a person would on a real environment), so that `ortho watch --env staging` has something to read.
 #
 #   tools/watch/replay.sh <project-root> <staging-url> [spends=30] [refused=3]
 #
 # ada signs up, makes an organisation and grants olga an allowance; olga spends one unit `spends` times, then asks for more
 # than is left `refused` times (refused: AllowanceExceeded, exit 41). Run it more than once and the people are new each time.
 # The slow handler is the author's fixture, installed by the caller: examples/acme/test/fixtures/layer2/slow-spend/spend.ts
-# over src/allowance/spend.ts, then `forman build`, `forman promote --to staging`, and this again.
+# over src/allowance/spend.ts, then `ortho build`, `ortho promote --to staging`, and this again.
 # No token, password or key is printed: they live in shell variables for as long as this runs.
 set -euo pipefail
 
@@ -15,7 +15,7 @@ root=${1:?usage: replay.sh <project-root> <staging-url> [spends] [refused]}
 url=${2:?usage: replay.sh <project-root> <staging-url> [spends] [refused]}
 spends=${3:-30}
 refused=${4:-3}
-prefix=${FORMAN_REPLAY_PREFIX:-ACME} # the generated CLI reads <PREFIX>_URL and <PREFIX>_TOKEN
+prefix=${ORTHO_REPLAY_PREFIX:-ACME} # the generated CLI reads <PREFIX>_URL and <PREFIX>_TOKEN
 cli="$root/generated/cli/src/main.ts"
 run=$(od -An -N4 -tx1 /dev/urandom | tr -d ' \n')
 

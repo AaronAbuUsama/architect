@@ -1,7 +1,7 @@
 import { env } from "cloudflare:workers";
 import { Effect, Layer } from "effect";
 import { describe, expect, it } from "vitest";
-import { Journal, Store } from "@formants/language-effect";
+import { Journal, Store } from "@orthograph/language-effect";
 import { Database } from "#modules/database/service.js";
 import { StoreD1 } from "#modules/store/service.js";
 import { JournalD1 } from "./service.ts";

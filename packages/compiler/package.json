@@ -1,5 +1,5 @@
 {
-  "name": "@formants/compiler",
+  "name": "@orthograph/compiler",
   "version": "0.0.0",
   "type": "module",
   "exports": {
@@ -7,14 +7,14 @@
     "./main": "./src/main.ts"
   },
   "dependencies": {
-    "@formants/forman": "workspace:*",
+    "orthograph": "workspace:*",
     "effect": "4.1.1"
   },
   "imports": {
     "#modules/*.js": "./src/modules/*.ts"
   },
   "bin": {
-    "forman-model": "./src/main.ts"
+    "ortho-model": "./src/main.ts"
   },
   "files": [
     "dist"
@@ -35,7 +35,7 @@
       "#modules/*.js": "./dist/modules/*.js"
     },
     "bin": {
-      "forman-model": "./dist/main.js"
+      "ortho-model": "./dist/main.js"
     }
   }
 }

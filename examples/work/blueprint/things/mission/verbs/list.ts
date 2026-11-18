@@ -1,4 +1,4 @@
-import { Blueprint } from "@formants/forman";
+import { Blueprint } from "orthograph";
 import { Mission } from "../thing.ts";
 
 // Open (F5 §4): a list read cannot yet be held to the caller's own rows, so any signed-in person could list every owner's

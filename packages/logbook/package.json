@@ -1,5 +1,5 @@
 {
-  "name": "@formants/logbook",
+  "name": "@orthograph/logbook",
   "version": "0.0.0",
   "type": "module",
   "exports": {

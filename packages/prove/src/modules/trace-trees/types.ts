@@ -1,4 +1,4 @@
-// A trace as a tree of text: what `forman telemetry trace <id>` prints, from any TraceSource. Pure: it reads a value
+// A trace as a tree of text: what `ortho telemetry trace <id>` prints, from any TraceSource. Pure: it reads a value
 // and returns lines, so it is the same for a file today and for Axiom later (O1).
 import type { Trace } from "#modules/telemetry/types.js";
 

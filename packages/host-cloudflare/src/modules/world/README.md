@@ -7,7 +7,7 @@ table and the registry of things join it in stage five.
 
 ## Worlds in a long-lived environment (D3 #50)
 
-A test environment (`FORMAN_WORLDS=1`, set by `forman env up` when the blueprint's environment declares a
+A test environment (`ORTHO_WORLDS=1`, set by `ortho env up` when the blueprint's environment declares a
 `lifetime`) holds worlds with lifetimes, one live at a time. `/_world/worlds` is its registry: `POST {id, lifetimeMs}`
 makes one (409 `WorldLive` while another lives), `GET` lists the live ones, `DELETE /<id>` destroys one, `POST /reap`
 destroys every one past its lifetime and answers `{reaped}`, counting each expiry once. A world is its own `World`

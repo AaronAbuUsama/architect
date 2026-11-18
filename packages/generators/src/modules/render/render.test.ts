@@ -1,7 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import type { Model } from "@formants/compiler";
+import type { Model } from "@orthograph/compiler";
 import { Render } from "./service.ts";
 
 const repo = resolve(import.meta.dirname, "../../../../..");

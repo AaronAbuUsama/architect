@@ -1,5 +1,5 @@
-// Adding to a blueprint: `forman add thing | operation | read | journey` writes declarations with blanks in them.
-// A blank (`Blueprint.todo`) compiles, and `forman check` names each one until it is filled.
+// Adding to a blueprint: `ortho add thing | operation | read | journey` writes declarations with blanks in them.
+// A blank (`Blueprint.todo`) compiles, and `ortho check` names each one until it is filled.
 import { Data } from "effect";
 
 /** One file `add` would write: its path from the project's root, and what goes in it. */

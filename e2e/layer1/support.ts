@@ -1,4 +1,4 @@
-// What every Gate 1 check shares: where things are, a project copied somewhere of its own, and the forman command
+// What every Gate 1 check shares: where things are, a project copied somewhere of its own, and the ortho command
 // run as a user runs it, in a real process.
 import { spawnSync, type SpawnSyncReturns } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
 import { expect } from "vitest";
 
-// Dot-folders (.wrangler, .forman) belong to whatever is running there; a filter also keeps cpSync off its native path,
+// Dot-folders (.wrangler, .ortho) belong to whatever is running there; a filter also keeps cpSync off its native path,
 // which aborts the process when a folder vanishes mid-copy.
 const visible = (from: string) => !basename(from).startsWith(".");
 
@@ -15,9 +15,9 @@ export const acme = join(repo, "examples/acme");
 export const cli = join(repo, "packages/cli/src/main.ts");
 
 /** A copy of an example outside the repository, wired to the repository's packages through its node_modules. */
-export const copyOf = (example: string, parts: ReadonlyArray<string> = ["forman.config.ts", "blueprint", "generated", "src", "journeys", "package.json"].filter((p) => existsSync(join(example, p)))) => {
+export const copyOf = (example: string, parts: ReadonlyArray<string> = ["ortho.config.ts", "blueprint", "generated", "src", "journeys", "package.json"].filter((p) => existsSync(join(example, p)))) => {
   // The folder keeps the example's name: the project's name, and so its CLI's and its variables', comes from it.
-  const parent = mkdtempSync(join(tmpdir(), "forman-gate1-"));
+  const parent = mkdtempSync(join(tmpdir(), "ortho-gate1-"));
   const root = join(parent, basename(example));
   for (const part of parts) cpSync(join(example, part), join(root, part), { recursive: true, filter: visible });
   // The example's own packages, and the repository's tools (tsc, oxlint) where check looks for them.
@@ -35,7 +35,7 @@ export const copyOf = (example: string, parts: ReadonlyArray<string> = ["forman.
   return { root, remove: () => rmSync(parent, { recursive: true, force: true }) };
 };
 
-export const forman = (root: string, ...args: ReadonlyArray<string>): SpawnSyncReturns<string> =>
+export const ortho = (root: string, ...args: ReadonlyArray<string>): SpawnSyncReturns<string> =>
   spawnSync(process.execPath, [cli, ...args, "--root", root], { cwd: root, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
 
 /** Nothing this copy started is still running: no wrangler, workerd or node process names its folder. */

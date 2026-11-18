@@ -1,5 +1,5 @@
 // Generated from the blueprint. Do not edit.
-import { EventNames } from "@formants/forman/server";
+import { EventNames } from "orthograph/server";
 import * as Allowance from "../../../blueprint/things/allowance/events.ts";
 import * as Invitation from "../../../blueprint/things/invitation/events.ts";
 import * as Organization from "../../../blueprint/things/organization/events.ts";

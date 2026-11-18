@@ -43,7 +43,7 @@
   },
   "sync": {
     "globalGenerators": [
-      "@formants/generators:sync"
+      "@orthograph/generators:sync"
     ]
   }
 }

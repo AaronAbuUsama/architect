@@ -2,7 +2,7 @@
 // number. Declared errors are numbered 1, 2, 3 in the order they are declared in the thing's `errors.ts`; the machine's own
 // refusal is always 900; the runtime's refusals belong to no thing and take the prefix `AR`. The model records every code,
 // so a generator reads it and never works one out, and a number that has shipped does not move when an error is added.
-import type { AnyErrorClass, Thing } from "@formants/forman";
+import type { AnyErrorClass, Thing } from "orthograph";
 
 /** The refusal of a machine's move that starts from the wrong state. */
 export const MACHINE_NUMBER = 900;

@@ -1,11 +1,11 @@
 ---
 name: threads
-description: Thread types for Forman's agent threads, each with its emoji, job and finish line, whatever agent runs it (Amp, Claude Code, Codex). Read it when you start a thread, or when your brief names your type ("you are a 🔨 builder thread").
+description: Thread types for Orthograph's agent threads, each with its emoji, job and finish line, whatever agent runs it (Amp, Claude Code, Codex). Read it when you start a thread, or when your brief names your type ("you are a 🔨 builder thread").
 ---
 
 # Thread types
 
-A **thread** is one agent conversation working on Forman: an Amp thread, a Claude Code session, a Codex
+A **thread** is one agent conversation working on Orthograph: an Amp thread, a Claude Code session, a Codex
 session. Every thread is one **thread type**. Its title starts with the type's emoji, so Aaron can see what each one is
 at a glance: `<emoji> <Type>: <subject>`, for example `🔨 Builder: L1.13 generators v0`. Where your
 agent has tags or labels, tag it `thread:<type>`, in your agent's form (the table at the end).

@@ -1,6 +1,6 @@
 // Scaffolded from blueprint/things/attention/verbs/approve.ts. Yours from now on.
 import { Effect } from "effect";
-import { Handlers } from "@formants/language-effect";
+import { Handlers } from "@orthograph/language-effect";
 import type { Handler } from "../../generated/api/src/attention/approve.handler.ts";
 
 /** Say yes. For a promote, the promote runs. */

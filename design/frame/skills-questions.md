@@ -7,10 +7,10 @@ something outward-facing.
 
 **Terms used in this round.**
 
-- **Skill**: a `SKILL.md` folder saying how to do one job on a Forman project. Any agent can follow it.
+- **Skill**: a `SKILL.md` folder saying how to do one job on a Orthograph project. Any agent can follow it.
 - **Kit**: the skills, role definitions and rules that the `agents` projection writes into `generated/agents/`, from
-  `@formants/agent-kit`.
-- **Floor**: a skill whose steps use only `forman` shell commands, so it runs before code mode and `forman mcp` exist.
+  `@orthograph/agent-kit`.
+- **Floor**: a skill whose steps use only `ortho` shell commands, so it runs before code mode and `ortho mcp` exist.
 - **Outside agent**: Claude Code, Codex, Amp or Pi's coding agent, run by a person, with its own shell.
 - **The contract**: what `blueprint/` declares. Callers, journeys and verdicts all depend on it.
 - **Loosening**: a contract change that makes the system promise less: a budget raised, a role widened, a declared
@@ -29,20 +29,20 @@ The whole kit is one slice in M3:
 
 ```markdown
 <!-- design/milestones.md:115-119, Gate M2 -->
-**Gate: workable.** `nx run e2e:m2`: (1) `npm create formants demo` scaffolds an app with auth and organizations
-mounted and nothing copied, and `forman prove --env local` is green; (2) a new `notes` feature … (3) the sign-up and
+**Gate: workable.** `nx run e2e:m2`: (1) `npm create orthograph demo` scaffolds an app with auth and organizations
+mounted and nothing copied, and `ortho prove --env local` is green; (2) a new `notes` feature … (3) the sign-up and
 sign-in journeys pass through the SDK, the CLI and MCP; (4) no environment file names a secret by string.
 ```
 
-So a team that starts a Forman project at M2, which is when Capxul starts, gets no skills at all for one whole
-milestone. Their agents would learn Forman from the docs, the way ours learn it from `AGENTS.md`.
+So a team that starts a Orthograph project at M2, which is when Capxul starts, gets no skills at all for one whole
+milestone. Their agents would learn Orthograph from the docs, the way ours learn it from `AGENTS.md`.
 
 **What it touches**
 
 | Dependent | Why it cares |
 |---|---|
 | Gate M2 (`e2e:m2`) | a new check would join it |
-| M2.09 `forman new` | it would write `generated/agents/` and the links |
+| M2.09 `ortho new` | it would write `generated/agents/` and the links |
 | M3.12 | it shrinks to the forms, the roles and the gated sections |
 | Capxul's plugins, built after M2 | their builders would have the floor skills from day one |
 
@@ -59,7 +59,7 @@ milestone. Their agents would learn Forman from the docs, the way ours learn it 
 
 ```markdown
 <!-- design/milestones.md, a new M2 slice, and Gate M2 gains a fifth check -->
-| M2.13 ∥ | The `agents` projection's floor: the neutral form only, fixed text and the shell column, no gates or roles, for `describe-this-app`, `add-a-thing`, `add-an-operation`, `write-a-journey`, `make-a-journey-executable`, `fill-a-blank`, `prove-an-operation`, `watch-an-environment`, `review-a-change`; written by `forman new` | M2.09 | build | `npm create formants demo` has `generated/agents/skills/` drift-checked, and check 4 passes with only those skills and a shell | M |
+| M2.13 ∥ | The `agents` projection's floor: the neutral form only, fixed text and the shell column, no gates or roles, for `describe-this-app`, `add-a-thing`, `add-an-operation`, `write-a-journey`, `make-a-journey-executable`, `fill-a-blank`, `prove-an-operation`, `watch-an-environment`, `review-a-change`; written by `ortho new` | M2.09 | build | `npm create orthograph demo` has `generated/agents/skills/` drift-checked, and check 4 passes with only those skills and a shell | M |
 | M3.12 ∥ | The rest: the Claude Code and Pi forms, the roles, the model slots and gated sections, the other skills and every eval | M3.05, M2.13 | build | … | L |
 ```
 
@@ -73,7 +73,7 @@ generated/docs/building/fill-a-blank.md      a docs page, not a skill: no trigge
 
 | Scenario | A · M3.12 | B · floor in M2 | C · docs pages |
 |---|---|---|---|
-| Capxul starts its first plugin right after M2 | its agents read the docs and guess | its agents load `fill-a-blank` and run `forman brief` | its agents may find the page if told to |
+| Capxul starts its first plugin right after M2 | its agents read the docs and guess | its agents load `fill-a-blank` and run `ortho brief` | its agents may find the page if told to |
 | A blueprint change adds an operation | nothing to update | the floor is fixed text; the open-blanks list comes in M3.12 | a page may go stale |
 | M2's length | unchanged | one more medium slice, in parallel | small |
 | What M3.12 then builds | everything | forms, roles, slots, evals | everything, and the pages are thrown away |
@@ -120,7 +120,7 @@ description change.
 | `change-a-declaration` | it must know when to stop and ask |
 | `turn-a-finding-into-a-task`, the factory's manager | an `improve` task could be "solved" by raising the budget |
 | `review-a-change` | it checks that a loosening was approved |
-| `forman impact` and CI | the classifier lives here; CI enforces it |
+| `ortho impact` and CI | the classifier lives here; CI enforces it |
 | Ratchets (story section 6) | a loosened declaration resets what the ratchet holds |
 
 **The options**
@@ -144,7 +144,7 @@ const LOOSENS: Record<string, (before: unknown, after: unknown) => boolean> = {
 ```
 
 ```text
-$ forman impact
+$ ortho impact
 allowance.spend.budget   150ms to 400ms   patch   loosens: needs a person
 → CI: the check job fails until a person approves (a GitHub review by a person today; an approved attention once the factory runs)
 ```
@@ -152,7 +152,7 @@ allowance.spend.budget   150ms to 400ms   patch   loosens: needs a person
 **C · Every blueprint change waits for a person**
 
 ```text
-$ forman impact
+$ ortho impact
 allowance.spend.memo added   minor   blueprint changed: needs a person
 ```
 
@@ -190,7 +190,7 @@ none. An outside agent has its own shell:
 
 ```ts
 // e2e/layer1/04-agent-writes-a-handler.test.ts:18, the fence check 4 uses
-const DENIED = ["journeys/", "blueprint/journeys/", "blueprint/starting-worlds/", "test/", "node_modules/", ".forman/"];
+const DENIED = ["journeys/", "blueprint/journeys/", "blueprint/starting-worlds/", "test/", "node_modules/", ".ortho/"];
 ```
 
 The brief's own list is about writing only (`packages/cli/src/modules/brief/service.ts:3-5`). A Claude Code builder
@@ -203,7 +203,7 @@ can `cat blueprint/journeys/revoke-then-spend.ts` and write a handler that passe
 | `fill-a-blank` | what it tells the agent to open, and where |
 | M3.11 `work task claim` | it already writes the brief and a branch; it could write a copy |
 | The scorer (H2.7) | it puts the journeys back either way |
-| How you use Claude Code on Forman | what a build session looks like |
+| How you use Claude Code on Orthograph | what a build session looks like |
 
 **The options**
 
@@ -230,7 +230,7 @@ You never read journeys. The verdict is CI's: it puts them back and runs them.
 
 ```bash
 work task claim build:allowance.spend
-# claimed. Your copy: ~/.forman/claims/allowance.spend (no journeys, no starting worlds, no tests)
+# claimed. Your copy: ~/.ortho/claims/allowance.spend (no journeys, no starting worlds, no tests)
 # open your agent there; when done:
 work task hand-in build:allowance.spend
 # copies back src/allowance/spend.ts only; CI puts the journeys back and judges it
@@ -249,7 +249,7 @@ work task hand-in build:allowance.spend
 
 | Axis | A · trust | B · deny rules | C · journey-less copy |
 |---|---|---|---|
-| Floor-first | ✅ | ✅ | ⚠️ needs M3.11's claim, or a `forman claim` before it |
+| Floor-first | ✅ | ✅ | ⚠️ needs M3.11's claim, or a `ortho claim` before it |
 | Reversibility | ✅ | ✅ | ✅ |
 | Blast radius | ✅ | ✅ one generated file | ⚠️ the claim and hand-in commands |
 | Correctness | ❌ a fence of words | ⚠️ leaks through the shell | ✅ nothing to read |
@@ -263,8 +263,8 @@ the fence the harness and check 4 already use. B costs one generated file and ca
 **The problem, in code.** `shape-an-idea` reads and writes a model, so it needs a project. The kit lives inside one:
 
 ```text
-# design/frame/generators.md section 2, the tree `forman new` scaffolds
-  .agents/skills/forman  ──link──▶  generated/agents/skills
+# design/frame/generators.md section 2, the tree `ortho new` scaffolds
+  .agents/skills/ortho  ──link──▶  generated/agents/skills
   generated/agents/                 G  RULES.md, skills/, claude/, pi/, the role templates filled in
 ```
 
@@ -273,14 +273,14 @@ the fence the harness and check 4 already use. B costs one generated file and ca
 Nothing is published to npm before M7; every milestone before it publishes to the local Verdaccio.
 ```
 
-So the very first conversation, before `npm create formants`, has no skill to follow.
+So the very first conversation, before `npm create orthograph`, has no skill to follow.
 
 **What it touches**
 
 | Dependent | Why it cares |
 |---|---|
 | `shape-an-idea` | whether it can run with no model |
-| `forman new` (M2.09) | whether it is the first step of every idea |
+| `ortho new` (M2.09) | whether it is the first step of every idea |
 | Publishing (M7) | a global or marketplace form is outward-facing |
 | Capxul | its ideas start in chat today |
 
@@ -289,7 +289,7 @@ So the very first conversation, before `npm create formants`, has no skill to fo
 **A · Project first**
 
 ```bash
-npm create formants allowances
+npm create orthograph allowances
 cd allowances && claude
 # the agent loads shape-an-idea and writes straight into blueprint/
 ```
@@ -297,14 +297,14 @@ cd allowances && claude
 **B · A global skill, installed by the CLI**
 
 ```bash
-npx @formants/cli skills install --global
-# copies shape-an-idea into ~/.agents/skills and ~/.claude/skills; it runs `npm create formants` when the idea is ready
+npx @orthograph/cli skills install --global
+# copies shape-an-idea into ~/.agents/skills and ~/.claude/skills; it runs `npm create orthograph` when the idea is ready
 ```
 
 **C · A published Claude Code plugin, at M7**
 
 ```bash
-claude plugin install forman@formants
+claude plugin install ortho@orthograph
 # a marketplace plugin with the project-free skills; outward-facing, after M7's publishing
 ```
 
@@ -321,7 +321,7 @@ claude plugin install forman@formants
 
 | Axis | A · project first | B · global skill | C · plugin |
 |---|---|---|---|
-| Floor-first | ✅ works the day `forman new` does | ⚠️ a second install path | ❌ waits for M7 |
+| Floor-first | ✅ works the day `ortho new` does | ⚠️ a second install path | ❌ waits for M7 |
 | Reversibility | ✅ | ⚠️ copies on people's machines | ❌ public once listed |
 | Blast radius | ✅ none | ⚠️ files outside the project | ⚠️ outward-facing |
 | Correctness | ✅ always the project's own kit | ❌ drifts from the projects it makes | ✅ versioned |

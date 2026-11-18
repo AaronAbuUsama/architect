@@ -1,7 +1,7 @@
 import { basename, dirname, resolve } from "node:path";
 import { Effect } from "effect";
 import { FsTree, flushChanges } from "nx/src/generators/tree.js";
-import { Sync } from "@formants/generators/sync";
+import { Sync } from "@orthograph/generators/sync";
 import type { Change, GenerateApi } from "./types.ts";
 
 const kinds = { CREATE: "created", UPDATE: "updated", DELETE: "deleted" } as const;

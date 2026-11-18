@@ -1,7 +1,7 @@
 import { env } from "cloudflare:workers";
 import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
-import { Principals } from "@formants/language-effect";
+import { Principals } from "@orthograph/language-effect";
 import { AuthD1 } from "#modules/auth/service.js";
 import { toWorld } from "./service.ts";
 

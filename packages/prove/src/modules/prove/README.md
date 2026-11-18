@@ -1,12 +1,12 @@
 # prove
 
-`Prove.run({ root, port })`: `forman prove --env local`. Reads the model, loads the journeys and starting worlds,
+`Prove.run({ root, port })`: `ortho prove --env local`. Reads the model, loads the journeys and starting worlds,
 starts a real collector in Docker and a fresh local world on workerd exporting to it, runs every journey, waits for
 every call's telemetry, then judges the nine evals. The report lists each journey (with each failing step), each
 operation's evals and a summary line per operation, coverage, and `prove ✔` or `prove ✘`. Everything it started is
 stopped when its scope closes. Test: `prove.test.ts` (acme passes; each planted fixture fails its own eval).
 
-`Prove.test({ root, lifetime?, logbook, token, say })`: `forman prove --env test` (D3 #14, #50, #53). The same journeys
+`Prove.test({ root, lifetime?, logbook, token, say })`: `ortho prove --env test` (D3 #14, #50, #53). The same journeys
 and evals, in a world of the long-lived test environment (`test-worlds`): it makes sure the environment runs the
 revision being proved (building the bundle, starting or restarting it), makes world `test-<id>`, `say`s each line as
 it is true (`world … expires in …`, the journeys and evals, `prove ✔`, `verdicts <op> ✔ …   (revision <rev>)`), then

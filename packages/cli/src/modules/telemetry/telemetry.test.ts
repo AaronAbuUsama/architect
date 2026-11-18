@@ -15,8 +15,8 @@ const span = (t: string, id: string, parent: string, name: string, attrs: Array<
   ({ traceId: t, spanId: id, parentSpanId: parent, name, kind: 1, startTimeUnixNano: String(start * 1_000_000), endTimeUnixNano: String((start + 2) * 1_000_000), attributes: attrs, status: { code } });
 
 // A recorded run: one refusing call and one dying call, as the Collector's file exporter writes them.
-mkdirSync(join(root, ".forman/prove-telemetry"), { recursive: true });
-writeFileSync(join(root, ".forman/prove-telemetry/traces.jsonl"), [
+mkdirSync(join(root, ".ortho/prove-telemetry"), { recursive: true });
+writeFileSync(join(root, ".ortho/prove-telemetry/traces.jsonl"), [
   { resourceSpans: [{ scopeSpans: [{ spans: [
     span(trace, "00000000000000a1", "", "journey.grant", [], 1, 1),
     span(trace, "00000000000000b1", "00000000000000a1", "POST", [], 1, 2),
@@ -26,11 +26,11 @@ writeFileSync(join(root, ".forman/prove-telemetry/traces.jsonl"), [
   ] }] }] },
   { resourceLogs: [{ scopeLogs: [{ logRecords: [{ traceId: trace, spanId: "00000000000000c1", body: { stringValue: "the limit is over the cap" }, attributes: [] }] }] }] },
 ].map((d) => JSON.stringify(d)).join("\n") + "\n");
-writeFileSync(join(root, ".forman/prove-telemetry/logs.jsonl"), JSON.stringify({ resourceLogs: [{ scopeLogs: [{ logRecords: [{ traceId: trace, spanId: "00000000000000c1", body: { stringValue: "the limit is over the cap" }, attributes: [] }] }] }] }) + "\n");
+writeFileSync(join(root, ".ortho/prove-telemetry/logs.jsonl"), JSON.stringify({ resourceLogs: [{ scopeLogs: [{ logRecords: [{ traceId: trace, spanId: "00000000000000c1", body: { stringValue: "the limit is over the cap" }, attributes: [] }] }] }] }) + "\n");
 
 const run = (id: string, env?: string) => Effect.runPromise(TelemetryCommand.trace({ root, id, ...(env ? { env } : {}) }));
 
-describe("forman telemetry trace", () => {
+describe("ortho telemetry trace", () => {
   it("prints a recorded run's trace as a tree with its log, a refusal marked refused", async () => {
     const said = await run(trace);
     expect(said.exit).toBe(0);
@@ -48,7 +48,7 @@ describe("forman telemetry trace", () => {
 
   it("says what it searched when it has no such trace, and refuses what is not a trace id", async () => {
     const none = await run("a".repeat(32));
-    expect([none.exit, none.err]).toEqual([1, expect.stringContaining(".forman/prove-telemetry")]);
+    expect([none.exit, none.err]).toEqual([1, expect.stringContaining(".ortho/prove-telemetry")]);
     expect((await run("nope")).exit).toBe(2);
     expect((await run(trace, "test")).exit).toBe(1);
   });

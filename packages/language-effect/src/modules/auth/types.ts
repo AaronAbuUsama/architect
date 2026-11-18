@@ -12,4 +12,4 @@ export class Auth extends Context.Service<Auth, {
   readonly signIn: (input: { readonly email: string; readonly password: string }) => Effect.Effect<{ readonly session: string; readonly token: string }, AuthRefused>;
   /** A new API key that calls on `person`'s behalf: its `key_` id, and the key itself, which is never readable again. */
   readonly createApiKey: (input: { readonly person: string; readonly name: string }) => Effect.Effect<{ readonly apiKey: string; readonly key: string }>;
-}>()("@formants/language-effect/Auth") {}
+}>()("@orthograph/language-effect/Auth") {}

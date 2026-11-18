@@ -2,7 +2,7 @@
 
 The logbook worker on this machine: real workerd, through `wrangler dev` (4.156.1), with its Durable Object and R2
 state in a `--persist-to` folder of its own, so it survives a restart. This is the seam the CLI uses for
-`forman env up logbook --port <n>`:
+`ortho env up logbook --port <n>`:
 
 - `Logbook.launch({ port, state, policy })` gives `{ command, args, env }` to spawn as a long-lived process (the CLI
   keeps the pidfile). The policy is the token policy plus the issuer's `jwksUrl` (`Logbook.discoverJwks(issuer)` finds it).

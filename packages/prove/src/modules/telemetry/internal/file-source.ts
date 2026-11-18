@@ -1,4 +1,4 @@
-// The TraceSource over the collector's files: what prove reads, and what `forman telemetry trace` reads.
+// The TraceSource over the collector's files: what prove reads, and what `ortho telemetry trace` reads.
 import { Clock, Effect, Schedule } from "effect";
 import type { FileSourceApi, Trace, TraceSource, Wanted } from "../types.ts";
 import { looksComplete, readAll } from "./otlp.ts";

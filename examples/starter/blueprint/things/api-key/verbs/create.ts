@@ -1,4 +1,4 @@
-import { Blueprint } from "@formants/forman";
+import { Blueprint } from "orthograph";
 import { ApiKey } from "../thing.ts";
 import { owner } from "../../organization/roles.ts";
 import { Secret } from "../../../values/identity.ts";

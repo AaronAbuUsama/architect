@@ -1,7 +1,7 @@
 import { Effect, Schema } from "effect";
-import type { Call, Journey, Operation, Principal, Read, StartingWorld, Thing } from "@formants/forman";
-import { Blueprint } from "@formants/forman";
-import { Scripting } from "@formants/forman/server";
+import type { Call, Journey, Operation, Principal, Read, StartingWorld, Thing } from "orthograph";
+import { Blueprint } from "orthograph";
+import { Scripting } from "orthograph/server";
 import type { CallRecord, Facts, JourneyRun, JourneysApi, Project, StepResult } from "./types.ts";
 import { loadProject } from "./internal/load.ts";
 import { callOperation, castPeople, doorFacts, mayCall, signUpPeople, stateOf } from "./internal/world.ts";

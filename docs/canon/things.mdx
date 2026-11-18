@@ -70,7 +70,7 @@ export const Secret = Blueprint.visibility.secret(Blueprint.text({ max: 512 }));
 A value is a schema with a name and a visibility. Orthograph gives you five makers, and `Blueprint.value` names
 anything else, such as an Effect `Schema.Literals`:
 
-```ts file=packages/forman/src/modules/values/types.ts lines=23-35
+```ts file=packages/orthograph/src/modules/values/types.ts lines=23-35
 export interface ValuesApi {
   /** Name a type: `export const Amount = Blueprint.value(Blueprint.uint(128))`. */
   readonly value: <S extends Schema.Constraint>(schema: S | Value<S>) => Value<S>;
@@ -103,10 +103,10 @@ There is no value for a time, a yes-or-no or a list of choices yet. That is one 
 
 `Blueprint.id("sht")` makes text that starts with `sht_` and is branded as a sheet's id. Ids of different things never
 mix: a field that takes an organisation's id takes `org_1` and refuses `alw_1`
-(`packages/forman/src/modules/things/things.test.ts:24`). A new id is the prefix and random base-36, and the random
+(`packages/orthograph/src/modules/things/things.test.ts:24`). A new id is the prefix and random base-36, and the random
 comes from Effect, so a test world can seed it (`packages/language-effect/src/modules/ids/types.ts:1`). Every thing
 must have a field called `id`: the type of `Blueprint.thing` asks for one
-(`packages/forman/src/modules/things/types.ts:35`). The sheet's handler for `open` makes one:
+(`packages/orthograph/src/modules/things/types.ts:35`). The sheet's handler for `open` makes one:
 
 ```ts file=examples/signup/src/sheet/open.ts lines=11-12
 const sheet = yield* Ids.of(Sheet.fields.id);
@@ -117,7 +117,7 @@ yield* steps.insert(records.insert(Sheet, { id: sheet, title, places, taken: 0n 
 
 A field is a value that belongs to a thing, under a key. It knows its thing, its key and what it was made from:
 
-```ts file=packages/forman/src/modules/things/types.ts lines=5-15
+```ts file=packages/orthograph/src/modules/things/types.ts lines=5-15
 /** A field of one thing, which another thing or a payload can reuse: `Organization.fields.id`. */
 export interface Field<V extends Value = Value> {
   readonly kind: "field";
@@ -146,7 +146,7 @@ records `ref: "organization.id"`.
 A thing has two more parts. `lives` says which store it lives in. Leave it out, as the sheet does, and it lives in
 the project's default store: the model above says `"lives": "database"`. What a store is, and the other places data
 lives, is [data](data.mdx). Today the code takes a closed list, `"database"` or `"actor"`
-(`packages/forman/src/modules/things/types.ts:32`); K3 makes store kinds open, built in M1.17. And `code` is the prefix
+(`packages/orthograph/src/modules/things/types.ts:32`); K3 makes store kinds open, built in M1.17. And `code` is the prefix
 of the thing's refusal codes, `SH` in `SH-001`. When it is unset the compiler takes two letters of the name.
 
 ### A name comes from a path
@@ -160,7 +160,7 @@ as a string, is on [blueprint](blueprint.mdx).
 
 There are three visibilities. Public is the default:
 
-```ts file=packages/forman/src/modules/visibility/types.ts lines=14-29
+```ts file=packages/orthograph/src/modules/visibility/types.ts lines=14-29
 /** `public`; `secret` (a password, token, key or session: nobody's, recorded nowhere); or private to some roles. */
 export type Visibility = "public" | "secret" | PrivateTo;
 
@@ -194,7 +194,7 @@ answer: { session: Blueprint.visibility.secret(Session.fields.id), token: Secret
 
 No example has a private field yet. This is the test that proves the mark, with a role made for it:
 
-```ts file=packages/forman/src/modules/visibility/visibility.test.ts lines=41-47
+```ts file=packages/orthograph/src/modules/visibility/visibility.test.ts lines=41-47
 it("is private to a list of roles", () => {
   const t = Things.thing({ description: "x", fields: { id: Values.id("x") } });
   const admin = Roles.role(t, { rule: () => true });
@@ -295,10 +295,10 @@ is [data](data.mdx), and in depth [stores](stores.mdx).
 
 | What | Where | |
 |---|---|---|
-| A thing and its fields | `packages/forman/src/modules/things/types.ts:22` | built |
-| Where a thing lives, a closed list today | `packages/forman/src/modules/things/types.ts:32` | built, open kinds M1.17 |
-| The value makers | `packages/forman/src/modules/values/types.ts:23` | built |
-| The three visibilities and their marks | `packages/forman/src/modules/visibility/types.ts:15` | built |
+| A thing and its fields | `packages/orthograph/src/modules/things/types.ts:22` | built |
+| Where a thing lives, a closed list today | `packages/orthograph/src/modules/things/types.ts:32` | built, open kinds M1.17 |
+| The value makers | `packages/orthograph/src/modules/values/types.ts:23` | built |
+| The three visibilities and their marks | `packages/orthograph/src/modules/visibility/types.ts:15` | built |
 | Visibility in the model | `packages/compiler/src/modules/model/internal/describe.ts:29` | built |
 | The span allowlist | `packages/language-effect/src/modules/handler/internal/attributes.ts:10` | built |
 | The journal keeping public event fields only | `packages/language-effect/src/modules/handler/internal/move.ts:70` | built |
@@ -312,10 +312,10 @@ is [data](data.mdx), and in depth [stores](stores.mdx).
 
 | Part | Status | Slice | Proved by |
 |---|---|---|---|
-| Things, fields and ids, and ids that never mix | proved | layer 1 | `packages/forman/src/modules/things/things.test.ts:14` |
-| Values and their schemas | proved | layer 1 | `packages/forman/src/modules/values/values.test.ts:9` |
+| Things, fields and ids, and ids that never mix | proved | layer 1 | `packages/orthograph/src/modules/things/things.test.ts:14` |
+| Values and their schemas | proved | layer 1 | `packages/orthograph/src/modules/values/values.test.ts:9` |
 | The sheet, its fields and values, compiled and proved | proved | | `e2e/layer1/08-signup-proves.test.ts:10` |
-| Public by default, secret, private, and marking one field | proved | layer 2 | `packages/forman/src/modules/visibility/visibility.test.ts:10` |
+| Public by default, secret, private, and marking one field | proved | layer 2 | `packages/orthograph/src/modules/visibility/visibility.test.ts:10` |
 | No secret or private value on a span; the journal keeps public fields only | proved | layer 2 | `packages/language-effect/src/modules/handler/internal/attributes.test.ts:53` |
 | MCP shows public fields, a private one only to its role, a secret never | proved | layer 2 | `packages/language-effect/src/modules/mcp/mcp.test.ts:62` |
 | Free text untraced unless marked | specified | M1.19 | `payload.title` absent from `sheet.open`'s span (O2 gap 2) |
@@ -375,7 +375,7 @@ secret field at rest. Everything else on it is proved or specified.
 
 <Note kind="question" id="lives-closed-list" slice="M1.17">
   Ledger `X-17` and `STO-26`. A thing's store is still a closed list in code: `"database"` or `"actor"`
-  (`packages/forman/src/modules/things/types.ts:32`, and again in `packages/compiler/src/modules/model/types.ts:41`).
+  (`packages/orthograph/src/modules/things/types.ts:32`, and again in `packages/compiler/src/modules/model/types.ts:41`).
   K3 says a thing lives in a store of an open kind, and K5 makes a chain a host whose store kind is `chain`. What a
   thing declares to live on a chain waits on K7. The change is in [stores](stores.mdx).
 </Note>
@@ -387,7 +387,7 @@ secret field at rest. Everything else on it is proved or specified.
 
 <Note kind="question" id="target-word">
   Ledger `G-02`. The retired word "target" still means language in two comments the page leans on:
-  `packages/forman/src/modules/values/types.ts:8` ("readable by every target") and
-  `packages/forman/src/modules/visibility/types.ts:2` ("A target that has no private state"). It is due to be renamed
+  `packages/orthograph/src/modules/values/types.ts:8` ("readable by every target") and
+  `packages/orthograph/src/modules/visibility/types.ts:2` ("A target that has no private state"). It is due to be renamed
   to language.
 </Note>

@@ -1,4 +1,4 @@
-import { Blueprint } from "@formants/forman";
+import { Blueprint } from "orthograph";
 
 /** How many of something. */
 export const Count = Blueprint.value(Blueprint.uint(32));

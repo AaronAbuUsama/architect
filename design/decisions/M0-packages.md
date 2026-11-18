@@ -1,5 +1,9 @@
 # M0: the package map, and what the rename leaves alone
 
+> **Superseded in its names on 18 November 2026 by [`K6-orthograph.md`](K6-orthograph.md):** the scope `@formants` is
+> now `@orthograph`, the front door `@formants/forman` is the plain package `orthograph`, and the command is `ortho`
+> ([`../naming.md`](../naming.md) maps every name). The map's shape and its rules stand.
+
 Decided 17 November 2026 by the M0 builder, under K2 Q4 ("one front door, plus one package per plugin, language and
 host") and Aaron's own calls in [`K2-forman-frame.md`](K2-forman-frame.md). This is slice M0.01 of
 [`../milestones.md`](../milestones.md). Nothing is published to npm before M7, so every name here can still change

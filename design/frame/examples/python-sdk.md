@@ -4,7 +4,7 @@ Part of the frame's worked examples ([`../README.md`](../README.md)). Proposed, 
 [`../projections.md`](../projections.md) section 3.12 end to end.
 
 **Language: Python, as a client only.** "Language" is the axis that was called "target" before (Effect, Solidity,
-Noir, Python), packaged as `@formants/language-python`. Here it is a client language: no handler is ever written in
+Noir, Python), packaged as `@orthograph/language-python`. Here it is a client language: no handler is ever written in
 Python. The host is `Host.python` (the caller's process); the projection is `python`, the thing that ships to PyPI.
 `design/later.md`'s "Python as a third target" means server-side Python, which is much bigger and stays later.
 
@@ -16,7 +16,7 @@ errors and docs match the TypeScript SDK exactly, and it should be proved by the
 
 ## What a language provides, and what a projection adds
 
-| `@formants/language-python` provides | the `python` projection adds |
+| `@orthograph/language-python` provides | the `python` projection adds |
 |---|---|
 | value mapping: `Amount` (uint128) → `int` with a range check, an id → `str` with its pattern, `Memo` → `str` | which operations it takes, and from what (the API's OpenAPI document) |
 | a runtime: one HTTP client (`httpx`), errors as typed exceptions or results | the rendered package: models, client, `pyproject.toml` |
@@ -31,8 +31,8 @@ The app writes nothing new about allowances. It mounts one projection:
 
 ```ts
 // blueprint/projections/python.ts: the mount is called `python`
-import { Blueprint } from "@formants/forman";
-import python from "@formants/python";
+import { Blueprint } from "orthograph";
+import python from "@orthograph/python";
 
 export default Blueprint.use(python, (p) => [p.choose(p.choices.errors.exceptions), p.choose(p.choices.package.name("acme"))]);
 ```
@@ -118,7 +118,7 @@ Nothing new. Python is a caller.
 ## Proof
 
 ```text
-$ forman prove --env local
+$ ortho prove --env local
 replays   api 41/41   sdk 41/41   cli 38/38   mcp 22/22   python 30/30  (11 steps session-only, not in python)
 ```
 
@@ -129,7 +129,7 @@ releases `acme==1.4.0`. Locally, the release goes to a local package index, as V
 
 | | Today (`origin/layer/3`) | Proposed |
 |---|---|---|
-| Python | nothing; "Python as a third target. Later." (`design/later.md:8`) | `@formants/language-python` (client only) plus the `python` projection |
+| Python | nothing; "Python as a third target. Later." (`design/later.md:8`) | `@orthograph/language-python` (client only) plus the `python` projection |
 | Adding a client | edit the fixed renderer list (`packages/generators/src/modules/render/service.ts:13-24`) | mount a projection |
 | Proving a client | journeys call the server over raw HTTP (`packages/prove/src/modules/journeys/internal/world.ts:85`) | each projection replays the journeys it takes |
 | Release secrets | one kind, named by string | `Secret.release`, held by CI only |

@@ -85,5 +85,5 @@ export default Blueprint.store.database();
 ```
 ````
 
-Inline references, such as `packages/forman/src/modules/things/types.ts:32`, are checked the same way: the file must
+Inline references, such as `packages/orthograph/src/modules/things/types.ts:32`, are checked the same way: the file must
 exist and have that line.

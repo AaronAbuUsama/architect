@@ -1,4 +1,4 @@
-import { Blueprint } from "@formants/forman";
+import { Blueprint } from "orthograph";
 
 /** Start waits until every intake question is answered or spiked. */
 export class MissionHasOpenQuestions extends Blueprint.error({ open: Blueprint.uint(16) }, { exit: 51 }) {}

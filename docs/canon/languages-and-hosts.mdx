@@ -11,7 +11,7 @@ status: draft
 milestone: M6
 slices: [M1.09, M6.01, M6.10, M6.11]
 decisions: [K2, K3, K5]
-links: [forman, doors, data, handlers, stores, projections, environments]
+links: [orthograph, doors, data, handlers, stores, projections, environments]
 ---
 
 ## The idea
@@ -29,8 +29,8 @@ The sign-up sheet's generated Worker is where the two meet. Everything that give
 language, `language-effect`. Everything that is about the place comes from the host, `host-cloudflare`:
 
 ```ts file=examples/signup/generated/server/main.ts lines=9-10
-import { AuthD1, Database, JournalD1, StoreD1, Telemetry, toWorld } from "@formants/host-cloudflare";
-import { Auth, Busy, BusyLive, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@formants/language-effect";
+import { AuthD1, Database, JournalD1, StoreD1, Telemetry, toWorld } from "@orthograph/host-cloudflare";
+import { Auth, Busy, BusyLive, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@orthograph/language-effect";
 ```
 
 `Handlers.serve` is the language's enforcer. It wraps each handler in the same fixed order, whatever host it runs on:
@@ -83,7 +83,7 @@ export class Store extends Context.Service<Store, {
   readonly commit: (commit: Commit) => Effect.Effect<Committed>;
   /** The answer already committed under a request key, as wire JSON, if there is one. */
   readonly answered: (key: string) => Effect.Effect<string | undefined>;
-}>()("@formants/language-effect/Store") {}
+}>()("@orthograph/language-effect/Store") {}
 ```
 
 3. **The host supplies each service for its place.** `host-cloudflare` implements the store over D1
@@ -92,7 +92,7 @@ export class Store extends Context.Service<Store, {
    (`examples/signup/generated/server/wrangler.jsonc:8-11`).
 4. **`runs` says where an operation runs.** The declaration can say three places. Only one is accepted:
 
-```ts file=packages/forman/src/modules/operations/types.ts lines=21-22
+```ts file=packages/orthograph/src/modules/operations/types.ts lines=21-22
 /** Where an operation runs: `server` (every target today), on the caller's `client`, or on a `chain`. */
 export type Runs = "client" | "server" | "chain";
 ```
@@ -104,14 +104,12 @@ if (op.runs !== "server") problems.push(`${file}: runs "${op.runs}" is not suppo
 ```
 
 ```ts file=packages/compiler/src/modules/model/internal/describe.ts lines=167-171
-/** What an operation that doesn't run on the server needs: a target that does. Only the Effect target exists today. */
+/** What an operation that doesn't run on the server needs: a language that does. Only the Effect language exists today. */
 const RUNS_NEEDS: Readonly<Record<string, string>> = {
-  client: "it needs a target that runs operations on the caller's own device (language-noir, a later target), and this project's only target, language-effect, runs them all on the server",
-  chain: "it needs a target that runs operations on a chain (language-solidity, or language-noir on Aztec), and this project's only target, language-effect, runs them all on the server",
+  client: "it needs a language that runs operations on the caller's own device (language-noir, a later language), and this project's only language, language-effect, runs them all on the server",
+  chain: "it needs a language that runs operations on a chain (language-solidity, or language-noir on Aztec), and this project's only language, language-effect, runs them all on the server",
 };
 ```
-
-   That message still says "target", the word K2 retired for language (see the note `target-word`).
 
 ### Every language and host
 
@@ -137,7 +135,7 @@ A language never chooses where it runs, and a host never gives an operation mean
 Only the first of each is built. `language-solidity` is a placeholder today:
 
 ```ts file=packages/language-solidity/src/index.ts lines=1-2
-// @formants/language-solidity: the Solidity target.
+// @orthograph/language-solidity: the Solidity target.
 export {};
 ```
 
@@ -161,7 +159,7 @@ export default Blueprint.environment({
   runs: "on this machine",
   identity: Identity.testPrincipals, // fixed test people, no sign-in
   database: Cloud.d1.local(), // the local runtime emulates D1: no database process
-  telemetry: [Telemetry.sink.local()], // prove's Collector, and the viewer while `forman telemetry view` runs
+  telemetry: [Telemetry.sink.local()], // prove's Collector, and the viewer while `ortho telemetry view` runs
 });
 ```
 
@@ -188,7 +186,7 @@ boundaries": "a host's types in a handler" never crosses from host to language).
 | the Effect language: frame, wrapper, ports | `packages/language-effect/src/modules/handler/service.ts:26` | built |
 | the store port a host implements | `packages/language-effect/src/modules/records/types.ts:62` | built |
 | the Cloudflare host: D1, Durable Objects, journal, telemetry | `packages/host-cloudflare/src/modules/store/service.ts:11` | built |
-| `runs` in the declaration | `packages/forman/src/modules/operations/types.ts:22` | built |
+| `runs` in the declaration | `packages/orthograph/src/modules/operations/types.ts:22` | built |
 | the compiler's refusal of `client` and `chain` | `packages/compiler/src/modules/model/internal/describe.ts:108` | built |
 | runtime entries per host (`worker`, `node`) | M1.09 | planned |
 | `language-solidity`, no longer a placeholder | `packages/language-solidity/src/index.ts:1` | planned, M6.11, after K7 |
@@ -225,9 +223,9 @@ ABI, what clients may reach, and how Solidity, Noir and Solana share one model. 
 <Note kind="question" id="runs-client">An operation that runs on the caller's device (`runs: "client"`, such as a
 wallet link) is refused by the compiler, and no slice lifts the refusal. Ledger `LAH-02` (high).</Note>
 
-<Note kind="question" id="target-word">The retired word still reaches users: the compiler's refusal says "needs a
-target" (`describe.ts:167-170`), and the declaration's own comments use it
-(`packages/forman/src/modules/operations/types.ts:15-16`, `:21`, `:49`). No slice owns the rename. Ledger `G-02`.</Note>
+<Note kind="question" id="target-word">The compiler's refusal now says "needs a language" (`describe.ts:167-170`), but
+the retired word is still in the declaration's own comments (`packages/orthograph/src/modules/operations/types.ts:15-16`,
+`:21`, `:49`). No slice owns the rest of the rename. Ledger `G-02`.</Note>
 
 <Note kind="question" id="host-service" slice="M1.09">The build plan says the Effect runtime is host-neutral behind a
 `Host` service, so a Node host is a fallback if workerd bites. No such service exists in `language-effect`: the host

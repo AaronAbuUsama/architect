@@ -1,22 +1,23 @@
 {
-  "name": "@formants/cli",
+  "name": "@orthograph/cli",
   "version": "0.0.0",
   "type": "module",
   "dependencies": {
-    "@formants/compiler": "workspace:*",
-    "@formants/generators": "workspace:*",
-    "@formants/lint": "workspace:*",
-    "@formants/prove": "workspace:*",
+    "@orthograph/compiler": "workspace:*",
+    "@orthograph/generators": "workspace:*",
+    "@orthograph/lint": "workspace:*",
+    "@orthograph/prove": "workspace:*",
+    "orthograph": "workspace:*",
     "@effect/platform-node": "4.1.1",
     "effect": "4.1.1",
     "nx": "24.0.3",
     "wrangler": "4.156.1"
   },
   "devDependencies": {
-    "@formants/logbook": "workspace:*"
+    "@orthograph/logbook": "workspace:*"
   },
   "bin": {
-    "forman": "./src/main.ts"
+    "ortho": "./src/main.ts"
   },
   "imports": {
     "#modules/*.js": "./src/modules/*.ts"
@@ -30,7 +31,7 @@
       "#modules/*.js": "./dist/modules/*.js"
     },
     "bin": {
-      "forman": "./dist/main.js"
+      "ortho": "./dist/main.js"
     }
   }
 }

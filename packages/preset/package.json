@@ -1,5 +1,5 @@
 {
-  "name": "@formants/preset",
+  "name": "@orthograph/preset",
   "version": "0.0.0",
   "type": "module",
   "generators": "./generators.json",
@@ -11,8 +11,9 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@formants/compiler": "workspace:*",
-    "@formants/generators": "workspace:*",
+    "@orthograph/compiler": "workspace:*",
+    "@orthograph/generators": "workspace:*",
+    "orthograph": "workspace:*",
     "@nx/devkit": "24.0.3"
   },
   "devDependencies": {

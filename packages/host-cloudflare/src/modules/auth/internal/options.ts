@@ -1,4 +1,4 @@
-// Better Auth as Forman uses it: identity only (people, sessions, accounts, API keys), on D1, with Forman ids
+// Better Auth as Orthograph uses it: identity only (people, sessions, accounts, API keys), on D1, with Orthograph ids
 // and every table under `auth_`, so no thing's table can collide with it. Organizations stay the project's own things.
 import type { BetterAuthOptions } from "better-auth";
 import { bearer, deviceAuthorization, jwt } from "better-auth/plugins";

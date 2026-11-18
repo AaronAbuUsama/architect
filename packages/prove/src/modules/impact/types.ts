@@ -1,10 +1,10 @@
 // What a change to the blueprint unproves. prove records, per operation that passed every eval, the hashes its proof
 // rests on; impact compares today's model with them, so only what a change touches has to be proven again.
 import type { Effect } from "effect";
-import type { Change, Depends, Model, Versioned } from "@formants/compiler";
+import type { Change, Depends, Model, Versioned } from "@orthograph/compiler";
 import type { Verdict } from "#modules/evals/types.js";
 
-/** `.forman/evidence/proven.json`: the model last proven, and each proven operation's dependencies then. */
+/** `.ortho/evidence/proven.json`: the model last proven, and each proven operation's dependencies then. */
 export interface Ledger {
   readonly model: Model;
   readonly proven: Readonly<Record<string, Depends>>;

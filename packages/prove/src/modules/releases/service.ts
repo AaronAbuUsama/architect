@@ -1,7 +1,8 @@
+import { Names } from "orthograph/server";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { Effect, Redacted } from "effect";
-import { Compare, canonical } from "@formants/compiler";
+import { Compare, canonical } from "@orthograph/compiler";
 import { Environments } from "#modules/environments/service.js";
 import { Verdicts } from "#modules/verdicts/service.js";
 import type { TokenSource } from "#modules/verdicts/types.js";
@@ -46,7 +47,7 @@ const tokenFrom = (source: TokenSource) =>
 
 export const Releases: ReleasesApi = {
   locate: ({ root, env }) => {
-    const given = env["FORMAN_LOGBOOK_URL"];
+    const given = env[Names.variable("LOGBOOK_URL")];
     if (given) return Effect.succeed(given.replace(/\/+$/, ""));
     return Environments.status({ root, name: "logbook" }).pipe(
       Effect.map((s) => (s.state === "up" ? s.url : undefined)),

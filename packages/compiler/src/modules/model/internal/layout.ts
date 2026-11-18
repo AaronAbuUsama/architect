@@ -1,5 +1,5 @@
 // Reads the blueprint's layout: which file holds what, and the name each declaration takes from its path or export.
-import type { AnyErrorClass, Environment, Event, Machine, Operation, Read, Role, Thing, Value } from "@formants/forman";
+import type { AnyErrorClass, Environment, Event, Machine, Operation, Read, Role, Thing, Value } from "orthograph";
 import type { LoadedFile } from "#modules/source/types.js";
 
 export interface ThingFiles {

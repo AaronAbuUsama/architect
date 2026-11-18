@@ -1,12 +1,12 @@
 import { Cause, Effect, Exit, Layer, Tracer } from "effect";
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { Blueprint } from "@formants/forman";
-import { ErrorNames } from "@formants/forman/server";
+import { Blueprint } from "orthograph";
+import { ErrorNames } from "orthograph/server";
 import { Busy } from "#modules/work/types.js";
 import { BusyLive } from "#modules/work/service.js";
 import { storeMemory } from "#modules/records/service.js";
 import { Records, Store } from "#modules/records/types.js";
-import { EventNames } from "@formants/forman/server";
+import { EventNames } from "orthograph/server";
 import { NotAllowed } from "#modules/access/types.js";
 import { Handlers } from "./service.ts";
 import { InvalidPayload, NotFrom, type Handler } from "./types.ts";

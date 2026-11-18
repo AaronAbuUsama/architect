@@ -1,7 +1,7 @@
 // Planted fixture: founds the organisation but never runs the declared `owner` step.
 import { Effect } from "effect";
 import type { SqlClient } from "effect/sql";
-import { Ids, Records } from "@formants/language-effect";
+import { Ids, Records } from "@orthograph/language-effect";
 import type { Handler } from "../../generated/api/src/organization/create.handler.ts";
 import { Organization } from "../../blueprint/things/organization/thing.ts";
 

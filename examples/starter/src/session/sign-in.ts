@@ -1,6 +1,6 @@
 // Scaffolded from blueprint/things/session/verbs/sign-in.ts. Yours from now on.
 import { Effect } from "effect";
-import { Auth } from "@formants/language-effect";
+import { Auth } from "@orthograph/language-effect";
 import type { Handler } from "../../generated/api/src/session/sign-in.handler.ts";
 import { SessionCredentialsWrong } from "../../blueprint/things/session/errors.ts";
 

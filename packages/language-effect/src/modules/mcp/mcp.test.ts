@@ -3,8 +3,8 @@
 // error with its code, and the role check is the API's.
 import { Effect, Layer } from "effect";
 import { describe, expect, it } from "vitest";
-import { Blueprint } from "@formants/forman";
-import { ErrorNames } from "@formants/forman/server";
+import { Blueprint } from "orthograph";
+import { ErrorNames } from "orthograph/server";
 import { Handlers, Reads } from "#modules/handler/service.js";
 import type { Handler } from "#modules/handler/types.js";
 import { storeMemory } from "#modules/records/service.js";

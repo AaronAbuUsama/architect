@@ -37,7 +37,7 @@ const capture = (root: string, revision: string, scratch: string) => Effect.gen(
 /** Only the source tree is temporary. All packages, binaries and formula URLs are owned by the original root. */
 export const withSource = <A, E, R>(root: string, revision: string | undefined, use: (source: string) => Effect.Effect<A, E, R>) =>
   revision === undefined ? use(root) : Effect.acquireUseRelease(
-    io(() => mkdtempSync(join(realpathSync(tmpdir()), "forman-publish-source-"))),
+    io(() => mkdtempSync(join(realpathSync(tmpdir()), "ortho-publish-source-"))),
     (scratch) => capture(root, revision, scratch).pipe(Effect.flatMap(use)),
     (scratch) => io(() => rmSync(scratch, { recursive: true, force: true })).pipe(Effect.ignore),
   );

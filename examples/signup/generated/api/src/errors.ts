@@ -1,6 +1,6 @@
 // Generated from the blueprint. Do not edit.
 import { Schema } from "effect";
-import { ErrorNames, structOf } from "@formants/forman/server";
+import { ErrorNames, structOf } from "orthograph/server";
 import * as Sheet from "../../../blueprint/things/sheet/errors.ts";
 
 ErrorNames.name(Sheet.SheetFull, "SheetFull");

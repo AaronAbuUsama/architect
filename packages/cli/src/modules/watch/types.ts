@@ -1,6 +1,6 @@
-// `forman watch --env <name>`: the evals that telemetry can answer, run over an environment's recorded traffic (L2.09, D3 #140 to #149).
+// `ortho watch --env <name>`: the evals that telemetry can answer, run over an environment's recorded traffic (L2.09, D3 #140 to #149).
 import type { Effect } from "effect";
-import type { WatchSource } from "@formants/prove";
+import type { WatchSource } from "@orthograph/prove";
 
 /** What a command prints and how it exits; only `main.ts` writes it out. */
 export interface Said {
@@ -11,7 +11,7 @@ export interface Said {
 
 export interface WatchCommandApi {
   /**
-   * Exit 0 when no eval failed, drift included (drift is a task, written under `.forman/tasks/`); 1 when an eval failed on
+   * Exit 0 when no eval failed, drift included (drift is a task, written under `.ortho/tasks/`); 1 when an eval failed on
    * live traffic; 2 when it couldn't run (no telemetry recorded, no Axiom sink named, no query token, a `--since` that isn't a
    * duration). `since` is `30s`, `15m`, `1h` or `2d`.
    */

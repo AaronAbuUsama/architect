@@ -1,4 +1,4 @@
-// The project's one loose file, `forman.config.ts`: its name and how people sign in. What it generates is mounted
+// The project's one loose file, `ortho.config.ts`: its name and how people sign in. What it generates is mounted
 // as projections from M1 (M1.11); the old `outputs` field was read by nothing and is gone (D3 #112, M0.03).
 export interface AuthKit {
   readonly kind: "auth";

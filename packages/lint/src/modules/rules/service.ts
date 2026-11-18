@@ -4,9 +4,9 @@ import { declaredErrorsOnly, refusalHasLog } from "./internal/refusals.ts";
 import { handlerMatchesPath, noWallClock } from "./internal/place.ts";
 import { noOldNames } from "./internal/old-names.ts";
 
-/** The oxlint plugin. `forman check` registers it by path and passes every rule the same `ProjectFacts`. */
+/** The oxlint plugin. `ortho check` registers it by path and passes every rule the same `ProjectFacts`. */
 export const plugin: Plugin = {
-  meta: { name: "forman" },
+  meta: { name: "ortho" },
   rules: {
     "no-name-as-string": noNameAsString,
     "refusal-has-log": refusalHasLog,

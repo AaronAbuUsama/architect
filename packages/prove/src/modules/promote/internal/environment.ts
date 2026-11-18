@@ -5,7 +5,7 @@ import { Environments } from "#modules/environments/service.js";
 import type { Up } from "#modules/environments/types.js";
 import { PromoteFailed, type Target } from "../types.ts";
 
-/** Start `target` on the bundle (or restart it onto it, its state kept), then check `GET /_forman/bundle` answers the same revision and hash. */
+/** Start `target` on the bundle (or restart it onto it, its state kept), then check `GET /_ortho/bundle` answers the same revision and hash. */
 export const runningOn = (root: string, target: Target, built: Built): Effect.Effect<Up, PromoteFailed> =>
   Effect.gen(function* () {
     const up = yield* Environments.up({ root, name: target, revision: built.revision }).pipe(Effect.mapError((e) => new PromoteFailed({ message: e.message })));

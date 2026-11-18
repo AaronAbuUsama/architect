@@ -1,6 +1,6 @@
 // Generated from the blueprint. Do not edit.
 import { Schema } from "effect";
-import { ErrorNames, structOf } from "@formants/forman/server";
+import { ErrorNames, structOf } from "orthograph/server";
 import * as Allowance from "../../../blueprint/things/allowance/errors.ts";
 import * as Person from "../../../blueprint/things/person/errors.ts";
 import * as Session from "../../../blueprint/things/session/errors.ts";

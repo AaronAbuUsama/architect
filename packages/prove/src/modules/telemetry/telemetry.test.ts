@@ -52,8 +52,8 @@ describe("the collector, in Docker", () => {
       // A process that has exited: its pid is a dead owner. Another is this process: a live one.
       const gone = spawnSync(process.execPath, ["-e", ""]);
       const deadPid = gone.pid;
-      const orphan = `forman-collector-${deadPid}-1`;
-      const alive = `forman-collector-${process.pid}-2`;
+      const orphan = `ortho-collector-${deadPid}-1`;
+      const alive = `ortho-collector-${process.pid}-2`;
       const spare = resolve(import.meta.dirname, "../../../test/tmp/orphans");
       for (const n of [orphan, alive]) {
         mkdirSync(`${spare}/${n}`, { recursive: true });

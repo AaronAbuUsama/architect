@@ -23,7 +23,7 @@ const provider = (captured: { url: URL | undefined }): OAuthClientProvider => {
   let verifier = "";
   return {
     redirectUrl,
-    clientMetadata: { client_name: "forman l2.08", redirect_uris: [redirectUrl], grant_types: ["authorization_code", "refresh_token"], response_types: ["code"], token_endpoint_auth_method: "none" },
+    clientMetadata: { client_name: "ortho l2.08", redirect_uris: [redirectUrl], grant_types: ["authorization_code", "refresh_token"], response_types: ["code"], token_endpoint_auth_method: "none" },
     state: () => randomBytes(8).toString("hex"),
     clientInformation: () => client,
     saveClientInformation: (info) => { client = info; },
@@ -91,7 +91,7 @@ describe("the remote MCP server", () => {
   it("exports the first MCP operation to an extra Collector sink without a prior API call or local OTLP URL", { timeout: 180_000 }, () =>
     Effect.runPromise(Effect.scoped(Effect.gen(function* () {
       const dir = yield* Effect.acquireRelease(
-        Effect.sync(() => mkdtempSync(join(realpathSync(tmpdir()), "forman-mcp-telemetry-"))),
+        Effect.sync(() => mkdtempSync(join(realpathSync(tmpdir()), "ortho-mcp-telemetry-"))),
         (path) => Effect.sync(() => rmSync(path, { recursive: true, force: true })),
       );
       const collector = yield* Collectors.start(dir);
@@ -101,7 +101,7 @@ describe("the remote MCP server", () => {
       // Only Better Auth and OAuth run before the tool: no cast, ordinary operation or telemetry configuration call.
       const session = yield* Effect.promise(() => fetch(`${url}/api/auth/sign-up/email`, {
         method: "POST", headers: { "content-type": "application/json", origin: url },
-        body: JSON.stringify({ name: "First MCP", email: "first-mcp@formants.test", password: randomBytes(16).toString("hex") }),
+        body: JSON.stringify({ name: "First MCP", email: "first-mcp@orthograph.test", password: randomBytes(16).toString("hex") }),
       }).then(async (response) => {
         expect(response.status).toBe(200);
         return (await response.json()) as { token: string };

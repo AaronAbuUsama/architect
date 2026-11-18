@@ -1,6 +1,6 @@
 // Ids for new instances: the thing's prefix, then random base-36. Random comes from Effect, so a world can seed it.
 import type { Effect } from "effect";
-import type { Field, Value } from "@formants/forman";
+import type { Field, Value } from "orthograph";
 
 export interface IdsApi {
   /** A fresh id with this prefix: `alw_3k9x...`. */

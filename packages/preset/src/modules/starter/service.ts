@@ -1,8 +1,8 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 import { installPackagesTask } from "@nx/devkit";
-import type { Model } from "@formants/compiler";
-import { Render } from "@formants/generators/render";
+import type { Model } from "@orthograph/compiler";
+import { Render } from "@orthograph/generators/render";
 import type { StarterApi } from "./types.ts";
 import { IGNORES, TSCONFIG, WORKSPACE, mergeWorkspace, packageJson } from "./internal/project.ts";
 

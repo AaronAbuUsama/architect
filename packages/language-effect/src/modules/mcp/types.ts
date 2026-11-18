@@ -2,7 +2,7 @@
 // transport (D3 #122). A tool is the operation's own call, as the person the access token names, so the role check is the
 // API's. Only public fields are in a tool's input or its answer; a field private to roles is shown to a caller who holds one.
 import type { Effect } from "effect";
-import type { FieldsInput, Operation, Principal, Read, Thing } from "@formants/forman";
+import type { FieldsInput, Operation, Principal, Read, Thing } from "orthograph";
 import type { Store } from "#modules/records/types.js";
 
 /** What a tool calls: an operation, a read by id, or a list read (whose payload and answer differ from a read by id). */

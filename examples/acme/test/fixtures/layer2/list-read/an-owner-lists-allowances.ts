@@ -1,6 +1,6 @@
 // Journey-author file, planted: it calls allowance.list, which exists only once a copy has added the read, so it is
 // a fixture and not in journeys/. Install as journeys/an-owner-lists-allowances.ts after list.ts.
-import { Blueprint, expect, noEvents, refuses } from "@formants/forman";
+import { Blueprint, expect, noEvents, refuses } from "orthograph";
 import { owner } from "../blueprint/things/organization/roles.ts";
 import { grantee } from "../blueprint/things/allowance/roles.ts";
 import list from "../blueprint/things/allowance/verbs/list.ts";

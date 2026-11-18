@@ -10,7 +10,7 @@ tmp/
 coverage/
 # The coverage eval's planted fixture is not a coverage report.
 !examples/acme/test/fixtures/evals/coverage/
-.forman/
+.ortho/
 packages/preset/files/
 .claude/worktrees/
 # The canon's preview: built by `nx run canon:preview`, never committed.

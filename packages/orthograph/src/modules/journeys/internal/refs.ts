@@ -1,7 +1,7 @@
 // Refs are proxies: any property read on one is a longer ref, so `s.last.allowance` needs no declared shape.
 import type { Ref } from "../types.ts";
 
-const PATH = Symbol.for("forman/ref-path");
+const PATH = Symbol.for("ortho/ref-path");
 
 export const refTo = (path: ReadonlyArray<string>): any =>
   new Proxy(Object.freeze({ [PATH]: path }), {

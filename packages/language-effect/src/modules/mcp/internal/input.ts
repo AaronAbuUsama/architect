@@ -1,5 +1,5 @@
 import { Schema } from "effect";
-import type { FieldsInput } from "@formants/forman";
+import type { FieldsInput } from "orthograph";
 import { hiddenInputs } from "./shown.ts";
 
 type Json = { readonly [key: string]: unknown };

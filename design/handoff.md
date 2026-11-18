@@ -72,7 +72,7 @@ is judged by whether it gets us there sooner and truer.
 9. **Chains are designed together:** Solidity, Noir and Solana, including contracts we don't write (K7, the war game
    thread). Our own contracts only; other people's are sources behind adapters. K5's Q4 waits on K7.
 10. **The name is Orthograph**, the command `ortho`, the npm scope `@orthograph` (the org exists), with "blueprint"
-    kept (K6). The code still says Forman until the rename sweep.
+    kept (K6). The rename sweep has run: the code says it too.
 
 ### Every open line
 
@@ -82,7 +82,7 @@ Three threads, and the conductor.
 |---|---|---|---|---|---|---|
 | ① | **Docs canon (MDX)** | `claude/docs-canon-cf2c38` | #38 | Pass 1 (outline, template, components, `stores` and `traces`) agreed with Aaron; then pass 2, every page in layers, checked against the ledger before each layer | Re-layering on K5: sign-up sheet as the example, the operations DX above, the port, chain pages waiting on K7. 🔍 review before Aaron | **Aaron reviews layer 1.** Not merged before that |
 | ⛓ | **Chain languages war game (K7)** | `spike/chain-languages` | none yet | K7 recorded with its spike evidence, and its batch of questions put to Aaron | Running three local spikes, on main since K5 merged | Opens a PR and brings Aaron the K7 round |
-| 🔁 | **Rename sweep to Orthograph** | (not started) | — | Every living name is Orthograph, `ortho`, `@orthograph/*`; the old-names lint rule covers "forman"; the gates pass | Waits on #42 (naming) and #38 (canon) | Starts once both land. One mechanical sweep, like M0 |
+| 🔁 | **Rename sweep to Orthograph** | (not started) | — | Every living name is Orthograph, `ortho`, `@orthograph/*`; the old-names lint rule covers the retired name; the gates pass | Waits on #42 (naming) and #38 (canon) | Starts once both land. One mechanical sweep, like M0 |
 | 📒 | **Ledger follow-up** | `claude/ledger-k5` | #47 | The ledger matches the merged K5 | Rebasing on K5; merges itself when green | Then its thread is archived |
 | 🏷 | **Naming (K6)** | `naming` | #42 | K6 and the name map on `main` | Main merged in for a fresh CI run. Its only red check was Layer 1's check 4, where an agent writes a handler live, which doesn't depend on a docs-only change | The conductor merges it when green |
 
@@ -141,7 +141,7 @@ parallel. K7 runs beside all of this and unblocks the chain slices.
 - **Visuals spike and the `visuals` skill:** merged in PR #34 (18 November).
 - **This board's last round:** merged in PR #40.
 
-- **M0, land and rename:** merged in PR #32. Forman, `forman`, `@formants/*`, `language-*`, the lint rule against old
+- **M0, land and rename:** merged in PR #32. The framework's names (renamed again since, K6), `language-*`, the lint rule against old
   names, the docs as one page. Evidence in [`evidence/M0.02/`](evidence/M0.02/) to [`evidence/M0.06/`](evidence/M0.06/).
 - **K3 and O2:** merged in PR #36. Stores of open kinds, sources through adapters; the three trace gaps with their
   slices.

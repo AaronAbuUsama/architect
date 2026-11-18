@@ -1,7 +1,7 @@
 // What a span may say about a call. An allowlist, built from the declaration's `visibility` (L2.P): only a field declared
 // public has its value written as an attribute. A secret or private field is absent, and so is anything the
 // declaration doesn't name, so the allowlist fails closed: a new kind of field is never an attribute by accident.
-import type { FieldsInput } from "@formants/forman";
+import type { FieldsInput } from "orthograph";
 
 const text = (v: unknown): string =>
   typeof v === "string" ? v : typeof v === "bigint" ? v.toString() : JSON.stringify(v, (_, x: unknown) => (typeof x === "bigint" ? x.toString() : x));

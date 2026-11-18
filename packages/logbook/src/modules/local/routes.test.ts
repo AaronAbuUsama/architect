@@ -13,10 +13,10 @@ const IMAGE = "ghcr.io/navikt/mock-oauth2-server:6.1.4@sha256:647dd8c78a54f0e6fc
 const PORTS = { logbook: 9320, issuer: 9321 };
 const name = `logbook-routes-issuer-${process.pid}`;
 const base = `http://127.0.0.1:${PORTS.logbook}`;
-const issuer = `http://127.0.0.1:${PORTS.issuer}/forman`;
-const config = JSON.stringify({ interactiveLogin: false, tokenCallbacks: [{ issuerId: "forman", tokenExpiry: 600,
+const issuer = `http://127.0.0.1:${PORTS.issuer}/ortho`;
+const config = JSON.stringify({ interactiveLogin: false, tokenCallbacks: [{ issuerId: "ortho", tokenExpiry: 600,
   requestMappings: [false, true].map((pr) => ({ requestParam: "client_id", match: pr ? "ci-pr" : "ci-main", claims: {
-    sub: `repo:acme/acme:ref:${pr ? "refs/pull/3/merge" : "refs/heads/main"}`, aud: ["forman-logbook"], repository: "acme/acme",
+    sub: `repo:acme/acme:ref:${pr ? "refs/pull/3/merge" : "refs/heads/main"}`, aud: ["ortho-logbook"], repository: "acme/acme",
     ref: pr ? "refs/pull/3/merge" : "refs/heads/main", workflow: "ci", event_name: pr ? "pull_request" : "push",
     sha: "0123456789abcdef0123456789abcdef01234567",
     job_workflow_ref: `acme/acme/.github/workflows/ci.yml@${pr ? "refs/pull/3/merge" : "refs/heads/main"}`,
@@ -33,7 +33,7 @@ const start = async (policyIssuer = issuer) => {
   const scope = Effect.runSync(Scope.make());
   stop = () => Effect.runPromise(Scope.close(scope, Exit.void));
   await Effect.runPromise(Logbook.start({ port: PORTS.logbook, state, log: join(state, "wrangler.log"),
-    policy: { issuer: policyIssuer, jwksUrl: `${issuer}/jwks`, audience: "forman-logbook", repository: "acme/acme",
+    policy: { issuer: policyIssuer, jwksUrl: `${issuer}/jwks`, audience: "ortho-logbook", repository: "acme/acme",
       refs: ["refs/heads/main", "refs/pull/*/merge"], workflows: ["ci"] },
   }).pipe(Scope.provide(scope)));
 };

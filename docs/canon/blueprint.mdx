@@ -10,16 +10,16 @@ status: specified
 milestone: M1
 slices: [M1.03, M1.06]
 decisions: [K5, K2, D2]
-links: [forman, things, operations, journeys, plugins, handlers, data]
+links: [orthograph, things, operations, journeys, plugins, handlers, data]
 ---
 
 ## The idea
 
 The **blueprint** is the `blueprint/` folder in your project: TypeScript files written with `Blueprint.*` from
-`@formants/forman`. Each file holds **declarations**. A declaration is a value that says what something is (a thing,
+`orthograph`. Each file holds **declarations**. A declaration is a value that says what something is (a thing,
 its machine, an operation, a role) and does nothing when it runs. The compiler reads the folder and makes the
 **model**: one JSON contract with every name, every field, every refusal and every step, with each declaration hashed.
-Every projection is made from the model ([forman](forman.mdx)). One rule holds it together: **a declaration's name is
+Every projection is made from the model ([orthograph](orthograph.mdx)). One rule holds it together: **a declaration's name is
 its place**. The path gives the name, or the exported identifier does in a file that holds several. A declared name is
 never written as a string. `ortho check` is the command that compiles the blueprint and tells you whether everything
 made from it still holds.
@@ -47,7 +47,7 @@ The operation's file never says its own name. It imports everything else it mean
 reference the compiler can follow:
 
 ```ts file=examples/signup/blueprint/things/sheet/verbs/join.ts lines=1-7
-import { Blueprint } from "@formants/forman";
+import { Blueprint } from "orthograph";
 import { Sheet } from "../thing.ts";
 import { machine } from "../machine.ts";
 import { SheetFull } from "../errors.ts";
@@ -132,7 +132,7 @@ K5 names what else falls out of it from M1.03: journeys, starting worlds, role r
 and the projections can see them too (`design/decisions/K5-the-whole-shape.md:180`). Every thing and operation carries
 a hash of its declaration, so a change that only reformats a file changes nothing (`model.test.ts:50`). `ortho model`
 prints the model's short form, one line per thing and operation; `ortho model --json` prints all of it
-(`packages/cli/src/main.ts:21`).
+(`packages/cli/src/main.ts:22`).
 
 ### What `ortho check` tells you
 
@@ -194,7 +194,7 @@ hold.
 
 - **Not the code that runs.** A declaration does nothing when it runs. Behaviour is a [handler](handlers.mdx).
 - **Not the generated code.** `generated/` is made from the model, and editing it fails the drift part of
-  `ortho check` ([forman](forman.mdx)).
+  `ortho check` ([orthograph](orthograph.mdx)).
 - **Not the journeys.** Journeys prove the blueprint; they are written by a different agent and stay out of the model
   until M1.03 ([journeys](journeys.mdx)).
 - **Not a plugin.** A plugin is built once and mounted into a blueprint ([plugins](plugins.mdx)). Each thing and
@@ -208,7 +208,7 @@ hold.
 | the layout: names from paths | `packages/compiler/src/modules/model/internal/layout.ts:30` | built |
 | the model, described | `packages/compiler/src/modules/model/internal/describe.ts:93` | built |
 | the model's type | `packages/compiler/src/modules/model/types.ts:112` | built |
-| `ortho check` (today `forman check`) | `packages/cli/src/modules/check/service.ts:17` | built |
+| `ortho check` | `packages/cli/src/modules/check/service.ts:17` | built |
 | blanks, found and printed | `packages/cli/src/modules/check/internal/blanks.ts:7` | built |
 | `no-name-as-string` | `packages/lint/src/modules/rules/internal/names.ts:5` | built |
 | journeys, starting worlds and role rules in the model | `packages/compiler/src/modules/model/service.ts:9` | planned, M1.03 |
@@ -244,7 +244,7 @@ operation that has one.</Note>
 
 <Note kind="status" slice="M1.03">Journeys have two places (`BLU-02`). Prove reads both `blueprint/journeys/` and a
 `journeys` folder at the project's root (`packages/prove/src/modules/journeys/internal/load.ts:36`). The design and
-`ortho add journey` use `blueprint/journeys/` (`packages/cli/src/modules/add/internal/templates.ts:94`); acme's and
+`ortho add journey` use `blueprint/journeys/` (`packages/cli/src/modules/add/internal/templates.ts:95`); acme's and
 the sign-up sheet's journeys are both at the root, in `examples/signup/journeys/`. The canon teaches
 `blueprint/journeys/`, the place the picture draws them; the examples move there when M1.03 puts journeys in the
 model.</Note>

@@ -1,6 +1,6 @@
 ---
 name: spike
-description: How a 🧪 spike thread runs one throwaway experiment for Forman, and how the conductor briefs one. Use it when starting a spike, or when your brief says you are a 🧪 spike thread.
+description: How a 🧪 spike thread runs one throwaway experiment for Orthograph, and how the conductor briefs one. Use it when starting a spike, or when your brief says you are a 🧪 spike thread.
 ---
 
 # 🧪 Spike

@@ -1,5 +1,5 @@
 // Journey-author file. The builder of allowance.revoke and allowance.spend never edits it (AGENTS.md, "Journeys and checks come first").
-import { Blueprint, emits, noEvents, refuses, spans } from "@formants/forman";
+import { Blueprint, emits, noEvents, refuses, spans } from "orthograph";
 import { owner } from "../blueprint/things/organization/roles.ts";
 import { grantee } from "../blueprint/things/allowance/roles.ts";
 import { machine } from "../blueprint/things/allowance/machine.ts";

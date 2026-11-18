@@ -1,5 +1,5 @@
-// `forman check`: what must hold before a project is proven, in five parts. Blanks (every `Blueprint.todo` filled),
-// types (tsc), rules (the forman lint rules), drift (generated/ is exactly what the blueprint renders, so no
+// `ortho check`: what must hold before a project is proven, in five parts. Blanks (every `Blueprint.todo` filled),
+// types (tsc), rules (the ortho lint rules), drift (generated/ is exactly what the blueprint renders, so no
 // generated file was edited) and ratchets (the exceptions a project still allows itself, which may only go down).
 import type { Effect } from "effect";
 
@@ -31,6 +31,6 @@ export interface CheckApi {
   readonly blanks: (files: ReadonlyArray<{ readonly path: string; readonly text: string }>) => ReadonlyArray<Blank>;
   /** The lines `check` prints for blanks alone: `allowance has 3 blanks`, then each with its file and line. */
   readonly report: (blanks: ReadonlyArray<Blank>) => Checked;
-  /** Every part, on the project at `root`. Reads files and runs tsc and oxlint; never writes outside `.forman/`. */
+  /** Every part, on the project at `root`. Reads files and runs tsc and oxlint; never writes outside `.ortho/`. */
   readonly run: (root: string) => Effect.Effect<Checked>;
 }

@@ -45,8 +45,8 @@ export const exportRoots = (url: string, spans: ReadonlyArray<NonNullable<Return
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
             resourceSpans: [{
-              resource: { attributes: [{ key: "service.name", value: { stringValue: "forman-prove" } }, { key: "deployment.environment", value: { stringValue: "local" } }] },
-              scopeSpans: [{ scope: { name: "forman.prove" }, spans }],
+              resource: { attributes: [{ key: "service.name", value: { stringValue: "ortho-prove" } }, { key: "deployment.environment", value: { stringValue: "local" } }] },
+              scopeSpans: [{ scope: { name: "ortho.prove" }, spans }],
             }],
           }),
         }).then(() => undefined, () => undefined),

@@ -1,6 +1,6 @@
 import { Effect, Random } from "effect";
 import { describe, expect, it } from "vitest";
-import { Blueprint } from "@formants/forman";
+import { Blueprint } from "orthograph";
 import { Ids } from "./service.ts";
 
 describe("Ids", () => {

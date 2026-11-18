@@ -1,4 +1,4 @@
-import { Wire, type ModelWire } from "@formants/portal";
+import { Wire, type ModelWire } from "@orthograph/portal";
 import type { PortalRenderApi } from "./types.ts";
 import { renderMain } from "./internal/main.ts";
 

@@ -1,7 +1,7 @@
-// The forman lint rules: what the types can't see, as an oxlint JS plugin (`forman/*`). Each rule gets what the
-// project declares through one options object, which `forman check` writes from the model (rules have no types).
+// The ortho lint rules: what the types can't see, as an oxlint JS plugin (`ortho/*`). Each rule gets what the
+// project declares through one options object, which `ortho check` writes from the model (rules have no types).
 
-/** What `forman check` tells every rule about the project. */
+/** What `ortho check` tells every rule about the project. */
 export interface ProjectFacts {
   /** The project's root, absolute: rules see absolute file names and judge them by their path from here. */
   readonly root: string;
@@ -33,6 +33,6 @@ export interface Rule {
 }
 
 export interface Plugin {
-  readonly meta: { readonly name: "forman" };
+  readonly meta: { readonly name: "ortho" };
   readonly rules: Readonly<Record<string, Rule>>;
 }

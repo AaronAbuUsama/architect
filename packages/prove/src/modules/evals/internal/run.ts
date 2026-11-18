@@ -1,5 +1,5 @@
 // Eval 7 (performance, review only) and eval 8 (coverage: each operation's, and the run's in one line).
-import type { Model, OperationModel } from "@formants/compiler";
+import type { Model, OperationModel } from "@orthograph/compiler";
 import type { Evidence, PerOperation, Verdict } from "../types.ts";
 import { answered, attr } from "./evidence.ts";
 

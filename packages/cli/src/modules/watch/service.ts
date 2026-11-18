@@ -1,5 +1,5 @@
 import { Effect } from "effect";
-import { Watch } from "@formants/prove";
+import { Watch } from "@orthograph/prove";
 import type { Said, WatchCommandApi } from "./types.ts";
 
 const UNITS: Readonly<Record<string, number>> = { s: 1_000, m: 60_000, h: 3_600_000, d: 86_400_000 };
