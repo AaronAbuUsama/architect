@@ -49,12 +49,14 @@ is judged by whether it gets us there sooner and truer.
 3. **Design the whole shape together, then the details in layers** (Aaron: "the whole thing has got to be thought
    about together … we can do the details in the layer, but the overall thing … has to all be making sense now").
    That covers the core pieces, languages, hosts, plugins, data, doors, auth and the app. This is K5.
-4. **One thing, not two; our own portal** (Aaron, Orthograph DX discussion, superseding "agent-native as it is"):
-   Orthograph is the framework people build their own apps with; those apps use the generated SDK, CLI, MCP tools and
-   actions. **The portal is the builder's place to understand and plan with the running system, our own template built
-   on Orthograph.** agent-native's templates and interactions are design references, not its runtime: no agent-native
-   Postgres or auth bridge. An **action** is a generated app-facing primitive derived from an operation (bound to a screen
-   or an agent tool, calling the SDK); the operation keeps its authority.
+4. **One thing, not two; agent-native forked as our own** (Aaron, 18 November: "we're going to keep the agent
+   native shapes of actions, and reuse the templates, but we're going to make them our own so we can break
+   compatibility with agent native if necessary"). Orthograph is the framework people build their own apps with; those
+   apps use the generated SDK, CLI, MCP tools and actions. **An action keeps agent-native's `defineAction` shape**, is
+   generated from an operation and calls the SDK; the operation keeps its authority. **The portal is the builder's place
+   to understand and plan with the running system: agent-native's templates, forked at 0.228.2 into our own packages and
+   changed freely**, compatible while that costs nothing. Upstream changes are pulled by hand. No agent-native Postgres
+   or auth bridge in the shape K5 was assuming.
 5. **The portal starts from things and their lifecycles**, then operations, machines, events, errors and notes
    attached to their thing (#41's `UX.md`). It shows declared behaviour and lets live evidence light up that same
    structure, giving context for planning. **Telemetry, not analytics.** #39's findings are research for the one portal.
