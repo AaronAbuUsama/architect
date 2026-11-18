@@ -56,7 +56,7 @@ v1.0" ([`decisions/K9-growing-example.md`](decisions/K9-growing-example.md)). Th
 adds the slices no milestone had (ids `ST<stage>.<n>`), and gives each stage its gate. Each passing stage is tagged
 `links/stage-<n>`.
 
-**v1.0** is the four stage gates on `main`, plus the release: M7.01 to M7.04 and M7.06 (the cloud pass, the npm
+**v1.0** is the four stage gates on `main`, plus the release: M7.01 to M7.04, M7.06 and M7.13 (the cloud passes for staging and for the release, the npm
 release, the infra projection, a deploy and destroy that leaves nothing, real releases), each credential with Aaron's
 written yes.
 
