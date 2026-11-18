@@ -92,3 +92,12 @@ exports its request's metric deltas once, when its telemetry runtime closes.
 ## Where it lands
 
 M1.18 (gap 1), M1.19 (gap 2) and M1.20 (gap 3), all in parallel, each one slice ending in its proof above.
+
+## Builder-edited checks, audited (lead, 18 November 2026)
+
+M1.19 and M1.20's builder also changed the evals (`packages/prove/src/modules/evals/{service.ts,internal/calls.ts,internal/secrets.ts}`, commits 5abbe67 and 8f57542) and the runner's generic span check (`prove/internal/report.ts`, 9cb4242). AGENTS.md doesn't allow that. A ✍️ author who wrote none of it audited each change against this record:
+
+- **`report.ts`** now accepts an empty trace only for a pre-handler `NotAllowed` that was predicted before the call (gap 3, M1.20).
+- **The secrets eval** treats untraced public text as hidden in spans and logs, but allowed in the journal (gap 2, M1.19).
+
+The author found no case that failed before and passes now, beyond what this record allows. Two corners stay open: a private field named `attempt`, `refusal` or `defect` is caught by value but not by name, and an operation with no declaration would skip `answerShape` (a compiled project can't have one). Verdict: accept as authored. A later author may add a test for the first corner. The lead also fixed the reviewer's P1 in 7a8cc38: untraced text was redacted only in `refusal.log`, and is now redacted for every logger, exporters included.
