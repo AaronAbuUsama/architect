@@ -1,0 +1,11 @@
+{
+  "name": "spike-visual-content-remotion",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@remotion/cli": "4.0.542",
+    "react": "19.2.9",
+    "react-dom": "19.2.9",
+    "remotion": "4.0.542"
+  }
+}
