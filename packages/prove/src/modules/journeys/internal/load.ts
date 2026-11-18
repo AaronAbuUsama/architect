@@ -1,5 +1,5 @@
 // Loading what a project declares, by path, so every declaration is the same object the journeys import.
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, realpathSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -21,8 +21,10 @@ const filesIn = (dir: string, ext = ".ts") => (existsSync(dir) ? readdirSync(dir
 /** A declaration's file: the project's own by path, a plugin's by its specifier, resolved as the project resolves it. */
 const fileOf = (root: string, file: string) => (file.startsWith("blueprint/") ? join(root, file) : createRequire(join(root, "package.json")).resolve(file));
 
-export const loadProject = (root: string, model: Model): Effect.Effect<Project, ProjectFailed> =>
+export const loadProject = (given: string, model: Model): Effect.Effect<Project, ProjectFailed> =>
   Effect.gen(function* () {
+    // By its real path, as the compiler loads it, so a declaration here is the same object the model was built from.
+    const root = existsSync(given) ? realpathSync(given) : given;
     // The generated api names every event and error, the same way the server does.
     yield* importFile(join(root, "generated/api/src/index.ts"));
     const operations = new Map<string, Operation | Read>();
@@ -45,11 +47,29 @@ export const loadProject = (root: string, model: Model): Effect.Effect<Project, 
       if (kindOf(d) !== "journey") return yield* new ProjectFailed({ message: `${file}: the default export must be a Blueprint.journey` });
       journeys.push(d as Journey);
     }
+    // A journey's step that runs an operation a mount omits is skipped and named when it runs (M1-plugins section 3).
+    const omitted = yield* omittedBy(root, model);
     const startingWorlds = new Map<string, StartingWorld>();
     for (const file of filesIn(join(root, "blueprint/starting-worlds"))) {
       const d = (yield* importFile(file))["default"];
       if (kindOf(d) !== "starting-world") return yield* new ProjectFailed({ message: `${file}: the default export must be a Blueprint.startingWorld` });
       startingWorlds.set((d as StartingWorld).name, d as StartingWorld);
     }
-    return { root, model, operations, things, journeys, startingWorlds } satisfies Project;
+    return { root: given, model, operations, things, journeys, startingWorlds, ...(omitted.size > 0 ? { omitted } : {}) } satisfies Project;
+  });
+
+/** Each operation a mount omits, by its declaration: the plugin's own file, found from the operation's final name. */
+const omittedBy = (root: string, model: Model) =>
+  Effect.gen(function* () {
+    const found = new Map<unknown, { readonly operation: string; readonly file: string }>();
+    for (const [mount, m] of Object.entries(model.mounts ?? {})) {
+      const own = m.package.slice(m.package.lastIndexOf("/") + 1);
+      for (const operation of m.omitted ?? []) {
+        const [thing = "", verb = ""] = operation.split(".");
+        const theirs = mount === own ? thing : thing.slice(mount.length + 1);
+        const module = yield* importFile(fileOf(root, `${m.package}/blueprint/things/${theirs}/verbs/${verb}.js`));
+        found.set(module["default"], { operation, file: m.file });
+      }
+    }
+    return found;
   });

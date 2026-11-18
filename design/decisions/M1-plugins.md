@@ -122,7 +122,7 @@ whose verbs are bound to it; it returns the list of verb results. The verbs:
 | choose | `p.choose(p.choices.style.loud)` | all | one option per choice; an unpicked choice takes its first option; an option of another plugin or another choice is refused |
 | include | `p.include(p.calls.refunds.create, p.events.paid)` | adapters | only what is named is reachable (M1.14) |
 | narrow | `p.narrow(op, { via: [Via.session, Via.key] })` | features, projections | `via` only removes ways in; an empty `via` is refused (it would empty the operation: use omit) |
-| omit | `p.omit(op)` | features | the operation is not in the model, so nothing is generated for it; a journey that runs it is skipped and named |
+| omit | `p.omit(op)` | features | the operation is not in the model, so nothing is generated for it (only `mounts.<name>.omitted` names it, in the model and what is the model: `generated/model/`, `generated/portal/blueprint.json`); a journey's step that runs it is skipped and named, and the journey's other steps run |
 
 `op` is the plugin's own declaration object, imported from its pure entry
 (`import shout from "@fixture/echo/blueprint/things/echo/verbs/shout.js"`). The compiler matches it by identity; an
@@ -272,8 +272,10 @@ callables and their types never enter a pure entry or a client closure. The step
 ## 10. A plugin's journeys
 
 A feature's `blueprint/journeys/*.js` run on every `ortho prove` of the app that mounts it, in the app's worlds, beside
-the app's own, so a feature's operations are covered by its own journeys. A journey that runs an omitted operation is
-skipped and named, and prove still passes. Span names follow the mount's names and `spans()` takes written names, so a
+the app's own, so a feature's operations are covered by its own journeys. A step that runs an omitted operation is
+skipped and named (`  skipped "<step>": it runs echo.shout, which blueprint/features/echo.ts omits`), the journey's
+other steps run, so what the mount keeps is still covered, and prove still passes. (Built in M1.07: skipping the whole
+journey would leave the kept operations it covers uncovered.) Span names follow the mount's names and `spans()` takes written names, so a
 plugin's journeys assert no spans in M1; the declared-steps eval still judges them. Starting-world fragments stay open
 (mounting.md).
 

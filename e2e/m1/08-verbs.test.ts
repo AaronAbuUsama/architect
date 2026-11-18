@@ -39,7 +39,9 @@ describe("08 verbs: omit", () => {
     succeeds(root, "generate");
     for (const path of ["generated/api/src/echo/shout.ts", "generated/sdk/src/echo/shout.ts", "generated/cli/src/echo/shout.ts"]) expect(existsSync(join(root, path)), path).toBe(false);
     expect(existsSync(join(root, "generated/api/src/echo/repeat.ts"))).toBe(true);
-    const everything = generatedText(root);
+    const modelFiles = ["generated/model/model.json", "generated/portal/blueprint.json"];
+    for (const path of modelFiles) expect(textAt(root, path).replaceAll('"echo.shout"', "").match(/echo[./]shout/g) ?? [], path).toEqual([]);
+    const everything = tree(root, "generated").filter((path) => !modelFiles.includes(path)).map((path) => textAt(root, path)).join("\n");
     expect(everything).not.toMatch(/echo\.shout|echo\/shout|echo\/shout\.js/);
     expect(everything).toContain("echo.repeat");
     expect(textAt(root, "generated/sdk/src/echo/index.ts")).not.toContain("shout");
