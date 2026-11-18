@@ -147,9 +147,10 @@ undeclared instructions (`solana#1`), Aztec `rewrite_digest` (`aztec#1`). None o
 entry belongs to which operation, so that has to come from us.
 
 **Decided, then changed by Aaron's F1 answer (18 November 2026).** He wants every function reachable, for programmatic
-access, with roles generated into our opinionated scaffold. Items 1, 2 and 4 stand. Item 3 becomes a warning: a
-hand-written external function that changes state must use a generated role modifier, and `ortho check` warns when it
-has none, rather than refusing it. The original items:
+access, with roles generated into our opinionated scaffold. So the manifest now lists every external function, and the
+clients are generated from it, helpers included. A hand-written external function that changes state must use a
+generated role modifier, and `ortho check` warns when it has none, rather than refusing it. Items 1 and 4 stand as
+written. Items 2 and 3 below are the original version, kept for the record:
 
 1. **Each operation is one generated entry**, or on Aztec one generated pair: a private entry plus an `only_self` public
    continuation. The developer writes only the body.
@@ -593,7 +594,7 @@ changes four things in that walkthrough.
    privately. An Aztec link is left out of the wallet until a blueprint asks for one.
 
 Kept from the frame:
-- each wallet declares where its key lives, on a device or in a server's vault; no key is ever in plain text in a
+- each wallet declares where its key lives, on a device or in a server's key store; no key is ever in plain text in a
   binding, a commit or a log (M6.18). The frame's "the server never holds a key" is dropped (F5);
 - agents never link a wallet;
 - the Node signer is an encrypted keystore file (Web3 Secret Storage v3);
@@ -647,10 +648,13 @@ confused with the eight questions above. Each one is explained from scratch befo
 | F1 | What the generated clients may call on our own contracts, on all three chains (replaces K5's Q4) | **Answered** (Aaron, 18 November 2026): every function, for programmatic access. Contracts are scaffolded opinionated, with roles generated in (OpenZeppelin-style, vendored); a hand-written writer without a role is a check warning, not a refusal |
 | F2 | What `confirmed` promises | **Answered A** (Aaron, 18 November 2026): a level per chain, set per environment (EVM `safe`, Solana `confirmed`, Aztec `proven`); corrections possible; outward steps wait for `final` |
 | F3 | Which chains get built, and when | **Answered A** (Aaron, 18 November 2026: "EVM now, rest design"). Was: EVM is built (M6, and the wallet's first version); Solana and Aztec are designed now (this record) and built Later, on the same port |
-| F4 | The wallet's first version and its place | **Answered A** (Aaron, 18 November 2026), widened by his F5 answer: the wallet is the first real plugin, right after plugin mounting in M1 (M1.28 to M1.32), with a signer for every host (browser, node keystore, server vault, world); linking after auth (M2.13); the relayer stays in M6 |
+| F4 | The wallet's first version and its place | **Answered A** (Aaron, 18 November 2026), widened by his F5 answer: the wallet is the first real plugin, right after plugin mounting in M1 (M1.28 to M1.32), with a signer for every host (browser, node keystore, server key store, world); linking after auth (M2.13); the relayer stays in M6 |
 | F5 | Who may hold a key that signs | **Answered** (Aaron, 18 November 2026): drop "the server never holds a person's key". Apps keep keys where they choose, on a device or a server; each wallet declares it, and no key is ever in plain text |
 
 ## Taking from `@prb/effect-evm`: vendored, not a dependency
+
+Said plainly: we copy the best parts of Paul Berg's library into our own chain adapter, instead of installing it. We
+copy rather than install because we'll change its core anyway, and a copy we own follows our rules.
 
 Aaron pointed at Paul Berg's `@prb/effect-evm` (MIT, Effect 4, built on viem) and asked whether to take from it. The
 building agent's call, 18 November 2026: **vendor it, module by module, into `@orthograph/chain-evm`**, keeping the MIT
@@ -660,10 +664,11 @@ notice, never as a dependency.
 - **Reshaped.** They move into our six-slot module shape, with every wait through `Timers`. `tx/manager.ts` is 20 KB, so
   it gets split. Errors are mapped onto `ChainFault` and the refusal lock, and events gain the block-hash window (Q6).
 - **Ours.** Simulation is written by us, because theirs calls the Tenderly cloud API only and can't run on Anvil.
-  Signers for the node keystore and the server vault are also ours, because theirs are for browser wallets.
-- **Later.** Their browser wallet lifecycle (`wallet/`, 37 KB) and React hooks come in when we target React. They have
+  Signers for the node keystore and the server key store are also ours, because theirs are for browser wallets.
+- **Later.** Their browser wallet lifecycle (`wallet/`, 37 KB) and React hooks come in when we target React. Vendored files keep
+  an upstream-notice header naming the source file and version, and are reshaped before they pass our lint. They have
   to be vendored too: once our core differs from theirs, their wallet module can't sit on top of it as a dependency.
-- **Why not depend.** The package is 2.06 MB and beta, with three major versions in about two months. Our code rules
+- **Why not depend.** Measured on 18 November 2026 from npm and the repository: version 5.0.4 is 2.06 MB and marked beta, with three major versions in about two months. Our code rules
   (`Timers`, counted work, files under 250 lines) can't reach inside a dependency, and we'd change its core anyway.
 - **Why not rewrite.** Replacement handling, receipt retries and viem's error zoo are tested there. Rewriting them
   throws that away.
@@ -674,8 +679,9 @@ K5's Q4 asked how a declared operation maps to a contract's ABI. That question w
 - **Its answer for our own contracts** is Q1 here, worked on three chains, with the manifest and the check that make
   A concrete.
 - **Its answer for other people's contracts** is Aaron's own: they are sources, through adapters (Q2 here).
-- **The word "unsafe" in its option C** meant advertising undeclared helpers in the generated surfaces. Q1's check now
-  refuses an undeclared entry that changes state, and keeps read-only helpers out of every generated client.
+- **The word "unsafe" in its option C** meant advertising undeclared helpers in the generated surfaces. After Aaron's F1
+  answer every function is reachable, and safety comes from roles generated into the scaffold, with a check warning
+  for a hand-written writer that has no role.
 
 ## Milestone slices this changes
 
