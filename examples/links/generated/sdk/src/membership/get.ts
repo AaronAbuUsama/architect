@@ -1,0 +1,9 @@
+// Generated from the blueprint. Do not edit.
+import { Effect } from "effect";
+import type { PayloadOf } from "orthograph";
+import type { declaration } from "../../../api/src/membership/get.ts";
+import { Links } from "../client.ts";
+
+/** Read one membership by its id: organization, person, role. */
+export const get = (payload: PayloadOf<typeof declaration>) =>
+  Effect.flatMap(Links, (client) => client.membership.get({ payload }));

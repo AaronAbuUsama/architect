@@ -32,7 +32,9 @@ export const storeMemory = (initial: ReadonlyArray<readonly [Thing, Instance]> =
     answered: (key) => Effect.sync(() => requests.get(key)),
     commit: ({ writes, entries: events, request }) =>
       Effect.sync(() => {
-        const stale = writes.some((w) => w.kind === "update" && rows[at(w.thing, w.id)]?.version !== w.version);
+        const stale = writes.some((w) => w.kind === "insert"
+          ? at(w.thing, w.fields["id"]) !== -1
+          : rows[at(w.thing, w.id)]?.version !== w.version);
         if (stale || (request && requests.has(request.key))) return "conflict" as const;
         if (request) requests.set(request.key, request.answer);
         for (const w of writes) {

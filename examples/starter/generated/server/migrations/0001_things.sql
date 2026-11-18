@@ -7,11 +7,26 @@ CREATE TABLE "api-key" (
   "createdBy" TEXT NOT NULL,
   "version" INTEGER NOT NULL DEFAULT 0
 );
+CREATE TABLE "handle" (
+  "id" TEXT PRIMARY KEY,
+  "name" TEXT NOT NULL,
+  "owner" TEXT NOT NULL,
+  "state" TEXT,
+  "version" INTEGER NOT NULL DEFAULT 0
+);
 CREATE TABLE "invitation" (
   "id" TEXT PRIMARY KEY,
   "organization" TEXT NOT NULL,
   "email" TEXT NOT NULL,
   "invitedBy" TEXT NOT NULL,
+  "state" TEXT,
+  "version" INTEGER NOT NULL DEFAULT 0
+);
+CREATE TABLE "link" (
+  "id" TEXT PRIMARY KEY,
+  "owner" TEXT NOT NULL,
+  "title" TEXT NOT NULL,
+  "url" TEXT NOT NULL,
   "state" TEXT,
   "version" INTEGER NOT NULL DEFAULT 0
 );
@@ -33,6 +48,14 @@ CREATE TABLE "person" (
   "id" TEXT PRIMARY KEY,
   "email" TEXT NOT NULL,
   "name" TEXT NOT NULL,
+  "version" INTEGER NOT NULL DEFAULT 0
+);
+CREATE TABLE "profile" (
+  "id" TEXT PRIMARY KEY,
+  "handle" TEXT NOT NULL,
+  "owner" TEXT NOT NULL,
+  "status" TEXT NOT NULL,
+  "links" TEXT NOT NULL,
   "version" INTEGER NOT NULL DEFAULT 0
 );
 CREATE TABLE "session" (

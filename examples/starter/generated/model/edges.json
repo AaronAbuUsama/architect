@@ -10,6 +10,11 @@
     "kind": "refers"
   },
   {
+    "from": "handle.owner",
+    "to": "person.id",
+    "kind": "refers"
+  },
+  {
     "from": "invitation.organization",
     "to": "organization.id",
     "kind": "refers"
@@ -21,6 +26,11 @@
   },
   {
     "from": "invitation.invitedBy",
+    "to": "person.id",
+    "kind": "refers"
+  },
+  {
+    "from": "link.owner",
     "to": "person.id",
     "kind": "refers"
   },
@@ -40,6 +50,16 @@
     "kind": "refers"
   },
   {
+    "from": "profile.handle",
+    "to": "handle.id",
+    "kind": "refers"
+  },
+  {
+    "from": "profile.owner",
+    "to": "person.id",
+    "kind": "refers"
+  },
+  {
     "from": "session.person",
     "to": "person.id",
     "kind": "refers"
@@ -53,6 +73,36 @@
     "from": "api-key.create",
     "to": "organization.owner",
     "kind": "allowed-by"
+  },
+  {
+    "from": "handle.claim",
+    "to": "handle",
+    "kind": "acts-on"
+  },
+  {
+    "from": "handle.claim",
+    "to": "handle.HandleClaimed",
+    "kind": "emits"
+  },
+  {
+    "from": "handle.release",
+    "to": "handle",
+    "kind": "acts-on"
+  },
+  {
+    "from": "handle.release",
+    "to": "handle.HandleReleased",
+    "kind": "emits"
+  },
+  {
+    "from": "handle.release",
+    "to": "handle.handleOwner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "handle.resolve",
+    "to": "handle",
+    "kind": "acts-on"
   },
   {
     "from": "invitation.accept",
@@ -100,6 +150,41 @@
     "kind": "allowed-by"
   },
   {
+    "from": "link.add",
+    "to": "link",
+    "kind": "acts-on"
+  },
+  {
+    "from": "link.add",
+    "to": "link.LinkAdded",
+    "kind": "emits"
+  },
+  {
+    "from": "link.order",
+    "to": "link",
+    "kind": "acts-on"
+  },
+  {
+    "from": "link.order",
+    "to": "link.linkOwner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "link.remove",
+    "to": "link",
+    "kind": "acts-on"
+  },
+  {
+    "from": "link.remove",
+    "to": "link.LinkRemoved",
+    "kind": "emits"
+  },
+  {
+    "from": "link.remove",
+    "to": "link.linkOwner",
+    "kind": "allowed-by"
+  },
+  {
     "from": "membership.get",
     "to": "membership",
     "kind": "reads"
@@ -137,6 +222,11 @@
   {
     "from": "person.sign-up",
     "to": "person",
+    "kind": "acts-on"
+  },
+  {
+    "from": "profile.get",
+    "to": "profile",
     "kind": "acts-on"
   },
   {

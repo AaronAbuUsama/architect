@@ -1,0 +1,270 @@
+// Generated from the blueprint. Do not edit.
+// The Worker: each operation's route runs its handler through the runtime's wrapper; /_world/* goes to the world.
+import { Context, Effect, Layer } from "effect";
+import { ManagedRuntime, Tracer } from "effect";
+import { HttpRouter, HttpServer } from "effect/http";
+import { HttpApiBuilder } from "effect/http-api";
+import { SqlClient } from "effect/sql";
+import type { Principal } from "orthograph";
+import { AuthD1, Database, JournalD1, StoreD1, Telemetry, toWorld } from "@orthograph/host-cloudflare";
+import { Auth, Busy, BusyLive, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@orthograph/language-effect";
+import { Mcp, type McpResult } from "@orthograph/language-effect";
+import { Api, Errors } from "../api/src/index.ts";
+import * as portal from "../portal/main.ts";
+import { catalog } from "../mcp/src/index.ts";
+import * as apiKeyCreate from "../api/src/api-key/create.ts";
+import * as handleClaim from "../api/src/handle/claim.ts";
+import * as handleRelease from "../api/src/handle/release.ts";
+import * as handleResolve from "../api/src/handle/resolve.ts";
+import * as invitationAccept from "../api/src/invitation/accept.ts";
+import * as invitationRevoke from "../api/src/invitation/revoke.ts";
+import * as invitationSend from "../api/src/invitation/send.ts";
+import * as linkAdd from "../api/src/link/add.ts";
+import * as linkOrder from "../api/src/link/order.ts";
+import * as linkRemove from "../api/src/link/remove.ts";
+import * as membershipGet from "../api/src/membership/get.ts";
+import * as organizationCreate from "../api/src/organization/create.ts";
+import * as organizationGet from "../api/src/organization/get.ts";
+import * as personSignUp from "../api/src/person/sign-up.ts";
+import * as profileGet from "../api/src/profile/get.ts";
+import * as sessionShow from "../api/src/session/show.ts";
+import * as sessionSignIn from "../api/src/session/sign-in.ts";
+import * as systemHealth from "../api/src/system/health.ts";
+import apiKeyCreateHandler from "../../src/api-key/create.ts";
+import handleClaimHandler from "../../src/handle/claim.ts";
+import handleReleaseHandler from "../../src/handle/release.ts";
+import handleResolveHandler from "../../src/handle/resolve.ts";
+import invitationAcceptHandler from "../../src/invitation/accept.ts";
+import invitationRevokeHandler from "../../src/invitation/revoke.ts";
+import invitationSendHandler from "../../src/invitation/send.ts";
+import linkAddHandler from "../../src/link/add.ts";
+import linkOrderHandler from "../../src/link/order.ts";
+import linkRemoveHandler from "../../src/link/remove.ts";
+import organizationCreateHandler from "../../src/organization/create.ts";
+import personSignUpHandler from "../../src/person/sign-up.ts";
+import profileGetHandler from "../../src/profile/get.ts";
+import sessionShowHandler from "../../src/session/show.ts";
+import sessionSignInHandler from "../../src/session/sign-in.ts";
+import systemHealthHandler from "../../src/system/health.ts";
+import * as apiKeyThing from "../../blueprint/things/api-key/thing.ts";
+import * as handleThing from "../../blueprint/things/handle/thing.ts";
+import * as invitationThing from "../../blueprint/things/invitation/thing.ts";
+import * as linkThing from "../../blueprint/things/link/thing.ts";
+import * as membershipThing from "../../blueprint/things/membership/thing.ts";
+import * as organizationThing from "../../blueprint/things/organization/thing.ts";
+import * as personThing from "../../blueprint/things/person/thing.ts";
+import * as profileThing from "../../blueprint/things/profile/thing.ts";
+import * as sessionThing from "../../blueprint/things/session/thing.ts";
+import * as systemThing from "../../blueprint/things/system/thing.ts";
+
+export { World } from "@orthograph/host-cloudflare";
+
+const apiKeyCreateServed = Handlers.serve({ name: "api-key.create", operation: apiKeyCreate.declaration, handler: apiKeyCreateHandler });
+const handleClaimServed = Handlers.serve({ name: "handle.claim", operation: handleClaim.declaration, handler: handleClaimHandler });
+const handleReleaseServed = Handlers.serve({ name: "handle.release", operation: handleRelease.declaration, handler: handleReleaseHandler, notFrom: "HandleNotClaimed" });
+const handleResolveServed = Handlers.serve({ name: "handle.resolve", operation: handleResolve.declaration, handler: handleResolveHandler });
+const invitationAcceptServed = Handlers.serve({ name: "invitation.accept", operation: invitationAccept.declaration, handler: invitationAcceptHandler, notFrom: "InvitationNotPending" });
+const invitationRevokeServed = Handlers.serve({ name: "invitation.revoke", operation: invitationRevoke.declaration, handler: invitationRevokeHandler, notFrom: "InvitationNotPending" });
+const invitationSendServed = Handlers.serve({ name: "invitation.send", operation: invitationSend.declaration, handler: invitationSendHandler });
+const linkAddServed = Handlers.serve({ name: "link.add", operation: linkAdd.declaration, handler: linkAddHandler });
+const linkOrderServed = Handlers.serve({ name: "link.order", operation: linkOrder.declaration, handler: linkOrderHandler });
+const linkRemoveServed = Handlers.serve({ name: "link.remove", operation: linkRemove.declaration, handler: linkRemoveHandler, notFrom: "LinkNotListed" });
+const membershipGetServed = Reads.serve({ name: "membership.get", read: membershipGet.declaration });
+const organizationCreateServed = Handlers.serve({ name: "organization.create", operation: organizationCreate.declaration, handler: organizationCreateHandler });
+const organizationGetServed = Reads.serve({ name: "organization.get", read: organizationGet.declaration });
+const personSignUpServed = Handlers.serve({ name: "person.sign-up", operation: personSignUp.declaration, handler: personSignUpHandler });
+const profileGetServed = Handlers.serve({ name: "profile.get", operation: profileGet.declaration, handler: profileGetHandler });
+const sessionShowServed = Handlers.serve({ name: "session.show", operation: sessionShow.declaration, handler: sessionShowHandler });
+const sessionSignInServed = Handlers.serve({ name: "session.sign-in", operation: sessionSignIn.declaration, handler: sessionSignInHandler });
+const systemHealthServed = Handlers.serve({ name: "system.health", operation: systemHealth.declaration, handler: systemHealthHandler });
+
+/** Each thing and its table: a D1 table, or the name its actors go by. */
+const tables = [[thingIn(apiKeyThing), "api-key"], [thingIn(handleThing), "handle"], [thingIn(invitationThing), "invitation"], [thingIn(linkThing), "link"], [thingIn(membershipThing), "membership"], [thingIn(organizationThing), "organization"], [thingIn(personThing), "person"], [thingIn(profileThing), "profile"], [thingIn(sessionThing), "session"], [thingIn(systemThing), "system"]] as const;
+
+const refusals = Wire.refusals(Errors.wire);
+type Services = SqlClient.SqlClient | Store | Busy | Principals | Journal | Auth;
+
+/** Who is calling, then the operation or read, its refusals sent as their wire classes. */
+type Run = (payload: never, principal: Principal, request?: string) => Effect.Effect<unknown, unknown, unknown>;
+const call = <P>(served: { readonly run: Run }, payload: P, headers: Readonly<Record<string, string | undefined>>) =>
+  Effect.flatMap(Principals, (principals) => principals.of(headers["authorization"])).pipe(
+    // The caller's idempotency key: for an operation declared `idempotent: "request"`, the same key is one call.
+    Effect.flatMap((principal: Principal) => served.run(payload as never, principal, headers["idempotency-key"])),
+    refusals,
+  ) as Effect.Effect<never, never, Services>;
+
+const ApiKeyLive = HttpApiBuilder.group(Api, "api-key", Effect.fn(function* (handlers) {
+  // The services are taken once, when the routes are built; each request keeps its own tracer and span.
+  const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
+  return handlers
+      .handle("create", ({ payload, request }) => call(apiKeyCreateServed, payload, request.headers).pipe(Effect.provideContext(services)));
+}));
+const HandleLive = HttpApiBuilder.group(Api, "handle", Effect.fn(function* (handlers) {
+  // The services are taken once, when the routes are built; each request keeps its own tracer and span.
+  const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
+  return handlers
+      .handle("claim", ({ payload, request }) => call(handleClaimServed, payload, request.headers).pipe(Effect.provideContext(services)))
+      .handle("release", ({ payload, request }) => call(handleReleaseServed, payload, request.headers).pipe(Effect.provideContext(services)))
+      .handle("resolve", ({ payload, request }) => call(handleResolveServed, payload, request.headers).pipe(Effect.provideContext(services)));
+}));
+const InvitationLive = HttpApiBuilder.group(Api, "invitation", Effect.fn(function* (handlers) {
+  // The services are taken once, when the routes are built; each request keeps its own tracer and span.
+  const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
+  return handlers
+      .handle("accept", ({ payload, request }) => call(invitationAcceptServed, payload, request.headers).pipe(Effect.provideContext(services)))
+      .handle("revoke", ({ payload, request }) => call(invitationRevokeServed, payload, request.headers).pipe(Effect.provideContext(services)))
+      .handle("send", ({ payload, request }) => call(invitationSendServed, payload, request.headers).pipe(Effect.provideContext(services)));
+}));
+const LinkLive = HttpApiBuilder.group(Api, "link", Effect.fn(function* (handlers) {
+  // The services are taken once, when the routes are built; each request keeps its own tracer and span.
+  const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
+  return handlers
+      .handle("add", ({ payload, request }) => call(linkAddServed, payload, request.headers).pipe(Effect.provideContext(services)))
+      .handle("order", ({ payload, request }) => call(linkOrderServed, payload, request.headers).pipe(Effect.provideContext(services)))
+      .handle("remove", ({ payload, request }) => call(linkRemoveServed, payload, request.headers).pipe(Effect.provideContext(services)));
+}));
+const MembershipLive = HttpApiBuilder.group(Api, "membership", Effect.fn(function* (handlers) {
+  // The services are taken once, when the routes are built; each request keeps its own tracer and span.
+  const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
+  return handlers
+      .handle("get", ({ payload, request }) => call(membershipGetServed, payload, request.headers).pipe(Effect.provideContext(services)));
+}));
+const OrganizationLive = HttpApiBuilder.group(Api, "organization", Effect.fn(function* (handlers) {
+  // The services are taken once, when the routes are built; each request keeps its own tracer and span.
+  const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
+  return handlers
+      .handle("create", ({ payload, request }) => call(organizationCreateServed, payload, request.headers).pipe(Effect.provideContext(services)))
+      .handle("get", ({ payload, request }) => call(organizationGetServed, payload, request.headers).pipe(Effect.provideContext(services)));
+}));
+const PersonLive = HttpApiBuilder.group(Api, "person", Effect.fn(function* (handlers) {
+  // The services are taken once, when the routes are built; each request keeps its own tracer and span.
+  const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
+  return handlers
+      .handle("sign-up", ({ payload, request }) => call(personSignUpServed, payload, request.headers).pipe(Effect.provideContext(services)));
+}));
+const ProfileLive = HttpApiBuilder.group(Api, "profile", Effect.fn(function* (handlers) {
+  // The services are taken once, when the routes are built; each request keeps its own tracer and span.
+  const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
+  return handlers
+      .handle("get", ({ payload, request }) => call(profileGetServed, payload, request.headers).pipe(Effect.provideContext(services)));
+}));
+const SessionLive = HttpApiBuilder.group(Api, "session", Effect.fn(function* (handlers) {
+  // The services are taken once, when the routes are built; each request keeps its own tracer and span.
+  const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
+  return handlers
+      .handle("show", ({ payload, request }) => call(sessionShowServed, payload, request.headers).pipe(Effect.provideContext(services)))
+      .handle("sign-in", ({ payload, request }) => call(sessionSignInServed, payload, request.headers).pipe(Effect.provideContext(services)));
+}));
+const SystemLive = HttpApiBuilder.group(Api, "system", Effect.fn(function* (handlers) {
+  // The services are taken once, when the routes are built; each request keeps its own tracer and span.
+  const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
+  return handlers
+      .handle("health", ({ payload, request }) => call(systemHealthServed, payload, request.headers).pipe(Effect.provideContext(services)));
+}));
+
+export interface Env {
+  readonly DB: D1Database;
+  readonly WORLD: DurableObjectNamespace;
+  /** Better Auth's secret, at least 32 characters: fresh per local world, a named secret per environment. */
+  readonly AUTH_SECRET: string;
+  readonly OTLP_URL?: string;
+  /** The environment's telemetry sinks beside the collector, as JSON: each one's OTLP endpoints and headers. A secret. */
+  readonly OTLP_SINKS?: string;
+  /** The environment's name, written on every span as `deployment.environment`: `local` for a world of dev or prove. */
+  readonly ORTHO_ENVIRONMENT?: string;
+  /** Which build this environment runs, set by `ortho env up`; unset for a world made by `ortho dev` or prove. */
+  readonly ORTHO_REVISION?: string;
+  readonly ORTHO_BUNDLE_SHA256?: string;
+  /** The portal's: where the logbook is, which environment this is. Read by `portal.serve`; neither is sent to a browser. */
+  readonly ORTHO_LOGBOOK_URL?: string;
+  /** `1` in an environment that hosts worlds with lifetimes (a test environment), set by `ortho env up`. */
+  readonly ORTHO_WORLDS?: string;
+}
+
+// Better Auth's own routes at /api/auth/*: the device sign-in of this project's CLI. Same database and secret as the
+// layer's instance, so a session either one issues is a person to both.
+let routes: ReturnType<typeof AuthD1.make> | undefined;
+const routesOf = (env: Env) => (routes ??= AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET, cli: "links-cli" }));
+
+const build = (env: Env) =>
+  HttpRouter.toWebHandler(
+    HttpApiBuilder.layer(Api).pipe(
+      Layer.provide([ApiKeyLive, HandleLive, InvitationLive, LinkLive, MembershipLive, OrganizationLive, PersonLive, ProfileLive, SessionLive, SystemLive]),
+      Layer.provide([StoreD1.layer({ tables }), JournalD1.layer, BusyLive, AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))]),
+      Layer.provideMerge(Database.d1(env.DB)),
+      Layer.provide(HttpServer.layerServices),
+    ),
+  );
+
+// Built once per isolate, from the first request's bindings.
+let built: ReturnType<typeof build> | undefined;
+
+/** The environments of the blueprint that host worlds: those that declare a `lifetime` (D3 #126). */
+const WORLD_ENVIRONMENTS: ReadonlyArray<string> = ["test"];
+
+/**
+ * `/_world/*` (the cast that signs people up with known passwords, the facts, the registry of worlds) answers only where
+ * worlds live: a world made by `ortho dev` or prove (`local`, or no environment), and an environment that declares a lifetime and
+ * was started to host worlds. Anywhere else, staging and production included, it is a 404 before any handler runs.
+ */
+const hostsWorlds = (env: Env) =>
+  !env.ORTHO_ENVIRONMENT || env.ORTHO_ENVIRONMENT === "local" || (env.ORTHO_WORLDS === "1" && WORLD_ENVIRONMENTS.includes(env.ORTHO_ENVIRONMENT));
+
+/** One tool per operation and read: the same served operations as the API, called as the person the access token names. */
+const tools = Mcp.tools<Services>({
+  catalog,
+  served: { "api-key.create": apiKeyCreateServed, "handle.claim": handleClaimServed, "handle.release": handleReleaseServed, "handle.resolve": handleResolveServed, "invitation.accept": invitationAcceptServed, "invitation.revoke": invitationRevokeServed, "invitation.send": invitationSendServed, "link.add": linkAddServed, "link.order": linkOrderServed, "link.remove": linkRemoveServed, "membership.get": membershipGetServed, "organization.create": organizationCreateServed, "organization.get": organizationGetServed, "person.sign-up": personSignUpServed, "profile.get": profileGetServed, "session.show": sessionShowServed, "session.sign-in": sessionSignInServed, "system.health": systemHealthServed },
+  refusals: { codes: Errors.codes, declared: Errors.declared },
+});
+
+// The MCP server's own runtime, built once per isolate: the same store, journal, busy count and auth as the API's.
+let mcpRuntime: ManagedRuntime.ManagedRuntime<Services, never> | undefined;
+const runtimeOf = (env: Env) =>
+  (mcpRuntime ??= ManagedRuntime.make(
+    Layer.mergeAll(StoreD1.layer({ tables }), JournalD1.layer, BusyLive, AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))).pipe(Layer.provideMerge(Database.d1(env.DB))),
+  ));
+
+const TRACEPARENT = /^00-([0-9a-f]{32})-([0-9a-f]{16})-[0-9a-f]{2}$/;
+
+/** `/mcp`: a person's access token (OAuth, by Better Auth's provider) or a 401 that says where to get one; then the tool call. */
+const mcp = (env: Env, request: Request, context: Context.Context<never> | undefined): Promise<Response> =>
+  Effect.runPromise(AuthD1.oauth.bearer(routesOf(env), request)).then((who) => {
+    if (who.kind !== "person") {
+      const invalid = who.kind === "invalid";
+      return Response.json({ error: invalid ? "invalid_token" : "unauthorized" }, { status: 401, headers: { "www-authenticate": AuthD1.oauth.challenge(request, invalid ? "invalid_token" : undefined) } });
+    }
+    // The caller's span, when it sent one, is the parent of every span of the call.
+    const sent = request.headers.get("traceparent")?.match(TRACEPARENT);
+    const parent = sent ? Tracer.externalSpan({ traceId: sent[1]!, spanId: sent[2]!, sampled: true }) : undefined;
+    const run = (effect: Effect.Effect<McpResult, never, Services>) => {
+      const traced = parent ? Effect.withParentSpan(effect, parent) : effect;
+      return runtimeOf(env).runPromise(context ? Effect.provideContext(traced, context) : traced);
+    };
+    return Mcp.handle({ name: "links", version: env.ORTHO_REVISION ?? "0.0.0", tools, principal: who.principal, run }, request);
+  });
+
+export default {
+  fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    // Closed before anything reads it: outside worlds there is no door to cast, to read facts, or to register a world.
+    if (new URL(request.url).pathname.startsWith("/_world/") && !hostsWorlds(env)) return Promise.resolve(Response.json({ error: "not found" }, { status: 404 }));
+    if (new URL(request.url).pathname.startsWith("/_world/")) {
+      return toWorld({ worlds: env.WORLD, db: env.DB, tables: tables.map(([, table]) => table), leases: env.ORTHO_WORLDS === "1" }, request);
+    }
+    if (new URL(request.url).pathname === "/_ortho/bundle") {
+      return env.ORTHO_REVISION && env.ORTHO_BUNDLE_SHA256
+        ? Promise.resolve(Response.json({ revision: env.ORTHO_REVISION, sha256: env.ORTHO_BUNDLE_SHA256 }))
+        : Promise.resolve(Response.json({ _tag: "NotAnEnvironment" }, { status: 404 }));
+    }
+    if (portal.owns(new URL(request.url).pathname)) return portal.serve(request, env);
+    if (new URL(request.url).pathname.startsWith("/api/auth/")) return Effect.runPromise(AuthD1.handle(routesOf(env), request));
+    if (new URL(request.url).pathname.startsWith("/.well-known/")) {
+      return Effect.runPromise(AuthD1.oauth.discovery(routesOf(env), request)).then((found) => found ?? Response.json({ error: "not found" }, { status: 404 }));
+    }
+    if (new URL(request.url).pathname === "/mcp") {
+      return Telemetry.serve({ url: env.OTLP_URL || undefined, sinks: env.OTLP_SINKS, environment: env.ORTHO_ENVIRONMENT, service: "links", handler: (req, context) => mcp(env, req, context), waitUntil: (p) => ctx.waitUntil(p) }, request);
+    }
+    const app = (built ??= build(env));
+    Telemetry.configure({ sinks: env.OTLP_SINKS, environment: env.ORTHO_ENVIRONMENT });
+    return Telemetry.serve({ url: env.OTLP_URL || undefined, service: "links", handler: app.handler, waitUntil: (p) => ctx.waitUntil(p) }, request);
+  },
+};

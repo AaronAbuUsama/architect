@@ -33,10 +33,10 @@ const prove = (root: string, port: number) => Effect.runPromise(Effect.scoped(Pr
 afterAll(() => rmSync(scratch, { recursive: true, force: true }));
 
 describe("the starter", () => {
-  it("proves: five journeys, eleven operations with nine evals each", { timeout: 180_000 }, async () => {
+  it("proves: eight journeys, eighteen operations with nine evals each", { timeout: 180_000 }, async () => {
     const report = await prove(starter, 8810);
-    expect(report.lines.filter((l) => l.startsWith("journey ") && l.includes(" ✔ "))).toHaveLength(5);
-    expect(report.lines.filter((l) => / 9 evals ✔ p50 /.test(l))).toHaveLength(11);
+    expect(report.lines.filter((l) => l.startsWith("journey ") && l.includes(" ✔ "))).toHaveLength(8);
+    expect(report.lines.filter((l) => / 9 evals ✔ p50 /.test(l))).toHaveLength(18);
     expect(report.lines.at(-1)).toBe("prove ✔");
   });
 

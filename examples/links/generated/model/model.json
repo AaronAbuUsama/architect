@@ -1,0 +1,1855 @@
+{
+  "refusals": {
+    "HandleAlreadyOwned": "HN-002",
+    "HandleNotClaimed": "HN-900",
+    "HandleNotFound": "HN-003",
+    "HandleTaken": "HN-001",
+    "InvitationNotPending": "IN-900",
+    "LinkAlreadyRemoved": "LI-002",
+    "LinkNeedsHandle": "LI-001",
+    "LinkNotListed": "LI-900",
+    "NotAllowed": "AR-001",
+    "OrganizationNotActive": "OR-900",
+    "PersonEmailTaken": "PE-001",
+    "ProfileNotFound": "PR-001",
+    "SessionCredentialsWrong": "SE-001"
+  },
+  "values": {
+    "HandleName": {
+      "type": "schema"
+    },
+    "LinkPosition": {
+      "type": "uint",
+      "bits": 32
+    },
+    "LinkTitle": {
+      "type": "text",
+      "max": 120
+    },
+    "LinkUrl": {
+      "type": "schema"
+    },
+    "Ok": {
+      "type": "schema"
+    },
+    "Password": {
+      "type": "text",
+      "max": 128
+    },
+    "Role": {
+      "type": "schema"
+    },
+    "Secret": {
+      "type": "text",
+      "max": 512
+    }
+  },
+  "things": {
+    "api-key": {
+      "name": "api-key",
+      "identifier": "ApiKey",
+      "code": "AP",
+      "description": "A key an agent or a service calls with, on behalf of whoever created it. Better Auth keeps its hash.",
+      "fields": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "key"
+          }
+        },
+        "organization": {
+          "value": {
+            "type": "id",
+            "prefix": "org"
+          },
+          "ref": "organization.id"
+        },
+        "name": {
+          "value": {
+            "type": "text",
+            "max": 200
+          }
+        },
+        "createdBy": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "person.id"
+        }
+      },
+      "lives": "database",
+      "machine": null,
+      "events": {},
+      "errors": {},
+      "roles": [],
+      "hash": "6e46b72b0aa08b14"
+    },
+    "handle": {
+      "name": "handle",
+      "identifier": "Handle",
+      "code": "HN",
+      "description": "A public name that belongs to one person until they release it.",
+      "fields": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "hdl"
+          }
+        },
+        "name": {
+          "value": {
+            "type": "schema"
+          },
+          "named": "HandleName"
+        },
+        "owner": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "person.id"
+        }
+      },
+      "lives": "database",
+      "machine": {
+        "states": [
+          "claimed",
+          "released"
+        ],
+        "moves": {
+          "claim": {
+            "from": [],
+            "to": [
+              "claimed"
+            ],
+            "emits": "HandleClaimed"
+          },
+          "release": {
+            "from": [
+              "claimed"
+            ],
+            "to": [
+              "released"
+            ],
+            "emits": "HandleReleased"
+          }
+        },
+        "notFrom": {
+          "error": "HandleNotClaimed",
+          "exit": 5,
+          "code": "HN-900"
+        }
+      },
+      "events": {
+        "HandleClaimed": {
+          "handle": {
+            "value": {
+              "type": "id",
+              "prefix": "hdl"
+            },
+            "ref": "handle.id"
+          },
+          "name": {
+            "value": {
+              "type": "schema"
+            },
+            "named": "HandleName",
+            "ref": "handle.name"
+          }
+        },
+        "HandleReleased": {
+          "handle": {
+            "value": {
+              "type": "id",
+              "prefix": "hdl"
+            },
+            "ref": "handle.id"
+          },
+          "name": {
+            "value": {
+              "type": "schema"
+            },
+            "named": "HandleName",
+            "ref": "handle.name"
+          }
+        }
+      },
+      "errors": {
+        "HandleTaken": {
+          "fields": {},
+          "exit": 3,
+          "code": "HN-001"
+        },
+        "HandleAlreadyOwned": {
+          "fields": {},
+          "exit": 4,
+          "code": "HN-002"
+        },
+        "HandleNotFound": {
+          "fields": {},
+          "exit": 6,
+          "code": "HN-003"
+        }
+      },
+      "roles": [
+        "handleOwner"
+      ],
+      "hash": "dd23855395755d50"
+    },
+    "invitation": {
+      "name": "invitation",
+      "identifier": "Invitation",
+      "code": "IN",
+      "description": "An offer to join an organisation, sent to an email address.",
+      "fields": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "inv"
+          }
+        },
+        "organization": {
+          "value": {
+            "type": "id",
+            "prefix": "org"
+          },
+          "ref": "organization.id"
+        },
+        "email": {
+          "value": {
+            "type": "text",
+            "max": 254
+          },
+          "ref": "person.email"
+        },
+        "invitedBy": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "person.id"
+        }
+      },
+      "lives": "database",
+      "machine": {
+        "states": [
+          "pending",
+          "accepted",
+          "revoked"
+        ],
+        "moves": {
+          "send": {
+            "from": [],
+            "to": [
+              "pending"
+            ],
+            "emits": "InvitationSent"
+          },
+          "accept": {
+            "from": [
+              "pending"
+            ],
+            "to": [
+              "accepted"
+            ],
+            "emits": "InvitationAccepted"
+          },
+          "revoke": {
+            "from": [
+              "pending"
+            ],
+            "to": [
+              "revoked"
+            ],
+            "emits": "InvitationRevoked"
+          }
+        },
+        "notFrom": {
+          "error": "InvitationNotPending",
+          "exit": 40,
+          "code": "IN-900"
+        }
+      },
+      "events": {
+        "InvitationAccepted": {
+          "invitation": {
+            "value": {
+              "type": "id",
+              "prefix": "inv"
+            },
+            "ref": "invitation.id"
+          },
+          "membership": {
+            "value": {
+              "type": "id",
+              "prefix": "mem"
+            },
+            "ref": "membership.id"
+          }
+        },
+        "InvitationRevoked": {
+          "invitation": {
+            "value": {
+              "type": "id",
+              "prefix": "inv"
+            },
+            "ref": "invitation.id"
+          }
+        },
+        "InvitationSent": {
+          "invitation": {
+            "value": {
+              "type": "id",
+              "prefix": "inv"
+            },
+            "ref": "invitation.id"
+          },
+          "email": {
+            "value": {
+              "type": "text",
+              "max": 254
+            },
+            "ref": "invitation.email"
+          }
+        }
+      },
+      "errors": {},
+      "roles": [
+        "invitee"
+      ],
+      "hash": "c480108780ac255d"
+    },
+    "link": {
+      "name": "link",
+      "identifier": "Link",
+      "code": "LI",
+      "description": "A title and web address on a person's public profile.",
+      "fields": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "lnk"
+          }
+        },
+        "owner": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "person.id"
+        },
+        "title": {
+          "value": {
+            "type": "text",
+            "max": 120
+          },
+          "named": "LinkTitle"
+        },
+        "url": {
+          "value": {
+            "type": "schema"
+          },
+          "named": "LinkUrl"
+        }
+      },
+      "lives": "database",
+      "machine": {
+        "states": [
+          "listed",
+          "removed"
+        ],
+        "moves": {
+          "add": {
+            "from": [],
+            "to": [
+              "listed"
+            ],
+            "emits": "LinkAdded"
+          },
+          "remove": {
+            "from": [
+              "listed"
+            ],
+            "to": [
+              "removed"
+            ],
+            "emits": "LinkRemoved"
+          }
+        },
+        "notFrom": {
+          "error": "LinkNotListed",
+          "exit": 5,
+          "code": "LI-900"
+        }
+      },
+      "events": {
+        "LinkAdded": {
+          "link": {
+            "value": {
+              "type": "id",
+              "prefix": "lnk"
+            },
+            "ref": "link.id"
+          }
+        },
+        "LinkRemoved": {
+          "link": {
+            "value": {
+              "type": "id",
+              "prefix": "lnk"
+            },
+            "ref": "link.id"
+          }
+        }
+      },
+      "errors": {
+        "LinkNeedsHandle": {
+          "fields": {},
+          "exit": 4,
+          "code": "LI-001"
+        },
+        "LinkAlreadyRemoved": {
+          "fields": {},
+          "exit": 6,
+          "code": "LI-002"
+        }
+      },
+      "roles": [
+        "linkOwner"
+      ],
+      "hash": "c82de0a58f17ca6f"
+    },
+    "membership": {
+      "name": "membership",
+      "identifier": "Membership",
+      "code": "ME",
+      "description": "A person's place in an organisation.",
+      "fields": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "mem"
+          }
+        },
+        "organization": {
+          "value": {
+            "type": "id",
+            "prefix": "org"
+          },
+          "ref": "organization.id"
+        },
+        "person": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "person.id"
+        },
+        "role": {
+          "value": {
+            "type": "schema"
+          },
+          "named": "Role"
+        }
+      },
+      "lives": "database",
+      "machine": null,
+      "events": {},
+      "errors": {},
+      "roles": [
+        "holder"
+      ],
+      "hash": "7c2dc564f0e86a98"
+    },
+    "organization": {
+      "name": "organization",
+      "identifier": "Organization",
+      "code": "OR",
+      "description": "A company or team that people belong to.",
+      "fields": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "org"
+          }
+        },
+        "name": {
+          "value": {
+            "type": "text",
+            "max": 200
+          }
+        },
+        "owner": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "person.id"
+        }
+      },
+      "lives": "database",
+      "machine": {
+        "states": [
+          "active"
+        ],
+        "moves": {
+          "create": {
+            "from": [],
+            "to": [
+              "active"
+            ],
+            "emits": "OrganizationCreated"
+          }
+        },
+        "notFrom": {
+          "error": "OrganizationNotActive",
+          "exit": 20,
+          "code": "OR-900"
+        }
+      },
+      "events": {
+        "OrganizationCreated": {
+          "organization": {
+            "value": {
+              "type": "id",
+              "prefix": "org"
+            },
+            "ref": "organization.id"
+          },
+          "owner": {
+            "value": {
+              "type": "id",
+              "prefix": "per"
+            },
+            "ref": "organization.owner"
+          }
+        }
+      },
+      "errors": {},
+      "roles": [
+        "owner"
+      ],
+      "hash": "0dbabb64b8897f35"
+    },
+    "person": {
+      "name": "person",
+      "identifier": "Person",
+      "code": "PE",
+      "description": "Someone who signs in. Better Auth keeps people; the project refers to them by id.",
+      "fields": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          }
+        },
+        "email": {
+          "value": {
+            "type": "text",
+            "max": 254
+          }
+        },
+        "name": {
+          "value": {
+            "type": "text",
+            "max": 200
+          }
+        }
+      },
+      "lives": "database",
+      "machine": null,
+      "events": {},
+      "errors": {
+        "PersonEmailTaken": {
+          "fields": {},
+          "exit": 11,
+          "code": "PE-001"
+        }
+      },
+      "roles": [],
+      "hash": "1595aad527217150"
+    },
+    "profile": {
+      "name": "profile",
+      "identifier": "Profile",
+      "code": "PR",
+      "description": "A person's public page with their links in the order they picked.",
+      "fields": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "prf"
+          }
+        },
+        "handle": {
+          "value": {
+            "type": "id",
+            "prefix": "hdl"
+          },
+          "ref": "handle.id"
+        },
+        "owner": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "person.id"
+        },
+        "status": {
+          "value": {
+            "type": "schema"
+          }
+        },
+        "links": {
+          "value": {
+            "type": "schema"
+          }
+        }
+      },
+      "lives": "database",
+      "machine": null,
+      "events": {},
+      "errors": {
+        "ProfileNotFound": {
+          "fields": {},
+          "exit": 6,
+          "code": "PR-001"
+        }
+      },
+      "roles": [],
+      "hash": "e908225513e2eafe"
+    },
+    "session": {
+      "name": "session",
+      "identifier": "Session",
+      "code": "SE",
+      "description": "A person's signed-in session, issued by Better Auth.",
+      "fields": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "ses"
+          }
+        },
+        "person": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "person.id"
+        }
+      },
+      "lives": "database",
+      "machine": null,
+      "events": {},
+      "errors": {
+        "SessionCredentialsWrong": {
+          "fields": {},
+          "exit": 10,
+          "code": "SE-001"
+        }
+      },
+      "roles": [],
+      "hash": "1fa5923e2d4a38d4"
+    },
+    "system": {
+      "name": "system",
+      "identifier": "System",
+      "code": "SY",
+      "description": "The running application itself.",
+      "fields": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "sys"
+          }
+        }
+      },
+      "lives": "database",
+      "machine": null,
+      "events": {},
+      "errors": {},
+      "roles": [],
+      "hash": "f59c02fd744afb41"
+    }
+  },
+  "operations": {
+    "api-key.create": {
+      "kind": "operation",
+      "name": "api-key.create",
+      "thing": "api-key",
+      "verb": "create",
+      "identifier": "create",
+      "file": "blueprint/things/api-key/verbs/create.ts",
+      "description": "Create an API key in an organisation. The key itself is shown once.",
+      "payload": {
+        "organization": {
+          "value": {
+            "type": "id",
+            "prefix": "org"
+          },
+          "ref": "api-key.organization"
+        },
+        "name": {
+          "value": {
+            "type": "text",
+            "max": 200
+          },
+          "ref": "api-key.name"
+        }
+      },
+      "answer": {
+        "apiKey": {
+          "value": {
+            "type": "id",
+            "prefix": "key"
+          },
+          "ref": "api-key.id"
+        },
+        "key": {
+          "value": {
+            "type": "text",
+            "max": 512
+          },
+          "named": "Secret",
+          "visibility": "secret"
+        }
+      },
+      "move": null,
+      "errors": [],
+      "refusals": [
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "role-of",
+          "role": "organization.owner",
+          "path": "organization"
+        }
+      ],
+      "steps": {
+        "issue": {
+          "name": "api-key.create.issue",
+          "type": "database"
+        },
+        "insert": {
+          "name": "api-key.create.insert",
+          "type": "database"
+        }
+      },
+      "idempotent": null,
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 250
+      },
+      "hash": "08aae6601d29ec9c"
+    },
+    "handle.claim": {
+      "kind": "operation",
+      "name": "handle.claim",
+      "thing": "handle",
+      "verb": "claim",
+      "identifier": "claim",
+      "file": "blueprint/things/handle/verbs/claim.ts",
+      "description": "Claim a free name and make it the address of your public profile.",
+      "payload": {
+        "name": {
+          "value": {
+            "type": "schema"
+          },
+          "named": "HandleName",
+          "ref": "handle.name"
+        }
+      },
+      "answer": {
+        "handle": {
+          "value": {
+            "type": "id",
+            "prefix": "hdl"
+          },
+          "ref": "handle.id"
+        }
+      },
+      "move": {
+        "key": "claim",
+        "from": [],
+        "to": [
+          "claimed"
+        ],
+        "emits": "HandleClaimed"
+      },
+      "errors": [
+        "HandleTaken",
+        "HandleAlreadyOwned"
+      ],
+      "refusals": [
+        "HandleTaken",
+        "HandleAlreadyOwned",
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "signed-in"
+        }
+      ],
+      "steps": {
+        "load": {
+          "name": "handle.claim.load",
+          "type": "database"
+        },
+        "record": {
+          "name": "handle.claim.record",
+          "type": "database"
+        }
+      },
+      "idempotent": "request",
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 150
+      },
+      "hash": "7c07c87890ee965e"
+    },
+    "handle.release": {
+      "kind": "operation",
+      "name": "handle.release",
+      "thing": "handle",
+      "verb": "release",
+      "identifier": "release",
+      "file": "blueprint/things/handle/verbs/release.ts",
+      "description": "Free your name and take its public profile offline.",
+      "payload": {
+        "handle": {
+          "value": {
+            "type": "id",
+            "prefix": "hdl"
+          },
+          "ref": "handle.id"
+        }
+      },
+      "answer": {},
+      "move": {
+        "key": "release",
+        "from": [
+          "claimed"
+        ],
+        "to": [
+          "released"
+        ],
+        "emits": "HandleReleased"
+      },
+      "errors": [],
+      "refusals": [
+        "HandleNotClaimed",
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "role",
+          "role": "handle.handleOwner"
+        }
+      ],
+      "steps": {
+        "record": {
+          "name": "handle.release.record",
+          "type": "database"
+        }
+      },
+      "idempotent": null,
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 150
+      },
+      "hash": "7cc1383604d447d1"
+    },
+    "handle.resolve": {
+      "kind": "operation",
+      "name": "handle.resolve",
+      "thing": "handle",
+      "verb": "resolve",
+      "identifier": "resolve",
+      "file": "blueprint/things/handle/verbs/resolve.ts",
+      "description": "Find the handle for a claimed name.",
+      "payload": {
+        "name": {
+          "value": {
+            "type": "schema"
+          },
+          "named": "HandleName",
+          "ref": "handle.name"
+        }
+      },
+      "answer": {
+        "handle": {
+          "value": {
+            "type": "id",
+            "prefix": "hdl"
+          },
+          "ref": "handle.id"
+        }
+      },
+      "move": null,
+      "errors": [
+        "HandleNotFound"
+      ],
+      "refusals": [
+        "HandleNotFound"
+      ],
+      "allowed": [
+        {
+          "kind": "anyone"
+        }
+      ],
+      "steps": {
+        "load": {
+          "name": "handle.resolve.load",
+          "type": "database"
+        }
+      },
+      "idempotent": null,
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 150
+      },
+      "hash": "b4d8e5188c6dd1c0"
+    },
+    "invitation.accept": {
+      "kind": "operation",
+      "name": "invitation.accept",
+      "thing": "invitation",
+      "verb": "accept",
+      "identifier": "accept",
+      "file": "blueprint/things/invitation/verbs/accept.ts",
+      "description": "Accept an invitation and become a member of its organisation.",
+      "payload": {
+        "invitation": {
+          "value": {
+            "type": "id",
+            "prefix": "inv"
+          },
+          "ref": "invitation.id"
+        }
+      },
+      "answer": {
+        "organization": {
+          "value": {
+            "type": "id",
+            "prefix": "org"
+          },
+          "ref": "invitation.organization"
+        },
+        "membership": {
+          "value": {
+            "type": "id",
+            "prefix": "mem"
+          },
+          "ref": "membership.id"
+        }
+      },
+      "move": {
+        "key": "accept",
+        "from": [
+          "pending"
+        ],
+        "to": [
+          "accepted"
+        ],
+        "emits": "InvitationAccepted"
+      },
+      "errors": [],
+      "refusals": [
+        "InvitationNotPending",
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "role",
+          "role": "invitation.invitee"
+        }
+      ],
+      "steps": {
+        "join": {
+          "name": "invitation.accept.join",
+          "type": "database"
+        }
+      },
+      "idempotent": null,
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 200
+      },
+      "hash": "9b5d5f2a5e227711"
+    },
+    "invitation.revoke": {
+      "kind": "operation",
+      "name": "invitation.revoke",
+      "thing": "invitation",
+      "verb": "revoke",
+      "identifier": "revoke",
+      "file": "blueprint/things/invitation/verbs/revoke.ts",
+      "description": "Withdraw an invitation that hasn't been accepted.",
+      "payload": {
+        "invitation": {
+          "value": {
+            "type": "id",
+            "prefix": "inv"
+          },
+          "ref": "invitation.id"
+        }
+      },
+      "answer": {},
+      "move": {
+        "key": "revoke",
+        "from": [
+          "pending"
+        ],
+        "to": [
+          "revoked"
+        ],
+        "emits": "InvitationRevoked"
+      },
+      "errors": [],
+      "refusals": [
+        "InvitationNotPending",
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "role-of",
+          "role": "organization.owner",
+          "path": "invitation.organization"
+        }
+      ],
+      "steps": {
+        "update": {
+          "name": "invitation.revoke.update",
+          "type": "database"
+        }
+      },
+      "idempotent": null,
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 150
+      },
+      "hash": "273081eb20442e78"
+    },
+    "invitation.send": {
+      "kind": "operation",
+      "name": "invitation.send",
+      "thing": "invitation",
+      "verb": "send",
+      "identifier": "send",
+      "file": "blueprint/things/invitation/verbs/send.ts",
+      "description": "Invite someone to an organisation by email.",
+      "payload": {
+        "organization": {
+          "value": {
+            "type": "id",
+            "prefix": "org"
+          },
+          "ref": "invitation.organization"
+        },
+        "email": {
+          "value": {
+            "type": "text",
+            "max": 254
+          },
+          "ref": "invitation.email"
+        }
+      },
+      "answer": {
+        "invitation": {
+          "value": {
+            "type": "id",
+            "prefix": "inv"
+          },
+          "ref": "invitation.id"
+        }
+      },
+      "move": {
+        "key": "send",
+        "from": [],
+        "to": [
+          "pending"
+        ],
+        "emits": "InvitationSent"
+      },
+      "errors": [],
+      "refusals": [
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "role-of",
+          "role": "organization.owner",
+          "path": "organization"
+        }
+      ],
+      "steps": {
+        "insert": {
+          "name": "invitation.send.insert",
+          "type": "database"
+        }
+      },
+      "idempotent": null,
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 200
+      },
+      "hash": "f760027d1cbbe846"
+    },
+    "link.add": {
+      "kind": "operation",
+      "name": "link.add",
+      "thing": "link",
+      "verb": "add",
+      "identifier": "add",
+      "file": "blueprint/things/link/verbs/add.ts",
+      "description": "Append a link to your public profile.",
+      "payload": {
+        "title": {
+          "value": {
+            "type": "text",
+            "max": 120
+          },
+          "named": "LinkTitle",
+          "ref": "link.title"
+        },
+        "url": {
+          "value": {
+            "type": "schema"
+          },
+          "named": "LinkUrl",
+          "ref": "link.url"
+        }
+      },
+      "answer": {
+        "link": {
+          "value": {
+            "type": "id",
+            "prefix": "lnk"
+          },
+          "ref": "link.id"
+        }
+      },
+      "move": {
+        "key": "add",
+        "from": [],
+        "to": [
+          "listed"
+        ],
+        "emits": "LinkAdded"
+      },
+      "errors": [
+        "LinkNeedsHandle"
+      ],
+      "refusals": [
+        "LinkNeedsHandle",
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "signed-in"
+        }
+      ],
+      "steps": {
+        "load": {
+          "name": "link.add.load",
+          "type": "database"
+        },
+        "record": {
+          "name": "link.add.record",
+          "type": "database"
+        }
+      },
+      "idempotent": "request",
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 150
+      },
+      "hash": "24443479d9f9d3fe"
+    },
+    "link.order": {
+      "kind": "operation",
+      "name": "link.order",
+      "thing": "link",
+      "verb": "order",
+      "identifier": "order",
+      "file": "blueprint/things/link/verbs/order.ts",
+      "description": "Move a link to a zero-based position. A position past the end puts it last.",
+      "payload": {
+        "link": {
+          "value": {
+            "type": "id",
+            "prefix": "lnk"
+          },
+          "ref": "link.id"
+        },
+        "position": {
+          "value": {
+            "type": "uint",
+            "bits": 32
+          },
+          "named": "LinkPosition"
+        }
+      },
+      "answer": {},
+      "move": null,
+      "errors": [
+        "LinkAlreadyRemoved"
+      ],
+      "refusals": [
+        "LinkAlreadyRemoved",
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "role",
+          "role": "link.linkOwner"
+        }
+      ],
+      "steps": {
+        "load": {
+          "name": "link.order.load",
+          "type": "database"
+        },
+        "record": {
+          "name": "link.order.record",
+          "type": "database"
+        }
+      },
+      "idempotent": null,
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 150
+      },
+      "hash": "881e36a3b05556f6"
+    },
+    "link.remove": {
+      "kind": "operation",
+      "name": "link.remove",
+      "thing": "link",
+      "verb": "remove",
+      "identifier": "remove",
+      "file": "blueprint/things/link/verbs/remove.ts",
+      "description": "Remove one of your links from your public profile.",
+      "payload": {
+        "link": {
+          "value": {
+            "type": "id",
+            "prefix": "lnk"
+          },
+          "ref": "link.id"
+        }
+      },
+      "answer": {},
+      "move": {
+        "key": "remove",
+        "from": [
+          "listed"
+        ],
+        "to": [
+          "removed"
+        ],
+        "emits": "LinkRemoved"
+      },
+      "errors": [],
+      "refusals": [
+        "LinkNotListed",
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "role",
+          "role": "link.linkOwner"
+        }
+      ],
+      "steps": {
+        "record": {
+          "name": "link.remove.record",
+          "type": "database"
+        }
+      },
+      "idempotent": null,
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 150
+      },
+      "hash": "85613ea6200123d2"
+    },
+    "membership.get": {
+      "kind": "read",
+      "name": "membership.get",
+      "thing": "membership",
+      "verb": "get",
+      "identifier": "get",
+      "file": "blueprint/things/membership/verbs/get.ts",
+      "description": "Read one membership by its id: organization, person, role.",
+      "payload": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "mem"
+          },
+          "ref": "membership.id"
+        }
+      },
+      "answer": {
+        "organization": {
+          "value": {
+            "type": "id",
+            "prefix": "org"
+          },
+          "ref": "membership.organization"
+        },
+        "person": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "membership.person"
+        },
+        "role": {
+          "value": {
+            "type": "schema"
+          },
+          "named": "Role",
+          "ref": "membership.role"
+        }
+      },
+      "move": null,
+      "errors": [],
+      "refusals": [
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "role",
+          "role": "membership.holder"
+        },
+        {
+          "kind": "role-of",
+          "role": "organization.owner",
+          "path": "membership.organization"
+        }
+      ],
+      "steps": {},
+      "idempotent": null,
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 50
+      },
+      "hash": "b2d66623a4335cca"
+    },
+    "organization.create": {
+      "kind": "operation",
+      "name": "organization.create",
+      "thing": "organization",
+      "verb": "create",
+      "identifier": "create",
+      "file": "blueprint/things/organization/verbs/create.ts",
+      "description": "Found an organisation. Whoever founds it owns it, and is its first member.",
+      "payload": {
+        "name": {
+          "value": {
+            "type": "text",
+            "max": 200
+          },
+          "ref": "organization.name"
+        }
+      },
+      "answer": {
+        "organization": {
+          "value": {
+            "type": "id",
+            "prefix": "org"
+          },
+          "ref": "organization.id"
+        }
+      },
+      "move": {
+        "key": "create",
+        "from": [],
+        "to": [
+          "active"
+        ],
+        "emits": "OrganizationCreated"
+      },
+      "errors": [],
+      "refusals": [
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "signed-in"
+        }
+      ],
+      "steps": {
+        "insert": {
+          "name": "organization.create.insert",
+          "type": "database"
+        },
+        "owner": {
+          "name": "organization.create.owner",
+          "type": "database"
+        }
+      },
+      "idempotent": "request",
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 250
+      },
+      "hash": "909c664469fae961"
+    },
+    "organization.get": {
+      "kind": "read",
+      "name": "organization.get",
+      "thing": "organization",
+      "verb": "get",
+      "identifier": "get",
+      "file": "blueprint/things/organization/verbs/get.ts",
+      "description": "Read one organization by its id: name, owner, state.",
+      "payload": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "org"
+          },
+          "ref": "organization.id"
+        }
+      },
+      "answer": {
+        "name": {
+          "value": {
+            "type": "text",
+            "max": 200
+          },
+          "ref": "organization.name"
+        },
+        "owner": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "organization.owner"
+        },
+        "state": {
+          "value": {
+            "type": "text",
+            "max": 64
+          }
+        }
+      },
+      "move": null,
+      "errors": [],
+      "refusals": [
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "role",
+          "role": "organization.owner"
+        }
+      ],
+      "steps": {},
+      "idempotent": null,
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 50
+      },
+      "hash": "45802f5f1bd67a6d"
+    },
+    "person.sign-up": {
+      "kind": "operation",
+      "name": "person.sign-up",
+      "thing": "person",
+      "verb": "sign-up",
+      "identifier": "signUp",
+      "file": "blueprint/things/person/verbs/sign-up.ts",
+      "description": "Sign up with an email address and a password.",
+      "payload": {
+        "email": {
+          "value": {
+            "type": "text",
+            "max": 254
+          },
+          "ref": "person.email"
+        },
+        "password": {
+          "value": {
+            "type": "text",
+            "max": 128
+          },
+          "named": "Password",
+          "visibility": "secret"
+        },
+        "name": {
+          "value": {
+            "type": "text",
+            "max": 200
+          },
+          "ref": "person.name"
+        }
+      },
+      "answer": {
+        "person": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "person.id"
+        }
+      },
+      "move": null,
+      "errors": [
+        "PersonEmailTaken"
+      ],
+      "refusals": [
+        "PersonEmailTaken"
+      ],
+      "allowed": [
+        {
+          "kind": "anyone"
+        }
+      ],
+      "steps": {
+        "create": {
+          "name": "person.sign-up.create",
+          "type": "database"
+        }
+      },
+      "idempotent": null,
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 400
+      },
+      "hash": "a07b2e3beea84684"
+    },
+    "profile.get": {
+      "kind": "operation",
+      "name": "profile.get",
+      "thing": "profile",
+      "verb": "get",
+      "identifier": "get",
+      "file": "blueprint/things/profile/verbs/get.ts",
+      "description": "Read a claimed name's public profile and its links in display order.",
+      "payload": {
+        "handle": {
+          "value": {
+            "type": "schema"
+          },
+          "named": "HandleName",
+          "ref": "handle.name"
+        }
+      },
+      "answer": {
+        "handle": {
+          "value": {
+            "type": "schema"
+          },
+          "named": "HandleName",
+          "ref": "handle.name"
+        },
+        "links": {
+          "value": {
+            "type": "schema"
+          }
+        }
+      },
+      "move": null,
+      "errors": [
+        "ProfileNotFound"
+      ],
+      "refusals": [
+        "ProfileNotFound"
+      ],
+      "allowed": [
+        {
+          "kind": "anyone"
+        }
+      ],
+      "steps": {
+        "load": {
+          "name": "profile.get.load",
+          "type": "database"
+        }
+      },
+      "idempotent": null,
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 150
+      },
+      "hash": "e874831999a5149f"
+    },
+    "session.show": {
+      "kind": "operation",
+      "name": "session.show",
+      "thing": "session",
+      "verb": "show",
+      "identifier": "show",
+      "file": "blueprint/things/session/verbs/show.ts",
+      "description": "Who is signed in.",
+      "payload": {},
+      "answer": {
+        "person": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "person.id"
+        },
+        "email": {
+          "value": {
+            "type": "text",
+            "max": 254
+          },
+          "ref": "person.email"
+        }
+      },
+      "move": null,
+      "errors": [],
+      "refusals": [
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "signed-in"
+        }
+      ],
+      "steps": {},
+      "idempotent": null,
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 100
+      },
+      "hash": "d6972d746c66f735"
+    },
+    "session.sign-in": {
+      "kind": "operation",
+      "name": "session.sign-in",
+      "thing": "session",
+      "verb": "sign-in",
+      "identifier": "signIn",
+      "file": "blueprint/things/session/verbs/sign-in.ts",
+      "description": "Sign in with email and password. The token is the bearer for every later call.",
+      "payload": {
+        "email": {
+          "value": {
+            "type": "text",
+            "max": 254
+          },
+          "ref": "person.email"
+        },
+        "password": {
+          "value": {
+            "type": "text",
+            "max": 128
+          },
+          "named": "Password",
+          "visibility": "secret"
+        }
+      },
+      "answer": {
+        "session": {
+          "value": {
+            "type": "id",
+            "prefix": "ses"
+          },
+          "ref": "session.id",
+          "visibility": "secret"
+        },
+        "token": {
+          "value": {
+            "type": "text",
+            "max": 512
+          },
+          "named": "Secret",
+          "visibility": "secret"
+        }
+      },
+      "move": null,
+      "errors": [
+        "SessionCredentialsWrong"
+      ],
+      "refusals": [
+        "SessionCredentialsWrong"
+      ],
+      "allowed": [
+        {
+          "kind": "anyone"
+        }
+      ],
+      "steps": {
+        "verify": {
+          "name": "session.sign-in.verify",
+          "type": "database"
+        }
+      },
+      "idempotent": null,
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 400
+      },
+      "hash": "631917ddeff4685a"
+    },
+    "system.health": {
+      "kind": "operation",
+      "name": "system.health",
+      "thing": "system",
+      "verb": "health",
+      "identifier": "health",
+      "file": "blueprint/things/system/verbs/health.ts",
+      "description": "Is the application up?",
+      "payload": {},
+      "answer": {
+        "status": {
+          "value": {
+            "type": "schema"
+          },
+          "named": "Ok"
+        }
+      },
+      "move": null,
+      "errors": [],
+      "refusals": [],
+      "allowed": [
+        {
+          "kind": "anyone"
+        }
+      ],
+      "steps": {},
+      "idempotent": null,
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 50
+      },
+      "hash": "354821b9c37665dc"
+    }
+  },
+  "environments": {
+    "local": {
+      "name": "local",
+      "file": "blueprint/environments/local.ts",
+      "runs": "on this machine",
+      "identity": "test-principals",
+      "lifetimeMs": null,
+      "cloud": null,
+      "database": "d1-local",
+      "secrets": {},
+      "promotesFrom": null,
+      "telemetry": [
+        {
+          "sink": "local"
+        }
+      ],
+      "deploy": {},
+      "publish": {},
+      "hash": "0f14705e03d3bc97"
+    },
+    "production": {
+      "name": "production",
+      "file": "blueprint/environments/production.ts",
+      "runs": "always on",
+      "identity": "better-auth",
+      "lifetimeMs": null,
+      "cloud": {
+        "provider": "cloudflare",
+        "database": "d1"
+      },
+      "database": null,
+      "secrets": {},
+      "promotesFrom": "staging",
+      "deploy": {
+        "server": {
+          "how": "worker",
+          "domain": null
+        }
+      },
+      "publish": {
+        "cli": [
+          {
+            "how": "npm",
+            "tag": null
+          }
+        ],
+        "sdk": [
+          {
+            "how": "npm",
+            "tag": null
+          }
+        ]
+      },
+      "hash": "1dfc78cddbccb96a"
+    },
+    "staging": {
+      "name": "staging",
+      "file": "blueprint/environments/staging.ts",
+      "runs": "always on",
+      "identity": "better-auth",
+      "lifetimeMs": null,
+      "cloud": {
+        "provider": "cloudflare",
+        "database": "d1"
+      },
+      "database": null,
+      "secrets": {},
+      "promotesFrom": null,
+      "deploy": {
+        "server": {
+          "how": "worker",
+          "domain": null
+        }
+      },
+      "publish": {
+        "cli": [
+          {
+            "how": "npm",
+            "tag": "next"
+          }
+        ],
+        "sdk": [
+          {
+            "how": "npm",
+            "tag": "next"
+          }
+        ]
+      },
+      "hash": "a07f0efb92bd99a6"
+    },
+    "test": {
+      "name": "test",
+      "file": "blueprint/environments/test.ts",
+      "runs": "a fresh world for each pull request",
+      "identity": "test-principals",
+      "lifetimeMs": 7200000,
+      "cloud": {
+        "provider": "cloudflare",
+        "database": "d1"
+      },
+      "database": null,
+      "secrets": {},
+      "promotesFrom": null,
+      "deploy": {},
+      "publish": {},
+      "hash": "e264584f19862db6"
+    }
+  }
+}

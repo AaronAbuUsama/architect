@@ -7,6 +7,7 @@ import { Starter } from "./service.ts";
 import { WORKSPACE, mergeWorkspace } from "./internal/project.ts";
 
 const starter = resolve(import.meta.dirname, "../../../../../examples/starter");
+const links = resolve(starter, "../links");
 
 describe("the starter preset", () => {
   const tree = createTreeWithEmptyWorkspace();
@@ -17,6 +18,14 @@ describe("the starter preset", () => {
     for (const f of source.files) expect(tree.read(f.path, "utf8"), f.path).toBe(f.content);
     expect(source.files.some((f) => f.path === "src/session/sign-in.ts")).toBe(true);
     expect(source.files.some((f) => f.path.startsWith("journeys/"))).toBe(true);
+  });
+
+  it("keeps the shipped starter identical to links stage 1", () => {
+    const stage = Starter.read(links, source.version);
+    const stageFiles = new Map(stage.files.map((file) => [file.path, file.content]));
+    expect(source.files.map((file) => file.path).sort()).toEqual([...stageFiles.keys()].sort());
+    for (const file of source.files) expect(file.content, file.path).toBe(stageFiles.get(file.path));
+    expect(source.model).toBe(stage.model);
   });
 
   it("renders generated/ under the new name, and writes no scaffold over a handler", () => {

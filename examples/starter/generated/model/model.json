@@ -1,12 +1,34 @@
 {
   "refusals": {
+    "HandleAlreadyOwned": "HN-002",
+    "HandleNotClaimed": "HN-900",
+    "HandleNotFound": "HN-003",
+    "HandleTaken": "HN-001",
     "InvitationNotPending": "IN-900",
+    "LinkAlreadyRemoved": "LI-002",
+    "LinkNeedsHandle": "LI-001",
+    "LinkNotListed": "LI-900",
     "NotAllowed": "AR-001",
     "OrganizationNotActive": "OR-900",
     "PersonEmailTaken": "PE-001",
+    "ProfileNotFound": "PR-001",
     "SessionCredentialsWrong": "SE-001"
   },
   "values": {
+    "HandleName": {
+      "type": "schema"
+    },
+    "LinkPosition": {
+      "type": "uint",
+      "bits": 32
+    },
+    "LinkTitle": {
+      "type": "text",
+      "max": 120
+    },
+    "LinkUrl": {
+      "type": "schema"
+    },
     "Ok": {
       "type": "schema"
     },
@@ -62,6 +84,118 @@
       "errors": {},
       "roles": [],
       "hash": "6e46b72b0aa08b14"
+    },
+    "handle": {
+      "name": "handle",
+      "identifier": "Handle",
+      "code": "HN",
+      "description": "A public name that belongs to one person until they release it.",
+      "fields": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "hdl"
+          }
+        },
+        "name": {
+          "value": {
+            "type": "schema"
+          },
+          "named": "HandleName"
+        },
+        "owner": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "person.id"
+        }
+      },
+      "lives": "database",
+      "machine": {
+        "states": [
+          "claimed",
+          "released"
+        ],
+        "moves": {
+          "claim": {
+            "from": [],
+            "to": [
+              "claimed"
+            ],
+            "emits": "HandleClaimed"
+          },
+          "release": {
+            "from": [
+              "claimed"
+            ],
+            "to": [
+              "released"
+            ],
+            "emits": "HandleReleased"
+          }
+        },
+        "notFrom": {
+          "error": "HandleNotClaimed",
+          "exit": 5,
+          "code": "HN-900"
+        }
+      },
+      "events": {
+        "HandleClaimed": {
+          "handle": {
+            "value": {
+              "type": "id",
+              "prefix": "hdl"
+            },
+            "ref": "handle.id"
+          },
+          "name": {
+            "value": {
+              "type": "schema"
+            },
+            "named": "HandleName",
+            "ref": "handle.name"
+          }
+        },
+        "HandleReleased": {
+          "handle": {
+            "value": {
+              "type": "id",
+              "prefix": "hdl"
+            },
+            "ref": "handle.id"
+          },
+          "name": {
+            "value": {
+              "type": "schema"
+            },
+            "named": "HandleName",
+            "ref": "handle.name"
+          }
+        }
+      },
+      "errors": {
+        "HandleTaken": {
+          "fields": {},
+          "exit": 3,
+          "code": "HN-001"
+        },
+        "HandleAlreadyOwned": {
+          "fields": {},
+          "exit": 4,
+          "code": "HN-002"
+        },
+        "HandleNotFound": {
+          "fields": {},
+          "exit": 6,
+          "code": "HN-003"
+        }
+      },
+      "roles": [
+        "handleOwner"
+      ],
+      "hash": "dd23855395755d50"
     },
     "invitation": {
       "name": "invitation",
@@ -185,6 +319,106 @@
         "invitee"
       ],
       "hash": "c480108780ac255d"
+    },
+    "link": {
+      "name": "link",
+      "identifier": "Link",
+      "code": "LI",
+      "description": "A title and web address on a person's public profile.",
+      "fields": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "lnk"
+          }
+        },
+        "owner": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "person.id"
+        },
+        "title": {
+          "value": {
+            "type": "text",
+            "max": 120
+          },
+          "named": "LinkTitle"
+        },
+        "url": {
+          "value": {
+            "type": "schema"
+          },
+          "named": "LinkUrl"
+        }
+      },
+      "lives": "database",
+      "machine": {
+        "states": [
+          "listed",
+          "removed"
+        ],
+        "moves": {
+          "add": {
+            "from": [],
+            "to": [
+              "listed"
+            ],
+            "emits": "LinkAdded"
+          },
+          "remove": {
+            "from": [
+              "listed"
+            ],
+            "to": [
+              "removed"
+            ],
+            "emits": "LinkRemoved"
+          }
+        },
+        "notFrom": {
+          "error": "LinkNotListed",
+          "exit": 5,
+          "code": "LI-900"
+        }
+      },
+      "events": {
+        "LinkAdded": {
+          "link": {
+            "value": {
+              "type": "id",
+              "prefix": "lnk"
+            },
+            "ref": "link.id"
+          }
+        },
+        "LinkRemoved": {
+          "link": {
+            "value": {
+              "type": "id",
+              "prefix": "lnk"
+            },
+            "ref": "link.id"
+          }
+        }
+      },
+      "errors": {
+        "LinkNeedsHandle": {
+          "fields": {},
+          "exit": 4,
+          "code": "LI-001"
+        },
+        "LinkAlreadyRemoved": {
+          "fields": {},
+          "exit": 6,
+          "code": "LI-002"
+        }
+      },
+      "roles": [
+        "linkOwner"
+      ],
+      "hash": "c82de0a58f17ca6f"
     },
     "membership": {
       "name": "membership",
@@ -336,6 +570,56 @@
       "roles": [],
       "hash": "1595aad527217150"
     },
+    "profile": {
+      "name": "profile",
+      "identifier": "Profile",
+      "code": "PR",
+      "description": "A person's public page with their links in the order they picked.",
+      "fields": {
+        "id": {
+          "value": {
+            "type": "id",
+            "prefix": "prf"
+          }
+        },
+        "handle": {
+          "value": {
+            "type": "id",
+            "prefix": "hdl"
+          },
+          "ref": "handle.id"
+        },
+        "owner": {
+          "value": {
+            "type": "id",
+            "prefix": "per"
+          },
+          "ref": "person.id"
+        },
+        "status": {
+          "value": {
+            "type": "schema"
+          }
+        },
+        "links": {
+          "value": {
+            "type": "schema"
+          }
+        }
+      },
+      "lives": "database",
+      "machine": null,
+      "events": {},
+      "errors": {
+        "ProfileNotFound": {
+          "fields": {},
+          "exit": 6,
+          "code": "PR-001"
+        }
+      },
+      "roles": [],
+      "hash": "e908225513e2eafe"
+    },
     "session": {
       "name": "session",
       "identifier": "Session",
@@ -461,6 +745,177 @@
         "p95Ms": 250
       },
       "hash": "08aae6601d29ec9c"
+    },
+    "handle.claim": {
+      "kind": "operation",
+      "name": "handle.claim",
+      "thing": "handle",
+      "verb": "claim",
+      "identifier": "claim",
+      "file": "blueprint/things/handle/verbs/claim.ts",
+      "description": "Claim a free name and make it the address of your public profile.",
+      "payload": {
+        "name": {
+          "value": {
+            "type": "schema"
+          },
+          "named": "HandleName",
+          "ref": "handle.name"
+        }
+      },
+      "answer": {
+        "handle": {
+          "value": {
+            "type": "id",
+            "prefix": "hdl"
+          },
+          "ref": "handle.id"
+        }
+      },
+      "move": {
+        "key": "claim",
+        "from": [],
+        "to": [
+          "claimed"
+        ],
+        "emits": "HandleClaimed"
+      },
+      "errors": [
+        "HandleTaken",
+        "HandleAlreadyOwned"
+      ],
+      "refusals": [
+        "HandleTaken",
+        "HandleAlreadyOwned",
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "signed-in"
+        }
+      ],
+      "steps": {
+        "load": {
+          "name": "handle.claim.load",
+          "type": "database"
+        },
+        "record": {
+          "name": "handle.claim.record",
+          "type": "database"
+        }
+      },
+      "idempotent": "request",
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 150
+      },
+      "hash": "7c07c87890ee965e"
+    },
+    "handle.release": {
+      "kind": "operation",
+      "name": "handle.release",
+      "thing": "handle",
+      "verb": "release",
+      "identifier": "release",
+      "file": "blueprint/things/handle/verbs/release.ts",
+      "description": "Free your name and take its public profile offline.",
+      "payload": {
+        "handle": {
+          "value": {
+            "type": "id",
+            "prefix": "hdl"
+          },
+          "ref": "handle.id"
+        }
+      },
+      "answer": {},
+      "move": {
+        "key": "release",
+        "from": [
+          "claimed"
+        ],
+        "to": [
+          "released"
+        ],
+        "emits": "HandleReleased"
+      },
+      "errors": [],
+      "refusals": [
+        "HandleNotClaimed",
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "role",
+          "role": "handle.handleOwner"
+        }
+      ],
+      "steps": {
+        "record": {
+          "name": "handle.release.record",
+          "type": "database"
+        }
+      },
+      "idempotent": null,
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 150
+      },
+      "hash": "7cc1383604d447d1"
+    },
+    "handle.resolve": {
+      "kind": "operation",
+      "name": "handle.resolve",
+      "thing": "handle",
+      "verb": "resolve",
+      "identifier": "resolve",
+      "file": "blueprint/things/handle/verbs/resolve.ts",
+      "description": "Find the handle for a claimed name.",
+      "payload": {
+        "name": {
+          "value": {
+            "type": "schema"
+          },
+          "named": "HandleName",
+          "ref": "handle.name"
+        }
+      },
+      "answer": {
+        "handle": {
+          "value": {
+            "type": "id",
+            "prefix": "hdl"
+          },
+          "ref": "handle.id"
+        }
+      },
+      "move": null,
+      "errors": [
+        "HandleNotFound"
+      ],
+      "refusals": [
+        "HandleNotFound"
+      ],
+      "allowed": [
+        {
+          "kind": "anyone"
+        }
+      ],
+      "steps": {
+        "load": {
+          "name": "handle.resolve.load",
+          "type": "database"
+        }
+      },
+      "idempotent": null,
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 150
+      },
+      "hash": "b4d8e5188c6dd1c0"
     },
     "invitation.accept": {
       "kind": "operation",
@@ -649,6 +1104,188 @@
         "p95Ms": 200
       },
       "hash": "f760027d1cbbe846"
+    },
+    "link.add": {
+      "kind": "operation",
+      "name": "link.add",
+      "thing": "link",
+      "verb": "add",
+      "identifier": "add",
+      "file": "blueprint/things/link/verbs/add.ts",
+      "description": "Append a link to your public profile.",
+      "payload": {
+        "title": {
+          "value": {
+            "type": "text",
+            "max": 120
+          },
+          "named": "LinkTitle",
+          "ref": "link.title"
+        },
+        "url": {
+          "value": {
+            "type": "schema"
+          },
+          "named": "LinkUrl",
+          "ref": "link.url"
+        }
+      },
+      "answer": {
+        "link": {
+          "value": {
+            "type": "id",
+            "prefix": "lnk"
+          },
+          "ref": "link.id"
+        }
+      },
+      "move": {
+        "key": "add",
+        "from": [],
+        "to": [
+          "listed"
+        ],
+        "emits": "LinkAdded"
+      },
+      "errors": [
+        "LinkNeedsHandle"
+      ],
+      "refusals": [
+        "LinkNeedsHandle",
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "signed-in"
+        }
+      ],
+      "steps": {
+        "load": {
+          "name": "link.add.load",
+          "type": "database"
+        },
+        "record": {
+          "name": "link.add.record",
+          "type": "database"
+        }
+      },
+      "idempotent": "request",
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 150
+      },
+      "hash": "24443479d9f9d3fe"
+    },
+    "link.order": {
+      "kind": "operation",
+      "name": "link.order",
+      "thing": "link",
+      "verb": "order",
+      "identifier": "order",
+      "file": "blueprint/things/link/verbs/order.ts",
+      "description": "Move a link to a zero-based position. A position past the end puts it last.",
+      "payload": {
+        "link": {
+          "value": {
+            "type": "id",
+            "prefix": "lnk"
+          },
+          "ref": "link.id"
+        },
+        "position": {
+          "value": {
+            "type": "uint",
+            "bits": 32
+          },
+          "named": "LinkPosition"
+        }
+      },
+      "answer": {},
+      "move": null,
+      "errors": [
+        "LinkAlreadyRemoved"
+      ],
+      "refusals": [
+        "LinkAlreadyRemoved",
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "role",
+          "role": "link.linkOwner"
+        }
+      ],
+      "steps": {
+        "load": {
+          "name": "link.order.load",
+          "type": "database"
+        },
+        "record": {
+          "name": "link.order.record",
+          "type": "database"
+        }
+      },
+      "idempotent": null,
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 150
+      },
+      "hash": "881e36a3b05556f6"
+    },
+    "link.remove": {
+      "kind": "operation",
+      "name": "link.remove",
+      "thing": "link",
+      "verb": "remove",
+      "identifier": "remove",
+      "file": "blueprint/things/link/verbs/remove.ts",
+      "description": "Remove one of your links from your public profile.",
+      "payload": {
+        "link": {
+          "value": {
+            "type": "id",
+            "prefix": "lnk"
+          },
+          "ref": "link.id"
+        }
+      },
+      "answer": {},
+      "move": {
+        "key": "remove",
+        "from": [
+          "listed"
+        ],
+        "to": [
+          "removed"
+        ],
+        "emits": "LinkRemoved"
+      },
+      "errors": [],
+      "refusals": [
+        "LinkNotListed",
+        "NotAllowed"
+      ],
+      "allowed": [
+        {
+          "kind": "role",
+          "role": "link.linkOwner"
+        }
+      ],
+      "steps": {
+        "record": {
+          "name": "link.remove.record",
+          "type": "database"
+        }
+      },
+      "idempotent": null,
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 150
+      },
+      "hash": "85613ea6200123d2"
     },
     "membership.get": {
       "kind": "read",
@@ -901,6 +1538,63 @@
         "p95Ms": 400
       },
       "hash": "a07b2e3beea84684"
+    },
+    "profile.get": {
+      "kind": "operation",
+      "name": "profile.get",
+      "thing": "profile",
+      "verb": "get",
+      "identifier": "get",
+      "file": "blueprint/things/profile/verbs/get.ts",
+      "description": "Read a claimed name's public profile and its links in display order.",
+      "payload": {
+        "handle": {
+          "value": {
+            "type": "schema"
+          },
+          "named": "HandleName",
+          "ref": "handle.name"
+        }
+      },
+      "answer": {
+        "handle": {
+          "value": {
+            "type": "schema"
+          },
+          "named": "HandleName",
+          "ref": "handle.name"
+        },
+        "links": {
+          "value": {
+            "type": "schema"
+          }
+        }
+      },
+      "move": null,
+      "errors": [
+        "ProfileNotFound"
+      ],
+      "refusals": [
+        "ProfileNotFound"
+      ],
+      "allowed": [
+        {
+          "kind": "anyone"
+        }
+      ],
+      "steps": {
+        "load": {
+          "name": "profile.get.load",
+          "type": "database"
+        }
+      },
+      "idempotent": null,
+      "runs": "server",
+      "test": "unit",
+      "budget": {
+        "p95Ms": 150
+      },
+      "hash": "e874831999a5149f"
     },
     "session.show": {
       "kind": "operation",
