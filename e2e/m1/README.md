@@ -2,7 +2,7 @@
 
 Authored by the ✍️ Author for slice M1.02, from [`design/decisions/M1-plugins.md`](../../design/decisions/M1-plugins.md)
 (the contract) and Codex's `layer/4:e2e/layer3/00` to `06` (the rigour), in the frame's words: a feature, an adapter or a
-projection is mounted by one file; there are no kits, dependencies or `@architect/*` names. **A builder never edits anything
+projection is mounted by one file; there are no kits, dependencies or retired package names. **A builder never edits anything
 here or in `e2e/fixtures/m1`** (AGENTS.md, "Journeys and checks come first"). If a check is wrong, the lead says so in a
 decision and a new author fixes it.
 
