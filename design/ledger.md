@@ -9,10 +9,10 @@ what it must settle, what it must not claim, and which words it must not use. Th
 
 ## In numbers
 
-- **620 items**: 511 open, 55 fixed and 54 superseded.
-- **187 of the open items are owned by nothing.** No slice, `later.md` line or milestones "Later" line covers
+- **625 items**: 516 open, 55 fixed and 54 superseded.
+- **191 of the open items are owned by nothing.** No slice, `later.md` line or milestones "Later" line covers
   them. They are in section 1.
-- **60 open items are marked high.** A canon page can't be written correctly until each one is settled.
+- **61 open items are marked high.** A canon page can't be written correctly until each one is settled.
 - **28 gaps and 43 contradictions** that no file lists as open (section 2).
 - **Aztec:** 26 needs. 2 are answered today, 14 partly, 10 not at all
   (section 4).
@@ -74,9 +74,9 @@ also brings five new items, each now owned by a slice: `OPS-14` (M3.16), `PRJ-44
 | layer | page | open | of which unowned | high | fixed or superseded |
 |---|---|---|---|---|---|
 | 1 | forman | 11 | 4 | 3 | 6 |
-| 1 | blueprint | 9 | 6 | 5 | 1 |
+| 1 | blueprint | 10 | 7 | 5 | 1 |
 | 1 | things | 5 | 2 | 0 | 0 |
-| 1 | machines | 5 | 2 | 0 | 1 |
+| 1 | machines | 6 | 3 | 1 | 1 |
 | 1 | operations | 13 | 7 | 1 | 1 |
 | 1 | handlers | 8 | 4 | 1 | 1 |
 | 2 | roles | 11 | 3 | 2 | 3 |
@@ -85,13 +85,13 @@ also brings five new items, each now owned by a slice: `OPS-14` (M3.16), `PRJ-44
 | 2 | traces | 37 | 22 | 1 | 7 |
 | 3 | stores | 21 | 2 | 4 | 6 |
 | 3 | views | 8 | 2 | 1 | 0 |
-| 4 | plugins | 14 | 5 | 2 | 2 |
+| 4 | plugins | 15 | 6 | 2 | 2 |
 | 4 | features | 9 | 3 | 0 | 0 |
 | 4 | adapters | 14 | 4 | 0 | 0 |
-| 4 | projections | 32 | 19 | 3 | 12 |
+| 4 | projections | 33 | 19 | 3 | 12 |
 | 4 | secrets | 9 | 3 | 2 | 2 |
 | 4 | stand-ins | 18 | 3 | 2 | 3 |
-| 5 | languages-and-hosts | 37 | 2 | 4 | 8 |
+| 5 | languages-and-hosts | 38 | 3 | 4 | 8 |
 | 5 | workflows | 10 | 1 | 3 | 1 |
 | 5 | environments | 16 | 8 | 3 | 7 |
 | 6 | auth | 37 | 6 | 2 | 4 |
@@ -127,6 +127,7 @@ slice, a decision, or a line saying it is dropped. Grouped by canon page, in the
 | `BLU-07` | The compiler should refuse field names `message`, `stack` and `cause`, because they collide with fields `Data.Error` sets on an error. | design/spikes/names-from-paths.md:79 | open |
 | `BLU-08` | The design's example says 17 operations, but acme has 15. | design/docs/index.html:324<br>packages/compiler/src/modules/model/model.test.ts:31<br>canon note on blueprint.mdx (PR #38) | open |
 | `BLU-09` | The error-name convention depends on TypeScript continuing to allow merging an interface into a class through module augmentation. | design/spikes/names-from-paths.md:105 | open |
+| `BLU-11` | K5 says the model holds the uses graph, but the model's type has no uses graph, and no slice builds one. | design/decisions/K5-the-whole-shape.md:77,180<br>packages/compiler/src/modules/model/types.ts:112-125 | open |
 
 ### things
 
@@ -141,6 +142,7 @@ slice, a decision, or a line saying it is dropped. Grouped by canon page, in the
 |---|---|---|---|
 | `MAC-02` | A machine's refusal for a move from the wrong state is named after the first state, so `mission.pause` refuses with `MissionNotIntake` though it moves from `running`; the refusal carries the real state but the name misleads. | design/decisions/F5-work-blueprint.md:75<br>examples/work/generated/server/main.ts:81 | open |
 | `MAC-03` | The frame promises that Forman can draw a machine back as a diagram and read a FigJam or Mermaid state diagram; neither is built and no slice owns it (only sequence diagrams are parked as later). | design/frame/questions.md:371<br>design/frame/story.md:48<br>design/milestones.md:302 | open |
+| `MAC-07` | A move on an instance that doesn't exist is refused by nobody. `checkFrom` returns when it finds no instance, so on an operation open to `anyone` the handler runs anyway: signup's `join` dies on an unknown sheet, and `close` tries to move a sheet that isn't there. acme never hits it, because its role check finds the instance first. Open: whether a missing instance is a declared refusal or a defect. **(high)** | packages/language-effect/src/modules/handler/internal/move.ts:30,37<br>examples/signup/src/sheet/join.ts:14 (branch claude/docs-canon-cf2c38 at fae0210, PR #38)<br>examples/signup/src/sheet/close.ts:8 (same branch)<br>docs/canon/machines.mdx:320-323 (same branch), the note `missing-instance` | open |
 
 ### operations
 
@@ -253,6 +255,7 @@ slice, a decision, or a line saying it is dropped. Grouped by canon page, in the
 | `PLU-12` | Upgrading a plugin or an adapter has no slice: `forman upgrade` should compare the two models, name the app operations and verdicts now stale, call new operations minor and changed payloads or errors major, and a feature upgrade that changes a table is a major change to the app. | design/decisions/K1-kits.md:916<br>design/frame/mounting.md:146<br>design/frame/writing-a-feature.md:565<br>design/frame/adapters.md:192<br>design/frame/deployment.md:90 | open |
 | `PLU-13` | `check` rules for a narrowing that empties an operation, an app operation calling an omitted one, and an adapter event no operation takes are not in M1.07 or M1.08. | design/frame/mounting.md:141<br>design/milestones.md:98<br>design/milestones.md:99 | open |
 | `PLU-14` | `forman remove <plugin>` (refuses while anything of the app uses it) has no slice. | design/frame/mounting.md:147 | open |
+| `PLU-17` | `design/frame/mounting.md` still writes the commands as `forman add`, `forman upgrade`, `forman remove` and `npm create formants`, where K5 writes `ortho`. They go with the rename to Orthograph (`FOR-17`), which has no slice yet. | design/frame/mounting.md:119,131,139,146-147,164,180<br>design/decisions/K5-the-whole-shape.md:202 | open |
 
 ### features
 
@@ -317,6 +320,7 @@ slice, a decision, or a line saying it is dropped. Grouped by canon page, in the
 |---|---|---|---|
 | `LAH-02` | Operations that run at the caller (`runs: "client"`, such as wallet link and create) are refused by the compiler, whose message says it needs Noir; no slice lifts the refusal, and the runs-client spike (S-RC) was proposed and never scheduled. **(high)** | packages/compiler/src/modules/model/internal/describe.ts:169<br>design/frame/writing-a-feature.md:588<br>design/frame/projections.md:545<br>design/frame/projections.md:556-557<br>design/decisions/K1-kits.md:1004<br>design/frame/examples/private-membership.md:58<br>design/decisions/K1-kits.md:56<br>packages/forman/src/modules/operations/types.ts:49<br>design/briefs/K1-kits-and-surfaces.md:447<br>design/decisions/D3.md:596 | open |
 | `LAH-12` | M6's gate drops the build plan's Gate 3 check that acme has no hand-written viem import, enforced by lint; M6.05 wraps viem once but nothing enforces it. | design/milestones.md:243-246<br>design/milestones.md:254<br>design/build-plan.md:194 | open |
+| `LAH-46` | `runs` means two things. On an operation it is a place (`server`, `client` or `chain`). On an environment it is free text saying how it runs, for example `"on this machine"`. | packages/forman/src/modules/operations/types.ts:21,49-50<br>packages/forman/src/modules/environments/types.ts:10-11<br>examples/signup/blueprint/environments/local.ts:4 (branch claude/docs-canon-cf2c38 at fae0210, PR #38) | open |
 
 ### workflows
 
@@ -451,7 +455,7 @@ a word or a piece the plan uses that no page defines and no slice builds.
 |---|---|---|---|---|
 | `G-01` | No slice builds the generated app (F6): the agent-native template, its pages, the history of declarations that flags stale prose, the call log that says who a call was made as, and the Collector without Docker. The slices that build 'the portal' still stand. | origin/spike/generated-app design/decisions/F6-the-app.md:3-5,28-30<br>spikes/generated-app/README.md:128,133,137 (PR #41)<br>origin/conductor/direction design/handoff.md:22-28,42,79<br>milestones.md:104,174,227 | The `projections` page cannot say what docs and the portal become, and M1 is held until this is settled. **Settled by K5:** M1.13 is "docs and the portal": our own design (M1.25) on ported pieces (M1.23, M1.24). M3.14's separate Work surfaces are parked (`design/decisions/K5-the-whole-shape.md:611,615,616,618,624`, `design/milestones.md:104`). | projections |
 | `G-02` | The word 'target' is still printed to users where K2 renamed it 'language', and no slice owns the rename. | packages/compiler/src/modules/model/internal/describe.ts:167-170 (printed in the refusal for `runs: client` and `chain`)<br>packages/compiler/src/modules/model/types.ts:74<br>design/frame/README.md:97 ('every target')<br>design/decisions.md:103,127 | M0.02 renamed the packages and M0.04's lint rule only catches the old project name, so the word survives in messages users read. | languages-and-hosts |
-| `G-03` | The word 'home' is used for where a thing lives (the outline, the glossary, K3) but no page owns it and K3 now says a thing lives in a store. | canon outline.md rows 3 and 9 (`things`: 'a home'; `stores`: 'makes a place a home')<br>design/docs/index.html:362,1070 ('a noun with a home')<br>K3-stores-and-sources.md:32,67<br>docs/canon/things.mdx:24,284-285,351 | Two pages would explain 'home' differently; one word must be chosen (store, or home as the plain word for it) and given one owner. **Settled by K5:** a thing lives in a store. Neither K5 nor K3 says "home" for it now (`design/decisions/K3-stores-and-sources.md:36,67`). K3's one remaining "homes", at `:21`, describes today's code. | things |
+| `G-03` | The word 'home' is used for where a thing lives (the outline, the glossary, K3) but no page owns it and K3 now says a thing lives in a store. | canon outline.md rows 3 and 9 (`things`: 'a home'; `stores`: 'makes a place a home')<br>design/docs/index.html:362,1070 ('a noun with a home')<br>K3-stores-and-sources.md:32,67<br>docs/canon/things.mdx:24,284-285,351 | Two pages would explain 'home' differently; one word must be chosen (store, or home as the plain word for it) and given one owner. **Settled by K5:** a thing lives in a store. Neither K5 nor K3 says "home" for it now (`design/decisions/K3-stores-and-sources.md:36,67`). K3's one remaining "homes", at `:21`, describes today's code. **In the canon:** the re-layered pages say the word is retired (`docs/canon/data.mdx:143`, `docs/canon/things.mdx:345` (branch claude/docs-canon-cf2c38 at fae0210, PR #38)). | things |
 | `G-04` | 'Private state' as a capability a store kind declares (and the note and nullifier it rests on) is named in K3 but never defined, and the store port has no place for it. | K3-stores-and-sources.md:64-65<br>docs/canon/stores.mdx:359 ('not written yet')<br>packages/forman/src/modules/visibility/types.ts:2<br>frame/examples/private-membership.md:67,78 (nullifier) | The `stores` page asks how a kind declares lists, search and private state; the answer does not exist. **K5:** private state is a capability a store kind declares, like lists and search, and the Noir kind declares it (`design/decisions/K5-the-whole-shape.md:424`, `design/decisions/K3-stores-and-sources.md:64`). What it means is still undefined, so the gap stays. | stores |
 | `G-05` | Noir's follow-ups (NPC-01 to NPC-03, the Aztec fee payer, a device-held cast member, client-side telemetry, disclosure keys, a public-footprint eval, and the study's proposed custody, takesEffect and holders words) have one parked line and no plan. | spikes/noir-private-core/follow-ups.md:5-7 ('must be promoted into a later-target plan')<br>design/later.md:12<br>milestones.md:296<br>design/noir/addendum.md:49-50,123<br>design/noir/design-study.md:814-828,931-938<br>design/decisions/N1-noir-target.md:34 | Noir is Later, but the page that lists languages needs to say what is and is not decided. | languages-and-hosts |
 | `G-06` | Idempotency by request key on actors has no owner: later.md points at a retired 'layer four', M6 is only the chain, and M5.03 covers event ids only. | packages/host-cloudflare/src/modules/store/service.ts:69<br>design/later.md:21<br>frame/delta.md:69 (F5)<br>K3-stores-and-sources.md:29 (a store's commit takes a request key)<br>milestones.md:224 (M5.03) | K3's commit test says a store takes a request key; the actor store does not, so `idempotent: "request"` is refused on actors. | stores |
@@ -874,6 +878,7 @@ they are closed. The unowned items for each page are in section 1, not repeated 
 | `PRJ-32` | Third-party projections (a package exporting `Blueprint.projection(...)`) are impossible today. | design/frame/projections.md:546<br>design/milestones.md:96 | open | M1.05 |
 | `PRJ-34` | `projections.md` section 3.12 and `python-sdk.md` still say the Python client is built from OpenAPI, but S32 decided it is built from the model. | design/frame/questions.md:430-431<br>design/frame/projections.md:413<br>design/frame/examples/python-sdk.md:45 | open | later |
 | `PRJ-44` | The SDK has no contract for its caller, retries or refusals: a method takes only a payload. K5 settles it: the caller is set once on the client's layer, a `requestKey` is kept across retries, and declared refusals are typed in the error channel. A chain operation returns a submission with `confirmed` (the wallet signs, a relayer submits), and tool exposure follows `allowed` and `via`. **(high)** | examples/acme/generated/sdk/src/allowance/spend.ts:8-9<br>design/decisions/K5-the-whole-shape.md:300-301,315-338,565-567,631<br>design/milestones.md:103,250,264 | open: decided in K5, not built | M1.12, M6.01, M6.15 |
+| `PRJ-45` | A retry through the SDK or the CLI runs the operation twice: neither sends an idempotency key, so only an HTTP caller that sets the `idempotency-key` header gets one call. The SDK keeping a `requestKey` across its retries (`PRJ-44`) fixes it for the SDK and for the CLI, which calls the SDK. In the re-layered canon this is the `doors` page. | examples/acme/generated/server/main.ts:79-80<br>examples/acme/generated/sdk/src/allowance/spend.ts:8-9<br>examples/acme/generated/cli/src/allowance/spend.ts:12<br>examples/signup/generated/server/main.ts:41-42 (branch claude/docs-canon-cf2c38 at fae0210, PR #38)<br>design/decisions/K5-the-whole-shape.md:334-335<br>design/milestones.md:103 | open: decided in K5, not built | M1.12 |
 
 <details><summary>Closed: 12 fixed or superseded</summary>
 
