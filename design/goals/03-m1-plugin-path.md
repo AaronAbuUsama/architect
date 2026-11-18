@@ -92,10 +92,29 @@ Each slice's "done when" run is captured with `tools/evidence/capture.sh M1.<nn>
 
 ## The demo
 
-Written when M1.10 lands: a fresh copy of `examples/starter`, one `ortho add feature` of the fixture feature, then
-`ortho check` and `ortho prove` green. Aaron quit local Docker on 18 November (K10 section 8), and until M1.33, prove's
-Collector needs a container. So the demo runs `add`, `generate` and `check` locally, and `prove` is recorded as proved in
-CI, with the run's link.
+A fresh copy of `examples/starter`, one `ortho add feature` of the fixture feature, then `ortho check` and `ortho prove`
+green. Aaron quit local Docker on 18 November (K10 section 8), and until M1.33, prove's Collector needs a container. So
+the demo runs `add`, `generate` and `check` locally, and `prove` is recorded as proved in CI, with the run's link.
+
+```bash
+tools/demo/m1-plugin.sh
+```
+
+It builds `@fixture/echo` for real (tsc, esbuild, `npm pack`), installs it in a scratch copy of the starter, and runs:
+
+```text
+$ ortho add feature @fixture/echo
+wrote blueprint/features/echo.ts
+pinned @fixture/echo 1.0.0 (local: no registry release to age)
+needs none
+next ortho generate, then ortho check
+$ ortho generate        (the feature's api, sdk, cli, mcp, docs and server entries)
+$ ortho check
+check ✔
+```
+
+Evidence: [`evidence/goal-03/demo.txt`](../evidence/goal-03/demo.txt). `tools/demo/m1-plugin.sh --prove` adds `ortho prove`
+where Docker runs. Until M1.33, prove with the feature mounted is check 02 in CI's `e2e-m1` job.
 
 ## Reporting
 
