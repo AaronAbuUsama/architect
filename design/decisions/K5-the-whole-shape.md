@@ -88,7 +88,7 @@ Each row is one boundary: who owns it, what crosses it, and what never does.
 | Served operation ↔ door | the projection that makes the door | the payload, the caller's credential, a request key and a `traceparent` in; the answer, the refusal with its code, or a defect out | a second role check; a door that changes an answer's meaning |
 | Store ↔ the world | the store's kind, supplied by a host or a language (K3) | one commit per call: writes, journal entries, the outbox and the request key, guarded by a version | another writer; a commit across two stores |
 | Source ↔ handler | the adapter (K3 item 8) | typed calls with declared errors, as steps (`Blueprint.step.call`); events in through `on:` | a migration; a commit |
-| App projection ↔ system | the app projection (agent-native, generated) | the SDK's calls, made as the signed-in person; telemetry; the model | the app's own database as a home for any thing; the app checking roles itself |
+| App projection ↔ system | the app projection (agent-native, generated) | the SDK's calls, made as the signed-in person; telemetry; the model | the app's own database as a place where any thing lives; the app checking roles itself |
 | Identity ↔ everything | `@formants/auth` and `@formants/organizations` (M2; Q2 below) | a principal, resolved once at the door | a second user table that decides who may call |
 | Evidence ↔ proof | `@formants/prove` and the logbook | spans, events, refusals and counts under model names | values of untraced or private fields (O2) |
 
@@ -175,7 +175,7 @@ state is the projection's business, in the same way `@formants/auth` keeps Bette
 
 Data has three kinds of place, as K3 decided, and this record adds a fourth.
 
-1. **Stores**, which are ours. A store is a thing's home. It takes the commit, and Forman writes its migrations.
+1. **Stores**, which are ours. A store is where a thing lives. It takes the commit, and Forman writes its migrations.
 2. **Sources**, which are theirs. A source is reached only through an adapter's calls and events.
 3. **Views**, which are lists kept from events across stores and sources.
 4. **A projection's own state**, which is new. This is agent-native's Postgres: chats, threads, runs, application
