@@ -43,6 +43,9 @@ Four packages, each a plugin mounted with one file, each removable by deleting t
 | `@orthograph/work` | goals, items, claims, dispatch, the manager, the board | M3 and K11 (🗂), not designed here |
 
 `workspaces` and `factory` are added to `naming.md`'s list of later packages. Neither clashes with an existing name.
+**"Factory" from here on means `@orthograph/factory`**: the building agents and experiments. The board, the manager and
+dispatch are `@orthograph/work` (K11), even where older text (`frame/examples/factory.md`, M3's heading) calls all of it
+"the factory".
 
 ## 1. The agent layer on Pi Durable
 
@@ -71,8 +74,12 @@ workspace's. No second agent runtime exists.
 need (section 5): `Agent` as a thing read from the model's `Blueprint.agent` declarations, so the portal can list and
 address agents, and `run.start` taking a request key with closed `outcome` and `reason` unions. M4.16 is the chat, and
 any chat thread may be addressed to any listed agent. Run's reference to the thing it touches (needed by the portal's
-rail) is a model change owned by **M1.03**, alongside `from: { kind, mount }` (the conductor's call, 18 November).
-Nothing in M4 changes the compiler.
+rail) is a model change owned by **M1.03**, alongside `from: { kind, mount }`. That was the conductor's call on 18
+November, and the conductor adds both to M1.03's row through the M1 lead. Nothing in M4 changes the compiler.
+
+**On stage 3's path.** M4.10 and M4.16 are needed by stage 3 (ST3.07). What K10 adds to them is small and is needed by
+the chat in any case: `Agent` as a thing read from declarations, the request key, the closed enums, and
+`chat.addressees`. Everything else of the factory is in new slices off that path.
 
 **Durability, from `spikes/durable-run`:** one SQLite Durable Object per run. A tool call's request key is namespaced by
 (Durable Object id, Pi task id, provider call id), so a replayed tool call commits once. The limit of the no-repeat
@@ -85,7 +92,7 @@ with fenced tools and the role bundles of `frame/skills.md` 3.10:
 
 | Agent | Does | Its operations (all on its own workspace) | May write | Ends with outcome |
 |---|---|---|---|---|
-| `designer` | talks a decision through with a person; writes the record | `read`, `write`, `diff`, `push` | `design/` | `pushed` or `blocked` |
+| `designer` | talks a decision through with a person; writes the record | `read`, `write`, `diff`, `push` | `design/` | `pushed`, `answered` (talk only) or `blocked` |
 | `author` | journeys and checks from declarations, before any build | `read`, `write`, `check`, `prove --empty`, `diff`, `push` | `blueprint/journeys/`, `blueprint/starting-worlds/` | `pushed` |
 | `builder` | fills one brief | `brief`, `read`, `write` (the brief's paths only), `check`, `prove`, `diff`, `push` | the brief's `write` paths | `pushed` |
 | `reviewer` | reads a diff against its brief, `AGENTS.md` and `design/` | `read`, `diff`, `review.record` | nothing | `reviewed` |
@@ -103,9 +110,14 @@ The manager is K11's and lives in `@orthograph/work`, not here.
   and opens the pull request through the `github` adapter.
 - **Sandboxes only, never production.** No building agent has a binding to a deployed environment. `bp.world.start`
   makes only local worlds inside the workspace. `promote` is not one of its operations.
-- **The roster is declared data.** `factory.roster` maps each agent to the item kinds it takes (builder: `build` and
-  `fix`; author: `write:journey`; reviewer: `review`; spike: `spike`; planner and designer: `specify`). K11's dispatch
-  reads it, so no string names an agent.
+- **The roster is declared data.** `factory.roster` is generated from the agents' files, and
+  `factory.roster.for(kind)` gives the agent for an item kind: builder for `build`, `fix` and `improve` (M3.09's
+  kinds); author for `write:journey`; reviewer for `review`; spike for `spike`; planner for `specify`. The designer is
+  reached from the chat, not dispatched. K11's dispatch calls `roster.for`, so no string names an agent. Two things K11
+  must carry for this to work (sent to 🗂 through the conductor): its items need a `kind` that `roster.for` reads
+  (K11's seam already calls `roster.for(item.kind)`, but its item has only `worker`), and its `WorkerKind` must grow
+  from `builder | author | spike` to the roster's agents. Until then, the reviewer and planner are reached from the
+  chat only.
 - **First two, then the rest.** The builder and reviewer come first. The others follow, each one file.
 
 ## 3. Sandboxes and environments
@@ -154,10 +166,13 @@ workspace (sandbox) ─ push ─► pull request ─► CI proves it in a test w
 ```
 
 - **`review` is a verdict kind** in the logbook, keyed by revision. A person's review and the reviewer agent's are the
-  same kind (K11 seam 3).
+  same kind (K11 seam 3). It is built early, in its own slice (M3.20), because K11's board and K10's experiments both
+  close on it.
 - **Staging is automatic** once a revision on `main` has its prove and review verdicts. **Production is always a
-  person's yes**, an attention that only Aaron, in person, approves (`notVia(Via.agent)`). `promote` already refuses a
-  revision without its verdicts (`packages/cli/src/main.ts:100`). What changes is who may start it.
+  person's yes**, an attention that only Aaron, in person, approves (`notVia(Via.agent)`). Today `promote` refuses a
+  revision whose verdicts from `main` are not all passing for every operation in the source environment
+  (`packages/prove/src/modules/promote/types.ts:29-31`). Two things change (M4.24): promote also requires the
+  revision's `review` verdict, and staging's promote is started by CI with nobody asked.
 - The factory never holds release secrets. CI promotes, as today.
 
 ## 4. Experiments: cheap to start, cheap to throw away, clean when kept
@@ -165,19 +180,20 @@ workspace (sandbox) ─ push ─► pull request ─► CI proves it in a test w
 This is Aaron's main aim. **An experiment is a plugin in its own workspace, by default** (Aaron, Q3 = C):
 
 ```bash
-ortho experiment start voting-by-hats              # workspace + a new plugin package, mounted only in that workspace
+# the app's generated CLI (here acme's), from Experiment's operations; no hand-written command
+acme experiment start voting-by-hats               # workspace + a new plugin package, mounted only in that workspace
 # agents (or you) build it; a preview world runs in the sandbox; the portal shows it
-ortho experiment discard voting-by-hats            # workspace, worlds and branch gone; main never touched
-ortho experiment keep voting-by-hats               # refused without prove and review verdicts; then one pull request:
+acme experiment discard voting-by-hats             # workspace, worlds and branch gone; main never touched
+acme experiment keep voting-by-hats                # refused without prove and review verdicts; then one pull request:
                                                    #   the package folder and one Blueprint.use file, nothing else
-ortho experiment start --spike workerd-limits      # the spike lane: open, throwaway, README only, never kept
+acme experiment start voting-by-hats --spike       # the spike lane: open, throwaway, README only, never kept
 ```
 
 `Experiment` is a thing in `@orthograph/factory` with the machine `started → kept | discarded`. `keep` and `discard`
 are its moves, so they are actions, buttons and tools with no page of their own (the portal's contract).
 
-- **Cheap to start:** one workspace, one scaffolded plugin (`ortho add feature --new`), one mount file inside the
-  workspace only. Its write set is its own package folder plus that mount file, so ten experiments at once never touch
+- **Cheap to start:** one workspace, one scaffolded plugin (`ortho new feature`, M2.10, run inside it), one mount
+  file inside the workspace only. Its write set is its own package folder plus that mount file, so ten experiments at once never touch
   the same files, and K11's dispatch can run them all.
 - **Cheap to throw away:** `discard` is `workspace.close` plus deleting the branch. Nothing reached `main`, so nothing
   needs untangling.
@@ -189,18 +205,20 @@ are its moves, so they are actions, buttons and tools with no page of their own 
 
 ## 5. The seam with the work board (agreed with 🗂, K11)
 
-Agreed through the conductor on 18 November; K11 records the same seam.
+Agreed through the conductor on 18 November. K11 records it in "The seam with the factory", in the shape below.
 
 ```ts
 // out: work → agents (M4.13), one call per claim
 agents.run.start({
-  agent: factory.roster.builder,                       // from the roster, never a string
-  brief: { project, revision, task?: TaskKey, item: { id, text, doneWhen } },
+  agent: factory.roster.for(item.kind),                // declared data, never a string
   budget,
-}, { requestKey: claim.id })                           // a replayed dispatch starts nothing twice
+  brief: { project, revision, task?: TaskKey, item: { id, text, doneWhen } },
+  key: claim.id,                                       // the request key: a replayed dispatch starts nothing twice
+});
 // back: through `on:`
-agents.events.runFinished { run, outcome, branch?, pullRequest?, revision?, changed? }
-agents.events.runFailed   { run, reason, transient }
+agents.events.runFinished  { run, outcome, branch?, pullRequest?, revision?, changed? }
+agents.events.runFailed    { run, reason, transient }
+agents.events.runCancelled { run }                     // never a failure
 ```
 
 1. **The brief.** With `task`, the agent calls `workspace.brief` (`bp.brief`). Without one (Aaron's words, a spec, a
@@ -220,9 +238,10 @@ agents.events.runFailed   { run, reason, transient }
 
 ## 6. The factory as a portal extension (agreed with 📐 portal, M1.25)
 
-The portal's contract: an extension is a feature whose package exports `Portal.face({...})`, mounted with one file.
-Every page belongs to a thing, and every button is a generated action (a lint rule holds slots to actions and their
-own declared reads). The factory's face:
+The portal's contract, as the portal thread gave it on 18 November and still pending Aaron's answer to its Q11 in
+M1.25: an extension is a feature whose package exports its face (the export's name, given here as `Portal.face`, is
+M1.25's to fix), mounted with one file. Every page belongs to a thing, and every button is a generated action. A
+lint rule is proposed to hold slots to actions and their own declared reads. The factory's face:
 
 | Slot | Thing | Built from HeroUI Pro (Aaron, 18 November) |
 |---|---|---|
@@ -255,18 +274,19 @@ no view of their own: their moves are buttons on their lifecycle page.
 
 **Floor, built soon and small, in this order:**
 
-1. `@orthograph/workspaces` with `localCopy`, after Gate M2 (it needs plugins and the `agent` and person principals).
+1. The `review` verdict kind (M3.20) and the `github` adapter for pull requests (M4.25), each small.
+2. `@orthograph/workspaces` with `localCopy`, after Gate M2 (it needs plugins and the `agent` and person principals).
    People and Claude Code sessions use it over MCP and the CLI before any Pi agent exists.
-2. The `e2b` choice, after its spike.
-3. `@orthograph/factory`'s floor: `Experiment`, `brief.of`, the roster as data. Experiments work for people and our own
+3. The `e2b` choice, after its spike.
+4. `@orthograph/factory`'s floor: `Experiment`, `brief.of`, the roster as data. Experiments work for people and our own
    threads before M4.
-4. Then, once `@orthograph/agents` (M4.10) and K11's join (M4.13) exist: the builder and reviewer, then the rest of the
+5. Then, once `@orthograph/agents` (M4.10) and K11's join (M4.13) exist: the builder and reviewer, then the rest of the
    roster, the Factory face, and automatic promotion to staging.
 
 **Later** (`later.md`): a `cloudflare` sandbox choice; a person's feedback on a run (HeroUI's Rating and Emoji Reaction
 Button) as input to the bench (H2); experiments shared between projects.
 
-The slices are in `milestones.md`, M4.17 to M4.24, checked against M4's existing rows. M4.07, M4.10, M4.11 and M4.16
+The slices are in `milestones.md`: M3.20, and M4.17 to M4.25, checked against M4's existing rows. M4.07, M4.10, M4.11 and M4.16
 are reused, not duplicated. M4.13 is K11's. Run's reference to any thing is M1.03's.
 
 ## Decided here
@@ -291,12 +311,14 @@ are reused, not duplicated. M4.13 is K11's. Run's reference to any thing is M1.0
   run namespace (finding 3), the model checkpoint is the limit (finding 2), and a bundle of 419 KB gzip.
 - `spikes/e2b-sandbox/README.md`: E2B from a Durable Object in workerd. Create takes 1.2 to 1.6 s; a sandbox survives
   the object's eviction and carries on with background work. The default template is too thin.
+- `packages/prove/src/modules/promote/types.ts:27-31`: what promote refuses today.
 - `spikes/agent-native-compat/README.md`: approvals in the wrapper, typed no-write refusals, and redacted defects. The
   run view's Chat Tool states map onto them.
 - `e2e/layer1/04-agent-writes-a-handler.test.ts:27-56`: check 4's fenced tools are the first workspace operations.
 - `design/frame/skills.md:270-278`: the role bundles the roster follows.
 - `design/frame/examples/agents.md:103-113` and `factory.md:159-161`: `Blueprint.agent` with `operations:`.
-- Habitat (`capxul-factory/habitat`, Aaron's earlier work) already runs its worlds in E2B sandboxes.
+- Habitat (Aaron's earlier work, outside this repository, `capxul-factory/habitat/README.md`) already runs its worlds
+  in E2B sandboxes.
 - heroui.pro docs, read 18 November 2026: `ChatConversation` is presentational (children we own), and `ChatTool` has
   the five states above, from `@heroui-pro/react/chat-tool`.
 
