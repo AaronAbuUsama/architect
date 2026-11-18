@@ -49,9 +49,9 @@ printf '//localhost:%s/:_authToken=%s\n' "$port" "$token" > "$work/npmrc"
 unset token password
 
 step "publish"
-for p in ortho compiler language-effect lint portal generators host-cloudflare logbook prove cli preset; do
+for p in orthograph compiler language-effect lint portal generators host-cloudflare logbook prove cli preset; do
   (cd "$repo/packages/$p" && NPM_CONFIG_USERCONFIG="$work/npmrc" pnpm publish --registry "$registry" --no-git-checks >/dev/null)
-  echo "published @orthograph/$p"
+  echo "published $p"
 done
 
 export npm_config_registry="$registry" pnpm_config_registry="$registry"

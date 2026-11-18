@@ -7,6 +7,11 @@ uplinks:
   npmjs:
     url: https://registry.npmjs.org/
 packages:
+  # The front door is the plain package orthograph (K6); every other package is @orthograph/*.
+  'orthograph':
+    access: $all
+    publish: $all
+    unpublish: $all
   '@orthograph/*':
     access: $all
     publish: $all
