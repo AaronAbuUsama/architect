@@ -42,7 +42,7 @@ const telemetry = async (source: string, since: number): Promise<Telemetry & { r
   if (source === "tempo") {
     const g = grafana();
     if (!g) throw new Error("the local viewer isn't running: forman telemetry view");
-    const { traces, searchMs, fetched } = await tempoWindow(g, since, now);
+    const { traces, searchMs, fetched } = await Effect.runPromise(tempoWindow(g, since, now));
     return { source: "tempo", now, since, traces, timing: { totalMs: performance.now() - t0, searchMs, fetched } };
   }
   const window = await Effect.runPromise(files.window(since, now));

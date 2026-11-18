@@ -1,7 +1,13 @@
 // The docs half of an operation page: everything here is read from the model, with live counts beside it.
 import { Chip } from "@heroui/react";
 import type { FieldRow, OperationPage } from "../page/types.ts";
-import { FileLink, Mono, ms, Section } from "./index.ts";
+import { FileLink, href, Mono, ms, Section } from "./index.ts";
+
+/** The hash is the route (`useRoute`), so a section is scrolled to, never put in the hash. */
+const toSection = (id: string) => (e: { preventDefault: () => void }) => {
+  e.preventDefault();
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+};
 
 const Fields = ({ rows }: { rows: ReadonlyArray<FieldRow> }) => (
   <table className="mono w-full text-xs">
@@ -60,7 +66,7 @@ export const Docs = ({ page }: { page: OperationPage }) => (
           {page.move.from.length ? page.move.from.map((s) => <Chip key={s} size="sm" variant="secondary" className="mono">{s}</Chip>) : <span className="text-muted">∅</span>}
           <span className="text-muted">→</span>
           {page.move.to.map((s, i) => <span key={s} className="flex items-center gap-1.5">{i ? <span className="text-muted">or</span> : null}<Chip size="sm" variant="secondary" className="mono">{s}</Chip></span>)}
-          {page.event ? <><span className="text-muted">· emits</span><a href="#event"><Chip size="sm" variant="soft" color="accent" className="mono">{page.event.name}</Chip></a></> : null}
+          {page.event ? <><span className="text-muted">· emits</span><a href={href(`operations/${page.name}`)} onClick={toSection("event")}><Chip size="sm" variant="soft" color="accent" className="mono">{page.event.name}</Chip></a></> : null}
         </div>
         <p className="mono mt-2 text-[11px] text-muted">
           states: {page.move.states.map((s) => (page.move!.from.includes(s) || page.move!.to.includes(s) ? s : <s key={s} className="opacity-50">{s}</s>)).reduce<Array<unknown>>((a, s, i) => (i ? [...a, " · ", s] : [s]), []) as never}
