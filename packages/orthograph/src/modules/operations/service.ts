@@ -2,6 +2,7 @@ import { Schema } from "effect";
 import { structOf, valueOf } from "#modules/things/service.js";
 import type { Allowed } from "#modules/roles/types.js";
 import { Values } from "#modules/values/service.js";
+import { Visibilities } from "#modules/visibility/service.js";
 import type { FieldsInput, Thing } from "#modules/things/types.js";
 import type { Budget, Operation, OperationsApi, Order, Step } from "./types.ts";
 import { Blanks } from "#modules/blanks/service.js";
@@ -9,8 +10,11 @@ import { Blanks } from "#modules/blanks/service.js";
 /** Fields not written yet (`Blueprint.todo`) have no schema yet: until they're filled, nothing decodes to them. */
 const filled = (fields: FieldsInput): FieldsInput => (Blanks.isBlank(fields) ? {} : fields);
 
-/** A machine state as a read answers it: text. */
-const State = Values.text({ max: 64 });
+/** A read's state is a machine label. */
+const State = Visibilities.traced(Values.text({ max: 64 }));
+
+/** Each list item has the thing's fields and the same state field as a read by id. */
+export const listItemFields = (thing: Thing): FieldsInput => ({ ...thing.fields, state: State });
 
 type ByIdSpec = { readonly by: "id"; readonly fields: ReadonlyArray<string>; readonly allowed: ReadonlyArray<Allowed>; readonly budget?: Budget };
 type ListSpec = { readonly where: ReadonlyArray<string>; readonly order: Order; readonly page: number; readonly allowed: ReadonlyArray<Allowed>; readonly budget?: Budget };
@@ -44,7 +48,7 @@ const listRead = (thing: Thing, spec: ListSpec) => {
   };
   const optional = Object.keys(payload);
   const fields = [...Object.keys(thing.fields), "state"];
-  const item = structOf({ ...thing.fields, state: State });
+  const item = structOf(listItemFields(thing));
   const answer: FieldsInput = { items: Values.value(Schema.Array(item)), next: Values.value(Schema.NullOr(Schema.String)) };
   const payloadSchema = Schema.Struct(Object.fromEntries(Object.entries(payload).map(([k, f]) => [k, Schema.optionalKey(valueOf(f).schema)])));
   return Object.freeze({

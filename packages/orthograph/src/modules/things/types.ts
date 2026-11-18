@@ -12,6 +12,8 @@ export interface Field<V extends Value = Value> {
   readonly from: Field | undefined;
   /** Who may see this field's value: its own mark, or that of the value or field it was made from. */
   readonly visibility: Visibility;
+  /** Explicit opt-in to tracing a public text field, inherited from its declaration. */
+  readonly traced?: true;
 }
 
 /** What a thing's or payload's field may be declared as: a value, or a field taken from a thing. */

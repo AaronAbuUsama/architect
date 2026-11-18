@@ -9,6 +9,8 @@ export interface Value<S extends Schema.Constraint = Schema.Constraint> {
   readonly meta: ValueMeta;
   /** Who may see a value of this type: `public` unless marked (`Blueprint.visibility.secret(...)`). */
   readonly visibility: Visibility;
+  /** Explicit opt-in to tracing a public text value. */
+  readonly traced?: true;
 }
 
 export type ValueMeta =

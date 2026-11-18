@@ -51,7 +51,8 @@ person types into a text field. That is where personal details turn up.
 No journey changes. `spend-within-allowance` still asserts `memo` on `AllowanceSpent`, because events keep the field.
 
 **Proved by** the attributes test (`internal/attributes.test.ts`) asserting that `payload.memo` is absent and that a
-traced text field is present, and by the built-in "leaks nothing" eval (S28) asserting no untraced text in any span.
+traced text field is present, and by the "leaks nothing" part of the answer-shape eval (S28, D3 #83) checking spans
+and logs for untraced text. `prove` reads the same declarations as the handler, so the text marker applies to both.
 
 ## Gap 3: refusals before the span leave no count
 

@@ -44,7 +44,7 @@ const serve = ({ name, operation, handler, notFrom }: { readonly name: string; r
       const unit = yield* Unit.make(store);
       const withRecords = Effect.provideService(Records, unit.records);
       yield* Access.check({ allowed: op.allowed, payloadFields: op.payload, payload, principal, thing: op.thing }).pipe(withRecords);
-      const logs = yield* recordingLogs;
+      const logs = yield* recordingLogs(payload, op.payload);
       return yield* Effect.gen(function* () {
         const busy = yield* Busy;
         yield* Effect.annotateCurrentSpan(payloadAttributes(payload, op.payload));
