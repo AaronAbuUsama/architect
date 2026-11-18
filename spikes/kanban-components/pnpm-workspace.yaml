@@ -1,0 +1,8 @@
+# Its own workspace: a spike, outside the repository's packages. HeroUI Pro installs only on a machine signed in with
+# `npx heroui-pro login` (its postinstall downloads the licensed build); CI never installs this spike.
+packages: []
+minimumReleaseAge: 4320
+allowBuilds:
+  esbuild: true
+  "@heroui-pro/react": true
+  '@zowe/secrets-for-zowe-sdk': false
