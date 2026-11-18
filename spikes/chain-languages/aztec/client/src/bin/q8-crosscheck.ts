@@ -18,6 +18,7 @@ await introduce(actors);
 type Got = { ok: true; yes?: number; no?: number; state?: string } | { ok: false; code: string; state?: string; via?: string };
 const same = (e: Outcome, g: Got) => e.ok ? g.ok && (e.yes === undefined || true) : !g.ok && g.code === e.code && (e.state === undefined || g.state === e.state);
 
+let totalOrderedDiv = 0;   // raw-decode divergences stay informational; ordered ones fail the run
 for (const seed of seeds) await (async () => {
   const steps = sequence(seed, length), exp = expected(steps);
   const t0 = now();
@@ -64,5 +65,7 @@ for (const seed of seeds) await (async () => {
   const summary = { seed, mode, steps: length, wallMs: Math.round(now() - t0), txSent: oks, sendMsTotal: Math.round(sendMs), expectedMix: codes, divergenceRawDecode: rawDiv, divergenceWithOrderedPrecheck: orderedDiv, divergences };
   save(`q8-${mode}-seed${seed}.json`, { ...summary, rows });
   console.log(JSON.stringify({ ...summary, divergences: divergences.length }));
+  totalOrderedDiv += orderedDiv;
 })();
-process.exit(0);
+if (totalOrderedDiv > 0) console.error(`cross-check failed: ${totalOrderedDiv} ordered divergences`);
+process.exit(totalOrderedDiv > 0 ? 1 : 0);

@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # Runs every experiment in order. ~45 minutes on a quiet 10-core Mac; real proofs make it long. Stops the network on exit.
 set -euo pipefail
-cd "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
 source ./env.sh
 export LOG_LEVEL=error
-trap 'scripts/net.sh stop || true' EXIT
+trap 'bash "$ROOT/scripts/net.sh" stop || true' EXIT   # absolute: the script ends inside client/
 bash scripts/install.sh && bash scripts/codegen.sh
 cd client && npx tsc -p . && node --import tsx src/bin/classify.ts | tee ../evidence/q1-classification.txt && cd ..
 scripts/net.sh start | tee evidence/q7-start-cli-network.txt        # plain `aztec start --local-network`: mock verification
