@@ -9,10 +9,10 @@ what it must settle, what it must not claim, and which words it must not use. Th
 
 ## In numbers
 
-- **610 items**: 508 open, 55 fixed and 47 superseded.
-- **191 of the open items are owned by nothing.** No slice, `later.md` line or milestones "Later" line covers
+- **612 items**: 510 open, 55 fixed and 47 superseded.
+- **193 of the open items are owned by nothing.** No slice, `later.md` line or milestones "Later" line covers
   them. They are in section 1.
-- **60 open items are marked high.** A canon page can't be written correctly until each one is settled.
+- **62 open items are marked high.** A canon page can't be written correctly until each one is settled.
 - **28 gaps and 43 contradictions** that no file lists as open (section 2).
 - **Aztec:** 26 needs. 2 are answered today, 14 partly, 10 not at all
   (section 4).
@@ -65,14 +65,14 @@ what it must settle, what it must not claim, and which words it must not use. Th
 
 | layer | page | open | of which unowned | high | fixed or superseded |
 |---|---|---|---|---|---|
-| 1 | forman | 10 | 3 | 2 | 6 |
+| 1 | forman | 11 | 4 | 3 | 6 |
 | 1 | blueprint | 9 | 6 | 5 | 1 |
 | 1 | things | 5 | 2 | 0 | 0 |
 | 1 | machines | 5 | 2 | 0 | 1 |
 | 1 | operations | 12 | 8 | 1 | 1 |
 | 1 | handlers | 6 | 4 | 1 | 1 |
 | 2 | roles | 11 | 3 | 2 | 3 |
-| 2 | journeys | 12 | 5 | 3 | 0 |
+| 2 | journeys | 13 | 6 | 4 | 0 |
 | 2 | proof | 44 | 16 | 5 | 16 |
 | 2 | traces | 35 | 22 | 1 | 7 |
 | 3 | stores | 22 | 2 | 5 | 5 |
@@ -107,6 +107,7 @@ slice, a decision, or a line saying it is dropped. Grouped by canon page, in the
 | `FOR-04` | M1 is held until the canon's first pass and the generated app's design are agreed. | https://github.com/AaronAbuUsama/architect/pull/40<br>design/handoff.md:18 (branch conductor/direction) | open |
 | `FOR-08` | The other 23 canon pages and the three reference pages are unwritten; pass 2 waits until the outline and template are agreed. | https://github.com/AaronAbuUsama/architect/pull/38<br>docs/canon/outline.md:3 (branch claude/docs-canon-cf2c38) | open |
 | `FOR-09` | The public npm name `create-formants` is not checked or claimed; M7.02 claims only the `@formants` organisation. | design/decisions/K1-kits.md:374<br>design/milestones.md:136<br>design/milestones.md:273 | open |
+| `FOR-17` | The framework is being renamed to Orthograph: the command becomes `ortho` and the npm scope `@orthograph`, and "blueprint" stays. It is decided (K6, which supersedes K2's call 1), but nothing is renamed yet. The sweep runs as one slice, like M0's, with the lint rule against old names extended to cover "Forman", `forman` and `@formants`. It runs after PRs #38, #41 and #43 and K5 land, and it waits on Aaron creating the `@orthograph` npm org. No milestone slice exists for it yet. **(high)** | design/decisions/K6-orthograph.md:1-5 (branch naming, PR #42)<br>https://github.com/AaronAbuUsama/architect/pull/42<br>design/decisions/K2-forman-frame.md:11 | open |
 
 ### blueprint
 
@@ -172,6 +173,7 @@ slice, a decision, or a line saying it is dropped. Grouped by canon page, in the
 | `JOU-06` | Acme's journeys still live at `examples/acme/journeys`, not `blueprint/journeys/` where K1 and the frame say they live; K1 said they would move when next touched. | design/decisions/K1-kits.md:41-44<br>design/frame/generators.md:129 | open |
 | `JOU-10` | Starting-world fragments (`Blueprint.startingWorld.fragment`, `after:`) are only designed: which worlds a feature's journeys run in is undecided, and two features seeding the same cast must order cleanly. | design/frame/mounting.md:187-188<br>design/frame/writing-a-feature.md:449-457<br>design/frame/writing-a-feature.md:593<br>design/frame/writing-a-feature.md:605-606 | open |
 | `JOU-12` | The rule that any agent but the builder turns a story into steps (S2) is decided, but nothing checks it; the scorer was meant to read the run's authorship. | design/frame/questions.md:365-366<br>design/history/spec-drafts.md:81-83<br>design/decisions/K2-forman-frame.md:51<br>AGENTS.md | open (decided: design/decisions/K2-forman-frame.md:51) |
+| `JOU-13` | A journey's steps are one ordered list, so a refusal that can only be reached through a race can't be written as a journey. Examples: the sign-up sheet's first `SheetFull`, which the canon worked around by letting `join` take `people`, and the stores page's conflict scenario (`attempt=2` after a conflict, which M1.18's check needs to force). The runner has no concurrent step. **(high)** | packages/forman/src/modules/journeys/types.ts:81<br>design/milestones.md:108<br>canon report on examples/signup (02d8bc7 on claude/docs-canon-cf2c38, PR #38) | open |
 
 ### proof
 
@@ -539,7 +541,7 @@ they are closed. The unowned items for each page are in section 1, not repeated 
 | `FOR-05` | Many generators are still missing: the builder API, the agent kit, the CI plan, the goal file, the root files (`AGENTS.md`, `CLAUDE.md`, `.mcp.json`), adapter-from-contract, the new plugin package, the secrets list and migrations. | design/frame/generators.md:236<br>design/frame/generators.md:37 | open | M4.11, M3.12, M3.13, M2.09, M5.07, M2.10, M2.04, M1.17 |
 | `FOR-06` | The `@formants` npm organisation does not exist (Aaron must be signed in) and nothing is published to npm before M7; until then everything installs from the local Verdaccio. | design/decisions/K2-forman-frame.md:11<br>design/decisions/M0-packages.md:6<br>design/milestones.md:73<br>design/packages.md:41 | open | M7.02 |
 | `FOR-07` | The `forman` command ships from `@formants/cli` until `forman new` lands in M2.09; which internal packages go inside the front door is also left to M2.09, but M2.09's done-when does not say so. | design/decisions/M0-packages.md:39<br>design/handoff.md:26<br>design/milestones.md:136 | open | M2.09 |
-| `FOR-16` | Every canon page is built on acme's allowance, and Aaron wants better examples; the canon thread is proposing three. Outside the canon and the records, acme is named 607 times in 100 files. Most are tests and gates that run on it: `packages/prove` (222 in 29 files), `e2e/layer1` and `e2e/layer2` (63 in 14), `packages/cli`, `generators`, `compiler`, `portal` and `logbook` (123 in 24). Then the design: `design/frame/` (119 in 16), `design/milestones.md` (30) and `design/docs/index.html` (26). Production code names it only in comments (for example `packages/prove/src/modules/publish/internal/plan.ts:9`), so a new example changes the docs and tests, not the framework | Aaron, relayed by the conductor session (18 November 2026)<br>https://github.com/AaronAbuUsama/architect/pull/38 (body, option B, "a sign-up sheet")<br>packages/prove/src/modules/publish/internal/plan.ts:9 | open: decided, in progress. Aaron picked a sign-up sheet on 18 November: `examples/signup`, one thing (`sheet`) allowed to anyone, with no auth, organisations, money or time, being built on the canon branch. acme stays as the tests' fixture. Re-quoting the pages waits for K5, the whole shape (PR #38 body) | the canon (PR #38), not a milestone slice |
+| `FOR-16` | Every canon page is built on acme's allowance, and Aaron wants better examples; the canon thread is proposing three. Outside the canon and the records, acme is named 607 times in 100 files. Most are tests and gates that run on it: `packages/prove` (222 in 29 files), `e2e/layer1` and `e2e/layer2` (63 in 14), `packages/cli`, `generators`, `compiler`, `portal` and `logbook` (123 in 24). Then the design: `design/frame/` (119 in 16), `design/milestones.md` (30) and `design/docs/index.html` (26). Production code names it only in comments (for example `packages/prove/src/modules/publish/internal/plan.ts:9`), so a new example changes the docs and tests, not the framework | Aaron, relayed by the conductor session (18 November 2026)<br>https://github.com/AaronAbuUsama/architect/pull/38 (body, option B, "a sign-up sheet")<br>packages/prove/src/modules/publish/internal/plan.ts:9 | open: decided, in progress. Aaron picked a sign-up sheet on 18 November: `examples/signup`, one thing (`sheet`) allowed to anyone, with no auth, organisations, money or time, built on the canon branch (02d8bc7; it proves locally and CI runs it in `e2e/layer1/08-signup-proves.test.ts`). acme stays as the tests' fixture. Re-quoting the pages waits for K5, the whole shape (PR #38 body) | the canon (PR #38), not a milestone slice |
 
 <details><summary>Closed: 6 fixed or superseded</summary>
 
@@ -1325,9 +1327,12 @@ the old Forman word. Nothing here is fixed in this change: the canon and a later
 | **Codex** (as the builder) | we build Forman ourselves (K2 call 4) | 23 uses in 13 living files. Most are history told in living files (`design/milestones.md:26`, `frame/delta.md:18`). They are fine as history, but the frame should not plan work for Codex | 43 uses in 16 files |
 | **two weeks** (dependency age) | **three days** (R1) | not a word but a rule stated wrongly in six files (`X-02`) | |
 
-**The name may change again.** PR #42 (open) shortlists a new name for the framework and recommends Fanfold. Until
-Aaron picks one, "forman" and `@formants/*` are current, and this ledger uses them. When he picks, the rename sweep
-covers this file too.
+**The next rename: Forman becomes Orthograph** (K6 on PR #42, `FOR-17`). Prose says *Orthograph*, everything typed
+says `ortho` (the command, `ORTHO_`, `.ortho/`), and the package scope is `@orthograph`. Until the sweep slice runs,
+"Forman", `forman` and `@formants` are current, and this ledger uses them. After it runs, every one of them in a living
+file is stale. Today that is **2,390 uses in 574 living files**: 1,002 in `packages/`, 818 in `design/` (this file
+included), 384 in `examples/`, 134 in `e2e/`, and the rest in `tools/`, the skills, `.oxlintrc.json` and `AGENTS.md`.
+The records hold 155 uses in 12 files, and they stay.
 
 Old names kept on purpose, and fine: `e2e/layer1` and `e2e/layer2` (real gates); `AaronAbuUsama/architect`;
 `@formants/portal`, until F6 merges and a slice renames it.
