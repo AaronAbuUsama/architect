@@ -3,6 +3,7 @@
 Kept by the conductor after every merge, decision, new thread or archive, so a fresh or compacted session continues
 exactly where the last one stopped. The narrative of goal 1 (layers 1 and 2) is in
 [`history/handoff-layers-1-2.md`](history/handoff-layers-1-2.md).
+Everything open, promised, deferred or stale, with its source, canon page and owning slice: [`ledger.md`](ledger.md).
 
 ## START HERE (18 November 2026)
 
