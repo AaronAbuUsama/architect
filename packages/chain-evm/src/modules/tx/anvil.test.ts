@@ -142,15 +142,19 @@ test.skipIf(process.env["ORTHO_CHAIN_EVM_ANVIL"] !== "1")("transfers ERC20, deco
     // Keep an empty block between deployment and transfer so the follower has a common ancestor to rewind to.
     yield* fixtureRpc(() => testClient.mine({ blocks: 1 }));
     const snapshot = yield* fixtureRpc(() => testClient.snapshot());
-    const unsigned = yield* port.prepare(transfer(7n));
-    const signed = yield* port.sign(unsigned, {
+    const signer = {
       address: account.address,
-      signTransaction: (transaction) =>
+      signTransaction: (transaction: Parameters<typeof account.signTransaction>[0]) =>
         Effect.tryPromise({
           try: () => account.signTransaction(transaction),
           catch: () => new Error("Anvil fixture signing failed"),
         }).pipe(Effect.orDie),
-    });
+    };
+    const unsigned = yield* port.prepare(transfer(7n));
+    // No path signs or sends before the transaction has simulated cleanly (M1.32).
+    expect(yield* port.sign(unsigned, signer).pipe(Effect.flip)).toMatchObject({ _tag: "ChainFault", kind: "unsimulated" });
+    yield* port.simulate(unsigned);
+    const signed = yield* port.sign(unsigned, signer);
     const submission = yield* port.submit(signed);
     const included = yield* port.track(submission, { depth: 1 }).pipe(Stream.runHead);
     expect(Option.isSome(included)).toBe(true);
@@ -170,6 +174,17 @@ test.skipIf(process.env["ORTHO_CHAIN_EVM_ANVIL"] !== "1")("transfers ERC20, deco
     expect(yield* port.prepare(transfer(94n)).pipe(Effect.flip)).toMatchObject({
       _tag: "ChainRefusal", code: "TOKEN-001", name: "InsufficientBalance", args: { available: 93n, requested: 94n },
     });
+    // A reverting call returns its typed error from the simulation, and nothing is sent: the same nonce, the same head.
+    const headBefore = yield* fixtureRpc(() => publicClient.getBlockNumber({ cacheTime: 0 }));
+    const countBefore = yield* fixtureRpc(() => publicClient.getTransactionCount({ address: account.address, blockTag: "pending" }));
+    const reverting = yield* port.prepare({ ...transfer(94n), gas: 100_000n });
+    expect(yield* port.simulate(reverting).pipe(Effect.flip)).toMatchObject({
+      _tag: "ChainRefusal", code: "TOKEN-001", name: "InsufficientBalance", args: { available: 93n, requested: 94n },
+    });
+    expect(yield* port.sign(reverting, signer).pipe(Effect.flip)).toMatchObject({ _tag: "ChainFault", kind: "unsimulated" });
+    yield* port.release(reverting);
+    expect(yield* fixtureRpc(() => publicClient.getBlockNumber({ cacheTime: 0 }))).toBe(headBefore);
+    expect(yield* fixtureRpc(() => publicClient.getTransactionCount({ address: account.address, blockTag: "pending" }))).toBe(countBefore);
     const empty = yield* port.prepare({
       from: account.address, to: token, data: encodeFunctionData({ abi, functionName: "refuseEmpty" }),
     }).pipe(Effect.flip);
