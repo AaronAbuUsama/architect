@@ -290,14 +290,18 @@ is no faker than what it replaces. The Grafana viewer goes: the portal's own tra
 | **Aaron's Mac** | workerd, Node, and the services as processes: Collector, Verdaccio, the OIDC issuer, Anvil. `ortho check`, `prove` and `dev` work offline | none |
 | **Sandboxes (E2B)** | the factory's workspaces (section 3); a whole project's `prove` and the gates before a push, many at once, with the laptop shut. The same processes in our template | none |
 | **CI (GitHub Actions)** | the gates, unchanged until the process forms land; then the same processes, so CI, the Mac and the sandbox run one setup | dropped once M1.33 lands |
-| **Staging (Cloudflare)** | the deployed Workers, D1, Durable Objects and R2; Cloudflare Containers where a service must be a container there; the real OTLP sink. Its timing and its credential are round 2 (below) | n/a |
+| **Staging (Cloudflare)** | the deployed Workers, D1, Durable Objects and R2, on a dedicated `orthograph-staging` account; Cloudflare Containers where a service must be a container there; the real OTLP sink. A spike now, then real staging after Gate M2 (round 2) | n/a |
 
 Every world, sandbox and staging deploy is destroyed after use, and all of it stays under the $10 a day. Cloud
-credentials need Aaron's written yes. The E2B key exists already; a Cloudflare one doesn't.
+credentials need Aaron's written yes. The E2B key exists already. For Cloudflare, Aaron gave his written yes in round 2
+(Q7 = A): a new account for Orthograph staging alone, on Workers Paid ($5 a month), with a token scoped to that account
+(Workers Scripts, D1, Durable Objects, R2 and Containers, edit). He creates the account and the token himself. The
+token lives in his keychain, read by name and never printed.
 
 **Slices.** M1.33 ∥ replaces each container with its process, and M1.31's "a container in CI" becomes a process
-everywhere. `spikes/workspace-e2b` now also checks that the process forms run in our template. Staging's slices wait
-on round 2.
+everywhere. `spikes/workspace-e2b` now also checks that the process forms run in our template. Staging comes first
+in M7: `spikes/staging-pass` any time, then M7.01, M7.03 and M7.04 for staging alone after Gate M2. npm, Homebrew
+and the rest of M7 still wait on the stage 4 gate.
 
 ## 7. The order: floor, spikes, later
 
@@ -344,6 +348,8 @@ are reused, not duplicated. M4.13 is K11's. Run's reference to any thing is M1.0
 10. The seams with K11 and the portal are as sections 5 and 6 record.
 11. No Docker anywhere we run. Services are processes owned by their world, the same on the Mac, in E2B and in CI.
     The Grafana viewer gives way to the portal's trace view (section 8).
+12. Staging is real Cloudflare, on its own account: a spike now, and the staging part of the cloud pass right after
+    Gate M2.
 
 ## Evidence
 
@@ -379,3 +385,12 @@ Pressable Feedback, Rating, Trend Chip).
 | Q4 | Sandboxes | A: E2B for real runs, a local copy for tests; a sandbox share of $5 a day (the default) |
 | Q5 | Promotion | A: automatic to staging after prove and review; production by his yes |
 | Note | The UI | Agent UI code is not canon. The UI is HeroUI Pro's components (decision 9) |
+
+Round 2, 18 November 2026, after his no-Docker direction ("I'm quitting Docker. I want to move everything to staging
+and sandboxes."). His answer, in writing: "All recommended."
+
+| # | Question | Answer |
+|---|---|---|
+| Q6 | When staging comes in | A: `spikes/staging-pass` now, and real staging right after Gate M2 |
+| Q7 | The Cloudflare credential | A, **his written yes**: a new account for Orthograph staging, with a token scoped to it |
+| Q8 | What his Mac runs | A: real services as processes, the same on the Mac, in E2B and in CI; no Docker anywhere |

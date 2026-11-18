@@ -81,7 +81,7 @@ stage's slice `needs` one of those gates, a stage gate stands in:
 | M5.01 (the decision M5.03 needs, for stage 2's follower events) | Gate M4 | Gate M2 |
 | M3.01 (workflows, stage 3) | Gate M2 | Gate M2, unchanged |
 | M4.01 (agents, stage 3) | Gate M3 | the stage 2 gate, ST2.06 |
-| M7.01 (the cloud pass, v1.0's release) | Gate M6 | the stage 4 gate, ST4.08 |
+| M7.01 (the cloud pass, v1.0's release) | Gate M6 | Gate M2 for staging alone: M7.01, M7.03 and M7.04 on the dedicated staging account (K10, Aaron's Q6); the stage 4 gate, ST4.08, for the release (M7.02, M7.05, M7.06) |
 
 Everything downstream of these five follows from them: M6.02 and the K7 wallet slices from M6.01, M5.03 from M5.01,
 M3.02 and M3.03 from M3.01, M4.02 to M4.10 and M4.16 from M4.01, and M7.02 to M7.04 and M7.06 from M7.01. None of
@@ -401,13 +401,16 @@ forced reorg is corrected; a pending chain call shows its in-between state (S25)
 
 **Goal.** Every local destination swapped for the real one, each credential created only with Aaron's written yes and
 the spend under $10 a day; then Capxul's first feature running on Orthograph.
+**Staging first** (K10 section 8, Aaron, 18 November): `spikes/staging-pass` any time (acme up on a dedicated
+Cloudflare account, proved there, destroyed, the account listing nothing after); then, after Gate M2, M7.01, M7.03 and
+M7.04 for staging alone. npm, Homebrew and the rest of M7 still wait on the stage 4 gate.
 **Gate.** `nx run e2e:m7`: acme goes from a pull request to test, staging and production on Cloudflare with a verdict
 in each, Orthograph's packages are released under `@orthograph` on npm, and everything the gate made is destroyed after.
 Capxul's first feature runs in its staging.
 
 | id | what | needs | kind | done when | size |
 |---|---|---|---|---|---|
-| M7.01 | The cloud pass: every credential named, a cost estimate under the cap, which secret store `Cloudflare.secrets` means | Gate M6 | decision | `decisions/M7-cloud.md` written, with Aaron's yes per credential | S |
+| M7.01 | The cloud pass: every credential named, a cost estimate under the cap, which secret store `Cloudflare.secrets` means; first for staging alone, on the `orthograph-staging` account Aaron approved in K10 | Gate M2 (staging); ST4.08 (the release) | decision | `decisions/M7-cloud.md` written, with Aaron's yes per credential | S |
 | M7.02 | The npm org `@orthograph` (Aaron signs in) and Orthograph's first real release | M7.01 | build | `npm view orthograph` shows the release | S |
 | M7.03 | The infra projection: an Alchemy stack per environment from the model and mounts | M7.01 | build | `ortho env up staging` plans the expected resources | L |
 | M7.04 | Deploy and destroy on Cloudflare (L2.01, cloud part) | M7.03 | build | `ortho env destroy` leaves nothing in the account | M |
