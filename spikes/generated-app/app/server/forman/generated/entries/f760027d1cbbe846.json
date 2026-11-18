@@ -1,0 +1,66 @@
+{
+ "kind": "operation",
+ "name": "invitation.send",
+ "thing": "invitation",
+ "verb": "send",
+ "identifier": "send",
+ "file": "blueprint/things/invitation/verbs/send.ts",
+ "description": "Invite someone to an organisation by email.",
+ "payload": {
+  "organization": {
+   "value": {
+    "type": "id",
+    "prefix": "org"
+   },
+   "ref": "invitation.organization"
+  },
+  "email": {
+   "value": {
+    "type": "text",
+    "max": 254
+   },
+   "ref": "invitation.email"
+  }
+ },
+ "answer": {
+  "invitation": {
+   "value": {
+    "type": "id",
+    "prefix": "inv"
+   },
+   "ref": "invitation.id"
+  }
+ },
+ "move": {
+  "key": "send",
+  "from": [],
+  "to": [
+   "pending"
+  ],
+  "emits": "InvitationSent"
+ },
+ "errors": [],
+ "refusals": [
+  "NotAllowed"
+ ],
+ "allowed": [
+  {
+   "kind": "role-of",
+   "role": "organization.owner",
+   "path": "organization"
+  }
+ ],
+ "steps": {
+  "insert": {
+   "name": "invitation.send.insert",
+   "type": "database"
+  }
+ },
+ "idempotent": null,
+ "runs": "server",
+ "test": "unit",
+ "budget": {
+  "p95Ms": 200
+ },
+ "hash": "f760027d1cbbe846"
+}

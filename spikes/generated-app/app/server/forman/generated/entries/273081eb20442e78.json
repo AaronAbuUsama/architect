@@ -1,0 +1,54 @@
+{
+ "kind": "operation",
+ "name": "invitation.revoke",
+ "thing": "invitation",
+ "verb": "revoke",
+ "identifier": "revoke",
+ "file": "blueprint/things/invitation/verbs/revoke.ts",
+ "description": "Withdraw an invitation that hasn't been accepted.",
+ "payload": {
+  "invitation": {
+   "value": {
+    "type": "id",
+    "prefix": "inv"
+   },
+   "ref": "invitation.id"
+  }
+ },
+ "answer": {},
+ "move": {
+  "key": "revoke",
+  "from": [
+   "pending"
+  ],
+  "to": [
+   "revoked"
+  ],
+  "emits": "InvitationRevoked"
+ },
+ "errors": [],
+ "refusals": [
+  "InvitationNotPending",
+  "NotAllowed"
+ ],
+ "allowed": [
+  {
+   "kind": "role-of",
+   "role": "organization.owner",
+   "path": "invitation.organization"
+  }
+ ],
+ "steps": {
+  "update": {
+   "name": "invitation.revoke.update",
+   "type": "database"
+  }
+ },
+ "idempotent": null,
+ "runs": "server",
+ "test": "unit",
+ "budget": {
+  "p95Ms": 150
+ },
+ "hash": "273081eb20442e78"
+}

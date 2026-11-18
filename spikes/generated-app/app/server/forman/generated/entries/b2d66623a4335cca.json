@@ -1,0 +1,65 @@
+{
+ "kind": "read",
+ "name": "membership.get",
+ "thing": "membership",
+ "verb": "get",
+ "identifier": "get",
+ "file": "blueprint/things/membership/verbs/get.ts",
+ "description": "Read one membership by its id: organization, person, role.",
+ "payload": {
+  "id": {
+   "value": {
+    "type": "id",
+    "prefix": "mem"
+   },
+   "ref": "membership.id"
+  }
+ },
+ "answer": {
+  "organization": {
+   "value": {
+    "type": "id",
+    "prefix": "org"
+   },
+   "ref": "membership.organization"
+  },
+  "person": {
+   "value": {
+    "type": "id",
+    "prefix": "per"
+   },
+   "ref": "membership.person"
+  },
+  "role": {
+   "value": {
+    "type": "schema"
+   },
+   "named": "Role",
+   "ref": "membership.role"
+  }
+ },
+ "move": null,
+ "errors": [],
+ "refusals": [
+  "NotAllowed"
+ ],
+ "allowed": [
+  {
+   "kind": "role",
+   "role": "membership.holder"
+  },
+  {
+   "kind": "role-of",
+   "role": "organization.owner",
+   "path": "membership.organization"
+  }
+ ],
+ "steps": {},
+ "idempotent": null,
+ "runs": "server",
+ "test": "unit",
+ "budget": {
+  "p95Ms": 50
+ },
+ "hash": "b2d66623a4335cca"
+}

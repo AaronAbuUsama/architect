@@ -1,0 +1,55 @@
+{
+ "kind": "operation",
+ "name": "allowance.revoke",
+ "thing": "allowance",
+ "verb": "revoke",
+ "identifier": "revoke",
+ "file": "blueprint/things/allowance/verbs/revoke.ts",
+ "description": "Stop an allowance. Nothing more can be spent from it.",
+ "payload": {
+  "allowance": {
+   "value": {
+    "type": "id",
+    "prefix": "alw"
+   },
+   "ref": "allowance.id"
+  }
+ },
+ "answer": {},
+ "move": {
+  "key": "revoke",
+  "from": [
+   "active",
+   "exhausted"
+  ],
+  "to": [
+   "revoked"
+  ],
+  "emits": "AllowanceRevoked"
+ },
+ "errors": [],
+ "refusals": [
+  "AllowanceNotActive",
+  "NotAllowed"
+ ],
+ "allowed": [
+  {
+   "kind": "role-of",
+   "role": "organization.owner",
+   "path": "allowance.organization"
+  }
+ ],
+ "steps": {
+  "update": {
+   "name": "allowance.revoke.update",
+   "type": "database"
+  }
+ },
+ "idempotent": null,
+ "runs": "server",
+ "test": "unit",
+ "budget": {
+  "p95Ms": 150
+ },
+ "hash": "840eec1fa79d3872"
+}

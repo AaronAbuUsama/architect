@@ -1,0 +1,178 @@
+{
+ "name": "allowance",
+ "identifier": "Allowance",
+ "code": "AL",
+ "description": "Money a member may spend from their organisation, up to a limit each month.",
+ "fields": {
+  "id": {
+   "value": {
+    "type": "id",
+    "prefix": "alw"
+   }
+  },
+  "organization": {
+   "value": {
+    "type": "id",
+    "prefix": "org"
+   },
+   "ref": "organization.id"
+  },
+  "member": {
+   "value": {
+    "type": "id",
+    "prefix": "per"
+   },
+   "ref": "person.id"
+  },
+  "limit": {
+   "value": {
+    "type": "uint",
+    "bits": 128
+   },
+   "named": "Amount"
+  },
+  "spent": {
+   "value": {
+    "type": "uint",
+    "bits": 128
+   },
+   "named": "Amount"
+  }
+ },
+ "lives": "database",
+ "machine": {
+  "states": [
+   "active",
+   "exhausted",
+   "revoked"
+  ],
+  "moves": {
+   "grant": {
+    "from": [],
+    "to": [
+     "active"
+    ],
+    "emits": "AllowanceGranted"
+   },
+   "spend": {
+    "from": [
+     "active"
+    ],
+    "to": [
+     "active",
+     "exhausted"
+    ],
+    "emits": "AllowanceSpent"
+   },
+   "revoke": {
+    "from": [
+     "active",
+     "exhausted"
+    ],
+    "to": [
+     "revoked"
+    ],
+    "emits": "AllowanceRevoked"
+   }
+  },
+  "notFrom": {
+   "error": "AllowanceNotActive",
+   "exit": 40,
+   "code": "AL-900"
+  }
+ },
+ "events": {
+  "AllowanceGranted": {
+   "allowance": {
+    "value": {
+     "type": "id",
+     "prefix": "alw"
+    },
+    "ref": "allowance.id"
+   },
+   "limit": {
+    "value": {
+     "type": "uint",
+     "bits": 128
+    },
+    "named": "Amount"
+   }
+  },
+  "AllowanceRevoked": {
+   "allowance": {
+    "value": {
+     "type": "id",
+     "prefix": "alw"
+    },
+    "ref": "allowance.id"
+   }
+  },
+  "AllowanceSpent": {
+   "allowance": {
+    "value": {
+     "type": "id",
+     "prefix": "alw"
+    },
+    "ref": "allowance.id"
+   },
+   "amount": {
+    "value": {
+     "type": "uint",
+     "bits": 128
+    },
+    "named": "Amount"
+   },
+   "memo": {
+    "value": {
+     "type": "text",
+     "max": 200
+    },
+    "named": "Memo"
+   },
+   "remaining": {
+    "value": {
+     "type": "uint",
+     "bits": 128
+    },
+    "named": "Amount"
+   }
+  }
+ },
+ "errors": {
+  "AllowanceExceeded": {
+   "fields": {
+    "remaining": {
+     "value": {
+      "type": "uint",
+      "bits": 128
+     },
+     "named": "Amount"
+    }
+   },
+   "exit": 41,
+   "code": "AL-001"
+  },
+  "AllowanceNotFound": {
+   "fields": {},
+   "exit": 43,
+   "code": "AL-002"
+  },
+  "AllowanceLimitTooHigh": {
+   "fields": {
+    "cap": {
+     "value": {
+      "type": "uint",
+      "bits": 128
+     },
+     "named": "Amount"
+    }
+   },
+   "exit": 44,
+   "code": "AL-003"
+  }
+ },
+ "roles": [
+  "grantee"
+ ],
+ "hash": "0029b5bcfd260e5f"
+}

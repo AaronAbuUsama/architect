@@ -1,0 +1,20 @@
+{
+ "name": "system",
+ "identifier": "System",
+ "code": "SY",
+ "description": "The running application itself.",
+ "fields": {
+  "id": {
+   "value": {
+    "type": "id",
+    "prefix": "sys"
+   }
+  }
+ },
+ "lives": "database",
+ "machine": null,
+ "events": {},
+ "errors": {},
+ "roles": [],
+ "hash": "f59c02fd744afb41"
+}

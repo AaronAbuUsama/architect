@@ -1,0 +1,1231 @@
+{
+"source": "file",
+"now": 1794990249776,
+"since": 600000,
+"traces": {
+"9babcaa071011f8049ffb950f9950e8c": {
+"spans": [
+{
+"traceId": "9babcaa071011f8049ffb950f9950e8c",
+"spanId": "70d2cdc5663c5683",
+"parentSpanId": "c82c32ce8fc783f2",
+"name": "sqlite",
+"attrs": {
+"db.system.name": "sqlite",
+"effect.sql.method": "execute",
+"db.query.text": "SELECT * FROM \"allowance\" WHERE \"id\" = ?"
+},
+"status": 1,
+"ms": 3,
+"start": 1794990246753
+},
+{
+"traceId": "9babcaa071011f8049ffb950f9950e8c",
+"spanId": "401426cab7076696",
+"parentSpanId": "e3bb4d099a2b8b0e",
+"name": "allowance.spend.load",
+"attrs": {
+"step.kind": "database"
+},
+"status": 1,
+"ms": 0,
+"start": 1794990246756
+},
+{
+"traceId": "9babcaa071011f8049ffb950f9950e8c",
+"spanId": "3d901b881a13b95e",
+"parentSpanId": "e3bb4d099a2b8b0e",
+"name": "allowance.spend.record",
+"attrs": {
+"step.kind": "database"
+},
+"status": 1,
+"ms": 0,
+"start": 1794990246756
+},
+{
+"traceId": "9babcaa071011f8049ffb950f9950e8c",
+"spanId": "908fa539069b6293",
+"parentSpanId": "e3bb4d099a2b8b0e",
+"name": "BATCH",
+"attrs": {
+"db.system.name": "sqlite",
+"db.operation.name": "BATCH",
+"db.operation.batch.size": 2,
+"db.query.text": "UPDATE \"allowance\" SET \"spent\" = ?, \"state\" = ?, \"version\" = CASE WHEN \"version\" = ? THEN \"version\" + 1 ELSE NULL END WHERE \"id\" = ?; INSERT INTO \"_journal\" (\"trace\",\"operation\",\"move\",\"subject\",\"event\",\"fields\") VALUES (?,?,?,?,?,?)"
+},
+"status": 1,
+"ms": 2,
+"start": 1794990246757
+},
+{
+"traceId": "9babcaa071011f8049ffb950f9950e8c",
+"spanId": "e3bb4d099a2b8b0e",
+"parentSpanId": "c82c32ce8fc783f2",
+"name": "allowance.spend",
+"attrs": {
+"operation": "allowance.spend",
+"principal.person": "per_xi2i9blpcy4dgoq5",
+"payload.allowance": "alw_1ilneabnu44frr09",
+"payload.amount": "62",
+"payload.memo": "lunch",
+"move.name": "spend",
+"move.to": "exhausted",
+"answer.remaining": "0",
+"event.name": "AllowanceSpent"
+},
+"status": 1,
+"ms": 3,
+"start": 1794990246756
+},
+{
+"traceId": "9babcaa071011f8049ffb950f9950e8c",
+"spanId": "c82c32ce8fc783f2",
+"parentSpanId": "81a031af6d9d9a90",
+"name": "POST",
+"attrs": {
+"http.route": "/allowance/spend",
+"http.request.method": "POST",
+"url.full": "http://127.0.0.1:8791/allowance/spend",
+"url.path": "/allowance/spend",
+"url.scheme": "http",
+"server.address": "127.0.0.1",
+"server.port": 8791,
+"user_agent.original": "node",
+"http.response.status_code": 200
+},
+"status": 1,
+"ms": 19,
+"start": 1794990246740
+}
+],
+"logs": [
+{
+"traceId": "9babcaa071011f8049ffb950f9950e8c",
+"spanId": "c82c32ce8fc783f2",
+"body": "Sent HTTP response",
+"attrs": {
+"http.method": "POST",
+"http.url": "/allowance/spend",
+"http.status": 200,
+"effect.fiberId": 29263,
+"effect.log_span.http.span": 19
+}
+}
+]
+},
+"c9019de5f6837a8d37081a7251fb99c0": {
+"spans": [
+{
+"traceId": "c9019de5f6837a8d37081a7251fb99c0",
+"spanId": "86061afbcd04441d",
+"parentSpanId": "c91205a48ee8b321",
+"name": "sqlite",
+"attrs": {
+"db.system.name": "sqlite",
+"effect.sql.method": "execute",
+"db.query.text": "SELECT * FROM \"allowance\" WHERE \"id\" = ?"
+},
+"status": 1,
+"ms": 0,
+"start": 1794990248414
+},
+{
+"traceId": "c9019de5f6837a8d37081a7251fb99c0",
+"spanId": "99986c819b77adc4",
+"parentSpanId": "4324f2c84b1a47e8",
+"name": "allowance.spend.load",
+"attrs": {
+"step.kind": "database"
+},
+"status": 1,
+"ms": 0,
+"start": 1794990248415
+},
+{
+"traceId": "c9019de5f6837a8d37081a7251fb99c0",
+"spanId": "2d81ca43d712455d",
+"parentSpanId": "4324f2c84b1a47e8",
+"name": "allowance.spend.record",
+"attrs": {
+"step.kind": "database"
+},
+"status": 1,
+"ms": 0,
+"start": 1794990248415
+},
+{
+"traceId": "c9019de5f6837a8d37081a7251fb99c0",
+"spanId": "8c291d640658556b",
+"parentSpanId": "4324f2c84b1a47e8",
+"name": "BATCH",
+"attrs": {
+"db.system.name": "sqlite",
+"db.operation.name": "BATCH",
+"db.operation.batch.size": 2,
+"db.query.text": "UPDATE \"allowance\" SET \"spent\" = ?, \"state\" = ?, \"version\" = CASE WHEN \"version\" = ? THEN \"version\" + 1 ELSE NULL END WHERE \"id\" = ?; INSERT INTO \"_journal\" (\"trace\",\"operation\",\"move\",\"subject\",\"event\",\"fields\") VALUES (?,?,?,?,?,?)"
+},
+"status": 1,
+"ms": 2,
+"start": 1794990248415
+},
+{
+"traceId": "c9019de5f6837a8d37081a7251fb99c0",
+"spanId": "4324f2c84b1a47e8",
+"parentSpanId": "c91205a48ee8b321",
+"name": "allowance.spend",
+"attrs": {
+"operation": "allowance.spend",
+"principal.person": "per_xi2i9blpcy4dgoq5",
+"payload.allowance": "alw_bgvtw2cc8b858nd5",
+"payload.amount": "37",
+"payload.memo": "lunch",
+"move.name": "spend",
+"move.to": "active",
+"answer.remaining": "463",
+"event.name": "AllowanceSpent"
+},
+"status": 1,
+"ms": 2,
+"start": 1794990248415
+},
+{
+"traceId": "c9019de5f6837a8d37081a7251fb99c0",
+"spanId": "c91205a48ee8b321",
+"parentSpanId": "f3356c96f6e56cf1",
+"name": "POST",
+"attrs": {
+"http.route": "/allowance/spend",
+"http.request.method": "POST",
+"url.full": "http://127.0.0.1:8791/allowance/spend",
+"url.path": "/allowance/spend",
+"url.scheme": "http",
+"server.address": "127.0.0.1",
+"server.port": 8791,
+"user_agent.original": "node",
+"http.response.status_code": 200
+},
+"status": 1,
+"ms": 8,
+"start": 1794990248409
+}
+],
+"logs": [
+{
+"traceId": "c9019de5f6837a8d37081a7251fb99c0",
+"spanId": "c91205a48ee8b321",
+"body": "Sent HTTP response",
+"attrs": {
+"http.method": "POST",
+"http.url": "/allowance/spend",
+"http.status": 200,
+"effect.fiberId": 29329,
+"effect.log_span.http.span": 8
+}
+}
+]
+},
+"6985b9ce95753ff27cb67e274bb1a543": {
+"spans": [
+{
+"traceId": "6985b9ce95753ff27cb67e274bb1a543",
+"spanId": "cbca05ed7945551c",
+"parentSpanId": "c344bd82bc430af1",
+"name": "sqlite",
+"attrs": {
+"db.system.name": "sqlite",
+"effect.sql.method": "execute",
+"db.query.text": "SELECT * FROM \"allowance\" WHERE \"id\" = ?"
+},
+"status": 1,
+"ms": 1,
+"start": 1794990249772
+},
+{
+"traceId": "6985b9ce95753ff27cb67e274bb1a543",
+"spanId": "b817f2d073b569f8",
+"parentSpanId": "23e8ad8eac3894e0",
+"name": "allowance.spend.load",
+"attrs": {
+"step.kind": "database"
+},
+"status": 1,
+"ms": 1,
+"start": 1794990249773
+},
+{
+"traceId": "6985b9ce95753ff27cb67e274bb1a543",
+"spanId": "60e3eeb304bf221d",
+"parentSpanId": "23e8ad8eac3894e0",
+"name": "allowance.spend.record",
+"attrs": {
+"step.kind": "database"
+},
+"status": 1,
+"ms": 0,
+"start": 1794990249774
+},
+{
+"traceId": "6985b9ce95753ff27cb67e274bb1a543",
+"spanId": "427a0cc5ae020111",
+"parentSpanId": "23e8ad8eac3894e0",
+"name": "BATCH",
+"attrs": {
+"db.system.name": "sqlite",
+"db.operation.name": "BATCH",
+"db.operation.batch.size": 2,
+"db.query.text": "UPDATE \"allowance\" SET \"spent\" = ?, \"state\" = ?, \"version\" = CASE WHEN \"version\" = ? THEN \"version\" + 1 ELSE NULL END WHERE \"id\" = ?; INSERT INTO \"_journal\" (\"trace\",\"operation\",\"move\",\"subject\",\"event\",\"fields\") VALUES (?,?,?,?,?,?)"
+},
+"status": 1,
+"ms": 1,
+"start": 1794990249774
+},
+{
+"traceId": "6985b9ce95753ff27cb67e274bb1a543",
+"spanId": "23e8ad8eac3894e0",
+"parentSpanId": "c344bd82bc430af1",
+"name": "allowance.spend",
+"attrs": {
+"operation": "allowance.spend",
+"principal.person": "per_xi2i9blpcy4dgoq5",
+"payload.allowance": "alw_bgvtw2cc8b858nd5",
+"payload.amount": "37",
+"payload.memo": "hotel",
+"move.name": "spend",
+"move.to": "active",
+"answer.remaining": "426",
+"event.name": "AllowanceSpent"
+},
+"status": 1,
+"ms": 2,
+"start": 1794990249773
+},
+{
+"traceId": "6985b9ce95753ff27cb67e274bb1a543",
+"spanId": "c344bd82bc430af1",
+"parentSpanId": "a4b482d011c87130",
+"name": "POST",
+"attrs": {
+"http.route": "/allowance/spend",
+"http.request.method": "POST",
+"url.full": "http://127.0.0.1:8791/allowance/spend",
+"url.path": "/allowance/spend",
+"url.scheme": "http",
+"server.address": "127.0.0.1",
+"server.port": 8791,
+"user_agent.original": "node",
+"http.response.status_code": 200
+},
+"status": 1,
+"ms": 19,
+"start": 1794990249757
+}
+],
+"logs": [
+{
+"traceId": "6985b9ce95753ff27cb67e274bb1a543",
+"spanId": "c344bd82bc430af1",
+"body": "Sent HTTP response",
+"attrs": {
+"http.method": "POST",
+"http.url": "/allowance/spend",
+"http.status": 200,
+"effect.fiberId": 29351,
+"effect.log_span.http.span": 18
+}
+}
+]
+},
+"721f32bda0ad31462a025382e72b542e": {
+"spans": [
+{
+"traceId": "721f32bda0ad31462a025382e72b542e",
+"spanId": "cc2d924aa05ff153",
+"parentSpanId": "ad961a1e57e2613b",
+"name": "sqlite",
+"attrs": {
+"db.system.name": "sqlite",
+"effect.sql.method": "execute",
+"db.query.text": "SELECT * FROM \"allowance\" WHERE \"id\" = ?"
+},
+"status": 1,
+"ms": 2,
+"start": 1794990226528
+},
+{
+"traceId": "721f32bda0ad31462a025382e72b542e",
+"spanId": "ad961a1e57e2613b",
+"parentSpanId": "0e07b2a9afb0ff9d",
+"name": "POST",
+"attrs": {
+"http.route": "/allowance/spend",
+"http.request.method": "POST",
+"url.full": "http://127.0.0.1:8791/allowance/spend",
+"url.path": "/allowance/spend",
+"url.scheme": "http",
+"server.address": "127.0.0.1",
+"server.port": 8791,
+"user_agent.original": "node",
+"http.response.status_code": 403
+},
+"status": 1,
+"ms": 10,
+"start": 1794990226520
+}
+],
+"logs": [
+{
+"traceId": "721f32bda0ad31462a025382e72b542e",
+"spanId": "ad961a1e57e2613b",
+"body": "Sent HTTP response",
+"attrs": {
+"http.method": "POST",
+"http.url": "/allowance/spend",
+"http.status": 403,
+"effect.fiberId": 28845,
+"effect.log_span.http.span": 10
+}
+}
+]
+},
+"83b1999509ea900167064413d45842c1": {
+"spans": [
+{
+"traceId": "83b1999509ea900167064413d45842c1",
+"spanId": "bff14f4c97d9aa13",
+"parentSpanId": "01ffb6e75c3ab82a",
+"name": "sqlite",
+"attrs": {
+"db.system.name": "sqlite",
+"effect.sql.method": "execute",
+"db.query.text": "SELECT * FROM \"allowance\" WHERE \"id\" = ?"
+},
+"status": 1,
+"ms": 2,
+"start": 1794990229936
+},
+{
+"traceId": "83b1999509ea900167064413d45842c1",
+"spanId": "01ffb6e75c3ab82a",
+"parentSpanId": "1913c74c1ef0b30a",
+"name": "POST",
+"attrs": {
+"http.route": "/allowance/spend",
+"http.request.method": "POST",
+"url.full": "http://127.0.0.1:8791/allowance/spend",
+"url.path": "/allowance/spend",
+"url.scheme": "http",
+"server.address": "127.0.0.1",
+"server.port": 8791,
+"user_agent.original": "node",
+"http.response.status_code": 403
+},
+"status": 1,
+"ms": 13,
+"start": 1794990229925
+}
+],
+"logs": [
+{
+"traceId": "83b1999509ea900167064413d45842c1",
+"spanId": "01ffb6e75c3ab82a",
+"body": "Sent HTTP response",
+"attrs": {
+"http.method": "POST",
+"http.url": "/allowance/spend",
+"http.status": 403,
+"effect.fiberId": 28911,
+"effect.log_span.http.span": 13
+}
+}
+]
+},
+"8a58716ee052a6472f5b68b0df666810": {
+"spans": [
+{
+"traceId": "8a58716ee052a6472f5b68b0df666810",
+"spanId": "d086a6e1a0f4a155",
+"parentSpanId": "61f2f5670a22f412",
+"name": "sqlite",
+"attrs": {
+"db.system.name": "sqlite",
+"effect.sql.method": "execute",
+"db.query.text": "SELECT * FROM \"allowance\" WHERE \"id\" = ?"
+},
+"status": 1,
+"ms": 1,
+"start": 1794990240352
+},
+{
+"traceId": "8a58716ee052a6472f5b68b0df666810",
+"spanId": "61f2f5670a22f412",
+"parentSpanId": "d83ad43a1abe7d59",
+"name": "POST",
+"attrs": {
+"http.route": "/allowance/spend",
+"http.request.method": "POST",
+"url.full": "http://127.0.0.1:8791/allowance/spend",
+"url.path": "/allowance/spend",
+"url.scheme": "http",
+"server.address": "127.0.0.1",
+"server.port": 8791,
+"user_agent.original": "node",
+"http.response.status_code": 403
+},
+"status": 1,
+"ms": 8,
+"start": 1794990240346
+}
+],
+"logs": [
+{
+"traceId": "8a58716ee052a6472f5b68b0df666810",
+"spanId": "61f2f5670a22f412",
+"body": "Sent HTTP response",
+"attrs": {
+"http.method": "POST",
+"http.url": "/allowance/spend",
+"http.status": 403,
+"effect.fiberId": 29131,
+"effect.log_span.http.span": 7
+}
+}
+]
+},
+"6aa7709288ded042666368f4c2edb0bd": {
+"spans": [
+{
+"traceId": "6aa7709288ded042666368f4c2edb0bd",
+"spanId": "aee7ebc68abfa518",
+"parentSpanId": "f876cbd0f188131e",
+"name": "sqlite",
+"attrs": {
+"db.system.name": "sqlite",
+"effect.sql.method": "execute",
+"db.query.text": "SELECT * FROM \"allowance\" WHERE \"id\" = ?"
+},
+"status": 1,
+"ms": 2,
+"start": 1794990209041
+},
+{
+"traceId": "6aa7709288ded042666368f4c2edb0bd",
+"spanId": "e1940a029fab5a75",
+"parentSpanId": "f876cbd0f188131e",
+"name": "allowance.spend",
+"attrs": {
+"operation": "allowance.spend",
+"principal.person": "per_xi2i9blpcy4dgoq5",
+"payload.allowance": "alw_igfmqcb2uj5oelq2",
+"payload.amount": "1",
+"payload.memo": "coffee",
+"refusal": "AllowanceNotActive"
+},
+"status": 1,
+"ms": 0,
+"start": 1794990209043
+},
+{
+"traceId": "6aa7709288ded042666368f4c2edb0bd",
+"spanId": "f876cbd0f188131e",
+"parentSpanId": "c57ec646cb0d66cc",
+"name": "POST",
+"attrs": {
+"http.route": "/allowance/spend",
+"http.request.method": "POST",
+"url.full": "http://127.0.0.1:8791/allowance/spend",
+"url.path": "/allowance/spend",
+"url.scheme": "http",
+"server.address": "127.0.0.1",
+"server.port": 8791,
+"user_agent.original": "node",
+"http.response.status_code": 409
+},
+"status": 1,
+"ms": 9,
+"start": 1794990209034
+}
+],
+"logs": [
+{
+"traceId": "6aa7709288ded042666368f4c2edb0bd",
+"spanId": "f876cbd0f188131e",
+"body": "Sent HTTP response",
+"attrs": {
+"http.method": "POST",
+"http.url": "/allowance/spend",
+"http.status": 409,
+"effect.fiberId": 28383,
+"effect.log_span.http.span": 9
+}
+}
+]
+},
+"30a74a1cebe8e29fac0a2dee09777d4b": {
+"spans": [
+{
+"traceId": "30a74a1cebe8e29fac0a2dee09777d4b",
+"spanId": "bf165d35ebf76e64",
+"parentSpanId": "ca0b8715b75c895b",
+"name": "sqlite",
+"attrs": {
+"db.system.name": "sqlite",
+"effect.sql.method": "execute",
+"db.query.text": "SELECT * FROM \"allowance\" WHERE \"id\" = ?"
+},
+"status": 1,
+"ms": 3,
+"start": 1794990224841
+},
+{
+"traceId": "30a74a1cebe8e29fac0a2dee09777d4b",
+"spanId": "8285008b1c92cfc6",
+"parentSpanId": "ca0b8715b75c895b",
+"name": "allowance.spend",
+"attrs": {
+"operation": "allowance.spend",
+"principal.person": "per_xi2i9blpcy4dgoq5",
+"payload.allowance": "alw_bqqevedezzjesq2c",
+"payload.amount": "1",
+"payload.memo": "coffee",
+"refusal": "AllowanceNotActive"
+},
+"status": 1,
+"ms": 0,
+"start": 1794990224844
+},
+{
+"traceId": "30a74a1cebe8e29fac0a2dee09777d4b",
+"spanId": "ca0b8715b75c895b",
+"parentSpanId": "e265e88acde77cf7",
+"name": "POST",
+"attrs": {
+"http.route": "/allowance/spend",
+"http.request.method": "POST",
+"url.full": "http://127.0.0.1:8791/allowance/spend",
+"url.path": "/allowance/spend",
+"url.scheme": "http",
+"server.address": "127.0.0.1",
+"server.port": 8791,
+"user_agent.original": "node",
+"http.response.status_code": 409
+},
+"status": 1,
+"ms": 20,
+"start": 1794990224826
+}
+],
+"logs": [
+{
+"traceId": "30a74a1cebe8e29fac0a2dee09777d4b",
+"spanId": "ca0b8715b75c895b",
+"body": "Sent HTTP response",
+"attrs": {
+"http.method": "POST",
+"http.url": "/allowance/spend",
+"http.status": 409,
+"effect.fiberId": 28779,
+"effect.log_span.http.span": 19
+}
+}
+]
+},
+"06d67b88337a02e5dde9c5cb27294fae": {
+"spans": [
+{
+"traceId": "06d67b88337a02e5dde9c5cb27294fae",
+"spanId": "06d4a4624643721d",
+"parentSpanId": "f1bb8c6c7a474e79",
+"name": "sqlite",
+"attrs": {
+"db.system.name": "sqlite",
+"effect.sql.method": "execute",
+"db.query.text": "SELECT * FROM \"allowance\" WHERE \"id\" = ?"
+},
+"status": 1,
+"ms": 1,
+"start": 1794990247461
+},
+{
+"traceId": "06d67b88337a02e5dde9c5cb27294fae",
+"spanId": "3e95a97909f72c62",
+"parentSpanId": "f1bb8c6c7a474e79",
+"name": "allowance.spend",
+"attrs": {
+"operation": "allowance.spend",
+"principal.person": "per_xi2i9blpcy4dgoq5",
+"payload.allowance": "alw_1ilneabnu44frr09",
+"payload.amount": "1",
+"payload.memo": "coffee",
+"refusal": "AllowanceNotActive"
+},
+"status": 1,
+"ms": 0,
+"start": 1794990247462
+},
+{
+"traceId": "06d67b88337a02e5dde9c5cb27294fae",
+"spanId": "f1bb8c6c7a474e79",
+"parentSpanId": "f1749a5fcc3b5942",
+"name": "POST",
+"attrs": {
+"http.route": "/allowance/spend",
+"http.request.method": "POST",
+"url.full": "http://127.0.0.1:8791/allowance/spend",
+"url.path": "/allowance/spend",
+"url.scheme": "http",
+"server.address": "127.0.0.1",
+"server.port": 8791,
+"user_agent.original": "node",
+"http.response.status_code": 409
+},
+"status": 1,
+"ms": 8,
+"start": 1794990247455
+}
+],
+"logs": [
+{
+"traceId": "06d67b88337a02e5dde9c5cb27294fae",
+"spanId": "f1bb8c6c7a474e79",
+"body": "Sent HTTP response",
+"attrs": {
+"http.method": "POST",
+"http.url": "/allowance/spend",
+"http.status": 409,
+"effect.fiberId": 29285,
+"effect.log_span.http.span": 8
+}
+}
+]
+},
+"7f74b760eb51ab7ac508de1db487b9d3": {
+"spans": [
+{
+"traceId": "7f74b760eb51ab7ac508de1db487b9d3",
+"spanId": "3cd2ce4dfab74031",
+"parentSpanId": "66f748ea25566bb6",
+"name": "sqlite",
+"attrs": {
+"db.system.name": "sqlite",
+"effect.sql.method": "execute",
+"db.query.text": "SELECT * FROM \"allowance\" WHERE \"id\" = ?"
+},
+"status": 1,
+"ms": 1,
+"start": 1794990180321
+},
+{
+"traceId": "7f74b760eb51ab7ac508de1db487b9d3",
+"spanId": "5589c2b6ccf13be3",
+"parentSpanId": "928a622dd7eb11fb",
+"name": "sqlite",
+"attrs": {
+"db.system.name": "sqlite",
+"effect.sql.method": "execute",
+"db.query.text": "SELECT \"answer\" FROM \"_requests\" WHERE \"key\" = ?"
+},
+"status": 1,
+"ms": 1,
+"start": 1794990180322
+},
+{
+"traceId": "7f74b760eb51ab7ac508de1db487b9d3",
+"spanId": "928a622dd7eb11fb",
+"parentSpanId": "66f748ea25566bb6",
+"name": "allowance.spend",
+"attrs": {
+"operation": "allowance.spend",
+"principal.person": "per_xi2i9blpcy4dgoq5",
+"payload.allowance": "alw_md3ffjt8jeumo7bw",
+"payload.amount": "10",
+"payload.memo": "taxi",
+"request.replayed": true
+},
+"status": 1,
+"ms": 1,
+"start": 1794990180322
+},
+{
+"traceId": "7f74b760eb51ab7ac508de1db487b9d3",
+"spanId": "66f748ea25566bb6",
+"parentSpanId": "ac3ca16ea0e5d159",
+"name": "POST",
+"attrs": {
+"http.route": "/allowance/spend",
+"http.request.method": "POST",
+"url.full": "http://127.0.0.1:8791/allowance/spend",
+"url.path": "/allowance/spend",
+"url.scheme": "http",
+"server.address": "127.0.0.1",
+"server.port": 8791,
+"user_agent.original": "node",
+"http.response.status_code": 200
+},
+"status": 1,
+"ms": 6,
+"start": 1794990180317
+}
+],
+"logs": [
+{
+"traceId": "7f74b760eb51ab7ac508de1db487b9d3",
+"spanId": "66f748ea25566bb6",
+"body": "Sent HTTP response",
+"attrs": {
+"http.method": "POST",
+"http.url": "/allowance/spend",
+"http.status": 200,
+"effect.fiberId": 27723,
+"effect.log_span.http.span": 6
+}
+}
+]
+},
+"d675d5b20cd4a5d7bed3ef14a0f4087b": {
+"spans": [
+{
+"traceId": "d675d5b20cd4a5d7bed3ef14a0f4087b",
+"spanId": "fdb6d86f59d80192",
+"parentSpanId": "73b9feb650c60269",
+"name": "sqlite",
+"attrs": {
+"db.system.name": "sqlite",
+"effect.sql.method": "execute",
+"db.query.text": "SELECT * FROM \"allowance\" WHERE \"id\" = ?"
+},
+"status": 1,
+"ms": 1,
+"start": 1794990213383
+},
+{
+"traceId": "d675d5b20cd4a5d7bed3ef14a0f4087b",
+"spanId": "4027b0ab3a1705b9",
+"parentSpanId": "4fbfde44b8b6aa5a",
+"name": "sqlite",
+"attrs": {
+"db.system.name": "sqlite",
+"effect.sql.method": "execute",
+"db.query.text": "SELECT \"answer\" FROM \"_requests\" WHERE \"key\" = ?"
+},
+"status": 1,
+"ms": 2,
+"start": 1794990213384
+},
+{
+"traceId": "d675d5b20cd4a5d7bed3ef14a0f4087b",
+"spanId": "4fbfde44b8b6aa5a",
+"parentSpanId": "73b9feb650c60269",
+"name": "allowance.spend",
+"attrs": {
+"operation": "allowance.spend",
+"principal.person": "per_xi2i9blpcy4dgoq5",
+"payload.allowance": "alw_bqqevedezzjesq2c",
+"payload.amount": "10",
+"payload.memo": "taxi",
+"request.replayed": true
+},
+"status": 1,
+"ms": 2,
+"start": 1794990213384
+},
+{
+"traceId": "d675d5b20cd4a5d7bed3ef14a0f4087b",
+"spanId": "73b9feb650c60269",
+"parentSpanId": "06c66de855a11a4e",
+"name": "POST",
+"attrs": {
+"http.route": "/allowance/spend",
+"http.request.method": "POST",
+"url.full": "http://127.0.0.1:8791/allowance/spend",
+"url.path": "/allowance/spend",
+"url.scheme": "http",
+"server.address": "127.0.0.1",
+"server.port": 8791,
+"user_agent.original": "node",
+"http.response.status_code": 200
+},
+"status": 1,
+"ms": 8,
+"start": 1794990213378
+}
+],
+"logs": [
+{
+"traceId": "d675d5b20cd4a5d7bed3ef14a0f4087b",
+"spanId": "73b9feb650c60269",
+"body": "Sent HTTP response",
+"attrs": {
+"http.method": "POST",
+"http.url": "/allowance/spend",
+"http.status": 200,
+"effect.fiberId": 28515,
+"effect.log_span.http.span": 8
+}
+}
+]
+},
+"82684594ad1fa1603840215e93206d78": {
+"spans": [
+{
+"traceId": "82684594ad1fa1603840215e93206d78",
+"spanId": "0c01f22d0932c0d8",
+"parentSpanId": "d4069def36b6b60c",
+"name": "sqlite",
+"attrs": {
+"db.system.name": "sqlite",
+"effect.sql.method": "execute",
+"db.query.text": "SELECT * FROM \"allowance\" WHERE \"id\" = ?"
+},
+"status": 1,
+"ms": 1,
+"start": 1794990221797
+},
+{
+"traceId": "82684594ad1fa1603840215e93206d78",
+"spanId": "7b7fab903b4e40b2",
+"parentSpanId": "7905732df447635d",
+"name": "sqlite",
+"attrs": {
+"db.system.name": "sqlite",
+"effect.sql.method": "execute",
+"db.query.text": "SELECT \"answer\" FROM \"_requests\" WHERE \"key\" = ?"
+},
+"status": 1,
+"ms": 1,
+"start": 1794990221798
+},
+{
+"traceId": "82684594ad1fa1603840215e93206d78",
+"spanId": "7905732df447635d",
+"parentSpanId": "d4069def36b6b60c",
+"name": "allowance.spend",
+"attrs": {
+"operation": "allowance.spend",
+"principal.person": "per_xi2i9blpcy4dgoq5",
+"payload.allowance": "alw_bqqevedezzjesq2c",
+"payload.amount": "10",
+"payload.memo": "taxi",
+"request.replayed": true
+},
+"status": 1,
+"ms": 1,
+"start": 1794990221798
+},
+{
+"traceId": "82684594ad1fa1603840215e93206d78",
+"spanId": "d4069def36b6b60c",
+"parentSpanId": "536f98f2de0054fa",
+"name": "POST",
+"attrs": {
+"http.route": "/allowance/spend",
+"http.request.method": "POST",
+"url.full": "http://127.0.0.1:8791/allowance/spend",
+"url.path": "/allowance/spend",
+"url.scheme": "http",
+"server.address": "127.0.0.1",
+"server.port": 8791,
+"user_agent.original": "node",
+"http.response.status_code": 200
+},
+"status": 1,
+"ms": 7,
+"start": 1794990221792
+}
+],
+"logs": [
+{
+"traceId": "82684594ad1fa1603840215e93206d78",
+"spanId": "d4069def36b6b60c",
+"body": "Sent HTTP response",
+"attrs": {
+"http.method": "POST",
+"http.url": "/allowance/spend",
+"http.status": 200,
+"effect.fiberId": 28735,
+"effect.log_span.http.span": 7
+}
+}
+]
+},
+"a20a37bb1bcf415842e580cb77088580": {
+"spans": [
+{
+"traceId": "a20a37bb1bcf415842e580cb77088580",
+"spanId": "097fc14384c1b731",
+"parentSpanId": "dbff7439feb3ade6",
+"name": "sqlite",
+"attrs": {
+"db.system.name": "sqlite",
+"effect.sql.method": "execute",
+"db.query.text": "SELECT * FROM \"allowance\" WHERE \"id\" = ?"
+},
+"status": 1,
+"ms": 2,
+"start": 1794990232967
+},
+{
+"traceId": "a20a37bb1bcf415842e580cb77088580",
+"spanId": "ff901ca30dc72e24",
+"parentSpanId": "e0d75f8cc13d7326",
+"name": "allowance.spend.load",
+"attrs": {
+"step.kind": "database"
+},
+"status": 1,
+"ms": 0,
+"start": 1794990232969
+},
+{
+"traceId": "a20a37bb1bcf415842e580cb77088580",
+"spanId": "e0d75f8cc13d7326",
+"parentSpanId": "dbff7439feb3ade6",
+"name": "allowance.spend",
+"attrs": {
+"operation": "allowance.spend",
+"principal.person": "per_xi2i9blpcy4dgoq5",
+"payload.allowance": "alw_1ilneabnu44frr09",
+"payload.amount": "382",
+"payload.memo": "hotel",
+"refusal": "AllowanceExceeded",
+"refusal.log": "the amount is more than is left"
+},
+"status": 1,
+"ms": 1,
+"start": 1794990232969
+},
+{
+"traceId": "a20a37bb1bcf415842e580cb77088580",
+"spanId": "dbff7439feb3ade6",
+"parentSpanId": "e22292e725f27418",
+"name": "POST",
+"attrs": {
+"http.route": "/allowance/spend",
+"http.request.method": "POST",
+"url.full": "http://127.0.0.1:8791/allowance/spend",
+"url.path": "/allowance/spend",
+"url.scheme": "http",
+"server.address": "127.0.0.1",
+"server.port": 8791,
+"user_agent.original": "node",
+"http.response.status_code": 422
+},
+"status": 1,
+"ms": 11,
+"start": 1794990232959
+}
+],
+"logs": [
+{
+"traceId": "a20a37bb1bcf415842e580cb77088580",
+"spanId": "e0d75f8cc13d7326",
+"body": "the amount is more than is left",
+"attrs": {
+"amount": "382",
+"remaining": "332",
+"effect.fiberId": 28977,
+"effect.log_span.http.span": 10
+}
+},
+{
+"traceId": "a20a37bb1bcf415842e580cb77088580",
+"spanId": "dbff7439feb3ade6",
+"body": "Sent HTTP response",
+"attrs": {
+"http.method": "POST",
+"http.url": "/allowance/spend",
+"http.status": 422,
+"effect.fiberId": 28977,
+"effect.log_span.http.span": 11
+}
+}
+]
+},
+"32d5dd591a80fbdcb12892b9e2d93831": {
+"spans": [
+{
+"traceId": "32d5dd591a80fbdcb12892b9e2d93831",
+"spanId": "466e4c73fac0cff4",
+"parentSpanId": "92ce64b6862a5b0b",
+"name": "sqlite",
+"attrs": {
+"db.system.name": "sqlite",
+"effect.sql.method": "execute",
+"db.query.text": "SELECT * FROM \"allowance\" WHERE \"id\" = ?"
+},
+"status": 1,
+"ms": 0,
+"start": 1794990238920
+},
+{
+"traceId": "32d5dd591a80fbdcb12892b9e2d93831",
+"spanId": "9bc879ff9f6c4b58",
+"parentSpanId": "03996d38b08b4efe",
+"name": "allowance.spend.load",
+"attrs": {
+"step.kind": "database"
+},
+"status": 1,
+"ms": 0,
+"start": 1794990238921
+},
+{
+"traceId": "32d5dd591a80fbdcb12892b9e2d93831",
+"spanId": "03996d38b08b4efe",
+"parentSpanId": "92ce64b6862a5b0b",
+"name": "allowance.spend",
+"attrs": {
+"operation": "allowance.spend",
+"principal.person": "per_xi2i9blpcy4dgoq5",
+"payload.allowance": "alw_1ilneabnu44frr09",
+"payload.amount": "235",
+"payload.memo": "hotel",
+"refusal": "AllowanceExceeded",
+"refusal.log": "the amount is more than is left"
+},
+"status": 1,
+"ms": 0,
+"start": 1794990238921
+},
+{
+"traceId": "32d5dd591a80fbdcb12892b9e2d93831",
+"spanId": "92ce64b6862a5b0b",
+"parentSpanId": "fa2adc57f8e502c8",
+"name": "POST",
+"attrs": {
+"http.route": "/allowance/spend",
+"http.request.method": "POST",
+"url.full": "http://127.0.0.1:8791/allowance/spend",
+"url.path": "/allowance/spend",
+"url.scheme": "http",
+"server.address": "127.0.0.1",
+"server.port": 8791,
+"user_agent.original": "node",
+"http.response.status_code": 422
+},
+"status": 1,
+"ms": 11,
+"start": 1794990238911
+}
+],
+"logs": [
+{
+"traceId": "32d5dd591a80fbdcb12892b9e2d93831",
+"spanId": "03996d38b08b4efe",
+"body": "the amount is more than is left",
+"attrs": {
+"amount": "235",
+"remaining": "185",
+"effect.fiberId": 29109,
+"effect.log_span.http.span": 10
+}
+},
+{
+"traceId": "32d5dd591a80fbdcb12892b9e2d93831",
+"spanId": "92ce64b6862a5b0b",
+"body": "Sent HTTP response",
+"attrs": {
+"http.method": "POST",
+"http.url": "/allowance/spend",
+"http.status": 422,
+"effect.fiberId": 29109,
+"effect.log_span.http.span": 11
+}
+}
+]
+},
+"13ef94474c1efdbb52db11d09b70b19a": {
+"spans": [
+{
+"traceId": "13ef94474c1efdbb52db11d09b70b19a",
+"spanId": "d5ff1664c8804eb3",
+"parentSpanId": "e5759660eee43454",
+"name": "sqlite",
+"attrs": {
+"db.system.name": "sqlite",
+"effect.sql.method": "execute",
+"db.query.text": "SELECT * FROM \"allowance\" WHERE \"id\" = ?"
+},
+"status": 1,
+"ms": 1,
+"start": 1794990245491
+},
+{
+"traceId": "13ef94474c1efdbb52db11d09b70b19a",
+"spanId": "b80596a4eeb54318",
+"parentSpanId": "062ce32eab89a1ae",
+"name": "allowance.spend.load",
+"attrs": {
+"step.kind": "database"
+},
+"status": 1,
+"ms": 0,
+"start": 1794990245493
+},
+{
+"traceId": "13ef94474c1efdbb52db11d09b70b19a",
+"spanId": "062ce32eab89a1ae",
+"parentSpanId": "e5759660eee43454",
+"name": "allowance.spend",
+"attrs": {
+"operation": "allowance.spend",
+"principal.person": "per_xi2i9blpcy4dgoq5",
+"payload.allowance": "alw_1ilneabnu44frr09",
+"payload.amount": "112",
+"payload.memo": "hotel",
+"refusal": "AllowanceExceeded",
+"refusal.log": "the amount is more than is left"
+},
+"status": 1,
+"ms": 0,
+"start": 1794990245493
+},
+{
+"traceId": "13ef94474c1efdbb52db11d09b70b19a",
+"spanId": "e5759660eee43454",
+"parentSpanId": "8d3412720a3686f2",
+"name": "POST",
+"attrs": {
+"http.route": "/allowance/spend",
+"http.request.method": "POST",
+"url.full": "http://127.0.0.1:8791/allowance/spend",
+"url.path": "/allowance/spend",
+"url.scheme": "http",
+"server.address": "127.0.0.1",
+"server.port": 8791,
+"user_agent.original": "node",
+"http.response.status_code": 422
+},
+"status": 1,
+"ms": 10,
+"start": 1794990245484
+}
+],
+"logs": [
+{
+"traceId": "13ef94474c1efdbb52db11d09b70b19a",
+"spanId": "062ce32eab89a1ae",
+"body": "the amount is more than is left",
+"attrs": {
+"amount": "112",
+"remaining": "62",
+"effect.fiberId": 29219,
+"effect.log_span.http.span": 9
+}
+},
+{
+"traceId": "13ef94474c1efdbb52db11d09b70b19a",
+"spanId": "e5759660eee43454",
+"body": "Sent HTTP response",
+"attrs": {
+"http.method": "POST",
+"http.url": "/allowance/spend",
+"http.status": 422,
+"effect.fiberId": 29219,
+"effect.log_span.http.span": 9
+}
+}
+]
+}
+}
+}

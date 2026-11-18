@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Forman app sketches</title><link rel="stylesheet" href="style.css">
+<script src="data.js"></script><script src="blocks.js"></script><script src="frame.js"></script><script src="pages.js"></script>
+</head><body><div id="root"></div><script>
+// One sketch per hash. Real acme model and spans throughout; prose marked "sample" is sample text.
+const na = A.samples.notAllowed.call, ex = A.samples.exceeded.call;
+const mine = callRow(na, { sel: true, as: "ada" });
+const withMine = [mine, ...A.recent.filter((c) => c.op === "allowance.spend").slice(-6).reverse().map((c) => callRow(c))];
+const tried = [callRow(ex, { isNew: true, as: "olga" }), ...withMine.slice(0, 6)];
+const crumbs = { op: "<a>allowance</a> › <b>spend</b>", thing: "<b>allowance</b>" };
+const pages = {
+  home: () => frame("home", "<b>Home</b>", homePage()),
+  thing: () => frame("allowance", crumbs.thing, thingPage("allowance")),
+  operation: () => frame("allowance.spend", crumbs.op, operationPage("allowance.spend")),
+  trace: () => frame("allowance.spend", crumbs.op, operationPage("allowance.spend", { calls: withMine }), traceDrawer()),
+  try: () => frame("allowance.spend", crumbs.op, operationPage("allowance.spend", { calls: tried }), tryDrawer()),
+  chat: () => frame("allowance.spend", crumbs.op, operationPage("allowance.spend", { calls: withMine }), chatDrawer()),
+  note: () => frame("note", "Notes › <b>How allowances should feel</b>", notePage()),
+  environments: () => frame("envs", "<b>Environments</b>", envPage()),
+};
+const render = () => (document.getElementById("root").innerHTML = (pages[location.hash.slice(1)] ?? pages.operation)());
+addEventListener("hashchange", render); render();
+</script></body></html>

@@ -1,0 +1,83 @@
+{
+ "kind": "operation",
+ "name": "allowance.spend",
+ "thing": "allowance",
+ "verb": "spend",
+ "identifier": "spend",
+ "file": "blueprint/things/allowance/verbs/spend.ts",
+ "description": "Spend from what is left of this month's allowance.",
+ "payload": {
+  "allowance": {
+   "value": {
+    "type": "id",
+    "prefix": "alw"
+   },
+   "ref": "allowance.id"
+  },
+  "amount": {
+   "value": {
+    "type": "uint",
+    "bits": 128
+   },
+   "named": "Amount"
+  },
+  "memo": {
+   "value": {
+    "type": "text",
+    "max": 200
+   },
+   "named": "Memo"
+  }
+ },
+ "answer": {
+  "remaining": {
+   "value": {
+    "type": "uint",
+    "bits": 128
+   },
+   "named": "Amount"
+  }
+ },
+ "move": {
+  "key": "spend",
+  "from": [
+   "active"
+  ],
+  "to": [
+   "active",
+   "exhausted"
+  ],
+  "emits": "AllowanceSpent"
+ },
+ "errors": [
+  "AllowanceExceeded"
+ ],
+ "refusals": [
+  "AllowanceExceeded",
+  "AllowanceNotActive",
+  "NotAllowed"
+ ],
+ "allowed": [
+  {
+   "kind": "role",
+   "role": "allowance.grantee"
+  }
+ ],
+ "steps": {
+  "load": {
+   "name": "allowance.spend.load",
+   "type": "database"
+  },
+  "record": {
+   "name": "allowance.spend.record",
+   "type": "database"
+  }
+ },
+ "idempotent": "request",
+ "runs": "server",
+ "test": "unit",
+ "budget": {
+  "p95Ms": 150
+ },
+ "hash": "aee8ecae8dc5fc81"
+}

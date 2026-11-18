@@ -100,15 +100,21 @@ own span, free text is absent from spans, and refused calls are counted (O2).
 | M1.09 ∥ | Runtime entries per host and import closures (`worker`, `node`) | M1.08 | build | check `02` passes | M |
 | M1.10 | `forman add feature\|adapter\|projection`: pins exactly (three-day rule, R1), writes the mount, offers needs | M1.08 | build | check `01` passes through one command | S |
 | M1.11 | Projections as plugins, part one: model, api, server | M1.10 | build | acme mounts them; its `generated/server` is unchanged | L |
-| M1.12 ∥ | Part two: sdk, cli, mcp | M1.11 | build | acme's generated clients unchanged; the CLI and MCP journeys still pass | M |
-| M1.13 ∥ | Part three: docs, portal | M1.11 | build | acme's docs and portal wire unchanged | M |
+| M1.12 ∥ | Part two: sdk, cli, mcp, and the SDK contract ([`decisions/K5-the-whole-shape.md`](decisions/K5-the-whole-shape.md) seam 5): the caller on the client's layer, a stable `requestKey` across retries, declared refusals typed in the error channel, tool exposure from `allowed` and `via` | M1.11 | build | acme's generated clients unchanged apart from the new options; the CLI and MCP journeys still pass; a retried SDK call with one `requestKey` commits once | M |
+| M1.13 ∥ | Part three: docs and the portal, our design (M1.25) on the pieces ported from agent-native (K5 seam 10): things and lifecycles first, drawn from the model; live evidence lights up the same structure | M1.03, M1.11, M1.21, M1.24, M1.25 | build | acme's docs unchanged; the portal opens on acme's things, and a journey's run lights up its operation and machine move | M |
 | M1.14 ∥ | Adapter calls out: `Blueprint.step.call`, declared errors, the one mapping blank, a stand-in declared (D4 section 3) | M1.08 | build | checks `03` and `04` pass | M |
 | M1.16 ∥ | `forman prove --empty`: the journeys run against scaffolded handlers; each step that needs behaviour goes red, and one that passes is labelled "proved by the description" (S3) | Gate M0 | build | on acme, `revoke then spend` shows two red steps and one proved by the description | S |
 | M1.17 ∥ | Stores ([`decisions/K3-stores-and-sources.md`](decisions/K3-stores-and-sources.md)): `Blueprint.store.<kind>()` under `blueprint/stores/`, `lives` takes a store or nothing for the default, kinds supplied by hosts (`database`, `actor`), `stores:` bindings typed in environments, one store per commit (cross-store writes refused), migrations per store, a feature's own stores named by its mount | M1.06 | build | acme unchanged; a fixture feature with its own store mounts beside acme's default and both migrate; an operation writing two stores fails to compile | M |
 | M1.18 ∥ | The commit as a span ([`decisions/O2-trace-gaps.md`](decisions/O2-trace-gaps.md) gap 1): `<op>.commit` with `commit.writes`, `commit.entries`, `commit.outcome`, and `attempt` on the operation's span | Gate M0 | build | a forced conflict shows `attempt=2` after a `conflict` commit; a journey asserts `allowance.spend.commit` | S |
 | M1.19 ∥ | Free text untraced unless marked (O2 gap 2): `Blueprint.traced(x)`; ids, amounts, enums, booleans and times traced when public | Gate M0 | build | `payload.memo` is absent from `spend`'s span; a traced text field is present; the "leaks nothing" eval passes | S |
 | M1.20 ∥ | Every call counted (O2 gap 3): `forman.calls` and `forman.call.duration` through Effect `Metric` to OTLP; the local Collector gains a metrics pipeline | Gate M0 | build | a bad payload and a stranger show as two refusals in `forman.calls`, with no spans | S |
-| M1.15 | **Gate M1** | M1.02 to M1.14, M1.16 to M1.20 | e2e | `nx run e2e:m1` passes on `main` | S |
+| M1.21 ∥ | Live steps (K5 seam 10): a step signal as each step starts and ends, sent under `waitUntil`, not at dispose; committed events read from the journal for the portal | M1.18 | build | a slow handler's `load` step shows in the portal before the response; a committed event shows with its commit, a refused call shows none | S |
+| M1.22 ∥ | The actions projection (K5 seam 5): one `defineAction` per operation, in agent-native's field names, built on the SDK, so an agent-native app can use them | M1.12, M1.23 | build | an action's `run` refused by the role check returns the same typed refusal as the SDK; an operation `.notVia(Via.agent)` has no agent tool; a type test checks each generated action against agent-native 0.228.2's recorded `defineAction` field list, with no agent-native package installed | M |
+| M1.23 ∥ | The port from agent-native, part one (K5, "Porting from agent-native"): `defineAction` with agent-native's field names and approvals, in `forman`'s `actions` module, in Effect | M1.12 | build | a generated action refused by the role check writes nothing and returns the typed refusal; one with `needsApproval` waits for a yes | S |
+| M1.24 ∥ | The port, part two: the shell, the chat's surface (thread, stream, tool-call cards, approvals, refusals) and screen context; threads as things in the portal's store; signed in through acme's own auth until M2.06. The agent behind the chat is M4.16 | M1.17, M1.23 | build | the shell and screen context run on acme's Worker over D1; a stored thread renders with its approval card; no `@agent-native/*` package is installed | L |
+| M1.25 | The portal's design, with Aaron (UX.md's intent; agent-native's templates as the reference). Aaron asks to see UX before it is drawn, so this is his session by his rule, not a block | Gate M0 | decision | `design/portal.md` agreed: the first page, a thing's page, an operation's page, the live rail, the chat | M |
+| M1.26 ∥ | The scaffold as a wired function (K5 seam 3): each declared step in declared order, the move, a stub per refusal, every hole a `Handlers.blank`; `Blueprint.step.<kind>({ optional: true })`, allowed absent by eval 6; `forman check` warns on a non-optional step the handler never calls; `forman prove` reports an optional step no journey ran both ways | Gate M0 | build | a fresh scaffold compiles and `forman prove --empty` shows one red step per blank; a fixture with an unchanged edit that skips its optional `save` passes eval 6; a fixture whose journeys always run its optional step is reported as never exercised both ways; deleting `steps.record` from `spend` gives a check warning | M |
+| M1.15 | **Gate M1** | M1.02 to M1.14, M1.16 to M1.26 | e2e | `nx run e2e:m1` passes on `main` | S |
 
 ## M2: Auth and organizations (workable)
 
@@ -130,9 +136,9 @@ the CLI and MCP; (4) no environment file names a secret by string.
 | M2.03 | Principals in `roles/types.ts` (today `anonymous \| person`, lines 6 to 8) and the runtime; `issues:` per environment | M2.01 | build | the principal journeys pass in acme | M |
 | M2.04 ∥ | Secrets by declaration: `Blueprint.secret`, names from mount and export, `Redacted` through the plugin's layer, `forman secrets` and `secrets set` locally | M2.01 | build | acme's environments name no secret; prove passes | M |
 | M2.05 | `@formants/auth`, identity: person, session, api-key; Better Auth behind its worker entry; `AUTH_SECRET` declared | M2.03, M2.04 | build | the identity journeys pass with acme mounting it | L |
-| M2.06 | `@formants/auth`, ways in: the device flow, OAuth for MCP, choices (`signIn`, `keys`), settings (`sessionLength`, `allowedOrigins`) | M2.05 | build | `acme login` and MCP sign-in journeys pass | M |
+| M2.06 | `@formants/auth`, ways in: the device flow, OAuth for MCP, the builder's sign-in to the portal (K5 seam 9), choices (`signIn`, `keys`), settings (`sessionLength`, `allowedOrigins`) | M2.05 | build | `acme login` and MCP sign-in journeys pass | M |
 | M2.07 | `@formants/organizations`: organisation, membership, invitation, owner, member, `holds`, starting worlds `founded` and `invited`; acme's copies deleted | M2.05 | build | the tenancy journeys pass from the plugin; acme has no `organization/` folder | M |
-| M2.08 ∥ | Journeys through the clients: a world runs steps through the SDK, with `--through cli\|mcp` (`journeys/internal/world.ts:85` calls HTTP directly today) | M2.05 | build | the auth journeys pass all three ways | M |
+| M2.08 ∥ | Journeys through the clients: a world runs steps through the SDK, with `--through cli\|mcp\|actions` (`journeys/internal/world.ts:85` calls HTTP directly today) | M2.05 | build | the auth journeys pass all three ways | M |
 | M2.09 | `forman new` replaces the Nx preset: an app with auth and organizations mounted | M2.07 | build | `npm create formants demo` from Verdaccio, then `forman prove --env local` is green | M |
 | M2.10 | `forman new feature`, a plugin's own world and CI, `forman publish --local` for plugins | M2.07 | build | the `notes` feature goes from new to proved to published to mounted | M |
 | M2.11 ∥ | The work app mounts auth and organizations | M2.07 | build | `forman prove --root examples/work` passes with no copied identity | S |
@@ -152,7 +158,7 @@ twice; `generated/agents/` passes its drift check.
 
 | id | what | needs | kind | done when | size |
 |---|---|---|---|---|---|
-| M3.01 | `Blueprint.workflow`: its shape (steps, `step.await` on an event, durable clocks), where it lives, and the Effect and platform-cloudflare pins | Gate M2 | decision | `decisions/M3-workflows.md` written | S |
+| M3.01 | `Blueprint.workflow`: its shape (activities, `await` on an event, durable clocks), where it lives, and the Effect and platform-cloudflare pins. Starts from K5 seam 6: an activity is keyed by run id and activity name; the workshop's publish is the example; settles wake-up, deduplication and replay, and settles where `emits:` on an operation with no machine sits beside workflows (K5 Q5, Aaron: "B, on the operation"; built in M3.16) | Gate M2 | decision | `decisions/M3-workflows.md` written | S |
 | M3.02 | `effect` 4.1.1 to 4.1.3 everywhere, as its own slice | M3.01 | build | every existing gate still green | M |
 | M3.03 | `CloudflareWorkflowEngine` under local workerd: does a replay after eviction skip finished activities? | M3.02 | spike | `spikes/effect-workflow-workerd/README.md` answers it with a run | S |
 | M3.04 | Journeys for the factory (W1): its operations, and "derived, never stored", "only a fact closes", claims, attention | M3.01 | checks | they fail on empty handlers | M |
@@ -163,10 +169,11 @@ twice; `generated/agents/` passes its drift check.
 | M3.09 | Tasks derived (W3): kinds `write:journey`, `build`, `fix`, `improve`, plus attention, from the model and the facts | M3.07 | build | a mission over acme shows the tasks `factory.md` lists, each in its column | M |
 | M3.10 | The manager as a declared workflow, one per mission, waiting on durable deferreds and a daily clock (absorbs L5.04 for the factory) | M3.03, M3.08, M3.09 | build | killing its Durable Object mid-loop starts nothing twice | M |
 | M3.11 | Claims for people and outside agents: `work task claim` writes the brief and a branch, over the CLI and MCP | M3.09 | build | a scripted claim, push and CI run closes the task by its verdict | M |
-| M3.12 ∥ | The `agents` projection, built on `builder`: skills, role definitions and rules under `generated/agents/`, neutral, Claude Code and Pi forms, the Markdown header (S8, S10 to S13) | M3.05 | build | a model change rewrites the kit; a hand edit fails the drift check | L |
+| M3.12 ∥ | **Parked** with the skills design (PR #37; K5). The `agents` projection, built on `builder`: skills, role definitions and rules under `generated/agents/`, neutral, Claude Code and Pi forms, the Markdown header (S8, S10 to S13) | M3.05 | build | a model change rewrites the kit; a hand edit fails the drift check | L |
 | M3.13 ∥ | `forman ci <stage>` and the short scaffolded workflow (S9) | M3.11 | build | `forman new` projects run test worlds and verdicts through it | M |
-| M3.14 ∥ | The portal's Work side: board, KPIs, attention | M3.09 | build | the board in the portal matches `work mission board` | M |
-| M3.15 | **Gate M3** | M3.02 to M3.14 | e2e | `nx run e2e:m3` passes on `main` | S |
+| M3.14 ∥ | **Parked** (K5, Aaron's decision 2: no separate plans or factory surfaces). The portal's Work side: board, KPIs, attention | M3.09 | build | the board in the portal matches `work mission board` | M |
+| M3.16 ∥ | `emits:` on an operation with no machine (K5 Q5): the event committed with the call's writes, only on success, and only when the call wrote | M3.01 | build | journeys assert `DraftEdited` present after a successful edit, absent after `DraftChanged`, and absent after an unchanged edit | S |
+| M3.15 | **Gate M3** | M3.02 to M3.11, M3.13, M3.16 | e2e | `nx run e2e:m3` passes on `main` | S |
 
 ## M4: Agents, proved with the factory
 
@@ -196,7 +203,8 @@ person; (4) the run's trace is read back through `bp.telemetry`. CI uses the loc
 | M4.12 ∥ | `bp.telemetry` over `TraceSource`: trace, calls, refusals, defects, slow | M4.11 | build | a script finds the slowest step of a run | M |
 | M4.13 | The join: `workers: agents`, `Blueprint.need(agents, { when })`, dispatch through `agents.run.start`, `runFinished` back through `on:` | M4.10, M4.11 | build | a task dispatched to an agents run closes by its verdict | M |
 | M4.14 ∥ | The `pi` runner in the bench (A5) and suites, spend and the report (A8), off the gate | M4.04 | build | `bench` writes one suite's report | M |
-| M4.15 | **Gate M4** | M4.02 to M4.13 | e2e | `nx run e2e:m4` passes on `main` | S |
+| M4.16 | The portal's chat on a durable agent (K5): one `@formants/agents` run per thread, the actions as its tools, approvals through the chat | M4.10, M1.24 | build | evicting a chat's run mid-turn resumes it with no second model call; a refused action shows its typed refusal in the thread | M |
+| M4.15 | **Gate M4** | M4.02 to M4.13, M4.16 | e2e | `nx run e2e:m4` passes on `main` | S |
 
 ## M5: Reach out
 
@@ -239,7 +247,7 @@ forced reorg is corrected; a pending chain call shows its in-between state (S25)
 
 | id | what | needs | kind | done when | size |
 |---|---|---|---|---|---|
-| M6.01 | D5 (values across languages, `signedBy` as EIP-712, one vault per organisation) and the wallets signer and keystore surface, SIWE link declarations | Gate M5 | decision | `decisions/M6-chain.md` written | S |
+| M6.01 | Starts from K7 (Solidity, Noir and Solana worked out together). D5 (values across languages, `signedBy` as EIP-712, one vault per organisation) and the wallets signer and keystore surface, SIWE link declarations; the operation-to-chain mapping and client exposure (K7); the generated client contract for chain operations: a submission, then `confirmed` | Gate M5 | decision | `decisions/M6-chain.md` written | S |
 | M6.02 | Journeys for wallets and the chain (Codex's planned files `05` to `08`) | M6.01 | checks | they fail on empty handlers | M |
 | M6.03 | `@formants/wallets`: signer, encrypted keystore, test wallets per world, CLI (L3.02) | M6.02 | build | `acme wallet create && acme wallet list` shows the address | M |
 | M6.04 ∥ | SIWE linking in auth (L3.03) | M6.03 | build | `acme wallet link`, then `acme session show` lists the address | M |
@@ -247,17 +255,18 @@ forced reorg is corrected; a pending chain call shows its in-between state (S25)
 | M6.06 | Anvil in a world, `Stand.process`; a container in CI (L3.05) | M6.05 | build | a world's chain answers `eth_chainId` and is gone when the world ends | M |
 | M6.07 | The relayer actor (L3.06) | M6.06 | build | 100 concurrent submissions, nonces 0 to 99, a dropped one replaced | M |
 | M6.08 ∥ | Simulation (L3.07) | M6.05 | build | a reverting call returns its typed error and sends nothing | S |
-| M6.09 | The chain follower (L3.08) | M6.07 | build | a forced reorg emits a correction; a restart doesn't double count | M |
-| M6.10 | Values with Solidity types and `lives: chain` (L4.01) | M6.01 | build | `forman check` reports the change as major | M |
-| M6.11 | `language-solidity`: types and the compiled machine (L4.02) | M6.10 | build | `forge build` compiles the generated files | M |
+| M6.09 | The chain follower (L3.08), which also feeds the portal's committed chain events (K5 seam 10) | M6.07 | build | a forced reorg emits a correction; a restart doesn't double count | M |
+| M6.10 | Values with Solidity types and `lives: chain`; the compiler accepts `runs: "chain"` (L4.01; `describe.ts:108` refuses it today) | M6.01 | build | `forman check` reports the change as major | M |
+| M6.11 | `language-solidity`, no longer a placeholder: types, the compiled machine, roles and refusals compiled in, the ABI (L4.02) | M6.10 | build | `forge build` compiles the generated files | M |
 | M6.12 | Signatures and generated Foundry tests (L4.03) | M6.11 | build | the scaffold gives `0 passed · 24 failed: NotWritten` | M |
 | M6.13 | The contract scaffold, its brief, the fuzz cross-check (L4.04) | M6.12 | build | the filled vault gives `24 passed`; fixed seeds show no divergence | M |
 | M6.14 | The contract's client from the ABI (L4.05) | M6.13, M6.05 | build | a planted revert reaches the handler as `AllowanceExceeded` | S |
-| M6.15 | The signing flow and the in-between state (L4.06, S25) | M6.14, M6.03, M6.07 | build | `acme allowance spend --wallet olga` succeeds; bob's signature is refused before sending | M |
+| M6.15 | The signing flow and the in-between state (L4.06, S25); the SDK's `submission.confirmed` | M6.14, M6.03, M6.07 | build | `acme allowance spend --wallet olga` succeeds; bob's signature is refused before sending | M |
 | M6.16 | Worlds with a chain: a vault per organisation, journeys on Anvil (L4.07) | M6.15, M6.06, M6.09 | build | `forman prove --env local` shows each operation signed by its person | M |
 | M6.17 | Contracts in the local pipeline, redeployed only on a new bytecode hash (L4.08, local part) | M6.16 | build | promoting twice with the same bytecode deploys nothing the second time | M |
 | M6.18 ∥ | The no-key and custody checks (S29) | M6.16 | build | a planted private key in a binding fails the check | S |
-| M6.19 | **Gate M6** | M6.02 to M6.18 | e2e | `nx run e2e:m6` passes on `main` | S |
+| M6.20 | `examples/workshop` (K5): the governance feature, the vote as a contract operation, the publish workflow across D1 and the chain, the forum adapter's stand-in | M6.16, M3.10 | build | a vote twice by one member is refused by the contract through the SDK, the CLI and an action; a publish run links the confirmed proposal to its exact revision | M |
+| M6.19 | **Gate M6** | M6.02 to M6.18, M6.20 | e2e | `nx run e2e:m6` passes on `main` | S |
 
 ## M7: The cloud, then Capxul
 
@@ -284,7 +293,7 @@ Capxul's first feature runs in its staging.
 
 ## Later
 
-- **Noir** ([`frame/examples/private-membership.md`](frame/examples/private-membership.md), N1, S28, S30).
+- **Noir** ([`frame/examples/private-membership.md`](frame/examples/private-membership.md), N1, S28, S30), with the workshop's private membership as its example (K5 seam 7). Proved on a network that verifies proofs before any claim: the spike's local network skipped verification.
 - **The Python client** ([`frame/examples/python-sdk.md`](frame/examples/python-sdk.md), S31 to S33).
 - **Time**: one clock per world, moves made by time, the keeper, the on-time eval (D6, L5.01 to L5.03, L5.05 to L5.07),
   and agent waits on the world clock (L5.08). Workflows' durable clocks (M3, M5) cover long waits until then.

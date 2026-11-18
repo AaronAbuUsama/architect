@@ -1,0 +1,68 @@
+{
+ "kind": "operation",
+ "name": "invitation.accept",
+ "thing": "invitation",
+ "verb": "accept",
+ "identifier": "accept",
+ "file": "blueprint/things/invitation/verbs/accept.ts",
+ "description": "Accept an invitation and become a member of its organisation.",
+ "payload": {
+  "invitation": {
+   "value": {
+    "type": "id",
+    "prefix": "inv"
+   },
+   "ref": "invitation.id"
+  }
+ },
+ "answer": {
+  "organization": {
+   "value": {
+    "type": "id",
+    "prefix": "org"
+   },
+   "ref": "invitation.organization"
+  },
+  "membership": {
+   "value": {
+    "type": "id",
+    "prefix": "mem"
+   },
+   "ref": "membership.id"
+  }
+ },
+ "move": {
+  "key": "accept",
+  "from": [
+   "pending"
+  ],
+  "to": [
+   "accepted"
+  ],
+  "emits": "InvitationAccepted"
+ },
+ "errors": [],
+ "refusals": [
+  "InvitationNotPending",
+  "NotAllowed"
+ ],
+ "allowed": [
+  {
+   "kind": "role",
+   "role": "invitation.invitee"
+  }
+ ],
+ "steps": {
+  "join": {
+   "name": "invitation.accept.join",
+   "type": "database"
+  }
+ },
+ "idempotent": null,
+ "runs": "server",
+ "test": "unit",
+ "budget": {
+  "p95Ms": 200
+ },
+ "hash": "9b5d5f2a5e227711"
+}

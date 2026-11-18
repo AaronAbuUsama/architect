@@ -1,0 +1,33 @@
+{
+ "name": "session",
+ "identifier": "Session",
+ "code": "SE",
+ "description": "A person's signed-in session, issued by Better Auth.",
+ "fields": {
+  "id": {
+   "value": {
+    "type": "id",
+    "prefix": "ses"
+   }
+  },
+  "person": {
+   "value": {
+    "type": "id",
+    "prefix": "per"
+   },
+   "ref": "person.id"
+  }
+ },
+ "lives": "database",
+ "machine": null,
+ "events": {},
+ "errors": {
+  "SessionCredentialsWrong": {
+   "fields": {},
+   "exit": 10,
+   "code": "SE-001"
+  }
+ },
+ "roles": [],
+ "hash": "1fa5923e2d4a38d4"
+}

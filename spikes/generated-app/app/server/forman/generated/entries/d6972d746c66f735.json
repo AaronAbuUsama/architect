@@ -1,0 +1,44 @@
+{
+ "kind": "operation",
+ "name": "session.show",
+ "thing": "session",
+ "verb": "show",
+ "identifier": "show",
+ "file": "blueprint/things/session/verbs/show.ts",
+ "description": "Who is signed in.",
+ "payload": {},
+ "answer": {
+  "person": {
+   "value": {
+    "type": "id",
+    "prefix": "per"
+   },
+   "ref": "person.id"
+  },
+  "email": {
+   "value": {
+    "type": "text",
+    "max": 254
+   },
+   "ref": "person.email"
+  }
+ },
+ "move": null,
+ "errors": [],
+ "refusals": [
+  "NotAllowed"
+ ],
+ "allowed": [
+  {
+   "kind": "signed-in"
+  }
+ ],
+ "steps": {},
+ "idempotent": null,
+ "runs": "server",
+ "test": "unit",
+ "budget": {
+  "p95Ms": 100
+ },
+ "hash": "d6972d746c66f735"
+}

@@ -102,7 +102,7 @@ An agent is declared too, so its prompt, skills and tools are part of the model 
 // your app: blueprint/agents/builder.ts (an agent's name comes from its path)
 export default Blueprint.agent({
   instructions: "./builder.md",                      // a template; the brief is filled in per run
-  skills: ["write-a-handler", "read-a-trace"],       // SKILL.md folders (H1.6), loaded on demand
+  skills: [skills.fillABlank, skills.debugAFailingEval],  // SKILL.md folders (H1.6), loaded on demand; names from generated/agents/skills.ts
   tools: Tools.project("read", "list", "write_file", "check"),  // H1.5 (a): project tools, a denied-paths list
   operations: [],                                    // H1.5 (b): the app's operations it may call, as tools
   limits: { maxTurns: 40, maxUsd: 1, wall: "20 minutes" },

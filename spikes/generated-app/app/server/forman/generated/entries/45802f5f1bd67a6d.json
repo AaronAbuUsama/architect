@@ -1,0 +1,59 @@
+{
+ "kind": "read",
+ "name": "organization.get",
+ "thing": "organization",
+ "verb": "get",
+ "identifier": "get",
+ "file": "blueprint/things/organization/verbs/get.ts",
+ "description": "Read one organization by its id: name, owner, state.",
+ "payload": {
+  "id": {
+   "value": {
+    "type": "id",
+    "prefix": "org"
+   },
+   "ref": "organization.id"
+  }
+ },
+ "answer": {
+  "name": {
+   "value": {
+    "type": "text",
+    "max": 200
+   },
+   "ref": "organization.name"
+  },
+  "owner": {
+   "value": {
+    "type": "id",
+    "prefix": "per"
+   },
+   "ref": "organization.owner"
+  },
+  "state": {
+   "value": {
+    "type": "text",
+    "max": 64
+   }
+  }
+ },
+ "move": null,
+ "errors": [],
+ "refusals": [
+  "NotAllowed"
+ ],
+ "allowed": [
+  {
+   "kind": "role",
+   "role": "organization.owner"
+  }
+ ],
+ "steps": {},
+ "idempotent": null,
+ "runs": "server",
+ "test": "unit",
+ "budget": {
+  "p95Ms": 50
+ },
+ "hash": "45802f5f1bd67a6d"
+}
