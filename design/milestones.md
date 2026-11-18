@@ -250,14 +250,19 @@ refused with `HandleTaken` through the SDK, the CLI, MCP, an action and the hook
 
 ## M3: The factory, with people as workers
 
-**Goal.** `@orthograph/work` takes a mission over a project, works out its tasks from the model and the facts, and lets
-people and outside agents (Claude Code through the factory's CLI or MCP) work them. Only a fact closes a task.
+**Goal.** `@orthograph/work` holds a board of work items ([`decisions/K11-work-board.md`](decisions/K11-work-board.md)):
+the manager plans a goal onto it from Aaron's words, a spec, a failing check, the ledger or the model's gaps; dispatch
+runs ready items in parallel without two touching the same files; people and outside agents (Claude Code through the
+work CLI or MCP) work them. Only a fact closes an item.
+**Spikes before it** (K11, any time, off every gate): `spikes/dispatch-sim` (the dispatch rules on a synthetic plan) and
+`spikes/work-board` (the board over `examples/work`'s generated API, one real goal: links stage 1).
 **Ships.** The factory plugin ([`frame/examples/factory.md`](frame/examples/factory.md)); declared workflows on Effect's
 Cloudflare engine; the logbook adapter; the generated agent kit ([`frame/generators.md`](frame/generators.md));
 `ortho ci`.
-**Gate.** `nx run e2e:m3`: a mission "allowances to production" over acme shows its derived tasks in their columns; a
-person claims `build:allowance.revoke` with `work task claim`, pushes a branch, the local CI proves it and the verdict
-closes the task; closing a task by hand is refused; evicting the manager's Durable Object mid-loop dispatches nothing
+**Gate.** `nx run e2e:m3`: a goal "allowances to production" over acme is planned onto the board, the model's gaps
+among its items; a person claims `build:allowance.revoke` with `work item claim`, pushes a branch, the local CI proves
+it and the verdict closes the item; closing an item by hand is refused; dispatch never runs two items that touch the
+same path; evicting the manager's Durable Object mid-loop dispatches nothing
 twice; `generated/agents/` passes its drift check.
 
 | id | what | needs | kind | done when | size |
@@ -265,19 +270,22 @@ twice; `generated/agents/` passes its drift check.
 | M3.01 | `Blueprint.workflow`: its shape (activities, `await` on an event, durable clocks), where it lives, and the Effect and platform-cloudflare pins. Starts from K5 seam 6: an activity is keyed by run id and activity name; the workshop's publish is the example; settles wake-up, deduplication and replay, and settles where `emits:` on an operation with no machine sits beside workflows (K5 Q5, Aaron: "B, on the operation"; built in M3.16) | Gate M2 | decision | `decisions/M3-workflows.md` written | S |
 | M3.02 | `effect` 4.1.1 to 4.1.3 everywhere, as its own slice | M3.01 | build | every existing gate still green | M |
 | M3.03 | `CloudflareWorkflowEngine` under local workerd: does a replay after eviction skip finished activities? | M3.02 | spike | `spikes/effect-workflow-workerd/README.md` answers it with a run | S |
-| M3.04 | Journeys for the factory (W1): its operations, and "derived, never stored", "only a fact closes", claims, attention | M3.01 | checks | they fail on empty handlers | M |
+| M3.04 | Journeys for the factory (W1) in K11's shape ([`decisions/K11-work-board.md`](decisions/K11-work-board.md)): goal, item, claim, board, question, attention; "only a fact closes", claims and leases, touches never shared while running, attention | M3.01 | checks | they fail on empty handlers | M |
 | M3.05 | `@orthograph/work` as a feature: the work blueprint moves into a package, mounted by `examples/work`; choice `workers: people` (agents comes in M4) | M3.04 | build | the work app proves with the plugin mounted | M |
 | M3.06 | Its handlers (W2) | M3.05 | build | all but `mission.tasks` journeys pass | M |
 | M3.07 | The logbook adapter, hand-written (S18): `facts.list` and the models per revision | M3.06 | build | a factory read returns acme's verdicts from a local logbook | S |
 | M3.08 | Events in through `on:`, first for one adapter: `logbook.events.verdictRecorded` wakes `mission.notice` as `service(logbook)` | M3.07 | build | a posted verdict calls `mission.notice` once, even when posted twice | M |
-| M3.09 | Tasks derived (W3): kinds `write:journey`, `build`, `fix`, `improve`, plus attention, from the model and the facts | M3.07 | build | a mission over acme shows the tasks `factory.md` lists, each in its column | M |
+| M3.09 | The model's gaps as a source (W3, K11): kinds `write:journey`, `build`, `fix`, `improve`, worked out from the model and the facts, filed as items by `goal.plan`, never the board itself | M3.07 | build | a mission over acme shows the tasks `factory.md` lists, each in its column | M |
 | M3.10 | The manager as a declared workflow, one per mission, waiting on durable deferreds and a daily clock (absorbs L5.04 for the factory) | M3.03, M3.08, M3.09 | build | killing its Durable Object mid-loop starts nothing twice | M |
-| M3.11 | Claims for people and outside agents: `work task claim` writes the brief and a branch, over the CLI and MCP | M3.09 | build | a scripted claim, push and CI run closes the task by its verdict | M |
+| M3.11 | Claims for people and outside agents: `work item claim` writes the brief and a branch, over the CLI and MCP | M3.09 | build | a scripted claim, push and CI run closes the item by its verdict | M |
 | M3.12 ∥ | **Parked** with the skills design (PR #37; K5). The `agents` projection, built on `builder`: skills, role definitions and rules under `generated/agents/`, neutral, Claude Code and Pi forms, the Markdown header (S8, S10 to S13) | M3.05 | build | a model change rewrites the kit; a hand edit fails the drift check | L |
 | M3.13 ∥ | `ortho ci <stage>` and the short scaffolded workflow (S9) | M3.11 | build | `ortho new` projects run test worlds and verdicts through it | M |
-| M3.14 ∥ | **Parked** (K5, Aaron's decision 2: no separate plans or factory surfaces). The portal's Work side: board, KPIs, attention | M3.09 | build | the board in the portal matches `work mission board` | M |
+| M3.14 ∥ | **Replaced by M3.17** (K11: the board is an extension of the one portal, not a separate surface). Was: the portal's Work side: board, KPIs, attention | M3.09 | build | the board in the portal matches `work mission board` | M |
 | M3.16 ∥ | `emits:` on an operation with no machine (K5 Q5): the event committed with the call's writes, only on success, and only when the call wrote | M3.01 | build | journeys assert `DraftEdited` present after a successful edit, absent after `DraftChanged`, and absent after an unchanged edit | S |
-| M3.15 | **Gate M3** | M3.02 to M3.11, M3.13, M3.16 | e2e | `nx run e2e:m3` passes on `main` | S |
+| M3.17 ∥ | The board extension (K11): HeroUI Pro's Kanban parts with our own server-owned hook (`spikes/kanban-components`), the machine refusing illegal drops on the client, typed refusals on the card, live updates (FAC-08), lanes, "needs you" | M3.06, M1.13, M1.25 | build | the board in the portal matches `work board items`; a drop onto `done` is refused `OnlyAFactCloses` | M |
+| M3.18 | Dispatch (K11): one workflow per board; ready set, touches never shared while running, critical path first, slots, leases with heartbeat, three retries then `block` | M3.10, M3.11 | build | a plan of 12 items over acme with 3 overlapping touches runs with `workers: people` scripted; no two running items share a path; evicting dispatch mid-pass claims nothing twice | M |
+| M3.19 | The manager's planning (K11): `goal.plan` in one commit, acyclic needs, overlap warnings; sources `words`, `spec`, `check`, `ledger`, `model` | M3.09, M3.10 | build | a failing check over acme opens a goal whose plan lands on the board with its needs | M |
+| M3.15 | **Gate M3** | M3.02 to M3.11, M3.13, M3.16 to M3.19 | e2e | `nx run e2e:m3` passes on `main` | S |
 
 ## M4: Agents, proved with the factory
 
@@ -305,7 +313,7 @@ person; (4) the run's trace is read back through `bp.telemetry`. CI uses the loc
 | M4.10 | `@orthograph/agents`: Run, its machine, start, steer, cancel, the system's moves, `Blueprint.agent` | M4.02, M4.09 | build | the agents journeys pass, mounted in acme | M |
 | M4.11 | The builder's typed API and code mode: `generated/builder/bp.d.ts`, the sandbox, the direct tools | M4.10 | build | a builder script lists blanks and runs one journey through `bp` | L |
 | M4.12 ∥ | `bp.telemetry` over `TraceSource`: trace, calls, refusals, defects, slow | M4.11 | build | a script finds the slowest step of a run | M |
-| M4.13 | The join: `workers: agents`, `Blueprint.need(agents, { when })`, dispatch through `agents.run.start`, `runFinished` back through `on:` | M4.10, M4.11 | build | a task dispatched to an agents run closes by its verdict | M |
+| M4.13 | The join: `workers: agents`, `Blueprint.need(agents, { when })`, dispatch through `agents.run.start` keyed by the claim, `runFinished`, `runFailed` and the heartbeat back through `on:` (K11, the seam with K10) | M4.10, M4.11 | build | a task dispatched to an agents run closes by its verdict | M |
 | M4.14 ∥ | The `pi` runner in the bench (A5) and suites, spend and the report (A8), off the gate | M4.04 | build | `bench` writes one suite's report | M |
 | M4.16 | The portal's chat on a durable agent (K5): one `@orthograph/agents` run per thread, the actions as its tools, approvals through the chat | M4.10, M1.24 | build | evicting a chat's run mid-turn resumes it with no second model call; a refused action shows its typed refusal in the thread | M |
 | M4.15 | **Gate M4** | M4.02 to M4.13, M4.16 | e2e | `nx run e2e:m4` passes on `main` | S |
