@@ -97,8 +97,8 @@ export interface OperationModel {
   readonly allowed: ReadonlyArray<AllowedModel>;
   readonly steps: Readonly<Record<string, StepModel>>;
   readonly idempotent: "request" | null;
-  /** Where it runs. Always `server`: the compiler refuses the others until a target supports them. */
-  readonly runs: "server";
+  /** Where it runs: `server`, or `client` (on the caller's device) for a plugin's operation that has a code entry per host. */
+  readonly runs: "server" | "client";
   /** `network` when its guarantee needs a network test (a target sets it); `unit` otherwise. */
   readonly test: "unit" | "network";
   readonly budget: { readonly p95Ms: number } | null;
