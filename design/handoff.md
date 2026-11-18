@@ -46,8 +46,8 @@ is judged by whether it gets us there sooner and truer.
 
 ### The direction (Aaron, 17 and 18 November)
 
-1. **Docs first.** The docs canon (MDX) is the spec the code is built to. **M1 is held** until canon layer 1 is
-   agreed. K5 is agreed.
+1. **Docs first.** The docs canon (MDX) is the spec the code is built to. Canon layer 1 is merged (#38) and
+   K5 is agreed, so M1 has started.
 2. **Everything falls out of the blueprint.** The blueprint is verbose because agents write it. In return, docs, the
    app, live observability and the agent kit are generated, never configured by hand.
 3. **The whole shape is designed together** ([`decisions/K5-the-whole-shape.md`](decisions/K5-whole-shape.md)); the
@@ -66,17 +66,22 @@ is judged by whether it gets us there sooner and truer.
 7. **One growing example, used everywhere, in stages (Aaron, 18 November evening).** It starts as a linktree where
    people claim a username, then gives those users wallets, then a multisig with budgets, then privacy. Each stage is
    a meta-milestone; all four together are v1.0. Each stage is built from reusable pieces (plugins), and the starter
-   and every example change to follow it. The 📐 growing-example thread designs it as K8, including what the app
+   and every example change to follow it. The 📐 growing-example thread designed it as K9 ([`decisions/K9-growing-example.md`](decisions/K9-growing-example.md), PR #55), including what the app
    looks like at each stage, the React hooks slice (designed in `frame/projections.md:261`, owned by no slice), and
-   whether generated actions really make us compatible with agent-native apps. Until K8 lands, the sign-up sheet
+   whether generated actions really make us compatible with agent-native apps. Until K9 lands, the sign-up sheet
    (`examples/signup`) stays the canon's first example and acme the tests' fixture. The earlier mini DAO example
-   (governance, private membership) is folded into stages 3 and 4 or retired by K8.
+   (governance, private membership) is folded into stages 3 and 4 or retired by K9.
 8. **Operations DX (K5):** an operation-level `emits:` lands in the same commit as its writes, only on success, and a
    call that writes nothing emits nothing (Q5 = B; built in M3.16). Steps may be declared optional, and eval 6 still
    checks their order. The scaffold writes a wired function: each step in order, the move, a stub per refusal, every
    hole a `Handlers.blank` that `prove --empty` shows red. `ortho check` warns when a required step never runs
    (all three in M1.26).
-9. **Chains are designed together:** Solidity, Noir and Solana, including contracts we don't write (K7, the war game
+9. **Chains (K7, PR #53, all five forks answered by Aaron on 18 November):** EVM now, Solana and Aztec designed and
+   built later; every contract function reachable, with generated roles; the wallet's first version in M1 (M1.27 to
+   M1.32), signing on every host, linking after auth (M2.13); each wallet declares where its key lives. The EVM chain
+   adapter is vendored from `@prb/effect-evm` into `@orthograph/chain-evm` (M1.30; Aaron: "solid on the vendoring
+   lets do it"). The earlier line follows.
+   **Chains are designed together:** Solidity, Noir and Solana, including contracts we don't write (K7, the war game
    thread). Our own contracts only; other people's are sources behind adapters. K5's Q4 waits on K7.
 10. **The name is Orthograph**, the command `ortho`, the npm scope `@orthograph` (the org exists), with "blueprint"
     kept (K6). The rename sweep has run: the code says it too.
@@ -88,9 +93,9 @@ Five threads, and the conductor (the ledger's closes when #50 merges).
 | # | Line | Branch | PR | Done when | State now | Next |
 |---|---|---|---|---|---|---|
 | ① | **Docs canon (MDX)** | `claude/docs-canon-cf2c38` | #38 merged (layer 1) | Pass 2, every page in layers, checked against the ledger before each layer | Layer 1 merged at `b600bb8`. Pass 2 is running locally: the tickets example proves (six journeys, seven operations), three page rewrites in progress | Opens the next canon PR; takes K8's example changes once they land |
-| ⛓ | **Chain languages war game (K7)** | `spike/chain-languages` | none yet | K7 recorded with its spike evidence, and its batch of questions put to Aaron, together with the wallet plugin's scope | EVM and Solana spikes done; waiting on the Aztec spike (holds port 8880). Found: `wallet.link` needs auth (M2), today's wallet values are EVM-only, linking a private Aztec account to a person undoes its privacy | Opens a PR and brings Aaron the K7 and wallet round |
-| 🧭 | **The growing example (K8)** | `design/growing-example` | none yet | K8 written with each stage's capabilities, pieces, slices, app shape and check; `milestones.md` maps the stages and defines v1.0, with the React hooks slice and the agent-native findings in M1.22 and M1.23; starter and example changes as slices; canon changes listed for the conductor; one PR merged | Started 18 November evening | Grills Aaron on the stages and what the app looks like at each |
-| 🧭 | **M1 plugin path** | `m1` | none (M1 lands as one PR at Gate M1) | M1.01, M1.02, M1.05 to M1.08 and M1.10 on `m1`, each green with its check; check `01` passes through one `ortho add feature`; checks `05` and `06` pass; a 🔍 pass so far; a demo from a fresh starter in `design/goals/03-m1-plugin-path.md` | Started 18 November evening on Aaron's yes | Writes goal 3, then M1.01, the plugin descriptor decision |
+| ⛓ | **Chain languages war game (K7)** | `spike/chain-languages` | #53 | K7 recorded with its spike evidence, and its batch of questions put to Aaron, together with the wallet plugin's scope | EVM and Solana spikes done; waiting on the Aztec spike (holds port 8880). Found: `wallet.link` needs auth (M2), today's wallet values are EVM-only, linking a private Aztec account to a person undoes its privacy | Merges #53 when CI is green, first of the two |
+| 🧭 | **The growing example (K9)** | `design/growing-example` | none yet | K9 written with each stage's capabilities, pieces, slices, app shape and check; `milestones.md` maps the stages and defines v1.0, with the React hooks slice and the agent-native findings in M1.22 and M1.23; starter and example changes as slices; canon changes listed for the conductor; one PR merged | K9 written, 🔍 passed; PR #55 conflicts with #53 on M2.12 | Rebases after #53 merges, then merges |
+| 🧭 | **M1 plugin path** | `m1` | none (M1 lands as one PR at Gate M1) | M1.01, M1.02, M1.05 to M1.08 and M1.10 on `m1`, each green with its check; check `01` passes through one `ortho add feature`; checks `05` and `06` pass; a 🔍 pass so far; a demo from a fresh starter in `design/goals/03-m1-plugin-path.md` | Started 18 November evening on Aaron's yes | M1.01 landed (`b39b30d`); the ✍️ author ports the checks. After M1.10 the wallet path is its too (Aaron's yes): M1.14, M1.27 to M1.32, ending with `acme wallet send` confirming on Anvil |
 | 📒 | **Ledger** | `claude/ledger-canon-k5` | #50 | The ledger matches the merged canon and rename | 🔍 passed at `57f5c89`; 626 items, 190 owned by nothing, 60 high; new row FOR-18 (rule 7 only partly in place) | Merges itself when CI is green |
 
 **Closed, branches kept:**
@@ -121,10 +126,8 @@ in `main`, then delete); `build/portal-pro`, `design/kits-decision`, `design/wor
 
 ### What waits on Aaron
 
-1. **The K8 rounds** from the growing-example thread: the stages and what the app looks like at each.
-2. **The K7 and wallet round** from the war game, when it opens its PR.
-3. **The portal design (M1.25)**, any time now; it must come before M1.13.
-4. **Canon's two open choices:** entity or actor, and ticketing.
+1. **The portal design (M1.25)**, any time now; it must come before M1.13.
+2. **Canon's two open choices:** entity or actor, and ticketing.
 
 ### Next on the critical path
 
