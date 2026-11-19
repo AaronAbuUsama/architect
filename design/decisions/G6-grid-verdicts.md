@@ -1,4 +1,4 @@
-# G3: the grid's verdicts go to a file first, in the logbook's shape
+# G6: the grid's verdicts go to a file first, in the logbook's shape
 
 Decided 19 November 2026 by the checks author, under "Who decides" in `AGENTS.md`.
 
