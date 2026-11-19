@@ -144,7 +144,7 @@ Three habits the frame can't enforce, which `ortho brief` asks for:
 
 `ortho generate` writes two kinds of file, and their first line says which:
 
-```ts file=packages/generators/src/modules/render/internal/names.ts lines=3-4
+```ts file=packages/projections/src/modules/names/internal/names.ts lines=3-4
 export const GENERATED = "// Generated from the blueprint. Do not edit.";
 export const scaffolded = (from: string) => `// Scaffolded from ${from}. Yours from now on.`;
 ```
@@ -158,7 +158,7 @@ export const scaffolded = (from: string) => `// Scaffolded from ${from}. Yours f
 
 A scaffold is never overwritten, because the sync skips any scaffold that already exists:
 
-```ts file=packages/generators/src/modules/sync/service.ts lines=19-23
+```ts file=packages/generators/src/modules/sync/service.ts lines=21-25
 for (const f of files) {
   const path = `${root}/${f.path}`;
   if (f.scaffold && tree.exists(path)) continue;
@@ -175,7 +175,7 @@ That is the point: the compiler tells you what to change, and nothing you wrote 
 order, the move when one is declared, and a stub for each declared refusal. Every hole is a `Handlers.blank`, so the
 file compiles. This is the part of the generator that writes the body:
 
-```ts file=packages/generators/src/modules/render/internal/scaffold.ts lines=78-92
+```ts file=packages/projections/src/modules/handlers/internal/scaffold.ts lines=78-92
 `/** ${op.description} */`,
 `const ${camel(op.verb)}: Handler = (_payload, ${context.length === 0 ? "_context" : `{ ${context.join(", ")} }`}) =>`,
 "  Effect.gen(function* () {",
@@ -326,12 +326,12 @@ would be committed for a call that changed nothing (see `operations`).
 | The frame: `Handler` and `HandlerContext` | `packages/language-effect/src/modules/handler/types.ts:30` | built |
 | The wrapper that runs a handler | `packages/language-effect/src/modules/handler/service.ts:41` | built |
 | `Handlers.blank` and `BlankReached` | `packages/language-effect/src/modules/handler/service.ts:115` | built |
-| The scaffold, comments only today | `packages/generators/src/modules/render/internal/scaffold.ts:7` | built |
+| The scaffold, comments only today | `packages/projections/src/modules/handlers/internal/scaffold.ts:7` | built |
 | Scaffolds never overwritten | `packages/generators/src/modules/sync/service.ts:17` | built |
 | `Blueprint.todo` | `packages/orthograph/src/modules/blanks/service.ts:4` | built |
 | `ortho check` naming blanks | `packages/cli/src/modules/check/internal/blanks.ts:7` | built |
 | `ortho brief` | `packages/cli/src/modules/brief/service.ts:10` | built |
-| The wired scaffold, and the unused-step warning | `packages/generators/src/modules/render/internal/scaffold.ts` and `packages/cli/src/modules/check/` | planned, M1.26 |
+| The wired scaffold, and the unused-step warning | `packages/projections/src/modules/handlers/internal/scaffold.ts` and `packages/cli/src/modules/check/` | planned, M1.26 |
 | `ortho prove --empty` | `packages/prove/src/` | planned, M1.16 |
 | Blanks in the model | `packages/compiler/src/modules/model/internal/describe.ts:45` | planned, M1.03 |
 
@@ -387,7 +387,7 @@ would be committed for a call that changed nothing (see `operations`).
 
 <Note kind="question" id="raw-sql-in-a-handler" slice="M1.17">
   The frame offers `SqlClient` beside `Records`: the generated `Handler` type allows `Records | SqlClient.SqlClient | Auth`
-  (`packages/generators/src/modules/render/internal/api.ts:97`), signup's `join` included. A handler that writes
+  (`packages/projections/src/modules/api/internal/api.ts:97`), signup's `join` included. A handler that writes
   through `SqlClient` writes outside the commit, so its write isn't all-or-nothing with the move and its event, and
   won't work for a thing in another kind of store. Should the frame offer `Records` only, with raw SQL as a declared
   step kind? Ledger: HAN-01, high.

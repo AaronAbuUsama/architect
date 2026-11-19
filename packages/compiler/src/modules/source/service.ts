@@ -43,7 +43,7 @@ export const nodeSource = (given: string) => {
     const known = { name, version: manifest.version ?? "0.0.0", kind: manifest.orthograph.kind ?? "" };
     const loaded = yield* Effect.result(Effect.flatMap(sync(`can't resolve ${name}`, () => resolveFrom(projectRoot, name)), (url) => importing(url, name)));
     return loaded._tag === "Success"
-      ? { ...known, descriptor: loaded.success["default"] }
+      ? { ...known, descriptor: loaded.success["default"], descriptors: Object.fromEntries(Object.entries(loaded.success).filter(([, v]) => ["feature", "adapter", "projection"].includes(String((v as { readonly kind?: unknown } | null)?.kind)))) }
       : { ...known, descriptor: undefined, problem: `${name}: its root export can't be loaded (${loaded.failure.message})` };
   });
 
@@ -66,6 +66,9 @@ export const nodeSource = (given: string) => {
       if (!dir) return yield* new SourceError({ message: `${name}: isn't installed` });
       const manifest = readManifest(join(dir, "package.json")).orthograph;
       const declared = manifest?.blueprint;
+      // A projection brings no declarations and owns no operations to stale: its mount's hash holds its identity (its
+      // package.json), not its sources. What it writes is guarded by drift (`ortho check`), not by the mount's hash (M1.11).
+      if (manifest?.kind === "projection" && declared === undefined) return { integrity: yield* sync(`can't read ${name}`, () => integrityOf(dir, ["package.json"])), files: [] };
       const folder = declared ? join(dir, declared) : undefined;
       if (!folder || !existsSync(folder)) {
         return yield* new SourceError({ message: `${name}: its package.json declares no blueprint folder that exists (orthograph.blueprint is ${JSON.stringify(declared ?? null)})` });

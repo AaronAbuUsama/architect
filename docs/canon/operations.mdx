@@ -439,7 +439,7 @@ sending. It costs one kept answer per key. Leave it off when a second call is ha
 | The request key and the replay | `packages/language-effect/src/modules/handler/service.ts:90` | built |
 | A rerun after a conflict | `packages/language-effect/src/modules/handler/service.ts:91` | built |
 | The nine evals | `packages/prove/src/modules/evals/service.ts:7` | built |
-| Each refusal's code and exit code in every door | `packages/generators/src/modules/render/internal/api.ts:56` | built |
+| Each refusal's code and exit code in every door | `packages/projections/src/modules/api/internal/api.ts:56` | built |
 | Optional steps, eval 6 and the unused-step warning | `packages/prove/src/modules/evals/internal/calls.ts:114` and `ortho check` | planned, M1.26 |
 | An operation's own event | `packages/language-effect/src/modules/handler/service.ts:69` | planned, M3.16 |
 | A bad payload counted as a refusal | `packages/language-effect/src/modules/handler/` | planned, M1.20 |
@@ -497,7 +497,7 @@ sending. It costs one kept answer per key. Leave it off when a second call is ha
   The comment that explains codes gives `[AL-002] AllowanceExceeded { limit: 500 }`
   (`packages/compiler/src/modules/model/internal/codes.ts:1`), and every generated `errors.ts` repeats `[AL-002]`,
   signup's included (`examples/signup/generated/api/src/errors.ts:18`), from
-  `packages/generators/src/modules/render/internal/api.ts:56`. In acme, `AllowanceExceeded` is `AL-001` and carries
+  `packages/projections/src/modules/api/internal/api.ts:56`. In acme, `AllowanceExceeded` is `AL-001` and carries
   `remaining`, not `limit`. The design docs also show `Blueprint.error("AllowanceExceeded", …)` with a name string
   (`design/docs/index.html:373`); the code takes no name, because names come from paths and identifiers. Both should
   match the code. Ledger: OPS-06.

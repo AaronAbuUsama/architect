@@ -361,7 +361,7 @@ secret field at rest. Everything else on it is proved or specified.
 <Note kind="question" id="secret-at-rest">
   What does secret mean for a thing's own field, at rest? The mark keeps it out of telemetry, the journal and MCP. But
   the store keeps every field as it came: D1 gets a `TEXT` column for each one
-  (`packages/generators/src/modules/render/internal/worker-config.ts:62`). acme avoids this by never storing its
+  (`packages/projections/src/modules/server/internal/worker-config.ts:62`). acme avoids this by never storing its
   secrets (Better Auth keeps only a hash). Nothing refuses, hashes or encrypts a secret field on a thing. No ledger
   row or slice owns it yet.
 </Note>

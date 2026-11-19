@@ -1,7 +1,7 @@
 // The Worker's configuration and its database, both from the model.
 import type { Model, StoreModel, ThingModel } from "@orthograph/compiler";
-import type { RenderedFile } from "../types.ts";
-import { GENERATED, bindingOf, databaseStores, lines } from "./names.ts";
+import type { RenderedFile } from "#modules/names/types.js";
+import { GENERATED, bindingOf, databaseStores, lines } from "#modules/names/service.js";
 
 /** The compatibility date every Worker and test uses: the test pool's workerd accepts dates up to 2026-08-22. */
 export const COMPATIBILITY_DATE = "2026-08-01";

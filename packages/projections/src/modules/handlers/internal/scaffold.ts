@@ -1,9 +1,9 @@
 // src/<thing>/<verb>.ts: written once per operation, then the project's own. Never overwritten.
 import { Names } from "orthograph/server";
 import type { OperationModel } from "@orthograph/compiler";
-import type { RenderedFile } from "../types.ts";
+import type { RenderedFile } from "#modules/names/types.js";
 import { callSteps, handlerTypeAt } from "./calls.ts";
-import { camel, lines, scaffolded, toRoot } from "./names.ts";
+import { camel, lines, scaffolded, toRoot } from "#modules/names/service.js";
 
 const runner = (key: string) => /^[A-Za-z_$][\w$]*$/.test(key) ? `steps.${key}` : `steps[${JSON.stringify(key)}]`;
 

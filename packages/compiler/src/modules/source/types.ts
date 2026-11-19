@@ -19,6 +19,8 @@ export interface PluginPackage {
   readonly version: string;
   readonly kind: string;
   readonly descriptor: unknown;
+  /** Every plugin descriptor its root export holds, by export name: a package that ships several (`@orthograph/projections`) has no default. */
+  readonly descriptors?: Readonly<Record<string, unknown>>;
   readonly problem?: string;
 }
 

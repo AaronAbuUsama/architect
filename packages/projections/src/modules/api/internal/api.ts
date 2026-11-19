@@ -1,8 +1,8 @@
 // generated/api: the contract. Endpoints from each operation's own declaration, wire errors, the handler types.
 import { Names } from "orthograph/server";
 import type { Model, OperationModel } from "@orthograph/compiler";
-import type { RenderedFile } from "../types.ts";
-import { GENERATED, NOT_ALLOWED_EXIT, STATUS, declarationAt, lines, onDevice, opVar, pascal, thingFileAt } from "./names.ts";
+import type { RenderedFile } from "#modules/names/types.js";
+import { GENERATED, NOT_ALLOWED_EXIT, STATUS, declarationAt, lines, onDevice, opVar, pascal, thingFileAt } from "#modules/names/service.js";
 
 const file = (path: string, content: string): RenderedFile => ({ path, content, scaffold: false });
 

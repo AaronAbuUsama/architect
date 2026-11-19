@@ -99,8 +99,7 @@ A wrong field, a missing `description`, or an option from another choice is a co
 `Blueprint.feature` and its kin return frozen objects with `kind: "feature" | "adapter" | "projection"`.
 
 **Projection descriptors** are typed here so a third party can write one (ledger PRJ-14, PRJ-32), but the compiler
-reads projection mounts only from M1.11; until then a `blueprint/projections/` mount is recorded in the model and
-generates nothing. **Adapter descriptors** are typed here and mounted from M1.14, which builds their calls (section 9).
+reads projection mounts from M1.11: a mount of one is what writes its `generated/<mount>/` (the last section here). **Adapter descriptors** are typed here and mounted from M1.14, which builds their calls (section 9).
 
 ## 3. The mount and the four verbs
 
@@ -481,3 +480,50 @@ and the lead accepts them as the contract for the builders. Evidence: `design/ev
   Effect over the trace source and the world's journal: steps running or ended, the commit once its span has ended, and
   each event only with a committed commit. Its screens stay M1.13's, on M1.25's design with Aaron; this shape does not
   decide them.
+
+## M1.11: what its builder settled (19 November 2026)
+
+Built to check 12. Where the design was silent the builder decided, and records it here; evidence in
+[`../evidence/M1.11/`](../evidence/M1.11/).
+
+- **One package, `@orthograph/projections`** (`scope:projections`, `env:build`, `layer:1`; X-10). It imports `orthograph`
+  (`Blueprint.projection`, `Host`, `Ships`), `effect` and, for types only, `@orthograph/compiler`. It never imports
+  `generators`, `prove` or a host: the dependency runs the other way, `generators` depends on it. Build-time only, like
+  `compiler` and `generators`: what it generates never imports it. A blueprint mounts it as it mounts any plugin, so
+  `scope:project` may depend on `scope:projections` (`.oxlintrc.json`, both constraint blocks, and `packages.md`).
+- **A package may ship several descriptors.** The compiler's `PluginPackage` gains `descriptors`, every root export whose
+  `kind` is `feature`, `adapter` or `projection`, and a mount is matched to the package that exports its descriptor, by
+  identity. `default` is no longer required. "Mounted once" is now per descriptor, not per package: `server` and `api`
+  are two mounts of one package.
+- **The projection's input and output.** `ProjectionInput` is `{ name, model, mount, mounts }` (the frame's `project`);
+  `Output.path` is relative to `generated/<mount>/`, and the generators write it there. The model is the compiler's, which
+  `orthograph` cannot import, so a projection types it itself.
+- **The mount's name is its folder, and the built-ins hold it to their own names.** `generated/server/` and `generated/api/`
+  are read by name by `prove`, `check`, `environments` and the other renderers, so `server` is refused when mounted as
+  anything but `blueprint/projections/server.ts` (`MountedElsewhere`, naming the file it belongs in). Threading the name
+  through is M1.13's, when the portal and docs stop assuming `generated/api`. A third party's projection has no such limit.
+- **What a mount writes is named in its first line.** A file a mounted projection renders whose first line is the
+  do-not-edit line gets `// Generated from blueprint/projections/<name>.ts. Do not edit.`, done by the generators for every
+  mount alike, so no projection spells it. JSON and SQL files have no such line and keep what they have. The diff of acme's
+  `generated/` is that one line in each of `server/main.ts`, `server/wrangler.jsonc` and the fifteen `api` files, the
+  `mounts` key in `model/model.json` and in `portal/blueprint.json` (which holds the model), and nothing else (PRJ-16).
+- **A projection's mount hashes its identity, not its sources.** `mounts.<name>.integrity` of a projection is the digest of
+  its `package.json`. Hashing every file (as a feature's) would put `model.json`, `portal/blueprint.json` and the compiler's
+  and CLI's acme snapshots out of date on every edit of a renderer, and M1.12 and M1.13 edit this package in parallel. A
+  projection owns no operations a changed mount hash could stale; what its sources write is guarded by drift
+  (`ortho check`, `no-edited-output`), which is the right test of a renderer.
+- **A project that mounts no projection gets the model, the api and the server, as before.** The examples `signup`,
+  `starter` and `work`, the starter the preset copies, and a project made with the preset all generate byte for byte what
+  they did, with the old first line, because no mount is there to name. The moment a project mounts any projection it
+  gets exactly the ones it mounts: that is the rule check 12 judges (no `server.ts`, no `generated/server/`). Only `acme` mounts
+  in M1.11; the others gain their mounts with `ortho new` (M2.09) or when part three lands, whichever comes first. This
+  keeps the published starter (check 1, from a registry) free of a new dependency until `ortho add projection` exists.
+- **What is still fixed.** The SDK, CLI, MCP, docs and portal render as they did (M1.12, M1.13), and so does the blank
+  handler scaffold in the project's `src/`, which is the project's own code and no mount's output. The model projection
+  writes `model.json` and `edges.json`; `changes.json` is the CLI's.
+- **`Render.files` is an Effect.** A projection's `render` is one, so `Render.files({ name, model, root })` is too; `root`
+  is where the mount files are loaded from (the model names each mount's `file`; its default export's `plugin` is the
+  projection). A mount that can't be loaded, or won't render, fails with its file named: `generate` reports it and `check`
+  reports it as drift.
+- **`ortho add projection`** is not part of this slice: a projection package has several exports, so the command needs to
+  be told which. Acme's three mounts are written by hand, as scaffolds say they may be.
