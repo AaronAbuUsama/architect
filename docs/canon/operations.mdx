@@ -349,12 +349,13 @@ The short references are in `packages/prove/src/modules/evals/internal/calls.ts`
 - and in one line: `sheet.join 9 evals ✔ p50 3ms p95 4ms budget p95 150ms`
 
 The run ends with the whole project's coverage, `coverage ✔ moves 3/3 · outcomes 3/3 · refusals 1/1 · runtime
-refusals 2/2`, and `prove ✔`. The end-to-end test holds signup to exactly that:
+refusals 2/4` (no journey yet names a sheet that isn't there, so the generated `SheetNotFound` is never reached; K16),
+and `prove ✔`. The end-to-end test holds signup to exactly that:
 
 ```ts file=e2e/layer1/08-signup-proves.test.ts lines=14-17
 expect(lines.filter((l) => /^journey .* ✔ \d+\/\d+ steps$/.test(l))).toHaveLength(4);
 expect(lines.filter((l) => / 9 evals ✔ /.test(l))).toHaveLength(4);
-expect(lines).toContain("coverage ✔ moves 3/3 · outcomes 3/3 · refusals 1/1 · runtime refusals 2/2");
+expect(lines).toContain("coverage ✔ moves 3/3 · outcomes 3/3 · refusals 1/1 · runtime refusals 2/4");
 expect(lines.at(-1)).toBe("prove ✔");
 ```
 
