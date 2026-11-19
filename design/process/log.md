@@ -16,7 +16,8 @@ gave was checked against its source; where the seed was wrong, the entry says so
   PRs into `main` touch the same few files rarely, but every one must rerun all of CI whenever another lands first.
   The Scribe's process log PR, which changes only `design/process/`, was green with Codex finished four times and
   went behind four times, after PRs 133, 138, 134 and 129 merged in turn. It merged on its fifth run. PR 134 needed
-  three catch-up merges and seven runs; PR 133 one and four; PR 138 one and three. With N PRs waiting it takes N
+  three catch-up merges and started seven `ci` runs before it merged; PR 133 one and four; PR 138 one and three
+  (pull request runs created before the merge, cancelled ones included). With N PRs waiting it takes N
   rounds, and runners were already the bottleneck.
 - **Evidence:** [PR 136](https://github.com/AaronAbuUsama/architect/pull/136): runs
   [44625016111](https://github.com/AaronAbuUsama/architect/actions/runs/44625016111),
@@ -29,7 +30,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
   every PR that raced it.
 - **Found by:** the Scribe, on its own PR.
 - **Recovery:** merged `main` in after each landing until no other PR into `main` was open.
-- **What changed:** nothing yet. Raised with the conductor at 22:50 with three options: a docs-only fast path that
+- **What changed:** nothing yet. Raised with the conductor at 22:50 (session only) with three options: a docs-only fast path that
   skips the heavy jobs as passing (the way `builder-paths` skips), `strict` off on `main`, or a merge queue.
 - **Pattern:** CI that can't tell us anything.
 
@@ -38,7 +39,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What happened:** On PR 136's fifth run, `check` failed: `packages/lint/test/boundaries.test.ts`, "fails lint when
   blueprint imports compiler", took 5.97 seconds against vitest's 5-second default. The test spawns the linter once per
   case, and its siblings in the same run took 3.8 and 5.0 seconds, so it sits at the limit. A rerun of the job passed.
-  The test has not changed since 17 November.
+  Its logic has not changed since 17 November.
 - **Evidence:** run [44633925275](https://github.com/AaronAbuUsama/architect/actions/runs/44633925275), first attempt
   (23:03); its rerun passed at 23:23.
 - **Cost:** one rerun of `check`, about 20 minutes on a PR already four runs deep.
@@ -52,8 +53,8 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What happened:** Goal 3's floor recorded Plugged In's seven stage 1 journeys on empty handlers: 0 of 56 steps
   green. Then the climber wrote the handlers for "claim a handle" and ran prove after each change. Four runs went 3, 3, 5
   and 8 of 8, from 22:02 to 22:06. Each line of the curve is written by `tools/climb/record.mjs` from
-  `ortho prove --report`, never retyped. The stop at 5 of 8 was a framework gap, filed as a snag and fixed in three
-  minutes (the next entry).
+  `ortho prove --report`, never retyped. The stop at 5 of 8 was a gap in the blueprint's rules, filed as a snag and fixed in
+  about two minutes (the next entry).
 - **Evidence:** [PR 135](https://github.com/AaronAbuUsama/architect/pull/135) (the floor, 0 of 56, and the snag log; merged 22:24);
   [PR 140](https://github.com/AaronAbuUsama/architect/pull/140) (8 of 8; merged into `goal/stage-1` 22:41); `design/evidence/climb/runs.jsonl` on
   `goal-3/climb-claim` at caa700df.

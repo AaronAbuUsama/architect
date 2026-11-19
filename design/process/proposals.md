@@ -199,7 +199,7 @@ And `.agents/skills/threads/SKILL.md`, rules every type keeps:
 
 **Applies it:** the conductor (AGENTS.md and the threads skill). Fixed ports in existing checks are a separate builder
 slice: grep for literal ports in `e2e/` and `packages/*/test`.
-**Applied, 19 November:** the rule in [PR 129](https://github.com/AaronAbuUsama/architect/pull/129); the test half (free ports, own folders) in [PR 133](https://github.com/AaronAbuUsama/architect/pull/133).
+**Applied, 19 November:** the rule in [PR 129](https://github.com/AaronAbuUsama/architect/pull/129); the test half (free ports, own folders) in [PR 133](https://github.com/AaronAbuUsama/architect/pull/133). `e2e/m1`'s fixed ports are on `goal/stage-1`, with the Goal 3 lead.
 
 ## 6. A path guard fails a builder PR that touches journeys, evals or checks
 
