@@ -1,0 +1,427 @@
+# Check 19 and handlers.test.ts, red before the build (K16), on origin/m1 at 6419d4b7, 2026-11-19
+
+## packages/projections/src/modules/handlers/handlers.test.ts
+
+ RUN  v4.1.12 <repo>/packages/projections
+ ❯ src/modules/handlers/handlers.test.ts (7 tests | 6 failed) 38ms
+     × writes allowance.spend's scaffold exactly as the golden: header, steps, refusal, one branch per outcome, the answer 32ms
+     × opens with a doc block that cites, for each part, the blueprint file it came from 1ms
+     × says nothing the model doesn't hold: every declared-looking name in the header is one the model declares 0ms
+     × enumerates allowance's eight paths: five allowed transitions and three refused moves, in the machine's order 0ms
+     × gives a thing with no machine no paths, and a creating move no refused path (the runtime never checks it) 0ms
+     × scaffolds one journey per path in blueprint/journeys/, each a scaffold, three of them exactly as their goldens 0ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  src/modules/handlers/handlers.test.ts > K16: the scaffold explains itself (M1.44) > writes allowance.spend's scaffold exactly as the golden: header, steps, refusal, one branch per outcome, the answer
+AssertionError: expected '// Scaffolded from blueprint/things/a…' to be '// Scaffolded from blueprint/things/a…' // Object.is equality
+- Expected
++ Received
+@@ -4,76 +4,20 @@
+  import { Errors } from "../../generated/api/src/index.ts";
+  import type { Handler } from "../../generated/api/src/allowance/spend.handler.ts";
+  const { AllowanceExceeded } = Errors.declared;
+- /**
+-  * allowance.spend: Spend from what is left of this month's allowance.
+-  *
+-  * Who may call, from blueprint/things/allowance/roles.ts:
+-  *   the grantee of the allowance: (allowance, principal) => allowance.member === principal.person
+-  *
+-  * Payload, from blueprint/things/allowance/verbs/spend.ts:
+-  *   allowance  allowance.id
+-  *   amount     Amount
+-  *   memo       Memo
+-  *
+-  * Answer, from blueprint/things/allowance/verbs/spend.ts:
+-  *   remaining  Amount
+-  *
+-  * Refusals:
+-  *   AllowanceExceeded   exit 41  AL-001  yours to refuse below, carrying remaining; from blueprint/things/allowance/errors.ts
+-  *   AllowanceNotActive  exit 40  AL-900  the runtime's, when the allowance isn't in active, carrying state; from blueprint/things/allowance/machine.ts
+-  *   NotAllowed          exit 3   AR-001  the runtime's, when the caller isn't the grantee of the allowance; from blueprint/things/allowance/roles.ts
+-  *
+-  * Idempotent by request, from blueprint/things/allowance/verbs/spend.ts: the same request key from the same caller is one call.
+-  * Budget, from blueprint/things/allowance/verbs/spend.ts: p95 150ms.
+-  *
+-  * The allowance's machine, from blueprint/things/allowance/machine.ts (▶ marks this call):
+-  *     from       move    to         emits
+-  *     (creates)  grant   active     AllowanceGranted
+-  *   ▶ active     spend   active     AllowanceSpent
+-  *   ▶ active     spend   exhausted  AllowanceSpent
+-  *     active     revoke  revoked    AllowanceRevoked
+-  *     exhausted  revoke  revoked    AllowanceRevoked
+-  *
+-  * What the runtime does, so this handler doesn't:
+-  *   before it runs, it refuses NotAllowed unless the caller is the grantee of the allowance;
+-  *   before it runs, it refuses AllowanceNotActive unless the allowance is in active;
+-  *   each step is its own span: allowance.spend.load, allowance.spend.record;
+-  *   once it answers, it sets the allowance's state to the outcome given to move;
+-  *   once it answers, it writes AllowanceSpent: allowance, amount and memo from the payload, remaining from the answer;
+-  *   the call is the span allowance.spend, and its commit allowance.spend.commit.
+-  */
+- const spend: Handler = (_payload, { steps, move }) =>
+-   Effect.gen(function* () {
+-     // Step load: database, span allowance.spend.load.
++ /** Spend from what is left of this month's allowance. */
++ const spend: Handler = (_payload, { steps, move }) =>
++   Effect.gen(function* () {
++     yield* steps.load(Handlers.blank("load: the work this step does"));
+-     yield* steps.load(Handlers.blank("load: the work this step does"));
+-
+-     // AllowanceExceeded: exit 41, AL-001.
++     yield* steps.record(Handlers.blank("record: the work this step does"));
+      if (yield* Handlers.blank<boolean>("refuse AllowanceExceeded when?")) {
+        yield* Effect.logInfo(yield* Handlers.blank("why AllowanceExceeded was refused"));
+-       return yield* new AllowanceExceeded({
+-         remaining: yield* Handlers.blank("AllowanceExceeded.remaining, an Amount"),
+-       });
+-     }
+-
+-     // Step record: database, span allowance.spend.record.
+-     yield* steps.record(Handlers.blank("record: the work this step does"));
+-
+-     // The move spend, from active: one branch per outcome.
+-     if (yield* Handlers.blank<boolean>("does spend end in active?")) {
+-       // To active. From there the allowance can: spend (to active or exhausted), revoke (to revoked).
+-       yield* move("active");
+-     } else {
+-       // To exhausted. From there the allowance can: revoke (to revoked).
+-       yield* move("exhausted");
+-     }
+-
+-     return {
+-       // AllowanceSpent needs remaining, and only the answer can give it.
+-       remaining: yield* Handlers.blank("remaining, an Amount"),
+-     };
++       return yield* new AllowanceExceeded(yield* Handlers.blank("AllowanceExceeded's fields"));
++     }
++     yield* move(yield* Handlers.blank("the move’s outcome"));
++     return yield* Handlers.blank("the answer");
+    });
+  export default spend;
+ ❯ src/modules/handlers/handlers.test.ts:50:32
+     48|   it("writes allowance.spend's scaffold exactly as the golden: header,…
+     49|     expect(scaffold()).toMatchObject({ path: "src/allowance/spend.ts",…
+     50|     expect(scaffold().content).toBe(read("allowance-spend.ts.golden"));
+       |                                ^
+     51|   });
+     52|
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+ FAIL  src/modules/handlers/handlers.test.ts > K16: the scaffold explains itself (M1.44) > opens with a doc block that cites, for each part, the blueprint file it came from
+AssertionError: Who may call, from blueprint/things/allowance/roles.ts:: expected '/** Spend from what is left of this m…' to contain 'Who may call, from blueprint/things/a…'
+Expected: "Who may call, from blueprint/things/allowance/roles.ts:"
+Received: "/** Spend from what is left of this month's allowance. */"
+ ❯ src/modules/handlers/handlers.test.ts:64:29
+     62|       "▶ active     spend   exhausted  AllowanceSpent",
+     63|       "remaining from the answer",
+     64|     ]) expect(header, line).toContain(line);
+       |                             ^
+     65|   });
+     66|
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+ FAIL  src/modules/handlers/handlers.test.ts > K16: the scaffold explains itself (M1.44) > says nothing the model doesn't hold: every declared-looking name in the header is one the model declares
+AssertionError: expected 0 to be greater than 0
+ ❯ src/modules/handlers/handlers.test.ts:75:26
+     73|       ...fields.flatMap((f) => (f.named ? [f.named] : []))]);
+     74|     const names = [...header.matchAll(/\b[A-Z][a-z]+(?:[A-Z][a-z]+)+\b…
+     75|     expect(names.length).toBeGreaterThan(0);
+       |                          ^
+     76|     expect(names.filter((w) => !declared.has(w))).toEqual([]);
+     77|   });
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+ FAIL  src/modules/handlers/handlers.test.ts > K16: one journey stub per path through a thing's machine (M1.45) > enumerates allowance's eight paths: five allowed transitions and three refused moves, in the machine's order
+AssertionError: machinePaths is not exported from the handlers module yet: expected 'undefined' to be 'function' // Object.is equality
+Expected: "function"
+Received: "undefined"
+ ❯ src/modules/handlers/handlers.test.ts:82:98
+     80| describe("K16: one journey stub per path through a thing's machine (M1…
+     81|   it("enumerates allowance's eight paths: five allowed transitions and…
+     82|     expect(typeof k16.machinePaths, "machinePaths is not exported from…
+       |                                                                                                  ^
+     83|     const n = "AllowanceNotActive";
+     84|     expect(k16.machinePaths!(model, "allowance")).toEqual([
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+ FAIL  src/modules/handlers/handlers.test.ts > K16: one journey stub per path through a thing's machine (M1.45) > gives a thing with no machine no paths, and a creating move no refused path (the runtime never checks it)
+AssertionError: machinePaths is not exported from the handlers module yet: expected 'undefined' to be 'function' // Object.is equality
+Expected: "function"
+Received: "undefined"
+ ❯ src/modules/handlers/handlers.test.ts:97:98
+     95|
+     96|   it("gives a thing with no machine no paths, and a creating move no r…
+     97|     expect(typeof k16.machinePaths, "machinePaths is not exported from…
+       |                                                                                                  ^
+     98|     expect(k16.machinePaths!(model, "person")).toEqual([]);
+     99|     expect(k16.machinePaths!(model, "allowance").filter((p) => p.move …
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+ FAIL  src/modules/handlers/handlers.test.ts > K16: one journey stub per path through a thing's machine (M1.45) > scaffolds one journey per path in blueprint/journeys/, each a scaffold, three of them exactly as their goldens
+AssertionError: renderJourneyStubs is not exported from the handlers module yet: expected 'undefined' to be 'function' // Object.is equality
+Expected: "function"
+Received: "undefined"
+ ❯ src/modules/handlers/handlers.test.ts:103:110
+    101|
+    102|   it("scaffolds one journey per path in blueprint/journeys/, each a sc…
+    103|     expect(typeof k16.renderJourneyStubs, "renderJourneyStubs is not e…
+       |                                                                                                              ^
+    104|     const stubs = k16.renderJourneyStubs!(model, "allowance");
+    105|     expect(stubs.map((s) => s.path)).toEqual([
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+ Test Files  1 failed (1)
+      Tests  6 failed | 1 passed (7)
+   Start at  11:30:37
+   Duration  924ms (transform 112ms, setup 0ms, import 746ms, tests 38ms, environment 0ms)
+
+## e2e/m1/19-scaffold-explains.test.ts
+
+ RUN  v4.1.12 <repo>/e2e
+ ❯ m1/19-scaffold-explains.test.ts (7 tests | 6 failed) 20856ms
+     × ortho generate writes allowance.spend's scaffold exactly as the golden, and it compiles 2083ms
+     × ortho add journeys allowance writes the eight stubs, three exactly as their goldens, and they compile 1103ms
+     × never overwrites a stub that is yours: a second run writes nothing and names what is already there 1093ms
+     × the model and ortho check count every unfilled stub as blanks, and the model still compiles 1010ms
+     × a new outcome of spend's move that the handler never chooses is named, with the file 5210ms
+     × a new declared error on spend that the handler never refuses with is named, with the file 5169ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  m1/19-scaffold-explains.test.ts > M1.44: the scaffold explains itself > ortho generate writes allowance.spend's scaffold exactly as the golden, and it compiles
+AssertionError: expected '// Scaffolded from blueprint/things/a…' to be '// Scaffolded from blueprint/things/a…' // Object.is equality
+- Expected
++ Received
+@@ -4,76 +4,20 @@
+  import { Errors } from "../../generated/api/src/index.ts";
+  import type { Handler } from "../../generated/api/src/allowance/spend.handler.ts";
+  const { AllowanceExceeded } = Errors.declared;
+- /**
+-  * allowance.spend: Spend from what is left of this month's allowance.
+-  *
+-  * Who may call, from blueprint/things/allowance/roles.ts:
+-  *   the grantee of the allowance: (allowance, principal) => allowance.member === principal.person
+-  *
+-  * Payload, from blueprint/things/allowance/verbs/spend.ts:
+-  *   allowance  allowance.id
+-  *   amount     Amount
+-  *   memo       Memo
+-  *
+-  * Answer, from blueprint/things/allowance/verbs/spend.ts:
+-  *   remaining  Amount
+-  *
+-  * Refusals:
+-  *   AllowanceExceeded   exit 41  AL-001  yours to refuse below, carrying remaining; from blueprint/things/allowance/errors.ts
+-  *   AllowanceNotActive  exit 40  AL-900  the runtime's, when the allowance isn't in active, carrying state; from blueprint/things/allowance/machine.ts
+-  *   NotAllowed          exit 3   AR-001  the runtime's, when the caller isn't the grantee of the allowance; from blueprint/things/allowance/roles.ts
+-  *
+-  * Idempotent by request, from blueprint/things/allowance/verbs/spend.ts: the same request key from the same caller is one call.
+-  * Budget, from blueprint/things/allowance/verbs/spend.ts: p95 150ms.
+-  *
+-  * The allowance's machine, from blueprint/things/allowance/machine.ts (▶ marks this call):
+-  *     from       move    to         emits
+-  *     (creates)  grant   active     AllowanceGranted
+-  *   ▶ active     spend   active     AllowanceSpent
+-  *   ▶ active     spend   exhausted  AllowanceSpent
+-  *     active     revoke  revoked    AllowanceRevoked
+-  *     exhausted  revoke  revoked    AllowanceRevoked
+-  *
+-  * What the runtime does, so this handler doesn't:
+-  *   before it runs, it refuses NotAllowed unless the caller is the grantee of the allowance;
+-  *   before it runs, it refuses AllowanceNotActive unless the allowance is in active;
+-  *   each step is its own span: allowance.spend.load, allowance.spend.record;
+-  *   once it answers, it sets the allowance's state to the outcome given to move;
+-  *   once it answers, it writes AllowanceSpent: allowance, amount and memo from the payload, remaining from the answer;
+-  *   the call is the span allowance.spend, and its commit allowance.spend.commit.
+-  */
+- const spend: Handler = (_payload, { steps, move }) =>
+-   Effect.gen(function* () {
+-     // Step load: database, span allowance.spend.load.
++ /** Spend from what is left of this month's allowance. */
++ const spend: Handler = (_payload, { steps, move }) =>
++   Effect.gen(function* () {
++     yield* steps.load(Handlers.blank("load: the work this step does"));
+-     yield* steps.load(Handlers.blank("load: the work this step does"));
+-
+-     // AllowanceExceeded: exit 41, AL-001.
++     yield* steps.record(Handlers.blank("record: the work this step does"));
+      if (yield* Handlers.blank<boolean>("refuse AllowanceExceeded when?")) {
+        yield* Effect.logInfo(yield* Handlers.blank("why AllowanceExceeded was refused"));
+-       return yield* new AllowanceExceeded({
+-         remaining: yield* Handlers.blank("AllowanceExceeded.remaining, an Amount"),
+-       });
+-     }
+-
+-     // Step record: database, span allowance.spend.record.
+-     yield* steps.record(Handlers.blank("record: the work this step does"));
+-
+-     // The move spend, from active: one branch per outcome.
+-     if (yield* Handlers.blank<boolean>("does spend end in active?")) {
+-       // To active. From there the allowance can: spend (to active or exhausted), revoke (to revoked).
+-       yield* move("active");
+-     } else {
+-       // To exhausted. From there the allowance can: revoke (to revoked).
+-       yield* move("exhausted");
+-     }
+-
+-     return {
+-       // AllowanceSpent needs remaining, and only the answer can give it.
+-       remaining: yield* Handlers.blank("remaining, an Amount"),
+-     };
++       return yield* new AllowanceExceeded(yield* Handlers.blank("AllowanceExceeded's fields"));
++     }
++     yield* move(yield* Handlers.blank("the move’s outcome"));
++     return yield* Handlers.blank("the answer");
+    });
+  export default spend;
+ ❯ m1/19-scaffold-explains.test.ts:41:33
+     39|     removeAt(root, spend);
+     40|     succeeds(root, "generate");
+     41|     expect(textAt(root, spend)).toBe(readFileSync(join(golden, "allowa…
+       |                                 ^
+     42|     const tsc = typed(root);
+     43|     expect(tsc.status, tsc.stdout + tsc.stderr).toBe(0);
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+ FAIL  m1/19-scaffold-explains.test.ts > M1.45: one journey stub per path through the allowance's machine > ortho add journeys allowance writes the eight stubs, three exactly as their goldens, and they compile
+AssertionError: USAGE
+  ortho add <subcommand> [flags]
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+SUBCOMMANDS
+  thing         
+  operation     
+  read          
+  journey       
+  feature       
+  adapter       
+  projection    
+ERRORS
+  Unknown subcommand "journeys" for "ortho add"
+  Did you mean this?
+    journey
+  Unrecognized flag: --root in command ortho add
+: expected 1 to be +0 // Object.is equality
+- Expected
++ Received
+- 0
++ 1
+ ❯ succeeds m1/support.ts:45:37
+     43| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     44|   const result = run(root, ...args);
+     45|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     46|   return result;
+     47| };
+ ❯ m1/19-scaffold-explains.test.ts:50:19
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+ FAIL  m1/19-scaffold-explains.test.ts > M1.45: one journey stub per path through the allowance's machine > never overwrites a stub that is yours: a second run writes nothing and names what is already there
+AssertionError: USAGE
+  ortho add <subcommand> [flags]
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+SUBCOMMANDS
+  thing         
+  operation     
+  read          
+  journey       
+  feature       
+  adapter       
+  projection    
+ERRORS
+  Unknown subcommand "journeys" for "ortho add"
+  Did you mean this?
+    journey
+  Unrecognized flag: --root in command ortho add
+: expected 1 to be +0 // Object.is equality
+- Expected
++ Received
+- 0
++ 1
+ ❯ succeeds m1/support.ts:45:37
+     43| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     44|   const result = run(root, ...args);
+     45|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     46|   return result;
+     47| };
+ ❯ m1/19-scaffold-explains.test.ts:61:5
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+ FAIL  m1/19-scaffold-explains.test.ts > M1.45: one journey stub per path through the allowance's machine > the model and ortho check count every unfilled stub as blanks, and the model still compiles
+AssertionError: USAGE
+  ortho add <subcommand> [flags]
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|powershell|sh|pwsh>                    Print shell completion script (choices: bash, zsh, fish, powershell, sh, pwsh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+SUBCOMMANDS
+  thing         
+  operation     
+  read          
+  journey       
+  feature       
+  adapter       
+  projection    
+ERRORS
+  Unknown subcommand "journeys" for "ortho add"
+  Did you mean this?
+    journey
+  Unrecognized flag: --root in command ortho add
+: expected 1 to be +0 // Object.is equality
+- Expected
++ Received
+- 0
++ 1
+ ❯ succeeds m1/support.ts:45:37
+     43| export const succeeds = (root: string, ...args: ReadonlyArray<string>)…
+     44|   const result = run(root, ...args);
+     45|   expect(result.status, result.out).toBe(0);
+       |                                     ^
+     46|   return result;
+     47| };
+ ❯ m1/19-scaffold-explains.test.ts:72:5
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+ FAIL  m1/19-scaffold-explains.test.ts > M1.44: ortho check says when the blueprint grew past a handler that is yours > a new outcome of spend's move that the handler never chooses is named, with the file
+AssertionError: blanks left 0
+types ✔
+rules ✔
+drift ✔
+ratchets 0
+check ✔
+: expected [] to have a length of 1 but got +0
+- Expected
++ Received
+- 1
++ 0
+ ❯ m1/19-scaffold-explains.test.ts:98:89
+     96|     succeeds(root, "generate");
+     97|     const out = succeeds(root, "check").out;
+     98|     expect(warnings(out).filter((l) => l.includes(spend) && /\bfrozen\…
+       |                                                                                         ^
+     99|     expect(warnings(out).filter((l) => /\b(?:active|exhausted)\b/.test…
+    100|   });
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+ FAIL  m1/19-scaffold-explains.test.ts > M1.44: ortho check says when the blueprint grew past a handler that is yours > a new declared error on spend that the handler never refuses with is named, with the file
+AssertionError: blanks left 0
+types ✔
+rules ✔
+drift ✔
+ratchets 0
+check ✔
+: expected [] to have a length of 1 but got +0
+- Expected
++ Received
+- 1
++ 0
+ ❯ m1/19-scaffold-explains.test.ts:110:98
+    108|     succeeds(root, "generate");
+    109|     const out = succeeds(root, "check").out;
+    110|     expect(warnings(out).filter((l) => l.includes(spend) && l.includes…
+       |                                                                                                  ^
+    111|     expect(warnings(out).filter((l) => l.includes("AllowanceExceeded")…
+    112|   });
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+ Test Files  1 failed (1)
+      Tests  6 failed | 1 passed (7)
+   Start at  11:30:02
+   Duration  21.03s (transform 35ms, setup 0ms, import 49ms, tests 20.86s, environment 0ms)
