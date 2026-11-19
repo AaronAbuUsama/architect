@@ -7,7 +7,7 @@ import { HttpApiBuilder } from "effect/http-api";
 import { SqlClient } from "effect/sql";
 import type { Principal } from "orthograph";
 import { AuthD1, Database, JournalD1, StoreD1, Telemetry, toWorld } from "@orthograph/host-cloudflare";
-import { Auth, Busy, BusyLive, CallTelemetry, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@orthograph/language-effect";
+import { Auth, Busy, BusyLive, CallTelemetry, Environment, Handlers, Journal, Principals, Reads, Store, Wire, thingIn } from "@orthograph/language-effect";
 import { Mcp, type McpResult } from "@orthograph/language-effect";
 import { Api, Errors } from "../api/src/index.ts";
 import * as portal from "../portal/main.ts";
@@ -28,11 +28,11 @@ import * as profileThing from "../../blueprint/things/profile/thing.ts";
 
 export { World } from "@orthograph/host-cloudflare";
 
-const handleClaimServed = Handlers.serve({ name: "handle.claim", operation: handleClaim.declaration, handler: handleClaimHandler });
-const linkAddServed = Handlers.serve({ name: "link.add", operation: linkAdd.declaration, handler: linkAddHandler });
-const linkOrderServed = Handlers.serve({ name: "link.order", operation: linkOrder.declaration, handler: linkOrderHandler });
-const linkRemoveServed = Handlers.serve({ name: "link.remove", operation: linkRemove.declaration, handler: linkRemoveHandler, notFrom: "LinkNotListed" });
-const profileGetServed = Handlers.serve({ name: "profile.get", operation: profileGet.declaration, handler: profileGetHandler });
+const handleClaimServed = Handlers.serve({ name: "handle.claim", operation: handleClaim.declaration, handler: handleClaimHandler, codes: Errors.codes });
+const linkAddServed = Handlers.serve({ name: "link.add", operation: linkAdd.declaration, handler: linkAddHandler, codes: Errors.codes });
+const linkOrderServed = Handlers.serve({ name: "link.order", operation: linkOrder.declaration, handler: linkOrderHandler, codes: Errors.codes });
+const linkRemoveServed = Handlers.serve({ name: "link.remove", operation: linkRemove.declaration, handler: linkRemoveHandler, notFrom: "LinkNotListed", codes: Errors.codes });
+const profileGetServed = Handlers.serve({ name: "profile.get", operation: profileGet.declaration, handler: profileGetHandler, codes: Errors.codes });
 
 /** Each thing and its table: a D1 table, or the name its actors go by. */
 const tables = [[thingIn(handleThing), "handle"], [thingIn(linkThing), "link"], [thingIn(profileThing), "profile"]] as const;
@@ -101,7 +101,7 @@ const build = (env: Env) =>
     HttpApiBuilder.layer(CallApi).pipe(
       Layer.provide([HandleLive, LinkLive, ProfileLive]),
       Layer.provideMerge(CallTelemetry.layer),
-      Layer.provide([StoreD1.layer({ tables }), JournalD1.layer, BusyLive, AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))]),
+      Layer.provide([StoreD1.layer({ tables }), JournalD1.layer, BusyLive, Layer.succeed(Environment, env.ORTHO_ENVIRONMENT || "local"), AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))]),
       Layer.provideMerge(Database.d1(env.DB)),
       Layer.provide(HttpServer.layerServices),
     ),
@@ -132,7 +132,7 @@ const tools = Mcp.tools<Services>({
 let mcpRuntime: ManagedRuntime.ManagedRuntime<Services, never> | undefined;
 const runtimeOf = (env: Env) =>
   (mcpRuntime ??= ManagedRuntime.make(
-    Layer.mergeAll(StoreD1.layer({ tables }), JournalD1.layer, BusyLive, AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))).pipe(Layer.provideMerge(Database.d1(env.DB))),
+    Layer.mergeAll(StoreD1.layer({ tables }), JournalD1.layer, BusyLive, Layer.succeed(Environment, env.ORTHO_ENVIRONMENT || "local"), AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))).pipe(Layer.provideMerge(Database.d1(env.DB))),
   ));
 
 const TRACEPARENT = /^00-([0-9a-f]{32})-([0-9a-f]{16})-[0-9a-f]{2}$/;
