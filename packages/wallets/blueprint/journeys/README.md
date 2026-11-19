@@ -2,7 +2,7 @@
 
 Written by the ✍️ author of slice M1.28 for `@orthograph/wallets`, which M1.29 builds; the refusal journeys below were
 added once M1.29 existed, because the first four reached only `SimulationReverted` and coverage found `KeyLocked` and
-`NoSuchKey` reached by no journey. **The builder of M1.29 never edits these files** (AGENTS.md, "Journeys and checks come first"); `e2e/m1/09-wallet-journeys.test.ts` fails if a copy in
+`NoSuchKey` reached by no journey; `zz-depth-three.ts` was added by the ✍️ author of M1.38. **The builder of M1.29 never edits these files** (AGENTS.md, "Journeys and checks come first"); `e2e/m1/09-wallet-journeys.test.ts` fails if a copy in
 `packages/wallets/blueprint/journeys/` differs by one byte.
 
 ## What is here
@@ -13,6 +13,7 @@ added once M1.29 existed, because the first four reached only `SimulationReverte
 | `browser.ts` | wallet on the browser signer | EIP-1193 provider, on the browser host |
 | `keystore.ts` | wallet on the keystore signer | a server's key store, holding a world-generated test key |
 | `world.ts` | wallet on the world signer | the world's own test wallets |
+| `zz-depth-three.ts` | wallet at depth three on the world signer | the world's own test wallets, on a chain whose depth is three (M1.38, below) |
 
 Each story is the same eight steps, so a signer that behaves differently shows up as the one journey that fails:
 create a key; list it (1); import the world's funded key; list both (2); sign a message; send and see `confirmed` at
@@ -34,11 +35,30 @@ reports an error "reached by no journey" otherwise, and any app mounting the wal
 | `import` | `<signer>-refusals.ts` (four), `no-signer.ts` | | |
 | `keys` | `no-signer.ts` | | |
 | `sign` | `no-signer.ts` | `<signer>-refusals.ts` (four) | |
-| `send` | `no-signer.ts` | `<signer>-refusals.ts` (four) | the four stories |
+| `send` | `no-signer.ts` | `<signer>-refusals.ts` (four) | the four stories, `zz-depth-three.ts` |
 
 The refusal journeys make no key and send nothing, so they leave the world as they found it and the stories' counts (`keys`
 answers 1, then 2; nonce 0, then 1) hold in any order. They never need a world of their own, and name no key or address
 (`chain.payee` is the only thing read from the world).
+
+### The depth-three journey (M1.38)
+
+`zz-depth-three.ts` is three steps on the world signer: import the world's funded key under a label of its own (`deep`), send and see it `confirmed`
+with a `wallet.send.level` span in the send's trace, and a send the chain would revert refused as
+`SimulationReverted` before anything is sent. It is the journey of K7 F2's depth: a send answers `confirmed` only once the
+chain's declared number of blocks count (the including block first), so **the world it runs in must declare depth three on
+its chain and must keep mining** (a world mines by `evm_mine` or an interval; the journey cannot mine). Its names are those of
+check 18 (`e2e/m1/18-confirmation-depth.test.ts`, which holds the depth itself: it mines block by block over RPC and reads the
+level the send reports at 0, 1, 2 and 3 blocks). `s.world.chain.depth` is the number the world declares; nothing in the
+journey names it, because a journey cannot say what chain it needs. How prove stands this journey's chain at depth three (a
+declaration for the wallet journeys' world, read by prove's device host the way it reads `chain` today) is the builder of M1.38's
+call, and is the one thing this journey asks of prove that exists nowhere yet. At depth one it would pass for the wrong
+reason; check 18's own steps are what prove the depth.
+
+It is the one journey that is not independent of the others: it shares the world signer, and the world's funded key, with
+`world.ts`, so it names its key's label `deep` (the same funded key under a second label, so `world.ts`'s own label and its
+counts are not touched) and has no nonce check, and its file name sorts last (`zz-`) so it runs after `world.ts`, whose
+`keys` counts (1, then 2) and nonces (0, then 1) it would otherwise move. Check 09 holds both.
 
 Not reached, because no journey can put a world's signer in that state (the world gives a node signer its own passphrase,
 its own provider never declines, a key stored is always a key): a node keystore with no or a wrong passphrase, a browser
@@ -47,7 +67,7 @@ could lock a signer would let a journey reach them.
 
 ## How M1.29's builder picks them up
 
-1. Copy these nine files, unchanged, to `packages/wallets/blueprint/journeys/` (`cp`, not a rewrite).
+1. Copy these ten files, unchanged, to `packages/wallets/blueprint/journeys/` (`cp`, not a rewrite).
 2. They import `../things/wallet/verbs/{create,import,keys,sign,send}.js` and `../things/wallet/errors.js`. Write
    those declarations in the package so those imports resolve, with the **contract** below. The stand-in's own
    declarations (`../things/wallet/`, beside this folder) are the reference, but the package may add to them.
