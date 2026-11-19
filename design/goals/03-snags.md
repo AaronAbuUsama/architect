@@ -119,3 +119,16 @@ takes each, check first, and the climber comes back to that step once it is fixe
   framework, check first.
 - HAN-15: the answer-shape eval lets a sign-in answer omit its issued token. Open, a checks slice.
 - Status: open (HAN-13 parked, M7.03)
+
+## S-18 · prove · a device-path world can't hold its chain (blocks HAN-11)
+- Hit: the journeys for HAN-11's two new wallet refusals (#113, #114). The coverage eval rightly asks for a journey
+  reaching `SendNotIncluded` and `SendNotConfirmed`; none can be written.
+- Why: `packages/prove/src/modules/prove/internal/device-host.ts:21-33` hard-codes depth 3 and one Anvil mining every
+  second for every journey; the journey `Script` (`packages/orthograph/src/modules/journeys/types.ts:70-79`) has no way
+  to hold mining; the wallet's send budget is chain-evm's 120 s default (`packages/chain-evm/src/modules/tx/service.ts:16`),
+  renewed on every block, and the wallet reads no budget setting (`packages/wallets/src/modules/chain/service.ts:10-12`).
+- Needs: chain settings a starting world declares (mining held or interval, depth, send budget), read by `deviceHost`
+  instead of the constants, and passed to the wallet. A framework slice: decision, then check, then builder.
+- Call (Goal 3 lead): park HAN-11 behind the climb. #113 and #114 stay open, unmerged; the slice is taken when a builder
+  is free of S-04 and S-01 to S-03. No stub chain, no unreachable RPC, no coverage exemption.
+- Status: open
