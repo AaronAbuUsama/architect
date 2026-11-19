@@ -1567,11 +1567,19 @@
     "note": "Added after the 🔍 review of #69: M1.40 is declarations only, so the loop needs real handlers inside M1.",
     "stage": "backlog",
     "thread": "conductor"
+   },
+   {
+    "at": "2026-11-19T11:33:45Z",
+    "note": "K16: needs M1.44 and M1.45, so its handlers are written from the scaffold that explains itself.",
+    "stage": "backlog",
+    "thread": "k16-author"
    }
   ],
   "lane": "M1",
   "needs": [
-   "M1.41"
+   "M1.41",
+   "M1.44",
+   "M1.45"
   ],
   "plain": "Real handlers for the links app, so the end-to-end check can commit real calls.",
   "pr": 69,
@@ -1580,9 +1588,59 @@
   "stage": "backlog",
   "thread": "m1-lead",
   "title": "Links' handlers",
-  "updatedAt": "2026-11-19T09:47:54Z",
+  "updatedAt": "2026-11-19T11:33:45Z",
   "waiting": null,
   "what": "examples/links' handlers at stage 1, written against M1.41 by a builder who didn't write it: claim a handle (a taken one refused with HandleTaken), add, order and remove a link, read a page; one store, no sign-in. ST1.03 later moves the claim into @orthograph/handles and ST1.04 adds sign-in."
+ },
+ "M1-44": {
+  "doneWhen": "check 19's scaffold and drift tests and handlers.test.ts's K16 scaffold tests pass; check 10 still passes",
+  "history": [
+   {
+    "at": "2026-11-19T11:33:45Z",
+    "note": "Added by K16 (Aaron, 19 November: the scaffold reads the machine, on the critical path). Checks written first by the ✍️ author: check 19 and handlers.test.ts, red on claude/k16-checks.",
+    "stage": "checks",
+    "thread": "k16-author"
+   }
+  ],
+  "lane": "M1",
+  "needs": [
+   "M1.26"
+  ],
+  "plain": "A new handler opens by explaining itself: who may call, every refusal, the whole machine, what the runtime does; one branch per outcome.",
+  "pr": null,
+  "questions": [],
+  "ref": "M1.44",
+  "stage": "checks",
+  "thread": "k16-author",
+  "title": "The scaffold explains itself",
+  "updatedAt": "2026-11-19T11:33:45Z",
+  "waiting": null,
+  "what": "renderHandlerScaffold(op, path, model) opens with a doc block citing each part's blueprint file (who may call, payload, answer, refusals with fields and exit codes, idempotency, budget, the thing's machine with this call's rows marked, what the runtime does); a section per step, a refusal block with a blank per field, one branch per outcome saying what can follow, the answer with a note where only it can give an event field; ortho check warns on an outcome or declared error the handler never names."
+ },
+ "M1-45": {
+  "doneWhen": "check 19's journey tests and handlers.test.ts's path and stub tests pass: allowance's eight stubs, three byte for byte",
+  "history": [
+   {
+    "at": "2026-11-19T11:33:45Z",
+    "note": "Added by K16 (Aaron, 19 November: the scaffold reads the machine, on the critical path). Checks written first by the ✍️ author: check 19 and handlers.test.ts, red on claude/k16-checks.",
+    "stage": "checks",
+    "thread": "k16-author"
+   }
+  ],
+  "lane": "M1",
+  "needs": [
+   "M1.44"
+  ],
+  "plain": "Every path through a thing's lifecycle, allowed and refused, gets a journey to fill in.",
+  "pr": null,
+  "questions": [],
+  "ref": "M1.45",
+  "stage": "checks",
+  "thread": "k16-author",
+  "title": "Journey stubs per machine path",
+  "updatedAt": "2026-11-19T11:33:45Z",
+  "waiting": null,
+  "what": "machinePaths(model, thing) lists every allowed transition and every refused move; ortho add journeys <thing> writes one scaffold per path to blueprint/journeys/<thing>-<verb>-<path>.ts with its world, payload and expected fields as Blueprint.todo, writing only the missing ones; the model lists a journey with blanks and prove skips it, named."
  },
  "M2-01": {
   "doneWhen": "decisions/M2-auth.md written",
