@@ -1,4 +1,4 @@
-// Check 23 (HAN-10, `design/ledger.md`): a request key used again with another payload is a typed built-in refusal.
+// Check 24 (HAN-10, `design/ledger.md`): a request key used again with another payload is a typed built-in refusal.
 //
 // PR #95 (M1.35) made a reused request key with a different payload refuse instead of answering the first call's answer
 // (`IdempotencyConflict`, `language-effect/src/modules/handler/service.ts`). But the refusal is only a class in the runtime:
@@ -10,10 +10,10 @@
 // What the check chooses (the design is silent on this refusal's row; the choices follow the others'):
 //  - code `AR-002`. A runtime refusal belongs to no thing and takes the `AR` prefix (`compiler/.../model/internal/codes.ts`,
 //    `RUNTIME_CODES = { NotAllowed: "AR-001" }`), numbered in the order the runtime gained them: this is the second.
-//  - exit `5`. The CLI exits with the refusal's own exit and the runtime keeps 0 to 4 for itself (M1.47: success, a defect,
-//    `InvalidPayload`, `NotAllowed`, `<Thing>NotFound`); a refusal needs an exit of its own that no declared one can take, and 5
-//    is the next. The compiler's reserved set grows by it (`RESERVED_EXITS`, and the 5 to 125 a declared refusal may pick starts
-//    at 6): a declared exit of 5 is refused naming `IdempotencyConflict`, as a declared 3 is refused naming `NotAllowed`.
+//  - exit `120`. The CLI exits with the refusal's own exit, and the runtime keeps 0 to 4 (success, a defect, `InvalidPayload`,
+//    `NotAllowed`, `<Thing>NotFound`) and 120 to 125; a declared exit is 5 to 119 (`design/decisions/G3-runtime-exits.md`, the
+//    lead's call: 5 is acme's `AllowanceExceeded` and the canon quotes it, so 5 was not free). `IdempotencyConflict` is 120.
+//    The compiler refuses a declared 120 as IdempotencyConflict's, 121 to 125 as the runtime's, and 126 as outside 5 to 119.
 //  - status `409`. The refusal says the request clashes with what the server already holds for that key, the same
 //    "conflicts with current state" as the machine's `<Thing>NotFrom` (409), and not the caller's payload being wrong (422) or
 //    the caller not being allowed (403).
@@ -49,7 +49,7 @@ import { freePort, runCli, runSdk } from "./clients.ts";
 import { acme, copyOf, model, nothingRunning, run, succeeds, textAt } from "./support.ts";
 
 const CODE = "AR-002";
-const EXIT = 5;
+const EXIT = 120;
 const STATUS = 409;
 const KEY = "han10-key";
 
@@ -151,7 +151,7 @@ const reused = async (key: string) => {
 
 // ---- the controls: true today ----
 
-describe("23 controls: what a reused key does today", () => {
+describe("24 controls: what a reused key does today", () => {
   it("answers the first call, and the same key with the same payload is answered with the first answer, committing once", async () => {
     const { allowance, olga } = await fund();
     const first = await spend(olga, allowance, "100", "han10-replay");
@@ -176,7 +176,7 @@ describe("23 controls: what a reused key does today", () => {
 
 // ---- the refusal is a row of the table, as the others are ----
 
-describe("23 HAN-10: IdempotencyConflict is a built-in refusal of the model and of the generated table", () => {
+describe("24 HAN-10: IdempotencyConflict is a built-in refusal of the model and of the generated table", () => {
   it("has a code in the model, and an idempotent operation (not another) lists it", () => {
     const m = model(copy.root) as unknown as { refusals: Record<string, string>; operations: Record<string, { refusals: ReadonlyArray<string> }> };
     expect(m.refusals, "beside NotAllowed's AR-001").toMatchObject({ NotAllowed: "AR-001", IdempotencyConflict: CODE });
@@ -194,21 +194,36 @@ describe("23 HAN-10: IdempotencyConflict is a built-in refusal of the model and 
     expect(textAt(copy.root, "generated/api/src/allowance/revoke.ts"), "revoke's does not").not.toMatch(/IdempotencyConflict/);
   });
 
-  it("reserves its exit: a declared refusal at exit 5 is refused by the compiler, naming IdempotencyConflict", () => {
+  it.each([
+    [120, /AllowanceExceeded's exit 120 is IdempotencyConflict's; pick another/],
+    [122, /AllowanceExceeded's exit 122 is the runtime's; pick another/],
+    [126, /AllowanceExceeded's exit 126 is outside 5 to 119/],
+  ])("reserves the runtime's exits: a declared exit of %i is refused, naming why", (exit, message) => {
     const root = copyOf(acme);
     try {
       const file = join(root.root, "blueprint/things/allowance/errors.ts");
-      writeFileSync(file, readFileSync(file, "utf8").replace("{ remaining: Amount }, { exit: 41 }", `{ remaining: Amount }, { exit: ${EXIT} }`));
+      writeFileSync(file, readFileSync(file, "utf8").replace("{ remaining: Amount }, { exit: 41 }", `{ remaining: Amount }, { exit: ${exit} }`));
       const out = run(root.root, "model");
       expect(out.status, out.out).not.toBe(0);
-      expect(out.out).toMatch(new RegExp(`AllowanceExceeded's exit ${EXIT} is IdempotencyConflict's; pick another`));
+      expect(out.out).toMatch(message);
     } finally { root.remove(); }
+  });
+
+  it("control: 5 and 119, the ends of what a blueprint may declare, still compile", () => {
+    for (const exit of [5, 119]) {
+      const root = copyOf(acme);
+      try {
+        const file = join(root.root, "blueprint/things/allowance/errors.ts");
+        writeFileSync(file, readFileSync(file, "utf8").replace("{ remaining: Amount }, { exit: 41 }", `{ remaining: Amount }, { exit: ${exit} }`));
+        expect(run(root.root, "model").status, `exit ${exit}`).toBe(0);
+      } finally { root.remove(); }
+    }
   });
 });
 
 // ---- each door a person meets ----
 
-describe("23 HAN-10: over HTTP", () => {
+describe("24 HAN-10: over HTTP", () => {
   it(`answers ${STATUS} with the refusal's tag and code, no key and no detail, and not a defect`, async () => {
     const { first, second } = await reused("han10-http");
     expect(first.status).toBe(200);
@@ -234,7 +249,7 @@ const withOneKey = async (target: string, key: string) => {
   return { url: `http://127.0.0.1:${(server.address() as AddressInfo).port}`, close: () => new Promise<void>((resolve) => { server.closeAllConnections(); server.close(() => resolve()); }) };
 };
 
-describe("23 HAN-10: through the SDK", () => {
+describe("24 HAN-10: through the SDK", () => {
   // The SDK's per-call `{ requestKey }` is M1.12's and not on every base, so the key is fixed by a proxy, as for the CLI.
   const program = [
     "const layer = Sdk.layer(env.SDK_URL, env.TOKEN);",
@@ -256,7 +271,7 @@ describe("23 HAN-10: through the SDK", () => {
 
   it("is catchable by its tag, as NotAllowed is: the program type-checks", () => {
     succeeds(copy.root, "generate");
-    const dir = join(copy.root, ".ortho/types-23");
+    const dir = join(copy.root, ".ortho/types-24");
     mkdirSync(dir, { recursive: true });
     writeFileSync(join(dir, "program.ts"), [
       `import { Effect } from "effect";`,
@@ -274,7 +289,7 @@ describe("23 HAN-10: through the SDK", () => {
   });
 });
 
-describe("23 HAN-10: through the CLI", () => {
+describe("24 HAN-10: through the CLI", () => {
   it(`prints [${CODE}] IdempotencyConflict and exits ${EXIT}, where a defect exits 1 with no code`, async () => {
     const { allowance, olga } = await fund();
     const one = await withOneKey(seen.url, "han10-cli");
@@ -290,7 +305,7 @@ describe("23 HAN-10: through the CLI", () => {
   });
 });
 
-describe("23 HAN-10: in telemetry", () => {
+describe("24 HAN-10: in telemetry", () => {
   it("writes refusal and refusal.code on the operation span, no defect, and no commit span", async () => {
     const { second } = await reused("han10-span");
     const spans = await until(() => seen.spans(second.trace), (all) => all.some((s) => s.name === "allowance.spend"));
