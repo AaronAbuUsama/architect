@@ -4,6 +4,7 @@ import { Chip, Grid, Widget } from "@orthograph/portal-ui";
 import type { ReactElement, ReactNode } from "react";
 import type { OperationWire, ThingWire } from "#modules/wire/types.js";
 import type { PageData } from "../types.ts";
+import { Doc } from "./doc.tsx";
 import { FieldTable } from "./fields.tsx";
 import { Frame } from "./frame.tsx";
 import { Lifecycle } from "./lifecycle.tsx";
@@ -81,7 +82,7 @@ export const ThingPage = ({ data, thing }: { readonly data: PageData; readonly t
           </Block>
         </div>
         {thing.roles.length > 0 && <Block title="Roles"><ul className="plain">{thing.roles.map((r) => <li key={r} className="mono">{r}</li>)}</ul></Block>}
-        {doc !== undefined && <Block title="Docs"><pre className="doc">{doc}</pre></Block>}
+        {doc !== undefined && <Block title="Docs"><Doc text={doc} /></Block>}
       </div>
     </Frame>
   );

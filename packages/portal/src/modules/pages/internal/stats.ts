@@ -16,4 +16,7 @@ export const statOf = (view: WindowView | undefined, operations: ReadonlyArray<s
 /** Everything the window counted, including operations the model no longer declares. */
 export const statOfAll = (view: WindowView | undefined): CallStat => (view === undefined ? none : total(Object.values(view.byOperation)));
 
+/** A count and its noun, pluralised from the count: "1 defect", "2 defects". */
+export const plural = (n: number, one: string, many = `${one}s`): string => `${n.toLocaleString("en-US")} ${n === 1 ? one : many}`;
+
 export const minutes = (windowMs: number): string => `${Math.round(windowMs / 60_000)} min`;

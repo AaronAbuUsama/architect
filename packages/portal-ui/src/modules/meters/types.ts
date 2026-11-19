@@ -15,6 +15,8 @@ export interface CallsMeterProps {
   readonly legend?: boolean;
   /** What the meter is about, for the screen reader ("handle"). */
   readonly label?: string;
+  /** Mark the numbers with `data-portal="stat"` (`data-stat`, `data-value`) for a page that carries its data in attributes. */
+  readonly hooks?: boolean;
 }
 
 export interface EnvironmentPillProps {

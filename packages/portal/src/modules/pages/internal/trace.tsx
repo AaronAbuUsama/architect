@@ -7,7 +7,8 @@ import type { WindowSpan, WindowTrace } from "#modules/window/types.js";
 import type { PageData } from "../types.ts";
 import { Frame } from "./frame.tsx";
 import { link } from "./links.ts";
-import { statOfAll } from "./stats.ts";
+import { callerLabel } from "./rail.tsx";
+import { plural, statOfAll } from "./stats.ts";
 
 /** The span attributes the portal may show: declared names, codes, kinds and counts. Everything else is dropped, not hidden. */
 const SHOWN = ["operation", "attempt", "step.kind", "commit.outcome", "move.name", "move.to", "event.name", "refusal", "refusal.code", "journey", "journey.step", "environment", "store"] as const;
@@ -26,8 +27,8 @@ const Row = ({ span, depth, attempt, logs, extent }: { readonly span: WindowSpan
       <span className="mono muted">{span.ms} ms</span>
       <span className="wf-bar" aria-hidden="true"><i className={outcome === "ok" ? undefined : `is-${outcome}`} style={{ left: `${left}%`, width: `${Math.min(width, 100 - left)}%` }} /></span>
       <span className="wf-attrs">
-        {SHOWN.filter((k) => span.attrs[k] !== undefined && typeof span.attrs[k] !== "object").map((k) => <span key={k} className="wf-attr">{k} {String(span.attrs[k])}</span>)}
-        {logs > 0 && <span className="wf-attr">{logs} {logs === 1 ? "log" : "logs"}</span>}
+        {SHOWN.filter((k) => span.attrs[k] !== undefined && typeof span.attrs[k] !== "object").map((k) => <span key={k} className="wf-attr"><span className="wf-key">{k}</span> → {String(span.attrs[k])}</span>)}
+        {logs > 0 && <span className="wf-attr">{plural(logs, "log")}</span>}
       </span>
     </div>
   );
@@ -57,8 +58,8 @@ export const TracePage = ({ data, id, found }: { readonly data: PageData; readon
         <header className="page-title">
           <h1>Trace <span className="mono">{id}</span></h1>
           <div className="props">
-            {call !== undefined && <><a className="mono" href={link.operation(call.operation)}>{call.operation}</a><Chip size="sm" variant="soft">{call.outcome}</Chip><Chip size="sm" variant="soft">called by {call.callerKind}</Chip></>}
-            <Chip size="sm" variant="soft">{spans.length} spans</Chip>
+            {call !== undefined && <><a className="mono" href={link.operation(call.operation)}>{call.operation}</a><Chip size="sm" variant="soft">{call.outcome}</Chip><Chip size="sm" variant="soft">called by {callerLabel(call.callerKind)}</Chip></>}
+            <Chip size="sm" variant="soft">{plural(spans.length, "span")}</Chip>
           </div>
         </header>
         <Widget>

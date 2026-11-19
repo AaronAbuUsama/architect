@@ -1,5 +1,6 @@
 // Proof as the portal reads it from the logbook: one cell per environment, in the words of its state. Only a recorded pass carries a
 // tick; a failure, a change and a gap read as what they are. (The proof tab and the verdict matrix are M1.13's later pass.)
+import { Chip } from "@orthograph/portal-ui";
 import type { ReactElement } from "react";
 import type { PortalProof, PortalSnapshot } from "#modules/snapshot/types.js";
 
@@ -13,6 +14,7 @@ const word: Readonly<Record<PortalProof["state"], readonly [string, (env: string
 
 export const ProofCell = ({ proof }: { readonly proof: PortalProof | undefined }): ReactElement | null => {
   if (proof === undefined) return null;
+  if (proof.state === "unproven" || proof.state === "unavailable") return <Chip size="sm" variant="soft" className="no-proof">no proof</Chip>;
   const [tone, text] = word[proof.state];
   return <span className={`pill-${tone}`}>{text(proof.environment)}</span>;
 };

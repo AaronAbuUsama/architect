@@ -5,6 +5,7 @@ import type { ReactElement, ReactNode } from "react";
 import type { PortalSnapshot } from "#modules/snapshot/types.js";
 import type { OperationWire } from "#modules/wire/types.js";
 import type { PageData } from "../types.ts";
+import { Doc } from "./doc.tsx";
 import { FieldTable } from "./fields.tsx";
 import { Frame } from "./frame.tsx";
 import { link } from "./links.ts";
@@ -53,7 +54,7 @@ export const OperationPage = ({ data, snapshot, op }: { readonly data: PageData;
           <table className="tbl"><thead><tr><th>Declaration</th><th>Hash</th></tr></thead><tbody>{depends.map(([key, hash]) => <tr key={key}><td className="mono">{key}</td><td className="mono">{hash}</td></tr>)}</tbody></table>
           <p><a href={link.thing(op.thing)}>{op.thing}</a></p>
         </Block>
-        {doc !== undefined && <Block title="Docs"><pre className="doc">{doc}</pre></Block>}
+        {doc !== undefined && <Block title="Docs"><Doc text={doc} /></Block>}
       </div>
     </Frame>
   );

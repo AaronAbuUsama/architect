@@ -39,6 +39,8 @@ html,body{margin:0;background:var(--background,#0b0b0d)}
 .page-foot{color:var(--muted);font-size:.78rem;margin:0}
 .pill-ok{color:var(--success)}.pill-fail{color:var(--danger)}.pill-old{color:var(--warning)}.pill-none{color:var(--muted)}
 .banner{border:1px solid var(--danger);background:color-mix(in oklab,var(--danger) 12%,transparent);padding:8px 12px;border-radius:10px}
+.doc-body{font-size:.9rem;line-height:1.55;max-width:80ch}.doc-body h1{font-size:1.2rem}.doc-body h2{font-size:1rem;margin-top:1rem}.doc-body table{border-collapse:collapse}.doc-body th,.doc-body td{padding:4px 10px;border-bottom:1px solid var(--separator);text-align:left}.doc-body code{font:12px ui-monospace,Menlo,monospace}
+.no-proof{color:var(--muted)}
 pre.doc{background:var(--surface-secondary);padding:12px;border-radius:10px;overflow:auto;font-size:.8rem}
 /* EnvironmentPill */
 .env-pill{display:inline-flex;align-items:center;gap:7px;height:28px;padding:0 4px 0 10px;border-radius:999px;background:var(--surface-secondary);border:1px solid var(--border);font-size:.82rem;font-weight:500;white-space:nowrap}
@@ -88,13 +90,14 @@ pre.doc{background:var(--surface-secondary);padding:12px;border-radius:10px;over
 .wf{display:flex;flex-direction:column}
 .wf details{margin:0}
 .wf summary{list-style:none;cursor:pointer}
-.wf-row{display:grid;grid-template-columns:minmax(220px,1.2fr) 70px 2fr minmax(120px,1fr);gap:12px;align-items:center;padding:5px 8px;border-bottom:1px solid var(--separator);font-size:.82rem}
+.wf-row{display:grid;grid-template-columns:minmax(220px,1.2fr) 70px 2fr;gap:6px 12px;align-items:center;padding:5px 8px;border-bottom:1px solid var(--separator);font-size:.82rem}
 .wf-children{margin-left:16px;border-left:1px solid var(--separator)}
 .wf-bar{position:relative;height:8px;border-radius:4px;background:var(--surface-secondary)}
 .wf-bar i{position:absolute;top:0;height:100%;border-radius:4px;background:var(--accent)}
 .wf-bar i.is-refused{background:var(--warning)}.wf-bar i.is-defect{background:var(--danger)}
-.wf-attrs{display:flex;flex-wrap:wrap;gap:4px}
-.wf-attr{padding:0 6px;border-radius:6px;background:var(--default);font:11px ui-monospace,Menlo,monospace}
+.wf-attrs{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px 6px}
+.wf-attr{white-space:nowrap;padding:0 6px;border-radius:6px;background:var(--default);font:11px ui-monospace,Menlo,monospace}
+.wf-key{color:var(--muted)}
 /* The journey sequence */
 .seq{display:block;max-width:100%;height:auto}
 .seq text{font:12px ui-monospace,Menlo,monospace;fill:var(--foreground)}

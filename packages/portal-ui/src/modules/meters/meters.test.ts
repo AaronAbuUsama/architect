@@ -17,6 +17,14 @@ it("CallsMeter shows the total and each outcome's count, and only the segments t
   expect(html).not.toContain("calls-meter__seg tone-bg-danger");
 });
 
+it("CallsMeter pluralises from the count and can carry its numbers as data hooks", () => {
+  const html = renderToStaticMarkup(createElement(CallsMeter, { split: { answered: 0, refused: 0, defects: 1 }, hooks: true }));
+  expect(html).toContain("1 defect");
+  expect(html).not.toContain("1 defects");
+  expect(html).toContain('data-stat="calls"');
+  expect(html).toContain('data-value="1"');
+});
+
 it("EnvironmentPill marks a live one, and Move draws a creating move from `new`", () => {
   expect(renderToStaticMarkup(createElement(EnvironmentPill, { name: "local", live: true }))).toContain("is-live");
   expect(renderToStaticMarkup(createElement(Move, { from: [], to: ["claimed"] }))).toContain("new");

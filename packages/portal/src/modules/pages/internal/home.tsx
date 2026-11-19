@@ -9,7 +9,7 @@ import { Frame } from "./frame.tsx";
 import { Lifecycle } from "./lifecycle.tsx";
 import { link } from "./links.ts";
 import { Banner, noteOf, ProofCell, proofOf } from "./proof.tsx";
-import { none, operationsOf, statOf, statOfAll } from "./stats.ts";
+import { none, operationsOf, plural, statOf, statOfAll } from "./stats.ts";
 
 const who = (op: OperationWire): string =>
   op.allowed.map((a) => (a.kind === "anyone" ? "anyone" : a.kind === "signed-in" ? "anyone signed in" : `${a.kind} ${a.role ?? ""}${a.path === undefined ? "" : ` of its ${a.path}`}`.trim())).join(", or ");
@@ -17,13 +17,20 @@ const who = (op: OperationWire): string =>
 export const Home = ({ data, snapshot }: { readonly data: PageData; readonly snapshot: PortalSnapshot }): ReactElement => {
   const { blueprint, view } = data;
   const release = snapshot.release.state === "available" && snapshot.release.value !== null ? `Released ${snapshot.release.value.version} at ${snapshot.release.value.revision}.` : "";
+  const notesOf = (name: string): ReadonlyArray<string> => snapshot.environments.flatMap((env) => { const p = proofOf(snapshot, name, env); return p === undefined || p.state === "unavailable" ? [] : [noteOf(p, snapshot.candidate.revision)]; }).filter((n) => n !== "");
+  const distinct = new Set(snapshot.operations.flatMap(notesOf));
   const rows = snapshot.operations.map((name) => ({ name, op: blueprint.model.operations[name], s: view?.byOperation[name] ?? none }));
   return (
     <Frame data={data} title="Home" here={{ id: "home" }} crumbs={[blueprint.project, "Home"]} scope={{ id: "all", operations: "all", stat: statOfAll(view) }}>
       <div className="page">
         <header className="page-title">
           <h1>{blueprint.project}</h1>
-          <p className="small">Bundle {snapshot.bundleRevision ?? "unknown"}. Judged against {snapshot.candidate.revision ?? "unknown"} ({snapshot.candidate.source === "logbook" ? "newest revision proved in test" : "this bundle's own model"}). {release} Ledger read: {snapshot.consistency}.</p>
+          <p className="small">{[
+            snapshot.bundleRevision === null ? "Bundle revision not reported." : `Bundle ${snapshot.bundleRevision}.`,
+            snapshot.candidate.revision === null ? "" : `Judged against ${snapshot.candidate.revision} (${snapshot.candidate.source === "logbook" ? "newest revision proved in test" : "this bundle's own model"}).`,
+            release,
+            snapshot.consistency === "checked" ? "Ledger read: checked." : "",
+          ].filter((t) => t !== "").join(" ")}</p>
         </header>
         <Banner snapshot={snapshot} />
         <section className="cards" aria-label="Things">
@@ -34,7 +41,7 @@ export const Home = ({ data, snapshot }: { readonly data: PageData; readonly sna
                 <Widget className={s.defects > 0 ? "thing-card is-red" : "thing-card"}>
                   <Widget.Header>
                     <div className="head-text"><Widget.Title><a href={link.thing(thing.name)}>{thing.name}</a></Widget.Title><Widget.Description>{thing.description || "No description declared."}</Widget.Description></div>
-                    {s.defects > 0 && <Chip size="sm" variant="soft" color="danger">{s.defects} defects</Chip>}
+                    {s.defects > 0 && <Chip size="sm" variant="soft" color="danger">{plural(s.defects, "defect")}</Chip>}
                   </Widget.Header>
                   <Widget.Content>
                     <Lifecycle thing={thing} view={view} compact />
@@ -47,6 +54,7 @@ export const Home = ({ data, snapshot }: { readonly data: PageData; readonly sna
         </section>
         <section>
           <h2 className="group-title">Operations</h2>
+          {distinct.size === 1 && <p className="small muted">{[...distinct][0]}</p>}
           <p className="muted small">Every operation: who may call it, its calls in the window, and the proof the logbook holds for each environment.</p>
           <Grid
             aria-label="Operations"
@@ -60,8 +68,8 @@ export const Home = ({ data, snapshot }: { readonly data: PageData; readonly sna
                 { id: "refused", header: "Refused", width: 90, align: "end" as const, cell: (r: (typeof rows)[number]) => <span className={r.s.refused > 0 ? "mono tone-warning" : "mono"}>{r.s.refused}</span> },
                 { id: "defects", header: "Defects", width: 90, align: "end" as const, cell: (r: (typeof rows)[number]) => <span className={r.s.defects > 0 ? "mono tone-danger" : "mono"}>{r.s.defects}</span> },
               ]),
-              ...snapshot.environments.map((env) => ({ id: `env:${env}`, header: env, minWidth: 130, cell: (r: (typeof rows)[number]) => <ProofCell proof={proofOf(snapshot, r.name, env)} /> })),
-              { id: "notes", header: "Notes", minWidth: 200, cell: (r: (typeof rows)[number]) => <span className="small muted">{snapshot.environments.map((env) => proofOf(snapshot, r.name, env)).flatMap((p) => (p === undefined ? [] : [noteOf(p, snapshot.candidate.revision)])).filter((n) => n !== "").join(" · ")}</span> },
+              ...snapshot.environments.map((env) => ({ id: `env:${env}`, header: `Proof in ${env}`, minWidth: 130, cell: (r: (typeof rows)[number]) => <ProofCell proof={proofOf(snapshot, r.name, env)} /> })),
+              ...(distinct.size > 1 ? [{ id: "notes", header: "Notes", minWidth: 200, cell: (r: (typeof rows)[number]) => <span className="small muted">{notesOf(r.name).join(" · ")}</span> }] : []),
             ]}
           />
         </section>
