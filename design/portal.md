@@ -42,6 +42,44 @@ All recommended options, including the Q11 addendum carrying the factory's needs
 | 11 | Extensions | A · a feature with a portal face: generated pages free, typed slots for custom views |
 | 12 | Environments | A · one portal per environment, its own sink only, a switcher, proof from the logbook |
 
+### Round 3 (19 November 2026, relayed by the conductor)
+
+Aaron's words, verbatim, then what was decided.
+
+| # | Joint | Aaron | Status |
+|---|---|---|---|
+| 1 | Where the pages beyond things live | "need options as designs" | Open. A, B and C drawn side by side on the Options page |
+| 2 | Environments | "same need designs" | Open. A, B and C drawn |
+| 3 | Plugins and stores | "same designs" | Open. A, B and C drawn |
+| 4 | Journeys and starting worlds | "no we need to have them and show them graphically" | **Decided: pages for both, drawn as pictures** (below) |
+| 5 | Access, refusal codes, events, values | "reference pages and we have telemetry on the page with spans and tracing etc" | **Decided: four reference pages, each with live telemetry** (below) |
+| 6 | Blank operations | "show me" | Open. A, B and C drawn |
+
+**Q4, decided.** There is a Journeys page, a page per journey and a page per starting world, and each is drawn, not
+listed:
+
+- A journey is a **sequence diagram**. Its cast are the lanes and its steps are the columns. Under the steps sit four
+  rows of dots, one per environment, so a failure shows on the step where it happened ("failed here", then "not
+  reached").
+- Clicking a step opens its operation. A failed step opens its trace.
+- Under the diagram the steps are a HeroUI Pro `Timeline`, with each check as a chip.
+- The worlds are a **tree**. It starts from the empty world, then the starting worlds and what each gives, then the
+  journeys that start from each, coloured by verdict.
+- The Journeys page opens on that tree. Each journey's row carries one dot per step.
+
+**Q5, decided.** The reference pages are Access, Refusal codes, Events, Values and Machines. Each is one table with
+anchored rows, and each carries live telemetry:
+
+- **Every row has its numbers.** It shows its count in the window, its rate per minute and a trend sparkline:
+  - refusals per code, from `ortho.calls` by error tag;
+  - NotAllowed per rule, with the role check's time;
+  - commits per event, from the commit span's `event.name`;
+  - door rejections per value;
+  - answered moves per arrow.
+- **Every row opens its trace.** Each row with spans has a "trace" link.
+- **Every page lists its recent spans.** Each one opens its trace. A call refused at the door has no span (M1.20), so
+  it shows its count and says "no span".
+
 **Made consistent with K10 and K11 (merged after round 1).** K10 decision 9 and M4.16 say the chat is rendered with
 HeroUI Pro's AI components over a Pi Durable run; round 1's wording said "Pi's surface". They agree once read
 together: Pi Durable is the agent and the source of truth for the transcript (K10, H1.9), and what draws it is Pro's
@@ -550,9 +588,13 @@ Real values below are from Plugged In's model as Codex generated it on `links/st
 
 What the model has and no agreed page shows, and the menus that tie them together. Each is asked in round 3.
 
-All of them are now drawn on the recommended A, not yet confirmed, in [`spikes/portal-site`](../spikes/portal-site/README.md)
-(published at https://claude.ai/artifact/NzDgHFzQSk8yvX8cLNqUKj). The same drawing adds Issues and Alerts, proposed in
-[`decisions/K18-monitoring-falls-out.md`](decisions/K18-monitoring-falls-out.md).
+All of them are drawn in [`spikes/portal-site`](../spikes/portal-site/README.md), published at
+https://claude.ai/artifact/NzDgHFzQSk8yvX8cLNqUKj:
+
+- Q4 and Q5 are drawn as decided.
+- Q1, Q2, Q3 and Q6 are drawn three ways each on the Options page, which the artifact opens on.
+- The same drawing adds Issues and Alerts, proposed in
+  [`decisions/K18-monitoring-falls-out.md`](decisions/K18-monitoring-falls-out.md).
 
 | Screen | Model it falls out of | Round 3 |
 |---|---|---|

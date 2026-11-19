@@ -3,6 +3,7 @@ import { Chip } from "@heroui/react";
 import { journeysCalling } from "../journeys.ts";
 import { moveCounts, refusedTotal, statOf } from "../live.ts";
 import { allowedText, model, opsOf, page, short } from "../model.ts";
+import { useOpt } from "../opt.tsx";
 import { groupOf, mounts, roleRules, stores } from "../overlay.ts";
 import { Foot, Shell } from "../shell.tsx";
 import { Block, FieldTable, Lifecycle, Spark } from "../ui.tsx";
@@ -16,6 +17,7 @@ export const guardsOf = (thing: string) => Object.fromEntries(opsOf(thing).filte
 export const ThingPage = ({ name }: { name: string }) => {
   const t = model.things[name]!, g = groupOf(name), m = g.mount ? mounts[g.mount] : null, ops = opsOf(name);
   const journeys = [...new Set(ops.flatMap((o) => journeysCalling(o.name)))];
+  const labelsOnly = useOpt().plugins === "c"; // round 3 Q3 C: labels, no plugin or store pages
   return (
     <Shell here={{ id: `thing:${name}`, thing: name, scope: { label: name, ops: ops.map((o) => o.name) } }} crumbs={["Plugged In", g.label, name]}>
       <div className="page">
@@ -23,9 +25,12 @@ export const ThingPage = ({ name }: { name: string }) => {
           <div className="title-row"><h1>{name}</h1><span className="mono muted">{t.identifier} · codes {t.code}-…</span></div>
           <p>{t.description}</p>
           <div className="props">
-            {m ? <Chip size="sm" variant="soft"><a href={`plugin-${g.mount}.html`}>{m.package} {m.version}</a></Chip> : <Chip size="sm" variant="soft">the app's own</Chip>}
-            <Chip size="sm" variant="soft">lives in {t.lives} rows</Chip>
-            <Chip size="sm" variant="soft"><a href="stores.html">store: {t.store ?? stores[0]!.name}</a></Chip>
+            {labelsOnly ? <>
+              {m ? <Chip size="sm" variant="soft">{g.label} · feature · {m.version}</Chip> : <Chip size="sm" variant="soft">the app's own</Chip>}
+              <Chip size="sm" variant="soft">lives in: {t.store ?? stores[0]!.name} (database)</Chip></> : <>
+              {m ? <Chip size="sm" variant="soft"><a href={`plugin-${g.mount}.html`}>{m.package} {m.version}</a></Chip> : <Chip size="sm" variant="soft">the app's own</Chip>}
+              <Chip size="sm" variant="soft">lives in {t.lives} rows</Chip>
+              <Chip size="sm" variant="soft"><a href="stores.html">store: {t.store ?? stores[0]!.name}</a></Chip></>}
             <Chip size="sm" variant="soft" className="mono">thing:{name}@{short(t.hash)}</Chip>
           </div>
         </header>

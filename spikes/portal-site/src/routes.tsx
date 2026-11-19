@@ -13,6 +13,26 @@ import { Environments, EnvProof, Plugin, Plugins, Stores } from "./pages/places.
 import { JourneyPage, Journeys, WorldPage } from "./pages/proving.tsx";
 import { Access, Events, Machines, Refusals, Values } from "./pages/reference.tsx";
 import { ThingPage } from "./pages/thing.tsx";
+import { EnvPage, Options, PluginsAndStores, StillBlank } from "./pages/options.tsx";
+import { WithOpt, type Opt } from "./opt.tsx";
+
+const opt = (o: Partial<Opt>, title: string, el: ReactElement): Route => ({ title, el: <WithOpt opt={o}>{el}</WithOpt> });
+const optionPages = (): Record<string, Route> => ({
+  "options.html": { title: "Round 3 options", el: <Options /> },
+  "q1-a.html": opt({ label: "Q1 · A · one sidebar, sections" }, "Q1 A", <Home />),
+  "q1-b.html": opt({ nav: "b", label: "Q1 · B · icon rail swaps the sidebar" }, "Q1 B", <Home />),
+  "q1-b-proof.html": opt({ nav: "b", label: "Q1 · B · icon rail swaps the sidebar" }, "Q1 B", <Journeys />),
+  "q1-c.html": opt({ nav: "c", overlay: "command", label: "Q1 · C · things only, ⌘K for the rest" }, "Q1 C", <Home />),
+  "q2-a.html": opt({ label: "Q2 · A · one page, environments as columns" }, "Q2 A", <Environments />),
+  "q2-b.html": opt({ env: "b", label: "Q2 · B · a page per environment" }, "Q2 B", <EnvPage />),
+  "q2-c.html": opt({ env: "c", overlay: "env-menu", label: "Q2 · C · the switcher's menu only" }, "Q2 C", <Home />),
+  "q3-a.html": opt({ label: "Q3 · A · a page per plugin, and Stores" }, "Q3 A", <Plugin name="handles" />),
+  "q3-b.html": opt({ plugins: "b", label: "Q3 · B · one list page" }, "Q3 B", <PluginsAndStores />),
+  "q3-c.html": opt({ plugins: "c", label: "Q3 · C · labels only" }, "Q3 C", <ThingPage name="handle" />),
+  "q6-a.html": opt({ label: "Q6 · A · in the tree, greyed" }, "Q6 A", <BlankOp />),
+  "q6-b.html": opt({ blank: "b", label: "Q6 · B · one Still blank page" }, "Q6 B", <StillBlank />),
+  "q6-c.html": opt({ blank: "c", label: "Q6 · C · hidden until filled" }, "Q6 C", <ThingPage name="link" />),
+});
 
 export type Route = { title: string; el: ReactElement };
 
@@ -34,6 +54,7 @@ export const routes = async (): Promise<Record<string, Route>> => {
     "alerts.html": { title: "Alerts", el: <Alerts /> },
     "about.html": { title: "About this drawing", el: <About /> },
   };
+  Object.assign(r, optionPages());
   for (const t of things) r[page.thing(t.name)] = { title: t.name, el: <ThingPage name={t.name} /> };
   for (const m of Object.keys(mounts) as (keyof typeof mounts)[]) r[`plugin-${m}.html`] = { title: m, el: <Plugin name={m} /> };
   for (const j of journeys) r[`journey-${j.slug}.html`] = { title: j.name, el: <JourneyPage j={j} /> };

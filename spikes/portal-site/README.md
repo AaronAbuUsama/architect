@@ -26,7 +26,11 @@ A static render of 87 pages from one model, with one shell: sidebar tree, top ba
 | `src/shell.tsx`, `src/rail.tsx`, `src/ui.tsx` | The frame and shared blocks |
 | `src/pages/*.tsx` | One file per page family |
 | `src/routes.tsx`, `src/render.tsx` | Every page, written to `out/site/` |
+| `src/opt.tsx`, `src/rail-nav.tsx`, `src/pages/options.tsx` | Round 3's open questions (Q1, Q2, Q3, Q6) drawn as A, B and C. A page inside `WithOpt` takes one question's B or C. The Options page shows the twelve screens side by side, with the Mobbin screens each draws from |
+| `src/flow.tsx` | Q4, decided: a journey as a sequence diagram (cast lanes, step columns, one verdict row per environment) and the worlds as a tree |
+| `src/ref-live.tsx` | Q5, decided: each reference row's rate and trend, and each page's recent spans, each opening its trace |
 | `tools/build.sh`, `tools/shoot.sh` | Render, then screenshot headless at 1440 wide in parallel |
+| `tools/publish-prep.sh` | Writes `out/site/index.html` (the artifact's main page, a fragment of `options.html`) and prints the `files` map |
 
 ## Run it
 
@@ -42,8 +46,12 @@ HEIGHT=1400 tools/shoot.sh home.html op-handle.claim-spans.html
 
 Pro's CSS is copied into `out/`, which is ignored. Nothing of Pro is committed.
 
-To republish, build first. Then make `out/site/index.html` a fragment of `home.html`: no doctype, html, head or body
-tags. Publish it to the artifact above with every other file in `out/site/` passed as `files`.
+To republish:
+
+1. Build.
+2. Shoot the twelve option screens at `HEIGHT=1000` and save them as `out/site/opt/<name>.jpg`, 1000 wide.
+3. Run `tools/publish-prep.sh`.
+4. Publish `out/site/index.html` to the artifact above, with `root` set to `out/site` and every other file as `files`.
 
 ## Found
 
