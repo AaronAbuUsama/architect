@@ -80,12 +80,23 @@ conversation resolution required, no required approvals, and no force pushes or 
   pull request whatever its base, on Codex's comments, on every `ci` run a push starts (so a new head gets its status
   without a new review), and by hand (`gh workflow run codex-finished -f pr=<n>`). It never checks out a pull request's
   code. Findings are review threads, which conversation resolution holds, so the status does not count them.
+  It does not compare Codex's reviewed commit with the head: Codex reviews when a pull request opens or on
+  "@codex review", not on every push, and `strict` makes every pull request take `main` in before it lands, so
+  demanding a review of the exact head would ask for a fresh review after every update. "Finished" means no review is
+  running. Codex marks a review it starts at once (its summary comment goes to in progress), so a status posted in the
+  moment between a push and that mark is corrected by the comment's edit. A Codex state other than `completed` stays
+  `pending`; "@codex review" or a hand run recovers it.
+  Before the status is first required on a branch, the workflow is run by hand for every open pull request into it, so
+  none sits at "Expected".
 - **`builder-paths`** (a `ci.yml` job, `tools/ci/builder-paths.sh`): on a pull request whose head branch ends in
-  `-build`, fails when the branch changes `e2e/**`, `examples/*/journeys/**`, `**/blueprint/journeys/**`,
-  `packages/prove/src/modules/evals/**` or `examples/*/test/fixtures/evals/**`. The one exception is taking lines off
-  `e2e/m1/expected-failing.txt`, which the ratchet asks of the pull request whose slice lands (`e2e/ratchet/README.md`);
-  a line added there is a hit. Prove's journeys runner (`packages/prove/src/modules/journeys/`) is builder code and is
-  not guarded. Authors' branches end in `-check` (Goal 3's naming, made the rule in `AGENTS.md`).
+  `-build`, fails when the branch changes the e2e checks (`e2e/**`), any blueprint's journeys
+  (`examples/*/journeys/**`, `**/blueprint/journeys/**`), the evals (`packages/prove/src/modules/evals/**`), the
+  runner's generic step checks (`packages/prove/src/modules/journeys/internal/checks.ts`), or the break fixtures the
+  checks are proved on (`examples/*/test/fixtures/{evals,journeys,check}/**`). The rest of prove's journeys runner is
+  builder code. The one exception is taking lines off `e2e/m1/expected-failing.txt`, which the ratchet asks of the pull
+  request whose slice lands (`e2e/ratchet/README.md`); a line added there is a hit. Authors' branches end in `-check`
+  and builders' in `-build` (Goal 3's naming, made the rule in `AGENTS.md`); a builder branch named otherwise (older
+  ones such as `build/M0.05`) is not guarded, so the naming rule is what makes the guard reach.
 - **`supersedes`** (a step in `e2e-m0`, `tools/ci/supersedes.sh`): for each decision's `## Supersedes` list, in the shape
   `AGENTS.md` gives (`- <old doc>: "<old words>" → "<new words>"`), `git grep` must find each old phrase only in the
   dated records, which keep their words (`design/decisions/`, `design/history/`, `design/evidence/`; `design/naming.md`
