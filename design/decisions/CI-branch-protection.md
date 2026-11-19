@@ -52,7 +52,23 @@ Set with `gh api -X PUT repos/AaronAbuUsama/architect/branches/main/protection`:
 
 ### `m1` and `goal/stage-1`
 
-Agreed with the Goal 3 lead before they were set; see "Milestone and goal branches" below.
+Agreed with the Goal 3 lead on 19 November 2026. Both have the same shape as `main`, with `enforce_admins: true`,
+conversation resolution required, no required approvals, and no force pushes or deletions. The differences:
+
+| | `m1` | `goal/stage-1` |
+|---|---|---|
+| Required checks | `check`, `portal-ui`, `e2e-layer1`, `e2e-layer2`, `e2e-m0`, `codex-finished` | `check`, `portal-ui`, `e2e-layer1`, `e2e-layer2`, `e2e-m0`, `e2e-m1`, `e2e-climb`, `e2e-grid`, `codex-finished` |
+| Left out | `e2e-m1`, which is `continue-on-error` on `m1` | nothing; `e2e-m1` is a real gate through the ratchet (`e2e/ratchet/`) |
+| `strict` | `true` (`m1` is finished at 5d2887ca; only a merge of `main` is expected) | `false`: slices merge side by side, and an up-to-date rule would rerun the 45-minute jobs after every merge |
+| When | once #125 (timeouts, push groups) had landed on `m1` | once #110 (`e2e-climb`, `e2e-grid`) had landed on `goal/stage-1` |
+
+- **`codex-finished`** is added to a branch only once it has been seen posted on a real pull request into that branch,
+  so a status that never arrives cannot stall every merge.
+- **`builder-paths`** is added to each once that branch's `ci.yml` has it (when `main` is next merged in), for the same
+  reason.
+- **`enforce_admins: true`** costs the leads nothing: every merge into `goal/stage-1` already goes through
+  `gh pr merge --merge` (the "Merge PR #n" subjects are set with `--subject`), and direct pushes go only to `goal-3/*`
+  pull request branches.
 
 ## The checks that are new
 
@@ -71,8 +87,9 @@ Agreed with the Goal 3 lead before they were set; see "Milestone and goal branch
   a line added there is a hit. Prove's journeys runner (`packages/prove/src/modules/journeys/`) is builder code and is
   not guarded. Authors' branches end in `-check` (Goal 3's naming, made the rule in `AGENTS.md`).
 - **`supersedes`** (a step in `e2e-m0`, `tools/ci/supersedes.sh`): for each decision's `## Supersedes` list, in the shape
-  `AGENTS.md` gives (`- <old doc>: "<old words>" → "<new words>"`), `git grep` must find each old phrase only in
-  `design/decisions/` and `design/process/`. A line in the wrong shape fails too.
+  `AGENTS.md` gives (`- <old doc>: "<old words>" → "<new words>"`), `git grep` must find each old phrase only in the
+  dated records, which keep their words (`design/decisions/`, `design/history/`, `design/evidence/`; `design/naming.md`
+  rule 6), and in `design/process/`. A line in the wrong shape fails too.
 - **`cancel-closed`** (`.github/workflows/cancel-closed.yml`): when a pull request closes, merged or not, its unfinished
   `pull_request` runs are cancelled. It uses only the run's `GITHUB_TOKEN` with `actions: write`.
 
@@ -87,7 +104,7 @@ job only once that branch runs it.
 ## Undoing it
 
 ```bash
-gh api -X DELETE repos/AaronAbuUsama/architect/branches/main/protection
+gh api -X DELETE repos/AaronAbuUsama/architect/branches/main/protection   # likewise m1, goal/stage-1
 ```
 
 The workflows and scripts come out with a revert of the pull request that added them.

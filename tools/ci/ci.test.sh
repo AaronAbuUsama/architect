@@ -65,6 +65,9 @@ decisions() { # <repo> <decision body>; writes design/decisions/G9.md and a stal
   printf '%s\n' "$2" > "$1/design/decisions/G9.md"
   echo 'exits 5 to 119' > "$1/design/milestones.md"
   echo 'once it was "5 to 125"' > "$1/design/process/log.md"
+  mkdir -p "$1/design/history" "$1/design/evidence/K16"
+  echo 'exits 5 to 125 (a dated draft)' > "$1/design/history/drafts.md"
+  echo 'exits 5 to 125' > "$1/design/evidence/K16/run.log"
 }
 super() { (cd "$1" && "$here/supersedes.sh"); }
 r=$(repo); decisions "$r" $'# G9\n\n## Supersedes\n- K16: "5 to 125" → "5 to 119"\n'; commit "$r"

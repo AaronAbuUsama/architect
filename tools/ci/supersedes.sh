@@ -2,12 +2,14 @@
 # One way to supersede (AGENTS.md, "Who decides"; proposal 8 in design/process/proposals.md): a decision that changes an
 # older doc lists each replaced phrase under `## Supersedes`, one line each:
 #   - <old doc>: "<old words>" → "<new words>"
-# and the old words may then stay only in design/decisions/ and design/process/ (the dated records). This check reads
-# every decision's list and fails when `git grep` still finds an old phrase anywhere else in the tracked tree.
+# Live docs are rewritten; the dated records (design/decisions/, design/history/, design/evidence/; design/naming.md
+# rule 6) keep their words, and design/process/ quotes them. This check reads every decision's list and fails when
+# `git grep` still finds an old phrase anywhere else in the tracked tree.
 #   tools/ci/supersedes.sh            run from the repository root
 # A line in a Supersedes section that is not in that shape fails too, so a typo cannot turn the check off.
 set -euo pipefail
 
+records=(':(exclude)design/decisions/' ':(exclude)design/history/' ':(exclude)design/evidence/' ':(exclude)design/process/')
 line_shape='^- ([^:]+): "(.+)" → "(.*)"$'
 status=0
 checked=0
@@ -32,7 +34,7 @@ for decision in design/decisions/*.md; do
     fi
     old="${BASH_REMATCH[2]}"
     checked=$((checked + 1))
-    stale=$(git grep -l -F -e "$old" -- . ':(exclude)design/decisions/' ':(exclude)design/process/' || true)
+    stale=$(git grep -l -F -e "$old" -- . "${records[@]}" || true)
     if [ -n "$stale" ]; then
       while IFS= read -r file; do
         echo "::error file=$file::\"$old\" was superseded by $decision; amend it in place (AGENTS.md, one way to supersede)."
@@ -43,6 +45,6 @@ for decision in design/decisions/*.md; do
 done
 
 if [ "$status" -eq 0 ]; then
-  echo "supersedes: $checked superseded phrase(s), none left outside design/decisions/ and design/process/."
+  echo "supersedes: $checked superseded phrase(s), none left outside the dated records and design/process/."
 fi
 exit "$status"
