@@ -25,6 +25,8 @@
 //    confirm.
 import { readFileSync } from "node:fs";
 import { Cause, Effect, Exit, Stream } from "effect";
+import { TimersLive } from "@orthograph/language-effect/device";
+import type { Timers } from "@orthograph/language-effect";
 import { ChainFault, type ChainPort, type TxState } from "@orthograph/chain-evm/device";
 import { describe, expect, it } from "vitest";
 import { depthOf, follow, refused } from "./internal/flow.ts";
@@ -38,7 +40,7 @@ const timeout = new ChainFault({ kind: "timeout", message: "The EVM tracking dea
 /** A port whose `track` gives the states in order, then fails with `then` when given. */
 const tracked = (states: ReadonlyArray<TxState>, then?: ChainFault) =>
   ({ track: () => (then === undefined ? Stream.fromIterable(states) : Stream.concat(Stream.fromIterable(states), Stream.fail(then))) }) as unknown as ChainPort;
-const followed = (port: ChainPort, depth: number) => Effect.runPromiseExit(follow(port, submission, depth) as Effect.Effect<Sent, unknown>);
+const followed = (port: ChainPort, depth: number) => Effect.runPromiseExit(follow(port, submission, depth).pipe(Effect.provide(TimersLive)) as Effect.Effect<Sent, unknown>);
 
 /** The declared failure the exit carries, or what it was instead (a defect's first line, or a success). */
 const failureOf = (exit: Exit.Exit<Sent, unknown>): { readonly _tag?: string } | string => {
@@ -83,10 +85,10 @@ describe("HAN-11: a send that never reaches its depth is a typed failure, not a 
   it("the caller handles each by its tag and carries on; neither is a defect", async () => {
     const handle = (states: ReadonlyArray<TxState>, then?: ChainFault) =>
       Effect.runPromise(
-        (follow(tracked(states, then), submission, 3) as Effect.Effect<Sent, { readonly _tag: string }>).pipe(
+        (follow(tracked(states, then), submission, 3) as Effect.Effect<Sent, { readonly _tag: string }, Timers>).pipe(
           Effect.catchTag("SendNotConfirmed", () => Effect.succeed("not confirmed")),
           Effect.catchTag("SendNotIncluded", () => Effect.succeed("not included")),
-        ) as Effect.Effect<unknown>,
+        ).pipe(Effect.provide(TimersLive)),
       );
     expect(await handle([{ _tag: "Included", receipt }])).toBe("not confirmed");
     expect(await handle([{ _tag: "Dropped", hash, reason: "nonce-consumed" }])).toBe("not included");
