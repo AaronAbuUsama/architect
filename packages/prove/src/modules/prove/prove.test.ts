@@ -1,12 +1,13 @@
 // The stage-one gate for prove: acme passes, and each planted fixture (written by the journey author, never by the
 // builder) fails its own eval in a scratch copy of acme.
 import { spawnSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, relative, resolve } from "node:path";
 import { Effect } from "effect";
 import { afterAll, describe, expect, it } from "vitest";
 import { FsTree, flushChanges } from "nx/src/generators/tree.js";
 import { Sync } from "@orthograph/generators/sync";
+import { acmeCopy } from "../../../test/acme.ts";
 import { Prove } from "./service.ts";
 
 // Dot-folders (.wrangler, .ortho) belong to whatever is running there; a filter also keeps cpSync off its native path,
@@ -21,7 +22,11 @@ const install = (from: string, root: string, to: string) => {
 const repo = resolve(import.meta.dirname, "../../../../..");
 const acme = join(repo, "examples/acme");
 const fixtures = join(acme, "test/fixtures/evals");
-const scratch = join(acme, "test/tmp");
+// Planted copies stay under the repository (Sync works on repository paths), in a folder of this file's own.
+mkdirSync(join(acme, "test/tmp"), { recursive: true });
+const scratch = mkdtempSync(join(acme, "test/tmp/prove-"));
+// The copy acme itself is proved on: its `.ortho` is this file's alone.
+const own = acmeCopy();
 
 const prove = (root: string, port: number) => Effect.runPromise(Effect.scoped(Prove.run({ root, port })));
 
@@ -55,11 +60,11 @@ const nothingRunning = () => {
 };
 
 // A collector may still be flushing its last lines as the scope closes: retry instead of failing on ENOTEMPTY.
-afterAll(() => rmSync(scratch, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }));
+afterAll(() => { rmSync(scratch, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }); own.remove(); });
 
 describe("ortho prove --env local", () => {
   it("passes on acme: every journey, every eval, coverage, and leaves nothing running", { timeout: 180_000 }, async () => {
-    const report = await prove(acme, 0);
+    const report = await prove(own.root, 0);
     expect(report.lines).toContain("journey grant an allowance ✔ 3/3 steps");
     // acme is the starter plus the allowance (L1.51): the starter's five journeys run beside acme's own six.
     for (const j of ["an outsider cannot revoke", "read an allowance", "revoke then spend", "spend twice with one request", "spend within an allowance",

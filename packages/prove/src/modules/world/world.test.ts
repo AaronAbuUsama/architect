@@ -1,10 +1,13 @@
+import { acmeCopy } from "../../../test/acme.ts";
 import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
 import { Effect } from "effect";
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it } from "vitest";
 import { Worlds } from "./service.ts";
 
-const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
+const project = acmeCopy();
+const acme = project.root;
+afterAll(project.remove);
 
 describe("a local world", () => {
   it("serves acme on workerd: the world casts ada, ada founds an organisation and grants olga 500", { timeout: 90_000 }, () =>

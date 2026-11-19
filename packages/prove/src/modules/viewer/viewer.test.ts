@@ -1,15 +1,18 @@
 // The L2.O check (O1): `telemetry view`, then a prove of acme, and the viewer's Tempo answers the allowance.grant trace
 // with its journey root, its step span and its log; `stop` leaves nothing; plain prove starts no viewer.
+import { acmeCopy } from "../../../test/acme.ts";
 import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { join } from "node:path";
 import { Effect } from "effect";
 import { afterAll, describe, expect, it } from "vitest";
 import { Prove } from "#modules/prove/service.js";
 import { FileSource } from "#modules/telemetry/service.js";
 import { Viewer } from "./service.ts";
 
-const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
+const project = acmeCopy();
+const acme = project.root;
+afterAll(project.remove);
 const proveAcme = (view: boolean) => Effect.runPromise(Effect.scoped(Prove.run({ root: acme, port: 0, view })));
 const containers = () => spawnSync("docker", ["ps", "-a", "--format", "{{.Names}}"], { encoding: "utf8" }).stdout.split("\n");
 

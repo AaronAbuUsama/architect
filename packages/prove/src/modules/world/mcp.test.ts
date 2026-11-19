@@ -1,20 +1,23 @@
 // L2.08 (D3 #122): the remote MCP server of a real local world. An MCP client (the SDK's own) completes OAuth as ada,
 // headless, and calls `allowance.get`; bob, who has no role on it, is refused with the refusal's code; a refusal carries its
 // code; a secret never appears in a tool's input or answer.
+import { acmeCopy } from "../../../test/acme.ts";
 import { randomBytes } from "node:crypto";
 import { mkdtempSync, readFileSync, realpathSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { join } from "node:path";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { UnauthorizedError, type OAuthClientProvider } from "@modelcontextprotocol/sdk/client/auth.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import type { OAuthClientInformationMixed, OAuthTokens } from "@modelcontextprotocol/sdk/shared/auth.js";
 import { Effect } from "effect";
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it } from "vitest";
 import { Collectors } from "#modules/telemetry/service.js";
 import { Worlds } from "./service.ts";
 
-const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
+const project = acmeCopy();
+const acme = project.root;
+afterAll(project.remove);
 const redirectUrl = "http://127.0.0.1:1/callback"; // nothing listens: the redirect is read, not followed
 
 const provider = (captured: { url: URL | undefined }): OAuthClientProvider => {

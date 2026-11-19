@@ -1,5 +1,6 @@
 // L2.P: no secret is ever a span attribute, a log line or a journal entry. Checked on the real thing: acme's journeys on a
 // real world (workerd, D1, the generated server) with a real OpenTelemetry Collector, reading the Collector's own files.
+import { acmeCopy } from "../../../test/acme.ts";
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { basename, join, relative, resolve } from "node:path";
 import { Effect } from "effect";
@@ -11,8 +12,9 @@ import { Worlds } from "#modules/world/service.js";
 import type { CallRecord } from "#modules/journeys/types.js";
 import { Prove } from "./service.ts";
 
-const repo = resolve(import.meta.dirname, "../../../../..");
-const acme = resolve(repo, "examples/acme");
+const project = acmeCopy();
+const acme = project.root;
+afterAll(project.remove);
 const dir = resolve(acme, ".ortho/secrets-telemetry");
 const PORT = 0;
 

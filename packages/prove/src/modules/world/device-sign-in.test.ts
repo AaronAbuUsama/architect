@@ -1,14 +1,17 @@
 // L2.07 (D3 #10): the generated CLI signs in by device code against a real local world. Ada claims and approves the code
 // with her own session and no browser; then `session show` prints her. Bob can't approve what ada claimed.
+import { acmeCopy } from "../../../test/acme.ts";
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { join } from "node:path";
 import { Effect, Schedule } from "effect";
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it } from "vitest";
 import { Worlds } from "./service.ts";
 
-const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
+const project = acmeCopy();
+const acme = project.root;
+afterAll(project.remove);
 const cli = join(acme, "generated/cli/src/main.ts");
 const GRANT = "urn:ietf:params:oauth:grant-type:device_code";
 
