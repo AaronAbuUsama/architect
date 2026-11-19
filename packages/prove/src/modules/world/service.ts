@@ -8,6 +8,7 @@ import { anyPort } from "./internal/ports.ts";
 import { applyMigrations, bringUp, stop } from "./internal/wrangler.ts";
 
 export const Worlds: WorldsApi = {
+  anyPort,
   start: ({ root, port: asked, name, otlp, environment, secretEnv }) =>
     Effect.gen(function* () {
       const config = resolve(root, "generated/server/wrangler.jsonc");
