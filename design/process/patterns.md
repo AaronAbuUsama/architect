@@ -13,10 +13,10 @@ Status: **open** (no fix), **partly covered** (a rule or skill exists but entrie
 | Parallel work collides | 6 | 3 | open | 3 |
 | CI that can't tell us anything | 8 | 6 | partly covered | 4 (applied) |
 | Shared machine and stray processes | 6 | 3 | partly covered | 5 |
-| Merged before review and CI finished | 4 | 2 | covered, watching | 2 (applied) |
+| Merged before review and CI finished | 4 | 2 | partly covered | 2 (applied) |
 | Found before building, or after | 10 | 3 | the wins to keep; gap open | 7 |
 | Decisions leave older docs stale | 4 | 0 | partly covered | 8 (check applied) |
-| Builders edit the checks that judge them | 2 | 1 | covered, watching | 6 (applied) |
+| Builders edit the checks that judge them | 2 | 1 | partly covered | 6 (applied) |
 | Talking to Aaron, and showing unchecked work | 7 | 5 | partly covered | 9 |
 | One fact, many hand-kept copies | 4 | 4 | open | 10 |
 | Fakes that diverge from the real service | 3 | 1 | partly covered | 11 |
@@ -87,7 +87,7 @@ Entries:
 - 2026-11-17 · Green on the Mac, red on Linux CI: seven recoveries in one night (failure)
 
 **Covers it today:** the ratchet on `goal/stage-1` (PR 111); per-push concurrency groups on main (PR 102) and on `m1`
-(PR 125); a timeout on every job (PRs 124 and 125); a closed PR cancels its runs (`cancel-closed`, [PR 130](https://github.com/AaronAbuUsama/architect/pull/130)); reviewer
+(PR 125); a timeout on every job (PRs 124 and 125); a closed PR cancels its runs (`cancel-closed` on `main`, reaching `m1` and `goal/stage-1` when `main` is merged in; [PR 130](https://github.com/AaronAbuUsama/architect/pull/130)); reviewer
 item 8.
 
 **Gap:** `m1` has no ratchet. No flake list exists, so a flake is rerun rather than fixed or quarantined. The `check` job has no ratchet, so it

@@ -476,7 +476,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What changed:** the conductor's merge rule (CI green, Codex finished, no unresolved thread), applied from PR 101.
   No branch protection enforces it.
 - **Pattern:** merged before review and CI finished.
-- **Update, 19 November:** `goal/stage-1` now requires its nine jobs, including `e2e-m1`, `e2e-climb` and `e2e-grid`, plus `codex-finished` ([PR 130](https://github.com/AaronAbuUsama/architect/pull/130)). It is not strict, so slices still merge side by side.
+- **Update, 19 November:** `goal/stage-1` now requires its eight CI jobs, including `e2e-m1`, `e2e-climb` and `e2e-grid`, plus `codex-finished` ([PR 130](https://github.com/AaronAbuUsama/architect/pull/130)). It is not strict, so slices still merge side by side.
 
 ### 2026-11-19 · Runners starved for three hours, and a backlog sweep threw away 34 runner-hours
 - **Kind:** failure.
