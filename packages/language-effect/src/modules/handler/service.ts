@@ -12,7 +12,7 @@ import { answerAttributes, payloadAttributes, principalAttributes } from "./inte
 import { measureCall } from "./internal/call-metrics.ts";
 import { applyMove, checkFrom, chooseOutcome } from "./internal/move.ts";
 import { recordingLogs } from "./internal/decided.ts";
-import { spanned } from "./internal/span.ts";
+import { signalled, spanned } from "./internal/span.ts";
 export { Reads } from "./internal/read.ts";
 
 type AnyCodec = Schema.Codec<object, unknown>;
@@ -26,7 +26,7 @@ const ATTEMPTS = 64;
 
 /** A call step: the adapter's call in a span named after the step, marked `call`. */
 const callStep = (span: string, run: CallRunner) => (args: ReadonlyArray<unknown>, failure: (failure: never) => never) =>
-  spanned(span, { "step.kind": "call" })(run(args as never, failure as never));
+  spanned(span, { "step.kind": "call" })(signalled(span)(run(args as never, failure as never)));
 
 const tagOf = (e: unknown): string =>
   typeof e === "object" && e !== null && typeof (e as { _tag?: unknown })._tag === "string" ? (e as { _tag: string })._tag : String(e);
@@ -45,7 +45,7 @@ const serve = ({ name, operation, handler, notFrom, calls }: { readonly name: st
       key,
       step.type === "call"
         ? callStep(`${name}.${key}`, Calls.runner({ label: `${name}.${key}`, step: step as CallStep, wiring: calls?.[key] }))
-        : <A, E, R>(work: Effect.Effect<A, E, R>) => spanned(`${name}.${key}`, { "step.kind": step.type })(work),
+        : <A, E, R>(work: Effect.Effect<A, E, R>) => spanned(`${name}.${key}`, { "step.kind": step.type })(signalled(`${name}.${key}`)(work)),
     ]),
   );
 
