@@ -2,7 +2,7 @@ name: ci
 
 on:
   push:
-    branches: [main, "layer/**", "m[0-9]"]
+    branches: [main, "layer/**", "m[0-9]", "goal/**"]
   pull_request:
 
 permissions:
