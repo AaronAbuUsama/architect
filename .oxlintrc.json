@@ -53,6 +53,14 @@
             "onlyDependOnLibsWithTags": [
               "env:support"
             ]
+          },
+          {
+            "sourceTag": "env:gate",
+            "onlyDependOnLibsWithTags": [
+              "env:build",
+              "env:runtime",
+              "env:support"
+            ]
           }
         ],
         "allowCircularSelfDependency": true
@@ -108,6 +116,14 @@
               {
                 "sourceTag": "env:support",
                 "onlyDependOnLibsWithTags": [
+                  "env:support"
+                ]
+              },
+              {
+                "sourceTag": "env:gate",
+                "onlyDependOnLibsWithTags": [
+                  "env:build",
+                  "env:runtime",
                   "env:support"
                 ]
               }

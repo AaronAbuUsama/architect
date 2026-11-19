@@ -51,7 +51,7 @@ marker that names another command alone).
 The OIDC issuer, Verdaccio and the process owner are needed by tests in `logbook`, `portal`, `cli`, `prove` and by the gates, so
 they live in one package that nothing shipped imports: `packages/services`, `private`, six-slot modules `owned`, `issuer`,
 `registry`, entry `src/main.ts`. `.oxlintrc.json` gets the tag: `env:support` may depend only on `env:support`; **test files** of
-`env:runtime` and `env:build` projects may depend on it (the test override of the module-boundary rule), source files may not.
+`env:runtime` and `env:build` projects may depend on it (the test override of the module-boundary rule), source files may not. The gates (`e2e`) are tagged `env:gate`, which may depend on build, runtime and support code in source and tests alike: their teardown and stack files import it.
 The Collector stays in `@orthograph/prove`, which ships and so cannot depend on a private package; the small marker code is
 written there too (`internal/runs.ts`), in the same format, which is what lets one sweep find both.
 
