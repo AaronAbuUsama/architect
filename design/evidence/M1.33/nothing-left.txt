@@ -1,0 +1,6 @@
+$ bash -c echo "run folder of the unit-test run (ORTHO_RUN_DIR): $(ls -A /tmp/ortho-m133-runs/final | wc -l | tr -d " ") markers left"; echo "processes of ours (otelcol-contrib, verdaccio, services/src/main.ts) still running: $(pgrep -f "otelcol-contrib|verdaccio|packages/services/src/main.ts" | wc -l | tr -d " ")"; echo "the gates assert the same at their end: e2e/layer1/teardown.ts and e2e/layer2/teardown.ts sweep the PIDs their run folder names and fail the run on any (layer1.txt, layer2.txt end green)"
+# commit a4ae3574 · 2026-11-19T08:05:45Z · exit 0 (expected 0) · 0.0s
+
+run folder of the unit-test run (ORTHO_RUN_DIR): 0 markers left
+processes of ours (otelcol-contrib, verdaccio, services/src/main.ts) still running: 0
+the gates assert the same at their end: e2e/layer1/teardown.ts and e2e/layer2/teardown.ts sweep the PIDs their run folder names and fail the run on any (layer1.txt, layer2.txt end green)
