@@ -40,6 +40,10 @@ package file, and the list parses.
 
 K19 (the portal prebuilt, #103) is the route for the M1.13 portal pairs.
 
+**When the list may grow.** Only in a checks author's change; only for pairs that change's new reading turns red; each named in the PR body with
+its reason in the entry. Builders never add to it. K19's served portal (#149) is the first case: the portal's pages are read in a browser, so 13
+`thing.portal` and `step.portal` pairs that were green on server-rendered HTML are listed until the portal is split.
+
 **The goal's done check needs the list empty.** A pair stays visible until a builder fixes it; fixing it is what shortens the list.
 
 CI: the `e2e-grid` job now runs `run --prove` through the nx target (`e2e/project.json`), with the No-Docker step and the Collector cache of
