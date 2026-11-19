@@ -1,0 +1,5530 @@
+{
+ "M0-01": {
+  "doneWhen": "decisions/M0-packages.md written. Proof: decisions/M0-packages.md",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked before the board existed",
+    "stage": "done",
+    "thread": null
+   }
+  ],
+  "id": "M0-01",
+  "kind": "decision",
+  "lane": "M0",
+  "needs": [],
+  "needsText": "Gate 2",
+  "order": 1,
+  "plain": "",
+  "pr": null,
+  "ref": "M0.01",
+  "size": "S",
+  "stage": "done",
+  "thread": null,
+  "title": "The package map",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The package map: each package's @orthograph name per K2 Q4 (front door orthograph; language-effect, language-solidity, host-cloudflare, portal; which internal packages ship inside the front door)"
+ },
+ "M0-02": {
+  "doneWhen": "nx run-many -t check test green; rg finds the old package scope nowhere outside history. Proof: evidence/M0.02/: 16 projects' lint, typecheck and test, sync:check, the scope search empty",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked before the board existed",
+    "stage": "done",
+    "thread": null
+   }
+  ],
+  "id": "M0-02",
+  "kind": "build",
+  "lane": "M0",
+  "needs": [
+   "M0.01"
+  ],
+  "needsText": "M0.01",
+  "order": 2,
+  "plain": "",
+  "pr": null,
+  "ref": "M0.02",
+  "size": "M",
+  "stage": "done",
+  "thread": null,
+  "title": "Rename packages and imports",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Rename packages and imports; target-* becomes language-*; Nx tags follow"
+ },
+ "M0-03": {
+  "doneWhen": "nx run e2e:layer1 and e2e:layer2 pass, renamed. Proof: evidence/M0.03/: Gate 1, 7 files, 19 passed and check 4's agent skipped for want of a key, as on any keyless run (D2 #41); Gate 2, 8 files, 10 passed",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked before the board existed",
+    "stage": "done",
+    "thread": null
+   }
+  ],
+  "id": "M0-03",
+  "kind": "build",
+  "lane": "M0",
+  "needs": [
+   "M0.02"
+  ],
+  "needsText": "M0.02",
+  "order": 3,
+  "plain": "",
+  "pr": null,
+  "ref": "M0.03",
+  "size": "M",
+  "stage": "done",
+  "thread": null,
+  "title": "The command, folders and variables",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The command, folders and variables: ortho, .ortho/, ORTHO_*; the config file renamed ortho.config.ts and its unread outputs removed (D3 #112)"
+ },
+ "M0-04": {
+  "doneWhen": "the rule fails on a planted import from the old package scope. Proof: evidence/M0.04/: ortho(no-old-names) names the planted import and exits 1; the rule runs in this repository's own lint and in ortho check",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked before the board existed",
+    "stage": "done",
+    "thread": null
+   }
+  ],
+  "id": "M0-04",
+  "kind": "build",
+  "lane": "M0",
+  "needs": [
+   "M0.03"
+  ],
+  "needsText": "M0.03",
+  "order": 4,
+  "plain": "",
+  "pr": null,
+  "ref": "M0.04",
+  "size": "S",
+  "stage": "done",
+  "thread": null,
+  "title": "A lint rule against the old names",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "A lint rule against the old names"
+ },
+ "M0-05": {
+  "doneWhen": "the docs build and their link check passes; \"kit\" (the word for a plugin) appears only in history. Proof: the docs are one page, docs/index.html, ported from Orthograph Docs (decisions/M0-build.md #7 to #10); nx run docs:check (evidence/M0.05/); build-plan.md line 4 already points layers 3 to 5 here",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked before the board existed",
+    "stage": "done",
+    "thread": null
+   }
+  ],
+  "id": "M0-05",
+  "kind": "build",
+  "lane": "M0",
+  "needs": [
+   "M0.01"
+  ],
+  "needsText": "M0.01",
+  "order": 5,
+  "plain": "",
+  "pr": null,
+  "ref": "M0.05",
+  "size": "M",
+  "stage": "done",
+  "thread": null,
+  "title": "Design docs rewritten",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Design docs rewritten: plugins instead of kits, the story as the spine; build-plan.md marked superseded from layer 3"
+ },
+ "M0-06": {
+  "doneWhen": "nx run e2e:m0 passes on main",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked before the board existed",
+    "stage": "done",
+    "thread": null
+   }
+  ],
+  "id": "M0-06",
+  "kind": "e2e",
+  "lane": "M0",
+  "needs": [
+   "M0.04",
+   "M0.05"
+  ],
+  "needsText": "M0.04, M0.05",
+  "order": 6,
+  "plain": "",
+  "pr": null,
+  "ref": "M0.06",
+  "size": "S",
+  "stage": "done",
+  "thread": null,
+  "title": "Gate M0",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Gate M0"
+ },
+ "M1-01": {
+  "doneWhen": "decisions/M1-plugins.md written",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked on m1",
+    "stage": "done",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-01",
+  "kind": "decision",
+  "lane": "M1",
+  "needs": [],
+  "needsText": "Gate M0",
+  "order": 7,
+  "plain": "",
+  "pr": null,
+  "ref": "M1.01",
+  "size": "S",
+  "stage": "done",
+  "thread": "m1-lead",
+  "title": "The plugin descriptor, harvested from D4 sections 1 to 3 under the frame's words",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The plugin descriptor, harvested from D4 sections 1 to 3 under the frame's words: three kinds, mount files named by path, the verbs, choices against settings, Blueprint.need(x, { when }), runtime entries per host"
+ },
+ "M1-02": {
+  "doneWhen": "they run and fail for the right reason on main",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked on m1",
+    "stage": "done",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-02",
+  "kind": "checks",
+  "lane": "M1",
+  "needs": [
+   "M1.01"
+  ],
+  "needsText": "M1.01",
+  "order": 8,
+  "plain": "",
+  "pr": null,
+  "ref": "M1.02",
+  "size": "M",
+  "stage": "done",
+  "thread": "m1-lead",
+  "title": "Port layer/4:e2e/layer3/00 to 06 and their fixtures to e2e/m1 in the new words",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Port layer/4:e2e/layer3/00 to 06 and their fixtures to e2e/m1 in the new words"
+ },
+ "M1-03": {
+  "doneWhen": "ortho describe --json on acme and work lists them all",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked on m1",
+    "stage": "done",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-03",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [],
+  "needsText": "Gate M0",
+  "order": 9,
+  "plain": "",
+  "pr": null,
+  "ref": "M1.03",
+  "size": "M",
+  "stage": "done",
+  "thread": "m1-lead",
+  "title": "The complete model",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The complete model: journeys, starting worlds, role rules and operations with blanks (marked) are in it (describe.ts:99)"
+ },
+ "M1-04": {
+  "doneWhen": "editing src/allowance/spend.ts makes ortho impact name allowance.spend alone",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked on m1",
+    "stage": "done",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-04",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.03"
+  ],
+  "needsText": "M1.03",
+  "order": 10,
+  "plain": "",
+  "pr": null,
+  "ref": "M1.04",
+  "size": "M",
+  "stage": "done",
+  "thread": "m1-lead",
+  "title": "Verdicts keyed by the model's hash and each handler body's hash, one per operation p…",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Verdicts keyed by the model's hash and each handler body's hash, one per operation per journey"
+ },
+ "M1-05": {
+  "doneWhen": "a fixture feature, adapter and projection type-check; a wrong field fails to compile",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked on m1",
+    "stage": "done",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-05",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.01"
+  ],
+  "needsText": "M1.01",
+  "order": 11,
+  "plain": "",
+  "pr": null,
+  "ref": "M1.05",
+  "size": "S",
+  "stage": "done",
+  "thread": "m1-lead",
+  "title": "The descriptors in orthograph",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The descriptors in orthograph (Effect-only, per the package rules)"
+ },
+ "M1-06": {
+  "doneWhen": "check 01 passes",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked on m1",
+    "stage": "done",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-06",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.05"
+  ],
+  "needsText": "M1.05",
+  "order": 12,
+  "plain": "",
+  "pr": null,
+  "ref": "M1.06",
+  "size": "M",
+  "stage": "done",
+  "thread": "m1-lead",
+  "title": "Mounts",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Mounts: the compiler reads the three folders, names from paths, folds each plugin's declarations into the model"
+ },
+ "M1-07": {
+  "doneWhen": "a fixture narrowed and with one operation omitted generates without it",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked on m1",
+    "stage": "done",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-07",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.06"
+  ],
+  "needsText": "M1.06",
+  "order": 13,
+  "plain": "",
+  "pr": null,
+  "ref": "M1.07",
+  "size": "M",
+  "stage": "done",
+  "thread": "m1-lead",
+  "title": "The verbs",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The verbs: choose, include, narrow, omit"
+ },
+ "M1-08": {
+  "doneWhen": "checks 05 and 06 pass",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked on m1",
+    "stage": "done",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-08",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.07"
+  ],
+  "needsText": "M1.07",
+  "order": 14,
+  "plain": "",
+  "pr": null,
+  "ref": "M1.08",
+  "size": "M",
+  "stage": "done",
+  "thread": "m1-lead",
+  "title": "Needs and collisions",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Needs and collisions: needs resolved or refused by name; clashing names refused"
+ },
+ "M1-09": {
+  "doneWhen": "check 02 passes",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked on m1",
+    "stage": "done",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-09",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.08"
+  ],
+  "needsText": "M1.08",
+  "order": 15,
+  "plain": "",
+  "pr": null,
+  "ref": "M1.09",
+  "size": "M",
+  "stage": "done",
+  "thread": "m1-lead",
+  "title": "Runtime entries per host and import closures",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Runtime entries per host and import closures (worker, node)"
+ },
+ "M1-10": {
+  "doneWhen": "M1.08",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked on m1",
+    "stage": "done",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-10",
+  "kind": "projection`: pins exactly (three-day rule, R1), writes the mount, offers needs",
+  "lane": "M1",
+  "needs": [],
+  "needsText": "adapter\\",
+  "order": 16,
+  "plain": "",
+  "pr": null,
+  "ref": "M1.10",
+  "size": "build",
+  "stage": "done",
+  "thread": "m1-lead",
+  "title": "ortho add feature\\",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "ortho add feature\\"
+ },
+ "M1-11": {
+  "doneWhen": "acme mounts them; its generated/server is unchanged",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked on m1",
+    "stage": "done",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-11",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.10"
+  ],
+  "needsText": "M1.10",
+  "order": 17,
+  "plain": "",
+  "pr": null,
+  "ref": "M1.11",
+  "size": "L",
+  "stage": "done",
+  "thread": "m1-lead",
+  "title": "Projections as plugins, part one",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Projections as plugins, part one: model, api, server"
+ },
+ "M1-12": {
+  "doneWhen": "acme's generated clients unchanged apart from the new options; the CLI and MCP journeys still pass; a retried SDK call with one requestKey commits once; a declared refusal is typed in the SDK call's error channel",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "check 14 merged into m1",
+    "stage": "checks",
+    "thread": "m1-lead"
+   },
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "check 14 written, red until the slice lands",
+    "stage": "build",
+    "thread": "m1-lead"
+   },
+   {
+    "at": "2026-11-19T09:35:00Z",
+    "note": "builder still running; won't merge before M1.35",
+    "stage": "build",
+    "thread": "m1-lead"
+   },
+   {
+    "at": "2026-11-19T09:41:30Z",
+    "note": "cut by K13 to the SDK contract; the plugin move is M3.22",
+    "stage": "build",
+    "thread": "m1-lead"
+   },
+   {
+    "at": "2026-11-19T09:47:54Z",
+    "note": "Built on m1-12-clients at cddd3e15, check 14 passes 23/23. Its builder also moved sdk, cli and mcp into plugins (M3.22's work); the lead keeps it whole, since K13 removes nothing built. Merges after M1.35.",
+    "stage": "build",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-12",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.11",
+   "M1.35"
+  ],
+  "needsText": "M1.11, M1.35",
+  "order": 18,
+  "plain": "Refusals typed in the SDK, one request key across retries, the caller on the client. Moving the client generators into plugins went to M3.22.",
+  "pr": null,
+  "questions": [
+   {
+    "answer": "Two meanings of plugin. The wallet is a feature plugin: it adds things and operations to your app. M1.12 meant a projection plugin: the code that turns your blueprint into one output. The API and server already work that way: blueprint/projections/api.ts is one line, export default Blueprint.use(api). The SDK, CLI and MCP generators are still built into the generators package. Moving them changes nothing you see; it would only let you swap one or leave one out, say, no CLI. So K13 split it: the SDK contract (typed refusals, one request key across retries) stays here, and the move is M3.22, off the path. The canon thread is explaining both kinds with the links app.",
+    "answeredAt": "2026-11-19T09:41:30Z",
+    "id": "q1",
+    "owner": "conductor",
+    "raisedAt": "2026-11-19T08:51:31.236Z",
+    "source": "the board",
+    "status": "answered",
+    "text": "I don't really understand. What do you mean SDK CLI and MCP become plugins? Can you explain that to me? Can you show me the DX around that? Like how does that work? What exactly is a plugin in this context? Because what I thought a plugin was and that is two different things because like that is like a they're like generated clients know or do you mean plugins into what I don't I don't really understand what's going on there plugins I thought were things like the EVM wallet the I don't know like other things like that I'm just not 100 sure that I'm following it"
+   }
+  ],
+  "ref": "M1.12",
+  "size": "S",
+  "stage": "build",
+  "thread": "m1-lead",
+  "title": "The SDK contract",
+  "updatedAt": "2026-11-19T09:47:54Z",
+  "waiting": null,
+  "what": "The SDK contract (decisions/K5-the-whole-shape.md seam 5): the caller on the client's layer, a stable requestKey across retries, declared refusals typed in the error channel; every output through M1.35's visibility rule. Moving sdk, cli and mcp into mounted plugins is M3.22 (decisions/K13-lock-down-first.md)"
+ },
+ "M1-13": {
+  "doneWhen": "acme's docs unchanged and links' docs generated; the portal opens on links' things, and a journey's run lights up its operation and machine move; the \"no leak\" check plants a raw statement, a principal.person, a non-public payload value and a log body in a staging trace and none renders, while the caller's kind does; the portal's screenshots are byte-identical across two runs at the same now",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "queued in the M1 goal",
+    "stage": "backlog",
+    "thread": "m1-lead"
+   },
+   {
+    "at": "2026-11-19T09:41:30Z",
+    "note": "re-cut by K13 to the portal as a viewer; needs M1.42, not M1.24",
+    "stage": "backlog",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-13",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.03",
+   "M1.04",
+   "M1.11",
+   "M1.21",
+   "M1.25",
+   "M1.34",
+   "M1.35",
+   "M1.36",
+   "M1.42"
+  ],
+  "needsText": "M1.03, M1.04, M1.11, M1.21, M1.25, M1.34, M1.35, M1.36, M1.42",
+  "order": 20,
+  "plain": "See the blueprint in the portal: things and lifecycles from the model, with live calls and traces lighting it up. No chat or actions yet.",
+  "pr": null,
+  "ref": "M1.13",
+  "size": "L",
+  "stage": "backlog",
+  "thread": "m1-lead",
+  "title": "The portal as a viewer",
+  "updatedAt": "2026-11-19T09:41:30Z",
+  "waiting": null,
+  "what": "Part three: docs and the portal as a viewer (decisions/K13-lock-down-first.md), our design (M1.25) on the pieces ported from agent-native (K5 seam 10), every component from @orthograph/portal-ui (M1.34): the shell's frame (the tree, the top bar with environment, window and search, the live rail, the drawer; the chat, \"Needs you\" and screen context stay in M1.24); things and lifecycles first, drawn from the model; live evidence lights up the same structure, as portal.md draws it; the operations matrix (p95 against the declared budget.p95); the trace drawer's folding waterfall; spans kept to structure and timing; TraceSource.window(since, now) at a fixed now for tests and screenshots; a proof tab on M1.04's verdicts (no eval timing; latency is the live p95); every part of the wire M1.42 adds (from, events with their fields, errors with codes, field visibility and descriptions, step details) and the rest K12 section 6 names (journeys, starting worlds, stores, mounts, role rules, runs and the test hook, environments). Calls and door refusals come from ortho.calls, never an HTTP span; retries group by attempt and <op>.commit; database steps by step.kind. Faces and notes are M3.21"
+ },
+ "M1-14": {
+  "doneWhen": "checks 03 and 04 pass",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked on m1",
+    "stage": "done",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-14",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.08"
+  ],
+  "needsText": "M1.08",
+  "order": 21,
+  "plain": "",
+  "pr": null,
+  "ref": "M1.14",
+  "size": "M",
+  "stage": "done",
+  "thread": "m1-lead",
+  "title": "Adapter calls out",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Adapter calls out: Blueprint.step.call, declared errors, the one mapping blank, a stand-in declared (D4 section 3)"
+ },
+ "M1-15": {
+  "doneWhen": "nx run e2e:m1 passes on main",
+  "history": [],
+  "id": "M1-15",
+  "kind": "e2e",
+  "lane": "M1",
+  "needs": [
+   "M1.02",
+   "M1.14",
+   "M1.16",
+   "M1.39"
+  ],
+  "needsText": "M1.02 to M1.14, M1.16 to M1.39",
+  "order": 45,
+  "plain": "Every M1 check passes on main. Then the npm preview.",
+  "pr": null,
+  "ref": "M1.15",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Gate M1",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Gate M1"
+ },
+ "M1-16": {
+  "doneWhen": "on acme, revoke then spend shows two red steps and one proved by the description",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked on m1",
+    "stage": "done",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-16",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [],
+  "needsText": "Gate M0",
+  "order": 22,
+  "plain": "",
+  "pr": null,
+  "ref": "M1.16",
+  "size": "S",
+  "stage": "done",
+  "thread": "m1-lead",
+  "title": "ortho prove --empty",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "ortho prove --empty: the journeys run against scaffolded handlers; each step that needs behaviour goes red, and one that passes is labelled \"proved by the description\" (S3)"
+ },
+ "M1-17": {
+  "doneWhen": "acme unchanged; a fixture feature with its own store mounts beside acme's default and both migrate; an operation writing two stores fails to compile",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked on m1",
+    "stage": "done",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-17",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.06"
+  ],
+  "needsText": "M1.06",
+  "order": 23,
+  "plain": "",
+  "pr": null,
+  "ref": "M1.17",
+  "size": "M",
+  "stage": "done",
+  "thread": "m1-lead",
+  "title": "Stores",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Stores (decisions/K3-stores-and-sources.md): Blueprint.store.<kind>() under blueprint/stores/, lives takes a store or nothing for the default, kinds supplied by hosts (database, actor), stores: bindings typed in environments, one store per commit (cross-store writes refused), migrations per store, a feature's own stores named by its mount"
+ },
+ "M1-18": {
+  "doneWhen": "a forced conflict shows attempt=2 after a conflict commit; a journey asserts allowance.spend.commit",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked on m1",
+    "stage": "done",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-18",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [],
+  "needsText": "Gate M0",
+  "order": 24,
+  "plain": "",
+  "pr": null,
+  "ref": "M1.18",
+  "size": "S",
+  "stage": "done",
+  "thread": "m1-lead",
+  "title": "The commit as a span",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The commit as a span (decisions/O2-trace-gaps.md gap 1): <op>.commit with commit.writes, commit.entries, commit.outcome, and attempt on the operation's span"
+ },
+ "M1-19": {
+  "doneWhen": "payload.memo is absent from spend's span; a traced text field is present; the \"leaks nothing\" eval passes",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked on m1",
+    "stage": "done",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-19",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [],
+  "needsText": "Gate M0",
+  "order": 25,
+  "plain": "",
+  "pr": null,
+  "ref": "M1.19",
+  "size": "S",
+  "stage": "done",
+  "thread": "m1-lead",
+  "title": "Free text untraced unless marked",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Free text untraced unless marked (O2 gap 2): Blueprint.traced(x); ids, amounts, enums, booleans and times traced when public"
+ },
+ "M1-20": {
+  "doneWhen": "a bad payload and a stranger show as two refusals in ortho.calls, with no spans",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked on m1",
+    "stage": "done",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-20",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [],
+  "needsText": "Gate M0",
+  "order": 26,
+  "plain": "",
+  "pr": null,
+  "ref": "M1.20",
+  "size": "S",
+  "stage": "done",
+  "thread": "m1-lead",
+  "title": "Every call counted",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Every call counted (O2 gap 3): ortho.calls and ortho.call.duration through Effect Metric to OTLP; the local Collector gains a metrics pipeline"
+ },
+ "M1-21": {
+  "doneWhen": "a slow handler's load step shows in the portal before the response; a committed event shows with its commit, a refused call shows none",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked on m1",
+    "stage": "done",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-21",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.18"
+  ],
+  "needsText": "M1.18",
+  "order": 27,
+  "plain": "",
+  "pr": null,
+  "ref": "M1.21",
+  "size": "S",
+  "stage": "done",
+  "thread": "m1-lead",
+  "title": "Live steps",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Live steps (K5 seam 10): a step signal as each step starts and ends, sent under waitUntil, not at dispose; committed events read from the journal for the portal"
+ },
+ "M1-22": {
+  "doneWhen": "an action's run refused by the role check returns the same typed refusal as the SDK; an operation .notVia(Via.agent) has no agent tool; a type test checks each generated options(host) against the field list and the no-write error's fields recorded from agent-native 0.228.2, with no agent-native package installed; every generated action advertises non-empty parameters",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "queued in the M1 goal",
+    "stage": "backlog",
+    "thread": "m1-lead"
+   },
+   {
+    "at": "2026-11-19T09:41:30Z",
+    "note": "moved to M3 by K13: off the path to workable",
+    "stage": "backlog",
+    "thread": null
+   }
+  ],
+  "id": "M1-22",
+  "kind": "build",
+  "lane": "M3",
+  "needs": [
+   "M1.12",
+   "M1.23"
+  ],
+  "needsText": "M1.12, M1.23",
+  "order": 28,
+  "plain": "Each operation becomes an action in agent-native's shape.",
+  "pr": null,
+  "ref": "M1.22",
+  "size": "M",
+  "stage": "backlog",
+  "thread": "m1-lead",
+  "title": "One action per operation",
+  "updatedAt": "2026-11-19T09:41:30Z",
+  "waiting": null,
+  "what": "The actions projection (K5 seam 5, corrected by K9 from spikes/agent-native-compat/): one module per operation exporting options(host) in agent-native's field names, never a defineAction call; host supplies the SDK client, the caller and requestKey(ctx); run turns a declared refusal into the no-write ActionRefusal and redacts defects; no retrySafe: true; payload schemas through Effect's Standard Schema and Standard JSON Schema, optional fields as optionalKey; our portal wraps each with our defineAction"
+ },
+ "M1-23": {
+  "doneWhen": "a generated action refused by the role check writes nothing and returns the typed refusal; one with needsApproval waits for a yes; with approval already given by its host, run runs once and asks nothing; list returns every generated action with a non-empty input schema",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "queued in the M1 goal",
+    "stage": "backlog",
+    "thread": "m1-lead"
+   },
+   {
+    "at": "2026-11-19T09:41:30Z",
+    "note": "moved to M3 by K13: off the path to workable",
+    "stage": "backlog",
+    "thread": null
+   }
+  ],
+  "id": "M1-23",
+  "kind": "build",
+  "lane": "M3",
+  "needs": [
+   "M1.12"
+  ],
+  "needsText": "M1.12",
+  "order": 29,
+  "plain": "defineAction with approvals, so a risky call can wait for a person.",
+  "pr": null,
+  "ref": "M1.23",
+  "size": "S",
+  "stage": "backlog",
+  "thread": "m1-lead",
+  "title": "The port, part one: actions and approvals",
+  "updatedAt": "2026-11-19T09:41:30Z",
+  "waiting": null,
+  "what": "The port from agent-native, part one (K5, \"Porting from agent-native\"; K9): defineAction with agent-native's field names and approvals, in orthograph's actions module, in Effect. Approvals live in the wrapper, never in run, so a host that asks first never asks twice. ActionRefusal carries actionContractError, noWrite, errorCode, statusCode: 422 and details, the shape agent-native reads (K9); the registry lists every action with its input schema (list, F8)"
+ },
+ "M1-24": {
+  "doneWhen": "the shell and screen context run on acme's Worker over D1; the rail is scoped to the page; no @agent-native/* package is installed; an agent's view-screen on one tab returns that tab's page and open trace, and navigate on it leaves another tab where it was; the generated AGENTS.md opens with its Generated from … line and tells an agent to call view-screen first",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "queued in the M1 goal",
+    "stage": "backlog",
+    "thread": "m1-lead"
+   },
+   {
+    "at": "2026-11-19T09:41:30Z",
+    "note": "moved to M3 by K13: off the path to workable",
+    "stage": "backlog",
+    "thread": null
+   }
+  ],
+  "id": "M1-24",
+  "kind": "build",
+  "lane": "M3",
+  "needs": [
+   "M1.17",
+   "M1.23",
+   "M1.34"
+  ],
+  "needsText": "M1.17, M1.23, M1.34",
+  "order": 30,
+  "plain": "The portal's frame: tree, top bar, search, Needs you, live rail, the chat's surface.",
+  "pr": null,
+  "ref": "M1.24",
+  "size": "M",
+  "stage": "backlog",
+  "thread": "m1-lead",
+  "title": "The port, part two: shell and chat",
+  "updatedAt": "2026-11-19T09:41:30Z",
+  "waiting": null,
+  "what": "The port, part two: the shell (HeroUI Pro's app shell: the tree, the top bar with environment, window, search, \"Needs you\" and chat, the live rail, the drawer) and screen context (the page, the window, the open trace, and what a face's context adds), as portal.md draws them; the approval card's contract from M1.23; the shell and the chat parts come from @orthograph/portal-ui (M1.34). The chat's surface is M4.16 (Pro's AI components over a Pi Durable run), and conversations are @orthograph/agents Runs, not things in the portal's store (M1.25). Signed in through acme's own auth until M2.06; view-screen and navigate { tab, to }, with screen context held per tab, and the portal's AGENTS.md generated from the model, saying to read the screen first (F8)"
+ },
+ "M1-25": {
+  "doneWhen": "design/portal.md agreed: the first page, a thing's page, an operation's page, the live rail, the chat. Proof: portal.md, agreed 19 November 2026; the drawing in spikes/portal-mock",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked on m1",
+    "stage": "done",
+    "thread": "portal-designer"
+   }
+  ],
+  "id": "M1-25",
+  "kind": "decision",
+  "lane": "M1",
+  "needs": [],
+  "needsText": "Gate M0",
+  "order": 31,
+  "plain": "",
+  "pr": null,
+  "ref": "M1.25",
+  "size": "M",
+  "stage": "done",
+  "thread": "portal-designer",
+  "title": "The portal's design, with Aaron",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The portal's design, with Aaron (UX.md's intent; agent-native's templates as the reference). Aaron asks to see UX before it is drawn, so this is his session by his rule, not a block"
+ },
+ "M1-26": {
+  "doneWhen": "a fresh scaffold compiles and ortho prove --empty shows one red step per blank; a fixture with an unchanged edit that skips its optional save passes eval 6; a fixture whose journeys always run its optional step is reported as never exercised both ways; deleting steps.record from spend gives a check warning",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked on m1",
+    "stage": "done",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-26",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [],
+  "needsText": "Gate M0",
+  "order": 32,
+  "plain": "",
+  "pr": null,
+  "ref": "M1.26",
+  "size": "M",
+  "stage": "done",
+  "thread": "m1-lead",
+  "title": "The scaffold as a wired function",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The scaffold as a wired function (K5 seam 3): each declared step in declared order, the move, a stub per refusal, every hole a Handlers.blank; Blueprint.step.<kind>({ optional: true }), allowed absent by eval 6; ortho check warns on a non-optional step the handler never calls; ortho prove reports an optional step no journey ran both ways"
+ },
+ "M1-27": {
+  "doneWhen": "a fixture plugin's client operation runs from the SDK and the CLI with no server call, and shows its steps in the portal; one missing its browser entry is refused",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked on m1",
+    "stage": "done",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-27",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.09",
+   "M1.14"
+  ],
+  "needsText": "M1.09, M1.14",
+  "order": 33,
+  "plain": "",
+  "pr": null,
+  "ref": "M1.27",
+  "size": "M",
+  "stage": "done",
+  "thread": "m1-lead",
+  "title": "Operations that run on the device",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Operations that run on the device (K7, ledger LAH-02, G-10): the compiler accepts runs: \"client\" (describe.ts:108 refuses it today) for an operation whose plugin supplies node, browser and world entries, adding the browser and world host entries M1.09 doesn't cover; the generated client runs it in-process with its steps as spans"
+ },
+ "M1-28": {
+  "doneWhen": "they fail on empty handlers",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked on m1",
+    "stage": "done",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-28",
+  "kind": "checks",
+  "lane": "M1",
+  "needs": [
+   "M1.01"
+  ],
+  "needsText": "M1.01",
+  "order": 34,
+  "plain": "",
+  "pr": null,
+  "ref": "M1.28",
+  "size": "M",
+  "stage": "done",
+  "thread": "m1-lead",
+  "title": "Journeys for the wallet plugin's first version",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Journeys for the wallet plugin's first version (K7 F4), written by a different agent: create and import a key, list keys, sign, send on Anvil and see it confirmed, a doomed send refused before sending; one journey per host signer"
+ },
+ "M1-29": {
+  "doneWhen": "acme wallet create && acme wallet send confirms on Anvil from the CLI, and from a server operation signing with a world-generated server key",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked on m1",
+    "stage": "done",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-29",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.27",
+   "M1.28",
+   "M1.30",
+   "M1.31",
+   "M1.32"
+  ],
+  "needsText": "M1.27, M1.28, M1.30, M1.31, M1.32",
+  "order": 35,
+  "plain": "",
+  "pr": null,
+  "ref": "M1.29",
+  "size": "M",
+  "stage": "done",
+  "thread": "m1-lead",
+  "title": "@orthograph/wallets, the first real plugin",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "@orthograph/wallets, the first real plugin (was M6.03, L3.02): create, import, keys, sign, send; one Signer per host: browser (EIP-1193), node (encrypted keystore), keystore on a server (a server-held key; in M1 only a world-generated test key, real secrets come with M2.04 and the hygiene check with M6.18), world (test wallets); each wallet declares where its key lives (K7 F5); values are CAIP-10 accounts"
+ },
+ "M1-30": {
+  "doneWhen": "a fixture ERC20 transfer on Anvil; a revert decodes typed; an empty revert arrives as ChainFault; a hand-written viem import outside chain-evm fails lint",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked on m1",
+    "stage": "done",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-30",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.14"
+  ],
+  "needsText": "M1.14",
+  "order": 36,
+  "plain": "",
+  "pr": null,
+  "ref": "M1.30",
+  "size": "M",
+  "stage": "done",
+  "thread": "m1-lead",
+  "title": "The chain adapter @orthograph/chain-evm",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The chain adapter @orthograph/chain-evm (was M6.05, L3.04): the per-family ChainPort (prepare, simulate, sign, submit, track), its transaction manager, nonces, viem error mapping and event streams vendored from @prb/effect-evm (MIT, notice kept), reshaped to our module shape with every wait through Timers; ChainFault typed; receipts as spans (K7)"
+ },
+ "M1-31": {
+  "doneWhen": "a world's chain answers eth_chainId and is gone when the world ends; nothing it printed holds a key",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked on m1",
+    "stage": "done",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-31",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.30"
+  ],
+  "needsText": "M1.30",
+  "order": 37,
+  "plain": "",
+  "pr": null,
+  "ref": "M1.31",
+  "size": "M",
+  "stage": "done",
+  "thread": "m1-lead",
+  "title": "Anvil in a world",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Anvil in a world (was M6.06, L3.05): Stand.process, always --silent; a process in CI too, never a container (K10 section 8)"
+ },
+ "M1-32": {
+  "doneWhen": "a reverting call returns its typed error and sends nothing; no SDK path sends without simulating",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "ticked on m1",
+    "stage": "done",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-32",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.30"
+  ],
+  "needsText": "M1.30",
+  "order": 38,
+  "plain": "",
+  "pr": null,
+  "ref": "M1.32",
+  "size": "S",
+  "stage": "done",
+  "thread": "m1-lead",
+  "title": "Simulation, mandatory before every send",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Simulation, mandatory before every send (was M6.08, L3.07): plain eth_call, which works on Anvil (K7 Q5)"
+ },
+ "M1-33": {
+  "doneWhen": "with no docker on PATH, nx run-many -t test, nx run e2e:layer1 and nx run e2e:layer2 pass on macOS and in CI, and each run ends with no process of ours left",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "built; the harness audit accepted, merging into m1",
+    "stage": "review",
+    "thread": "m1-lead"
+   },
+   {
+    "at": "2026-11-19T09:39:00Z",
+    "note": "ready at f9f0d8a4; waiting on checks 00–13, then M1.34 is committed and check 17 and M1.33 merge on top; CI then covers Linux and the Collector cache",
+    "stage": "review",
+    "thread": "m1-lead"
+   },
+   {
+    "at": "2026-11-19T09:47:54Z",
+    "note": "Merged on m1 at 6419d4b7; units, layer1, layer2, lint, typecheck, sync and canon green on the merged tree. Linux and the Collector cache left to CI.",
+    "stage": "review",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-33",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [],
+  "needsText": "Gate M0",
+  "order": 39,
+  "plain": "The tools that ran inside Docker run as plain programs: the telemetry collector, the private npm registry, the test login server.",
+  "pr": 64,
+  "ref": "M1.33",
+  "size": "M",
+  "stage": "review",
+  "thread": "m1-lead",
+  "title": "Test tools without Docker",
+  "updatedAt": "2026-11-19T09:47:54Z",
+  "waiting": null,
+  "what": "Processes, not containers (K10 section 8; Aaron quit Docker, 18 November): the Collector as its pinned binary, Verdaccio under Node, an OIDC issuer process of our own over jose in place of the navikt image, each started by its world as Stand.process and owned by PID; the Grafana viewer removed in favour of the portal's trace view; the gates' teardown sweeps owned PIDs, not docker ps; CI drops Docker"
+ },
+ "M1-34": {
+  "doneWhen": "portal-ui builds in CI with Pro installed from the secret, and nothing of Pro is committed or in its packed dist; a planted @heroui-pro/react import in packages/portal fails lint; a fork's pull request runs no job that reads the secret",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "check 15 merged into m1",
+    "stage": "checks",
+    "thread": "m1-lead"
+   },
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "check 15 written by an author, red until the package lands",
+    "stage": "build",
+    "thread": "m1-lead"
+   },
+   {
+    "at": "2026-11-19T09:47:54Z",
+    "note": "Merged on m1 at 6419d4b7; check 15 passes 15/15 locally and now blocks in CI. Ticked when CI's portal-ui job is green.",
+    "stage": "review",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-34",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.25"
+  ],
+  "needsText": "M1.25",
+  "order": 19,
+  "plain": "Only @orthograph/portal-ui touches HeroUI Pro; Pro never ships in anything we publish.",
+  "pr": null,
+  "ref": "M1.34",
+  "size": "S",
+  "stage": "review",
+  "thread": "m1-lead",
+  "title": "HeroUI Pro behind one package",
+  "updatedAt": "2026-11-19T09:47:54Z",
+  "waiting": null,
+  "what": "HeroUI Pro behind one package (decisions/F7-portal-ui-seam.md): @orthograph/portal-ui at packages/portal-ui, the only importer of @heroui-pro/react, which it takes as a peer dependency and never bundles, exporting our names (Shell, Board, Grid, Chart, Stat, Card, Widget, Timeline, Command, Code, Markdown, Editor, the Chat parts) for the portal's pages and the Factory face; no-restricted-imports bans @heroui-pro/* in every other package and in generated code (spikes exempt); CI installs Pro from the HEROUI_AUTH_TOKEN secret (created by Aaron, 19 November), cached by lockfile, never on fork pull requests"
+ },
+ "M1-35": {
+  "doneWhen": "a generated check renders every output for every audience over a fixture thing whose answer and refusal carry a public, a private and a secret field: no secret leaves through any output, a private field reaches only a principal holding its role, and a field the declaration doesn't name never leaves",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "decided in K12",
+    "stage": "decide",
+    "thread": "conductor"
+   },
+   {
+    "at": "2026-11-19T09:20:00Z",
+    "note": "K12 merged; handed to the M1 lead for an author's checks, before M1.12",
+    "stage": "checks",
+    "thread": "m1-lead"
+   },
+   {
+    "at": "2026-11-19T09:40:30Z",
+    "note": "check 16 was red as intended and showed the row was too strict: acme's sign-in answers with its token. Rule refined: an issued secret leaves once, to its own caller, over HTTP, the SDK and the CLI. The conductor agreed; K12, the row and Gate M1 check 8 are being updated on m1, and check 16 revised",
+    "stage": "checks",
+    "thread": "m1-lead"
+   },
+   {
+    "at": "2026-11-19T09:47:54Z",
+    "note": "Check 16 written and on m1, red only on the missing surface; builder started. Issued secrets recorded: Blueprint.issued(...) on an answer field only; acme marks sign-in's session and token and api-key.create's key.",
+    "stage": "build",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-35",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.11"
+  ],
+  "needsText": "M1.11",
+  "order": 40,
+  "plain": "One visibility rule in place of four. A secret leaves only once: in the answer of the call that issued it (a sign-in token, a new API key), to that caller. Never in a refusal, a read, MCP or telemetry. The blueprint marks such a field with Blueprint.issued(...), only on an operation's answer.",
+  "pr": 64,
+  "questions": [
+   {
+    "answer": "Yes, once: in the answer to the call that issued it, to that caller, over HTTP, the SDK and the CLI. Never in a refusal, a read, MCP or telemetry. The declaration marks the field as issued.",
+    "id": "q1",
+    "owner": "conductor",
+    "raisedAt": "2026-11-19T09:40:30Z",
+    "source": "check 16",
+    "status": "answered",
+    "text": "Does a secret that an operation issues (session.sign-in's token, api-key.create's key) ever leave?"
+   }
+  ],
+  "ref": "M1.35",
+  "size": "M",
+  "stage": "build",
+  "thread": "m1-lead",
+  "title": "One rule for what each caller sees",
+  "updatedAt": "2026-11-19T09:47:54Z",
+  "waiting": null,
+  "what": "One visibility rule (decisions/K12-coverage-gaps.md section 1, ledger OPS-01): a visibility module in language-effect with one Audience (principal with the roles held, agent, telemetry, public, owner) and sees, redact and schema, failing closed; HTTP answers and refusals, the SDK, the CLI, MCP, spans, the journal, logs and the portal's data file all call it; MCP's shown.ts becomes the agent case and Errors.shown goes"
+ },
+ "M1-36": {
+  "doneWhen": "the local world test reads each from the Collector for one call of acme's that moves, emits and is refused, and for one slowed past its budget",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "decided in K12",
+    "stage": "decide",
+    "thread": "conductor"
+   },
+   {
+    "at": "2026-11-19T09:20:00Z",
+    "note": "K12 merged; handed to the M1 lead, before M1.13",
+    "stage": "checks",
+    "thread": "m1-lead"
+   },
+   {
+    "at": "2026-11-19T09:47:54Z",
+    "note": "Check 17 written and on m1, red only on the missing surface; builder started.",
+    "stage": "build",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-36",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.21"
+  ],
+  "needsText": "M1.21",
+  "order": 41,
+  "plain": "Traces gain the event emitted, the state moved from, the error code, budget breaches, the environment.",
+  "pr": 68,
+  "ref": "M1.36",
+  "size": "S",
+  "stage": "build",
+  "thread": "m1-lead",
+  "title": "Telemetry carries the whole model",
+  "updatedAt": "2026-11-19T09:47:54Z",
+  "waiting": null,
+  "what": "Telemetry carries the model (decisions/K12-coverage-gaps.md section 2): move.from, event.name on the commit span, refusal.code, an ortho.budget.breaches counter against the declared budget.p95, and environment and store on every call"
+ },
+ "M1-37": {
+  "doneWhen": "an MCP client lists acme's tools with their hints and output schemas, reads a thing as a resource, gets AL-001 as a structured error, and a call that needs approval waits for one",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "decided in K12",
+    "stage": "decide",
+    "thread": "conductor"
+   },
+   {
+    "at": "2026-11-19T09:20:00Z",
+    "note": "K12 merged; handed to the M1 lead, after M1.12 and M1.23",
+    "stage": "checks",
+    "thread": "m1-lead"
+   },
+   {
+    "at": "2026-11-19T09:41:30Z",
+    "note": "moved to M3 by K13: off the path to workable",
+    "stage": "backlog",
+    "thread": null
+   }
+  ],
+  "id": "M1-37",
+  "kind": "build",
+  "lane": "M3",
+  "needs": [
+   "M1.12",
+   "M1.23",
+   "M1.35"
+  ],
+  "needsText": "M1.12, M1.23, M1.35",
+  "order": 42,
+  "plain": "Safety hints, answer shapes, refusals with codes, resources, approvals.",
+  "pr": 68,
+  "ref": "M1.37",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "MCP from the whole model",
+  "updatedAt": "2026-11-19T09:41:30Z",
+  "waiting": null,
+  "what": "MCP from the whole model (decisions/K12-coverage-gaps.md section 3): destructiveHint, idempotentHint and title from the declaration, an outputSchema from the answer, refusals as structured errors carrying their code, resources for things and the docs, approvals through M1.23's rule, all through M1.35's agent audience"
+ },
+ "M1-38": {
+  "doneWhen": "a world declaring depth three on Anvil sees a send submitted until three blocks are mined, then confirmed; the local environment still confirms at one",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "decided in K12",
+    "stage": "decide",
+    "thread": "conductor"
+   },
+   {
+    "at": "2026-11-19T09:20:00Z",
+    "note": "K12 merged; handed to the M1 lead",
+    "stage": "checks",
+    "thread": "m1-lead"
+   },
+   {
+    "at": "2026-11-19T09:40:00Z",
+    "note": "check 18 written (m1-author-18 at c646d2c7): the block holding the send counts as block one, so depth three confirms at the third block; the builder starts once M1.34 is committed",
+    "stage": "checks",
+    "thread": "m1-lead"
+   },
+   {
+    "at": "2026-11-19T09:47:54Z",
+    "note": "Check 18 written and on m1, red only on the missing surface; builder started.",
+    "stage": "build",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-38",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.29"
+  ],
+  "needsText": "M1.29",
+  "order": 43,
+  "plain": "The wallet waits as many blocks as the chain needs, not always one.",
+  "pr": 64,
+  "ref": "M1.38",
+  "size": "S",
+  "stage": "build",
+  "thread": "m1-lead",
+  "title": "Confirmation per chain and environment",
+  "updatedAt": "2026-11-19T09:47:54Z",
+  "waiting": null,
+  "what": "Confirmation per chain and environment (K7 F2, decisions/K12-coverage-gaps.md section 4): the wallet takes confirmed's depth from the environment's chain, depth one only for a local chain; flow.ts:29's depth: 1 goes"
+ },
+ "M1-39": {
+  "doneWhen": "docs:check passes with the new page; git grep -E \"waits? on K7\" docs design/frame finds nothing",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "decided in K12",
+    "stage": "decide",
+    "thread": "conductor"
+   },
+   {
+    "at": "2026-11-19T09:20:00Z",
+    "note": "waits on M1.38; a canon thread starts then",
+    "stage": "backlog",
+    "thread": null
+   }
+  ],
+  "id": "M1-39",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.29",
+   "M1.38"
+  ],
+  "needsText": "M1.29, M1.38",
+  "order": 44,
+  "plain": "The canon stops saying chains wait on K7.",
+  "pr": null,
+  "ref": "M1.39",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "A docs page for chains and wallets",
+  "updatedAt": "2026-11-19T09:20:00Z",
+  "waiting": null,
+  "what": "The canon's chains-and-wallets page (decisions/K12-coverage-gaps.md section 5), by the canon thread: chain-evm, wallets, the signers and Anvil in a world, from the code; every \"waits on K7\" or \"wait on K7\" in docs/canon/ replaced with what K7 decided; frame/writing-a-feature.md matched to M1.29"
+ },
+ "M1-40": {
+  "doneWhen": "ortho generate and ortho prove --empty run on examples/links, and it type-checks",
+  "history": [
+   {
+    "at": "2026-11-19T09:41:30Z",
+    "note": "added by K13; handed to the M1 lead",
+    "stage": "backlog",
+    "thread": "m1-lead"
+   },
+   {
+    "at": "2026-11-19T09:47:54Z",
+    "note": "Waiting on the 📖 canon thread's links blueprint; the builder starts from #56 once it answers. After review, declarations and empty handlers only; M1.43 writes the handlers.",
+    "stage": "backlog",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-40",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.11"
+  ],
+  "needsText": "M1.11",
+  "order": 45,
+  "plain": "The one example: claim a name, get a public page of links. No sign-in yet. Built to the canon thread's blueprint, starting from Codex's version.",
+  "pr": 69,
+  "questions": [],
+  "ref": "M1.40",
+  "size": "S",
+  "stage": "backlog",
+  "thread": "m1-lead",
+  "title": "The links app, built to the canon",
+  "updatedAt": "2026-11-19T09:47:54Z",
+  "waiting": null,
+  "what": "The links app, the canon's one example (decisions/K13-lock-down-first.md): examples/links at stage 1 without sign-in, written to the canon thread's blueprint and started from Codex's links/stage-1 (#56): profile (a handle and its page) and link; claim, add, order and remove a link, and a public read of a page; sign-in comes with ST1.04 and ST1.07"
+ },
+ "M1-41": {
+  "doneWhen": "it runs, and fails only where K13's grid says ✗ or ~",
+  "history": [
+   {
+    "at": "2026-11-19T09:41:30Z",
+    "note": "added by K13; a different agent writes it first",
+    "stage": "backlog",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-41",
+  "kind": "checks",
+  "lane": "M1",
+  "needs": [
+   "M1.40"
+  ],
+  "needsText": "M1.40",
+  "order": 46,
+  "plain": "Run the real ortho on the links app and read every output: things, fields, events, errors, steps. Call it through the SDK and CLI, see it in telemetry and the portal. Written first by a different agent.",
+  "pr": 69,
+  "questions": [],
+  "ref": "M1.41",
+  "size": "M",
+  "stage": "backlog",
+  "thread": "m1-lead",
+  "title": "The whole loop, checked end to end",
+  "updatedAt": "2026-11-19T09:41:30Z",
+  "waiting": null,
+  "what": "The loop, end to end (decisions/K13-lock-down-first.md), written by a different agent before M1.42: through the real ortho binary in a fresh folder, examples/links is generated and every output is read for the basics: each thing's type and fields with their descriptions and visibility, each operation and read, each machine's states and moves, each event with what it carries, each error with its code, and each step's details in the portal's data; then the server runs locally, every operation is called once through the SDK and once through the CLI, a refused call prints its code, the event and the code reach telemetry, and the portal opens on links' things"
+ },
+ "M1-42": {
+  "doneWhen": "M1.41 passes",
+  "history": [
+   {
+    "at": "2026-11-19T09:41:30Z",
+    "note": "added by K13",
+    "stage": "backlog",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M1-42",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.41",
+   "M1.43",
+   "M1.35",
+   "M1.36"
+  ],
+  "needsText": "M1.41, M1.35, M1.36",
+  "order": 47,
+  "plain": "Fix what the loop check turns red: thing types and events in the SDK, typed flags and help in the CLI, field descriptions in MCP, and visibility, events, error codes and steps in the portal.",
+  "pr": 69,
+  "questions": [],
+  "ref": "M1.42",
+  "size": "M",
+  "stage": "backlog",
+  "thread": "m1-lead",
+  "title": "The basics in every output",
+  "updatedAt": "2026-11-19T09:47:54Z",
+  "waiting": null,
+  "what": "The basics in every output (decisions/K13-lock-down-first.md): the SDK exports each thing's type and the events; the CLI's flags typed from each field and its help from the field's description; MCP's input fields described; the portal's data gains field visibility and descriptions, events with their fields, errors with their codes, and step details (optional, writes, the call)"
+ },
+ "M1-43": {
+  "doneWhen": "every M1.41 call commits through the SDK and the CLI, and the refused claim prints its code",
+  "history": [
+   {
+    "at": "2026-11-19T09:47:54Z",
+    "note": "Added after the 🔍 review of #69: M1.40 is declarations only, so the loop needs real handlers inside M1.",
+    "stage": "backlog",
+    "thread": "conductor"
+   },
+   {
+    "at": "2026-11-19T11:33:45Z",
+    "note": "K16: needs M1.44 and M1.45, so its handlers are written from the scaffold that explains itself.",
+    "stage": "backlog",
+    "thread": "k16-author"
+   }
+  ],
+  "lane": "M1",
+  "needs": [
+   "M1.41",
+   "M1.44",
+   "M1.45",
+   "M1.46"
+  ],
+  "plain": "Real handlers for the links app, so the end-to-end check can commit real calls.",
+  "pr": 69,
+  "questions": [],
+  "ref": "M1.43",
+  "stage": "backlog",
+  "thread": "m1-lead",
+  "title": "Links' handlers",
+  "updatedAt": "2026-11-19T11:33:45Z",
+  "waiting": null,
+  "what": "examples/links' handlers at stage 1, written against M1.41 by a builder who didn't write it: claim a handle (a taken one refused with HandleTaken), add, order and remove a link, read a page; one store, no sign-in. ST1.03 later moves the claim into @orthograph/handles and ST1.04 adds sign-in.",
+  "needsText": "M1.41, M1.44, M1.45, M1.46"
+ },
+ "M1-44": {
+  "doneWhen": "check 19's M1.44 tests and handlers.test.ts's K16 scaffold tests pass, visibility included; check 10 still passes; \"the scaffold shows what the runtime hands in\" passes once M1.46 is in too",
+  "history": [
+   {
+    "at": "2026-11-19T11:33:45Z",
+    "note": "Added by K16 (Aaron, 19 November: the scaffold reads the machine, on the critical path). Checks written first by the ✍️ author: check 19 and handlers.test.ts, red on claude/k16-checks.",
+    "stage": "checks",
+    "thread": "k16-author"
+   },
+   {
+    "at": "2026-11-19T11:40:13Z",
+    "note": "Outcomes as Match with Match.exhaustive (Aaron: \"can't we use other effects things like match\"); check 19 gains the compile-time drift test.",
+    "stage": "checks",
+    "thread": "k16-author"
+   },
+   {
+    "at": "2026-11-19T13:30:00Z",
+    "note": "Visibility labels and the runtime's hand-in lines added to the header (Aaron: \"make sure this is handled\").",
+    "stage": "checks",
+    "thread": "k16-author"
+   }
+  ],
+  "id": "M1-44",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.26"
+  ],
+  "needsText": "M1.26",
+  "order": 48,
+  "plain": "A new handler opens by explaining itself: who may call, every refusal, the whole machine, what the runtime does; one branch per outcome.",
+  "pr": null,
+  "questions": [],
+  "ref": "M1.44",
+  "size": "M",
+  "stage": "checks",
+  "thread": "k16-author",
+  "title": "The scaffold explains itself",
+  "updatedAt": "2026-11-19T13:30:00Z",
+  "waiting": null,
+  "what": "renderHandlerScaffold(op, path, model) opens with a doc block citing each part's blueprint file (who may call, payload and answer with each field's visibility, refusals with fields and exit codes, idempotency, budget, the thing's machine with this call's rows marked, what the runtime does and hands in); a section per step, a refusal block with a blank per field, one Match.when per outcome saying what can follow, closed by Match.exhaustive (Operation keeps the move's literal type; the handler type exports Outcome), the answer with a note where only it can give an event field; ortho check warns on an outcome or declared error the handler never names."
+ },
+ "M1-45": {
+  "doneWhen": "check 19's M1.45 tests and handlers.test.ts's path and stub tests pass: allowance's sixteen stubs, five byte for byte",
+  "history": [
+   {
+    "at": "2026-11-19T11:33:45Z",
+    "note": "Added by K16 (Aaron, 19 November: the scaffold reads the machine, on the critical path). Checks written first by the ✍️ author: check 19 and handlers.test.ts, red on claude/k16-checks.",
+    "stage": "checks",
+    "thread": "k16-author"
+   },
+   {
+    "at": "2026-11-19T13:30:00Z",
+    "note": "Stubs per declared error and per role folded in from M2.17 (scaffold only); sixteen stubs, five goldens.",
+    "stage": "checks",
+    "thread": "k16-author"
+   }
+  ],
+  "id": "M1-45",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.44"
+  ],
+  "needsText": "M1.44",
+  "order": 49,
+  "plain": "Every path through a thing's lifecycle, allowed and refused, gets a journey to fill in.",
+  "pr": null,
+  "questions": [],
+  "ref": "M1.45",
+  "size": "M",
+  "stage": "checks",
+  "thread": "k16-author",
+  "title": "Journey stubs per path, role and declared error",
+  "updatedAt": "2026-11-19T13:30:00Z",
+  "waiting": null,
+  "what": "machinePaths(model, thing) lists every allowed transition and every refused move; ortho add journeys <thing> writes one scaffold per path to blueprint/journeys/<thing>-<verb>-<path>.ts, then per operation and read one per allowed role not already cast, one refused, and one per declared error, each with world, payload and expected fields as Blueprint.todo, writing only the missing ones; the model lists a journey with blanks and prove skips it, named."
+ },
+ "M1-46": {
+  "doneWhen": "prehandle.test.ts passes (five, and its control); check 19's M1.46 test passes; existing refusal codes unchanged; acme proves grant an allowance 4/4 steps and runtime refusals 14/17 (checks 00 and 2, prove.test.ts)",
+  "history": [
+   {
+    "at": "2026-11-19T13:30:00Z",
+    "note": "Aaron reviewed K16's pre-handle list: \"make sure this is handled\". Runtime items moved from M2.17-M2.19 into M1; checks red on claude/k16-checks.",
+    "stage": "checks",
+    "thread": "k16-author"
+   },
+   {
+    "at": "2026-11-19T17:00:00Z",
+    "note": "Acme's grant journey gains a PersonNotFound step, so coverage is proved (14/17), not relaxed (13/17).",
+    "stage": "checks",
+    "thread": "k16-author"
+   }
+  ],
+  "id": "M1-46",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.26"
+  ],
+  "needsText": "M1.26",
+  "order": 50,
+  "plain": "A handler is given the thing it acts on, what the payload names and a new id; a missing one is refused before it runs.",
+  "pr": null,
+  "questions": [],
+  "ref": "M1.46",
+  "size": "L",
+  "stage": "checks",
+  "thread": "k16-author",
+  "title": "The runtime hands in what it read",
+  "updatedAt": "2026-11-19T17:00:00Z",
+  "waiting": null,
+  "what": "The handler's context gains subject, refs.<field> and, for a creating move, a minted id; a missing one no role check reads is refused before the handler with a generated <Thing>NotFound (XX-901, exit 4, HTTP 404), or the thing's own declared error of that name (acme's AllowanceNotFound keeps AL-002); a role-gated miss stays NotAllowed; acme's spend and grant stop re-reading and minting by hand. Every thing has a notFound descriptor a journey refuses with (Person.notFound); acme's grant journey proves PersonNotFound."
+ },
+ "M1-47": {
+  "doneWhen": "refusals-table.test.ts and check 19's M1.47 tests pass, the exit control included; check 08's MCP tests still pass",
+  "history": [
+   {
+    "at": "2026-11-19T13:30:00Z",
+    "note": "Aaron reviewed K16's pre-handle list: \"make sure this is handled\". Runtime items moved from M2.17-M2.19 into M1; checks red on claude/k16-checks.",
+    "stage": "checks",
+    "thread": "k16-author"
+   },
+   {
+    "at": "2026-11-19T15:00:00Z",
+    "note": "Exit clashes refused by the compiler (the journey guide found HandleTaken at exit 3, NotAllowed's, on Plugged In). Red in check 19.",
+    "stage": "checks",
+    "thread": "k16-author"
+   }
+  ],
+  "id": "M1-47",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.46"
+  ],
+  "needsText": "M1.46",
+  "order": 51,
+  "plain": "Every refusal's code, exit and HTTP status come from one table, so the CLI, HTTP and MCP agree.",
+  "pr": null,
+  "questions": [],
+  "ref": "M1.47",
+  "size": "S",
+  "stage": "checks",
+  "thread": "k16-author",
+  "title": "One refusals table",
+  "updatedAt": "2026-11-19T15:00:00Z",
+  "waiting": null,
+  "what": "Generated api/src/errors.ts exports refusals, { code, exit, status } per refusal; exits, codes and each class's status are read from it; an MCP refusal gains structured { refusal, code, exit, status, shown fields }. The compiler refuses a declared exit the runtime keeps (0 to 4), one outside 5 to 125, or one another refusal of the same thing has: \"HandleTaken's exit 3 is NotAllowed's; pick another\". Unique per thing, not per app."
+ },
+ "M1-48": {
+  "doneWhen": "check 19's M1.48 test passes, and its control (an answer without remaining fails tsc) still does",
+  "history": [
+   {
+    "at": "2026-11-19T13:30:00Z",
+    "note": "Aaron reviewed K16's pre-handle list: \"make sure this is handled\". Runtime items moved from M2.17-M2.19 into M1; checks red on claude/k16-checks.",
+    "stage": "checks",
+    "thread": "k16-author"
+   }
+  ],
+  "id": "M1-48",
+  "kind": "build",
+  "lane": "M1",
+  "needs": [
+   "M1.26"
+  ],
+  "needsText": "M1.26",
+  "order": 52,
+  "plain": "A blueprint whose event needs a field nothing in the call can supply is refused when you write it, not when someone calls it.",
+  "pr": null,
+  "questions": [],
+  "ref": "M1.48",
+  "size": "S",
+  "stage": "checks",
+  "thread": "k16-author",
+  "title": "The compiler refuses an event it can't fill",
+  "updatedAt": "2026-11-19T13:30:00Z",
+  "waiting": null,
+  "what": "Each field of a move's event must be in the thing's fields, the payload or the answer of every operation making the move, or ortho model fails naming the event, the field and the operation."
+ },
+ "M2-01": {
+  "doneWhen": "decisions/M2-auth.md written",
+  "history": [],
+  "id": "M2-01",
+  "kind": "decision",
+  "lane": "M2",
+  "needs": [],
+  "needsText": "Gate M1",
+  "order": 46,
+  "plain": "",
+  "pr": null,
+  "questions": [
+   {
+    "answer": null,
+    "id": "q1",
+    "owner": "conductor",
+    "raisedAt": "2026-11-19T09:38:00Z",
+    "source": "M2.01",
+    "status": "open",
+    "text": "What exactly is an agent acting for a person, and how does it show in a call?"
+   },
+   {
+    "answer": null,
+    "id": "q2",
+    "owner": "conductor",
+    "raisedAt": "2026-11-19T09:38:00Z",
+    "source": "M2.01",
+    "status": "open",
+    "text": "What are service(<mount>) and system as principals?"
+   },
+   {
+    "answer": null,
+    "id": "q3",
+    "owner": "conductor",
+    "raisedAt": "2026-11-19T09:38:00Z",
+    "source": "M2.01",
+    "status": "open",
+    "text": "How do .via and .notVia work?"
+   },
+   {
+    "answer": null,
+    "id": "q4",
+    "owner": "conductor",
+    "raisedAt": "2026-11-19T09:38:00Z",
+    "source": "M2.01",
+    "status": "open",
+    "text": "What does auth own, and what do organisations own?"
+   },
+   {
+    "answer": null,
+    "id": "q5",
+    "owner": "conductor",
+    "raisedAt": "2026-11-19T09:38:00Z",
+    "source": "M2.01",
+    "status": "open",
+    "text": "How do acme's copied things move into the plugins?"
+   },
+   {
+    "answer": null,
+    "id": "q6",
+    "owner": "conductor",
+    "raisedAt": "2026-11-19T09:38:00Z",
+    "source": "M2.01",
+    "status": "open",
+    "text": "What does a plugin's own CI look like?"
+   }
+  ],
+  "ref": "M2.01",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The detail of principals and roles",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The detail of principals and roles: agent acting for a person, service(<mount>), system; .via and .notVia; what auth and organizations each own; how acme's copied things move; a plugin's own CI"
+ },
+ "M2-02": {
+  "doneWhen": "they fail on empty handlers",
+  "history": [],
+  "id": "M2-02",
+  "kind": "checks",
+  "lane": "M2",
+  "needs": [
+   "M2.01"
+  ],
+  "needsText": "M2.01",
+  "order": 47,
+  "plain": "",
+  "pr": null,
+  "ref": "M2.02",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Journeys for both plugins, moved out of acme",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Journeys for both plugins, moved out of acme (sign up and in, an owner makes a key, invite and accept, an invitation used once, an outsider can't revoke) plus new ones: service and system refused where not allowed; an agent passes the owner rule unless .notVia(Via.agent)"
+ },
+ "M2-03": {
+  "doneWhen": "build",
+  "history": [],
+  "id": "M2-03",
+  "kind": "M2.01",
+  "lane": "M2",
+  "needs": [],
+  "needsText": "person, lines 6 to 8) and the runtime; issues: per environment",
+  "order": 48,
+  "plain": "",
+  "pr": null,
+  "ref": "M2.03",
+  "size": "the principal journeys pass in acme",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Principals in roles/types.ts",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Principals in roles/types.ts (today anonymous \\"
+ },
+ "M2-04": {
+  "doneWhen": "acme's environments name no secret; prove passes",
+  "history": [],
+  "id": "M2-04",
+  "kind": "build",
+  "lane": "M2",
+  "needs": [
+   "M2.01"
+  ],
+  "needsText": "M2.01",
+  "order": 49,
+  "plain": "",
+  "pr": null,
+  "ref": "M2.04",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Secrets by declaration",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Secrets by declaration: Blueprint.secret, names from mount and export, Redacted through the plugin's layer, ortho secrets and secrets set locally"
+ },
+ "M2-05": {
+  "doneWhen": "the identity journeys pass with acme mounting it",
+  "history": [],
+  "id": "M2-05",
+  "kind": "build",
+  "lane": "M2",
+  "needs": [
+   "M2.03",
+   "M2.04"
+  ],
+  "needsText": "M2.03, M2.04",
+  "order": 53,
+  "plain": "",
+  "pr": null,
+  "ref": "M2.05",
+  "size": "L",
+  "stage": "backlog",
+  "thread": null,
+  "title": "@orthograph/auth, identity",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "@orthograph/auth, identity: person, session, api-key; Better Auth behind its worker entry; AUTH_SECRET declared"
+ },
+ "M2-06": {
+  "doneWhen": "acme login and MCP sign-in journeys pass",
+  "history": [],
+  "id": "M2-06",
+  "kind": "build",
+  "lane": "M2",
+  "needs": [
+   "M2.05"
+  ],
+  "needsText": "M2.05",
+  "order": 54,
+  "plain": "",
+  "pr": null,
+  "ref": "M2.06",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "@orthograph/auth, ways in",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "@orthograph/auth, ways in: the device flow, OAuth for MCP, the builder's sign-in to the portal (K5 seam 9), choices (signIn, keys), settings (sessionLength, allowedOrigins)"
+ },
+ "M2-07": {
+  "doneWhen": "the tenancy journeys pass from the plugin; acme has no organization/ folder",
+  "history": [],
+  "id": "M2-07",
+  "kind": "build",
+  "lane": "M2",
+  "needs": [
+   "M2.05"
+  ],
+  "needsText": "M2.05",
+  "order": 55,
+  "plain": "",
+  "pr": null,
+  "ref": "M2.07",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "@orthograph/organizations",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "@orthograph/organizations: organisation, membership, invitation, owner, member, holds, starting worlds founded and invited; acme's copies deleted"
+ },
+ "M2-08": {
+  "doneWhen": "M2.05",
+  "history": [],
+  "id": "M2-08",
+  "kind": "actions` (`journeys/internal/world.ts:85` calls HTTP directly today)",
+  "lane": "M2",
+  "needs": [],
+  "needsText": "mcp\\",
+  "order": 56,
+  "plain": "",
+  "pr": null,
+  "ref": "M2.08",
+  "size": "build",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Journeys through the clients",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Journeys through the clients: a world runs steps through the SDK, with --through cli\\"
+ },
+ "M2-09": {
+  "doneWhen": "npm create orthograph demo from Verdaccio, then ortho prove --env local is green; the template's blueprint/ and src/ are identical to examples/links's on the same commit; once links/stage-1 is tagged (M2.12), the check compares against the tag",
+  "history": [],
+  "id": "M2-09",
+  "kind": "build",
+  "lane": "M2",
+  "needs": [
+   "M2.07"
+  ],
+  "needsText": "M2.07, ST1.07",
+  "order": 57,
+  "plain": "The one command that makes a new app: links at stage 1, with sign-in and handles.",
+  "pr": null,
+  "ref": "M2.09",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "ortho new",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "ortho new replaces the Nx preset: the app it scaffolds is links at stage 1 (K9), with auth and handles mounted; examples/starter becomes that template"
+ },
+ "M2-10": {
+  "doneWhen": "the notes feature goes from new to proved to published to mounted",
+  "history": [],
+  "id": "M2-10",
+  "kind": "build",
+  "lane": "M2",
+  "needs": [
+   "M2.07"
+  ],
+  "needsText": "M2.07",
+  "order": 58,
+  "plain": "",
+  "pr": null,
+  "ref": "M2.10",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "ortho new feature, a plugin's own world and CI, ortho publish --local for plugins",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "ortho new feature, a plugin's own world and CI, ortho publish --local for plugins"
+ },
+ "M2-11": {
+  "doneWhen": "ortho prove --root examples/work passes with no copied identity",
+  "history": [],
+  "id": "M2-11",
+  "kind": "build",
+  "lane": "M2",
+  "needs": [
+   "M2.07"
+  ],
+  "needsText": "M2.07",
+  "order": 59,
+  "plain": "",
+  "pr": null,
+  "ref": "M2.11",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The work app mounts auth and organizations",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The work app mounts auth and organizations"
+ },
+ "M2-12": {
+  "doneWhen": "nx run e2e:m2 passes on main; examples/links is tagged links/stage-1",
+  "history": [],
+  "id": "M2-12",
+  "kind": "e2e",
+  "lane": "M2",
+  "needs": [
+   "M2.02",
+   "M2.11",
+   "M2.13",
+   "M2.16"
+  ],
+  "needsText": "M2.02 to M2.11, M2.13 to M2.16, ST1.01 to ST1.08",
+  "order": 64,
+  "plain": "One command makes a new app with sign-in and organisations; the links example at stage 1.",
+  "pr": null,
+  "ref": "M2.12",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Gate M2: workable",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Gate M2: workable, and the stage 1 gate (K9)"
+ },
+ "M2-13": {
+  "doneWhen": "acme wallet link, then acme session show lists the address; an agent's link is refused",
+  "history": [],
+  "id": "M2-13",
+  "kind": "build",
+  "lane": "M2",
+  "needs": [
+   "M2.05",
+   "M1.29"
+  ],
+  "needsText": "M2.05, M1.29",
+  "order": 60,
+  "plain": "",
+  "pr": null,
+  "ref": "M2.13",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "SIWE linking in the wallet plugin",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "SIWE linking in the wallet plugin (was M6.04, L3.03): challenge, complete, link, unlink, list; agents never link (notVia(Agent))"
+ },
+ "M2-14": {
+  "doneWhen": "the add tests pass unchanged; ortho add thing writes the same files as before, byte for byte; a planned write that fails leaves nothing written",
+  "history": [],
+  "id": "M2-14",
+  "kind": "build",
+  "lane": "M2",
+  "needs": [],
+  "needsText": "Gate M1",
+  "order": 61,
+  "plain": "ortho add writes through Nx, like ortho generate already does.",
+  "pr": null,
+  "ref": "M2.14",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "ortho add on Nx's tree",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "ortho add on Nx's Tree (decisions/K12-coverage-gaps.md section 7; the spec's \"scaffolding uses Nx generators where they fit\"): Add.plan stays pure and typed, its files written once through an FsTree in the entry file, --dry-run from tree.listChanges(), AddRefused mapped at the edge"
+ },
+ "M2-15": {
+  "doneWhen": "ortho add move allowance.close adds the move to machine.ts and its event to events.ts, and ortho prove --empty shows the new move red; adding one twice is refused",
+  "history": [],
+  "id": "M2-15",
+  "kind": "build",
+  "lane": "M2",
+  "needs": [
+   "M2.14"
+  ],
+  "needsText": "M2.14",
+  "order": 62,
+  "plain": "The add kinds that edit files that already exist.",
+  "pr": null,
+  "ref": "M2.15",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "add event, error, role, move",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The kinds that edit in place: ortho add event, error, role, move, editing the thing's existing files; add thing composes them"
+ },
+ "M2-16": {
+  "doneWhen": "a fixture blueprint written against the previous API is migrated by nx migrate and proves green",
+  "history": [],
+  "id": "M2-16",
+  "kind": "build",
+  "lane": "M2",
+  "needs": [
+   "M2.14"
+  ],
+  "needsText": "M2.14",
+  "order": 63,
+  "plain": "Upgrades a blueprint across a breaking API change.",
+  "pr": null,
+  "ref": "M2.16",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "nx migrate for blueprints",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Migrations: @orthograph/* ship migrations.json, and nx migrate upgrades a blueprint across a breaking change, before the first stable release"
+ },
+ "M3-01": {
+  "doneWhen": "decisions/M3-workflows.md written",
+  "history": [],
+  "id": "M3-01",
+  "kind": "decision",
+  "lane": "M3",
+  "needs": [],
+  "needsText": "Gate M2",
+  "order": 65,
+  "plain": "",
+  "pr": null,
+  "questions": [
+   {
+    "answer": null,
+    "id": "q1",
+    "owner": "conductor",
+    "raisedAt": "2026-11-19T09:38:00Z",
+    "source": "M3.01",
+    "status": "open",
+    "text": "What is a workflow's shape: activities, waiting on an event, durable clocks?"
+   },
+   {
+    "answer": null,
+    "id": "q2",
+    "owner": "conductor",
+    "raisedAt": "2026-11-19T09:38:00Z",
+    "source": "M3.01",
+    "status": "open",
+    "text": "Where does a workflow live, and which Effect and platform-cloudflare versions are pinned?"
+   },
+   {
+    "answer": null,
+    "id": "q3",
+    "owner": "conductor",
+    "raisedAt": "2026-11-19T09:38:00Z",
+    "source": "M3.01",
+    "status": "open",
+    "text": "How do wake-up, deduplication and replay work?"
+   },
+   {
+    "answer": null,
+    "id": "q4",
+    "owner": "conductor",
+    "raisedAt": "2026-11-19T09:38:00Z",
+    "source": "M3.01, K5 Q5",
+    "status": "open",
+    "text": "Where does emits: on an operation without a machine sit beside workflows?"
+   }
+  ],
+  "ref": "M3.01",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Blueprint.workflow",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Blueprint.workflow: its shape (activities, await on an event, durable clocks), where it lives, and the Effect and platform-cloudflare pins. Starts from K5 seam 6: an activity is keyed by run id and activity name; the workshop's publish is the example; settles wake-up, deduplication and replay, and settles where emits: on an operation with no machine sits beside workflows (K5 Q5, Aaron: \"B, on the operation\"; built in M3.16)"
+ },
+ "M3-02": {
+  "doneWhen": "every existing gate still green",
+  "history": [],
+  "id": "M3-02",
+  "kind": "build",
+  "lane": "M3",
+  "needs": [
+   "M3.01"
+  ],
+  "needsText": "M3.01",
+  "order": 66,
+  "plain": "",
+  "pr": null,
+  "ref": "M3.02",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "effect 4.1.1 to 4.1.3 everywhere, as its own slice",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "effect 4.1.1 to 4.1.3 everywhere, as its own slice"
+ },
+ "M3-03": {
+  "doneWhen": "spikes/effect-workflow-workerd/README.md answers it with a run",
+  "history": [],
+  "id": "M3-03",
+  "kind": "spike",
+  "lane": "M3",
+  "needs": [
+   "M3.02"
+  ],
+  "needsText": "M3.02",
+  "order": 67,
+  "plain": "",
+  "pr": null,
+  "ref": "M3.03",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "CloudflareWorkflowEngine under local workerd",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "CloudflareWorkflowEngine under local workerd: does a replay after eviction skip finished activities?"
+ },
+ "M3-04": {
+  "doneWhen": "they fail on empty handlers",
+  "history": [],
+  "id": "M3-04",
+  "kind": "checks",
+  "lane": "M3",
+  "needs": [
+   "M3.01"
+  ],
+  "needsText": "M3.01",
+  "order": 68,
+  "plain": "",
+  "pr": null,
+  "ref": "M3.04",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Journeys for the factory",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Journeys for the factory (W1) in K11's shape (decisions/K11-work-board.md): goal, item, claim, board, question, attention; \"only a fact closes\", claims and leases, touches never shared while running, attention"
+ },
+ "M3-05": {
+  "doneWhen": "the work app proves with the plugin mounted",
+  "history": [],
+  "id": "M3-05",
+  "kind": "build",
+  "lane": "M3",
+  "needs": [
+   "M3.04"
+  ],
+  "needsText": "M3.04",
+  "order": 69,
+  "plain": "",
+  "pr": null,
+  "ref": "M3.05",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "@orthograph/work as a feature",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "@orthograph/work as a feature: the work blueprint moves into a package, mounted by examples/work; choice workers: people (agents comes in M4)"
+ },
+ "M3-06": {
+  "doneWhen": "all but the model-gaps source's journeys pass",
+  "history": [],
+  "id": "M3-06",
+  "kind": "build",
+  "lane": "M3",
+  "needs": [
+   "M3.05"
+  ],
+  "needsText": "M3.05",
+  "order": 70,
+  "plain": "",
+  "pr": null,
+  "ref": "M3.06",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Its handlers",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Its handlers (W2)"
+ },
+ "M3-07": {
+  "doneWhen": "a factory read returns acme's verdicts from a local logbook",
+  "history": [],
+  "id": "M3-07",
+  "kind": "build",
+  "lane": "M3",
+  "needs": [
+   "M3.06"
+  ],
+  "needsText": "M3.06",
+  "order": 71,
+  "plain": "",
+  "pr": null,
+  "ref": "M3.07",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The logbook adapter, hand-written",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The logbook adapter, hand-written (S18): facts.list and the models per revision"
+ },
+ "M3-08": {
+  "doneWhen": "a posted verdict closes its item once, even when posted twice",
+  "history": [],
+  "id": "M3-08",
+  "kind": "build",
+  "lane": "M3",
+  "needs": [
+   "M3.07",
+   "M3.20"
+  ],
+  "needsText": "M3.07, M3.20",
+  "order": 72,
+  "plain": "",
+  "pr": null,
+  "ref": "M3.08",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Events in through on:, first for one adapter",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Events in through on:, first for one adapter: logbook.events.verdictRecorded takes item.close or item.return and wakes goal.notice, as service(logbook)"
+ },
+ "M3-09": {
+  "doneWhen": "a goal over acme gets the tasks factory.md lists filed as items, each in the column its facts give",
+  "history": [],
+  "id": "M3-09",
+  "kind": "build",
+  "lane": "M3",
+  "needs": [
+   "M3.07"
+  ],
+  "needsText": "M3.07",
+  "order": 73,
+  "plain": "",
+  "pr": null,
+  "ref": "M3.09",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The model's gaps as a source",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The model's gaps as a source (W3, K11): kinds write:journey, build, fix, improve, worked out from the model and the facts, filed as items by goal.plan, never the board itself"
+ },
+ "M3-10": {
+  "doneWhen": "killing its Durable Object mid-loop starts nothing twice",
+  "history": [],
+  "id": "M3-10",
+  "kind": "build",
+  "lane": "M3",
+  "needs": [
+   "M3.03",
+   "M3.08",
+   "M3.09"
+  ],
+  "needsText": "M3.03, M3.08, M3.09",
+  "order": 74,
+  "plain": "",
+  "pr": null,
+  "ref": "M3.10",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The manager as a declared workflow, one per goal",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The manager as a declared workflow, one per goal (K11; F5's mission), waiting on durable deferreds and a daily clock (absorbs L5.04 for the factory)"
+ },
+ "M3-11": {
+  "doneWhen": "a scripted claim, push and CI run closes the item by its verdict",
+  "history": [],
+  "id": "M3-11",
+  "kind": "build",
+  "lane": "M3",
+  "needs": [
+   "M3.09"
+  ],
+  "needsText": "M3.09",
+  "order": 75,
+  "plain": "",
+  "pr": null,
+  "ref": "M3.11",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Claims for people and outside agents",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Claims for people and outside agents: work item claim writes the brief and a branch, over the CLI and MCP"
+ },
+ "M3-12": {
+  "doneWhen": "a model change rewrites the kit; a hand edit fails the drift check",
+  "history": [],
+  "id": "M3-12",
+  "kind": "build",
+  "lane": "M3",
+  "needs": [
+   "M3.05"
+  ],
+  "needsText": "M3.05",
+  "order": 76,
+  "plain": "",
+  "pr": null,
+  "ref": "M3.12",
+  "size": "L",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Parked with the skills design",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Parked with the skills design (PR #37; K5). The agents projection, built on builder: skills, role definitions and rules under generated/agents/, neutral, Claude Code and Pi forms, the Markdown header (S8, S10 to S13)"
+ },
+ "M3-13": {
+  "doneWhen": "ortho new projects run test worlds and verdicts through it",
+  "history": [],
+  "id": "M3-13",
+  "kind": "build",
+  "lane": "M3",
+  "needs": [
+   "M3.11"
+  ],
+  "needsText": "M3.11",
+  "order": 77,
+  "plain": "",
+  "pr": null,
+  "ref": "M3.13",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "ortho ci <stage> and the short scaffolded workflow",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "ortho ci <stage> and the short scaffolded workflow (S9)"
+ },
+ "M3-14": {
+  "doneWhen": "the board in the portal matches work board items",
+  "history": [],
+  "id": "M3-14",
+  "kind": "build",
+  "lane": "M3",
+  "needs": [
+   "M3.09"
+  ],
+  "needsText": "M3.09",
+  "order": 78,
+  "plain": "",
+  "pr": null,
+  "ref": "M3.14",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Replaced by M3.17",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Replaced by M3.17 (K11: the board is an extension of the one portal, not a separate surface). Was: the portal's Work side: board, KPIs, attention"
+ },
+ "M3-15": {
+  "doneWhen": "nx run e2e:m3 passes on main",
+  "history": [],
+  "id": "M3-15",
+  "kind": "e2e",
+  "lane": "M3",
+  "needs": [
+   "M3.02",
+   "M3.11",
+   "M3.13",
+   "M3.16",
+   "M3.20"
+  ],
+  "needsText": "M3.02 to M3.11, M3.13, M3.16 to M3.20",
+  "order": 84,
+  "plain": "",
+  "pr": null,
+  "ref": "M3.15",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Gate M3",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Gate M3"
+ },
+ "M3-16": {
+  "doneWhen": "journeys assert DraftEdited present after a successful edit, absent after DraftChanged, and absent after an unchanged edit",
+  "history": [],
+  "id": "M3-16",
+  "kind": "build",
+  "lane": "M3",
+  "needs": [
+   "M3.01"
+  ],
+  "needsText": "M3.01",
+  "order": 79,
+  "plain": "",
+  "pr": null,
+  "ref": "M3.16",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "emits",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "emits: on an operation with no machine (K5 Q5): the event committed with the call's writes, only on success, and only when the call wrote"
+ },
+ "M3-17": {
+  "doneWhen": "the board in the portal matches work board items; an agent's move to done is refused OnlyAFactCloses; Aaron's drag to done writes an accepted verdict; the board runs in its sandboxed frame (F8): a drop reaches its move's action through the bridge, and a held card holds the bridged live feed",
+  "history": [],
+  "id": "M3-17",
+  "kind": "build",
+  "lane": "M3",
+  "needs": [
+   "M3.06",
+   "M3.20",
+   "M1.13",
+   "M1.25",
+   "M1.34"
+  ],
+  "needsText": "M3.06, M3.20, M1.13, M1.25, M1.34",
+  "order": 80,
+  "plain": "",
+  "pr": null,
+  "ref": "M3.17",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The board extension",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The board extension (K11): HeroUI Pro's Kanban parts through @orthograph/portal-ui's Board (F7, M1.34) with our own server-owned hook (spikes/kanban-components), the machine refusing illegal drops on the client, typed refusals on the card, the inbox column, one lane per goal with \"needs you\" pinned, live updates (FAC-08) held still while a card is held, a person's drops limited to backlog, ready and done"
+ },
+ "M3-18": {
+  "doneWhen": "a plan of 12 items over acme with 3 overlapping touches runs with workers: people scripted; no two running items share a path; evicting dispatch mid-pass claims nothing twice",
+  "history": [],
+  "id": "M3-18",
+  "kind": "build",
+  "lane": "M3",
+  "needs": [
+   "M3.10",
+   "M3.11"
+  ],
+  "needsText": "M3.10, M3.11",
+  "order": 81,
+  "plain": "",
+  "pr": null,
+  "ref": "M3.18",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Dispatch",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Dispatch (K11): one workflow per board; ready set, touches never shared while running, critical path first, slots, a person worker's claim with a lease (an agent's, ending with its run, comes with M4.13), three retries then block, touches from factory.brief.of for model gaps, the role from factory.roster.for(kind), a review pass for every item in review"
+ },
+ "M3-19": {
+  "doneWhen": "a failing check over acme lands in the inbox; a scripted manager (a Claude Code session or a fixture calling the CLI) accepts it under the agreed goal and its items run; an unrelated signal it opens as a goal waits on attention (the manager as an agent, triaging unasked, is M4.13)",
+  "history": [],
+  "id": "M3-19",
+  "kind": "build",
+  "lane": "M3",
+  "needs": [
+   "M3.09",
+   "M3.10"
+  ],
+  "needsText": "M3.09, M3.10",
+  "order": 82,
+  "plain": "",
+  "pr": null,
+  "ref": "M3.19",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The inbox and the manager",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The inbox and the manager (K11): signals received into inbox (failing checks, ledger rows, model gaps; GitHub issues come with M5.14 over M4.25's adapter; an authority's words filed directly), triage under agreed goals, finite and standing goals agreed once, goal.plan with milestones in one commit, acyclic needs, overlap warnings"
+ },
+ "M3-20": {
+  "doneWhen": "a person's review pass and an agent's review fail on one revision are both read back by facts.list; a review posted for another revision doesn't count; an accepted posted by an agent acting for Aaron is refused",
+  "history": [],
+  "id": "M3-20",
+  "kind": "build",
+  "lane": "M3",
+  "needs": [
+   "M3.07"
+  ],
+  "needsText": "M3.07",
+  "order": 83,
+  "plain": "",
+  "pr": null,
+  "ref": "M3.20",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "review and accepted as logbook verdict kinds",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "review and accepted as logbook verdict kinds (K10, K11 seam 3 and Q2): review keyed by revision, posted by a signed-in person or by a reviewer agent's run, the same kind either way; accepted, an authority closing an item in person, never through an agent; promote and an item's done-when can name either"
+ },
+ "M3-21": {
+  "doneWhen": "a fixture feature's face renders a views.list board, and a face that imports a store or calls fetch fails the lint; a face that calls fetch at run time is blocked, and one that calls an action it did not declare is refused by the bridge; a framed face, with its opaque origin, loads portal-ui from the portal's built assets under its script-src; a note.edit at a stale revision is refused NoteChanged; a note whose declaration's hash moved shows stale",
+  "history": [
+   {
+    "at": "2026-11-19T09:41:30Z",
+    "note": "added by K13",
+    "stage": "backlog",
+    "thread": "conductor"
+   }
+  ],
+  "id": "M3-21",
+  "kind": "build",
+  "lane": "M3",
+  "needs": [
+   "M1.13",
+   "M1.23"
+  ],
+  "needsText": "M1.13, M1.23",
+  "order": 124,
+  "plain": "Plugin pages inside the portal, and notes pinned to the model. Split out of the portal slice by K13.",
+  "pr": 69,
+  "questions": [],
+  "ref": "M3.21",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Faces and notes",
+  "updatedAt": "2026-11-19T09:41:30Z",
+  "waiting": null,
+  "what": "Faces and notes (was part of M1.13, decisions/K13-lock-down-first.md): the face contract (Portal.face at a feature's ./portal subpath, its typed slots, Portal.view.board) and the orthograph/face-actions-only lint rule; every face in a sandboxed frame calling only its declared actions; from Codex's portal (F8), notes as Markdown pinned to kind:name@hash in the note thing, edited against a revision"
+ },
+ "M3-22": {
+  "doneWhen": "acme's generated clients unchanged byte for byte except header paths",
+  "history": [
+   {
+    "at": "2026-11-19T09:41:30Z",
+    "note": "added by K13",
+    "stage": "backlog",
+    "thread": "conductor"
+   },
+   {
+    "at": "2026-11-19T09:47:54Z",
+    "note": "Landed early with M1.12 on m1-12-clients (cddd3e15), ticked on M1.12's evidence; reversible by editing M3.22's row.",
+    "stage": "done",
+    "thread": "m1-lead"
+   }
+  ],
+  "id": "M3-22",
+  "kind": "build",
+  "lane": "M3",
+  "needs": [
+   "M1.12"
+  ],
+  "needsText": "M1.12",
+  "order": 125,
+  "plain": "Where the code that writes the SDK, CLI and MCP lives: moved into packages you mount. Nothing you see changes. Moved out of M1 by K13.",
+  "pr": 64,
+  "questions": [],
+  "ref": "M3.22",
+  "size": "M",
+  "stage": "done",
+  "thread": null,
+  "title": "The clients as mounted plugins",
+  "updatedAt": "2026-11-19T09:47:54Z",
+  "waiting": null,
+  "what": "The clients as mounted plugins (was M1.12's other half, decisions/K13-lock-down-first.md): sdk, cli and mcp move from generators into @orthograph/projections, mounted like api and server; tool exposure from allowed and via"
+ },
+ "M4-01": {
+  "doneWhen": "decisions/M4-agents.md written",
+  "history": [],
+  "id": "M4-01",
+  "kind": "decision",
+  "lane": "M4",
+  "needs": [],
+  "needsText": "Gate M3",
+  "order": 85,
+  "plain": "",
+  "pr": null,
+  "questions": [
+   {
+    "answer": null,
+    "id": "q1",
+    "owner": "conductor",
+    "raisedAt": "2026-11-19T09:38:00Z",
+    "source": "M4.01, H1",
+    "status": "open",
+    "text": "What is the Run thing?"
+   },
+   {
+    "answer": null,
+    "id": "q2",
+    "owner": "conductor",
+    "raisedAt": "2026-11-19T09:38:00Z",
+    "source": "M4.01, H2",
+    "status": "open",
+    "text": "Where does Pi run: a Durable Object per run, Node for the bench?"
+   },
+   {
+    "answer": null,
+    "id": "q3",
+    "owner": "conductor",
+    "raisedAt": "2026-11-19T09:38:00Z",
+    "source": "M4.01",
+    "status": "open",
+    "text": "Which local model server and model, pinned?"
+   }
+  ],
+  "ref": "M4.01",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "H1 and H2 under the frame",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "H1 and H2 under the frame: the Run thing, where Pi runs (a Durable Object per run, Node for the bench), the local model server and model, pinned"
+ },
+ "M4-02": {
+  "doneWhen": "they fail on empty handlers",
+  "history": [],
+  "id": "M4-02",
+  "kind": "checks",
+  "lane": "M4",
+  "needs": [
+   "M4.01"
+  ],
+  "needsText": "M4.01",
+  "order": 86,
+  "plain": "",
+  "pr": null,
+  "ref": "M4.02",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Journeys for the agents feature, prose then steps",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Journeys for the agents feature, prose then steps"
+ },
+ "M4-03": {
+  "doneWhen": "check 4 runs through the runner and writes a scored record",
+  "history": [],
+  "id": "M4-03",
+  "kind": "build",
+  "lane": "M4",
+  "needs": [
+   "M4.01"
+  ],
+  "needsText": "M4.01",
+  "order": 87,
+  "plain": "",
+  "pr": null,
+  "ref": "M4.03",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The floor",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The floor (A0): the run record and folder, the trusted scorer, check 4 as the first runner"
+ },
+ "M4-04": {
+  "doneWhen": "a run survives a process kill and resumes its transcript",
+  "history": [],
+  "id": "M4-04",
+  "kind": "build",
+  "lane": "M4",
+  "needs": [
+   "M4.03"
+  ],
+  "needsText": "M4.03",
+  "order": 88,
+  "plain": "",
+  "pr": null,
+  "ref": "M4.04",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The Pi Durable seam on Node SQLite",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The Pi Durable seam on Node SQLite (A1)"
+ },
+ "M4-05": {
+  "doneWhen": "the same task runs on both behind one interface",
+  "history": [],
+  "id": "M4-05",
+  "kind": "build",
+  "lane": "M4",
+  "needs": [
+   "M4.04"
+  ],
+  "needsText": "M4.04",
+  "order": 89,
+  "plain": "",
+  "pr": null,
+  "ref": "M4.05",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Model adapters",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Model adapters: @orthograph/anthropic and an OpenAI-compatible adapter; keys as declared secrets (A2)"
+ },
+ "M4-06": {
+  "doneWhen": "journeys run against it with no key",
+  "history": [],
+  "id": "M4-06",
+  "kind": "build",
+  "lane": "M4",
+  "needs": [
+   "M4.05"
+  ],
+  "needsText": "M4.05",
+  "order": 90,
+  "plain": "",
+  "pr": null,
+  "ref": "M4.06",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The local stand-in model, Stand.process",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The local stand-in model, Stand.process (S14)"
+ },
+ "M4-07": {
+  "doneWhen": "an operator agent's tool call is checked by the real server's roles",
+  "history": [],
+  "id": "M4-07",
+  "kind": "build",
+  "lane": "M4",
+  "needs": [
+   "M4.04"
+  ],
+  "needsText": "M4.04",
+  "order": 91,
+  "plain": "",
+  "pr": null,
+  "ref": "M4.07",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Tools and skills",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Tools and skills: toolsOf(operations), shared with MCP and the actions projection, called as agent for the run's starter: the one mechanism behind both the chat's tools and the building agents' (K10 section 1); project tools with denied paths; SKILL.md folders (A3)"
+ },
+ "M4-08": {
+  "doneWhen": "a run's trace is read back by its id",
+  "history": [],
+  "id": "M4-08",
+  "kind": "build",
+  "lane": "M4",
+  "needs": [
+   "M4.04"
+  ],
+  "needsText": "M4.04",
+  "order": 92,
+  "plain": "",
+  "pr": null,
+  "ref": "M4.08",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Run telemetry through the Collector",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Run telemetry through the Collector (A4)"
+ },
+ "M4-09": {
+  "doneWhen": "evicting mid-turn resumes with no duplicate model call",
+  "history": [],
+  "id": "M4-09",
+  "kind": "build",
+  "lane": "M4",
+  "needs": [
+   "M4.04"
+  ],
+  "needsText": "M4.04",
+  "order": 93,
+  "plain": "",
+  "pr": null,
+  "ref": "M4.09",
+  "size": "L",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The Durable Object host",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The Durable Object host: one per run, alarms, Pi's closure measured for workerd (A6)"
+ },
+ "M4-10": {
+  "doneWhen": "the agents journeys pass, mounted in acme",
+  "history": [],
+  "id": "M4-10",
+  "kind": "build",
+  "lane": "M4",
+  "needs": [
+   "M4.02",
+   "M4.09"
+  ],
+  "needsText": "M4.02, M4.09",
+  "order": 94,
+  "plain": "",
+  "pr": null,
+  "ref": "M4.10",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "@orthograph/agents",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "@orthograph/agents: Run, its machine, start, steer, cancel, the system's moves, Blueprint.agent; Agent as a thing read from the declarations; run.start taking key, the caller's request key; runFinished.outcome closed (pushed, reviewed, answered, blocked) and runFailed.reason closed with transient (K10 section 5); RunPoolFull"
+ },
+ "M4-11": {
+  "doneWhen": "a builder script lists blanks and runs one journey through bp",
+  "history": [],
+  "id": "M4-11",
+  "kind": "build",
+  "lane": "M4",
+  "needs": [
+   "M4.10"
+  ],
+  "needsText": "M4.10",
+  "order": 95,
+  "plain": "",
+  "pr": null,
+  "ref": "M4.11",
+  "size": "L",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The builder's typed API and code mode",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The builder's typed API and code mode: generated/builder/bp.d.ts, the sandbox, the direct tools"
+ },
+ "M4-12": {
+  "doneWhen": "a script finds the slowest step of a run",
+  "history": [],
+  "id": "M4-12",
+  "kind": "build",
+  "lane": "M4",
+  "needs": [
+   "M4.11"
+  ],
+  "needsText": "M4.11",
+  "order": 96,
+  "plain": "",
+  "pr": null,
+  "ref": "M4.12",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "bp.telemetry over TraceSource",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "bp.telemetry over TraceSource: trace, calls, refusals, defects, slow"
+ },
+ "M4-13": {
+  "doneWhen": "an item dispatched to an agents run closes by its verdict; the manager as an agent accepts a failing check under its goal with no one asked",
+  "history": [],
+  "id": "M4-13",
+  "kind": "build",
+  "lane": "M4",
+  "needs": [
+   "M4.10",
+   "M4.11"
+  ],
+  "needsText": "M4.10, M4.11",
+  "order": 97,
+  "plain": "",
+  "pr": null,
+  "ref": "M4.13",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The join",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The join: workers: agents, Blueprint.need(agents, { when }), dispatch through agents.run.start keyed by the claim, runFinished (with the changed paths) and runFailed back through on:; the kind-to-role map from the factory's roster (K11, the seam with K10)"
+ },
+ "M4-14": {
+  "doneWhen": "bench writes one suite's report",
+  "history": [],
+  "id": "M4-14",
+  "kind": "build",
+  "lane": "M4",
+  "needs": [
+   "M4.04"
+  ],
+  "needsText": "M4.04",
+  "order": 98,
+  "plain": "",
+  "pr": null,
+  "ref": "M4.14",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The pi runner in the bench",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The pi runner in the bench (A5) and suites, spend and the report (A8), off the gate"
+ },
+ "M4-15": {
+  "doneWhen": "nx run e2e:m4 passes on main",
+  "history": [],
+  "id": "M4-15",
+  "kind": "e2e",
+  "lane": "M4",
+  "needs": [
+   "M4.02",
+   "M4.13",
+   "M4.16",
+   "M4.25"
+  ],
+  "needsText": "M4.02 to M4.13, M4.16 to M4.25",
+  "order": 109,
+  "plain": "",
+  "pr": null,
+  "ref": "M4.15",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Gate M4",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Gate M4"
+ },
+ "M4-16": {
+  "doneWhen": "evicting a chat's run mid-turn resumes it with no second model call; a refused action shows its typed refusal in the thread",
+  "history": [],
+  "id": "M4-16",
+  "kind": "build",
+  "lane": "M4",
+  "needs": [
+   "M4.10",
+   "M1.24",
+   "M1.34"
+  ],
+  "needsText": "M4.10, M1.24, M1.34",
+  "order": 99,
+  "plain": "",
+  "pr": null,
+  "ref": "M4.16",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The portal's chat on a durable agent",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The portal's chat on a durable agent (K5): one @orthograph/agents run per thread, the actions as its tools, approvals through the chat; any listed agent addressable (chat.addressees); rendered with HeroUI Pro's AI components through @orthograph/portal-ui's Chat parts (F7, M1.34), ChatTool states from the action's (K10 section 6)"
+ },
+ "M4-17": {
+  "doneWhen": "they fail on empty handlers",
+  "history": [],
+  "id": "M4-17",
+  "kind": "checks",
+  "lane": "M4",
+  "needs": [
+   "M3.20"
+  ],
+  "needsText": "Gate M2, M3.20",
+  "order": 100,
+  "plain": "",
+  "pr": null,
+  "ref": "M4.17",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Journeys for workspaces and experiments",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Journeys for workspaces and experiments (K10), by an author who is not the builder: open, fenced writes, check, prove, push, close; experiment start, keep and discard; keep refused without prove and review verdicts; nothing left after discard"
+ },
+ "M4-18": {
+  "doneWhen": "a Claude Code session over MCP opens a workspace over acme, writes allowance.revoke, check and prove pass inside it, and push opens a pull request on the stand-in; a write outside the allowed paths is refused; close leaves nothing",
+  "history": [],
+  "id": "M4-18",
+  "kind": "build",
+  "lane": "M4",
+  "needs": [
+   "M4.17",
+   "M4.25"
+  ],
+  "needsText": "M4.17, M4.25",
+  "order": 101,
+  "plain": "",
+  "pr": null,
+  "ref": "M4.18",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "@orthograph/workspaces with the localCopy choice",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "@orthograph/workspaces with the localCopy choice (K10 section 3): Workspace and its machine, ortho as its operations (brief, read, write, check, prove, add, generate, diff, push, close), writes fenced by realpath and case-insensitive paths, push through the github adapter (its stand-in a bare local repository), WorkspacePoolFull"
+ },
+ "M4-19": {
+  "doneWhen": "M4.18's journeys pass on E2B with Aaron's existing key; evicting the run's Durable Object mid-prove resumes and reads the result; 0 sandboxes are left after",
+  "history": [],
+  "id": "M4-19",
+  "kind": "build",
+  "lane": "M4",
+  "needs": [
+   "M4.18"
+  ],
+  "needsText": "M4.18, spikes/workspace-e2b",
+  "order": 102,
+  "plain": "",
+  "pr": null,
+  "ref": "M4.19",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The e2b choice",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The e2b choice: our template, long commands in the background checked on an alarm, a sweep by tag, sandbox spend under its share ($5 a day by default)"
+ },
+ "M4-20": {
+  "doneWhen": "build",
+  "history": [],
+  "id": "M4-20",
+  "kind": "M4.18, M3.20, `spikes/experiment-loop`",
+  "lane": "M4",
+  "needs": [],
+  "needsText": "discarded), the spike lane, factory.brief.of, factory.roster as data; usable by people and Claude Code before any Pi agent",
+  "order": 103,
+  "plain": "",
+  "pr": null,
+  "ref": "M4.20",
+  "size": "start then discard leaves 0 workspaces, worlds and branches; keep without prove and review verdicts is refused; keep's pull request changes only the package folder and one mount file; `brief.of` gives the same `write` paths as `ortho brief`",
+  "stage": "backlog",
+  "thread": null,
+  "title": "@orthograph/factory's floor",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "@orthograph/factory's floor (K10 section 4): Experiment (started → kept \\"
+ },
+ "M4-21": {
+  "doneWhen": "an item dispatched with workers: agents runs the builder in a workspace and ends pushed with its changed paths; the reviewer ends reviewed and writes a review verdict; the builder's write outside its brief is refused; all on the stand-in model",
+  "history": [],
+  "id": "M4-21",
+  "kind": "build",
+  "lane": "M4",
+  "needs": [
+   "M4.10",
+   "M4.13",
+   "M4.20",
+   "M3.20"
+  ],
+  "needsText": "M4.10, M4.13, M4.20, M3.20",
+  "order": 104,
+  "plain": "",
+  "pr": null,
+  "ref": "M4.21",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The builder and reviewer agents, the reviewer writing the review verdict",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The builder and reviewer agents, the reviewer writing the review verdict (M3.20) (K10 section 2)"
+ },
+ "M4-22": {
+  "doneWhen": "each agent, addressed from a chat thread, ends with its declared outcome on the stand-in model; the author's journeys fail on empty handlers",
+  "history": [],
+  "id": "M4-22",
+  "kind": "build",
+  "lane": "M4",
+  "needs": [
+   "M4.21",
+   "M4.16"
+  ],
+  "needsText": "M4.21, M4.16",
+  "order": 105,
+  "plain": "",
+  "pr": null,
+  "ref": "M4.22",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The rest of the roster",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The rest of the roster: designer, author, spike, planner, one file each, each addressable from the chat"
+ },
+ "M4-23": {
+  "doneWhen": "the four views render acme's runs and workspaces; a refused action shows output-error with its code and never a raw defect; an approval shows requires-action and runs once on approve; the face holds no store handle or fetch (by M1.25's lint, if it adopts one); the face runs in its sandboxed frame (F8): a Run's stream reaches it through the bridge, and approve calls a declared action",
+  "history": [],
+  "id": "M4-23",
+  "kind": "build",
+  "lane": "M4",
+  "needs": [
+   "M1.13",
+   "M1.25",
+   "M4.16",
+   "M4.20",
+   "M1.34"
+  ],
+  "needsText": "M1.13, M1.25, M4.16, M4.20, M1.34",
+  "order": 106,
+  "plain": "",
+  "pr": null,
+  "ref": "M4.23",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The Factory face",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The Factory face (K10 section 6): Portal.face with the Factory sidebar group, the roster, the runs list, the live run and the workspace, composed from @orthograph/portal-ui's exports (F7, M1.34); no agent UI code in the canon; the face's export name and lint as M1.25 settles them"
+ },
+ "M4-24": {
+  "doneWhen": "a proved and reviewed revision reaches the local staging world unasked; the production promote waits on an attention that an agent acting for Aaron is refused",
+  "history": [],
+  "id": "M4-24",
+  "kind": "build",
+  "lane": "M4",
+  "needs": [
+   "M3.13",
+   "M3.20",
+   "M4.21"
+  ],
+  "needsText": "M3.13, M3.20, M4.21",
+  "order": 107,
+  "plain": "",
+  "pr": null,
+  "ref": "M4.24",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Promotion by verdicts",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Promotion by verdicts (K10 section 3): promote also requires the revision's review verdict; a revision on main with its prove and review verdicts goes to staging with nobody asked; production is an attention only a person approves"
+ },
+ "M4-25": {
+  "doneWhen": "the adapter's conformance passes against the stand-in; a pushed branch and its opened pull request read back; a merge emits pullRequest.merged once",
+  "history": [],
+  "id": "M4-25",
+  "kind": "build",
+  "lane": "M4",
+  "needs": [],
+  "needsText": "Gate M2",
+  "order": 108,
+  "plain": "",
+  "pr": null,
+  "ref": "M4.25",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The github adapter for pull requests",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The github adapter for pull requests (K10 section 3): branches.push, pullRequests.open, the pullRequest.merged event; secrets declared by the adapter; its stand-in a bare local repository with a small pull-request record (second rung: Gitea)"
+ },
+ "M5-01": {
+  "doneWhen": "decisions/M5-reach-out.md written",
+  "history": [],
+  "id": "M5-01",
+  "kind": "decision",
+  "lane": "M5",
+  "needs": [],
+  "needsText": "Gate M4",
+  "order": 110,
+  "plain": "",
+  "pr": null,
+  "questions": [
+   {
+    "answer": null,
+    "id": "q1",
+    "owner": "conductor",
+    "raisedAt": "2026-11-19T09:38:00Z",
+    "source": "M5.01",
+    "status": "open",
+    "text": "Where does a view live, and how is it rebuilt?"
+   },
+   {
+    "answer": null,
+    "id": "q2",
+    "owner": "conductor",
+    "raisedAt": "2026-11-19T09:38:00Z",
+    "source": "M5.01",
+    "status": "open",
+    "text": "What is the general outbox (S22, S24)?"
+   },
+   {
+    "answer": null,
+    "id": "q3",
+    "owner": "conductor",
+    "raisedAt": "2026-11-19T09:38:00Z",
+    "source": "M5.01",
+    "status": "open",
+    "text": "How does step.await on adapter events work?"
+   }
+  ],
+  "ref": "M5.01",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Views",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Views (where a view lives, how it is rebuilt), the general outbox (S22, S24), step.await on adapter events"
+ },
+ "M5-02": {
+  "doneWhen": "they fail on empty handlers",
+  "history": [],
+  "id": "M5-02",
+  "kind": "checks",
+  "lane": "M5",
+  "needs": [
+   "M5.01"
+  ],
+  "needsText": "M5.01",
+  "order": 111,
+  "plain": "",
+  "pr": null,
+  "ref": "M5.02",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Journeys for payments and notifications",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Journeys for payments and notifications"
+ },
+ "M5-03": {
+  "doneWhen": "a webhook sent twice settles once",
+  "history": [],
+  "id": "M5-03",
+  "kind": "build",
+  "lane": "M5",
+  "needs": [
+   "M5.01"
+  ],
+  "needsText": "M5.01",
+  "order": 112,
+  "plain": "",
+  "pr": null,
+  "ref": "M5.03",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Events in, general",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Events in, general: doors that verify signatures, on: for adapter events and our own as system, idempotency by event id"
+ },
+ "M5-04": {
+  "doneWhen": "killing a delivery mid-way delivers once after restart",
+  "history": [],
+  "id": "M5-04",
+  "kind": "build",
+  "lane": "M5",
+  "needs": [
+   "M5.03"
+  ],
+  "needsText": "M5.03",
+  "order": 113,
+  "plain": "",
+  "pr": null,
+  "ref": "M5.04",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The outbox for every move",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The outbox for every move: events written with the state, delivered at least once; an undeliverable one is a defect with a redelivery command"
+ },
+ "M5-05": {
+  "doneWhen": "the allowances view lists actor-homed allowances",
+  "history": [],
+  "id": "M5-05",
+  "kind": "build",
+  "lane": "M5",
+  "needs": [
+   "M5.04"
+  ],
+  "needsText": "M5.04",
+  "order": 114,
+  "plain": "",
+  "pr": null,
+  "ref": "M5.05",
+  "size": "L",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Views at runtime",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Views at runtime: Blueprint.view, kept from events, reads generated in the SDK, CLI and MCP"
+ },
+ "M5-06": {
+  "doneWhen": "generated/data/map.md and the page list every store (kind, binding, migrations), every source (adapter, calls, stand-in) and every view",
+  "history": [],
+  "id": "M5-06",
+  "kind": "build",
+  "lane": "M5",
+  "needs": [
+   "M5.05"
+  ],
+  "needsText": "M5.05",
+  "order": 115,
+  "plain": "",
+  "pr": null,
+  "ref": "M5.06",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The data map and the portal's data page",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The data map and the portal's data page"
+ },
+ "M5-07": {
+  "doneWhen": "a generated adapter's calls pass against its stand-in",
+  "history": [],
+  "id": "M5-07",
+  "kind": "build",
+  "lane": "M5",
+  "needs": [
+   "M5.03"
+  ],
+  "needsText": "M5.03",
+  "order": 116,
+  "plain": "",
+  "pr": null,
+  "ref": "M5.07",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "ortho new adapter --from-openapi and the conformance harness",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "ortho new adapter --from-openapi and the conformance harness"
+ },
+ "M5-08": {
+  "doneWhen": "the payments journeys pass",
+  "history": [],
+  "id": "M5-08",
+  "kind": "build",
+  "lane": "M5",
+  "needs": [
+   "M5.07"
+  ],
+  "needsText": "M5.07",
+  "order": 117,
+  "plain": "",
+  "pr": null,
+  "ref": "M5.08",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "@orthograph/stripe",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "@orthograph/stripe: stripe-mock stand-in, provision, money calls .notVia(Via.agent) by default (S20, S21)"
+ },
+ "M5-09": {
+  "doneWhen": "the notification journeys read the inbox",
+  "history": [],
+  "id": "M5-09",
+  "kind": "build",
+  "lane": "M5",
+  "needs": [
+   "M5.07"
+  ],
+  "needsText": "M5.07",
+  "order": 118,
+  "plain": "",
+  "pr": null,
+  "ref": "M5.09",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "@orthograph/resend over SMTP, Mailpit as the stand-in",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "@orthograph/resend over SMTP, Mailpit as the stand-in (S23)"
+ },
+ "M5-10": {
+  "doneWhen": "one email, not two, after a mid-send kill",
+  "history": [],
+  "id": "M5-10",
+  "kind": "build",
+  "lane": "M5",
+  "needs": [
+   "M5.04"
+  ],
+  "needsText": "M5.04",
+  "order": 119,
+  "plain": "",
+  "pr": null,
+  "ref": "M5.10",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Declared workflows in apps",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Declared workflows in apps: notifications, and invitation.send once across a kill (absorbs L5.04)"
+ },
+ "M5-11": {
+  "doneWhen": "acme calls a second fixture app through a generated adapter",
+  "history": [],
+  "id": "M5-11",
+  "kind": "build",
+  "lane": "M5",
+  "needs": [
+   "M5.07"
+  ],
+  "needsText": "M5.07",
+  "order": 121,
+  "plain": "",
+  "pr": null,
+  "ref": "M5.11",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Another Orthograph app as an adapter, --from-model, its stand-in a world of that app",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Another Orthograph app as an adapter, --from-model, its stand-in a world of that app"
+ },
+ "M5-12": {
+  "doneWhen": "nx run e2e:m5 passes on main",
+  "history": [],
+  "id": "M5-12",
+  "kind": "e2e",
+  "lane": "M5",
+  "needs": [
+   "M5.02",
+   "M5.11",
+   "M5.13",
+   "M5.14"
+  ],
+  "needsText": "M5.02 to M5.11, M5.13, M5.14",
+  "order": 123,
+  "plain": "",
+  "pr": null,
+  "ref": "M5.12",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Gate M5",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Gate M5"
+ },
+ "M5-13": {
+  "doneWhen": "a handler reads a candidate through step.call with its own span; the conformance test fails when the dump's schema changes; Orthograph writes no migration for it",
+  "history": [],
+  "id": "M5-13",
+  "kind": "spike, build",
+  "lane": "M5",
+  "needs": [
+   "M5.07"
+  ],
+  "needsText": "M5.07",
+  "order": 120,
+  "plain": "",
+  "pr": null,
+  "ref": "M5.13",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "A source we don't own",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "A source we don't own (K3 items 8 and 9): first a spike on reaching MariaDB from workerd (TCP sockets or Hyperdrive, with a Node host as the fallback), then a fixture adapter over a MariaDB database it doesn't migrate, its stand-in real MariaDB loaded from a schema dump, conformance against it, and events from it kept in a view"
+ },
+ "M5-14": {
+  "doneWhen": "a GitHub issue, a Slack message and a fired alert each land once in the inbox; an alert on a standing goal's measure is accepted under it",
+  "history": [],
+  "id": "M5-14",
+  "kind": "build",
+  "lane": "M5",
+  "needs": [
+   "M5.03",
+   "M3.19",
+   "M4.25"
+  ],
+  "needsText": "M5.03, M3.19, M4.25",
+  "order": 122,
+  "plain": "",
+  "pr": null,
+  "ref": "M5.14",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Signals from GitHub issues",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Signals from GitHub issues (M4.25's github adapter, not a second one), Slack and alerts into the work inbox (K11): their adapters' events received through on:"
+ },
+ "M6-01": {
+  "doneWhen": "decisions/M6-chain.md written",
+  "history": [],
+  "id": "M6-01",
+  "kind": "decision",
+  "lane": "M6",
+  "needs": [],
+  "needsText": "Gate M5",
+  "order": 124,
+  "plain": "",
+  "pr": null,
+  "questions": [
+   {
+    "answer": null,
+    "id": "q1",
+    "owner": "conductor",
+    "raisedAt": "2026-11-19T09:38:00Z",
+    "source": "M6.01",
+    "status": "open",
+    "text": "D5: values across languages, signedBy as EIP-712, one vault per organisation?"
+   },
+   {
+    "answer": null,
+    "id": "q2",
+    "owner": "conductor",
+    "raisedAt": "2026-11-19T09:38:00Z",
+    "source": "M6.01",
+    "status": "open",
+    "text": "What is the exact schema of surface.json and refusals.lock?"
+   }
+  ],
+  "ref": "M6.01",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Starts from decisions/K7-chain-languages.md, which settles the operation-to-chain ma…",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Starts from decisions/K7-chain-languages.md, which settles the operation-to-chain mapping, client exposure, refusals, the submission lifecycle and confirmed. What is left: D5 (values across languages, signedBy as EIP-712, one vault per organisation) and the exact schema of surface.json and refusals.lock"
+ },
+ "M6-02": {
+  "doneWhen": "they fail on empty handlers",
+  "history": [],
+  "id": "M6-02",
+  "kind": "checks",
+  "lane": "M6",
+  "needs": [
+   "M6.01"
+  ],
+  "needsText": "M6.01",
+  "order": 125,
+  "plain": "",
+  "pr": null,
+  "ref": "M6.02",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Journeys for the chain",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Journeys for the chain: contracts, the relayer and the follower (Codex's planned files 06 to 08; the wallet's are M1.28 and M2.13)"
+ },
+ "M6-03": {
+  "doneWhen": "",
+  "history": [],
+  "id": "M6-03",
+  "kind": "",
+  "lane": "M6",
+  "needs": [],
+  "needsText": "",
+  "order": 126,
+  "plain": "",
+  "pr": null,
+  "ref": "M6.03",
+  "size": "",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Moved to M1.29",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Moved to M1.29 (K7 F4: the wallet is the first plugin)"
+ },
+ "M6-04": {
+  "doneWhen": "",
+  "history": [],
+  "id": "M6-04",
+  "kind": "",
+  "lane": "M6",
+  "needs": [],
+  "needsText": "",
+  "order": 127,
+  "plain": "",
+  "pr": null,
+  "ref": "M6.04",
+  "size": "",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Moved to M2.13",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Moved to M2.13 (K7 F4: the wallet is the first plugin)"
+ },
+ "M6-05": {
+  "doneWhen": "",
+  "history": [],
+  "id": "M6-05",
+  "kind": "",
+  "lane": "M6",
+  "needs": [],
+  "needsText": "",
+  "order": 128,
+  "plain": "",
+  "pr": null,
+  "ref": "M6.05",
+  "size": "",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Moved to M1.30",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Moved to M1.30 (K7 F4: the wallet is the first plugin)"
+ },
+ "M6-06": {
+  "doneWhen": "",
+  "history": [],
+  "id": "M6-06",
+  "kind": "",
+  "lane": "M6",
+  "needs": [],
+  "needsText": "",
+  "order": 129,
+  "plain": "",
+  "pr": null,
+  "ref": "M6.06",
+  "size": "",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Moved to M1.31",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Moved to M1.31 (K7 F4: the wallet is the first plugin)"
+ },
+ "M6-07": {
+  "doneWhen": "100 concurrent submissions, nonces 0 to 99, a dropped one replaced",
+  "history": [],
+  "id": "M6-07",
+  "kind": "build",
+  "lane": "M6",
+  "needs": [
+   "M1.31"
+  ],
+  "needsText": "M1.31",
+  "order": 130,
+  "plain": "",
+  "pr": null,
+  "ref": "M6.07",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The relayer actor",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The relayer actor (L3.06)"
+ },
+ "M6-08": {
+  "doneWhen": "",
+  "history": [],
+  "id": "M6-08",
+  "kind": "",
+  "lane": "M6",
+  "needs": [],
+  "needsText": "",
+  "order": 131,
+  "plain": "",
+  "pr": null,
+  "ref": "M6.08",
+  "size": "",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Moved to M1.32",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Moved to M1.32 (K7 F4: the wallet is the first plugin)"
+ },
+ "M6-09": {
+  "doneWhen": "an anvil_reorg that replays a different digest emits a correction and then the new event; a restart doesn't double count",
+  "history": [],
+  "id": "M6-09",
+  "kind": "build",
+  "lane": "M6",
+  "needs": [
+   "M6.07"
+  ],
+  "needsText": "M6.07",
+  "order": 132,
+  "plain": "",
+  "pr": null,
+  "ref": "M6.09",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The chain follower",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The chain follower (L3.08), which also feeds the portal's committed chain events (K5 seam 10); its checkpoint is a block number plus a window of block hashes, and a take-back emits <Event>Corrected { wasConfirmed } (K7 Q6)"
+ },
+ "M6-10": {
+  "doneWhen": "ortho check reports the change as major; swapping two declared errors keeps both codes; renaming a published code is refused",
+  "history": [],
+  "id": "M6-10",
+  "kind": "build",
+  "lane": "M6",
+  "needs": [
+   "M6.01"
+  ],
+  "needsText": "M6.01",
+  "order": 133,
+  "plain": "",
+  "pr": null,
+  "ref": "M6.10",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Values with Solidity types and lives",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Values with Solidity types and lives: Blueprint.chain.evm(...) (chain as a family of store kinds, K7 Q4); the compiler accepts runs: \"chain\" (L4.01; describe.ts:108 refuses it today); blueprint/refusals.lock for every language, so codes no longer come from declaration order (describe.ts:79; K7 Q5)"
+ },
+ "M6-11": {
+  "doneWhen": "forge build compiles the generated files; the SDK reaches every external function; a hand-written writer with no role gives a check warning",
+  "history": [],
+  "id": "M6-11",
+  "kind": "build",
+  "lane": "M6",
+  "needs": [
+   "M6.10"
+  ],
+  "needsText": "M6.10",
+  "order": 134,
+  "plain": "",
+  "pr": null,
+  "ref": "M6.11",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "language-solidity, no longer a placeholder",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "language-solidity, no longer a placeholder: types, the compiled machine, roles and refusals compiled in (one custom error per declared error), the ABI, roles generated in (OpenZeppelin-style onlyRole, generated, not imported), and generated/solidity/surface.json listing every external function for the clients; ortho check warns on a hand-written external writer with no role modifier (L4.02; K7 Q1, F1)"
+ },
+ "M6-12": {
+  "doneWhen": "the scaffold gives 0 passed · 24 failed: NotWritten",
+  "history": [],
+  "id": "M6-12",
+  "kind": "build",
+  "lane": "M6",
+  "needs": [
+   "M6.11"
+  ],
+  "needsText": "M6.11",
+  "order": 135,
+  "plain": "",
+  "pr": null,
+  "ref": "M6.12",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Signatures and generated Foundry tests",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Signatures and generated Foundry tests (L4.03)"
+ },
+ "M6-13": {
+  "doneWhen": "the filled vault gives 24 passed; fixed seeds show no divergence; the planted mutant diverges",
+  "history": [],
+  "id": "M6-13",
+  "kind": "build",
+  "lane": "M6",
+  "needs": [
+   "M6.12"
+  ],
+  "needsText": "M6.12",
+  "order": 136,
+  "plain": "",
+  "pr": null,
+  "ref": "M6.13",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The contract scaffold, its brief, the fuzz cross-check against the reference machine…",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The contract scaffold, its brief, the fuzz cross-check against the reference machine generated from the blueprint, driving the generated client with its pre-check (L4.04; K7 Q8)"
+ },
+ "M6-14": {
+  "doneWhen": "a planted revert reaches the handler as AllowanceExceeded",
+  "history": [],
+  "id": "M6-14",
+  "kind": "build",
+  "lane": "M6",
+  "needs": [
+   "M6.13",
+   "M1.30"
+  ],
+  "needsText": "M6.13, M1.30",
+  "order": 137,
+  "plain": "",
+  "pr": null,
+  "ref": "M6.14",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The contract's client from the ABI",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The contract's client from the ABI (L4.05)"
+ },
+ "M6-15": {
+  "doneWhen": "acme allowance spend --wallet olga succeeds; bob's signature is refused before sending; a second relayer's mined revert still ends confirmed",
+  "history": [],
+  "id": "M6-15",
+  "kind": "build",
+  "lane": "M6",
+  "needs": [
+   "M6.14",
+   "M1.29",
+   "M6.07"
+  ],
+  "needsText": "M6.14, M1.29, M6.07",
+  "order": 138,
+  "plain": "",
+  "pr": null,
+  "ref": "M6.15",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The signing flow and the in-between state",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The signing flow and the in-between state (L4.06, S25); the SDK's submission lifecycle (simulated → submitted → included → confirmed, dropped, reverted, corrected), where confirmed matches the intent's event, not the transaction (K7 Q3)"
+ },
+ "M6-16": {
+  "doneWhen": "ortho prove --env local shows each operation signed by its person",
+  "history": [],
+  "id": "M6-16",
+  "kind": "build",
+  "lane": "M6",
+  "needs": [
+   "M6.15",
+   "M1.31",
+   "M6.09"
+  ],
+  "needsText": "M6.15, M1.31, M6.09",
+  "order": 139,
+  "plain": "",
+  "pr": null,
+  "ref": "M6.16",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Worlds with a chain",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Worlds with a chain: a vault per organisation, journeys on Anvil (L4.07)"
+ },
+ "M6-17": {
+  "doneWhen": "promoting twice with the same bytecode deploys nothing the second time",
+  "history": [],
+  "id": "M6-17",
+  "kind": "build",
+  "lane": "M6",
+  "needs": [
+   "M6.16"
+  ],
+  "needsText": "M6.16",
+  "order": 140,
+  "plain": "",
+  "pr": null,
+  "ref": "M6.17",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Contracts in the local pipeline, redeployed only on a new bytecode hash",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Contracts in the local pipeline, redeployed only on a new bytecode hash (L4.08, local part)"
+ },
+ "M6-18": {
+  "doneWhen": "a planted plain-text private key in a binding fails the check; a declared server-held key from secrets passes",
+  "history": [],
+  "id": "M6-18",
+  "kind": "build",
+  "lane": "M6",
+  "needs": [
+   "M6.16"
+  ],
+  "needsText": "M6.16",
+  "order": 141,
+  "plain": "",
+  "pr": null,
+  "ref": "M6.18",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The key-hygiene and custody checks",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The key-hygiene and custody checks (S29): each wallet declares where its key lives (device or server), and no key appears in plain text in a binding, a commit or a log. A server may hold keys (Aaron, 18 November 2026, K7)"
+ },
+ "M6-19": {
+  "doneWhen": "nx run e2e:m6 passes on main",
+  "history": [],
+  "id": "M6-19",
+  "kind": "e2e",
+  "lane": "M6",
+  "needs": [
+   "M6.02",
+   "M6.07",
+   "M6.09",
+   "M6.18",
+   "M6.20"
+  ],
+  "needsText": "M6.02, M6.07, M6.09 to M6.18 (M6.20 dropped by K9)",
+  "order": 143,
+  "plain": "",
+  "pr": null,
+  "ref": "M6.19",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Gate M6",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Gate M6"
+ },
+ "M6-20": {
+  "doneWhen": "a vote twice by one member is refused by the contract through the SDK, the CLI and an action; a publish run links the confirmed proposal to its exact revision",
+  "history": [],
+  "id": "M6-20",
+  "kind": "build",
+  "lane": "M6",
+  "needs": [
+   "M6.16",
+   "M3.10"
+  ],
+  "needsText": "M6.16, M3.10",
+  "order": 142,
+  "plain": "",
+  "pr": null,
+  "ref": "M6.20",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "examples/workshop",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "examples/workshop (K5): the governance feature, the vote as a contract operation, the publish workflow across D1 and the chain, the forum adapter's stand-in"
+ },
+ "M7-01": {
+  "doneWhen": "decisions/M7-cloud.md written, with Aaron's yes per credential",
+  "history": [],
+  "id": "M7-01",
+  "kind": "decision",
+  "lane": "M7",
+  "needs": [],
+  "needsText": "Gate M2",
+  "order": 144,
+  "plain": "",
+  "pr": null,
+  "questions": [
+   {
+    "answer": null,
+    "id": "q1",
+    "owner": "aaron",
+    "raisedAt": "2026-11-19T09:38:00Z",
+    "source": "M7.01",
+    "status": "open",
+    "text": "What scope does the orthograph-staging token get?"
+   },
+   {
+    "answer": null,
+    "id": "q2",
+    "owner": "conductor",
+    "raisedAt": "2026-11-19T09:38:00Z",
+    "source": "M7.01",
+    "status": "open",
+    "text": "What does staging cost, and does it stay under $10 a day?"
+   },
+   {
+    "answer": null,
+    "id": "q3",
+    "owner": "conductor",
+    "raisedAt": "2026-11-19T09:38:00Z",
+    "source": "M7.01",
+    "status": "open",
+    "text": "Which secret store does Cloudflare.secrets mean?"
+   }
+  ],
+  "ref": "M7.01",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The cloud pass for staging",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The cloud pass for staging (K10 section 8): the orthograph-staging account Aaron approved in K10, its token's scope, a cost estimate under the cap, which secret store Cloudflare.secrets means"
+ },
+ "M7-02": {
+  "doneWhen": "npm view orthograph shows the release",
+  "history": [],
+  "id": "M7-02",
+  "kind": "build",
+  "lane": "M7",
+  "needs": [
+   "M7.13"
+  ],
+  "needsText": "M7.13",
+  "order": 145,
+  "plain": "",
+  "pr": null,
+  "ref": "M7.02",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The npm org @orthograph",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The npm org @orthograph (Aaron signs in) and Orthograph's first real release"
+ },
+ "M7-03": {
+  "doneWhen": "ortho env up staging plans the expected resources",
+  "history": [],
+  "id": "M7-03",
+  "kind": "build",
+  "lane": "M7",
+  "needs": [
+   "M7.01"
+  ],
+  "needsText": "M7.01",
+  "order": 146,
+  "plain": "",
+  "pr": null,
+  "ref": "M7.03",
+  "size": "L",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The infra projection",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The infra projection: an Alchemy stack per environment from the model and mounts"
+ },
+ "M7-04": {
+  "doneWhen": "ortho env destroy leaves nothing in the account",
+  "history": [],
+  "id": "M7-04",
+  "kind": "build",
+  "lane": "M7",
+  "needs": [
+   "M7.03"
+  ],
+  "needsText": "M7.03",
+  "order": 147,
+  "plain": "",
+  "pr": null,
+  "ref": "M7.04",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Deploy and destroy on Cloudflare",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Deploy and destroy on Cloudflare (L2.01, cloud part)"
+ },
+ "M7-05": {
+  "doneWhen": "a pull request gets a verdict signed with GitHub's OIDC token",
+  "history": [],
+  "id": "M7-05",
+  "kind": "build",
+  "lane": "M7",
+  "needs": [
+   "M7.04",
+   "M7.13"
+  ],
+  "needsText": "M7.04, M7.13",
+  "order": 148,
+  "plain": "",
+  "pr": null,
+  "ref": "M7.05",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Test worlds and signed verdicts from GitHub Actions",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Test worlds and signed verdicts from GitHub Actions (L2.02, L2.03, cloud parts)"
+ },
+ "M7-06": {
+  "doneWhen": "brew install of acme's CLI works from the real tap",
+  "history": [],
+  "id": "M7-06",
+  "kind": "build",
+  "lane": "M7",
+  "needs": [
+   "M7.02"
+  ],
+  "needsText": "M7.02",
+  "order": 149,
+  "plain": "",
+  "pr": null,
+  "ref": "M7.06",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Real releases",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Real releases: npm, Homebrew, GitHub (L2.06, cloud part)"
+ },
+ "M7-07": {
+  "doneWhen": "the conformance test passes against Stripe's test mode",
+  "history": [],
+  "id": "M7-07",
+  "kind": "build",
+  "lane": "M7",
+  "needs": [
+   "M7.04",
+   "M7.13"
+  ],
+  "needsText": "M7.04, M7.13",
+  "order": 150,
+  "plain": "",
+  "pr": null,
+  "ref": "M7.07",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Adapters against the real vendors",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Adapters against the real vendors: Stripe test mode, provision, conformance"
+ },
+ "M7-08": {
+  "doneWhen": "an unattended builder reads staging traces, redacted",
+  "history": [],
+  "id": "M7-08",
+  "kind": "build",
+  "lane": "M7",
+  "needs": [
+   "M7.04"
+  ],
+  "needsText": "M7.04",
+  "order": 151,
+  "plain": "",
+  "pr": null,
+  "ref": "M7.08",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The builder's read-only staging telemetry token",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The builder's read-only staging telemetry token (with Aaron's yes)"
+ },
+ "M7-09": {
+  "doneWhen": "a changed vault is redeployed and verified",
+  "history": [],
+  "id": "M7-09",
+  "kind": "build",
+  "lane": "M7",
+  "needs": [
+   "M7.04",
+   "M7.13"
+  ],
+  "needsText": "M7.04, M7.13",
+  "order": 152,
+  "plain": "",
+  "pr": null,
+  "ref": "M7.09",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Contracts on a testnet",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Contracts on a testnet (L4.08, cloud part)"
+ },
+ "M7-10": {
+  "doneWhen": "decisions/M7-capxul.md written",
+  "history": [],
+  "id": "M7-10",
+  "kind": "decision",
+  "lane": "M7",
+  "needs": [
+   "M7.13"
+  ],
+  "needsText": "M7.13",
+  "order": 153,
+  "plain": "",
+  "pr": null,
+  "ref": "M7.10",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Capxul's plugins mapped",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Capxul's plugins mapped: which exist, which are new, which are Capxul's own"
+ },
+ "M7-11": {
+  "doneWhen": "its journeys are green in Capxul's staging",
+  "history": [],
+  "id": "M7-11",
+  "kind": "build",
+  "lane": "M7",
+  "needs": [
+   "M7.10",
+   "M7.05"
+  ],
+  "needsText": "M7.10, M7.05",
+  "order": 154,
+  "plain": "",
+  "pr": null,
+  "ref": "M7.11",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Capxul's first feature on Orthograph, in its staging",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Capxul's first feature on Orthograph, in its staging"
+ },
+ "M7-12": {
+  "doneWhen": "nx run e2e:m7 passes, and the gate's resources are destroyed",
+  "history": [],
+  "id": "M7-12",
+  "kind": "e2e",
+  "lane": "M7",
+  "needs": [],
+  "needsText": "all of M7",
+  "order": 156,
+  "plain": "",
+  "pr": null,
+  "ref": "M7.12",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Gate M7",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "Gate M7"
+ },
+ "M7-13": {
+  "doneWhen": "decisions/M7-release.md written, with Aaron's yes per credential",
+  "history": [],
+  "id": "M7-13",
+  "kind": "decision",
+  "lane": "M7",
+  "needs": [
+   "M7.01"
+  ],
+  "needsText": "ST4.08, M7.01",
+  "order": 155,
+  "plain": "",
+  "pr": null,
+  "questions": [
+   {
+    "answer": null,
+    "id": "q1",
+    "owner": "aaron",
+    "raisedAt": "2026-11-19T09:38:00Z",
+    "source": "M7.13",
+    "status": "open",
+    "text": "Which release credentials (npm, Homebrew tap, GitHub, Stripe test mode, a testnet) do you approve, each in writing?"
+   }
+  ],
+  "ref": "M7.13",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The release pass",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": "The release pass: the credentials the release needs (npm, Homebrew tap, GitHub, Stripe test mode, a testnet), each with Aaron's written yes, and the cost under the cap"
+ },
+ "ST1-01": {
+  "doneWhen": "acme's spend twice with one request passes --through react; an overspend arrives as AllowanceExceeded with its code; the pending state is observed before the answer",
+  "history": [],
+  "id": "ST1-01",
+  "kind": "build",
+  "lane": "ST1",
+  "needs": [
+   "M1.12"
+  ],
+  "needsText": "M1.12",
+  "order": 504,
+  "plain": "",
+  "pr": null,
+  "questions": [],
+  "ref": "ST1.01",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The react projection",
+  "updatedAt": "2026-11-19T09:38:00Z",
+  "waiting": null,
+  "what": "The react projection (frame/projections.md 3.4): @orthograph/react, one mutation hook per operation and one query hook per read, declared refusals as classes in the hook's error, pending, one requestKey per form open kept across retries; --through react replays a journey in headless Chromium, never jsdom"
+ },
+ "ST1-02": {
+  "doneWhen": "they fail on empty handlers",
+  "history": [],
+  "id": "ST1-02",
+  "kind": "checks",
+  "lane": "ST1",
+  "needs": [
+   "M1.10"
+  ],
+  "needsText": "M1.10",
+  "order": 505,
+  "plain": "",
+  "pr": null,
+  "questions": [],
+  "ref": "ST1.02",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Journeys for handles and links at stage 1",
+  "updatedAt": "2026-11-19T09:38:00Z",
+  "waiting": null,
+  "what": "Journeys for handles and links at stage 1: claim, a taken name, one request twice, release, resolve; add, order and remove a link; a stranger can't edit; anyone reads a page"
+ },
+ "ST1-03": {
+  "doneWhen": "the handles journeys pass with examples/links mounting it",
+  "history": [],
+  "id": "ST1-03",
+  "kind": "build",
+  "lane": "ST1",
+  "needs": [
+   "ST1.02"
+  ],
+  "needsText": "ST1.02",
+  "order": 506,
+  "plain": "",
+  "pr": null,
+  "questions": [],
+  "ref": "ST1.03",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "@orthograph/handles, a feature",
+  "updatedAt": "2026-11-19T09:38:00Z",
+  "waiting": null,
+  "what": "@orthograph/handles, a feature: handle, claim, release, resolve, HandleTaken, a names choice; mounted by ortho add"
+ },
+ "ST1-04": {
+  "doneWhen": "ortho prove --root examples/links is green; in Chromium a claim and a link show on /@aaron",
+  "history": [],
+  "id": "ST1-04",
+  "kind": "build",
+  "lane": "ST1",
+  "needs": [
+   "ST1.01",
+   "ST1.03",
+   "M1.40"
+  ],
+  "needsText": "ST1.01, ST1.03, M1.40",
+  "order": 507,
+  "plain": "The links app itself at stage 1. Codex has built a first version in PR #56.",
+  "pr": null,
+  "questions": [],
+  "ref": "ST1.04",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "examples/links at stage 1 on auth copied from the starter",
+  "updatedAt": "2026-11-19T09:41:30Z",
+  "waiting": null,
+  "what": "examples/links (M1.40) grown to stage 1 on auth copied from the starter: profile, link, their handlers, and three screens in src/web/ (/@name, /claim, /edit) on the hooks, served by the Worker"
+ },
+ "ST1-05": {
+  "doneWhen": "an agent-native-shaped host claims a handle for ada and the Worker's span says agent for ada; a .notVia(Via.agent) operation is refused",
+  "history": [
+   {
+    "at": "2026-11-19T09:41:30Z",
+    "note": "moved to M3 by K13: off the path to workable",
+    "stage": "backlog",
+    "thread": null
+   }
+  ],
+  "id": "ST1-05",
+  "kind": "build",
+  "lane": "M3",
+  "needs": [
+   "M2.03",
+   "M1.22"
+  ],
+  "needsText": "M2.03, M1.22",
+  "order": 508,
+  "plain": "",
+  "pr": null,
+  "questions": [],
+  "ref": "ST1.05",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The host's caller for actions",
+  "updatedAt": "2026-11-19T09:41:30Z",
+  "waiting": null,
+  "what": "The host's caller for actions (K9, agent-native finding 4): a host key that acts as agent for <person>, named by email, for actions hosted outside our portal"
+ },
+ "ST1-06": {
+  "doneWhen": "the links screens sign in and claim through the hooks with the auth plugin mounted",
+  "history": [],
+  "id": "ST1-06",
+  "kind": "build",
+  "lane": "ST1",
+  "needs": [
+   "ST1.01",
+   "M2.06"
+  ],
+  "needsText": "ST1.01, M2.06",
+  "order": 509,
+  "plain": "",
+  "pr": null,
+  "questions": [],
+  "ref": "ST1.06",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Hooks behind a signed-in session",
+  "updatedAt": "2026-11-19T09:38:00Z",
+  "waiting": null,
+  "what": "Hooks behind a signed-in session (Via.session)"
+ },
+ "ST1-07": {
+  "doneWhen": "examples/links has no person/ or session/ folder and proves green",
+  "history": [],
+  "id": "ST1-07",
+  "kind": "build",
+  "lane": "ST1",
+  "needs": [
+   "M2.05",
+   "ST1.04"
+  ],
+  "needsText": "M2.05, ST1.04",
+  "order": 510,
+  "plain": "",
+  "pr": null,
+  "questions": [],
+  "ref": "ST1.07",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "links mounts auth",
+  "updatedAt": "2026-11-19T09:38:00Z",
+  "waiting": null,
+  "what": "links mounts auth: the copied identity deleted"
+ },
+ "ST1-08": {
+  "doneWhen": "no file outside the records names examples/signup; e2e/layer1/08-* proves links",
+  "history": [],
+  "id": "ST1-08",
+  "kind": "checks",
+  "lane": "ST1",
+  "needs": [
+   "ST1.04"
+  ],
+  "needsText": "ST1.04",
+  "order": 511,
+  "plain": "",
+  "pr": null,
+  "questions": [],
+  "ref": "ST1.08",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "examples/signup deleted once the canon quotes links",
+  "updatedAt": "2026-11-19T09:38:00Z",
+  "waiting": null,
+  "what": "examples/signup deleted once the canon quotes links (the canon thread's change, K9); e2e/layer1/08-* moved onto links. A checks slice: it edits a gate's suite, so an author writes it, never the builder"
+ },
+ "ST2-01": {
+  "doneWhen": "they fail on empty handlers",
+  "history": [],
+  "id": "ST2-01",
+  "kind": "checks",
+  "lane": "ST2",
+  "needs": [
+   "M6.02"
+  ],
+  "needsText": "M6.02",
+  "order": 512,
+  "plain": "",
+  "pr": null,
+  "questions": [],
+  "ref": "ST2.01",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Journeys for stage 2",
+  "updatedAt": "2026-11-19T09:38:00Z",
+  "waiting": null,
+  "what": "Journeys for stage 2: create on the device, link your own, pay by handle, confirmed then corrected, an agent can't link"
+ },
+ "ST2-02": {
+  "doneWhen": "the erc20 adapter's transfer and Transfer event are typed; a revert decodes typed; conformance passes against the stand-in",
+  "history": [],
+  "id": "ST2-02",
+  "kind": "build",
+  "lane": "ST2",
+  "needs": [
+   "M1.30",
+   "M1.31"
+  ],
+  "needsText": "M1.30, M1.31",
+  "order": 513,
+  "plain": "",
+  "pr": null,
+  "questions": [],
+  "ref": "ST2.02",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Adapters from an ABI",
+  "updatedAt": "2026-11-19T09:38:00Z",
+  "waiting": null,
+  "what": "Adapters from an ABI (K7 Q2): ortho new adapter --from-abi, typed calls and events, a stand-in contract deployed into the world; the first is erc20 over a test token"
+ },
+ "ST2-03": {
+  "doneWhen": "in Chromium a payment's hook passes through each state to confirmed; a reorg shows corrected",
+  "history": [],
+  "id": "ST2-03",
+  "kind": "build",
+  "lane": "ST2",
+  "needs": [
+   "ST1.01",
+   "M1.27",
+   "M6.15"
+  ],
+  "needsText": "ST1.01, M1.27, M6.15",
+  "order": 514,
+  "plain": "",
+  "pr": null,
+  "questions": [],
+  "ref": "ST2.03",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Hooks for client operations and chain submissions",
+  "updatedAt": "2026-11-19T09:38:00Z",
+  "waiting": null,
+  "what": "Hooks for client operations and chain submissions: the submission lifecycle as hook state (simulated, submitted, included, confirmed, dropped, reverted, corrected); the wallet's device half in the browser"
+ },
+ "ST2-04": {
+  "doneWhen": "the stage 2 journeys pass",
+  "history": [],
+  "id": "ST2-04",
+  "kind": "build",
+  "lane": "ST2",
+  "needs": [
+   "ST2.01",
+   "ST2.03",
+   "M2.13",
+   "M6.09",
+   "M5.03"
+  ],
+  "needsText": "ST2.01 to ST2.03, M2.13, M6.09, M5.03",
+  "order": 515,
+  "plain": "",
+  "pr": null,
+  "questions": [],
+  "ref": "ST2.04",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "links at stage 2",
+  "updatedAt": "2026-11-19T09:38:00Z",
+  "waiting": null,
+  "what": "links at stage 2: /wallet, Pay @name, payment kept from the follower's events through on:"
+ },
+ "ST2-05": {
+  "doneWhen": "every gate suite runs on links; examples/acme is gone; Gates 1, 2, M0, M1 and M2 still pass",
+  "history": [],
+  "id": "ST2-05",
+  "kind": "checks",
+  "lane": "ST2",
+  "needs": [
+   "ST2.04"
+  ],
+  "needsText": "ST2.04",
+  "order": 516,
+  "plain": "",
+  "pr": null,
+  "questions": [],
+  "ref": "ST2.05",
+  "size": "L",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The gates' fixture moves from acme to links",
+  "updatedAt": "2026-11-19T09:38:00Z",
+  "waiting": null,
+  "what": "The gates' fixture moves from acme to links; acme retired (its allowance kept in the history as the budgets feature's source). A checks slice: it rewrites the gates' suites, so an author writes it, never the builder"
+ },
+ "ST2-06": {
+  "doneWhen": "on Anvil: aaron creates a wallet, bob links his; bob pays @aaron 5 test tokens, simulated first; the page shows it once confirmed; a forced reorg corrects it; the key-hygiene check passes; an agent's link is refused. links/stage-2 tagged",
+  "history": [],
+  "id": "ST2-06",
+  "kind": "e2e",
+  "lane": "ST2",
+  "needs": [
+   "ST2.01",
+   "ST2.04"
+  ],
+  "needsText": "ST2.01 to ST2.04, and the stage's milestone slices",
+  "order": 517,
+  "plain": "",
+  "pr": null,
+  "questions": [],
+  "ref": "ST2.06",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The stage 2 gate",
+  "updatedAt": "2026-11-19T09:38:00Z",
+  "waiting": null,
+  "what": "The stage 2 gate"
+ },
+ "ST3-01": {
+  "doneWhen": "spikes/safe-hats-module/README.md answers it with a run",
+  "history": [],
+  "id": "ST3-01",
+  "kind": "spike",
+  "lane": "ST3",
+  "needs": [
+   "ST2.02"
+  ],
+  "needsText": "ST2.02",
+  "order": 518,
+  "plain": "",
+  "pr": null,
+  "questions": [],
+  "ref": "ST3.01",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "A Safe, Hats Protocol and a module on Anvil",
+  "updatedAt": "2026-11-19T09:38:00Z",
+  "waiting": null,
+  "what": "A Safe, Hats Protocol and a module on Anvil: their releases pinned (R1), a module enabled on a Safe executing after a Hats read, the SafeTx signature format"
+ },
+ "ST3-02": {
+  "doneWhen": "decisions/ST3-budgets.md written",
+  "history": [],
+  "id": "ST3-02",
+  "kind": "decision",
+  "lane": "ST3",
+  "needs": [
+   "ST3.01",
+   "M6.01",
+   "M3.01"
+  ],
+  "needsText": "ST3.01, M6.01, M3.01",
+  "order": 519,
+  "plain": "",
+  "pr": null,
+  "questions": [],
+  "ref": "ST3.02",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The budgets feature",
+  "updatedAt": "2026-11-19T09:38:00Z",
+  "waiting": null,
+  "what": "The budgets feature: a budget per hat and period, what lives in D1 and what on chain, signature collection as a workflow, an agent under its own hat"
+ },
+ "ST3-03": {
+  "doneWhen": "they fail on empty handlers",
+  "history": [],
+  "id": "ST3-03",
+  "kind": "checks",
+  "lane": "ST3",
+  "needs": [
+   "ST3.02"
+  ],
+  "needsText": "ST3.02",
+  "order": 520,
+  "plain": "",
+  "pr": null,
+  "questions": [],
+  "ref": "ST3.03",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Journeys for stage 3",
+  "updatedAt": "2026-11-19T09:38:00Z",
+  "waiting": null,
+  "what": "Journeys for stage 3 (the gate's list below), and the budgets machine's reference for the fuzz"
+ },
+ "ST3-04": {
+  "doneWhen": "a Safe's owners and threshold and a hat's wearer read typed from the world",
+  "history": [],
+  "id": "ST3-04",
+  "kind": "build",
+  "lane": "ST3",
+  "needs": [
+   "ST2.02",
+   "ST3.02"
+  ],
+  "needsText": "ST2.02, ST3.02",
+  "order": 521,
+  "plain": "",
+  "pr": null,
+  "questions": [],
+  "ref": "ST3.04",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The safe and hats adapters from their ABIs",
+  "updatedAt": "2026-11-19T09:38:00Z",
+  "waiting": null,
+  "what": "The safe and hats adapters from their ABIs"
+ },
+ "ST3-05": {
+  "doneWhen": "forge test passes on the module; fixed seeds show no divergence; within-budget spends execute from the Safe",
+  "history": [],
+  "id": "ST3-05",
+  "kind": "build",
+  "lane": "ST3",
+  "needs": [
+   "ST3.03",
+   "ST3.04",
+   "M6.13"
+  ],
+  "needsText": "ST3.03, ST3.04, M6.13",
+  "order": 522,
+  "plain": "",
+  "pr": null,
+  "questions": [],
+  "ref": "ST3.05",
+  "size": "L",
+  "stage": "backlog",
+  "thread": null,
+  "title": "@orthograph/budgets",
+  "updatedAt": "2026-11-19T09:38:00Z",
+  "waiting": null,
+  "what": "@orthograph/budgets: acme's allowance machine as a feature; its on-chain half one Solidity module generated by language-solidity and filled; the fuzz against the TypeScript machine"
+ },
+ "ST3-06": {
+  "doneWhen": "a 2-of-3 spend executes once, even when the workflow's Durable Object is evicted mid-wait",
+  "history": [],
+  "id": "ST3-06",
+  "kind": "build",
+  "lane": "ST3",
+  "needs": [
+   "ST3.05",
+   "M3.03",
+   "M6.15"
+  ],
+  "needsText": "ST3.05, M3.03, M6.15",
+  "order": 523,
+  "plain": "",
+  "pr": null,
+  "questions": [],
+  "ref": "ST3.06",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Owner signatures as a durable workflow",
+  "updatedAt": "2026-11-19T09:38:00Z",
+  "waiting": null,
+  "what": "Owner signatures as a durable workflow: propose, collect each owner's signature, execute at the threshold, await the confirmed event"
+ },
+ "ST3-07": {
+  "doneWhen": "the stage 3 journeys pass",
+  "history": [],
+  "id": "ST3-07",
+  "kind": "build",
+  "lane": "ST3",
+  "needs": [
+   "ST3.06",
+   "M4.10",
+   "M4.16",
+   "M2.07"
+  ],
+  "needsText": "ST3.06, M4.10, M4.16, M2.07",
+  "order": 524,
+  "plain": "",
+  "pr": null,
+  "questions": [],
+  "ref": "ST3.07",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "links at stage 3",
+  "updatedAt": "2026-11-19T09:38:00Z",
+  "waiting": null,
+  "what": "links at stage 3: /@group, hats, spend, pending; an agent spending under its own hat"
+ },
+ "ST3-08": {
+  "doneWhen": "on Anvil, @workshop has a 2-of-3 Safe with the module enabled: ada wears the spender hat at 100 a month and spends 20 alone; 500 waits for two owners and executes once across an eviction; a revoked hat refuses with HatNotWorn; ada's agent under its own 20 hat spends 20 and is refused 21; the fuzz finds no divergence. links/stage-3 tagged",
+  "history": [],
+  "id": "ST3-08",
+  "kind": "e2e",
+  "lane": "ST3",
+  "needs": [
+   "ST3.01",
+   "ST3.07"
+  ],
+  "needsText": "ST3.01 to ST3.07, and the stage's milestone slices",
+  "order": 525,
+  "plain": "",
+  "pr": null,
+  "questions": [],
+  "ref": "ST3.08",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The stage 3 gate",
+  "updatedAt": "2026-11-19T09:38:00Z",
+  "waiting": null,
+  "what": "The stage 3 gate"
+ },
+ "ST4-01": {
+  "doneWhen": "spikes/aztec-club/README.md answers it with a run, a tampered proof rejected",
+  "history": [],
+  "id": "ST4-01",
+  "kind": "spike",
+  "lane": "ST4",
+  "needs": [
+   "ST3.08"
+  ],
+  "needsText": "ST3.08",
+  "order": 526,
+  "plain": "",
+  "pr": null,
+  "questions": [],
+  "ref": "ST4.01",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The budgets declaration in Noir on Aztec",
+  "updatedAt": "2026-11-19T09:38:00Z",
+  "waiting": null,
+  "what": "The budgets declaration in Noir on Aztec: a private budget note spent down, a private ballot with a public tally, in an in-process proofs: \"verified\" network (K7 Q7)"
+ },
+ "ST4-02": {
+  "doneWhen": "decisions/ST4-aztec.md written",
+  "history": [],
+  "id": "ST4-02",
+  "kind": "decision",
+  "lane": "ST4",
+  "needs": [
+   "ST4.01"
+  ],
+  "needsText": "ST4.01",
+  "order": 527,
+  "plain": "",
+  "pr": null,
+  "questions": [],
+  "ref": "ST4.02",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "language-noir, the aztec store kind, chain-aztec on the ChainPort, proofs",
+  "updatedAt": "2026-11-19T09:38:00Z",
+  "waiting": null,
+  "what": "language-noir, the aztec store kind, chain-aztec on the ChainPort, proofs: \"verified\" worlds, from K7's design"
+ },
+ "ST4-03": {
+  "doneWhen": "they fail on empty handlers",
+  "history": [],
+  "id": "ST4-03",
+  "kind": "checks",
+  "lane": "ST4",
+  "needs": [
+   "ST4.02"
+  ],
+  "needsText": "ST4.02",
+  "order": 528,
+  "plain": "",
+  "pr": null,
+  "questions": [],
+  "ref": "ST4.03",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "Journeys for the club",
+  "updatedAt": "2026-11-19T09:38:00Z",
+  "waiting": null,
+  "what": "Journeys for the club"
+ },
+ "ST4-04": {
+  "doneWhen": "a world's Aztec network rejects a tampered proof and is gone when the world ends",
+  "history": [],
+  "id": "ST4-04",
+  "kind": "build",
+  "lane": "ST4",
+  "needs": [
+   "ST4.02"
+  ],
+  "needsText": "ST4.02",
+  "order": 529,
+  "plain": "",
+  "pr": null,
+  "questions": [],
+  "ref": "ST4.04",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "chain-aztec, and Aztec in a world with proofs verified",
+  "updatedAt": "2026-11-19T09:38:00Z",
+  "waiting": null,
+  "what": "chain-aztec, and Aztec in a world with proofs verified"
+ },
+ "ST4-05": {
+  "doneWhen": "the budgets journeys pass on Aztec with choose(onChain.aztec) and no change to the declaration",
+  "history": [],
+  "id": "ST4-05",
+  "kind": "build",
+  "lane": "ST4",
+  "needs": [
+   "ST4.04"
+  ],
+  "needsText": "ST4.04",
+  "order": 530,
+  "plain": "",
+  "pr": null,
+  "questions": [],
+  "ref": "ST4.05",
+  "size": "L",
+  "stage": "backlog",
+  "thread": null,
+  "title": "language-noir",
+  "updatedAt": "2026-11-19T09:38:00Z",
+  "waiting": null,
+  "what": "language-noir: private notes, one-use claims, enqueued public calls; the budgets feature's Aztec choice from the same declaration"
+ },
+ "ST4-06": {
+  "doneWhen": "a second ballot by one member is refused by its claim",
+  "history": [],
+  "id": "ST4-06",
+  "kind": "build",
+  "lane": "ST4",
+  "needs": [
+   "ST4.05"
+  ],
+  "needsText": "ST4.05",
+  "order": 531,
+  "plain": "",
+  "pr": null,
+  "questions": [],
+  "ref": "ST4.06",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "@orthograph/ballots",
+  "updatedAt": "2026-11-19T09:38:00Z",
+  "waiting": null,
+  "what": "@orthograph/ballots: private ballots, one per member, public tally (K7's governance contract as a feature)"
+ },
+ "ST4-07": {
+  "doneWhen": "the club journeys pass; the portal shows nothing that names a member",
+  "history": [],
+  "id": "ST4-07",
+  "kind": "build",
+  "lane": "ST4",
+  "needs": [
+   "ST4.05",
+   "ST4.06"
+  ],
+  "needsText": "ST4.05, ST4.06",
+  "order": 532,
+  "plain": "",
+  "pr": null,
+  "questions": [],
+  "ref": "ST4.07",
+  "size": "M",
+  "stage": "backlog",
+  "thread": null,
+  "title": "links at stage 4",
+  "updatedAt": "2026-11-19T09:38:00Z",
+  "waiting": null,
+  "what": "links at stage 4: /@club's public footprint, the members' area, private spends and ballots; casting is .notVia(Via.agent)"
+ },
+ "ST4-08": {
+  "doneWhen": "in a verified world: three private members join; one spends 20 privately and the footprint shows the total, not the member; 500 passes by private ballot with a public tally; a second ballot is refused; a tampered proof is rejected. links/stage-4 tagged",
+  "history": [],
+  "id": "ST4-08",
+  "kind": "e2e",
+  "lane": "ST4",
+  "needs": [
+   "ST4.01",
+   "ST4.07"
+  ],
+  "needsText": "ST4.01 to ST4.07",
+  "order": 533,
+  "plain": "",
+  "pr": null,
+  "questions": [],
+  "ref": "ST4.08",
+  "size": "S",
+  "stage": "backlog",
+  "thread": null,
+  "title": "The stage 4 gate",
+  "updatedAt": "2026-11-19T09:38:00Z",
+  "waiting": null,
+  "what": "The stage 4 gate"
+ },
+ "X-canon": {
+  "doneWhen": "Every canon page is rewritten around the links app, the canon check passes, a reviewer passes it, and it is merged on main.",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "added when the board was made",
+    "stage": "decide",
+    "thread": "aaron"
+   },
+   {
+    "at": "2026-11-19T09:41:00Z",
+    "note": "Aaron: a minimal pass, one example all the way through, from the package user's side. Ticketing replaced by links. The canon thread started.",
+    "stage": "build",
+    "thread": "canon"
+   }
+  ],
+  "id": "X-canon",
+  "kind": "",
+  "lane": "X",
+  "needs": [],
+  "needsText": "",
+  "order": 1004,
+  "plain": "Rewrite the docs for someone using the package: as little prose as possible, the links app as the one example on every page, and the code shown where it exists. It also clears every \"waits on K7\" and writes the wallets page (most of M1.39).",
+  "pr": null,
+  "questions": [
+   {
+    "answer": null,
+    "id": "q1",
+    "owner": "aaron",
+    "raisedAt": "2026-11-19T09:38:00Z",
+    "source": "your canon review",
+    "status": "open",
+    "text": "By \"clusters\", did you mean Effect Cluster's entity (one addressed thing with its own mailbox) in place of the word \"actor\"?"
+   },
+   {
+    "answer": "Neither: one links app, all the way through (19 November).",
+    "id": "q2",
+    "owner": "aaron",
+    "raisedAt": "2026-11-19T09:38:00Z",
+    "source": "your canon review",
+    "status": "answered",
+    "text": "Which ticketing for the example: free event tickets, with a real race for the last ticket?"
+   }
+  ],
+  "ref": "#38",
+  "size": "",
+  "stage": "build",
+  "thread": "canon",
+  "title": "The canon: a minimal pass, one links example",
+  "updatedAt": "2026-11-19T09:41:00Z",
+  "waiting": null,
+  "what": ""
+ },
+ "X-heroui": {
+  "doneWhen": "The old token is revoked.",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "added when the board was made",
+    "stage": "backlog",
+    "thread": "aaron"
+   }
+  ],
+  "id": "X-heroui",
+  "kind": "",
+  "lane": "X",
+  "needs": [],
+  "needsText": "",
+  "order": 1003,
+  "plain": "It was shown in a tool log on 18 November. Make a new one and delete the old; update HEROUI_AUTH_TOKEN if it is the same token.",
+  "pr": null,
+  "ref": "—",
+  "size": "",
+  "stage": "backlog",
+  "thread": "aaron",
+  "title": "Replace your HeroUI personal token",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": "aaron",
+  "what": ""
+ },
+ "X-jou13": {
+  "doneWhen": "A slice owns it, with a check.",
+  "history": [
+   {
+    "at": "2026-11-19T09:38:00Z",
+    "note": "added from the handoff's open questions",
+    "stage": "backlog",
+    "thread": "conductor"
+   }
+  ],
+  "id": "X-jou13",
+  "kind": "",
+  "lane": "X",
+  "needs": [],
+  "needsText": "",
+  "order": 1103,
+  "plain": "No journey can force two calls to race, so nothing proves a version conflict. It has no slice yet.",
+  "pr": null,
+  "questions": [
+   {
+    "answer": null,
+    "id": "q1",
+    "owner": "conductor",
+    "raisedAt": "2026-11-19T09:38:00Z",
+    "source": "the ledger, JOU-13",
+    "status": "open",
+    "text": "Which slice owns it: M2.08 (journeys through the clients) or a new one?"
+   }
+  ],
+  "ref": "JOU-13",
+  "size": "",
+  "stage": "backlog",
+  "thread": "conductor",
+  "title": "Journeys that stage a race between two calls",
+  "updatedAt": "2026-11-19T09:38:00Z",
+  "waiting": null,
+  "what": ""
+ },
+ "X-k12": {
+  "doneWhen": "Reviewed, CI green, merged, and main merged into m1.",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "written from the generator audit",
+    "stage": "decide",
+    "thread": "conductor"
+   },
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "first review: three citation fixes, applied",
+    "stage": "review",
+    "thread": "reviewer"
+   },
+   {
+    "at": "2026-11-19T09:20:00Z",
+    "note": "review passed, CI green, merged at 18e8a069",
+    "stage": "done",
+    "thread": "conductor"
+   }
+  ],
+  "id": "X-k12",
+  "kind": "",
+  "lane": "X",
+  "needs": [],
+  "needsText": "",
+  "order": 1008,
+  "plain": "The decision behind M1.35 to M1.39 and M2.14 to M2.16.",
+  "pr": 68,
+  "ref": "#68",
+  "size": "",
+  "stage": "done",
+  "thread": "conductor",
+  "title": "K12: the coverage gap slices",
+  "updatedAt": "2026-11-19T09:20:00Z",
+  "waiting": null,
+  "what": ""
+ },
+ "X-npm": {
+  "doneWhen": "npm install orthograph@next works.",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "added when the board was made",
+    "stage": "backlog",
+    "thread": "aaron"
+   }
+  ],
+  "id": "X-npm",
+  "kind": "",
+  "lane": "X",
+  "needs": [
+   "M1.15"
+  ],
+  "needsText": "M1.15",
+  "order": 1005,
+  "plain": "After Gate M1: npm login, then one publish under the next tag.",
+  "pr": null,
+  "questions": [
+   {
+    "answer": null,
+    "id": "q1",
+    "owner": "aaron",
+    "raisedAt": "2026-11-19T09:47:54Z",
+    "source": "m1-lead",
+    "status": "open",
+    "text": "Which licence do the published packages carry? portal-ui's builder chose MIT, but the repo has none, and the npm preview needs one for every package that publishes."
+   }
+  ],
+  "ref": "npm",
+  "size": "",
+  "stage": "backlog",
+  "thread": "aaron",
+  "title": "Publish the npm preview",
+  "updatedAt": "2026-11-19T09:47:54Z",
+  "waiting": "aaron",
+  "what": ""
+ },
+ "X-pr56": {
+  "doneWhen": "The workflow tears down what it makes, and #56 is merged.",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "added when the board was made",
+    "stage": "build",
+    "thread": "codex-links"
+   }
+  ],
+  "id": "X-pr56",
+  "kind": "",
+  "lane": "X",
+  "needs": [],
+  "needsText": "",
+  "order": 1006,
+  "plain": "Codex built stage 1 of the links example. The staging workflow makes Cloudflare resources and destroys none, so it must not run until it does.",
+  "pr": 56,
+  "questions": [
+   {
+    "answer": null,
+    "id": "q1",
+    "owner": "codex-links",
+    "raisedAt": "2026-11-19T09:38:00Z",
+    "source": "your rule: everything made is destroyed",
+    "status": "open",
+    "text": "What will the staging workflow destroy, and when, so nothing is left running?"
+   }
+  ],
+  "ref": "#56",
+  "size": "",
+  "stage": "build",
+  "thread": "codex-links",
+  "title": "Links stage 1 and its staging workflow",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": ""
+ },
+ "X-pr58": {
+  "doneWhen": "Merged.",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "added when the board was made",
+    "stage": "review",
+    "thread": "ledger"
+   }
+  ],
+  "id": "X-pr58",
+  "kind": "",
+  "lane": "X",
+  "needs": [],
+  "needsText": "",
+  "order": 1007,
+  "plain": "The open-issues ledger catches up with K7 and K9.",
+  "pr": 58,
+  "ref": "#58",
+  "size": "",
+  "stage": "review",
+  "thread": "ledger",
+  "title": "Ledger: K7's answers and K9's stage owners",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": ""
+ },
+ "X-pr66": {
+  "doneWhen": "Merged.",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "added when the board was made",
+    "stage": "done",
+    "thread": "portal-designer"
+   }
+  ],
+  "id": "X-pr66",
+  "kind": "",
+  "lane": "X",
+  "needs": [],
+  "needsText": "",
+  "order": 1010,
+  "plain": "Codex's portal ideas folded into the design.",
+  "pr": 66,
+  "ref": "#66",
+  "size": "",
+  "stage": "done",
+  "thread": "portal-designer",
+  "title": "F8: what the portal takes from Codex",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": ""
+ },
+ "X-pr67": {
+  "doneWhen": "Merged.",
+  "history": [
+   {
+    "at": "2026-11-19T09:00:00Z",
+    "note": "added when the board was made",
+    "stage": "done",
+    "thread": "conductor"
+   }
+  ],
+  "id": "X-pr67",
+  "kind": "",
+  "lane": "X",
+  "needs": [],
+  "needsText": "",
+  "order": 1009,
+  "plain": "START HERE brought up to date.",
+  "pr": 67,
+  "ref": "#67",
+  "size": "",
+  "stage": "done",
+  "thread": "conductor",
+  "title": "The handoff for 19 November",
+  "updatedAt": "2026-11-19T09:00:00Z",
+  "waiting": null,
+  "what": ""
+ },
+ "X-unowned": {
+  "doneWhen": "None left unowned.",
+  "history": [
+   {
+    "at": "2026-11-19T09:38:00Z",
+    "note": "added from the handoff's open questions",
+    "stage": "backlog",
+    "thread": "ledger"
+   }
+  ],
+  "id": "X-unowned",
+  "kind": "",
+  "lane": "X",
+  "needs": [],
+  "needsText": "",
+  "order": 1104,
+  "plain": "Each becomes a slice or a canon question as its layer comes up.",
+  "pr": null,
+  "questions": [
+   {
+    "answer": null,
+    "id": "q1",
+    "owner": "ledger",
+    "raisedAt": "2026-11-19T09:38:00Z",
+    "source": "ledger.md",
+    "status": "open",
+    "text": "Which slice or canon question owns each one?"
+   }
+  ],
+  "ref": "ledger",
+  "size": "",
+  "stage": "backlog",
+  "thread": "ledger",
+  "title": "About 193 ledger items have no slice",
+  "updatedAt": "2026-11-19T09:38:00Z",
+  "waiting": null,
+  "what": ""
+ }
+}

@@ -7,6 +7,9 @@ Everything open, promised, deferred or stale, with its source, canon page and ow
 
 ## START HERE (19 November 2026): the conductor's handoff
 
+**Renamed by K15** (19 November 2026, Aaron): the example app is **Plugged In** (`plugged-in`), no longer `links`. Rows below that say `links` predate it;
+`milestones.md` is renamed in place ([`decisions/K15-plugged-in.md`](decisions/K15-plugged-in.md)).
+
 Overnight, 18 to 19 November: K7 (#53), K9 (#55), the durable-run spike (#57), the work board K11 (#61), the factory
 K10 (#62) and the portal design M1.25 (#65) merged into `main`. On `m1`, 26 slices are ticked; what's left is in
 "Next on the critical path". Aaron quit local Docker (direction 11), set the Cloudflare and HeroUI CI secrets, and
@@ -107,8 +110,9 @@ merged and their worktrees removed.
 
 | # | Line | Branch | PR | Done when | State now | Next |
 |---|---|---|---|---|---|---|
-| ① | **Docs canon (MDX)** | `claude/docs-canon-cf2c38` | #38 merged (layer 1) | Pass 2, every page in layers, checked against the ledger before each layer | Layer 1 merged at `b600bb8`; pass 2 runs locally | Opens the next canon PR |
-| 🧭 | **M1 lead** (`local_90551e2a…`) | `m1` | none (M1 lands as one PR at Gate M1) | Every M1 row ticked with its check, `e2e-m1` made blocking, then Gate M1.15 on `main` | 26 rows ticked, wallets (M1.29) and live steps (M1.21) included; M1.11 built and verifying; M1.33 building. `e2e-m1` fails only on unmerged slices and is still `continue-on-error` | Push M1.11, merge `main` for M1.25 and M1.34, then M1.12, M1.13, M1.22 to M1.24, M1.34 |
+| ① | **Docs canon (MDX)** | `claude/docs-canon-cf2c38` | #38 merged (layer 1) | Pass 2, every page in layers, checked against the ledger before each layer | Layer 1 merged at `b600bb8`; replaced by the 📖 minimal pass below (K13) | None |
+| 📖 | **Canon, minimal pass** (`local_bb023976…`) | its own branch from `main` | none yet | Every canon page rewritten around the links app, as little prose as possible, for a package user; the canon check and a reviewer pass | Started 19 November | Opens the first canon PR |
+| 🧭 | **M1 lead** (`local_90551e2a…`) | `m1` | none (M1 lands as one PR at Gate M1) | Every M1 row ticked with its check, `e2e-m1` made blocking, then Gate M1.15 on `main` | 26 rows ticked, wallets (M1.29) and live steps (M1.21) included; M1.11 built and verifying; M1.33 building. `e2e-m1` fails only on unmerged slices and is still `continue-on-error` | Push M1.11, merge `main` for M1.25 and M1.34, then, in K13's order, M1.35 and M1.36, M1.40 to M1.43, M1.12, M1.13 (M1.22 to M1.24 and M1.37 are M3 now) |
 | 📐 | **Portal design** (`local_24ad5b8b…`) | `claude/portal-908a25`, then F8's branch | #65 merged; #66 open | F8 merged: Codex's eight good ideas placed in their slices, the agreed design kept where they clash, and the data gaps M1.13 must close | #66 in review and CI | Merges #66 when both pass |
 | 🔗 | **Links stage 1 (Codex, run by Aaron)** | `links/stage-1`, `codex/links-staging` | #56 open | `examples/links` runs and the starter is its copy; then handles as a plugin; then the screens | #56 open. `codex/links-staging` deploys to real staging but has no teardown step | Add teardown before any staging run |
 | 📒 | **Ledger** | its own branch per round | #58, the K7 and K9 round | The ledger matches what's merged, every item with its source and owner | Open | Merges each round itself when green |
@@ -150,17 +154,17 @@ in `main`, then delete); `build/portal-pro`, `design/kits-decision`, `design/wor
 
 1. **Rotate the HeroUI personal token** that was printed in a conductor's tool output on 18 November (never
    committed).
-2. **Canon's two open choices:** entity or actor, and ticketing.
+2. **Canon's open choice:** entity or actor (ticketing is settled: the links app is the one example, K13).
 3. **The npm publish at Gate M1** (direction 12): his sign-in.
 
 ### Next on the critical path
 
-M1's remaining rows: M1.33 (processes, not containers: built, its harness audit accepted), M1.34 (the portal-ui
-seam), M1.35 (one visibility rule, K12: before M1.12), M1.12 (sdk, cli and mcp as plugins), M1.36 (telemetry carries
-the model, K12: before M1.13), M1.13 (docs and the portal; needs M1.34), M1.22 (the actions projection), M1.23 and
-M1.24 (the agent-native port; M1.24 needs M1.34), M1.37 (MCP from the whole model), M1.38 (confirmation per chain and
-environment), M1.39 (the canon's chain page, by the canon thread). Then `e2e-m1` loses `continue-on-error` and Gate
-M1.15 runs. Then the npm preview (direction 12), and M2, where M2.14 to M2.16 put `ortho add` on Nx's `Tree` (K12).
+Re-cut by [`decisions/K13-lock-down-first.md`](decisions/K13-lock-down-first.md) (Aaron, 19 November): lock down what
+exists first. M1.40 (the links app, from the canon's blueprint) → M1.41 (the loop through the real `ortho`, every
+output read for the basics; checks first, by another agent) → M1.43 (links' handlers) and M1.42 (the basics in every output), with M1.35 (one
+visibility rule), M1.36 (telemetry carries the model) and M1.34 (portal-ui) beside them → M1.13 (the portal as a
+viewer) → Gate M1.15 → the npm preview → M2. Beside it: M1.33, M1.12 (the SDK contract only), M1.38, M1.39. The
+actions, approvals, the chat and MCP from the whole model (M1.22 to M1.24, M1.37) and ST1.05 moved to M3.
 
 ### Open questions carried by threads
 

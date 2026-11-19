@@ -3,6 +3,7 @@ import { noNameAsString } from "./internal/names.ts";
 import { declaredErrorsOnly, refusalHasLog } from "./internal/refusals.ts";
 import { handlerMatchesPath, noWallClock } from "./internal/place.ts";
 import { noViemOutsideChain } from "./internal/viem.ts";
+import { noProOutsidePortalUi } from "./internal/pro.ts";
 import { noOldNames } from "./internal/old-names.ts";
 import { requiredStepUsed } from "./internal/steps.ts";
 import { declaredErrorNamed, outcomeChosen } from "./internal/drift.ts";
@@ -21,5 +22,6 @@ export const plugin: Plugin = {
     "outcome-chosen": outcomeChosen,
     "declared-error-named": declaredErrorNamed,
     "no-viem-outside-chain": noViemOutsideChain,
+    "no-pro-outside-portal-ui": noProOutsidePortalUi,
   },
 };

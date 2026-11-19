@@ -75,6 +75,7 @@
     ],
     "ortho/no-old-names": "error",
     "ortho/no-viem-outside-chain": "error",
+    "ortho/no-pro-outside-portal-ui": "error",
     "no-restricted-imports": [
       "error",
       {
@@ -177,6 +178,7 @@
         "packages/portal-ui/**"
       ],
       "rules": {
+        "ortho/no-pro-outside-portal-ui": "off",
         "no-restricted-imports": "off"
       }
     },
@@ -200,6 +202,7 @@
         "@nx/enforce-module-boundaries": "off",
         "ortho/no-old-names": "off",
         "ortho/no-viem-outside-chain": "off",
+        "ortho/no-pro-outside-portal-ui": "off",
         "no-restricted-imports": "off"
       }
     }

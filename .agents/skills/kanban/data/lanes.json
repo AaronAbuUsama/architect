@@ -1,0 +1,136 @@
+{
+ "M0": {
+  "gate": "nx run e2e:m0 runs the Gate 1 and Gate 2 suites under the new names, plus a name check: none of the old names (the package scope, the command, the variable prefix and the folder, listed in decisions/M0-packages.md section 4) outside the records. \"History\" in this section means the records listed in decisions/M0-packages.md section 5: design/history/, the decision, evidence, brief, wayfinding, spike, Noir and state records, the layer 1 and 2 build plan, and spikes/.",
+  "goal": "One name and one vocabulary, with nothing broken.",
+  "id": "M0",
+  "name": "Land and rename",
+  "order": 0,
+  "ships": "The frame on main; @orthograph/* packages; the ortho command; the design docs rewritten around plugins and frame/story.md.",
+  "summary": "The code from layers 1 and 2 moved into this repository and was renamed Orthograph. Gate M0 has passed.",
+  "workable": false
+ },
+ "M1": {
+  "gate": "nx run e2e:m1: (1) Codex's checks 00 to 06, renamed, pass: a fixture plugin mounted with one command, its typed SDK and MCP answer, collisions are refused, the graph is whole; (2) acme with its projections mounted generates the same generated/ as before, byte for byte except header paths and generated/model/model.json, which M1.03 completes on purpose (from, journeys, starting worlds; the author's audit in decisions/M1-plugins.md); (3) editing one handler makes only that operation stale; (4) ortho describe --json lists acme's journeys, starting worlds, role rules and the work app's blank; (5) a fixture feature brings its own store, and a call writing two stores is refused (K3); (6) a commit has its own span, free text is absent from spans, and refused calls are counted (O2); (7) acme wallet create && acme wallet send confirms on Anvil in a world, signed from the CLI and from a server-held key (K7 F4). (8) no secret field leaves through any output, for any audience (K12).",
+  "goal": "A plugin is a package mounted with one file, the model holds everything declared, and every verdict knows exactly what it judged.",
+  "id": "M1",
+  "name": "The complete model and plugins",
+  "order": 1,
+  "ships": "Plugin descriptors (Blueprint.feature, Blueprint.adapter, Blueprint.projection), mounts under blueprint/{features,adapters,projections}/, the mount verbs (choose, include, narrow, omit), needs, choices and settings, ortho add, adapter calls out as steps, stores (K3), the three trace fixes (O2), the projections re-homed as plugins, and the first real plugin, @orthograph/wallets, on @orthograph/chain-evm with Anvil in worlds (K7 F4) (frame/mounting.md, frame/projections.md).",
+  "summary": "A plugin, whether a feature, an adapter or a projection, is a package you mount with one file. The model holds everything you declared, every proof knows exactly what it judged, and the first real plugin (wallets) and the portal ship here.",
+  "workable": false
+ },
+ "M2": {
+  "gate": "nx run e2e:m2: (1) npm create orthograph demo scaffolds an app with auth and organizations mounted and nothing copied, and ortho prove --env local is green; (2) a new notes feature is made with ortho new feature, proved in its own world, published to the local registry, and mounted into acme and work with ortho add, with every journey in all three still green; (3) the sign-up and sign-in journeys pass through the SDK, the CLI and MCP; (4) no environment file names a secret by string; (5) the stage 1 check (K9): the scaffold is links at stage 1, a person signs in, claims aaron and adds a link in headless Chromium, and a second claim is refused with HandleTaken through the SDK, the CLI, MCP, an action and the hook.",
+  "goal": "Auth stops being copied: identity and tenancy are two mounted plugins, every kind of caller exists, secrets come from the plugins that need them, and journeys prove the clients people actually use.",
+  "id": "M2",
+  "name": "Auth and organizations (workable)",
+  "order": 2,
+  "ships": "@orthograph/auth and @orthograph/organizations (K2); principals agent, service, system and Via; roles as rules with holds; secrets by declaration (frame/secrets.md); ortho new; ortho new feature with its own CI.",
+  "summary": "The workable point. Sign-in and organisations stop being copied into each app and become two plugins, every kind of caller exists (people, agents acting for them, services), secrets come from the plugins that need them, and ortho new makes an app in one command. Its gate is also stage 1's: the links app.",
+  "workable": true
+ },
+ "M3": {
+  "gate": "nx run e2e:m3: a goal \"allowances to production\" over acme is planned onto the board, the model's gaps among its items; a person claims build:allowance.revoke with work item claim, pushes a branch, the local CI proves it and the verdict closes the item; closing an item by hand is refused; dispatch never runs two items that touch the same path; evicting the manager's Durable Object mid-loop dispatches nothing twice; generated/agents/ passes its drift check.",
+  "goal": "@orthograph/work holds a board of work items (decisions/K11-work-board.md): the manager plans a goal onto it from Aaron's words, a spec, a failing check, the ledger or the model's gaps; dispatch runs ready items in parallel without two touching the same files; people and outside agents (Claude Code through the work CLI or MCP) work them. Only a fact closes an item.",
+  "id": "M3",
+  "name": "The factory, with people as workers",
+  "order": 4,
+  "ships": "The factory plugin (frame/examples/factory.md); declared workflows on Effect's Cloudflare engine; the logbook adapter; the generated agent kit (frame/generators.md); ortho ci.",
+  "summary": "The factory, with people as workers: durable workflows that wait for events and pick up where they left off, and the work board where work is filed, claimed and closed.",
+  "workable": false
+ },
+ "M4": {
+  "gate": "nx run e2e:m4: (1) acme's support agent spends from Bob's allowance as an agent for Bob, and is refused on an operation marked .notVia(Via.agent); (2) evicting a run's Durable Object mid-turn resumes it with no second model call; (3) a mission over acme with workers: agents runs: the manager starts builder runs from briefs, a builder using only the generated kit and bp fills allowance.revoke, the verdict closes the task, and the promote waits for a person; (4) the run's trace is read back through bp.telemetry; (5) an experiment started from the portal is discarded leaving no workspace, world or branch, and a kept one lands as its package plus one mount file, only after its prove and review verdicts. CI uses the local stand-in model (S14).",
+  "goal": "@orthograph/agents runs agents durably, usable alone or as the factory's workers, joined by one optional need.",
+  "id": "M4",
+  "name": "Agents, proved with the factory",
+  "order": 5,
+  "ships": "The agents feature (frame/examples/agents.md); model adapters with a local stand-in model; Blueprint.agent; the builder's code-mode tools and telemetry tools (frame/builder.md); the join, workers: agents.",
+  "summary": "Agents, proved with the factory: agent runs that survive restarts, doing the factory's work through the same operations people use, and the portal's chat.",
+  "workable": false
+ },
+ "M5": {
+  "gate": "nx run e2e:m5: checkout runs against stripe-mock, labelled vendor; a world-sent signed event settles a payment as service(stripe) (S19); a refund is refused through an agent (S20); an invitation's email arrives once in Mailpit even when the actor is killed mid-send; a view lists an organisation's allowances while allowances live as actors; ortho prove names each adapter's stand-in.",
+  "goal": "Adapters both ways with real vendors' software, our own events driving work, and lists across homes.",
+  "id": "M5",
+  "name": "Reach out",
+  "order": 6,
+  "ships": "frame/examples/payments.md and frame/examples/notifications.md; @orthograph/stripe, @orthograph/resend; views (K2 Q1); the general outbox; declared workflows in apps.",
+  "summary": "Reaching out: views rebuilt from events, an outbox that delivers reliably, and steps that wait for outside events.",
+  "workable": false
+ },
+ "M6": {
+  "gate": "nx run e2e:m6 (old Gates 3 and 4 together; the wallet, the chain adapter and Anvil in worlds landed in M1 and M2): forge test passes on the filled vault; the fixed-seed fuzz of the TypeScript machine against the Solidity one finds no divergence (S26); journeys pass on Anvil with each person signing; 100 relayed submissions take nonces 0 to 99; a forced reorg is corrected; a pending chain call shows its in-between state (S25); the key-hygiene check passes.",
+  "goal": "The allowance can live on chain, written once and generated in two languages. Where each key lives is declared, on a device or on a server (Aaron, 18 November 2026, K7).",
+  "id": "M6",
+  "name": "On chain",
+  "order": 7,
+  "ships": "@orthograph/language-solidity, the relayer and follower, one vault per organisation (S27); frame/examples/allowance-on-chain.md.",
+  "summary": "On chain: contracts as the enforcer, chain events in the model and the portal, adapters from a contract's ABI. Wallets and the EVM adapter already moved up into M1.",
+  "workable": false
+ },
+ "M7": {
+  "gate": "nx run e2e:m7: acme goes from a pull request to test, staging and production on Cloudflare with a verdict in each, Orthograph's packages are released under @orthograph on npm, and everything the gate made is destroyed after. Capxul's first feature runs in its staging.",
+  "goal": "Every local destination swapped for the real one, each credential created only with Aaron's written yes and the spend under $10 a day; then Capxul's first feature running on Orthograph.",
+  "id": "M7",
+  "name": "The cloud, then Capxul",
+  "order": 8,
+  "ships": "",
+  "summary": "The cloud, then Capxul: a dedicated staging account under the $10 a day cap, deploys that leave nothing behind, the release, then Capxul's plugins.",
+  "workable": false
+ },
+ "ST1": {
+  "gate": "Gate M2 (M2.12): links is tagged links/stage-1",
+  "goal": "A person can claim @name and get a public page of links. This is the first of the four stages the links example grows through to v1.0.",
+  "id": "ST1",
+  "name": "Stage 1: links",
+  "needsFrom": "all of M1 and M2",
+  "order": 3,
+  "ships": "",
+  "summary": "A person can claim @name and get a public page of links. This is the first of the four stages the links example grows through to v1.0.",
+  "workable": false
+ },
+ "ST2": {
+  "gate": "ST2.06, on Anvil",
+  "goal": "A person can create or link a wallet and be paid by handle.",
+  "id": "ST2",
+  "name": "Stage 2: wallets",
+  "needsFrom": "the wallet slices (M1.27 to M1.32, M2.13), M6.01, M6.02, M6.07, M6.09, M6.15, M6.18, M5.01, M5.03",
+  "order": 9,
+  "ships": "",
+  "summary": "A person can create or link a wallet and be paid by handle.",
+  "workable": false
+ },
+ "ST3": {
+  "gate": "ST3.08, on Anvil",
+  "goal": "A group keeps money in a Safe with the budgets plugin: hats carry budgets, and owners sign above a budget.",
+  "id": "ST3",
+  "name": "Stage 3: the vault",
+  "needsFrom": "M6.10 to M6.14, M6.16, M6.17, M3.01 to M3.03, M4.01 to M4.10, M4.16",
+  "order": 10,
+  "ships": "",
+  "summary": "A group keeps money in a Safe with the budgets plugin: hats carry budgets, and owners sign above a budget.",
+  "workable": false
+ },
+ "ST4": {
+  "gate": "ST4.08, in a world with proofs verified",
+  "goal": "Stage 3 on Aztec: private members, private spends and private ballots.",
+  "id": "ST4",
+  "name": "Stage 4: the club",
+  "needsFrom": "the Noir line from Later, brought in",
+  "order": 11,
+  "ships": "",
+  "summary": "Stage 3 on Aztec: private members, private spends and private ballots.",
+  "workable": false
+ },
+ "X": {
+  "gate": "",
+  "goal": "",
+  "id": "X",
+  "name": "Outside the milestones",
+  "order": 12,
+  "ships": "",
+  "summary": "Decisions, sign-ins, pull requests and loose ends that belong to no slice.",
+  "workable": false
+ }
+}
