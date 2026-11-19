@@ -472,7 +472,7 @@ with the same auth and hand the SDK their credential.
   - **pages:** every page is drawn from the model;
   - **notes:** a note is a thing in the portal feature's own store (K3 item 7), with prose about a declaration kept
     beside it in the repository (F6 Q3);
-  - **chat state:** threads and runs are things in the same store, not agent-native's Postgres tables;
+  - **chat state:** threads and runs are things in the same store, not agent-native's Postgres tables; (Superseded by M1.25, `design/portal.md`: a conversation is an `@orthograph/agents` Run, and the portal's store keeps notes and grants.)
   - **live evidence:** read from the Collector's files, as PR #39 found.
 - **Enforced by:** the portal changes nothing on its own. Its "Try it" calls through the SDK as the signed-in builder,
   or as the cast in a world.
@@ -570,7 +570,7 @@ These are the building agent's calls, with the evidence above. Aaron can overrul
 4. Nothing of agent-native runs. Its action shape, approvals, shell, chat, screen context and layouts are ported into
    our packages under our rules (M1.23, M1.24). Its database, auth, MCP, tables and deploy are not ported.
 5. The portal is a projection plus a small feature, designed by us (M1.25) on the ported pieces. Its notes and chat state are
-   things in the portal's own store. Its live data comes from the Collector, the journal and the chain follower.
+   things in the portal's own store. Its live data comes from the Collector, the journal and the chain follower. (Chat state superseded by M1.25, `design/portal.md`: conversations are `@orthograph/agents` Runs; the store keeps notes and grants.)
 6. Step signals are OTLP log records sent as each step starts and ends (M1.21), so work in flight is visible.
 7. A workflow activity is keyed by run id and activity name, and a wait wakes on `on:` or `Timers`. The rest belongs to
    M3.01.
