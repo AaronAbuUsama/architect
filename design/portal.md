@@ -194,7 +194,7 @@ Claim a free name. A name is claimed once.
 | What the commit set off | L | committed events read from the journal (M1.21) and the spans of their `on:` handlers |
 | Try it | G | the operation's generated action (M1.22), called as the signed-in builder |
 | Docs prose | G | the operation's `description`; the canon page it belongs to is linked, never copied |
-| The proof tab | L | M1.04's verdicts from the logbook, keyed by the model's hash and the handler body's hash: each eval with its timing, the journeys that cover the operation, and what is unproven (F8) |
+| The proof tab | L | M1.04's verdicts from the logbook, keyed by the model's hash and the handler body's hash: each eval's verdict, the journeys that cover the operation, and what is unproven; latency is the live p95 beside it, not an eval's printed note (F8) |
 
 The rows come from span attributes, never from names: a database step is `step.kind: "database"`, not a span whose
 name looks like SQL, and a retry is a second `attempt`, not a second child of an HTTP span. There is no HTTP span to
@@ -210,8 +210,10 @@ declared refusal, any row for a defect.
 waterfall's groups fold (from Codex's portal, F8): each attempt, then its steps, then each `on:` handler, with the path
 to the selected span open. Private fields and untraced free text are never shown, in any environment (M1.19 traces a
 field only when it is public, and free text only when marked). The portal also keeps out what M1.19 does not cover:
-raw statements, principals and log bodies; it shows a span's structure, timing, outcome, declared refusal and how many
-logs it has. A "no leak" check (M1.13) plants each of these in a trace and fails if any renders. The example trace is always one worth
+raw statements, which person called (`principal.person`) and log bodies; it shows a span's structure, timing, outcome,
+declared refusal, how many logs it has, and the caller's kind (a person, an agent for a person, anyone). Locally the
+caller may be named by the journey's cast (`ada`, `bob`), which are fixtures, not people. A "no leak" check (M1.13)
+plants each hidden item in a staging trace and fails if any renders. The example trace is always one worth
 seeing: the claim above, with its commit conflict on attempt 1, the retry, the commit on attempt 2, and the profile
 created through `on:`.
 
@@ -288,7 +290,7 @@ calls light up its own spine.
 ```ts
 // packages/portal/blueprint/things/note/verbs/write.ts
 export default Blueprint.operation(Note, {
-  description: "Write a note on a thing, pinned to the model's hash.",
+  description: "Write a note on a thing or an operation, pinned to its declaration's hash.",
   payload: { on: Note.fields.on, body: NoteBody },
   answer: { note: Note.fields.id },
   move: machine.moves.write,
@@ -296,8 +298,9 @@ export default Blueprint.operation(Note, {
 });
 ```
 
-`Note.fields.on` points at any thing (gap 3); the note keeps the declaration's hash it was written against and a
-Markdown body. `note.edit` takes the revision the page opened and refuses `NoteChanged` if another edit landed first
+`Note.fields.on` names a declaration, a thing or an operation (its kind and name, from the model), not an instance; the
+note keeps that declaration's hash it was written against and a Markdown body. `note.edit` has no move (the note stays
+`kept`), and the `note` thing declares `NoteChanged`. `note.edit` takes the revision the page opened and refuses `NoteChanged` if another edit landed first
 (from Codex's portal, F8), so two builders never overwrite each other silently. "Try it" is not a portal verb: it calls the app's own action as the
 signed-in builder, so the app's roles decide what it may do.
 
@@ -335,6 +338,16 @@ its own feature's generated actions; reads go through its declared reads only. I
 that renders a face. At run time the same line holds (from Codex's portal, F8): every face renders in a sandboxed frame
 (`sandbox="allow-scripts"`, CSP `default-src 'none'; connect-src 'none'`), and its bridge calls only the actions
 its slots declare. The face's typed slots are its manifest; there is no `extension.json`.
+
+**What runs in a frame, and how it reaches the portal.** The slots that draw something (`views.list`, `views.one`,
+`sections.thing`, `sections.operation`, and each `rail.on` card) render in the face's frame. The slots that are data
+(`sidebar`, `attention`, `chat.addressees`) are declarations the shell reads and draws itself; `context` runs in the
+frame of a face on the page and posts what it adds. The frame is a portal route (`/face/<feature>/<slot>`), never a
+`srcdoc`, served with the CSP above and `script-src` limited to the portal's own built assets, so `portal-ui` and Pro
+load from the deployed portal's build, not from a bundle inside each face (F7: Pro is never bundled into a published
+package, a face included). With the network closed, everything crosses one bridge: the face's declared reads, its
+declared actions, the live feed of committed events (with `hold()` and `release()`), a Run's stream for a face that
+shows one, and the screen context. Drag and drop stay inside the frame; only the drop's action crosses.
 
 ```ts
 // @orthograph/work: package.json "exports": { "./portal": "./portal/face.js" }
@@ -416,7 +429,7 @@ a data-dependent refusal (`HandleTaken`) and idempotency by request. A claim lig
 | Stage | What it adds to the portal | What it needs |
 |---|---|---|
 | 2 · wallets | `wallets` and `chain-evm` groups, an `adapters` group (`erc20`). `payment`'s lifecycle (simulated, submitted, included, confirmed, dropped, reverted, corrected) lights up from the follower's events. Adapter calls show as `step.call` rows on the spine, with their declared errors. Staging becomes real | client operations' spans from the device (gap 4); chain submissions as spans |
-| 3 · the vault | about 15 things in eight groups. Runs on the rail beside what they touch; calls by `agent for <person>` shown as such; approvals in the chat; owner signatures as a workflow, so a workflow's steps on the spine (M3). The factory and the board mount as extensions | workflow spans (M3.03); `rail.on` |
+| 3 · the vault | about 15 things in eight groups. Runs on the rail beside what they touch; calls by an agent for a person shown as such, never which person; approvals in the chat; owner signatures as a workflow, so a workflow's steps on the spine (M3). The factory and the board mount as extensions | workflow spans (M3.03); `rail.on` |
 | 4 · the club | private members and ballots. The public tally and footprint show; nothing that names a member shows (ST4.07). Proof generation as a step on the device | private fields never traced (M1.19); on-device spans (gap 4) |
 
 ## Gaps
@@ -426,8 +439,8 @@ Each hand-written or missing piece, with the slice that owns it.
 | # | Gap | Owner |
 |---|---|---|
 | 1 | `from: { kind, mount }` on each thing and operation in the model | M1.03 (on the `m1` branch since #64: `FromModel` on things and operations, `types.ts:53` and `:100` there; not yet on `main`) |
-| 2 | ~~A declared latency budget per operation~~ | closed: operations already declare `budget: { p95 }`, and it reaches the wire as `budget.p95Ms` (F8) |
-| 3 | A field that can point to any thing (a declaration name plus an id), for Run's `touches` and Note's `on` | M1.03, beside gap 1 (K10 section 1) |
+| 2 | ~~A declared latency budget per operation~~ | closed: operations may declare `budget: { p95 }` (on `main`), and on `m1` it reaches the portal wire as `budget.p95Ms` (F8); an operation without one shows p95 alone |
+| 3 | A field that can point to any thing (a declaration name plus an id), for Run's `touches` | M1.03, beside gap 1 (K10 section 1) |
 | 4 | Spans from operations that run on the person's device (stage 2's wallet, stage 4's proofs) | LAH-02, no slice yet |
 | 5 | The `orthograph/face-actions-only` lint rule | M1.13 |
 | 6 | `Portal.face`, its slots and `Portal.view.board` | M1.13 (the contract), M3.17 and M4.23 (the first faces) |

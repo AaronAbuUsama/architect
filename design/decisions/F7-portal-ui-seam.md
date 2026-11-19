@@ -77,4 +77,5 @@ acceptable, the fallback (decision 5) replaces `portal-ui`'s insides and nothing
 ## Where it lands
 
 M1.34 (new, ∥, before M1.13): the package, its exports, the lint rule and the CI install. M1.13's pages, M1.24's
-shell and chat parts, M3.17's board and M4.23's Factory face import only from it.
+shell and chat parts, M3.17's board and M4.23's Factory face import only from it. A face's sandboxed frame (F8) loads
+`portal-ui` and Pro from the deployed portal's own build, so no face bundles Pro either.
