@@ -1,7 +1,7 @@
 // Everything the board shows that isn't stored: the join of Grid and Board, lane scores,
 // the hill climb and "what changed". Pure functions; the page calls these and nothing else.
 import type {
-  Block, Board, CardEvent, CardWork, Cell, CellId, CellState, Grid, Output, Task, Thread,
+  Block, Board, CardEvent, CardWork, Cell, CellId, CellState, Grid, Output, OutputId, Question, Task, Thread,
 } from "./types.ts";
 
 export interface CardView {
@@ -12,10 +12,13 @@ export interface CardView {
   readonly thread: Thread | null;         // working it now
   readonly hadIt: ReadonlyArray<Thread>;  // threads that worked it before, oldest first, no repeats
   readonly history: ReadonlyArray<CardEvent>;
+  readonly question: Question | null;     // Aaron's open call that decides this card, if any
+  readonly waitsOn: ReadonlyArray<OutputId>; // outputs this one depends on that aren't green yet in its lane
 }
 
 export interface Score {
   readonly green: number;
+  readonly built: number;   // carried by the code, no verdict yet
   readonly partly: number;
   readonly red: number;
   readonly notNeeded: number;
@@ -31,6 +34,10 @@ export interface LaneView {
 export interface BoardView {
   readonly goal: Grid["goal"];
   readonly asOf: string;
+  readonly record: string;
+  readonly story: Grid["story"];
+  readonly questions: Grid["questions"];
+  readonly illustrative: boolean;          // the history is made up for the prototype
   readonly outputs: ReadonlyArray<Output>;
   readonly lanes: ReadonlyArray<LaneView>; // in block order
   readonly score: Score;                   // the whole grid
@@ -49,7 +56,7 @@ export const stateAt = (cell: Cell, history: ReadonlyArray<CardEvent>, at: strin
 export const score = (states: ReadonlyArray<CellState>): Score => {
   const count = (s: CellState) => states.filter((x) => x === s).length;
   const notNeeded = count("not-needed");
-  return { green: count("green"), partly: count("partly"), red: count("red"), notNeeded, needed: states.length - notNeeded };
+  return { green: count("green"), built: count("built"), partly: count("partly"), red: count("red"), notNeeded, needed: states.length - notNeeded };
 };
 
 const hadIt = (history: ReadonlyArray<CardEvent>, now: string | null, threads: ReadonlyMap<string, Thread>): Thread[] => {
@@ -64,6 +71,8 @@ export const join = (grid: Grid, board: Board): BoardView => {
   const cells = new Map(grid.cells.map((c) => [c.id, c]));
   const outputs = byOrder(grid.outputs);
 
+  const questions = new Map(grid.questions.map((q) => [q.id, q]));
+
   const card = (cell: Cell, output: Output): CardView => {
     const w = work.get(cell.id);
     const history = w?.history ?? [];
@@ -74,19 +83,24 @@ export const join = (grid: Grid, board: Board): BoardView => {
       task: w?.task ? tasks.get(w.task) ?? null : null,
       thread,
       hadIt: hadIt(history, thread?.id ?? null, threads),
+      question: cell.question ? questions.get(cell.question) ?? null : null,
+      waitsOn: [],
     };
   };
 
   const lanes = byOrder(grid.blocks).map((block): LaneView => {
-    const cards = outputs.flatMap((o) => {
+    const raw = outputs.flatMap((o) => {
       const cell = cells.get(`${block.id}.${o.id}`);
       return cell ? [card(cell, o)] : [];
     });
+    const green = new Set(raw.filter((c) => c.state === "green").map((c) => c.output.id));
+    const cards = raw.map((c) => ({ ...c, waitsOn: c.output.dependsOn.filter((d) => !green.has(d)) }));
     return { block, cards, score: score(cards.map((c) => c.state)) };
   });
 
   return {
-    goal: grid.goal, asOf: grid.asOf, outputs, lanes,
+    goal: grid.goal, asOf: grid.asOf, record: grid.record, story: grid.story, questions: grid.questions,
+    illustrative: board.illustrative === true, outputs, lanes,
     score: score(lanes.flatMap((l) => l.cards.map((c) => c.state))),
   };
 };

@@ -7,18 +7,23 @@ HeroUI MCPs are connected, after the Mobbin look, which may change the options. 
 
 - **Lane**: one building block (Thing & fields, Operation & read, … Journey & starting world). Thirteen of them.
 - **Card**: one output of one block, for example "Field visibility · API". 13 lanes × 9 outputs = 117 cards.
-- **State**: a card's eval result: green (its "green means" holds), partly, red, or not needed (with a reason).
+- **State**: a card's eval result. Green means its evidence ran and passed. Built means the code carries it but no
+  verdict has been recorded yet. Then partly, red, and not needed (only by your answer, with a reason). From K14's
+  `design/grid/types.ts`.
 - **Stage**: where the *work* on a card stands, taken from its task on today's board: backlog, decide, checks, build,
   review, done.
-- **Grid / Board**: the two data files. The grid says what each card means (owned by the grid thread). The board says
-  who is on it and how it moved (owned by the conductor). Types: `spikes/mission-board/src/data/types.ts`.
+- **Grid / Board**: the two data files. The grid says what each card means: `design/grid/grid.json`, owned by the
+  grid thread, PR #72. The board says who is on each card and how it moved, owned by the conductor. Types:
+  `spikes/mission-board/src/data/types.ts`. Today the grid starts at 48 built, 31 partly, 38 red and 0 green.
 
 ---
 
 ## Q1 — What are the board's columns: the card's state, its output, or its work stage?
 
 **The problem, in plain words.** HeroUI Pro's Kanban has columns and cards, and nothing else. It has no swim lanes.
-So each lane is its own small Kanban, and we must choose what the columns inside a lane mean. If nobody decides, we
+So each lane is its own small Kanban, and we must choose what the columns inside a lane mean. (HeroUI's Kanban docs,
+read through its MCP, have two full examples, a Notion board and a Project board. Both use one Kanban with status
+columns, and neither has lanes.) If nobody decides, we
 get a grid that looks like a board but where nothing ever moves, or a board that hides which output is missing.
 
 The component, from `internal/portal-pro/node_modules/@heroui-pro/react/dist/components/kanban/index.d.ts:3-15`:
@@ -60,13 +65,13 @@ across six work stages:
 ```tsx
 {lanes.map((lane) => (
   <Kanban.Root key={lane.block.id} size="sm" aria-label={lane.block.name}>
-    {(["red", "partly", "green", "not-needed"] as const).map((s) => (
+    {(["red", "partly", "built", "green", "not-needed"] as const).map((s) => (
       <Kanban.Column key={s}>
-        <Kanban.ColumnHeader><Kanban.ColumnTitle>{stateName[s]}</Kanban.ColumnTitle><Kanban.ColumnCount>{lane.score[key(s)]}</Kanban.ColumnCount></Kanban.ColumnHeader>
+        <Kanban.ColumnHeader><Kanban.ColumnIndicator className={tone[s]} /><Kanban.ColumnTitle>{stateName[s]}</Kanban.ColumnTitle><Kanban.ColumnCount>{lane.score[key(s)]}</Kanban.ColumnCount></Kanban.ColumnHeader>
         <Kanban.CardList items={lane.cards.filter((c) => c.state === s)}>{(c) => <OutputCard card={c} />}</Kanban.CardList>
       </Kanban.Column>))}
   </Kanban.Root>))}
-// a card: "API" · M1.35 · 🧭 M1 lead · stage chip "build"
+// a card: "API" · M1.35 · 🧭 M1 lead · stage chip "build" · "waits on Model" when a dependency isn't green
 ```
 
 **B · Columns are outputs (the audit grid)**
@@ -92,7 +97,7 @@ across six work stages:
 | Scenario | A · States | B · Outputs | C · Stages |
 |---|---|---|---|
 | You open the board | Each lane shows how many cards are red, partly or green, with the cards under each. | It looks like the audit table, in cards. | It looks like today's board, with the lanes renamed. |
-| An eval turns green | The card moves right into Green. | The card changes colour in place. | Nothing moves until its task's stage changes. |
+| A verdict lands | The card moves right, from Built into Green. | The card changes colour in place. | Nothing moves until its task's stage changes. |
 | "Is MCP missing anywhere?" | You read the labels, or filter by output. | You read one column. | You filter by output. |
 | A card is green but its task isn't done | It sits in Green with a "build" chip. | Green, with a chip. | It sits in Build with a green dot. Looks unfinished. |
 | M3.17 builds the real thing | Same shape as `board({ by: machine })`. | A grid view, not a board. | Board by a task field, not the card's machine. |
@@ -104,11 +109,11 @@ across six work stages:
 | Floor-first | ✅ The real Kanban, as its API intends | ⚠️ Kanban used as a table | ✅ Works today |
 | Reversibility | ✅ One `getColumn` | ✅ One `getColumn` | ✅ One `getColumn` |
 | Blast radius | ✅ Prototype only | ✅ Prototype only | ✅ Prototype only |
-| Correctness | ✅ Columns are the eval, the thing we climb | ⚠️ No movement, so no climb | ❌ Measures effort, not coverage |
+| Correctness | ✅ Columns are the eval, the thing we climb; built against green is visible | ⚠️ No movement, so no climb | ❌ Measures effort, not coverage |
 | Fit | ✅ `portal.md:359`, the machine as columns | ⚠️ Duplicates the matrix in Q4 | ⚠️ Today's board, which Aaron is replacing |
 
-**Recommendation: A.** The board measures coverage, so its columns are the eval's states and climbing is cards moving
-right. The by-output scan Option B gives lives in the hill-climb matrix (Q4), and a filter covers it on the board.
+**Recommendation: A.** The board measures coverage, so its columns are the eval's states (red, partly, built, green,
+not needed) and climbing is cards moving right. The by-output scan Option B gives lives in the hill-climb matrix (Q4), and a filter covers it on the board.
 
 ---
 
@@ -272,7 +277,7 @@ What the data gives (`derive.ts`):
 ```ts
 export const climb = (grid, board, times) => LaneClimb[];         // each lane's Score at each event time
 export const changedSince = (grid, board, since) => Change[];     // {cell, from, event}, newest first
-export interface Score { green; partly; red; notNeeded; needed }  // green is out of `needed`
+export interface Score { green; built; partly; red; notNeeded; needed }  // green is out of `needed`
 ```
 
 **What it touches**
@@ -348,7 +353,7 @@ gets counted as a tenth output.
 ```ts
 export interface EndState {
   readonly kind: "portal-view" | "journey";
-  readonly title: string;      // "Secret fields marked in the Thing page"
+  readonly title: string;      // "The band's secret and private marks, and the no-leak check" (grid.json)
   readonly description: string;
   readonly ref: string | null; // the view's route or the journey's path, once it exists
 }
@@ -410,7 +415,7 @@ export interface EndState {
 
 | # | Joint | Recommendation |
 |---|---|---|
-| Q1 | The board's columns | A · columns are the card's state (red, partly, green, not needed) |
+| Q1 | The board's columns | A · columns are the card's state (red, partly, built, green, not needed) |
 | Q2 | Where the board lives | A · a Board tab on the Goal page |
 | Q3 | Where a card's detail opens | A · a side panel beside the lanes |
 | Q4 | How you see the climb | A · a Hill climb tab: the 13 × 9 matrix, a "since" picker and one chart |
