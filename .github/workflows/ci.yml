@@ -8,15 +8,18 @@ on:
 permissions:
   contents: read
 
-# A newer push to the same pull request or branch cancels the run it supersedes, so the queue holds only live work.
-# Pushes to main and the milestone branches always finish.
+# A newer push to the same pull request cancels the run it supersedes, so the queue holds only live work.
+# Every push to main, a milestone branch or a goal branch gets its own group, so none is cancelled or dropped.
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number && format('pr-{0}', github.event.pull_request.number) || format('run-{0}', github.run_id) }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+# Every job has a timeout, about twice its longest green run, so a hung run or one left behind by a closed pull request
+# frees its runner instead of holding it for hours.
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -59,6 +62,7 @@ jobs:
   portal-ui:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: pnpm/action-setup@v6.1.0
@@ -96,6 +100,7 @@ jobs:
   # Gate 1 (L1.60): the seven checks of layer one, run as a user runs Orthograph (D2 #74).
   e2e-layer1:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: pnpm/action-setup@v6.1.0
@@ -166,6 +171,7 @@ jobs:
   # Gates 1 and 2 above are the rest of `nx run e2e:m0`, run as their own jobs so they run side by side.
   e2e-m0:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: pnpm/action-setup@v6.1.0
@@ -182,6 +188,7 @@ jobs:
   # blocks; Gate M1 (M1.15) makes it required.
   e2e-m1:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     continue-on-error: true
     steps:
       - uses: actions/checkout@v7.0.1
