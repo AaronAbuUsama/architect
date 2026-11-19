@@ -2,7 +2,10 @@
 
 Decided 19 November 2026 by the 📐 grid designer thread, under "Who decides" in `AGENTS.md`, from Aaron's words the same
 day. The calls that are his are batched at the end, under "Questions for Aaron"; nothing in this record settles them.
-`design/grid/grid.json` holds the same content as data, for the board.
+`design/grid/grid.json` holds the same content as data, for the mission board, in the shape `design/grid/types.ts`
+writes down (agreed with the board thread): each card's id is `<block>.<output>`, e.g. `event.sdk`, and a card's
+`state` starts as `built`, `partly` or `red` from its grade; only a recorded verdict makes it `green`, and only Aaron's
+answer makes it `not-needed`.
 
 ## Aaron's words
 
@@ -601,7 +604,7 @@ None of them changes a card above.
 
 1. The grid is the goal: 13 lanes (the building blocks) by 9 cards (the outputs), each card an eval with its green,
    its evidence, its grade today with `path:line`, and its owner. `design/grid/grid.json` is the same content as data,
-   and the board reads it.
+   typed by `design/grid/types.ts`, and the board reads it; card ids (`<block>.<output>`) are stable.
 2. A card is green only when its evidence runs in CI and passes; built but unproved is amber, never green.
 3. A card agreed not needed stays on the board, greyed, with its reason; one that guards a safety property (no secret
    leaves, no step leaks) stays live as an absence check.
