@@ -8,7 +8,7 @@ import { Foot, Shell } from "../shell.tsx";
 import { Block, FieldTable } from "../ui.tsx";
 
 export const tabs = [
-  ["contract", "Contract"], ["metrics", "Metrics"], ["spans", "Spans"], ["proof", "Proof"], ["docs", "Docs"], ["notes", "Notes"],
+  ["contract", "Contract"], ["metrics", "Metrics"], ["proof", "Proof"], ["docs", "Docs"], ["notes", "Notes"],
 ] as const;
 export type Tab = (typeof tabs)[number][0];
 
@@ -81,7 +81,7 @@ export const Contract = ({ o }: { o: Operation }) => (
         </div>
       </div>
     </Block>
-    <Block title="The spine" desc="The fixed order every operation runs in, with this operation's declared steps in their place. Spans light it up on the Spans tab." flush>
+    <Block title="The spine" desc="The fixed order every operation runs in, with this operation's declared steps in their place. A call's trace lights it up: open one from the calls table on the Metrics tab." flush>
       <ol className="spine">{spineOf(o).map((r, i) => (
         <li key={r.row}><span className="mono muted">{i === spineOf(o).length - 1 ? "└" : "├"}</span><span className="mono">{r.row}</span><span className="mono muted">{r.what}</span><span /><span /></li>))}</ol>
     </Block>

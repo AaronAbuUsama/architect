@@ -9,8 +9,8 @@ export const commandGroups = (): CmdGroup[] => [
   { heading: "Journeys", items: journeys.map((j) => ({ label: j.name, href: `journey-${j.slug}.html`, hint: `${j.steps.length} steps` })) },
   { heading: "Blueprint", items: [
     { label: "Environments", href: "environments.html" }, { label: "Machines", href: "machines.html" }, { label: "Access", href: "access.html" },
-    { label: "Events", href: "events.html" }, { label: "Values", href: "values.html" }, { label: "Plugins", href: "plugins.html" }, { label: "Stores", href: "stores.html" }] },
+    { label: "Events", href: "events.html" }, { label: "Values", href: "values.html" }, { label: "Plugins and stores", href: "plugins.html" }, { label: "Compare environments", href: "environments.html" }] },
   { heading: "Refusal codes", items: Object.entries(model.refusals).map(([name, code]) => ({ label: name, href: `refusals.html#${name}`, hint: code })) },
-  { heading: "Environments", items: environments.map((e) => ({ label: e.name, href: "environments.html", hint: e.runs })) },
+  { heading: "Environments", items: environments.map((e) => ({ label: e.name, href: `env-${e.name}.html`, hint: e.runs })) },
   { heading: "Monitor", items: [{ label: "Issues", href: "issues.html" }, { label: "Alerts", href: "alerts.html" }] },
 ];

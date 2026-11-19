@@ -9,7 +9,7 @@ import { roleRules } from "../overlay.ts";
 import { Foot, Shell } from "../shell.tsx";
 import { Block, Lifecycle } from "../ui.tsx";
 import { guardsOf } from "./thing.tsx";
-import { perMin, Recent, recentDenied, recentEvents, recentRefusals, recentRejected, rejectedBy, roleCheckMs, TrendCell } from "../ref-live.tsx";
+import { perMin, Recent, recentEvents, recentRefusals, TrendCell } from "../ref-live.tsx";
 
 const Title = ({ h, p }: { h: string; p: string }) => <header className="page-title"><h1>{h}</h1><p>{p}</p></header>;
 const refusedIn = (name: string) => operations.reduce((a, o) => a + (statOf(o).refused[name] ?? 0), 0);
@@ -48,7 +48,7 @@ export const Refusals = () => (
               <td className="small">{r.source === "runtime" ? "the runtime, at the door" : r.source === "machine" ? <>{r.thing}'s machine</> : <a href={page.thing(r.thing)}>{r.thing}</a>}</td>
               <td className="num mono">{r.exit}</td><td className="small">{r.raisedBy.map((o) => <a key={o} className="mono" href={page.op(o)}>{o} </a>)}</td>
               <td className={`num mono${refusedIn(r.name) ? " tone-warning" : ""}`}>{refusedIn(r.name)}</td><td className="num mono small">{perMin(refusedIn(r.name))}</td>
-              <td><TrendCell k={r.name} total={refusedIn(r.name)} tone="warning" /></td><td>{refusedIn(r.name) > 0 && r.raisedBy[0] && <a className="small" href={page.op(r.raisedBy[0], "spans")}>trace →</a>}</td></tr>))}</tbody></table>
+              <td><TrendCell k={r.name} total={refusedIn(r.name)} tone="warning" /></td><td>{refusedIn(r.name) > 0 && r.raisedBy[0] && <a className="small" href={page.op(r.raisedBy[0], "spans", r.name)}>trace →</a>}</td></tr>))}</tbody></table>
       </Block>
       <Recent title="Recent refusals" spans={recentRefusals} />
       <Foot>Generated from `Model.refusals`, each thing's `errors` and `machine.notFrom`, and each operation's `refusals`. Counts from `ortho.calls` by error tag.</Foot>
@@ -65,14 +65,12 @@ export const Access = () => (
           <tbody>{Object.entries(roleRules).map(([r, rule]) => <tr key={r} id={r}><td className="mono">{r.split(".")[1]}</td><td><a href={page.thing(r.split(".")[0]!)}>{r.split(".")[0]}</a></td><td className="mono muted">{rule}</td></tr>)}</tbody></table>
       </Block>
       <Block title="Operations" desc="Grouped by who may call them" flush>
-        <table className="tbl"><thead><tr><th>who may call</th><th>operations</th><th className="num">role check</th><th className="num">NotAllowed</th><th>trend</th></tr></thead>
+        <table className="tbl"><thead><tr><th>who may call</th><th>operations</th><th className="num">NotAllowed</th><th>trend</th></tr></thead>
           <tbody>{["anyone", "signed-in", "handleOwner", "linkOwner"].map((k) => { const ops = operations.filter((o) => o.allowed.some((a) => allowedText(a) === k)); return (
             <tr key={k}><td><Chip size="sm" variant="soft">{k}</Chip></td><td>{ops.map((o) => <a key={o.name} className="mono" href={page.op(o.name)}>{o.name} </a>)}</td>
-              <td className="num mono small">{roleCheckMs[k]} ms</td>
               <td className="num mono">{ops.reduce((a, o) => a + (statOf(o).refused.NotAllowed ?? 0), 0)}</td><td><TrendCell k={`na-${k}`} total={ops.reduce((a, o) => a + (statOf(o).refused.NotAllowed ?? 0), 0)} tone="warning" /></td></tr>); })}</tbody></table>
       </Block>
-      <Recent title="Recent refusals at the role check" spans={recentDenied} />
-      <Foot>Generated from each operation's `allowed` and each thing's `roles` and `roleRules`.</Foot>
+      <Foot>Generated from each operation's `allowed` and each thing's `roles` and `roleRules`. NotAllowed is counted in `ortho.calls`; the role check runs with no span, so there are no rows of recent denials and no timing per rule.</Foot>
     </div>
   </Shell>
 );
@@ -82,13 +80,13 @@ export const Events = () => (
   <Shell here={{ id: "events" }} crumbs={["Plugged In", "Blueprint", "Events"]}>
     <div className="page">
       <Title h="Events" p="What each move records, what it carries, and who listens. Events are the operator's and the builder's; callers read state, not the journal." />
-      <Block title="Events" desc="Committed in the window, from the journal" flush>
+      <Block title="Events" desc="Committed in the window, counted from event.name on commit spans" flush>
         <table className="tbl"><thead><tr><th>event</th><th>carries</th><th>emitted by</th><th>listened to by (on:)</th><th className="num">committed</th><th className="num">/ min</th><th>trend</th><th /></tr></thead>
           <tbody>{things.flatMap((t) => Object.entries(t.events).map(([e, f]) => { const op = operations.find((o) => o.move?.emits === e); return (
             <tr key={e} id={e}><td className="mono">{e}</td><td className="mono muted">{Object.entries(f).map(([k, v]) => `${k}: ${typeText(v)}`).join(", ")}</td>
               <td>{op ? <a className="mono" href={page.op(op.name)}>{op.name}</a> : "—"}</td><td className="muted small">none declared</td>
               <td className="num mono">{eventRate[e] ?? 0}</td><td className="num mono small">{perMin(eventRate[e] ?? 0)}</td><td><TrendCell k={e} total={eventRate[e] ?? 0} tone="success" /></td>
-              <td>{op && (eventRate[e] ?? 0) > 0 && <a className="small" href={page.op(op.name, "spans")}>trace →</a>}</td></tr>); }))}</tbody></table>
+              <td>{op && (eventRate[e] ?? 0) > 0 && <a className="small" href={page.op(op.name, "spans", "answered")}>trace →</a>}</td></tr>); }))}</tbody></table>
       </Block>
       <Recent title="Recent commits" spans={recentEvents} />
       <Foot>Generated from each thing's `events` and each operation's `move.emits`. Listeners appear once the model carries `on:` handlers.</Foot>
@@ -101,16 +99,15 @@ export const Values = () => (
     <div className="page">
       <Title h="Values" p="The named types the app's fields use, with their limits." />
       <Block title="Values" desc="Each with the fields that use it" flush>
-        <table className="tbl"><thead><tr><th>value</th><th>type</th><th>used by</th><th className="num">rejected at the door</th><th>trend</th></tr></thead>
+        <table className="tbl"><thead><tr><th>value</th><th>type</th><th>used by</th></tr></thead>
           <tbody>{Object.entries(model.values).map(([n, v]) => {
             const users = [...things.flatMap((t) => Object.entries(t.fields).filter(([, f]) => f.named === n).map(([k]) => `${t.name}.${k}`)),
               ...operations.flatMap((o) => Object.entries(o.payload).filter(([, f]) => f.named === n).map(([k]) => `${o.name} ${k}`))];
             return <tr key={n} id={n}><td className="mono">{n}</td><td className="mono muted">{typeText({ value: v })}</td><td className="mono small">{users.join(", ") || <span className="muted">not used by stage 1</span>}</td>
-              <td className={`num mono${rejectedBy[n] ? " tone-warning" : ""}`}>{rejectedBy[n] ?? 0}</td><td><TrendCell k={`v-${n}`} total={rejectedBy[n] ?? 0} tone="warning" /></td></tr>;
+</tr>;
           })}</tbody></table>
       </Block>
-      <Recent title="Recent payloads refused at the door" spans={recentRejected} />
-      <Foot>Generated from `Model.values`. Rejections are door refusals in `ortho.calls`, with no span. A `schema` value's detail is not in the model yet.</Foot>
+      <Foot>Generated from `Model.values`. A payload refused at the door is counted per operation (InvalidPayload in `ortho.calls`) with no span, so nothing says which value it broke. A `schema` value's detail is not in the model yet.</Foot>
     </div>
   </Shell>
 );

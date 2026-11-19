@@ -1,0 +1,85 @@
+/* Graph: React Flow in the portal's tokens. Lines are muted until a lighting gives them meaning. */
+.g-view{display:flex;flex-direction:column;gap:10px;padding:12px 14px 0}
+.g-view>[role=radiogroup],.g-view>div:first-child:not(.g-frame){align-self:flex-start}
+.g-frame{position:relative;width:100%;min-height:120px}
+.g-frame .react-flow{--xy-background-color:transparent;--xy-edge-stroke:var(--muted);--xy-controls-button-background-color:var(--surface-secondary);--xy-controls-button-border-color:var(--border);--xy-controls-button-color:var(--foreground);--xy-controls-button-background-color-hover:var(--default);--xy-attribution-background-color:transparent;background:transparent}
+.g-frame .react-flow__attribution a{color:var(--muted);font-size:10px}
+.g-frame .react-flow__controls{box-shadow:none;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.g-anchor{opacity:0;pointer-events:none;width:1px!important;height:1px!important;min-width:0!important;min-height:0!important;border:0!important}
+.react-flow__node.is-dim{opacity:.32;transition:opacity .12s}
+.react-flow__node{cursor:default}
+.react-flow__node:has([data-href]),.react-flow__node-thing,.react-flow__node-world,.react-flow__node-journey{cursor:pointer}
+
+/* Nodes: the kit's surfaces. */
+.g-card{box-sizing:border-box;display:flex;flex-direction:column;gap:4px;padding:10px 12px;border-radius:12px;background:var(--surface);border:1px solid var(--border);box-shadow:0 1px 0 rgba(0,0,0,.25)}
+.g-card__head{display:flex;align-items:center;gap:6px;color:var(--foreground)}
+.g-card__title{font-weight:600;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.g-thing .g-card__title,.mono-title .g-card__title{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.8rem}
+.g-card__sub{font-size:.72rem;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.3}
+.g-card__foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:.72rem}
+.g-thing .g-card__sub{-webkit-line-clamp:1}
+.g-thing .g-card__foot{margin-top:2px}
+.g-states{display:inline-flex;align-items:center;gap:3px;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.7rem;color:var(--muted)}
+.g-states span{display:inline-flex;align-items:center;gap:3px}.g-states b{font-weight:500;color:var(--foreground)}
+.g-group{box-sizing:border-box;border-radius:16px;border:1px dashed color-mix(in oklab,var(--accent) 45%,var(--border));background:color-mix(in oklab,var(--accent) 5%,transparent)}
+.g-group.is-app{border-style:solid;border-color:var(--border);background:color-mix(in oklab,var(--foreground) 3%,transparent)}
+.g-group__head{display:flex;align-items:center;gap:6px;padding:10px 14px;font-size:.78rem;white-space:nowrap}
+.g-group__head b{font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:600}
+.g-group__head .muted{font-size:.7rem;overflow:hidden;text-overflow:ellipsis}
+.g-event{box-sizing:border-box;display:flex;align-items:center;gap:6px;padding:0 10px;border-radius:999px;font-size:.74rem;font-family:"JetBrains Mono",ui-monospace,monospace;background:color-mix(in oklab,var(--warning) 12%,var(--surface));border:1px solid color-mix(in oklab,var(--warning) 35%,var(--border));color:var(--foreground)}
+.g-event svg{color:var(--warning)}
+.g-start{box-sizing:border-box;border-radius:999px;background:var(--foreground)}
+.g-start.is-world{display:flex;align-items:center;justify-content:center;background:transparent;border:1px dashed var(--border);color:var(--muted);font-size:.76rem}
+.g-state{box-sizing:border-box;display:flex;align-items:center;justify-content:center;border-radius:999px;background:var(--surface-secondary);border:1px solid var(--border);font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.8rem;color:var(--foreground)}
+.g-state.is-end{box-shadow:0 0 0 3px var(--surface),0 0 0 4px var(--border)}
+.g-verdicts{display:inline-flex;gap:8px}
+.g-verdict{display:inline-flex;align-items:center;gap:3px;color:var(--muted);font-size:.68rem}
+.g-wait{border-style:dashed}
+.g-activity .g-card__head svg{color:var(--accent)}
+
+/* Edges: one style per kind, then the lighting on top. */
+.g-edge{stroke:color-mix(in oklab,var(--muted) 70%,transparent);fill:none}
+.g-edge--payload{stroke-dasharray:2 4}
+.g-edge--emits{stroke:color-mix(in oklab,var(--warning) 60%,var(--muted))}
+.g-edge--on{stroke:var(--warning);stroke-dasharray:6 5}
+.g-edge--mounts,.g-edge--needs{stroke:color-mix(in oklab,var(--accent) 65%,var(--muted))}
+.g-edge--needs{stroke-dasharray:6 5}
+.g-edge--starts,.g-edge--from{stroke:color-mix(in oklab,var(--accent) 50%,var(--muted))}
+.g-edge.is-live{stroke:var(--accent)}
+.g-edge.is-idle{stroke:var(--border)}
+.g-edge.is-path{stroke:var(--accent)}
+.g-edge.is-refused{stroke:var(--warning);stroke-dasharray:4 4}
+.g-edge.is-off{stroke:var(--border)}
+.g-edge.is-dim{opacity:.2}
+.react-flow__edge .react-flow__edge-path{transition:opacity .12s}
+.react-flow__arrowhead polyline{stroke:var(--muted)!important;fill:var(--muted)!important}
+.g-edge-label-box{overflow:visible;pointer-events:none}
+.g-edge-label{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;font-size:11px;line-height:15px;color:var(--muted);font-family:"JetBrains Mono",ui-monospace,monospace;white-space:nowrap}
+.g-edge-label span{padding:0 5px;border-radius:5px;background:var(--surface-page,#0b0b0d)}
+.g-edge-label small{font-size:10px;padding:0 5px;border-radius:5px;background:var(--surface-page,#0b0b0d);color:color-mix(in oklab,var(--muted) 80%,transparent)}
+.g-edge-label.is-live small,.g-edge-label.is-path small{color:var(--accent);font-weight:600}
+.g-edge-label.is-refused small{color:var(--warning);font-weight:600}
+.g-edge-label--on span,.g-edge-label--on small{color:var(--warning)}
+.g-edge-label.is-dim{opacity:.25}
+
+/* The page: legends, and two graphs side by side. */
+.g-legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin:0;padding:0;list-style:none;font-size:.72rem;color:var(--muted)}
+.g-legend li{display:inline-flex;align-items:center;gap:6px}
+.g-swatch{display:inline-block;width:22px;height:0;border-top:2px solid color-mix(in oklab,var(--muted) 70%,transparent)}
+.g-swatch--payload{border-top-style:dotted}
+.g-swatch--emits{border-top-color:color-mix(in oklab,var(--warning) 60%,var(--muted))}
+.g-swatch--on{border-top:2px dashed var(--warning)}
+.g-swatch--mounts{border-top-color:color-mix(in oklab,var(--accent) 65%,var(--muted))}
+.g-swatch--needs{border-top:2px dashed color-mix(in oklab,var(--accent) 65%,var(--muted))}
+.g-two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:1100px){.g-two{grid-template-columns:1fr}}
+/* React Flow's own group box: ours draws it instead. */
+.g-frame .react-flow__node-group{background:none;border:0;padding:0;border-radius:16px;box-shadow:none!important}
+.g-events{display:flex;gap:6px;flex-wrap:wrap}
+.g-event-chip{display:inline-flex;align-items:center;gap:3px;padding:1px 6px;border-radius:999px;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.66rem;background:color-mix(in oklab,var(--warning) 12%,var(--surface));color:var(--foreground)}
+.g-event-chip svg{color:var(--warning)}
+.g-group__head b{font-family:inherit}
+.g-world .g-card__sub,.g-journey .g-card__sub{-webkit-line-clamp:1}
+.g-stack{display:flex;flex-direction:column;gap:16px}
+.g-card>*{flex-shrink:0}
+.g-card__foot .muted{white-space:nowrap}

@@ -32,6 +32,7 @@ export const makeChainPort = (options: ChainPortOptions): Effect.Effect<ChainPor
     const track: ChainPort["track"] = (submission, level, intent) => trackTransaction(
       rpc, timers, options, interval, timeout, manager.nonces.nonceAtHead, submission, intent,
       intent === undefined ? undefined : follow(intent.source, level),
+      "depth" in level ? level.depth : undefined,
     );
     return { prepare: manager.prepare, simulate: manager.simulate, sign: manager.sign, submit: manager.submit, replace: manager.replace, track, follow, release: manager.release };
   });

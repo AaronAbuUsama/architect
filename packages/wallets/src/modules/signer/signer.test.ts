@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { KeyLocked, NoSuchKey } from "../../../blueprint/things/wallet/errors.js";
 import { Signers } from "./service.ts";
 
-const chain = { chainId: 31337, rpcUrl: undefined };
+const chain = { chainId: 31337, rpcUrl: undefined, depth: 1 };
 const fresh = () => Signers.keyed("world", chain, Signers.memory(new Map<string, { secret: Redacted.Redacted<Hex>; address: Address }>()));
 const secret = () => Effect.runPromise(Keys.generate);
 

@@ -13,7 +13,8 @@ import { mounts } from "./overlay.ts";
 
 export type Letter = "a" | "b" | "c";
 export type Opt = { nav: Letter; env: Letter; plugins: Letter; blank: Letter; label?: string; overlay?: "command" | "env-menu" };
-export const defaults: Opt = { nav: "a", env: "a", plugins: "a", blank: "a" };
+/** Aaron's picks (round 4, 19 November 2026): Q1 B + C, Q2 B, Q3 B, Q6 A. */
+export const defaults: Opt = { nav: "b", env: "b", plugins: "b", blank: "a" };
 export const OptContext = createContext<Opt>(defaults);
 export const useOpt = () => useContext(OptContext);
 export const WithOpt = ({ opt, children }: { opt: Partial<Opt>; children: ReactNode }) => <OptContext.Provider value={{ ...defaults, ...opt }}>{children}</OptContext.Provider>;
