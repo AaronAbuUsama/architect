@@ -58,12 +58,17 @@
 //       [data-refusal][data-caller-kind][data-attempts][data-duration-ms][data-over-budget][data-environment][data-start]
 //       [data-request-key][data-role-held]   calls-footer[data-shown][data-total][data-door-refusals]
 //       ref-row[data-name][data-code][data-count][data-span][data-trace]   not-yet[data-hole]   eval-verdicts[data-state]
-//       proof-cell[data-environment][data-state]   journey-step also data-verdicts
+//       proof-cell[data-environment][data-state]   journeys-empty
 //     A call's duration is the extent of its attempt spans (portal.md, "Calls table vs spans"). A door refusal is a refusal
 //     counted by `ortho.calls` that no span in the window accounts for; it is counted and never a row.
 //  7. Every hole of portal.md's list that M1.13 cannot fill says "not yet" (an element `not-yet[data-hole]` and the value
-//     `not yet` in the attribute), and no made-up value: request key (hole 1), role held (hole 8), per-eval verdicts (3),
-//     step verdicts (4). The aggregate verdict per environment is not a hole.
+//     `not yet` in the attribute), and no made-up value: request key (hole 1), role held (hole 8), per-eval verdicts (3).
+//     The aggregate verdict per environment is not a hole; its states are `ProofState`'s (recorded-pass, failed, stale,
+//     unproven, unavailable), and `unavailable` only where no logbook is configured, as here.
+//  8. Journey steps come from `JourneyModel`, never from spans. Plugged In declares no journey (ST1.02) and the wire carries none
+//     until M1.42, so `/portal/journeys` shows the declared-none state (`journeys-empty`) and draws no step, whatever the
+//     window's traces hold. The step-verdict hole (PRJ-47) is asserted once M1.42 brings journeys: not in this file yet.
+//  9. The reference panel is pinned to portal.md's order: Access, Refusal codes, Events, Values, Machines (not sorted).
 //
 // Red today on the missing surface: no `live` on the context, none of the hooks, no trace page, Plugged In's docs and generated
 // files absent until M1.40, and `@orthograph/portal` not drawn with `@orthograph/portal-ui`. The controls pass today.
@@ -503,7 +508,7 @@ describe("21 G: one page per declared environment, and the environment is part o
     expect(parts((await get(local, "/portal/environments/local")).text, "env-page")[0]?.["data-live"], "the environment you are in is live").toBe("true");
     const other = await get(local, "/portal/environments/test");
     expect(parts(other.text, "env-page")[0]?.["data-live"], "another environment is read in its own portal").toBe("false");
-    expect(stat(other.text, "calls"), "and its page shows this portal's numbers, never the other's").toBe("7");
+    expect(other.text, "and says whose portal reads it").toMatch(/own portal/i);
   });
 
   it("every kind of page carries the environment in its top bar", async () => {
@@ -639,7 +644,9 @@ describe("21 K: the metrics reader: door refusals are counted, named, and never 
     expect(rows.filter((r) => r["data-refusal"] === "NotAllowed"), "no row for a door refusal").toEqual([]);
     expect(parts(text, "calls-footer")[0], "the footer says what is counted and not listed").toMatchObject({ "data-shown": "2", "data-total": "5", "data-door-refusals": "3" });
     const home = (await get(context(wire, run), "/portal")).text;
-    expect(home, "no span of a door refusal reaches the rail's last calls").not.toContain('data-refusal="NotAllowed"');
+    expect(parts(home, "last-call").length, "the rail does list the calls that have spans").toBe(2);
+    expect(home, "and none of them is a door refusal").not.toContain('data-refusal="NotAllowed"');
+    expect(parts(text, "call-row").length, "the hook exists in the table where a row would be").toBe(2);
   });
 
   it("the refusal-codes page counts every refusal by name and code, and says `no span` for the door's", async () => {
@@ -681,19 +688,20 @@ describe("21 L: what the portal cannot fill yet says `not yet`", () => {
     const wire = await decode(pluggedInWire());
     const { text } = await get(context(wire, stage(wire)), "/portal/operations/handle.claim?tab=proof");
     expect(parts(text, "proof-cell").map((c) => c["data-environment"]).sort(), "the aggregate, per environment").toEqual(["local", "test"]);
-    for (const cell of parts(text, "proof-cell")) expect(["pass", "fail", "stale", "none"], "a recorded state, or none").toContain(cell["data-state"]);
+    for (const cell of parts(text, "proof-cell")) expect(cell["data-state"], "no logbook is configured in this fixture: nothing is recorded").toBe("unavailable");
     const evals = parts(text, "eval-verdicts");
     expect(evals.length, "a per-eval block for each environment").toBe(2);
     for (const e of evals) expect(e["data-state"]).toBe("not yet");
     expect(parts(text, "not-yet").map((n) => n["data-hole"])).toContain("per-eval");
   });
 
-  it("a journey's steps carry no verdict per step: `not yet`", async () => {
+  it("journeys come from the model: Plugged In declares none, so the page says so and draws no step, whatever the window's traces hold", async () => {
     const wire = await decode(pluggedInWire());
-    const { text } = await get(context(wire, stage(wire)), "/portal/journeys");
-    const steps = parts(text, "journey-step");
-    expect(steps.length, "the staged journey's one step is drawn").toBeGreaterThan(0);
-    for (const step of steps) expect(step["data-verdicts"], "no per-step verdict is recorded").toBe("not yet");
-    expect(parts(text, "not-yet").map((n) => n["data-hole"])).toContain("step-verdict");
+    expect(Object.keys(rawOf().journeys ?? {}), "Plugged In declares no journey").toEqual([]);
+    const { status, text } = await get(context(wire, stage(wire)), "/portal/journeys");
+    expect(status).toBe(200);
+    expect(parts(text, "journeys-empty").length, "the declared-none state").toBe(1);
+    expect(parts(text, "journey-step"), "the staged trace's `journey.*` span is not a journey").toEqual([]);
+    expect(parts(text, "journey"), "nor is it drawn as one").toEqual([]);
   });
 });
