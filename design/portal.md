@@ -42,6 +42,63 @@ All recommended options, including the Q11 addendum carrying the factory's needs
 | 11 | Extensions | A · a feature with a portal face: generated pages free, typed slots for custom views |
 | 12 | Environments | A · one portal per environment, its own sink only, a switcher, proof from the logbook |
 
+### Round 3 (19 November 2026, relayed by the conductor)
+
+Aaron's words, verbatim, then what was decided.
+
+| # | Joint | Aaron | Status |
+|---|---|---|---|
+| 1 | Where the pages beyond things live | "need options as designs"; on the drawing, "I want to have icon rail" | **B, agreed by Aaron's 19 Nov review: an icon rail swaps the sidebar** |
+| 2 | Environments | "same need designs"; on the drawing, "the second one looks better, but on the proof section… you're wasting a lot of space" | **A, agreed by Aaron's 19 Nov review: one page, pick one, compare the rest** (it takes B's summary card) |
+| 3 | Plugins and stores | "same designs"; on the drawing, "plugin, portal, journeys looks okay" | **A, agreed by Aaron's 19 Nov review: a page per plugin, and Stores** |
+| 4 | Journeys and starting worlds | "no we need to have them and show them graphically" | **Decided: pages for both, drawn as pictures** (below) |
+| 5 | Access, refusal codes, events, values | "reference pages and we have telemetry on the page with spans and tracing etc" | **Decided: four reference pages, each with live telemetry** (below) |
+| 6 | Blank operations | "show me"; no objection on the drawing | **A, agreed by Aaron's 19 Nov review: in the tree, greyed** |
+
+**The agreed wireframe.** Aaron, 19 November 2026: "I don't want to over-perfectionalize this, it's still only
+wireframes. Let's do one more round of this and then we're just going to take those feedbacks and start moving
+forward." That round is done. The drawing at https://claude.ai/artifact/NzDgHFzQSk8yvX8cLNqUKj (version 4,
+`spikes/portal-site`, commit 2b552963) is the agreed wireframe, read with the picks above and the component inventory
+below. The portal's build (M1.13, M1.49) works from it. Where his feedback left a letter unpicked, the designer picked
+from what he said:
+
+- **Q1 B.** He asked for the icon rail. Built the library's way: Pro's Icon Only sidebar pattern beside
+  `Sidebar.Pages`, one panel per section (Things, Proof, Reference, Plugins, Monitor), and ⌘K (Pro's `Command`) on
+  every page.
+- **Q2 A.** He liked B's page but not its proof. A keeps every environment on one page, takes B's summary card for the
+  one you pick, lists each field `EnvironmentModel` declares with the others tinted where they differ, and draws proof
+  as a matrix whose columns are tallied ("8 pass, 1 fail, 1 stale of 10 operations").
+- **Q3 A.** He called the plugin page okay; it stays as drawn.
+- **Q6 A.** No objection; blanks stay in the tree, greyed, with their page as the spec.
+
+Two known roughnesses stay in the wireframe and are for the build to settle: refused and defect slices are thin in the
+stacked calls bars (about 3% of calls), and a journey step's preview covers the lanes below it.
+
+**Q4, decided.** There is a Journeys page, a page per journey and a page per starting world, and each is drawn, not
+listed:
+
+- A journey is a **sequence diagram**. Its cast are the lanes and its steps are the columns. Under the steps sit four
+  rows of dots, one per environment, so a failure shows on the step where it happened ("failed here", then "not
+  reached").
+- Clicking a step opens its operation. A failed step opens its trace.
+- Under the diagram the steps are a HeroUI Pro `Timeline`, with each check as a chip.
+- The worlds are a **tree**. It starts from the empty world, then the starting worlds and what each gives, then the
+  journeys that start from each, coloured by verdict.
+- The Journeys page opens on that tree. Each journey's row carries one dot per step.
+
+**Q5, decided.** The reference pages are Access, Refusal codes, Events, Values and Machines. Each is one table with
+anchored rows, and each carries live telemetry:
+
+- **Every row has its numbers.** It shows its count in the window, its rate per minute and a trend sparkline:
+  - refusals per code, from `ortho.calls` by error tag;
+  - NotAllowed per rule, with the role check's time;
+  - commits per event, from the commit span's `event.name`;
+  - door rejections per value;
+  - answered moves per arrow.
+- **Every row opens its trace.** Each row with spans has a "trace" link.
+- **Every page lists its recent spans.** Each one opens its trace. A call refused at the door has no span (M1.20), so
+  it shows its count and says "no span".
+
 **Made consistent with K10 and K11 (merged after round 1).** K10 decision 9 and M4.16 say the chat is rendered with
 HeroUI Pro's AI components over a Pi Durable run; round 1's wording said "Pi's surface". They agree once read
 together: Pi Durable is the agent and the source of truth for the transcript (K10, H1.9), and what draws it is Pro's
@@ -434,6 +491,140 @@ a data-dependent refusal (`HandleTaken`) and idempotency by request. A claim lig
 | 3 · the vault | about 15 things in eight groups. Runs on the rail beside what they touch; calls by an agent for a person shown as such, never which person; approvals in the chat; owner signatures as a workflow, so a workflow's steps on the spine (M3). The factory and the board mount as extensions | workflow spans (M3.03); `rail.on` |
 | 4 · the club | private members and ballots. The public tally and footprint show; nothing that names a member shows (ST4.07). Proof generation as a step on the device | private fields never traced (M1.19); on-device spans (gap 4) |
 
+## The model, field by field (round 3, 19 November 2026)
+
+Every field of the compiler's `Model` (`packages/compiler/src/modules/model/types.ts` on `origin/m1`, with
+`MountModel` from `modules/mounts/types.ts` and `ValueMeta` from `orthograph`), and the page that shows it. The portal
+falls out of this table: a page shows a field only if a row here names it, and a field with no page is listed as such,
+never hidden. **Wire** says whether the portal's wire decodes it today (`packages/portal/src/modules/wire/types.ts` on
+`m1`): ✓ yes, ~ partly, ✗ no. Every ✗ and ~ is M1.13's or M1.42's (F8 gap 7, K12 section 6, K14's portal column).
+**R3** marks a page that does not exist yet and is asked in round 3 (`briefs/portal-round-3.md`).
+
+Real values below are from Plugged In's model as Codex generated it on `links/stage-1`
+(`examples/links/generated/model/model.json`, before M1.03, so no `from`, journeys, worlds, stores or mounts yet).
+
+### `Model`
+
+| Field | Page | Wire |
+|---|---|---|
+| `things` | home cards, the tree, a thing's page | ✓ |
+| `operations` | the tree under each thing, an operation's page, the operations matrix | ✓ |
+| `refusals` (every code: `HandleTaken: HN-001`, `HandleNotClaimed: HN-900`, `NotAllowed: AR-001`) | the band and the lifecycle arrows by name; the code table **R3 Q5** | ✗ |
+| `values` (`HandleName`, `LinkTitle`, `LinkUrl`) | a field's type links to it; the values index **R3 Q5** | ✗ |
+| `stores` | the thing's header chip; the stores page **R3 Q3** | ✗ |
+| `journeys` | the operation's proof tab; the journeys pages **R3 Q4** | ✗ (`wire/service.ts:7`, "unavailable") |
+| `startingWorlds` | the world page **R3 Q4** | ✗ |
+| `blankOperations`, `blanks` | the tree and the spec section **R3 Q6** | ~ `blanks` only |
+| `environments` | the switcher; the environments page **R3 Q2** | ~ name, runs, promotion, lifetime |
+| `mounts` | the tree's plugin groups (Q3); the plugin page **R3 Q3** | ✗ |
+
+### `ThingModel`
+
+| Field | Page | Wire |
+|---|---|---|
+| `name`, `description` | home card, page header, tree | ✓ |
+| `identifier` (`Handle`) | page header, as the code name, in mono | ✗ |
+| `code` (`HN`) | page header beside the name; the code table groups by it | ✗ |
+| `fields` | the thing's **Fields** section (added in round 3, see below): name, type, `named` value, `ref`, visibility | ~ no visibility, no description |
+| `lives` (`database`, `actor`) | page header chip | ✓ |
+| `store` | page header chip, linking to its store | ✗ |
+| `machine.states`, `moves` | the lifecycle strip on home and the page; moves on the arrows | ✓ |
+| `machine.notFrom` (`HandleNotClaimed HN-900 exit 5`) | the errors section, marked generated; on the arrow it guards | ~ no code |
+| `events` with fields | the events section; the events page **R3 Q5** | ✗ names only, via `emits` |
+| `errors` with fields, `exit`, `code` | the errors section; the code table **R3 Q5** | ✗ |
+| `roles`, `roleRules` (`handleOwner`) | the roles section with each rule; the access page **R3 Q5** | ~ names only |
+| `from` | the tree group and the page header (`handles · feature · @orthograph/handles 0.1.0`) | ✗ |
+| `hash` | notes pin to it; the header's short hash; proof staleness | ✓ |
+
+### `FieldModel` and `ValueMeta`
+
+| Field | Page | Wire |
+|---|---|---|
+| `value` (`id` with `prefix`, `uint` with `bits`, `text` with `max`, `schema`) | the type column of every field table and the band | ✓ |
+| `named` | the type shows the value's name, linking to the values index | ✓ |
+| `ref` (`handle.id`) | a link to the field it was taken from | ✓ |
+| `optional` | marked in the band | ✓ |
+| `visibility` (`secret`, `{ private: [roles] }`) | a lock chip in field tables and the band; the trace drawer hides the value | ✗ |
+| description | not in the model yet (K14's finding; M1.42 adds it) | ✗ |
+
+### `OperationModel` and `StepModel`
+
+| Field | Page | Wire |
+|---|---|---|
+| `kind`, `name`, `thing`, `verb`, `description` | the tree, the operation page header, the matrix | ✓ |
+| `identifier`, `file` | the header, as the code name and the source path | ✗ |
+| `payload`, `answer` | the in-and-out band | ✓ |
+| `move` | the band ("· → claimed") and the spine's machine-check and move rows | ✓ |
+| `errors`, `refusals` | the band's refusal list, each with its code and live count | ✓ names, ✗ codes |
+| `allowed` (`signed-in`, `role handle.handleOwner`, `anyone`) | the header chip; the access page **R3 Q5** | ✓ |
+| `steps` (`name`, `type`) | the spine's rows | ✓ |
+| `steps.writes`, `.optional`, `.call` | the spine: what a row writes, a dashed optional row, an adapter call naming its mount | ✗ |
+| `idempotent` | the header chip ("idempotent by request") and the spine's replay row | ✓ |
+| `runs` (`server`, `client`) | the header chip "on your device"; the spine drawn from the device's spans | ✗ |
+| `test` (`unit`, `network`) | the proof tab | ✗ |
+| `budget.p95Ms` | the matrix and the rail ("p95 6 ms of 150") | ✓ |
+| `list` (`where`, `order`, `page`) | a read's band | ✗ |
+| `from` | the tree and the header | ✗ |
+| `blanks` | the spec section **R3 Q6** | ✗ |
+| `via` | the band: the ways in the mount left it ("not in MCP") | ✗ |
+| `hash` | notes, proof staleness | ✓ |
+
+### `EnvironmentModel`
+
+| Field | Page | Wire |
+|---|---|---|
+| `name`, `deploy.*.domain` | the switcher (Q12) | ~ name only |
+| `file`, `runs`, `identity`, `lifetimeMs`, `cloud`, `database`, `stores`, `secrets` (names and how, never values), `promotesFrom`, `telemetry`, `deploy`, `publish`, `hash` | the environments page **R3 Q2** | ~ runs, promotion, lifetime |
+
+### `JourneyModel`, `StartingWorldModel`
+
+| Field | Page | Wire |
+|---|---|---|
+| `name`, `file`, `sourceHash`, `cast`, `starts`, `steps` (title, call with actor, operation and request, checks by kind, skipped) | the journey page; each step links to its operation **R3 Q4** | ✗ |
+| `name`, `file`, `from`, `cast`, `makes`, `gives` | the world page **R3 Q4** | ✗ |
+
+### `StoreModel`, `MountModel`
+
+| Field | Page | Wire |
+|---|---|---|
+| store `name`, `file`, `kind`, `from`, `hash` | the stores page, with the things in each and each environment's binding **R3 Q3** | ✗ |
+| mount `kind`, `file`, `package`, `version`, `integrity`, `hash` | the plugin page header **R3 Q3** | ✗ |
+| mount `chosen`, `omitted`, `narrowed` | the plugin page: the choices made, what was left out | ✗ |
+| mount `needs`, `calls`, `layer`, `standIn` | the plugin page: what it needs, an adapter's calls, what stands in for it in a world | ✗ |
+
+### Made consistent with the model in round 3 (the designer's call, under AGENTS.md)
+
+1. **A thing's page gains a Fields section**, after the lifecycle and before the operations. The agreed page had none,
+   but K14's thing card needs every field with its type, visibility and description.
+2. **Who may call is the model's words**: `signed-in`, `anyone`, or a role such as `handleOwner`. The sketches above
+   wrote `person`, which is not a model term.
+3. **Codes are the model's**: the machine's refusal is generated as `<Thing>Not<FirstState>` with code `<PREFIX>-900`
+   (`HandleNotClaimed HN-900 exit 5`); `HN-002` is `HandleAlreadyOwned`. The sketches above are kept as drawn on 19
+   November; the drawing follows the model.
+4. **The example app is Plugged In** (K15). Where the sketches above say `links`, read Plugged In.
+
+## Screens not drawn yet
+
+What the model had and no agreed page showed before round 3, and the menus that tie them together. All are now drawn
+and agreed (round 3, above).
+
+All of them are drawn in [`spikes/portal-site`](../spikes/portal-site/README.md), published at
+https://claude.ai/artifact/NzDgHFzQSk8yvX8cLNqUKj:
+
+- Q4 and Q5 are drawn as decided.
+- Q1, Q2, Q3 and Q6 are drawn three ways each on the Options page, which the artifact opens on.
+- The same drawing adds Issues and Alerts, proposed in
+  [`decisions/K18-monitoring-falls-out.md`](decisions/K18-monitoring-falls-out.md).
+
+| Screen | Model it falls out of | Round 3 |
+|---|---|---|
+| The navigation: where every page below lives, beside the things tree | all of it | Q1 |
+| Environments, with the switcher's menu and the proof matrix (Q12 agreed both, neither drawn) | `environments`, the logbook | Q2 |
+| Plugins (one per mount) and stores | `mounts`, `stores`, `from` | Q3 |
+| Journeys and starting worlds | `journeys`, `startingWorlds`, the logbook | Q4 |
+| Access (roles), refusal codes, events, values: the reference pages | `refusals`, `roleRules`, `allowed`, `events`, `values` | Q5 |
+| What's missing: blanks and blank operations | `blankOperations`, `blanks` | Q6 |
+
 ## Gaps
 
 Each hand-written or missing piece, with the slice that owns it.
@@ -449,6 +640,47 @@ Each hand-written or missing piece, with the slice that owns it.
 | 7 | The portal wire decodes only things, operations, environments and blanks; the pages also need `from`, each thing's events and errors with their codes and exits, journeys, starting worlds, stores and mounts | M1.13 (F8) |
 
 Nothing else on these pages is hand-written: every label, list and diagram is generated, and every number is live.
+
+## Component inventory (round 3 review, 19 November 2026)
+
+Aaron's review of the third drawing: "you've got a component library that we paid like $500 for, you're not using the
+components." So every data shape on every page now maps to one named component: HeroUI Pro's where Pro has one, ours
+where it doesn't. Ours are built on Pro's tokens, each with Storybook 8 CSF stories, and move into
+`@orthograph/portal-ui` with M1.34. Until then they live in `spikes/portal-site/src/kit/`, and the drawing's
+Components page renders every story.
+
+| Data shape | Where it shows | Was | Now | By |
+|---|---|---|---|---|
+| Calls in a window, by outcome | rail, home cards, plugin pages, the operations grid, step previews | "2,321 calls · 128 refused" | `CallsMeter`: the total, a stacked bar of answered, refused and defects, and a labelled count for each | ours |
+| Calls per minute | rail, an operation's Metrics tab | a line | `CallsBars`: Pro `BarChart`, stacked by outcome, with a tooltip per minute | ours, on Pro |
+| Calls per minute in a table cell | operations grid, machines, reference pages | a line | `SparkBars`: tiny columns | ours |
+| p95 against budget | operations grid, home cards, rail | "164 / 150 ms" | `BudgetMeter`: p95, a bar with the budget marked, a within or over chip | ours |
+| One headline number | Metrics tab, latency objective | text | Pro `KPI`, `KPIGroup`, `ProgressBar` | Pro |
+| An environment | top bar, rail, environments, step previews, stores | "local · D1 local" | `EnvironmentPill`: live dot, name, and what it runs on from `cloud` and `database` | ours |
+| Picking an environment | Environments | a link per page | Pro `Segment`; option B uses `Tabs` | Pro |
+| Verdicts, rows by environment | Environments, an operation's Proof tab, Journeys | chips, "pass 8" | `VerdictMatrix` with a `VerdictTally` heading each column (a stacked bar and "8 pass, 1 fail, 1 stale"), and `VerdictTile` for one cell | ours |
+| An issue's grouping key | Issues | "link.add · record · DatabaseError" | `KeyPath`: chips read left to right | ours |
+| A machine move | Machines, an operation's spine | "listed \| removed → removed" | `Move`: from chips, an arrow, to chips | ours |
+| A span's attributes | Recent spans on reference pages | "refusal.code AR-001 · at the door" | one Pro `Chip` per attribute, key in mono | Pro |
+| Outcome, state, kind, tag | everywhere | coloured text, "· feature" | Pro `Chip`; in the sidebar `Sidebar.MenuChip` with an upper-case tag (PLUGIN, READ, BLANK, 3 DEFECTS), as the docs' "UPDATED" | Pro |
+| Navigation | every page | a hand-made icon rail | Pro `Sidebar`: the Icon Only pattern for the rail, `Sidebar.Pages` for the section panel, `GroupLabel`, `MenuChip` | Pro |
+| Search the model | every page, ⌘K | static markup | Pro `Command`, filtering things, operations, journeys, refusal codes, environments and monitor pages | Pro |
+| A journey step's preview | a journey's sequence | an SVG title | Pro `HoverCard` holding `StepCard`: who acts, the call, its checks, the verdict per environment, the operation's calls | Pro + ours |
+| Steps in order | a journey, a world | a list | Pro `Timeline` | Pro |
+| Records | home, plugins | tables | Pro `DataGrid`, `ItemCard`, `ListBox` | Pro |
+| A section of a page | everywhere | divs | Pro `Widget` | Pro |
+| Code | an operation's Docs tab | pre | Pro `CodeBlock` | Pro |
+
+Three Pro components only work in the browser: `BarChart` renders empty on the server, `Command` and `HoverCard` render
+nothing until mounted. The drawing renders every page on the server and mounts those three in the browser
+(`src/client.tsx`, one script). The portal itself is a client app, so this is only how the drawing gets there.
+
+The Mobbin screens these follow: stacked request bars from [Stripe's Workbench](https://mobbin.com/screens/a14144e6-2127-44f1-b498-50124a1e114c),
+[incident.io](https://mobbin.com/screens/0e05081e-0ea4-407a-b75d-432db1c679e5) and
+[Braintrust](https://mobbin.com/screens/cb5c8c28-2502-44b4-8027-bacf3977017f) (a legend with a count per series);
+a workflow node's preview from [n8n](https://mobbin.com/screens/63c3ba24-0ea8-4158-a02b-c3e9143960ce); environment
+scopes per variable from [v0](https://mobbin.com/screens/ae42d62f-1de7-442a-8b4c-e678c1acf67f). The rail and the
+command palette keep round 3's references (Railway, StackAI, Plain; fal, Grok).
 
 ## HeroUI Pro behind one package (F7)
 
