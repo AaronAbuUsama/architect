@@ -1,4 +1,4 @@
 {
   "extends": "../tsconfig.base.json",
-  "include": ["layer1/**/*.ts", "layer2/**/*.ts", "m0/**/*.ts", "m1/**/*.ts", "vitest.config.ts", "vitest.layer2.config.ts", "vitest.m0.config.ts", "vitest.m1.config.ts"]
+  "include": ["layer1/**/*.ts", "layer2/**/*.ts", "m0/**/*.ts", "m1/**/*.ts", "ratchet/**/*.ts", "vitest.config.ts", "vitest.layer2.config.ts", "vitest.m0.config.ts", "vitest.m1.config.ts", "vitest.m1-ratchet.config.ts", "vitest.ratchet.config.ts"]
 }

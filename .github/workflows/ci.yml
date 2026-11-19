@@ -178,11 +178,11 @@ jobs:
       - run: pnpm nx run docs:check --outputStyle=static
       - run: pnpm nx run canon:check --outputStyle=static
 
-  # M1's checks also run together in CI. Some checks are red until their slice lands, so the job reports and never
-  # blocks; Gate M1 (M1.15) makes it required.
+  # M1's checks also run together in CI, through the ratchet (e2e/ratchet/README.md): the checks whose slice has not landed
+  # are on e2e/m1/expected-failing.txt and may fail; any other failure fails the job, so a regression cannot merge unseen.
+  # Gate M1 (M1.15) empties the list and makes the job required.
   e2e-m1:
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: pnpm/action-setup@v6.1.0
@@ -207,4 +207,4 @@ jobs:
       - uses: foundry-rs/foundry-toolchain@v1.9.2
         with:
           version: v1.8.6
-      - run: pnpm nx run e2e:m1-checks --outputStyle=static
+      - run: pnpm nx run e2e:m1-ratchet --outputStyle=static
