@@ -1,8 +1,7 @@
 // generated/sdk: a typed client. One function per operation; refusals arrive as their own classes.
 import { Names } from "orthograph/server";
 import type { Model, OperationModel } from "@orthograph/compiler";
-import type { RenderedFile } from "../types.ts";
-import { GENERATED, camel, exportedAs, lines, local, onDevice, pascal, toRoot } from "./names.ts";
+import { GENERATED, camel, exportedAs, lines, local, onDevice, pascal, toRoot, type RenderedFile } from "@orthograph/projections/shared";
 
 /** `.create`, or `["sign-in"]` for a name that isn't an identifier. */
 const member = (name: string) => (/^[A-Za-z_$][\w$]*$/.test(name) ? `.${name}` : `[${JSON.stringify(name)}]`);

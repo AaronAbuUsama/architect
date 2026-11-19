@@ -1,11 +1,9 @@
 // generated/docs: a page per thing (its fields, machine and roles) and per operation (who may call, what goes in and
 // out, its move, every refusal with its exit code, and how to call it). Markdown, read by people and by agents.
 import type { FieldModel, Model, OperationModel, ThingModel } from "@orthograph/compiler";
+import { NOT_ALLOWED_EXIT, lines, type RenderedFile } from "@orthograph/projections/shared";
 
 type FieldsModel = Readonly<Record<string, FieldModel>>;
-import type { RenderedFile } from "../types.ts";
-import { NOT_ALLOWED_EXIT, lines } from "./names.ts";
-
 const MARK = "<!-- Generated from the blueprint. Do not edit. -->";
 
 const fieldRows = (fields: FieldsModel) =>
@@ -78,17 +76,3 @@ export const renderDocs = (model: Model, project: string): ReadonlyArray<Rendere
   ...Object.values(model.things).map((t) => thingPage(model, t)),
   ...Object.values(model.operations).map((op) => operationPage(model, op, project)),
 ];
-
-/** What depends on what: a field naming another thing, an operation on its thing, a move emitting its event. */
-export const renderEdges = (model: Model): RenderedFile => {
-  const edges = [
-    ...Object.values(model.things).flatMap((t) => Object.entries(t.fields).flatMap(([k, f]) =>
-      f.ref && !f.ref.startsWith(`${t.name}.`) ? [{ from: `${t.name}.${k}`, to: f.ref, kind: "refers" }] : [])),
-    ...Object.values(model.operations).flatMap((o) => [
-      { from: o.name, to: o.thing, kind: o.kind === "read" ? "reads" : "acts-on" },
-      ...(o.move ? [{ from: o.name, to: `${o.thing}.${o.move.emits}`, kind: "emits" }] : []),
-      ...o.allowed.flatMap((a) => (a.kind === "role" || a.kind === "role-of" ? [{ from: o.name, to: a.role, kind: "allowed-by" }] : [])),
-    ]),
-  ];
-  return { path: "generated/model/edges.json", scaffold: false, content: JSON.stringify(edges, null, 2) + "\n" };
-};

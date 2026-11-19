@@ -19,6 +19,9 @@ packages/
                                                    finds blanks. Bin ortho-model
   generators/        @orthograph/generators        the Nx plugin: scaffold generators write once; sync generators render
                                                    each output and fail `nx sync:check` on drift
+  projections/      @orthograph/projections       the projections Orthograph ships, each a plugin an app mounts in
+                                                   blueprint/projections/: model, api and server (M1.11); sdk, cli, mcp,
+                                                   docs and portal follow (M1.12, M1.13). Build time only (`env:build`)
   language-effect/   @orthograph/language-effect   the Effect language: renders api, server, sdk, cli, mcp, docs; and the
                                                    runtime generated code runs on (handler wrapper, role checks, moves and
                                                    events, locks, outbox, idempotency, steps as spans, Clock, Timers)
@@ -47,7 +50,8 @@ Plugins come later, one package each: `@orthograph/auth` and `@orthograph/organi
 ## Rules, held by Nx module boundaries
 
 - `orthograph` (tag `scope:orthograph`) depends on nothing but Effect. Every other package may import it.
-- A project (`scope:project`) depends only on `scope:orthograph`, `scope:language` and `scope:host`.
+- A project (`scope:project`) depends only on `scope:orthograph`, `scope:language`, `scope:host` and `scope:projections`:
+  a blueprint mounts a projection as it mounts any plugin, and nothing it generates imports the package.
 - `env:runtime` packages depend only on `env:runtime` packages; `env:build` packages may use both.
 - `language-effect`'s runtime is the only package generated code imports at run time, besides `orthograph`, the host and
   the project's own code.

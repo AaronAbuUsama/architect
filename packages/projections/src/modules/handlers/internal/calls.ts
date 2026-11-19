@@ -3,8 +3,8 @@
 // generated/server, so no foreign type ever reaches generated/api or generated/sdk, which clients import).
 import { Names } from "orthograph/server";
 import type { Model, OperationModel } from "@orthograph/compiler";
-import type { RenderedFile } from "../types.ts";
-import { GENERATED, camel, declarationAt, lines, pascal } from "./names.ts";
+import type { RenderedFile } from "#modules/names/types.js";
+import { GENERATED, camel, declarationAt, lines, pascal } from "#modules/names/service.js";
 
 /** The call steps of an operation: the step's key, and the mount and call it reaches. */
 export const callSteps = (op: OperationModel) =>

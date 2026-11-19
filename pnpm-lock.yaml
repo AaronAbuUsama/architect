@@ -114,6 +114,9 @@ importers:
       '@orthograph/portal':
         specifier: workspace:*
         version: link:../../packages/portal
+      '@orthograph/projections':
+        specifier: workspace:*
+        version: link:../../packages/projections
       effect:
         specifier: 4.1.1
         version: 4.1.1
@@ -275,6 +278,9 @@ importers:
       '@orthograph/portal':
         specifier: workspace:*
         version: link:../portal
+      '@orthograph/projections':
+        specifier: workspace:*
+        version: link:../projections
       effect:
         specifier: 4.1.1
         version: 4.1.1
@@ -406,6 +412,9 @@ importers:
       '@orthograph/generators':
         specifier: workspace:*
         version: link:../generators
+      effect:
+        specifier: 4.1.1
+        version: 4.1.1
       orthograph:
         specifier: workspace:*
         version: link:../orthograph
@@ -413,6 +422,18 @@ importers:
       nx:
         specifier: 24.0.3
         version: 24.0.3
+
+  packages/projections:
+    dependencies:
+      '@orthograph/compiler':
+        specifier: workspace:*
+        version: link:../compiler
+      effect:
+        specifier: 4.1.1
+        version: 4.1.1
+      orthograph:
+        specifier: workspace:*
+        version: link:../orthograph
 
   packages/prove:
     dependencies:

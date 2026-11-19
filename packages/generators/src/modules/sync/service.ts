@@ -14,7 +14,9 @@ export const Sync: SyncApi = {
       const missing = missingHandlers(join(tree.root, root), model);
       if (missing.length > 0) return yield* new ModelFailed({ root, problems: missing.join("\n") });
       const name = root.split("/").at(-1) ?? root;
-      const files = Render.files({ name, model });
+      const files = yield* Render.files({ name, model, root: join(tree.root, root) }).pipe(
+        Effect.mapError((e) => new ModelFailed({ root, problems: e.message })),
+      );
       // A write whose bytes match what is on disk is no change, so a synced project reports nothing to do.
       for (const f of files) {
         const path = `${root}/${f.path}`;

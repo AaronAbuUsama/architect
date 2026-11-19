@@ -106,13 +106,22 @@ export interface ProjectedOperation {
   readonly via?: ReadonlyArray<Via>;
 }
 
-/** What a projection renders from: the model, this mount, the other mounts, the environments (M1.11 fills it). */
+/**
+ * What a projection renders from (frame/projections.md section 1): the project's name, the model, this mount's name, and
+ * every mount of the model by name. The model is the compiler's, which `orthograph` cannot import: a projection that
+ * reads it types it itself. The environments are in the model.
+ */
 export interface ProjectionInput {
+  /** The project's name, from its folder: `examples/acme` is `acme`. */
+  readonly name: string;
   readonly model: unknown;
+  /** This mount's name: its file's name, and the folder it writes, `generated/<mount>/`. */
   readonly mount: string;
+  /** The model's `mounts`, by name (empty when it has none). */
+  readonly mounts: Readonly<Record<string, unknown>>;
 }
 
-/** One file a projection writes under `generated/<mount>/`. */
+/** One file a projection writes: its path is relative to `generated/<mount>/`, and the projection never names that folder. */
 export interface Output {
   readonly path: string;
   readonly content: string;

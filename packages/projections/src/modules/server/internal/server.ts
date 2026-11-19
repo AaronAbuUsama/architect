@@ -2,11 +2,10 @@
 // front door at /_world/*; the portal at /portal and /_portal/*; D1 tables from the model.
 import { Names } from "orthograph/server";
 import type { Model, OperationModel } from "@orthograph/compiler";
-import type { RenderedFile } from "../types.ts";
-import { callImports, wired } from "./calls.ts";
-import { GENERATED, bindingOf, camel, databaseStores, handlerAt, lines, opVar, pascal, storeFileAt, thingFileAt, toRoot } from "./names.ts";
+import type { RenderedFile } from "#modules/names/types.js";
+import { callImports, renderHandlerScaffold, wired } from "#modules/handlers/service.js";
+import { GENERATED, bindingOf, camel, databaseStores, handlerAt, lines, opVar, pascal, storeFileAt, thingFileAt, toRoot } from "#modules/names/service.js";
 import { renderMigration, renderStoreMigrations, renderWrangler } from "./worker-config.ts";
-import { renderHandlerScaffold } from "./scaffold.ts";
 
 const emptyPath = (o: OperationModel) => `empty/${o.thing}/${o.verb}.ts`;
 

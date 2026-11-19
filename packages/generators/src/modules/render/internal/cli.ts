@@ -1,8 +1,7 @@
 // generated/cli: `<project> <thing> <verb> --<field> ...`, one command per operation, calling the SDK.
 import type { Model, OperationModel } from "@orthograph/compiler";
-import type { RenderedFile } from "../types.ts";
 import { renderSessionCommands, sessionOperations } from "./cli-session.ts";
-import { GENERATED, camel, exportedAs, lines, local, opVar } from "./names.ts";
+import { GENERATED, camel, exportedAs, lines, local, opVar, type RenderedFile } from "@orthograph/projections/shared";
 
 const command = (op: OperationModel): RenderedFile => {
   const optional = Object.values(op.payload).some((f) => f.optional);

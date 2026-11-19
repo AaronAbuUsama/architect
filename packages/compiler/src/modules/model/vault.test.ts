@@ -39,7 +39,7 @@ let n = 0;
 const project = (variant?: string): string => {
   mkdirSync(scratch, { recursive: true });
   const root = mkdtempSync(join(scratch, `p${n++}-`));
-  cpSync(join(acme, "blueprint"), join(root, "blueprint"), { recursive: true, filter: (from) => !basename(from).startsWith(".") });
+  cpSync(join(acme, "blueprint"), join(root, "blueprint"), { recursive: true, filter: (from) => !basename(from).startsWith(".") && basename(from) !== "projections" });
   mkdirSync(join(root, "blueprint/features"), { recursive: true });
   writeFileSync(join(root, "blueprint/features/vault.ts"), `import { Blueprint } from "orthograph";\nimport vault from "@fixture/vault";\n\nexport default Blueprint.use(vault);\n`);
   install(root, variant);

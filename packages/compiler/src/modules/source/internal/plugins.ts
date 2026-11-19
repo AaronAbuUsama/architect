@@ -41,10 +41,10 @@ const walk = (dir: string, keep: (file: string) => boolean): Array<string> =>
   });
 const slashed = (path: string) => path.split(sep).join("/");
 
-/** `sha256-<base64>` over each file's path inside the package and its bytes, in path order. */
-export const integrityOf = (dir: string): string => {
+/** `sha256-<base64>` over each file's path inside the package and its bytes, in path order; over `only` those files, when given. */
+export const integrityOf = (dir: string, only?: ReadonlyArray<string>): string => {
   const hash = createHash("sha256");
-  for (const file of walk(dir, () => true).map((f) => slashed(relative(dir, f))).sort()) {
+  for (const file of walk(dir, (f) => only === undefined || only.includes(slashed(relative(dir, f)))).map((f) => slashed(relative(dir, f))).sort()) {
     hash.update(file).update("\0").update(readFileSync(join(dir, file))).update("\0");
   }
   return `sha256-${hash.digest("base64")}`;
