@@ -14,6 +14,11 @@ belongs to, and why it waits.
   v1.0** as stage 4 of the growing example (K9, ST4.01 to ST4.08).
 - Each thing as an actor by default. Later.
 - ~~The world's front door closed in staging and production worlds~~: done in L2.08 (D3 #126, #127).
+- **Editing the blueprint from its graphs** (`spikes/react-flow-graphs`, 19 November 2026). Dragging a new move
+  between two states, or a new state onto a machine, would write the blueprint file: add the move to the thing's
+  `machine.moves` with its `from`, `to` and `emits`, scaffold the operation that makes it, and regenerate. The graph
+  stays a view of the file, never a second source. It waits because the portal is read-only until the editor exists,
+  and because an editor needs elk in the browser (a worker), where `Graph` today gets positions from the generator.
 
 ## From stage two (layer one)
 

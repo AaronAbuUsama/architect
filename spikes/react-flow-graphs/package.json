@@ -1,0 +1,9 @@
+{
+  "name": "spike-react-flow-graphs",
+  "private": true,
+  "description": "Throwaway: one Graph component over React Flow, laid out by elk, drawn on Plugged In's model. Never imported by packages.",
+  "dependencies": {
+    "@xyflow/react": "12.12.1",
+    "elkjs": "0.12.1"
+  }
+}

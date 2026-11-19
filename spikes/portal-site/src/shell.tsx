@@ -6,7 +6,7 @@ import { Navbar } from "@heroui-pro/react/navbar";
 import { Sidebar } from "@heroui-pro/react/sidebar";
 import { Button, Chip, Kbd } from "@heroui/react";
 import {
-  BellIcon, BookOpenIcon, BugIcon, CaretDownIcon, CaretRightIcon, CubeIcon, DatabaseIcon, FileDashedIcon, GlobeHemisphereWestIcon, HouseIcon,
+  BellIcon, BookOpenIcon, GraphIcon, BugIcon, CaretDownIcon, CaretRightIcon, CubeIcon, DatabaseIcon, FileDashedIcon, GlobeHemisphereWestIcon, HouseIcon,
   LockKeyIcon, MagnifyingGlassIcon, PathIcon, PlugsIcon, ShapesIcon, SquaresFourIcon, SirenIcon, TreeStructureIcon, WarningOctagonIcon, WaveformIcon,
 } from "@phosphor-icons/react/ssr";
 import type { ReactNode } from "react";
@@ -127,6 +127,7 @@ const Nav = ({ here }: { here: Here }) => {
       : <Sidebar.Menu aria-label="About this drawing">
           <Sidebar.MenuItem id="options" href="options.html" textValue="Options"><Sidebar.MenuIcon><BookOpenIcon size={17} aria-hidden="true" /></Sidebar.MenuIcon><Sidebar.MenuLabel>Options</Sidebar.MenuLabel><Sidebar.MenuChip><Chip size="sm" variant="soft" color="accent" className="tag">REVIEW</Chip></Sidebar.MenuChip></Sidebar.MenuItem>
           <Sidebar.MenuItem id="components" href="components.html" textValue="Components"><Sidebar.MenuIcon><SquaresFourIcon size={17} aria-hidden="true" /></Sidebar.MenuIcon><Sidebar.MenuLabel>Components</Sidebar.MenuLabel></Sidebar.MenuItem>
+          <Sidebar.MenuItem id="graphs" href="graphs.html" textValue="Graphs"><Sidebar.MenuIcon><GraphIcon size={17} aria-hidden="true" /></Sidebar.MenuIcon><Sidebar.MenuLabel>Graphs</Sidebar.MenuLabel><Sidebar.MenuChip><Chip size="sm" variant="soft" color="accent" className="tag">SPIKE</Chip></Sidebar.MenuChip></Sidebar.MenuItem>
         </Sidebar.Menu>}</Sidebar.Footer>
   </>);
 };

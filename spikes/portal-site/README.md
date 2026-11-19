@@ -27,6 +27,7 @@ A static render of 87 pages from one model, with one shell: sidebar tree, top ba
 | `src/shell.tsx`, `src/rail.tsx`, `src/ui.tsx` | The frame and shared blocks |
 | `src/pages/*.tsx` | One file per page family |
 | `src/routes.tsx`, `src/render.tsx` | Every page, written to `out/site/` |
+| `src/pages/graphs.tsx` | The Graphs page: `spikes/react-flow-graphs`'s `Graph` on the map, both machines, worlds and journeys, and two sketches |
 | `src/opt.tsx`, `src/rail-nav.tsx`, `src/pages/options.tsx` | Round 3's open questions (Q1, Q2, Q3, Q6) drawn as A, B and C. A page inside `WithOpt` takes one question's B or C. The Options page shows the twelve screens side by side, with the Mobbin screens each draws from |
 | `src/flow.tsx` | Q4, decided: a journey as a sequence diagram (cast lanes, step columns, one verdict row per environment) and the worlds as a tree |
 | `src/ref-live.tsx` | Q5, decided: each reference row's rate and trend, and each page's recent spans, each opening its trace |
