@@ -1,4 +1,4 @@
-# L1: the code rules get lint, starting from a baseline
+# P1: the code rules get lint, starting from a baseline
 
 Decided by the lint-hygiene thread, 19 November 2026, applying process proposal 13 (`design/process/proposals.md`),
 which Aaron approved the same day.

@@ -5,7 +5,7 @@ Oxlint rules for what types can't see. Arrives in layer 1; see `design/packages.
 - **The project rules** (`no-name-as-string`, `refusal-has-log`, `declared-errors-only`, `no-wall-clock`,
   `handler-matches-path`), which `ortho check` runs on a user's project with its `ProjectFacts`.
 - **The repository's own code rules**, which this repository's `.oxlintrc.json` runs on `packages/*/src` (AGENTS.md,
-  "The code's own rules"; `design/decisions/L1-code-rules.md`):
+  "The code's own rules"; `design/decisions/P1-code-rules.md`):
   - `ortho/effect-only`: no `async`, `await`, `try`, `throw`, `Date.now`, `new Date()`, `setTimeout`/`setInterval` or
     plain `Effect.sleep`, except in a package's `src/main.ts`, a test file, and the paths listed in the rule's `entries`.
   - `ortho/max-lines`: at most 250 lines of code in a source file, blank lines and comments aside.
