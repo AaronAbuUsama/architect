@@ -4,7 +4,8 @@
 #   tools/ci/builder-paths.sh <base> <head>
 # It prints each protected file the branch changes and exits 1, or exits 0 when there is none.
 # The one exception: e2e/m1/expected-failing.txt may lose lines (a builder's slice lands and its checks pass; the ratchet
-# list only shrinks, e2e/ratchet/README.md), but a line added there is a hit.
+# list only shrinks, e2e/ratchet/README.md), but a line added there is a hit. The grid's list, e2e/grid/expected-red.json, is
+# the same kind of list (G7): it may lose pairs, judged by cell and subject with jq, but a pair added there is a hit.
 # Protected: the e2e checks and their fixtures; every blueprint's journeys; the evals (prove's evals module) and the
 # runner's generic step checks (prove's journeys/internal/checks.ts); and the break fixtures the checks are proved on.
 # The rest of prove's journeys runner is builder code.
@@ -13,6 +14,7 @@ set -euo pipefail
 base="${1:?usage: builder-paths.sh <base> <head>}"
 head="${2:?usage: builder-paths.sh <base> <head>}"
 shrink_only="e2e/m1/expected-failing.txt"
+shrink_only_pairs="e2e/grid/expected-red.json"
 
 protected=(
   ':(glob)e2e/**'
@@ -34,6 +36,16 @@ while IFS= read -r file; do
   if [ "$file" = "$shrink_only" ]; then
     added=$(git diff --no-renames --numstat "$base...$head" -- "$file" | awk '{ print $1 }')
     [ "$added" = "0" ] && continue
+  fi
+  if [ "$file" = "$shrink_only_pairs" ]; then
+    # Every (cell, subject) left on the branch was already on the list at the merge base.
+    pairs() { git show "$1:$shrink_only_pairs" 2>/dev/null | jq -c '[.pairs[] | {cell, subject}]' 2>/dev/null || echo null; }
+    before=$(pairs "$(git merge-base "$base" "$head")")
+    after=$(pairs "$head")
+    if [ "$before" != "null" ] && [ "$after" != "null" ] &&
+      [ "$(jq -n --argjson b "$before" --argjson a "$after" '($a - $b) | length')" = "0" ]; then
+      continue
+    fi
   fi
   hits+=("$file")
 done <<< "$changed"
