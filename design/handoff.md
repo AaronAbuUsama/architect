@@ -7,6 +7,9 @@ Everything open, promised, deferred or stale, with its source, canon page and ow
 
 ## START HERE (19 November 2026): the conductor's handoff
 
+**Renamed by K15** (19 November 2026, Aaron): the example app is **Plugged In** (`plugged-in`), no longer `links`. Rows below that say `links` predate it;
+`milestones.md` is renamed in place ([`decisions/K15-plugged-in.md`](decisions/K15-plugged-in.md)).
+
 Overnight, 18 to 19 November: K7 (#53), K9 (#55), the durable-run spike (#57), the work board K11 (#61), the factory
 K10 (#62) and the portal design M1.25 (#65) merged into `main`. On `m1`, 26 slices are ticked; what's left is in
 "Next on the critical path". Aaron quit local Docker (direction 11), set the Cloudflare and HeroUI CI secrets, and
