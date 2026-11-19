@@ -7,7 +7,7 @@ skill change: the conductor, or the thread that owns the skill, does.
 | Rank | Proposal | Pattern | Kind | Size |
 |---|---|---|---|---|
 | 1 | The 🔍 names every door and runs one probe through each | Reviews miss runtime defects | skill change | small |
-| 2 | GitHub refuses a merge with an open review thread; Codex is a merge gate | Findings merged unanswered | check, workflow step | small |
+| 2 | GitHub refuses a merge with an open review thread; Codex is a merge gate | Merged before review and CI finished | check, workflow step | small |
 | 3 | Cut slices so two builders never share a contract; one allocator for decision IDs | Parallel work collides | skill change | small |
 | 4 | Every job gets a timeout, a closed PR cancels its runs, m1 takes the push-group fix | CI that can't tell us anything | check | small |
 | 5 | "Stop what you started, by PID" moves into AGENTS.md, with an end-of-turn step | Shared machine and stray processes | rule, skill change | small |
@@ -58,9 +58,10 @@ And one line in `.agents/skills/threads/SKILL.md`'s rules, so a build PR always 
 
 ## 2. GitHub refuses a merge with an open review thread; Codex is a merge gate
 
-**Fixes:** three entries. Codex findings sat up to 17 hours unanswered, a P1 (a dropped payment shown as confirmed) and
-#97's concurrency flaw merged with their findings open, and Goal 3's files merged before their checks finished. Item 7
-and the conductor's merge rule say the right thing; nothing enforces them.
+**Fixes:** four entries. Codex findings sat up to 17 hours unanswered, a P1 (a dropped payment shown as confirmed) and
+#97's concurrency flaw merged with their findings open, and Goal 3's files and then the G5 screens (PR 127) merged
+before their checks finished. "Merge when green" merges at once when nothing is required. Item 7 and the conductor's
+merge rule say the right thing; nothing enforces them.
 
 **Change:** a repository setting, branch protection on `main`, `m1` and `goal/**`:
 
@@ -322,9 +323,10 @@ notes on his Mac that only the conductor reads.
 
 ## 10. Quote code by name, generate the totals
 
-**Fixes:** three entries: canon quotes by line number broke at least four times and reversed a 🔍 verdict; the hand-kept
+**Fixes:** four entries: canon quotes by line number broke at least four times and reversed a 🔍 verdict; the hand-kept
 check totals in `e2e/m1/README.md` caused about eight merges on one PR; redaction lives as three rules in three places
-(HAN-12).
+(HAN-12); and a design grill put a wrong refusal code in front of Aaron, copied from a design page that gives two codes
+and two exits for it.
 
 **Change:** two small tools and a rule.
 - `canon:check` anchors a quote on an exported name (`<!-- quote: packages/x/src/y.ts#Handler -->`) and has a `--fix`
@@ -332,6 +334,9 @@ check totals in `e2e/m1/README.md` caused about eight merges on one PR; redactio
 - The totals in `e2e/m1/README.md` move into a generated block between `<!-- totals:start -->` and `<!-- totals:end -->`,
   written by `nx run e2e:totals` and checked in CI. No PR edits them by hand.
 - HAN-12 stays with its owner, as the first slice of "one rule, one place" for redaction.
+- A design page, brief or grill quotes a refusal's code and exit from the example's generated `errors.ts` (or the
+  generated docs), naming the file, never from another design page. Add it to the `portal-design` skill, and fix
+  `design/portal.md` lines 226, 592 and 662 now (`HandleNotClaimed` is `HN-900`, exit 11).
 
 **Applies it:** a builder thread, from a brief the conductor writes.
 

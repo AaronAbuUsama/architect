@@ -10,6 +10,42 @@ gave was checked against its source; where the seed was wrong, the entry says so
 
 ---
 
+### 2026-11-19 · A screens pull request merged before its CI finished, because main requires no checks
+- **Kind:** near miss.
+- **What happened:** The G5 screens (PR 127) were set to "merge when green". `main` has no branch protection and no
+  required checks, so GitHub merged at once, at 21:17:30, 92 seconds after the PR's run started, with `check`,
+  `e2e-layer1` and `e2e-layer2` still running. It's the second merge of the day ahead of its checks, after Goal 3's
+  files. The change is spike HTML only, so the risk was low; the gap is not.
+- **Evidence:** [PR 127](https://github.com/AaronAbuUsama/architect/pull/127), merge commit [2f8214ab](https://github.com/AaronAbuUsama/architect/commit/2f8214ab); its PR run
+  [44617012706](https://github.com/AaronAbuUsama/architect/actions/runs/44617012706) (started 21:15:58, in progress at the merge); main's run on the merge,
+  [44617276299](https://github.com/AaronAbuUsama/architect/actions/runs/44617276299); `gh api repos/AaronAbuUsama/architect/branches/main/protection` answers
+  "Branch not protected".
+- **Cost:** a merge nobody's CI had judged; the conductor watching main's run by hand.
+- **Found by:** the conductor.
+- **Recovery:** watching main's run on the merge commit.
+- **What changed:** nothing yet. Proposal 2 (branch protection with required checks and resolved conversations) would
+  have held it.
+- **Pattern:** merged before review and CI finished.
+
+### 2026-11-19 · A design grill quoted a refusal's code from a stale doc, not from the code
+- **Kind:** failure.
+- **What happened:** Grilling Aaron on how invariants appear in the portal, the 📐 designers quoted "HandleNotClaimed
+  HN-002 exit 11", copied from the portal's design page. The generated code says `HN-900`, exit 11; `HN-002` is
+  `HandleAlreadyOwned`. The same page says `HN-900 exit 5` in two other places, so it gives two codes and two exits for
+  one refusal, none taken from the generated errors file. The round-3 brief had quoted it as `HN-002 exit 3`.
+- **Evidence:** [`design/portal.md`](https://github.com/AaronAbuUsama/architect/blob/2f8214ab/design/portal.md) lines 226 (`HN-002 exit 11`), 592 and 662
+  (`HN-900 exit 5`); the generated truth,
+  [`errors.ts`](https://github.com/AaronAbuUsama/architect/blob/a9d897d7/examples/plugged-in/generated/api/src/errors.ts) line 16 (`HN-900`, exit 11) on
+  `goal/stage-1`; [`portal-round-3.md`](https://github.com/AaronAbuUsama/architect/blob/2f8214ab/design/briefs/portal-round-3.md) line 462; sessions
+  [local_b72f4f49-067d-4674-83d6-c8ebce6f596e](claude://claude.ai/epitaxy/local_b72f4f49-067d-4674-83d6-c8ebce6f596e)
+  and [local_eee83b9d-a52d-4728-b940-4cc7f130ad8a](claude://claude.ai/epitaxy/local_eee83b9d-a52d-4728-b940-4cc7f130ad8a),
+  "HandleNotClaimed HN-002 exit 11".
+- **Cost:** a wrong fact in front of Aaron in a decision grill; three stale lines in the portal's design.
+- **Found by:** the conductor.
+- **Recovery:** none yet; the lines are still wrong on `main`.
+- **What changed:** nothing yet.
+- **Pattern:** one fact, many hand-kept copies.
+
 ### 2026-11-19 · The snag log lives only on a branch nobody has pushed
 - **Kind:** near miss.
 - **What happened:** Goal 3's snag log (S-01 to S-19), the climb's main record, is committed only on the local branch
@@ -331,7 +367,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Recovery:** triage with an owner per finding; PR 104.
 - **What changed:** reviewer item 7, "No finding is left unanswered" (PR 108), and the conductor's merge rule: CI green,
   Codex finished, every thread resolved. Neither is enforced by GitHub.
-- **Pattern:** findings merged unanswered.
+- **Pattern:** merged before review and CI finished.
 
 ### 2026-11-19 · Over half the red runs were red on purpose, and the run list can't tell them apart
 - **Kind:** near miss.
@@ -435,7 +471,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Recovery:** the watcher waits for every check.
 - **What changed:** the conductor's merge rule (CI green, Codex finished, no unresolved thread), applied from PR 101.
   No branch protection enforces it.
-- **Pattern:** findings merged unanswered.
+- **Pattern:** merged before review and CI finished.
 
 ### 2026-11-19 · Runners starved for three hours, and a backlog sweep threw away 34 runner-hours
 - **Kind:** failure.
@@ -470,7 +506,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Found by:** Codex (the flaw), the conductor (the effect), the 📓 Scribe's sweep (m1 still has it).
 - **Recovery:** PR 102 on main.
 - **What changed:** ci.yml on main. m1 still to take it; raised with the conductor.
-- **Pattern:** CI that can't tell us anything; findings merged unanswered.
+- **Pattern:** CI that can't tell us anything; merged before review and CI finished.
 - **Update, 19 November:** the conductor opened [PR 125](https://github.com/AaronAbuUsama/architect/pull/125) to give `m1` the per-push groups, the same evening.
 
 ### 2026-11-19 · The portal viewer was built against a licence its Worker can't bundle
