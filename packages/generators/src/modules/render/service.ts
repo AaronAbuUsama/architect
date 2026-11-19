@@ -8,24 +8,27 @@ import { renderMcp } from "./internal/mcp.ts";
 import { renderHandlerScaffold } from "./internal/scaffold.ts";
 import { renderSdk } from "./internal/sdk.ts";
 import { renderServer } from "./internal/server.ts";
+import { serverModel } from "./internal/names.ts";
 
 export const Render: RenderApi = {
   files: ({ name, model }) => {
     const docs = renderDocs(model, name);
+    // What runs on the device has no route, handler or tool: the server, the API and MCP see the rest.
+    const served = serverModel(model);
     return [
       { path: "generated/model/model.json", content: JSON.stringify(model, null, 2) + "\n", scaffold: false },
       renderEdges(model),
       ...docs,
       ...PortalRender.files({ name, model, docs }),
-      ...renderApi(model, name),
-      ...renderServer(model, name),
-      ...renderHandlerTypes(model),
-      ...renderMcp(model),
+      ...renderApi(model, name, served),
+      ...renderServer(served, name),
+      ...renderHandlerTypes(served),
+      ...renderMcp(served),
       ...renderSdk(model, name),
       ...renderCli(model, name),
       // A plugin's handlers are in its package: the project's src/ gains nothing for them (M1-plugins section 8).
       ...Object.values(model.operations).filter((op) => op.kind === "operation" && op.from.kind === "app").map((op) => renderHandlerScaffold(op)),
     ];
   },
-  emptyServer: ({ name, model }) => renderServer(model, name, true),
+  emptyServer: ({ name, model }) => renderServer(serverModel(model), name, true),
 };

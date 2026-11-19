@@ -134,3 +134,6 @@ export const Handlers: HandlerApi = {
   serve: serve as unknown as HandlerApi["serve"],
   blank: ((what: string, kind?: "failure") => (kind === "failure" ? () => new BlankReached({ what }) : Effect.die(new BlankReached({ what })))) as unknown as HandlerApi["blank"],
 };
+
+/** Operations that run on the caller's device (M1.27): the generated SDK serves each plugin's `runs: "client"` operation with this. */
+export { Device } from "./internal/device.ts";

@@ -129,7 +129,8 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
     if (declared.thing !== layout.things.get(thing)?.thing) problems.push(`${file}: declares an operation of another thing`);
     if (declared.kind === "read") return readModel(thing, verb, file, from, declared);
     const op = declared;
-    if (op.runs !== "server") problems.push(`${file}: runs "${op.runs}" is not supported yet: ${RUNS_NEEDS[op.runs] ?? "an unknown place"}`);
+    const onDevice = op.runs === "client" && (layout.things.get(thing)?.from.kind ?? "app") !== "app"; // a plugin's, with its code for each host
+    if (op.runs !== "server" && !onDevice) problems.push(`${file}: runs "${op.runs}" is not supported yet: ${RUNS_NEEDS[op.runs] ?? "an unknown place"}`); else if (onDevice) problems.push(...deviceProblems(file, op));
     const machine = things[thing]?.machine;
     const move = op.move
       ? { key: op.move.key, from: op.move.from, to: op.move.to, emits: eventNames.get(op.move.emits) ?? "?" }
@@ -155,7 +156,7 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
         Blanks.isBlank(s) ? { name: `${thing}.${verb}.${k}`, type: "blank" } : stepModel(thing, verb, k, s, op.errors, file)])),
       ...(blanks[`${thing}.${verb}`] ? { blanks: blanks[`${thing}.${verb}`]! } : {}),
       idempotent: op.idempotent ?? null,
-      runs: "server" as const, test: op.test,
+      runs: (onDevice ? "client" : "server") as "server" | "client", test: op.test,
       budget: op.budget ? { p95Ms: Duration.toMillis(op.budget.p95) } : null,
     };
     const split = crossStore(file, `${thing}.${verb}`, thing, move !== null, entry.steps, things);
@@ -223,9 +224,18 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
 
 /** What an operation that doesn't run on the server needs: a language that does. Only the Effect language exists today. */
 const RUNS_NEEDS: Readonly<Record<string, string>> = {
-  client: "it needs a language that runs operations on the caller's own device (language-noir, a later language), and this project's only language, language-effect, runs them all on the server",
+  client: "an operation runs on the caller's own device only when a mounted plugin supplies it, with a code entry for each of node, browser and world; this app's own operations all run on the server",
   chain: "it needs a language that runs operations on a chain (language-solidity, or language-noir on Aztec), and this project's only language, language-effect, runs them all on the server",
 };
+
+/** What an operation on the device can't have: there is no server there to know who calls, store anything, or move a machine. */
+const deviceProblems = (file: string, op: Operation): ReadonlyArray<string> => [
+  ...(op.allowed.every((a) => a.kind === "anyone") ? [] : [`${file}: a client operation runs on the caller's device, where no server knows who is calling: it must be allowed to Blueprint.anyone`]),
+  ...(op.move ? [`${file}: a client operation has no store, so it can't move a machine`] : []),
+  ...(Object.values(op.steps).some((s) => s.type === "call") ? [`${file}: a client operation can't have a call step yet (the chain adapter's device half comes with the wallet plugin)`] : []),
+  ...(op.idempotent ? [`${file}: a client operation has no server to keep an idempotency key`] : []),
+];
+
 
 const problem = (problems: Array<string>, p: string): string => {
   problems.push(p);

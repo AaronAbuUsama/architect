@@ -241,6 +241,42 @@ handler module is refused at `generate` (section 8).
   of those entries beside `orthograph` in `package.json`, and `check` refuses an entry not in it. Mounts, names and the
   model don't change. Nothing of the manifest is built here.
 
+### 8.1 Operations on the device (M1.27, as built; K7, ledger `LAH-02`, `G-10`)
+
+The lead's calls on what the row left open, and what building showed.
+
+- **Accepted when a plugin supplies the code.** `runs: "client"` is accepted for a plugin's operation (`from` set) and
+  nowhere else: an app's own operation still gets `runs "client" is not supported yet` (it has no package to hold three
+  host entries). `chain` is still refused. A client operation must be `allowed: [Blueprint.anyone]` (no server knows who
+  calls), and has no `move`, no `idempotent` and no call step; each is a refusal at the model naming the file. The call
+  step is left for the wallet plugin (M1.29), which needs it.
+- **Every host entry is required.** `src/<thing>/<verb>.node.js`, `.browser.js` and `.world.js`. A missing one is refused
+  at `generate`, nothing written, naming the operation, the package and the host word, as a missing worker handler is
+  (`generators/sync/internal/handlers.ts`). A client operation has no `<verb>.js` worker handler, and none is asked for.
+- **How the generated client reaches an entry: refined.** The lead's call was the plugin's `exports` conditions. Building
+  showed the fixture's `package.json` (and so the shape check 09's wallets share) exports `./src/*` with no condition, so
+  `<pkg>/src/receipt/stamp.js` is no file. The conditions are therefore the generated SDK's own: `generated/sdk/package.json`
+  (written only when the project has a client operation) maps `#host/<thing>.<verb>` to `{ browser: <verb>.browser.js,
+  node: <verb>.node.js, default: <verb>.browser.js }`, and the SDK file imports `#host/<thing>.<verb>`. Node, esbuild
+  and tsc (nodenext) all honour `imports` conditions, so the host picks its entry and a browser closure never holds the
+  `node` one. `world` is never a condition: prove's journey runner names `<verb>.world.js` itself. Section 8's rule gains
+  its one exception as the lead set it: a client operation's host entry, and nothing else of `src/`, may enter the client
+  closure of the host it is for; the worker closure holds none of it (check 11 asserts it on the worker bundle).
+- **What the server does not see.** A client operation has no route, no handler type, no MCP tool, no handler scaffold
+  and no served handler. `generated/api/src/<thing>/<verb>.ts` holds only its `declaration`, which the SDK and the CLI
+  read. The portal and docs still list it with its steps.
+- **How it runs.** `Device.serve` (`@orthograph/language-effect/device`, a subpath so a browser takes no MCP server)
+  runs the plugin's handler under its mount (`Mount.serving`), as an anonymous caller, with the same step spans a served
+  operation has, and checks the answer against its declaration. The generated SDK function is `Sdk.<thing>.<verb>(payload)`,
+  as for a server operation, and needs only what `Sdk.layer(url)` provides, which now also holds where spans go.
+- **Spans** leave as OTLP/HTTP JSON from the process to `<endpoint>/v1/traces`; the endpoint is `Sdk.layer`'s third
+  argument, which defaults to `OTEL_EXPORTER_OTLP_ENDPOINT`. The exporter is a layer built for the call and closed when
+  it ends, so the flush happens before the call returns and before a CLI exits. No endpoint, no export.
+- **A device step's kind stays an ordinary step** (`wait` in the fixture); no new `Blueprint.step.*`.
+- **Evidence.** `design/evidence/M1.27/`: check 11 passes 8/8, checks 00 to 08 and 10 stay green.
+- **Left for M1.29.** Prove's exercise and journey runner do not yet skip or run a client operation (the `world` entry
+  is theirs to call); the call step on the device.
+
 ## 9. Adapters, harvested from D4 section 3 for M1.14
 
 The surface M1.14 builds and checks `03` and `04` judge; M1.14's builder may refine it only through its own decision

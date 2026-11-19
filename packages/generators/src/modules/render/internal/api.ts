@@ -2,7 +2,7 @@
 import { Names } from "orthograph/server";
 import type { Model, OperationModel } from "@orthograph/compiler";
 import type { RenderedFile } from "../types.ts";
-import { GENERATED, NOT_ALLOWED_EXIT, STATUS, declarationAt, lines, opVar, pascal, thingFileAt } from "./names.ts";
+import { GENERATED, NOT_ALLOWED_EXIT, STATUS, declarationAt, lines, onDevice, opVar, pascal, thingFileAt } from "./names.ts";
 
 const file = (path: string, content: string): RenderedFile => ({ path, content, scaffold: false });
 
@@ -85,6 +85,17 @@ const endpoint = (op: OperationModel): RenderedFile => {
   ));
 };
 
+/** An operation that runs on the device has no route: only its declaration, which the SDK and the CLI read. */
+const declarationOnly = (op: OperationModel): RenderedFile => {
+  const path = `generated/api/src/${op.thing}/${op.verb}.ts`;
+  return file(path, lines(
+    `// Generated from ${op.file}. Do not edit.`,
+    `import declaration from "${declarationAt(path, op.file)}";`,
+    "",
+    "export { declaration };",
+  ));
+};
+
 const handlerType = (op: OperationModel): RenderedFile => {
   const path = `generated/api/src/${op.thing}/${op.verb}.handler.ts`;
   return file(path, lines(
@@ -133,9 +144,11 @@ const events = (model: Model): RenderedFile => {
   ));
 };
 
-export const renderApi = (model: Model, name: string): ReadonlyArray<RenderedFile> => [
-  errors(model),
-  events(model),
-  index(model, name),
-  ...Object.values(model.operations).flatMap((op) => (op.kind === "read" ? [endpoint(op)] : [endpoint(op), handlerType(op)])),
+/** `served` is the model without its device operations; each of those still gets its declaration in the API folder. */
+export const renderApi = (model: Model, name: string, served: Model = model): ReadonlyArray<RenderedFile> => [
+  errors(served),
+  events(served),
+  index(served, name),
+  ...Object.values(served.operations).flatMap((op) => (op.kind === "read" ? [endpoint(op)] : [endpoint(op), handlerType(op)])),
+  ...Object.values(model.operations).filter(onDevice).map(declarationOnly),
 ];
