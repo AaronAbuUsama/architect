@@ -16,3 +16,10 @@
 {"at":"2026-11-19T22:08:12.809Z","commit":"caa700dfb1bf1f45065895ae6d52f658d70aa37a","journey":"claim a handle","green":8,"total":8,"seconds":0.088,"run_seconds":36.6,"prove_seconds":24.633,"exit":1}
 {"at":"2026-11-19T22:08:12.809Z","commit":"caa700dfb1bf1f45065895ae6d52f658d70aa37a","journey":"release a handle","green":2,"total":13,"seconds":0.066,"run_seconds":36.6,"prove_seconds":24.633,"exit":1}
 {"at":"2026-11-19T22:08:12.809Z","commit":"caa700dfb1bf1f45065895ae6d52f658d70aa37a","journey":"a person claims a page and shares it","green":1,"total":5,"seconds":0.047,"run_seconds":36.6,"prove_seconds":24.633,"exit":1}
+{"at":"2026-11-19T22:09:19.049Z","commit":"11ba252d398e35b4f521f733a4de3c09f47c1755","journey":"a name is claimed once","green":5,"total":5,"seconds":0.03,"run_seconds":28.3,"prove_seconds":23.674,"exit":1}
+{"at":"2026-11-19T22:09:19.049Z","commit":"11ba252d398e35b4f521f733a4de3c09f47c1755","journey":"a stranger cannot edit a page","green":8,"total":8,"seconds":0.018,"run_seconds":28.3,"prove_seconds":23.674,"exit":1}
+{"at":"2026-11-19T22:09:19.049Z","commit":"11ba252d398e35b4f521f733a4de3c09f47c1755","journey":"add, order and remove a link","green":4,"total":12,"seconds":0.124,"run_seconds":28.3,"prove_seconds":23.674,"exit":1}
+{"at":"2026-11-19T22:09:19.049Z","commit":"11ba252d398e35b4f521f733a4de3c09f47c1755","journey":"anyone reads a public page","green":5,"total":5,"seconds":0.042,"run_seconds":28.3,"prove_seconds":23.674,"exit":1}
+{"at":"2026-11-19T22:09:19.049Z","commit":"11ba252d398e35b4f521f733a4de3c09f47c1755","journey":"claim a handle","green":8,"total":8,"seconds":0.035,"run_seconds":28.3,"prove_seconds":23.674,"exit":1}
+{"at":"2026-11-19T22:09:19.049Z","commit":"11ba252d398e35b4f521f733a4de3c09f47c1755","journey":"release a handle","green":13,"total":13,"seconds":0.071,"run_seconds":28.3,"prove_seconds":23.674,"exit":1}
+{"at":"2026-11-19T22:09:19.049Z","commit":"11ba252d398e35b4f521f733a4de3c09f47c1755","journey":"a person claims a page and shares it","green":5,"total":5,"seconds":0.054,"run_seconds":28.3,"prove_seconds":23.674,"exit":1}

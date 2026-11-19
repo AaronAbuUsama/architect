@@ -220,3 +220,14 @@ takes each, check first, and the climber comes back to that step once it is fixe
   which `Records` call to use for "is this name taken", so the climber read `records/types.ts` and `examples/acme`.
 - Status: open (for the lessons step: scaffold comment naming `Records.findBy` for unique fields; `--only` should not count
   coverage against the journeys it excluded)
+
+## S-25 · prove · a run can land on another run's world or Collector, and report wrong verdicts instead of failing
+- Hit: the 🔍 reviewer of #140 re-ran `record.mjs --only "claim a handle"` in a fresh worktree while other sessions had
+  wrangler, workerd and otelcol running on the same Mac. The first run gave 0 of 8: "telemetry missing", and `HandleTaken`
+  on the very first claim. The second run gave 8 of 8.
+- What: a prove run can reach another run's world or Collector, likely through a fixed port, and then reports wrong
+  verdicts instead of failing clearly. Climb property 5 (the same result twice) breaks on a shared machine.
+- Needs: prove runs on free ports and refuses a world it didn't start. Lint-hygiene's #133 on main moves prove to
+  `--port 0` / `Worlds.anyPort`; check whether that covers the Collector too, after main next merges into goal/stage-1.
+- Owner: Goal 3 lead.
+- Status: open
