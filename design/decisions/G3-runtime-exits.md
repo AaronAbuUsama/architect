@@ -35,7 +35,13 @@ The runtime keeps **0 to 4 and 120 to 125**. A declared exit is **5 to 119**. `I
 
 ## What changes
 
-- `design/decisions/K16-the-scaffold-explains-itself.md` ("an exit the runtime keeps", "a declared exit is 5 to 125"):
-  read with this record; the HAN-10 builder updates the compiler's range and K16's check 19 expectations move with the
-  checks author, never the builder.
+Every place that said "5 to 125", found by `git grep 125` on `5d2887ca`, moves in the same change as HAN-10:
+
+| Where | Who changes it |
+|---|---|
+| `K16-the-scaffold-explains-itself.md:331`, `M1-plugged-in.md:39`, `M1-prehandle.md:97`, `milestones.md` M1.47 | the lead: amended in place, citing this record |
+| `e2e/m1/19-scaffold-explains.test.ts:184`, `e2e/m1/22-k16-review.test.ts` (22.5), and check 24's refusal of a declared 120 | the checks author |
+| `packages/compiler/src/modules/model/internal/exits.ts` (`RESERVED_EXITS`, `HIGHEST`) and its unit test `exits.test.ts:18` | the HAN-10 builder |
+
+No canon page states the range. Before HAN-10 merges, `git grep "5 to 125"` on its head finds only dated records.
 - HAN-10's check (`e2e/m1/24-idempotency-conflict.test.ts`) asserts exit 120, code `AR-002`, status 409.
