@@ -84,3 +84,11 @@ takes each, check first, and the climber comes back to that step once it is fixe
 - Hit: the 🔍 review of #104.
 - Fix: framework, a typed failure in `SendRefused`; an early framework slice after #76 lands.
 - Status: open
+
+## S-14 · describe and portal · journey redaction is three rules, not one (ledger HAN-12)
+- Hit: the 🔍 review of #109 on m1 (advice item 5).
+- Cause: `packages/compiler/src/modules/model/internal/journeys.ts` redacts a blank operation's payload and `emits` to
+  public fields (undeclared keys hidden), but a completed operation's payload and `refuses` hide only declared non-public
+  fields, so an undeclared key stays visible.
+- Fix: framework, one redaction rule shared with the visibility module (M1.35, #95), check first; after #95 lands.
+- Status: open
