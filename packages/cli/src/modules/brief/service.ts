@@ -14,7 +14,8 @@ const of: BriefApi["of"] = (model, name, journeys): Briefed => {
   const own = `things/${op.thing}/verbs/${op.verb}.ts`;
   const calling = journeys.filter((j) => j.text.includes(own)).map((j) => j.path);
   const declared = op.errors.map((e) => `${e} (exit ${thing.errors[e]?.exit ?? "?"})`);
-  const runtime = op.refusals.filter((r) => !op.errors.includes(r));
+  // A reused request key (IdempotencyConflict) is met by the caller, not made by a handler: the brief names only what a handler might wrongly refuse.
+  const runtime = op.refusals.filter((r) => !op.errors.includes(r) && r !== "IdempotencyConflict");
   return {
     lines: [
       `brief ${name}`,
