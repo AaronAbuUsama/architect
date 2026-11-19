@@ -221,7 +221,7 @@ Entries:
 
 **Gap:** quotes should anchor on a name, totals should be generated, a pin should be moved by its owner in one place,
 and a design page or grill should quote a refusal's code and exit from the generated errors file, never from another
-doc. Four entries, three failures, no fix: **raised with the conductor on 19 November.**
+doc. Four entries, four failures, no fix: **raised with the conductor on 19 November.**
 
 ## Fakes that diverge from the real service
 
