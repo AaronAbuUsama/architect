@@ -27,8 +27,8 @@ Four places each decide what a caller sees, and three outputs decide nothing:
 |---|---|---|
 | HTTP answers | every field | the endpoint's success schema is the whole answer, `projections/…/api/internal/api.ts:81` |
 | HTTP refusals | every field but `_tag` | `language-effect/src/modules/wire/service.ts:6` |
-| SDK | every field | the wire classes and whole answers, `sdk.ts:133` |
-| CLI | hides fields only when printing a refusal; the secret already crossed the wire | `Errors.shown`, `cli.ts:58` |
+| SDK | every field | typed from the same endpoint schemas, so the whole answer (`api.ts:81`), and it re-exports the API's `Errors` (`generators/src/modules/render/internal/sdk.ts:133`) |
+| CLI | hides fields only when printing a refusal; the secret already crossed the wire | `Errors.shown`, `generators/src/modules/render/internal/cli.ts:58` |
 | MCP | public always, private to a role held, secret never; fails closed | `language-effect/src/modules/mcp/internal/shown.ts:1-8` |
 | spans | public and traced only | `handler/internal/attributes.ts:8` |
 | journal | public only | `attributes.ts:39` |
@@ -57,7 +57,7 @@ and `store` as attributes.
 
 ## 3. MCP from the whole model (M1.37)
 
-The MCP generator is 26 lines because it only lists operations; the runtime does the rest generically
+The MCP generator is 25 lines (`render/internal/mcp.ts`) because it only lists operations; the runtime does the rest generically
 (`mcp/internal/input.ts:12`). Missing: tool annotations beyond read-only (`destructiveHint`, `idempotentHint`, `title`;
 the model already knows `idempotent`), an `outputSchema` from the answer, refusals as structured errors with their
 code (today a text line such as `[AL-001] Name {…}`), resources for things and the docs, and approvals for risky calls.
@@ -78,9 +78,10 @@ send. It is fixed before any environment names a real chain.
 
 ## 5. The canon's chain page (M1.39)
 
-K7 is merged and wallets is built, but the canon still says it waits: `docs/canon/data.mdx:113,177,186`,
-`docs/canon/doors.mdx:123,234,246`, `docs/canon/languages-and-hosts.mdx:207,210`, and `design/frame/writing-a-feature.md`
-describes the wallet before M1.29. There is no page for `chain-evm` and `wallets`. Docs are the spec, so the gap is a
+K7 is merged and wallets is built, but the canon still says it waits (or "wait") on K7:
+`docs/canon/data.mdx:113,177,186`, `doors.mdx:123,234,246,261`, `languages-and-hosts.mdx:147,207,210,220`,
+`outline.md:42,52,78`, `operations.mdx:207`, `orthograph.mdx:274` and `stores.mdx:249`. And
+`design/frame/writing-a-feature.md` describes the wallet before M1.29. There is no page for `chain-evm` and `wallets`. Docs are the spec, so the gap is a
 slice, done by the canon thread.
 
 ## 6. The portal's wire (inside M1.13)
@@ -89,7 +90,7 @@ M1.13's row already carries `from`, events and errors with codes, journeys, star
 gap 7). The audit found five more the portal's pages draw on: field visibility (the in-and-out band and the trace
 drawer), role rules, step details (`optional`, writes, the call), `runs` and the test hook (the "Try it" button), and
 environments (the switcher). They are added to M1.13's row rather than made a slice, because they are the same file
-(`generators/…/portal/service.ts`, 59 lines, read through `portal/…/wire/types.ts`).
+(the portal generator module, `generators/src/modules/portal/`, 59 lines across three files, read through `portal/…/wire/types.ts`).
 
 ## 7. `ortho add` on Nx (M2.14 to M2.16)
 
@@ -102,6 +103,10 @@ and `generators/src/modules/sync` writes through `@nx/devkit`'s `Tree`. `ortho a
 // packages/cli/src/main.ts:136
 writeFileSync(join(root, f.path), f.content);
 ```
+
+The CLI already holds the piece it needs: `ortho generate` writes through Nx's tree
+(`packages/cli/src/modules/generate/service.ts:3,13` imports `FsTree` and `flushChanges` from
+`nx/src/generators/tree.js`). That import is Nx-internal, not the public `@nx/devkit`, which only `generators` depends on.
 
 That reverses an earlier decision without recording it. `design/history/spec-drafts.md:41`: "Scaffolding uses Nx
 generators where they fit, rather than rolling our own; Nx is required." Layers 1 and 2 documented each `add` as "an
@@ -121,10 +126,10 @@ every app's blueprint is fixed by hand.
 | start-up time | instant | Nx's project graph, about a second or two |
 | templates | typed TypeScript functions | kept: no EJS folders |
 | errors | `AddRefused`, a typed value | kept, mapped at the entry file |
-| new dependency | none | none: `cli` already pins `nx` 24.0.3, and every app needs Nx for sync |
+| new dependency | none | none: `cli` already pins `nx` 24.0.3 and uses its tree in `generate`; `@nx/devkit` only if M2.14 moves off the internal import |
 
 So: `ortho add` stays the command people type and `Add.plan` stays pure; only the writing moves to an `FsTree` flushed
-once, in the entry file that already wraps Nx's Promises for sync. M2.14 is that swap, M2.15 the kinds that edit in
+once, as `ortho generate` already does. M2.14 is that swap, M2.15 the kinds that edit in
 place, M2.16 the first migration, before the first stable release.
 
 ## What the grid leaves alone on purpose
