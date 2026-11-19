@@ -1,0 +1,147 @@
+# Spike: the Plugged In walkthrough
+
+**Question.** Can a page show Plugged In's blueprint beside everything Orthograph makes from it, with every output
+line linked to the declaration that made it, produced by the real compiler and generators rather than typed? And can
+it walk through making Plugged In from the first command, the way it looks in an editor, with the real output of each
+command, the files after each step, and prove's real traces?
+
+**Answer.** Yes. Codex's draft blueprint (#56) compiles and renders on `origin/m1` as written, apart from the three
+K15 renames. Changing one declaration at a time and regenerating finds each declaration's lines with no hand mapping.
+3,360 of 11,571 output lines trace to a declaration; the rest are the generators' own words, the same for every
+operation. All twelve steps, from `create-nx-workspace` through `ortho add`, `check`, `generate` and `prove` to
+`ortho telemetry trace`, run for real on m1 in about 50 s. The files `generate` writes are byte for byte the
+ones traced. The page: https://claude.ai/artifact/FVQjGCEVzYj3ThNzYGdX75 (`detail.html` beside it keeps the
+operation-by-operation view).
+
+## Run it
+
+```bash
+node spikes/dx-walkthrough/src/main.ts --fetch
+```
+
+It checks out `origin/m1` into `spikes/dx-walkthrough/.work/m1` (a git worktree, gitignored) and copies
+`examples/links` from `origin/links/stage-1` into it as `examples/plugged-in`, applying K15's renames. It then runs
+m1's compiler and generators against that copy, then runs the twelve steps in `examples/plugged-in` itself, and writes
+`data/walkthrough.json`. The page in `page/` renders only from that file. `node spikes/dx-walkthrough/tools/site.mjs`
+assembles `.work/site/` for a local look. To update the artifact, publish `page/index.html` with `page/detail.html`,
+`page/*.js`, `page/anim.css` and `data/walkthrough.json` as `walkthrough.json`.
+
+Flags: `--m1`, `--source`, `--source-path`, `--k16` (refs), `--work`, `--out`. K16 is read from
+`origin/claude/k16-scaffold-dfdb79`. When it isn't there, the page says so.
+
+## What was tried
+
+1. **Source.** `git archive` of `examples/links` at `links/stage-1` (ce7ff5b6), copied into an m1 worktree as
+   `examples/plugged-in`. The renames are the package name, the bin, the Nx project's name and one README path
+   (`src/modules/checkout`).
+2. **The toolchain, unchanged.** The compiler runs as `node packages/compiler/src/main.ts <dir>`, as the sync
+   generator runs it. `Render.files` from `packages/generators/src/modules/render/service.ts` is the same call
+   `nx sync` makes. Nothing in m1 is patched.
+3. **Declarations from the syntax tree** (`src/modules/anchors`). TypeScript's parser, loaded from the checkout,
+   reads every `Blueprint.thing/machine/event/error/role/operation/visibility.*` call, each part of an operation and
+   each shared value, and a field's value written as text (`Blueprint.id("hdl")`), with its `path:line`. There are 305
+   of them; 22 are wholes (a machine, a thing) whose lines are their parts' lines.
+4. **Provenance by experiment** (`src/modules/trace`). For each of the 283 others: copy the blueprint, change that
+   declaration a little, compile, render, and diff every output file against the unchanged render (Myers' diff).
+   The output lines that moved are that declaration's. A change is: a string gets ` Zq`, a key gets `Zq`, a name is
+   renamed everywhere it is used, a list item is removed, a number moves. A folder or verb file gets `-zq`, and its
+   files are then compared with the renamed files.
+5. **The runtime** (`src/modules/runtime`). Each step of the handler wrapper is found in m1's
+   `handler/service.ts` and `internal/move.ts` by a line of its code. Whether a step runs for an operation comes from
+   that operation's model.
+6. **K16** (`src/modules/k16`): the worked example and the pre-handling map, parsed from the record on its branch.
+7. **The steps** (`src/modules/steps`). The project folder is emptied and made again, a step at a time:
+   - The preset (`packages/preset`) is run as `create-nx-workspace` runs it: `Starter.write` into Nx's own `FsTree`,
+     whose changes are flushed to disk. Its install task is skipped, because the workspace's packages are linked
+     already. Inside the repository the project's `package.json`, `tsconfig.json` and `project.json` stay Codex's, and
+     the page says so.
+   - Each command is m1's `packages/cli/src/main.ts`, run in the project folder; its output and exit code are kept.
+   - The "you write it" steps (the blueprint, the journeys, the handlers) make that folder match Codex's draft.
+   - After each step every file is kept, by content, so the page can show any step's tree and what changed.
+   - prove's own Collector writes OTLP JSON lines to `.ortho/prove-telemetry/`; those spans are the traces the page
+     replays. `telemetry trace` is run on the first successful `handle.claim`.
+8. **K1's designed commands** (`src/modules/proposals`). K1 (`design/decisions/K1-kits.md` §2.2, §2.3, §2.5, read
+   from `origin/main`) designs flags for `add`: `--fields`, `--states`, `--role` and `--code` for a thing,
+   `--from`, `--to` and `--emits` for an operation, and `--starts` and `--cast` for a journey. m1's `add` has none of
+   them (ledger CMD-14). The script reads K1's syntax lines and derives, from Plugged In's compiled model, the
+   commands that would have made the same blueprint. The page shows them beside today's real commands, as
+   "K1 proposed", marked "not run", with what the flags still leave to write by hand.
+
+## What was found
+
+1. **The draft compiles on m1.** No fallback to acme was needed.
+2. **Every declaration kind traces.** 276 of 283 changes found their lines. The 7 that didn't are field renames on
+   `membership` and `organization`. The journeys read those fields by name, so the compiler refuses the change on its
+   own: `can't load journeys/invite-and-accept.ts: TypeError: Cannot read properties of undefined (reading 'kind')`.
+   The page shows them as "not traced", with the compiler's words.
+3. **What reaches where** (from the data, for `handle.claim`):
+   - The `budget` reaches the docs ("Budget: p95 150ms."), the portal data and the model. It reaches no generated code.
+   - A declared refusal (`HandleTaken`) reaches the API's errors, the endpoint, the docs, the portal data, the model
+     and the scaffold. It reaches neither the SDK, nor the CLI, nor MCP.
+   - A thing's TypeScript name (`Handle`) reaches no output at all. In the first run, renaming each of the ten things'
+     names moved nothing, so a thing is now traced as the sum of its parts.
+   - The app's name, from its folder, reaches 92 lines in six outputs. These include the CLI's command and its
+     `PLUGGED_IN_URL`, the SDK's `PluggedIn` client, the API's and MCP's names in the server, and every docs page's
+     "How to call".
+4. **Some lines come from everything.** The portal's `digest` and a few hash lines move with any change. Lines that
+   move with more than half the changes are marked as a fingerprint of the whole blueprint, never pinned on one
+   declaration.
+5. **The model has no lines.** It carries `file` but no line numbers, so `path:line` comes from the script's own parse.
+   K16 (d) chose the same: files only in the model.
+6. **K16's worked example is acme's `allowance.spend`.** There is no Plugged In one yet. The page shows it under
+   "K16, proposed" and says so. K16's map has 23 rows: 10 say done, and 13 are proposals (M1.44, M1.45, M2.17 to
+   M2.19, later). A row that is done only in part ("done at run time; at compile time in M1.44") is counted as
+   proposed.
+
+7. **`ortho check` passes with every new handler still blank.** After `generate`, the seven new handlers are
+   scaffolds made of `Handlers.blank(...)`, and `check` says `blanks left 0 … check ✔`. It counts the blueprint's
+   `Blueprint.todo` gaps only. Before the blueprint is written it names 37 blanks across `handle`, `link` and
+   `profile`, so the counting exists; it just stops at the blueprint.
+8. **`ortho add journey` writes to `blueprint/journeys/`, while the starter and Plugged In keep journeys in
+   `journeys/`.** The walkthrough doesn't use it for that reason.
+9. **K15 missed one name.** The draft's `project.json` still said `"name": "links"`; the script now renames it.
+10. **prove runs locally with no Docker.** It runs workerd and a loopback Collector: 8 journeys and 9 evals for each
+   of the 17 operations, about 30 s, 51 traces and 273 spans. A claim is 9 spans: the journey's HTTP call, the
+   operation, its two steps, the commit and their database calls. A refusal carries `refusal` and its log line on the
+   operation's span.
+
+11. **What K1's flags would and wouldn't say for Plugged In.** Thirteen commands carry its fields, states,
+   roles, codes, moves and events, and its journeys' starting worlds and casts. They leave out every description,
+   payload, answer, who may call, step and budget, and every journey's steps. They also can't type `profile.status`
+   or `profile.links`, which are schemas with no name.
+12. **The machines come from the blueprint.** Each thing's `machine.ts` is compiled into the model, and the page
+   draws it from there. Clicking a machine, a state or a move opens the line that declares it.
+
+## Measurements
+
+| What | Value |
+|---|---|
+| Declarations read | 305 (283 changed, 22 wholes) |
+| Output files, lines | 140 files, 11,571 lines |
+| Lines traced to a declaration | 3,360 |
+| Steps | 12, about 50 s, prove 30 s of it |
+| Traces from prove | 51 traces, 273 spans |
+| One full run (fetch excluded) | about 3 minutes; the compiler subprocess is most of the 0.35 s per change |
+| Data file | 1.4 MB (files kept once by content) |
+
+## The decision it supports
+
+K16's header and the page say the same thing from the same facts: who may call, refusals, the machine, and what the
+runtime does. Provenance by experiment works against the real toolchain today, so a generated "where did this line
+come from" view (portal, M1.13) can rest on it, or on line numbers the compiler adds later. It needs no hand-kept
+map.
+
+## Open risks
+
+- A diff can pin a change on a different copy of an identical line, for example the second of two blank lines.
+- Journeys, environments and starting worlds are not traced; only the blueprint's declarations are.
+- The runtime captions are written by hand; the code beside them is cut from m1's source. A step whose code line
+  changes makes the script fail, not drift.
+- The editor layout follows Aaron's ask (sidebar, files, a foldable terminal, stepping through). Captions are hand
+  written; everything else on the page is read from the data file.
+- The machine replay shows a call's move from the trace's `move.name` and `move.to`. A refusal is shown at the move's
+  starting states; the trace doesn't say which state the thing was in when it was refused.
+- prove's timings are from one local run, and vary run to run.
+- m1 now has its own `examples/plugged-in` (M1.40, 2a8fdabd), taken from the same draft with changes such as no
+  sign-in. The script still copies Codex's draft over it, as the brief asked. `--source origin/m1 --source-path
+  examples/plugged-in` would walk m1's own version instead; that hasn't been tried.
