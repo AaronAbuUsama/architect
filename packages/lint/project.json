@@ -9,7 +9,22 @@
     "layer:1"
   ],
   "targets": {
-    "lint": {},
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          "oxlint {projectRoot}",
+          "node packages/lint/scripts/baseline.ts"
+        ]
+      },
+      "cache": true,
+      "inputs": [
+        "default",
+        "{workspaceRoot}/.oxlintrc.json",
+        "{workspaceRoot}/packages/*/src/**/*"
+      ]
+    },
     "typecheck": {},
     "test": {},
     "build": {
@@ -29,6 +44,13 @@
       "outputs": [
         "{projectRoot}/dist"
       ]
+    },
+    "baseline": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node packages/lint/scripts/baseline.ts --shrink"
+      },
+      "cache": false
     }
   }
 }
