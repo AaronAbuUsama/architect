@@ -107,4 +107,8 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Check 09's send journeys run on Anvil, a plain process, the same pinned Foundry as the check job (M1.31).
+      - uses: foundry-rs/foundry-toolchain@v1.9.2
+        with:
+          version: v1.8.6
       - run: pnpm nx run e2e:m1-checks --outputStyle=static
