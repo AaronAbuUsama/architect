@@ -7,6 +7,8 @@ Aaron chose this on 19 November 2026 (option D of four, after the grid in K14 an
 > that you're setting up evidence, you're proving it end to end, and you're going to present it to me in a way that's
 > very easy to see. A recording of the final run would be great, screenshots too."
 
+And, the same day: "This should also include a staging deployment."
+
 ## The prompt
 
 > You lead Goal 3 in this repository. Run it as one autonomous goal until its done check passes on `goal/stage-1`, or
@@ -44,7 +46,9 @@ grid that is **11 building blocks by 9 outputs, 99 cards**, plus **the story car
   Each slice is ticked in `milestones.md` with its proof when it lands. The gates of M1 and M2 still have to pass, on
   this branch, before it reaches `main`.
 - **Local, never fake,** as in goals 1 and 2: real workerd, D1, Durable Objects, Better Auth and Collector on this Mac;
-  no Docker; no cloud and no keys.
+  no Docker.
+- **One cloud piece: staging.** Plugged In is deployed to a real staging environment on Cloudflare, proved there and
+  destroyed. This brings M7.01, M7.03 and M7.04 forward for staging alone. See "Staging" below.
 
 **Aaron's override, recorded.** "Nothing in a milestone starts until the previous milestone's gate passes on `main`"
 (`AGENTS.md`) is replaced, for M1, M2 and stage 1 only, by one integration branch under the conductor's control. The
@@ -63,7 +67,9 @@ It exits 0 only when each of the 99 cards is green or agreed not needed, and the
 - **Agreed not needed** means the conductor wrote the reason into the card in `grid.json`. The default is needed.
 - **The story card** starts from a fresh folder and uses the real `ortho` from the local registry: `ortho new
   plugged-in`, then a person signs up, claims `@aaron`, adds three links and sees their public page. It runs through the
-  CLI, the SDK, MCP and HTTP, in the `local` and `test` environments, and every call shows in the portal.
+  CLI, the SDK, MCP and HTTP, in the `local`, `test` and `staging` environments, and every call shows in the portal.
+- **The staging card** passes only when a CI run deployed Plugged In to staging on Cloudflare, ran the story against
+  it, and then `ortho env destroy staging` left nothing behind in the account.
 
 ## The first three steps
 
@@ -77,12 +83,28 @@ It exits 0 only when each of the 99 cards is green or agreed not needed, and the
 
 Then the lanes, in the grid's order. Lanes may run side by side while no two builders touch the same files.
 
+## Staging
+
+- **The account and token** are the ones Aaron set on the repository on 19 November 2026: the `CLOUDFLARE_ACCOUNT_ID`
+  variable and the `CLOUDFLARE_API_TOKEN` secret. They are used only inside GitHub Actions. Never read, print, copy or
+  write either value, and never create another credential. If staging needs anything more, such as a telemetry token
+  (M7.08) or a domain, stop and ask Aaron.
+- **M7.01 first:** `decisions/M7-cloud.md` records the account, the token's scope, which secret store
+  `Cloudflare.secrets` means, Aaron's yes (his words above), and a cost estimate under $10 a day across everything.
+- **M7.03 and M7.04:** `ortho env up staging` deploys from the model through the infra projection, and
+  `ortho env destroy staging` removes everything it made. A CI workflow, run by hand, does up, the story, the evidence
+  and destroy as one job, and destroy always runs, even when the story fails.
+- **Nothing left running:** after each run, the job lists the account's Workers, D1 databases, Durable Object
+  namespaces and R2 buckets, and fails if any of Plugged In's remain. Touch only resources this goal made. The old
+  `codex/links-staging` branch has no teardown, so don't run it.
+
 ## Evidence for Aaron
 
 - **Every card:** its evidence run is captured with `tools/evidence/capture.sh` under
   `design/evidence/grid/<card-id>/`, never retyped.
 - **The final run,** from a clean checkout:
   - a terminal recording of `nx run e2e:grid --stage=1`;
+  - the staging job's log, with its deploy, its story run and its destroy, and the account empty afterwards;
   - a browser video of the story card, recorded by Playwright, from sign-up to the public page, with each call opening
     in the portal;
   - a screenshot, at desktop width, of every portal page the story touches, and of the Proof page all green.
