@@ -15,7 +15,7 @@ export const Issues = () => (
       <Title h="Issues" p="A defect is a failure the blueprint didn't declare, so it is always a bug. Each is grouped by operation, step and error, never by a stack trace. A refusal is never an issue: it is the app answering." />
       <Block title="Open" desc="One issue per (operation, step, error). First and last seen by model hash, so a fix that comes back is marked regressed." flush>
         <table className="tbl"><thead><tr><th>issue</th><th>state</th><th>first seen</th><th>last seen</th><th className="num">defects</th><th className="num">of calls</th><th>owner</th><th>trend</th></tr></thead>
-          <tbody><tr><td><a href={page.op("link.add", "spans")}><KeyPath parts={["link.add", "record", "DatabaseError"]} tone="danger" /></a></td><td><Chip size="sm" variant="soft" color="danger">new</Chip></td>
+          <tbody><tr><td><a href={page.op("link.add", "spans", "defect")}><KeyPath parts={["link.add", "record", "DatabaseError"]} tone="danger" /></a></td><td><Chip size="sm" variant="soft" color="danger">new</Chip></td>
             <td><span className="chips"><Chip size="sm" variant="soft" className="mono">7c07c87</Chip><Chip size="sm" variant="soft" className="mono">11:52</Chip></span></td><td className="mono small">12:04:20</td><td className="num mono tone-danger">3</td><td className="num mono">0.31%</td>
             <td><span className="chips"><Chip size="sm" variant="secondary">the app</Chip><Chip size="sm" variant="soft" className="mono">things/link/verbs/add.ts</Chip></span></td><td style={{ width: 100 }}><SparkBars values={[0, 0, 0, 1, 0, 0, 0, 1, 0, 1]} tone="danger" label="link.add defects per 3 minutes" /></td></tr></tbody></table>
       </Block>

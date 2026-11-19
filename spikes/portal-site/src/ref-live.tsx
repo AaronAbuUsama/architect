@@ -30,7 +30,7 @@ export const Recent = ({ title, spans }: { title: string; spans: Span[] }) => (
       <tbody>{spans.map((s) => (
         <tr key={s.at + s.op}><td className="mono small">{s.at}</td><td><a className="mono" href={page.op(s.op)}>{s.op}</a></td><td className="small">{s.who}</td>
           <td><Chip size="sm" variant="soft" color={s.tone}>{s.what}</Chip></td><td><Attrs attr={s.attr} /></td><td className="num mono">{s.ms}</td>
-          <td>{s.door ? <span className="small muted">no span</span> : <a className="small" href={page.op(s.op, "spans")}>trace →</a>}</td></tr>))}</tbody></table>
+          <td>{s.door ? <span className="small muted">no span</span> : <a className="small" href={page.op(s.op, "spans", s.tone === "success" ? "answered" : s.what)}>trace →</a>}</td></tr>))}</tbody></table>
   </Block>
 );
 

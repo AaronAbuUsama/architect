@@ -32,7 +32,12 @@ export const CallsTable = ({ op }: { op: string }) => {
   const [env, setEnv] = useState(ALL), [caller, setCaller] = useState(ALL), [outcome, setOutcome] = useState(ALL);
   const [slow, setSlow] = useState(false), [key, setKey] = useState(""), [win, setWin] = useState("30");
   const [open, setOpen] = useState<CallRow | null>(null);
-  useEffect(() => { if (location.hash === "#trace") setOpen(calls.find((c) => c.outcome !== "answered") ?? calls[0]!); }, [calls]);
+  useEffect(() => {
+    const m = /^#trace(?:=(.+))?$/.exec(decodeURIComponent(location.hash));
+    if (!m) return;
+    const want = m[1], notable = calls.find((c) => c.outcome !== "answered");
+    setOpen((want && calls.find((c) => c.outcome === want || c.code === want)) || notable || calls[0]!);
+  }, [calls]);
   const shown = calls.filter((c) => (env === ALL || c.env === env) && (caller === ALL || c.caller === caller)
     && (outcome === ALL || (outcome === "answered" || outcome === "defect" ? c.outcome === outcome : outcome === "refused" ? c.outcome === "refused" : c.code === outcome))
     && (!slow || c.overBudget) && (!key || (c.requestKey ?? "").includes(key.trim())) && secondsAgo(c.at) <= Number(win) * 60);

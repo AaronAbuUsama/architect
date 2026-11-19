@@ -48,7 +48,7 @@ export const Refusals = () => (
               <td className="small">{r.source === "runtime" ? "the runtime, at the door" : r.source === "machine" ? <>{r.thing}'s machine</> : <a href={page.thing(r.thing)}>{r.thing}</a>}</td>
               <td className="num mono">{r.exit}</td><td className="small">{r.raisedBy.map((o) => <a key={o} className="mono" href={page.op(o)}>{o} </a>)}</td>
               <td className={`num mono${refusedIn(r.name) ? " tone-warning" : ""}`}>{refusedIn(r.name)}</td><td className="num mono small">{perMin(refusedIn(r.name))}</td>
-              <td><TrendCell k={r.name} total={refusedIn(r.name)} tone="warning" /></td><td>{refusedIn(r.name) > 0 && r.raisedBy[0] && <a className="small" href={page.op(r.raisedBy[0], "spans")}>trace →</a>}</td></tr>))}</tbody></table>
+              <td><TrendCell k={r.name} total={refusedIn(r.name)} tone="warning" /></td><td>{refusedIn(r.name) > 0 && r.raisedBy[0] && <a className="small" href={page.op(r.raisedBy[0], "spans", r.name)}>trace →</a>}</td></tr>))}</tbody></table>
       </Block>
       <Recent title="Recent refusals" spans={recentRefusals} />
       <Foot>Generated from `Model.refusals`, each thing's `errors` and `machine.notFrom`, and each operation's `refusals`. Counts from `ortho.calls` by error tag.</Foot>
@@ -86,7 +86,7 @@ export const Events = () => (
             <tr key={e} id={e}><td className="mono">{e}</td><td className="mono muted">{Object.entries(f).map(([k, v]) => `${k}: ${typeText(v)}`).join(", ")}</td>
               <td>{op ? <a className="mono" href={page.op(op.name)}>{op.name}</a> : "—"}</td><td className="muted small">none declared</td>
               <td className="num mono">{eventRate[e] ?? 0}</td><td className="num mono small">{perMin(eventRate[e] ?? 0)}</td><td><TrendCell k={e} total={eventRate[e] ?? 0} tone="success" /></td>
-              <td>{op && (eventRate[e] ?? 0) > 0 && <a className="small" href={page.op(op.name, "spans")}>trace →</a>}</td></tr>); }))}</tbody></table>
+              <td>{op && (eventRate[e] ?? 0) > 0 && <a className="small" href={page.op(op.name, "spans", "answered")}>trace →</a>}</td></tr>); }))}</tbody></table>
       </Block>
       <Recent title="Recent commits" spans={recentEvents} />
       <Foot>Generated from each thing's `events` and each operation's `move.emits`. Listeners appear once the model carries `on:` handlers.</Foot>

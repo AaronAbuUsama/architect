@@ -36,7 +36,7 @@ export const Rail = ({ scope }: { scope: { label: string; ops: string[] } }) => 
         {calls.length === 0 && <p className="muted small">No calls in the window.</p>}
         <ul className="calls">
           {calls.map((c) => (
-            <li key={c.at + c.op}><span className="mono muted">{c.at}</span><a className="mono" href={page.op(c.op, "spans")}>{c.op.split(".")[1]}</a>
+            <li key={c.at + c.op}><span className="mono muted">{c.at}</span><a className="mono" href={page.op(c.op, "spans", c.outcome)}>{c.op.split(".")[1]}</a>
               <span className="small">{c.who}</span><Outcome o={c.outcome} /><span className="mono muted num">{c.ms} ms</span></li>))}
         </ul>
       </div>
