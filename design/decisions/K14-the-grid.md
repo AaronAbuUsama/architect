@@ -72,7 +72,7 @@ is climbed until it is fully green, so at each step we know exactly which buildi
 | today | ✓ carried and useful, ~ partly (the gap named), ✗ dropped; graded from the code on `origin/m1` at `6419d4b7`, never from the audit's word |
 | today ref | one `path:line` on `origin/m1`: where the output carries it, or where it drops it |
 | owner | the existing slice in `milestones.md` that turns it green, or "new slice needed" with a one-line proposal |
-| not needed? | a proposal only, flagged for Aaron (Q2); this record settles none |
+| role | derived, never written by hand: *carries*, *absence check* or *not needed*, from the audiences rule ("Who each block is for"); a not-needed card turns grey only once Aaron agrees the rule (Q2) |
 
 The grades were first read by four reviewers in parallel, one per group of lanes, each reading the code itself; where
 this record regrades a card against the card's own green, its note says so and why. Every reference below is to
@@ -96,7 +96,7 @@ M1.40; Codex's draft is on `links/stage-1`, #56, a branch named before K15).
 
 ## The grid today
 
-Graded from the code on `origin/m1` at `6419d4b7`. ⁿ marks a card proposed as not needed by design (Q2). Each
+Graded from the code on `origin/m1` at `6419d4b7`. ⁿ marks a card the audiences rule makes not needed, ᵃ an absence check (Q2). Each
 cell's `path:line` and what it means are in its lane's section below.
 
 | # | Lane | model | api | server | sdk | cli | mcp | docs | portal | telemetry |
@@ -104,18 +104,18 @@ cell's `path:line` and what it means are in its lane's section below.
 | 1 | [Operation & read](#1-operation) | ✓ | ✓ | ✓ | ✓ | ~ | ✓ | ✓ | ~ | ✓ |
 | 2 | [Error & refusal code](#2-error) | ✓ | ~ | ✓ | ✓ | ✓ | ✓ | ✓ | ~ | ~ |
 | 3 | [Thing & fields](#3-thing) | ~ | ✓ | ✓ | ~ | ~ | ~ | ~ | ~ | ✓ |
-| 4 | [Step](#4-step) | ✓ | ✓ | ✓ | ✗ⁿ | ✗ⁿ | ✗ⁿ | ~ | ~ | ✓ |
+| 4 | [Step](#4-step) | ✓ | ~ᵃ | ✓ | ✓ᵃ | ✓ᵃ | ✓ᵃ | ~ | ~ | ✓ |
 | 5 | [Machine, states, move](#5-machine) | ✓ | ~ | ✓ | ✗ | ✗ | ✗ | ✓ | ~ | ~ |
-| 6 | [Event](#6-event) | ✓ | ✓ | ✓ | ✗ | ✗ⁿ | ✗ⁿ | ~ | ~ | ~ |
+| 6 | [Event](#6-event) | ✓ | ✓ⁿ | ✓ | ✗ⁿ | ✗ⁿ | ✗ⁿ | ~ | ~ | ~ |
 | 7 | [Field visibility (secret, private)](#7-visibility) | ✓ | ✗ | ✗ | ✗ | ~ | ✓ | ~ | ✗ | ✓ |
-| 8 | [Journey & starting world](#8-journey) | ✓ | ✗ⁿ | ✗ⁿ | ✗ⁿ | ✗ⁿ | ✗ⁿ | ✗ | ✗ | ~ |
+| 8 | [Journey & starting world](#8-journey) | ✓ | ✗ⁿ | ✓ | ✗ⁿ | ✗ⁿ | ✗ⁿ | ✗ | ✗ | ~ |
 | 9 | [Roles](#9-roles) | ✓ | ✓ | ✓ | ✗ | ✗ | ~ | ✓ | ~ | ~ |
-| 10 | [Environment](#10-environment) | ✓ | ✗ⁿ | ~ | ✗ | ~ | ✗ⁿ | ✗ | ~ | ~ |
+| 10 | [Environment](#10-environment) | ✓ | ✗ⁿ | ~ | ✗ⁿ | ~ⁿ | ✗ⁿ | ✗ | ~ | ~ |
 | 11 | [Store](#11-store) | ✓ | ✗ⁿ | ✓ | ✗ⁿ | ✗ⁿ | ✗ⁿ | ~ | ✗ | ✗ |
-| 12 | [Mount, adapter, plugin origin](#12-mount) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ |
-| 13 | [Runs on the device (runs: "client")](#13-device) | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ⁿ | ✗ | ✗ | ~ |
+| 12 | [Mount, adapter, plugin origin](#12-mount) | ✓ | ✓ⁿ | ✓ | ✓ⁿ | ✓ⁿ | ✓ⁿ | ✗ | ✗ | ✗ |
+| 13 | [Runs on the device (runs: "client")](#13-device) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | ✗ | ~ |
 
-**In numbers:** 48 ✓, 31 ~ and 38 ✗ of 117. 17 of the ✗ are proposed not needed (Q2), which leaves 52 cards to build. By column, ✓ out of 13: model 12, api 7, server 10, sdk 4, cli 3, mcp 4, docs 4, portal 0, telemetry 4.
+**In numbers:** 52 ✓, 32 ~ and 33 ✗ of 117. The audiences rule (below, "Who each block is for") makes 20 cards not needed (5 of them ✓ today) and 4 absence checks, which leaves 50 cards to build. By column, ✓ out of 13: model 12, api 6, server 11, sdk 5, cli 4, mcp 6, docs 4, portal 0, telemetry 4.
 
 **Where this differs from the audit.** The audit's grid (K12) was read from a wider sweep; this one is read cell
 by cell against each card's own green, so some cells moved. Up: the CLI and MCP refusal cards (both print the code,
@@ -135,17 +135,17 @@ is "looks native" or an absence, the mount lane's clients and the device lane's 
 
 **How it is proved.** The operation's page in the portal (the in-and-out band, the spine, the proof tab with its journeys' verdicts) and the operations matrix on home (calls, refused, defects, p95 against budget); journeys through each client (M2.08).
 
-| Output | Today | Green means | Evidence | Owner | Not needed? |
+| Output | Today | Green means | Evidence | Owner | Role |
 |---|---|---|---|---|---|
-| model | ✓ `packages/compiler/src/modules/model/types.ts:73` | Each operation and read is in the model with its kind, description, payload, answer, allowed, idempotency, budget, list options, `via` and `runs`. | the compiler's model tests; e2e/m1/12-projections.test.ts. | M1.03 (done) |  |
-| api | ✓ `packages/projections/src/modules/api/internal/api.ts:73` | One endpoint per operation and read, its schemas from the declaration. | e2e/m1/12-projections.test.ts. | M1.11 (done) |  |
-| server | ✓ `packages/language-effect/src/modules/handler/internal/read.ts:42` | Each operation is served through its handler and each read generically, with the role check and a span. | e2e/layer2; e2e/m1/12-projections.test.ts. | M1.11 (done) |  |
-| sdk | ✓ `packages/generators/src/modules/render/internal/sdk.ts:23` | One function per operation and read, with the description as its doc comment, calling the API. | e2e/m1/14-clients.test.ts; M1.41 calls every operation once through the SDK; M2.08 runs journeys `--through sdk`. | M1.12 (contract); M2.08 (journeys) |  |
-| cli | ~ `packages/generators/src/modules/render/internal/cli.ts:6` | One command per operation and read whose `--help` is the operation's description; a refusal exits with its declared code. | e2e/m1/14-clients.test.ts; M1.41 calls every operation through the CLI; M2.08 runs journeys `--through cli`. | M1.42 (help text); M2.08 (journeys) |  |
-| mcp | ✓ `packages/generators/src/modules/render/internal/mcp.ts:21` | One tool per operation and read, described from the model, reads marked read-only, operations closed to agents left out. | e2e/m1/14-clients.test.ts; packages/language-effect/src/modules/mcp/mcp.test.ts; M2.08 runs journeys `--through mcp`. | M2.08 (journeys); M1.37 adds hints (M3) |  |
-| docs | ✓ `packages/generators/src/modules/render/internal/docs.ts:34` | One page per operation and read: description, who may call, read paging, idempotency, budget, payload, answer, refusals. | packages/generators/src/modules/render/render.test.ts; M1.41. | built; evidence M1.41 |  |
-| portal | ~ `packages/portal/src/modules/wire/types.ts:49` | Each operation has its page (the in-and-out band and the spine), and home's operations matrix counts its calls, refusals, defects and p95 against its budget; a read's list options, `runs` and `via` are decoded too. | M1.13's screenshot of `handle.claim`'s page and the matrix lit by a journey's run. | M1.13 |  |
-| telemetry | ✓ `packages/language-effect/src/modules/handler/service.ts:102` | Each call has the operation's span (`operation`, `attempt`, principal) and is counted in `ortho.calls` and `ortho.call.duration`, reads included. | packages/language-effect/src/modules/handler/internal/call-metrics.test.ts; e2e/m1/17-telemetry-model.test.ts. | M1.18, M1.20 (done) |  |
+| model | ✓ `packages/compiler/src/modules/model/types.ts:73` | Each operation and read is in the model with its kind, description, payload, answer, allowed, idempotency, budget, list options, `via` and `runs`. | the compiler's model tests; e2e/m1/12-projections.test.ts. | M1.03 (done) | carries |
+| api | ✓ `packages/projections/src/modules/api/internal/api.ts:73` | One endpoint per operation and read, its schemas from the declaration. | e2e/m1/12-projections.test.ts. | M1.11 (done) | carries |
+| server | ✓ `packages/language-effect/src/modules/handler/internal/read.ts:42` | Each operation is served through its handler and each read generically, with the role check and a span. | e2e/layer2; e2e/m1/12-projections.test.ts. | M1.11 (done) | carries |
+| sdk | ✓ `packages/generators/src/modules/render/internal/sdk.ts:23` | One function per operation and read, with the description as its doc comment, calling the API. | e2e/m1/14-clients.test.ts; M1.41 calls every operation once through the SDK; M2.08 runs journeys `--through sdk`. | M1.12 (contract); M2.08 (journeys) | carries |
+| cli | ~ `packages/generators/src/modules/render/internal/cli.ts:6` | One command per operation and read whose `--help` is the operation's description; a refusal exits with its declared code. | e2e/m1/14-clients.test.ts; M1.41 calls every operation through the CLI; M2.08 runs journeys `--through cli`. | M1.42 (help text); M2.08 (journeys) | carries |
+| mcp | ✓ `packages/generators/src/modules/render/internal/mcp.ts:21` | One tool per operation and read, described from the model, reads marked read-only, operations closed to agents left out. | e2e/m1/14-clients.test.ts; packages/language-effect/src/modules/mcp/mcp.test.ts; M2.08 runs journeys `--through mcp`. | M2.08 (journeys); M1.37 adds hints (M3) | carries |
+| docs | ✓ `packages/generators/src/modules/render/internal/docs.ts:34` | One page per operation and read: description, who may call, read paging, idempotency, budget, payload, answer, refusals. | packages/generators/src/modules/render/render.test.ts; M1.41. | built; evidence M1.41 | carries |
+| portal | ~ `packages/portal/src/modules/wire/types.ts:49` | Each operation has its page (the in-and-out band and the spine), and home's operations matrix counts its calls, refusals, defects and p95 against its budget; a read's list options, `runs` and `via` are decoded too. | M1.13's screenshot of `handle.claim`'s page and the matrix lit by a journey's run. | M1.13 | carries |
+| telemetry | ✓ `packages/language-effect/src/modules/handler/service.ts:102` | Each call has the operation's span (`operation`, `attempt`, principal) and is counted in `ortho.calls` and `ortho.call.duration`, reads included. | packages/language-effect/src/modules/handler/internal/call-metrics.test.ts; e2e/m1/17-telemetry-model.test.ts. | M1.18, M1.20 (done) | carries |
 
 What "today" means, for each card not yet ✓ (and each regraded one):
 
@@ -158,17 +158,17 @@ What "today" means, for each card not yet ✓ (and each regraded one):
 
 **How it is proved.** Refusals on the arrow they guard and in the in-and-out band, counted by code (portal.md); M1.41's refused claim prints `HN-001`; `refusal.code` on the span (M1.36).
 
-| Output | Today | Green means | Evidence | Owner | Not needed? |
+| Output | Today | Green means | Evidence | Owner | Role |
 |---|---|---|---|---|---|
-| model | ✓ `packages/compiler/src/modules/model/types.ts:50` | Every declared error and wrong-state refusal has its fields, exit and code, and the model maps every refusal to its code. | the compiler's model tests. | built |  |
-| api | ~ `packages/projections/src/modules/api/internal/api.ts:56` | Every refusal is a typed error with its code and exit, the runtime's own `InvalidPayload` included. | e2e/m1/14-clients.test.ts; M1.41 reads every refusal's code. | M1.42 (proposed addition: a code for `InvalidPayload`) |  |
-| server | ✓ `packages/language-effect/src/modules/handler/service.ts:100` | Each refusal leaves the server typed with its code: declared ones from the handler, `NotAllowed` from the role check, the wrong-state one from the machine check. | e2e/layer2; e2e/m1/14-clients.test.ts. | built |  |
-| sdk | ✓ `packages/generators/src/modules/render/internal/sdk.ts:133` | Each refusal is a typed class in the call's error channel, with its code. | e2e/m1/14-clients.test.ts:181. | M1.12 |  |
-| cli | ✓ `packages/generators/src/modules/render/internal/cli.ts:55` | A refusal prints `[code] Name { public fields }` and exits with its declared code. | e2e/m1/14-clients.test.ts; M1.41's refused claim prints its code. | built; evidence M1.41 |  |
-| mcp | ✓ `packages/language-effect/src/modules/mcp/internal/tool.ts:36` | A refusal is an error result carrying its code and name, its fields cut to what the agent may see. | packages/language-effect/src/modules/mcp/mcp.test.ts:70. | built; M1.37 makes it structured (M3) |  |
-| docs | ✓ `packages/generators/src/modules/render/internal/docs.ts:17` | Each operation's page has a refusals table: name, exit, code and when. | render.test.ts. | built |  |
-| portal | ~ `packages/portal/src/modules/wire/types.ts:44` | Errors are decoded with their codes and exits and shown on the thing's page, on the arrow they guard and in the band, counted by code. | M1.41 reads errors with codes in the data file; M1.13's screenshot. | M1.42 (wire), M1.13 (pages) |  |
-| telemetry | ~ `packages/language-effect/src/modules/handler/service.ts:100` | The span carries `refusal` and `refusal.code`, and `ortho.calls` counts by code. | e2e/m1/17-telemetry-model.test.ts:251 (written ahead, red). | M1.36 |  |
+| model | ✓ `packages/compiler/src/modules/model/types.ts:50` | Every declared error and wrong-state refusal has its fields, exit and code, and the model maps every refusal to its code. | the compiler's model tests. | built | carries |
+| api | ~ `packages/projections/src/modules/api/internal/api.ts:56` | Every refusal is a typed error with its code and exit, the runtime's own `InvalidPayload` included. | e2e/m1/14-clients.test.ts; M1.41 reads every refusal's code. | M1.42 (proposed addition: a code for `InvalidPayload`) | carries |
+| server | ✓ `packages/language-effect/src/modules/handler/service.ts:100` | Each refusal leaves the server typed with its code: declared ones from the handler, `NotAllowed` from the role check, the wrong-state one from the machine check. | e2e/layer2; e2e/m1/14-clients.test.ts. | built | carries |
+| sdk | ✓ `packages/generators/src/modules/render/internal/sdk.ts:133` | Each refusal is a typed class in the call's error channel, with its code. | e2e/m1/14-clients.test.ts:181. | M1.12 | carries |
+| cli | ✓ `packages/generators/src/modules/render/internal/cli.ts:55` | A refusal prints `[code] Name { public fields }` and exits with its declared code. | e2e/m1/14-clients.test.ts; M1.41's refused claim prints its code. | built; evidence M1.41 | carries |
+| mcp | ✓ `packages/language-effect/src/modules/mcp/internal/tool.ts:36` | A refusal is an error result carrying its code and name, its fields cut to what the agent may see. | packages/language-effect/src/modules/mcp/mcp.test.ts:70. | built; M1.37 makes it structured (M3) | carries |
+| docs | ✓ `packages/generators/src/modules/render/internal/docs.ts:17` | Each operation's page has a refusals table: name, exit, code and when. | render.test.ts. | built | carries |
+| portal | ~ `packages/portal/src/modules/wire/types.ts:44` | Errors are decoded with their codes and exits and shown on the thing's page, on the arrow they guard and in the band, counted by code. | M1.41 reads errors with codes in the data file; M1.13's screenshot. | M1.42 (wire), M1.13 (pages) | carries |
+| telemetry | ~ `packages/language-effect/src/modules/handler/service.ts:100` | The span carries `refusal` and `refusal.code`, and `ortho.calls` counts by code. | e2e/m1/17-telemetry-model.test.ts:251 (written ahead, red). | M1.36 | carries |
 
 What "today" means, for each card not yet ✓ (and each regraded one):
 
@@ -182,17 +182,17 @@ What "today" means, for each card not yet ✓ (and each regraded one):
 
 **How it is proved.** The portal's home (one card per thing, grouped by `from`) and each thing's page, with the in-and-out band showing every field and its visibility; M1.41 reads every output for each thing's type and fields; the stage 1 journeys run through the SDK, CLI and MCP (M2.08).
 
-| Output | Today | Green means | Evidence | Owner | Not needed? |
+| Output | Today | Green means | Evidence | Owner | Role |
 |---|---|---|---|---|---|
-| model | ~ `packages/compiler/src/modules/model/types.ts:18-26` | Each thing is in the model with its description and every field's type, named value, reference, optionality, visibility and description. | M1.41 reads `generated/model/model.json` for every field's description; the compiler's model tests. | M1.42 (it needs a way to declare a field's description first: see note) |  |
-| api | ✓ `packages/projections/src/modules/api/internal/api.ts:80-81` | Every endpoint's payload and answer schemas are the declaration's own fields, so each field is typed on the wire. | e2e/m1/12-projections.test.ts; M1.41's generated-API read. | M1.11 (done); evidence in M1.41 |  |
-| server | ✓ `packages/language-effect/src/modules/handler/service.ts:60` | The server decodes every payload and answer against the declaration's fields and refuses a bad one. | e2e/layer1/05-the-generated-surfaces.test.ts; M1.41's calls. | M1.11 (done) |  |
-| sdk | ~ `packages/generators/src/modules/render/internal/sdk.ts:132-134` | The SDK exports a type for each thing (and its fields), not only one function per operation, so a caller can name a `Link` or a `Profile`. | M1.41: the generated SDK exports each thing's type; ST1.02's journeys through the SDK (M2.08). | M1.42 |  |
-| cli | ~ `packages/generators/src/modules/render/internal/cli.ts:9` | Each payload field is a flag typed from its value (number, enum, id), whose help is the field's description; an answer prints by field, not as one blob. | M1.41: `plugged-in link add --help` shows each field's description; a mistyped flag is refused before the call. | M1.42 |  |
-| mcp | ~ `packages/generators/src/modules/render/internal/mcp.ts:24` | Each tool's input schema describes every public field, and it offers an output schema from the answer, so an agent knows the shape it gets back. | M1.41 for described inputs; M1.37's check (an MCP client lists output schemas) for the output schema. | M1.42 (inputs described); M1.37 (output schema, in M3 since K13) |  |
-| docs | ~ `packages/generators/src/modules/render/internal/docs.ts:12` | Each thing has a reference page with a field table: type, reference or named value, optional, visibility and description. | packages/generators/src/modules/render/render.test.ts; M1.41 reads the docs for each field. | M1.42 (descriptions); the rest is built |  |
-| portal | ~ `packages/portal/src/modules/wire/types.ts:12-17` | Home shows one card per thing, and the thing's page shows every field with its type, visibility and description, decoded from the data file (not only the embedded docs). | M1.13's screenshot of Plugged In's home and `profile`'s page at a fixed `now`; M1.41 reads the data file. | M1.42 (the wire), M1.13 (the pages) |  |
-| telemetry | ✓ `packages/language-effect/src/modules/handler/internal/attributes.ts:10-23` | A thing's public, non-text fields (and text fields marked `traced`) appear as `payload.*` and `answer.*` attributes on the operation's span; nothing else does. | packages/language-effect/src/modules/handler/internal/attributes.test.ts; M1.19's "leaks nothing" eval; e2e/m1/16-visibility.test.ts for the telemetry audience. | M1.19 (done); M1.35 moves it onto the one rule |  |
+| model | ~ `packages/compiler/src/modules/model/types.ts:18-26` | Each thing is in the model with its description and every field's type, named value, reference, optionality, visibility and description. | M1.41 reads `generated/model/model.json` for every field's description; the compiler's model tests. | M1.42 (it needs a way to declare a field's description first: see note) | carries |
+| api | ✓ `packages/projections/src/modules/api/internal/api.ts:80-81` | Every endpoint's payload and answer schemas are the declaration's own fields, so each field is typed on the wire. | e2e/m1/12-projections.test.ts; M1.41's generated-API read. | M1.11 (done); evidence in M1.41 | carries |
+| server | ✓ `packages/language-effect/src/modules/handler/service.ts:60` | The server decodes every payload and answer against the declaration's fields and refuses a bad one. | e2e/layer1/05-the-generated-surfaces.test.ts; M1.41's calls. | M1.11 (done) | carries |
+| sdk | ~ `packages/generators/src/modules/render/internal/sdk.ts:132-134` | The SDK exports a type for each thing (and its fields), not only one function per operation, so a caller can name a `Link` or a `Profile`. | M1.41: the generated SDK exports each thing's type; ST1.02's journeys through the SDK (M2.08). | M1.42 | carries |
+| cli | ~ `packages/generators/src/modules/render/internal/cli.ts:9` | Each payload field is a flag typed from its value (number, enum, id), whose help is the field's description; an answer prints by field, not as one blob. | M1.41: `plugged-in link add --help` shows each field's description; a mistyped flag is refused before the call. | M1.42 | carries |
+| mcp | ~ `packages/generators/src/modules/render/internal/mcp.ts:24` | Each tool's input schema describes every public field, and it offers an output schema from the answer, so an agent knows the shape it gets back. | M1.41 for described inputs; M1.37's check (an MCP client lists output schemas) for the output schema. | M1.42 (inputs described); M1.37 (output schema, in M3 since K13) | carries |
+| docs | ~ `packages/generators/src/modules/render/internal/docs.ts:12` | Each thing has a reference page with a field table: type, reference or named value, optional, visibility and description. | packages/generators/src/modules/render/render.test.ts; M1.41 reads the docs for each field. | M1.42 (descriptions); the rest is built | carries |
+| portal | ~ `packages/portal/src/modules/wire/types.ts:12-17` | Home shows one card per thing, and the thing's page shows every field with its type, visibility and description, decoded from the data file (not only the embedded docs). | M1.13's screenshot of Plugged In's home and `profile`'s page at a fixed `now`; M1.41 reads the data file. | M1.42 (the wire), M1.13 (the pages) | carries |
+| telemetry | ✓ `packages/language-effect/src/modules/handler/internal/attributes.ts:10-23` | A thing's public, non-text fields (and text fields marked `traced`) appear as `payload.*` and `answer.*` attributes on the operation's span; nothing else does. | packages/language-effect/src/modules/handler/internal/attributes.test.ts; M1.19's "leaks nothing" eval; e2e/m1/16-visibility.test.ts for the telemetry audience. | M1.19 (done); M1.35 moves it onto the one rule | carries |
 
 What "today" means, for each card not yet ✓ (and each regraded one):
 
@@ -210,25 +210,26 @@ What "today" means, for each card not yet ✓ (and each regraded one):
 
 **How it is proved.** The operation's spine in the portal: each declared step in its place, a finished call's spans down it, a running call's step signals as they arrive (M1.21); `ortho prove --empty` shows one red step per blank.
 
-| Output | Today | Green means | Evidence | Owner | Not needed? |
+| Output | Today | Green means | Evidence | Owner | Role |
 |---|---|---|---|---|---|
-| model | ✓ `packages/compiler/src/modules/model/types.ts:64` | Each step's name, kind, writes, optional and call are in the model. | the compiler's model tests. | M1.03, M1.14 (done) |  |
-| api | ✓ `packages/projections/src/modules/api/internal/api.ts:84` | The endpoint carries the declared steps with the declaration the handler is built from. | e2e/m1/12-projections.test.ts. | built |  |
-| server | ✓ `packages/language-effect/src/modules/handler/service.ts:43` | The handler is given one wrapper per declared step, run in a span; a call step goes through the adapter's runner. | e2e/m1/04-adapter-calls.test.ts; e2e/m1/13-live-steps.test.ts; e2e/m1/10-empty-and-scaffold.test.ts. | M1.14, M1.26 (done) |  |
-| sdk | ✗ `packages/generators/src/modules/render/internal/sdk.ts:23` | Steps never appear in the SDK's surface: a caller sees the answer or a refusal, never the steps. | new: a generated check that the SDK's exported types name no step (Q1). | Q1 for Aaron | Not needed by design: steps are the handler's inside, and exposing them would make every handler refactor a breaking change for callers (K13). Proposed as a live absence check, Q1. |
-| cli | ✗ `packages/generators/src/modules/render/internal/cli.ts:6` | Steps never appear in the CLI's commands or output. | new: the same absence check (Q1). | Q1 for Aaron | Not needed by design, as for the SDK (Q1). |
-| mcp | ✗ `packages/generators/src/modules/render/internal/mcp.ts:21` | Steps never appear in a tool's schema; an agent calls the tool. | new: the same absence check (Q1). | Q1 for Aaron | Not needed by design, as for the SDK (Q1). |
-| docs | ~ `packages/generators/src/modules/render/internal/docs.ts:46` | The operation's page lists each step with its kind, the stores it writes, whether it is optional and the adapter call it makes. | render.test.ts extended; M1.41 reads the docs for step details. | M1.42 (proposed: name the docs in its row beside the portal) |  |
-| portal | ~ `packages/portal/src/modules/wire/types.ts:47` | The spine draws each declared step with its kind, writes, optional and call, and lights each from its span or step signal. | M1.41 reads step details in the data file; M1.13's screenshot of the spine with a call down it; e2e/m1/13-live-steps.test.ts. | M1.42 (wire), M1.13 (spine) |  |
-| telemetry | ✓ `packages/language-effect/src/modules/handler/service.ts:43-49` | Each step is a span named `<op>.<step>` with `step.kind`, and sends a signal as it starts and ends. | e2e/m1/13-live-steps.test.ts; packages/language-effect/src/modules/handler/internal/signal.test.ts. | M1.21 (done) |  |
+| model | ✓ `packages/compiler/src/modules/model/types.ts:64` | Each step's name, kind, writes, optional and call are in the model. | the compiler's model tests. | M1.03, M1.14 (done) | carries |
+| api | ~ `packages/projections/src/modules/api/internal/api.ts:84` | No part of the caller's contract names a step: the endpoint's schemas don't, and the API package every client imports exports no step list. | new: the absence check (Q1) over generated/api's exports. | M1.42 (proposed: move `steps` beside the handler's wiring in generated/server) | absence check |
+| server | ✓ `packages/language-effect/src/modules/handler/service.ts:43` | The handler is given one wrapper per declared step, run in a span; a call step goes through the adapter's runner. | e2e/m1/04-adapter-calls.test.ts; e2e/m1/13-live-steps.test.ts; e2e/m1/10-empty-and-scaffold.test.ts. | M1.14, M1.26 (done) | carries |
+| sdk | ✓ `packages/generators/src/modules/render/internal/sdk.ts:23` | The SDK's exported types and doc comments name no step: a caller sees the payload, the answer and the refusals. | new: the absence check (Q1) over the SDK's exported types. | built; the absence check proposed for M1.41 | absence check |
+| cli | ✓ `packages/generators/src/modules/render/internal/cli.ts:6` | No command, help text or output names a step. | new: the absence check (Q1) over `--help` and output. | built; the absence check proposed for M1.41 | absence check |
+| mcp | ✓ `packages/generators/src/modules/render/internal/mcp.ts:21` | No tool's name, description, input or output schema names a step. | new: the absence check (Q1) over the tool list. | built; the absence check proposed for M1.41 | absence check |
+| docs | ~ `packages/generators/src/modules/render/internal/docs.ts:46` | The operation's page lists each step with its kind, the stores it writes, whether it is optional and the adapter call it makes. | render.test.ts extended; M1.41 reads the docs for step details. | M1.42 (proposed: name the docs in its row beside the portal) | carries |
+| portal | ~ `packages/portal/src/modules/wire/types.ts:47` | The spine draws each declared step with its kind, writes, optional and call, and lights each from its span or step signal. | M1.41 reads step details in the data file; M1.13's screenshot of the spine with a call down it; e2e/m1/13-live-steps.test.ts. | M1.42 (wire), M1.13 (spine) | carries |
+| telemetry | ✓ `packages/language-effect/src/modules/handler/service.ts:43-49` | Each step is a span named `<op>.<step>` with `step.kind`, and sends a signal as it starts and ends. | e2e/m1/13-live-steps.test.ts; packages/language-effect/src/modules/handler/internal/signal.test.ts. | M1.21 (done) | carries |
 
 What "today" means, for each card not yet ✓ (and each regraded one):
 
-- **sdk.** SDK function takes payload and returns answer; steps are not mentioned.
-- **cli.** CLI command maps flags to the SDK call; no step shown.
-- **mcp.** Catalog entry has description and declaration only; steps not in the tool.
+- **sdk.** The SDK imports the declaration as a type only (`import type { declaration }`, generated `sdk/src/allowance/spend.ts:4`) and exports `PayloadOf<typeof declaration>`, so no step name reaches its surface. Regraded from ✗: the absence is this card's green.
+- **cli.** No help text or output names a step. Each command does import the whole declaration as a value, to decode its flags (generated `cli/src/allowance/spend.ts:4`), so step declarations ship inside the CLI, unseen. Regraded from ✗: the absence is this card's green.
+- **mcp.** A tool is the declaration's description and schemas; no step is described. The generated MCP does import the whole declaration as a value (generated `mcp/src/index.ts:6`), so step declarations sit in the MCP server's process, unseen. Regraded from ✗: the absence is this card's green.
 - **docs.** Operation page has a Steps section listing name and type per step. Missing: optional, the stores a step writes, and the adapter call of a call step.
 - **portal.** Wire step is only { name, type } and detail.ts:44 prints that; optional, writes and call are dropped. Live view joins step signals by span id (live/internal/join.ts) separately.
+- **api.** The endpoint's schemas name no step, but each generated `api/src/<thing>/<op>.ts` exports `steps` (api.ts:84), and the SDK, CLI and MCP import from that package. Regraded from ✓: the old green, "the endpoint carries the declared steps", is under the rule the leak itself.
 
 ### 5. machine
 
@@ -236,17 +237,17 @@ What "today" means, for each card not yet ✓ (and each regraded one):
 
 **How it is proved.** The lifecycle strip on a thing's card and page, with move counts on each arrow and refusals on the arrow they guard (portal.md, "A thing's page"), lit by `move.name`, `move.from` and `move.to`.
 
-| Output | Today | Green means | Evidence | Owner | Not needed? |
+| Output | Today | Green means | Evidence | Owner | Role |
 |---|---|---|---|---|---|
-| model | ✓ `packages/compiler/src/modules/model/types.ts:48` | Each thing's machine (states, moves with from, to and emits, the wrong-state refusal) and each operation's move are in the model. | e2e/m1/12-projections.test.ts. | built |  |
-| api | ~ `packages/projections/src/modules/api/internal/api.ts:35` | Each move-guarded endpoint declares the wrong-state refusal, and a thing's `state` is typed as the union of its states, not a string. | M1.41 reads the generated API for each machine's states. | M1.42 (proposed addition: `state` as a literal union in the answer schema) |  |
-| server | ✓ `packages/language-effect/src/modules/handler/internal/move.ts:39` | A wrong-state call is refused before the handler; a move sets the state and commits it with its journal entry. | packages/language-effect/src/modules/handler/internal/commit.test.ts; e2e/layer2. | built |  |
-| sdk | ✗ `examples/acme/generated/sdk/src/organization/get.ts:8` | A thing's state is a typed union in the SDK, and the wrong-state refusal is a typed class. | M1.41 reads the SDK's types; ST1.02 through the SDK (M2.08). | M1.42 |  |
-| cli | ✗ `packages/generators/src/modules/render/internal/cli.ts:1` | A `get` prints the state, and a command's help says which states it moves from and to. | M1.41 reads `--help`. | M1.42 |  |
-| mcp | ✗ `packages/language-effect/src/modules/mcp/internal/tool.ts:32` | A tool's description says which states it moves from and to, and its output schema types the state. | M1.37's output-schema check. | M1.37 (M3) |  |
-| docs | ✓ `packages/generators/src/modules/render/internal/docs.ts:66` | The thing's page lists its states, the wrong-state refusal and a move table; each operation's page has its move. | render.test.ts; M1.41. | built; evidence M1.41 |  |
-| portal | ~ `packages/portal/src/modules/site/internal/detail.ts:58` | The lifecycle strip is drawn from the machine on the thing's card and page, with live move counts on each arrow. | M1.13's screenshot of `handle`'s lifecycle lit by a journey's claim. | M1.13 |  |
-| telemetry | ~ `packages/language-effect/src/modules/handler/internal/move.ts:48` | Every move writes `move.name`, `move.from` and `move.to` on the operation's span. | e2e/m1/17-telemetry-model.test.ts (written ahead, red on `move.from`). | M1.36 |  |
+| model | ✓ `packages/compiler/src/modules/model/types.ts:48` | Each thing's machine (states, moves with from, to and emits, the wrong-state refusal) and each operation's move are in the model. | e2e/m1/12-projections.test.ts. | built | carries |
+| api | ~ `packages/projections/src/modules/api/internal/api.ts:35` | Each move-guarded endpoint declares the wrong-state refusal, and a thing's `state` is typed as the union of its states, not a string. | M1.41 reads the generated API for each machine's states. | M1.42 (proposed addition: `state` as a literal union in the answer schema) | carries |
+| server | ✓ `packages/language-effect/src/modules/handler/internal/move.ts:39` | A wrong-state call is refused before the handler; a move sets the state and commits it with its journal entry. | packages/language-effect/src/modules/handler/internal/commit.test.ts; e2e/layer2. | built | carries |
+| sdk | ✗ `examples/acme/generated/sdk/src/organization/get.ts:8` | A thing's state is a typed union in the SDK, and the wrong-state refusal is a typed class. | M1.41 reads the SDK's types; ST1.02 through the SDK (M2.08). | M1.42 | carries |
+| cli | ✗ `packages/generators/src/modules/render/internal/cli.ts:1` | A `get` prints the state, and a command's help says which states it moves from and to. | M1.41 reads `--help`. | M1.42 | carries |
+| mcp | ✗ `packages/language-effect/src/modules/mcp/internal/tool.ts:32` | A tool's description says which states it moves from and to, and its output schema types the state. | M1.37's output-schema check. | M1.37 (M3) | carries |
+| docs | ✓ `packages/generators/src/modules/render/internal/docs.ts:66` | The thing's page lists its states, the wrong-state refusal and a move table; each operation's page has its move. | render.test.ts; M1.41. | built; evidence M1.41 | carries |
+| portal | ~ `packages/portal/src/modules/site/internal/detail.ts:58` | The lifecycle strip is drawn from the machine on the thing's card and page, with live move counts on each arrow. | M1.13's screenshot of `handle`'s lifecycle lit by a journey's claim. | M1.13 | carries |
+| telemetry | ~ `packages/language-effect/src/modules/handler/internal/move.ts:48` | Every move writes `move.name`, `move.from` and `move.to` on the operation's span. | e2e/m1/17-telemetry-model.test.ts (written ahead, red on `move.from`). | M1.36 | carries |
 
 What "today" means, for each card not yet ✓ (and each regraded one):
 
@@ -263,17 +264,17 @@ What "today" means, for each card not yet ✓ (and each regraded one):
 
 **How it is proved.** The thing's page lists its events with their fields; an operation's spine shows the event its commit emitted and the `on:` handlers it set off (M1.21's committed events from the journal).
 
-| Output | Today | Green means | Evidence | Owner | Not needed? |
+| Output | Today | Green means | Evidence | Owner | Role |
 |---|---|---|---|---|---|
-| model | ✓ `packages/compiler/src/modules/model/internal/describe.ts:88` | Each thing's events with their fields, and the event each move emits, are in the model. | e2e/m1/12-projections.test.ts. | built |  |
-| api | ✓ `packages/projections/src/modules/api/internal/api.ts:133` | The generated API exports each event, named, with its schema. | M1.41 reads `generated/api/src/events.ts`. | built; evidence M1.41 |  |
-| server | ✓ `packages/language-effect/src/modules/handler/internal/move.ts:61` | A move's event is written to the journal in the same commit, without its secret or private fields. | packages/language-effect/src/modules/handler/internal/commit.test.ts; e2e/m1/13-live-steps.test.ts. | built (M1.21 reads it) |  |
-| sdk | ✗ `packages/generators/src/modules/render/internal/sdk.ts:1` | The SDK exports each event's type, so a caller can name what a move emitted. | M1.41 reads the SDK's exports for `Events`. | M1.42 |  |
-| cli | ✗ `packages/generators/src/modules/render/internal/cli.ts:1` | Decided by Q3. | Q3. | Q3 for Aaron | Proposed not needed: a CLI of operations has nothing to do with an event until events can be followed (M5.05). Q3. |
-| mcp | ✗ `packages/language-effect/src/modules/mcp/internal/tool.ts:1` | Decided by Q3. | Q3. | Q3 for Aaron | Proposed: events as MCP resources come with M1.37's resources, not before. Q3. |
-| docs | ~ `packages/generators/src/modules/render/internal/docs.ts:68` | Each event is documented with its fields and visibility, on its thing's page. | render.test.ts extended; M1.41 reads each event's fields in the docs. | M1.42 (proposed: name the docs in its row) |  |
-| portal | ~ `packages/portal/src/modules/wire/types.ts:43` | The thing's page lists its events with their fields, decoded from the data file; committed events show on the operation's spine with their commit. | M1.41 reads events with their fields in the data file; M1.13's screenshot. | M1.42 (wire), M1.13 (pages) |  |
-| telemetry | ~ `packages/language-effect/src/modules/handler/internal/move.ts:73` | The commit span `<op>.commit` carries `event.name`. | e2e/m1/17-telemetry-model.test.ts (written ahead, red: today `event.name` lands on the operation's span, not the commit's). | M1.36 |  |
+| model | ✓ `packages/compiler/src/modules/model/internal/describe.ts:88` | Each thing's events with their fields, and the event each move emits, are in the model. | e2e/m1/12-projections.test.ts. | built | carries |
+| api | ✓ `packages/projections/src/modules/api/internal/api.ts:133` | Not needed while event's audience leaves out the caller (Q3); A reopens these at M5.05, with views. | M1.41 reads `generated/api/src/events.ts`. | Q3 (the export stays: the server reads it; it is no caller's contract) | not needed (rule) |
+| server | ✓ `packages/language-effect/src/modules/handler/internal/move.ts:61` | A move's event is written to the journal in the same commit, without its secret or private fields. | packages/language-effect/src/modules/handler/internal/commit.test.ts; e2e/m1/13-live-steps.test.ts. | built (M1.21 reads it) | carries |
+| sdk | ✗ `packages/generators/src/modules/render/internal/sdk.ts:1` | Not needed while event's audience leaves out the caller (Q3); A reopens these at M5.05, with views. | M1.41 reads the SDK's exports for `Events`. | Q3 (A moves M1.42's "the SDK exports the events" to M5.05) | not needed (rule) |
+| cli | ✗ `packages/generators/src/modules/render/internal/cli.ts:1` | Not needed while event's audience leaves out the caller (Q3); A reopens these at M5.05, with views. | none | Q3 for Aaron | not needed (rule) |
+| mcp | ✗ `packages/language-effect/src/modules/mcp/internal/tool.ts:1` | Not needed while event's audience leaves out the caller (Q3); A reopens these at M5.05, with views. | none | Q3 for Aaron | not needed (rule) |
+| docs | ~ `packages/generators/src/modules/render/internal/docs.ts:68` | Each event is documented with its fields and visibility, on its thing's page. | render.test.ts extended; M1.41 reads each event's fields in the docs. | M1.42 (proposed: name the docs in its row) | carries |
+| portal | ~ `packages/portal/src/modules/wire/types.ts:43` | The thing's page lists its events with their fields, decoded from the data file; committed events show on the operation's spine with their commit. | M1.41 reads events with their fields in the data file; M1.13's screenshot. | M1.42 (wire), M1.13 (pages) | carries |
+| telemetry | ~ `packages/language-effect/src/modules/handler/internal/move.ts:73` | The commit span `<op>.commit` carries `event.name`. | e2e/m1/17-telemetry-model.test.ts (written ahead, red: today `event.name` lands on the operation's span, not the commit's). | M1.36 | carries |
 
 What "today" means, for each card not yet ✓ (and each regraded one):
 
@@ -290,17 +291,17 @@ What "today" means, for each card not yet ✓ (and each regraded one):
 
 **How it is proved.** Check 16 renders every output for every audience over a fixture with a public, a private and a secret field (M1.35); the portal's "no leak" check (M1.13); stage 4's club, whose portal shows nothing that names a member (ST4.07).
 
-| Output | Today | Green means | Evidence | Owner | Not needed? |
+| Output | Today | Green means | Evidence | Owner | Role |
 |---|---|---|---|---|---|
-| model | ✓ `packages/compiler/src/modules/model/internal/describe.ts:31-41` | Each field's visibility (public by default, private to roles, or secret) is in the model, on payloads, answers, events and errors alike. | the compiler's model tests. | built |  |
-| api | ✗ `packages/projections/src/modules/api/internal/api.ts:80-81` | The HTTP schemas a caller is served are cut by the one rule for that caller: a refusal never carries a field the caller may not see. | e2e/m1/16-visibility.test.ts (written ahead, red). | M1.35 |  |
-| server | ✗ `packages/language-effect/src/modules/wire/service.ts:5-14` | The server redacts answers and refusals through the one rule before they leave. | e2e/m1/16-visibility.test.ts (red). | M1.35 |  |
-| sdk | ✗ `packages/generators/src/modules/render/internal/sdk.ts:132-134` | The SDK's types and decoded values are the caller's audience's, so a secret never arrives where it wasn't issued. | e2e/m1/16-visibility.test.ts (red). | M1.35, M1.12 |  |
-| cli | ~ `packages/generators/src/modules/render/internal/cli.ts:55-58` | Answers and refusals print through the one rule; `Errors.shown` goes. | e2e/m1/16-visibility.test.ts (red). | M1.35 |  |
-| mcp | ✓ `packages/language-effect/src/modules/mcp/internal/shown.ts:8-22` | The agent audience: public always, private to a role held, secret never, failing closed on an undeclared field. | packages/language-effect/src/modules/mcp/mcp.test.ts; e2e/m1/16-visibility.test.ts. | built; M1.35 makes it the agent case of the one rule |  |
-| docs | ~ `packages/generators/src/modules/render/internal/docs.ts:12` | Every field table (payload, answer, event, error) marks each field's visibility. | render.test.ts extended; M1.41 reads visibility in the docs. | M1.42 (proposed: event and error fields) |  |
-| portal | ✗ `packages/portal/src/modules/wire/types.ts:12-17` | The data file's visibility is decoded and drawn (the in-and-out band marks secret and private), and the trace drawer shows only what the telemetry audience may see. | M1.41 reads visibility in the data file; M1.13's "no leak" check. | M1.42 (wire), M1.13 (no leak) |  |
-| telemetry | ✓ `packages/language-effect/src/modules/handler/internal/attributes.ts:39` | Spans, the journal and logs carry only fields the telemetry audience may see: public, and text only when marked traced. | packages/language-effect/src/modules/handler/internal/attributes.test.ts; e2e/m1/16-visibility.test.ts. | built (M1.19); M1.35 moves it onto the one rule |  |
+| model | ✓ `packages/compiler/src/modules/model/internal/describe.ts:31-41` | Each field's visibility (public by default, private to roles, or secret) is in the model, on payloads, answers, events and errors alike. | the compiler's model tests. | built | carries |
+| api | ✗ `packages/projections/src/modules/api/internal/api.ts:80-81` | The HTTP schemas a caller is served are cut by the one rule for that caller: a refusal never carries a field the caller may not see. | e2e/m1/16-visibility.test.ts (written ahead, red). | M1.35 | carries |
+| server | ✗ `packages/language-effect/src/modules/wire/service.ts:5-14` | The server redacts answers and refusals through the one rule before they leave. | e2e/m1/16-visibility.test.ts (red). | M1.35 | carries |
+| sdk | ✗ `packages/generators/src/modules/render/internal/sdk.ts:132-134` | The SDK's types and decoded values are the caller's audience's, so a secret never arrives where it wasn't issued. | e2e/m1/16-visibility.test.ts (red). | M1.35, M1.12 | carries |
+| cli | ~ `packages/generators/src/modules/render/internal/cli.ts:55-58` | Answers and refusals print through the one rule; `Errors.shown` goes. | e2e/m1/16-visibility.test.ts (red). | M1.35 | carries |
+| mcp | ✓ `packages/language-effect/src/modules/mcp/internal/shown.ts:8-22` | The agent audience: public always, private to a role held, secret never, failing closed on an undeclared field. | packages/language-effect/src/modules/mcp/mcp.test.ts; e2e/m1/16-visibility.test.ts. | built; M1.35 makes it the agent case of the one rule | carries |
+| docs | ~ `packages/generators/src/modules/render/internal/docs.ts:12` | Every field table (payload, answer, event, error) marks each field's visibility. | render.test.ts extended; M1.41 reads visibility in the docs. | M1.42 (proposed: event and error fields) | carries |
+| portal | ✗ `packages/portal/src/modules/wire/types.ts:12-17` | The data file's visibility is decoded and drawn (the in-and-out band marks secret and private), and the trace drawer shows only what the telemetry audience may see. | M1.41 reads visibility in the data file; M1.13's "no leak" check. | M1.42 (wire), M1.13 (no leak) | carries |
+| telemetry | ✓ `packages/language-effect/src/modules/handler/internal/attributes.ts:39` | Spans, the journal and logs carry only fields the telemetry audience may see: public, and text only when marked traced. | packages/language-effect/src/modules/handler/internal/attributes.test.ts; e2e/m1/16-visibility.test.ts. | built (M1.19); M1.35 moves it onto the one rule | carries |
 
 What "today" means, for each card not yet ✓ (and each regraded one):
 
@@ -317,22 +318,22 @@ What "today" means, for each card not yet ✓ (and each regraded one):
 
 **How it is proved.** The proof tab on each operation (the journeys that cover it and their verdicts, M1.04) and the proof matrix per environment (portal.md); `ortho prove` passing `--through sdk|cli|mcp` (M2.08).
 
-| Output | Today | Green means | Evidence | Owner | Not needed? |
+| Output | Today | Green means | Evidence | Owner | Role |
 |---|---|---|---|---|---|
-| model | ✓ `packages/compiler/src/modules/model/types.ts:144` | Journeys (cast, start, steps with their checks) and starting worlds are in the model. | packages/prove/src/modules/journeys/journeys.test.ts; Gate M1 item 4. | M1.03 (done) |  |
-| api | ✗ `packages/projections/src/modules/api/internal/api.ts:1` | Not needed. | none. | none | Proposed not needed (Q2): a journey is a proof, not something a client calls. |
-| server | ✗ `packages/projections/src/modules/server/service.ts:22` | Not needed. | none. | none | Proposed not needed (Q2): proof runs beside the server, never in it (`ortho prove` builds its own worker). |
-| sdk | ✗ `packages/generators/src/modules/render/internal/sdk.ts:62` | Not needed as a surface; journeys run through the SDK (M2.08). | M2.08. | M2.08 | Proposed not needed (Q2): a journey runs the SDK; it is not part of it. The SDK column is proved by journeys, which is this lane's job. |
-| cli | ✗ `packages/generators/src/modules/render/internal/cli.ts:1` | Not needed in the app's CLI; `ortho prove` runs journeys, and runs them through the CLI (M2.08). | M2.08. | M2.08 | Proposed not needed (Q2): journeys belong to the framework's `ortho`, not the app's command. |
-| mcp | ✗ `packages/language-effect/src/modules/mcp/internal/tool.ts:1` | Not needed as a tool; journeys run through MCP (M2.08). | M2.08. | M2.08 | Proposed not needed (Q2): proving is not an agent's tool. |
-| docs | ✗ `packages/generators/src/modules/render/internal/docs.ts:1` | Each operation's page lists the journeys that cover it, as worked examples drawn from the model. | new: render.test.ts. | M1.13 (proposed addition) |  |
-| portal | ✗ `packages/portal/src/modules/wire/service.ts:7` | The wire decodes journeys and starting worlds (today it says "unavailable", and the reason is stale), and each operation's proof tab shows its journeys and their verdicts. | M1.13's proof tab; M1.41 reads journeys in the data file (proposed addition). | M1.13 (journeys, starting worlds, the proof tab) |  |
-| telemetry | ~ `packages/prove/src/modules/journeys/internal/device.ts:62` | A journey's calls are traced under the journey's name and step, so the portal lights what a run touched. | e2e/layer1/02-acme-proves.test.ts (spans read back); new for the names. | M1.13 (proposed addition: `journey` and `journey.step` on prove's spans, which its "a journey's run lights up its operation" needs) |  |
+| model | ✓ `packages/compiler/src/modules/model/types.ts:144` | Journeys (cast, start, steps with their checks) and starting worlds are in the model. | packages/prove/src/modules/journeys/journeys.test.ts; Gate M1 item 4. | M1.03 (done) | carries |
+| api | ✗ `packages/projections/src/modules/api/internal/api.ts:1` | Not needed: journeys run through this client (M2.08), never in it. | none | none; journeys through this client are M2.08 | not needed (rule) |
+| server | ✓ `packages/projections/src/modules/server/internal/server.ts:148` | The deployed server serves no journey; `/_world/*` (the cast, the facts, the registry of worlds a journey starts from) answers only in an environment that declares a lifetime, and 404 everywhere else. | new: a check that `/_world/*` answers 404 in an environment without a lifetime. | built; its check proposed for M1.41 | carries |
+| sdk | ✗ `packages/generators/src/modules/render/internal/sdk.ts:62` | Not needed: journeys run through this client (M2.08), never in it. | M2.08. | none; journeys through this client are M2.08 | not needed (rule) |
+| cli | ✗ `packages/generators/src/modules/render/internal/cli.ts:1` | Not needed: journeys run through this client (M2.08), never in it. | M2.08. | none; journeys through this client are M2.08 | not needed (rule) |
+| mcp | ✗ `packages/language-effect/src/modules/mcp/internal/tool.ts:1` | Not needed: journeys run through this client (M2.08), never in it. | M2.08. | none; journeys through this client are M2.08 | not needed (rule) |
+| docs | ✗ `packages/generators/src/modules/render/internal/docs.ts:1` | Each operation's page lists the journeys that cover it, as worked examples drawn from the model. | new: render.test.ts. | M1.13 (proposed addition) | carries |
+| portal | ✗ `packages/portal/src/modules/wire/service.ts:7` | The wire decodes journeys and starting worlds (today it says "unavailable", and the reason is stale), and each operation's proof tab shows its journeys and their verdicts. | M1.13's proof tab; M1.41 reads journeys in the data file (proposed addition). | M1.13 (journeys, starting worlds, the proof tab) | carries |
+| telemetry | ~ `packages/prove/src/modules/journeys/internal/device.ts:62` | A journey's calls are traced under the journey's name and step, so the portal lights what a run touched. | e2e/layer1/02-acme-proves.test.ts (spans read back); new for the names. | M1.13 (proposed addition: `journey` and `journey.step` on prove's spans, which its "a journey's run lights up its operation" needs) | carries |
 
 What "today" means, for each card not yet ✓ (and each regraded one):
 
 - **api.** Journeys are not part of the HTTP surface.
-- **server.** The deployed server carries no journeys. Prove builds a temporary empty-handler Worker (emptyServer) just to run them; a prove-time tool, not the served output.
+- **server.** The server forms `WORLD_ENVIRONMENTS` from the environments that declare a lifetime (server.ts:148) and answers 404 on `/_world/*` anywhere else (server.ts:194). Regraded from ✗: it was proposed not needed, but under the audiences rule the server is the operator's output and journeys are the operator's, so the card is needed, and the world gate is its green.
 - **sdk.** SDK has no journey surface; journeys call operations through a cast (s.ada.run), not the SDK (examples/acme/journeys/README.md:64).
 - **cli.** The generated app CLI has no journey command; running journeys is the framework's `ortho prove`.
 - **mcp.** No journey tool or resource.
@@ -346,17 +347,17 @@ What "today" means, for each card not yet ✓ (and each regraded one):
 
 **How it is proved.** Roles on a thing's page and `allowed` in each operation's band (portal.md); the stage 1 journeys "a stranger can't edit" run through every client (ST1.02 with M2.08); M2.02's principal journeys.
 
-| Output | Today | Green means | Evidence | Owner | Not needed? |
+| Output | Today | Green means | Evidence | Owner | Role |
 |---|---|---|---|---|---|
-| model | ✓ `packages/compiler/src/modules/model/internal/describe.ts:90-102` | Each thing's roles and role rules, and each operation's `allowed`, are in the model. | the compiler's model tests. | M1.03 (done) |  |
-| api | ✓ `packages/projections/src/modules/api/internal/api.ts:40-42` | Every operation declares `NotAllowed` with its code. | e2e/layer1/05-the-generated-surfaces.test.ts. | built |  |
-| server | ✓ `packages/language-effect/src/modules/handler/service.ts:60` | The role check runs before the handler on every operation and read, and refuses with `NotAllowed`. | packages/language-effect/src/modules/access/access.test.ts; acme's journey "an outsider can't revoke"; ST1.02 "a stranger can't edit". | built; M2.03 adds the new principals |  |
-| sdk | ✗ `packages/generators/src/modules/render/internal/sdk.ts:132-134` | Each function's doc comment says who may call it. | M1.41 reads the SDK's doc comments (proposed addition to M1.41). | M2.03 (proposed addition) |  |
-| cli | ✗ `packages/generators/src/modules/render/internal/cli.ts:9` | Each command's help says who may call it; `NotAllowed` prints its code and exits 3. | M1.41 reads `--help` (proposed addition). | M2.03 (proposed addition) |  |
-| mcp | ~ `packages/language-effect/src/modules/mcp/internal/tool.ts:19-24` | Only the tools the caller's roles allow are listed, each description says who may call, and an operation closed to agents (`.notVia(Via.agent)`) has no tool. | M2.02's "an agent passes the owner rule unless `.notVia(Via.agent)`"; M3.22's tool exposure from `allowed` and `via`. | M2.03 (`.via`, `.notVia`), M3.22 (exposure) |  |
-| docs | ✓ `packages/generators/src/modules/render/internal/docs.ts:15` | Each operation's page says who may call, and each thing's page shows its role rules. | render.test.ts. | M1.13 (role rule text) |  |
-| portal | ~ `packages/portal/src/modules/wire/types.ts:46` | The thing's page lists its roles with their rules, and each operation's band shows `allowed`. | M1.13's screenshot; M1.41 reads role rules in the data file. | M1.13 (role rules, K12 section 6) |  |
-| telemetry | ~ `packages/language-effect/src/modules/handler/internal/attributes.ts:17-18` | Each span says which kind of caller it was and which role let the call through, never which person. | e2e/m1/17-telemetry-model.test.ts extended (proposed). | M2.03 (proposed addition: `principal.role`) |  |
+| model | ✓ `packages/compiler/src/modules/model/internal/describe.ts:90-102` | Each thing's roles and role rules, and each operation's `allowed`, are in the model. | the compiler's model tests. | M1.03 (done) | carries |
+| api | ✓ `packages/projections/src/modules/api/internal/api.ts:40-42` | Every operation declares `NotAllowed` with its code. | e2e/layer1/05-the-generated-surfaces.test.ts. | built | carries |
+| server | ✓ `packages/language-effect/src/modules/handler/service.ts:60` | The role check runs before the handler on every operation and read, and refuses with `NotAllowed`. | packages/language-effect/src/modules/access/access.test.ts; acme's journey "an outsider can't revoke"; ST1.02 "a stranger can't edit". | built; M2.03 adds the new principals | carries |
+| sdk | ✗ `packages/generators/src/modules/render/internal/sdk.ts:132-134` | Each function's doc comment says who may call it. | M1.41 reads the SDK's doc comments (proposed addition to M1.41). | M2.03 (proposed addition) | carries |
+| cli | ✗ `packages/generators/src/modules/render/internal/cli.ts:9` | Each command's help says who may call it; `NotAllowed` prints its code and exits 3. | M1.41 reads `--help` (proposed addition). | M2.03 (proposed addition) | carries |
+| mcp | ~ `packages/language-effect/src/modules/mcp/internal/tool.ts:19-24` | Only the tools the caller's roles allow are listed, each description says who may call, and an operation closed to agents (`.notVia(Via.agent)`) has no tool. | M2.02's "an agent passes the owner rule unless `.notVia(Via.agent)`"; M3.22's tool exposure from `allowed` and `via`. | M2.03 (`.via`, `.notVia`), M3.22 (exposure) | carries |
+| docs | ✓ `packages/generators/src/modules/render/internal/docs.ts:15` | Each operation's page says who may call, and each thing's page shows its role rules. | render.test.ts. | M1.13 (role rule text) | carries |
+| portal | ~ `packages/portal/src/modules/wire/types.ts:46` | The thing's page lists its roles with their rules, and each operation's band shows `allowed`. | M1.13's screenshot; M1.41 reads role rules in the data file. | M1.13 (role rules, K12 section 6) | carries |
+| telemetry | ~ `packages/language-effect/src/modules/handler/internal/attributes.ts:17-18` | Each span says which kind of caller it was and which role let the call through, never which person. | e2e/m1/17-telemetry-model.test.ts extended (proposed). | M2.03 (proposed addition: `principal.role`) | carries |
 
 What "today" means, for each card not yet ✓ (and each regraded one):
 
@@ -373,17 +374,17 @@ What "today" means, for each card not yet ✓ (and each regraded one):
 
 **How it is proved.** The portal's environment switcher in the top bar and the proof matrix (every operation against every environment, portal.md "Environments"); `environment` on every span (M1.36).
 
-| Output | Today | Green means | Evidence | Owner | Not needed? |
+| Output | Today | Green means | Evidence | Owner | Role |
 |---|---|---|---|---|---|
-| model | ✓ `packages/compiler/src/modules/model/types.ts:116` | Each environment's runs, identity, lifetime, cloud and database, store bindings, secret names, sinks, deploy domains and publish targets are in the model. | the compiler's model tests. | built |  |
-| api | ✗ `packages/projections/src/modules/api/internal/api.ts:1` | Not needed. | none. | none | Proposed not needed (Q2): the HTTP contract is the same in every environment; only where it is served differs. |
-| server | ~ `packages/projections/src/modules/server/internal/server.ts:148` | The server reads which environment it is, binds each store as that environment declares, and gates test-world routes to environments with a lifetime. | packages/projections/src/modules/server/server.test.ts; M7.03's `ortho env up staging` plans per-environment bindings. | M7.03 (bindings per environment) |  |
-| sdk | ✗ `packages/generators/src/modules/render/internal/sdk.ts:98` | Decided by Q4. | Q4. | Q4 for Aaron |  |
-| cli | ~ `packages/generators/src/modules/render/internal/cli-session.ts:41` | Decided by Q4. | Q4. | Q4 for Aaron |  |
-| mcp | ✗ `packages/generators/src/modules/render/internal/mcp.ts:6` | Not needed. | none. | none | Proposed not needed (Q2): each environment serves its own MCP at its own domain; the tool list does not change by environment. |
-| docs | ✗ `packages/generators/src/modules/render/internal/docs.ts:1` | The docs have an environments page: each environment, where it is served, its sink, its stores' bindings and its secrets by name. | new: render.test.ts for the page. | M1.13 (proposed addition: the environments page) |  |
-| portal | ~ `packages/portal/src/modules/wire/types.ts:67` | The top bar's switcher is built from the model's environments and their domains; each environment's portal reads only its own sink. | M1.13's screenshot of the switcher; M1.41 reads environments in the data file. | M1.13 (environments, K12 section 6) |  |
-| telemetry | ~ `packages/host-cloudflare/src/modules/telemetry/service.ts:9` | Every call's span carries `environment` (the resource already carries `deployment.environment`). | e2e/m1/17-telemetry-model.test.ts:267 (written ahead, red). | M1.36 |  |
+| model | ✓ `packages/compiler/src/modules/model/types.ts:116` | Each environment's runs, identity, lifetime, cloud and database, store bindings, secret names, sinks, deploy domains and publish targets are in the model. | the compiler's model tests. | built | carries |
+| api | ✗ `packages/projections/src/modules/api/internal/api.ts:1` | Not needed while environment's audience leaves out the caller; Q4's A widens it to the caller for the environments' names and public domains, and reopens these. | none | none | not needed (rule) |
+| server | ~ `packages/projections/src/modules/server/internal/server.ts:148` | The server reads which environment it is, binds each store as that environment declares, and gates test-world routes to environments with a lifetime. | packages/projections/src/modules/server/server.test.ts; M7.03's `ortho env up staging` plans per-environment bindings. | M7.03 (bindings per environment) | carries |
+| sdk | ✗ `packages/generators/src/modules/render/internal/sdk.ts:98` | Not needed while environment's audience leaves out the caller; Q4's A widens it to the caller for the environments' names and public domains, and reopens these. | none | Q4 for Aaron | not needed (rule) |
+| cli | ~ `packages/generators/src/modules/render/internal/cli-session.ts:41` | Not needed while environment's audience leaves out the caller; Q4's A widens it to the caller for the environments' names and public domains, and reopens these. | none | Q4 for Aaron | not needed (rule) |
+| mcp | ✗ `packages/generators/src/modules/render/internal/mcp.ts:6` | Not needed while environment's audience leaves out the caller; Q4's A widens it to the caller for the environments' names and public domains, and reopens these. | none | none | not needed (rule) |
+| docs | ✗ `packages/generators/src/modules/render/internal/docs.ts:1` | The docs have an environments page: each environment, where it is served, its sink, its stores' bindings and its secrets by name. | new: render.test.ts for the page. | M1.13 (proposed addition: the environments page) | carries |
+| portal | ~ `packages/portal/src/modules/wire/types.ts:67` | The top bar's switcher is built from the model's environments and their domains; each environment's portal reads only its own sink. | M1.13's screenshot of the switcher; M1.41 reads environments in the data file. | M1.13 (environments, K12 section 6) | carries |
+| telemetry | ~ `packages/host-cloudflare/src/modules/telemetry/service.ts:9` | Every call's span carries `environment` (the resource already carries `deployment.environment`). | e2e/m1/17-telemetry-model.test.ts:267 (written ahead, red). | M1.36 | carries |
 
 What "today" means, for each card not yet ✓ (and each regraded one):
 
@@ -402,17 +403,17 @@ What "today" means, for each card not yet ✓ (and each regraded one):
 
 **How it is proved.** The portal's data page (every store, its kind, binding and migrations, M5.06) and a thing's header naming its store; `store` on every span (M1.36); K3's check that a call writing two stores is refused (Gate M1 item 5).
 
-| Output | Today | Green means | Evidence | Owner | Not needed? |
+| Output | Today | Green means | Evidence | Owner | Role |
 |---|---|---|---|---|---|
-| model | ✓ `packages/compiler/src/modules/model/types.ts:178` | Each store (name, kind, from, hash), each thing's store and each environment's store bindings are in the model; a call writing two stores is refused. | packages/compiler/src/modules/model/stores.test.ts; Gate M1 item 5. | M1.17 (done) |  |
-| api | ✗ `packages/projections/src/modules/api/internal/api.ts:1` | Not needed. | none. | none | Proposed not needed (Q2): where a thing lives is invisible to an HTTP caller (K12, "What the grid leaves alone"). |
-| server | ✓ `packages/projections/src/modules/server/internal/worker-config.ts:21` | Each store gets its own binding and migrations folder, with its things, journal and request keys. | packages/generators/src/modules/render/stores.test.ts. | M1.17 (done) |  |
-| sdk | ✗ `packages/generators/src/modules/render/internal/sdk.ts:1` | Not needed. | none. | none | Proposed not needed (Q2): callers do not see where a thing lives. |
-| cli | ✗ `packages/generators/src/modules/render/internal/cli.ts:1` | Not needed. | none. | none | Proposed not needed (Q2): callers do not see where a thing lives. |
-| mcp | ✗ `packages/generators/src/modules/render/internal/mcp.ts:1` | Not needed. | none. | none | Proposed not needed (Q2): an agent does not need storage placement. |
-| docs | ~ `packages/generators/src/modules/render/internal/docs.ts:64` | Each store has a page (its kind, what lives in it, its migrations), and each thing's page links its store. | stores.test.ts extended; M5.06's `generated/data/map.md`. | M5.06 (the data map) |  |
-| portal | ✗ `packages/portal/src/modules/wire/types.ts:53` | The data file and wire carry stores, the thing's header names its store, and the data page lists every store. | M5.06's data page; M1.41 reads stores in the data file. | M1.13 (stores in the wire, K12 section 6); M5.06 (the page) |  |
-| telemetry | ✗ `packages/language-effect/src/modules/handler/internal/attributes.ts:1` | Every call's span carries `store`. | e2e/m1/17-telemetry-model.test.ts:267 (written ahead, red). | M1.36 |  |
+| model | ✓ `packages/compiler/src/modules/model/types.ts:178` | Each store (name, kind, from, hash), each thing's store and each environment's store bindings are in the model; a call writing two stores is refused. | packages/compiler/src/modules/model/stores.test.ts; Gate M1 item 5. | M1.17 (done) | carries |
+| api | ✗ `packages/projections/src/modules/api/internal/api.ts:1` | Not needed: a store is the builder's and the operator's; a store renamed never changes a caller's contract. | none | none | not needed (rule) |
+| server | ✓ `packages/projections/src/modules/server/internal/worker-config.ts:21` | Each store gets its own binding and migrations folder, with its things, journal and request keys. | packages/generators/src/modules/render/stores.test.ts. | M1.17 (done) | carries |
+| sdk | ✗ `packages/generators/src/modules/render/internal/sdk.ts:1` | Not needed: a store is the builder's and the operator's; a store renamed never changes a caller's contract. | none | none | not needed (rule) |
+| cli | ✗ `packages/generators/src/modules/render/internal/cli.ts:1` | Not needed: a store is the builder's and the operator's; a store renamed never changes a caller's contract. | none | none | not needed (rule) |
+| mcp | ✗ `packages/generators/src/modules/render/internal/mcp.ts:1` | Not needed: a store is the builder's and the operator's; a store renamed never changes a caller's contract. | none | none | not needed (rule) |
+| docs | ~ `packages/generators/src/modules/render/internal/docs.ts:64` | Each store has a page (its kind, what lives in it, its migrations), and each thing's page links its store. | stores.test.ts extended; M5.06's `generated/data/map.md`. | M5.06 (the data map) | carries |
+| portal | ✗ `packages/portal/src/modules/wire/types.ts:53` | The data file and wire carry stores, the thing's header names its store, and the data page lists every store. | M5.06's data page; M1.41 reads stores in the data file. | M1.13 (stores in the wire, K12 section 6); M5.06 (the page) | carries |
+| telemetry | ✗ `packages/language-effect/src/modules/handler/internal/attributes.ts:1` | Every call's span carries `store`. | e2e/m1/17-telemetry-model.test.ts:267 (written ahead, red). | M1.36 | carries |
 
 What "today" means, for each card not yet ✓ (and each regraded one):
 
@@ -430,24 +431,24 @@ What "today" means, for each card not yet ✓ (and each regraded one):
 
 **How it is proved.** The portal's tree, one folded group per mounted plugin with its version in the page header (portal.md, "The frame"); a call step on the spine naming its adapter; check 01 mounts a plugin with one command (Gate M1 item 1).
 
-| Output | Today | Green means | Evidence | Owner | Not needed? |
+| Output | Today | Green means | Evidence | Owner | Role |
 |---|---|---|---|---|---|
-| model | ✓ `packages/compiler/src/modules/model/types.ts:12` | `from` (mount, package, version) on things, operations and stores, the mounts, `via` and each call step's adapter are in the model. | e2e/m1/01-mounting.test.ts. | M1.03, M1.06 (done) |  |
-| api | ✓ `packages/projections/src/modules/api/internal/api.ts:73` | A mounted plugin's operations are served as the app's own, without the ones its mount omits. | e2e/m1/01-mounting.test.ts; e2e/m1/08-verbs.test.ts. | M1.07 (done) | Proposed not needed (Q2): showing a plugin's origin in the HTTP contract; the API is meant to look native. |
-| server | ✓ `packages/projections/src/modules/server/internal/server.ts:25` | Each mount is imported once and its operations served; call steps are wired to the adapter's callables. | e2e/m1/04-adapter-calls.test.ts. | M1.09, M1.14 (done) |  |
-| sdk | ✓ `packages/generators/src/modules/render/internal/sdk.ts:65` | A mounted plugin's operations are in the SDK as the app's own; a device operation runs from the plugin's host entry. | e2e/m1/03-adapter-mounting.test.ts; e2e/m1/11-client-operations.test.ts. | built | Proposed not needed (Q2): origin in the SDK's surface. |
-| cli | ✓ `packages/generators/src/modules/render/internal/cli.ts:6` | A mounted plugin's operations are commands as the app's own. | e2e/m1/01-mounting.test.ts (proposed addition: through the CLI). | built; evidence M1.41 | Proposed not needed (Q2): origin in the CLI. |
-| mcp | ✓ `packages/generators/src/modules/render/internal/mcp.ts:10` | A mounted plugin's operations are tools as the app's own; a mount that narrows away `Via.agent` leaves no tool. | e2e/m1/01-mounting.test.ts. | built; M3.22 (exposure from `via`) | Proposed not needed (Q2): origin in a tool. |
-| docs | ✗ `packages/generators/src/modules/render/internal/docs.ts:1` | Each page from a plugin names its plugin, package and version, and a call step names its adapter and call. | new: render.test.ts over a mounted fixture. | M1.13 (proposed addition: `from` in the docs) |  |
-| portal | ✗ `packages/portal/src/modules/wire/types.ts:35` | The tree groups things by plugin, each page's header names its plugin and version, and a call step names its adapter. | M1.41 reads `from` and mounts in the data file; M1.13's screenshot of Plugged In with handles mounted. | M1.42 (`from` in the wire), M1.13 (the tree) |  |
-| telemetry | ✗ `packages/language-effect/src/modules/handler/service.ts:28` | An operation's span names its mount, and a call step's span names its adapter and call. | new: e2e/m1/17-telemetry-model.test.ts extended. | M1.36 (proposed addition: `from.mount`, `call.mount`, `call.name`) |  |
+| model | ✓ `packages/compiler/src/modules/model/types.ts:12` | `from` (mount, package, version) on things, operations and stores, the mounts, `via` and each call step's adapter are in the model. | e2e/m1/01-mounting.test.ts. | M1.03, M1.06 (done) | carries |
+| api | ✓ `packages/projections/src/modules/api/internal/api.ts:73` | Not needed: the plugin a mounted operation came from is the builder's and the operator's; the operation itself reaches callers through the operation lane, as the app's own. | e2e/m1/01-mounting.test.ts; e2e/m1/08-verbs.test.ts. | none | not needed (rule) |
+| server | ✓ `packages/projections/src/modules/server/internal/server.ts:25` | Each mount is imported once and its operations served; call steps are wired to the adapter's callables. | e2e/m1/04-adapter-calls.test.ts. | M1.09, M1.14 (done) | carries |
+| sdk | ✓ `packages/generators/src/modules/render/internal/sdk.ts:65` | Not needed: the plugin a mounted operation came from is the builder's and the operator's; the operation itself reaches callers through the operation lane, as the app's own. | e2e/m1/03-adapter-mounting.test.ts; e2e/m1/11-client-operations.test.ts. | none | not needed (rule) |
+| cli | ✓ `packages/generators/src/modules/render/internal/cli.ts:6` | Not needed: the plugin a mounted operation came from is the builder's and the operator's; the operation itself reaches callers through the operation lane, as the app's own. | e2e/m1/01-mounting.test.ts (proposed addition: through the CLI). | none | not needed (rule) |
+| mcp | ✓ `packages/generators/src/modules/render/internal/mcp.ts:10` | Not needed: the plugin a mounted operation came from is the builder's and the operator's; the operation itself reaches callers through the operation lane, as the app's own. | e2e/m1/01-mounting.test.ts. | none | not needed (rule) |
+| docs | ✗ `packages/generators/src/modules/render/internal/docs.ts:1` | Each page from a plugin names its plugin, package and version, and a call step names its adapter and call. | new: render.test.ts over a mounted fixture. | M1.13 (proposed addition: `from` in the docs) | carries |
+| portal | ✗ `packages/portal/src/modules/wire/types.ts:35` | The tree groups things by plugin, each page's header names its plugin and version, and a call step names its adapter. | M1.41 reads `from` and mounts in the data file; M1.13's screenshot of Plugged In with handles mounted. | M1.42 (`from` in the wire), M1.13 (the tree) | carries |
+| telemetry | ✗ `packages/language-effect/src/modules/handler/service.ts:28` | An operation's span names its mount, and a call step's span names its adapter and call. | new: e2e/m1/17-telemetry-model.test.ts extended. | M1.36 (proposed addition: `from.mount`, `call.mount`, `call.name`) | carries |
 
 What "today" means, for each card not yet ✓ (and each regraded one):
 
-- **api.** A mounted plugin's operations are generated as the app's own, and an omitted one is gone (check 08). The reader graded ✗ for showing no origin; this card's green is serving them natively, and the origin is proposed not needed here.
-- **sdk.** Mounted operations are in the SDK as the app's own, and `from` is used to load a device operation's host entry. The reader graded ~ for showing no origin; that is proposed not needed here.
-- **cli.** Commands are generated per thing and verb from the whole model, mounted operations included. The reader graded ✗ for showing no origin; that is proposed not needed here.
-- **mcp.** Mounted operations are tools, and an operation narrowed without `Via.agent` has none. The reader graded ~ for showing no origin; that is proposed not needed here.
+- **api.** A mounted plugin's operations are generated as the app's own, and an omitted one is gone (check 08). Under the rule this card is not needed; its old green ("A mounted plugin's operations are served as the app's own, without the ones its mount omits") is the operation lane's, where mounted operations are proved.
+- **sdk.** Mounted operations are in the SDK as the app's own, and `from` is used to load a device operation's host entry. Under the rule this card is not needed; its old green ("A mounted plugin's operations are in the SDK as the app's own; a device operation runs from the plugin's host entry") is the operation lane's, where mounted operations are proved.
+- **cli.** Commands are generated per thing and verb from the whole model, mounted operations included. Under the rule this card is not needed; its old green ("A mounted plugin's operations are commands as the app's own") is the operation lane's, where mounted operations are proved.
+- **mcp.** Mounted operations are tools, and an operation narrowed without `Via.agent` has none. Under the rule this card is not needed; its old green ("A mounted plugin's operations are tools as the app's own; a mount that narrows away `Via.agent` leaves no tool") is the operation lane's, where mounted operations are proved.
 - **docs.** No `from`, mount, package or version in docs.
 - **portal.** Operation and Thing wire carry no `from`, no mounts, no via; step has only {name,type}, so a call step shows no adapter.
 - **telemetry.** A call step is a span `<op>.<step>` with step.kind=call; the adapter, mount, package or call name is not an attribute.
@@ -458,26 +459,113 @@ What "today" means, for each card not yet ✓ (and each regraded one):
 
 **How it is proved.** Check 11 (a client operation through the SDK and CLI with no server call); stage 2's wallet created on the device (ST2.06); the operation's page in the portal marked "on your device", lit by its spans (portal.md gap 4).
 
-| Output | Today | Green means | Evidence | Owner | Not needed? |
+| Output | Today | Green means | Evidence | Owner | Role |
 |---|---|---|---|---|---|
-| model | ✓ `packages/compiler/src/modules/model/types.ts:93` | `runs` is in the model; a client operation is accepted only from a plugin with host entries, and refused without one. | e2e/m1/11-client-operations.test.ts. | M1.27 (done) |  |
-| api | ✓ `packages/projections/src/modules/api/internal/api.ts:88` | A client operation has its declaration in the API, for the clients' types, and no route. | e2e/m1/11-client-operations.test.ts. | M1.27 (done) |  |
-| server | ✓ `packages/projections/src/modules/names/internal/names.ts:58` | The server holds no code for a client operation. | e2e/m1/11-client-operations.test.ts (the worker holds none). | M1.27 (done) | Kept live as an absence check: a device operation must never run on the server. |
-| sdk | ✓ `packages/generators/src/modules/render/internal/sdk.ts:125` | A client operation runs in-process from the SDK, under the app's mount, with its steps as spans. | e2e/m1/11-client-operations.test.ts. | M1.27 (done) |  |
-| cli | ✓ `packages/generators/src/modules/render/internal/cli.ts:28` | A client operation runs in-process from the CLI with no server request. | e2e/m1/11-client-operations.test.ts:139-141. | M1.27 (done) |  |
-| mcp | ✗ `packages/generators/src/modules/render/service.ts:19` | Not needed through remote MCP. | e2e/m1/11-client-operations.test.ts (no tool). | none | Proposed not needed (Q2): remote MCP reaches the server, which cannot run device code; a local MCP on the device is later work. |
-| docs | ✗ `packages/generators/src/modules/render/internal/docs.ts:40` | A client operation's page says it runs on the device and which hosts it supports. | new: render.test.ts. | M1.13 (proposed addition) |  |
-| portal | ✗ `packages/portal/src/modules/wire/types.ts:35` | The wire carries `runs`, and the operation's page marks it "on your device". | M1.41 reads `runs` in the data file; M1.13's screenshot. | M1.13 (`runs`, K12 section 6) |  |
-| telemetry | ~ `packages/language-effect/src/modules/handler/internal/device.ts:36` | A device operation's spans (operation, steps, refusal, `environment`) reach the environment's sink, so the portal lights it like any call. | e2e/m1/11-client-operations.test.ts:214 (spans exported); new for the sink. | new slice needed: device spans to the environment's sink (portal.md gap 4, ledger `LAH-02`), proposed ST2.07 before ST2.03 |  |
+| model | ✓ `packages/compiler/src/modules/model/types.ts:93` | `runs` is in the model; a client operation is accepted only from a plugin with host entries, and refused without one. | e2e/m1/11-client-operations.test.ts. | M1.27 (done) | carries |
+| api | ✓ `packages/projections/src/modules/api/internal/api.ts:88` | A client operation has its declaration in the API, for the clients' types, and no route. | e2e/m1/11-client-operations.test.ts. | M1.27 (done) | carries |
+| server | ✓ `packages/projections/src/modules/names/internal/names.ts:58` | The server holds no code for a client operation. | e2e/m1/11-client-operations.test.ts (the worker holds none). | M1.27 (done) | carries |
+| sdk | ✓ `packages/generators/src/modules/render/internal/sdk.ts:125` | A client operation runs in-process from the SDK, under the app's mount, with its steps as spans. | e2e/m1/11-client-operations.test.ts. | M1.27 (done) | carries |
+| cli | ✓ `packages/generators/src/modules/render/internal/cli.ts:28` | A client operation runs in-process from the CLI with no server request. | e2e/m1/11-client-operations.test.ts:139-141. | M1.27 (done) | carries |
+| mcp | ✓ `packages/generators/src/modules/render/service.ts:19` | No device operation is offered as a remote MCP tool: an agent reaches it through the SDK or the CLI on the device. | check 11 extended: the generated MCP names no client operation. | M1.27 (done); its check proposed for M1.41 | carries |
+| docs | ✗ `packages/generators/src/modules/render/internal/docs.ts:40` | A client operation's page says it runs on the device and which hosts it supports. | new: render.test.ts. | M1.13 (proposed addition) | carries |
+| portal | ✗ `packages/portal/src/modules/wire/types.ts:35` | The wire carries `runs`, and the operation's page marks it "on your device". | M1.41 reads `runs` in the data file; M1.13's screenshot. | M1.13 (`runs`, K12 section 6) | carries |
+| telemetry | ~ `packages/language-effect/src/modules/handler/internal/device.ts:36` | A device operation's spans (operation, steps, refusal, `environment`) reach the environment's sink, so the portal lights it like any call. | e2e/m1/11-client-operations.test.ts:214 (spans exported); new for the sink. | new slice needed: device spans to the environment's sink (portal.md gap 4, ledger `LAH-02`), proposed ST2.07 before ST2.03 | carries |
 
 What "today" means, for each card not yet ✓ (and each regraded one):
 
 - **api.** A client operation gets its declaration and no route (`declarationOnly`). That is this card's green; the reader graded ~ against a route.
 - **server.** `serverModel` drops client operations, and check 11 proves the worker holds none. That absence is this card's green; the reader graded ✗ by design.
-- **mcp.** renderMcp is given serverModel, so a client op has no MCP tool.
+- **mcp.** `renderMcp` is given `serverModel`, which drops client operations, so a device operation has no tool. Regraded from ✗: it was proposed not needed, but the device block is the caller's, so the card is needed, and that absence is its green.
 - **docs.** Docs page for a client op is written like a server op's; no `runs` or 'runs on your device' text, no host entries.
 - **portal.** Wire Operation has no `runs` field; the portal lists the client op's steps (check 11 item 6) but cannot say it runs on the device.
 - **telemetry.** Operation span plus a span per step (step.kind), payload/answer attributes and principal, exported over OTLP before return. No journal, commit span, move or refusal attributes (no store, 'no one to ask'), and the `environment`/`store` attributes of check 17 do not apply.
+
+## Who each block is for
+
+Aaron, 19 November, on the first list of not-needed cards: "We either have a missing abstraction, or the abstraction's
+there but it hasn't been named." It was there: every output is written for someone, and every building block is
+meant for some of those people and not others. Named, it replaces the hand-made list. Whether the rule holds is
+Aaron's (Q2); the table below, where it lives and how it relates to field visibility are decided here.
+
+**Three audiences, and the outputs each one reads.**
+
+| Audience | Who | Outputs |
+|---|---|---|
+| caller | a person, a program or an agent calling the app | api, sdk, cli, mcp |
+| builder | the person writing the blueprint and the handlers | model, docs, and the scaffold (written once, then theirs; not a column) |
+| operator | the person running it | server, telemetry |
+| | | the portal serves the builder and the operator |
+
+**Each block belongs to a set of audiences.**
+
+| Block | caller | builder | operator | Why |
+|---|---|---|---|---|
+| thing | ✓ | ✓ | ✓ | A thing's fields are every payload and answer: callers type against them. |
+| operation | ✓ | ✓ | ✓ | The caller's whole contract, the builder's handler, the operator's calls and budget. |
+| step | absent | ✓ | ✓ | How the handler works, not what the caller asked for: a step renamed or split must never change a caller's contract. Leaving its audience is a leak. |
+| machine | ✓ | ✓ | ✓ | A thing's state is in its answers, and the wrong-state refusal is the first thing a caller meets. |
+| event | (M5.05) | ✓ | ✓ | The runtime's record of a move. A caller reads state, not the journal, until views make events followable (Q3). |
+| error | ✓ | ✓ | ✓ | Refusals are the caller's contract: name, code and exit. |
+| roles | ✓ | ✓ | ✓ | A caller needs to know who may call before calling (M2.03). |
+| visibility | ✓ | ✓ | ✓ | The rule over what each audience sees: its caller cards are where a secret must not leave. |
+| environment | (Q4) | ✓ | ✓ | Where the app runs and what it binds; a caller is handed a URL. Q4 decides whether the caller gets the environments' names and public domains. |
+| store | | ✓ | ✓ | Where things live: a store renamed or rebound must never change a caller's contract. |
+| mount | | ✓ | ✓ | A mounted plugin's operations reach callers through the operation lane, as the app's own; which plugin they came from is not the caller's business. |
+| device | ✓ | ✓ | ✓ | The caller runs a device operation in its own process; the operator sees its spans (ST2.07). |
+| journey | | ✓ | ✓ | Journeys prove the app: they run through the clients (M2.08), never in them. The server's part is the starting world. |
+
+**The rule.** A card is not needed exactly when its output's audiences and its block's audiences don't meet. Where a
+block reaching an audience would be a leak (steps reaching callers), the card stays live as an absence check: its
+green is that the block is never there. The board derives this from the two tables; no card stores it.
+
+```ts
+// design/grid/types.ts
+export const cellRole = (block: Block, output: Output): CellRole =>
+  output.audiences.some((a) => block.audiences.includes(a)) ? "carries"
+  : output.audiences.some((a) => block.absentFrom.includes(a)) ? "absence"
+  : "not-needed";
+```
+
+On the 117 cards it gives 93 that carry, 4 absence checks (step in the api, sdk, cli and mcp) and 20 not needed:
+event, environment, store, mount and journey, each in the four caller outputs. Against the first list of 17, it moves
+these:
+
+| Card | Was | Now | Why |
+|---|---|---|---|
+| `journey.server` | proposed not needed | needed, ✓ | the server is the operator's, and so are journeys: `/_world/*` answers only where a lifetime is declared (`server.ts:148`, `:194`). The rule found a real card, already built |
+| `device.mcp` | proposed not needed | needed, ✓ as an absence | the device block is the caller's; no device operation is a remote tool (`render/service.ts:19`) |
+| `step.api` | ✓, "the endpoint carries the steps" | absence check, ~ | the endpoint names no step, but the API package every client imports exports `steps` (`api.ts:84`) |
+| `step.sdk`, `step.cli`, `step.mcp` | ✗, proposed not needed | absence checks, ✓ | nothing a caller reads names a step; the absence is the green |
+| `event.api`, `event.sdk` | ✓ and ✗ (M1.42) | not needed until M5.05 | Q3 |
+| `environment.sdk`, `environment.cli` | Q4 | not needed unless Q4 is A | Q4's A widens environment to the caller |
+| `mount.api`, `.sdk`, `.cli`, `.mcp` | ✓ ("looks native") | not needed | mounted operations are proved in the operation lane; the plugin's name is not the caller's |
+
+**The blueprint narrows, never widens.** A declaration can take an audience away from itself, and already does in
+three places: `via` takes an operation away from the agent (MCP) or other callers, a mount's `omit` takes a plugin's
+operation away from everyone, and a field's visibility takes a value away from those who don't hold its role. No
+declaration can give itself an audience its block doesn't have: there is no way to put a step in the SDK. Widening a
+block is a framework change, recorded as a decision, like event's at M5.05.
+
+**Where the table lives (decided here).** A new module in `orthograph`, `audiences`, beside `visibility`: the
+`Audience` type, the block table and the output table, as data. `orthograph` is the only package the compiler, the
+generators and the runtime all depend on (`packages/compiler/package.json`, `packages/generators/package.json`,
+`packages/language-effect/package.json`), and it depends only on Effect, so the table can sit nowhere lower. The
+compiler is its one reader: it writes each declaration's audiences into the model, after the blueprint's narrowing
+(`via`, `omit`), so a generator asks the model, never the table, and narrowing is applied once. One generic check then
+replaces every absence check written by hand: render every output, and fail if any names a declaration whose
+audiences leave that output out. Owner: proposed for M1.42, beside the model work it already does; the conductor puts
+it on the row.
+
+**How it relates to field visibility (M1.35).** The same idea, one level up, and one vocabulary, but two functions.
+M1.35's `Audience` (`principal` with roles, `agent`, `telemetry`, `public`, `owner`) decides at run time which values
+of a field reach a viewer. The block audience decides at generation time which declarations reach an output at all.
+Each of M1.35's audiences is one of the three kinds: `principal`, `agent` and `public` are callers; `telemetry` and
+`owner` are the operator; the builder sees declarations, never values, so it has no M1.35 audience. One implementation
+can't serve both: one runs over values on every call, the other over declarations once per generate, and putting the
+block table in M1.35's runtime module would make the compiler depend on `language-effect`, which the package rules
+forbid. What they share: the kind type, from `orthograph`'s `audiences`, and the rule that both fail closed. Proposed
+for M1.35's row: each of its audiences names its kind, so `sees` can first ask whether the field's block reaches that
+kind at all. Nothing in M1.35's check changes.
 
 ## How the columns relate
 
@@ -564,9 +652,9 @@ needs least besides it, then let every lane after reuse it.
 | 1 | Operation & read | Seven of nine cards are ✓ already. Climbing it builds the whole evidence path (M1.41's loop through the real binary, M1.13's portal opening on Plugged In, journeys' verdicts on the proof tab) with almost no new model work, so it is the first fully green lane and the template for the rest | M1.42 (the CLI's `--help`), M1.13 (the operation page, the matrix) |
 | 2 | Error & refusal code | Six ✓; refusals are what a person meets first when something goes wrong, and `HN-001` is in M1.41's done-when | M1.42 (codes in the wire, a code for `InvalidPayload`), M1.36 (`refusal.code`), M1.13 |
 | 3 | Thing & fields | The model card is ~ because no field can be described; that is a blueprint change, small but upstream of every other output's help and schema text, so it lands early | M1.42 (a field description in the blueprint and model, thing types in the SDK, typed and described flags, the wire), M1.13 |
-| 4 | Step | Only docs and the portal are left, and Q1 settles the three client cards | M1.42 (step details in the docs and the wire), M1.13 (the spine) |
+| 4 | Step | Only docs, the portal and one absence are left: the API package's `steps` export moves to the server (Q1) | M1.42 (step details in the docs and the wire), M1.13 (the spine) |
 | 5 | Machine, states, move | Needs the state union in the API, which the SDK, CLI and MCP then carry | M1.42 (the union), M1.36 (`move.from`), M1.13 (the lifecycle strip), M1.37 for MCP (M3) |
-| 6 | Event | Waits on Q3 for the CLI and MCP; the rest is M1.42 and M1.36 | M1.42, M1.36, M1.13 |
+| 6 | Event | Q3 decides its four caller cards; the rest is M1.42 and M1.36 | M1.42, M1.36, M1.13 |
 | 7 | Field visibility | The safety lane: Gate M1 item 8. Check 16 is already written and red, so it climbs by itself beside 1 to 6 | M1.35, then M1.42 and M1.13 for the portal |
 | 8 | Journey & starting world | The carrier of the SDK, CLI and MCP columns' proof; its own cards are docs, portal and telemetry | M1.13 (proof tab, journey names on spans), M2.08 (through each client) |
 | 9 | Roles | M2's principals change what roles mean, so climbing it before M2.01 would be done twice | M2.01 to M2.07, M3.22 for MCP's exposure |
@@ -583,8 +671,8 @@ them on the rows in one change (this record does not edit `milestones.md`):
 
 | Slice | Proposed addition | Lane |
 |---|---|---|
-| M1.41 | read roles in the SDK's doc comments and the CLI's help; read journeys in the portal's data file; call each operation once through MCP | roles, journey, operation |
-| M1.42 | a field description in the blueprint (`Blueprint.thing` fields, values) and the model; a code for `InvalidPayload`; each thing's `state` as a literal union; step details and event fields in the docs, not only the portal | thing, error, machine, step, event |
+| M1.41 | read roles in the SDK's doc comments and the CLI's help; read journeys in the portal's data file; call each operation once through MCP; `/_world/*` answers 404 where no lifetime is declared; the MCP names no client operation | roles, journey, operation, device |
+| M1.42 | a field description in the blueprint (`Blueprint.thing` fields, values) and the model; a code for `InvalidPayload`; each thing's `state` as a literal union; step details and event fields in the docs, not only the portal; `orthograph`'s `audiences` module, each declaration's audiences in the model, and one generic absence check; `steps` moved out of `generated/api` | thing, error, machine, step, event, and every lane's absence checks |
 | M1.36 | `from.mount` on the operation's span, `call.mount` and `call.name` on a call step's span | mount |
 | M1.13 | `journey` and `journey.step` on prove's spans; an environments page and `from`, `runs` and each operation's covering journeys in the docs | journey, environment, mount, device |
 | M2.03 | who may call, in the SDK's doc comment and the CLI's help; `principal.role` on the span | roles |
@@ -613,13 +701,20 @@ None of them changes a card above.
 5. The hill-climb order above, operation first.
 6. The proposed slice additions and the two new slices above are proposals for the conductor to put on
    `milestones.md`; this record edits no row.
+7. Each output has its audiences and each block its audiences, in the two tables under "Who each block is for"; a
+   card's role (carries, absence check, not needed) is derived from them, never stored. Whether the rule holds is Q2.
+8. The tables live in a new `audiences` module in `orthograph`, read by the compiler once, which writes each
+   declaration's audiences into the model after the blueprint's narrowing; a blueprint narrows, never widens. Block
+   audiences and M1.35's field audiences share one kind type and fail closed, but stay two functions.
 
 ## What this changes elsewhere
 
 | Was | Now | Why |
 |---|---|---|
 | K12's grid and K13's 5 by 5 as the measure | this grid, 13 by 9, graded per card against its own green | Aaron, 19 November: the grid is the goal |
-| K12, "What the grid leaves alone on purpose": a paragraph | the not-needed cards, one by one, for Aaron (Q2) | each card needs a reason a board can show |
+| K12, "What the grid leaves alone on purpose": a paragraph | the audiences rule, one reason per block, for Aaron (Q2) | Aaron, 19 November: the hand list hid a missing abstraction |
+| M1.42 "the SDK exports … the events" | moves to M5.05, if Q3 is A | no caller can receive an event before views |
+| M1.35's `Audience` | each audience names its kind (caller or operator), from `orthograph`'s `audiences` | one vocabulary for field and block audiences |
 | M1.41 "fails only where K13's grid says ✗ or ~" | unchanged; this grid is wider, and M1.41 checks its stage 1 basics | M1.41's scope stays the basics; the story check (proposed) covers the rest |
 | The portal's gaps table (`portal.md`, "Gaps") | unchanged; gap 4 gets an owner proposed here (ST2.07) | it had none |
 
@@ -629,6 +724,17 @@ None of them changes a card above.
   the thing lane's model card and everything downstream of it stays ~.
 - **The portal column carries the whole grid's last mile.** Every lane waits on M1.13, the largest slice in M1. If it
   slips, no lane is fully green before Gate M1.
+- **A step or error added after the scaffold is yours writes nothing into your handler.** Confirmed: `ortho generate`
+  skips a scaffold that exists (`packages/generators/src/modules/sync/service.ts:23`). Corrected: something does warn,
+  for a required step. `ortho check` runs `ortho/required-step-used` as a warning, "required step steps.load is never
+  called" (`packages/lint/src/modules/rules/internal/steps.ts:13,35`, wired at
+  `packages/cli/src/modules/check/internal/tools.ts:49`), and prove's eval 6 fails a call whose required step ran no
+  span (`packages/prove/src/modules/evals/internal/calls.ts:130-143`). What stays open: an optional step added later
+  gets no warning from `check`, only prove's note that it was never exercised both ways
+  (`packages/prove/src/modules/prove/internal/report.ts:131`), and an error added later is flagged by nothing, though
+  the scaffold would have written a `refuse X when?` blank for it (`packages/projections/src/modules/handlers/internal/scaffold.ts:59-94`).
+  Proposed for M2.15, which already teaches `ortho add` to edit in place: `ortho add step` and `ortho add error` also
+  name the handler to change, and `check` gains `ortho/declared-error-raised`, a warning like the step rule.
 - **Grades drift.** They are read from `6419d4b7`. Until the story check writes verdicts per card, the board's colours
   are this record's and go stale as `m1` moves; the conductor regrades a lane when a slice that owns one of its cards
   merges.
@@ -639,223 +745,280 @@ Four calls are his: they decide what a person using a generated app experiences,
 other call in this record is the building agent's, under "Who decides".
 
 **Terms for this round.** A *card* is one cell of the grid: one building block in one output. *Green* means the
-card's evidence runs in CI and passes. *Not needed* means the card stays on the board, greyed, with its reason, and
-nobody builds it. An *absence check* is a card that stays live to prove something never shows. The *clients* are the
-SDK, the CLI and MCP. All code is on `origin/m1` at `6419d4b7`.
+card's evidence runs in CI and passes. An *audience* is who an output is written for: the *caller* (API, SDK, CLI,
+MCP), the *builder* (model, docs, the scaffold) or the *operator* (server, telemetry); the portal serves the builder and
+the operator. A block's audiences decide its cards ("Who each block is for"): a card is *not needed* when its output's
+audience isn't among its block's, and is then shown greyed with that reason. An *absence check* is a card that stays
+live to prove a block never reaches an audience. The *scaffold* is the handler file `ortho generate` writes once, after
+which it is yours. The snippets for Plugged In are from Codex's draft on `links/stage-1` (#56), under
+`examples/links/`, which M1.40 writes as `examples/plugged-in`; the rest is `origin/m1` at `6419d4b7`.
 
-### Q1 — Should a client (SDK, CLI or MCP) ever show an operation's steps?
+### Q1 — Does a step's audience include the caller?
 
-**The problem, in code.** The generated API carries each operation's steps, because the handler is built from the
-same declaration:
+**The problem, in code.** You declare a step in the blueprint, the scaffold hands it to your handler, and the
+generated API, which every client imports, also exports it:
 
 ```ts
-// examples/acme/generated/api/src/allowance/spend.ts:12
-export const steps = ["allowance.spend.load", "allowance.spend.record"] as const;
+// examples/links/blueprint/things/handle/verbs/claim.ts:13 — the blueprint
+  steps: { load: Blueprint.step.database(), record: Blueprint.step.database() },
+```
+```ts
+// examples/links/generated/api/src/handle/claim.ts:12 — generated, imported by the SDK, the CLI and MCP
+export const steps = ["handle.claim.load", "handle.claim.record"] as const;
+```
+```ts
+// examples/links/src/handle/claim.ts:16,26 — the scaffold, now yours
+    const [named, page] = yield* steps.load(Effect.all([PageRecords.find(Handle, handle), PageRecords.find(Profile, profile)]));
+    yield* steps.record(Effect.gen(function* () {
 ```
 
-No client shows them. The SDK's function is the payload in and the answer out, and MCP's catalog entry is a
-description and the declaration (`packages/generators/src/modules/render/internal/mcp.ts:21`). K13 called that "by
-design", but nobody asked you. If nobody decides, three cards in the step lane stay red forever, or somebody builds
-step help into the CLI and every handler refactor becomes a change callers can see.
+Nothing a caller reads names a step today, but nothing stops one, and the API package already carries the list. If
+nobody decides, someone puts step help into the CLI, and from then on splitting `load` into two is a change every
+caller of Plugged In sees.
 
 **What it touches**
 
 | Dependent | Why it cares |
 |---|---|
-| The step lane's sdk, cli and mcp cards | they are built, absence-checked, or greyed |
-| Versions from the model diff (`packages/prove/src/modules/releases`) | anything in a client's surface bumps its version when it changes |
-| M1.37 (MCP from the whole model, M3) | a tool description is where steps would go |
-| The portal's spine (M1.13) | shows steps already, to the builder; unaffected |
+| The step lane's api, sdk, cli and mcp cards | absence checks, or cards to build |
+| Versions from the model diff (`packages/prove/src/modules/releases`) | whatever a caller reads bumps its version when it changes |
+| `generated/api/src/<thing>/<op>.ts` (`api.ts:84`) | under A, `steps` moves to the server's side |
+| The portal's spine (M1.13) | shows steps to the builder and the operator under every option |
 
 **The options**
 
-**Today** — `examples/acme/generated/sdk/src/allowance/spend.ts`:
-```ts
-/** Spend from what is left of this month's allowance. */
-export const spend = (payload: PayloadOf<typeof declaration>) =>
-  Effect.flatMap(Acme, (client) => client.allowance.spend({ payload }));
-```
-
-**A · Never, with an absence check** (recommended)
-```ts
-// e2e/m1, a generated check: no client names a step
-for (const file of clientFiles) expect(file.content).not.toMatch(/allowance\.spend\.(load|record)/);
-```
-
-**B · Described: steps in the CLI's help and the tool's description**
+**Today** — a caller of Plugged In sees the answer or a refusal, no step (`examples/links/generated/cli/src/output.ts`:
+a one-field answer prints its value; a refusal prints `[code] Name` to stderr and exits with its exit):
 ```bash
-acme allowance spend --help
-# Spend from what is left of this month's allowance.
+plugged-in handle claim --name aaron
+# <the new handle's id>
+plugged-in handle claim --name aaron
+# [HN-001] HandleTaken            (exit 3, from errors.ts:3)
+```
+
+**A · No: builder and operator only; the four caller cards are absence checks** (recommended)
+```ts
+// generated/api/src/handle/claim.ts — `steps` moves out, to the server's wiring
+export const endpoint = HttpApiEndpoint.post("claim", "/handle/claim", { /* … */ });
+// e2e check (generic, from the audiences table): no caller output names handle.claim.load or handle.claim.record
+```
+```bash
+plugged-in handle claim --help
+# Claim a free name and make it the address of your public profile.
+#   --name <text>
+```
+
+**B · Yes, described: steps in the CLI's help and the tool's description**
+```bash
+plugged-in handle claim --help
+# Claim a free name and make it the address of your public profile.
 # Steps: load (database), record (database)
+#   --name <text>
 ```
 
-**C · Streamed: the caller sees each step as it runs**
+**C · Yes, streamed: the caller watches each step run**
 ```ts
-yield* allowance.spend(payload, { onStep: (s) => Console.log(`${s.name} ${s.state}`) });
+yield* PluggedIn.handle.claim({ name: "aaron" }, { onStep: (s) => Console.log(`${s.name} ${s.state}`) });
+// load started … load done … record started … record done
 ```
 
 **You do X → what happens**
 
-| Scenario | A · Never | B · Described | C · Streamed |
+| Scenario | A · No | B · Described | C · Streamed |
 |---|---|---|---|
-| You split `load` into two steps | callers see nothing change | the CLI's help and MCP's descriptions change; the client's version bumps | every caller's progress handler sees new names |
-| An agent picks a tool | it reads the operation's description | it also reads the steps, which may help it guess cost | it can show progress |
-| A slow call in the terminal | the person waits for the answer | the same | the person sees which step is slow |
-| What you build | one absence check | help text, a version rule | a streaming channel through HTTP, the SDK, the CLI and MCP |
+| You split `load` into `load-handle` and `load-profile` in the blueprint | your handler changes; callers see nothing | the CLI's help and MCP's descriptions change, and the client's version bumps | every caller's progress handler meets new names |
+| An agent picks a tool | it reads the operation's description | it also reads the steps | it can show progress |
+| A slow claim in the terminal | the person waits for the answer | the same | the person sees which step is slow |
+| What you build | one generic check, and `steps` moved out of the API | help text and a version rule | a streaming channel through HTTP, the SDK, the CLI and MCP |
 
 **Rubric**
 
-| Axis | A · Never | B · Described | C · Streamed |
+| Axis | A · No | B · Described | C · Streamed |
 |---|---|---|---|
-| Floor-first | ✅ ships now, one check | ⚠️ small, but in three outputs | ❌ new transport |
-| Reversibility | ✅ adding steps later is additive | ⚠️ removing them later breaks help readers | ❌ removing breaks callers |
-| Blast radius | ✅ none | ⚠️ every client's version moves on refactors | ❌ HTTP, SDK, CLI, MCP |
-| Correctness | ✅ the handler's inside stays inside | ⚠️ describes internals as contract | ⚠️ internals as live contract |
-| Fit | ✅ K13, the portal already shows steps to builders | ⚠️ | ❌ step signals are telemetry (M1.21), not a client channel |
+| Floor-first | ✅ three cards already pass; one move for the fourth | ⚠️ small, in three outputs | ❌ new transport |
+| Reversibility | ✅ adding the caller later is additive | ⚠️ taking it away breaks help readers | ❌ breaks callers |
+| Blast radius | ✅ the API package only | ⚠️ every client's version moves on refactors | ❌ HTTP, SDK, CLI, MCP |
+| Correctness | ✅ the handler's inside stays inside | ⚠️ internals as contract | ⚠️ internals as live contract |
+| Fit | ✅ K13; the portal shows steps to the builder already | ⚠️ | ❌ step signals are telemetry (M1.21), not a client channel |
 
-**Recommendation: A.** Steps are how the handler works, not what the caller asked for; the builder already sees them
-on the portal's spine. The three cards become absence checks, not grey.
+**Recommendation: A.** A step is how your handler works, not what the caller asked for; the builder sees it on the
+portal's spine and the operator on its span. One honest finding comes with it: the SDK keeps steps out of its types,
+but the CLI and MCP import the whole declaration as a value (`cli/src/handle/claim.ts:4`, `mcp/src/index.ts`), so the
+step declarations, and the blueprint file itself, ship inside a published CLI. Nobody sees them; M7.06's publishing
+should still strip them.
 
-### Q2 — Which cards are not needed by design?
+### Q2 — Is a card not needed exactly when its output's audience isn't among its block's audiences?
 
-**The problem, in code.** Seventeen cards are ✗ because the block has, arguably, no place in that output. A store in
-the HTTP API is the clearest:
+**The problem, in code.** The first draft of this record proposed 17 cards as not needed, one by one, by hand. Your
+answer was that a missing abstraction was behind the list. The rule replaces the list with two tables and one line
+("Who each block is for"), and it finds what the list missed. A journey shows how. From the blueprint:
 
 ```ts
-// packages/projections/src/modules/api/internal/api.ts:73 — one endpoint per operation; nothing reads model.stores
+// examples/links/blueprint/starting-worlds/claimed-aaron.ts:5-7 — the blueprint (a journey author's file)
+export default Blueprint.startingWorld("claimed-aaron", {
+  cast: { aaron: Blueprint.signedIn },
+  makes: (s) => [s.aaron.run(claim, { name: "aaron" }, { request: "first-claim" })],
+```
+```ts
+// examples/links/blueprint/environments/test.ts:5 — only this environment declares a lifetime
+  lifetime: "2 hours", // created and destroyed as one unit, with an owner and an expiry
+```
+```ts
+// packages/projections/src/modules/server/internal/server.ts:148 — the generated server
+const WORLD_ENVIRONMENTS: ReadonlyArray<string> = ${JSON.stringify(/* environments with a lifetime */)};
 ```
 
-K12 already said some ✗ "stay" ("What the grid leaves alone on purpose"), but never listed them per card or asked you.
-If nobody decides, the grid can never be all green, or someone builds a store in the SDK to make a cell turn green.
+No scaffold: a journey is never yours to fill. The hand list greyed `journey.server`. The rule says the server is the
+operator's and so are journeys, so the card is needed, and its green, `/_world/*` answering only in `test`, is already
+built. If nobody decides, every new block gets a hand list again, and the next one is wrong the same way.
 
 **What it touches**
 
 | Dependent | Why it cares |
 |---|---|
-| The board | grey cards versus red ones; the climb's finish line |
-| The story check (proposed) | it skips grey cards and checks absence cards |
-| K12's "leaves alone" paragraph | becomes this list |
+| The board | derives grey, live and absence from `cellRole`; nothing is stored per card |
+| `design/grid/types.ts` | `audiences` on blocks and outputs, `absentFrom` on blocks; `notNeededProposal` is gone |
+| The rows still to come (workflows, views, agents, chains) | each declares its audiences once and gets its nine cards for free |
+| `orthograph`'s proposed `audiences` module, the compiler, a generic absence check | the same table, read by the code (proposed for M1.42) |
+| M1.35 | its audiences each name their kind; nothing else changes |
 
 **The options**
 
-**Today** — no list; K12 names "a store, an environment or a journey" in "the HTTP API or the SDK", events written
-by the runtime, and reads with no handler.
+**Today** — 17 cards proposed by hand, each with its own sentence (the first draft of this record).
 
-**A · Accept the list as proposed** (recommended)
-```jsonc
-// design/grid/grid.json, notNeededProposal on each of these cards
-{
-  "step":        ["sdk", "cli", "mcp"],              // kept live as absence checks (Q1)
-  "event":       ["cli", "mcp"],                     // until events can be followed (Q3)
-  "journey":     ["api", "server", "sdk", "cli", "mcp"], // proved through the clients instead (M2.08)
-  "environment": ["api", "mcp"],
-  "store":       ["api", "sdk", "cli", "mcp"],
-  "device":      ["mcp"],                            // remote MCP reaches the server, which can't run device code
-  "mount":       ["origin in api, sdk, cli, mcp"]    // the operations are there; only the plugin's name isn't shown
-}
-```
-
-**B · Accept, but keep the device's MCP card open**
-```jsonc
-{ "device": [] } // a local MCP server on the person's machine could run device operations; stage 2 decides
-```
-
-**C · Nothing is greyed: every card is built**
+**A · Yes: the rule, with the tables as written** (recommended)
 ```ts
-// e.g. the SDK gains a store's name per thing, the API a journey list
-export const stores = { allowance: "default" } as const;
+// design/grid/types.ts
+cellRole(blocks.journey, outputs.server) // "carries"   → journey.server is needed, and ✓
+cellRole(blocks.store, outputs.sdk)      // "not-needed" → greyed: "a store renamed never changes a caller's contract"
+cellRole(blocks.step, outputs.cli)       // "absence"    → live: no command names a step
 ```
+
+**B · Yes to the rule, but some cards are set by hand**
+```jsonc
+// grid.json: an override wins over the rule
+{ "mount.sdk": { "override": "carries", "because": "callers should see which plugin an operation came from" } }
+```
+
+**C · No: keep a hand list**
+```jsonc
+{ "notNeededProposal": ["step.sdk", "step.cli", "step.mcp", "journey.server", "store.api", "…"] }
+```
+
+**Where the rule gives an answer that may look wrong.** Each is a consequence, not an exception:
+
+| Card | The rule says | Why it may look wrong | Settled by |
+|---|---|---|---|
+| `event.api`, `event.sdk` | not needed | the API exports events today, and M1.42 plans event types in the SDK | Q3 |
+| `environment.sdk`, `environment.cli` | not needed | the CLI already keeps one session per `--env` | Q4: A widens environment to the caller |
+| `mount.api`, `.sdk`, `.cli`, `.mcp` | not needed, though ✓ today | mounted operations do reach callers | they do, through the operation lane, as the app's own; only the plugin's name is held back |
+| `journey.server` | needed, ✓ | it was greyed | the world gate is the operator's, and real |
+| `device.mcp` | needed, ✓ as an absence | it was greyed | a remote tool can't run device code; at stage 2, a local MCP on the device could change its green, not its audience |
 
 **You do X → what happens**
 
-| Scenario | A · Accept | B · Device MCP open | C · Build all |
+| Scenario | A · The rule | B · Rule with overrides | C · A hand list |
 |---|---|---|---|
-| The grid's finish line | 100 cards to green; 17 not needed, of which the 3 step cards stay live as absence checks | 101 to green, 16 not needed | 117 to green |
-| An agent on your laptop wants to create a wallet | it can't through MCP; it uses the CLI | stage 2 decides whether a local MCP runs it | it can, once built |
-| A store is renamed | callers see nothing | the same | every client's version bumps |
-| Someone reads the board | sees why each grey card is grey | the same | sees red that will never matter |
+| Workflows join the grid (M3.01) | declare their audiences once; nine cards fall out | the same, plus overrides argued card by card | nine sentences, by hand |
+| Someone asks why `store.sdk` is grey | the block's reason, on the card | the same, unless overridden | whatever sentence was written |
+| A builder tries to put a step in the SDK | the generic check fails: the step block isn't the caller's | an override could allow it | nothing stops it |
+| You disagree with one card | change the block's audiences, a decision | add an override | edit the list |
 
 **Rubric**
 
-| Axis | A · Accept | B · Device MCP open | C · Build all |
+| Axis | A · The rule | B · Overrides | C · Hand list |
 |---|---|---|---|
-| Floor-first | ✅ the finish line is real now | ✅ | ❌ months of surface nobody uses |
-| Reversibility | ✅ a grey card can turn red again | ✅ | ⚠️ removing surface breaks callers |
-| Blast radius | ✅ none | ✅ none | ❌ every client |
-| Correctness | ✅ each reason is one line, checkable | ✅ | ⚠️ leaks internals (stores) into contracts |
-| Fit | ✅ K12's "leaves alone" | ✅ | ❌ |
+| Floor-first | ✅ the tables are written; the board derives today | ⚠️ the rule plus a second mechanism | ⚠️ works now, wrong later |
+| Reversibility | ✅ one block's audiences change, its cards follow | ✅ | ✅ |
+| Blast radius | ✅ the board and `types.ts`; code only when M1.42 takes the module | ⚠️ every override is a place the rule doesn't hold | ✅ none |
+| Correctness | ✅ found `journey.server`; one reason per block | ⚠️ overrides are where the leaks hide | ❌ missed `journey.server` |
+| Fit | ✅ the same idea as field visibility, one level up | ⚠️ | ❌ the missing abstraction stays missing |
 
-**Recommendation: A.** Each grey card's reason is one sentence on the card, and turning one red later is a board edit,
-not a rewrite. B is fine too if you expect agents on the device soon.
+**Recommendation: A.** The rule is the abstraction you said was missing; it found a real card the list got wrong, and
+a disagreement becomes a change to one block's audiences, not a patch on one card.
 
-### Q3 — Should the CLI and MCP see events?
+### Q3 — Does an event's audience include the caller?
 
-**The problem, in code.** The API exports every event, but no client does:
+**The problem, in code.** You declare an event and which move emits it; the runtime commits it with the move; your
+handler never names it:
 
 ```ts
-// examples/acme/generated/api/src/index.ts:30
+// examples/links/blueprint/things/handle/events.ts:4 and machine.ts:8 — the blueprint
+export const HandleClaimed = Blueprint.event({ handle: Handle.fields.id, name: Handle.fields.name });
+    claim: { from: [], to: "claimed", emits: HandleClaimed },
+```
+```ts
+// examples/links/generated/api/src/index.ts:35 — generated: the API exports it, for the server's journal
 export * as Events from "./events.ts";
+// examples/links/generated/sdk/src/index.ts:1-13 — the SDK exports the client, Errors and one namespace per thing; no Events
 ```
 ```ts
-// examples/acme/generated/sdk/src/index.ts:1-11 — client, layer, Errors and one namespace per thing; no Events
+// examples/links/src/handle/claim.ts:33 — the scaffold, now yours: the move, not the event
+    yield* move();
 ```
 
-M1.42 already adds event types to the SDK. The CLI and MCP have nothing to show: no endpoint serves the journal, and
-following events is M5's (M5.03 to M5.05). If nobody decides, the event lane's CLI and MCP cards stay red, or someone
-builds a journal endpoint just to fill them.
+M1.42 plans event types in the SDK, but no client can get an event: nothing serves the journal, and following events
+is M5's (M5.03 to M5.05). If nobody decides, M1.42 ships types a caller of Plugged In can name and never receive.
 
 **What it touches**
 
 | Dependent | Why it cares |
 |---|---|
-| The event lane's cli and mcp cards | built now, later, or never |
-| M5.05 (views, reads generated in the SDK, CLI and MCP) | where following events naturally lands |
-| M1.37 (MCP resources, M3) | events could be a resource |
-| Visibility (M1.35) | any journal read is a new audience to cut for |
+| The event lane's api, sdk, cli and mcp cards | not needed now, or built now |
+| M1.42 ("the SDK exports … the events") | A moves that item to M5.05 |
+| M5.05 (views, reads generated in the SDK, CLI and MCP) | where a caller reading events naturally lands |
+| M1.35 | any journal read is a new audience to cut private fields for |
 
 **The options**
 
-**Today** — `acme --help` lists operations only; MCP lists tools only.
-
-**A · Types now, CLI and MCP when events can be followed** (recommended)
-```ts
-// generated/sdk/src/index.ts (M1.42)
-export { Events } from "../../api/src/index.ts";
-// CLI and MCP cards: not needed until M5.05, then reopened
-```
-
-**B · Readable now: a journal read in every client**
+**Today** — a caller learns a claim happened from the answer, and later by reading:
 ```bash
-plugged-in events list --thing handle --since 10m
-# 12:04:31 HandleClaimed { handle: hdl_7f3a, name: aaron }
+plugged-in handle claim --name aaron
+# <the new handle's id>
+plugged-in handle resolve --name aaron
+# <the same id>                   (the name is claimed; no event is shown anywhere)
 ```
 
-**C · Followable now: subscribe**
+**A · No, until views (M5.05)** (recommended)
+```ts
+// generated/sdk/src/index.ts — unchanged; M1.42's "the SDK exports the events" moves to M5.05
+export { PluggedIn, layer } from "./client.ts";
+export { Errors } from "../../api/src/index.ts";
+```
+
+**B · Yes, as types only (M1.42 as written)**
+```ts
+import { Events } from "@plugged-in/sdk";
+type Claimed = typeof Events.HandleClaimed.Type; // nameable, but no call returns one
+```
+
+**C · Yes, followable now**
 ```bash
 plugged-in events follow --event HandleClaimed
+# 12:04:31 HandleClaimed { handle: <id>, name: aaron }
 ```
 
 **You do X → what happens**
 
-| Scenario | A · Types now | B · Readable now | C · Followable now |
+| Scenario | A · No, until views | B · Types only | C · Followable now |
 |---|---|---|---|
-| An agent wants to know what just happened | it reads the thing with a `get` | it reads the journal | it is told as it happens |
-| What you build | nothing more in M1 | an endpoint, its visibility cut, a CLI command, an MCP resource | B plus a live channel and delivery (M5's outbox) |
-| The portal | shows committed events anyway (M1.21) | the same | the same |
-| A private event field | never leaves | must be cut for a new audience | the same, live |
+| You add a field to `HandleClaimed` | callers see nothing change | the SDK's version bumps for a type nobody receives | every follower's decoder changes |
+| An agent wants to know what just happened | it reads the handle | the same: the type gives it nothing to read | it is told as it happens |
+| You mark an event field private | it never leaves | the type still names it | it must be cut for each follower (M1.35) |
+| What you build | nothing in M1 | the export M1.42 planned | a journal endpoint, delivery, a CLI command, an MCP resource: M5 pulled into M1 |
 
 **Rubric**
 
-| Axis | A · Types now | B · Readable now | C · Followable now |
+| Axis | A · No, until views | B · Types only | C · Followable now |
 |---|---|---|---|
-| Floor-first | ✅ M1.42 as written | ⚠️ new surface in M1 | ❌ pulls M5 forward |
-| Reversibility | ✅ B or C later is additive | ⚠️ | ❌ |
-| Blast radius | ✅ SDK only | ⚠️ API, clients, visibility | ❌ runtime, clients |
-| Correctness | ✅ | ⚠️ a new leak surface | ⚠️ delivery guarantees |
-| Fit | ✅ M5.05's views are the reads over events | ⚠️ | ❌ |
+| Floor-first | ✅ nothing to build | ⚠️ ships a promise of the real thing | ❌ pulls M5 forward |
+| Reversibility | ✅ widening at M5.05 is additive | ⚠️ removing the types breaks importers | ❌ |
+| Blast radius | ✅ M1.42's row loses one item | ⚠️ the SDK's version moves with every event | ❌ runtime, API, clients |
+| Correctness | ✅ a caller reads state, which the app answers for | ⚠️ a type with no value behind it | ⚠️ delivery guarantees |
+| Fit | ✅ views are the reads over events (M5.05) | ⚠️ | ❌ |
 
-**Recommendation: A.** Events are the runtime's record; a caller reads state, and following events belongs with views
-in M5.
+**Recommendation: A.** Events are the runtime's record, for the builder and the operator; a caller reads state.
+Widening event to the caller is one decision at M5.05, where it comes with something to read.
 
 ### Q4 — Should the generated CLI and SDK know the environments by name?
 
@@ -930,15 +1093,18 @@ acme allowance spend --amount 5   # production unless --env says otherwise
 | Correctness | ✅ the session and the URL agree | ❌ they can disagree | ⚠️ the risky default |
 | Fit | ✅ "falls out of the blueprint" | ⚠️ hand-configured | ⚠️ |
 
-**Recommendation: A**, with `local` as the default and `ACME_URL` still overriding.
+**Recommendation: A**, with `local` as the default and `ACME_URL` still overriding. Under the audiences rule, A
+means environment's audiences include the caller, for the environments' names and public domains only, and its four
+caller cards become needed: the API's description lists each environment's domain as a server, the SDK and CLI take
+`--env`, and the MCP server is pointed at one by name.
 
 ### At a glance
 
 | # | Joint | Recommendation |
 |---|---|---|
-| Q1 | Steps in the SDK, CLI or MCP | A · never, kept as absence checks |
-| Q2 | Which cards are not needed | A · accept the seventeen as proposed |
-| Q3 | Events in the CLI and MCP | A · types in the SDK now; CLI and MCP with views (M5.05) |
+| Q1 | Does a step's audience include the caller? | A · no; its four caller cards are absence checks |
+| Q2 | Not needed exactly when the output's audience isn't the block's? | A · yes, with the tables as written |
+| Q3 | Does an event's audience include the caller? | A · not until views (M5.05); M1.42's SDK event types move there |
 | Q4 | Environments in the CLI and SDK | A · by name from the model, `local` by default |
 
 **Answer key.** Reply with one letter per question, for example "1A 2A 3A 4A". "Agreed to all" means every
