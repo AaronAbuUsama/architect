@@ -5,14 +5,15 @@ exactly where the last one stopped. The narrative of goal 1 (layers 1 and 2) is 
 [`history/handoff-layers-1-2.md`](history/handoff-layers-1-2.md).
 Everything open, promised, deferred or stale, with its source, canon page and owning slice: [`ledger.md`](ledger.md).
 
-## START HERE (18 November 2026): the conductor's handoff
+## START HERE (19 November 2026): the conductor's handoff
 
-K5, the whole shape, merged on 18 November (PR #44, `78ecf65`). That evening Aaron cut the work down to three threads
-and one critical path ("we've got too many chats talking to too many chats"). The conductor merged the finished
-record PRs, closed the two that couldn't land, and archived the finished threads. Later that evening the canon's layer
-1 (#38, merged by Aaron), naming (#42), the rename sweep (#51) and the ledger round (#47) all merged, and Aaron set the
-growing example (direction item 7). The hello world runs on `main`: `examples/signup` checks, proves 9 evals on every
-operation, runs under `ortho dev`, and its generated CLI opens, joins and reads a sheet.
+Overnight, 18 to 19 November: K7 (#53), K9 (#55), the durable-run spike (#57), the work board K11 (#61), the factory
+K10 (#62) and the portal design M1.25 (#65) merged into `main`. On `m1`, 26 slices are ticked; what's left is in
+"Next on the critical path". Aaron quit local Docker (direction 11), set the Cloudflare and HeroUI CI secrets, and
+said yes to a preview on npm after Gate M1 (direction 12). Today, from a checkout of `m1`, `ortho generate` writes
+the model, api, server, sdk, cli, mcp, docs and the read-only portal; `ortho prove --env local` proves them on
+workerd; `tools/demo/m1-plugin.sh` mounts a plugin and `tools/demo/m1-wallet.sh` sends from a wallet on Anvil. A new
+project from the preset passes in CI (layer 1 check 1), but not on Aaron's Mac until M1.33 takes Docker out.
 
 ### The job you are taking over
 
@@ -85,26 +86,32 @@ is judged by whether it gets us there sooner and truer.
    thread). Our own contracts only; other people's are sources behind adapters. K5's Q4 waits on K7.
 10. **The name is Orthograph**, the command `ortho`, the npm scope `@orthograph` (the org exists), with "blueprint"
     kept (K6). The rename sweep has run: the code says it too.
+11. **No local Docker (Aaron, 18 November):** "I'm quitting Docker. I want to move everything to staging and
+    sandboxes." Never start Docker, Docker Desktop or OrbStack. What ran in containers becomes a process (M1.33:
+    Collector binary, Verdaccio under Node, our own OIDC issuer) or moves to sandboxes and staging (K10 section 8).
+    The repo has `CLOUDFLARE_API_TOKEN` (account-scoped, 90 days, Aaron made it 19 November) and `HEROUI_AUTH_TOKEN`
+    as secrets, and `CLOUDFLARE_ACCOUNT_ID` as a variable. Nothing has used the Cloudflare token yet. Any job that
+    touches the account destroys what it made in the same job and stays under $10 a day.
+12. **A preview on npm after Gate M1 (Aaron, 19 November: "Yes, after Gate M1").** Once M1.15 passes on `main`,
+    publish the `@orthograph/*` packages, `orthograph` and the preset under the `next` dist-tag. `npm view` showed
+    the names unpublished on 19 November. Publishing is Aaron's sign-in: the conductor prepares the dry run, and he
+    runs `npm publish`. `npm create orthograph` stays M2.09. **HeroUI Pro (F7, #65):** only `@orthograph/portal-ui`
+    imports Pro, as a peer dependency from the user's own install, never shipped; each user needs their own licence
+    (M1.34). F8 (#66) folds the good parts of Codex's `experimental/portal-pro` into the design.
 
 ### Every open line
 
-Seven lines, and the conductor. K7 (#53) and K9 (#55) are merged; the ledger thread records them.
+Five lines, and the conductor. The factory (K10, #62) and the work board (K11, #61) merged and their threads are
+archived; building them is M3 and later. The Codex runs on M1 (O2 #60, chain-evm #59, scaffold #63, model #64) are
+merged and their worktrees removed.
 
 | # | Line | Branch | PR | Done when | State now | Next |
 |---|---|---|---|---|---|---|
-| ① | **Docs canon (MDX)** | `claude/docs-canon-cf2c38` | #38 merged (layer 1) | Pass 2, every page in layers, checked against the ledger before each layer | Layer 1 merged at `b600bb8`. Pass 2 is running locally: the tickets example proves (six journeys, seven operations), three page rewrites in progress | Opens the next canon PR; takes K8's example changes once they land |
-| 🧭 | **M1 plugin path and wallet path** | `m1` | none (M1 lands as one PR at Gate M1) | M1.01, M1.02, M1.05 to M1.08 and M1.10 on `m1`, each green with its check; check `01` through one `ortho add feature`; then the wallet path (M1.14, M1.27 to M1.32), ending with `acme wallet send` confirmed on Anvil; a 🔍 pass so far | M1.01, M1.02, M1.05 and M1.06 landed. Running its own subagents for M1.28 (wallet journeys, ✍️) and M1.17 (stores). Merges the Codex PRs into `m1` | M1.07 verbs, then M1.08 and M1.10. Tells the conductor when M1.10 lands, so M1.03/M1.04 and M1.26 can start |
-| 🤖 | **Codex: O2 trace fixes** (M1.18 to M1.20) | `codex/m1-o2` | into `m1`, not yet | Three slices, each with O2's proof; journey change by a separate author; 🔍 pass; CI green | `codex exec` (gpt-6.2-sol) in worktree `codex-m1-o2`, started 18 November | Opens its PR into `m1`; the M1 lead merges |
-| 🤖 | **Codex: `@orthograph/chain-evm`** (M1.30) | `codex/m1-chain-evm` | into `m1`, not yet | Vendored from `@prb/effect-evm` 5.0.3 (MIT notice kept, never a dependency); ERC20 transfer and typed reverts on Anvil; the `viem` lint rule; 🔍 pass; CI green | `codex exec` in worktree `codex-m1-chain-evm`, started 18 November | Opens its PR into `m1`; the M1 lead merges |
-| 📐 | **Portal design (M1.25)** | `design/portal` | none yet | `design/portal.md` agreed with Aaron: the first page, a thing's page, an operation's page, the live rail, the chat; inline grills first, then a mock | Round 1 put to Aaron; he answered Q1 (the chat is Pi Durable, with our own layer reaching every action) and Q8 (HeroUI Pro, used privately; clean-room if the licence ever bites). Round 2 adds: everything is an action, the portal's own auth, extensions, and monitoring local, staging and production | Puts Q2 to Q7 back with round 2 |
-| 🔗 | **Links stage 1 (Codex, run by Aaron)** | `links/stage-1` | none yet | `examples/links` runs on main's framework, and the starter is its copy, kept identical by a check (Aaron's change to K9: the starter becomes stage 1 as soon as links runs, not at M2.09); then handles as a plugin; then the screens | Prompt given to Aaron 18 November | Opens its first PR into `main` |
-| 📐 | **The factory (K10)** | `design/factory` | none yet | K10: the agent layer on Pi Durable that reaches every action (shared by the portal's chat and the building agents), the building agents and their tools, sandboxes and environments, the experiment loop, the seams with the work board and the portal; slices in `milestones.md`; one PR merged | Started 18 November evening; reopens K4's parked factory | Grills Aaron, starting with what his Pi Durable UI session covers |
-| 🗂 | **The work board (K11)** | `design/work-board` | none yet | A Kanban components spike on HeroUI Pro; K11: work as a plugin, the manager agent that puts work on the board, dispatch for maximum throughput onto the factory's agents; slices; one PR merged | Started 18 November evening | Spikes the components, then grills Aaron on the board |
-| 📒 | **Ledger** | its own branch per round | #58, the K7 and K9 round | The ledger matches what's merged, every item with its source and owner | Recording K7 (#53) and K9 (#55) | Merges each round itself when green |
-
-**The Codex runs** are `codex exec` processes on Aaron's machine, started by the conductor, each in its own worktree
-under `.claude/worktrees/codex-*`. They can't receive messages: steer them by commenting on their PRs. Their final
-reports land in the conductor's scratchpad and on their PRs.
+| ① | **Docs canon (MDX)** | `claude/docs-canon-cf2c38` | #38 merged (layer 1) | Pass 2, every page in layers, checked against the ledger before each layer | Layer 1 merged at `b600bb8`; pass 2 runs locally | Opens the next canon PR |
+| 🧭 | **M1 lead** (`local_90551e2a…`) | `m1` | none (M1 lands as one PR at Gate M1) | Every M1 row ticked with its check, `e2e-m1` made blocking, then Gate M1.15 on `main` | 26 rows ticked, wallets (M1.29) and live steps (M1.21) included; M1.11 built and verifying; M1.33 building. `e2e-m1` fails only on unmerged slices and is still `continue-on-error` | Push M1.11, merge `main` for M1.25 and M1.34, then M1.12, M1.13, M1.22 to M1.24, M1.34 |
+| 📐 | **Portal design** (`local_24ad5b8b…`) | `claude/portal-908a25`, then F8's branch | #65 merged; #66 open | F8 merged: Codex's eight good ideas placed in their slices, the agreed design kept where they clash, and the data gaps M1.13 must close | #66 in review and CI | Merges #66 when both pass |
+| 🔗 | **Links stage 1 (Codex, run by Aaron)** | `links/stage-1`, `codex/links-staging` | #56 open | `examples/links` runs and the starter is its copy; then handles as a plugin; then the screens | #56 open. `codex/links-staging` deploys to real staging but has no teardown step | Add teardown before any staging run |
+| 📒 | **Ledger** | its own branch per round | #58, the K7 and K9 round | The ledger matches what's merged, every item with its source and owner | Open | Merges each round itself when green |
 
 **Closed, branches kept:**
 - **#48, span fixes (O3).** It edited journeys and evals, which a builder may not do, and its review found four
@@ -141,22 +148,25 @@ in `main`, then delete); `build/portal-pro`, `design/kits-decision`, `design/wor
 
 ### What waits on Aaron
 
-1. **The portal design rounds (M1.25)** from its 📐 thread; it must come before M1.13.
+1. **Rotate the HeroUI personal token** that was printed in a conductor's tool output on 18 November (never
+   committed).
 2. **Canon's two open choices:** entity or actor, and ticketing.
+3. **The npm publish at Gate M1** (direction 12): his sign-in.
 
 ### Next on the critical path
 
-Canon layer 1, naming and the rename sweep are merged, and M1 has started (Aaron's yes, 18 November): the 🧭 thread
-runs M1.01 (the plugin descriptor) to M1.10 (`ortho add feature`) on `m1`, folding in K5. M1.17 to M1.20 (stores, the commit span, untraced text, call counts) and M1.26 (the wired scaffold) run in
-parallel. K7 runs beside all of this and unblocks the chain slices.
+M1's remaining rows: M1.11 (projections, part one: built), M1.12 (sdk, cli and mcp as plugins), M1.13 (docs and the
+portal; needs M1.34), M1.22 (the actions projection), M1.23 and M1.24 (the agent-native port; M1.24 needs M1.34),
+M1.33 (processes, not containers: building), M1.34 (the portal-ui seam). Then `e2e-m1` loses `continue-on-error` and
+Gate M1.15 runs. Then the npm preview (direction 12), and M2.
 
 ### Open questions carried by threads
 
 - **Secret and private fields over HTTP, the SDK and the CLI** are sent unredacted. Only MCP hides them. No slice
   owns it yet (OPS-01).
-- **Operations that run on the caller's device** are refused by the compiler (LAH-02). No slice yet.
 - **Journeys can't force a race** between two calls, so no journey proves a conflict (JOU-13). No slice yet.
-- **Journeys aren't in the model** (M1.03), so proof status can't be shown live.
+- **The portal wire carries little of the model** (things, operations, environments, blanks): journeys, events,
+  errors, `from`, stores and mounts must reach it before M1.13 draws the agreed pages (F8, #66).
 - **About 193 ledger items are owned by no slice.** Each becomes a slice or a canon question as its layer comes up.
 
 
