@@ -16,8 +16,11 @@
 //
 // Surface this check REQUIRES, where `design/portal.md` (the agreed wireframe) fixes the content but not the markup. Decisions
 // of the author, each recorded for the builder:
-//  1. `PortalContext.live?: { environment: string; source: { window(since, now?) }; now: number; windowMs: number }`. The rail reads
-//     `source.window(windowMs, now)` and nothing else; the portal never reads a clock. No `live`: no rail numbers.
+//  1. `PortalContext.live?: { environment; source: { window(since, now?) }; metrics: { window(since, now?) }; now; windowMs }`.
+//     The rail's numbers come from `metrics`, the window's `ortho.calls` points (`{ name, labels: { operation, outcome, refusal? },
+//     value }`), because a call refused at the door (role, payload) opens no span and only the metric counts it (portal.md, "An
+//     operation's page"; the M1.13 row). Its last calls and everything else come from `source.window(windowMs, now)`. The portal
+//     never reads a clock, and both `window`s fail if `now` is not passed. No `live`: no rail numbers.
 //  2. Hooks are `data-portal="<part>"` attributes, with the data in `data-*` attributes, read here by a plain attribute scan:
 //       top-bar        data-environment, data-window-ms
 //       tree           (the tree) containing tree-item[data-kind="thing"][data-name]
@@ -27,15 +30,18 @@
 //                      and last-call[data-trace][data-operation][data-outcome][data-caller-kind]
 //       operation-row  (a thing's page) data-operation, data-lit="true|false", data-calls, data-journeys ("," joined)
 //       move           (a thing's page) data-move, data-lit, data-count: the arrows of the lifecycle
-//       span-row       (a trace's page) data-span-name, data-depth, data-logs (how many logs it has), data-outcome
+//       last-call      also data-attempts
+//       span-row       (a trace's page) data-span-name, data-depth, data-attempt, data-logs (how many logs it has), data-outcome
 //  3. A trace opens at `GET /portal/traces/<trace id>` (the drawer's content as a page). The waterfall shows structure, timing,
 //     outcome, the declared refusal, how many logs a span has, and never a payload value, an answer value, a statement, a person
 //     or a log body (portal.md, "The trace drawer").
 //  4. The caller's kind is derived: a span with `principal.person` is "person"; `principal.kind` "agent" is "agent"; "anonymous"
 //     is "anyone". It is never the person's id.
-//  5. A call is an operation span (named for the operation, with `operation` and `attempt`) in the window; "refused" is a span
-//     with `refusal`; "defect" is a span with status 2 and no `refusal`; "answered" is the rest. The window is `source.window`'s.
-//     A move counts when an answered call's span has `move.name`. `data-lit` is true when the window holds at least one call.
+//  5. `calls` is the sum of `ortho.calls` in the window (one per call, however many attempts it took); `answered`, `refused` and
+//     `defects` are its `outcome`s (`answered`, `refused`, `defect`), door refusals included. A last call is one row per trace
+//     (`data-attempts` is how many `attempt`s its operation spans make), so a retry is one call and one row. A move counts once, when
+//     the span of the attempt that committed has `move.name`. `data-lit` is true when the window holds at least one call of the
+//     operation (or, for a move, one that took it). A trace's rows carry `data-attempt`, so the waterfall can group by attempt.
 //  6. The pages exercised are `/portal` and `/portal/things/<name>`; operation pages, environment pages, the plugins and stores
 //     page, the command palette and an operation's tabs are held until portal.md's update lands, and are only SCANNED for leaks.
 //
@@ -80,6 +86,28 @@ const source = (traces: ReadonlyMap<string, Trace>) => ({
     : Effect.succeed(new Map([...traces].filter(([, t]) => t.spans.some((s) => s.start >= now - since && s.start <= now)))),
 });
 
+/** The window's `ortho.calls`: one point per call in `traces` (a retry is one call), and the calls refused at the door, which have no span. */
+const metricsOf = (fixture: Fixture) => {
+  const calls: Array<{ readonly at: number; readonly operation: string; readonly outcome: string; readonly refusal?: string }> = [];
+  for (const [, t] of fixture.traces) {
+    const ops = t.spans.filter((s) => typeof s.attrs["operation"] === "string" && typeof s.attrs["attempt"] === "number");
+    const last = ops.reduce((a, b) => (Number(b.attrs["attempt"]) > Number(a.attrs["attempt"]) ? b : a));
+    const refusal = last.attrs["refusal"];
+    calls.push({ at: last.start, operation: String(last.attrs["operation"]), outcome: typeof refusal === "string" ? "refused" : last.status === 2 ? "defect" : "answered", ...(typeof refusal === "string" ? { refusal } : {}) });
+  }
+  for (let i = 0; i < fixture.doorRefusals; i++) calls.push({ at: at(3) + i, operation: fixture.claim, outcome: "refused", refusal: "NotAllowed" });
+  return {
+    window: (since: number, now?: number) => now === undefined
+      ? Effect.fail(new SourceFailed({ message: "the portal asked for metrics without `now`: it reads a clock" }))
+      : Effect.succeed(Object.values(calls.filter((c) => c.at >= now - since && c.at <= now).reduce<Record<string, { name: string; labels: Record<string, string>; value: number }>>((all, c) => {
+        const labels: Record<string, string> = { operation: c.operation, outcome: c.outcome, ...(c.refusal === undefined ? {} : { refusal: c.refusal }) };
+        const key = JSON.stringify(labels);
+        all[key] = { name: "ortho.calls", labels, value: (all[key]?.value ?? 0) + 1 };
+        return all;
+      }, {}))),
+  };
+};
+
 const span = (n: number, trace: number, name: string, start: number, attrs: Record<string, unknown> = {}, over: Partial<Span> = {}): Span =>
   ({ traceId: id(trace), spanId: sid(n), parentSpanId: "", name, attrs, status: 1, ms: 9, start, ...over });
 
@@ -95,6 +123,7 @@ const planted = Object.values(PLANTED);
 interface Fixture {
   readonly traces: Map<string, Trace>;
   readonly claim: string; readonly add: string; readonly move: string;
+  readonly doorRefusals: number;
   readonly ids: { readonly answered: string; readonly refused: string; readonly added: string; readonly defect: string; readonly old: string };
 }
 
@@ -108,14 +137,18 @@ const stage = (wire: BlueprintWire): Fixture => {
   const move = claim!.move!.key;
   const refusal = claim!.errors[0] ?? "HandleTaken";
   const traces = new Map<string, Trace>();
-  // 1. answered, called by a person, as a journey's step (its caller span `journey.claim a name` is the root), carrying every planted value
+  // 1. answered on its second attempt (the first lost the commit), called by a person, as a journey's step (the root is the
+  //    journey's, written as `journey-root.ts` writes it), carrying every planted value
   const a = id(1);
+  const person = { "principal.person": PLANTED.person };
   traces.set(a, {
     spans: [
-      span(10, 1, "journey.claim a name", at(5), {}),
-      span(11, 1, "handle.claim", at(5), { operation: "handle.claim", attempt: 1, "principal.person": PLANTED.person, "payload.token": PLANTED.payload, "answer.token": PLANTED.payload, "move.name": move, "move.to": "claimed", environment: "staging" }, { parentSpanId: sid(10) }),
-      span(12, 1, "handle.claim.lookup", at(5), { "step.kind": "database", "db.statement": PLANTED.statement, "db.query.text": PLANTED.statement }, { parentSpanId: sid(11), ms: 2 }),
-      span(13, 1, "handle.claim.commit", at(5), { "step.kind": "commit", "commit.outcome": "committed", "event.name": "HandleClaimed" }, { parentSpanId: sid(11), ms: 3 }),
+      span(10, 1, "journey.claim a name", at(5), { journey: "claim a name", "journey.step": "claim the name", operation: "handle.claim", "http.status_code": 200 }),
+      span(14, 1, "handle.claim", at(5) + 1, { operation: "handle.claim", attempt: 1, ...person }, { parentSpanId: sid(10) }),
+      span(15, 1, "handle.claim.commit", at(5) + 2, { "step.kind": "commit", "commit.outcome": "conflict" }, { parentSpanId: sid(14), ms: 3 }),
+      span(11, 1, "handle.claim", at(5) + 3, { operation: "handle.claim", attempt: 2, ...person, "payload.token": PLANTED.payload, "answer.token": PLANTED.payload, "move.name": move, "move.to": "claimed", environment: "staging" }, { parentSpanId: sid(10) }),
+      span(12, 1, "handle.claim.lookup", at(5) + 4, { "step.kind": "database", "db.statement": PLANTED.statement, "db.query.text": PLANTED.statement }, { parentSpanId: sid(11), ms: 2 }),
+      span(13, 1, "handle.claim.commit", at(5) + 5, { "step.kind": "commit", "commit.outcome": "committed", "event.name": "HandleClaimed" }, { parentSpanId: sid(11), ms: 3 }),
     ],
     logs: [{ traceId: a, spanId: sid(11), body: PLANTED.log, attrs: { "log.note": PLANTED.log } }],
   });
@@ -131,11 +164,12 @@ const stage = (wire: BlueprintWire): Fixture => {
   // 5. a claim from before the window
   const o = id(5);
   traces.set(o, { spans: [span(50, 5, "handle.claim", at(90), { operation: "handle.claim", attempt: 1, "principal.person": PLANTED.person, "move.name": move })], logs: [] });
-  return { traces, claim: "handle.claim", add: "link.add", move, ids: { answered: a, refused: b, added: c, defect: d, old: o } };
+  return { traces, claim: "handle.claim", add: "link.add", move, doorRefusals: 3, ids: { answered: a, refused: b, added: c, defect: d, old: o } };
 };
 
-const context = (blueprint: BlueprintWire, traces: ReadonlyMap<string, Trace>, now = NOW, environment = "staging") =>
-  ({ blueprint, reader: null, bundleRevision: null, live: { environment, source: source(traces), now, windowMs: WINDOW } }) as unknown as PortalContext;
+const context = (blueprint: BlueprintWire, run: Pick<Fixture, "traces" | "doorRefusals" | "claim">, now = NOW, environment = "staging") =>
+  ({ blueprint, reader: null, bundleRevision: null, live: { environment, source: source(run.traces), metrics: metricsOf(run as Fixture), now, windowMs: WINDOW } }) as unknown as PortalContext;
+const dark = { traces: new Map<string, Trace>(), doorRefusals: 0, claim: "handle.claim" };
 
 const get = async (ctx: PortalContext, path: string) => {
   const response = await Effect.runPromise(Portal.handle(ctx, new Request(`http://portal.test${path}`)));
@@ -179,6 +213,11 @@ describe("21 control: acme's docs are the baseline, and the instruments are soun
     const inWindow = await Effect.runPromise(src.window(WINDOW, NOW));
     expect([...inWindow.keys()].sort()).toEqual([stub.ids.answered, stub.ids.refused, stub.ids.added, stub.ids.defect].sort());
     expect(Effect.runSync(Effect.exit(src.window(WINDOW)))._tag, "no `now`, no answer").toBe("Failure");
+    const metrics = metricsOf(stub);
+    expect(Effect.runSync(Effect.exit(metrics.window(WINDOW)))._tag, "metrics too").toBe("Failure");
+    const points = await Effect.runPromise(metrics.window(WINDOW, NOW));
+    expect(points.reduce((n, p) => n + p.value, 0), "one point per call (the retry is one), the door refusals, and not the old call").toBe(7);
+    expect(points.find((p) => p.labels["refusal"] === "NotAllowed")?.value, "door refusals have metrics and no span").toBe(3);
     const bytes = JSON.stringify([...inWindow.values()]);
     expect(leaked(bytes).sort(), "all four planted values are in the staging trace").toEqual([...planted].sort());
   });
@@ -196,14 +235,14 @@ describe("21 control: the portal that exists today", () => {
   // Finding: today's home page prints "Observed <the clock's time>", so two requests differ. E requires that gone (the page takes `now`).
   it("serves acme's `/portal` and a thing's page as HTML, twice with the same bytes but for the clock's own time", async () => {
     const wire = await decode(JSON.parse(readFileSync(join(repo, "examples/acme/generated/portal/blueprint.json"), "utf8")));
-    const first = await get(context(wire, new Map()), "/portal");
-    const again = await get(context(wire, new Map()), "/portal");
+    const first = await get(context(wire, dark), "/portal");
+    const again = await get(context(wire, dark), "/portal");
     expect(first.status).toBe(200);
     expect(first.text).toContain("<html");
     const noClock = (t: string) => t.replace(/Observed [0-9TZ:.-]+/, "Observed");
     expect(noClock(first.text)).toBe(noClock(again.text));
     const thing = Object.keys(wire.model.things)[0]!;
-    expect((await get(context(wire, new Map()), `/portal/things/${thing}`)).status).toBe(200);
+    expect((await get(context(wire, dark), `/portal/things/${thing}`)).status).toBe(200);
   });
 
   it("`@orthograph/portal-ui` exports the names the pages are drawn with", () => {
@@ -227,7 +266,7 @@ describe("21 A: docs", () => {
 describe("21 B: the portal opens on Plugged In's things", () => {
   it("`/portal` is the things as cards in the tree's order, each with its lifecycle, under the environment's top bar", async () => {
     const wire = await decode(pluggedInWire());
-    const ctx = context(wire, stage(wire).traces);
+    const ctx = context(wire, stage(wire));
     const home = await get(ctx, "/portal");
     expect(home.status).toBe(200);
     const names = Object.keys(wire.model.things);
@@ -247,15 +286,17 @@ describe("21 B: the portal opens on Plugged In's things", () => {
 
   it("the rail is scoped to the page: everything on home, the thing's operations on its page, nothing from outside the window", async () => {
     const wire = await decode(pluggedInWire());
-    const ctx = context(wire, stage(wire).traces);
+    const ctx = context(wire, stage(wire));
     const rails = async (path: string) => { const { text } = await get(ctx, path); return { scope: scopeOf(text), calls: stat(text, "calls"), answered: stat(text, "answered"), refused: stat(text, "refused"), defects: stat(text, "defects") }; };
-    expect(await rails("/portal"), "home: four calls in the window; the claim from 90 minutes ago is out").toEqual({ scope: "all", calls: "4", answered: "2", refused: "1", defects: "1" });
-    expect(await rails("/portal/things/handle")).toEqual({ scope: "thing:handle", calls: "2", answered: "1", refused: "1", defects: "0" });
+    // From `ortho.calls`: the retried claim is one call, three more claims were refused at the door (no span), the claim from 90 minutes ago is out.
+    expect(await rails("/portal"), "home").toEqual({ scope: "all", calls: "7", answered: "2", refused: "4", defects: "1" });
+    expect(await rails("/portal/things/handle")).toEqual({ scope: "thing:handle", calls: "5", answered: "1", refused: "4", defects: "0" });
     expect(await rails("/portal/things/link")).toEqual({ scope: "thing:link", calls: "2", answered: "1", refused: "0", defects: "1" });
     expect((await rails("/portal/things/profile")).calls, "profile saw no call").toBe("0");
     const handle = (await get(ctx, "/portal/things/handle")).text;
     const last = parts(handle, "last-call");
     expect(last.map((l) => l["data-trace"]).sort(), "the rail's last calls are this thing's, from the window").toEqual([stage(wire).ids.answered, stage(wire).ids.refused].sort());
+    expect(last.find((l) => l["data-trace"] === stage(wire).ids.answered)?.["data-attempts"], "the retried claim is one row, of two attempts").toBe("2");
   });
 });
 
@@ -265,11 +306,11 @@ describe("21 C: a journey's run lights up its operation and its machine move", (
   it("handle's page lights `claim` and its arrow, names the journey, and leaves the unrun operations and arrows dark", async () => {
     const wire = await decode(pluggedInWire());
     const run = stage(wire);
-    const { text } = await get(context(wire, run.traces), "/portal/things/handle");
+    const { text } = await get(context(wire, run), "/portal/things/handle");
     const rows = parts(text, "operation-row");
     expect(rows.map((r) => r["data-operation"]).sort(), "every operation of the thing has a row").toEqual(Object.keys(wire.model.operations).filter((o) => wire.model.operations[o]!.thing === "handle").sort());
     const claim = rows.find((r) => r["data-operation"] === run.claim);
-    expect(claim, "the claim's row").toMatchObject({ "data-lit": "true", "data-calls": "2" });
+    expect(claim, "the claim's row").toMatchObject({ "data-lit": "true", "data-calls": "5" });
     expect(claim?.["data-journeys"]?.split(","), "the journey whose run did it").toContain("claim a name");
     for (const row of rows.filter((r) => r["data-operation"] !== run.claim)) expect(row["data-lit"], `${row["data-operation"]} saw no call`).toBe("false");
     const moves = parts(text, "move");
@@ -277,9 +318,27 @@ describe("21 C: a journey's run lights up its operation and its machine move", (
     for (const m of moves.filter((m) => m["data-move"] !== run.move)) expect(m["data-lit"]).toBe("false");
   });
 
+  it("link's page lights `add` (answered once, a defect once) and its arrow, and leaves `order` and `remove` dark", async () => {
+    const wire = await decode(pluggedInWire());
+    const run = stage(wire);
+    const { text } = await get(context(wire, run), "/portal/things/link");
+    const own = Object.keys(wire.model.operations).filter((o) => wire.model.operations[o]!.thing === "link").sort();
+    expect(own, "Plugged In's link has add, order and remove").toEqual(["link.add", "link.order", "link.remove"]);
+    const rows = parts(text, "operation-row");
+    expect(rows.map((r) => r["data-operation"]).sort()).toEqual(own);
+    expect(rows.find((r) => r["data-operation"] === "link.add"), "add's row").toMatchObject({ "data-lit": "true", "data-calls": "2" });
+    expect(rows.find((r) => r["data-operation"] === "link.add")?.["data-journeys"], "no journey ran it").toBe("");
+    for (const name of ["link.order", "link.remove"]) expect(rows.find((r) => r["data-operation"] === name)?.["data-lit"], `${name} saw no call`).toBe("false");
+    const addMove = wire.model.operations["link.add"]!.move!.key;
+    const moves = parts(text, "move");
+    expect(moves.find((m) => m["data-move"] === addMove), "the arrow the answered add took, not the defect").toMatchObject({ "data-lit": "true", "data-count": "1" });
+    const removeMove = wire.model.operations["link.remove"]!.move?.key;
+    expect(moves.find((m) => m["data-move"] === removeMove), "remove's arrow").toMatchObject({ "data-lit": "false" });
+  });
+
   it("with no run in the window the same page is all dark", async () => {
     const wire = await decode(pluggedInWire());
-    const { text } = await get(context(wire, new Map()), "/portal/things/handle");
+    const { text } = await get(context(wire, dark), "/portal/things/handle");
     const lit = [...parts(text, "operation-row"), ...parts(text, "move")].filter((p) => p["data-lit"] !== "false");
     expect(parts(text, "operation-row").length, "the rows exist").toBeGreaterThan(0);
     expect(lit).toEqual([]);
@@ -300,7 +359,7 @@ describe("21 D: no leak", () => {
   it("a raw statement, a `principal.person`, a non-public payload value and a log body in a staging trace render nowhere, and the caller's kind does", async () => {
     const wire = await decode(pluggedInWire());
     const run = stage(wire);
-    const ctx = context(wire, run.traces);
+    const ctx = context(wire, run);
     expect(leaked(JSON.stringify([...run.traces.values()])).length, "the instrument: the trace holds all four").toBe(4);
     const found: Record<string, Array<string>> = {};
     for (const path of routes(wire, run)) {
@@ -319,11 +378,11 @@ describe("21 D: no leak", () => {
   it("the trace page shows the answered call's structure and timing, and how many logs its span has, with none of the four", async () => {
     const wire = await decode(pluggedInWire());
     const run = stage(wire);
-    const { status, text } = await get(context(wire, run.traces), `/portal/traces/${run.ids.answered}`);
+    const { status, text } = await get(context(wire, run), `/portal/traces/${run.ids.answered}`);
     expect(status).toBe(200);
     const rows = parts(text, "span-row");
-    expect(rows.map((r) => r["data-span-name"]), "the waterfall, in start order").toEqual(["journey.claim a name", "handle.claim", "handle.claim.lookup", "handle.claim.commit"]);
-    expect(rows.find((r) => r["data-span-name"] === "handle.claim")?.["data-logs"], "one log, counted and never read").toBe("1");
+    expect(rows.map((r) => `${r["data-span-name"]}#${r["data-attempt"] ?? ""}`), "the waterfall, in start order, grouped by attempt").toEqual(["journey.claim a name#", "handle.claim#1", "handle.claim.commit#1", "handle.claim#2", "handle.claim.lookup#2", "handle.claim.commit#2"]);
+    expect(rows.find((r) => r["data-span-name"] === "handle.claim" && r["data-attempt"] === "2")?.["data-logs"], "one log on the second attempt, counted and never read").toBe("1");
     expect(leaked(text)).toEqual([]);
   });
 });
@@ -334,7 +393,7 @@ describe("21 E: the portal's pages are byte-identical across two runs at the sam
   const shots = async (now: number) => {
     const wire = await decode(pluggedInWire());          // a fresh decode and a fresh source each run
     const run = stage(wire);
-    const ctx = context(wire, run.traces, now);
+    const ctx = context(wire, run, now);
     const out: Record<string, string> = {};
     for (const path of ["/portal", ...Object.keys(wire.model.things).map((t) => `/portal/things/${t}`), `/portal/traces/${run.ids.answered}`]) out[path] = (await get(ctx, path)).text;
     return out;
@@ -350,8 +409,9 @@ describe("21 E: the portal's pages are byte-identical across two runs at the sam
 
   it("`now` is the only clock: a later `now` that moves the window changes the rail, and no page holds the real time", async () => {
     const one = await shots(NOW);
-    const later = await shots(NOW + 10 * 60_000);
-    expect(later["/portal"], "the first claim falls out of the window").not.toBe(one["/portal"]);
+    const later = await shots(NOW + 26 * 60_000);
+    expect(later["/portal"], "the retried claim, five minutes old, is now 31: out of a 30-minute window").not.toBe(one["/portal"]);
+    expect(stat(later["/portal"]!, "calls"), "six calls where there were seven").toBe("6");
     const year = String(new Date().getFullYear());
     const stamps = Object.values(one).flatMap((text) => text.match(new RegExp(`${year}-\\d\\d-\\d\\dT\\d\\d:\\d\\d`, "g")) ?? []);
     expect(stamps.filter((s) => !s.startsWith(new Date(NOW).toISOString().slice(0, 10))), "no timestamp from the clock").toEqual([]);
