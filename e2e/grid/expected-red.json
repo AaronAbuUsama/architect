@@ -3,56 +3,56 @@
     {
       "cell": "error.portal",
       "subject": "HandleAlreadyOwned",
-      "reason": "handle.claim: the portal page shows no HandleAlreadyOwned (expected data-refusal=\"HandleAlreadyOwned\" data-code=\"HN-002\" and a data-count)",
-      "waitsOn": "M1.42 (wire), M1.13 (pages) — packages/portal/src/modules/site/internal/home.ts, detail.ts"
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: handle.claim: the portal page shows no HandleAlreadyOwned (expected data-refusal=\"HandleAlreadyOwned\" data-code=\"HN-002\" and a data-count)",
+      "waitsOn": "K19 (the portal split) and M1.42 (wire), M1.13 (pages) — packages/portal/src/modules/site/internal/home.ts, detail.ts"
     },
     {
       "cell": "error.portal",
       "subject": "HandleNotClaimed",
-      "reason": "handle.release: the portal page shows no HandleNotClaimed (expected data-refusal=\"HandleNotClaimed\" data-code=\"HN-900\" and a data-count)",
-      "waitsOn": "M1.42 (wire), M1.13 (pages) — packages/portal/src/modules/site/internal/home.ts, detail.ts"
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: handle.release: the portal page shows no HandleNotClaimed (expected data-refusal=\"HandleNotClaimed\" data-code=\"HN-900\" and a data-count)",
+      "waitsOn": "K19 (the portal split) and M1.42 (wire), M1.13 (pages) — packages/portal/src/modules/site/internal/home.ts, detail.ts"
     },
     {
       "cell": "error.portal",
       "subject": "HandleNotFound",
-      "reason": "handle.resolve: the portal page shows no HandleNotFound (expected data-refusal=\"HandleNotFound\" data-code=\"HN-003\" and a data-count)",
-      "waitsOn": "M1.42 (wire), M1.13 (pages) — packages/portal/src/modules/site/internal/home.ts, detail.ts"
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: handle.resolve: the portal page shows no HandleNotFound (expected data-refusal=\"HandleNotFound\" data-code=\"HN-003\" and a data-count)",
+      "waitsOn": "K19 (the portal split) and M1.42 (wire), M1.13 (pages) — packages/portal/src/modules/site/internal/home.ts, detail.ts"
     },
     {
       "cell": "error.portal",
       "subject": "HandleTaken",
-      "reason": "handle.claim: the portal page shows no HandleTaken (expected data-refusal=\"HandleTaken\" data-code=\"HN-001\" and a data-count)",
-      "waitsOn": "M1.42 (wire), M1.13 (pages) — packages/portal/src/modules/site/internal/home.ts, detail.ts"
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: handle.claim: the portal page shows no HandleTaken (expected data-refusal=\"HandleTaken\" data-code=\"HN-001\" and a data-count)",
+      "waitsOn": "K19 (the portal split) and M1.42 (wire), M1.13 (pages) — packages/portal/src/modules/site/internal/home.ts, detail.ts"
     },
     {
       "cell": "error.portal",
       "subject": "LinkAlreadyRemoved",
-      "reason": "link.order: the portal page shows no LinkAlreadyRemoved (expected data-refusal=\"LinkAlreadyRemoved\" data-code=\"LN-002\" and a data-count)",
-      "waitsOn": "M1.42 (wire), M1.13 (pages) — packages/portal/src/modules/site/internal/home.ts, detail.ts"
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: link.order: the portal page shows no LinkAlreadyRemoved (expected data-refusal=\"LinkAlreadyRemoved\" data-code=\"LN-002\" and a data-count)",
+      "waitsOn": "K19 (the portal split) and M1.42 (wire), M1.13 (pages) — packages/portal/src/modules/site/internal/home.ts, detail.ts"
     },
     {
       "cell": "error.portal",
       "subject": "LinkNeedsHandle",
-      "reason": "link.add: the portal page shows no LinkNeedsHandle (expected data-refusal=\"LinkNeedsHandle\" data-code=\"LN-001\" and a data-count)",
-      "waitsOn": "M1.42 (wire), M1.13 (pages) — packages/portal/src/modules/site/internal/home.ts, detail.ts"
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: link.add: the portal page shows no LinkNeedsHandle (expected data-refusal=\"LinkNeedsHandle\" data-code=\"LN-001\" and a data-count)",
+      "waitsOn": "K19 (the portal split) and M1.42 (wire), M1.13 (pages) — packages/portal/src/modules/site/internal/home.ts, detail.ts"
     },
     {
       "cell": "error.portal",
       "subject": "LinkNotListed",
-      "reason": "link.remove: the portal page shows no LinkNotListed (expected data-refusal=\"LinkNotListed\" data-code=\"LN-900\" and a data-count)",
-      "waitsOn": "M1.42 (wire), M1.13 (pages) — packages/portal/src/modules/site/internal/home.ts, detail.ts"
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: link.remove: the portal page shows no LinkNotListed (expected data-refusal=\"LinkNotListed\" data-code=\"LN-900\" and a data-count)",
+      "waitsOn": "K19 (the portal split) and M1.42 (wire), M1.13 (pages) — packages/portal/src/modules/site/internal/home.ts, detail.ts"
     },
     {
       "cell": "error.portal",
       "subject": "NotAllowed",
-      "reason": "handle.claim: the portal page shows no NotAllowed (expected data-refusal=\"NotAllowed\" data-code=\"AR-001\" and a data-count)",
-      "waitsOn": "M1.42 (wire), M1.13 (pages) — packages/portal/src/modules/site/internal/home.ts, detail.ts"
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: handle.claim: the portal page shows no NotAllowed (expected data-refusal=\"NotAllowed\" data-code=\"AR-001\" and a data-count)",
+      "waitsOn": "K19 (the portal split) and M1.42 (wire), M1.13 (pages) — packages/portal/src/modules/site/internal/home.ts, detail.ts"
     },
     {
       "cell": "error.portal",
       "subject": "ProfileNotFound",
-      "reason": "profile.get: the portal page shows no ProfileNotFound (expected data-refusal=\"ProfileNotFound\" data-code=\"PR-001\" and a data-count)",
-      "waitsOn": "M1.42 (wire), M1.13 (pages) — packages/portal/src/modules/site/internal/home.ts, detail.ts"
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: profile.get: the portal page shows no ProfileNotFound (expected data-refusal=\"ProfileNotFound\" data-code=\"PR-001\" and a data-count)",
+      "waitsOn": "K19 (the portal split) and M1.42 (wire), M1.13 (pages) — packages/portal/src/modules/site/internal/home.ts, detail.ts"
     },
     {
       "cell": "error.telemetry",
@@ -87,26 +87,26 @@
     {
       "cell": "event.portal",
       "subject": "HandleClaimed",
-      "reason": "/portal/things/handle has no Events section listing HandleClaimed with its fields",
-      "waitsOn": "M1.42 (wire), M1.13 (pages) — packages/portal/src/modules/site/internal/detail.ts"
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: /portal/things/handle has no Events section listing HandleClaimed with its fields",
+      "waitsOn": "K19 (the portal split) and M1.42 (wire), M1.13 (pages) — packages/portal/src/modules/site/internal/detail.ts"
     },
     {
       "cell": "event.portal",
       "subject": "HandleReleased",
-      "reason": "/portal/things/handle has no Events section listing HandleReleased with its fields",
-      "waitsOn": "M1.42 (wire), M1.13 (pages) — packages/portal/src/modules/site/internal/detail.ts"
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: /portal/things/handle has no Events section listing HandleReleased with its fields",
+      "waitsOn": "K19 (the portal split) and M1.42 (wire), M1.13 (pages) — packages/portal/src/modules/site/internal/detail.ts"
     },
     {
       "cell": "event.portal",
       "subject": "LinkAdded",
-      "reason": "/portal/things/link has no Events section listing LinkAdded with its fields",
-      "waitsOn": "M1.42 (wire), M1.13 (pages) — packages/portal/src/modules/site/internal/detail.ts"
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: /portal/things/link has no Events section listing LinkAdded with its fields",
+      "waitsOn": "K19 (the portal split) and M1.42 (wire), M1.13 (pages) — packages/portal/src/modules/site/internal/detail.ts"
     },
     {
       "cell": "event.portal",
       "subject": "LinkRemoved",
-      "reason": "/portal/things/link has no Events section listing LinkRemoved with its fields",
-      "waitsOn": "M1.42 (wire), M1.13 (pages) — packages/portal/src/modules/site/internal/detail.ts"
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: /portal/things/link has no Events section listing LinkRemoved with its fields",
+      "waitsOn": "K19 (the portal split) and M1.42 (wire), M1.13 (pages) — packages/portal/src/modules/site/internal/detail.ts"
     },
     {
       "cell": "journey.docs",
@@ -153,44 +153,44 @@
     {
       "cell": "journey.portal",
       "subject": "a name is claimed once",
-      "reason": "/portal/operations/handle.claim shows no proof from the journey \"a name is claimed once\"",
-      "waitsOn": "M1.13 (journeys, starting worlds, the proof tab) — packages/portal/src/modules/site/internal/detail.ts"
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: /portal/operations/handle.claim shows no proof from the journey \"a name is claimed once\"",
+      "waitsOn": "K19 (the portal split) and M1.13 (journeys, starting worlds, the proof tab) — packages/portal/src/modules/site/internal/detail.ts"
     },
     {
       "cell": "journey.portal",
       "subject": "a person claims a page and shares it",
-      "reason": "/portal/operations/handle.claim shows no proof from the journey \"a person claims a page and shares it\"",
-      "waitsOn": "M1.13 (journeys, starting worlds, the proof tab) — packages/portal/src/modules/site/internal/detail.ts"
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: /portal/operations/handle.claim shows no proof from the journey \"a person claims a page and shares it\"",
+      "waitsOn": "K19 (the portal split) and M1.13 (journeys, starting worlds, the proof tab) — packages/portal/src/modules/site/internal/detail.ts"
     },
     {
       "cell": "journey.portal",
       "subject": "a stranger cannot edit a page",
-      "reason": "/portal/operations/link.add shows no proof from the journey \"a stranger cannot edit a page\"",
-      "waitsOn": "M1.13 (journeys, starting worlds, the proof tab) — packages/portal/src/modules/site/internal/detail.ts"
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: /portal/operations/link.add shows no proof from the journey \"a stranger cannot edit a page\"",
+      "waitsOn": "K19 (the portal split) and M1.13 (journeys, starting worlds, the proof tab) — packages/portal/src/modules/site/internal/detail.ts"
     },
     {
       "cell": "journey.portal",
       "subject": "add, order and remove a link",
-      "reason": "/portal/operations/profile.get shows no proof from the journey \"add, order and remove a link\"",
-      "waitsOn": "M1.13 (journeys, starting worlds, the proof tab) — packages/portal/src/modules/site/internal/detail.ts"
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: /portal/operations/profile.get shows no proof from the journey \"add, order and remove a link\"",
+      "waitsOn": "K19 (the portal split) and M1.13 (journeys, starting worlds, the proof tab) — packages/portal/src/modules/site/internal/detail.ts"
     },
     {
       "cell": "journey.portal",
       "subject": "anyone reads a public page",
-      "reason": "/portal/operations/handle.resolve shows no proof from the journey \"anyone reads a public page\"",
-      "waitsOn": "M1.13 (journeys, starting worlds, the proof tab) — packages/portal/src/modules/site/internal/detail.ts"
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: /portal/operations/handle.resolve shows no proof from the journey \"anyone reads a public page\"",
+      "waitsOn": "K19 (the portal split) and M1.13 (journeys, starting worlds, the proof tab) — packages/portal/src/modules/site/internal/detail.ts"
     },
     {
       "cell": "journey.portal",
       "subject": "claim a handle",
-      "reason": "/portal/operations/handle.resolve shows no proof from the journey \"claim a handle\"",
-      "waitsOn": "M1.13 (journeys, starting worlds, the proof tab) — packages/portal/src/modules/site/internal/detail.ts"
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: /portal/operations/handle.resolve shows no proof from the journey \"claim a handle\"",
+      "waitsOn": "K19 (the portal split) and M1.13 (journeys, starting worlds, the proof tab) — packages/portal/src/modules/site/internal/detail.ts"
     },
     {
       "cell": "journey.portal",
       "subject": "release a handle",
-      "reason": "/portal/operations/link.add shows no proof from the journey \"release a handle\"",
-      "waitsOn": "M1.13 (journeys, starting worlds, the proof tab) — packages/portal/src/modules/site/internal/detail.ts"
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: /portal/operations/link.add shows no proof from the journey \"release a handle\"",
+      "waitsOn": "K19 (the portal split) and M1.13 (journeys, starting worlds, the proof tab) — packages/portal/src/modules/site/internal/detail.ts"
     },
     {
       "cell": "journey.telemetry",
@@ -243,14 +243,14 @@
     {
       "cell": "machine.portal",
       "subject": "handle",
-      "reason": "/portal/things/handle's lifecycle shows no live move count on its arrows: the portal does not yet count moves from telemetry (M1.13)",
-      "waitsOn": "M1.13 — packages/portal/src/modules/site/internal/detail.ts"
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: /portal/things/handle's lifecycle shows no live move count on its arrows: the portal does not yet count moves from telemetry (M1.13)",
+      "waitsOn": "K19 (the portal split) and M1.13 — packages/portal/src/modules/site/internal/detail.ts"
     },
     {
       "cell": "machine.portal",
       "subject": "link",
-      "reason": "/portal/things/link's lifecycle shows no live move count on its arrows: the portal does not yet count moves from telemetry (M1.13)",
-      "waitsOn": "M1.13 — packages/portal/src/modules/site/internal/detail.ts"
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: /portal/things/link's lifecycle shows no live move count on its arrows: the portal does not yet count moves from telemetry (M1.13)",
+      "waitsOn": "K19 (the portal split) and M1.13 — packages/portal/src/modules/site/internal/detail.ts"
     },
     {
       "cell": "machine.sdk",
@@ -321,44 +321,44 @@
     {
       "cell": "operation.portal",
       "subject": "handle.claim",
-      "reason": "home's operations matrix has no Calls column: the portal does not yet count calls from telemetry (M1.13)",
-      "waitsOn": "M1.13 — packages/portal/src/modules/site/internal/home.ts"
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: home's operations matrix has no Calls column: the portal does not yet count calls from telemetry (M1.13)",
+      "waitsOn": "K19 (the portal split) and M1.13 — packages/portal/src/modules/site/internal/home.ts"
     },
     {
       "cell": "operation.portal",
       "subject": "handle.release",
-      "reason": "home's operations matrix has no Calls column: the portal does not yet count calls from telemetry (M1.13)",
-      "waitsOn": "M1.13 — packages/portal/src/modules/site/internal/home.ts"
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: home's operations matrix has no Calls column: the portal does not yet count calls from telemetry (M1.13)",
+      "waitsOn": "K19 (the portal split) and M1.13 — packages/portal/src/modules/site/internal/home.ts"
     },
     {
       "cell": "operation.portal",
       "subject": "handle.resolve",
-      "reason": "home's operations matrix has no Calls column: the portal does not yet count calls from telemetry (M1.13)",
-      "waitsOn": "M1.13 — packages/portal/src/modules/site/internal/home.ts"
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: home's operations matrix has no Calls column: the portal does not yet count calls from telemetry (M1.13)",
+      "waitsOn": "K19 (the portal split) and M1.13 — packages/portal/src/modules/site/internal/home.ts"
     },
     {
       "cell": "operation.portal",
       "subject": "link.add",
-      "reason": "home's operations matrix has no Calls column: the portal does not yet count calls from telemetry (M1.13)",
-      "waitsOn": "M1.13 — packages/portal/src/modules/site/internal/home.ts"
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: home's operations matrix has no Calls column: the portal does not yet count calls from telemetry (M1.13)",
+      "waitsOn": "K19 (the portal split) and M1.13 — packages/portal/src/modules/site/internal/home.ts"
     },
     {
       "cell": "operation.portal",
       "subject": "link.order",
-      "reason": "home's operations matrix has no Calls column: the portal does not yet count calls from telemetry (M1.13)",
-      "waitsOn": "M1.13 — packages/portal/src/modules/site/internal/home.ts"
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: home's operations matrix has no Calls column: the portal does not yet count calls from telemetry (M1.13)",
+      "waitsOn": "K19 (the portal split) and M1.13 — packages/portal/src/modules/site/internal/home.ts"
     },
     {
       "cell": "operation.portal",
       "subject": "link.remove",
-      "reason": "home's operations matrix has no Calls column: the portal does not yet count calls from telemetry (M1.13)",
-      "waitsOn": "M1.13 — packages/portal/src/modules/site/internal/home.ts"
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: home's operations matrix has no Calls column: the portal does not yet count calls from telemetry (M1.13)",
+      "waitsOn": "K19 (the portal split) and M1.13 — packages/portal/src/modules/site/internal/home.ts"
     },
     {
       "cell": "operation.portal",
       "subject": "profile.get",
-      "reason": "home's operations matrix has no Calls column: the portal does not yet count calls from telemetry (M1.13)",
-      "waitsOn": "M1.13 — packages/portal/src/modules/site/internal/home.ts"
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read; the eval's assertions are unchanged. Before that, it was: home's operations matrix has no Calls column: the portal does not yet count calls from telemetry (M1.13)",
+      "waitsOn": "K19 (the portal split) and M1.13 — packages/portal/src/modules/site/internal/home.ts"
     },
     {
       "cell": "step.api",
@@ -461,6 +461,84 @@
       "subject": "profile",
       "reason": "the SDK exports no type Profile: a caller cannot name a profile",
       "waitsOn": "M1.42 — packages/generators/src/modules/render/internal/sdk.ts"
+    },
+    {
+      "cell": "step.portal",
+      "subject": "handle.claim.load",
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read. Green on the old server-rendered HTML; the eval's assertions are unchanged.",
+      "waitsOn": "K19 (the portal split): packages/portal (the server entry, dist/client), then M1.13's pages must satisfy the eval's words"
+    },
+    {
+      "cell": "step.portal",
+      "subject": "handle.claim.record",
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read. Green on the old server-rendered HTML; the eval's assertions are unchanged.",
+      "waitsOn": "K19 (the portal split): packages/portal (the server entry, dist/client), then M1.13's pages must satisfy the eval's words"
+    },
+    {
+      "cell": "step.portal",
+      "subject": "handle.resolve.load",
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read. Green on the old server-rendered HTML; the eval's assertions are unchanged.",
+      "waitsOn": "K19 (the portal split): packages/portal (the server entry, dist/client), then M1.13's pages must satisfy the eval's words"
+    },
+    {
+      "cell": "step.portal",
+      "subject": "handle.release.record",
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read. Green on the old server-rendered HTML; the eval's assertions are unchanged.",
+      "waitsOn": "K19 (the portal split): packages/portal (the server entry, dist/client), then M1.13's pages must satisfy the eval's words"
+    },
+    {
+      "cell": "step.portal",
+      "subject": "link.add.load",
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read. Green on the old server-rendered HTML; the eval's assertions are unchanged.",
+      "waitsOn": "K19 (the portal split): packages/portal (the server entry, dist/client), then M1.13's pages must satisfy the eval's words"
+    },
+    {
+      "cell": "step.portal",
+      "subject": "link.add.record",
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read. Green on the old server-rendered HTML; the eval's assertions are unchanged.",
+      "waitsOn": "K19 (the portal split): packages/portal (the server entry, dist/client), then M1.13's pages must satisfy the eval's words"
+    },
+    {
+      "cell": "step.portal",
+      "subject": "link.order.load",
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read. Green on the old server-rendered HTML; the eval's assertions are unchanged.",
+      "waitsOn": "K19 (the portal split): packages/portal (the server entry, dist/client), then M1.13's pages must satisfy the eval's words"
+    },
+    {
+      "cell": "step.portal",
+      "subject": "link.order.record",
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read. Green on the old server-rendered HTML; the eval's assertions are unchanged.",
+      "waitsOn": "K19 (the portal split): packages/portal (the server entry, dist/client), then M1.13's pages must satisfy the eval's words"
+    },
+    {
+      "cell": "step.portal",
+      "subject": "link.remove.record",
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read. Green on the old server-rendered HTML; the eval's assertions are unchanged.",
+      "waitsOn": "K19 (the portal split): packages/portal (the server entry, dist/client), then M1.13's pages must satisfy the eval's words"
+    },
+    {
+      "cell": "step.portal",
+      "subject": "profile.get.load",
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read. Green on the old server-rendered HTML; the eval's assertions are unchanged.",
+      "waitsOn": "K19 (the portal split): packages/portal (the server entry, dist/client), then M1.13's pages must satisfy the eval's words"
+    },
+    {
+      "cell": "thing.portal",
+      "subject": "handle",
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read. Green on the old server-rendered HTML; the eval's assertions are unchanged.",
+      "waitsOn": "K19 (the portal split): packages/portal (the server entry, dist/client), then M1.13's pages must satisfy the eval's words"
+    },
+    {
+      "cell": "thing.portal",
+      "subject": "link",
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read. Green on the old server-rendered HTML; the eval's assertions are unchanged.",
+      "waitsOn": "K19 (the portal split): packages/portal (the server entry, dist/client), then M1.13's pages must satisfy the eval's words"
+    },
+    {
+      "cell": "thing.portal",
+      "subject": "profile",
+      "reason": "K19: the portal's pages are read from the served portal (`@orthograph/portal/server` and the built client), which does not exist yet, so the page could not be read. Green on the old server-rendered HTML; the eval's assertions are unchanged.",
+      "waitsOn": "K19 (the portal split): packages/portal (the server entry, dist/client), then M1.13's pages must satisfy the eval's words"
     }
   ]
 }

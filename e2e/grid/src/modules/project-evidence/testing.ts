@@ -1,9 +1,8 @@
-// Real evidence for the row evals' tests: a project's checked-in `generated/` folder, the portal rendered over its blueprint, and, for Plugged
+// Real evidence for the row evals' tests: a project's checked-in `generated/` folder, the portal's recorded pages (`fixtures/portal-pages.json`), and, for Plugged
 // In, the CLI help, MCP tools, spans and prove report a real run wrote (`e2e/grid/fixtures/plugged-in-run.json`, captured by `main.ts capture`).
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Effect } from "effect";
-import { Portal, Wire } from "@orthograph/portal";
 import type { Eval, Finding } from "../grid/types.ts";
 import { ProjectEvidenceService } from "./service.ts";
 import type { ProjectEvidence, ProjectModel, ProjectPorts } from "./types.ts";
@@ -11,12 +10,9 @@ import type { ProjectEvidence, ProjectModel, ProjectPorts } from "./types.ts";
 const root = join(import.meta.dirname, "../../../../..");
 const run = JSON.parse(readFileSync(join(root, "e2e/grid/fixtures/plugged-in-run.json"), "utf8")) as Pick<ProjectEvidence, "cli" | "mcp" | "spans" | "prove">;
 
-const portalOf = (project: string) => (route: string): Effect.Effect<string | undefined> =>
-  Wire.decode(JSON.parse(readFileSync(join(project, "generated/portal/blueprint.json"), "utf8"))).pipe(
-    Effect.flatMap((blueprint) => Portal.handle({ blueprint, reader: null, bundleRevision: null }, new Request(`http://portal.test${route}`))),
-    Effect.flatMap((response) => (response.status === 200 ? Effect.promise(() => response.text()) : Effect.succeed(undefined))),
-    Effect.orElseSucceed(() => undefined),
-  );
+const recorded = JSON.parse(readFileSync(join(root, "e2e/grid/fixtures/portal-pages.json"), "utf8")) as Record<string, Record<string, string> | string>;
+/** A page from the recording (`fixtures/portal-pages.json`): the evals' own tests judge their logic on fixed pages; the run reads the served portal (K19). */
+const portalOf = (name: string) => (route: string): Effect.Effect<string | undefined> => Effect.succeed((recorded[name] as Record<string, string>)[route]);
 
 const tree = (dir: string, from = dir): ReadonlyArray<string> =>
   readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? tree(join(dir, e.name), from) : [join(dir, e.name).slice(from.length + 1)]));
@@ -28,7 +24,7 @@ export const evidenceOf = (name: "plugged-in" | "acme"): Promise<ProjectEvidence
   const ports: ProjectPorts = {
     model: Effect.sync(() => JSON.parse(readFileSync(join(project, "generated/model/model.json"), "utf8")) as ProjectModel),
     generated: Effect.sync(() => Object.fromEntries(tree(join(project, "generated")).map((path) => [`generated/${path}`, readFileSync(join(project, "generated", path), "utf8")]))),
-    portal: portalOf(project),
+    portal: portalOf(name),
     cliHelp: (words) => Effect.succeed(captured ? run.cli[words.join(" ")] : undefined),
     mcpTools: Effect.succeed(captured ? run.mcp : undefined),
     spans: Effect.succeed(captured ? run.spans : undefined),

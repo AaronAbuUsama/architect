@@ -31,8 +31,9 @@ modules, spawns a command or prints; the modules take what they need through inj
 - `grid` (the list, the run, the report), `touches` (rows from model and report).
 - `project-evidence` gathers everything a row eval judges from, once: the model, every file under `generated/`, the portal's pages,
   the generated CLI's real `--help`, the MCP server's real `tools/list`, the spans and prove's report. An output that could not be
-  observed is `undefined` and its evals are red with that said. `world` is the real ports (the portal rendered over the project's
-  blueprint, the CLI as a process, `tools/list` through the framework's own `Mcp.tools` and `Mcp.handle`).
+  observed is `undefined` and its evals are red with that said. `world` is the real ports (the portal's pages as a person reads
+  them, K19: the project's blueprint served by `e2e/served-portal` and each route opened in headless Chromium, so there is no page until
+  `@orthograph/portal/server` and the built client exist; the CLI as a process, `tools/list` through the framework's own `Mcp.tools` and `Mcp.handle`).
 - `reading` holds the pure readers every eval shares. The portal's pages are judged on their own part: each page embeds the docs
   page under `<h2>Docs</h2>`, which would make any docs check pass on the portal, so it is cut off.
 - One module per row: `operation-evals`, `thing-evals`, `step-evals`, `machine-evals`, `event-evals`, `journey-evals`;
@@ -69,6 +70,17 @@ Green in every subject: `error.{model,api,server,sdk,docs}`, `operation.{model,a
 | `machine.telemetry` | `move.name` and `move.to` land on the record step's span, because `chooseOutcome` annotates the current span | `packages/language-effect/src/modules/handler/internal/move.ts:46` |
 | `event.docs`, `event.portal` | a thing's page names its events only in the move table: no section documents their fields | `packages/generators/src/modules/render/internal/docs.ts`, the portal's thing page |
 | `journey.docs`, `journey.portal` | no operation page lists the journeys that cover it | same two |
+
+## The portal's pages (K19, 19 November 2026)
+
+The portal ships prebuilt (`design/decisions/K19-portal-prebuilt.md`): its pages draw in the browser from `/_portal/v1/*`. So every
+portal cell reads the page the way check 21 does, through `e2e/served-portal`: `nx run e2e:grid` serves each project's blueprint (data
+API from `@orthograph/portal/server`, client from `packages/portal/dist/client`) and opens each route in Chromium. Until the split lands
+no page can be read, `main.ts` says why once on stderr (`portal: K19: …`), and every portal pair is red with its page "could not be read"
+(or the finding it had before); the 13 `thing.portal` and `step.portal` pairs that were green on the old server-rendered HTML joined the
+list for that reason, and leave it with the rest. Each eval's assertions are unchanged. The evals' own unit tests judge their logic on
+`fixtures/portal-pages.json`, the pages as the portal rendered them on the server on 19 November: re-record it from the served portal
+when the client exists, and change the evals' words with the page.
 
 ## Not done, and what it waits for
 
