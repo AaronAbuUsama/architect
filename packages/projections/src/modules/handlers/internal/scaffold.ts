@@ -7,7 +7,7 @@ import { callSteps, handlerTypeAt } from "./calls.ts";
 import { body, branches } from "./body.ts";
 import { handedIn, header } from "./header.ts";
 import { refusalsOf } from "./words.ts";
-import { camel, lines, local, scaffolded, toRoot } from "#modules/names/service.js";
+import { camel, declarationAt, lines, local, scaffolded, toRoot } from "#modules/names/service.js";
 
 const IDENTIFIER = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 
@@ -42,7 +42,8 @@ const calling = (model: Model, op: OperationModel, path: string): RenderedFile =
   const args = `[${Object.keys(op.payload).map((k) => (IDENTIFIER.test(k) ? `payload.${k}` : `payload[${JSON.stringify(k)}]`)).join(", ")}]`;
   const blank = `Handlers.blank("map how this call fails to the error it declares", "failure")`;
   const whole = steps.length === 1 && Object.keys(op.steps).length === 1;
-  // The errors are not named here: the one blank is where the app imports the one it maps to.
+  // The errors the call can be refused with are imported, so the one blank is filled with a bare `new <Error>(...)`; the header names them too.
+  const errors = refusalsOf(model, op).filter((r) => r.giver === "yours");
   const comments = [...said(op), "What the call fails with is mapped to one of the errors the operation declares; anything else is a defect."];
   return {
     path,
@@ -51,6 +52,7 @@ const calling = (model: Model, op: OperationModel, path: string): RenderedFile =
       scaffolded(op.file),
       whole ? [] : `import { Effect } from "effect";`,
       `import { Handlers } from "${Names.pkg("language-effect")}";`,
+      errors.map((r) => `import { ${r.name} } from "${declarationAt(path, r.file)}";`),
       `import type { Handler } from "${toRoot(path)}${handlerTypeAt(op)}";`,
       "",
       header(model, op),
