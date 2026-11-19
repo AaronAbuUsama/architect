@@ -154,14 +154,17 @@ export const portalErrorDiffs = (portal: Model, m: Model) => things(m).flatMap((
   ...(t.machine && (portal.things[t.name]?.machine?.notFrom as { code?: string } | undefined)?.code !== t.machine.notFrom.code ? [`portal ${t.name} machine refusal ${t.machine.notFrom.error} lacks its code`] : []),
 ]);
 
-/** ✓ events and errors × the API: the names and codes the server speaks are the model's. */
+/**
+ * ✓ events and errors × the API: the names and codes the server speaks are the model's. Each error's code and exit are read
+ * from its row of the generated `refusals` table (K16, M1.47), which replaced the separate `exits` table.
+ */
 export const apiDiffs = (root: string, m: Model) => {
   const events = textAt(root, "generated/api/src/events.ts");
   const errors = textAt(root, "generated/api/src/errors.ts");
   return [
     ...things(m).flatMap((t) => Object.keys(t.events).filter((e) => !events.includes(`"${e}"`)).map((e) => `API events omit ${e}`)),
-    ...things(m).flatMap((t) => Object.entries(t.errors).filter(([e, v]) => !errors.includes(`class ${e} `) || !errors.includes(`"${v.code}"`) || !new RegExp(`\\b${e}: ${v.exit},`).test(errors)).map(([e]) => `API errors omit ${e}, its code or its exit`)),
-    ...things(m).flatMap((t) => (t.machine ? [t.machine.notFrom] : []).filter((n) => !errors.includes(`"${n.code}"`) || !new RegExp(`\\b${n.error}: ${n.exit},`).test(errors)).map((n) => `API errors omit ${n.error}`)),
+    ...things(m).flatMap((t) => Object.entries(t.errors).filter(([e, v]) => !errors.includes(`class ${e} `) || !errors.includes(`"${v.code}"`) || !new RegExp(`\\b${e}: \\{ code: "${v.code}", exit: ${v.exit},`).test(errors)).map(([e]) => `API errors omit ${e}, its code or its exit`)),
+    ...things(m).flatMap((t) => (t.machine ? [t.machine.notFrom] : []).filter((n) => !errors.includes(`"${n.code}"`) || !new RegExp(`\\b${n.error}: \\{ code: "${n.code}", exit: ${n.exit},`).test(errors)).map((n) => `API errors omit ${n.error}`)),
   ];
 };
 

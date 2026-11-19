@@ -19,7 +19,7 @@ afterEach(() => { for (const copy of copies.splice(0)) copy.remove(); });
 
 const golden = join(fixtures, "scaffold-explains");
 const spend = "src/allowance/spend.ts";
-const typed = (root: string) => spawnSync(join(root, "node_modules/.bin/tsc"), ["--noEmit"], { cwd: root, encoding: "utf8" });
+const typed = (root: string) => spawnSync(join(root, "node_modules/.bin/tsc"), ["--noEmit", "--pretty", "false"], { cwd: root, encoding: "utf8" });
 const edit = (root: string, path: string, from: string, to: string) => {
   const before = textAt(root, path);
   const after = before.replace(from, to);
