@@ -26,11 +26,16 @@
 // and `telemetry` (a Collector's file). The `agent` audience is MCP, called as keeper and as stranger.
 //
 // Calls made where the design is silent:
-//  1. Contradiction, followed as the row and the gate state it: the canon says a secret "goes to the caller who asked for it"
-//     (things.mdx), and `owner` is an audience; the done-when and Gate M1 (8) say no secret leaves through any output, for any
-//     audience. This check follows the latter: the keeper's answer carries no `code` either. acme's `session.sign-in` token and
-//     `api-key.create` key are the places that would need an "issued once to its caller" path; nothing here judges them, and no
-//     assertion forbids the builder from giving them one that the fixture's secret does not use.
+//  1. R1 as the lead revised it (the row and Gate M1 (8) are to be corrected to it): a secret leaves only in the answer of the
+//     call that issued it, to that call's own caller, through the direct doors (the HTTP body, the SDK's decoded answer, the CLI's
+//     text and `--json`), for any caller the operation admits, anonymous included (sign-in is). It never leaves in a refusal, in a
+//     read's answer (`locker.get` commits nothing), through MCP, or in spans, logs, metrics, the journal, the portal data file,
+//     docs or the model. So `locker.open`'s answer carries `code` to keeper, stranger and anonymous over those three doors, and
+//     everything else is judged as before. A control over acme: `api-key.create`'s HTTP answer carries its `key`, and no span, log
+//     or journal entry does.
+//     The mark is the declaration's: `code: Blueprint.issued(<secret>)` on `locker.open`'s answer (the fixture writes it only once
+//     `Blueprint.issued` exists, so every control runs today), and a second secret answer field, `seal`, is NOT issued: no output
+//     carries it for anyone. The compiler refuses `issued` on a public value and on a payload field.
 //  2. The module's surface is pinned only by name (`Audience` and `Visibility` exported from `@orthograph/language-effect`;
 //     `Audience` has `principal`, `agent`, `telemetry`, `public`, `owner`; `Visibility` has `sees`, `redact`, `schema`), never by
 //     signature. `Errors.shown` is gone from the generated api (the row says so).
@@ -56,10 +61,11 @@ import { join } from "node:path";
 import { Effect } from "effect";
 import { Collectors } from "@orthograph/prove";
 import { afterAll, describe, expect, it } from "vitest";
+import { callAs } from "../layer2/mcp.ts";
 import { acme, nothingRunning, run, textAt } from "./support.ts";
 import { freePort, runCli, runSdk } from "./clients.ts";
-import { captureAll, OUTPUTS, shownIn, type Capture, type Captured, type Output } from "./visibility-outputs.ts";
-import { filesUnder, leaks, liveWorld, lockerProject, missing, plant, sleep, spansNamed, tracesOf, until, type Live, type Name, type Who } from "./visibility.ts";
+import { captureAll, issues, OUTPUTS, shownIn, type Capture, type Captured, type Output } from "./visibility-outputs.ts";
+import { filesUnder, hasIssued, leaks, liveWorld, lockerProject, overlay, missing, plant, sleep, spansNamed, tracesOf, until, type Live, type Name, type Who } from "./visibility.ts";
 
 const planted = plant();
 const NAMES = Object.keys(planted) as ReadonlyArray<Name>;
@@ -87,9 +93,9 @@ const captures = async (output: Output) => (await ready()).captured.captures.fil
 const where = (c: Capture) => `${c.output} ${c.call} as ${c.who}`;
 
 /** The planted values a caller must not be shown but was, one line each. */
-const leaked = (all: ReadonlyArray<Capture>) => all.flatMap((c) => leaks(c.bytes, c.who, planted).map((what) => `${where(c)}: ${what}`));
+const leaked = (all: ReadonlyArray<Capture>) => all.flatMap((c) => leaks(c.bytes, c.who, planted, issues(c.output, c.call)).map((what) => `${where(c)}: ${what}`));
 /** What the caller should have been shown and was not: an output that says nothing passes no rule. */
-const absent = (all: ReadonlyArray<Capture>) => all.flatMap((c) => missing(c.bytes, c.who, planted, shownIn(c.output, c.call, c.who)).map((what) => `${where(c)}: ${what}`));
+const absent = (all: ReadonlyArray<Capture>) => all.flatMap((c) => missing(c.bytes, c.who, planted, shownIn(c.output, c.call, c.who), issues(c.output, c.call)).map((what) => `${where(c)}: ${what}`));
 
 // ---- the surface ----
 
@@ -110,10 +116,26 @@ describe("16 the surface: one visibility module, one Audience", () => {
 
 // ---- controls: what is true today, and must stay true ----
 
+describe("16 the surface: Blueprint.issued marks a secret answer field the caller is given once", () => {
+  it("exists, and ortho check refuses it on a public value and on a payload field, naming the field", () => {
+    expect(hasIssued(), "`Blueprint.issued` is exported by orthograph (the lead's R1 revision)").toBe(true);
+    const refused = (field: string, edit: (source: string) => string) => {
+      const copy = overlay(planted, edit);
+      try {
+        const result = run(copy.root, "check");
+        expect([result.status === 0, result.out.includes(field), /issued/.test(result.out)], `${field}: ${result.out}`).toEqual([false, true, true]);
+        expect(result.out).not.toMatch(/does not exist|is not a function|Cannot read properties/);
+      } finally { copy.remove(); }
+    };
+    refused("label", (source) => source.replace("label: Locker.fields.label,", "label: Blueprint.issued(Locker.fields.label),"));
+    refused("locker", (source) => source.replace("payload: { locker: Locker.fields.id,", "payload: { locker: Blueprint.issued(Blueprint.visibility.secret(Locker.fields.id)),"));
+  });
+});
+
 describe("16 controls: the planted values and the search", () => {
   it("each audience's search finds every value it must not see, in a JSON body, an OTLP attribute and a log line, and none it may", () => {
     const shapes = (value: string) => [`{"label":"x","v":"${value}"}`, `{"key":"answer.v","value":{"stringValue":"${value}"}}`, `opening it: the value is ${value}, as logged`];
-    const kinds = { label: "public", hint: "public", note: "private", memo: "private", code: "secret", pin: "secret", residue: "undeclared", residueRefusal: "undeclared" } as const;
+    const kinds = { label: "public", hint: "public", note: "private", memo: "private", code: "secret", pin: "secret", seal: "secret", residue: "undeclared", residueRefusal: "undeclared" } as const;
     const whos: ReadonlyArray<Who> = ["keeper", "stranger", "anonymous", "telemetry"];
     for (const name of NAMES) {
       for (const who of whos) {
@@ -122,12 +144,15 @@ describe("16 controls: the planted values and the search", () => {
       }
     }
     expect(leaks("nothing planted here", "anonymous", planted)).toEqual([]);
+    expect(leaks(planted.code, "anonymous", planted, true), "an issuing answer may carry the secret to anyone").toEqual([]);
+    expect(leaks(`${planted.code} ${planted.pin}`, "anonymous", planted, true), "but never a refusal's secret").toEqual(["pin (secret)"]);
     expect(missing("", "keeper", planted, ["label", "note", "code"]), "an output that says nothing is missing what the keeper is shown, and never a secret").toEqual(["label (public)", "note (private)"]);
+    expect(missing("", "anonymous", planted, ["label", "code"], true)).toEqual(["label (public)", "code (secret)"]);
   });
 
-  it("the values are eight and distinct, none inside another, and only src/sentinels.ts of the project holds them", () => {
+  it("the values are nine and distinct, none inside another, and only src/sentinels.ts of the project holds them", () => {
     const values = NAMES.map((name) => planted[name]);
-    expect(new Set(values).size).toBe(8);
+    expect(new Set(values).size).toBe(9);
     for (const a of values) for (const b of values) if (a !== b) expect(b.includes(a), `${a} in ${b}`).toBe(false);
     const root = theProject().root;
     const holding = ["generated", "blueprint", "journeys", "src"].flatMap((dir) => filesUnder(root, dir)).filter((f) => values.some((v) => f.text.includes(v))).map((f) => f.path);
@@ -140,23 +165,23 @@ describe("16 controls: the planted values and the search", () => {
     const model = JSON.parse(run(root, "model", "--json").stdout) as { operations: Record<string, { answer: Record<string, { visibility?: unknown }> }> };
     expect(Object.keys(model.operations).filter((name) => name.startsWith("locker.")).sort()).toEqual(["locker.get", "locker.install", "locker.open"]);
     expect(Object.fromEntries(Object.entries(model.operations["locker.open"]!.answer).map(([k, f]) => [k, f.visibility ?? "public"]))).toEqual({
-      locker: "public", label: "public", note: { private: ["organization.owner"] }, code: "secret",
+      locker: "public", label: "public", note: { private: ["organization.owner"] }, code: "secret", seal: "secret",
     });
   });
 
   it("a server that leaks is seen to leak through the SDK program and the CLI, so a clean output is not a blind one", async () => {
     const root = theProject().root;
-    const body = JSON.stringify({ locker: "lkr_x", label: planted.label, note: planted.note, code: planted.code, residue: planted.residue });
+    const body = JSON.stringify({ locker: "lkr_x", label: planted.label, note: planted.note, code: planted.code, seal: planted.seal, residue: planted.residue });
     const stub: Server = createServer((_request, response) => { response.writeHead(200, { "content-type": "application/json" }).end(body); });
     await new Promise<void>((resolve) => { stub.listen(0, "127.0.0.1", resolve); });
     const url = `http://127.0.0.1:${(stub.address() as AddressInfo).port}`;
     try {
       const sdk = await runSdk(root, "visibility-stub", `out(await settle(Sdk.locker.open({ locker: "lkr_x" as never, tool: "key" }).pipe(Effect.provide(Sdk.layer(env.URL)))));`, { URL: url });
       const cli = await runCli(root, { ACME_URL: url, ACME_TOKEN: "" }, "locker", "open", "--locker", "lkr_x", "--tool", "key", "--json");
-      expect(leaks(sdk.stdout, "stranger", planted), "the SDK's decoded answer").toEqual(["note (private)", "code (secret)"]);
-      expect(leaks(`${cli.stdout}${cli.stderr}`, "anonymous", planted), "the CLI's --json").toEqual(["note (private)", "code (secret)"]);
+      expect(leaks(sdk.stdout, "stranger", planted), "the SDK's decoded answer").toEqual(["note (private)", "code (secret)", "seal (secret)"]);
+      expect(leaks(`${cli.stdout}${cli.stderr}`, "anonymous", planted), "the CLI's --json").toEqual(["note (private)", "code (secret)", "seal (secret)"]);
       const raw = await (await fetch(url)).text();
-      expect(leaks(raw, "stranger", planted), "the HTTP body").toEqual(["note (private)", "code (secret)", "residue (undeclared)"]);
+      expect(leaks(raw, "stranger", planted), "the HTTP body").toEqual(["note (private)", "code (secret)", "seal (secret)", "residue (undeclared)"]);
     } finally { await new Promise<void>((resolve) => { stub.close(() => resolve()); stub.closeAllConnections(); }); }
   });
 
@@ -296,6 +321,27 @@ describe("16 M1.35: what the runtime says of every call, for the telemetry audie
 });
 
 // ---- what is generated from the model ----
+
+describe("16 controls: an issued secret on acme, api-key.create", () => {
+  it("the HTTP answer carries the key, and no span, log, metric or journal entry does", async () => {
+    const { live, captured } = await ready();
+    const cast = await live.cast("ada");
+    const ada = cast["ada"]!;
+    const response = await fetch(`${live.url}/api-key/create`, { method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${ada.token}` }, body: JSON.stringify({ organization: captured.organization, name: "ci" }) });
+    const text = await response.text();
+    expect(response.status, text).toBe(200);
+    const key = (JSON.parse(text) as { key?: string }).key ?? "";
+    const agent = await callAs(live.url, ada, "api-key.create", { organization: captured.organization, name: "agent" });
+    expect(agent.text.includes(key), "no MCP result carries it").toBe(false);
+    expect(key.length, "the answer carries the key").toBeGreaterThan(8);
+    const collected = (await until(() => live.collected(), (c) => spansNamed(c.traces, "api-key.create") >= 1, 60_000));
+    await sleep(3_000);
+    const after = live.collected();
+    expect(spansNamed(after.traces, "api-key.create")).toBeGreaterThanOrEqual(1);
+    const journal = (await Promise.all(tracesOf(collected.traces, "api-key.create").map((trace) => live.journal(trace)))).join("\n");
+    expect([after.traces, after.logs, after.metrics, journal].map((bytes) => bytes.includes(key))).toEqual([false, false, false, false]);
+  });
+});
 
 describe("16 M1.35: what is generated from the model", () => {
   it("docs, the model and the portal's data file hold no planted value, and the portal's data file keeps every field's visibility as the model has it", () => {

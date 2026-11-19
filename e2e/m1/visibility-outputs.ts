@@ -20,10 +20,13 @@ export const CALLS: ReadonlyArray<Call> = ["answer", "refusal", "read"];
  * judged: MCP's private case (the agent audience has no roles in K12's list), and the CLI's refusal line, a one-line summary
  * whose private fields `Errors.shown` hides today and the principal rule may show.
  */
+/** The answer of `locker.open` is the call that issued `code`: the direct doors carry it to its own caller, whoever that is. */
+export const issues = (output: Output, call: Call) => call === "answer" && output !== "mcp";
+
 export const shownIn = (output: Output, call: Call, who: Who): ReadonlyArray<Name> => {
-  const names: ReadonlyArray<Name> = call === "refusal" ? ["hint", "memo"] : ["label", "note"];
-  const judged = (name: Name) => KIND[name] === "public" || (output !== "mcp" && !(call === "refusal" && output.startsWith("cli")));
-  return names.filter((name) => mayShow(who).includes(name) && judged(name));
+  const names: ReadonlyArray<Name> = call === "refusal" ? ["hint", "memo"] : issues(output, call) ? ["label", "note", "code"] : ["label", "note"];
+  const judged = (name: Name) => KIND[name] === "public" || name === "code" || (output !== "mcp" && !(call === "refusal" && output.startsWith("cli")));
+  return names.filter((name) => mayShow(who, issues(output, call)).includes(name) && judged(name));
 };
 
 interface Caller { readonly who: Who; readonly person?: Person }

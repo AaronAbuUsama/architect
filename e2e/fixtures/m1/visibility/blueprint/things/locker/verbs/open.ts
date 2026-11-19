@@ -9,7 +9,7 @@ import { owner } from "../../organization/roles.ts";
 export default Blueprint.operation(Locker, {
   description: "Open a locker with its key, or try to force it with a crowbar.",
   payload: { locker: Locker.fields.id, tool: Blueprint.value(Schema.Literals(["key", "crowbar"])) },
-  answer: { locker: Locker.fields.id, label: Locker.fields.label, note: Locker.fields.note, code: Locker.fields.code },
+  answer: { locker: Locker.fields.id, label: Locker.fields.label, note: Locker.fields.note, code: Locker.fields.code, seal: Locker.fields.seal },
   move: machine.moves.open,
   errors: [LockerSealed],
   allowed: [owner.of("locker.organization"), Blueprint.anyone],

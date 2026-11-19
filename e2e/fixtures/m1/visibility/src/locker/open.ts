@@ -18,12 +18,13 @@ const open: Handler = ({ locker, tool }, { steps, move }) =>
     const label = String(found["label"]);
     const note = String(found["note"]);
     const code = String(found["code"]);
+    const seal = String(found["seal"]);
     // Fields neither the answer nor the refusal declares: held in variables, so the type does not stop them.
     const undeclared = { answer: { residue: sentinels.residue }, refusal: { residue: sentinels.residueRefusal } };
     yield* Effect.logInfo(`opening ${label}: the note says ${note} and the code is ${code}`).pipe(Effect.annotateLogs({ note, code }));
     if (tool === "crowbar") return yield* new LockerSealed({ hint: sentinels.hint, memo: sentinels.memo, pin: sentinels.pin, ...undeclared.refusal });
     yield* move("opened");
-    return { locker, label, note, code, ...undeclared.answer };
+    return { locker, label, note, code, seal, ...undeclared.answer };
   });
 
 export default open;

@@ -1,5 +1,6 @@
 // What check 16 shares: the values the fixture plants, the search that finds them, and the world every output is read in.
 // Each value is unique to a run, so a value found in any captured byte went there through some output.
+import { spawnSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -15,13 +16,13 @@ import { acme, copyOf, fixtures, succeeds } from "./support.ts";
 export interface Sentinels {
   readonly label: string; readonly hint: string;
   readonly note: string; readonly memo: string;
-  readonly code: string; readonly pin: string;
+  readonly code: string; readonly pin: string; readonly seal: string;
   readonly residue: string; readonly residueRefusal: string;
 }
 export type Name = keyof Sentinels;
 /** What the declaration says of each: public, private to the organisation's owner, secret, or not named at all. */
 export const KIND: Record<Name, "public" | "private" | "secret" | "undeclared"> = {
-  label: "public", hint: "public", note: "private", memo: "private", code: "secret", pin: "secret", residue: "undeclared", residueRefusal: "undeclared",
+  label: "public", hint: "public", note: "private", memo: "private", code: "secret", pin: "secret", seal: "secret", residue: "undeclared", residueRefusal: "undeclared",
 };
 const NAMES = Object.keys(KIND) as ReadonlyArray<Name>;
 
@@ -29,33 +30,49 @@ export const plant = (): Sentinels => {
   const tag = () => randomBytes(6).toString("hex");
   return {
     label: `LABEL-${tag()}`, hint: `HINT-${tag()}`, note: `NOTE-${tag()}`, memo: `MEMO-${tag()}`,
-    code: `CODE-${tag()}`, pin: `PIN-${tag()}`, residue: `ANSWER-RESIDUE-${tag()}`, residueRefusal: `REFUSAL-RESIDUE-${tag()}`,
+    code: `CODE-${tag()}`, pin: `PIN-${tag()}`, seal: `SEAL-${tag()}`, residue: `ANSWER-RESIDUE-${tag()}`, residueRefusal: `REFUSAL-RESIDUE-${tag()}`,
   };
 };
 
 /** Who is looking. `telemetry` is a Collector's file, which no person reads as a role-holder. */
 export type Who = "keeper" | "stranger" | "anonymous" | "telemetry";
 /** What each may be shown: the public values to all, and the private ones to the principal who holds the role. Never a secret, never an undeclared value. */
-export const mayShow = (who: Who): ReadonlyArray<Name> => (who === "keeper" ? ["label", "hint", "note", "memo"] : ["label", "hint"]);
+export const mayShow = (who: Who, issued = false): ReadonlyArray<Name> => [
+  ...(who === "keeper" ? ["label", "hint", "note", "memo"] as const : ["label", "hint"] as const),
+  // The lead's revised R1: a secret leaves only in the answer of the call that issued it, to that call's own caller, by a direct door.
+  ...(issued ? ["code" as const] : []),
+];
 
 /** The planted values in `bytes` that `who` must not be shown: a secret, an undeclared value, or a private value to a non-holder. */
-export const leaks = (bytes: string, who: Who, planted: Sentinels): ReadonlyArray<string> =>
-  NAMES.filter((name) => !mayShow(who).includes(name) && bytes.includes(planted[name])).map((name) => `${name} (${KIND[name]})`);
+export const leaks = (bytes: string, who: Who, planted: Sentinels, issued = false): ReadonlyArray<string> =>
+  NAMES.filter((name) => !mayShow(who, issued).includes(name) && bytes.includes(planted[name])).map((name) => `${name} (${KIND[name]})`);
 
 /** The values `who` is shown that the output must carry: the public ones, and the private ones for the principal who holds the role. */
-export const missing = (bytes: string, who: Who, planted: Sentinels, names: ReadonlyArray<Name>): ReadonlyArray<string> =>
-  names.filter((name) => mayShow(who).includes(name) && !bytes.includes(planted[name])).map((name) => `${name} (${KIND[name]})`);
+export const missing = (bytes: string, who: Who, planted: Sentinels, names: ReadonlyArray<Name>, issued = false): ReadonlyArray<string> =>
+  names.filter((name) => mayShow(who, issued).includes(name) && !bytes.includes(planted[name])).map((name) => `${name} (${KIND[name]})`);
 
 // ---- the project: acme with the locker fixture laid over it ----
 
 export const sentinelFile = (planted: Sentinels) =>
   `// Scaffolded from blueprint/things/locker/verbs/open.ts. Yours from now on.\nexport const sentinels = ${JSON.stringify(planted, null, 2)} as const;\n`;
 
-/** acme with `e2e/fixtures/m1/visibility` over it, the planted values written in, and generated. */
-export const lockerProject = (planted: Sentinels) => {
+/** Whether `Blueprint.issued` exists yet: the fixture marks `code` with it only then, so the controls stay runnable until it does. */
+export const hasIssued = (): boolean => {
+  const probe = spawnSync(process.execPath, ["--input-type=module", "-e", `const m = await import("orthograph"); console.log(typeof m.Blueprint?.issued);`], { cwd: acme, encoding: "utf8" });
+  return probe.stdout.trim().split("\n").at(-1) === "function";
+};
+const openFile = "blueprint/things/locker/verbs/open.ts";
+/** The fixture laid over a copy of acme, the planted values written in, and `edit` applied to `locker.open`'s declaration. */
+export const overlay = (planted: Sentinels, edit?: (source: string) => string) => {
   const copy = copyOf(acme);
   cpSync(join(fixtures, "visibility"), copy.root, { recursive: true });
   writeFileSync(join(copy.root, "src/sentinels.ts"), sentinelFile(planted));
+  if (edit) writeFileSync(join(copy.root, openFile), edit(readFileSync(join(copy.root, openFile), "utf8")));
+  return copy;
+};
+/** acme with `e2e/fixtures/m1/visibility` over it, `code` marked `Blueprint.issued` once that exists, and generated. */
+export const lockerProject = (planted: Sentinels) => {
+  const copy = overlay(planted, hasIssued() ? (source) => source.replace("code: Locker.fields.code,", "code: Blueprint.issued(Locker.fields.code),") : undefined);
   succeeds(copy.root, "generate");
   return copy;
 };

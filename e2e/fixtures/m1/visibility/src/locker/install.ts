@@ -10,7 +10,7 @@ const install: Handler = ({ organization, label }, { steps, move }) =>
   Effect.gen(function* () {
     const records = yield* Records;
     const locker = yield* Ids.of(Locker.fields.id);
-    yield* steps.insert(records.insert(Locker, { id: locker, organization, label, note: sentinels.note, code: sentinels.code }));
+    yield* steps.insert(records.insert(Locker, { id: locker, organization, label, note: sentinels.note, code: sentinels.code, seal: sentinels.seal }));
     yield* move("closed");
     return { locker };
   });

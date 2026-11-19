@@ -11,5 +11,7 @@ export const Locker = Blueprint.thing({
     label: Blueprint.text({ max: 60 }),
     note: Blueprint.visibility.private(Blueprint.text({ max: 60 }), owner),
     code: Blueprint.visibility.secret(Blueprint.text({ max: 60 })),
+    // A second secret, never issued to anyone: no output carries it, the caller's own answer included.
+    seal: Blueprint.visibility.secret(Blueprint.text({ max: 60 })),
   },
 });
