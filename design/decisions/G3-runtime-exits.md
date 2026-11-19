@@ -16,9 +16,12 @@ const HIGHEST = 125;
 ```
 
 HAN-10 makes `IdempotencyConflict` (a reused request key with another payload) a typed built-in refusal, so it needs
-an exit of its own that no declared refusal can take. 0 to 4 are full. The check's first draft took 5, which acme's
-`AllowanceExceeded` declares (and the canon quotes), so every project with a declared 5 would stop compiling, and the
-next runtime refusal would move the floor again.
+an exit of its own that no declared refusal can take. 0 to 4 are full. The check's first draft took 5, the lowest
+declared exit: the first one an author reaches for, and the one the design pages draw (`design/walkthrough/journey.md:278`,
+`design/portal.md:592`). No blueprint in the repository declares 5 today (`git grep "exit: 5"`), but K16 promised it to
+blueprints, so taking it breaks that promise for every project outside this repository, and the next runtime refusal
+would move the floor again. (An earlier draft of this record said acme's `AllowanceExceeded` is 5;
+it is 41. Corrected after the 🔍 review of #116.)
 
 ## The call
 
@@ -29,9 +32,16 @@ The runtime keeps **0 to 4 and 120 to 125**. A declared exit is **5 to 119**. `I
 
 | Option | Breaks | Room for the next runtime refusal |
 |---|---|---|
-| 5, declared from 6 | acme's `AllowanceExceeded`, the canon's quotes, any project's 5 | moves the floor again |
+| 5, declared from 6 | K16's promise of 5 to every project, the design pages that draw it | moves the floor again |
 | share 2 or 3 | the CLI can't tell two refusals apart (the clash K16 was written to stop) | none |
 | **120 to 125 held, declared 5 to 119** | nothing today | five more |
+
+## The rest of `IdempotencyConflict`'s row
+
+Code `AR-002` (the runtime's prefix `AR`, after `NotAllowed`'s `AR-001`), HTTP status `409` (a clash with what the
+server already holds, as the machine's not-from refusal), no fields (the stored key is the runtime's, never the
+caller's to read), listed on idempotent operations only. MCP can't reach it yet: a tool call carries no request key
+(ledger `HAN-10`'s note, snag S-16).
 
 ## What changes
 
