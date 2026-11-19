@@ -1705,15 +1705,16 @@ error NotAllowed();                     // AR-001
 
 ### What K17 proposes
 
-🔵 **Designed only, and not yet decided** (K17, pull request 77, awaiting Aaron). A **target** becomes a plugin: one
-interface that `language-effect` implements first and `language-solidity` second.
+🔵 **Decided, not yet built** (K17, decided 1A 2A 3A 4A on 19 November 2026). A **target** is a place plus a language,
+and becomes a plugin: one interface. `language-effect` implements it twice, as `effect-server` and `effect-device`;
+`language-solidity` is next.
 
 ```ts
 // packages/orthograph (proposed): what every target implements
 export interface TargetSpec {
   readonly name: string;                                  // "effect", "solidity", "noir", "anchor"
   readonly hosts: ReadonlyArray<Host>;                    // worker | node | browser | world | chain:evm | chain:aztec | chain:solana
-  readonly takes: (op: OperationModel) => boolean;        // runs: "server" → effect; lives on an evm store → solidity
+  readonly takes: (op: OperationModel) => boolean;        // runs: "server" → effect-server; runs: "client" → effect-device; an evm store → solidity
   readonly frame: (op: OperationModel) => Output[];       // generated, "Do not edit": the wrapper that runs the guards
   readonly scaffold: (op: OperationModel) => Output[];    // "Yours from now on": K16's header and blanks, in its language
   readonly guards: Record<Guard, "enforced" | "pre-checked" | "not-applicable">;   // see the guard table
@@ -1728,9 +1729,10 @@ generated modifier, its machine compiled into the contract, `HandleClaimed` as a
 `PluggedIn.handle.claim` calling it. The SDK, CLI, MCP, docs and portal come from the model, never from the
 contract's ABI.
 
-Its questions for Aaron: how the grid shows other targets (Q1), whether the interface lands now in M1 or with
-Solidity (Q2), whether a private field on a public chain is refused or warned (Q3), and whether environments declare
-chains and adapters (Q4).
+Each operation is taken by exactly one target, and the SDK reaches it on that target's wire, so a device operation
+still calls `Device.serve` and never goes over HTTP. The four questions are decided: one grid per target (Q1), the
+interface now in M1 (Q2), a private field on a public chain refused (Q3), and chains and adapters declared in the
+environment file (Q4).
 
 ### When
 
