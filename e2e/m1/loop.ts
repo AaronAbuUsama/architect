@@ -3,7 +3,7 @@
 // control: true today) and on Plugged In. Nothing here names a literal value: every name, code, exit and description comes
 // out of `generated/model/model.json`.
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { copyOf, repo } from "../layer1/support.ts";
 import { exportsOf } from "./clients.ts";
@@ -44,8 +44,9 @@ export const requireExample = () => {
 };
 
 /** A copy of the example in a fresh folder with no `generated/`: every output below is written by the real `ortho generate`. */
-export const freshProject = (example: string) => {
+export const freshProject = (example: string, overlay?: string) => {
   const copy = copyOf(example, ["ortho.config.ts", "blueprint", "src", "journeys", "package.json"].filter((p) => existsSync(join(example, p))));
+  if (overlay !== undefined) cpSync(overlay, copy.root, { recursive: true });
   try { succeeds(copy.root, "generate"); } catch (error) { copy.remove(); throw error; }
   return copy;
 };

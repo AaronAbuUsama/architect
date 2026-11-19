@@ -15,15 +15,21 @@
 // Expected once M1.40 is on m1 (empty handlers): green are the ✓ cells (operations everywhere, steps kept out of clients,
 // machines, thing descriptions, the API's events, errors, codes and exits, names and exits, the world starting).
 // Red until M1.42 (the `~` and `✗` cells): the SDK's thing and event types, the CLI's typed flags and help, MCP's described
-// inputs, the portal's field description and visibility, events, errors with codes, and step details. Red until M1.43 (the
-// handlers): every call that must commit. Red until M1.36 as well: `event.name` on the commit span and `refusal.code`.
+// inputs, and the portal data file's field description and visibility (fields have no description in the model yet).
+// The portal's events, errors with codes and step details pass already, because the data file
+// (`generated/portal/blueprint.json`) copies the whole model: this check covers the data file only. The viewer's wire types
+// (packages/portal/src/modules/wire/types.ts) are M1.13's part of those cells. Step details are judged on a fixture step
+// that carries `optional` and `writes` (e2e/fixtures/m1/step-details, overlaid on a copy of acme, as check 17 does), since
+// Plugged In's own steps carry none. Red until M1.43 (the handlers): every call that must commit. Red until M1.36 as
+// well: `event.name` on the commit span and `refusal.code`.
+import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { acme, nothingRunning, textAt } from "./support.ts";
+import { acme, fixtures, nothingRunning, textAt } from "./support.ts";
 import * as L from "./loop.ts";
 import * as W from "./loop-world.ts";
 
-const make = (example: string) => {
-  const copy = L.freshProject(example);
+const make = (example: string, overlay?: string) => {
+  const copy = L.freshProject(example, overlay);
   return { root: copy.root, remove: copy.remove, m: L.modelOf(copy.root), portal: L.portalOf(copy.root) };
 };
 type Project = ReturnType<typeof make>;
@@ -47,6 +53,18 @@ describe("20 controls: the instruments pass on acme", () => {
   it("event and error x API ✓: the server speaks the model's events, errors, codes and exits", () => {
     expect(L.things(p.m).flatMap((t) => Object.keys(t.errors)).length).toBeGreaterThan(3);
     expect(L.apiDiffs(p.root, p.m)).toEqual([]);
+  });
+});
+
+describe("20 K13 grid: a step with details (a fixture overlaid on acme)", () => {
+  it("step x portal ~: a step's `optional` and `writes` are in the portal's data file as the model has them", () => {
+    const p = make(acme, join(fixtures, "step-details"));
+    try {
+      const step = p.m.operations["badge.award"]?.steps["save"];
+      expect([step?.optional, step?.writes?.length], "the model carries the details").toEqual([true, 1]);
+      expect(L.portalStepDiffs(p.portal, p.m)).toEqual([]);
+      expect(p.portal.operations["badge.award"]?.steps["save"]).toMatchObject({ optional: true });
+    } finally { p.remove(); }
   });
 });
 
