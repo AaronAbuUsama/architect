@@ -10,7 +10,10 @@ const keys = (a: Counts, b: Counts): ReadonlyArray<readonly [string, string]> =>
   return [...seen].sort(byCodePoint).map((k) => k.split("\u0000") as unknown as readonly [string, string]);
 };
 
+const MODULE = /^(.*\/src\/modules\/[^/]+)\/.+$/;
+
 export const Baseline: BaselineApi = {
+  keyOf: (rule, path) => (rule === "six-slots" ? (MODULE.exec(path)?.[1] ?? path) : path),
   count: (reports) => {
     const out: Record<string, Record<string, number>> = {};
     for (const { rule, path } of reports) {

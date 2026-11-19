@@ -21,6 +21,8 @@ export interface Verdict {
 }
 
 export interface BaselineApi {
+  /** The baseline's key for a breach: the file, except six-slots, which is about a module, so its key is the module's folder. */
+  readonly keyOf: (rule: string, path: string) => string;
   /** Tally reports into counts. */
   readonly count: (reports: ReadonlyArray<{ readonly rule: string; readonly path: string }>) => Counts;
   /** Today's counts against the baseline. A rule or path absent from one side counts 0. */

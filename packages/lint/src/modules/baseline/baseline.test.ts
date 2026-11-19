@@ -71,3 +71,20 @@ describe("Baseline.render", () => {
     expect(Baseline.render({})).toBe("{}\n");
   });
 });
+
+describe("Baseline.keyOf", () => {
+  it("six-slots is keyed on the module folder, at any depth", () => {
+    expect(Baseline.keyOf("six-slots", "packages/a/src/modules/m/internal/x.ts")).toBe("packages/a/src/modules/m");
+    expect(Baseline.keyOf("six-slots", "packages/a/src/modules/m/service.ts")).toBe("packages/a/src/modules/m");
+  });
+
+  it("six-slots leaves a path outside src/modules/<name>/ unchanged", () => {
+    expect(Baseline.keyOf("six-slots", "packages/a/src/index.ts")).toBe("packages/a/src/index.ts");
+    expect(Baseline.keyOf("six-slots", "tools/x.ts")).toBe("tools/x.ts");
+  });
+
+  it("any other rule returns the path unchanged", () => {
+    expect(Baseline.keyOf("effect-only", "packages/a/src/modules/m/service.ts")).toBe("packages/a/src/modules/m/service.ts");
+    expect(Baseline.keyOf("max-lines", "packages/a/src/modules/m/internal/x.ts")).toBe("packages/a/src/modules/m/internal/x.ts");
+  });
+});

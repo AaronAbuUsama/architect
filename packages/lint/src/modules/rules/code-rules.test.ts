@@ -56,6 +56,16 @@ describe("ortho/effect-only", () => {
     })).toEqual(Array(3).fill(`${src}/x.ts effect-only`));
   });
 
+  it("reports a for await loop once (plus its async function), an await using declaration once, and global/window timers", T, () => {
+    expect(run({
+      [`${src}/loop.ts`]: `declare const xs: any;\nexport const f = async () => { for await (const x of xs) { void x; } };\n`,
+      [`${src}/using.ts`]: `declare const res: any;\nawait using r = res;\nexport { r };\n`,
+      [`${src}/timers.ts`]: `declare const window: any;\nglobalThis.setTimeout(() => 0, 1);\nglobalThis.setInterval(() => 0, 1);\nwindow.setTimeout(() => 0, 1);\nwindow.setInterval(() => 0, 1);\n`,
+    }).toSorted()).toEqual([
+      ...Array(2).fill(`${src}/loop.ts effect-only`), `${src}/using.ts effect-only`, ...Array(4).fill(`${src}/timers.ts effect-only`),
+    ].toSorted());
+  });
+
   it("exempts the package's src/main.ts, test files and listed entries, but not a nested main.ts", T, () => {
     expect(run({
       [`${src}/main.ts`]: eight,
@@ -142,9 +152,16 @@ describe("ortho/six-slots", () => {
     expect(run({ [`${m}/internal/x.ts`]: "export {};\n" })).toEqual(Array(4).fill(`${m}/internal/x.ts six-slots`));
   });
 
+  it("baseline is keyed on the module folder: a new file sorting before the anchor still reports nothing", T, () => {
+    expect(run({
+      "base.json": JSON.stringify({ "six-slots": { [m]: 2 } }),
+      [`${m}/README.md`]: "", [`${m}/types.ts`]: "export {};\n", [`${m}/service.ts`]: "export {};\n", [`${m}/aaa.ts`]: "export {};\n",
+    }, { baseline: "base.json" })).toEqual([]);
+  });
+
   it("baseline: at its count reports nothing; another module with no entry reports", T, () => {
     expect(run({
-      "base.json": JSON.stringify({ "six-slots": { [`${m}/service.ts`]: 2 } }),
+      "base.json": JSON.stringify({ "six-slots": { [m]: 2 } }),
       [`${m}/README.md`]: "", [`${m}/types.ts`]: "export {};\n", [`${m}/service.ts`]: "export {};\n",
       [`${src}/modules/n/types.ts`]: "export {};\n",
     }, { baseline: "base.json" })).toEqual(Array(4).fill(`${src}/modules/n/types.ts six-slots`));

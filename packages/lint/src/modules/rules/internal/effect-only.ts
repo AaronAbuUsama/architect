@@ -7,6 +7,8 @@ import { collector, optionsOf, sourcePath } from "./baselined.ts";
 
 const ENTRY = /^packages\/[^/]+\/src\/main\.ts$/;
 const TEST = /\.test\.tsx?$/;
+// `globalThis.setTimeout(...)` is setTimeout too. Computed forms (`Date["now"]`) are not judged: lint reads names.
+const GLOBALS = new Set(["globalThis", "window", "self", "global"]);
 
 const asyncFunction = (add: (node: Node, message: string) => void) => (node: Node) => {
   if (node["async"] === true) add(node, "an async function: return an Effect instead");
@@ -23,6 +25,12 @@ export const effectOnly: Rule = {
       FunctionExpression: asyncFunction(add),
       ArrowFunctionExpression: asyncFunction(add),
       AwaitExpression: (node) => add(node, "await: yield* an Effect instead"),
+      ForOfStatement: (node) => {
+        if (node["await"] === true) add(node, "for await: use a Stream instead");
+      },
+      VariableDeclaration: (node) => {
+        if (node["kind"] === "await using") add(node, "await using: use Effect.acquireRelease instead");
+      },
       TryStatement: (node) => add(node, "try: errors are values; use Effect.try or Effect.catch"),
       ThrowStatement: (node) => add(node, "throw: fail with a tagged error (Effect.fail) instead"),
       MemberExpression: (node) => {
@@ -36,7 +44,9 @@ export const effectOnly: Rule = {
         if (constructed(node) === "Date" && (node["arguments"] as ReadonlyArray<unknown>).length === 0) add(node, "new Date() reads the wall clock: use Clock");
       },
       CallExpression: (node) => {
-        const name = constructed(node);
+        const callee = node["callee"] as { type?: string; computed?: boolean; object?: { type?: string; name?: string }; property?: { name?: string } };
+        const global = callee.type === "MemberExpression" && callee.computed !== true && callee.object?.type === "Identifier" && GLOBALS.has(callee.object.name ?? "");
+        const name = global ? callee.property?.name : constructed(node);
         if (name === "setTimeout" || name === "setInterval") add(node, `${name} waits outside counted work: use Timers`);
       },
       "Program:exit": flush,

@@ -39,7 +39,7 @@ if (run.status !== 0 && run.status !== 1) {
 
 const actual = Baseline.count(diagnostics.flatMap((d) => {
   const m = /^ortho\((.+)\)$/.exec(d.code);
-  return m?.[1] !== undefined && RULES.includes(m[1]) ? [{ rule: m[1], path: d.filename }] : [];
+  return m?.[1] !== undefined && RULES.includes(m[1]) ? [{ rule: m[1], path: Baseline.keyOf(m[1], d.filename) }] : [];
 }));
 const baseline = JSON.parse(readFileSync(file, "utf8")) as Counts;
 const verdict = Baseline.compare(baseline, actual);

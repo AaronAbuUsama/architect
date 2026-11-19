@@ -13,11 +13,15 @@ Oxlint rules for what types can't see. Arrives in layer 1; see `design/packages.
     `<name>.test.ts`.
   - and `no-old-names`, the framework's old names.
 
+  They judge a file by its path from oxlint's working directory, so run oxlint from the repository's root (nx does);
+  run elsewhere, they judge nothing. They read names, not values: a computed form such as `Date["now"]` is not caught.
+
 ## The baseline
 
 The code rules arrived after the code, so each starts from a baseline of the breaches that already existed:
 `baseline.json`, rule by rule, file by file, with a count. In a file, a rule reports nothing while its breaches are at
-most the baseline's count, and reports all of them once there is one more. So lint fails only on new breaches.
+most the baseline's count, and reports all of them once there is one more. A six-slots entry is a module's folder,
+since the rule is about the module, not about the file it reports on. So lint fails only on new breaches.
 
 The baseline only shrinks:
 
