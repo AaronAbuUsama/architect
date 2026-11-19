@@ -164,3 +164,12 @@ takes each, check first, and the climber comes back to that step once it is fixe
   CLI rendering that quotes strings. The cells are off until `--through` exists; switching them on waits on this.
 - Owner: Goal 3 lead, with S-11 (`prove --through`).
 - Status: open
+
+## S-21 · prove · a journey whose starting world fails reports 0 of 0 steps, so the curve can't say N
+- Hit: the starting curve's dry run (the recorder from #110 over Plugged In, 19 November 2026). Five of seven journeys
+  start from a world built by `handle.claim`, which dies on the empty handler; prove's report gives those journeys
+  `total: 0` with `stopped`, so the curve reads 0 of 13 where the journeys hold more steps.
+- Needs: prove's report gives a stopped journey its real step count (`total`, with `green: 0`), so "0 of N" is N.
+- Owner: Goal 3 lead; a small prove slice, check first. It doesn't block the climb: "claim a handle" (8 steps) runs
+  from no world, and climbing it makes the worlds that the other journeys start from.
+- Status: open
