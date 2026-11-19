@@ -67,6 +67,8 @@ export interface GridApi {
   }) => Report;
   /** The lines to say: one per verdict, red ones with their reasons, then the count. */
   readonly lines: (report: Report) => ReadonlyArray<string>;
+  /** One report from several: the verdicts in order, passed only when every one passed. */
+  readonly combine: (reports: ReadonlyArray<Report>, revision: string, environment: string) => Report;
   /** The list with `entries` added: a cell already on keeps its first journey and gains any new subjects. Never switches one off. */
   readonly switchOn: (list: List, entries: ReadonlyArray<SwitchedOn>) => List;
 }

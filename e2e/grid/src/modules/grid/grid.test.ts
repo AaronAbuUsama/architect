@@ -78,6 +78,16 @@ describe("the run", () => {
     expect(Grid.lines(report)).toEqual(["grid ✔ 0 of 0 switched-on cells green"]);
   });
 
+  it("combines the reports of runs over different evidence: the verdicts in order, passed only when every run passed", () => {
+    const green = Grid.run({ ...options, list: { cells: [{ cell: "error.cli", subjects: ["HandleTaken"], switchedBy: "j" }] }, evidence: () => "HandleTaken" });
+    const red = Grid.run({ ...options, list: { cells: [{ cell: "error.cli", subjects: ["NotAllowed"], switchedBy: "j" }] }, evidence: () => "nothing" });
+    const both = Grid.combine([green, red], "abc123", "local");
+    expect(both.verdicts.map((v) => `${v.verdict} ${v.subject}`)).toEqual(["pass HandleTaken", "fail NotAllowed"]);
+    expect(both.passed).toBe(false);
+    expect(Grid.combine([green], "abc123", "local").passed).toBe(true);
+    expect(Grid.combine([], "abc123", "local")).toEqual({ revision: "abc123", environment: "local", verdicts: [], passed: true });
+  });
+
   it("asks for evidence once per (cell, subject), with the cell and the subject", () => {
     const asked: Array<string> = [];
     Grid.run({ ...options, evidence: (cell, subject) => { asked.push(`${cell}/${subject}`); return subject; } });

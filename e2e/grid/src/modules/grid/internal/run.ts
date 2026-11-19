@@ -27,3 +27,8 @@ export const lines = (report: Report): ReadonlyArray<string> => {
     `grid ${report.passed ? "✔" : "✘"} ${report.verdicts.length - red.length} of ${report.verdicts.length} switched-on cells green`,
   ];
 };
+
+export const combine = (reports: ReadonlyArray<Report>, revision: string, environment: string): Report => {
+  const verdicts = reports.flatMap((r) => r.verdicts);
+  return { revision, environment, verdicts, passed: verdicts.every((v) => v.verdict === "pass") };
+};

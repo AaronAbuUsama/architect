@@ -1,0 +1,21 @@
+// The project's real outputs, behind the ports the row evals' evidence is gathered through. Everything that touches the machine is a
+// primitive handed in by `src/main.ts` (reading a file, listing a folder, running a command, loading a module), so this module is tested
+// with plain functions; what it adds is how each output is asked for: the portal over the project's own blueprint, the CLI's `--help` as a
+// process, the MCP server's `tools/list` as the server itself answers it, the spans a prove run wrote, prove's own report.
+import type { ProjectPorts } from "../project-evidence/types.ts";
+
+export interface Primitives {
+  /** A text file by absolute path; `undefined` when it is not there. */
+  readonly read: (path: string) => string | undefined;
+  /** Every file under a folder, as paths from it (`handle/claim.ts`); empty when there is none. */
+  readonly list: (dir: string) => ReadonlyArray<string>;
+  /** Run a command to its end in a folder. */
+  readonly run: (command: string, args: ReadonlyArray<string>, cwd: string) => { readonly status: number | null; readonly stdout: string; readonly stderr: string };
+  /** Load a module by absolute path (`generated/mcp/src/index.ts`). */
+  readonly load: (path: string) => Promise<Record<string, unknown>>;
+}
+
+export interface WorldApi {
+  /** The real ports of the project at `project`; `report` is prove's `--report` JSON, `telemetry` its spans folder. */
+  readonly ports: (options: { readonly project: string; readonly report: string; readonly telemetry: string; readonly node: Primitives }) => ProjectPorts;
+}
