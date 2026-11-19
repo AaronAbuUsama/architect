@@ -6,7 +6,7 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { PORTS, digest, model, nothingRunning, project, run, succeeds, tree, type Copy, type Entry } from "./support.ts";
+import { PORTS, digest, model, projectionMounts, nothingRunning, project, run, succeeds, tree, type Copy, type Entry } from "./support.ts";
 
 const copies: Array<Copy> = [];
 const fresh = (...kinds: Array<Entry>) => { const copy = project(...kinds); copies.push(copy); return copy; };
@@ -87,10 +87,11 @@ describe("00 controls: a project that mounts nothing is untouched by an installe
     const withFixtures = fresh("echo", "greet", "remote");
     const before = succeeds(bare.root, "model", "--json").stdout;
     expect(succeeds(withFixtures.root, "model", "--json").stdout).toBe(before);
-    // acme mounts no feature or adapter of its own; its only mounts are the three projections (check 12, M1.11).
+    // acme mounts no feature or adapter of its own; its only mounts are projections of @orthograph/projections (checks 12 and 14).
     const mounts = model(withFixtures.root).mounts ?? {};
-    expect(Object.keys(mounts).sort()).toEqual(["api", "model", "server"]);
+    expect(projectionMounts(mounts).length).toBeGreaterThan(0);
     expect(Object.values(mounts).filter((mount) => mount.kind !== "projection")).toEqual([]);
+    expect(Object.keys(mounts).sort()).toEqual(projectionMounts(mounts));
     const generated = digest(bare.root, "generated");
     expect(Object.keys(generated).length).toBeGreaterThan(40);
     succeeds(withFixtures.root, "generate");

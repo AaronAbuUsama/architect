@@ -48,6 +48,18 @@ export const succeeds = (root: string, ...args: ReadonlyArray<string>) => {
 
 // ---- a mount, by hand ----
 
+/** The projections `@orthograph/projections` ships (M1-plugins section 15, and `model`): acme mounts any subset of them. */
+export const SHIPPED_PROJECTIONS = ["api", "cli", "docs", "mcp", "model", "portal", "sdk", "server"] as const;
+/** A project's mounts that are projections: each is kind "projection" from `@orthograph/projections`, and its name is one it ships. */
+export const projectionMounts = (mounts: Record<string, { readonly kind: string; readonly package: string }> | undefined) => {
+  const all = Object.entries(mounts ?? {}).filter(([, mount]) => mount.kind === "projection");
+  for (const [name, mount] of all) {
+    expect(SHIPPED_PROJECTIONS as ReadonlyArray<string>, `mount ${name} is not a projection @orthograph/projections ships`).toContain(name);
+    expect(mount.package, `mount ${name}`).toBe("@orthograph/projections");
+  }
+  return all.map(([name]) => name).sort();
+};
+
 export type Kind = "feature" | "adapter" | "projection";
 const folder = { feature: "features", adapter: "adapters", projection: "projections" } as const;
 

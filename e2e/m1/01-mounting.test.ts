@@ -7,17 +7,17 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { addFeature, digest, model, mountEcho, mountFile, project, refuses, run, succeeds, textAt, tree, type Copy, type Entry, type MountJson } from "./support.ts";
+import { projectionMounts, addFeature, digest, model, mountEcho, mountFile, project, refuses, run, succeeds, textAt, tree, type Copy, type Entry, type MountJson } from "./support.ts";
 
 const copies: Array<Copy> = [];
 const fresh = (...kinds: Array<Entry>) => { const copy = project(...kinds); copies.push(copy); return copy; };
 afterEach(() => { for (const copy of copies.splice(0)) copy.remove(); });
 
-// acme mounts the model, api and server projections itself (check 12, M1.11), so "the mounts" of a plugin test are the
-// others: every mount that is not a projection, by name. The projections stay exactly those three.
+// acme mounts projections itself (checks 12 and 14), any subset of what @orthograph/projections ships, so "the mounts" of a
+// plugin test are the others: every mount that is not a projection, by name.
 const own = (mounts: Record<string, MountJson> | undefined) => {
   const all = Object.entries(mounts ?? {});
-  expect(all.filter(([, mount]) => mount.kind === "projection").map(([name]) => name).sort()).toEqual(["api", "model", "server"]);
+  projectionMounts(mounts);
   return all.filter(([, mount]) => mount.kind !== "projection").map(([name]) => name).sort();
 };
 

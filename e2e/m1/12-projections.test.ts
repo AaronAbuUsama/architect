@@ -126,7 +126,9 @@ describe("12 M1.11: acme mounts the model, the api and the server", () => {
       expect(model.mounts?.[name], `mounts.${name}`).toMatchObject({ kind: "projection", file: mountPath(name), package: "@orthograph/projections" });
       expect(model.mounts?.[name]?.hash, `mounts.${name}.hash`).toEqual(expect.any(String));
     }
-    expect(Object.keys(model.mounts ?? {}).filter((name) => !mounted.includes(name as typeof mounted[number])), "nothing else is mounted yet").toEqual([]);
+    // Part two (check 14, M1.12) mounts the sdk, cli and mcp beside these: they are allowed here, nothing else is.
+    const partTwo = ["sdk", "cli", "mcp"];
+    expect(Object.keys(model.mounts ?? {}).filter((name) => !mounted.includes(name as typeof mounted[number]) && !partTwo.includes(name)), "nothing else is mounted yet").toEqual([]);
   });
 
   it("writes no generated/server when its mount is removed, and still writes the api", () => {
