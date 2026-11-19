@@ -14,9 +14,12 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.number && format('pr-{0}', github.event.pull_request.number) || format('run-{0}', github.run_id) }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+# Every job has a timeout, about twice its longest green run, so a hung run or one left behind by a closed pull request
+# frees its runner instead of holding it for hours.
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -50,6 +53,23 @@ jobs:
           ORTHO_CHAIN_EVM_ANVIL: "1"
       # Nx 24 skips task-level sync generators in CI, so drift is checked explicitly.
       - run: pnpm nx sync:check
+      # The CI guards' own scripts (builder-paths, supersedes, codex-state), each case on a throwaway repository.
+      - run: bash tools/ci/ci.test.sh
+
+  # A builder never edits journeys, evals or the runner's checks (AGENTS.md; proposal 6 in design/process/proposals.md).
+  # Builders' branches end in `-build`; on their pull requests this fails on any such file (tools/ci/builder-paths.sh).
+  # Any other pull request or push skips it, and a skipped job counts as passed where it is required.
+  builder-paths:
+    if: github.event_name == 'pull_request' && endsWith(github.head_ref, '-build')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+      - run: tools/ci/builder-paths.sh "origin/$BASE_REF" HEAD
+        env:
+          BASE_REF: ${{ github.base_ref }}
 
   # M1.34 (F7): `@orthograph/portal-ui` is built and typechecked against the real HeroUI Pro, which only a licensed install has.
   # Pro is downloaded with the HEROUI_AUTH_TOKEN secret (Aaron's, from the HeroUI Pro dashboard) and cached by the lockfile's
@@ -59,6 +79,7 @@ jobs:
   portal-ui:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: pnpm/action-setup@v6.1.0
@@ -96,6 +117,7 @@ jobs:
   # Gate 1 (L1.60): the seven checks of layer one, run as a user runs Orthograph (D2 #74).
   e2e-layer1:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: pnpm/action-setup@v6.1.0
@@ -166,6 +188,7 @@ jobs:
   # Gates 1 and 2 above are the rest of `nx run e2e:m0`, run as their own jobs so they run side by side.
   e2e-m0:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: pnpm/action-setup@v6.1.0
@@ -177,12 +200,15 @@ jobs:
       - run: pnpm nx run e2e:m0-names --outputStyle=static
       - run: pnpm nx run docs:check --outputStyle=static
       - run: pnpm nx run canon:check --outputStyle=static
+      # A decision's `## Supersedes` phrases are gone from everything but the records (proposal 8; AGENTS.md, "Who decides").
+      - run: tools/ci/supersedes.sh
 
   # M1's checks also run together in CI, through the ratchet (e2e/ratchet/README.md): the checks whose slice has not landed
   # are on e2e/m1/expected-failing.txt and may fail; any other failure fails the job, so a regression cannot merge unseen.
   # Gate M1 (M1.15) empties the list and makes the job required.
   e2e-m1:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: pnpm/action-setup@v6.1.0
@@ -214,6 +240,7 @@ jobs:
   # All five properties hold since #119, so the job is required.
   e2e-climb:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: pnpm/action-setup@v6.1.0

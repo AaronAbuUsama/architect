@@ -26,6 +26,7 @@ turn with a `TO THE CONDUCTOR` block or a one-line status, because the conductor
 | 🔍 | Reviewer | Reads a diff against its brief, `AGENTS.md` and `design/`, independent of whoever wrote it (the `reviewer` skill) | A verdict: pass, or the numbered findings that block it |
 | 📐 | Designer | Works a decision step through with Aaron: options, a recommendation each, his decision recorded | The decision is written in `design/decisions/<id>.md` with its date and evidence |
 | 🖥️ | Local | Runs on Aaron's machine for what only it can reach: his browser, his keychain, his accounts | The task is done, and nothing secret was printed or written outside the keychain |
+| 📓 | Scribe | Watches how the project is built, without building it: logs each process failure, near miss and win in `design/process/log.md` with its evidence, groups them in `patterns.md`, proposes skill and workflow changes in `proposals.md`, and tells the conductor when three entries share a pattern with no fix | Never while threads run; each pass ends with its log, patterns and proposals merged into `main` |
 
 ## Rules every type keeps
 
