@@ -9,6 +9,7 @@ import { judgeRefusals, loadRefusals } from "./refusals.mjs";
 const errorsTs = `export const refusals = {
   HandleTaken: { code: "HN-001", exit: 10, status: 422 },
   HandleNotClaimed: { code: "HN-900", exit: 11, status: 409 },
+  OrgClosed: { code: "ORGN-002", exit: 44, status: 409 },
 } as const;
 `;
 
@@ -26,7 +27,7 @@ const withTree = (run) => {
 test("the tables are read from every examples/*/generated/**/errors.ts", () =>
   withTree((repo) => {
     const table = loadRefusals(repo);
-    assert.deepEqual([...table.keys()], ["HandleTaken", "HandleNotClaimed"]);
+    assert.deepEqual([...table.keys()], ["HandleTaken", "HandleNotClaimed", "OrgClosed"]);
     assert.equal(table.get("HandleNotClaimed")[0].exit, "11");
   }));
 
@@ -39,6 +40,13 @@ test("a quote that agrees passes; a wrong code or exit fails, naming the truth",
     assert.equal(bad.wrong.length, 2);
     assert.equal(bad.wrong[0].line, 2);
     assert.match(bad.wrong[0].truth, /HandleNotClaimed HN-900 exit 11/);
+  }));
+
+test("a code with a four-letter prefix is read and judged too", () =>
+  withTree((repo) => {
+    const table = loadRefusals(repo);
+    assert.deepEqual(judgeRefusals("OrgClosed ORGN-002 exit 44", table), { wrong: [], unverified: [] });
+    assert.equal(judgeRefusals("OrgClosed ORGN-002 exit 4", table).wrong.length, 1);
   }));
 
 test("a name in no table is counted, never failed (the example may not be on this branch)", () => {

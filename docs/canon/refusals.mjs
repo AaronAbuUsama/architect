@@ -1,13 +1,13 @@
 // A refusal's code and exit are quoted from the generated errors file, never copied by hand. This reads every
 // `refusals` table in examples/*/generated/**/errors.ts, and checks the refusals a design page quotes against them:
 //   `HandleNotClaimed HN-900 exit 11`, `HandleNotClaimed: HN-900`, `HandleTaken HN-001 ×31`.
-// A name found in a table must agree on its code (and its exit, when the page gives one); a name found in no table
-// can't be judged, and is counted, so the check bites once the example that declares it is in the tree.
+// Codes take the compiler's two to four capital letters (`HN-900`, `ORG-001`). A name found in a table must agree on
+// its code (and its exit, when the page gives one); a name found in no table can't be judged, and is counted, so the check bites once the example that declares it is in the tree.
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 
-const ENTRY = /\b(\w+): \{ code: "([A-Z]{2}-\d{3})", exit: (\d+)/g;
-const QUOTE = /\b([A-Z][a-z]+(?:[A-Z][a-z]+)+)(?::| ) ?([A-Z]{2}-\d{3})(?: exit (\d+))?/g;
+const ENTRY = /\b(\w+): \{ code: "([A-Z]{2,4}-\d{3})", exit: (\d+)/g;
+const QUOTE = /\b([A-Z][a-z0-9]*(?:[A-Z][A-Za-z0-9]*)+)(?::| ) ?([A-Z]{2,4}-\d{3})(?: exit (\d+))?/g;
 
 const errorsFiles = (dir) =>
   readdirSync(dir).flatMap((n) => {
