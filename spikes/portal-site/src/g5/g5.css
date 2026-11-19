@@ -1,0 +1,28 @@
+/* G5's drawings: the strip, the lifecycle badge (Q3 B), rule notes, the spine's new row, the snippets. */
+.g5-strip{flex-wrap:wrap;padding:8px 12px;border:1px solid var(--separator);border-radius:12px;margin:-8px 0 18px}
+.g5-strip b{color:var(--foreground)}
+.lc-wrap{position:relative;width:508px;max-width:100%}
+.lc-anchor{position:absolute!important;left:188px;top:29px}
+.lc-hit{display:block;width:92px;height:30px}
+.lc-badge{display:inline-flex;align-items:center;gap:3px}
+.lc-key{display:flex;align-items:center;gap:8px;margin:6px 0 0}
+.lc-key .chip,.g5-errors .chip,.props .chip{display:inline-flex;align-items:center;gap:4px}
+.row-chips{display:inline-flex;flex-wrap:wrap;align-items:center;gap:6px}
+.g5-errors li{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.g5-errors li>.chip{margin-left:2px}
+.err-note{display:flex;flex-wrap:wrap;align-items:center;gap:6px;color:var(--muted)}
+.spine li.g5-new{background:color-mix(in oklab,var(--accent) 9%,transparent)}
+.spine li>span:nth-child(3){display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.g5-refusals .item-card__description a{margin-left:4px}
+.g5-refusals .item-card{padding-inline:0}
+.g5-docs{margin-bottom:16px}
+.g5-snips{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+
+.layout-navbar .search-btn>span{display:none}
+.g5-docs td.mono{white-space:nowrap}
+.g5-snips .code pre.shiki{white-space:pre}
+.g5-snips .wrap-code pre.shiki{white-space:pre-wrap}
+.spine li.g5-new>span:nth-child(3){grid-column:3 / 5}
+.g5-refusals .item-card__title{display:block}
+.tbl .row-chips{flex-wrap:nowrap}
+.kv.kv-narrow{grid-template-columns:84px minmax(0,1fr)}
