@@ -47,8 +47,9 @@ const refusalOf = (e: unknown, refusals: McpRefusals, seen: Seen): McpResult | u
   const keys = (declared ? Object.keys(declared.fields).filter((k) => seen(declared.fields[k]!.visibility)) : Object.keys(values).filter((k) => !OWN.has(k))).filter((k) => k in values);
   const shown = keys.map((k) => `${k}: ${typeof values[k] === "object" ? text(values[k]) : String(values[k])}`);
   const row = refusals.table?.[tag];
-  // Structured only with the table's row: code, exit and status come from one place, never pieced together here.
-  const structured = row && { refusal: tag, code: row.code, exit: row.exit, status: row.status, ...Object.fromEntries(keys.map((k) => [k, jsonOf(values[k])])) };
+  // Structured only with the table's row: code, exit and status come from one place, never pieced together here. They
+  // are written after the error's own fields, so a field named `exit`, `status`, `code` or `refusal` can't replace them.
+  const structured = row && { ...Object.fromEntries(keys.map((k) => [k, jsonOf(values[k])])), refusal: tag, code: row.code, exit: row.exit, status: row.status };
   return failed(`[${code}] ${tag}${shown.length > 0 ? ` { ${shown.join(", ")} }` : ""}`, structured);
 };
 

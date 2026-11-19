@@ -62,9 +62,11 @@ export const applyMove = (name: string, op: Operation, payload: object, answer: 
     if (subject === undefined) return yield* Effect.die(new Error(`${name} moved, but neither its answer nor its payload names the ${move.key}'s instance`));
     const event = EventNames.nameOf(move.emits) ?? "UnnamedEvent";
     const stored = yield* unit.read(op.thing, subject);
-    if (stored === undefined && move.from.length === 0) yield* unit.records.insert(op.thing, made(op, subject, payload, answer) as never);
-    // An event's fields come from the subject as this call left it, then the payload, then the answer.
-    const instance = stored ?? {};
+    const created = stored === undefined && move.from.length === 0 ? made(op, subject, payload, answer) : undefined;
+    if (created !== undefined) yield* unit.records.insert(op.thing, created as never);
+    // An event's fields come from the subject as this call left it (the one just stored, for a creating move), then the
+    // payload, then the answer.
+    const instance = stored ?? created ?? {};
     const source = { ...instance, ...payload, ...answer } as Record<string, unknown>;
     const missing = Object.keys(move.emits.fields).filter((k) => !(k in source));
     if (missing.length > 0) return yield* Effect.die(new Error(`${name}: ${event} needs ${missing.join(", ")}, found in neither its instance, answer nor payload`));
