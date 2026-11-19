@@ -28,8 +28,10 @@ export const mount = (el: Element, o: MountOptions): Promise<void> =>
     html.setAttribute("data-theme", "dark");
     const root = roots.get(el) ?? createRoot(el);
     roots.set(el, root);
-    root.render(o.tab === "components" ? <StoryBrowser initial={o.component} /> : (
-      <Page grid={grid} board={board} columns={o.columns ?? "state"} detail={o.detail ?? "panel"}
+    // A repeated mount (an artboard switch changed) keys the page by its starting state, so React starts it afresh
+    // instead of keeping the old tab and open card in useState.
+    root.render(o.tab === "components" ? <StoryBrowser key={o.component ?? ""} initial={o.component} /> : (
+      <Page key={`${o.tab ?? "board"}|${o.open ?? ""}`} grid={grid} board={board} columns={o.columns ?? "state"} detail={o.detail ?? "panel"}
         tab={o.tab ?? "board"} open={o.open ?? null} />
     ));
   });

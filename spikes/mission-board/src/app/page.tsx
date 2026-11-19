@@ -32,6 +32,7 @@ type Open = { kind: "card"; cell: CellId } | { kind: "lane"; block: string } | n
 const show: Record<string, Filter["states"] | undefined> = {
   all: undefined, open: ["red", "partly", "built"] as CellState[], red: ["red"] as CellState[],
 };
+const tabWord: Record<Tab, string> = { overview: "overview", grid: "grid", board: "board", climb: "hill climb" };
 const when = (at: string) => at.slice(5, 16).replace("T", " ");
 
 export const Page = (p: PageProps) => {
@@ -67,6 +68,7 @@ export const Page = (p: PageProps) => {
       {p.detail === "panel" && detail && <aside className="panel">{detail}</aside>}
     </div>
   );
+  const asPage = p.detail === "page" && tab !== "overview" && !!detail; // a full page replaces any tab with cards
   const laneOf = (id: string) => view.lanes.find((l) => l.block.id === id)!;
   const gridBlock = lane?.block.id ?? block; // the Grid tab shows the lane of whatever is open
 
@@ -100,7 +102,7 @@ export const Page = (p: PageProps) => {
 
       {tab === "overview" && <GoalOverview view={view} onOutput={() => setTab("grid")} />}
 
-      {tab === "grid" && withDetail(
+      {tab === "grid" && !asPage && withDetail(
         <div className="grid-tab">
           <CoverageMatrix lanes={view.lanes} outputs={view.outputs} selected={card?.cell.id ?? null} onCard={(c) => setOpen({ kind: "card", cell: c })} onLane={toLane} />
           <Lane lane={laneOf(gridBlock)} outputs={view.outputs} columns={columns} by={p.columns} selected={card?.cell.id ?? null}
@@ -108,13 +110,13 @@ export const Page = (p: PageProps) => {
         </div>,
       )}
 
-      {tab === "board" && p.detail === "page" && detail && (
+      {asPage && (
         <div className="detail-page">
-          <Button size="sm" variant="ghost" onPress={close}><ArrowLeftIcon size={14} />Back to the board</Button>
+          <Button size="sm" variant="ghost" onPress={close}><ArrowLeftIcon size={14} />Back to the {tabWord[tab]}</Button>
           {detail}
         </div>
       )}
-      {tab === "board" && !(p.detail === "page" && detail) && withDetail(
+      {tab === "board" && !asPage && withDetail(
         <>
           <div className="filters">
             <span className="muted small">Show</span>
@@ -133,7 +135,7 @@ export const Page = (p: PageProps) => {
         </>,
       )}
 
-      {tab === "climb" && withDetail(
+      {tab === "climb" && !asPage && withDetail(
         <div className="climb-tab">
           <div className="climb-bar">
             <span className="muted small">Since</span>
