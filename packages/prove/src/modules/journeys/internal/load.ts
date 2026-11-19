@@ -39,6 +39,8 @@ export const loadProject = (given: string, model: Model): Effect.Effect<Project,
     }
     const journeys: Array<Journey> = [];
     const journeyFiles: Array<string> = [];
+    // A journey with blanks (a stub from `ortho add journeys`) isn't run: prove names it, and `ortho check` names its blanks (K16 e).
+    const unfinished: Array<string> = [];
     // The docs' place is blueprint/journeys/; a journey written at the project's root journeys/ is read too (D2 #24).
     // A feature's own journeys run beside the app's, in the app's worlds (M1-plugins section 10).
     const features = Object.values(model.mounts ?? {}).filter((m) => m.kind === "feature");
@@ -50,6 +52,7 @@ export const loadProject = (given: string, model: Model): Effect.Effect<Project,
     for (const [file, name] of [...app.map((f) => [f, relative(root, f).split(sep).join("/")] as const), ...plugins]) {
       const d = (yield* importFile(file))["default"];
       if (kindOf(d) !== "journey") return yield* new ProjectFailed({ message: `${file}: the default export must be a Blueprint.journey` });
+      if (model.journeys[name]?.blanks) { unfinished.push(name); continue; }
       journeys.push(d as Journey);
       journeyFiles.push(name);
     }
@@ -61,7 +64,7 @@ export const loadProject = (given: string, model: Model): Effect.Effect<Project,
       if (kindOf(d) !== "starting-world") return yield* new ProjectFailed({ message: `${file}: the default export must be a Blueprint.startingWorld` });
       startingWorlds.set((d as StartingWorld).name, d as StartingWorld);
     }
-    return { root: given, model, operations, things, journeys, journeyFiles, startingWorlds, ...(omitted.size > 0 ? { omitted } : {}) } satisfies Project;
+    return { root: given, model, operations, things, journeys, journeyFiles, startingWorlds, ...(omitted.size > 0 ? { omitted } : {}), ...(unfinished.length > 0 ? { unfinished } : {}) } satisfies Project;
   });
 
 /** Each operation a mount omits, by its declaration: the plugin's own file, found from the operation's final name. */

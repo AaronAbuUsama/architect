@@ -23,9 +23,9 @@ import * as sheetThing from "../../blueprint/things/sheet/thing.ts";
 
 export { World } from "@orthograph/host-cloudflare";
 
-const sheetCloseServed = Handlers.serve({ name: "sheet.close", operation: sheetClose.declaration, handler: sheetCloseHandler, notFrom: "SheetNotOpen", codes: Errors.codes });
+const sheetCloseServed = Handlers.serve({ name: "sheet.close", operation: sheetClose.declaration, handler: sheetCloseHandler, notFrom: "SheetNotOpen", notFound: { sheet: "SheetNotFound" }, codes: Errors.codes });
 const sheetGetServed = Reads.serve({ name: "sheet.get", read: sheetGet.declaration });
-const sheetJoinServed = Handlers.serve({ name: "sheet.join", operation: sheetJoin.declaration, handler: sheetJoinHandler, notFrom: "SheetNotOpen", codes: Errors.codes });
+const sheetJoinServed = Handlers.serve({ name: "sheet.join", operation: sheetJoin.declaration, handler: sheetJoinHandler, notFrom: "SheetNotOpen", notFound: { sheet: "SheetNotFound" }, codes: Errors.codes });
 const sheetOpenServed = Handlers.serve({ name: "sheet.open", operation: sheetOpen.declaration, handler: sheetOpenHandler, codes: Errors.codes });
 
 /** Each thing and its table: a D1 table, or the name its actors go by. */
@@ -108,7 +108,7 @@ const hostsWorlds = (env: Env) =>
 const tools = Mcp.tools<Services>({
   catalog,
   served: { "sheet.close": sheetCloseServed, "sheet.get": sheetGetServed, "sheet.join": sheetJoinServed, "sheet.open": sheetOpenServed },
-  refusals: { codes: Errors.codes, declared: Errors.declared },
+  refusals: { codes: Errors.codes, declared: Errors.declared, table: Errors.refusals },
 });
 
 // The MCP server's own runtime, built once per isolate: the same store, journal, busy count and auth as the API's.

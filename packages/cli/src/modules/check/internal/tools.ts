@@ -11,6 +11,9 @@ import { binOf, tsFiles } from "./files.ts";
 
 export const RULES = ["no-name-as-string", "refusal-has-log", "declared-errors-only", "no-wall-clock", "handler-matches-path", "no-old-names"] as const;
 
+/** The drift rules (M1.26, K16 f): the blueprint grew past a handler that is yours. Warnings, never failures. */
+export const WARNINGS = ["required-step-used", "outcome-chosen", "declared-error-named"] as const;
+
 export const types = (root: string): ReadonlyArray<Finding> => {
   const tsc = binOf(root, "tsc");
   if (!tsc) return [{ part: "types", rule: "tsc", file: "tsconfig.json", message: "no tsc found in node_modules/.bin" }];
@@ -33,6 +36,8 @@ export const factsOf = (root: string, model: Model): ProjectFacts => {
     handlers: Object.fromEntries(ops.filter((o) => o.kind === "operation").map((o) => [`src/${o.thing}/${o.verb}.ts`, o.errors])),
     requiredSteps: Object.fromEntries(ops.filter((o) => o.kind === "operation" && o.from.kind === "app").map((o) =>
       [`src/${o.thing}/${o.verb}.ts`, Object.keys(o.steps).filter((key) => !o.steps[key]?.optional)])),
+    outcomes: Object.fromEntries(ops.filter((o) => o.kind === "operation" && o.from.kind === "app" && (o.move?.to.length ?? 0) > 1).map((o) =>
+      [`src/${o.thing}/${o.verb}.ts`, o.move!.to])),
   };
 };
 
@@ -46,7 +51,7 @@ export const rules = (root: string, model: Model): { readonly errors: ReadonlyAr
   // Only the ortho rules: the project's own lint config is its own business.
   const config = {
     jsPlugins: [plugin], categories: { correctness: "off" }, plugins: [],
-    rules: { ...Object.fromEntries(RULES.map((r) => [`ortho/${r}`, ["error", facts]])), "ortho/required-step-used": ["warn", facts] },
+    rules: { ...Object.fromEntries(RULES.map((r) => [`ortho/${r}`, ["error", facts]])), ...Object.fromEntries(WARNINGS.map((r) => [`ortho/${r}`, ["warn", facts]])) },
   };
   writeFileSync(join(dir, "oxlintrc.json"), JSON.stringify(config, null, 2));
   // Files named one by one: walking a folder applies every .gitignore above it, which would skip a project kept in one.

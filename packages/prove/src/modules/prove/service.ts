@@ -28,6 +28,10 @@ const load = (root: string, empty = false) =>
     return { model, project };
   });
 
+/** One line per journey skipped for its blanks, so a stub is never silently counted as proved. */
+const unfinishedIn = (project: { readonly unfinished?: ReadonlyArray<string> }) =>
+  (project.unfinished ?? []).map((file) => `journey ${file} skipped: it still has blanks (ortho check names them)`);
+
 export const Prove: ProveApi = {
   run: ({ root, port, empty = false, only, env }) =>
     Effect.gen(function* () {
@@ -48,7 +52,7 @@ export const Prove: ProveApi = {
       // A run with a failing journey proves nothing: its operations are recorded as judged and not passed (D2 #80).
       if (!empty && only === undefined) yield* Impact.record(root, model, done.judged, done.results);
       const verdict = closing(done);
-      return { lines: [...sinks.notes, ...stood.notes, ...done.journeys.lines, ...done.evals.lines, verdict.line], passed: verdict.passed };
+      return { lines: [...sinks.notes, ...stood.notes, ...unfinishedIn(project), ...done.journeys.lines, ...done.evals.lines, verdict.line], passed: verdict.passed };
     }),
   dev: ({ root, port, env }) =>
     Effect.gen(function* () {
@@ -63,7 +67,7 @@ export const Prove: ProveApi = {
     Effect.gen(function* () {
       const { model, project } = yield* load(root);
       const done = yield* exercise(model, project, url, Collectors.read(telemetry), "sign-up", undefined, state === undefined ? undefined : Journeys.databaseFacts(state));
-      for (const line of [...done.journeys.lines, ...done.evals.lines]) yield* say(line);
+      for (const line of [...unfinishedIn(project), ...done.journeys.lines, ...done.evals.lines]) yield* say(line);
       const verdict = closing(done);
       yield* say(verdict.line);
       return { passed: verdict.passed, results: done.results };

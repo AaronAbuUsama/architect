@@ -17,6 +17,13 @@ export interface StoreD1Options {
    * `SqlClient`'s. One call commits to one store: writes to two are refused.
    */
   readonly stores?: ReadonlyArray<readonly [Declared, D1Database]>;
+  /**
+   * The thing the identity keeps (its `per_` ids are the identity's users, `Auth`'s contract) and the table the identity
+   * keeps them in, both named by the generated server: read from there, never a table of its own, so the runtime finds a
+   * person a payload names (K16, M1.46). Only its own fields are decoded. Reads by id only; the identity plugin (M2.05)
+   * owns the rest.
+   */
+  readonly people?: { readonly thing: Thing; readonly table: string };
 }
 
 export interface StoreD1Api {
