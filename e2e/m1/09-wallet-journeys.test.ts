@@ -1,7 +1,8 @@
-// Check 09 (M1.28): the wallet plugin's journeys fail on empty handlers. The journeys are the nine files in
+// Check 09 (M1.28): the wallet plugin's journeys fail on empty handlers. The journeys are the ten files in
 // `e2e/fixtures/m1/wallets/source/blueprint/journeys/`: one story per host signer, one of refusals per host signer
-// (`KeyLocked` on `import`, `NoSuchKey` on `sign` and `send`), and one for a signer the wallet does not have (`KeyLocked`
-// on all five operations), so every declared refusal is reached on every operation that declares it; the stand-in `@fixture/wallets` is the
+// (`KeyLocked` on `import`, `NoSuchKey` on `sign` and `send`), one for a signer the wallet does not have (`KeyLocked`
+// on all five operations), so every declared refusal is reached on every operation that declares it, and one for a send on a
+// chain of depth three (M1.38, `zz-depth-three.ts`, named to sort last because it shares the world signer; check 18 holds the surface it needs); the stand-in `@fixture/wallets` is the
 // plugin as M1.29 will ship it, declarations and all, with every handler empty. Each journey must fail, naming its first
 // step; none may pass and none may be skipped.
 //
@@ -23,7 +24,7 @@
 //  7. A failed step in prove's report is `  ✘ "<title>": ...` under its `journey <name> ✘` line; a blank handler is a defect
 //     and its name, `BlankReached`, appears in the report (as it does in check 02). Every wallet journey's first step is
 //     `create`, which needs nothing from the world, so an empty handler is what stops it, not a missing world.
-//  8. Prove runs the app's own journeys and evals as well; only the nine wallet journeys' lines are judged here.
+//  8. Prove runs the app's own journeys and evals as well; only the ten wallet journeys' lines are judged here.
 //  9. No Docker (M1.33, K10 section 8): prove's Collector is a pinned binary run as a process, `ORTHO_COLLECTOR_BIN` or the
 //     copy cached under `~/.cache/orthograph` (`ORTHO_CACHE_DIR`), fetched and digest-checked by prove itself when it is not
 //     there. So the only precondition this check can state is that a `ORTHO_COLLECTOR_BIN` that is set names a file; if it
@@ -51,11 +52,14 @@ const journeyName = (signer: string) => `wallet on the ${signer} signer`;
 const refusalsName = (signer: string) => `wallet refusals on the ${signer} signer`;
 const refusalsFirstStep = (signer: string) => `import ${signer === "browser" ? "something that is no account" : "a secret that is no key"} onto the ${signer} signer is refused as locked`;
 const noSigner = { file: "no-signer.ts", name: "wallet refusals on no signer", firstStep: "create a key on a signer the wallet does not have is refused as locked" } as const;
+/** M1.38: a send on a chain whose depth is three. Its `wallet.send.level` span is what check 18 requires of the wallet. */
+const depthThree = { file: "zz-depth-three.ts", name: "wallet at depth three on the world signer", firstStep: "import the world's funded key at depth three" } as const;
 /** Every wallet journey: its file, its name and the first step an empty handler must stop. */
 const journeys = [
   ...signers.map((s) => ({ file: `${s}.ts`, name: journeyName(s), firstStep: firstStep(s) })),
   ...signers.map((s) => ({ file: `${s}-refusals.ts`, name: refusalsName(s), firstStep: refusalsFirstStep(s) })),
   noSigner,
+  depthThree,
 ];
 
 /** Where prove would look for its Collector: an `ORTHO_COLLECTOR_BIN` that is set must name a file (prove fails on it too, but later and less plainly). */
@@ -103,7 +107,7 @@ const expectEachFails = (result: Awaited<ReturnType<typeof proveWallets>>) => {
 };
 
 describe("09 the journeys: two per signer and one for no signer, each covering what M1.28 names", () => {
-  it("there are exactly nine; the four stories (node, browser, keystore and world) run every operation and both outcomes of a send", () => {
+  it("there are exactly ten; the four stories (node, browser, keystore and world) run every operation and both outcomes of a send", () => {
     expect(readdirSync(journeysDir).filter((f) => f.endsWith(".ts")).sort()).toEqual(journeys.map((j) => j.file).sort());
     for (const signer of signers) {
       const source = readFileSync(join(journeysDir, `${signer}.ts`), "utf8");
@@ -134,6 +138,21 @@ describe("09 the journeys: two per signer and one for no signer, each covering w
     expect(none).toContain(`Blueprint.journey("${noSigner.name}"`);
     for (const op of operations) expect(none, `a signer the wallet does not have: ${op}`).toMatch(new RegExp(`s\\.holder\\.run\\(${op === "import" ? "importKey" : op}, \\{ signer: "nowhere"[^\\n]*refuses\\(KeyLocked\\)`));
     expect(none.match(/signer: "([a-z]+)"/g)?.every((m) => m === 'signer: "nowhere"')).toBe(true);
+  });
+
+  it("the depth-three story imports and sends on the world signer, runs after every other journey (its name sorts last), sees `confirmed` with a `wallet.send.level` span, and has a doomed send refused", () => {
+    const source = readFileSync(join(journeysDir, depthThree.file), "utf8");
+    expect(source).toContain(`Blueprint.journey("${depthThree.name}"`);
+    for (const op of ["importKey", "send"]) expect(source, `depth three runs ${op}`).toMatch(new RegExp(`s\\.holder\\.run\\(${op},`));
+    expect(source.match(/signer: "([a-z]+)"/g)?.every((m) => m === 'signer: "world"'), "every call names the world signer only").toBe(true);
+    expect(source, "a confirmed send").toContain('expect((a) => a.level).toBe("confirmed")');
+    expect(source, "the send's level span").toContain('spans({ present: ["wallet.send.level"] })');
+    expect(source, "a doomed send refused").toContain("refuses(SimulationReverted)");
+    expect(source, "no key is written in the journey").not.toMatch(/0x[0-9a-fA-F]{40,}/);
+    expect(source, "it has no starting world of its own").not.toContain("starts:");
+    // It shares the world signer's keys and its nonce with `world.ts`, so it must run after every other journey, in prove's file order.
+    const files = readdirSync(journeysDir).filter((f) => f.endsWith(".ts")).sort();
+    expect(files.at(-1), "the depth-three journey sorts after every other journey").toBe(depthThree.file);
   });
 
   it("M1.29's copy, once there is one, is byte for byte these", () => {
