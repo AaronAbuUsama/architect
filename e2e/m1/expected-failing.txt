@@ -2,7 +2,7 @@
 # One key per line, `m1/NN-file.test.ts > describe > test` (a file that fails to load is the file alone; a hook that throws is `file > describe > [suite error]` or `file > [file error]`).
 # Each is a check whose slice has not landed. CI fails on any failure NOT listed here, and warns when a listed one passes:
 # delete the line then. Add a line only with a reason in the pull request. Sorted with LC_ALL=C sort.
-# Seeded from goal/stage-1 at 32388caf (run 44568720200): 63 failing, the same 63 as m1 at 9076a69b (run 44561147237).
+# Seeded from goal/stage-1 at 2face6e9 (push run 44588670077): 54 failing, all in checks 14, 20 and 21; check 16 is green.
 m1/14-clients.test.ts > 14 M1.12: a retried SDK call commits once > answers a caller's own retry with the first answer when the key is the same, and spends again when it is not
 m1/14-clients.test.ts > 14 M1.12: a retried SDK call commits once > is retried by the CLI too, which is built on the SDK: one spend, exit 0, the answer
 m1/14-clients.test.ts > 14 M1.12: a retried SDK call commits once > retries a call whose answer was lost with the caller's key, and the call commits once
@@ -19,15 +19,6 @@ m1/14-clients.test.ts > 14 M1.12: the caller is the client's layer > is set once
 m1/14-clients.test.ts > 14 M1.12: which operations are MCP tools follows via, and what runs on the device is none > is a tool for what an agent can reach, not for what a mount narrowed it out of, and never for a client operation
 m1/14-clients.test.ts > 14 M1.12: which operations are MCP tools follows via, and what runs on the device is none > keeps the tool of an operation narrowed to ways in that include the agent
 m1/14-clients.test.ts > 14 the surface: what acme needs to mount its clients > has sdk, cli and mcp in @orthograph/projections, acme's three mount files, and the SDK's Credential
-m1/16-visibility.test.ts > 16 M1.35 journeys: the fixture's journey fails on empty handlers and passes with its own > ortho prove passes `open a locker` with the fixture's handlers, and its evals find nothing non-public in a log line, a span or an answer
-m1/16-visibility.test.ts > 16 M1.35: what a caller is answered with, for every audience (R1, R2, R3) > CLI --json: the same, as JSON (and a refusal still goes to stderr with its exit code)
-m1/16-visibility.test.ts > 16 M1.35: what a caller is answered with, for every audience (R1, R2, R3) > CLI: the text of an answer, a refusal and a read shows no secret, no undeclared field, and a private one only to its role
-m1/16-visibility.test.ts > 16 M1.35: what a caller is answered with, for every audience (R1, R2, R3) > HTTP: the answer's, the refusal's and the read's body show no secret, no undeclared field, and a private one only to its role
-m1/16-visibility.test.ts > 16 M1.35: what a caller is answered with, for every audience (R1, R2, R3) > SDK: the decoded answer and the typed failure hold no secret, no undeclared field, and a private field only for its role
-m1/16-visibility.test.ts > 16 M1.35: what the runtime says of every call, for the telemetry audience (R1, R2, R3) > logs: no log record, the handler's own line and the one that decided a refusal included, carries one
-m1/16-visibility.test.ts > 16 M1.35: what the runtime says of every call, for the telemetry audience (R1, R2, R3) > spans: no operation, step or commit span carries a secret, a private value or an undeclared one
-m1/16-visibility.test.ts > 16 the surface: Blueprint.issued marks a secret answer field the caller is given once > exists, and ortho check refuses it on a public value and on a payload field, naming the field
-m1/16-visibility.test.ts > 16 the surface: one visibility module, one Audience > exports Audience (principal, agent, telemetry, public, owner) and Visibility (sees, redact, schema) from language-effect, and the generated api has no Errors.shown
 m1/20-plugged-in-loop.test.ts > 20 K13 grid: Plugged In's outputs > event x API ✓, SDK ✗: the server speaks each event, and the SDK exports its type (M1.42)
 m1/20-plugged-in-loop.test.ts > 20 K13 grid: Plugged In's outputs > thing and fields x CLI ~: a number is a number flag, and a flag's help is its field's description (M1.42)
 m1/20-plugged-in-loop.test.ts > 20 K13 grid: Plugged In's outputs > thing and fields x MCP ~: each input property carries its field's description (M1.42)
