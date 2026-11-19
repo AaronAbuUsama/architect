@@ -6,6 +6,8 @@ import { Blanks } from "orthograph/server";
 import { MACHINE_NUMBER, codeOf, inDeclarationOrder, prefixes, refusalsOf } from "./codes.ts";
 import { foundModel, mintsOf, missedBy, notFoundOf } from "./found.ts";
 import { exitClashes } from "./exits.ts";
+import { unfillable } from "./fillable.ts";
+import { RUNS_NEEDS, deviceProblems } from "./device.ts";
 import { environmentsOf } from "./environments.ts";
 import { storiesOf } from "./journeys.ts";
 import { hashOf } from "./hash.ts";
@@ -141,6 +143,7 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
       ? { key: op.move.key, from: op.move.from, to: op.move.to, emits: eventNames.get(op.move.emits) ?? "?" }
       : null;
     if (op.move && op.move.machine !== layout.things.get(thing)?.machine) problems.push(`${file}: moves another thing's machine`);
+    problems.push(...unfillable(op, `${thing}.${verb}`, thing, move?.emits ?? "?", `${layout.things.get(thing)?.base ?? `blueprint/things/${thing}`}/events.ts`));
     const errors = op.errors.map((e) => errorNames.get(e) ?? problem(problems, `${file}: declares an error not exported from an errors.ts`));
     // Each refusal goes on the wire by its name: two classes of one name in one union can't be told apart.
     for (const tag of new Set(errors.filter((n, i) => errors.indexOf(n) !== i && n !== "?"))) {
@@ -231,21 +234,6 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
     problems,
   };
 };
-
-/** What an operation that doesn't run on the server needs: a language that does. Only the Effect language exists today. */
-const RUNS_NEEDS: Readonly<Record<string, string>> = {
-  client: "an operation runs on the caller's own device only when a mounted plugin supplies it, with a code entry for each of node, browser and world; this app's own operations all run on the server",
-  chain: "it needs a language that runs operations on a chain (language-solidity, or language-noir on Aztec), and this project's only language, language-effect, runs them all on the server",
-};
-
-/** What an operation on the device can't have: there is no server there to know who calls, store anything, or move a machine. */
-const deviceProblems = (file: string, op: Operation): ReadonlyArray<string> => [
-  ...(op.allowed.every((a) => a.kind === "anyone") ? [] : [`${file}: a client operation runs on the caller's device, where no server knows who is calling: it must be allowed to Blueprint.anyone`]),
-  ...(op.move ? [`${file}: a client operation has no store, so it can't move a machine`] : []),
-  ...(Object.values(op.steps).some((s) => s.type === "call") ? [`${file}: a client operation can't have a call step yet (the wallet reaches the chain through the chain port as a library, M1-plugins section 8.2; a call step on the device waits for an adapter that needs one)`] : []),
-  ...(op.idempotent ? [`${file}: a client operation has no server to keep an idempotency key`] : []),
-];
-
 
 const problem = (problems: Array<string>, p: string): string => {
   problems.push(p);

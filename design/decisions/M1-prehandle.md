@@ -88,3 +88,12 @@ gains the new fields and `PersonNotFound`. No code that has shipped moved.
 - **Tests changed.** `generators/…/render/render.test.ts` pinned `exits` and `codes` as object literals and each class's
   literal code; check 19 requires them to be read from the table, so those lines now pin the table's rows and
   `refusals.<Name>.code`.
+
+## M1.48: an event nothing can fill
+
+`compiler/…/model/internal/fillable.ts`: for each operation that makes a move, each field of the move's event must be
+one of the thing's fields, a payload field or an answer field, by name: the places `applyMove` builds the event from.
+Otherwise `ortho model` refuses the blueprint, naming the thing's `events.ts`, the event and field, and the operation:
+`blueprint/things/allowance/events.ts: AllowanceSpent.note is in none of allowance's fields, allowance.spend's payload or
+its answer, so nothing can fill it`. The commit-time check in `applyMove` stays as the runtime's guard. The device-only
+rules moved out of `describe.ts` into `internal/device.ts`, to keep it under 250 lines.
