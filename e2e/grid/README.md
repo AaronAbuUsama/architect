@@ -6,12 +6,14 @@ first journey that touches it**; CI runs every switched-on cell on every push; a
 - `switched-on.json`: the checked-in list, `{ cell: "error.docs", subjects: ["HandleTaken"], switchedBy: "<journey>" }`. Written by
   `touched --write`; Plugged In's seven stage 1 journeys switched on 53 cells (7 rows, 316 cell-and-subject pairs).
 - `held-off.json`: the cells `touched` never switches on, each with what it waits for (below). A test keeps it and the list apart.
-- `nx run e2e:grid`: runs the unit tests, then judges every switched-on (cell, subject) and writes `out/verdicts.json` (not committed).
-  Exit 1 if any is red. A switched-on cell with no eval is red.
+- `expected-red.json`: the pairs allowed to be red today, each with its reason and what it waits on. **The ratchet** (G7,
+  `design/decisions/G7-grid-ratchet.md`): the run fails on a red pair not on the list, a listed pair that is not switched on, and a listed
+  pair that is now green (it comes off the list in the same change). The goal's done check needs the list empty.
+- `nx run e2e:grid`: runs the unit tests, then `run --prove`: `ortho prove`, then judges every switched-on (cell, subject), writes
+  `out/verdicts.json` (not committed) and applies the ratchet. A switched-on cell with no eval is red.
 - `tsx e2e/grid/src/main.ts run --prove`: runs `ortho prove` first (its report to `<project>/.ortho/grid/prove.json`, its spans to
   `.ortho/prove-telemetry`), so what the cells read is this commit's run. Without `--prove` the last run is read; no run is red
-  ("no prove run was read"). **The CI job `e2e-grid` has no Collector and runs no prove**: before a red or green cell means
-  anything there, it needs `run --prove` and the Collector cache the `e2e-climb` job has (`.github/workflows/ci.yml`).
+  ("no prove run was read"). The CI job `e2e-grid` runs it with the Collector cache and No-Docker step of `e2e-climb`.
 - `tsx e2e/grid/src/main.ts touched --journey "<name>" --report <prove output> [--write]`: the rows and cells a **green** journey
   touched, from the compiled model's journey steps and prove's `journey <name> ✔ n/n steps` line (its stdout, not `--report`'s JSON);
   `--write` switches them on, leaving out `held-off.json`'s cells.

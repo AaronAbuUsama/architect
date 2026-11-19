@@ -94,3 +94,37 @@ describe("the run", () => {
     expect(asked).toEqual(["error.cli/HandleTaken", "error.cli/NotAllowed"]);
   });
 });
+
+describe("the ratchet (G7)", () => {
+  const verdict = (subject: string, pass: boolean) => ({ cell: "error.cli" as const, subject, verdict: pass ? ("pass" as const) : ("fail" as const), switchedBy: "j", why: [] });
+  const report = { revision: "r", environment: "local", verdicts: [verdict("A", true), verdict("B", false)], passed: false };
+  const entry = (subject: string) => ({ cell: "error.cli" as const, subject, reason: "why", waitsOn: "M1.13" });
+
+  it("passes when the red pairs are exactly the listed ones", () => {
+    const result = Grid.ratchet(report, [entry("B")]);
+    expect(result).toEqual({ unexpected: [], unjudged: [], fixed: [], expectedRed: 1, ok: true });
+    expect(Grid.ratchetLines(result)).toEqual(["ratchet ✔ 1 expected red, 0 unexpected, 0 newly green, 0 not switched on"]);
+  });
+  it("fails on a red pair that is not listed", () => {
+    const result = Grid.ratchet(report, []);
+    expect(result.unexpected).toEqual(["error.cli:B"]);
+    expect(Grid.ratchetLines(result)[0]).toBe("✘ red and not on e2e/grid/expected-red.json: error.cli:B");
+  });
+  it("fails on a listed pair that is green, which must come off the list in the same change", () => {
+    const result = Grid.ratchet(report, [entry("A"), entry("B")]);
+    expect(result.fixed).toEqual(["error.cli:A"]);
+    expect(result.ok).toBe(false);
+    expect(Grid.ratchetLines(result)[0]).toBe("✘ now green, take it off expected-red.json: error.cli:A");
+  });
+  it("fails on a listed pair that is not switched on", () => {
+    const result = Grid.ratchet(report, [entry("B"), entry("C")]);
+    expect(result.unjudged).toEqual(["error.cli:C"]);
+    expect(result.ok).toBe(false);
+  });
+  it("reads the list and names every problem", () => {
+    expect(Grid.parseExpected({ pairs: [entry("B")] }).ok).toBe(true);
+    const bad = Grid.parseExpected({ pairs: [{ cell: "error.fax", subject: "B", reason: "", waitsOn: "x" }, entry("B"), entry("B")] });
+    expect(!bad.ok && bad.problems).toEqual(['pairs[0].cell "error.fax" is not a cell of the grid', "pairs[0].reason must say something", "error.cli:B is listed twice"]);
+    expect(Grid.parseExpected([]).ok).toBe(false);
+  });
+});

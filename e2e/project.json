@@ -48,7 +48,7 @@
     },
     "grid": {
       "executor": "nx:run-commands",
-      "options": { "parallel": false, "commands": ["nx run e2e:grid-tests", "tsx {projectRoot}/grid/src/main.ts run"] },
+      "options": { "parallel": false, "commands": ["nx run e2e:grid-tests", "tsx {projectRoot}/grid/src/main.ts run --prove"] },
       "cache": false
     },
     "ratchet-test": {

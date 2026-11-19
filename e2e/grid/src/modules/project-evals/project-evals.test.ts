@@ -56,3 +56,18 @@ describe("the held-off cells", () => {
     expect(Object.keys(held).sort()).toEqual(["error.cli", "error.mcp", "event.api", "event.cli", "event.mcp", "event.sdk", "journey.api", "journey.cli", "journey.mcp", "journey.sdk"]);
   });
 });
+
+describe("the expected-red list", () => {
+  const expected = Grid.parseExpected(read("expected-red.json"));
+  const pairs = expected.ok ? expected.value : [];
+  const on = new Set(list.ok ? list.value.cells.flatMap((c) => c.subjects.map((s) => `${c.cell}:${s}`)) : []);
+  it("is valid", () => {
+    expect(expected.ok).toBe(true);
+  });
+  it("lists only pairs that are switched on, so a pair cannot hide in it", () => {
+    expect(pairs.map((p) => `${p.cell}:${p.subject}`).filter((k) => !on.has(k))).toEqual([]);
+  });
+  it("names, for each pair, a slice or a package file that turns it green", () => {
+    for (const p of pairs) expect(p.waitsOn, `${p.cell}:${p.subject}`).toMatch(/M\d|packages\//);
+  });
+});

@@ -1,13 +1,14 @@
 // The grid runner's entry and composition root: the only file that reads the process, touches the disk for the modules, or prints.
 //
-//   tsx e2e/grid/src/main.ts [run] [--prove]               judge every switched-on cell, write the verdicts, exit 1 if one is red;
+//   tsx e2e/grid/src/main.ts [run] [--prove]               judge every switched-on cell, write the verdicts, exit 1 if a red pair is not on expected-red.json
+//                                                           (or a listed pair is green or not switched on: the ratchet, G7);
 //                                                           --prove runs `ortho prove` first, so the spans and the report are this commit's
 //   tsx e2e/grid/src/main.ts touched --journey "<name>" --report <prove output> [--write]
 //                                                           the rows and cells a green journey touches; --write switches them on
 //   tsx e2e/grid/src/main.ts capture --out <file>          write the evidence the row evals judge from, for a test's fixture
 //
 // Options: --project <dir> (default examples/plugged-in), --list <file> (default e2e/grid/switched-on.json),
-// --held <file> (default e2e/grid/held-off.json: the cells `touched --write` never switches on, with what each waits for),
+// --expected <file> (default e2e/grid/expected-red.json: the pairs allowed to be red today, G7), --held <file> (default e2e/grid/held-off.json: the cells `touched --write` never switches on, with what each waits for),
 // --out <file> (default e2e/grid/out/verdicts.json), --observed <file> (the refused calls the client journeys recorded;
 // default <project>/.ortho/grid/observed.json), --report <file> (prove's `--report` JSON; default <project>/.ortho/grid/prove.json),
 // --revision <sha> (default GITHUB_SHA, else git HEAD).
@@ -37,6 +38,7 @@ const command = argv[0] !== undefined && !argv[0].startsWith("--") ? argv[0] : "
 const option = (name: string) => { const at = argv.indexOf(`--${name}`); return at < 0 ? undefined : argv[at + 1]; };
 const project = resolve(option("project") ?? join(repo, "examples/plugged-in"));
 const listPath = resolve(option("list") ?? join(here, "grid/switched-on.json"));
+const expectedPath = resolve(option("expected") ?? join(here, "grid/expected-red.json"));
 const heldPath = resolve(option("held") ?? join(here, "grid/held-off.json"));
 const outPath = resolve(option("out") ?? join(here, "grid/out/verdicts.json"));
 const reportPath = resolve(option("report") ?? join(project, ".ortho/grid/prove.json"));
@@ -61,6 +63,15 @@ const loadList = (): List => {
   if (json === undefined) return fail([`${listPath} is not JSON`]);
   const parsed = Grid.parse(json);
   return parsed.ok ? parsed.value : fail([`${listPath} is not a valid list:`, ...parsed.problems.map((p) => `  ${p}`)]);
+};
+
+/** The pairs allowed to be red today: a red pair not on it fails the run, and so does a listed pair that is green or not switched on. */
+const loadExpected = () => {
+  const found = text(expectedPath);
+  if (found === undefined) return fail([`no expected-red list at ${expectedPath}`]);
+  const json = Effect.runSync(Effect.try(() => JSON.parse(found) as unknown).pipe(Effect.orElseSucceed(() => undefined)));
+  const parsed = Grid.parseExpected(json);
+  return parsed.ok ? parsed.value : fail([`${expectedPath} is not a valid list:`, ...parsed.problems.map((p) => `  ${p}`)]);
 };
 
 /** The cells `touched --write` leaves off, each with what it waits for. */
@@ -130,8 +141,9 @@ const runCommand = async () => {
   const report = Grid.combine([refusalReport, projectReport], sha, "local");
   mkdirSync(dirname(outPath), { recursive: true });
   writeFileSync(outPath, `${JSON.stringify(report, null, 2)}\n`);
-  say([...Grid.lines(report), `verdicts written to ${outPath}`]);
-  process.exit(report.passed ? 0 : 1);
+  const ratchet = Grid.ratchet(report, loadExpected());
+  say([...Grid.lines(report), `verdicts written to ${outPath}`, ...Grid.ratchetLines(ratchet)]);
+  process.exit(ratchet.ok ? 0 : 1);
 };
 
 const touchedCommand = () => {
