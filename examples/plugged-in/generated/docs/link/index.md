@@ -11,6 +11,7 @@ Lives in the database.
 |---|---|
 | id | id |
 | profile | profile.id |
+| owner | handle.owner |
 | title | LinkTitle |
 | url | LinkUrl |
 
@@ -23,8 +24,12 @@ States: listed, removed. A move from the wrong state is refused LinkNotListed (e
 | add | (creates) | listed | LinkAdded |
 | remove | listed | removed | LinkRemoved |
 
+## Roles
+
+- linkOwner
+
 ## Operations
 
-- [link.add](add.md): Append a link to the public page of a claimed name.
+- [link.add](add.md): Append a link to your own public page. You need a claimed name first.
 - [link.order](order.md): Move a link to a zero-based position. A position past the end puts it last.
 - [link.remove](remove.md): Remove a link from a public page.

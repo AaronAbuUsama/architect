@@ -1,5 +1,6 @@
 import { Blueprint } from "orthograph";
 import { Link } from "../thing.ts";
+import { linkOwner } from "../roles.ts";
 import { LinkAlreadyRemoved } from "../errors.ts";
 import { LinkPosition } from "../../../values/page.ts";
 
@@ -8,7 +9,7 @@ export default Blueprint.operation(Link, {
   payload: { link: Link.fields.id, position: LinkPosition },
   answer: {},
   errors: [LinkAlreadyRemoved],
-  allowed: [Blueprint.anyone],
+  allowed: [linkOwner],
   steps: { load: Blueprint.step.database(), record: Blueprint.step.database() },
   budget: { p95: "150 millis" },
 });

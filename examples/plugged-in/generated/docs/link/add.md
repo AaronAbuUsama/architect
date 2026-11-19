@@ -1,9 +1,9 @@
 <!-- Generated from the blueprint. Do not edit. -->
 # link.add
 
-Append a link to the public page of a claimed name.
+Append a link to your own public page. You need a claimed name first.
 
-**Who may call:** anyone.
+**Who may call:** anyone signed in.
 
 **Idempotent by request:** send `idempotency-key`; the same key twice is one call.
 
@@ -13,7 +13,6 @@ Append a link to the public page of a claimed name.
 
 | field | value |
 |---|---|
-| handle | handle.name |
 | title | link.title |
 | url | link.url |
 
@@ -37,11 +36,12 @@ Append a link to the public page of a claimed name.
 | refusal | exit | code | when |
 |---|---|---|---|
 | LinkNeedsHandle | 30 | LN-001 | declared in errors.ts |
+| NotAllowed | 3 | AR-001 | the caller isn't anyone signed in; the handler never runs |
 
 ## How to call
 
 ```sh
-plugged-in link add --handle <handle> --title <title> --url <url>
+plugged-in link add --title <title> --url <url>
 ```
 
 HTTP: `POST /link/add` with the payload as JSON. SDK: `Sdk.link.add(payload)`.
