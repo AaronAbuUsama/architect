@@ -13,12 +13,12 @@ Status: **open** (no fix), **partly covered** (a rule or skill exists but entrie
 | Parallel work collides | 6 | 3 | open | 3 |
 | CI that can't tell us anything | 8 | 6 | partly covered | 4 |
 | Shared machine and stray processes | 6 | 3 | partly covered | 5 |
-| Findings merged unanswered | 3 | 2 | partly covered | 2 |
+| Merged before review and CI finished | 4 | 2 | partly covered | 2 |
 | Found before building, or after | 10 | 3 | the wins to keep; gap open | 7 |
 | Decisions leave older docs stale | 4 | 0 | partly covered | 8 |
 | Builders edit the checks that judge them | 2 | 1 | open | 6 |
 | Talking to Aaron, and showing unchecked work | 7 | 5 | partly covered | 9 |
-| One fact, many hand-kept copies | 3 | 3 | open | 10 |
+| One fact, many hand-kept copies | 4 | 4 | open | 10 |
 | Fakes that diverge from the real service | 3 | 1 | partly covered | 11 |
 | State lost across sessions | 3 | 2 | partly covered | 12 |
 | Rules with no check behind them | 1 | 1 | open | 13 |
@@ -113,11 +113,13 @@ only what you started, by PID"; reviewer item 6, "process hygiene".
 started without that brief doesn't have it. No thread is told to list and stop its own processes before it reports.
 Most checks still pick fixed ports by hand, and the same port clash came back a day after it was fixed.
 
-## Findings merged unanswered
+## Merged before review and CI finished
 
-A review finding (Codex's, or a reviewer's) is still open when the PR merges. Some were real defects at merge.
+A PR merges while a review finding (Codex's, or a reviewer's) is still open, or while its CI is still running. Some
+were real defects at merge. `main` has no branch protection, so "merge when green" merges at once.
 
 Entries:
+- 2026-11-19 · A screens pull request merged before its CI finished, because main requires no checks (near miss)
 - 2026-11-19 · Codex findings sat unanswered for up to 17 hours, and a P1 merged (failure)
 - 2026-11-19 · Goal 3's files merged before their checks finished (near miss)
 - 2026-11-19 · The CI fix for queued runs cancelled main's push runs, and m1 still has it (failure)
@@ -125,8 +127,9 @@ Entries:
 **Covers it today:** reviewer item 7, "No finding is left unanswered"; the conductor's merge rule (CI green, Codex
 finished, every thread resolved).
 
-**Gap:** both are things an agent remembers. GitHub can enforce it: "Require conversation resolution before merging" on
-`main`, `m1` and `goal/*`.
+**Gap:** both are things an agent remembers. GitHub can enforce it: required status checks and "Require conversation
+resolution before merging" on `main`, `m1` and `goal/*`. Four entries, no enforcement: **raised with the conductor on
+19 November.**
 
 ## Found before building, or after
 
@@ -209,14 +212,16 @@ AGENTS.md says every fact has one owner. Where a fact is copied by hand (line-nu
 digests, a rule restated in a second package), every change breaks the copies.
 
 Entries:
+- 2026-11-19 · A design grill quoted a refusal's code from a stale doc, not from the code (failure)
 - 2026-11-19 · Code quoted by line number in the docs broke on almost every change (failure)
 - 2026-11-19 · The fix that hid secrets from journeys hid public values too (failure)
 - 2026-11-19 · The shared totals table and the pinned file digests conflicted on nearly every merge (failure)
 
 **Covers it today:** nothing.
 
-**Gap:** quotes should anchor on a name, totals should be generated, and a pin should be moved by its owner in one
-place.
+**Gap:** quotes should anchor on a name, totals should be generated, a pin should be moved by its owner in one place,
+and a design page or grill should quote a refusal's code and exit from the generated errors file, never from another
+doc. Four entries, four failures, no fix: **raised with the conductor on 19 November.**
 
 ## Fakes that diverge from the real service
 
