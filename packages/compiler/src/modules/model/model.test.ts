@@ -14,10 +14,10 @@ const scratch = resolve(import.meta.dirname, "../../../test/tmp");
 const modelOf = (root: string) => Effect.runPromiseExit(Effect.provide(Compiler.model, nodeSource(root)));
 
 /** A copy of acme's blueprint inside the package, so its imports still resolve. */
-const copyOfAcme = (): string => {
+const copyOfAcme = (startingWorlds = true): string => {
   mkdirSync(scratch, { recursive: true });
   const root = mkdtempSync(join(scratch, "acme-"));
-  cpSync(join(acme, "blueprint"), join(root, "blueprint"), { recursive: true, filter: visible });
+  cpSync(join(acme, "blueprint"), join(root, "blueprint"), { recursive: true, filter: (path) => visible(path) && (startingWorlds || basename(path) !== "starting-worlds") });
   return root;
 };
 
@@ -38,7 +38,7 @@ describe("model", () => {
   });
 
   it("names an operation after its file: grant.ts renamed to award.ts is allowance.award", async () => {
-    const root = copyOfAcme();
+    const root = copyOfAcme(false);
     renameSync(join(root, "blueprint/things/allowance/verbs/grant.ts"), join(root, "blueprint/things/allowance/verbs/award.ts"));
     const exit = await modelOf(root);
     expect(Exit.isSuccess(exit)).toBe(true);
@@ -48,7 +48,7 @@ describe("model", () => {
   });
 
   it("keeps every hash when a file is only reformatted", async () => {
-    const before = await modelOf(acme);
+    const before = await modelOf(copyOfAcme());
     const root = copyOfAcme();
     const file = join(root, "blueprint/things/allowance/verbs/grant.ts");
     const reformatted = readFileSync(file, "utf8").split("\n").map((l) => `\t${l}   `).join("\n\n");

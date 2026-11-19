@@ -6,6 +6,11 @@ import { GENERATED, camel, lines, opVar } from "./names.ts";
 
 const command = (op: OperationModel): RenderedFile => {
   const optional = Object.values(op.payload).some((f) => f.optional);
+  const flags = Object.entries(op.payload).map(([k, f]) => {
+    const text = `Flag.String("${k}")`;
+    const flag = f.value.type === "schema" && f.value.format === "ref-any" ? `${text}.pipe(Flag.withSchema(Schema.fromJsonString(Schema.Unknown)))` : text;
+    return `${k}: ${f.optional ? `Flag.optional(${flag})` : flag}`;
+  });
   return {
     path: `generated/cli/src/${op.thing}/${op.verb}.ts`,
     scaffold: false,
@@ -17,10 +22,10 @@ const command = (op: OperationModel): RenderedFile => {
       `import * as Sdk from "../../../sdk/src/index.ts";`,
       `import * as Output from "../output.ts"; // a namespace, so a verb named like a helper (answer) cannot clash`,
       "",
-      `/** ${op.description} Every flag is text; the declaration decodes it${optional ? "; a flag left out is not sent" : ""}. \`--json\` prints the whole answer as JSON. */`,
+      `/** ${op.description} Every flag is text${Object.values(op.payload).some((f) => f.value.type === "schema" && f.value.format === "ref-any") ? " (any-thing references are JSON objects)" : ""}; the declaration decodes it${optional ? "; a flag left out is not sent" : ""}. \`--json\` prints the whole answer as JSON. */`,
       `export const ${camel(op.verb)} = Command.make(`,
       `  "${op.verb}",`,
-      `  { ${[...Object.entries(op.payload).map(([k, f]) => (f.optional ? `${k}: Flag.optional(Flag.String("${k}"))` : `${k}: Flag.String("${k}")`)), `json: Flag.Boolean("json").pipe(Flag.withDefault(false))`].join(", ")} },`,
+      `  { ${[...flags, `json: Flag.Boolean("json").pipe(Flag.withDefault(false))`].join(", ")} },`,
       `  ({ json, ...flags }) => Schema.decodeUnknownEffect(Declaration.payloadSchema)(${optional ? "Output.supplied(flags)" : "flags"}).pipe(Effect.flatMap(Sdk.${camel(op.thing)}.${camel(op.verb)}), Output.answer(json)),`,
       ");",
     ),

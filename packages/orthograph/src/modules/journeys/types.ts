@@ -122,6 +122,7 @@ export interface ChecksApi {
 /** What `prove` uses to run a script: the refs in it, read against what the world has said so far. */
 export interface Scripts {
   readonly script: <C extends Cast>(cast: C) => Script<C>;
+  readonly pathOf: (ref: Ref) => ReadonlyArray<string>;
   readonly isRef: (x: unknown) => x is Ref;
   /** Every ref inside `value` replaced by what `env` holds at its path; paths the world never gave are `missing`. */
   readonly resolve: (value: unknown, env: { readonly [root: string]: unknown }) => { readonly value: unknown; readonly missing: ReadonlyArray<string> };

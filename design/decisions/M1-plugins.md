@@ -188,8 +188,7 @@ needs: [auth, Blueprint.need(eip1193, { when: choices.signer.browser.injected })
 
 ## 7. What a mount adds to the model
 
-The model gains a `mounts` section, present only when there are mounts, so a project without any keeps its model and
-its `generated/` byte for byte (gate M1 item 2):
+The model gains a `mounts` section, present only when there are mounts, so plugin mounting alone adds no mount metadata to a project that mounts nothing:
 
 ```jsonc
 "mounts": {
@@ -204,10 +203,10 @@ its `generated/` byte for byte (gate M1 item 2):
 }
 ```
 
-Each thing and operation that came from a plugin carries `from: { "mount": "echo", "package": "@fixture/echo",
+Each thing and operation that came from a plugin carries `from: { "kind": "feature", "mount": "echo", "package": "@fixture/echo",
 "version": "1.0.0", "thing": "echo" }` (`thing` is the plugin's own name for it). A plugin operation's `file` is the
 specifier of its pure declaration, `@fixture/echo/blueprint/things/echo/verbs/repeat.js`, which generated code imports
-and every loader resolves from the project's root. An app's own declarations keep `blueprint/…` paths and no `from`.
+and every loader resolves from the project's root. An app's own declarations keep `blueprint/…` paths and carry `from: { kind: "app" }`. See [M1.03](M1-model.md).
 
 **The graph.** `Compare.dependsOn` adds `feature:<mount>` (or `adapter:` or `projection:`) with the mount's hash to every
 operation that came from it, and `Compare.hashOf` answers those keys. `ortho impact` prints the edges first, sorted
@@ -411,3 +410,16 @@ is its own package), X-11 (no narrowing by roles), CMD-19 and X-02 for `add` (th
 (choices fixed at mount time). Given owners: settings in the model and runtime (new, for the conductor to place), mounting
 one plugin twice (`later.md`), exports and `step.use` with `used-by` edges (M1.14), FEA-08 and G-15's `atLeast` (M4),
 PLU-13's "an app operation calls an omitted one" (M1.14, when app operations can reach plugin ones).
+
+## Builder-edited checks, audited (author, 18 November 2026)
+
+M1.03's builder (PR #64, commit 9f8cebb) edited four checks: `e2e/m1/01-mounting.test.ts`, `03-adapter-mounting.test.ts`, `support.ts` and `README.md`. AGENTS.md doesn't allow that. A ✍️ author who wrote none of the code audited each hunk against section 7 here, [M1-model.md](M1-model.md) and M1.03's row in `milestones.md`:
+
+- **`support.ts`**: `from` is now required, and is `{ kind: "app" }` or `{ kind: "feature" | "adapter", mount, package, version, thing }`. This is the union change itself. Accept as authored.
+- **`03-adapter-mounting.test.ts`**: an app operation's `from` was `toBeUndefined()` and is now `toEqual({ kind: "app" })`. The mechanical change. Accept as authored. The assertion sits after the `probe.quote` scaffold, which needs M1.14's code, so it does not run on #64's head; it is correct by reading.
+- **`01-mounting.test.ts`**: the two `toEqual` on a mounted thing's and operation's `from` gain `kind: "feature"`, and `before` operations expect `{ kind: "app" }`. Mechanical. The builder also added four assertions that the union change did not require: `echo.shout`'s `from`, `fixture-echo`'s thing `from` (renamed mount), each app thing's `from` is `{ kind: "app" }`, and each app thing is `toEqual` to its pre-mount record. Each one makes the check stricter and follows the row ("every thing and operation") and M1-model.md; none removes or loosens a case. Accept as authored.
+- **`README.md`**: assumption 3 now states the union, as M1-model.md does. Accept as authored.
+
+Both edited tests in `01` fail on the code before M1.03 (`c75bbb6^`, with these check files laid over it) and pass on #64's head. In `01` all 16 tests pass on the head. In `03`, 7 of 8 fail on the head at an earlier line (`can't load blueprint/things/probe/verbs/quote.ts`, M1.14's code), none at an edited assertion.
+
+The author found no weakened assertion, removed case or expectation fitted to the builder's code. Verdict: accept as authored; no check was rewritten. One note outside the checks: the same commit range reworded section 7 above ("keeps its model and its generated/ byte for byte" became "adds no mount metadata"). `00-controls` still asserts the narrower claim, that installing fixtures changes nothing for a project that mounts nothing, and it passes. Gate item 2 in `milestones.md` (acme's `generated/` the same as before, byte for byte) cannot hold for `generated/model/model.json` once M1.03 adds `from` and the journeys; no check compares against pre-M1 bytes. The lead should reword that gate item.

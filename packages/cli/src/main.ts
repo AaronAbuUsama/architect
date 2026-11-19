@@ -33,7 +33,7 @@ const model = Command.make(
       Effect.tap((said) => (said.err ? Console.error(said.err.trimEnd()) : Effect.void)),
       Effect.tap((said) => Effect.sync(() => (process.exitCode = said.exit))),
     ),
-);
+).pipe(Command.withAlias("describe"));
 
 const dev = Command.make(
   "dev",

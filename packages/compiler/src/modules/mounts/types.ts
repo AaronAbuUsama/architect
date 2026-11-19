@@ -38,6 +38,7 @@ export interface CallReach {
 export interface Folded {
   /** The plugins' things, under their final names, each with `from`. */
   readonly things: ReadonlyMap<string, ThingFiles>;
+  readonly journeys: Layout["journeys"];
   /** The plugins' stores, named by the mount and the store's path, each with `from`. */
   readonly stores: ReadonlyMap<string, StoreFile>;
   readonly mounts: Readonly<Record<string, MountModel>>;

@@ -1,10 +1,11 @@
 // Turns the layout into the model: every declaration named, every reference resolved, every entry hashed.
 import { Duration } from "effect";
 import type { AnyErrorClass, Allowed, CallStep, Field, FieldsInput, Operation, Read, Step, Thing, Value, Visibility } from "orthograph";
-import type { AllowedModel, FieldModel, FieldsModel, Model, OperationModel, StepModel, ThingModel, VisibilityModel } from "../types.ts";
+import type { AllowedModel, BlankOperationModel, FieldModel, FieldsModel, Model, OperationModel, StepModel, ThingModel, VisibilityModel } from "../types.ts";
 import { Blanks } from "orthograph/server";
 import { MACHINE_NUMBER, codeOf, inDeclarationOrder, prefixes, refusalsOf } from "./codes.ts";
 import { environmentsOf } from "./environments.ts";
+import { storiesOf } from "./journeys.ts";
 import { hashOf } from "./hash.ts";
 import { crossStore, storesOf } from "./stores.ts";
 import { camel, pascal, type Layout } from "./layout.ts";
@@ -42,7 +43,7 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
   const fieldsModel = (fields: FieldsInput, where: string): FieldsModel =>
     Object.fromEntries(Object.entries(fields).map(([k, f]) => [k, fieldModel(f, `${where} field ${k}`)]));
 
-  // What isn't written yet, by declaration. A blank thing part is described as empty; a blank operation is left out.
+  // What isn't written yet, by declaration and part.
   const blanks: Record<string, Array<string>> = {};
   const blankIn = (owner: string, parts: Record<string, unknown>) => {
     const found = Object.entries(parts).flatMap(([k, v]) => (Blanks.isBlank(v) ? [`${k}: ${v.what}`] : []));
@@ -87,7 +88,8 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
       events: Object.fromEntries(byName(t.events).map(([n, e]) => [n, fieldsModel(e.fields, `${where}/events.ts ${n}`)])),
       errors: Object.fromEntries(inDeclarationOrder(t.errors).map(([n, e], i) => [n, { fields: fieldsModel(e.fields, `${where}/errors.ts ${n}`), exit: e.exit, code: codeOf(prefix.get(name) ?? "??", i + 1) }])),
       roles: [...t.roles.keys()].sort(),
-      ...(t.from ? { from: t.from } : {}),
+      roleRules: Object.fromEntries(byName(t.roles).map(([role, { rule }]) => [role, Blanks.isBlank(rule) ? null : rule.toString()])),
+      from: t.from,
     };
     things[name] = { ...entry, hash: hashOf(entry) };
   }
@@ -101,20 +103,31 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
   };
 
   const operations: Record<string, OperationModel> = {};
+  const blankOperations: Record<string, BlankOperationModel> = {};
   for (const [thing, t] of [...layout.things].sort(([a], [b]) => a.localeCompare(b))) {
     for (const [verb, { file, declaration: op }] of [...t.verbs].sort(([a], [b]) => a.localeCompare(b))) {
       const parts = op.kind === "read"
         ? { [op.by === "list" ? "where" : "fields"]: op.by === "list" ? op.where : op.fields, allowed: op.allowed }
         : { description: op.description, payload: op.payload, answer: op.answer, allowed: op.allowed, errors: op.errors, steps: op.steps, move: op.move };
-      if (blankIn(`${thing}.${verb}`, parts)) continue;
-      const model = operationModel(thing, verb, file, op);
-      operations[`${thing}.${verb}`] = t.from ? withFrom(model, t.from) : model;
+      const name = `${thing}.${verb}`;
+      const incomplete = blankIn(name, parts);
+      const steps = op.kind === "operation" && !Blanks.isBlank(op.steps) ? Object.entries(op.steps) : [];
+      blankIn(name, Object.fromEntries(steps.map(([key, step]) => [`steps.${key}`, step])));
+      if (incomplete) {
+        blankOperations[name] = {
+          name, thing, verb, file, kind: op.kind, from: t.from, blanks: blanks[name]!,
+          ...(op.kind === "operation" && !Blanks.isBlank(op.description) ? { description: op.description } : {}),
+        };
+        continue;
+      }
+      const model = operationModel(thing, verb, file, t.from, op);
+      operations[name] = model;
     }
   }
 
-  function operationModel(thing: string, verb: string, file: string, declared: Operation | Read): OperationModel {
+  function operationModel(thing: string, verb: string, file: string, from: OperationModel["from"], declared: Operation | Read): OperationModel {
     if (declared.thing !== layout.things.get(thing)?.thing) problems.push(`${file}: declares an operation of another thing`);
-    if (declared.kind === "read") return readModel(thing, verb, file, declared);
+    if (declared.kind === "read") return readModel(thing, verb, file, from, declared);
     const op = declared;
     if (op.runs !== "server") problems.push(`${file}: runs "${op.runs}" is not supported yet: ${RUNS_NEEDS[op.runs] ?? "an unknown place"}`);
     const machine = things[thing]?.machine;
@@ -135,10 +148,12 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
     ];
     const entry = {
       kind: "operation" as const,
-      name: `${thing}.${verb}`, thing, verb, identifier: camel(verb), file, description: op.description,
+      name: `${thing}.${verb}`, thing, verb, identifier: camel(verb), file, from, description: op.description,
       payload: fieldsModel(op.payload, `${file} payload`), answer: fieldsModel(op.answer, `${file} answer`),
       move, errors, refusals, allowed,
-      steps: Object.fromEntries(Object.entries(op.steps).map(([k, s]) => [k, stepModel(thing, verb, k, s, op.errors, file)])),
+      steps: Object.fromEntries(Object.entries(op.steps).map(([k, s]) => [k,
+        Blanks.isBlank(s) ? { name: `${thing}.${verb}.${k}`, type: "blank" } : stepModel(thing, verb, k, s, op.errors, file)])),
+      ...(blanks[`${thing}.${verb}`] ? { blanks: blanks[`${thing}.${verb}`]! } : {}),
       idempotent: op.idempotent ?? null,
       runs: "server" as const, test: op.test,
       budget: op.budget ? { p95Ms: Duration.toMillis(op.budget.p95) } : null,
@@ -173,7 +188,7 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
   }
 
   /** A read: answered from the thing's records with no handler, so no move, no steps, no declared errors. */
-  function readModel(thing: string, verb: string, file: string, read: Read): OperationModel {
+  function readModel(thing: string, verb: string, file: string, from: OperationModel["from"], read: Read): OperationModel {
     const allowed = read.allowed.map((a) => allowedModel(a, file));
     const list = read.by === "list";
     const t = layout.things.get(thing);
@@ -183,7 +198,7 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
     const payload = Object.fromEntries(Object.entries(fieldsModel(read.payload, `${file} payload`)).map(([k, f]) => [k, read.optional.includes(k) ? { ...f, optional: true as const } : f]));
     const entry = {
       kind: "read" as const,
-      name: `${thing}.${verb}`, thing, verb, identifier: camel(verb), file,
+      name: `${thing}.${verb}`, thing, verb, identifier: camel(verb), file, from,
       description: list
         ? `List ${thing}s, ${read.order === "newest" ? "newest first" : "oldest first"}, ${read.page} to a page${read.where.length > 0 ? `, filtered by ${read.where.join(", ")}` : ""}.`
         : `Read one ${thing} by its id: ${read.fields.map(String).join(", ")}.`,
@@ -201,7 +216,7 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
   const environments = environmentsOf(layout, problems);
   const stores = storesOf(layout, problems);
   return {
-    model: { refusals, values, things, ...(Object.keys(stores).length > 0 ? { stores } : {}), operations, ...(Object.keys(blanks).length > 0 ? { blanks } : {}), ...(Object.keys(environments).length > 0 ? { environments } : {}) },
+    model: { refusals, values, things, ...(Object.keys(stores).length > 0 ? { stores } : {}), operations, ...storiesOf(layout, operations, allowedModel), ...(Object.keys(blankOperations).length > 0 ? { blankOperations } : {}), ...(Object.keys(blanks).length > 0 ? { blanks } : {}), ...(Object.keys(environments).length > 0 ? { environments } : {}) },
     problems,
   };
 };
@@ -210,12 +225,6 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
 const RUNS_NEEDS: Readonly<Record<string, string>> = {
   client: "it needs a language that runs operations on the caller's own device (language-noir, a later language), and this project's only language, language-effect, runs them all on the server",
   chain: "it needs a language that runs operations on a chain (language-solidity, or language-noir on Aztec), and this project's only language, language-effect, runs them all on the server",
-};
-
-/** A plugin's operation carries where it came from, in its hash too. */
-const withFrom = (op: OperationModel, from: NonNullable<OperationModel["from"]>): OperationModel => {
-  const { hash: _, ...entry } = op;
-  return { ...entry, from, hash: hashOf({ ...entry, from }) };
 };
 
 const problem = (problems: Array<string>, p: string): string => {

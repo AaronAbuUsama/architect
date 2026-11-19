@@ -65,7 +65,11 @@
         "events": {},
         "errors": {},
         "roles": [],
-        "hash": "6e46b72b0aa08b14"
+        "roleRules": {},
+        "from": {
+          "kind": "app"
+        },
+        "hash": "dec54cf75bd4acb9"
       },
       "invitation": {
         "name": "invitation",
@@ -188,7 +192,13 @@
         "roles": [
           "invitee"
         ],
-        "hash": "c480108780ac255d"
+        "roleRules": {
+          "invitee": "(invitation, principal) => invitation.email === principal.email"
+        },
+        "from": {
+          "kind": "app"
+        },
+        "hash": "7c1d13c393ddaa62"
       },
       "membership": {
         "name": "membership",
@@ -230,7 +240,13 @@
         "roles": [
           "holder"
         ],
-        "hash": "7c2dc564f0e86a98"
+        "roleRules": {
+          "holder": "(membership, principal) => membership.person === principal.person"
+        },
+        "from": {
+          "kind": "app"
+        },
+        "hash": "e6505be81a7030e4"
       },
       "organization": {
         "name": "organization",
@@ -300,7 +316,13 @@
         "roles": [
           "owner"
         ],
-        "hash": "0dbabb64b8897f35"
+        "roleRules": {
+          "owner": "(organization, principal) => organization.owner === principal.person"
+        },
+        "from": {
+          "kind": "app"
+        },
+        "hash": "24a71fadb70bce98"
       },
       "person": {
         "name": "person",
@@ -338,7 +360,11 @@
           }
         },
         "roles": [],
-        "hash": "1595aad527217150"
+        "roleRules": {},
+        "from": {
+          "kind": "app"
+        },
+        "hash": "ad771ebabdfe3e0e"
       },
       "session": {
         "name": "session",
@@ -371,7 +397,11 @@
           }
         },
         "roles": [],
-        "hash": "1fa5923e2d4a38d4"
+        "roleRules": {},
+        "from": {
+          "kind": "app"
+        },
+        "hash": "455311c2adae1097"
       },
       "system": {
         "name": "system",
@@ -391,7 +421,11 @@
         "events": {},
         "errors": {},
         "roles": [],
-        "hash": "f59c02fd744afb41"
+        "roleRules": {},
+        "from": {
+          "kind": "app"
+        },
+        "hash": "357767c64efceced"
       }
     },
     "operations": {
@@ -402,6 +436,9 @@
         "verb": "create",
         "identifier": "create",
         "file": "blueprint/things/api-key/verbs/create.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "Create an API key in an organisation. The key itself is shown once.",
         "payload": {
           "organization": {
@@ -464,7 +501,7 @@
         "budget": {
           "p95Ms": 250
         },
-        "hash": "08aae6601d29ec9c"
+        "hash": "56de0903f4a0f20e"
       },
       "invitation.accept": {
         "kind": "operation",
@@ -473,6 +510,9 @@
         "verb": "accept",
         "identifier": "accept",
         "file": "blueprint/things/invitation/verbs/accept.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "Accept an invitation and become a member of its organisation.",
         "payload": {
           "invitation": {
@@ -532,7 +572,7 @@
         "budget": {
           "p95Ms": 200
         },
-        "hash": "9b5d5f2a5e227711"
+        "hash": "937e15a8f2c9b98a"
       },
       "invitation.revoke": {
         "kind": "operation",
@@ -541,6 +581,9 @@
         "verb": "revoke",
         "identifier": "revoke",
         "file": "blueprint/things/invitation/verbs/revoke.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "Withdraw an invitation that hasn't been accepted.",
         "payload": {
           "invitation": {
@@ -586,7 +629,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "273081eb20442e78"
+        "hash": "a527002466da0300"
       },
       "invitation.send": {
         "kind": "operation",
@@ -595,6 +638,9 @@
         "verb": "send",
         "identifier": "send",
         "file": "blueprint/things/invitation/verbs/send.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "Invite someone to an organisation by email.",
         "payload": {
           "organization": {
@@ -652,7 +698,7 @@
         "budget": {
           "p95Ms": 200
         },
-        "hash": "f760027d1cbbe846"
+        "hash": "2f3b2483d2c752f7"
       },
       "membership.get": {
         "kind": "read",
@@ -661,6 +707,9 @@
         "verb": "get",
         "identifier": "get",
         "file": "blueprint/things/membership/verbs/get.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "Read one membership by its id: organization, person, role.",
         "payload": {
           "id": {
@@ -717,7 +766,7 @@
         "budget": {
           "p95Ms": 50
         },
-        "hash": "b2d66623a4335cca"
+        "hash": "681858c8967f5976"
       },
       "organization.create": {
         "kind": "operation",
@@ -726,6 +775,9 @@
         "verb": "create",
         "identifier": "create",
         "file": "blueprint/things/organization/verbs/create.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "Found an organisation. Whoever founds it owns it, and is its first member.",
         "payload": {
           "name": {
@@ -778,7 +830,7 @@
         "budget": {
           "p95Ms": 250
         },
-        "hash": "909c664469fae961"
+        "hash": "c85baf957d5baae5"
       },
       "organization.get": {
         "kind": "read",
@@ -787,6 +839,9 @@
         "verb": "get",
         "identifier": "get",
         "file": "blueprint/things/organization/verbs/get.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "Read one organization by its id: name, owner, state.",
         "payload": {
           "id": {
@@ -837,7 +892,7 @@
         "budget": {
           "p95Ms": 50
         },
-        "hash": "45802f5f1bd67a6d"
+        "hash": "fa554aa19547e5b1"
       },
       "person.sign-up": {
         "kind": "operation",
@@ -846,6 +901,9 @@
         "verb": "sign-up",
         "identifier": "signUp",
         "file": "blueprint/things/person/verbs/sign-up.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "Sign up with an email address and a password.",
         "payload": {
           "email": {
@@ -904,7 +962,7 @@
         "budget": {
           "p95Ms": 400
         },
-        "hash": "a07b2e3beea84684"
+        "hash": "e11e9d899807519a"
       },
       "session.show": {
         "kind": "operation",
@@ -913,6 +971,9 @@
         "verb": "show",
         "identifier": "show",
         "file": "blueprint/things/session/verbs/show.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "Who is signed in.",
         "payload": {},
         "answer": {
@@ -948,7 +1009,7 @@
         "budget": {
           "p95Ms": 100
         },
-        "hash": "d6972d746c66f735"
+        "hash": "4c1f11c0f00cc6e0"
       },
       "session.sign-in": {
         "kind": "operation",
@@ -957,6 +1018,9 @@
         "verb": "sign-in",
         "identifier": "signIn",
         "file": "blueprint/things/session/verbs/sign-in.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "Sign in with email and password. The token is the bearer for every later call.",
         "payload": {
           "email": {
@@ -1017,7 +1081,7 @@
         "budget": {
           "p95Ms": 400
         },
-        "hash": "631917ddeff4685a"
+        "hash": "64fc31973ed9c65e"
       },
       "system.health": {
         "kind": "operation",
@@ -1026,6 +1090,9 @@
         "verb": "health",
         "identifier": "health",
         "file": "blueprint/things/system/verbs/health.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "Is the application up?",
         "payload": {},
         "answer": {
@@ -1051,7 +1118,1181 @@
         "budget": {
           "p95Ms": 50
         },
-        "hash": "354821b9c37665dc"
+        "hash": "7e17e7bd40ff6ca9"
+      }
+    },
+    "journeys": {
+      "journeys/an-invitation-is-used-once.ts": {
+        "name": "an invitation is used once",
+        "file": "journeys/an-invitation-is-used-once.ts",
+        "cast": {
+          "ada": {
+            "kind": "role",
+            "role": "organization.owner"
+          },
+          "olga": {
+            "kind": "signed-in"
+          }
+        },
+        "starts": "invited",
+        "steps": [
+          {
+            "title": "olga accepts the invitation ada sent her",
+            "call": {
+              "actor": "olga",
+              "operation": "invitation.accept",
+              "payload": {
+                "invitation": {
+                  "ref": [
+                    "world",
+                    "invitation"
+                  ]
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect-equal",
+                "value": {
+                  "ref": [
+                    "world",
+                    "organization"
+                  ]
+                }
+              },
+              {
+                "kind": "expect",
+                "match": "^mem_[0-9a-z]+$",
+                "flags": ""
+              },
+              {
+                "kind": "emits",
+                "event": "InvitationAccepted",
+                "fields": {
+                  "invitation": {
+                    "ref": [
+                      "world",
+                      "invitation"
+                    ]
+                  },
+                  "membership": {
+                    "ref": [
+                      "last",
+                      "membership"
+                    ]
+                  }
+                }
+              },
+              {
+                "kind": "is-in",
+                "thing": "invitation",
+                "id": {
+                  "ref": [
+                    "world",
+                    "invitation"
+                  ]
+                },
+                "state": "accepted"
+              },
+              {
+                "kind": "spans",
+                "present": [
+                  "invitation.accept",
+                  "invitation.accept.join"
+                ],
+                "absent": []
+              }
+            ]
+          },
+          {
+            "title": "accepting it again is refused",
+            "call": {
+              "actor": "olga",
+              "operation": "invitation.accept",
+              "payload": {
+                "invitation": {
+                  "ref": [
+                    "world",
+                    "invitation"
+                  ]
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "invitation.notFrom",
+                "fields": {
+                  "state": "accepted"
+                }
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "is-in",
+                "thing": "invitation",
+                "id": {
+                  "ref": [
+                    "world",
+                    "invitation"
+                  ]
+                },
+                "state": "accepted"
+              },
+              {
+                "kind": "spans",
+                "present": [],
+                "absent": [
+                  "invitation.accept.join"
+                ]
+              }
+            ]
+          },
+          {
+            "title": "ada can't revoke an invitation that has been accepted",
+            "call": {
+              "actor": "ada",
+              "operation": "invitation.revoke",
+              "payload": {
+                "invitation": {
+                  "ref": [
+                    "world",
+                    "invitation"
+                  ]
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "invitation.notFrom",
+                "fields": {
+                  "state": "accepted"
+                }
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [],
+                "absent": [
+                  "invitation.revoke.update"
+                ]
+              }
+            ]
+          }
+        ],
+        "sourceHash": "9e88e14681fb4c9b0feedcffe750b2b1023275bdb5074d165162516b901e0b74"
+      },
+      "journeys/an-owner-makes-an-api-key.ts": {
+        "name": "an owner makes an api key",
+        "file": "journeys/an-owner-makes-an-api-key.ts",
+        "cast": {
+          "ada": {
+            "kind": "role",
+            "role": "organization.owner"
+          },
+          "bob": {
+            "kind": "signed-in"
+          }
+        },
+        "starts": "founded",
+        "steps": [
+          {
+            "title": "bob can't make a key in ada's organisation",
+            "call": {
+              "actor": "bob",
+              "operation": "api-key.create",
+              "payload": {
+                "organization": {
+                  "ref": [
+                    "world",
+                    "organization"
+                  ]
+                },
+                "name": "bob's key"
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "NotAllowed",
+                "fields": {}
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [],
+                "absent": [
+                  "api-key.create",
+                  "api-key.create.issue",
+                  "api-key.create.insert"
+                ]
+              }
+            ]
+          },
+          {
+            "title": "ada makes a key; the secret is shown once",
+            "call": {
+              "actor": "ada",
+              "operation": "api-key.create",
+              "payload": {
+                "organization": {
+                  "ref": [
+                    "world",
+                    "organization"
+                  ]
+                },
+                "name": "ci"
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect",
+                "match": "^key_[0-9a-z]+$",
+                "flags": ""
+              },
+              {
+                "kind": "expect",
+                "match": "^.+$",
+                "flags": ""
+              },
+              {
+                "kind": "spans",
+                "present": [
+                  "api-key.create",
+                  "api-key.create.issue",
+                  "api-key.create.insert"
+                ],
+                "absent": []
+              }
+            ]
+          },
+          {
+            "title": "bob founds an organisation of his own",
+            "call": {
+              "actor": "bob",
+              "operation": "organization.create",
+              "payload": {
+                "name": "Bob Co"
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect",
+                "match": "^org_[0-9a-z]+$",
+                "flags": ""
+              },
+              {
+                "kind": "emits",
+                "event": "OrganizationCreated",
+                "fields": {
+                  "organization": {
+                    "ref": [
+                      "last",
+                      "organization"
+                    ]
+                  },
+                  "owner": {
+                    "ref": [
+                      "cast",
+                      "bob",
+                      "person"
+                    ]
+                  }
+                }
+              },
+              {
+                "kind": "is-in",
+                "thing": "organization",
+                "id": {
+                  "ref": [
+                    "last",
+                    "organization"
+                  ]
+                },
+                "state": "active"
+              },
+              {
+                "kind": "spans",
+                "present": [
+                  "organization.create",
+                  "organization.create.insert",
+                  "organization.create.owner"
+                ],
+                "absent": []
+              }
+            ]
+          },
+          {
+            "title": "ada can't read bob's organisation",
+            "call": {
+              "actor": "ada",
+              "operation": "organization.get",
+              "payload": {
+                "id": {
+                  "ref": [
+                    "last",
+                    "organization"
+                  ]
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "NotAllowed",
+                "fields": {}
+              }
+            ]
+          },
+          {
+            "title": "bob makes a key in his own organisation",
+            "call": {
+              "actor": "bob",
+              "operation": "api-key.create",
+              "payload": {
+                "organization": {
+                  "ref": [
+                    "last",
+                    "organization"
+                  ]
+                },
+                "name": "bob's own key"
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect",
+                "match": "^key_[0-9a-z]+$",
+                "flags": ""
+              },
+              {
+                "kind": "expect",
+                "match": "^.+$",
+                "flags": ""
+              }
+            ]
+          }
+        ],
+        "sourceHash": "6e1c7c375d8388c9ed7a6fc2e41a53724a4856a49e3fe802c526c3f555758f08"
+      },
+      "journeys/health-is-up.ts": {
+        "name": "health is up",
+        "file": "journeys/health-is-up.ts",
+        "cast": {
+          "visitor": {
+            "kind": "anyone"
+          }
+        },
+        "starts": null,
+        "steps": [
+          {
+            "title": "anyone can ask if the application is up",
+            "call": {
+              "actor": "visitor",
+              "operation": "system.health",
+              "payload": {}
+            },
+            "checks": [
+              {
+                "kind": "expect-equal",
+                "value": "ok"
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [
+                  "system.health"
+                ],
+                "absent": []
+              }
+            ]
+          }
+        ],
+        "sourceHash": "75ae85ee5a4bfcfccba6436d8ca16a29a741227a90db4ed87c9c0d1bec330b03"
+      },
+      "journeys/invite-and-accept.ts": {
+        "name": "invite and accept",
+        "file": "journeys/invite-and-accept.ts",
+        "cast": {
+          "ada": {
+            "kind": "role",
+            "role": "organization.owner"
+          },
+          "olga": {
+            "kind": "signed-in"
+          },
+          "bob": {
+            "kind": "signed-in"
+          }
+        },
+        "starts": "founded",
+        "steps": [
+          {
+            "title": "ada sees who she is signed in as",
+            "call": {
+              "actor": "ada",
+              "operation": "session.show",
+              "payload": {}
+            },
+            "checks": [
+              {
+                "kind": "expect-equal",
+                "value": {
+                  "ref": [
+                    "cast",
+                    "ada",
+                    "person"
+                  ]
+                }
+              },
+              {
+                "kind": "expect-equal",
+                "value": {
+                  "ref": [
+                    "cast",
+                    "ada",
+                    "email"
+                  ]
+                }
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [
+                  "session.show"
+                ],
+                "absent": []
+              }
+            ]
+          },
+          {
+            "title": "ada reads her organisation",
+            "call": {
+              "actor": "ada",
+              "operation": "organization.get",
+              "payload": {
+                "id": {
+                  "ref": [
+                    "world",
+                    "organization"
+                  ]
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect-equal",
+                "value": "Acme Demo"
+              },
+              {
+                "kind": "expect-equal",
+                "value": {
+                  "ref": [
+                    "cast",
+                    "ada",
+                    "person"
+                  ]
+                }
+              },
+              {
+                "kind": "expect-equal",
+                "value": "active"
+              },
+              {
+                "kind": "is-in",
+                "thing": "organization",
+                "id": {
+                  "ref": [
+                    "world",
+                    "organization"
+                  ]
+                },
+                "state": "active"
+              },
+              {
+                "kind": "no-events"
+              }
+            ]
+          },
+          {
+            "title": "bob can't invite anyone to it",
+            "call": {
+              "actor": "bob",
+              "operation": "invitation.send",
+              "payload": {
+                "organization": {
+                  "ref": [
+                    "world",
+                    "organization"
+                  ]
+                },
+                "email": {
+                  "ref": [
+                    "cast",
+                    "olga",
+                    "email"
+                  ]
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "NotAllowed",
+                "fields": {}
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [],
+                "absent": [
+                  "invitation.send",
+                  "invitation.send.insert"
+                ]
+              }
+            ]
+          },
+          {
+            "title": "ada invites olga by her email",
+            "call": {
+              "actor": "ada",
+              "operation": "invitation.send",
+              "payload": {
+                "organization": {
+                  "ref": [
+                    "world",
+                    "organization"
+                  ]
+                },
+                "email": {
+                  "ref": [
+                    "cast",
+                    "olga",
+                    "email"
+                  ]
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect",
+                "match": "^inv_[0-9a-z]+$",
+                "flags": ""
+              },
+              {
+                "kind": "emits",
+                "event": "InvitationSent",
+                "fields": {
+                  "invitation": {
+                    "ref": [
+                      "last",
+                      "invitation"
+                    ]
+                  },
+                  "email": {
+                    "ref": [
+                      "cast",
+                      "olga",
+                      "email"
+                    ]
+                  }
+                }
+              },
+              {
+                "kind": "is-in",
+                "thing": "invitation",
+                "id": {
+                  "ref": [
+                    "last",
+                    "invitation"
+                  ]
+                },
+                "state": "pending"
+              },
+              {
+                "kind": "spans",
+                "present": [
+                  "invitation.send",
+                  "invitation.send.insert"
+                ],
+                "absent": []
+              }
+            ]
+          },
+          {
+            "title": "bob can't accept olga's invitation",
+            "call": {
+              "actor": "bob",
+              "operation": "invitation.accept",
+              "payload": {
+                "invitation": {
+                  "ref": [
+                    "last",
+                    "invitation"
+                  ]
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "NotAllowed",
+                "fields": {}
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "is-in",
+                "thing": "invitation",
+                "id": {
+                  "ref": [
+                    "last",
+                    "invitation"
+                  ]
+                },
+                "state": "pending"
+              },
+              {
+                "kind": "spans",
+                "present": [],
+                "absent": [
+                  "invitation.accept",
+                  "invitation.accept.join"
+                ]
+              }
+            ]
+          },
+          {
+            "title": "olga accepts and joins ada's organisation",
+            "call": {
+              "actor": "olga",
+              "operation": "invitation.accept",
+              "payload": {
+                "invitation": {
+                  "ref": [
+                    "last",
+                    "invitation"
+                  ]
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect-equal",
+                "value": {
+                  "ref": [
+                    "world",
+                    "organization"
+                  ]
+                }
+              },
+              {
+                "kind": "expect",
+                "match": "^mem_[0-9a-z]+$",
+                "flags": ""
+              },
+              {
+                "kind": "emits",
+                "event": "InvitationAccepted",
+                "fields": {
+                  "membership": {
+                    "ref": [
+                      "last",
+                      "membership"
+                    ]
+                  }
+                }
+              },
+              {
+                "kind": "spans",
+                "present": [
+                  "invitation.accept",
+                  "invitation.accept.join"
+                ],
+                "absent": []
+              }
+            ]
+          },
+          {
+            "title": "bob can't read olga's membership",
+            "call": {
+              "actor": "bob",
+              "operation": "membership.get",
+              "payload": {
+                "id": {
+                  "ref": [
+                    "last",
+                    "membership"
+                  ]
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "NotAllowed",
+                "fields": {}
+              }
+            ]
+          },
+          {
+            "title": "olga reads her membership: she is a member, not an owner",
+            "call": {
+              "actor": "olga",
+              "operation": "membership.get",
+              "payload": {
+                "id": {
+                  "ref": [
+                    "last",
+                    "membership"
+                  ]
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect-equal",
+                "value": {
+                  "ref": [
+                    "world",
+                    "organization"
+                  ]
+                }
+              },
+              {
+                "kind": "expect-equal",
+                "value": {
+                  "ref": [
+                    "cast",
+                    "olga",
+                    "person"
+                  ]
+                }
+              },
+              {
+                "kind": "expect-equal",
+                "value": "member"
+              },
+              {
+                "kind": "no-events"
+              }
+            ]
+          },
+          {
+            "title": "ada sends a second invitation",
+            "call": {
+              "actor": "ada",
+              "operation": "invitation.send",
+              "payload": {
+                "organization": {
+                  "ref": [
+                    "world",
+                    "organization"
+                  ]
+                },
+                "email": {
+                  "ref": [
+                    "cast",
+                    "bob",
+                    "email"
+                  ]
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect",
+                "match": "^inv_[0-9a-z]+$",
+                "flags": ""
+              },
+              {
+                "kind": "emits",
+                "event": "InvitationSent",
+                "fields": {
+                  "invitation": {
+                    "ref": [
+                      "last",
+                      "invitation"
+                    ]
+                  },
+                  "email": {
+                    "ref": [
+                      "cast",
+                      "bob",
+                      "email"
+                    ]
+                  }
+                }
+              },
+              {
+                "kind": "is-in",
+                "thing": "invitation",
+                "id": {
+                  "ref": [
+                    "last",
+                    "invitation"
+                  ]
+                },
+                "state": "pending"
+              }
+            ]
+          },
+          {
+            "title": "olga, a member but not the owner, can't revoke it",
+            "call": {
+              "actor": "olga",
+              "operation": "invitation.revoke",
+              "payload": {
+                "invitation": {
+                  "ref": [
+                    "last",
+                    "invitation"
+                  ]
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "NotAllowed",
+                "fields": {}
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [],
+                "absent": [
+                  "invitation.revoke",
+                  "invitation.revoke.update"
+                ]
+              }
+            ]
+          },
+          {
+            "title": "ada revokes it",
+            "call": {
+              "actor": "ada",
+              "operation": "invitation.revoke",
+              "payload": {
+                "invitation": {
+                  "ref": [
+                    "last",
+                    "invitation"
+                  ]
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "emits",
+                "event": "InvitationRevoked",
+                "fields": {}
+              },
+              {
+                "kind": "spans",
+                "present": [
+                  "invitation.revoke",
+                  "invitation.revoke.update"
+                ],
+                "absent": []
+              }
+            ]
+          }
+        ],
+        "sourceHash": "cf697a8e531f10316e6513348e93486c809fb842fca372774d580eeef91fbb4a"
+      },
+      "journeys/sign-up-and-sign-in.ts": {
+        "name": "sign up and sign in",
+        "file": "journeys/sign-up-and-sign-in.ts",
+        "cast": {
+          "newcomer": {
+            "kind": "anyone"
+          }
+        },
+        "starts": null,
+        "steps": [
+          {
+            "title": "before signing up the newcomer is nobody",
+            "call": {
+              "actor": "newcomer",
+              "operation": "session.show",
+              "payload": {}
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "NotAllowed",
+                "fields": {}
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [],
+                "absent": [
+                  "session.show"
+                ]
+              }
+            ]
+          },
+          {
+            "title": "the newcomer signs up",
+            "call": {
+              "actor": "newcomer",
+              "operation": "person.sign-up",
+              "payload": {
+                "email": {
+                  "ref": [
+                    "cast",
+                    "newcomer",
+                    "email"
+                  ]
+                },
+                "password": {
+                  "ref": [
+                    "cast",
+                    "newcomer",
+                    "password"
+                  ]
+                },
+                "name": "Newcomer"
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect",
+                "match": "^per_[0-9a-z]+$",
+                "flags": ""
+              },
+              {
+                "kind": "spans",
+                "present": [
+                  "person.sign-up",
+                  "person.sign-up.create"
+                ],
+                "absent": []
+              }
+            ]
+          },
+          {
+            "title": "signing up again with the same email is refused",
+            "call": {
+              "actor": "newcomer",
+              "operation": "person.sign-up",
+              "payload": {
+                "email": {
+                  "ref": [
+                    "cast",
+                    "newcomer",
+                    "email"
+                  ]
+                },
+                "password": {
+                  "ref": [
+                    "cast",
+                    "newcomer",
+                    "password"
+                  ]
+                },
+                "name": "Newcomer again"
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "PersonEmailTaken",
+                "fields": {}
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [
+                  "person.sign-up"
+                ],
+                "absent": []
+              }
+            ]
+          },
+          {
+            "title": "a wrong password is refused",
+            "call": {
+              "actor": "newcomer",
+              "operation": "session.sign-in",
+              "payload": {
+                "email": {
+                  "ref": [
+                    "cast",
+                    "newcomer",
+                    "email"
+                  ]
+                },
+                "password": {
+                  "redacted": true
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "SessionCredentialsWrong",
+                "fields": {}
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [
+                  "session.sign-in"
+                ],
+                "absent": []
+              }
+            ]
+          },
+          {
+            "title": "the right password answers a session and a token",
+            "call": {
+              "actor": "newcomer",
+              "operation": "session.sign-in",
+              "payload": {
+                "email": {
+                  "ref": [
+                    "cast",
+                    "newcomer",
+                    "email"
+                  ]
+                },
+                "password": {
+                  "ref": [
+                    "cast",
+                    "newcomer",
+                    "password"
+                  ]
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect",
+                "match": "^ses_[0-9a-z]+$",
+                "flags": ""
+              },
+              {
+                "kind": "expect",
+                "match": "^.+$",
+                "flags": ""
+              },
+              {
+                "kind": "spans",
+                "present": [
+                  "session.sign-in",
+                  "session.sign-in.verify"
+                ],
+                "absent": []
+              }
+            ]
+          }
+        ],
+        "sourceHash": "59cd73d467f68f7747f707b3f32e2fe02e5807444a42aef338d5bfa697e7cd87"
+      }
+    },
+    "startingWorlds": {
+      "founded": {
+        "name": "founded",
+        "file": "blueprint/starting-worlds/founded.ts",
+        "from": null,
+        "cast": {
+          "ada": {
+            "kind": "role",
+            "role": "organization.owner"
+          }
+        },
+        "sourceHash": "7fc64f2291c5db5ba4755646c988e0646866c96633d7190068131b17ecb59278",
+        "makes": [
+          {
+            "actor": "ada",
+            "operation": "organization.create",
+            "payload": {
+              "name": "Acme Demo"
+            }
+          }
+        ],
+        "gives": {
+          "organization": {
+            "ref": [
+              "last",
+              "organization"
+            ]
+          }
+        }
+      },
+      "invited": {
+        "name": "invited",
+        "file": "blueprint/starting-worlds/invited.ts",
+        "from": "founded",
+        "cast": {
+          "ada": {
+            "kind": "role",
+            "role": "organization.owner"
+          },
+          "olga": {
+            "kind": "signed-in"
+          }
+        },
+        "sourceHash": "496b865f4b984f114c22472960e4d221dd1fa428b97f46d74da7e35a3e5487fa",
+        "makes": [
+          {
+            "actor": "ada",
+            "operation": "invitation.send",
+            "payload": {
+              "organization": {
+                "ref": [
+                  "world",
+                  "organization"
+                ]
+              },
+              "email": {
+                "ref": [
+                  "cast",
+                  "olga",
+                  "email"
+                ]
+              }
+            }
+          }
+        ],
+        "gives": {
+          "organization": {
+            "ref": [
+              "world",
+              "organization"
+            ]
+          },
+          "invitation": {
+            "ref": [
+              "last",
+              "invitation"
+            ]
+          }
+        }
       }
     },
     "environments": {
@@ -1165,63 +2406,63 @@
   },
   "dependsOnByOperation": {
     "api-key.create": {
-      "operation:api-key.create": "08aae6601d29ec9c",
-      "thing:api-key": "6e46b72b0aa08b14",
-      "thing:organization": "0dbabb64b8897f35",
-      "thing:person": "1595aad527217150"
+      "operation:api-key.create": "56de0903f4a0f20e",
+      "thing:api-key": "dec54cf75bd4acb9",
+      "thing:organization": "24a71fadb70bce98",
+      "thing:person": "ad771ebabdfe3e0e"
     },
     "invitation.accept": {
-      "operation:invitation.accept": "9b5d5f2a5e227711",
-      "thing:invitation": "c480108780ac255d",
-      "thing:membership": "7c2dc564f0e86a98",
-      "thing:organization": "0dbabb64b8897f35",
-      "thing:person": "1595aad527217150"
+      "operation:invitation.accept": "937e15a8f2c9b98a",
+      "thing:invitation": "7c1d13c393ddaa62",
+      "thing:membership": "e6505be81a7030e4",
+      "thing:organization": "24a71fadb70bce98",
+      "thing:person": "ad771ebabdfe3e0e"
     },
     "invitation.revoke": {
-      "operation:invitation.revoke": "273081eb20442e78",
-      "thing:invitation": "c480108780ac255d",
-      "thing:organization": "0dbabb64b8897f35",
-      "thing:person": "1595aad527217150"
+      "operation:invitation.revoke": "a527002466da0300",
+      "thing:invitation": "7c1d13c393ddaa62",
+      "thing:organization": "24a71fadb70bce98",
+      "thing:person": "ad771ebabdfe3e0e"
     },
     "invitation.send": {
-      "operation:invitation.send": "f760027d1cbbe846",
-      "thing:invitation": "c480108780ac255d",
-      "thing:organization": "0dbabb64b8897f35",
-      "thing:person": "1595aad527217150"
+      "operation:invitation.send": "2f3b2483d2c752f7",
+      "thing:invitation": "7c1d13c393ddaa62",
+      "thing:organization": "24a71fadb70bce98",
+      "thing:person": "ad771ebabdfe3e0e"
     },
     "membership.get": {
-      "operation:membership.get": "b2d66623a4335cca",
-      "thing:membership": "7c2dc564f0e86a98",
-      "thing:organization": "0dbabb64b8897f35",
-      "thing:person": "1595aad527217150"
+      "operation:membership.get": "681858c8967f5976",
+      "thing:membership": "e6505be81a7030e4",
+      "thing:organization": "24a71fadb70bce98",
+      "thing:person": "ad771ebabdfe3e0e"
     },
     "organization.create": {
-      "operation:organization.create": "909c664469fae961",
-      "thing:organization": "0dbabb64b8897f35",
-      "thing:person": "1595aad527217150"
+      "operation:organization.create": "c85baf957d5baae5",
+      "thing:organization": "24a71fadb70bce98",
+      "thing:person": "ad771ebabdfe3e0e"
     },
     "organization.get": {
-      "operation:organization.get": "45802f5f1bd67a6d",
-      "thing:organization": "0dbabb64b8897f35",
-      "thing:person": "1595aad527217150"
+      "operation:organization.get": "fa554aa19547e5b1",
+      "thing:organization": "24a71fadb70bce98",
+      "thing:person": "ad771ebabdfe3e0e"
     },
     "person.sign-up": {
-      "operation:person.sign-up": "a07b2e3beea84684",
-      "thing:person": "1595aad527217150"
+      "operation:person.sign-up": "e11e9d899807519a",
+      "thing:person": "ad771ebabdfe3e0e"
     },
     "session.show": {
-      "operation:session.show": "d6972d746c66f735",
-      "thing:person": "1595aad527217150",
-      "thing:session": "1fa5923e2d4a38d4"
+      "operation:session.show": "4c1f11c0f00cc6e0",
+      "thing:person": "ad771ebabdfe3e0e",
+      "thing:session": "455311c2adae1097"
     },
     "session.sign-in": {
-      "operation:session.sign-in": "631917ddeff4685a",
-      "thing:person": "1595aad527217150",
-      "thing:session": "1fa5923e2d4a38d4"
+      "operation:session.sign-in": "64fc31973ed9c65e",
+      "thing:person": "ad771ebabdfe3e0e",
+      "thing:session": "455311c2adae1097"
     },
     "system.health": {
-      "operation:system.health": "354821b9c37665dc",
-      "thing:system": "f59c02fd744afb41"
+      "operation:system.health": "7e17e7bd40ff6ca9",
+      "thing:system": "357767c64efceced"
     }
   },
   "docs": {
@@ -1258,5 +2499,5 @@
       "reason": "no trace source is wired to the portal yet"
     }
   },
-  "digest": "b52288a87018586baee167246257d0990bbaf63a32742d32e5e2a106b800d475"
+  "digest": "0f65e6a24537230dd7196be804adde714267a15a9d28a94157ea437223fc812f"
 }

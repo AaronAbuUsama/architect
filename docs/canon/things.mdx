@@ -70,7 +70,7 @@ export const Secret = Blueprint.visibility.secret(Blueprint.text({ max: 512 }));
 A value is a schema with a name and a visibility. Orthograph gives you five makers, and `Blueprint.value` names
 anything else, such as an Effect `Schema.Literals`:
 
-```ts file=packages/orthograph/src/modules/values/types.ts lines=25-37
+```ts file=packages/orthograph/src/modules/values/types.ts lines=25-39
 export interface ValuesApi {
   /** Name a type: `export const Amount = Blueprint.value(Blueprint.uint(128))`. */
   readonly value: <S extends Schema.Constraint>(schema: S | Value<S>) => Value<S>;
@@ -81,6 +81,8 @@ export interface ValuesApi {
   readonly uint: (bits: number) => Value<Schema.BigIntFromString>;
   /** Text, never empty, at most `max` characters (default 200). */
   readonly text: (options?: { readonly max?: number }) => Value<Schema.String>;
+  /** A reference carrying a thing’s declaration name and the id of one instance. */
+  readonly refAny: () => Value<Schema.Struct<{ readonly declaration: Schema.String; readonly id: Schema.String }>>;
   /** An email address: text of at most 254 characters, with an `@` and a dot after it. */
   readonly email: () => Value<Schema.String>;
 }

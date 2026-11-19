@@ -60,7 +60,7 @@ describe("03 adapters: a mount reaches only what it includes", () => {
     expect(got.mounts?.["pricing"]).toMatchObject({ kind: "adapter", file: PRICING, package: "@fixture/remote", version: "1.0.0" });
     expect(got.mounts?.["pricing"]?.integrity).toMatch(/^sha256-/);
     expect(Object.keys(got.operations)).toContain("probe.quote");
-    expect(got.operations["probe.quote"]!.from).toBeUndefined();
+    expect(got.operations["probe.quote"]!.from).toEqual({ kind: "app" });
   });
 
   it("an operation naming a call its mount did not include is refused, naming the mount and the call", () => {

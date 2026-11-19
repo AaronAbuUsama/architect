@@ -31,7 +31,7 @@ export const factsOf = (root: string, model: Model): ProjectFacts => {
       ...things.flatMap((t) => [...Object.keys(t.events), ...Object.keys(t.errors)])],
     errors: things.flatMap((t) => Object.keys(t.errors)),
     handlers: Object.fromEntries(ops.filter((o) => o.kind === "operation").map((o) => [`src/${o.thing}/${o.verb}.ts`, o.errors])),
-    requiredSteps: Object.fromEntries(ops.filter((o) => o.kind === "operation" && !o.from).map((o) =>
+    requiredSteps: Object.fromEntries(ops.filter((o) => o.kind === "operation" && o.from.kind === "app").map((o) =>
       [`src/${o.thing}/${o.verb}.ts`, Object.keys(o.steps).filter((key) => !o.steps[key]?.optional)])),
   };
 };

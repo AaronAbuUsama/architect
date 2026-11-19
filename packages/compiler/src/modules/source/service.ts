@@ -1,14 +1,15 @@
-import { existsSync, readdirSync, realpathSync, statSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { readFileSync, existsSync, readdirSync, realpathSync, statSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 import { Effect, Layer } from "effect";
-import { BlueprintSource, SourceError, type PluginPackage } from "./types.ts";
+import { BlueprintSource, SourceError, type LoadedFile, type PluginPackage } from "./types.ts";
 import { blueprintFilesOf, dependenciesOf, integrityOf, packageDir, readManifest, resolveFrom } from "./internal/plugins.ts";
 
 const walk = (dir: string): Array<string> =>
   readdirSync(dir).flatMap((entry) => {
     const full = join(dir, entry);
-    return statSync(full).isDirectory() ? walk(full) : full.endsWith(".ts") ? [full] : [];
+    return statSync(full).isDirectory() ? walk(full) : full.endsWith(".ts") && !full.endsWith(".d.ts") ? [full] : [];
   });
 
 const importing = (url: string, what: string) =>
@@ -25,6 +26,12 @@ export const nodeSource = (given: string) => {
   const root = join(projectRoot, "blueprint");
   const sync = <A>(what: string, f: () => A) => Effect.try({ try: f, catch: (e) => new SourceError({ message: `${what}: ${String(e)}` }) });
 
+  const loadFile = (path: string, file: string, label: string) => importing(pathToFileURL(file).href, label).pipe(
+    Effect.flatMap((exports): Effect.Effect<LoadedFile, SourceError> => /(?:^|\/)(?:journeys|starting-worlds)\//.test(path)
+      ? sync(`can't hash ${label}`, () => ({ path, exports, sourceHash: createHash("sha256").update(readFileSync(file)).digest("hex") }))
+      : Effect.succeed({ path, exports })),
+  );
+
   const plugin = (name: string): Effect.Effect<PluginPackage | undefined, SourceError> => Effect.gen(function* () {
     const dir = packageDir(projectRoot, name);
     // Installed but with no package.json: it may be the plugin a mount imports, so it is named, never passed over.
@@ -40,9 +47,15 @@ export const nodeSource = (given: string) => {
       : { ...known, descriptor: undefined, problem: `${name}: its root export can't be loaded (${loaded.failure.message})` };
   });
 
+  const journeys = join(projectRoot, "journeys");
   return Layer.succeed(BlueprintSource, {
-    list: sync(`can't list ${root}`, () => walk(root).map((f) => relative(root, f).split(sep).join("/")).sort()),
-    load: (path) => importing(pathToFileURL(join(root, path)).href, `blueprint/${path}`).pipe(Effect.map((exports) => ({ path, exports }))),
+    list: sync(`can't list ${root}`, () => [
+      ...walk(root).map((f) => relative(root, f).split(sep).join("/")),
+      ...(existsSync(journeys) ? readdirSync(journeys, { withFileTypes: true })
+        .filter((f) => f.isFile() && f.name.endsWith(".ts") && !f.name.endsWith(".d.ts"))
+        .map((f) => `../journeys/${f.name}`) : []),
+    ].sort()),
+    load: (path) => loadFile(path, join(root, path), path.startsWith("../") ? path.slice(3) : `blueprint/${path}`),
     plugins: Effect.gen(function* () {
       const manifest = yield* sync("can't read the project's package.json", () => readManifest(join(projectRoot, "package.json")));
       const found = yield* Effect.forEach(dependenciesOf(manifest), plugin);
@@ -59,8 +72,8 @@ export const nodeSource = (given: string) => {
       }
       const integrity = yield* sync(`can't read ${name}`, () => integrityOf(dir));
       const files = yield* Effect.forEach(blueprintFilesOf(folder), (path) =>
-        importing(pathToFileURL(join(folder, path)).href, `${name}/blueprint/${path}`).pipe(
-          Effect.map((exports) => ({ path, exports, specifier: `${name}/blueprint/${path}` }))));
+        loadFile(path, join(folder, path), `${name}/blueprint/${path}`).pipe(
+          Effect.map((loaded) => ({ ...loaded, specifier: `${name}/blueprint/${path}` }))));
       return { integrity, layer: manifest?.src !== undefined && existsSync(join(dir, manifest.src, "layer.js")), files };
     }),
   });

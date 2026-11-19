@@ -228,7 +228,11 @@
         },
         "errors": {},
         "roles": [],
-        "hash": "ddfc27b01db3872b"
+        "roleRules": {},
+        "from": {
+          "kind": "app"
+        },
+        "hash": "d4c4baff87cd4a0b"
       },
       "milestone": {
         "name": "milestone",
@@ -357,7 +361,11 @@
         },
         "errors": {},
         "roles": [],
-        "hash": "c1707e2052fd0111"
+        "roleRules": {},
+        "from": {
+          "kind": "app"
+        },
+        "hash": "225b0d5d96e22806"
       },
       "mission": {
         "name": "mission",
@@ -607,7 +615,13 @@
         "roles": [
           "owner"
         ],
-        "hash": "0ef71607a40139e5"
+        "roleRules": {
+          "owner": "(mission, principal) => mission.owner === principal.person"
+        },
+        "from": {
+          "kind": "app"
+        },
+        "hash": "0ce414120027dab4"
       },
       "person": {
         "name": "person",
@@ -639,7 +653,11 @@
         "events": {},
         "errors": {},
         "roles": [],
-        "hash": "0c62a8f851d3c32f"
+        "roleRules": {},
+        "from": {
+          "kind": "app"
+        },
+        "hash": "c9a028d47a5f83b2"
       },
       "question": {
         "name": "question",
@@ -810,7 +828,11 @@
           }
         },
         "roles": [],
-        "hash": "8253c3475eb21dfa"
+        "roleRules": {},
+        "from": {
+          "kind": "app"
+        },
+        "hash": "e8cea83a3b7ac1e0"
       },
       "run": {
         "name": "run",
@@ -1062,7 +1084,11 @@
           }
         },
         "roles": [],
-        "hash": "1ecf60f70ed99b66"
+        "roleRules": {},
+        "from": {
+          "kind": "app"
+        },
+        "hash": "308697ab0b0f32e6"
       }
     },
     "operations": {
@@ -1073,6 +1099,9 @@
         "verb": "approve",
         "identifier": "approve",
         "file": "blueprint/things/attention/verbs/approve.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "Say yes. For a promote, the promote runs.",
         "payload": {
           "mission": {
@@ -1125,7 +1154,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "cca125254ef995f7"
+        "hash": "2fcb8429d22bdf16"
       },
       "attention.decline": {
         "kind": "operation",
@@ -1134,6 +1163,9 @@
         "verb": "decline",
         "identifier": "decline",
         "file": "blueprint/things/attention/verbs/decline.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "Say not yet, and why. The task stays where its facts put it.",
         "payload": {
           "mission": {
@@ -1193,7 +1225,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "4b6fcff837667b9c"
+        "hash": "651669ee7488bfbd"
       },
       "attention.list": {
         "kind": "read",
@@ -1202,6 +1234,9 @@
         "verb": "list",
         "identifier": "list",
         "file": "blueprint/things/attention/verbs/list.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "List attentions, newest first, 50 to a page, filtered by mission, state.",
         "payload": {
           "mission": {
@@ -1266,7 +1301,7 @@
           "order": "newest",
           "page": 50
         },
-        "hash": "a285f1ba16307abe"
+        "hash": "cc78b4cc39d07c14"
       },
       "attention.raise": {
         "kind": "operation",
@@ -1275,6 +1310,9 @@
         "verb": "raise",
         "identifier": "raise",
         "file": "blueprint/things/attention/verbs/raise.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "Ask the mission's owner for a decision only they can make.",
         "payload": {
           "mission": {
@@ -1359,7 +1397,7 @@
         "budget": {
           "p95Ms": 200
         },
-        "hash": "92d59b158780c2d2"
+        "hash": "bdc81860bc865684"
       },
       "milestone.add": {
         "kind": "operation",
@@ -1368,6 +1406,9 @@
         "verb": "add",
         "identifier": "add",
         "file": "blueprint/things/milestone/verbs/add.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "Add a milestone to a mission. Its tasks appear at once: its kinds over its subject.",
         "payload": {
           "mission": {
@@ -1451,7 +1492,7 @@
         "budget": {
           "p95Ms": 200
         },
-        "hash": "f57260ccf4fa7dea"
+        "hash": "3f6a4a5e4b4cd173"
       },
       "milestone.drop": {
         "kind": "operation",
@@ -1460,6 +1501,9 @@
         "verb": "drop",
         "identifier": "drop",
         "file": "blueprint/things/milestone/verbs/drop.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "Drop a milestone from its mission's scope. Its tasks leave the board; the burn-down shows the step.",
         "payload": {
           "mission": {
@@ -1512,7 +1556,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "c8fcf297b3a55d2f"
+        "hash": "22eece7bfc9afd1a"
       },
       "milestone.list": {
         "kind": "read",
@@ -1521,6 +1565,9 @@
         "verb": "list",
         "identifier": "list",
         "file": "blueprint/things/milestone/verbs/list.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "List milestones, oldest first, 50 to a page, filtered by mission, state.",
         "payload": {
           "mission": {
@@ -1585,7 +1632,7 @@
           "order": "oldest",
           "page": 50
         },
-        "hash": "432b05efdcd8e9f5"
+        "hash": "7cbce0299615e512"
       },
       "mission.finish": {
         "kind": "operation",
@@ -1594,6 +1641,9 @@
         "verb": "finish",
         "identifier": "finish",
         "file": "blueprint/things/mission/verbs/finish.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "Close the mission: every task is closed by a fact up to its target.",
         "payload": {
           "mission": {
@@ -1642,7 +1692,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "b7fce489a2125211"
+        "hash": "51359a3587336d75"
       },
       "mission.get": {
         "kind": "read",
@@ -1651,6 +1701,9 @@
         "verb": "get",
         "identifier": "get",
         "file": "blueprint/things/mission/verbs/get.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "Read one mission by its id: owner, title, target, blueprint, state.",
         "payload": {
           "id": {
@@ -1717,7 +1770,7 @@
         "budget": {
           "p95Ms": 50
         },
-        "hash": "32b72425d755f755"
+        "hash": "d24a033df2942c68"
       },
       "mission.list": {
         "kind": "read",
@@ -1726,6 +1779,9 @@
         "verb": "list",
         "identifier": "list",
         "file": "blueprint/things/mission/verbs/list.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "List missions, newest first, 20 to a page, filtered by owner, state.",
         "payload": {
           "owner": {
@@ -1788,7 +1844,7 @@
           "order": "newest",
           "page": 20
         },
-        "hash": "3856ff5dba949558"
+        "hash": "563d1741eaaa5853"
       },
       "mission.open": {
         "kind": "operation",
@@ -1797,6 +1853,9 @@
         "verb": "open",
         "identifier": "open",
         "file": "blueprint/things/mission/verbs/open.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "Open a mission over the blueprint revision named. The manager starts by asking about the blueprint's gaps.",
         "payload": {
           "title": {
@@ -1861,7 +1920,7 @@
         "budget": {
           "p95Ms": 200
         },
-        "hash": "9543931a3d016483"
+        "hash": "a0667cfef3f0a341"
       },
       "mission.pause": {
         "kind": "operation",
@@ -1870,6 +1929,9 @@
         "verb": "pause",
         "identifier": "pause",
         "file": "blueprint/things/mission/verbs/pause.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "Pause the mission, saying why.",
         "payload": {
           "mission": {
@@ -1922,7 +1984,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "6c5f7dbc66625741"
+        "hash": "d5f3ae81d86cf565"
       },
       "mission.resume": {
         "kind": "operation",
@@ -1931,6 +1993,9 @@
         "verb": "resume",
         "identifier": "resume",
         "file": "blueprint/things/mission/verbs/resume.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "Pick a paused mission up again.",
         "payload": {
           "mission": {
@@ -1976,7 +2041,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "c5e35210e6a420b0"
+        "hash": "44c6124572474856"
       },
       "mission.start": {
         "kind": "operation",
@@ -1985,6 +2050,9 @@
         "verb": "start",
         "identifier": "start",
         "file": "blueprint/things/mission/verbs/start.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "Start the mission once intake is done. From here the manager only orchestrates.",
         "payload": {
           "mission": {
@@ -2033,7 +2101,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "8a8ddea8c0fe9c4f"
+        "hash": "16c799592a7bdd7a"
       },
       "mission.stop": {
         "kind": "operation",
@@ -2042,6 +2110,9 @@
         "verb": "stop",
         "identifier": "stop",
         "file": "blueprint/things/mission/verbs/stop.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "Stop the mission for good. Its runs are stopped with it.",
         "payload": {
           "mission": {
@@ -2096,7 +2167,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "c2ffbd45aa4aae73"
+        "hash": "43214d36a789e119"
       },
       "mission.tasks": {
         "kind": "operation",
@@ -2105,6 +2176,9 @@
         "verb": "tasks",
         "identifier": "tasks",
         "file": "blueprint/things/mission/verbs/tasks.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "The mission's tasks, each in the column its facts put it in.",
         "payload": {
           "mission": {
@@ -2141,16 +2215,20 @@
             "type": "database"
           },
           "facts": {
-            "name": "mission.tasks.facts"
+            "name": "mission.tasks.facts",
+            "type": "blank"
           }
         },
+        "blanks": [
+          "steps.facts: read eval rows, verdicts and compiled revisions from the logbook: a declared dependency (L3.01)"
+        ],
         "idempotent": null,
         "runs": "server",
         "test": "unit",
         "budget": {
           "p95Ms": 300
         },
-        "hash": "08e5c4eaf83fb049"
+        "hash": "17cab7a390885dbf"
       },
       "question.answer": {
         "kind": "operation",
@@ -2159,6 +2237,9 @@
         "verb": "answer",
         "identifier": "answer",
         "file": "blueprint/things/question/verbs/answer.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "Answer a question with one of its letters.",
         "payload": {
           "mission": {
@@ -2221,7 +2302,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "351a5e72d85b995e"
+        "hash": "38e2084b7c70dc18"
       },
       "question.ask": {
         "kind": "operation",
@@ -2230,6 +2311,9 @@
         "verb": "ask",
         "identifier": "ask",
         "file": "blueprint/things/question/verbs/ask.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "Ask the mission's owner about one gap in the blueprint, with lettered answers.",
         "payload": {
           "mission": {
@@ -2314,7 +2398,7 @@
         "budget": {
           "p95Ms": 200
         },
-        "hash": "ce99fec8831ff30a"
+        "hash": "fe1a9031674f14c8"
       },
       "question.list": {
         "kind": "read",
@@ -2323,6 +2407,9 @@
         "verb": "list",
         "identifier": "list",
         "file": "blueprint/things/question/verbs/list.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "List questions, oldest first, 50 to a page, filtered by mission, state.",
         "payload": {
           "mission": {
@@ -2387,7 +2474,7 @@
           "order": "oldest",
           "page": 50
         },
-        "hash": "e780a06b74809b00"
+        "hash": "5c42bd65c2ffaa2b"
       },
       "question.spike": {
         "kind": "operation",
@@ -2396,6 +2483,9 @@
         "verb": "spike",
         "identifier": "spike",
         "file": "blueprint/things/question/verbs/spike.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "Not sure yet: turn the question into a spike task on its subject.",
         "payload": {
           "mission": {
@@ -2448,7 +2538,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "ca77c15be4d4330a"
+        "hash": "2d2a413a309e7dd8"
       },
       "run.fail": {
         "kind": "operation",
@@ -2457,6 +2547,9 @@
         "verb": "fail",
         "identifier": "fail",
         "file": "blueprint/things/run/verbs/fail.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "The run gave up, saying why.",
         "payload": {
           "mission": {
@@ -2517,7 +2610,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "eaaf8ea198d0fcdf"
+        "hash": "dac2f269544324b9"
       },
       "run.finish": {
         "kind": "operation",
@@ -2526,6 +2619,9 @@
         "verb": "finish",
         "identifier": "finish",
         "file": "blueprint/things/run/verbs/finish.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "The run pushed its branch. CI proves it; the run cannot close its own task.",
         "payload": {
           "mission": {
@@ -2585,7 +2681,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "d5c8959ee2ed50bc"
+        "hash": "26c7fa61c8ad64a6"
       },
       "run.list": {
         "kind": "read",
@@ -2594,6 +2690,9 @@
         "verb": "list",
         "identifier": "list",
         "file": "blueprint/things/run/verbs/list.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "List runs, newest first, 50 to a page, filtered by mission, task, state.",
         "payload": {
           "mission": {
@@ -2668,7 +2767,7 @@
           "order": "newest",
           "page": 50
         },
-        "hash": "2a5b6fcfbf90e985"
+        "hash": "678f742fc7725426"
       },
       "run.report": {
         "kind": "operation",
@@ -2677,6 +2776,9 @@
         "verb": "report",
         "identifier": "report",
         "file": "blueprint/things/run/verbs/report.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "Say how the run is going. It moves no card.",
         "payload": {
           "mission": {
@@ -2744,7 +2846,7 @@
         "budget": {
           "p95Ms": 100
         },
-        "hash": "23753a4b42178e5c"
+        "hash": "6dcf8e51cc95f2b4"
       },
       "run.start": {
         "kind": "operation",
@@ -2753,6 +2855,9 @@
         "verb": "start",
         "identifier": "start",
         "file": "blueprint/things/run/verbs/start.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "Start an agent on one task. The run claims the task until it ends.",
         "payload": {
           "mission": {
@@ -2844,7 +2949,7 @@
         "budget": {
           "p95Ms": 250
         },
-        "hash": "9042f562ee3c07c3"
+        "hash": "10d12dbc52053209"
       },
       "run.stop": {
         "kind": "operation",
@@ -2853,6 +2958,9 @@
         "verb": "stop",
         "identifier": "stop",
         "file": "blueprint/things/run/verbs/stop.ts",
+        "from": {
+          "kind": "app"
+        },
         "description": "Stop the run. A person's act, or the mission stopping.",
         "payload": {
           "mission": {
@@ -2913,8 +3021,15 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "9967cbbc707bd3b3"
+        "hash": "ba8f811856bfd3bb"
       }
+    },
+    "journeys": {},
+    "startingWorlds": {},
+    "blanks": {
+      "mission.tasks": [
+        "steps.facts: read eval rows, verdicts and compiled revisions from the logbook: a declared dependency (L3.01)"
+      ]
     },
     "environments": {
       "local": {
@@ -2957,134 +3072,134 @@
   },
   "dependsOnByOperation": {
     "attention.approve": {
-      "operation:attention.approve": "cca125254ef995f7",
-      "thing:attention": "ddfc27b01db3872b",
-      "thing:mission": "0ef71607a40139e5"
+      "operation:attention.approve": "2fcb8429d22bdf16",
+      "thing:attention": "d4c4baff87cd4a0b",
+      "thing:mission": "0ce414120027dab4"
     },
     "attention.decline": {
-      "operation:attention.decline": "4b6fcff837667b9c",
-      "thing:attention": "ddfc27b01db3872b",
-      "thing:mission": "0ef71607a40139e5"
+      "operation:attention.decline": "651669ee7488bfbd",
+      "thing:attention": "d4c4baff87cd4a0b",
+      "thing:mission": "0ce414120027dab4"
     },
     "attention.list": {
-      "operation:attention.list": "a285f1ba16307abe",
-      "thing:attention": "ddfc27b01db3872b",
-      "thing:mission": "0ef71607a40139e5"
+      "operation:attention.list": "cc78b4cc39d07c14",
+      "thing:attention": "d4c4baff87cd4a0b",
+      "thing:mission": "0ce414120027dab4"
     },
     "attention.raise": {
-      "operation:attention.raise": "92d59b158780c2d2",
-      "thing:attention": "ddfc27b01db3872b",
-      "thing:mission": "0ef71607a40139e5"
+      "operation:attention.raise": "bdc81860bc865684",
+      "thing:attention": "d4c4baff87cd4a0b",
+      "thing:mission": "0ce414120027dab4"
     },
     "milestone.add": {
-      "operation:milestone.add": "f57260ccf4fa7dea",
-      "thing:milestone": "c1707e2052fd0111",
-      "thing:mission": "0ef71607a40139e5"
+      "operation:milestone.add": "3f6a4a5e4b4cd173",
+      "thing:milestone": "225b0d5d96e22806",
+      "thing:mission": "0ce414120027dab4"
     },
     "milestone.drop": {
-      "operation:milestone.drop": "c8fcf297b3a55d2f",
-      "thing:milestone": "c1707e2052fd0111",
-      "thing:mission": "0ef71607a40139e5"
+      "operation:milestone.drop": "22eece7bfc9afd1a",
+      "thing:milestone": "225b0d5d96e22806",
+      "thing:mission": "0ce414120027dab4"
     },
     "milestone.list": {
-      "operation:milestone.list": "432b05efdcd8e9f5",
-      "thing:milestone": "c1707e2052fd0111",
-      "thing:mission": "0ef71607a40139e5"
+      "operation:milestone.list": "7cbce0299615e512",
+      "thing:milestone": "225b0d5d96e22806",
+      "thing:mission": "0ce414120027dab4"
     },
     "mission.finish": {
-      "operation:mission.finish": "b7fce489a2125211",
-      "thing:mission": "0ef71607a40139e5",
-      "thing:person": "0c62a8f851d3c32f"
+      "operation:mission.finish": "51359a3587336d75",
+      "thing:mission": "0ce414120027dab4",
+      "thing:person": "c9a028d47a5f83b2"
     },
     "mission.get": {
-      "operation:mission.get": "32b72425d755f755",
-      "thing:mission": "0ef71607a40139e5",
-      "thing:person": "0c62a8f851d3c32f"
+      "operation:mission.get": "d24a033df2942c68",
+      "thing:mission": "0ce414120027dab4",
+      "thing:person": "c9a028d47a5f83b2"
     },
     "mission.list": {
-      "operation:mission.list": "3856ff5dba949558",
-      "thing:mission": "0ef71607a40139e5",
-      "thing:person": "0c62a8f851d3c32f"
+      "operation:mission.list": "563d1741eaaa5853",
+      "thing:mission": "0ce414120027dab4",
+      "thing:person": "c9a028d47a5f83b2"
     },
     "mission.open": {
-      "operation:mission.open": "9543931a3d016483",
-      "thing:mission": "0ef71607a40139e5",
-      "thing:person": "0c62a8f851d3c32f"
+      "operation:mission.open": "a0667cfef3f0a341",
+      "thing:mission": "0ce414120027dab4",
+      "thing:person": "c9a028d47a5f83b2"
     },
     "mission.pause": {
-      "operation:mission.pause": "6c5f7dbc66625741",
-      "thing:mission": "0ef71607a40139e5",
-      "thing:person": "0c62a8f851d3c32f"
+      "operation:mission.pause": "d5f3ae81d86cf565",
+      "thing:mission": "0ce414120027dab4",
+      "thing:person": "c9a028d47a5f83b2"
     },
     "mission.resume": {
-      "operation:mission.resume": "c5e35210e6a420b0",
-      "thing:mission": "0ef71607a40139e5",
-      "thing:person": "0c62a8f851d3c32f"
+      "operation:mission.resume": "44c6124572474856",
+      "thing:mission": "0ce414120027dab4",
+      "thing:person": "c9a028d47a5f83b2"
     },
     "mission.start": {
-      "operation:mission.start": "8a8ddea8c0fe9c4f",
-      "thing:mission": "0ef71607a40139e5",
-      "thing:person": "0c62a8f851d3c32f"
+      "operation:mission.start": "16c799592a7bdd7a",
+      "thing:mission": "0ce414120027dab4",
+      "thing:person": "c9a028d47a5f83b2"
     },
     "mission.stop": {
-      "operation:mission.stop": "c2ffbd45aa4aae73",
-      "thing:mission": "0ef71607a40139e5",
-      "thing:person": "0c62a8f851d3c32f"
+      "operation:mission.stop": "43214d36a789e119",
+      "thing:mission": "0ce414120027dab4",
+      "thing:person": "c9a028d47a5f83b2"
     },
     "mission.tasks": {
-      "operation:mission.tasks": "08e5c4eaf83fb049",
-      "thing:mission": "0ef71607a40139e5",
-      "thing:person": "0c62a8f851d3c32f"
+      "operation:mission.tasks": "17cab7a390885dbf",
+      "thing:mission": "0ce414120027dab4",
+      "thing:person": "c9a028d47a5f83b2"
     },
     "question.answer": {
-      "operation:question.answer": "351a5e72d85b995e",
-      "thing:mission": "0ef71607a40139e5",
-      "thing:question": "8253c3475eb21dfa"
+      "operation:question.answer": "38e2084b7c70dc18",
+      "thing:mission": "0ce414120027dab4",
+      "thing:question": "e8cea83a3b7ac1e0"
     },
     "question.ask": {
-      "operation:question.ask": "ce99fec8831ff30a",
-      "thing:mission": "0ef71607a40139e5",
-      "thing:question": "8253c3475eb21dfa"
+      "operation:question.ask": "fe1a9031674f14c8",
+      "thing:mission": "0ce414120027dab4",
+      "thing:question": "e8cea83a3b7ac1e0"
     },
     "question.list": {
-      "operation:question.list": "e780a06b74809b00",
-      "thing:mission": "0ef71607a40139e5",
-      "thing:question": "8253c3475eb21dfa"
+      "operation:question.list": "5c42bd65c2ffaa2b",
+      "thing:mission": "0ce414120027dab4",
+      "thing:question": "e8cea83a3b7ac1e0"
     },
     "question.spike": {
-      "operation:question.spike": "ca77c15be4d4330a",
-      "thing:mission": "0ef71607a40139e5",
-      "thing:question": "8253c3475eb21dfa"
+      "operation:question.spike": "2d2a413a309e7dd8",
+      "thing:mission": "0ce414120027dab4",
+      "thing:question": "e8cea83a3b7ac1e0"
     },
     "run.fail": {
-      "operation:run.fail": "eaaf8ea198d0fcdf",
-      "thing:mission": "0ef71607a40139e5",
-      "thing:run": "1ecf60f70ed99b66"
+      "operation:run.fail": "dac2f269544324b9",
+      "thing:mission": "0ce414120027dab4",
+      "thing:run": "308697ab0b0f32e6"
     },
     "run.finish": {
-      "operation:run.finish": "d5c8959ee2ed50bc",
-      "thing:mission": "0ef71607a40139e5",
-      "thing:run": "1ecf60f70ed99b66"
+      "operation:run.finish": "26c7fa61c8ad64a6",
+      "thing:mission": "0ce414120027dab4",
+      "thing:run": "308697ab0b0f32e6"
     },
     "run.list": {
-      "operation:run.list": "2a5b6fcfbf90e985",
-      "thing:mission": "0ef71607a40139e5",
-      "thing:run": "1ecf60f70ed99b66"
+      "operation:run.list": "678f742fc7725426",
+      "thing:mission": "0ce414120027dab4",
+      "thing:run": "308697ab0b0f32e6"
     },
     "run.report": {
-      "operation:run.report": "23753a4b42178e5c",
-      "thing:mission": "0ef71607a40139e5",
-      "thing:run": "1ecf60f70ed99b66"
+      "operation:run.report": "6dcf8e51cc95f2b4",
+      "thing:mission": "0ce414120027dab4",
+      "thing:run": "308697ab0b0f32e6"
     },
     "run.start": {
-      "operation:run.start": "9042f562ee3c07c3",
-      "thing:mission": "0ef71607a40139e5",
-      "thing:run": "1ecf60f70ed99b66"
+      "operation:run.start": "10d12dbc52053209",
+      "thing:mission": "0ce414120027dab4",
+      "thing:run": "308697ab0b0f32e6"
     },
     "run.stop": {
-      "operation:run.stop": "9967cbbc707bd3b3",
-      "thing:mission": "0ef71607a40139e5",
-      "thing:run": "1ecf60f70ed99b66"
+      "operation:run.stop": "ba8f811856bfd3bb",
+      "thing:mission": "0ce414120027dab4",
+      "thing:run": "308697ab0b0f32e6"
     }
   },
   "docs": {
@@ -3106,7 +3221,7 @@
     "mission/resume.md": "<!-- Generated from the blueprint. Do not edit. -->\n# mission.resume\n\nPick a paused mission up again.\n\n**Who may call:** the owner of its mission.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | mission.id |\n\n## Answer\n\n(none)\n\n## Move\n\n`resume`: from paused to running, emitting MissionResumed.\n\n## Steps\n\n- `mission.resume.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| MissionNotIntake | 50 | MS-900 | the mission is in a state resume can't start from; carries `state` |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork mission resume --mission <mission>\n```\n\nHTTP: `POST /mission/resume` with the payload as JSON. SDK: `Sdk.mission.resume(payload)`.\n",
     "mission/start.md": "<!-- Generated from the blueprint. Do not edit. -->\n# mission.start\n\nStart the mission once intake is done. From here the manager only orchestrates.\n\n**Who may call:** the owner of its mission.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | mission.id |\n\n## Answer\n\n(none)\n\n## Move\n\n`start`: from intake to running, emitting MissionStarted.\n\n## Steps\n\n- `mission.start.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| MissionHasOpenQuestions | 51 | MS-001 | declared in errors.ts, carrying open |\n| MissionNotIntake | 50 | MS-900 | the mission is in a state start can't start from; carries `state` |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork mission start --mission <mission>\n```\n\nHTTP: `POST /mission/start` with the payload as JSON. SDK: `Sdk.mission.start(payload)`.\n",
     "mission/stop.md": "<!-- Generated from the blueprint. Do not edit. -->\n# mission.stop\n\nStop the mission for good. Its runs are stopped with it.\n\n**Who may call:** the owner of its mission.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | mission.id |\n| why | Note |\n\n## Answer\n\n(none)\n\n## Move\n\n`stop`: from intake or running or paused to stopped, emitting MissionStopped.\n\n## Steps\n\n- `mission.stop.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| MissionNotIntake | 50 | MS-900 | the mission is in a state stop can't start from; carries `state` |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork mission stop --mission <mission> --why <why>\n```\n\nHTTP: `POST /mission/stop` with the payload as JSON. SDK: `Sdk.mission.stop(payload)`.\n",
-    "mission/tasks.md": "<!-- Generated from the blueprint. Do not edit. -->\n# mission.tasks\n\nThe mission's tasks, each in the column its facts put it in.\n\n**Who may call:** the owner of its mission.\n\n**Budget:** p95 300ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | mission.id |\n\n## Answer\n\n| field | value |\n|---|---|\n| tasks | Tasks |\n\n## Steps\n\n- `mission.tasks.plan` (database)\n- `mission.tasks.facts` (undefined)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork mission tasks --mission <mission>\n```\n\nHTTP: `POST /mission/tasks` with the payload as JSON. SDK: `Sdk.mission.tasks(payload)`.\n",
+    "mission/tasks.md": "<!-- Generated from the blueprint. Do not edit. -->\n# mission.tasks\n\nThe mission's tasks, each in the column its facts put it in.\n\n**Who may call:** the owner of its mission.\n\n**Budget:** p95 300ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | mission.id |\n\n## Answer\n\n| field | value |\n|---|---|\n| tasks | Tasks |\n\n## Steps\n\n- `mission.tasks.plan` (database)\n- `mission.tasks.facts` (blank)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork mission tasks --mission <mission>\n```\n\nHTTP: `POST /mission/tasks` with the payload as JSON. SDK: `Sdk.mission.tasks(payload)`.\n",
     "person/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# person\n\nSomeone who signs in. Better Auth keeps people; work refers to them by id.\n\nLives in the database.\n\n## Fields\n\n| field | value |\n|---|---|\n| id | id |\n| email | text |\n| name | text |\n\n## Operations\n\n(none yet)\n",
     "question/answer.md": "<!-- Generated from the blueprint. Do not edit. -->\n# question.answer\n\nAnswer a question with one of its letters.\n\n**Who may call:** the owner of its mission.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | question.mission |\n| question | question.id |\n| picked | Letter |\n\n## Answer\n\n(none)\n\n## Move\n\n`answer`: from asked to answered, emitting QuestionAnswered.\n\n## Steps\n\n- `question.answer.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| QuestionNoSuchOption | 54 | QU-001 | declared in errors.ts |\n| QuestionNotAsked | 53 | QU-900 | the question is in a state answer can't start from; carries `state` |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork question answer --mission <mission> --question <question> --picked <picked>\n```\n\nHTTP: `POST /question/answer` with the payload as JSON. SDK: `Sdk.question.answer(payload)`.\n",
     "question/ask.md": "<!-- Generated from the blueprint. Do not edit. -->\n# question.ask\n\nAsk the mission's owner about one gap in the blueprint, with lettered answers.\n\n**Who may call:** the owner of its mission.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 200ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | question.mission |\n| asks | question.asks |\n| about | question.about |\n| gap | question.gap |\n| options | question.options |\n\n## Answer\n\n| field | value |\n|---|---|\n| question | question.id |\n\n## Move\n\n`ask`: from nothing (it creates) to asked, emitting QuestionAsked.\n\n## Steps\n\n- `question.ask.insert` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| MissionNotInIntake | 53 | MS-003 | the question is in a state ask can't start from; carries `state` |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork question ask --mission <mission> --asks <asks> --about <about> --gap <gap> --options <options>\n```\n\nHTTP: `POST /question/ask` with the payload as JSON. SDK: `Sdk.question.ask(payload)`.\n",
@@ -3135,5 +3250,5 @@
       "reason": "no trace source is wired to the portal yet"
     }
   },
-  "digest": "71f414e2b21a76940aebbe4b6d9a84039ee2c5cb87329f86a4dff9ca38f39e5c"
+  "digest": "4d31b565514e4171633aa5cea553e76870f7fd666b4f4e5465a81f687690b3f8"
 }
