@@ -11,8 +11,8 @@ takes each, check first, and the climber comes back to that step once it is fixe
 - Lost: none yet; a format change to prove's lines would silently break the curve.
 - Cause: `packages/cli/src/main.ts` writes `report.lines` and nothing structured.
 - Fix: framework, `ortho prove --json` (or a report file) with journey, step, verdict, expected, got, file; the recorder
-  and the climb check read it. Waits on #76, which owns `packages/cli/src/main.ts`.
-- Status: open
+  and the climb check read it.
+- Status: fixed (#119): `ortho prove --report <file>` writes a JSON report (schemaVersion 1), and the recorder reads it.
 
 ## S-02 · climb · prove names no handler file and no declaration
 - Hit: the checks author, climb property 3 (#110), all five planted fixtures: `✘ "olga spends some and is told what is
@@ -20,14 +20,14 @@ takes each, check first, and the climber comes back to that step once it is fixe
 - Lost: on every red step a climber has to work out which file to open.
 - Cause: the failing-step line carries journey, step and cause only; the model already has each declaration's file.
 - Fix: framework, the failing step names `src/<thing>/<verb>.ts` and `blueprint/things/<thing>/verbs/<verb>.ts`.
-- Status: open
+- Status: fixed (#119): the failing step names the handler file and the declaration file.
 
 ## S-03 · climb · a missing span doesn't say what was there
 - Hit: the checks author, climb property 2 (#110): `✘ "…": span allowance.spend.record missing`.
 - Lost: the climber can't see which spans did occur.
 - Cause: the spans check reports only the missing name.
 - Fix: framework, the line says what was expected and lists the spans that came back.
-- Status: open
+- Status: fixed (#119): the line lists the spans that came back.
 
 ## S-04 · claim · a handler can't look a record up by a field
 - Hit: the journey author, proving the spec satisfiable (#107): claiming a name needs "is this name taken?", and
@@ -35,8 +35,9 @@ takes each, check first, and the climber comes back to that step once it is fixe
   can't reach.
 - Lost: a climber with only `src/` stops at the first claim step.
 - Cause: no lookup by field (or unique index) in the handler's records.
-- Fix: framework, a declared unique field (or `Records.findBy`) in the handler's context, check first.
-- Status: open
+- Fix: framework, a declared unique field and `Records.findBy` in the handler's context (decision G4), check first.
+- Status: fixed: the check (#118), the build (#120, #121) and Plugged In's handle name unique while claimed (#122). The
+  spelling moves to G5's invariants (see the S-04 note below); the behaviour stays.
 
 ## S-05 · journeys · a starting world serves one journey
 - Hit: the journey author (#107): a world that claims a name can be used by one journey only, so five near-copies.
@@ -131,7 +132,7 @@ takes each, check first, and the climber comes back to that step once it is fixe
   instead of the constants, and passed to the wallet. A framework slice: decision, then check, then builder.
 - Call (Goal 3 lead): park HAN-11 behind the climb. #113 and #114 stay open, unmerged; the slice is taken when a builder
   is free of S-04 and S-01 to S-03. No stub chain, no unreachable RPC, no coverage exemption.
-- Status: open
+- Status: parked (Goal 3 lead): HAN-11 waits behind the climb; the chain-settings slice is taken when a builder is free.
 
 ## S-19 · records · a unique value moved between holders in one call passes in memory, fails on D1 (ledger HAN-18)
 - Hit: Codex's review of #118 (G4, S-04).

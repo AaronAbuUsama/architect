@@ -19,7 +19,8 @@
       "cache": true,
       "inputs": [
         "default",
-        "{workspaceRoot}/.oxlintrc.json"
+        "{workspaceRoot}/.oxlintrc.json",
+        "{workspaceRoot}/packages/lint/baseline.json"
       ]
     },
     "typecheck": {
