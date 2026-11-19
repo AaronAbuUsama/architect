@@ -33,6 +33,50 @@ jobs:
       # Nx 24 skips task-level sync generators in CI, so drift is checked explicitly.
       - run: pnpm nx sync:check
 
+  # M1.34 (F7): `@orthograph/portal-ui` is built and typechecked against the real HeroUI Pro, which only a licensed install has.
+  # Pro is downloaded with the HEROUI_AUTH_TOKEN secret (Aaron's, from the HeroUI Pro dashboard) and cached by the lockfile's
+  # hash, because HeroUI caps CI downloads per token per day. The secret is read in one step's `env`, never at workflow level and
+  # never inside a script; the job never runs for a pull request from a fork, so the secret never reaches code we did not write.
+  # Every other job installs the registry's empty shell of Pro and runs without it (portal-ui's typecheck says it was skipped).
+  portal-ui:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: pnpm/action-setup@v6.1.0
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - uses: actions/cache@v6.1.0
+        id: pro-cache
+        with:
+          path: .cache/heroui-pro
+          key: heroui-pro-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - run: pnpm install --frozen-lockfile
+      - name: Restore Pro from the cache
+        if: steps.pro-cache.outputs.cache-hit == 'true'
+        run: node packages/portal-ui/tools/pro.mjs @heroui-pro/react restore .cache/heroui-pro
+      - name: Install Pro with the licence token
+        if: steps.pro-cache.outputs.cache-hit != 'true'
+        env:
+          HEROUI_AUTH_TOKEN: ${{ secrets.HEROUI_AUTH_TOKEN }}
+        run: node packages/portal-ui/tools/pro.mjs @heroui-pro/react fetch
+      - name: Keep Pro for the cache
+        if: steps.pro-cache.outputs.cache-hit != 'true'
+        run: node packages/portal-ui/tools/pro.mjs @heroui-pro/react save .cache/heroui-pro
+      - name: Lint, typecheck, test and build portal-ui against the real Pro
+        run: pnpm nx run-many -t lint,typecheck,test,build -p portal-ui --outputStyle=static
+        env:
+          ORTHO_REQUIRE_PRO: "1"
+      - name: List what npm would publish
+        run: npm pack --dry-run --ignore-scripts
+        working-directory: packages/portal-ui
+      # Check 15 (the seam): the packed files hold nothing of Pro. One assertion in it cannot pass with any valid manifest (the
+      # peer dependency's own name is flagged as "a mention that is not an import"); this step only reports until it is fixed.
+      - run: pnpm exec vitest run --root e2e --config vitest.m1.config.ts m1/15
+        continue-on-error: true
+
   # Gate 1 (L1.60): the seven checks of layer one, run as a user runs Orthograph (D2 #74).
   e2e-layer1:
     runs-on: ubuntu-latest

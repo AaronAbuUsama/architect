@@ -6,8 +6,6 @@
   ],
   "ignorePatterns": [
     "**/node_modules/**",
-    "**/generated/**",
-    "spikes/**",
     "design/**",
     "tmp/**",
     "**/test/fixtures/**"
@@ -25,6 +23,14 @@
             "allowedExternalImports": [
               "effect",
               "effect/*"
+            ]
+          },
+          {
+            "sourceTag": "scope:portal-ui",
+            "onlyDependOnLibsWithTags": [],
+            "allowedExternalImports": [
+              "@heroui-pro/react",
+              "@heroui-pro/react/*"
             ]
           },
           {
@@ -54,7 +60,21 @@
       }
     ],
     "ortho/no-old-names": "error",
-    "ortho/no-viem-outside-chain": "error"
+    "ortho/no-viem-outside-chain": "error",
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": [
+              "@heroui-pro/*",
+              "@heroui-pro/**"
+            ],
+            "message": "HeroUI Pro is imported only by @orthograph/portal-ui (F7). Import the component from @orthograph/portal-ui instead."
+          }
+        ]
+      }
+    ]
   },
   "overrides": [
     {
@@ -74,6 +94,15 @@
                 "allowedExternalImports": [
                   "effect",
                   "effect/*",
+                  "vitest"
+                ]
+              },
+              {
+                "sourceTag": "scope:portal-ui",
+                "onlyDependOnLibsWithTags": [],
+                "allowedExternalImports": [
+                  "@heroui-pro/react",
+                  "@heroui-pro/react/*",
                   "vitest"
                 ]
               },
@@ -111,6 +140,37 @@
       ],
       "rules": {
         "ortho/no-old-names": "off"
+      }
+    },
+    {
+      "files": [
+        "packages/portal-ui/**"
+      ],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    },
+    {
+      "files": [
+        "**/generated/**"
+      ],
+      "rules": {
+        "@nx/enforce-module-boundaries": "off",
+        "ortho/no-old-names": "off",
+        "ortho/no-viem-outside-chain": "off",
+        "unicorn/no-useless-spread": "off",
+        "no-unused-vars": "off"
+      }
+    },
+    {
+      "files": [
+        "spikes/**"
+      ],
+      "rules": {
+        "@nx/enforce-module-boundaries": "off",
+        "ortho/no-old-names": "off",
+        "ortho/no-viem-outside-chain": "off",
+        "no-restricted-imports": "off"
       }
     }
   ]
