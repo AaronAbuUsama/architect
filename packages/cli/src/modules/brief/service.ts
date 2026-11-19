@@ -29,6 +29,9 @@ const of: BriefApi["of"] = (model, name, journeys): Briefed => {
       "",
       "Do",
       ...Object.values(op.steps).map((s) => `  run step ${s.name} (${s.type}) through steps.${s.name.split(".").pop()}(...)`),
+      ...(Object.values(op.steps).some((s) => s.type === "database")
+        ? ["  a database step wraps one call of Records (yield* Records, from @orthograph/language-effect): find, insert or update. A move changes the machine's state only; a field changes only when you write it, as steps.x(records.update(Thing, id, { field: value }))"]
+        : []),
       ...(op.move ? [`  make the move with move(${op.move.to.length > 1 ? op.move.to.map((t) => `"${t}"`).join(" | ") : ""}): ${op.move.key}, emitting ${op.move.emits}`] : []),
       ...(declared.length ? [`  refuse with ${declared.join(", ")}, each after an Effect.logInfo saying why`] : []),
       ...(runtime.length ? [`  never refuse ${runtime.join(" or ")} yourself: the runtime does, before the handler runs`] : []),

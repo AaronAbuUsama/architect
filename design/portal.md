@@ -48,19 +48,19 @@ Aaron's words, verbatim, then what was decided.
 
 | # | Joint | Aaron | Status |
 |---|---|---|---|
-| 1 | Where the pages beyond things live | "need options as designs"; on the drawing, "I want to have icon rail" | **B, agreed by Aaron's 19 Nov review: an icon rail swaps the sidebar** |
-| 2 | Environments | "same need designs"; on the drawing, "the second one looks better, but on the proof section… you're wasting a lot of space" | **A, agreed by Aaron's 19 Nov review: one page, pick one, compare the rest** (it takes B's summary card) |
-| 3 | Plugins and stores | "same designs"; on the drawing, "plugin, portal, journeys looks okay" | **A, agreed by Aaron's 19 Nov review: a page per plugin, and Stores** |
+| 1 | Where the pages beyond things live | "need options as designs"; on the drawing, "I want to have icon rail" | B, agreed by Aaron's 19 Nov review; **replaced in round 4 by B + C** |
+| 2 | Environments | "same need designs"; on the drawing, "the second one looks better, but on the proof section… you're wasting a lot of space" | A, agreed by Aaron's 19 Nov review; **replaced in round 4 by B** |
+| 3 | Plugins and stores | "same designs"; on the drawing, "plugin, portal, journeys looks okay" | A, agreed by Aaron's 19 Nov review; **replaced in round 4 by B** |
 | 4 | Journeys and starting worlds | "no we need to have them and show them graphically" | **Decided: pages for both, drawn as pictures** (below) |
 | 5 | Access, refusal codes, events, values | "reference pages and we have telemetry on the page with spans and tracing etc" | **Decided: four reference pages, each with live telemetry** (below) |
-| 6 | Blank operations | "show me"; no objection on the drawing | **A, agreed by Aaron's 19 Nov review: in the tree, greyed** |
+| 6 | Blank operations | "show me"; no objection on the drawing | **A, agreed by Aaron's 19 Nov review and again in round 4: in the tree, greyed** |
 
 **The agreed wireframe.** Aaron, 19 November 2026: "I don't want to over-perfectionalize this, it's still only
 wireframes. Let's do one more round of this and then we're just going to take those feedbacks and start moving
-forward." That round is done. The drawing at https://claude.ai/artifact/NzDgHFzQSk8yvX8cLNqUKj (version 4,
-`spikes/portal-site`, commit 2b552963) is the agreed wireframe, read with the picks above and the component inventory
-below. The portal's build (M1.13, M1.49) works from it. Where his feedback left a letter unpicked, the designer picked
-from what he said:
+forward." That round is done, and round 4 below corrected its picks. The drawing at
+https://claude.ai/artifact/NzDgHFzQSk8yvX8cLNqUKj (`spikes/portal-site`) is the agreed wireframe, read with round 4's
+picks, the component inventory and the delta audit below. The portal's build (M1.13, M1.49) works from it. Round 3's
+designer picks, kept for the record (round 4 replaced Q1, Q2 and Q3):
 
 - **Q1 B.** He asked for the icon rail. Built the library's way: Pro's Icon Only sidebar pattern beside
   `Sidebar.Pages`, one panel per section (Things, Proof, Reference, Plugins, Monitor), and ⌘K (Pro's `Command`) on
@@ -93,11 +93,12 @@ anchored rows, and each carries live telemetry:
   - refusals per code, from `ortho.calls` by error tag;
   - NotAllowed per rule, with the role check's time;
   - commits per event, from the commit span's `event.name`;
-  - door rejections per value;
   - answered moves per arrow.
+  - Round 4 removed two the delta audit could not source: the role check's time per rule (the role check runs with no
+    span) and door rejections per value (nothing records which value a payload broke).
 - **Every row opens its trace.** Each row with spans has a "trace" link.
 - **Every page lists its recent spans.** Each one opens its trace. A call refused at the door has no span (M1.20), so
-  it shows its count and says "no span".
+  it is counted and never listed: Access and Values have no recent-rows table (round 4).
 
 **Made consistent with K10 and K11 (merged after round 1).** K10 decision 9 and M4.16 say the chat is rendered with
 HeroUI Pro's AI components over a Pi Durable run; round 1's wording said "Pi's surface". They agree once read
@@ -105,6 +106,30 @@ together: Pi Durable is the agent and the source of truth for the transcript (K1
 `ChatConversation`, `ChatMessage` and `ChatTool`. Q7's "threads kept under their thing" becomes "Runs kept under the
 thing they touch": a chat conversation is one `@orthograph/agents` Run (K10 section 1), so the portal feature owns no
 thread thing of its own (K5:475 and M1.24's "threads as things in the portal's store" are superseded by this).
+
+### Round 4 (19 November 2026, relayed by the conductor)
+
+Aaron's words: "question one, it's going to be B plus C. For question two is going to be B. For question three is going
+to be B… six is going to be A." Q4 and Q5 stand. These replace round 3's picks above.
+
+| # | Joint | Answer | How the drawing does it |
+|---|---|---|---|
+| 1 | Where the pages beyond things live | **B + C** | The icon rail stays (B). ⌘K is the first way to any declaration (C), so each panel stays a short list of pages: Things keeps the things tree; Proof lists the environments, Compare, Journeys and Starting worlds; Reference lists five pages; Plugins and stores and Monitor one or two each. Search is the top bar's widest control ("Go to any thing, operation or code"), and every panel ends with "Any thing, operation, code or page: ⌘K". |
+| 2 | Environments | **B** | A page per environment (`env-<name>`). It keeps what Aaron liked from round 3's merged version: the summary card, the declared fields, and the proof matrix with a tally per column, every environment's column shown and this page's one in focus. A "Compare environments" link opens the one-page comparison. |
+| 3 | Plugins and stores | **B** | One "Plugins and stores" page: a card per plugin (kind, package, version, its things, what it needs), then the stores table. No page per plugin. |
+| 6 | Blank operations | **A** | Unchanged: in the tree, greyed, with their page as the spec. |
+
+**The operation page (round 4).** Aaron, on the Metrics and Spans tabs: "when you see metrics here there should be a
+table of the recent calls… spans is not really like a separate thing… you've kind of clicked on that particular span
+and you can go to all of the calls, or some sort of table where you can filter through the calls based upon various
+different things." So the Spans tab is gone. Metrics ends with a calls table (below, "The calls table"), and clicking a
+call opens its trace in the drawer, where the waterfall lives. The tabs are Contract, Metrics, Proof, Docs and Notes.
+
+**Made consistent by the delta audit (the designer's call).** Checking every element against `m1` turned up drawn
+things nothing can source. The drawing now shows a caller's kind and never a person's name; counts Events from
+`event.name` on commit spans, not from the journal; drops Access's role-check timing and recent-denial rows, Values'
+per-value rejections, and a failed journey step's answer value. What stays drawn without a source is listed in "What
+the drawing needs that the model or telemetry doesn't give yet", below.
 
 ## The frame
 
@@ -132,6 +157,9 @@ thread thing of its own (K5:475 and M1.24's "threads as things in the portal's s
 - **The tree (Q3 A).** The app's own things first, then one folded group per mounted plugin, labelled with its kind.
   A thing folds to its operations. Its machine, events and errors are sections of its page, not tree rows (UX.md
   note 2). The portal's own things sit last, under `portal`.
+- **The icon rail (round 4, Q1 B + C).** The tree is the Things panel of an icon rail (Pro's icon-only sidebar beside
+  `Sidebar.Pages`). The other icons open Proof, Reference, Plugins and stores, and Monitor, each a short list of pages.
+  ⌘K (Pro's `Command`) is the first way to any declaration, so no panel lists every refusal, value or journey.
 - **The top bar.** The environment and window control (Q12), search over the model (`⌘K`), the "Needs you" count
   (K11's attention, from any mounted feature) and the chat.
 - **Built on HeroUI Pro's app shell** (Aaron, Q8), always through `@orthograph/portal-ui` (F7): its sidebar, navbar,
@@ -229,7 +257,7 @@ Claim a free name. A name is claimed once.
  IN   name: HandleName ───────► handle.claim ───────► OUT  handle: HandleId
       refusals: HandleTaken HN-001 ×31 · NotAllowed ×6 · bad payload ×0          emits HandleClaimed
 
- the spine (from the model)            call 7f3a… by ada, 12:04:31, attempt 2, answered in 9 ms
+ the spine (from the model)            call 7f3a… by a signed-in person, 12:04:31, attempt 2, answered in 9 ms
  ├ role check     person               ▏ 0.1 ms  ok
  ├ replay         request key          ▏ miss
  ├ machine check  · → claimed          ▏ ok
@@ -239,7 +267,7 @@ Claim a free name. A name is claimed once.
  ├ move claim     → claimed            ▏ HandleClaimed
  └ commit         1 store              ▇▇▇ attempt 1 conflict ─► attempt 2 committed  3.2 ms
      └ on: HandleClaimed → profile.create   (links)  ▇▇ 2.4 ms  committed
- [Try it]  (calls as you, through the SDK; locally as a cast member)       [open the full trace ▸]
+ [Try it]  (calls as you, through the SDK; locally as a cast member)           [open its trace ▸]
 ```
 
 | Piece | Source | From |
@@ -262,16 +290,45 @@ group under (the wire turns it off, F8), so a call refused at the door shows in 
 stopped: the role check for `NotAllowed`, the machine check for a move from the wrong state, the handler for a
 declared refusal, any row for a defect.
 
+### The calls table (round 4)
+
+The Metrics tab ends with every call to the operation in the window, one row per call, in Pro's `DataGrid`. Each row
+opens its trace in the drawer. It replaces the Spans tab.
+
+```text
+ Environment [All ▾]  Caller [Any kind ▾]  Outcome [All ▾]  Request key [req_…  ]  ◯ Over budget only  [5|15|30 min]
+ Time      Environment  Caller     Outcome                  Duration (budget 150 ms)  Request key  Attempts
+ 12:04:31  local        signed-in  answered                 9 ms                      req_7f3a…    2
+ 12:04:29  local        signed-in  HandleTaken HN-001       4 ms                      req_91c2…    1
+ 12:03:02  local        anyone     defect                   212 ms · over             —            1
+ 36 of 412 calls · click a call to open its trace · 6 refused NotAllowed at the role check: counted above, no span, so no row
+```
+
+| Filter or column | What it reads | Today (delta audit) |
+|---|---|---|
+| Time, and the window (5, 15, 30 min) | the span's start; `TraceSource.window(since, now)` | carried |
+| Outcome: answered, refused (each code), defect | `refusal` on the operation span, mapped to its code through `Model.refusals`; status 2 and `defect` | carried for calls that opened a span; `refusal.code` itself is M1.36 |
+| Duration, and over budget only | the extent of the call's attempt spans, against `budget.p95Ms` | carried |
+| Attempts | `attempt` on each operation span | carried |
+| Caller kind: anyone, signed-in | derived from `principal.kind` or the presence of `principal.person`, never the id | carried (derived) |
+| Caller kind: a role, an agent | the role the caller held; an agent principal | **not carried**: role is a hole; agents arrive with M2.03 and ST1.05 |
+| Environment | the span's `environment` attribute | **red**: check 17 (`e2e/m1/17-telemetry-model.test.ts:267-281`), M1.36. Each environment's portal reads only its own sink, so in the product this filter is the environment switcher |
+| Request key | the call's idempotency key | **not carried**: no span or label has it (only `request.replayed`); no slice. A hole |
+
+A call refused at the door (`NotAllowed`, a bad payload) opens no span, so it is never a row: it is counted in the
+tiles and named in the table's footer. The full delta for this table is in "Calls table vs spans", below.
+
 ### The trace drawer
 
-"Open the full trace" slides a drawer over the rail with the waterfall and every attribute that may be shown. The
+Clicking a call in the calls table, or "open its trace" on the spine, slides a drawer over the page with the waterfall and every attribute that may be shown. The
 waterfall's groups fold (from Codex's portal, F8): each attempt, then its steps, then each `on:` handler, with the path
 to the selected span open. Private fields and untraced free text are never shown, in any environment (M1.19 traces a
 field only when it is public, and free text only when marked). The portal also keeps out what M1.19 does not cover:
 raw statements, which person called (`principal.person`) and log bodies; it shows a span's structure, timing, outcome,
 declared refusal, how many logs it has, and the caller's kind (a person, an agent for a person, anyone), derived by the portal, since a person's span carries
 `principal.person` and not `principal.kind`. Locally the
-caller may be named by the journey's cast (`ada`, `bob`), which are fixtures, not people. A "no leak" check (M1.13)
+caller could be named by the journey's cast (`ada`, `bob`), which are fixtures, not people; nothing carries a cast name
+onto a span yet, so until something does, every environment shows the kind only. A "no leak" check (M1.13)
 plants each hidden item in a staging trace and fails if any renders. The example trace is always one worth
 seeing: the claim above, with its commit conflict on attempt 1, the retry, the commit on attempt 2, and the profile
 created through `on:`.
@@ -286,9 +343,9 @@ Scoped to the page, the same shape everywhere. On home it covers everything; on 
  ┌ calls ┐┌ answered ┐┌ refused ┐┌ defects ┐┌ p95 of 150 ┐
  │  412  ││   375    ││   37    ││    0    ││   6 ms     │
  ▁▂▃▅▃▂▄▆▅▃▂▃▅  per minute
- 12:04:31  claim  ada     answered   9 ms  attempt 2
- 12:04:29  claim  bob     HandleTaken
- 12:04:20  claim  carol   answered   5 ms
+ 12:04:31  claim  signed-in  answered   9 ms  attempt 2
+ 12:04:29  claim  signed-in  HandleTaken
+ 12:04:20  claim  signed-in  answered   5 ms
  Runs touching handle
  ◌ builder · "add a reserved-names list" · running 3 min
 ```
@@ -475,8 +532,11 @@ telemetry token.
 | Who calls | the cast; you act as one | people signed in | people signed in |
 | What matters most | does it run; spans as they arrive | does this revision keep its declarations | defects, refusal rates, p95 against budget, the live version |
 
-The proof matrix (every operation against every environment: pass, fail, stale or unproven) is a page of its own,
-reached from the top bar's environment menu. It is generated from the model and the logbook.
+Each environment has a page of its own (round 4, Q2 B), reached from the top bar's environment menu and the rail's
+Proof panel: the summary card, every field `EnvironmentModel` declares, and the proof matrix (every operation and every
+journey against every environment: pass, fail, stale or unproven), tallied per column, with this environment's column
+in focus. "Compare environments" puts every environment's fields side by side. Both are generated from the model and
+the logbook.
 
 ## The worked app: `links`, and how it grows
 
@@ -612,8 +672,8 @@ All of them are drawn in [`spikes/portal-site`](../spikes/portal-site/README.md)
 https://claude.ai/artifact/NzDgHFzQSk8yvX8cLNqUKj:
 
 - Q4 and Q5 are drawn as decided.
-- Q1, Q2, Q3 and Q6 are drawn three ways each on the Options page, which the artifact opens on.
-- The same drawing adds Issues and Alerts, proposed in
+- Q1, Q2, Q3 and Q6 are drawn as Aaron picked them in round 4; the Options page that drew each three ways is gone.
+- The same drawing adds Issues and Alerts, decided in
   [`decisions/K18-monitoring-falls-out.md`](decisions/K18-monitoring-falls-out.md).
 
 | Screen | Model it falls out of | Round 3 |
@@ -638,8 +698,367 @@ Each hand-written or missing piece, with the slice that owns it.
 | 5 | The `orthograph/face-actions-only` lint rule | M1.13 |
 | 6 | `Portal.face`, its slots and `Portal.view.board` | M1.13 (the contract), M3.17 and M4.23 (the first faces) |
 | 7 | The portal wire decodes only things, operations, environments and blanks; the pages also need `from`, each thing's events and errors with their codes and exits, journeys, starting worlds, stores and mounts | M1.13 (F8) |
+| 8 | Every drawn element whose source is missing, by page | "What the drawing needs that the model or telemetry doesn't give yet", next |
 
 Nothing else on these pages is hand-written: every label, list and diagram is generated, and every number is live.
+
+## What the drawing needs that the model or telemetry doesn't give yet
+
+The delta audit (round 4, 19 November 2026). Aaron asked whether the drawing is consistent with the model, and how we
+build it. This section takes every element on every page of the drawing and names its source: a model field, a
+telemetry attribute (built, or planned in M1.36), the logbook (M1.04), or nothing. Where the source is missing it names
+the slice that delivers it, or says **HOLE** when no slice does. Every reference was read on `origin/m1` at f31097b8.
+M1.13's checks author writes against this, with the picks above. Each table is
+headed by the drawing's file under `spikes/portal-site/src/`.
+
+**In short.** The model already carries almost everything a page draws; the portal's wire decodes little of it (M1.13
+and M1.42 close that). Telemetry carries the calls, outcomes, attempts, steps and moves; it does not carry a request
+key, the role a caller held, which value a payload broke, or anything about a call refused at the door. There is no
+metrics reader, so every count that a door refusal is part of has no reader yet. The holes are listed last.
+
+**Short names for paths on `m1`.**
+
+| Short | Path on `origin/m1` (f31097b8) |
+|---|---|
+| `T` | `packages/compiler/src/modules/model/types.ts` (the model) |
+| `MT` | `packages/compiler/src/modules/mounts/types.ts` (`MountModel`) |
+| `W` | `packages/portal/src/modules/wire/types.ts` (what the portal decodes) |
+| `WS` | `packages/portal/src/modules/wire/service.ts` |
+| `SNAP` | `packages/portal/src/modules/snapshot/types.ts` |
+| `RD` | `packages/portal/src/modules/reader/types.ts` (the logbook's read side) |
+| `LV` | `packages/portal/src/modules/live/types.ts` |
+| `HS` | `packages/language-effect/src/modules/handler/service.ts` |
+| `CM` | `packages/language-effect/src/modules/handler/internal/call-metrics.ts` |
+| `MV` | `packages/language-effect/src/modules/handler/internal/move.ts` |
+| `AT` | `packages/language-effect/src/modules/handler/internal/attributes.ts` |
+| `TS` | `packages/prove/src/modules/telemetry/types.ts` (`Span`, `TraceSource`) |
+| `MS`, `PM` | `design/milestones.md` and this file, both as they are on `m1` |
+| `K18` | `design/decisions/K18-monitoring-falls-out.md` |
+
+### Three facts the rest rests on
+
+**Fact 1: the model carries nearly everything; the portal wire decodes almost none of it.**
+`ModelSchema` (`W:70-75`) declares only `things`, `operations`, `environments`, `blanks`. Inside those, `Field` (`W:12-17`) has no `visibility`;
+`Thing` (`W:53-65`) has no `code`, `identifier`, `store`, `events`, `errors`, `roleRules`, `from`; `Operation` (`W:35-51`) has no `identifier`, `file`,
+`runs`, `test`, `list`, `from`, `blanks`, `via`, and `steps` keep only `name` and `type`; `Environment` (`W:67`) keeps only `name`, `runs`,
+`promotesFrom`, `lifetimeMs`. `refusals`, `values`, `stores`, `journeys`, `startingWorlds`, `mounts` are absent from the schema, and `WS:6-10`
+stamps `journeys`, `evals`, `traces` as `unavailable` extensions. The generated file `examples/plugged-in/generated/portal/blueprint.json` on m1 does hold the
+whole model (keys: refusals, values, things, operations, journeys, startingWorlds, environments, mounts), so the data is in the file and the digest covers it;
+the decoder's type drops it (that Effect Schema strips unknown keys on decode is my reading of the default; **unverified** by a test). PM's own table
+(`PM:500-590`) marks every one of these wire cells x or ~. Their owner is **M1.13** (its row lists "every part of the wire M1.42 adds ... and the rest K12
+section 6 names") and **M1.42** (`MS:205`, `MS:228`; K12 section 6 `design/decisions/K12-coverage-gaps.md:99-105`).
+
+**Fact 2: telemetry on m1 today (what is actually set), with the lines.**
+
+| Attribute / metric | Set at (m1) | Where | State |
+|---|---|---|---|
+| operation span: `operation`, `attempt`, `principal.person` (person) or `principal.kind` (anonymous), `payload.*` (public only) | `HS:102`, `HS:64`, `AT:14-18` | operation span, one per attempt | built |
+| `request.replayed` | `HS:68` | operation span | built (the key itself is never on a span) |
+| `move.name`, `move.to` | `MV:29` | operation span | built |
+| `event.name` | `MV:54` (annotates the current span, which is the operation span, not the commit span) | operation span | built, wrong span for M1.36 |
+| `commit.outcome`, `commit.writes`, `commit.entries`, `step.kind: commit` | `HS:87-88` | `<op>.commit` span | built (M1.18 done) |
+| `step.kind` on every step | `HS:29`, `HS:48` | `<op>.<step>` span | built |
+| `refusal` (tag), `refusal.log` | `HS:100` | operation span | built |
+| `defect` (first line of the cause) | `HS:96` | operation span | built (no error tag, no step name) |
+| `ortho.calls` counter: labels `operation`, `principal.kind` (`anonymous`/`person`/`unknown`), `outcome`, `refusal` | `CM:4`, `CM:17-22` | metric | built (M1.20 done) |
+| `ortho.call.duration` histogram: label `operation` only | `CM:5-8`, `CM:21` | metric | built (measures all attempts and the decode, `CM:32`) |
+| `move.from`, `refusal.code`, `ortho.budget.breaches`, `environment`, `store`, `event.name` on the commit span | nowhere (grep of `packages/` on m1 finds none outside tests) | | **planned: M1.36 (`MS:223`), not built** |
+| `deployment.environment` (resource, not span attribute) | `packages/host-cloudflare/src/modules/telemetry/service.ts:9`; `packages/projections/src/modules/server/internal/server.ts:117`; world: `packages/prove/src/modules/world/README.md:21` | resource of every exported span | built; the Axiom source filters on it (`packages/prove/src/modules/telemetry/internal/axiom-source.ts:93`) |
+
+M1.36 and M1.13 are not ticked in `MS` (no check mark on rows `MS:223`, `MS:205`).
+
+**Fact 3: the portal can read traces by window, and nothing else.** `TraceSource` has `traces`, `find`, `window(since, now?)` (`TS:51-69`). The Axiom window
+stops 15 s short of now and reads at most 50,000 spans (`packages/prove/src/modules/telemetry/README.md:36-38`, `axiom-source.ts:22`). There is **no metrics reader**:
+`metrics.jsonl` is read only by tests (`e2e/m1/17-telemetry-model.test.ts:116-130`); grep of non-test code finds no consumer of `ortho.calls`. PM says the rail's stat blocks and
+sparkline come from `ortho.calls` and `ortho.call.duration` (`PM:298`); no slice in `MS` builds that read. See Holes.
+
+Other route-level facts used below: each environment has its own portal and reads only its own sink (`PM:463-464`); logbook rows are
+per (operation, environment) with an optional `journeys` array of `{journey, modelHash, handlerHash, verdict}`
+(`packages/logbook/src/modules/book/types.ts:5-21`, `internal/sql.ts:19,30,37`), but the portal's `Verdict` (`RD:5-17`) does not carry `journeys` and `SNAP:34`/`WS:8` mark `evals` unavailable ("the logbook stores aggregate verdicts only").
+
+Legend for **Gap?**: `no` = on m1 and wire-decodable or telemetry-built; `wire` = in the model on m1, portal wire does not decode it yet (M1.13/M1.42 own it); `tel` = telemetry planned (M1.36) or missing; `slice: X` = delivered by a named slice not yet built; `HOLE` = no slice.
+
+### Frame
+
+#### `shell.tsx`, `rail-nav.tsx`, `routes.tsx` (tree, top bar, palette)
+
+| Element | Source | Evidence | Gap? |
+|---|---|---|---|
+| Project name "Plugged In" | model | `BlueprintWire.project` `W:85` | no |
+| Project tag `7c07c87` (revision) | wire/env | `SNAP:46` `bundleRevision`; `ORTHO_REVISION` in `packages/portal/src/modules/site/types.ts:11` | no |
+| Project tag "stage 1" and the one-line description "A link-in-bio app..." (home, `home.tsx:43`) | nothing | `Model` (`T:188-209`) has no project label or description | **HOLE** (minor: no model field, no slice) |
+| Tree: groups "Plugged In / handles / auth" with PLUGIN tag | model | `ThingModel.from` `T:53`, `FromModel` `T:10-12`, `Model.mounts` `T:208`; wire `W:53-65` drops `from`; on m1 Plugged In has only `handle`, `link`, `profile`, all `from: {kind:"app"}` (generated model.json) | wire; the plugin things themselves: slice: ST1.03 (handles), M2.05 (auth), ST1.07 (`MS:99`, `MS:258`, `MS:102`) |
+| Things and their operations in the tree, READ chip | model | `T:194-195`, `OperationModel.kind` `T:76` | no |
+| "3 DEFECTS" chip on `link` | telemetry | `ortho.calls` `outcome: defect` `CM:10,29` | no (counts need the metrics reader, see Fact 3) |
+| BLANK item `link.pin` | model | `Model.blankOperations` `T:199`, `BlankOperationModel` `T:166-167`; wire keeps `blanks` only `W:74` | wire (M1.13) |
+| Sidebar chips: journeys N, refusals N, values N, plugins N, stores N | model | `T:196,190,191,208,193` | wire for all but journeys-adjacent counts; `W` has none of them |
+| Environment pill and switcher "local, 30 min" | model + env | `EnvironmentModel` `T:116-135`; wire keeps `name`,`runs`,`promotesFrom`,`lifetimeMs` `W:67`; "live" dot = this portal's `ORTHO_ENVIRONMENT` `site/types.ts:12` | wire (cloud, database, identity) |
+| Window segment 30 min / 6 h / 24 h (`opt.tsx`) | trace source | `TraceSource.window(since, now)` `TS:68` (15 s lag, 50k-span cap) | no for 30 min; 6 h and 24 h may exceed the 50k cap (**unverified** for the app's volume) |
+| Per-environment switcher with proof tally | logbook | `SNAP:52` `proofs[]` (operation x environment) | no for operations |
+| "Needs you 3" | portal inbox / alerts | M1.24 owns the bell (`MS:315`); K18 says staging alerts go there (`design/decisions/K18-monitoring-falls-out.md:47`); inbox is M3.19 (`MS:309`) | slice: M1.24, M1.49, M3.19 |
+| Search palette (`command-items.ts`: things, operations, journeys, refusals, environments) | model | `T:194,195,196,190`; palette is M1.13 | wire (journeys, refusals) |
+| Components item, "Round 4" strip | drawing only | n/a | n/a (not product) |
+
+#### `rail.tsx` (the live rail, on every page)
+
+| Element | Source | Evidence | Gap? |
+|---|---|---|---|
+| Calls meter: answered / refused / defects in window | metric or spans | `ortho.calls` `CM:20`; or operation spans: refused = `refusal` attr `HS:100`, defect = status 2 (check 21 assumption 5, `e2e/m1/21-portal-viewer.test.ts:36-38`) | no from spans; **door refusals (`NotAllowed`, `InvalidPayload`) have no span** (`HS:60` runs the role check with the tracer off; `design/decisions/O2-trace-gaps.md:58-62`), so counts need the metrics reader (Fact 3) |
+| p95 and "within / over N ms" | histogram + model | `ortho.call.duration` `CM:5-8`; budget `T:96` (`W:49` decodes it) | metrics reader missing for the histogram; from spans, `Span.ms` `TS:15` is exact. Note the metric spans all attempts, a span is one attempt |
+| Calls per minute stacked bars | metric/spans | same as above | same |
+| "last calls" list: time, op, caller kind, outcome, ms | spans | `Span.start`, `Span.ms` `TS:15-21`; outcome from attrs; caller kind derived (see "Calls table vs spans") | no (round 4 replaced the names with the kind) |
+| scope "everything / thing / op" | page | check 21 `data-scope` `e2e/m1/21-portal-viewer.test.ts:26` | no |
+
+---
+
+### Home (`home.tsx`)
+
+| Element | Source | Evidence | Gap? |
+|---|---|---|---|
+| Thing card: name, description | model | `ThingModel.name/description` `T:37,41` | no (`W:53-65` decodes both) |
+| Mini lifecycle with move counts | model + telemetry | `MachineModel` `T:29-34`; counts = answered calls whose span has `move.name` `MV:29` | no |
+| Red card + "N defects" | telemetry | `CM:29` | no (metrics reader) |
+| Calls meter and worst p95 per thing | telemetry | `CM` | metrics reader |
+| Operations grid: name, who may call, calls by outcome, refused, defects, p95 vs budget, per-minute trend | model + telemetry | `T:89`, `T:96`, `CM` | `allowed`, `budget` decoded (`W:46,49`); numbers need metrics reader |
+| Plugin group header with `@pkg@version` chip | model | `MT:11-12` | wire (`mounts` not in `W`) |
+| "Still blank: link.pin (move, allowed)" | model | `T:166-167,204` | wire |
+
+### Thing page (`thing.tsx`)
+
+| Element | Source | Evidence | Gap? |
+|---|---|---|---|
+| Title row: `id Handle`, `codes HN-...` | model | `ThingModel.identifier` `T:38`, `code` `T:40` | wire (`W:53-65` omits both) |
+| Plugin chip `@pkg version` / "the app's own" | model | `ThingModel.from` `T:53`, `MountModel` `MT:8-27` | wire |
+| "lives in database rows", `store: default` chip | model | `lives` `T:44` (decoded `W:57`), `store` `T:46`, `Model.stores` `T:193` | wire for `store`/`stores` |
+| `thing:handle@hash` | model | `hash` `T:54` | no |
+| Lifecycle with move counts and refusal on arrow | model + telemetry | `T:29-34`; `refusal` attr + `move.name` | no |
+| "wrong state ... HN-900 (generated, exit 5)" | model | `MachineModel.notFrom` `T:33` (wire keeps `error`,`exit`, drops `code` `W:61`) | wire |
+| Fields table: name, type, taken from, optional | model | `FieldModel` `T:18-26` (decoded `W:12-17`) | no |
+| Fields: visibility (secret chip) | model | `FieldModel.visibility` `T:25`; drawing uses hand-set `secretFields` (`overlay.ts:32`) | wire (not in `W:12-17`); also the sample set names `person.sign-up.password` etc: slice: M2.05 (auth) + M1.35 visibility (`MS:222`) |
+| Fields: descriptions ("arrive with M1.42") | model (planned) | no `description` on `FieldModel` `T:18-26`; slice: M1.42 (`MS:228`) | slice: M1.42 |
+| Operations table: who may call, description, calls, refused, defects, p95, trend | model + tel | `T:89`, `T:82`; `CM` | metrics reader |
+| Events: name + fields | model | `ThingModel.events` `T:48`; `W` has none (only `emits` string `W:43`) | wire (M1.42) |
+| Errors: `code`, name, exit | model | `ThingModel.errors` `T:50`, `MachineModel.notFrom` `T:33` | wire (M1.42) |
+| Roles + rule text (`handle.owner === caller.person`) | model | `roles` `T:51` (decoded), `roleRules` `T:52` (not in `W`); drawing's text is hand-written in `overlay.ts:27`. m1 Plugged In has empty `roleRules` (generated model.json), so the rule strings' format is **unverified** | wire; content: slice: ST1.03/ST1.04 add roles |
+| Journeys that call this thing + verdict tiles | model + logbook | `Model.journeys` `T:196` (empty in m1 Plugged In until ST1.02, `MS:98`); verdict: `RD:5-17` (no `journeys` field) | wire; per-journey verdict not read by the portal; see Proof |
+| Footer notes `from`, `stores`, `roleRules` overlays | n/a | | n/a |
+
+### Operation page: header and Contract tab (`op.tsx`)
+
+| Element | Source | Evidence | Gap? |
+|---|---|---|---|
+| Name, description, READ chip | model | `T:76-82` | no |
+| "who may call" chip | model | `AllowedModel` `T:57-61` | no |
+| "idempotent by request" | model | `T:91` | no |
+| "runs on the server/client" | model | `T:93` | wire (`W:35-51` omits) |
+| "budget p95 150 ms" | model | `T:96` | no |
+| "ways in: api, sdk, cli (not MCP)" | model | `OperationModel.via` `T:103` (M1.07) | wire; the drawn mount `handles` is slice: ST1.03 |
+| file path, `@hash` | model | `T:81,104` | wire for `file` |
+| In and out band: payload and answer fields | model | `T:83-84` | no |
+| Refusals list with code, "declared / machine / at the door" | model | `OperationModel.errors/refusals` `T:87-88`, `Model.refusals` `T:190` | wire for codes (`W:44-45` names only) |
+| Move chip, emits event link | model | `T:85` | no |
+| Spine rows (role check, replay, machine check, steps, answer check, move, commit "1 store") | model + fixed order | order from `HS:52-56`; steps `T:90`; step `writes`/`optional`/`call` `T:64-72` | wire for step details (M1.42, `MS:228`) |
+| Foot "Generated from operations.X" | n/a | | n/a |
+
+### Operation: Metrics tab (`op-tabs.tsx` `Metrics`)
+
+| Element | Source | Evidence | Gap? |
+|---|---|---|---|
+| Tiles: calls, refused, defects, p95 of budget | metrics | `CM` + `T:96` | metrics reader |
+| Calls per minute stacked by outcome | metrics/spans | `CM`; `TS` | metrics reader |
+| p95 per minute vs budget line | histogram | `CM:5-8` (15 buckets; a per-minute p95 from buckets is an estimate, from spans it is exact) | metrics reader |
+| Refusals by code bars | metric | `refusal` label `CM:10,20` (name; map to code via `T:190`) | no (name -> code) |
+| Latency objective "93.8% within 150 ms, target 95%, 14.4x burn, 88% error budget left, 28 days" | metric + K18 | `ortho.budget.breaches` (planned `MS:223`); objective/burn rules: M1.49 (`K18:69`), sink side M7.14 (`K18:63`); a 28-day window is far beyond `TraceSource.window` | slice: M1.36, M1.49 (30-min evaluation only); 28 days: **HOLE** until M7.14, no metrics source before |
+| "K18 · M1.49" chip | n/a | | n/a |
+
+### Operation: the trace drawer, opened from a call (`kit/trace-waterfall.tsx`, `trace.ts`; was the Spans tab until round 4)
+
+| Element | Source | Evidence | Gap? |
+|---|---|---|---|
+| Waterfall: attempt rows with `attempt: n` | spans | `HS:102` | no |
+| Step rows with `step.kind` | spans | `HS:48` | no |
+| Commit row `commit.outcome: conflict / committed` | spans | `HS:87-88` | no |
+| `move.name`/`move.from` attribute text | spans | `move.name` `MV:29`; `move.from` not set | tel: M1.36 |
+| Defect row "defect . DatabaseError" | spans | `HS:96` carries only the first line of the cause; no error tag or step attr | partial: K18 keys issues by (operation, step, error tag) (`K18:40`); step is derivable from the errored child span, error tag is not an attribute: **unverified** whether M1.49 adds one |
+| Call id, time, outcome chip | spans | trace id, `Span.start` | no |
+| Header: caller kind, never `principal.person` | spans | `principal.person` `AT:17-18` must not render | no (round 4 fixed the drawn name) |
+| "caller: a person (signed-in)" | spans, derived | `PM:273`; check 21 assumption 4 `e2e/m1/21-portal-viewer.test.ts:34-35`; for a person only `principal.person` is on the span, so kind is derived | no (derived by the portal) |
+| attempts, logs count | spans/logs | `TS:35-38`; check 21 `data-logs` | no |
+| "Never shown" list | policy | M1.13's no-leak check `MS:205` | no |
+| The calls table on Metrics (round 4) | spans | see "Calls table vs spans" below | request key, role, agent, per-call environment |
+
+### Operation: Proof tab (`Proof`, `VerdictMatrix`)
+
+| Element | Source | Evidence | Gap? |
+|---|---|---|---|
+| Nine evals x four environments | logbook | m1 stores one verdict per operation per environment (`RD:5-17`); `SNAP:34` and `WS:8`: "the logbook stores aggregate verdicts only" | **HOLE**: no slice records per-eval results (M1.13 row says only "a proof tab on M1.04's verdicts (no eval timing)", `MS:205`) |
+| Per-environment state pass / fail / stale / unproven | logbook + model hash | `ProofState` `SNAP:12` (also `unavailable`, which the drawing never shows) | no |
+| Cell "review" (p95 near budget, shown as stale) | invented | not a `ProofState` (`SNAP:12`); `MS:205`: "latency is the live p95, not an eval's note" | drawing-only: M1.13 draws the five `ProofState`s and no "review" |
+| "journeys that cover it" + verdict per env | model + logbook | `JourneyModel.steps[].call.operation` `T:150-153`; verdict per (operation, journey) `book/types.ts:5-10`, but `RD` drops `journeys` | wire + reader field: slice: M1.13 (unverified that it reads `journeys`) |
+| "What is unproven: refusals no journey reaches" (`reached` regex over check text) | model | checks carry `refuses {error}`, `emits {event}` in JSON (acme snapshot `packages/compiler/src/modules/model/__snapshots__/acme.model.json:1667-1700`; `orthograph/src/modules/journeys/types.ts:34-36`) though `T:151` types them `{kind}` only | wire (journeys); derivable once decoded |
+| "no journey reaches LinkAlreadyRemoved" note on a failing eval 8 | logbook | not stored (aggregate verdict only) | **HOLE** (same as nine evals) |
+
+### Operation: Docs, Notes, Blank
+
+| Element | Source | Evidence | Gap? |
+|---|---|---|---|
+| Docs reference text | generated docs | `BlueprintWire.docs` `W:94` (Markdown by path; m1 has `examples/plugged-in/generated/docs/<thing>/<verb>.md`) | no |
+| SDK and CLI snippets | generated | built by the drawing from payload keys (`routes.tsx:66-68`); product: the docs | no |
+| Notes (body, by, when, stale) | portal's own `note` thing | M3.21 (`MS:311`); `PM:211`; stored, but in the portal's own store, not the app's | slice: M3.21 (author names are people: see Stored data) |
+| Conversations "builder agent ..." | Runs | M4.10/M4.16 (`MS:349`, `MS:315`) | slice: M4.16 |
+| Blank page: declared vs blank parts, hints | model | `BlankOperationModel` `T:166-167`, `Model.blanks` `T:204`; the free-text hints ("Probably linkOwner...") are hand-written | wire; hints **HOLE** (no model field for a note on a blank; maybe notes M3.21) |
+| "Work on it" work items | board | M3.17 (`MS:307`) | slice: M3.17 |
+
+---
+
+### Environments (`places.tsx` `EnvPage`, one per environment since round 4; `Environments` and `env-compare.tsx`, the compare page)
+
+Plugged In on m1 declares only `local` and `test` (`examples/plugged-in/blueprint/environments/{local,test}.ts`; generated model has `environments: [local, test]`). The
+four-environment drawing comes from `links/stage-1`. Where staging/production files come from for Plugged In: **unverified** (cloud pass, M7).
+
+| Element | Source | Evidence | Gap? |
+|---|---|---|---|
+| Summary card: name pill, `runs` text, `file` | model | `EnvironmentModel.name/runs/file` `T:117-119`; wire keeps name, runs only `W:67` | wire (`file`) |
+| "operations proven" tally | logbook | `SNAP:52` proofs per (op, env) | no |
+| "journeys proven" tally | logbook + model | per-journey verdicts exist on logbook rows (`book/types.ts:5-10`) but not read by the portal (`RD:5-17`) | slice: M1.13 (unverified) |
+| "live, last 30 min" for the env you are in; "Read in staging's own portal" for others | sink | `PM:463-464`: each environment's portal reads only its own sink | no (by design) |
+| Field table: `runs` | model | `T:119` | no |
+| `identity` (test principals / better-auth) | model | `T:120` | wire |
+| `cloud`, `database` -> "runs on" | model | `T:123-124` | wire |
+| `lifetimeMs` | model | `T:122` | no (`W:67`) |
+| `promotesFrom` | model | `T:129` | no |
+| `deploy` (worker/site, domain) | model | `T:132`; domains undeclared in Plugged In (drawing footer) | wire |
+| `publish` | model | `T:133` | wire |
+| `secrets` (names and how) | model | `T:128` | wire |
+| `telemetry` sinks | model | `T:131` | wire |
+| `stores` bindings per environment | model | `T:126` (Stores page reads `e.database ?? e.cloud.database` instead) | wire |
+| `hash` | model | `T:134` | wire |
+| Proof matrix, rows = operations, tally per column | logbook | `RD:5-17`, `SNAP:12,52` | no |
+| Proof matrix, rows = journeys | logbook | see above | slice: M1.13 (unverified) |
+| Cell note "fails at step 5", "SessionCredentialsWrong changed since" | logbook + model | "changed since": `SNAP:14-20` `changedDependencies` (no); "fails at step 5": not stored (verdict per operation per journey, repeated calls share one: `design/decisions/M1-verdicts.md:3-6`) | step-level detail **HOLE** |
+
+Round 4 made the page per environment (Q2 B) the product; the compare page reads the same fields from the same sources.
+
+### Plugins and stores (`places.tsx` `PluginsAndStores`, one page since round 4)
+
+| Element | Source | Evidence | Gap? |
+|---|---|---|---|
+| Plugins list: plugin, kind, package, version, things, needs | model | `Model.mounts` `T:208`; `MountModel.kind/package/version/needs` `MT:9-19` (kind also `projection`); things via `ThingModel.from.mount` `T:12` | wire (`mounts` absent from `W:70-75`); m1 Plugged In mounts only three projections (api, model, server; generated model.json) |
+| "calls, last 30 min" per plugin | telemetry | `ortho.calls` summed over the plugin's operations (`OperationModel.from` `T:100`) | metrics reader |
+| Plugin card: Plugin page: file, `integrity sha256-...` | model | `MT:10,14` | wire |
+| Plugin card: Choices ("reserved names: off") | model | `MountModel.chosen` `MT:16` | wire; the handles plugin: slice: ST1.03 |
+| Plugin card: Left out, narrowed ("only through api, sdk, cli"), needs | model | `omitted`, `narrowed`, `needs` `MT:17-19` | wire |
+| Plugin card: Adapter calls and stand-in (footnote) | model | `calls`, `layer`, `standIn` `MT:21-25` | wire |
+| Plugin card: "Its things" with calls meter | model + tel | `from` + `CM` | wire; metrics reader |
+| Stores table: store, kind, from, things, per-environment binding | model | `StoreModel` `T:178-186`, `StoreFromModel` `T:170-175`, `EnvironmentModel.stores` `T:126`; things by `ThingModel.store` `T:46` | wire; m1 Plugged In declares no store (generated model has `stores` absent) so "default" row is the drawing's convention |
+| "Never a count of rows" | policy | `PM:216` | no |
+
+### Journeys, journey page, world page (`proving.tsx`, `flow.tsx`, `kit/step-card.tsx`)
+
+On m1, `examples/plugged-in` has `journeys: {}` and `startingWorlds: {}` (generated model.json); the three journeys are from `links/stage-1`. Slice that writes them: ST1.02 (`MS:98`).
+
+| Element | Source | Evidence | Gap? |
+|---|---|---|---|
+| Journey list: name, file, starts-from, step count, operations | model | `JourneyModel.name/file/starts/steps` `T:144-154` | wire (`WS:7`: "the compiler's model has no journey projection", already stale: `T:196` has it) |
+| World tree (empty world -> worlds -> journeys), "gives aaronHandle" | model | `StartingWorldModel.from/makes/gives` `T:156-164` (`gives: unknown`) | wire; the shape of `gives` for display: **unverified** |
+| Per-environment verdict per journey (tile grid) | logbook | `JourneyVerdict` on logbook rows `book/types.ts:5-10`; reader drops it `RD:5-17` | reader: slice M1.13 (unverified) |
+| Sequence diagram: lanes = cast, columns = steps, step label verb/thing | model | `JourneyModel.cast` `T:148`, steps' `call.actor/operation` `T:137-142,150` | wire |
+| Per-step verdict dots per environment ("failed here", "not reached") | logbook | verdict is per operation per journey; repeated calls to one operation share one verdict (`M1-verdicts.md:6`) | **HOLE**: step-level pass/fail is not stored; the drawing's `stepVerdict` (`flow.tsx:10-15`) invents it from the first failing step |
+| Step title, payload text, `request first-claim` | model | `JourneyStep.title`, `JourneyCallModel.payload/request` `T:137-142,150` | wire |
+| Checks ("refuses HandleTaken HN-001", "no events", "spans absent: ...") | model | checks hold `{kind, event/error/fields/match}` in JSON (acme snapshot `...acme.model.json:1667-1700`); typed `{kind}` only at `T:151` | wire; display text composed by the portal |
+| "Failed in staging: links[0].title was 'GitHub'" | logbook | verdict only pass/fail (`book/types.ts:3`); no failure detail stored | **HOLE**; round 4 removed the value and keeps "Failed in staging" with its trace |
+| Hover step card: step, cast kind, checks, verdict per env, op calls meter | model + logbook + tel | above | same holes |
+| World page: makes (calls), gives, cast, from | model | `T:156-164` | wire |
+| Starting-world cast kinds ("signed-in") | model | `AllowedModel` `T:148,161` | wire |
+
+### Reference pages (`reference.tsx`, `ref-live.tsx`)
+
+| Element | Source | Evidence | Gap? |
+|---|---|---|---|
+| Machines: lifecycle per thing, move table (from, to, emits, operation) | model | `T:29-34`, `T:85` | no |
+| Machines: answered per move, trend | telemetry | `move.name` `MV:29` | no (metrics/spans) |
+| Machines: "Recent moves" (time, op, who, event, "move.from listed -> removed") | spans | `move.name`/`move.to` yes; `move.from` and `event.name` on commit span: M1.36 (`MS:223`; red in check 17, `e2e/m1/README.md:33`) | tel: M1.36; who: leak |
+| Machines: "No state distribution" callout | policy | `PM:216` | no (this is the right call) |
+| Refusal codes: code, name, from, exit, raised by | model | `Model.refusals` `T:190`; `errors` `T:50` (exit, code); `notFrom` `T:33`; ops' `refusals` `T:88`; "runtime, at the door" for `NotAllowed` | wire (M1.42; `PM:522-530`) |
+| Refusal codes: count, per min, trend | metric | `ortho.calls` `refusal` label | metrics reader |
+| Refusal codes: "Recent refusals" rows with `refusal.code HN-001`, ms, who | spans | `refusal` name on span `HS:100`, code not an attribute (M1.36 `refusal.code`, check 17 lines 250-265); the portal can map name -> code from `T:190` meanwhile; door refusals have **no span** (so rows with "no span" and `ms 0` are counts only) | tel: M1.36; door rows: **HOLE** as rows (counts only, `O2-trace-gaps.md:58-62`) |
+| Access: roles and rules | model | `roleRules` `T:52`, `roles` `T:51` | wire |
+| Access: operations by who may call | model | `T:89` | no |
+| Access: "role check ms" per rule | spans | the role check runs with the tracer off (`HS:60` `Effect.withTracerEnabled(false)`), so there is no span to time | **HOLE** (no slice); removed from the drawing in round 4 |
+| Access: NotAllowed count + trend | metric | `ortho.calls` refusal `NotAllowed` (`HS:40`) | metrics reader |
+| Access: recent denials "allowed signed-in . caller anyone", "role linkOwner . link.owner != caller" | none | `NotAllowed` leaves no span; the second form reveals record data | **HOLE** (and a leak risk); removed from the drawing in round 4 |
+| Events: name, carries (field: type), emitted by | model | `ThingModel.events` `T:48`; `OperationModel.move.emits` `T:85` | wire (M1.42) |
+| Events: "listened to by (on:)" | model | no `on` handler field in `ThingModel` (`T:36-55`) | slice: unverified (on: handlers appear in M5.14 `MS:391`); shown as "none declared" |
+| Events: committed in the window / per min / trend | spans or journal | desc says "from the journal"; the journal is app-store data read per trace (`LV:27-31`, `LiveEvent.subject` `LV:53-57`). Counting from `event.name` instead is telemetry M1.36 (`MS:223`) | tel: M1.36; round 4 changed the drawing to count from `event.name` |
+| Events: "Recent commits" | spans | `commit.outcome` `HS:87`, `event.name` M1.36 | tel: M1.36 |
+| Values: name, type, limits | model | `Model.values` `T:191` | wire |
+| Values: "used by" fields | model | `FieldModel.named` `T:20` | no (derivable) |
+| Values: "rejected at the door" per value, trend, "Recent payloads refused" (field, value, "longer than 30") | metric | `InvalidPayload` counted per operation (`HS:41`, `CM:20`), no span, no field or value label; `issues` text is in `InvalidPayload` but only logs/none | **HOLE**: no slice carries which field or value was rejected; removed from the drawing in round 4 |
+
+### Monitor (`monitor.tsx`)
+
+| Element | Source | Evidence | Gap? |
+|---|---|---|---|
+| Issues list: key (operation, step, error tag), state new/regressed, first/last seen by hash, count, "of calls", owner, trend | spans + model hash | `K18:40-44`; slice M1.49 (`K18:69`; its row joins `milestones.md` in the same change as this section); `defect` attr `HS:96` lacks step and error tag; owner = declaring file/mount `ThingModel.from`, `OperationModel.file` `T:81,100` | slice: M1.49; "first seen" beyond the window needs stored issue state: **HOLE** (K18 evaluates over `TraceSource.window`, `K18:36`) |
+| Alerts: rules from budget, defects, refusal codes, journey verdicts | model | `T:96`, `T:190`, `T:196`; M1.49 (`K18:69`) | slice: M1.49 |
+| Alert state (firing/warning/ok) | spans/metric over window | M1.49 evaluates over `TraceSource.window` at fixed `now` | slice: M1.49; burn needs 20 calls (`K18:38`) |
+| Routes ("builder" / pages) | environment file | M7.14 (`K18:63`) | slice: M7.14 |
+| "About this drawing" | n/a | | n/a |
+
+---
+
+### Stored data and leaks: what would break "no populations" (Q4, `PM:216`) or "no leak" (M1.13 `MS:205`, M1.35 `MS:222`)
+
+Drawn and fine: no state distributions, no row counts (`reference.tsx` Machines callout; `thing.tsx:38`; `places.tsx:74`). Everything below is a problem or a risk.
+
+1. **People's names as "who" everywhere** (fixed in round 4: the drawing shows caller kind only; journey cast names and note authors stay, as fixtures and as the portal's own data): `live.ts:44-53` (`aaron`, `bob`, `stranger`), `trace.ts:32,38`, `ref-live.tsx:37-56` (`carol`, `dana`, `erin`), rail "last calls" (`rail.tsx:40`), Spans header chip `{t.who}` (`op-tabs.tsx:51`), Spans "Recent calls" (`op-tabs.tsx:67`), the three "Recent ..." reference tables (`ref-live.tsx:25-35`). In product the only per-call identity on a span is `principal.person` (`AT:17-18`), which is exactly what M1.13's no-leak check plants and requires not to render (`MS:205`), and the Collector already deletes `user.*` and `organization.id` (`packages/prove/src/modules/telemetry/README.md`, L2.O paragraph). Locally the journey's cast name might label a caller (`PM:273`); the mechanism that would carry a cast name onto a span is **unverified**. Show caller kind only.
+2. **Events "from the journal"** (fixed in round 4) (`reference.tsx` Events description): the journal is rows in the app's own store (`LV:27-31`); `LiveEvent.subject` is a record id (`LV:53-57`). A windowed count must come from `event.name` on spans (M1.36), not a journal scan.
+3. **Issues "first seen / last seen"** (`monitor.tsx`): needs state that outlives the window (`K18:41`); K18 names no store. Either issue records are stored (the app's or the portal's own) or the sink's retention is queried. Not a population of app data, but unspecified state.
+4. **Notes `by` and `when`** (`overlay.ts:46-49`): author names stored in the portal's own `note` thing (`PM:211`, M3.21). Not the app's data; people appear by design there.
+5. **Access page "link.owner != caller"** (removed in round 4) (`ref-live.tsx:46,48`): reveals whose record failed; no span exists for a role refusal (`HS:60`), so this text cannot be sourced and should not be.
+6. (removed in round 4) **Values page "Recent payloads refused ... longer than 30"** with the value in view (`ref-live.tsx:57-59`): a rejected payload is non-public input; no telemetry carries it and `payload.*` attributes exist only for public fields on spans that opened (`AT:14-15`, `HS:64`).
+7. **Journey "Failed in staging: links[0].title was 'GitHub'"** (value removed in round 4) (`proving.tsx`): an answer value; not stored in the logbook and would be a visibility problem if it were (M1.35).
+8. "Starting worlds" show `gives aaronHandle`, `makes aaron -> handle.claim { name: "aaron" }`: fixtures from journey files, not live data (`T:156-164`). Fine.
+
+### Calls table vs spans (the calls table on the operation's Metrics tab, round 4)
+
+Row = one call. A "call" on m1 is the operation span(s) in one trace: one per attempt (`HS:102`, `attempt` n); a trace may hold several calls (journey runs); how the portal groups attempts into one row is **unverified** (check 21 assumption 5 counts "an operation span in the window", `e2e/m1/21-portal-viewer.test.ts:36`).
+
+| Column / filter | Carried per call today on m1? | Evidence | Verdict |
+|---|---|---|---|
+| time | yes | `Span.start` `TS:21` | ok |
+| trace link | yes | trace id; `GET /portal/traces/<id>` (check 21 assumption 3) | ok |
+| outcome: answered / refused (code) / defect | yes, except door refusals | answered = no `refusal`, status != 2; `refusal` `HS:100`; defect status 2 + `defect` attr `HS:96`; code: map name -> `Model.refusals` `T:190` (attribute `refusal.code` is M1.36, check 17 red) | ok for spans that opened. **`NotAllowed` and `InvalidPayload` open no span** (`HS:60`, `HS:41`; `O2-trace-gaps.md:58-62`): they exist only as `ortho.calls` counts, so they cannot be rows |
+| duration vs budget | yes per attempt | `Span.ms` `TS:15`; budget `T:96` (`W:49`). The metric `ortho.call.duration` measures the whole call incl. retries and decode (`CM:32`); the span measures one attempt | ok; define a call's duration as the extent of its attempt spans, not the histogram |
+| over-budget filter | yes, derived | `ms > budget.p95Ms` per call; `ortho.budget.breaches` is a counter with only `{operation}` and is M1.36, not built (`e2e/m1/17-telemetry-model.test.ts:283-318`) | ok from spans |
+| attempt | yes | `attempt` `HS:102` (M1.18 done, `MS:209`) | ok |
+| caller kind: anyone / signed-in | per span, derived | a person's span has `principal.person` only, an anonymous one `principal.kind` (`AT:17-18`); kind is derived by the portal (`PM:273`; check 21 assumption 4); the metric label `principal.kind` is `anonymous` / `person` / `unknown` (`CM:17,20`) | ok (derived, never the id) |
+| caller kind: agent | no | `Principal` is `anonymous | person` only (`packages/orthograph/src/modules/roles/types.ts:6-8`); M2.03 adds more (`MS:256`), ST1.05 adds `agent for <person>` (`MS:317`). Check 21 plants `principal.kind: "agent"` in a fixture (`e2e/m1/21-portal-viewer.test.ts:124`) | slice: M2.03, ST1.05 |
+| caller kind: role | no | what is recorded is the operation's declared `allowed` (`T:89`), not the role the caller held; M1.35's `Audience` holds roles for visibility only (`MS:222`) | **HOLE** (derivable: signed-in + `allowed` of kind role + answered implies the role held) |
+| who (principal) | span has `principal.person` | `AT:17-18` | must not render (no-leak, `MS:205`); show kind only; **no per-person view without breaking M1.13's check** |
+| environment | resource attribute yes; per-call span attribute no | `deployment.environment` on the resource (`host-cloudflare/src/modules/telemetry/service.ts:9`); sources filter on it (`axiom-source.ts:93`); span attribute `environment` is M1.36 and red | see check 17 below; also each environment's portal reads only its own sink (`PM:463-464`), so the column is constant and a filter is a switcher |
+| request key | **no** | only `request.replayed: true` (`HS:68`); the key lives in the store as `<op>|<who>|<request>` (`HS:109`) and in the SDK's `idempotency-key` header (M1.12, `MS:203`); no attribute, no label; free text is untraced by default (M1.19, `MS:210`) | **HOLE** (no slice) |
+| request key filter | no | same | **HOLE** |
+| time filter | yes | `TraceSource.window(since, now)` `TS:68` | ok, within 15 s lag and 50k spans |
+| filters generally | only inside the window, client-side | `TraceSource` has no query-by-attribute (`TS:51-69`); the Axiom window is a fixed APL (`axiom-source.ts:89-95`) | any filter beyond the window or the 50k cap: **HOLE** |
+
+**Check 17** (M1.36), quoted. `e2e/m1/17-telemetry-model.test.ts:32-34`:
+"Red today on the missing surface only: `move.from`, `event.name` on the commit span, `refusal.code`, `ortho.budget.breaches`, `environment` and `store` are not written. The controls, true today, say the spans, the commit span, `refusal`, `move.name`, `move.to`, `ortho.calls` and `ortho.call.duration` are."
+The environment assertion is at `e2e/m1/17-telemetry-model.test.ts:267-281` ("writes `environment` and `store` on the operation span of an answered call and of a refused one", expecting `{ environment: "local", store: m.lives }` at line 276). Assumption 5 (lines 27-29): `environment` is the world's, a plain span attribute, with "the resource's `deployment.environment` stays as it is". The README row (`e2e/m1/README.md:33`): "8 tests: 3 controls pass ..., 5 red until M1.36. `event.name` is on the operation span today, so its check is red on the commit span." So the per-call `environment` span attribute is red (and so are `store`, `move.from`, `refusal.code`, `event.name` placement, `ortho.budget.breaches`). The per-environment fact is nonetheless on every span through the resource attribute, which `Span.attrs` (`TS:12`) does not expose to the portal.
+
+### Holes (no slice)
+
+1. Request key per call (column and filter): not on any span or label; no slice puts it in telemetry (M1.19 keeps free text out by default).
+2. Metrics reader: `ortho.calls` and `ortho.call.duration` have producers (M1.20) but no portal-side reader; `TraceSource` is spans only. Rail numbers, per-minute bars, door-refusal counts, refusal-by-code counts and every "trend" cell rest on it. The 28-day latency objective and error budget need history far beyond `window` (M7.14 is sink-side, after the cloud pass).
+3. Per-eval verdicts (nine evals x environment on the Proof tab): the logbook stores one aggregate verdict (`WS:8`); no slice records per-eval results. The drawing's "review" state is not a `ProofState`.
+4. Step-level journey verdicts and failure details ("fails at step 5", "links[0].title was GitHub"): the logbook stores a pass/fail per (operation, journey), repeated calls sharing one (`M1-verdicts.md:3-6`).
+5. Door refusals and role denials as rows (Recent refusals, Recent denials, Recent rejected): no span exists (`HS:60`, `HS:41`); counts only. The role-check timing per rule (`roleCheckMs`) has nothing to measure for the same reason.
+6. Which field or value a payload broke ("rejected at the door per value"): no label or span carries it.
+7. Issues "first seen / last seen" across more than the window, and the defect's error tag (`HS:96` keeps the first line of the cause): M1.49's design (`K18:40-44`) does not say where this is kept.
+8. Caller role held per call, and the person's cast name on a local span: nothing carries them.
+9. Project description and "stage 1" label: no field on `Model`.
+10. Free-text hints on a blank operation ("Probably linkOwner, like order and remove"): no model field (a note, M3.21, is the nearest).
+11. Event listeners ("listened to by (on:)"): no `on` field in `ThingModel` on m1 (**unverified** which slice adds it).
 
 ## Component inventory (round 3 review, 19 November 2026)
 
@@ -708,6 +1127,8 @@ This replaces round 1's "clean-room the components we need" with one place to do
 - **M1.24** keeps the shell, screen context and the approval cards' contract, all through `portal-ui`. The chat's surface is M4.16 on Pro's AI
   components over a Pi Durable run, and conversations are Runs, not things in the portal's store. Its row is reworded
   in `milestones.md` in the same change as this file.
+- **M1.50** (19 November 2026, from `spikes/react-flow-graphs`) replaces M1.13's lifecycle strip with one `Graph`
+  over React Flow and elk: each machine, the blueprint map and the worlds chain. The journey sequence stays its own view.
 - **M1.34** (new, before M1.13) builds `@orthograph/portal-ui`, its lint rule and the CI install (F7).
 - **M1.13** builds these pages on `portal-ui`, the face contract (`Portal.face`, its slots, `Portal.view.board`) and the lint rule; its
   row in `milestones.md` says so, in the same change as this file. With F8 it also builds the notes, the operations
