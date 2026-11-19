@@ -5,9 +5,9 @@ import { declaration as Declaration } from "../../../api/src/link/add.ts";
 import * as Sdk from "../../../sdk/src/index.ts";
 import * as Output from "../output.ts"; // a namespace, so a verb named like a helper (answer) cannot clash
 
-/** Append a link to the public page of a claimed name. Every flag is text; the declaration decodes it. `--json` prints the whole answer as JSON. */
+/** Append a link to your own public page. You need a claimed name first. Every flag is text; the declaration decodes it. `--json` prints the whole answer as JSON. */
 export const add = Command.make(
   "add",
-  { handle: Flag.String("handle"), title: Flag.String("title"), url: Flag.String("url"), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
+  { title: Flag.String("title"), url: Flag.String("url"), json: Flag.Boolean("json").pipe(Flag.withDefault(false)) },
   ({ json, ...flags }) => Schema.decodeUnknownEffect(Declaration.payloadSchema)(flags).pipe(Effect.flatMap(Sdk.link.add), Output.answer(json)),
 );

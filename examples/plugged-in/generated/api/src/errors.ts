@@ -7,6 +7,10 @@ import * as Profile from "../../../blueprint/things/profile/errors.ts";
 
 ErrorNames.name(Handle.HandleTaken, "HandleTaken");
 export class HandleTaken extends Schema.TaggedError<HandleTaken>()("HandleTaken", { code: Schema.Literal("HN-001"), ...structOf(Handle.HandleTaken.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "HN-001" as const; }
+ErrorNames.name(Handle.HandleAlreadyOwned, "HandleAlreadyOwned");
+export class HandleAlreadyOwned extends Schema.TaggedError<HandleAlreadyOwned>()("HandleAlreadyOwned", { code: Schema.Literal("HN-002"), ...structOf(Handle.HandleAlreadyOwned.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "HN-002" as const; }
+ErrorNames.name(Handle.HandleNotFound, "HandleNotFound");
+export class HandleNotFound extends Schema.TaggedError<HandleNotFound>()("HandleNotFound", { code: Schema.Literal("HN-003"), ...structOf(Handle.HandleNotFound.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "HN-003" as const; }
 ErrorNames.name(Link.LinkNeedsHandle, "LinkNeedsHandle");
 export class LinkNeedsHandle extends Schema.TaggedError<LinkNeedsHandle>()("LinkNeedsHandle", { code: Schema.Literal("LN-001"), ...structOf(Link.LinkNeedsHandle.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "LN-001" as const; }
 ErrorNames.name(Link.LinkAlreadyRemoved, "LinkAlreadyRemoved");
@@ -20,6 +24,8 @@ export class NotAllowed extends Schema.TaggedError<NotAllowed>()("NotAllowed", {
 /** Each refusal's exit code, for the CLI. */
 export const exits = {
   HandleTaken: 10,
+  HandleAlreadyOwned: 12,
+  HandleNotFound: 13,
   LinkNeedsHandle: 30,
   LinkAlreadyRemoved: 32,
   ProfileNotFound: 20,
@@ -31,6 +37,8 @@ export const exits = {
 /** Each refusal's code, stable across targets: `[AL-002] Name { field: value }`. Beside the tag, never in place of it. */
 export const codes = {
   HandleTaken: "HN-001",
+  HandleAlreadyOwned: "HN-002",
+  HandleNotFound: "HN-003",
   LinkNeedsHandle: "LN-001",
   LinkAlreadyRemoved: "LN-002",
   ProfileNotFound: "PR-001",
@@ -42,6 +50,8 @@ export const codes = {
 /** The fields of each refusal whose values may be shown (printed, logged, put in a span): only the public ones. */
 export const shown: Readonly<Record<string, ReadonlyArray<string>>> = {
   HandleTaken: [],
+  HandleAlreadyOwned: [],
+  HandleNotFound: [],
   LinkNeedsHandle: [],
   LinkAlreadyRemoved: [],
   ProfileNotFound: [],
@@ -53,10 +63,12 @@ export const shown: Readonly<Record<string, ReadonlyArray<string>>> = {
 /** The declared errors themselves, by name: their fields say who may see a value (the MCP server redacts by role). */
 export const declared = {
   HandleTaken: Handle.HandleTaken,
+  HandleAlreadyOwned: Handle.HandleAlreadyOwned,
+  HandleNotFound: Handle.HandleNotFound,
   LinkNeedsHandle: Link.LinkNeedsHandle,
   LinkAlreadyRemoved: Link.LinkAlreadyRemoved,
   ProfileNotFound: Profile.ProfileNotFound,
 } as const;
 
 /** The wire class of each refusal, by name. */
-export const wire = { HandleTaken, LinkNeedsHandle, LinkAlreadyRemoved, ProfileNotFound, HandleNotClaimed, LinkNotListed, NotAllowed };
+export const wire = { HandleTaken, HandleAlreadyOwned, HandleNotFound, LinkNeedsHandle, LinkAlreadyRemoved, ProfileNotFound, HandleNotClaimed, LinkNotListed, NotAllowed };

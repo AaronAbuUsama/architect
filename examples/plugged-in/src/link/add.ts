@@ -6,7 +6,7 @@ import type { Handler } from "../../generated/api/src/link/add.handler.ts";
 
 const { LinkNeedsHandle } = Errors.declared;
 
-/** Append a link to the public page of a claimed name. */
+/** Append a link to your own public page. You need a claimed name first. */
 const add: Handler = (_payload, { steps, move }) =>
   Effect.gen(function* () {
     yield* steps.load(Handlers.blank("load: the work this step does"));

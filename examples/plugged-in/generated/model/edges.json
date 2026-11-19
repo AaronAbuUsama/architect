@@ -5,6 +5,11 @@
     "kind": "refers"
   },
   {
+    "from": "link.owner",
+    "to": "handle.owner",
+    "kind": "refers"
+  },
+  {
     "from": "profile.handle",
     "to": "handle.id",
     "kind": "refers"
@@ -18,6 +23,26 @@
     "from": "handle.claim",
     "to": "handle.HandleClaimed",
     "kind": "emits"
+  },
+  {
+    "from": "handle.release",
+    "to": "handle",
+    "kind": "acts-on"
+  },
+  {
+    "from": "handle.release",
+    "to": "handle.HandleReleased",
+    "kind": "emits"
+  },
+  {
+    "from": "handle.release",
+    "to": "handle.handleOwner",
+    "kind": "allowed-by"
+  },
+  {
+    "from": "handle.resolve",
+    "to": "handle",
+    "kind": "acts-on"
   },
   {
     "from": "link.add",
@@ -35,6 +60,11 @@
     "kind": "acts-on"
   },
   {
+    "from": "link.order",
+    "to": "link.linkOwner",
+    "kind": "allowed-by"
+  },
+  {
     "from": "link.remove",
     "to": "link",
     "kind": "acts-on"
@@ -43,6 +73,11 @@
     "from": "link.remove",
     "to": "link.LinkRemoved",
     "kind": "emits"
+  },
+  {
+    "from": "link.remove",
+    "to": "link.linkOwner",
+    "kind": "allowed-by"
   },
   {
     "from": "profile.get",

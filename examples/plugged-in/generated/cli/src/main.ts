@@ -7,6 +7,8 @@ import { CliOutput, Command } from "effect/cli";
 import * as Sdk from "../../sdk/src/index.ts";
 import { ExitCode } from "./output.ts";
 import { claim as handleClaim } from "./handle/claim.ts";
+import { release as handleRelease } from "./handle/release.ts";
+import { resolve as handleResolve } from "./handle/resolve.ts";
 import { add as linkAdd } from "./link/add.ts";
 import { order as linkOrder } from "./link/order.ts";
 import { remove as linkRemove } from "./link/remove.ts";
@@ -15,7 +17,7 @@ import { get as profileGet } from "./profile/get.ts";
 // The release version is stamped in when the CLI is published (`ortho publish`); run from source, it says 0.0.0.
 declare const ORTHO_VERSION: string | undefined;
 
-const handle = Command.make("handle").pipe(Command.withSubcommands([handleClaim]));
+const handle = Command.make("handle").pipe(Command.withSubcommands([handleClaim, handleRelease, handleResolve]));
 const link = Command.make("link").pipe(Command.withSubcommands([linkAdd, linkOrder, linkRemove]));
 const profile = Command.make("profile").pipe(Command.withSubcommands([profileGet]));
 

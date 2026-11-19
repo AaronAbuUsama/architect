@@ -4,7 +4,9 @@
   "revision": null,
   "model": {
     "refusals": {
+      "HandleAlreadyOwned": "HN-002",
       "HandleNotClaimed": "HN-900",
+      "HandleNotFound": "HN-003",
       "HandleTaken": "HN-001",
       "LinkAlreadyRemoved": "LN-002",
       "LinkNeedsHandle": "LN-001",
@@ -33,7 +35,7 @@
         "name": "handle",
         "identifier": "Handle",
         "code": "HN",
-        "description": "A public name, claimed once, that is the address of a public page.",
+        "description": "A public name that belongs to one person until they release it, and is the address of a public page.",
         "fields": {
           "id": {
             "value": {
@@ -46,12 +48,19 @@
               "type": "schema"
             },
             "named": "HandleName"
+          },
+          "owner": {
+            "value": {
+              "type": "id",
+              "prefix": "per"
+            }
           }
         },
         "lives": "database",
         "machine": {
           "states": [
-            "claimed"
+            "claimed",
+            "released"
           ],
           "moves": {
             "claim": {
@@ -60,6 +69,15 @@
                 "claimed"
               ],
               "emits": "HandleClaimed"
+            },
+            "release": {
+              "from": [
+                "claimed"
+              ],
+              "to": [
+                "released"
+              ],
+              "emits": "HandleReleased"
             }
           },
           "notFrom": {
@@ -84,6 +102,22 @@
               "named": "HandleName",
               "ref": "handle.name"
             }
+          },
+          "HandleReleased": {
+            "handle": {
+              "value": {
+                "type": "id",
+                "prefix": "hdl"
+              },
+              "ref": "handle.id"
+            },
+            "name": {
+              "value": {
+                "type": "schema"
+              },
+              "named": "HandleName",
+              "ref": "handle.name"
+            }
           }
         },
         "errors": {
@@ -91,14 +125,28 @@
             "fields": {},
             "exit": 10,
             "code": "HN-001"
+          },
+          "HandleAlreadyOwned": {
+            "fields": {},
+            "exit": 12,
+            "code": "HN-002"
+          },
+          "HandleNotFound": {
+            "fields": {},
+            "exit": 13,
+            "code": "HN-003"
           }
         },
-        "roles": [],
-        "roleRules": {},
+        "roles": [
+          "handleOwner"
+        ],
+        "roleRules": {
+          "handleOwner": "(handle, caller) => handle.owner === caller.person"
+        },
         "from": {
           "kind": "app"
         },
-        "hash": "1cc2bec683ed6952"
+        "hash": "56bf560c43d39dd6"
       },
       "link": {
         "name": "link",
@@ -118,6 +166,13 @@
               "prefix": "prf"
             },
             "ref": "profile.id"
+          },
+          "owner": {
+            "value": {
+              "type": "id",
+              "prefix": "per"
+            },
+            "ref": "handle.owner"
           },
           "title": {
             "value": {
@@ -195,12 +250,16 @@
             "code": "LN-002"
           }
         },
-        "roles": [],
-        "roleRules": {},
+        "roles": [
+          "linkOwner"
+        ],
+        "roleRules": {
+          "linkOwner": "(link, caller) => link.owner === caller.person"
+        },
         "from": {
           "kind": "app"
         },
-        "hash": "5857524d8a3d0255"
+        "hash": "ca7d6cf9cfa7b97e"
       },
       "profile": {
         "name": "profile",
@@ -256,7 +315,7 @@
         "from": {
           "kind": "app"
         },
-        "description": "Claim a free name and make it the address of a public page, with its profile.",
+        "description": "Claim a free name and make it the address of your public page, with its profile.",
         "payload": {
           "name": {
             "value": {
@@ -284,14 +343,17 @@
           "emits": "HandleClaimed"
         },
         "errors": [
-          "HandleTaken"
+          "HandleTaken",
+          "HandleAlreadyOwned"
         ],
         "refusals": [
-          "HandleTaken"
+          "HandleTaken",
+          "HandleAlreadyOwned",
+          "NotAllowed"
         ],
         "allowed": [
           {
-            "kind": "anyone"
+            "kind": "signed-in"
           }
         ],
         "steps": {
@@ -310,7 +372,118 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "9968f77abac9c487"
+        "hash": "31ee370928a5aab2"
+      },
+      "handle.release": {
+        "kind": "operation",
+        "name": "handle.release",
+        "thing": "handle",
+        "verb": "release",
+        "identifier": "release",
+        "file": "blueprint/things/handle/verbs/release.ts",
+        "from": {
+          "kind": "app"
+        },
+        "description": "Free your name and take its public page offline. Anyone may claim the name afterwards.",
+        "payload": {
+          "handle": {
+            "value": {
+              "type": "id",
+              "prefix": "hdl"
+            },
+            "ref": "handle.id"
+          }
+        },
+        "answer": {},
+        "move": {
+          "key": "release",
+          "from": [
+            "claimed"
+          ],
+          "to": [
+            "released"
+          ],
+          "emits": "HandleReleased"
+        },
+        "errors": [],
+        "refusals": [
+          "HandleNotClaimed",
+          "NotAllowed"
+        ],
+        "allowed": [
+          {
+            "kind": "role",
+            "role": "handle.handleOwner"
+          }
+        ],
+        "steps": {
+          "record": {
+            "name": "handle.release.record",
+            "type": "database"
+          }
+        },
+        "idempotent": null,
+        "runs": "server",
+        "test": "unit",
+        "budget": {
+          "p95Ms": 150
+        },
+        "hash": "e0e113ff13866560"
+      },
+      "handle.resolve": {
+        "kind": "operation",
+        "name": "handle.resolve",
+        "thing": "handle",
+        "verb": "resolve",
+        "identifier": "resolve",
+        "file": "blueprint/things/handle/verbs/resolve.ts",
+        "from": {
+          "kind": "app"
+        },
+        "description": "Find the handle that holds a claimed name. A released or unclaimed name has none.",
+        "payload": {
+          "name": {
+            "value": {
+              "type": "schema"
+            },
+            "named": "HandleName",
+            "ref": "handle.name"
+          }
+        },
+        "answer": {
+          "handle": {
+            "value": {
+              "type": "id",
+              "prefix": "hdl"
+            },
+            "ref": "handle.id"
+          }
+        },
+        "move": null,
+        "errors": [
+          "HandleNotFound"
+        ],
+        "refusals": [
+          "HandleNotFound"
+        ],
+        "allowed": [
+          {
+            "kind": "anyone"
+          }
+        ],
+        "steps": {
+          "load": {
+            "name": "handle.resolve.load",
+            "type": "database"
+          }
+        },
+        "idempotent": null,
+        "runs": "server",
+        "test": "unit",
+        "budget": {
+          "p95Ms": 150
+        },
+        "hash": "8e923d24a0e4f5d2"
       },
       "link.add": {
         "kind": "operation",
@@ -322,15 +495,8 @@
         "from": {
           "kind": "app"
         },
-        "description": "Append a link to the public page of a claimed name.",
+        "description": "Append a link to your own public page. You need a claimed name first.",
         "payload": {
-          "handle": {
-            "value": {
-              "type": "schema"
-            },
-            "named": "HandleName",
-            "ref": "handle.name"
-          },
           "title": {
             "value": {
               "type": "text",
@@ -368,11 +534,12 @@
           "LinkNeedsHandle"
         ],
         "refusals": [
-          "LinkNeedsHandle"
+          "LinkNeedsHandle",
+          "NotAllowed"
         ],
         "allowed": [
           {
-            "kind": "anyone"
+            "kind": "signed-in"
           }
         ],
         "steps": {
@@ -391,7 +558,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "9188ccf111bbc19c"
+        "hash": "79ae98cc512ce8b0"
       },
       "link.order": {
         "kind": "operation",
@@ -426,11 +593,13 @@
           "LinkAlreadyRemoved"
         ],
         "refusals": [
-          "LinkAlreadyRemoved"
+          "LinkAlreadyRemoved",
+          "NotAllowed"
         ],
         "allowed": [
           {
-            "kind": "anyone"
+            "kind": "role",
+            "role": "link.linkOwner"
           }
         ],
         "steps": {
@@ -449,7 +618,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "6617593628d349a3"
+        "hash": "fc4cb5a4800763c8"
       },
       "link.remove": {
         "kind": "operation",
@@ -484,11 +653,13 @@
         },
         "errors": [],
         "refusals": [
-          "LinkNotListed"
+          "LinkNotListed",
+          "NotAllowed"
         ],
         "allowed": [
           {
-            "kind": "anyone"
+            "kind": "role",
+            "role": "link.linkOwner"
           }
         ],
         "steps": {
@@ -503,7 +674,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "4a092ee981078c51"
+        "hash": "a25c664ef7106086"
       },
       "profile.get": {
         "kind": "operation",
@@ -566,8 +737,1995 @@
         "hash": "ee1eb946c4673c40"
       }
     },
-    "journeys": {},
-    "startingWorlds": {},
+    "journeys": {
+      "journeys/a-name-is-claimed-once.ts": {
+        "name": "a name is claimed once",
+        "file": "journeys/a-name-is-claimed-once.ts",
+        "cast": {
+          "aaron": {
+            "kind": "signed-in"
+          },
+          "bob": {
+            "kind": "signed-in"
+          },
+          "visitor": {
+            "kind": "anyone"
+          }
+        },
+        "starts": "claimed",
+        "steps": [
+          {
+            "title": "the same request again answers the same handle and claims nothing",
+            "call": {
+              "actor": "aaron",
+              "operation": "handle.claim",
+              "payload": {
+                "name": "claimedname"
+              },
+              "request": "first-claim"
+            },
+            "checks": [
+              {
+                "kind": "expect-equal",
+                "value": {
+                  "ref": [
+                    "world",
+                    "handle"
+                  ]
+                }
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [],
+                "absent": [
+                  "handle.claim.record"
+                ]
+              },
+              {
+                "kind": "is-in",
+                "thing": "handle",
+                "id": {
+                  "ref": [
+                    "world",
+                    "handle"
+                  ]
+                },
+                "state": "claimed"
+              }
+            ]
+          },
+          {
+            "title": "a taken name is refused",
+            "call": {
+              "actor": "bob",
+              "operation": "handle.claim",
+              "payload": {
+                "name": "claimedname"
+              },
+              "request": "bobs-claim"
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "HandleTaken",
+                "fields": {}
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [
+                  "handle.claim",
+                  "handle.claim.load"
+                ],
+                "absent": [
+                  "handle.claim.record"
+                ]
+              }
+            ]
+          },
+          {
+            "title": "another person's request key is not aaron's: still refused",
+            "call": {
+              "actor": "bob",
+              "operation": "handle.claim",
+              "payload": {
+                "name": "claimedname"
+              },
+              "request": "first-claim"
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "HandleTaken",
+                "fields": {}
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [],
+                "absent": [
+                  "handle.claim.record"
+                ]
+              }
+            ]
+          },
+          {
+            "title": "the name still resolves to aaron's handle",
+            "call": {
+              "actor": "visitor",
+              "operation": "handle.resolve",
+              "payload": {
+                "name": "claimedname"
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect-equal",
+                "value": {
+                  "ref": [
+                    "world",
+                    "handle"
+                  ]
+                }
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [
+                  "handle.resolve",
+                  "handle.resolve.load"
+                ],
+                "absent": []
+              }
+            ]
+          },
+          {
+            "title": "the refusal left bob free to claim a name of his own",
+            "call": {
+              "actor": "bob",
+              "operation": "handle.claim",
+              "payload": {
+                "name": "bobspage"
+              }
+            },
+            "checks": [
+              {
+                "kind": "emits",
+                "event": "HandleClaimed",
+                "fields": {
+                  "handle": {
+                    "ref": [
+                      "last",
+                      "handle"
+                    ]
+                  },
+                  "name": "bobspage"
+                }
+              },
+              {
+                "kind": "is-in",
+                "thing": "handle",
+                "id": {
+                  "ref": [
+                    "last",
+                    "handle"
+                  ]
+                },
+                "state": "claimed"
+              }
+            ]
+          }
+        ],
+        "sourceHash": "81f595a52e30adb0bb60fe9c49f504fd2c44693086af336a78959daa2fd731dd"
+      },
+      "journeys/a-stranger-cannot-edit-a-page.ts": {
+        "name": "a stranger cannot edit a page",
+        "file": "journeys/a-stranger-cannot-edit-a-page.ts",
+        "cast": {
+          "aaron": {
+            "kind": "signed-in"
+          },
+          "bob": {
+            "kind": "signed-in"
+          },
+          "visitor": {
+            "kind": "anyone"
+          }
+        },
+        "starts": "page-to-guard",
+        "steps": [
+          {
+            "title": "bob has no page, so he has nowhere to add a link",
+            "call": {
+              "actor": "bob",
+              "operation": "link.add",
+              "payload": {
+                "title": "Spam",
+                "url": "https://bob.example.com"
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "LinkNeedsHandle",
+                "fields": {}
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [],
+                "absent": [
+                  "link.add.record"
+                ]
+              }
+            ]
+          },
+          {
+            "title": "bob cannot move aaron's link, and the handler never runs",
+            "call": {
+              "actor": "bob",
+              "operation": "link.order",
+              "payload": {
+                "link": {
+                  "ref": [
+                    "world",
+                    "lastLink"
+                  ]
+                },
+                "position": "0"
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "NotAllowed",
+                "fields": {}
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [],
+                "absent": [
+                  "link.order"
+                ]
+              }
+            ]
+          },
+          {
+            "title": "bob cannot remove aaron's link",
+            "call": {
+              "actor": "bob",
+              "operation": "link.remove",
+              "payload": {
+                "link": {
+                  "ref": [
+                    "world",
+                    "lastLink"
+                  ]
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "NotAllowed",
+                "fields": {}
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [],
+                "absent": [
+                  "link.remove"
+                ]
+              },
+              {
+                "kind": "is-in",
+                "thing": "link",
+                "id": {
+                  "ref": [
+                    "world",
+                    "lastLink"
+                  ]
+                },
+                "state": "listed"
+              }
+            ]
+          },
+          {
+            "title": "someone who is not signed in cannot remove it either",
+            "call": {
+              "actor": "visitor",
+              "operation": "link.remove",
+              "payload": {
+                "link": {
+                  "ref": [
+                    "world",
+                    "lastLink"
+                  ]
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "NotAllowed",
+                "fields": {}
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [],
+                "absent": [
+                  "link.remove"
+                ]
+              }
+            ]
+          },
+          {
+            "title": "someone who is not signed in cannot claim a name",
+            "call": {
+              "actor": "visitor",
+              "operation": "handle.claim",
+              "payload": {
+                "name": "visitorpage"
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "NotAllowed",
+                "fields": {}
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [],
+                "absent": [
+                  "handle.claim"
+                ]
+              }
+            ]
+          },
+          {
+            "title": "aaron's name resolves, for anyone",
+            "call": {
+              "actor": "visitor",
+              "operation": "handle.resolve",
+              "payload": {
+                "name": "guardpage"
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect",
+                "match": "^hdl_[0-9a-z]+$",
+                "flags": ""
+              },
+              {
+                "kind": "no-events"
+              }
+            ]
+          },
+          {
+            "title": "bob cannot release aaron's name",
+            "call": {
+              "actor": "bob",
+              "operation": "handle.release",
+              "payload": {
+                "handle": {
+                  "ref": [
+                    "last",
+                    "handle"
+                  ]
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "NotAllowed",
+                "fields": {}
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [],
+                "absent": [
+                  "handle.release"
+                ]
+              },
+              {
+                "kind": "is-in",
+                "thing": "handle",
+                "id": {
+                  "ref": [
+                    "last",
+                    "handle"
+                  ]
+                },
+                "state": "claimed"
+              }
+            ]
+          },
+          {
+            "title": "aaron's page is exactly as he left it",
+            "call": {
+              "actor": "visitor",
+              "operation": "profile.get",
+              "payload": {
+                "handle": "guardpage"
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect-equal",
+                "value": 1
+              },
+              {
+                "kind": "expect-equal",
+                "value": [
+                  {
+                    "ref": [
+                      "world",
+                      "lastLink"
+                    ]
+                  },
+                  "GitHub",
+                  "https://github.com/aaron"
+                ]
+              },
+              {
+                "kind": "no-events"
+              }
+            ]
+          }
+        ],
+        "sourceHash": "edd2c7262deda8bc1f89ba4171c23fd0094c26ed94ffd37b02e9ef94040fbd5a"
+      },
+      "journeys/add-order-and-remove-a-link.ts": {
+        "name": "add, order and remove a link",
+        "file": "journeys/add-order-and-remove-a-link.ts",
+        "cast": {
+          "aaron": {
+            "kind": "signed-in"
+          },
+          "visitor": {
+            "kind": "anyone"
+          }
+        },
+        "starts": "page-to-edit",
+        "steps": [
+          {
+            "title": "the page starts with the three links aaron put on it, in order",
+            "call": {
+              "actor": "visitor",
+              "operation": "profile.get",
+              "payload": {
+                "handle": "editpage"
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect-equal",
+                "value": [
+                  "GitHub",
+                  "Blog",
+                  "Talks"
+                ]
+              },
+              {
+                "kind": "expect-equal",
+                "value": {
+                  "ref": [
+                    "world",
+                    "lastLink"
+                  ]
+                }
+              },
+              {
+                "kind": "no-events"
+              }
+            ]
+          },
+          {
+            "title": "aaron adds a fourth link",
+            "call": {
+              "actor": "aaron",
+              "operation": "link.add",
+              "payload": {
+                "title": "Newsletter",
+                "url": "https://aaron.example.com/news"
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect",
+                "match": "^lnk_[0-9a-z]+$",
+                "flags": ""
+              },
+              {
+                "kind": "emits",
+                "event": "LinkAdded",
+                "fields": {
+                  "link": {
+                    "ref": [
+                      "last",
+                      "link"
+                    ]
+                  }
+                }
+              },
+              {
+                "kind": "is-in",
+                "thing": "link",
+                "id": {
+                  "ref": [
+                    "last",
+                    "link"
+                  ]
+                },
+                "state": "listed"
+              },
+              {
+                "kind": "spans",
+                "present": [
+                  "link.add",
+                  "link.add.load",
+                  "link.add.record",
+                  "link.add.commit"
+                ],
+                "absent": []
+              }
+            ]
+          },
+          {
+            "title": "it goes at the end, with its title and address",
+            "call": {
+              "actor": "visitor",
+              "operation": "profile.get",
+              "payload": {
+                "handle": "editpage"
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect-equal",
+                "value": [
+                  "GitHub",
+                  "Blog",
+                  "Talks",
+                  "Newsletter"
+                ]
+              },
+              {
+                "kind": "expect-equal",
+                "value": [
+                  "Newsletter",
+                  "https://aaron.example.com/news"
+                ]
+              },
+              {
+                "kind": "no-events"
+              }
+            ]
+          },
+          {
+            "title": "aaron moves the newsletter to the top",
+            "call": {
+              "actor": "aaron",
+              "operation": "link.order",
+              "payload": {
+                "link": {
+                  "ref": [
+                    "last",
+                    "links",
+                    "3",
+                    "id"
+                  ]
+                },
+                "position": "0"
+              }
+            },
+            "checks": [
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [
+                  "link.order",
+                  "link.order.load",
+                  "link.order.record"
+                ],
+                "absent": []
+              }
+            ]
+          },
+          {
+            "title": "the page shows the new order",
+            "call": {
+              "actor": "visitor",
+              "operation": "profile.get",
+              "payload": {
+                "handle": "editpage"
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect-equal",
+                "value": [
+                  "Newsletter",
+                  "GitHub",
+                  "Blog",
+                  "Talks"
+                ]
+              },
+              {
+                "kind": "no-events"
+              }
+            ]
+          },
+          {
+            "title": "a position past the end puts a link last",
+            "call": {
+              "actor": "aaron",
+              "operation": "link.order",
+              "payload": {
+                "link": {
+                  "ref": [
+                    "last",
+                    "links",
+                    "1",
+                    "id"
+                  ]
+                },
+                "position": "99"
+              }
+            },
+            "checks": [
+              {
+                "kind": "no-events"
+              }
+            ]
+          },
+          {
+            "title": "the page shows GitHub last",
+            "call": {
+              "actor": "visitor",
+              "operation": "profile.get",
+              "payload": {
+                "handle": "editpage"
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect-equal",
+                "value": [
+                  "Newsletter",
+                  "Blog",
+                  "Talks",
+                  "GitHub"
+                ]
+              },
+              {
+                "kind": "no-events"
+              }
+            ]
+          },
+          {
+            "title": "aaron removes the talks link",
+            "call": {
+              "actor": "aaron",
+              "operation": "link.remove",
+              "payload": {
+                "link": {
+                  "ref": [
+                    "world",
+                    "lastLink"
+                  ]
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "emits",
+                "event": "LinkRemoved",
+                "fields": {
+                  "link": {
+                    "ref": [
+                      "world",
+                      "lastLink"
+                    ]
+                  }
+                }
+              },
+              {
+                "kind": "is-in",
+                "thing": "link",
+                "id": {
+                  "ref": [
+                    "world",
+                    "lastLink"
+                  ]
+                },
+                "state": "removed"
+              },
+              {
+                "kind": "spans",
+                "present": [
+                  "link.remove",
+                  "link.remove.record",
+                  "link.remove.commit"
+                ],
+                "absent": []
+              }
+            ]
+          },
+          {
+            "title": "the page no longer lists it, and keeps the order of the rest",
+            "call": {
+              "actor": "visitor",
+              "operation": "profile.get",
+              "payload": {
+                "handle": "editpage"
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect-equal",
+                "value": [
+                  "Newsletter",
+                  "Blog",
+                  "GitHub"
+                ]
+              },
+              {
+                "kind": "no-events"
+              }
+            ]
+          },
+          {
+            "title": "he cannot remove it twice",
+            "call": {
+              "actor": "aaron",
+              "operation": "link.remove",
+              "payload": {
+                "link": {
+                  "ref": [
+                    "world",
+                    "lastLink"
+                  ]
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "link.notFrom",
+                "fields": {
+                  "state": "removed"
+                }
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [],
+                "absent": [
+                  "link.remove.record"
+                ]
+              },
+              {
+                "kind": "is-in",
+                "thing": "link",
+                "id": {
+                  "ref": [
+                    "world",
+                    "lastLink"
+                  ]
+                },
+                "state": "removed"
+              }
+            ]
+          },
+          {
+            "title": "he cannot move a removed link",
+            "call": {
+              "actor": "aaron",
+              "operation": "link.order",
+              "payload": {
+                "link": {
+                  "ref": [
+                    "world",
+                    "lastLink"
+                  ]
+                },
+                "position": "0"
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "LinkAlreadyRemoved",
+                "fields": {}
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [
+                  "link.order.load"
+                ],
+                "absent": [
+                  "link.order.record"
+                ]
+              }
+            ]
+          },
+          {
+            "title": "the page is as the removal left it",
+            "call": {
+              "actor": "visitor",
+              "operation": "profile.get",
+              "payload": {
+                "handle": "editpage"
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect-equal",
+                "value": [
+                  "Newsletter",
+                  "Blog",
+                  "GitHub"
+                ]
+              },
+              {
+                "kind": "no-events"
+              }
+            ]
+          }
+        ],
+        "sourceHash": "59292ffe5a0d044e9dd5c03b11c1d94bdd5fcb6de355d96b4c4624f8437c21a7"
+      },
+      "journeys/anyone-reads-a-public-page.ts": {
+        "name": "anyone reads a public page",
+        "file": "journeys/anyone-reads-a-public-page.ts",
+        "cast": {
+          "visitor": {
+            "kind": "anyone"
+          },
+          "bob": {
+            "kind": "signed-in"
+          }
+        },
+        "starts": "page-with-links",
+        "steps": [
+          {
+            "title": "a visitor resolves the name to a handle",
+            "call": {
+              "actor": "visitor",
+              "operation": "handle.resolve",
+              "payload": {
+                "name": "linkpage"
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect",
+                "match": "^hdl_[0-9a-z]+$",
+                "flags": ""
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [
+                  "handle.resolve",
+                  "handle.resolve.load"
+                ],
+                "absent": []
+              }
+            ]
+          },
+          {
+            "title": "a visitor reads the page: the name and every link, in order",
+            "call": {
+              "actor": "visitor",
+              "operation": "profile.get",
+              "payload": {
+                "handle": "linkpage"
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect-equal",
+                "value": "linkpage"
+              },
+              {
+                "kind": "expect-equal",
+                "value": [
+                  "GitHub",
+                  "Blog",
+                  "Talks"
+                ]
+              },
+              {
+                "kind": "expect-equal",
+                "value": [
+                  "https://github.com/aaron",
+                  "https://aaron.example.com/blog",
+                  "https://aaron.example.com/talks"
+                ]
+              },
+              {
+                "kind": "expect-equal",
+                "value": [
+                  true,
+                  true,
+                  true
+                ]
+              },
+              {
+                "kind": "expect-equal",
+                "value": {
+                  "ref": [
+                    "world",
+                    "lastLink"
+                  ]
+                }
+              },
+              {
+                "kind": "expect-equal",
+                "value": [
+                  "id",
+                  "title",
+                  "url"
+                ]
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [
+                  "profile.get",
+                  "profile.get.load"
+                ],
+                "absent": []
+              }
+            ]
+          },
+          {
+            "title": "a signed-in person who is not the owner reads the same page",
+            "call": {
+              "actor": "bob",
+              "operation": "profile.get",
+              "payload": {
+                "handle": "linkpage"
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect-equal",
+                "value": "linkpage"
+              },
+              {
+                "kind": "expect-equal",
+                "value": [
+                  "GitHub",
+                  "Blog",
+                  "Talks"
+                ]
+              },
+              {
+                "kind": "no-events"
+              }
+            ]
+          },
+          {
+            "title": "a name nobody claimed has no page",
+            "call": {
+              "actor": "visitor",
+              "operation": "profile.get",
+              "payload": {
+                "handle": "nosuchpage"
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "ProfileNotFound",
+                "fields": {}
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [
+                  "profile.get",
+                  "profile.get.load"
+                ],
+                "absent": []
+              }
+            ]
+          },
+          {
+            "title": "a name nobody claimed does not resolve",
+            "call": {
+              "actor": "visitor",
+              "operation": "handle.resolve",
+              "payload": {
+                "name": "nosuchpage"
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "HandleNotFound",
+                "fields": {}
+              },
+              {
+                "kind": "no-events"
+              }
+            ]
+          }
+        ],
+        "sourceHash": "69ce14702935d83572241102102c93af25701cbec2316d55bff71048c008af22"
+      },
+      "journeys/claim-a-handle.ts": {
+        "name": "claim a handle",
+        "file": "journeys/claim-a-handle.ts",
+        "cast": {
+          "aaron": {
+            "kind": "signed-in"
+          },
+          "visitor": {
+            "kind": "anyone"
+          }
+        },
+        "starts": null,
+        "steps": [
+          {
+            "title": "a name nobody has claimed does not resolve",
+            "call": {
+              "actor": "visitor",
+              "operation": "handle.resolve",
+              "payload": {
+                "name": "firstpage"
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "HandleNotFound",
+                "fields": {}
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [
+                  "handle.resolve",
+                  "handle.resolve.load"
+                ],
+                "absent": []
+              }
+            ]
+          },
+          {
+            "title": "an unclaimed name has no public page",
+            "call": {
+              "actor": "visitor",
+              "operation": "profile.get",
+              "payload": {
+                "handle": "firstpage"
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "ProfileNotFound",
+                "fields": {}
+              },
+              {
+                "kind": "no-events"
+              }
+            ]
+          },
+          {
+            "title": "aaron cannot add a link before he has a page",
+            "call": {
+              "actor": "aaron",
+              "operation": "link.add",
+              "payload": {
+                "title": "GitHub",
+                "url": "https://github.com/aaron"
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "LinkNeedsHandle",
+                "fields": {}
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [],
+                "absent": [
+                  "link.add.record"
+                ]
+              }
+            ]
+          },
+          {
+            "title": "aaron claims the free name",
+            "call": {
+              "actor": "aaron",
+              "operation": "handle.claim",
+              "payload": {
+                "name": "firstpage"
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect",
+                "match": "^hdl_[0-9a-z]+$",
+                "flags": ""
+              },
+              {
+                "kind": "emits",
+                "event": "HandleClaimed",
+                "fields": {
+                  "handle": {
+                    "ref": [
+                      "last",
+                      "handle"
+                    ]
+                  },
+                  "name": "firstpage"
+                }
+              },
+              {
+                "kind": "is-in",
+                "thing": "handle",
+                "id": {
+                  "ref": [
+                    "last",
+                    "handle"
+                  ]
+                },
+                "state": "claimed"
+              },
+              {
+                "kind": "spans",
+                "present": [
+                  "handle.claim",
+                  "handle.claim.load",
+                  "handle.claim.record",
+                  "handle.claim.commit"
+                ],
+                "absent": []
+              }
+            ]
+          },
+          {
+            "title": "the name now resolves to a handle",
+            "call": {
+              "actor": "visitor",
+              "operation": "handle.resolve",
+              "payload": {
+                "name": "firstpage"
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect",
+                "match": "^hdl_[0-9a-z]+$",
+                "flags": ""
+              },
+              {
+                "kind": "no-events"
+              }
+            ]
+          },
+          {
+            "title": "the claim made a public page, with no links yet",
+            "call": {
+              "actor": "visitor",
+              "operation": "profile.get",
+              "payload": {
+                "handle": "firstpage"
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect-equal",
+                "value": {
+                  "handle": "firstpage",
+                  "links": []
+                }
+              },
+              {
+                "kind": "no-events"
+              }
+            ]
+          },
+          {
+            "title": "aaron cannot claim a second name while he holds one",
+            "call": {
+              "actor": "aaron",
+              "operation": "handle.claim",
+              "payload": {
+                "name": "secondpage"
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "HandleAlreadyOwned",
+                "fields": {}
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [],
+                "absent": [
+                  "handle.claim.record"
+                ]
+              }
+            ]
+          },
+          {
+            "title": "the refused second name is still free",
+            "call": {
+              "actor": "visitor",
+              "operation": "handle.resolve",
+              "payload": {
+                "name": "secondpage"
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "HandleNotFound",
+                "fields": {}
+              },
+              {
+                "kind": "no-events"
+              }
+            ]
+          }
+        ],
+        "sourceHash": "cb3cfae36bbafa5dea03849e4b480d6be8203257c4097b4f154d73827bb27910"
+      },
+      "journeys/release-a-handle.ts": {
+        "name": "release a handle",
+        "file": "journeys/release-a-handle.ts",
+        "cast": {
+          "aaron": {
+            "kind": "signed-in"
+          },
+          "bob": {
+            "kind": "signed-in"
+          },
+          "visitor": {
+            "kind": "anyone"
+          }
+        },
+        "starts": "claimed-to-release",
+        "steps": [
+          {
+            "title": "aaron puts a link on his page before he lets the name go",
+            "call": {
+              "actor": "aaron",
+              "operation": "link.add",
+              "payload": {
+                "title": "Old link",
+                "url": "https://aaron.example.com/old"
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect",
+                "match": "^lnk_[0-9a-z]+$",
+                "flags": ""
+              }
+            ]
+          },
+          {
+            "title": "bob cannot release aaron's name",
+            "call": {
+              "actor": "bob",
+              "operation": "handle.release",
+              "payload": {
+                "handle": {
+                  "ref": [
+                    "world",
+                    "handle"
+                  ]
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "NotAllowed",
+                "fields": {}
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [],
+                "absent": [
+                  "handle.release"
+                ]
+              },
+              {
+                "kind": "is-in",
+                "thing": "handle",
+                "id": {
+                  "ref": [
+                    "world",
+                    "handle"
+                  ]
+                },
+                "state": "claimed"
+              }
+            ]
+          },
+          {
+            "title": "aaron releases his name",
+            "call": {
+              "actor": "aaron",
+              "operation": "handle.release",
+              "payload": {
+                "handle": {
+                  "ref": [
+                    "world",
+                    "handle"
+                  ]
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "emits",
+                "event": "HandleReleased",
+                "fields": {
+                  "handle": {
+                    "ref": [
+                      "world",
+                      "handle"
+                    ]
+                  },
+                  "name": "releasepage"
+                }
+              },
+              {
+                "kind": "is-in",
+                "thing": "handle",
+                "id": {
+                  "ref": [
+                    "world",
+                    "handle"
+                  ]
+                },
+                "state": "released"
+              },
+              {
+                "kind": "spans",
+                "present": [
+                  "handle.release",
+                  "handle.release.record",
+                  "handle.release.commit"
+                ],
+                "absent": []
+              }
+            ]
+          },
+          {
+            "title": "he cannot release it twice",
+            "call": {
+              "actor": "aaron",
+              "operation": "handle.release",
+              "payload": {
+                "handle": {
+                  "ref": [
+                    "world",
+                    "handle"
+                  ]
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "handle.notFrom",
+                "fields": {
+                  "state": "released"
+                }
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [],
+                "absent": [
+                  "handle.release.record"
+                ]
+              },
+              {
+                "kind": "is-in",
+                "thing": "handle",
+                "id": {
+                  "ref": [
+                    "world",
+                    "handle"
+                  ]
+                },
+                "state": "released"
+              }
+            ]
+          },
+          {
+            "title": "the released name no longer resolves",
+            "call": {
+              "actor": "visitor",
+              "operation": "handle.resolve",
+              "payload": {
+                "name": "releasepage"
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "HandleNotFound",
+                "fields": {}
+              },
+              {
+                "kind": "no-events"
+              }
+            ]
+          },
+          {
+            "title": "the released name has no public page",
+            "call": {
+              "actor": "visitor",
+              "operation": "profile.get",
+              "payload": {
+                "handle": "releasepage"
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "ProfileNotFound",
+                "fields": {}
+              },
+              {
+                "kind": "no-events"
+              }
+            ]
+          },
+          {
+            "title": "aaron has no page to add a link to any more",
+            "call": {
+              "actor": "aaron",
+              "operation": "link.add",
+              "payload": {
+                "title": "Too late",
+                "url": "https://aaron.example.com/late"
+              }
+            },
+            "checks": [
+              {
+                "kind": "refuses",
+                "error": "LinkNeedsHandle",
+                "fields": {}
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [],
+                "absent": [
+                  "link.add.record"
+                ]
+              }
+            ]
+          },
+          {
+            "title": "someone else claims the released name",
+            "call": {
+              "actor": "bob",
+              "operation": "handle.claim",
+              "payload": {
+                "name": "releasepage"
+              }
+            },
+            "checks": [
+              {
+                "kind": "emits",
+                "event": "HandleClaimed",
+                "fields": {
+                  "handle": {
+                    "ref": [
+                      "last",
+                      "handle"
+                    ]
+                  },
+                  "name": "releasepage"
+                }
+              },
+              {
+                "kind": "is-in",
+                "thing": "handle",
+                "id": {
+                  "ref": [
+                    "last",
+                    "handle"
+                  ]
+                },
+                "state": "claimed"
+              }
+            ]
+          },
+          {
+            "title": "the new page has none of the old owner's links",
+            "call": {
+              "actor": "visitor",
+              "operation": "profile.get",
+              "payload": {
+                "handle": "releasepage"
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect-equal",
+                "value": {
+                  "handle": "releasepage",
+                  "links": []
+                }
+              },
+              {
+                "kind": "no-events"
+              }
+            ]
+          }
+        ],
+        "sourceHash": "a48177784338823969a0f0324164d698367443b75b12b46901da7983c229f912"
+      },
+      "journeys/the-story.ts": {
+        "name": "a person claims a page and shares it",
+        "file": "journeys/the-story.ts",
+        "cast": {
+          "aaron": {
+            "kind": "signed-in"
+          },
+          "visitor": {
+            "kind": "anyone"
+          }
+        },
+        "starts": null,
+        "steps": [
+          {
+            "title": "aaron claims @aaron",
+            "call": {
+              "actor": "aaron",
+              "operation": "handle.claim",
+              "payload": {
+                "name": "aaron"
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect",
+                "match": "^hdl_[0-9a-z]+$",
+                "flags": ""
+              },
+              {
+                "kind": "emits",
+                "event": "HandleClaimed",
+                "fields": {
+                  "handle": {
+                    "ref": [
+                      "last",
+                      "handle"
+                    ]
+                  },
+                  "name": "aaron"
+                }
+              },
+              {
+                "kind": "is-in",
+                "thing": "handle",
+                "id": {
+                  "ref": [
+                    "last",
+                    "handle"
+                  ]
+                },
+                "state": "claimed"
+              },
+              {
+                "kind": "spans",
+                "present": [
+                  "handle.claim",
+                  "handle.claim.load",
+                  "handle.claim.record",
+                  "handle.claim.commit"
+                ],
+                "absent": []
+              }
+            ]
+          },
+          {
+            "title": "aaron adds his GitHub",
+            "call": {
+              "actor": "aaron",
+              "operation": "link.add",
+              "payload": {
+                "title": "GitHub",
+                "url": "https://github.com/aaron"
+              }
+            },
+            "checks": [
+              {
+                "kind": "emits",
+                "event": "LinkAdded",
+                "fields": {
+                  "link": {
+                    "ref": [
+                      "last",
+                      "link"
+                    ]
+                  }
+                }
+              },
+              {
+                "kind": "spans",
+                "present": [
+                  "link.add.record",
+                  "link.add.commit"
+                ],
+                "absent": []
+              }
+            ]
+          },
+          {
+            "title": "aaron adds his blog",
+            "call": {
+              "actor": "aaron",
+              "operation": "link.add",
+              "payload": {
+                "title": "Blog",
+                "url": "https://aaron.example.com/blog"
+              }
+            },
+            "checks": [
+              {
+                "kind": "emits",
+                "event": "LinkAdded",
+                "fields": {
+                  "link": {
+                    "ref": [
+                      "last",
+                      "link"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "title": "aaron adds his talks",
+            "call": {
+              "actor": "aaron",
+              "operation": "link.add",
+              "payload": {
+                "title": "Talks",
+                "url": "https://aaron.example.com/talks"
+              }
+            },
+            "checks": [
+              {
+                "kind": "emits",
+                "event": "LinkAdded",
+                "fields": {
+                  "link": {
+                    "ref": [
+                      "last",
+                      "link"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "title": "anyone sees his public page at @aaron: three links in the order he added them",
+            "call": {
+              "actor": "visitor",
+              "operation": "profile.get",
+              "payload": {
+                "handle": "aaron"
+              }
+            },
+            "checks": [
+              {
+                "kind": "expect-equal",
+                "value": "aaron"
+              },
+              {
+                "kind": "expect-equal",
+                "value": [
+                  [
+                    "GitHub",
+                    "https://github.com/aaron"
+                  ],
+                  [
+                    "Blog",
+                    "https://aaron.example.com/blog"
+                  ],
+                  [
+                    "Talks",
+                    "https://aaron.example.com/talks"
+                  ]
+                ]
+              },
+              {
+                "kind": "no-events"
+              },
+              {
+                "kind": "spans",
+                "present": [
+                  "profile.get",
+                  "profile.get.load"
+                ],
+                "absent": []
+              }
+            ]
+          }
+        ],
+        "sourceHash": "d57196a360730b167b836fafb7b4d3b0ee16913c6a8ef79690b16a102f0f5b5d"
+      }
+    },
+    "startingWorlds": {
+      "claimed-to-release": {
+        "name": "claimed-to-release",
+        "file": "blueprint/starting-worlds/claimed-to-release.ts",
+        "from": null,
+        "cast": {
+          "aaron": {
+            "kind": "signed-in"
+          }
+        },
+        "sourceHash": "d19a6b0b3b5fc0125c3d4e0c6c32952538295cdabc784a6a5b4137b6ba4ed917",
+        "makes": [
+          {
+            "actor": "aaron",
+            "operation": "handle.claim",
+            "payload": {
+              "name": "releasepage"
+            }
+          }
+        ],
+        "gives": {
+          "handle": {
+            "ref": [
+              "last",
+              "handle"
+            ]
+          }
+        }
+      },
+      "claimed": {
+        "name": "claimed",
+        "file": "blueprint/starting-worlds/claimed.ts",
+        "from": null,
+        "cast": {
+          "aaron": {
+            "kind": "signed-in"
+          }
+        },
+        "sourceHash": "a90974c271e8999c076bdec44feadfddce03df942e65250c0647daff35389703",
+        "makes": [
+          {
+            "actor": "aaron",
+            "operation": "handle.claim",
+            "payload": {
+              "name": "claimedname"
+            },
+            "request": "first-claim"
+          }
+        ],
+        "gives": {
+          "handle": {
+            "ref": [
+              "last",
+              "handle"
+            ]
+          }
+        }
+      },
+      "page-to-edit": {
+        "name": "page-to-edit",
+        "file": "blueprint/starting-worlds/page-to-edit.ts",
+        "from": null,
+        "cast": {
+          "aaron": {
+            "kind": "signed-in"
+          }
+        },
+        "sourceHash": "6141365cb8216b6026dca786ef8a569e976c11dde4200175a92197263e59611c",
+        "makes": [
+          {
+            "actor": "aaron",
+            "operation": "handle.claim",
+            "payload": {
+              "name": "editpage"
+            }
+          },
+          {
+            "actor": "aaron",
+            "operation": "link.add",
+            "payload": {
+              "title": "GitHub",
+              "url": "https://github.com/aaron"
+            }
+          },
+          {
+            "actor": "aaron",
+            "operation": "link.add",
+            "payload": {
+              "title": "Blog",
+              "url": "https://aaron.example.com/blog"
+            }
+          },
+          {
+            "actor": "aaron",
+            "operation": "link.add",
+            "payload": {
+              "title": "Talks",
+              "url": "https://aaron.example.com/talks"
+            }
+          }
+        ],
+        "gives": {
+          "lastLink": {
+            "ref": [
+              "last",
+              "link"
+            ]
+          }
+        }
+      },
+      "page-to-guard": {
+        "name": "page-to-guard",
+        "file": "blueprint/starting-worlds/page-to-guard.ts",
+        "from": null,
+        "cast": {
+          "aaron": {
+            "kind": "signed-in"
+          }
+        },
+        "sourceHash": "529713082f680ab0bdccc358559abbd5e36b9ffbe7bb2c809acd5d122eb72242",
+        "makes": [
+          {
+            "actor": "aaron",
+            "operation": "handle.claim",
+            "payload": {
+              "name": "guardpage"
+            }
+          },
+          {
+            "actor": "aaron",
+            "operation": "link.add",
+            "payload": {
+              "title": "GitHub",
+              "url": "https://github.com/aaron"
+            }
+          }
+        ],
+        "gives": {
+          "lastLink": {
+            "ref": [
+              "last",
+              "link"
+            ]
+          }
+        }
+      },
+      "page-with-links": {
+        "name": "page-with-links",
+        "file": "blueprint/starting-worlds/page-with-links.ts",
+        "from": null,
+        "cast": {
+          "aaron": {
+            "kind": "signed-in"
+          }
+        },
+        "sourceHash": "45dab9beb18d72d02e7398460bde55c4ef2c62b0e7eff6d97e423490bc5a6f16",
+        "makes": [
+          {
+            "actor": "aaron",
+            "operation": "handle.claim",
+            "payload": {
+              "name": "linkpage"
+            }
+          },
+          {
+            "actor": "aaron",
+            "operation": "link.add",
+            "payload": {
+              "title": "GitHub",
+              "url": "https://github.com/aaron"
+            }
+          },
+          {
+            "actor": "aaron",
+            "operation": "link.add",
+            "payload": {
+              "title": "Blog",
+              "url": "https://aaron.example.com/blog"
+            }
+          },
+          {
+            "actor": "aaron",
+            "operation": "link.add",
+            "payload": {
+              "title": "Talks",
+              "url": "https://aaron.example.com/talks"
+            }
+          }
+        ],
+        "gives": {
+          "lastLink": {
+            "ref": [
+              "last",
+              "link"
+            ]
+          }
+        }
+      }
+    },
     "environments": {
       "local": {
         "name": "local",
@@ -638,38 +2796,50 @@
   },
   "dependsOnByOperation": {
     "handle.claim": {
-      "operation:handle.claim": "9968f77abac9c487",
-      "thing:handle": "1cc2bec683ed6952"
+      "operation:handle.claim": "31ee370928a5aab2",
+      "thing:handle": "56bf560c43d39dd6"
+    },
+    "handle.release": {
+      "operation:handle.release": "e0e113ff13866560",
+      "thing:handle": "56bf560c43d39dd6"
+    },
+    "handle.resolve": {
+      "operation:handle.resolve": "8e923d24a0e4f5d2",
+      "thing:handle": "56bf560c43d39dd6"
     },
     "link.add": {
-      "operation:link.add": "9188ccf111bbc19c",
-      "thing:handle": "1cc2bec683ed6952",
-      "thing:link": "5857524d8a3d0255",
+      "operation:link.add": "79ae98cc512ce8b0",
+      "thing:handle": "56bf560c43d39dd6",
+      "thing:link": "ca7d6cf9cfa7b97e",
       "thing:profile": "987faea48c27e6d4"
     },
     "link.order": {
-      "operation:link.order": "6617593628d349a3",
-      "thing:link": "5857524d8a3d0255",
+      "operation:link.order": "fc4cb5a4800763c8",
+      "thing:handle": "56bf560c43d39dd6",
+      "thing:link": "ca7d6cf9cfa7b97e",
       "thing:profile": "987faea48c27e6d4"
     },
     "link.remove": {
-      "operation:link.remove": "4a092ee981078c51",
-      "thing:link": "5857524d8a3d0255",
+      "operation:link.remove": "a25c664ef7106086",
+      "thing:handle": "56bf560c43d39dd6",
+      "thing:link": "ca7d6cf9cfa7b97e",
       "thing:profile": "987faea48c27e6d4"
     },
     "profile.get": {
       "operation:profile.get": "ee1eb946c4673c40",
-      "thing:handle": "1cc2bec683ed6952",
+      "thing:handle": "56bf560c43d39dd6",
       "thing:profile": "987faea48c27e6d4"
     }
   },
   "docs": {
-    "handle/claim.md": "<!-- Generated from the blueprint. Do not edit. -->\n# handle.claim\n\nClaim a free name and make it the address of a public page, with its profile.\n\n**Who may call:** anyone.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| name | handle.name |\n\n## Answer\n\n| field | value |\n|---|---|\n| handle | handle.id |\n\n## Move\n\n`claim`: from nothing (it creates) to claimed, emitting HandleClaimed.\n\n## Steps\n\n- `handle.claim.load` (database)\n- `handle.claim.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| HandleTaken | 10 | HN-001 | declared in errors.ts |\n\n## How to call\n\n```sh\nplugged-in handle claim --name <name>\n```\n\nHTTP: `POST /handle/claim` with the payload as JSON. SDK: `Sdk.handle.claim(payload)`.\n",
-    "handle/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# handle\n\nA public name, claimed once, that is the address of a public page.\n\nLives in the database.\n\n## Fields\n\n| field | value |\n|---|---|\n| id | id |\n| name | HandleName |\n\n## Machine\n\nStates: claimed. A move from the wrong state is refused HandleNotClaimed (exit 11).\n\n| move | from | to | emits |\n|---|---|---|---|\n| claim | (creates) | claimed | HandleClaimed |\n\n## Operations\n\n- [handle.claim](claim.md): Claim a free name and make it the address of a public page, with its profile.\n",
-    "link/add.md": "<!-- Generated from the blueprint. Do not edit. -->\n# link.add\n\nAppend a link to the public page of a claimed name.\n\n**Who may call:** anyone.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| handle | handle.name |\n| title | link.title |\n| url | link.url |\n\n## Answer\n\n| field | value |\n|---|---|\n| link | link.id |\n\n## Move\n\n`add`: from nothing (it creates) to listed, emitting LinkAdded.\n\n## Steps\n\n- `link.add.load` (database)\n- `link.add.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| LinkNeedsHandle | 30 | LN-001 | declared in errors.ts |\n\n## How to call\n\n```sh\nplugged-in link add --handle <handle> --title <title> --url <url>\n```\n\nHTTP: `POST /link/add` with the payload as JSON. SDK: `Sdk.link.add(payload)`.\n",
-    "link/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# link\n\nA title and web address on a public page.\n\nLives in the database.\n\n## Fields\n\n| field | value |\n|---|---|\n| id | id |\n| profile | profile.id |\n| title | LinkTitle |\n| url | LinkUrl |\n\n## Machine\n\nStates: listed, removed. A move from the wrong state is refused LinkNotListed (exit 31).\n\n| move | from | to | emits |\n|---|---|---|---|\n| add | (creates) | listed | LinkAdded |\n| remove | listed | removed | LinkRemoved |\n\n## Operations\n\n- [link.add](add.md): Append a link to the public page of a claimed name.\n- [link.order](order.md): Move a link to a zero-based position. A position past the end puts it last.\n- [link.remove](remove.md): Remove a link from a public page.\n",
-    "link/order.md": "<!-- Generated from the blueprint. Do not edit. -->\n# link.order\n\nMove a link to a zero-based position. A position past the end puts it last.\n\n**Who may call:** anyone.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| link | link.id |\n| position | LinkPosition |\n\n## Answer\n\n(none)\n\n## Steps\n\n- `link.order.load` (database)\n- `link.order.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| LinkAlreadyRemoved | 32 | LN-002 | declared in errors.ts |\n\n## How to call\n\n```sh\nplugged-in link order --link <link> --position <position>\n```\n\nHTTP: `POST /link/order` with the payload as JSON. SDK: `Sdk.link.order(payload)`.\n",
-    "link/remove.md": "<!-- Generated from the blueprint. Do not edit. -->\n# link.remove\n\nRemove a link from a public page.\n\n**Who may call:** anyone.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| link | link.id |\n\n## Answer\n\n(none)\n\n## Move\n\n`remove`: from listed to removed, emitting LinkRemoved.\n\n## Steps\n\n- `link.remove.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| LinkNotListed | 31 | LN-900 | the link is in a state remove can't start from; carries `state` |\n\n## How to call\n\n```sh\nplugged-in link remove --link <link>\n```\n\nHTTP: `POST /link/remove` with the payload as JSON. SDK: `Sdk.link.remove(payload)`.\n",
+    "handle/claim.md": "<!-- Generated from the blueprint. Do not edit. -->\n# handle.claim\n\nClaim a free name and make it the address of your public page, with its profile.\n\n**Who may call:** anyone signed in.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| name | handle.name |\n\n## Answer\n\n| field | value |\n|---|---|\n| handle | handle.id |\n\n## Move\n\n`claim`: from nothing (it creates) to claimed, emitting HandleClaimed.\n\n## Steps\n\n- `handle.claim.load` (database)\n- `handle.claim.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| HandleTaken | 10 | HN-001 | declared in errors.ts |\n| HandleAlreadyOwned | 12 | HN-002 | declared in errors.ts |\n| NotAllowed | 3 | AR-001 | the caller isn't anyone signed in; the handler never runs |\n\n## How to call\n\n```sh\nplugged-in handle claim --name <name>\n```\n\nHTTP: `POST /handle/claim` with the payload as JSON. SDK: `Sdk.handle.claim(payload)`.\n",
+    "handle/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# handle\n\nA public name that belongs to one person until they release it, and is the address of a public page.\n\nLives in the database.\n\n## Fields\n\n| field | value |\n|---|---|\n| id | id |\n| name | HandleName |\n| owner | id |\n\n## Machine\n\nStates: claimed, released. A move from the wrong state is refused HandleNotClaimed (exit 11).\n\n| move | from | to | emits |\n|---|---|---|---|\n| claim | (creates) | claimed | HandleClaimed |\n| release | claimed | released | HandleReleased |\n\n## Roles\n\n- handleOwner\n\n## Operations\n\n- [handle.claim](claim.md): Claim a free name and make it the address of your public page, with its profile.\n- [handle.release](release.md): Free your name and take its public page offline. Anyone may claim the name afterwards.\n- [handle.resolve](resolve.md): Find the handle that holds a claimed name. A released or unclaimed name has none.\n",
+    "handle/release.md": "<!-- Generated from the blueprint. Do not edit. -->\n# handle.release\n\nFree your name and take its public page offline. Anyone may claim the name afterwards.\n\n**Who may call:** the handleOwner of the handle.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| handle | handle.id |\n\n## Answer\n\n(none)\n\n## Move\n\n`release`: from claimed to released, emitting HandleReleased.\n\n## Steps\n\n- `handle.release.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| HandleNotClaimed | 11 | HN-900 | the handle is in a state release can't start from; carries `state` |\n| NotAllowed | 3 | AR-001 | the caller isn't the handleOwner of the handle; the handler never runs |\n\n## How to call\n\n```sh\nplugged-in handle release --handle <handle>\n```\n\nHTTP: `POST /handle/release` with the payload as JSON. SDK: `Sdk.handle.release(payload)`.\n",
+    "handle/resolve.md": "<!-- Generated from the blueprint. Do not edit. -->\n# handle.resolve\n\nFind the handle that holds a claimed name. A released or unclaimed name has none.\n\n**Who may call:** anyone.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| name | handle.name |\n\n## Answer\n\n| field | value |\n|---|---|\n| handle | handle.id |\n\n## Steps\n\n- `handle.resolve.load` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| HandleNotFound | 13 | HN-003 | declared in errors.ts |\n\n## How to call\n\n```sh\nplugged-in handle resolve --name <name>\n```\n\nHTTP: `POST /handle/resolve` with the payload as JSON. SDK: `Sdk.handle.resolve(payload)`.\n",
+    "link/add.md": "<!-- Generated from the blueprint. Do not edit. -->\n# link.add\n\nAppend a link to your own public page. You need a claimed name first.\n\n**Who may call:** anyone signed in.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| title | link.title |\n| url | link.url |\n\n## Answer\n\n| field | value |\n|---|---|\n| link | link.id |\n\n## Move\n\n`add`: from nothing (it creates) to listed, emitting LinkAdded.\n\n## Steps\n\n- `link.add.load` (database)\n- `link.add.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| LinkNeedsHandle | 30 | LN-001 | declared in errors.ts |\n| NotAllowed | 3 | AR-001 | the caller isn't anyone signed in; the handler never runs |\n\n## How to call\n\n```sh\nplugged-in link add --title <title> --url <url>\n```\n\nHTTP: `POST /link/add` with the payload as JSON. SDK: `Sdk.link.add(payload)`.\n",
+    "link/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# link\n\nA title and web address on a public page.\n\nLives in the database.\n\n## Fields\n\n| field | value |\n|---|---|\n| id | id |\n| profile | profile.id |\n| owner | handle.owner |\n| title | LinkTitle |\n| url | LinkUrl |\n\n## Machine\n\nStates: listed, removed. A move from the wrong state is refused LinkNotListed (exit 31).\n\n| move | from | to | emits |\n|---|---|---|---|\n| add | (creates) | listed | LinkAdded |\n| remove | listed | removed | LinkRemoved |\n\n## Roles\n\n- linkOwner\n\n## Operations\n\n- [link.add](add.md): Append a link to your own public page. You need a claimed name first.\n- [link.order](order.md): Move a link to a zero-based position. A position past the end puts it last.\n- [link.remove](remove.md): Remove a link from a public page.\n",
+    "link/order.md": "<!-- Generated from the blueprint. Do not edit. -->\n# link.order\n\nMove a link to a zero-based position. A position past the end puts it last.\n\n**Who may call:** the linkOwner of the link.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| link | link.id |\n| position | LinkPosition |\n\n## Answer\n\n(none)\n\n## Steps\n\n- `link.order.load` (database)\n- `link.order.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| LinkAlreadyRemoved | 32 | LN-002 | declared in errors.ts |\n| NotAllowed | 3 | AR-001 | the caller isn't the linkOwner of the link; the handler never runs |\n\n## How to call\n\n```sh\nplugged-in link order --link <link> --position <position>\n```\n\nHTTP: `POST /link/order` with the payload as JSON. SDK: `Sdk.link.order(payload)`.\n",
+    "link/remove.md": "<!-- Generated from the blueprint. Do not edit. -->\n# link.remove\n\nRemove a link from a public page.\n\n**Who may call:** the linkOwner of the link.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| link | link.id |\n\n## Answer\n\n(none)\n\n## Move\n\n`remove`: from listed to removed, emitting LinkRemoved.\n\n## Steps\n\n- `link.remove.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| LinkNotListed | 31 | LN-900 | the link is in a state remove can't start from; carries `state` |\n| NotAllowed | 3 | AR-001 | the caller isn't the linkOwner of the link; the handler never runs |\n\n## How to call\n\n```sh\nplugged-in link remove --link <link>\n```\n\nHTTP: `POST /link/remove` with the payload as JSON. SDK: `Sdk.link.remove(payload)`.\n",
     "profile/get.md": "<!-- Generated from the blueprint. Do not edit. -->\n# profile.get\n\nRead a claimed name's public page and its links in display order.\n\n**Who may call:** anyone.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| handle | handle.name |\n\n## Answer\n\n| field | value |\n|---|---|\n| handle | handle.name |\n| links | schema |\n\n## Steps\n\n- `profile.get.load` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| ProfileNotFound | 20 | PR-001 | declared in errors.ts |\n\n## How to call\n\n```sh\nplugged-in profile get --handle <handle>\n```\n\nHTTP: `POST /profile/get` with the payload as JSON. SDK: `Sdk.profile.get(payload)`.\n",
     "profile/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# profile\n\nA claimed name's public page, with its links in the order they were put.\n\nLives in the database.\n\n## Fields\n\n| field | value |\n|---|---|\n| id | id |\n| handle | handle.id |\n| links | schema |\n\n## Operations\n\n- [profile.get](get.md): Read a claimed name's public page and its links in display order.\n"
   },
@@ -687,5 +2857,5 @@
       "reason": "no trace source is wired to the portal yet"
     }
   },
-  "digest": "d8ab98c9579a8c4ed000da008cd810da9e9bf9e9c32c5218486b06dc44fb6e90"
+  "digest": "51116c6dc2c159b9e5d25e5c174a76da132d2999f27fbfe9249b662cfbb8d72c"
 }
