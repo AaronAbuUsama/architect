@@ -57,19 +57,22 @@ thread types, their emojis, their finish lines and your agent's word for each ac
 
 ## Landing a layer into main
 
-All four must hold:
+All five must hold:
 1. **No conflicts:** the pull request merges cleanly.
 2. **A fresh CI run:** green on a head that includes the current `main`.
 3. **The layer's gate passes:** its one e2e suite, on a clean checkout.
 4. **A 🔍 pass.** Have the `reviewer` skill run on the layer's diff by a subagent or a 🔍 thread that did not write it,
    against its brief, `AGENTS.md` and `design/`. Merge on a pass. Send findings back to the lead.
+5. **Codex has finished, and every review thread is resolved:** fixed with a check, or answered with the ledger entry
+   or decision that takes it. Branch protection on `main` refuses the merge until the `codex-finished` status is green
+   and no thread is open; if Codex hasn't reviewed, comment `@codex review`.
+
+Then check `main`'s next CI run. If it goes red, fixing it comes before anything else. One landing at a time: leads
+tell you "landing now" before they merge into `main`, and you answer if another landing is under way.
 
 The 🔍 is not only for layers. Every build pull request, a builder's into a goal or milestone branch included, gets
 one before it merges, and the 🔍 lists every door into the change and runs one probe through each (the `reviewer`
 skill). Brief leads to do the same.
-
-Then check `main`'s next CI run. If it goes red, fixing it comes before anything else. One landing at a time: leads
-tell you "landing now" before they merge into `main`, and you answer if another landing is under way.
 
 ## Spikes and decisions
 

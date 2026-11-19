@@ -21,7 +21,7 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
 - **One way to supersede.** When a decision changes an older doc, amend the older doc in place in the same change, with
   "Amended by <id>, <date>" beside the changed words. The new decision lists each replaced phrase under
   `## Supersedes`, one line each (`- <old doc>: "<old words>" → "<new words>"`), and the change shows that `git grep`
-  finds each old phrase only in `design/decisions/` and `design/process/`.
+  finds each old phrase only in `design/decisions/` and `design/process/` (CI's `e2e-m0` job checks it).
 - Keep Aaron's own calls (the ones dated with his name) unless building proves one wrong; then change it, record why,
   and tell him in the next report.
 - Come back to Aaron only when truly blocked: money beyond the cap, a credential, production, something outward-facing
@@ -43,9 +43,12 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
 - **Decisions** are made just in time, in the decision step placed before the first step that needs it, and recorded
   in `design/decisions/<id>.md` with the evidence. Don't reopen one without new evidence.
 - **Journeys and checks come first.** A different agent from the builder writes an operation's journeys and checks,
-  and they fail on empty handlers before the builder starts. A builder never edits journeys, the evals or the runner's
-  generic checks.
-- **Merge your own pull requests when CI is green.** Push on until actually blocked.
+  and they fail on empty handlers before the builder starts (the `author` skill). A builder never edits journeys, the
+  evals or the runner's generic checks. Authors' branches end in `-check` and builders' in `-build`; CI's
+  `builder-paths` job fails a `-build` pull request that touches journeys, evals or `e2e/` (removing lines from
+  `e2e/m1/expected-failing.txt` is the one exception). A builder that needs a check changed stops and asks its author.
+- **Merge your own pull requests when CI is green,** Codex has finished and every review thread is resolved. Push on
+  until actually blocked.
 
 ## The code's own rules (enforced by lint and check as soon as they exist)
 
