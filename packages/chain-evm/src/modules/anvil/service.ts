@@ -22,7 +22,7 @@ export const Anvil: AnvilApi = {
       const port = options.port ?? (yield* freePort);
       const rpcUrl = `http://127.0.0.1:${port}`;
       const anvil = yield* Effect.acquireRelease(
-        spawnAnvil(options.binary ?? "anvil", port, chainId),
+        spawnAnvil(options.binary ?? "anvil", port, chainId, options.blockTime),
         ({ child }) => stopAnvil(child),
       );
       yield* untilReady(rpcUrl, chainId, anvil);

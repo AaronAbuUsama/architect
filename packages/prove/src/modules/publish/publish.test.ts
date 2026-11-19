@@ -16,6 +16,7 @@ import { Releases } from "#modules/releases/service.js";
 import { Worlds } from "#modules/world/service.js";
 import { Publish } from "./service.ts";
 import { hostTarget } from "./internal/sea.ts";
+import { publishOrthograph } from "../../../test/orthograph-package.ts";
 
 const PORTS = { registry: 9050, logbook: 9051, issuer: 9052, world: 9053 };
 const repo = resolve(import.meta.dirname, "../../../../..");
@@ -83,10 +84,9 @@ beforeAll(async () => {
   await Effect.runPromise(Registry.start({ dir, port: PORTS.registry }).pipe(Scope.provide(services)));
   expect(existsSync(npmrc)).toBe(true);
   // The SDK and the CLI depend on orthograph, so the registry holds it, as the starter's script publishes it.
-  const built = spawnSync("pnpm", ["nx", "run", "orthograph:build", "--outputStyle=static"], { cwd: repo, encoding: "utf8", env: { ...env, NX_DAEMON: "false" } });
+  const { built, published } = publishOrthograph(repo, registry, env);
   expect(built.status, built.stdout + built.stderr).toBe(0);
-  const pushed = spawnSync("pnpm", ["publish", "--registry", registry, "--no-git-checks"], { cwd: join(repo, "packages/orthograph"), encoding: "utf8", env });
-  expect(pushed.status, pushed.stderr).toBe(0);
+  expect(published?.status, `${published?.stdout}${published?.stderr}`).toBe(0);
 
   const policy = { issuer, repository: "acme/acme", refs: ["refs/heads/main"], workflows: ["ortho"] };
   const logbook = (await Effect.runPromise(Environments.up({ root, name: "logbook", port: PORTS.logbook, policy }))).url;
@@ -107,7 +107,6 @@ afterAll(async () => {
   await Effect.runPromise(Environments.down({ root, name: "logbook" }));
   await Effect.runPromise(Scope.close(services, Exit.void));
   rmSync(parent, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
-  rmSync(join(repo, "packages/orthograph/dist"), { recursive: true, force: true });
 });
 
 describe("ortho publish", () => {

@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { routes } from "./routes.tsx";
 
 const [outDir, ...only] = process.argv.slice(2);
-const css = ["./site.css", "./kit/kit.css"].map((f) => readFileSync(new URL(f, import.meta.url), "utf8")).join("\n");
+const css = ["./site.css", "./kit/kit.css", "../../react-flow-graphs/node_modules/@xyflow/react/dist/style.css", "../../react-flow-graphs/src/graph/graph.css"].map((f) => readFileSync(new URL(f, import.meta.url), "utf8")).join("\n");
 writeFileSync(`${outDir}/site.css`, css);
 const head = (title: string) => `<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${title} · Plugged In portal</title>
@@ -20,3 +20,4 @@ for (const [file, r] of Object.entries(all)) {
   writeFileSync(`${outDir}/${file}`, `<!doctype html>\n<html lang="en" class="dark">\n<head>\n${head(r.title)}\n</head>\n<body>\n${body}\n</body>\n</html>\n`);
 }
 console.log(`${Object.keys(all).length} pages`);
+process.exit(0); // elk (the Graphs page's layout) keeps a worker alive

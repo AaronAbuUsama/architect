@@ -597,3 +597,7 @@ builders (one on M1.44 then M1.45, one on M1.46 then M1.47 and M1.48): about two
 The header and body are the generator's text; changing them changes only new scaffolds, never one that is yours. The
 drift rule is a warning that can be turned off by name. `add journeys` writes nothing unless asked. The signature
 change has two callers.
+
+**Follow-up (PR #90):** `ortho brief` gained one sentence, on what a database step wraps (`Records`: find, insert, update)
+and that a move changes state, not fields (`packages/cli/src/modules/brief/service.ts`). The scaffold's header does not
+say it yet. When M1.44 moves the header and brief sentences into `@orthograph/projections`, mirror it there.

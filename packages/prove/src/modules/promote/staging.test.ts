@@ -13,6 +13,7 @@ import { Build } from "#modules/build/service.js";
 import { Environments } from "#modules/environments/service.js";
 import { Promote } from "./service.ts";
 import { Publish } from "#modules/publish/service.js";
+import { publishOrthograph } from "../../../test/orthograph-package.ts";
 
 const repo = resolve(import.meta.dirname, "../../../../..");
 const acme = join(repo, "examples/acme");
@@ -54,10 +55,9 @@ beforeAll(async () => {
   await run(Issuer.start({ port: ports.issuer, dir: parent, config: { tokenCallbacks: [{ issuerId: "ortho", tokenExpiry: 600, requestMappings: [{ requestParam: "client_id", match: "ci-main", claims: { sub: "repo:acme/acme:ref:refs/heads/main", aud: ["ortho-logbook"], repository: "acme/acme", ref: "refs/heads/main", workflow: "ortho" } }] }] } }).pipe(Scope.provide(services)));
   // Its throwaway user's token is in `<parent>/npmrc`, which `env` names.
   await run(Registry.start({ dir: parent, port: ports.registry }).pipe(Scope.provide(services)));
-  const built = spawnSync("pnpm", ["nx", "run", "orthograph:build", "--outputStyle=static"], { cwd: repo, encoding: "utf8", env: { ...env, NX_DAEMON: "false" } });
+  const { built, published } = publishOrthograph(repo, registry, env);
   expect(built.status, built.stdout + built.stderr).toBe(0);
-  const published = spawnSync("pnpm", ["publish", "--registry", registry, "--no-git-checks"], { cwd: join(repo, "packages/orthograph"), encoding: "utf8", env });
-  expect(published.status, published.stdout + published.stderr).toBe(0);
+  expect(published?.status, `${published?.stdout}${published?.stderr}`).toBe(0);
   await run(Environments.up({ root, name: "logbook", port: ports.logbook, policy: { issuer, repository: "acme/acme", refs: ["refs/heads/main"], workflows: ["ortho"] } }));
 }, 180_000);
 afterAll(async () => {

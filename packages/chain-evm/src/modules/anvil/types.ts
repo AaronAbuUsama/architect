@@ -22,6 +22,8 @@ export interface AnvilOptions {
   readonly accounts?: number;
   /** Each account's balance in wei. Default 10_000 ether. */
   readonly balance?: bigint;
+  /** Whole seconds between blocks. Default: none, Anvil mines a block for each transaction. A world that wants depth sets it, so blocks come without a transaction. */
+  readonly blockTime?: number;
   /** The Anvil binary. Default: `anvil` on PATH. */
   readonly binary?: string;
 }
