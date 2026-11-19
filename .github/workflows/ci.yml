@@ -143,8 +143,12 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      # Not yet removed from this job's PATH: check 09's `dockerIsUp` (e2e/m1/09-wallet-journeys.test.ts:46) still asks `docker info`
-      # and fails closed until the author drops it (M1.33's report). Nothing here starts a container.
+      # No Docker (K10 section 8): every service is a process. The runner image carries Docker, so take it off the PATH and
+      # let a test that still reaches for it fail here.
+      - name: No Docker on the PATH
+        run: |
+          sudo rm -f "$(command -v docker)"
+          ! command -v docker
       # The Collector is its pinned binary (prove's telemetry module checks its digest before it runs): cached by version, and
       # fetched from the official release when the cache is empty.
       - uses: actions/cache@v6.1.0
