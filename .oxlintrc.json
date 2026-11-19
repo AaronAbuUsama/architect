@@ -89,6 +89,26 @@
           }
         ]
       }
+    ],
+    "ortho/effect-only": [
+      "error",
+      {
+        "baseline": "packages/lint/baseline.json",
+        "entries": []
+      }
+    ],
+    "ortho/max-lines": [
+      "error",
+      {
+        "baseline": "packages/lint/baseline.json",
+        "max": 250
+      }
+    ],
+    "ortho/six-slots": [
+      "error",
+      {
+        "baseline": "packages/lint/baseline.json"
+      }
     ]
   },
   "overrides": [

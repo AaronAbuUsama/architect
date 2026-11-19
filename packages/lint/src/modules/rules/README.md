@@ -8,3 +8,6 @@ the model. Three are warnings, for a blueprint that grew past a handler that is 
 `required-step-used`, `outcome-chosen` (an outcome of a move with more than one that no `move("…")` names; a `move(x)`
 whose argument is not literal is not judged) and `declared-error-named` (a declared error the handler never names).
 `no-edited-output` is check's drift step: a generated file differing from what the blueprint renders.
+
+The repository's own code rules, `effect-only`, `max-lines` and `six-slots`, judge `packages/*/src` by path from
+oxlint's cwd and tolerate the breaches their baseline lists (`internal/baselined.ts`; `packages/lint/README.md`).

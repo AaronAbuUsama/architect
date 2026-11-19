@@ -21,7 +21,13 @@ export interface ProjectFacts {
 export interface Context {
   readonly options: ReadonlyArray<unknown>;
   readonly filename: string;
-  readonly sourceCode: { readonly getText: (node?: Node) => string };
+  /** The directory oxlint runs in: the repository's own rules judge a file by its path from here. */
+  readonly cwd: string;
+  readonly sourceCode: {
+    readonly getText: (node?: Node) => string;
+    readonly text: string;
+    readonly getAllComments: () => ReadonlyArray<{ readonly range?: readonly [number, number]; readonly start?: number; readonly end?: number }>;
+  };
   readonly report: (r: { readonly node: Node; readonly message: string }) => void;
 }
 
@@ -29,6 +35,16 @@ export interface Node {
   readonly type: string;
   readonly parent?: Node;
   readonly [key: string]: unknown;
+}
+
+/** The options every repository code rule takes: a baseline of the breaches it tolerates, file by file. */
+export interface CodeRuleOptions {
+  /** Path from cwd to the baseline JSON, `{ "<rule>": { "<path from cwd>": <count> } }`. */
+  readonly baseline?: string;
+  /** effect-only: more entry files, as paths from cwd, where effects at the edge are allowed. */
+  readonly entries?: ReadonlyArray<string>;
+  /** max-lines: lines of code allowed in a file (250). */
+  readonly max?: number;
 }
 
 export interface Rule {

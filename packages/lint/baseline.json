@@ -1,0 +1,49 @@
+{
+  "effect-only": {
+    "packages/host-cloudflare/src/modules/telemetry/internal/exporters.ts": 2,
+    "packages/orthograph/src/modules/machines/internal/check.ts": 1,
+    "packages/prove/src/modules/journeys/internal/database-facts.ts": 3,
+    "packages/prove/src/modules/publish/internal/registry.ts": 1,
+    "packages/prove/src/modules/publish/internal/sea.ts": 1,
+    "packages/prove/src/modules/publish/internal/stage.ts": 2,
+    "packages/prove/src/modules/publish/internal/tap.ts": 1,
+    "packages/prove/src/modules/telemetry/internal/process.ts": 3,
+    "packages/prove/src/modules/telemetry/internal/runs.ts": 3,
+    "packages/prove/src/modules/world/internal/wrangler.ts": 1,
+    "packages/services/src/modules/owned/internal/markers.ts": 3,
+    "packages/services/src/modules/owned/internal/process.ts": 2
+  },
+  "max-lines": {
+    "packages/cli/src/main.ts": 1,
+    "packages/compiler/src/modules/model/model.test.ts": 1,
+    "packages/language-effect/src/modules/handler/handler.test.ts": 1,
+    "packages/prove/src/modules/evals/evals.test.ts": 1
+  },
+  "six-slots": {
+    "packages/cli/src/modules/ship": 1,
+    "packages/cli/src/modules/telemetry": 1,
+    "packages/cli/src/modules/watch": 1,
+    "packages/compiler/src/modules/source": 1,
+    "packages/language-effect/src/modules/auth": 1,
+    "packages/logbook/src/modules/http": 1,
+    "packages/orthograph/src/modules/blanks": 1,
+    "packages/orthograph/src/modules/cloud": 1,
+    "packages/orthograph/src/modules/config": 1,
+    "packages/orthograph/src/modules/deploy": 1,
+    "packages/orthograph/src/modules/environments": 1,
+    "packages/orthograph/src/modules/errors": 1,
+    "packages/orthograph/src/modules/events": 1,
+    "packages/orthograph/src/modules/identity": 1,
+    "packages/orthograph/src/modules/names": 1,
+    "packages/orthograph/src/modules/operations": 1,
+    "packages/orthograph/src/modules/roles": 1,
+    "packages/orthograph/src/modules/secrets": 1,
+    "packages/orthograph/src/modules/stores": 1,
+    "packages/orthograph/src/modules/telemetry": 1,
+    "packages/orthograph/src/modules/values": 1,
+    "packages/orthograph/src/modules/visibility": 1,
+    "packages/portal-ui/src/modules/content": 1,
+    "packages/portal/src/modules/reader": 1,
+    "packages/prove/src/modules/trace-trees": 1
+  }
+}
