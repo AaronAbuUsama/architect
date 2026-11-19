@@ -28,9 +28,9 @@
 //  6. Where "the portal" reads spans. The portal package reads a blueprint and the logbook, not spans: it lists each
 //     operation's declared steps on `/portal/operations/<name>` (`Portal.serve` over `generated/portal/blueprint.json`).
 //     Spans are read through `TraceSource` (`FileSource.open`), the seam prove, `ortho telemetry trace` and `watch` use,
-//     over OTLP JSON lines in `traces.jsonl`. The Collector container that writes those files is Docker, which this
-//     check never starts: a receiver in this file writes the same lines (a control posts a span to it and reads it back
-//     through `FileSource`). So this check runs in CI as it is. Seeing the same spans in Grafana through the real
+//     over OTLP JSON lines in `traces.jsonl`. The Collector that writes those files is a process prove starts (a pinned binary,
+//     M1.33), which this check never starts: a receiver in this file writes the same lines (a control posts a span to it and
+//     reads it back through `FileSource`). So this check runs in CI as it is. Seeing the same spans written by the real
 //     Collector is prove's own telemetry test, not repeated here.
 //  7. e2e now depends on `@orthograph/portal` (workspace), to call `Portal.serve` as the Worker does.
 import { spawn } from "node:child_process";
