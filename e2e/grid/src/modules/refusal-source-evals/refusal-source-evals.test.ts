@@ -9,7 +9,7 @@ const acme = await evidenceOf("acme");
 const refusals = Object.keys(pluggedIn.model.refusals);
 const check = (cell: string, subject: string, evidence = pluggedIn) => judge(RefusalSourceEvals.evals, `error.${cell}`, subject, evidence);
 
-describe("Plugged In, as it is today", () => {
+describe("Plugged In, as captured on 19 November 2026 (fixtures/plugged-in)", () => {
   it("has nine refusals, wrong-state, not-found and NotAllowed among them", () => {
     expect(refusals.sort()).toEqual(["HandleAlreadyOwned", "HandleNotClaimed", "HandleNotFound", "HandleTaken", "LinkAlreadyRemoved", "LinkNeedsHandle", "LinkNotListed", "NotAllowed", "ProfileNotFound"]);
   });

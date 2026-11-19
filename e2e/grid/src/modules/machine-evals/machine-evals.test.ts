@@ -8,7 +8,7 @@ const acme = await evidenceOf("acme");
 const machines = (e: typeof pluggedIn) => Object.values(e.model.things).filter((t) => t.machine != null).map((t) => t.name);
 const check = (cell: string, subject: string, evidence = pluggedIn) => judge(MachineEvals.evals, `machine.${cell}`, subject, evidence);
 
-describe("Plugged In, as it is today", () => {
+describe("Plugged In, as captured on 19 November 2026 (fixtures/plugged-in)", () => {
   it("has two machines, handle and link; profile has none", () => {
     expect(machines(pluggedIn)).toEqual(["handle", "link"]);
     expect(check("model", "profile")).toEqual({ ok: false, why: ["the model has no thing with a machine profile"] });

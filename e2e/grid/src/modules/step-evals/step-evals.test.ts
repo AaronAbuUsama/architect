@@ -9,7 +9,7 @@ const stepsOf = (e: typeof pluggedIn) => Object.values(e.model.operations).flatM
 const steps = stepsOf(pluggedIn);
 const check = (cell: string, subject: string, evidence = pluggedIn) => judge(StepEvals.evals, `step.${cell}`, subject, evidence);
 
-describe("Plugged In, as it is today", () => {
+describe("Plugged In, as captured on 19 November 2026 (fixtures/plugged-in)", () => {
   it("declares ten steps", () => {
     expect(steps.length).toBe(10);
   });

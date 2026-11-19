@@ -10,7 +10,7 @@ const acme = await evidenceOf("acme");
 const ops = Object.keys(pluggedIn.model.operations);
 const check = (cell: string, subject: string, evidence = pluggedIn) => judge(OperationEvals.evals, `operation.${cell}`, subject, evidence);
 
-describe("Plugged In, as it is today", () => {
+describe("Plugged In, as captured on 19 November 2026 (fixtures/plugged-in)", () => {
   it("has seven operations, so the suites below are not empty", () => {
     expect(ops.length).toBe(7);
   });
