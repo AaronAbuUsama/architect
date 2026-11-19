@@ -22,7 +22,7 @@
     "test": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "node --test docs/canon/quotes.test.mjs",
+        "command": "node --test docs/canon/quotes.test.mjs docs/canon/refusals.test.mjs",
         "cwd": "{workspaceRoot}"
       },
       "cache": false

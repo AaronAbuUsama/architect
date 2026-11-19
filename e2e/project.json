@@ -4,7 +4,11 @@
   "projectType": "application",
   "tags": ["scope:e2e", "env:build", "layer:1"],
   "targets": {
-    "lint": {},
+    "lint": {
+      "options": {
+        "command": "oxlint {projectRoot} && node {projectRoot}/totals/totals.mjs --check"
+      }
+    },
     "typecheck": {},
     "layer1": {
       "executor": "nx:run-commands",
@@ -14,6 +18,16 @@
     "layer2": {
       "executor": "nx:run-commands",
       "options": { "command": "vitest run --root {projectRoot} --config vitest.layer2.config.ts layer2" },
+      "cache": false
+    },
+    "totals": {
+      "executor": "nx:run-commands",
+      "options": { "command": "node {projectRoot}/totals/totals.mjs" },
+      "cache": false
+    },
+    "totals-test": {
+      "executor": "nx:run-commands",
+      "options": { "command": "node --test {projectRoot}/totals/test-totals.mjs" },
       "cache": false
     },
     "m0-names": {

@@ -74,6 +74,9 @@ Docs drift when nothing checks them. `check.mjs` reads every page and refuses it
   `lines=a-b` after the name is only a hint for readers, which `--fix` keeps fresh. A file that isn't code (JSON, SQL,
   markdown) has no names, so its fence says `lines=a-b` and is compared with those lines. `quotes.mjs` holds the
   resolver and `quotes.test.mjs` its test (`nx run canon:test`).
+- **a refusal is misquoted.** A refusal quoted in `design/portal.md` as `<Name> <CODE> exit <n>` must agree with the
+  generated `refusals` tables in `examples/*/generated/**/errors.ts`. A name found in no table is counted, not failed, so
+  the check bites once the example that declares it is on the branch. Codes and exits are copied from there, never by hand.
 - **a reference is broken.** Every inline `path:line` must open and have that line. A short one, like
   `service.ts:46`, must match a full path given elsewhere on the page.
 - **a component points at nothing.** A `<Scenario>` names a journey file that exists and a step in it. A

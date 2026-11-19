@@ -5,11 +5,13 @@
 //   3. every inline `path:line` reference opens, and has that line;
 //   4. every <Note>, <Scenario>, <Model> and <Scene> points at something that exists;
 //   5. no glossary word is owned by two pages, and every page is in the outline;
-//   6. no retired word or old name, in the pages, the outline or the READMEs.
+//   6. no retired word or old name, in the pages, the outline or the READMEs;
+//   7. a refusal quoted in design/portal.md (`HandleNotClaimed HN-900 exit 11`) agrees with the generated errors.ts tables.
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { CODE, locate, repair, sliceLines } from "./quotes.mjs";
+import { judgeRefusals, loadRefusals } from "./refusals.mjs";
 
 const canon = dirname(fileURLToPath(import.meta.url));
 const repo = resolve(canon, "../..");
@@ -231,9 +233,20 @@ const prose = ["README.md", "outline.md", "components/README.md", "_template.mdx
 for (const n of prose) checkWords(join(canon, n));
 for (const n of ["README.md", "outline.md", "components/README.md"]) checkLinks(join(canon, n));
 
+// 7. a refusal's code and exit quoted in design/portal.md match the generated `refusals` tables, where there is one.
+const refusals = loadRefusals(repo);
+const portal = at("design/portal.md");
+let unverified = [];
+if (existsSync(portal)) {
+  const judged = judgeRefusals(read(portal), refusals);
+  for (const w of judged.wrong) fail(portal, w.line, `"${w.quoted}" is not what the generated errors.ts says: ${w.truth}`);
+  unverified = judged.unverified;
+}
+
 if (fixes.length) console.log(`canon check --fix rewrote ${fixes.length} quote${fixes.length === 1 ? "" : "s"}:\n${fixes.map((f) => `  ${f}`).join("\n")}`);
 if (problems.length) {
   console.error(`canon check failed (${problems.length}):\n${problems.map((p) => `  ${p}`).join("\n")}`);
   process.exit(1);
 }
 console.log(`canon check passed: ${pages.length} of ${outlined.size} pages written, every quote, reference and component resolves`);
+console.log(`refusals in design/portal.md: ${refusals.size} known from generated errors.ts; ${unverified.length} quoted name${unverified.length === 1 ? "" : "s"} could not be verified${unverified.length ? ` (${unverified.join(", ")})` : ""}`);
