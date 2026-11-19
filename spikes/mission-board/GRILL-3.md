@@ -175,3 +175,8 @@ avatar. Linear shows faces. Our threads have a kind, so the icon could say what 
 | Q3 | Agent icon | A · The kind's mark with the thread's emoji |
 
 **Answer key:** "A A A", or a letter per question.
+
+## Answer
+
+Aaron, 19 November 2026: **A A A.** The eval page is the Linear issue; each timeline entry links its PR, its evidence
+and the thread; an agent's icon is its kind's mark with the thread's emoji as a badge. Version 5 already builds on these.

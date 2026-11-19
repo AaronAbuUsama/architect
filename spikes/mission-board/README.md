@@ -1,8 +1,8 @@
 # Spike: the mission board
 
-**Status: prototype published, rounds 2 and 3 open.** The prototype is the Design artifact
+**Status: prototype published, round 2 open.** The prototype is the Design artifact
 https://claude.ai/artifact/SKCRqBQ9nm9FPGMJtSDzUS (version 5: Grid, Board, Components, Overview, Hill climb, Eval page).
-It is built on the recommended answers of `GRILL.md`, `GRILL-2.md` and `GRILL-3.md`; Aaron has not answered 2 or 3 yet. Mobbin references
+It is built on the recommended answers of `GRILL.md` and `GRILL-2.md` (round 2 still unanswered) and on Aaron's answers to `GRILL-3.md` (A A A, 19 November). Mobbin references
 still wait on his Mobbin sign-in.
 
 ## Question
