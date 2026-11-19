@@ -550,6 +550,10 @@ Real values below are from Plugged In's model as Codex generated it on `links/st
 
 What the model has and no agreed page shows, and the menus that tie them together. Each is asked in round 3.
 
+All of them are now drawn on the recommended A, not yet confirmed, in [`spikes/portal-site`](../spikes/portal-site/README.md)
+(published at https://claude.ai/artifact/NzDgHFzQSk8yvX8cLNqUKj). The same drawing adds Issues and Alerts, proposed in
+[`decisions/K18-monitoring-falls-out.md`](decisions/K18-monitoring-falls-out.md).
+
 | Screen | Model it falls out of | Round 3 |
 |---|---|---|
 | The navigation: where every page below lives, beside the things tree | all of it | Q1 |
