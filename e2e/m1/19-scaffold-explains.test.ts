@@ -42,6 +42,23 @@ describe("M1.44: the scaffold explains itself", () => {
     const tsc = typed(root);
     expect(tsc.status, tsc.stdout + tsc.stderr).toBe(0);
   });
+
+  it("a handler written from the scaffold stops compiling, at its Match, when the machine gains an outcome", () => {
+    const root = fresh();
+    writeFileSync(join(root, spend), readFileSync(join(golden, "allowance-spend.ts.golden"), "utf8"));
+    succeeds(root, "generate");
+    const before = typed(root);
+    expect(before.status, `the golden compiles against acme as shipped: ${before.stdout}${before.stderr}`).toBe(0);
+    const machine = "blueprint/things/allowance/machine.ts";
+    edit(root, machine, `states: ["active", "exhausted", "revoked"]`, `states: ["active", "exhausted", "revoked", "frozen"]`);
+    edit(root, machine, `to: ["active", "exhausted"]`, `to: ["active", "exhausted", "frozen"]`);
+    succeeds(root, "generate");
+    const after = typed(root);
+    expect(after.status, after.stdout).not.toBe(0);
+    const errors = after.stdout.split("\n").filter((l) => /error TS\d+/.test(l));
+    expect(errors.length, after.stdout).toBeGreaterThan(0);
+    expect(errors.filter((l) => !l.startsWith(`${spend}(`)), after.stdout).toEqual([]);
+  });
 });
 
 describe("M1.45: one journey stub per path through the allowance's machine", () => {

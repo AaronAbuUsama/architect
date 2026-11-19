@@ -1,8 +1,8 @@
 // Scaffolded from blueprint/things/allowance/verbs/spend.ts. Yours from now on.
-import { Effect } from "effect";
+import { Effect, Match } from "effect";
 import { Handlers } from "@orthograph/language-effect";
 import { Errors } from "../../generated/api/src/index.ts";
-import type { Handler } from "../../generated/api/src/allowance/spend.handler.ts";
+import type { Handler, Outcome } from "../../generated/api/src/allowance/spend.handler.ts";
 
 const { AllowanceExceeded } = Errors.declared;
 
@@ -60,14 +60,15 @@ const spend: Handler = (_payload, { steps, move }) =>
     // Step record: database, span allowance.spend.record.
     yield* steps.record(Handlers.blank("record: the work this step does"));
 
-    // The move spend, from active: one branch per outcome.
-    if (yield* Handlers.blank<boolean>("does spend end in active?")) {
+    // The move spend, from active: one branch per outcome. A new outcome won't compile until it has its branch.
+    const outcome = yield* Handlers.blank<Outcome>("where spend ends: active or exhausted");
+    yield* Match.value(outcome).pipe(
       // To active. From there the allowance can: spend (to active or exhausted), revoke (to revoked).
-      yield* move("active");
-    } else {
+      Match.when("active", () => move("active")),
       // To exhausted. From there the allowance can: revoke (to revoked).
-      yield* move("exhausted");
-    }
+      Match.when("exhausted", () => move("exhausted")),
+      Match.exhaustive,
+    );
 
     return {
       // AllowanceSpent needs remaining, and only the answer can give it.

@@ -3,10 +3,10 @@
 ## packages/projections/src/modules/handlers/handlers.test.ts
 
  RUN  v4.1.12 <repo>/packages/projections
- ❯ src/modules/handlers/handlers.test.ts (7 tests | 6 failed) 38ms
-     × writes allowance.spend's scaffold exactly as the golden: header, steps, refusal, one branch per outcome, the answer 32ms
+ ❯ src/modules/handlers/handlers.test.ts (7 tests | 6 failed) 48ms
+     × writes allowance.spend's scaffold exactly as the golden: header, steps, refusal, one branch per outcome, the answer 42ms
      × opens with a doc block that cites, for each part, the blueprint file it came from 1ms
-     × says nothing the model doesn't hold: every declared-looking name in the header is one the model declares 0ms
+     × says nothing the model doesn't hold: every declared-looking name in the header is one the model declares 1ms
      × enumerates allowance's eight paths: five allowed transitions and three refused moves, in the machine's order 0ms
      × gives a thing with no machine no paths, and a creating move no refused path (the runtime never checks it) 0ms
      × scaffolds one journey per path in blueprint/journeys/, each a scaffold, three of them exactly as their goldens 0ms
@@ -15,9 +15,13 @@
 AssertionError: expected '// Scaffolded from blueprint/things/a…' to be '// Scaffolded from blueprint/things/a…' // Object.is equality
 - Expected
 + Received
-@@ -4,76 +4,20 @@
+  // Scaffolded from blueprint/things/allowance/verbs/spend.ts. Yours from now on.
+- import { Effect, Match } from "effect";
++ import { Effect } from "effect";
+  import { Handlers } from "@orthograph/language-effect";
   import { Errors } from "../../generated/api/src/index.ts";
-  import type { Handler } from "../../generated/api/src/allowance/spend.handler.ts";
+- import type { Handler, Outcome } from "../../generated/api/src/allowance/spend.handler.ts";
++ import type { Handler } from "../../generated/api/src/allowance/spend.handler.ts";
   const { AllowanceExceeded } = Errors.declared;
 - /**
 -  * allowance.spend: Spend from what is left of this month's allowance.
@@ -73,27 +77,27 @@ AssertionError: expected '// Scaffolded from blueprint/things/a…' to be '// Sc
 -       return yield* new AllowanceExceeded({
 -         remaining: yield* Handlers.blank("AllowanceExceeded.remaining, an Amount"),
 -       });
--     }
++       return yield* new AllowanceExceeded(yield* Handlers.blank("AllowanceExceeded's fields"));
+      }
 -
 -     // Step record: database, span allowance.spend.record.
 -     yield* steps.record(Handlers.blank("record: the work this step does"));
 -
--     // The move spend, from active: one branch per outcome.
--     if (yield* Handlers.blank<boolean>("does spend end in active?")) {
+-     // The move spend, from active: one branch per outcome. A new outcome won't compile until it has its branch.
+-     const outcome = yield* Handlers.blank<Outcome>("where spend ends: active or exhausted");
+-     yield* Match.value(outcome).pipe(
 -       // To active. From there the allowance can: spend (to active or exhausted), revoke (to revoked).
--       yield* move("active");
--     } else {
+-       Match.when("active", () => move("active")),
 -       // To exhausted. From there the allowance can: revoke (to revoked).
--       yield* move("exhausted");
--     }
+-       Match.when("exhausted", () => move("exhausted")),
+-       Match.exhaustive,
+-     );
++     yield* move(yield* Handlers.blank("the move’s outcome"));
 -
 -     return {
 -       // AllowanceSpent needs remaining, and only the answer can give it.
 -       remaining: yield* Handlers.blank("remaining, an Amount"),
 -     };
-+       return yield* new AllowanceExceeded(yield* Handlers.blank("AllowanceExceeded's fields"));
-+     }
-+     yield* move(yield* Handlers.blank("the move’s outcome"));
 +     return yield* Handlers.blank("the answer");
     });
   export default spend;
@@ -165,27 +169,32 @@ Received: "undefined"
 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
  Test Files  1 failed (1)
       Tests  6 failed | 1 passed (7)
-   Start at  11:30:37
-   Duration  924ms (transform 112ms, setup 0ms, import 746ms, tests 38ms, environment 0ms)
+   Start at  11:38:03
+   Duration  730ms (transform 72ms, setup 0ms, import 559ms, tests 48ms, environment 0ms)
 
 ## e2e/m1/19-scaffold-explains.test.ts
 
  RUN  v4.1.12 <repo>/e2e
- ❯ m1/19-scaffold-explains.test.ts (7 tests | 6 failed) 20856ms
-     × ortho generate writes allowance.spend's scaffold exactly as the golden, and it compiles 2083ms
-     × ortho add journeys allowance writes the eight stubs, three exactly as their goldens, and they compile 1103ms
-     × never overwrites a stub that is yours: a second run writes nothing and names what is already there 1093ms
-     × the model and ortho check count every unfilled stub as blanks, and the model still compiles 1010ms
-     × a new outcome of spend's move that the handler never chooses is named, with the file 5210ms
-     × a new declared error on spend that the handler never refuses with is named, with the file 5169ms
-⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+ ❯ m1/19-scaffold-explains.test.ts (8 tests | 7 failed) 20466ms
+     × ortho generate writes allowance.spend's scaffold exactly as the golden, and it compiles 2257ms
+     × a handler written from the scaffold stops compiling, at its Match, when the machine gains an outcome 2973ms
+     × ortho add journeys allowance writes the eight stubs, three exactly as their goldens, and they compile 1037ms
+     × never overwrites a stub that is yours: a second run writes nothing and names what is already there 1023ms
+     × the model and ortho check count every unfilled stub as blanks, and the model still compiles 1020ms
+     × a new outcome of spend's move that the handler never chooses is named, with the file 4066ms
+     × a new declared error on spend that the handler never refuses with is named, with the file 3987ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
  FAIL  m1/19-scaffold-explains.test.ts > M1.44: the scaffold explains itself > ortho generate writes allowance.spend's scaffold exactly as the golden, and it compiles
 AssertionError: expected '// Scaffolded from blueprint/things/a…' to be '// Scaffolded from blueprint/things/a…' // Object.is equality
 - Expected
 + Received
-@@ -4,76 +4,20 @@
+  // Scaffolded from blueprint/things/allowance/verbs/spend.ts. Yours from now on.
+- import { Effect, Match } from "effect";
++ import { Effect } from "effect";
+  import { Handlers } from "@orthograph/language-effect";
   import { Errors } from "../../generated/api/src/index.ts";
-  import type { Handler } from "../../generated/api/src/allowance/spend.handler.ts";
+- import type { Handler, Outcome } from "../../generated/api/src/allowance/spend.handler.ts";
++ import type { Handler } from "../../generated/api/src/allowance/spend.handler.ts";
   const { AllowanceExceeded } = Errors.declared;
 - /**
 -  * allowance.spend: Spend from what is left of this month's allowance.
@@ -241,27 +250,27 @@ AssertionError: expected '// Scaffolded from blueprint/things/a…' to be '// Sc
 -       return yield* new AllowanceExceeded({
 -         remaining: yield* Handlers.blank("AllowanceExceeded.remaining, an Amount"),
 -       });
--     }
++       return yield* new AllowanceExceeded(yield* Handlers.blank("AllowanceExceeded's fields"));
+      }
 -
 -     // Step record: database, span allowance.spend.record.
 -     yield* steps.record(Handlers.blank("record: the work this step does"));
 -
--     // The move spend, from active: one branch per outcome.
--     if (yield* Handlers.blank<boolean>("does spend end in active?")) {
+-     // The move spend, from active: one branch per outcome. A new outcome won't compile until it has its branch.
+-     const outcome = yield* Handlers.blank<Outcome>("where spend ends: active or exhausted");
+-     yield* Match.value(outcome).pipe(
 -       // To active. From there the allowance can: spend (to active or exhausted), revoke (to revoked).
--       yield* move("active");
--     } else {
+-       Match.when("active", () => move("active")),
 -       // To exhausted. From there the allowance can: revoke (to revoked).
--       yield* move("exhausted");
--     }
+-       Match.when("exhausted", () => move("exhausted")),
+-       Match.exhaustive,
+-     );
++     yield* move(yield* Handlers.blank("the move’s outcome"));
 -
 -     return {
 -       // AllowanceSpent needs remaining, and only the answer can give it.
 -       remaining: yield* Handlers.blank("remaining, an Amount"),
 -     };
-+       return yield* new AllowanceExceeded(yield* Handlers.blank("AllowanceExceeded's fields"));
-+     }
-+     yield* move(yield* Handlers.blank("the move’s outcome"));
 +     return yield* Handlers.blank("the answer");
     });
   export default spend;
@@ -272,7 +281,31 @@ AssertionError: expected '// Scaffolded from blueprint/things/a…' to be '// Sc
        |                                 ^
      42|     const tsc = typed(root);
      43|     expect(tsc.status, tsc.stdout + tsc.stderr).toBe(0);
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+ FAIL  m1/19-scaffold-explains.test.ts > M1.44: the scaffold explains itself > a handler written from the scaffold stops compiling, at its Match, when the machine gains an outcome
+AssertionError: the golden compiles against acme as shipped: src/allowance/spend.ts(5,24): error TS2305: Module '"../../generated/api/src/allowance/spend.handler.ts"' has no exported member 'Outcome'.
+src/allowance/spend.ts(48,3): error TS2375: Type 'Effect<{ remaining: never; }, unknown, unknown>' is not assignable to type 'Effect<{ readonly remaining: bigint; }, AllowanceExceeded, Auth | Records | SqlClient>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Type 'unknown' is not assignable to type 'AllowanceExceeded'.
+src/allowance/spend.ts(65,12): error TS2488: Type 'never' must have a '[Symbol.iterator]()' method that returns an iterator.
+src/allowance/spend.ts(70,7): error TS2345: Argument of type '<I, F, A, Pr, Ret, Args extends Array<any>>(self: Matcher<I, F, never, A, Pr, Ret, Args>) => [Pr] extends [never] ? [Args] extends [[]] ? (u: I) => Unify<...> : (...args: Args) => Unify<...> : Unify<...>' is not assignable to parameter of type '(_: Matcher<Outcome, Without<"active" | "exhausted">, any, Effect<void, never, never>, "value", any, []>) => Effect<void, never, never>'.
+  Types of parameters 'self' and '_' are incompatible.
+    Type 'Matcher<Outcome, Without<"active" | "exhausted">, any, Effect<void, never, never>, "value", any, []>' is not assignable to type 'Matcher<Outcome, Without<"active" | "exhausted">, never, Effect<void, never, never>, "value", any, []>'.
+      Type 'TypeMatcher<Outcome, Without<"active" | "exhausted">, any, Effect<void, never, never>, any, []>' is not assignable to type 'Matcher<Outcome, Without<"active" | "exhausted">, never, Effect<void, never, never>, "value", any, []>'.
+        Type 'TypeMatcher<Outcome, Without<"active" | "exhausted">, any, Effect<void, never, never>, any, []>' is not assignable to type 'TypeMatcher<Outcome, Without<"active" | "exhausted">, never, Effect<void, never, never>, any, []>'.
+          Type 'any' is not assignable to type 'never'.
+: expected 1 to be +0 // Object.is equality
+- Expected
++ Received
+- 0
++ 1
+ ❯ m1/19-scaffold-explains.test.ts:51:108
+     49|     succeeds(root, "generate");
+     50|     const before = typed(root);
+     51|     expect(before.status, `the golden compiles against acme as shipped…
+       |                                                                                                            ^
+     52|     const machine = "blueprint/things/allowance/machine.ts";
+     53|     edit(root, machine, `states: ["active", "exhausted", "revoked"]`, …
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
  FAIL  m1/19-scaffold-explains.test.ts > M1.45: one journey stub per path through the allowance's machine > ortho add journeys allowance writes the eight stubs, three exactly as their goldens, and they compile
 AssertionError: USAGE
   ortho add <subcommand> [flags]
@@ -307,8 +340,8 @@ ERRORS
        |                                     ^
      46|   return result;
      47| };
- ❯ m1/19-scaffold-explains.test.ts:50:19
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+ ❯ m1/19-scaffold-explains.test.ts:67:19
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
  FAIL  m1/19-scaffold-explains.test.ts > M1.45: one journey stub per path through the allowance's machine > never overwrites a stub that is yours: a second run writes nothing and names what is already there
 AssertionError: USAGE
   ortho add <subcommand> [flags]
@@ -343,8 +376,8 @@ ERRORS
        |                                     ^
      46|   return result;
      47| };
- ❯ m1/19-scaffold-explains.test.ts:61:5
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+ ❯ m1/19-scaffold-explains.test.ts:78:5
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
  FAIL  m1/19-scaffold-explains.test.ts > M1.45: one journey stub per path through the allowance's machine > the model and ortho check count every unfilled stub as blanks, and the model still compiles
 AssertionError: USAGE
   ortho add <subcommand> [flags]
@@ -379,8 +412,8 @@ ERRORS
        |                                     ^
      46|   return result;
      47| };
- ❯ m1/19-scaffold-explains.test.ts:72:5
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+ ❯ m1/19-scaffold-explains.test.ts:89:5
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
  FAIL  m1/19-scaffold-explains.test.ts > M1.44: ortho check says when the blueprint grew past a handler that is yours > a new outcome of spend's move that the handler never chooses is named, with the file
 AssertionError: blanks left 0
 types ✔
@@ -393,14 +426,14 @@ check ✔
 + Received
 - 1
 + 0
- ❯ m1/19-scaffold-explains.test.ts:98:89
-     96|     succeeds(root, "generate");
-     97|     const out = succeeds(root, "check").out;
-     98|     expect(warnings(out).filter((l) => l.includes(spend) && /\bfrozen\…
+ ❯ m1/19-scaffold-explains.test.ts:115:89
+    113|     succeeds(root, "generate");
+    114|     const out = succeeds(root, "check").out;
+    115|     expect(warnings(out).filter((l) => l.includes(spend) && /\bfrozen\…
        |                                                                                         ^
-     99|     expect(warnings(out).filter((l) => /\b(?:active|exhausted)\b/.test…
-    100|   });
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+    116|     expect(warnings(out).filter((l) => /\b(?:active|exhausted)\b/.test…
+    117|   });
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
  FAIL  m1/19-scaffold-explains.test.ts > M1.44: ortho check says when the blueprint grew past a handler that is yours > a new declared error on spend that the handler never refuses with is named, with the file
 AssertionError: blanks left 0
 types ✔
@@ -413,15 +446,15 @@ check ✔
 + Received
 - 1
 + 0
- ❯ m1/19-scaffold-explains.test.ts:110:98
-    108|     succeeds(root, "generate");
-    109|     const out = succeeds(root, "check").out;
-    110|     expect(warnings(out).filter((l) => l.includes(spend) && l.includes…
+ ❯ m1/19-scaffold-explains.test.ts:127:98
+    125|     succeeds(root, "generate");
+    126|     const out = succeeds(root, "check").out;
+    127|     expect(warnings(out).filter((l) => l.includes(spend) && l.includes…
        |                                                                                                  ^
-    111|     expect(warnings(out).filter((l) => l.includes("AllowanceExceeded")…
-    112|   });
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+    128|     expect(warnings(out).filter((l) => l.includes("AllowanceExceeded")…
+    129|   });
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
  Test Files  1 failed (1)
-      Tests  6 failed | 1 passed (7)
-   Start at  11:30:02
-   Duration  21.03s (transform 35ms, setup 0ms, import 49ms, tests 20.86s, environment 0ms)
+      Tests  7 failed | 1 passed (8)
+   Start at  11:37:42
+   Duration  20.65s (transform 40ms, setup 0ms, import 54ms, tests 20.47s, environment 0ms)
