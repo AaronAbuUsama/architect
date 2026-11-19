@@ -2,6 +2,9 @@
 // `ortho prove --env test`: the same, in a world of the long-lived test environment, with a signed verdict per operation.
 import { Data, type Effect, type Scope } from "effect";
 import type { Result, TokenSource } from "#modules/verdicts/types.js";
+import type { ProveReport } from "./internal/structured.ts";
+
+export type { FailureDetail, JourneyDetail, ProveReport, StepDetail } from "./internal/structured.ts";
 
 export class ProveFailed extends Data.TaggedError("ProveFailed")<{ readonly message: string }> {}
 
@@ -9,6 +12,8 @@ export interface Report {
   /** What prove says, line by line: journeys, then each operation's evals, then coverage, then the verdict. */
   readonly lines: ReadonlyArray<string>;
   readonly passed: boolean;
+  /** The same run as data (`ortho prove --json`, `--report <file>`): per journey, per step, totals and timings. */
+  readonly structured: ProveReport;
 }
 
 export interface ProveApi {

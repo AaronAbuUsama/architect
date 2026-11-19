@@ -70,9 +70,13 @@ const prove = Command.make(
     port: Flag.Int("port").pipe(Flag.withDefault(8799)),
     empty: Flag.Boolean("empty").pipe(Flag.withDefault(false)),
     only: Flag.String("only").pipe(Flag.optional),
+    // The run as data (per journey, per step: verdict, expected, got, handler and declaration files; totals; timings).
+    json: Flag.Boolean("json").pipe(Flag.withDefault(false)),
+    report: Flag.String("report").pipe(Flag.optional),
   },
-  ({ env, root, port, empty, only }) => {
+  ({ env, root, port, empty, only, json, report }) => {
     if (env === "test" && (empty || Option.isSome(only))) return fail("--empty and --only require --env local", 2);
+    if (env === "test" && (json || Option.isSome(report))) return fail("--json and --report require --env local", 2);
     const proved = env === "test"
       ? attestation(root).pipe(
           Effect.flatMap(({ token, logbook }) => {
@@ -83,8 +87,11 @@ const prove = Command.make(
           Effect.catchTag("EnvironmentFailed", (e) => Effect.fail(new ProveFailed({ message: e.message }))),
         )
       : Effect.scoped(Prove.run({ root, port, empty, env: process.env, ...(Option.isSome(only) ? { only: only.value } : {}) })).pipe(
-          Effect.tap((report) => Effect.sync(() => process.stdout.write(report.lines.join("\n") + "\n"))),
-          Effect.tap((report) => Effect.sync(() => (process.exitCode = report.passed ? 0 : 1))),
+          Effect.tap((proved) => Effect.sync(() => {
+            if (Option.isSome(report)) writeFileSync(report.value, JSON.stringify(proved.structured, null, 2) + "\n");
+            process.stdout.write(json ? JSON.stringify(proved.structured, null, 2) + "\n" : proved.lines.join("\n") + "\n");
+          })),
+          Effect.tap((proved) => Effect.sync(() => (process.exitCode = proved.passed ? 0 : 1))),
         );
     return proved.pipe(
       Effect.catchTag("ProveFailed", (e) => Console.error(`prove couldn't run: ${e.message}`).pipe(Effect.tap(() => Effect.sync(() => (process.exitCode = 2))))),
