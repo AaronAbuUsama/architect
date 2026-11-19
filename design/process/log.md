@@ -26,6 +26,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What changed:** nothing yet. Proposal 2 (branch protection with required checks and resolved conversations) would
   have held it.
 - **Pattern:** merged before review and CI finished.
+- **Update, 19 November:** proposal 2 applied in [PR 130](https://github.com/AaronAbuUsama/architect/pull/130) (record `design/decisions/CI-branch-protection.md`): `main`, `m1` and `goal/stage-1` are protected, with their CI jobs and a new `codex-finished` status required, conversations resolved, and `enforce_admins` on, so "merge when green" now waits for green.
 
 ### 2026-11-19 · A design grill quoted a refusal's code from a stale doc, not from the code
 - **Kind:** failure.
@@ -173,6 +174,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Recovery:** one change set and a grep gate.
 - **What changed:** K16 carries "Amended by G3" inline. The grep gate was a one-off, not a check.
 - **Pattern:** decisions leave older docs stale.
+- **Update, 19 November:** the mechanical half of proposal 8 is in [PR 130](https://github.com/AaronAbuUsama/architect/pull/130): a `supersedes` step in `e2e-m0` fails when an old phrase listed under a decision's `## Supersedes` is still in a live doc. No decision has that section yet; the rule that asks for it is the process-skills thread's half.
 
 ### 2026-11-19 · A fix was built before anyone checked a journey could reach it
 - **Kind:** failure.
@@ -348,6 +350,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Pattern:** CI that can't tell us anything.
 - **Update, 19 November:** every job on `main` now has a timeout ([PR 124](https://github.com/AaronAbuUsama/architect/pull/124)), and [PR 125](https://github.com/AaronAbuUsama/architect/pull/125) brings the
   same to `m1`. Nothing yet cancels a closed PR's runs.
+- **Update, 19 November:** PR 125 merged at 21:05. [PR 130](https://github.com/AaronAbuUsama/architect/pull/130) adds a `cancel-closed` workflow that cancels a pull request's unfinished runs when it closes; proved on scratch PR 131, where closing it cancelled run [44619030313](https://github.com/AaronAbuUsama/architect/actions/runs/44619030313).
 
 ### 2026-11-19 · Codex findings sat unanswered for up to 17 hours, and a P1 merged
 - **Kind:** failure.
@@ -368,6 +371,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What changed:** reviewer item 7, "No finding is left unanswered" (PR 108), and the conductor's merge rule: CI green,
   Codex finished, every thread resolved. Neither is enforced by GitHub.
 - **Pattern:** merged before review and CI finished.
+- **Update, 19 November:** [PR 130](https://github.com/AaronAbuUsama/architect/pull/130) makes it enforced, not remembered: a merge into `main`, `m1` or `goal/stage-1` needs the `codex-finished` status (no Codex review still running) and every review thread resolved.
 
 ### 2026-11-19 · Over half the red runs were red on purpose, and the run list can't tell them apart
 - **Kind:** near miss.
@@ -472,6 +476,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What changed:** the conductor's merge rule (CI green, Codex finished, no unresolved thread), applied from PR 101.
   No branch protection enforces it.
 - **Pattern:** merged before review and CI finished.
+- **Update, 19 November:** `goal/stage-1` now requires its eight CI jobs, including `e2e-m1`, `e2e-climb` and `e2e-grid`, plus `codex-finished` ([PR 130](https://github.com/AaronAbuUsama/architect/pull/130)). It is not strict, so slices still merge side by side.
 
 ### 2026-11-19 · Runners starved for three hours, and a backlog sweep threw away 34 runner-hours
 - **Kind:** failure.
@@ -508,6 +513,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What changed:** ci.yml on main. m1 still to take it; raised with the conductor.
 - **Pattern:** CI that can't tell us anything; merged before review and CI finished.
 - **Update, 19 November:** the conductor opened [PR 125](https://github.com/AaronAbuUsama/architect/pull/125) to give `m1` the per-push groups, the same evening.
+- **Update, 19 November:** PR 125 merged at 21:05, so `m1` now has per-push groups and job timeouts.
 
 ### 2026-11-19 · The portal viewer was built against a licence its Worker can't bundle
 - **Kind:** failure, with a win in the recovery.
@@ -592,6 +598,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Recovery:** files handed back to the author.
 - **What changed:** nothing mechanical. The triage replies say the 🔍 checklist names it.
 - **Pattern:** builders edit the checks that judge them.
+- **Update, 19 November:** proposal 6 applied in [PR 130](https://github.com/AaronAbuUsama/architect/pull/130): a `builder-paths` job fails a `-build` branch that touches `e2e/`, journeys, evals, the runner's generic checks or their break fixtures (taking lines off the ratchet's list is allowed). Required on `main`; it reaches `m1` and `goal/stage-1` when `main` is next merged into them, and only branches named `-build` are guarded.
 
 ### 2026-11-19 · Test servers left running for hours overloaded the machine
 - **Kind:** failure.
@@ -936,6 +943,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Recovery:** independent acceptance with new guards.
 - **What changed:** the record only.
 - **Pattern:** builders edit the checks that judge them.
+- **Update, 19 November:** the evals are now on the `builder-paths` guard ([PR 130](https://github.com/AaronAbuUsama/architect/pull/130)), for `-build` branches.
 
 ### 2026-11-17 · A stale PID file could have made "down" kill an unrelated process
 - **Kind:** near miss.

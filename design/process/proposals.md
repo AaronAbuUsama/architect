@@ -94,6 +94,7 @@ And the conductor skill's landing list:
 ```
 
 **Applies it:** the conductor. Branch protection changes how Aaron's own merges behave, so tell him in the next report.
+**Applied, 19 November:** [PR 130](https://github.com/AaronAbuUsama/architect/pull/130) by the ci-guards thread (`design/decisions/CI-branch-protection.md`), on `main`, `m1` and `goal/stage-1`, with a `codex-finished` status as the Codex gate. One change from the diff above: `enforce_admins` is on, because every agent merges through Aaron's admin account and with it off the protection binds no one.
 
 ## 3. Cut slices so two builders never share a contract; one allocator for decision IDs
 
@@ -171,7 +172,7 @@ jobs:
 And merge `main` into `m1` (or cherry-pick 352f316a), so m1's pushes stop cancelling each other.
 
 **Applies it:** the conductor. **Partly applied, 19 November:** timeouts on `main` ([PR 124](https://github.com/AaronAbuUsama/architect/pull/124)); timeouts and
-per-push groups on `m1` ([PR 125](https://github.com/AaronAbuUsama/architect/pull/125), open). The closed-PR workflow is still to do.
+per-push groups on `m1` ([PR 125](https://github.com/AaronAbuUsama/architect/pull/125), merged 21:05). **Applied, 19 November:** the closed-PR workflow, `cancel-closed`, in [PR 130](https://github.com/AaronAbuUsama/architect/pull/130). Merging `main` into `m1` is still to do.
 
 ## 5. "Stop what you started, by PID" moves into AGENTS.md, with an end-of-turn step
 
@@ -236,6 +237,7 @@ And `AGENTS.md`, "How work flows":
 ```
 
 **Applies it:** the conductor, with the checks author owning the exact path list.
+**Applied, 19 November:** the `builder-paths` job in [PR 130](https://github.com/AaronAbuUsama/architect/pull/130), for branches ending in `-build`. Required on `main`; it reaches `m1` and `goal/stage-1` when `main` is next merged into them.
 
 ## 7. An `author` skill: prove each new check reachable, satisfiable and consistent first
 
@@ -299,6 +301,7 @@ must find each old phrase only inside `design/decisions/` dated records and `des
 conductor's one-off `git grep "5 to 125"` gate into a standing one.
 
 **Applies it:** the conductor (AGENTS.md), a builder for the script.
+**Partly applied, 19 November:** the check, `tools/ci/supersedes.sh` as a step in `e2e-m0`, in [PR 130](https://github.com/AaronAbuUsama/architect/pull/130). The rule in AGENTS.md is with the process-skills thread; until a decision carries a `## Supersedes` list, the check has nothing to read.
 
 ## 9. Aaron's lessons move from memory notes into the skills
 

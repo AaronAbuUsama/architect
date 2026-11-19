@@ -11,12 +11,12 @@ Status: **open** (no fix), **partly covered** (a rule or skill exists but entrie
 |---|---|---|---|---|
 | Reviews miss runtime defects | 6 | 4 | partly covered | 1 |
 | Parallel work collides | 6 | 3 | open | 3 |
-| CI that can't tell us anything | 8 | 6 | partly covered | 4 |
+| CI that can't tell us anything | 8 | 6 | partly covered | 4 (applied) |
 | Shared machine and stray processes | 6 | 3 | partly covered | 5 |
-| Merged before review and CI finished | 4 | 2 | partly covered | 2 |
+| Merged before review and CI finished | 4 | 2 | partly covered | 2 (applied) |
 | Found before building, or after | 10 | 3 | the wins to keep; gap open | 7 |
-| Decisions leave older docs stale | 4 | 0 | partly covered | 8 |
-| Builders edit the checks that judge them | 2 | 1 | open | 6 |
+| Decisions leave older docs stale | 4 | 0 | partly covered | 8 (check applied) |
+| Builders edit the checks that judge them | 2 | 1 | partly covered | 6 (applied) |
 | Talking to Aaron, and showing unchecked work | 7 | 5 | partly covered | 9 |
 | One fact, many hand-kept copies | 4 | 4 | open | 10 |
 | Fakes that diverge from the real service | 3 | 1 | partly covered | 11 |
@@ -86,11 +86,11 @@ Entries:
 - 2026-11-19 · Flaky end-to-end checks failed unrelated pull requests (failure)
 - 2026-11-17 · Green on the Mac, red on Linux CI: seven recoveries in one night (failure)
 
-**Covers it today:** the ratchet on `goal/stage-1` (PR 111); per-push concurrency groups on main (PR 102); reviewer
+**Covers it today:** the ratchet on `goal/stage-1` (PR 111); per-push concurrency groups on main (PR 102) and on `m1`
+(PR 125); a timeout on every job (PRs 124 and 125); a closed PR cancels its runs (`cancel-closed` on `main`, reaching `m1` and `goal/stage-1` when `main` is merged in; [PR 130](https://github.com/AaronAbuUsama/architect/pull/130)); reviewer
 item 8.
 
-**Gap:** `m1` has neither the ratchet nor PR 102's fix (PR 125, open, brings the fix and timeouts; `main` got
-timeouts in PR 124). Closing a PR leaves its runs going. No flake list exists, so a flake is rerun rather than fixed or quarantined. The `check` job has no ratchet, so it
+**Gap:** `m1` has no ratchet. No flake list exists, so a flake is rerun rather than fixed or quarantined. The `check` job has no ratchet, so it
 merged red six times in an hour.
 
 ## Shared machine and stray processes
@@ -124,12 +124,12 @@ Entries:
 - 2026-11-19 · Goal 3's files merged before their checks finished (near miss)
 - 2026-11-19 · The CI fix for queued runs cancelled main's push runs, and m1 still has it (failure)
 
-**Covers it today:** reviewer item 7, "No finding is left unanswered"; the conductor's merge rule (CI green, Codex
-finished, every thread resolved).
+**Covers it today:** branch protection on `main`, `m1` and `goal/stage-1` ([PR 130](https://github.com/AaronAbuUsama/architect/pull/130), 19 November): each branch's CI jobs
+and a `codex-finished` status are required, every conversation must be resolved, and admins are bound too. Reviewer
+item 7 and the conductor's merge rule still hold.
 
-**Gap:** both are things an agent remembers. GitHub can enforce it: required status checks and "Require conversation
-resolution before merging" on `main`, `m1` and `goal/*`. Four entries, no enforcement: **raised with the conductor on
-19 November.**
+**Gap:** closed for the three protected branches. `codex-finished` means no Codex review is running, not that Codex
+reviewed the exact head, and other `goal/*` branches are not protected yet. Watching for a merge that gets through.
 
 ## Found before building, or after
 
@@ -166,11 +166,13 @@ Entries:
 - 2026-11-18 · The framework was renamed a day after its first name was built in (near miss)
 - 2026-11-18 · Writing files by hand reversed a decision nobody recorded (near miss)
 
-**Covers it today:** AGENTS.md "Who decides": fix the other in the same change, and record the call.
+**Covers it today:** AGENTS.md "Who decides": fix the other in the same change, and record the call. A `supersedes`
+step in `e2e-m0` ([PR 130](https://github.com/AaronAbuUsama/architect/pull/130)) fails when a phrase listed under a decision's `## Supersedes` is still in a live doc.
 
 **Gap:** the rule held this time because the conductor read the decision. Nothing checks it, and the repo has two ways
 to supersede (amend in place, as G3 did to K16; keep the old words as a dated record, as ST1-02 did), so a reader can't
-tell which text is live.
+tell which text is live. The check reads only `## Supersedes` lists, and no decision has one until the rule that asks
+for it lands (the process-skills thread).
 
 ## Builders edit the checks that judge them
 
@@ -180,10 +182,11 @@ Entries:
 - 2026-11-19 · Builders kept editing the checks that judge them (failure)
 - 2026-11-17 · Builders widened the evaluators, and an author accepted it after the fact (near miss)
 
-**Covers it today:** AGENTS.md: "A builder never edits journeys, the evals or the runner's generic checks."
+**Covers it today:** AGENTS.md: "A builder never edits journeys, the evals or the runner's generic checks." The
+`builder-paths` job ([PR 130](https://github.com/AaronAbuUsama/architect/pull/130)) fails a `-build` branch that touches them; required on `main`.
 
-**Gap:** five events in three days, all caught by Codex or the conductor after the fact, three of them merged. No path
-guard exists. **Raised with the conductor on 19 November** (three or more with no fix).
+**Gap:** the guard reaches only branches named `-build`, and `m1` and `goal/stage-1` run it once `main` is merged into
+them. Before the guard: five events in three days, all caught after the fact, three of them merged. Watching.
 
 ## Talking to Aaron, and showing unchecked work
 
@@ -259,7 +262,7 @@ files under about 250 lines; six slots per module; builders don't edit checks.
 Entries:
 - 2026-11-19 · The "no async, no throw" rule broke three times in one pull request, and only Codex noticed (failure)
 
-**Gap:** lint rules (and the path guard above).
+**Gap:** lint rules. (The path guard is in, PR 130.)
 
 ## Briefs that miss context
 
