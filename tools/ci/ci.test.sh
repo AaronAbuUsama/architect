@@ -154,6 +154,12 @@ git -C "$r" merge -q --no-edit base > /dev/null 2>&1 || true; printf 'ONE\ntwo\n
 expect "covers: a merge that resolves a conflict is not covered" 1 covers "$r"
 r=$(pr_repo); on_base "$r" base.txt b2; git -C "$r" rebase -q base
 expect "covers: a rebase that drops the reviewed commit is not covered" 1 covers "$r"
+r=$(pr_repo); on_base "$r" base.txt b2; git -C "$r" checkout -qb other base~1; echo o > "$r/other.txt"; git -C "$r" add -A
+git -C "$r" commit -qm other; git -C "$r" checkout -q pr; git -C "$r" merge -q --no-edit base other > /dev/null 2>&1
+expect "covers: an octopus merge is not covered" 1 covers "$r"
+r=$(pr_repo); on_base "$r" base.txt b2; git -C "$r" checkout -q base; git -C "$r" merge -q --no-edit pr > /dev/null 2>&1
+git -C "$r" checkout -q -B pr base
+expect "covers: a merge made from the base side is not covered" 1 covers "$r"
 r=$(pr_repo)
 expect "covers: a reviewed commit not in the repository is not covered" 1 \
   bash -c "cd '$r' && '$here/codex-covers.sh' 0123456789abcdef0123456789abcdef01234567 HEAD base"

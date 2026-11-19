@@ -77,14 +77,17 @@ conversation resolution required, no required approvals, and no force pushes or 
   (`<!-- codex-review-state:v1 {…} -->`), and edits it as its reviews start and finish. The workflow reads that line,
   from the Codex app's own comment only, and posts `success` once every review Codex started has completed, `pending`
   while one is running or when Codex has not reviewed at all ("comment @codex review"). It runs from `main` for every
-  pull request whatever its base, on Codex's comments, on every `ci` run a push starts (so a new head gets its own status),
-  and by hand (`gh workflow run codex-finished -f pr=<n>`). It never checks out a pull request's code. Findings are review threads, which conversation resolution holds, so the status does not count them.
+  pull request whatever its base, on Codex's comments, on every `ci` run a push starts (so a new
+  head gets its own status), and by hand (`gh workflow run codex-finished -f pr=<n>`). It never checks out a pull
+  request's code. Findings are review threads, which conversation resolution holds, so the status does not count them.
   A review covers the head only if Codex reviewed that exact commit, or if every commit since is a clean merge from the
   base branch (`tools/ci/codex-covers.sh`; amended 19 November 2026 at the conductor's request). Each commit on the
   head's first-parent line back to the reviewed one must be a merge whose second parent is in the base's history and
   whose tree is exactly what git makes for that merge with no conflict. So updating a branch from its base for
   `strict` needs no second review, but a new commit, a merge from another branch, a merge with extra edits or a
-  resolved conflict, and a rebase all go back to `pending` until "@codex review" reviews the new head. The workflow
+  resolved conflict, and a rebase all go back to `pending` until "@codex review" reviews the new head. So a branch is
+  brought up to date by merging its base in (GitHub's "Update branch" with merge, or `git merge origin/<base>`), not
+  by rebasing. The workflow
   fetches the pull request's head as objects only, to walk that history; it never checks it out. A Codex state other
   than `completed` stays `pending` too; "@codex review" or a hand run recovers it.
   Before the status is first required on a branch, the workflow is run by hand for every open pull request into it, so

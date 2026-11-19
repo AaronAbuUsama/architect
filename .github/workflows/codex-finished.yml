@@ -60,7 +60,12 @@ jobs:
             reading=$(gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/issues/$pr/comments" | tools/ci/codex-state.sh)
             IFS=$'\t' read -r state reviewed description <<< "$reading"
             if [ "$state" = success ] && [ "$reviewed" != "$head" ]; then
-              git fetch -q origin "+refs/pull/$pr/head:refs/remotes/pr/$pr"
+              # Right after a push the pull request's ref can lag the API's head; wait for it rather than report a gap.
+              for _ in 1 2 3 4 5 6; do
+                git fetch -q origin "+refs/pull/$pr/head:refs/remotes/pr/$pr"
+                git cat-file -e "$head^{commit}" 2>/dev/null && break
+                sleep 5
+              done
               if ! why=$(tools/ci/codex-covers.sh "$reviewed" "$head" "origin/$base"); then
                 state=pending
                 description="Codex reviewed ${reviewed:0:7}; since then $why; comment @codex review"
