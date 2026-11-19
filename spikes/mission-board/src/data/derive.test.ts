@@ -78,3 +78,9 @@ test("filters by state, thread and output", () => {
   equal(cards.filter((c) => matches(c, { thread: "codex-links" })).length, 1);
   equal(cards.filter((c) => matches(c, { output: "mcp", states: ["red"] })).length, 7);
 });
+
+test("seventeen red cards are proposed grey until Aaron answers", () => {
+  const cards = join(grid, board).lanes.flatMap((l) => l.cards).filter((c) => c.proposedNotNeeded);
+  equal(cards.length, 17);
+  equal(cards.every((c) => c.state === "red"), true);
+});

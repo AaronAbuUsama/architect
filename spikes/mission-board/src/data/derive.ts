@@ -14,6 +14,7 @@ export interface CardView {
   readonly history: ReadonlyArray<CardEvent>;
   readonly question: Question | null;     // Aaron's open call that decides this card, if any
   readonly waitsOn: ReadonlyArray<OutputId>; // outputs this one depends on that aren't green yet in its lane
+  readonly proposedNotNeeded: boolean;     // "proposed grey": red, and the grid proposes not needed; stays red until Aaron answers K14 Q2
 }
 
 export interface Score {
@@ -85,6 +86,7 @@ export const join = (grid: Grid, board: Board): BoardView => {
       hadIt: hadIt(history, thread?.id ?? null, threads),
       question: cell.question ? questions.get(cell.question) ?? null : null,
       waitsOn: [],
+      proposedNotNeeded: cell.notNeededProposal !== null && stateNow(cell, history) === "red",
     };
   };
 

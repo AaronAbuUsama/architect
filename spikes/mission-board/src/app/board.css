@@ -1,0 +1,108 @@
+/* The mission board's own layout. HeroUI and HeroUI Pro bring their component styles; this places them. */
+.console-root{min-height:100vh;background:var(--background);color:var(--foreground);font-family:'Plus Jakarta Sans',system-ui,sans-serif;color-scheme:dark;font-size:14px}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12px}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+p{margin:0}
+.link{all:unset;cursor:pointer;color:var(--accent);font-weight:600}
+.link:hover{text-decoration:underline}
+
+.mb-page{max-width:1440px;margin:0 auto;padding:20px 28px 48px;display:flex;flex-direction:column;gap:14px}
+.crumbs{display:flex;align-items:center;gap:8px;font-size:.875rem;color:var(--muted)}
+.crumbs [aria-current]{color:var(--foreground)}
+.goal-head{display:flex;flex-direction:column;gap:8px}
+.goal-icon{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;background:var(--surface-secondary);color:var(--accent)}
+.goal-head h1{margin:4px 0 0;font-size:1.6rem;font-weight:700;letter-spacing:-.015em;line-height:1.25}
+.goal-head p{max-width:80ch;font-size:.9rem}
+.props-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.props-row .chip,.card-chips .chip{display:inline-flex;align-items:center;gap:5px}
+.page-tabs{margin-bottom:-2px}
+.page-tabs .tabs__list-container,.page-tabs .tabs__list{width:fit-content}
+.page-tabs .tabs__tab{white-space:nowrap}
+.filters,.climb-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+
+/* Board with its side panel (GRILL Q3 A) */
+.board-with-panel{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:16px;align-items:start}
+.board-main{display:flex;flex-direction:column;gap:12px;min-width:0}
+.panel{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto;border:1px solid var(--border);border-radius:16px;background:var(--surface)}
+.detail-page{max-width:760px;display:flex;flex-direction:column;gap:12px}
+.detail-page .detail{border:1px solid var(--border);border-radius:16px;background:var(--surface)}
+
+/* Lanes */
+.lanes{display:flex;flex-direction:column;gap:18px}
+.lane{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--border);padding-top:12px}
+.lane-head{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.lane-name{flex:1 1 260px;min-width:0}
+.lane-name h2{margin:0;font-size:1rem;font-weight:700}
+.lane-name p{font-size:12px;margin-top:2px;max-width:70ch}
+.end-chip{display:inline-flex;align-items:center;gap:6px;max-width:360px;padding:4px 10px;border-radius:999px;border:1px solid var(--border);background:var(--surface-secondary);color:var(--foreground);font:inherit;font-size:12px;cursor:pointer}
+.end-chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.end-chip:hover{border-color:var(--accent)}
+.end-chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.lane-score{white-space:nowrap;color:var(--muted);padding-top:4px}
+.lane-score b{color:var(--foreground)}
+.lane-board{width:100%;--kanban-column-min-width:150px;--kanban-column-gap:10px;overflow:visible}
+.lane-board .kanban__column-body{min-height:52px}
+.lane-board .kanban__card-list{padding-bottom:calc(var(--spacing,.25rem) * 2)}
+.tone-danger{background:var(--danger)}.tone-warning{background:var(--warning)}.tone-partly{background:repeating-linear-gradient(135deg,var(--warning) 0 2px,transparent 2px 4px);box-shadow:inset 0 0 0 1px var(--warning)}
+.tone-success{background:var(--success)}.tone-default{background:var(--muted)}
+.tone-text-success{color:var(--success)}.tone-text-danger{color:var(--danger)}
+
+/* A card */
+.out-card{display:flex;flex-direction:column;gap:6px;cursor:pointer}
+.out-card.is-selected{outline:2px solid var(--accent);outline-offset:-2px}
+.out-card.is-proposed{opacity:.55}
+.card-top{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.card-title{font-weight:600}
+.card-chips{display:flex;flex-wrap:wrap;gap:4px}
+.card-waits{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--warning)}
+.thread{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--muted);white-space:nowrap}
+
+/* Detail */
+.detail{display:flex;flex-direction:column;gap:14px;padding:16px}
+.d-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.d-head h2{margin:2px 0 0;font-size:1.15rem}
+.d-props{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.d-section{display:flex;flex-direction:column;gap:6px}
+.d-section h3{margin:0;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.d-note{padding:8px 10px;border-radius:10px;background:var(--surface-secondary);font-size:13px}
+.d-links{display:flex;gap:6px;flex-wrap:wrap}
+.d-section .mono{overflow-wrap:anywhere}
+.grade{display:inline-grid;place-items:center;min-width:20px;padding:0 4px;border-radius:6px;background:var(--surface-secondary)}
+
+/* Hill climb (GRILL Q4 A) */
+.climb-tab,.ov-main,.ov-rail{display:flex;flex-direction:column;gap:14px}
+.climb-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:14px;align-items:start}
+.widget-kpis{margin:0 6px 6px;border-radius:calc(var(--radius) * 1.5)}
+.matrix{display:flex;flex-direction:column;gap:4px;overflow-x:auto}
+.m-row{display:grid;grid-template-columns:200px repeat(9,minmax(34px,1fr));gap:4px;align-items:center}
+.m-out{font-size:11px;color:var(--muted);text-align:center}
+.m-lane{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-cell{height:26px;border-radius:6px;border:0;cursor:pointer;padding:0}
+.m-cell:focus-visible{outline:2px solid var(--foreground);outline-offset:1px}
+.st-red{background:color-mix(in oklab,var(--danger) 70%,transparent)}
+.st-partly{background:repeating-linear-gradient(135deg,color-mix(in oklab,var(--warning) 80%,transparent) 0 4px,transparent 4px 9px);box-shadow:inset 0 0 0 1.5px var(--warning)}
+.st-built{background:color-mix(in oklab,var(--warning) 75%,transparent)}
+.st-green{background:var(--success)}
+.st-not-needed,.m-cell.is-proposed{background:var(--surface-tertiary,#3a3a3f)}
+.m-cell.is-moved{box-shadow:0 0 0 2px var(--background),0 0 0 4px var(--foreground)}
+.climb{width:100%;height:auto;max-height:260px}
+.climb .grid{stroke:var(--border);stroke-dasharray:2 4}
+.climb .tick,.climb .end-label{fill:var(--muted);font-size:11px;font-family:'JetBrains Mono',monospace}
+.climb .line-green{fill:none;stroke:var(--success);stroke-width:2.5}
+.climb .line-built{fill:none;stroke:var(--warning);stroke-width:2.5}
+
+/* Overview */
+.overview{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:16px;align-items:start}
+.prose{display:flex;flex-direction:column;gap:10px;line-height:1.55;max-width:75ch}
+
+@media (max-width:1100px){
+  .board-with-panel,.overview,.climb-grid{grid-template-columns:minmax(0,1fr)}
+  .panel{position:static;max-height:none}
+}
+
+.console-root .item-card__title,.console-root .item-card__description{white-space:normal;width:auto}
+.head-text{display:flex;flex-direction:column;gap:2px;min-width:0}
+code.mono{padding:0 3px;border-radius:4px;background:var(--surface-secondary)}
+.legend-swatch{display:inline-block;width:14px;height:10px;border-radius:3px;vertical-align:middle;margin-right:6px}
+.m-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);padding:10px 2px 0}
