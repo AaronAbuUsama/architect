@@ -24,7 +24,7 @@ skill change: the conductor, or the thread that owns the skill, does.
 
 ## 1. The 🔍 names every door and runs one probe through each
 
-**Fixes:** eight entries. Our own 🔍 passed #76 and #95 (twelve real defects, about three hours of Goal 3's start), passed
+**Fixes:** six entries. Our own 🔍 passed #76 and #95 (twelve real defects, about three hours of Goal 3's start), passed
 #95 again "with items 6 to 8" before Codex found five more, and nobody reviewed the unique-field build that shipped
 without `findBy` on the handler path. Item 6 is a list to read. Every miss was on a second door: the device path beside
 the server path, a wrapper beside the object it wraps, a replay beside a first answer.
@@ -65,13 +65,16 @@ and the conductor's merge rule say the right thing; nothing enforces them.
 **Change:** a repository setting, branch protection on `main`, `m1` and `goal/**`:
 
 ```bash
-gh api -X PUT repos/AaronAbuUsama/architect/branches/main/protection \
-  -f required_conversation_resolution=true \
-  -F required_status_checks[strict]=true \
-  -f 'required_status_checks[contexts][]=check' \
-  -f 'required_status_checks[contexts][]=e2e-layer1' \
-  -f 'required_status_checks[contexts][]=e2e-m1' \
-  -F enforce_admins=false -F required_pull_request_reviews=null -F restrictions=null
+# main's jobs are check, e2e-layer1, e2e-layer2 and e2e-m0; m1 and goal/** add e2e-m1 and portal-ui.
+gh api -X PUT repos/AaronAbuUsama/architect/branches/main/protection --input - <<'JSON'
+{
+  "required_status_checks": { "strict": true, "contexts": ["check", "e2e-layer1", "e2e-layer2", "e2e-m0"] },
+  "required_conversation_resolution": true,
+  "enforce_admins": false,
+  "required_pull_request_reviews": null,
+  "restrictions": null
+}
+JSON
 ```
 
 And the conductor skill's landing list:
@@ -93,8 +96,8 @@ And the conductor skill's landing list:
 
 ## 3. Cut slices so two builders never share a contract; one allocator for decision IDs
 
-**Fixes:** seven entries, and the single most costly event of 19 November: K16 split across two builders, two closed
-PRs, #76 open 5 hours 37 minutes with 49 commits. Also two decisions both named G3, a duplicate author started beside a
+**Fixes:** six entries, and the single most costly event of 19 November: K16 split across two builders, two closed
+PRs, #76 open 5 hours 37 minutes with 49 commits. Also two decisions both named G3 (caught by the checks author, by luck), a duplicate author started beside a
 running one, and a commit pushed to an already-merged branch.
 
 **Change:** `.agents/skills/conductor/SKILL.md`, under "Starting a thread" (the same text goes into goal files for
@@ -118,14 +121,15 @@ And `.agents/skills/threads/SKILL.md`, rules every type keeps:
 +  (`gh pr view <n> --json state`). Once it has merged, cut a fresh branch from the target.
 ```
 
-**Applies it:** the conductor. The two G3 files need one renamed now (flagged on 19 November).
+**Applies it:** the conductor.
 
 ## 4. Every job gets a timeout, a closed PR cancels its runs, m1 takes the push-group fix
 
-**Fixes:** nine entries. #96's closed runs held four jobs for about two hours (9.3 runner-hours). A backlog sweep threw
+**Fixes:** eight entries. #96's closed runs held four jobs for about two hours (9.3 runner-hours). A backlog sweep threw
 away 34 runner-hours. Main lost four merge runs to #97. 41 of the day's 182 runner-hours ended cancelled.
 
-**Change:** `.github/workflows/ci.yml`, every job:
+**Change:** `.github/workflows/ci.yml` on `m1` and `goal/stage-1` (main's four jobs already have timeouts), every
+job:
 
 ```diff
  jobs:
@@ -165,11 +169,12 @@ jobs:
 
 And merge `main` into `m1` (or cherry-pick 352f316a), so m1's pushes stop cancelling each other.
 
-**Applies it:** the conductor, or a builder thread on `main`. Raised on 19 November for m1.
+**Applies it:** the conductor. **Partly applied, 19 November:** timeouts on `main` ([PR 124](https://github.com/AaronAbuUsama/architect/pull/124)); timeouts and
+per-push groups on `m1` ([PR 125](https://github.com/AaronAbuUsama/architect/pull/125), open). The closed-PR workflow is still to do.
 
 ## 5. "Stop what you started, by PID" moves into AGENTS.md, with an end-of-turn step
 
-**Fixes:** seven entries. A machine-wide `pkill` from a duplicate author; load of 95 to 190 from leftovers four to eight
+**Fixes:** six entries. A machine-wide `pkill` from a duplicate author; load of 95 to 190 from leftovers four to eight
 hours old; tests clashing on fixed ports and shared folders, breaking m1 for most of its 5-hour-47-minute red. The rule
 lives in one goal brief and a review checklist; a thread started without that brief has never seen it.
 
@@ -268,7 +273,7 @@ And a row in the threads skill's table points ✍️ Author at it.
 
 ## 8. One way to supersede, and a check that superseded phrases are gone
 
-**Fixes:** five entries. G3 narrowed K16 and was caught only because the conductor read it; ST1-02 kept the old words as
+**Fixes:** four entries. G3 narrowed K16 and was caught only because the conductor read it; ST1-02 kept the old words as
 a dated record while G3 amended K16 in place, so readers can't tell which convention is live; the rename and the K12
 reversal left stale words for a day or more.
 
@@ -367,8 +372,8 @@ on a branch nobody has pushed, hours after the switch.
 
 ## 13. Lint rules for the four unenforced code rules
 
-**Fixes:** the "no async, no throw" rule broken three times in one PR and caught only by Codex, plus the 317-line
-`cli/src/main.ts` and the unchecked six-slot shape found in the conductor's audit.
+**Fixes:** the "no async, no throw" rule broken three times in one PR and caught only by Codex, plus `cli/src/main.ts` over
+the limit (313 lines on `main`, 339 on `m1`) and the unchecked six-slot shape found in the conductor's audit.
 
 **Change:** `packages/lint` already carries the project's own rules (`ortho/no-old-names`, `ortho/no-pro-outside-portal-ui`,
 and others). Add:

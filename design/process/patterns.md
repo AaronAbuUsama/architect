@@ -9,19 +9,19 @@ Status: **open** (no fix), **partly covered** (a rule or skill exists but entrie
 
 | Pattern | Entries | Failures | Status | Proposal |
 |---|---|---|---|---|
-| Reviews miss runtime defects | 7 | 5 | partly covered | 1 |
+| Reviews miss runtime defects | 6 | 4 | partly covered | 1 |
 | Parallel work collides | 6 | 3 | open | 3 |
-| CI that can't tell us anything | 9 | 7 | partly covered | 4 |
+| CI that can't tell us anything | 8 | 6 | partly covered | 4 |
 | Shared machine and stray processes | 6 | 3 | partly covered | 5 |
 | Findings merged unanswered | 3 | 2 | partly covered | 2 |
 | Found before building, or after | 10 | 3 | the wins to keep; gap open | 7 |
 | Decisions leave older docs stale | 4 | 0 | partly covered | 8 |
-| Builders edit the checks that judge them | 2 (five events) | 1 | open | 6 |
+| Builders edit the checks that judge them | 2 | 1 | open | 6 |
 | Talking to Aaron, and showing unchecked work | 7 | 5 | partly covered | 9 |
-| One fact, many hand-kept copies | 3 | 2 | open | 10 |
+| One fact, many hand-kept copies | 3 | 3 | open | 10 |
 | Fakes that diverge from the real service | 3 | 1 | partly covered | 11 |
 | State lost across sessions | 3 | 2 | partly covered | 12 |
-| Rules with no check behind them | 1 (four rules) | 1 | open | 13 |
+| Rules with no check behind them | 1 | 1 | open | 13 |
 | Briefs that miss context | 2 | 0 | open, small | none yet |
 | Secrets in output | 1 | 0 | open, small | none yet |
 | Evidence that overclaims | 1 | 1 | covered | none |
@@ -36,13 +36,12 @@ then finds it. On 19 November this cost Goal 3 about three hours, and the checkl
 the next one.
 
 Entries:
-- 2026-11-19 · The unique-field build passed its checks, but real handlers had no `findBy`
-- 2026-11-19 · The visibility rule passed review with the new checklist, and Codex still found five more gaps
-- 2026-11-19 · The fix that hid secrets from journeys hid public values too
-- 2026-11-19 · The day's review misses became a reviewer checklist (the recovery)
-- 2026-11-19 · Our own 🔍 passed two pull requests holding twelve real defects
-- 2026-11-19 · The ratchet turned "CI is red for known reasons" into a real gate (a 🔍 missed a hole Codex found)
-- 2026-11-17 · Three review rounds found the same kind of bug, and the plan was reset twice
+- 2026-11-19 · The unique-field build passed its checks, but real handlers had no `findBy` (near miss)
+- 2026-11-19 · The visibility rule passed review with the new checklist, and Codex still found five more gaps (failure)
+- 2026-11-19 · The fix that hid secrets from journeys hid public values too (failure)
+- 2026-11-19 · The day's review misses became a reviewer checklist (win)
+- 2026-11-19 · Our own 🔍 passed two pull requests holding twelve real defects (failure)
+- 2026-11-17 · Three review rounds found the same kind of bug, and the plan was reset twice (failure)
 
 **Covers it today:** reviewer items 6 to 8 (PR 108); the practice of planting a failing check per finding.
 
@@ -57,12 +56,12 @@ threads pick the same decision ID, a goal starts on a branch that's still moving
 already merged.
 
 Entries:
-- 2026-11-19 · Two different decisions were both named G3
-- 2026-11-19 · Goal 3 started before m1 settled, and m1 had to be merged in by hand twice
-- 2026-11-19 · Two builders each built half of one feature, and both pull requests were closed
-- 2026-11-19 · The shared totals table and the pinned file digests conflicted on nearly every merge
-- 2026-11-19 · A duplicate author ran a machine-wide kill of everyone's test servers (a duplicate thread)
-- 2026-11-19 · A commit was pushed to a branch whose pull request had already merged
+- 2026-11-19 · Two different decisions were both named G3 (near miss)
+- 2026-11-19 · Goal 3 started before m1 settled, and m1 had to be merged in by hand twice (near miss)
+- 2026-11-19 · Two builders each built half of one feature, and both pull requests were closed (failure)
+- 2026-11-19 · The shared totals table and the pinned file digests conflicted on nearly every merge (failure)
+- 2026-11-19 · A duplicate author ran a machine-wide kill of everyone's test servers (failure)
+- 2026-11-19 · A commit was pushed to a branch whose pull request had already merged (near miss)
 
 **Covers it today:** "Land on a fresh base" in the `threads` skill; a memory note to check a PR's state before pushing.
 
@@ -78,20 +77,20 @@ about 182 runner-hours were spent: 90.5 in jobs that passed, 50.5 in jobs that f
 m1's longest red lasted 5 hours 47 minutes.
 
 Entries:
-- 2026-11-19 · The ratchet turned "CI is red for known reasons" into a real gate (the recovery)
-- 2026-11-19 · Two stale runs from a closed pull request held runners for almost two hours
-- 2026-11-19 · Runners starved for three hours, and a backlog sweep threw away 34 runner-hours
-- 2026-11-19 · Over half the red runs were red on purpose, and the run list can't tell them apart
-- 2026-11-19 · Sixty-three failing tests sat behind a green run
-- 2026-11-19 · The CI fix for queued runs cancelled main's push runs, and m1 still has it
-- 2026-11-19 · Flaky end-to-end checks failed unrelated pull requests
-- 2026-11-17 · Green on the Mac, red on Linux CI: seven recoveries in one night
+- 2026-11-19 · The ratchet turned "CI is red for known reasons" into a real gate (win)
+- 2026-11-19 · Two stale runs from a closed pull request held runners for almost two hours (failure)
+- 2026-11-19 · Over half the red runs were red on purpose, and the run list can't tell them apart (near miss)
+- 2026-11-19 · Sixty-three failing tests sat behind a green run (failure)
+- 2026-11-19 · Runners starved for three hours, and a backlog sweep threw away 34 runner-hours (failure)
+- 2026-11-19 · The CI fix for queued runs cancelled main's push runs, and m1 still has it (failure)
+- 2026-11-19 · Flaky end-to-end checks failed unrelated pull requests (failure)
+- 2026-11-17 · Green on the Mac, red on Linux CI: seven recoveries in one night (failure)
 
 **Covers it today:** the ratchet on `goal/stage-1` (PR 111); per-push concurrency groups on main (PR 102); reviewer
 item 8.
 
-**Gap:** `m1` has neither the ratchet nor PR 102's fix. No job but one has a timeout, and closing a PR leaves its runs
-going. No flake list exists, so a flake is rerun rather than fixed or quarantined. The `check` job has no ratchet, so it
+**Gap:** `m1` has neither the ratchet nor PR 102's fix (PR 125, open, brings the fix and timeouts; `main` got
+timeouts in PR 124). Closing a PR leaves its runs going. No flake list exists, so a flake is rerun rather than fixed or quarantined. The `check` job has no ratchet, so it
 merged red six times in an hour.
 
 ## Shared machine and stray processes
@@ -100,12 +99,12 @@ Every local thread shares one Mac: its ports, its CPU, its process table and its
 cleanup break another's run.
 
 Entries:
-- 2026-11-19 · Test servers left running for hours overloaded the machine
-- 2026-11-19 · A duplicate author ran a machine-wide kill of everyone's test servers
-- 2026-11-19 · Tests shared ports and folders, and broke each other
-- 2026-11-19 · A merge ran in the conductor's own worktree because a `cd` failed
-- 2026-11-18 · Docker was dropped overnight, and processes became owned by PID
-- 2026-11-17 · A stale PID file could have made "down" kill an unrelated process
+- 2026-11-19 · Test servers left running for hours overloaded the machine (failure)
+- 2026-11-19 · A duplicate author ran a machine-wide kill of everyone's test servers (failure)
+- 2026-11-19 · Tests shared ports and folders, and broke each other (failure)
+- 2026-11-19 · A merge ran in the conductor's own worktree because a `cd` failed (near miss)
+- 2026-11-18 · Docker was dropped overnight, and processes became owned by PID (win)
+- 2026-11-17 · A stale PID file could have made "down" kill an unrelated process (near miss)
 
 **Covers it today:** "Touch only your own resources" (AGENTS.md); PID markers (M1-processes); the Goal 3 brief's "stop
 only what you started, by PID"; reviewer item 6, "process hygiene".
@@ -119,9 +118,9 @@ Most checks still pick fixed ports by hand, and the same port clash came back a 
 A review finding (Codex's, or a reviewer's) is still open when the PR merges. Some were real defects at merge.
 
 Entries:
-- 2026-11-19 · Codex findings sat unanswered for up to 17 hours, and a P1 merged
-- 2026-11-19 · Goal 3's files merged before their checks finished
-- 2026-11-19 · The CI fix for queued runs cancelled main's push runs, and m1 still has it (its Codex P2 merged unanswered)
+- 2026-11-19 · Codex findings sat unanswered for up to 17 hours, and a P1 merged (failure)
+- 2026-11-19 · Goal 3's files merged before their checks finished (near miss)
+- 2026-11-19 · The CI fix for queued runs cancelled main's push runs, and m1 still has it (failure)
 
 **Covers it today:** reviewer item 7, "No finding is left unanswered"; the conductor's merge rule (CI green, Codex
 finished, every thread resolved).
@@ -136,19 +135,17 @@ against the model. The costliest came after: a fix built that no journey could r
 it couldn't bundle, two checks that contradicted each other. This family is mostly wins, and the gap is making the
 winning steps routine.
 
-Entries (wins):
-- 2026-11-19 · Proving each journey possible found the "is this name taken?" gap before the climb
-- 2026-11-19 · Reviewing the combined scaffold build, findings went in as failing checks first
-- 2026-11-19 · A design decision routed device operations over HTTP, and Codex caught it before any code
-- 2026-11-19 · Aaron reversed Goal 3's shape within minutes, before anything was built
-- 2026-11-19 · The portal drawing was checked against the model, and lost what nothing could supply
-- 2026-11-19 · Codex found contradictions in design pull requests before any code existed
-- 2026-11-18 · Untraced log text reached the exporters, and the lead blocked the merge
-
-Entries (failures):
-- 2026-11-19 · A fix was built before anyone checked a journey could reach it
-- 2026-11-19 · Two checks written at different times contradicted each other
-- 2026-11-19 · The portal viewer was built against a licence its Worker can't bundle
+Entries:
+- 2026-11-19 · A fix was built before anyone checked a journey could reach it (failure)
+- 2026-11-19 · Proving each journey possible found the "is this name taken?" gap before the climb (win)
+- 2026-11-19 · Reviewing the combined scaffold build, findings went in as failing checks first (win)
+- 2026-11-19 · Two checks written at different times contradicted each other (failure)
+- 2026-11-19 · A design decision routed device operations over HTTP, and Codex caught it before any code (near miss)
+- 2026-11-19 · The portal viewer was built against a licence its Worker can't bundle (failure)
+- 2026-11-19 · Aaron reversed Goal 3's shape within minutes, before anything was built (win)
+- 2026-11-19 · The portal drawing was checked against the model, and lost what nothing could supply (win)
+- 2026-11-19 · Codex found contradictions in design pull requests before any code existed (win)
+- 2026-11-18 · Untraced log text reached the exporters, and the lead blocked the merge (win)
 
 **Covers it today:** "journeys and checks come first" (AGENTS.md); Goal 3's journey author proving satisfiability.
 
@@ -161,10 +158,10 @@ contradictions, before a builder gets it.
 A new decision changes something an older doc, check or board row still states.
 
 Entries:
-- 2026-11-19 · A decision narrowed an older one's range, and the conductor made one change carry every copy (a win)
-- 2026-11-19 · The stage 1 spec changed under a check that was already passing
-- 2026-11-18 · The framework was renamed a day after its first name was built in
-- 2026-11-18 · Writing files by hand reversed a decision nobody recorded
+- 2026-11-19 · A decision narrowed an older one's range, and the conductor made one change carry every copy (win)
+- 2026-11-19 · The stage 1 spec changed under a check that was already passing (near miss)
+- 2026-11-18 · The framework was renamed a day after its first name was built in (near miss)
+- 2026-11-18 · Writing files by hand reversed a decision nobody recorded (near miss)
 
 **Covers it today:** AGENTS.md "Who decides": fix the other in the same change, and record the call.
 
@@ -177,8 +174,8 @@ tell which text is live.
 A builder changes a journey, an eval or a shared check, usually to make its own work pass.
 
 Entries:
-- 2026-11-19 · Builders kept editing the checks that judge them (#60, #64, #84, #94)
-- 2026-11-17 · Builders widened the evaluators, and an author accepted it after the fact
+- 2026-11-19 · Builders kept editing the checks that judge them (failure)
+- 2026-11-17 · Builders widened the evaluators, and an author accepted it after the fact (near miss)
 
 **Covers it today:** AGENTS.md: "A builder never edits journeys, the evals or the runner's generic checks."
 
@@ -191,13 +188,13 @@ Aaron listens rather than reads, and judges the thing he is shown. Labels he doe
 or a drawing nobody looked at cost his trust more than any defect.
 
 Entries:
-- 2026-11-19 · The conductor reported to Aaron in internal labels, and he couldn't follow
-- 2026-11-19 · The conductor gave a sitrep of pull requests when Aaron wanted the big picture
-- 2026-11-19 · The conductor told Aaron things about his own list that weren't true
-- 2026-11-19 · The portal drawing was called "slop" because the paid component library wasn't used
-- 2026-11-19 · The mission board drew a board per building block, and Aaron said it was the wrong tool
-- 2026-11-19 · A graph prototype looked right in screenshots, but its scripts never ran
-- 2026-11-18 · Aaron rejected drawings he wasn't asked about, and docs examples that were too small
+- 2026-11-19 · The conductor reported to Aaron in internal labels, and he couldn't follow (failure)
+- 2026-11-19 · The mission board drew a board per building block, and Aaron said it was the wrong tool (failure)
+- 2026-11-19 · The portal drawing was called "slop" because the paid component library wasn't used (failure)
+- 2026-11-19 · A graph prototype looked right in screenshots, but its scripts never ran (near miss)
+- 2026-11-19 · The conductor gave a sitrep of pull requests when Aaron wanted the big picture (failure)
+- 2026-11-19 · The conductor told Aaron things about his own list that weren't true (near miss)
+- 2026-11-18 · Aaron rejected drawings he wasn't asked about, and docs examples that were too small (failure)
 
 **Covers it today:** "Talking to Aaron" in the `threads` skill; the `portal-design` skill's process; five conductor
 memory notes.
@@ -212,9 +209,9 @@ AGENTS.md says every fact has one owner. Where a fact is copied by hand (line-nu
 digests, a rule restated in a second package), every change breaks the copies.
 
 Entries:
-- 2026-11-19 · Code quoted by line number in the docs broke on almost every change
-- 2026-11-19 · The shared totals table and the pinned file digests conflicted on nearly every merge
-- 2026-11-19 · The fix that hid secrets from journeys hid public values too (redaction is three rules in three places)
+- 2026-11-19 · Code quoted by line number in the docs broke on almost every change (failure)
+- 2026-11-19 · The fix that hid secrets from journeys hid public values too (failure)
+- 2026-11-19 · The shared totals table and the pinned file digests conflicted on nearly every merge (failure)
 
 **Covers it today:** nothing.
 
@@ -226,9 +223,9 @@ place.
 A stand-in (a test double, an in-memory store, a copied rule, an author's shell) accepts what the real thing refuses.
 
 Entries:
-- 2026-11-19 · The in-memory store accepts a change the real database refuses
-- 2026-11-19 · A 🔍 found that the unique-field checks could be passed without the real index (a win)
-- 2026-11-17 · A hand-made fake of the logbook accepted what the real storage refuses
+- 2026-11-19 · The in-memory store accepts a change the real database refuses (near miss)
+- 2026-11-19 · A 🔍 found that the unique-field checks could be passed without the real index (win)
+- 2026-11-17 · A hand-made fake of the logbook accepted what the real storage refuses (failure)
 
 **Covers it today:** "local means real services, never fakes" (G1).
 
@@ -241,9 +238,9 @@ Work or knowledge that lived in one session, one worktree or one artefact, and w
 session ended.
 
 Entries:
-- 2026-11-19 · The snag log lives only on a branch nobody has pushed
-- 2026-11-19 · The board went stale, and Aaron couldn't tell where things stood
-- 2026-11-19 · The old account's limit ran out, and threads, builds and the board were stranded
+- 2026-11-19 · The snag log lives only on a branch nobody has pushed (near miss)
+- 2026-11-19 · The board went stale, and Aaron couldn't tell where things stood (failure)
+- 2026-11-19 · The old account's limit ran out, and threads, builds and the board were stranded (failure)
 
 **Covers it today:** the `kanban` skill keeps the board in the repo (PR 71); a memory note, "work gets pushed".
 
@@ -255,28 +252,28 @@ AGENTS.md says its code rules are enforced "as soon as they exist". Four aren't:
 files under about 250 lines; six slots per module; builders don't edit checks.
 
 Entries:
-- 2026-11-19 · The "no async, no throw" rule broke three times in one pull request, and only Codex noticed
+- 2026-11-19 · The "no async, no throw" rule broke three times in one pull request, and only Codex noticed (failure)
 
 **Gap:** lint rules (and the path guard above).
 
 ## Briefs that miss context
 
 Entries:
-- 2026-11-19 · The lead's plan left out the snags blocking the climb until the conductor pointed at them
-- 2026-11-19 · A Codex staging branch had no teardown, and was kept out
+- 2026-11-19 · The lead's plan left out the snags blocking the climb until the conductor pointed at them (near miss)
+- 2026-11-19 · A Codex staging branch had no teardown, and was kept out (near miss)
 
 **Gap:** small so far; watching.
 
 ## Secrets in output
 
 Entries:
-- 2026-11-18 · A conductor printed a personal token in its tool output
+- 2026-11-18 · A conductor printed a personal token in its tool output (near miss)
 
 **Gap:** small so far. The token is still waiting on Aaron to rotate it.
 
 ## Evidence that overclaims
 
 Entries:
-- 2026-11-17 · The evidence page showed unknown records as "done"
+- 2026-11-17 · The evidence page showed unknown records as "done" (failure)
 
 **Covered** by the page's own tests since 17 November.

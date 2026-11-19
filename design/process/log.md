@@ -17,7 +17,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
   quote parts of it, but the log itself would be lost with the worktree, exactly as three builders' work was in the
   morning's account switch (below).
 - **Evidence:** commits 41810193, 67575774, 957936c8 on `goal-3/floor-curve` (worktree `awesome-tharp-a1fd3e`); `git
-  ls-remote --heads origin goal-3/floor-curve` returns nothing, checked 20:50.
+  ls-remote --heads origin goal-3/floor-curve` returns nothing, checked 20:50; the ledger quotes it, for example the [HAN-18 row](https://github.com/AaronAbuUsama/architect/blob/9bcc3392/design/ledger.md). The log itself can have no public link until it is pushed, which is the point of this entry.
 - **Cost:** none yet.
 - **Found by:** the 📓 Scribe, sweeping the record.
 - **Recovery:** raised with the conductor.
@@ -29,9 +29,9 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What happened:** On the climb check, Codex raised a P1 for `async`, `await` and `try` in the grid's evidence service
   (17:05), then a P1 for `throw` in the climb parser (20:19), then another for `throw` in a test helper (20:30). AGENTS.md
   says the rule is "enforced by lint and check as soon as they exist", but no lint rule exists for it. The conductor's
-  first audit of the day had already found the same gap, plus a 317-line `cli/src/main.ts` against the 250-line limit
+  first audit of the day had already found the same gap, plus `cli/src/main.ts` over the 250-line limit (317 lines then; 313 on `main` today, 339 on `m1`)
   and no check behind the six-slot module shape.
-- **Evidence:** PR 110, comments
+- **Evidence:** [PR 110](https://github.com/AaronAbuUsama/architect/pull/110), comments
   [r4632250211](https://github.com/AaronAbuUsama/architect/pull/110#discussion_r4632250211),
   [r4634566246](https://github.com/AaronAbuUsama/architect/pull/110#discussion_r4634566246),
   [r4634710253](https://github.com/AaronAbuUsama/architect/pull/110#discussion_r4634710253); audit in session
@@ -66,8 +66,8 @@ gave was checked against its source; where the seed was wrong, the entry says so
   "findBy is not a function". A P2 showed D1's conflict parser cut hyphenated table names (`user-handle`). The checks
   never went through the wrapper, and the 🔍 on the check PR wrote that it had not looked at how the store retries a
   conflict. No 🔍 review is recorded on the build PR.
-- **Evidence:** PR 120; [Codex P1](https://github.com/AaronAbuUsama/architect/pull/118#discussion_r4633763643),
-  [P2](https://github.com/AaronAbuUsama/architect/pull/118#discussion_r4633763650); fix PR 121; session
+- **Evidence:** [PR 120](https://github.com/AaronAbuUsama/architect/pull/120); [Codex P1](https://github.com/AaronAbuUsama/architect/pull/118#discussion_r4633763643),
+  [P2](https://github.com/AaronAbuUsama/architect/pull/118#discussion_r4633763650); fix [PR 121](https://github.com/AaronAbuUsama/architect/pull/121); session
   `local_e0c1bfdc-c4aa-42b1-88b0-e896bd406dd3`, "#118 (S-04) can't merge yet".
 - **Cost:** 48 minutes with a broken lookup on the goal branch, a check-first round (b362395c) and a fix PR.
 - **Found by:** Codex.
@@ -81,9 +81,9 @@ gave was checked against its source; where the seed was wrong, the entry says so
   merge unseen (see "63 failing tests behind a green run"). The ratchet checks in a list of expected failures (54
   tests), fails on anything else, and drops `continue-on-error`. Codex found two holes in it: an `afterAll` error hidden
   by a listed failure, then the same for per-test hooks, which the 🔍 had missed. Each was fixed test first.
-- **Evidence:** PR 111; [Codex P2 one](https://github.com/AaronAbuUsama/architect/pull/111#discussion_r4632254305),
+- **Evidence:** [PR 111](https://github.com/AaronAbuUsama/architect/pull/111); [Codex P2 one](https://github.com/AaronAbuUsama/architect/pull/111#discussion_r4632254305),
   [two](https://github.com/AaronAbuUsama/architect/pull/111#discussion_r4633814252); [run proving it: 54 failing, 54
-  expected, 0 unexpected](https://github.com/AaronAbuUsama/architect/actions/runs/44597634869); PR 118 later merged
+  expected, 0 unexpected](https://github.com/AaronAbuUsama/architect/actions/runs/44597634869); [PR 118](https://github.com/AaronAbuUsama/architect/pull/118) later merged
   with every check green.
 - **Cost:** 2 hours 43 minutes open, two Codex rounds.
 - **Found by:** the M1 lead (the need), Codex (the holes).
@@ -97,7 +97,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What happened:** Reviewing the check PR for unique fields, the 🔍 saw the host test used a hand-written index, so
   "a builder could pass with an app-level `findBy`" and no generated index. The checks author added a projections test
   and an end-to-end check that the generated migration carries the unique index, before the builder started.
-- **Evidence:** PR 118; session `local_e0c1bfdc-c4aa-42b1-88b0-e896bd406dd3`, 🔍 review of #118 point 2, and commit
+- **Evidence:** [PR 118](https://github.com/AaronAbuUsama/architect/pull/118); [session local_e0c1bfdc-c4aa-42b1-88b0-e896bd406dd3](claude://claude.ai/epitaxy/local_e0c1bfdc-c4aa-42b1-88b0-e896bd406dd3), 🔍 review of #118 point 2, and commit
   12453750.
 - **Cost:** one small checks round.
 - **Found by:** 🔍 reviewer.
@@ -108,17 +108,17 @@ gave was checked against its source; where the seed was wrong, the entry says so
 ### 2026-11-19 · Two different decisions were both named G3
 - **Kind:** near miss.
 - **What happened:** The checks author's "G3: the grid's verdicts go to a file first" (17:11, on `goal-3/climb-check`)
-  and the lead's "G3: the runtime's exits" (17:55, on the HAN-10 branches) share one ID. Neither branch holds the other's
-  file, so nothing conflicts until both land, and the ledger and review replies already cite "G3" for exits. G4 and G5
-  are taken since, so neither can simply move up.
-- **Evidence:** [G3-grid-verdicts.md](https://github.com/AaronAbuUsama/architect/blob/1acf6d6b/design/decisions/G3-grid-verdicts.md),
-  [G3-runtime-exits.md](https://github.com/AaronAbuUsama/architect/blob/0599c1b1/design/decisions/G3-runtime-exits.md),
-  commits 578414c3 and 04bae6d4; [a reply citing "Decision
-  G3"](https://github.com/AaronAbuUsama/architect/pull/115#discussion_r4633276395).
-- **Cost:** not yet; every "G3" link is ambiguous.
-- **Found by:** the 📓 Scribe's sweep; no thread had noticed.
-- **Recovery:** raised with the conductor.
-- **What changed:** nothing yet. Decision IDs are picked by whoever writes one, on whatever branch.
+  and the lead's "G3: the runtime's exits" (17:55, on the HAN-10 branches) took the same ID on parallel branches. Neither
+  branch held the other's file, so git could never flag it, and the ledger and review replies already cited "G3" for
+  exits. The checks author caught it and renamed the grid decision to G6 at 20:46, before either branch landed.
+- **Evidence:** commit [578414c3](https://github.com/AaronAbuUsama/architect/commit/578414c3) (G3, grid verdicts),
+  commit [04bae6d4](https://github.com/AaronAbuUsama/architect/commit/04bae6d4) (G3, runtime exits), and the rename
+  [65124b20](https://github.com/AaronAbuUsama/architect/commit/65124b20), "G3 is the runtime exits (ledger and #115 cite
+  it)"; [a reply citing "Decision G3"](https://github.com/AaronAbuUsama/architect/pull/115#discussion_r4633276395).
+- **Cost:** a rename and three hours of an ambiguous ID.
+- **Found by:** the checks author.
+- **Recovery:** the grid decision became G6.
+- **What changed:** nothing general. Decision IDs are still picked by whoever writes one, on whatever branch.
 - **Pattern:** parallel work collides.
 
 ### 2026-11-19 · A decision narrowed an older one's range, and the conductor made one change carry every copy
@@ -130,7 +130,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
   `AllowanceExceeded` used exit 5; it is 41. Seed correction: K16 was amended in the same change, not left stale. One copy
   survives in the board's `tasks.json`.
 - **Evidence:** commits 04bae6d4 (17:55:04) and
-  [3fdff392](https://github.com/AaronAbuUsama/architect/commit/3fdff392) (17:55:55); 44503c50, ec55d54a; PR 116; session
+  [3fdff392](https://github.com/AaronAbuUsama/architect/commit/3fdff392) (17:55:55); 44503c50, ec55d54a; [PR 116](https://github.com/AaronAbuUsama/architect/pull/116); session
   `local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca`, "This narrows a range we'd already decided".
 - **Cost:** about an hour; edits to K16, M1-plugged-in, M1-prehandle, M1.47, checks 19 and 22.5.
 - **Found by:** the conductor (the narrowing); 🔍 reviewer (the false fact).
@@ -146,8 +146,8 @@ gave was checked against its source; where the seed was wrong, the entry says so
   refused to fake it, and the lead parked both PRs: "No stub chain, no unreachable RPC, no coverage exemption". Codex
   also found a stub-name collision in the check (`organization.owner` and `project.owner` both make `allowed-owner`).
   (Ledger HAN-11, snag S-18.)
-- **Evidence:** PR 114 (parking comment), PR 113, [Codex P2](https://github.com/AaronAbuUsama/architect/pull/113#discussion_r4632446906);
-  session `local_e0c1bfdc-c4aa-42b1-88b0-e896bd406dd3`, "The chain state they need can't be expressed today".
+- **Evidence:** [PR 114](https://github.com/AaronAbuUsama/architect/pull/114) (parking comment), [PR 113](https://github.com/AaronAbuUsama/architect/pull/113), [Codex P2](https://github.com/AaronAbuUsama/architect/pull/113#discussion_r4632446906);
+  [session local_e0c1bfdc-c4aa-42b1-88b0-e896bd406dd3](claude://claude.ai/epitaxy/local_e0c1bfdc-c4aa-42b1-88b0-e896bd406dd3), "The chain state they need can't be expressed today".
 - **Cost:** two PRs built, reviewed and parked, about an hour plus CI; a framework slice still to design.
 - **Found by:** CI (the coverage eval), then the journey author.
 - **Recovery:** parked with an owner and a reason, and no fake chain. That part is a win worth keeping.
@@ -159,9 +159,9 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What happened:** `canon:check` fails whenever code a canon page quotes by line moves. #76 needed a fix; Builder B
   found 29 stale quotes after one merge of m1 and wrote a throwaway re-anchor script; #76 had three more; the 🔍 on #117
   first wrote "pass", then reproduced six drifted quotes and changed it to "block" (the builder found a seventh).
-- **Evidence:** sessions `local_48c36e1c-42ff-4571-b007-d83206a898d7` ("29 quotes ... No auto-fix mode"),
-  `local_cf73abe5-dc5c-4eb8-a980-e2b715b866fa` ("off by one line"), `local_e0c1bfdc-c4aa-42b1-88b0-e896bd406dd3` (🔍
-  review of #117, "6 drifted quotes"); PR 117.
+- **Evidence:** sessions [local_48c36e1c-42ff-4571-b007-d83206a898d7](claude://claude.ai/epitaxy/local_48c36e1c-42ff-4571-b007-d83206a898d7) ("29 quotes ... No auto-fix mode"),
+  `local_cf73abe5-dc5c-4eb8-a980-e2b715b866fa` ("off by one line"), [local_e0c1bfdc-c4aa-42b1-88b0-e896bd406dd3](claude://claude.ai/epitaxy/local_e0c1bfdc-c4aa-42b1-88b0-e896bd406dd3) (🔍
+  review of #117, "6 drifted quotes"); [PR 117](https://github.com/AaronAbuUsama/architect/pull/117).
 - **Cost:** at least four fix rounds, each a CI cycle, and one reversed verdict.
 - **Found by:** CI.
 - **Recovery:** quotes re-pointed by hand each time.
@@ -176,7 +176,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
   HAN-17), replayed answers read as the new envelope (HAN-13), the device SDK type not showing redaction (HAN-14), the
   answer-shape eval letting an issued secret be missing (HAN-15), and an idempotency conflict surfacing as a defect
   (HAN-10). The checklist names "the device path", "replays and caches" and "types against the wire" outright.
-- **Evidence:** PR 95; [P1](https://github.com/AaronAbuUsama/architect/pull/95#discussion_r4630244588);
+- **Evidence:** [PR 95](https://github.com/AaronAbuUsama/architect/pull/95); [P1](https://github.com/AaronAbuUsama/architect/pull/95#discussion_r4630244588);
   [HAN-17](https://github.com/AaronAbuUsama/architect/pull/115#discussion_r4633185912);
   [HAN-13](https://github.com/AaronAbuUsama/architect/pull/116#discussion_r4632894035),
   [HAN-14](https://github.com/AaronAbuUsama/architect/pull/116#discussion_r4632894049),
@@ -193,8 +193,8 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What happened:** After merging m1 in (PR 115), the lead's plan went straight to the floor and the starting curve. The
   conductor wrote that the plan "doesn't mention the snags that block the climb" and named S-04 as the critical path.
   The lead started the S-04 decision and builder the same hour.
-- **Evidence:** session `local_e0c1bfdc-c4aa-42b1-88b0-e896bd406dd3`, message from the conductor beginning "Your plan
-  after #115 doesn't mention the snags".
+- **Evidence:** [session local_e0c1bfdc-c4aa-42b1-88b0-e896bd406dd3](claude://claude.ai/epitaxy/local_e0c1bfdc-c4aa-42b1-88b0-e896bd406dd3), message from the conductor beginning "Your plan
+  after #115 doesn't mention the snags"; the plan followed [PR 115](https://github.com/AaronAbuUsama/architect/pull/115), and the S-04 work it then started is [PR 118](https://github.com/AaronAbuUsama/architect/pull/118).
 - **Cost:** a short spell of idle builder slots.
 - **Found by:** the conductor.
 - **Recovery:** S-04 and S-02/S-03 started.
@@ -206,25 +206,25 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What happened:** After several Goal 3 updates written in snag numbers, ledger IDs and PR numbers, Aaron said "I have
   no idea what s04 or any other jargon for this project is", and asked for the 54 expected failures explained from
   scratch. The conductor rewrote the status in plain words. The climb page kept the labels until he was asked.
-- **Evidence:** session `local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca`, "I have no idea what s04"; memory note
-  `plain-words-no-ids.md`.
+- **Evidence:** [session local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca](claude://claude.ai/epitaxy/local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca), "I have no idea what s04"; memory note
+  `plain-words-no-ids.md`. Session only: this was a conversation with Aaron, with no public trace.
 - **Cost:** Aaron's time and trust; several updates he couldn't use; a second pass over the whole goal.
 - **Found by:** Aaron.
 - **Recovery:** plain words first, IDs only in brackets after them.
 - **What changed:** a conductor memory note on Aaron's machine. The `threads` skill's "Talking to Aaron" said to describe
   a pull request rather than read its number, but says nothing about snag or ledger IDs.
-- **Pattern:** talking to Aaron.
+- **Pattern:** talking to Aaron, and showing unchecked work.
 
 ### 2026-11-19 · The fix that hid secrets from journeys hid public values too
 - **Kind:** failure.
 - **What happened:** PR 104 (Codex findings on merged PRs) made a blank operation's payload redact every value with a
   visibility. Every field carries one, defaulting to "public", so a public `email` came back `{ redacted: true }`. The 🔍
   on #104 passed it. Codex flagged it two minutes after merge, on the merge of m1 into the goal branch (PR 106), not on
-  #104. The checks author wrote a failing check, and PR 109 fixed it a minute later. The 🔍 on #109 then found redaction
+  #104. The checks author wrote a failing check at 17:00, and PR 109 fixed it, merged at 17:19. The 🔍 on #109 then found redaction
   is still three different rules in three places (ledger HAN-12). Seed correction: HAN-12 is #109's leftover, and Codex's
   finding was on #106.
-- **Evidence:** PR 104; [Codex P2 on PR 106](https://github.com/AaronAbuUsama/architect/pull/106#discussion_r4632012796);
-  commit [3c1427ea](https://github.com/AaronAbuUsama/architect/commit/3c1427ea) (the check); PR 109;
+- **Evidence:** [PR 104](https://github.com/AaronAbuUsama/architect/pull/104); [Codex P2 on PR 106](https://github.com/AaronAbuUsama/architect/pull/106#discussion_r4632012796);
+  commit [3c1427ea](https://github.com/AaronAbuUsama/architect/commit/3c1427ea) (the check); [PR 109](https://github.com/AaronAbuUsama/architect/pull/109);
   [HAN-12](https://github.com/AaronAbuUsama/architect/commit/187ce387).
 - **Cost:** under an hour of wrong behaviour on m1, one fix PR, HAN-12 still open.
 - **Found by:** Codex; then the 🔍 for the leftover.
@@ -239,7 +239,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
   go back, races, process hygiene); item 7, no finding left unanswered; and item 8, read CI properly and name the
   baseline run. Seed correction: item 8 answers the `continue-on-error` job, not a stale baseline on #76. #76's baseline
   was m1's head at the time; the only stale baseline on record is #95's, which said so openly.
-- **Evidence:** PR 108 (commit f6033d4e); #76's merge comment with [baseline run
+- **Evidence:** [PR 108](https://github.com/AaronAbuUsama/architect/pull/108) (commit f6033d4e); #76's merge comment with [baseline run
   44569426386](https://github.com/AaronAbuUsama/architect/actions/runs/44569426386); #95's merge note, [baseline run
   44574459951](https://github.com/AaronAbuUsama/architect/actions/runs/44574459951).
 - **Cost:** a 12-minute docs PR.
@@ -256,9 +256,9 @@ gave was checked against its source; where the seed was wrong, the entry says so
   chose to make invariants their own declaration (his answer "C" to the conductor), and the 📐 thread made that G5,
   replacing G4's spelling 90 minutes after its build merged, because G4 wrote declared names as strings. Seed refinement:
   the step to invariants came from Aaron, not the journey author.
-- **Evidence:** PR 107 ("handlers can't look anything up by field"); [G4](https://github.com/AaronAbuUsama/architect/blob/a2d29b10/design/decisions/G4-unique-fields.md);
-  PRs 118, 120, 121; [G5](https://github.com/AaronAbuUsama/architect/blob/270c0774/design/decisions/G5-invariants.md),
-  PR 123; session `local_e0c1bfdc-c4aa-42b1-88b0-e896bd406dd3`.
+- **Evidence:** [PR 107](https://github.com/AaronAbuUsama/architect/pull/107) ("handlers can't look anything up by field"); [G4](https://github.com/AaronAbuUsama/architect/blob/a2d29b10/design/decisions/G4-unique-fields.md);
+  PRs [118](https://github.com/AaronAbuUsama/architect/pull/118), [120](https://github.com/AaronAbuUsama/architect/pull/120), [121](https://github.com/AaronAbuUsama/architect/pull/121); [G5](https://github.com/AaronAbuUsama/architect/blob/270c0774/design/decisions/G5-invariants.md),
+  [PR 123](https://github.com/AaronAbuUsama/architect/pull/123); [session local_e0c1bfdc-c4aa-42b1-88b0-e896bd406dd3](claude://claude.ai/epitaxy/local_e0c1bfdc-c4aa-42b1-88b0-e896bd406dd3).
 - **Cost:** about four hours from snag to merged build, none of it climber time. The climb's first step would have stopped.
 - **Found by:** the journey author.
 - **Recovery:** decision, checks by another agent, then builder.
@@ -273,7 +273,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
   branch until the checks author moved it.
 - **Evidence:** commit [f4e02897](https://github.com/AaronAbuUsama/architect/commit/f4e02897),
   [ST1-02](https://github.com/AaronAbuUsama/architect/blob/36e5e218/design/decisions/ST1-02-plugged-in-ownership.md),
-  commit 4e54a2d9 (check 20 moved); PR 107; PR 112.
+  commit 4e54a2d9 (check 20 moved); [PR 107](https://github.com/AaronAbuUsama/architect/pull/107); [PR 112](https://github.com/AaronAbuUsama/architect/pull/112).
 - **Cost:** check 20 red for 14 minutes on the goal branch; M1.40 and M1.43 re-worded after 🔍 advice.
 - **Found by:** 🔍 reviewer (advice on #107).
 - **Recovery:** check 20 moved; milestone rows amended.
@@ -286,7 +286,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
   before #76, #95 and #104 landed, so m1 came in through two merge PRs, of 57 and 32 commits. Codex's findings on those
   PRs were about m1 code Goal 3 may not touch, so they could only be forwarded or ledgered. The conductor had promised a
   start "in about an hour and a half"; after #76 turned out to break eight tests it became about three.
-- **Evidence:** PRs 105, 106, 115; session `local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca`, "in about an hour and a half"
+- **Evidence:** PRs [105](https://github.com/AaronAbuUsama/architect/pull/105), [106](https://github.com/AaronAbuUsama/architect/pull/106), [115](https://github.com/AaronAbuUsama/architect/pull/115); [session local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca](claude://claude.ai/epitaxy/local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca), "in about an hour and a half"
   and "Start them now".
 - **Cost:** two merge PRs (about 1.5 hours open, 89 commits) and two Codex rounds on code the goal didn't write.
 - **Found by:** the conductor and the M1 lead.
@@ -297,8 +297,8 @@ gave was checked against its source; where the seed was wrong, the entry says so
 ### 2026-11-19 · Two stale runs from a closed pull request held runners for almost two hours
 - **Kind:** failure.
 - **What happened:** PR 96 closed at 15:23, but its two runs (started 14:44 and 14:48) kept `e2e-m1` and `e2e-layer1`
-  going until 16:47, when all four jobs were cancelled together. Closing a PR doesn't cancel its runs, and no job but
-  `e2e-layer2` has `timeout-minutes`. The conductor cancelled them when #76's CI was stuck behind them.
+  going until 16:47, when all four jobs were cancelled together. Closing a PR doesn't cancel its runs, and no job but `e2e-layer2` had
+  `timeout-minutes`. The conductor cancelled them when #76's CI was stuck behind them.
   The held jobs logged nothing after their last step started; why they hung is not established. The `check` job in each
   run also sat about 56 minutes after failing in its first minute.
 - **Evidence:** runs [44546985433](https://github.com/AaronAbuUsama/architect/actions/runs/44546985433) and
@@ -310,6 +310,8 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Recovery:** cancelled by hand at 16:47.
 - **What changed:** nothing yet. No job timeouts, and nothing cancels a closed PR's runs.
 - **Pattern:** CI that can't tell us anything.
+- **Update, 19 November:** every job on `main` now has a timeout ([PR 124](https://github.com/AaronAbuUsama/architect/pull/124)), and [PR 125](https://github.com/AaronAbuUsama/architect/pull/125) brings the
+  same to `m1`. Nothing yet cancels a closed PR's runs.
 
 ### 2026-11-19 · Codex findings sat unanswered for up to 17 hours, and a P1 merged
 - **Kind:** failure.
@@ -322,7 +324,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
   reply](https://github.com/AaronAbuUsama/architect/pull/93#discussion_r4631409452);
   [#64](https://github.com/AaronAbuUsama/architect/pull/64#discussion_r4631386973),
   [#86](https://github.com/AaronAbuUsama/architect/pull/86#discussion_r4629672986),
-  [#88](https://github.com/AaronAbuUsama/architect/pull/88#discussion_r4631405176); PR 104; session
+  [#88](https://github.com/AaronAbuUsama/architect/pull/88#discussion_r4631405176); [PR 104](https://github.com/AaronAbuUsama/architect/pull/104); session
   `local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca`, "Every one of the 32 Codex comments".
 - **Cost:** a dropped payment shown as confirmed lived on m1 for 1 hour 44 minutes; a cleanup PR; the triage pass.
 - **Found by:** Codex found them; the conductor triaged after merge.
@@ -353,8 +355,8 @@ gave was checked against its source; where the seed was wrong, the entry says so
   authorisation) and seven on #76 (the identity thing found by an id prefix, `refs` missing on the device path, and
   more). The conductor checked all twelve against the code: eleven real, one very likely. Three shared one blind spot:
   the device path treated as second class.
-- **Evidence:** session `local_cf73abe5-dc5c-4eb8-a980-e2b715b866fa`, "don't merge #76 or #95, even when CI is green";
-  session `local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca`, "Our own reviewer passed both PRs"; PRs 76 and 95.
+- **Evidence:** [session local_cf73abe5-dc5c-4eb8-a980-e2b715b866fa](claude://claude.ai/epitaxy/local_cf73abe5-dc5c-4eb8-a980-e2b715b866fa), "don't merge #76 or #95, even when CI is green";
+  [session local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca](claude://claude.ai/epitaxy/local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca), "Our own reviewer passed both PRs"; PRs [76](https://github.com/AaronAbuUsama/architect/pull/76), [95](https://github.com/AaronAbuUsama/architect/pull/95).
 - **Cost:** Goal 3's start slipped about three hours; a planted check, a builder fix and a re-review per defect.
 - **Found by:** the outside review, relayed by Aaron.
 - **Recovery:** checks planted first, builders fixed, fresh 🔍 on the fixed heads.
@@ -366,7 +368,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What happened:** For the seven defects on #76, the author wrote seven planted checks that fail first (check 22),
   then the builders fixed them, 36 minutes from reviewed head to fixes pushed. One fix that would move the model was
   ledgered (AUT-42, owned by M2.05) instead of being squeezed in.
-- **Evidence:** PR 76; commits [e26bbb88](https://github.com/AaronAbuUsama/architect/commit/e26bbb88) (checks red,
+- **Evidence:** [PR 76](https://github.com/AaronAbuUsama/architect/pull/76); commits [e26bbb88](https://github.com/AaronAbuUsama/architect/commit/e26bbb88) (checks red,
   15:55), [4d2f2705](https://github.com/AaronAbuUsama/architect/commit/4d2f2705),
   [cc3faf78](https://github.com/AaronAbuUsama/architect/commit/cc3faf78) (fixes, 15:58 to 16:00).
 - **Cost:** 36 minutes.
@@ -381,8 +383,8 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What happened:** Among #76's planted checks, 22.6 demanded exit 0 when `add journeys` finds every stub already there;
   check 19, already passing, demanded a refusal. The builder fixed half and reported "Both can't pass". The lead ruled
   K16's behaviour stands, and the author corrected 22.6 (638a679a).
-- **Evidence:** session `local_cf73abe5-dc5c-4eb8-a980-e2b715b866fa`, "check 22.6 contradicts check 19, which I can't
-  edit"; session `local_67fe60e6-d968-4457-a56f-91a867247c49`, "The lead is right".
+- **Evidence:** [session local_cf73abe5-dc5c-4eb8-a980-e2b715b866fa](claude://claude.ai/epitaxy/local_cf73abe5-dc5c-4eb8-a980-e2b715b866fa), "check 22.6 contradicts check 19, which I can't
+  edit"; [session local_67fe60e6-d968-4457-a56f-91a867247c49](claude://claude.ai/epitaxy/local_67fe60e6-d968-4457-a56f-91a867247c49), "The lead is right"; the corrected check is commit [638a679a](https://github.com/AaronAbuUsama/architect/commit/638a679a) in [PR 76](https://github.com/AaronAbuUsama/architect/pull/76).
 - **Cost:** a stalled builder round and an extra review cycle.
 - **Found by:** the builder.
 - **Recovery:** the checks author, not the builder, changed the check.
@@ -401,7 +403,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
   [44569780146](https://github.com/AaronAbuUsama/architect/actions/runs/44569780146); red `check` jobs on
   [#84](https://github.com/AaronAbuUsama/architect/actions/runs/44535283625/job/135598918921) and
   [#89](https://github.com/AaronAbuUsama/architect/actions/runs/44542755425/job/135625180347); session
-  `local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca`, "m1's checks job never turns red"; PR 111.
+  `local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca`, "m1's checks job never turns red"; [PR 111](https://github.com/AaronAbuUsama/architect/pull/111).
 - **Cost:** about 20 hours with a job that could not fail, a hand diff per merge, and Goal 3's first slice spent on CI.
 - **Found by:** the M1 lead.
 - **Recovery:** the subset rule, then the ratchet (PR 111).
@@ -413,7 +415,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What happened:** K17 gave the Effect language one target with a fixed HTTP transport, so a device operation such as
   the wallet's signing step would have gone to the server. Codex flagged it on the decision PR. Aaron: "this looks like a
   big flaw". The conductor graded four options, Aaron chose two targets, and PR 101 landed before any code used it.
-- **Evidence:** PR 101 ("lands before any [code] does"); session `local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca`, "this
+- **Evidence:** [PR 101](https://github.com/AaronAbuUsama/architect/pull/101) ("lands before any [code] does"); [session local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca](claude://claude.ai/epitaxy/local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca), "this
   looks like a big flaw".
 - **Cost:** about an hour before Goal 3 could start.
 - **Found by:** Codex.
@@ -426,7 +428,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What happened:** The first Goal 3 file (PR 99) merged into main because the conductor's watcher saw restarted checks
   as done. The rewrite (PR 100) was merged under Aaron's account at 15:36 while the watcher was still waiting. Both were
   docs and a CI trigger, and main's CI passed.
-- **Evidence:** PRs 99 and 100; session `local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca`, "saw the restarted checks as done"
+- **Evidence:** PRs [99](https://github.com/AaronAbuUsama/architect/pull/99), [100](https://github.com/AaronAbuUsama/architect/pull/100); [session local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca](claude://claude.ai/epitaxy/local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca), "saw the restarted checks as done"
   and "merged under your account at 15:36".
 - **Cost:** nothing broke; trust in the watcher.
 - **Found by:** the conductor.
@@ -445,7 +447,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Evidence:** runs [44547086759](https://github.com/AaronAbuUsama/architect/actions/runs/44547086759) and
   [44551254864](https://github.com/AaronAbuUsama/architect/actions/runs/44551254864) (48 minutes each); the six cancelled
   m1 runs, for example [44549311407](https://github.com/AaronAbuUsama/architect/actions/runs/44549311407) and
-  [44551531583](https://github.com/AaronAbuUsama/architect/actions/runs/44551531583); PR 97's body, "about ten runs
+  [44551531583](https://github.com/AaronAbuUsama/architect/actions/runs/44551531583); [PR 97](https://github.com/AaronAbuUsama/architect/pull/97)'s body, "about ten runs
   queued at once".
 - **Cost:** about 33.6 runner-hours cancelled in one sweep; reviews and fixes waiting on queued CI all afternoon.
 - **Found by:** the conductor.
@@ -460,7 +462,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
   and main's push runs for #72, #74, #78 and #80 were cancelled. The conductor found it ("One was mine") and PR 102 gave
   each push its own group. Only main and `goal/stage-1` have the fix: `m1`'s ci.yml is still #97's, and m1 push runs were
   cancelled after it (#109's merge run, #98's).
-- **Evidence:** PR 97, [Codex P2](https://github.com/AaronAbuUsama/architect/pull/97#discussion_r4630374770); PR 102;
+- **Evidence:** [PR 97](https://github.com/AaronAbuUsama/architect/pull/97), [Codex P2](https://github.com/AaronAbuUsama/architect/pull/97#discussion_r4630374770); [PR 102](https://github.com/AaronAbuUsama/architect/pull/102);
   cancelled runs [44553675272](https://github.com/AaronAbuUsama/architect/actions/runs/44553675272) (main) and
   [44575990306](https://github.com/AaronAbuUsama/architect/actions/runs/44575990306) (m1).
 - **Cost:** four merge commits on main that never ran at all, and at least two on m1; #95's baseline had to be an older
@@ -469,6 +471,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Recovery:** PR 102 on main.
 - **What changed:** ci.yml on main. m1 still to take it; raised with the conductor.
 - **Pattern:** CI that can't tell us anything; findings merged unanswered.
+- **Update, 19 November:** the conductor opened [PR 125](https://github.com/AaronAbuUsama/architect/pull/125) to give `m1` the per-push groups, the same evening.
 
 ### 2026-11-19 · The portal viewer was built against a licence its Worker can't bundle
 - **Kind:** failure, with a win in the recovery.
@@ -477,11 +480,11 @@ gave was checked against its source; where the seed was wrong, the entry says so
   have needed their own licence. The M1 lead caught it and K19 was decided 42 minutes later: the portal ships prebuilt,
   and apps import only its server half. The lead then caught a second consequence: the portal checks read server HTML,
   which a prebuilt portal doesn't make, so they moved to a headless browser.
-- **Evidence:** PR 96 (closing comment), [failing run](https://github.com/AaronAbuUsama/architect/actions/runs/44546985433);
-  PRs 103 and 98; session `local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca`, "bundles HeroUI Pro through the portal pages".
+- **Evidence:** [PR 96](https://github.com/AaronAbuUsama/architect/pull/96) (closing comment), [failing run](https://github.com/AaronAbuUsama/architect/actions/runs/44546985433);
+  PRs [103](https://github.com/AaronAbuUsama/architect/pull/103), [98](https://github.com/AaronAbuUsama/architect/pull/98); [session local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca](claude://claude.ai/epitaxy/local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca), "bundles HeroUI Pro through the portal pages".
 - **Cost:** an unmerged PR of eight commits and about an hour; the portal slice moved into Goal 3. The same missing
   package had turned m1's portal job red at [09:36](https://github.com/AaronAbuUsama/architect/actions/runs/44497993469),
-  six and a half hours before K19 landed.
+  about six hours before K19 landed.
 - **Found by:** CI, then the M1 lead.
 - **Recovery:** closed, decided, rebuilt later.
 - **What changed:** K19 and a lint rule holding the line (PR 103).
@@ -492,7 +495,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What happened:** Goal 3 was written grid first (PR 99, merged 15:24). Aaron then said "I might change my mind": the
   journeys are the climb, and the grid is the guardrail. The conductor steelmanned and strawmanned it, and the goal was
   rewritten as PR 100 seven minutes later, with five roles, a snag log and a climbability check. Nothing had run yet.
-- **Evidence:** PRs 99 and 100; session `local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca`, "I might change my mind".
+- **Evidence:** PRs [99](https://github.com/AaronAbuUsama/architect/pull/99), [100](https://github.com/AaronAbuUsama/architect/pull/100); [session local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca](claude://claude.ai/epitaxy/local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca), "I might change my mind".
 - **Cost:** one rewritten goal file.
 - **Found by:** Aaron.
 - **Recovery:** rewrite before the run.
@@ -506,9 +509,9 @@ gave was checked against its source; where the seed was wrong, the entry says so
   as "Known conflict, don't merge yet" and turned check 12 red. B's branch then conflicted with the telemetry work in 11
   files. Their types disagreed (a machine's `from` as array or tuple), needing a stopgap `CreatedId`. Everything was
   folded into #76: 49 commits, about 19 of them merges. #81 and #94 were closed "as superseded by #76".
-- **Evidence:** PRs 81, 94, 76; [Codex P1 on #81](https://github.com/AaronAbuUsama/architect/pull/81#discussion_r4628778116);
-  sessions `local_385907e7-5bc7-4096-a2c7-972d4627e054` ("#81 should land together with Builder B's PR"),
-  `local_67fe60e6-d968-4457-a56f-91a867247c49` ("11 files"), `local_cf73abe5-dc5c-4eb8-a980-e2b715b866fa` ("I closed #81
+- **Evidence:** PRs [81](https://github.com/AaronAbuUsama/architect/pull/81), [94](https://github.com/AaronAbuUsama/architect/pull/94), [76](https://github.com/AaronAbuUsama/architect/pull/76); [Codex P1 on #81](https://github.com/AaronAbuUsama/architect/pull/81#discussion_r4628778116);
+  sessions [local_385907e7-5bc7-4096-a2c7-972d4627e054](claude://claude.ai/epitaxy/local_385907e7-5bc7-4096-a2c7-972d4627e054) ("#81 should land together with Builder B's PR"),
+  `local_67fe60e6-d968-4457-a56f-91a867247c49` ("11 files"), [local_cf73abe5-dc5c-4eb8-a980-e2b715b866fa](claude://claude.ai/epitaxy/local_cf73abe5-dc5c-4eb8-a980-e2b715b866fa) ("I closed #81
   and #94 as superseded by #76").
 - **Cost:** #76 open 5 hours 37 minutes; #81 open 2 hours 49 minutes and never merged; #94 had 20 commits; Goal 3 waited
   on it.
@@ -523,7 +526,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
   least eight times, mostly for those rows. Check 12 pins the bytes of acme's generated files, so the telemetry work
   turned it red on m1 and needed a separate PR (89) to re-pin; it was re-pinned four times that afternoon. The same
   happened to check 14's pinned CLI file between #76 and #95.
-- **Evidence:** PR 76 (merges 07ab007a to 420191e0); PR 89, opened 14:20:53 and merged 14:21:21; PR 83; commit
+- **Evidence:** [PR 76](https://github.com/AaronAbuUsama/architect/pull/76) (merges 07ab007a to 420191e0); [PR 89](https://github.com/AaronAbuUsama/architect/pull/89), opened 14:20:53 and merged 14:21:21; [PR 83](https://github.com/AaronAbuUsama/architect/pull/83); commit
   [80ff3e1a](https://github.com/AaronAbuUsama/architect/commit/80ff3e1a); sessions
   `local_67fe60e6-d968-4457-a56f-91a867247c49` ("Both sides changed the totals"),
   `local_cf73abe5-dc5c-4eb8-a980-e2b715b866fa` ("Overlap: #76 and #95 both change that same CLI file").
@@ -546,7 +549,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
   [#84](https://github.com/AaronAbuUsama/architect/pull/84#discussion_r4629510902); hand-back commits
   [6f681022](https://github.com/AaronAbuUsama/architect/commit/6f681022) and
   [0489b196](https://github.com/AaronAbuUsama/architect/commit/0489b196); session
-  `local_48c36e1c-42ff-4571-b007-d83206a898d7`, the conductor's message listing the files; PR 95 body, "Blocked on the eval
+  `local_48c36e1c-42ff-4571-b007-d83206a898d7`, the conductor's message listing the files; [PR 95](https://github.com/AaronAbuUsama/architect/pull/95) body, "Blocked on the eval
   owner".
 - **Cost:** three PRs merged without the independent check the rule exists for; a revert-and-rewrite round on #94.
 - **Found by:** Codex, three times; the conductor once.
@@ -561,9 +564,9 @@ gave was checked against its source; where the seed was wrong, the entry says so
   its last full local run "exited with no output (probably killed)". The M1 lead killed processes from finished
   worktrees, including wrangler parents that kept respawning workerd. Under that load, #83 couldn't prove itself green
   locally: tests timed out in a full run and passed alone.
-- **Evidence:** session `local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca`, "Host load: it's been running at about 95 to 190";
-  session `local_48c36e1c-42ff-4571-b007-d83206a898d7`, "I killed my 8 leftover workerd, otelcol and vitest processes";
-  PR 83 status comment.
+- **Evidence:** [session local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca](claude://claude.ai/epitaxy/local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca), "Host load: it's been running at about 95 to 190";
+  [session local_48c36e1c-42ff-4571-b007-d83206a898d7](claude://claude.ai/epitaxy/local_48c36e1c-42ff-4571-b007-d83206a898d7), "I killed my 8 leftover workerd, otelcol and vitest processes";
+  [PR 83](https://github.com/AaronAbuUsama/architect/pull/83) status comment.
 - **Cost:** unreliable local runs for every thread for hours; a cap of three builders.
 - **Found by:** the conductor.
 - **Recovery:** each thread killed its own; local runs only for the targeted check, CI for the rest.
@@ -577,8 +580,8 @@ gave was checked against its source; where the seed was wrong, the entry says so
   (93afd856). Told to stop, it reported it had run `pkill` on workerd, wrangler, otelcol and verdaccio, which "may also
   have killed" other sessions' servers. No victim was named; the lead told the check-04 builder to rerun anything that
   died. Seed correction: the lead found it, from its own duplicate's report, not Aaron.
-- **Evidence:** session `local_cf73abe5-dc5c-4eb8-a980-e2b715b866fa`, "My duplicate author stopped without pushing
-  anything"; session `local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca`, the Goal 3 brief's rule.
+- **Evidence:** [session local_cf73abe5-dc5c-4eb8-a980-e2b715b866fa](claude://claude.ai/epitaxy/local_cf73abe5-dc5c-4eb8-a980-e2b715b866fa), "My duplicate author stopped without pushing
+  anything"; [session local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca](claude://claude.ai/epitaxy/local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca), the Goal 3 brief's rule; the work it duplicated is commit [93afd856](https://github.com/AaronAbuUsama/architect/commit/93afd856) in [PR 76](https://github.com/AaronAbuUsama/architect/pull/76); the rule it led to is reviewer item 6, "process hygiene", in [PR 108](https://github.com/AaronAbuUsama/architect/pull/108).
 - **Cost:** a wasted author run, unknown lost test runs elsewhere.
 - **Found by:** the M1 lead.
 - **Recovery:** edits discarded; the rule "stop only the processes you started, by PID; never a machine-wide `pkill`".
@@ -592,8 +595,8 @@ gave was checked against its source; where the seed was wrong, the entry says so
   (PR 92). Two tests built and published the same `dist` in parallel, and one deleted it under the other (PR 88), a race
   Docker had hidden. Check 3's ports ran into check 8's (PR 90); the same clash had been fixed on 18 November in another
   file. The K16 author's prove tests failed on ports 8800 and 8801 from another session's run and passed alone.
-- **Evidence:** PR 92, [run 44530385179](https://github.com/AaronAbuUsama/architect/actions/runs/44530385179); PR 88,
-  [lock race P2](https://github.com/AaronAbuUsama/architect/pull/88#discussion_r4630034715); PR 90; session
+- **Evidence:** [PR 92](https://github.com/AaronAbuUsama/architect/pull/92), [run 44530385179](https://github.com/AaronAbuUsama/architect/actions/runs/44530385179); [PR 88](https://github.com/AaronAbuUsama/architect/pull/88),
+  [lock race P2](https://github.com/AaronAbuUsama/architect/pull/88#discussion_r4630034715); [PR 90](https://github.com/AaronAbuUsama/architect/pull/90); session
   `local_67fe60e6-d968-4457-a56f-91a867247c49`, "ports 8800 and 8801".
 - **Cost:** m1's push runs were red from 09:36 to 15:23, 5 hours 47 minutes and its longest red, mostly from these two
   races (with the portal licence, below); red runs on unrelated PRs (#74, #87, #93); a wrong first fix; reruns.
@@ -610,8 +613,8 @@ gave was checked against its source; where the seed was wrong, the entry says so
   the check, and notes the SDK takes no temperature, so it may flake again. The mission-board designer reran the same
   check twice on a PR that touched only a spike, calling its flakiness something that "affects every PR". Load-sensitive
   failures were waved through as flakes in #117's review.
-- **Evidence:** PR 90 body (runs 44517294625 and 44539524655); session `local_ef1feab2-c70f-4113-95c5-dc34668b29a5`, "The
-  e2e-layer1 failure on PR #74 is flaky"; session `local_e0c1bfdc-c4aa-42b1-88b0-e896bd406dd3`, 🔍 of #117.
+- **Evidence:** [PR 90](https://github.com/AaronAbuUsama/architect/pull/90) body (runs 44517294625 and 44539524655); [session local_ef1feab2-c70f-4113-95c5-dc34668b29a5](claude://claude.ai/epitaxy/local_ef1feab2-c70f-4113-95c5-dc34668b29a5), "The
+  e2e-layer1 failure on PR #74 is flaky"; [session local_e0c1bfdc-c4aa-42b1-88b0-e896bd406dd3](claude://claude.ai/epitaxy/local_e0c1bfdc-c4aa-42b1-88b0-e896bd406dd3), 🔍 of #117.
 - **Cost:** main went red three times on this one check (6, 55 and 21 minutes:
   [08:11](https://github.com/AaronAbuUsama/architect/actions/runs/44485510757),
   [12:15](https://github.com/AaronAbuUsama/architect/actions/runs/44522219110),
@@ -627,13 +630,13 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What happened:** The first prototype gave each of 13 building blocks its own Kanban. Aaron pushed back: a cell never
   moves across a board, so it's a coverage map, not a work board. He also said the score was "buried at the bottom" and
   there was no real details page. The designer stopped drawing and re-planned around a grid.
-- **Evidence:** session `local_ef1feab2-c70f-4113-95c5-dc34668b29a5`, "You're right on both counts, so I've stopped
-  drawing"; PR 74.
+- **Evidence:** [session local_ef1feab2-c70f-4113-95c5-dc34668b29a5](claude://claude.ai/epitaxy/local_ef1feab2-c70f-4113-95c5-dc34668b29a5), "You're right on both counts, so I've stopped
+  drawing"; [PR 74](https://github.com/AaronAbuUsama/architect/pull/74).
 - **Cost:** three prototype rounds and two grill documents.
 - **Found by:** Aaron.
 - **Recovery:** redraw around the grid.
 - **What changed:** nothing new; the memory note "ask before drawing" already existed.
-- **Pattern:** showing work that wasn't checked.
+- **Pattern:** talking to Aaron, and showing unchecked work.
 
 ### 2026-11-19 · The portal drawing was called "slop" because the paid component library wasn't used
 - **Kind:** failure.
@@ -641,25 +644,25 @@ gave was checked against its source; where the seed was wrong, the entry says so
   belong, and that the library "we paid like $500" for wasn't being used. Seed correction: the designer had rendered
   every page locally. It had not looked at the published page, nor checked screens against the library's own parts.
   The conductor's own sitrep pages had also shipped unseen twice ("I couldn't look at the rendered page myself").
-- **Evidence:** session `local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca`, "garbage slop" and "I couldn't look at the
-  rendered page myself"; memory note `design-look-before-showing.md`.
+- **Evidence:** [session local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca](claude://claude.ai/epitaxy/local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca), "garbage slop" and "I couldn't look at the
+  rendered page myself"; memory note `design-look-before-showing.md`; the redrawn round Aaron approved is [PR 91](https://github.com/AaronAbuUsama/architect/pull/91).
 - **Cost:** a full redraw round and Aaron's patience ("It's really annoying man").
 - **Found by:** Aaron.
 - **Recovery:** a component inventory before drawing, the library's own sidebar, chips, bars for rates; rendered and
   checked before sending. Aaron approved the next version.
 - **What changed:** a memory note; the `portal-design` skill holds the style guide but not "look at the published page".
-- **Pattern:** showing work that wasn't checked.
+- **Pattern:** talking to Aaron, and showing unchecked work.
 
 ### 2026-11-19 · A graph prototype looked right in screenshots, but its scripts never ran
 - **Kind:** near miss.
 - **What happened:** The React Flow spike's screenshots were readable, but the browser console showed the island bundle
   failing, so "the earlier screenshots were showing the server render only". Reading the console found it.
-- **Evidence:** session `local_3806a7f6-f543-4eb6-bcdf-000ca317032c`, "showing the server render only"; PR 87.
+- **Evidence:** [session local_3806a7f6-f543-4eb6-bcdf-000ca317032c](claude://claude.ai/epitaxy/local_3806a7f6-f543-4eb6-bcdf-000ca317032c), "showing the server render only"; [PR 87](https://github.com/AaronAbuUsama/architect/pull/87).
 - **Cost:** one debugging cycle; it would have shipped a dead page.
 - **Found by:** the designer.
 - **Recovery:** a build-time define; the islands mount.
 - **What changed:** nothing yet.
-- **Pattern:** showing work that wasn't checked.
+- **Pattern:** talking to Aaron, and showing unchecked work.
 
 ### 2026-11-19 · The portal drawing was checked against the model, and lost what nothing could supply
 - **Kind:** win.
@@ -667,7 +670,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
   element against the model and telemetry found things no slice provides (a request key per call, per-eval verdicts,
   rows for calls refused at the door) and a leak risk (people's names as the caller). The drawing dropped them before the
   checks author built.
-- **Evidence:** session `local_3806a7f6-f543-4eb6-bcdf-000ca317032c`, "Holes with no slice"; PR 91.
+- **Evidence:** [session local_3806a7f6-f543-4eb6-bcdf-000ca317032c](claude://claude.ai/epitaxy/local_3806a7f6-f543-4eb6-bcdf-000ca317032c), "Holes with no slice"; [PR 91](https://github.com/AaronAbuUsama/architect/pull/91).
 - **Cost:** one audit pass.
 - **Found by:** the designer, prompted by Aaron.
 - **Recovery:** this is the practice.
@@ -679,34 +682,34 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What happened:** Asked to pick up after the account switch, the new conductor listed individual findings. Aaron:
   "This is very low level stuff", and asked where things stood at each layer and what the real holes were. He doubted the
   artefacts had been read first-hand; a subagent had summarised them.
-- **Evidence:** session `local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca`, "very low level stuff"; memory note
-  `conductor-big-picture-first.md`.
+- **Evidence:** [session local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca](claude://claude.ai/epitaxy/local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca), "very low level stuff"; memory note
+  `conductor-big-picture-first.md`. Session only: this was a conversation with Aaron, with no public trace.
 - **Cost:** a rewritten sitrep; trust.
 - **Found by:** Aaron.
 - **Recovery:** a sitrep by layer with ten real holes, from artefacts read first-hand.
 - **What changed:** a conductor memory note. The `conductor` skill's sitrep line doesn't say "by layer, holes first".
-- **Pattern:** talking to Aaron.
+- **Pattern:** talking to Aaron, and showing unchecked work.
 
 ### 2026-11-19 · The conductor told Aaron things about his own list that weren't true
 - **Kind:** near miss.
 - **What happened:** Aaron gave seven pre-handling items. The conductor told him things about Match, not-found and event
   fields that the K16 author then corrected: "part of what I told you earlier was wrong". Match worked, and the others
   were already refused or compile-time errors.
-- **Evidence:** session `local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca`, "Your pre-handling list is now assigned" and "part
-  of what I told you earlier was wrong".
+- **Evidence:** [session local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca](claude://claude.ai/epitaxy/local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca), "Your pre-handling list is now assigned" and "part
+  of what I told you earlier was wrong"; the slices that moved are in K16, [PR 75](https://github.com/AaronAbuUsama/architect/pull/75). The exchange itself is session only.
 - **Cost:** confusion about milestone placement; slices moved to M2 and partly back (M1.46 to M1.48).
 - **Found by:** the K16 author.
 - **Recovery:** a corrected message to Aaron.
 - **What changed:** nothing yet.
-- **Pattern:** talking to Aaron.
+- **Pattern:** talking to Aaron, and showing unchecked work.
 
 ### 2026-11-19 · The board went stale, and Aaron couldn't tell where things stood
 - **Kind:** failure.
 - **What happened:** Aaron asked "is the artefact gone man? Where are we man?". The conductor said "I let it go stale":
   the board showed the old M1 lead and none of the day's threads. Seeding the board's history, it had also written
   future timestamps and had to rewrite 56 documents.
-- **Evidence:** session `local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca`, "is the artefact gone man?" and "I let it go stale";
-  memory note `kanban-thread-links.md` ("had to rewrite 56 docs").
+- **Evidence:** [session local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca](claude://claude.ai/epitaxy/local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca), "is the artefact gone man?" and "I let it go stale";
+  memory note `kanban-thread-links.md` ("had to rewrite 56 docs"); the board's page and data now live in the repo, [PR 71](https://github.com/AaronAbuUsama/architect/pull/71).
 - **Cost:** Aaron's confidence in the board; a rebuild pass; 56 documents rewritten.
 - **Found by:** Aaron; the conductor for the timestamps.
 - **Recovery:** the board rebuilt from merged state; every timestamp from `date -u`.
@@ -717,7 +720,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Kind:** near miss.
 - **What happened:** The K16 decision PR (75) merged at 84b5d8ca. The author then pushed bc51636c to its branch, which
   would never have reached main. The conductor noticed and opened a follow-up PR.
-- **Evidence:** PR 75; session `local_67fe60e6-d968-4457-a56f-91a867247c49`, "#75 had already merged at 84b5d8ca"; memory
+- **Evidence:** [PR 75](https://github.com/AaronAbuUsama/architect/pull/75); [session local_67fe60e6-d968-4457-a56f-91a867247c49](claude://claude.ai/epitaxy/local_67fe60e6-d968-4457-a56f-91a867247c49), "#75 had already merged at 84b5d8ca"; memory
   note `fresh-branch-after-merge.md`.
 - **Cost:** one follow-up PR, and a decision nearly lost.
 - **Found by:** the conductor.
@@ -749,8 +752,8 @@ gave was checked against its source; where the seed was wrong, the entry says so
   against the rule that everything made is destroyed. The conductor kept it out of the merge and told Goal 3 never to run
   it; Goal 3's staging job destroys and checks the account is empty. The record doesn't say whether the site it once
   deployed was destroyed.
-- **Evidence:** PR 56 (closed unmerged); [STATE.md](https://github.com/AaronAbuUsama/architect/blob/a2d29b10/.agents/skills/kanban/STATE.md)
-  ("#56's teardown"); session `local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca`, "There is no teardown step".
+- **Evidence:** [PR 56](https://github.com/AaronAbuUsama/architect/pull/56) (closed unmerged); [STATE.md](https://github.com/AaronAbuUsama/architect/blob/a2d29b10/.agents/skills/kanban/STATE.md)
+  ("#56's teardown"); [session local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca](claude://claude.ai/epitaxy/local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca), "There is no teardown step".
 - **Cost:** unknown cloud spend; none since.
 - **Found by:** the conductor, through research agents.
 - **Recovery:** branch excluded; a real staging step written into Goal 3.
@@ -761,8 +764,8 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Kind:** near miss.
 - **What happened:** Fixing the kanban skill's PR, the conductor's `cd` into another worktree failed, so a merge ran in
   its own. It checked the damage before going on.
-- **Evidence:** session `local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca`, "The `cd` failed, so the merge ran in my own
-  worktree"; PR 71.
+- **Evidence:** [session local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca](claude://claude.ai/epitaxy/local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca), "The `cd` failed, so the merge ran in my own
+  worktree"; [PR 71](https://github.com/AaronAbuUsama/architect/pull/71).
 - **Cost:** none.
 - **Found by:** the conductor.
 - **Recovery:** checked before proceeding.
@@ -774,8 +777,8 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **What happened:** Aaron's previous account hit its limit. The new conductor found the M1 lead, the canon thread, the
   portal designer and the live board unreachable, and three builder worktrees holding uncommitted work (99, 23 and 28
   changed files for visibility, telemetry and confirmation depth). "Nothing in M1 is being built right now."
-- **Evidence:** session `local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca`, "I can't reach the threads" and "never committed";
-  PR 71; memory notes `account-switch-nov19.md`, `board-saved-in-repo.md`.
+- **Evidence:** [session local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca](claude://claude.ai/epitaxy/local_88d9df40-b4c5-4b47-bdf9-9b1477efb0ca), "I can't reach the threads" and "never committed";
+  [PR 71](https://github.com/AaronAbuUsama/architect/pull/71); memory notes `account-switch-nov19.md`, `board-saved-in-repo.md`.
 - **Cost:** about a morning; the board rebuilt as 221 documents from a snapshot; two threads restarted; Aaron
   re-explaining to a fresh conductor.
 - **Found by:** the conductor.
@@ -792,7 +795,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
   it, and refused to merge until redaction happened before any logger saw the text, with a test reading the exported
   body from the collector, at 22:14.
 - **Evidence:** [Codex P1](https://github.com/AaronAbuUsama/architect/pull/60#discussion_r4621151518); the lead's review
-  on PR 60.
+  on [PR 60](https://github.com/AaronAbuUsama/architect/pull/60).
 - **Cost:** 41 minutes.
 - **Found by:** Codex, confirmed by the lead.
 - **Recovery:** every logger wrapped in `redacting` first.
@@ -849,7 +852,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
   uses Nx generators. M1.10 needed only new files, so the shortcut went in unrecorded. The result: no `add` command for
   anything that edits an existing file, and no migrations when the API changes.
 - **Evidence:** [K12](https://github.com/AaronAbuUsama/architect/blob/a2d29b10/design/decisions/K12-coverage-gaps.md),
-  "That reverses an earlier decision without recording it"; PR 68.
+  "That reverses an earlier decision without recording it"; [PR 68](https://github.com/AaronAbuUsama/architect/pull/68).
 - **Cost:** missing commands found a milestone later.
 - **Found by:** the audit.
 - **Recovery:** K12 moves to Nx's `Tree`.
@@ -862,12 +865,12 @@ gave was checked against its source; where the seed was wrong, the entry says so
   ("not even asking me what we want here"), and rejected a sign-up sheet and expense claims as docs examples, choosing a
   ticketing product with whole files. The sessions are on the old account; only the memory notes and the pull request
   remain.
-- **Evidence:** PR 41; memory notes `ux-ask-before-drawing.md` and `canon-examples-taste.md`.
+- **Evidence:** [PR 41](https://github.com/AaronAbuUsama/architect/pull/41); memory notes `ux-ask-before-drawing.md` and `canon-examples-taste.md`.
 - **Cost:** redraw and rewrite rounds.
 - **Found by:** Aaron.
 - **Recovery:** grill rounds before drawing; real-product examples.
 - **What changed:** two memory notes; the `portal-design` skill's process.
-- **Pattern:** showing work that wasn't checked.
+- **Pattern:** talking to Aaron, and showing unchecked work.
 
 ### 2026-11-17 · Three review rounds found the same kind of bug, and the plan was reset twice
 - **Kind:** failure.
@@ -920,7 +923,7 @@ gave was checked against its source; where the seed was wrong, the entry says so
 - **Evidence:** [CI-recovery](https://github.com/AaronAbuUsama/architect/blob/d3ab3f41/design/evidence/CI-recovery/step.json),
   [World-ci-budget](https://github.com/AaronAbuUsama/architect/blob/990b3aed/design/evidence/World-ci-budget/step.json),
   [CI-model-integration-deadlines](https://github.com/AaronAbuUsama/architect/blob/ddeb67ac/design/decisions/CI-model-integration-deadlines.md);
-  PR 95.
+  [PR 95](https://github.com/AaronAbuUsama/architect/pull/95).
 - **Cost:** at least seven fix commits, each a Linux CI round trip.
 - **Found by:** CI.
 - **Recovery:** explicit per-test budgets; own-storage cleanup.

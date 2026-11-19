@@ -26,7 +26,7 @@ own test is not an entry; the same bug passing a 🔍 review and reaching a merg
 ### 2026-11-19 · <what happened, in plain words, no internal IDs>
 - **Kind:** failure, near miss, or win.
 - **What happened:** two to four sentences, concrete.
-- **Evidence:** at least one link: a pull request, a review comment, a commit, a CI run, a session and its time.
+- **Evidence:** at least one link: a pull request, a review comment, a commit, a CI run, or a session and a phrase to find.
 - **Cost:** time, rework, runner hours, Aaron's trust. Measured where it can be.
 - **Found by:** CI, Codex, a 🔍 reviewer, a builder, an author, a lead, the conductor, or Aaron.
 - **Recovery:** what was done about it at the time.
@@ -36,7 +36,10 @@ own test is not an entry; the same bug passing a 🔍 review and reaching a merg
 
 The rules:
 
-1. **No entry without evidence.** If the only source is someone's memory, find the link or leave it out.
+1. **No entry without evidence.** Link a pull request, a review comment, a commit or a CI run wherever one exists. A
+   session is linked as `claude://claude.ai/epitaxy/<session id>`, which opens only in Aaron's app, so when a session
+   is the only source (a conversation with Aaron), say "session only". If the only source is someone's memory, find the
+   link or leave it out.
 2. **Plain words first.** The title says what happened as Aaron would say it. Internal IDs (a snag, a ledger row, a
    pull request number) go in the evidence line, or in brackets after the plain words.
 3. **A failure** cost something real. **A near miss** would have, and was caught in time. **A win** is a practice that
