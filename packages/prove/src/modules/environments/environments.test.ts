@@ -1,6 +1,6 @@
 // L2.01's done-when check, on a copy of acme under git: two builds of a revision hash the same; staging and production
 // run at once with their own D1 state; a restart keeps state; /_ortho/bundle equals the build; env down leaves
-// nothing running. Real wrangler and workerd, ports 8950 to 8999.
+// nothing running. Real wrangler and workerd, on free ports.
 import { spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -51,9 +51,10 @@ describe("ortho env", () => {
   it("runs staging and production at once, each with its own state, which a restart keeps", { timeout: 600_000 }, async () => {
     const { root } = project;
     const built = await run(Build.build(root));
-    const staging = await run(Environments.up({ root, name: "staging", port: 8950 }));
-    const production = await run(Environments.up({ root, name: "production", port: 8951 }));
-    expect([staging.url, production.url]).toEqual([url(8950), url(8951)]);
+    const staging = await run(Environments.up({ root, name: "staging" }));
+    const production = await run(Environments.up({ root, name: "production" }));
+    expect(new Set([staging.url, production.url]).size, "each on a port of its own").toBe(2);
+    expect([staging.url, production.url]).toEqual([url(staging.port), url(production.port)]);
 
     // Both run the built file, and say which build it is.
     expect(await bundle(staging.url)).toEqual({ revision: project.revision, sha256: built.sha256 });
@@ -65,20 +66,20 @@ describe("ortho env", () => {
     expect((await signIn(production.url, "ada@acme.test")).status).not.toBe(200);
 
     // Each has its own folder under .ortho/environments, its pid and its port.
-    for (const [name, port] of [["staging", 8950], ["production", 8951]] as const) {
+    for (const [name, port] of [["staging", staging.port], ["production", production.port]] as const) {
       const dir = join(root, ".ortho/environments", name);
       expect(Number(readFileSync(join(dir, "pid"), "utf8"))).toBeGreaterThan(1);
       expect(Number(readFileSync(join(dir, "port"), "utf8"))).toBe(port);
       expect(existsSync(join(dir, "state"))).toBe(true);
     }
-    expect(await run(Environments.status({ root, name: "staging" }))).toMatchObject({ state: "up", url: url(8950) });
+    expect(await run(Environments.status({ root, name: "staging" }))).toMatchObject({ state: "up", url: url(staging.port) });
 
     // A restart keeps state, and up on an environment that is running leaves it alone.
-    expect((await run(Environments.up({ root, name: "staging", port: 8950 }))).url).toBe(url(8950));
+    expect((await run(Environments.up({ root, name: "staging" }))).url).toBe(url(staging.port));
     await run(Environments.down({ root, name: "staging" }));
     expect(await run(Environments.status({ root, name: "staging" }))).toEqual({ state: "down", name: "staging" });
-    const again = await run(Environments.up({ root, name: "staging", port: 8950 }));
-    expect(again.url).toBe(url(8950));
+    const again = await run(Environments.up({ root, name: "staging" }));
+    expect(again.url).toBe(url(staging.port));
     expect((await signIn(again.url, "ada@acme.test")).status).toBe(200);
     expect(await bundle(again.url)).toEqual({ revision: project.revision, sha256: built.sha256 });
     // Production was not touched by any of it.
@@ -98,8 +99,8 @@ describe("ortho env", () => {
 
   it("is told which of an environment's name it may start, and which it may not", async () => {
     const { root } = project;
-    expect((await run(Environments.up({ root, name: "local", port: 8952 }).pipe(Effect.flip))).message).toContain("local");
-    expect((await run(Environments.up({ root, name: "nowhere", port: 8952 }).pipe(Effect.flip))).message).toContain("nowhere");
+    expect((await run(Environments.up({ root, name: "local" }).pipe(Effect.flip))).message).toContain("local");
+    expect((await run(Environments.up({ root, name: "nowhere" }).pipe(Effect.flip))).message).toContain("nowhere");
   });
 
   it("down leaves nothing running, and down on a stopped environment is not an error", { timeout: 120_000 }, async () => {

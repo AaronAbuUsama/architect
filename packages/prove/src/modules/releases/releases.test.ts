@@ -1,8 +1,9 @@
 // L2.04's done-when, against the real logbook (workerd, behind wrangler) and a real OIDC server (mock-oauth2-server, pinned
-// by digest) in Docker. Ports 9010 and 9011 are this file's.
+// by digest) in Docker.
 //   - adding `allowance.list` gives `next 1.1.0` and `stale none` against a logbook holding a 1.0.0 release;
 //   - a budget edit gives a patch and makes exactly spend stale in staging and production;
 //   - a changed payload gives a major.
+import { freePorts } from "../../../test/ports.ts";
 import { execFileSync, spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -16,7 +17,7 @@ import { Releases } from "./service.ts";
 import type { Env, Shipping } from "./types.ts";
 
 const IMAGE = "ghcr.io/navikt/mock-oauth2-server:6.1.4@sha256:647dd8c78a54f0e6fcd58d79c884e612f8f998a0662276f3e1db22e464a50192";
-const PORTS = { logbook: 9010, issuer: 9011 };
+const PORTS = freePorts("logbook", "issuer");
 const container = `releases-test-issuer-${process.pid}`;
 const REPO = "acme/acme";
 

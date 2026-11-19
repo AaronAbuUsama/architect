@@ -101,7 +101,7 @@ export type Stack = {
 
 /** The local OIDC issuer, the logbook (`ortho env up logbook`) and, if asked, a rogue second issuer and Verdaccio. */
 export const startStack = async (root: string, check: number, options: { readonly registry?: boolean; readonly rogue?: boolean; readonly env?: Readonly<Record<string, string>> } = {}): Promise<Stack> => {
-  const p = ports(check);
+  const p = ports();
   const dir = mkdtempSync(join(tmpdir(), "ortho-gate2-"));
   const id = `${process.pid}-${check}`;
   const containers = [`ortho-l2-issuer-${id}`, `ortho-l2-rogue-${id}`, `ortho-l2-registry-${id}`];
