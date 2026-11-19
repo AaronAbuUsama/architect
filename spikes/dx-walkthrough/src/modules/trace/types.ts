@@ -12,8 +12,8 @@ export interface Rendered {
 export interface Toolchain {
   /** The model of a project folder, or the compiler's own words for why not. */
   readonly compile: (projectDir: string) => { readonly ok: true; readonly model: unknown } | { readonly ok: false; readonly problems: string };
-  /** Every file of `generated/` and the scaffolds, from a model. Throws what the generators threw. */
-  readonly render: (name: string, model: unknown, projectDir: string) => ReadonlyArray<Rendered>;
+  /** Every file of `generated/` and the scaffolds, from a model, or the generators' own words for why not. */
+  readonly render: (name: string, model: unknown, projectDir: string) => { readonly ok: true; readonly files: ReadonlyArray<Rendered> } | { readonly ok: false; readonly problems: string };
 }
 
 /** What one change did. `refused`: the compiler or the generators would not take it on its own. */
@@ -24,7 +24,14 @@ export interface Outcome {
   readonly lines: number;
 }
 
+/** The unchanged blueprint itself didn't compile or render: nothing can be traced. */
+export interface Untraceable {
+  readonly ok: false;
+  readonly problems: string;
+}
+
 export interface Traced {
+  readonly ok: true;
   readonly model: unknown;
   readonly files: ReadonlyArray<Rendered>;
   /** Output path, then 0-based line, then the anchors whose change moved that line. */

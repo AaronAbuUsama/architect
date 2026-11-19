@@ -2,7 +2,7 @@
 // The output lines a change moves are the lines that declaration makes. Nothing maps a declaration to an output by hand.
 import { rmSync } from "node:fs";
 import type { Anchor } from "#modules/anchors/types.js";
-import type { Outcome, Rendered, Traced, TraceInput } from "./types.ts";
+import type { Outcome, Traced, TraceInput, Untraceable } from "./types.ts";
 import { movedLines } from "./internal/diff.ts";
 import { apply, makeCopy, renameOf, reset } from "./internal/edits.ts";
 
@@ -27,13 +27,15 @@ const closest = (path: string, candidates: ReadonlyArray<string>): string | unde
 
 const firstLine = (s: string): string => s.split("\n").find((l) => l.trim() !== "")?.trim().slice(0, 300) ?? s.slice(0, 300);
 
-export const trace = (input: TraceInput): Traced => {
+export const trace = (input: TraceInput): Traced | Untraceable => {
   const { projectDir, name, anchors, toolchain, now } = input;
   const started = now();
   const copy = makeCopy(projectDir);
   const compiled = toolchain.compile(copy);
-  if (!compiled.ok) throw new Error(`the blueprint doesn't compile on this checkout:\n${compiled.problems}`);
-  const files = toolchain.render(name, compiled.model, copy);
+  if (!compiled.ok) return { ok: false, problems: `the blueprint doesn't compile on this checkout:\n${compiled.problems}` };
+  const rendered = toolchain.render(name, compiled.model, copy);
+  if (!rendered.ok) return { ok: false, problems: `the generators refused the blueprint:\n${rendered.problems}` };
+  const files = rendered.files;
   const baseline = new Map(files.map((f) => [f.path, f.content.split("\n")]));
   const baselineMillis = now() - started;
 
@@ -44,19 +46,18 @@ export const trace = (input: TraceInput): Traced => {
   changing.forEach((anchor: Anchor, index) => {
     input.progress(index + 1, changing.length, anchor.id);
     reset(projectDir, copy);
-    let after: ReadonlyArray<Rendered>;
-    try {
-      apply(copy, anchor.edits!);
-      const model = toolchain.compile(copy);
-      if (!model.ok) {
-        outcomes.set(anchor.id, { result: "refused", problem: `the compiler: ${firstLine(model.problems)}`, lines: 0 });
-        return;
-      }
-      after = toolchain.render(renameOf(anchor.edits!) ?? name, model.model, copy);
-    } catch (e) {
-      outcomes.set(anchor.id, { result: "refused", problem: `the generators: ${firstLine(String((e as Error).message ?? e))}`, lines: 0 });
+    apply(copy, anchor.edits!);
+    const model = toolchain.compile(copy);
+    if (!model.ok) {
+      outcomes.set(anchor.id, { result: "refused", problem: `the compiler: ${firstLine(model.problems)}`, lines: 0 });
       return;
     }
+    const rerendered = toolchain.render(renameOf(anchor.edits!) ?? name, model.model, copy);
+    if (!rerendered.ok) {
+      outcomes.set(anchor.id, { result: "refused", problem: `the generators: ${firstLine(rerendered.problems)}`, lines: 0 });
+      return;
+    }
+    const after = rerendered.files;
     const byPath = new Map(after.map((f) => [f.path, f.content.split("\n")]));
     const fresh = after.map((f) => f.path).filter((p) => !baseline.has(p));
     let count = 0;
@@ -79,6 +80,7 @@ export const trace = (input: TraceInput): Traced => {
   rmSync(copy, { recursive: true, force: true });
   const total = now() - started;
   return {
+    ok: true,
     model: compiled.model,
     files,
     from,

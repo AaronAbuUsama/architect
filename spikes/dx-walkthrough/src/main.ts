@@ -57,12 +57,15 @@ const toolchain: Toolchain = {
       return { ok: false, problems: String((e as { stderr?: unknown }).stderr ?? e) };
     }
   },
-  render: (name, model, root) =>
-    (Effect.runSync(Render.files({ name, model, root })) as ReadonlyArray<{ path: string; content: string; scaffold?: boolean }>).map((f) => ({
-      path: f.path,
-      content: f.content,
-      scaffold: f.scaffold === true,
-    })),
+  // The generators speak Effect; their failure becomes a value here, at the entry, and nowhere else.
+  render: (name, model, root) => {
+    try {
+      const files = Effect.runSync(Render.files({ name, model, root })) as ReadonlyArray<{ path: string; content: string; scaffold?: boolean }>;
+      return { ok: true, files: files.map((f) => ({ path: f.path, content: f.content, scaffold: f.scaffold === true })) };
+    } catch (e) {
+      return { ok: false, problems: String((e as Error).message ?? e) };
+    }
+  },
 };
 
 const anchors = anchorsOf(ts, checkout.projectDir);
@@ -77,6 +80,15 @@ const traced = trace({
     if (done % 25 === 0 || done === total) log(`  traced ${done}/${total} (${id})`);
   },
 });
+if (!traced.ok) {
+  log(traced.problems);
+  process.exit(2);
+}
+const runtime = runtimeSteps(checkout.m1Dir);
+if (runtime.problems.length > 0) {
+  log(runtime.problems.join("\n"));
+  process.exit(2);
+}
 const data = assemble({ projectDir: checkout.projectDir, anchors, traced, model: traced.model });
 const k16 = readK16(repo, refs.k16);
 
@@ -98,7 +110,7 @@ const result = {
   anchors: data.anchors,
   files: data.files,
   operations: data.operations,
-  runtime: runtimeSteps(checkout.m1Dir),
+  runtime: runtime.steps,
   k16,
 };
 mkdirSync(dirname(out), { recursive: true });

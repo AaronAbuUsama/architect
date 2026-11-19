@@ -25,17 +25,21 @@ const STEPS: ReadonlyArray<Step> = [
   { id: "metrics", phase: "after", file: SERVICE, find: "measureCall(name, principal, callRefusals)", caption: "Counts the call and times it, by outcome.", when: () => [true, "every operation"] },
 ];
 
-const cut = (m1Dir: string, step: Step) => {
+/** A step's lines, or why they can't be found: the caller decides what a moved step means. */
+const cut = (m1Dir: string, step: Step): RuntimeStep | string => {
   const lines = readFileSync(join(m1Dir, step.file), "utf8").split("\n");
   const start = lines.findIndex((l) => l.includes(step.find));
-  if (start < 0) throw new Error(`${step.file}: no line has "${step.find}" any more; the runtime step "${step.id}" moved or changed`);
+  if (start < 0) return `${step.file}: no line has "${step.find}" any more; the runtime step "${step.id}" moved or changed`;
   const end = step.to === undefined ? start : lines.findIndex((l, i) => i >= start && l.includes(step.to!));
-  if (end < 0) throw new Error(`${step.file}: after line ${start + 1}, no line has "${step.to}"`);
-  return { line: start + 1, endLine: end + 1, code: lines.slice(start, end + 1) };
+  if (end < 0) return `${step.file}: after line ${start + 1}, no line has "${step.to}"`;
+  return { id: step.id, phase: step.phase, caption: step.caption, file: step.file, line: start + 1, endLine: end + 1, code: lines.slice(start, end + 1) };
 };
 
-export const runtimeSteps = (m1Dir: string): ReadonlyArray<RuntimeStep> =>
-  STEPS.map((s) => ({ id: s.id, phase: s.phase, caption: s.caption, file: s.file, ...cut(m1Dir, s) }));
+/** Every step, or the problems with the ones that moved. */
+export const runtimeSteps = (m1Dir: string): { readonly steps: ReadonlyArray<RuntimeStep>; readonly problems: ReadonlyArray<string> } => {
+  const cuts = STEPS.map((s) => cut(m1Dir, s));
+  return { steps: cuts.filter((c): c is RuntimeStep => typeof c !== "string"), problems: cuts.filter((c): c is string => typeof c === "string") };
+};
 
 /** Which steps run for one operation, and why or why not, from its model. */
 export const stepsFor = (facts: OpFacts): ReadonlyArray<{ readonly id: string; readonly runs: boolean; readonly why: string }> =>

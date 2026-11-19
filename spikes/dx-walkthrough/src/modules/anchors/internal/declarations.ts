@@ -38,6 +38,9 @@ export const thing = (c: Ctx, name: string, statement: Node, obj: Node): void =>
       parent: `${t}/thing`,
       edits: [renameKey(c, p), regex(["blueprint", "journeys"], `(?<![\\w$])${escape(name)}\\.fields\\.${escape(k)}(?![\\w$])`, `${name}.fields.${k}${MARK}`)],
     });
+    // A field's value written as text, such as an id's prefix (`Blueprint.id("hdl")`): renaming the field leaves it as it is.
+    const literal = p.initializer?.arguments?.find((x: Node) => c.ts.isStringLiteral(x));
+    if (literal) c.add({ id: `${t}/field:${k}/value`, kind: "field", label: `field ${k}'s value, ${textOf(c, p.initializer)}`, thing: t, file: c.file, ...span(c, p), parent: `${t}/field:${k}`, edits: [restring(c, literal, (s) => `${s}q`)] });
   }
 };
 

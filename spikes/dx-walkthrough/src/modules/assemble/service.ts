@@ -85,12 +85,31 @@ export const assemble = (input: AssembleInput) => {
   // blueprint) is written as [-1]: it comes from everything, so pointing at any one declaration would mislead.
   const index = new Map(anchors.map((a, i) => [a.id, i]));
   const tracedCount = anchors.filter((a) => traced.outcomes.get(a.id)?.result === "traced").length;
+  // A line no change moved is not, by that alone, the generator's. It is called the generator's own words only when
+  // the same text is in every operation's file of the same kind (every docs page, every SDK function, every scaffold).
+  const kindOf = (path: string, op: any): string | undefined => {
+    const own = [`/${op.thing}/${op.verb}.`, `/${op.thing}/${op.verb}.handler.`];
+    return own.some((o) => path.includes(o)) ? path.replace(`/${op.thing}/${op.verb}.`, "/*/*.") : undefined;
+  };
+  const appOps = Object.values(input.model.operations as Record<string, any>).filter((op) => op.kind === "operation" && op.from?.kind === "app");
+  const kinds = new Map<string, Array<ReadonlyArray<string>>>();
+  const kindOfPath = new Map<string, string>();
+  for (const f of traced.files) {
+    const op = appOps.find((o) => kindOf(f.path, o) !== undefined);
+    if (!op) continue;
+    const kind = kindOf(f.path, op)!;
+    kindOfPath.set(f.path, kind);
+    kinds.set(kind, [...(kinds.get(kind) ?? []), f.content.split("\n")]);
+  }
+  const common = new Map([...kinds].filter(([, all]) => all.length > 1).map(([k, all]) => [k, new Set(all[0]!.filter((l) => all.every((o) => o.includes(l))))]));
   const files = traced.files.map((f) => ({
     path: f.path,
     output: outputOf(f.path),
     scaffold: f.scaffold,
     lines: f.content.split("\n"),
     made: (traced.made.get(f.path) ?? []).map((id) => index.get(id)!),
+    // Untraced lines whose text is in every operation's file of this kind: the generator's own words.
+    same: f.content.split("\n").flatMap((l, i) => (!traced.from.get(f.path)?.has(i) && common.get(kindOfPath.get(f.path) ?? "")?.has(l) ? [i] : [])),
     from: Object.fromEntries(
       [...(traced.from.get(f.path) ?? new Map<number, ReadonlyArray<string>>())]
         .sort(([a], [b]) => a - b)

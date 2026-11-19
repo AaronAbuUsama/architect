@@ -142,9 +142,10 @@
     return { f, from };
   };
 
-  const sourceWords = (f, from) => {
+  const sourceWords = (f, from, i) => {
     if (from.includes(-1)) return ["Changes whenever anything in the blueprint changes: a fingerprint of the whole."];
-    if (from.length === 0) return [`The same for every operation: the generator's own words, from ${W.D.meta.generators[f.output]}.`];
+    if (from.length === 0 && f.same?.includes(Number(i))) return [`The same in every operation's file of this kind: the generator's own words, from ${W.D.meta.generators[f.output]}.`];
+    if (from.length === 0) return ["Not traced. No single change moved this line, so its source isn't known.", "It may be the generator's own, or come from a part of a declaration this run doesn't change, such as an id's prefix."];
     return from.slice().sort((x, y) => W.size(x) - W.size(y)).slice(0, 5).map((a) => `${W.where(a)} · ${W.A[a].label}`);
   };
 
@@ -164,7 +165,7 @@
     if (!el) return;
     if (el.dataset.f !== undefined) {
       const { f, from } = showSources(el);
-      showTip(e, sourceWords(f, from));
+      showTip(e, sourceWords(f, from, el.dataset.i));
     } else if (el.dataset.bf !== undefined) {
       const a = anchorOfLeft(el);
       if (a < 0) return;
