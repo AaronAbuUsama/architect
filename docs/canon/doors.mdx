@@ -31,9 +31,9 @@ caller is set once on the client, one request key holds across retries, and ever
 generated Worker:
 
 ```ts file=examples/signup/generated/server/main.ts lines=26-29
-const sheetCloseServed = Handlers.serve({ name: "sheet.close", operation: sheetClose.declaration, handler: sheetCloseHandler, notFrom: "SheetNotOpen", codes: Errors.codes });
+const sheetCloseServed = Handlers.serve({ name: "sheet.close", operation: sheetClose.declaration, handler: sheetCloseHandler, notFrom: "SheetNotOpen", notFound: { sheet: "SheetNotFound" }, codes: Errors.codes });
 const sheetGetServed = Reads.serve({ name: "sheet.get", read: sheetGet.declaration });
-const sheetJoinServed = Handlers.serve({ name: "sheet.join", operation: sheetJoin.declaration, handler: sheetJoinHandler, notFrom: "SheetNotOpen", codes: Errors.codes });
+const sheetJoinServed = Handlers.serve({ name: "sheet.join", operation: sheetJoin.declaration, handler: sheetJoinHandler, notFrom: "SheetNotOpen", notFound: { sheet: "SheetNotFound" }, codes: Errors.codes });
 const sheetOpenServed = Handlers.serve({ name: "sheet.open", operation: sheetOpen.declaration, handler: sheetOpenHandler, codes: Errors.codes });
 ```
 
@@ -43,7 +43,7 @@ The HTTP door is the endpoint, made from the declaration's payload, answer and r
 export const endpoint = HttpApiEndpoint.post("join", "/sheet/join", {
   payload: declaration.payloadSchema,
   success: declaration.answerSchema,
-  error: [SheetFull, SheetNotOpen],
+  error: [SheetFull, SheetNotOpen, SheetNotFound],
 });
 ```
 
@@ -54,7 +54,7 @@ The MCP door is on the same Worker, and calls the same served operations:
 const tools = Mcp.tools<Services>({
   catalog,
   served: { "sheet.close": sheetCloseServed, "sheet.get": sheetGetServed, "sheet.join": sheetJoinServed, "sheet.open": sheetOpenServed },
-  refusals: { codes: Errors.codes, declared: Errors.declared },
+  refusals: { codes: Errors.codes, declared: Errors.declared, table: Errors.refusals },
 });
 ```
 
@@ -87,41 +87,44 @@ The wrapper runs every call to an Effect operation through the same order (`pack
 2. **role**: may this caller call? (`service.ts:46`);
 3. **span**: the operation's own span opens only once the caller may call (`service.ts:83`);
 4. **replay**: a request key already answered gets the kept answer, and nothing changes (`service.ts:52`);
-5. **machine**: is the thing in a state this move starts from? (`service.ts:57`);
+5. **read and machine**: each thing the payload names by id is read, a missing one refused `<Thing>NotFound` before
+   the handler (K16); then, is the thing in a state this move starts from? (`service.ts:89`);
 6. **handler** and its steps, counted (`service.ts:60`);
 7. **answer check**: an answer outside its declaration is the handler's bug, and dies (`service.ts:64`);
 8. **commit**: the writes, the move's events and the kept answer, all or nothing (`service.ts:71`).
 
 The last four, as code:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=76-102
-const from = yield* checkFrom(op, notFrom, payload, unit);
-const chosen = yield* Ref.make<string | undefined>(undefined);
-const move = (to?: string) => chooseOutcome(name, op, to).pipe(Effect.flatMap((o) => Ref.set(chosen, o)));
-const answer = yield* busy.counted(handler(payload, { principal, steps, move })).pipe(withRecords, logs.around);
-// Recorded before the check, so an answer outside its declaration is evidence `prove` can name.
-yield* Effect.annotateCurrentSpan(answerAttributes(answer, op.answer));
-// An answer that breaks its declaration is the handler's bug, never the caller's: it dies, loudly.
-const wire = yield* check(answer).pipe(
-  Effect.mapError((e) => new Error(`${name} answered outside its declaration: ${e.message}`)),
-  Effect.orDie,
-);
-const outcome = yield* Ref.get(chosen);
-const entries = outcome === undefined ? [] : [yield* applyMove(name, op, payload, answer, outcome, unit)];
-// The state the subject was in, written once the move is made: a refused call made no move.
-if (from !== undefined && outcome !== undefined) yield* Effect.annotateCurrentSpan({ "move.from": from });
-const request = key === undefined ? {} : { request: { key, answer: JSON.stringify(wire) } };
-const writes = yield* unit.writes;
-const committed = yield* store.commit({ writes, entries, ...request }).pipe(
-  Effect.tap((outcome) => Effect.annotateCurrentSpan({
-    "commit.outcome": outcome,
-    // The event the move emitted, named only on the commit that journalled it: a conflicted attempt emitted nothing.
-    ...(outcome === "committed" && entries[0] !== undefined ? { "event.name": entries[0].event } : {}),
-  })),
-  spanned(`${name}.commit`, { "step.kind": "commit", "commit.writes": writes.length, "commit.entries": entries.length }),
-);
-if (committed === "conflict") return yield* new Conflict();
-return answer;
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=88-116
+        // What the payload names, read once and handed in; a missing one is refused before the handler, then the from-check.
+        const handed = yield* prehandle(op, notFound, payload, unit);
+        const from = yield* checkFrom(op, notFrom, handed.subject);
+        const chosen = yield* Ref.make<string | undefined>(undefined);
+        const move = (to?: string) => chooseOutcome(name, op, to).pipe(Effect.flatMap((o) => Ref.set(chosen, o)));
+        const answer = yield* busy.counted(handler(payload, { principal, steps, move, ...handed })).pipe(withRecords, logs.around);
+        // Recorded before the check, so an answer outside its declaration is evidence `prove` can name.
+        yield* Effect.annotateCurrentSpan(answerAttributes(answer, op.answer));
+        // An answer that breaks its declaration is the handler's bug, never the caller's: it dies, loudly.
+        const wire = yield* check(answer).pipe(
+          Effect.mapError((e) => new Error(`${name} answered outside its declaration: ${e.message}`)),
+          Effect.orDie,
+        );
+        const outcome = yield* Ref.get(chosen);
+        const entries = outcome === undefined ? [] : [yield* applyMove(name, op, payload, answer, outcome, unit, handed.id)];
+        // The state the subject was in, written once the move is made: a refused call made no move.
+        if (from !== undefined && outcome !== undefined) yield* Effect.annotateCurrentSpan({ "move.from": from });
+        const request = key === undefined ? {} : { request: { key, answer: JSON.stringify(wire) } };
+        const writes = yield* unit.writes;
+        const committed = yield* store.commit({ writes, entries, ...request }).pipe(
+          Effect.tap((outcome) => Effect.annotateCurrentSpan({
+            "commit.outcome": outcome,
+            // The event the move emitted, named only on the commit that journalled it: a conflicted attempt emitted nothing.
+            ...(outcome === "committed" && entries[0] !== undefined ? { "event.name": entries[0].event } : {}),
+          })),
+          spanned(`${name}.commit`, { "step.kind": "commit", "commit.writes": writes.length, "commit.entries": entries.length }),
+        );
+        if (committed === "conflict") return yield* new Conflict();
+        return answer;
 ```
 
 A `conflict` reruns the whole attempt, up to 64 times (`service.ts:21`). For a chain operation the enforcer is the

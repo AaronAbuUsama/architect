@@ -14,10 +14,19 @@ export interface McpEntry {
   readonly operation: McpOperation;
 }
 
-/** The refusals of a project: each one's code, and the declared error's fields (a machine's own refusal has none declared). */
+/** One refusal's row of the generated `refusals` table: its code, the CLI's exit and the HTTP status (K16, M1.47). */
+export interface McpRefusalRow {
+  readonly code: string;
+  readonly exit: number;
+  readonly status: number;
+}
+
+/** The refusals of a project: each one's code, the declared error's fields (a machine's own refusal has none declared), and the table. */
 export interface McpRefusals {
   readonly codes: { readonly [tag: string]: string };
   readonly declared: { readonly [tag: string]: { readonly fields: FieldsInput } };
+  /** The generated `refusals` table: a refusal's result carries its row, so an agent tells a refusal from a defect without parsing. */
+  readonly table?: { readonly [tag: string]: McpRefusalRow };
 }
 
 /** What a tool answers: MCP content, `isError` for a refusal. */
@@ -25,6 +34,7 @@ export interface McpResult {
   readonly isError: boolean;
   /** The answer as one line of JSON (bigints as text), or the refusal's `[AL-001] Name { field: value }`. */
   readonly text: string;
+  /** The answer's shown fields; for a refusal, `{ refusal, code, exit, status }` and the fields the caller may see. */
   readonly structured?: { readonly [field: string]: unknown };
 }
 

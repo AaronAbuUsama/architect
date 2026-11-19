@@ -30,6 +30,7 @@ Take a sheet down. Nobody can join it after this.
 | refusal | exit | code | when |
 |---|---|---|---|
 | SheetNotOpen | 70 | SH-900 | the sheet is in a state close can't start from; carries `state` |
+| SheetNotFound | 4 | SH-901 | nothing has the id in sheet; the handler never runs; carries `id` |
 
 ## How to call
 

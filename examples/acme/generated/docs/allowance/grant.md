@@ -36,6 +36,7 @@ Let a member spend from the organisation, up to a limit each month.
 | refusal | exit | code | when |
 |---|---|---|---|
 | AllowanceLimitTooHigh | 44 | AL-003 | declared in errors.ts, carrying cap |
+| PersonNotFound | 4 | PE-901 | nothing has the id in member; the handler never runs; carries `id` |
 | NotAllowed | 3 | AR-001 | the caller isn't the owner of its organization; the handler never runs |
 
 ## How to call

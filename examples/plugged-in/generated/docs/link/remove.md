@@ -30,6 +30,7 @@ Remove a link from a public page.
 | refusal | exit | code | when |
 |---|---|---|---|
 | LinkNotListed | 31 | LN-900 | the link is in a state remove can't start from; carries `state` |
+| LinkNotFound | 4 | LN-901 | nothing has the id in link; the handler never runs; carries `id` |
 
 ## How to call
 

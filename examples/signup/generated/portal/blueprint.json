@@ -6,6 +6,7 @@
     "refusals": {
       "NotAllowed": "AR-001",
       "SheetFull": "SH-001",
+      "SheetNotFound": "SH-901",
       "SheetNotOpen": "SH-900"
     },
     "values": {
@@ -153,12 +154,17 @@
             "code": "SH-001"
           }
         },
+        "notFound": {
+          "error": "SheetNotFound",
+          "exit": 4,
+          "code": "SH-901"
+        },
         "roles": [],
         "roleRules": {},
         "from": {
           "kind": "app"
         },
-        "hash": "287de3ccf8b2a6fd"
+        "hash": "320a7ee2e246a009"
       }
     },
     "operations": {
@@ -196,13 +202,20 @@
         },
         "errors": [],
         "refusals": [
-          "SheetNotOpen"
+          "SheetNotOpen",
+          "SheetNotFound"
         ],
         "allowed": [
           {
             "kind": "anyone"
           }
         ],
+        "refs": {
+          "sheet": "sheet"
+        },
+        "notFound": {
+          "sheet": "SheetNotFound"
+        },
         "steps": {
           "record": {
             "name": "sheet.close.record",
@@ -215,7 +228,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "f4e63e6654ff176a"
+        "hash": "f9b5ec5bc01ce4b1"
       },
       "sheet.get": {
         "kind": "read",
@@ -338,13 +351,20 @@
         ],
         "refusals": [
           "SheetFull",
-          "SheetNotOpen"
+          "SheetNotOpen",
+          "SheetNotFound"
         ],
         "allowed": [
           {
             "kind": "anyone"
           }
         ],
+        "refs": {
+          "sheet": "sheet"
+        },
+        "notFound": {
+          "sheet": "SheetNotFound"
+        },
         "steps": {
           "load": {
             "name": "sheet.join.load",
@@ -361,7 +381,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "4a16fef4df43ddf1"
+        "hash": "548a4873dc4d0516"
       },
       "sheet.open": {
         "kind": "operation",
@@ -416,6 +436,7 @@
             "kind": "anyone"
           }
         ],
+        "mints": "sheet",
         "steps": {
           "insert": {
             "name": "sheet.open.insert",
@@ -428,7 +449,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "64c1bc7e08015c79"
+        "hash": "8735e6d4a2f9f971"
       }
     },
     "journeys": {
@@ -1070,27 +1091,27 @@
   },
   "dependsOnByOperation": {
     "sheet.close": {
-      "operation:sheet.close": "f4e63e6654ff176a",
-      "thing:sheet": "287de3ccf8b2a6fd"
+      "operation:sheet.close": "f9b5ec5bc01ce4b1",
+      "thing:sheet": "320a7ee2e246a009"
     },
     "sheet.get": {
       "operation:sheet.get": "b6bc2b60a642024d",
-      "thing:sheet": "287de3ccf8b2a6fd"
+      "thing:sheet": "320a7ee2e246a009"
     },
     "sheet.join": {
-      "operation:sheet.join": "4a16fef4df43ddf1",
-      "thing:sheet": "287de3ccf8b2a6fd"
+      "operation:sheet.join": "548a4873dc4d0516",
+      "thing:sheet": "320a7ee2e246a009"
     },
     "sheet.open": {
-      "operation:sheet.open": "64c1bc7e08015c79",
-      "thing:sheet": "287de3ccf8b2a6fd"
+      "operation:sheet.open": "8735e6d4a2f9f971",
+      "thing:sheet": "320a7ee2e246a009"
     }
   },
   "docs": {
-    "sheet/close.md": "<!-- Generated from the blueprint. Do not edit. -->\n# sheet.close\n\nTake a sheet down. Nobody can join it after this.\n\n**Who may call:** anyone.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| sheet | sheet.id |\n\n## Answer\n\n(none)\n\n## Move\n\n`close`: from open or full to closed, emitting SheetClosed.\n\n## Steps\n\n- `sheet.close.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| SheetNotOpen | 70 | SH-900 | the sheet is in a state close can't start from; carries `state` |\n\n## How to call\n\n```sh\nsignup sheet close --sheet <sheet>\n```\n\nHTTP: `POST /sheet/close` with the payload as JSON. SDK: `Sdk.sheet.close(payload)`.\n",
+    "sheet/close.md": "<!-- Generated from the blueprint. Do not edit. -->\n# sheet.close\n\nTake a sheet down. Nobody can join it after this.\n\n**Who may call:** anyone.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| sheet | sheet.id |\n\n## Answer\n\n(none)\n\n## Move\n\n`close`: from open or full to closed, emitting SheetClosed.\n\n## Steps\n\n- `sheet.close.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| SheetNotOpen | 70 | SH-900 | the sheet is in a state close can't start from; carries `state` |\n| SheetNotFound | 4 | SH-901 | nothing has the id in sheet; the handler never runs; carries `id` |\n\n## How to call\n\n```sh\nsignup sheet close --sheet <sheet>\n```\n\nHTTP: `POST /sheet/close` with the payload as JSON. SDK: `Sdk.sheet.close(payload)`.\n",
     "sheet/get.md": "<!-- Generated from the blueprint. Do not edit. -->\n# sheet.get\n\nRead one sheet by its id: title, places, taken, state.\n\n**Who may call:** anyone.\n\n**A read:** answered from the records, with no handler.\n\n**Budget:** p95 50ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| id | sheet.id |\n\n## Answer\n\n| field | value |\n|---|---|\n| title | sheet.title |\n| places | sheet.places |\n| taken | sheet.taken |\n| state | text |\n\n## Refusals\n\n(none)\n\n## How to call\n\n```sh\nsignup sheet get --id <id>\n```\n\nHTTP: `POST /sheet/get` with the payload as JSON. SDK: `Sdk.sheet.get(payload)`.\n",
     "sheet/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# sheet\n\nA sign-up sheet with a fixed number of places.\n\nLives in the database.\n\n## Fields\n\n| field | value |\n|---|---|\n| id | id |\n| title | Title |\n| places | Count |\n| taken | Count |\n\n## Machine\n\nStates: open, full, closed. A move from the wrong state is refused SheetNotOpen (exit 70).\n\n| move | from | to | emits |\n|---|---|---|---|\n| open | (creates) | open | SheetOpened |\n| join | open | open, full | PlaceTaken |\n| close | open, full | closed | SheetClosed |\n\n## Operations\n\n- [sheet.close](close.md): Take a sheet down. Nobody can join it after this.\n- [sheet.get](get.md): Read one sheet by its id: title, places, taken, state.\n- [sheet.join](join.md): Take places on a sheet, for yourself and anyone with you.\n- [sheet.open](open.md): Put up a sheet with a number of places.\n",
-    "sheet/join.md": "<!-- Generated from the blueprint. Do not edit. -->\n# sheet.join\n\nTake places on a sheet, for yourself and anyone with you.\n\n**Who may call:** anyone.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| sheet | sheet.id |\n| people | Count |\n\n## Answer\n\n| field | value |\n|---|---|\n| left | Count |\n\n## Move\n\n`join`: from open to open or full, emitting PlaceTaken.\n\n## Steps\n\n- `sheet.join.load` (database)\n- `sheet.join.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| SheetFull | 71 | SH-001 | declared in errors.ts, carrying left |\n| SheetNotOpen | 70 | SH-900 | the sheet is in a state join can't start from; carries `state` |\n\n## How to call\n\n```sh\nsignup sheet join --sheet <sheet> --people <people>\n```\n\nHTTP: `POST /sheet/join` with the payload as JSON. SDK: `Sdk.sheet.join(payload)`.\n",
+    "sheet/join.md": "<!-- Generated from the blueprint. Do not edit. -->\n# sheet.join\n\nTake places on a sheet, for yourself and anyone with you.\n\n**Who may call:** anyone.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| sheet | sheet.id |\n| people | Count |\n\n## Answer\n\n| field | value |\n|---|---|\n| left | Count |\n\n## Move\n\n`join`: from open to open or full, emitting PlaceTaken.\n\n## Steps\n\n- `sheet.join.load` (database)\n- `sheet.join.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| SheetFull | 71 | SH-001 | declared in errors.ts, carrying left |\n| SheetNotOpen | 70 | SH-900 | the sheet is in a state join can't start from; carries `state` |\n| SheetNotFound | 4 | SH-901 | nothing has the id in sheet; the handler never runs; carries `id` |\n\n## How to call\n\n```sh\nsignup sheet join --sheet <sheet> --people <people>\n```\n\nHTTP: `POST /sheet/join` with the payload as JSON. SDK: `Sdk.sheet.join(payload)`.\n",
     "sheet/open.md": "<!-- Generated from the blueprint. Do not edit. -->\n# sheet.open\n\nPut up a sheet with a number of places.\n\n**Who may call:** anyone.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| title | sheet.title |\n| places | sheet.places |\n\n## Answer\n\n| field | value |\n|---|---|\n| sheet | sheet.id |\n\n## Move\n\n`open`: from nothing (it creates) to open, emitting SheetOpened.\n\n## Steps\n\n- `sheet.open.insert` (database)\n\n## Refusals\n\n(none)\n\n## How to call\n\n```sh\nsignup sheet open --title <title> --places <places>\n```\n\nHTTP: `POST /sheet/open` with the payload as JSON. SDK: `Sdk.sheet.open(payload)`.\n"
   },
   "extensions": {
@@ -1107,5 +1128,5 @@
       "reason": "no trace source is wired to the portal yet"
     }
   },
-  "digest": "353fd9e70e29baab67ac67e74a602e0d60a02ca0b75140ff2a55e7b6c0ddc1e2"
+  "digest": "d057e859da91305a8ee102b035688f441856e144f741827e88fd6cc3fc61ef46"
 }

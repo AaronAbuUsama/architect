@@ -1,18 +1,18 @@
 {
   "files": {
-    "server/main.ts": "9a67e672395498eb50649244015b47302242e51d07773888783a9a348c8a3c60",
+    "server/main.ts": "9567b28715080c91f14df507b8ea466e288bf722a4b199cc80e54bb8076f2ed0",
     "server/migrations/0001_things.sql": "bd49d2d150376824fadd3cebc981ca2b89aca06102b079aa3430de7ef4d43ecc",
     "server/wrangler.jsonc": "f51fb8160ae5e6ee14b0b3d68db13b2a18737ad4cbb26ddf86d18db3a93ba689",
     "api/src/allowance/get.ts": "d0c45a54f92f84d18d9abf07d250dbf0bc96591d67e340bdad6f5ac7e4372d4c",
     "api/src/allowance/grant.handler.ts": "e14fdbb400afa9bdd34475b5cf7ea06027775f502957d914a6a099219d03ba0f",
-    "api/src/allowance/grant.ts": "1c1c6b4df9cfba49ecd00d012a21b7c270256c0afe1a84685317c09aa48af8a7",
+    "api/src/allowance/grant.ts": "59d058d160f2b4f9528aa3dae43610f25cb1eec8ce157a5ac62f548855eceba9",
     "api/src/allowance/revoke.handler.ts": "61903e003c2adc416bad2beaada2360eba0dac64acb975c3a8205b4e01f65c59",
     "api/src/allowance/revoke.ts": "697e8160090eef6b6f74c61d304deefb11eed601ec7a62796770fe862b31b676",
-    "api/src/allowance/spend.handler.ts": "89783f8c5c9bc65fa70989b3a245f36483f56cffa426924eb9df6c09118beb0f",
+    "api/src/allowance/spend.handler.ts": "7d701b28d7a9c873e5de119f9f33acde932da4cf85af22a5f4686a0572f6fb4d",
     "api/src/allowance/spend.ts": "a5448fa55ef2794acae07d9b3fd9d60a4a594ed8526d2d939216968415c4d1da",
     "api/src/api-key/create.handler.ts": "6a6a1476c9530fc29fe2d8440181f0d5989dda15a5862a98958d69714876aadc",
     "api/src/api-key/create.ts": "53a460e2f4b616bc01156ba859f45f8caca6fe0ece01f9fa6acf057ae0ecb740",
-    "api/src/errors.ts": "720910c21996337013efa73487760e4782f47d95b0dc68b0ef28d5308fae8c40",
+    "api/src/errors.ts": "9f20eda04fd6023cd86792276df22a8228c7da01b9dc09f02645258aa9f49d63",
     "api/src/events.ts": "fefbd25d3cb1767322cb75e9b9351ab622b59b38681693ea8efe7c6227ffdc67",
     "api/src/index.ts": "d2145d6d5657bfd84f2e7487df671d1a5ceaee3d4167034957b0948c2ffd1901",
     "api/src/invitation/accept.handler.ts": "240fac9884fc085f690f9d823e46c43875fa079328375d22a06bbfe7674429a3",
@@ -34,5 +34,5 @@
     "api/src/system/health.handler.ts": "50cf348a6859a1074fb340e727ec011977e13fc6e48d34a292fada2fe434ba30",
     "api/src/system/health.ts": "732150d2a6ddfcc465cb4c23f16d4826945d34841db056d888d668706470d8d2"
   },
-  "model": "fb6e2c94058eeda74c615599a3dac7e6ccb638a6b27d4b76a6667cd23045ee49"
+  "model": "6a9c4b90f2aa6a0d98e8043adbb5e36d4baf11a2a2b858e2d0787ecfbd3f49cb"
 }
