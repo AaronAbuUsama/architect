@@ -108,7 +108,7 @@ const hostsWorlds = (env: Env) =>
 const tools = Mcp.tools<Services>({
   catalog,
   served: { "sheet.close": sheetCloseServed, "sheet.get": sheetGetServed, "sheet.join": sheetJoinServed, "sheet.open": sheetOpenServed },
-  refusals: { codes: Errors.codes, declared: Errors.declared },
+  refusals: { codes: Errors.codes, declared: Errors.declared, table: Errors.refusals },
 });
 
 // The MCP server's own runtime, built once per isolate: the same store, journal, busy count and auth as the API's.

@@ -69,3 +69,22 @@ fails the commit as a defect, which is honest: the handler should have stored it
 `compiler/…/model/model.test.ts` pinned grant's refusals as `[AllowanceLimitTooHigh, NotAllowed]`; K16's checks (check
 19, `handlers.test.ts`) require `PersonNotFound` between them, so that expectation follows K16. The acme model snapshot
 gains the new fields and `PersonNotFound`. No code that has shipped moved.
+
+## M1.47: one refusals table, and an exit means one thing
+
+- **The table.** Generated `api/src/errors.ts` opens with `refusals`, one `{ code, exit, status }` row per refusal (declared,
+  each machine's, each generated `<Thing>NotFound`, `NotAllowed`). Each wire class reads its code and HTTP status from
+  its row; `exits` and `codes` are one-line derivations of it (typed by key), kept for the SDK and the CLI's line. The
+  generated CLI looks a refusal's exit up in `refusals`; HTTP reads each class's status; MCP is handed the table.
+- **MCP.** A refusal keeps its text line and gains `structured: { refusal, code, exit, status, …the fields the caller may
+  see }` (values as JSON: a bigint as its digits). It is added only when the refusal has a row in the table, so code,
+  exit and status always come from the one place; the generated server always passes the table. `mcp.test.ts`, which
+  hands no table, keeps its old shape unchanged.
+- **Exit clashes** (`compiler/…/model/internal/exits.ts`, K16 section g "An exit means one thing"): `ortho model` refuses a
+  declared exit the runtime keeps (0 success, 1 a defect, 2 `InvalidPayload`, 3 `NotAllowed`, 4 `NotFound`), one outside
+  5 to 125, and one another refusal of the same thing already has (its earlier errors, its machine's `notFrom`), naming
+  the error, the exit, whose it is and the thing's `errors.ts`. Exits are unique per thing, not per app. A thing's own
+  declared `<Thing>NotFound` may use 4, since it is that refusal. No example in the repo clashes.
+- **Tests changed.** `generators/…/render/render.test.ts` pinned `exits` and `codes` as object literals and each class's
+  literal code; check 19 requires them to be read from the table, so those lines now pin the table's rows and
+  `refusals.<Name>.code`.

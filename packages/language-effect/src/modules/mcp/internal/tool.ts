@@ -11,7 +11,7 @@ import { hiddenInputs, needsRoles, seenBy, shownOf, text, type Seen } from "./sh
 type AnyCodec = Schema.Codec<object, unknown>;
 type Fields = { readonly [field: string]: unknown };
 
-const failed = (line: string): McpResult => ({ isError: true, text: line });
+const failed = (line: string, structured?: Fields): McpResult => ({ isError: true, text: line, ...(structured ? { structured } : {}) });
 /** What an unexpected failure says: a defect's detail is the operator's, never the caller's. */
 const DEFECT = "[AR-500] InternalError";
 const OWN = new Set(["_tag", "code", "message", "stack", "name", "cause"]);
@@ -33,16 +33,23 @@ const shownAnswer = (wire: Fields, op: McpOperation, seen: Seen): Fields => {
   return { ...top, items };
 };
 
-const refusalLine = (e: unknown, refusals: McpRefusals, seen: Seen): string | undefined => {
+/** A value as JSON carries it: a bigint as its digits, the rest as `text` writes it. */
+const jsonOf = (v: unknown): unknown => JSON.parse(text(v)) as unknown;
+
+/** A refusal's line, `[code] Tag { field: value }`, and its structured form: its table row and the fields the caller may see. */
+const refusalOf = (e: unknown, refusals: McpRefusals, seen: Seen): McpResult | undefined => {
   const tag = typeof e === "object" && e !== null ? (e as { readonly _tag?: unknown })._tag : undefined;
   const code = typeof tag === "string" ? refusals.codes[tag] : undefined;
   if (typeof tag !== "string" || code === undefined) return undefined;
   const values = e as Fields;
   const declared = refusals.declared[tag];
   // A declared error shows the fields it declares that the caller may see; the machine's own refusal has `state`, public.
-  const keys = declared ? Object.keys(declared.fields).filter((k) => seen(declared.fields[k]!.visibility)) : Object.keys(values).filter((k) => !OWN.has(k));
-  const shown = keys.filter((k) => k in values).map((k) => `${k}: ${typeof values[k] === "object" ? text(values[k]) : String(values[k])}`);
-  return `[${code}] ${tag}${shown.length > 0 ? ` { ${shown.join(", ")} }` : ""}`;
+  const keys = (declared ? Object.keys(declared.fields).filter((k) => seen(declared.fields[k]!.visibility)) : Object.keys(values).filter((k) => !OWN.has(k))).filter((k) => k in values);
+  const shown = keys.map((k) => `${k}: ${typeof values[k] === "object" ? text(values[k]) : String(values[k])}`);
+  const row = refusals.table?.[tag];
+  // Structured only with the table's row: code, exit and status come from one place, never pieced together here.
+  const structured = row && { refusal: tag, code: row.code, exit: row.exit, status: row.status, ...Object.fromEntries(keys.map((k) => [k, jsonOf(values[k])])) };
+  return failed(`[${code}] ${tag}${shown.length > 0 ? ` { ${shown.join(", ")} }` : ""}`, structured);
 };
 
 /** One operation or read as a tool: the call is the API's own (`run`), as the person the token names. */
@@ -69,10 +76,7 @@ export const toolOf = <R>(name: string, entry: McpEntry, served: McpServed<R>, r
             ),
             Effect.catch((e) =>
               rolesHeld(op, payload, principal, typeof e === "object" && e !== null && needsRoles(refusals.declared[String((e as { _tag?: unknown })._tag)]?.fields ?? {})).pipe(
-                Effect.map((held) => {
-                  const line = refusalLine(e, refusals, seenBy(held));
-                  return line === undefined ? undefined : failed(line);
-                }),
+                Effect.map((held) => refusalOf(e, refusals, seenBy(held))),
                 Effect.flatMap((result) => (result === undefined ? Effect.die(e) : Effect.succeed(result))),
               ),
             ),

@@ -168,7 +168,7 @@ const main = (model: Model, name: string, empty: boolean): RenderedFile => {
       "const tools = Mcp.tools<Services>({",
       "  catalog,",
       `  served: { ${ops.map((o) => `"${o.name}": ${opVar(o)}Served`).join(", ")} },`,
-      "  refusals: { codes: Errors.codes, declared: Errors.declared },",
+      "  refusals: { codes: Errors.codes, declared: Errors.declared, table: Errors.refusals },",
       "});",
       "",
       "// The MCP server's own runtime, built once per isolate: the same store, journal, busy count and auth as the API's.",

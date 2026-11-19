@@ -216,7 +216,7 @@ const hostsWorlds = (env: Env) =>
 const tools = Mcp.tools<Services>({
   catalog,
   served: { "attention.approve": attentionApproveServed, "attention.decline": attentionDeclineServed, "attention.list": attentionListServed, "attention.raise": attentionRaiseServed, "milestone.add": milestoneAddServed, "milestone.drop": milestoneDropServed, "milestone.list": milestoneListServed, "mission.finish": missionFinishServed, "mission.get": missionGetServed, "mission.list": missionListServed, "mission.open": missionOpenServed, "mission.pause": missionPauseServed, "mission.resume": missionResumeServed, "mission.start": missionStartServed, "mission.stop": missionStopServed, "mission.tasks": missionTasksServed, "question.answer": questionAnswerServed, "question.ask": questionAskServed, "question.list": questionListServed, "question.spike": questionSpikeServed, "run.fail": runFailServed, "run.finish": runFinishServed, "run.list": runListServed, "run.report": runReportServed, "run.start": runStartServed, "run.stop": runStopServed },
-  refusals: { codes: Errors.codes, declared: Errors.declared },
+  refusals: { codes: Errors.codes, declared: Errors.declared, table: Errors.refusals },
 });
 
 // The MCP server's own runtime, built once per isolate: the same store, journal, busy count and auth as the API's.
