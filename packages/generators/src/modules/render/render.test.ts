@@ -57,12 +57,12 @@ describe("render", () => {
 
   it("gives every refusal its code beside its tag: on its wire class, in the SDK's codes, and in the CLI's line (L2.P)", () => {
     const errors = byPath.get("generated/api/src/errors.ts")!.content;
-    expect(errors).toContain('{ code: Schema.Literal("AL-001"), ...structOf(Allowance.AllowanceExceeded.fields).fields }');
+    expect(errors).toContain('{ code: Schema.Literal("AL-001"), ...Visibility.schema(Audience.principal(), Allowance.AllowanceExceeded.fields).fields }');
     expect(errors).toContain('static readonly code = "AL-001" as const;');
     expect(errors).toContain('AllowanceNotActive: "AL-900",');
     expect(errors).toContain('NotAllowed: "AR-001",');
-    // Only a public field of a refusal is ever shown.
-    expect(errors).toContain('AllowanceExceeded: ["remaining"],');
+    // What a caller is shown of a refusal is the visibility rule's, not a list in the generated errors.
+    expect(errors).not.toContain("shown");
     const output = byPath.get("generated/cli/src/output.ts")!.content;
     expect(output).toContain("`${typeof code === \"string\" ? `[${code}] ` : \"\"}${tag}");
     expect(byPath.get("generated/docs/session/sign-in.md")!.content).toContain("| password | Password (secret) |");
