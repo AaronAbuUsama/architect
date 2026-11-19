@@ -4,11 +4,12 @@ import { spawn, spawnSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
+import { freePort } from "../ports.ts";
 import { acme, cli, copyOf, nothingRunning } from "./support.ts";
 
 const project = copyOf(acme);
 afterAll(project.remove);
-const PORT = 8880;
+const PORT = freePort();
 
 const until = async (url: string) => {
   for (let i = 0; i < 480; i++) {

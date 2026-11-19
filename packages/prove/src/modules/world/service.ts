@@ -4,10 +4,12 @@ import { existsSync, mkdirSync, rmSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { Effect } from "effect";
 import { WorldFailed, type WorldsApi } from "./types.ts";
+import { anyPort } from "./internal/ports.ts";
 import { applyMigrations, bringUp, stop } from "./internal/wrangler.ts";
 
 export const Worlds: WorldsApi = {
-  start: ({ root, port, name, otlp, environment, secretEnv }) =>
+  anyPort,
+  start: ({ root, port: asked, name, otlp, environment, secretEnv }) =>
     Effect.gen(function* () {
       const config = resolve(root, "generated/server/wrangler.jsonc");
       if (!existsSync(config)) return yield* new WorldFailed({ message: `${config} is missing: run nx sync first` });
@@ -18,6 +20,8 @@ export const Worlds: WorldsApi = {
       yield* applyMigrations(config, state);
       const log = join(state, "wrangler.log");
       const secret = randomBytes(32).toString("hex");
+      // Port 0 asks for any free port; wrangler is told a named one, and `url` is the one it got.
+      const port = asked === 0 ? yield* anyPort : asked;
       const url = `http://127.0.0.1:${port}`;
       const vars = { AUTH_SECRET: secret, [Names.variable("ENVIRONMENT")]: environment ?? "local", ...(otlp ? { OTLP_URL: otlp } : {}) };
       yield* Effect.acquireRelease(bringUp({ config, state, port, log, vars, ...(secretEnv ? { secretEnv } : {}) }, "/_world/health"), stop);

@@ -1,7 +1,8 @@
 // L2.10b/c's done-when, as a user meets it: `/portal` on an environment's own workerd, from the revision's one bundle, reading the real
 // logbook that holds real verdicts signed by a real OIDC server (mock-oauth2-server, pinned by digest) in Docker. Spend shows
 // `test ✔ staging ✔`; after a budget edit it is stale and nothing else is; a logbook that stops shows nothing green; the data routes
-// refuse what they should; and `env down` leaves nothing running. Ports 9094 to 9099 are this file's.
+// refuse what they should; and `env down` leaves nothing running.
+import { freePort } from "../../../test/ports.ts";
 import { execFileSync, spawnSync } from "node:child_process";
 import { chmodSync, cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -12,7 +13,9 @@ import { Build } from "#modules/build/service.js";
 import { Environments } from "./service.ts";
 
 const ISSUER_IMAGE = "ghcr.io/navikt/mock-oauth2-server:6.1.4@sha256:647dd8c78a54f0e6fcd58d79c884e612f8f998a0662276f3e1db22e464a50192";
-const PORTS = { logbook: 9094, issuer: 9095, staging: 9096, production: 9097 };
+// Each port is taken the moment it is used (the issuer here, the rest by `env up` itself), never at load: a port picked minutes
+// ahead is free only until something else, wrangler's own sockets among them, takes it.
+const PORTS = { logbook: 0, issuer: 0, staging: 0, production: 0 };
 const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
 const compiler = resolve(import.meta.dirname, "../../../../compiler/src/main.ts");
 const trusted = { repository: "acme/acme", workflow: "ortho" };
@@ -42,16 +45,16 @@ const first = git(root, "rev-parse", "--short", "HEAD");
 const model = JSON.parse(readFileSync(join(root, "generated/model/model.json"), "utf8")) as { operations: Record<string, unknown> };
 const operations = Object.keys(model.operations);
 
-const issuer = `http://127.0.0.1:${PORTS.issuer}/ortho`;
-const logbook = `http://127.0.0.1:${PORTS.logbook}`;
+const issuer = () => `http://127.0.0.1:${PORTS.issuer}/ortho`;
+const logbook = () => `http://127.0.0.1:${PORTS.logbook}`;
 const url = (name: "staging" | "production") => `http://127.0.0.1:${PORTS[name]}`;
 
 const mint = async () => {
-  const r = await fetch(`${issuer}/token`, { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ grant_type: "client_credentials", client_id: "ci-main", client_secret: "unused" }) });
+  const r = await fetch(`${issuer()}/token`, { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ grant_type: "client_credentials", client_id: "ci-main", client_secret: "unused" }) });
   return ((await r.json()) as { access_token: string }).access_token;
 };
 const send = async (method: string, path: string, body: unknown) => {
-  const r = await fetch(`${logbook}${path}`, { method, headers: { "content-type": "application/json", authorization: `Bearer ${await mint()}` }, body: JSON.stringify(body) });
+  const r = await fetch(`${logbook()}${path}`, { method, headers: { "content-type": "application/json", authorization: `Bearer ${await mint()}` }, body: JSON.stringify(body) });
   expect(r.status, `${method} ${path}`).toBe(200);
 };
 const post = (revision: string, environment: string, operation: string, verdict: "pass" | "fail" = "pass") => send("POST", "/verdicts", { revision, environment, operation, verdict });
@@ -71,11 +74,14 @@ beforeAll(async () => {
   writeFileSync(config, JSON.stringify({ interactiveLogin: false, tokenCallbacks: [{ issuerId: "ortho", tokenExpiry: 600, requestMappings: [{ requestParam: "client_id", match: "ci-main", claims }] }] }));
   chmodSync(config, 0o644);
   docker("rm", "-f", container);
+  PORTS.issuer = freePort();
   const started = docker("run", "-d", "--name", container, "-p", `127.0.0.1:${PORTS.issuer}:8080`, "-e", "JSON_CONFIG_PATH=/config/issuer.json", "-v", `${config}:/config/issuer.json:ro`, ISSUER_IMAGE);
   expect(started.status, started.stderr).toBe(0);
-  for (let i = 0; i < 300 && !(await fetch(`${issuer}/.well-known/openid-configuration`).then((r) => r.ok, () => false)); i++) await sleep(200);
-  const policy = { issuer, repository: trusted.repository, refs: ["refs/heads/main"], workflows: [trusted.workflow] };
-  expect((await run(Environments.up({ root, name: "logbook", port: PORTS.logbook, policy }))).url).toBe(logbook);
+  for (let i = 0; i < 300 && !(await fetch(`${issuer()}/.well-known/openid-configuration`).then((r) => r.ok, () => false)); i++) await sleep(200);
+  const policy = { issuer: issuer(), repository: trusted.repository, refs: ["refs/heads/main"], workflows: [trusted.workflow] };
+  const up = await run(Environments.up({ root, name: "logbook", policy }));
+  PORTS.logbook = up.port;
+  expect(up.url).toBe(logbook());
 }, 600_000);
 
 afterAll(async () => {
@@ -89,7 +95,8 @@ describe("/portal on an environment", () => {
     await send("PUT", `/models/${first}`, model);
     for (const environment of ["test", "staging", "production"]) for (const op of operations) await post(first, environment, op);
     const built = await run(Build.build(root));
-    const staging = await run(Environments.up({ root, name: "staging", port: PORTS.staging }));
+    const staging = await run(Environments.up({ root, name: "staging" }));
+    PORTS.staging = staging.port;
     expect(staging.url).toBe(url("staging"));
 
     const rows = await portal(staging.url);
@@ -138,7 +145,8 @@ describe("/portal on an environment", () => {
   });
 
   it("another environment, started after the logbook, reads the same logbook", { timeout: 600_000 }, async () => {
-    const production = await run(Environments.up({ root, name: "production", port: PORTS.production }));
+    const production = await run(Environments.up({ root, name: "production" }));
+    PORTS.production = production.port;
     expect(row(await portal(production.url), "allowance.spend")).toMatch(/test ✔\s+staging stale\s+production stale/);
   });
 

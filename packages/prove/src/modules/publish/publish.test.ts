@@ -1,7 +1,8 @@
 // L2.06's done-when checks, through the `ortho publish` command on a copy of acme under git: the dry run lists exactly what would
 // go out and sends nothing; `--local` puts `@acme/sdk@1.1.0` and `@acme/cli@1.1.0` on a real Verdaccio, installable in a fresh folder;
 // the formula it commits to the tap installs with `brew` and runs; a prerelease never takes `latest`. Real wrangler and workerd for the
-// logbook, a real OIDC server and a real registry (verdaccio/verdaccio:6.11.1) in Docker, real Homebrew. Ports 9050 to 9069 are this file's.
+// logbook, a real OIDC server and a real registry (verdaccio/verdaccio:6.11.1) in Docker, real Homebrew.
+import { freePorts } from "../../../test/ports.ts";
 import { spawnSync } from "node:child_process";
 import { chmodSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -18,7 +19,7 @@ import { hostTarget } from "./internal/sea.ts";
 
 const ISSUER_IMAGE = "ghcr.io/navikt/mock-oauth2-server:6.1.4@sha256:647dd8c78a54f0e6fcd58d79c884e612f8f998a0662276f3e1db22e464a50192";
 const REGISTRY_IMAGE = "verdaccio/verdaccio:6.11.1";
-const PORTS = { registry: 9050, logbook: 9051, issuer: 9052, world: 9053 };
+const PORTS = freePorts("registry", "logbook", "issuer", "world");
 const repo = resolve(import.meta.dirname, "../../../../..");
 const acme = join(repo, "examples/acme");
 const cli = join(repo, "packages/cli/src/main.ts");
@@ -132,8 +133,8 @@ describe("ortho publish", () => {
     expect(said.status, said.out).toBe(0);
     const target = hostTarget() ?? `${process.platform}-${process.arch}`;
     expect(said.lines, said.out).toEqual(expect.arrayContaining([
-      expect.stringMatching(/^npm @acme\/sdk@1\.1\.0 --tag latest to http:\/\/localhost:9050\/ {2}\(\d+ files/),
-      expect.stringMatching(/^npm @acme\/cli@1\.1\.0 --tag latest to http:\/\/localhost:9050\/ {2}\(\d+ files/),
+      expect.stringMatching(new RegExp(`^npm @acme/sdk@1\\.1\\.0 --tag latest to http://localhost:${PORTS.registry}/ {2}\\(\\d+ files`)),
+      expect.stringMatching(new RegExp(`^npm @acme/cli@1\\.1\\.0 --tag latest to http://localhost:${PORTS.registry}/ {2}\\(\\d+ files`)),
       expect.stringMatching(/^ {2}dist\/index\.js {2}\d+ B$/), expect.stringMatching(/^ {2}dist\/main\.js {2}\d+ B$/),
       expect.stringMatching(/^ {2}types\/generated\/sdk\/src\/index\.d\.ts {2}\d+ B$/),
       expect.stringMatching(new RegExp(`^binary acme-1\\.1\\.0-${target}\\.tar\\.gz `)),

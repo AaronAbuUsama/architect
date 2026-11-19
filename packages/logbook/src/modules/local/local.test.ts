@@ -1,5 +1,6 @@
 // The done-when check for L2.03 (D3 #8, #15.2): the real logbook worker on local workerd, behind wrangler, and a real
-// OIDC server (mock-oauth2-server, pinned by digest) in Docker. Ports 9120 to 9122 are this file's.
+// OIDC server (mock-oauth2-server, pinned by digest) in Docker.
+import { freePorts } from "../../../test/ports.ts";
 import { createSign, generateKeyPairSync } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, readdirSync, rmSync } from "node:fs";
@@ -12,7 +13,7 @@ import { Logbook } from "./service.ts";
 
 const IMAGE = "ghcr.io/navikt/mock-oauth2-server:6.1.4@sha256:647dd8c78a54f0e6fcd58d79c884e612f8f998a0662276f3e1db22e464a50192";
 const REPO = "acme/acme";
-const PORTS = { logbook: 9120, issuer: 9121, rogue: 9122 };
+const PORTS = freePorts("logbook", "issuer", "rogue");
 const names = [`logbook-test-issuer-${process.pid}`, `logbook-test-rogue-${process.pid}`];
 
 /** One client id per scenario: the claims a GitHub Actions job would carry (D3 #8). */

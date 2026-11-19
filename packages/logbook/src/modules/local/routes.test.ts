@@ -1,5 +1,6 @@
 // The former HTTP/SQL shim assertions, through real workerd, R2, Durable Objects and the pinned OIDC issuer.
-// Each case gets fresh persisted storage. This file owns loopback ports 9320 and 9321; no other services are touched.
+// Each case gets fresh persisted storage. Every port is a free one; no other services are touched.
+import { freePorts } from "../../../test/ports.ts";
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -10,7 +11,7 @@ import type { StoredVerdict } from "#modules/book/types.js";
 import { Logbook } from "./service.ts";
 
 const IMAGE = "ghcr.io/navikt/mock-oauth2-server:6.1.4@sha256:647dd8c78a54f0e6fcd58d79c884e612f8f998a0662276f3e1db22e464a50192";
-const PORTS = { logbook: 9320, issuer: 9321 };
+const PORTS = freePorts("logbook", "issuer");
 const name = `logbook-routes-issuer-${process.pid}`;
 const base = `http://127.0.0.1:${PORTS.logbook}`;
 const issuer = `http://127.0.0.1:${PORTS.issuer}/ortho`;
