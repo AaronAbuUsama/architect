@@ -233,6 +233,12 @@ describe("15 controls: the instruments", () => {
 
   it("the dist scanner sees a vendored path, a banner and a stray mention, copied lines, and lets an external import be", () => {
     expect(proInside({ "dist/index.js": `import { Button } from "@heroui-pro/react";\nexport { Button };\n`, "dist/index.d.ts": `export * from "@heroui-pro/react/chart";\n`, "dist/index.js.map": `{"sources":["../src/index.ts"]}` })).toEqual([]);
+    const manifest = (extra: Record<string, unknown>) => JSON.stringify({ name: "x", peerDependencies: { "@heroui-pro/react": "1.0.0-beta.11" }, peerDependenciesMeta: { "@heroui-pro/react": { optional: false } }, devDependencies: { "@heroui-pro/react": "1.0.0-beta.11" }, files: ["dist"], ...extra });
+    expect(proInside({ "package.json": manifest({}) }), "the peer, its meta and the dev dependency are the seam's own declaration").toEqual([]);
+    expect(proInside({ "package.json": manifest({ bundleDependencies: ["@heroui-pro/react"] }) })).toHaveLength(1);
+    expect(proInside({ "package.json": manifest({ dependencies: { "@heroui-pro/react": "1.0.0" } }) })).toHaveLength(1);
+    expect(proInside({ "package.json": manifest({ files: ["dist", "node_modules/@heroui-pro/react"] }) }).length).toBeGreaterThan(0);
+    expect(proInside({ "package.json": manifest({ scripts: { build: "cp -r @heroui-pro/react/dist dist" } }) })).toHaveLength(1);
     expect(proInside({ "dist/vendor/heroui-pro/button.js": "x" })).toHaveLength(1);
     expect(proInside({ "dist/a.js.map": `{"sources":["../node_modules/.pnpm/@heroui-pro+react@1/node_modules/@heroui-pro/react/dist/a.js"]}` })).toHaveLength(1);
     expect(proInside({ "dist/a.js": `/*! @license HeroUI Pro */ export {};` })).toHaveLength(1);

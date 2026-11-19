@@ -53,10 +53,26 @@ export const bans = (linted: Linted) => linted.status !== 0 && /no-restricted-im
 
 const importSite = /(?:from\s*|import\s*\(?\s*|require\s*\(\s*)["'`]$/;
 
+/** A manifest without Pro's name as a key of `peerDependencies`, `peerDependenciesMeta` or `devDependencies`: that is the seam's
+ * own declaration. Pro anywhere else in it (`dependencies`, `bundleDependencies`, `files`, `exports`, `scripts`) stays. */
+const withoutPeerNames = (text: string): string => {
+  try {
+    const manifest = JSON.parse(text) as Record<string, unknown>;
+    for (const field of ["peerDependencies", "peerDependenciesMeta", "devDependencies"]) {
+      const entries = manifest[field];
+      if (entries !== null && typeof entries === "object") {
+        manifest[field] = Object.fromEntries(Object.entries(entries).filter(([name]) => !name.startsWith("@heroui-pro/")));
+      }
+    }
+    return JSON.stringify(manifest, null, 1);
+  } catch { return text; }
+};
+
 /** What in these files (path -> text) is Pro's code or a trace of it bundled in. An external import of Pro is not. */
 export const proInside = (files: Record<string, string>): ReadonlyArray<string> => {
   const found: Array<string> = [];
-  for (const [path, text] of Object.entries(files)) {
+  for (const [path, original] of Object.entries(files)) {
+    const text = path === "package.json" || path.endsWith("/package.json") ? withoutPeerNames(original) : original;
     if (/heroui-pro/i.test(path)) found.push(`${path}: a file or folder named for Pro`);
     if (/node_modules\/(?:\.pnpm\/)?@heroui-pro/.test(text)) found.push(`${path}: a path into Pro's install`);
     if (/@license[^*]*heroui|Copyright[^\n]*(?:heroui|nextui)/i.test(text)) found.push(`${path}: Pro's licence banner`);
