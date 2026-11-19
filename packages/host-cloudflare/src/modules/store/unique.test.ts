@@ -69,3 +69,29 @@ describe("a unique field in D1 (G4)", () => {
     expect((await rowsOf()).filter((id) => id.startsWith("hdl_r"))).toHaveLength(1);
   });
 });
+
+// A multiword thing's table is hyphenated (projections server/internal/server.ts), and D1's message keeps the hyphen:
+// `UNIQUE constraint failed: user-handle.name`. The refusal must still be a conflict, never a defect (Codex P2 on #118).
+describe("a unique field on a thing with a hyphenated table (G4)", () => {
+  const UserHandle = Blueprint.thing({
+    description: "A name someone holds, in a multiword thing.",
+    fields: { id: Blueprint.id("uhd"), name: Blueprint.text({ max: 40 }) },
+    unique: { name: { while: ["claimed"] } },
+  });
+  const hyphenated = StoreD1.layer({ tables: [[UserHandle, "user-handle"]] }).pipe(Layer.provide(Database.d1(env.DB)));
+  const put = (id: string, name: string, state: string) => Effect.runPromise(
+    Effect.flatMap(Store, (s) => s.commit({ writes: [{ kind: "insert", thing: UserHandle, fields: { id, name }, state }], entries: [] })).pipe(Effect.provide(hyphenated)));
+
+  it("control: a first claim commits, and a name outside the scope commits again", async () => {
+    expect(await put("uhd_k1", "kay", "claimed")).toBe("committed");
+    expect(await put("uhd_k2", "kay", "released")).toBe("committed");
+  });
+
+  it("a duplicate claim is a conflict, not a defect, and concurrent ones leave one owner", { timeout: 60_000 }, async () => {
+    expect(await put("uhd_a1", "ann", "claimed")).toBe("committed");
+    expect(await put("uhd_a2", "ann", "claimed")).toBe("conflict");
+    const raced = await Promise.all(Array.from({ length: 6 }, (_, i) => put(`uhd_r${i}`, "ray", "claimed")));
+    expect(raced.filter((o) => o === "committed")).toHaveLength(1);
+    expect(raced.filter((o) => o === "conflict")).toHaveLength(5);
+  });
+});
