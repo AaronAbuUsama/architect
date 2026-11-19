@@ -3,21 +3,33 @@ import type { Model } from "@orthograph/compiler";
 import type { Evidence, Verdict } from "#modules/evals/types.js";
 import type { CallRecord, JourneyRun, StepResult } from "#modules/journeys/types.js";
 import type { Trace } from "#modules/telemetry/types.js";
+import { filesOf, journeyDetail, stepDetail, type FailureDetail, type JourneyDetail } from "./structured.ts";
 
 /** World facts predict the access refusal before the server answers. */
 const refusedBeforeSpan = (call: CallRecord | undefined): boolean =>
   call?.mayCall === false && call.status === 403 &&
   typeof call.body === "object" && call.body !== null && "_tag" in call.body && call.body._tag === "NotAllowed";
 
-/** A step's span checks, now that its trace is in. */
-export const spanFailures = (step: StepResult, trace: Trace | undefined, call: CallRecord | undefined): ReadonlyArray<string> => {
+/** The distinct spans a call's trace held, by name: what a missing span is read against. Sorted, since start times of concurrent spans differ between runs. */
+const spansCame = (trace: Trace | undefined): string =>
+  [...new Set((trace?.spans ?? []).map((s) => s.name))].sort().join(", ");
+
+/** A step's span checks, now that its trace is in, with what was expected and what came back. */
+const spanFindings = (step: StepResult, trace: Trace | undefined, call: CallRecord | undefined): ReadonlyArray<FailureDetail> => {
   const names = new Set((trace?.spans ?? []).map((s) => s.name));
-  if (names.size === 0 && !refusedBeforeSpan(call)) return ["telemetry missing: no span of this call reached the collector"];
+  if (names.size === 0 && !refusedBeforeSpan(call)) {
+    return [{ message: "telemetry missing: no span of this call reached the collector", expected: "spans from the call", got: "none" }];
+  }
   return [
-    ...step.spans.present.filter((n) => !names.has(n)).map((n) => `span ${n} missing`),
-    ...step.spans.absent.filter((n) => names.has(n)).map((n) => `span ${n} present, expected absent`),
+    ...step.spans.present.filter((n) => !names.has(n)).map((n) => ({
+      message: `span ${n} missing: expected present, the call produced ${spansCame(trace)}`, expected: `span ${n} present`, got: spansCame(trace),
+    })),
+    ...step.spans.absent.filter((n) => names.has(n)).map((n) => ({ message: `span ${n} present, expected absent`, expected: `span ${n} absent`, got: "present" })),
   ];
 };
+
+export const spanFailures = (step: StepResult, trace: Trace | undefined, call: CallRecord | undefined): ReadonlyArray<string> =>
+  spanFindings(step, trace, call).map((f) => f.message);
 
 /** The defect a call's span recorded when the server died (`BlankReached`, or the error's message), if any. */
 const defectOf = (trace: Trace | undefined): string | undefined => {
@@ -39,13 +51,24 @@ const diedOf = (trace: Trace | undefined, call: CallRecord | undefined): Readonl
   return defect ? [`the server died: ${defect}`] : [];
 };
 
-export const journeyLines = (runs: ReadonlyArray<JourneyRun>, traces: ReadonlyMap<string, Trace>, empty = false) => {
+/**
+ * Where a failing step's operation lives: its handler (`src/<thing>/<verb>.ts`) and the declaration it answers to, both
+ * relative to the project root. `undefined` when the step made no call or the model does not know the operation.
+ */
+export const whereLine = (model: Model | undefined, call: CallRecord | undefined): string | undefined => {
+  const files = filesOf(model, call);
+  return files === undefined ? undefined : `handler ${files.handler}, declared in ${files.declaration} (${files.operation})`;
+};
+
+export const journeyLines = (runs: ReadonlyArray<JourneyRun>, traces: ReadonlyMap<string, Trace>, empty = false, model?: Model) => {
   const lines: Array<string> = [];
   /** The traces of every call that went wrong, for `prove --view` to point at. */
   const failedTraces: Array<{ readonly trace: string; readonly what: string }> = [];
+  const details: Array<JourneyDetail> = [];
   let failed = 0;
   for (const run of runs) {
     if (run.stopped) {
+      details.push(journeyDetail(run, []));
       lines.push(stoppedLine(run, traces));
       const last = run.calls[run.calls.length - 1];
       if (last) failedTraces.push({ trace: last.trace, what: `journey ${run.name}` });
@@ -56,15 +79,20 @@ export const journeyLines = (runs: ReadonlyArray<JourneyRun>, traces: ReadonlyMa
     const steps = run.steps.map((s) => {
       const trace = traces.get(s.trace);
       const call = calls.get(s.trace);
+      const spanned = spanFindings(s, trace, call);
+      const detail = (failures: ReadonlyArray<string>) => stepDetail(model, s, failures, spanned, trace, call);
       if (empty) {
         // prove --empty (M1.16): a step whose handler is blank fails by the defect it reached, first.
         const defect = trace?.spans.find((span) => typeof span.attrs["defect"] === "string")?.attrs["defect"];
         const failedCall = typeof defect === "string" ? [defect] : call && call.status >= 500 ? [`failed with ${call.status}`] : [];
-        return { s, failures: [...failedCall, ...s.failures, ...spanFailures(s, trace, call)] };
+        const failures = [...failedCall, ...s.failures, ...spanned.map((f) => f.message)];
+        return { s, failures, detail: detail(failures) };
       }
-      const failures = [...s.failures, ...spanFailures(s, trace, call)];
-      return { s, failures: failures.length > 0 ? [...failures, ...diedOf(trace, call)] : failures };
+      const raised = [...s.failures, ...spanned.map((f) => f.message)];
+      const failures = raised.length > 0 ? [...raised, ...diedOf(trace, call)] : raised;
+      return { s, failures, detail: detail(failures) };
     });
+    details.push(journeyDetail(run, steps.map((x) => x.detail)));
     const bad = steps.filter((x) => x.failures.length > 0);
     lines.push(`journey ${run.name} ${bad.length === 0 ? "✔" : "✘"} ${steps.length - bad.length}/${steps.length} steps`);
     if (empty) {
@@ -74,13 +102,17 @@ export const journeyLines = (runs: ReadonlyArray<JourneyRun>, traces: ReadonlyMa
           : `  ✘ "${s.title}": ${failures.join("; ")}`);
       }
     } else {
-      for (const { s, failures } of bad) for (const f of failures) lines.push(`  ✘ "${s.title}": ${f}`);
+      for (const { s, failures } of bad) {
+        for (const f of failures) lines.push(`  ✘ "${s.title}": ${f}`);
+        const where = whereLine(model, calls.get(s.trace));
+        if (where !== undefined) lines.push(`  ✘ "${s.title}": ${where}`);
+      }
     }
     for (const s of run.skipped ?? []) lines.push(`  skipped "${s.step}": it runs ${s.operation}, which ${s.file} omits`);
     for (const { s } of bad) failedTraces.push({ trace: s.trace, what: `${run.name} "${s.title}"` });
     failed += bad.length;
   }
-  return { lines, failed, failedTraces };
+  return { lines, failed, failedTraces, details };
 };
 
 export const evalLines = (model: Model, verdicts: ReadonlyArray<Verdict>) => {
