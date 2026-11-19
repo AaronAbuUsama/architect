@@ -38,6 +38,8 @@ packages/
   portal-ui/         @orthograph/portal-ui         the only importer of HeroUI Pro, a peer dependency never bundled; the
                                                    portal and every face build on its exports (F7, M1.34)
   logbook/           @orthograph/logbook           verdicts and the model, kept per project
+  services/          @orthograph/services          private: the stand-ins tests and gates start as processes, never containers (the OIDC
+                                                   issuer over jose, Verdaccio under Node, and the process owner); tag env:support
 examples/
   acme/              the worked example: the allowance
   work/              the work app (F5)

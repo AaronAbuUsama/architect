@@ -54,6 +54,20 @@
               "scope:host",
               "scope:projections"
             ]
+          },
+          {
+            "sourceTag": "env:support",
+            "onlyDependOnLibsWithTags": [
+              "env:support"
+            ]
+          },
+          {
+            "sourceTag": "env:gate",
+            "onlyDependOnLibsWithTags": [
+              "env:build",
+              "env:runtime",
+              "env:support"
+            ]
           }
         ],
         "allowCircularSelfDependency": true
@@ -109,14 +123,16 @@
               {
                 "sourceTag": "env:runtime",
                 "onlyDependOnLibsWithTags": [
-                  "env:runtime"
+                  "env:runtime",
+                  "env:support"
                 ]
               },
               {
                 "sourceTag": "env:build",
                 "onlyDependOnLibsWithTags": [
                   "env:build",
-                  "env:runtime"
+                  "env:runtime",
+                  "env:support"
                 ]
               },
               {
@@ -126,6 +142,20 @@
                   "scope:language",
                   "scope:host",
                   "scope:projections"
+                ]
+              },
+              {
+                "sourceTag": "env:support",
+                "onlyDependOnLibsWithTags": [
+                  "env:support"
+                ]
+              },
+              {
+                "sourceTag": "env:gate",
+                "onlyDependOnLibsWithTags": [
+                  "env:build",
+                  "env:runtime",
+                  "env:support"
                 ]
               }
             ],

@@ -1,12 +1,12 @@
 // The stage-one gate for prove: acme passes, and each planted fixture (written by the journey author, never by the
 // builder) fails its own eval in a scratch copy of acme.
-import { spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, relative, resolve } from "node:path";
 import { Effect } from "effect";
 import { afterAll, describe, expect, it } from "vitest";
 import { FsTree, flushChanges } from "nx/src/generators/tree.js";
 import { Sync } from "@orthograph/generators/sync";
+import { Owned } from "@orthograph/services";
 import { Prove } from "./service.ts";
 
 // Dot-folders (.wrangler, .ortho) belong to whatever is running there; a filter also keeps cpSync off its native path,
@@ -49,9 +49,8 @@ const planted = (name: string, installs: ReadonlyArray<readonly [string, string]
 
 const GRANT = "src/allowance/grant.ts";
 const nothingRunning = () => {
-  const containers = spawnSync("docker", ["ps", "--format", "{{.Names}}"], { encoding: "utf8" }).stdout;
-  // This process's collectors only: other test files prove their own projects at the same time.
-  expect(containers).not.toContain(`ortho-collector-${process.pid}-`);
+  // This process's own processes only: other test files prove their own projects at the same time.
+  expect(Owned.leaks().filter((m) => m.owner === process.pid)).toEqual([]);
 };
 
 // A collector may still be flushing its last lines as the scope closes: retry instead of failing on ENOTEMPTY.

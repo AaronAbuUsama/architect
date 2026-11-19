@@ -164,8 +164,7 @@ field fails closed. The caller is written as `principal.person`, or `principal.k
 - **Each step's width against the budget** shows which step is slow. `spend` must answer within `p95: "150 millis"`.
 
 To read one trace, `ortho telemetry trace <id>` prints it as a tree from the Collector's files, a refusal marked
-`refused` and a defect marked `✘ defect`. It needs no viewer and works over SSH. `ortho telemetry view` starts the
-local viewer.
+`refused` and a defect marked `✘ defect`. It needs no viewer and works over SSH.
 
 ### Where it goes
 
@@ -181,7 +180,7 @@ export interface TelemetryApi {
 }
 ```
 
-`Telemetry.sink.local()` is the Collector that `prove` and `env up` start, and the viewer when it runs. It needs no
+`Telemetry.sink.local()` is the Collector that `prove` and `env up` start, as a process of their own. It needs no
 credential. `Telemetry.sink.axiom({ group })` sends to the `<group>-traces`, `<group>-logs` and `<group>-metrics`
 datasets.
 
@@ -259,9 +258,9 @@ Mark text traced only when it is a code you search by. If a person typed it, lea
 
 | | `Telemetry.sink.local()` | `Telemetry.sink.axiom({ group })` |
 |---|---|---|
-| Needs | Docker for the viewer; nothing for the files | a token, read from the keychain or CI, never written in the blueprint |
+| Needs | the pinned Collector binary, fetched once; no credential | a token, read from the keychain or CI, never written in the blueprint |
 | Use it for | worlds, `prove`, `ortho dev` | staging and production |
-| Read with | `ortho telemetry trace`, the local viewer | Axiom's trace view; `ortho watch` |
+| Read with | `ortho telemetry trace` | Axiom's trace view; `ortho watch` |
 
 ## What it is not
 
@@ -284,7 +283,7 @@ Mark text traced only when it is a code you search by. If a person typed it, lea
 | The attribute allowlist | `packages/language-effect/src/modules/handler/internal/attributes.ts:8` | built |
 | `spans({ present, absent })` in journeys | `packages/orthograph/src/modules/journeys/types.ts:119` | built |
 | Sinks | `packages/orthograph/src/modules/telemetry/types.ts:23` | built |
-| `ortho telemetry trace` | `packages/cli/src/modules/telemetry/types.ts:23` | built |
+| `ortho telemetry trace` | `packages/cli/src/modules/telemetry/types.ts:17` | built |
 | The commit span and `attempt` | `packages/language-effect/src/modules/handler/service.ts:78` | built, M1.18 |
 | `Blueprint.traced` | `packages/orthograph/src/modules/visibility/` | built, M1.19 |
 | `ortho.calls`, `ortho.call.duration` | `packages/language-effect/src/modules/handler/internal/call-metrics.ts` | built, M1.20 |
@@ -306,8 +305,8 @@ Mark text traced only when it is a code you search by. If a person typed it, lea
 ## Notes
 
 <Note kind="decision" decision="O1">
-  The core speaks only OpenTelemetry. A sink is a destination named in the environment; Axiom, PostHog and the local
-  viewer are sinks, never code in the core.
+  The core speaks only OpenTelemetry. A sink is a destination named in the environment; Axiom and PostHog are sinks,
+  never code in the core.
 </Note>
 
 <Note kind="decision" decision="O2">

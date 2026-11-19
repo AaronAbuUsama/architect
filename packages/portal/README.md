@@ -12,4 +12,4 @@ compiler or a credential.
   `unavailable`; the latest failure wins, and nothing that could not be read is ever green.
 - `site`: the plain HTML face and the JSON routes. A licensed HeroUI face (F1.1) replaces the face on the same wire, with no new contract.
 
-Tests: `nx test portal`. `snapshot/logbook.test.ts` runs the real logbook and a real OIDC server in Docker (ports 9090, 9091).
+Tests: `nx test portal`. `snapshot/logbook.test.ts` runs the real logbook and a real OIDC issuer process (@orthograph/services) (ports 9090, 9091).

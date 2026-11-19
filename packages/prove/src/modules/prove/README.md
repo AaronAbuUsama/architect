@@ -8,8 +8,7 @@ stopped when its scope closes. Test: `prove.test.ts` (acme passes; each planted 
 
 `ortho prove --empty` makes the starting world using the project's handlers and runs the journey steps using the
 scaffolds in that same world. It reports the blank reached on a red step and labels a passing step "proved by the
-description". It records no verdicts. `--only` selects a journey by its declared name. `--view` uses the existing viewer
-and collector.
+description". It records no verdicts. `--only` selects a journey by its declared name.
 
 `Prove.test({ root, lifetime?, logbook, token, say })`: `ortho prove --env test` (D3 #14, #50, #53). The same journeys
 and evals, in a world of the long-lived test environment (`test-worlds`): it makes sure the environment runs the

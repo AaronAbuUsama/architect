@@ -7,7 +7,7 @@ import { Collectors, privateKeys } from "#modules/telemetry/service.js";
 import { Sinks } from "#modules/sinks/service.js";
 import { Worlds } from "#modules/world/service.js";
 import type { EnvironmentsApi, Up } from "./types.ts";
-import { collectorName, telemetryDir } from "./internal/collector.ts";
+import { telemetryDir } from "./internal/collector.ts";
 import { environmentConfig, logbookOf } from "./internal/config.ts";
 import { startLogbook } from "./internal/logbook.ts";
 import { choosePort, files, reap, writePort } from "./internal/process.ts";
@@ -68,7 +68,7 @@ const up: EnvironmentsApi["up"] = ({ root: given, name, port, revision, policy, 
     if (!existsSync(base)) return yield* failed(`${base} is missing: run nx sync first`);
     const chosen = yield* choosePort(dir, port).pipe(Effect.mapError(failed));
     const otlp = records
-      ? yield* Collectors.launch({ dir: telemetryDir(dir), name: collectorName(dir), strip }).pipe(Effect.mapError((e) => failed(`${name} needs Docker for its collector: ${e.message}`)))
+      ? yield* Collectors.launch({ dir: telemetryDir(dir), strip }).pipe(Effect.mapError((e) => failed(`${name}'s collector didn't start: ${e.message}`)))
       : undefined;
     yield* io(`${dir}`, () => {
       ensureSecrets(f.secrets, Object.keys(environment.secrets));

@@ -21,6 +21,18 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # No Docker (K10 section 8): every service is a process. The runner image carries Docker, so take it off the PATH and
+      # let a test that still reaches for it fail here.
+      - name: No Docker on the PATH
+        run: |
+          sudo rm -f "$(command -v docker)"
+          ! command -v docker
+      # The Collector is its pinned binary (prove's telemetry module checks its digest before it runs): cached by version, and
+      # fetched from the official release when the cache is empty.
+      - uses: actions/cache@v6.1.0
+        with:
+          path: ~/.cache/orthograph/otelcol-contrib
+          key: otelcol-contrib-0.164.0-${{ runner.os }}-${{ runner.arch }}
       # A world's chain is Anvil as a plain process (K10 section 8: no container, no Docker step). Foundry is pinned
       # to an exact version, and the tests that start Anvil run here (M1.31).
       - uses: foundry-rs/foundry-toolchain@v1.9.2
@@ -86,6 +98,18 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # No Docker (K10 section 8): every service is a process. The runner image carries Docker, so take it off the PATH and
+      # let a test that still reaches for it fail here.
+      - name: No Docker on the PATH
+        run: |
+          sudo rm -f "$(command -v docker)"
+          ! command -v docker
+      # The Collector is its pinned binary (prove's telemetry module checks its digest before it runs): cached by version, and
+      # fetched from the official release when the cache is empty.
+      - uses: actions/cache@v6.1.0
+        with:
+          path: ~/.cache/orthograph/otelcol-contrib
+          key: otelcol-contrib-0.164.0-${{ runner.os }}-${{ runner.arch }}
       # Check 4 runs its agent when this secret exists, and says why it skipped when it doesn't (D2 #41).
       # The key is given only to pull requests into main and pushes to main, so layer-branch pushes spend nothing
       # (each run is capped at $5, and the cap across everything is $10 a day; D3 #71).
@@ -107,6 +131,18 @@ jobs:
           node-version: 24.22.2
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # No Docker (K10 section 8): every service is a process. The runner image carries Docker, so take it off the PATH and
+      # let a test that still reaches for it fail here.
+      - name: No Docker on the PATH
+        run: |
+          sudo rm -f "$(command -v docker)"
+          ! command -v docker
+      # The Collector is its pinned binary (prove's telemetry module checks its digest before it runs): cached by version, and
+      # fetched from the official release when the cache is empty.
+      - uses: actions/cache@v6.1.0
+        with:
+          path: ~/.cache/orthograph/otelcol-contrib
+          key: otelcol-contrib-0.164.0-${{ runner.os }}-${{ runner.arch }}
       - name: Require Homebrew for Gate 2
         shell: bash
         run: |
@@ -149,6 +185,18 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # No Docker (K10 section 8): every service is a process. The runner image carries Docker, so take it off the PATH and
+      # let a test that still reaches for it fail here.
+      - name: No Docker on the PATH
+        run: |
+          sudo rm -f "$(command -v docker)"
+          ! command -v docker
+      # The Collector is its pinned binary (prove's telemetry module checks its digest before it runs): cached by version, and
+      # fetched from the official release when the cache is empty.
+      - uses: actions/cache@v6.1.0
+        with:
+          path: ~/.cache/orthograph/otelcol-contrib
+          key: otelcol-contrib-0.164.0-${{ runner.os }}-${{ runner.arch }}
       # Check 09's send journeys run on Anvil, a plain process, the same pinned Foundry as the check job (M1.31).
       - uses: foundry-rs/foundry-toolchain@v1.9.2
         with:

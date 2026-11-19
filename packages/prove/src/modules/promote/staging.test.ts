@@ -1,10 +1,11 @@
 // The proof-to-publish boundary on real workerd, logbook, OIDC and Verdaccio. Ports 9123–9126 are this file's.
 import { spawnSync } from "node:child_process";
-import { chmodSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { basename, join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { createHash, randomBytes } from "node:crypto";
-import { Effect } from "effect";
+import { Effect, Exit, Scope } from "effect";
+import { Issuer, Registry } from "@orthograph/services";
 import { Compiler, nodeSource } from "@orthograph/compiler";
 import { Releases } from "#modules/releases/service.js";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -18,12 +19,10 @@ const acme = join(repo, "examples/acme");
 const parent = mkdtempSync(join(realpathSync(tmpdir()), "ortho-staging-proof-"));
 const root = join(parent, "acme");
 const ports = { logbook: 9123, issuer: 9124, staging: 9125, registry: 9126 };
-const names = [`ortho-staging-proof-issuer-${process.pid}`, `ortho-staging-proof-registry-${process.pid}`];
+const services = Effect.runSync(Scope.make());
 const issuer = `http://127.0.0.1:${ports.issuer}/ortho`;
-const registry = `http://localhost:${ports.registry}/`;
+const registry = `http://127.0.0.1:${ports.registry}/`;
 const logbook = `http://127.0.0.1:${ports.logbook}`;
-const issuerImage = "ghcr.io/navikt/mock-oauth2-server:6.1.4@sha256:647dd8c78a54f0e6fcd58d79c884e612f8f998a0662276f3e1db22e464a50192";
-const docker = (...args: ReadonlyArray<string>) => spawnSync("docker", args, { encoding: "utf8" });
 const run = <A, E>(effect: Effect.Effect<A, E>) => Effect.runPromise(effect);
 const git = (...args: ReadonlyArray<string>) => {
   const r = spawnSync("git", ["-c", "user.name=proof", "-c", "user.email=proof@example.test", "-c", "commit.gpgsign=false", ...args], { cwd: root, encoding: "utf8" });
@@ -36,13 +35,6 @@ const env: Record<string, string | undefined> = {
   ...process.env, ORTHO_OIDC_ISSUER: issuer, ORTHO_OIDC_CLIENT: "ci-main", ORTHO_OIDC_REPOSITORY: "acme/acme",
   ORTHO_OIDC_REF: "refs/heads/main", ORTHO_OIDC_WORKFLOW: "ortho", ORTHO_LOGBOOK_URL: logbook,
   ORTHO_REGISTRY: registry, NPM_CONFIG_USERCONFIG: join(parent, "npmrc"),
-};
-const ready = async (url: string) => {
-  for (let i = 0; i < 300; i++) {
-    if (await request(url).then((r) => r.ok, () => false)) return;
-    await new Promise((resolve) => setTimeout(resolve, 200));
-  }
-  throw new Error("the test service did not start");
 };
 const rows = (revision: string) => request(`${logbook}/verdicts?revision=${revision}&environment=staging`).then((r) => r.json());
 const versions = async () => {
@@ -59,17 +51,9 @@ beforeAll(async () => {
   writeFileSync(join(root, ".gitignore"), "node_modules/\n.ortho/\n.wrangler/\n");
   git("init", "-q", "-b", "main");
   commit("the proof candidate");
-  const config = join(parent, "issuer.json");
-  writeFileSync(config, JSON.stringify({ interactiveLogin: false, tokenCallbacks: [{ issuerId: "ortho", tokenExpiry: 600, requestMappings: [{ requestParam: "client_id", match: "ci-main", claims: { sub: "repo:acme/acme:ref:refs/heads/main", aud: ["ortho-logbook"], repository: "acme/acme", ref: "refs/heads/main", workflow: "ortho" } }] }] }));
-  chmodSync(config, 0o644);
-  mkdirSync(join(parent, "registry"));
-  chmodSync(join(parent, "registry"), 0o777);
-  expect(docker("run", "-d", "--name", names[0]!, "-p", `127.0.0.1:${ports.issuer}:8080`, "-e", "JSON_CONFIG_PATH=/config/issuer.json", "-v", `${config}:/config/issuer.json:ro`, issuerImage).status).toBe(0);
-  expect(docker("run", "-d", "--name", names[1]!, "-p", `127.0.0.1:${ports.registry}:4873`, "-v", `${join(repo, "packages/prove/test/verdaccio.yaml")}:/verdaccio/conf/config.yaml:ro`, "-v", `${join(parent, "registry")}:/verdaccio/storage`, "verdaccio/verdaccio:6.11.1").status).toBe(0);
-  await ready(`${issuer}/.well-known/openid-configuration`);
-  await ready(`${registry}-/ping`);
-  const created = await request(`${registry}-/user/org.couchdb.user:proof`, { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ name: "proof", password: randomBytes(12).toString("hex") }) });
-  writeFileSync(env["NPM_CONFIG_USERCONFIG"]!, `//localhost:${ports.registry}/:_authToken=${((await created.json()) as { token: string }).token}\n`, { mode: 0o600 });
+  await run(Issuer.start({ port: ports.issuer, dir: parent, config: { tokenCallbacks: [{ issuerId: "ortho", tokenExpiry: 600, requestMappings: [{ requestParam: "client_id", match: "ci-main", claims: { sub: "repo:acme/acme:ref:refs/heads/main", aud: ["ortho-logbook"], repository: "acme/acme", ref: "refs/heads/main", workflow: "ortho" } }] }] } }).pipe(Scope.provide(services)));
+  // Its throwaway user's token is in `<parent>/npmrc`, which `env` names.
+  await run(Registry.start({ dir: parent, port: ports.registry }).pipe(Scope.provide(services)));
   const built = spawnSync("pnpm", ["nx", "run", "orthograph:build", "--outputStyle=static"], { cwd: repo, encoding: "utf8", env: { ...env, NX_DAEMON: "false" } });
   expect(built.status, built.stdout + built.stderr).toBe(0);
   const published = spawnSync("pnpm", ["publish", "--registry", registry, "--no-git-checks"], { cwd: join(repo, "packages/orthograph"), encoding: "utf8", env });
@@ -78,9 +62,7 @@ beforeAll(async () => {
 }, 180_000);
 afterAll(async () => {
   for (const name of ["production", "staging", "logbook"]) await run(Environments.down({ root, name }));
-  // Linux cannot remove nested files owned by the registry UID: let our own container empty its storage first.
-  docker("exec", names[1]!, "sh", "-c", "rm -rf /verdaccio/storage/*");
-  for (const name of names) docker("rm", "-f", name);
+  await run(Scope.close(services, Exit.void));
   rmSync(parent, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
 });
 

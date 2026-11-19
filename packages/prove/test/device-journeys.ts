@@ -2,7 +2,7 @@
 // import the very declaration objects the loader did): the wallet plugin's own journeys through prove's device path, on a
 // copy of acme with the built @orthograph/wallets mounted, a real Anvil as the world's chain and a real workerd world.
 // Telemetry goes to a receiver of this file's own that writes what the Collector's file exporter writes (the Collector
-// itself is Docker, until M1.33), so prove's whole `exercise` runs: the journeys, the traces read back, the nine evals.
+// itself is a process, since M1.33), so prove's whole `exercise` runs: the journeys, the traces read back, the nine evals.
 // Prints one line, `RESULT <json>`.
 import { spawnSync } from "node:child_process";
 import { appendFileSync, cpSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";

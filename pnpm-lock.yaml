@@ -93,6 +93,9 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: 1.32.2
         version: 1.32.2(@cfworker/json-schema@4.1.4)(supports-color@10.2.2)(zod@4.6.7)
+      '@orthograph/services':
+        specifier: workspace:*
+        version: link:../packages/services
       yaml:
         specifier: 2.9.0
         version: 2.9.0
@@ -260,6 +263,9 @@ importers:
       '@orthograph/logbook':
         specifier: workspace:*
         version: link:../logbook
+      '@orthograph/services':
+        specifier: workspace:*
+        version: link:../services
 
   packages/compiler:
     dependencies:
@@ -387,6 +393,9 @@ importers:
       '@cloudflare/workers-types':
         specifier: 5.20261101.1
         version: 5.20261101.1
+      '@orthograph/services':
+        specifier: workspace:*
+        version: link:../services
 
   packages/orthograph:
     dependencies:
@@ -403,6 +412,9 @@ importers:
       '@orthograph/logbook':
         specifier: workspace:*
         version: link:../logbook
+      '@orthograph/services':
+        specifier: workspace:*
+        version: link:../services
 
   packages/portal-ui:
     devDependencies:
@@ -480,9 +492,24 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: 1.32.2
         version: 1.32.2(@cfworker/json-schema@4.1.4)(supports-color@10.2.2)(zod@4.6.7)
+      '@orthograph/services':
+        specifier: workspace:*
+        version: link:../services
       nx:
         specifier: 24.0.3
         version: 24.0.3
+
+  packages/services:
+    dependencies:
+      effect:
+        specifier: 4.1.1
+        version: 4.1.1
+      jose:
+        specifier: 6.2.15
+        version: 6.2.15
+      verdaccio:
+        specifier: 6.11.1
+        version: 6.11.1(supports-color@10.2.2)(typanion@3.14.0)
 
   packages/wallets:
     dependencies:

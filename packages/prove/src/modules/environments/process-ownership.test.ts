@@ -4,7 +4,8 @@ import { once } from "node:events";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
-import { Effect } from "effect";
+import { Effect, Exit, Scope } from "effect";
+import { Issuer } from "@orthograph/services";
 import { afterAll, describe, expect, it } from "vitest";
 import { Build } from "#modules/build/service.js";
 import { Environments } from "./service.ts";
@@ -14,10 +15,8 @@ const parent = mkdtempSync(join(realpathSync(tmpdir()), "ortho-process-owner-"))
 const root = join(parent, "long-environment-path-".repeat(5), "project with spaces", "acme");
 const shadow = join(parent, "shadow");
 const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
-const issuerName = `ortho-process-owner-issuer-${process.pid}`;
-const issuerImage = "ghcr.io/navikt/mock-oauth2-server:6.1.4@sha256:647dd8c78a54f0e6fcd58d79c884e612f8f998a0662276f3e1db22e464a50192";
+const services = Effect.runSync(Scope.make());
 const run = <A, E>(effect: Effect.Effect<A, E>) => Effect.runPromise(effect);
-const docker = (...args: ReadonlyArray<string>) => spawnSync("docker", args, { encoding: "utf8" });
 const dir = (project: string, name: string) => join(project, ".ortho/environments", name);
 const git = (...args: ReadonlyArray<string>) => {
   const result = spawnSync("git", ["-c", "user.name=ownership", "-c", "user.email=ownership@example.test", "-c", "commit.gpgsign=false", ...args], { cwd: root, encoding: "utf8" });
@@ -67,10 +66,9 @@ const absent = (project: string, name: string) => {
   expect(existsSync(join(dir(project, name), "wrangler.jsonc"))).toBe(true);
 };
 
-let issuerStarted = false;
 afterAll(async () => {
   for (const project of [root, shadow]) for (const name of ["production", "staging", "logbook"]) await run(Environments.down({ root: project, name }));
-  if (issuerStarted) docker("rm", "-f", issuerName);
+  await run(Scope.close(services, Exit.void));
   rmSync(parent, { recursive: true, force: true });
 });
 
@@ -133,14 +131,7 @@ describe("persisted environment process ownership", () => {
   });
 
   it("recognizes its real logbook and preserves another logbook sharing the config but using different state", { timeout: 180_000 }, async () => {
-    const started = docker("run", "-d", "--name", issuerName, "-p", "127.0.0.1:9163:8080", issuerImage);
-    expect(started.status, started.stderr).toBe(0);
-    issuerStarted = true;
-    const issuer = "http://127.0.0.1:9163/ortho";
-    for (let i = 0; i < 240; i++) {
-      if (await fetch(`${issuer}/.well-known/openid-configuration`).then((r) => r.ok, () => false)) break;
-      await new Promise((done) => setTimeout(done, 250));
-    }
+    const { url: issuer } = await run(Issuer.start({ port: 9163 }).pipe(Scope.provide(services)));
     const policy = { issuer, repository: "ownership/ownership", refs: ["refs/heads/main"], workflows: ["ownership"] };
     const owned = await run(Environments.up({ root, name: "logbook", port: 9162, policy }));
     try {

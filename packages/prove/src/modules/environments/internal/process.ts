@@ -6,7 +6,7 @@ import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Effect, Schedule } from "effect";
 import { Collectors } from "#modules/telemetry/service.js";
-import { collectorName } from "./collector.ts";
+import { telemetryDir } from "./collector.ts";
 
 export const files = (dir: string) => ({
   config: join(dir, "wrangler.jsonc"),
@@ -90,7 +90,7 @@ export const reap = (dir: string) =>
   Effect.gen(function* () {
     const pid = readPid(dir);
     if (pid !== undefined && (yield* groupAlive(pid)) && isWrangler(pid, dir)) yield* stopGroup(pid, dir);
-    yield* Collectors.stop(collectorName(dir));
+    yield* Collectors.stop(telemetryDir(dir));
     forget(dir);
   });
 

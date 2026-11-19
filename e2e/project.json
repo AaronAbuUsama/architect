@@ -2,7 +2,7 @@
   "name": "e2e",
   "$schema": "../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
-  "tags": ["scope:e2e", "env:build", "layer:1"],
+  "tags": ["scope:e2e", "env:gate", "layer:1"],
   "targets": {
     "lint": {},
     "typecheck": {},
