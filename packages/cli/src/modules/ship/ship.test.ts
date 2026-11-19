@@ -1,8 +1,9 @@
 // L2.04's done-when through the commands' own code: `version --next` and `impact` against the real logbook (workerd behind
-// wrangler) and a real OIDC issuer (an @orthograph/services process). Ports 9012 and 9013 are this file's.
+// wrangler) and a real OIDC issuer (an @orthograph/services process), each on a free port.
 //   - adding allowance.list gives `next 1.1.0` and `stale none` against a logbook holding a 1.0.0 release;
 //   - a budget edit keeps it a patch and makes exactly spend stale in staging and production;
 //   - without a logbook, `impact` is what Gate 1 had and `version --next` says how to start one.
+import { freePorts } from "../../../test/ports.ts";
 import { execFileSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -15,7 +16,7 @@ import { Releases } from "@orthograph/prove";
 import type { Model } from "@orthograph/compiler";
 import { Ship } from "./service.ts";
 
-const PORTS = { logbook: 9012, issuer: 9013 };
+const PORTS = freePorts("logbook", "issuer", "gone");
 const services = Effect.runSync(Scope.make());
 const REPO = "acme/acme";
 
@@ -130,10 +131,10 @@ describe("ortho version --next and ortho impact", () => {
 
   it("a logbook that does not answer is a warning on the local lines, never a wrong `stale none`", async () => {
     const root = copy("down");
-    const said = await Effect.runPromise(Ship.impact({ root, env: { ORTHO_LOGBOOK_URL: "http://127.0.0.1:9019" } }));
+    const said = await Effect.runPromise(Ship.impact({ root, env: { ORTHO_LOGBOOK_URL: `http://127.0.0.1:${PORTS.gone}` } }));
     expect(said.exit).toBe(0);
     expect(said.err).toContain("the logbook was not consulted");
     expect(lines(said).some((l) => l.startsWith("next "))).toBe(false);
-    expect((await Effect.runPromise(Ship.next({ root, env: { ORTHO_LOGBOOK_URL: "http://127.0.0.1:9019" } }))).exit).toBe(2);
+    expect((await Effect.runPromise(Ship.next({ root, env: { ORTHO_LOGBOOK_URL: `http://127.0.0.1:${PORTS.gone}` } }))).exit).toBe(2);
   }, 120_000);
 });

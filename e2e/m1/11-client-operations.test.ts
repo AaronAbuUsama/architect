@@ -19,8 +19,7 @@
 //     world picks is not judged here (that needs a browser and a journey actor, and the wallet journeys are check 09's).
 //  4. No server call is proved by an HTTP listener on 127.0.0.1 that records every request and answers 503, given as the
 //     SDK's and the CLI's server address: it must see nothing. A control shows it does see a server operation's call
-//     (`system.health` from the same CLI). Both listeners bind port 0, because 19260 to 19279 are all taken (`PORTS` and
-//     check 10), and files run one at a time.
+//     (`system.health` from the same CLI). Both listeners bind port 0, and files run one at a time.
 //  5. The in-process run exports its spans over OTLP/HTTP JSON to `$OTEL_EXPORTER_OTLP_ENDPOINT/v1/traces`, the standard
 //     variable and path the Worker already uses, and has sent them before the SDK's Effect completes and before the CLI
 //     exits. One trace per call: the operation's span `receipt.stamp` (attribute `operation`), and as its children

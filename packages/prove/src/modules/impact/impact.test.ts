@@ -37,7 +37,7 @@ describe("impact", () => {
     }));
     expect(await impact()).toContain("stale none");
 
-    const proved = await Effect.runPromise(Effect.scoped(Prove.run({ root, port: 8796 })));
+    const proved = await Effect.runPromise(Effect.scoped(Prove.run({ root, port: 0 })));
     expect(proved.passed, proved.lines.join("\n")).toBe(true);
     expect(await impact()).toEqual(["stale none", "proven allowance.get, allowance.grant, allowance.revoke, allowance.spend, api-key.create, invitation.accept, invitation.revoke, invitation.send, membership.get, organization.create, organization.get, person.sign-up, session.show, session.sign-in, system.health"]);
 
