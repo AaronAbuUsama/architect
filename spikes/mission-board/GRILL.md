@@ -466,3 +466,7 @@ export interface EndState {
 
 **Answer key.** Reply "all A", or give each one a letter, for example "Q1 B, rest A". Add a sentence where you want
 something different from any option.
+
+## Answer
+
+Aaron, 19 November 2026: **all A.** The prototype already builds on these answers.
