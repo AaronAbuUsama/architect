@@ -12,7 +12,7 @@ expect() { # <name> <wanted exit> <command...>
   local name="$1" wanted="$2"; shift 2
   local got=0
   "$@" > "$scratch/out" 2>&1 || got=$?
-  if [ "$got" = "$wanted" ]; then echo "ok   $name"; else
+  if [ "$got" = "$wanted" ]; then echo "ok   $name${SHOW:+: $(tail -1 "$scratch/out")}"; else
     echo "FAIL $name: exit $got, wanted $wanted"; sed 's/^/     /' "$scratch/out"; failures=$((failures + 1)); fi
 }
 
@@ -112,6 +112,51 @@ expect "codex: running is pending" 0 codex "[{$bot,\"updated_at\":\"1\",\"body\"
 expect "codex: a security review still running is pending" 0 codex "[{$bot,\"updated_at\":\"1\",\"body\":\"$(summary '\"completed\"' '\"in_progress\"')\"}]" pending
 expect "codex: no review at all is pending" 0 codex "[{$bot,\"updated_at\":\"1\",\"body\":\"$(summary null null)\"}]" pending
 expect "codex: someone else's copy of the line is ignored" 0 codex "[{\"user\":{\"login\":\"someone\",\"type\":\"User\"},\"updated_at\":\"1\",\"body\":\"$done_body\"}]" pending
+
+# codex-covers: does Codex's review of one commit still cover the head?
+pr_repo() { # base has b1; the pull request branch `pr` adds its own commit R (reviewed); prints the path
+  local dir; dir="$(mktemp -d "$scratch/pr.XXXX")"
+  git -C "$dir" init -q -b base
+  git -C "$dir" config user.email ci@example.invalid
+  git -C "$dir" config user.name ci
+  printf 'one\ntwo\nthree\n' > "$dir/shared.txt"; echo b > "$dir/base.txt"
+  git -C "$dir" add -A && git -C "$dir" commit -qm b1
+  git -C "$dir" checkout -qb pr
+  echo r > "$dir/pr.txt"; git -C "$dir" add -A && git -C "$dir" commit -qm R
+  git -C "$dir" tag reviewed
+  echo "$dir"
+}
+on_base() { # <repo> <file> <text>: a new commit on base
+  git -C "$1" checkout -q base; echo "$3" >> "$1/$2"; git -C "$1" add -A; git -C "$1" commit -qm "base: $2"; git -C "$1" checkout -q pr
+}
+merge_base_in() { git -C "$1" merge -q --no-edit base > /dev/null 2>&1; }
+covers() { (cd "$1" && "$here/codex-covers.sh" reviewed HEAD base); }
+
+r=$(pr_repo)
+expect "covers: the head is the reviewed commit" 0 covers "$r"
+r=$(pr_repo); on_base "$r" base.txt b2; merge_base_in "$r"
+expect "covers: one clean merge from base" 0 covers "$r"
+r=$(pr_repo); on_base "$r" base.txt b2; merge_base_in "$r"; on_base "$r" base.txt b3; merge_base_in "$r"
+expect "covers: two clean merges from base" 0 covers "$r"
+r=$(pr_repo); echo new >> "$r/pr.txt"; git -C "$r" commit -qam "new code"
+expect "covers: a new commit after the review is not covered" 1 covers "$r"
+r=$(pr_repo); echo new >> "$r/pr.txt"; git -C "$r" commit -qam "new code"; on_base "$r" base.txt b2; merge_base_in "$r"
+expect "covers: new code hidden behind a later merge is not covered" 1 covers "$r"
+r=$(pr_repo); on_base "$r" base.txt b2; git -C "$r" merge -q --no-commit base > /dev/null 2>&1; echo sneak >> "$r/pr.txt"
+git -C "$r" add -A; git -C "$r" commit -qm "merge base, plus an edit"
+expect "covers: a merge with an extra edit is not covered" 1 covers "$r"
+r=$(pr_repo); git -C "$r" checkout -qb other base; echo o > "$r/other.txt"; git -C "$r" add -A; git -C "$r" commit -qm other
+git -C "$r" checkout -q pr; git -C "$r" merge -q --no-edit other > /dev/null 2>&1
+expect "covers: a merge from another branch is not covered" 1 covers "$r"
+r=$(pr_repo); printf 'ONE\ntwo\nthree\n' > "$r/shared.txt"; git -C "$r" commit -qam "pr edits line one"; git -C "$r" tag -f reviewed > /dev/null
+git -C "$r" checkout -q base; printf 'uno\ntwo\nthree\n' > "$r/shared.txt"; git -C "$r" commit -qam "base edits line one"; git -C "$r" checkout -q pr
+git -C "$r" merge -q --no-edit base > /dev/null 2>&1 || true; printf 'ONE\ntwo\nthree\n' > "$r/shared.txt"; git -C "$r" add -A; git -C "$r" commit -qm "merge base, conflict resolved"
+expect "covers: a merge that resolves a conflict is not covered" 1 covers "$r"
+r=$(pr_repo); on_base "$r" base.txt b2; git -C "$r" rebase -q base
+expect "covers: a rebase that drops the reviewed commit is not covered" 1 covers "$r"
+r=$(pr_repo)
+expect "covers: a reviewed commit not in the repository is not covered" 1 \
+  bash -c "cd '$r' && '$here/codex-covers.sh' 0123456789abcdef0123456789abcdef01234567 HEAD base"
 
 if [ "$failures" -gt 0 ]; then echo "$failures case(s) failed"; exit 1; fi
 echo "all tools/ci cases pass"

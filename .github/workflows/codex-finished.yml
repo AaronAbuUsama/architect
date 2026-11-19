@@ -1,9 +1,11 @@
 name: codex-finished
 
 # Proposal 2 (design/process/proposals.md): "Codex has finished" is a landing condition. This workflow posts a commit
-# status, `codex-finished`, on a pull request's head: success once Codex's summary comment says its review has completed,
-# pending while Codex is reviewing or has not reviewed (comment "@codex review"). Branch protection requires it, so a
-# pull request cannot merge while Codex is still at work (tools/ci/codex-state.sh reads the state).
+# status, `codex-finished`, on a pull request's head: success once Codex's summary comment says its review has completed
+# and that review still covers the head, pending otherwise (comment "@codex review"). Branch protection requires it, so a
+# pull request cannot merge while Codex is at work, nor with code Codex has not seen. tools/ci/codex-state.sh reads the
+# state; tools/ci/codex-covers.sh decides whether a review of an older commit covers the head, which it does only when
+# everything since is a clean merge from the base branch (updating a branch for strict mode needs no second review).
 #
 # It runs from the default branch for every pull request, whatever its base: on Codex's comments (Codex edits one
 # summary comment as reviews start and finish), on every ci run a push starts (a new head needs its own status), and by
@@ -39,9 +41,12 @@ jobs:
       group: codex-finished-${{ github.event.issue.number || github.event.workflow_run.pull_requests[0].number || inputs.pr || github.run_id }}
       cancel-in-progress: false
     steps:
+      # The default branch's scripts, and every branch's history (the base a merge must come from). Pull request heads are
+      # fetched below as objects only; nothing from them is checked out or run.
       - uses: actions/checkout@v7.0.1
         with:
           sparse-checkout: tools/ci
+          fetch-depth: 0
       - name: Post codex-finished on each pull request's head
         env:
           GH_TOKEN: ${{ github.token }}
@@ -51,10 +56,16 @@ jobs:
         run: |
           if [ -z "$PRS" ]; then echo "No pull request for this run."; exit 0; fi
           for pr in $PRS; do
-            head=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$pr" -q .head.sha)
+            read -r head base < <(gh api "repos/$GITHUB_REPOSITORY/pulls/$pr" -q '"\(.head.sha) \(.base.ref)"')
             reading=$(gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/issues/$pr/comments" | tools/ci/codex-state.sh)
-            state=${reading%%$'\t'*}
-            description=${reading#*$'\t'}
+            IFS=$'\t' read -r state reviewed description <<< "$reading"
+            if [ "$state" = success ] && [ "$reviewed" != "$head" ]; then
+              git fetch -q origin "+refs/pull/$pr/head:refs/remotes/pr/$pr"
+              if ! why=$(tools/ci/codex-covers.sh "$reviewed" "$head" "origin/$base"); then
+                state=pending
+                description="Codex reviewed ${reviewed:0:7}; since then $why; comment @codex review"
+              fi
+            fi
             echo "#$pr at $head: $state, $description"
             gh api -X POST "repos/$GITHUB_REPOSITORY/statuses/$head" \
               -f state="$state" -f context=codex-finished -f description="${description:0:140}" \

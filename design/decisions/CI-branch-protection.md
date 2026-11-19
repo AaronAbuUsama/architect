@@ -77,15 +77,16 @@ conversation resolution required, no required approvals, and no force pushes or 
   (`<!-- codex-review-state:v1 {…} -->`), and edits it as its reviews start and finish. The workflow reads that line,
   from the Codex app's own comment only, and posts `success` once every review Codex started has completed, `pending`
   while one is running or when Codex has not reviewed at all ("comment @codex review"). It runs from `main` for every
-  pull request whatever its base, on Codex's comments, on every `ci` run a push starts (so a new head gets its status
-  without a new review), and by hand (`gh workflow run codex-finished -f pr=<n>`). It never checks out a pull request's
-  code. Findings are review threads, which conversation resolution holds, so the status does not count them.
-  It does not compare Codex's reviewed commit with the head: Codex reviews when a pull request opens or on
-  "@codex review", not on every push, and `strict` makes every pull request take `main` in before it lands, so
-  demanding a review of the exact head would ask for a fresh review after every update. "Finished" means no review is
-  running. Codex marks a review it starts at once (its summary comment goes to in progress), so a status posted in the
-  moment between a push and that mark is corrected by the comment's edit. A Codex state other than `completed` stays
-  `pending`; "@codex review" or a hand run recovers it.
+  pull request whatever its base, on Codex's comments, on every `ci` run a push starts (so a new head gets its own status),
+  and by hand (`gh workflow run codex-finished -f pr=<n>`). It never checks out a pull request's code. Findings are review threads, which conversation resolution holds, so the status does not count them.
+  A review covers the head only if Codex reviewed that exact commit, or if every commit since is a clean merge from the
+  base branch (`tools/ci/codex-covers.sh`; amended 19 November 2026 at the conductor's request). Each commit on the
+  head's first-parent line back to the reviewed one must be a merge whose second parent is in the base's history and
+  whose tree is exactly what git makes for that merge with no conflict. So updating a branch from its base for
+  `strict` needs no second review, but a new commit, a merge from another branch, a merge with extra edits or a
+  resolved conflict, and a rebase all go back to `pending` until "@codex review" reviews the new head. The workflow
+  fetches the pull request's head as objects only, to walk that history; it never checks it out. A Codex state other
+  than `completed` stays `pending` too; "@codex review" or a hand run recovers it.
   Before the status is first required on a branch, the workflow is run by hand for every open pull request into it, so
   none sits at "Expected".
 - **`builder-paths`** (a `ci.yml` job, `tools/ci/builder-paths.sh`): on a pull request whose head branch ends in
