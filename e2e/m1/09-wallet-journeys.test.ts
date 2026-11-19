@@ -1,5 +1,7 @@
-// Check 09 (M1.28): the wallet plugin's journeys fail on empty handlers. The journeys are the four files in
-// `e2e/fixtures/m1/wallets/source/blueprint/journeys/` (one per host signer); the stand-in `@fixture/wallets` is the
+// Check 09 (M1.28): the wallet plugin's journeys fail on empty handlers. The journeys are the nine files in
+// `e2e/fixtures/m1/wallets/source/blueprint/journeys/`: one story per host signer, one of refusals per host signer
+// (`KeyLocked` on `import`, `NoSuchKey` on `sign` and `send`), and one for a signer the wallet does not have (`KeyLocked`
+// on all five operations), so every declared refusal is reached on every operation that declares it; the stand-in `@fixture/wallets` is the
 // plugin as M1.29 will ship it, declarations and all, with every handler empty. Each journey must fail, naming its first
 // step; none may pass and none may be skipped.
 //
@@ -21,7 +23,7 @@
 //  7. A failed step in prove's report is `  ✘ "<title>": ...` under its `journey <name> ✘` line; a blank handler is a defect
 //     and its name, `BlankReached`, appears in the report (as it does in check 02). Every wallet journey's first step is
 //     `create`, which needs nothing from the world, so an empty handler is what stops it, not a missing world.
-//  8. Prove runs the app's own journeys and evals as well; only the four wallet journeys' lines are judged here.
+//  8. Prove runs the app's own journeys and evals as well; only the nine wallet journeys' lines are judged here.
 //  9. Docker is needed (prove's collector). If it is down this check fails closed and says so; it never starts Docker.
 // 10. Anvil in a world is M1.31 (needs M1.30's `@orthograph/chain-evm`). Its test below is a tripwire that fails, naming
 //     what is missing, until both exist; it is not a proof of them.
@@ -42,6 +44,15 @@ const operations = ["create", "import", "keys", "sign", "send"] as const;
 /** Each journey's first step: the one an empty handler must stop. */
 const firstStep = (signer: string) => `create a key on the ${signer} signer`;
 const journeyName = (signer: string) => `wallet on the ${signer} signer`;
+const refusalsName = (signer: string) => `wallet refusals on the ${signer} signer`;
+const refusalsFirstStep = (signer: string) => `import ${signer === "browser" ? "something that is no account" : "a secret that is no key"} onto the ${signer} signer is refused as locked`;
+const noSigner = { file: "no-signer.ts", name: "wallet refusals on no signer", firstStep: "create a key on a signer the wallet does not have is refused as locked" } as const;
+/** Every wallet journey: its file, its name and the first step an empty handler must stop. */
+const journeys = [
+  ...signers.map((s) => ({ file: `${s}.ts`, name: journeyName(s), firstStep: firstStep(s) })),
+  ...signers.map((s) => ({ file: `${s}-refusals.ts`, name: refusalsName(s), firstStep: refusalsFirstStep(s) })),
+  noSigner,
+];
 
 const dockerIsUp = () => {
   const docker = spawnSync("docker", ["info"], { encoding: "utf8", timeout: 30_000 });
@@ -63,7 +74,7 @@ const proveWallets = async (root: string, port: number) => {
   let current: Array<string> | undefined;
   for (const line of report.lines) {
     if (line.startsWith("journey ")) {
-      const name = signers.map(journeyName).find((n) => line.startsWith(`journey ${n} `));
+      const name = journeys.map((j) => j.name).find((n) => line.startsWith(`journey ${n} `));
       current = name ? [line] : undefined;
       if (name && current) blocks.set(name, current);
     } else if (current && line.startsWith("  ")) current.push(line);
@@ -75,20 +86,20 @@ const proveWallets = async (root: string, port: number) => {
 /** Every wallet journey is there, failed, naming its first step, and none is skipped. */
 const expectEachFails = (result: Awaited<ReturnType<typeof proveWallets>>) => {
   expect(result.report.passed, result.all).toBe(false);
-  for (const signer of signers) {
-    const block = result.blocks.get(journeyName(signer));
-    expect(block, `no journey "${journeyName(signer)}" in the report: ${result.all}`).toBeDefined();
+  for (const { name, firstStep: first } of journeys) {
+    const block = result.blocks.get(name);
+    expect(block, `no journey "${name}" in the report: ${result.all}`).toBeDefined();
     const text = (block ?? []).join("\n");
-    expect(text, `${signer}: the journey must fail, not pass\n${text}`).toMatch(new RegExp(`^journey ${journeyName(signer)} ✘ `));
-    expect(text, `${signer}: the journey must name its first step\n${text}`).toContain(`✘ "${firstStep(signer)}"`);
-    expect(text, `${signer}: no step of a wallet journey is skipped\n${text}`).not.toMatch(/skipped/);
+    expect(text, `${name}: the journey must fail, not pass\n${text}`).toMatch(new RegExp(`^journey ${name} ✘ `));
+    expect(text, `${name}: the journey must name its first step\n${text}`).toContain(`✘ "${first}"`);
+    expect(text, `${name}: no step of a wallet journey is skipped\n${text}`).not.toMatch(/skipped/);
   }
   expect(result.all, "an empty handler is a defect that names itself").toContain("BlankReached");
 };
 
-describe("09 the journeys: one per signer, each covering what M1.28 names", () => {
-  it("there are exactly four, node, browser, keystore and world, each running every operation and both outcomes of a send", () => {
-    expect(readdirSync(journeysDir).filter((f) => f.endsWith(".ts")).sort()).toEqual(signers.map((s) => `${s}.ts`).sort());
+describe("09 the journeys: two per signer and one for no signer, each covering what M1.28 names", () => {
+  it("there are exactly nine; the four stories (node, browser, keystore and world) run every operation and both outcomes of a send", () => {
+    expect(readdirSync(journeysDir).filter((f) => f.endsWith(".ts")).sort()).toEqual(journeys.map((j) => j.file).sort());
     for (const signer of signers) {
       const source = readFileSync(join(journeysDir, `${signer}.ts`), "utf8");
       expect(source, signer).toContain(`Blueprint.journey("${journeyName(signer)}"`);
@@ -103,14 +114,32 @@ describe("09 the journeys: one per signer, each covering what M1.28 names", () =
     }
   });
 
+  it("the refusals reach every declared error on every operation that declares it: KeyLocked on all five, NoSuchKey on sign and send", () => {
+    for (const signer of signers) {
+      const source = readFileSync(join(journeysDir, `${signer}-refusals.ts`), "utf8");
+      expect(source, signer).toContain(`Blueprint.journey("${refusalsName(signer)}"`);
+      expect(source.match(/signer: "([a-z]+)"/g)?.every((m) => m === `signer: "${signer}"`), `${signer}: every call names this signer only`).toBe(true);
+      expect(source, `${signer}: import refused as KeyLocked`).toMatch(/s\.holder\.run\(importKey,[^\n]*refuses\(KeyLocked\)/);
+      for (const op of ["sign", "send"]) expect(source, `${signer}: ${op} refused as NoSuchKey`).toMatch(new RegExp(`s\\.holder\\.run\\(${op},[^\\n]*refuses\\(NoSuchKey\\)`));
+      expect(source, `${signer}: it makes no key, so it cannot upset the story`).not.toMatch(/s\.holder\.run\((create|keys),/);
+      expect(source, `${signer}: no key is written in the journey`).not.toMatch(/0x[0-9a-fA-F]{40,}/);
+      expect(source, `${signer}: it has no starting world of its own`).not.toContain("starts:");
+    }
+    const none = readFileSync(join(journeysDir, noSigner.file), "utf8");
+    expect(none).toContain(`Blueprint.journey("${noSigner.name}"`);
+    for (const op of operations) expect(none, `a signer the wallet does not have: ${op}`).toMatch(new RegExp(`s\\.holder\\.run\\(${op === "import" ? "importKey" : op}, \\{ signer: "nowhere"[^\\n]*refuses\\(KeyLocked\\)`));
+    expect(none.match(/signer: "([a-z]+)"/g)?.every((m) => m === 'signer: "nowhere"')).toBe(true);
+  });
+
   it("M1.29's copy, once there is one, is byte for byte these", () => {
     // Absent is allowed (M1.29 is not built); present and different is not.
     const copy = join(repo, "packages/wallets/blueprint/journeys");
     if (!existsSync(copy)) return;
-    for (const signer of signers) {
-      expect(existsSync(join(copy, `${signer}.ts`)), `packages/wallets/blueprint/journeys/${signer}.ts is missing`).toBe(true);
-      expect(readFileSync(join(copy, `${signer}.ts`), "utf8"), `${signer}.ts was edited: journeys belong to their author`).toBe(readFileSync(join(journeysDir, `${signer}.ts`), "utf8"));
+    for (const { file } of journeys) {
+      expect(existsSync(join(copy, file)), `packages/wallets/blueprint/journeys/${file} is missing`).toBe(true);
+      expect(readFileSync(join(copy, file), "utf8"), `${file} was edited: journeys belong to their author`).toBe(readFileSync(join(journeysDir, file), "utf8"));
     }
+    expect(readdirSync(copy).filter((f) => f.endsWith(".ts")).sort(), "the copy holds these journeys and no others").toEqual(journeys.map((j) => j.file).sort());
   });
 });
 

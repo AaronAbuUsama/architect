@@ -100,9 +100,9 @@ try {
     const stood = yield* standChain(model);
     const { url, chain } = yield* Worlds.start({ root, port: yield* anyPort, name: "wallet-prove", otlp: collector.url, chain: Effect.succeed(stood.chain!) });
     const device = yield* deviceHost(root, collector.url, chain);
-    const wallets = { ...project, journeys: project.journeys.filter((j) => j.name.startsWith("wallet on the ")) };
+    const wallets = { ...project, journeys: project.journeys.filter((j) => j.name.startsWith("wallet ")) };
     const done = yield* exercise(model, wallets, url, FileSource.open(telemetry), "world", collector.url, undefined, false, handlerHashes(root, model), device);
-    const wallet = (line: string) => line.includes("wallet.") || line.startsWith("journey wallet on the") || line.startsWith("  ");
+    const wallet = (line: string) => line.includes("wallet.") || line.startsWith("journey wallet ") || line.startsWith("  ");
     return { notes: stood.notes, journeys: done.journeys.lines, evals: done.evals.lines.filter(wallet), closing: closing(done) };
   })));
   // What a person reads: prove's own lines for these journeys, then the evals that did not pass.
