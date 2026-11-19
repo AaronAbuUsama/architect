@@ -1,0 +1,52 @@
+[
+  {
+    "from": "link.profile",
+    "to": "profile.id",
+    "kind": "refers"
+  },
+  {
+    "from": "profile.handle",
+    "to": "handle.id",
+    "kind": "refers"
+  },
+  {
+    "from": "handle.claim",
+    "to": "handle",
+    "kind": "acts-on"
+  },
+  {
+    "from": "handle.claim",
+    "to": "handle.HandleClaimed",
+    "kind": "emits"
+  },
+  {
+    "from": "link.add",
+    "to": "link",
+    "kind": "acts-on"
+  },
+  {
+    "from": "link.add",
+    "to": "link.LinkAdded",
+    "kind": "emits"
+  },
+  {
+    "from": "link.order",
+    "to": "link",
+    "kind": "acts-on"
+  },
+  {
+    "from": "link.remove",
+    "to": "link",
+    "kind": "acts-on"
+  },
+  {
+    "from": "link.remove",
+    "to": "link.LinkRemoved",
+    "kind": "emits"
+  },
+  {
+    "from": "profile.get",
+    "to": "profile",
+    "kind": "acts-on"
+  }
+]

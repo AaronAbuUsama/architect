@@ -132,6 +132,8 @@ export interface HandlerApi {
     readonly notFrom?: string;
     /** Each payload field whose missing instance is refused before the handler, and its `<Thing>NotFound`, named by the generated code. */
     readonly notFound?: Readonly<Record<string, string>>;
+    /** Each refusal's code by tag (`Errors.codes`), so a refused call's span says `refusal.code`. */
+    readonly codes?: Readonly<Record<string, string>>;
   }) => Served<O, R>;
   readonly blank: {
     /** What a scaffold returns until it is written: dies with `BlankReached`, typed as anything. */

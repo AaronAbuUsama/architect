@@ -26,13 +26,15 @@ export const subjectOf = (op: Operation, payload: object, answer: object = {}): 
 /**
  * The machine's own refusal, before the handler: the subject exists but is in a state the move can't start from. The
  * subject is the one read before the handler (`prehandle`), which also fixed the version the commit is guarded by.
+ * Gives back the state the subject was in (the span's `move.from`), or nothing when the move creates or the subject is absent.
  */
 export const checkFrom = (op: Operation, refusal: string | undefined, subject: Instance | undefined) =>
   Effect.gen(function* () {
     const move = op.move;
-    if (!move || move.from.length === 0 || refusal === undefined || subject === undefined) return;
+    if (!move || move.from.length === 0 || refusal === undefined || subject === undefined) return undefined;
     const state = subject.state ?? "none";
     if (!move.from.includes(state)) return yield* Effect.fail(new NotFrom({ _tag: refusal, state }));
+    return state;
   });
 
 /** The outcome a handler asked for: one of the move's `to`, or it dies naming what it asked for. */
@@ -72,7 +74,6 @@ export const applyMove = (name: string, op: Operation, payload: object, answer: 
     const fields = Object.fromEntries(Object.entries(encoded).filter(([k]) => journalled(move.emits.fields, k)));
     yield* unit.setState(op.thing, subject, outcome);
     const trace = yield* Effect.currentSpan.pipe(Effect.map((s) => s.traceId), Effect.orElseSucceed(() => ""));
-    yield* Effect.annotateCurrentSpan({ "event.name": event });
     return { trace, operation: name, move: move.key, subject, event, fields } satisfies Entry;
   });
 

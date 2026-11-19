@@ -189,7 +189,7 @@ Three rules decide what a step is (K5, seam 3):
 - **A rerun runs them again.** When the commit loses a race with another call, the whole attempt is run again, steps
   and all, up to a fixed number of times:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=110-118
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=123-131
 const loop = (number: number): Effect.Effect<object, unknown, unknown> =>
   attempt(payload, principal, key, number).pipe(
     Effect.catch((e) =>
@@ -286,7 +286,7 @@ A client that retries after a timeout doesn't know if the first call landed. `id
 answers what it answered the first time and changes nothing. No step runs, no event is written, and the span says
 `request.replayed`:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=65-70
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=70-75
 // The same request key from the same caller is one call: answer what was answered, and change nothing.
 const kept = key === undefined ? undefined : yield* store.answered(key);
 if (kept !== undefined) {
@@ -297,7 +297,7 @@ if (kept !== undefined) {
 
 The key is the operation, the caller and the request together, so one caller's key never answers another's call:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=107-109
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=120-122
 // Keyed by operation and caller as well, so one caller's key never answers another's call.
 const who = principal.kind === "person" ? principal.person : "anonymous";
 const key = op.idempotent === "request" && request !== undefined ? `${name}|${who}|${request}` : undefined;
