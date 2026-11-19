@@ -111,6 +111,14 @@ expect "codex: pages from --slurp are read" 0 codex "[[{$bot,\"updated_at\":\"1\
 expect "codex: running is pending" 0 codex "[{$bot,\"updated_at\":\"1\",\"body\":\"$(summary '\"in_progress\"' null)\"}]" pending
 expect "codex: a security review still running is pending" 0 codex "[{$bot,\"updated_at\":\"1\",\"body\":\"$(summary '\"completed\"' '\"in_progress\"')\"}]" pending
 expect "codex: no review at all is pending" 0 codex "[{$bot,\"updated_at\":\"1\",\"body\":\"$(summary null null)\"}]" pending
+codex_sha() { # <json>; wants <reviewed commit>
+  local got; got=$(printf '%s' "$1" | "$here/codex-state.sh" | cut -f2)
+  [ "$got" = "$2" ] || { echo "got $got"; return 1; }
+}
+security_only='<!-- codex-review-state:v1 {\"code_review\":null,\"security_review\":{\"commit_sha\":\"5ec0r1ty00\",\"status\":\"completed\"}} -->'
+expect "codex: the code review's commit is the reviewed one" 0 codex_sha "[{$bot,\"updated_at\":\"1\",\"body\":\"$done_body\"}]" 2596f9d204
+expect "codex: a security review alone is success" 0 codex "[{$bot,\"updated_at\":\"1\",\"body\":\"$security_only\"}]" success
+expect "codex: a security review alone names its own commit" 0 codex_sha "[{$bot,\"updated_at\":\"1\",\"body\":\"$security_only\"}]" 5ec0r1ty00
 expect "codex: someone else's copy of the line is ignored" 0 codex "[{\"user\":{\"login\":\"someone\",\"type\":\"User\"},\"updated_at\":\"1\",\"body\":\"$done_body\"}]" pending
 
 # codex-covers: does Codex's review of one commit still cover the head?
