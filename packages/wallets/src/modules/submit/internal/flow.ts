@@ -50,7 +50,14 @@ export const follow = (port: ChainPort, submission: Submission, depth: number): 
     if (states.some((s) => s._tag === "Reverted")) {
       return yield* Effect.logInfo("the transfer was mined and reverted").pipe(Effect.andThen(Effect.fail(new SimulationReverted({}))));
     }
-    if (!states.some((s) => s._tag === "Included")) return yield* Effect.die(new Error("the transfer was never included: it was replaced or dropped"));
+    // A Dropped after an Included voids that inclusion (a reorg): only the last Deepened of an inclusion still standing counts.
+    const standing = states.reduce<{ included: boolean; blocks: number }>((now, s) =>
+      s._tag === "Included" ? { included: true, blocks: 0 }
+        : s._tag === "Dropped" ? { included: false, blocks: 0 }
+        : s._tag === "Deepened" && now.included ? { included: true, blocks: s.blocks }
+        : now, { included: false, blocks: 0 });
+    if (!standing.included) return yield* Effect.die(new Error("the transfer was never included: it was replaced or dropped"));
+    if (standing.blocks < depth) return yield* Effect.die(new Error(`the transfer was included but never ${depth} blocks deep`));
     return { transaction: submission.hash, level: "confirmed", nonce: BigInt(submission.nonce) } satisfies Sent;
   });
 

@@ -485,6 +485,9 @@
             "path": "organization"
           }
         ],
+        "refs": {
+          "organization": "organization"
+        },
         "steps": {
           "issue": {
             "name": "api-key.create.issue",
@@ -501,7 +504,7 @@
         "budget": {
           "p95Ms": 250
         },
-        "hash": "56de0903f4a0f20e"
+        "hash": "5b9a7ff014713033"
       },
       "invitation.accept": {
         "kind": "operation",
@@ -560,6 +563,9 @@
             "role": "invitation.invitee"
           }
         ],
+        "refs": {
+          "invitation": "invitation"
+        },
         "steps": {
           "join": {
             "name": "invitation.accept.join",
@@ -572,7 +578,7 @@
         "budget": {
           "p95Ms": 200
         },
-        "hash": "937e15a8f2c9b98a"
+        "hash": "2a36a93997c71f99"
       },
       "invitation.revoke": {
         "kind": "operation",
@@ -617,6 +623,9 @@
             "path": "invitation.organization"
           }
         ],
+        "refs": {
+          "invitation": "invitation"
+        },
         "steps": {
           "update": {
             "name": "invitation.revoke.update",
@@ -629,7 +638,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "a527002466da0300"
+        "hash": "aacefd8778f73cb5"
       },
       "invitation.send": {
         "kind": "operation",
@@ -686,6 +695,10 @@
             "path": "organization"
           }
         ],
+        "refs": {
+          "organization": "organization"
+        },
+        "mints": "invitation",
         "steps": {
           "insert": {
             "name": "invitation.send.insert",
@@ -698,7 +711,7 @@
         "budget": {
           "p95Ms": 200
         },
-        "hash": "2f3b2483d2c752f7"
+        "hash": "65b4785dba83b560"
       },
       "membership.get": {
         "kind": "read",
@@ -814,6 +827,7 @@
             "kind": "signed-in"
           }
         ],
+        "mints": "organization",
         "steps": {
           "insert": {
             "name": "organization.create.insert",
@@ -830,7 +844,7 @@
         "budget": {
           "p95Ms": 250
         },
-        "hash": "c85baf957d5baae5"
+        "hash": "3d7ad3207f653955"
       },
       "organization.get": {
         "kind": "read",
@@ -2406,26 +2420,26 @@
   },
   "dependsOnByOperation": {
     "api-key.create": {
-      "operation:api-key.create": "56de0903f4a0f20e",
+      "operation:api-key.create": "5b9a7ff014713033",
       "thing:api-key": "dec54cf75bd4acb9",
       "thing:organization": "24a71fadb70bce98",
       "thing:person": "ad771ebabdfe3e0e"
     },
     "invitation.accept": {
-      "operation:invitation.accept": "937e15a8f2c9b98a",
+      "operation:invitation.accept": "2a36a93997c71f99",
       "thing:invitation": "7c1d13c393ddaa62",
       "thing:membership": "e6505be81a7030e4",
       "thing:organization": "24a71fadb70bce98",
       "thing:person": "ad771ebabdfe3e0e"
     },
     "invitation.revoke": {
-      "operation:invitation.revoke": "a527002466da0300",
+      "operation:invitation.revoke": "aacefd8778f73cb5",
       "thing:invitation": "7c1d13c393ddaa62",
       "thing:organization": "24a71fadb70bce98",
       "thing:person": "ad771ebabdfe3e0e"
     },
     "invitation.send": {
-      "operation:invitation.send": "2f3b2483d2c752f7",
+      "operation:invitation.send": "65b4785dba83b560",
       "thing:invitation": "7c1d13c393ddaa62",
       "thing:organization": "24a71fadb70bce98",
       "thing:person": "ad771ebabdfe3e0e"
@@ -2437,7 +2451,7 @@
       "thing:person": "ad771ebabdfe3e0e"
     },
     "organization.create": {
-      "operation:organization.create": "c85baf957d5baae5",
+      "operation:organization.create": "3d7ad3207f653955",
       "thing:organization": "24a71fadb70bce98",
       "thing:person": "ad771ebabdfe3e0e"
     },
@@ -2499,5 +2513,5 @@
       "reason": "no trace source is wired to the portal yet"
     }
   },
-  "digest": "0f65e6a24537230dd7196be804adde714267a15a9d28a94157ea437223fc812f"
+  "digest": "38de811b165fc5181cca770a6356160b2d9da739e3d30b3888924624d8fe2f19"
 }

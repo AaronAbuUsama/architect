@@ -155,8 +155,30 @@ const addPlugin = (kind: Kind) =>
         Effect.catchTag("MountRefused", (e) => fail(e.message, 2)),
       ),
   );
+// `ortho add journeys <thing>`: a stub per path, role and declared error, writing only the ones that are missing (K16 e).
+const addJourneys = Command.make(
+  "journeys",
+  { thing: Argument.String("thing"), root: Flag.String("root").pipe(Flag.withDefault(process.cwd())) },
+  ({ thing, root }) =>
+    Compiler.model.pipe(
+      Effect.provide(nodeSource(root)),
+      Effect.flatMap((m) => {
+        const planned = Add.journeys(m, thing, (path) => existsSync(join(root, path)));
+        if (planned instanceof AddRefused) return fail(planned.message, 2);
+        return Effect.sync(() => {
+          for (const f of planned.write) {
+            mkdirSync(dirname(join(root, f.path)), { recursive: true });
+            writeFileSync(join(root, f.path), f.content);
+            process.stdout.write(`wrote ${f.path}\n`);
+          }
+          for (const path of planned.there) process.stdout.write(`kept ${path} (already there)\n`);
+        });
+      }),
+      Effect.catchTags({ BlueprintInvalid: (e) => fail(e.problems.join("\n"), 2), SourceError: (e) => fail(e.message, 2) }),
+    ),
+);
 const add = Command.make("add").pipe(
-  Command.withSubcommands([addOne("thing"), addOne("operation"), addOne("read"), addOne("journey"), addPlugin("feature"), addPlugin("adapter"), addPlugin("projection")]),
+  Command.withSubcommands([addOne("thing"), addOne("operation"), addOne("read"), addOne("journey"), addJourneys, addPlugin("feature"), addPlugin("adapter"), addPlugin("projection")]),
 );
 
 const tsFiles = (dir: string): ReadonlyArray<string> =>
