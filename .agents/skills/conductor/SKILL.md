@@ -65,8 +65,7 @@ All five must hold:
 4. **A 🔍 pass.** Have the `reviewer` skill run on the layer's diff by a subagent or a 🔍 thread that did not write it,
    against its brief, `AGENTS.md` and `design/`. Merge on a pass. Send findings back to the lead.
 5. **Codex has finished, and every review thread is resolved:** fixed with a check, or answered with the ledger entry
-   or decision that takes it. Branch protection on `main` refuses the merge until the `codex-finished` status is green
-   and no thread is open; if Codex hasn't reviewed, comment `@codex review`.
+   or decision that takes it. If Codex hasn't reviewed the head, comment `@codex review` and wait for it.
 
 Then check `main`'s next CI run. If it goes red, fixing it comes before anything else. One landing at a time: leads
 tell you "landing now" before they merge into `main`, and you answer if another landing is under way.

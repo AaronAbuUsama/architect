@@ -22,8 +22,7 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
   docs (design pages, skills, docs, code) are rewritten to the new words. Dated records keep their words, as
   `design/naming.md` rule 6 says, and gain "Superseded by <id>, <date>" beside the changed words. The new decision lists
   each replaced phrase under `## Supersedes`, one line each (`- <old doc>: "<old words>" → "<new words>"`), and
-  `git grep` then finds each old phrase only in the dated records and `design/process/` (CI's `e2e-m0` job checks
-  it). This holds from 19 November 2026; older "superseded by" notes stand as written.
+  `git grep` then finds each old phrase only in the dated records and `design/process/`. This holds from 19 November 2026; older "superseded by" notes stand as written.
 - Keep Aaron's own calls (the ones dated with his name) unless building proves one wrong; then change it, record why,
   and tell him in the next report.
 - Come back to Aaron only when truly blocked: money beyond the cap, a credential, production, something outward-facing
@@ -46,9 +45,8 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
   in `design/decisions/<id>.md` with the evidence. Don't reopen one without new evidence.
 - **Journeys and checks come first.** A different agent from the builder writes an operation's journeys and checks,
   and they fail on empty handlers before the builder starts (the `author` skill). A builder never edits journeys, the
-  evals or the runner's generic checks. Authors' branches end in `-check` and builders' in `-build`; CI's
-  `builder-paths` job fails a `-build` pull request that touches journeys, evals or `e2e/` (removing lines from
-  `e2e/m1/expected-failing.txt` is the one exception). A builder that needs a check changed stops and asks its author.
+  evals or the runner's generic checks; it may only remove lines from `e2e/m1/expected-failing.txt`. Authors' branches
+  end in `-check` and builders' in `-build`. A builder that needs a check changed stops and asks its author.
 - **Merge your own pull requests when CI is green,** Codex has finished and every review thread is resolved. Push on
   until actually blocked.
 
