@@ -28,6 +28,13 @@ const child = spawn(process.execPath, [resolve(repo, "packages/cli/src/main.ts")
 // An interrupted climb must stop prove too, so its workerd and collector are released by prove's own cleanup.
 for (const signal of ["SIGINT", "SIGTERM"]) process.on(signal, () => { child.kill(signal); });
 
+// A spawn that fails (no such executable) never closes: say so, remove the folder and exit, recording nothing.
+child.on("error", (error) => {
+  rmSync(folder, { recursive: true, force: true });
+  process.stderr.write(`climb recorder: nothing recorded: could not start prove (${error.code ?? error.message})\n`);
+  process.exit(3);
+});
+
 /** The report prove wrote, or why there is none. The folder is removed whichever it is. */
 const readReport = () => {
   let report;

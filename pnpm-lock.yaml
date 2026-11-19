@@ -77,6 +77,9 @@ importers:
       '@orthograph/generators':
         specifier: workspace:*
         version: link:../packages/generators
+      '@orthograph/language-effect':
+        specifier: workspace:*
+        version: link:../packages/language-effect
       '@orthograph/portal':
         specifier: workspace:*
         version: link:../packages/portal

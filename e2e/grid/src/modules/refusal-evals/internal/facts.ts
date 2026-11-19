@@ -1,3 +1,4 @@
+import { Audience, Visibility } from "@orthograph/language-effect/visibility";
 import type { ModelView } from "../types.ts";
 
 export interface Facts {
@@ -12,16 +13,22 @@ export interface Facts {
   readonly declared: boolean;
 }
 
+type Field = Parameters<typeof Visibility.sees>[1];
+type Role = NonNullable<Parameters<typeof Audience.agent>[0]>[number];
+
 /**
- * Whether a caller who holds `held` (role names) is shown a field declared with `visibility`: the visibility rule for a caller
- * (`packages/language-effect/src/modules/visibility/internal/rule.ts`, `sees`, the principal and agent cases for a call that
- * issues nothing): public to everyone, private to the roles named, secret to no one. It is re-stated here over the model's JSON
- * because that rule takes role objects and lives in a package an e2e check may not import; `refusal-evals.test.ts` pins each case.
+ * Whether a caller holding `held` (role names) is shown a field the model declares with `visibility`, by the runtime's own rule
+ * (`Visibility.sees`, an agent audience: what MCP and the CLI's caller are shown of a refusal). The model's JSON is turned into what
+ * the rule reads the way the runtime does: `{ private: [role names] }` becomes `{ to: [roles] }`, and a role is one object per name,
+ * so a held role is the same role the field names.
  */
 export const shownTo = (visibility: unknown, held: ReadonlyArray<string>): boolean => {
-  if (visibility === undefined) return true;
-  if (typeof visibility === "object" && visibility !== null && "private" in visibility) return (visibility as { readonly private: ReadonlyArray<string> }).private.some((role) => held.includes(role));
-  return false;
+  const roles = new Map<string, Role>();
+  const role = (name: string) => roles.get(name) ?? (roles.set(name, { name } as unknown as Role), roles.get(name)!);
+  const declared = visibility === undefined ? "public"
+    : typeof visibility === "object" && visibility !== null && "private" in visibility ? { to: (visibility as { readonly private: ReadonlyArray<string> }).private.map(role) }
+    : visibility;
+  return Visibility.sees(Audience.agent(held.map(role)), { kind: "field", visibility: declared } as unknown as Field);
 };
 
 /** What the model says about one refusal: its code, its exit, and which of its fields the caller, holding `held`, may see. */
