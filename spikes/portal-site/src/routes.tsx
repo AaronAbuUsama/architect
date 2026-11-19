@@ -15,6 +15,7 @@ import { Access, Events, Machines, Refusals, Values } from "./pages/reference.ts
 import { ThingPage } from "./pages/thing.tsx";
 import { EnvPage, Options, PluginsAndStores, StillBlank } from "./pages/options.tsx";
 import { WithOpt, type Opt } from "./opt.tsx";
+import { Components } from "./pages/components.tsx";
 
 const opt = (o: Partial<Opt>, title: string, el: ReactElement): Route => ({ title, el: <WithOpt opt={o}>{el}</WithOpt> });
 const optionPages = (): Record<string, Route> => ({
@@ -23,7 +24,7 @@ const optionPages = (): Record<string, Route> => ({
   "q1-b.html": opt({ nav: "b", label: "Q1 · B · icon rail swaps the sidebar" }, "Q1 B", <Home />),
   "q1-b-proof.html": opt({ nav: "b", label: "Q1 · B · icon rail swaps the sidebar" }, "Q1 B", <Journeys />),
   "q1-c.html": opt({ nav: "c", overlay: "command", label: "Q1 · C · things only, ⌘K for the rest" }, "Q1 C", <Home />),
-  "q2-a.html": opt({ label: "Q2 · A · one page, environments as columns" }, "Q2 A", <Environments />),
+  "q2-a.html": opt({ label: "Q2 · A · pick one, compare the rest" }, "Q2 A", <Environments />),
   "q2-b.html": opt({ env: "b", label: "Q2 · B · a page per environment" }, "Q2 B", <EnvPage />),
   "q2-c.html": opt({ env: "c", overlay: "env-menu", label: "Q2 · C · the switcher's menu only" }, "Q2 C", <Home />),
   "q3-a.html": opt({ label: "Q3 · A · a page per plugin, and Stores" }, "Q3 A", <Plugin name="handles" />),
@@ -55,6 +56,7 @@ export const routes = async (): Promise<Record<string, Route>> => {
     "about.html": { title: "About this drawing", el: <About /> },
   };
   Object.assign(r, optionPages());
+  r["components.html"] = { title: "Components", el: <Components /> };
   for (const t of things) r[page.thing(t.name)] = { title: t.name, el: <ThingPage name={t.name} /> };
   for (const m of Object.keys(mounts) as (keyof typeof mounts)[]) r[`plugin-${m}.html`] = { title: m, el: <Plugin name={m} /> };
   for (const j of journeys) r[`journey-${j.slug}.html`] = { title: j.name, el: <JourneyPage j={j} /> };

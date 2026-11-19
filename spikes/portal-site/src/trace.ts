@@ -17,7 +17,7 @@ const attempt = (o: Operation, n: number, start: number, end: "committed" | "con
     const ms = isStep ? (r.row.endsWith("load") ? 2.0 : 1.1) : last ? (end === "committed" ? 3.2 : 1.0) : r.row.startsWith("move") ? 0.1 : timing[r.row] ?? 0.1;
     const failHere = end === "defect" && isStep && r.row.endsWith("record");
     rows.push({ key: `${n}-${r.row}`, name: r.row, depth: 1, start: t, ms,
-      attr: failHere ? "defect · DatabaseError" : last ? `commit.outcome: ${end === "conflict" ? "conflict" : end === "committed" ? "committed" : "—"}` : isStep ? `step.kind: ${r.what}` : r.row.startsWith("move") ? `move.name: ${r.row.slice(5)}` : r.what,
+      attr: failHere ? "defect · DatabaseError" : last ? `commit.outcome: ${end === "conflict" ? "conflict" : end === "committed" ? "committed" : "—"}` : isStep ? `step.kind: ${r.what}` : r.row.startsWith("move") ? `move.name: ${r.row.slice(5)}` : typeof r.what === "string" ? r.what : "machine.check: passed",
       tone: failHere ? "bad" : last && end === "conflict" ? "conflict" : undefined });
     t += ms;
     if (failHere) break;

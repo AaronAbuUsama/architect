@@ -2,6 +2,7 @@
 // a journey is a sequence across its cast, one lane per actor, with each environment's verdict under every step;
 // worlds are a tree from the empty world, with the journeys that start from each. Every node opens its page or trace.
 import { journeys, worlds, type Journey } from "./journeys.ts";
+import type { ReactNode } from "react";
 import { environments, page } from "./model.ts";
 
 type V = "pass" | "fail" | "stale" | "unproven" | "skip";
@@ -15,48 +16,51 @@ export const stepVerdict = (j: Journey, env: string, i: number): V => {
 const tone: Record<V, string> = { pass: "var(--success)", fail: "var(--danger)", stale: "var(--warning)", unproven: "var(--muted)", skip: "var(--muted)" };
 const verb = (op: string) => op.split(".")[1]!;
 
-/** A journey as a sequence diagram: lanes are the cast, columns are the steps, and four verdict rows sit underneath. */
-export const Sequence = ({ j }: { j: Journey }) => {
-  const actors = Object.keys(j.cast), col = 112, lane = 54, left = 96, top = 30, nw = 96, nh = 36;
-  const w = left + j.steps.length * col + 12, lanesH = top + actors.length * lane, h = lanesH + 22 + environments.length * 22 + 8;
-  const x = (i: number) => left + i * col + (col - nw) / 2, y = (a: string) => top + actors.indexOf(a) * lane + (lane - nh) / 2;
+export type StepWrap = (p: { j: Journey; i: number; children: ReactNode }) => ReactNode;
+const Plain: StepWrap = ({ children }) => children;
+
+/**
+ * A journey as a sequence diagram: lanes are the cast, columns are the steps, and one verdict row per environment sits
+ * underneath. The lanes and connectors are SVG; the steps are HTML on top, so the browser build can wrap each one in
+ * Pro's HoverCard (`Wrap`) and show the step's preview on hover.
+ */
+export const Sequence = ({ j, Wrap = Plain }: { j: Journey; Wrap?: StepWrap }) => {
+  const actors = Object.keys(j.cast), n = j.steps.length, lane = 54, top = 30, nh = 38, lanesH = top + actors.length * lane, h = lanesH + 22 + environments.length * 24 + 6;
+  // x is a percentage of the steps area, so the drawing fits any width; y is in pixels.
+  const cx = (i: number) => ((i + 0.5) / n) * 100, nw = 82 / n, y = (a: string) => top + actors.indexOf(a) * lane + (lane - nh) / 2;
   const worst = (i: number) => environments.some((e) => stepVerdict(j, e.name, i) === "fail") ? "fail" : "pass";
   return (
     <div className="seq-wrap">
-      <svg className="seq" viewBox={`0 0 ${w} ${h}`} style={{ width: "100%", maxWidth: w, minWidth: Math.min(w, 600), height: "auto" }} role="img" aria-label={`${j.name}: ${j.steps.length} steps across ${actors.join(", ")}`}>
-        {j.steps.map((_, i) => <text key={i} x={left + i * col + col / 2} y={16} className="seq-n" textAnchor="middle">{i + 1}</text>)}
-        {actors.map((a, r) => (
-          <g key={a}>
-            <rect x={0} y={top + r * lane} width={w} height={lane} fill={r % 2 ? "transparent" : "var(--surface-secondary)"} opacity={0.35} />
-            <text x={10} y={top + r * lane + lane / 2 + 4} className="seq-actor">{a}</text>
-            <text x={10} y={top + r * lane + lane / 2 + 17} className="seq-kind">{j.cast[a]}</text>
-          </g>))}
-        {j.steps.slice(1).map((s, k) => {
-          const p = j.steps[k]!, x1 = x(k) + nw, y1 = y(p.actor) + nh / 2, x2 = x(k + 1), y2 = y(s.actor) + nh / 2, mx = (x1 + x2) / 2;
-          return <path key={k} d={`M${x1},${y1} H${mx} V${y2} H${x2}`} fill="none" stroke="var(--border)" strokeWidth={1.5} />;
-        })}
-        {j.steps.map((s, i) => {
-          const bad = worst(i) === "fail";
-          return (
-            <a key={i} href={page.op(s.op, bad ? "spans" : "contract")}>
-              <title>{`${i + 1}. ${s.title} — ${s.actor} → ${s.op}`}</title>
-              <rect x={x(i)} y={y(s.actor)} width={nw} height={nh} rx={9} fill={bad ? "color-mix(in oklab, var(--danger) 22%, var(--surface))" : "var(--surface)"} stroke={bad ? "var(--danger)" : "var(--border)"} />
-              <text x={x(i) + nw / 2} y={y(s.actor) + 15} textAnchor="middle" className="seq-op">{verb(s.op)}</text>
-              <text x={x(i) + nw / 2} y={y(s.actor) + 28} textAnchor="middle" className="seq-thing">{s.op.split(".")[0]}</text>
-            </a>);
-        })}
-        {environments.map((e, r) => {
-          const yy = lanesH + 22 + r * 22;
-          return (
-            <g key={e.name}>
-              <text x={10} y={yy + 4} className="seq-env">{e.name}</text>
-              {j.steps.map((_, i) => { const v = stepVerdict(j, e.name, i), cx = left + i * col + col / 2;
-                return v === "unproven" || v === "skip" ? <circle key={i} cx={cx} cy={yy} r={5} fill="none" stroke={tone[v]} strokeDasharray={v === "skip" ? "2 2" : undefined} />
-                  : <circle key={i} cx={cx} cy={yy} r={5.5} fill={tone[v]} />; })}
-            </g>);
-        })}
-      </svg>
-      <div className="seq-key small muted"><span><i className="k k--pass" />pass</span><span><i className="k k--fail" />failed here</span><span><i className="k k--skip" />not reached</span><span><i className="k k--none" />unproven</span><span>Click a step to open its operation; a failed step opens its trace.</span></div>
+      <div className="seq" style={{ height: h }}>
+        <div className="seq__labels">
+          {actors.map((a, r) => <div key={a} className={`seq__lane-label${r % 2 ? "" : " is-band"}`} style={{ top: top + r * lane, height: lane }}><b>{a}</b><span>{j.cast[a]}</span></div>)}
+          {environments.map((e, r) => <div key={e.name} className="seq__env-label" style={{ top: lanesH + 22 + r * 24 - 9 }}>{e.name}</div>)}
+        </div>
+        <div className="seq__area">
+          {actors.map((a, r) => <div key={a} className={`seq__band${r % 2 ? "" : " is-band"}`} style={{ top: top + r * lane, height: lane }} />)}
+          <svg viewBox={`0 0 100 ${h}`} preserveAspectRatio="none" width="100%" height={h} aria-hidden="true">
+            {j.steps.slice(1).map((s, k) => {
+              const p = j.steps[k]!, x1 = cx(k) + nw / 2, y1 = y(p.actor) + nh / 2, x2 = cx(k + 1) - nw / 2, y2 = y(s.actor) + nh / 2, mx = (x1 + x2) / 2;
+              return <path key={k} d={`M${x1},${y1} H${mx} V${y2} H${x2}`} fill="none" stroke="var(--border)" strokeWidth={1.5} vectorEffect="non-scaling-stroke" />;
+            })}
+          </svg>
+          {j.steps.map((_, i) => <span key={i} className="seq__n" style={{ left: `${cx(i)}%` }}>{i + 1}</span>)}
+          {environments.map((e, r) => j.steps.map((_, i) => { const v = stepVerdict(j, e.name, i);
+            return <span key={e.name + i} className={`seq__dot k k--${v === "unproven" ? "none" : v}`} style={{ left: `${cx(i)}%`, top: lanesH + 22 + r * 24 }} title={`${e.name}: ${v === "skip" ? "not reached" : v}`} />; }))}
+          {j.steps.map((s, i) => {
+            const bad = worst(i) === "fail";
+            return (
+              <div key={i} className="seq-node-at" style={{ left: `${cx(i) - nw / 2}%`, top: y(s.actor), width: `${nw}%`, height: nh }}>
+                <Wrap j={j} i={i}>
+                  <a className={`seq-node${bad ? " is-fail" : ""}`} href={page.op(s.op, bad ? "spans" : "contract")} aria-label={`Step ${i + 1}: ${s.title}`}>
+                    <span className="seq-node__verb">{verb(s.op)}</span><span className="seq-node__thing">{s.op.split(".")[0]}</span>
+                  </a>
+                </Wrap>
+              </div>);
+          })}
+        </div>
+      </div>
+      <div className="seq-key small muted"><span><i className="k k--pass" />pass</span><span><i className="k k--fail" />failed here</span><span><i className="k k--skip" />not reached</span><span><i className="k k--none" />unproven</span><span>Hover a step for its preview; click to open its operation.</span></div>
     </div>
   );
 };
@@ -88,7 +92,7 @@ export const WorldTree = ({ here }: { here?: string }) => {
             <a key={j.slug} href={`journey-${j.slug}.html`}>
               <rect x={colW[2]} y={y} width={220} height={36} rx={18} fill={bad ? "color-mix(in oklab, var(--danger) 18%, var(--surface))" : "var(--surface)"} stroke={bad ? "var(--danger)" : "var(--border)"} />
               <text x={colW[2]! + 14} y={y + 15} className="seq-op">{j.name}</text>
-              <text x={colW[2]! + 14} y={y + 28} className="seq-thing">{j.steps.length} steps · {bad ? `fails in ${environments.filter((e) => j.verdicts[e.name] === "fail").map((e) => e.name).join(", ")}` : "passes where proven"}</text>
+              <text x={colW[2]! + 14} y={y + 28} className="seq-thing">{bad ? `${j.steps.length} steps, fails in ${environments.filter((e) => j.verdicts[e.name] === "fail").map((e) => e.name).join(", ")}` : `${j.steps.length} steps, passes where proven`}</text>
             </a>); }))}
       </svg>
     </div>

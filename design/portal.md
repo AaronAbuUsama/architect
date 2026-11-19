@@ -621,6 +621,47 @@ Each hand-written or missing piece, with the slice that owns it.
 
 Nothing else on these pages is hand-written: every label, list and diagram is generated, and every number is live.
 
+## Component inventory (round 3 review, 19 November 2026)
+
+Aaron's review of the third drawing: "you've got a component library that we paid like $500 for, you're not using the
+components." So every data shape on every page now maps to one named component: HeroUI Pro's where Pro has one, ours
+where it doesn't. Ours are built on Pro's tokens, each with Storybook 8 CSF stories, and move into
+`@orthograph/portal-ui` with M1.34. Until then they live in `spikes/portal-site/src/kit/`, and the drawing's
+Components page renders every story.
+
+| Data shape | Where it shows | Was | Now | By |
+|---|---|---|---|---|
+| Calls in a window, by outcome | rail, home cards, plugin pages, the operations grid, step previews | "2,321 calls · 128 refused" | `CallsMeter`: the total, a stacked bar of answered, refused and defects, and a labelled count for each | ours |
+| Calls per minute | rail, an operation's Metrics tab | a line | `CallsBars`: Pro `BarChart`, stacked by outcome, with a tooltip per minute | ours, on Pro |
+| Calls per minute in a table cell | operations grid, machines, reference pages | a line | `SparkBars`: tiny columns | ours |
+| p95 against budget | operations grid, home cards, rail | "164 / 150 ms" | `BudgetMeter`: p95, a bar with the budget marked, a within or over chip | ours |
+| One headline number | Metrics tab, latency objective | text | Pro `KPI`, `KPIGroup`, `ProgressBar` | Pro |
+| An environment | top bar, rail, environments, step previews, stores | "local · D1 local" | `EnvironmentPill`: live dot, name, and what it runs on from `cloud` and `database` | ours |
+| Picking an environment | Environments | a link per page | Pro `Segment`; option B uses `Tabs` | Pro |
+| Verdicts, rows by environment | Environments, an operation's Proof tab, Journeys | chips, "pass 8" | `VerdictMatrix` with a `VerdictTally` heading each column (a stacked bar and "8 pass, 1 fail, 1 stale"), and `VerdictTile` for one cell | ours |
+| An issue's grouping key | Issues | "link.add · record · DatabaseError" | `KeyPath`: chips read left to right | ours |
+| A machine move | Machines, an operation's spine | "listed \| removed → removed" | `Move`: from chips, an arrow, to chips | ours |
+| A span's attributes | Recent spans on reference pages | "refusal.code AR-001 · at the door" | one Pro `Chip` per attribute, key in mono | Pro |
+| Outcome, state, kind, tag | everywhere | coloured text, "· feature" | Pro `Chip`; in the sidebar `Sidebar.MenuChip` with an upper-case tag (PLUGIN, READ, BLANK, 3 DEFECTS), as the docs' "UPDATED" | Pro |
+| Navigation | every page | a hand-made icon rail | Pro `Sidebar`: the Icon Only pattern for the rail, `Sidebar.Pages` for the section panel, `GroupLabel`, `MenuChip` | Pro |
+| Search the model | every page, ⌘K | static markup | Pro `Command`, filtering things, operations, journeys, refusal codes, environments and monitor pages | Pro |
+| A journey step's preview | a journey's sequence | an SVG title | Pro `HoverCard` holding `StepCard`: who acts, the call, its checks, the verdict per environment, the operation's calls | Pro + ours |
+| Steps in order | a journey, a world | a list | Pro `Timeline` | Pro |
+| Records | home, plugins | tables | Pro `DataGrid`, `ItemCard`, `ListBox` | Pro |
+| A section of a page | everywhere | divs | Pro `Widget` | Pro |
+| Code | an operation's Docs tab | pre | Pro `CodeBlock` | Pro |
+
+Three Pro components only work in the browser: `BarChart` renders empty on the server, `Command` and `HoverCard` render
+nothing until mounted. The drawing renders every page on the server and mounts those three in the browser
+(`src/client.tsx`, one script). The portal itself is a client app, so this is only how the drawing gets there.
+
+The Mobbin screens these follow: stacked request bars from [Stripe's Workbench](https://mobbin.com/screens/a14144e6-2127-44f1-b498-50124a1e114c),
+[incident.io](https://mobbin.com/screens/0e05081e-0ea4-407a-b75d-432db1c679e5) and
+[Braintrust](https://mobbin.com/screens/cb5c8c28-2502-44b4-8027-bacf3977017f) (a legend with a count per series);
+a workflow node's preview from [n8n](https://mobbin.com/screens/63c3ba24-0ea8-4158-a02b-c3e9143960ce); environment
+scopes per variable from [v0](https://mobbin.com/screens/ae42d62f-1de7-442a-8b4c-e678c1acf67f). The rail and the
+command palette keep round 3's references (Railway, StackAI, Plain; fal, Grok).
+
 ## HeroUI Pro behind one package (F7)
 
 Aaron, 19 November 2026: "Yes, add the seam". Recorded in [`decisions/F7-portal-ui-seam.md`](decisions/F7-portal-ui-seam.md),

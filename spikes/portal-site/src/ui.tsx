@@ -110,3 +110,13 @@ export const Bars = ({ rows, label }: { rows: { name: string; n: number; tone?: 
     </div>
   );
 };
+
+/** Calls per minute as tiny columns, for a table cell: bars, not a line (Aaron, round 3 review). */
+export const SparkBars = ({ values, label, w = 120, h = 26, tone = "accent" }: { values: number[]; label: string; w?: number; h?: number; tone?: string }) => {
+  const max = Math.max(...values, 1), bw = w / values.length;
+  return (
+    <svg className="spark-bars" viewBox={`0 0 ${w} ${h}`} width="100%" height={h} preserveAspectRatio="none" role="img" aria-label={label}>
+      {values.map((v, i) => { const hh = Math.max(1, (v / max) * (h - 2)); return <rect key={i} x={i * bw + 0.5} y={h - hh} width={bw - 1} height={hh} rx={0.6} fill={`var(--${tone})`} opacity={0.85} />; })}
+    </svg>
+  );
+};

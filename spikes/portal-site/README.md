@@ -13,7 +13,8 @@ It draws from Plugged In's model, with HeroUI Pro, on round 3's recommended answ
 A static render of 87 pages from one model, with one shell: sidebar tree, top bar, scoped live rail.
 
 - The pages are React server-rendered with bun, using HeroUI and HeroUI Pro components.
-- The charts are hand-drawn SVG, because recharts renders empty under server rendering.
+- Pro's `BarChart`, `Command` and `HoverCard` render nothing on the server, so one small browser script mounts them; the
+  rest of each page is server HTML. A journey step's preview opens on load with `#preview-<n>` in the URL.
 - It is published as a click-through artifact: https://claude.ai/artifact/NzDgHFzQSk8yvX8cLNqUKj (private).
 
 | Source | What it holds |
@@ -29,7 +30,10 @@ A static render of 87 pages from one model, with one shell: sidebar tree, top ba
 | `src/opt.tsx`, `src/rail-nav.tsx`, `src/pages/options.tsx` | Round 3's open questions (Q1, Q2, Q3, Q6) drawn as A, B and C. A page inside `WithOpt` takes one question's B or C. The Options page shows the twelve screens side by side, with the Mobbin screens each draws from |
 | `src/flow.tsx` | Q4, decided: a journey as a sequence diagram (cast lanes, step columns, one verdict row per environment) and the worlds as a tree |
 | `src/ref-live.tsx` | Q5, decided: each reference row's rate and trend, and each page's recent spans, each opening its trace |
-| `tools/build.sh`, `tools/shoot.sh` | Render, then screenshot headless at 1440 wide in parallel |
+| `src/kit/` | Our components where HeroUI Pro has nothing that fits (CallsMeter, CallsBars, BudgetMeter, EnvironmentPill, VerdictMatrix, KeyPath and Move, StepCard), each with Storybook 8 CSF stories (`*.stories.tsx`). The Components page renders every story |
+| `src/client.tsx` | The one browser script: mounts Pro's `BarChart`, `Command` and `HoverCard`, and the environment compare's `Segment`, which render nothing on the server ("islands", `src/kit/island.tsx`) |
+| `src/pages/env-compare.tsx` | Environments, redrawn from `EnvironmentModel`: pick one, compare the rest, proof as a tallied matrix |
+| `tools/build.sh`, `tools/shoot.sh` | Render and bundle `islands.js`, then screenshot headless at 1440 wide in parallel (with a virtual time budget, so the islands mount first) |
 | `tools/publish-prep.sh` | Writes `out/site/index.html` (the artifact's main page, a fragment of `options.html`) and prints the `files` map |
 
 ## Run it
@@ -69,6 +73,9 @@ To republish:
 
 - The round 3 information architecture (`design/briefs/portal-round-3.md`, Q1 to Q6).
 - K18: monitoring falls out of the model.
+
+- Round 3 review (Aaron, 19 November): the library wasn't used. The component inventory in `design/portal.md` maps every
+  data shape to a Pro component or one of ours; no data is styled text any more.
 
 ## Open risks
 

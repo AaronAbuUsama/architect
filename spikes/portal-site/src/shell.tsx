@@ -7,12 +7,15 @@ import { Sidebar } from "@heroui-pro/react/sidebar";
 import { Button, Chip, Kbd } from "@heroui/react";
 import {
   BellIcon, BookOpenIcon, BugIcon, CaretDownIcon, CaretRightIcon, CubeIcon, DatabaseIcon, FileDashedIcon, GlobeHemisphereWestIcon, HouseIcon,
-  LockKeyIcon, MagnifyingGlassIcon, PathIcon, PlugsIcon, ShapesIcon, SirenIcon, TreeStructureIcon, WarningOctagonIcon, WaveformIcon,
+  LockKeyIcon, MagnifyingGlassIcon, PathIcon, PlugsIcon, ShapesIcon, SquaresFourIcon, SirenIcon, TreeStructureIcon, WarningOctagonIcon, WaveformIcon,
 } from "@phosphor-icons/react/ssr";
 import type { ReactNode } from "react";
 import { journeys } from "./journeys.ts";
 import { environments, model, opsOf, page, things } from "./model.ts";
-import { CommandOverlay, EnvMenu, OptStrip, useOpt, type Opt } from "./opt.tsx";
+import { EnvMenu, OptStrip, useOpt, type Opt } from "./opt.tsx";
+import { commandGroups } from "./kit/command-items.ts";
+import { EnvironmentPill } from "./kit/environment-pill.tsx";
+import { Island } from "./kit/island.tsx";
 import { blank, groups, mounts } from "./overlay.ts";
 import { Rail } from "./rail.tsx";
 import { RailNav } from "./rail-nav.tsx";
@@ -47,8 +50,8 @@ export const Things = ({ here }: { here: Here }) => {
       {groups.map((g) => (
         <Sidebar.MenuSection key={g.name}>
           <Sidebar.MenuHeader>
-            {g.mount && o.plugins === "a" ? <a className="group-head" href={`plugin-${g.mount}.html`}>{g.label}<span className="muted"> · feature</span></a>
-              : <>{g.label}{g.mount && <span className="muted"> · feature</span>}</>}
+            <span className="group-head">{g.mount && o.plugins === "a" ? <a href={`plugin-${g.mount}.html`}>{g.label}</a> : g.label}
+              {g.mount && <Chip size="sm" variant="soft" className="tag">PLUGIN</Chip>}</span>
           </Sidebar.MenuHeader>
           {g.things.map((name) => {
             const ops = opsOf(name), hot = ops.some((op) => op.name === "link.add");
@@ -56,17 +59,17 @@ export const Things = ({ here }: { here: Here }) => {
               <Sidebar.MenuItem key={name} id={name} textValue={name} href={page.thing(name)} isCurrent={here.id === `thing:${name}`}>
                 <Sidebar.MenuItemContent>
                   <Sidebar.MenuLabel>{name}</Sidebar.MenuLabel>
-                  {hot && <Sidebar.MenuChip><span className="dot dot--danger" aria-label="has defects" /></Sidebar.MenuChip>}
+                  {hot && <Sidebar.MenuChip><Chip size="sm" variant="soft" color="danger" className="tag">3 DEFECTS</Chip></Sidebar.MenuChip>}
                   <Sidebar.MenuTrigger><Sidebar.MenuIndicator /></Sidebar.MenuTrigger>
                 </Sidebar.MenuItemContent>
                 <Sidebar.Submenu>
                   {ops.map((op) => (
                     <Sidebar.MenuItem key={op.name} id={op.name} textValue={op.verb} href={page.op(op.name)} isCurrent={here.op === op.name}>
-                      <Sidebar.MenuItemContent><Sidebar.MenuLabel>{op.verb}{op.kind === "read" && <span className="muted small"> read</span>}</Sidebar.MenuLabel></Sidebar.MenuItemContent>
+                      <Sidebar.MenuItemContent><Sidebar.MenuLabel>{op.verb}</Sidebar.MenuLabel>{op.kind === "read" && <Sidebar.MenuChip><Chip size="sm" variant="soft" className="tag">READ</Chip></Sidebar.MenuChip>}</Sidebar.MenuItemContent>
                     </Sidebar.MenuItem>))}
                   {name === blank.thing && o.blank === "a" && (
                     <Sidebar.MenuItem id={blank.name} textValue={blank.verb} href="op-link.pin.html" isCurrent={here.op === blank.name}>
-                      <Sidebar.MenuItemContent><Sidebar.MenuLabel><span className="blank-label">{blank.verb}</span><span className="muted small"> blank</span></Sidebar.MenuLabel></Sidebar.MenuItemContent>
+                      <Sidebar.MenuItemContent><Sidebar.MenuLabel><span className="blank-label">{blank.verb}</span></Sidebar.MenuLabel><Sidebar.MenuChip><Chip size="sm" variant="soft" className="tag">BLANK</Chip></Sidebar.MenuChip></Sidebar.MenuItemContent>
                     </Sidebar.MenuItem>)}
                 </Sidebar.Submenu>
               </Sidebar.MenuItem>);
@@ -76,9 +79,9 @@ export const Things = ({ here }: { here: Here }) => {
   );
 };
 
-export const Flat = ({ label, items, here }: { label: string; items: Item[]; here: Here }) => (
+export const Flat = ({ label, items, here, tag }: { label: string; items: Item[]; here: Here; tag?: ReactNode }) => (
   <Sidebar.Group>
-    <Sidebar.GroupLabel>{label}</Sidebar.GroupLabel>
+    <Sidebar.GroupLabel><span className="group-head">{label}{tag}</span></Sidebar.GroupLabel>
     <Sidebar.Menu aria-label={label}>
       {items.map(({ id, label: l, href, Icon, chip }) => (
         <Sidebar.MenuItem key={id} id={id} href={href} textValue={l} isCurrent={here.id === id}>
@@ -94,7 +97,7 @@ export const Head = () => (
   <Sidebar.Header>
     <a href={page.home} className="project-home">
       <span className="project-mark"><CubeIcon size={18} weight="bold" aria-hidden="true" /></span>
-      <span className="project-text"><span className="project-name">Plugged In</span><span className="project-env mono">model 7c07c87 · stage 1</span></span>
+      <span className="project-text"><span className="project-name">Plugged In</span><span className="project-tags"><Chip size="sm" variant="soft" className="mono">7c07c87</Chip><Chip size="sm" variant="soft">stage 1</Chip></span></span>
     </a>
   </Sidebar.Header>
 );
@@ -116,12 +119,15 @@ const Nav = ({ here }: { here: Here }) => {
       {o.nav === "a" && <>
         {o.env === "b" && <Flat label="Environments" items={envItems} here={here} />}
         <Flat label="Blueprint" items={refItems(o)} here={here} />
-        <Flat label="Monitor · proposed in K18" items={monitorItems} here={here} />
+        <Flat label="Monitor" tag={<Chip size="sm" variant="soft" color="accent" className="tag">K18</Chip>} items={monitorItems} here={here} />
       </>}
     </Sidebar.Content>
     <Sidebar.Footer>{o.nav === "c"
       ? <div className="side-foot"><MagnifyingGlassIcon size={14} aria-hidden="true" />Everything else: <Kbd>⌘K</Kbd></div>
-      : <div className="side-foot"><BookOpenIcon size={14} aria-hidden="true" /><a href="options.html">Round 3 options</a><span className="muted">·</span><a href="about.html">About</a></div>}</Sidebar.Footer>
+      : <Sidebar.Menu aria-label="About this drawing">
+          <Sidebar.MenuItem id="options" href="options.html" textValue="Options"><Sidebar.MenuIcon><BookOpenIcon size={17} aria-hidden="true" /></Sidebar.MenuIcon><Sidebar.MenuLabel>Options</Sidebar.MenuLabel><Sidebar.MenuChip><Chip size="sm" variant="soft" color="accent" className="tag">REVIEW</Chip></Sidebar.MenuChip></Sidebar.MenuItem>
+          <Sidebar.MenuItem id="components" href="components.html" textValue="Components"><Sidebar.MenuIcon><SquaresFourIcon size={17} aria-hidden="true" /></Sidebar.MenuIcon><Sidebar.MenuLabel>Components</Sidebar.MenuLabel></Sidebar.MenuItem>
+        </Sidebar.Menu>}</Sidebar.Footer>
   </>);
 };
 
@@ -140,11 +146,11 @@ export const Shell = ({ here, crumbs, children, rail = true }: { here: Here; cru
             <Navbar.Spacer />
             <span className="env-anchor">
               <a className={`env-switch${o.overlay === "env-menu" ? " is-open" : ""}`} href={o.env === "a" ? "environments.html" : "#"} aria-label="Environment and window: local, last 30 minutes">
-                <span className="dot dot--success" aria-hidden="true" />local<span className="muted">· last 30 min</span><CaretDownIcon size={12} aria-hidden="true" />
+                <EnvironmentPill env={environments[0]!} live size="sm" /><Chip size="sm" variant="soft">30 min</Chip><CaretDownIcon size={12} aria-hidden="true" />
               </a>
               {o.overlay === "env-menu" && <EnvMenu />}
             </span>
-            <Button size="sm" variant={o.nav === "c" ? "secondary" : "ghost"} className="muted" aria-label="Search the model"><MagnifyingGlassIcon size={15} />{o.nav === "c" && <span>Search</span>}<Kbd>⌘K</Kbd></Button>
+            <Button size="sm" variant="secondary" className="search-btn" aria-label="Search the model" data-open-command><MagnifyingGlassIcon size={15} /><span>Search</span><Kbd><Kbd.Abbr keyValue="command" /><Kbd.Content>K</Kbd.Content></Kbd></Button>
             <a className="needs" href="issues.html"><BellIcon size={15} aria-hidden="true" />Needs you<Chip size="sm" color="warning" variant="soft">3</Chip></a>
           </Navbar.Header>
         </Navbar>}>
@@ -153,7 +159,7 @@ export const Shell = ({ here, crumbs, children, rail = true }: { here: Here; cru
           : <div className="r3-strip"><Chip size="sm" variant="soft" color="accent">Round 3</Chip><span>Q4 and Q5 decided by Aaron; Q1, Q2, Q3 and Q6 drawn on A here, with B and C on the <a href="options.html">Options</a> page.</span></div>}
         {children}
       </div>
-      {o.overlay === "command" && <CommandOverlay />}
+      <Island name="CommandPalette" props={{ groups: commandGroups(), open: o.overlay === "command", query: o.overlay === "command" ? "link" : "" }} />
     </AppLayout>
   );
 };

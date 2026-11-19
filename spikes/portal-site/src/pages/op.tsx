@@ -1,4 +1,5 @@
 // An operation's page (Q5 A): the header, the tabs, and the Contract tab: the in-and-out band, then the spine from the model.
+import { Move } from "../kit/key-path.tsx";
 import { Chip, Tabs } from "@heroui/react";
 import type { ReactNode } from "react";
 import { allowedText, model, page, short, thingOfError, type Operation } from "../model.ts";
@@ -13,10 +14,10 @@ export type Tab = (typeof tabs)[number][0];
 
 /** The fixed order every Effect operation runs in (language-effect handler/service.ts:41-84), with its declared steps. */
 export const spineOf = (o: Operation) => {
-  const rows: { row: string; what: string }[] = [{ row: "role check", what: o.allowed.map(allowedText).join(", ") }];
+  const rows: { row: string; what: ReactNode }[] = [{ row: "role check", what: o.allowed.map(allowedText).join(", ") }];
   if (o.kind === "read") return [...rows, ...Object.values(o.steps).map((s) => ({ row: `step ${s.name.split(".").pop()}`, what: s.type }))];
   if (o.idempotent) rows.push({ row: "replay", what: "by request key" });
-  if (o.move) rows.push({ row: "machine check", what: `${o.move.from.join(" | ") || "·"} → ${o.move.to.join(" | ")}` });
+  if (o.move) rows.push({ row: "machine check", what: <Move from={o.move.from} to={o.move.to} /> });
   for (const s of Object.values(o.steps)) rows.push({ row: `step ${s.name.split(".").pop()}`, what: s.type });
   rows.push({ row: "answer check", what: Object.keys(o.answer).join(", ") || "—" });
   if (o.move) rows.push({ row: `move ${o.move.key}`, what: `emits ${o.move.emits}` });
@@ -59,7 +60,7 @@ const Refusals = ({ o }: { o: Operation }) => (
     {o.refusals.map((r) => {
       const t = thingOfError(r), declared = o.errors.includes(r);
       return <li key={r}><a className="mono" href={`refusals.html#${r}`}>{model.refusals[r]}</a> <span className="mono">{r}</span>
-        <span className="muted small"> · {r === "NotAllowed" ? "at the door" : declared ? "declared" : `${t?.name}'s machine`}</span></li>;
+        <Chip size="sm" variant="soft" color={r === "NotAllowed" ? "default" : declared ? "warning" : "accent"}>{r === "NotAllowed" ? "at the door" : declared ? "declared" : `${t?.name}'s machine`}</Chip></li>;
     })}
   </ul>
 );
@@ -75,7 +76,7 @@ export const Contract = ({ o }: { o: Operation }) => (
       <div className="two band-foot">
         <div><div className="eyebrow">refusals</div><Refusals o={o} /></div>
         <div><div className="eyebrow">moves and records</div>
-          {o.move ? <p className="small"><span className="mono">{o.thing}</span>: {o.move.from.join(" | ") || "·"} → <strong>{o.move.to.join(" | ")}</strong>, emits <a className="mono" href={`events.html#${o.move.emits}`}>{o.move.emits}</a></p>
+          {o.move ? <div className="row-chips"><Move from={o.move.from} to={o.move.to} /><span className="muted small">emits</span><a href={`events.html#${o.move.emits}`}><Chip size="sm" variant="soft" color="success" className="mono">{o.move.emits}</Chip></a></div>
             : <p className="muted small">Changes no state; emits nothing.</p>}
         </div>
       </div>

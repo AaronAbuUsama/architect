@@ -1,42 +1,40 @@
 // Round 3's open questions as drawn options (Aaron, 19 November: "need options as designs", "show me"): the screens
 // only option B or C needs, and the Options page that puts A, B and C side by side with the references they draw on.
 import { ItemCard } from "@heroui-pro/react";
-import { Chip } from "@heroui/react";
+import { Chip, Tabs } from "@heroui/react";
 import { PlugsIcon } from "@phosphor-icons/react/ssr";
 import { journeys } from "../journeys.ts";
-import { thingStat, refusedTotal } from "../live.ts";
-import { environments, operations, page } from "../model.ts";
+import { splitOf, sum } from "../live.ts";
+import { CallsMeter } from "../kit/calls-meter.tsx";
+import { EnvironmentPill } from "../kit/environment-pill.tsx";
+import { VerdictMatrix } from "../kit/verdict-matrix.tsx";
+import { envFields, FocusCard, journeyRows, opRows } from "./env-compare.tsx";
+import { environments, opsOf } from "../model.ts";
 import { blank, mounts, stores, type MountName } from "../overlay.ts";
 import { Foot, Shell } from "../shell.tsx";
 import { Block, Verdict } from "../ui.tsx";
 
-const verdict = (op: string, env: string) => env === "production" ? "unproven" : env === "staging" && op === "session.sign-in" ? "stale" : env === "staging" && op === "link.order" ? "fail" : "pass";
-
-/** Q2 B: a page per environment. Drawn for staging. */
+/** Q2 B: a page per environment, tabs across the four. Drawn for staging. */
 export const EnvPage = () => {
-  const e = environments.find((x) => x.name === "staging")!;
-  const counts = operations.reduce<Record<string, number>>((a, o) => { const v = verdict(o.name, e.name); a[v] = (a[v] ?? 0) + 1; return a; }, {});
+  const e = environments.find((x) => x.name === "staging")!, envs = ["staging"];
   return (
     <Shell here={{ id: "env:staging" }} crumbs={["Plugged In", "Environments", "staging"]} rail={false}>
       <div className="page">
-        <header className="page-title"><div className="title-row"><h1>staging</h1><span className="mono muted">{e.file}</span></div>
-          <p>{e.runs} · people signed in (better-auth) · promotes to production</p>
-          <div className="props"><Chip size="sm" variant="soft">cloudflare · d1</Chip><Chip size="sm" variant="soft" className="mono">rev 9c1e2a0</Chip><Chip size="sm" variant="soft">no domain declared</Chip></div></header>
+        <header className="page-title"><h1>Environments</h1></header>
+        <Tabs selectedKey="staging" className="page-tabs"><Tabs.ListContainer><Tabs.List aria-label="Environments">
+          {environments.map((x) => <Tabs.Tab key={x.name} id={x.name} href={x.name === "staging" ? "q2-b.html" : "#"}>{x.name}<Tabs.Indicator /></Tabs.Tab>)}
+        </Tabs.List></Tabs.ListContainer></Tabs>
+        <FocusCard e={e} />
         <div className="two">
-          <Block title="Setup" desc="From its file">
-            <dl className="kv"><dt>database</dt><dd>d1</dd><dt>secrets</dt><dd className="muted">none declared</dd><dt>telemetry</dt><dd className="muted">none declared</dd>
-              <dt>deploy</dt><dd>server: worker</dd><dt>publish</dt><dd>cli: npm next · sdk: npm next</dd><dt>promotes to</dt><dd>production</dd></dl>
-          </Block>
-          <Block title="Proof" desc={`${operations.length} operations against staging`}>
-            <div className="verdict-sum">{Object.entries(counts).map(([v, n]) => <span key={v}><Verdict v={v as "pass"} /> <b className="mono">{n}</b></span>)}</div>
-            <ul className="plain small">{operations.filter((o) => verdict(o.name, "staging") !== "pass").map((o) => <li key={o.name}><a className="mono" href={page.op(o.name, "proof")}>{o.name}</a> <Verdict v={verdict(o.name, "staging") as "fail"} /></li>)}</ul>
-          </Block>
+          <section className="panel"><header className="panel__head"><h2>Declared</h2><span className="muted small">{e.file}</span></header>
+            <table className="tbl env-tbl"><tbody>{envFields.map((r) => <tr key={r.key}><th scope="row"><span className="field-label">{r.label}</span><code className="field-key">{r.key}</code></th><td>{r.show(e)}</td></tr>)}</tbody></table>
+          </section>
+          <section className="panel"><header className="panel__head"><h2>Proof in staging</h2></header>
+            <VerdictMatrix rows={opRows()} envs={envs} of="operations" rowHead="operation" />
+            <VerdictMatrix rows={journeyRows()} envs={envs} of="journeys" rowHead="journey" />
+          </section>
         </div>
-        <Block title="Journeys in staging" flush>
-          <table className="tbl"><tbody>{journeys.map((j) => <tr key={j.slug}><td><a href={`journey-${j.slug}.html`}>{j.name}</a></td><td><Verdict v={j.verdicts.staging!} /></td></tr>)}</tbody></table>
-        </Block>
-        <Block title="Live"><p className="muted small">Live numbers show only in staging's own portal. You are in local, so this page has setup and proof only.</p></Block>
-        <Foot>Option Q2 B. local, test and production each get the same page; comparing two means opening two pages.</Foot>
+        <Foot>Option Q2 B. Each environment gets this page; comparing two means switching tabs.</Foot>
       </div>
     </Shell>
   );
@@ -48,17 +46,17 @@ export const PluginsAndStores = () => (
     <div className="page">
       <header className="page-title"><h1>Plugins and stores</h1><p>What Plugged In mounts and where its things live, on one page.</p></header>
       <Block title="Plugins" desc="From blueprint/features">
-        <div className="item-cards">{(Object.keys(mounts) as MountName[]).map((k) => { const m = mounts[k], calls = m.things.reduce((a, t) => a + thingStat(t).calls, 0); return (
+        <div className="item-cards">{(Object.keys(mounts) as MountName[]).map((k) => { const m = mounts[k]; return (
           <ItemCard key={k} variant="secondary">
             <ItemCard.Icon><PlugsIcon size={18} /></ItemCard.Icon>
-            <ItemCard.Content><ItemCard.Title>{k} <span className="muted small mono">{m.package} {m.version}</span></ItemCard.Title>
-              <ItemCard.Description>{m.things.join(", ")} · needs {m.needs.join(", ") || "nothing"} · left out {m.omitted.join(", ") || "nothing"}</ItemCard.Description></ItemCard.Content>
-            <ItemCard.Action><span className="mono small">{calls.toLocaleString("en-US")} calls · {m.things.reduce((a, t) => a + refusedTotal(thingStat(t)), 0)} refused</span></ItemCard.Action>
+            <ItemCard.Content><ItemCard.Title>{k}<Chip size="sm" variant="soft" className="mono">{m.package}@{m.version}</Chip></ItemCard.Title>
+              <ItemCard.Description><span className="chips">{m.things.map((t) => <Chip key={t} size="sm" variant="secondary">{t}</Chip>)}{m.needs.map((n) => <Chip key={n} size="sm" variant="soft">needs {n}</Chip>)}{m.omitted.map((n) => <Chip key={n} size="sm" variant="soft" color="warning">left out {n}</Chip>)}</span></ItemCard.Description></ItemCard.Content>
+            <ItemCard.Action><div style={{ width: 260 }}><CallsMeter split={splitOf(sum(m.things.flatMap(opsOf)))} size="sm" label={k} /></div></ItemCard.Action>
           </ItemCard>); })}</div>
       </Block>
       <Block title="Stores" flush>
         <table className="tbl"><thead><tr><th>store</th><th>kind</th><th>things</th>{environments.map((e) => <th key={e.name}>{e.name}</th>)}</tr></thead>
-          <tbody>{stores.map((s) => <tr key={s.name}><td className="mono">{s.name}</td><td>{s.kind}</td><td className="small">{s.things.join(", ")}</td>{environments.map((e) => <td key={e.name} className="small">{e.database ?? e.cloud?.database ?? "—"}</td>)}</tr>)}</tbody></table>
+          <tbody>{stores.map((s) => <tr key={s.name}><td className="mono">{s.name}</td><td>{s.kind}</td><td><span className="chips">{s.things.map((t) => <Chip key={t} size="sm" variant="secondary">{t}</Chip>)}</span></td>{environments.map((e) => <td key={e.name}><EnvironmentPill env={e} size="sm" showRuns /></td>)}</tr>)}</tbody></table>
       </Block>
       <Foot>Option Q3 B. The choices a mount made, what it narrowed and its integrity have no page: they are in the docs.</Foot>
     </div>
@@ -85,13 +83,13 @@ type Option = { letter: "A" | "B" | "C"; name: string; file: string; gets: strin
 type Question = { q: string; title: string; ask: string; options: Option[] };
 const questions: Question[] = [
   { q: "Q1", title: "Where do the pages beyond things live?", ask: "Aaron: \"need options as designs\"", options: [
-    { letter: "A", name: "One sidebar, sections", file: "q1-a.html", rec: true, gets: "Things first, then Blueprint and Monitor sections in the same sidebar. Everything one click away.", refs: [{ app: "WorkOS", id: "ffd52966-155c-492d-8508-0c428d3de985", what: "grouped sections" }, { app: "Exa", id: "f4a34c68-7448-45cb-ad21-81d9c576d90e", what: "labelled groups" }] },
-    { letter: "B", name: "Icon rail swaps the sidebar", file: "q1-b-proof.html", gets: "Five icons down the left; each swaps the sidebar for its section. Drawn on Proof.", refs: [{ app: "Railway", id: "a1ee572f-24ca-494c-b1f4-a3d49cbeabd1", what: "icon rail" }, { app: "StackAI", id: "a7d6a9ce-bdb9-4284-9a06-9f6445749611", what: "rail + section panel" }, { app: "Plain", id: "0bb4fd33-262c-4180-b316-aec4d20f4297", what: "rail + tree" }] },
+    { letter: "A", name: "One sidebar, sections", file: "q1-a.html", gets: "Things first, then Blueprint and Monitor sections in the same sidebar. Everything one click away.", refs: [{ app: "WorkOS", id: "ffd52966-155c-492d-8508-0c428d3de985", what: "grouped sections" }, { app: "Exa", id: "f4a34c68-7448-45cb-ad21-81d9c576d90e", what: "labelled groups" }] },
+    { letter: "B", name: "Icon rail swaps the sidebar", file: "q1-b-proof.html", rec: true, gets: "Aaron's pick (\"I want to have icon rail\"), rebuilt from Pro's Sidebar: the Icon Only pattern beside Sidebar.Pages, one panel per section. Drawn on Proof.", refs: [{ app: "Railway", id: "a1ee572f-24ca-494c-b1f4-a3d49cbeabd1", what: "icon rail" }, { app: "StackAI", id: "a7d6a9ce-bdb9-4284-9a06-9f6445749611", what: "rail + section panel" }, { app: "Plain", id: "0bb4fd33-262c-4180-b316-aec4d20f4297", what: "rail + tree" }] },
     { letter: "C", name: "Things only, ⌘K for the rest", file: "q1-c.html", gets: "The sidebar is only the tree. Environments, journeys, codes and the rest are found by search.", refs: [{ app: "fal", id: "3786699a-7b92-4f81-9545-737fd5edfcff", what: "search-first top bar" }, { app: "Grok", id: "a07b68c7-61f4-4220-85ef-cb790a39b3d9", what: "short sidebar, search" }] },
   ] },
   { q: "Q2", title: "Environments: one page comparing them, or a page each?", ask: "Aaron: \"same need designs\"", options: [
-    { letter: "A", name: "One page, environments as columns", file: "q2-a.html", rec: true, gets: "Setup side by side, proof as a matrix tab. Answers \"what differs between staging and production\" at a glance.", refs: [{ app: "StackAI", id: "a7d6a9ce-bdb9-4284-9a06-9f6445749611", what: "dev / staging / prod as columns" }, { app: "Neon", id: "5fb28d4d-e574-43e5-9ea4-79cbee893e0f", what: "compare two branches" }] },
-    { letter: "B", name: "A page per environment", file: "q2-b.html", gets: "Environments listed in the sidebar; each has its own setup, proof and journeys. Drawn for staging.", refs: [{ app: "Vercel", id: "11def438-b12a-4f4c-938e-ec13525dd1dd", what: "list, then one page each" }, { app: "Render", id: "3e106d4a-c875-45d5-be51-387a519355f8", what: "a section per environment" }] },
+    { letter: "A", name: "One page: pick one, compare the rest", file: "q2-a.html", rec: true, gets: "Every field EnvironmentModel declares, as columns. Pick an environment and the others mark where they differ. Proof is one matrix, every column tallied.", refs: [{ app: "StackAI", id: "a7d6a9ce-bdb9-4284-9a06-9f6445749611", what: "dev / staging / prod as columns" }, { app: "Neon", id: "5fb28d4d-e574-43e5-9ea4-79cbee893e0f", what: "compare two branches" }] },
+    { letter: "B", name: "A page per environment", file: "q2-b.html", gets: "Tabs across the four; each has its declaration beside its proof. Comparing means switching tabs. Drawn for staging.", refs: [{ app: "Vercel", id: "11def438-b12a-4f4c-938e-ec13525dd1dd", what: "list, then one page each" }, { app: "Render", id: "3e106d4a-c875-45d5-be51-387a519355f8", what: "a section per environment" }] },
     { letter: "C", name: "The switcher's menu only", file: "q2-c.html", gets: "No page. The top bar's switcher lists each environment and links to the proof matrix.", refs: [{ app: "WorkOS", id: "ffd52966-155c-492d-8508-0c428d3de985", what: "environment switcher in the top bar" }] },
   ] },
   { q: "Q3", title: "Plugins and stores: their own pages, or only labels?", ask: "Aaron: \"same designs\"", options: [

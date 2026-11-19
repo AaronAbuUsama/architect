@@ -4,9 +4,10 @@ import { journeys } from "../journeys.ts";
 import { statOf } from "../live.ts";
 import { model, operations, page } from "../model.ts";
 import { Foot, Shell } from "../shell.tsx";
-import { Block, Spark } from "../ui.tsx";
+import { Block, Spark, SparkBars } from "../ui.tsx";
+import { KeyPath } from "../kit/key-path.tsx";
 
-const Title = ({ h, p }: { h: string; p: string }) => <header className="page-title"><div className="title-row"><h1>{h}</h1><Chip size="sm" variant="soft" color="accent">proposed · K18</Chip></div><p>{p}</p></header>;
+const Title = ({ h, p }: { h: string; p: string }) => <header className="page-title"><div className="title-row"><h1>{h}</h1><Chip size="sm" variant="soft" color="accent">proposed in K18</Chip></div><p>{p}</p></header>;
 
 export const Issues = () => (
   <Shell here={{ id: "issues", scope: { label: "link.add", ops: ["link.add"] } }} crumbs={["Plugged In", "Monitor", "Issues"]}>
@@ -14,9 +15,9 @@ export const Issues = () => (
       <Title h="Issues" p="A defect is a failure the blueprint didn't declare, so it is always a bug. Each is grouped by operation, step and error, never by a stack trace. A refusal is never an issue: it is the app answering." />
       <Block title="Open" desc="One issue per (operation, step, error). First and last seen by model hash, so a fix that comes back is marked regressed." flush>
         <table className="tbl"><thead><tr><th>issue</th><th>state</th><th>first seen</th><th>last seen</th><th className="num">defects</th><th className="num">of calls</th><th>owner</th><th>trend</th></tr></thead>
-          <tbody><tr><td><a className="mono" href={page.op("link.add", "spans")}>link.add · record · DatabaseError</a></td><td><Chip size="sm" variant="soft" color="danger">new</Chip></td>
-            <td className="mono small">@7c07c87 · 11:52</td><td className="mono small">12:04:20</td><td className="num mono tone-danger">3</td><td className="num mono">0.31%</td>
-            <td className="small">the app · <span className="mono">things/link/verbs/add.ts</span></td><td style={{ width: 100 }}><Spark values={[0, 0, 0, 1, 0, 0, 0, 1, 0, 1]} tone="danger" label="link.add defects per 3 minutes" /></td></tr></tbody></table>
+          <tbody><tr><td><a href={page.op("link.add", "spans")}><KeyPath parts={["link.add", "record", "DatabaseError"]} tone="danger" /></a></td><td><Chip size="sm" variant="soft" color="danger">new</Chip></td>
+            <td><span className="chips"><Chip size="sm" variant="soft" className="mono">7c07c87</Chip><Chip size="sm" variant="soft" className="mono">11:52</Chip></span></td><td className="mono small">12:04:20</td><td className="num mono tone-danger">3</td><td className="num mono">0.31%</td>
+            <td><span className="chips"><Chip size="sm" variant="secondary">the app</Chip><Chip size="sm" variant="soft" className="mono">things/link/verbs/add.ts</Chip></span></td><td style={{ width: 100 }}><SparkBars values={[0, 0, 0, 1, 0, 0, 0, 1, 0, 1]} tone="danger" label="link.add defects per 3 minutes" /></td></tr></tbody></table>
       </Block>
       <div className="two">
         <Block title="What falls out" desc="With nothing configured">
@@ -46,7 +47,7 @@ export const Alerts = () => {
     <Shell here={{ id: "alerts" }} crumbs={["Plugged In", "Monitor", "Alerts"]}>
       <div className="page">
         <Title h="Alerts" p={`${all.length} alert rules fall out of Plugged In's declarations. None is written by hand. Locally they show here and are never sent; in staging they go to the builder, in production they page.`} />
-        <Block title="Open" desc="Firing or warning in local · last 30 min" flush>
+        <Block title="Open" desc="Firing or warning in local, in the last 30 minutes" flush>
           <table className="tbl"><tbody>{open.map((r) => <tr key={r.rule}><td><Chip size="sm" variant="soft" color={r.state === "firing" ? "danger" : "warning"}>{r.state}</Chip></td><td>{r.rule}</td><td className="small muted">from {r.from}</td></tr>)}</tbody></table>
         </Block>
         <Block title="Every rule" desc="Grouped by the declaration it falls out of. Standard burn windows: 14.4× over 1 h and 5 min, 6× over 6 h and 30 min." flush>

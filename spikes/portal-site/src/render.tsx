@@ -5,12 +5,13 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { routes } from "./routes.tsx";
 
 const [outDir, ...only] = process.argv.slice(2);
-const css = readFileSync(new URL("./site.css", import.meta.url), "utf8");
+const css = ["./site.css", "./kit/kit.css"].map((f) => readFileSync(new URL(f, import.meta.url), "utf8")).join("\n");
 writeFileSync(`${outDir}/site.css`, css);
 const head = (title: string) => `<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${title} · Plugged In portal</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="heroui.css"><link rel="stylesheet" href="heroui-pro.css"><link rel="stylesheet" href="site.css">`;
+<link rel="stylesheet" href="heroui.css"><link rel="stylesheet" href="heroui-pro.css"><link rel="stylesheet" href="site.css">
+<script defer src="islands.js"></script>`;
 
 const all = await routes();
 for (const [file, r] of Object.entries(all)) {

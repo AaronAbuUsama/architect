@@ -4,7 +4,7 @@
 // (by error tag), the commit spans (`event.name`) and the door refusals.
 import { Chip } from "@heroui/react";
 import { page } from "./model.ts";
-import { Block, Spark } from "./ui.tsx";
+import { Block, SparkBars } from "./ui.tsx";
 
 const seed = (s: string) => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 11);
 /** Per-minute counts over the 30-minute window that add up to `total`. */
@@ -15,8 +15,13 @@ export const trend = (key: string, total: number): number[] => {
 };
 export const perMin = (total: number) => (total / 30).toFixed(total / 30 < 1 ? 2 : 1);
 export const TrendCell = ({ k, total, tone }: { k: string; total: number; tone?: string }) =>
-  total ? <Spark values={trend(k, total)} tone={tone ?? "accent"} label={`${k}: ${total} in the window`} w={88} h={22} /> : <span className="muted small">none</span>;
+  total ? <SparkBars values={trend(k, total)} tone={tone ?? "accent"} label={`${k}: ${total} in the window`} w={88} h={22} /> : <span className="muted small">none</span>;
 
+/** A span's attributes, each its own chip: key in mono, then its value. */
+const Attrs = ({ attr }: { attr: string }) => (
+  <span className="chips">{attr.split(" · ").map((p) => { const [k, ...v] = p.split(" "), kv = /[._]/.test(k!) || v.length === 0;
+    return <Chip key={p} size="sm" variant="soft" className="attr">{kv ? <><span className="mono">{k}</span>{v.length > 0 && <span className="muted">{v.join(" ")}</span>}</> : p}</Chip>; })}</span>
+);
 export type Span = { at: string; op: string; who: string; what: string; tone: "warning" | "success" | "danger" | "default"; ms: number; attr: string; door?: boolean };
 /** The latest spans that touch this page's subject, newest first. Each opens its operation's trace. */
 export const Recent = ({ title, spans }: { title: string; spans: Span[] }) => (
@@ -24,7 +29,7 @@ export const Recent = ({ title, spans }: { title: string; spans: Span[] }) => (
     <table className="tbl"><thead><tr><th>at</th><th>operation</th><th>caller</th><th>outcome</th><th>span says</th><th className="num">ms</th><th /></tr></thead>
       <tbody>{spans.map((s) => (
         <tr key={s.at + s.op}><td className="mono small">{s.at}</td><td><a className="mono" href={page.op(s.op)}>{s.op}</a></td><td className="small">{s.who}</td>
-          <td><Chip size="sm" variant="soft" color={s.tone}>{s.what}</Chip></td><td className="mono small muted">{s.attr}</td><td className="num mono">{s.ms}</td>
+          <td><Chip size="sm" variant="soft" color={s.tone}>{s.what}</Chip></td><td><Attrs attr={s.attr} /></td><td className="num mono">{s.ms}</td>
           <td>{s.door ? <span className="small muted">no span</span> : <a className="small" href={page.op(s.op, "spans")}>trace →</a>}</td></tr>))}</tbody></table>
   </Block>
 );

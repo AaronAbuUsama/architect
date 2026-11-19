@@ -57,3 +57,15 @@ export const p95Series = (o: Operation) => {
   const s = statOf(o), k = seed(o.name) % 5;
   return Array.from({ length: 30 }, (_, i) => Math.max(1, Math.round(s.p95 * (0.7 + 0.3 * Math.abs(Math.sin((i + k) / 3))) + (i === 22 && o.name === "profile.get" ? 60 : 0))));
 };
+
+/** Calls per minute split by outcome, for the stacked bars (CallsBars). Defects land in the minutes the spans show them. */
+export type MinuteCalls = { m: string; answered: number; refused: number; defects: number };
+export const perMinute = (s: Stat): MinuteCalls[] => {
+  const share = s.calls ? Object.values(s.refused).reduce((a, b) => a + b, 0) / s.calls : 0;
+  const defectAt = s.defects ? [8, 19, 26].slice(0, Math.min(3, s.defects)) : [];
+  return s.spark.map((n, i) => {
+    const refused = Math.round(n * share * (0.6 + ((i * 7) % 5) / 5)), defects = defectAt.includes(i) ? Math.max(1, Math.round(s.defects / defectAt.length)) : 0;
+    return { m: `${String(11 + Math.floor((35 + i) / 60)).padStart(2, "0")}:${String((35 + i) % 60).padStart(2, "0")}`, answered: Math.max(0, n - refused - defects), refused, defects };
+  });
+};
+export const splitOf = (s: Stat) => ({ answered: s.answered, refused: refusedTotal(s), defects: s.defects });

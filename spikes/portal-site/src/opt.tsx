@@ -1,6 +1,10 @@
 // Round 3's options, drawn (Aaron, 19 November: "need options as designs"). A page rendered inside an OptContext shows
 // one question's option B or C; everything else stays on A. The Options page puts the A, B and C screens side by side.
-import { Chip, Kbd } from "@heroui/react";
+import { Segment } from "@heroui-pro/react";
+import { Chip, Kbd, ListBox } from "@heroui/react";
+import { EnvironmentPill } from "./kit/environment-pill.tsx";
+import { VerdictTally } from "./kit/verdict-matrix.tsx";
+import { opRows } from "./pages/env-compare.tsx";
 import { CubeIcon, GlobeHemisphereWestIcon, MagnifyingGlassIcon, PathIcon, PlugsIcon, ShapesIcon, WarningOctagonIcon, WaveformIcon } from "@phosphor-icons/react/ssr";
 import { createContext, useContext, type ReactNode } from "react";
 import { journeys } from "./journeys.ts";
@@ -16,7 +20,7 @@ export const WithOpt = ({ opt, children }: { opt: Partial<Opt>; children: ReactN
 
 /** The strip at the top of an option screen, in place of round 3's. */
 export const OptStrip = ({ label }: { label: string }) => (
-  <div className="r3-strip opt-strip"><Chip size="sm" variant="soft" color="warning">Option {label}</Chip>
+  <div className="r3-strip opt-strip">{label.split(" · ").slice(0, 2).map((p, i) => <Chip key={p} size="sm" variant="soft" color={i ? "warning" : "default"}>{i ? `option ${p}` : p}</Chip>)}<b>{label.split(" · ")[2]}</b>
     <span>One of three drawn answers. Everything else on this screen stays on A. <a href="options.html">Compare all options</a></span></div>
 );
 
@@ -46,17 +50,21 @@ export const CommandOverlay = () => (
   </div>
 );
 
-/** Q2 C: no Environments page; the switcher's menu carries what there is. Drawn open. */
+/** Q2 C: no Environments page; the switcher's menu carries what there is. Drawn open, with the library's ListBox. */
 export const EnvMenu = () => (
-  <div className="env-menu" role="menu" aria-label="Environments">
-    {environments.map((e) => (
-      <div key={e.name} className={`env-item${e.name === "local" ? " is-here" : ""}`} role="menuitem">
-        <span className={`dot dot--${e.name === "local" ? "success" : "muted"}`} aria-hidden="true" />
-        <span className="env-name">{e.name}</span>
-        <span className="muted small">{e.runs} · {e.identity === "test-principals" ? "test principals" : "better-auth"}{e.promotesFrom ? ` · from ${e.promotesFrom}` : ""}</span>
-      </div>))}
-    <div className="env-sep" />
-    <div className="env-item" role="menuitem"><span className="env-name">Proof matrix</span><span className="muted small">every operation × environment</span></div>
-    <div className="env-item" role="menuitem"><span className="env-name">Window</span><span className="muted small">last 30 min ▾</span></div>
+  <div className="env-menu">
+    <ListBox aria-label="Environments" selectionMode="single" defaultSelectedKeys={["local"]} className="env-list">
+      {environments.map((e) => (
+        <ListBox.Item key={e.name} id={e.name} textValue={e.name}>
+          <div className="env-item">
+            <EnvironmentPill env={e} live={e.name === "local"} size="sm" />
+            <span className="chips">{e.identity === "test-principals" ? <Chip size="sm" variant="soft">test principals</Chip> : <Chip size="sm" variant="soft" color="accent">better-auth</Chip>}
+              {e.promotesFrom && <Chip size="sm" variant="soft">from {e.promotesFrom}</Chip>}</span>
+            <VerdictTally verdicts={opRows().map((r) => r.cells[e.name]!)} of="operations" />
+          </div>
+        </ListBox.Item>))}
+    </ListBox>
+    <div className="env-menu__foot"><span className="muted small">Window</span>
+      <Segment size="sm" defaultSelectedKey="30m" aria-label="Window"><Segment.Item id="30m">30 min</Segment.Item><Segment.Item id="6h">6 h</Segment.Item><Segment.Item id="24h">24 h</Segment.Item></Segment></div>
   </div>
 );

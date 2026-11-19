@@ -1,5 +1,6 @@
 // The reference pages (round 3 Q5, decided): one table each, every row an anchor, and live telemetry on every page:
 // each row's rate and trend in the window, and the page's recent spans, each opening its trace.
+import { Move } from "../kit/key-path.tsx";
 import { Chip } from "@heroui/react";
 import { WarningIcon } from "@phosphor-icons/react/ssr";
 import { moveCounts, statOf } from "../live.ts";
@@ -21,9 +22,9 @@ export const Machines = () => (
       {things.filter((t) => t.machine).map((t) => (
         <Block key={t.name} title={t.name} desc={t.description} flush>
           <div className="pad"><Lifecycle thing={t} counts={moveCounts} guards={guardsOf(t.name)} /></div>
-          <table className="tbl"><thead><tr><th>move</th><th>from</th><th>to</th><th>emits</th><th>operation</th><th className="num">answered</th><th>trend</th></tr></thead>
+          <table className="tbl"><thead><tr><th>move</th><th colSpan={2}>from, to</th><th>emits</th><th>operation</th><th className="num">answered</th><th>trend</th></tr></thead>
             <tbody>{Object.entries(t.machine!.moves).map(([k, m]) => { const op = operations.find((o) => o.thing === t.name && o.move?.key === k); return (
-              <tr key={k}><td className="mono">{k}</td><td className="mono muted">{m.from.join(" | ") || "·"}</td><td className="mono">{m.to.join(" | ")}</td>
+              <tr key={k}><td className="mono">{k}</td><td colSpan={2}><Move from={m.from} to={m.to} /></td>
                 <td><a className="mono" href={`events.html#${m.emits}`}>{m.emits}</a></td><td>{op && <a className="mono" href={page.op(op.name)}>{op.name}</a>}</td>
                 <td className="num mono">{moveCounts[`${t.name}.${k}`] ?? 0}</td><td><TrendCell k={`${t.name}.${k}`} total={moveCounts[`${t.name}.${k}`] ?? 0} /></td></tr>); })}
               <tr><td className="mono muted">wrong state</td><td colSpan={3} className="muted small">any move from a state it doesn't leave</td><td colSpan={3}><a className="mono" href={`refusals.html#${t.machine!.notFrom.error}`}>{t.machine!.notFrom.code} {t.machine!.notFrom.error}</a></td></tr>
@@ -40,7 +41,7 @@ export const Refusals = () => (
   <Shell here={{ id: "refusals" }} crumbs={["Plugged In", "Blueprint", "Refusal codes"]}>
     <div className="page">
       <Title h="Refusal codes" p="Every way the app can say no, with its code. A code never moves once released. A refusal is the app working; a defect is not on this page." />
-      <Block title={`${Object.keys(model.refusals).length} codes`} desc="Refused in the window: local · last 30 min" flush>
+      <Block title={`${Object.keys(model.refusals).length} codes`} desc="Refused in local, in the last 30 minutes" flush>
         <table className="tbl"><thead><tr><th>code</th><th>name</th><th>from</th><th className="num">exit</th><th>raised by</th><th className="num">refused</th><th className="num">/ min</th><th>trend</th><th /></tr></thead>
           <tbody>{refusalRows().map((r) => (
             <tr key={r.name} id={r.name}><td className="mono">{r.code}</td><td className="mono">{r.name}</td>
