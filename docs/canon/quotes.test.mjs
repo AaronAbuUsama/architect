@@ -69,4 +69,6 @@ test("a part that occurs twice in its declaration is refused: it could be either
   const twice = ["export const pair = () => {", "  log();", "  const a = 1;", "  log();", "  return a;", "};"].join("\n");
   assert.match(locate(twice, "pair", ["log();"]).reason, /occurs 2 times/);
   assert.deepEqual(locate(twice, "pair", ["log();", "return a;"]), { at: 4, to: 5 });
+  // --fix can't make it one place either: it reports it, for a person to quote more lines.
+  assert.equal(repair(twice, "pair", ["log();"]), undefined);
 });

@@ -119,7 +119,7 @@ const checkFences = (file, text, fix) => {
     let rewritten = whole;
     if (found.at === undefined) {
       const fixed = fix ? repair(code, meta.name, got) : undefined;
-      if (!fixed) { fail(file, line + 1, `the quote differs from ${meta.file} ${meta.name}: ${found.reason}${fix ? " (nothing in it resembles the quote)" : "; run node docs/canon/check.mjs --fix"}`); return whole; }
+      if (!fixed) { fail(file, line + 1, `the quote differs from ${meta.file} ${meta.name}: ${found.reason}${fix ? " (--fix can't place it as one run of the declaration: redo the quote)" : "; run node docs/canon/check.mjs --fix"}`); return whole; }
       const fresh = sliceLines(code, fixed.from, fixed.to).split("\n").map((l) => (l ? indent + l : l)).join("\n");
       rewritten = `${indent}\`\`\`${lang}${metaRaw}\n${fresh}\n${indent}\`\`\``;
       found = { at: fixed.from, to: fixed.to };

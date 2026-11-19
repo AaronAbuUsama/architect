@@ -79,8 +79,18 @@ export const locate = (source, name, body) => {
   return { reason: `the quote is not in ${name}`, region: regions[0] };
 };
 
-/** The text `--fix` writes for a quote that has drifted, or undefined when nothing in the declaration resembles it. */
+/**
+ * The text `--fix` writes for a quote that has drifted, or undefined when nothing in the declaration resembles it, or
+ * when what it would write is not one place in it (a part that occurs twice): that needs a person to quote more lines.
+ */
 export const repair = (source, name, body) => {
+  const found = window(source, name, body);
+  if (found === undefined) return undefined;
+  const again = locate(source, name, trimmed(source.split("\n").slice(found.from - 1, found.to).join("\n")));
+  return again.at === undefined ? undefined : found;
+};
+
+const window = (source, name, body) => {
   const regions = regionsOf(source, name);
   if (!regions.length) return undefined;
   const all = source.split("\n");
