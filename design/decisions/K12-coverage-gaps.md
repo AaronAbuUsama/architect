@@ -69,6 +69,8 @@ and `store` as attributes.
 
 ### M1.36: what its builder settled (19 November 2026)
 
+**Amended by [G8](G8-refused-span.md):** a call the role refuses is traced in `<operation>.refused`, and `move.name` and `move.to` are written on the operation's span, not the step's.
+
 Check 17 (`e2e/m1/17-telemetry-model.test.ts`) names six assumptions where the design was silent; all six are built as
 written there. The calls the builder had to make beyond them:
 

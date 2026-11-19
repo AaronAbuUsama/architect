@@ -243,7 +243,7 @@ commit span carries `event.name`, the event the move emitted, only when that att
 
 ### Call metrics (M1.20)
 
-Every call is counted, including a bad payload or a caller the role refuses before the span opens.
+Every call is counted, including a bad payload and a caller the role refuses. A caller the role refuses leaves no operation span, since the operation did no work, but its refusal is traced in a span named `<operation>.refused`, tagged `refusal`, `refusal.code` and `principal.kind`.
 
 - `ortho.calls`, a counter tagged `operation`, `outcome` (`answered`, `refused` or `defect`), `refusal` and
   `principal.kind`. No payload values, and no person.
