@@ -32,6 +32,14 @@ report and the list, in `e2e/grid/src/modules/grid`; it keys by pair, not by tes
 unit is a vitest test, ours a verdict). Three tests keep the list honest: every listed pair is switched on, each names a slice or a
 package file, and the list parses.
 
+**Two scope calls (Goal 3 lead, 19 November 2026).**
+1. M2.08 (`prove --through`) is inside Goal 3's bound ("all of M2"), after M2.05. Its 7 pairs (`operation.cli`'s journeys half) stay on the
+   list and the done check waits for them. `error.cli` and `error.mcp` switch on when M2.08 lands.
+2. M1.37's MCP output schema and states (`thing.mcp`, `machine.mcp`, 5 pairs) are pulled into Goal 3 from M3, because a journey touched
+   those cells. They are built with M1.42's client slice, and the list labels them "M1.42 (with M1.37's output schema, pulled from M3 by G7)".
+
+K19 (the portal prebuilt, #103) is the route for the M1.13 portal pairs.
+
 **The goal's done check needs the list empty.** A pair stays visible until a builder fixes it; fixing it is what shortens the list.
 
 CI: the `e2e-grid` job now runs `run --prove` through the nx target (`e2e/project.json`), with the No-Docker step and the Collector cache of
@@ -40,7 +48,7 @@ CI: the `e2e-grid` job now runs `run --prove` through the nx target (`e2e/projec
 ## The evidence
 
 239 of 316 pairs green, 77 red, 53 cells on, 10 held off, from one `nx run e2e:grid --skip-nx-cache` on the branch (exit 0, ratchet ✔). The 77
-by slice (a pair that names two counts under each): M1.42 47, M1.13 38, M1.37 5, M1.36 3, M2.08 7 (operation.cli's journeys half).
+by slice (a pair that names two counts under each): M1.42 52 (the 5 MCP pairs now counted here, M1.37's output schema pulled from M3), M1.13 38, M2.08 7, M1.36 3 (operation.cli's journeys half).
 By file, the builders' list is in `e2e/grid/README.md`, "Where Plugged In stands".
 
 Not decided here: `error.cli`, `error.mcp` (`prove --through`, S-11, S-20) and the eight not-needed event and journey cells (K14 Q2, Q3)

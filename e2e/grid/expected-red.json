@@ -232,13 +232,13 @@
       "cell": "machine.mcp",
       "subject": "handle",
       "reason": "handle.claim's description does not name the states it moves between (claimed missing)",
-      "waitsOn": "M1.37 (M3) — packages/language-effect/src/modules/mcp/service.ts, packages/generators/src/modules/render/internal/mcp.ts"
+      "waitsOn": "M1.42 (with M1.37's output schema, pulled from M3 by G7) — packages/language-effect/src/modules/mcp/service.ts, packages/generators/src/modules/render/internal/mcp.ts"
     },
     {
       "cell": "machine.mcp",
       "subject": "link",
       "reason": "link.add's description does not name the states it moves between (listed missing)",
-      "waitsOn": "M1.37 (M3) — packages/language-effect/src/modules/mcp/service.ts, packages/generators/src/modules/render/internal/mcp.ts"
+      "waitsOn": "M1.42 (with M1.37's output schema, pulled from M3 by G7) — packages/language-effect/src/modules/mcp/service.ts, packages/generators/src/modules/render/internal/mcp.ts"
     },
     {
       "cell": "machine.portal",
@@ -430,19 +430,19 @@
       "cell": "thing.mcp",
       "subject": "handle",
       "reason": "handle.claim offers no output schema, so an agent does not know the shape it gets back",
-      "waitsOn": "M1.42 (inputs described); M1.37 (output schema, in M3 since K13) — packages/language-effect/src/modules/mcp/service.ts"
+      "waitsOn": "M1.42 (with M1.37's output schema, pulled from M3 by G7) — packages/language-effect/src/modules/mcp/service.ts"
     },
     {
       "cell": "thing.mcp",
       "subject": "link",
       "reason": "link.add offers no output schema, so an agent does not know the shape it gets back",
-      "waitsOn": "M1.42 (inputs described); M1.37 (output schema, in M3 since K13) — packages/language-effect/src/modules/mcp/service.ts"
+      "waitsOn": "M1.42 (with M1.37's output schema, pulled from M3 by G7) — packages/language-effect/src/modules/mcp/service.ts"
     },
     {
       "cell": "thing.mcp",
       "subject": "profile",
       "reason": "profile.get offers no output schema, so an agent does not know the shape it gets back",
-      "waitsOn": "M1.42 (inputs described); M1.37 (output schema, in M3 since K13) — packages/language-effect/src/modules/mcp/service.ts"
+      "waitsOn": "M1.42 (with M1.37's output schema, pulled from M3 by G7) — packages/language-effect/src/modules/mcp/service.ts"
     },
     {
       "cell": "thing.sdk",
