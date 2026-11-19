@@ -1166,6 +1166,7 @@ they are closed. The unowned items for each page are in section 1, not repeated 
 | `AUT-35` | When the generated app runs locally it calls acme as a member of the world's cast, so `NotAllowed` names nobody in telemetry for calls the app did not make until a principal is put on that path. | origin/spike/generated-app:spikes/generated-app/README.md:135<br>design/milestones.md:205<br>design/milestones.md:237 | open | M2.03 |
 | `AUT-36` | `@formants/auth` keeps Better Auth's tables in its own store, so stores (M1.17) must land before M2.05. | design/decisions/K3-stores-and-sources.md:93<br>design/milestones.md:241 | open | M2.05 |
 | `AUT-37` | `signedBy` mapping to the caller's own Aztec account is proposed and not tested; M6.01 decides `signedBy` as EIP-712 only, and Noir is parked. | design/noir/addendum.md:127<br>design/milestones.md:353<br>design/milestones.md:399 | open | later |
+| `AUT-42` | The generated server binds the identity (Better Auth's `auth_user`) to the thing named `person` (`IDENTITY_THING`, projections' server.ts), not by its id prefix as before (#76 review 1); a binding the identity declaration names explicitly needs the declaration to name its thing, which moves the model. | PR #76 (claude/k16-checks), e2e/m1/22-k16-review.test.ts 22.1 | open | M2.05 |
 
 <details><summary>Closed: 4 fixed or superseded</summary>
 
