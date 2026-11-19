@@ -1,6 +1,6 @@
 // Generated from the blueprint. Do not edit.
 import { Schema } from "effect";
-import { ErrorNames, structOf } from "orthograph/server";
+import { ErrorNames, wireStruct } from "orthograph/server";
 import * as Mission from "../../../blueprint/things/mission/errors.ts";
 import * as Question from "../../../blueprint/things/question/errors.ts";
 import * as Run from "../../../blueprint/things/run/errors.ts";
@@ -30,23 +30,23 @@ export const refusals = {
 type Refusal = keyof typeof refusals;
 
 ErrorNames.name(Mission.MissionHasOpenQuestions, "MissionHasOpenQuestions");
-export class MissionHasOpenQuestions extends Schema.TaggedError<MissionHasOpenQuestions>()("MissionHasOpenQuestions", { code: Schema.Literal(refusals.MissionHasOpenQuestions.code), ...structOf(Mission.MissionHasOpenQuestions.fields).fields }, { httpApiStatus: refusals.MissionHasOpenQuestions.status }) { static readonly code = refusals.MissionHasOpenQuestions.code; }
+export class MissionHasOpenQuestions extends Schema.TaggedError<MissionHasOpenQuestions>()("MissionHasOpenQuestions", { code: Schema.Literal(refusals.MissionHasOpenQuestions.code), ...wireStruct(Mission.MissionHasOpenQuestions.fields).fields }, { httpApiStatus: refusals.MissionHasOpenQuestions.status }) { static readonly code = refusals.MissionHasOpenQuestions.code; }
 ErrorNames.name(Mission.MissionNotRunning, "MissionNotRunning");
-export class MissionNotRunning extends Schema.TaggedError<MissionNotRunning>()("MissionNotRunning", { code: Schema.Literal(refusals.MissionNotRunning.code), ...structOf(Mission.MissionNotRunning.fields).fields }, { httpApiStatus: refusals.MissionNotRunning.status }) { static readonly code = refusals.MissionNotRunning.code; }
+export class MissionNotRunning extends Schema.TaggedError<MissionNotRunning>()("MissionNotRunning", { code: Schema.Literal(refusals.MissionNotRunning.code), ...wireStruct(Mission.MissionNotRunning.fields).fields }, { httpApiStatus: refusals.MissionNotRunning.status }) { static readonly code = refusals.MissionNotRunning.code; }
 ErrorNames.name(Mission.MissionNotInIntake, "MissionNotInIntake");
-export class MissionNotInIntake extends Schema.TaggedError<MissionNotInIntake>()("MissionNotInIntake", { code: Schema.Literal(refusals.MissionNotInIntake.code), ...structOf(Mission.MissionNotInIntake.fields).fields }, { httpApiStatus: refusals.MissionNotInIntake.status }) { static readonly code = refusals.MissionNotInIntake.code; }
+export class MissionNotInIntake extends Schema.TaggedError<MissionNotInIntake>()("MissionNotInIntake", { code: Schema.Literal(refusals.MissionNotInIntake.code), ...wireStruct(Mission.MissionNotInIntake.fields).fields }, { httpApiStatus: refusals.MissionNotInIntake.status }) { static readonly code = refusals.MissionNotInIntake.code; }
 ErrorNames.name(Mission.MissionHasOpenTasks, "MissionHasOpenTasks");
-export class MissionHasOpenTasks extends Schema.TaggedError<MissionHasOpenTasks>()("MissionHasOpenTasks", { code: Schema.Literal(refusals.MissionHasOpenTasks.code), ...structOf(Mission.MissionHasOpenTasks.fields).fields }, { httpApiStatus: refusals.MissionHasOpenTasks.status }) { static readonly code = refusals.MissionHasOpenTasks.code; }
+export class MissionHasOpenTasks extends Schema.TaggedError<MissionHasOpenTasks>()("MissionHasOpenTasks", { code: Schema.Literal(refusals.MissionHasOpenTasks.code), ...wireStruct(Mission.MissionHasOpenTasks.fields).fields }, { httpApiStatus: refusals.MissionHasOpenTasks.status }) { static readonly code = refusals.MissionHasOpenTasks.code; }
 ErrorNames.name(Mission.MissionClosed, "MissionClosed");
-export class MissionClosed extends Schema.TaggedError<MissionClosed>()("MissionClosed", { code: Schema.Literal(refusals.MissionClosed.code), ...structOf(Mission.MissionClosed.fields).fields }, { httpApiStatus: refusals.MissionClosed.status }) { static readonly code = refusals.MissionClosed.code; }
+export class MissionClosed extends Schema.TaggedError<MissionClosed>()("MissionClosed", { code: Schema.Literal(refusals.MissionClosed.code), ...wireStruct(Mission.MissionClosed.fields).fields }, { httpApiStatus: refusals.MissionClosed.status }) { static readonly code = refusals.MissionClosed.code; }
 ErrorNames.name(Question.QuestionNoSuchOption, "QuestionNoSuchOption");
-export class QuestionNoSuchOption extends Schema.TaggedError<QuestionNoSuchOption>()("QuestionNoSuchOption", { code: Schema.Literal(refusals.QuestionNoSuchOption.code), ...structOf(Question.QuestionNoSuchOption.fields).fields }, { httpApiStatus: refusals.QuestionNoSuchOption.status }) { static readonly code = refusals.QuestionNoSuchOption.code; }
+export class QuestionNoSuchOption extends Schema.TaggedError<QuestionNoSuchOption>()("QuestionNoSuchOption", { code: Schema.Literal(refusals.QuestionNoSuchOption.code), ...wireStruct(Question.QuestionNoSuchOption.fields).fields }, { httpApiStatus: refusals.QuestionNoSuchOption.status }) { static readonly code = refusals.QuestionNoSuchOption.code; }
 ErrorNames.name(Run.RunOverBudget, "RunOverBudget");
-export class RunOverBudget extends Schema.TaggedError<RunOverBudget>()("RunOverBudget", { code: Schema.Literal(refusals.RunOverBudget.code), ...structOf(Run.RunOverBudget.fields).fields }, { httpApiStatus: refusals.RunOverBudget.status }) { static readonly code = refusals.RunOverBudget.code; }
+export class RunOverBudget extends Schema.TaggedError<RunOverBudget>()("RunOverBudget", { code: Schema.Literal(refusals.RunOverBudget.code), ...wireStruct(Run.RunOverBudget.fields).fields }, { httpApiStatus: refusals.RunOverBudget.status }) { static readonly code = refusals.RunOverBudget.code; }
 ErrorNames.name(Run.RunAgentCannot, "RunAgentCannot");
-export class RunAgentCannot extends Schema.TaggedError<RunAgentCannot>()("RunAgentCannot", { code: Schema.Literal(refusals.RunAgentCannot.code), ...structOf(Run.RunAgentCannot.fields).fields }, { httpApiStatus: refusals.RunAgentCannot.status }) { static readonly code = refusals.RunAgentCannot.code; }
+export class RunAgentCannot extends Schema.TaggedError<RunAgentCannot>()("RunAgentCannot", { code: Schema.Literal(refusals.RunAgentCannot.code), ...wireStruct(Run.RunAgentCannot.fields).fields }, { httpApiStatus: refusals.RunAgentCannot.status }) { static readonly code = refusals.RunAgentCannot.code; }
 ErrorNames.name(Run.RunTaskClaimed, "RunTaskClaimed");
-export class RunTaskClaimed extends Schema.TaggedError<RunTaskClaimed>()("RunTaskClaimed", { code: Schema.Literal(refusals.RunTaskClaimed.code), ...structOf(Run.RunTaskClaimed.fields).fields }, { httpApiStatus: refusals.RunTaskClaimed.status }) { static readonly code = refusals.RunTaskClaimed.code; }
+export class RunTaskClaimed extends Schema.TaggedError<RunTaskClaimed>()("RunTaskClaimed", { code: Schema.Literal(refusals.RunTaskClaimed.code), ...wireStruct(Run.RunTaskClaimed.fields).fields }, { httpApiStatus: refusals.RunTaskClaimed.status }) { static readonly code = refusals.RunTaskClaimed.code; }
 export class AttentionNotOpen extends Schema.TaggedError<AttentionNotOpen>()("AttentionNotOpen", { code: Schema.Literal(refusals.AttentionNotOpen.code), ...{ state: Schema.String } }, { httpApiStatus: refusals.AttentionNotOpen.status }) { static readonly code = refusals.AttentionNotOpen.code; }
 export class MilestoneNotActive extends Schema.TaggedError<MilestoneNotActive>()("MilestoneNotActive", { code: Schema.Literal(refusals.MilestoneNotActive.code), ...{ state: Schema.String } }, { httpApiStatus: refusals.MilestoneNotActive.status }) { static readonly code = refusals.MilestoneNotActive.code; }
 export class MissionNotIntake extends Schema.TaggedError<MissionNotIntake>()("MissionNotIntake", { code: Schema.Literal(refusals.MissionNotIntake.code), ...{ state: Schema.String } }, { httpApiStatus: refusals.MissionNotIntake.status }) { static readonly code = refusals.MissionNotIntake.code; }
@@ -64,30 +64,7 @@ export const exits = Object.fromEntries(Object.entries(refusals).map(([k, r]) =>
 /** Each refusal's code, stable across targets: `[AL-002] Name { field: value }`. Beside the tag, never in place of it. Read from `refusals`. */
 export const codes = Object.fromEntries(Object.entries(refusals).map(([k, r]) => [k, r.code])) as { readonly [K in Refusal]: (typeof refusals)[K]["code"] };
 
-/** The fields of each refusal whose values may be shown (printed, logged, put in a span): only the public ones. */
-export const shown: Readonly<Record<string, ReadonlyArray<string>>> = {
-  MissionHasOpenQuestions: ["open"],
-  MissionNotRunning: [],
-  MissionNotInIntake: [],
-  MissionHasOpenTasks: ["open"],
-  MissionClosed: [],
-  QuestionNoSuchOption: [],
-  RunOverBudget: ["left"],
-  RunAgentCannot: [],
-  RunTaskClaimed: [],
-  AttentionNotOpen: ["state"],
-  MilestoneNotActive: ["state"],
-  MissionNotIntake: ["state"],
-  QuestionNotAsked: ["state"],
-  RunNotRunning: ["state"],
-  AttentionNotFound: ["id"],
-  MilestoneNotFound: ["id"],
-  QuestionNotFound: ["id"],
-  RunNotFound: ["id"],
-  NotAllowed: [],
-};
-
-/** The declared errors themselves, by name: their fields say who may see a value (the MCP server redacts by role). */
+/** The declared errors themselves, by name: their fields say who may see a value (the visibility rule cuts a refusal by them). */
 export const declared = {
   MissionHasOpenQuestions: Mission.MissionHasOpenQuestions,
   MissionNotRunning: Mission.MissionNotRunning,

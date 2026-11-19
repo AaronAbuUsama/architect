@@ -1,6 +1,6 @@
 // Generated from the blueprint. Do not edit.
 import { Schema } from "effect";
-import { ErrorNames, structOf } from "orthograph/server";
+import { ErrorNames, wireStruct } from "orthograph/server";
 import * as Person from "../../../blueprint/things/person/errors.ts";
 import * as Session from "../../../blueprint/things/session/errors.ts";
 
@@ -15,9 +15,9 @@ export const refusals = {
 type Refusal = keyof typeof refusals;
 
 ErrorNames.name(Person.PersonEmailTaken, "PersonEmailTaken");
-export class PersonEmailTaken extends Schema.TaggedError<PersonEmailTaken>()("PersonEmailTaken", { code: Schema.Literal(refusals.PersonEmailTaken.code), ...structOf(Person.PersonEmailTaken.fields).fields }, { httpApiStatus: refusals.PersonEmailTaken.status }) { static readonly code = refusals.PersonEmailTaken.code; }
+export class PersonEmailTaken extends Schema.TaggedError<PersonEmailTaken>()("PersonEmailTaken", { code: Schema.Literal(refusals.PersonEmailTaken.code), ...wireStruct(Person.PersonEmailTaken.fields).fields }, { httpApiStatus: refusals.PersonEmailTaken.status }) { static readonly code = refusals.PersonEmailTaken.code; }
 ErrorNames.name(Session.SessionCredentialsWrong, "SessionCredentialsWrong");
-export class SessionCredentialsWrong extends Schema.TaggedError<SessionCredentialsWrong>()("SessionCredentialsWrong", { code: Schema.Literal(refusals.SessionCredentialsWrong.code), ...structOf(Session.SessionCredentialsWrong.fields).fields }, { httpApiStatus: refusals.SessionCredentialsWrong.status }) { static readonly code = refusals.SessionCredentialsWrong.code; }
+export class SessionCredentialsWrong extends Schema.TaggedError<SessionCredentialsWrong>()("SessionCredentialsWrong", { code: Schema.Literal(refusals.SessionCredentialsWrong.code), ...wireStruct(Session.SessionCredentialsWrong.fields).fields }, { httpApiStatus: refusals.SessionCredentialsWrong.status }) { static readonly code = refusals.SessionCredentialsWrong.code; }
 export class InvitationNotPending extends Schema.TaggedError<InvitationNotPending>()("InvitationNotPending", { code: Schema.Literal(refusals.InvitationNotPending.code), ...{ state: Schema.String } }, { httpApiStatus: refusals.InvitationNotPending.status }) { static readonly code = refusals.InvitationNotPending.code; }
 export class OrganizationNotActive extends Schema.TaggedError<OrganizationNotActive>()("OrganizationNotActive", { code: Schema.Literal(refusals.OrganizationNotActive.code), ...{ state: Schema.String } }, { httpApiStatus: refusals.OrganizationNotActive.status }) { static readonly code = refusals.OrganizationNotActive.code; }
 export class NotAllowed extends Schema.TaggedError<NotAllowed>()("NotAllowed", { code: Schema.Literal(refusals.NotAllowed.code), ...{} }, { httpApiStatus: refusals.NotAllowed.status }) { static readonly code = refusals.NotAllowed.code; }
@@ -28,16 +28,7 @@ export const exits = Object.fromEntries(Object.entries(refusals).map(([k, r]) =>
 /** Each refusal's code, stable across targets: `[AL-002] Name { field: value }`. Beside the tag, never in place of it. Read from `refusals`. */
 export const codes = Object.fromEntries(Object.entries(refusals).map(([k, r]) => [k, r.code])) as { readonly [K in Refusal]: (typeof refusals)[K]["code"] };
 
-/** The fields of each refusal whose values may be shown (printed, logged, put in a span): only the public ones. */
-export const shown: Readonly<Record<string, ReadonlyArray<string>>> = {
-  PersonEmailTaken: [],
-  SessionCredentialsWrong: [],
-  InvitationNotPending: ["state"],
-  OrganizationNotActive: ["state"],
-  NotAllowed: [],
-};
-
-/** The declared errors themselves, by name: their fields say who may see a value (the MCP server redacts by role). */
+/** The declared errors themselves, by name: their fields say who may see a value (the visibility rule cuts a refusal by them). */
 export const declared = {
   PersonEmailTaken: Person.PersonEmailTaken,
   SessionCredentialsWrong: Session.SessionCredentialsWrong,

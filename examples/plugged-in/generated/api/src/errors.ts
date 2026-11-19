@@ -1,6 +1,6 @@
 // Generated from blueprint/projections/api.ts. Do not edit.
 import { Schema } from "effect";
-import { ErrorNames, structOf } from "orthograph/server";
+import { ErrorNames, wireStruct } from "orthograph/server";
 import * as Handle from "../../../blueprint/things/handle/errors.ts";
 import * as Link from "../../../blueprint/things/link/errors.ts";
 import * as Profile from "../../../blueprint/things/profile/errors.ts";
@@ -20,17 +20,17 @@ export const refusals = {
 type Refusal = keyof typeof refusals;
 
 ErrorNames.name(Handle.HandleTaken, "HandleTaken");
-export class HandleTaken extends Schema.TaggedError<HandleTaken>()("HandleTaken", { code: Schema.Literal(refusals.HandleTaken.code), ...structOf(Handle.HandleTaken.fields).fields }, { httpApiStatus: refusals.HandleTaken.status }) { static readonly code = refusals.HandleTaken.code; }
+export class HandleTaken extends Schema.TaggedError<HandleTaken>()("HandleTaken", { code: Schema.Literal(refusals.HandleTaken.code), ...wireStruct(Handle.HandleTaken.fields).fields }, { httpApiStatus: refusals.HandleTaken.status }) { static readonly code = refusals.HandleTaken.code; }
 ErrorNames.name(Handle.HandleAlreadyOwned, "HandleAlreadyOwned");
-export class HandleAlreadyOwned extends Schema.TaggedError<HandleAlreadyOwned>()("HandleAlreadyOwned", { code: Schema.Literal(refusals.HandleAlreadyOwned.code), ...structOf(Handle.HandleAlreadyOwned.fields).fields }, { httpApiStatus: refusals.HandleAlreadyOwned.status }) { static readonly code = refusals.HandleAlreadyOwned.code; }
+export class HandleAlreadyOwned extends Schema.TaggedError<HandleAlreadyOwned>()("HandleAlreadyOwned", { code: Schema.Literal(refusals.HandleAlreadyOwned.code), ...wireStruct(Handle.HandleAlreadyOwned.fields).fields }, { httpApiStatus: refusals.HandleAlreadyOwned.status }) { static readonly code = refusals.HandleAlreadyOwned.code; }
 ErrorNames.name(Handle.HandleNotFound, "HandleNotFound");
-export class HandleNotFound extends Schema.TaggedError<HandleNotFound>()("HandleNotFound", { code: Schema.Literal(refusals.HandleNotFound.code), ...structOf(Handle.HandleNotFound.fields).fields }, { httpApiStatus: refusals.HandleNotFound.status }) { static readonly code = refusals.HandleNotFound.code; }
+export class HandleNotFound extends Schema.TaggedError<HandleNotFound>()("HandleNotFound", { code: Schema.Literal(refusals.HandleNotFound.code), ...wireStruct(Handle.HandleNotFound.fields).fields }, { httpApiStatus: refusals.HandleNotFound.status }) { static readonly code = refusals.HandleNotFound.code; }
 ErrorNames.name(Link.LinkNeedsHandle, "LinkNeedsHandle");
-export class LinkNeedsHandle extends Schema.TaggedError<LinkNeedsHandle>()("LinkNeedsHandle", { code: Schema.Literal(refusals.LinkNeedsHandle.code), ...structOf(Link.LinkNeedsHandle.fields).fields }, { httpApiStatus: refusals.LinkNeedsHandle.status }) { static readonly code = refusals.LinkNeedsHandle.code; }
+export class LinkNeedsHandle extends Schema.TaggedError<LinkNeedsHandle>()("LinkNeedsHandle", { code: Schema.Literal(refusals.LinkNeedsHandle.code), ...wireStruct(Link.LinkNeedsHandle.fields).fields }, { httpApiStatus: refusals.LinkNeedsHandle.status }) { static readonly code = refusals.LinkNeedsHandle.code; }
 ErrorNames.name(Link.LinkAlreadyRemoved, "LinkAlreadyRemoved");
-export class LinkAlreadyRemoved extends Schema.TaggedError<LinkAlreadyRemoved>()("LinkAlreadyRemoved", { code: Schema.Literal(refusals.LinkAlreadyRemoved.code), ...structOf(Link.LinkAlreadyRemoved.fields).fields }, { httpApiStatus: refusals.LinkAlreadyRemoved.status }) { static readonly code = refusals.LinkAlreadyRemoved.code; }
+export class LinkAlreadyRemoved extends Schema.TaggedError<LinkAlreadyRemoved>()("LinkAlreadyRemoved", { code: Schema.Literal(refusals.LinkAlreadyRemoved.code), ...wireStruct(Link.LinkAlreadyRemoved.fields).fields }, { httpApiStatus: refusals.LinkAlreadyRemoved.status }) { static readonly code = refusals.LinkAlreadyRemoved.code; }
 ErrorNames.name(Profile.ProfileNotFound, "ProfileNotFound");
-export class ProfileNotFound extends Schema.TaggedError<ProfileNotFound>()("ProfileNotFound", { code: Schema.Literal(refusals.ProfileNotFound.code), ...structOf(Profile.ProfileNotFound.fields).fields }, { httpApiStatus: refusals.ProfileNotFound.status }) { static readonly code = refusals.ProfileNotFound.code; }
+export class ProfileNotFound extends Schema.TaggedError<ProfileNotFound>()("ProfileNotFound", { code: Schema.Literal(refusals.ProfileNotFound.code), ...wireStruct(Profile.ProfileNotFound.fields).fields }, { httpApiStatus: refusals.ProfileNotFound.status }) { static readonly code = refusals.ProfileNotFound.code; }
 export class HandleNotClaimed extends Schema.TaggedError<HandleNotClaimed>()("HandleNotClaimed", { code: Schema.Literal(refusals.HandleNotClaimed.code), ...{ state: Schema.String } }, { httpApiStatus: refusals.HandleNotClaimed.status }) { static readonly code = refusals.HandleNotClaimed.code; }
 export class LinkNotListed extends Schema.TaggedError<LinkNotListed>()("LinkNotListed", { code: Schema.Literal(refusals.LinkNotListed.code), ...{ state: Schema.String } }, { httpApiStatus: refusals.LinkNotListed.status }) { static readonly code = refusals.LinkNotListed.code; }
 export class NotAllowed extends Schema.TaggedError<NotAllowed>()("NotAllowed", { code: Schema.Literal(refusals.NotAllowed.code), ...{} }, { httpApiStatus: refusals.NotAllowed.status }) { static readonly code = refusals.NotAllowed.code; }
@@ -41,20 +41,7 @@ export const exits = Object.fromEntries(Object.entries(refusals).map(([k, r]) =>
 /** Each refusal's code, stable across targets: `[AL-002] Name { field: value }`. Beside the tag, never in place of it. Read from `refusals`. */
 export const codes = Object.fromEntries(Object.entries(refusals).map(([k, r]) => [k, r.code])) as { readonly [K in Refusal]: (typeof refusals)[K]["code"] };
 
-/** The fields of each refusal whose values may be shown (printed, logged, put in a span): only the public ones. */
-export const shown: Readonly<Record<string, ReadonlyArray<string>>> = {
-  HandleTaken: [],
-  HandleAlreadyOwned: [],
-  HandleNotFound: [],
-  LinkNeedsHandle: [],
-  LinkAlreadyRemoved: [],
-  ProfileNotFound: [],
-  HandleNotClaimed: ["state"],
-  LinkNotListed: ["state"],
-  NotAllowed: [],
-};
-
-/** The declared errors themselves, by name: their fields say who may see a value (the MCP server redacts by role). */
+/** The declared errors themselves, by name: their fields say who may see a value (the visibility rule cuts a refusal by them). */
 export const declared = {
   HandleTaken: Handle.HandleTaken,
   HandleAlreadyOwned: Handle.HandleAlreadyOwned,

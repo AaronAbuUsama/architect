@@ -1,11 +1,11 @@
 // What a span may say about a call, from the declaration's visibility and text opt-in (O2).
 import type { FieldsInput } from "orthograph";
-import { traceable } from "orthograph/server";
+import { Audience, Visibility } from "#modules/visibility/service.js";
 
 const text = (v: unknown): string =>
   typeof v === "string" ? v : typeof v === "bigint" ? v.toString() : JSON.stringify(v, (_, x: unknown) => (typeof x === "bigint" ? x.toString() : x));
 
-const canTrace = (key: string, fields: FieldsInput): boolean => Object.hasOwn(fields, key) && traceable(fields[key]!);
+const canTrace = (key: string, fields: FieldsInput): boolean => Object.hasOwn(fields, key) && Visibility.sees(Audience.telemetry, fields[key]!);
 
 const tracedEntries = (values: object, fields: FieldsInput): Array<[string, unknown]> =>
   Object.entries(values).filter(([k]) => canTrace(k, fields));
@@ -36,4 +36,4 @@ export const answerAttributes = (answer: unknown, fields: FieldsInput, items?: F
 };
 
 /** Whether a field of an event may be written to the journal. */
-export const journalled = (fields: FieldsInput, key: string): boolean => fields[key]?.visibility === "public";
+export const journalled = (fields: FieldsInput, key: string): boolean => Object.hasOwn(fields, key) && Visibility.sees(Audience.public, fields[key]!);

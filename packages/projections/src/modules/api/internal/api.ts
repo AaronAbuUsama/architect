@@ -11,24 +11,21 @@ const errors = (model: Model): RenderedFile => {
   const things = Object.values(model.things);
   const declaring = things.filter((t) => Object.keys(t.errors).length > 0);
   const rows: Array<string> = [];
-  const shown: Array<string> = [];
   const declared: Array<string> = [];
   const body: Array<string> = [];
   // One row per refusal: its code, its exit and its HTTP status, written once and read by every surface (K16, M1.47).
-  const row = (name: string, code: string, exit: number, status: number, visible: ReadonlyArray<string>) => {
+  const row = (name: string, code: string, exit: number, status: number) => {
     rows.push(`  ${name}: { code: "${code}", exit: ${exit}, status: ${status} },`);
-    shown.push(`  ${name}: ${JSON.stringify(visible)},`);
   };
   // Each refusal's code is beside its tag: a field on the wire class, and a static the runtime reads it from.
   const cls = (name: string, fields: string) =>
     `export class ${name} extends Schema.TaggedError<${name}>()("${name}", { code: Schema.Literal(refusals.${name}.code), ...${fields} }, { httpApiStatus: refusals.${name}.status }) { static readonly code = refusals.${name}.code; }`;
-  const publicFields = (fields: Readonly<Record<string, { readonly visibility?: unknown }>>) => Object.keys(fields).filter((k) => fields[k]!.visibility === undefined);
   for (const t of declaring) {
     for (const [name, e] of Object.entries(t.errors)) {
       body.push(`ErrorNames.name(${t.identifier}.${name}, "${name}");`);
-      body.push(cls(name, `structOf(${t.identifier}.${name}.fields).fields`));
+      body.push(cls(name, `wireStruct(${t.identifier}.${name}.fields).fields`));
       // A thing's declared `<Thing>NotFound` is its not-found refusal, adopted by the runtime (K16): 404, not 422.
-      row(name, e.code, e.exit, name === `${t.identifier}NotFound` ? STATUS.notFound : STATUS.declared, publicFields(e.fields));
+      row(name, e.code, e.exit, name === `${t.identifier}NotFound` ? STATUS.notFound : STATUS.declared);
       declared.push(`  ${name}: ${t.identifier}.${name},`);
     }
   }
@@ -36,22 +33,22 @@ const errors = (model: Model): RenderedFile => {
     if (!t.machine) continue;
     const { error, exit, code } = t.machine.notFrom;
     body.push(cls(error, "{ state: Schema.String }"));
-    row(error, code, exit, STATUS.notFrom, ["state"]);
+    row(error, code, exit, STATUS.notFrom);
   }
   for (const t of things) {
     // The generated `<Thing>NotFound`, carrying the id that named nothing; a declared one is already above.
     if (!t.notFound || t.notFound.error in t.errors) continue;
     const { error, exit, code } = t.notFound;
     body.push(cls(error, "{ id: Schema.String }"));
-    row(error, code, exit, STATUS.notFound, ["id"]);
+    row(error, code, exit, STATUS.notFound);
   }
   body.push(cls("NotAllowed", "{}"));
-  row("NotAllowed", model.refusals["NotAllowed"] ?? "AR-001", NOT_ALLOWED_EXIT, STATUS.notAllowed, []);
+  row("NotAllowed", model.refusals["NotAllowed"] ?? "AR-001", NOT_ALLOWED_EXIT, STATUS.notAllowed);
   const names = rows.map((e) => e.trim().split(":")[0]);
   return file(path, lines(
     GENERATED,
     `import { Schema } from "effect";`,
-    `import { ErrorNames, structOf } from "${Names.frontDoor}/server";`,
+    `import { ErrorNames, wireStruct } from "${Names.frontDoor}/server";`,
     declaring.map((t) => `import * as ${t.identifier} from "${thingFileAt(path, t, "errors")}";`),
     "",
     "/** Every refusal's code, its exit for the CLI and its HTTP status: one row each, read by the CLI, HTTP and MCP. */",
@@ -66,10 +63,7 @@ const errors = (model: Model): RenderedFile => {
     "/** Each refusal's code, stable across targets: `[AL-002] Name { field: value }`. Beside the tag, never in place of it. Read from `refusals`. */",
     "export const codes = Object.fromEntries(Object.entries(refusals).map(([k, r]) => [k, r.code])) as { readonly [K in Refusal]: (typeof refusals)[K][\"code\"] };",
     "",
-    "/** The fields of each refusal whose values may be shown (printed, logged, put in a span): only the public ones. */",
-    "export const shown: Readonly<Record<string, ReadonlyArray<string>>> = {", shown, "};",
-    "",
-    "/** The declared errors themselves, by name: their fields say who may see a value (the MCP server redacts by role). */",
+    "/** The declared errors themselves, by name: their fields say who may see a value (the visibility rule cuts a refusal by them). */",
     "export const declared = {", declared, "} as const;",
     "",
     "/** The wire class of each refusal, by name. */",
@@ -77,18 +71,29 @@ const errors = (model: Model): RenderedFile => {
   ));
 };
 
-const endpoint = (op: OperationModel): RenderedFile => {
+/** The names of the fields a client may not be shown: private to roles, or secret and not issued by this call. */
+const cut = (fields: Readonly<Record<string, { readonly visibility?: unknown; readonly issued?: true }>>, issuing: boolean) =>
+  Object.entries(fields).filter(([, f]) => f.visibility !== undefined && !(issuing && f.issued === true)).map(([k]) => `"${k}"`);
+
+const endpoint = (op: OperationModel, model: Model): RenderedFile => {
   const path = `generated/api/src/${op.thing}/${op.verb}.ts`;
+  // What the SDK is typed to decode: a field the server may cut for a caller is optional, in the answer and in each list item.
+  const keys = cut(op.answer, op.kind === "operation");
+  const itemKeys = op.list ? cut(Object.fromEntries(Object.entries(model.things[op.thing]?.fields ?? {}).filter(([k]) => k !== "state")), false) : [];
+  const typed = keys.length > 0 || itemKeys.length > 0;
   return file(path, lines(
     `// Generated from ${op.file}. Do not edit.`,
     `import { HttpApiEndpoint } from "effect/http-api";`,
+    `import { ${op.list ? "listItemFields, " : ""}wireStruct${typed ? ", type Wired" : ""} } from "${Names.frontDoor}/server";`,
     `import declaration from "${declarationAt(path, op.file)}";`,
     `import { ${op.refusals.join(", ")} } from "../errors.ts";`,
     "",
     "export { declaration };",
     `export const endpoint = HttpApiEndpoint.post("${op.verb}", "/${op.thing}/${op.verb}", {`,
     "  payload: declaration.payloadSchema,",
-    "  success: declaration.answerSchema,",
+    `  // What the wire carries: the declared answer, the fields not every caller is shown optional. The server cuts each answer by who is asking.`,
+    `  // Typed as the declaration types it: the schema is built from fields known only at run time, which TypeScript cannot follow.`,
+    `  success: wireStruct(declaration.answer, { issuing: true${op.list ? ", items: listItemFields(declaration.thing)" : ""} }) as unknown as ${typed ? `Wired<typeof declaration.answerSchema, ${keys.length > 0 ? keys.join(" | ") : "never"}${itemKeys.length > 0 ? `, ${itemKeys.join(" | ")}` : ""}>` : "typeof declaration.answerSchema"},`,
     `  error: [${op.refusals.join(", ")}],`,
     "});",
     `export const steps = [${Object.values(op.steps).map((s) => `"${s.name}"`).join(", ")}] as const;`,
@@ -161,6 +166,6 @@ export const renderApi = (model: Model, name: string, served: Model = model): Re
   errors(served),
   events(served),
   index(served, name),
-  ...Object.values(served.operations).flatMap((op) => (op.kind === "read" ? [endpoint(op)] : [endpoint(op), handlerType(op)])),
+  ...Object.values(served.operations).flatMap((op) => (op.kind === "read" ? [endpoint(op, served)] : [endpoint(op, served), handlerType(op)])),
   ...Object.values(model.operations).filter(onDevice).map(declarationOnly),
 ];
