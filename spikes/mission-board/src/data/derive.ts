@@ -1,7 +1,8 @@
 // Everything the board shows that isn't stored: the join of Grid and Board, lane scores,
 // the hill climb and "what changed". Pure functions; the page calls these and nothing else.
+import { cellRole } from "./grid/types.ts";
 import type {
-  Block, Board, CardEvent, CardWork, Cell, CellId, CellState, Grid, Output, OutputId, Question, Task, Thread,
+  Block, Board, CardEvent, CardWork, Cell, CellId, CellRole, CellState, Grid, Output, OutputId, Question, Task, Thread,
 } from "./types.ts";
 
 export interface CardView {
@@ -14,7 +15,9 @@ export interface CardView {
   readonly history: ReadonlyArray<CardEvent>;
   readonly question: Question | null;     // Aaron's open call that decides this card, if any
   readonly waitsOn: ReadonlyArray<OutputId>; // outputs this one depends on that aren't green yet in its lane
-  readonly proposedNotNeeded: boolean;     // "proposed grey": red, and the grid proposes not needed; stays red until Aaron answers K14 Q2
+  readonly role: CellRole;                 // from `cellRole(block, output)`: carries, an absence check, or not needed
+  readonly because: string | null;         // the block's `audiencesBecause` when the role isn't "carries"
+  readonly proposedNotNeeded: boolean;     // "proposed grey": red, role not-needed, and Q2 not yet answered "A"
   readonly notes: { readonly markdown: string; readonly stale: boolean }; // empty markdown when nobody wrote any
 }
 
@@ -75,7 +78,10 @@ export const join = (grid: Grid, board: Board): BoardView => {
 
   const questions = new Map(grid.questions.map((q) => [q.id, q]));
 
-  const card = (cell: Cell, output: Output): CardView => {
+  const q2agreed = grid.questions.find((q) => q.id === "Q2")?.answer === "A";
+
+  const card = (block: Block, cell: Cell, output: Output): CardView => {
+    const role = cellRole(block, output);
     const w = work.get(cell.id);
     const history = w?.history ?? [];
     const thread = w?.thread ? threads.get(w.thread) ?? null : null;
@@ -87,7 +93,9 @@ export const join = (grid: Grid, board: Board): BoardView => {
       hadIt: hadIt(history, thread?.id ?? null, threads),
       question: cell.question ? questions.get(cell.question) ?? null : null,
       waitsOn: [],
-      proposedNotNeeded: cell.notNeededProposal !== null && stateNow(cell, history) === "red",
+      role,
+      because: role === "carries" ? null : block.audiencesBecause,
+      proposedNotNeeded: role === "not-needed" && !q2agreed && stateNow(cell, history) === "red",
       notes: { markdown: w?.notes?.markdown ?? "", stale: !!w?.notes && w.notes.about !== grid.asOf },
     };
   };
@@ -95,7 +103,7 @@ export const join = (grid: Grid, board: Board): BoardView => {
   const lanes = byOrder(grid.blocks).map((block): LaneView => {
     const raw = outputs.flatMap((o) => {
       const cell = cells.get(`${block.id}.${o.id}`);
-      return cell ? [card(cell, o)] : [];
+      return cell ? [card(block, cell, o)] : [];
     });
     const green = new Set(raw.filter((c) => c.state === "green").map((c) => c.output.id));
     const cards = raw.map((c) => ({ ...c, waitsOn: c.output.dependsOn.filter((d) => !green.has(d)) }));

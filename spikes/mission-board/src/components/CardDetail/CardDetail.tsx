@@ -47,7 +47,10 @@ export const CardDetail = ({ card, lane, asOf, onCard, onClose }: CardDetailProp
       ]} />
 
       {card.proposedNotNeeded && (
-        <Callout icon={<ProhibitIcon size={16} />} title="Proposed not needed"><Text text={card.cell.notNeededProposal ?? ""} /></Callout>
+        <Callout icon={<ProhibitIcon size={16} />} title="Proposed not needed"><Text text={card.because ?? ""} /></Callout>
+      )}
+      {card.role === "absence" && (
+        <Callout icon={<ProhibitIcon size={16} />} tone="warning" title="An absence check"><Text text={card.because ?? ""} /></Callout>
       )}
       {card.question && (
         <Callout icon={<QuestionIcon size={16} />} tone="warning" title={`${card.question.id} for Aaron`}>

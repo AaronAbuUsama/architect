@@ -22,8 +22,10 @@ export const Red: Story = { name: "Red · visibility.api", args: args(now, pick.
 export const Partly: Story = { name: "Partly · operation.portal", args: args(now, pick.partly) };
 export const Built: Story = { name: "Built · operation.model", args: args(now, pick.built) };
 export const Green: Story = { name: "Green · operation.api (made-up history)", args: args(later, pick.green) };
-export const ProposedGrey: Story = { name: "Proposed grey · step.sdk", args: args(now, pick.proposedGrey) };
+export const ProposedGrey: Story = { name: "Proposed grey · event.sdk", args: args(now, pick.proposedGrey) };
 export const Waiting: Story = { name: "Held by a dependency · error.portal", args: args(now, pick.waiting) };
 export const WithHistory: Story = { name: "With history · error.telemetry (made-up)", args: args(later, pick.history) };
 
-export const __namedExportsOrder = ["Red", "Partly", "Built", "Green", "ProposedGrey", "Waiting", "WithHistory"];
+export const Absence: Story = { name: "Absence check · step.sdk", args: args(now, pick.absence) };
+
+export const __namedExportsOrder = ["Red", "Partly", "Built", "Green", "ProposedGrey", "Waiting", "WithHistory", "Absence"];

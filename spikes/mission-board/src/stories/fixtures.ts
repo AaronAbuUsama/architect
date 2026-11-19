@@ -27,7 +27,8 @@ export const pick = {
   built: "operation.model",
   partly: "operation.portal",
   green: "operation.api",          // green only in the made-up history
-  proposedGrey: "step.sdk",        // red, with a not-needed proposal waiting on K14's Q2
+  proposedGrey: "event.sdk",       // red, role not-needed (cellRole), waiting on K14's Q2
+  absence: "step.sdk",             // an absence check: a step must never reach a caller
   waiting: "error.portal",         // waits on model, docs and telemetry
   history: "error.telemetry",      // two made-up moves and a thread that had it before
 } as const satisfies Record<string, CellId>;

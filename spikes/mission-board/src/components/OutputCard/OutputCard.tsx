@@ -41,6 +41,7 @@ export const OutputCard = ({ card, block, heldBy }: OutputCardProps) => {
         {card.task && <Chip size="sm" variant="soft"><span className="mono">{card.task.ref}</span>&nbsp;· {stageName(stageOf(card))}</Chip>}
         {card.question && <Chip size="sm" variant="soft" color="warning"><QuestionIcon size={12} aria-hidden="true" />{card.question.id}</Chip>}
         {card.proposedNotNeeded && <Chip size="sm" variant="soft">Proposed not needed</Chip>}
+        {card.role === "absence" && <Chip size="sm" variant="soft" color="warning">Absence check</Chip>}
       </div>
 
       {ran.length > 0 && (

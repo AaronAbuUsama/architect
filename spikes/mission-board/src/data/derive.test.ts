@@ -22,7 +22,7 @@ test("lanes come in the hill-climb order, each with a card per output in output 
 
 test("with no history, the board shows the grid's states: nothing green until a verdict lands", () => {
   const view = join(grid, board);
-  deepEqual(view.score, { green: 0, built: 48, partly: 31, red: 38, notNeeded: 0, needed: 117 });
+  deepEqual(view.score, { green: 0, built: 52, partly: 32, red: 33, notNeeded: 0, needed: 117 });
   deepEqual(lane(view.lanes, "visibility").cards.map((c) => c.state),
     ["built", "red", "red", "red", "partly", "built", "partly", "red", "built"]);
   equal(view.illustrative, false);
@@ -74,13 +74,17 @@ test("what changed lists moves after a time, newest first, with the state each c
 
 test("filters by state, thread and output", () => {
   const cards = join(grid, moved).lanes.flatMap((l) => l.cards);
-  equal(cards.filter((c) => matches(c, { states: ["red"] })).length, 36);
+  equal(cards.filter((c) => matches(c, { states: ["red"] })).length, 31);
   equal(cards.filter((c) => matches(c, { thread: "codex-plugged-in" })).length, 1);
-  equal(cards.filter((c) => matches(c, { output: "mcp", states: ["red"] })).length, 7);
+  equal(cards.filter((c) => matches(c, { output: "mcp", states: ["red"] })).length, 5);
 });
 
-test("seventeen red cards are proposed grey until Aaron answers", () => {
-  const cards = join(grid, board).lanes.flatMap((l) => l.cards).filter((c) => c.proposedNotNeeded);
-  equal(cards.length, 17);
-  equal(cards.every((c) => c.state === "red"), true);
+test("roles come from cellRole: 93 carry, 4 absence checks, 20 not needed; 14 red ones are proposed grey", () => {
+  const all = join(grid, board).lanes.flatMap((l) => l.cards);
+  const count = (r: string) => all.filter((c) => c.role === r).length;
+  deepEqual([count("carries"), count("absence"), count("not-needed")], [93, 4, 20]);
+  deepEqual(all.filter((c) => c.role === "absence").map((c) => c.cell.id).sort(), ["step.api", "step.cli", "step.mcp", "step.sdk"]);
+  const grey = all.filter((c) => c.proposedNotNeeded);
+  equal(grey.length, 14);
+  equal(grey.every((c) => c.state === "red" && c.role === "not-needed" && c.because !== null), true);
 });

@@ -16,8 +16,10 @@ const args = (v: typeof now, cell: (typeof pick)[keyof typeof pick]): CardDetail
 
 export const Red: Story = { name: "Red · visibility.api", args: args(now, pick.red) };
 export const Built: Story = { name: "Built · operation.model", args: args(now, pick.built) };
-export const ProposedGrey: Story = { name: "Proposed grey, with Aaron's question · step.sdk", args: args(now, pick.proposedGrey) };
+export const ProposedGrey: Story = { name: "Proposed grey, with Aaron's question · event.sdk", args: args(now, pick.proposedGrey) };
 export const Waiting: Story = { name: "Waits on others · error.portal", args: args(now, pick.waiting) };
 export const WithHistory: Story = { name: "With history · error.telemetry (made-up)", args: args(later, pick.history) };
 
-export const __namedExportsOrder = ["Red", "Built", "ProposedGrey", "Waiting", "WithHistory"];
+export const Absence: Story = { name: "Absence check · step.sdk", args: args(now, pick.absence) };
+
+export const __namedExportsOrder = ["Red", "Built", "ProposedGrey", "Waiting", "WithHistory", "Absence"];

@@ -26,7 +26,14 @@
         "description": "Every operation and read is one endpoint, one SDK function, one CLI command, one MCP tool, one docs page and one portal page, with its description, who may call, its idempotency and its budget, and every call is counted and traced.",
         "ref": null
       },
-      "proof": "The operation's page in the portal (the in-and-out band, the spine, the proof tab with its journeys' verdicts) and the operations matrix on home (calls, refused, defects, p95 against budget); journeys through each client (M2.08)."
+      "proof": "The operation's page in the portal (the in-and-out band, the spine, the proof tab with its journeys' verdicts) and the operations matrix on home (calls, refused, defects, p95 against budget); journeys through each client (M2.08).",
+      "audiences": [
+        "caller",
+        "builder",
+        "operator"
+      ],
+      "absentFrom": [],
+      "audiencesBecause": "The caller's whole contract, the builder's handler, the operator's calls and budget."
     },
     {
       "id": "error",
@@ -39,7 +46,14 @@
         "description": "Every refusal a caller can get, declared or the runtime's own, has a name, a code and an exit, and the same three reach the SDK as a typed class, the CLI as `[code] Name` and its exit, MCP as an error with its code, the docs' refusals table, the portal's arrows and counts, and the span.",
         "ref": null
       },
-      "proof": "Refusals on the arrow they guard and in the in-and-out band, counted by code (portal.md); M1.41's refused claim prints `HN-001`; `refusal.code` on the span (M1.36)."
+      "proof": "Refusals on the arrow they guard and in the in-and-out band, counted by code (portal.md); M1.41's refused claim prints `HN-001`; `refusal.code` on the span (M1.36).",
+      "audiences": [
+        "caller",
+        "builder",
+        "operator"
+      ],
+      "absentFrom": [],
+      "audiencesBecause": "Refusals are the caller's contract: name, code and exit."
     },
     {
       "id": "thing",
@@ -52,7 +66,14 @@
         "description": "Every thing the blueprint declares, with every field's type, reference, optionality, visibility and description, is the same in every output: typed in the SDK, a typed and described flag in the CLI, an input and output schema in MCP, a reference page in the docs, and a card and page in the portal.",
         "ref": null
       },
-      "proof": "The portal's home (one card per thing, grouped by `from`) and each thing's page, with the in-and-out band showing every field and its visibility; M1.41 reads every output for each thing's type and fields; the stage 1 journeys run through the SDK, CLI and MCP (M2.08)."
+      "proof": "The portal's home (one card per thing, grouped by `from`) and each thing's page, with the in-and-out band showing every field and its visibility; M1.41 reads every output for each thing's type and fields; the stage 1 journeys run through the SDK, CLI and MCP (M2.08).",
+      "audiences": [
+        "caller",
+        "builder",
+        "operator"
+      ],
+      "absentFrom": [],
+      "audiencesBecause": "A thing's fields are every payload and answer: callers type against them, builders declare them, operators see them on spans."
     },
     {
       "id": "step",
@@ -65,7 +86,15 @@
         "description": "Every declared step (its kind, the stores it writes, whether it is optional, and the adapter it calls) is in the model, run in order by the server, documented, drawn on the operation's spine and traced as its own span, and never part of a client's contract.",
         "ref": null
       },
-      "proof": "The operation's spine in the portal: each declared step in its place, a finished call's spans down it, a running call's step signals as they arrive (M1.21); `ortho prove --empty` shows one red step per blank."
+      "proof": "The operation's spine in the portal: each declared step in its place, a finished call's spans down it, a running call's step signals as they arrive (M1.21); `ortho prove --empty` shows one red step per blank.",
+      "audiences": [
+        "builder",
+        "operator"
+      ],
+      "absentFrom": [
+        "caller"
+      ],
+      "audiencesBecause": "How the handler works, not what the caller asked for: a step renamed or split must never change a caller's contract. Leaving its audience is a leak, so its caller cards are absence checks."
     },
     {
       "id": "machine",
@@ -78,7 +107,14 @@
         "description": "A thing's lifecycle (its states, its moves, what each move emits and the refusal for a wrong state) is typed in every client, documented, drawn as the lifecycle strip in the portal, and every move is traced from and to.",
         "ref": null
       },
-      "proof": "The lifecycle strip on a thing's card and page, with move counts on each arrow and refusals on the arrow they guard (portal.md, \"A thing's page\"), lit by `move.name`, `move.from` and `move.to`."
+      "proof": "The lifecycle strip on a thing's card and page, with move counts on each arrow and refusals on the arrow they guard (portal.md, \"A thing's page\"), lit by `move.name`, `move.from` and `move.to`.",
+      "audiences": [
+        "caller",
+        "builder",
+        "operator"
+      ],
+      "absentFrom": [],
+      "audiencesBecause": "A thing's state is in its answers, and the wrong-state refusal is the first thing a caller meets; the moves are the builder's, the transitions on spans the operator's."
     },
     {
       "id": "event",
@@ -91,7 +127,13 @@
         "description": "Every event a move emits is typed in the SDK, documented with its fields, shown on the thing's page with its fields, named on the commit span, and its committed occurrences show in the portal with the commit that wrote them.",
         "ref": null
       },
-      "proof": "The thing's page lists its events with their fields; an operation's spine shows the event its commit emitted and the `on:` handlers it set off (M1.21's committed events from the journal)."
+      "proof": "The thing's page lists its events with their fields; an operation's spine shows the event its commit emitted and the `on:` handlers it set off (M1.21's committed events from the journal).",
+      "audiences": [
+        "builder",
+        "operator"
+      ],
+      "absentFrom": [],
+      "audiencesBecause": "The runtime's record of a move, read by the builder and the operator. A caller reads state, not the journal, until views make events followable (M5.05, Q3)."
     },
     {
       "id": "visibility",
@@ -104,7 +146,14 @@
         "description": "One rule decides, per audience, what each field shows: a secret leaves only in the answer of the call that issued it, a private field only to the roles it names, and every output (HTTP answers and refusals, SDK, CLI, MCP, docs, portal, spans, journal, logs) calls the same rule and fails closed.",
         "ref": null
       },
-      "proof": "Check 16 renders every output for every audience over a fixture with a public, a private and a secret field (M1.35); the portal's \"no leak\" check (M1.13); stage 4's club, whose portal shows nothing that names a member (ST4.07)."
+      "proof": "Check 16 renders every output for every audience over a fixture with a public, a private and a secret field (M1.35); the portal's \"no leak\" check (M1.13); stage 4's club, whose portal shows nothing that names a member (ST4.07).",
+      "audiences": [
+        "caller",
+        "builder",
+        "operator"
+      ],
+      "absentFrom": [],
+      "audiencesBecause": "The rule over what each audience sees: its caller cards are where a secret must not leave."
     },
     {
       "id": "journey",
@@ -117,7 +166,13 @@
         "description": "Every journey and starting world is in the model, runs through each client (SDK, CLI, MCP), is listed in the docs as the worked example of the operations it covers, and shows in the portal as the proof on each operation, its runs lighting up what it touched.",
         "ref": null
       },
-      "proof": "The proof tab on each operation (the journeys that cover it and their verdicts, M1.04) and the proof matrix per environment (portal.md); `ortho prove` passing `--through sdk|cli|mcp` (M2.08)."
+      "proof": "The proof tab on each operation (the journeys that cover it and their verdicts, M1.04) and the proof matrix per environment (portal.md); `ortho prove` passing `--through sdk|cli|mcp` (M2.08).",
+      "audiences": [
+        "builder",
+        "operator"
+      ],
+      "absentFrom": [],
+      "audiencesBecause": "Journeys prove the app: they run through the clients (M2.08), never in them. The server's part is the starting world, gated to environments with a lifetime."
     },
     {
       "id": "roles",
@@ -130,7 +185,14 @@
         "description": "Who may call each operation is declared once and is true everywhere: enforced by the server, said in the SDK's doc comment, the CLI's help and the MCP tool's description, MCP lists only the tools the caller's roles allow, the docs and portal show each role rule, and each span says which role let the call through.",
         "ref": null
       },
-      "proof": "Roles on a thing's page and `allowed` in each operation's band (portal.md); the stage 1 journeys \"a stranger can't edit\" run through every client (ST1.02 with M2.08); M2.02's principal journeys."
+      "proof": "Roles on a thing's page and `allowed` in each operation's band (portal.md); the stage 1 journeys \"a stranger can't edit\" run through every client (ST1.02 with M2.08); M2.02's principal journeys.",
+      "audiences": [
+        "caller",
+        "builder",
+        "operator"
+      ],
+      "absentFrom": [],
+      "audiencesBecause": "A caller needs to know who may call before calling (M2.03); a refusal says NotAllowed."
     },
     {
       "id": "environment",
@@ -143,7 +205,13 @@
         "description": "Each declared environment (where it runs, its identity, its stores' bindings, its secrets by name, its telemetry sink, its domains) is served as declared, named on every call's span, documented, and is the portal's switcher; whether the clients know environments by name is Q4.",
         "ref": null
       },
-      "proof": "The portal's environment switcher in the top bar and the proof matrix (every operation against every environment, portal.md \"Environments\"); `environment` on every span (M1.36)."
+      "proof": "The portal's environment switcher in the top bar and the proof matrix (every operation against every environment, portal.md \"Environments\"); `environment` on every span (M1.36).",
+      "audiences": [
+        "builder",
+        "operator"
+      ],
+      "absentFrom": [],
+      "audiencesBecause": "Where the app runs and what it binds is the builder's and the operator's; a caller is handed a URL. Q4 decides whether the caller gets the environments' names and public domains."
     },
     {
       "id": "store",
@@ -156,7 +224,13 @@
         "description": "Each store the blueprint declares (or a mounted plugin brings) has its own binding and migrations, says what lives in it in the docs and the portal's data page, and is named on every call's span; callers never see where a thing lives.",
         "ref": null
       },
-      "proof": "The portal's data page (every store, its kind, binding and migrations, M5.06) and a thing's header naming its store; `store` on every span (M1.36); K3's check that a call writing two stores is refused (Gate M1 item 5)."
+      "proof": "The portal's data page (every store, its kind, binding and migrations, M5.06) and a thing's header naming its store; `store` on every span (M1.36); K3's check that a call writing two stores is refused (Gate M1 item 5).",
+      "audiences": [
+        "builder",
+        "operator"
+      ],
+      "absentFrom": [],
+      "audiencesBecause": "Where things live: a store renamed or rebound must never change a caller's contract."
     },
     {
       "id": "mount",
@@ -169,7 +243,13 @@
         "description": "A plugin mounted with one file brings its things, operations, stores and adapters into every output as if they were the app's own, honouring the mount's narrowing, while the docs, the portal and the spans say where each came from (plugin, package, version) and which adapter a call step called.",
         "ref": null
       },
-      "proof": "The portal's tree, one folded group per mounted plugin with its version in the page header (portal.md, \"The frame\"); a call step on the spine naming its adapter; check 01 mounts a plugin with one command (Gate M1 item 1)."
+      "proof": "The portal's tree, one folded group per mounted plugin with its version in the page header (portal.md, \"The frame\"); a call step on the spine naming its adapter; check 01 mounts a plugin with one command (Gate M1 item 1).",
+      "audiences": [
+        "builder",
+        "operator"
+      ],
+      "absentFrom": [],
+      "audiencesBecause": "A mounted plugin's operations reach callers through the operation lane, as the app's own; which plugin they came from is the builder's and the operator's."
     },
     {
       "id": "device",
@@ -182,7 +262,14 @@
         "description": "An operation declared `runs: \"client\"` runs in the caller's process from the SDK and the CLI with no server request, never on the server, is documented as running on the device, marked in the portal, and its spans reach the environment's sink like any call.",
         "ref": null
       },
-      "proof": "Check 11 (a client operation through the SDK and CLI with no server call); stage 2's wallet created on the device (ST2.06); the operation's page in the portal marked \"on your device\", lit by its spans (portal.md gap 4)."
+      "proof": "Check 11 (a client operation through the SDK and CLI with no server call); stage 2's wallet created on the device (ST2.06); the operation's page in the portal marked \"on your device\", lit by its spans (portal.md gap 4).",
+      "audiences": [
+        "caller",
+        "builder",
+        "operator"
+      ],
+      "absentFrom": [],
+      "audiencesBecause": "The caller runs a device operation in its own process; the builder declares it, the operator sees its spans (ST2.07)."
     }
   ],
   "outputs": [
@@ -192,7 +279,10 @@
       "provedBy": "check",
       "order": 1,
       "tier": "source",
-      "dependsOn": []
+      "dependsOn": [],
+      "audiences": [
+        "builder"
+      ]
     },
     {
       "id": "api",
@@ -202,6 +292,9 @@
       "tier": "surface",
       "dependsOn": [
         "model"
+      ],
+      "audiences": [
+        "caller"
       ]
     },
     {
@@ -213,6 +306,9 @@
       "dependsOn": [
         "model",
         "api"
+      ],
+      "audiences": [
+        "operator"
       ]
     },
     {
@@ -223,6 +319,9 @@
       "tier": "surface",
       "dependsOn": [
         "api"
+      ],
+      "audiences": [
+        "caller"
       ]
     },
     {
@@ -234,6 +333,9 @@
       "dependsOn": [
         "api",
         "sdk"
+      ],
+      "audiences": [
+        "caller"
       ]
     },
     {
@@ -244,6 +346,9 @@
       "tier": "surface",
       "dependsOn": [
         "api"
+      ],
+      "audiences": [
+        "caller"
       ]
     },
     {
@@ -254,6 +359,9 @@
       "tier": "evidence",
       "dependsOn": [
         "model"
+      ],
+      "audiences": [
+        "builder"
       ]
     },
     {
@@ -266,6 +374,10 @@
         "model",
         "docs",
         "telemetry"
+      ],
+      "audiences": [
+        "builder",
+        "operator"
       ]
     },
     {
@@ -276,6 +388,9 @@
       "tier": "evidence",
       "dependsOn": [
         "server"
+      ],
+      "audiences": [
+        "operator"
       ]
     }
   ],
@@ -304,8 +419,6 @@
         }
       ],
       "owner": "M1.03 (done)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -326,8 +439,6 @@
         }
       ],
       "owner": "M1.11 (done)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -354,8 +465,6 @@
         }
       ],
       "owner": "M1.11 (done)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -388,8 +497,6 @@
         }
       ],
       "owner": "M1.12 (contract); M2.08 (journeys)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -422,8 +529,6 @@
         }
       ],
       "owner": "M1.42 (help text); M2.08 (journeys)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -456,8 +561,6 @@
         }
       ],
       "owner": "M2.08 (journeys); M1.37 adds hints (M3)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -484,8 +587,6 @@
         }
       ],
       "owner": "built; evidence M1.41",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -506,8 +607,6 @@
         }
       ],
       "owner": "M1.13",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -534,8 +633,6 @@
         }
       ],
       "owner": "M1.18, M1.20 (done)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -556,8 +653,6 @@
         }
       ],
       "owner": "built",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -584,8 +679,6 @@
         }
       ],
       "owner": "M1.42 (proposed addition: a code for `InvalidPayload`)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -612,8 +705,6 @@
         }
       ],
       "owner": "built",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -634,8 +725,6 @@
         }
       ],
       "owner": "M1.12",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -662,8 +751,6 @@
         }
       ],
       "owner": "built; evidence M1.41",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -684,8 +771,6 @@
         }
       ],
       "owner": "built; M1.37 makes it structured (M3)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -706,8 +791,6 @@
         }
       ],
       "owner": "built",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -734,8 +817,6 @@
         }
       ],
       "owner": "M1.42 (wire), M1.13 (pages)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -756,8 +837,6 @@
         }
       ],
       "owner": "M1.36",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -784,8 +863,6 @@
         }
       ],
       "owner": "M1.42 (it needs a way to declare a field's description first: see note)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -812,8 +889,6 @@
         }
       ],
       "owner": "M1.11 (done); evidence in M1.41",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -840,8 +915,6 @@
         }
       ],
       "owner": "M1.11 (done)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -868,8 +941,6 @@
         }
       ],
       "owner": "M1.42",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -896,8 +967,6 @@
         }
       ],
       "owner": "M1.42",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -924,8 +993,6 @@
         }
       ],
       "owner": "M1.42 (inputs described); M1.37 (output schema, in M3 since K13)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -952,8 +1019,6 @@
         }
       ],
       "owner": "M1.42 (descriptions); the rest is built",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -980,8 +1045,6 @@
         }
       ],
       "owner": "M1.42 (the wire), M1.13 (the pages)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -1014,8 +1077,6 @@
         }
       ],
       "owner": "M1.19 (done); M1.35 moves it onto the one rule",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -1036,31 +1097,27 @@
         }
       ],
       "owner": "M1.03, M1.14 (done)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
       "id": "step.api",
       "block": "step",
       "output": "api",
-      "state": "built",
-      "today": "✓",
+      "state": "partly",
+      "today": "~",
       "todayRef": "packages/projections/src/modules/api/internal/api.ts:84",
-      "todayNote": "Endpoint file exports a steps tuple of names; the full step declarations (type, writes, optional, call) ride along in the re-exported declaration the endpoint is built from.",
-      "greenMeans": "The endpoint carries the declared steps with the declaration the handler is built from.",
+      "todayNote": "The endpoint's schemas name no step, but each generated `api/src/<thing>/<op>.ts` exports `steps` (api.ts:84), and the SDK, CLI and MCP import from that package. Regraded from ✓: the old green, \"the endpoint carries the declared steps\", is under the rule the leak itself.",
+      "greenMeans": "No part of the caller's contract names a step: the endpoint's schemas don't, and the API package every client imports exports no step list.",
       "evidence": [
         {
           "kind": "check",
-          "label": "e2e/m1/12-projections.test.ts",
-          "ref": "e2e/m1/12-projections.test.ts",
+          "label": "new: the absence check (Q1) over generated/api's exports",
+          "ref": "new",
           "passing": null
         }
       ],
-      "owner": "built",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
-      "question": null
+      "owner": "M1.42 (proposed: move `steps` beside the handler's wiring in generated/server)",
+      "question": "Q1"
     },
     {
       "id": "step.server",
@@ -1092,74 +1149,66 @@
         }
       ],
       "owner": "M1.14, M1.26 (done)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
       "id": "step.sdk",
       "block": "step",
       "output": "sdk",
-      "state": "red",
-      "today": "✗",
+      "state": "built",
+      "today": "✓",
       "todayRef": "packages/generators/src/modules/render/internal/sdk.ts:23",
-      "todayNote": "SDK function takes payload and returns answer; steps are not mentioned.",
-      "greenMeans": "Steps never appear in the SDK's surface: a caller sees the answer or a refusal, never the steps.",
+      "todayNote": "The SDK imports the declaration as a type only (`import type { declaration }`, generated `sdk/src/allowance/spend.ts:4`) and exports `PayloadOf<typeof declaration>`, so no step name reaches its surface. Regraded from ✗: the absence is this card's green.",
+      "greenMeans": "The SDK's exported types and doc comments name no step: a caller sees the payload, the answer and the refusals.",
       "evidence": [
         {
           "kind": "check",
-          "label": "new: a generated check that the SDK's exported types name no step (Q1)",
+          "label": "new: the absence check (Q1) over the SDK's exported types",
           "ref": "new",
           "passing": null
         }
       ],
-      "owner": "Q1 for Aaron",
-      "notNeededProposal": "Not needed by design: steps are the handler's inside, and exposing them would make every handler refactor a breaking change for callers (K13). Proposed as a live absence check, Q1.",
-      "notNeededBecause": null,
+      "owner": "built; the absence check proposed for M1.41",
       "question": "Q1"
     },
     {
       "id": "step.cli",
       "block": "step",
       "output": "cli",
-      "state": "red",
-      "today": "✗",
+      "state": "built",
+      "today": "✓",
       "todayRef": "packages/generators/src/modules/render/internal/cli.ts:6",
-      "todayNote": "CLI command maps flags to the SDK call; no step shown.",
-      "greenMeans": "Steps never appear in the CLI's commands or output.",
+      "todayNote": "No help text or output names a step. Each command does import the whole declaration as a value, to decode its flags (generated `cli/src/allowance/spend.ts:4`), so step declarations ship inside the CLI, unseen. Regraded from ✗: the absence is this card's green.",
+      "greenMeans": "No command, help text or output names a step.",
       "evidence": [
         {
           "kind": "check",
-          "label": "new: the same absence check (Q1)",
+          "label": "new: the absence check (Q1) over `--help` and output",
           "ref": "new",
           "passing": null
         }
       ],
-      "owner": "Q1 for Aaron",
-      "notNeededProposal": "Not needed by design, as for the SDK (Q1).",
-      "notNeededBecause": null,
+      "owner": "built; the absence check proposed for M1.41",
       "question": "Q1"
     },
     {
       "id": "step.mcp",
       "block": "step",
       "output": "mcp",
-      "state": "red",
-      "today": "✗",
+      "state": "built",
+      "today": "✓",
       "todayRef": "packages/generators/src/modules/render/internal/mcp.ts:21",
-      "todayNote": "Catalog entry has description and declaration only; steps not in the tool.",
-      "greenMeans": "Steps never appear in a tool's schema; an agent calls the tool.",
+      "todayNote": "A tool is the declaration's description and schemas; no step is described. The generated MCP does import the whole declaration as a value (generated `mcp/src/index.ts:6`), so step declarations sit in the MCP server's process, unseen. Regraded from ✗: the absence is this card's green.",
+      "greenMeans": "No tool's name, description, input or output schema names a step.",
       "evidence": [
         {
           "kind": "check",
-          "label": "new: the same absence check (Q1)",
+          "label": "new: the absence check (Q1) over the tool list",
           "ref": "new",
           "passing": null
         }
       ],
-      "owner": "Q1 for Aaron",
-      "notNeededProposal": "Not needed by design, as for the SDK (Q1).",
-      "notNeededBecause": null,
+      "owner": "built; the absence check proposed for M1.41",
       "question": "Q1"
     },
     {
@@ -1186,8 +1235,6 @@
         }
       ],
       "owner": "M1.42 (proposed: name the docs in its row beside the portal)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -1220,8 +1267,6 @@
         }
       ],
       "owner": "M1.42 (wire), M1.13 (spine)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -1248,8 +1293,6 @@
         }
       ],
       "owner": "M1.21 (done)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -1270,8 +1313,6 @@
         }
       ],
       "owner": "built",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -1292,8 +1333,6 @@
         }
       ],
       "owner": "M1.42 (proposed addition: `state` as a literal union in the answer schema)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -1320,8 +1359,6 @@
         }
       ],
       "owner": "built",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -1348,8 +1385,6 @@
         }
       ],
       "owner": "M1.42",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -1370,8 +1405,6 @@
         }
       ],
       "owner": "M1.42",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -1392,8 +1425,6 @@
         }
       ],
       "owner": "M1.37 (M3)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -1420,8 +1451,6 @@
         }
       ],
       "owner": "built; evidence M1.41",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -1442,8 +1471,6 @@
         }
       ],
       "owner": "M1.13",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -1464,8 +1491,6 @@
         }
       ],
       "owner": "M1.36",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -1486,8 +1511,6 @@
         }
       ],
       "owner": "built",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -1498,7 +1521,7 @@
       "today": "✓",
       "todayRef": "packages/projections/src/modules/api/internal/api.ts:133",
       "todayNote": "generated/api/src/events.ts exports each event and names it (EventNames.name) plus a names list; event schemas are per-thing events.ts. No endpoint or payload carries them.",
-      "greenMeans": "The generated API exports each event, named, with its schema.",
+      "greenMeans": "Not needed while event's audience leaves out the caller (Q3); A reopens these at M5.05, with views.",
       "evidence": [
         {
           "kind": "check",
@@ -1507,10 +1530,8 @@
           "passing": null
         }
       ],
-      "owner": "built; evidence M1.41",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
-      "question": null
+      "owner": "Q3 (the export stays: the server reads it; it is no caller's contract)",
+      "question": "Q3"
     },
     {
       "id": "event.server",
@@ -1536,8 +1557,6 @@
         }
       ],
       "owner": "built (M1.21 reads it)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -1548,7 +1567,7 @@
       "today": "✗",
       "todayRef": "packages/generators/src/modules/render/internal/sdk.ts:1",
       "todayNote": "SDK exports operations and errors only; the API's Events namespace is not re-exported and no event types reach clients.",
-      "greenMeans": "The SDK exports each event's type, so a caller can name what a move emitted.",
+      "greenMeans": "Not needed while event's audience leaves out the caller (Q3); A reopens these at M5.05, with views.",
       "evidence": [
         {
           "kind": "check",
@@ -1557,10 +1576,8 @@
           "passing": null
         }
       ],
-      "owner": "M1.42",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
-      "question": null
+      "owner": "Q3 (A moves M1.42's \"the SDK exports the events\" to M5.05)",
+      "question": "Q3"
     },
     {
       "id": "event.cli",
@@ -1570,11 +1587,9 @@
       "today": "✗",
       "todayRef": "packages/generators/src/modules/render/internal/cli.ts:1",
       "todayNote": "No command or output names an event.",
-      "greenMeans": "Decided by Q3.",
+      "greenMeans": "Not needed while event's audience leaves out the caller (Q3); A reopens these at M5.05, with views.",
       "evidence": [],
       "owner": "Q3 for Aaron",
-      "notNeededProposal": "Proposed not needed: a CLI of operations has nothing to do with an event until events can be followed (M5.05). Q3.",
-      "notNeededBecause": null,
       "question": "Q3"
     },
     {
@@ -1585,11 +1600,9 @@
       "today": "✗",
       "todayRef": "packages/language-effect/src/modules/mcp/internal/tool.ts:1",
       "todayNote": "No tool, resource or description mentions events or the journal.",
-      "greenMeans": "Decided by Q3.",
+      "greenMeans": "Not needed while event's audience leaves out the caller (Q3); A reopens these at M5.05, with views.",
       "evidence": [],
       "owner": "Q3 for Aaron",
-      "notNeededProposal": "Proposed: events as MCP resources come with M1.37's resources, not before. Q3.",
-      "notNeededBecause": null,
       "question": "Q3"
     },
     {
@@ -1616,8 +1629,6 @@
         }
       ],
       "owner": "M1.42 (proposed: name the docs in its row)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -1644,8 +1655,6 @@
         }
       ],
       "owner": "M1.42 (wire), M1.13 (pages)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -1666,8 +1675,6 @@
         }
       ],
       "owner": "M1.36",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -1688,8 +1695,6 @@
         }
       ],
       "owner": "built",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -1710,8 +1715,6 @@
         }
       ],
       "owner": "M1.35",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -1732,8 +1735,6 @@
         }
       ],
       "owner": "M1.35",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -1754,8 +1755,6 @@
         }
       ],
       "owner": "M1.35, M1.12",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -1776,8 +1775,6 @@
         }
       ],
       "owner": "M1.35",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -1804,8 +1801,6 @@
         }
       ],
       "owner": "built; M1.35 makes it the agent case of the one rule",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -1832,8 +1827,6 @@
         }
       ],
       "owner": "M1.42 (proposed: event and error fields)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -1860,8 +1853,6 @@
         }
       ],
       "owner": "M1.42 (wire), M1.13 (no leak)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -1888,8 +1879,6 @@
         }
       ],
       "owner": "built (M1.19); M1.35 moves it onto the one rule",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -1916,8 +1905,6 @@
         }
       ],
       "owner": "M1.03 (done)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -1928,26 +1915,29 @@
       "today": "✗",
       "todayRef": "packages/projections/src/modules/api/internal/api.ts:1",
       "todayNote": "Journeys are not part of the HTTP surface.",
-      "greenMeans": "Not needed.",
+      "greenMeans": "Not needed: journeys run through this client (M2.08), never in it.",
       "evidence": [],
-      "owner": "none",
-      "notNeededProposal": "Proposed not needed (Q2): a journey is a proof, not something a client calls.",
-      "notNeededBecause": null,
+      "owner": "none; journeys through this client are M2.08",
       "question": "Q2"
     },
     {
       "id": "journey.server",
       "block": "journey",
       "output": "server",
-      "state": "red",
-      "today": "✗",
-      "todayRef": "packages/projections/src/modules/server/service.ts:22",
-      "todayNote": "The deployed server carries no journeys. Prove builds a temporary empty-handler Worker (emptyServer) just to run them; a prove-time tool, not the served output.",
-      "greenMeans": "Not needed.",
-      "evidence": [],
-      "owner": "none",
-      "notNeededProposal": "Proposed not needed (Q2): proof runs beside the server, never in it (`ortho prove` builds its own worker).",
-      "notNeededBecause": null,
+      "state": "built",
+      "today": "✓",
+      "todayRef": "packages/projections/src/modules/server/internal/server.ts:148",
+      "todayNote": "The server forms `WORLD_ENVIRONMENTS` from the environments that declare a lifetime (server.ts:148) and answers 404 on `/_world/*` anywhere else (server.ts:194). Regraded from ✗: it was proposed not needed, but under the audiences rule the server is the operator's output and journeys are the operator's, so the card is needed, and the world gate is its green.",
+      "greenMeans": "The deployed server serves no journey; `/_world/*` (the cast, the facts, the registry of worlds a journey starts from) answers only in an environment that declares a lifetime, and 404 everywhere else.",
+      "evidence": [
+        {
+          "kind": "check",
+          "label": "new: a check that `/_world/*` answers 404 in an environment without a lifetime",
+          "ref": "new",
+          "passing": null
+        }
+      ],
+      "owner": "built; its check proposed for M1.41",
       "question": "Q2"
     },
     {
@@ -1958,7 +1948,7 @@
       "today": "✗",
       "todayRef": "packages/generators/src/modules/render/internal/sdk.ts:62",
       "todayNote": "SDK has no journey surface; journeys call operations through a cast (s.ada.run), not the SDK (examples/acme/journeys/README.md:64).",
-      "greenMeans": "Not needed as a surface; journeys run through the SDK (M2.08).",
+      "greenMeans": "Not needed: journeys run through this client (M2.08), never in it.",
       "evidence": [
         {
           "kind": "check",
@@ -1967,9 +1957,7 @@
           "passing": null
         }
       ],
-      "owner": "M2.08",
-      "notNeededProposal": "Proposed not needed (Q2): a journey runs the SDK; it is not part of it. The SDK column is proved by journeys, which is this lane's job.",
-      "notNeededBecause": null,
+      "owner": "none; journeys through this client are M2.08",
       "question": "Q2"
     },
     {
@@ -1980,7 +1968,7 @@
       "today": "✗",
       "todayRef": "packages/generators/src/modules/render/internal/cli.ts:1",
       "todayNote": "The generated app CLI has no journey command; running journeys is the framework's `ortho prove`.",
-      "greenMeans": "Not needed in the app's CLI; `ortho prove` runs journeys, and runs them through the CLI (M2.08).",
+      "greenMeans": "Not needed: journeys run through this client (M2.08), never in it.",
       "evidence": [
         {
           "kind": "check",
@@ -1989,9 +1977,7 @@
           "passing": null
         }
       ],
-      "owner": "M2.08",
-      "notNeededProposal": "Proposed not needed (Q2): journeys belong to the framework's `ortho`, not the app's command.",
-      "notNeededBecause": null,
+      "owner": "none; journeys through this client are M2.08",
       "question": "Q2"
     },
     {
@@ -2002,7 +1988,7 @@
       "today": "✗",
       "todayRef": "packages/language-effect/src/modules/mcp/internal/tool.ts:1",
       "todayNote": "No journey tool or resource.",
-      "greenMeans": "Not needed as a tool; journeys run through MCP (M2.08).",
+      "greenMeans": "Not needed: journeys run through this client (M2.08), never in it.",
       "evidence": [
         {
           "kind": "check",
@@ -2011,9 +1997,7 @@
           "passing": null
         }
       ],
-      "owner": "M2.08",
-      "notNeededProposal": "Proposed not needed (Q2): proving is not an agent's tool.",
-      "notNeededBecause": null,
+      "owner": "none; journeys through this client are M2.08",
       "question": "Q2"
     },
     {
@@ -2034,8 +2018,6 @@
         }
       ],
       "owner": "M1.13 (proposed addition)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -2062,8 +2044,6 @@
         }
       ],
       "owner": "M1.13 (journeys, starting worlds, the proof tab)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -2090,8 +2070,6 @@
         }
       ],
       "owner": "M1.13 (proposed addition: `journey` and `journey.step` on prove's spans, which its \"a journey's run lights up its operation\" needs)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -2112,8 +2090,6 @@
         }
       ],
       "owner": "M1.03 (done)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -2134,8 +2110,6 @@
         }
       ],
       "owner": "built",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -2168,8 +2142,6 @@
         }
       ],
       "owner": "built; M2.03 adds the new principals",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -2190,8 +2162,6 @@
         }
       ],
       "owner": "M2.03 (proposed addition)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -2212,8 +2182,6 @@
         }
       ],
       "owner": "M2.03 (proposed addition)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -2240,8 +2208,6 @@
         }
       ],
       "owner": "M2.03 (`.via`, `.notVia`), M3.22 (exposure)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -2262,8 +2228,6 @@
         }
       ],
       "owner": "M1.13 (role rule text)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -2290,8 +2254,6 @@
         }
       ],
       "owner": "M1.13 (role rules, K12 section 6)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -2312,8 +2274,6 @@
         }
       ],
       "owner": "M2.03 (proposed addition: `principal.role`)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -2334,8 +2294,6 @@
         }
       ],
       "owner": "built",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -2346,12 +2304,10 @@
       "today": "✗",
       "todayRef": "packages/projections/src/modules/api/internal/api.ts:1",
       "todayNote": "No environment appears in the api projection or generated/api.",
-      "greenMeans": "Not needed.",
+      "greenMeans": "Not needed while environment's audience leaves out the caller; Q4's A widens it to the caller for the environments' names and public domains, and reopens these.",
       "evidence": [],
       "owner": "none",
-      "notNeededProposal": "Proposed not needed (Q2): the HTTP contract is the same in every environment; only where it is served differs.",
-      "notNeededBecause": null,
-      "question": "Q2"
+      "question": "Q4"
     },
     {
       "id": "environment.server",
@@ -2377,8 +2333,6 @@
         }
       ],
       "owner": "M7.03 (bindings per environment)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -2389,11 +2343,9 @@
       "today": "✗",
       "todayRef": "packages/generators/src/modules/render/internal/sdk.ts:98",
       "todayNote": "Sdk.layer(baseUrl, token) takes a URL; the SDK knows no environment names or per-environment URLs.",
-      "greenMeans": "Decided by Q4.",
+      "greenMeans": "Not needed while environment's audience leaves out the caller; Q4's A widens it to the caller for the environments' names and public domains, and reopens these.",
       "evidence": [],
       "owner": "Q4 for Aaron",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": "Q4"
     },
     {
@@ -2404,11 +2356,9 @@
       "today": "~",
       "todayRef": "packages/generators/src/modules/render/internal/cli-session.ts:41",
       "todayNote": "`session sign-in --env <env>` and `session show --env` keep one session per environment name, but the name is a free string (not checked against the model) and the server address is a single ACME_URL variable, defaulting to localhost; there is no environment-to-URL map and no --env on ordinary operation commands (cli.ts:112 uses ACME_URL/ACME_TOKEN).",
-      "greenMeans": "Decided by Q4.",
+      "greenMeans": "Not needed while environment's audience leaves out the caller; Q4's A widens it to the caller for the environments' names and public domains, and reopens these.",
       "evidence": [],
       "owner": "Q4 for Aaron",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": "Q4"
     },
     {
@@ -2419,12 +2369,10 @@
       "today": "✗",
       "todayRef": "packages/generators/src/modules/render/internal/mcp.ts:6",
       "todayNote": "The MCP catalog has no environment; the worker only forwards ORTHO_ENVIRONMENT to telemetry (server.ts:209).",
-      "greenMeans": "Not needed.",
+      "greenMeans": "Not needed while environment's audience leaves out the caller; Q4's A widens it to the caller for the environments' names and public domains, and reopens these.",
       "evidence": [],
       "owner": "none",
-      "notNeededProposal": "Proposed not needed (Q2): each environment serves its own MCP at its own domain; the tool list does not change by environment.",
-      "notNeededBecause": null,
-      "question": "Q2"
+      "question": "Q4"
     },
     {
       "id": "environment.docs",
@@ -2444,8 +2392,6 @@
         }
       ],
       "owner": "M1.13 (proposed addition: the environments page)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -2472,8 +2418,6 @@
         }
       ],
       "owner": "M1.13 (environments, K12 section 6)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -2494,8 +2438,6 @@
         }
       ],
       "owner": "M1.36",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -2522,8 +2464,6 @@
         }
       ],
       "owner": "M1.17 (done)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -2534,11 +2474,9 @@
       "today": "✗",
       "todayRef": "packages/projections/src/modules/api/internal/api.ts:1",
       "todayNote": "api.ts does not mention stores.",
-      "greenMeans": "Not needed.",
+      "greenMeans": "Not needed: a store is the builder's and the operator's; a store renamed never changes a caller's contract.",
       "evidence": [],
       "owner": "none",
-      "notNeededProposal": "Proposed not needed (Q2): where a thing lives is invisible to an HTTP caller (K12, \"What the grid leaves alone\").",
-      "notNeededBecause": null,
       "question": "Q2"
     },
     {
@@ -2559,8 +2497,6 @@
         }
       ],
       "owner": "M1.17 (done)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -2571,11 +2507,9 @@
       "today": "✗",
       "todayRef": "packages/generators/src/modules/render/internal/sdk.ts:1",
       "todayNote": "No store in the SDK.",
-      "greenMeans": "Not needed.",
+      "greenMeans": "Not needed: a store is the builder's and the operator's; a store renamed never changes a caller's contract.",
       "evidence": [],
       "owner": "none",
-      "notNeededProposal": "Proposed not needed (Q2): callers do not see where a thing lives.",
-      "notNeededBecause": null,
       "question": "Q2"
     },
     {
@@ -2586,11 +2520,9 @@
       "today": "✗",
       "todayRef": "packages/generators/src/modules/render/internal/cli.ts:1",
       "todayNote": "No store in the CLI.",
-      "greenMeans": "Not needed.",
+      "greenMeans": "Not needed: a store is the builder's and the operator's; a store renamed never changes a caller's contract.",
       "evidence": [],
       "owner": "none",
-      "notNeededProposal": "Proposed not needed (Q2): callers do not see where a thing lives.",
-      "notNeededBecause": null,
       "question": "Q2"
     },
     {
@@ -2601,11 +2533,9 @@
       "today": "✗",
       "todayRef": "packages/generators/src/modules/render/internal/mcp.ts:1",
       "todayNote": "No store in the MCP catalog.",
-      "greenMeans": "Not needed.",
+      "greenMeans": "Not needed: a store is the builder's and the operator's; a store renamed never changes a caller's contract.",
       "evidence": [],
       "owner": "none",
-      "notNeededProposal": "Proposed not needed (Q2): an agent does not need storage placement.",
-      "notNeededBecause": null,
       "question": "Q2"
     },
     {
@@ -2632,8 +2562,6 @@
         }
       ],
       "owner": "M5.06 (the data map)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -2660,8 +2588,6 @@
         }
       ],
       "owner": "M1.13 (stores in the wire, K12 section 6); M5.06 (the page)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -2682,8 +2608,6 @@
         }
       ],
       "owner": "M1.36",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -2704,8 +2628,6 @@
         }
       ],
       "owner": "M1.03, M1.06 (done)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -2715,8 +2637,8 @@
       "state": "built",
       "today": "✓",
       "todayRef": "packages/projections/src/modules/api/internal/api.ts:73",
-      "todayNote": "A mounted plugin's operations are generated as the app's own, and an omitted one is gone (check 08). The reader graded ✗ for showing no origin; this card's green is serving them natively, and the origin is proposed not needed here.",
-      "greenMeans": "A mounted plugin's operations are served as the app's own, without the ones its mount omits.",
+      "todayNote": "A mounted plugin's operations are generated as the app's own, and an omitted one is gone (check 08). Under the rule this card is not needed; its old green (\"A mounted plugin's operations are served as the app's own, without the ones its mount omits\") is the operation lane's, where mounted operations are proved.",
+      "greenMeans": "Not needed: the plugin a mounted operation came from is the builder's and the operator's; the operation itself reaches callers through the operation lane, as the app's own.",
       "evidence": [
         {
           "kind": "check",
@@ -2731,10 +2653,8 @@
           "passing": null
         }
       ],
-      "owner": "M1.07 (done)",
-      "notNeededProposal": "Proposed not needed (Q2): showing a plugin's origin in the HTTP contract; the API is meant to look native.",
-      "notNeededBecause": null,
-      "question": null
+      "owner": "none",
+      "question": "Q2"
     },
     {
       "id": "mount.server",
@@ -2754,8 +2674,6 @@
         }
       ],
       "owner": "M1.09, M1.14 (done)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -2765,8 +2683,8 @@
       "state": "built",
       "today": "✓",
       "todayRef": "packages/generators/src/modules/render/internal/sdk.ts:65",
-      "todayNote": "Mounted operations are in the SDK as the app's own, and `from` is used to load a device operation's host entry. The reader graded ~ for showing no origin; that is proposed not needed here.",
-      "greenMeans": "A mounted plugin's operations are in the SDK as the app's own; a device operation runs from the plugin's host entry.",
+      "todayNote": "Mounted operations are in the SDK as the app's own, and `from` is used to load a device operation's host entry. Under the rule this card is not needed; its old green (\"A mounted plugin's operations are in the SDK as the app's own; a device operation runs from the plugin's host entry\") is the operation lane's, where mounted operations are proved.",
+      "greenMeans": "Not needed: the plugin a mounted operation came from is the builder's and the operator's; the operation itself reaches callers through the operation lane, as the app's own.",
       "evidence": [
         {
           "kind": "check",
@@ -2781,10 +2699,8 @@
           "passing": null
         }
       ],
-      "owner": "built",
-      "notNeededProposal": "Proposed not needed (Q2): origin in the SDK's surface.",
-      "notNeededBecause": null,
-      "question": null
+      "owner": "none",
+      "question": "Q2"
     },
     {
       "id": "mount.cli",
@@ -2793,8 +2709,8 @@
       "state": "built",
       "today": "✓",
       "todayRef": "packages/generators/src/modules/render/internal/cli.ts:6",
-      "todayNote": "Commands are generated per thing and verb from the whole model, mounted operations included. The reader graded ✗ for showing no origin; that is proposed not needed here.",
-      "greenMeans": "A mounted plugin's operations are commands as the app's own.",
+      "todayNote": "Commands are generated per thing and verb from the whole model, mounted operations included. Under the rule this card is not needed; its old green (\"A mounted plugin's operations are commands as the app's own\") is the operation lane's, where mounted operations are proved.",
+      "greenMeans": "Not needed: the plugin a mounted operation came from is the builder's and the operator's; the operation itself reaches callers through the operation lane, as the app's own.",
       "evidence": [
         {
           "kind": "check",
@@ -2803,10 +2719,8 @@
           "passing": null
         }
       ],
-      "owner": "built; evidence M1.41",
-      "notNeededProposal": "Proposed not needed (Q2): origin in the CLI.",
-      "notNeededBecause": null,
-      "question": null
+      "owner": "none",
+      "question": "Q2"
     },
     {
       "id": "mount.mcp",
@@ -2815,8 +2729,8 @@
       "state": "built",
       "today": "✓",
       "todayRef": "packages/generators/src/modules/render/internal/mcp.ts:10",
-      "todayNote": "Mounted operations are tools, and an operation narrowed without `Via.agent` has none. The reader graded ~ for showing no origin; that is proposed not needed here.",
-      "greenMeans": "A mounted plugin's operations are tools as the app's own; a mount that narrows away `Via.agent` leaves no tool.",
+      "todayNote": "Mounted operations are tools, and an operation narrowed without `Via.agent` has none. Under the rule this card is not needed; its old green (\"A mounted plugin's operations are tools as the app's own; a mount that narrows away `Via.agent` leaves no tool\") is the operation lane's, where mounted operations are proved.",
+      "greenMeans": "Not needed: the plugin a mounted operation came from is the builder's and the operator's; the operation itself reaches callers through the operation lane, as the app's own.",
       "evidence": [
         {
           "kind": "check",
@@ -2825,10 +2739,8 @@
           "passing": null
         }
       ],
-      "owner": "built; M3.22 (exposure from `via`)",
-      "notNeededProposal": "Proposed not needed (Q2): origin in a tool.",
-      "notNeededBecause": null,
-      "question": null
+      "owner": "none",
+      "question": "Q2"
     },
     {
       "id": "mount.docs",
@@ -2848,8 +2760,6 @@
         }
       ],
       "owner": "M1.13 (proposed addition: `from` in the docs)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -2876,8 +2786,6 @@
         }
       ],
       "owner": "M1.42 (`from` in the wire), M1.13 (the tree)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -2898,8 +2806,6 @@
         }
       ],
       "owner": "M1.36 (proposed addition: `from.mount`, `call.mount`, `call.name`)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -2920,8 +2826,6 @@
         }
       ],
       "owner": "M1.27 (done)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -2942,8 +2846,6 @@
         }
       ],
       "owner": "M1.27 (done)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -2964,8 +2866,6 @@
         }
       ],
       "owner": "M1.27 (done)",
-      "notNeededProposal": "Kept live as an absence check: a device operation must never run on the server.",
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -2986,8 +2886,6 @@
         }
       ],
       "owner": "M1.27 (done)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -3008,30 +2906,26 @@
         }
       ],
       "owner": "M1.27 (done)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
       "id": "device.mcp",
       "block": "device",
       "output": "mcp",
-      "state": "red",
-      "today": "✗",
+      "state": "built",
+      "today": "✓",
       "todayRef": "packages/generators/src/modules/render/service.ts:19",
-      "todayNote": "renderMcp is given serverModel, so a client op has no MCP tool.",
-      "greenMeans": "Not needed through remote MCP.",
+      "todayNote": "`renderMcp` is given `serverModel`, which drops client operations, so a device operation has no tool. Regraded from ✗: it was proposed not needed, but the device block is the caller's, so the card is needed, and that absence is its green.",
+      "greenMeans": "No device operation is offered as a remote MCP tool: an agent reaches it through the SDK or the CLI on the device.",
       "evidence": [
         {
           "kind": "check",
-          "label": "e2e/m1/11-client-operations.test.ts (no tool)",
+          "label": "check 11 extended: the generated MCP names no client operation",
           "ref": "e2e/m1/11-client-operations.test.ts",
           "passing": null
         }
       ],
-      "owner": "none",
-      "notNeededProposal": "Proposed not needed (Q2): remote MCP reaches the server, which cannot run device code; a local MCP on the device is later work.",
-      "notNeededBecause": null,
+      "owner": "M1.27 (done); its check proposed for M1.41",
       "question": "Q2"
     },
     {
@@ -3052,8 +2946,6 @@
         }
       ],
       "owner": "M1.13 (proposed addition)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -3080,8 +2972,6 @@
         }
       ],
       "owner": "M1.13 (`runs`, K12 section 6)",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     },
     {
@@ -3108,8 +2998,6 @@
         }
       ],
       "owner": "new slice needed: device spans to the environment's sink (portal.md gap 4, ledger `LAH-02`), proposed ST2.07 before ST2.03",
-      "notNeededProposal": null,
-      "notNeededBecause": null,
       "question": null
     }
   ],
@@ -3187,9 +3075,10 @@
   "questions": [
     {
       "id": "Q1",
-      "question": "Should a client (SDK, CLI or MCP) ever show an operation's steps?",
-      "recommendation": "A: never, kept as absence checks",
+      "question": "Does a step's audience include the caller?",
+      "recommendation": "A: no; its four caller cards stay live as absence checks",
       "cells": [
+        "step.api",
         "step.sdk",
         "step.cli",
         "step.mcp"
@@ -3198,34 +3087,33 @@
     },
     {
       "id": "Q2",
-      "question": "Which cards are not needed by design?",
-      "recommendation": "A: accept the seventeen as proposed",
+      "question": "Is a card not needed exactly when its output's audience is not among its block's audiences?",
+      "recommendation": "A: yes, with the table as written",
       "cells": [
-        "step.sdk",
-        "step.cli",
-        "step.mcp",
-        "event.cli",
-        "event.mcp",
         "journey.api",
-        "journey.server",
         "journey.sdk",
         "journey.cli",
         "journey.mcp",
-        "environment.api",
-        "environment.mcp",
         "store.api",
         "store.sdk",
         "store.cli",
         "store.mcp",
+        "mount.api",
+        "mount.sdk",
+        "mount.cli",
+        "mount.mcp",
+        "journey.server",
         "device.mcp"
       ],
       "answer": null
     },
     {
       "id": "Q3",
-      "question": "Should the CLI and MCP see events?",
-      "recommendation": "A: types in the SDK now; the CLI and MCP with views (M5.05)",
+      "question": "Does an event's audience include the caller?",
+      "recommendation": "A: not until views (M5.05); M1.42's SDK event types move there",
       "cells": [
+        "event.api",
+        "event.sdk",
         "event.cli",
         "event.mcp"
       ],
@@ -3234,10 +3122,12 @@
     {
       "id": "Q4",
       "question": "Should the generated CLI and SDK know the environments by name?",
-      "recommendation": "A: by name from the model, local by default",
+      "recommendation": "A: by name from the model, local by default; environment's audience then includes the caller",
       "cells": [
+        "environment.api",
         "environment.sdk",
-        "environment.cli"
+        "environment.cli",
+        "environment.mcp"
       ],
       "answer": null
     }
