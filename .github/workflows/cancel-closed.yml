@@ -1,0 +1,32 @@
+name: cancel-closed
+
+# Proposal 4 (design/process/proposals.md): when a pull request closes, merged or not, its in-progress and queued runs are
+# cancelled, so a closed pull request stops holding runners (#96's closed runs held four jobs for about two hours).
+# Only the run's own GITHUB_TOKEN is used; no secret.
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  actions: write
+
+jobs:
+  cancel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Cancel this pull request's unfinished runs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: |
+          # Every unfinished pull_request run on the branch, except this one. A run of the closed pull request's last
+          # head, or of an earlier push still queued, is cancelled; a run that has already finished is left alone.
+          ids=$(gh run list -R "$GITHUB_REPOSITORY" --branch "$BRANCH" --event pull_request --limit 100 \
+            --json databaseId,status \
+            -q ".[] | select(.status != \"completed\" and .databaseId != $GITHUB_RUN_ID) | .databaseId")
+          if [ -z "$ids" ]; then echo "Nothing to cancel for $BRANCH."; exit 0; fi
+          for id in $ids; do
+            echo "Cancelling run $id"
+            gh run cancel -R "$GITHUB_REPOSITORY" "$id" || echo "::warning::run $id could not be cancelled (it may have just finished)"
+          done

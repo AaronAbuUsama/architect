@@ -85,3 +85,25 @@ To republish:
 - **Codex's links/stage-1 model.** It still carries acme leftovers, and handle is the app's own thing there, not a
   mounted plugin.
 - **Phone width.** The published pages are desktop only. The portal frame was never drawn at phone width.
+
+## G5: where a rule shows (drawn 19 November 2026)
+
+The four questions in `design/decisions/G5-invariants-ui-grill.md` (on `designer/g5-invariants`), drawn as round 4's
+portal so Aaron can compare them as screens: the handle's page and `handle.claim`'s Contract tab, with the same sidebar
+tree, top bar, Widgets and live rail. One artboard per option; only what the question asks changes between them.
+
+- Canvas: https://claude.ai/artifact/Payk7yiKi2fVBS9jkqXBVe (a claude.ai Design canvas, private), four rows, one per
+  question, the recommended option first in each row with a note giving the question and the reason.
+- Source: `src/g5/` (`data.ts` the two rules, Plugged In's real codes and exits from `goal/stage-1`, and the words each
+  Q2 option writes; `thing.tsx`, `rule.tsx`, `claim.tsx` the pages; `boards.tsx` the rows; `render.tsx` the canvas
+  files). `opt.tsx` and `shell.tsx` gained two optional hooks: a `strip` in place of the round strip, and `treeRows`
+  under a thing in the tree. Round 4's pages render as before.
+- `tools/g5.sh` renders to `out/g5/project/` and screenshots each artboard at 1440 wide into `out/g5/shots/`.
+- `g5-canvas/project/` is the canvas as published, without HeroUI's and Pro's CSS: those were copied onto the canvas,
+  server side, from the round-4 artifact, and are never committed.
+
+To republish, run `tools/g5.sh`, then publish to the canvas with `root` set to `out/g5`, `file_path` the changed
+artboard, and `files` the others that changed; send `project/canvas.json` only when the layout changes.
+
+Counts on the artboards are illustrative. The site's `model.json` (links/stage 1) predates Plugged In's exits, so the
+G5 pages take codes and exits from `src/g5/data.ts` instead.

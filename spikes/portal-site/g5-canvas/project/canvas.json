@@ -1,0 +1,169 @@
+{
+  "v": 3,
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-11-19T21:14:14Z"
+  },
+  "title": "G5 rules in the portal",
+  "launch": {
+    "view": "canvas"
+  },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {
+      "x": 0,
+      "y": 330,
+      "w": 1440,
+      "h": 1660,
+      "title": "Q1 · A: A Rules section under the lifecycle (recommended)",
+      "expand": "fill"
+    },
+    "Q1-B.dc.html": {
+      "x": 1520,
+      "y": 330,
+      "w": 1440,
+      "h": 1320,
+      "title": "Q1 · B: Its own page per rule, with a row in the tree",
+      "expand": "fill"
+    },
+    "Q1-C.dc.html": {
+      "x": 3040,
+      "y": 330,
+      "w": 1440,
+      "h": 1480,
+      "title": "Q1 · C: Only as a note inside Errors",
+      "expand": "fill"
+    },
+    "Q2-A.dc.html": {
+      "x": 0,
+      "y": 2440,
+      "w": 1440,
+      "h": 1720,
+      "title": "Q2 · A: One generated sentence, the same everywhere (recommended)",
+      "expand": "fill"
+    },
+    "Q2-B.dc.html": {
+      "x": 1520,
+      "y": 2440,
+      "w": 1440,
+      "h": 1640,
+      "title": "Q2 · B: The rule's name only",
+      "expand": "fill"
+    },
+    "Q2-C.dc.html": {
+      "x": 3040,
+      "y": 2440,
+      "w": 1440,
+      "h": 1960,
+      "title": "Q2 · C: A description you write on each rule",
+      "expand": "fill"
+    },
+    "Q3-A.dc.html": {
+      "x": 0,
+      "y": 4850,
+      "w": 1440,
+      "h": 790,
+      "title": "Q3 · A: No mark; the Rules section says the states (recommended)",
+      "expand": "fill"
+    },
+    "Q3-B.dc.html": {
+      "x": 1520,
+      "y": 4850,
+      "w": 1440,
+      "h": 790,
+      "title": "Q3 · B: A badge on each state a rule holds in",
+      "expand": "fill"
+    },
+    "Q4-A.dc.html": {
+      "x": 0,
+      "y": 6090,
+      "w": 1440,
+      "h": 1800,
+      "title": "Q4 · A: A rules stop between the move and the commit (recommended)",
+      "expand": "fill"
+    },
+    "Q4-B.dc.html": {
+      "x": 1520,
+      "y": 6090,
+      "w": 1440,
+      "h": 1760,
+      "title": "Q4 · B: No new stop; the refusal marked on the commit row",
+      "expand": "fill"
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Q1-B.dc.html",
+    "Q1-C.dc.html",
+    "Q2-A.dc.html",
+    "Q2-B.dc.html",
+    "Q2-C.dc.html",
+    "Q3-A.dc.html",
+    "Q3-B.dc.html",
+    "Q4-A.dc.html",
+    "Q4-B.dc.html"
+  ],
+  "notes": {
+    "Q1-title": {
+      "x": 0,
+      "y": 20,
+      "text": "Q1 · Where does a rule live on the thing's page?",
+      "kind": "title1",
+      "maxW": 4480
+    },
+    "Q1-why": {
+      "x": -600,
+      "y": 330,
+      "text": "Q1. Where does a rule live on the thing's page?\n\nRecommended: A, a Rules section under the lifecycle. A rule is part of a thing, like its machine, so it is a section; it adds no page kind and no tree rows, and ⌘K can still find it.",
+      "w": 520,
+      "size": "l",
+      "color": "green"
+    },
+    "Q2-title": {
+      "x": 0,
+      "y": 2130,
+      "text": "Q2 · How does a refusal say which rule refused it, in the portal, the docs, the scaffold and MCP?",
+      "kind": "title1",
+      "maxW": 4480
+    },
+    "Q2-why": {
+      "x": -600,
+      "y": 2440,
+      "text": "Q2. How does a refusal say which rule refused it, in the portal, the docs, the scaffold and MCP?\n\nRecommended: A, one generated sentence. It comes from the declaration, so it reads the same on all four surfaces and can't drift; a written description can be added later where a generated one reads badly.",
+      "w": 520,
+      "size": "l",
+      "color": "green"
+    },
+    "Q3-title": {
+      "x": 0,
+      "y": 4540,
+      "text": "Q3 · Does the lifecycle mark the states a rule holds in?",
+      "kind": "title1",
+      "maxW": 2960
+    },
+    "Q3-why": {
+      "x": -600,
+      "y": 4850,
+      "text": "Q3. Does the lifecycle mark the states a rule holds in?\n\nRecommended: A, no mark. The refusal already sits on the arrow that can break the rule, and the Rules section names the states in words; a badge says the same thing again in a harder code.",
+      "w": 520,
+      "size": "l",
+      "color": "green"
+    },
+    "Q4-title": {
+      "x": 0,
+      "y": 5780,
+      "text": "Q4 · Does the operation's spine get a stop for rules?",
+      "kind": "title1",
+      "maxW": 2960
+    },
+    "Q4-why": {
+      "x": -600,
+      "y": 6090,
+      "text": "Q4. Does the operation's spine get a stop for rules?\n\nRecommended: A, a rules stop between the move and the commit. The spine is the runtime's own order and the rule is now a stop in it; marking the commit instead blames the store for a refusal it never made.",
+      "w": 520,
+      "size": "l",
+      "color": "green"
+    }
+  },
+  "designSystems": []
+}
