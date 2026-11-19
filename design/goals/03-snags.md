@@ -140,14 +140,17 @@ takes each, check first, and the climber comes back to that step once it is fixe
   each statement in write order and refuses the first, so the handler retries the same doomed batch 64 times.
 - Needs: both stores check in write order, and a unique conflict a call makes with its own writes fails fast as a defect
   naming the field rather than retrying.
-- Owner: Goal 3 lead. A framework slice, check first (a checks author plants the swap in both stores), then a builder;
-  taken after the starting curve, behind the climb. No stage 1 journey moves a unique value between holders.
+- Owner: the decision is G5's (📐 invariants-ripple, which settles write-order semantics in both stores and a self-made
+  conflict failing fast, ordered before the invariant runtime slice); the build is the Goal 3 lead's, check first, any
+  time after the starting curve. No stage 1 journey moves a unique value between holders.
 - Status: open
 
 ## S-04 note · the spelling of unique fields is open with Aaron (conductor, 19 November 2026)
 - The conductor's recommendation to Aaron: `blueprint/things/<thing>/invariants.ts`, one named export per rule, e.g.
   `Blueprint.invariant.unique(Handle.fields.name, { while: [machine.states.claimed], refuse: HandleTaken })`, where the
   runtime refuses for the handler and states and fields are typed references.
-- Until Aaron answers: Plugged In may declare today's `unique: { name: { while: ["claimed"] } }` as one line, and the
+- Aaron answered (19 November 2026): C, a per-thing `invariants.ts`, one named export per rule. G5 (📐 invariants-ripple)
+  supersedes G4's spelling and keeps its runtime behaviour; its migration slice swaps Plugged In's one line.
+- Until then: Plugged In may declare today's `unique: { name: { while: ["claimed"] } }` as one line, and the
   climb goes on. Today's spelling is not written into docs, the scaffold or the skills beyond what G4 and #118 already
   hold; when the answer comes, G4 is amended and the spelling changes in one slice.
