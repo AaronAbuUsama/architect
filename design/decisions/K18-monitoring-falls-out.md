@@ -9,8 +9,9 @@ is in three places:
   https://claude.ai/artifact/NzDgHFzQSk8yvX8cLNqUKj;
 - the model on `m1` (`packages/compiler/src/modules/model/types.ts`).
 
-**Status: proposed.** The decision below is the recommended A for each question. Aaron's answers to the grill at the
-end confirm or change it.
+**Status: decided.** Aaron, 19 November 2026: "K18 all A". Every question below is answered A, as recommended. The
+four new slices are rows in `design/milestones.md`: M1.49 (in Gate M1's list and on the critical path, right after
+M1.13), M3.23, M5.15 and M7.14.
 
 ## For the ear
 
@@ -24,7 +25,7 @@ We ship monitoring the way we ship docs: it falls out of the blueprint.
 - **The one hard question.** How to warn about a thing stuck in a state without counting things, which we agreed the
   portal never does.
 
-## Decision (recommended, not yet confirmed)
+## Decision (Aaron, 19 November 2026: "K18 all A")
 
 1. **Rules are data the compiler derives**, never files someone writes. From the model come:
    - a latency objective per budget;
@@ -59,10 +60,10 @@ We ship monitoring the way we ship docs: it falls out of the blueprint.
 | M1 | M1.36 (existing) | Already carries `refusal.code`, `move.from`, `event.name` and `ortho.budget.breaches`, which M1.49 reads. No change |
 | M3 | **M3.23** (new) | `Dashboard.make` and `Panel.*`, under Monitor › Dashboards. A panel that refers to a removed declaration fails the build |
 | M5 | M5.14 (existing) | A fired alert lands in the work inbox. M1.49's issues join it with their key, so one issue makes one work item |
-| M5 | **M5.15** (new, if Q3 is A) | Declared state limits: a timer per thing that enters a limited state, through `Timers`, raising `<thing>.overstayed` |
+| M5 | **M5.15** (new; Q3 is A) | Declared state limits: a timer per thing that enters a limited state, through `Timers`, raising `<thing>.overstayed` |
 | M7 | **M7.14** (new) | Rules exported to the sink (Axiom monitors with the burn rate in APL, or Grafana rules through its Foundation SDK). Routes from the environment file. Tested in the staging pass and destroyed after |
 
-### Proposed milestone rows
+### Milestone rows (added to `milestones.md` on 19 November 2026)
 
 | ID | Slice | Needs | Kind | Done when | Size |
 |---|---|---|---|---|---|

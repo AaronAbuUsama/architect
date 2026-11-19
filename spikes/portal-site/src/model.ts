@@ -66,5 +66,7 @@ export const short = (hash: string) => hash.replace(/^sha256[-:]/, "").slice(0, 
 export const page = {
   home: "home.html",
   thing: (t: string) => `thing-${t}.html`,
-  op: (o: string, tab = "contract") => `op-${o}${tab === "contract" ? "" : `-${tab}`}.html`,
+  /** "spans" was a tab until round 4; a link to a trace now opens the Metrics tab with a call's trace drawer open.
+   *  `want` names the call to open: "answered", "defect" or a refusal's name; without it, the latest notable call. */
+  op: (o: string, tab = "contract", want?: string) => tab === "spans" ? `op-${o}-metrics.html#trace${want ? `=${want}` : ""}` : `op-${o}${tab === "contract" ? "" : `-${tab}`}.html`,
 };

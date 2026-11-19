@@ -42,13 +42,12 @@ export const moveCounts: Record<string, number> = { "handle.claim": 375, "handle
 
 export type Call = { at: string; op: string; who: string; outcome: string; ms: number; attempt?: number };
 export const lastCalls: Call[] = [
-  { at: "12:04:31", op: "handle.claim", who: "aaron", outcome: "answered", ms: 9, attempt: 2 },
-  { at: "12:04:29", op: "handle.claim", who: "bob", outcome: "HandleTaken", ms: 3 },
+  { at: "12:04:31", op: "handle.claim", who: "signed-in", outcome: "answered", ms: 9, attempt: 2 },
+  { at: "12:04:29", op: "handle.claim", who: "signed-in", outcome: "HandleTaken", ms: 3 },
   { at: "12:04:22", op: "profile.get", who: "anyone", outcome: "answered", ms: 11 },
-  { at: "12:04:20", op: "link.add", who: "aaron", outcome: "defect", ms: 14 },
+  { at: "12:04:20", op: "link.add", who: "signed-in", outcome: "defect", ms: 14 },
   { at: "12:04:18", op: "handle.resolve", who: "anyone", outcome: "answered", ms: 1 },
-  { at: "12:04:02", op: "handle.claim", who: "stranger", outcome: "NotAllowed", ms: 0 },
-  { at: "12:03:51", op: "link.order", who: "aaron", outcome: "answered", ms: 4 },
+  { at: "12:03:51", op: "link.order", who: "signed-in", outcome: "answered", ms: 4 },
   { at: "12:03:40", op: "profile.get", who: "anyone", outcome: "ProfileNotFound", ms: 2 },
 ];
 

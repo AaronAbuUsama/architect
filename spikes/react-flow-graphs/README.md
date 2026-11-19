@@ -139,7 +139,7 @@ dagre would do for machines alone; the map needs groups.
 - Workflows and the chain view join when the model carries them.
 - The journey sequence stays its own view.
 
-**Owner: a new slice, M1.50, after M1.13.** M1.49 is K18's monitoring slice, so M1.50 is the next free row.
+**Owner: a new slice, M1.50, after M1.13** (accepted by the conductor, 19 November 2026; the row is in `design/milestones.md`). M1.49 is K18's monitoring slice, so M1.50 is the next free row.
 - **Floor-first:** M1.13 already needs a machine diagram ("a journey's run lights up its operation and machine move"),
   and the agreed wireframe draws it as a small SVG strip (`spikes/portal-site/src/ui.tsx:53`). M1.13 builds that strip
   and stays unblocked.
@@ -150,7 +150,7 @@ dagre would do for machines alone; the map needs groups.
 - **Why not M1.34 (portal-ui):** that slice is the Pro seam. `Graph` is ours over a different library, and needs
   M1.42's wire (events with their fields, `from`) before it can draw the map.
 
-Proposed row:
+The row as agreed:
 
 | ID | Slice | Needs | Kind | Done when | Size |
 |---|---|---|---|---|---|

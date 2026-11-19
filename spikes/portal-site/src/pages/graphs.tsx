@@ -58,7 +58,7 @@ export const Graphs = ({ g }: { g: AllGraphs }) => {
 
         <div className="callout info"><InfoIcon size={16} aria-hidden="true" /><span>
           Built with <span className="mono">@xyflow/react 12.12.1</span> (MIT; nothing used sits behind React Flow Pro) and <span className="mono">elkjs 0.12.1</span>, which runs only in the generator.
-          The <span className="mono">on:</span> line waits for M3.08; until then K9 declares it and the map draws it dashed. Proposed owner: a new slice, M1.50, after M1.13.
+          The <span className="mono">on:</span> line waits for M3.08; until then K9 declares it and the map draws it dashed. Owner: M1.50, after M1.13.
         </span></div>
       </div>
       <Foot>Every graph above is laid out from the model by elk; the live numbers are the same fixed window as the rest of the drawing. Spike: <span className="mono">spikes/react-flow-graphs</span>.</Foot>

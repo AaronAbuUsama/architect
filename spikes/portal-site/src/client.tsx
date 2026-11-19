@@ -12,6 +12,7 @@ import { CommandPalette } from "./kit/command-palette.tsx";
 import { EnvCompare } from "./pages/env-compare.tsx";
 import { StepCard } from "./kit/step-card.tsx";
 import { GraphView } from "../../react-flow-graphs/src/graph/graph-view.tsx";
+import { CallsTable } from "./kit/calls-table.tsx";
 
 const CallsBars = ({ series, height }: { series: MinuteCalls[]; height: number }) => (
   <BarChart data={series} height={height} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
@@ -33,7 +34,7 @@ const Hover: StepWrap = ({ j, i, children }) => (
 );
 const StepPreviews = ({ slug }: { slug: string }) => <Sequence j={journeys.find((j) => j.slug === slug)!} Wrap={Hover} />;
 
-const islands: Record<string, ComponentType<any>> = { CallsBars, CommandPalette, StepPreviews, EnvCompare, GraphView };
+const islands: Record<string, ComponentType<any>> = { CallsBars, CommandPalette, StepPreviews, EnvCompare, CallsTable, GraphView };
 for (const el of document.querySelectorAll<HTMLElement>("[data-island]")) {
   const C = islands[el.dataset.island!];
   if (C) createRoot(el).render(<C {...JSON.parse(el.dataset.props ?? "{}")} />);

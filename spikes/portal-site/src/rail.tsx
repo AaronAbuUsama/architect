@@ -6,7 +6,7 @@ import { CallsBars } from "./kit/calls-bars.tsx";
 import { CallsMeter } from "./kit/calls-meter.tsx";
 import { EnvironmentPill } from "./kit/environment-pill.tsx";
 import { lastCalls, perMinute, splitOf, statOf, sum } from "./live.ts";
-import { environments, model, operations } from "./model.ts";
+import { environments, model, operations, page } from "./model.ts";
 import { Outcome } from "./ui.tsx";
 
 export const P95 = ({ p95, budget, worst }: { p95: number; budget: number | null; worst?: boolean }) => {
@@ -36,7 +36,7 @@ export const Rail = ({ scope }: { scope: { label: string; ops: string[] } }) => 
         {calls.length === 0 && <p className="muted small">No calls in the window.</p>}
         <ul className="calls">
           {calls.map((c) => (
-            <li key={c.at + c.op}><span className="mono muted">{c.at}</span><a className="mono" href={`op-${c.op}-spans.html`}>{c.op.split(".")[1]}</a>
+            <li key={c.at + c.op}><span className="mono muted">{c.at}</span><a className="mono" href={page.op(c.op, "spans", c.outcome)}>{c.op.split(".")[1]}</a>
               <span className="small">{c.who}</span><Outcome o={c.outcome} /><span className="mono muted num">{c.ms} ms</span></li>))}
         </ul>
       </div>
