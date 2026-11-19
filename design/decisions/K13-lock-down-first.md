@@ -46,7 +46,7 @@ M1.41 turns each ✗ and ~ that matters red; M1.42 makes it pass.
 
 | Was | Now |
 |---|---|
-| The path ran M1.35 → M1.12 → M1.23 → M1.24 → M1.13 | M1.40 → M1.41 → M1.42, with M1.35, M1.36 and M1.34, → M1.13 |
+| The path ran M1.35 → M1.12 → M1.23 → M1.24 → M1.13 | M1.40 → M1.41 → M1.43 and M1.42, with M1.35, M1.36 and M1.34, → M1.13 |
 | M1.12: sdk, cli and mcp as plugins, and the SDK contract | M1.12 keeps the SDK contract (typed refusals, `requestKey`, the caller); the move into plugins is M3.22 |
 | M1.13 needed the shell (M1.24), and carried faces and notes | the portal as a viewer in the shell's frame; faces and notes are M3.21 |
 | M1.22, M1.23, M1.24, M1.37 in M1; ST1.05 in stage 1 | in M3, ids unchanged; Gate M3 needs them, Gate M1 and Gate M2 don't |
@@ -62,4 +62,5 @@ M1.12, M1.13 and M1.24 were split, not moved: M1.12's plugin part is M3.22, M1.1
 M1.24's frame is M1.13's; undoing a split means merging the two rows' text back. Nothing built is removed.
 
 After review: M1.41 checks the portal's data file, and opening the portal is M1.13's check (so M1.42 can pass before
-M1.13 exists); Gate M2 and M2.08 no longer go through actions, which are M3's.
+M1.13 exists); Gate M2 and M2.08 no longer go through actions, which are M3's; and M1.43 writes links' handlers
+against M1.41, because M1.40 is declarations only and the loop must commit real calls.
