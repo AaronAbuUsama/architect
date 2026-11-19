@@ -8,8 +8,11 @@ import type { AnyErrorClass, Thing } from "orthograph";
 /** The refusal of a machine's move that starts from the wrong state. */
 export const MACHINE_NUMBER = 900;
 
+/** The runtime's refusal for a request key reused with another payload: its name, written once. */
+export const IDEMPOTENCY_CONFLICT = "IdempotencyConflict";
+
 /** Refusals the runtime makes for every thing, numbered in the order it gained them: who may call (before any handler runs), then a request key reused with another payload. */
-export const RUNTIME_CODES = { NotAllowed: "AR-001", IdempotencyConflict: "AR-002" } as const;
+export const RUNTIME_CODES = { NotAllowed: "AR-001", [IDEMPOTENCY_CONFLICT]: "AR-002" } as const;
 
 const PREFIX = /^[A-Z]{2,4}$/;
 

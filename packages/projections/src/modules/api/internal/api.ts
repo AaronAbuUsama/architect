@@ -2,7 +2,7 @@
 import { Names } from "orthograph/server";
 import type { Model, OperationModel } from "@orthograph/compiler";
 import type { RenderedFile } from "#modules/names/types.js";
-import { GENERATED, IDEMPOTENCY_CONFLICT_EXIT, NOT_ALLOWED_EXIT, STATUS, declarationAt, lines, onDevice, opVar, pascal, thingFileAt } from "#modules/names/service.js";
+import { GENERATED, IDEMPOTENCY_CONFLICT, IDEMPOTENCY_CONFLICT_EXIT, NOT_ALLOWED_EXIT, STATUS, declarationAt, lines, onDevice, opVar, pascal, thingFileAt } from "#modules/names/service.js";
 
 const file = (path: string, content: string): RenderedFile => ({ path, content, scaffold: false });
 
@@ -44,8 +44,8 @@ const errors = (model: Model): RenderedFile => {
   }
   body.push(cls("NotAllowed", "{}"));
   row("NotAllowed", model.refusals["NotAllowed"] ?? "AR-001", NOT_ALLOWED_EXIT, STATUS.notAllowed);
-  body.push(cls("IdempotencyConflict", "{}"));
-  row("IdempotencyConflict", model.refusals["IdempotencyConflict"] ?? "AR-002", IDEMPOTENCY_CONFLICT_EXIT, STATUS.idempotencyConflict);
+  body.push(cls(IDEMPOTENCY_CONFLICT, "{}"));
+  row(IDEMPOTENCY_CONFLICT, model.refusals[IDEMPOTENCY_CONFLICT] ?? "AR-002", IDEMPOTENCY_CONFLICT_EXIT, STATUS.idempotencyConflict);
   const names = rows.map((e) => e.trim().split(":")[0]);
   return file(path, lines(
     GENERATED,

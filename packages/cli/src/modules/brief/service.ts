@@ -1,3 +1,4 @@
+import { IDEMPOTENCY_CONFLICT } from "@orthograph/projections/shared";
 import type { BriefApi, Briefed } from "./types.ts";
 
 const forbidden = [
@@ -15,7 +16,7 @@ const of: BriefApi["of"] = (model, name, journeys): Briefed => {
   const calling = journeys.filter((j) => j.text.includes(own)).map((j) => j.path);
   const declared = op.errors.map((e) => `${e} (exit ${thing.errors[e]?.exit ?? "?"})`);
   // A reused request key (IdempotencyConflict) is met by the caller, not made by a handler: the brief names only what a handler might wrongly refuse.
-  const runtime = op.refusals.filter((r) => !op.errors.includes(r) && r !== "IdempotencyConflict");
+  const runtime = op.refusals.filter((r) => !op.errors.includes(r) && r !== IDEMPOTENCY_CONFLICT);
   return {
     lines: [
       `brief ${name}`,

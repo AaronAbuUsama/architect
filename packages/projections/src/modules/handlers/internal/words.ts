@@ -2,7 +2,7 @@
 // where a declaration's file is, and every refusal with who gives it. Every word is a name from the model or a fixed
 // phrase about Orthograph itself; nothing names the domain unless the blueprint does.
 import type { AllowedModel, FieldModel, FieldsModel, Model, OperationModel, ThingModel } from "@orthograph/compiler";
-import { NOT_ALLOWED_EXIT } from "#modules/names/service.js";
+import { IDEMPOTENCY_CONFLICT, NOT_ALLOWED_EXIT } from "#modules/names/service.js";
 
 /** The exit of a generated `<Thing>NotFound` (K16 g, M1.46); a thing that declares one keeps its own. */
 export const NOT_FOUND_EXIT = 4;
@@ -82,7 +82,7 @@ export const refusalsOf = (model: Model, op: OperationModel): ReadonlyArray<Refu
   const thing = model.things[op.thing];
   const code = (r: string) => model.refusals[r] ?? "?";
   // The runtime's reused-key refusal is for the caller to meet, not the handler to make: the scaffold's header lists only what a handler can refuse (HAN-10).
-  return op.refusals.filter((r) => r !== "IdempotencyConflict").map((r): Refusal => {
+  return op.refusals.filter((r) => r !== IDEMPOTENCY_CONFLICT).map((r): Refusal => {
     const owner = op.errors.includes(r) ? ownerOf(model, op, r) : undefined;
     const declared = owner ? model.things[owner]?.errors[r] : thing?.errors[r];
     if (owner && declared) {

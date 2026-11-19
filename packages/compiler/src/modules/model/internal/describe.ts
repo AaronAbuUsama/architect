@@ -3,7 +3,7 @@ import { Duration } from "effect";
 import type { AnyErrorClass, Allowed, CallStep, Field, FieldsInput, Operation, Read, Step, Thing, Value, Visibility } from "orthograph";
 import type { AllowedModel, BlankOperationModel, FieldModel, FieldsModel, Model, OperationModel, StepModel, ThingModel, VisibilityModel } from "../types.ts";
 import { Blanks } from "orthograph/server";
-import { MACHINE_NUMBER, codeOf, inDeclarationOrder, prefixes, refusalsOf } from "./codes.ts";
+import { IDEMPOTENCY_CONFLICT, MACHINE_NUMBER, codeOf, inDeclarationOrder, prefixes, refusalsOf } from "./codes.ts";
 import { foundModel, mintsOf, missedBy, notFoundOf } from "./found.ts";
 import { exitClashes, notFoundShapes, operationExitClashes } from "./exits.ts";
 import { unfillable } from "./fillable.ts";
@@ -167,7 +167,7 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
       ...new Set(Object.values(found.notFound ?? {}).filter((e) => !errors.includes(e))),
       ...(allowed.every((a) => a.kind === "anyone") ? [] : ["NotAllowed"]),
       // An operation that keeps its answer by request key refuses a key reused with another payload (HAN-10, G3).
-      ...(op.idempotent === "request" ? ["IdempotencyConflict"] : []),
+      ...(op.idempotent === "request" ? [IDEMPOTENCY_CONFLICT] : []),
     ];
     const payload = fieldsModel(op.payload, `${file} payload`, "a payload");
     const answer = fieldsModel(op.answer, `${file} answer`, "answer");
