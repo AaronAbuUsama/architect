@@ -10,7 +10,7 @@ It draws from Plugged In's model, with HeroUI Pro, on Aaron's round 4 picks (Q1 
 
 ## Tried
 
-A static render of 78 pages from one model, with one shell: sidebar tree, top bar, scoped live rail.
+A static render of 79 pages from one model, with one shell: sidebar tree, top bar, scoped live rail.
 
 - The pages are React server-rendered with bun, using HeroUI and HeroUI Pro components.
 - Pro's `BarChart`, `Command` and `HoverCard` render nothing on the server, so one small browser script mounts them; the
