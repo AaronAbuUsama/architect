@@ -1,0 +1,101 @@
+{
+ "aaron": {
+  "branch": null,
+  "emoji": "👤",
+  "id": "aaron",
+  "kind": "person",
+  "name": "You",
+  "pr": null,
+  "role": "Decisions, sign-ins, approvals.",
+  "sessionId": null,
+  "status": "active"
+ },
+ "canon": {
+  "branch": "canon-minimal",
+  "emoji": "📖",
+  "id": "canon",
+  "kind": "claude",
+  "name": "Canon",
+  "pr": null,
+  "role": "A minimal pass over the docs canon, written for a package user, with the links app as the one example all the way through.",
+  "sessionId": "local_bb023976-b3f5-4d53-8bfb-9ef8d4b6883d",
+  "status": "running"
+ },
+ "codex-links": {
+  "branch": "links/stage-1",
+  "emoji": "🤖",
+  "id": "codex-links",
+  "kind": "codex",
+  "name": "Codex: links",
+  "pr": 56,
+  "role": "Codex, building the links example's stage 1 and its staging workflow.",
+  "sessionId": null,
+  "status": "idle"
+ },
+ "conductor": {
+  "branch": null,
+  "emoji": "🎛",
+  "id": "conductor",
+  "kind": "claude",
+  "name": "Conductor",
+  "pr": null,
+  "role": "Sets direction, writes decisions, starts and relates threads, keeps this board.",
+  "sessionId": "local_b6ebc731-16db-4abf-adb0-9e262993c239",
+  "status": "running"
+ },
+ "k16-author": {
+  "branch": "claude/k16-checks",
+  "emoji": "✍️",
+  "id": "k16-author",
+  "kind": "claude",
+  "name": "K16 author",
+  "pr": null,
+  "role": "Wrote K16 (the scaffold explains itself), M1.44 to M1.48, and their checks: check 19, handlers.test.ts, prehandle.test.ts and refusals-table.test.ts, red ahead of the build.",
+  "sessionId": null,
+  "status": "idle"
+ },
+ "ledger": {
+  "branch": "claude/ledger-k7-k9",
+  "emoji": "📒",
+  "id": "ledger",
+  "kind": "claude",
+  "name": "Ledger",
+  "pr": 58,
+  "role": "Keeps the open-issues ledger: everything left open, in one place.",
+  "sessionId": "local_52beae9e-b3f7-42eb-a8d4-b334484d7971",
+  "status": "idle"
+ },
+ "m1-lead": {
+  "branch": "m1",
+  "emoji": "🧭",
+  "id": "m1-lead",
+  "kind": "claude",
+  "name": "M1 lead",
+  "pr": null,
+  "role": "Runs the M1 goal on branch m1 (at 2afbfb73, K12 merged in): one commit per slice, each green with its check, then Gate M1. Its builders and authors run as its own subagents.",
+  "sessionId": "local_90551e2a-cfc9-414b-b00b-7934d33b56fd",
+  "status": "idle"
+ },
+ "portal-designer": {
+  "branch": "claude/portal-908a25",
+  "emoji": "📐",
+  "id": "portal-designer",
+  "kind": "claude",
+  "name": "Portal designer",
+  "pr": 66,
+  "role": "Designed the portal with you (M1.25) and folded in Codex's ideas (F8).",
+  "sessionId": "local_24ad5b8b-8202-445a-bf35-03b93fe06170",
+  "status": "done"
+ },
+ "reviewer": {
+  "branch": null,
+  "emoji": "🔍",
+  "id": "reviewer",
+  "kind": "subagent",
+  "name": "Reviewers",
+  "pr": null,
+  "role": "Independent review of each diff before it merges; a fresh subagent each time.",
+  "sessionId": null,
+  "status": "on call"
+ }
+}
