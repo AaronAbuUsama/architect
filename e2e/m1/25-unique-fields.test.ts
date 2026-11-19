@@ -16,6 +16,9 @@
 //     -> the declared refusal; release, then claim "ada" again -> ok (the scope frees the name).
 //  3. The store enforces it: concurrent first claims of one name, repeated, always end with exactly one success and the
 //     rest the declared refusal (never a 5xx defect, never two owners: releasing the winner leaves the name free to claim).
+//  3b. The store's index is the one Orthograph generates: the fixture's `generated/server/migrations/0001_things.sql` makes a
+//     partial unique index on `handle`'s `name`, scoped to `claimed` (matched loosely: unique, on name, state in claimed), so a
+//     build can't pass on an app-level lookup that no commit-time index backs. (Unit half: projections `server/unique.test.ts`.)
 //  4. It falls out: the docs page for the thing says "unique while claimed"; the portal's data carries `unique`.
 // Package halves: compiler `unique.test.ts`, language-effect `records/find-by.test.ts`, host-cloudflare `store/unique.test.ts`.
 //
@@ -156,5 +159,20 @@ describe("25.4 it falls out: the docs and the portal say so", () => {
     const portal = JSON.parse(textAt(root, "generated/portal/blueprint.json")) as { model: UniqueModel };
     expect(portal.model.things["handle"]?.unique).toEqual({ name: { while: ["claimed"] } });
     expect(existsSync(join(root, "generated/docs/handle/claim.md"))).toBe(true);
+  });
+});
+
+describe("25.5 the generated migration backs it with an index", () => {
+  it("the migration for the fixture's `handle` has a unique index on `name`, partial to the state `claimed`", { timeout: 300_000 }, () => {
+    const root = project();
+    succeeds(root, "generate");
+    const sql = textAt(root, "generated/server/migrations/0001_things.sql");
+    expect(sql).toMatch(/CREATE TABLE "handle"/); // control: the table is there today
+    const indexes = sql.match(/CREATE\s+UNIQUE\s+INDEX[^;]*;/gi) ?? [];
+    const forHandle = indexes.filter((i) => /"handle"/.test(i));
+    expect(forHandle, "one unique index on the handle table").toHaveLength(1);
+    expect(forHandle[0]).toMatch(/\(\s*"name"\s*\)/);
+    expect(forHandle[0]).toMatch(/WHERE\s+"state"\s+IN\s*\(\s*'claimed'\s*\)/i);
+    expect(forHandle[0]).not.toMatch(/released/);
   });
 });

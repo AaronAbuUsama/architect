@@ -50,14 +50,16 @@ describe("a unique field in D1 (G4)", () => {
     expect(await run(commit(insert("hdl_c3", "cy", "released")))).toBe("committed"); // outside the scope: any number
   });
 
-  it("refuses a move back into the scope while another holds the name", async () => {
-    // hdl_c1 is released holding "cy", and hdl_c2 now holds it claimed (the test above).
-    expect(await run(commit(move("hdl_c1", 1, "claimed")))).toBe("conflict");
-    const row = await env.DB.prepare(`SELECT "state", "version" FROM "handle" WHERE "id" = 'hdl_c1'`).first();
+  it("refuses a move back into the scope while another holds the name, and lets it land once they let go", async () => {
+    // Its own rows: d1 released holding "di", d2 claimed holding it now.
+    expect(await run(commit(insert("hdl_d1", "di", "claimed")))).toBe("committed");
+    expect(await run(commit(move("hdl_d1", 0, "released")))).toBe("committed");
+    expect(await run(commit(insert("hdl_d2", "di", "claimed")))).toBe("committed");
+    expect(await run(commit(move("hdl_d1", 1, "claimed")))).toBe("conflict");
+    const row = await env.DB.prepare(`SELECT "state", "version" FROM "handle" WHERE "id" = 'hdl_d1'`).first();
     expect(row).toEqual({ state: "released", version: 1 }); // untouched
-    // Once the holder lets go, the move back lands.
-    expect(await run(commit(move("hdl_c2", 0, "released")))).toBe("committed");
-    expect(await run(commit(move("hdl_c1", 1, "claimed")))).toBe("committed");
+    expect(await run(commit(move("hdl_d2", 0, "released")))).toBe("committed");
+    expect(await run(commit(move("hdl_d1", 1, "claimed")))).toBe("committed");
   });
 
   it("is a conflict however many race: of ten concurrent first claims of one name, one commits and nine conflict, none dies", { timeout: 60_000 }, async () => {
