@@ -126,27 +126,29 @@ that list for its target, so the developer can read exactly what is already done
 
 Aaron's pre-handling list from 19 November is part of this table. The subject is preloaded, not-found is generated,
 new ids are minted, event fields are enforced by the answer's type, exit codes are carried through, journey stubs are
-made per error and per role, and visibility is shown in the header. For the Effect target, K16 places them as follows. The scaffold, the visibility header and the machine-path stubs
-are M1.44 and M1.45, on M1's critical path. Stubs per error and per role are M2.17. The preloaded subject, the
-generated `NotFound` and minted ids are M2.18. The compiler refusing an event it can't fill is M2.19. Gate M2 needs
-all three. Exit codes carried through every wire are still being checked against `m1`.
+made per error and per role, and visibility is shown in the header. For the Effect target, K16 places all seven in M1, and Gate M1 needs them. They are split across five slices:
+- M1.44: the scaffold, with visibility in the header.
+- M1.45: journey stubs per machine path, per error and per role.
+- M1.46: the subject and referenced things handed in, the generated `NotFound` (exit 4, HTTP 404), and minted ids.
+- M1.47: one refusals table of code, exit and status, read by the CLI, HTTP and MCP.
+- M1.48: the compiler refuses an event field that nothing supplies.
 
 | # | Guard | Server (Effect) | Device | EVM (Solidity) | Aztec (Noir) | Solana (Anchor) |
 |---|---|---|---|---|---|---|
 | 1 | decode the payload | enforced (`InvalidPayload`) | enforced | ABI decode | enforced by the PXE | enforced by Anchor |
-| 2 | load the subject and anything the payload names by id, handed to the body (M2.18) | proposed | n/a (no store) | storage read | note read on the device | the account list |
-| 3 | not found, generated (M2.18) | proposed where no role check read the subject, and for ids the payload references; on a role-gated call a missing subject is refused `NotAllowed` (`access/service.ts:54-55`, `:83`), which hides whether it exists, and that stays | n/a | generated `require` | pre-checked on the device | the account must exist (K7:364-366) |
-| 4 | mint the id for a creating move (M2.18) | proposed; today `Ids.of` by hand (`grant.ts:20`) | n/a | counter or hash | note nonce | PDA seeds |
+| 2 | load the subject and anything the payload names by id, handed to the body (M1.46) | proposed | n/a (no store) | storage read | note read on the device | the account list |
+| 3 | not found, generated (M1.46) | proposed where no role check read the subject, and for ids the payload references; on a role-gated call a missing subject is refused `NotAllowed` (`access/service.ts:54-55`, `:83`), which hides whether it exists, and that stays | n/a | generated `require` | pre-checked on the device | the account must exist (K7:364-366) |
+| 4 | mint the id for a creating move (M1.46) | proposed; today `Ids.of` by hand (`grant.ts:20`) | n/a | counter or hash | note nonce | PDA seeds |
 | 5 | role | enforced (`:60`) | **not enforced today** | generated modifier (K7:622-625) | private note, on the device (K7:121-123) | signer plus member account |
 | 6 | replay a repeated request key | enforced (`:66-70`) | not enforced | nonce or `BySig` digest | the one-use claim | durable nonce |
 | 7 | from-state | enforced (`move.ts:30`) | n/a | generated `require(state)` | later in the block (K7:340-341) | in the instruction |
 | 8 | the body | the developer | the developer | the developer | the developer | the developer |
-| 9 | answer shape, and every event field fillable (M2.19) | the shape enforced (`:78-81`), so a declared answer field can't be forgotten; the compiler doesn't yet check that an event's fields can be filled, which today is caught only at commit (`move.ts:65`) | enforced | return decode | proof output | instruction return |
+| 9 | answer shape, and every event field fillable (M1.48) | the shape enforced (`:78-81`), so a declared answer field can't be forgotten; the compiler doesn't yet check that an event's fields can be filled, which today is caught only at commit (`move.ts:65`) | enforced | return decode | proof output | instruction return |
 | 10 | the outcome is a declared `to` | enforced (`move.ts:43-53`) | n/a (`move` is a no-op) | generated | generated | generated |
 | 11 | state and event | enforced (`move.ts:56-75`) | n/a | `emit` | public log | `emit_cpi!` |
 | 12 | one commit | enforced (`:84-91`) | n/a | the transaction | the transaction | the transaction |
 | 13 | confirmed | immediate | immediate | the follower, at the environment's depth (K7:241) | `proven` | `confirmed` |
-| 14 | a refusal carries one code on every wire | exit code; HTTP status to check (K16) | exit code | custom error by selector | assert text | error number |
+| 14 | a refusal carries one code on every wire | one generated refusals table read by the CLI, HTTP and MCP (M1.47) | exit code | custom error by selector | assert text | error number |
 
 Some chains can't enforce a guard first: on Aztec the machine runs late, and Anchor checks accounts before the body.
 There the generated client runs the pre-checks in this order before sending, and every send is simulated first
