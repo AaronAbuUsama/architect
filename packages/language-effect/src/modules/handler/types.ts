@@ -47,11 +47,15 @@ type ThingOf<O> = O extends { readonly thing: infer T extends Thing } ? T : Thin
 type IdOf<T extends Thing> = T["fields"] extends { readonly id: Field<infer V> } ? V["schema"]["Type"] : string;
 /** Payload fields taken from some thing's field: those that may name an instance by its id. */
 type RefKeys<O> = O extends Operation<any, infer P, any, any, any> ? { [K in keyof P]: P[K] extends Field ? K : never }[keyof P] & string : never;
-/** A move from no state makes its instance and has an id minted; one whose `from` isn't known as a literal may. */
+/**
+ * A move from no state makes its instance and has an id minted; one whose `from` isn't known as a literal may. A
+ * machine's move keeps its states as literals but its `from` as an array of them, not a tuple, so `from: []` is known
+ * only when the array is a tuple; otherwise the id is given as if it may be minted.
+ */
 type CreatedId<O> = O extends { readonly move: infer M }
   ? [NonNullable<M>] extends [never] ? undefined
   : NonNullable<M> extends { readonly from: infer F extends ReadonlyArray<string> }
-    ? F extends readonly [] ? IdOf<ThingOf<O>> : string extends F[number] ? IdOf<ThingOf<O>> : undefined
+    ? F extends readonly [] ? IdOf<ThingOf<O>> : number extends F["length"] ? IdOf<ThingOf<O>> : string extends F[number] ? IdOf<ThingOf<O>> : undefined
     : undefined
   : undefined;
 
