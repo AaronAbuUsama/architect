@@ -1,7 +1,8 @@
 // generated/docs: a page per thing (its fields, machine and roles) and per operation (who may call, what goes in and
 // out, its move, every refusal with its exit code, and how to call it). Markdown, read by people and by agents.
 import type { FieldModel, Model, OperationModel, ThingModel } from "@orthograph/compiler";
-import { NOT_ALLOWED_EXIT, lines, type RenderedFile } from "@orthograph/projections/shared";
+// `who` is the scaffold's own sentence (K16 a), so the docs page and the handler's front matter never disagree.
+import { NOT_ALLOWED_EXIT, lines, who, type RenderedFile } from "@orthograph/projections/shared";
 
 type FieldsModel = Readonly<Record<string, FieldModel>>;
 const MARK = "<!-- Generated from the blueprint. Do not edit. -->";
@@ -11,8 +12,6 @@ const fieldRows = (fields: FieldsModel) =>
     ? ["(none)"]
     : ["| field | value |", "|---|---|", ...Object.entries(fields).map(([k, f]) => `| ${k}${f.optional ? " (optional)" : ""} | ${f.ref ?? f.named ?? (f.value.type === "schema" && f.value.format === "ref-any" ? "any thing (declaration and id)" : f.value.type)}${f.visibility ? ` (${f.visibility === "secret" ? "secret" : `private to ${f.visibility.private.join(", ")}`})` : ""} |`)];
 
-const who = (op: OperationModel) =>
-  op.allowed.map((a) => (a.kind === "anyone" ? "anyone" : a.kind === "signed-in" ? "anyone signed in" : a.kind === "role" ? `the ${a.role.split(".").pop()} of the ${op.thing}` : `the ${a.role.split(".").pop()} of its ${a.path}`)).join(", or ");
 
 /** Every refusal the operation can give, with its exit code and what it means. */
 const refusals = (model: Model, op: OperationModel) => {

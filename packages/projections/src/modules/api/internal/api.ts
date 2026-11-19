@@ -106,6 +106,8 @@ const handlerType = (op: OperationModel): RenderedFile => {
     `import type declaration from "${declarationAt(path, op.file)}";`,
     "",
     "export type Handler<R = Records | SqlClient.SqlClient | Auth> = Of<typeof declaration, R>;",
+    // Where the move can end, as the machine's literal states: a handler's `Match` over it is exhaustive (K16).
+    (op.move?.to.length ?? 0) > 1 ? ["/** Where the move can end: one of its outcomes, as the machine declares them. */", `export type Outcome = NonNullable<(typeof declaration)["move"]>["to"][number];`] : [],
   ));
 };
 

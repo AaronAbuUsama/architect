@@ -222,5 +222,5 @@ export const renderServer = (model: Model, name: string, empty = false): Readonl
   renderWrangler(name, Object.values(model.things).some((t) => t.lives === "actor"), databaseStores(model)),
   renderMigration(model),
   ...renderStoreMigrations(model),
-  ...(empty ? Object.values(model.operations).filter((o) => o.kind === "operation").map((o) => renderHandlerScaffold(o, `generated/server/${emptyPath(o)}`)) : []),
+  ...(empty ? Object.values(model.operations).filter((o) => o.kind === "operation").map((o) => renderHandlerScaffold(o, `generated/server/${emptyPath(o)}`, model)) : []),
 ];

@@ -1,20 +1,35 @@
-// src/<thing>/<verb>.ts: written once per operation, then the project's own. Never overwritten.
+// src/<thing>/<verb>.ts: written once per operation, then the project's own. Never overwritten. It explains itself (K16):
+// front matter citing each blueprint file, then a body laid out step by step.
 import { Names } from "orthograph/server";
-import type { OperationModel } from "@orthograph/compiler";
+import type { Model, OperationModel } from "@orthograph/compiler";
 import type { RenderedFile } from "#modules/names/types.js";
 import { callSteps, handlerTypeAt } from "./calls.ts";
+import { body, branches } from "./body.ts";
+import { handedIn, header } from "./header.ts";
+import { refusalsOf } from "./words.ts";
 import { camel, lines, local, scaffolded, toRoot } from "#modules/names/service.js";
-
-const runner = (key: string) => /^[A-Za-z_$][\w$]*$/.test(key) ? `steps.${key}` : `steps[${JSON.stringify(key)}]`;
 
 const IDENTIFIER = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 
-/** What a handler is told about its operation, as comments. */
-const said = (op: OperationModel, errors = true) => [
+/** A model of one operation and no things: what the scaffold reads when it is given no model. */
+const alone = (op: OperationModel): Model => ({ refusals: {}, things: {}, operations: { [op.name]: op } }) as unknown as Model;
+
+/**
+ * The answer field the runtime's minted id fills, once the model says the runtime mints it (M1.46 sets `mints` on a
+ * creating operation: the answer's field holding the thing's id, else the payload's). Before that the handler mints its
+ * own, and the scaffold leaves the field a blank.
+ */
+const mintedField = (model: Model, op: OperationModel) => {
+  const mints = (op as OperationModel & { readonly mints?: string }).mints;
+  // Only an answer field takes the id; a payload field named by `mints` is the caller's to give, and nothing to write.
+  return mints && mints in op.answer && handedIn(model, op).mints ? mints : undefined;
+};
+
+/** What a handler of a calling operation is told about its operation, as comments. */
+const said = (op: OperationModel) => [
   `Payload: ${Object.keys(op.payload).join(", ") || "none"}.`,
   `Answer: ${Object.keys(op.answer).join(", ") || "nothing"}.`,
   Object.keys(op.steps).length > 0 ? `Steps, each its own span: ${Object.keys(op.steps).map((k) => `steps.${k}(...)`).join(", ")}.` : "",
-  errors && op.errors.length > 0 ? `May refuse with ${op.errors.join(", ")}.` : "",
 ].filter(Boolean);
 
 /**
@@ -22,13 +37,13 @@ const said = (op: OperationModel, errors = true) => [
  * thing only the app knows, which declared error each way the call can fail becomes. A call that is the whole operation
  * returns what the callable answered, so the answer is the callable's own.
  */
-const calling = (op: OperationModel, path: string): RenderedFile => {
+const calling = (model: Model, op: OperationModel, path: string): RenderedFile => {
   const steps = callSteps(op);
   const args = `[${Object.keys(op.payload).map((k) => (IDENTIFIER.test(k) ? `payload.${k}` : `payload[${JSON.stringify(k)}]`)).join(", ")}]`;
   const blank = `Handlers.blank("map how this call fails to the error it declares", "failure")`;
   const whole = steps.length === 1 && Object.keys(op.steps).length === 1;
   // The errors are not named here: the one blank is where the app imports the one it maps to.
-  const comments = [...said(op, false), "What the call fails with is mapped to one of the errors the operation declares; anything else is a defect."];
+  const comments = [...said(op), "What the call fails with is mapped to one of the errors the operation declares; anything else is a defect."];
   return {
     path,
     scaffold: true,
@@ -38,7 +53,7 @@ const calling = (op: OperationModel, path: string): RenderedFile => {
       `import { Handlers } from "${Names.pkg("language-effect")}";`,
       `import type { Handler } from "${toRoot(path)}${handlerTypeAt(op)}";`,
       "",
-      `/** ${op.description} */`,
+      header(model, op),
       whole
         ? [`const ${local(camel(op.verb))}: Handler = (payload, { steps }) =>`, ...comments.map((s) => `  // ${s}`), `  steps.${steps[0]!.key}(${args}, ${blank});`]
         : [
@@ -55,38 +70,32 @@ const calling = (op: OperationModel, path: string): RenderedFile => {
   };
 };
 
-
-export const renderHandlerScaffold = (op: OperationModel, path = `src/${op.thing}/${op.verb}.ts`): RenderedFile => {
-  if (callSteps(op).length > 0) return calling(op, path);
+/**
+ * An operation's handler scaffold. The model is how the scaffold reads the thing (its machine, errors, events and roles,
+ * which are not on the operation); both callers pass it. Without one, the scaffold says only what the operation holds.
+ */
+export const renderHandlerScaffold = (op: OperationModel, path = `src/${op.thing}/${op.verb}.ts`, model: Model = alone(op)): RenderedFile => {
+  if (callSteps(op).length > 0) return calling(model, op, path);
   const api = `${toRoot(path)}generated/api/src`;
-  const steps = Object.entries(op.steps);
-  const context = [...(steps.length > 0 ? ["steps"] : []), ...(op.move ? ["move"] : [])];
-  const move = op.move
-    ? `    yield* move(${op.move.to.length > 1 ? 'yield* Handlers.blank("the move’s outcome")' : ""});`
-    : [];
+  const minted = mintedField(model, op);
+  const context = [...(Object.keys(op.steps).length > 0 ? ["steps"] : []), ...(op.move ? ["move"] : []), ...(minted ? ["id"] : [])];
+  const declared = refusalsOf(model, op).filter((r) => r.giver === "yours").map((r) => r.name);
+  const sections = body(model, op, minted);
   return {
     path,
     scaffold: true,
     content: lines(
       scaffolded(op.file),
-      `import { Effect } from "effect";`,
+      `import { Effect${branches(op) ? ", Match" : ""} } from "effect";`,
       `import { Handlers } from "${Names.pkg("language-effect")}";`,
-      op.errors.length > 0 ? `import { Errors } from "${api}/index.ts";` : [],
-      `import type { Handler } from "${api}/${op.thing}/${op.verb}.handler.ts";`,
+      declared.length > 0 ? `import { Errors } from "${api}/index.ts";` : [],
+      `import type { Handler${branches(op) ? ", Outcome" : ""} } from "${api}/${op.thing}/${op.verb}.handler.ts";`,
       "",
-      op.errors.length > 0 ? [`const { ${op.errors.join(", ")} } = Errors.declared;`, ""] : [],
-      `/** ${op.description} */`,
+      declared.length > 0 ? [`const { ${declared.join(", ")} } = Errors.declared;`, ""] : [],
+      header(model, op),
       `const ${local(camel(op.verb))}: Handler = (_payload, ${context.length === 0 ? "_context" : `{ ${context.join(", ")} }`}) =>`,
       "  Effect.gen(function* () {",
-      steps.map(([key, step]) => `    yield* ${runner(key)}(Handlers.blank(${JSON.stringify(`${key}: the work this step does`)}));${step.optional ? " // optional: may be skipped" : ""}`),
-      op.errors.flatMap((error) => [
-        `    if (yield* Handlers.blank<boolean>("refuse ${error} when?")) {`,
-        `      yield* Effect.logInfo(yield* Handlers.blank("why ${error} was refused"));`,
-        `      return yield* new ${error}(yield* Handlers.blank("${error}'s fields"));`,
-        "    }",
-      ]),
-      move,
-      `    return yield* Handlers.blank("the answer");`,
+      sections.flatMap((s, i) => (i === 0 ? s : ["", ...s])),
       "  });",
       "",
       `export default ${local(camel(op.verb))};`,
