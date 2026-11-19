@@ -13,11 +13,15 @@ import { Api, Errors } from "../api/src/index.ts";
 import * as portal from "../portal/main.ts";
 import { catalog } from "../mcp/src/index.ts";
 import * as handleClaim from "../api/src/handle/claim.ts";
+import * as handleRelease from "../api/src/handle/release.ts";
+import * as handleResolve from "../api/src/handle/resolve.ts";
 import * as linkAdd from "../api/src/link/add.ts";
 import * as linkOrder from "../api/src/link/order.ts";
 import * as linkRemove from "../api/src/link/remove.ts";
 import * as profileGet from "../api/src/profile/get.ts";
 import handleClaimHandler from "../../src/handle/claim.ts";
+import handleReleaseHandler from "../../src/handle/release.ts";
+import handleResolveHandler from "../../src/handle/resolve.ts";
 import linkAddHandler from "../../src/link/add.ts";
 import linkOrderHandler from "../../src/link/order.ts";
 import linkRemoveHandler from "../../src/link/remove.ts";
@@ -29,9 +33,11 @@ import * as profileThing from "../../blueprint/things/profile/thing.ts";
 export { World } from "@orthograph/host-cloudflare";
 
 const handleClaimServed = Handlers.serve({ name: "handle.claim", operation: handleClaim.declaration, handler: handleClaimHandler, codes: Errors.codes });
+const handleReleaseServed = Handlers.serve({ name: "handle.release", operation: handleRelease.declaration, handler: handleReleaseHandler, notFrom: "HandleNotClaimed", codes: Errors.codes });
+const handleResolveServed = Handlers.serve({ name: "handle.resolve", operation: handleResolve.declaration, handler: handleResolveHandler, codes: Errors.codes });
 const linkAddServed = Handlers.serve({ name: "link.add", operation: linkAdd.declaration, handler: linkAddHandler, codes: Errors.codes });
-const linkOrderServed = Handlers.serve({ name: "link.order", operation: linkOrder.declaration, handler: linkOrderHandler, notFound: { link: "LinkNotFound" }, codes: Errors.codes });
-const linkRemoveServed = Handlers.serve({ name: "link.remove", operation: linkRemove.declaration, handler: linkRemoveHandler, notFrom: "LinkNotListed", notFound: { link: "LinkNotFound" }, codes: Errors.codes });
+const linkOrderServed = Handlers.serve({ name: "link.order", operation: linkOrder.declaration, handler: linkOrderHandler, codes: Errors.codes });
+const linkRemoveServed = Handlers.serve({ name: "link.remove", operation: linkRemove.declaration, handler: linkRemoveHandler, notFrom: "LinkNotListed", codes: Errors.codes });
 const profileGetServed = Handlers.serve({ name: "profile.get", operation: profileGet.declaration, handler: profileGetHandler, codes: Errors.codes });
 
 /** Each thing and its table: a D1 table, or the name its actors go by. */
@@ -55,7 +61,9 @@ const HandleLive = HttpApiBuilder.group(CallApi, "handle", Effect.fn(function* (
   // The services are taken once, when the routes are built; each request keeps its own tracer and span.
   const services = Context.pick(SqlClient.SqlClient, Store, Busy, Principals, Journal, Auth)(yield* Effect.context<Services>());
   return handlers
-      .handle("claim", ({ payload, request }) => call(handleClaimServed, payload, request.headers).pipe(Effect.provideContext(services)));
+      .handle("claim", ({ payload, request }) => call(handleClaimServed, payload, request.headers).pipe(Effect.provideContext(services)))
+      .handle("release", ({ payload, request }) => call(handleReleaseServed, payload, request.headers).pipe(Effect.provideContext(services)))
+      .handle("resolve", ({ payload, request }) => call(handleResolveServed, payload, request.headers).pipe(Effect.provideContext(services)));
 }));
 const LinkLive = HttpApiBuilder.group(CallApi, "link", Effect.fn(function* (handlers) {
   // The services are taken once, when the routes are built; each request keeps its own tracer and span.
@@ -124,7 +132,7 @@ const hostsWorlds = (env: Env) =>
 /** One tool per operation and read: the same served operations as the API, called as the person the access token names. */
 const tools = Mcp.tools<Services>({
   catalog,
-  served: { "handle.claim": handleClaimServed, "link.add": linkAddServed, "link.order": linkOrderServed, "link.remove": linkRemoveServed, "profile.get": profileGetServed },
+  served: { "handle.claim": handleClaimServed, "handle.release": handleReleaseServed, "handle.resolve": handleResolveServed, "link.add": linkAddServed, "link.order": linkOrderServed, "link.remove": linkRemoveServed, "profile.get": profileGetServed },
   refusals: { codes: Errors.codes, declared: Errors.declared, table: Errors.refusals },
 });
 
