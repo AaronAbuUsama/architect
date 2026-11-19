@@ -10,7 +10,7 @@
 //     errors at one exit is refused, naming both.
 //  5. P2. A declared exit is a whole number from 5 to 125: 5.5 and NaN are refused like 130.
 //  6. P2. Journey stubs are named so two allowed entries of one role (`owner.of("source")`, `owner.of("destination")`)
-//     get a file each, and a second `add journeys` never overwrites either.
+//     get a file each, and a second `add journeys` refuses as check 19 says ("already there") and overwrites neither.
 import { readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -140,7 +140,10 @@ describe("22.6 (P2): two allowed entries of one role get a journey stub each, an
     const texts = first.map((f) => textAt(root, `blueprint/journeys/${f}`));
     expect(texts.some((t) => t.includes('"source"') || t.includes("source")) && texts.some((t) => t.includes("destination")), "each names its own field").toBe(true);
     for (const f of first) write(root, `blueprint/journeys/${f}`, `${textAt(root, `blueprint/journeys/${f}`)}// mine\n`);
-    succeeds(root, "add", "journeys", "allowance");
+    // A second run refuses and writes nothing, as check 19 decides (K16): the stubs are yours now.
+    const again = run(root, "add", "journeys", "allowance");
+    expect(again.status, again.out).not.toBe(0);
+    expect(again.out).toMatch(/already there/);
     expect(journeys(root).sort()).toEqual([...first].sort());
     for (const f of first) expect(textAt(root, `blueprint/journeys/${f}`), `${f} was overwritten`).toMatch(/\/\/ mine\n$/);
   });
