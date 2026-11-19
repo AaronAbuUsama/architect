@@ -472,7 +472,7 @@ with the same auth and hand the SDK their credential.
   - **pages:** every page is drawn from the model;
   - **notes:** a note is a thing in the portal feature's own store (K3 item 7), with prose about a declaration kept
     beside it in the repository (F6 Q3);
-  - **chat state:** threads and runs are things in the same store, not agent-native's Postgres tables;
+  - **chat state:** threads and runs are things in the same store, not agent-native's Postgres tables; (Superseded by M1.25, `design/portal.md`: a conversation is an `@orthograph/agents` Run, and the portal's store keeps notes and grants.)
   - **live evidence:** read from the Collector's files, as PR #39 found.
 - **Enforced by:** the portal changes nothing on its own. Its "Try it" calls through the SDK as the signed-in builder,
   or as the cast in a world.
