@@ -290,6 +290,14 @@ because "a number that has shipped does not move" (`compiler/…/model/internal/
 the tests that pin them (`model.test.ts:164`, `compare/versions.test.ts:42`), are unchanged. `Handlers.serve` gains
 `notFound: { [payloadField]: tag }`, generated beside `notFrom`.
 
+A journey names it the way it names a machine's refusal: every thing gets `notFound`, a descriptor
+`{ kind: "not-found", thing }` beside `machine.notFrom`, and `Refusal` (`orthograph/…/journeys/types.ts:28`) takes
+it. Prove reads its tag as `<Thing>NotFound` (as `tagOfRefusal` does for `notFrom`, `prove/…/journeys/internal/checks.ts:22`)
+and counts it as a runtime refusal. Acme proves the one it gains: `grant-an-allowance` has a fourth step, ada granting
+to `per_nobody`, `refuses(Person.notFound, { id: "per_nobody" })`, so prove's coverage reads `runtime refusals 14/17`
+(was 13/16), not 13/17. A step, not a new journey: it is grant's refusal beside grant's others, and acme keeps eleven
+journeys.
+
 **One refusals table (M1.47).** Today the CLI reads `exits` (generated `api/src/errors.ts`; `cli/…/output.ts:13-14`),
 HTTP reads each class's `httpApiStatus`, and an MCP refusal is only the text `[code] Tag { fields }`
 (`mcp/internal/tool.ts:36-45`): three readings, and MCP carries neither exit nor status. M1.47 generates one table,

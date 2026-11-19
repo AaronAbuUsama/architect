@@ -1,0 +1,10 @@
+import { environments } from "../model.ts";
+import { journeyRows, opRows } from "../pages/env-compare.tsx";
+import type { Meta, Story } from "./stories.ts";
+import { VerdictMatrix } from "./verdict-matrix.tsx";
+type P = Parameters<typeof VerdictMatrix>[0];
+export default { title: "Proof/VerdictMatrix", component: VerdictMatrix, parameters: { docs: { description: { component: "What is proven where. Each column heads with its tally, so \"pass 8\" always says 8 of what." } } } } satisfies Meta<P>;
+const envs = environments.map((e) => e.name);
+export const Operations: Story<P> = { args: { rows: opRows(), envs, of: "operations", rowHead: "operation" } };
+export const Journeys: Story<P> = { args: { rows: journeyRows(), envs, of: "journeys", rowHead: "journey", focus: "staging" } };
+export const OneEnvironment: Story<P> = { name: "One environment", args: { rows: journeyRows(), envs: ["staging"], of: "journeys", rowHead: "journey" } };

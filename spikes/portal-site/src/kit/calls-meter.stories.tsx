@@ -1,0 +1,10 @@
+import { CallsMeter, type CallsSplit } from "./calls-meter.tsx";
+import type { Meta, Story } from "./stories.ts";
+type P = Parameters<typeof CallsMeter>[0];
+export default { title: "Live/CallsMeter", component: CallsMeter, parameters: { docs: { description: { component: "A window's calls split into answered, refused and defects. Replaces \"2,321 calls · 128 refused\"." } } } } satisfies Meta<P>;
+const handle: CallsSplit = { answered: 2193, refused: 128, defects: 0 };
+export const Default: Story<P> = { args: { split: handle, label: "handle" } };
+export const WithDefects: Story<P> = { name: "With defects", args: { split: { answered: 1146, refused: 15, defects: 3 }, label: "link" } };
+export const Small: Story<P> = { args: { split: handle, size: "sm", label: "handle" } };
+export const InATableCell: Story<P> = { name: "In a table cell (no legend)", args: { split: handle, size: "sm", legend: false, label: "handle" } };
+export const Quiet: Story<P> = { name: "No calls", args: { split: { answered: 0, refused: 0, defects: 0 }, size: "sm" } };
