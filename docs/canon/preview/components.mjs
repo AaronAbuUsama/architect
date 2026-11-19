@@ -40,10 +40,13 @@ export const components = ({ repo, gh, idOf, read, pageNames }) => {
 
   const Fence = ({ meta, children }) => {
     const a = attrs(meta);
+    // `name` anchors the quote; `lines` is only the hint check.mjs --fix keeps fresh, and the link's anchor.
     const [x, y = x] = (a.lines ?? "").split("-");
+    const where = x ? `${a.file}:${x}${y !== x ? `-${y}` : ""}` : a.file;
+    const label = a.name ? `${a.file} · ${a.name}` : where;
     const head = a.planned
       ? [h("span", { key: 1, className: "badge planned" }, "designed · not built"), " ", h("code", { key: 2 }, a.path ?? ""), " ", slice(a.planned)]
-      : [h("span", { key: 1, className: "badge quoted" }, "quoted · checked"), " ", h("a", { key: 2, href: `${gh(a.file)}#L${x}-L${y}` }, h("code", null, `${a.file}:${x}${y !== x ? `-${y}` : ""}`))];
+      : [h("span", { key: 1, className: "badge quoted" }, "quoted · checked"), " ", h("a", { key: 2, href: x ? `${gh(a.file)}#L${x}-L${y}` : gh(a.file), title: where }, h("code", null, label))];
     return h("figure", { className: `fence ${a.planned ? "is-planned" : ""}` }, h("figcaption", null, head), children);
   };
 
@@ -144,7 +147,7 @@ export const components = ({ repo, gh, idOf, read, pageNames }) => {
     '<Scene name="trace-waterfall" caption="A real allowance.grant trace from prove, building span by span." />', "",
     "## `<Status>`", "", "<Status />", "",
     "## Fences: quoted and planned", "",
-    "```ts file=packages/language-effect/src/modules/records/types.ts lines=40-41",
+    "```ts file=packages/language-effect/src/modules/records/types.ts name=Committed lines=40-41",
     "/** `conflict`: an update's version had moved on, so nothing was written and the call runs again. */",
     'export type Committed = "committed" | "conflict";', "```", "",
     "```ts planned=M1.17 path=blueprint/stores/ledger.ts", "export default Blueprint.store.database();", "```",
