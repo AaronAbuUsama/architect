@@ -88,6 +88,35 @@ const states = yield* port.track(submission, { depth: 1 }).pipe(Stream.runCollec
 Depth one is right for local Anvil and wrong for any testnet or production chain, where a reorg can undo a "confirmed"
 send. It is fixed before any environment names a real chain.
 
+### M1.38: what its builder settled
+
+Check 18 settled how depth is declared (`ORTHO_WALLET_DEPTH` on a host, `chain.depth` in a world, `ChainSetting.depth`),
+that chain id 31337 alone defaults to depth 1, and that a send on any other chain with no depth is a defect naming
+`ORTHO_WALLET_DEPTH` before anything is signed or submitted. Two calls were left to the builder.
+
+1. **`track` counts the blocks; the wallet does not.** The wallet has no way to read a head: its only road to the chain is
+   the `ChainPort`, and a second RPC client beside it would duplicate the port's deadline, timeout and fault mapping.
+   So `trackTransaction` takes the level's depth and, for a plain transfer (no intent), keeps polling past the receipt
+   until `head - receipt.blockNumber + 1 >= depth`, emitting a new `TxState` `Deepened { blocks, receipt }` each time the
+   count changes. A mined revert ends it at once; a new block renews the tracking budget (a depth of twelve on a real
+   chain outlasts the 120 s a receipt gets); a reorg that moves the receipt re-counts from the new block. A tag level
+   (`safe`, `finalized`) is not counted and ends at the receipt as before. Depth 1 is one extra `eth_blockNumber` read
+   and the same states as before, `Included` first. The wallet's `follow` taps the stream: a `wallet.send.level` span
+   with `level` and `blocks` first at 0 (`submitted`), then one per `Deepened`, `confirmed` when `blocks >= depth`, and it
+   answers when the stream ends. A count skipped between two polls (two blocks arriving within one poll) has no span of its
+   own: the span says what was seen, the next one carries the larger count.
+2. **Prove's chain is depth three, a block a second, for every device journey.** A journey cannot name its chain and a
+   plugin cannot ship a starting world (M1-plugins), so prove's `standChain` starts Anvil with `blockTime: 1` (a new
+   `AnvilOptions.blockTime`, whole seconds, the `--block-time` flag; default none, so every other user of `Anvil.start`
+   still automines) and the device world declares `chain.depth: 3`. Every send in a device journey then waits for three
+   blocks, about three seconds, and the wallet's depth-three story is the common case rather than a special one. Making
+   it per journey would need a field no journey can write. Cost: the ten wallet journeys' sends are about three seconds
+   slower each.
+
+Also: `Chain.depthOf(chainId, declared)` is the one rule for "declared, else 1 on 31337, else none", used by `fromHost`
+and by `WorldHost`; `DeviceWorldOf.chain` in `language-effect` gains `depth?`. The send asks for its depth first, so a
+chain with none costs no RPC call, no nonce and no signature.
+
 ## 5. The canon's chain page (M1.39)
 
 K7 is merged and wallets is built, but the canon still says it waits (or "wait") on K7:

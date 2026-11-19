@@ -27,6 +27,10 @@ test("the arguments always carry --silent, stay on loopback and make no dev acco
   ]);
 });
 
+test("a block time is the one argument that may follow, so that blocks come without a transaction", () => {
+  expect(anvilArgs(19261, 31337, 1).slice(-2)).toEqual(["--block-time", "1"]);
+});
+
 test("a missing binary is a typed failure, not a hang or a throw", () =>
   Effect.runPromise(Effect.scoped(Anvil.start({ binary: "anvil-that-is-not-installed" }).pipe(Effect.flip, Effect.provideService(Timers, timers))))
     .then((error) => expect(error).toMatchObject({ _tag: "AnvilFailed", message: "the anvil binary was not found or could not start" })));

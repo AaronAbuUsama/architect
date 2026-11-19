@@ -4,6 +4,7 @@ import { Effect, Stream } from "effect";
 import type { Timers } from "@orthograph/language-effect";
 import type { ChainError, ChainPort, Submission, Unsigned } from "@orthograph/chain-evm/device";
 import { KeyLocked, SimulationReverted } from "../../../../blueprint/things/wallet/errors.js";
+import type { ChainSetting } from "../../chain/types.ts";
 import type { Sent } from "../types.ts";
 
 /** What a fault of the chain is, said without the provider's own text. */
@@ -23,10 +24,29 @@ export const refused = (error: ChainError): Effect.Effect<never, SimulationRever
   return Effect.die(new Error(`the chain could not be used: ${describe(error)}`));
 };
 
-/** Follow a submission to its receipt: included and not reverted is `confirmed`, as a local chain's level is depth one. */
-export const follow = (port: ChainPort, submission: Submission): Effect.Effect<Sent, SimulationReverted | KeyLocked, Timers> =>
+/** The depth a send needs, or the defect that says where to declare it: asked first, before anything is prepared, signed or sent. */
+export const depthOf = (setting: ChainSetting): Effect.Effect<number> =>
+  setting.depth === undefined
+    ? Effect.die(new Error(`chain ${setting.chainId} has no confirmation depth: set ORTHO_WALLET_DEPTH (the blocks that count before a send is confirmed, the one it is in as the first); only a local chain (31337) is depth 1 without it`))
+    : Effect.succeed(setting.depth);
+
+/** One `wallet.send.level` span for a block count: `confirmed` once as many blocks count as the depth asks, `submitted` before. */
+const levelSpan = (depth: number, blocks: number) =>
+  Effect.void.pipe(Effect.withSpan("wallet.send.level", { attributes: { level: blocks >= depth ? "confirmed" : "submitted", blocks } }));
+
+/**
+ * Follow a submission until it is `depth` blocks deep, the block it is in as the first. Each time the count changes a
+ * `wallet.send.level` span says what it is, from 0 (submitted, in no block) to the depth (confirmed); the send answers
+ * only at the last. A transfer mined and reverted is refused whatever the depth.
+ */
+export const follow = (port: ChainPort, submission: Submission, depth: number): Effect.Effect<Sent, SimulationReverted | KeyLocked, Timers> =>
   Effect.gen(function* () {
-    const states = yield* port.track(submission, { depth: 1 }).pipe(Stream.runCollect, Effect.catch(refused));
+    yield* levelSpan(depth, 0);
+    const states = yield* port.track(submission, { depth }).pipe(
+      Stream.tap((state) => (state._tag === "Deepened" ? levelSpan(depth, state.blocks) : Effect.void)),
+      Stream.runCollect,
+      Effect.catch(refused),
+    );
     if (states.some((s) => s._tag === "Reverted")) {
       return yield* Effect.logInfo("the transfer was mined and reverted").pipe(Effect.andThen(Effect.fail(new SimulationReverted({}))));
     }

@@ -3,8 +3,9 @@ import { Effect } from "effect";
 import { Timers } from "@orthograph/language-effect";
 
 /** Flags are fixed: `--silent` always, loopback only, and none of Anvil's own funded dev accounts. */
-export const anvilArgs = (port: number, chainId: number): ReadonlyArray<string> => [
+export const anvilArgs = (port: number, chainId: number, blockTime?: number): ReadonlyArray<string> => [
   "--silent", "--host", "127.0.0.1", "--port", String(port), "--chain-id", String(chainId), "--accounts", "0",
+  ...(blockTime === undefined ? [] : ["--block-time", String(blockTime)]),
 ];
 
 const MAX_PRINTED = 8_192;
@@ -17,10 +18,10 @@ export interface Spawned {
   readonly failure: () => string | undefined;
 }
 
-export const spawnAnvil = (binary: string, port: number, chainId: number) =>
+export const spawnAnvil = (binary: string, port: number, chainId: number, blockTime?: number) =>
   Effect.sync((): Spawned => {
     const env = Object.fromEntries(Object.entries(process.env).filter(([name]) => KEPT.test(name)));
-    const child = spawn(binary, [...anvilArgs(port, chainId)], { stdio: ["ignore", "pipe", "pipe"], env });
+    const child = spawn(binary, [...anvilArgs(port, chainId, blockTime)], { stdio: ["ignore", "pipe", "pipe"], env });
     let printed = "";
     let failure: string | undefined;
     const keep = (chunk: Buffer) => { if (printed.length < MAX_PRINTED) printed += chunk.toString("utf8").slice(0, MAX_PRINTED - printed.length); };
