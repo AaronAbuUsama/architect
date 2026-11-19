@@ -4,14 +4,23 @@
 import type { BlockId, SwitchedOn } from "../grid/types.ts";
 
 export interface StepCheck { readonly kind: string; readonly error?: string; readonly event?: string; readonly thing?: string }
+/** A starting world: the calls that make it, and the world it grows from. */
+export interface WorldView {
+  readonly name: string;
+  readonly from: string | null;
+  readonly cast?: Readonly<Record<string, { readonly kind: string; readonly role?: string }>>;
+  readonly makes: ReadonlyArray<{ readonly actor: string; readonly operation: string }>;
+}
 export interface JourneyView {
   readonly name: string;
+  readonly starts?: string;
   readonly cast?: Readonly<Record<string, { readonly kind: string; readonly role?: string }>>;
   readonly steps: ReadonlyArray<{ readonly title: string; readonly call: { readonly actor: string; readonly operation: string }; readonly checks: ReadonlyArray<StepCheck> }>;
 }
 /** What the model says that touching reads. `generated/model/model.json` has all of it. */
 export interface TouchModel {
   readonly journeys?: Readonly<Record<string, JourneyView>>;
+  readonly startingWorlds?: Readonly<Record<string, WorldView>>;
   readonly operations: Readonly<Record<string, {
     readonly name: string;
     readonly thing: string;

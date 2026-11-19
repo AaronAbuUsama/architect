@@ -12,15 +12,27 @@ export interface Facts {
   readonly declared: boolean;
 }
 
-/** What the model says about one refusal: its code, its exit, and which of its fields a caller may see. */
-export const factsOf = (model: ModelView, name: string): Facts => {
+/**
+ * Whether a caller who holds `held` (role names) is shown a field declared with `visibility`: the visibility rule for a caller
+ * (`packages/language-effect/src/modules/visibility/internal/rule.ts`, `sees`, the principal and agent cases for a call that
+ * issues nothing): public to everyone, private to the roles named, secret to no one. It is re-stated here over the model's JSON
+ * because that rule takes role objects and lives in a package an e2e check may not import; `refusal-evals.test.ts` pins each case.
+ */
+export const shownTo = (visibility: unknown, held: ReadonlyArray<string>): boolean => {
+  if (visibility === undefined) return true;
+  if (typeof visibility === "object" && visibility !== null && "private" in visibility) return (visibility as { readonly private: ReadonlyArray<string> }).private.some((role) => held.includes(role));
+  return false;
+};
+
+/** What the model says about one refusal: its code, its exit, and which of its fields the caller, holding `held`, may see. */
+export const factsOf = (model: ModelView, name: string, held: ReadonlyArray<string> = []): Facts => {
   const things = Object.values(model.things);
   const own = things.map((t) => t.errors?.[name]).find((e) => e !== undefined);
   const machine = things.map((t) => t.machine?.notFrom).find((n) => n?.error === name);
   const code = model.refusals[name] ?? own?.code ?? machine?.code;
   if (own !== undefined) {
     const fields = Object.entries(own.fields);
-    return { name, code, exit: own.exit, shown: fields.filter(([, f]) => f.visibility === undefined).map(([k]) => k), hidden: fields.filter(([, f]) => f.visibility !== undefined).map(([k]) => k), declared: true };
+    return { name, code, exit: own.exit, shown: fields.filter(([, f]) => shownTo(f.visibility, held)).map(([k]) => k), hidden: fields.filter(([, f]) => !shownTo(f.visibility, held)).map(([k]) => k), declared: true };
   }
   // The machine's own refusal carries the state the thing was in, which is public.
   if (machine !== undefined) return { name, code, exit: machine.exit, shown: ["state"], hidden: [], declared: true };

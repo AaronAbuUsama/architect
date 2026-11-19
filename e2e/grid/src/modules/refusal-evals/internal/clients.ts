@@ -10,7 +10,7 @@ export const cli: Eval<RefusalEvidence> = {
   judge: (subject, evidence) => {
     const outcome = evidence.cli;
     if (outcome === undefined) return { ok: false, why: [`no refused ${subject} call was seen through the CLI (the journey must run through it: prove --through cli, M2.08)`] };
-    const facts = factsOf(evidence.model, subject);
+    const facts = factsOf(evidence.model, subject, evidence.held);
     const line = lineOf(outcome.stderr, subject);
     const problems = [
       ...(line === undefined ? [`expected a line "[${facts.code ?? "code"}] ${subject} { … }" on stderr, got "${outcome.stderr.trim()}"`] : lineProblems(facts, line).map((p) => `the CLI's line ${p}`)),
@@ -26,7 +26,7 @@ export const mcp: Eval<RefusalEvidence> = {
   judge: (subject, evidence) => {
     const result = evidence.mcp;
     if (result === undefined) return { ok: false, why: [`no refused ${subject} call was seen through MCP (the journey must run through it: prove --through mcp, M2.08)`] };
-    const facts = factsOf(evidence.model, subject);
+    const facts = factsOf(evidence.model, subject, evidence.held);
     const text = result.text ?? (result.content ?? []).map((part) => part.text ?? "").join("\n");
     const line = lineOf(text, subject);
     const problems = [

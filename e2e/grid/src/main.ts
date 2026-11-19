@@ -87,7 +87,7 @@ const runCommand = async () => {
   const gathered = new Map(await Effect.runPromise(Effect.all(refusals.map((refusal) => Evidence.ofRefusal({ model, refusal, ports: ports(observed) }).pipe(Effect.map((e) => [refusal, e] as const))))));
   const report = Grid.run<RefusalEvidence>({
     list, evals: RefusalEvals.evals, revision: revision(), environment: "local",
-    evidence: (_cell, subject) => gathered.get(subject) ?? ({ model, docs: {}, portal: {}, spans: undefined, cli: undefined, mcp: undefined }),
+    evidence: (_cell, subject) => gathered.get(subject) ?? ({ model, docs: {}, portal: {}, spans: undefined, held: [], cli: undefined, mcp: undefined }),
   });
   mkdirSync(dirname(outPath), { recursive: true });
   writeFileSync(outPath, `${JSON.stringify(report, null, 2)}\n`);

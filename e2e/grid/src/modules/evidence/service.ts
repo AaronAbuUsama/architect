@@ -19,6 +19,7 @@ export const Evidence: EvidenceApi = {
         docs: Object.fromEntries(pages.map(([name, got]) => [name, got.docs])),
         portal: Object.fromEntries(pages.map(([name, got]) => [name, got.portal])),
         spans,
+        held: observed?.held ?? [],
         cli: observed?.cli,
         mcp: observed?.mcp,
       };

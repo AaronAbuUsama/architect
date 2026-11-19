@@ -4,11 +4,14 @@
 /**
  * The lines to append to runs.jsonl: one per journey, with its steps green and total and its own time as prove measured it.
  * `total` counts the steps that ran; a journey whose starting world stopped has none and says why in `stopped`.
+ * Errors are values: a report this reader does not know is `{ ok: false, problem }`, never a throw, so the entry file decides what to do.
  * @param {{ report: any, at: string, commit: string, exit: number | null }} run
+ * @returns {{ ok: true, lines: Array<object> } | { ok: false, problem: string }}
  */
 export const entries = ({ report, at, commit, exit }) => {
-  if (report?.schemaVersion !== 1) throw new Error(`prove's report has schemaVersion ${String(report?.schemaVersion)}; the recorder reads 1`);
-  return report.journeys.map((j) => ({
+  if (report?.schemaVersion !== 1) return { ok: false, problem: `prove's report has schemaVersion ${String(report?.schemaVersion)}; the recorder reads 1` };
+  if (!Array.isArray(report.journeys)) return { ok: false, problem: "prove's report has no journeys list" };
+  const lines = report.journeys.map((j) => ({
     at, commit, journey: j.name,
     green: j.steps.filter((s) => s.verdict === "pass").length,
     total: j.steps.length,
@@ -17,4 +20,5 @@ export const entries = ({ report, at, commit, exit }) => {
     exit,
     ...(j.stopped === undefined ? {} : { stopped: j.stopped }),
   }));
+  return { ok: true, lines };
 };

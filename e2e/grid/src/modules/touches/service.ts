@@ -1,5 +1,5 @@
 import { OUTPUTS, type CellId, type SwitchedOn } from "../grid/types.ts";
-import type { JourneyView, Row, TouchesApi, TouchModel } from "./types.ts";
+import type { JourneyView, Row, TouchesApi, TouchModel, WorldView } from "./types.ts";
 
 const visible = (fields: Readonly<Record<string, { readonly visibility?: unknown }>> | undefined) => Object.entries(fields ?? {}).filter(([, f]) => f.visibility !== undefined).map(([name]) => name);
 
@@ -15,23 +15,48 @@ const green = (report: ReadonlyArray<string>, name: string) => {
   return found !== null && found[1] === found[2];
 };
 
+/** The worlds a journey starts in, from the oldest ancestor to its own (`funded` grows from `founded`); a loop in `from` stops at the repeat. */
+const ancestry = (model: TouchModel, start: string | undefined): ReadonlyArray<WorldView> => {
+  const chain: Array<WorldView> = [];
+  for (let name: string | null | undefined = start; name != null && !chain.some((w) => w.name === name);) {
+    const world: WorldView | undefined = model.startingWorlds?.[name];
+    if (world === undefined) break;
+    chain.unshift(world);
+    name = world.from;
+  }
+  return chain;
+};
+
+/** What one call touches: its operation, the operation's thing, steps, machine, event and the fields it keeps from some callers. */
+const callRows = (model: TouchModel, operation: string): ReadonlyArray<Row> => {
+  const op = model.operations[operation];
+  if (op === undefined) return [{ block: "operation", subject: operation }];
+  return [
+    { block: "operation", subject: operation },
+    { block: "thing", subject: op.thing },
+    ...Object.values(op.steps ?? {}).map((s): Row => ({ block: "step", subject: s.name })),
+    ...(op.move == null ? [] : [{ block: "machine", subject: op.thing } as Row, { block: "event", subject: op.move.emits } as Row]),
+    ...[...visible(op.payload), ...visible(op.answer), ...visible(model.things[op.thing]?.fields)].map((field): Row => ({ block: "visibility", subject: `${op.thing}.${field}` })),
+  ];
+};
+
+const roleRow = (cast: JourneyView["cast"], actor: string): ReadonlyArray<Row> => {
+  const who = cast?.[actor];
+  return who?.kind === "role" && who.role !== undefined ? [{ block: "roles", subject: who.role }] : [];
+};
+
 const rowsOf = (model: TouchModel, journey: JourneyView): ReadonlyArray<Row> => {
   const rows: Array<Row> = [{ block: "journey", subject: journey.name }];
+  // The calls a starting world makes are the journey's too: its ancestry is walked, and each world's own cast names the roles.
+  for (const world of ancestry(model, journey.starts)) {
+    for (const made of world.makes) rows.push(...callRows(model, made.operation), ...roleRow(world.cast, made.actor));
+  }
   for (const step of journey.steps) {
-    const op = model.operations[step.call.operation];
-    rows.push({ block: "operation", subject: step.call.operation });
-    if (op !== undefined) {
-      rows.push({ block: "thing", subject: op.thing });
-      for (const s of Object.values(op.steps ?? {})) rows.push({ block: "step", subject: s.name });
-      if (op.move != null) rows.push({ block: "machine", subject: op.thing }, { block: "event", subject: op.move.emits });
-      for (const field of [...visible(op.payload), ...visible(op.answer), ...visible(model.things[op.thing]?.fields)]) rows.push({ block: "visibility", subject: `${op.thing}.${field}` });
-    }
+    rows.push(...callRows(model, step.call.operation), ...roleRow(journey.cast, step.call.actor));
     for (const check of step.checks) {
       if (check.kind === "refuses" && check.error !== undefined) rows.push({ block: "error", subject: refusalName(model, check.error) });
       if (check.kind === "emits" && check.event !== undefined) rows.push({ block: "event", subject: check.event });
     }
-    const actor = journey.cast?.[step.call.actor];
-    if (actor?.kind === "role" && actor.role !== undefined) rows.push({ block: "roles", subject: actor.role });
   }
   const seen = new Set<string>();
   return rows.filter((r) => { const key = `${r.block}:${r.subject}`; return seen.has(key) ? false : (seen.add(key), true); })

@@ -5,7 +5,7 @@ import type { Effect } from "effect";
 import type { CliOutcome, McpOutcome, ModelView, RefusalEvidence, SpanView } from "../refusal-evals/types.ts";
 
 /** A refused call, seen through each client: written by whatever ran the journey through it (`prove --through`, M2.08). */
-export interface Observed { readonly cli?: CliOutcome; readonly mcp?: McpOutcome }
+export interface Observed { readonly held?: ReadonlyArray<string>; readonly cli?: CliOutcome; readonly mcp?: McpOutcome }
 
 export interface Ports {
   /** A text file of the project, by path from its root (`generated/docs/handle/claim.md`); `undefined` when it is not there. */

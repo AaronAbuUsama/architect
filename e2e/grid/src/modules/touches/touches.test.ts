@@ -25,6 +25,17 @@ describe("a green journey", () => {
     ]));
   });
 
+  it("touches what its starting worlds make, walking the ancestry: funded grants (allowance.grant), founded creates (organization.create)", () => {
+    const rows = touched.rows.map((r) => `${r.block}:${r.subject}`);
+    expect(rows).toEqual(expect.arrayContaining(["operation:allowance.grant", "operation:organization.create", "thing:organization", "event:AllowanceGranted", "event:OrganizationCreated"]));
+  });
+
+  it("does not touch what neither the world nor the steps use, and survives a world that grows from itself", () => {
+    expect(touched.rows.map((r) => `${r.block}:${r.subject}`)).not.toContain("operation:invitation.send");
+    const loop = { ...model, startingWorlds: { ...model.startingWorlds, founded: { ...model.startingWorlds!["founded"]!, from: "funded" } } } as TouchModel;
+    expect(Touches.of({ model: loop, journey: "revoke then spend", report: ok("revoke then spend") }).green).toBe(true);
+  });
+
   it("names a refusal the journey proves, resolving the machine's own and the built-in one", () => {
     const errors = touched.rows.filter((r) => r.block === "error").map((r) => r.subject);
     expect(errors).toEqual(["AllowanceNotActive", "NotAllowed"]);
@@ -64,7 +75,7 @@ describe("switching on", () => {
       for (const output of ["model", "api", "server", "sdk", "cli", "mcp", "docs", "portal", "telemetry"]) expect(cells, `${block}.${output}`).toContain(`${block}.${output}`);
     }
     expect(entries.find((e) => e.cell === "error.cli")).toEqual({ cell: "error.cli", subjects: ["AllowanceNotActive", "NotAllowed"], switchedBy: "revoke then spend" });
-    expect(entries.find((e) => e.cell === "event.docs")?.subjects).toEqual(["AllowanceRevoked", "AllowanceSpent"]);
+    expect(entries.find((e) => e.cell === "event.docs")?.subjects).toEqual(["AllowanceGranted", "AllowanceRevoked", "AllowanceSpent", "OrganizationCreated"]);
     expect(Grid.switchOn({ cells: [] }, entries).cells).toHaveLength(entries.length);
   });
 });

@@ -35,6 +35,8 @@ export interface RefusalEvidence {
   readonly portal: Readonly<Record<string, string | undefined>>;
   /** The spans of the journey run that refused it. */
   readonly spans: ReadonlyArray<SpanView> | undefined;
+  /** The roles the observed caller held (`allowance.grantee`), by name: a private field is shown to a caller who holds one it names. */
+  readonly held: ReadonlyArray<string>;
   readonly cli: CliOutcome | undefined;
   readonly mcp: McpOutcome | undefined;
 }

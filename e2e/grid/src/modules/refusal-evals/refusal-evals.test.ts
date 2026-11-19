@@ -13,7 +13,7 @@ const doc = (operation: string) => readFileSync(join(acme, "generated/docs", `${
 const judge = (cell: string, subject: string, evidence: Partial<RefusalEvidence>) => {
   const found = RefusalEvals.evals.find((e) => e.cell === cell);
   if (found === undefined) throw new Error(`no eval for ${cell}`);
-  return found.judge(subject, { model, docs: {}, portal: {}, spans: undefined, cli: undefined, mcp: undefined, ...evidence });
+  return found.judge(subject, { model, docs: {}, portal: {}, spans: undefined, held: [], cli: undefined, mcp: undefined, ...evidence });
 };
 
 // What the model says, so the evals' expectations are visible here and never typed in them.
@@ -108,6 +108,26 @@ describe("what a caller may not see stays out of the line", () => {
     expect(judge("error.cli", "AllowanceExceeded", { model: hidden, cli: { status: 41, stdout: "", stderr: "[AL-001] AllowanceExceeded { remaining: 1, ledger: x }" } }).why).toEqual(["the CLI's line shows ledger, which the caller may not see"]);
     expect(judge("error.cli", "AllowanceExceeded", { model: hidden, cli: { status: 41, stdout: "", stderr: "[AL-001] AllowanceExceeded { remaining: 1, memo: x }" } }).why).toEqual(["the CLI's line shows memo, which AllowanceExceeded does not declare"]);
     expect(judge("error.mcp", "AllowanceExceeded", { model: hidden, mcp: { isError: true, text: "[AL-001] AllowanceExceeded { remaining: 1 }" } }).ok).toBe(true);
+  });
+});
+
+describe("a private field is shown to a caller who holds the role it names", () => {
+  const withPrivate: ModelView = { ...model, things: { ...model.things, allowance: { ...model.things["allowance"]!, errors: { ...model.things["allowance"]!.errors, AllowanceExceeded: { exit: 41, code: "AL-001", fields: { remaining: {}, ledger: { visibility: { private: ["allowance.grantee"] } } } } } } } };
+  const both = "[AL-001] AllowanceExceeded { remaining: 1, ledger: x }";
+  const publicOnly = "[AL-001] AllowanceExceeded { remaining: 1 }";
+  it("requires it of a caller who holds the role, and forbids it to one who does not (CLI and MCP alike)", () => {
+    const held = ["allowance.grantee"];
+    expect(judge("error.cli", "AllowanceExceeded", { model: withPrivate, held, cli: { status: 41, stdout: "", stderr: both } }).ok).toBe(true);
+    expect(judge("error.cli", "AllowanceExceeded", { model: withPrivate, held, cli: { status: 41, stdout: "", stderr: publicOnly } }).why).toEqual(["the CLI's line leaves out the public field ledger"]);
+    expect(judge("error.mcp", "AllowanceExceeded", { model: withPrivate, held, mcp: { isError: true, text: both } }).ok).toBe(true);
+    for (const unheld of [[], ["organization.owner"]]) {
+      expect(judge("error.cli", "AllowanceExceeded", { model: withPrivate, held: unheld, cli: { status: 41, stdout: "", stderr: both } }).why).toEqual(["the CLI's line shows ledger, which the caller may not see"]);
+      expect(judge("error.mcp", "AllowanceExceeded", { model: withPrivate, held: unheld, mcp: { isError: true, text: publicOnly } }).ok).toBe(true);
+    }
+  });
+  it("never shows a secret field, whatever the caller holds", () => {
+    const secret: ModelView = { ...withPrivate, things: { ...withPrivate.things, allowance: { ...withPrivate.things["allowance"]!, errors: { AllowanceExceeded: { exit: 41, code: "AL-001", fields: { remaining: {}, ledger: { visibility: "secret" } } } } } } };
+    expect(judge("error.cli", "AllowanceExceeded", { model: secret, held: ["allowance.grantee"], cli: { status: 41, stdout: "", stderr: both } }).why).toEqual(["the CLI's line shows ledger, which the caller may not see"]);
   });
 });
 
