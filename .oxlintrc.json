@@ -125,6 +125,10 @@
                 "allowedExternalImports": [
                   "@heroui-pro/react",
                   "@heroui-pro/react/*",
+                  "effect",
+                  "effect/*",
+                  "react",
+                  "react-dom/*",
                   "vitest"
                 ]
               },

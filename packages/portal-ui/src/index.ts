@@ -13,4 +13,4 @@ export { meterNames, type CallsMeterProps, type CallsSplit, type EnvironmentPill
 export { Render } from "#modules/render/service.js";
 export type { RenderApi } from "#modules/render/types.js";
 export { Styles } from "#modules/styles/service.js";
-export { StylesUnavailable, type StylesApi } from "#modules/styles/types.js";
+export { stylesUnavailable, type StylesApi, type StylesUnavailable } from "#modules/styles/types.js";

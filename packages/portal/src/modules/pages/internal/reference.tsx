@@ -51,7 +51,7 @@ export const ReferencePage = ({ data, kind }: { readonly data: PageData; readonl
         <header className="page-title"><h1>{table.title}</h1><p>{table.note}</p></header>
         <Grid
           aria-label={table.title}
-          data={table.rows}
+          data={[...table.rows]}
           getRowId={(r: Row) => r.id}
           columns={table.head.map((header, i) => ({ id: `c${i}`, header, ...(i === 0 ? { isRowHeader: true } : {}), cell: (r: Row) => r.cells[i] ?? "" }))}
         />

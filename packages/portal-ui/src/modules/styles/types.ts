@@ -1,8 +1,12 @@
 // The styles module: the one stylesheet a portal page links. HeroUI's, Pro's and ours, joined in that order.
-import { Data, type Effect } from "effect";
+import type { Effect } from "effect";
 
-/** A sheet the portal could not read: the package that holds it is not installed here. Carries the package's name, never a path. */
-export class StylesUnavailable extends Data.TaggedError("StylesUnavailable")<{ readonly reason: string }> {}
+/** A sheet the portal could not read: the package that holds it is not installed here. Names the package, never a path. */
+export interface StylesUnavailable {
+  readonly _tag: "StylesUnavailable";
+  readonly reason: string;
+}
+export const stylesUnavailable = (reason: string): StylesUnavailable => ({ _tag: "StylesUnavailable", reason });
 
 export interface StylesApi {
   /**

@@ -9,6 +9,8 @@
     "test/fixtures/**"
   ],
   "compilerOptions": {
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "module": "esnext",
+    "moduleResolution": "bundler"
   }
 }

@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { Effect } from "effect";
-import { StylesUnavailable } from "../types.ts";
+import { stylesUnavailable, type StylesUnavailable } from "../types.ts";
 
 const here = createRequire(import.meta.url);
 
@@ -12,5 +12,5 @@ const here = createRequire(import.meta.url);
 export const sheet = (name: string, file: string): Effect.Effect<string, StylesUnavailable> =>
   Effect.try({
     try: () => readFileSync(join(dirname(here.resolve(`${name}/package.json`)), file), "utf8"),
-    catch: () => new StylesUnavailable({ reason: `${name} is not installed here, so its stylesheet cannot be read` }),
+    catch: () => stylesUnavailable(`${name} is not installed here, so its stylesheet cannot be read`),
   });
