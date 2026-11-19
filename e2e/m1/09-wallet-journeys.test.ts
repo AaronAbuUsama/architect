@@ -139,7 +139,7 @@ describe("09 the chain: the send steps have somewhere to run", () => {
     const missing: Array<string> = [];
     if (!existsSync(join(repo, "packages/chain-evm/package.json"))) missing.push("packages/chain-evm, the chain adapter (M1.30)");
     const anvil = spawnSync("anvil", ["--version"], { encoding: "utf8", timeout: 30_000 });
-    if (anvil.status !== 0) missing.push("anvil on the path (M1.31 runs it in a container in CI)");
+    if (anvil.status !== 0) missing.push("anvil on the path (a plain process in CI: K10 section 8, Foundry in the e2e-m1 job)");
     const mentions = spawnSync("grep", ["-rIli", "--include=*.ts", "--exclude=*.test.ts", "anvil", ...["prove", "host-cloudflare", "compiler"].map((p) => join(repo, "packages", p, "src"))], { encoding: "utf8" });
     if (mentions.stdout.trim() === "") missing.push("a world that starts Anvil (M1.31: Stand.process, always --silent)");
     expect(missing, `the wallet's send journeys cannot pass until: ${missing.join("; ")}. This is a tripwire: it fails, it never skips.`).toEqual([]);
