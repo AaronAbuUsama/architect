@@ -5,15 +5,18 @@ generated → scaffolded walkthrough he asked for the scaffold to say, verbosely
 made from. His words: "what the machine could give you, yes, we need to do that… That's on the critical path. This is
 what we need to do now", and "I agree with points four and five… I just want the DX to be better around it." Point 4:
 the scaffold reads the machine. Point 5: a machine is finite, so every path through it, allowed and refused, gets a
-journey stub.
+journey stub. Later that day he added: "can't we use other effects things like match and stuff like that to make it
+easy to read?", called the header "front matter" and was happy with it verbose, and asked "what is the full scope of
+preloading and pre-handling… as long as this can all… fall out mechanically" (the last section answers it).
 
 ## What changes for someone using Orthograph
 
 When you open a new handler, the top of the file now tells you everything about it in plain lines: who may call it, what
 comes in and goes out, every way it can be refused, the whole lifecycle of the thing with your call's rows marked, and
 what Orthograph already does so you don't. The body is laid out for you: each step in order, each refusal with a blank
-for each field it carries, one branch for each place the move can end, and a note where the answer has to supply
-something the event needs. And one command, `ortho add journeys <thing>`, writes a journey stub for every path through
+for each field it carries, one branch for each place the move can end (written with Effect's `Match`, so when the
+lifecycle gains an ending your handler stops compiling until it handles it), and a note where the answer has to
+supply something the event needs. And one command, `ortho add journeys <thing>`, writes a journey stub for every path through
 the thing's lifecycle, and `ortho check` tells you when the blueprint grows past a handler you already wrote.
 
 ## Where things stand today (`origin/m1` at `6419d4b7`)
@@ -85,15 +88,30 @@ spaces.
 
 In this order, top to bottom:
 
-1. **Each step, in declared order**: `// Step <key>: <kind>, span <span name>.` then `yield* steps.<key>(Handlers.blank("<key>: the work this step does"));`, with `// optional: may be skipped` when it is.
+1. **Each step, in declared order**: `// Step <key>: <kind>, span <span name>.` then `yield* steps.<key>(Handlers.blank("<key>: the work this step does"));`, with `// optional: may be skipped` when it is. A database step's comment
+   also names its store when the model has one to name (the thing's `store`, `types.ts:46`, or the step's `writes`,
+   `:68`); with neither, as in acme, it says nothing more.
 2. **Each declared error**, at the place section c gives: `// <Error>: exit <n>, <code>.`, the `if` on a blank,
    the `Effect.logInfo` that eval 9 wants, then `new <Error>({ ... })` with **one blank per field**, each saying the
    field and its label (`"AllowanceExceeded.remaining, an Amount"`). An error with no fields is `new <Error>({})`.
    The machine's refusal and `NotAllowed` get no block: the runtime gives them.
-3. **The move**: `// The move <key>, from <from>: one branch per outcome.` With one outcome, one `yield* move();`. With
-   more, an `if`/`else if`/`else` chain in declared `to` order, the last one the `else`, each condition a blank
-   (`"does spend end in active?"`). Each branch opens with `// To <state>. From there the <thing> can: <move> (to
-   <to>), ...`, listing every move whose `from` holds that state, or `nothing more` when none does.
+3. **The move**: with one outcome, `// The move <key>, from <from>, to <to>.` and `yield* move();`. With more, the
+   outcome is a value and each ending is a `Match.when`, in declared `to` order, closed by `Match.exhaustive`:
+   ```ts
+   const outcome = yield* Handlers.blank<Outcome>("where spend ends: active or exhausted");
+   yield* Match.value(outcome).pipe(
+     // To active. From there the allowance can: spend (to active or exhausted), revoke (to revoked).
+     Match.when("active", () => move("active")),
+     // To exhausted. From there the allowance can: revoke (to revoked).
+     Match.when("exhausted", () => move("exhausted")),
+     Match.exhaustive,
+   );
+   ```
+   Each branch's comment lists every move whose `from` holds that state, or `nothing more` when none does. `Outcome`
+   is the move's `to` as a literal union, exported by the generated handler type (`<verb>.handler.ts`) beside
+   `Handler`. `Match.value`, `Match.when` and `Match.exhaustive` are exported by the `effect` pinned on `m1` (4.1.1,
+   read from its exports); a probe in acme compiled the full union and failed at `Match.exhaustive` with one more
+   member. An `if`/`else` chain was the first draft: it reads worse and a new outcome silently falls into the `else`.
 4. **The answer**: an object with one blank per answer field. Above a field, a comment wherever the event needs it
    and only the answer can give it: an event field that is in neither the thing's fields nor the payload. For spend
    that is `remaining` (`AllowanceSpent` has `allowance, amount, memo, remaining`; the payload has the first three;
@@ -104,6 +122,21 @@ An operation that calls an adapter (`calling`, `scaffold.ts:25-56`) keeps its ca
 **The signature** becomes `renderHandlerScaffold(op, path, model)`: the model is required, because the header needs
 the thing. Its two callers pass it (`packages/generators/src/modules/render/service.ts:28`,
 `packages/projections/src/modules/server/internal/server.ts:225`).
+
+**The outcome must be a literal union, and today it isn't.** The machine keeps its literals (`machine.moves.spend.to`
+is `readonly ("active" | "exhausted")[]`, `packages/orthograph/src/modules/machines/types.ts:14`, `:37`), but
+`Operation` types its move as `Move | undefined` (`packages/orthograph/src/modules/operations/types.ts:78`), so the
+handler's `MoveTo<O>` (`packages/language-effect/src/modules/handler/types.ts:33`) is `string` for spend: a probe
+assigning `"frozen"` to it compiled. M1.44 gives `Operation` a type parameter for its move, inferred by
+`Blueprint.operation` (`operations/types.ts:142-148`), so `MoveTo` is `"active" | "exhausted"`, `move("frozen")` stops
+compiling, and the generated handler type exports it as `Outcome`.
+
+**Other `Effect` idioms, weighed.** Refusals are already typed errors: `new AllowanceExceeded(...)` from
+`Errors.declared`, and the handler's error channel is `ErrorOf<O>` (`types.ts:36`), so an undeclared one won't
+compile. `Effect.catchTags` has no place in a handler, which raises refusals and never catches them (the runtime does,
+`service.ts:93-100`); its place is an adapter call's failure mapping, which the calling scaffold leaves as one blank
+(`scaffold.ts:28`): `Match.tags` over the callable's failure union, when callables declare one, is later and new. The
+answer is already a typed object (`AnswerOf<O>`), so a missing `remaining` won't compile.
 
 ## c. Where refusals sit relative to steps
 
@@ -183,6 +216,11 @@ handler's file**, in the rules part beside `required-step-used`:
   `move(x)` with an argument that is not a literal is not judged, the way the step rule judges only named calls);
 - a declared error the handler never names.
 
+For a handler that keeps the scaffold's `Match`, **the compiler catches a new outcome first**: `Match.exhaustive`
+fails to type-check until the new ending has its branch (check 19 adds `frozen` and expects `tsc` to fail in
+`src/allowance/spend.ts` and nowhere else). The warning is for a handler written another way, like acme's spend,
+whose `move(amount === remaining ? "exhausted" : "active")` still compiles.
+
 A warning, not a failure, as M1.26 decided for steps: the handler may be mid-edit, and `prove`'s evals 3, 4 and 2 fail
 the call that actually goes wrong. Acme as shipped names every outcome and error, so check 10's "warns about nothing"
 control holds. The header is yours and may go stale; the current explanation is always `generated/docs/<thing>/<verb>.md`,
@@ -196,6 +234,44 @@ which is regenerated every time.
 | Correctness | ✅ prove still fails a wrong call | ✅ | ⚠️ |
 | Fit | ✅ same as the step rule | ⚠️ unlike the step rule | ❌ "Yours from now on" |
 
+## Everything the blueprint can pre-handle
+
+**The goal: a handler holds only decisions.** When to refuse, which ending, and what to compute. Everything else falls
+out of a declaration mechanically, and is either done by the runtime before or after the handler, typed so a slip
+won't compile, or written into the scaffold or a stub. Aaron's bar: "as long as this can all… fall out mechanically".
+Only what does is listed; each item is done today (with where), in K16's slices, or later with its slice. Checked
+against `origin/m1` at `6419d4b7`; the conductor's first cut is corrected where the code says otherwise (marked ⚑).
+
+| Declaration | What falls out | Where it stands |
+|---|---|---|
+| payload | decoded before anything, refused `InvalidPayload` | done: `handler/service.ts:122-124` |
+| payload, answer | typed in and out; an answer missing a declared field won't compile | done: `handler/types.ts:36` (`AnswerOf`) |
+| `allowed` | the role check before the handler's span opens, refused `NotAllowed` | done: `service.ts:60`, `access/service.ts:83` |
+| `allowed` | the caller, typed, handed in | done: `principal`, `handler/types.ts:24` |
+| machine | the from-check, refused `<Thing>Not<State>` with `state` | done: `move.ts:30-40` |
+| machine | the chosen outcome checked against `to` | done at run time, `move.ts:43-53`; at compile time in M1.44 (`MoveTo` a literal union, `Match.exhaustive`) |
+| machine, events | the state set and the event written once the handler answers; secret and private fields kept out of the journal | done: `move.ts:56-75`, the filter `:70` |
+| `idempotent` | the same request key from the same caller answered once, changing nothing | done: `service.ts:65-70`, the key `:109` |
+| steps | a span per call and per step; a blank reached dies `BlankReached` naming it | done: `service.ts:48`, `:102`, `:88`; `handler/types.ts:53` |
+| call steps | wired from the payload's fields, one blank left for the failure mapping | done: `scaffold.ts:25-56` |
+| errors | exit code and HTTP status per refusal, from the declaration | done: `api/internal/api.ts:25-40`, `STATUS` at `names/internal/names.ts:51` |
+| errors | a refusal block per declared error, one typed blank per field | M1.44 |
+| everything above | the header ("front matter"): who, what, every refusal, the machine, what the runtime does | M1.44 |
+| visibility | the header marks each secret or private field and who sees it; filtering stays in the runtime | M1.44 (the field label, K16 a.3); filtering M1.35 |
+| stores | a database step's comment names the store, when the thing declares one or the step names `writes` | M1.44 (acme declares none, so its golden says nothing) |
+| machine | a journey stub per path, allowed and refused | M1.45 |
+| drift | a new outcome, error or step named by `check`; a new outcome won't compile under `Match` | M1.44 |
+| errors, `allowed` | a journey stub per declared error (the call that triggers it, its fields as blanks) and per role (one allowed caller, one refused) | **M2.17**, new |
+| the subject | ⚑ the role check and the from-check already read it (`access/service.ts:54`, `move.ts:36`), and handlers read it again (`src/allowance/spend.ts:13`, `src/allowance/grant.ts:13` re-reads the organisation the role check loaded): hand it in as `subject`, and each thing a payload id field references | **M2.18**, new |
+| not found | ⚑ a missing subject of a role-gated call is refused `NotAllowed` today (`access/service.ts:54-55`), which keeps a stranger from learning what exists; that stays. Where no role check reads it (an `anyone` or `signed-in` call, `move.ts:37` lets it through) and for a referenced id, refuse before the handler with a generated `<Thing>NotFound`; acme declares `AllowanceNotFound` by hand (`blueprint/things/allowance/errors.ts:6`) and uses it nowhere | **M2.18**, new |
+| a creating move | the new id minted and handed in, as grant does by hand (`src/allowance/grant.ts:20`, `Ids.of`) | **M2.18**, new |
+| events | ⚑ the answer's type already forces `remaining`, because spend declares it. The real gap: an event field found in none of the thing, the payload and the answer is caught only at commit (`move.ts:65-66`); the compiler checks only that the event is exported (`compiler/…/describe.ts:80`). Refuse that blueprint at compile time | **M2.19**, new |
+| a call's failure | `Match.tags` over the callable's failure union, in place of the one mapping blank | later, new: needs callables to declare their failures |
+
+**Why M2, not M1.** K13 keeps M1 to locking down what exists; M1.44 and M1.45 are there because Aaron put them on the
+path. M2.17 to M2.19 change what the runtime hands a handler and what the compiler refuses, which is "workable", and
+Gate M2 needs them. The rows say what their checks must prove; an author writes those checks first.
+
 ## The worked example: `allowance.spend`
 
 From acme's `blueprint/things/allowance/{machine,events,errors,roles}.ts` and `verbs/spend.ts`. This is the golden,
@@ -203,10 +279,10 @@ byte for byte (`e2e/fixtures/m1/scaffold-explains/allowance-spend.ts.golden`, on
 
 ```ts
 // Scaffolded from blueprint/things/allowance/verbs/spend.ts. Yours from now on.
-import { Effect } from "effect";
+import { Effect, Match } from "effect";
 import { Handlers } from "@orthograph/language-effect";
 import { Errors } from "../../generated/api/src/index.ts";
-import type { Handler } from "../../generated/api/src/allowance/spend.handler.ts";
+import type { Handler, Outcome } from "../../generated/api/src/allowance/spend.handler.ts";
 
 const { AllowanceExceeded } = Errors.declared;
 
@@ -264,14 +340,15 @@ const spend: Handler = (_payload, { steps, move }) =>
     // Step record: database, span allowance.spend.record.
     yield* steps.record(Handlers.blank("record: the work this step does"));
 
-    // The move spend, from active: one branch per outcome.
-    if (yield* Handlers.blank<boolean>("does spend end in active?")) {
+    // The move spend, from active: one branch per outcome. A new outcome won't compile until it has its branch.
+    const outcome = yield* Handlers.blank<Outcome>("where spend ends: active or exhausted");
+    yield* Match.value(outcome).pipe(
       // To active. From there the allowance can: spend (to active or exhausted), revoke (to revoked).
-      yield* move("active");
-    } else {
+      Match.when("active", () => move("active")),
       // To exhausted. From there the allowance can: revoke (to revoked).
-      yield* move("exhausted");
-    }
+      Match.when("exhausted", () => move("exhausted")),
+      Match.exhaustive,
+    );
 
     return {
       // AllowanceSpent needs remaining, and only the answer can give it.
@@ -282,8 +359,8 @@ const spend: Handler = (_payload, { steps, move }) =>
 export default spend;
 ```
 
-Today's scaffold for the same operation is twenty lines: the description, two step blanks, one refusal with one blank
-for all its fields, `move(yield* Handlers.blank("the move’s outcome"))` and one blank answer
+Today's scaffold for the same operation is a short file: the description, two step blanks, one refusal with one
+blank for all its fields, `move(yield* Handlers.blank("the move’s outcome"))` and one blank answer
 (`design/evidence/M1.44/check-19-red.txt` shows the diff).
 
 ### allowance's journey stubs
@@ -338,19 +415,23 @@ On `claude/k16-checks`, into `m1`, ahead of their build, like checks 16 to 18:
 - `packages/projections/src/modules/handlers/handlers.test.ts`: the golden scaffold; the header's citations; no
   undeclared names in the header; allowance's eight paths; no paths for a thing without a machine and no refused path
   for a creating move; the stubs' paths, headers and three goldens. Six red, one existing test passing.
-- `e2e/m1/19-scaffold-explains.test.ts`: `ortho generate` writes the golden and it compiles; `ortho add journeys
-  allowance` writes the eight stubs, compiling, never overwriting; the model and `check` count their blanks; `check`
-  warns on a new outcome and a new error, naming `src/allowance/spend.ts`. Six red; one control (a new step, already
-  warned about) passes.
+- `e2e/m1/19-scaffold-explains.test.ts`: `ortho generate` writes the golden and it compiles; the golden stops
+  compiling, only in `src/allowance/spend.ts`, when the machine gains `frozen`; `ortho add journeys allowance` writes
+  the eight stubs, compiling, never overwriting; the model and `check` count their blanks; `check` warns on a new
+  outcome and a new error, naming `src/allowance/spend.ts`. Seven red; one control (a new step, already warned about)
+  passes.
 
-They fail on the unbuilt surface: the scaffold differs from the golden, `machinePaths` and `renderJourneyStubs` are not
-exported, `add` has no `journeys` (USAGE), and `check` prints `check ✔` with no warning. The red run is
+They fail on the unbuilt surface: the scaffold differs from the golden, the handler type exports no `Outcome`,
+`machinePaths` and `renderJourneyStubs` are not exported, `add` has no `journeys` (USAGE), and `check` prints
+`check ✔` with no warning. The red run is
 `design/evidence/M1.44/check-19-red.txt`.
 
 ## Slices
 
-M1.44 (the scaffold explains itself, with drift) and M1.45 (journey stubs), on K13's path before M1.43, so Plugged In's
-handlers are written from the new scaffold and its journeys start from the stubs. `design/milestones.md` holds them.
+M1.44 (the scaffold explains itself, with drift and the literal outcome union) and M1.45 (journey stubs), on K13's path
+before M1.43, so Plugged In's handlers are written from the new scaffold and its journeys start from the stubs. M2.17
+(stubs per error and role), M2.18 (the subject, not found and minted ids, handed in) and M2.19 (the compiler refuses an
+event it can't fill) from the pre-handle section, beside M2's path. `design/milestones.md` holds them.
 
 ## Reversible
 
