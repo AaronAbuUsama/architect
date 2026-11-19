@@ -43,7 +43,7 @@
         "commands": [
           "nx run e2e:ratchet-test",
           "mkdir -p tmp && rm -f tmp/m1-report.json tmp/m1-errors.json",
-          "RATCHET_ERRORS_FILE=tmp/m1-errors.json vitest run --root e2e --config vitest.m1.config.ts m1 --reporter=default --reporter=json --reporter=./e2e/ratchet/reporter.ts --outputFile.json=../tmp/m1-report.json; node e2e/ratchet/check.ts tmp/m1-report.json e2e/m1/expected-failing.txt tmp/m1-errors.json"
+          "RATCHET_ERRORS_FILE=tmp/m1-errors.json vitest run --root e2e --config vitest.m1-ratchet.config.ts m1 --reporter=default --reporter=json --reporter=./e2e/ratchet/reporter.ts --outputFile.json=../tmp/m1-report.json; node e2e/ratchet/check.ts tmp/m1-report.json e2e/m1/expected-failing.txt tmp/m1-errors.json"
         ]
       },
       "cache": false

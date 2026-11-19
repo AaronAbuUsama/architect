@@ -47,6 +47,16 @@ describe("hook and suite errors", () => {
     const verdict = compare(hooked([{ name: "/work/e2e/m1/16-v.test.ts", path: ["a"] }]), [...listed, "m1/16-v.test.ts > a > [suite error]"], root);
     expect(ok(verdict)).toBe(true);
   });
+  it("fails when a listed failing test's own afterEach also throws", () => {
+    const verdict = compare(hooked([{ name: "/work/e2e/m1/16-v.test.ts", path: ["a", "listed test"], label: "[afterEach error]" }]), listed, root);
+    expect(ok(verdict)).toBe(false);
+    expect(verdict.unexpected).toEqual(["m1/16-v.test.ts > a > listed test > [afterEach error]"]);
+  });
+  it("fails when a listed failing test's beforeEach throws, and passes once that exact key is listed", () => {
+    const planted = hooked([{ name: "/work/e2e/m1/16-v.test.ts", path: ["a", "listed test"], label: "[beforeEach error]" }]);
+    expect(compare(planted, listed, root).unexpected).toEqual(["m1/16-v.test.ts > a > listed test > [beforeEach error]"]);
+    expect(ok(compare(planted, [...listed, "m1/16-v.test.ts > a > listed test > [beforeEach error]"], root))).toBe(true);
+  });
   it("fails on an unhandled error outside any file", () => {
     expect(ok(compare({ testResults: base.testResults, unhandled: ["boom"] }, ["m1/01-a.test.ts > mounting > wires", "m1/02-b.test.ts"], root))).toBe(false);
   });

@@ -16,7 +16,7 @@ export interface Report {
    * Errors vitest's JSON report leaves out, written by reporter.ts: a hook that threw (beforeAll, afterAll, ...) in a
    * suite (`path` is the describe titles) or at the top of a file (`path` empty).
    */
-  readonly suiteErrors?: ReadonlyArray<{ readonly name: string; readonly path: ReadonlyArray<string> }>;
+  readonly suiteErrors?: ReadonlyArray<{ readonly name: string; readonly path: ReadonlyArray<string>; readonly label?: string }>;
   /** Errors that belong to no file (an unhandled rejection): the first line of each. */
   readonly unhandled?: ReadonlyArray<string>;
 }
@@ -65,7 +65,7 @@ export const outcomes = (report: Report, root: string): ReadonlyMap<string, Outc
     }
     const hooked = (report.suiteErrors ?? []).filter((error) => fileKey(error.name, root) === name);
     // A hook error is its own key, whatever else failed in the file: a listed failing test never covers it.
-    for (const error of hooked) put([name, ...error.path, error.path.length === 0 ? "[file error]" : "[suite error]"].join(" > "), "failed");
+    for (const error of hooked) put([name, ...error.path, error.label ?? (error.path.length === 0 ? "[file error]" : "[suite error]")].join(" > "), "failed");
     if (hooked.length === 0 && file.status === "failed" && !tests.some((test) => test.status === "failed")) put(name, "failed");
   }
   for (const message of report.unhandled ?? []) put(`unhandled error > ${message}`, "failed");
