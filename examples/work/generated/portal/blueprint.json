@@ -4,8 +4,10 @@
   "revision": null,
   "model": {
     "refusals": {
+      "AttentionNotFound": "AT-901",
       "AttentionNotOpen": "AT-900",
       "MilestoneNotActive": "ML-900",
+      "MilestoneNotFound": "ML-901",
       "MissionClosed": "MS-005",
       "MissionHasOpenQuestions": "MS-001",
       "MissionHasOpenTasks": "MS-004",
@@ -15,7 +17,9 @@
       "NotAllowed": "AR-001",
       "QuestionNoSuchOption": "QU-001",
       "QuestionNotAsked": "QU-900",
+      "QuestionNotFound": "QU-901",
       "RunAgentCannot": "RU-002",
+      "RunNotFound": "RU-901",
       "RunNotRunning": "RU-900",
       "RunOverBudget": "RU-001",
       "RunTaskClaimed": "RU-003"
@@ -227,12 +231,17 @@
           }
         },
         "errors": {},
+        "notFound": {
+          "error": "AttentionNotFound",
+          "exit": 4,
+          "code": "AT-901"
+        },
         "roles": [],
         "roleRules": {},
         "from": {
           "kind": "app"
         },
-        "hash": "d4c4baff87cd4a0b"
+        "hash": "4bc4bbfa3bc73459"
       },
       "milestone": {
         "name": "milestone",
@@ -360,12 +369,17 @@
           }
         },
         "errors": {},
+        "notFound": {
+          "error": "MilestoneNotFound",
+          "exit": 4,
+          "code": "ML-901"
+        },
         "roles": [],
         "roleRules": {},
         "from": {
           "kind": "app"
         },
-        "hash": "225b0d5d96e22806"
+        "hash": "10bfc73701266a5a"
       },
       "mission": {
         "name": "mission",
@@ -827,12 +841,17 @@
             "code": "QU-001"
           }
         },
+        "notFound": {
+          "error": "QuestionNotFound",
+          "exit": 4,
+          "code": "QU-901"
+        },
         "roles": [],
         "roleRules": {},
         "from": {
           "kind": "app"
         },
-        "hash": "e8cea83a3b7ac1e0"
+        "hash": "eb3656bcee0f85ef"
       },
       "run": {
         "name": "run",
@@ -1083,12 +1102,17 @@
             "code": "RU-003"
           }
         },
+        "notFound": {
+          "error": "RunNotFound",
+          "exit": 4,
+          "code": "RU-901"
+        },
         "roles": [],
         "roleRules": {},
         "from": {
           "kind": "app"
         },
-        "hash": "308697ab0b0f32e6"
+        "hash": "3ec697db6baa81eb"
       }
     },
     "operations": {
@@ -1133,6 +1157,7 @@
         "errors": [],
         "refusals": [
           "AttentionNotOpen",
+          "AttentionNotFound",
           "NotAllowed"
         ],
         "allowed": [
@@ -1142,6 +1167,13 @@
             "path": "mission"
           }
         ],
+        "refs": {
+          "mission": "mission",
+          "attention": "attention"
+        },
+        "notFound": {
+          "attention": "AttentionNotFound"
+        },
         "steps": {
           "record": {
             "name": "attention.approve.record",
@@ -1154,7 +1186,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "2fcb8429d22bdf16"
+        "hash": "131a6e986c72c8b6"
       },
       "attention.decline": {
         "kind": "operation",
@@ -1204,6 +1236,7 @@
         "errors": [],
         "refusals": [
           "AttentionNotOpen",
+          "AttentionNotFound",
           "NotAllowed"
         ],
         "allowed": [
@@ -1213,6 +1246,13 @@
             "path": "mission"
           }
         ],
+        "refs": {
+          "mission": "mission",
+          "attention": "attention"
+        },
+        "notFound": {
+          "attention": "AttentionNotFound"
+        },
         "steps": {
           "record": {
             "name": "attention.decline.record",
@@ -1225,7 +1265,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "651669ee7488bfbd"
+        "hash": "4b26ec125aa0b371"
       },
       "attention.list": {
         "kind": "read",
@@ -1385,6 +1425,10 @@
             "path": "mission"
           }
         ],
+        "refs": {
+          "mission": "mission"
+        },
+        "mints": "attention",
         "steps": {
           "insert": {
             "name": "attention.raise.insert",
@@ -1397,7 +1441,7 @@
         "budget": {
           "p95Ms": 200
         },
-        "hash": "bdc81860bc865684"
+        "hash": "a20a17481ce7e319"
       },
       "milestone.add": {
         "kind": "operation",
@@ -1480,6 +1524,10 @@
             "path": "mission"
           }
         ],
+        "refs": {
+          "mission": "mission"
+        },
+        "mints": "milestone",
         "steps": {
           "insert": {
             "name": "milestone.add.insert",
@@ -1492,7 +1540,7 @@
         "budget": {
           "p95Ms": 200
         },
-        "hash": "3f6a4a5e4b4cd173"
+        "hash": "9b2856be0d57609f"
       },
       "milestone.drop": {
         "kind": "operation",
@@ -1535,6 +1583,7 @@
         "errors": [],
         "refusals": [
           "MilestoneNotActive",
+          "MilestoneNotFound",
           "NotAllowed"
         ],
         "allowed": [
@@ -1544,6 +1593,13 @@
             "path": "mission"
           }
         ],
+        "refs": {
+          "mission": "mission",
+          "milestone": "milestone"
+        },
+        "notFound": {
+          "milestone": "MilestoneNotFound"
+        },
         "steps": {
           "record": {
             "name": "milestone.drop.record",
@@ -1556,7 +1612,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "22eece7bfc9afd1a"
+        "hash": "1ea7d4b4137829b7"
       },
       "milestone.list": {
         "kind": "read",
@@ -1680,6 +1736,9 @@
             "path": "mission"
           }
         ],
+        "refs": {
+          "mission": "mission"
+        },
         "steps": {
           "record": {
             "name": "mission.finish.record",
@@ -1692,7 +1751,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "51359a3587336d75"
+        "hash": "a3ed9540ff6aa421"
       },
       "mission.get": {
         "kind": "read",
@@ -1908,6 +1967,7 @@
             "kind": "signed-in"
           }
         ],
+        "mints": "mission",
         "steps": {
           "insert": {
             "name": "mission.open.insert",
@@ -1920,7 +1980,7 @@
         "budget": {
           "p95Ms": 200
         },
-        "hash": "a0667cfef3f0a341"
+        "hash": "b5f0a0c2fc873a57"
       },
       "mission.pause": {
         "kind": "operation",
@@ -1972,6 +2032,9 @@
             "path": "mission"
           }
         ],
+        "refs": {
+          "mission": "mission"
+        },
         "steps": {
           "record": {
             "name": "mission.pause.record",
@@ -1984,7 +2047,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "d5f3ae81d86cf565"
+        "hash": "cc6ea6a1ec26490d"
       },
       "mission.resume": {
         "kind": "operation",
@@ -2029,6 +2092,9 @@
             "path": "mission"
           }
         ],
+        "refs": {
+          "mission": "mission"
+        },
         "steps": {
           "record": {
             "name": "mission.resume.record",
@@ -2041,7 +2107,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "44c6124572474856"
+        "hash": "26edb948031b1f9c"
       },
       "mission.start": {
         "kind": "operation",
@@ -2089,6 +2155,9 @@
             "path": "mission"
           }
         ],
+        "refs": {
+          "mission": "mission"
+        },
         "steps": {
           "record": {
             "name": "mission.start.record",
@@ -2101,7 +2170,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "16c799592a7bdd7a"
+        "hash": "98ff5eec1a5db8c5"
       },
       "mission.stop": {
         "kind": "operation",
@@ -2155,6 +2224,9 @@
             "path": "mission"
           }
         ],
+        "refs": {
+          "mission": "mission"
+        },
         "steps": {
           "record": {
             "name": "mission.stop.record",
@@ -2167,7 +2239,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "43214d36a789e119"
+        "hash": "ef2c9fdaa4601f9b"
       },
       "mission.tasks": {
         "kind": "operation",
@@ -2209,6 +2281,9 @@
             "path": "mission"
           }
         ],
+        "refs": {
+          "mission": "mission"
+        },
         "steps": {
           "plan": {
             "name": "mission.tasks.plan",
@@ -2228,7 +2303,7 @@
         "budget": {
           "p95Ms": 300
         },
-        "hash": "17cab7a390885dbf"
+        "hash": "a48f9550336a0b96"
       },
       "question.answer": {
         "kind": "operation",
@@ -2281,6 +2356,7 @@
         "refusals": [
           "QuestionNoSuchOption",
           "QuestionNotAsked",
+          "QuestionNotFound",
           "NotAllowed"
         ],
         "allowed": [
@@ -2290,6 +2366,13 @@
             "path": "mission"
           }
         ],
+        "refs": {
+          "mission": "mission",
+          "question": "question"
+        },
+        "notFound": {
+          "question": "QuestionNotFound"
+        },
         "steps": {
           "record": {
             "name": "question.answer.record",
@@ -2302,7 +2385,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "38e2084b7c70dc18"
+        "hash": "605f95192849673d"
       },
       "question.ask": {
         "kind": "operation",
@@ -2386,6 +2469,10 @@
             "path": "mission"
           }
         ],
+        "refs": {
+          "mission": "mission"
+        },
+        "mints": "question",
         "steps": {
           "insert": {
             "name": "question.ask.insert",
@@ -2398,7 +2485,7 @@
         "budget": {
           "p95Ms": 200
         },
-        "hash": "fe1a9031674f14c8"
+        "hash": "eed24817e94402b5"
       },
       "question.list": {
         "kind": "read",
@@ -2517,6 +2604,7 @@
         "errors": [],
         "refusals": [
           "QuestionNotAsked",
+          "QuestionNotFound",
           "NotAllowed"
         ],
         "allowed": [
@@ -2526,6 +2614,13 @@
             "path": "mission"
           }
         ],
+        "refs": {
+          "mission": "mission",
+          "question": "question"
+        },
+        "notFound": {
+          "question": "QuestionNotFound"
+        },
         "steps": {
           "record": {
             "name": "question.spike.record",
@@ -2538,7 +2633,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "2d2a413a309e7dd8"
+        "hash": "d8e24d90f0808483"
       },
       "run.fail": {
         "kind": "operation",
@@ -2589,6 +2684,7 @@
         "errors": [],
         "refusals": [
           "RunNotRunning",
+          "RunNotFound",
           "NotAllowed"
         ],
         "allowed": [
@@ -2598,6 +2694,13 @@
             "path": "mission"
           }
         ],
+        "refs": {
+          "mission": "mission",
+          "run": "run"
+        },
+        "notFound": {
+          "run": "RunNotFound"
+        },
         "steps": {
           "record": {
             "name": "run.fail.record",
@@ -2610,7 +2713,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "dac2f269544324b9"
+        "hash": "749551d27d4662bd"
       },
       "run.finish": {
         "kind": "operation",
@@ -2660,6 +2763,7 @@
         "errors": [],
         "refusals": [
           "RunNotRunning",
+          "RunNotFound",
           "NotAllowed"
         ],
         "allowed": [
@@ -2669,6 +2773,13 @@
             "path": "mission"
           }
         ],
+        "refs": {
+          "mission": "mission",
+          "run": "run"
+        },
+        "notFound": {
+          "run": "RunNotFound"
+        },
         "steps": {
           "record": {
             "name": "run.finish.record",
@@ -2681,7 +2792,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "26c7fa61c8ad64a6"
+        "hash": "b082c4dcabf398c3"
       },
       "run.list": {
         "kind": "read",
@@ -2825,6 +2936,7 @@
         "errors": [],
         "refusals": [
           "RunNotRunning",
+          "RunNotFound",
           "NotAllowed"
         ],
         "allowed": [
@@ -2834,6 +2946,13 @@
             "path": "mission"
           }
         ],
+        "refs": {
+          "mission": "mission",
+          "run": "run"
+        },
+        "notFound": {
+          "run": "RunNotFound"
+        },
         "steps": {
           "record": {
             "name": "run.report.record",
@@ -2846,7 +2965,7 @@
         "budget": {
           "p95Ms": 100
         },
-        "hash": "6dcf8e51cc95f2b4"
+        "hash": "ecf3bd3d483b03fa"
       },
       "run.start": {
         "kind": "operation",
@@ -2937,6 +3056,10 @@
             "path": "mission"
           }
         ],
+        "refs": {
+          "mission": "mission"
+        },
+        "mints": "run",
         "steps": {
           "claim": {
             "name": "run.start.claim",
@@ -2949,7 +3072,7 @@
         "budget": {
           "p95Ms": 250
         },
-        "hash": "10d12dbc52053209"
+        "hash": "83d9ff9ccca96a62"
       },
       "run.stop": {
         "kind": "operation",
@@ -3000,6 +3123,7 @@
         "errors": [],
         "refusals": [
           "RunNotRunning",
+          "RunNotFound",
           "NotAllowed"
         ],
         "allowed": [
@@ -3009,6 +3133,13 @@
             "path": "mission"
           }
         ],
+        "refs": {
+          "mission": "mission",
+          "run": "run"
+        },
+        "notFound": {
+          "run": "RunNotFound"
+        },
         "steps": {
           "record": {
             "name": "run.stop.record",
@@ -3021,7 +3152,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "ba8f811856bfd3bb"
+        "hash": "ffb0f809b5394489"
       }
     },
     "journeys": {},
@@ -3072,42 +3203,42 @@
   },
   "dependsOnByOperation": {
     "attention.approve": {
-      "operation:attention.approve": "2fcb8429d22bdf16",
-      "thing:attention": "d4c4baff87cd4a0b",
+      "operation:attention.approve": "131a6e986c72c8b6",
+      "thing:attention": "4bc4bbfa3bc73459",
       "thing:mission": "0ce414120027dab4"
     },
     "attention.decline": {
-      "operation:attention.decline": "651669ee7488bfbd",
-      "thing:attention": "d4c4baff87cd4a0b",
+      "operation:attention.decline": "4b26ec125aa0b371",
+      "thing:attention": "4bc4bbfa3bc73459",
       "thing:mission": "0ce414120027dab4"
     },
     "attention.list": {
       "operation:attention.list": "cc78b4cc39d07c14",
-      "thing:attention": "d4c4baff87cd4a0b",
+      "thing:attention": "4bc4bbfa3bc73459",
       "thing:mission": "0ce414120027dab4"
     },
     "attention.raise": {
-      "operation:attention.raise": "bdc81860bc865684",
-      "thing:attention": "d4c4baff87cd4a0b",
+      "operation:attention.raise": "a20a17481ce7e319",
+      "thing:attention": "4bc4bbfa3bc73459",
       "thing:mission": "0ce414120027dab4"
     },
     "milestone.add": {
-      "operation:milestone.add": "3f6a4a5e4b4cd173",
-      "thing:milestone": "225b0d5d96e22806",
+      "operation:milestone.add": "9b2856be0d57609f",
+      "thing:milestone": "10bfc73701266a5a",
       "thing:mission": "0ce414120027dab4"
     },
     "milestone.drop": {
-      "operation:milestone.drop": "22eece7bfc9afd1a",
-      "thing:milestone": "225b0d5d96e22806",
+      "operation:milestone.drop": "1ea7d4b4137829b7",
+      "thing:milestone": "10bfc73701266a5a",
       "thing:mission": "0ce414120027dab4"
     },
     "milestone.list": {
       "operation:milestone.list": "7cbce0299615e512",
-      "thing:milestone": "225b0d5d96e22806",
+      "thing:milestone": "10bfc73701266a5a",
       "thing:mission": "0ce414120027dab4"
     },
     "mission.finish": {
-      "operation:mission.finish": "51359a3587336d75",
+      "operation:mission.finish": "a3ed9540ff6aa421",
       "thing:mission": "0ce414120027dab4",
       "thing:person": "c9a028d47a5f83b2"
     },
@@ -3122,94 +3253,94 @@
       "thing:person": "c9a028d47a5f83b2"
     },
     "mission.open": {
-      "operation:mission.open": "a0667cfef3f0a341",
+      "operation:mission.open": "b5f0a0c2fc873a57",
       "thing:mission": "0ce414120027dab4",
       "thing:person": "c9a028d47a5f83b2"
     },
     "mission.pause": {
-      "operation:mission.pause": "d5f3ae81d86cf565",
+      "operation:mission.pause": "cc6ea6a1ec26490d",
       "thing:mission": "0ce414120027dab4",
       "thing:person": "c9a028d47a5f83b2"
     },
     "mission.resume": {
-      "operation:mission.resume": "44c6124572474856",
+      "operation:mission.resume": "26edb948031b1f9c",
       "thing:mission": "0ce414120027dab4",
       "thing:person": "c9a028d47a5f83b2"
     },
     "mission.start": {
-      "operation:mission.start": "16c799592a7bdd7a",
+      "operation:mission.start": "98ff5eec1a5db8c5",
       "thing:mission": "0ce414120027dab4",
       "thing:person": "c9a028d47a5f83b2"
     },
     "mission.stop": {
-      "operation:mission.stop": "43214d36a789e119",
+      "operation:mission.stop": "ef2c9fdaa4601f9b",
       "thing:mission": "0ce414120027dab4",
       "thing:person": "c9a028d47a5f83b2"
     },
     "mission.tasks": {
-      "operation:mission.tasks": "17cab7a390885dbf",
+      "operation:mission.tasks": "a48f9550336a0b96",
       "thing:mission": "0ce414120027dab4",
       "thing:person": "c9a028d47a5f83b2"
     },
     "question.answer": {
-      "operation:question.answer": "38e2084b7c70dc18",
+      "operation:question.answer": "605f95192849673d",
       "thing:mission": "0ce414120027dab4",
-      "thing:question": "e8cea83a3b7ac1e0"
+      "thing:question": "eb3656bcee0f85ef"
     },
     "question.ask": {
-      "operation:question.ask": "fe1a9031674f14c8",
+      "operation:question.ask": "eed24817e94402b5",
       "thing:mission": "0ce414120027dab4",
-      "thing:question": "e8cea83a3b7ac1e0"
+      "thing:question": "eb3656bcee0f85ef"
     },
     "question.list": {
       "operation:question.list": "5c42bd65c2ffaa2b",
       "thing:mission": "0ce414120027dab4",
-      "thing:question": "e8cea83a3b7ac1e0"
+      "thing:question": "eb3656bcee0f85ef"
     },
     "question.spike": {
-      "operation:question.spike": "2d2a413a309e7dd8",
+      "operation:question.spike": "d8e24d90f0808483",
       "thing:mission": "0ce414120027dab4",
-      "thing:question": "e8cea83a3b7ac1e0"
+      "thing:question": "eb3656bcee0f85ef"
     },
     "run.fail": {
-      "operation:run.fail": "dac2f269544324b9",
+      "operation:run.fail": "749551d27d4662bd",
       "thing:mission": "0ce414120027dab4",
-      "thing:run": "308697ab0b0f32e6"
+      "thing:run": "3ec697db6baa81eb"
     },
     "run.finish": {
-      "operation:run.finish": "26c7fa61c8ad64a6",
+      "operation:run.finish": "b082c4dcabf398c3",
       "thing:mission": "0ce414120027dab4",
-      "thing:run": "308697ab0b0f32e6"
+      "thing:run": "3ec697db6baa81eb"
     },
     "run.list": {
       "operation:run.list": "678f742fc7725426",
       "thing:mission": "0ce414120027dab4",
-      "thing:run": "308697ab0b0f32e6"
+      "thing:run": "3ec697db6baa81eb"
     },
     "run.report": {
-      "operation:run.report": "6dcf8e51cc95f2b4",
+      "operation:run.report": "ecf3bd3d483b03fa",
       "thing:mission": "0ce414120027dab4",
-      "thing:run": "308697ab0b0f32e6"
+      "thing:run": "3ec697db6baa81eb"
     },
     "run.start": {
-      "operation:run.start": "10d12dbc52053209",
+      "operation:run.start": "83d9ff9ccca96a62",
       "thing:mission": "0ce414120027dab4",
-      "thing:run": "308697ab0b0f32e6"
+      "thing:run": "3ec697db6baa81eb"
     },
     "run.stop": {
-      "operation:run.stop": "ba8f811856bfd3bb",
+      "operation:run.stop": "ffb0f809b5394489",
       "thing:mission": "0ce414120027dab4",
-      "thing:run": "308697ab0b0f32e6"
+      "thing:run": "3ec697db6baa81eb"
     }
   },
   "docs": {
-    "attention/approve.md": "<!-- Generated from the blueprint. Do not edit. -->\n# attention.approve\n\nSay yes. For a promote, the promote runs.\n\n**Who may call:** the owner of its mission.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | attention.mission |\n| attention | attention.id |\n\n## Answer\n\n(none)\n\n## Move\n\n`approve`: from open to approved, emitting AttentionApproved.\n\n## Steps\n\n- `attention.approve.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| AttentionNotOpen | 55 | AT-900 | the attention is in a state approve can't start from; carries `state` |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork attention approve --mission <mission> --attention <attention>\n```\n\nHTTP: `POST /attention/approve` with the payload as JSON. SDK: `Sdk.attention.approve(payload)`.\n",
-    "attention/decline.md": "<!-- Generated from the blueprint. Do not edit. -->\n# attention.decline\n\nSay not yet, and why. The task stays where its facts put it.\n\n**Who may call:** the owner of its mission.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | attention.mission |\n| attention | attention.id |\n| why | Note |\n\n## Answer\n\n(none)\n\n## Move\n\n`decline`: from open to declined, emitting AttentionDeclined.\n\n## Steps\n\n- `attention.decline.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| AttentionNotOpen | 55 | AT-900 | the attention is in a state decline can't start from; carries `state` |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork attention decline --mission <mission> --attention <attention> --why <why>\n```\n\nHTTP: `POST /attention/decline` with the payload as JSON. SDK: `Sdk.attention.decline(payload)`.\n",
+    "attention/approve.md": "<!-- Generated from the blueprint. Do not edit. -->\n# attention.approve\n\nSay yes. For a promote, the promote runs.\n\n**Who may call:** the owner of its mission.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | attention.mission |\n| attention | attention.id |\n\n## Answer\n\n(none)\n\n## Move\n\n`approve`: from open to approved, emitting AttentionApproved.\n\n## Steps\n\n- `attention.approve.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| AttentionNotOpen | 55 | AT-900 | the attention is in a state approve can't start from; carries `state` |\n| AttentionNotFound | 4 | AT-901 | nothing has the id in attention; the handler never runs; carries `id` |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork attention approve --mission <mission> --attention <attention>\n```\n\nHTTP: `POST /attention/approve` with the payload as JSON. SDK: `Sdk.attention.approve(payload)`.\n",
+    "attention/decline.md": "<!-- Generated from the blueprint. Do not edit. -->\n# attention.decline\n\nSay not yet, and why. The task stays where its facts put it.\n\n**Who may call:** the owner of its mission.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | attention.mission |\n| attention | attention.id |\n| why | Note |\n\n## Answer\n\n(none)\n\n## Move\n\n`decline`: from open to declined, emitting AttentionDeclined.\n\n## Steps\n\n- `attention.decline.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| AttentionNotOpen | 55 | AT-900 | the attention is in a state decline can't start from; carries `state` |\n| AttentionNotFound | 4 | AT-901 | nothing has the id in attention; the handler never runs; carries `id` |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork attention decline --mission <mission> --attention <attention> --why <why>\n```\n\nHTTP: `POST /attention/decline` with the payload as JSON. SDK: `Sdk.attention.decline(payload)`.\n",
     "attention/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# attention\n\nSomething waiting on you: a promote, money past the cap, a credential, a question mid-mission.\n\nLives in the database.\n\n## Fields\n\n| field | value |\n|---|---|\n| id | id |\n| mission | mission.id |\n| kind | AttentionKind |\n| title | Title |\n| why | Note |\n| task | TaskKey |\n\n## Machine\n\nStates: open, approved, declined. A move from the wrong state is refused AttentionNotOpen (exit 55).\n\n| move | from | to | emits |\n|---|---|---|---|\n| raise | (creates) | open | AttentionRaised |\n| approve | open | approved | AttentionApproved |\n| decline | open | declined | AttentionDeclined |\n\n## Operations\n\n- [attention.approve](approve.md): Say yes. For a promote, the promote runs.\n- [attention.decline](decline.md): Say not yet, and why. The task stays where its facts put it.\n- [attention.list](list.md): List attentions, newest first, 50 to a page, filtered by mission, state.\n- [attention.raise](raise.md): Ask the mission's owner for a decision only they can make.\n",
     "attention/list.md": "<!-- Generated from the blueprint. Do not edit. -->\n# attention.list\n\nList attentions, newest first, 50 to a page, filtered by mission, state.\n\n**Who may call:** the owner of its mission.\n\n**A read:** answered from the records, with no handler. A page of 50 at a time, newest first, narrowed by mission, state; pass the answer's `next` as `cursor` for the page after it.\n\n**Budget:** p95 80ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission (optional) | attention.mission |\n| state (optional) | text |\n| cursor (optional) | text |\n\n## Answer\n\n| field | value |\n|---|---|\n| items | schema |\n| next | schema |\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork attention list [--mission <mission>] [--state <state>] [--cursor <cursor>]\n```\n\nHTTP: `POST /attention/list` with the payload as JSON. SDK: `Sdk.attention.list(payload)`.\n",
     "attention/raise.md": "<!-- Generated from the blueprint. Do not edit. -->\n# attention.raise\n\nAsk the mission's owner for a decision only they can make.\n\n**Who may call:** the owner of its mission.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 200ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | attention.mission |\n| kind | attention.kind |\n| title | attention.title |\n| why | attention.why |\n| task | attention.task |\n\n## Answer\n\n| field | value |\n|---|---|\n| attention | attention.id |\n\n## Move\n\n`raise`: from nothing (it creates) to open, emitting AttentionRaised.\n\n## Steps\n\n- `attention.raise.insert` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| MissionNotRunning | 55 | MS-002 | the attention is in a state raise can't start from; carries `state` |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork attention raise --mission <mission> --kind <kind> --title <title> --why <why> --task <task>\n```\n\nHTTP: `POST /attention/raise` with the payload as JSON. SDK: `Sdk.attention.raise(payload)`.\n",
     "milestone/add.md": "<!-- Generated from the blueprint. Do not edit. -->\n# milestone.add\n\nAdd a milestone to a mission. Its tasks appear at once: its kinds over its subject.\n\n**Who may call:** the owner of its mission.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 200ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | milestone.mission |\n| title | milestone.title |\n| kinds | milestone.kinds |\n| of | milestone.of |\n| until | milestone.until |\n\n## Answer\n\n| field | value |\n|---|---|\n| milestone | milestone.id |\n\n## Move\n\n`add`: from nothing (it creates) to active, emitting MilestoneAdded.\n\n## Steps\n\n- `milestone.add.insert` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| MissionClosed | 52 | MS-005 | the milestone is in a state add can't start from; carries `state` |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork milestone add --mission <mission> --title <title> --kinds <kinds> --of <of> --until <until>\n```\n\nHTTP: `POST /milestone/add` with the payload as JSON. SDK: `Sdk.milestone.add(payload)`.\n",
-    "milestone/drop.md": "<!-- Generated from the blueprint. Do not edit. -->\n# milestone.drop\n\nDrop a milestone from its mission's scope. Its tasks leave the board; the burn-down shows the step.\n\n**Who may call:** the owner of its mission.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | milestone.mission |\n| milestone | milestone.id |\n\n## Answer\n\n(none)\n\n## Move\n\n`drop`: from active to dropped, emitting MilestoneDropped.\n\n## Steps\n\n- `milestone.drop.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| MilestoneNotActive | 52 | ML-900 | the milestone is in a state drop can't start from; carries `state` |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork milestone drop --mission <mission> --milestone <milestone>\n```\n\nHTTP: `POST /milestone/drop` with the payload as JSON. SDK: `Sdk.milestone.drop(payload)`.\n",
+    "milestone/drop.md": "<!-- Generated from the blueprint. Do not edit. -->\n# milestone.drop\n\nDrop a milestone from its mission's scope. Its tasks leave the board; the burn-down shows the step.\n\n**Who may call:** the owner of its mission.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | milestone.mission |\n| milestone | milestone.id |\n\n## Answer\n\n(none)\n\n## Move\n\n`drop`: from active to dropped, emitting MilestoneDropped.\n\n## Steps\n\n- `milestone.drop.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| MilestoneNotActive | 52 | ML-900 | the milestone is in a state drop can't start from; carries `state` |\n| MilestoneNotFound | 4 | ML-901 | nothing has the id in milestone; the handler never runs; carries `id` |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork milestone drop --mission <mission> --milestone <milestone>\n```\n\nHTTP: `POST /milestone/drop` with the payload as JSON. SDK: `Sdk.milestone.drop(payload)`.\n",
     "milestone/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# milestone\n\nA stage of a mission: which steps of the build loop, over which thing or operation, and how far.\n\nLives in the database.\n\n## Fields\n\n| field | value |\n|---|---|\n| id | id |\n| mission | mission.id |\n| title | Title |\n| kinds | TaskKinds |\n| of | Subject |\n| until | Environment |\n\n## Machine\n\nStates: active, dropped. A move from the wrong state is refused MilestoneNotActive (exit 52).\n\n| move | from | to | emits |\n|---|---|---|---|\n| add | (creates) | active | MilestoneAdded |\n| drop | active | dropped | MilestoneDropped |\n\n## Operations\n\n- [milestone.add](add.md): Add a milestone to a mission. Its tasks appear at once: its kinds over its subject.\n- [milestone.drop](drop.md): Drop a milestone from its mission's scope. Its tasks leave the board; the burn-down shows the step.\n- [milestone.list](list.md): List milestones, oldest first, 50 to a page, filtered by mission, state.\n",
     "milestone/list.md": "<!-- Generated from the blueprint. Do not edit. -->\n# milestone.list\n\nList milestones, oldest first, 50 to a page, filtered by mission, state.\n\n**Who may call:** the owner of its mission.\n\n**A read:** answered from the records, with no handler. A page of 50 at a time, oldest first, narrowed by mission, state; pass the answer's `next` as `cursor` for the page after it.\n\n**Budget:** p95 80ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission (optional) | milestone.mission |\n| state (optional) | text |\n| cursor (optional) | text |\n\n## Answer\n\n| field | value |\n|---|---|\n| items | schema |\n| next | schema |\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork milestone list [--mission <mission>] [--state <state>] [--cursor <cursor>]\n```\n\nHTTP: `POST /milestone/list` with the payload as JSON. SDK: `Sdk.milestone.list(payload)`.\n",
     "mission/finish.md": "<!-- Generated from the blueprint. Do not edit. -->\n# mission.finish\n\nClose the mission: every task is closed by a fact up to its target.\n\n**Who may call:** the owner of its mission.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | mission.id |\n\n## Answer\n\n(none)\n\n## Move\n\n`finish`: from running to done, emitting MissionFinished.\n\n## Steps\n\n- `mission.finish.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| MissionHasOpenTasks | 58 | MS-004 | declared in errors.ts, carrying open |\n| MissionNotIntake | 50 | MS-900 | the mission is in a state finish can't start from; carries `state` |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork mission finish --mission <mission>\n```\n\nHTTP: `POST /mission/finish` with the payload as JSON. SDK: `Sdk.mission.finish(payload)`.\n",
@@ -3223,18 +3354,18 @@
     "mission/stop.md": "<!-- Generated from the blueprint. Do not edit. -->\n# mission.stop\n\nStop the mission for good. Its runs are stopped with it.\n\n**Who may call:** the owner of its mission.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | mission.id |\n| why | Note |\n\n## Answer\n\n(none)\n\n## Move\n\n`stop`: from intake or running or paused to stopped, emitting MissionStopped.\n\n## Steps\n\n- `mission.stop.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| MissionNotIntake | 50 | MS-900 | the mission is in a state stop can't start from; carries `state` |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork mission stop --mission <mission> --why <why>\n```\n\nHTTP: `POST /mission/stop` with the payload as JSON. SDK: `Sdk.mission.stop(payload)`.\n",
     "mission/tasks.md": "<!-- Generated from the blueprint. Do not edit. -->\n# mission.tasks\n\nThe mission's tasks, each in the column its facts put it in.\n\n**Who may call:** the owner of its mission.\n\n**Budget:** p95 300ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | mission.id |\n\n## Answer\n\n| field | value |\n|---|---|\n| tasks | Tasks |\n\n## Steps\n\n- `mission.tasks.plan` (database)\n- `mission.tasks.facts` (blank)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork mission tasks --mission <mission>\n```\n\nHTTP: `POST /mission/tasks` with the payload as JSON. SDK: `Sdk.mission.tasks(payload)`.\n",
     "person/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# person\n\nSomeone who signs in. Better Auth keeps people; work refers to them by id.\n\nLives in the database.\n\n## Fields\n\n| field | value |\n|---|---|\n| id | id |\n| email | text |\n| name | text |\n\n## Operations\n\n(none yet)\n",
-    "question/answer.md": "<!-- Generated from the blueprint. Do not edit. -->\n# question.answer\n\nAnswer a question with one of its letters.\n\n**Who may call:** the owner of its mission.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | question.mission |\n| question | question.id |\n| picked | Letter |\n\n## Answer\n\n(none)\n\n## Move\n\n`answer`: from asked to answered, emitting QuestionAnswered.\n\n## Steps\n\n- `question.answer.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| QuestionNoSuchOption | 54 | QU-001 | declared in errors.ts |\n| QuestionNotAsked | 53 | QU-900 | the question is in a state answer can't start from; carries `state` |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork question answer --mission <mission> --question <question> --picked <picked>\n```\n\nHTTP: `POST /question/answer` with the payload as JSON. SDK: `Sdk.question.answer(payload)`.\n",
+    "question/answer.md": "<!-- Generated from the blueprint. Do not edit. -->\n# question.answer\n\nAnswer a question with one of its letters.\n\n**Who may call:** the owner of its mission.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | question.mission |\n| question | question.id |\n| picked | Letter |\n\n## Answer\n\n(none)\n\n## Move\n\n`answer`: from asked to answered, emitting QuestionAnswered.\n\n## Steps\n\n- `question.answer.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| QuestionNoSuchOption | 54 | QU-001 | declared in errors.ts |\n| QuestionNotAsked | 53 | QU-900 | the question is in a state answer can't start from; carries `state` |\n| QuestionNotFound | 4 | QU-901 | nothing has the id in question; the handler never runs; carries `id` |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork question answer --mission <mission> --question <question> --picked <picked>\n```\n\nHTTP: `POST /question/answer` with the payload as JSON. SDK: `Sdk.question.answer(payload)`.\n",
     "question/ask.md": "<!-- Generated from the blueprint. Do not edit. -->\n# question.ask\n\nAsk the mission's owner about one gap in the blueprint, with lettered answers.\n\n**Who may call:** the owner of its mission.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 200ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | question.mission |\n| asks | question.asks |\n| about | question.about |\n| gap | question.gap |\n| options | question.options |\n\n## Answer\n\n| field | value |\n|---|---|\n| question | question.id |\n\n## Move\n\n`ask`: from nothing (it creates) to asked, emitting QuestionAsked.\n\n## Steps\n\n- `question.ask.insert` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| MissionNotInIntake | 53 | MS-003 | the question is in a state ask can't start from; carries `state` |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork question ask --mission <mission> --asks <asks> --about <about> --gap <gap> --options <options>\n```\n\nHTTP: `POST /question/ask` with the payload as JSON. SDK: `Sdk.question.ask(payload)`.\n",
     "question/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# question\n\nSomething the manager needs you to decide before the mission starts, taken from a gap in the blueprint.\n\nLives in the database.\n\n## Fields\n\n| field | value |\n|---|---|\n| id | id |\n| mission | mission.id |\n| asks | Title |\n| about | Subject |\n| gap | Note |\n| options | Options |\n\n## Machine\n\nStates: asked, answered, spiked. A move from the wrong state is refused QuestionNotAsked (exit 53).\n\n| move | from | to | emits |\n|---|---|---|---|\n| ask | (creates) | asked | QuestionAsked |\n| answer | asked | answered | QuestionAnswered |\n| spike | asked | spiked | QuestionSpiked |\n\n## Operations\n\n- [question.answer](answer.md): Answer a question with one of its letters.\n- [question.ask](ask.md): Ask the mission's owner about one gap in the blueprint, with lettered answers.\n- [question.list](list.md): List questions, oldest first, 50 to a page, filtered by mission, state.\n- [question.spike](spike.md): Not sure yet: turn the question into a spike task on its subject.\n",
     "question/list.md": "<!-- Generated from the blueprint. Do not edit. -->\n# question.list\n\nList questions, oldest first, 50 to a page, filtered by mission, state.\n\n**Who may call:** the owner of its mission.\n\n**A read:** answered from the records, with no handler. A page of 50 at a time, oldest first, narrowed by mission, state; pass the answer's `next` as `cursor` for the page after it.\n\n**Budget:** p95 80ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission (optional) | question.mission |\n| state (optional) | text |\n| cursor (optional) | text |\n\n## Answer\n\n| field | value |\n|---|---|\n| items | schema |\n| next | schema |\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork question list [--mission <mission>] [--state <state>] [--cursor <cursor>]\n```\n\nHTTP: `POST /question/list` with the payload as JSON. SDK: `Sdk.question.list(payload)`.\n",
-    "question/spike.md": "<!-- Generated from the blueprint. Do not edit. -->\n# question.spike\n\nNot sure yet: turn the question into a spike task on its subject.\n\n**Who may call:** the owner of its mission.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | question.mission |\n| question | question.id |\n\n## Answer\n\n(none)\n\n## Move\n\n`spike`: from asked to spiked, emitting QuestionSpiked.\n\n## Steps\n\n- `question.spike.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| QuestionNotAsked | 53 | QU-900 | the question is in a state spike can't start from; carries `state` |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork question spike --mission <mission> --question <question>\n```\n\nHTTP: `POST /question/spike` with the payload as JSON. SDK: `Sdk.question.spike(payload)`.\n",
-    "run/fail.md": "<!-- Generated from the blueprint. Do not edit. -->\n# run.fail\n\nThe run gave up, saying why.\n\n**Who may call:** the owner of its mission.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | run.mission |\n| run | run.id |\n| why | Note |\n\n## Answer\n\n(none)\n\n## Move\n\n`fail`: from running or waiting to failed, emitting RunFailed.\n\n## Steps\n\n- `run.fail.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| RunNotRunning | 60 | RU-900 | the run is in a state fail can't start from; carries `state` |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork run fail --mission <mission> --run <run> --why <why>\n```\n\nHTTP: `POST /run/fail` with the payload as JSON. SDK: `Sdk.run.fail(payload)`.\n",
-    "run/finish.md": "<!-- Generated from the blueprint. Do not edit. -->\n# run.finish\n\nThe run pushed its branch. CI proves it; the run cannot close its own task.\n\n**Who may call:** the owner of its mission.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | run.mission |\n| run | run.id |\n| branch | Branch |\n\n## Answer\n\n(none)\n\n## Move\n\n`finish`: from running to finished, emitting RunFinished.\n\n## Steps\n\n- `run.finish.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| RunNotRunning | 60 | RU-900 | the run is in a state finish can't start from; carries `state` |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork run finish --mission <mission> --run <run> --branch <branch>\n```\n\nHTTP: `POST /run/finish` with the payload as JSON. SDK: `Sdk.run.finish(payload)`.\n",
+    "question/spike.md": "<!-- Generated from the blueprint. Do not edit. -->\n# question.spike\n\nNot sure yet: turn the question into a spike task on its subject.\n\n**Who may call:** the owner of its mission.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | question.mission |\n| question | question.id |\n\n## Answer\n\n(none)\n\n## Move\n\n`spike`: from asked to spiked, emitting QuestionSpiked.\n\n## Steps\n\n- `question.spike.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| QuestionNotAsked | 53 | QU-900 | the question is in a state spike can't start from; carries `state` |\n| QuestionNotFound | 4 | QU-901 | nothing has the id in question; the handler never runs; carries `id` |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork question spike --mission <mission> --question <question>\n```\n\nHTTP: `POST /question/spike` with the payload as JSON. SDK: `Sdk.question.spike(payload)`.\n",
+    "run/fail.md": "<!-- Generated from the blueprint. Do not edit. -->\n# run.fail\n\nThe run gave up, saying why.\n\n**Who may call:** the owner of its mission.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | run.mission |\n| run | run.id |\n| why | Note |\n\n## Answer\n\n(none)\n\n## Move\n\n`fail`: from running or waiting to failed, emitting RunFailed.\n\n## Steps\n\n- `run.fail.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| RunNotRunning | 60 | RU-900 | the run is in a state fail can't start from; carries `state` |\n| RunNotFound | 4 | RU-901 | nothing has the id in run; the handler never runs; carries `id` |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork run fail --mission <mission> --run <run> --why <why>\n```\n\nHTTP: `POST /run/fail` with the payload as JSON. SDK: `Sdk.run.fail(payload)`.\n",
+    "run/finish.md": "<!-- Generated from the blueprint. Do not edit. -->\n# run.finish\n\nThe run pushed its branch. CI proves it; the run cannot close its own task.\n\n**Who may call:** the owner of its mission.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | run.mission |\n| run | run.id |\n| branch | Branch |\n\n## Answer\n\n(none)\n\n## Move\n\n`finish`: from running to finished, emitting RunFinished.\n\n## Steps\n\n- `run.finish.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| RunNotRunning | 60 | RU-900 | the run is in a state finish can't start from; carries `state` |\n| RunNotFound | 4 | RU-901 | nothing has the id in run; the handler never runs; carries `id` |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork run finish --mission <mission> --run <run> --branch <branch>\n```\n\nHTTP: `POST /run/finish` with the payload as JSON. SDK: `Sdk.run.finish(payload)`.\n",
     "run/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# run\n\nOne agent working one task: which agent type, on which model, with what budget.\n\nLives in the database.\n\n## Fields\n\n| field | value |\n|---|---|\n| id | id |\n| mission | mission.id |\n| task | TaskKey |\n| agent | AgentType |\n| model | ModelName |\n| budget | Cents |\n\n## Machine\n\nStates: running, waiting, finished, failed, stopped. A move from the wrong state is refused RunNotRunning (exit 60).\n\n| move | from | to | emits |\n|---|---|---|---|\n| start | (creates) | running | RunStarted |\n| report | running, waiting | running, waiting | RunReported |\n| finish | running | finished | RunFinished |\n| fail | running, waiting | failed | RunFailed |\n| stop | running, waiting | stopped | RunStopped |\n\n## Operations\n\n- [run.fail](fail.md): The run gave up, saying why.\n- [run.finish](finish.md): The run pushed its branch. CI proves it; the run cannot close its own task.\n- [run.list](list.md): List runs, newest first, 50 to a page, filtered by mission, task, state.\n- [run.report](report.md): Say how the run is going. It moves no card.\n- [run.start](start.md): Start an agent on one task. The run claims the task until it ends.\n- [run.stop](stop.md): Stop the run. A person's act, or the mission stopping.\n",
     "run/list.md": "<!-- Generated from the blueprint. Do not edit. -->\n# run.list\n\nList runs, newest first, 50 to a page, filtered by mission, task, state.\n\n**Who may call:** the owner of its mission.\n\n**A read:** answered from the records, with no handler. A page of 50 at a time, newest first, narrowed by mission, task, state; pass the answer's `next` as `cursor` for the page after it.\n\n**Budget:** p95 80ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission (optional) | run.mission |\n| task (optional) | run.task |\n| state (optional) | text |\n| cursor (optional) | text |\n\n## Answer\n\n| field | value |\n|---|---|\n| items | schema |\n| next | schema |\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork run list [--mission <mission>] [--task <task>] [--state <state>] [--cursor <cursor>]\n```\n\nHTTP: `POST /run/list` with the payload as JSON. SDK: `Sdk.run.list(payload)`.\n",
-    "run/report.md": "<!-- Generated from the blueprint. Do not edit. -->\n# run.report\n\nSay how the run is going. It moves no card.\n\n**Who may call:** the owner of its mission.\n\n**Budget:** p95 100ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | run.mission |\n| run | run.id |\n| report | Report |\n| note | Note |\n\n## Answer\n\n(none)\n\n## Move\n\n`report`: from running or waiting to running or waiting, emitting RunReported.\n\n## Steps\n\n- `run.report.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| RunNotRunning | 60 | RU-900 | the run is in a state report can't start from; carries `state` |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork run report --mission <mission> --run <run> --report <report> --note <note>\n```\n\nHTTP: `POST /run/report` with the payload as JSON. SDK: `Sdk.run.report(payload)`.\n",
+    "run/report.md": "<!-- Generated from the blueprint. Do not edit. -->\n# run.report\n\nSay how the run is going. It moves no card.\n\n**Who may call:** the owner of its mission.\n\n**Budget:** p95 100ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | run.mission |\n| run | run.id |\n| report | Report |\n| note | Note |\n\n## Answer\n\n(none)\n\n## Move\n\n`report`: from running or waiting to running or waiting, emitting RunReported.\n\n## Steps\n\n- `run.report.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| RunNotRunning | 60 | RU-900 | the run is in a state report can't start from; carries `state` |\n| RunNotFound | 4 | RU-901 | nothing has the id in run; the handler never runs; carries `id` |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork run report --mission <mission> --run <run> --report <report> --note <note>\n```\n\nHTTP: `POST /run/report` with the payload as JSON. SDK: `Sdk.run.report(payload)`.\n",
     "run/start.md": "<!-- Generated from the blueprint. Do not edit. -->\n# run.start\n\nStart an agent on one task. The run claims the task until it ends.\n\n**Who may call:** the owner of its mission.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 250ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | run.mission |\n| task | run.task |\n| agent | run.agent |\n| model | run.model |\n| budget | run.budget |\n\n## Answer\n\n| field | value |\n|---|---|\n| run | run.id |\n\n## Move\n\n`start`: from nothing (it creates) to running, emitting RunStarted.\n\n## Steps\n\n- `run.start.claim` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| MissionNotRunning | 60 | MS-002 | the run is in a state start can't start from; carries `state` |\n| RunOverBudget | 61 | RU-001 | declared in errors.ts, carrying left |\n| RunAgentCannot | 62 | RU-002 | declared in errors.ts |\n| RunTaskClaimed | 63 | RU-003 | declared in errors.ts |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork run start --mission <mission> --task <task> --agent <agent> --model <model> --budget <budget>\n```\n\nHTTP: `POST /run/start` with the payload as JSON. SDK: `Sdk.run.start(payload)`.\n",
-    "run/stop.md": "<!-- Generated from the blueprint. Do not edit. -->\n# run.stop\n\nStop the run. A person's act, or the mission stopping.\n\n**Who may call:** the owner of its mission.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | run.mission |\n| run | run.id |\n| why | Note |\n\n## Answer\n\n(none)\n\n## Move\n\n`stop`: from running or waiting to stopped, emitting RunStopped.\n\n## Steps\n\n- `run.stop.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| RunNotRunning | 60 | RU-900 | the run is in a state stop can't start from; carries `state` |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork run stop --mission <mission> --run <run> --why <why>\n```\n\nHTTP: `POST /run/stop` with the payload as JSON. SDK: `Sdk.run.stop(payload)`.\n"
+    "run/stop.md": "<!-- Generated from the blueprint. Do not edit. -->\n# run.stop\n\nStop the run. A person's act, or the mission stopping.\n\n**Who may call:** the owner of its mission.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| mission | run.mission |\n| run | run.id |\n| why | Note |\n\n## Answer\n\n(none)\n\n## Move\n\n`stop`: from running or waiting to stopped, emitting RunStopped.\n\n## Steps\n\n- `run.stop.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| RunNotRunning | 60 | RU-900 | the run is in a state stop can't start from; carries `state` |\n| RunNotFound | 4 | RU-901 | nothing has the id in run; the handler never runs; carries `id` |\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its mission; the handler never runs |\n\n## How to call\n\n```sh\nwork run stop --mission <mission> --run <run> --why <why>\n```\n\nHTTP: `POST /run/stop` with the payload as JSON. SDK: `Sdk.run.stop(payload)`.\n"
   },
   "extensions": {
     "journeys": {
@@ -3250,5 +3381,5 @@
       "reason": "no trace source is wired to the portal yet"
     }
   },
-  "digest": "4d31b565514e4171633aa5cea553e76870f7fd666b4f4e5465a81f687690b3f8"
+  "digest": "d66aff3e4352df91b007042390f419ef717abaa1c7d50dd237725f534e7cad9e"
 }

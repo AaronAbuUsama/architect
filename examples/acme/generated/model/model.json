@@ -8,6 +8,7 @@
     "NotAllowed": "AR-001",
     "OrganizationNotActive": "OR-900",
     "PersonEmailTaken": "PE-001",
+    "PersonNotFound": "PE-901",
     "SessionCredentialsWrong": "SE-001"
   },
   "values": {
@@ -558,12 +559,17 @@
           "code": "PE-001"
         }
       },
+      "notFound": {
+        "error": "PersonNotFound",
+        "exit": 4,
+        "code": "PE-901"
+      },
       "roles": [],
       "roleRules": {},
       "from": {
         "kind": "app"
       },
-      "hash": "ad771ebabdfe3e0e"
+      "hash": "b9ea3faa6d8c2cff"
     },
     "session": {
       "name": "session",
@@ -768,6 +774,7 @@
       ],
       "refusals": [
         "AllowanceLimitTooHigh",
+        "PersonNotFound",
         "NotAllowed"
       ],
       "allowed": [
@@ -777,6 +784,14 @@
           "path": "organization"
         }
       ],
+      "refs": {
+        "organization": "organization",
+        "member": "person"
+      },
+      "notFound": {
+        "member": "PersonNotFound"
+      },
+      "mints": "allowance",
       "steps": {
         "insert": {
           "name": "allowance.grant.insert",
@@ -789,7 +804,7 @@
       "budget": {
         "p95Ms": 200
       },
-      "hash": "f883070ae1800cf3"
+      "hash": "d2f210c83b7094aa"
     },
     "allowance.revoke": {
       "kind": "operation",
@@ -835,6 +850,9 @@
           "path": "allowance.organization"
         }
       ],
+      "refs": {
+        "allowance": "allowance"
+      },
       "steps": {
         "update": {
           "name": "allowance.revoke.update",
@@ -847,7 +865,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "a145b0ab143dcc8a"
+      "hash": "ff4138cdaf06af2e"
     },
     "allowance.spend": {
       "kind": "operation",
@@ -917,6 +935,9 @@
           "role": "allowance.grantee"
         }
       ],
+      "refs": {
+        "allowance": "allowance"
+      },
       "steps": {
         "load": {
           "name": "allowance.spend.load",
@@ -933,7 +954,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "fe130df24265eeb2"
+      "hash": "39c4ea1843aba087"
     },
     "api-key.create": {
       "kind": "operation",
@@ -991,6 +1012,9 @@
           "path": "organization"
         }
       ],
+      "refs": {
+        "organization": "organization"
+      },
       "steps": {
         "issue": {
           "name": "api-key.create.issue",
@@ -1007,7 +1031,7 @@
       "budget": {
         "p95Ms": 250
       },
-      "hash": "56de0903f4a0f20e"
+      "hash": "5b9a7ff014713033"
     },
     "invitation.accept": {
       "kind": "operation",
@@ -1066,6 +1090,9 @@
           "role": "invitation.invitee"
         }
       ],
+      "refs": {
+        "invitation": "invitation"
+      },
       "steps": {
         "join": {
           "name": "invitation.accept.join",
@@ -1078,7 +1105,7 @@
       "budget": {
         "p95Ms": 200
       },
-      "hash": "937e15a8f2c9b98a"
+      "hash": "2a36a93997c71f99"
     },
     "invitation.revoke": {
       "kind": "operation",
@@ -1123,6 +1150,9 @@
           "path": "invitation.organization"
         }
       ],
+      "refs": {
+        "invitation": "invitation"
+      },
       "steps": {
         "update": {
           "name": "invitation.revoke.update",
@@ -1135,7 +1165,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "a527002466da0300"
+      "hash": "aacefd8778f73cb5"
     },
     "invitation.send": {
       "kind": "operation",
@@ -1192,6 +1222,10 @@
           "path": "organization"
         }
       ],
+      "refs": {
+        "organization": "organization"
+      },
+      "mints": "invitation",
       "steps": {
         "insert": {
           "name": "invitation.send.insert",
@@ -1204,7 +1238,7 @@
       "budget": {
         "p95Ms": 200
       },
-      "hash": "2f3b2483d2c752f7"
+      "hash": "65b4785dba83b560"
     },
     "membership.get": {
       "kind": "read",
@@ -1328,6 +1362,7 @@
           "kind": "signed-in"
         }
       ],
+      "mints": "organization",
       "steps": {
         "insert": {
           "name": "organization.create.insert",
@@ -1344,7 +1379,7 @@
       "budget": {
         "p95Ms": 250
       },
-      "hash": "431b6d1d45006435"
+      "hash": "519d37f5d362cc26"
     },
     "organization.get": {
       "kind": "read",
@@ -2159,9 +2194,45 @@
               ]
             }
           ]
+        },
+        {
+          "title": "a member who is no one is refused PersonNotFound and the handler never runs",
+          "call": {
+            "actor": "ada",
+            "operation": "allowance.grant",
+            "payload": {
+              "organization": {
+                "ref": [
+                  "world",
+                  "organization"
+                ]
+              },
+              "member": "per_nobody",
+              "limit": "500"
+            }
+          },
+          "checks": [
+            {
+              "kind": "refuses",
+              "error": "person.notFound",
+              "fields": {
+                "id": "per_nobody"
+              }
+            },
+            {
+              "kind": "no-events"
+            },
+            {
+              "kind": "spans",
+              "present": [],
+              "absent": [
+                "allowance.grant.insert"
+              ]
+            }
+          ]
         }
       ],
-      "sourceHash": "714190d2303a8acc5f362ff99cabb4cbab5a793b1df41dda27617fbdacef2ecf"
+      "sourceHash": "65838fe1228ced1d334395945cbd13d0a067af8ddd5b17d58efa59722c63fcce"
     },
     "journeys/health-is-up.ts": {
       "name": "health is up",

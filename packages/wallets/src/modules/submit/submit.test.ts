@@ -1,8 +1,9 @@
-import { Cause, Effect, Exit } from "effect";
-import { ChainFault, ChainRefusal, type FaultKind } from "@orthograph/chain-evm/device";
+import { Cause, Effect, Exit, Stream } from "effect";
+import { ChainFault, ChainRefusal, type ChainPort, type FaultKind, type TxState } from "@orthograph/chain-evm/device";
 import { describe, expect, it } from "vitest";
 import { KeyLocked, SimulationReverted } from "../../../blueprint/things/wallet/errors.js";
-import { depthOf, refused } from "./internal/flow.ts";
+import { depthOf, follow, refused } from "./internal/flow.ts";
+import type { Sent } from "./types.ts";
 
 const fault = (kind: FaultKind) => new ChainFault({ kind, message: "EVM RPC request failed" });
 
@@ -24,6 +25,31 @@ describe("what a fault of the chain is to the person sending", () => {
     const exit = await Effect.runPromiseExit(refused(fault(kind)));
     expect(Exit.isFailure(exit) && Cause.hasDies(exit.cause)).toBe(true);
     expect(Exit.isFailure(exit) && Cause.pretty(exit.cause)).toContain(kind);
+  });
+});
+
+const receipt = { status: "success" } as never;
+const hash = "0x0000000000000000000000000000000000000000000000000000000000000001" as const;
+const submission = { hash, from: "0x0000000000000000000000000000000000000001", nonce: 0, fromBlock: 0n } as const;
+/** A port that tracks nothing but the states it is given, in order. */
+const following = (states: ReadonlyArray<TxState>, depth: number) =>
+  Effect.runPromiseExit(
+    follow({ track: () => Stream.fromIterable(states) } as unknown as ChainPort, submission, depth) as Effect.Effect<Sent, SimulationReverted | KeyLocked>,
+  );
+
+describe("when a send is confirmed", () => {
+  it("is when the stream reaches the depth with the inclusion never dropped (the control)", async () => {
+    const exit = await following([{ _tag: "Included", receipt }, { _tag: "Deepened", blocks: 1, receipt }, { _tag: "Deepened", blocks: 3, receipt }], 3);
+    expect(Exit.isSuccess(exit) && exit.value.level).toBe("confirmed");
+  });
+
+  it("is not when the inclusion was dropped (a reorg), even if a later block deepens another one", async () => {
+    const exit = await following(
+      [{ _tag: "Included", receipt }, { _tag: "Dropped", hash, reason: "nonce-consumed" }, { _tag: "Deepened", blocks: 3, receipt }],
+      3,
+    );
+    // On m1 `follow` answers "confirmed" as soon as any Included exists, whatever came after it.
+    expect(Exit.isSuccess(exit) ? `reported ${exit.value.level} after Included, Dropped, Deepened` : "not confirmed").toBe("not confirmed");
   });
 });
 

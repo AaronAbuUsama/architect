@@ -84,9 +84,10 @@ claim `aaron`, add three links, anyone reads the page. The rest, for the lead:
 - **S-f. A handler cannot look up by field.** `Records` has `find`, `insert` and `update` by id only, and no `list`; a
   handler checking `HandleTaken` has to reach for `Store.list` (the host's side, not in the handler's type) or SQL. The
   scratch implementation used `Store.list`. The climber will meet this at the first step.
-- **S-g. The scaffold goes stale.** Changing `claim` after its handler was scaffolded (a new refusal) leaves the old
+- **S-g. The scaffold goes stale.**  Changing `claim` after its handler was scaffolded (a new refusal) leaves the old
   handler without the new stub. Only deleting the file and re-running `ortho generate` brings it back; the author did that
   here for the four handlers whose declarations changed.
+  Rechecked after K16 (#106): the new scaffold lists every declared refusal and cites its blueprint files, but `ortho generate` still never rewrites a scaffolded handler (it prints "nothing to change"), so a refusal added later is missing until the file is deleted and regenerated. S-g stands; only new handlers benefit.
 - **S-h. Pinned by an existing check.** `e2e/m1/20-plugged-in-loop.test.ts` pins Plugged In's operations to the five of
   M1.40 (line 79) and calls `handle.claim` with no signed-in person. It will fail on this branch: the declarations now
   have `handle.release`, `handle.resolve`, and claim and add are `signedIn`. Its owner (the checks author) should move it

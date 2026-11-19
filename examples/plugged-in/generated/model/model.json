@@ -352,6 +352,7 @@
           "kind": "signed-in"
         }
       ],
+      "mints": "handle",
       "steps": {
         "load": {
           "name": "handle.claim.load",
@@ -368,7 +369,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "31ee370928a5aab2"
+      "hash": "5cb41d59b1703f19"
     },
     "handle.release": {
       "kind": "operation",
@@ -412,6 +413,9 @@
           "role": "handle.handleOwner"
         }
       ],
+      "refs": {
+        "handle": "handle"
+      },
       "steps": {
         "record": {
           "name": "handle.release.record",
@@ -424,7 +428,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "e0e113ff13866560"
+      "hash": "94a513d256283355"
     },
     "handle.resolve": {
       "kind": "operation",
@@ -538,6 +542,7 @@
           "kind": "signed-in"
         }
       ],
+      "mints": "link",
       "steps": {
         "load": {
           "name": "link.add.load",
@@ -554,7 +559,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "79ae98cc512ce8b0"
+      "hash": "561bf4ad1db7e369"
     },
     "link.order": {
       "kind": "operation",
@@ -598,6 +603,9 @@
           "role": "link.linkOwner"
         }
       ],
+      "refs": {
+        "link": "link"
+      },
       "steps": {
         "load": {
           "name": "link.order.load",
@@ -614,7 +622,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "fc4cb5a4800763c8"
+      "hash": "8fda9f06f6165b50"
     },
     "link.remove": {
       "kind": "operation",
@@ -658,6 +666,9 @@
           "role": "link.linkOwner"
         }
       ],
+      "refs": {
+        "link": "link"
+      },
       "steps": {
         "record": {
           "name": "link.remove.record",
@@ -670,7 +681,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "a25c664ef7106086"
+      "hash": "f319a63a9f1bd796"
     },
     "profile.get": {
       "kind": "operation",
@@ -2300,6 +2311,17 @@
                 ]
               },
               "state": "claimed"
+            },
+            {
+              "kind": "is-in",
+              "thing": "handle",
+              "id": {
+                "ref": [
+                  "world",
+                  "handle"
+                ]
+              },
+              "state": "released"
             }
           ]
         },
@@ -2324,9 +2346,140 @@
               "kind": "no-events"
             }
           ]
+        },
+        {
+          "title": "the old handle is not bob's: he cannot release it, and it stays released",
+          "call": {
+            "actor": "bob",
+            "operation": "handle.release",
+            "payload": {
+              "handle": {
+                "ref": [
+                  "world",
+                  "handle"
+                ]
+              }
+            }
+          },
+          "checks": [
+            {
+              "kind": "refuses",
+              "error": "NotAllowed",
+              "fields": {}
+            },
+            {
+              "kind": "no-events"
+            },
+            {
+              "kind": "is-in",
+              "thing": "handle",
+              "id": {
+                "ref": [
+                  "world",
+                  "handle"
+                ]
+              },
+              "state": "released"
+            }
+          ]
+        },
+        {
+          "title": "aaron can claim again: a released handle does not count as one he holds",
+          "call": {
+            "actor": "aaron",
+            "operation": "handle.claim",
+            "payload": {
+              "name": "aaronspage"
+            }
+          },
+          "checks": [
+            {
+              "kind": "emits",
+              "event": "HandleClaimed",
+              "fields": {
+                "handle": {
+                  "ref": [
+                    "last",
+                    "handle"
+                  ]
+                },
+                "name": "aaronspage"
+              }
+            },
+            {
+              "kind": "is-in",
+              "thing": "handle",
+              "id": {
+                "ref": [
+                  "last",
+                  "handle"
+                ]
+              },
+              "state": "claimed"
+            },
+            {
+              "kind": "spans",
+              "present": [
+                "handle.claim.record",
+                "handle.claim.commit"
+              ],
+              "absent": []
+            }
+          ]
+        },
+        {
+          "title": "aaron can add a link again, to his new page",
+          "call": {
+            "actor": "aaron",
+            "operation": "link.add",
+            "payload": {
+              "title": "New link",
+              "url": "https://aaron.example.com/new"
+            }
+          },
+          "checks": [
+            {
+              "kind": "expect",
+              "match": "^lnk_[0-9a-z]+$",
+              "flags": ""
+            },
+            {
+              "kind": "emits",
+              "event": "LinkAdded",
+              "fields": {
+                "link": {
+                  "ref": [
+                    "last",
+                    "link"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "title": "his new page has only the new link, and the old name's page is still bob's and empty",
+          "call": {
+            "actor": "visitor",
+            "operation": "profile.get",
+            "payload": {
+              "handle": "aaronspage"
+            }
+          },
+          "checks": [
+            {
+              "kind": "expect-equal",
+              "value": [
+                "New link"
+              ]
+            },
+            {
+              "kind": "no-events"
+            }
+          ]
         }
       ],
-      "sourceHash": "a48177784338823969a0f0324164d698367443b75b12b46901da7983c229f912"
+      "sourceHash": "e045de73486123baf23e07771740ecce268aa0bc59e60d7c2a122ec6a1ae1c01"
     },
     "journeys/the-story.ts": {
       "name": "a person claims a page and shares it",
