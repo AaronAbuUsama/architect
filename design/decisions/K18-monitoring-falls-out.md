@@ -16,7 +16,7 @@ end confirm or change it.
 
 We ship monitoring the way we ship docs: it falls out of the blueprint.
 
-- **First, one slice right after the portal (M1.44).** It turns what the model already says into alert rules and
+- **First, one slice right after the portal (M1.49).** It turns what the model already says into alert rules and
   issues, and shows them in the portal. Locally they are shown and never sent.
 - **Then, when there is a real cloud (M7).** The same rules are written into the sink, Axiom or Grafana, and the
   environment file says where they go.
@@ -55,10 +55,10 @@ We ship monitoring the way we ship docs: it falls out of the blueprint.
 
 | When | Slice | Ships |
 |---|---|---|
-| M1, right after M1.13 | **M1.44** (new) | Rules and issues derived and shown in the portal: Issues, Alerts, the latency objective block on the Metrics tab, and the worst-first list on home. Local only, never sent |
-| M1 | M1.36 (existing) | Already carries `refusal.code`, `move.from`, `event.name` and `ortho.budget.breaches`, which M1.44 reads. No change |
+| M1, right after M1.13 | **M1.49** (new) | Rules and issues derived and shown in the portal: Issues, Alerts, the latency objective block on the Metrics tab, and the worst-first list on home. Local only, never sent |
+| M1 | M1.36 (existing) | Already carries `refusal.code`, `move.from`, `event.name` and `ortho.budget.breaches`, which M1.49 reads. No change |
 | M3 | **M3.23** (new) | `Dashboard.make` and `Panel.*`, under Monitor › Dashboards. A panel that refers to a removed declaration fails the build |
-| M5 | M5.14 (existing) | A fired alert lands in the work inbox. M1.44's issues join it with their key, so one issue makes one work item |
+| M5 | M5.14 (existing) | A fired alert lands in the work inbox. M1.49's issues join it with their key, so one issue makes one work item |
 | M5 | **M5.15** (new, if Q3 is A) | Declared state limits: a timer per thing that enters a limited state, through `Timers`, raising `<thing>.overstayed` |
 | M7 | **M7.14** (new) | Rules exported to the sink (Axiom monitors with the burn rate in APL, or Grafana rules through its Foundation SDK). Routes from the environment file. Tested in the staging pass and destroyed after |
 
@@ -66,10 +66,10 @@ We ship monitoring the way we ship docs: it falls out of the blueprint.
 
 | ID | Slice | Needs | Kind | Done when | Size |
 |---|---|---|---|---|---|
-| M1.44 ∥ | Monitor, derived (K18): the compiler derives the alert rules (latency objective per `budget`, defect objective per operation, anomaly per refusal code, verdict per journey and environment) and adds them to the portal's data with their labels; issues keyed by (operation, step, error tag) with first and last seen by the operation's declaration hash; the portal evaluates both over `TraceSource.window` at a fixed `now`; Issues and Alerts pages and the worst-first list on home, from `@orthograph/portal-ui`; nothing is sent from local | M1.13, M1.20, M1.36 | build | in a local world: 20 calls slowed past `profile.get`'s budget fire its fast burn; one call does not; a planted defect in `link.add`'s `record` step opens one issue and a second joins it; a refusal opens none; the same defect after its operation's declaration changes shows regressed; screenshots are byte-identical at the same `now` | M |
-| M3.23 ∥ | Custom dashboards (K18): `Dashboard.make` and `Panel.latency`, `Panel.refusals`, `Panel.rate` and `Panel.calls` in `orthograph`, taking declarations; files in `blueprint/dashboards/` show under Monitor › Dashboards with one time control and the environment as a variable | M1.44, M3.21 | build | Plugged In's `public-page` dashboard renders; deleting the operation one of its panels names fails `ortho check` with the panel's file and line | S |
+| M1.49 ∥ | Monitor, derived (K18): the compiler derives the alert rules (latency objective per `budget`, defect objective per operation, anomaly per refusal code, verdict per journey and environment) and adds them to the portal's data with their labels; issues keyed by (operation, step, error tag) with first and last seen by the operation's declaration hash; the portal evaluates both over `TraceSource.window` at a fixed `now`; Issues and Alerts pages and the worst-first list on home, from `@orthograph/portal-ui`; nothing is sent from local | M1.13, M1.20, M1.36 | build | in a local world: 20 calls slowed past `profile.get`'s budget fire its fast burn; one call does not; a planted defect in `link.add`'s `record` step opens one issue and a second joins it; a refusal opens none; the same defect after its operation's declaration changes shows regressed; screenshots are byte-identical at the same `now` | M |
+| M3.23 ∥ | Custom dashboards (K18): `Dashboard.make` and `Panel.latency`, `Panel.refusals`, `Panel.rate` and `Panel.calls` in `orthograph`, taking declarations; files in `blueprint/dashboards/` show under Monitor › Dashboards with one time control and the environment as a variable | M1.49, M3.21 | build | Plugged In's `public-page` dashboard renders; deleting the operation one of its panels names fails `ortho check` with the panel's file and line | S |
 | M5.15 ∥ | Declared state limits (K18 Q3): `within` on a machine state; entering it starts a `Timers` wait for that thing; leaving cancels it; overstaying raises `<thing>.overstayed` once, which becomes an alert rule with no counting | M5.14, durable timers | build | a fixture link held in `listed` past a 1 min `within` raises one `link.overstayed` and one alert; one that moves on in time raises nothing; the portal shows no count of links in any state | S |
-| M7.14 | Monitors to the sink (K18): the same rule list written to each declared sink (Axiom monitors with the burn rate in APL; Grafana alert rules and dashboards through its Foundation SDK); `alerts` routes on the environment file, which can only lower a severity | M1.44, the staging pass | build | in the staging pass the generated monitors exist with their labels; 20 slowed calls fire the builder route; a route that raises a severity fails `ortho check`; every monitor is destroyed afterwards; production routes compile, and nothing pages without Aaron's written yes | M |
+| M7.14 | Monitors to the sink (K18): the same rule list written to each declared sink (Axiom monitors with the burn rate in APL; Grafana alert rules and dashboards through its Foundation SDK); `alerts` routes on the environment file, which can only lower a severity | M1.49, the staging pass | build | in the staging pass the generated monitors exist with their labels; 20 slowed calls fire the builder route; a route that raises a severity fails `ortho check`; every monitor is destroyed afterwards; production routes compile, and nothing pages without Aaron's written yes | M |
 
 ### Extension points
 
@@ -118,7 +118,7 @@ hand-builds alerts in Axiom's UI, which is the configuration we promised never t
 |---|---|
 | M1.13 (`milestones.md:204`) | Already size L. Adding monitoring to it delays the portal |
 | M1.36 | Produces `refusal.code` and `ortho.budget.breaches`, which the rules read |
-| M1.15 Gate M1 | Gains one more slice if M1.44 joins M1 |
+| M1.15 Gate M1 | Gains one more slice if M1.49 joins M1 |
 | M5.14 | Alerts into the work inbox, which needs alerts to exist |
 
 **The options**
@@ -129,10 +129,10 @@ hand-builds alerts in Axiom's UI, which is the configuration we promised never t
 git grep -n -i "alert" origin/m1 -- packages/   # only site.test.ts:75, an XSS test string: no rule, no issue
 ```
 
-**A · New slice M1.44 right after M1.13, local only** (recommended)
+**A · New slice M1.49 right after M1.13, local only** (recommended)
 
 ```text
-M1.13  portal shell, metrics, spans, proof      ──▶  M1.44  rules + issues derived, shown, never sent
+M1.13  portal shell, metrics, spans, proof      ──▶  M1.49  rules + issues derived, shown, never sent
 M7.14  the same rules exported to Axiom/Grafana, routes from the environment file
 ```
 
@@ -151,7 +151,7 @@ M7.xx  rules, issues and routes, built straight in the sink's UI or API
 
 **You do X → what happens**
 
-| Scenario | A · M1.44 | B · fold into M1.13 | C · wait for M7 |
+| Scenario | A · M1.49 | B · fold into M1.13 | C · wait for M7 |
 |---|---|---|---|
 | You open the portal in M1 after a slow deploy | The Alerts page says the latency objective is burning | The same, but M1.13 lands later | You see the p95 line over budget and nothing else |
 | A defect happens in a journey run | One issue, with its owner | One issue | A red span you have to find |
@@ -160,7 +160,7 @@ M7.xx  rules, issues and routes, built straight in the sink's UI or API
 
 **Rubric**
 
-| Axis | A · M1.44 | B · fold into M1.13 | C · wait for M7 |
+| Axis | A · M1.49 | B · fold into M1.13 | C · wait for M7 |
 |---|---|---|---|
 | Floor-first | ✅ real rules in M1 | ✅ real rules in M1 | ❌ only a promise until M7 |
 | Reversibility | ✅ a slice can be dropped | ⚠️ tangled with the shell | ✅ |
@@ -405,7 +405,7 @@ severity is the most anyone can be woken for.
 
 | # | Joint | Recommendation |
 |---|---|---|
-| Q1 | What ships first | A · new slice M1.44 after M1.13: rules and issues derived, local only |
+| Q1 | What ships first | A · new slice M1.49 after M1.13: rules and issues derived, local only |
 | Q2 | Where targets come from | A · defaults from the budget, optional `slo` override |
 | Q3 | A thing stuck in a state | A · `within` on the state, one signal per overstay; no counts |
 | Q4 | Routes and severity | A · `alerts` on the environment file, which can only lower a severity |
