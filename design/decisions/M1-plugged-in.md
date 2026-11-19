@@ -45,7 +45,7 @@ honest shape of "stage 1 without sign-in", and it keeps M1.41's loop to the basi
 | `profile` (`PR`) | `ProfileNotFound`: no page under that name (kept over the generated one, as acme's `AllowanceNotFound` is) | 20 |
 | `link` (`LN`) | `LinkNeedsHandle`: `add` names a handle nobody claimed | 30 |
 | `link` | the machine's `notFrom` (remove a removed link) | 31 |
-| `link` | `LinkNotListed`: `order` names a removed link (`order` moves nothing, so the machine doesn't check it) | 32 |
+| `link` | `LinkAlreadyRemoved`: `order` names a removed link (`order` moves nothing, so the machine doesn't check it) | 32 |
 
 `HandleAlreadyOwned` goes: with no owner there is nothing to own twice; ST1.04 brings it back with sign-in.
 
@@ -67,7 +67,12 @@ examples/plugged-in/
 `handle`: `claimed` only, `claim` from `[]`, emits `HandleClaimed { handle, name }`; idempotent by request.
 `profile`: `{ id, handle, links }`, `links` the ordered link ids; no machine. `link`: `{ id, profile, title, url }`,
 `listed` and `removed`, `add` from `[]` emits `LinkAdded`, `remove` from `listed` emits `LinkRemoved`; `order` moves
-nothing and refuses a removed link with `LinkNotListed`. Budgets `150 millis`, steps as Codex declared them.
+nothing and refuses a removed link with `LinkAlreadyRemoved`. Budgets `150 millis`, steps as Codex declared them.
+
+**As built (M1.40, PR #84).** The machine's generated `notFrom` refusal for `link` is named `LinkNotListed` (exit 31),
+and refusal names are project-wide, so `order`'s declared refusal is `LinkAlreadyRemoved` (exit 32), not the
+`LinkNotListed` first written here. `prove --empty` now passes a project with no journeys yet (a non-empty run with none
+still fails), since M1.40 has none until M1.45's stubs.
 
 ## Reversible
 
