@@ -15,10 +15,10 @@
 // The surfaces: the SDK's error channel is read here (the failure's `_tag`, in the failure channel and not a defect). The CLI's
 // exit code and its `[code] Name { ... }` line, and the span's `refusal`/`refusal.code` in place of `defect`, are generated
 // for every declared error from the declaration (K16's one refusals table, the handler wrapper): check 22 holds that for
-// declared errors in general, so this check holds the declaration reaches the operation (`verbs/send.ts`).
+// declared errors in general, so the unit check holds that the declaration reaches the operation (`verbs/send.ts`) and this one holds the typed failure on a real chain.
 // Anvil is a process of this test's scope (`Anvil.start`); a missing `anvil` fails the check closed.
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Cause, Effect, Exit, Redacted } from "effect";
@@ -50,12 +50,6 @@ const rpc = async (url: string, method: string, params: ReadonlyArray<unknown> =
 const sleep = (ms: number) => new Promise<void>((resolve) => { setTimeout(resolve, ms); });
 
 describe("23 a send that is never included is a typed failure (HAN-11)", () => {
-  it("declares SendNotIncluded and SendNotConfirmed on the send operation", () => {
-    const send = readFileSync(join(repo, "packages/wallets/blueprint/things/wallet/verbs/send.ts"), "utf8");
-    expect(send, "verbs/send.ts does not list SendNotIncluded in errors").toContain("SendNotIncluded");
-    expect(send, "verbs/send.ts does not list SendNotConfirmed in errors").toContain("SendNotConfirmed");
-  });
-
   it("a transaction replaced at its nonce fails the send as SendNotIncluded, in the failure channel, not as a defect", { timeout: 120_000 }, async () => {
     const ran = spawnSync("anvil", ["--version"], { encoding: "utf8", timeout: 30_000 });
     expect(ran.status, "anvil (Foundry) is not on the path: this check starts it as a process and fails closed without it").toBe(0);

@@ -15,6 +15,9 @@
 //    `SendRefused` (types.ts), so each surface sees them: the SDK's error channel (the tag), the CLI (`[code] Name { ... }`
 //    and the exit, from K16's one refusals table, which is generated from that declaration) and the operation's span
 //    (`refusal`, `refusal.code`, written by the handler wrapper for any declared error) in place of `defect`.
+//  - A fault of `track` after a submission other than `timeout` (transport, configuration, nonce, ...) stays a defect, as it
+//    is today: the chain could not be read, so nobody knows whether the send is in a block, and neither declared failure would
+//    be true. Only a `timeout` is the follow's budget saying "not by now", and only that is a not-confirmed send.
 //  - Left a defect on purpose, and kept by the controls below: `depthOf`'s missing depth (flow.ts:30: a configuration fault
 //    of the deployment, nothing a caller can handle or retry; check 18 and submit.test.ts hold it) and `refused` of a
 //    transport or timeout fault from prepare, simulate, sign or submit (the chain could not be used at all and nothing was
@@ -49,7 +52,7 @@ describe("HAN-11: a send that never reaches its depth is a typed failure, not a 
   it("declares SendNotIncluded (exit 64) and SendNotConfirmed (exit 65, blocks and depth) and lists them on send and in SendRefused", () => {
     const errors = here("../../../blueprint/things/wallet/errors.ts");
     expect(errors, "errors.ts declares no SendNotIncluded").toMatch(/class SendNotIncluded extends Blueprint\.error\(\{\s*\}, \{ exit: 64 \}\)/);
-    expect(errors, "errors.ts declares no SendNotConfirmed with blocks and depth").toMatch(/class SendNotConfirmed extends Blueprint\.error\(\{[^}]*blocks[^}]*depth[^}]*\}, \{ exit: 65 \}\)/s);
+    expect(errors, "errors.ts declares no SendNotConfirmed with blocks and depth, each Blueprint.uint(64)").toMatch(/class SendNotConfirmed extends Blueprint\.error\(\{[^}]*blocks:\s*Blueprint\.uint\(64\)[^}]*depth:\s*Blueprint\.uint\(64\)[^}]*\}, \{ exit: 65 \}\)/s);
     expect(here("../../../blueprint/things/wallet/verbs/send.ts"), "send.ts does not list them in errors").toMatch(/errors:\s*\[[^\]]*SendNotIncluded[^\]]*SendNotConfirmed|errors:\s*\[[^\]]*SendNotConfirmed[^\]]*SendNotIncluded/);
     expect(here("./types.ts"), "SendRefused does not include them").toMatch(/SendRefused\s*=[^;]*SendNotIncluded[^;]*SendNotConfirmed|SendRefused\s*=[^;]*SendNotConfirmed[^;]*SendNotIncluded/);
   });
@@ -87,6 +90,19 @@ describe("HAN-11: a send that never reaches its depth is a typed failure, not a 
       );
     expect(await handle([{ _tag: "Included", receipt }])).toBe("not confirmed");
     expect(await handle([{ _tag: "Dropped", hash, reason: "nonce-consumed" }])).toBe("not included");
+  });
+
+  it("control (passes today): a re-inclusion after a reorg still confirms: Included, Dropped, Included, Deepened to the depth", async () => {
+    const exit = await followed(tracked([
+      { _tag: "Included", receipt }, { _tag: "Dropped", hash, reason: "nonce-consumed" },
+      { _tag: "Included", receipt }, { _tag: "Deepened", blocks: 3, receipt },
+    ]), 3);
+    expect(Exit.isSuccess(exit) && exit.value.level).toBe("confirmed");
+  });
+
+  it("control (passes today): a transport fault from track after a submission stays a defect, not a not-confirmed send", async () => {
+    const exit = await followed(tracked([{ _tag: "Included", receipt }], new ChainFault({ kind: "transport", message: "EVM RPC request failed" })), 3);
+    expect(Exit.isFailure(exit) && Cause.hasDies(exit.cause)).toBe(true);
   });
 
   it("control (passes today): a transport or timeout fault before a submission exists stays a defect, and so does a missing depth", async () => {
