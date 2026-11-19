@@ -7,7 +7,7 @@ turns every step red.
 ## Files
 
 - `blueprint/starting-worlds/*.ts`: five worlds, below.
-- `journeys/*.ts`: seven journeys, 52 steps. A journey's name is its file name with spaces, except where noted.
+- `journeys/*.ts`: seven journeys, 56 steps. A journey's name is its file name with spaces, except where noted.
 - Declarations the journeys need are in `blueprint/things/` (see `design/decisions/ST1-02-plugged-in-ownership.md`).
 
 ## Starting worlds
@@ -30,7 +30,7 @@ its own. aaron is signed in (one of the world's fixed test people until M2).
 |---|---|---|---|---|
 | `claim a handle` (`claim-a-handle`) | none | aaron signedIn, visitor anyone | 8 | an unclaimed name does not resolve and has no page; add before claiming refused `LinkNeedsHandle`; claim answers `hdl_` id, emits `HandleClaimed`, `claimed`, spans `handle.claim{,.load,.record,.commit}`; the name then resolves and its page is `{ handle, links: [] }`; a second name refused `HandleAlreadyOwned`, nothing recorded, still free |
 | `a name is claimed once` (`a-name-is-claimed-once`) | `claimed` | aaron, bob signedIn, visitor | 5 | the same request key answers the world's handle, no events, no `record` span; bob refused `HandleTaken` with his own key and with aaron's key, no events, no `record`; resolve still answers aaron's handle; bob then claims his own name |
-| `release a handle` (`release-a-handle`) | `claimed-to-release` | aaron, bob signedIn, visitor | 9 | aaron adds a link; bob's release refused `NotAllowed` (no `handle.release` span, still `claimed`); aaron's release emits `HandleReleased`, `released`; again refused `machine.notFrom { state: "released" }`; the name no longer resolves (`HandleNotFound`) and has no page (`ProfileNotFound`); aaron's add refused `LinkNeedsHandle`; bob claims the name and its page has none of aaron's links |
+| `release a handle` (`release-a-handle`) | `claimed-to-release` | aaron, bob signedIn, visitor | 13 | aaron adds a link; bob's release refused `NotAllowed` (no `handle.release` span, still `claimed`); aaron's release emits `HandleReleased`, `released`; again refused `machine.notFrom { state: "released" }`; the name no longer resolves (`HandleNotFound`) and has no page (`ProfileNotFound`); aaron's add refused `LinkNeedsHandle`; bob claims the name (a new handle; the old one stays `released`, and bob cannot release it) and its page has none of aaron's links; aaron claims again (`released` does not count as held), adds a link, and his new page has only it |
 | `add, order and remove a link` (`add-order-and-remove-a-link`) | `page-to-edit` | aaron signedIn, visitor | 12 | add appends (`LinkAdded`, `listed`, four spans); order to 0, order past the end puts last, each read back in order; remove emits `LinkRemoved`, `removed`, and the page keeps the rest in order; remove twice refused `machine.notFrom { state: "removed" }`; order of a removed link refused `LinkAlreadyRemoved`, no `record` span |
 | `a stranger cannot edit a page` (`a-stranger-cannot-edit-a-page`) | `page-to-guard` | aaron, bob signedIn, visitor | 8 | bob has no page to add to (`LinkNeedsHandle`); bob's order, remove and release refused `NotAllowed` with no handler span and no events, link still `listed`, name still `claimed`; a visitor's remove and claim refused `NotAllowed`; the page is unchanged |
 | `anyone reads a public page` (`anyone-reads-a-public-page`) | `page-with-links` | visitor anyone, bob signedIn | 5 | resolve answers a handle; the page is the name and every link (`id`, `title`, `url` only) in order; a signed-in non-owner reads the same; an unclaimed name gives `ProfileNotFound` and `HandleNotFound` |
@@ -42,7 +42,7 @@ Every journey asserts the events (`emits` or `noEvents()`), and every refusal al
 
 Plugged In has no sign-in yet: `Identity.testPrincipals` gives each journey's `signedIn` cast member a fixed test person
 with a person id, and `anyone` is anonymous. That is enough for every journey here to run and to be green with correct
-handlers (checked: a scratch implementation of the six handlers made all 52 steps green; it is not committed). What
+handlers (checked: a scratch implementation of the six handlers made all 56 steps green; it is not committed). What
 changes at M2 is only who the people are, so the journeys are written to survive it unchanged.
 
 | Journey | Can go green before M2 | Waits on M2 for |
@@ -91,3 +91,10 @@ claim `aaron`, add three links, anyone reads the page. The rest, for the lead:
   M1.40 (line 79) and calls `handle.claim` with no signed-in person. It will fail on this branch: the declarations now
   have `handle.release`, `handle.resolve`, and claim and add are `signedIn`. Its owner (the checks author) should move it
   to the stage 1 shape; it is not edited here.
+
+## Open spec question
+
+- **Old links after a release.** `linkOwner` is `link.owner === caller`, so after aaron releases his name he can still
+  `order` or `remove` the links he had on it (they stay `listed`, and no declaration says otherwise). Whether a released
+  name's links should freeze, go with the name, or stay editable is not in the declarations, so no step pins it. The
+  lead decides; the journey follows.

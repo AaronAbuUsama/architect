@@ -7,6 +7,7 @@ import claim from "../blueprint/things/handle/verbs/claim.ts";
 import release from "../blueprint/things/handle/verbs/release.ts";
 import resolve from "../blueprint/things/handle/verbs/resolve.ts";
 import { LinkNeedsHandle } from "../blueprint/things/link/errors.ts";
+import { LinkAdded } from "../blueprint/things/link/events.ts";
 import add from "../blueprint/things/link/verbs/add.ts";
 import { ProfileNotFound } from "../blueprint/things/profile/errors.ts";
 import get from "../blueprint/things/profile/verbs/get.ts";
@@ -67,11 +68,38 @@ export default Blueprint.journey("release a handle", {
       s.bob.run(claim, { name: "releasepage" }),
       emits(HandleClaimed, { handle: s.last.handle, name: "releasepage" }),
       machine.isIn(s.last.handle, "claimed"),
+      machine.isIn(s.world.handle, "released"),
     ),
     s.step(
       "the new page has none of the old owner's links",
       s.visitor.run(get, { handle: "releasepage" }),
       expect((a) => a).toEqual({ handle: "releasepage", links: [] }),
+      noEvents(),
+    ),
+    s.step(
+      "the old handle is not bob's: he cannot release it, and it stays released",
+      s.bob.run(release, { handle: s.world.handle }),
+      refuses(Blueprint.NotAllowed),
+      noEvents(),
+      machine.isIn(s.world.handle, "released"),
+    ),
+    s.step(
+      "aaron can claim again: a released handle does not count as one he holds",
+      s.aaron.run(claim, { name: "aaronspage" }),
+      emits(HandleClaimed, { handle: s.last.handle, name: "aaronspage" }),
+      machine.isIn(s.last.handle, "claimed"),
+      spans({ present: ["handle.claim.record", "handle.claim.commit"] }),
+    ),
+    s.step(
+      "aaron can add a link again, to his new page",
+      s.aaron.run(add, { title: "New link", url: "https://aaron.example.com/new" }),
+      expect((a) => a.link).toMatch(/^lnk_[0-9a-z]+$/),
+      emits(LinkAdded, { link: s.last.link }),
+    ),
+    s.step(
+      "his new page has only the new link, and the old name's page is still bob's and empty",
+      s.visitor.run(get, { handle: "aaronspage" }),
+      expect((a) => a.links.map((l: { title: string }) => l.title)).toEqual(["New link"]),
       noEvents(),
     ),
   ],
