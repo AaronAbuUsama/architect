@@ -1,21 +1,24 @@
-// One eval's page (GRILL Q3; GRILL-2 Q1 "eval page"): a Notion-like page of blocks. Properties first, then what green
-// means, where it stands today, what it waits on, its evidence and its history. Every line is a field of the card.
+// One eval's page, laid out like a Linear issue (GRILL-3 Q1 A): the title and what green means in the main column,
+// then where it stands, what it waits on, its evidence, Activity and Notes; properties in a right rail. In the side
+// panel the rail folds under the title. Every line is a field of the card, its lane or the board.
 import { ItemCard } from "@heroui-pro/react/item-card";
 import { ItemCardGroup } from "@heroui-pro/react/item-card-group";
-import { Timeline } from "@heroui-pro/react/timeline";
 import { Button, Chip } from "@heroui/react";
-import { ArrowRightIcon, CheckCircleIcon, CircleDashedIcon, FileCodeIcon, ProhibitIcon, QuestionIcon, TargetIcon, XCircleIcon, XIcon } from "@phosphor-icons/react";
-import type { CardView, LaneView } from "../../data/derive.ts";
+import { ArrowRightIcon, ArrowSquareOutIcon, CheckCircleIcon, CircleDashedIcon, FileCodeIcon, ProhibitIcon, QuestionIcon, TargetIcon, XCircleIcon, XIcon } from "@phosphor-icons/react";
+import type { BoardView, CardView, LaneView } from "../../data/derive.ts";
 import type { CellId, Evidence } from "../../data/types.ts";
+import { Activity } from "../Activity/Activity.tsx";
 import { PageNotes } from "../PageNotes/PageNotes.tsx";
-import { Callout, Doc, DocHead, H2, Properties, Text } from "../shared/blocks.tsx";
+import { AgentFace, kindWord } from "../shared/agent.tsx";
+import { Callout, DocHead, H2, Properties, Text } from "../shared/blocks.tsx";
 import { chipColor, stageName, stageOf, stateMeans, stateTone, stateWord } from "../shared/vocab.ts";
 
 export interface CardDetailProps {
   readonly card: CardView;
   readonly lane: LaneView;
-  /** The commit the grid was graded at. */
-  readonly asOf: string;
+  readonly view: BoardView;
+  /** "page": a full page with a properties rail; "panel": one column for the side panel or a modal. */
+  readonly layout?: "page" | "panel";
   readonly onCard?: (cell: CellId) => void;
   readonly onClose?: () => void;
 }
@@ -25,33 +28,28 @@ const passIcon = (e: Evidence) =>
     : e.passing === false ? <XCircleIcon size={16} className="tone-text-danger" aria-label="failing" />
     : <CircleDashedIcon size={16} className="muted" aria-label="not run yet" />;
 
-const when = (at: string) => at.slice(0, 16).replace("T", " ");
-const markTone = { red: "danger", partly: "warning", built: "warning", green: "success", "not-needed": "muted" } as const;
-
-export const CardDetail = ({ card, lane, asOf, onCard, onClose }: CardDetailProps) => {
-  const who = (id: string) => {
-    const t = [card.thread, ...card.hadIt].find((x) => x?.id === id);
-    return t ? `${t.emoji} ${t.name}` : id;
-  };
-  return (
-    <Doc label={`${lane.block.name}, ${card.output.name}`}>
-      <DocHead crumb={`${lane.block.name} · eval`} title={card.output.name} icon={<TargetIcon size={20} />}
-        action={onClose && <Button isIconOnly size="sm" variant="ghost" aria-label="Close" onPress={onClose}><XIcon size={16} /></Button>} />
-      <Properties rows={[
-        { name: "State", value: <><Chip size="sm" variant="soft" color={chipColor(stateTone[card.state])}>{stateWord[card.state]}</Chip> <span className="muted small">{stateMeans[card.state]}</span></> },
-        { name: "Slice", value: card.task ? <><span className="mono">{card.task.ref}</span> {card.task.title}</> : <span className="muted">None yet · planned {card.cell.owner}</span> },
-        { name: "Stage", value: card.task ? stageName(stageOf(card)) : <span className="muted">Not started</span> },
-        { name: "On it now", value: card.thread ? `${card.thread.emoji} ${card.thread.name}` : <span className="muted">Nobody</span> },
-        { name: "Had it before", value: card.hadIt.length ? card.hadIt.map((t) => `${t.emoji} ${t.name}`).join(", ") : <span className="muted">Nobody</span> },
-        { name: "Graded at", value: <span className="mono">{asOf}</span> },
-      ]} />
-
-      {card.proposedNotNeeded && (
-        <Callout icon={<ProhibitIcon size={16} />} title="Proposed not needed"><Text text={card.because ?? ""} /></Callout>
-      )}
-      {card.role === "absence" && (
-        <Callout icon={<ProhibitIcon size={16} />} tone="warning" title="An absence check"><Text text={card.because ?? ""} /></Callout>
-      )}
+export const CardDetail = ({ card, lane, view, layout = "panel", onCard, onClose }: CardDetailProps) => {
+  const pr = card.task?.pr ?? null;
+  const rail = (
+    <Properties rows={[
+      { name: "State", value: <><Chip size="sm" variant="soft" color={chipColor(stateTone[card.state])}>{stateWord[card.state]}</Chip> <span className="muted small">{stateMeans[card.state]}</span></> },
+      { name: "Role", value: card.role === "carries" ? "Carries the block" : card.role === "absence" ? "Absence check" : card.proposedNotNeeded ? "Proposed not needed" : "Not needed" },
+      { name: "Building block", value: lane.block.name },
+      { name: "Output", value: <>{card.output.name} <span className="muted small">· proved by {card.output.provedBy}</span></> },
+      { name: "Slice", value: card.task ? <><span className="mono">{card.task.ref}</span> {card.task.title}</> : <span className="muted">None yet · planned {card.cell.owner}</span> },
+      { name: "Stage", value: card.task ? stageName(stageOf(card)) : <span className="muted">Not started</span> },
+      { name: "Pull request", value: pr === null ? <span className="muted">None</span> : view.repo
+        ? <a className="act-link" href={`${view.repo}/pull/${pr}`} target="_blank" rel="noreferrer">#{pr}<ArrowSquareOutIcon size={12} aria-hidden="true" /></a> : `#${pr}` },
+      { name: "On it now", value: card.thread ? <span className="prop-agent"><AgentFace t={card.thread} size={20} />{card.thread.name} <span className="muted small">· {kindWord[card.thread.kind]}</span></span> : <span className="muted">Nobody</span> },
+      { name: "Had it before", value: card.hadIt.length ? <span className="prop-agent">{card.hadIt.map((t) => <AgentFace key={t.id} t={t} size={20} faded />)}{card.hadIt.map((t) => t.name).join(", ")}</span> : <span className="muted">Nobody</span> },
+      { name: "Graded at", value: <span className="mono">{view.asOf}</span> },
+    ]} />
+  );
+  const main = (
+    <>
+      <Text text={card.cell.greenMeans || "Green not written yet."} />
+      {card.proposedNotNeeded && <Callout icon={<ProhibitIcon size={16} />} title="Proposed not needed"><Text text={card.because ?? ""} /></Callout>}
+      {card.role === "absence" && <Callout icon={<ProhibitIcon size={16} />} tone="warning" title="An absence check"><Text text={card.because ?? ""} /></Callout>}
       {card.question && (
         <Callout icon={<QuestionIcon size={16} />} tone="warning" title={`${card.question.id} for Aaron`}>
           <Text text={card.question.question} />
@@ -59,12 +57,9 @@ export const CardDetail = ({ card, lane, asOf, onCard, onClose }: CardDetailProp
         </Callout>
       )}
 
-      <H2>Green means</H2>
-      <Text text={card.cell.greenMeans || "Not written yet."} />
-
       <H2>Today</H2>
       <p className="doc-text"><span className="mono grade">{card.cell.today}</span> {card.cell.todayNote}</p>
-      {card.cell.todayRef && <p className="mono small muted">{card.cell.todayRef}</p>}
+      {card.cell.todayRef && <p className="mono small muted doc-ref">{card.cell.todayRef}</p>}
 
       {card.waitsOn.length > 0 && (
         <>
@@ -98,22 +93,19 @@ export const CardDetail = ({ card, lane, asOf, onCard, onClose }: CardDetailProp
         </ItemCardGroup>
       )}
 
-      <H2>History</H2>
-      {card.history.length === 0 ? <Text muted text={`No moves recorded since ${asOf}.`} /> : (
-        <Timeline size="sm">
-          {[...card.history].reverse().map((e) => (
-            <Timeline.Item key={e.at + e.state} status={markTone[e.state]}>
-              <Timeline.Rail><Timeline.Marker /><Timeline.Connector /></Timeline.Rail>
-              <Timeline.Content>
-                <p><b>{stateWord[e.state]}</b> <span className="muted small mono">{when(e.at)}</span></p>
-                <p className="muted small">{e.note}{e.thread ? ` · ${who(e.thread)}` : ""}</p>
-              </Timeline.Content>
-            </Timeline.Item>
-          ))}
-        </Timeline>
-      )}
+      <H2>Activity</H2>
+      <Activity card={card} tasks={view.tasks} threads={view.threads} repo={view.repo} asOf={view.asOf} record={view.record} />
 
       <PageNotes key={card.cell.id} markdown={card.notes.markdown} stale={card.notes.stale} />
-    </Doc>
+    </>
+  );
+  return (
+    <article className={`doc issue is-${layout}`} aria-label={`${lane.block.name}, ${card.output.name}`}>
+      <DocHead crumb={`${lane.block.name} · ${card.cell.id}`} title={card.output.name} icon={<TargetIcon size={20} />}
+        action={onClose && <Button isIconOnly size="sm" variant="ghost" aria-label="Close" onPress={onClose}><XIcon size={16} /></Button>} />
+      {layout === "page"
+        ? <div className="issue-grid"><div className="issue-main">{main}</div><aside className="issue-rail" aria-label="Properties">{rail}</aside></div>
+        : <>{rail}{main}</>}
+    </article>
   );
 };

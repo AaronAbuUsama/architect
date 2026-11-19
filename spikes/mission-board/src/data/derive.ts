@@ -46,6 +46,9 @@ export interface BoardView {
   readonly outputs: ReadonlyArray<Output>;
   readonly lanes: ReadonlyArray<LaneView>; // in block order
   readonly score: Score;                   // the whole grid
+  readonly tasks: ReadonlyArray<Task>;     // for an event's slice and its pull request
+  readonly threads: ReadonlyArray<Thread>; // for an event's agent
+  readonly repo: string | null;            // where pull requests live
 }
 
 const byOrder = <A extends { readonly order: number }>(xs: ReadonlyArray<A>): A[] =>
@@ -114,6 +117,7 @@ export const join = (grid: Grid, board: Board): BoardView => {
     goal: grid.goal, asOf: grid.asOf, record: grid.record, story: grid.story, questions: grid.questions,
     illustrative: board.illustrative === true, outputs, lanes,
     score: score(lanes.flatMap((l) => l.cards.map((c) => c.state))),
+    tasks: board.tasks, threads: board.threads, repo: board.repo ?? null,
   };
 };
 

@@ -9,7 +9,11 @@ import * as GoalOverview from "../components/GoalOverview/GoalOverview.stories.t
 import * as GoalScore from "../components/GoalScore/GoalScore.stories.tsx";
 import * as Lane from "../components/Lane/Lane.stories.tsx";
 import * as LaneEndState from "../components/LaneEndState/LaneEndState.stories.tsx";
+import * as Activity from "../components/Activity/Activity.stories.tsx";
+import * as FalloutDiagram from "../components/FalloutDiagram/FalloutDiagram.stories.tsx";
+import * as StoryReplay from "../components/StoryReplay/StoryReplay.stories.tsx";
+import * as EvalPage from "../components/CardDetail/EvalPage.stories.tsx";
 import * as PageNotes from "../components/PageNotes/PageNotes.stories.tsx";
 import * as OutputCard from "../components/OutputCard/OutputCard.stories.tsx";
 
-export const modules = [OutputCard, ColumnHeader, Lane, LaneEndState, CardDetail, CoverageMatrix, ClimbChart, ChangedList, GoalScore, GoalOverview, PageNotes];
+export const modules = [OutputCard, ColumnHeader, Lane, LaneEndState, CardDetail, CoverageMatrix, ClimbChart, ChangedList, GoalScore, GoalOverview, FalloutDiagram, StoryReplay, EvalPage, Activity, PageNotes];

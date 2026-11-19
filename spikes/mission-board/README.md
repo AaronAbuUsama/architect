@@ -1,8 +1,8 @@
 # Spike: the mission board
 
-**Status: prototype published, IA round 2 open.** The prototype is the Design artifact
-https://claude.ai/artifact/SKCRqBQ9nm9FPGMJtSDzUS (version 4: Grid, Board, Components, Overview, Hill climb). It is
-built on the recommended answers of `GRILL.md` and `GRILL-2.md`; Aaron has not answered round 2 yet. Mobbin references
+**Status: prototype published, rounds 2 and 3 open.** The prototype is the Design artifact
+https://claude.ai/artifact/SKCRqBQ9nm9FPGMJtSDzUS (version 5: Grid, Board, Components, Overview, Hill climb, Eval page).
+It is built on the recommended answers of `GRILL.md`, `GRILL-2.md` and `GRILL-3.md`; Aaron has not answered 2 or 3 yet. Mobbin references
 still wait on his Mobbin sign-in.
 
 ## Question
@@ -52,12 +52,16 @@ board can't drift.
 | `ColumnHeader` | a `Column` and its count | by state (red, built), by output, by stage |
 | `Lane` | a `LaneView`, the outputs, the columns | full, empty (red only), mostly red, with green, by output, by stage |
 | `LaneEndState` | a `LaneView` | first, last, visibility |
-| `CardDetail` | `CardView`, `LaneView`, `asOf` | red, built, proposed grey with Aaron's question, waits on others, with history |
+| `CardDetail` | `CardView`, `LaneView`, `BoardView`, layout `page` or `panel` | red, built, proposed grey with Aaron's question, waits on others, with history |
+| `EvalPage` (stories only) | `CardDetail` as a full page: a Linear issue with a properties rail | with history, handed between agents, as graded |
+| `Activity` | a card, the board's tasks, threads and repo | only the grading, two moves with PR links, handed between agents |
 | `CoverageMatrix` | lanes and outputs, what moved | as graded, after eight moves |
 | `ClimbChart` | `LaneClimb[]` | only the baseline, climbing |
 | `ChangedList` | `Change[]` and the lanes | nothing moved, eight moves |
 | `GoalScore` | `Score`, and the score then | as graded, with change |
-| `GoalOverview` | `BoardView` | the goal as written |
+| `GoalOverview` | `BoardView` | the goal as written: score first, then the outputs by tier, the story typed out, its commands; Aaron's calls in a rail |
+| `FalloutDiagram` | lanes and outputs | as graded, after eight moves |
+| `StoryReplay` | the story's steps | the eight steps, played fast |
 | `PageNotes` | notes markdown, stale | empty, written, stale |
 
 The card follows HeroUI Pro's own project-board card (the Kanban docs' Usage and Project Board examples): title,
@@ -66,6 +70,18 @@ while no eval has run: every `passing` is null today), avatars for the thread no
 counts. Pages are Notion-like pages of blocks (`src/components/shared/blocks.tsx`: head, properties, headings, text,
 callouts, numbered list) with HeroUI parts between them; notes are the experimental portal's tiptap note editor
 (`internal/portal-pro/src/modules/note-editor` on `experimental/portal-pro`). Widget frames hold only KPIs and charts.
+
+The eval page is laid out as a Linear issue (`GRILL-3.md`): green means, today, waits on, evidence, then Activity (each
+move with the agent's face, its slice and PR link, its evidence, ending in the grading) and Notes; a right rail of
+properties (state, role, block, output, slice, stage, PR, who is on it now and before). An agent's face is the kind's
+mark (person, Claude, Codex, subagent) with the thread's emoji as a badge. In the side panel the rail folds under the
+title. On the Hill climb, a click on any square or move opens that card's eval page beside it.
+
+The Overview puts the score first. Below it: the outputs by tier as a diagram (each output's 13 squares are the building
+blocks, coloured by state; a click goes to the grid), the end-to-end story as a terminal that types each command and
+what it proves (CSS only, with a Replay button), the story's commands as a code block (shiki core with two grammars;
+Pro's `CodeBlock` bundles all of shiki, 9.7 MB), then the write-up. Done when, Aaron's open questions and the proposed
+slice sit in a rail.
 
 Run it:
 
@@ -81,7 +97,7 @@ can click through every part and state without running anything.
 
 ## Fixtures
 
-- `src/data/grid/`: the grid thread's files at 58985b3e (the example app is Plugged In). 117 cells: 48 built, 31 partly, 38 red, 0 green.
+- `src/data/grid/`: the grid thread's files at 96b8ba27 (the example app is Plugged In). 117 cells: 52 built, 32 partly, 33 red, 0 green. A cell's role (carries, absence, not needed) comes from `cellRole(block, output)`, never stored; a card shows grey only when its role is not needed and Aaron's Q2 is answered A, and "proposed not needed" until then.
 - `board.fixture.json`: real tasks and the eight real threads from the kanban's saved data. Each cell whose grid
   `owner` names a slice on the board is linked to it (89 cells). There's no history, because no cell moves have been
   recorded yet.
@@ -110,7 +126,7 @@ M3.17 (the board in the portal) and the Goal page's work view: the board's data 
 
 - The artifact could not be checked inside claude.ai from this session (the browser pane isn't signed in); the same
   bundle was checked in a local preview and in Storybook.
-- `CardWork.notes` is a new optional field on the conductor's half of the schema; saving notes is not wired.
+- `CardWork.notes` (`markdown`, and `about`: the grid `asOf` it was written against, so a regrade marks it stale) and `Board.repo` (for PR links) are new optional fields on the conductor's half of the schema; saving notes is not wired.
 
 - History is only as good as the conductor's writes. With no `CardEvent`s, the climb is a single point.
 - `asOf` is a commit, not a time. If the grid's states are re-read after board events, the two can disagree. Rule

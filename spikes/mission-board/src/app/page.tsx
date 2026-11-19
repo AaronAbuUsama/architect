@@ -55,11 +55,11 @@ export const Page = (p: PageProps) => {
     : open ? view.lanes.find((l) => l.block.id === open.block) : undefined;
   const card = open?.kind === "card" ? lane?.cards.find((c) => c.cell.id === open.cell) : undefined;
   const close = () => setOpen(null);
-  const toCard = (cell: CellId) => { setOpen({ kind: "card", cell }); if (tab === "climb" || tab === "overview") setTab("board"); };
+  const toCard = (cell: CellId) => setOpen({ kind: "card", cell }); // opens where you are: the panel sits beside every tab with cards
   const toLane = (b: string) => { setBlock(b); setOpen({ kind: "lane", block: b }); };
 
   const detail = lane && (card
-    ? <CardDetail card={card} lane={lane} asOf={view.asOf} onCard={toCard} onClose={close} />
+    ? <CardDetail card={card} lane={lane} view={view} layout={p.detail === "page" ? "page" : "panel"} onCard={toCard} onClose={close} />
     : <LaneEndState lane={lane} onClose={close} />);
   const withDetail = (main: ReactNode) => (
     <div className={p.detail === "panel" && detail ? "board-with-panel" : "board-only"}>
@@ -98,7 +98,7 @@ export const Page = (p: PageProps) => {
         </Tabs.ListContainer>
       </Tabs>
 
-      {tab === "overview" && <div className="overview-doc"><GoalOverview view={view} /></div>}
+      {tab === "overview" && <GoalOverview view={view} onOutput={() => setTab("grid")} />}
 
       {tab === "grid" && withDetail(
         <div className="grid-tab">
@@ -133,7 +133,7 @@ export const Page = (p: PageProps) => {
         </>,
       )}
 
-      {tab === "climb" && (
+      {tab === "climb" && withDetail(
         <div className="climb-tab">
           <div className="climb-bar">
             <span className="muted small">Since</span>
@@ -148,7 +148,7 @@ export const Page = (p: PageProps) => {
           <div className="climb-grid">
             <Widget>
               <Widget.Header><div className="head-text"><Widget.Title>Every card</Widget.Title><Widget.Description>Outlined: moved {sinceLabel}</Widget.Description></div></Widget.Header>
-              <Widget.Content><CoverageMatrix lanes={view.lanes} outputs={view.outputs} moved={moved} onCard={toCard} onLane={(b) => { setTab("grid"); toLane(b); }} /></Widget.Content>
+              <Widget.Content><CoverageMatrix lanes={view.lanes} outputs={view.outputs} moved={moved} selected={card?.cell.id ?? null} onCard={toCard} onLane={toLane} /></Widget.Content>
             </Widget>
             <Widget>
               <Widget.Header><div className="head-text"><Widget.Title>What moved</Widget.Title><Widget.Description>{changes.length} moves {sinceLabel}, newest first</Widget.Description></div></Widget.Header>
@@ -160,11 +160,11 @@ export const Page = (p: PageProps) => {
             <Widget.Legend><Widget.LegendItem color="var(--success)">Green</Widget.LegendItem><Widget.LegendItem color="var(--warning)">Built</Widget.LegendItem></Widget.Legend>
             <Widget.Content><ClimbChart climb={lanesClimb} /></Widget.Content>
           </Widget>
-        </div>
+        </div>,
       )}
 
       {p.detail === "modal" && (
-        <Modal.Backdrop isOpen={(tab === "board" || tab === "grid") && !!detail} onOpenChange={(o) => { if (!o) close(); }}>
+        <Modal.Backdrop isOpen={tab !== "overview" && !!detail} onOpenChange={(o) => { if (!o) close(); }}>
           <Modal.Container size="lg">
             <Modal.Dialog aria-label="Detail">{detail}</Modal.Dialog>
           </Modal.Container>

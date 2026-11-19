@@ -25,7 +25,7 @@ p{margin:0}
 .board-with-panel{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:16px;align-items:start}
 .board-main{display:flex;flex-direction:column;gap:12px;min-width:0}
 .panel{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto;border:1px solid var(--border);border-radius:16px;background:var(--surface)}
-.detail-page{max-width:760px;display:flex;flex-direction:column;gap:12px}
+.detail-page{max-width:1120px;display:flex;flex-direction:column;gap:12px}
 .detail-page .detail{border:1px solid var(--border);border-radius:16px;background:var(--surface)}
 
 /* Lanes */
@@ -169,3 +169,80 @@ code.mono{padding:0 3px;border-radius:4px;background:var(--surface-secondary)}
 .notes-editor .tiptap code{font-family:'JetBrains Mono',monospace;font-size:12px;padding:0 3px;border-radius:4px;background:var(--surface-tertiary,#333)}
 .notes-warning{color:var(--warning);font-size:12px}
 .notes-status{min-height:18px;font-size:12px;color:var(--muted)}
+/* agents: the kind's mark with the thread's emoji as a badge (GRILL-3 Q3) */
+.agent-face{position:relative;display:inline-flex;flex:none}
+.agent-face .agent-avatar{width:100%;height:100%;min-width:0}
+.agent-face.kind-claude .agent-avatar{background:color-mix(in oklab,#d97757 30%,var(--surface));color:#e8946f}
+.agent-face.kind-codex .agent-avatar{background:color-mix(in oklab,var(--accent) 25%,var(--surface));color:var(--accent)}
+.agent-face.kind-subagent .agent-avatar{background:var(--surface-secondary);color:var(--muted)}
+.agent-face.is-before{opacity:.55}
+.agent-badge{position:absolute;right:-4px;bottom:-4px;font-size:10px;line-height:1;background:var(--surface);border-radius:999px;padding:1px}
+.agent-stack{display:inline-flex}.agent-stack>.agent-face+.agent-face{margin-left:-6px}
+.agent-stack>.agent-face{box-shadow:0 0 0 2px var(--surface);border-radius:999px}
+.prop-agent{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+/* activity: Linear's timeline */
+.activity{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;position:relative}
+.activity::before{content:"";position:absolute;left:11px;top:12px;bottom:12px;width:1px;background:var(--border)}
+.act{display:flex;gap:10px;padding:6px 0;position:relative}
+.act-dot{width:22px;height:22px;border-radius:999px;background:var(--surface-secondary);flex:none;display:grid;place-items:center;color:var(--muted)}
+.act-dot.is-flag{color:var(--success)}
+.act-body{display:flex;flex-direction:column;gap:2px;min-width:0}
+.act-body p{margin:0;font-size:13px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.act-links{gap:10px!important}
+.act-link{display:inline-flex;align-items:center;gap:3px;font-size:12px;color:var(--accent);text-decoration:none;overflow-wrap:anywhere}
+a.act-link:hover{text-decoration:underline}
+/* the eval page laid out as a Linear issue */
+.issue.is-page{max-width:1120px}
+.issue-grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:32px;align-items:start}
+.issue-main{display:flex;flex-direction:column;gap:10px;min-width:0}
+.issue-rail{position:sticky;top:12px;border-left:1px solid var(--border);padding-left:20px}
+.issue-rail .doc-props{grid-template-columns:1fr}
+.doc-ref{overflow-wrap:anywhere}
+@media (max-width:860px){.issue-grid{grid-template-columns:1fr}.issue-rail{position:static;border-left:0;padding-left:0}}
+/* overview: score first, main column and rail */
+.overview{display:flex;flex-direction:column;gap:20px}
+.overview-cols{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:32px;align-items:start}
+.overview-main{max-width:820px;display:flex;flex-direction:column;gap:10px}
+.overview-rail{display:flex;flex-direction:column;gap:14px;position:sticky;top:12px}
+.rail-title{font-size:12px;font-weight:600;color:var(--muted);margin:0 0 4px;text-transform:none}
+.doc-figure{border:1px solid var(--border);border-radius:14px;padding:16px;background:var(--surface);overflow-x:auto}
+@media (max-width:980px){.overview-cols{grid-template-columns:1fr}.overview-rail{position:static}}
+/* fallout diagram */
+.fallout{width:100%;min-width:640px;height:auto;display:block}
+.fd-tier{fill:var(--muted);font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.fd-node rect:first-child{fill:var(--surface-secondary);stroke:var(--border)}
+.fd-node[role=button]{cursor:pointer}.fd-node[role=button]:hover rect:first-child,.fd-node[role=button]:focus-visible rect:first-child{stroke:var(--foreground)}
+.fd-node[role=button]:focus{outline:none}
+.fd-blueprint rect:first-child{fill:color-mix(in oklab,var(--accent) 22%,var(--surface));stroke:var(--accent)}
+.fd-name{fill:var(--foreground);font-size:13px;font-weight:600}
+.fd-sub{fill:var(--muted);font-size:11px}
+.fd-edge{fill:none;stroke:color-mix(in oklab,var(--muted) 60%,transparent);stroke-width:1.2}
+.fd-arrowhead{fill:color-mix(in oklab,var(--muted) 60%,transparent)}
+.fd-sq.st-red{fill:color-mix(in oklab,var(--danger) 70%,transparent);background:none}
+.fd-sq.st-partly{fill:color-mix(in oklab,var(--warning) 45%,transparent);stroke:var(--warning);stroke-width:1;background:none;box-shadow:none}
+.fd-sq.st-built{fill:color-mix(in oklab,var(--warning) 75%,transparent);background:none}
+.fd-sq.st-green{fill:var(--success);background:none}
+.fd-sq.st-not-needed,.fd-sq.is-proposed{fill:#3a3a3f;background:none}
+/* story replay: a terminal that types itself */
+.replay{border:1px solid var(--border);border-radius:14px;overflow:hidden;background:#0b0b0e}
+.replay-bar{display:flex;align-items:center;gap:10px;padding:6px 8px 6px 12px;border-bottom:1px solid var(--border);background:var(--surface)}
+.replay-dots{display:inline-flex;gap:6px}.replay-dots i{width:10px;height:10px;border-radius:999px;background:#3a3a3f;display:block}
+.replay-title{flex:1;font-size:12px;color:var(--muted)}
+.replay-body{padding:14px 16px;font-size:12.5px;line-height:1.7;max-height:360px;overflow:auto}
+.replay-step+.replay-step{margin-top:6px}
+.replay-line,.replay-out{margin:0;white-space:pre-wrap}
+.replay-prompt{color:var(--success)}
+.replay-typed{display:inline-block;vertical-align:bottom;white-space:nowrap;overflow:hidden;max-width:0;border-right:2px solid transparent;
+  animation:rp-type calc(var(--n) * 28ms) steps(var(--n),end) forwards;animation-delay:inherit}
+.replay-note{color:var(--muted);opacity:0;animation:rp-show .3s ease forwards}
+.replay-out{color:var(--success);opacity:0;animation:rp-show .3s ease forwards;padding-left:14px}
+.replay-line.is-cmd{opacity:0;animation:rp-show .01s forwards}
+@keyframes rp-type{from{max-width:0;border-right-color:var(--foreground)}to{max-width:calc(var(--n) * 1ch + 2px);border-right-color:transparent}}
+@keyframes rp-show{to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.replay-typed{animation:none;max-width:none}.replay-note,.replay-out,.replay-line.is-cmd{animation:none;opacity:1}}
+/* code block (shiki core, Pro's .code-block classes) */
+.doc-code{border:1px solid var(--border);border-radius:14px;overflow:hidden;background:#0d1117}
+.doc-code .code-block__header{display:flex;align-items:center;justify-content:space-between;padding:4px 8px 4px 12px;border-bottom:1px solid var(--border);background:var(--surface)}
+.doc-code-label{font-size:12px;color:var(--muted)}
+.doc-code .code-block__code{margin:0;padding:12px 16px;font-size:12.5px;line-height:1.6;overflow-x:auto}
+.doc-code pre{margin:0;background:transparent!important}

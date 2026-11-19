@@ -12,7 +12,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const args = (v: typeof now, cell: (typeof pick)[keyof typeof pick]): CardDetailProps =>
-  ({ card: cardOf(v, cell), lane: laneOf(v, cell), asOf: v.asOf });
+  ({ card: cardOf(v, cell), lane: laneOf(v, cell), view: v });
 
 export const Red: Story = { name: "Red · visibility.api", args: args(now, pick.red) };
 export const Built: Story = { name: "Built · operation.model", args: args(now, pick.built) };
@@ -21,5 +21,4 @@ export const Waiting: Story = { name: "Waits on others · error.portal", args: a
 export const WithHistory: Story = { name: "With history · error.telemetry (made-up)", args: args(later, pick.history) };
 
 export const Absence: Story = { name: "Absence check · step.sdk", args: args(now, pick.absence) };
-
 export const __namedExportsOrder = ["Red", "Built", "ProposedGrey", "Waiting", "WithHistory", "Absence"];

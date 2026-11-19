@@ -11,6 +11,7 @@ import type { CellId, CellState } from "./grid/types.ts";
 export type * from "./grid/types.ts";
 
 export interface Board {
+  readonly repo?: string;        // the repository's web address, for linking pull requests
   readonly illustrative?: true;   // set only on the prototype's made-up history; the page says so when it is
   readonly cards: ReadonlyArray<CardWork>;
   readonly tasks: ReadonlyArray<Task>;

@@ -1,10 +1,10 @@
 // One eval card, drawn the way HeroUI Pro draws its richest Kanban card (docs, "Usage" and "Project Board"): title,
 // two-line description, chips, progress, avatars and counts. Every slot is a field of `CardView`; a slot with no true
 // value is left out (no eval has run yet, so the progress bar waits for a first verdict). GRILL-2 Q2.
-import { Avatar, Chip, ProgressBar } from "@heroui/react";
+import { Chip, ProgressBar } from "@heroui/react";
 import { ClockCounterClockwiseIcon, FileCodeIcon, HourglassMediumIcon, QuestionIcon } from "@phosphor-icons/react";
 import type { CardView } from "../../data/derive.ts";
-import type { Thread } from "../../data/types.ts";
+import { AgentStack } from "../shared/agent.tsx";
 import { Inline } from "../shared/inline.tsx";
 import { chipColor, stageName, stageOf, stateTone, stateWord } from "../shared/vocab.ts";
 
@@ -16,17 +16,10 @@ export interface OutputCardProps {
   readonly heldBy: ReadonlyArray<string>;
 }
 
-const Face = ({ t, now }: { t: Thread; now: boolean }) => (
-  <Avatar size="sm" className={`oc-face${now ? "" : " is-before"}`} aria-label={`${t.name}${now ? ", on it now" : ", had it before"}`}>
-    <Avatar.Fallback>{t.emoji}</Avatar.Fallback>
-  </Avatar>
-);
-
 export const OutputCard = ({ card, block, heldBy }: OutputCardProps) => {
   const ev = card.cell.evidence;
   const ran = ev.filter((e) => e.passing !== null);
   const passed = ev.filter((e) => e.passing === true).length;
-  const people = [...(card.thread ? [{ t: card.thread, now: true }] : []), ...card.hadIt.map((t) => ({ t, now: false }))];
   return (
     <div className={`oc${card.proposedNotNeeded ? " is-proposed" : ""}`}>
       <div className="oc-top">
@@ -58,9 +51,7 @@ export const OutputCard = ({ card, block, heldBy }: OutputCardProps) => {
       )}
 
       <div className="oc-foot">
-        <span className="oc-faces">
-          {people.length ? people.slice(0, 3).map((p) => <Face key={p.t.id} t={p.t} now={p.now} />) : <span className="oc-nobody">Nobody on it</span>}
-        </span>
+        {card.thread || card.hadIt.length ? <AgentStack now={card.thread} before={card.hadIt.slice(0, 2)} /> : <span className="oc-nobody">Nobody on it</span>}
         <span className="oc-meta">
           <span title="Evidence"><FileCodeIcon size={13} aria-hidden="true" />{ev.length}</span>
           <span title="Moves recorded"><ClockCounterClockwiseIcon size={13} aria-hidden="true" />{card.history.length}</span>
