@@ -3,6 +3,9 @@ import { noNameAsString } from "./internal/names.ts";
 import { declaredErrorsOnly, refusalHasLog } from "./internal/refusals.ts";
 import { handlerMatchesPath, noWallClock } from "./internal/place.ts";
 import { noOldNames } from "./internal/old-names.ts";
+import { effectOnly } from "./internal/effect-only.ts";
+import { maxLines } from "./internal/max-lines.ts";
+import { sixSlots } from "./internal/six-slots.ts";
 
 /** The oxlint plugin. `ortho check` registers it by path and passes every rule the same `ProjectFacts`. */
 export const plugin: Plugin = {
@@ -14,5 +17,9 @@ export const plugin: Plugin = {
     "no-wall-clock": noWallClock,
     "handler-matches-path": handlerMatchesPath,
     "no-old-names": noOldNames,
+    // The repository's own code rules (AGENTS.md), each with a baseline of the breaches it tolerates.
+    "effect-only": effectOnly,
+    "max-lines": maxLines,
+    "six-slots": sixSlots,
   },
 };

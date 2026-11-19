@@ -1,0 +1,62 @@
+name: codex-finished
+
+# Proposal 2 (design/process/proposals.md): "Codex has finished" is a landing condition. This workflow posts a commit
+# status, `codex-finished`, on a pull request's head: success once Codex's summary comment says its review has completed,
+# pending while Codex is reviewing or has not reviewed (comment "@codex review"). Branch protection requires it, so a
+# pull request cannot merge while Codex is still at work (tools/ci/codex-state.sh reads the state).
+#
+# It runs from the default branch for every pull request, whatever its base: on Codex's comments (Codex edits one
+# summary comment as reviews start and finish), on every ci run a push starts (a new head needs its own status), and by
+# hand for one pull request. It never checks out or runs a pull request's code, and uses only the GITHUB_TOKEN.
+on:
+  issue_comment:
+    types: [created, edited]
+  workflow_run:
+    workflows: [ci]
+    types: [requested]
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: Pull request number
+        required: true
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+  statuses: write
+
+jobs:
+  status:
+    # Other people's comments start the workflow too; only the Codex app's comments on a pull request go further.
+    if: >-
+      github.event_name != 'issue_comment' ||
+      (github.event.issue.pull_request && github.event.comment.user.login == 'chatgpt-codex-connector[bot]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # One at a time per pull request, so an older reading never lands after a newer one.
+    concurrency:
+      group: codex-finished-${{ github.event.issue.number || github.event.workflow_run.pull_requests[0].number || inputs.pr || github.run_id }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          sparse-checkout: tools/ci
+      - name: Post codex-finished on each pull request's head
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PRS: >-
+            ${{ github.event.issue.number || inputs.pr ||
+                join(github.event.workflow_run.pull_requests.*.number, ' ') }}
+        run: |
+          if [ -z "$PRS" ]; then echo "No pull request for this run."; exit 0; fi
+          for pr in $PRS; do
+            head=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$pr" -q .head.sha)
+            reading=$(gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/issues/$pr/comments" | tools/ci/codex-state.sh)
+            state=${reading%%$'\t'*}
+            description=${reading#*$'\t'}
+            echo "#$pr at $head: $state, $description"
+            gh api -X POST "repos/$GITHUB_REPOSITORY/statuses/$head" \
+              -f state="$state" -f context=codex-finished -f description="${description:0:140}" \
+              -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/pull/$pr" > /dev/null
+          done
