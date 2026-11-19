@@ -1,0 +1,245 @@
+{
+ "critical": {
+  "goal": "Gate M2: workable",
+  "steps": [
+   {
+    "note": "M1.35 makes one rule for what each caller sees. The canon thread writes the links blueprint everything else follows.",
+    "tasks": [
+     {
+      "critical": true,
+      "id": "M1-35"
+     },
+     {
+      "critical": false,
+      "id": "X-canon"
+     },
+     {
+      "critical": false,
+      "id": "M1-33"
+     },
+     {
+      "critical": false,
+      "id": "M1-34"
+     },
+     {
+      "critical": false,
+      "id": "M1-36"
+     },
+     {
+      "critical": false,
+      "id": "M1-38"
+     }
+    ],
+    "title": "In flight now"
+   },
+   {
+    "note": "Built to the canon's blueprint, no sign-in yet.",
+    "tasks": [
+     {
+      "critical": true,
+      "id": "M1-40"
+     }
+    ],
+    "title": "The links app"
+   },
+   {
+    "note": "Written first by a different agent; it goes red wherever an output is missing something.",
+    "tasks": [
+     {
+      "critical": true,
+      "id": "M1-41"
+     }
+    ],
+    "title": "The whole loop, checked"
+   },
+   {
+    "note": "M1.43 writes links' handlers so the loop commits real calls; M1.42 makes every output carry types, events and error codes. M1.12 (the SDK contract, built with the plugin move) merges after M1.35. K16 puts M1.44 (the scaffold explains itself), M1.45 (journey stubs) and M1.46 (the runtime hands in what it read) first, so the handlers are written from the new scaffold against what the runtime hands in; M1.47 and M1.48 run beside them.",
+    "tasks": [
+     {
+      "critical": true,
+      "id": "M1-44"
+     },
+     {
+      "critical": true,
+      "id": "M1-45"
+     },
+     {
+      "critical": true,
+      "id": "M1-46"
+     },
+     {
+      "critical": true,
+      "id": "M1-43"
+     },
+     {
+      "critical": true,
+      "id": "M1-42"
+     },
+     {
+      "critical": false,
+      "id": "M1-12"
+     }
+    ],
+    "title": "Links' handlers and the basics in every output"
+   },
+   {
+    "note": "The portal as a viewer. Beside it, the canon's wallets page.",
+    "tasks": [
+     {
+      "critical": true,
+      "id": "M1-13"
+     },
+     {
+      "critical": false,
+      "id": "M1-39"
+     }
+    ],
+    "title": "See it in the portal"
+   },
+   {
+    "note": "Then the npm preview, which you publish.",
+    "tasks": [
+     {
+      "critical": true,
+      "id": "M1-15"
+     },
+     {
+      "critical": false,
+      "id": "X-npm"
+     }
+    ],
+    "title": "Gate M1"
+   },
+   {
+    "note": "Beside it: ortho add on Nx, the auth journeys, secrets, the links journeys.",
+    "tasks": [
+     {
+      "critical": true,
+      "id": "M2-01"
+     },
+     {
+      "critical": false,
+      "id": "M2-02"
+     },
+     {
+      "critical": false,
+      "id": "M2-04"
+     },
+     {
+      "critical": false,
+      "id": "M2-14"
+     },
+     {
+      "critical": false,
+      "id": "ST1-02"
+     }
+    ],
+    "title": "Principals and roles decided"
+   },
+   {
+    "note": "Beside it: the react projection.",
+    "tasks": [
+     {
+      "critical": true,
+      "id": "M2-03"
+     },
+     {
+      "critical": false,
+      "id": "ST1-01"
+     },
+     {
+      "critical": false,
+      "id": "M2-15"
+     },
+     {
+      "critical": false,
+      "id": "M2-16"
+     }
+    ],
+    "title": "Every kind of caller"
+   },
+   {
+    "note": "Beside it: handles as a plugin, and links grown to stage 1.",
+    "tasks": [
+     {
+      "critical": true,
+      "id": "M2-05"
+     },
+     {
+      "critical": false,
+      "id": "ST1-03"
+     },
+     {
+      "critical": false,
+      "id": "ST1-04"
+     }
+    ],
+    "title": "The identity plugin"
+   },
+   {
+    "note": "",
+    "tasks": [
+     {
+      "critical": true,
+      "id": "M2-07"
+     },
+     {
+      "critical": true,
+      "id": "ST1-07"
+     },
+     {
+      "critical": false,
+      "id": "M2-06"
+     },
+     {
+      "critical": false,
+      "id": "M2-08"
+     },
+     {
+      "critical": false,
+      "id": "M2-13"
+     }
+    ],
+    "title": "Organisations, and links mounts auth"
+   },
+   {
+    "note": "",
+    "tasks": [
+     {
+      "critical": true,
+      "id": "M2-09"
+     },
+     {
+      "critical": true,
+      "id": "M2-10"
+     },
+     {
+      "critical": false,
+      "id": "M2-11"
+     },
+     {
+      "critical": false,
+      "id": "ST1-06"
+     },
+     {
+      "critical": false,
+      "id": "ST1-08"
+     }
+    ],
+    "title": "ortho new and ortho new feature"
+   },
+   {
+    "note": "Also stage 1's gate: links is tagged links/stage-1.",
+    "tasks": [
+     {
+      "critical": true,
+      "id": "M2-12"
+     }
+    ],
+    "title": "Gate M2: workable"
+   }
+  ],
+  "summary": "Re-cut by K13 (you, 19 November): lock down what exists first, with one links app run end to end, then sign-in and organisations. The boxed task is the one the next step waits on; the small chips run beside it.",
+  "updatedAt": "2026-11-19T11:33:45Z"
+ }
+}

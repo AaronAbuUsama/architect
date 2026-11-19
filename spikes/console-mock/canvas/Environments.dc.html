@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Environments and storage · Pi Durable Console</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#0b0b0d}
+a{color:#7fb0ff;text-decoration:none}a:hover{color:#a9c9ff}
+.card{background:#18181b;border:1px solid #29292d;border-radius:14px}
+.btn{font:inherit;font-size:13px;font-weight:600;min-height:40px;padding:0 14px;border-radius:10px;border:1px solid #303036;background:#27272a;color:#fcfcfc;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;white-space:nowrap}
+.btn-primary{background:#3584f5;border-color:#3584f5;color:#ffffff}
+.btn-ghost{background:transparent;border-color:transparent;color:#c4c4cc}
+.chip{display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:999px;font-size:12px;font-weight:600;background:#27272a;color:#d4d4d8;white-space:nowrap}
+.ok{background:rgba(47,196,106,.14);color:#5fdc8f}
+.warn{background:rgba(242,179,61,.14);color:#f5c15a}
+.info{background:rgba(53,132,245,.16);color:#8db8ff}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#a1a1aa}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12px}
+.muted{color:#a1a1aa}
+.field{font:inherit;font-size:13px;min-height:40px;padding:0 12px;border-radius:10px;border:1px solid #303036;background:#111114;color:#fcfcfc;box-sizing:border-box;width:100%}
+.lbl{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 100vh; background: #0b0b0d; color: #fcfcfc; font-family: 'Plus Jakarta Sans', system-ui, sans-serif">
+  <div style="flex: 1 1 248px; max-width: 100%; display: flex">
+    <dc-import name="Sidebar" active="env" hint-size="248px,1260px"></dc-import>
+  </div>
+  <main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+    <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; min-height: 64px; padding: 10px 28px; border-bottom: 1px solid #222225">
+      <nav aria-label="Breadcrumb" style="display: flex; align-items: center; gap: 8px; font-size: 14px; flex: 1; min-width: 200px">
+        <span class="muted">support-desk</span><span class="muted">/</span><span style="font-weight: 600">Environments</span>
+      </nav>
+      <button type="button" class="btn btn-primary">Add environment</button>
+    </header>
+
+    <div style="padding: 24px 28px 40px; display: flex; flex-direction: column; gap: 22px; max-width: 1180px; width: 100%; box-sizing: border-box">
+      <div style="display: flex; flex-direction: column; gap: 6px; max-width: 760px">
+        <h1 style="margin: 0; font-size: 28px; font-weight: 700">Environments</h1>
+        <p style="margin: 0; font-size: 14px; color: #a1a1aa">Where tools touch files and run commands. The harness, its storage and its credentials stay on the console host; tools can run on another machine through the pi-env daemon.</p>
+      </div>
+
+      <section aria-label="Environments" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px">
+        <article class="card" style="padding: 16px; display: flex; flex-direction: column; gap: 12px">
+          <div style="display: flex; align-items: center; gap: 8px"><span style="font-size: 15px; font-weight: 650; flex: 1">local</span><span class="chip ok"><span class="dot"></span>ready</span></div>
+          <span class="mono muted">LocalExecutionEnv · cwd /srv/desk</span>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px"><span class="chip">listFiles</span><span class="chip">darwin arm64</span></div>
+          <span class="muted" style="font-size: 12px">Default for Desk lead, Researcher</span>
+          <div style="display: flex; gap: 8px"><button type="button" class="btn">Open terminal</button><button type="button" class="btn btn-ghost">Browse files</button></div>
+        </article>
+        <article class="card" style="padding: 16px; display: flex; flex-direction: column; gap: 12px">
+          <div style="display: flex; align-items: center; gap: 8px"><span style="font-size: 15px; font-weight: 650; flex: 1">gpu-box</span><span class="chip ok"><span class="dot"></span>connected</span></div>
+          <span class="mono muted">RemoteExecutionEnv · ssh pi-env-gpu · /home/desk/repo</span>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px"><span class="chip">daemon 1.5.2 · sha256 verified</span><span class="chip">linux x64</span><span class="chip">listFiles</span></div>
+          <span class="muted" style="font-size: 12px">Default for Code fixer, Reviewer · runs the filesystem MCP</span>
+          <div style="display: flex; gap: 8px"><button type="button" class="btn">Open terminal</button><button type="button" class="btn btn-ghost">Reconnect</button></div>
+        </article>
+        <article class="card" style="padding: 16px; display: flex; flex-direction: column; gap: 12px">
+          <div style="display: flex; align-items: center; gap: 8px"><span style="font-size: 15px; font-weight: 650; flex: 1">per-thread sandbox</span><span class="chip info">template</span></div>
+          <span class="mono muted">One container per conversation · id from app.sandbox doc</span>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px"><span class="chip">7 live</span><span class="chip">destroyed on thread end</span></div>
+          <span class="muted" style="font-size: 12px">Default for Ticket resolver</span>
+          <div style="display: flex; gap: 8px"><button type="button" class="btn">Edit template</button></div>
+        </article>
+      </section>
+
+      <section class="card" aria-label="Add SSH host" style="padding: 18px; display: flex; flex-direction: column; gap: 16px">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px"><h2 style="margin: 0; font-size: 16px; font-weight: 650; flex: 1">Add an SSH host</h2>
+          <ol aria-label="Steps" style="list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; font-size: 12px">
+            <li class="chip ok">1 Host</li><li class="chip info">2 Trust key</li><li class="chip">3 Deploy daemon</li><li class="chip">4 Name</li>
+          </ol>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px">
+          <label class="lbl">Host<input class="field mono" value="build-02.acme.internal"></label>
+          <label class="lbl">Host key alias<input class="field mono" value="pi-env-build02"></label>
+          <label class="lbl">Working directory<input class="field mono" value="/home/desk/repo"></label>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 14px; align-items: center; padding: 14px; border-radius: 12px; background: rgba(242,179,61,.07); border: 1px solid #4a3a17">
+          <div style="flex: 1 1 360px; display: flex; flex-direction: column; gap: 6px">
+            <span style="font-size: 14px; font-weight: 600">Compare this fingerprint out of band before trusting it</span>
+            <code class="mono" style="font-size: 13px; color: #fcfcfc">ED25519 SHA256:q7Xk0b2vN+4mZ1cJr8yP3sA9uH6tLwE5oR0dVfGiKjQ</code>
+            <span class="muted" style="font-size: 12px">Saved to the console's own known_hosts under the alias. ssh runs in BatchMode with no forwarding.</span>
+          </div>
+          <button type="button" class="btn">Cancel</button>
+          <button type="button" class="btn btn-primary">Trust and continue</button>
+        </div>
+      </section>
+
+      <section aria-label="Storage" style="display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px"><h2 style="margin: 0; font-size: 18px; font-weight: 700; flex: 1">Storage</h2><span class="muted" style="font-size: 12px">One process writes a storage at a time. Changing backend does not migrate data.</span></div>
+        <div role="radiogroup" aria-label="Storage backend" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px">
+          <sc-for list="{{stores}}" as="s" hint-placeholder-count="5">
+            <button type="button" role="radio" aria-checked="{{s.on}}" style="{{s.style}}">
+              <span style="display: flex; align-items: center; gap: 8px"><span style="{{s.radio}}"></span><span style="font-size: 14px; font-weight: 650">{{s.name}}</span></span>
+              <span class="muted" style="font-size: 12px; line-height: 1.5">{{s.note}}</span>
+            </button>
+          </sc-for>
+        </div>
+        <div class="card" style="padding: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px">
+          <label class="lbl">Table prefix<input class="field mono" value="pi_"><span class="muted" style="font-weight: 400; font-size: 12px">Shares the object's SQLite with host tables.</span></label>
+          <div class="lbl"><span>Size</span><span style="font-size: 20px; font-weight: 700">184 MB</span><span class="muted" style="font-weight: 400; font-size: 12px">41,206 entries · 1,912 documents</span></div>
+          <div class="lbl"><span>Viewers</span><span style="font-weight: 400; font-size: 13px; color: #c4c4cc">This console opens the session read-only when it is not the writer.</span></div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1260}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const S = [
+      ['Memory', 'Nothing persisted. Tests and demos.'],
+      ['SQLite', 'One file, WAL. Survives crashes; newest commit may be lost on power loss.'],
+      ['JSONL', 'Append-only files. Keeps all history in memory; not for long-running agents.'],
+      ['Durable Object SQLite', 'Commits are the object’s storage transactions. Wake by alarm.', true],
+      ['IndexedDB', 'Browser only. Hold a Web Lock around its lifetime.']
+    ];
+    return {
+      stores: S.map((r) => ({
+        name: r[0], note: r[1], on: r[2] ? 'true' : 'false',
+        style: 'font: inherit; color: inherit; text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 8px; padding: 14px; border-radius: 14px; background: ' + (r[2] ? '#121826' : '#18181b') + '; border: 1px solid ' + (r[2] ? '#3584f5' : '#29292d'),
+        radio: 'width: 16px; height: 16px; border-radius: 50%; box-sizing: border-box; flex: none; ' + (r[2] ? 'border: 5px solid #3584f5; background: #fff' : 'border: 2px solid #52525b')
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

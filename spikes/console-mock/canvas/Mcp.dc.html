@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>MCP servers · Pi Durable Console</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#0b0b0d}
+a{color:#7fb0ff;text-decoration:none}a:hover{color:#a9c9ff}
+.card{background:#18181b;border:1px solid #29292d;border-radius:14px}
+.btn{font:inherit;font-size:13px;font-weight:600;min-height:40px;padding:0 14px;border-radius:10px;border:1px solid #303036;background:#27272a;color:#fcfcfc;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;white-space:nowrap}
+.btn-primary{background:#3584f5;border-color:#3584f5;color:#ffffff}
+.btn-ghost{background:transparent;border-color:transparent;color:#c4c4cc}
+.chip{display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:999px;font-size:12px;font-weight:600;background:#27272a;color:#d4d4d8;white-space:nowrap}
+.ok{background:rgba(47,196,106,.14);color:#5fdc8f}
+.warn{background:rgba(242,179,61,.14);color:#f5c15a}
+.bad{background:rgba(229,72,77,.16);color:#ff8a8d}
+.info{background:rgba(53,132,245,.16);color:#8db8ff}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#a1a1aa}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12px}
+.muted{color:#a1a1aa}
+.lbl{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600}
+.field{font:inherit;font-size:13px;font-weight:400;min-height:40px;padding:0 12px;border-radius:10px;border:1px solid #303036;background:#111114;color:#fcfcfc;box-sizing:border-box;width:100%}
+.seg{display:inline-flex;padding:3px;border-radius:10px;background:#111114;border:1px solid #29292d}
+.seg button{font:inherit;font-size:13px;font-weight:600;min-height:32px;padding:0 12px;border-radius:8px;border:0;background:transparent;color:#c4c4cc;cursor:pointer}
+.seg button[aria-checked="true"]{background:#4a4a52;color:#fff}
+.sw{width:40px;height:24px;border-radius:99px;background:#3584f5;position:relative;flex:none;border:0;cursor:pointer}
+.sw::after{content:"";position:absolute;top:3px;left:19px;width:18px;height:18px;border-radius:50%;background:#fff}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 100vh; background: #0b0b0d; color: #fcfcfc; font-family: 'Plus Jakarta Sans', system-ui, sans-serif">
+  <div style="flex: 1 1 248px; max-width: 100%; display: flex">
+    <dc-import name="Sidebar" active="mcp" hint-size="248px,1180px"></dc-import>
+  </div>
+  <main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+    <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; min-height: 64px; padding: 10px 28px; border-bottom: 1px solid #222225">
+      <nav aria-label="Breadcrumb" style="display: flex; align-items: center; gap: 8px; font-size: 14px; flex: 1; min-width: 200px">
+        <span class="muted">support-desk</span><span class="muted">/</span><span style="font-weight: 600">MCP servers</span>
+      </nav>
+      <button type="button" class="btn">Import mcpServers JSON</button>
+      <button type="button" class="btn btn-primary">Add server</button>
+    </header>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 0; flex: 1; align-items: stretch">
+      <div style="flex: 999 1 520px; min-width: 0; padding: 24px 28px 40px; display: flex; flex-direction: column; gap: 18px; box-sizing: border-box">
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <h1 style="margin: 0; font-size: 28px; font-weight: 700">MCP servers</h1>
+          <p style="margin: 0; font-size: 14px; color: #a1a1aa; max-width: 680px">Each server's tools are registered as <span class="mono">mcp__server__tool</span>. Choose how agents reach them: offered to the model, deferred behind tool_search, or callable from scripts only.</p>
+        </div>
+
+        <div role="alert" style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 12px; background: rgba(229,72,77,.08); border: 1px solid #5a2427">
+          <span class="chip bad"><span class="dot"></span>postgres</span>
+          <span style="flex: 1 1 300px; font-size: 13px">Process exited with code 1 during initialize: <span class="mono">password authentication failed for user "desk_ro"</span></span>
+          <button type="button" class="btn">View stderr</button>
+          <button type="button" class="btn">Edit</button>
+        </div>
+
+        <section aria-label="Servers" style="display: flex; flex-direction: column; gap: 12px">
+          <sc-for list="{{servers}}" as="s" hint-placeholder-count="5">
+            <article style="{{s.cardStyle}}">
+              <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+                <span aria-hidden="true" style="display: grid; place-items: center; width: 38px; height: 38px; border-radius: 10px; background: #232326; font-weight: 700; font-size: 15px; color: #e4e4e7">{{s.initial}}</span>
+                <div style="display: flex; flex-direction: column; gap: 3px; flex: 1 1 220px; min-width: 0">
+                  <span style="display: flex; align-items: center; gap: 8px"><span style="font-size: 15px; font-weight: 650">{{s.name}}</span><span class="{{s.statusClass}}"><span class="dot"></span>{{s.status}}</span></span>
+                  <span class="mono muted" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{s.target}}</span>
+                </div>
+                <span class="chip">{{s.transport}}</span>
+                <span class="chip">{{s.tools}}</span>
+                <span class="{{s.exposeClass}}">{{s.expose}}</span>
+              </div>
+              <div style="display: flex; flex-wrap: wrap; gap: 16px; font-size: 12px; color: #a1a1aa; padding-top: 12px; border-top: 1px solid #222225">
+                <span>Namespace <span class="mono" style="color: #c4c4cc">{{s.ns}}</span></span>
+                <span>Auth {{s.auth}}</span>
+                <span>Runs on {{s.runs}}</span>
+                <span>Used by {{s.used}}</span>
+              </div>
+            </article>
+          </sc-for>
+        </section>
+      </div>
+
+      <aside aria-label="Add MCP server" style="flex: 1 1 380px; max-width: 100%; border-left: 1px solid #222225; background: #111114; padding: 22px 22px 32px; display: flex; flex-direction: column; gap: 16px; box-sizing: border-box">
+        <div style="display: flex; align-items: center; gap: 8px">
+          <h2 style="margin: 0; font-size: 17px; font-weight: 700; flex: 1">Add MCP server</h2>
+          <button type="button" class="btn btn-ghost" aria-label="Close" style="min-width: 40px; padding: 0">✕</button>
+        </div>
+        <label class="lbl">Name<input class="field" value="zendesk"><span class="muted" style="font-weight: 400; font-size: 12px">Tools become mcp__zendesk__*</span></label>
+        <div class="lbl"><span id="tr">Transport</span>
+          <div class="seg" role="radiogroup" aria-labelledby="tr"><button type="button" role="radio" aria-checked="false">stdio</button><button type="button" role="radio" aria-checked="true">Streamable HTTP</button></div>
+        </div>
+        <label class="lbl">URL<input class="field mono" value="https://mcp.zendesk.com/mcp"></label>
+        <div class="lbl"><span>Headers</span>
+          <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 40px; gap: 8px">
+            <input class="field mono" aria-label="Header name" value="X-Zendesk-Subdomain">
+            <input class="field mono" aria-label="Header value" value="acme-support">
+            <button type="button" class="btn btn-ghost" aria-label="Remove header" style="padding: 0">✕</button>
+          </div>
+          <button type="button" class="btn btn-ghost" style="align-self: flex-start; padding: 0 4px">+ Add header</button>
+        </div>
+        <div class="lbl"><span>Sign-in</span>
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px; border-radius: 10px; border: 1px solid #29292d; background: #18181b">
+            <span style="flex: 1 1 180px; font-size: 13px; font-weight: 400; color: #c4c4cc">Server asks for OAuth. Tokens are kept in the console's credential store and refreshed under its lock.</span>
+            <button type="button" class="btn btn-primary">Sign in with Zendesk</button>
+          </div>
+        </div>
+        <div class="lbl"><span id="ex">How agents reach its tools</span>
+          <div class="seg" role="radiogroup" aria-labelledby="ex" style="flex-wrap: wrap"><button type="button" role="radio" aria-checked="false">Offered</button><button type="button" role="radio" aria-checked="true">Deferred</button><button type="button" role="radio" aria-checked="false">Scripts only</button></div>
+          <span class="muted" style="font-weight: 400; font-size: 12px">Deferred: hidden until tool_search loads them. Best for large servers.</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+          <label class="lbl">Request timeout<input class="field" value="60 s"></label>
+          <label class="lbl">Runs on<select class="field"><option>Console host</option><option>gpu-box (pi-env)</option></select></label>
+        </div>
+        <label class="lbl">Description<input class="field" value="Ticket history, macros and customer records"></label>
+        <div style="display: flex; align-items: center; gap: 10px; font-size: 13px"><button type="button" class="sw" role="switch" aria-checked="true" aria-label="Enabled"></button>Enabled</div>
+        <details style="border: 1px solid #29292d; border-radius: 10px; background: #18181b">
+          <summary style="cursor: pointer; padding: 10px 12px; font-size: 13px; font-weight: 600">As mcpServers JSON</summary>
+          <pre class="mono" style="margin: 0; padding: 0 12px 12px; color: #c4c4cc; overflow-x: auto; line-height: 1.6">"zendesk": {
+  "url": "https://mcp.zendesk.com/mcp",
+  "headers": { "X-Zendesk-Subdomain": "acme-support" },
+  "oauth": {},
+  "timeout": 60000,
+  "enabled": true
+}</pre>
+        </details>
+        <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px">
+          <button type="button" class="btn">Test connection</button>
+          <button type="button" class="btn btn-primary">Add server</button>
+        </div>
+      </aside>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1180}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const S = [
+      ['helpdesk', 'Connected', 'ok', 'https://mcp.helpdesk.internal/mcp', 'HTTP', '9 tools', 'Offered', 'chip info', 'mcp__helpdesk__', 'bearer header', 'console host', 'Desk lead, Ticket resolver'],
+      ['billing', 'Connected', 'ok', 'https://billing.internal/mcp', 'HTTP', '6 tools', 'Scripts only', 'chip', 'mcp__billing__', 'OAuth · signed in', 'console host', 'Ticket resolver'],
+      ['github', 'Connected', 'ok', 'https://api.githubcopilot.com/mcp/', 'HTTP', '41 tools', 'Deferred', 'chip', 'mcp__github__', 'OAuth · signed in', 'console host', 'Code fixer'],
+      ['filesystem', 'Running', 'ok', 'npx -y @modelcontextprotocol/server-filesystem /srv/desk', 'stdio', '11 tools', 'Scripts only', 'chip', 'mcp__filesystem__', 'none', 'gpu-box via pi-env', 'Researcher'],
+      ['postgres', 'Failed', 'bad', 'npx -y @acme/mcp-postgres --readonly', 'stdio', '— tools', 'Deferred', 'chip', 'mcp__postgres__', 'env DATABASE_URL (secret)', 'console host', 'none yet']
+    ];
+    return {
+      servers: S.map((r) => ({
+        name: r[0], initial: r[0][0].toUpperCase(), status: r[1], statusClass: 'chip ' + r[2], target: r[3], transport: r[4], tools: r[5], expose: r[6], exposeClass: r[7], ns: r[8], auth: r[9], runs: r[10], used: r[11],
+        cardStyle: 'background: #18181b; border: 1px solid ' + (r[2] === 'bad' ? '#5a2427' : '#29292d') + '; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 12px'
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>
