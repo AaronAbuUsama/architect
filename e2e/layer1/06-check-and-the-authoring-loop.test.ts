@@ -43,7 +43,7 @@ describe("check 6: ortho add, generate and check build the allowance on the star
       cpSync(join(acme, "journeys"), join(root, "journeys"), { recursive: true, filter: visible });
       const checked = ortho(root, "check");
       expect(checked.stdout.trimEnd().split("\n").at(-1), checked.stdout).toBe("check ✔");
-      const proved = ortho(root, "prove", "--env", "local", "--port", "8885");
+      const proved = ortho(root, "prove", "--env", "local", "--port", "0");
       expect(proved.stdout.trimEnd().split("\n").at(-1), proved.stdout).toBe("prove ✔");
       expect(proved.stdout).toMatch(/^allowance\.spend 9 evals ✔/m);
       expect(existsSync(join(root, "generated/docs/allowance/spend.md"))).toBe(true);
