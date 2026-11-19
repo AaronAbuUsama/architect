@@ -11,9 +11,9 @@ const Sections = (() => {
     const c = m.counts;
     return `<header class="section-head">
       <h1>Plugged In, from blueprint to everything</h1>
-      <p class="muted">On the left, Plugged In's blueprint. On the right, everything Orthograph makes from it. Hover any line to see where it came from; click to pin it.</p>
+      <p class="muted">On the left, Plugged In's blueprint: Codex's draft, copied in from its branch and renamed for K15, not yet on main. On the right, everything Orthograph makes from it. Hover any line to see where it came from; click to pin it.</p>
       <div class="row">
-        <span class="chip prop">Blueprint: ${esc(m.source.label)}, ${esc(m.source.ref.replace("origin/", ""))} @ ${short(m.source.sha)}</span>
+        <span class="chip prop">Blueprint: Codex's ${esc(m.source.label)}, copied in from ${esc(m.source.ref.replace("origin/", ""))} @ ${short(m.source.sha)}</span>
         <span class="chip">Compiler and generators: ${esc(m.m1.ref.replace("origin/", ""))} @ ${short(m.m1.sha)}</span>
         <span class="chip" title="${esc(m.renames.map((r) => `${r.file}: ${r.why}`).join("\n"))}">Renamed for K15: ${m.renames.length} changes</span>
         ${m.fallback ? `<span class="chip prop">Fallback: ${esc(m.fallback)}</span>` : `<span class="chip ok">Compiled on m1 as written, no fallback</span>`}
