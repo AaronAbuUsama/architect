@@ -17,6 +17,12 @@ export interface StoreD1Options {
    * `SqlClient`'s. One call commits to one store: writes to two are refused.
    */
   readonly stores?: ReadonlyArray<readonly [Declared, D1Database]>;
+  /**
+   * The thing the identity keeps (its `per_` ids are Better Auth's users, `Auth`'s contract): read from Better Auth's
+   * users, never a table of its own, so the runtime finds a person a payload names (K16, M1.46). Its fields are
+   * Better Auth's `id`, `email` and `name`. The generated server names it.
+   */
+  readonly people?: Thing;
 }
 
 export interface StoreD1Api {

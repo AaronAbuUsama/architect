@@ -67,12 +67,12 @@ import * as runThing from "../../blueprint/things/run/thing.ts";
 
 export { World } from "@orthograph/host-cloudflare";
 
-const attentionApproveServed = Handlers.serve({ name: "attention.approve", operation: attentionApprove.declaration, handler: attentionApproveHandler, notFrom: "AttentionNotOpen" });
-const attentionDeclineServed = Handlers.serve({ name: "attention.decline", operation: attentionDecline.declaration, handler: attentionDeclineHandler, notFrom: "AttentionNotOpen" });
+const attentionApproveServed = Handlers.serve({ name: "attention.approve", operation: attentionApprove.declaration, handler: attentionApproveHandler, notFrom: "AttentionNotOpen", notFound: { attention: "AttentionNotFound" } });
+const attentionDeclineServed = Handlers.serve({ name: "attention.decline", operation: attentionDecline.declaration, handler: attentionDeclineHandler, notFrom: "AttentionNotOpen", notFound: { attention: "AttentionNotFound" } });
 const attentionListServed = Reads.serve({ name: "attention.list", read: attentionList.declaration });
 const attentionRaiseServed = Handlers.serve({ name: "attention.raise", operation: attentionRaise.declaration, handler: attentionRaiseHandler });
 const milestoneAddServed = Handlers.serve({ name: "milestone.add", operation: milestoneAdd.declaration, handler: milestoneAddHandler });
-const milestoneDropServed = Handlers.serve({ name: "milestone.drop", operation: milestoneDrop.declaration, handler: milestoneDropHandler, notFrom: "MilestoneNotActive" });
+const milestoneDropServed = Handlers.serve({ name: "milestone.drop", operation: milestoneDrop.declaration, handler: milestoneDropHandler, notFrom: "MilestoneNotActive", notFound: { milestone: "MilestoneNotFound" } });
 const milestoneListServed = Reads.serve({ name: "milestone.list", read: milestoneList.declaration });
 const missionFinishServed = Handlers.serve({ name: "mission.finish", operation: missionFinish.declaration, handler: missionFinishHandler, notFrom: "MissionNotIntake" });
 const missionGetServed = Reads.serve({ name: "mission.get", read: missionGet.declaration });
@@ -83,16 +83,16 @@ const missionResumeServed = Handlers.serve({ name: "mission.resume", operation: 
 const missionStartServed = Handlers.serve({ name: "mission.start", operation: missionStart.declaration, handler: missionStartHandler, notFrom: "MissionNotIntake" });
 const missionStopServed = Handlers.serve({ name: "mission.stop", operation: missionStop.declaration, handler: missionStopHandler, notFrom: "MissionNotIntake" });
 const missionTasksServed = Handlers.serve({ name: "mission.tasks", operation: missionTasks.declaration, handler: missionTasksHandler });
-const questionAnswerServed = Handlers.serve({ name: "question.answer", operation: questionAnswer.declaration, handler: questionAnswerHandler, notFrom: "QuestionNotAsked" });
+const questionAnswerServed = Handlers.serve({ name: "question.answer", operation: questionAnswer.declaration, handler: questionAnswerHandler, notFrom: "QuestionNotAsked", notFound: { question: "QuestionNotFound" } });
 const questionAskServed = Handlers.serve({ name: "question.ask", operation: questionAsk.declaration, handler: questionAskHandler });
 const questionListServed = Reads.serve({ name: "question.list", read: questionList.declaration });
-const questionSpikeServed = Handlers.serve({ name: "question.spike", operation: questionSpike.declaration, handler: questionSpikeHandler, notFrom: "QuestionNotAsked" });
-const runFailServed = Handlers.serve({ name: "run.fail", operation: runFail.declaration, handler: runFailHandler, notFrom: "RunNotRunning" });
-const runFinishServed = Handlers.serve({ name: "run.finish", operation: runFinish.declaration, handler: runFinishHandler, notFrom: "RunNotRunning" });
+const questionSpikeServed = Handlers.serve({ name: "question.spike", operation: questionSpike.declaration, handler: questionSpikeHandler, notFrom: "QuestionNotAsked", notFound: { question: "QuestionNotFound" } });
+const runFailServed = Handlers.serve({ name: "run.fail", operation: runFail.declaration, handler: runFailHandler, notFrom: "RunNotRunning", notFound: { run: "RunNotFound" } });
+const runFinishServed = Handlers.serve({ name: "run.finish", operation: runFinish.declaration, handler: runFinishHandler, notFrom: "RunNotRunning", notFound: { run: "RunNotFound" } });
 const runListServed = Reads.serve({ name: "run.list", read: runList.declaration });
-const runReportServed = Handlers.serve({ name: "run.report", operation: runReport.declaration, handler: runReportHandler, notFrom: "RunNotRunning" });
+const runReportServed = Handlers.serve({ name: "run.report", operation: runReport.declaration, handler: runReportHandler, notFrom: "RunNotRunning", notFound: { run: "RunNotFound" } });
 const runStartServed = Handlers.serve({ name: "run.start", operation: runStart.declaration, handler: runStartHandler });
-const runStopServed = Handlers.serve({ name: "run.stop", operation: runStop.declaration, handler: runStopHandler, notFrom: "RunNotRunning" });
+const runStopServed = Handlers.serve({ name: "run.stop", operation: runStop.declaration, handler: runStopHandler, notFrom: "RunNotRunning", notFound: { run: "RunNotFound" } });
 
 /** Each thing and its table: a D1 table, or the name its actors go by. */
 const tables = [[thingIn(attentionThing), "attention"], [thingIn(milestoneThing), "milestone"], [thingIn(missionThing), "mission"], [thingIn(personThing), "person"], [thingIn(questionThing), "question"], [thingIn(runThing), "run"]] as const;
@@ -192,7 +192,7 @@ const build = (env: Env) =>
     HttpApiBuilder.layer(CallApi).pipe(
       Layer.provide([AttentionLive, MilestoneLive, MissionLive, QuestionLive, RunLive]),
       Layer.provideMerge(CallTelemetry.layer),
-      Layer.provide([StoreD1.layer({ tables }), JournalD1.layer, BusyLive, AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))]),
+      Layer.provide([StoreD1.layer({ tables, people: thingIn(personThing) }), JournalD1.layer, BusyLive, AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))]),
       Layer.provideMerge(Database.d1(env.DB)),
       Layer.provide(HttpServer.layerServices),
     ),
@@ -223,7 +223,7 @@ const tools = Mcp.tools<Services>({
 let mcpRuntime: ManagedRuntime.ManagedRuntime<Services, never> | undefined;
 const runtimeOf = (env: Env) =>
   (mcpRuntime ??= ManagedRuntime.make(
-    Layer.mergeAll(StoreD1.layer({ tables }), JournalD1.layer, BusyLive, AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))).pipe(Layer.provideMerge(Database.d1(env.DB))),
+    Layer.mergeAll(StoreD1.layer({ tables, people: thingIn(personThing) }), JournalD1.layer, BusyLive, AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))).pipe(Layer.provideMerge(Database.d1(env.DB))),
   ));
 
 const TRACEPARENT = /^00-([0-9a-f]{32})-([0-9a-f]{16})-[0-9a-f]{2}$/;

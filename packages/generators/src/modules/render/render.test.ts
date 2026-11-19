@@ -48,7 +48,7 @@ describe("render", () => {
   });
 
   it("declares each operation's refusals on its endpoint, with their exit codes", () => {
-    expect(byPath.get("generated/api/src/allowance/grant.ts")!.content).toContain("error: [AllowanceLimitTooHigh, NotAllowed]");
+    expect(byPath.get("generated/api/src/allowance/grant.ts")!.content).toContain("error: [AllowanceLimitTooHigh, PersonNotFound, NotAllowed]");
     const errors = byPath.get("generated/api/src/errors.ts")!.content;
     expect(errors).toContain("AllowanceLimitTooHigh: 44,");
     expect(errors).toContain("AllowanceNotActive: 40,");

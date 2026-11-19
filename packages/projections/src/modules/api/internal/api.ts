@@ -22,7 +22,8 @@ const errors = (model: Model): RenderedFile => {
   for (const t of declaring) {
     for (const [name, e] of Object.entries(t.errors)) {
       body.push(`ErrorNames.name(${t.identifier}.${name}, "${name}");`);
-      body.push(cls(name, e.code, `structOf(${t.identifier}.${name}.fields).fields`, STATUS.declared));
+      // A thing's declared `<Thing>NotFound` is its not-found refusal, adopted by the runtime (K16): 404, not 422.
+      body.push(cls(name, e.code, `structOf(${t.identifier}.${name}.fields).fields`, name === `${t.identifier}NotFound` ? STATUS.notFound : STATUS.declared));
       exits.push(`  ${name}: ${e.exit},`);
       codes.push(`  ${name}: "${e.code}",`);
       shown.push(`  ${name}: ${publicFields(e.fields)},`);
@@ -36,6 +37,15 @@ const errors = (model: Model): RenderedFile => {
     exits.push(`  ${error}: ${exit},`);
     codes.push(`  ${error}: "${code}",`);
     shown.push(`  ${error}: ["state"],`);
+  }
+  for (const t of things) {
+    // The generated `<Thing>NotFound`, carrying the id that named nothing; a declared one is already above.
+    if (!t.notFound || t.notFound.error in t.errors) continue;
+    const { error, exit, code } = t.notFound;
+    body.push(cls(error, code, "{ id: Schema.String }", STATUS.notFound));
+    exits.push(`  ${error}: ${exit},`);
+    codes.push(`  ${error}: "${code}",`);
+    shown.push(`  ${error}: ["id"],`);
   }
   body.push(cls("NotAllowed", model.refusals["NotAllowed"] ?? "AR-001", "{}", STATUS.notAllowed));
   exits.push(`  NotAllowed: ${NOT_ALLOWED_EXIT},`);

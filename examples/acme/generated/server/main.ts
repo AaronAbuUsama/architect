@@ -51,7 +51,7 @@ import * as systemThing from "../../blueprint/things/system/thing.ts";
 export { World } from "@orthograph/host-cloudflare";
 
 const allowanceGetServed = Reads.serve({ name: "allowance.get", read: allowanceGet.declaration });
-const allowanceGrantServed = Handlers.serve({ name: "allowance.grant", operation: allowanceGrant.declaration, handler: allowanceGrantHandler });
+const allowanceGrantServed = Handlers.serve({ name: "allowance.grant", operation: allowanceGrant.declaration, handler: allowanceGrantHandler, notFound: { member: "PersonNotFound" } });
 const allowanceRevokeServed = Handlers.serve({ name: "allowance.revoke", operation: allowanceRevoke.declaration, handler: allowanceRevokeHandler, notFrom: "AllowanceNotActive" });
 const allowanceSpendServed = Handlers.serve({ name: "allowance.spend", operation: allowanceSpend.declaration, handler: allowanceSpendHandler, notFrom: "AllowanceNotActive" });
 const apiKeyCreateServed = Handlers.serve({ name: "api-key.create", operation: apiKeyCreate.declaration, handler: apiKeyCreateHandler });
@@ -168,7 +168,7 @@ const build = (env: Env) =>
     HttpApiBuilder.layer(CallApi).pipe(
       Layer.provide([AllowanceLive, ApiKeyLive, InvitationLive, MembershipLive, OrganizationLive, PersonLive, SessionLive, SystemLive]),
       Layer.provideMerge(CallTelemetry.layer),
-      Layer.provide([StoreD1.layer({ tables }), JournalD1.layer, BusyLive, AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))]),
+      Layer.provide([StoreD1.layer({ tables, people: thingIn(personThing) }), JournalD1.layer, BusyLive, AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))]),
       Layer.provideMerge(Database.d1(env.DB)),
       Layer.provide(HttpServer.layerServices),
     ),
@@ -199,7 +199,7 @@ const tools = Mcp.tools<Services>({
 let mcpRuntime: ManagedRuntime.ManagedRuntime<Services, never> | undefined;
 const runtimeOf = (env: Env) =>
   (mcpRuntime ??= ManagedRuntime.make(
-    Layer.mergeAll(StoreD1.layer({ tables }), JournalD1.layer, BusyLive, AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))).pipe(Layer.provideMerge(Database.d1(env.DB))),
+    Layer.mergeAll(StoreD1.layer({ tables, people: thingIn(personThing) }), JournalD1.layer, BusyLive, AuthD1.layer(AuthD1.make({ db: env.DB, secret: env.AUTH_SECRET }))).pipe(Layer.provideMerge(Database.d1(env.DB))),
   ));
 
 const TRACEPARENT = /^00-([0-9a-f]{32})-([0-9a-f]{16})-[0-9a-f]{2}$/;

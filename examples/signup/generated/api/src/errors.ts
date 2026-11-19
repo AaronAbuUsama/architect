@@ -6,12 +6,14 @@ import * as Sheet from "../../../blueprint/things/sheet/errors.ts";
 ErrorNames.name(Sheet.SheetFull, "SheetFull");
 export class SheetFull extends Schema.TaggedError<SheetFull>()("SheetFull", { code: Schema.Literal("SH-001"), ...structOf(Sheet.SheetFull.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "SH-001" as const; }
 export class SheetNotOpen extends Schema.TaggedError<SheetNotOpen>()("SheetNotOpen", { code: Schema.Literal("SH-900"), ...{ state: Schema.String } }, { httpApiStatus: 409 }) { static readonly code = "SH-900" as const; }
+export class SheetNotFound extends Schema.TaggedError<SheetNotFound>()("SheetNotFound", { code: Schema.Literal("SH-901"), ...{ id: Schema.String } }, { httpApiStatus: 404 }) { static readonly code = "SH-901" as const; }
 export class NotAllowed extends Schema.TaggedError<NotAllowed>()("NotAllowed", { code: Schema.Literal("AR-001"), ...{} }, { httpApiStatus: 403 }) { static readonly code = "AR-001" as const; }
 
 /** Each refusal's exit code, for the CLI. */
 export const exits = {
   SheetFull: 71,
   SheetNotOpen: 70,
+  SheetNotFound: 4,
   NotAllowed: 3,
 } as const;
 
@@ -19,6 +21,7 @@ export const exits = {
 export const codes = {
   SheetFull: "SH-001",
   SheetNotOpen: "SH-900",
+  SheetNotFound: "SH-901",
   NotAllowed: "AR-001",
 } as const;
 
@@ -26,6 +29,7 @@ export const codes = {
 export const shown: Readonly<Record<string, ReadonlyArray<string>>> = {
   SheetFull: ["left"],
   SheetNotOpen: ["state"],
+  SheetNotFound: ["id"],
   NotAllowed: [],
 };
 
@@ -35,4 +39,4 @@ export const declared = {
 } as const;
 
 /** The wire class of each refusal, by name. */
-export const wire = { SheetFull, SheetNotOpen, NotAllowed };
+export const wire = { SheetFull, SheetNotOpen, SheetNotFound, NotAllowed };

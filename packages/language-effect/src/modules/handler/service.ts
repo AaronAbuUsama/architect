@@ -11,12 +11,13 @@ import { BlankReached, InvalidPayload, type HandlerApi } from "./types.ts";
 import { answerAttributes, payloadAttributes, principalAttributes } from "./internal/attributes.ts";
 import { measureCall } from "./internal/call-metrics.ts";
 import { applyMove, checkFrom, chooseOutcome } from "./internal/move.ts";
+import { prehandle, type Prehandled } from "./internal/prehandle.ts";
 import { recordingLogs } from "./internal/decided.ts";
 import { signalled, spanned } from "./internal/span.ts";
 export { Reads } from "./internal/read.ts";
 
 type AnyCodec = Schema.Codec<object, unknown>;
-type AnyHandler = (payload: object, context: { principal: Principal; steps: object; move: (to?: string) => Effect.Effect<void> }) => Effect.Effect<object, unknown, unknown>;
+type AnyHandler = (payload: object, context: { principal: Principal; steps: object; move: (to?: string) => Effect.Effect<void> } & Prehandled) => Effect.Effect<object, unknown, unknown>;
 
 /** An update's version had moved on, so this attempt committed nothing. Never leaves the wrapper. */
 class Conflict extends Data.TaggedError("Conflict")<{}> {}
@@ -31,12 +32,22 @@ const callStep = (span: string, run: CallRunner) => (args: ReadonlyArray<unknown
 const tagOf = (e: unknown): string =>
   typeof e === "object" && e !== null && typeof (e as { _tag?: unknown })._tag === "string" ? (e as { _tag: string })._tag : String(e);
 
-const serve = ({ name, operation, handler, notFrom, calls }: { readonly name: string; readonly operation: unknown; readonly handler: AnyHandler; readonly notFrom?: string; readonly calls?: Readonly<Record<string, CallWiring>> }) => {
+interface Spec {
+  readonly name: string;
+  readonly operation: unknown;
+  readonly handler: AnyHandler;
+  readonly notFrom?: string;
+  readonly notFound?: Readonly<Record<string, string>>;
+  readonly calls?: Readonly<Record<string, CallWiring>>;
+}
+
+const serve = ({ name, operation, handler, notFrom, notFound = {}, calls }: Spec) => {
   const op = operation as Operation;
   const decode = Schema.decodeUnknownEffect(op.payloadSchema as unknown as AnyCodec);
   const check = Schema.encodeEffect(op.answerSchema as unknown as AnyCodec);
   const refusals = new Set(op.errors.map(ErrorNames.nameOf).filter((tag) => tag !== undefined));
   if (notFrom !== undefined) refusals.add(notFrom);
+  for (const tag of Object.values(notFound)) refusals.add(tag);
   if (op.allowed.some((role) => role.kind !== "anyone")) refusals.add("NotAllowed");
   const callRefusals = new Set([...refusals, "InvalidPayload"]);
   const steps = Object.fromEntries(
@@ -68,10 +79,12 @@ const serve = ({ name, operation, handler, notFrom, calls }: { readonly name: st
           yield* Effect.annotateCurrentSpan({ "request.replayed": true });
           return yield* decodeAnswer(JSON.parse(kept)).pipe(Effect.orDie);
         }
-        yield* checkFrom(op, notFrom, payload, unit);
+        // What the payload names, read once and handed in; a missing one is refused before the handler, then the from-check.
+        const handed = yield* prehandle(op, notFound, payload, unit);
+        yield* checkFrom(op, notFrom, handed.subject);
         const chosen = yield* Ref.make<string | undefined>(undefined);
         const move = (to?: string) => chooseOutcome(name, op, to).pipe(Effect.flatMap((o) => Ref.set(chosen, o)));
-        const answer = yield* busy.counted(handler(payload, { principal, steps, move })).pipe(withRecords, logs.around);
+        const answer = yield* busy.counted(handler(payload, { principal, steps, move, ...handed })).pipe(withRecords, logs.around);
         // Recorded before the check, so an answer outside its declaration is evidence `prove` can name.
         yield* Effect.annotateCurrentSpan(answerAttributes(answer, op.answer));
         // An answer that breaks its declaration is the handler's bug, never the caller's: it dies, loudly.
@@ -80,7 +93,7 @@ const serve = ({ name, operation, handler, notFrom, calls }: { readonly name: st
           Effect.orDie,
         );
         const outcome = yield* Ref.get(chosen);
-        const entries = outcome === undefined ? [] : [yield* applyMove(name, op, payload, answer, outcome, unit)];
+        const entries = outcome === undefined ? [] : [yield* applyMove(name, op, payload, answer, outcome, unit, handed.id)];
         const request = key === undefined ? {} : { request: { key, answer: JSON.stringify(wire) } };
         const writes = yield* unit.writes;
         const committed = yield* store.commit({ writes, entries, ...request }).pipe(

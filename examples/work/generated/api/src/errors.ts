@@ -28,6 +28,10 @@ export class MilestoneNotActive extends Schema.TaggedError<MilestoneNotActive>()
 export class MissionNotIntake extends Schema.TaggedError<MissionNotIntake>()("MissionNotIntake", { code: Schema.Literal("MS-900"), ...{ state: Schema.String } }, { httpApiStatus: 409 }) { static readonly code = "MS-900" as const; }
 export class QuestionNotAsked extends Schema.TaggedError<QuestionNotAsked>()("QuestionNotAsked", { code: Schema.Literal("QU-900"), ...{ state: Schema.String } }, { httpApiStatus: 409 }) { static readonly code = "QU-900" as const; }
 export class RunNotRunning extends Schema.TaggedError<RunNotRunning>()("RunNotRunning", { code: Schema.Literal("RU-900"), ...{ state: Schema.String } }, { httpApiStatus: 409 }) { static readonly code = "RU-900" as const; }
+export class AttentionNotFound extends Schema.TaggedError<AttentionNotFound>()("AttentionNotFound", { code: Schema.Literal("AT-901"), ...{ id: Schema.String } }, { httpApiStatus: 404 }) { static readonly code = "AT-901" as const; }
+export class MilestoneNotFound extends Schema.TaggedError<MilestoneNotFound>()("MilestoneNotFound", { code: Schema.Literal("ML-901"), ...{ id: Schema.String } }, { httpApiStatus: 404 }) { static readonly code = "ML-901" as const; }
+export class QuestionNotFound extends Schema.TaggedError<QuestionNotFound>()("QuestionNotFound", { code: Schema.Literal("QU-901"), ...{ id: Schema.String } }, { httpApiStatus: 404 }) { static readonly code = "QU-901" as const; }
+export class RunNotFound extends Schema.TaggedError<RunNotFound>()("RunNotFound", { code: Schema.Literal("RU-901"), ...{ id: Schema.String } }, { httpApiStatus: 404 }) { static readonly code = "RU-901" as const; }
 export class NotAllowed extends Schema.TaggedError<NotAllowed>()("NotAllowed", { code: Schema.Literal("AR-001"), ...{} }, { httpApiStatus: 403 }) { static readonly code = "AR-001" as const; }
 
 /** Each refusal's exit code, for the CLI. */
@@ -46,6 +50,10 @@ export const exits = {
   MissionNotIntake: 50,
   QuestionNotAsked: 53,
   RunNotRunning: 60,
+  AttentionNotFound: 4,
+  MilestoneNotFound: 4,
+  QuestionNotFound: 4,
+  RunNotFound: 4,
   NotAllowed: 3,
 } as const;
 
@@ -65,6 +73,10 @@ export const codes = {
   MissionNotIntake: "MS-900",
   QuestionNotAsked: "QU-900",
   RunNotRunning: "RU-900",
+  AttentionNotFound: "AT-901",
+  MilestoneNotFound: "ML-901",
+  QuestionNotFound: "QU-901",
+  RunNotFound: "RU-901",
   NotAllowed: "AR-001",
 } as const;
 
@@ -84,6 +96,10 @@ export const shown: Readonly<Record<string, ReadonlyArray<string>>> = {
   MissionNotIntake: ["state"],
   QuestionNotAsked: ["state"],
   RunNotRunning: ["state"],
+  AttentionNotFound: ["id"],
+  MilestoneNotFound: ["id"],
+  QuestionNotFound: ["id"],
+  RunNotFound: ["id"],
   NotAllowed: [],
 };
 
@@ -101,4 +117,4 @@ export const declared = {
 } as const;
 
 /** The wire class of each refusal, by name. */
-export const wire = { MissionHasOpenQuestions, MissionNotRunning, MissionNotInIntake, MissionHasOpenTasks, MissionClosed, QuestionNoSuchOption, RunOverBudget, RunAgentCannot, RunTaskClaimed, AttentionNotOpen, MilestoneNotActive, MissionNotIntake, QuestionNotAsked, RunNotRunning, NotAllowed };
+export const wire = { MissionHasOpenQuestions, MissionNotRunning, MissionNotInIntake, MissionHasOpenTasks, MissionClosed, QuestionNoSuchOption, RunOverBudget, RunAgentCannot, RunTaskClaimed, AttentionNotOpen, MilestoneNotActive, MissionNotIntake, QuestionNotAsked, RunNotRunning, AttentionNotFound, MilestoneNotFound, QuestionNotFound, RunNotFound, NotAllowed };

@@ -88,7 +88,7 @@ describe("ortho prove --env local", () => {
 
   const cases: ReadonlyArray<{ readonly fixture: string; readonly installs: ReadonlyArray<readonly [string, string]>; readonly line: string; readonly says: string; readonly sync?: boolean }> = [
     { fixture: "answer-shape", installs: [["grant.ts", GRANT]], line: "allowance.grant answer shape ✘", says: 'grant-an-allowance "ada grants olga 500": answer.allowance: expected alw_<id>, got 500' },
-    { fixture: "declared-errors", installs: [["grant.ts", GRANT]], line: "allowance.grant declared errors ✘", says: "refused with AllowanceMemberUnknown, not one of AllowanceLimitTooHigh, NotAllowed" },
+    { fixture: "declared-errors", installs: [["grant.ts", GRANT]], line: "allowance.grant declared errors ✘", says: "refused with AllowanceMemberUnknown, not one of AllowanceLimitTooHigh, PersonNotFound, NotAllowed" },
     { fixture: "machine-path", installs: [["grant.ts", GRANT]], line: "allowance.grant machine path ✘", says: 'grant ended in "paused", not one of active' },
     { fixture: "events", installs: [["grant.ts", GRANT]], line: "allowance.grant events ✘", says: "move grant emitted no AllowanceGranted" },
     { fixture: "who-may-call", installs: [["main.ts", "generated/server/main.ts"]], line: "allowance.grant who may call ✘", says: "and was answered, not refused" },

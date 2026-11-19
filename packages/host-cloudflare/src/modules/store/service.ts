@@ -13,7 +13,7 @@ import { listRows } from "./internal/list.ts";
 const ownerOf = (thing: Thing): unknown => thing.store ?? thing.lives;
 
 export const StoreD1: StoreD1Api = {
-  layer: ({ tables, actors, stores = [] }) =>
+  layer: ({ tables, actors, stores = [], people }) =>
     Layer.effect(Store, Effect.gen(function* () {
       const home: Db = { sql: yield* SqlClient.SqlClient, d1: yield* D1Client.D1Client };
       // Each declared database store has a binding of its own, and its own `_journal` and `_requests` beside its tables.
@@ -38,7 +38,13 @@ export const StoreD1: StoreD1Api = {
             ? Effect.die(new Error("a list read needs a thing that lives in the database; actors keep one instance each"))
             : listRows(dbOf(query.thing).sql, tableOf(query.thing), query),
         find: (thing, id) =>
-          thing.lives === "actor"
+          thing === people
+            ? Effect.gen(function* () {
+                const rows = yield* home.sql`SELECT "id", "email", "name" FROM "auth_user" WHERE "id" = ${id}`.pipe(Effect.orDie);
+                const row = rows[0] as Record<string, unknown> | undefined;
+                return row ? yield* decodeRow(thing, row) : undefined;
+              })
+          : thing.lives === "actor"
             ? (actors ? actorFind(actors, thing, tableOf(thing), id) : noActors)
             : Effect.gen(function* () {
                 const rows = yield* dbOf(thing).sql`SELECT * FROM ${dbOf(thing).sql(tableOf(thing))} WHERE "id" = ${id}`.pipe(Effect.orDie);

@@ -22,3 +22,7 @@ and committed in that store's D1 binding, with its own `_journal` and `_requests
 database (`SqlClient`). One call commits to one store: writes to two die (`stores.test.ts`, two real D1 databases in
 workerd). `answered(key)` asks every database. A field whose encoded form is an array or a struct is its JSON text in
 its column and is read back by the field's schema (`internal/rows.ts`, STO-23; `store.test.ts`).
+
+The thing the identity keeps (`people`, the `per_`-id thing the generated server names) is read from Better Auth's
+users (`auth_user`: `id`, `email`, `name`), never from a table of its own, so the runtime finds the person a payload
+names (K16, M1.46).

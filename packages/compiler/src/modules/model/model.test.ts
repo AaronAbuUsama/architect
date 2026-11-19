@@ -30,7 +30,8 @@ describe("model", () => {
     if (!Exit.isSuccess(exit)) return;
     expect(Object.keys(exit.value.operations)).toEqual(["allowance.get", "allowance.grant", "allowance.revoke", "allowance.spend", "api-key.create", "invitation.accept", "invitation.revoke", "invitation.send", "membership.get", "organization.create", "organization.get", "person.sign-up", "session.show", "session.sign-in", "system.health"]);
     const grant = exit.value.operations["allowance.grant"];
-    expect(grant?.refusals).toEqual(["AllowanceLimitTooHigh", "NotAllowed"]);
+    // K16 (M1.46): grant's member is read by no role check, so a missing one is refused PersonNotFound before the handler.
+    expect(grant?.refusals).toEqual(["AllowanceLimitTooHigh", "PersonNotFound", "NotAllowed"]);
     expect(grant?.steps).toEqual({ insert: { name: "allowance.grant.insert", type: "database" } });
     expect(grant?.allowed).toEqual([{ kind: "role-of", role: "organization.owner", path: "organization" }]);
     expect(exit.value.things["allowance"]?.fields["member"]?.ref).toBe("person.id");

@@ -8,7 +8,7 @@ import * as Session from "../../../blueprint/things/session/errors.ts";
 ErrorNames.name(Allowance.AllowanceExceeded, "AllowanceExceeded");
 export class AllowanceExceeded extends Schema.TaggedError<AllowanceExceeded>()("AllowanceExceeded", { code: Schema.Literal("AL-001"), ...structOf(Allowance.AllowanceExceeded.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "AL-001" as const; }
 ErrorNames.name(Allowance.AllowanceNotFound, "AllowanceNotFound");
-export class AllowanceNotFound extends Schema.TaggedError<AllowanceNotFound>()("AllowanceNotFound", { code: Schema.Literal("AL-002"), ...structOf(Allowance.AllowanceNotFound.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "AL-002" as const; }
+export class AllowanceNotFound extends Schema.TaggedError<AllowanceNotFound>()("AllowanceNotFound", { code: Schema.Literal("AL-002"), ...structOf(Allowance.AllowanceNotFound.fields).fields }, { httpApiStatus: 404 }) { static readonly code = "AL-002" as const; }
 ErrorNames.name(Allowance.AllowanceLimitTooHigh, "AllowanceLimitTooHigh");
 export class AllowanceLimitTooHigh extends Schema.TaggedError<AllowanceLimitTooHigh>()("AllowanceLimitTooHigh", { code: Schema.Literal("AL-003"), ...structOf(Allowance.AllowanceLimitTooHigh.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "AL-003" as const; }
 ErrorNames.name(Person.PersonEmailTaken, "PersonEmailTaken");
@@ -18,6 +18,7 @@ export class SessionCredentialsWrong extends Schema.TaggedError<SessionCredentia
 export class AllowanceNotActive extends Schema.TaggedError<AllowanceNotActive>()("AllowanceNotActive", { code: Schema.Literal("AL-900"), ...{ state: Schema.String } }, { httpApiStatus: 409 }) { static readonly code = "AL-900" as const; }
 export class InvitationNotPending extends Schema.TaggedError<InvitationNotPending>()("InvitationNotPending", { code: Schema.Literal("IN-900"), ...{ state: Schema.String } }, { httpApiStatus: 409 }) { static readonly code = "IN-900" as const; }
 export class OrganizationNotActive extends Schema.TaggedError<OrganizationNotActive>()("OrganizationNotActive", { code: Schema.Literal("OR-900"), ...{ state: Schema.String } }, { httpApiStatus: 409 }) { static readonly code = "OR-900" as const; }
+export class PersonNotFound extends Schema.TaggedError<PersonNotFound>()("PersonNotFound", { code: Schema.Literal("PE-901"), ...{ id: Schema.String } }, { httpApiStatus: 404 }) { static readonly code = "PE-901" as const; }
 export class NotAllowed extends Schema.TaggedError<NotAllowed>()("NotAllowed", { code: Schema.Literal("AR-001"), ...{} }, { httpApiStatus: 403 }) { static readonly code = "AR-001" as const; }
 
 /** Each refusal's exit code, for the CLI. */
@@ -30,6 +31,7 @@ export const exits = {
   AllowanceNotActive: 40,
   InvitationNotPending: 40,
   OrganizationNotActive: 20,
+  PersonNotFound: 4,
   NotAllowed: 3,
 } as const;
 
@@ -43,6 +45,7 @@ export const codes = {
   AllowanceNotActive: "AL-900",
   InvitationNotPending: "IN-900",
   OrganizationNotActive: "OR-900",
+  PersonNotFound: "PE-901",
   NotAllowed: "AR-001",
 } as const;
 
@@ -56,6 +59,7 @@ export const shown: Readonly<Record<string, ReadonlyArray<string>>> = {
   AllowanceNotActive: ["state"],
   InvitationNotPending: ["state"],
   OrganizationNotActive: ["state"],
+  PersonNotFound: ["id"],
   NotAllowed: [],
 };
 
@@ -69,4 +73,4 @@ export const declared = {
 } as const;
 
 /** The wire class of each refusal, by name. */
-export const wire = { AllowanceExceeded, AllowanceNotFound, AllowanceLimitTooHigh, PersonEmailTaken, SessionCredentialsWrong, AllowanceNotActive, InvitationNotPending, OrganizationNotActive, NotAllowed };
+export const wire = { AllowanceExceeded, AllowanceNotFound, AllowanceLimitTooHigh, PersonEmailTaken, SessionCredentialsWrong, AllowanceNotActive, InvitationNotPending, OrganizationNotActive, PersonNotFound, NotAllowed };

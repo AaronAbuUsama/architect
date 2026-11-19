@@ -4,7 +4,7 @@ import { Effect, Schema } from "effect";
 import type { Operation } from "orthograph";
 import { EventNames } from "orthograph/server";
 import type { Entry } from "#modules/journal/types.js";
-import type { Unit } from "#modules/records/types.js";
+import type { Instance, Unit } from "#modules/records/types.js";
 import { NotFrom } from "../types.ts";
 import { journalled } from "./attributes.ts";
 
@@ -24,18 +24,14 @@ export const subjectOf = (op: Operation, payload: object, answer: object = {}): 
 };
 
 /**
- * The machine's own refusal, before the handler: the subject exists but is in a state the move can't start from.
- * Reading it here also fixes the version the commit is guarded by, so the check still holds when the move lands.
+ * The machine's own refusal, before the handler: the subject exists but is in a state the move can't start from. The
+ * subject is the one read before the handler (`prehandle`), which also fixed the version the commit is guarded by.
  */
-export const checkFrom = (op: Operation, refusal: string | undefined, payload: object, unit: Unit) =>
+export const checkFrom = (op: Operation, refusal: string | undefined, subject: Instance | undefined) =>
   Effect.gen(function* () {
     const move = op.move;
-    if (!move || move.from.length === 0 || refusal === undefined) return;
-    const subject = subjectOf(op, payload);
-    if (subject === undefined) return;
-    const found = yield* unit.read(op.thing, subject);
-    if (!found) return;
-    const state = found.state ?? "none";
+    if (!move || move.from.length === 0 || refusal === undefined || subject === undefined) return;
+    const state = subject.state ?? "none";
     if (!move.from.includes(state)) return yield* Effect.fail(new NotFrom({ _tag: refusal, state }));
   });
 
@@ -52,15 +48,21 @@ export const chooseOutcome = (name: string, op: Operation, to: string | undefine
     return outcome;
   });
 
-/** Set the subject's state in this attempt's unit, and give back the journal entry the commit writes with it. */
-export const applyMove = (name: string, op: Operation, payload: object, answer: object, outcome: string, unit: Unit) =>
+/**
+ * Set the subject's state in this attempt's unit, and give back the journal entry the commit writes with it. A creating
+ * move's subject is the id the answer gives, else the one minted for it; when the handler stored nothing under it, the
+ * runtime stores the instance from the thing's fields the payload and the answer fill.
+ */
+export const applyMove = (name: string, op: Operation, payload: object, answer: object, outcome: string, unit: Unit, minted?: string) =>
   Effect.gen(function* () {
     const move = op.move!;
-    const subject = subjectOf(op, payload, answer);
+    const subject = subjectOf(op, payload, answer) ?? minted;
     if (subject === undefined) return yield* Effect.die(new Error(`${name} moved, but neither its answer nor its payload names the ${move.key}'s instance`));
     const event = EventNames.nameOf(move.emits) ?? "UnnamedEvent";
+    const stored = yield* unit.read(op.thing, subject);
+    if (stored === undefined && move.from.length === 0) yield* unit.records.insert(op.thing, made(op, subject, payload, answer) as never);
     // An event's fields come from the subject as this call left it, then the payload, then the answer.
-    const instance = (yield* unit.read(op.thing, subject)) ?? {};
+    const instance = stored ?? {};
     const source = { ...instance, ...payload, ...answer } as Record<string, unknown>;
     const missing = Object.keys(move.emits.fields).filter((k) => !(k in source));
     if (missing.length > 0) return yield* Effect.die(new Error(`${name}: ${event} needs ${missing.join(", ")}, found in neither its instance, answer nor payload`));
@@ -73,3 +75,9 @@ export const applyMove = (name: string, op: Operation, payload: object, answer: 
     yield* Effect.annotateCurrentSpan({ "event.name": event });
     return { trace, operation: name, move: move.key, subject, event, fields } satisfies Entry;
   });
+
+/** A created instance as the call gives it: the id, then each of the thing's fields the payload or the answer holds by name. */
+const made = (op: Operation, id: string, payload: object, answer: object): Instance => {
+  const given = { ...payload, ...answer, id } as Record<string, unknown>;
+  return Object.fromEntries(Object.keys(op.thing.fields).filter((k) => k in given).map((k) => [k, given[k]]));
+};

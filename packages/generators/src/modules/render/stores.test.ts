@@ -58,7 +58,7 @@ describe("a feature's own store, rendered", () => {
     const main = beside.get("generated/server/main.ts")!;
     expect(main).toContain(`import vaultLedgerStore from "@fixture/vault/blueprint/stores/ledger.js";`);
     expect(main).toContain("readonly DB_VAULT_LEDGER: D1Database;");
-    expect(main).toContain("StoreD1.layer({ tables, stores: [[vaultLedgerStore, env.DB_VAULT_LEDGER]] }), JournalD1.across([env.DB_VAULT_LEDGER])");
+    expect(main).toContain("StoreD1.layer({ tables, stores: [[vaultLedgerStore, env.DB_VAULT_LEDGER]], people: thingIn(personThing) }), JournalD1.across([env.DB_VAULT_LEDGER])");
     expect(main).toContain(`stores: [{ db: env.DB_VAULT_LEDGER, tables: ["line"] }]`);
     expect(main).toMatch(/tables: \["allowance", [^\]]*"session"[^\]]*\], stores:/);
     expect(main).not.toMatch(/tables: \[[^\]]*"line"[^\]]*\], stores:/);
