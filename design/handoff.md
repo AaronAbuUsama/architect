@@ -155,18 +155,16 @@ in `main`, then delete); `build/portal-pro`, `design/kits-decision`, `design/wor
 
 ### Next on the critical path
 
-M1's remaining rows: M1.11 (projections, part one: built), M1.12 (sdk, cli and mcp as plugins), M1.13 (docs and the
-portal; needs M1.34), M1.22 (the actions projection), M1.23 and M1.24 (the agent-native port; M1.24 needs M1.34),
-M1.33 (processes, not containers: building), M1.34 (the portal-ui seam). Then `e2e-m1` loses `continue-on-error` and
-Gate M1.15 runs. Then the npm preview (direction 12), and M2.
+M1's remaining rows: M1.33 (processes, not containers: built, its harness audit accepted), M1.34 (the portal-ui
+seam), M1.35 (one visibility rule, K12: before M1.12), M1.12 (sdk, cli and mcp as plugins), M1.36 (telemetry carries
+the model, K12: before M1.13), M1.13 (docs and the portal; needs M1.34), M1.22 (the actions projection), M1.23 and
+M1.24 (the agent-native port; M1.24 needs M1.34), M1.37 (MCP from the whole model), M1.38 (confirmation per chain and
+environment), M1.39 (the canon's chain page, by the canon thread). Then `e2e-m1` loses `continue-on-error` and Gate
+M1.15 runs. Then the npm preview (direction 12), and M2, where M2.14 to M2.16 put `ortho add` on Nx's `Tree` (K12).
 
 ### Open questions carried by threads
 
-- **Secret and private fields over HTTP, the SDK and the CLI** are sent unredacted. Only MCP hides them. No slice
-  owns it yet (OPS-01).
 - **Journeys can't force a race** between two calls, so no journey proves a conflict (JOU-13). No slice yet.
-- **The portal wire carries little of the model** (things, operations, environments, blanks): journeys, events,
-  errors, `from`, stores and mounts must reach it before M1.13 draws the agreed pages (F8, #66).
 - **About 193 ledger items are owned by no slice.** Each becomes a slice or a canon question as its layer comes up.
 
 
