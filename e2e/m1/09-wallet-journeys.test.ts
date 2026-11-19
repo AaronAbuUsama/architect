@@ -24,7 +24,11 @@
 //     and its name, `BlankReached`, appears in the report (as it does in check 02). Every wallet journey's first step is
 //     `create`, which needs nothing from the world, so an empty handler is what stops it, not a missing world.
 //  8. Prove runs the app's own journeys and evals as well; only the nine wallet journeys' lines are judged here.
-//  9. Docker is needed (prove's collector). If it is down this check fails closed and says so; it never starts Docker.
+//  9. No Docker (M1.33, K10 section 8): prove's Collector is a pinned binary run as a process, `ORTHO_COLLECTOR_BIN` or the
+//     copy cached under `~/.cache/orthograph` (`ORTHO_CACHE_DIR`), fetched and digest-checked by prove itself when it is not
+//     there. So the only precondition this check can state is that a `ORTHO_COLLECTOR_BIN` that is set names a file; if it
+//     does not, the check fails closed and says so. It never skips and it starts nothing itself: prove starts the Collector
+//     and stops it, and `nothingRunning` below sees that no process of the copy is left.
 // 10. Anvil in a world is M1.31 (needs M1.30's `@orthograph/chain-evm`). Its test below is a tripwire that fails, naming
 //     what is missing, until both exist; it is not a proof of them.
 import { spawnSync } from "node:child_process";
@@ -54,9 +58,10 @@ const journeys = [
   noSigner,
 ];
 
-const dockerIsUp = () => {
-  const docker = spawnSync("docker", ["info"], { encoding: "utf8", timeout: 30_000 });
-  expect(docker.status, "Docker is not answering. Prove needs its collector container, so this check fails closed. Start Docker yourself: this check never starts it.").toBe(0);
+/** Where prove would look for its Collector: an `ORTHO_COLLECTOR_BIN` that is set must name a file (prove fails on it too, but later and less plainly). */
+const collectorIsFindable = () => {
+  const given = process.env["ORTHO_COLLECTOR_BIN"];
+  if (given !== undefined && given !== "") expect(existsSync(given), `ORTHO_COLLECTOR_BIN names ${given}, which is not there. Prove needs its Collector binary, so this check fails closed.`).toBe(true);
 };
 
 /** acme with @fixture/wallets installed (a variant of it, or as shipped), mounted by hand, and generated. */
@@ -147,7 +152,7 @@ describe("09 empty handlers: every journey fails, naming its step", () => {
   it("a control that works today: with an empty server handler per operation, each journey runs to its first step and fails there", async () => {
     const copy = generated("server-run");
     succeeds(copy.root, "generate");
-    dockerIsUp();
+    collectorIsFindable();
     expectEachFails(await proveWallets(copy.root, PORTS.walletControl));
     nothingRunning(copy.root);
   });
@@ -157,7 +162,7 @@ describe("09 empty handlers: every journey fails, naming its step", () => {
     // M1.27 lifts the compiler's refusal of `runs: "client"`. Until it has, this is where the check stops, and says why.
     const made = run(copy.root, "generate");
     expect(made.status, `ortho generate refuses the client operations, so the journeys cannot run yet (M1.27 not built):\n${made.out}`).toBe(0);
-    dockerIsUp();
+    collectorIsFindable();
     expectEachFails(await proveWallets(copy.root, PORTS.wallets));
     nothingRunning(copy.root);
   });
