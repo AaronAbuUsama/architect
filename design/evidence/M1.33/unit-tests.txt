@@ -1,12 +1,13 @@
 $ bash <scratch>/nodocker.sh pnpm nx run-many -t test --outputStyle=static --skip-nx-cache
-# commit a4ae3574 · 2026-11-19T08:04:06Z · exit 0 (expected 0) · 629.7s
+# commit 2cbb81aa · 2026-11-19T08:30:01Z · exit 0 (expected 0) · 628.4s
 
 
- NX   Running target test for 18 projects:
+ NX   Running target test for 20 projects:
 
 - language-solidity
 - host-cloudflare
 - language-effect
+- projections
 - generators
 - orthograph
 - chain-evm
@@ -14,6 +15,7 @@ $ bash <scratch>/nodocker.sh pnpm nx run-many -t test --outputStyle=static --ski
 - services
 - logbook
 - starter
+- wallets
 - portal
 - preset
 - signup
@@ -35,8 +37,8 @@ $ bash <scratch>/nodocker.sh pnpm nx run-many -t test --outputStyle=static --ski
 
  Test Files  20 passed (20)
       Tests  47 passed (47)
-   Start at  07:53:37
-   Duration  2.27s (transform 1.39s, setup 0ms, import 10.46s, tests 141ms, environment 2ms)
+   Start at  08:19:34
+   Duration  1.57s (transform 1.19s, setup 0ms, import 6.51s, tests 125ms, environment 1ms)
 
 
 > nx run services:test
@@ -49,8 +51,8 @@ $ bash <scratch>/nodocker.sh pnpm nx run-many -t test --outputStyle=static --ski
 
  Test Files  3 passed (3)
       Tests  6 passed (6)
-   Start at  07:53:37
-   Duration  4.05s (transform 471ms, setup 0ms, import 3.23s, tests 5.35s, environment 0ms)
+   Start at  08:19:34
+   Duration  3.68s (transform 351ms, setup 0ms, import 1.99s, tests 5.17s, environment 0ms)
 
 
 > nx run language-effect:test
@@ -61,10 +63,10 @@ $ bash <scratch>/nodocker.sh pnpm nx run-many -t test --outputStyle=static --ski
  RUN  v4.1.12 ./packages/language-effect
 
 
- Test Files  21 passed (21)
-      Tests  67 passed (67)
-   Start at  07:53:42
-   Duration  2.49s (transform 3.81s, setup 0ms, import 14.50s, tests 1.16s, environment 1ms)
+ Test Files  22 passed (22)
+      Tests  69 passed (69)
+   Start at  08:19:36
+   Duration  2.66s (transform 4.83s, setup 0ms, import 16.07s, tests 901ms, environment 1ms)
 
 
 > nx run portal:test
@@ -75,10 +77,24 @@ $ bash <scratch>/nodocker.sh pnpm nx run-many -t test --outputStyle=static --ski
  RUN  v4.1.12 ./packages/portal
 
 
- Test Files  4 passed (4)
-      Tests  48 passed (48)
-   Start at  07:53:40
-   Duration  6.87s (transform 675ms, setup 0ms, import 2.44s, tests 6.05s, environment 1ms)
+ Test Files  5 passed (5)
+      Tests  54 passed (54)
+   Start at  08:19:38
+   Duration  5.07s (transform 624ms, setup 0ms, import 2.20s, tests 4.48s, environment 0ms)
+
+
+> nx run projections:test
+
+> vitest run --root packages/projections --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/projections
+
+
+ Test Files  5 passed (5)
+      Tests  9 passed (9)
+   Start at  08:19:44
+   Duration  1.01s (transform 486ms, setup 0ms, import 3.78s, tests 30ms, environment 0ms)
 
 
 > nx run compiler:test
@@ -91,8 +107,8 @@ $ bash <scratch>/nodocker.sh pnpm nx run-many -t test --outputStyle=static --ski
 
  Test Files  7 passed (7)
       Tests  48 passed (48)
-   Start at  07:53:45
-   Duration  6.76s (transform 8.57s, setup 0ms, import 8.01s, tests 8.61s, environment 0ms)
+   Start at  08:19:39
+   Duration  6.67s (transform 9.37s, setup 0ms, import 7.03s, tests 9.62s, environment 0ms)
 
 
 > nx run generators:test
@@ -104,9 +120,9 @@ $ bash <scratch>/nodocker.sh pnpm nx run-many -t test --outputStyle=static --ski
 
 
  Test Files  5 passed (5)
-      Tests  23 passed (23)
-   Start at  07:53:52
-   Duration  4.10s (transform 4.29s, setup 0ms, import 5.80s, tests 8.69s, environment 1ms)
+      Tests  27 passed (27)
+   Start at  08:19:46
+   Duration  2.90s (transform 3.23s, setup 0ms, import 4.54s, tests 6.07s, environment 0ms)
 
 
 > nx run chain-evm:test
@@ -117,10 +133,10 @@ $ bash <scratch>/nodocker.sh pnpm nx run-many -t test --outputStyle=static --ski
  RUN  v4.1.12 ./packages/chain-evm
 
 
- Test Files  6 passed | 1 skipped (7)
-      Tests  13 passed | 2 skipped (15)
-   Start at  07:53:56
-   Duration  1.82s (transform 2.19s, setup 0ms, import 8.08s, tests 337ms, environment 0ms)
+ Test Files  7 passed | 1 skipped (8)
+      Tests  16 passed | 2 skipped (18)
+   Start at  08:19:50
+   Duration  1.66s (transform 1.55s, setup 0ms, import 7.81s, tests 390ms, environment 0ms)
 
 
 > nx run logbook:test
@@ -133,8 +149,8 @@ $ bash <scratch>/nodocker.sh pnpm nx run-many -t test --outputStyle=static --ski
 
  Test Files  4 passed (4)
       Tests  26 passed (26)
-   Start at  07:53:37
-   Duration  22.33s (transform 995ms, setup 0ms, import 4.43s, tests 30.10s, environment 4ms)
+   Start at  08:19:34
+   Duration  18.63s (transform 777ms, setup 0ms, import 2.25s, tests 27.07s, environment 0ms)
 
 
 > nx run lint:test
@@ -147,8 +163,8 @@ $ bash <scratch>/nodocker.sh pnpm nx run-many -t test --outputStyle=static --ski
 
  Test Files  2 passed (2)
       Tests  10 passed (10)
-   Start at  07:54:00
-   Duration  8.29s (transform 47ms, setup 0ms, import 71ms, tests 10.05s, environment 0ms)
+   Start at  08:19:53
+   Duration  5.60s (transform 38ms, setup 0ms, import 69ms, tests 6.40s, environment 0ms)
 
 
 > nx run signup:test
@@ -174,8 +190,24 @@ exclude:  **/node_modules/**, **/.git/**
 
  Test Files  9 passed (9)
       Tests  30 passed (30)
-   Start at  07:54:10
-   Duration  29.34s (transform 28.92s, setup 0ms, import 21.03s, tests 94.57s, environment 1ms)
+   Start at  08:19:59
+   Duration  19.45s (transform 23.18s, setup 0ms, import 22.03s, tests 68.78s, environment 1ms)
+
+
+> nx run wallets:test
+
+> vitest run --root packages/wallets --passWithNoTests
+
+
+ RUN  v4.1.12 ./packages/wallets
+
+(node:55982) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ Test Files  9 passed | 2 skipped (11)
+      Tests  39 passed | 7 skipped (46)
+   Start at  08:20:19
+   Duration  4.14s (transform 3.50s, setup 0ms, import 15.65s, tests 4.77s, environment 1ms)
 
 
 > nx run preset:test
@@ -188,8 +220,8 @@ exclude:  **/node_modules/**, **/.git/**
 
  Test Files  1 passed (1)
       Tests  4 passed (4)
-   Start at  07:54:40
-   Duration  2.22s (transform 358ms, setup 0ms, import 1.91s, tests 5ms, environment 0ms)
+   Start at  08:20:24
+   Duration  833ms (transform 243ms, setup 0ms, import 721ms, tests 4ms, environment 0ms)
 
 
 > nx run acme:test
@@ -218,12 +250,12 @@ include: **/*.{test,spec}.?(c|m)[jt]s?(x)
 exclude:  **/node_modules/**, **/.git/**
 
 
-> nx run work:test
+> nx run starter:test
 
-> vitest run --root examples/work --passWithNoTests
+> vitest run --root examples/starter --passWithNoTests
 
 
- RUN  v4.1.12 ./examples/work
+ RUN  v4.1.12 ./examples/starter
 
 No test files found, exiting with code 0
 
@@ -231,12 +263,12 @@ include: **/*.{test,spec}.?(c|m)[jt]s?(x)
 exclude:  **/node_modules/**, **/.git/**
 
 
-> nx run starter:test
+> nx run work:test
 
-> vitest run --root examples/starter --passWithNoTests
+> vitest run --root examples/work --passWithNoTests
 
 
- RUN  v4.1.12 ./examples/starter
+ RUN  v4.1.12 ./examples/work
 
 No test files found, exiting with code 0
 
@@ -275,8 +307,8 @@ Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+j
 
  Test Files  8 passed (8)
       Tests  29 passed (29)
-   Start at  07:53:48
-   Duration  60.46s (transform 193.48s, setup 448.75s, import 1.72s, tests 5.03s, environment 1ms)
+   Start at  08:19:46
+   Duration  41.62s (transform 123.84s, setup 301.91s, import 882ms, tests 3.93s, environment 1ms)
 
 
 > nx run prove:test
@@ -287,23 +319,30 @@ Sourcemap for "./node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_@cfworker+j
  RUN  v4.1.12 ./packages/prove
 
 
- Test Files  32 passed | 2 skipped (34)
-      Tests  137 passed | 3 skipped (140)
-   Start at  07:53:59
-   Duration  606.48s (transform 14.56s, setup 0ms, import 17.99s, tests 1190.96s, environment 2ms)
+ Test Files  32 passed | 3 skipped (35)
+      Tests  137 passed | 5 skipped (142)
+   Start at  08:19:52
+   Duration  609.04s (transform 13.67s, setup 0ms, import 20.23s, tests 1193.09s, environment 2ms)
 
 
 
 
- NX   Successfully ran target test for 18 projects
+ NX   Successfully ran target test for 20 projects
 
 
-  Run duration:      10m 28s
+
+ NX   Nx detected a flaky task
+
+  wallets:test
+
+Flaky tasks can disrupt your CI pipeline. Automatically retry them with Nx Cloud. Learn more at https://nx.dev/ci/features/flaky-tasks
+
+  Run duration:      10m 27s
   Cache:             Skipped (--skip-nx-cache)
-  Critical path:     10m 7s (1 task)
-  Recoverable time:  21.2s (3% of the run)
+  Critical path:     10m 10s (1 task)
+  Recoverable time:  17.7s (3% of the run)
 
   Recommendations:
     - Cache: drop --skip-nx-cache to restore unchanged tasks instantly.
     - Speed up or split the longest tasks on the critical path:
-        prove:test    10m 7s
+        prove:test    10m 10s
