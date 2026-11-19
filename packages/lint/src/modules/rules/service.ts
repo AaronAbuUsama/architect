@@ -5,6 +5,7 @@ import { handlerMatchesPath, noWallClock } from "./internal/place.ts";
 import { noViemOutsideChain } from "./internal/viem.ts";
 import { noOldNames } from "./internal/old-names.ts";
 import { requiredStepUsed } from "./internal/steps.ts";
+import { declaredErrorNamed, outcomeChosen } from "./internal/drift.ts";
 
 /** The oxlint plugin. `ortho check` registers it by path and passes every rule the same `ProjectFacts`. */
 export const plugin: Plugin = {
@@ -17,6 +18,8 @@ export const plugin: Plugin = {
     "handler-matches-path": handlerMatchesPath,
     "no-old-names": noOldNames,
     "required-step-used": requiredStepUsed,
+    "outcome-chosen": outcomeChosen,
+    "declared-error-named": declaredErrorNamed,
     "no-viem-outside-chain": noViemOutsideChain,
   },
 };

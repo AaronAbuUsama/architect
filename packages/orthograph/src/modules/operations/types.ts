@@ -45,11 +45,11 @@ type StructOf<F extends FieldsInput> = Schema.Struct<{ readonly [K in keyof F]: 
 // `any`: a role's rule takes its own thing's instance, so roles of different things are only comparable as `any`.
 type AllowedFor<P> = Role<any> | Builtin | RoleOf<any, (keyof P & string) | `${keyof P & string}.${string}`>;
 
-export interface OperationSpec<P extends FieldsInput, A extends FieldsInput, E extends ReadonlyArray<AnyErrorClass>, St extends Steps> {
+export interface OperationSpec<P extends FieldsInput, A extends FieldsInput, E extends ReadonlyArray<AnyErrorClass>, St extends Steps, M extends Move | undefined = Move | undefined> {
   readonly description: string;
   readonly payload: P;
   readonly answer: A;
-  readonly move?: Move;
+  readonly move?: M;
   readonly errors?: E;
   readonly allowed: readonly [AllowedFor<P>, ...Array<AllowedFor<P>>];
   readonly steps?: St;
@@ -67,6 +67,7 @@ export interface Operation<
   A extends FieldsInput = FieldsInput,
   E extends ReadonlyArray<AnyErrorClass> = ReadonlyArray<AnyErrorClass>,
   St extends Steps = Steps,
+  M extends Move | undefined = Move | undefined,
 > {
   readonly kind: "operation";
   readonly thing: T;
@@ -75,7 +76,8 @@ export interface Operation<
   readonly answer: A;
   readonly payloadSchema: StructOf<P>;
   readonly answerSchema: StructOf<A>;
-  readonly move: Move | undefined;
+  /** Its move, keeping the machine's literal states: a handler's `move` takes only the move's own outcomes (K16). */
+  readonly move: M;
   readonly errors: E;
   readonly allowed: ReadonlyArray<Allowed>;
   readonly steps: St;
@@ -145,7 +147,8 @@ export interface OperationsApi {
     const A extends FieldsInput,
     const E extends ReadonlyArray<AnyErrorClass> = readonly [],
     const St extends Steps = {},
-  >(thing: T, spec: OperationSpec<P, A, E, St>) => Operation<T, P, A, E, St>;
+    M extends Move | undefined = undefined,
+  >(thing: T, spec: OperationSpec<P, A, E, St, M>) => Operation<T, P, A, E, St, M>;
   readonly read: {
     /** One instance by its id, answering the fields it names. */
     <T extends Thing>(thing: T, spec: {
