@@ -36,3 +36,4 @@ export default Blueprint.journey("an invitation is used once", {
     ),
   ],
 });
+// scratch: builder-paths probe, never merged
