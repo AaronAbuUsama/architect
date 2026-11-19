@@ -31,6 +31,9 @@ export interface Launched {
 }
 
 export interface WorldsApi {
+  /** A port the system says is free on 127.0.0.1 now (what `port: 0` means), for callers that must name one. */
+  readonly anyPort: Effect.Effect<number, WorldFailed>;
+
   /**
    * Start `wrangler dev` on a config the caller made, detached in its own process group so it outlives this process:
    * the local database's migrations applied first, then wrangler on `port` with its own `state` folder and inspector
@@ -52,7 +55,7 @@ export interface WorldsApi {
   }) => Effect.Effect<Launched, WorldFailed>;
 
   /**
-   * Start the project at `root`: a fresh local database with the model's tables, then `wrangler dev` with a new
+   * Start the project at `root` (`port` 0: any free port, the one used is in `url`): a fresh local database with the model's tables, then `wrangler dev` with a new
    * world secret (never written to a file). Ready once the world answers. Stopped when the scope closes.
    */
   readonly start: (options: {

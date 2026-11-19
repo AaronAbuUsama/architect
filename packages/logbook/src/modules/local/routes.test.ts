@@ -1,5 +1,6 @@
 // The former HTTP/SQL shim assertions, through real workerd, R2, Durable Objects and the OIDC issuer process of @orthograph/services.
-// Each case gets fresh persisted storage. This file owns loopback ports 9320 and 9321; no other services are touched.
+// Each case gets fresh persisted storage. Every port is a free one; no other services are touched.
+import { freePorts } from "../../../test/ports.ts";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -9,7 +10,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from
 import type { StoredVerdict } from "#modules/book/types.js";
 import { Logbook } from "./service.ts";
 
-const PORTS = { logbook: 9320, issuer: 9321 };
+const PORTS = freePorts("logbook", "issuer");
 const services = Effect.runSync(Scope.make());
 const base = `http://127.0.0.1:${PORTS.logbook}`;
 const issuer = `http://127.0.0.1:${PORTS.issuer}/ortho`;

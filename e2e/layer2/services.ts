@@ -62,7 +62,7 @@ export type Stack = {
 
 /** The local OIDC issuer, the logbook (`ortho env up logbook`) and, if asked, a rogue second issuer and Verdaccio. */
 export const startStack = async (root: string, check: number, options: { readonly registry?: boolean; readonly rogue?: boolean; readonly env?: Readonly<Record<string, string>> } = {}): Promise<Stack> => {
-  const p = ports(check);
+  const p = ports();
   const dir = mkdtempSync(join(tmpdir(), "ortho-gate2-"));
   // Each service is a process of this scope: closing it stops them, in reverse, and a leaked one is the teardown's to find.
   const services = Effect.runSync(Scope.make());
