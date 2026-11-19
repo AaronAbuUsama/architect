@@ -29,7 +29,7 @@ no.
 
 This is acme's `spend`. Nothing in it mentions tracing:
 
-```ts file=examples/acme/blueprint/things/allowance/verbs/spend.ts lines=8-18
+```ts file=examples/acme/blueprint/things/allowance/verbs/spend.ts name=default lines=8-18
 export default Blueprint.operation(Allowance, {
   description: "Spend from what is left of this month's allowance.",
   payload: { allowance: Allowance.fields.id, amount: Amount, memo: Memo },
@@ -77,14 +77,14 @@ Journeys assert on spans by name, so a trace is checked, not just looked at. Whe
    stranger never looks like work (`service.ts:46`).
 3. **The operation's span opens**, named after the operation, with the caller on it:
 
-   ```ts file=packages/language-effect/src/modules/handler/service.ts lines=83-83
+   ```ts file=packages/language-effect/src/modules/handler/service.ts name=serve lines=83
    spanned(name, { operation: name, ...principalAttributes(principal) }),
    ```
 
 4. **The payload is written on it**, public fields only (`service.ts:50`).
 5. **Each step is its own span**, marked with its kind:
 
-   ```ts file=packages/language-effect/src/modules/handler/service.ts lines=30-36
+   ```ts file=packages/language-effect/src/modules/handler/service.ts name=serve lines=30-36
    const steps = Object.fromEntries(
      // Each step is its own span, marked with its kind: a `database` step's work is the store's, a `wait` step's a timer's.
      Object.entries(op.steps).map(([key, step]) => [
@@ -100,7 +100,7 @@ Journeys assert on spans by name, so a trace is checked, not just looked at. Whe
 8. **The outcome is written on the span.** A defect gets `defect`; a refusal gets `refusal` and, when the handler
    logged something just before refusing, `refusal.log`:
 
-   ```ts file=packages/language-effect/src/modules/handler/service.ts lines=77-82
+   ```ts file=packages/language-effect/src/modules/handler/service.ts name=serve lines=77-82
    Effect.tapCause((cause) =>
      Cause.hasDies(cause)
        ? Effect.annotateCurrentSpan({ defect: Cause.pretty(cause).split("\n")[0] ?? "" })
@@ -116,7 +116,7 @@ wrong state, a role that said no. A defect is a failure nothing declared: a bug,
 broke its own declaration. Effect would end a span in error for both, so every span goes through `spanned`, which ends
 it OK for a typed failure and in error only when the work dies:
 
-```ts file=packages/language-effect/src/modules/handler/internal/span.ts lines=10-15
+```ts file=packages/language-effect/src/modules/handler/internal/span.ts name=spanned lines=10-15
 export const spanned = (name: string, attributes: Record<string, unknown>) => <A, E, R>(work: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> =>
   work.pipe(
     Effect.result,
@@ -139,7 +139,7 @@ The failure still leaves the span unchanged, so the caller gets its typed refusa
 What a span says is an allowlist built from the declaration. A field's value is written only when the declaration
 names the field and makes it public:
 
-```ts file=packages/language-effect/src/modules/handler/internal/attributes.ts lines=10-11
+```ts file=packages/language-effect/src/modules/handler/internal/attributes.ts name=publicOnly lines=10-11
 export const publicOnly = (values: object, fields: FieldsInput): Array<[string, unknown]> =>
   Object.entries(values).filter(([k]) => Object.hasOwn(fields, k) && fields[k]!.visibility === "public");
 ```
@@ -169,7 +169,7 @@ local viewer.
 The core speaks only OpenTelemetry. Where it goes is an environment's `telemetry` list of sinks, so one sink or
 several is the same line:
 
-```ts file=packages/orthograph/src/modules/telemetry/types.ts lines=23-28
+```ts file=packages/orthograph/src/modules/telemetry/types.ts name=TelemetryApi lines=23-28
 export interface TelemetryApi {
   readonly sink: {
     readonly local: () => Sink;
@@ -189,7 +189,7 @@ Found while reading the handler wrapper (O2). Each is one slice of M1, and each 
 
 **Today.** `store.commit(…)` runs inside the operation's span but not as a span of its own:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=71-72
+```ts file=packages/language-effect/src/modules/handler/service.ts name=serve lines=71-72
 const committed = yield* store.commit({ writes: yield* unit.writes, entries, ...request });
 if (committed === "conflict") return yield* new Conflict();
 ```
@@ -210,7 +210,7 @@ asserts `spans({ present: ["allowance.spend.commit"] })`.
 **Today.** Visibility is public by default
 (`packages/orthograph/src/modules/visibility/types.ts:1`), and public fields become attributes. Acme's memo is free text:
 
-```ts file=examples/acme/blueprint/values/money.ts lines=5-6
+```ts file=examples/acme/blueprint/values/money.ts name=Memo lines=5-6
 /** What a spend was for, in a few words. */
 export const Memo = Blueprint.value(Blueprint.text());
 ```

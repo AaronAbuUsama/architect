@@ -29,7 +29,7 @@ view only by the events it keeps.
 
 The sign-up sheet says nothing about where it lives, so it lives in the project's default store:
 
-```ts file=examples/signup/blueprint/things/sheet/thing.ts lines=4-7
+```ts file=examples/signup/blueprint/things/sheet/thing.ts name=Sheet lines=4-7
 export const Sheet = Blueprint.thing({
   description: "A sign-up sheet with a fixed number of places.",
   fields: { id: Blueprint.id("sht"), title: Title, places: Count, taken: Count },
@@ -79,7 +79,7 @@ workshop, from layer 4.
 `lives` is the one place a declaration says where a thing's state is. Today it takes one of two built-in kinds, and
 the default is a D1 row:
 
-```ts file=packages/orthograph/src/modules/things/types.ts lines=26-32
+```ts file=packages/orthograph/src/modules/things/types.ts name=Thing,Lives lines=26-32
   /** Who owns its state: a D1 row with a version column (the default), or a Durable Object per instance (D1 #1). */
   readonly lives: Lives;
   /** The prefix of this thing's refusal codes (`AL` in `[AL-002]`); the compiler takes two letters of its name when unset. */
