@@ -83,9 +83,10 @@ export const oneNamePerPerson = Blueprint.invariant.unique(Handle.fields.owner, 
 - **Typed references, no strings.** `Handle.fields.name` already exists. `machine.states.claimed` is new: a machine's
   `states` becomes a record of state references, the way `machine.moves.claim` is already a record of move references
   (`examples/plugged-in/blueprint/things/handle/verbs/claim.ts:10`). The declaring site keeps its array,
-  `states: ["claimed", "released"]`, because that is where the names are declared. Four internal readers of the array
-  change with it (`compiler/.../describe.ts:92`, `prove/.../journeys/internal/checks.ts:29`,
-  `orthograph/.../machines/service.ts:8`, and the compiler's check).
+  `states: ["claimed", "released"]`, because that is where the names are declared; a blank `states`
+  (`Blueprint.todo`) gives an empty record, and the compiler reports the blank as it does today. The readers of the
+  declaration's array change with it (`compiler/.../describe.ts:89,92`, `prove/.../journeys/internal/checks.ts:29`,
+  `orthograph/.../machines/service.ts:8`); everything downstream reads the model's array, which stays.
 - **Why a namespace, `Blueprint.invariant.unique`:** the file holds one kind of declaration with several forms, and
   the forms to come (`requires`, a bound) sit beside `unique` without new top-level names. The compiler sorts the
   file's exports by `kind: "invariant"`, as it does errors and roles (`compiler/.../model/internal/layout.ts:136-164`).
@@ -107,10 +108,17 @@ The rule owns its refusal, once.
   `handle.oneHolderPerName`; take it out of `errors` in `blueprint/things/handle/verbs/claim.ts`." So the handler's
   type (`ErrorOf<O>`, `orthograph/.../operations/types.ts:140`) never includes it, and a handler cannot construct it.
 - **Attached to every operation that can break the rule.** The compiler computes the breakers and adds the refusal to
-  each one's `refusals`, with a map back to the rule. Conservative: every operation on the thing whose move does not
-  go only to states outside `while`, plus every operation with a database step that writes the thing. Listing too many
-  costs a line of docs; missing one would turn a refusal into a defect. On Plugged In that is `handle.claim`, and not
-  `handle.release` (it only leaves `claimed`).
+  each one's `refusals`, with a map back to the rule. An operation breaks a rule of thing T when:
+  1. its move on T can end in a `while` state (any move, for a rule with no `while`); or
+  2. one of its database steps names T in `writes` explicitly; or
+  3. T has no machine, and the operation is on T and has a database step (there is nothing finer to go on).
+
+  A move that ends only outside `while` cannot put its record in scope, and a step that writes only by default (the
+  operation's own record, `orthograph/.../operations/types.ts:15-16`) is accounted for by the move. On Plugged In that
+  makes `handle.claim` a breaker and not `handle.release` (it only leaves `claimed`) or `handle.resolve` (no move, a
+  default step). The model can't see which fields a step changes, so an operation with no move that rewrites a key on
+  a record in scope is missed; the runtime then dies naming the rule and the operation (5), so the blind spot is
+  loud, and the author's fix is `writes: [Handle]` on that step, until field-level `writes` (7) make breakers exact.
 
   ```jsonc
   // generated/model/model.json (the model may carry strings: it is generated)
@@ -170,6 +178,8 @@ The rule is one more stop on the spine every server operation runs (`language-ef
   maps that to a conflict (`host-cloudflare/.../store/internal/commit.ts:39`), the call retries, and the retry's
   check sees the winner and refuses. The index is built from the model's invariants and named after the rule
   (`"<table>_<rule>"`), so two rules on one field with different `while` sets get two indexes.
+- **A rule the operation doesn't list** (the blind spot in 3) is a defect naming the rule and the operation, never
+  an undeclared refusal on the wire.
 - **The refusal is counted as a refusal**, never a defect: the runtime's refusal set (`service.ts:53-58`, built from
   `op.errors` today) takes the operation's invariant refusals from the generated serve spec, as it takes `notFrom` and
   `notFound`. The operation span carries `refusal.invariant: "handle.oneHolderPerName"` beside `refusal` and
@@ -183,12 +193,17 @@ The rule is one more stop on the spine every server operation runs (`language-ef
 
 ### 6. S-19 / HAN-18: one call moving a value between holders
 
+(Snag S-19 is in `design/goals/03-snags.md` at `67575774`; ledger row `HAN-18` is on `origin/goal-3/han-10-check`,
+`design/ledger.md:794`, Codex's P2 on #118. Neither has reached `goal/stage-1` yet.)
+
 A call that moves a value (A `x`→`y`, then B `y`→`z`) passes the memory store, which checks only final values
 (`records/internal/unique.ts:23-35`), and fails on D1, which checks each statement in order and has no deferred unique
 check. The handler then retries the same doomed batch 64 times and dies as a "version race". The call:
 
 1. **The unit orders its writes:** a row that frees a key (leaves the scope, or changes the key) is written before a
-   row that takes one. A cycle (a straight swap) has no order: the call dies as a defect naming the rule.
+   row that takes one. A cycle has no order and the call dies as a defect naming the rule: a straight swap, or two
+   rules whose frees and takes cross (row A frees a key of rule 1 while taking one of rule 2, and row B the reverse).
+   Both stores die on it alike.
 2. **A clash among the call's own rows is a defect, never a retry.** The before-commit check sees it first and dies
    naming the rule; it is the handler's bug, not a race.
 3. **The memory store applies writes one at a time,** in the unit's order, and checks after each, so the two stores
@@ -229,15 +244,15 @@ through the model. A refusal now comes from one of four places, not three (`docs
 |---|---|---|---|
 | The grid | a fourteenth block, `invariant`, with its nine cells (today: model `~`, api `✗`, server `~`, sdk `~`, cli `~`, mcp `✗`, docs `~`, portal `✗`, telemetry `✗`); 117 cells become 126 in `grid/types.ts:20,52`, `grid.json:7` and K14 (`:34,118,529`); K14's "Rows still to come" (`:683-689`) gains it | ST1.10 | 1 ∥ |
 | Stores | the unit orders its writes; the memory store checks write by write; a self-made clash dies naming the rule (HAN-18) | ST1.11 checks, ST1.12 build | 1 ∥ |
-| Checks | check 25 rewritten to `invariants.ts` (only a checks author may: its refusal cases edit `thing.ts` text, `e2e/m1/25-unique-fields.test.ts:97-108`); new cases for every refusal in 1 to 5; package halves | ST1.13 | 1 ∥ |
+| Checks | check 25 rewritten to `invariants.ts` (only a checks author may: its refusal cases edit `thing.ts` text, `e2e/m1/25-unique-fields.test.ts:97-108`); new cases for every refusal in 1 to 5; a fixture journey that reaches both refusals; G4's five package tests rewritten onto the new spelling (`compiler/.../model/unique.test.ts`, `host-cloudflare/.../store/unique.test.ts`, `language-effect/.../records/find-by.test.ts`, `records/unique-structured.test.ts`, `handler/internal/decided-find-by.test.ts`) | ST1.13 | 1 ∥ |
 | `Blueprint` | `machine.states` as references; fields keep their key and thing in their type; `Blueprint.invariant.unique`; `findBy(rule, value)`'s type | ST1.14 | 2 |
 | Compiler and model | layout reads `invariants.ts`; `things.<t>.invariants` with its hash; every check in 1 and 3; breakers; `operations.<op>.invariants` and the merged `refusals`; the exit-clash scan; actors and client operations | ST1.15 | 3 |
-| Runtime and stores | the invariants stop; the refusal set; the filled refusal; `refusal.invariant` and the deciding log; indexes named per rule from the model; `lostUnique` from the model; `findBy(rule, value)` | ST1.16 | 4 |
+| Runtime and stores | the invariants stop; the refusal set; the filled refusal; `refusal.invariant` and the deciding log; a missed breaker dies naming the rule; indexes named per rule from the model; `lostUnique` from the model; `findBy(rule, value)` | ST1.16 | 4 |
 | Outputs | docs: an `## Invariants` section and a "why" cell for each refusal (`render/internal/docs.ts:20-24,70`); MCP: the same sentence in the tool's description; the scaffold: the blank gone, the header says the runtime refuses it, by which rule (`projections/.../handlers/internal/words.ts:84-89`, `body.ts:21`, `header.ts:90-103`); `ortho add thing` writes `invariants.ts`; the portal's wire carries `invariants` on things and operations, and their hashes (`portal/.../wire/types.ts:27-67`) | ST1.17 | 4 ∥ |
-| Prove | coverage asks for each rule's refusal once, from any journey on any breaker, not once per operation; eval 9 takes the runtime's deciding log; prove's world holds the rules (today `findBy` dies there, `prove/.../journeys/internal/world.ts:112`) | ST1.18 | 4 ∥ |
-| G4's spelling retired | `unique` leaves `Blueprint.thing`, the compiler's `unique.ts`, the model's `unique` view and `Records`' `T["unique"]` typing | ST1.19 | 5 |
-| Plugged In | `handle/invariants.ts` with both rules; `HandleTaken` and `HandleAlreadyOwned` leave `claim`'s `errors:` and its handler | ST1.20 | 6 |
-| The canon | a new `invariants` page in layer 2 beside `machines`, owning the words invariant and unique; `blueprint.mdx`'s file list and placement table; "four places a refusal comes from" in `operations.mdx` and `machines.mdx`; `stores.mdx` and `data.mdx` re-quoted; the glossary; `docs/canon/check.mjs:35` accepts `ST` ids in `planned=` fences | ST1.21 | 6 ∥ |
+| Prove | coverage asks for each rule's refusal once, from any journey on any breaker, not once per operation; eval 9 takes the runtime's deciding log; prove's world holds the rules (today `findBy` dies there, `prove/.../journeys/internal/world.ts:112`) | ST1.18 | 5 |
+| Plugged In | `handle/invariants.ts` with both rules, replacing the one-line `unique:`; `HandleTaken` and `HandleAlreadyOwned` leave `claim`'s `errors:` and its handler | ST1.19 | 6 |
+| G4's spelling retired | `unique` leaves `Blueprint.thing`, the compiler's `unique.ts`, the model's `unique` view and `Records`' `T["unique"]` typing | ST1.20 | 7 |
+| The canon | a new `invariants` page in layer 2 beside `machines`, owning the words invariant and unique; `blueprint.mdx`'s file list and placement table; "four places a refusal comes from" in `operations.mdx` and `machines.mdx`; `stores.mdx` and `data.mdx` re-quoted; the glossary; `docs/canon/check.mjs:35` accepts `ST` ids in `planned=` fences | ST1.21 | 8 |
 | The portal's pages | where a rule shows and how a refusal links to it, after Aaron answers the grill | ST1.22 | after M1.13 |
 
 The slices are rows ST1.09 to ST1.22 of Stage 1 in [`../milestones.md`](../milestones.md).
@@ -247,10 +262,11 @@ The slices are rows ST1.09 to ST1.22 of Stage 1 in [`../milestones.md`](../miles
 **No G5 slice blocks the climb's first journey.** "Claim a handle" needs a handle's name unique while claimed, and
 G4's one-line `unique: { name: { while: ["claimed"] } }` on `handle/thing.ts` gives exactly that, with the runtime G5
 keeps. The Goal 3 lead adds that one line now, for `name` only, and spreads it nowhere else; `HandleAlreadyOwned` stays
-a hand-written check until then. ST1.20 swaps both for `invariants.ts` once ST1.16 to ST1.19 have landed.
+a hand-written check until then. ST1.19 swaps both for `invariants.ts` once ST1.16 to ST1.18 have landed, and only
+then does ST1.20 retire G4's spelling.
 
 ### Who does what
 
-A checks author writes ST1.11 and ST1.13 (builders never edit checks); a builder each of ST1.12 and ST1.14 to ST1.19;
-Plugged In's journey author and climber ST1.20, in their own lanes (the blueprint and the handlers); the canon thread
-ST1.21; the portal designer ST1.22 after the grill.
+A checks author writes ST1.11 and ST1.13 (builders never edit checks); a builder each of ST1.12, ST1.14 to ST1.18 and
+ST1.20; Plugged In's journey author and climber ST1.19, in their own lanes (the blueprint and the handlers); the canon
+thread ST1.21, which owns `docs/canon/check.mjs`; the portal designer ST1.22 after the grill.

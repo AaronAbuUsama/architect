@@ -1,7 +1,7 @@
 # G5 grill: where an invariant shows to a reader
 
-Open for Aaron, from [G5](G5-invariants.md). Nothing here is drawn or built until he answers (the `portal-design`
-skill: grill the IA and UX before drawing). Slice ST1.22 waits on it; ST1.17 makes the data reach the portal's wire
+Open for Aaron, from [G5](G5-invariants.md). Nothing here is drawn or built until he answers the round (the
+`portal-design` skill: grill the IA and UX before drawing). Counts such as `×31` in the sketches are illustrative. Slice ST1.22 waits on it; ST1.17 makes the data reach the portal's wire
 whatever the answers are, so no answer blocks the build.
 
 **Terms, once for the round.**
@@ -177,7 +177,7 @@ export const oneHolderPerName = Blueprint.invariant.unique(Handle.fields.name, {
 | An agent reads the MCP tool before calling | knows why it may be refused | sees a name it can't open | reads your words |
 | You rename `name` to `handle` | the sentence follows | the name is unchanged | your words go stale silently |
 | A new rule with no extra writing | reads well at once | reads as jargon | blank until written |
-| Five surfaces stay in step | one function writes all | ✅ | ✅ one string |
+| The four surfaces stay in step | one function writes all | ✅ | ✅ one string |
 
 **Rubric**
 
@@ -284,7 +284,12 @@ decides it (`portal.md:289-291`).
 
 **The options**
 
-**Today** — as above: no row; the refusal lands on the handler.
+**Today** — `design/portal.md:260-268`: no row for rules, so a rule's refusal would be marked on the handler.
+
+```text
+ ├ move claim     → claimed            ▏ HandleClaimed
+ └ commit         1 store              ▇▇▇ attempt 1 conflict ─► attempt 2 committed  3.2 ms
+```
 
 **A · A "rules" stop between move and commit, listing the rules checked** (recommended)
 
@@ -333,4 +338,4 @@ conflict at commit) apart from a plain refusal.
 | Q4 | Whether the spine gets a stop for rules | A · a "rules" stop between move and commit |
 
 **Answer key.** Reply with a letter per question, for example "1A 2A 3A 4A", or "2C" to have each rule carry your own
-words. Any answer you don't give takes the recommendation.
+words. Once you answer the round, a question you skip takes its recommendation.
