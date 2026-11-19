@@ -735,8 +735,8 @@
    "pr": null
   },
   {
-   "id": "codex-links",
-   "name": "Codex: links",
+   "id": "codex-plugged-in",
+   "name": "Codex: Plugged In",
    "emoji": "🤖",
    "kind": "codex",
    "status": "idle",

@@ -15,6 +15,7 @@ export interface CardView {
   readonly question: Question | null;     // Aaron's open call that decides this card, if any
   readonly waitsOn: ReadonlyArray<OutputId>; // outputs this one depends on that aren't green yet in its lane
   readonly proposedNotNeeded: boolean;     // "proposed grey": red, and the grid proposes not needed; stays red until Aaron answers K14 Q2
+  readonly notes: { readonly markdown: string; readonly stale: boolean }; // empty markdown when nobody wrote any
 }
 
 export interface Score {
@@ -87,6 +88,7 @@ export const join = (grid: Grid, board: Board): BoardView => {
       question: cell.question ? questions.get(cell.question) ?? null : null,
       waitsOn: [],
       proposedNotNeeded: cell.notNeededProposal !== null && stateNow(cell, history) === "red",
+      notes: { markdown: w?.notes?.markdown ?? "", stale: !!w?.notes && w.notes.about !== grid.asOf },
     };
   };
 
@@ -161,3 +163,9 @@ export const matches = (c: CardView, f: Filter): boolean =>
   (!f.states || f.states.includes(c.state)) &&
   (!f.thread || c.thread?.id === f.thread) &&
   (!f.output || c.output.id === f.output);
+
+/** The whole grid's score at point `i` of the climb: the sum of every lane's score there. */
+export const scoreAt = (lanes: ReadonlyArray<LaneClimb>, i: number): Score => lanes.reduce<Score>((a, l) => {
+  const s = l.points[i]!.score;
+  return { green: a.green + s.green, built: a.built + s.built, partly: a.partly + s.partly, red: a.red + s.red, notNeeded: a.notNeeded + s.notNeeded, needed: a.needed + s.needed };
+}, { green: 0, built: 0, partly: 0, red: 0, notNeeded: 0, needed: 0 });

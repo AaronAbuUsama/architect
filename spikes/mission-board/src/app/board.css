@@ -48,36 +48,67 @@ p{margin:0}
 .tone-success{background:var(--success)}.tone-default{background:var(--muted)}
 .tone-text-success{color:var(--success)}.tone-text-danger{color:var(--danger)}
 
-/* A card */
-.out-card{display:flex;flex-direction:column;gap:6px;cursor:pointer}
-.out-card.is-selected{outline:2px solid var(--accent);outline-offset:-2px}
-.out-card.is-proposed{opacity:.55}
-.card-top{display:flex;align-items:center;justify-content:space-between;gap:6px}
-.card-title{font-weight:600}
-.card-chips{display:flex;flex-wrap:wrap;gap:4px}
-.card-waits{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--warning)}
-.thread{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--muted);white-space:nowrap}
+/* The eval card: HeroUI Pro's project-board card (Kanban docs), every slot a field */
+.kanban__card.is-selected>.kanban__card-content{box-shadow:inset 0 0 0 2px var(--accent)}
+.oc{display:flex;flex-direction:column;gap:8px;min-width:0}
+.oc.is-proposed{opacity:.5}
+.oc-top{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
+.oc-square{width:10px;height:10px;border-radius:3px;flex:none}
+.oc-block{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.oc-title{font-weight:600;font-size:1rem;line-height:1.3;margin-top:-4px}
+.oc-desc{font-size:13px;line-height:1.45;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.oc-chips{display:flex;flex-wrap:wrap;gap:4px}
+.oc-chips .chip{display:inline-flex;align-items:center;gap:4px}
+.oc-progress{display:flex;align-items:center;gap:8px}.oc-progress>:first-child{flex:1}
+.oc-count{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.oc-held{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--warning)}
+.oc-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:2px}
+.oc-faces{display:flex}.oc-faces>*+*{margin-left:-6px}
+.oc-face{width:22px;height:22px;font-size:12px;box-shadow:0 0 0 2px var(--overlay,var(--surface))}
+.oc-face.is-before{opacity:.55}
+.oc-nobody{font-size:11px;color:var(--muted)}
+.oc-meta{display:flex;gap:10px;font-size:11px;color:var(--muted)}
+.oc-meta span{display:inline-flex;align-items:center;gap:3px}
 
-/* Detail */
-.detail{display:flex;flex-direction:column;gap:14px;padding:16px}
-.d-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
-.d-head h2{margin:2px 0 0;font-size:1.15rem}
-.d-props{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.d-section{display:flex;flex-direction:column;gap:6px}
-.d-section h3{margin:0;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
-.d-note{padding:8px 10px;border-radius:10px;background:var(--surface-secondary);font-size:13px}
+/* Pages of blocks: Notion-like (Aaron, 19 November) */
+.doc{display:flex;flex-direction:column;gap:12px;padding:20px 22px;line-height:1.55}
+.doc-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.doc-head-text{min-width:0}
+.doc-crumb{font-size:12px;color:var(--muted)}
+.doc-title{display:flex;align-items:center;gap:10px;margin:4px 0 0;font-size:1.5rem;font-weight:700;letter-spacing:-.015em;line-height:1.2}
+.doc-icon{display:grid;place-items:center;width:32px;height:32px;border-radius:9px;background:var(--surface-secondary);color:var(--accent);flex:none}
+.doc-props{display:flex;flex-direction:column;margin:2px 0 4px;border-bottom:1px solid var(--border);padding-bottom:10px}
+.doc-prop{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px;padding:4px 0;font-size:13px;align-items:baseline}
+.doc-prop dt{color:var(--muted)}.doc-prop dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.doc-h2{margin:10px 0 0;font-size:1.05rem;font-weight:700}
+.doc-text{max-width:75ch}
+.doc-callout{display:flex;gap:10px;padding:12px 14px;border-radius:12px;background:var(--surface-secondary)}
+.doc-callout-icon{color:var(--muted);padding-top:2px}
+.doc-callout.tone-warning .doc-callout-icon{color:var(--warning)}.doc-callout.tone-success .doc-callout-icon{color:var(--success)}.doc-callout.tone-danger .doc-callout-icon{color:var(--danger)}
+.doc-callout.tone-warning,.doc-callout.tone-success,.doc-callout.tone-danger{background:color-mix(in oklab,var(--surface-secondary) 85%,currentColor 0%)}
+.doc-callout-title{font-weight:600;margin-bottom:2px}
+.doc-ol{margin:0;padding-left:22px;list-style:decimal;display:flex;flex-direction:column;gap:10px}
+.doc-ol li::marker{color:var(--muted);font-weight:600}
+.doc-li-title{font-weight:600}
+.doc .widget{margin:0}
 .d-links{display:flex;gap:6px;flex-wrap:wrap}
-.d-section .mono{overflow-wrap:anywhere}
 .grade{display:inline-grid;place-items:center;min-width:20px;padding:0 4px;border-radius:6px;background:var(--surface-secondary)}
+.overview-doc{max-width:860px}
+.overview-doc .doc{padding:4px 0}
+.grid-tab{display:flex;flex-direction:column;gap:18px}
 
 /* Hill climb (GRILL Q4 A) */
-.climb-tab,.ov-main,.ov-rail{display:flex;flex-direction:column;gap:14px}
+.climb-tab{display:flex;flex-direction:column;gap:14px}
 .climb-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:14px;align-items:start}
 .widget-kpis{margin:0 6px 6px;border-radius:calc(var(--radius) * 1.5)}
 .matrix{display:flex;flex-direction:column;gap:4px;overflow-x:auto}
-.m-row{display:grid;grid-template-columns:200px repeat(9,minmax(34px,1fr));gap:4px;align-items:center}
+.m-row{display:grid;grid-template-columns:150px repeat(9,minmax(34px,1fr)) 44px;gap:4px;align-items:center}
 .m-out{font-size:11px;color:var(--muted);text-align:center}
-.m-lane{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-lane{all:unset;cursor:pointer;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.m-lane:hover{color:var(--accent)}.m-lane:focus-visible{outline:2px solid var(--accent)}
+.m-score{font-size:11px;color:var(--muted);text-align:right}
+.m-cell.is-selected{box-shadow:0 0 0 2px var(--background),0 0 0 4px var(--accent)}
+.legend-swatch.is-moved{box-shadow:inset 0 0 0 2px var(--foreground)}
+.climb .dot-green{fill:var(--success)}.climb .dot-built{fill:var(--warning)}
 .m-cell{height:26px;border-radius:6px;border:0;cursor:pointer;padding:0}
 .m-cell:focus-visible{outline:2px solid var(--foreground);outline-offset:1px}
 .st-red{background:color-mix(in oklab,var(--danger) 70%,transparent)}
@@ -92,12 +123,8 @@ p{margin:0}
 .climb .line-green{fill:none;stroke:var(--success);stroke-width:2.5}
 .climb .line-built{fill:none;stroke:var(--warning);stroke-width:2.5}
 
-/* Overview */
-.overview{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:16px;align-items:start}
-.prose{display:flex;flex-direction:column;gap:10px;line-height:1.55;max-width:75ch}
-
 @media (max-width:1100px){
-  .board-with-panel,.overview,.climb-grid{grid-template-columns:minmax(0,1fr)}
+  .board-with-panel,.climb-grid{grid-template-columns:minmax(0,1fr)}
   .panel{position:static;max-height:none}
 }
 
@@ -106,3 +133,39 @@ p{margin:0}
 code.mono{padding:0 3px;border-radius:4px;background:var(--surface-secondary)}
 .legend-swatch{display:inline-block;width:14px;height:10px;border-radius:3px;vertical-align:middle;margin-right:6px}
 .m-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);padding:10px 2px 0}
+
+/* The Components view: a story browser over the same story files Storybook reads */
+.sb{display:grid;grid-template-columns:240px minmax(0,1fr);min-height:100vh}
+.sb-nav{border-right:1px solid var(--border);padding:18px 12px;display:flex;flex-direction:column;gap:14px;position:sticky;top:0;align-self:start;max-height:100vh;overflow:auto}
+.sb-nav-title{display:flex;align-items:center;gap:8px;font-weight:700;padding:0 8px}
+.sb-group{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:0 8px 4px;font-weight:600}
+.sb-item{all:unset;display:flex;justify-content:space-between;align-items:center;width:calc(100% - 16px);padding:6px 8px;border-radius:8px;cursor:pointer;font-size:13px}
+.sb-item:hover{background:var(--surface-secondary)}.sb-item.is-current{background:var(--surface-secondary);color:var(--accent);font-weight:600}
+.sb-item:focus-visible{outline:2px solid var(--accent)}
+.sb-count{font-size:11px;color:var(--muted)}
+.sb-main{padding:22px 28px 48px;display:flex;flex-direction:column;gap:20px;min-width:0}
+.sb-head{display:flex;flex-direction:column;gap:4px}
+.sb-story{display:flex;flex-direction:column;gap:8px}
+.sb-story-head{display:flex;align-items:center;gap:8px}
+.sb-story-name{font-weight:600}
+.sb-canvas{padding:20px;border:1px dashed var(--border);border-radius:14px;background:var(--background);overflow:auto}
+.story-panel{max-width:100%;border:1px solid var(--border);border-radius:16px;background:var(--surface)}
+.story-panel>.lane{border-top:0;padding:14px}
+.story-panel>.matrix,.story-panel>.climb,.story-panel>.timeline,.story-panel>.kpi-group,.story-panel>p{margin:14px}
+.story-kanban{overflow:visible}
+.doc-block{display:flex;flex-direction:column;gap:6px}
+
+/* Notes: the experimental portal's note editor (tiptap over markdown) */
+.notes{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--border);padding-top:10px;margin-top:4px}
+.notes-head{display:flex;align-items:center;justify-content:space-between;gap:6px}.notes-head .doc-h2{margin:0}
+.notes-toolbar{display:flex;gap:2px}
+.notes-editor{border:1px solid var(--border);border-radius:10px;background:var(--surface-secondary)}
+.notes-editor:focus-within{border-color:var(--accent)}
+.notes-editor .tiptap{min-height:84px;padding:10px 12px;outline:none;font-size:14px;line-height:1.55}
+.notes-editor .tiptap p:only-child:has(> br.ProseMirror-trailingBreak)::before{content:"Start writing…";color:var(--muted);position:absolute;pointer-events:none}
+.notes-editor .tiptap p+p{margin-top:5px}
+.notes-editor .tiptap h2{font-size:16px;font-weight:650;margin:8px 0 4px}
+.notes-editor .tiptap ul{list-style:disc;padding-inline-start:19px}.notes-editor .tiptap ol{list-style:decimal;padding-inline-start:19px}
+.notes-editor .tiptap code{font-family:'JetBrains Mono',monospace;font-size:12px;padding:0 3px;border-radius:4px;background:var(--surface-tertiary,#333)}
+.notes-warning{color:var(--warning);font-size:12px}
+.notes-status{min-height:18px;font-size:12px;color:var(--muted)}

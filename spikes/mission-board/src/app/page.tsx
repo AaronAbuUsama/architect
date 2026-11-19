@@ -1,18 +1,24 @@
-// The mission board page: the Goal's tabs (GRILL Q2), the lanes, a card's detail where the switch says (GRILL Q3),
-// and the hill climb (GRILL Q4). All state is UI state; everything shown comes from `derive.ts`.
+// The mission board page, composed only from the components in `src/components` (the same ones the stories show, so
+// the two cannot drift). Tabs: the goal written once, the grid, the board of lanes, and the hill climb. UI state only;
+// everything shown comes from `derive.ts`.
 import { Segment } from "@heroui-pro/react/segment";
+import { Widget } from "@heroui-pro/react/widget";
 import { Button, Chip, Modal, Tabs } from "@heroui/react";
 import { ArrowLeftIcon, CaretRightIcon, FlagBannerIcon, WarningIcon } from "@phosphor-icons/react";
-import { useMemo, useState } from "react";
-import { changedSince, climb, climbTimes, join, matches, type Filter } from "../data/derive.ts";
+import { useMemo, useState, type ReactNode } from "react";
+import { CardDetail } from "../components/CardDetail/CardDetail.tsx";
+import { ChangedList } from "../components/ChangedList/ChangedList.tsx";
+import { ClimbChart } from "../components/ClimbChart/ClimbChart.tsx";
+import { CoverageMatrix } from "../components/CoverageMatrix/CoverageMatrix.tsx";
+import { GoalOverview } from "../components/GoalOverview/GoalOverview.tsx";
+import { GoalScore } from "../components/GoalScore/GoalScore.tsx";
+import { Lane } from "../components/Lane/Lane.tsx";
+import { LaneEndState } from "../components/LaneEndState/LaneEndState.tsx";
+import { columnsFor, type ColumnsBy, type DetailAt } from "../components/shared/vocab.ts";
+import { changedSince, climb, climbTimes, join, matches, scoreAt, type Filter } from "../data/derive.ts";
 import type { Board, CellId, CellState, Grid } from "../data/types.ts";
-import { CardDetail, EndStateDetail } from "./detail.tsx";
-import { HillClimb, type SinceOption } from "./climb.tsx";
-import { Lanes } from "./lanes.tsx";
-import { Overview } from "./overview.tsx";
-import type { ColumnsBy, DetailAt } from "./vocab.ts";
 
-export type Tab = "overview" | "board" | "climb";
+export type Tab = "overview" | "grid" | "board" | "climb";
 export interface PageProps {
   readonly grid: Grid;
   readonly board: Board;
@@ -26,7 +32,6 @@ type Open = { kind: "card"; cell: CellId } | { kind: "lane"; block: string } | n
 const show: Record<string, Filter["states"] | undefined> = {
   all: undefined, open: ["red", "partly", "built"] as CellState[], red: ["red"] as CellState[],
 };
-
 const when = (at: string) => at.slice(5, 16).replace("T", " ");
 
 export const Page = (p: PageProps) => {
@@ -35,35 +40,35 @@ export const Page = (p: PageProps) => {
   const lanesClimb = useMemo(() => climb(p.grid, p.board, times), [p.grid, p.board, times]);
   const [tab, setTab] = useState<Tab>(p.tab);
   const [open, setOpen] = useState<Open>(p.open ? { kind: "card", cell: p.open } : null);
+  const [block, setBlock] = useState<string>(view.lanes[0]!.block.id);
   const [states, setStates] = useState("all");
   const [since, setSince] = useState(p.grid.asOf);
 
-  const options: SinceOption[] = [{ id: p.grid.asOf, label: "the grid" }, ...times.slice(-3).map((t) => ({ id: t, label: when(t) }))];
-  const changes = since === p.grid.asOf ? changedSince(p.grid, p.board, "") : changedSince(p.grid, p.board, since);
+  const options = [{ id: p.grid.asOf, label: "the grid" }, ...times.slice(-3).map((t) => ({ id: t, label: when(t) }))];
+  const changes = changedSince(p.grid, p.board, since === p.grid.asOf ? "" : since);
+  const moved = new Set(changes.map((c) => c.cell));
+  const sinceIdx = lanesClimb[0]?.points.findIndex((x) => x.at === since) ?? -1;
+  const sinceLabel = `since ${options.find((o) => o.id === since)?.label ?? since}`;
+  const columns = columnsFor(p.columns, view.outputs, view.lanes);
   const filter: Filter = { states: show[states] };
-  const lane = open?.kind === "card" ? view.lanes.find((l) => l.cards.some((c) => c.cell.id === open.cell)) : open ? view.lanes.find((l) => l.block.id === open.block) : undefined;
+  const lane = open?.kind === "card" ? view.lanes.find((l) => l.cards.some((c) => c.cell.id === open.cell))
+    : open ? view.lanes.find((l) => l.block.id === open.block) : undefined;
   const card = open?.kind === "card" ? lane?.cards.find((c) => c.cell.id === open.cell) : undefined;
   const close = () => setOpen(null);
-  const toCard = (cell: CellId) => { setOpen({ kind: "card", cell }); setTab("board"); };
+  const toCard = (cell: CellId) => { setOpen({ kind: "card", cell }); if (tab === "climb" || tab === "overview") setTab("board"); };
+  const toLane = (b: string) => { setBlock(b); setOpen({ kind: "lane", block: b }); };
 
   const detail = lane && (card
-    ? <CardDetail view={view} card={card} lane={lane} onCard={toCard} onClose={close} />
-    : <EndStateDetail lane={lane} onClose={close} />);
-
-  const board = (
-    <>
-      <div className="filters">
-        <span className="muted small">Show</span>
-        <Segment aria-label="Which cards" size="sm" selectedKey={states} onSelectionChange={(k) => setStates(String(k))}>
-          <Segment.Item id="all">All cards</Segment.Item>
-          <Segment.Item id="open">Not green yet</Segment.Item>
-          <Segment.Item id="red">Red only</Segment.Item>
-        </Segment>
-      </div>
-      <Lanes view={view} columns={p.columns} visible={(c) => matches(c, filter)} selected={card?.cell.id ?? null}
-        onCard={toCard} onEndState={(l) => setOpen({ kind: "lane", block: l.block.id })} />
-    </>
+    ? <CardDetail card={card} lane={lane} asOf={view.asOf} onCard={toCard} onClose={close} />
+    : <LaneEndState lane={lane} onClose={close} />);
+  const withDetail = (main: ReactNode) => (
+    <div className={p.detail === "panel" && detail ? "board-with-panel" : "board-only"}>
+      <div className="board-main">{main}</div>
+      {p.detail === "panel" && detail && <aside className="panel">{detail}</aside>}
+    </div>
   );
+  const laneOf = (id: string) => view.lanes.find((l) => l.block.id === id)!;
+  const gridBlock = lane?.block.id ?? block; // the Grid tab shows the lane of whatever is open
 
   return (
     <div className="mb-page">
@@ -71,11 +76,10 @@ export const Page = (p: PageProps) => {
         <span>Orthograph</span><CaretRightIcon size={12} aria-hidden="true" /><span aria-current="page">Goal</span>
       </nav>
       <header className="goal-head">
-        <span className="goal-icon"><FlagBannerIcon size={20} aria-hidden="true" /></span>
-        <h1>{view.goal.title}</h1>
+        <h1><span className="goal-icon"><FlagBannerIcon size={20} aria-hidden="true" /></span>{view.goal.title}</h1>
         <p className="muted">{view.goal.summary}</p>
         <div className="props-row">
-          <Chip size="sm" variant="soft">Graded at <span className="mono">{view.asOf}</span></Chip>
+          <Chip size="sm" variant="soft">Graded at&nbsp;<span className="mono">{view.asOf}</span></Chip>
           <Chip size="sm" variant="soft"><span className="mono">{view.record}</span></Chip>
           <Chip size="sm" variant="soft" color="success">{view.score.green} green</Chip>
           <Chip size="sm" variant="soft" color="warning">{view.score.built} built</Chip>
@@ -87,30 +91,82 @@ export const Page = (p: PageProps) => {
         <Tabs.ListContainer>
           <Tabs.List aria-label="Goal views">
             <Tabs.Tab id="overview">Overview<Tabs.Indicator /></Tabs.Tab>
+            <Tabs.Tab id="grid">Grid<Tabs.Indicator /></Tabs.Tab>
             <Tabs.Tab id="board">Board<Tabs.Indicator /></Tabs.Tab>
             <Tabs.Tab id="climb">Hill climb<Tabs.Indicator /></Tabs.Tab>
           </Tabs.List>
         </Tabs.ListContainer>
       </Tabs>
 
-      {tab === "overview" && <Overview view={view} />}
-      {tab === "climb" && <HillClimb view={view} climb={lanesClimb} changes={changes} since={since} options={options} onSince={setSince} onCard={toCard} />}
+      {tab === "overview" && <div className="overview-doc"><GoalOverview view={view} /></div>}
+
+      {tab === "grid" && withDetail(
+        <div className="grid-tab">
+          <CoverageMatrix lanes={view.lanes} outputs={view.outputs} selected={card?.cell.id ?? null} onCard={(c) => setOpen({ kind: "card", cell: c })} onLane={toLane} />
+          <Lane lane={laneOf(gridBlock)} outputs={view.outputs} columns={columns} by={p.columns} selected={card?.cell.id ?? null}
+            onCard={(c) => setOpen({ kind: "card", cell: c })} onEndState={(l) => toLane(l.block.id)} />
+        </div>,
+      )}
+
       {tab === "board" && p.detail === "page" && detail && (
         <div className="detail-page">
           <Button size="sm" variant="ghost" onPress={close}><ArrowLeftIcon size={14} />Back to the board</Button>
           {detail}
         </div>
       )}
-      {tab === "board" && !(p.detail === "page" && detail) && (
-        <div className={p.detail === "panel" && detail ? "board-with-panel" : "board-only"}>
-          <div className="board-main">{board}</div>
-          {p.detail === "panel" && detail && <aside className="panel">{detail}</aside>}
+      {tab === "board" && !(p.detail === "page" && detail) && withDetail(
+        <>
+          <div className="filters">
+            <span className="muted small">Show</span>
+            <Segment aria-label="Which cards" size="sm" selectedKey={states} onSelectionChange={(k) => setStates(String(k))}>
+              <Segment.Item id="all">All cards</Segment.Item>
+              <Segment.Item id="open">Not green yet</Segment.Item>
+              <Segment.Item id="red">Red only</Segment.Item>
+            </Segment>
+          </div>
+          <div className="lanes">
+            {view.lanes.map((l) => (
+              <Lane key={l.block.id} lane={l} outputs={view.outputs} columns={columns} by={p.columns} visible={(c) => matches(c, filter)}
+                selected={card?.cell.id ?? null} onCard={toCard} onEndState={(x) => setOpen({ kind: "lane", block: x.block.id })} />
+            ))}
+          </div>
+        </>,
+      )}
+
+      {tab === "climb" && (
+        <div className="climb-tab">
+          <div className="climb-bar">
+            <span className="muted small">Since</span>
+            <Segment aria-label="Compare with" size="sm" selectedKey={since} onSelectionChange={(k) => setSince(String(k))}>
+              {options.map((o) => <Segment.Item key={o.id} id={o.id}>{o.label}</Segment.Item>)}
+            </Segment>
+          </div>
+          <Widget>
+            <Widget.Header><div className="head-text"><Widget.Title>Where the grid stands</Widget.Title><Widget.Description>Of {view.score.needed} needed cards</Widget.Description></div></Widget.Header>
+            <GoalScore now={view.score} then={sinceIdx >= 0 ? scoreAt(lanesClimb, sinceIdx) : null} sinceLabel={sinceLabel} />
+          </Widget>
+          <div className="climb-grid">
+            <Widget>
+              <Widget.Header><div className="head-text"><Widget.Title>Every card</Widget.Title><Widget.Description>Outlined: moved {sinceLabel}</Widget.Description></div></Widget.Header>
+              <Widget.Content><CoverageMatrix lanes={view.lanes} outputs={view.outputs} moved={moved} onCard={toCard} onLane={(b) => { setTab("grid"); toLane(b); }} /></Widget.Content>
+            </Widget>
+            <Widget>
+              <Widget.Header><div className="head-text"><Widget.Title>What moved</Widget.Title><Widget.Description>{changes.length} moves {sinceLabel}, newest first</Widget.Description></div></Widget.Header>
+              <Widget.Content><ChangedList changes={changes} lanes={view.lanes} onCard={toCard} /></Widget.Content>
+            </Widget>
+          </div>
+          <Widget>
+            <Widget.Header><div className="head-text"><Widget.Title>Green and built over time</Widget.Title><Widget.Description>Across all {view.score.needed} needed cards, one point per recorded move</Widget.Description></div></Widget.Header>
+            <Widget.Legend><Widget.LegendItem color="var(--success)">Green</Widget.LegendItem><Widget.LegendItem color="var(--warning)">Built</Widget.LegendItem></Widget.Legend>
+            <Widget.Content><ClimbChart climb={lanesClimb} /></Widget.Content>
+          </Widget>
         </div>
       )}
+
       {p.detail === "modal" && (
-        <Modal.Backdrop isOpen={tab === "board" && !!detail} onOpenChange={(o) => { if (!o) close(); }}>
+        <Modal.Backdrop isOpen={(tab === "board" || tab === "grid") && !!detail} onOpenChange={(o) => { if (!o) close(); }}>
           <Modal.Container size="lg">
-            <Modal.Dialog aria-label="Card detail">{detail}</Modal.Dialog>
+            <Modal.Dialog aria-label="Detail">{detail}</Modal.Dialog>
           </Modal.Container>
         </Modal.Backdrop>
       )}

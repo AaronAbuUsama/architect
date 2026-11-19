@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Mission board · hill climb</title>
+<title>Mission board: hill climb</title>
 <script src="./support.js"></script>
 <link rel="stylesheet" href="/_blob/3f618e8b6fb767b1f163c1b6be27a379">
 <link rel="stylesheet" href="/_blob/384061031833fc1f1e19b35c1eb670fe">
-<link rel="stylesheet" href="/_blob/cfade0ea5f81b845e232ca2458bf3ba9">
-<script src="/_blob/d0f73a936b3e21c03ca2443952cd24d0"></script>
+<link rel="stylesheet" href="/_blob/117bd5bca136abb7ec11483d71305c91">
+<script src="/_blob/4769ace138f2e3d87e97a5376613181c"></script>
 </head>
 <body>
 <x-dc>
@@ -21,17 +21,14 @@ body{margin:0;background:#000}
 <div ref="{{host}}"></div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"columns":{"editor":"enum","options":["state","output","stage"],"default":"state","section":"Switches"},"detail":{"editor":"enum","options":["panel","modal","page"],"default":"panel","section":"Switches"},"tab":{"editor":"enum","options":["board","climb","overview"],"default":"climb","section":"Switches"},"history":{"editor":"enum","options":["real","illustrative"],"default":"illustrative","section":"Data"},"$preview":{"width":1440,"height":1500}}'>
+<script type="text/x-dc" data-dc-script data-props='{"columns": {"editor": "enum", "options": ["state", "output", "stage"], "default": "state", "section": "Switches"}, "detail": {"editor": "enum", "options": ["panel", "modal", "page"], "default": "panel", "section": "Switches"}, "tab": {"editor": "enum", "options": ["grid", "board", "climb", "overview"], "default": "climb", "section": "Switches"}, "history": {"editor": "enum", "options": ["real", "illustrative"], "default": "illustrative", "section": "Data"}, "$preview": {"width": 1440, "height": 1500}}'>
 class Component extends DCLogic {
   renderVals() {
     const p = this.props;
     const opts = {
-      grid: "/_blob/1ec3172153edf7df2d1e5bfe735afff9",
-      board: (p.history ?? "illustrative") === "illustrative" ? "/_blob/10d46f642efc1b2f43dab8713cc3c685" : "/_blob/6ec9327935b99676491af55e6ac87986",
-      columns: p.columns ?? "state",
-      detail: p.detail ?? "panel",
-      tab: p.tab ?? "climb",
-      open: null
+      grid: "/_blob/6b1629bfe2d26e09bd84a9a0cc77eb09",
+      board: (p.history ?? "illustrative") === "illustrative" ? "/_blob/a636bb1e91fbb785dd0f06aac0d1c693" : "/_blob/3f8dd2620ec431888a5ed842de06a486",
+      columns: p.columns ?? "state", detail: p.detail ?? "panel", tab: p.tab ?? "climb", open: null
     };
     return {
       host: (el) => {

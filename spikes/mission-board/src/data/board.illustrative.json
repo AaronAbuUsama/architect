@@ -106,7 +106,7 @@
   {
    "cell": "error.telemetry",
    "task": "M1-36",
-   "thread": "codex-links",
+   "thread": "codex-plugged-in",
    "history": [
     {
      "at": "2026-11-19T10:00:00Z",
@@ -119,12 +119,16 @@
     {
      "at": "2026-11-19T14:00:00Z",
      "state": "built",
-     "thread": "codex-links",
+     "thread": "codex-plugged-in",
      "task": "M1-36",
      "evidence": null,
      "note": "the refusal code is on the span and in the metric"
     }
-   ]
+   ],
+   "notes": {
+    "markdown": "Codes show as span attributes; the portal view still needs the refusal count per code.",
+    "about": "m1@0000000"
+   }
   },
   {
    "cell": "thing.model",
@@ -318,7 +322,11 @@
      "evidence": null,
      "note": "check 16 holds over HTTP; no verdict yet"
     }
-   ]
+   ],
+   "notes": {
+    "markdown": "## Why it is red\n\nThe check `e2e/m1/16-visibility.test.ts` is written ahead and fails until **M1.35** lands.\n\n- A refusal never carries a field the caller may not see.\n- The served schema is cut by the same one rule.",
+    "about": "m1@6419d4b7"
+   }
   },
   {
    "cell": "visibility.server",
@@ -806,8 +814,8 @@
    "pr": null
   },
   {
-   "id": "codex-links",
-   "name": "Codex: links",
+   "id": "codex-plugged-in",
+   "name": "Codex: Plugged In",
    "emoji": "🤖",
    "kind": "codex",
    "status": "idle",

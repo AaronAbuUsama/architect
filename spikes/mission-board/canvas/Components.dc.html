@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mission board components</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/3f618e8b6fb767b1f163c1b6be27a379">
+<link rel="stylesheet" href="/_blob/384061031833fc1f1e19b35c1eb670fe">
+<link rel="stylesheet" href="/_blob/117bd5bca136abb7ec11483d71305c91">
+<script src="/_blob/4769ace138f2e3d87e97a5376613181c"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#000}
+</style>
+</helmet>
+<div class="dark console-root" data-theme="dark" style="min-height: 100vh; width: 100%;">
+<div ref="{{host}}"></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"component": {"editor": "enum", "options": ["Board/OutputCard", "Board/ColumnHeader", "Board/Lane", "Board/LaneEndState", "Board/CardDetail", "Grid/CoverageMatrix", "Grid/ClimbChart", "Grid/ChangedList", "Goal/GoalScore", "Goal/GoalOverview", "Pages/PageNotes"], "default": "Board/OutputCard", "section": "Show"}, "$preview": {"width": 1440, "height": 1600}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    const opts = { grid: "/_blob/6b1629bfe2d26e09bd84a9a0cc77eb09", board: "/_blob/3f8dd2620ec431888a5ed842de06a486", tab: "components", component: p.component ?? "Board/OutputCard" };
+    return {
+      host: (el) => {
+        if (!el) return;
+        const go = () => window.MissionBoard.mount(el, opts);
+        if (window.MissionBoard) go(); else window.addEventListener("load", go, { once: true });
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

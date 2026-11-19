@@ -23,6 +23,14 @@ export interface CardWork {
   readonly task: string | null;   // Task.id of the slice on it now ("M1-35"); the grid's `owner` is the plan
   readonly thread: string | null; // Thread.id working it now
   readonly history: ReadonlyArray<CardEvent>; // appended, never rewritten; oldest first
+  /** People's notes on the card, markdown, like an operation's notes in the portal workspace. Optional: none yet. */
+  readonly notes?: CardNotes;
+}
+
+/** Notes saved beside a card, stamped with the grid commit they were written against, so they can go stale. */
+export interface CardNotes {
+  readonly markdown: string;
+  readonly about: string; // the grid's `asOf` when written; differs from today's asOf → stale
 }
 
 /** A move on a card. State changes drive the hill climb; thread changes drive "had it before". */

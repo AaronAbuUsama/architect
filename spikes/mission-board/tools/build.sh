@@ -2,18 +2,18 @@
 # Builds the prototype: one browser bundle (React 19, HeroUI, HeroUI Pro and the app), the CSS, the data, and a local
 # preview page with the data inline. With --shoot it also screenshots the preview headless at 1440 wide.
 # Usage: tools/build.sh [--shoot] [columns] [detail] [tab] [open-card] [board-file]
-# Needs bun and HeroUI Pro installed in the main checkout's internal/portal-pro (licensed: its files never go in git).
+# tab may be "components" for the story browser. Needs bun, and `pnpm install` run here on a machine signed in to
+# HeroUI Pro (licensed: its files never go in git; out/ and node_modules are ignored).
 set -euo pipefail
 here="$(cd "$(dirname "$0")/.." && pwd)"
-pro="${PORTAL_PRO:-$(cd "$(git -C "$here" rev-parse --git-common-dir)/.." && pwd)/internal/portal-pro}"
-[ -e "$here/node_modules" ] || ln -s "$pro/node_modules" "$here/node_modules"
+[ -d "$here/node_modules/@heroui-pro/react" ] || (cd "$here" && pnpm install)
 shoot=0; [ "${1:-}" = "--shoot" ] && { shoot=1; shift; }
 columns="${1:-state}"; detail="${2:-panel}"; tab="${3:-board}"; open="${4:-visibility.api}"; boardf="${5:-board.fixture.json}"
 out="$here/out"; mkdir -p "$out"
-bun build "$here/src/app/main.tsx" --target=browser --format=iife --minify \
+bun build "$here/src/app/main.tsx" --target=browser --format=iife --minify --production \
   --define 'process.env.NODE_ENV="production"' --outfile "$out/mission-board.js" >/dev/null
-cp "$pro/node_modules/@heroui/styles/dist/heroui.min.css" "$out/heroui.css"
-cp "$pro/node_modules/@heroui-pro/react/dist/heroui-pro.min.css" "$out/heroui-pro.css"
+cp "$here/node_modules/@heroui/styles/dist/heroui.min.css" "$out/heroui.css"
+cp "$here/node_modules/@heroui-pro/react/dist/heroui-pro.min.css" "$out/heroui-pro.css"
 cat "$here/src/app/tokens.css" "$here/src/app/board.css" > "$out/board.css"
 cp "$here/src/data/grid/grid.json" "$out/grid.json"
 cp "$here/src/data/board.fixture.json" "$out/board.json"

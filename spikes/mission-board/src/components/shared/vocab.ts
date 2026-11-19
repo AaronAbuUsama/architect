@@ -1,7 +1,7 @@
 // The board's words for states and stages, and the two switches Aaron's answers turn:
 // what the columns mean (GRILL Q1) and where a card's detail opens (GRILL Q3).
-import type { CardView, BoardView } from "../data/derive.ts";
-import type { CellState, Task } from "../data/types.ts";
+import type { CardView, LaneView } from "../../data/derive.ts";
+import type { CellState, Output, Task } from "../../data/types.ts";
 
 export const stateWord: Record<CellState, string> = {
   red: "Red", partly: "Partly", built: "Built", green: "Green", "not-needed": "Not needed",
@@ -37,12 +37,12 @@ export interface Column { readonly id: string; readonly title: string; readonly 
 
 const stateOrder: ReadonlyArray<CellState> = ["red", "partly", "built", "green", "not-needed"];
 
-export const columnsFor = (by: ColumnsBy, view: BoardView): Column[] => {
-  if (by === "output") return view.outputs.map((o) => ({ id: o.id, title: o.name, tone: "default" }));
+export const columnsFor = (by: ColumnsBy, outputs: ReadonlyArray<Output>, lanes: ReadonlyArray<LaneView>): Column[] => {
+  if (by === "output") return outputs.map((o) => ({ id: o.id, title: o.name, tone: "default" }));
   if (by === "stage") {
     return (Object.keys(stageWord) as Task["stage"][]).map((s) => ({ id: s, title: stageWord[s], tone: s === "done" ? "success" : "default" }));
   }
-  const any = new Set(view.lanes.flatMap((l) => l.cards.map((c) => c.state)));
+  const any = new Set(lanes.flatMap((l) => l.cards.map((c) => c.state)));
   return stateOrder
     .filter((s) => s !== "not-needed" || any.has(s))
     .map((s) => ({ id: s, title: stateWord[s], tone: stateTone[s] }));

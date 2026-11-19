@@ -53,7 +53,7 @@ test("history moves a card: the latest event wins", () => {
 
 test("threads that had a card before are listed once, without the current one", () => {
   const c = cardOf(join(grid, moved).lanes, "error.telemetry");
-  equal(c.thread?.id, "codex-links");
+  equal(c.thread?.id, "codex-plugged-in");
   deepEqual(c.hadIt.map((t) => t.id), ["m1-lead"]);
 });
 
@@ -75,7 +75,7 @@ test("what changed lists moves after a time, newest first, with the state each c
 test("filters by state, thread and output", () => {
   const cards = join(grid, moved).lanes.flatMap((l) => l.cards);
   equal(cards.filter((c) => matches(c, { states: ["red"] })).length, 36);
-  equal(cards.filter((c) => matches(c, { thread: "codex-links" })).length, 1);
+  equal(cards.filter((c) => matches(c, { thread: "codex-plugged-in" })).length, 1);
   equal(cards.filter((c) => matches(c, { output: "mcp", states: ["red"] })).length, 7);
 });
 

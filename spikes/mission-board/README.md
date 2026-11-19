@@ -1,7 +1,9 @@
 # Spike: the mission board
 
-**Status: in progress.** The data model, its derivations and the IA grill draft are done. The prototype waits on the
-Mobbin look (its MCP needs Aaron's sign-in) and on Aaron's answers to `GRILL.md`.
+**Status: prototype published, IA round 2 open.** The prototype is the Design artifact
+https://claude.ai/artifact/SKCRqBQ9nm9FPGMJtSDzUS (version 4: Grid, Board, Components, Overview, Hill climb). It is
+built on the recommended answers of `GRILL.md` and `GRILL-2.md`; Aaron has not answered round 2 yet. Mobbin references
+still wait on his Mobbin sign-in.
 
 ## Question
 
@@ -34,17 +36,57 @@ Nothing derivable is stored. `src/data/derive.ts` computes it:
 | `climb` / `climbTimes` | each lane's score at each event time, from the grid's baseline on | the hill-climb chart |
 | `changedSince` | moves after a time, newest first, with the state each came from | the "since" picker and the moved outlines |
 | `matches` | filters by state, thread and output | the board's filter bar |
+| `scoreAt` | the whole grid's score at one point of the climb | the KPI trend ("3 since the grid") |
+| `CardView.notes` | the card's notes and whether the grid was regraded since (`CardWork.notes`, optional, new) | `PageNotes` |
+
+## The components
+
+Every part is a component in `src/components/<Name>/` that takes data shaped by `derive.ts` and never reads the
+fixtures. Each has stories (`<Name>.stories.tsx`, Storybook's CSF) for its real states, taken from the fixtures by
+`src/stories/fixtures.ts`. The composed page (`src/app/page.tsx`) uses the same components, so the stories and the
+board can't drift.
+
+| Component | Takes | Stories |
+|---|---|---|
+| `OutputCard` | `CardView`, the block's name, what holds it | red, partly, built, green, proposed grey, held by a dependency, with history |
+| `ColumnHeader` | a `Column` and its count | by state (red, built), by output, by stage |
+| `Lane` | a `LaneView`, the outputs, the columns | full, empty (red only), mostly red, with green, by output, by stage |
+| `LaneEndState` | a `LaneView` | first, last, visibility |
+| `CardDetail` | `CardView`, `LaneView`, `asOf` | red, built, proposed grey with Aaron's question, waits on others, with history |
+| `CoverageMatrix` | lanes and outputs, what moved | as graded, after eight moves |
+| `ClimbChart` | `LaneClimb[]` | only the baseline, climbing |
+| `ChangedList` | `Change[]` and the lanes | nothing moved, eight moves |
+| `GoalScore` | `Score`, and the score then | as graded, with change |
+| `GoalOverview` | `BoardView` | the goal as written |
+| `PageNotes` | notes markdown, stale | empty, written, stale |
+
+The card follows HeroUI Pro's own project-board card (the Kanban docs' Usage and Project Board examples): title,
+two-line description (green means), chips (state, slice, stage, question), a progress bar for evidence passing (left out
+while no eval has run: every `passing` is null today), avatars for the thread now and before, and evidence and history
+counts. Pages are Notion-like pages of blocks (`src/components/shared/blocks.tsx`: head, properties, headings, text,
+callouts, numbered list) with HeroUI parts between them; notes are the experimental portal's tiptap note editor
+(`internal/portal-pro/src/modules/note-editor` on `experimental/portal-pro`). Widget frames hold only KPIs and charts.
+
+Run it:
+
+```bash
+pnpm install          # its own workspace; HeroUI Pro installs only on a machine signed in to it; CI never installs it
+pnpm test             # the derivations (Node 26)
+pnpm storybook        # Storybook on :6006
+tools/build.sh --shoot state panel grid visibility.api   # the browser bundle, a preview page and a screenshot
+```
+
+The Design artifact's **Components** artboard is a story browser over the same story files (`src/browser/`), so Aaron
+can click through every part and state without running anything.
 
 ## Fixtures
 
-- `src/data/grid/`: the grid thread's files at fa911f30. 117 cells: 48 built, 31 partly, 38 red, 0 green.
+- `src/data/grid/`: the grid thread's files at 58985b3e (the example app is Plugged In). 117 cells: 48 built, 31 partly, 38 red, 0 green.
 - `board.fixture.json`: real tasks and the eight real threads from the kanban's saved data. Each cell whose grid
   `owner` names a slice on the board is linked to it (89 cells). There's no history, because no cell moves have been
   recorded yet.
 - `board.illustrative.json`: the same, plus eight made-up moves so the climb and "what changed" have something to
   show. It is marked `"illustrative": true`, and the page says so whenever it uses it.
-
-Run the checks: `node --test spikes/mission-board/src/data/derive.test.ts` (Node 26, no install).
 
 ## Found so far
 
@@ -53,12 +95,22 @@ Run the checks: `node --test spikes/mission-board/src/data/derive.test.ts` (Node
   in exactly one column. So each lane is its own `Kanban.Root`, and its columns must mean one thing (`GRILL.md` Q1).
 - The portal spec already makes a board's columns a thing's machine states (`design/portal.md:359`,
   `Portal.view.board({ by: Item.machine })`), which favours columns as eval states.
+- Aaron, 19 November, on version 3: 13 stacked Kanbans are "not the lanes"; the grid is what we build against. So
+  version 4 adds the Grid tab (the 13×9 map, a row opens its lane, a square its eval page) and `GRILL-2.md` asks
+  whether that is the main surface.
+- A Design artboard runs React 18; the bundle mounts its own React 19 root (`window.MissionBoard.mount`), and the
+  artboard's tweaks are the switches.
+- HeroUI's styles package exports only Tailwind sources, so Storybook imports the built CSS by path.
 
 ## Decision it supports
 
 M3.17 (the board in the portal) and the Goal page's work view: the board's data split and its column meaning.
 
 ## Open risks
+
+- The artifact could not be checked inside claude.ai from this session (the browser pane isn't signed in); the same
+  bundle was checked in a local preview and in Storybook.
+- `CardWork.notes` is a new optional field on the conductor's half of the schema; saving notes is not wired.
 
 - History is only as good as the conductor's writes. With no `CardEvent`s, the climb is a single point.
 - `asOf` is a commit, not a time. If the grid's states are re-read after board events, the two can disagree. Rule
