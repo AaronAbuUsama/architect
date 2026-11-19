@@ -67,6 +67,10 @@ export const Things = ({ here }: { here: Here }) => {
                     <Sidebar.MenuItem key={op.name} id={op.name} textValue={op.verb} href={page.op(op.name)} isCurrent={here.op === op.name}>
                       <Sidebar.MenuItemContent><Sidebar.MenuLabel>{op.verb}</Sidebar.MenuLabel>{op.kind === "read" && <Sidebar.MenuChip><Chip size="sm" variant="soft" className="tag">READ</Chip></Sidebar.MenuChip>}</Sidebar.MenuItemContent>
                     </Sidebar.MenuItem>))}
+                  {(o.treeRows?.[name] ?? []).map((r) => (
+                    <Sidebar.MenuItem key={r.id} id={r.id} textValue={r.label} href={r.href} isCurrent={here.id === r.id}>
+                      <Sidebar.MenuItemContent><Sidebar.MenuLabel>{r.label}</Sidebar.MenuLabel><Sidebar.MenuChip><Chip size="sm" variant="soft" color="accent" className="tag">{r.chip}</Chip></Sidebar.MenuChip></Sidebar.MenuItemContent>
+                    </Sidebar.MenuItem>))}
                   {name === blank.thing && o.blank === "a" && (
                     <Sidebar.MenuItem id={blank.name} textValue={blank.verb} href="op-link.pin.html" isCurrent={here.op === blank.name}>
                       <Sidebar.MenuItemContent><Sidebar.MenuLabel><span className="blank-label">{blank.verb}</span></Sidebar.MenuLabel><Sidebar.MenuChip><Chip size="sm" variant="soft" className="tag">BLANK</Chip></Sidebar.MenuChip></Sidebar.MenuItemContent>
@@ -155,7 +159,7 @@ export const Shell = ({ here, crumbs, children, rail = true }: { here: Here; cru
           </Navbar.Header>
         </Navbar>}>
       <div className="layout-content">
-        {o.label ? <OptStrip label={o.label} />
+        {o.strip ? o.strip : o.label ? <OptStrip label={o.label} />
           : <div className="r3-strip"><Chip size="sm" variant="soft" color="accent">Round 4</Chip><span>Drawn on Aaron's picks: the icon rail with ⌘K first (Q1 B + C), a page per environment (Q2 B), one plugins and stores page (Q3 B), blanks greyed in the tree (Q6 A).</span></div>}
         {children}
       </div>
