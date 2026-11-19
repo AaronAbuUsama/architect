@@ -1,6 +1,6 @@
 // Generated from blueprint/projections/api.ts. Do not edit.
 import { Schema } from "effect";
-import { ErrorNames, structOf } from "orthograph/server";
+import { ErrorNames, wireStruct } from "orthograph/server";
 import * as Allowance from "../../../blueprint/things/allowance/errors.ts";
 import * as Person from "../../../blueprint/things/person/errors.ts";
 import * as Session from "../../../blueprint/things/session/errors.ts";
@@ -21,15 +21,15 @@ export const refusals = {
 type Refusal = keyof typeof refusals;
 
 ErrorNames.name(Allowance.AllowanceExceeded, "AllowanceExceeded");
-export class AllowanceExceeded extends Schema.TaggedError<AllowanceExceeded>()("AllowanceExceeded", { code: Schema.Literal(refusals.AllowanceExceeded.code), ...structOf(Allowance.AllowanceExceeded.fields).fields }, { httpApiStatus: refusals.AllowanceExceeded.status }) { static readonly code = refusals.AllowanceExceeded.code; }
+export class AllowanceExceeded extends Schema.TaggedError<AllowanceExceeded>()("AllowanceExceeded", { code: Schema.Literal(refusals.AllowanceExceeded.code), ...wireStruct(Allowance.AllowanceExceeded.fields).fields }, { httpApiStatus: refusals.AllowanceExceeded.status }) { static readonly code = refusals.AllowanceExceeded.code; }
 ErrorNames.name(Allowance.AllowanceNotFound, "AllowanceNotFound");
-export class AllowanceNotFound extends Schema.TaggedError<AllowanceNotFound>()("AllowanceNotFound", { code: Schema.Literal(refusals.AllowanceNotFound.code), ...structOf(Allowance.AllowanceNotFound.fields).fields }, { httpApiStatus: refusals.AllowanceNotFound.status }) { static readonly code = refusals.AllowanceNotFound.code; }
+export class AllowanceNotFound extends Schema.TaggedError<AllowanceNotFound>()("AllowanceNotFound", { code: Schema.Literal(refusals.AllowanceNotFound.code), ...wireStruct(Allowance.AllowanceNotFound.fields).fields }, { httpApiStatus: refusals.AllowanceNotFound.status }) { static readonly code = refusals.AllowanceNotFound.code; }
 ErrorNames.name(Allowance.AllowanceLimitTooHigh, "AllowanceLimitTooHigh");
-export class AllowanceLimitTooHigh extends Schema.TaggedError<AllowanceLimitTooHigh>()("AllowanceLimitTooHigh", { code: Schema.Literal(refusals.AllowanceLimitTooHigh.code), ...structOf(Allowance.AllowanceLimitTooHigh.fields).fields }, { httpApiStatus: refusals.AllowanceLimitTooHigh.status }) { static readonly code = refusals.AllowanceLimitTooHigh.code; }
+export class AllowanceLimitTooHigh extends Schema.TaggedError<AllowanceLimitTooHigh>()("AllowanceLimitTooHigh", { code: Schema.Literal(refusals.AllowanceLimitTooHigh.code), ...wireStruct(Allowance.AllowanceLimitTooHigh.fields).fields }, { httpApiStatus: refusals.AllowanceLimitTooHigh.status }) { static readonly code = refusals.AllowanceLimitTooHigh.code; }
 ErrorNames.name(Person.PersonEmailTaken, "PersonEmailTaken");
-export class PersonEmailTaken extends Schema.TaggedError<PersonEmailTaken>()("PersonEmailTaken", { code: Schema.Literal(refusals.PersonEmailTaken.code), ...structOf(Person.PersonEmailTaken.fields).fields }, { httpApiStatus: refusals.PersonEmailTaken.status }) { static readonly code = refusals.PersonEmailTaken.code; }
+export class PersonEmailTaken extends Schema.TaggedError<PersonEmailTaken>()("PersonEmailTaken", { code: Schema.Literal(refusals.PersonEmailTaken.code), ...wireStruct(Person.PersonEmailTaken.fields).fields }, { httpApiStatus: refusals.PersonEmailTaken.status }) { static readonly code = refusals.PersonEmailTaken.code; }
 ErrorNames.name(Session.SessionCredentialsWrong, "SessionCredentialsWrong");
-export class SessionCredentialsWrong extends Schema.TaggedError<SessionCredentialsWrong>()("SessionCredentialsWrong", { code: Schema.Literal(refusals.SessionCredentialsWrong.code), ...structOf(Session.SessionCredentialsWrong.fields).fields }, { httpApiStatus: refusals.SessionCredentialsWrong.status }) { static readonly code = refusals.SessionCredentialsWrong.code; }
+export class SessionCredentialsWrong extends Schema.TaggedError<SessionCredentialsWrong>()("SessionCredentialsWrong", { code: Schema.Literal(refusals.SessionCredentialsWrong.code), ...wireStruct(Session.SessionCredentialsWrong.fields).fields }, { httpApiStatus: refusals.SessionCredentialsWrong.status }) { static readonly code = refusals.SessionCredentialsWrong.code; }
 export class AllowanceNotActive extends Schema.TaggedError<AllowanceNotActive>()("AllowanceNotActive", { code: Schema.Literal(refusals.AllowanceNotActive.code), ...{ state: Schema.String } }, { httpApiStatus: refusals.AllowanceNotActive.status }) { static readonly code = refusals.AllowanceNotActive.code; }
 export class InvitationNotPending extends Schema.TaggedError<InvitationNotPending>()("InvitationNotPending", { code: Schema.Literal(refusals.InvitationNotPending.code), ...{ state: Schema.String } }, { httpApiStatus: refusals.InvitationNotPending.status }) { static readonly code = refusals.InvitationNotPending.code; }
 export class OrganizationNotActive extends Schema.TaggedError<OrganizationNotActive>()("OrganizationNotActive", { code: Schema.Literal(refusals.OrganizationNotActive.code), ...{ state: Schema.String } }, { httpApiStatus: refusals.OrganizationNotActive.status }) { static readonly code = refusals.OrganizationNotActive.code; }
@@ -42,21 +42,7 @@ export const exits = Object.fromEntries(Object.entries(refusals).map(([k, r]) =>
 /** Each refusal's code, stable across targets: `[AL-002] Name { field: value }`. Beside the tag, never in place of it. Read from `refusals`. */
 export const codes = Object.fromEntries(Object.entries(refusals).map(([k, r]) => [k, r.code])) as { readonly [K in Refusal]: (typeof refusals)[K]["code"] };
 
-/** The fields of each refusal whose values may be shown (printed, logged, put in a span): only the public ones. */
-export const shown: Readonly<Record<string, ReadonlyArray<string>>> = {
-  AllowanceExceeded: ["remaining"],
-  AllowanceNotFound: [],
-  AllowanceLimitTooHigh: ["cap"],
-  PersonEmailTaken: [],
-  SessionCredentialsWrong: [],
-  AllowanceNotActive: ["state"],
-  InvitationNotPending: ["state"],
-  OrganizationNotActive: ["state"],
-  PersonNotFound: ["id"],
-  NotAllowed: [],
-};
-
-/** The declared errors themselves, by name: their fields say who may see a value (the MCP server redacts by role). */
+/** The declared errors themselves, by name: their fields say who may see a value (the visibility rule cuts a refusal by them). */
 export const declared = {
   AllowanceExceeded: Allowance.AllowanceExceeded,
   AllowanceNotFound: Allowance.AllowanceNotFound,

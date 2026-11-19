@@ -4,7 +4,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./device": "./src/device.ts"
+    "./device": "./src/device.ts",
+    "./visibility": "./src/visibility.ts"
   },
   "dependencies": {
     "orthograph": "workspace:*",
@@ -29,6 +30,10 @@
       "./device": {
         "types": "./dist/device.d.ts",
         "default": "./dist/device.js"
+      },
+      "./visibility": {
+        "types": "./dist/visibility.d.ts",
+        "default": "./dist/visibility.js"
       }
     },
     "imports": {

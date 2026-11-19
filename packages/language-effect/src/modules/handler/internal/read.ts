@@ -70,6 +70,7 @@ export const Reads: ReadsApi = {
       });
     return {
       name,
+      operation: read,
       run: (payload, principal) => run(payload, principal).pipe(measureCall(name, principal, refusals)),
       call: (raw, principal) => decode(raw).pipe(Effect.flatMap((p) => run(p as ReadPayload, principal)), measureCall(name, principal, callRefusals)),
     };

@@ -34,7 +34,7 @@ it("counts each run and call once, including a retry, a replay, refusals and a d
         Effect.flatMap((conflict) => conflict ? Effect.succeed("conflict" as const) : store.commit(commit))),
     }));
     expect(yield* Ref.get(attempts)).toBe(2);
-    expect(yield* run({ amount: 3n }, person, "same-request")).toEqual({ remaining: 4n }); // the stored answer is replayed
+    expect(yield* run({ amount: 1n }, person, "same-request")).toEqual({ remaining: 4n }); // the stored answer is replayed (same key, same payload)
     yield* call({ amount: "1" }, person);
     yield* Effect.exit(call({ amount: "invalid" }, person));
     yield* Effect.exit(call({ amount: "1" }, { kind: "anonymous" }));

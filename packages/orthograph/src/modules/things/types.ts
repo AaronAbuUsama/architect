@@ -15,6 +15,8 @@ export interface Field<V extends Value = Value> {
   readonly visibility: Visibility;
   /** Explicit opt-in to tracing a public text field, inherited from its declaration. */
   readonly traced?: true;
+  /** A secret answer field handed to its caller once (`Blueprint.issued`); the compiler refuses it on a thing's own field. */
+  readonly issued?: true;
 }
 
 /** What a thing's or payload's field may be declared as: a value, or a field taken from a thing. */
