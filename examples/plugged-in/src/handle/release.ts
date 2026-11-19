@@ -1,6 +1,5 @@
 // Scaffolded from blueprint/things/handle/verbs/release.ts. Yours from now on.
 import { Effect } from "effect";
-import { Handlers } from "@orthograph/language-effect";
 import type { Handler } from "../../generated/api/src/handle/release.handler.ts";
 
 /**
@@ -36,11 +35,9 @@ import type { Handler } from "../../generated/api/src/handle/release.handler.ts"
  */
 const release: Handler = (_payload, { steps, move }) =>
   Effect.gen(function* () {
+    // The move release is the whole change: the name is freed, the page and its links stay as they were.
     // Step record: database, span handle.release.record.
-    yield* steps.record(Handlers.blank("record: the work this step does"));
-
-    // The move release, from claimed, to released.
-    yield* move();
+    yield* steps.record(move());
 
     return {};
   });
