@@ -24,6 +24,8 @@ repo() { # a fresh repository with a base commit; prints its path
   mkdir -p "$dir/e2e/m1" "$dir/examples/acme/journeys" "$dir/packages/wallets/blueprint/journeys" \
     "$dir/packages/prove/src/modules/evals" "$dir/packages/prove/src/modules/journeys" "$dir/src"
   printf 'm1/a.test.ts > a\nm1/b.test.ts > b\n' > "$dir/e2e/m1/expected-failing.txt"
+  mkdir -p "$dir/e2e/grid"
+  grid "$dir" a b
   echo j > "$dir/examples/acme/journeys/signup.ts"
   echo j > "$dir/packages/wallets/blueprint/journeys/send.ts"
   echo e > "$dir/packages/prove/src/modules/evals/service.ts"
@@ -41,6 +43,11 @@ repo() { # a fresh repository with a base commit; prints its path
 }
 
 guard() { (cd "$1" && "$here/builder-paths.sh" base x-build); }
+grid() { # <repo> <subject...>; writes the grid's expected-red list with one error.portal pair per subject
+  local dir="$1"; shift
+  printf '%s\n' "$@" | jq -R '{cell: "error.portal", subject: ., reason: "red", waitsOn: "M1.13"}' | jq -s '{pairs: .}' \
+    > "$dir/e2e/grid/expected-red.json"
+}
 commit() { git -C "$1" add -A && git -C "$1" commit -qm change; }
 
 # builder-paths
@@ -72,6 +79,18 @@ r=$(repo); printf 'm1/a.test.ts > a\nm1/b.test.ts > b\nm1/c.test.ts > c\n' > "$r
 expect "adding a line to the ratchet list fails" 1 guard "$r"
 r=$(repo); printf 'm1/a.test.ts > a\nm1/c.test.ts > c\n' > "$r/e2e/m1/expected-failing.txt"; commit "$r"
 expect "swapping a ratchet line fails" 1 guard "$r"
+r=$(repo); grid "$r" a; commit "$r"
+expect "taking a pair off the grid's list passes" 0 guard "$r"
+r=$(repo); grid "$r" b; commit "$r"
+expect "taking the first pair off the grid's list passes" 0 guard "$r"
+r=$(repo); grid "$r" a b c; commit "$r"
+expect "adding a pair to the grid's list fails" 1 guard "$r"
+r=$(repo); grid "$r" a c; commit "$r"
+expect "swapping a grid pair fails" 1 guard "$r"
+r=$(repo); echo '{' > "$r/e2e/grid/expected-red.json"; commit "$r"
+expect "a broken grid list fails" 1 guard "$r"
+r=$(repo); git -C "$r" rm -q e2e/grid/expected-red.json; commit "$r"
+expect "deleting the grid list fails" 1 guard "$r"
 
 # supersedes
 decisions() { # <repo> <decision body>; writes design/decisions/G9.md and a stale doc
