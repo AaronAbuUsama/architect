@@ -106,7 +106,7 @@ implementation, and `language-solidity` will be its second.
 export interface TargetSpec {
   readonly name: string;                                  // "effect", "solidity", "noir", "anchor"
   readonly hosts: ReadonlyArray<Host>;                    // worker | node | browser | world | chain:evm | chain:aztec | chain:solana
-  readonly takes: (op: OperationModel) => boolean;        // runs: "server" → effect; lives on an evm store → solidity
+  readonly takes: (op: OperationModel) => boolean;        // runs: "server" → effect-server; runs: "client" → effect-device; an evm store → solidity
   readonly frame: (op: OperationModel) => Output[];       // generated, "Do not edit": the wrapper that runs the guards
   readonly scaffold: (op: OperationModel) => Output[];    // "Yours from now on": K16's header and blanks, in its language
   readonly guards: Record<Guard, "enforced" | "pre-checked" | "not-applicable">;   // see the guard table
@@ -118,6 +118,15 @@ export interface TargetSpec {
 
 The SDK, CLI, MCP, docs and portal are generated once, from the model plus each target's `wire` and `surface`, never
 from a chain's ABI or IDL (K7:150-161). That makes "the same SDK function, whatever runs it" true by construction.
+
+**A target is a place plus a language, not a language.** One language can serve several targets. `language-effect`
+provides two instances: `effect-server`, on the wire `http`, and `effect-device`, on the wire `device`. They share their
+frame, scaffold and refusal code, and differ in `takes`, `hosts`, `wire` and `guards`. A device operation runs
+in-process with no store or move, so its guards can't be the server's. Each operation is taken by exactly one target:
+the compiler refuses an operation that no target takes, or that two targets take. So the SDK reads `wire` from the one
+target that took the operation, and device operations keep calling `Device.serve`. (Corrected 19 November 2026 after
+review: the first sketch gave one Effect target `wire: "http"` for every non-chain operation, which would have sent
+device operations over HTTP.)
 
 ## The guards: what every target pre-handles, in one order
 
@@ -411,8 +420,11 @@ for Solidity.
 
 **A · The interface now, with one implementation** (recommended)
 ```ts
-export const effect: TargetSpec = { name: "effect", hosts: ["worker", "node", "browser", "world"],
-  takes: (op) => op.runs !== "chain", frame, scaffold, guards, wire: "http", refusal };
+// language-effect: one language, two targets, sharing frame, scaffold and refusal
+export const effectServer: TargetSpec = { name: "effect-server", hosts: ["worker", "node", "world"],
+  takes: (op) => op.runs === "server", frame, scaffold, guards: serverGuards, wire: "http", refusal };
+export const effectDevice: TargetSpec = { name: "effect-device", hosts: ["browser", "node"],
+  takes: (op) => op.runs === "client", frame, scaffold, guards: deviceGuards, wire: "device", refusal };
 ```
 
 **B · With Solidity, in layer 4**
@@ -438,8 +450,8 @@ export const effect: TargetSpec = { name: "effect", hosts: ["worker", "node", "b
 | Correctness | ✅ "falls out" holds by construction | ⚠️ TypeScript assumptions harden |
 | Fit | ✅ K5's language boundary, M1.12's move | ⚠️ |
 
-**Recommendation: A**, kept small: just the interface, with `language-effect` behind it and the outputs coming out
-byte-identical. It rides on M1.12 and M1.13, which already touch every renderer.
+**Recommendation: A**, kept small: just the interface, with `language-effect`'s two targets behind it and the outputs
+coming out byte-identical, device operations included. It rides on M1.12 and M1.13, which already touch every renderer.
 
 ### Q3 — A private field on a public chain: refuse it, or allow it with a warning?
 
