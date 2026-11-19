@@ -434,6 +434,131 @@ a data-dependent refusal (`HandleTaken`) and idempotency by request. A claim lig
 | 3 · the vault | about 15 things in eight groups. Runs on the rail beside what they touch; calls by an agent for a person shown as such, never which person; approvals in the chat; owner signatures as a workflow, so a workflow's steps on the spine (M3). The factory and the board mount as extensions | workflow spans (M3.03); `rail.on` |
 | 4 · the club | private members and ballots. The public tally and footprint show; nothing that names a member shows (ST4.07). Proof generation as a step on the device | private fields never traced (M1.19); on-device spans (gap 4) |
 
+## The model, field by field (round 3, 19 November 2026)
+
+Every field of the compiler's `Model` (`packages/compiler/src/modules/model/types.ts` on `origin/m1`, with
+`MountModel` from `modules/mounts/types.ts` and `ValueMeta` from `orthograph`), and the page that shows it. The portal
+falls out of this table: a page shows a field only if a row here names it, and a field with no page is listed as such,
+never hidden. **Wire** says whether the portal's wire decodes it today (`packages/portal/src/modules/wire/types.ts` on
+`m1`): ✓ yes, ~ partly, ✗ no. Every ✗ and ~ is M1.13's or M1.42's (F8 gap 7, K12 section 6, K14's portal column).
+**R3** marks a page that does not exist yet and is asked in round 3 (`briefs/portal-round-3.md`).
+
+Real values below are from Plugged In's model as Codex generated it on `links/stage-1`
+(`examples/links/generated/model/model.json`, before M1.03, so no `from`, journeys, worlds, stores or mounts yet).
+
+### `Model`
+
+| Field | Page | Wire |
+|---|---|---|
+| `things` | home cards, the tree, a thing's page | ✓ |
+| `operations` | the tree under each thing, an operation's page, the operations matrix | ✓ |
+| `refusals` (every code: `HandleTaken: HN-001`, `HandleNotClaimed: HN-900`, `NotAllowed: AR-001`) | the band and the lifecycle arrows by name; the code table **R3 Q5** | ✗ |
+| `values` (`HandleName`, `LinkTitle`, `LinkUrl`) | a field's type links to it; the values index **R3 Q5** | ✗ |
+| `stores` | the thing's header chip; the stores page **R3 Q3** | ✗ |
+| `journeys` | the operation's proof tab; the journeys pages **R3 Q4** | ✗ (`wire/service.ts:7`, "unavailable") |
+| `startingWorlds` | the world page **R3 Q4** | ✗ |
+| `blankOperations`, `blanks` | the tree and the spec section **R3 Q6** | ~ `blanks` only |
+| `environments` | the switcher; the environments page **R3 Q2** | ~ name, runs, promotion, lifetime |
+| `mounts` | the tree's plugin groups (Q3); the plugin page **R3 Q3** | ✗ |
+
+### `ThingModel`
+
+| Field | Page | Wire |
+|---|---|---|
+| `name`, `description` | home card, page header, tree | ✓ |
+| `identifier` (`Handle`) | page header, as the code name, in mono | ✗ |
+| `code` (`HN`) | page header beside the name; the code table groups by it | ✗ |
+| `fields` | the thing's **Fields** section (added in round 3, see below): name, type, `named` value, `ref`, visibility | ~ no visibility, no description |
+| `lives` (`database`, `actor`) | page header chip | ✓ |
+| `store` | page header chip, linking to its store | ✗ |
+| `machine.states`, `moves` | the lifecycle strip on home and the page; moves on the arrows | ✓ |
+| `machine.notFrom` (`HandleNotClaimed HN-900 exit 5`) | the errors section, marked generated; on the arrow it guards | ~ no code |
+| `events` with fields | the events section; the events page **R3 Q5** | ✗ names only, via `emits` |
+| `errors` with fields, `exit`, `code` | the errors section; the code table **R3 Q5** | ✗ |
+| `roles`, `roleRules` (`handleOwner`) | the roles section with each rule; the access page **R3 Q5** | ~ names only |
+| `from` | the tree group and the page header (`handles · feature · @orthograph/handles 0.1.0`) | ✗ |
+| `hash` | notes pin to it; the header's short hash; proof staleness | ✓ |
+
+### `FieldModel` and `ValueMeta`
+
+| Field | Page | Wire |
+|---|---|---|
+| `value` (`id` with `prefix`, `uint` with `bits`, `text` with `max`, `schema`) | the type column of every field table and the band | ✓ |
+| `named` | the type shows the value's name, linking to the values index | ✓ |
+| `ref` (`handle.id`) | a link to the field it was taken from | ✓ |
+| `optional` | marked in the band | ✓ |
+| `visibility` (`secret`, `{ private: [roles] }`) | a lock chip in field tables and the band; the trace drawer hides the value | ✗ |
+| description | not in the model yet (K14's finding; M1.42 adds it) | ✗ |
+
+### `OperationModel` and `StepModel`
+
+| Field | Page | Wire |
+|---|---|---|
+| `kind`, `name`, `thing`, `verb`, `description` | the tree, the operation page header, the matrix | ✓ |
+| `identifier`, `file` | the header, as the code name and the source path | ✗ |
+| `payload`, `answer` | the in-and-out band | ✓ |
+| `move` | the band ("· → claimed") and the spine's machine-check and move rows | ✓ |
+| `errors`, `refusals` | the band's refusal list, each with its code and live count | ✓ names, ✗ codes |
+| `allowed` (`signed-in`, `role handle.handleOwner`, `anyone`) | the header chip; the access page **R3 Q5** | ✓ |
+| `steps` (`name`, `type`) | the spine's rows | ✓ |
+| `steps.writes`, `.optional`, `.call` | the spine: what a row writes, a dashed optional row, an adapter call naming its mount | ✗ |
+| `idempotent` | the header chip ("idempotent by request") and the spine's replay row | ✓ |
+| `runs` (`server`, `client`) | the header chip "on your device"; the spine drawn from the device's spans | ✗ |
+| `test` (`unit`, `network`) | the proof tab | ✗ |
+| `budget.p95Ms` | the matrix and the rail ("p95 6 ms of 150") | ✓ |
+| `list` (`where`, `order`, `page`) | a read's band | ✗ |
+| `from` | the tree and the header | ✗ |
+| `blanks` | the spec section **R3 Q6** | ✗ |
+| `via` | the band: the ways in the mount left it ("not in MCP") | ✗ |
+| `hash` | notes, proof staleness | ✓ |
+
+### `EnvironmentModel`
+
+| Field | Page | Wire |
+|---|---|---|
+| `name`, `deploy.*.domain` | the switcher (Q12) | ~ name only |
+| `file`, `runs`, `identity`, `lifetimeMs`, `cloud`, `database`, `stores`, `secrets` (names and how, never values), `promotesFrom`, `telemetry`, `deploy`, `publish`, `hash` | the environments page **R3 Q2** | ~ runs, promotion, lifetime |
+
+### `JourneyModel`, `StartingWorldModel`
+
+| Field | Page | Wire |
+|---|---|---|
+| `name`, `file`, `sourceHash`, `cast`, `starts`, `steps` (title, call with actor, operation and request, checks by kind, skipped) | the journey page; each step links to its operation **R3 Q4** | ✗ |
+| `name`, `file`, `from`, `cast`, `makes`, `gives` | the world page **R3 Q4** | ✗ |
+
+### `StoreModel`, `MountModel`
+
+| Field | Page | Wire |
+|---|---|---|
+| store `name`, `file`, `kind`, `from`, `hash` | the stores page, with the things in each and each environment's binding **R3 Q3** | ✗ |
+| mount `kind`, `file`, `package`, `version`, `integrity`, `hash` | the plugin page header **R3 Q3** | ✗ |
+| mount `chosen`, `omitted`, `narrowed` | the plugin page: the choices made, what was left out | ✗ |
+| mount `needs`, `calls`, `layer`, `standIn` | the plugin page: what it needs, an adapter's calls, what stands in for it in a world | ✗ |
+
+### Made consistent with the model in round 3 (the designer's call, under AGENTS.md)
+
+1. **A thing's page gains a Fields section**, after the lifecycle and before the operations. The agreed page had none,
+   but K14's thing card needs every field with its type, visibility and description.
+2. **Who may call is the model's words**: `signed-in`, `anyone`, or a role such as `handleOwner`. The sketches above
+   wrote `person`, which is not a model term.
+3. **Codes are the model's**: the machine's refusal is generated as `<Thing>Not<FirstState>` with code `<PREFIX>-900`
+   (`HandleNotClaimed HN-900 exit 5`); `HN-002` is `HandleAlreadyOwned`. The sketches above are kept as drawn on 19
+   November; the drawing follows the model.
+4. **The example app is Plugged In** (K15). Where the sketches above say `links`, read Plugged In.
+
+## Screens not drawn yet
+
+What the model has and no agreed page shows, and the menus that tie them together. Each is asked in round 3.
+
+| Screen | Model it falls out of | Round 3 |
+|---|---|---|
+| The navigation: where every page below lives, beside the things tree | all of it | Q1 |
+| Environments, with the switcher's menu and the proof matrix (Q12 agreed both, neither drawn) | `environments`, the logbook | Q2 |
+| Plugins (one per mount) and stores | `mounts`, `stores`, `from` | Q3 |
+| Journeys and starting worlds | `journeys`, `startingWorlds`, the logbook | Q4 |
+| Access (roles), refusal codes, events, values: the reference pages | `refusals`, `roleRules`, `allowed`, `events`, `values` | Q5 |
+| What's missing: blanks and blank operations | `blankOperations`, `blanks` | Q6 |
+
 ## Gaps
 
 Each hand-written or missing piece, with the slice that owns it.
