@@ -1060,6 +1060,8 @@ The environment assertion is at `e2e/m1/17-telemetry-model.test.ts:267-281` ("wr
 10. Free-text hints on a blank operation ("Probably linkOwner, like order and remove"): no model field (a note, M3.21, is the nearest).
 11. Event listeners ("listened to by (on:)"): no `on` field in `ThingModel` on m1 (**unverified** which slice adds it).
 
+**Owners (19 November 2026, the M1 lead).** Each hole now has a slice: 1 in M1.12 (`request.key` on the operation span); 2 in M1.13 (a local metrics reader), with history past the window in M7.14 (`PRJ-54`); 7 in M1.49 (first and last seen kept past the window, the error's tag on the defect span). The rest are in `ledger.md`: 3 and 4 with M3.20 (`PRJ-46`, `PRJ-47`); 5, 6 and 8 with M2.03 (`PRJ-48` to `PRJ-50`); 9 with M2.09 (`PRJ-51`); 10 with M3.21 (`PRJ-52`); 11 with M3.08 (`PRJ-53`). Until then the portal says "not yet" where they would be.
+
 ## Component inventory (round 3 review, 19 November 2026)
 
 Aaron's review of the third drawing: "you've got a component library that we paid like $500 for, you're not using the
