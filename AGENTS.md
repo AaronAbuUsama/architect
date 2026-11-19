@@ -49,7 +49,10 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
   `e2e/m1/expected-failing.txt`. Authors' branches end in `-check` and builders' in `-build`. A builder that needs a
   check changed stops and asks its author.
 - **Merge your own pull requests when CI is green,** Codex has finished and every review thread is resolved. Push on
-  until actually blocked.
+  until actually blocked. GitHub enforces it, admins included: `main`, `m1` and `goal/stage-1` require their CI jobs,
+  `codex-finished` (Codex has reviewed the head; otherwise comment "@codex review") and every conversation resolved,
+  and `main` also requires `builder-paths` (a `-build` pull request may not touch journeys, evals or checks)
+  (`design/decisions/CI-branch-protection.md`).
 
 ## The code's own rules (enforced by lint and check as soon as they exist)
 
