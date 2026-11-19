@@ -7,6 +7,7 @@ CREATE TABLE "handle" (
   "state" TEXT,
   "version" INTEGER NOT NULL DEFAULT 0
 );
+CREATE UNIQUE INDEX "handle_name_unique" ON "handle" ("name") WHERE "state" IN ('claimed');
 CREATE TABLE "link" (
   "id" TEXT PRIMARY KEY,
   "profile" TEXT NOT NULL,
