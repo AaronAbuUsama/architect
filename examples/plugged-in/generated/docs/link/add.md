@@ -37,6 +37,7 @@ Append a link to the public page of a claimed name.
 | refusal | exit | code | when |
 |---|---|---|---|
 | LinkNeedsHandle | 30 | LN-001 | declared in errors.ts |
+| IdempotencyConflict | 120 | AR-002 | the request key was first used with another payload; the handler never runs |
 
 ## How to call
 

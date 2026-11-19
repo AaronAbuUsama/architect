@@ -17,6 +17,7 @@ export const refusals = {
   OrganizationNotActive: { code: "OR-900", exit: 20, status: 409 },
   PersonNotFound: { code: "PE-901", exit: 4, status: 404 },
   NotAllowed: { code: "AR-001", exit: 3, status: 403 },
+  IdempotencyConflict: { code: "AR-002", exit: 120, status: 409 },
 } as const;
 type Refusal = keyof typeof refusals;
 
@@ -35,6 +36,7 @@ export class InvitationNotPending extends Schema.TaggedError<InvitationNotPendin
 export class OrganizationNotActive extends Schema.TaggedError<OrganizationNotActive>()("OrganizationNotActive", { code: Schema.Literal(refusals.OrganizationNotActive.code), ...{ state: Schema.String } }, { httpApiStatus: refusals.OrganizationNotActive.status }) { static readonly code = refusals.OrganizationNotActive.code; }
 export class PersonNotFound extends Schema.TaggedError<PersonNotFound>()("PersonNotFound", { code: Schema.Literal(refusals.PersonNotFound.code), ...{ id: Schema.String } }, { httpApiStatus: refusals.PersonNotFound.status }) { static readonly code = refusals.PersonNotFound.code; }
 export class NotAllowed extends Schema.TaggedError<NotAllowed>()("NotAllowed", { code: Schema.Literal(refusals.NotAllowed.code), ...{} }, { httpApiStatus: refusals.NotAllowed.status }) { static readonly code = refusals.NotAllowed.code; }
+export class IdempotencyConflict extends Schema.TaggedError<IdempotencyConflict>()("IdempotencyConflict", { code: Schema.Literal(refusals.IdempotencyConflict.code), ...{} }, { httpApiStatus: refusals.IdempotencyConflict.status }) { static readonly code = refusals.IdempotencyConflict.code; }
 
 /** Each refusal's exit code, for the CLI: read from `refusals`. */
 export const exits = Object.fromEntries(Object.entries(refusals).map(([k, r]) => [k, r.exit])) as { readonly [K in Refusal]: (typeof refusals)[K]["exit"] };
@@ -52,4 +54,4 @@ export const declared = {
 } as const;
 
 /** The wire class of each refusal, by name. */
-export const wire = { AllowanceExceeded, AllowanceNotFound, AllowanceLimitTooHigh, PersonEmailTaken, SessionCredentialsWrong, AllowanceNotActive, InvitationNotPending, OrganizationNotActive, PersonNotFound, NotAllowed };
+export const wire = { AllowanceExceeded, AllowanceNotFound, AllowanceLimitTooHigh, PersonEmailTaken, SessionCredentialsWrong, AllowanceNotActive, InvitationNotPending, OrganizationNotActive, PersonNotFound, NotAllowed, IdempotencyConflict };

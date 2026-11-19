@@ -6,6 +6,7 @@
     "refusals": {
       "HandleNotClaimed": "HN-900",
       "HandleTaken": "HN-001",
+      "IdempotencyConflict": "AR-002",
       "LinkAlreadyRemoved": "LN-002",
       "LinkNeedsHandle": "LN-001",
       "LinkNotFound": "LN-901",
@@ -293,7 +294,8 @@
           "HandleTaken"
         ],
         "refusals": [
-          "HandleTaken"
+          "HandleTaken",
+          "IdempotencyConflict"
         ],
         "allowed": [
           {
@@ -317,7 +319,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "526cb81e4a741645"
+        "hash": "81f63be8b4207bb2"
       },
       "link.add": {
         "kind": "operation",
@@ -375,7 +377,8 @@
           "LinkNeedsHandle"
         ],
         "refusals": [
-          "LinkNeedsHandle"
+          "LinkNeedsHandle",
+          "IdempotencyConflict"
         ],
         "allowed": [
           {
@@ -399,7 +402,7 @@
         "budget": {
           "p95Ms": 150
         },
-        "hash": "d2947cac3422faf7"
+        "hash": "cd84ffbe76411cba"
       },
       "link.order": {
         "kind": "operation",
@@ -660,11 +663,11 @@
   },
   "dependsOnByOperation": {
     "handle.claim": {
-      "operation:handle.claim": "526cb81e4a741645",
+      "operation:handle.claim": "81f63be8b4207bb2",
       "thing:handle": "1cc2bec683ed6952"
     },
     "link.add": {
-      "operation:link.add": "d2947cac3422faf7",
+      "operation:link.add": "cd84ffbe76411cba",
       "thing:handle": "1cc2bec683ed6952",
       "thing:link": "e675c91ad9f832bd",
       "thing:profile": "987faea48c27e6d4"
@@ -686,9 +689,9 @@
     }
   },
   "docs": {
-    "handle/claim.md": "<!-- Generated from the blueprint. Do not edit. -->\n# handle.claim\n\nClaim a free name and make it the address of a public page, with its profile.\n\n**Who may call:** anyone.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| name | handle.name |\n\n## Answer\n\n| field | value |\n|---|---|\n| handle | handle.id |\n\n## Move\n\n`claim`: from nothing (it creates) to claimed, emitting HandleClaimed.\n\n## Steps\n\n- `handle.claim.load` (database)\n- `handle.claim.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| HandleTaken | 10 | HN-001 | declared in errors.ts |\n\n## How to call\n\n```sh\nplugged-in handle claim --name <name>\n```\n\nHTTP: `POST /handle/claim` with the payload as JSON. SDK: `Sdk.handle.claim(payload)`.\n",
+    "handle/claim.md": "<!-- Generated from the blueprint. Do not edit. -->\n# handle.claim\n\nClaim a free name and make it the address of a public page, with its profile.\n\n**Who may call:** anyone.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| name | handle.name |\n\n## Answer\n\n| field | value |\n|---|---|\n| handle | handle.id |\n\n## Move\n\n`claim`: from nothing (it creates) to claimed, emitting HandleClaimed.\n\n## Steps\n\n- `handle.claim.load` (database)\n- `handle.claim.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| HandleTaken | 10 | HN-001 | declared in errors.ts |\n| IdempotencyConflict | 120 | AR-002 | the request key was first used with another payload; the handler never runs |\n\n## How to call\n\n```sh\nplugged-in handle claim --name <name>\n```\n\nHTTP: `POST /handle/claim` with the payload as JSON. SDK: `Sdk.handle.claim(payload)`.\n",
     "handle/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# handle\n\nA public name, claimed once, that is the address of a public page.\n\nLives in the database.\n\n## Fields\n\n| field | value |\n|---|---|\n| id | id |\n| name | HandleName |\n\n## Machine\n\nStates: claimed. A move from the wrong state is refused HandleNotClaimed (exit 11).\n\n| move | from | to | emits |\n|---|---|---|---|\n| claim | (creates) | claimed | HandleClaimed |\n\n## Operations\n\n- [handle.claim](claim.md): Claim a free name and make it the address of a public page, with its profile.\n",
-    "link/add.md": "<!-- Generated from the blueprint. Do not edit. -->\n# link.add\n\nAppend a link to the public page of a claimed name.\n\n**Who may call:** anyone.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| handle | handle.name |\n| title | link.title |\n| url | link.url |\n\n## Answer\n\n| field | value |\n|---|---|\n| link | link.id |\n\n## Move\n\n`add`: from nothing (it creates) to listed, emitting LinkAdded.\n\n## Steps\n\n- `link.add.load` (database)\n- `link.add.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| LinkNeedsHandle | 30 | LN-001 | declared in errors.ts |\n\n## How to call\n\n```sh\nplugged-in link add --handle <handle> --title <title> --url <url>\n```\n\nHTTP: `POST /link/add` with the payload as JSON. SDK: `Sdk.link.add(payload)`.\n",
+    "link/add.md": "<!-- Generated from the blueprint. Do not edit. -->\n# link.add\n\nAppend a link to the public page of a claimed name.\n\n**Who may call:** anyone.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| handle | handle.name |\n| title | link.title |\n| url | link.url |\n\n## Answer\n\n| field | value |\n|---|---|\n| link | link.id |\n\n## Move\n\n`add`: from nothing (it creates) to listed, emitting LinkAdded.\n\n## Steps\n\n- `link.add.load` (database)\n- `link.add.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| LinkNeedsHandle | 30 | LN-001 | declared in errors.ts |\n| IdempotencyConflict | 120 | AR-002 | the request key was first used with another payload; the handler never runs |\n\n## How to call\n\n```sh\nplugged-in link add --handle <handle> --title <title> --url <url>\n```\n\nHTTP: `POST /link/add` with the payload as JSON. SDK: `Sdk.link.add(payload)`.\n",
     "link/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# link\n\nA title and web address on a public page.\n\nLives in the database.\n\n## Fields\n\n| field | value |\n|---|---|\n| id | id |\n| profile | profile.id |\n| title | LinkTitle |\n| url | LinkUrl |\n\n## Machine\n\nStates: listed, removed. A move from the wrong state is refused LinkNotListed (exit 31).\n\n| move | from | to | emits |\n|---|---|---|---|\n| add | (creates) | listed | LinkAdded |\n| remove | listed | removed | LinkRemoved |\n\n## Operations\n\n- [link.add](add.md): Append a link to the public page of a claimed name.\n- [link.order](order.md): Move a link to a zero-based position. A position past the end puts it last.\n- [link.remove](remove.md): Remove a link from a public page.\n",
     "link/order.md": "<!-- Generated from the blueprint. Do not edit. -->\n# link.order\n\nMove a link to a zero-based position. A position past the end puts it last.\n\n**Who may call:** anyone.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| link | link.id |\n| position | LinkPosition |\n\n## Answer\n\n(none)\n\n## Steps\n\n- `link.order.load` (database)\n- `link.order.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| LinkAlreadyRemoved | 32 | LN-002 | declared in errors.ts |\n| LinkNotFound | 4 | LN-901 | nothing has the id in link; the handler never runs; carries `id` |\n\n## How to call\n\n```sh\nplugged-in link order --link <link> --position <position>\n```\n\nHTTP: `POST /link/order` with the payload as JSON. SDK: `Sdk.link.order(payload)`.\n",
     "link/remove.md": "<!-- Generated from the blueprint. Do not edit. -->\n# link.remove\n\nRemove a link from a public page.\n\n**Who may call:** anyone.\n\n**Budget:** p95 150ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| link | link.id |\n\n## Answer\n\n(none)\n\n## Move\n\n`remove`: from listed to removed, emitting LinkRemoved.\n\n## Steps\n\n- `link.remove.record` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| LinkNotListed | 31 | LN-900 | the link is in a state remove can't start from; carries `state` |\n| LinkNotFound | 4 | LN-901 | nothing has the id in link; the handler never runs; carries `id` |\n\n## How to call\n\n```sh\nplugged-in link remove --link <link>\n```\n\nHTTP: `POST /link/remove` with the payload as JSON. SDK: `Sdk.link.remove(payload)`.\n",
@@ -709,5 +712,5 @@
       "reason": "no trace source is wired to the portal yet"
     }
   },
-  "digest": "1c864ff12c00cf1adc9ca81a12cd804e0d4620d1de8ba9ddfe6a2357d01ab58a"
+  "digest": "2bf347bf82d997fa4a8fbbfb55180ffe71e1e5a736e2a36066c5c2a3fc4b31e6"
 }

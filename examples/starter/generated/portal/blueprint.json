@@ -4,6 +4,7 @@
   "revision": null,
   "model": {
     "refusals": {
+      "IdempotencyConflict": "AR-002",
       "InvitationNotPending": "IN-900",
       "NotAllowed": "AR-001",
       "OrganizationNotActive": "OR-900",
@@ -821,7 +822,8 @@
         },
         "errors": [],
         "refusals": [
-          "NotAllowed"
+          "NotAllowed",
+          "IdempotencyConflict"
         ],
         "allowed": [
           {
@@ -845,7 +847,7 @@
         "budget": {
           "p95Ms": 250
         },
-        "hash": "3d7ad3207f653955"
+        "hash": "4797d5db7ac0e5b8"
       },
       "organization.get": {
         "kind": "read",
@@ -2454,7 +2456,7 @@
       "thing:person": "ad771ebabdfe3e0e"
     },
     "organization.create": {
-      "operation:organization.create": "3d7ad3207f653955",
+      "operation:organization.create": "4797d5db7ac0e5b8",
       "thing:organization": "24a71fadb70bce98",
       "thing:person": "ad771ebabdfe3e0e"
     },
@@ -2491,7 +2493,7 @@
     "invitation/send.md": "<!-- Generated from the blueprint. Do not edit. -->\n# invitation.send\n\nInvite someone to an organisation by email.\n\n**Who may call:** the owner of its organization.\n\n**Budget:** p95 200ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| organization | invitation.organization |\n| email | invitation.email |\n\n## Answer\n\n| field | value |\n|---|---|\n| invitation | invitation.id |\n\n## Move\n\n`send`: from nothing (it creates) to pending, emitting InvitationSent.\n\n## Steps\n\n- `invitation.send.insert` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of its organization; the handler never runs |\n\n## How to call\n\n```sh\nstarter invitation send --organization <organization> --email <email>\n```\n\nHTTP: `POST /invitation/send` with the payload as JSON. SDK: `Sdk.invitation.send(payload)`.\n",
     "membership/get.md": "<!-- Generated from the blueprint. Do not edit. -->\n# membership.get\n\nRead one membership by its id: organization, person, role.\n\n**Who may call:** the holder of the membership, or the owner of its membership.organization.\n\n**A read:** answered from the records, with no handler.\n\n**Budget:** p95 50ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| id | membership.id |\n\n## Answer\n\n| field | value |\n|---|---|\n| organization | membership.organization |\n| person | membership.person |\n| role | membership.role |\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| NotAllowed | 3 | AR-001 | the caller isn't the holder of the membership, or the owner of its membership.organization; the handler never runs |\n\n## How to call\n\n```sh\nstarter membership get --id <id>\n```\n\nHTTP: `POST /membership/get` with the payload as JSON. SDK: `Sdk.membership.get(payload)`.\n",
     "membership/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# membership\n\nA person's place in an organisation.\n\nLives in the database.\n\n## Fields\n\n| field | value |\n|---|---|\n| id | id |\n| organization | organization.id |\n| person | person.id |\n| role | Role |\n\n## Roles\n\n- holder\n\n## Operations\n\n- [membership.get](get.md): Read one membership by its id: organization, person, role.\n",
-    "organization/create.md": "<!-- Generated from the blueprint. Do not edit. -->\n# organization.create\n\nFound an organisation. Whoever founds it owns it, and is its first member.\n\n**Who may call:** anyone signed in.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 250ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| name | organization.name |\n\n## Answer\n\n| field | value |\n|---|---|\n| organization | organization.id |\n\n## Move\n\n`create`: from nothing (it creates) to active, emitting OrganizationCreated.\n\n## Steps\n\n- `organization.create.insert` (database)\n- `organization.create.owner` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| NotAllowed | 3 | AR-001 | the caller isn't anyone signed in; the handler never runs |\n\n## How to call\n\n```sh\nstarter organization create --name <name>\n```\n\nHTTP: `POST /organization/create` with the payload as JSON. SDK: `Sdk.organization.create(payload)`.\n",
+    "organization/create.md": "<!-- Generated from the blueprint. Do not edit. -->\n# organization.create\n\nFound an organisation. Whoever founds it owns it, and is its first member.\n\n**Who may call:** anyone signed in.\n\n**Idempotent by request:** send `idempotency-key`; the same key twice is one call.\n\n**Budget:** p95 250ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| name | organization.name |\n\n## Answer\n\n| field | value |\n|---|---|\n| organization | organization.id |\n\n## Move\n\n`create`: from nothing (it creates) to active, emitting OrganizationCreated.\n\n## Steps\n\n- `organization.create.insert` (database)\n- `organization.create.owner` (database)\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| NotAllowed | 3 | AR-001 | the caller isn't anyone signed in; the handler never runs |\n| IdempotencyConflict | 120 | AR-002 | the request key was first used with another payload; the handler never runs |\n\n## How to call\n\n```sh\nstarter organization create --name <name>\n```\n\nHTTP: `POST /organization/create` with the payload as JSON. SDK: `Sdk.organization.create(payload)`.\n",
     "organization/get.md": "<!-- Generated from the blueprint. Do not edit. -->\n# organization.get\n\nRead one organization by its id: name, owner, state.\n\n**Who may call:** the owner of the organization.\n\n**A read:** answered from the records, with no handler.\n\n**Budget:** p95 50ms.\n\n## Payload\n\n| field | value |\n|---|---|\n| id | organization.id |\n\n## Answer\n\n| field | value |\n|---|---|\n| name | organization.name |\n| owner | organization.owner |\n| state | text |\n\n## Refusals\n\n| refusal | exit | code | when |\n|---|---|---|---|\n| NotAllowed | 3 | AR-001 | the caller isn't the owner of the organization; the handler never runs |\n\n## How to call\n\n```sh\nstarter organization get --id <id>\n```\n\nHTTP: `POST /organization/get` with the payload as JSON. SDK: `Sdk.organization.get(payload)`.\n",
     "organization/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# organization\n\nA company or team that people belong to.\n\nLives in the database.\n\n## Fields\n\n| field | value |\n|---|---|\n| id | id |\n| name | text |\n| owner | person.id |\n\n## Machine\n\nStates: active. A move from the wrong state is refused OrganizationNotActive (exit 20).\n\n| move | from | to | emits |\n|---|---|---|---|\n| create | (creates) | active | OrganizationCreated |\n\n## Roles\n\n- owner\n\n## Operations\n\n- [organization.create](create.md): Found an organisation. Whoever founds it owns it, and is its first member.\n- [organization.get](get.md): Read one organization by its id: name, owner, state.\n",
     "person/index.md": "<!-- Generated from the blueprint. Do not edit. -->\n# person\n\nSomeone who signs in. Better Auth keeps people; the project refers to them by id.\n\nLives in the database.\n\n## Fields\n\n| field | value |\n|---|---|\n| id | id |\n| email | text |\n| name | text |\n\n## Operations\n\n- [person.sign-up](sign-up.md): Sign up with an email address and a password.\n",
@@ -2516,5 +2518,5 @@
       "reason": "no trace source is wired to the portal yet"
     }
   },
-  "digest": "760d67cbae880daad0f09bd919f5952415dd698ab62b43d92e78ba196ab60866"
+  "digest": "86ff6a6e4191d993c3351f3826fcad8108b49a788e75989c9300ab1f4fbe93cd"
 }

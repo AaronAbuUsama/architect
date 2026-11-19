@@ -81,7 +81,8 @@ const ownerOf = (model: Model, op: OperationModel, error: string) =>
 export const refusalsOf = (model: Model, op: OperationModel): ReadonlyArray<Refusal> => {
   const thing = model.things[op.thing];
   const code = (r: string) => model.refusals[r] ?? "?";
-  return op.refusals.map((r): Refusal => {
+  // The runtime's reused-key refusal is for the caller to meet, not the handler to make: the scaffold's header lists only what a handler can refuse (HAN-10).
+  return op.refusals.filter((r) => r !== "IdempotencyConflict").map((r): Refusal => {
     const owner = op.errors.includes(r) ? ownerOf(model, op, r) : undefined;
     const declared = owner ? model.things[owner]?.errors[r] : thing?.errors[r];
     if (owner && declared) {

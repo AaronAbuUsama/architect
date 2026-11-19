@@ -15,6 +15,7 @@ export const refusals = {
   LinkNotListed: { code: "LN-900", exit: 31, status: 409 },
   LinkNotFound: { code: "LN-901", exit: 4, status: 404 },
   NotAllowed: { code: "AR-001", exit: 3, status: 403 },
+  IdempotencyConflict: { code: "AR-002", exit: 120, status: 409 },
 } as const;
 type Refusal = keyof typeof refusals;
 
@@ -30,6 +31,7 @@ export class HandleNotClaimed extends Schema.TaggedError<HandleNotClaimed>()("Ha
 export class LinkNotListed extends Schema.TaggedError<LinkNotListed>()("LinkNotListed", { code: Schema.Literal(refusals.LinkNotListed.code), ...{ state: Schema.String } }, { httpApiStatus: refusals.LinkNotListed.status }) { static readonly code = refusals.LinkNotListed.code; }
 export class LinkNotFound extends Schema.TaggedError<LinkNotFound>()("LinkNotFound", { code: Schema.Literal(refusals.LinkNotFound.code), ...{ id: Schema.String } }, { httpApiStatus: refusals.LinkNotFound.status }) { static readonly code = refusals.LinkNotFound.code; }
 export class NotAllowed extends Schema.TaggedError<NotAllowed>()("NotAllowed", { code: Schema.Literal(refusals.NotAllowed.code), ...{} }, { httpApiStatus: refusals.NotAllowed.status }) { static readonly code = refusals.NotAllowed.code; }
+export class IdempotencyConflict extends Schema.TaggedError<IdempotencyConflict>()("IdempotencyConflict", { code: Schema.Literal(refusals.IdempotencyConflict.code), ...{} }, { httpApiStatus: refusals.IdempotencyConflict.status }) { static readonly code = refusals.IdempotencyConflict.code; }
 
 /** Each refusal's exit code, for the CLI: read from `refusals`. */
 export const exits = Object.fromEntries(Object.entries(refusals).map(([k, r]) => [k, r.exit])) as { readonly [K in Refusal]: (typeof refusals)[K]["exit"] };
@@ -46,4 +48,4 @@ export const declared = {
 } as const;
 
 /** The wire class of each refusal, by name. */
-export const wire = { HandleTaken, LinkNeedsHandle, LinkAlreadyRemoved, ProfileNotFound, HandleNotClaimed, LinkNotListed, LinkNotFound, NotAllowed };
+export const wire = { HandleTaken, LinkNeedsHandle, LinkAlreadyRemoved, ProfileNotFound, HandleNotClaimed, LinkNotListed, LinkNotFound, NotAllowed, IdempotencyConflict };

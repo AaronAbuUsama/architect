@@ -166,6 +166,8 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
       ...(move && move.from.length > 0 && machine ? [machine.notFrom.error] : []),
       ...new Set(Object.values(found.notFound ?? {}).filter((e) => !errors.includes(e))),
       ...(allowed.every((a) => a.kind === "anyone") ? [] : ["NotAllowed"]),
+      // An operation that keeps its answer by request key refuses a key reused with another payload (HAN-10, G3).
+      ...(op.idempotent === "request" ? ["IdempotencyConflict"] : []),
     ];
     const payload = fieldsModel(op.payload, `${file} payload`, "a payload");
     const answer = fieldsModel(op.answer, `${file} answer`, "answer");

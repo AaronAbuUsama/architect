@@ -54,7 +54,7 @@ const serve = ({ name, operation, handler, notFrom, notFound = {}, calls, codes 
   if (notFrom !== undefined) refusals.add(notFrom);
   for (const tag of Object.values(notFound)) refusals.add(tag);
   if (op.allowed.some((role) => role.kind !== "anyone")) refusals.add("NotAllowed");
-  refusals.add("IdempotencyConflict");
+  if (op.idempotent === "request") refusals.add("IdempotencyConflict");
   const callRefusals = new Set([...refusals, "InvalidPayload"]);
   const steps = Object.fromEntries(
     // Each step is its own span, marked with its kind: a `database` step's work is the store's, a `wait` step's a timer's.
@@ -86,7 +86,7 @@ const serve = ({ name, operation, handler, notFrom, notFound = {}, calls, codes 
         if (kept !== undefined) {
           // The kept answer is bound to the payload it was made for: the same key with another payload is another request.
           const { payload: madeFor, answer } = JSON.parse(kept) as { readonly payload: string; readonly answer: unknown };
-          if (madeFor !== sha256(canonical(payload))) return yield* new IdempotencyConflict({ key: key! });
+          if (madeFor !== sha256(canonical(payload))) return yield* new IdempotencyConflict();
           yield* Effect.annotateCurrentSpan({ "request.replayed": true });
           return yield* decodeAnswer(answer).pipe(Effect.orDie);
         }

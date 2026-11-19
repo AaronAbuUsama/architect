@@ -35,6 +35,7 @@ Claim a free name and make it the address of a public page, with its profile.
 | refusal | exit | code | when |
 |---|---|---|---|
 | HandleTaken | 10 | HN-001 | declared in errors.ts |
+| IdempotencyConflict | 120 | AR-002 | the request key was first used with another payload; the handler never runs |
 
 ## How to call
 

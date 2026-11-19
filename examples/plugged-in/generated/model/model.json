@@ -2,6 +2,7 @@
   "refusals": {
     "HandleNotClaimed": "HN-900",
     "HandleTaken": "HN-001",
+    "IdempotencyConflict": "AR-002",
     "LinkAlreadyRemoved": "LN-002",
     "LinkNeedsHandle": "LN-001",
     "LinkNotFound": "LN-901",
@@ -289,7 +290,8 @@
         "HandleTaken"
       ],
       "refusals": [
-        "HandleTaken"
+        "HandleTaken",
+        "IdempotencyConflict"
       ],
       "allowed": [
         {
@@ -313,7 +315,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "526cb81e4a741645"
+      "hash": "81f63be8b4207bb2"
     },
     "link.add": {
       "kind": "operation",
@@ -371,7 +373,8 @@
         "LinkNeedsHandle"
       ],
       "refusals": [
-        "LinkNeedsHandle"
+        "LinkNeedsHandle",
+        "IdempotencyConflict"
       ],
       "allowed": [
         {
@@ -395,7 +398,7 @@
       "budget": {
         "p95Ms": 150
       },
-      "hash": "d2947cac3422faf7"
+      "hash": "cd84ffbe76411cba"
     },
     "link.order": {
       "kind": "operation",
