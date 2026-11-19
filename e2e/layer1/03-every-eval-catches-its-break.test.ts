@@ -18,6 +18,8 @@ const planted: ReadonlyArray<{ readonly fixture: string; readonly installs: Read
   { fixture: "explainability", installs: [["grant.ts", GRANT]], line: "allowance.grant explainability ✘" },
 ];
 
+// Ports 8890 to 8898 belong to this check alone (the other checks use 8864, 8870, 8875, 8880, 8885, 8886). Checks run two
+// at a time, and 8871 + i once met check 8's 8875: who-may-call proved against check 8's server, and every call was a 404.
 describe("check 3: every eval catches its planted break", () => {
   planted.forEach((p, i) =>
     it(p.review ? `${p.fixture}: prove exits 0 with "${p.line}" and a review` : `${p.fixture}: prove exits 1 with "${p.line}"`, () => {
