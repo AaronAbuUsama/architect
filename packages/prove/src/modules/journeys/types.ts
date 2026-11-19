@@ -3,6 +3,7 @@
 import { Data, type Effect } from "effect";
 import type { Journey, Operation, Read, StartingWorld, Thing } from "orthograph";
 import type { Model } from "@orthograph/compiler";
+import type { DeviceWorldOf } from "@orthograph/language-effect/device";
 
 /** One HTTP call to the world, as `prove` saw it. */
 export interface CallRecord {
@@ -52,6 +53,19 @@ export interface JourneyRun {
   readonly skipped?: ReadonlyArray<{ readonly step: string; readonly operation: string; readonly file: string }>;
 }
 
+/**
+ * What prove gives the plugin code it runs in place of a device (M1.29): the `world` entry of each `runs: "client"`
+ * operation, in this process. `world` is what that code may ask of the world (`DeviceWorld`); `given` is what journeys
+ * read of it as `s.world` (a world with a chain gives `chain.keys.<host>` and `chain.payee`, K7 Q7); `otlp` is where the
+ * code's spans and logs go, so each call's trace holds them as a served operation's does.
+ */
+export interface DeviceHost {
+  readonly otlp: string | undefined;
+  readonly service: string;
+  readonly world: DeviceWorldOf;
+  readonly given: Readonly<Record<string, unknown>>;
+}
+
 /** What the project declares, loaded once: its operations and things by name, its journeys and starting worlds. */
 export interface Project {
   readonly root: string;
@@ -78,6 +92,8 @@ export interface JourneysApi {
    * person up for real through Better Auth's own routes, as someone would on a real environment, which has no cast.
    * `facts` is where the rows and journal are read: by default the world's own front door at `url`; an environment that has
    * closed the door (staging) gives its database instead.
+   * `device`: where a plugin's operation that runs on the device is run (its `world` entry, in this process). Without
+   * one such a call goes to the server like any other, which has no route for it.
    */
-  readonly run: (project: Project, url: string, journey: Journey, index: number, people?: "world" | "sign-up", facts?: Facts, empty?: boolean) => Effect.Effect<JourneyRun>;
+  readonly run: (project: Project, url: string, journey: Journey, index: number, people?: "world" | "sign-up", facts?: Facts, empty?: boolean, device?: DeviceHost) => Effect.Effect<JourneyRun>;
 }

@@ -4,7 +4,7 @@ import type { Model } from "@orthograph/compiler";
 import { Evals } from "#modules/evals/service.js";
 import type { Verdict } from "#modules/evals/types.js";
 import { Journeys } from "#modules/journeys/service.js";
-import type { Facts, Project } from "#modules/journeys/types.js";
+import type { DeviceHost, Facts, Project } from "#modules/journeys/types.js";
 import { exportRoots, rootOf } from "#modules/telemetry/service.js";
 import type { TraceSource } from "#modules/telemetry/types.js";
 import { proofVerdicts } from "./proof-verdicts.ts";
@@ -29,11 +29,11 @@ export interface Exercised {
  */
 export const exercise = (
   model: Model, project: Project, url: string, collector: TraceSource, people?: "world" | "sign-up", otlp?: string, facts?: Facts, empty = false,
-  handlers?: ReturnType<typeof handlerHashes>,
+  handlers?: ReturnType<typeof handlerHashes>, device?: DeviceHost,
 ): Effect.Effect<Exercised> =>
   Effect.gen(function* () {
     const bodies = handlers ?? handlerHashes(project.root, model);
-    const runs = yield* Effect.forEach(project.journeys, (j, i) => Journeys.run(project, url, j, i, people, facts, empty));
+    const runs = yield* Effect.forEach(project.journeys, (j, i) => Journeys.run(project, url, j, i, people, facts, empty, device));
     const calls = runs.flatMap((r) => r.calls);
     const first = yield* collector.traces(calls.map((c) => ({ trace: c.trace, parent: c.parent })));
     const roots = otlp === undefined ? [] : calls.flatMap((c) => rootOf({ trace: c.trace, span: c.parent, journey: c.journey, step: c.step, operation: c.operation, status: c.status }, first.get(c.trace)) ?? []);

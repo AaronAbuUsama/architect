@@ -35,6 +35,8 @@ packages/
                                                    publish, watch
   preset/            @orthograph/preset            the Nx preset that makes a starter project (until `ortho new`, M2.09)
   portal/            @orthograph/portal            the portal every project gets
+  portal-ui/         @orthograph/portal-ui         the only importer of HeroUI Pro, a peer dependency never bundled; the
+                                                   portal and every face build on its exports (F7, M1.34)
   logbook/           @orthograph/logbook           verdicts and the model, kept per project
 examples/
   acme/              the worked example: the allowance
@@ -45,7 +47,7 @@ e2e/                 the gates: e2e:layer1, e2e:layer2, e2e:m0
 
 Plugins come later, one package each: `@orthograph/auth` and `@orthograph/organizations` (M2), `@orthograph/work` (M3),
 `@orthograph/agent-kit` (M3, the agents projection that writes `generated/agents/`), `@orthograph/agents` (M4),
-`@orthograph/stripe` and `@orthograph/resend` (M5), `@orthograph/wallets` (M6). Nothing is published to npm before M7; every milestone before it publishes to the local Verdaccio.
+`@orthograph/stripe` and `@orthograph/resend` (M5), `@orthograph/wallets` (built in M1.29, the first: `packages/wallets`, with SIWE linking in M2.13). Nothing is published to npm before M7; every milestone before it publishes to the local Verdaccio.
 
 ## Rules, held by Nx module boundaries
 
@@ -53,6 +55,8 @@ Plugins come later, one package each: `@orthograph/auth` and `@orthograph/organi
 - A project (`scope:project`) depends only on `scope:orthograph`, `scope:language`, `scope:host` and `scope:projections`:
   a blueprint mounts a projection as it mounts any plugin, and nothing it generates imports the package.
 - `env:runtime` packages depend only on `env:runtime` packages; `env:build` packages may use both.
+- `@heroui-pro/*` is imported only by `portal-ui` (lint, F7); `portal-ui` is a leaf that only the portal and faces
+  depend on.
 - `language-effect`'s runtime is the only package generated code imports at run time, besides `orthograph`, the host and
   the project's own code.
 - `compiler` and `generators` never run in production.

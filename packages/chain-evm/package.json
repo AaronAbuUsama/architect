@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "type": "module",
   "exports": {
-    ".": "./src/main.ts"
+    ".": "./src/main.ts",
+    "./device": "./src/device.ts"
   },
   "dependencies": {
     "@orthograph/language-effect": "workspace:*",
@@ -20,6 +21,10 @@
       ".": {
         "types": "./dist/main.d.ts",
         "default": "./dist/main.js"
+      },
+      "./device": {
+        "types": "./dist/device.d.ts",
+        "default": "./dist/device.js"
       }
     }
   }

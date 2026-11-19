@@ -3,7 +3,7 @@ import { Names } from "orthograph/server";
 import type { OperationModel } from "@orthograph/compiler";
 import type { RenderedFile } from "#modules/names/types.js";
 import { callSteps, handlerTypeAt } from "./calls.ts";
-import { camel, lines, scaffolded, toRoot } from "#modules/names/service.js";
+import { camel, lines, local, scaffolded, toRoot } from "#modules/names/service.js";
 
 const runner = (key: string) => /^[A-Za-z_$][\w$]*$/.test(key) ? `steps.${key}` : `steps[${JSON.stringify(key)}]`;
 
@@ -40,9 +40,9 @@ const calling = (op: OperationModel, path: string): RenderedFile => {
       "",
       `/** ${op.description} */`,
       whole
-        ? [`const ${camel(op.verb)}: Handler = (payload, { steps }) =>`, ...comments.map((s) => `  // ${s}`), `  steps.${steps[0]!.key}(${args}, ${blank});`]
+        ? [`const ${local(camel(op.verb))}: Handler = (payload, { steps }) =>`, ...comments.map((s) => `  // ${s}`), `  steps.${steps[0]!.key}(${args}, ${blank});`]
         : [
-          `const ${camel(op.verb)}: Handler = (payload, { steps }) =>`,
+          `const ${local(camel(op.verb))}: Handler = (payload, { steps }) =>`,
           "  Effect.gen(function* () {",
           ...comments.map((s) => `    // ${s}`),
           ...steps.map((s) => `    const ${s.key} = yield* steps.${s.key}(${args}, ${blank});`),
@@ -50,7 +50,7 @@ const calling = (op: OperationModel, path: string): RenderedFile => {
           "  });",
         ],
       "",
-      `export default ${camel(op.verb)};`,
+      `export default ${local(camel(op.verb))};`,
     ),
   };
 };
@@ -76,7 +76,7 @@ export const renderHandlerScaffold = (op: OperationModel, path = `src/${op.thing
       "",
       op.errors.length > 0 ? [`const { ${op.errors.join(", ")} } = Errors.declared;`, ""] : [],
       `/** ${op.description} */`,
-      `const ${camel(op.verb)}: Handler = (_payload, ${context.length === 0 ? "_context" : `{ ${context.join(", ")} }`}) =>`,
+      `const ${local(camel(op.verb))}: Handler = (_payload, ${context.length === 0 ? "_context" : `{ ${context.join(", ")} }`}) =>`,
       "  Effect.gen(function* () {",
       steps.map(([key, step]) => `    yield* ${runner(key)}(Handlers.blank(${JSON.stringify(`${key}: the work this step does`)}));${step.optional ? " // optional: may be skipped" : ""}`),
       op.errors.flatMap((error) => [
@@ -89,7 +89,7 @@ export const renderHandlerScaffold = (op: OperationModel, path = `src/${op.thing
       `    return yield* Handlers.blank("the answer");`,
       "  });",
       "",
-      `export default ${camel(op.verb)};`,
+      `export default ${local(camel(op.verb))};`,
     ),
   };
 };

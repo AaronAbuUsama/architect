@@ -1,7 +1,8 @@
 # The wallet plugin's journeys (M1.28)
 
-Written by the ✍️ author of slice M1.28 for `@orthograph/wallets`, which M1.29 builds. **The builder of M1.29 never edits
-these files** (AGENTS.md, "Journeys and checks come first"); `e2e/m1/09-wallet-journeys.test.ts` fails if a copy in
+Written by the ✍️ author of slice M1.28 for `@orthograph/wallets`, which M1.29 builds; the refusal journeys below were
+added once M1.29 existed, because the first four reached only `SimulationReverted` and coverage found `KeyLocked` and
+`NoSuchKey` reached by no journey. **The builder of M1.29 never edits these files** (AGENTS.md, "Journeys and checks come first"); `e2e/m1/09-wallet-journeys.test.ts` fails if a copy in
 `packages/wallets/blueprint/journeys/` differs by one byte.
 
 ## What is here
@@ -13,14 +14,40 @@ these files** (AGENTS.md, "Journeys and checks come first"); `e2e/m1/09-wallet-j
 | `keystore.ts` | wallet on the keystore signer | a server's key store, holding a world-generated test key |
 | `world.ts` | wallet on the world signer | the world's own test wallets |
 
-Each journey is the same eight steps, so a signer that behaves differently shows up as the one journey that fails:
+Each story is the same eight steps, so a signer that behaves differently shows up as the one journey that fails:
 create a key; list it (1); import the world's funded key; list both (2); sign a message; send and see `confirmed` at
 nonce 0; a send whose simulation reverts is refused with `SimulationReverted`; the next send is `confirmed` at nonce 1
 (the refused one sent nothing and used no nonce).
 
+The four stories above (`node.ts`, `browser.ts`, `keystore.ts`, `world.ts`) are the happy path. Five more journeys reach the
+declared refusals the stories do not, so that every error an operation declares is reached on it (prove's coverage eval
+reports an error "reached by no journey" otherwise, and any app mounting the wallet fails `prove`):
+
+| File | Journey | Steps (each refused, nothing sent, no event) |
+|---|---|---|
+| `node-refusals.ts`, `browser-refusals.ts`, `keystore-refusals.ts`, `world-refusals.ts` | wallet refusals on the `<signer>` signer | 3: `import` a secret that is no key (for `browser`, something that is no account) is `KeyLocked`; `sign` with a label the signer does not hold is `NoSuchKey`; `send` from such a label is `NoSuchKey` |
+| `no-signer.ts` | wallet refusals on no signer | 5: `create`, `import`, `keys`, `sign` and `send` on `signer: "nowhere"`, a signer the wallet does not have, are each `KeyLocked` |
+
+| Operation | `KeyLocked` reached by | `NoSuchKey` reached by | `SimulationReverted` reached by |
+|---|---|---|---|
+| `create` | `no-signer.ts` | | |
+| `import` | `<signer>-refusals.ts` (four), `no-signer.ts` | | |
+| `keys` | `no-signer.ts` | | |
+| `sign` | `no-signer.ts` | `<signer>-refusals.ts` (four) | |
+| `send` | `no-signer.ts` | `<signer>-refusals.ts` (four) | the four stories |
+
+The refusal journeys make no key and send nothing, so they leave the world as they found it and the stories' counts (`keys`
+answers 1, then 2; nonce 0, then 1) hold in any order. They never need a world of their own, and name no key or address
+(`chain.payee` is the only thing read from the world).
+
+Not reached, because no journey can put a world's signer in that state (the world gives a node signer its own passphrase,
+its own provider never declines, a key stored is always a key): a node keystore with no or a wrong passphrase, a browser
+wallet that declines, a signer that cannot sign. The plugin's own tests (`packages/wallets`) cover those; a world that
+could lock a signer would let a journey reach them.
+
 ## How M1.29's builder picks them up
 
-1. Copy these four files, unchanged, to `packages/wallets/blueprint/journeys/` (`cp`, not a rewrite).
+1. Copy these nine files, unchanged, to `packages/wallets/blueprint/journeys/` (`cp`, not a rewrite).
 2. They import `../things/wallet/verbs/{create,import,keys,sign,send}.js` and `../things/wallet/errors.js`. Write
    those declarations in the package so those imports resolve, with the **contract** below. The stand-in's own
    declarations (`../things/wallet/`, beside this folder) are the reference, but the package may add to them.

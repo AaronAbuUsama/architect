@@ -3,7 +3,7 @@
 // flushed before the call returns, because a CLI may exit the moment it does.
 import { Cause, Effect, Layer, Schema } from "effect";
 import { FetchHttpClient } from "effect/http";
-import { OtlpSerialization, OtlpTracer } from "effect/observability";
+import { OtlpLogger, OtlpSerialization, OtlpTracer } from "effect/observability";
 import type { Operation, Principal } from "orthograph";
 import type { DeviceApi, DeviceWhere } from "../types.ts";
 import { answerAttributes, payloadAttributes, principalAttributes } from "./attributes.ts";
@@ -15,12 +15,18 @@ type AnyHandler = (payload: object, context: { principal: Principal; steps: obje
 /** On a device nobody can say who is calling, so every caller is anonymous and an operation is open to anyone. */
 const principal: Principal = { kind: "anonymous" };
 
-/** The spans of one call, sent to the collector at `otlp`; closing the layer is the flush. */
-const exporter = (otlp: string, service: string) =>
-  OtlpTracer.layer({ url: `${otlp.replace(/\/+$/, "")}/v1/traces`, resource: { serviceName: service }, exportInterval: "100 millis", maxBatchSize: 64, shutdownTimeout: "3 seconds" }).pipe(
+/**
+ * The spans of one call, and the logs written inside them (the log that decided a refusal is one, and the explainability
+ * eval looks for it), sent to the collector at `otlp`; closing the layer is the flush.
+ */
+const exporter = (otlp: string, service: string) => {
+  const base = otlp.replace(/\/+$/, "");
+  const options = { resource: { serviceName: service }, exportInterval: "100 millis", maxBatchSize: 64, shutdownTimeout: "3 seconds" } as const;
+  return Layer.mergeAll(OtlpTracer.layer({ url: `${base}/v1/traces`, ...options }), OtlpLogger.layer({ url: `${base}/v1/logs`, ...options })).pipe(
     Layer.provide(OtlpSerialization.layerJson),
     Layer.provide(FetchHttpClient.layer),
   );
+};
 
 const tagOf = (e: unknown): string =>
   typeof e === "object" && e !== null && typeof (e as { _tag?: unknown })._tag === "string" ? (e as { _tag: string })._tag : String(e);

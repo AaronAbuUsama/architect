@@ -296,7 +296,7 @@ slice, a decision, or a line saying it is dropped. Grouped by canon page, in the
 |---|---|---|---|
 | `ADA-05` | Delivery receipts from Resend would be a later `on:` event; nothing parks it. | design/frame/examples/notifications.md:133 | open |
 | `ADA-11` | Tenderly as an opt-in simulation plugin is mentioned in the old decisions and no slice or later line owns it. | design/decisions.md:90 | open |
-| `ADA-12` | The `eip1193` browser-wallet adapter (host browser, stand-in Anvil) is used by the wallets feature, but no slice builds it. | design/frame/adapters.md:134<br>design/frame/writing-a-feature.md:233 | open |
+| `ADA-12` | The `eip1193` browser-wallet adapter (host browser, stand-in Anvil) is used by the wallets feature, but no slice builds it. | design/frame/adapters.md:134<br>design/frame/writing-a-feature.md:233 | open: M1.29's browser signer reaches EIP-1193 itself (`packages/wallets/src/modules/signer/internal/provided.ts`, proved against a stand-in provider); no `eip1193` adapter package |
 | `ADA-13` | The factory feature's `github` adapter (push a branch, open a pull request, `pullRequest.merged` in, Gitea as stand-in) has no slice. | design/frame/examples/factory.md:171 | open |
 
 ### projections
@@ -970,7 +970,7 @@ they are closed. The unowned items for each page are in section 1, not repeated 
 | `FEA-02` | EIP-7702 wallet delegation is parked off the path in milestones' Later list. | design/decisions.md:95<br>design/milestones.md:300<br>design/build-plan.md:190 | open | later |
 | `FEA-03` | Passkeys are not offered, and ERC-1271, ERC-6492 and EIP-7702 verification are unproved. | design/frame/writing-a-feature.md:272 | open | M6.01 |
 | `FEA-04` | Safe as its own plugin, built from its own events and a small core, is parked for later (the files still say 'kit'). | design/decisions.md:126<br>design/later.md:7 | open | later |
-| `FEA-06` | The wallets keystore needs its own checks: encrypted keystores on Linux CI and Node 24 are untested, and native encryption and storage behaviour is unchecked. | design/frame/writing-a-feature.md:603<br>spikes/kit-package-exports/README.md:58 | open | M6.03 |
+| `FEA-06` | The wallets keystore needs its own checks: encrypted keystores on Linux CI and Node 24 are untested, and native encryption and storage behaviour is unchecked. | design/frame/writing-a-feature.md:603<br>spikes/kit-package-exports/README.md:58 | open: built and tested on macOS and Node 26 in M1.29 (`packages/wallets/src/modules/keystore`, `keyfile`); Linux CI and Node 24 are not | M1.29 |
 | `FEA-09` | acme's `invitation.send` records an invitation and sends no email. | design/decisions/K1-kits.md:1210<br>design/milestones.md:231 | open | M5.10 |
 
 ### adapters

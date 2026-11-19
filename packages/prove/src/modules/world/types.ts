@@ -1,5 +1,5 @@
 // A local world: the generated Worker on real workerd, with its world Durable Object and a fresh local D1.
-import { Data, type Effect, type Scope } from "effect";
+import { Data, type Effect, type Redacted, type Scope } from "effect";
 
 export class WorldFailed extends Data.TaggedError("WorldFailed")<{
   readonly message: string;
@@ -11,6 +11,8 @@ export class WorldFailed extends Data.TaggedError("WorldFailed")<{
 export interface ChainStand {
   readonly rpcUrl: string;
   readonly chainId: number;
+  /** The funded accounts the world made, their keys redacted: what a journey's `s.world.chain` is built from. */
+  readonly accounts?: ReadonlyArray<{ readonly address: string; readonly privateKey: Redacted.Redacted<string> }>;
 }
 
 export interface Running {

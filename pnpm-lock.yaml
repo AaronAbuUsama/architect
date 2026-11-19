@@ -93,6 +93,9 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: 1.32.2
         version: 1.32.2(@cfworker/json-schema@4.1.4)(supports-color@10.2.2)(zod@4.6.7)
+      yaml:
+        specifier: 2.9.0
+        version: 2.9.0
       zod:
         specifier: 4.6.7
         version: 4.6.7
@@ -437,6 +440,9 @@ importers:
 
   packages/prove:
     dependencies:
+      '@orthograph/chain-evm':
+        specifier: workspace:*
+        version: link:../chain-evm
       '@orthograph/compiler':
         specifier: workspace:*
         version: link:../compiler
@@ -468,12 +474,25 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: 1.32.2
         version: 1.32.2(@cfworker/json-schema@4.1.4)(supports-color@10.2.2)(zod@4.6.7)
-      '@orthograph/chain-evm':
-        specifier: workspace:*
-        version: link:../chain-evm
       nx:
         specifier: 24.0.3
         version: 24.0.3
+
+  packages/wallets:
+    dependencies:
+      '@orthograph/chain-evm':
+        specifier: workspace:*
+        version: link:../chain-evm
+      effect:
+        specifier: 4.1.1
+        version: 4.1.1
+    devDependencies:
+      '@orthograph/language-effect':
+        specifier: workspace:*
+        version: link:../language-effect
+      orthograph:
+        specifier: workspace:*
+        version: link:../orthograph
 
 packages:
 

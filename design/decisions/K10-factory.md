@@ -345,7 +345,7 @@ are reused, not duplicated. M4.13 is K11's. Run's reference to any thing is M1.0
 7. `review` is a logbook verdict kind, built early (M3.20). Staging is automatic after prove and review; production is a person's yes.
 8. An experiment is a plugin in its own workspace. It is kept only as a package plus one mount file. Spikes are the
    other lane.
-9. The factory's face, and the portal's agent UI in general, is composed from HeroUI Pro's components. **No agent UI
+9. The factory's face, and the portal's agent UI in general, is composed from HeroUI Pro's components. **No agent UI (Through `@orthograph/portal-ui`, F7: no face imports Pro directly.)
    code is canon**: the docs canon shows the declarations (`Blueprint.agent`, Run, Workspace, Experiment) and their
    actions, never a page's code (Aaron, 18 November).
 10. The seams with K11 and the portal are as sections 5 and 6 record.
