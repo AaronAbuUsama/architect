@@ -8,6 +8,7 @@ CREATE TABLE "handle" (
   "version" INTEGER NOT NULL DEFAULT 0
 );
 CREATE UNIQUE INDEX "handle_name_unique" ON "handle" ("name") WHERE "state" IN ('claimed');
+CREATE UNIQUE INDEX "handle_owner_unique" ON "handle" ("owner") WHERE "state" IN ('claimed');
 CREATE TABLE "link" (
   "id" TEXT PRIMARY KEY,
   "profile" TEXT NOT NULL,
@@ -23,6 +24,7 @@ CREATE TABLE "profile" (
   "links" TEXT NOT NULL,
   "version" INTEGER NOT NULL DEFAULT 0
 );
+CREATE UNIQUE INDEX "profile_handle_unique" ON "profile" ("handle");
 -- Every event a move emitted, with the trace of the call that made it (language-effect's Journal).
 CREATE TABLE "_journal" (
   "seq" INTEGER PRIMARY KEY AUTOINCREMENT,
