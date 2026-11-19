@@ -1,7 +1,8 @@
 # Grill round 1: the mission board's information architecture
 
-Drafted 19 November 2026 by 📐 Designer: the mission board. **Not sent yet.** HeroUI's docs are read through its MCP.
-It goes to Aaron after the Mobbin look (that MCP needs his sign-in), which may change the options. Five questions.
+Drafted 19 November 2026 by 📐 Designer: the mission board. Revised with HeroUI's docs, read through its MCP: each option names the parts it would use. Mobbin references go under
+each option once Mobbin is signed in for this session (it shows "needs sign-in"). Five questions. The conductor sends
+it to Aaron.
 
 **Shared terms**
 
@@ -10,6 +11,8 @@ It goes to Aaron after the Mobbin look (that MCP needs his sign-in), which may c
 - **State**: a card's eval result. Green means its evidence ran and passed. Built means the code carries it but no
   verdict has been recorded yet. Then partly, red, and not needed (only by your answer, with a reason). From K14's
   `design/grid/types.ts`.
+- **Proposed grey**: a red card the grid proposes as not needed (17 of them). It stays red, drawn grey with a "proposed
+  not needed" chip, until Aaron answers K14's Q2.
 - **Stage**: where the *work* on a card stands, taken from its task on today's board: backlog, decide, checks, build,
   review, done.
 - **Grid / Board**: the two data files. The grid says what each card means: `design/grid/grid.json`, owned by the
@@ -92,6 +95,14 @@ across six work stages:
 // backlog | decide | checks | build | review | done; the state is a dot on the card
 ```
 
+**Parts**
+
+| Option | HeroUI parts (from the docs, read through its MCP) |
+|---|---|
+| A · States | one `Kanban` per lane: `Kanban.Column` › `ColumnHeader` (`ColumnIndicator`, `ColumnTitle`, `ColumnCount`) › `ColumnBody` › `CardList` › `Card`, as in the docs' Project Board. `Chip` for slice, stage and question. `Avatar` for the thread. |
+| B · Outputs | the same parts, one `Kanban` with nine columns. |
+| C · Stages | the same parts, six columns. |
+
 **You do X → what happens**
 
 | Scenario | A · States | B · Outputs | C · Stages |
@@ -170,6 +181,14 @@ gets less room.
 <div className="overview-main"><GoalHead /><Properties /><Lanes compact /></div>
 ```
 
+**Parts**
+
+| Option | HeroUI parts |
+|---|---|
+| A · Tab | `Tabs` (OSS) above the goal header, as on the Goal page. `KPIGroup` and `KPI` for the goal's score on Overview. |
+| B · Own page | `AppLayout`, `Navbar` and a second goal header. |
+| C · Inline | the Overview's `Widget`s with the lanes inside one. |
+
 **You do X → what happens**
 
 | Scenario | A · Tab | B · Own page | C · Inline |
@@ -242,6 +261,14 @@ export interface CardView {
 ```tsx
 <Modal isOpen={!!card}><CardDetail card={card} /></Modal>
 ```
+
+**Parts**
+
+| Option | HeroUI parts |
+|---|---|
+| A · Panel | `Resizable` (`Panel`, `Handle`), holding `ItemCardGroup` and `ItemCard` for thread and evidence rows, and `Timeline` (`Item`, `Rail`, `Marker`, `Connector`, `Content`) for history. |
+| B · Page | the same content full width, with `Navbar` breadcrumbs. |
+| C · Modal | `Modal` (OSS) with the same content. |
 
 **You do X → what happens**
 
@@ -318,6 +345,14 @@ export interface Score { green; built; partly; red; notNeeded; needed }  // gree
 {changes.map((c) => <Kanban.Card className="ghost" key={c.cell + c.from}>…</Kanban.Card>)}
 ```
 
+**Parts**
+
+| Option | HeroUI parts |
+|---|---|
+| A · Climb tab | `KPIGroup` of `KPI`s (green, built, partly, red, out of needed), `Widget` around the matrix and the chart, `Segment` for "since", `LineChart` inside a `Widget` (Recharts runs in the browser here), and `Timeline` for what moved. |
+| B · Lane badges | `ProgressCircle` (OSS) in each lane header, and a `Chip` on cards. |
+| C · Ghosts | No part has it. Hand-made. |
+
 **You do X → what happens**
 
 | Scenario | A · Climb tab | B · Lane badges | C · Ghosts |
@@ -388,6 +423,14 @@ export interface EndState {
 ```tsx
 <LaneDetail block={lane.block} />   // opens when you click the lane name
 ```
+
+**Parts**
+
+| Option | HeroUI parts |
+|---|---|
+| A · Header chip | `Chip` (OSS) in the lane header. It opens the end state and its proof in the same panel, as an `ItemCard`. |
+| B · Pinned card | a disabled `Kanban.Card`. |
+| C · Detail only | `ItemCardGroup` in a lane panel. |
 
 **You do X → what happens**
 
