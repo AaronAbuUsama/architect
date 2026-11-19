@@ -57,4 +57,9 @@ M3.17 and M4.23 now need M3.21 for faces.
 
 ## Reversible
 
-Every moved row keeps its id and its text, so moving one back is one table edit. Nothing built is removed.
+Every moved row keeps its id. M1.22, M1.23, M1.37 and ST1.05 keep their text too, so moving one back is one table edit.
+M1.12, M1.13 and M1.24 were split, not moved: M1.12's plugin part is M3.22, M1.13's faces and notes are M3.21, and
+M1.24's frame is M1.13's; undoing a split means merging the two rows' text back. Nothing built is removed.
+
+After review: M1.41 checks the portal's data file, and opening the portal is M1.13's check (so M1.42 can pass before
+M1.13 exists); Gate M2 and M2.08 no longer go through actions, which are M3's.
