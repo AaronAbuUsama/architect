@@ -244,6 +244,9 @@ importers:
       '@orthograph/lint':
         specifier: workspace:*
         version: link:../lint
+      '@orthograph/projections':
+        specifier: workspace:*
+        version: link:../projections
       '@orthograph/prove':
         specifier: workspace:*
         version: link:../prove

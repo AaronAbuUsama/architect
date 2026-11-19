@@ -2,5 +2,6 @@
 // them here, and this entry goes): the names every renderer shares, the handler scaffold, and the empty server of `prove`.
 export * from "#modules/names/service.js";
 export type { RenderedFile } from "#modules/names/types.js";
-export { renderHandlerScaffold } from "#modules/handlers/service.js";
+export { machinePaths, renderHandlerScaffold, renderJourneyStubs } from "#modules/handlers/service.js";
+export type { MachinePath } from "#modules/handlers/types.js";
 export { emptyServer } from "#modules/server/service.js";

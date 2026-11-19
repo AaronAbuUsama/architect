@@ -147,6 +147,8 @@ export interface JourneyModel {
   readonly name: string;
   readonly cast: Readonly<Record<string, AllowedModel>>;
   readonly starts: string | null;
+  /** What isn't written yet: a stub from `ortho add journeys` until it is filled. `prove` skips it, naming it (K16 e). */
+  readonly blanks?: ReadonlyArray<string>;
   readonly steps: ReadonlyArray<{ readonly title: string } & (
     | { readonly call: JourneyCallModel; readonly checks: ReadonlyArray<{ readonly kind: string }> }
     | { readonly skipped: string }

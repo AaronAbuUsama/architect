@@ -3,3 +3,5 @@
 // roles and errors yield (`ortho add journeys`).
 export { callImports, callSteps, handlerTypeAt, renderHandlerTypes, wired } from "./internal/calls.ts";
 export { renderHandlerScaffold } from "./internal/scaffold.ts";
+export { machinePaths } from "./internal/paths.ts";
+export { renderJourneyStubs } from "./internal/stubs.ts";
