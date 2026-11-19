@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Agent presets · Pi Durable Console</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#0b0b0d}
+a{color:#7fb0ff;text-decoration:none}a:hover{color:#a9c9ff}
+.card{background:#18181b;border:1px solid #29292d;border-radius:14px}
+.btn{font:inherit;font-size:13px;font-weight:600;min-height:40px;padding:0 14px;border-radius:10px;border:1px solid #303036;background:#27272a;color:#fcfcfc;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;white-space:nowrap}
+.btn-primary{background:#3584f5;border-color:#3584f5;color:#ffffff}
+.btn-ghost{background:transparent;border-color:transparent;color:#c4c4cc}
+.chip{display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:999px;font-size:12px;font-weight:600;background:#27272a;color:#d4d4d8;white-space:nowrap}
+.ok{background:rgba(47,196,106,.14);color:#5fdc8f}
+.warn{background:rgba(242,179,61,.14);color:#f5c15a}
+.info{background:rgba(53,132,245,.16);color:#8db8ff}
+.purple{background:rgba(160,120,255,.16);color:#c3a8ff}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#a1a1aa}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12px}
+.muted{color:#a1a1aa}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 100vh; background: #0b0b0d; color: #fcfcfc; font-family: 'Plus Jakarta Sans', system-ui, sans-serif">
+  <div style="flex: 1 1 248px; max-width: 100%; display: flex">
+    <dc-import name="Sidebar" active="presets" hint-size="248px,1140px"></dc-import>
+  </div>
+  <main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+    <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; min-height: 64px; padding: 10px 28px; border-bottom: 1px solid #222225">
+      <nav aria-label="Breadcrumb" style="display: flex; align-items: center; gap: 8px; font-size: 14px; flex: 1; min-width: 200px">
+        <span class="muted">support-desk</span><span class="muted">/</span><span style="font-weight: 600">Agent presets</span>
+      </nav>
+      <button type="button" class="btn">Import JSON</button>
+      <a href="AgentEditor.dc.html" class="btn btn-primary">New preset</a>
+    </header>
+
+    <div style="padding: 24px 28px 40px; display: flex; flex-direction: column; gap: 22px; max-width: 1180px; width: 100%; box-sizing: border-box">
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <h1 style="margin: 0; font-size: 28px; font-weight: 700">Agent presets</h1>
+        <p style="margin: 0; font-size: 14px; color: #a1a1aa; max-width: 720px">A preset is a stored agent: model, thinking level, extensions, tools, instructions and limits. A manager spawns workers from presets; a worker starts as a copy of its manager's agent with the preset applied on top.</p>
+      </div>
+
+      <section aria-label="Start from a template" style="display: flex; flex-direction: column; gap: 10px">
+        <h2 class="eyebrow" style="margin: 0">Start from a template</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px">
+          <button type="button" class="card" style="font: inherit; color: inherit; text-align: left; cursor: pointer; padding: 14px; display: flex; flex-direction: column; gap: 6px; border-style: dashed">
+            <span style="font-size: 14px; font-weight: 650">Manager + workers</span>
+            <span class="muted" style="font-size: 12px; line-height: 1.5">Background subagents, reporter follow-ups, spawn limits.</span>
+          </button>
+          <button type="button" class="card" style="font: inherit; color: inherit; text-align: left; cursor: pointer; padding: 14px; display: flex; flex-direction: column; gap: 6px; border-style: dashed">
+            <span style="font-size: 14px; font-weight: 650">Coding agent</span>
+            <span class="muted" style="font-size: 12px; line-height: 1.5">read, write, edit, bash; tests after edits.</span>
+          </button>
+          <button type="button" class="card" style="font: inherit; color: inherit; text-align: left; cursor: pointer; padding: 14px; display: flex; flex-direction: column; gap: 6px; border-style: dashed">
+            <span style="font-size: 14px; font-weight: 650">Reviewer loop</span>
+            <span class="muted" style="font-size: 12px; line-height: 1.5">Own model and tools, read-only, onYield review.</span>
+          </button>
+          <button type="button" class="card" style="font: inherit; color: inherit; text-align: left; cursor: pointer; padding: 14px; display: flex; flex-direction: column; gap: 6px; border-style: dashed">
+            <span style="font-size: 14px; font-weight: 650">Blank</span>
+            <span class="muted" style="font-size: 12px; line-height: 1.5">Host defaults; pick everything yourself.</span>
+          </button>
+        </div>
+      </section>
+
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+        <label style="display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 12px; border-radius: 10px; background: #18181b; border: 1px solid #29292d; color: #a1a1aa; font-size: 13px; flex: 1 1 260px; max-width: 360px">
+          <span style="position: absolute; width: 1px; height: 1px; overflow: hidden">Search presets</span>
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+          <input type="search" placeholder="Search presets" style="flex: 1; background: transparent; border: 0; color: #fcfcfc; font: inherit; outline: none; min-width: 0">
+        </label>
+        <div role="group" aria-label="Role" style="display: inline-flex; padding: 3px; border-radius: 11px; background: #18181b; border: 1px solid #29292d">
+          <button type="button" class="btn" style="min-height: 32px; background: #4a4a52; border-color: #4a4a52">All 6</button>
+          <button type="button" class="btn btn-ghost" style="min-height: 32px">Managers 1</button>
+          <button type="button" class="btn btn-ghost" style="min-height: 32px">Workers 5</button>
+        </div>
+      </div>
+
+      <section aria-label="Presets" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px">
+        <sc-for list="{{presets}}" as="p" hint-placeholder-count="6">
+          <article class="card" style="padding: 16px; display: flex; flex-direction: column; gap: 14px">
+            <div style="display: flex; align-items: flex-start; gap: 12px">
+              <span aria-hidden="true" style="{{p.markStyle}}">{{p.initial}}</span>
+              <div style="display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0">
+                <h3 style="margin: 0; font-size: 15px; font-weight: 650">{{p.name}}</h3>
+                <span class="muted" style="font-size: 12px; line-height: 1.5">{{p.desc}}</span>
+              </div>
+              <span class="{{p.roleClass}}">{{p.role}}</span>
+            </div>
+            <dl style="margin: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 14px; font-size: 13px">
+              <dt class="muted">Model</dt><dd style="margin: 0" class="mono">{{p.model}}</dd>
+              <dt class="muted">Thinking</dt><dd style="margin: 0">{{p.thinking}}</dd>
+              <dt class="muted">Tools</dt><dd style="margin: 0">{{p.tools}}</dd>
+              <dt class="muted">Limits</dt><dd style="margin: 0">{{p.limits}}</dd>
+            </dl>
+            <div style="display: flex; flex-wrap: wrap; gap: 6px">
+              <sc-for list="{{p.tags}}" as="t" hint-placeholder-count="3"><span class="chip">{{t}}</span></sc-for>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; padding-top: 12px; border-top: 1px solid #222225">
+              <span class="muted" style="font-size: 12px; flex: 1">{{p.usage}}</span>
+              <button type="button" class="btn btn-ghost" style="min-height: 36px">Duplicate</button>
+              <a href="AgentEditor.dc.html" class="btn" style="min-height: 36px">Edit</a>
+            </div>
+          </article>
+        </sc-for>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1140}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const mark = (bg) => 'display: grid; place-items: center; width: 40px; height: 40px; flex: none; border-radius: 10px; font-weight: 700; font-size: 16px; color: #ffffff; background: ' + bg;
+    const P = [
+      ['Desk lead', 'Triages the ticket queue, spawns and steers workers, reports to the team.', 'Manager', 'chip info', '#3584f5', 'anthropic/claude-opus-5-5', 'high', '9 · offers subagent, tickets.*, tool_search', '50 turns · compaction on', ['subagent', 'ticket-tools', 'guard'], 'Running in 1 thread'],
+      ['Ticket resolver', 'Answers one ticket end to end; refunds over $25 need approval.', 'Worker', 'chip ok', '#2a9d5c', 'anthropic/claude-sonnet-5-5', 'medium', '14 · via codemode', '30 turns · no subagents', ['ticket-tools', 'billing MCP', 'codemode'], '5 live · 212 runs this week'],
+      ['Code fixer', 'Reproduces a bug, fixes it on a branch, runs the tests after every edit.', 'Worker', 'chip ok', '#c26a1f', 'anthropic/claude-sonnet-5-5', 'high', '6 · read, write, edit, bash', '40 turns · env gpu-box', ['coding', 'tests-after-edits', 'github MCP'], '1 live · 18 runs this week'],
+      ['Researcher', 'Searches docs, changelogs and past tickets; never edits anything.', 'Worker', 'chip ok', '#7a5af5', 'anthropic/claude-haiku-5-5', 'low', '22 · deferred via tool_search', '20 turns · read-only', ['tool-search', 'docs MCP', 'skills'], '1 live · 64 runs this week'],
+      ['Reviewer', 'Reviews a fixer diff with its own model and a review loop.', 'Worker', 'chip ok', '#b0447a', 'openai/gpt-6-sol', 'high', '3 · read, bash (tests only)', '15 turns · onYield review', ['coding', 'guard'], '1 waiting'],
+      ['Planner', 'Plan mode: reads and proposes, cannot write; switched with configure().', 'Worker', 'chip purple', '#5d5d66', 'anthropic/claude-opus-5-5', 'xhigh', '2 · read, plan', '10 turns', ['plan-mode'], 'Not used yet']
+    ];
+    return {
+      presets: P.map((r) => ({ name: r[0], desc: r[1], role: r[2], roleClass: r[3], markStyle: mark(r[4]), initial: r[0][0], model: r[5], thinking: r[6], tools: r[7], limits: r[8], tags: r[9], usage: r[10] }))
+    };
+  }
+}
+</script>
+</body>
+</html>

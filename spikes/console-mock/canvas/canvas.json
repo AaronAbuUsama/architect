@@ -1,0 +1,406 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "AgentEditor.dc.html": {
+      "expand": "fill",
+      "h": 2640,
+      "is_interactive": true,
+      "title": "Preset editor",
+      "w": 1440,
+      "x": 3040,
+      "y": 1900
+    },
+    "Agents.dc.html": {
+      "expand": "fill",
+      "h": 1140,
+      "is_interactive": true,
+      "title": "Agent presets",
+      "w": 1440,
+      "x": 0,
+      "y": 1900
+    },
+    "Deploy.dc.html": {
+      "expand": "fill",
+      "h": 1320,
+      "is_interactive": true,
+      "title": "Deploy",
+      "w": 1440,
+      "x": 3040,
+      "y": 7300
+    },
+    "Environments.dc.html": {
+      "expand": "fill",
+      "h": 1260,
+      "is_interactive": true,
+      "title": "Environments and storage",
+      "w": 1440,
+      "x": 0,
+      "y": 7300
+    },
+    "Extensions.dc.html": {
+      "expand": "fill",
+      "h": 1340,
+      "is_interactive": true,
+      "title": "Extensions, hooks and prompt",
+      "w": 1440,
+      "x": 4560,
+      "y": 5200
+    },
+    "Main.dc.html": {
+      "expand": "fill",
+      "h": 1600,
+      "is_interactive": true,
+      "title": "Goal overview, laid out like a Linear project page",
+      "w": 1440,
+      "x": 0,
+      "y": -2500
+    },
+    "Mcp.dc.html": {
+      "expand": "fill",
+      "h": 1180,
+      "is_interactive": true,
+      "title": "MCP servers",
+      "w": 1440,
+      "x": 1520,
+      "y": 5200
+    },
+    "Settings.dc.html": {
+      "expand": "fill",
+      "h": 1760,
+      "is_interactive": true,
+      "title": "Models and run policy",
+      "w": 1440,
+      "x": 1520,
+      "y": 7300
+    },
+    "Sidebar.dc.html": {
+      "h": 1100,
+      "title": "Sidebar (shared component)",
+      "w": 248,
+      "x": -328,
+      "y": 0
+    },
+    "Skills.dc.html": {
+      "expand": "fill",
+      "h": 1140,
+      "is_interactive": true,
+      "title": "Skills",
+      "w": 1440,
+      "x": 3040,
+      "y": 5200
+    },
+    "TaskGraph.dc.html": {
+      "expand": "fill",
+      "h": 1080,
+      "is_interactive": true,
+      "title": "Drill-down: runtime tasks",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "Team.dc.html": {
+      "expand": "fill",
+      "h": 1260,
+      "is_interactive": true,
+      "title": "Team: manager and workers",
+      "w": 1440,
+      "x": 1520,
+      "y": 1900
+    },
+    "Thread.dc.html": {
+      "expand": "fill",
+      "h": 1180,
+      "is_interactive": true,
+      "title": "Drill-down: raw transcript (rewind)",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "Tools.dc.html": {
+      "expand": "fill",
+      "h": 1180,
+      "is_interactive": true,
+      "title": "Tools",
+      "w": 1440,
+      "x": 0,
+      "y": 5200
+    },
+    "Plan.dc.html": {
+      "expand": "fill",
+      "h": 1560,
+      "is_interactive": true,
+      "title": "Plan: the app.plan document",
+      "w": 1440,
+      "x": 1520,
+      "y": -2500
+    },
+    "Fleet.dc.html": {
+      "expand": "fill",
+      "h": 1300,
+      "is_interactive": true,
+      "title": "Fleet health",
+      "w": 1440,
+      "x": 3040,
+      "y": -2500
+    },
+    "Worker.dc.html": {
+      "expand": "fill",
+      "h": 1700,
+      "is_interactive": true,
+      "title": "Worker: fixer-4177",
+      "w": 1440,
+      "x": 4560,
+      "y": -2500
+    },
+    "Channels.dc.html": {
+      "expand": "fill",
+      "h": 1300,
+      "is_interactive": true,
+      "title": "Channels: one agent, many places",
+      "w": 1440,
+      "x": 6080,
+      "y": -2500
+    },
+    "Dx.dc.html": {
+      "expand": "fill",
+      "h": 1900,
+      "is_interactive": true,
+      "title": "DX: what a developer writes",
+      "w": 1440,
+      "x": 7600,
+      "y": -2500
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-11-18T20:55:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "noteOrder": [
+    "rowMission",
+    "nMission",
+    "nPlan",
+    "nFleet",
+    "nWorker",
+    "nChannels",
+    "nDx",
+    "rowOperate",
+    "rowAgents",
+    "rowCaps",
+    "rowRuntime",
+    "about",
+    "nThread",
+    "nGraph",
+    "nAgents",
+    "nTeam",
+    "nEditor",
+    "nTools",
+    "nMcp",
+    "nSkills",
+    "nExt",
+    "nEnv",
+    "nSettings",
+    "nDeploy"
+  ],
+  "notes": {
+    "about": {
+      "fill": "gray",
+      "text": "Shared Sidebar, imported by every page with its active item. Theme = HeroUI v3 dark tokens, Plus Jakarta Sans, as in internal/portal-pro. Example deployment: a support desk whose manager triages tickets and spawns worker threads.",
+      "w": 248,
+      "x": -328,
+      "y": 1180
+    },
+    "nAgents": {
+      "fill": "blue",
+      "text": "Pro: ItemCardGroup/ItemCard, Segment, EmptyState-style starter row. HeroUI: SearchField, Chip, Dropdown.\nA preset = a stored pi.agent document: model, thinkingLevel, extensions, tools, modelTools, instructions, cwd, maxTurns, compaction.",
+      "w": 700,
+      "x": 0,
+      "y": 3100
+    },
+    "nDeploy": {
+      "fill": "blue",
+      "text": "Pro: Stepper, CodeBlock, Timeline, ActionBar. HeroUI: RadioGroup, Alert, Chip.\nTargets: Node process, Cloudflare Durable Object (onWake alarm + 60 s heartbeat), Bun. Reload semantics: running work finishes its phase on the old code.",
+      "w": 700,
+      "x": 3040,
+      "y": 8680
+    },
+    "nEditor": {
+      "fill": "blue",
+      "text": "Pro: FloatingToc, CellSelect, CellSwitch, CellSlider, NumberStepper, Segment, RichTextEditor, CodeBlock, CheckboxButtonGroup. HeroUI: Table, Checkbox, Tabs.\nEvery field maps to configure(): tools vs modelTools, extensions order, compaction override layers, maxTurns, cwd.",
+      "w": 700,
+      "x": 3040,
+      "y": 4600
+    },
+    "nEnv": {
+      "fill": "blue",
+      "text": "Pro: ListView, Stepper, RadioButtonGroup, CodeBlock. HeroUI: Alert, InputGroup, Switch.\npi-env: NodeExecutionEnv, LocalExecutionEnv, RemoteExecutionEnv over SSH (scanHostKey, acceptHostKey, daemon by SHA-256), openTerminal. Storage table from the README.",
+      "w": 700,
+      "x": 0,
+      "y": 8620
+    },
+    "nExt": {
+      "fill": "blue",
+      "text": "Pro: ListView (ordered, drag), CodeBlock, DataGrid (hook matrix). HeroUI: Disclosure, NumberField.\nPi Durable: registry.install / uninstall / reload, sections render in order with instructions last, hook points on GenerationTask, ToolTask, CompactionTask; codemode sandbox options.",
+      "w": 700,
+      "x": 4560,
+      "y": 6600
+    },
+    "nGraph": {
+      "fill": "blue",
+      "text": "Pro: FileTree (task tree), CodeBlock (checkpoint), Segment filter. HeroUI: Alert, Chip, Tooltip.\nPi Durable: watchTaskGraph() nodes, statuses pending / running / waiting (on, policy) / completing, inspect() blocked reasons, restartLimit, abortTask bottom-up.",
+      "w": 700,
+      "x": 1520,
+      "y": 1140
+    },
+    "nMcp": {
+      "fill": "blue",
+      "text": "Pro: ListView, Segment, CodeBlock. HeroUI: Sheet, Form, TextField, Switch, Alert.\npi-mcp: mcpServers shape (stdio command/args/env/cwd, http url/headers/oauth, enabled, timeout), mcp__server__tool names, OAuth sign-in in two halves, stdio over pi-env openProcess.",
+      "w": 700,
+      "x": 1520,
+      "y": 6440
+    },
+    "nSettings": {
+      "fill": "blue",
+      "text": "Pro: CellSelect, CellSlider, CellSwitch, NumberStepper, Segment, InlineSelect. HeroUI: Table, InputGroup.\nEvery HarnessSettings field with its key shown: stream, retry, compaction + modelOverrides, progress, toolExecution, steering/followUp modes, retention, afterFailedRun, restartLimit; identity and telemetry.",
+      "w": 700,
+      "x": 1520,
+      "y": 9120
+    },
+    "nSkills": {
+      "fill": "blue",
+      "text": "Pro: ListView, Markdown, FileTree, DropZone. HeroUI: Chip, Switch, Alert.\nAgent Skills spec: name, description, allowed-tools, disable-model-invocation, locations (~/.agents/skills, .agents/skills, packages).",
+      "w": 700,
+      "x": 3040,
+      "y": 6400
+    },
+    "nTeam": {
+      "fill": "blue",
+      "text": "Pro: ItemCard, NumberStepper, CellSwitch, CellSelect, RadioButtonGroup. Diagram from placed elements.\nPi Durable: the background subagent pattern (example 22): spawn / message / wait / stop / list, children owned by a background anchor task, reports posted back as follow-ups, requestId keeps restarts idempotent.",
+      "w": 700,
+      "x": 1520,
+      "y": 3220
+    },
+    "nThread": {
+      "fill": "blue",
+      "text": "Pro: ChatListView, ChatConversation, ChatMessage, ChatTool, ChainOfThought, TextShimmer, PromptInput, PromptSuggestion, Segment.\nPi Durable: conversation.watch() view, pi.inbox (steer / follow-up), pi.live (run turns, retry, compactions, runFailure), continue, reset(handoff), fork(entryId), compact(), abort().",
+      "w": 700,
+      "x": 0,
+      "y": 1240
+    },
+    "nTools": {
+      "fill": "blue",
+      "text": "Pro: DataGrid, CodeBlock, DropZone. HeroUI: Sheet, Chip, Tooltip.\nTools are seen, not authored: name, schema, structuredOutputSchema, replay, callers, deferred, source extension, wraps and same-name overrides. Register = install an extension module.",
+      "w": 700,
+      "x": 0,
+      "y": 6440
+    },
+    "rowAgents": {
+      "kind": "title1",
+      "maxW": 4480,
+      "text": "Agents: presets, teams, and every per-conversation setting",
+      "w": 240,
+      "x": 0,
+      "y": 1600
+    },
+    "rowCaps": {
+      "kind": "title1",
+      "maxW": 6000,
+      "text": "Capabilities: tools, MCP, skills, extensions and hooks",
+      "w": 240,
+      "x": 0,
+      "y": 4900
+    },
+    "rowOperate": {
+      "kind": "title1",
+      "maxW": 2960,
+      "text": "Drill-downs: the raw transcript and runtime tasks, opened from a worker",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "rowRuntime": {
+      "kind": "title1",
+      "maxW": 4480,
+      "text": "Runtime: environments, storage, models, run policy, deploy",
+      "w": 240,
+      "x": 0,
+      "y": 7000
+    },
+    "rowMission": {
+      "kind": "title1",
+      "maxW": 9040,
+      "text": "Operate: the agent's back office. Goal, narration, fleet health, channels",
+      "x": 0,
+      "y": -2800
+    },
+    "nMission": {
+      "fill": "blue",
+      "text": "Linear's project page: main column (goal, properties, Waiting on you, Latest update, composer), right rail (Milestones, Progress, Workers, Activity).\nPro: Widget, ChatTool (requires-action approvals), ItemCardGroup, KPIGroup, Timeline, Segment, PromptInput. HeroUI: Tabs, Chip, ProgressCircle, Slider.\nOne progress display per thing: milestones only in the rail. Worker status is a plain word with its reason.",
+      "w": 700,
+      "x": 0,
+      "y": -860
+    },
+    "nPlan": {
+      "fill": "blue",
+      "text": "Pro: Stepper (vertical), DataGrid, Timeline, CodeBlock, Segment. HeroUI: Tabs, Slider, Card.\napp.plan is a defineDoc with history: rewindable. Only the plan_* tools write it, one commit per call. The revision slider reads snapshotAsOf().",
+      "w": 700,
+      "x": 1520,
+      "y": -900
+    },
+    "nFleet": {
+      "fill": "blue",
+      "text": "Pro: KPIGroup/KPI, DataGrid, Widget, Segment. HeroUI: ProgressBar, Chip.\nTool counts and failures come from an afterTool hook. Item-to-item time comes from startedAt/finishedAt on plan items. 'Started as' shows the manager's fresh or fork choice.",
+      "w": 700,
+      "x": 3040,
+      "y": -1160
+    },
+    "nWorker": {
+      "fill": "blue",
+      "text": "Pro: KPIGroup (vertical), Timeline, Widget. HeroUI: Tabs, Alert, Chip.\nThe Transcript and Runtime tasks tabs open the drill-downs below. 'With desk-lead' is the manager-worker channel, kept apart from people's channels.",
+      "w": 700,
+      "x": 4560,
+      "y": -760
+    },
+    "nChannels": {
+      "fill": "blue",
+      "text": "Pro: DataGrid, Segment, Timeline, Widget. HeroUI: Avatar, Switch, Label, Chip.\nAn inbound message is submit() with entry kind channel.message and a requestId. Chatter is a write and starts no run. The reply tool can only answer a message's origin.",
+      "w": 700,
+      "x": 6080,
+      "y": -1160
+    },
+    "nDx": {
+      "fill": "blue",
+      "text": "Four extensions on Pi Durable 1.5.2: plan (defineDoc + tools), spawn_worker (tx.createConversation or tx.forkConversation, the manager picks), channel adapters plus a reply tool, and a narrate task on stored sleeps.",
+      "w": 600,
+      "x": 9120,
+      "y": -2500
+    }
+  },
+  "order": [
+    "Sidebar.dc.html",
+    "Main.dc.html",
+    "Plan.dc.html",
+    "Fleet.dc.html",
+    "Worker.dc.html",
+    "Channels.dc.html",
+    "Dx.dc.html",
+    "Thread.dc.html",
+    "TaskGraph.dc.html",
+    "Agents.dc.html",
+    "Team.dc.html",
+    "AgentEditor.dc.html",
+    "Tools.dc.html",
+    "Mcp.dc.html",
+    "Skills.dc.html",
+    "Extensions.dc.html",
+    "Environments.dc.html",
+    "Settings.dc.html",
+    "Deploy.dc.html"
+  ],
+  "pages": [],
+  "title": "Pi Durable Console"
+}
