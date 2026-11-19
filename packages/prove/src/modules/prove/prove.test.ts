@@ -59,7 +59,7 @@ afterAll(() => rmSync(scratch, { recursive: true, force: true, maxRetries: 5, re
 
 describe("ortho prove --env local", () => {
   it("passes on acme: every journey, every eval, coverage, and leaves nothing running", { timeout: 180_000 }, async () => {
-    const report = await prove(acme, 8800);
+    const report = await prove(acme, 0);
     expect(report.lines).toContain("journey grant an allowance ✔ 3/3 steps");
     // acme is the starter plus the allowance (L1.51): the starter's five journeys run beside acme's own six.
     for (const j of ["an outsider cannot revoke", "read an allowance", "revoke then spend", "spend twice with one request", "spend within an allowance",
@@ -99,17 +99,17 @@ describe("ortho prove --env local", () => {
   ];
 
   it("fails on the scaffolded handlers: the starting world can't be made, so no step runs", { timeout: 120_000 }, async () => {
-    const report = await prove(await planted("scaffolded", [], true, true), 8799);
+    const report = await prove(await planted("scaffolded", [], true, true), 0);
     expect(report.lines.find((l) => l.startsWith("journey grant an allowance"))).toMatch(/^journey grant an allowance ✘ starting world founded: organization.create died: .*BlankReached/);
     expect(report.lines.filter((l) => l.startsWith("journey ")).every((l) => l.includes(" ✘ "))).toBe(true);
     expect(report.passed).toBe(false);
     nothingRunning();
   });
 
-  cases.forEach((c, i) =>
+  cases.forEach((c) =>
     it(`fails the planted ${c.fixture} fixture on its own eval`, { timeout: 120_000 }, async () => {
       expect(existsSync(join(fixtures, c.fixture))).toBe(true);
-      const report = await prove(await planted(c.fixture, c.installs, c.sync), 8801 + i);
+      const report = await prove(await planted(c.fixture, c.installs, c.sync), 0);
       expect(report.passed).toBe(false);
       expect(report.lines.filter((l) => l.startsWith(c.line)).join("\n")).toContain(c.says);
       expect(report.lines.at(-1)).toMatch(/^prove ✘/);

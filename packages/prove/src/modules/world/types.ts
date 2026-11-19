@@ -42,7 +42,7 @@ export interface WorldsApi {
   }) => Effect.Effect<Launched, WorldFailed>;
 
   /**
-   * Start the project at `root`: a fresh local database with the model's tables, then `wrangler dev` with a new
+   * Start the project at `root` (`port` 0: any free port, the one used is in `url`): a fresh local database with the model's tables, then `wrangler dev` with a new
    * world secret (never written to a file). Ready once the world answers. Stopped when the scope closes.
    */
   readonly start: (options: {

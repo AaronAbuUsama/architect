@@ -2,7 +2,8 @@
 // without verdicts and accepts one that has them, production is refused without staging verdicts, one bundle hash runs in
 // test, staging and production, and a dirty tree or an unbuilt bundle is refused. Real wrangler and workerd for the
 // logbook and the three environments, real collectors and a real OIDC server (mock-oauth2-server, pinned by digest) in
-// Docker. Ports 9030 to 9049 are this file's.
+// Docker.
+import { freePorts } from "../../../test/ports.ts";
 import { spawnSync } from "node:child_process";
 import { chmodSync, cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -12,7 +13,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { Environments } from "#modules/environments/service.js";
 
 const ISSUER_IMAGE = "ghcr.io/navikt/mock-oauth2-server:6.1.4@sha256:647dd8c78a54f0e6fcd58d79c884e612f8f998a0662276f3e1db22e464a50192";
-const PORTS = { logbook: 9030, test: 9031, staging: 9032, production: 9033, issuer: 9034 };
+const PORTS = freePorts("logbook", "test", "staging", "production", "issuer");
 const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
 const cli = resolve(import.meta.dirname, "../../../../cli/src/main.ts");
 const trusted = { repository: "acme/acme", workflow: "ortho" };

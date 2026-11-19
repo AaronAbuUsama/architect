@@ -1,7 +1,8 @@
 // L2.10b/c's done-when, as a user meets it: `/portal` on an environment's own workerd, from the revision's one bundle, reading the real
 // logbook that holds real verdicts signed by a real OIDC server (mock-oauth2-server, pinned by digest) in Docker. Spend shows
 // `test ✔ staging ✔`; after a budget edit it is stale and nothing else is; a logbook that stops shows nothing green; the data routes
-// refuse what they should; and `env down` leaves nothing running. Ports 9094 to 9099 are this file's.
+// refuse what they should; and `env down` leaves nothing running.
+import { freePorts } from "../../../test/ports.ts";
 import { execFileSync, spawnSync } from "node:child_process";
 import { chmodSync, cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -12,7 +13,7 @@ import { Build } from "#modules/build/service.js";
 import { Environments } from "./service.ts";
 
 const ISSUER_IMAGE = "ghcr.io/navikt/mock-oauth2-server:6.1.4@sha256:647dd8c78a54f0e6fcd58d79c884e612f8f998a0662276f3e1db22e464a50192";
-const PORTS = { logbook: 9094, issuer: 9095, staging: 9096, production: 9097 };
+const PORTS = freePorts("logbook", "issuer", "staging", "production");
 const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
 const compiler = resolve(import.meta.dirname, "../../../../compiler/src/main.ts");
 const trusted = { repository: "acme/acme", workflow: "ortho" };

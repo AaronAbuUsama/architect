@@ -1,6 +1,5 @@
 // L2.P: no secret is ever a span attribute, a log line or a journal entry. Checked on the real thing: acme's journeys on a
 // real world (workerd, D1, the generated server) with a real OpenTelemetry Collector, reading the Collector's own files.
-// Ports 9100 and 9101 are this file's.
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { basename, join, relative, resolve } from "node:path";
 import { Effect } from "effect";
@@ -15,7 +14,7 @@ import { Prove } from "./service.ts";
 const repo = resolve(import.meta.dirname, "../../../../..");
 const acme = resolve(repo, "examples/acme");
 const dir = resolve(acme, ".ortho/secrets-telemetry");
-const PORT = 9100;
+const PORT = 0;
 
 const rawOf = (d: string) => ["traces.jsonl", "logs.jsonl"].map((f) => (existsSync(`${d}/${f}`) ? readFileSync(`${d}/${f}`, "utf8") : "")).join("\n");
 
@@ -117,7 +116,7 @@ describe("a field declared private(owner) never appears (L2.P)", () => {
     const model = await Effect.runPromise(Compiler.model.pipe(Effect.provide(nodeSource(root)), Effect.orDie));
     expect(model.operations["allowance.grant"]?.payload["member"]?.visibility).toEqual({ private: ["organization.owner"] });
 
-    const report = await Effect.runPromise(Effect.scoped(Prove.run({ root, port: 9101 })));
+    const report = await Effect.runPromise(Effect.scoped(Prove.run({ root, port: 0 })));
     expect(report.lines.filter((l) => l.includes("✘"))).toEqual([]);
     expect(report.lines.some((l) => l.startsWith("allowance.grant 9 evals ✔ p50 "))).toBe(true);
     expect(report.passed).toBe(true);

@@ -44,7 +44,7 @@ const until = <A>(what: string, look: () => A | undefined) =>
 describe("device sign-in", () => {
   it("signs the generated CLI in as ada, who approves with her own session; bob's approval is a 403; session show prints ada", { timeout: 120_000 }, () =>
     Effect.runPromise(Effect.scoped(Effect.gen(function* () {
-      const { url } = yield* Worlds.start({ root: acme, port: 8960, name: "device-test" });
+      const { url } = yield* Worlds.start({ root: acme, port: 0, name: "device-test" });
       const cast = (yield* send(`${url}/_world/cast`, "POST", { names: ["ada", "bob"] })).body as unknown as Cast;
       const [ada, bob] = [cast["ada"]!, cast["bob"]!];
       const config = mkdtempSync(join(tmpdir(), "ortho-device-"));
@@ -85,7 +85,7 @@ describe("device sign-in", () => {
 
   it("answers a poll sooner than its interval with slow_down, and a used code only once", { timeout: 60_000 }, () =>
     Effect.runPromise(Effect.scoped(Effect.gen(function* () {
-      const { url } = yield* Worlds.start({ root: acme, port: 8961, name: "device-polling" });
+      const { url } = yield* Worlds.start({ root: acme, port: 0, name: "device-polling" });
       const cast = (yield* send(`${url}/_world/cast`, "POST", { names: ["ada"] })).body as unknown as Cast;
       const ada = cast["ada"]!;
       const started = (yield* send(`${url}/api/auth/device/code`, "POST", { client_id: "acme-cli" })).body;

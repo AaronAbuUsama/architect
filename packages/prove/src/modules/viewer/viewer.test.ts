@@ -10,7 +10,7 @@ import { FileSource } from "#modules/telemetry/service.js";
 import { Viewer } from "./service.ts";
 
 const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
-const proveAcme = (view: boolean) => Effect.runPromise(Effect.scoped(Prove.run({ root: acme, port: 8941, view })));
+const proveAcme = (view: boolean) => Effect.runPromise(Effect.scoped(Prove.run({ root: acme, port: 0, view })));
 const containers = () => spawnSync("docker", ["ps", "-a", "--format", "{{.Names}}"], { encoding: "utf8" }).stdout.split("\n");
 
 const json = (url: string) => fetch(url).then((r) => r.json() as Promise<any>);

@@ -1,6 +1,6 @@
 // L2.08 (D3 #122): the remote MCP server of a real local world. An MCP client (the SDK's own) completes OAuth as ada,
 // headless, and calls `allowance.get`; bob, who has no role on it, is refused with the refusal's code; a refusal carries its
-// code; a secret never appears in a tool's input or answer. Ports 9070 to 9079.
+// code; a secret never appears in a tool's input or answer.
 import { randomBytes } from "node:crypto";
 import { mkdtempSync, readFileSync, realpathSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -96,7 +96,7 @@ describe("the remote MCP server", () => {
       );
       const collector = yield* Collectors.start(dir);
       const sinks = [{ id: "extra-collector", traces: { url: `${collector.url}/v1/traces`, headers: {} }, logs: { url: `${collector.url}/v1/logs`, headers: {} } }];
-      const { url } = yield* Worlds.start({ root: acme, port: 9200, name: "mcp-first-telemetry", environment: "local", secretEnv: { OTLP_SINKS: JSON.stringify(sinks) } });
+      const { url } = yield* Worlds.start({ root: acme, port: 0, name: "mcp-first-telemetry", environment: "local", secretEnv: { OTLP_SINKS: JSON.stringify(sinks) } });
 
       // Only Better Auth and OAuth run before the tool: no cast, ordinary operation or telemetry configuration call.
       const session = yield* Effect.promise(() => fetch(`${url}/api/auth/sign-up/email`, {
@@ -127,7 +127,7 @@ describe("the remote MCP server", () => {
 
   it("serves one tool per operation and read, behind OAuth, as the person the token names", { timeout: 180_000 }, () =>
     Effect.runPromise(Effect.scoped(Effect.gen(function* () {
-      const { url } = yield* Worlds.start({ root: acme, port: 9070, name: "mcp-test" });
+      const { url } = yield* Worlds.start({ root: acme, port: 0, name: "mcp-test" });
       const post = (path: string, body: unknown, token?: string, headers: Record<string, string> = {}) =>
         Effect.promise(() => fetch(`${url}${path}`, {
           method: "POST", headers: { "content-type": "application/json", ...(token ? { authorization: `Bearer ${token}` } : {}), ...headers }, body: JSON.stringify(body),

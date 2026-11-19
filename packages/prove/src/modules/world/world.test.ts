@@ -9,7 +9,7 @@ const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
 describe("a local world", () => {
   it("serves acme on workerd: the world casts ada, ada founds an organisation and grants olga 500", { timeout: 90_000 }, () =>
     Effect.runPromise(Effect.scoped(Effect.gen(function* () {
-      const { url } = yield* Worlds.start({ root: acme, port: 8791, name: "world-test" });
+      const { url } = yield* Worlds.start({ root: acme, port: 0, name: "world-test" });
       const post = (path: string, body: unknown, token?: string) =>
         Effect.promise(() => fetch(`${url}${path}`, {
           method: "POST",
@@ -31,7 +31,7 @@ describe("a local world", () => {
 
   it("the generated CLI: spending past the limit exits 41, a revoked allowance 40, an outsider 3; --json prints the answer", { timeout: 90_000 }, () =>
     Effect.runPromise(Effect.scoped(Effect.gen(function* () {
-      const { url } = yield* Worlds.start({ root: acme, port: 8792, name: "cli-test" });
+      const { url } = yield* Worlds.start({ root: acme, port: 0, name: "cli-test" });
       const cast = yield* Effect.promise(() =>
         fetch(`${url}/_world/cast`, { method: "POST", body: JSON.stringify({ names: ["ada", "olga", "bob"] }) }).then((r) => r.json() as Promise<Record<string, { person: string; token: string }>>));
       const acmeCli = (who: string, ...args: ReadonlyArray<string>) =>

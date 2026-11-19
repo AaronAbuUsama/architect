@@ -1,7 +1,8 @@
 // L2.02's done-when checks, on a copy of acme under git: `prove --env test` posts verdicts the logbook reads back and
 // leaves no world; a run killed mid-way (SIGKILL) with a 20 s lifetime leaves a world that `worlds reap` removes after
 // its lifetime. Real wrangler and workerd for the logbook and the test environment, a real collector and a real OIDC
-// server (mock-oauth2-server, pinned by digest) in Docker. Ports 8970 to 8989 are this file's.
+// server (mock-oauth2-server, pinned by digest) in Docker.
+import { freePorts } from "../../../test/ports.ts";
 import { spawn, spawnSync } from "node:child_process";
 import { chmodSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
@@ -15,7 +16,7 @@ import { Verdicts } from "#modules/verdicts/service.js";
 import { TestWorlds } from "./service.ts";
 
 const ISSUER_IMAGE = "ghcr.io/navikt/mock-oauth2-server:6.1.4@sha256:647dd8c78a54f0e6fcd58d79c884e612f8f998a0662276f3e1db22e464a50192";
-const PORTS = { logbook: 8970, test: 8971, issuer: 8972 };
+const PORTS = freePorts("logbook", "test", "issuer");
 const acme = resolve(import.meta.dirname, "../../../../../examples/acme");
 const cli = resolve(import.meta.dirname, "../../../../cli/src/main.ts");
 const trusted = { repository: "acme/acme", ref: "refs/heads/main", workflow: "ortho" };
