@@ -92,7 +92,7 @@ const Wire = (() => {
     });
 
     document.addEventListener("click", (e) => {
-      const t = e.target.closest?.("[data-act],[data-step],[data-dir],[data-file],[data-tab],[data-close],[data-mode],[data-panel],[data-trace],[data-replay],.ln[data-b]");
+      const t = e.target.closest?.("[data-act],[data-step],[data-dir],[data-file],[data-tab],[data-close],[data-mode],[data-panel],[data-trace],[data-replay],[data-reveal],[data-view],.ln[data-b]");
       if (!t) return;
       const d = t.dataset;
       if (d.close) {
@@ -108,6 +108,8 @@ const Wire = (() => {
       if (d.act === "split") return (S.split = !S.split), ctx.renderEditors();
       if (d.act === "files") return $("side").classList.toggle("show");
       if (d.step !== undefined) return ctx.go(Number(d.step));
+      if (d.reveal) return ctx.reveal(d.reveal, Number(d.from), Number(d.to));
+      if (d.view) return (S.view = d.view), (S.panel = "terminal"), ctx.renderPanel({ instant: true });
       if (d.dir) return S.expanded.has(d.dir) ? S.expanded.delete(d.dir) : S.expanded.add(d.dir), ctx.renderTree();
       if (d.file) return $("side").classList.remove("show"), ctx.open(d.file);
       if (d.tab && d.g === "main") return (S.active = d.tab), (S.mode = null), (S.src = null), ctx.renderEditors(), ctx.renderTree();

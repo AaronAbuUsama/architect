@@ -8,10 +8,11 @@ import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { anchorsOf } from "#modules/anchors/service.js";
 import { assemble } from "#modules/assemble/service.js";
-import { prepare, resolveRef } from "#modules/checkout/service.js";
+import { prepare, resolveRef, showFile } from "#modules/checkout/service.js";
 import { readK16 } from "#modules/k16/service.js";
 import { runtimeSteps } from "#modules/runtime/service.js";
 import { runSteps } from "#modules/steps/service.js";
+import { k1Commands } from "#modules/proposals/service.js";
 import { trace } from "#modules/trace/service.js";
 import type { Toolchain } from "#modules/trace/types.js";
 
@@ -26,6 +27,7 @@ const refs = {
   source: arg("source", "origin/links/stage-1"),
   sourcePath: arg("source-path", "examples/links"),
   k16: arg("k16", "origin/claude/k16-scaffold-dfdb79"),
+  k1: arg("k1", "origin/main"),
 };
 const out = arg("out", join(here, "data", "walkthrough.json"));
 const work = arg("work", join(here, ".work"));
@@ -132,6 +134,13 @@ if (steps.problems.length > 0) {
   process.exit(2);
 }
 
+const k1Sha = resolveRef(repo, refs.k1);
+const proposals = k1Commands(
+  traced.model as Parameters<typeof k1Commands>[0],
+  { ref: refs.k1, ...(k1Sha ? { sha: k1Sha, text: showFile(repo, k1Sha, "design/decisions/K1-kits.md") } : {}) },
+  new Set(steps.steps.find((s) => s.id === "journeys")?.added ?? []),
+);
+
 const result = {
   version: 1,
   meta: {
@@ -155,8 +164,9 @@ const result = {
   steps: steps.steps,
   blobs: steps.blobs,
   traces: steps.traces,
+  proposals,
 };
 mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, `${JSON.stringify(result)}\n`);
 const c = data.counts;
-log(`wrote ${out}: ${c.files} files, ${c.attributed}/${c.lines} output lines traced to ${c.traced} declarations (${c.refused} refused, ${c.noChange} moved nothing); K16 ${k16.status}; ${steps.steps.length} steps, ${steps.traces.length} traces; ${result.meta.millis.run} ms`);
+log(`wrote ${out}: ${c.files} files, ${c.attributed}/${c.lines} output lines traced to ${c.traced} declarations (${c.refused} refused, ${c.noChange} moved nothing); K16 ${k16.status}; ${steps.steps.length} steps, ${steps.traces.length} traces; K1 ${proposals.status}; ${result.meta.millis.run} ms`);

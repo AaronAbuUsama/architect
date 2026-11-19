@@ -3,7 +3,7 @@
 (() => {
   const $ = (id) => document.getElementById(id);
   const { esc } = Views;
-  const S = { i: 0, tabs: [], active: null, split: true, mode: null, panel: "terminal", folded: false, playing: false, trace: 0, expanded: new Set(), src: null, stops: [] };
+  const S = { i: 0, view: "today", tabs: [], active: null, split: true, mode: null, panel: "terminal", folded: false, playing: false, trace: 0, expanded: new Set(), src: null, stops: [] };
   let D;
   let W;
 
@@ -27,6 +27,7 @@
           <button class="primary" data-act="next" ${S.i === D.steps.length - 1 ? "disabled" : ""}>Next →</button></div></div>
       <p class="caption">${esc(s.caption)}</p>
       ${s.note ? `<p class="note">${esc(s.note)}</p>` : ""}
+      ${D.proposals?.status === "found" && D.proposals.steps.some((p) => p.step === s.id) ? `<p class="note prop-note">K1 designed flags so this step says what you already know. They aren't built yet: see "K1 proposed" above the terminal.</p>` : ""}
       <div class="dots">${D.steps.map((x, j) => `<button class="${j === S.i ? "on" : j < S.i ? "done" : ""}" data-step="${j}" title="${esc(x.title)}">${j + 1}. ${esc(x.title)}</button>`).join("")}</div>`;
   };
 
@@ -95,6 +96,14 @@
     renderEditors();
   };
 
+  /** Open `path` and light lines `from` to `to` (1-based), scrolled into view. */
+  const reveal = (path, from, to) => {
+    open(path);
+    const lit = [...document.querySelectorAll('[data-code="main"] .ln')].slice(from - 1, to);
+    lit.forEach((el) => el.classList.add("hit"));
+    lit[0]?.scrollIntoView({ block: "center" });
+  };
+
   // ---- The panel: terminal, traces, machines.
   const tabsFor = () => ({ terminal: true, trace: S.i >= stepIndex("prove"), machines: S.i >= stepIndex("blueprint") });
   const renderPanel = (opts = {}) => {
@@ -106,7 +115,12 @@
     $("panel").innerHTML = `<div class="ptabs" role="tablist">${Object.keys(label).map((k) => `<button role="tab" class="${S.panel === k ? "on" : ""}" data-panel="${k}" ${ok[k] ? "" : "disabled title=\"comes later\""}>${label[k]}</button>`).join("")}
       <button class="fold" data-act="fold">${S.folded ? "▴ Show panel" : "▾ Fold"}</button></div><div class="pbody" id="pbody"></div>`;
     const body = $("pbody");
-    if (S.panel === "terminal") {
+    const proposal = D.proposals?.status === "found" ? D.proposals.steps.find((p) => p.step === step().id) : undefined;
+    if (proposal) $("panel").querySelector(".fold").insertAdjacentHTML("beforebegin", `<span class="seg view">${["today", "k1"].map((v) => `<button class="${(S.view === v) ? "on" : ""}" data-view="${v}">${v === "today" ? "Today on m1" : "K1 proposed"}</button>`).join("")}</span>`);
+    if (S.panel === "terminal" && proposal && S.view === "k1") {
+      body.innerHTML = Terminal.proposed(proposal, D.proposals);
+      opts.done?.();
+    } else if (S.panel === "terminal") {
       body.innerHTML = `<div class="term" id="term"></div>`;
       S.stops.push(Terminal.play($("term"), D.steps.slice(0, S.i), step(), { instant: opts.instant, done: opts.done ?? (() => {}) }));
     } else if (S.panel === "trace") {
@@ -116,7 +130,7 @@
     } else {
       const proved = S.i >= stepIndex("prove");
       body.innerHTML = `<div class="mx-wrap" id="mx"></div>`;
-      Machines.render($("mx"), D.operations, proved ? "prove's run, replayed: each call moves its thing when it really happened, eight times slower. Refusals shake the state they were refused in." : "Each thing's machine, from the blueprint, walked one move at a time.");
+      Machines.render($("mx"), D.operations, `${proved ? "prove's run, replayed: each call moves its thing when it really happened, eight times slower. Refusals shake the state they were refused in." : "Each thing's machine, walked one move at a time."} Each is drawn from the machine you write in the blueprint, through the compiled model: click a machine, a state or a move to open where it is written.`, D.anchors);
       S.stops.push(proved ? Machines.replay($("mx"), D.traces, D.operations, { done: opts.done }) : Machines.walk($("mx")));
       if (!proved && opts.done) setTimeout(opts.done, 4500);
     }
@@ -155,7 +169,7 @@
     if (S.i === D.steps.length - 1 && auto) S.playing = false;
   };
 
-  Wire.attach({ S, $, go, open, renderTree, renderEditors, leftGroup, renderPanel, renderSteps, get D() { return D; }, get W() { return W; } });
+  Wire.attach({ S, $, go, open, reveal, renderTree, renderEditors, leftGroup, renderPanel, renderSteps, get D() { return D; }, get W() { return W; } });
 
   const load = (url) => fetch(url).then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))));
   load("walkthrough.json")

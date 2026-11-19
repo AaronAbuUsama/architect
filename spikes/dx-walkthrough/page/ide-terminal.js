@@ -60,5 +60,16 @@ const Terminal = (() => {
     };
   };
 
-  return { play };
+  /** K1's designed commands for a step: not run, because m1's `add` takes only a name. */
+  const proposed = (p, k1) =>
+    `<div class="term prop"><span class="dim"># Proposed in K1 (${esc(k1.path)}, ${esc(p.syntax.section.replace(/`/g, ""))}), not built: m1's add takes only a name.
+# The commands are derived from Plugged In's compiled model, not typed. K1 says "architect"; the command is "ortho" since K6.
+# K1 line ${p.syntax.line}:  ${esc(p.syntax.text)}</span>
+
+${p.commands.map((c) => `${PROMPT}<span class="cmd">${esc(c)}</span>  <span class="dim">(not run)</span>`).join("\n")}
+
+<span class="dim"># Still yours to write, whatever the flags:
+${p.left.map((l) => `#   ${esc(l)}`).join("\n")}</span></div>`;
+
+  return { play, proposed };
 })();

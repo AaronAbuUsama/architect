@@ -60,6 +60,12 @@ Flags: `--m1`, `--source`, `--source-path`, `--k16` (refs), `--work`, `--out`. K
    - After each step every file is kept, by content, so the page can show any step's tree and what changed.
    - prove's own Collector writes OTLP JSON lines to `.ortho/prove-telemetry/`; those spans are the traces the page
      replays. `telemetry trace` is run on the first successful `handle.claim`.
+8. **K1's designed commands** (`src/modules/proposals`). K1 (`design/decisions/K1-kits.md` §2.2, §2.3, §2.5, read
+   from `origin/main`) designs flags for `add`: `--fields`, `--states`, `--role` and `--code` for a thing,
+   `--from`, `--to` and `--emits` for an operation, and `--starts` and `--cast` for a journey. m1's `add` has none of
+   them (ledger CMD-14). The script reads K1's syntax lines and derives, from Plugged In's compiled model, the
+   commands that would have made the same blueprint. The page shows them beside today's real commands, as
+   "K1 proposed", marked "not run", with what the flags still leave to write by hand.
 
 ## What was found
 
@@ -99,6 +105,13 @@ Flags: `--m1`, `--source`, `--source-path`, `--k16` (refs), `--work`, `--out`. K
    operation, its two steps, the commit and their database calls. A refusal carries `refusal` and its log line on the
    operation's span.
 
+11. **What K1's flags would and wouldn't say for Plugged In.** Thirteen commands carry its fields, states,
+   roles, codes, moves and events, and its journeys' starting worlds and casts. They leave out every description,
+   payload, answer, who may call, step and budget, and every journey's steps. They also can't type `profile.status`
+   or `profile.links`, which are schemas with no name.
+12. **The machines come from the blueprint.** Each thing's `machine.ts` is compiled into the model, and the page
+   draws it from there. Clicking a machine, a state or a move opens the line that declares it.
+
 ## Measurements
 
 | What | Value |
@@ -129,3 +142,6 @@ map.
 - The machine replay shows a call's move from the trace's `move.name` and `move.to`. A refusal is shown at the move's
   starting states; the trace doesn't say which state the thing was in when it was refused.
 - prove's timings are from one local run, and vary run to run.
+- m1 now has its own `examples/plugged-in` (M1.40, 2a8fdabd), taken from the same draft with changes such as no
+  sign-in. The script still copies Codex's draft over it, as the brief asked. `--source origin/m1 --source-path
+  examples/plugged-in` would walk m1's own version instead; that hasn't been tried.

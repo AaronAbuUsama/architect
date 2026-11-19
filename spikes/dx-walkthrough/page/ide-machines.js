@@ -11,12 +11,30 @@ const Machines = (() => {
     return out;
   };
 
-  const render = (el, operations, intro) => {
+  /** Each card names the file its machine is written in; the machine, its states and its moves open it there. */
+  const render = (el, operations, intro, anchors) => {
     const all = things(operations);
     const none = [...new Set(operations.map((o) => o.thing))].filter((t) => !all.has(t));
+    const at = (id) => anchors.find((a) => a.id === id);
+    const reveal = (a) => (a ? `data-reveal="${esc(a.file)}" data-from="${a.line}" data-to="${a.endLine}"` : "");
     el.innerHTML = `<div class="mx-head"><span>${esc(intro)}</span><span class="mx-now mono" data-now></span></div>
-      <div class="mx-grid">${[...all.entries()].map(([t, m]) => `<figure class="mx" data-thing="${esc(t)}"><figcaption>${esc(t)} <span class="mx-say" data-say></span></figcaption>${machine(m, `${t}'s machine`)}</figure>`).join("")}</div>
+      <div class="mx-grid">${[...all.entries()].map(([t, m]) => {
+        const a = at(`${t}/machine`);
+        return `<figure class="mx" data-thing="${esc(t)}"><figcaption>${esc(t)} ${a ? `<button class="mx-src mono" ${reveal(a)} title="Open where it is written">${esc(a.file.split("/").slice(-2).join("/"))}:${a.line}</button>` : ""}<span class="mx-say" data-say></span></figcaption>${machine(m, `${t}'s machine`)}</figure>`;
+      }).join("")}</div>
       <p class="muted mx-none">No machine, so nothing moves: ${none.map(esc).join(", ")}. Their operations read, or make things without states.</p>`;
+    // Every move and state in a drawing opens the line that declares it.
+    for (const card of el.querySelectorAll(".mx")) {
+      const t = card.dataset.thing;
+      for (const p of card.querySelectorAll("[data-k]")) {
+        const a = at(`${t}/machine/move:${p.dataset.k}`);
+        if (a) (p.dataset.reveal = a.file), (p.dataset.from = a.line), (p.dataset.to = a.endLine), p.classList.add("clickable");
+      }
+      for (const r of card.querySelectorAll("rect[data-s]")) {
+        const a = at(`${t}/machine/state:${r.dataset.s}`);
+        if (a) (r.dataset.reveal = a.file), (r.dataset.from = a.line), (r.dataset.to = a.endLine), r.classList.add("clickable");
+      }
+    }
   };
 
   /** A dot along an edge, then the state it reaches pulses. */

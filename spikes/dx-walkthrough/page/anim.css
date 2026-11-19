@@ -55,3 +55,15 @@
 @media (prefers-reduced-motion: reduce) {
   .mx rect.pulse, .mx rect.refuse, .term .caret { animation: none; }
 }
+
+/* Clickable machines, and K1's proposed commands. */
+.mx-src { font-size: 11px; padding: 0 6px; color: var(--accent); border: 1px solid var(--line); border-radius: 999px; }
+.mx .clickable { cursor: pointer; }
+.mx path.clickable:hover { stroke: var(--accent) !important; opacity: 1 !important; }
+.mx rect.clickable:hover { stroke: var(--accent); }
+.term.prop { background: color-mix(in srgb, var(--prop) 60%, var(--term-bg)); border-left: 3px dashed var(--prop-edge); }
+.ptabs .seg.view { display: inline-flex; margin-left: auto; border: 1px dashed var(--prop-edge); border-radius: 6px; overflow: hidden; }
+.ptabs .seg.view button { text-transform: none; letter-spacing: 0; font: 600 11.5px var(--sans); padding: 3px 9px; color: var(--prop-ink); }
+.ptabs .seg.view button.on { background: var(--prop); box-shadow: none; }
+.ptabs .seg.view + .fold { margin-left: 6px; }
+.prop-note { border-left-color: var(--prop-edge); color: var(--prop-ink); }
