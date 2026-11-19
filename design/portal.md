@@ -138,7 +138,7 @@ Operations
   release  person   Give the name back.                               5 calls ·  2 refused · p95 5 ms
   resolve  anyone   Find a handle by its name. (read)               1,904 calls · 0 refused · p95 2 ms
 Events     HandleClaimed { handle, name, owner } · HandleReleased { handle }
-Errors     HandleTaken HN-001 exit 3 · HandleNotClaimed HN-002 exit 3
+Errors     HandleTaken HN-001 exit 10 · HandleNotClaimed HN-002 exit 11
 Roles      person · anyone
 Notes (2)  "claim retries once on a version race; that's by design" (pinned to thing:handle@4e1c…, current)
 Conversations (1)  "why do releases get refused?"  · builder agent · 18 Nov

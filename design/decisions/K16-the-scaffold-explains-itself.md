@@ -310,6 +310,32 @@ export const refusals = {
 gains `structured: { refusal, code, exit, status, …the fields the caller may see }`, so an agent tells a refusal from a
 defect without parsing; `McpRefusals` gains `table`.
 
+**An exit means one thing (M1.47).** A table is only worth having if an exit tells one refusal from another, and
+nothing checks that today: no file in the compiler reads `exit` beyond copying it into the model
+(`describe.ts:82`, `:89`). The journey guide found the clash live: Plugged In's `HandleTaken` is declared exit 3, which
+is `NotAllowed`'s, so `links handle claim` can't tell "taken" from "not allowed" (and `portal.md` drew it). The
+compiler refuses, naming the file:
+
+- **an exit the runtime keeps.** 0 is success; 1 is any failure that isn't a refusal (a defect, the CLI's
+  `NotSignedIn`); 2 is a payload that doesn't decode (`SchemaError`); 3 is `NotAllowed`; 4 is the generated
+  `<Thing>NotFound` (M1.46). The generated CLI already sets 1 and 2 itself (`generators/…/render/internal/cli.ts:52`).
+  `blueprint/things/handle/errors.ts: HandleTaken's exit 3 is NotAllowed's; pick another`.
+- **an exit the shell keeps.** Above 125: 126 and 127 are the shell's own failures, 128 and up a signal's death, and
+  an exit wraps at 256. So a declared exit is 5 to 125: `AllowanceFrozen's exit 130 is outside 5 to 125, which are
+  the blueprint's; pick another`.
+- **two refusals of one thing sharing an exit**, its declared errors and its machine's `notFrom` together:
+  `AllowanceLimitTooHigh's exit 41 is AllowanceExceeded's; pick another`, the later one named. A declared error an
+  operation borrows from another thing must also differ from every other refusal that operation lists.
+
+**Unique per thing, not per app.** A CLI command is one operation, so an exit only has to be unambiguous among what
+that operation can refuse, and those are its thing's refusals plus the runtime's (reserved) and any it borrows (checked
+per operation). Per app would refuse acme as shipped, whose `AllowanceNotActive` and `InvitationNotPending` both exit
+40: "the thing is in the wrong state" reads the same across things, which is useful, not a clash. And it would make a
+plugin's exits collide with an app it never saw: `@orthograph/handles`' `HandleTaken` would have to avoid every
+number of every app that mounts it, and a mount could break an app's build with a clash neither side can fix. Per
+thing keeps a plugin's numbers its own. The table can always carry the code, which is unique per app, for a caller
+who needs more than the exit.
+
 **Events (M1.48).** The type half holds already: spend declares `remaining` in its answer, and `AnswerOf`
 (`handler/types.ts:36`) won't compile an answer without it (check 19's control). The gap is an event field in none of
 the thing's fields, the payload or the answer, which dies at commit today (`move.ts:65-66`) while the compiler checks
@@ -529,6 +555,7 @@ to have handled has a red check:
 | 2 · a generated not-found refusal | M1.46 | `prehandle.test.ts`: `PurseNotFound` and `PersonNotFound` before the handler, a role-gated miss staying `NotAllowed` (control); `handlers.test.ts`: grant's `PersonNotFound  exit 4  PE-901` row, spend has none; check 19: the model's `PersonNotFound` PE-901, `AllowanceNotFound` kept at AL-002 |
 | 3 · a creating move's id minted | M1.46 | `prehandle.test.ts`: `id` handed in and committed; `handlers.test.ts`: grant's answer is `allowance: id` |
 | 5 · one exit table for the CLI, HTTP and MCP | M1.47 | `refusals-table.test.ts`: an MCP refusal's `structured` carries refusal, code, exit, status; check 19: generated `errors.ts` exports `refusals`, with `exits` and `codes` read from it |
+| 5 · an exit means one thing | M1.47 | check 19: `ortho model` refuses a declared exit of 2, 3 or 4 (the runtime's), 130 (the shell's), 41 twice in allowance, and 40 beside allowance's machine, each named; control: acme as shipped, with two things' machines both at 40, compiles |
 | 4 · event fields enforced | M1.48 | check 19: `ortho model` refuses `AllowanceSpent.note`, naming the event and `allowance.spend`; control: an answer without `remaining` fails `tsc` (passes today) |
 
 Counts: `handlers.test.ts` nine red, one existing passing; `prehandle.test.ts` five red, one control passing;
@@ -549,7 +576,7 @@ and its journeys start from the stubs. `design/milestones.md` holds them, each w
 | M1.44 | the scaffold explains itself: header with visibility and the runtime's lines, Match over a literal `Outcome`, drift warnings | M1.26 | M | about a day: the renderer and header sentences shared with docs and `brief`, `Operation`'s move type parameter, two lint rules |
 | M1.45 | journey stubs per path, role and declared error; `ortho add journeys`; journeys with blanks in `model.blanks`, skipped by prove | M1.44 | M | half a day to a day: `machinePaths`, three stub kinds, a new `add` kind, the compiler and prove handling blanks |
 | M1.46 | the runtime hands in `subject`, `refs`, `id`; `<Thing>NotFound` generated, adopted where declared, refused before the handler | M1.26 | L | a day to a day and a half: compiler (refusals, codes, `op.refusals`), generator (`notFound`, error classes), runtime (one read shared by role check, from-check and handler), acme's spend and grant simplified |
-| M1.47 | one `refusals` table read by the CLI, HTTP and MCP | M1.46 | S | two to three hours |
+| M1.47 | one `refusals` table read by the CLI, HTTP and MCP; the compiler refuses an exit that is reserved, out of range or shared within a thing | M1.46 | S | three to four hours |
 | M1.48 | the compiler refuses an event field nothing can fill | M1.26 | S | about two hours |
 
 M1.44 and M1.46 run in parallel (different packages); M1.48 beside either. The grant header test ("the scaffold shows

@@ -1703,11 +1703,17 @@
   "what": "The handler's context gains subject, refs.<field> and, for a creating move, a minted id; a missing one no role check reads is refused before the handler with a generated <Thing>NotFound (XX-901, exit 4, HTTP 404), or the thing's own declared error of that name (acme's AllowanceNotFound keeps AL-002); a role-gated miss stays NotAllowed; acme's spend and grant stop re-reading and minting by hand."
  },
  "M1-47": {
-  "doneWhen": "refusals-table.test.ts and check 19's M1.47 test pass; check 08's MCP tests still pass",
+  "doneWhen": "refusals-table.test.ts and check 19's M1.47 tests pass, the exit control included; check 08's MCP tests still pass",
   "history": [
    {
     "at": "2026-11-19T13:30:00Z",
     "note": "Aaron reviewed K16's pre-handle list: \"make sure this is handled\". Runtime items moved from M2.17-M2.19 into M1; checks red on claude/k16-checks.",
+    "stage": "checks",
+    "thread": "k16-author"
+   },
+   {
+    "at": "2026-11-19T15:00:00Z",
+    "note": "Exit clashes refused by the compiler (the journey guide found HandleTaken at exit 3, NotAllowed's, on Plugged In). Red in check 19.",
     "stage": "checks",
     "thread": "k16-author"
    }
@@ -1728,9 +1734,9 @@
   "stage": "checks",
   "thread": "k16-author",
   "title": "One refusals table",
-  "updatedAt": "2026-11-19T13:30:00Z",
+  "updatedAt": "2026-11-19T15:00:00Z",
   "waiting": null,
-  "what": "Generated api/src/errors.ts exports refusals, { code, exit, status } per refusal; exits, codes and each class's status are read from it; an MCP refusal gains structured { refusal, code, exit, status, shown fields }."
+  "what": "Generated api/src/errors.ts exports refusals, { code, exit, status } per refusal; exits, codes and each class's status are read from it; an MCP refusal gains structured { refusal, code, exit, status, shown fields }. The compiler refuses a declared exit the runtime keeps (0 to 4), one outside 5 to 125, or one another refusal of the same thing has: \"HandleTaken's exit 3 is NotAllowed's; pick another\". Unique per thing, not per app."
  },
  "M1-48": {
   "doneWhen": "check 19's M1.48 test passes, and its control (an answer without remaining fails tsc) still does",
