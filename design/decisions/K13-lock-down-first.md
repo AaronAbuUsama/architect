@@ -1,5 +1,8 @@
 # K13: lock down what exists first
 
+> **Renamed by K15** (19 November 2026, Aaron): the example app is **Plugged In** (`plugged-in`), no longer `links`. Where this record says "the links app" or
+> `examples/links`, read Plugged In and `examples/plugged-in`. See [`K15-plugged-in.md`](K15-plugged-in.md).
+
 Decided 19 November 2026 by Aaron, with the conductor. His words: "I don't think that this is the critical part… the
 critical path is locking down and understanding what we have right now. Being able to actually run the generator,
 build a blueprint, see the blueprint in the portal. Make sure that when you actually generate the thing, the

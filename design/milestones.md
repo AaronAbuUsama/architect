@@ -51,10 +51,13 @@ Names below are today's, Orthograph's (K6, `naming.md`).
 ## v1.0: four stages
 
 Aaron, 18 November 2026: one example grows through four stages, "each stage is a meta milestone. All of them is
-v1.0" ([`decisions/K9-growing-example.md`](decisions/K9-growing-example.md)). The app is `links`, in
-`examples/links`. The milestones below keep their slices and ids; this section says which slices each stage needs,
+v1.0" ([`decisions/K9-growing-example.md`](decisions/K9-growing-example.md)). The app is Plugged In (`plugged-in`), in
+`examples/plugged-in`. The milestones below keep their slices and ids; this section says which slices each stage needs,
 adds the slices no milestone had (ids `ST<stage>.<n>`), and gives each stage its gate. Each passing stage is tagged
-`links/stage-<n>`.
+`plugged-in/stage-<n>`.
+
+**Renamed by K15** (19 November 2026, Aaron): the example app is **Plugged In** (`plugged-in`), no longer `links`. This file is updated in place: `examples/plugged-in`, the tags `plugged-in/stage-<n>`, the command `plugged-in`.
+Codex's branch `links/stage-1` (#56) keeps its name. [`decisions/K15-plugged-in.md`](decisions/K15-plugged-in.md).
 
 **v1.0** is the four stage gates on `main`, plus the release: M7.01 to M7.04, M7.06 and M7.13 (the cloud passes for staging and for the release, the npm
 release, the infra projection, a deploy and destroy that leaves nothing, real releases), each credential with Aaron's
@@ -62,7 +65,7 @@ written yes.
 
 | Stage | A person can… | Needs from the milestones | Its own slices | Gate |
 |---|---|---|---|---|
-| 1 · links | claim `@name`; a public page of links | all of M1 and M2 | ST1.01 to ST1.04, ST1.06 to ST1.08 (ST1.05 moved to M3 by K13) | Gate M2 (M2.12) |
+| 1 · Plugged In | claim `@name`; a public page of links | all of M1 and M2 | ST1.01 to ST1.04, ST1.06 to ST1.08 (ST1.05 moved to M3 by K13) | Gate M2 (M2.12) |
 | 2 · wallets | create or link a wallet; be paid by handle | K7's wallet slices (M1.27 to M1.32, and M2.13 for linking), M6.01, M6.02, M6.07, M6.09, M6.15, M6.18, M5.01, M5.03 | ST2.01 to ST2.05 | ST2.06 |
 | 3 · the vault | a Safe with the budgets plugin; hats with budgets; owners sign above a budget | M6.10 to M6.14, M6.16, M6.17, M3.01 to M3.03, M4.01 to M4.10, M4.16 | ST3.01 to ST3.07 | ST3.08 |
 | 4 · the club | stage 3 on Aztec: private members, private spends, private ballots | (Later's Noir line, brought in) | ST4.01 to ST4.07 | ST4.08 |
@@ -87,17 +90,17 @@ Everything downstream of these five follows from them: M6.02 and the K7 wallet s
 M3.02 and M3.03 from M3.01, M4.02 to M4.10 and M4.16 from M4.01, M7.03, M7.04 and M7.08 from M7.01, and M7.02, M7.05 to M7.07 and M7.09 to M7.11 from M7.13. None of
 them needs a factory, bench or M5 slice.
 
-### Stage 1: links
+### Stage 1: Plugged In
 
 | id | what | needs | kind | done when | size |
 |---|---|---|---|---|---|
 | ST1.01 ∥ | The react projection ([`frame/projections.md`](frame/projections.md) 3.4): `@orthograph/react`, one mutation hook per operation and one query hook per read, declared refusals as classes in the hook's error, `pending`, one `requestKey` per form open kept across retries; `--through react` replays a journey in headless Chromium, never jsdom | M1.12 | build | acme's `spend twice with one request` passes `--through react`; an overspend arrives as `AllowanceExceeded` with its code; the pending state is observed before the answer | M |
-| ST1.02 | Journeys for `handles` and `links` at stage 1: claim, a taken name, one request twice, release, resolve; add, order and remove a link; a stranger can't edit; anyone reads a page | M1.40 | checks | they fail on empty handlers | M |
-| ST1.03 | `@orthograph/handles`, a feature: handle, claim, release, resolve, `HandleTaken`, a `names` choice; mounted by `ortho add` | ST1.02 | build | the handles journeys pass with `examples/links` mounting it | M |
-| ST1.04 | `examples/links` (M1.40, with M1.43's handlers) grown to stage 1 on auth copied from the starter: `profile`, `link`, their handlers, and three screens in `src/web/` (`/@name`, `/claim`, `/edit`) on the hooks, served by the Worker | ST1.01, ST1.03, M1.40 | build | `ortho prove --root examples/links` is green; in Chromium a claim and a link show on `/@aaron` | M |
-| ST1.06 ∥ | Hooks behind a signed-in session (`Via.session`) | ST1.01, M2.06 | build | the links screens sign in and claim through the hooks with the auth plugin mounted | S |
-| ST1.07 | `links` mounts auth: the copied identity deleted | M2.05, ST1.04 | build | `examples/links` has no `person/` or `session/` folder and proves green | S |
-| ST1.08 ∥ | `examples/signup` deleted once the canon quotes `links` (the canon thread's change, K9); `e2e/layer1/08-*` moved onto `links`. A checks slice: it edits a gate's suite, so an author writes it, never the builder | ST1.04 | checks | no file outside the records names `examples/signup`; `e2e/layer1/08-*` proves `links` | S |
+| ST1.02 | Journeys for `handles` and Plugged In at stage 1: claim, a taken name, one request twice, release, resolve; add, order and remove a link; a stranger can't edit; anyone reads a page | M1.40 | checks | they fail on empty handlers | M |
+| ST1.03 | `@orthograph/handles`, a feature: handle, claim, release, resolve, `HandleTaken`, a `names` choice; mounted by `ortho add` | ST1.02 | build | the handles journeys pass with `examples/plugged-in` mounting it | M |
+| ST1.04 | `examples/plugged-in` (M1.40, with M1.43's handlers) grown to stage 1 on auth copied from the starter: `profile`, `link`, their handlers, and three screens in `src/web/` (`/@name`, `/claim`, `/edit`) on the hooks, served by the Worker | ST1.01, ST1.03, M1.40 | build | `ortho prove --root examples/plugged-in` is green; in Chromium a claim and a link show on `/@aaron` | M |
+| ST1.06 ∥ | Hooks behind a signed-in session (`Via.session`) | ST1.01, M2.06 | build | the Plugged In screens sign in and claim through the hooks with the auth plugin mounted | S |
+| ST1.07 | Plugged In mounts auth: the copied identity deleted | M2.05, ST1.04 | build | `examples/plugged-in` has no `person/` or `session/` folder and proves green | S |
+| ST1.08 ∥ | `examples/signup` deleted once the canon quotes Plugged In (the canon thread's change, K9); `e2e/layer1/08-*` moved onto Plugged In. A checks slice: it edits a gate's suite, so an author writes it, never the builder | ST1.04 | checks | no file outside the records names `examples/signup`; `e2e/layer1/08-*` proves Plugged In | S |
 
 ### Stage 2: wallets
 
@@ -109,9 +112,9 @@ its forks F1 to F5 are working assumptions until Aaron answers them).
 | ST2.01 | Journeys for stage 2: create on the device, link your own, pay by handle, confirmed then corrected, an agent can't link | M6.02 | checks | they fail on empty handlers | M |
 | ST2.02 ∥ | Adapters from an ABI (K7 Q2): `ortho new adapter --from-abi`, typed calls and events, a stand-in contract deployed into the world; the first is `erc20` over a test token | M1.30, M1.31 | build | the `erc20` adapter's transfer and `Transfer` event are typed; a revert decodes typed; conformance passes against the stand-in | M |
 | ST2.03 ∥ | Hooks for client operations and chain submissions: the submission lifecycle as hook state (`simulated`, `submitted`, `included`, `confirmed`, `dropped`, `reverted`, `corrected`); the wallet's device half in the browser | ST1.01, M1.27, M6.15 | build | in Chromium a payment's hook passes through each state to `confirmed`; a reorg shows `corrected` | M |
-| ST2.04 | `links` at stage 2: `/wallet`, Pay @name, `payment` kept from the follower's events through `on:` | ST2.01 to ST2.03, M2.13, M6.09, M5.03 | build | the stage 2 journeys pass | M |
-| ST2.05 ∥ | The gates' fixture moves from acme to `links`; acme retired (its allowance kept in the history as the budgets feature's source). A checks slice: it rewrites the gates' suites, so an author writes it, never the builder | ST2.04 | checks | every gate suite runs on `links`; `examples/acme` is gone; Gates 1, 2, M0, M1 and M2 still pass | L |
-| ST2.06 | **The stage 2 gate** | ST2.01 to ST2.04, and the stage's milestone slices | e2e | on Anvil: aaron creates a wallet, bob links his; bob pays `@aaron` 5 test tokens, simulated first; the page shows it once confirmed; a forced reorg corrects it; the key-hygiene check passes; an agent's link is refused. `links/stage-2` tagged | S |
+| ST2.04 | Plugged In at stage 2: `/wallet`, Pay @name, `payment` kept from the follower's events through `on:` | ST2.01 to ST2.03, M2.13, M6.09, M5.03 | build | the stage 2 journeys pass | M |
+| ST2.05 ∥ | The gates' fixture moves from acme to Plugged In; acme retired (its allowance kept in the history as the budgets feature's source). A checks slice: it rewrites the gates' suites, so an author writes it, never the builder | ST2.04 | checks | every gate suite runs on Plugged In; `examples/acme` is gone; Gates 1, 2, M0, M1 and M2 still pass | L |
+| ST2.06 | **The stage 2 gate** | ST2.01 to ST2.04, and the stage's milestone slices | e2e | on Anvil: aaron creates a wallet, bob links his; bob pays `@aaron` 5 test tokens, simulated first; the page shows it once confirmed; a forced reorg corrects it; the key-hygiene check passes; an agent's link is refused. `plugged-in/stage-2` tagged | S |
 
 ### Stage 3: the vault
 
@@ -123,8 +126,8 @@ its forks F1 to F5 are working assumptions until Aaron answers them).
 | ST3.04 ∥ | The `safe` and `hats` adapters from their ABIs | ST2.02, ST3.02 | build | a Safe's owners and threshold and a hat's wearer read typed from the world | M |
 | ST3.05 | `@orthograph/budgets`: acme's allowance machine as a feature; its on-chain half one Solidity module generated by `language-solidity` and filled; the fuzz against the TypeScript machine | ST3.03, ST3.04, M6.13 | build | `forge test` passes on the module; fixed seeds show no divergence; within-budget spends execute from the Safe | L |
 | ST3.06 | Owner signatures as a durable workflow: propose, collect each owner's signature, execute at the threshold, await the confirmed event | ST3.05, M3.03, M6.15 | build | a 2-of-3 spend executes once, even when the workflow's Durable Object is evicted mid-wait | M |
-| ST3.07 | `links` at stage 3: `/@group`, hats, spend, pending; an agent spending under its own hat | ST3.06, M4.10, M4.16, M2.07 | build | the stage 3 journeys pass | M |
-| ST3.08 | **The stage 3 gate** | ST3.01 to ST3.07, and the stage's milestone slices | e2e | on Anvil, `@workshop` has a 2-of-3 Safe with the module enabled: ada wears the spender hat at 100 a month and spends 20 alone; 500 waits for two owners and executes once across an eviction; a revoked hat refuses with `HatNotWorn`; ada's agent under its own 20 hat spends 20 and is refused 21; the fuzz finds no divergence. `links/stage-3` tagged | S |
+| ST3.07 | Plugged In at stage 3: `/@group`, hats, spend, pending; an agent spending under its own hat | ST3.06, M4.10, M4.16, M2.07 | build | the stage 3 journeys pass | M |
+| ST3.08 | **The stage 3 gate** | ST3.01 to ST3.07, and the stage's milestone slices | e2e | on Anvil, `@workshop` has a 2-of-3 Safe with the module enabled: ada wears the spender hat at 100 a month and spends 20 alone; 500 waits for two owners and executes once across an eviction; a revoked hat refuses with `HatNotWorn`; ada's agent under its own 20 hat spends 20 and is refused 21; the fuzz finds no divergence. `plugged-in/stage-3` tagged | S |
 
 ### Stage 4: the club
 
@@ -136,8 +139,8 @@ its forks F1 to F5 are working assumptions until Aaron answers them).
 | ST4.04 | `chain-aztec`, and Aztec in a world with proofs verified | ST4.02 | build | a world's Aztec network rejects a tampered proof and is gone when the world ends | M |
 | ST4.05 | `language-noir`: private notes, one-use claims, enqueued public calls; the budgets feature's Aztec choice from the same declaration | ST4.04 | build | the budgets journeys pass on Aztec with `choose(onChain.aztec)` and no change to the declaration | L |
 | ST4.06 ∥ | `@orthograph/ballots`: private ballots, one per member, public tally (K7's governance contract as a feature) | ST4.05 | build | a second ballot by one member is refused by its claim | M |
-| ST4.07 | `links` at stage 4: `/@club`'s public footprint, the members' area, private spends and ballots; casting is `.notVia(Via.agent)` | ST4.05, ST4.06 | build | the club journeys pass; the portal shows nothing that names a member | M |
-| ST4.08 | **The stage 4 gate** | ST4.01 to ST4.07 | e2e | in a verified world: three private members join; one spends 20 privately and the footprint shows the total, not the member; 500 passes by private ballot with a public tally; a second ballot is refused; a tampered proof is rejected. `links/stage-4` tagged | S |
+| ST4.07 | Plugged In at stage 4: `/@club`'s public footprint, the members' area, private spends and ballots; casting is `.notVia(Via.agent)` | ST4.05, ST4.06 | build | the club journeys pass; the portal shows nothing that names a member | M |
+| ST4.08 | **The stage 4 gate** | ST4.01 to ST4.07 | e2e | in a verified world: three private members join; one spends 20 privately and the footprint shows the total, not the member; 500 passes by private ballot with a public tally; a second ballot is refused; a tampered proof is rejected. `plugged-in/stage-4` tagged | S |
 
 ## M0: Land and rename
 
@@ -171,7 +174,7 @@ exactly what it judged.
 **Ships.** Plugin descriptors (`Blueprint.feature`, `Blueprint.adapter`, `Blueprint.projection`), mounts under
 `blueprint/{features,adapters,projections}/`, the mount verbs (choose, include, narrow, omit), needs, choices and
 settings, `ortho add`, adapter calls out as steps, stores (K3), the three trace fixes (O2), model, api and server re-homed as plugins,
-the first real plugin, `@orthograph/wallets`, on `@orthograph/chain-evm` with Anvil in worlds (K7 F4), and the links app
+the first real plugin, `@orthograph/wallets`, on `@orthograph/chain-evm` with Anvil in worlds (K7 F4), and the Plugged In app
 dogfooded end to end, every output checked for the basics, seen in the portal (K13)
 ([`frame/mounting.md`](frame/mounting.md), [`frame/projections.md`](frame/projections.md)).
 **Gate.** `nx run e2e:m1`: (1) Codex's checks `00` to `06`, renamed, pass: a fixture plugin mounted with one command,
@@ -180,8 +183,8 @@ generates the same `generated/` as before, byte for byte except header paths; (3
 operation stale; (4) `ortho describe --json` lists acme's journeys, starting worlds, role rules and the work app's
 blank; (5) a fixture feature brings its own store, and a call writing two stores is refused (K3); (6) a commit has its
 own span, free text is absent from spans, and refused calls are counted (O2); (7) `acme wallet create && acme wallet send`
-confirms on Anvil in a world, signed from the CLI and from a server-held key (K7 F4). (8) no secret field leaves through any output, for any audience (K12); (9) the links loop (M1.41) passes through the
-real `ortho` binary, and the portal opens on links' things (K13).
+confirms on Anvil in a world, signed from the CLI and from a server-held key (K7 F4). (8) no secret field leaves through any output, for any audience (K12); (9) the Plugged In loop (M1.41) passes through the
+real `ortho` binary, and the portal opens on Plugged In's things (K13).
 
 | id | what | needs | kind | done when | size |
 |---|---|---|---|---|---|
@@ -198,7 +201,7 @@ real `ortho` binary, and the portal opens on links' things (K13).
 | M1.11 | Projections as plugins, part one: model, api, server | M1.10 | build | acme mounts them; its `generated/server` is unchanged | L |
 | M1.12 | The SDK contract ([`decisions/K5-the-whole-shape.md`](decisions/K5-the-whole-shape.md) seam 5): the caller on the client's layer, a stable `requestKey` across retries, declared refusals typed in the error channel; every output through M1.35's visibility rule. Moving sdk, cli and mcp into mounted plugins is M3.22 ([`decisions/K13-lock-down-first.md`](decisions/K13-lock-down-first.md)) | M1.11, M1.35 | build | acme's generated clients unchanged apart from the new options; the CLI and MCP journeys still pass; a retried SDK call with one `requestKey` commits once; a declared refusal is typed in the SDK call's error channel | S |
 | M1.34 ∥ | HeroUI Pro behind one package ([`decisions/F7-portal-ui-seam.md`](decisions/F7-portal-ui-seam.md)): `@orthograph/portal-ui` at `packages/portal-ui`, the only importer of `@heroui-pro/react`, which it takes as a peer dependency and never bundles, exporting our names (`Shell`, `Board`, `Grid`, `Chart`, `Stat`, `Card`, `Widget`, `Timeline`, `Command`, `Code`, `Markdown`, `Editor`, the `Chat` parts) for the portal's pages and the Factory face; `no-restricted-imports` bans `@heroui-pro/*` in every other package and in generated code (spikes exempt); CI installs Pro from the `HEROUI_AUTH_TOKEN` secret (created by Aaron, 19 November), cached by lockfile, never on fork pull requests | M1.25 | build | `portal-ui` builds in CI with Pro installed from the secret, and nothing of Pro is committed or in its packed `dist`; a planted `@heroui-pro/react` import in `packages/portal` fails lint; a fork's pull request runs no job that reads the secret | S |
-| M1.13 ∥ | Part three: docs and the portal as a viewer ([`decisions/K13-lock-down-first.md`](decisions/K13-lock-down-first.md)), our design (M1.25) on the pieces ported from agent-native (K5 seam 10), every component from `@orthograph/portal-ui` (M1.34): the shell's frame (the tree, the top bar with environment, window and search, the live rail, the drawer; the chat, "Needs you" and screen context stay in M1.24); things and lifecycles first, drawn from the model; live evidence lights up the same structure, as [`portal.md`](portal.md) draws it; the operations matrix (p95 against the declared `budget.p95`); the trace drawer's folding waterfall; spans kept to structure and timing; `TraceSource.window(since, now)` at a fixed `now` for tests and screenshots; a proof tab on M1.04's verdicts (no eval timing; latency is the live p95); every part of the wire M1.42 adds (`from`, events with their fields, errors with codes, field visibility and descriptions, step details) and the rest K12 section 6 names (journeys, starting worlds, stores, mounts, role rules, `runs` and the test hook, environments). Calls and door refusals come from `ortho.calls`, never an HTTP span; retries group by `attempt` and `<op>.commit`; database steps by `step.kind`. Faces and notes are M3.21 | M1.03, M1.04, M1.11, M1.17, M1.21, M1.25, M1.34, M1.35, M1.36, M1.42 | build | acme's docs unchanged and links' docs generated; the portal opens on links' things and the rail is scoped to the page, and a journey's run lights up its operation and machine move; the "no leak" check plants a raw statement, a `principal.person`, a non-public payload value and a log body in a staging trace and none renders, while the caller's kind does; the portal's screenshots are byte-identical across two runs at the same `now` | L |
+| M1.13 ∥ | Part three: docs and the portal as a viewer ([`decisions/K13-lock-down-first.md`](decisions/K13-lock-down-first.md)), our design (M1.25) on the pieces ported from agent-native (K5 seam 10), every component from `@orthograph/portal-ui` (M1.34): the shell's frame (the tree, the top bar with environment, window and search, the live rail, the drawer; the chat, "Needs you" and screen context stay in M1.24); things and lifecycles first, drawn from the model; live evidence lights up the same structure, as [`portal.md`](portal.md) draws it; the operations matrix (p95 against the declared `budget.p95`); the trace drawer's folding waterfall; spans kept to structure and timing; `TraceSource.window(since, now)` at a fixed `now` for tests and screenshots; a proof tab on M1.04's verdicts (no eval timing; latency is the live p95); every part of the wire M1.42 adds (`from`, events with their fields, errors with codes, field visibility and descriptions, step details) and the rest K12 section 6 names (journeys, starting worlds, stores, mounts, role rules, `runs` and the test hook, environments). Calls and door refusals come from `ortho.calls`, never an HTTP span; retries group by `attempt` and `<op>.commit`; database steps by `step.kind`. Faces and notes are M3.21 | M1.03, M1.04, M1.11, M1.17, M1.21, M1.25, M1.34, M1.35, M1.36, M1.42 | build | acme's docs unchanged and Plugged In's docs generated; the portal opens on Plugged In's things and the rail is scoped to the page, and a journey's run lights up its operation and machine move; the "no leak" check plants a raw statement, a `principal.person`, a non-public payload value and a log body in a staging trace and none renders, while the caller's kind does; the portal's screenshots are byte-identical across two runs at the same `now` | L |
 | M1.14 ∥ | Adapter calls out: `Blueprint.step.call`, declared errors, the one mapping blank, a stand-in declared (D4 section 3) | M1.08 | build | checks `03` and `04` pass | M |
 | M1.16 ∥ | `ortho prove --empty`: the journeys run against scaffolded handlers; each step that needs behaviour goes red, and one that passes is labelled "proved by the description" (S3) | Gate M0 | build | on acme, `revoke then spend` shows two red steps and one proved by the description | S |
 | M1.17 ∥ | Stores ([`decisions/K3-stores-and-sources.md`](decisions/K3-stores-and-sources.md)): `Blueprint.store.<kind>()` under `blueprint/stores/`, `lives` takes a store or nothing for the default, kinds supplied by hosts (`database`, `actor`), `stores:` bindings typed in environments, one store per commit (cross-store writes refused), migrations per store, a feature's own stores named by its mount | M1.06 | build | acme unchanged; a fixture feature with its own store mounts beside acme's default and both migrate; an operation writing two stores fails to compile | M |
@@ -219,10 +222,10 @@ real `ortho` binary, and the portal opens on links' things (K13).
 | M1.36 ∥ | Telemetry carries the model ([`decisions/K12-coverage-gaps.md`](decisions/K12-coverage-gaps.md) section 2): `move.from`, `event.name` on the commit span, `refusal.code`, an `ortho.budget.breaches` counter against the declared `budget.p95`, and `environment` and `store` on every call | M1.21 | build | the local world test reads each from the Collector for one call of acme's that moves, emits and is refused, and for one slowed past its budget | S |
 | M1.38 ∥ | Confirmation per chain and environment (K7 F2, [`decisions/K12-coverage-gaps.md`](decisions/K12-coverage-gaps.md) section 4): the wallet takes `confirmed`'s depth from the environment's chain, depth one only for a local chain; `flow.ts:29`'s `depth: 1` goes | M1.29 | build | a world declaring depth three on Anvil sees a send `submitted` until three blocks are mined, then `confirmed`; the local environment still confirms at one | S |
 | M1.39 ∥ | The canon's chains-and-wallets page ([`decisions/K12-coverage-gaps.md`](decisions/K12-coverage-gaps.md) section 5), by the canon thread: `chain-evm`, `wallets`, the signers and Anvil in a world, from the code; every "waits on K7" or "wait on K7" in `docs/canon/` replaced with what K7 decided; `frame/writing-a-feature.md` matched to M1.29 | M1.29, M1.38 | build | `docs:check` passes with the new page; `git grep -E "waits? on K7" docs design/frame` finds nothing | S |
-| M1.40 | The links app, the canon's one example ([`decisions/K13-lock-down-first.md`](decisions/K13-lock-down-first.md)): `examples/links` at stage 1 without sign-in, written to the canon thread's blueprint and started from Codex's `links/stage-1` (#56): `profile` (a handle and its page) and `link`; claim, add, order and remove a link, and a public read of a page; declarations and empty handlers only (ST1.02's journeys come next and fail on them); sign-in comes with ST1.04 and ST1.07 | M1.11 | build | `ortho generate` and `ortho prove --empty` run on `examples/links`, and it type-checks | S |
-| M1.41 | The loop, end to end ([`decisions/K13-lock-down-first.md`](decisions/K13-lock-down-first.md)), written by a different agent before M1.42: through the real `ortho` binary in a fresh folder, `examples/links` is generated and every output is read for the basics: each thing's type and fields with their descriptions and visibility, each operation and read, each machine's states and moves, each event with what it carries, each error with its code, and each step's details in the portal's data; then the server runs locally, every operation is called once through the SDK and once through the CLI, a refused call prints its code, the event and the code reach telemetry, and the portal's data file carries all of it (opening the portal is M1.13's check) | M1.40 | checks | it runs, and fails only where K13's grid says ✗ or ~ | M |
+| M1.40 | The Plugged In app, the canon's one example ([`decisions/K13-lock-down-first.md`](decisions/K13-lock-down-first.md)): `examples/plugged-in` at stage 1 without sign-in, written to the canon thread's blueprint and started from Codex's `links/stage-1` (#56), a branch named before K15: `profile` (a handle and its page) and `link`; claim, add, order and remove a link, and a public read of a page; declarations and empty handlers only (ST1.02's journeys come next and fail on them); sign-in comes with ST1.04 and ST1.07 | M1.11 | build | `ortho generate` and `ortho prove --empty` run on `examples/plugged-in`, and it type-checks | S |
+| M1.41 | The loop, end to end ([`decisions/K13-lock-down-first.md`](decisions/K13-lock-down-first.md)), written by a different agent before M1.42: through the real `ortho` binary in a fresh folder, `examples/plugged-in` is generated and every output is read for the basics: each thing's type and fields with their descriptions and visibility, each operation and read, each machine's states and moves, each event with what it carries, each error with its code, and each step's details in the portal's data; then the server runs locally, every operation is called once through the SDK and once through the CLI, a refused call prints its code, the event and the code reach telemetry, and the portal's data file carries all of it (opening the portal is M1.13's check) | M1.40 | checks | it runs, and fails only where K13's grid says ✗ or ~ | M |
 | M1.42 | The basics in every output ([`decisions/K13-lock-down-first.md`](decisions/K13-lock-down-first.md)): the SDK exports each thing's type and the events; the CLI's flags typed from each field and its help from the field's description; MCP's input fields described; the portal's data gains field visibility and descriptions, events with their fields, errors with their codes, and step details (`optional`, writes, the call) | M1.41, M1.43, M1.35, M1.36 | build | M1.41 passes | M |
-| M1.43 | Links' handlers ([`decisions/K13-lock-down-first.md`](decisions/K13-lock-down-first.md)): `examples/links`' handlers at stage 1, written against M1.41 by a builder who didn't write it: claim a handle (a taken one refused with `HandleTaken`), add, order and remove a link, read a page; one store, no sign-in. ST1.03 later moves the claim into `@orthograph/handles` and ST1.04 adds sign-in | M1.41 | build | every M1.41 call commits through the SDK and the CLI, and the refused claim prints its code | S |
+| M1.43 | Plugged In's handlers ([`decisions/K13-lock-down-first.md`](decisions/K13-lock-down-first.md)): `examples/plugged-in`' handlers at stage 1, written against M1.41 by a builder who didn't write it: claim a handle (a taken one refused with `HandleTaken`), add, order and remove a link, read a page; one store, no sign-in. ST1.03 later moves the claim into `@orthograph/handles` and ST1.04 adds sign-in | M1.41 | build | every M1.41 call commits through the SDK and the CLI, and the refused claim prints its code | S |
 | M1.15 | **Gate M1** | M1.02 to M1.14, M1.16 to M1.21, M1.25 to M1.36, M1.38 to M1.43 | e2e | `nx run e2e:m1` passes on `main`, M1.41 included | S |
 
 ## M2: Auth and organizations (workable)
@@ -237,7 +240,7 @@ mounted and nothing copied, and `ortho prove --env local` is green; (2) a new `n
 `ortho new feature`, proved in its own world, published to the local registry, and mounted into acme and work with
 `ortho add`, with every journey in all three still green; (3) the sign-up and sign-in journeys pass through the SDK,
 the CLI and MCP; (4) no environment file names a secret by string; (5) the stage 1 check (K9): the scaffold is
-`links` at stage 1, a person signs in, claims `aaron` and adds a link in headless Chromium, and a second claim is
+Plugged In at stage 1, a person signs in, claims `aaron` and adds a link in headless Chromium, and a second claim is
 refused with `HandleTaken` through the SDK, the CLI, MCP and the hook (actions come with M1.22, in M3).
 
 | id | what | needs | kind | done when | size |
@@ -250,14 +253,14 @@ refused with `HandleTaken` through the SDK, the CLI, MCP and the hook (actions c
 | M2.06 | `@orthograph/auth`, ways in: the device flow, OAuth for MCP, the builder's sign-in to the portal (K5 seam 9), choices (`signIn`, `keys`), settings (`sessionLength`, `allowedOrigins`) | M2.05 | build | `acme login` and MCP sign-in journeys pass | M |
 | M2.07 | `@orthograph/organizations`: organisation, membership, invitation, owner, member, `holds`, starting worlds `founded` and `invited`; acme's copies deleted | M2.05 | build | the tenancy journeys pass from the plugin; acme has no `organization/` folder | M |
 | M2.08 ∥ | Journeys through the clients: a world runs steps through the SDK, with `--through cli\|mcp` (actions join in M3, with M1.22) (`journeys/internal/world.ts:85` calls HTTP directly today) | M2.05 | build | the auth journeys pass all three ways | M |
-| M2.09 | `ortho new` replaces the Nx preset: the app it scaffolds is `links` at stage 1 (K9), with auth and handles mounted; `examples/starter` becomes that template | M2.07, ST1.07 | build | `npm create orthograph demo` from Verdaccio, then `ortho prove --env local` is green; the template's `blueprint/` and `src/` are identical to `examples/links`'s on the same commit; once `links/stage-1` is tagged (M2.12), the check compares against the tag | M |
+| M2.09 | `ortho new` replaces the Nx preset: the app it scaffolds is Plugged In at stage 1 (K9), with auth and handles mounted; `examples/starter` becomes that template | M2.07, ST1.07 | build | `npm create orthograph demo` from Verdaccio, then `ortho prove --env local` is green; the template's `blueprint/` and `src/` are identical to `examples/plugged-in`'s on the same commit; once `plugged-in/stage-1` is tagged (M2.12), the check compares against the tag | M |
 | M2.10 | `ortho new feature`, a plugin's own world and CI, `ortho publish --local` for plugins | M2.07 | build | the `notes` feature goes from new to proved to published to mounted | M |
 | M2.11 ∥ | The work app mounts auth and organizations | M2.07 | build | `ortho prove --root examples/work` passes with no copied identity | S |
 | M2.13 ∥ | SIWE linking in the wallet plugin (was M6.04, L3.03): `challenge`, `complete`, `link`, `unlink`, `list`; agents never link (`notVia(Agent)`) | M2.05, M1.29 | build | `acme wallet link`, then `acme session show` lists the address; an agent's link is refused | M |
 | M2.14 | `ortho add` on Nx's `Tree` ([`decisions/K12-coverage-gaps.md`](decisions/K12-coverage-gaps.md) section 7; the spec's "scaffolding uses Nx generators where they fit"): `Add.plan` stays pure and typed, its files written once through an `FsTree` in the entry file, `--dry-run` from `tree.listChanges()`, `AddRefused` mapped at the edge | Gate M1 | build | the `add` tests pass unchanged; `ortho add thing` writes the same files as before, byte for byte; a planned write that fails leaves nothing written | S |
 | M2.15 | The kinds that edit in place: `ortho add event`, `error`, `role`, `move`, editing the thing's existing files; `add thing` composes them | M2.14 | build | `ortho add move allowance.close` adds the move to `machine.ts` and its event to `events.ts`, and `ortho prove --empty` shows the new move red; adding one twice is refused | M |
 | M2.16 | Migrations: `@orthograph/*` ship `migrations.json`, and `nx migrate` upgrades a blueprint across a breaking change, before the first stable release | M2.14 | build | a fixture blueprint written against the previous API is migrated by `nx migrate` and proves green | S |
-| M2.12 | **Gate M2: workable**, and the stage 1 gate (K9) | M2.02 to M2.11, M2.13 to M2.16, ST1.01 to ST1.04, ST1.06 to ST1.08 | e2e | `nx run e2e:m2` passes on `main`; `examples/links` is tagged `links/stage-1` | S |
+| M2.12 | **Gate M2: workable**, and the stage 1 gate (K9) | M2.02 to M2.11, M2.13 to M2.16, ST1.01 to ST1.04, ST1.06 to ST1.08 | e2e | `nx run e2e:m2` passes on `main`; `examples/plugged-in` is tagged `plugged-in/stage-1` | S |
 
 ## M3: The factory, with people as workers
 
@@ -266,7 +269,7 @@ the manager plans a goal onto it from Aaron's words, a spec, a failing check, th
 runs ready items in parallel without two touching the same files; people and outside agents (Claude Code through the
 work CLI or MCP) work them. Only a fact closes an item.
 **Spikes before it** (K11, any time, off every gate): `spikes/dispatch-sim` (the dispatch rules on a synthetic plan) and
-`spikes/work-board` (the board over `examples/work`'s generated API, one real goal: links stage 1).
+`spikes/work-board` (the board over `examples/work`'s generated API, one real goal: Plugged In stage 1).
 **Ships.** The factory plugin ([`frame/examples/factory.md`](frame/examples/factory.md)); declared workflows on Effect's
 Cloudflare engine; the logbook adapter; the generated agent kit ([`frame/generators.md`](frame/generators.md));
 `ortho ci`. And, moved here by K13 with their ids: actions and approvals (M1.22, M1.23), the shell's chat and screen
@@ -489,10 +492,10 @@ in `spikes/` and D3's records exist, so they are done in substance.
 ## The critical path to workable
 
 Re-cut on 19 November 2026 by [`decisions/K13-lock-down-first.md`](decisions/K13-lock-down-first.md): first lock down
-what exists, with one links app dogfooded end to end; the actions, approvals and the agent's way in wait until M3.
+what exists, with one Plugged In app dogfooded end to end; the actions, approvals and the agent's way in wait until M3.
 
 ```text
-M1.40 (the links app) → M1.41 (the loop's check) → M1.43 (its handlers), M1.42 (the basics) ┐
+M1.40 (the Plugged In app) → M1.41 (the loop's check) → M1.43 (its handlers), M1.42 (the basics) ┐
 M1.35 (one visibility rule), M1.36 (telemetry carries the model) ──────────────────────────┼→ M1.13 (the portal as a viewer)
 M1.34 (portal-ui) ─────────────────────────────────────────────────────────────────────────┘
   → Gate M1 → the npm preview
