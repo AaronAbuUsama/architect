@@ -28,7 +28,7 @@ describe.skipIf(process.env["ORTHO_CHAIN_EVM_ANVIL"] !== "1")("a server operatio
     Effect.runPromise(Effect.scoped(Effect.gen(function* () {
       const chain = yield* Anvil.start({ chainId: 31_337, accounts: 2 });
       const [server, payee] = chain.accounts as [typeof chain.accounts[number], typeof chain.accounts[number]];
-      const setting = { chainId: chain.chainId, rpcUrl: chain.rpcUrl };
+      const setting = { chainId: chain.chainId, rpcUrl: chain.rpcUrl, depth: 1 };
       const to = Account.format({ chainId: chain.chainId, address: payee.address });
       // The handler is what an app writes: the server's key store gives the signer, and `send` is the whole lifecycle.
       const handler: Handler<typeof send> = ({ to: target, value }) =>
@@ -60,7 +60,7 @@ describe.skipIf(process.env["ORTHO_CHAIN_EVM_ANVIL"] !== "1")("a server operatio
     }).pipe(Effect.provide(TimersLive)))));
 
   it("a secret that is no key is KeyLocked, and says nothing of it", async () => {
-    const setting = { chainId: 31_337, rpcUrl: undefined };
+    const setting = { chainId: 31_337, rpcUrl: undefined, depth: 1 };
     const locked = await Effect.runPromise(Server.keystore({ secret: Redacted.make("0xnot-a-key-secret-looking"), chain: setting }).pipe(Effect.flip));
     expect(locked).toBeInstanceOf(Object);
     expect(String(JSON.stringify(locked))).not.toContain("secret-looking");

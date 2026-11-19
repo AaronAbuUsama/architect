@@ -56,6 +56,8 @@ export interface Intent<TEvent extends DecodedEvent = DecodedEvent> {
 
 export type TxState<TEvent extends DecodedEvent = DecodedEvent> =
   | { readonly _tag: "Included"; readonly receipt: TransactionReceipt }
+  /** Tracking a plain transfer at `{ depth }`: how many blocks count now, the including block as 1. Emitted each time the count changes. */
+  | { readonly _tag: "Deepened"; readonly blocks: number; readonly receipt: TransactionReceipt }
   | { readonly _tag: "Reverted"; readonly receipt: TransactionReceipt; readonly error: ChainError }
   | { readonly _tag: "Replaced"; readonly oldHash: Hash; readonly newHash: Hash }
   | { readonly _tag: "Dropped"; readonly hash: Hash; readonly reason: "nonce-consumed" | "deadline" }
