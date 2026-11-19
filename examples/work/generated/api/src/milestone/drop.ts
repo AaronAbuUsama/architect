@@ -8,7 +8,8 @@ export { declaration };
 export const endpoint = HttpApiEndpoint.post("drop", "/milestone/drop", {
   payload: declaration.payloadSchema,
   // What the wire carries: the declared answer, the fields not every caller is shown optional. The server cuts each answer by who is asking.
-  success: Visibility.schema(Audience.principal([], { issuing: true }), declaration.answer),
+  // Typed as the declaration types it: the schema is built from fields known only at run time, which TypeScript cannot follow.
+  success: Visibility.schema(Audience.principal([], { issuing: true }), declaration.answer) as unknown as typeof declaration.answerSchema,
   error: [MilestoneNotActive, NotAllowed],
 });
 export const steps = ["milestone.drop.record"] as const;
