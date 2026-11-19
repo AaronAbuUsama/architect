@@ -12,20 +12,17 @@ const errors = (model: Model): RenderedFile => {
   const declaring = things.filter((t) => Object.keys(t.errors).length > 0);
   const exits: Array<string> = [];
   const codes: Array<string> = [];
-  const shown: Array<string> = [];
   const declared: Array<string> = [];
   const body: Array<string> = [];
   // Each refusal's code is beside its tag: a field on the wire class, and a static the runtime reads it from.
   const cls = (name: string, code: string, fields: string, status: number) =>
     `export class ${name} extends Schema.TaggedError<${name}>()("${name}", { code: Schema.Literal("${code}"), ...${fields} }, { httpApiStatus: ${status} }) { static readonly code = "${code}" as const; }`;
-  const publicFields = (fields: Readonly<Record<string, { readonly visibility?: unknown }>>) => JSON.stringify(Object.keys(fields).filter((k) => fields[k]!.visibility === undefined));
   for (const t of declaring) {
     for (const [name, e] of Object.entries(t.errors)) {
       body.push(`ErrorNames.name(${t.identifier}.${name}, "${name}");`);
-      body.push(cls(name, e.code, `structOf(${t.identifier}.${name}.fields).fields`, STATUS.declared));
+      body.push(cls(name, e.code, `Visibility.schema(Audience.principal(), ${t.identifier}.${name}.fields).fields`, STATUS.declared));
       exits.push(`  ${name}: ${e.exit},`);
       codes.push(`  ${name}: "${e.code}",`);
-      shown.push(`  ${name}: ${publicFields(e.fields)},`);
       declared.push(`  ${name}: ${t.identifier}.${name},`);
     }
   }
@@ -35,17 +32,16 @@ const errors = (model: Model): RenderedFile => {
     body.push(cls(error, code, "{ state: Schema.String }", STATUS.notFrom));
     exits.push(`  ${error}: ${exit},`);
     codes.push(`  ${error}: "${code}",`);
-    shown.push(`  ${error}: ["state"],`);
   }
   body.push(cls("NotAllowed", model.refusals["NotAllowed"] ?? "AR-001", "{}", STATUS.notAllowed));
   exits.push(`  NotAllowed: ${NOT_ALLOWED_EXIT},`);
   codes.push(`  NotAllowed: "${model.refusals["NotAllowed"] ?? "AR-001"}",`);
-  shown.push(`  NotAllowed: [],`);
   const names = exits.map((e) => e.trim().split(":")[0]);
   return file(path, lines(
     GENERATED,
     `import { Schema } from "effect";`,
-    `import { ErrorNames, structOf } from "${Names.frontDoor}/server";`,
+    `import { ErrorNames } from "${Names.frontDoor}/server";`,
+    `import { Audience, Visibility } from "${Names.pkg("language-effect")}/visibility";`,
     declaring.map((t) => `import * as ${t.identifier} from "${thingFileAt(path, t, "errors")}";`),
     "",
     body,
@@ -56,10 +52,7 @@ const errors = (model: Model): RenderedFile => {
     "/** Each refusal's code, stable across targets: `[AL-002] Name { field: value }`. Beside the tag, never in place of it. */",
     "export const codes = {", codes, "} as const;",
     "",
-    "/** The fields of each refusal whose values may be shown (printed, logged, put in a span): only the public ones. */",
-    "export const shown: Readonly<Record<string, ReadonlyArray<string>>> = {", shown, "};",
-    "",
-    "/** The declared errors themselves, by name: their fields say who may see a value (the MCP server redacts by role). */",
+    "/** The declared errors themselves, by name: their fields say who may see a value (the visibility rule cuts a refusal by them). */",
     "export const declared = {", declared, "} as const;",
     "",
     "/** The wire class of each refusal, by name. */",
@@ -72,13 +65,16 @@ const endpoint = (op: OperationModel): RenderedFile => {
   return file(path, lines(
     `// Generated from ${op.file}. Do not edit.`,
     `import { HttpApiEndpoint } from "effect/http-api";`,
+    op.list ? `import { listItemFields } from "${Names.frontDoor}/server";` : [],
+    `import { Audience, Visibility } from "${Names.pkg("language-effect")}/visibility";`,
     `import declaration from "${declarationAt(path, op.file)}";`,
     `import { ${op.refusals.join(", ")} } from "../errors.ts";`,
     "",
     "export { declaration };",
     `export const endpoint = HttpApiEndpoint.post("${op.verb}", "/${op.thing}/${op.verb}", {`,
     "  payload: declaration.payloadSchema,",
-    "  success: declaration.answerSchema,",
+    `  // What the wire carries: the declared answer, the fields not every caller is shown optional. The server cuts each answer by who is asking.`,
+    `  success: Visibility.schema(Audience.principal([], { issuing: true }), declaration.answer${op.list ? ", listItemFields(declaration.thing)" : ""}),`,
     `  error: [${op.refusals.join(", ")}],`,
     "});",
     `export const steps = [${Object.values(op.steps).map((s) => `"${s.name}"`).join(", ")}] as const;`,

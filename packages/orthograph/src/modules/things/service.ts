@@ -11,6 +11,7 @@ export const Things: ThingsApi = {
       fields[key] = Object.freeze({
         kind: "field", of: thing as Thing, key, value: valueOf(input), from: input.kind === "field" ? input : undefined, visibility: input.visibility,
         ...(input.traced === true ? { traced: true as const } : {}),
+        ...(input.issued === true ? { issued: true as const } : {}),
       });
     }
     return Object.freeze(thing);

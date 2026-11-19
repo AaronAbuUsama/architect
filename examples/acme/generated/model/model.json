@@ -976,7 +976,8 @@
             "max": 512
           },
           "named": "Secret",
-          "visibility": "secret"
+          "visibility": "secret",
+          "issued": true
         }
       },
       "move": null,
@@ -1007,7 +1008,7 @@
       "budget": {
         "p95Ms": 250
       },
-      "hash": "56de0903f4a0f20e"
+      "hash": "4e4930c28c53eb1b"
     },
     "invitation.accept": {
       "kind": "operation",
@@ -1560,7 +1561,8 @@
             "prefix": "ses"
           },
           "ref": "session.id",
-          "visibility": "secret"
+          "visibility": "secret",
+          "issued": true
         },
         "token": {
           "value": {
@@ -1568,7 +1570,8 @@
             "max": 512
           },
           "named": "Secret",
-          "visibility": "secret"
+          "visibility": "secret",
+          "issued": true
         }
       },
       "move": null,
@@ -1595,7 +1598,7 @@
       "budget": {
         "p95Ms": 400
       },
-      "hash": "64fc31973ed9c65e"
+      "hash": "5613fa720dc82a20"
     },
     "system.health": {
       "kind": "operation",

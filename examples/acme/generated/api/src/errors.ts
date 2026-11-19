@@ -1,20 +1,21 @@
 // Generated from blueprint/projections/api.ts. Do not edit.
 import { Schema } from "effect";
-import { ErrorNames, structOf } from "orthograph/server";
+import { ErrorNames } from "orthograph/server";
+import { Audience, Visibility } from "@orthograph/language-effect/visibility";
 import * as Allowance from "../../../blueprint/things/allowance/errors.ts";
 import * as Person from "../../../blueprint/things/person/errors.ts";
 import * as Session from "../../../blueprint/things/session/errors.ts";
 
 ErrorNames.name(Allowance.AllowanceExceeded, "AllowanceExceeded");
-export class AllowanceExceeded extends Schema.TaggedError<AllowanceExceeded>()("AllowanceExceeded", { code: Schema.Literal("AL-001"), ...structOf(Allowance.AllowanceExceeded.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "AL-001" as const; }
+export class AllowanceExceeded extends Schema.TaggedError<AllowanceExceeded>()("AllowanceExceeded", { code: Schema.Literal("AL-001"), ...Visibility.schema(Audience.principal(), Allowance.AllowanceExceeded.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "AL-001" as const; }
 ErrorNames.name(Allowance.AllowanceNotFound, "AllowanceNotFound");
-export class AllowanceNotFound extends Schema.TaggedError<AllowanceNotFound>()("AllowanceNotFound", { code: Schema.Literal("AL-002"), ...structOf(Allowance.AllowanceNotFound.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "AL-002" as const; }
+export class AllowanceNotFound extends Schema.TaggedError<AllowanceNotFound>()("AllowanceNotFound", { code: Schema.Literal("AL-002"), ...Visibility.schema(Audience.principal(), Allowance.AllowanceNotFound.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "AL-002" as const; }
 ErrorNames.name(Allowance.AllowanceLimitTooHigh, "AllowanceLimitTooHigh");
-export class AllowanceLimitTooHigh extends Schema.TaggedError<AllowanceLimitTooHigh>()("AllowanceLimitTooHigh", { code: Schema.Literal("AL-003"), ...structOf(Allowance.AllowanceLimitTooHigh.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "AL-003" as const; }
+export class AllowanceLimitTooHigh extends Schema.TaggedError<AllowanceLimitTooHigh>()("AllowanceLimitTooHigh", { code: Schema.Literal("AL-003"), ...Visibility.schema(Audience.principal(), Allowance.AllowanceLimitTooHigh.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "AL-003" as const; }
 ErrorNames.name(Person.PersonEmailTaken, "PersonEmailTaken");
-export class PersonEmailTaken extends Schema.TaggedError<PersonEmailTaken>()("PersonEmailTaken", { code: Schema.Literal("PE-001"), ...structOf(Person.PersonEmailTaken.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "PE-001" as const; }
+export class PersonEmailTaken extends Schema.TaggedError<PersonEmailTaken>()("PersonEmailTaken", { code: Schema.Literal("PE-001"), ...Visibility.schema(Audience.principal(), Person.PersonEmailTaken.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "PE-001" as const; }
 ErrorNames.name(Session.SessionCredentialsWrong, "SessionCredentialsWrong");
-export class SessionCredentialsWrong extends Schema.TaggedError<SessionCredentialsWrong>()("SessionCredentialsWrong", { code: Schema.Literal("SE-001"), ...structOf(Session.SessionCredentialsWrong.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "SE-001" as const; }
+export class SessionCredentialsWrong extends Schema.TaggedError<SessionCredentialsWrong>()("SessionCredentialsWrong", { code: Schema.Literal("SE-001"), ...Visibility.schema(Audience.principal(), Session.SessionCredentialsWrong.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "SE-001" as const; }
 export class AllowanceNotActive extends Schema.TaggedError<AllowanceNotActive>()("AllowanceNotActive", { code: Schema.Literal("AL-900"), ...{ state: Schema.String } }, { httpApiStatus: 409 }) { static readonly code = "AL-900" as const; }
 export class InvitationNotPending extends Schema.TaggedError<InvitationNotPending>()("InvitationNotPending", { code: Schema.Literal("IN-900"), ...{ state: Schema.String } }, { httpApiStatus: 409 }) { static readonly code = "IN-900" as const; }
 export class OrganizationNotActive extends Schema.TaggedError<OrganizationNotActive>()("OrganizationNotActive", { code: Schema.Literal("OR-900"), ...{ state: Schema.String } }, { httpApiStatus: 409 }) { static readonly code = "OR-900" as const; }
@@ -46,20 +47,7 @@ export const codes = {
   NotAllowed: "AR-001",
 } as const;
 
-/** The fields of each refusal whose values may be shown (printed, logged, put in a span): only the public ones. */
-export const shown: Readonly<Record<string, ReadonlyArray<string>>> = {
-  AllowanceExceeded: ["remaining"],
-  AllowanceNotFound: [],
-  AllowanceLimitTooHigh: ["cap"],
-  PersonEmailTaken: [],
-  SessionCredentialsWrong: [],
-  AllowanceNotActive: ["state"],
-  InvitationNotPending: ["state"],
-  OrganizationNotActive: ["state"],
-  NotAllowed: [],
-};
-
-/** The declared errors themselves, by name: their fields say who may see a value (the MCP server redacts by role). */
+/** The declared errors themselves, by name: their fields say who may see a value (the visibility rule cuts a refusal by them). */
 export const declared = {
   AllowanceExceeded: Allowance.AllowanceExceeded,
   AllowanceNotFound: Allowance.AllowanceNotFound,

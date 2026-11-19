@@ -4,11 +4,12 @@ import type { Value } from "#modules/values/types.js";
 import type { Visibility, VisibilityApi } from "./types.ts";
 
 /** A copy of the value or field, marked. The original is untouched, so a value shared elsewhere keeps its own. */
-const marked = <X extends Value | Field>(x: X, mark: { visibility: Visibility } | { traced: true }): X =>
+const marked = <X extends Value | Field>(x: X, mark: { visibility: Visibility } | { traced: true } | { issued: true }): X =>
   Object.freeze({ ...x, ...mark }) as unknown as X;
 
 export const Visibilities: VisibilityApi = {
   traced: (x) => marked(x, { traced: true }),
+  issued: (x) => marked(x, { issued: true }),
   visibility: {
     secret: (x) => marked(x, { visibility: "secret" }),
     private: (x, ...roles: ReadonlyArray<Role<any>>) => marked(x, { visibility: Object.freeze({ kind: "private", to: Object.freeze([...roles]) }) }),

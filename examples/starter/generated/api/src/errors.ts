@@ -1,13 +1,14 @@
 // Generated from the blueprint. Do not edit.
 import { Schema } from "effect";
-import { ErrorNames, structOf } from "orthograph/server";
+import { ErrorNames } from "orthograph/server";
+import { Audience, Visibility } from "@orthograph/language-effect/visibility";
 import * as Person from "../../../blueprint/things/person/errors.ts";
 import * as Session from "../../../blueprint/things/session/errors.ts";
 
 ErrorNames.name(Person.PersonEmailTaken, "PersonEmailTaken");
-export class PersonEmailTaken extends Schema.TaggedError<PersonEmailTaken>()("PersonEmailTaken", { code: Schema.Literal("PE-001"), ...structOf(Person.PersonEmailTaken.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "PE-001" as const; }
+export class PersonEmailTaken extends Schema.TaggedError<PersonEmailTaken>()("PersonEmailTaken", { code: Schema.Literal("PE-001"), ...Visibility.schema(Audience.principal(), Person.PersonEmailTaken.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "PE-001" as const; }
 ErrorNames.name(Session.SessionCredentialsWrong, "SessionCredentialsWrong");
-export class SessionCredentialsWrong extends Schema.TaggedError<SessionCredentialsWrong>()("SessionCredentialsWrong", { code: Schema.Literal("SE-001"), ...structOf(Session.SessionCredentialsWrong.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "SE-001" as const; }
+export class SessionCredentialsWrong extends Schema.TaggedError<SessionCredentialsWrong>()("SessionCredentialsWrong", { code: Schema.Literal("SE-001"), ...Visibility.schema(Audience.principal(), Session.SessionCredentialsWrong.fields).fields }, { httpApiStatus: 422 }) { static readonly code = "SE-001" as const; }
 export class InvitationNotPending extends Schema.TaggedError<InvitationNotPending>()("InvitationNotPending", { code: Schema.Literal("IN-900"), ...{ state: Schema.String } }, { httpApiStatus: 409 }) { static readonly code = "IN-900" as const; }
 export class OrganizationNotActive extends Schema.TaggedError<OrganizationNotActive>()("OrganizationNotActive", { code: Schema.Literal("OR-900"), ...{ state: Schema.String } }, { httpApiStatus: 409 }) { static readonly code = "OR-900" as const; }
 export class NotAllowed extends Schema.TaggedError<NotAllowed>()("NotAllowed", { code: Schema.Literal("AR-001"), ...{} }, { httpApiStatus: 403 }) { static readonly code = "AR-001" as const; }
@@ -30,16 +31,7 @@ export const codes = {
   NotAllowed: "AR-001",
 } as const;
 
-/** The fields of each refusal whose values may be shown (printed, logged, put in a span): only the public ones. */
-export const shown: Readonly<Record<string, ReadonlyArray<string>>> = {
-  PersonEmailTaken: [],
-  SessionCredentialsWrong: [],
-  InvitationNotPending: ["state"],
-  OrganizationNotActive: ["state"],
-  NotAllowed: [],
-};
-
-/** The declared errors themselves, by name: their fields say who may see a value (the MCP server redacts by role). */
+/** The declared errors themselves, by name: their fields say who may see a value (the visibility rule cuts a refusal by them). */
 export const declared = {
   PersonEmailTaken: Person.PersonEmailTaken,
   SessionCredentialsWrong: Session.SessionCredentialsWrong,

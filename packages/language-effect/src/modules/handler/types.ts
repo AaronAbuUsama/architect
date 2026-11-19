@@ -37,6 +37,8 @@ export type Handler<O, R = never, C = {}> = (payload: PayloadOf<O>, context: Han
 
 export interface Served<O, R> {
   readonly name: string;
+  /** The declaration this serves: what the visibility rule reads to cut an outcome for its caller. */
+  readonly operation: O;
   /** From the outside: decode first, refusing with `InvalidPayload`. */
   readonly call: (payload: unknown, principal: Principal) => Effect.Effect<AnswerOf<O>, ErrorOf<O> | InvalidPayload | NotAllowed | NotFrom, Exclude<R, Records> | Busy | Store>;
   /**
@@ -120,6 +122,8 @@ export type ReadPayload = { readonly [field: string]: unknown };
 
 export interface ServedRead {
   readonly name: string;
+  /** The declaration this serves. */
+  readonly operation: Read<any, any, any>;
   /** From the outside: the payload decoded first. */
   readonly call: (payload: unknown, principal: Principal) => Effect.Effect<ReadAnswer, NotAllowed | Schema.SchemaError, Store>;
   /** From a server that already decoded the payload. */

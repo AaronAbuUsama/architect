@@ -71,7 +71,7 @@ const serve = ({ name, operation, handler, notFrom, calls }: { readonly name: st
         yield* checkFrom(op, notFrom, payload, unit);
         const chosen = yield* Ref.make<string | undefined>(undefined);
         const move = (to?: string) => chooseOutcome(name, op, to).pipe(Effect.flatMap((o) => Ref.set(chosen, o)));
-        const answer = yield* busy.counted(handler(payload, { principal, steps, move })).pipe(withRecords, logs.around);
+        const answer = yield* busy.counted(handler(payload, { principal, steps, move })).pipe(Effect.provideService(Records, logs.watching(unit.records)), logs.around);
         // Recorded before the check, so an answer outside its declaration is evidence `prove` can name.
         yield* Effect.annotateCurrentSpan(answerAttributes(answer, op.answer));
         // An answer that breaks its declaration is the handler's bug, never the caller's: it dies, loudly.
@@ -119,6 +119,7 @@ const serve = ({ name, operation, handler, notFrom, calls }: { readonly name: st
   };
   return {
     name,
+    operation,
     call: (raw: unknown, principal: Principal) =>
       decode(raw).pipe(
         Effect.mapError((e) => new InvalidPayload({ issues: e.message })),
