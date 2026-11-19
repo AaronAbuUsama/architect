@@ -46,7 +46,8 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
 - **Journeys and checks come first.** A different agent from the builder writes an operation's journeys and checks,
   and they fail on empty handlers before the builder starts (the `author` skill). A builder never edits journeys, the
   evals or the runner's generic checks; on `m1` and the goal branches it may only remove lines from the ratchet list,
-  `e2e/m1/expected-failing.txt`. Authors' branches end in `-check` and builders' in `-build`. A builder that needs a check changed stops and asks its author.
+  `e2e/m1/expected-failing.txt`. Authors' branches end in `-check` and builders' in `-build`. A builder that needs a
+  check changed stops and asks its author.
 - **Merge your own pull requests when CI is green,** Codex has finished and every review thread is resolved. Push on
   until actually blocked.
 
