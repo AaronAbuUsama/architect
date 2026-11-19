@@ -1,5 +1,5 @@
 // The climb recorder's reader, against a report `ortho prove --report` really wrote (fixtures/prove-report.json: acme with the
-// climb fixture's wrong-answer handler planted; only its `lines` are cut short). Run with `node --test tools/climb`.
+// climb fixture's wrong-answer handler planted; only its `lines` are cut short). Run with `node --test tools/climb/*.test.mjs`.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
