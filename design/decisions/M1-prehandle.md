@@ -67,11 +67,10 @@ fails the commit as a defect, which is honest: the handler should have stored it
   `grant an allowance` step (`refuses(Person.notFound, { id: "per_nobody" })`); the planted declared-errors fixture's
   message lists grant's refusals as `AllowanceLimitTooHigh, PersonNotFound, NotAllowed`.
 - **`Thing.notFound`.** Every thing carries `notFound: { kind: "not-found", thing }` beside `machine.notFrom`; `Refusal`
-  takes it, the compiler writes it as `<thing>.notFound` in a journey's model, and prove reads its tag as
-  `<Thing>NotFound`, which is also the tag of a thing's adopted declared error. Coverage counts it from the refusal the
-  call came back with, as any runtime refusal.
-- `examples/acme/test/fixtures/evals/who-may-call/main.ts` is "the generated main.ts with only the gate removed": it is
-  regenerated from the new `main.ts`, the gate still the only change.
+  takes it and the compiler writes it as `<thing>.notFound` in a journey's model. Prove's tag for it (`<Thing>NotFound`,
+  also the tag of a thing's adopted declared error, in `tagOfRefusal`), acme's fourth grant step and the who-may-call
+  fixture regenerated from the new `main.ts` are the K16 author's to write (the conductor, 19 November): a builder
+  doesn't edit journeys, evals or the runner's checks. Coverage counts it from the refusal the call came back with.
 - `generators/…/render/render.test.ts`, `stores.test.ts` and `cli/…/model/model.test.ts` pin grant's refusals and the
   `StoreD1.layer(…)` line; they follow.
 - The gate checks `e2e/m1/00-controls.test.ts:112` and `e2e/layer1/02-acme-proves.test.ts:16` were moved to 14/17 by the
