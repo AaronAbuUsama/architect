@@ -30,3 +30,12 @@ keeps its words (dated record); this one supersedes its "without sign-in" paragr
 A scratch implementation of the six handlers (not committed) made all 52 steps of the seven journeys green under
 `ortho prove --root examples/plugged-in`, with coverage moves 4/4, outcomes 4/4, refusals 6/6. With the blank handlers:
 0 of 52 steps green.
+
+The scratch handlers looked a handle up by its name with `Store.list`, which a handler can't reach: `Records` has only
+`find`, `insert` and `update` by id. So the spec is satisfiable, but a climber who has only `src/` will stop at the first
+lookup by name (snag S-f in `examples/plugged-in/journeys/README.md`) until the framework gives handlers that lookup.
+
+## Rows this amends
+
+`design/milestones.md` M1.40 and M1.43 say "without sign-in" and "no sign-in": on `goal/stage-1` they now read with
+this record, which each row cites. ST1.04 keeps its words; its sign-in is the real one that replaces the test people.

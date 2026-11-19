@@ -96,7 +96,9 @@ ST1.02's list, plus the story. Each is written before its climb starts and fails
 - **The story:** from a fresh folder with the real `ortho` from the local registry, `ortho new plugged-in`. A person
   signs up, claims `@aaron`, adds three links and sees their public page, through the CLI, the SDK, MCP and HTTP.
 
-Sign-in waits on M2. Until it lands, the climber climbs the journeys that don't need it.
+Sign-in waits on M2. Until it lands, a signed-in cast member is one of the world's fixed test people
+(`Identity.testPrincipals`), so every journey but the story's sign-up can be climbed now
+([`decisions/ST1-02-plugged-in-ownership.md`](../decisions/ST1-02-plugged-in-ownership.md)).
 
 ## The loop
 
