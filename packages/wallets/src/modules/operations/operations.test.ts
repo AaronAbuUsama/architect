@@ -13,7 +13,7 @@ const recording = () => {
   const held: Array<Held> = [];
   const signer: Signer = {
     name: "world",
-    chain: { chainId: 31337, rpcUrl: undefined },
+    chain: { chainId: 31337, rpcUrl: undefined, depth: 1 },
     create: (label) => Effect.sync(() => { asked.push(`create ${label}`); held.push({ label, address }); return { label, address }; }),
     import: (label, source: Redacted.Redacted<string>) => Effect.sync(() => { asked.push(`import ${label} ${String(source)}`); held.push({ label, address: other }); return { label, address: other }; }),
     keys: Effect.sync(() => held),

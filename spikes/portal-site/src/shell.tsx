@@ -6,7 +6,7 @@ import { Navbar } from "@heroui-pro/react/navbar";
 import { Sidebar } from "@heroui-pro/react/sidebar";
 import { Button, Chip, Kbd } from "@heroui/react";
 import {
-  BellIcon, BookOpenIcon, BugIcon, CaretDownIcon, CaretRightIcon, CubeIcon, DatabaseIcon, FileDashedIcon, GlobeHemisphereWestIcon, HouseIcon,
+  BellIcon, BookOpenIcon, GraphIcon, BugIcon, CaretDownIcon, CaretRightIcon, CubeIcon, DatabaseIcon, FileDashedIcon, GlobeHemisphereWestIcon, HouseIcon,
   LockKeyIcon, MagnifyingGlassIcon, PathIcon, PlugsIcon, ShapesIcon, SquaresFourIcon, SirenIcon, TreeStructureIcon, WarningOctagonIcon, WaveformIcon,
 } from "@phosphor-icons/react/ssr";
 import type { ReactNode } from "react";
@@ -34,10 +34,10 @@ export const refItems = (o: Opt): Item[] => [
   { id: "values", label: "Values", href: "values.html", Icon: ShapesIcon, chip: String(Object.keys(model.values).length) },
   ...(o.plugins === "a" ? [{ id: "plugins", label: "Plugins", href: "plugins.html", Icon: PlugsIcon, chip: String(Object.keys(mounts).length) },
     { id: "stores", label: "Stores", href: "stores.html", Icon: DatabaseIcon, chip: "1" }] : []),
-  ...(o.plugins === "b" ? [{ id: "plugins", label: "Plugins and stores", href: "q3-b.html", Icon: PlugsIcon, chip: "3" }] : []),
+  ...(o.plugins === "b" ? [{ id: "plugins", label: "Plugins and stores", href: "plugins.html", Icon: PlugsIcon, chip: String(Object.keys(mounts).length + 1) }] : []),
   ...(o.blank === "b" ? [{ id: "blanks", label: "Still blank", href: "q6-b.html", Icon: FileDashedIcon, chip: "1" }] : []),
 ];
-export const envItems: Item[] = environments.map((e) => ({ id: `env:${e.name}`, label: e.name, href: e.name === "staging" ? "q2-b.html" : "#", Icon: GlobeHemisphereWestIcon }));
+export const envItems: Item[] = environments.map((e) => ({ id: `env:${e.name}`, label: e.name, href: `env-${e.name}.html`, Icon: GlobeHemisphereWestIcon }));
 export const monitorItems: Item[] = [
   { id: "issues", label: "Issues", href: "issues.html", Icon: BugIcon, chip: "1" },
   { id: "alerts", label: "Alerts", href: "alerts.html", Icon: SirenIcon, chip: "2" },
@@ -125,8 +125,8 @@ const Nav = ({ here }: { here: Here }) => {
     <Sidebar.Footer>{o.nav === "c"
       ? <div className="side-foot"><MagnifyingGlassIcon size={14} aria-hidden="true" />Everything else: <Kbd>⌘K</Kbd></div>
       : <Sidebar.Menu aria-label="About this drawing">
-          <Sidebar.MenuItem id="options" href="options.html" textValue="Options"><Sidebar.MenuIcon><BookOpenIcon size={17} aria-hidden="true" /></Sidebar.MenuIcon><Sidebar.MenuLabel>Options</Sidebar.MenuLabel><Sidebar.MenuChip><Chip size="sm" variant="soft" color="accent" className="tag">REVIEW</Chip></Sidebar.MenuChip></Sidebar.MenuItem>
           <Sidebar.MenuItem id="components" href="components.html" textValue="Components"><Sidebar.MenuIcon><SquaresFourIcon size={17} aria-hidden="true" /></Sidebar.MenuIcon><Sidebar.MenuLabel>Components</Sidebar.MenuLabel></Sidebar.MenuItem>
+          <Sidebar.MenuItem id="graphs" href="graphs.html" textValue="Graphs"><Sidebar.MenuIcon><GraphIcon size={17} aria-hidden="true" /></Sidebar.MenuIcon><Sidebar.MenuLabel>Graphs</Sidebar.MenuLabel><Sidebar.MenuChip><Chip size="sm" variant="soft" color="accent" className="tag">SPIKE</Chip></Sidebar.MenuChip></Sidebar.MenuItem>
         </Sidebar.Menu>}</Sidebar.Footer>
   </>);
 };
@@ -145,18 +145,18 @@ export const Shell = ({ here, crumbs, children, rail = true }: { here: Here; cru
             </nav>
             <Navbar.Spacer />
             <span className="env-anchor">
-              <a className={`env-switch${o.overlay === "env-menu" ? " is-open" : ""}`} href={o.env === "a" ? "environments.html" : "#"} aria-label="Environment and window: local, last 30 minutes">
+              <a className={`env-switch${o.overlay === "env-menu" ? " is-open" : ""}`} href={o.env === "a" ? "environments.html" : "env-local.html"} aria-label="Environment and window: local, last 30 minutes">
                 <EnvironmentPill env={environments[0]!} live size="sm" /><Chip size="sm" variant="soft">30 min</Chip><CaretDownIcon size={12} aria-hidden="true" />
               </a>
               {o.overlay === "env-menu" && <EnvMenu />}
             </span>
-            <Button size="sm" variant="secondary" className="search-btn" aria-label="Search the model" data-open-command><MagnifyingGlassIcon size={15} /><span>Search</span><Kbd><Kbd.Abbr keyValue="command" /><Kbd.Content>K</Kbd.Content></Kbd></Button>
+            <Button size="sm" variant="secondary" className="search-btn" aria-label="Search the model" data-open-command><MagnifyingGlassIcon size={15} /><span>Go to anything</span><Kbd><Kbd.Abbr keyValue="command" /><Kbd.Content>K</Kbd.Content></Kbd></Button>
             <a className="needs" href="issues.html"><BellIcon size={15} aria-hidden="true" />Needs you<Chip size="sm" color="warning" variant="soft">3</Chip></a>
           </Navbar.Header>
         </Navbar>}>
       <div className="layout-content">
         {o.label ? <OptStrip label={o.label} />
-          : <div className="r3-strip"><Chip size="sm" variant="soft" color="accent">Round 3</Chip><span>Q4 and Q5 decided by Aaron; Q1, Q2, Q3 and Q6 drawn on A here, with B and C on the <a href="options.html">Options</a> page.</span></div>}
+          : <div className="r3-strip"><Chip size="sm" variant="soft" color="accent">Round 4</Chip><span>Drawn on Aaron's picks: the icon rail with ⌘K first (Q1 B + C), a page per environment (Q2 B), one plugins and stores page (Q3 B), blanks greyed in the tree (Q6 A).</span></div>}
         {children}
       </div>
       <Island name="CommandPalette" props={{ groups: commandGroups(), open: o.overlay === "command", query: o.overlay === "command" ? "link" : "" }} />
