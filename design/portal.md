@@ -48,12 +48,31 @@ Aaron's words, verbatim, then what was decided.
 
 | # | Joint | Aaron | Status |
 |---|---|---|---|
-| 1 | Where the pages beyond things live | "need options as designs" | Open. A, B and C drawn side by side on the Options page |
-| 2 | Environments | "same need designs" | Open. A, B and C drawn |
-| 3 | Plugins and stores | "same designs" | Open. A, B and C drawn |
+| 1 | Where the pages beyond things live | "need options as designs"; on the drawing, "I want to have icon rail" | **B, agreed by Aaron's 19 Nov review: an icon rail swaps the sidebar** |
+| 2 | Environments | "same need designs"; on the drawing, "the second one looks better, but on the proof section… you're wasting a lot of space" | **A, agreed by Aaron's 19 Nov review: one page, pick one, compare the rest** (it takes B's summary card) |
+| 3 | Plugins and stores | "same designs"; on the drawing, "plugin, portal, journeys looks okay" | **A, agreed by Aaron's 19 Nov review: a page per plugin, and Stores** |
 | 4 | Journeys and starting worlds | "no we need to have them and show them graphically" | **Decided: pages for both, drawn as pictures** (below) |
 | 5 | Access, refusal codes, events, values | "reference pages and we have telemetry on the page with spans and tracing etc" | **Decided: four reference pages, each with live telemetry** (below) |
-| 6 | Blank operations | "show me" | Open. A, B and C drawn |
+| 6 | Blank operations | "show me"; no objection on the drawing | **A, agreed by Aaron's 19 Nov review: in the tree, greyed** |
+
+**The agreed wireframe.** Aaron, 19 November 2026: "I don't want to over-perfectionalize this, it's still only
+wireframes. Let's do one more round of this and then we're just going to take those feedbacks and start moving
+forward." That round is done. The drawing at https://claude.ai/artifact/NzDgHFzQSk8yvX8cLNqUKj (version 4,
+`spikes/portal-site`, commit 2b552963) is the agreed wireframe, read with the picks above and the component inventory
+below. The portal's build (M1.13, M1.49) works from it. Where his feedback left a letter unpicked, the designer picked
+from what he said:
+
+- **Q1 B.** He asked for the icon rail. Built the library's way: Pro's Icon Only sidebar pattern beside
+  `Sidebar.Pages`, one panel per section (Things, Proof, Reference, Plugins, Monitor), and ⌘K (Pro's `Command`) on
+  every page.
+- **Q2 A.** He liked B's page but not its proof. A keeps every environment on one page, takes B's summary card for the
+  one you pick, lists each field `EnvironmentModel` declares with the others tinted where they differ, and draws proof
+  as a matrix whose columns are tallied ("8 pass, 1 fail, 1 stale of 10 operations").
+- **Q3 A.** He called the plugin page okay; it stays as drawn.
+- **Q6 A.** No objection; blanks stay in the tree, greyed, with their page as the spec.
+
+Two known roughnesses stay in the wireframe and are for the build to settle: refused and defect slices are thin in the
+stacked calls bars (about 3% of calls), and a journey step's preview covers the lanes below it.
 
 **Q4, decided.** There is a Journeys page, a page per journey and a page per starting world, and each is drawn, not
 listed:
@@ -586,7 +605,8 @@ Real values below are from Plugged In's model as Codex generated it on `links/st
 
 ## Screens not drawn yet
 
-What the model has and no agreed page shows, and the menus that tie them together. Each is asked in round 3.
+What the model had and no agreed page showed before round 3, and the menus that tie them together. All are now drawn
+and agreed (round 3, above).
 
 All of them are drawn in [`spikes/portal-site`](../spikes/portal-site/README.md), published at
 https://claude.ai/artifact/NzDgHFzQSk8yvX8cLNqUKj:
