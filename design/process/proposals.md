@@ -55,6 +55,7 @@ And one line in `.agents/skills/threads/SKILL.md`'s rules, so a build PR always 
 ```
 
 **Applies it:** the conductor, in the reviewer and threads skills.
+**Applied, 19 November:** [PR 129](https://github.com/AaronAbuUsama/architect/pull/129), by the process-skills thread.
 
 ## 2. GitHub refuses a merge with an open review thread; Codex is a merge gate
 
@@ -124,6 +125,7 @@ And `.agents/skills/threads/SKILL.md`, rules every type keeps:
 ```
 
 **Applies it:** the conductor.
+**Applied, 19 November:** [PR 129](https://github.com/AaronAbuUsama/architect/pull/129): parallel slices only when nothing is shared, and decision IDs from one list on `main`.
 
 ## 4. Every job gets a timeout, a closed PR cancels its runs, m1 takes the push-group fix
 
@@ -197,6 +199,7 @@ And `.agents/skills/threads/SKILL.md`, rules every type keeps:
 
 **Applies it:** the conductor (AGENTS.md and the threads skill). Fixed ports in existing checks are a separate builder
 slice: grep for literal ports in `e2e/` and `packages/*/test`.
+**Applied, 19 November:** the rule in [PR 129](https://github.com/AaronAbuUsama/architect/pull/129); the test half (free ports, own folders) in [PR 133](https://github.com/AaronAbuUsama/architect/pull/133). `e2e/m1`'s fixed ports are on `goal/stage-1`, with the Goal 3 lead.
 
 ## 6. A path guard fails a builder PR that touches journeys, evals or checks
 
@@ -273,6 +276,7 @@ A review finding becomes one planted check that fails first, then the builder's 
 And a row in the threads skill's table points ✍️ Author at it.
 
 **Applies it:** the conductor, with the Goal 3 lead reading it against how its journey and checks authors work today.
+**Applied, 19 November:** the `author` skill, [PR 129](https://github.com/AaronAbuUsama/architect/pull/129).
 
 ## 8. One way to supersede, and a check that superseded phrases are gone
 
@@ -302,6 +306,7 @@ conductor's one-off `git grep "5 to 125"` gate into a standing one.
 
 **Applies it:** the conductor (AGENTS.md), a builder for the script.
 **Partly applied, 19 November:** the check, `tools/ci/supersedes.sh` as a step in `e2e-m0`, in [PR 130](https://github.com/AaronAbuUsama/architect/pull/130). The rule in AGENTS.md is with the process-skills thread; until a decision carries a `## Supersedes` list, the check has nothing to read.
+**Applied, 19 November:** the rule in AGENTS.md, [PR 129](https://github.com/AaronAbuUsama/architect/pull/129), changed so dated records keep their words beside a "Superseded by" pointer (`design/naming.md` rule 6).
 
 ## 9. Aaron's lessons move from memory notes into the skills
 
@@ -323,6 +328,7 @@ notes on his Mac that only the conductor reads.
 ```
 
 **Applies it:** the conductor. The memory notes can then point at the skill.
+**Applied, 19 November:** [PR 129](https://github.com/AaronAbuUsama/architect/pull/129): plain words before IDs, real screens from a designer thread, render and look. "Big picture first" and "check a claim" were left out.
 
 ## 10. Quote code by name, generate the totals
 
@@ -342,6 +348,7 @@ and two exits for it.
   `design/portal.md` lines 226, 592 and 662 now (`HandleNotClaimed` is `HN-900`, exit 11).
 
 **Applies it:** a builder thread, from a brief the conductor writes.
+**Applied, 19 November:** [PR 134](https://github.com/AaronAbuUsama/architect/pull/134) (quotes by name, `e2e:totals`, the refusal-code check) and the skill half in [PR 129](https://github.com/AaronAbuUsama/architect/pull/129). `e2e/m1`'s totals markers are with the Goal 3 lead; HAN-12 with its owner.
 
 ## 11. One records suite runs against both stores
 
@@ -377,6 +384,7 @@ on a branch nobody has pushed, hours after the switch.
 ```
 
 **Applies it:** the conductor. The Goal 3 lead should push `goal-3/floor-curve` now.
+**Applied, 19 November:** [PR 129](https://github.com/AaronAbuUsama/architect/pull/129). The snag log was pushed and merged in [PR 135](https://github.com/AaronAbuUsama/architect/pull/135).
 
 ## 13. Lint rules for the four unenforced code rules
 
@@ -394,3 +402,4 @@ and others). Add:
 Turn each on as `warn` first, ratchet the existing breaches into a list like `e2e/m1/expected-failing.txt`, then `error`.
 
 **Applies it:** a builder thread, checks first by an author.
+**Applied, 19 November:** [PR 132](https://github.com/AaronAbuUsama/architect/pull/132), `design/decisions/P1-code-rules.md`, each rule from a baseline that only shrinks.
