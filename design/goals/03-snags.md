@@ -92,3 +92,15 @@ takes each, check first, and the climber comes back to that step once it is fixe
   fields, so an undeclared key stays visible.
 - Fix: framework, one redaction rule shared with the visibility module (M1.35, #95), check first; after #95 lands.
 - Status: open
+
+## S-15 · errors · a plugin's error has no `_tag` when it runs from source
+- Hit: the HAN-11 builder (#114): the check reads `_tag` on `SendNotIncluded` and `SendNotConfirmed`, but
+  `Blueprint.error` leaves `_tag` unset until generated code names the class
+  (`packages/orthograph/src/modules/errors/README.md:4`, `packages/projections/src/modules/api/internal/api.ts:28`).
+- Lost: one stopgap, `packages/wallets/src/modules/submit/internal/names.ts`, which names the two classes from their
+  identifiers; the wallet's other errors stay unnamed from source, and a minifier on the device path would mangle the
+  name.
+- Cause: a declared error's name comes only from generation.
+- Fix: framework, `Blueprint.error` (or the runtime) derives `_tag` from the declaring export, check first; then
+  `names.ts` goes.
+- Status: open
