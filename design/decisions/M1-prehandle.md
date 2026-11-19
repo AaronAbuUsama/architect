@@ -27,9 +27,18 @@ Decided 19 November 2026 by the 🔨 builder of M1.46 to M1.48, building K16 sec
 Building it on a real world, every grant came back 404: a person is kept by Better Auth (`auth_user`), never in a
 `person` table, so the runtime's read of `refs.member` found nothing and refused `PersonNotFound`. The in-memory store of
 `prehandle.test.ts` holds a person row, which hid it. `StoreD1` gains `people`: the thing whose id is a `per_` id (Better
-Auth's users are `per_` ids, `Auth`'s contract in `language-effect/…/auth/types.ts`), which the generated server names
-(`people: thingIn(personThing)`). Its reads come from Better Auth's users (`id`, `email`, `name`); it has no table writes.
-A thing that keeps more fields than those would fail to decode, which is the honest failure.
+Auth's users are `per_` ids, `Auth`'s contract in `language-effect/…/auth/types.ts`) and the identity's users table, both
+named only by the generated server (`people: { thing: thingIn(personThing), table: "auth_user" }`, from
+`projections/…/server/internal/server.ts`); no hand-written host code names `auth_user` for it. A person is read by id
+from that table with only its own fields decoded; a field the table lacks fails to decode, which is the honest failure.
+A list read of people dies, and nothing writes them.
+
+- **Test principals.** Nothing branches on an environment's `identity: "test-principals"` yet: every local world,
+  acme's `local` included, runs `AuthD1`, and `/_world/*` signs the cast up in Better Auth. So a test-principals world
+  resolves a person the same way; acme's `grant an allowance` step 1 (olga found) and step 4 (`per_nobody` refused
+  `PersonNotFound`) prove both sides in prove's local run.
+- **Whose this is.** Coupling the store to Better Auth's table is borrowed: the identity plugin (M2.05) owns where people
+  live, and replaces this option with its own read when it lands.
 
 ## A creating move the handler didn't store
 
@@ -54,15 +63,19 @@ fails the commit as a defect, which is honest: the handler should have stored it
 
 ## Tests and fixtures changed
 
-- `packages/prove/…/prove.test.ts`: acme's coverage line is `runtime refusals 13/17` (was 13/16: grant's
-  `PersonNotFound` is one more runtime refusal, reached by no acme journey), and the planted declared-errors fixture's
+- `packages/prove/…/prove.test.ts`: the K16 author moved acme's coverage line to `runtime refusals 14/17` with a fourth
+  `grant an allowance` step (`refuses(Person.notFound, { id: "per_nobody" })`); the planted declared-errors fixture's
   message lists grant's refusals as `AllowanceLimitTooHigh, PersonNotFound, NotAllowed`.
+- **`Thing.notFound`.** Every thing carries `notFound: { kind: "not-found", thing }` beside `machine.notFrom`; `Refusal`
+  takes it, the compiler writes it as `<thing>.notFound` in a journey's model, and prove reads its tag as
+  `<Thing>NotFound`, which is also the tag of a thing's adopted declared error. Coverage counts it from the refusal the
+  call came back with, as any runtime refusal.
 - `examples/acme/test/fixtures/evals/who-may-call/main.ts` is "the generated main.ts with only the gate removed": it is
   regenerated from the new `main.ts`, the gate still the only change.
 - `generators/…/render/render.test.ts`, `stores.test.ts` and `cli/…/model/model.test.ts` pin grant's refusals and the
   `StoreD1.layer(…)` line; they follow.
-- The gate checks `e2e/m1/00-controls.test.ts:112` and `e2e/layer1/02-acme-proves.test.ts:16` pin the same 13/16. A builder
-  doesn't edit checks, so the conductor has asked the K16 author to move them.
+- The gate checks `e2e/m1/00-controls.test.ts:112` and `e2e/layer1/02-acme-proves.test.ts:16` were moved to 14/17 by the
+  K16 author (012083dc), not by the builder.
 
 ## Earlier tests
 
@@ -83,8 +96,11 @@ gains the new fields and `PersonNotFound`. No code that has shipped moved.
 - **Exit clashes** (`compiler/…/model/internal/exits.ts`, K16 section g "An exit means one thing"): `ortho model` refuses a
   declared exit the runtime keeps (0 success, 1 a defect, 2 `InvalidPayload`, 3 `NotAllowed`, 4 `NotFound`), one outside
   5 to 125, and one another refusal of the same thing already has (its earlier errors, its machine's `notFrom`), naming
-  the error, the exit, whose it is and the thing's `errors.ts`. Exits are unique per thing, not per app. A thing's own
-  declared `<Thing>NotFound` may use 4, since it is that refusal. No example in the repo clashes.
+  the error, the exit, whose it is and the thing's `errors.ts`. Exits are unique per thing, not per app. Only a thing's own declared `<Thing>NotFound` (exactly that name) may use 4, since it
+  is that refusal. A machine's `notFrom` exit is held to the same reserved exits and range, named at its `machine.ts`. A
+  declared `<Thing>NotFound` with any field but `id` is refused too: the runtime's refusal carries only the missing id.
+  No example in the repo clashes. Not checked: an operation borrowing another thing's error at the same exit as its own,
+  since exits are unique per thing (the conductor's rule). `compiler/…/model/exits.test.ts` pins these.
 - **Tests changed.** `generators/…/render/render.test.ts` pinned `exits` and `codes` as object literals and each class's
   literal code; check 19 requires them to be read from the table, so those lines now pin the table's rows and
   `refusals.<Name>.code`.

@@ -2194,9 +2194,45 @@
               ]
             }
           ]
+        },
+        {
+          "title": "a member who is no one is refused PersonNotFound and the handler never runs",
+          "call": {
+            "actor": "ada",
+            "operation": "allowance.grant",
+            "payload": {
+              "organization": {
+                "ref": [
+                  "world",
+                  "organization"
+                ]
+              },
+              "member": "per_nobody",
+              "limit": "500"
+            }
+          },
+          "checks": [
+            {
+              "kind": "refuses",
+              "error": "person.notFound",
+              "fields": {
+                "id": "per_nobody"
+              }
+            },
+            {
+              "kind": "no-events"
+            },
+            {
+              "kind": "spans",
+              "present": [],
+              "absent": [
+                "allowance.grant.insert"
+              ]
+            }
+          ]
         }
       ],
-      "sourceHash": "714190d2303a8acc5f362ff99cabb4cbab5a793b1df41dda27617fbdacef2ecf"
+      "sourceHash": "65838fe1228ced1d334395945cbd13d0a067af8ddd5b17d58efa59722c63fcce"
     },
     "journeys/health-is-up.ts": {
       "name": "health is up",

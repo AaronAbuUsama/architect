@@ -1,6 +1,6 @@
 // What the runtime reads and makes before the handler runs (K16, M1.46): the instance the call is about, each thing the
-// payload names by id, and a creating move's new id. One read each, in the call's unit, so the from-check, the commit's
-// version guard and the handler all see the same instance.
+// payload names by id, and a creating move's new id. Each is read here once, in the call's unit (the role check reads on
+// its own), so the from-check, the commit's version guard and the handler all see the same instance.
 import { Effect } from "effect";
 import type { Operation } from "orthograph";
 import { referencedThing } from "#modules/access/service.js";

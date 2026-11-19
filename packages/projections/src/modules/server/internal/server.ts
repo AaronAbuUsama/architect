@@ -18,10 +18,15 @@ const notFromOf = (model: Model, o: OperationModel) => {
   return `${notFrom}${missing.length > 0 ? `, notFound: { ${missing.map(([k, e]) => `${k}: "${e}"`).join(", ")} }` : ""}`;
 };
 
-/** The thing the identity keeps: its ids are `per_` ids, Better Auth's users (`Auth`'s contract). The store reads it from them. */
+/**
+ * Where the identity keeps its users: Better Auth's table, today the identity behind `AuthD1`. Named here, in what the
+ * generated server says, never in host code; the identity plugin (M2.05) will own it.
+ */
+const IDENTITY_USERS = "auth_user";
+/** The thing the identity keeps: its ids are `per_` ids, the identity's users (`Auth`'s contract). The store reads it from them. */
 const peopleOf = (model: Model) => {
   const people = Object.values(model.things).find((t) => { const id = t.fields["id"]?.value; return id?.type === "id" && id.prefix === "per"; });
-  return people ? `, people: thingIn(${camel(people.name)}Thing)` : "";
+  return people ? `, people: { thing: thingIn(${camel(people.name)}Thing), table: "${IDENTITY_USERS}" }` : "";
 };
 
 const main = (model: Model, name: string, empty: boolean): RenderedFile => {

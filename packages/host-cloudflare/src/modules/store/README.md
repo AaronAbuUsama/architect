@@ -23,6 +23,6 @@ database (`SqlClient`). One call commits to one store: writes to two die (`store
 workerd). `answered(key)` asks every database. A field whose encoded form is an array or a struct is its JSON text in
 its column and is read back by the field's schema (`internal/rows.ts`, STO-23; `store.test.ts`).
 
-The thing the identity keeps (`people`, the `per_`-id thing the generated server names) is read from Better Auth's
-users (`auth_user`: `id`, `email`, `name`), never from a table of its own, so the runtime finds the person a payload
-names (K16, M1.46).
+The thing the identity keeps (`people`: the `per_`-id thing and the identity's users table, both named by the generated
+server) is read by id from that table, only its own fields decoded, never from a table of its own, so the runtime finds
+the person a payload names (K16, M1.46). A list read of it dies; the identity plugin (M2.05) owns the rest.

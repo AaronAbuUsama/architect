@@ -46,10 +46,12 @@ export const storiesOf = (
       case "refuses": {
         const error = check.error;
         const thing = "kind" in error && error.kind === "not-from" ? refused.get(error) : undefined;
+        const missing = "kind" in error && error.kind === "not-found" ? things.get(error.thing) : undefined;
         const fields = "fields" in error ? error.fields : undefined;
         return {
           kind: check.kind,
-          error: thing !== undefined ? `${thing}.notFrom` : error === NotAllowed ? NotAllowed.name : ErrorNames.nameOf(error as Parameters<typeof ErrorNames.nameOf>[0]),
+          error: thing !== undefined ? `${thing}.notFrom` : missing !== undefined ? `${missing}.notFound`
+            : error === NotAllowed ? NotAllowed.name : ErrorNames.nameOf(error as Parameters<typeof ErrorNames.nameOf>[0]),
           fields: Object.fromEntries(Object.entries(check.fields).map(([k, v]) => [k, fields?.[k]?.visibility && fields[k]?.visibility !== "public" ? { redacted: true } : data(v)])),
         };
       }

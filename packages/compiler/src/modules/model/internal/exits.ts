@@ -11,23 +11,49 @@ const LOWEST = 5;
 const HIGHEST = 125;
 
 type ThingExits = {
+  readonly identifier: string;
   readonly errors: Readonly<Record<string, { readonly exit: number }>>;
   readonly machine: { readonly notFrom: { readonly error: string; readonly exit: number } } | null;
   readonly from: FromModel;
 };
 
-/** One problem per declared exit that clashes, naming the error, its exit, whose it is, and the errors file. */
+/** A thing's blueprint file, as the author sees it: in the app, or in the plugin it came from. */
+export const fileOf = (thing: string, from: FromModel, file: string) =>
+  from.kind !== "app" ? `${from.package}/blueprint/things/${from.thing}/${file}.js` : `blueprint/things/${thing}/${file}.ts`;
+
+/**
+ * A thing's declared `<Thing>NotFound` is the runtime's not-found refusal, which carries only the missing `id`: any other
+ * field would be one nothing fills, so it is refused (K16, M1.46).
+ */
+export const notFoundShapes = (things: Readonly<Record<string, ThingExits & { readonly errors: Readonly<Record<string, { readonly fields: object }>> }>>) =>
+  Object.entries(things).flatMap(([thing, t]) => {
+    const name = `${t.identifier}NotFound`;
+    const extra = Object.keys(t.errors[name]?.fields ?? {}).filter((f) => f !== "id");
+    return extra.length === 0 ? [] : [`${fileOf(thing, t.from, "errors")}: ${name} is the runtime's not-found refusal, which carries only the missing id; drop ${extra.join(", ")}`];
+  });
+
+/** Whose a reserved or out-of-range exit is, or undefined when a refusal may use it. */
+const unusable = (exit: number, mayBeNotFound: boolean): string | undefined =>
+  mayBeNotFound && exit === 4 ? undefined
+  : RESERVED_EXITS.has(exit) ? `${RESERVED_EXITS.get(exit)}'s`
+  : exit < LOWEST || exit > HIGHEST ? `outside ${LOWEST} to ${HIGHEST}, the exits a refusal may use` : undefined;
+
+/** One problem per declared exit that clashes, naming the error, its exit, whose it is, and the file declaring it. */
 export const exitClashes = (things: Readonly<Record<string, ThingExits>>): ReadonlyArray<string> =>
   Object.entries(things).flatMap(([thing, t]) => {
-    const file = t.from.kind !== "app" ? `${t.from.package}/blueprint/things/${t.from.thing}/errors.js` : `blueprint/things/${thing}/errors.ts`;
-    const taken = new Map<number, string>(t.machine ? [[t.machine.notFrom.exit, t.machine.notFrom.error]] : []);
-    return Object.entries(t.errors).flatMap(([name, { exit }]) => {
-      // A thing's own declared `<Thing>NotFound` may keep the not-found exit: it is that refusal.
-      const reserved = exit === 4 && name.endsWith("NotFound") ? undefined : RESERVED_EXITS.get(exit);
-      const owner = reserved ?? taken.get(exit);
-      if (owner === undefined && !taken.has(exit)) taken.set(exit, name);
-      if (owner !== undefined) return [`${file}: ${name}'s exit ${exit} is ${owner}'s; pick another`];
-      if (exit < LOWEST || exit > HIGHEST) return [`${file}: ${name}'s exit ${exit} is outside ${LOWEST} to ${HIGHEST}, the exits a refusal may use; pick another`];
-      return [];
-    });
+    const file = fileOf(thing, t.from, "errors");
+    const notFrom = t.machine?.notFrom;
+    const machineBad = notFrom === undefined ? undefined : unusable(notFrom.exit, false);
+    const taken = new Map<number, string>(notFrom ? [[notFrom.exit, notFrom.error]] : []);
+    return [
+      ...(notFrom && machineBad ? [`${fileOf(thing, t.from, "machine")}: ${notFrom.error}'s exit ${notFrom.exit} is ${machineBad}; pick another`] : []),
+      ...Object.entries(t.errors).flatMap(([name, { exit }]) => {
+        // Only the thing's own declared `<Thing>NotFound` may keep the not-found exit: it is that refusal.
+        const bad = unusable(exit, name === `${t.identifier}NotFound`);
+        const owner = taken.get(exit);
+        if (owner === undefined) taken.set(exit, name);
+        if (bad !== undefined) return [`${file}: ${name}'s exit ${exit} is ${bad}; pick another`];
+        return owner !== undefined ? [`${file}: ${name}'s exit ${exit} is ${owner}'s; pick another`] : [];
+      }),
+    ];
   });
