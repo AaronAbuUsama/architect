@@ -1,0 +1,77 @@
+import { describe, expect, it } from "vitest";
+import { compare, fileKey, ok, outcomes, parseList, type Report } from "./ratchet.ts";
+
+const root = "/work/e2e";
+const test = (ancestorTitles: ReadonlyArray<string>, title: string, status: string) => ({ ancestorTitles, title, status });
+const report = (...files: Array<{ name: string; status: string; assertionResults?: ReturnType<typeof test>[] }>): Report => ({
+  testResults: files.map((file) => ({ assertionResults: [], ...file })),
+});
+
+const base = report(
+  { name: "/work/e2e/m1/01-a.test.ts", status: "failed", assertionResults: [test(["mounting"], "mounts", "passed"), test(["mounting"], "wires", "failed")] },
+  { name: "/work/e2e/m1/02-b.test.ts", status: "failed" },
+);
+
+describe("keys", () => {
+  it("are file > describe > test, relative to the e2e folder, with a file-level failure keyed by the file", () => {
+    expect([...outcomes(base, root)]).toEqual([
+      ["m1/01-a.test.ts > mounting > mounts", "passed"],
+      ["m1/01-a.test.ts > mounting > wires", "failed"],
+      ["m1/02-b.test.ts", "failed"],
+    ]);
+  });
+  it("do not depend on the machine's prefix or on separators", () => {
+    expect(fileKey("C:\\ci\\e2e\\m1\\x.test.ts", "C:\\ci\\e2e")).toBe("m1/x.test.ts");
+  });
+  it("count a hook failure with no failing test as the file failing", () => {
+    const hook = report({ name: "/work/e2e/m1/03.test.ts", status: "failed", assertionResults: [test([], "t", "skipped")] });
+    expect(outcomes(hook, root).get("m1/03.test.ts")).toBe("failed");
+  });
+});
+
+describe("parseList", () => {
+  it("drops comments and blank lines", () => {
+    expect(parseList("# header\n\nm1/a.test.ts > t\n  m1/b.test.ts  \n")).toEqual(["m1/a.test.ts > t", "m1/b.test.ts"]);
+  });
+});
+
+describe("compare", () => {
+  const list = ["m1/01-a.test.ts > mounting > wires", "m1/02-b.test.ts"];
+  it("passes when the failing set equals the list", () => {
+    const verdict = compare(base, list, root);
+    expect(ok(verdict)).toBe(true);
+    expect(verdict).toMatchObject({ unexpected: [], nowPassing: [], missing: [], failing: 2 });
+  });
+  it("fails on a failing test that is not on the list, and names it", () => {
+    const planted = report(
+      { name: "/work/e2e/m1/01-a.test.ts", status: "failed", assertionResults: [test(["mounting"], "mounts", "failed"), test(["mounting"], "wires", "failed")] },
+      { name: "/work/e2e/m1/02-b.test.ts", status: "failed" },
+    );
+    const verdict = compare(planted, list, root);
+    expect(ok(verdict)).toBe(false);
+    expect(verdict.unexpected).toEqual(["m1/01-a.test.ts > mounting > mounts"]);
+  });
+  it("fails on a file that stopped loading when it is not on the list", () => {
+    const planted = report({ name: "/work/e2e/m1/04-c.test.ts", status: "failed" });
+    expect(compare(planted, [], root).unexpected).toEqual(["m1/04-c.test.ts"]);
+  });
+  it("reports a listed test that passes now, without failing", () => {
+    const fixed = report(
+      { name: "/work/e2e/m1/01-a.test.ts", status: "passed", assertionResults: [test(["mounting"], "mounts", "passed"), test(["mounting"], "wires", "passed")] },
+      { name: "/work/e2e/m1/02-b.test.ts", status: "failed" },
+    );
+    const verdict = compare(fixed, list, root);
+    expect(ok(verdict)).toBe(true);
+    expect(verdict.nowPassing).toEqual(["m1/01-a.test.ts > mounting > wires"]);
+  });
+  it("reports a listed entry that is gone from the report, without failing", () => {
+    const gone = report({ name: "/work/e2e/m1/01-a.test.ts", status: "passed", assertionResults: [test(["mounting"], "mounts", "passed")] });
+    const verdict = compare(gone, list, root);
+    expect(ok(verdict)).toBe(true);
+    expect(verdict.missing).toEqual(list);
+  });
+  it("treats a listed test that was skipped as not run, not as passing", () => {
+    const skipped = report({ name: "/work/e2e/m1/01-a.test.ts", status: "passed", assertionResults: [test(["mounting"], "wires", "skipped")] });
+    expect(compare(skipped, ["m1/01-a.test.ts > mounting > wires"], root).notRun).toEqual(["m1/01-a.test.ts > mounting > wires"]);
+  });
+});
