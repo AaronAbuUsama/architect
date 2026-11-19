@@ -5,7 +5,6 @@ import { basename, join, resolve } from "node:path";
 import { Effect } from "effect";
 import { expect, it } from "vitest";
 import { Names } from "orthograph/server";
-import { anyPort } from "#modules/environments/internal/process.js";
 import { castPeople } from "#modules/journeys/internal/world.js";
 import { Collectors } from "#modules/telemetry/service.js";
 import { Worlds } from "#modules/world/service.js";
@@ -58,7 +57,7 @@ it("exports two pre-handler refusals and their durations from a real world", { t
         rmSync(join(acme, Names.folder, basename(path)), { recursive: true, force: true });
       }));
     const collector = yield* Collectors.start(dir);
-    const { url } = yield* Worlds.start({ root: acme, port: yield* anyPort, name: basename(dir), otlp: collector.url });
+    const { url } = yield* Worlds.start({ root: acme, port: 0, name: basename(dir), otlp: collector.url });
     const people = yield* castPeople(url, ["ada", "olga", "bob"]);
     const orgCall = yield* post(url, "organization/create", { name: "Metrics test", cap: "1000" }, people["ada"]!.token!);
     expect(orgCall.response.status).toBe(200);

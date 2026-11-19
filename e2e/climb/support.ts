@@ -6,11 +6,17 @@ import { cpSync, existsSync, readFileSync } from "node:fs";
 import type { ProveReport } from "@orthograph/prove";
 import { join } from "node:path";
 import { acme, cli, copyOf, nothingRunning, repo } from "../layer1/support.ts";
+import { freePorts } from "../ports.ts";
 
 export { nothingRunning };
 
-/** This check's ports: 19400 to 19419, and nothing outside them (m1 uses 19260 to 19279). */
-export const PORTS = { control: 19400, first: 19401, second: 19411 } as const;
+/** This check's ports, free ones picked when the file loads (`e2e/ports.ts`): the control's, and a pair for each kind of failure. */
+const picked = freePorts("control", "first0", "first1", "first2", "first3", "first4", "second0", "second1", "second2", "second3", "second4");
+export const PORTS = {
+  control: picked.control,
+  first: [picked.first0, picked.first1, picked.first2, picked.first3, picked.first4],
+  second: [picked.second0, picked.second1, picked.second2, picked.second3, picked.second4],
+} as const;
 
 const fixture = join(repo, "e2e/fixtures/climb");
 

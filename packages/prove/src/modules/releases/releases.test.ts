@@ -1,8 +1,9 @@
 // L2.04's done-when, against the real logbook (workerd, behind wrangler) and a real OIDC issuer (an @orthograph/services
-// process). Ports 9010 and 9011 are this file's.
+// process), each on a free port.
 //   - adding `allowance.list` gives `next 1.1.0` and `stale none` against a logbook holding a 1.0.0 release;
 //   - a budget edit gives a patch and makes exactly spend stale in staging and production;
 //   - a changed payload gives a major.
+import { freePorts } from "../../../test/ports.ts";
 import { execFileSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -16,7 +17,7 @@ import { Impact } from "#modules/impact/service.js";
 import { Releases } from "./service.ts";
 import type { Env, Shipping } from "./types.ts";
 
-const PORTS = { logbook: 9010, issuer: 9011 };
+const PORTS = freePorts("logbook", "issuer");
 const services = Effect.runSync(Scope.make());
 const REPO = "acme/acme";
 
