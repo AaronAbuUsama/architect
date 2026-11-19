@@ -22,7 +22,13 @@ export type FieldInput = Value | Field;
 export type FieldsInput = { readonly [key: string]: FieldInput };
 export type ValueOf<F extends FieldInput> = F extends Field<infer V> ? V : F extends Value ? F : never;
 
-export interface Thing<F extends FieldsInput = FieldsInput> {
+/** Where a unique field must be unique: while the thing is in one of these states; absent, in every state (G4). */
+export interface UniqueScope {
+  readonly while?: ReadonlyArray<string>;
+}
+
+/** `U` names the thing's unique fields: what `Records.findBy` takes (G4). */
+export interface Thing<F extends FieldsInput = FieldsInput, U extends string = string> {
   readonly kind: "thing";
   readonly description: string;
   readonly fields: { readonly [K in keyof F]: Field<ValueOf<F[K]>> };
@@ -32,6 +38,8 @@ export interface Thing<F extends FieldsInput = FieldsInput> {
   readonly store: Store | undefined;
   /** The prefix of this thing's refusal codes (`AL` in `[AL-002]`); the compiler takes two letters of its name when unset. */
   readonly code: string | undefined;
+  /** Its fields that hold one instance each within their scope, by field (G4); empty when none is declared. */
+  readonly unique: { readonly [K in U]: UniqueScope };
   /** The runtime's refusal when a call names an instance of this thing that isn't there (K16, M1.46): `<Thing>NotFound`. */
   readonly notFound: NotFound;
 }
@@ -52,10 +60,12 @@ export type StoreKind = "database" | "actor" | (string & {});
 export type Lives = "database" | "actor" | Store;
 
 export interface ThingsApi {
-  readonly thing: <const F extends FieldsInput & { readonly id: FieldInput }>(spec: {
+  readonly thing: <const F extends FieldsInput & { readonly id: FieldInput }, const U extends keyof F & string = never>(spec: {
     readonly description: string;
     readonly fields: F;
     readonly lives?: Lives;
     readonly code?: string;
-  }) => Thing<F>;
+    /** Fields no two instances may hold the same value of, each within the states it is `while` (G4); every state when it has no `while`. */
+    readonly unique?: { readonly [K in U]: UniqueScope };
+  }) => Thing<F, U>;
 }

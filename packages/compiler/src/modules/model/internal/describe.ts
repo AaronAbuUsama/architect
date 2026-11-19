@@ -12,6 +12,7 @@ import { environmentsOf } from "./environments.ts";
 import { storiesOf } from "./journeys.ts";
 import { hashOf } from "./hash.ts";
 import { crossStore, storesOf } from "./stores.ts";
+import { uniqueOf } from "./unique.ts";
 import { camel, pascal, type Layout } from "./layout.ts";
 
 /** A module's exports in name order: a namespace's own order differs between loaders, and the model must not. */
@@ -89,9 +90,10 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
         }
       : null;
     if (m && m.thing !== t.thing) problems.push(`${where}/machine.ts: is a machine of another thing`);
+    const unique = uniqueOf(t.thing, states, m !== undefined, where, problems);
     const errors = Object.fromEntries(inDeclarationOrder(t.errors).map(([n, e], i) => [n, { fields: fieldsModel(e.fields, `${where}/errors.ts ${n}`), exit: e.exit, code: codeOf(prefix.get(name) ?? "??", i + 1) }]));
     const entry = {
-      name, identifier: pascal(name), code: prefix.get(name) ?? "??", description: Blanks.isBlank(t.thing.description) ? "" : t.thing.description, fields, lives: (t.thing.lives ?? "database") as ThingModel["lives"], ...storeOf(t.thing.store, where), machine,
+      name, identifier: pascal(name), code: prefix.get(name) ?? "??", description: Blanks.isBlank(t.thing.description) ? "" : t.thing.description, fields, lives: (t.thing.lives ?? "database") as ThingModel["lives"], ...storeOf(t.thing.store, where), ...(unique ? { unique } : {}), machine,
       events: Object.fromEntries(byName(t.events).map(([n, e]) => [n, fieldsModel(e.fields, `${where}/events.ts ${n}`)])),
       errors, ...(missable.has(t.thing) ? { notFound: notFoundOf(pascal(name), prefix.get(name) ?? "??", errors) } : {}),
       roles: [...t.roles.keys()].sort(),

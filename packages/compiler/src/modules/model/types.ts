@@ -44,6 +44,8 @@ export interface ThingModel {
   readonly lives: "database" | "actor";
   /** The declared store it lives in (a key of `Model.stores`); absent when it lives in the project's default store. */
   readonly store?: string;
+  /** Its unique fields (G4), by field: no two instances hold one value within `while`'s states, or in any state without it. Absent when none. */
+  readonly unique?: Readonly<Record<string, { readonly while?: ReadonlyArray<string> }>>;
   readonly machine: MachineModel | null;
   /**
    * Its not-found refusal, present only when some operation can refuse it (K16): the one it declares under the name
