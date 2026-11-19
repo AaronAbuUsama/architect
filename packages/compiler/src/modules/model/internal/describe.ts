@@ -21,6 +21,7 @@ const byName = <V>(m: ReadonlyMap<string, V>) => [...m].sort(([a], [b]) => (a < 
 export const describe = (layout: Layout): { model: Model; problems: Array<string> } => {
   const problems = [...layout.problems];
   const valueNames = new Map<Value, string>([...layout.values].map(([n, v]) => [v, n]));
+  const schemaNames = new Map([...layout.values].map(([n, v]) => [v.schema, n]));
   const thingNames = new Map([...layout.things].flatMap(([n, t]) => (t.thing ? [[t.thing, n] as const] : [])));
   const eventNames = new Map([...layout.things.values()].flatMap((t) => [...t.events].map(([n, e]) => [e, n] as const)));
   const errorNames = new Map([...layout.things.values()].flatMap((t) => [...t.errors].map(([n, e]) => [e, n] as const)));
@@ -37,16 +38,25 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
     v === "public" ? undefined
     : v === "secret" ? "secret"
     : { private: v.to.map((r) => roleNames.get(r) ?? problem(problems, `${where}: is private to a role not exported from a roles.ts`)) };
-  const fieldModel = (input: Field | Value, where: string): FieldModel => {
+  /** `Blueprint.issued` is allowed in one place: a secret value in an operation's answer. Anywhere else it is refused, naming the field. */
+  const issuedIn = (input: Field | Value, where: string, place: Place): boolean => {
+    if (input.issued !== true) return false;
+    if (place !== "answer") problems.push(`${where}: is marked Blueprint.issued in ${place}: only a secret value in an operation's answer is issued`);
+    else if (input.visibility !== "secret") problems.push(`${where}: is marked Blueprint.issued but is ${input.visibility === "public" ? "public" : "private"}: only a secret value is issued`);
+    return place === "answer" && input.visibility === "secret";
+  };
+  const fieldModel = (input: Field | Value, where: string, place: Place = "a thing's field"): FieldModel => {
     const value = input.kind === "field" ? input.value : input;
-    const named = valueNames.get(value);
+    // `Blueprint.issued(Secret)` is a copy of the named value, so it is found by the schema it shares with it.
+    const named = valueNames.get(value) ?? (input.issued === true ? schemaNames.get(value.schema) : undefined);
     const ref = input.kind === "field" ? fieldRef(input) : undefined;
     if (input.kind === "field" && !ref) problems.push(`${where}: uses a field of a thing that isn't in the blueprint`);
     const visibility = visibilityModel(input.visibility, where);
-    return { value: value.meta, ...(named ? { named } : {}), ...(ref ? { ref } : {}), ...(visibility ? { visibility } : {}) };
+    const issued = issuedIn(input, where, place);
+    return { value: value.meta, ...(named ? { named } : {}), ...(ref ? { ref } : {}), ...(visibility ? { visibility } : {}), ...(issued ? { issued: true as const } : {}) };
   };
-  const fieldsModel = (fields: FieldsInput, where: string): FieldsModel =>
-    Object.fromEntries(Object.entries(fields).map(([k, f]) => [k, fieldModel(f, `${where} field ${k}`)]));
+  const fieldsModel = (fields: FieldsInput, where: string, place: Place): FieldsModel =>
+    Object.fromEntries(Object.entries(fields).map(([k, f]) => [k, fieldModel(f, `${where} field ${k}`, place)]));
 
   // What isn't written yet, by declaration and part.
   const blanks: Record<string, Array<string>> = {};
@@ -72,7 +82,7 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
     if (!t.thing) continue;
     const where = t.base;
     const fields = Object.fromEntries(
-      Object.entries(t.thing.fields).map(([k, f]) => [k, fieldModel(f.from ?? f.value, `${where}/thing.ts field ${k}`)]),
+      Object.entries(t.thing.fields).map(([k, f]) => [k, fieldModel(f.issued === true ? f : f.from ?? f.value, `${where}/thing.ts field ${k}`)]),
     );
     const m = t.machine;
     blankIn(name, {
@@ -91,10 +101,10 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
       : null;
     if (m && m.thing !== t.thing) problems.push(`${where}/machine.ts: is a machine of another thing`);
     const unique = uniqueOf(t.thing, states, m !== undefined, where, problems);
-    const errors = Object.fromEntries(inDeclarationOrder(t.errors).map(([n, e], i) => [n, { fields: fieldsModel(e.fields, `${where}/errors.ts ${n}`), exit: e.exit, code: codeOf(prefix.get(name) ?? "??", i + 1) }]));
+    const errors = Object.fromEntries(inDeclarationOrder(t.errors).map(([n, e], i) => [n, { fields: fieldsModel(e.fields, `${where}/errors.ts ${n}`, "an error"), exit: e.exit, code: codeOf(prefix.get(name) ?? "??", i + 1) }]));
     const entry = {
       name, identifier: pascal(name), code: prefix.get(name) ?? "??", description: Blanks.isBlank(t.thing.description) ? "" : t.thing.description, fields, lives: (t.thing.lives ?? "database") as ThingModel["lives"], ...storeOf(t.thing.store, where), ...(unique ? { unique } : {}), machine,
-      events: Object.fromEntries(byName(t.events).map(([n, e]) => [n, fieldsModel(e.fields, `${where}/events.ts ${n}`)])),
+      events: Object.fromEntries(byName(t.events).map(([n, e]) => [n, fieldsModel(e.fields, `${where}/events.ts ${n}`, "an event")])),
       errors, ...(missable.has(t.thing) ? { notFound: notFoundOf(pascal(name), prefix.get(name) ?? "??", errors) } : {}),
       roles: [...t.roles.keys()].sort(),
       roleRules: Object.fromEntries(byName(t.roles).map(([role, { rule }]) => [role, Blanks.isBlank(rule) ? null : rule.toString()])),
@@ -159,8 +169,8 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
       ...new Set(Object.values(found.notFound ?? {}).filter((e) => !errors.includes(e))),
       ...(allowed.every((a) => a.kind === "anyone") ? [] : ["NotAllowed"]),
     ];
-    const payload = fieldsModel(op.payload, `${file} payload`);
-    const answer = fieldsModel(op.answer, `${file} answer`);
+    const payload = fieldsModel(op.payload, `${file} payload`, "a payload");
+    const answer = fieldsModel(op.answer, `${file} answer`, "answer");
     const mints = mintsOf(move?.from.length === 0, thing, answer, payload);
     const entry = {
       kind: "operation" as const,
@@ -210,14 +220,14 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
     if (list && t?.thing?.lives === "actor") problems.push(`${file}: a list read needs a thing that lives in the database, and ${thing} lives as actors`);
     if (list && read.where.includes("state") && !t?.machine) problems.push(`${file}: where "state" needs ${thing} to have a machine`);
     if (list && (!Number.isInteger(read.page) || (read.page ?? 0) < 1 || (read.page ?? 0) > 1000)) problems.push(`${file}: page must be a whole number from 1 to 1000`);
-    const payload = Object.fromEntries(Object.entries(fieldsModel(read.payload, `${file} payload`)).map(([k, f]) => [k, read.optional.includes(k) ? { ...f, optional: true as const } : f]));
+    const payload = Object.fromEntries(Object.entries(fieldsModel(read.payload, `${file} payload`, "a payload")).map(([k, f]) => [k, read.optional.includes(k) ? { ...f, optional: true as const } : f]));
     const entry = {
       kind: "read" as const,
       name: `${thing}.${verb}`, thing, verb, identifier: camel(verb), file, from,
       description: list
         ? `List ${thing}s, ${read.order === "newest" ? "newest first" : "oldest first"}, ${read.page} to a page${read.where.length > 0 ? `, filtered by ${read.where.join(", ")}` : ""}.`
         : `Read one ${thing} by its id: ${read.fields.map(String).join(", ")}.`,
-      payload, answer: fieldsModel(read.answer, `${file} answer`),
+      payload, answer: fieldsModel(read.answer, `${file} answer`, "a read answer"),
       move: null, errors: [], refusals: allowed.every((a) => a.kind === "anyone") ? [] : ["NotAllowed"], allowed,
       steps: {}, idempotent: null, runs: "server" as const, test: "unit" as const,
       budget: read.budget ? { p95Ms: Duration.toMillis(read.budget.p95) } : null,
@@ -238,6 +248,10 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
     problems,
   };
 };
+
+
+/** Where a field is declared: `Blueprint.issued` is allowed in one of these. */
+type Place = "answer" | "a payload" | "an error" | "an event" | "a thing's field" | "a read answer";
 
 const problem = (problems: Array<string>, p: string): string => {
   problems.push(p);
