@@ -43,6 +43,18 @@ logs the telemetry case; `Errors.shown` goes. It fails closed, as `shown.ts` doe
 is never shown. The sign-in and sign-up operations that carry a secret in their payload stay usable through MCP only
 by M2.06's MCP sign-in, never by showing the secret.
 
+**Issued secrets (lead and conductor, 19 November 2026, at check 16).** The row first said no secret leaves through any
+output. That breaks acme: `session.sign-in` answers `token: Secret` (and the session's id, which its journey reads), and
+`api-key.create` answers `key: Secret` (`examples/acme/blueprint/things/session/verbs/sign-in.ts:10`,
+`api-key/verbs/create.ts:9`), and the canon already calls `Secret` "a secret shown once". So: an issued secret leaves
+exactly once, in the answer of the call that issued it, to that call's own caller (anonymous included, since sign-in is
+anyone's), over HTTP, the SDK and the CLI. It never leaves in a refusal, a read, MCP (the agent audience), spans, logs,
+metrics, the journal, the portal's data file, the docs or the model. The declaration says so, nothing infers it: an
+answer field is written `Blueprint.issued(<secret value or field>)`. A secret answer field without that mark never
+leaves for anyone. The compiler refuses `issued` on a value that is not secret, on a payload field, on an error's field
+and on a thing's field, and a `Blueprint.read` can't carry it (a read names its fields). acme marks sign-in's `session`
+and `token` and `api-key.create`'s `key`. Gate M1's check (8) reads the same.
+
 ## 2. Telemetry carries the model (M1.36)
 
 Built: the operation span with `operation`, `attempt` and public payload and answer fields (`handler/service.ts:102`),
