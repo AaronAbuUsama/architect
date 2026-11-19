@@ -1,6 +1,6 @@
-import { NotAllowed, type Allowed, type Assertion, type Call, type Thing } from "orthograph";
+import { NotAllowed, type Allowed, type Assertion, type Call, type FieldsInput, type Thing } from "orthograph";
 import { Blanks, ErrorNames, EventNames, Scripting } from "orthograph/server";
-import type { AllowedModel, FieldsModel, JourneyModel, OperationModel, StartingWorldModel } from "../types.ts";
+import type { AllowedModel, JourneyModel, OperationModel, StartingWorldModel } from "../types.ts";
 import type { Layout } from "./layout.ts";
 
 const data = (value: unknown): unknown => {
@@ -11,9 +11,10 @@ const data = (value: unknown): unknown => {
   return value;
 };
 
-const publicData = (values: Readonly<Record<string, unknown>>, fields: FieldsModel | undefined) =>
+/** A payload with each secret field redacted: `secret` says by key (a ref is only a path, so it stays). */
+const publicData = (values: Readonly<Record<string, unknown>>, secret: (key: string) => boolean) =>
   Object.fromEntries(Object.entries(values).map(([key, value]) => [
-    key, fields?.[key]?.visibility && !Scripting.isRef(value) ? { redacted: true } : data(value),
+    key, secret(key) && !Scripting.isRef(value) ? { redacted: true } : data(value),
   ]));
 
 /** The blanks a value is or holds one level down: a stub's world, payload, expected fields or id (K16 e). */
@@ -43,8 +44,14 @@ export const storiesOf = (
 
   const callOf = (call: Call) => {
     const operation = names.get(call.operation);
-    return operation === undefined ? undefined : {
-      actor: call.actor, operation, payload: publicData(call.payload, operations[operation]?.payload),
+    if (operation === undefined) return undefined;
+    // A blank operation has no model to read visibility from, but its payload fields are declared: redact by declaration.
+    const declared = (call.operation as { readonly payload?: unknown }).payload;
+    const secret = (key: string) => operations[operation] !== undefined
+      ? operations[operation].payload[key]?.visibility !== undefined
+      : Blanks.isBlank(declared) || (declared as FieldsInput | undefined)?.[key]?.visibility !== undefined || (declared as FieldsInput | undefined)?.[key] === undefined;
+    return {
+      actor: call.actor, operation, payload: publicData(call.payload, secret),
       ...(call.request === undefined ? {} : { request: call.request }),
     };
   };

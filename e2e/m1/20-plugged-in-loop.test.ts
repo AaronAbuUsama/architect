@@ -95,6 +95,7 @@ describe("20 K13 grid: Plugged In's outputs", () => {
   });
   it("thing and fields x SDK ~: the SDK exports each thing's type and the type of each of its fields (M1.42)", () => {
     const types = L.sdkTypesMissing(p.root, p.m);
+    expect(types.failure, types.out).toBeUndefined();
     expect(types.checked).toBeGreaterThan(5);
     expect(types.missing.filter((label) => label.startsWith("type ") || label.includes("[")), types.out).toEqual([]);
   });
@@ -118,7 +119,9 @@ describe("20 K13 grid: Plugged In's outputs", () => {
   it("event x API ✓, SDK ✗: the server speaks each event, and the SDK exports its type (M1.42)", () => {
     expect(L.things(p.m).flatMap((t) => Object.keys(t.events)).sort()).toEqual(["HandleClaimed", "LinkAdded", "LinkRemoved"]);
     expect(L.apiDiffs(p.root, p.m).filter((d) => d.startsWith("API events"))).toEqual([]);
-    expect(L.sdkTypesMissing(p.root, p.m).missing.filter((label) => label.startsWith("event "))).toEqual([]);
+    const types = L.sdkTypesMissing(p.root, p.m);
+    expect(types.failure, types.out).toBeUndefined();
+    expect(types.missing.filter((label) => label.startsWith("event "))).toEqual([]);
   });
   it("event x portal ~: each event with the fields it carries is in the portal's data file (M1.42)", () => {
     expect(L.portalEventDiffs(p.portal, p.m)).toEqual([]);

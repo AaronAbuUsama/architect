@@ -114,6 +114,52 @@ describe("model", () => {
     if (Exit.isSuccess(renamed)) expect(Object.keys(renamed.value.environments!)).toEqual(["local", "preview", "production", "test"]);
   });
 
+  // A journey step that calls an operation with a blank part is described under `blankOperations`, so it has no entry in
+  // `operations` to look the payload's `visibility` up in. The completed operation's secret is redacted (journeys.ts `publicData`,
+  // asserted for acme's sign-up journey below); a blank one must redact the same payload field, not print the literal.
+  describe("a journey step's payload literals", () => {
+    const secret = "hunter2-DISTINCTIVE-4f9a1c";
+    const journey = (root: string) => {
+      mkdirSync(join(root, "journeys"), { recursive: true });
+      writeFileSync(join(root, "journeys/leak.ts"), [
+        'import { Blueprint } from "orthograph";',
+        'import signUp from "../blueprint/things/person/verbs/sign-up.ts";',
+        'export default Blueprint.journey("a newcomer signs up", {',
+        "  cast: { newcomer: Blueprint.anyone },",
+        `  steps: (s) => [s.step("the newcomer signs up", s.newcomer.run(signUp, { email: "n@example.test", password: "${secret}", name: "Newcomer" }))],`,
+        "});",
+        "",
+      ].join("\n"));
+    };
+    const signUpOf = (root: string, blank: boolean) => {
+      journey(root);
+      if (blank) {
+        const file = join(root, "blueprint/things/person/verbs/sign-up.ts");
+        writeFileSync(file, readFileSync(file, "utf8").replace("steps: { create: Blueprint.step.database() },", 'steps: Blueprint.todo("the steps"),'));
+      }
+      return modelOf(root);
+    };
+
+    it("are redacted for a completed operation: the secret field is { redacted: true }", async () => {
+      const exit = await signUpOf(copyOfAcme(false), false);
+      expect(Exit.isSuccess(exit)).toBe(true);
+      if (!Exit.isSuccess(exit)) return;
+      expect(Object.keys(exit.value.operations)).toContain("person.sign-up");
+      expect(JSON.stringify(exit.value).includes(secret) ? "the secret literal is in the model" : "the model is clean").toBe("the model is clean");
+      expect(Object.values(exit.value.journeys!)[0]?.steps[0]).toMatchObject({ call: { payload: { password: { redacted: true } } } });
+    });
+
+    it("are redacted for an operation that has a blank part too, in describe's JSON", async () => {
+      const exit = await signUpOf(copyOfAcme(false), true);
+      expect(Exit.isSuccess(exit)).toBe(true);
+      if (!Exit.isSuccess(exit)) return;
+      expect(Object.keys(exit.value.blankOperations ?? {})).toContain("person.sign-up");
+      // Redacted or left out are both fine; the literal in describe's JSON is not.
+      const leaked = JSON.stringify(exit.value).includes(secret);
+      expect(leaked ? `the blank operation's secret payload literal is in describe's JSON: ${JSON.stringify(Object.values(exit.value.journeys!)[0]?.steps[0])}` : "the model is clean").toBe("the model is clean");
+    });
+  });
+
   it("refuses a verb file that holds no operation", async () => {
     const exit = await modelOf(resolve(import.meta.dirname, "../../../test/fixtures/not-an-operation"));
     expect(Exit.isFailure(exit)).toBe(true);
