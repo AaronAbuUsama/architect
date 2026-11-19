@@ -33,6 +33,18 @@ The portal has two halves, and only the small one goes into a project:
 A lint rule enforces the line: nothing reachable from `@orthograph/portal/server`, or from generated code, may import
 `react`, `@orthograph/portal-ui` or `@heroui-pro/*`. The M1.34 rule (Pro only inside `portal-ui`) stays.
 
+## How the portal checks read it
+
+Check 21 (the portal as a viewer: M1.13's tests and #98's) today reads server-rendered HTML from `Portal.handle` and
+asserts on its `data-portal` hooks. With a prebuilt client the HTML is only a shell, and the pages render in the browser
+from `/_portal/v1/*`. So the checks read the portal the way a person does: the served portal opened in headless
+Chromium through Playwright, with the same `data-portal` hooks and content asserted on the rendered page, and the data
+API asserted directly where a test is about data. The hooks stay; only how the check gets the page changes.
+
+Rendering each page at the project's build is ruled out, because it would bring React and HeroUI Pro back into every
+project's build. Changing check 21 is a checks slice: its author does it, never the builder (`AGENTS.md`). M1.13's
+"screenshots byte-identical across two runs at the same `now`" still holds, now taken from the browser.
+
 ## In CI
 
 Only the job that builds `@orthograph/portal`'s client needs the `HEROUI_AUTH_TOKEN` secret, which is already set on the
