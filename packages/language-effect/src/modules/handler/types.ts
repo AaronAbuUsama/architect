@@ -8,6 +8,8 @@ import type { Instance, Records, Store } from "#modules/records/types.js";
 import type { Busy } from "#modules/work/types.js";
 
 /** The payload didn't match the operation's declaration. Refused before the handler runs. */
+/** A request key used again with a payload other than the one it was first used with: refused, never answered with the kept answer. */
+export class IdempotencyConflict extends Data.TaggedError("IdempotencyConflict")<{ readonly key: string }> {}
 export class InvalidPayload extends Data.TaggedError("InvalidPayload")<{ readonly issues: string }> {}
 
 /**
@@ -65,6 +67,8 @@ export type Handler<O, R = never, C = {}> = (payload: PayloadOf<O>, context: Han
 
 export interface Served<O, R> {
   readonly name: string;
+  /** The declaration this serves: what the visibility rule reads to cut an outcome for its caller. */
+  readonly operation: O;
   // A `<Thing>NotFound` (M1.46) is refused by tag like `NotFrom`; the generated wire classes carry it to every surface.
   /** From the outside: decode first, refusing with `InvalidPayload`. */
   readonly call: (payload: unknown, principal: Principal) => Effect.Effect<AnswerOf<O>, ErrorOf<O> | InvalidPayload | NotAllowed | NotFrom, Exclude<R, Records> | Busy | Store>;
@@ -158,6 +162,8 @@ export type ReadPayload = { readonly [field: string]: unknown };
 
 export interface ServedRead {
   readonly name: string;
+  /** The declaration this serves. */
+  readonly operation: Read<any, any, any>;
   /** From the outside: the payload decoded first. */
   readonly call: (payload: unknown, principal: Principal) => Effect.Effect<ReadAnswer, NotAllowed | Schema.SchemaError, Store>;
   /** From a server that already decoded the payload. */

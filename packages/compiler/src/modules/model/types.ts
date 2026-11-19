@@ -23,6 +23,8 @@ export interface FieldModel {
   readonly optional?: true;
   /** Absent means public, the default. Only a public field's value may be a span attribute, a log line or a journal field. */
   readonly visibility?: VisibilityModel;
+  /** A secret answer field handed to its caller once, by `Blueprint.issued`: it leaves in the answer of the call that issued it, and nowhere else. */
+  readonly issued?: true;
 }
 export type FieldsModel = Readonly<Record<string, FieldModel>>;
 

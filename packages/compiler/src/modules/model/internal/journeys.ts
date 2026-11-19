@@ -49,7 +49,7 @@ export const storiesOf = (
     const declared = (call.operation as { readonly payload?: unknown }).payload;
     const secret = (key: string) => operations[operation] !== undefined
       ? operations[operation].payload[key]?.visibility !== undefined
-      : Blanks.isBlank(declared) || (declared as FieldsInput | undefined)?.[key]?.visibility !== undefined || (declared as FieldsInput | undefined)?.[key] === undefined;
+      : Blanks.isBlank(declared) || (declared as FieldsInput | undefined)?.[key]?.visibility !== "public";
     return {
       actor: call.actor, operation, payload: publicData(call.payload, secret),
       ...(call.request === undefined ? {} : { request: call.request }),

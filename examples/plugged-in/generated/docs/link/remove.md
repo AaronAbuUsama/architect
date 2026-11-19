@@ -3,7 +3,7 @@
 
 Remove a link from a public page.
 
-**Who may call:** anyone.
+**Who may call:** the linkOwner of the link.
 
 **Budget:** p95 150ms.
 
@@ -30,7 +30,7 @@ Remove a link from a public page.
 | refusal | exit | code | when |
 |---|---|---|---|
 | LinkNotListed | 31 | LN-900 | the link is in a state remove can't start from; carries `state` |
-| LinkNotFound | 4 | LN-901 | nothing has the id in link; the handler never runs; carries `id` |
+| NotAllowed | 3 | AR-001 | the caller isn't the linkOwner of the link; the handler never runs |
 
 ## How to call
 

@@ -14,6 +14,10 @@ const Field = Schema.Struct({
   named: Schema.optionalKey(Schema.String),
   ref: Schema.optionalKey(Schema.String),
   optional: Schema.optionalKey(Schema.Boolean),
+  /** Who may see its value, as the model has it: `"secret"`, or `{ private: [roles] }`; absent means public. The wire holds declarations, never values. */
+  visibility: Schema.optionalKey(Schema.Union([Schema.Literal("secret"), Schema.Struct({ private: Schema.Array(Schema.String) })])),
+  /** A secret answer field handed to its caller once (`Blueprint.issued`). */
+  issued: Schema.optionalKey(Schema.Literal(true)),
 });
 const Fields = Schema.Record(Schema.String, Field);
 

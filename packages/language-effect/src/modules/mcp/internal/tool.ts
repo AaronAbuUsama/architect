@@ -1,12 +1,12 @@
 import { Clock, Effect, Schema } from "effect";
-import type { Principal, Role } from "orthograph";
-import { Access } from "#modules/access/service.js";
+import type { Principal } from "orthograph";
+import { listItemFields } from "orthograph/server";
 import { recordCall } from "#modules/handler/internal/call-metrics.js";
-import { Unit } from "#modules/records/service.js";
-import { Records, Store } from "#modules/records/types.js";
+import type { Store } from "#modules/records/types.js";
+import { Audience, Visibility } from "#modules/visibility/service.js";
+import { Wire } from "#modules/wire/service.js";
 import type { McpEntry, McpOperation, McpRefusals, McpResult, McpServed, McpTool } from "../types.ts";
-import { inputSchema } from "./input.ts";
-import { hiddenInputs, needsRoles, seenBy, shownOf, text, type Seen } from "./shown.ts";
+import { hiddenInputs, inputSchema } from "./input.ts";
 
 type AnyCodec = Schema.Codec<object, unknown>;
 type Fields = { readonly [field: string]: unknown };
@@ -16,35 +16,25 @@ const failed = (line: string, structured?: Fields): McpResult => ({ isError: tru
 const DEFECT = "[AR-500] InternalError";
 const OWN = new Set(["_tag", "code", "message", "stack", "name", "cause"]);
 
-/** The roles the caller holds in this call, asked only when some field is private to roles. */
-const rolesHeld = (op: McpOperation, payload: object, principal: Principal, needed: boolean): Effect.Effect<ReadonlyArray<Role>, never, Store> =>
-  needed
-    ? Effect.gen(function* () {
-        const unit = yield* Unit.make(yield* Store);
-        return yield* Access.holds({ allowed: op.allowed, payloadFields: op.payload, payload, principal, thing: op.thing }).pipe(Effect.provideService(Records, unit.records));
-      })
-    : Effect.succeed([]);
+/** Values as text: bigints as their digits, so what an MCP client reads is what the wire carries. */
+const text = (x: unknown): string => JSON.stringify(x, (_, v: unknown) => (typeof v === "bigint" ? v.toString() : v));
 
-/** A list read's `items` are whole instances: each is cut to the thing's fields that are shown, and `state`. */
-const shownAnswer = (wire: Fields, op: McpOperation, seen: Seen): Fields => {
-  const top = shownOf(wire, op.answer, seen);
-  if (op.kind !== "read" || op.by !== "list" || !Array.isArray(top["items"])) return top;
-  const items = (top["items"] as ReadonlyArray<object>).map((i) => Object.fromEntries(Object.entries(i).filter(([f]) => f === "state" || seen(op.thing.fields[f]?.visibility))));
-  return { ...top, items };
-};
+/** What an agent is shown of an answer: the agent case of the one visibility rule. */
+const shownAnswer = (wire: Fields, op: McpOperation, agent: Audience): Fields =>
+  Visibility.redact(agent, op.answer, wire, op.kind === "read" && op.by === "list" ? listItemFields(op.thing) : undefined);
 
 /** A value as JSON carries it: a bigint as its digits, the rest as `text` writes it. */
 const jsonOf = (v: unknown): unknown => JSON.parse(text(v)) as unknown;
 
 /** A refusal's line, `[code] Tag { field: value }`, and its structured form: its table row and the fields the caller may see. */
-const refusalOf = (e: unknown, refusals: McpRefusals, seen: Seen): McpResult | undefined => {
+const refusalOf = (e: unknown, refusals: McpRefusals, agent: Audience): McpResult | undefined => {
   const tag = typeof e === "object" && e !== null ? (e as { readonly _tag?: unknown })._tag : undefined;
   const code = typeof tag === "string" ? refusals.codes[tag] : undefined;
   if (typeof tag !== "string" || code === undefined) return undefined;
   const values = e as Fields;
   const declared = refusals.declared[tag];
   // A declared error shows the fields it declares that the caller may see; the machine's own refusal has `state`, public.
-  const keys = (declared ? Object.keys(declared.fields).filter((k) => seen(declared.fields[k]!.visibility)) : Object.keys(values).filter((k) => !OWN.has(k))).filter((k) => k in values);
+  const keys = (declared ? Object.keys(declared.fields).filter((k) => Visibility.sees(agent, declared.fields[k]!)) : Object.keys(values).filter((k) => !OWN.has(k))).filter((k) => k in values);
   const shown = keys.map((k) => `${k}: ${typeof values[k] === "object" ? text(values[k]) : String(values[k])}`);
   const row = refusals.table?.[tag];
   // Structured only with the table's row: code, exit and status come from one place, never pieced together here. They
@@ -59,7 +49,7 @@ export const toolOf = <R>(name: string, entry: McpEntry, served: McpServed<R>, r
   const decode = Schema.decodeUnknownEffect(op.payloadSchema as unknown as AnyCodec);
   const encode = Schema.encodeEffect(op.answerSchema as unknown as AnyCodec);
   const hidden = new Set(hiddenInputs(op.payload));
-  const items = op.kind === "read" && op.by === "list" ? op.thing.fields : {};
+  const items = op.kind === "read" && op.by === "list" ? listItemFields(op.thing) : {};
 
   const call = (args: Fields, principal: Principal): Effect.Effect<McpResult, never, R | Store> => Effect.gen(function* () {
     const start = yield* Clock.monotonicTimeNanos;
@@ -70,14 +60,14 @@ export const toolOf = <R>(name: string, entry: McpEntry, served: McpServed<R>, r
           served.run(payload as never, principal).pipe(
             Effect.flatMap((answer) => encode(answer as object).pipe(Effect.orDie)),
             Effect.flatMap((wire) =>
-              rolesHeld(op, payload, principal, needsRoles(op.answer, items)).pipe(Effect.map((held): McpResult => {
-                const shown = shownAnswer(wire as Fields, op, seenBy(held));
+              Wire.held(op, payload, principal, op.answer, items).pipe(Effect.map((held): McpResult => {
+                const shown = shownAnswer(wire as Fields, op, Audience.agent(held));
                 return { isError: false, text: text(shown), structured: shown };
               })),
             ),
             Effect.catch((e) =>
-              rolesHeld(op, payload, principal, typeof e === "object" && e !== null && needsRoles(refusals.declared[String((e as { _tag?: unknown })._tag)]?.fields ?? {})).pipe(
-                Effect.map((held) => refusalOf(e, refusals, seenBy(held))),
+              Wire.held(op, payload, principal, ...(typeof e === "object" && e !== null ? [refusals.declared[String((e as { _tag?: unknown })._tag)]?.fields ?? {}] : [])).pipe(
+                Effect.map((held) => refusalOf(e, refusals, Audience.agent(held))),
                 Effect.flatMap((result) => (result === undefined ? Effect.die(e) : Effect.succeed(result))),
               ),
             ),

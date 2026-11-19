@@ -290,7 +290,7 @@ describe("16 M1.35: what the runtime says of every call, for the telemetry audie
     const { live, captured } = await ready();
     const { collected, want } = await settled(live, captured);
     expect([spansNamed(collected.traces, "locker.open"), spansNamed(collected.traces, "locker.get")], "one operation span per call, MCP's and the CLI's included").toEqual([want.open, want.get]);
-    expect(collected.logs, "the handler's log line reached the Collector (its public label proves the capture sees it)").toContain(planted.label);
+    expect(collected.logs, "the handler's log line reached the Collector (its traced public label proves the capture sees it, a value O2 allows in logs)").toContain(planted.label);
     const journal = (await Promise.all(tracesOf(collected.traces, "locker.open").map((trace) => live.journal(trace)))).join("\n");
     expect(journal, "the journal holds LockerOpened with its public field").toContain("LockerOpened");
     expect(journal).toContain(planted.label);
