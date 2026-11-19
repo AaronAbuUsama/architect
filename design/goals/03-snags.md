@@ -154,3 +154,13 @@ takes each, check first, and the climber comes back to that step once it is fixe
 - Until then: Plugged In may declare today's `unique: { name: { while: ["claimed"] } }` as one line, and the
   climb goes on. Today's spelling is not written into docs, the scaffold or the skills beyond what G4 and #118 already
   hold; when the answer comes, G4 is amended and the spelling changes in one slice.
+
+## S-20 · CLI · a refusal's string fields print unquoted, so text can't be split back into fields
+- Hit: Codex's review of #110 (the grid's refusal evals, `e2e/grid/src/modules/refusal-evals/internal/facts.ts:58`).
+- What: the generated CLI prints a refusal as `[CODE] Name { a: v, b: w }` with string values unquoted
+  (`packages/generators/src/modules/render/internal/cli.ts`), so a value holding `, b: ` reads as another field. The
+  grid's error.cli and error.mcp evals parse that text and can be fooled either way.
+- Needs: structured evidence for those cells (prove `--through` capturing the refusal as data, M2.08 with S-11), or a
+  CLI rendering that quotes strings. The cells are off until `--through` exists; switching them on waits on this.
+- Owner: Goal 3 lead, with S-11 (`prove --through`).
+- Status: open
