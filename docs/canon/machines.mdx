@@ -13,7 +13,7 @@ questions:
 status: draft
 milestone: M5
 slices: [M5.04, M5.05, M3.16]
-decisions: [D2, D3, K5]
+decisions: [D2, D3, K5, K16]
 links: [things, operations, views, stores, journeys, handlers, traces]
 ---
 
@@ -68,27 +68,24 @@ in the commit after it.
 ### Before the handler: the wrong-state check
 
 Once the caller has passed the role check, the machine checks the state
-(`packages/language-effect/src/modules/handler/service.ts:57`):
+(`packages/language-effect/src/modules/handler/service.ts:90`):
 
-```ts file=packages/language-effect/src/modules/handler/internal/move.ts lines=31-42
-export const checkFrom = (op: Operation, refusal: string | undefined, payload: object, unit: Unit) =>
+```ts file=packages/language-effect/src/modules/handler/internal/move.ts lines=30-37
+ */
+export const checkFrom = (op: Operation, refusal: string | undefined, subject: Instance | undefined) =>
   Effect.gen(function* () {
     const move = op.move;
-    if (!move || move.from.length === 0 || refusal === undefined) return undefined;
-    const subject = subjectOf(op, payload);
-    if (subject === undefined) return undefined;
-    const found = yield* unit.read(op.thing, subject);
-    if (!found) return undefined;
-    const state = found.state ?? "none";
+    if (!move || move.from.length === 0 || refusal === undefined || subject === undefined) return undefined;
+    const state = subject.state ?? "none";
     if (!move.from.includes(state)) return yield* Effect.fail(new NotFrom({ _tag: refusal, state }));
     return state;
-  });
 ```
 
 - A move with `from: []` creates the thing, so there is nothing to check. That is `open`.
 - The instance is the payload's field declared as the thing's own id: `join`'s `sheet: Sheet.fields.id`
-  (`packages/language-effect/src/modules/handler/internal/move.ts:14`). If it isn't found, the machine says nothing:
-  see the note `missing-instance`.
+  (`packages/language-effect/src/modules/handler/internal/move.ts:14`), read once before the handler and handed in as
+  `subject`. If it isn't found, the runtime has already refused the call (K16): `<Thing>NotFound`, or `NotAllowed` when a
+  role check reads that field, so a stranger learns nothing about what exists.
 - If the state isn't one the move starts from, the call fails with the machine's refusal, carrying the state it
   found. The handler never runs, and nothing is written.
 
@@ -136,7 +133,7 @@ Once the handler has answered and its answer is checked, the move is applied
 as this call left it, then the payload, then the answer. A field found in none of them dies. `PlaceTaken`'s `left` is
 in the answer. Then:
 
-```ts file=packages/language-effect/src/modules/handler/internal/move.ts lines=71-75
+```ts file=packages/language-effect/src/modules/handler/internal/move.ts lines=75-79
 // The journal is a record anyone who reads it can see: a secret or private field of the event is not written to it.
 const fields = Object.fromEntries(Object.entries(encoded).filter(([k]) => journalled(move.emits.fields, k)));
 yield* unit.setState(op.thing, subject, outcome);
@@ -317,10 +314,10 @@ and a missing instance.
   yet.
 </Note>
 
-<Note kind="question" id="missing-instance">
-  A move on an instance that doesn't exist is refused by nobody. `checkFrom` returns when the instance isn't found
-  (`packages/language-effect/src/modules/handler/internal/move.ts:30`), and in acme the role check has already refused
-  the call. But the sheet's operations are open to anyone, so a join on a sheet id that was never opened reaches the
-  handler, which dies (`examples/signup/src/sheet/join.ts:14`): a defect, not a refusal a caller can name. Should the
-  machine refuse a missing instance, with a generated `NotFound` beside `SheetNotOpen`? Ledger: MAC-07, no slice owns it yet.
+<Note kind="decision" decision="K16">
+  A move on an instance that doesn't exist is refused before the handler (M1.46). The runtime reads each thing the
+  payload names by id; a missing one is `<Thing>NotFound` (`SH-901`, exit 4, HTTP 404), generated beside `SheetNotOpen`,
+  or the thing's own declared error of that name. When every way in is a role check that reads it, the miss stays
+  `NotAllowed`, so a stranger learns nothing about what exists. A join on a sheet that was never opened is now a refusal
+  the caller can name, not a defect. Ledger: MAC-07.
 </Note>
