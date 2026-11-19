@@ -13,7 +13,7 @@ slices), or one file: `pnpm exec vitest run --root e2e --config vitest.m1.config
 
 | File | Slice | What it proves | On `main` |
 |---|---|---|---|
-| `00-controls` | M1.02 | the fixture plugins are real packed packages; a project that mounts nothing is untouched by them (model, `generated/` byte for byte, `ortho check`, nine evals each) | **all 7 pass**: controls, and they must keep passing |
+| `00-controls` | M1.02 | the fixture plugins are real packed packages; a project that mounts no feature or adapter is untouched by them (its only mounts are acme's three projections, check 12; model, `generated/` byte for byte, `ortho check`, nine evals each) | **all 7 pass**: controls, and they must keep passing |
 | `01-mounting` | M1.06, M1.10 | a mount by hand: names, provenance, `mounts`, generated files, nothing in `src/`; through one `ortho add feature`: one file, header, pin, refusals | 16 tests, all red |
 | `02-runtime-and-closures` | M1.09 | SDK, HTTP and a first MCP call answer from the plugin's handler in workerd; prove runs the feature's journey; closures on the real import graph; empty and defect handlers fail | 9 tests: 1 control passes (the planted Node entry is caught), 8 red |
 | `03-adapter-mounting` | M1.14 | `ortho add adapter`, `include`, `Blueprint.step.call`, used-by edges, foreign code out of pure entries and clients | 8 tests, all red until M1.14 |
@@ -31,7 +31,7 @@ slices), or one file: `pnpm exec vitest run --root e2e --config vitest.m1.config
 Twenty-three tests pass on `main` (seventeen controls, and check 10's six, which the M1.16 and M1.26 builder run made pass) and ninety are red, a hundred and thirteen in all.
 
 A **control** passes today and keeps passing: it proves the instrument (the fixture, a closure check, a held-request
-observation) or the non-regression (acme without mounts). A **readiness-red** test fails today because the framework
+observation) or the non-regression (acme without a feature or adapter mount: its three projection mounts, check 12, are expected). A **readiness-red** test fails today because the framework
 cannot yet do the thing, and its first failure is the unbuilt surface itself (`ortho add` has no `feature`;
 `Blueprint.choice is not a function`; TypeScript: `Property 'feature' does not exist`), never a helper, a fixture build or a
 timeout. Where a test starts by succeeding at something that already exists (`ortho model --json` on a valid mount) and

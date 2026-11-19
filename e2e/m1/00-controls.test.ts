@@ -87,12 +87,15 @@ describe("00 controls: a project that mounts nothing is untouched by an installe
     const withFixtures = fresh("echo", "greet", "remote");
     const before = succeeds(bare.root, "model", "--json").stdout;
     expect(succeeds(withFixtures.root, "model", "--json").stdout).toBe(before);
-    expect(model(withFixtures.root).mounts).toBeUndefined();
+    // acme mounts no feature or adapter of its own; its only mounts are the three projections (check 12, M1.11).
+    const mounts = model(withFixtures.root).mounts ?? {};
+    expect(Object.keys(mounts).sort()).toEqual(["api", "model", "server"]);
+    expect(Object.values(mounts).filter((mount) => mount.kind !== "projection")).toEqual([]);
     const generated = digest(bare.root, "generated");
     expect(Object.keys(generated).length).toBeGreaterThan(40);
     succeeds(withFixtures.root, "generate");
     expect(digest(withFixtures.root, "generated")).toEqual(generated);
-    expect(tree(withFixtures.root, "blueprint").some((path) => /blueprint\/(features|adapters|projections)\//.test(path))).toBe(false);
+    expect(tree(withFixtures.root, "blueprint").some((path) => /blueprint\/(features|adapters)\//.test(path))).toBe(false);
     const checked = run(withFixtures.root, "check");
     expect(checked.status, checked.out).toBe(0);
   });
