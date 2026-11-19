@@ -159,6 +159,46 @@ describe("model", () => {
     });
   });
 
+  // A blank operation's payload is redacted by its declaration: a public field's literal is data, a secret one is
+  // { redacted: true }, a key the declaration does not name stays redacted, and a wholly blank payload redacts everything.
+  describe("a blank operation's payload literals, by declared visibility", () => {
+    const publicLiteral = "public-DISTINCTIVE-7b2e";
+    const stepOf = async (blankPayload: boolean) => {
+      const root = copyOfAcme(false);
+      mkdirSync(join(root, "journeys"), { recursive: true });
+      writeFileSync(join(root, "journeys/mixed.ts"), [
+        'import { Blueprint } from "orthograph";',
+        'import signUp from "../blueprint/things/person/verbs/sign-up.ts";',
+        'export default Blueprint.journey("a newcomer signs up", {',
+        "  cast: { newcomer: Blueprint.anyone },",
+        `  steps: (s) => [s.step("the newcomer signs up", s.newcomer.run(signUp, { email: "${publicLiteral}@example.test", password: "hunter2", name: "Newcomer", undeclared: "stray" } as never))],`,
+        "});",
+        "",
+      ].join("\n"));
+      const file = join(root, "blueprint/things/person/verbs/sign-up.ts");
+      const blanked = readFileSync(file, "utf8").replace("steps: { create: Blueprint.step.database() },", 'steps: Blueprint.todo("the steps"),');
+      writeFileSync(file, blankPayload ? blanked.replace(/payload: \{[^\n]*\},/, 'payload: Blueprint.todo("the payload"),') : blanked);
+      const exit = await modelOf(root);
+      expect(Exit.isSuccess(exit)).toBe(true);
+      if (!Exit.isSuccess(exit)) throw new Error("model failed");
+      expect(Object.keys(exit.value.blankOperations ?? {})).toContain("person.sign-up");
+      return (Object.values(exit.value.journeys!)[0]?.steps[0] as { call: { payload: Record<string, unknown> } }).call.payload;
+    };
+
+    it("keeps a public literal as data, redacts a secret one and an undeclared key", async () => {
+      const payload = await stepOf(false);
+      expect(payload["email"]).toBe(`${publicLiteral}@example.test`);
+      expect(payload["name"]).toBe("Newcomer");
+      expect(payload["password"]).toEqual({ redacted: true });
+      expect(payload["undeclared"]).toEqual({ redacted: true });
+    });
+
+    it("redacts everything when the payload declaration is wholly blank", async () => {
+      const payload = await stepOf(true);
+      expect(payload).toEqual({ email: { redacted: true }, password: { redacted: true }, name: { redacted: true }, undeclared: { redacted: true } });
+    });
+  });
+
   it("refuses a verb file that holds no operation", async () => {
     const exit = await modelOf(resolve(import.meta.dirname, "../../../test/fixtures/not-an-operation"));
     expect(Exit.isFailure(exit)).toBe(true);
