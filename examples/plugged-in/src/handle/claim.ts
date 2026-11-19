@@ -6,7 +6,7 @@ import type { Handler } from "../../generated/api/src/handle/claim.handler.ts";
 import { Handle } from "../../blueprint/things/handle/thing.ts";
 import { Profile } from "../../blueprint/things/profile/thing.ts";
 
-const { HandleTaken } = Errors.declared;
+const { HandleTaken, HandleAlreadyOwned } = Errors.declared;
 
 /**
  * handle.claim: Claim a free name and make it the address of your public page, with its profile.
@@ -51,6 +51,12 @@ const claim: Handler = ({ name }, { principal, steps, move, id }) =>
     if (holder) {
       yield* Effect.logInfo("a claimed handle already holds this name");
       return yield* new HandleTaken({});
+    }
+
+    // HandleAlreadyOwned: exit 12, HN-002. One person holds one claimed name.
+    if (yield* steps.load(records.findBy(Handle, "owner", principal.person as never))) {
+      yield* Effect.logInfo("the caller already holds a claimed handle");
+      return yield* new HandleAlreadyOwned({});
     }
 
     // Step record: database, span handle.claim.record. The handle and its public page are made together.

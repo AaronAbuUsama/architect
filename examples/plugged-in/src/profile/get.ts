@@ -3,6 +3,8 @@ import { Effect } from "effect";
 import { Records } from "@orthograph/language-effect";
 import { Errors } from "../../generated/api/src/index.ts";
 import type { Handler } from "../../generated/api/src/profile/get.handler.ts";
+import { Link } from "../../blueprint/things/link/thing.ts";
+import { Profile } from "../../blueprint/things/profile/thing.ts";
 import { Handle } from "../../blueprint/things/handle/thing.ts";
 
 const { ProfileNotFound } = Errors.declared;
@@ -40,7 +42,12 @@ const get: Handler = ({ handle }, { steps }) =>
       return yield* new ProfileNotFound({});
     }
 
-    return { handle, links: [] };
+    const page = yield* steps.load(records.findBy(Profile, "handle", held["id"] as never));
+    const ids = ((page?.["links"] ?? []) as ReadonlyArray<string>);
+    const found = yield* steps.load(Effect.forEach(ids, (link) => records.find(Link, link as never)));
+    const links = found.flatMap((link) => (link ? [{ id: link["id"] as never, title: link["title"] as never, url: link["url"] as never }] : []));
+
+    return { handle, links };
   });
 
 export default get;

@@ -193,7 +193,8 @@ takes each, check first, and the climber comes back to that step once it is fixe
   any field (G4's option B, rejected there for the race). (a) fits G4 and is what the climber would write.
 - Owner: Goal 3 lead (declaration by the journey author, check first). The climber has left `HandleAlreadyOwned` out of
   `src/handle/claim.ts` and `LinkNeedsHandle` blank in `src/link/add.ts` until it lands.
-- Status: open
+- Call (Goal 3 lead): declare the rule the spec states with G4's one-liner; ST1.19 moves it to invariants.ts.
+- Status: fixed (#139)
 
 ## S-23 · profile · a handler can't find a handle's page, so `profile.get` can't list its links
 - Hit: the climb of "claim a handle", step 6 ("the claim made a public page, with no links yet"). It is green only because
@@ -206,7 +207,8 @@ takes each, check first, and the climber comes back to that step once it is fixe
   Same owner and route as S-22. Until then `src/profile/get.ts` has a hard-coded empty list that the link journeys will
   turn red.
 - Owner: Goal 3 lead.
-- Status: open
+- Call (Goal 3 lead): declare the rule the spec states with G4's one-liner; ST1.19 moves it to invariants.ts.
+- Status: fixed (#139)
 
 ## S-24 · climb · friction while climbing "claim a handle" (no framework fix needed to proceed)
 - A fresh worktree runs nothing until `pnpm install` (the first `ortho` call dies with `ERR_MODULE_NOT_FOUND` for
