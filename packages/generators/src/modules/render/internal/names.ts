@@ -6,6 +6,17 @@ export const scaffolded = (from: string) => `// Scaffolded from ${from}. Yours f
 export const pascal = (name: string) => name.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join("");
 export const camel = (name: string) => pascal(name).replace(/^./, (c) => c.toLowerCase());
 
+const RESERVED = new Set(["await", "break", "case", "catch", "class", "const", "continue", "debugger", "default", "delete", "do", "else", "enum", "export", "extends", "false", "finally", "for", "function", "if", "implements", "import", "in", "instanceof", "interface", "let", "new", "null", "package", "private", "protected", "public", "return", "static", "super", "switch", "this", "throw", "true", "try", "typeof", "var", "void", "while", "with", "yield"]);
+
+/**
+ * The name a verb gets as a local binding. A verb may be a reserved word (`import`, `delete`): it is still the property
+ * `Sdk.wallet.import` and the export name, but never a `const` of its own, so the binding gets an underscore and is
+ * exported under the verb (`export { import_ as import }`, which JavaScript allows).
+ */
+export const local = (name: string) => (RESERVED.has(name) ? `${name}_` : name);
+/** The line that exports a binding under the verb's own name, when the binding had to be renamed. */
+export const exportedAs = (verb: string): ReadonlyArray<string> => (local(camel(verb)) === camel(verb) ? [] : [`export { ${local(camel(verb))} as ${camel(verb)} };`]);
+
 /** The variable an operation goes by in generated code: `allowance.grant` is `allowanceGrant`. */
 export const opVar = (op: OperationModel) => `${camel(op.thing)}${pascal(op.verb)}`;
 

@@ -177,7 +177,7 @@ file compiles. This is the part of the generator that writes the body:
 
 ```ts file=packages/generators/src/modules/render/internal/scaffold.ts lines=78-92
 `/** ${op.description} */`,
-`const ${camel(op.verb)}: Handler = (_payload, ${context.length === 0 ? "_context" : `{ ${context.join(", ")} }`}) =>`,
+`const ${local(camel(op.verb))}: Handler = (_payload, ${context.length === 0 ? "_context" : `{ ${context.join(", ")} }`}) =>`,
 "  Effect.gen(function* () {",
 steps.map(([key, step]) => `    yield* ${runner(key)}(Handlers.blank(${JSON.stringify(`${key}: the work this step does`)}));${step.optional ? " // optional: may be skipped" : ""}`),
 op.errors.flatMap((error) => [
@@ -190,7 +190,7 @@ move,
 `    return yield* Handlers.blank("the answer");`,
 "  });",
 "",
-`export default ${camel(op.verb)};`,
+`export default ${local(camel(op.verb))};`,
 ```
 
 For signup's `join` it writes:

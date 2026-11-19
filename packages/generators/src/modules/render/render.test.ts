@@ -88,6 +88,22 @@ describe("render", () => {
     for (const [path, file] of made) if (path.startsWith("generated/api/") || path.startsWith("generated/sdk/")) expect(file.content, path).not.toMatch(/@fixture\/remote|\/src\/calls\//);
   });
 
+  it("a verb that is a reserved word (the wallet's import) is exported under its name from a binding of another, in the SDK, the CLI and a scaffold", () => {
+    const grant = model.operations["allowance.grant"]!;
+    const renamed = { ...model, operations: { ...model.operations, "allowance.import": { ...grant, name: "allowance.import", verb: "import" } } };
+    const made = new Map(Render.files({ name: "acme", model: renamed }).map((f) => [f.path, f]));
+    for (const path of ["generated/sdk/src/allowance/import.ts", "generated/cli/src/allowance/import.ts"]) {
+      const text = made.get(path)!.content;
+      expect(text, path).toContain("export const import_ =");
+      expect(text, path).toContain("export { import_ as import };");
+      expect(text, path).not.toMatch(/export const import\b/);
+    }
+    expect(made.get("generated/sdk/src/allowance/index.ts")!.content).toContain('export { import } from "./import.ts";');
+    expect(made.get("src/allowance/import.ts")!.content).toContain("export default import_;");
+    // A verb that is no reserved word is as it was: no second export line.
+    expect(byPath.get("generated/sdk/src/allowance/grant.ts")!.content).not.toContain("export {");
+  });
+
   it("is deterministic", () => {
     expect(Render.files({ name: "acme", model })).toEqual(files);
   });

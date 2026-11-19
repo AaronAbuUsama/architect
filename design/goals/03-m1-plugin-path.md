@@ -116,6 +116,48 @@ check ✔
 Evidence: [`evidence/goal-03/demo.txt`](../evidence/goal-03/demo.txt). Check 02 in CI's `e2e-m1` job also runs proof
 with the feature mounted.
 
+### Demo: the wallet, `acme wallet create && acme wallet send` (M1.29)
+
+Needs Foundry's `anvil` on the PATH (`foundryup`, or `brew install foundry`) and nothing else: no Docker, no key to give. From the repository root:
+
+```bash
+pnpm install
+tools/demo/m1-wallet.sh
+```
+
+It builds `@orthograph/wallets` (`tsc`), copies acme to a scratch folder, installs the wallet there and mounts it with `ortho add feature`,
+generates, starts Anvil as a plain process (`--silent`, loopback, no dev accounts), and then runs the wallet from the generated CLI:
+
+```text
+$ acme wallet create --signer node --label demo --json
+{"wallet":"wal_cf60269057d23a16","account":"eip155:31337:0xCf60…FBc8"}
+$ acme wallet create --signer node --label payee --json
+$ acme wallet send --signer node --label demo --to <payee> --value 1000000000000000 --json
+{"transaction":"0xa14d…edfc8","level":"confirmed","nonce":"0"}      # payee balance 0 → 1000000000000000 wei
+$ acme wallet send … --value 1000000000000000000000000000000        # exit 63, SimulationReverted: nothing signed or sent
+$ acme wallet send … --value 2000 --json                            # confirmed, nonce 1: the refused send used none
+$ acme wallet sign … (no passphrase)                                # exit 61, KeyLocked
+```
+
+The key is made by `acme wallet create` and kept as an encrypted Web3 keystore file (`ls` shows `demo.json`, nothing plain); the
+passphrase is made by the script and never shown; the demo funds the new account over RPC on its own local chain. Anvil and the scratch folder
+are gone when it ends. By hand, with your own chain (the host's settings are four variables):
+
+```bash
+export ORTHO_WALLET_CHAIN=eip155:31337 ORTHO_WALLET_RPC_URL=http://127.0.0.1:8545 ORTHO_WALLET_PASSPHRASE=… # never printed by the wallet
+acme wallet create --signer node --label demo && acme wallet send --signer node --label demo --to eip155:31337:0x… --value 1000
+```
+
+The four journeys for the four signers (node, browser, keystore, world) run through `ortho prove`'s device path on a real Anvil, and a server
+operation signs with a world-generated server key (`Server.keystore`) on the same:
+
+```bash
+ORTHO_CHAIN_EVM_ANVIL=1 pnpm exec vitest run --root packages/wallets          # every signer on Anvil; the served server operation
+ORTHO_CHAIN_EVM_ANVIL=1 pnpm exec vitest run --root packages/prove test/device-journeys.test.ts   # prove's run of the journeys, and of check 09's stand-in
+```
+
+Evidence: [`evidence/M1.29/`](../evidence/M1.29/).
+
 ## Reporting
 
 To the conductor, at the end of every turn, in a `TO THE CONDUCTOR` block: what landed on `m1`, what Aaron can now run,

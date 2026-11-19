@@ -15,3 +15,5 @@ A project with declared database stores (K3) gets, per store, a `DB_<STORE>` bin
 placeholder id and `migrations/<store>` folder), a `generated/server/migrations/<store>/0001_things.sql` of its things
 with its own journal, and `StoreD1.layer({ stores })` and `JournalD1.across` in `main.ts`. A project with none renders
 exactly what it did before. Test: `stores.test.ts` (acme with the `vault` fixture feature mounted).
+
+A verb that is a reserved word (the wallet's `import`) is never a `const` of its own in generated code: the SDK, CLI and scaffold bind it as `import_` and the SDK and CLI export it under its name (`export { import_ as import }`), so `Sdk.wallet.import` and the CLI's `wallet import` work (`names.ts`: `local`, `exportedAs`). Test: `render.test.ts`.

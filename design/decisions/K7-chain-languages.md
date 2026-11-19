@@ -611,6 +611,21 @@ Kept from the frame:
 
 What goes in the first version, and where it sits in the milestones, are forks for Aaron (F3 and F4 below).
 
+**As built in M1.29** (18 to 19 November 2026; the full account is [M1-plugins section 8.2](M1-plugins.md)). What K7 left open, and what the
+building decided, with the evidence in `design/evidence/M1.29/`:
+- **The device half is built, the linked half is not** (M2.13). `create`, `import`, `keys`, `sign` and `send` are `runs: "client"`,
+  with a signer per host: `node` (a Web3 v3 file), `browser` (EIP-1193), `keystore` (a server's key store, in M1 only a
+  world-generated test key, used by a server operation through `Server.keystore`) and `world`. A host that has no such signer
+  refuses as `KeyLocked`, saying why. F5 holds: each wallet says where its key lives (`signer`), and no key is ever in a binding, a
+  commit or a log (a secret is `Redacted` from its first line, and `import`'s `source` is a secret field).
+- **`confirmed` for a plain transfer** (Q3): no declared event exists to wait for, so the intent is the transfer itself,
+  included and not reverted at depth one, a local chain's level. A real environment sets its level (`safe`) with its other
+  settings when M6 gives the wallet its first event-bearing send.
+- **The port is used as a library, not as a call step**: `send` imports `@orthograph/chain-evm/device` (the package without
+  `Anvil`, plus `Keys`), so `prepare`, `simulate`, `sign`, `submit` and `track` are the port's own and the receipt spans are its own.
+  Simulation is not an option anywhere in the wallet; the port refuses to sign what has not simulated.
+- **Values**: `eip155:<chain>:<address>` is the only namespace built; a Solana or Aztec account is `None` from `Account.parse`.
+
 ---
 
 ## Decided here

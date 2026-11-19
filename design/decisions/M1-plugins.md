@@ -274,8 +274,77 @@ The lead's calls on what the row left open, and what building showed.
   it ends, so the flush happens before the call returns and before a CLI exits. No endpoint, no export.
 - **A device step's kind stays an ordinary step** (`wait` in the fixture); no new `Blueprint.step.*`.
 - **Evidence.** `design/evidence/M1.27/`: check 11 passes 8/8, checks 00 to 08 and 10 stay green.
-- **Left for M1.29.** Prove's exercise and journey runner do not yet skip or run a client operation (the `world` entry
-  is theirs to call); the call step on the device.
+- **Done in M1.29** (section 8.2): prove runs a client operation through its `world` entry; the call step on the device was
+  not needed.
+
+### 8.2 The wallet plugin, as built (M1.29; K7 F4, F5; the builder's calls where the contract was open)
+
+`@orthograph/wallets` is `packages/wallets`: the stand-in's declarations (the contract of check 09 and of the journeys'
+README), the four journeys byte for byte the author's, and a host entry per operation per host. Where the contract left
+a choice, this is what was decided, with the evidence in `design/evidence/M1.29/`.
+
+- **One line per host entry.** `src/wallet/<verb>.{node,browser,world}.ts` is `Operations.on(<Host>.signer).<verb>(payload)`;
+  everything else is in six-slot modules under `src/modules/` (`account`, `chain`, `keystore`, `keyfile`, `signer`,
+  `submit`, `operations`, `node-host`, `browser-host`, `world`, `server`). The package builds to JavaScript with `tsc`
+  (`nx build wallets`), the shape every plugin ships (section 1).
+- **The signers.** Each is a `Signer` (create, import, keys, sign, send) and the host gives the ones it has; one it has
+  not refuses as `KeyLocked`, saying why in a log first. `node`: Web3 Secret Storage v3 files, one per label, in
+  `ORTHO_WALLET_HOME`, locked with `ORTHO_WALLET_PASSPHRASE` (scrypt at geth's standard cost; a world uses light cost); with
+  no passphrase keys list and nothing signs. `browser`: EIP-1193; a wallet has no names for its accounts, so the signer keeps
+  a book of labels, `create` takes the next account the wallet offers that has no label (`KeyLocked` if none), `import`
+  binds a label to an account the wallet holds (named by its CAIP-10 text), and a send is simulated by the chain port
+  first, so a doomed transfer is refused before the person is asked to approve anything, then handed to
+  `eth_sendTransaction` and followed. `keystore`: a server's key store; on the node and browser hosts it is absent (a
+  server's keys are reached by a server operation, M2.04); in a world it is an in-memory store; a server operation uses
+  `Server.keystore({ secret, chain })` from `@orthograph/wallets/server`. `world`: the world's test wallets, in memory.
+- **Labels are never overwritten.** `create` on a label that exists answers the key it has; `import` of the same key under
+  its label answers it, of another key is `KeyLocked`. A keystore file is written with `wx`.
+- **A browser's `create`** is the one place the signer cannot make a key itself. Accepted because the journey's
+  `create` then `import` then `keys` (1 then 2) needs `create` to succeed with a key that is not the funded one, and
+  because a real wallet's `eth_requestAccounts` is the only EIP-1193 way to be given an account.
+- **Chain setting.** `ORTHO_WALLET_CHAIN` (CAIP-2, default `eip155:1`) and `ORTHO_WALLET_RPC_URL`, read through Effect's
+  `Config`; a browser, with no process environment, sets `globalThis.ORTHOGRAPH_WALLET`. Nothing in the payload names a
+  chain, so it is a setting of the host (section 5: a value that differs by environment is a setting), never a choice.
+  `to` must be an account on the signer's chain; another is refused as `SimulationReverted` before anything is prepared.
+- **`confirmed`.** A plain transfer has no declared event of its own to wait for, so K7 Q3's "the follower saw the
+  declared event" has nothing to match. The intent is the transfer itself: `level: "confirmed"` is included in a block and not
+  reverted, at depth one, which is a local chain's level. A mined revert after a passing simulation is
+  `SimulationReverted`. An unreachable chain, a timeout or a replaced transaction is a defect that says what.
+- **Ids and secrets.** `wallet` is `wal_` and sixteen characters of the address (the same key has the same id on any
+  signer). `import`'s `source` is `Blueprint.visibility.secret`: it is recorded nowhere. `signer`, `label`, the
+  transaction hash and `level` are `Blueprint.traced`: the secrets eval otherwise reads a journey's name or the chain's own
+  span as a leak of the text "node" or "confirmed". These are additions to the stand-in's declarations, as its README allows.
+- **How prove runs a client operation.** With a `DeviceHost` (given by `Prove.run` when a mounted plugin has any),
+  `Journeys.run` runs the plugin's `<verb>.world.js` in its own process (`journeys/internal/device.ts`): the operation
+  served by `Device.serve` under the app's mount as an anonymous caller, the call's span the child of the journey's own so its
+  trace reads back as a served call's, recorded as 200 with the answer in wire form, 422 with `{ _tag, code, … }` for a
+  declared refusal, or 500 for a defect, whose `defect` attribute is what the report quotes (`BlankReached`). The
+  proof's handler hash for a client operation is the hash of its `world` entry. Device spans now leave with the logs
+  written inside them (`OtlpLogger`), because the explainability eval looks for the log that decided a refusal.
+- **What a world with a chain gives** (the journeys' README, assumption 5): prove stands Anvil as a process of the run's
+  scope (always `--silent`, released after the Worker), with `chain.keys.<host>` for `node`, `browser`, `keystore` and
+  `world`, and `chain.payee`. A secret key for the three that hold one; for `browser`, the CAIP-10 account its provider
+  holds (the provider is the world's test EIP-1193 provider, which holds that account and an empty one). The keys are
+  generated by the world, `Redacted` in `DeviceWorld`, and are text only inside a call's payload. Without `anvil` on the
+  path the world has no chain and says so; the steps that need it then read `nothing at world.chain…`.
+- **A reserved verb.** The wallet's `import` made the generator write `export const import`. The SDK, the CLI and a scaffold
+  now bind such a verb as `import_` and export it under its name (`export { import_ as import }`), so `Sdk.wallet.import`
+  and `wallet import` work. Apps with no such verb generate byte for byte as before.
+- **No call step on the device.** The stand-in's declarations carry no steps and `send` reaches the chain through
+  `@orthograph/chain-evm/device` as a library (its port and its spans), so the refusal of a call step in a client operation
+  stays, with its reason corrected. It lifts when an adapter needs it.
+- **`@orthograph/chain-evm/device`** is the package without `Anvil` (no `node:` import), so a browser's or a Worker's
+  closure can hold the port and `Keys`; `Keys` is new there (generate, a signing `Key`, keccak-256, addresses), so no other
+  package imports viem.
+- **A gap in the journeys, for their author.** The four journeys reach only `SimulationReverted`, so the coverage eval
+  reports every other declared refusal (`KeyLocked` on all five operations, `NoSuchKey` on `sign` and `send`) as reached
+  by no journey: an app mounting the wallet passes every other eval and fails `prove` on coverage. The contract (their
+  README) declares those errors, so they are declared; the fix is journeys that reach them (a locked node keystore, a send
+  or a sign for a label that is not there), written by an author, not here.
+- **Not built.** A server operation signing in a real Worker: the signer (`@orthograph/wallets/server`, an export of its own so
+  project code never imports a plugin's `src/*`) is proved in a served operation on Anvil (`server.test.ts`) with a key the world
+  generated, but a Worker handler has no way yet to be given a secret as a binding (secrets are M2.04), so no generated Worker
+  runs it. A browser's wallet is proved against a stand-in provider, not a real extension (ledger `PRF-12`).
 
 ## 9. Adapters, harvested from D4 section 3 for M1.14
 
