@@ -46,8 +46,6 @@ export const answerShape: PerOperation = (op, evidence, { project }) => {
     return [...leaks, ...Object.keys(op.answer).flatMap((k) => {
       // Live telemetry has no response and an external sink also drops email (D3 #120).
       if (!hasResponse && (!shown(k) || k === "email")) return [];
-      // The server cuts a private or secret field for a caller it is not for: a response without it is not out of shape.
-      if (hasResponse && op.answer[k]?.visibility !== undefined && !Object.hasOwn(sent, k)) return [];
       if (!hasResponse && k === "items" && traceItems !== undefined) {
         const decoded = Schema.decodeUnknownExit(traceItems as never)(fromJson(answer[k]), { onExcessProperty: "error" });
         return decoded._tag === "Success" ? [] : [`${where(e)}: answer.items: expected traceable item fields and state`];
