@@ -78,10 +78,14 @@ export default Blueprint.thing({ description: "An entry in the ledger.", fields:
 A handler never writes to a store. It writes to `Records`, which holds every write back until the call ends. Then
 the handler wrapper makes one commit and looks at the one thing it returns:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=85-90
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=92-101
 const writes = yield* unit.writes;
 const committed = yield* store.commit({ writes, entries, ...request }).pipe(
-  Effect.tap((outcome) => Effect.annotateCurrentSpan("commit.outcome", outcome)),
+  Effect.tap((outcome) => Effect.annotateCurrentSpan({
+    "commit.outcome": outcome,
+    // The event the move emitted, named only on the commit that journalled it: a conflicted attempt emitted nothing.
+    ...(outcome === "committed" && entries[0] !== undefined ? { "event.name": entries[0].event } : {}),
+  })),
   spanned(`${name}.commit`, { "step.kind": "commit", "commit.writes": writes.length, "commit.entries": entries.length }),
 );
 if (committed === "conflict") return yield* new Conflict();
@@ -160,7 +164,7 @@ return this.ctx.storage.transactionSync((): Committed => {
 A `conflict` never reaches the caller. The wrapper runs the whole call again from the top, reading fresh, up to 64
 times:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=110-117
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=123-130
 const loop = (number: number): Effect.Effect<object, unknown, unknown> =>
   attempt(payload, principal, key, number).pipe(
     Effect.catch((e) =>
