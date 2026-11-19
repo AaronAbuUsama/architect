@@ -2,16 +2,16 @@ name: ci
 
 on:
   push:
-    branches: [main, "layer/**", "m[0-9]"]
+    branches: [main, "layer/**", "m[0-9]", "goal/**"]
   pull_request:
 
 permissions:
   contents: read
 
-# A newer push to the same pull request or branch cancels the run it supersedes, so the queue holds only live work.
-# Pushes to main and the milestone branches always finish.
+# A newer push to the same pull request cancels the run it supersedes, so the queue holds only live work.
+# Every push to main, a milestone branch or a goal branch gets its own group, so none is cancelled or dropped.
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number && format('pr-{0}', github.event.pull_request.number) || format('run-{0}', github.run_id) }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:

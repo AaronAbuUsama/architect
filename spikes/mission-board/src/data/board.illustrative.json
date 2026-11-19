@@ -1,0 +1,878 @@
+{
+ "repo": "https://github.com/AaronAbuUsama/architect",
+ "illustrative": true,
+ "cards": [
+  {
+   "cell": "operation.model",
+   "task": "M1-03",
+   "thread": "m1-lead",
+   "history": [
+    {
+     "at": "2026-11-19T11:00:00Z",
+     "state": "green",
+     "thread": "m1-lead",
+     "task": "M1-03",
+     "evidence": null,
+     "note": "verdict recorded for the model check"
+    }
+   ]
+  },
+  {
+   "cell": "operation.api",
+   "task": "M1-11",
+   "thread": "m1-lead",
+   "history": [
+    {
+     "at": "2026-11-19T11:30:00Z",
+     "state": "green",
+     "thread": "m1-lead",
+     "task": "M1-11",
+     "evidence": null,
+     "note": "verdict recorded for the API check"
+    }
+   ]
+  },
+  {
+   "cell": "operation.server",
+   "task": "M1-11",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "operation.sdk",
+   "task": "M1-12",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "operation.cli",
+   "task": "M1-42",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "operation.mcp",
+   "task": "M2-08",
+   "thread": null,
+   "history": []
+  },
+  {
+   "cell": "operation.docs",
+   "task": "M1-41",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "operation.portal",
+   "task": "M1-13",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "operation.telemetry",
+   "task": "M1-18",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "error.api",
+   "task": "M1-42",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "error.sdk",
+   "task": "M1-12",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "error.cli",
+   "task": "M1-41",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "error.mcp",
+   "task": "M1-37",
+   "thread": null,
+   "history": []
+  },
+  {
+   "cell": "error.portal",
+   "task": "M1-42",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "error.telemetry",
+   "task": "M1-36",
+   "thread": "codex-plugged-in",
+   "history": [
+    {
+     "at": "2026-11-19T10:00:00Z",
+     "state": "partly",
+     "thread": "m1-lead",
+     "task": "M1-36",
+     "evidence": null,
+     "note": "started: the code goes on the span"
+    },
+    {
+     "at": "2026-11-19T14:00:00Z",
+     "state": "built",
+     "thread": "codex-plugged-in",
+     "task": "M1-36",
+     "evidence": null,
+     "note": "the refusal code is on the span and in the metric"
+    }
+   ],
+   "notes": {
+    "markdown": "Codes show as span attributes; the portal view still needs the refusal count per code.",
+    "about": "m1@0000000"
+   }
+  },
+  {
+   "cell": "thing.model",
+   "task": "M1-42",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "thing.api",
+   "task": "M1-11",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "thing.server",
+   "task": "M1-11",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "thing.sdk",
+   "task": "M1-42",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "thing.cli",
+   "task": "M1-42",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "thing.mcp",
+   "task": "M1-42",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "thing.docs",
+   "task": "M1-42",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "thing.portal",
+   "task": "M1-42",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "thing.telemetry",
+   "task": "M1-19",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "step.model",
+   "task": "M1-03",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "step.server",
+   "task": "M1-14",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "step.docs",
+   "task": "M1-42",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "step.portal",
+   "task": "M1-42",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "step.telemetry",
+   "task": "M1-21",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "machine.api",
+   "task": "M1-42",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "machine.sdk",
+   "task": "M1-42",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "machine.cli",
+   "task": "M1-42",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "machine.mcp",
+   "task": "M1-37",
+   "thread": null,
+   "history": []
+  },
+  {
+   "cell": "machine.docs",
+   "task": "M1-41",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "machine.portal",
+   "task": "M1-13",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "machine.telemetry",
+   "task": "M1-36",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "event.api",
+   "task": "M1-41",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "event.server",
+   "task": "M1-21",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "event.sdk",
+   "task": "M1-42",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "event.docs",
+   "task": "M1-42",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "event.portal",
+   "task": "M1-42",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "event.telemetry",
+   "task": "M1-36",
+   "thread": "m1-lead",
+   "history": [
+    {
+     "at": "2026-11-19T12:30:00Z",
+     "state": "built",
+     "thread": "m1-lead",
+     "task": "M1-36",
+     "evidence": null,
+     "note": "the event's name rides on the commit span"
+    }
+   ]
+  },
+  {
+   "cell": "visibility.api",
+   "task": "M1-35",
+   "thread": "m1-lead",
+   "history": [
+    {
+     "at": "2026-11-19T12:00:00Z",
+     "state": "partly",
+     "thread": "m1-lead",
+     "task": "M1-35",
+     "evidence": null,
+     "note": "check 16 passes for answers, not refusals"
+    },
+    {
+     "at": "2026-11-19T13:00:00Z",
+     "state": "built",
+     "thread": "m1-lead",
+     "task": "M1-35",
+     "evidence": null,
+     "note": "check 16 holds over HTTP; no verdict yet"
+    }
+   ],
+   "notes": {
+    "markdown": "## Why it is red\n\nThe check `e2e/m1/16-visibility.test.ts` is written ahead and fails until **M1.35** lands.\n\n- A refusal never carries a field the caller may not see.\n- The served schema is cut by the same one rule.",
+    "about": "m1@6419d4b7"
+   }
+  },
+  {
+   "cell": "visibility.server",
+   "task": "M1-35",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "visibility.sdk",
+   "task": "M1-35",
+   "thread": "m1-lead",
+   "history": [
+    {
+     "at": "2026-11-19T13:00:00Z",
+     "state": "built",
+     "thread": "m1-lead",
+     "task": "M1-35",
+     "evidence": null,
+     "note": "check 16 holds over the SDK; no verdict yet"
+    }
+   ]
+  },
+  {
+   "cell": "visibility.cli",
+   "task": "M1-35",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "visibility.mcp",
+   "task": "M1-35",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "visibility.docs",
+   "task": "M1-42",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "visibility.portal",
+   "task": "M1-42",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "visibility.telemetry",
+   "task": "M1-19",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "journey.model",
+   "task": "M1-03",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "journey.sdk",
+   "task": "M2-08",
+   "thread": null,
+   "history": []
+  },
+  {
+   "cell": "journey.cli",
+   "task": "M2-08",
+   "thread": null,
+   "history": []
+  },
+  {
+   "cell": "journey.mcp",
+   "task": "M2-08",
+   "thread": null,
+   "history": []
+  },
+  {
+   "cell": "journey.docs",
+   "task": "M1-13",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "journey.portal",
+   "task": "M1-13",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "journey.telemetry",
+   "task": "M1-13",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "roles.model",
+   "task": "M1-03",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "roles.server",
+   "task": "M2-03",
+   "thread": null,
+   "history": []
+  },
+  {
+   "cell": "roles.sdk",
+   "task": "M2-03",
+   "thread": null,
+   "history": []
+  },
+  {
+   "cell": "roles.cli",
+   "task": "M2-03",
+   "thread": null,
+   "history": []
+  },
+  {
+   "cell": "roles.mcp",
+   "task": "M2-03",
+   "thread": null,
+   "history": []
+  },
+  {
+   "cell": "roles.docs",
+   "task": "M1-13",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "roles.portal",
+   "task": "M1-13",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "roles.telemetry",
+   "task": "M2-03",
+   "thread": null,
+   "history": []
+  },
+  {
+   "cell": "environment.server",
+   "task": "M7-03",
+   "thread": null,
+   "history": []
+  },
+  {
+   "cell": "environment.docs",
+   "task": "M1-13",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "environment.portal",
+   "task": "M1-13",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "environment.telemetry",
+   "task": "M1-36",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "store.model",
+   "task": "M1-17",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "store.server",
+   "task": "M1-17",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "store.docs",
+   "task": "M5-06",
+   "thread": null,
+   "history": []
+  },
+  {
+   "cell": "store.portal",
+   "task": "M1-13",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "store.telemetry",
+   "task": "M1-36",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "mount.model",
+   "task": "M1-03",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "mount.api",
+   "task": "M1-07",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "mount.server",
+   "task": "M1-09",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "mount.cli",
+   "task": "M1-41",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "mount.mcp",
+   "task": "M3-22",
+   "thread": null,
+   "history": []
+  },
+  {
+   "cell": "mount.docs",
+   "task": "M1-13",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "mount.portal",
+   "task": "M1-42",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "mount.telemetry",
+   "task": "M1-36",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "device.model",
+   "task": "M1-27",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "device.api",
+   "task": "M1-27",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "device.server",
+   "task": "M1-27",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "device.sdk",
+   "task": "M1-27",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "device.cli",
+   "task": "M1-27",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "device.docs",
+   "task": "M1-13",
+   "thread": "m1-lead",
+   "history": []
+  },
+  {
+   "cell": "device.portal",
+   "task": "M1-13",
+   "thread": "m1-lead",
+   "history": []
+  }
+ ],
+ "tasks": [
+  {
+   "id": "M1-03",
+   "ref": "M1.03",
+   "title": "The complete model",
+   "stage": "done",
+   "thread": "m1-lead",
+   "pr": null
+  },
+  {
+   "id": "M1-07",
+   "ref": "M1.07",
+   "title": "The verbs",
+   "stage": "done",
+   "thread": "m1-lead",
+   "pr": null
+  },
+  {
+   "id": "M1-09",
+   "ref": "M1.09",
+   "title": "Runtime entries per host and import closures",
+   "stage": "done",
+   "thread": "m1-lead",
+   "pr": null
+  },
+  {
+   "id": "M1-11",
+   "ref": "M1.11",
+   "title": "Projections as plugins, part one",
+   "stage": "done",
+   "thread": "m1-lead",
+   "pr": null
+  },
+  {
+   "id": "M1-12",
+   "ref": "M1.12",
+   "title": "The SDK contract",
+   "stage": "build",
+   "thread": "m1-lead",
+   "pr": null
+  },
+  {
+   "id": "M1-13",
+   "ref": "M1.13",
+   "title": "The portal as a viewer",
+   "stage": "backlog",
+   "thread": "m1-lead",
+   "pr": null
+  },
+  {
+   "id": "M1-14",
+   "ref": "M1.14",
+   "title": "Adapter calls out",
+   "stage": "done",
+   "thread": "m1-lead",
+   "pr": null
+  },
+  {
+   "id": "M1-17",
+   "ref": "M1.17",
+   "title": "Stores",
+   "stage": "done",
+   "thread": "m1-lead",
+   "pr": null
+  },
+  {
+   "id": "M1-18",
+   "ref": "M1.18",
+   "title": "The commit as a span",
+   "stage": "done",
+   "thread": "m1-lead",
+   "pr": null
+  },
+  {
+   "id": "M1-19",
+   "ref": "M1.19",
+   "title": "Free text untraced unless marked",
+   "stage": "done",
+   "thread": "m1-lead",
+   "pr": null
+  },
+  {
+   "id": "M1-21",
+   "ref": "M1.21",
+   "title": "Live steps",
+   "stage": "done",
+   "thread": "m1-lead",
+   "pr": null
+  },
+  {
+   "id": "M1-27",
+   "ref": "M1.27",
+   "title": "Operations that run on the device",
+   "stage": "done",
+   "thread": "m1-lead",
+   "pr": null
+  },
+  {
+   "id": "M1-35",
+   "ref": "M1.35",
+   "title": "One rule for what each caller sees",
+   "stage": "build",
+   "thread": "m1-lead",
+   "pr": 64
+  },
+  {
+   "id": "M1-36",
+   "ref": "M1.36",
+   "title": "Telemetry carries the whole model",
+   "stage": "build",
+   "thread": "m1-lead",
+   "pr": 68
+  },
+  {
+   "id": "M1-37",
+   "ref": "M1.37",
+   "title": "MCP from the whole model",
+   "stage": "backlog",
+   "thread": null,
+   "pr": 68
+  },
+  {
+   "id": "M1-41",
+   "ref": "M1.41",
+   "title": "The whole loop, checked end to end",
+   "stage": "backlog",
+   "thread": "m1-lead",
+   "pr": 69
+  },
+  {
+   "id": "M1-42",
+   "ref": "M1.42",
+   "title": "The basics in every output",
+   "stage": "backlog",
+   "thread": "m1-lead",
+   "pr": 69
+  },
+  {
+   "id": "M2-03",
+   "ref": "M2.03",
+   "title": "Principals in roles/types.ts",
+   "stage": "backlog",
+   "thread": null,
+   "pr": null
+  },
+  {
+   "id": "M2-08",
+   "ref": "M2.08",
+   "title": "Journeys through the clients",
+   "stage": "backlog",
+   "thread": null,
+   "pr": null
+  },
+  {
+   "id": "M3-22",
+   "ref": "M3.22",
+   "title": "The clients as mounted plugins",
+   "stage": "done",
+   "thread": null,
+   "pr": 64
+  },
+  {
+   "id": "M5-06",
+   "ref": "M5.06",
+   "title": "The data map and the portal's data page",
+   "stage": "backlog",
+   "thread": null,
+   "pr": null
+  },
+  {
+   "id": "M7-03",
+   "ref": "M7.03",
+   "title": "The infra projection",
+   "stage": "backlog",
+   "thread": null,
+   "pr": null
+  }
+ ],
+ "threads": [
+  {
+   "id": "aaron",
+   "name": "You",
+   "emoji": "👤",
+   "kind": "person",
+   "status": "active",
+   "sessionId": null,
+   "branch": null,
+   "pr": null
+  },
+  {
+   "id": "canon",
+   "name": "Canon",
+   "emoji": "📖",
+   "kind": "claude",
+   "status": "running",
+   "sessionId": "local_bb023976-b3f5-4d53-8bfb-9ef8d4b6883d",
+   "branch": "canon-minimal",
+   "pr": null
+  },
+  {
+   "id": "codex-plugged-in",
+   "name": "Codex: Plugged In",
+   "emoji": "🤖",
+   "kind": "codex",
+   "status": "idle",
+   "sessionId": null,
+   "branch": "links/stage-1",
+   "pr": 56
+  },
+  {
+   "id": "conductor",
+   "name": "Conductor",
+   "emoji": "🎛",
+   "kind": "claude",
+   "status": "running",
+   "sessionId": "local_b6ebc731-16db-4abf-adb0-9e262993c239",
+   "branch": null,
+   "pr": null
+  },
+  {
+   "id": "ledger",
+   "name": "Ledger",
+   "emoji": "📒",
+   "kind": "claude",
+   "status": "idle",
+   "sessionId": "local_52beae9e-b3f7-42eb-a8d4-b334484d7971",
+   "branch": "claude/ledger-k7-k9",
+   "pr": 58
+  },
+  {
+   "id": "m1-lead",
+   "name": "M1 lead",
+   "emoji": "🧭",
+   "kind": "claude",
+   "status": "idle",
+   "sessionId": "local_90551e2a-cfc9-414b-b00b-7934d33b56fd",
+   "branch": "m1",
+   "pr": null
+  },
+  {
+   "id": "portal-designer",
+   "name": "Portal designer",
+   "emoji": "📐",
+   "kind": "claude",
+   "status": "done",
+   "sessionId": "local_24ad5b8b-8202-445a-bf35-03b93fe06170",
+   "branch": "claude/portal-908a25",
+   "pr": 66
+  },
+  {
+   "id": "reviewer",
+   "name": "Reviewers",
+   "emoji": "🔍",
+   "kind": "subagent",
+   "status": "on call",
+   "sessionId": null,
+   "branch": null,
+   "pr": null
+  }
+ ]
+}

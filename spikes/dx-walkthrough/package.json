@@ -1,0 +1,11 @@
+{
+  "name": "spike-dx-walkthrough",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "extract": "node src/main.ts"
+  },
+  "imports": {
+    "#modules/*.js": "./src/modules/*.ts"
+  }
+}

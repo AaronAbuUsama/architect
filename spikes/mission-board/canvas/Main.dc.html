@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mission board</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/3f618e8b6fb767b1f163c1b6be27a379">
+<link rel="stylesheet" href="/_blob/384061031833fc1f1e19b35c1eb670fe">
+<link rel="stylesheet" href="/_blob/903a6f9987dd749496048f2d234ca54a">
+<script src="/_blob/46349c0e93707da9d9e343c5b2575fcd"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#000}
+</style>
+</helmet>
+<div class="dark console-root" data-theme="dark" style="min-height: 100vh; width: 100%;">
+<div ref="{{host}}"></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"columns": {"editor": "enum", "options": ["state", "output", "stage"], "default": "state", "section": "Switches"}, "detail": {"editor": "enum", "options": ["panel", "modal", "page"], "default": "panel", "section": "Switches"}, "tab": {"editor": "enum", "options": ["grid", "board", "climb", "overview"], "default": "board", "section": "Switches"}, "history": {"editor": "enum", "options": ["real", "illustrative"], "default": "real", "section": "Data"}, "$preview": {"width": 1440, "height": 2400}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    const opts = {
+      grid: "/_blob/4f2dcec805399db97ed6300acc3bc483",
+      board: (p.history ?? "real") === "illustrative" ? "/_blob/72786351ea74e839184d5a213820a76a" : "/_blob/3668522f2fc2747c0f93c5420da99482",
+      columns: p.columns ?? "state", detail: p.detail ?? "panel", tab: p.tab ?? "board", open: "visibility.api"
+    };
+    return {
+      host: (el) => {
+        if (!el) return;
+        const go = () => window.MissionBoard.mount(el, opts);
+        if (window.MissionBoard) go(); else window.addEventListener("load", go, { once: true });
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>
