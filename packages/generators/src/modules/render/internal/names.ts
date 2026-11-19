@@ -39,3 +39,12 @@ export const lines = (...parts: ReadonlyArray<string | ReadonlyArray<string>>) =
 /** HTTP status per kind of refusal: a declared data error, a machine in the wrong state, a caller without the role. */
 export const STATUS = { declared: 422, notFrom: 409, notAllowed: 403 } as const;
 export const NOT_ALLOWED_EXIT = 3;
+
+/** An operation that runs on the caller's device (a plugin's `runs: "client"`): never on the server, in no API route or tool. */
+export const onDevice = (op: OperationModel) => op.runs === "client";
+
+/** The model as the server sees it: without the operations that run on the device. */
+export const serverModel = (model: Model): Model => ({
+  ...model,
+  operations: Object.fromEntries(Object.entries(model.operations).filter(([, op]) => !onDevice(op))),
+});

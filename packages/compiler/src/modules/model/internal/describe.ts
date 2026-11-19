@@ -116,10 +116,8 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
     if (declared.thing !== layout.things.get(thing)?.thing) problems.push(`${file}: declares an operation of another thing`);
     if (declared.kind === "read") return readModel(thing, verb, file, declared);
     const op = declared;
-    const fromPlugin = layout.things.get(thing)?.from !== undefined;
-    const onDevice = op.runs === "client" && fromPlugin;
-    if (op.runs !== "server" && !onDevice) problems.push(`${file}: runs "${op.runs}" is not supported yet: ${RUNS_NEEDS[op.runs] ?? "an unknown place"}`);
-    if (onDevice) problems.push(...deviceProblems(file, op));
+    const onDevice = op.runs === "client" && layout.things.get(thing)?.from !== undefined; // a plugin's, with its code for each host
+    if (op.runs !== "server" && !onDevice) problems.push(`${file}: runs "${op.runs}" is not supported yet: ${RUNS_NEEDS[op.runs] ?? "an unknown place"}`); else if (onDevice) problems.push(...deviceProblems(file, op));
     const machine = things[thing]?.machine;
     const move = op.move
       ? { key: op.move.key, from: op.move.from, to: op.move.to, emits: eventNames.get(op.move.emits) ?? "?" }

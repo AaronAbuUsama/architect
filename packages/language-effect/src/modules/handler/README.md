@@ -17,3 +17,5 @@ last page. Its role is decided on the thing a filter names (`owner.of("organizat
 How a span ends (O1, D3 #105): a declared refusal ends the operation's span, and a step's, **ok** with its `refusal` tag, since it is an outcome and
 must not turn a trace red or count as an error; a defect ends it as an **error** with its `defect` tag. `internal/span.ts` (`spanned`) does it for
 operations, steps and reads.
+
+`Device.serve({ name, operation, handler })` (M1.27) runs a plugin's `runs: "client"` operation in the caller's own process: the handler with its step spans and the operation's span, as an anonymous caller, with no store or journal, the answer checked against its declaration, and the spans sent as OTLP/HTTP from the process before the call returns (`internal/device.ts`; also from `@orthograph/language-effect/device`). Test: `device.test.ts`.

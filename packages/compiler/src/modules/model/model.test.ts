@@ -191,7 +191,7 @@ describe("model", () => {
       const refusedClient = await modelOf(client);
       expect(Exit.isFailure(refusedClient)).toBe(true);
       expect(JSON.stringify(refusedClient)).toContain('blueprint/things/allowance/verbs/grant.ts: runs \\"client\\" is not supported yet');
-      expect(JSON.stringify(refusedClient)).toContain("language-noir");
+      expect(JSON.stringify(refusedClient)).toContain("a mounted plugin supplies it, with a code entry for each of node, browser and world");
 
       const chain = copyOfAcme();
       edit(chain, "things/allowance/verbs/grant.ts", (t) => t.replace("  idempotent:", '  runs: "chain",\n  idempotent:'));

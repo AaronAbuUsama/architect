@@ -54,6 +54,23 @@ export class BlankReached extends Data.TaggedError("BlankReached")<{ readonly wh
   override get message() { return this.what; }
 }
 
+/** Where an operation on the device sends its spans: the collector's OTLP/HTTP base URL, when there is one, and the service they say they are from. */
+export interface DeviceWhere {
+  readonly otlp: string | undefined;
+  readonly service: string;
+}
+
+export interface Device<O, R> {
+  readonly name: string;
+  /** Run the operation in this process. The payload is already what the declaration says; nothing is stored or journalled. */
+  readonly run: (payload: PayloadOf<O>, where: DeviceWhere) => Effect.Effect<AnswerOf<O>, ErrorOf<O>, R>;
+}
+
+export interface DeviceApi {
+  /** `name` comes from the generated code, which got it from the operation's path. */
+  readonly serve: <O, R>(spec: { readonly name: string; readonly operation: O; readonly handler: Handler<O, R, any> }) => Device<O, R>;
+}
+
 export interface HandlerApi {
   /** `name` comes from the generated code, which got it from the operation's path. */
   readonly serve: <O, R>(spec: {
