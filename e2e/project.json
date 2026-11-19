@@ -25,7 +25,7 @@
       "options": { "command": "node {projectRoot}/totals/totals.mjs" },
       "cache": false
     },
-    "totals-test": {
+    "test": {
       "executor": "nx:run-commands",
       "options": { "command": "node --test {projectRoot}/totals/test-totals.mjs" },
       "cache": false

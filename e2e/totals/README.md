@@ -28,6 +28,6 @@ prints the fix: `pnpm nx run e2e:totals`.
 
 ## Its own test
 
-`nx run e2e:totals-test` runs `test-totals.mjs` on the small suites in `fixture/`: it writes the totals, checks them,
+`nx run e2e:test` (so CI's `check` job) runs `test-totals.mjs` on the small suites in `fixture/`: it writes the totals, checks them,
 changes a test and checks again. The fixture's tests are red on purpose and are not in any real run: `e2e/vitest.config.ts`
 excludes `totals/**`, and the other configs name their own folders.

@@ -1,4 +1,4 @@
-// Run by `nx run e2e:totals-test` (node --test). Not a vitest file: the tool's fixture tests are red on purpose.
+// Run by `nx run e2e:test` (node --test). Not a vitest file: the tool's fixture tests are red on purpose.
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
