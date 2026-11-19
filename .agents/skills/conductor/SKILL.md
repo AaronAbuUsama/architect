@@ -11,6 +11,16 @@ thread types, their emojis, their finish lines and your agent's word for each ac
 ## Starting a thread
 
 1. **Pick its type,** and check the step's `needs` are done on `main` (`design/build-plan.md`). Start every thread whose needs are met at once, so independent work runs in parallel.
+   **Parallel only when nothing is shared.** Two slices run in parallel only when neither changes a type, a generated
+   file or a header the other reads. If one slice's output promises what another delivers (the scaffold that promised
+   pre-handling another slice was to build), they are one branch, built in order. Check the thread list for one
+   already doing the job; never start a second.
+   **Hand out decision IDs from one place.** You allocate them on `main`, from a "Decision IDs" list in
+   `design/handoff.md`; a goal's lead allocates them on the goal branch, from the same list in the goal file, and
+   every goal brief says so. Before handing one out, check that no file in `design/decisions/` starts with that ID
+   (`G3`, say, matches `G3.md` and `G3-anything.md`), on `main` and on every open branch
+   (`git ls-tree -r --name-only origin/<branch> design/decisions/`). Then add the ID with a one-line title to the list
+   at once and push it.
 2. **Title it** `<emoji> <Type>: <subject>`, and tag it `thread:<type>` where your agent has tags.
 3. **Brief it.** A brief is the thread's only context. It covers:
    - **the goal,** in Aaron's words where he gave them;
@@ -48,15 +58,21 @@ thread types, their emojis, their finish lines and your agent's word for each ac
 
 ## Landing a layer into main
 
-All four must hold:
+All five must hold:
 1. **No conflicts:** the pull request merges cleanly.
 2. **A fresh CI run:** green on a head that includes the current `main`.
 3. **The layer's gate passes:** its one e2e suite, on a clean checkout.
 4. **A 🔍 pass.** Have the `reviewer` skill run on the layer's diff by a subagent or a 🔍 thread that did not write it,
    against its brief, `AGENTS.md` and `design/`. Merge on a pass. Send findings back to the lead.
+5. **Codex has finished, and every review thread is resolved:** fixed with a check, or answered with the ledger entry
+   or decision that takes it. If Codex hasn't reviewed the head, comment `@codex review` and wait for it.
 
 Then check `main`'s next CI run. If it goes red, fixing it comes before anything else. One landing at a time: leads
 tell you "landing now" before they merge into `main`, and you answer if another landing is under way.
+
+The 🔍 is not only for layers. Every build pull request, a builder's into a goal or milestone branch included, gets
+one before it merges, and the 🔍 lists every door into the change and runs one probe through each (the `reviewer`
+skill). Brief leads to do the same.
 
 ## Spikes and decisions
 
