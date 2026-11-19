@@ -9,13 +9,22 @@ export interface WorldView {
   readonly name: string;
   readonly from: string | null;
   readonly cast?: Readonly<Record<string, { readonly kind: string; readonly role?: string }>>;
-  readonly makes: ReadonlyArray<{ readonly actor: string; readonly operation: string }>;
+  /** A call whose operation is outside the model (a plugin's mount omits it) is `null`, as the compiler writes it. */
+  readonly makes: ReadonlyArray<{ readonly actor: string; readonly operation: string } | null>;
 }
+/**
+ * A compiled step: a call with its checks, or `{ title, skipped }` when its operation is outside the model. The checks the
+ * compiler writes are `expect`, `expect-equal`, `emits`, `refuses`, `is-in`, `no-events` and `spans`; only `refuses` and `emits` name a block.
+ */
+export type StepView =
+  | { readonly title: string; readonly skipped: string; readonly call?: undefined; readonly checks?: undefined }
+  | { readonly title: string; readonly skipped?: undefined; readonly call: { readonly actor: string; readonly operation: string }; readonly checks: ReadonlyArray<StepCheck> };
+
 export interface JourneyView {
   readonly name: string;
-  readonly starts?: string;
+  readonly starts?: string | null;
   readonly cast?: Readonly<Record<string, { readonly kind: string; readonly role?: string }>>;
-  readonly steps: ReadonlyArray<{ readonly title: string; readonly call: { readonly actor: string; readonly operation: string }; readonly checks: ReadonlyArray<StepCheck> }>;
+  readonly steps: ReadonlyArray<StepView>;
 }
 /** What the model says that touching reads. `generated/model/model.json` has all of it. */
 export interface TouchModel {
@@ -31,6 +40,8 @@ export interface TouchModel {
   }>>;
   readonly things: Readonly<Record<string, {
     readonly machine?: null | { readonly notFrom: { readonly error: string } };
+    /** The refusal for an id that names no such thing, when the thing can be missed (`PersonNotFound`). */
+    readonly notFound?: { readonly error: string };
     readonly fields?: Readonly<Record<string, { readonly visibility?: unknown }>>;
   }>>;
 }

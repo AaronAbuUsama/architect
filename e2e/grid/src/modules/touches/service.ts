@@ -3,10 +3,13 @@ import type { JourneyView, Row, TouchesApi, TouchModel, WorldView } from "./type
 
 const visible = (fields: Readonly<Record<string, { readonly visibility?: unknown }>> | undefined) => Object.entries(fields ?? {}).filter(([, f]) => f.visibility !== undefined).map(([name]) => name);
 
-/** A `refuses` check names a declared error, `NotAllowed`, or a machine's own refusal as `<thing>.notFrom`. */
+/** A `refuses` check names a declared error, `NotAllowed`, or a thing's own refusal as `<thing>.notFrom` or `<thing>.notFound` (journeys.ts). */
 const refusalName = (model: TouchModel, error: string): string => {
   const [thing, rest] = error.split(".");
-  return rest === "notFrom" && thing !== undefined ? (model.things[thing]?.machine?.notFrom.error ?? error) : error;
+  if (thing === undefined) return error;
+  if (rest === "notFrom") return model.things[thing]?.machine?.notFrom.error ?? error;
+  if (rest === "notFound") return model.things[thing]?.notFound?.error ?? error;
+  return error;
 };
 
 const green = (report: ReadonlyArray<string>, name: string) => {
@@ -16,7 +19,7 @@ const green = (report: ReadonlyArray<string>, name: string) => {
 };
 
 /** The worlds a journey starts in, from the oldest ancestor to its own (`funded` grows from `founded`); a loop in `from` stops at the repeat. */
-const ancestry = (model: TouchModel, start: string | undefined): ReadonlyArray<WorldView> => {
+const ancestry = (model: TouchModel, start: string | null | undefined): ReadonlyArray<WorldView> => {
   const chain: Array<WorldView> = [];
   for (let name: string | null | undefined = start; name != null && !chain.some((w) => w.name === name);) {
     const world: WorldView | undefined = model.startingWorlds?.[name];
@@ -49,9 +52,11 @@ const rowsOf = (model: TouchModel, journey: JourneyView): ReadonlyArray<Row> => 
   const rows: Array<Row> = [{ block: "journey", subject: journey.name }];
   // The calls a starting world makes are the journey's too: its ancestry is walked, and each world's own cast names the roles.
   for (const world of ancestry(model, journey.starts)) {
-    for (const made of world.makes) rows.push(...callRows(model, made.operation), ...roleRow(world.cast, made.actor));
+    for (const made of world.makes) if (made !== null) rows.push(...callRows(model, made.operation), ...roleRow(world.cast, made.actor));
   }
   for (const step of journey.steps) {
+    // A skipped step ran nothing: its operation is outside the model, so it touches nothing.
+    if (step.skipped !== undefined) continue;
     rows.push(...callRows(model, step.call.operation), ...roleRow(journey.cast, step.call.actor));
     for (const check of step.checks) {
       if (check.kind === "refuses" && check.error !== undefined) rows.push({ block: "error", subject: refusalName(model, check.error) });

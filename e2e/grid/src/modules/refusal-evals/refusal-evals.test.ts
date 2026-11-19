@@ -132,6 +132,17 @@ describe("a private field is shown to a caller who holds the role it names", () 
   });
 });
 
+describe("a thing's not-found refusal (PersonNotFound, acme's real model)", () => {
+  it("has the code, exit and declaring operation the model gives, judged like any other", () => {
+    expect(model.refusals["PersonNotFound"]).toBe("PE-901");
+    expect(RefusalEvals.declaredBy(model, "PersonNotFound")).toEqual(["allowance.grant"]);
+    expect(judge("error.cli", "PersonNotFound", { cli: { status: 4, stdout: "", stderr: "[PE-901] PersonNotFound" } })).toEqual({ ok: true, why: [] });
+    expect(judge("error.cli", "PersonNotFound", { cli: { status: 1, stdout: "", stderr: "[PE-901] PersonNotFound" } }).why).toEqual(["expected exit 4, got 1"]);
+    expect(judge("error.mcp", "PersonNotFound", { mcp: { isError: true, text: "[PE-901] PersonNotFound" } }).ok).toBe(true);
+    expect(judge("error.docs", "PersonNotFound", { docs: { "allowance.grant": doc("allowance.grant") } }).ok).toBe(true);
+  });
+});
+
 describe("a refusal the model does not know", () => {
   it("is red in every eval, since there is no code to carry", () => {
     expect(judge("error.cli", "Nope", { cli: { status: 1, stdout: "", stderr: "Nope" } }).ok).toBe(false);

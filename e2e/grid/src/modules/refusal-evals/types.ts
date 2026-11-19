@@ -12,6 +12,8 @@ export interface ModelView {
   readonly things: Readonly<Record<string, {
     readonly errors?: Readonly<Record<string, { readonly fields: Readonly<Record<string, FieldView>>; readonly exit: number; readonly code: string }>>;
     readonly machine?: null | { readonly notFrom: { readonly error: string; readonly exit: number; readonly code: string } };
+    /** The refusal for an id that names no such thing (`PersonNotFound`, `PE-901`), when the thing can be missed. */
+    readonly notFound?: { readonly error: string; readonly exit: number; readonly code: string };
   }>>;
   readonly operations: Readonly<Record<string, { readonly name: string; readonly thing: string; readonly verb: string; readonly refusals?: ReadonlyArray<string>; readonly errors?: ReadonlyArray<string> }>>;
 }

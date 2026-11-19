@@ -54,6 +54,46 @@ describe("a green journey", () => {
   });
 });
 
+describe("the shapes the compiler really writes", () => {
+  const person = { ...model.operations["person.sign-up"]! };
+  it("resolves a thing's not-found refusal to its name, as it does a machine's: person.notFound is PersonNotFound", () => {
+    const withNotFound = { ...model, things: { ...model.things, person: { ...model.things["person"]!, notFound: { error: "PersonNotFound" } } } } as TouchModel;
+    const journey = { name: "a miss", file: "journeys/a.ts", cast: {}, starts: null, steps: [{ title: "s", call: { actor: "x", operation: "person.sign-up" }, checks: [{ kind: "refuses", error: "person.notFound" }, { kind: "no-events" }, { kind: "spans", present: [], absent: [] }] }] };
+    const m = { ...withNotFound, journeys: { "journeys/a.ts": journey } } as unknown as TouchModel;
+    expect(Touches.of({ model: m, journey: "a miss", report: ok("a miss", 1) }).rows).toContainEqual({ block: "error", subject: "PersonNotFound" });
+    expect(person.name).toBe("person.sign-up");
+  });
+  it("leaves a skipped step out, and a starting-world call outside the model (null), without crashing", () => {
+    const journey = { name: "partly", file: "journeys/p.ts", cast: {}, starts: "w", steps: [
+      { title: "omitted", skipped: "operation is outside the model" },
+      { title: "real", call: { actor: "x", operation: "allowance.spend" }, checks: [{ kind: "refuses", error: "AllowanceExceeded" }] },
+    ] };
+    const world = { name: "w", file: "blueprint/starting-worlds/w.ts", from: null, cast: {}, makes: [null, { actor: "x", operation: "allowance.grant" }] };
+    const m = { ...model, journeys: { "journeys/p.ts": journey }, startingWorlds: { w: world } } as unknown as TouchModel;
+    const touched = Touches.of({ model: m, journey: "partly", report: ok("partly", 1) });
+    expect(touched.green).toBe(true);
+    const rows = touched.rows.map((r) => `${r.block}:${r.subject}`);
+    expect(rows).toEqual(expect.arrayContaining(["operation:allowance.spend", "operation:allowance.grant", "error:AllowanceExceeded"]));
+    expect(rows.filter((r) => r.startsWith("operation:"))).toEqual(["operation:allowance.grant", "operation:allowance.spend"]);
+  });
+  it("reads a journey whose starts is null", () => {
+    const journey = { name: "nostart", file: "journeys/n.ts", cast: {}, starts: null, steps: [] };
+    const m = { ...model, journeys: { "journeys/n.ts": journey } } as unknown as TouchModel;
+    expect(Touches.of({ model: m, journey: "nostart", report: ok("nostart", 0) }).rows).toEqual([{ block: "journey", subject: "nostart" }]);
+  });
+});
+
+describe("every journey acme's compiled model holds", () => {
+  it("is read without a crash, and every refusal it names is one the model knows", () => {
+    const known = new Set(Object.keys((model as unknown as { refusals: Record<string, string> }).refusals));
+    for (const journey of Object.values(model.journeys ?? {})) {
+      const touched = Touches.of({ model, journey: journey.name, report: ok(journey.name, journey.steps.length) });
+      expect(touched.green, journey.name).toBe(true);
+      for (const row of touched.rows.filter((r) => r.block === "error")) expect(known.has(row.subject), `${journey.name}: ${row.subject}`).toBe(true);
+    }
+  });
+});
+
 describe("a journey that is not green", () => {
   it("touches nothing, and says why", () => {
     const red = Touches.of({ model, journey: "revoke then spend", report: ["journey revoke then spend ✘ 1/3 steps"] });

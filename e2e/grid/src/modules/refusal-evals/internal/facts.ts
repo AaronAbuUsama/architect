@@ -36,13 +36,16 @@ export const factsOf = (model: ModelView, name: string, held: ReadonlyArray<stri
   const things = Object.values(model.things);
   const own = things.map((t) => t.errors?.[name]).find((e) => e !== undefined);
   const machine = things.map((t) => t.machine?.notFrom).find((n) => n?.error === name);
-  const code = model.refusals[name] ?? own?.code ?? machine?.code;
+  const missed = things.map((t) => t.notFound).find((n) => n?.error === name);
+  const code = model.refusals[name] ?? own?.code ?? machine?.code ?? missed?.code;
   if (own !== undefined) {
     const fields = Object.entries(own.fields);
     return { name, code, exit: own.exit, shown: fields.filter(([, f]) => shownTo(f.visibility, held)).map(([k]) => k), hidden: fields.filter(([, f]) => !shownTo(f.visibility, held)).map(([k]) => k), declared: true };
   }
   // The machine's own refusal carries the state the thing was in, which is public.
   if (machine !== undefined) return { name, code, exit: machine.exit, shown: ["state"], hidden: [], declared: true };
+  // A thing's not-found refusal carries no fields.
+  if (missed !== undefined) return { name, code, exit: missed.exit, shown: [], hidden: [], declared: true };
   return { name, code, exit: undefined, shown: [], hidden: [], declared: false };
 };
 
