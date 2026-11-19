@@ -70,7 +70,7 @@ export const Secret = Blueprint.visibility.secret(Blueprint.text({ max: 512 }));
 A value is a schema with a name and a visibility. Orthograph gives you five makers, and `Blueprint.value` names
 anything else, such as an Effect `Schema.Literals`:
 
-```ts file=packages/orthograph/src/modules/values/types.ts lines=25-39
+```ts file=packages/orthograph/src/modules/values/types.ts lines=27-41
 export interface ValuesApi {
   /** Name a type: `export const Amount = Blueprint.value(Blueprint.uint(128))`. */
   readonly value: <S extends Schema.Constraint>(schema: S | Value<S>) => Value<S>;
@@ -119,7 +119,7 @@ yield* steps.insert(records.insert(Sheet, { id: sheet, title, places, taken: 0n 
 
 A field is a value that belongs to a thing, under a key. It knows its thing, its key and what it was made from:
 
-```ts file=packages/orthograph/src/modules/things/types.ts lines=6-18
+```ts file=packages/orthograph/src/modules/things/types.ts lines=6-20
 /** A field of one thing, which another thing or a payload can reuse: `Organization.fields.id`. */
 export interface Field<V extends Value = Value> {
   readonly kind: "field";
@@ -132,6 +132,8 @@ export interface Field<V extends Value = Value> {
   readonly visibility: Visibility;
   /** Explicit opt-in to tracing a public text field, inherited from its declaration. */
   readonly traced?: true;
+  /** A secret answer field handed to its caller once (`Blueprint.issued`); the compiler refuses it on a thing's own field. */
+  readonly issued?: true;
 }
 ```
 
@@ -164,7 +166,7 @@ as a string, is on [blueprint](blueprint.mdx).
 
 There are three visibilities. Public is the default:
 
-```ts file=packages/orthograph/src/modules/visibility/types.ts lines=14-31
+```ts file=packages/orthograph/src/modules/visibility/types.ts lines=14-39
 /** `public`; `secret` (a password, token, key or session: nobody's, recorded nowhere); or private to some roles. */
 export type Visibility = "public" | "secret" | PrivateTo;
 
@@ -182,6 +184,14 @@ export interface VisibilityApi {
     /** Public again: the default, said out loud. */
     readonly public: <const X extends Value | Field>(x: X) => X;
   };
+  /**
+   * Mark a secret answer value as handed to its caller once: `answer: { token: Blueprint.issued(Token) }`, where `Token`
+   * is a secret value or a secret field. The answer of the call that issued it carries it, to that call's own caller, over
+   * HTTP, the SDK and the CLI; it never leaves in a refusal, a read, MCP, telemetry, the journal or a generated file.
+   * Gives back the same kind, so it goes wherever the original went. It is only a mark: the compiler refuses it on
+   * anything but a secret value in an operation's answer.
+   */
+  readonly issued: <const X extends Value | Field>(x: X) => X;
 }
 ```
 
@@ -194,9 +204,10 @@ A mark gives back a copy of the same kind, so a marked value goes wherever the o
 as `Password` is, or one use of a field. acme's `sign-in` answers the session's own id, marked secret for this one
 answer, without touching the session thing's field:
 
-```ts file=examples/acme/blueprint/things/session/verbs/sign-in.ts lines=9-10
+```ts file=examples/acme/blueprint/things/session/verbs/sign-in.ts lines=9-11
 payload: { email: Person.fields.email, password: Password },
-answer: { session: Blueprint.visibility.secret(Session.fields.id), token: Secret },
+// The caller is handed both once, in this answer: `issued` lets a secret leave there and nowhere else.
+answer: { session: Blueprint.issued(Blueprint.visibility.secret(Session.fields.id)), token: Blueprint.issued(Secret) },
 ```
 
 No example has a private field yet. This is the test that proves the mark, with a role made for it:
@@ -228,8 +239,8 @@ This is what each mark does today, place by place:
 
 Where each row is decided:
 
-- **The answer over MCP** goes through one test of what a caller has seen
-  (`packages/language-effect/src/modules/mcp/internal/shown.ts:9`). The roles the caller holds are asked only when
+- **The answer over MCP** goes through the one visibility rule, for the agent audience
+  (`packages/language-effect/src/modules/visibility/internal/rule.ts:10`). The roles the caller holds are asked only when
   some field is private, the way the role check decides them (D3 #125). A field the declaration doesn't name is never
   shown. This is why acme's `session.sign-in` can't be called through MCP: a password never passes through an agent.
   Every door and what it reaches is [doors](doors.mdx).
@@ -306,7 +317,7 @@ is [data](data.mdx), and in depth [stores](stores.mdx).
 | Visibility in the model | `packages/compiler/src/modules/model/internal/describe.ts:29` | built |
 | The span allowlist | `packages/language-effect/src/modules/handler/internal/attributes.ts:10` | built |
 | The journal keeping public event fields only | `packages/language-effect/src/modules/handler/internal/move.ts:70` | built |
-| What an MCP caller is shown | `packages/language-effect/src/modules/mcp/internal/shown.ts:9` | built |
+| What an MCP caller is shown | `packages/language-effect/src/modules/visibility/internal/rule.ts:10` | built |
 | New ids | `packages/language-effect/src/modules/ids/types.ts:5` | built |
 | `Blueprint.traced`, free text untraced | `packages/language-effect/src/modules/handler/internal/attributes.ts` | planned, M1.19 |
 

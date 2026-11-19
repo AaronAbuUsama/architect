@@ -7,7 +7,8 @@ import type { CallRunner, CallWiring } from "#modules/calls/types.js";
 import { Unit } from "#modules/records/service.js";
 import { Records, Store } from "#modules/records/types.js";
 import { Busy } from "#modules/work/types.js";
-import { BlankReached, InvalidPayload, type HandlerApi } from "./types.ts";
+import { BlankReached, IdempotencyConflict, InvalidPayload, type HandlerApi } from "./types.ts";
+import { canonical, sha256 } from "./internal/digest.ts";
 import { answerAttributes, payloadAttributes, principalAttributes } from "./internal/attributes.ts";
 import { measureCall } from "./internal/call-metrics.ts";
 import { Environment } from "./internal/environment.ts";
@@ -53,6 +54,7 @@ const serve = ({ name, operation, handler, notFrom, notFound = {}, calls, codes 
   if (notFrom !== undefined) refusals.add(notFrom);
   for (const tag of Object.values(notFound)) refusals.add(tag);
   if (op.allowed.some((role) => role.kind !== "anyone")) refusals.add("NotAllowed");
+  refusals.add("IdempotencyConflict");
   const callRefusals = new Set([...refusals, "InvalidPayload"]);
   const steps = Object.fromEntries(
     // Each step is its own span, marked with its kind: a `database` step's work is the store's, a `wait` step's a timer's.
@@ -82,15 +84,18 @@ const serve = ({ name, operation, handler, notFrom, notFound = {}, calls, codes 
         // The same request key from the same caller is one call: answer what was answered, and change nothing.
         const kept = key === undefined ? undefined : yield* store.answered(key);
         if (kept !== undefined) {
+          // The kept answer is bound to the payload it was made for: the same key with another payload is another request.
+          const { payload: madeFor, answer } = JSON.parse(kept) as { readonly payload: string; readonly answer: unknown };
+          if (madeFor !== sha256(canonical(payload))) return yield* new IdempotencyConflict({ key: key! });
           yield* Effect.annotateCurrentSpan({ "request.replayed": true });
-          return yield* decodeAnswer(JSON.parse(kept)).pipe(Effect.orDie);
+          return yield* decodeAnswer(answer).pipe(Effect.orDie);
         }
         // What the payload names, read once and handed in; a missing one is refused before the handler, then the from-check.
         const handed = yield* prehandle(op, notFound, payload, unit);
         const from = yield* checkFrom(op, notFrom, handed.subject);
         const chosen = yield* Ref.make<string | undefined>(undefined);
         const move = (to?: string) => chooseOutcome(name, op, to).pipe(Effect.flatMap((o) => Ref.set(chosen, o)));
-        const answer = yield* busy.counted(handler(payload, { principal, steps, move, ...handed })).pipe(withRecords, logs.around);
+        const answer = yield* busy.counted(handler(payload, { principal, steps, move, ...handed })).pipe(Effect.provideService(Records, logs.watching(unit.records)), logs.around);
         // Recorded before the check, so an answer outside its declaration is evidence `prove` can name.
         yield* Effect.annotateCurrentSpan(answerAttributes(answer, op.answer));
         // An answer that breaks its declaration is the handler's bug, never the caller's: it dies, loudly.
@@ -102,7 +107,7 @@ const serve = ({ name, operation, handler, notFrom, notFound = {}, calls, codes 
         const entries = outcome === undefined ? [] : [yield* applyMove(name, op, payload, answer, outcome, unit, handed.id)];
         // The state the subject was in, written once the move is made: a refused call made no move.
         if (from !== undefined && outcome !== undefined) yield* Effect.annotateCurrentSpan({ "move.from": from });
-        const request = key === undefined ? {} : { request: { key, answer: JSON.stringify(wire) } };
+        const request = key === undefined ? {} : { request: { key, answer: JSON.stringify({ payload: sha256(canonical(payload)), answer: wire }) } };
         const writes = yield* unit.writes;
         const committed = yield* store.commit({ writes, entries, ...request }).pipe(
           Effect.tap((outcome) => Effect.annotateCurrentSpan({
@@ -146,6 +151,7 @@ const serve = ({ name, operation, handler, notFrom, notFound = {}, calls, codes 
   };
   return {
     name,
+    operation,
     call: (raw: unknown, principal: Principal) =>
       decode(raw).pipe(
         Effect.mapError((e) => new InvalidPayload({ issues: e.message })),

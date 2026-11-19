@@ -60,10 +60,12 @@ describe("render", () => {
     const errors = byPath.get("generated/api/src/errors.ts")!.content;
     // K16 (M1.47): the class reads its code from the refusals table, which holds it once.
     expect(errors).toContain('AllowanceExceeded: { code: "AL-001", exit: 41, status: 422 },');
-    expect(errors).toContain("{ code: Schema.Literal(refusals.AllowanceExceeded.code), ...structOf(Allowance.AllowanceExceeded.fields).fields }");
+    expect(errors).toContain("{ code: Schema.Literal(refusals.AllowanceExceeded.code), ...wireStruct(Allowance.AllowanceExceeded.fields).fields }");
     expect(errors).toContain("static readonly code = refusals.AllowanceExceeded.code;");
-    // Only a public field of a refusal is ever shown.
-    expect(errors).toContain('AllowanceExceeded: ["remaining"],');
+    expect(errors).toContain('AllowanceNotActive: { code: "AL-900",');
+    expect(errors).toContain('NotAllowed: { code: "AR-001",');
+    // What a caller is shown of a refusal is the visibility rule's, not a list in the generated errors.
+    expect(errors).not.toContain("shown");
     const output = byPath.get("generated/cli/src/output.ts")!.content;
     expect(output).toContain("`${typeof code === \"string\" ? `[${code}] ` : \"\"}${tag}");
     expect(byPath.get("generated/docs/session/sign-in.md")!.content).toContain("| password | Password (secret) |");
