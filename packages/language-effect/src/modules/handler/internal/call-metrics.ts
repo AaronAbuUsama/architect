@@ -14,11 +14,16 @@ export const RoutedCall = Context.Reference<{ readonly operation: string; starte
   "@orthograph/language-effect/RoutedCall", { defaultValue: () => undefined },
 );
 
-export const recordCall = (operation: string, kind: Principal["kind"] | "unknown", start: bigint, outcome: Outcome) =>
+/** One per call that took longer than its operation's declared `budget.p95`: a target for review, never a failure. */
+const breaches = Metric.counter("ortho.budget.breaches", { incremental: true });
+
+export const recordCall = (operation: string, kind: Principal["kind"] | "unknown", start: bigint, outcome: Outcome, budgetMs?: number) =>
   Effect.gen(function* () {
     const end = yield* Clock.monotonicTimeNanos;
+    const took = Number(end - start) / 1e6;
     yield* Metric.update(Metric.withAttributes(calls, { operation, "principal.kind": kind, ...outcome }), 1);
-    yield* Metric.update(Metric.withAttributes(duration, { operation }), Number(end - start) / 1e6);
+    yield* Metric.update(Metric.withAttributes(duration, { operation }), took);
+    if (budgetMs !== undefined && took > budgetMs) yield* Metric.update(Metric.withAttributes(breaches, { operation }), 1);
   });
 
 const outcomeOf = (exit: Exit.Exit<unknown, unknown>, refusals: ReadonlySet<string>): Outcome => {
@@ -30,10 +35,10 @@ const outcomeOf = (exit: Exit.Exit<unknown, unknown>, refusals: ReadonlySet<stri
 };
 
 /** Wrap the whole call, including decoding when this wrapper owns it and all internal attempts. */
-export const measureCall = (operation: string, principal: Principal, refusals: ReadonlySet<string>) => <A, E, R>(work: Effect.Effect<A, E, R>) =>
+export const measureCall = (operation: string, principal: Principal, refusals: ReadonlySet<string>, budgetMs?: number) => <A, E, R>(work: Effect.Effect<A, E, R>) =>
   Effect.gen(function* () {
     const routed = yield* RoutedCall;
     if (routed?.operation === operation) routed.started = true;
     const start = yield* Clock.monotonicTimeNanos;
-    return yield* work.pipe(Effect.onExit((exit) => recordCall(operation, principal.kind, start, outcomeOf(exit, refusals))));
+    return yield* work.pipe(Effect.onExit((exit) => recordCall(operation, principal.kind, start, outcomeOf(exit, refusals), budgetMs)));
   });

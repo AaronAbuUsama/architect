@@ -4,11 +4,13 @@ import { existsSync, mkdirSync, rmSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { Effect } from "effect";
 import { WorldFailed, type WorldsApi } from "./types.ts";
+import { portFor } from "./internal/port.ts";
 import { applyMigrations, bringUp, stop } from "./internal/wrangler.ts";
 
 export const Worlds: WorldsApi = {
-  start: ({ root, port, name, otlp, environment, secretEnv, chain }) =>
+  start: ({ root, port: asked, name, otlp, environment, secretEnv, chain }) =>
     Effect.gen(function* () {
+      const port = yield* portFor(asked);
       const config = resolve(root, "generated/server/wrangler.jsonc");
       if (!existsSync(config)) return yield* new WorldFailed({ message: `${config} is missing: run nx sync first` });
       // A fresh world each run: stage one has no migrations between versions.
