@@ -15,7 +15,7 @@ const thingOf = (ref: string) => ref.split(".")[0]!;
 const nodes = (): GNode[] => [
   ...groups.map((g): GNode => {
     const m = g.mount ? mounts[g.mount as MountName] : null;
-    return { id: `g:${g.name}`, kind: "group", label: m ? m.package : g.label, sub: m ? `${m.kind} · ${m.version} · ${m.file}` : "the app", href: m ? `plugin-${g.name}.html` : "home.html" };
+    return { id: `g:${g.name}`, kind: "group", label: m ? m.package : g.label, sub: m ? `${m.kind} · ${m.version} · ${m.file}` : "the app", href: m ? "plugins.html" : "home.html" };
   }),
   ...things.map((t): GNode => ({
     id: t.name, kind: "thing", label: t.name, parent: `g:${groups.find((g) => g.things.includes(t.name))!.name}`, href: `thing-${t.name}.html`,

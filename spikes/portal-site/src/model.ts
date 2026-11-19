@@ -66,5 +66,6 @@ export const short = (hash: string) => hash.replace(/^sha256[-:]/, "").slice(0, 
 export const page = {
   home: "home.html",
   thing: (t: string) => `thing-${t}.html`,
-  op: (o: string, tab = "contract") => `op-${o}${tab === "contract" ? "" : `-${tab}`}.html`,
+  /** "spans" was a tab until round 4; a link to a trace now opens the Metrics tab with the call's trace drawer open. */
+  op: (o: string, tab = "contract") => tab === "spans" ? `op-${o}-metrics.html#trace` : `op-${o}${tab === "contract" ? "" : `-${tab}`}.html`,
 };

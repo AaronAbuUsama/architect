@@ -1,4 +1,4 @@
-// Monitor, proposed in K18: issues and alerts that fall out of the model with nothing configured. Plus "About this drawing".
+// Monitor, decided in K18 (Aaron, "K18 all A"), built by M1.49: issues and alerts that fall out of the model with nothing configured. Plus "About this drawing".
 import { Chip } from "@heroui/react";
 import { journeys } from "../journeys.ts";
 import { statOf } from "../live.ts";
@@ -7,7 +7,7 @@ import { Foot, Shell } from "../shell.tsx";
 import { Block, Spark, SparkBars } from "../ui.tsx";
 import { KeyPath } from "../kit/key-path.tsx";
 
-const Title = ({ h, p }: { h: string; p: string }) => <header className="page-title"><div className="title-row"><h1>{h}</h1><Chip size="sm" variant="soft" color="accent">proposed in K18</Chip></div><p>{p}</p></header>;
+const Title = ({ h, p }: { h: string; p: string }) => <header className="page-title"><div className="title-row"><h1>{h}</h1><Chip size="sm" variant="soft" color="accent">K18 · M1.49</Chip></div><p>{p}</p></header>;
 
 export const Issues = () => (
   <Shell here={{ id: "issues", scope: { label: "link.add", ops: ["link.add"] } }} crumbs={["Plugged In", "Monitor", "Issues"]}>
@@ -54,7 +54,7 @@ export const Alerts = () => {
           <table className="tbl"><thead><tr><th>rule</th><th>falls out of</th><th>state</th></tr></thead>
             <tbody>{all.map((r) => <tr key={r.rule}><td className="small">{r.rule}</td><td className="small muted">{r.from}</td><td><Chip size="sm" variant="soft" color={r.state === "firing" ? "danger" : r.state === "warning" ? "warning" : "success"}>{r.state}</Chip></td></tr>)}</tbody></table>
         </Block>
-        <Foot>Proposed in K18. A machine state held too long needs a declared limit, so no such rule exists yet.</Foot>
+        <Foot>Decided in K18, built by M1.49. A machine state held too long needs a declared limit, `within` on the state (M5.15).</Foot>
       </div>
     </Shell>
   );
@@ -67,9 +67,9 @@ export const About = () => (
       <Block title="What is real, what is filled in">
         <ul className="plain"><li><strong>From the model:</strong> things, fields, machines, events, errors and codes, operations with payload, answer, refusals, who may call, steps, budgets, and the four environments.</li>
           <li><strong>From the journey files:</strong> three journeys and two starting worlds, step by step.</li>
-          <li><strong>Filled in by hand</strong>, because that model predates them: the plugin groups and plugin pages, role rules, secret fields, the store, notes, and the blank operation link.pin.</li>
+          <li><strong>Filled in by hand</strong>, because that model predates them: the plugin groups and plugin cards, role rules, secret fields, the store, notes, and the blank operation link.pin.</li>
           <li><strong>Sample numbers:</strong> every count, p95, trace and verdict.</li>
-          <li><strong>Proposed, not agreed:</strong> the Monitor section (Issues, Alerts) and the round 3 layout throughout.</li></ul>
+          <li><strong>Agreed:</strong> the layout is round 4's picks, and the Monitor section (Issues, Alerts) is K18's. What no slice delivers yet is listed in design/portal.md, &ldquo;What the drawing needs that the model or telemetry doesn&rsquo;t give yet&rdquo;.</li></ul>
       </Block>
       <Block title="Left out on purpose"><p>The acme leftovers in that model (organization, invitation, membership, api-key, system), and any count of stored data: how many links exist, or how many are in each state.</p></Block>
     </div>

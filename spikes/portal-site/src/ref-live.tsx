@@ -35,30 +35,14 @@ export const Recent = ({ title, spans }: { title: string; spans: Span[] }) => (
 );
 
 export const recentRefusals: Span[] = [
-  { at: "12:04:29", op: "handle.claim", who: "bob", what: "HandleTaken", tone: "warning", ms: 3, attr: "refusal.code HN-001" },
-  { at: "12:04:02", op: "handle.claim", who: "stranger", what: "NotAllowed", tone: "warning", ms: 0, attr: "refusal.code AR-001 · at the door", door: true },
+  { at: "12:04:29", op: "handle.claim", who: "signed-in", what: "HandleTaken", tone: "warning", ms: 3, attr: "refusal.code HN-001" },
   { at: "12:03:40", op: "profile.get", who: "anyone", what: "ProfileNotFound", tone: "warning", ms: 2, attr: "refusal.code PR-001" },
   { at: "12:03:12", op: "session.sign-in", who: "anyone", what: "SessionCredentialsWrong", tone: "warning", ms: 38, attr: "refusal.code SE-001" },
-  { at: "12:02:57", op: "link.add", who: "carol", what: "LinkNeedsHandle", tone: "warning", ms: 4, attr: "refusal.code LI-001" },
-];
-export const recentDenied: Span[] = [
-  { at: "12:04:02", op: "handle.claim", who: "stranger", what: "NotAllowed", tone: "warning", ms: 0, attr: "allowed signed-in · caller anyone · at the door", door: true },
-  { at: "12:03:33", op: "link.order", who: "bob", what: "NotAllowed", tone: "warning", ms: 1, attr: "role linkOwner · link.owner ≠ caller" },
-  { at: "12:01:48", op: "session.show", who: "anyone", what: "NotAllowed", tone: "warning", ms: 0, attr: "allowed signed-in · caller anyone · at the door", door: true },
-  { at: "11:59:20", op: "handle.release", who: "bob", what: "NotAllowed", tone: "warning", ms: 1, attr: "role handleOwner · handle.owner ≠ caller" },
+  { at: "12:02:57", op: "link.add", who: "signed-in", what: "LinkNeedsHandle", tone: "warning", ms: 4, attr: "refusal.code LI-001" },
 ];
 export const recentEvents: Span[] = [
-  { at: "12:04:31", op: "handle.claim", who: "aaron", what: "HandleClaimed", tone: "success", ms: 9, attr: "commit.outcome committed · attempt 2" },
-  { at: "12:03:58", op: "link.add", who: "aaron", what: "LinkAdded", tone: "success", ms: 7, attr: "move.from · → listed" },
-  { at: "12:03:02", op: "link.remove", who: "aaron", what: "LinkRemoved", tone: "success", ms: 6, attr: "move.from listed → removed" },
-  { at: "11:58:44", op: "handle.release", who: "dana", what: "HandleReleased", tone: "success", ms: 5, attr: "move.from claimed → released" },
+  { at: "12:04:31", op: "handle.claim", who: "signed-in", what: "HandleClaimed", tone: "success", ms: 9, attr: "commit.outcome committed · attempt 2" },
+  { at: "12:03:58", op: "link.add", who: "signed-in", what: "LinkAdded", tone: "success", ms: 7, attr: "move.from · → listed" },
+  { at: "12:03:02", op: "link.remove", who: "signed-in", what: "LinkRemoved", tone: "success", ms: 6, attr: "move.from listed → removed" },
+  { at: "11:58:44", op: "handle.release", who: "signed-in", what: "HandleReleased", tone: "success", ms: 5, attr: "move.from claimed → released" },
 ];
-export const recentRejected: Span[] = [
-  { at: "12:03:49", op: "link.add", who: "aaron", what: "bad payload", tone: "warning", ms: 0, attr: "url · LinkUrl · not a web address", door: true },
-  { at: "12:02:10", op: "handle.claim", who: "erin", what: "bad payload", tone: "warning", ms: 0, attr: "name · HandleName · longer than 30", door: true },
-  { at: "11:57:31", op: "link.add", who: "aaron", what: "bad payload", tone: "warning", ms: 0, attr: "title · LinkTitle · longer than 120", door: true },
-];
-/** Payloads refused at the door because a field broke its value's limits, per value, in the window. */
-export const rejectedBy: Record<string, number> = { LinkUrl: 6, HandleName: 3, LinkTitle: 1 };
-/** Mean span time of the role check, per rule, in the window. */
-export const roleCheckMs: Record<string, number> = { anyone: 0.1, "signed-in": 0.2, handleOwner: 1.4, linkOwner: 1.6 };

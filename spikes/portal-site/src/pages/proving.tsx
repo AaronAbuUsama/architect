@@ -55,7 +55,7 @@ export const JourneyPage = ({ j }: { j: Journey }) => (
               <div className="t">{s.title}</div>
               <div className="c"><Chip size="sm" variant="secondary">{s.actor}</Chip><ArrowRightIcon size={12} aria-hidden="true" /><a href={page.op(s.op, s.ok ? "contract" : "spans")}><Chip size="sm" variant="soft" color="accent" className="mono">{s.op}</Chip></a><code className="payload">{s.payload}</code></div>
               <div className="checks">{s.checks.map((c) => <Chip key={c} size="sm" variant="soft" color={s.ok ? "default" : "danger"}>{c}</Chip>)}</div>
-              {!s.ok && <p className="small tone-danger">Failed in staging: links[0].title was "GitHub". <a href={page.op(s.op, "spans")}>Open the trace</a></p>}
+              {!s.ok && <p className="small tone-danger">Failed in staging. <a href={page.op(s.op, "spans")}>Open the trace</a></p>}
             </Timeline.Content>
           </Timeline.Item>))}</Timeline>
       </Block>
