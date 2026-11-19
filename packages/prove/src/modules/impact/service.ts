@@ -11,7 +11,7 @@ const record: ImpactApi["record"] = (root, model, verdicts, results) =>
     const prior = readLedger(root);
     const before = prior?.proven ?? {};
     const hash = results === undefined ? undefined : modelHash(model);
-    const proofs = new Map(results?.map(({ operation, journeys }) => [operation, { storyHash: storyHash(model, operation), journeys: journeys ?? [] }]));
+    const proofs = new Map(results?.map(({ operation, journeys }) => [operation, { storyHash: storyHash(model, operation, (journeys ?? []).map((v) => v.journey)), journeys: journeys ?? [] }]));
     // Still proven from before, unless this run judged it.
     const kept = Object.entries(before).filter(([op, depends]) => {
       const evidence = prior?.verdicts?.[op];

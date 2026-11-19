@@ -32,3 +32,21 @@ display the field as an any-thing reference.
 
 Checks 05 through 08 passed 39 tests locally. The omitted-operation journey through the Docker-backed collector
 was excluded as directed by the thread brief. The workerd route checks in 08 ran locally.
+
+## Journeys are an input to generate (lead, 19 November 2026)
+
+Since M1.03 the model holds the journeys and starting worlds, and `generated/model/model.json` and the portal's
+`generated/portal/blueprint.json` are written from it. So writing or editing a journey changes what `ortho generate`
+writes, like any declaration, and `ortho check` reports drift until it is run. Evidence: layer1 check 06 copied acme's
+`journeys/` into the starter after generating and then ran `ortho check`, which named both files (CI run 44423190046).
+The authoring loop is therefore: write the journeys, generate, check. The check was updated by an author to say so;
+`ortho dev` and `ortho watch` already regenerate on every change.
+
+## A new journey does not stale a proof (lead, 19 November 2026)
+
+M1.04 first fingerprinted every journey that exercises an operation, so adding `allowance.list` with its journey
+(`an-owner-lists-allowances`, standing on `founded`) staled `allowance.grant` and `organization.create`, against
+D3 #15.3 (layer2 check 3: a new read is minor, `stale none`). The fingerprint now covers only the journeys that judged
+the operation: each must still exist, still exercise it, and be unchanged with its starting worlds. A journey added
+later is new evidence for the next prove, not a change to this proof. Editing or removing a journey that judged it
+still stales it. See `storyHash` and `evidenceHolds` in `packages/prove/src/modules/verdicts/internal/proof.ts`.

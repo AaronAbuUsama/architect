@@ -56,3 +56,32 @@ it("retains one verdict per operation per journey and stales only the edited han
     rmSync(root, { recursive: true, force: true });
   }
 });
+
+it("a journey added later stales nothing; editing a journey that judged an operation stales it", { timeout: 120_000 }, async () => {
+  const root = mkdtempSync(join(acme, ".journey-proof-"));
+  const compile = () => Effect.runPromise(Compiler.model.pipe(Effect.provide(nodeSource(root))));
+  try {
+    for (const part of ["blueprint", "generated", "src", "journeys", "package.json"]) cpSync(join(acme, part), join(root, part), { recursive: true });
+    const model = await compile();
+    const project = await Effect.runPromise(Journeys.load(root, model));
+    const judged = Object.keys(model.operations).map((operation) => ({ operation, eval: "coverage" as const, failures: [], notes: [] }));
+    const runs = project.journeys.map(({ name }, i) => ({
+      name, calls: [...scenarioOf(model, model.journeys[project.journeyFiles![i]!]!).operationNames].map((operation) => ({ operation }) as CallRecord),
+      steps: [], stopped: undefined,
+    }));
+    await Effect.runPromise(Impact.record(root, model, judged, proofVerdicts(project, runs, new Map(), judged, handlerHashes(root, model))));
+
+    // A second grant journey on the same starting world: new evidence for the next prove, not a change to this proof.
+    const grant = readFileSync(join(root, "journeys/grant-an-allowance.ts"), "utf8");
+    writeFileSync(join(root, "journeys/grant-again.ts"), grant.replace('Blueprint.journey("grant an allowance"', 'Blueprint.journey("grant again"'));
+    expect((await Effect.runPromise(Impact.of(root, await compile()))).stale).toEqual([]);
+
+    // Changing a journey that judged allowance.grant stales what that journey exercised.
+    writeFileSync(join(root, "journeys/grant-an-allowance.ts"), grant.replace("ada grants olga 500", "ada grants olga five hundred"));
+    const stale = (await Effect.runPromise(Impact.of(root, await compile()))).stale;
+    expect(stale).toContain("allowance.grant");
+    expect(stale).not.toContain("allowance.spend");
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});

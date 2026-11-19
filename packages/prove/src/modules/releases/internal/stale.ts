@@ -37,7 +37,7 @@ export const staleness = (logbook: string, model: Model, root?: string): Effect.
         const evidence = row.journeys;
         const matches = evidence == null || root === undefined ||
           (evidence.every((v) => v.modelHash === modelHash(proved)) &&
-            evidenceHolds(root, model, row.operation, storyHash(proved, row.operation), evidence));
+            evidenceHolds(root, model, row.operation, storyHash(proved, row.operation, evidence.map((v) => v.journey)), evidence));
         if (matches && holds(model, proved, row.operation)) proven.add(row.operation);
         else staleIn.set(row.operation, [...(staleIn.get(row.operation) ?? []), environment]);
       }
