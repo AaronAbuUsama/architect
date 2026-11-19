@@ -71,7 +71,7 @@ Three kinds of line carry the declaration: the declared steps (`steps.load`, `st
 
 The frame is one type, made from the operation:
 
-```ts file=packages/language-effect/src/modules/handler/types.ts lines=60-61
+```ts file=packages/language-effect/src/modules/handler/types.ts lines=64-65
 /** What a project writes in `<verb>.handler.ts`: the declared payload in, the declared answer or a declared error out. */
 export type Handler<O, R = never, C = {}> = (payload: PayloadOf<O>, context: HandlerContext<O, C>) => Effect.Effect<AnswerOf<O>, ErrorOf<O>, R>;
 ```
@@ -184,26 +184,22 @@ That is the point: the compiler tells you what to change, and nothing you wrote 
 
 ### What the scaffold writes for you
 
-**The wired scaffold** (K5; built in M1.26) writes a real function, already wired: each declared step in declared
-order, the move when one is declared, and a stub for each declared refusal. Every hole is a `Handlers.blank`, so the
-file compiles. This is the part of the generator that writes the body:
+**The wired scaffold** (K5; built in M1.26, and since K16 and M1.44 a scaffold that explains itself) writes a real
+function, already wired, under a header that cites each part's blueprint file and draws the machine with this call's
+rows marked. The body is sections in order: each declared step, with the declared refusals placed before the first step
+that writes; the move, one `Match.when` per outcome when there is more than one; and the answer. Every hole is a
+`Handlers.blank`, so the file compiles. This is the part of the generator that orders the body:
 
-```ts file=packages/projections/src/modules/handlers/internal/scaffold.ts lines=78-92
-`/** ${op.description} */`,
-`const ${local(camel(op.verb))}: Handler = (_payload, ${context.length === 0 ? "_context" : `{ ${context.join(", ")} }`}) =>`,
-"  Effect.gen(function* () {",
-steps.map(([key, step]) => `    yield* ${runner(key)}(Handlers.blank(${JSON.stringify(`${key}: the work this step does`)}));${step.optional ? " // optional: may be skipped" : ""}`),
-op.errors.flatMap((error) => [
-  `    if (yield* Handlers.blank<boolean>("refuse ${error} when?")) {`,
-  `      yield* Effect.logInfo(yield* Handlers.blank("why ${error} was refused"));`,
-  `      return yield* new ${error}(yield* Handlers.blank("${error}'s fields"));`,
-  "    }",
-]),
-move,
-`    return yield* Handlers.blank("the answer");`,
-"  });",
-"",
-`export default ${local(camel(op.verb))};`,
+```ts file=packages/projections/src/modules/handlers/internal/body.ts lines=78-86
+/** The body's sections in order, each a list of lines; the scaffold puts an empty line between them. */
+export const body = (model: Model, op: OperationModel, minted: string | undefined): ReadonlyArray<ReadonlyArray<string>> => {
+  const keys = Object.keys(op.steps);
+  const writing = keys.findIndex((k) => (op.steps[k]!.writes?.length ?? 0) > 0);
+  const at = writing >= 0 ? writing : keys.length > 0 ? keys.length - 1 : keys.length;
+  const steps = keys.map((k) => stepBlock(model, op, k));
+  return [...steps.slice(0, at), ...refusalBlocks(model, op), ...steps.slice(at), moveBlock(model, op), answerBlock(model, op, minted)]
+    .filter((s) => s.length > 0);
+};
 ```
 
 For signup's `join` it writes:
