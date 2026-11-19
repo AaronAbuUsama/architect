@@ -65,9 +65,10 @@ slop on 19 November 2026.
 ### Content
 
 - **Generated facts.** A refusal's code, its HTTP status and its CLI exit, and any other fact the generators write, are
-  quoted only from the example's generated files (`generated/api/src/errors.ts`, `generated/cli/src/`), never
-  copied by hand from `design/portal.md`, an earlier mock or a grill. Those copies go stale; a G5 grill showed a
-  refusal's code wrong that way. Regenerate first if the example changed.
+  quoted only from the example's own generated files (`examples/<name>/generated/api/src/errors.ts` and
+  `examples/<name>/generated/cli/src/`), never copied by hand from `design/portal.md`, an earlier mock or a grill.
+  Those copies go stale: a grill on 19 November showed the wrong code for one refusal
+  (HandleNotClaimed). Regenerate first if the example changed.
 - **Numbers are data, not sentences.** A number goes in a stat block (`KPI`, `KPIGroup`) or a chart, with its unit and
   what it is out of. Prose may tell the story but never carries a number the page doesn't also show
   (`design/portal.md`, numbers as data).

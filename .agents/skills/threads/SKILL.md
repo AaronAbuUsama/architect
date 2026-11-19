@@ -38,11 +38,13 @@ turn with a `TO THE CONDUCTOR` block or a one-line status, because the conductor
   a header another reads, or promises what another delivers, they are one branch, not two threads. Before starting a
   thread, check the thread list for one already doing the job.
 - **Decision IDs come from one allocator.** On a goal, the lead keeps a "Decision IDs" list in the goal file on its
-  branch; elsewhere, the conductor. Ask it for the next ID before you write the file. Never mint one yourself.
+  branch; elsewhere, the conductor keeps it in `design/handoff.md`. Ask for the next ID before you write the file.
+  Never mint one yourself.
 - **Never push to a merged branch.** Before pushing, check the pull request is still open
   (`gh pr view <n> --json state`). Once it has merged, cut a fresh branch from the target.
 - **Push before you end a turn.** Commit and push your branch before every report, as work in progress if need be. A
-  worktree or a session can disappear; GitHub is the only copy that survives.
+  worktree or a session can disappear; GitHub is the only copy that survives. Where a slice lands as one commit, squash
+  the work-in-progress commits into it before it merges.
 - **Leave the machine as you found it.** Stop only the processes you started, by PID, never with a machine-wide `pkill`
   or `killall`. Before each report, stop every one still running from your worktree (`AGENTS.md`).
 - **Secrets stay out of view.** Never print a key or connection string, or write one to a file or repository.

@@ -15,10 +15,11 @@ thread types, their emojis, their finish lines and your agent's word for each ac
    file or a header the other reads. If one slice's output promises what another delivers (the scaffold that promised
    pre-handling another slice was to build), they are one branch, built in order. Check the thread list for one
    already doing the job; never start a second.
-   **Hand out decision IDs from one place.** You allocate them on `main`; a goal's lead allocates them on the goal
-   branch, from a "Decision IDs" list it keeps in the goal file; every goal brief says so. Before handing one
-   out, check no file in `design/decisions/` already uses it, on `main` and on every open branch
-   (`git ls-tree -r --name-only origin/<branch> design/decisions/`), then add the ID with a one-line title to the list
+   **Hand out decision IDs from one place.** You allocate them on `main`, from a "Decision IDs" list in
+   `design/handoff.md`; a goal's lead allocates them on the goal branch, from the same list in the goal file, and
+   every goal brief says so. Before handing one out, check that no file in `design/decisions/` starts with that ID
+   (`G3`, say, matches `G3.md` and `G3-anything.md`), on `main` and on every open branch
+   (`git ls-tree -r --name-only origin/<branch> design/decisions/`). Then add the ID with a one-line title to the list
    at once and push it.
 2. **Title it** `<emoji> <Type>: <subject>`, and tag it `thread:<type>` where your agent has tags.
 3. **Brief it.** A brief is the thread's only context. It covers:

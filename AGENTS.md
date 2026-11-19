@@ -18,10 +18,12 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
 - When code and design disagree, or two design files disagree, decide which is right, fix the other in the same
   change, and record the call in `design/decisions/` with the evidence. Nothing waits on Aaron for this, including
   items marked decided, as long as the change serves the goal in `README.md`.
-- **One way to supersede.** When a decision changes an older doc, amend the older doc in place in the same change, with
-  "Amended by <id>, <date>" beside the changed words. The new decision lists each replaced phrase under
-  `## Supersedes`, one line each (`- <old doc>: "<old words>" → "<new words>"`), and the change shows that `git grep`
-  finds each old phrase only in `design/decisions/` and `design/process/` (CI's `e2e-m0` job checks it).
+- **One way to supersede.** When a decision changes what an older doc says, the same change does three things. Live
+  docs (design pages, skills, docs, code) are rewritten to the new words. Dated records keep their words, as
+  `design/naming.md` rule 6 says, and gain "Superseded by <id>, <date>" beside the changed words. The new decision lists
+  each replaced phrase under `## Supersedes`, one line each (`- <old doc>: "<old words>" → "<new words>"`), and
+  `git grep` then finds each old phrase only in the dated records and `design/process/` (CI's `e2e-m0` job checks
+  it). This holds from 19 November 2026; older "superseded by" notes stand as written.
 - Keep Aaron's own calls (the ones dated with his name) unless building proves one wrong; then change it, record why,
   and tell him in the next report.
 - Come back to Aaron only when truly blocked: money beyond the cap, a credential, production, something outward-facing
