@@ -1,0 +1,1396 @@
+{
+ "asOf": "audit of m1@56ea4b31 (placeholder until design/grid/grid.json)",
+ "goal": {
+  "title": "Fill in the coverage grid",
+  "writeUp": [
+   "Placeholder until the grid thread writes the goal (design/decisions/K14-the-grid.md)."
+  ],
+  "doneWhen": "Every cell is green or not-needed with a reason."
+ },
+ "blocks": [
+  {
+   "id": "thing",
+   "name": "Thing & fields",
+   "summary": "",
+   "order": 0,
+   "endState": {
+    "kind": "portal-view",
+    "title": "",
+    "description": "",
+    "ref": null
+   }
+  },
+  {
+   "id": "operation",
+   "name": "Operation & read",
+   "summary": "",
+   "order": 1,
+   "endState": {
+    "kind": "portal-view",
+    "title": "",
+    "description": "",
+    "ref": null
+   }
+  },
+  {
+   "id": "step",
+   "name": "Step",
+   "summary": "",
+   "order": 2,
+   "endState": {
+    "kind": "portal-view",
+    "title": "",
+    "description": "",
+    "ref": null
+   }
+  },
+  {
+   "id": "machine",
+   "name": "Machine, states, move",
+   "summary": "",
+   "order": 3,
+   "endState": {
+    "kind": "portal-view",
+    "title": "",
+    "description": "",
+    "ref": null
+   }
+  },
+  {
+   "id": "event",
+   "name": "Event",
+   "summary": "",
+   "order": 4,
+   "endState": {
+    "kind": "portal-view",
+    "title": "",
+    "description": "",
+    "ref": null
+   }
+  },
+  {
+   "id": "error",
+   "name": "Error & refusal code",
+   "summary": "",
+   "order": 5,
+   "endState": {
+    "kind": "portal-view",
+    "title": "",
+    "description": "",
+    "ref": null
+   }
+  },
+  {
+   "id": "roles",
+   "name": "Roles",
+   "summary": "",
+   "order": 6,
+   "endState": {
+    "kind": "portal-view",
+    "title": "",
+    "description": "",
+    "ref": null
+   }
+  },
+  {
+   "id": "visibility",
+   "name": "Field visibility",
+   "summary": "",
+   "order": 7,
+   "endState": {
+    "kind": "portal-view",
+    "title": "",
+    "description": "",
+    "ref": null
+   }
+  },
+  {
+   "id": "environment",
+   "name": "Environment",
+   "summary": "",
+   "order": 8,
+   "endState": {
+    "kind": "portal-view",
+    "title": "",
+    "description": "",
+    "ref": null
+   }
+  },
+  {
+   "id": "store",
+   "name": "Store",
+   "summary": "",
+   "order": 9,
+   "endState": {
+    "kind": "portal-view",
+    "title": "",
+    "description": "",
+    "ref": null
+   }
+  },
+  {
+   "id": "mount",
+   "name": "Mount, adapter, plugin origin",
+   "summary": "",
+   "order": 10,
+   "endState": {
+    "kind": "portal-view",
+    "title": "",
+    "description": "",
+    "ref": null
+   }
+  },
+  {
+   "id": "device",
+   "name": "Runs on the device",
+   "summary": "",
+   "order": 11,
+   "endState": {
+    "kind": "portal-view",
+    "title": "",
+    "description": "",
+    "ref": null
+   }
+  },
+  {
+   "id": "journey",
+   "name": "Journey & starting world",
+   "summary": "",
+   "order": 12,
+   "endState": {
+    "kind": "portal-view",
+    "title": "",
+    "description": "",
+    "ref": null
+   }
+  }
+ ],
+ "outputs": [
+  {
+   "id": "model",
+   "name": "Model",
+   "provedBy": "check",
+   "order": 0
+  },
+  {
+   "id": "api",
+   "name": "API",
+   "provedBy": "check",
+   "order": 1
+  },
+  {
+   "id": "server",
+   "name": "Server",
+   "provedBy": "check",
+   "order": 2
+  },
+  {
+   "id": "sdk",
+   "name": "SDK",
+   "provedBy": "journey",
+   "order": 3
+  },
+  {
+   "id": "cli",
+   "name": "CLI",
+   "provedBy": "journey",
+   "order": 4
+  },
+  {
+   "id": "mcp",
+   "name": "MCP",
+   "provedBy": "journey",
+   "order": 5
+  },
+  {
+   "id": "docs",
+   "name": "Docs",
+   "provedBy": "check",
+   "order": 6
+  },
+  {
+   "id": "portal",
+   "name": "Portal",
+   "provedBy": "portal",
+   "order": 7
+  },
+  {
+   "id": "telemetry",
+   "name": "Telemetry",
+   "provedBy": "portal",
+   "order": 8
+  }
+ ],
+ "cells": [
+  {
+   "id": "thing.model",
+   "block": "thing",
+   "output": "model",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "thing.api",
+   "block": "thing",
+   "output": "api",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "thing.server",
+   "block": "thing",
+   "output": "server",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "thing.sdk",
+   "block": "thing",
+   "output": "sdk",
+   "state": "partly",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "thing.cli",
+   "block": "thing",
+   "output": "cli",
+   "state": "partly",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "thing.mcp",
+   "block": "thing",
+   "output": "mcp",
+   "state": "partly",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "thing.docs",
+   "block": "thing",
+   "output": "docs",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "thing.portal",
+   "block": "thing",
+   "output": "portal",
+   "state": "partly",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "thing.telemetry",
+   "block": "thing",
+   "output": "telemetry",
+   "state": "partly",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "operation.model",
+   "block": "operation",
+   "output": "model",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "operation.api",
+   "block": "operation",
+   "output": "api",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "operation.server",
+   "block": "operation",
+   "output": "server",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "operation.sdk",
+   "block": "operation",
+   "output": "sdk",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "operation.cli",
+   "block": "operation",
+   "output": "cli",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "operation.mcp",
+   "block": "operation",
+   "output": "mcp",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "operation.docs",
+   "block": "operation",
+   "output": "docs",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "operation.portal",
+   "block": "operation",
+   "output": "portal",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "operation.telemetry",
+   "block": "operation",
+   "output": "telemetry",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "step.model",
+   "block": "step",
+   "output": "model",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "step.api",
+   "block": "step",
+   "output": "api",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "step.server",
+   "block": "step",
+   "output": "server",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "step.sdk",
+   "block": "step",
+   "output": "sdk",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "step.cli",
+   "block": "step",
+   "output": "cli",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "step.mcp",
+   "block": "step",
+   "output": "mcp",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "step.docs",
+   "block": "step",
+   "output": "docs",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "step.portal",
+   "block": "step",
+   "output": "portal",
+   "state": "partly",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "step.telemetry",
+   "block": "step",
+   "output": "telemetry",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "machine.model",
+   "block": "machine",
+   "output": "model",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "machine.api",
+   "block": "machine",
+   "output": "api",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "machine.server",
+   "block": "machine",
+   "output": "server",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "machine.sdk",
+   "block": "machine",
+   "output": "sdk",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "machine.cli",
+   "block": "machine",
+   "output": "cli",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "machine.mcp",
+   "block": "machine",
+   "output": "mcp",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "machine.docs",
+   "block": "machine",
+   "output": "docs",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "machine.portal",
+   "block": "machine",
+   "output": "portal",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "machine.telemetry",
+   "block": "machine",
+   "output": "telemetry",
+   "state": "partly",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "event.model",
+   "block": "event",
+   "output": "model",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "event.api",
+   "block": "event",
+   "output": "api",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "event.server",
+   "block": "event",
+   "output": "server",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "event.sdk",
+   "block": "event",
+   "output": "sdk",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "event.cli",
+   "block": "event",
+   "output": "cli",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "event.mcp",
+   "block": "event",
+   "output": "mcp",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "event.docs",
+   "block": "event",
+   "output": "docs",
+   "state": "partly",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "event.portal",
+   "block": "event",
+   "output": "portal",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "event.telemetry",
+   "block": "event",
+   "output": "telemetry",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "error.model",
+   "block": "error",
+   "output": "model",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "error.api",
+   "block": "error",
+   "output": "api",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "error.server",
+   "block": "error",
+   "output": "server",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "error.sdk",
+   "block": "error",
+   "output": "sdk",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "error.cli",
+   "block": "error",
+   "output": "cli",
+   "state": "partly",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "error.mcp",
+   "block": "error",
+   "output": "mcp",
+   "state": "partly",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "error.docs",
+   "block": "error",
+   "output": "docs",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "error.portal",
+   "block": "error",
+   "output": "portal",
+   "state": "partly",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "error.telemetry",
+   "block": "error",
+   "output": "telemetry",
+   "state": "partly",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "roles.model",
+   "block": "roles",
+   "output": "model",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "roles.api",
+   "block": "roles",
+   "output": "api",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "roles.server",
+   "block": "roles",
+   "output": "server",
+   "state": "partly",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "roles.sdk",
+   "block": "roles",
+   "output": "sdk",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "roles.cli",
+   "block": "roles",
+   "output": "cli",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "roles.mcp",
+   "block": "roles",
+   "output": "mcp",
+   "state": "partly",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "roles.docs",
+   "block": "roles",
+   "output": "docs",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "roles.portal",
+   "block": "roles",
+   "output": "portal",
+   "state": "partly",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "roles.telemetry",
+   "block": "roles",
+   "output": "telemetry",
+   "state": "partly",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "visibility.model",
+   "block": "visibility",
+   "output": "model",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "visibility.api",
+   "block": "visibility",
+   "output": "api",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": "packages/projections/src/modules/api/internal/api.ts:81",
+   "evidence": []
+  },
+  {
+   "id": "visibility.server",
+   "block": "visibility",
+   "output": "server",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "visibility.sdk",
+   "block": "visibility",
+   "output": "sdk",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": "packages/generators/src/modules/render/internal/sdk.ts:133",
+   "evidence": []
+  },
+  {
+   "id": "visibility.cli",
+   "block": "visibility",
+   "output": "cli",
+   "state": "partly",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": "packages/generators/src/modules/render/internal/cli.ts:58",
+   "evidence": []
+  },
+  {
+   "id": "visibility.mcp",
+   "block": "visibility",
+   "output": "mcp",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": "packages/language-effect/src/modules/mcp/internal/shown.ts:9",
+   "evidence": []
+  },
+  {
+   "id": "visibility.docs",
+   "block": "visibility",
+   "output": "docs",
+   "state": "partly",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "visibility.portal",
+   "block": "visibility",
+   "output": "portal",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": "packages/portal/src/modules/wire/types.ts:12",
+   "evidence": []
+  },
+  {
+   "id": "visibility.telemetry",
+   "block": "visibility",
+   "output": "telemetry",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": "packages/language-effect/src/modules/handler/internal/attributes.ts:8",
+   "evidence": []
+  },
+  {
+   "id": "environment.model",
+   "block": "environment",
+   "output": "model",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "environment.api",
+   "block": "environment",
+   "output": "api",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "environment.server",
+   "block": "environment",
+   "output": "server",
+   "state": "partly",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "environment.sdk",
+   "block": "environment",
+   "output": "sdk",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "environment.cli",
+   "block": "environment",
+   "output": "cli",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "environment.mcp",
+   "block": "environment",
+   "output": "mcp",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "environment.docs",
+   "block": "environment",
+   "output": "docs",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "environment.portal",
+   "block": "environment",
+   "output": "portal",
+   "state": "partly",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "environment.telemetry",
+   "block": "environment",
+   "output": "telemetry",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "store.model",
+   "block": "store",
+   "output": "model",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "store.api",
+   "block": "store",
+   "output": "api",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "store.server",
+   "block": "store",
+   "output": "server",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "store.sdk",
+   "block": "store",
+   "output": "sdk",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "store.cli",
+   "block": "store",
+   "output": "cli",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "store.mcp",
+   "block": "store",
+   "output": "mcp",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "store.docs",
+   "block": "store",
+   "output": "docs",
+   "state": "partly",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "store.portal",
+   "block": "store",
+   "output": "portal",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "store.telemetry",
+   "block": "store",
+   "output": "telemetry",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "mount.model",
+   "block": "mount",
+   "output": "model",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "mount.api",
+   "block": "mount",
+   "output": "api",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "mount.server",
+   "block": "mount",
+   "output": "server",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "mount.sdk",
+   "block": "mount",
+   "output": "sdk",
+   "state": "partly",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "mount.cli",
+   "block": "mount",
+   "output": "cli",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "mount.mcp",
+   "block": "mount",
+   "output": "mcp",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "mount.docs",
+   "block": "mount",
+   "output": "docs",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "mount.portal",
+   "block": "mount",
+   "output": "portal",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "mount.telemetry",
+   "block": "mount",
+   "output": "telemetry",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "device.model",
+   "block": "device",
+   "output": "model",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "device.api",
+   "block": "device",
+   "output": "api",
+   "state": "partly",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "device.server",
+   "block": "device",
+   "output": "server",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "device.sdk",
+   "block": "device",
+   "output": "sdk",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "device.cli",
+   "block": "device",
+   "output": "cli",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "device.mcp",
+   "block": "device",
+   "output": "mcp",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "device.docs",
+   "block": "device",
+   "output": "docs",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "device.portal",
+   "block": "device",
+   "output": "portal",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "device.telemetry",
+   "block": "device",
+   "output": "telemetry",
+   "state": "partly",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "journey.model",
+   "block": "journey",
+   "output": "model",
+   "state": "green",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "journey.api",
+   "block": "journey",
+   "output": "api",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "journey.server",
+   "block": "journey",
+   "output": "server",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "journey.sdk",
+   "block": "journey",
+   "output": "sdk",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "journey.cli",
+   "block": "journey",
+   "output": "cli",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "journey.mcp",
+   "block": "journey",
+   "output": "mcp",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "journey.docs",
+   "block": "journey",
+   "output": "docs",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "journey.portal",
+   "block": "journey",
+   "output": "portal",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  },
+  {
+   "id": "journey.telemetry",
+   "block": "journey",
+   "output": "telemetry",
+   "state": "red",
+   "greenMeans": null,
+   "notNeededBecause": null,
+   "todayRef": null,
+   "evidence": []
+  }
+ ]
+}
