@@ -23,9 +23,13 @@ const notFromOf = (model: Model, o: OperationModel) => {
  * generated server says, never in host code; the identity plugin (M2.05) will own it.
  */
 const IDENTITY_USERS = "auth_user";
-/** The thing the identity keeps: its ids are `per_` ids, the identity's users (`Auth`'s contract). The store reads it from them. */
+/**
+ * The thing the identity keeps, bound explicitly: the identity's users are what a `Principal` calls a `person`, so its
+ * thing is the one named `person` (K16 review, 22.1). Never found by its id prefix: an app thing may use `per_` too.
+ */
+const IDENTITY_THING = "person";
 const peopleOf = (model: Model) => {
-  const people = Object.values(model.things).find((t) => { const id = t.fields["id"]?.value; return id?.type === "id" && id.prefix === "per"; });
+  const people = model.things[IDENTITY_THING];
   return people ? `, people: { thing: thingIn(${camel(people.name)}Thing), table: "${IDENTITY_USERS}" }` : "";
 };
 

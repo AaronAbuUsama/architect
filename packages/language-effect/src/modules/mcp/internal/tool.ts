@@ -49,7 +49,7 @@ const refusalOf = (e: unknown, refusals: McpRefusals, seen: Seen): McpResult | u
   const row = refusals.table?.[tag];
   // Structured only with the table's row: code, exit and status come from one place, never pieced together here. They
   // are written after the error's own fields, so a field named `exit`, `status`, `code` or `refusal` can't replace them.
-  const structured = row && { ...Object.fromEntries(keys.map((k) => [k, jsonOf(values[k])])), refusal: tag, code: row.code, exit: row.exit, status: row.status };
+  const structured = row && { ...(jsonOf(Object.fromEntries(keys.map((k) => [k, values[k]]))) as Fields), refusal: tag, code: row.code, exit: row.exit, status: row.status };
   return failed(`[${code}] ${tag}${shown.length > 0 ? ` { ${shown.join(", ")} }` : ""}`, structured);
 };
 

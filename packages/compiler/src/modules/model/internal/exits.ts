@@ -34,7 +34,8 @@ export const notFoundShapes = (things: Readonly<Record<string, ThingExits & { re
 
 /** Whose a reserved or out-of-range exit is, or undefined when a refusal may use it. */
 const unusable = (exit: number, mayBeNotFound: boolean): string | undefined =>
-  mayBeNotFound && exit === 4 ? undefined
+  !Number.isInteger(exit) ? "not a whole number"
+  : mayBeNotFound && exit === 4 ? undefined
   : RESERVED_EXITS.has(exit) ? `${RESERVED_EXITS.get(exit)}'s`
   : exit < LOWEST || exit > HIGHEST ? `outside ${LOWEST} to ${HIGHEST}, the exits a refusal may use` : undefined;
 
@@ -57,3 +58,28 @@ export const exitClashes = (things: Readonly<Record<string, ThingExits>>): Reado
       }),
     ];
   });
+
+/**
+ * What one operation may refuse is judged as a whole: two refusals at one exit, whichever things declared them, can't be
+ * told apart by the CLI. A pair from one thing is already named by `exitClashes`; this names the pairs across things.
+ */
+export const operationExitClashes = (
+  things: Readonly<Record<string, ThingExits>>,
+  operations: Readonly<Record<string, { readonly file: string; readonly name: string; readonly errors: ReadonlyArray<string>; readonly move: { readonly from: ReadonlyArray<string> } | null; readonly thing: string }>>,
+): ReadonlyArray<string> => {
+  const exits = new Map<string, { readonly exit: number; readonly thing: string }>();
+  for (const [thing, t] of Object.entries(things)) {
+    if (t.machine) exits.set(t.machine.notFrom.error, { exit: t.machine.notFrom.exit, thing });
+    for (const [name, { exit }] of Object.entries(t.errors)) exits.set(name, { exit, thing });
+  }
+  return Object.values(operations).flatMap((o) => {
+    const names = [...new Set([...o.errors, ...(o.move && o.move.from.length > 0 && things[o.thing]?.machine ? [things[o.thing]!.machine!.notFrom.error] : [])])];
+    return names.flatMap((name, i) => names.slice(0, i).flatMap((other) => {
+      const a = exits.get(other);
+      const b = exits.get(name);
+      return a && b && a.exit === b.exit && a.thing !== b.thing && unusable(a.exit, true) === undefined
+        ? [`${o.file}: ${o.name} refuses both ${other} and ${name} at exit ${a.exit}: ${name}'s exit ${a.exit} is ${other}'s; pick another`]
+        : [];
+    }));
+  });
+};
