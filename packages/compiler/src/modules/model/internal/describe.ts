@@ -5,7 +5,7 @@ import type { AllowedModel, BlankOperationModel, FieldModel, FieldsModel, Model,
 import { Blanks } from "orthograph/server";
 import { MACHINE_NUMBER, codeOf, inDeclarationOrder, prefixes, refusalsOf } from "./codes.ts";
 import { foundModel, mintsOf, missedBy, notFoundOf } from "./found.ts";
-import { exitClashes, notFoundShapes } from "./exits.ts";
+import { exitClashes, notFoundShapes, operationExitClashes } from "./exits.ts";
 import { unfillable } from "./fillable.ts";
 import { RUNS_NEEDS, deviceProblems } from "./device.ts";
 import { environmentsOf } from "./environments.ts";
@@ -225,7 +225,7 @@ export const describe = (layout: Layout): { model: Model; problems: Array<string
   }
 
   const refusals = refusalsOf(things, problems);
-  problems.push(...exitClashes(things), ...notFoundShapes(things));
+  problems.push(...exitClashes(things), ...operationExitClashes(things, operations), ...notFoundShapes(things));
   const values = Object.fromEntries([...layout.values].sort(([a], [b]) => a.localeCompare(b)).map(([n, v]) => [n, v.meta]));
   const environments = environmentsOf(layout, problems);
   const stores = storesOf(layout, problems);
