@@ -11,6 +11,15 @@ thread types, their emojis, their finish lines and your agent's word for each ac
 ## Starting a thread
 
 1. **Pick its type,** and check the step's `needs` are done on `main` (`design/build-plan.md`). Start every thread whose needs are met at once, so independent work runs in parallel.
+   **Parallel only when nothing is shared.** Two slices run in parallel only when neither changes a type, a generated
+   file or a header the other reads. If one slice's output promises what another delivers (the scaffold that promised
+   pre-handling another slice was to build), they are one branch, built in order. Check the thread list for one
+   already doing the job; never start a second.
+   **Hand out decision IDs from one place.** You allocate them on `main`; a goal's lead allocates them on the goal
+   branch, from a "Decision IDs" list it keeps in the goal file; every goal brief says so. Before handing one
+   out, check no file in `design/decisions/` already uses it, on `main` and on every open branch
+   (`git ls-tree -r --name-only origin/<branch> design/decisions/`), then add the ID with a one-line title to the list
+   at once and push it.
 2. **Title it** `<emoji> <Type>: <subject>`, and tag it `thread:<type>` where your agent has tags.
 3. **Brief it.** A brief is the thread's only context. It covers:
    - **the goal,** in Aaron's words where he gave them;
@@ -54,6 +63,10 @@ All four must hold:
 3. **The layer's gate passes:** its one e2e suite, on a clean checkout.
 4. **A 🔍 pass.** Have the `reviewer` skill run on the layer's diff by a subagent or a 🔍 thread that did not write it,
    against its brief, `AGENTS.md` and `design/`. Merge on a pass. Send findings back to the lead.
+
+The 🔍 is not only for layers. Every build pull request, a builder's into a goal or milestone branch included, gets
+one before it merges, and the 🔍 lists every door into the change and runs one probe through each (the `reviewer`
+skill). Brief leads to do the same.
 
 Then check `main`'s next CI run. If it goes red, fixing it comes before anything else. One landing at a time: leads
 tell you "landing now" before they merge into `main`, and you answer if another landing is under way.

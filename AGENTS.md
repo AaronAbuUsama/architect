@@ -18,6 +18,10 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
 - When code and design disagree, or two design files disagree, decide which is right, fix the other in the same
   change, and record the call in `design/decisions/` with the evidence. Nothing waits on Aaron for this, including
   items marked decided, as long as the change serves the goal in `README.md`.
+- **One way to supersede.** When a decision changes an older doc, amend the older doc in place in the same change, with
+  "Amended by <id>, <date>" beside the changed words. The new decision lists each replaced phrase under
+  `## Supersedes`, one line each (`- <old doc>: "<old words>" → "<new words>"`), and the change shows that `git grep`
+  finds each old phrase only in `design/decisions/` and `design/process/`.
 - Keep Aaron's own calls (the ones dated with his name) unless building proves one wrong; then change it, record why,
   and tell him in the next report.
 - Come back to Aaron only when truly blocked: money beyond the cap, a credential, production, something outward-facing
@@ -66,6 +70,8 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
 - Ask Aaron only when blocked (see "Who decides"), and batch the questions.
 - Spend at most $10 a day on cloud resources, across everything. Layer one needs no cloud at all.
 - Every world, stage and site you make is destroyed; nothing is left running. Touch only your own resources.
+- On the shared Mac, stop only the processes you started, by PID; never run a machine-wide `pkill` or `killall`.
+  Before you report, list what still runs from your worktree (`pgrep -fl "$(pwd)"`) and stop what is yours.
 - Never print a key or connection string, or write one to a file or a commit. Never create a cloud credential without
   Aaron's written yes.
 - Keep people's emails and personal details private.
@@ -77,7 +83,7 @@ decisions, and where docs disagree, take ownership and make them consistent. So:
 
 Every thread is one type, titled with its emoji; the skills are in `.agents/skills/`: `threads` (the types and each agent's
 word for starting, messaging, reading and archiving a thread), `conductor` (the loop), `spike` (running a spike),
-`reviewer` (the 🔍 review), `hashtags` (Aaron's `#shortcuts`), `portal-design` (designing portal and console screens:
+`author` (writing journeys and checks, and proving each fair), `reviewer` (the 🔍 review), `hashtags` (Aaron's `#shortcuts`), `portal-design` (designing portal and console screens:
 the process and the style guide) and `kanban` (the board Aaron and the conductor track every slice on, its data saved
 in the repo, and `STATE.md`, where the project stands). `.claude/skills` and `.claude/agents/reviewer.md`
 are links to it; edit them only in `.agents/skills/`.
