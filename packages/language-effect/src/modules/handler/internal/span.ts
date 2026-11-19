@@ -13,3 +13,6 @@ export const spanned = (name: string, attributes: Record<string, unknown>) => <A
     Effect.withSpan(name, { attributes }),
     Effect.flatMap((outcome) => (Result.isFailure(outcome) ? Effect.fail(outcome.failure) : Effect.succeed(outcome.success))),
   );
+
+/** A step also signals its start and end (K5 seam 10): see `signal.ts`. */
+export { signalled } from "./signal.ts";

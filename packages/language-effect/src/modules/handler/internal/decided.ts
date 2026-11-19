@@ -1,5 +1,6 @@
 // The log that decided a refusal: the last thing the handler logged before it refused, written on the operation's span.
 import { Effect, Logger } from "effect";
+import { CurrentLogAnnotations } from "effect/References";
 import type { FieldsInput } from "orthograph";
 import { traceable } from "orthograph/server";
 
@@ -24,7 +25,10 @@ export const recordingLogs = (payload: object, fields: FieldsInput) => Effect.sy
       : typeof message === "string" ? redact(message)
       : hidden.length > 0 && hidden.some((value) => text(message).includes(value)) ? redact(text(message)) : message;
   const seen: { last: string | undefined } = { last: undefined };
-  const recorder = Logger.make(({ message }) => {
+  // A step signal (K5 seam 10) is evidence for the portal, never the log that decided a refusal.
+  const recorder = Logger.make(({ message, fiber }) => {
+    const annotations = fiber.getRef(CurrentLogAnnotations);
+    if ("step" in annotations && "phase" in annotations) return;
     seen.last = text(scrub(message));
   });
   // Every logger sees the redacted message, the exporters included, never only the recorder (M1.19).
