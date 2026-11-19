@@ -80,5 +80,5 @@ belongs to, and why it waits.
 - **A person's feedback on a run** (HeroUI Pro's Rating and Emoji Reaction Button on a run's answer) as input to the bench (H2). Waits until the bench reports exist (M4.14).
 - **Experiments shared between projects**: a kept experiment's plugin published for another app to mount. Waits on plugins published from their own CI (M2.10).
 - **`@orthograph/portal-ui` on open libraries** (F7): the same exports on free HeroUI 3 primitives, Recharts, TanStack
-  Table, cmdk, Shiki, react-markdown, Tiptap and dnd-kit, the shell by hand. Waits until Orthograph goes to other
-  people or the HeroUI Pro licence lapses; publishing `@orthograph/portal` to npm waits for it.
+  Table, cmdk, Shiki, react-markdown, Tiptap and dnd-kit, the shell by hand. Waits until the HeroUI Pro licence lapses
+  or its terms stop a framework importing it.

@@ -64,6 +64,6 @@ call answered and one waiting for approval.
 
 ## Open risks
 
-- Pro's code can't go into this public repository or the published `@orthograph/portal` (see "Open for Aaron" in
-  `design/portal.md`).
+- Pro's code can't go into this public repository. The real portal imports it through `@orthograph/portal-ui` as a
+  peer dependency, never bundled (F7, `design/decisions/F7-portal-ui-seam.md`).
 - The spike uses fixed data, `setTimeout`-free but outside the package rules: throwaway code, never imported.

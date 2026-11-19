@@ -20,8 +20,8 @@ and time, and never counts or browses the app's stored data.
 - **Q8, HeroUI Pro: neither A nor B.** "We're using it privately anyway, so it's no problem for now. If it ever does
   become a problem, we'll just clean-room the components that we need." So the portal is HeroUI Pro only, with no free
   face. **Fallback, recorded:** if Pro's licence ever blocks distribution, we clean-room the components the portal uses
-  into our own package; the page contract stays as it is, so only the face changes. See "Open for Aaron" for the one
-  thing this answer leaves to him.
+  into our own package; the page contract stays as it is, so only the face changes. "HeroUI Pro behind one package (F7)"
+  below settles how.
 
 ### Round 2 (19 November 2026, in the chat: "Agreed to all questions")
 
@@ -417,19 +417,18 @@ Nothing else on these pages is hand-written: every label, list and diagram is ge
 Aaron, 19 November 2026: "Yes, add the seam". Recorded in [`decisions/F7-portal-ui-seam.md`](decisions/F7-portal-ui-seam.md),
 with the licence clauses. In short:
 
-- **`@orthograph/portal-ui`** (`packages/portal-ui`, private, never published) is the only importer of
-  `@heroui-pro/react`. It exports our own names, shaped by these pages: `Shell` (tree, top bar, rail, drawer), `Board`,
-  `Grid`, `Chart`, `Stat`, `Timeline`, `Command`, `Code`, `Markdown`, `Editor` and thin `Chat` parts. Every page in this
+- **`@orthograph/portal-ui`** (`packages/portal-ui`) is the only importer of `@heroui-pro/react`, which it takes as a
+  peer dependency and never bundles, so it is published like our other packages and each user brings their own Pro
+  licence (Aaron: "we can import it"). It exports our own names, shaped by these pages: `Shell` (tree, top bar, rail, drawer), `Board`,
+  `Grid`, `Chart`, `Stat`, `Card`, `Widget`, `Timeline`, `Command`, `Code`, `Markdown`, `Editor` and the `Chat` parts. Every page in this
   file, M1.24's shell and chat parts, and every extension face import from it, never from Pro.
 - **A lint rule** bans `@heroui-pro/*` everywhere else, generated code included. Spikes are exempt.
-- **Pro installs at build time** from a `HEROUI_AUTH_TOKEN` CI secret Aaron creates, never committed, never run on
+- **Pro installs at build time** from the `HEROUI_AUTH_TOKEN` CI secret (Aaron created it on 19 November 2026), never committed, never run on
   pull requests from forks. Locally it installs from his `heroui-pro login`, as the mock does.
-- **The fallback**, if Orthograph goes to other people or the licence lapses, rebuilds `portal-ui`'s exports on open
-  libraries; the pages don't change. It is later work (`later.md`), and publishing `@orthograph/portal` to npm waits
-  for it.
+- **The fallback**, if the licence lapses or its terms change, rebuilds `portal-ui`'s exports on open libraries; the
+  pages don't change. It is later work (`later.md`).
 
-This replaces round 1's "clean-room the components we need" with one place to do it, and settles the question this
-file left open for Aaron.
+This replaces round 1's "clean-room the components we need" with one place to do it.
 
 ## What this changes elsewhere
 
