@@ -40,7 +40,7 @@ His decisions from the Orthograph DX discussion, carried here as they were given
    - It starts with things and their lifecycles, then shows operations, machines, events, errors, and the notes
      attached to their thing.
    - It shows the declared behaviour, and live evidence lights up that same structure.
-   - The portal gives context for planning. Separate plans and factory surfaces are parked.
+   - The portal gives context for planning. Separate plans and factory surfaces are parked (the work board returns as a portal extension: [K11](K11-work-board.md)).
    - PR #39's telemetry findings are research for the one portal.
    - The skills proposal (PR #37) is parked.
 3. **An action is a generated, app-facing primitive derived from an operation.** It can bind to a screen or an agent

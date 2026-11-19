@@ -56,7 +56,7 @@ v1.0" ([`decisions/K9-growing-example.md`](decisions/K9-growing-example.md)). Th
 adds the slices no milestone had (ids `ST<stage>.<n>`), and gives each stage its gate. Each passing stage is tagged
 `links/stage-<n>`.
 
-**v1.0** is the four stage gates on `main`, plus the release: M7.01 to M7.04 and M7.06 (the cloud pass, the npm
+**v1.0** is the four stage gates on `main`, plus the release: M7.01 to M7.04, M7.06 and M7.13 (the cloud passes for staging and for the release, the npm
 release, the infra projection, a deploy and destroy that leaves nothing, real releases), each credential with Aaron's
 written yes.
 
@@ -68,7 +68,7 @@ written yes.
 | 4 · the club | stage 3 on Aztec: private members, private spends, private ballots | (Later's Noir line, brought in) | ST4.01 to ST4.07 | ST4.08 |
 
 **Beside the stages, off v1.0's path:** the factory (M3.04 to M3.14), the builder's tools and the bench (M4.11 to
-M4.14), views, Stripe, Resend, adapters from OpenAPI, MariaDB and a second app (M5.05 to M5.09, M5.11, M5.13), the
+M4.14), workspaces, experiments and the building agents (M3.20, M4.17 to M4.25, K10), views, Stripe, Resend, adapters from OpenAPI, MariaDB and a second app (M5.05 to M5.09, M5.11, M5.13), the
 `examples/workshop` (M6.20, dropped by K9), and Capxul (M7.07 to M7.11). They run when a thread is free; a stage
 never waits on them.
 
@@ -81,10 +81,10 @@ stage's slice `needs` one of those gates, a stage gate stands in:
 | M5.01 (the decision M5.03 needs, for stage 2's follower events) | Gate M4 | Gate M2 |
 | M3.01 (workflows, stage 3) | Gate M2 | Gate M2, unchanged |
 | M4.01 (agents, stage 3) | Gate M3 | the stage 2 gate, ST2.06 |
-| M7.01 (the cloud pass, v1.0's release) | Gate M6 | the stage 4 gate, ST4.08 |
+| M7.01 (the cloud pass for staging) and M7.13 (the release pass) | Gate M6 | M7.01: Gate M2, so M7.01, M7.03, M7.04 and M7.08 run for staging on the dedicated account (K10, Aaron's Q6). M7.13: the stage 4 gate, ST4.08, and every other M7 slice needs it |
 
 Everything downstream of these five follows from them: M6.02 and the K7 wallet slices from M6.01, M5.03 from M5.01,
-M3.02 and M3.03 from M3.01, M4.02 to M4.10 and M4.16 from M4.01, and M7.02 to M7.04 and M7.06 from M7.01. None of
+M3.02 and M3.03 from M3.01, M4.02 to M4.10 and M4.16 from M4.01, M7.03, M7.04 and M7.08 from M7.01, and M7.02, M7.05 to M7.07 and M7.09 to M7.11 from M7.13. None of
 them needs a factory, bench or M5 slice.
 
 ### Stage 1: links
@@ -216,7 +216,8 @@ confirms on Anvil in a world, signed from the CLI and from a server-held key (K7
 | M1.30 ✅ | The chain adapter `@orthograph/chain-evm` (was M6.05, L3.04): the per-family `ChainPort` (prepare, simulate, sign, submit, track), its transaction manager, nonces, viem error mapping and event streams vendored from `@prb/effect-evm` (MIT, notice kept), reshaped to our module shape with every wait through `Timers`; `ChainFault` typed; receipts as spans (K7) | M1.14 | build | a fixture ERC20 transfer on Anvil; a revert decodes typed; an empty revert arrives as `ChainFault`; a hand-written `viem` import outside `chain-evm` fails lint. **Proof:** [`evidence/M1.30/`](evidence/M1.30/): `chain-evm` passes 15/15 with `ORTHO_CHAIN_EVM_ANVIL=1` on Anvil 1.8.6 as a process: a fixture ERC20 transfer confirms, a revert decodes to its typed refusal with a stable code, empty and text-only reverts stay `ChainFault`, and a reorg is corrected; every wait goes through `Timers`. Lint's boundary test refuses static, dynamic and type `viem` imports outside `chain-evm`. Built in PR #59 (Codex); in CI from M1.31's Foundry step | M |
 | M1.31 ✅ | Anvil in a world (was M6.06, L3.05): `Stand.process`, always `--silent`; Foundry pinned in CI, a plain process and no container (K10 section 8) | M1.30 | build | a world's chain answers `eth_chainId` and is gone when the world ends; nothing it printed holds a key. **Proof:** [`evidence/M1.31/`](evidence/M1.31/): `Anvil.start` in `@orthograph/chain-evm` runs Anvil as a process of the caller's scope, always `--silent`, loopback, `--accounts 0`; the world makes its own keys (`Redacted`) and funds them over `anvil_setBalance`, so no key is in an argument or anything printed (`printed()` is empty, `ps` shows `--silent` and no key). `Worlds.start({ chain })` acquires it before the Worker and releases it after, so the world's `eth_chainId` answers while it runs and the process is gone when its scope closes (`anvil-module.txt`, `world-chain.txt`, run locally on Anvil 1.8.6). CI installs Foundry v1.8.6 through `foundry-rs/foundry-toolchain@v1.9.2` and runs these tests with `ORTHO_CHAIN_EVM_ANVIL=1`; that run is the only proof on Linux | M |
 | M1.32 ✅ ∥ | Simulation, mandatory before every send (was M6.08, L3.07): plain `eth_call`, which works on Anvil (K7 Q5) | M1.30 | build | a reverting call returns its typed error and sends nothing; no SDK path sends without simulating. **Proof:** [`evidence/M1.32/`](evidence/M1.32/): `port.simulate` is an `eth_call` of the prepared transaction (`from`, `to`, `data`, `value`, `gas`) and maps a revert through the refusal lock, so on Anvil a reverting transfer returns `ChainRefusal` `TOKEN-001` with its arguments while the head block and the sender's pending nonce stay unchanged. `sign` and `submit` refuse a transaction that has not simulated (`ChainFault` kind `unsimulated`; the set is added to only by a clean `simulate`), and `replace` signs only from an already-simulated one, so no path sends without simulating. The `simulate` option is gone: a caller cannot swap in a bypass. Run locally on Anvil 1.8.6; CI runs it on the pinned Foundry | S |
-| M1.15 | **Gate M1** | M1.02 to M1.14, M1.16 to M1.32 | e2e | `nx run e2e:m1` passes on `main` | S |
+| M1.33 ∥ | Processes, not containers (K10 section 8; Aaron quit Docker, 18 November): the Collector as its pinned binary, Verdaccio under Node, an OIDC issuer process of our own over `jose` in place of the navikt image, each started by its world as `Stand.process` and owned by PID; the Grafana viewer removed in favour of the portal's trace view; the gates' teardown sweeps owned PIDs, not `docker ps`; CI drops Docker | Gate M0 | build | with no `docker` on `PATH`, `nx run-many -t test`, `nx run e2e:layer1` and `nx run e2e:layer2` pass on macOS and in CI, and each run ends with no process of ours left | M |
+| M1.15 | **Gate M1** | M1.02 to M1.14, M1.16 to M1.33 | e2e | `nx run e2e:m1` passes on `main` | S |
 
 ## M2: Auth and organizations (workable)
 
@@ -251,14 +252,19 @@ refused with `HandleTaken` through the SDK, the CLI, MCP, an action and the hook
 
 ## M3: The factory, with people as workers
 
-**Goal.** `@orthograph/work` takes a mission over a project, works out its tasks from the model and the facts, and lets
-people and outside agents (Claude Code through the factory's CLI or MCP) work them. Only a fact closes a task.
+**Goal.** `@orthograph/work` holds a board of work items ([`decisions/K11-work-board.md`](decisions/K11-work-board.md)):
+the manager plans a goal onto it from Aaron's words, a spec, a failing check, the ledger or the model's gaps; dispatch
+runs ready items in parallel without two touching the same files; people and outside agents (Claude Code through the
+work CLI or MCP) work them. Only a fact closes an item.
+**Spikes before it** (K11, any time, off every gate): `spikes/dispatch-sim` (the dispatch rules on a synthetic plan) and
+`spikes/work-board` (the board over `examples/work`'s generated API, one real goal: links stage 1).
 **Ships.** The factory plugin ([`frame/examples/factory.md`](frame/examples/factory.md)); declared workflows on Effect's
 Cloudflare engine; the logbook adapter; the generated agent kit ([`frame/generators.md`](frame/generators.md));
 `ortho ci`.
-**Gate.** `nx run e2e:m3`: a mission "allowances to production" over acme shows its derived tasks in their columns; a
-person claims `build:allowance.revoke` with `work task claim`, pushes a branch, the local CI proves it and the verdict
-closes the task; closing a task by hand is refused; evicting the manager's Durable Object mid-loop dispatches nothing
+**Gate.** `nx run e2e:m3`: a goal "allowances to production" over acme is planned onto the board, the model's gaps
+among its items; a person claims `build:allowance.revoke` with `work item claim`, pushes a branch, the local CI proves
+it and the verdict closes the item; closing an item by hand is refused; dispatch never runs two items that touch the
+same path; evicting the manager's Durable Object mid-loop dispatches nothing
 twice; `generated/agents/` passes its drift check.
 
 | id | what | needs | kind | done when | size |
@@ -266,19 +272,23 @@ twice; `generated/agents/` passes its drift check.
 | M3.01 | `Blueprint.workflow`: its shape (activities, `await` on an event, durable clocks), where it lives, and the Effect and platform-cloudflare pins. Starts from K5 seam 6: an activity is keyed by run id and activity name; the workshop's publish is the example; settles wake-up, deduplication and replay, and settles where `emits:` on an operation with no machine sits beside workflows (K5 Q5, Aaron: "B, on the operation"; built in M3.16) | Gate M2 | decision | `decisions/M3-workflows.md` written | S |
 | M3.02 | `effect` 4.1.1 to 4.1.3 everywhere, as its own slice | M3.01 | build | every existing gate still green | M |
 | M3.03 | `CloudflareWorkflowEngine` under local workerd: does a replay after eviction skip finished activities? | M3.02 | spike | `spikes/effect-workflow-workerd/README.md` answers it with a run | S |
-| M3.04 | Journeys for the factory (W1): its operations, and "derived, never stored", "only a fact closes", claims, attention | M3.01 | checks | they fail on empty handlers | M |
+| M3.04 | Journeys for the factory (W1) in K11's shape ([`decisions/K11-work-board.md`](decisions/K11-work-board.md)): goal, item, claim, board, question, attention; "only a fact closes", claims and leases, touches never shared while running, attention | M3.01 | checks | they fail on empty handlers | M |
 | M3.05 | `@orthograph/work` as a feature: the work blueprint moves into a package, mounted by `examples/work`; choice `workers: people` (agents comes in M4) | M3.04 | build | the work app proves with the plugin mounted | M |
-| M3.06 | Its handlers (W2) | M3.05 | build | all but `mission.tasks` journeys pass | M |
+| M3.06 | Its handlers (W2) | M3.05 | build | all but the model-gaps source's journeys pass | M |
 | M3.07 | The logbook adapter, hand-written (S18): `facts.list` and the models per revision | M3.06 | build | a factory read returns acme's verdicts from a local logbook | S |
-| M3.08 | Events in through `on:`, first for one adapter: `logbook.events.verdictRecorded` wakes `mission.notice` as `service(logbook)` | M3.07 | build | a posted verdict calls `mission.notice` once, even when posted twice | M |
-| M3.09 | Tasks derived (W3): kinds `write:journey`, `build`, `fix`, `improve`, plus attention, from the model and the facts | M3.07 | build | a mission over acme shows the tasks `factory.md` lists, each in its column | M |
-| M3.10 | The manager as a declared workflow, one per mission, waiting on durable deferreds and a daily clock (absorbs L5.04 for the factory) | M3.03, M3.08, M3.09 | build | killing its Durable Object mid-loop starts nothing twice | M |
-| M3.11 | Claims for people and outside agents: `work task claim` writes the brief and a branch, over the CLI and MCP | M3.09 | build | a scripted claim, push and CI run closes the task by its verdict | M |
+| M3.08 | Events in through `on:`, first for one adapter: `logbook.events.verdictRecorded` takes `item.close` or `item.return` and wakes `goal.notice`, as `service(logbook)` | M3.07, M3.20 | build | a posted verdict closes its item once, even when posted twice | M |
+| M3.09 | The model's gaps as a source (W3, K11): kinds `write:journey`, `build`, `fix`, `improve`, worked out from the model and the facts, filed as items by `goal.plan`, never the board itself | M3.07 | build | a goal over acme gets the tasks `factory.md` lists filed as items, each in the column its facts give | M |
+| M3.10 | The manager as a declared workflow, one per goal (K11; F5's mission), waiting on durable deferreds and a daily clock (absorbs L5.04 for the factory) | M3.03, M3.08, M3.09 | build | killing its Durable Object mid-loop starts nothing twice | M |
+| M3.11 | Claims for people and outside agents: `work item claim` writes the brief and a branch, over the CLI and MCP | M3.09 | build | a scripted claim, push and CI run closes the item by its verdict | M |
 | M3.12 ∥ | **Parked** with the skills design (PR #37; K5). The `agents` projection, built on `builder`: skills, role definitions and rules under `generated/agents/`, neutral, Claude Code and Pi forms, the Markdown header (S8, S10 to S13) | M3.05 | build | a model change rewrites the kit; a hand edit fails the drift check | L |
 | M3.13 ∥ | `ortho ci <stage>` and the short scaffolded workflow (S9) | M3.11 | build | `ortho new` projects run test worlds and verdicts through it | M |
-| M3.14 ∥ | **Parked** (K5, Aaron's decision 2: no separate plans or factory surfaces). The portal's Work side: board, KPIs, attention | M3.09 | build | the board in the portal matches `work mission board` | M |
+| M3.14 ∥ | **Replaced by M3.17** (K11: the board is an extension of the one portal, not a separate surface). Was: the portal's Work side: board, KPIs, attention | M3.09 | build | the board in the portal matches `work board items` | M |
 | M3.16 ∥ | `emits:` on an operation with no machine (K5 Q5): the event committed with the call's writes, only on success, and only when the call wrote | M3.01 | build | journeys assert `DraftEdited` present after a successful edit, absent after `DraftChanged`, and absent after an unchanged edit | S |
-| M3.15 | **Gate M3** | M3.02 to M3.11, M3.13, M3.16 | e2e | `nx run e2e:m3` passes on `main` | S |
+| M3.17 ∥ | The board extension (K11): HeroUI Pro's Kanban parts with our own server-owned hook (`spikes/kanban-components`), the machine refusing illegal drops on the client, typed refusals on the card, the inbox column, one lane per goal with "needs you" pinned, live updates (FAC-08) held still while a card is held, a person's drops limited to backlog, ready and done | M3.06, M3.20, M1.13, M1.25 | build | the board in the portal matches `work board items`; an agent's move to `done` is refused `OnlyAFactCloses`; Aaron's drag to `done` writes an `accepted` verdict | M |
+| M3.18 | Dispatch (K11): one workflow per board; ready set, touches never shared while running, critical path first, slots, a person worker's claim with a lease (an agent's, ending with its run, comes with M4.13), three retries then `block`, touches from `factory.brief.of` for model gaps, the role from `factory.roster.for(kind)`, a review pass for every item in `review` | M3.10, M3.11 | build | a plan of 12 items over acme with 3 overlapping touches runs with `workers: people` scripted; no two running items share a path; evicting dispatch mid-pass claims nothing twice | M |
+| M3.19 | The inbox and the manager (K11): signals received into `inbox` (failing checks, ledger rows, model gaps; GitHub issues come with M5.14 over M4.25's adapter; an authority's words filed directly), triage under agreed goals, finite and standing goals agreed once, `goal.plan` with milestones in one commit, acyclic needs, overlap warnings | M3.09, M3.10 | build | a failing check over acme lands in the inbox; a scripted manager (a Claude Code session or a fixture calling the CLI) accepts it under the agreed goal and its items run; an unrelated signal it opens as a goal waits on attention (the manager as an agent, triaging unasked, is M4.13) | M |
+| M3.20 ∥ | `review` and `accepted` as logbook verdict kinds (K10, K11 seam 3 and Q2): `review` keyed by revision, posted by a signed-in person or by a reviewer agent's run, the same kind either way; `accepted`, an authority closing an item in person, never through an agent; promote and an item's done-when can name either | M3.07 | build | a person's `review` pass and an agent's `review` fail on one revision are both read back by `facts.list`; a review posted for another revision doesn't count; an `accepted` posted by an agent acting for Aaron is refused | S |
+| M3.15 | **Gate M3** | M3.02 to M3.11, M3.13, M3.16 to M3.20 | e2e | `nx run e2e:m3` passes on `main` | S |
 
 ## M4: Agents, proved with the factory
 
@@ -290,7 +300,13 @@ the join, `workers: agents`.
 an operation marked `.notVia(Via.agent)`; (2) evicting a run's Durable Object mid-turn resumes it with no second model
 call; (3) a mission over acme with `workers: agents` runs: the manager starts builder runs from briefs, a builder using
 only the generated kit and `bp` fills `allowance.revoke`, the verdict closes the task, and the promote waits for a
-person; (4) the run's trace is read back through `bp.telemetry`. CI uses the local stand-in model (S14).
+person; (4) the run's trace is read back through `bp.telemetry`; (5) an experiment started from the portal is
+discarded leaving no workspace, world or branch, and a kept one lands as its package plus one mount file, only after
+its prove and review verdicts. CI uses the local stand-in model (S14).
+**Spikes before the factory slices** (K10, any time, off every gate): `spikes/workspace-e2b` (our E2B template; `ortho
+check` and `prove` inside it, with M1.33's process forms and no Docker; start-up and an hour's cost against the $5 sandbox share; a preview world's port reaching
+the portal) and `spikes/experiment-loop` (start, discard and keep by hand on the local copy, with Claude Code as the
+agent: how long a start takes, and whether anything is left).
 
 | id | what | needs | kind | done when | size |
 |---|---|---|---|---|---|
@@ -300,16 +316,25 @@ person; (4) the run's trace is read back through `bp.telemetry`. CI uses the loc
 | M4.04 | The Pi Durable seam on Node SQLite (A1) | M4.03 | build | a run survives a process kill and resumes its transcript | M |
 | M4.05 ∥ | Model adapters: `@orthograph/anthropic` and an OpenAI-compatible adapter; keys as declared secrets (A2) | M4.04 | build | the same task runs on both behind one interface | M |
 | M4.06 ∥ | The local stand-in model, `Stand.process` (S14) | M4.05 | build | journeys run against it with no key | M |
-| M4.07 ∥ | Tools and skills: `toolsOf(operations)`, shared with MCP; project tools with denied paths; `SKILL.md` folders (A3) | M4.04 | build | an operator agent's tool call is checked by the real server's roles | M |
+| M4.07 ∥ | Tools and skills: `toolsOf(operations)`, shared with MCP and the actions projection, called as `agent for` the run's starter: the one mechanism behind both the chat's tools and the building agents' (K10 section 1); project tools with denied paths; `SKILL.md` folders (A3) | M4.04 | build | an operator agent's tool call is checked by the real server's roles | M |
 | M4.08 ∥ | Run telemetry through the Collector (A4) | M4.04 | build | a run's trace is read back by its id | S |
 | M4.09 | The Durable Object host: one per run, alarms, Pi's closure measured for workerd (A6) | M4.04 | build | evicting mid-turn resumes with no duplicate model call | L |
-| M4.10 | `@orthograph/agents`: Run, its machine, start, steer, cancel, the system's moves, `Blueprint.agent` | M4.02, M4.09 | build | the agents journeys pass, mounted in acme | M |
+| M4.10 | `@orthograph/agents`: Run, its machine, start, steer, cancel, the system's moves, `Blueprint.agent`; `Agent` as a thing read from the declarations; `run.start` taking `key`, the caller's request key; `runFinished.outcome` closed (`pushed`, `reviewed`, `answered`, `blocked`) and `runFailed.reason` closed with `transient` (K10 section 5); `RunPoolFull` | M4.02, M4.09 | build | the agents journeys pass, mounted in acme | M |
 | M4.11 | The builder's typed API and code mode: `generated/builder/bp.d.ts`, the sandbox, the direct tools | M4.10 | build | a builder script lists blanks and runs one journey through `bp` | L |
 | M4.12 ∥ | `bp.telemetry` over `TraceSource`: trace, calls, refusals, defects, slow | M4.11 | build | a script finds the slowest step of a run | M |
-| M4.13 | The join: `workers: agents`, `Blueprint.need(agents, { when })`, dispatch through `agents.run.start`, `runFinished` back through `on:` | M4.10, M4.11 | build | a task dispatched to an agents run closes by its verdict | M |
+| M4.13 | The join: `workers: agents`, `Blueprint.need(agents, { when })`, dispatch through `agents.run.start` keyed by the claim, `runFinished` (with the changed paths) and `runFailed` back through `on:`; the kind-to-role map from the factory's roster (K11, the seam with K10) | M4.10, M4.11 | build | an item dispatched to an agents run closes by its verdict; the manager as an agent accepts a failing check under its goal with no one asked | M |
 | M4.14 ∥ | The `pi` runner in the bench (A5) and suites, spend and the report (A8), off the gate | M4.04 | build | `bench` writes one suite's report | M |
-| M4.16 | The portal's chat on a durable agent (K5): one `@orthograph/agents` run per thread, the actions as its tools, approvals through the chat | M4.10, M1.24 | build | evicting a chat's run mid-turn resumes it with no second model call; a refused action shows its typed refusal in the thread | M |
-| M4.15 | **Gate M4** | M4.02 to M4.13, M4.16 | e2e | `nx run e2e:m4` passes on `main` | S |
+| M4.16 | The portal's chat on a durable agent (K5): one `@orthograph/agents` run per thread, the actions as its tools, approvals through the chat; any listed agent addressable (`chat.addressees`); rendered with HeroUI Pro's AI components, `ChatTool` states from the action's (K10 section 6) | M4.10, M1.24 | build | evicting a chat's run mid-turn resumes it with no second model call; a refused action shows its typed refusal in the thread | M |
+| M4.17 | Journeys for workspaces and experiments (K10), by an author who is not the builder: open, fenced writes, check, prove, push, close; experiment start, keep and discard; keep refused without prove and review verdicts; nothing left after discard | Gate M2, M3.20 | checks | they fail on empty handlers | M |
+| M4.18 | `@orthograph/workspaces` with the `localCopy` choice (K10 section 3): `Workspace` and its machine, `ortho` as its operations (`brief`, `read`, `write`, `check`, `prove`, `add`, `generate`, `diff`, `push`, `close`), writes fenced by `realpath` and case-insensitive paths, `push` through the `github` adapter (its stand-in a bare local repository), `WorkspacePoolFull` | M4.17, M4.25 | build | a Claude Code session over MCP opens a workspace over acme, writes `allowance.revoke`, `check` and `prove` pass inside it, and `push` opens a pull request on the stand-in; a write outside the allowed paths is refused; `close` leaves nothing | M |
+| M4.19 ∥ | The `e2b` choice: our template, long commands in the background checked on an alarm, a sweep by tag, sandbox spend under its share ($5 a day by default) | M4.18, `spikes/workspace-e2b` | build | M4.18's journeys pass on E2B with Aaron's existing key; evicting the run's Durable Object mid-`prove` resumes and reads the result; 0 sandboxes are left after | M |
+| M4.20 | `@orthograph/factory`'s floor (K10 section 4): `Experiment` (`started → kept \| discarded`), the spike lane, `factory.brief.of`, `factory.roster` as data; usable by people and Claude Code before any Pi agent | M4.18, M3.20, `spikes/experiment-loop` | build | start then discard leaves 0 workspaces, worlds and branches; keep without prove and review verdicts is refused; keep's pull request changes only the package folder and one mount file; `brief.of` gives the same `write` paths as `ortho brief` | M |
+| M4.21 | The `builder` and `reviewer` agents, the reviewer writing the `review` verdict (M3.20) (K10 section 2) | M4.10, M4.13, M4.20, M3.20 | build | an item dispatched with `workers: agents` runs the builder in a workspace and ends `pushed` with its changed paths; the reviewer ends `reviewed` and writes a `review` verdict; the builder's write outside its brief is refused; all on the stand-in model | M |
+| M4.22 ∥ | The rest of the roster: `designer`, `author`, `spike`, `planner`, one file each, each addressable from the chat | M4.21, M4.16 | build | each agent, addressed from a chat thread, ends with its declared outcome on the stand-in model; the author's journeys fail on empty handlers | M |
+| M4.23 ∥ | The Factory face (K10 section 6): `Portal.face` with the Factory sidebar group, the roster, the runs list, the live run and the workspace, composed from HeroUI Pro's components; no agent UI code in the canon; the face's export name and lint as M1.25 settles them | M1.13, M1.25, M4.16, M4.20 | build | the four views render acme's runs and workspaces; a refused action shows `output-error` with its code and never a raw defect; an approval shows `requires-action` and runs once on approve; the face holds no store handle or `fetch` (by M1.25's lint, if it adopts one) | M |
+| M4.24 | Promotion by verdicts (K10 section 3): promote also requires the revision's `review` verdict; a revision on `main` with its prove and review verdicts goes to staging with nobody asked; production is an attention only a person approves | M3.13, M3.20, M4.21 | build | a proved and reviewed revision reaches the local staging world unasked; the production promote waits on an attention that an agent acting for Aaron is refused | S |
+| M4.25 | The `github` adapter for pull requests (K10 section 3): `branches.push`, `pullRequests.open`, the `pullRequest.merged` event; secrets declared by the adapter; its stand-in a bare local repository with a small pull-request record (second rung: Gitea) | Gate M2 | build | the adapter's conformance passes against the stand-in; a pushed branch and its opened pull request read back; a merge emits `pullRequest.merged` once | M |
+| M4.15 | **Gate M4** | M4.02 to M4.13, M4.16 to M4.25 | e2e | `nx run e2e:m4` passes on `main` | S |
 
 ## M5: Reach out
 
@@ -336,7 +361,8 @@ actors; `ortho prove` names each adapter's stand-in.
 | M5.10 | Declared workflows in apps: notifications, and `invitation.send` once across a kill (absorbs L5.04) | M5.04 | build | one email, not two, after a mid-send kill | M |
 | M5.13 ∥ | A source we don't own (K3 items 8 and 9): first a spike on reaching MariaDB from workerd (TCP sockets or Hyperdrive, with a Node host as the fallback), then a fixture adapter over a MariaDB database it doesn't migrate, its stand-in real MariaDB loaded from a schema dump, conformance against it, and events from it kept in a view | M5.07 | spike, build | a handler reads a candidate through `step.call` with its own span; the conformance test fails when the dump's schema changes; Orthograph writes no migration for it | M |
 | M5.11 ∥ | Another Orthograph app as an adapter, `--from-model`, its stand-in a world of that app | M5.07 | build | acme calls a second fixture app through a generated adapter | M |
-| M5.12 | **Gate M5** | M5.02 to M5.11, M5.13 | e2e | `nx run e2e:m5` passes on `main` | S |
+| M5.14 ∥ | Signals from GitHub issues (M4.25's github adapter, not a second one), Slack and alerts into the work inbox (K11): their adapters' events received through `on:` | M5.03, M3.19, M4.25 | build | a GitHub issue, a Slack message and a fired alert each land once in the inbox; an alert on a standing goal's measure is accepted under it | M |
+| M5.12 | **Gate M5** | M5.02 to M5.11, M5.13, M5.14 | e2e | `nx run e2e:m5` passes on `main` | S |
 
 ## M6: On chain
 
@@ -376,23 +402,27 @@ forced reorg is corrected; a pending chain call shows its in-between state (S25)
 
 **Goal.** Every local destination swapped for the real one, each credential created only with Aaron's written yes and
 the spend under $10 a day; then Capxul's first feature running on Orthograph.
+**Staging first** (K10 section 8, Aaron, 18 November): `spikes/staging-pass` any time (acme up on a dedicated
+Cloudflare account, proved there, destroyed, the account listing nothing after); then, after Gate M2, M7.01, M7.03,
+M7.04 and M7.08 for staging alone. npm, Homebrew and the rest of M7 still wait on the stage 4 gate.
 **Gate.** `nx run e2e:m7`: acme goes from a pull request to test, staging and production on Cloudflare with a verdict
 in each, Orthograph's packages are released under `@orthograph` on npm, and everything the gate made is destroyed after.
 Capxul's first feature runs in its staging.
 
 | id | what | needs | kind | done when | size |
 |---|---|---|---|---|---|
-| M7.01 | The cloud pass: every credential named, a cost estimate under the cap, which secret store `Cloudflare.secrets` means | Gate M6 | decision | `decisions/M7-cloud.md` written, with Aaron's yes per credential | S |
-| M7.02 | The npm org `@orthograph` (Aaron signs in) and Orthograph's first real release | M7.01 | build | `npm view orthograph` shows the release | S |
+| M7.01 | The cloud pass for staging (K10 section 8): the `orthograph-staging` account Aaron approved in K10, its token's scope, a cost estimate under the cap, which secret store `Cloudflare.secrets` means | Gate M2 | decision | `decisions/M7-cloud.md` written, with Aaron's yes per credential | S |
+| M7.02 | The npm org `@orthograph` (Aaron signs in) and Orthograph's first real release | M7.13 | build | `npm view orthograph` shows the release | S |
 | M7.03 | The infra projection: an Alchemy stack per environment from the model and mounts | M7.01 | build | `ortho env up staging` plans the expected resources | L |
 | M7.04 | Deploy and destroy on Cloudflare (L2.01, cloud part) | M7.03 | build | `ortho env destroy` leaves nothing in the account | M |
-| M7.05 | Test worlds and signed verdicts from GitHub Actions (L2.02, L2.03, cloud parts) | M7.04 | build | a pull request gets a verdict signed with GitHub's OIDC token | M |
+| M7.05 | Test worlds and signed verdicts from GitHub Actions (L2.02, L2.03, cloud parts) | M7.04, M7.13 | build | a pull request gets a verdict signed with GitHub's OIDC token | M |
 | M7.06 ∥ | Real releases: npm, Homebrew, GitHub (L2.06, cloud part) | M7.02 | build | `brew install` of acme's CLI works from the real tap | S |
-| M7.07 ∥ | Adapters against the real vendors: Stripe test mode, `provision`, conformance | M7.04 | build | the conformance test passes against Stripe's test mode | M |
+| M7.07 ∥ | Adapters against the real vendors: Stripe test mode, `provision`, conformance | M7.04, M7.13 | build | the conformance test passes against Stripe's test mode | M |
 | M7.08 ∥ | The builder's read-only staging telemetry token (with Aaron's yes) | M7.04 | build | an unattended builder reads staging traces, redacted | S |
-| M7.09 ∥ | Contracts on a testnet (L4.08, cloud part) | M7.04 | build | a changed vault is redeployed and verified | M |
-| M7.10 | Capxul's plugins mapped: which exist, which are new, which are Capxul's own | M7.01 | decision | `decisions/M7-capxul.md` written | S |
+| M7.09 ∥ | Contracts on a testnet (L4.08, cloud part) | M7.04, M7.13 | build | a changed vault is redeployed and verified | M |
+| M7.10 | Capxul's plugins mapped: which exist, which are new, which are Capxul's own | M7.13 | decision | `decisions/M7-capxul.md` written | S |
 | M7.11 | Capxul's first feature on Orthograph, in its staging | M7.10, M7.05 | build | its journeys are green in Capxul's staging | M |
+| M7.13 | The release pass: the credentials the release needs (npm, Homebrew tap, GitHub, Stripe test mode, a testnet), each with Aaron's written yes, and the cost under the cap | ST4.08, M7.01 | decision | `decisions/M7-release.md` written, with Aaron's yes per credential | S |
 | M7.12 | **Gate M7** | all of M7 | e2e | `nx run e2e:m7` passes, and the gate's resources are destroyed | S |
 
 ## Later
@@ -403,7 +433,7 @@ Capxul's first feature runs in its staging.
 - **Time**: one clock per world, moves made by time, the keeper, the on-time eval (D6, L5.01 to L5.03, L5.05 to L5.07),
   and agent waits on the world clock (L5.08). Workflows' durable clocks (M3, M5) cover long waits until then.
 - **EIP-7702** delegation (L3.09), off the path as the old plan allowed.
-- **The Docker sandbox** for agents (A7) and **baselines** (A9).
+- **Baselines** (A9). The Docker sandbox for agents (A7) is dropped: no Docker (K10 section 8); E2B, then Cloudflare Containers, take its place.
 - Sequence diagrams as journeys (S5) and project-wide ratchets (S6).
 
 ## Where every unfinished build-plan step went
