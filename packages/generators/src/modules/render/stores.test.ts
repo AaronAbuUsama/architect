@@ -22,7 +22,7 @@ const sources = (dir: string): ReadonlyArray<string> =>
 const project = () => {
   mkdirSync(scratch, { recursive: true });
   const root = mkdtempSync(join(scratch, "p-"));
-  cpSync(join(acme, "blueprint"), join(root, "blueprint"), { recursive: true, filter: (from) => !basename(from).startsWith(".") });
+  cpSync(join(acme, "blueprint"), join(root, "blueprint"), { recursive: true, filter: (from) => !basename(from).startsWith(".") && basename(from) !== "projections" });
   mkdirSync(join(root, "blueprint/features"), { recursive: true });
   writeFileSync(join(root, "blueprint/features/vault.ts"), `import { Blueprint } from "orthograph";\nimport vault from "@fixture/vault";\n\nexport default Blueprint.use(vault);\n`);
   const plugin = join(root, "node_modules/@fixture/vault");
@@ -37,13 +37,14 @@ const project = () => {
   return root;
 };
 
+const render = (project: Parameters<typeof Render.files>[0]) => Effect.runPromise(Render.files(project));
 const compile = (root: string) => Effect.runPromise(Effect.provide(Compiler.model, nodeSource(root)));
 const rows = (db: DatabaseSync) => db.prepare(`SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name`).all().map((r) => String(r["name"]));
 
 describe("a feature's own store, rendered", () => {
   it("is a database of its own beside the default, and acme's own files are what they were", async () => {
-    const alone = new Map(Render.files({ name: "acme", model: await compile(acme) }).map((f) => [f.path, f.content]));
-    const beside = new Map(Render.files({ name: "acme", model: await compile(project()) }).map((f) => [f.path, f.content]));
+    const alone = new Map((await render({ name: "acme", model: await compile(acme), root: acme })).map((f) => [f.path, f.content]));
+    const beside = new Map((await render({ name: "acme", model: await compile(project()) })).map((f) => [f.path, f.content]));
     // The default database: acme's tables, and none of the fixture's.
     expect(beside.get("generated/server/migrations/0001_things.sql")).toBe(alone.get("generated/server/migrations/0001_things.sql"));
     expect(alone.get("generated/server/wrangler.jsonc")).toContain(`"d1_databases": [\n    { "binding": "DB", "database_name": "acme", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "migrations" }\n  ],`);
@@ -63,13 +64,15 @@ describe("a feature's own store, rendered", () => {
     expect(main).not.toMatch(/tables: \[[^\]]*"line"[^\]]*\], stores:/);
     expect(beside.get("generated/docs/line/index.md")).toContain("Lives in the database, in the store vault-ledger.");
     // What acme has per thing and per operation, it still has byte for byte; only what lists everything gains the fixture.
-    const changed = [...alone].filter(([path, text]) => beside.get(path) !== text).map(([path]) => path);
+    // acme mounts its projections, so its first lines name the mounts; the copy mounts none. Only that line may differ.
+    const body = (text: string | undefined) => text?.replace(/^\/\/ Generated from blueprint\/projections\/[a-z-]+\.ts\./, "// Generated from the blueprint.");
+    const changed = [...alone].filter(([path, text]) => body(beside.get(path)) !== body(text)).map(([path]) => path);
     expect(changed.filter((path) => /\/(allowance|api-key|invitation|membership|organization|person|session|system)\//.test(path))).toEqual([]);
     expect(changed).not.toContain("generated/server/migrations/0001_things.sql");
   });
 
   it("both migrate: each migration runs on its own SQLite, the default's with acme's tables and the store's with its own", async () => {
-    const files = new Map(Render.files({ name: "acme", model: await compile(project()) }).map((f) => [f.path, f.content]));
+    const files = new Map((await render({ name: "acme", model: await compile(project()) })).map((f) => [f.path, f.content]));
     const home = new DatabaseSync(":memory:");
     home.exec(files.get("generated/server/migrations/0001_things.sql")!);
     const apart = new DatabaseSync(":memory:");

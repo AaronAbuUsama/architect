@@ -17,7 +17,7 @@ const modelOf = (root: string) => Effect.runPromiseExit(Effect.provide(Compiler.
 const copyOfAcme = (startingWorlds = true): string => {
   mkdirSync(scratch, { recursive: true });
   const root = mkdtempSync(join(scratch, "acme-"));
-  cpSync(join(acme, "blueprint"), join(root, "blueprint"), { recursive: true, filter: (path) => visible(path) && (startingWorlds || basename(path) !== "starting-worlds") });
+  cpSync(join(acme, "blueprint"), join(root, "blueprint"), { recursive: true, filter: (path) => visible(path) && basename(path) !== "projections" && (startingWorlds || basename(path) !== "starting-worlds") });
   return root;
 };
 

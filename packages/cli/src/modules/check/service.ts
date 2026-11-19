@@ -28,7 +28,7 @@ const run: CheckApi["run"] = (at) =>
     const model = { value: compiled.success };
     const typed = yield* Effect.sync(() => types(root));
     const ruled = yield* Effect.sync(() => rules(root, model.value));
-    const drifted = yield* Effect.sync(() => drift(root, model.value));
+    const drifted = yield* drift(root, model.value);
     const ratchets = ratchet(ruled.errors, ratchetsOf(root));
     const warnings = ruled.warnings.map((f) => `  warning: ${f.file}:${f.line}  ${f.message}`);
     const passed = left.length === 0 && typed.length === 0 && ratchets.over.length === 0 && drifted.length === 0;

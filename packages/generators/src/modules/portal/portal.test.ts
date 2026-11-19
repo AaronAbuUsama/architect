@@ -14,14 +14,14 @@ const compiler = resolve(repo, "packages/compiler/src/main.ts");
 const compile = (root: string) => JSON.parse(execFileSync(process.execPath, [compiler, root], { encoding: "utf8" })) as Model;
 const acme = resolve(repo, "examples/acme");
 const read = (path: string) => readFileSync(join(repo, path), "utf8");
-const filesOf = (name: string, model: Model) => new Map(Render.files({ name, model }).map((f) => [f.path, f.content]));
+const filesOf = async (name: string, model: Model) => new Map((await Effect.runPromise(Render.files({ name, model, root: acme }))).map((f) => [f.path, f.content]));
 
-describe("generated/portal", () => {
+describe("generated/portal", async () => {
   const model = JSON.parse(read("examples/acme/generated/model/model.json")) as Model;
-  const files = filesOf("acme", model);
+  const files = await filesOf("acme", model);
 
-  it("is the same bytes every time, and the bytes acme has committed", () => {
-    expect(filesOf("acme", model).get("generated/portal/blueprint.json")).toBe(files.get("generated/portal/blueprint.json"));
+  it("is the same bytes every time, and the bytes acme has committed", async () => {
+    expect((await filesOf("acme", model)).get("generated/portal/blueprint.json")).toBe(files.get("generated/portal/blueprint.json"));
     expect(files.get("generated/portal/blueprint.json")).toBe(read("examples/acme/generated/portal/blueprint.json"));
     expect(files.get("generated/portal/main.ts")).toBe(read("examples/acme/generated/portal/main.ts"));
   });

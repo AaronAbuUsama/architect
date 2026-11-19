@@ -19,3 +19,5 @@ must not turn a trace red or count as an error; a defect ends it as an **error**
 operations, steps and reads.
 
 `Device.serve({ name, operation, handler })` (M1.27) runs a plugin's `runs: "client"` operation in the caller's own process: the handler with its step spans and the operation's span, as an anonymous caller, with no store or journal, the answer checked against its declaration, and the spans sent as OTLP/HTTP from the process before the call returns (`internal/device.ts`; also from `@orthograph/language-effect/device`). Test: `device.test.ts`.
+
+M1.29: `Device.serve`'s exporter also sends the logs written inside the call (`OtlpLogger`), so the log that decided a declared refusal is in the trace as a served operation's is, where the explainability eval looks for it. `DeviceWorld` (a `Context.Service`, also from `/device`) is what a world gives the plugin's `world` entry: the chain it stood, a funded key per host (redacted), a folder of its own and `remember`, a place to keep what a call leaves for the next. A real device never provides it and its entries never ask.

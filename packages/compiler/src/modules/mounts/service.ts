@@ -16,13 +16,13 @@ const byName = <V>(m: ReadonlyMap<string, V>) => [...m].sort(([a], [b]) => a.loc
 const match = (layout: Parameters<MountsApi["fold"]>[0], plugins: ReadonlyArray<PluginPackage>, problems: Array<string>) => {
   const matched: Array<Matched> = [];
   for (const [name, m] of byName(layout.mounts)) {
-    const plugin = plugins.find((p) => p.descriptor !== undefined && p.descriptor === m.mount.plugin);
+    const plugin = plugins.find((p) => m.mount.plugin !== undefined && (p.descriptor === m.mount.plugin || Object.values(p.descriptors ?? {}).includes(m.mount.plugin)));
     if (!plugin) {
       problems.push(`${m.file}: mounts a ${m.mount.plugin?.kind ?? "plugin"} that no installed dependency in package.json provides: install its package with pnpm add --save-exact <package>`);
       for (const p of plugins) if (p.problem) problems.push(`${m.file}: ${p.problem}`);
       continue;
     }
-    const twice = matched.find((x) => x.plugin === plugin);
+    const twice = matched.find((x) => x.mount.plugin === m.mount.plugin);
     if (twice) { problems.push(`${twice.file} and ${m.file} both mount ${plugin.name}: a plugin is mounted once`); continue; }
     if (plugin.kind !== m.kind || m.mount.plugin.kind !== m.kind) {
       problems.push(`${m.file}: ${plugin.name} is a ${plugin.kind}, so its mount goes in blueprint/${plugin.kind}s/, not with the ${m.kind}s`);

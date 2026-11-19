@@ -1,8 +1,7 @@
 // generated/sdk: a typed client. One function per operation; refusals arrive as their own classes.
 import { Names } from "orthograph/server";
 import type { Model, OperationModel } from "@orthograph/compiler";
-import type { RenderedFile } from "../types.ts";
-import { GENERATED, camel, lines, onDevice, pascal, toRoot } from "./names.ts";
+import { GENERATED, camel, exportedAs, lines, local, onDevice, pascal, toRoot, type RenderedFile } from "@orthograph/projections/shared";
 
 /** `.create`, or `["sign-in"]` for a name that isn't an identifier. */
 const member = (name: string) => (/^[A-Za-z_$][\w$]*$/.test(name) ? `.${name}` : `[${JSON.stringify(name)}]`);
@@ -21,8 +20,9 @@ const server = (o: OperationModel, client: string): RenderedFile => ({
     `import { ${client} } from "../client.ts";`,
     "",
     `/** ${o.description} */`,
-    `export const ${camel(o.verb)} = (payload: PayloadOf<typeof declaration>) =>`,
+    `export const ${local(camel(o.verb))} = (payload: PayloadOf<typeof declaration>) =>`,
     `  Effect.flatMap(${client}, (client) => client${member(o.thing)}${member(o.verb)}({ payload }));`,
+    exportedAs(o.verb),
   ),
 });
 
@@ -49,8 +49,9 @@ const device = (model: Model, o: OperationModel, client: string): RenderedFile =
       `const device = Device.serve({ name: "${o.name}", operation: declaration, handler: ${mount ? "Mount.serving(mount, handler)" : "handler"} });`,
       "",
       `/** ${o.description} Runs here, on this device: nothing is sent to the server. */`,
-      `export const ${camel(o.verb)} = (payload: PayloadOf<typeof declaration>) =>`,
+      `export const ${local(camel(o.verb))} = (payload: PayloadOf<typeof declaration>) =>`,
       `  Effect.flatMap(${client}Spans, (where) => device.run(payload, where));`,
+      exportedAs(o.verb),
     ),
   };
 };

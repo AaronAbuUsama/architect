@@ -1,34 +1,32 @@
+import { Effect } from "effect";
+import { emptyServer, renderHandlerScaffold, serverModel } from "@orthograph/projections/shared";
 import { PortalRender } from "#modules/portal/service.js";
 import type { RenderApi } from "./types.ts";
-import { renderApi } from "./internal/api.ts";
-import { renderHandlerTypes } from "./internal/calls.ts";
 import { renderCli } from "./internal/cli.ts";
-import { renderDocs, renderEdges } from "./internal/docs.ts";
+import { renderDocs } from "./internal/docs.ts";
+import { filesOf, mountedIn } from "./internal/mounted.ts";
 import { renderMcp } from "./internal/mcp.ts";
-import { renderHandlerScaffold } from "./internal/scaffold.ts";
 import { renderSdk } from "./internal/sdk.ts";
-import { renderServer } from "./internal/server.ts";
-import { serverModel } from "./internal/names.ts";
 
 export const Render: RenderApi = {
-  files: ({ name, model }) => {
-    const docs = renderDocs(model, name);
-    // What runs on the device has no route, handler or tool: the server, the API and MCP see the rest.
-    const served = serverModel(model);
-    return [
-      { path: "generated/model/model.json", content: JSON.stringify(model, null, 2) + "\n", scaffold: false },
-      renderEdges(model),
-      ...docs,
-      ...PortalRender.files({ name, model, docs }),
-      ...renderApi(model, name, served),
-      ...renderServer(served, name),
-      ...renderHandlerTypes(served),
-      ...renderMcp(served),
-      ...renderSdk(model, name),
-      ...renderCli(model, name),
-      // A plugin's handlers are in its package: the project's src/ gains nothing for them (M1-plugins section 8).
-      ...Object.values(model.operations).filter((op) => op.kind === "operation" && op.from.kind === "app").map((op) => renderHandlerScaffold(op)),
-    ];
-  },
-  emptyServer: ({ name, model }) => renderServer(serverModel(model), name, true),
+  files: ({ name, model, root }) =>
+    Effect.gen(function* () {
+      // What a mount makes is what a projection renders from it: the model, the api and the server are mounted (M1.11).
+      const mounted = yield* mountedIn(root, model);
+      const made = yield* Effect.forEach(mounted, (m) => filesOf(name, model, m));
+      const docs = renderDocs(model, name);
+      // What runs on the device has no route, handler or tool: the server, the API and MCP see the rest.
+      const served = serverModel(model);
+      return [
+        ...made.flat(),
+        ...docs,
+        ...PortalRender.files({ name, model, docs }),
+        ...renderMcp(served),
+        ...renderSdk(model, name),
+        ...renderCli(model, name),
+        // A plugin's handlers are in its package: the project's src/ gains nothing for them (M1-plugins section 8).
+        ...Object.values(model.operations).filter((op) => op.kind === "operation" && op.from.kind === "app").map((op) => renderHandlerScaffold(op)),
+      ];
+    }),
+  emptyServer: ({ name, model }) => emptyServer(model, name),
 };

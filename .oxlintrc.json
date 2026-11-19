@@ -45,7 +45,8 @@
             "onlyDependOnLibsWithTags": [
               "scope:orthograph",
               "scope:language",
-              "scope:host"
+              "scope:host",
+              "scope:projections"
             ]
           },
           {
@@ -110,7 +111,8 @@
                 "onlyDependOnLibsWithTags": [
                   "scope:orthograph",
                   "scope:language",
-                  "scope:host"
+                  "scope:host",
+                  "scope:projections"
                 ]
               },
               {

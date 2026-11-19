@@ -1,4 +1,4 @@
-// Generated from the blueprint. Do not edit.
+// Generated from blueprint/projections/server.ts. Do not edit.
 // The Worker: each operation's route runs its handler through the runtime's wrapper; /_world/* goes to the world.
 import { Context, Effect, Layer } from "effect";
 import { ManagedRuntime, Tracer } from "effect";

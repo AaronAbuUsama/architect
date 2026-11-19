@@ -1,9 +1,11 @@
 # render
 
-`Render.files({ name, model })`: every file of `generated/` from the model, plus one handler scaffold per operation.
-Pure, so it is tested without a file system. `generated/api` is the contract (endpoints built from each operation's
-own declaration, wire errors, the handler type); `generated/server` the Worker; `generated/sdk` the typed client;
-`generated/cli` the command line. Generated files start with the do-not-edit line; scaffolds say where they came from
+`Render.files({ name, model, root })`: an Effect of every file of `generated/` from the model, plus one handler scaffold
+per operation. No file system is written, so it is tested without one. What a project mounts in `blueprint/projections/`
+makes its folder: the model, the api and the server are `@orthograph/projections` (M1.11), loaded from the mount files at
+`root` (`internal/mounted.ts`), each file under `generated/<mount>/` with its first line naming the mount. A model that
+mounts no projection gets those three as if mounted, headers as they were. Still fixed here, until M1.12 and M1.13: `generated/sdk`
+(the typed client), `generated/cli`, `generated/mcp`, `generated/docs`, `generated/portal` and the handler scaffolds. Generated files start with the do-not-edit line; scaffolds say where they came from
 and are the project's from then on.
 
 The CLI's session commands are special when the model has the starter's `session.sign-in` and `session.show`
@@ -15,3 +17,5 @@ A project with declared database stores (K3) gets, per store, a `DB_<STORE>` bin
 placeholder id and `migrations/<store>` folder), a `generated/server/migrations/<store>/0001_things.sql` of its things
 with its own journal, and `StoreD1.layer({ stores })` and `JournalD1.across` in `main.ts`. A project with none renders
 exactly what it did before. Test: `stores.test.ts` (acme with the `vault` fixture feature mounted).
+
+A verb that is a reserved word (the wallet's `import`) is never a `const` of its own in generated code: the SDK, CLI and scaffold bind it as `import_` and the SDK and CLI export it under its name (`export { import_ as import }`), so `Sdk.wallet.import` and the CLI's `wallet import` work (`names.ts`: `local`, `exportedAs`). Test: `render.test.ts`.

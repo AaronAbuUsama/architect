@@ -6,5 +6,7 @@ export { Reader } from "#modules/reader/service.js";
 export { LogbookUnavailable, ModelMissing, type LogbookReader, type Release, type Verdict } from "#modules/reader/types.js";
 export { Snapshot } from "#modules/snapshot/service.js";
 export type { ChangedDependency, PortalProof, PortalSnapshot, ProofState } from "#modules/snapshot/types.js";
+export { Live } from "#modules/live/service.js";
+export type { JournalRow, LiveApi, LiveCall, LiveCommit, LiveEvent, LiveLog, LiveRead, LiveSource, LiveSpan, LiveStep } from "#modules/live/types.js";
 export { Portal } from "#modules/site/service.js";
 export type { PortalContext, PortalEnv } from "#modules/site/types.js";

@@ -25,7 +25,7 @@ goal's milestones and items, with their needs and touches, and runs them without
 **Dispatch** is a workflow per board: it claims ready items whose needs are done and whose touches don't overlap
 anything running, critical path first, up to the board's limit, and starts each as an agents-feature run in a
 sandbox. The factory (K10) runs the work; the board never knows a sandbox exists. The board is an extension of the
-one portal, built on HeroUI Pro's Kanban parts with our own state (`spikes/kanban-components`).
+one portal, built on HeroUI Pro's Kanban parts with our own state (`spikes/kanban-components`). (Through `@orthograph/portal-ui`, F7.)
 
 ## What changes in earlier decisions
 
@@ -311,7 +311,7 @@ thing: the columns are the item's machine states, and every board page belongs t
 4. Live updates per board (FAC-08): a card moves when an agent moves it.
 5. The `attention` items as a "needs you" surface the portal shows everywhere, not only on the board.
 6. The manager's conversation (M4.16) bound to a goal.
-7. HeroUI Pro's `DataGrid` (virtualised) for the long backlog and done columns.
+7. HeroUI Pro's `DataGrid` (virtualised) for the long backlog and done columns. (Through `@orthograph/portal-ui`'s `Grid`, F7.)
 8. From Aaron's answers: `inbox` as the first column; one lane per goal with "Needs you" pinned on top (Q4); live
    updates held still while a card is held, then applied with the changed cards highlighted (Q5); a person's drop
    refused on hover for every column but backlog, ready and done (Q2).

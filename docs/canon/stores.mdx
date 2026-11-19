@@ -217,7 +217,7 @@ To list things that live as actors, or across stores, declare a view.
 Migrations are generated from the model, one set per store, and never for a source: one file per store, with a
 version column on every table:
 
-```ts file=packages/generators/src/modules/render/internal/worker-config.ts lines=59-64
+```ts file=packages/projections/src/modules/server/internal/worker-config.ts lines=59-64
 things.map((t) => {
   const columns = Object.keys(t.fields).map((f) => (f === "id" ? `  "id" TEXT PRIMARY KEY` : `  "${f}" TEXT NOT NULL`));
   // Empty until the thing's first move sets it.
@@ -289,7 +289,7 @@ local-first, Noir on Aztec.
 | The `database` kind, on D1 | `packages/host-cloudflare/src/modules/store/service.ts:11` | built |
 | The `actor` kind, a Durable Object per instance | `packages/host-cloudflare/src/modules/actors/service.ts:28` | built |
 | The compiler refusing a list over actors | `packages/compiler/src/modules/model/internal/describe.ts:139` | built |
-| Migrations from the model | `packages/generators/src/modules/render/internal/worker-config.ts:55` | built, one store |
+| Migrations from the model | `packages/projections/src/modules/server/internal/worker-config.ts:55` | built, one store |
 | `Blueprint.store.<kind>()`, and `lives` taking a store | `packages/orthograph/src/modules/stores/` | planned, M1.17 |
 | The data map | `generated/data/map.md` in each project | planned, M5.06 |
 
@@ -337,7 +337,7 @@ local-first, Noir on Aztec.
 <Note kind="question" id="schema-per-kind" slice="M1.17">
   Where does a kind's schema come from? The store port only reads and commits
   (`packages/language-effect/src/modules/records/types.ts:62`). The schema is hard-coded in the generator, and only for
-  D1: every field becomes `TEXT NOT NULL` (`packages/generators/src/modules/render/internal/worker-config.ts:62`). An
+  D1: every field becomes `TEXT NOT NULL` (`packages/projections/src/modules/server/internal/worker-config.ts:62`). An
   actor keeps the whole instance as one JSON value (`packages/host-cloudflare/src/modules/actors/service.ts:34`). If kinds
   are open, a kind must also say how a thing's fields become its storage, and how that storage migrates.
 </Note>

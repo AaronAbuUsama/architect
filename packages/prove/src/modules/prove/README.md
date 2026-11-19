@@ -17,3 +17,5 @@ it is true (`world … expires in …`, the journeys and evals, `prove ✔`, `ve
 destroys the world and says `world destroyed`. One verdict per operation is posted to the logbook (`verdicts`), signed with
 an OIDC token that is never printed. The shared part, `exercise`, runs the journeys against a URL and judges them. Test:
 `test-worlds.test.ts`.
+
+`run` also stands a chain when a mounted plugin runs operations on the device (`internal/device-host.ts`, M1.29, K7 Q7): Anvil as a process of the run's scope (`standChain`, always `--silent`, released after the Worker), with a funded key for each host (`node`, `browser`, `keystore`, `world`) and one more account, the payee's, and the `DeviceHost` the journeys run those operations on. Without `anvil` on the path the world has no chain, says so in the report (`world chain: none, …`), and the journeys that need a key fail naming `world.chain`.

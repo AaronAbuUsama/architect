@@ -10,6 +10,7 @@ import { Impact } from "#modules/impact/service.js";
 import { ProveFailed, type ProveApi } from "./types.ts";
 import { handlerHashes } from "#modules/verdicts/internal/proof.js";
 import { closing, exercise } from "./internal/exercise.ts";
+import { deviceHost, needsDevice, standChain } from "./internal/device-host.ts";
 import { proveInTest } from "./internal/test-run.ts";
 import { emptyWorld } from "./internal/empty-world.ts";
 
@@ -39,12 +40,15 @@ export const Prove: ProveApi = {
       const strip = privateKeys(model);
       const collector = yield* Collectors.local(dir, strip).pipe(Effect.mapError(failed));
       const sinks = yield* Sinks.resolve({ sinks: empty ? [{ sink: "local" }] : model.environments?.["local"]?.telemetry ?? [{ sink: "local" }], env: env ?? {} });
-      const { url } = yield* Worlds.start({ root: world, port, name: "prove", otlp: collector.url, environment: "local", secretEnv: sinks.secretEnv }).pipe(Effect.mapError(failed));
-      const done = yield* exercise(model, { ...project, journeys }, url, collector, undefined, collector.url, undefined, empty, bodies);
+      // A plugin that runs operations on the device gets a chain in the world (Anvil as a process, K7 Q7), released after the Worker.
+      const stood = yield* standChain(model);
+      const { url, chain } = yield* Worlds.start({ root: world, port, name: "prove", otlp: collector.url, environment: "local", secretEnv: sinks.secretEnv, ...(stood.chain ? { chain: Effect.succeed(stood.chain) } : {}) }).pipe(Effect.mapError(failed));
+      const device = needsDevice(model) ? yield* deviceHost(world, collector.url, chain).pipe(Effect.mapError(failed)) : undefined;
+      const done = yield* exercise(model, { ...project, journeys }, url, collector, undefined, collector.url, undefined, empty, bodies, device);
       // A run with a failing journey proves nothing: its operations are recorded as judged and not passed (D2 #80).
       if (!empty && only === undefined) yield* Impact.record(root, model, done.judged, done.results);
       const verdict = closing(done);
-      return { lines: [...sinks.notes, ...done.journeys.lines, ...done.evals.lines, verdict.line], passed: verdict.passed };
+      return { lines: [...sinks.notes, ...stood.notes, ...done.journeys.lines, ...done.evals.lines, verdict.line], passed: verdict.passed };
     }),
   dev: ({ root, port, env }) =>
     Effect.gen(function* () {

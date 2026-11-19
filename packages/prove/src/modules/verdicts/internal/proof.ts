@@ -13,7 +13,8 @@ export const handlerHash = (root: string, op: OperationModel): string | null | u
   op.kind === "read" ? null : Effect.runSync(Effect.try(() => {
     const file = op.from.kind === "app"
       ? join(root, "src", op.thing, `${op.verb}.ts`)
-      : fileURLToPath(resolveFrom(resolve(root), `${op.from.package}/src/${op.from.thing}/${op.verb}.js`));
+      // A plugin's operation on the device is judged by its `world` entry, the code a journey runs (M1.29).
+      : fileURLToPath(resolveFrom(resolve(root), `${op.from.package}/src/${op.from.thing}/${op.verb}${op.runs === "client" ? ".world" : ""}.js`));
     return digest(readFileSync(file));
   }).pipe(Effect.orElseSucceed(() => undefined)));
 

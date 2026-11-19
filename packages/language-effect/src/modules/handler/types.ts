@@ -1,6 +1,6 @@
 // The handler wrapper: what every generated operation runs through. Decode, check who may call, run the handler as
 // counted work inside the operation's span, check the answer, give it back.
-import { Data, type Effect, type Schema } from "effect";
+import { Context, Data, type Effect, type Redacted, type Schema } from "effect";
 import type { AnswerOf, ErrorOf, PayloadOf, Principal, Read, StepsOf } from "orthograph";
 import type { NotAllowed } from "#modules/access/types.js";
 import type { CallRunner, CallWiring, Callable } from "#modules/calls/types.js";
@@ -59,6 +59,26 @@ export interface DeviceWhere {
   readonly otlp: string | undefined;
   readonly service: string;
 }
+
+/**
+ * What a world gives a plugin's `world` entry (the code prove runs in place of a device): the chain it stood, one funded
+ * key per host (`node`, `browser`, `keystore`, `world`), a folder of its own, and a place to keep what a call leaves
+ * for the next. A real device has none of this and its entries never ask for it.
+ */
+export interface DeviceWorldOf {
+  readonly chain: undefined | {
+    readonly rpcUrl: string;
+    readonly chainId: number;
+    /** The funded key the world made for each host, redacted: it prints as `<redacted>`. */
+    readonly keys: Readonly<Record<string, Redacted.Redacted<string>>>;
+  };
+  /** A fresh folder the world made and will remove: for state an entry keeps on disk (a keystore file). */
+  readonly directory: string;
+  /** The value kept under `key` for this world, made by `make` the first time it is asked for. */
+  readonly remember: <A>(key: string, make: () => A) => A;
+}
+
+export class DeviceWorld extends Context.Service<DeviceWorld, DeviceWorldOf>()("@orthograph/language-effect/DeviceWorld") {}
 
 export interface Device<O, R> {
   readonly name: string;

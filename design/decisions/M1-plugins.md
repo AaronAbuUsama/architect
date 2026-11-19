@@ -99,8 +99,7 @@ A wrong field, a missing `description`, or an option from another choice is a co
 `Blueprint.feature` and its kin return frozen objects with `kind: "feature" | "adapter" | "projection"`.
 
 **Projection descriptors** are typed here so a third party can write one (ledger PRJ-14, PRJ-32), but the compiler
-reads projection mounts only from M1.11; until then a `blueprint/projections/` mount is recorded in the model and
-generates nothing. **Adapter descriptors** are typed here and mounted from M1.14, which builds their calls (section 9).
+reads projection mounts from M1.11: a mount of one is what writes its `generated/<mount>/` (the last section here). **Adapter descriptors** are typed here and mounted from M1.14, which builds their calls (section 9).
 
 ## 3. The mount and the four verbs
 
@@ -274,8 +273,77 @@ The lead's calls on what the row left open, and what building showed.
   it ends, so the flush happens before the call returns and before a CLI exits. No endpoint, no export.
 - **A device step's kind stays an ordinary step** (`wait` in the fixture); no new `Blueprint.step.*`.
 - **Evidence.** `design/evidence/M1.27/`: check 11 passes 8/8, checks 00 to 08 and 10 stay green.
-- **Left for M1.29.** Prove's exercise and journey runner do not yet skip or run a client operation (the `world` entry
-  is theirs to call); the call step on the device.
+- **Done in M1.29** (section 8.2): prove runs a client operation through its `world` entry; the call step on the device was
+  not needed.
+
+### 8.2 The wallet plugin, as built (M1.29; K7 F4, F5; the builder's calls where the contract was open)
+
+`@orthograph/wallets` is `packages/wallets`: the stand-in's declarations (the contract of check 09 and of the journeys'
+README), the four journeys byte for byte the author's, and a host entry per operation per host. Where the contract left
+a choice, this is what was decided, with the evidence in `design/evidence/M1.29/`.
+
+- **One line per host entry.** `src/wallet/<verb>.{node,browser,world}.ts` is `Operations.on(<Host>.signer).<verb>(payload)`;
+  everything else is in six-slot modules under `src/modules/` (`account`, `chain`, `keystore`, `keyfile`, `signer`,
+  `submit`, `operations`, `node-host`, `browser-host`, `world`, `server`). The package builds to JavaScript with `tsc`
+  (`nx build wallets`), the shape every plugin ships (section 1).
+- **The signers.** Each is a `Signer` (create, import, keys, sign, send) and the host gives the ones it has; one it has
+  not refuses as `KeyLocked`, saying why in a log first. `node`: Web3 Secret Storage v3 files, one per label, in
+  `ORTHO_WALLET_HOME`, locked with `ORTHO_WALLET_PASSPHRASE` (scrypt at geth's standard cost; a world uses light cost); with
+  no passphrase keys list and nothing signs. `browser`: EIP-1193; a wallet has no names for its accounts, so the signer keeps
+  a book of labels, `create` takes the next account the wallet offers that has no label (`KeyLocked` if none), `import`
+  binds a label to an account the wallet holds (named by its CAIP-10 text), and a send is simulated by the chain port
+  first, so a doomed transfer is refused before the person is asked to approve anything, then handed to
+  `eth_sendTransaction` and followed. `keystore`: a server's key store; on the node and browser hosts it is absent (a
+  server's keys are reached by a server operation, M2.04); in a world it is an in-memory store; a server operation uses
+  `Server.keystore({ secret, chain })` from `@orthograph/wallets/server`. `world`: the world's test wallets, in memory.
+- **Labels are never overwritten.** `create` on a label that exists answers the key it has; `import` of the same key under
+  its label answers it, of another key is `KeyLocked`. A keystore file is written with `wx`.
+- **A browser's `create`** is the one place the signer cannot make a key itself. Accepted because the journey's
+  `create` then `import` then `keys` (1 then 2) needs `create` to succeed with a key that is not the funded one, and
+  because a real wallet's `eth_requestAccounts` is the only EIP-1193 way to be given an account.
+- **Chain setting.** `ORTHO_WALLET_CHAIN` (CAIP-2, default `eip155:1`) and `ORTHO_WALLET_RPC_URL`, read through Effect's
+  `Config`; a browser, with no process environment, sets `globalThis.ORTHOGRAPH_WALLET`. Nothing in the payload names a
+  chain, so it is a setting of the host (section 5: a value that differs by environment is a setting), never a choice.
+  `to` must be an account on the signer's chain; another is refused as `SimulationReverted` before anything is prepared.
+- **`confirmed`.** A plain transfer has no declared event of its own to wait for, so K7 Q3's "the follower saw the
+  declared event" has nothing to match. The intent is the transfer itself: `level: "confirmed"` is included in a block and not
+  reverted, at depth one, which is a local chain's level. A mined revert after a passing simulation is
+  `SimulationReverted`. An unreachable chain, a timeout or a replaced transaction is a defect that says what.
+- **Ids and secrets.** `wallet` is `wal_` and sixteen characters of the address (the same key has the same id on any
+  signer). `import`'s `source` is `Blueprint.visibility.secret`: it is recorded nowhere. `signer`, `label`, the
+  transaction hash and `level` are `Blueprint.traced`: the secrets eval otherwise reads a journey's name or the chain's own
+  span as a leak of the text "node" or "confirmed". These are additions to the stand-in's declarations, as its README allows.
+- **How prove runs a client operation.** With a `DeviceHost` (given by `Prove.run` when a mounted plugin has any),
+  `Journeys.run` runs the plugin's `<verb>.world.js` in its own process (`journeys/internal/device.ts`): the operation
+  served by `Device.serve` under the app's mount as an anonymous caller, the call's span the child of the journey's own so its
+  trace reads back as a served call's, recorded as 200 with the answer in wire form, 422 with `{ _tag, code, … }` for a
+  declared refusal, or 500 for a defect, whose `defect` attribute is what the report quotes (`BlankReached`). The
+  proof's handler hash for a client operation is the hash of its `world` entry. Device spans now leave with the logs
+  written inside them (`OtlpLogger`), because the explainability eval looks for the log that decided a refusal.
+- **What a world with a chain gives** (the journeys' README, assumption 5): prove stands Anvil as a process of the run's
+  scope (always `--silent`, released after the Worker), with `chain.keys.<host>` for `node`, `browser`, `keystore` and
+  `world`, and `chain.payee`. A secret key for the three that hold one; for `browser`, the CAIP-10 account its provider
+  holds (the provider is the world's test EIP-1193 provider, which holds that account and an empty one). The keys are
+  generated by the world, `Redacted` in `DeviceWorld`, and are text only inside a call's payload. Without `anvil` on the
+  path the world has no chain and says so; the steps that need it then read `nothing at world.chain…`.
+- **A reserved verb.** The wallet's `import` made the generator write `export const import`. The SDK, the CLI and a scaffold
+  now bind such a verb as `import_` and export it under its name (`export { import_ as import }`), so `Sdk.wallet.import`
+  and `wallet import` work. Apps with no such verb generate byte for byte as before.
+- **No call step on the device.** The stand-in's declarations carry no steps and `send` reaches the chain through
+  `@orthograph/chain-evm/device` as a library (its port and its spans), so the refusal of a call step in a client operation
+  stays, with its reason corrected. It lifts when an adapter needs it.
+- **`@orthograph/chain-evm/device`** is the package without `Anvil` (no `node:` import), so a browser's or a Worker's
+  closure can hold the port and `Keys`; `Keys` is new there (generate, a signing `Key`, keccak-256, addresses), so no other
+  package imports viem.
+- **A gap in the journeys, for their author.** The four journeys reach only `SimulationReverted`, so the coverage eval
+  reports every other declared refusal (`KeyLocked` on all five operations, `NoSuchKey` on `sign` and `send`) as reached
+  by no journey: an app mounting the wallet passes every other eval and fails `prove` on coverage. The contract (their
+  README) declares those errors, so they are declared; the fix is journeys that reach them (a locked node keystore, a send
+  or a sign for a label that is not there), written by an author, not here.
+- **Not built.** A server operation signing in a real Worker: the signer (`@orthograph/wallets/server`, an export of its own so
+  project code never imports a plugin's `src/*`) is proved in a served operation on Anvil (`server.test.ts`) with a key the world
+  generated, but a Worker handler has no way yet to be given a secret as a binding (secrets are M2.04), so no generated Worker
+  runs it. A browser's wallet is proved against a stand-in provider, not a real extension (ledger `PRF-12`).
 
 ## 9. Adapters, harvested from D4 section 3 for M1.14
 
@@ -459,3 +527,72 @@ M1.03's builder (PR #64, commit 9f8cebb) edited four checks: `e2e/m1/01-mounting
 Both edited tests in `01` fail on the code before M1.03 (`c75bbb6^`, with these check files laid over it) and pass on #64's head. In `01` all 16 tests pass on the head. In `03`, 7 of 8 fail on the head at an earlier line (`can't load blueprint/things/probe/verbs/quote.ts`, M1.14's code), none at an edited assertion.
 
 The author found no weakened assertion, removed case or expectation fitted to the builder's code. Verdict: accept as authored; no check was rewritten. One note outside the checks: the same commit range reworded section 7 above ("keeps its model and its generated/ byte for byte" became "adds no mount metadata"). `00-controls` still asserts the narrower claim, that installing fixtures changes nothing for a project that mounts nothing, and it passes. Gate item 2 in `milestones.md` (acme's `generated/` the same as before, byte for byte) cannot hold for `generated/model/model.json` once M1.03 adds `from` and the journeys; no check compares against pre-M1 bytes. The lead should reword that gate item.
+
+## Checks 12 and 13: what their author settled (lead, 19 November 2026)
+
+The design was silent on these, the ✍️ author of checks 12 (M1.11) and 13 (M1.21) decided them in each file's assumptions,
+and the lead accepts them as the contract for the builders. Evidence: `design/evidence/M1.11/check-12-red.txt` and
+`design/evidence/M1.21/check-13-red.txt`, each red on the missing surface only.
+
+- **The model is a projection too.** Section 15's list gains `model`: `@orthograph/projections` exports `model`, `api`,
+  `server` (part one), then `sdk`, `cli`, `mcp`, `docs`, `portal`. Acme mounts each as `blueprint/projections/<name>.ts`,
+  `export default Blueprint.use(<name>, …)`; the mount's name is its file's and its output folder follows it.
+- **Unchanged means byte for byte except line 1**, which may name the mount (`// Generated from
+  blueprint/projections/<name>.ts. Do not edit.`). The model differs only by its new `mounts` key, recorded as
+  `mounts.<name>` with `kind: "projection"`, `file`, `package` and `hash`.
+- **A mount is what makes the output.** With no `blueprint/projections/server.ts`, nothing writes `generated/server/`: the
+  fixed renderer list is gone (M0.03).
+- **A step signal is an OTLP log record** at each step's start and end (`step`, `phase`, and `outcome` on `end`), whose
+  `spanId` is the step span's own, so the portal joins signals and spans by id (K5 seam 10). "Under `waitUntil`, not at
+  dispose" is judged as: the signal is in the Collector's file while the request is still held.
+- **The portal's live view is data first.** `Live.call({ source, journal }, trace)` in `@orthograph/portal` is a pure
+  Effect over the trace source and the world's journal: steps running or ended, the commit once its span has ended, and
+  each event only with a committed commit. Its screens stay M1.13's, on M1.25's design with Aaron; this shape does not
+  decide them.
+
+## M1.11: what its builder settled (19 November 2026)
+
+Built to check 12. Where the design was silent the builder decided, and records it here; evidence in
+[`../evidence/M1.11/`](../evidence/M1.11/).
+
+- **One package, `@orthograph/projections`** (`scope:projections`, `env:build`, `layer:1`; X-10). It imports `orthograph`
+  (`Blueprint.projection`, `Host`, `Ships`), `effect` and, for types only, `@orthograph/compiler`. It never imports
+  `generators`, `prove` or a host: the dependency runs the other way, `generators` depends on it. Build-time only, like
+  `compiler` and `generators`: what it generates never imports it. A blueprint mounts it as it mounts any plugin, so
+  `scope:project` may depend on `scope:projections` (`.oxlintrc.json`, both constraint blocks, and `packages.md`).
+- **A package may ship several descriptors.** The compiler's `PluginPackage` gains `descriptors`, every root export whose
+  `kind` is `feature`, `adapter` or `projection`, and a mount is matched to the package that exports its descriptor, by
+  identity. `default` is no longer required. "Mounted once" is now per descriptor, not per package: `server` and `api`
+  are two mounts of one package.
+- **The projection's input and output.** `ProjectionInput` is `{ name, model, mount, mounts }` (the frame's `project`);
+  `Output.path` is relative to `generated/<mount>/`, and the generators write it there. The model is the compiler's, which
+  `orthograph` cannot import, so a projection types it itself.
+- **The mount's name is its folder, and the built-ins hold it to their own names.** `generated/server/` and `generated/api/`
+  are read by name by `prove`, `check`, `environments` and the other renderers, so `server` is refused when mounted as
+  anything but `blueprint/projections/server.ts` (`MountedElsewhere`, naming the file it belongs in). Threading the name
+  through is M1.13's, when the portal and docs stop assuming `generated/api`. A third party's projection has no such limit.
+- **What a mount writes is named in its first line.** A file a mounted projection renders whose first line is the
+  do-not-edit line gets `// Generated from blueprint/projections/<name>.ts. Do not edit.`, done by the generators for every
+  mount alike, so no projection spells it. JSON and SQL files have no such line and keep what they have. The diff of acme's
+  `generated/` is that one line in each of `server/main.ts`, `server/wrangler.jsonc` and the fifteen `api` files, the
+  `mounts` key in `model/model.json` and in `portal/blueprint.json` (which holds the model), and nothing else (PRJ-16).
+- **A projection's mount hashes its identity, not its sources.** `mounts.<name>.integrity` of a projection is the digest of
+  its `package.json`. Hashing every file (as a feature's) would put `model.json`, `portal/blueprint.json` and the compiler's
+  and CLI's acme snapshots out of date on every edit of a renderer, and M1.12 and M1.13 edit this package in parallel. A
+  projection owns no operations a changed mount hash could stale; what its sources write is guarded by drift
+  (`ortho check`, `no-edited-output`), which is the right test of a renderer.
+- **A project that mounts no projection gets the model, the api and the server, as before.** The examples `signup`,
+  `starter` and `work`, the starter the preset copies, and a project made with the preset all generate byte for byte what
+  they did, with the old first line, because no mount is there to name. The moment a project mounts any projection it
+  gets exactly the ones it mounts: that is the rule check 12 judges (no `server.ts`, no `generated/server/`). Only `acme` mounts
+  in M1.11; the others gain their mounts with `ortho new` (M2.09) or when part three lands, whichever comes first. This
+  keeps the published starter (check 1, from a registry) free of a new dependency until `ortho add projection` exists.
+- **What is still fixed.** The SDK, CLI, MCP, docs and portal render as they did (M1.12, M1.13), and so does the blank
+  handler scaffold in the project's `src/`, which is the project's own code and no mount's output. The model projection
+  writes `model.json` and `edges.json`; `changes.json` is the CLI's.
+- **`Render.files` is an Effect.** A projection's `render` is one, so `Render.files({ name, model, root })` is too; `root`
+  is where the mount files are loaded from (the model names each mount's `file`; its default export's `plugin` is the
+  projection). A mount that can't be loaded, or won't render, fails with its file named: `generate` reports it and `check`
+  reports it as drift.
+- **`ortho add projection`** is not part of this slice: a projection package has several exports, so the command needs to
+  be told which. Acme's three mounts are written by hand, as scaffolds say they may be.

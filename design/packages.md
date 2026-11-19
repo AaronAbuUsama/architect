@@ -19,6 +19,9 @@ packages/
                                                    finds blanks. Bin ortho-model
   generators/        @orthograph/generators        the Nx plugin: scaffold generators write once; sync generators render
                                                    each output and fail `nx sync:check` on drift
+  projections/      @orthograph/projections       the projections Orthograph ships, each a plugin an app mounts in
+                                                   blueprint/projections/: model, api and server (M1.11); sdk, cli, mcp,
+                                                   docs and portal follow (M1.12, M1.13). Build time only (`env:build`)
   language-effect/   @orthograph/language-effect   the Effect language: renders api, server, sdk, cli, mcp, docs; and the
                                                    runtime generated code runs on (handler wrapper, role checks, moves and
                                                    events, locks, outbox, idempotency, steps as spans, Clock, Timers)
@@ -32,6 +35,8 @@ packages/
                                                    publish, watch
   preset/            @orthograph/preset            the Nx preset that makes a starter project (until `ortho new`, M2.09)
   portal/            @orthograph/portal            the portal every project gets
+  portal-ui/         @orthograph/portal-ui         the only importer of HeroUI Pro, a peer dependency never bundled; the
+                                                   portal and every face build on its exports (F7, M1.34)
   logbook/           @orthograph/logbook           verdicts and the model, kept per project
   services/          @orthograph/services          private: the stand-ins tests and gates start as processes, never containers (the OIDC
                                                    issuer over jose, Verdaccio under Node, and the process owner); tag env:support
@@ -44,13 +49,16 @@ e2e/                 the gates: e2e:layer1, e2e:layer2, e2e:m0
 
 Plugins come later, one package each: `@orthograph/auth` and `@orthograph/organizations` (M2), `@orthograph/work` (M3),
 `@orthograph/agent-kit` (M3, the agents projection that writes `generated/agents/`), `@orthograph/agents` (M4),
-`@orthograph/stripe` and `@orthograph/resend` (M5), `@orthograph/wallets` (M6). Nothing is published to npm before M7; every milestone before it publishes to the local Verdaccio.
+`@orthograph/stripe` and `@orthograph/resend` (M5), `@orthograph/wallets` (built in M1.29, the first: `packages/wallets`, with SIWE linking in M2.13). Nothing is published to npm before M7; every milestone before it publishes to the local Verdaccio.
 
 ## Rules, held by Nx module boundaries
 
 - `orthograph` (tag `scope:orthograph`) depends on nothing but Effect. Every other package may import it.
-- A project (`scope:project`) depends only on `scope:orthograph`, `scope:language` and `scope:host`.
+- A project (`scope:project`) depends only on `scope:orthograph`, `scope:language`, `scope:host` and `scope:projections`:
+  a blueprint mounts a projection as it mounts any plugin, and nothing it generates imports the package.
 - `env:runtime` packages depend only on `env:runtime` packages; `env:build` packages may use both.
+- `@heroui-pro/*` is imported only by `portal-ui` (lint, F7); `portal-ui` is a leaf that only the portal and faces
+  depend on.
 - `language-effect`'s runtime is the only package generated code imports at run time, besides `orthograph`, the host and
   the project's own code.
 - `compiler` and `generators` never run in production.

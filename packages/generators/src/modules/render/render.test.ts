@@ -1,12 +1,14 @@
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
+import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
 import type { Model } from "@orthograph/compiler";
 import { Render } from "./service.ts";
 
 const repo = resolve(import.meta.dirname, "../../../../..");
 const model = JSON.parse(execFileSync(process.execPath, [resolve(repo, "packages/compiler/src/main.ts"), resolve(repo, "examples/acme")], { encoding: "utf8" })) as Model;
-const files = Render.files({ name: "acme", model });
+const render = (project: Parameters<typeof Render.files>[0]) => Effect.runPromise(Render.files(project));
+const files = await render({ name: "acme", model, root: resolve(repo, "examples/acme") });
 const byPath = new Map(files.map((f) => [f.path, f]));
 
 describe("render", () => {
@@ -66,7 +68,7 @@ describe("render", () => {
     expect(byPath.get("generated/docs/session/sign-in.md")!.content).toContain("| password | Password (secret) |");
   });
 
-  it("wires an operation's call out in the server, types its handler beside it, and scaffolds the one blank, none of it in a client", () => {
+  it("wires an operation's call out in the server, types its handler beside it, and scaffolds the one blank, none of it in a client", async () => {
     const quote = { ...model.operations["system.health"]!, name: "system.quote", verb: "quote", file: "blueprint/things/system/verbs/quote.ts",
       payload: { origin: model.operations["person.sign-up"]!.payload["email"]!, mode: model.operations["person.sign-up"]!.payload["email"]! },
       steps: { price: { name: "system.quote.price", type: "call", call: { mount: "pricing", call: "quote", mode: "promise" as const } } } };
@@ -75,7 +77,7 @@ describe("render", () => {
       operations: { ...model.operations, "system.quote": quote },
       mounts: { pricing: { kind: "adapter", file: "blueprint/adapters/pricing.ts", package: "@fixture/remote", version: "1.0.0", integrity: "sha256-x", chosen: {}, calls: ["quote"], layer: true, hash: "h" } },
     };
-    const made = new Map(Render.files({ name: "acme", model: calling }).map((f) => [f.path, f]));
+    const made = new Map((await render({ name: "acme", model: calling })).map((f) => [f.path, f]));
     const server = made.get("generated/server/main.ts")!.content;
     expect(server).toContain('import pricingQuoteCall from "@fixture/remote/src/calls/quote.js";');
     expect(server).toContain('import { layer as pricingLayer } from "@fixture/remote/src/layer.js";');
@@ -88,7 +90,47 @@ describe("render", () => {
     for (const [path, file] of made) if (path.startsWith("generated/api/") || path.startsWith("generated/sdk/")) expect(file.content, path).not.toMatch(/@fixture\/remote|\/src\/calls\//);
   });
 
-  it("is deterministic", () => {
-    expect(Render.files({ name: "acme", model })).toEqual(files);
+  it("a verb that is a reserved word (the wallet's import) is exported under its name from a binding of another, in the SDK, the CLI and a scaffold", async () => {
+    const grant = model.operations["allowance.grant"]!;
+    const renamed = { ...model, operations: { ...model.operations, "allowance.import": { ...grant, name: "allowance.import", verb: "import" } } };
+    const made = new Map((await render({ name: "acme", model: renamed, root: resolve(repo, "examples/acme") })).map((f) => [f.path, f]));
+    for (const path of ["generated/sdk/src/allowance/import.ts", "generated/cli/src/allowance/import.ts"]) {
+      const text = made.get(path)!.content;
+      expect(text, path).toContain("export const import_ =");
+      expect(text, path).toContain("export { import_ as import };");
+      expect(text, path).not.toMatch(/export const import\b/);
+    }
+    expect(made.get("generated/sdk/src/allowance/index.ts")!.content).toContain('export { import } from "./import.ts";');
+    expect(made.get("src/allowance/import.ts")!.content).toContain("export default import_;");
+    // A verb that is no reserved word is as it was: no second export line.
+    expect(byPath.get("generated/sdk/src/allowance/grant.ts")!.content).not.toContain("export {");
+  });
+
+  it("writes what the mounted projections make, and nothing for one that isn't mounted, each first line naming its mount", async () => {
+    const acme = resolve(repo, "examples/acme");
+    expect(files.find((f) => f.path === "generated/server/main.ts")!.content.split("\n")[0]).toBe("// Generated from blueprint/projections/server.ts. Do not edit.");
+    expect(byPath.get("generated/model/model.json")!.content).toContain('"mounts"');
+    const onlyApi = await render({ name: "acme", model: { ...model, mounts: { api: model.mounts!["api"]! } }, root: acme });
+    expect(onlyApi.some((f) => f.path.startsWith("generated/server/")), "no server mount").toBe(false);
+    expect(onlyApi.some((f) => f.path.startsWith("generated/model/")), "no model mount").toBe(false);
+    expect(onlyApi.some((f) => f.path === "generated/api/src/index.ts")).toBe(true);
+    // What the fixed list still makes, not yet mounted (M1.12, M1.13).
+    expect(onlyApi.some((f) => f.path === "generated/sdk/src/index.ts" || f.path.startsWith("generated/sdk/"))).toBe(true);
+  });
+
+  it("gives a project that mounts no projection the model, the api and the server as they were, headers and all", async () => {
+    const bare = await render({ name: "acme", model: Object.fromEntries(Object.entries(model).filter(([key]) => key !== "mounts")) as Model });
+    expect(bare.find((f) => f.path === "generated/server/main.ts")!.content.split("\n")[0]).toBe("// Generated from the blueprint. Do not edit.");
+    expect(bare.map((f) => f.path)).toEqual(expect.arrayContaining(["generated/model/model.json", "generated/model/edges.json", "generated/api/src/index.ts"]));
+  });
+
+  it("refuses a mounted projection it can't load, naming the mount's file", async () => {
+    const failed = await Effect.runPromise(Effect.result(Render.files({ name: "acme", model })));
+    expect(failed._tag).toBe("Failure");
+    expect(String(failed._tag === "Failure" ? failed.failure.message : "")).toContain("blueprint/projections/");
+  });
+
+  it("is deterministic", async () => {
+    expect(await render({ name: "acme", model, root: resolve(repo, "examples/acme") })).toEqual(files);
   });
 });

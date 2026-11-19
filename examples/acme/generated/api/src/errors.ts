@@ -1,4 +1,4 @@
-// Generated from the blueprint. Do not edit.
+// Generated from blueprint/projections/api.ts. Do not edit.
 import { Schema } from "effect";
 import { ErrorNames, structOf } from "orthograph/server";
 import * as Allowance from "../../../blueprint/things/allowance/errors.ts";

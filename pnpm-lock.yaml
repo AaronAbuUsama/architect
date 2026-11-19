@@ -117,6 +117,9 @@ importers:
       '@orthograph/portal':
         specifier: workspace:*
         version: link:../../packages/portal
+      '@orthograph/projections':
+        specifier: workspace:*
+        version: link:../../packages/projections
       effect:
         specifier: 4.1.1
         version: 4.1.1
@@ -281,6 +284,9 @@ importers:
       '@orthograph/portal':
         specifier: workspace:*
         version: link:../portal
+      '@orthograph/projections':
+        specifier: workspace:*
+        version: link:../projections
       effect:
         specifier: 4.1.1
         version: 4.1.1
@@ -418,6 +424,9 @@ importers:
       '@orthograph/generators':
         specifier: workspace:*
         version: link:../generators
+      effect:
+        specifier: 4.1.1
+        version: 4.1.1
       orthograph:
         specifier: workspace:*
         version: link:../orthograph
@@ -426,8 +435,23 @@ importers:
         specifier: 24.0.3
         version: 24.0.3
 
+  packages/projections:
+    dependencies:
+      '@orthograph/compiler':
+        specifier: workspace:*
+        version: link:../compiler
+      effect:
+        specifier: 4.1.1
+        version: 4.1.1
+      orthograph:
+        specifier: workspace:*
+        version: link:../orthograph
+
   packages/prove:
     dependencies:
+      '@orthograph/chain-evm':
+        specifier: workspace:*
+        version: link:../chain-evm
       '@orthograph/compiler':
         specifier: workspace:*
         version: link:../compiler
@@ -459,9 +483,6 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: 1.32.2
         version: 1.32.2(@cfworker/json-schema@4.1.4)(supports-color@10.2.2)(zod@4.6.7)
-      '@orthograph/chain-evm':
-        specifier: workspace:*
-        version: link:../chain-evm
       '@orthograph/services':
         specifier: workspace:*
         version: link:../services
@@ -480,6 +501,22 @@ importers:
       verdaccio:
         specifier: 6.11.1
         version: 6.11.1(supports-color@10.2.2)(typanion@3.14.0)
+
+  packages/wallets:
+    dependencies:
+      '@orthograph/chain-evm':
+        specifier: workspace:*
+        version: link:../chain-evm
+      effect:
+        specifier: 4.1.1
+        version: 4.1.1
+    devDependencies:
+      '@orthograph/language-effect':
+        specifier: workspace:*
+        version: link:../language-effect
+      orthograph:
+        specifier: workspace:*
+        version: link:../orthograph
 
 packages:
 

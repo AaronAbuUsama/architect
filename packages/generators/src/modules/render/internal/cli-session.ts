@@ -1,8 +1,7 @@
 // generated/cli, the session commands: `session sign-in --env <env>` signs in by device code (D3 #10), `session show --env
 // <env>` uses the session it kept. Without `--env` both stay the operations' own: email and password, and ACME_TOKEN.
 import type { Model, OperationModel } from "@orthograph/compiler";
-import type { RenderedFile } from "../types.ts";
-import { GENERATED, camel, lines } from "./names.ts";
+import { GENERATED, camel, lines, type RenderedFile } from "@orthograph/projections/shared";
 
 /**
  * The starter's identity things (`packages/preset`): the operation that signs in with email and password, and the one

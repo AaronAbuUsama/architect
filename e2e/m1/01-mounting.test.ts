@@ -7,11 +7,19 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { addFeature, digest, model, mountEcho, mountFile, project, refuses, run, succeeds, textAt, tree, type Copy, type Entry } from "./support.ts";
+import { addFeature, digest, model, mountEcho, mountFile, project, refuses, run, succeeds, textAt, tree, type Copy, type Entry, type MountJson } from "./support.ts";
 
 const copies: Array<Copy> = [];
 const fresh = (...kinds: Array<Entry>) => { const copy = project(...kinds); copies.push(copy); return copy; };
 afterEach(() => { for (const copy of copies.splice(0)) copy.remove(); });
+
+// acme mounts the model, api and server projections itself (check 12, M1.11), so "the mounts" of a plugin test are the
+// others: every mount that is not a projection, by name. The projections stay exactly those three.
+const own = (mounts: Record<string, MountJson> | undefined) => {
+  const all = Object.entries(mounts ?? {});
+  expect(all.filter(([, mount]) => mount.kind === "projection").map(([name]) => name).sort()).toEqual(["api", "model", "server"]);
+  return all.filter(([, mount]) => mount.kind !== "projection").map(([name]) => name).sort();
+};
 
 const generatedText = (root: string) => tree(root, "generated").map((path) => textAt(root, path)).join("\n");
 
@@ -51,7 +59,7 @@ describe("01 mounting: a feature mounted by hand (M1.06)", () => {
     expect(mount).toMatchObject({ kind: "feature", file: "blueprint/features/echo.ts", package: "@fixture/echo", version: "1.0.0", chosen: { style: "plain" } });
     expect(mount?.integrity).toMatch(/^sha256-/);
     expect(mount?.hash).toMatch(/\S/);
-    expect(Object.keys(model(root).mounts ?? {})).toEqual(["echo"]);
+    expect(own(model(root).mounts)).toEqual(["echo"]);
   });
 
   it("generates the plugin's operations as an app's own, and writes nothing into src/", () => {
@@ -84,7 +92,7 @@ describe("01 mounting: a feature mounted by hand (M1.06)", () => {
     const from = { kind: "feature", mount: "fixture", package: "@fixture/echo", version: "1.0.0", thing: "echo" };
     expect(got.things["fixture-echo"]!.from).toEqual(from);
     expect(got.operations["fixture-echo.repeat"]!.from).toEqual(from);
-    expect(Object.keys(got.mounts ?? {})).toEqual(["fixture"]);
+    expect(own(got.mounts)).toEqual(["fixture"]);
     succeeds(root, "generate");
     for (const path of ["generated/api/src/fixture-echo/repeat.ts", "generated/sdk/src/fixture-echo/repeat.ts", "generated/sdk/src/fixture-echo/index.ts"]) {
       expect(existsSync(join(root, path)), path).toBe(true);
