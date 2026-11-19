@@ -46,7 +46,7 @@ export, as acme's `allowance.grantee` is.
 The operation's file never says its own name. It imports everything else it means, so each name it uses is a
 reference the compiler can follow:
 
-```ts file=examples/signup/blueprint/things/sheet/verbs/join.ts lines=1-7
+```ts file=examples/signup/blueprint/things/sheet/verbs/join.ts name=imports,default lines=1-7
 import { Blueprint } from "orthograph";
 import { Sheet } from "../thing.ts";
 import { machine } from "../machine.ts";
@@ -70,7 +70,7 @@ This is what the model says about it, rendered from the sign-up sheet's compiled
 3. **The path says what a file is.** `readLayout` splits each path and decides from it alone. Under `blueprint/things/`,
    the folder is the thing's name, and the rest of the path says which part of it the file holds:
 
-```ts file=packages/compiler/src/modules/model/internal/layout.ts lines=54-61
+```ts file=packages/compiler/src/modules/model/internal/layout.ts name=readLayout lines=54-61
 if (parts[0] !== "things" || parts.length < 3) {
   layout.problems.push(`blueprint/${path}: not a place the blueprint reads (values/<file>.ts, environments/<name>.ts or things/<thing>/...)`);
   continue;
@@ -83,7 +83,7 @@ const file = parts.slice(2).join("/");
 
    A file in a thing's `verbs` folder is one operation, named by its file and nothing else:
 
-```ts file=packages/compiler/src/modules/model/internal/layout.ts lines=77-83
+```ts file=packages/compiler/src/modules/model/internal/layout.ts name=readLayout lines=77-83
 } else if (parts[2] === "verbs" && parts.length === 4) {
 const verb = parts[3]!;
 if (!NAME.test(verb)) layout.problems.push(`blueprint/${path}: verb "${verb}" must be lowercase words joined by dashes`);
@@ -111,7 +111,7 @@ declaration instead.
 
 The model is the one contract every projection is made from (K5, seam 1). Today it has six parts. This is its type:
 
-```ts file=packages/compiler/src/modules/model/types.ts lines=112-125
+```ts file=packages/compiler/src/modules/model/types.ts name=Model lines=112-125
 export interface Model {
   /** Every refusal in the project and its code: declared errors, each machine's, and the runtime's (`NotAllowed`). */
   readonly refusals: Readonly<Record<string, string>>;
@@ -149,13 +149,13 @@ prints the model's short form, one line per thing and operation; `ortho model --
 On a clean project, this is the whole output. The check's own test pins it on acme, and the sign-up sheet prints the
 same six lines:
 
-```ts file=packages/cli/src/modules/check/check.test.ts lines=59
+```ts file=packages/cli/src/modules/check/check.test.ts name="ortho check on acme" lines=59
 expect(said.lines).toEqual(["blanks left 0", "types ✔", "rules ✔", "drift ✔", "ratchets 0", "check ✔"]);
 ```
 
 With blanks left, the first lines name each one:
 
-```ts file=packages/cli/src/modules/add/add.test.ts lines=60-63
+```ts file=packages/cli/src/modules/add/add.test.ts name="ortho add, then check, in a fresh project" lines=60-63
 expect(lines[0]).toBe("allowance has 3 blanks");
 const thing = readFileSync(join(fresh, "blueprint/things/allowance/thing.ts"), "utf8").split("\n");
 const at = thing.findIndex((l) => l.includes("Blueprint.todo")) + 1;
