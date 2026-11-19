@@ -13,6 +13,14 @@ import { WorldFailed, type ChainStand } from "#modules/world/types.js";
 /** The hosts a wallet's key can live on (K7 F4, F5): a funded key for each, then one more account, the payee's. */
 const HOSTS = ["node", "browser", "keystore", "world"] as const;
 
+/**
+ * What the device's chain declares for confirmation (M1.38): depth three, a block a second. A journey can't name its chain and
+ * a plugin can't ship a starting world, so the one chain every device journey meets is the deep one: each send in a
+ * journey waits for three blocks, which is what a real chain asks of it, and the wallet's depth-three story is the common case.
+ */
+const DEPTH = 3;
+const BLOCK_SECONDS = 1;
+
 /** Whether a mounted plugin runs operations on the device, so that its journeys need a device and a chain to run on. */
 export const needsDevice = (model: Model) => Object.values(model.operations).some((op) => op.runs === "client" && op.from.kind !== "app");
 
@@ -22,7 +30,7 @@ export const needsDevice = (model: Model) => Object.values(model.operations).som
  */
 export const standChain = (model: Model): Effect.Effect<{ readonly chain: ChainStand | undefined; readonly notes: ReadonlyArray<string> }, never, Scope.Scope> =>
   needsDevice(model)
-    ? Anvil.start({ accounts: HOSTS.length + 1 }).pipe(
+    ? Anvil.start({ accounts: HOSTS.length + 1, blockTime: BLOCK_SECONDS }).pipe(
       Effect.provide(TimersLive),
       Effect.map((anvil) => ({ chain: { rpcUrl: anvil.rpcUrl, chainId: anvil.chainId, accounts: anvil.accounts } as ChainStand | undefined, notes: [] as ReadonlyArray<string> })),
       Effect.catch((failed) => Effect.succeed({ chain: undefined, notes: [`world chain: none, ${failed.message} (the plugins here run on a device and some journeys need a chain)`] })),
@@ -57,7 +65,7 @@ export const deviceHost = (root: string, otlp: string | undefined, chain: ChainS
       service: "prove-device",
       given,
       world: {
-        chain: chain === undefined ? undefined : { rpcUrl: chain.rpcUrl, chainId: chain.chainId, keys },
+        chain: chain === undefined ? undefined : { rpcUrl: chain.rpcUrl, chainId: chain.chainId, keys, depth: DEPTH },
         directory: join(directory),
         remember: <A>(key: string, make: () => A) => {
           if (!kept.has(key)) kept.set(key, make());

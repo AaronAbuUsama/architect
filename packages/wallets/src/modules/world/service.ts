@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { Effect, Option, Redacted } from "effect";
 import { DeviceWorld } from "@orthograph/language-effect/device";
 import { Keys, type Address, type Hex, type Key } from "@orthograph/chain-evm/device";
+import { Chain } from "../chain/service.ts";
 import { Keyfile } from "../keyfile/service.ts";
 import { Keystore } from "../keystore/service.ts";
 import { Signers } from "../signer/service.ts";
@@ -20,7 +21,8 @@ export const WorldHost: WorldHostApi = {
   signer: (name: SignerName) =>
     Effect.gen(function* () {
       const world = yield* DeviceWorld;
-      const chain: ChainSetting = { chainId: world.chain?.chainId ?? 1, rpcUrl: world.chain?.rpcUrl };
+      const chainId = world.chain?.chainId ?? 1;
+      const chain: ChainSetting = { chainId, rpcUrl: world.chain?.rpcUrl, depth: Chain.depthOf(chainId, world.chain?.depth) };
       switch (name) {
         case "node": {
           // What the world locks its keystore folder with is its own, made once and never shown.
