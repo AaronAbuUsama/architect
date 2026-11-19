@@ -153,22 +153,17 @@ export const RUNTIME_CODES = { NotAllowed: "AR-001" } as const;
 ```
 
 A code is the thing's prefix and a number. Declared errors are 1, 2, 3 in the order `errors.ts` declares them, the
-machine's is always 900, and the runtime's take `AR`. So signup's refusals are `SH-001` for `SheetFull`, `SH-900` for
-`SheetNotOpen` and `AR-001` for `NotAllowed`. The generated code carries each one's exit code and its code:
+machine's is always 900, a missing instance's (`<Thing>NotFound`, which the runtime refuses before the handler) is 901,
+and the runtime's own take `AR`. So signup's refusals are `SH-001` for `SheetFull`, `SH-900` for `SheetNotOpen`, `SH-901`
+for `SheetNotFound` and `AR-001` for `NotAllowed`. The generated code keeps each one's code, its exit code and its HTTP
+status in one table, which the CLI, HTTP and MCP all read:
 
-```ts file=examples/signup/generated/api/src/errors.ts lines=12-16
-export const exits = {
-  SheetFull: 71,
-  SheetNotOpen: 70,
-  NotAllowed: 3,
-} as const;
-```
-
-```ts file=examples/signup/generated/api/src/errors.ts lines=19-23
-export const codes = {
-  SheetFull: "SH-001",
-  SheetNotOpen: "SH-900",
-  NotAllowed: "AR-001",
+```ts file=examples/signup/generated/api/src/errors.ts lines=7-12
+export const refusals = {
+  SheetFull: { code: "SH-001", exit: 71, status: 422 },
+  SheetNotOpen: { code: "SH-900", exit: 70, status: 409 },
+  SheetNotFound: { code: "SH-901", exit: 4, status: 404 },
+  NotAllowed: { code: "AR-001", exit: 3, status: 403 },
 } as const;
 ```
 
@@ -189,7 +184,7 @@ Three rules decide what a step is (K5, seam 3):
 - **A rerun runs them again.** When the commit loses a race with another call, the whole attempt is run again, steps
   and all, up to a fixed number of times:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=123-131
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=142-150
 const loop = (number: number): Effect.Effect<object, unknown, unknown> =>
   attempt(payload, principal, key, number).pipe(
     Effect.catch((e) =>
@@ -208,7 +203,7 @@ what does the work. `database` is the store's, `wait` is a timer's. The kinds ar
 
 **Every required step must run, in order.** Eval 6 checks it on every answered call; an `optional` step may be absent:
 
-```ts file=packages/prove/src/modules/evals/internal/calls.ts lines=130-143
+```ts file=packages/prove/src/modules/evals/internal/calls.ts lines=134-147
 /** 6. Every required step of an answered call ran in its own span; all observed steps ran in declared order. */
 export const steps: PerOperation = (op, evidence) =>
   verdict("steps", op.name, evidence.flatMap((e) => {
@@ -286,18 +281,21 @@ A client that retries after a timeout doesn't know if the first call landed. `id
 answers what it answered the first time and changes nothing. No step runs, no event is written, and the span says
 `request.replayed`:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=70-75
-// The same request key from the same caller is one call: answer what was answered, and change nothing.
-const kept = key === undefined ? undefined : yield* store.answered(key);
-if (kept !== undefined) {
-  yield* Effect.annotateCurrentSpan({ "request.replayed": true });
-  return yield* decodeAnswer(JSON.parse(kept)).pipe(Effect.orDie);
-}
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=84-92
+        // The same request key from the same caller is one call: answer what was answered, and change nothing.
+        const kept = key === undefined ? undefined : yield* store.answered(key);
+        if (kept !== undefined) {
+          // The kept answer is bound to the payload it was made for: the same key with another payload is another request.
+          const { payload: madeFor, answer } = JSON.parse(kept) as { readonly payload: string; readonly answer: unknown };
+          if (madeFor !== sha256(canonical(payload))) return yield* new IdempotencyConflict({ key: key! });
+          yield* Effect.annotateCurrentSpan({ "request.replayed": true });
+          return yield* decodeAnswer(answer).pipe(Effect.orDie);
+        }
 ```
 
 The key is the operation, the caller and the request together, so one caller's key never answers another's call:
 
-```ts file=packages/language-effect/src/modules/handler/service.ts lines=120-122
+```ts file=packages/language-effect/src/modules/handler/service.ts lines=139-141
 // Keyed by operation and caller as well, so one caller's key never answers another's call.
 const who = principal.kind === "person" ? principal.person : "anonymous";
 const key = op.idempotent === "request" && request !== undefined ? `${name}|${who}|${request}` : undefined;
@@ -354,12 +352,13 @@ The short references are in `packages/prove/src/modules/evals/internal/calls.ts`
 - and in one line: `sheet.join 9 evals ✔ p50 3ms p95 4ms budget p95 150ms`
 
 The run ends with the whole project's coverage, `coverage ✔ moves 3/3 · outcomes 3/3 · refusals 1/1 · runtime
-refusals 2/2`, and `prove ✔`. The end-to-end test holds signup to exactly that:
+refusals 2/4` (no journey yet names a sheet that isn't there, so the generated `SheetNotFound` is never reached; K16),
+and `prove ✔`. The end-to-end test holds signup to exactly that:
 
 ```ts file=e2e/layer1/08-signup-proves.test.ts lines=14-17
 expect(lines.filter((l) => /^journey .* ✔ \d+\/\d+ steps$/.test(l))).toHaveLength(4);
 expect(lines.filter((l) => / 9 evals ✔ /.test(l))).toHaveLength(4);
-expect(lines).toContain("coverage ✔ moves 3/3 · outcomes 3/3 · refusals 1/1 · runtime refusals 2/2");
+expect(lines).toContain("coverage ✔ moves 3/3 · outcomes 3/3 · refusals 1/1 · runtime refusals 2/4");
 expect(lines.at(-1)).toBe("prove ✔");
 ```
 

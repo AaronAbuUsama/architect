@@ -15,6 +15,8 @@ export interface Field<V extends Value = Value> {
   readonly visibility: Visibility;
   /** Explicit opt-in to tracing a public text field, inherited from its declaration. */
   readonly traced?: true;
+  /** A secret answer field handed to its caller once (`Blueprint.issued`); the compiler refuses it on a thing's own field. */
+  readonly issued?: true;
 }
 
 /** What a thing's or payload's field may be declared as: a value, or a field taken from a thing. */
@@ -32,6 +34,17 @@ export interface Thing<F extends FieldsInput = FieldsInput> {
   readonly store: Store | undefined;
   /** The prefix of this thing's refusal codes (`AL` in `[AL-002]`); the compiler takes two letters of its name when unset. */
   readonly code: string | undefined;
+  /** The runtime's refusal when a call names an instance of this thing that isn't there (K16, M1.46): `<Thing>NotFound`. */
+  readonly notFound: NotFound;
+}
+
+/**
+ * The runtime's own refusal of a missing instance, generated as `<Thing>NotFound` (or the thing's declared error of that
+ * name). A journey names it as `Person.notFound`, the way it names a machine's `notFrom`.
+ */
+export interface NotFound {
+  readonly kind: "not-found";
+  readonly thing: Thing;
 }
 
 /** The kinds of store; open, because a host or a language supplies more (`chain`). */

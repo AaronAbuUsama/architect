@@ -74,16 +74,16 @@ describe("20 K13 grid: Plugged In's outputs", () => {
   let p: Project;
   beforeAll(() => { p = make(L.requireExample()); cleanup.push(() => { p.remove(); nothingRunning(p.root); }); });
 
-  it("names ✓ (M1-plugged-in, K15): three things, five operations, the refusals' exits, the CLI named plugged-in", () => {
+  it("names ✓ (M1-plugged-in, K15): three things, seven operations (ST1.02), the refusals' exits, the CLI named plugged-in", () => {
     expect(Object.keys(p.m.things).sort()).toEqual(["handle", "link", "profile"]);
-    expect(Object.keys(p.m.operations).sort()).toEqual(["handle.claim", "link.add", "link.order", "link.remove", "profile.get"]);
+    expect(Object.keys(p.m.operations).sort()).toEqual(["handle.claim", "handle.release", "handle.resolve", "link.add", "link.order", "link.remove", "profile.get"]);
     const exit = (thing: string, error: string) => (error in p.m.things[thing]!.errors ? p.m.things[thing]!.errors[error]!.exit : p.m.things[thing]!.machine?.notFrom.exit);
-    expect([exit("handle", "HandleTaken"), exit("handle", p.m.things["handle"]!.machine!.notFrom.error), exit("profile", "ProfileNotFound"), exit("link", "LinkNeedsHandle"), exit("link", p.m.things["link"]!.machine!.notFrom.error), exit("link", "LinkAlreadyRemoved")]).toEqual([10, 11, 20, 30, 31, 32]);
+    expect([exit("handle", "HandleTaken"), exit("handle", p.m.things["handle"]!.machine!.notFrom.error), exit("handle", "HandleAlreadyOwned"), exit("handle", "HandleNotFound"), exit("profile", "ProfileNotFound"), exit("link", "LinkNeedsHandle"), exit("link", p.m.things["link"]!.machine!.notFrom.error), exit("link", "LinkAlreadyRemoved")]).toEqual([10, 11, 12, 13, 20, 30, 31, 32]);
     expect(JSON.parse(textAt(p.root, "package.json")).bin).toHaveProperty("plugged-in");
     expect(textAt(p.root, "generated/cli/src/main.ts")).toContain("PLUGGED_IN_URL");
   });
 
-  it("operation and read x SDK, CLI, MCP, portal ✓: each of the five is in all four, as the model has it", () => {
+  it("operation and read x SDK, CLI, MCP, portal ✓: each of the seven is in all four, as the model has it", () => {
     expect([L.sdkMissing(p.root, p.m), L.cliMissing(p.root, p.m), L.mcpMissing(p.root, p.m), L.portalOperationDiffs(p.portal, p.m)]).toEqual([[], [], [], []]);
   });
   it("machine x portal ✓: each machine's states and moves are in the portal's data file", () => {
@@ -95,6 +95,7 @@ describe("20 K13 grid: Plugged In's outputs", () => {
   });
   it("thing and fields x SDK ~: the SDK exports each thing's type and the type of each of its fields (M1.42)", () => {
     const types = L.sdkTypesMissing(p.root, p.m);
+    expect(types.failure, types.out).toBeUndefined();
     expect(types.checked).toBeGreaterThan(5);
     expect(types.missing.filter((label) => label.startsWith("type ") || label.includes("[")), types.out).toEqual([]);
   });
@@ -116,9 +117,11 @@ describe("20 K13 grid: Plugged In's outputs", () => {
     expect(L.portalStepDiffs(p.portal, p.m)).toEqual([]);
   });
   it("event x API ✓, SDK ✗: the server speaks each event, and the SDK exports its type (M1.42)", () => {
-    expect(L.things(p.m).flatMap((t) => Object.keys(t.events)).sort()).toEqual(["HandleClaimed", "LinkAdded", "LinkRemoved"]);
+    expect(L.things(p.m).flatMap((t) => Object.keys(t.events)).sort()).toEqual(["HandleClaimed", "HandleReleased", "LinkAdded", "LinkRemoved"]);
     expect(L.apiDiffs(p.root, p.m).filter((d) => d.startsWith("API events"))).toEqual([]);
-    expect(L.sdkTypesMissing(p.root, p.m).missing.filter((label) => label.startsWith("event "))).toEqual([]);
+    const types = L.sdkTypesMissing(p.root, p.m);
+    expect(types.failure, types.out).toBeUndefined();
+    expect(types.missing.filter((label) => label.startsWith("event "))).toEqual([]);
   });
   it("event x portal ~: each event with the fields it carries is in the portal's data file (M1.42)", () => {
     expect(L.portalEventDiffs(p.portal, p.m)).toEqual([]);
@@ -200,6 +203,11 @@ describe("20 K13 grid: the loop, through the SDK and the CLI", () => {
 
 // ---- the story: both clients, every operation, then two refusals ----
 
+// Stage 1 (ST1.02): `handle.claim` and `link.add` are `signedIn`, and `link.order`, `link.remove` and `handle.release` are
+// the owner's, so each client's story is told by its own signed-in test person: a token from the world's `/_world/cast`
+// (the SDK takes it as `Sdk.layer(url, token)`, the CLI as `PLUGGED_IN_TOKEN`). `handle.resolve` and `profile.get` are
+// public and are read as a visitor. One person holds one name, so each refusal is a third person claiming a name that is
+// taken. The release comes last: a released name is free again, and the refusals need it held.
 const story = async (p: Project, loop: W.Loop) => {
   const op = (name: string) => p.m.operations[name]!;
   const calls: Array<{ client: "sdk" | "cli"; op: string; result: W.Result }> = [];
@@ -207,6 +215,7 @@ const story = async (p: Project, loop: W.Loop) => {
   const pages: Array<ReadonlyArray<string>> = [];
   const tag = () => Math.random().toString(16).slice(2, 8);
   const handles = { sdk: `sdk${tag()}`, cli: `cli${tag()}` };
+  const people = await loop.cast(["sdkOwner", "cliOwner", "sdkTaker", "cliTaker"]);
   const call = async (client: "sdk" | "cli", name: string, ctx: W.Context): Promise<W.Result> => {
     let result: W.Result;
     try { result = client === "sdk" ? await W.viaSdk(p.root, loop, op(name), ctx, `${client}-${calls.length}`) : await W.viaCli(p.root, loop, op(name), ctx); }
@@ -215,15 +224,19 @@ const story = async (p: Project, loop: W.Loop) => {
     calls.push({ client, op: name, result });
     return result;
   };
+  const visitor = ({ token: _token, ...rest }: W.Context): W.Context => rest;
+  const owners = {} as Record<"sdk" | "cli", W.Context>;
   for (const client of ["sdk", "cli"] as const) {
-    const ctx = { handle: handles[client], ids: {} as Record<string, string>, title: "Alpha", url: "https://example.com/alpha", position: "0" };
+    const ctx = { handle: handles[client], ids: {} as Record<string, string>, title: "Alpha", url: "https://example.com/alpha", position: "0", token: people[`${client}Owner`] ?? "" };
+    owners[client] = ctx;
     await call(client, "handle.claim", ctx);
+    await call(client, "handle.resolve", visitor(ctx));
     await call(client, "link.add", ctx);
     const alpha = ctx.ids["link.id"];
     await call(client, "link.add", { ...ctx, title: "Beta", url: "https://example.com/beta" });
     const beta = ctx.ids["link.id"];
     if (beta !== undefined) await call(client, "link.order", { ...ctx, position: "0" });
-    const page = async () => ((await call(client, "profile.get", ctx)).answer["links"] as ReadonlyArray<{ id: string }> | undefined ?? []).map((l) => l.id);
+    const page = async () => ((await call(client, "profile.get", visitor(ctx))).answer["links"] as ReadonlyArray<{ id: string }> | undefined ?? []).map((l) => l.id);
     pages.push(await page());
     wanted.push([beta ?? "?", alpha ?? "?"]);
     if (alpha !== undefined) ctx.ids["link.id"] = alpha;
@@ -231,8 +244,10 @@ const story = async (p: Project, loop: W.Loop) => {
     pages.push(await page());
     wanted.push([beta ?? "?"]);
   }
-  const taken = (client: "sdk" | "cli", name: string) => call(client, "handle.claim", { handle: name, ids: {}, title: "", url: "", position: "0" });
+  const taken = (client: "sdk" | "cli", name: string) => call(client, "handle.claim", { handle: name, ids: {}, title: "", url: "", position: "0", token: people[`${client}Taker`] ?? "" });
   const refusedCli = await taken("cli", handles.sdk);
   const refusedSdk = await taken("sdk", handles.cli);
-  return { calls: calls.slice(0, -2), pages, wanted, refusedCli, refusedSdk };
+  for (const client of ["sdk", "cli"] as const) await call(client, "handle.release", owners[client]);
+  const refused = new Set<W.Result>([refusedCli, refusedSdk]);
+  return { calls: calls.filter((c) => !refused.has(c.result)), pages, wanted, refusedCli, refusedSdk };
 };

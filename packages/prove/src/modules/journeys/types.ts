@@ -80,6 +80,8 @@ export interface Project {
   readonly startingWorlds: ReadonlyMap<string, StartingWorld>;
   /** Each operation a mount omits, by its declaration: a journey's step that runs one is skipped. */
   readonly omitted?: ReadonlyMap<unknown, { readonly operation: string; readonly file: string }>;
+  /** The journeys skipped because they still hold blanks (stubs from `ortho add journeys`), by file (K16 e). */
+  readonly unfinished?: ReadonlyArray<string>;
 }
 
 export class ProjectFailed extends Data.TaggedError("ProjectFailed")<{ readonly message: string }> {}

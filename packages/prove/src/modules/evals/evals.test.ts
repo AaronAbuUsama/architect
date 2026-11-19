@@ -133,6 +133,19 @@ describe("answer shape: no secret reaches a span, a log or the journal", () => {
     expect(judge(signedIn({ trace: { spans: [], logs: [log("ok", { who: "ses_abc123" })] } }))).toEqual(['grant-an-allowance "s": answer.session (not public) appears in a log attribute']);
   });
 
+  it("lets a caller who is not shown a hidden answer field not receive it, but still requires every public field", () => {
+    const open = {
+      ...signIn, name: "locker.get",
+      answer: { label: { value: { type: "text", max: 60 } }, note: { value: { type: "text", max: 60 }, visibility: { private: ["locker.owner"] } }, code: { value: { type: "text", max: 60 }, visibility: "secret" } },
+    } as unknown as OperationModel;
+    const project = { operations: new Map([["locker.get", { answer: { label: Blueprint.text({ max: 60 }), note: Blueprint.text({ max: 60 }), code: Blueprint.text({ max: 60 }) } }]]) };
+    const run = (body: object) => answerShape(open, [{ ...evidence(1), call: call({ operation: "locker.get", body }) }], { project: project as never, all: [] }).failures;
+    expect(run({ label: "tools" })).toEqual([]);                                      // private and secret left out for a stranger
+    expect(run({ label: "tools", note: "mine", code: "c-1" })).toEqual([]);            // shown to the owner: present and fits
+    expect(run({ label: "tools", note: "x".repeat(61) })[0]).toContain("answer.note"); // present, so still checked
+    expect(run({ note: "mine" })[0]).toContain("answer.label");                        // a public field may never be missing
+  });
+
   it("fails a secret value in a journal entry", () => {
     const journal = [{ event: "SignedIn", move: "m", subject: "s", fields: { token: "tok_0123456789abcdef" } }];
     expect(judge(signedIn({ call: call({ operation: "session.sign-in", payload: { password: "correct horse battery" }, body: { session: "ses_abc123", token: "tok_0123456789abcdef" }, journal }) }))).toEqual([
@@ -250,5 +263,29 @@ describe("independent author: public evaluator response boundaries", () => {
       expect(shapeOf(observed(schemaAnswer, fields, { value: encoded }, 200, { "answer.value": encoded })).length).toBeGreaterThan(0);
       for (const body of [null, [], "not an object"]) expect(shapeOf(observed(schemaAnswer, fields, body, 200, { "answer.value": encoded })).length).toBeGreaterThan(0);
     }
+  });
+});
+
+describe("answer shape: a list read whose items are cut for the caller (M1.35)", () => {
+  const Org = Blueprint.thing({ description: "A group.", fields: { id: Blueprint.id("org") } });
+  const owner = Blueprint.role(Org, { rule: () => true });
+  const Account = Blueprint.thing({ description: "A ledger account.", fields: {
+    id: Blueprint.id("acc"), label: Blueprint.traced(Blueprint.text()), memo: Blueprint.visibility.private(Blueprint.text(), owner),
+  } });
+  const list = Blueprint.read(Account, { where: ["state"], order: "oldest", page: 2, allowed: [Blueprint.anyone] });
+  const operation = { ...schemaAnswer, name: "account.list", payload: { state: { value: { type: "text", max: 64 } } },
+    answer: { items: { value: { type: "schema" } }, next: { value: { type: "schema" } } } } as unknown as OperationModel;
+  const answered = (items: ReadonlyArray<object>) => observed(operation, list.answer, { items, next: null }, 200,
+    { "answer.items": JSON.stringify(items), "answer.next": "null" }, list, { state: "published" });
+  const item = { id: "acc_1", label: "expenses", state: "published" };
+
+  it("passes items that lost a private field for this caller, and items that kept it", () => {
+    expect(shapeOf(answered([item])), "the stranger is not shown memo: the items arrive without it").toEqual([]);
+    expect(shapeOf(answered([{ ...item, memo: "for the owner" }])), "the owner is shown it").toEqual([]);
+  });
+
+  it("still fails an item that is missing a public field, or whose private field is present but malformed", () => {
+    expect(shapeOf(answered([{ id: "acc_1", state: "published" }]))[0]).toContain("answer.items");
+    expect(shapeOf(answered([{ ...item, memo: 42 }]))[0]).toContain("answer.items");
   });
 });

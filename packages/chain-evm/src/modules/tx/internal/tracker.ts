@@ -7,6 +7,7 @@ import { rpcFault } from "../../faults/service.ts";
 import { ChainFault } from "../../faults/types.ts";
 import type { ChainPortOptions, Intent, Submission, TxState } from "../types.ts";
 import { readReceipt, receiptError, receiptSpan } from "./receipt.ts";
+import { retryRead } from "./receipt-retry.ts";
 import { RpcDeadline, type Rpc } from "./rpc.ts";
 import { findReplacement } from "./replacement.ts";
 
@@ -67,7 +68,7 @@ export const trackTransaction = <TEvent extends DecodedEvent>(
       }
       let blocks = receipt === undefined ? 0 : previous.blocks;
       if (depth !== undefined && intent === undefined && receipt !== undefined && receipt.status === "success") {
-        const head = yield* rpc((client) => client.getBlockNumber({ cacheTime: 0 })).pipe(Effect.mapError((error) => rpcFault(error)));
+        const head = yield* retryRead(timers, rpc((client) => client.getBlockNumber({ cacheTime: 0 }))).pipe(Effect.mapError((error) => rpcFault(error)));
         blocks = head < receipt.blockNumber ? 1 : Number(head - receipt.blockNumber) + 1;
         if (blocks !== previous.blocks) states.push({ _tag: "Deepened", blocks, receipt });
       }

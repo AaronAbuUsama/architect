@@ -12,6 +12,8 @@ import { camel, envPrefix, type Field, type Op } from "./loop.ts";
 export interface Loop {
   readonly url: string; readonly proxy: Proxy;
   readonly spans: (trace: string) => Promise<ReadonlyArray<Span>>;
+  /** The world's fixed test people, signed in: a token each, by name (`/_world/cast`, as `ortho prove` casts a journey). */
+  readonly cast: (names: ReadonlyArray<string>) => Promise<Record<string, string>>;
   readonly journal: (trace: string) => Promise<ReadonlyArray<Record<string, unknown> & { readonly event?: string }>>;
   readonly close: () => Promise<void>;
 }
@@ -24,11 +26,19 @@ export const openLoop = async (root: string): Promise<Loop> => {
     const collector = yield* Collectors.local(dir, []);
     const world = yield* Worlds.start({ root, port: yield* Effect.promise(freePort), name: "m1-plugged-in-loop", otlp: collector.url });
     return { collector, world };
-  }).pipe(Scope.provide(scope)));
+  }).pipe(
+    // A start that fails has already opened the collector and the temp folder: close the scope on failure too, not only in `close`.
+    Effect.onError(() => Scope.close(scope, Exit.void)),
+    Scope.provide(scope),
+  ));
   const px = await proxy(world.url);
   return {
     url: px.url, proxy: px,
     spans: (trace) => Effect.runPromise(collector.find(trace)).then((found) => found?.spans ?? []),
+    cast: async (names) => {
+      const people = await fetch(`${world.url}/_world/cast`, { method: "POST", body: JSON.stringify({ names, anonymous: [] }) }).then((r) => r.json()) as Record<string, { token?: string }>;
+      return Object.fromEntries(names.map((n) => [n, people[n]?.token ?? ""]));
+    },
     journal: (trace) => fetch(`${world.url}/_world/facts/journal?trace=${trace}`).then((r) => r.json()) as never,
     close: async () => { await px.close(); await Effect.runPromise(Scope.close(scope, Exit.void)); },
   };
@@ -47,7 +57,7 @@ export const named = (spans: ReadonlyArray<Span>, name: string) => spans.find((s
 // ---- payloads, made from the model ----
 
 /** What a caller says: one handle, the links' text, and the ids the answers gave so far (by the `ref` the answer's field carries). */
-export interface Context { readonly handle: string; readonly ids: Record<string, string>; readonly title: string; readonly url: string; readonly position: string }
+export interface Context { readonly handle: string; readonly ids: Record<string, string>; readonly title: string; readonly url: string; readonly position: string; /** A signed-in caller's token (a test person's); none is a visitor. */ readonly token?: string }
 
 const isNumber = (field: Field) => field.value.type === "uint";
 /** The wire value of one payload field: by its named value or the thing field it refers to; an id is the one an earlier answer gave. */
@@ -72,8 +82,8 @@ export interface Result { readonly ok: boolean; readonly answer: Record<string, 
 
 export const viaSdk = async (root: string, loop: Loop, op: Op, ctx: Context, label: string): Promise<Result> => {
   const payload = `{ ${Object.entries(op.payload).map(([name, field]) => `${JSON.stringify(name)}: ${isNumber(field) ? `${payloadOf(op, ctx)[name]}n` : JSON.stringify(payloadOf(op, ctx)[name])}`).join(", ")} }`;
-  const body = `out(await settle(Sdk.${camel(op.thing)}.${op.identifier}(${payload} as never).pipe(Effect.provide(Sdk.layer(env.URL)))));`;
-  const ran = await runSdk(root, `loop-${label}`, body, { URL: loop.url });
+  const body = `out(await settle(Sdk.${camel(op.thing)}.${op.identifier}(${payload} as never).pipe(Effect.provide(Sdk.layer(env.URL, env.TOKEN || undefined)))));`;
+  const ran = await runSdk(root, `loop-${label}`, body, { URL: loop.url, TOKEN: ctx.token ?? "" });
   const line = ran.lines[0] as { answered?: Record<string, unknown>; failed?: Record<string, unknown>; died?: boolean } | undefined;
   return line?.answered !== undefined ? { ok: true, answer: line.answered, raw: ran.stdout }
     : { ok: false, answer: {}, ...(line?.failed ? { tag: String(line.failed["_tag"]), code: line.failed["code"] } : {}), exit: ran.status, stderr: ran.stderr, raw: ran.stdout };
@@ -81,7 +91,7 @@ export const viaSdk = async (root: string, loop: Loop, op: Op, ctx: Context, lab
 
 export const viaCli = async (root: string, loop: Loop, op: Op, ctx: Context): Promise<Result> => {
   const flags = Object.entries(payloadOf(op, ctx)).flatMap(([name, value]) => [`--${name}`, value]);
-  const env = { [`${envPrefix(root)}_URL`]: loop.url };
+  const env = { [`${envPrefix(root)}_URL`]: loop.url, ...(ctx.token ? { [`${envPrefix(root)}_TOKEN`]: ctx.token } : {}) };
   const ran = await runCli(root, env, op.thing, op.verb, ...flags, "--json");
   let answer: Record<string, unknown> | undefined;
   try { answer = JSON.parse(ran.stdout) as Record<string, unknown>; } catch { answer = undefined; }
