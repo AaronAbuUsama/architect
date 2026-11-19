@@ -47,7 +47,7 @@ it("records the commit and its counts under each operation attempt after a confl
     expect(commits.map((span) => span.parent._tag === "Some" && span.parent.value.spanId)).toEqual(attempts.map((span) => span.spanId));
     expect(commits.map((span) => Object.fromEntries(span.attributes))).toEqual([
       { "step.kind": "commit", "commit.writes": 1, "commit.entries": 1, "commit.outcome": "conflict" },
-      { "step.kind": "commit", "commit.writes": 1, "commit.entries": 1, "commit.outcome": "committed" },
+      { "step.kind": "commit", "commit.writes": 1, "commit.entries": 1, "commit.outcome": "committed", "event.name": "Granted" },
     ]);
   }).pipe(Effect.provide([memory.layer, BusyLive]), Effect.provideService(Tracer.Tracer, tracer)));
 });

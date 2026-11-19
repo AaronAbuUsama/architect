@@ -70,17 +70,18 @@ in the commit after it.
 Once the caller has passed the role check, the machine checks the state
 (`packages/language-effect/src/modules/handler/service.ts:57`):
 
-```ts file=packages/language-effect/src/modules/handler/internal/move.ts lines=30-40
+```ts file=packages/language-effect/src/modules/handler/internal/move.ts lines=31-42
 export const checkFrom = (op: Operation, refusal: string | undefined, payload: object, unit: Unit) =>
   Effect.gen(function* () {
     const move = op.move;
-    if (!move || move.from.length === 0 || refusal === undefined) return;
+    if (!move || move.from.length === 0 || refusal === undefined) return undefined;
     const subject = subjectOf(op, payload);
-    if (subject === undefined) return;
+    if (subject === undefined) return undefined;
     const found = yield* unit.read(op.thing, subject);
-    if (!found) return;
+    if (!found) return undefined;
     const state = found.state ?? "none";
     if (!move.from.includes(state)) return yield* Effect.fail(new NotFrom({ _tag: refusal, state }));
+    return state;
   });
 ```
 
@@ -135,12 +136,11 @@ Once the handler has answered and its answer is checked, the move is applied
 as this call left it, then the payload, then the answer. A field found in none of them dies. `PlaceTaken`'s `left` is
 in the answer. Then:
 
-```ts file=packages/language-effect/src/modules/handler/internal/move.ts lines=69-74
+```ts file=packages/language-effect/src/modules/handler/internal/move.ts lines=71-75
 // The journal is a record anyone who reads it can see: a secret or private field of the event is not written to it.
 const fields = Object.fromEntries(Object.entries(encoded).filter(([k]) => journalled(move.emits.fields, k)));
 yield* unit.setState(op.thing, subject, outcome);
 const trace = yield* Effect.currentSpan.pipe(Effect.map((s) => s.traceId), Effect.orElseSucceed(() => ""));
-yield* Effect.annotateCurrentSpan({ "event.name": event });
 return { trace, operation: name, move: move.key, subject, event, fields } satisfies Entry;
 ```
 
@@ -161,7 +161,7 @@ An event is the record of a move: what happened, to which instance, in which cal
   state it explains.
 - **Proof.** `ortho prove` finds a step's events by its trace. That is how a journey checks a move happened, with
   `emits(PlaceTaken, …)`, or that nothing moved, with `noEvents()`.
-- **The trace.** The operation's span carries `move.name`, `move.to` and `event.name`. See [traces](traces.mdx).
+- **The trace.** The operation's span carries `move.name`, `move.from` and `move.to`, and the commit span `event.name`. See [traces](traces.mdx).
 
 Here a journey checks both the event and the state the move left, when the last place fills the sheet:
 

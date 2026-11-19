@@ -67,6 +67,34 @@ environment and store a call ran in. The portal can only light up what telemetry
 `move.from`, `event.name` on the commit span, `refusal.code`, an `ortho.budget.breaches` counter, and `environment`
 and `store` as attributes.
 
+### M1.36: what its builder settled (19 November 2026)
+
+Check 17 (`e2e/m1/17-telemetry-model.test.ts`) names six assumptions where the design was silent; all six are built as
+written there. The calls the builder had to make beyond them:
+
+- **`move.from` is the state `checkFrom` read, written once the move is made.** `checkFrom` gives back the state it read
+  (`handler/internal/move.ts`) and the wrapper writes it after `applyMove`, so a call refused by the handler or by the
+  machine, and a call that made no move, carry none. A move that creates (`from: []`), or whose subject is not found,
+  has no `from` to write.
+- **`event.name` is written on the commit span only when that attempt committed.** A conflicted attempt journalled
+  nothing, so naming an event on its commit span would claim an emission that never happened (`"commit.outcome":
+  "conflict"` and no `event.name`). It left the operation span: nothing but the canon read it there.
+- **`refusal.code` comes from `Errors.codes`, passed to `Handlers.serve` as `codes`.** The generated server hands each
+  served operation the one map of tag to code the API already generates (declared errors and each machine's `notFrom`),
+  so the runtime never rebuilds a code from a thing's prefix. A tag with no code (`NotAllowed` is written before the
+  span, so it never reaches this line) is written without one. This changes every generated `server/main.ts`; the four
+  examples are regenerated.
+- **`environment` reaches a handler as a Context reference, `Environment`, default `local`.** The Worker's
+  `ORTHO_ENVIRONMENT` binding is read once where the layers are built (the API's and the MCP runtime's) and provided as
+  `Layer.succeed(Environment, env.ORTHO_ENVIRONMENT || "local")`. Nothing is added to `Services`, so a handler's type is
+  unchanged. It is written on the operation span next to `store` (`op.thing.lives`), on a replayed call too.
+- **`ortho.budget.breaches` is recorded where the call's duration is.** `recordCall` adds one, tagged `operation` alone,
+  when the measured call (the whole call, every attempt, as `ortho.call.duration` measures it) took longer than the
+  declared `budget.p95`; it is exported with the other two. A call refused at the door (a bad payload or a stranger) has
+  no budgeted operation to measure and never counts.
+- **`ortho prove --port 0` binds a free port.** `Worlds.start` now asks the OS for one when given 0 (`world/internal/port.ts`),
+  so a caller no longer waits on `127.0.0.1:0` while wrangler listens elsewhere.
+
 ## 3. MCP from the whole model (M1.37)
 
 The MCP generator is 25 lines (`render/internal/mcp.ts`) because it only lists operations; the runtime does the rest generically
