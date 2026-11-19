@@ -54,8 +54,8 @@ export interface Report {
 export type Parsed<A> = { readonly ok: true; readonly value: A } | { readonly ok: false; readonly problems: ReadonlyArray<string> };
 
 export interface GridApi {
-  /** Read the checked-in list from its text. Every problem is named, with the line it is in. */
-  readonly parse: (text: string) => Parsed<List>;
+  /** Read the checked-in list from its parsed JSON. Every problem is named, with its place in the list. */
+  readonly parse: (json: unknown) => Parsed<List>;
   /** Judge every switched-on (cell, subject). A cell with no eval is red: switched on, and nothing proves it. */
   readonly run: <Evidence>(options: {
     readonly list: List;

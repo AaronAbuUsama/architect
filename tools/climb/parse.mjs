@@ -15,4 +15,4 @@ export const journeys = (output) =>
  * @param {{ output: string, at: string, commit: string, seconds: number, exit: number | null }} run
  */
 export const entries = ({ output, at, commit, seconds, exit }) =>
-  journeys(output).map((j) => ({ at, commit, journey: j.journey, green: j.green, total: j.total, seconds, exit }));
+  journeys(output).map((j) => ({ at, commit, journey: j.journey, green: j.green, total: j.total, run_seconds: seconds, exit }));

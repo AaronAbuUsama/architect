@@ -21,6 +21,6 @@ describe("the climb recorder's parser", () => {
   it("makes the lines to append, each carrying the run's time, commit and exit", () => {
     const lines = entries({ output: sample, at: "2026-11-19T17:00:00.000Z", commit: "abc", seconds: 9.6, exit: 1 });
     expect(lines).toHaveLength(3);
-    expect(lines[1]).toEqual({ at: "2026-11-19T17:00:00.000Z", commit: "abc", journey: "climb: a wrong answer", green: 0, total: 1, seconds: 9.6, exit: 1 });
+    expect(lines[1]).toEqual({ at: "2026-11-19T17:00:00.000Z", commit: "abc", journey: "climb: a wrong answer", green: 0, total: 1, run_seconds: 9.6, exit: 1 });
   });
 });

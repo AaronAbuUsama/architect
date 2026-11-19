@@ -1,9 +1,10 @@
 // What the climbability check shares: acme copied into a temp folder, one planted handler laid over it, and `ortho prove`
 // run on it as an agent runs it. Read-only use of the earlier gates' helpers; nothing here touches a handler or a journey
 // of the repository (the planted ones are in `e2e/fixtures/climb`).
+import { spawnSync } from "node:child_process";
 import { cpSync } from "node:fs";
 import { join } from "node:path";
-import { acme, copyOf, nothingRunning, ortho, repo } from "../layer1/support.ts";
+import { acme, cli, copyOf, nothingRunning, repo } from "../layer1/support.ts";
 
 export { nothingRunning };
 
@@ -59,7 +60,10 @@ export interface Proved {
 /** `ortho prove [--only <journey>] --port <port>` in `root`, as the agent runs it, timed. */
 export const prove = (root: string, port: number, only?: string): Proved => {
   const start = performance.now();
-  const result = ortho(root, "prove", ...(only === undefined ? [] : ["--only", only]), "--port", String(port));
+  // A prove that hangs would hold workerd and a collector for ever: it is killed at two minutes, and the check then fails on its status.
+  const result = spawnSync(process.execPath, [cli, "prove", ...(only === undefined ? [] : ["--only", only]), "--port", String(port), "--root", root], {
+    cwd: root, encoding: "utf8", maxBuffer: 64 * 1024 * 1024, timeout: 120_000, killSignal: "SIGKILL",
+  });
   const out = `${result.stdout}${result.stderr}`;
   return { status: result.status, out, lines: out.split("\n"), seconds: (performance.now() - start) / 1000 };
 };

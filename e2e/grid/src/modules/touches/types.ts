@@ -1,7 +1,7 @@
 // Which building blocks did a journey touch? Goal 3: "a cell is switched on by the first journey that touches it", and a
 // journey's cells are checked "when every step of a journey is green". The answer is a function of two things the climb
 // already has: the compiled model (what each step calls, expects and refuses) and prove's own report (did the journey go green).
-import type { BlockId, CellId, SwitchedOn } from "../grid/types.ts";
+import type { BlockId, SwitchedOn } from "../grid/types.ts";
 
 export interface StepCheck { readonly kind: string; readonly error?: string; readonly event?: string; readonly thing?: string }
 export interface JourneyView {
@@ -41,8 +41,8 @@ export interface TouchesApi {
   /** The rows a journey used, from the model, once prove's report (`journey <name> ✔ n/n steps`) says it went green. */
   readonly of: (options: { readonly model: TouchModel; readonly journey: string; readonly report: ReadonlyArray<string> }) => Touched;
   /**
-   * The list entries that switch these rows on: each row's block in every output there is an eval for (`cells`), the journey
-   * recorded as what switched it on. Feed them to `Grid.switchOn`.
+   * The list entries that switch these rows on: each touched block in all nine outputs, with or without an eval (a cell with
+   * none is red, which is the work for a framework builder), the journey recorded as what switched it on. Feed them to `Grid.switchOn`.
    */
-  readonly entries: (touched: Touched, journey: string, cells: ReadonlyArray<CellId>) => ReadonlyArray<SwitchedOn>;
+  readonly entries: (touched: Touched, journey: string) => ReadonlyArray<SwitchedOn>;
 }

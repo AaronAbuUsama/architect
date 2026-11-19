@@ -62,6 +62,6 @@ CI job `e2e-climb` is `continue-on-error: true` until then.
 
 `node tools/climb/record.mjs <ortho prove args>` (or `nx run e2e:climb-record -- …`) runs `ortho prove`, streams its output
 unchanged, and appends one line per journey to `design/evidence/climb/runs.jsonl`:
-`{ at, commit, journey, green, total, seconds, exit }`, read from prove's own `journey <name> ✔|✘ n/m steps` lines (the parser,
-`tools/climb/parse.mjs`, is tested on real prove lines in `e2e/grid/climb-record.test.mjs`). `seconds` is the whole prove
-process, world start included. `--runs <file>` sends the lines elsewhere. Snag S-01 is its floor.
+`{ at, commit, journey, green, total, run_seconds, exit }`, read from prove's own `journey <name> ✔|✘ n/m steps` lines (the parser,
+`tools/climb/parse.mjs`, is tested on real prove lines in `e2e/grid/climb-record.test.mjs`). `run_seconds` is the whole prove
+process, world start included (prove prints no per-journey time, so it is not one). `--runs <file>` sends the lines elsewhere. Snag S-01 is its floor.

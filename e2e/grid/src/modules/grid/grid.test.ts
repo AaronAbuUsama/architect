@@ -7,19 +7,18 @@ const list: List = { cells: [{ cell: "error.cli", subjects: ["HandleTaken", "Not
 
 describe("the list", () => {
   it("is read from its text", () => {
-    const text = JSON.stringify(list);
-    expect(Grid.parse(text)).toEqual({ ok: true, value: list });
-    expect(Grid.parse('{"cells":[]}')).toEqual({ ok: true, value: { cells: [] } });
+    expect(Grid.parse(list)).toEqual({ ok: true, value: list });
+    expect(Grid.parse({ cells: [] })).toEqual({ ok: true, value: { cells: [] } });
   });
 
-  it("names every problem: a cell not in the grid, no subjects, no journey, a repeat, not JSON", () => {
-    const bad = Grid.parse(JSON.stringify({ cells: [
+  it("names every problem: a cell not in the grid, no subjects, no journey, a repeat, not a list", () => {
+    const bad = Grid.parse({ cells: [
       { cell: "error.fax", subjects: ["A"], switchedBy: "j" },
       { cell: "error.cli", subjects: [], switchedBy: "j" },
       { cell: "error.mcp", subjects: ["A"] },
       { cell: "error.docs", subjects: ["A"], switchedBy: "j" },
       { cell: "error.docs", subjects: ["B"], switchedBy: "j" },
-    ] }));
+    ] });
     expect(bad.ok).toBe(false);
     expect(!bad.ok && bad.problems).toEqual([
       'cells[0].cell "error.fax" is not <block>.<output> of K14\'s grid',
@@ -27,8 +26,8 @@ describe("the list", () => {
       "cells[2].switchedBy must name the journey that touched it first",
       "cell error.docs is listed twice",
     ]);
-    expect(Grid.parse("{").ok).toBe(false);
-    expect(Grid.parse("[]")).toEqual({ ok: false, problems: ['the list needs a "cells" array'] });
+    expect(Grid.parse(null).ok).toBe(false);
+    expect(Grid.parse([])).toEqual({ ok: false, problems: ['the list needs a "cells" array'] });
   });
 
   it("switches cells on and never off: the first journey stays, subjects join", () => {

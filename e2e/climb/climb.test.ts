@@ -11,7 +11,12 @@ import { afterAll, describe, expect, it } from "vitest";
 import { KINDS, PORTS, essence, head, journeyLine, nothingRunning, planted, prove, stepLines, type Kind, type Planted, type Proved } from "./support.ts";
 
 const copies: Array<Planted> = [];
-afterAll(() => { for (const copy of copies.splice(0)) copy.remove(); });
+// Nothing this check started is still running: no process names a copy's folder (workerd, wrangler or the collector).
+afterAll(() => {
+  const roots = copies.map((copy) => copy.root);
+  for (const copy of copies.splice(0)) copy.remove();
+  for (const root of roots) nothingRunning(root);
+});
 
 const control = (() => {
   let done: { readonly root: string; readonly proved: Proved } | undefined;
@@ -71,8 +76,10 @@ for (const kind of KINDS) {
 
     it("points to the handler file and the declaration it answers to (3)", () => {
       const { first } = ran(kind);
-      expect(first.out, `prove did not name the handler file ${kind.handler}\n${head(first)}`).toContain(kind.handler);
-      expect(first.out, `prove did not name the declaration ${kind.declaration}\n${head(first)}`).toContain(kind.declaration);
+      // On the failing step's own lines, not anywhere in prove's output (the evals below list every operation).
+      const said = stepLines(first, kind.step).join("\n");
+      expect(said, `the failing step's lines did not name the handler file ${kind.handler}\n${head(first)}`).toContain(kind.handler);
+      expect(said, `the failing step's lines did not name the declaration ${kind.declaration}\n${head(first)}`).toContain(kind.declaration);
     });
 
     it("finishes the journey in under 30 seconds, the world warm (4)", () => {

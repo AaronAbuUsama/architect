@@ -56,14 +56,15 @@ describe("a journey that is not green", () => {
 });
 
 describe("switching on", () => {
-  it("makes one list entry per block that has an eval, with the journey that touched it", () => {
+  it("switches on every touched block in all nine outputs, whether or not an eval exists, with the journey that touched it", () => {
     const touched = Touches.of({ model, journey: "revoke then spend", report: ok("revoke then spend") });
-    const entries = Touches.entries(touched, "revoke then spend", ["error.cli", "error.docs", "event.docs"]);
-    expect(entries).toEqual([
-      { cell: "error.cli", subjects: ["AllowanceNotActive", "NotAllowed"], switchedBy: "revoke then spend" },
-      { cell: "error.docs", subjects: ["AllowanceNotActive", "NotAllowed"], switchedBy: "revoke then spend" },
-      { cell: "event.docs", subjects: ["AllowanceRevoked", "AllowanceSpent"], switchedBy: "revoke then spend" },
-    ]);
-    expect(Grid.switchOn({ cells: [] }, entries).cells.map((c) => c.cell)).toEqual(["error.cli", "error.docs", "event.docs"]);
+    const entries = Touches.entries(touched, "revoke then spend");
+    const cells = entries.map((e) => e.cell);
+    for (const block of ["operation", "thing", "machine", "event", "roles", "error", "step", "journey"]) {
+      for (const output of ["model", "api", "server", "sdk", "cli", "mcp", "docs", "portal", "telemetry"]) expect(cells, `${block}.${output}`).toContain(`${block}.${output}`);
+    }
+    expect(entries.find((e) => e.cell === "error.cli")).toEqual({ cell: "error.cli", subjects: ["AllowanceNotActive", "NotAllowed"], switchedBy: "revoke then spend" });
+    expect(entries.find((e) => e.cell === "event.docs")?.subjects).toEqual(["AllowanceRevoked", "AllowanceSpent"]);
+    expect(Grid.switchOn({ cells: [] }, entries).cells).toHaveLength(entries.length);
   });
 });

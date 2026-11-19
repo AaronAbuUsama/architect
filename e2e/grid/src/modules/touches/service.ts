@@ -1,4 +1,4 @@
-import type { CellId, SwitchedOn } from "../grid/types.ts";
+import { OUTPUTS, type CellId, type SwitchedOn } from "../grid/types.ts";
 import type { JourneyView, Row, TouchesApi, TouchModel } from "./types.ts";
 
 const visible = (fields: Readonly<Record<string, { readonly visibility?: unknown }>> | undefined) => Object.entries(fields ?? {}).filter(([, f]) => f.visibility !== undefined).map(([name]) => name);
@@ -45,12 +45,9 @@ export const Touches: TouchesApi = {
     if (!green(report, journey)) return { green: false, rows: [], problems: [`prove did not report "${journey}" green (no "journey ${journey} ✔ n/n steps" line): a journey touches nothing until every step is green`] };
     return { green: true, rows: rowsOf(model, found), problems: [] };
   },
-  entries: (touched, journey, cells): ReadonlyArray<SwitchedOn> => {
-    const blocks = [...new Set(touched.rows.map((r) => r.block))];
-    return blocks.flatMap((block) => {
-      const mine = cells.filter((cell): cell is CellId => cell.startsWith(`${block}.`));
+  entries: (touched, journey): ReadonlyArray<SwitchedOn> =>
+    [...new Set(touched.rows.map((r) => r.block))].flatMap((block) => {
       const subjects = touched.rows.filter((r) => r.block === block).map((r) => r.subject);
-      return mine.map((cell) => ({ cell, subjects, switchedBy: journey }));
-    });
-  },
+      return OUTPUTS.map((output): SwitchedOn => ({ cell: `${block}.${output}` as CellId, subjects, switchedBy: journey }));
+    }),
 };

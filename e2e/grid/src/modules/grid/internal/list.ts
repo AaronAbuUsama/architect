@@ -18,9 +18,8 @@ const entry = (value: unknown, at: number): { readonly entry?: SwitchedOn; reado
   return problems.length > 0 ? { problems } : { entry: { cell: cell as CellId, subjects: subjects as ReadonlyArray<string>, switchedBy: switchedBy as string }, problems };
 };
 
-export const parseList = (text: string): Parsed<List> => {
-  let json: unknown;
-  try { json = JSON.parse(text); } catch (error) { return { ok: false, problems: [`not JSON: ${error instanceof Error ? error.message : String(error)}`] }; }
+/** The list from its JSON, already parsed (the entry file reads and parses the text, so nothing here throws). */
+export const parseList = (json: unknown): Parsed<List> => {
   const cells = typeof json === "object" && json !== null ? (json as { readonly cells?: unknown }).cells : undefined;
   if (!Array.isArray(cells)) return { ok: false, problems: ['the list needs a "cells" array'] };
   const read = cells.map(entry);

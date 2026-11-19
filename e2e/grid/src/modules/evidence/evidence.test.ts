@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
 import { Evidence } from "./service.ts";
 import type { Ports } from "./types.ts";
@@ -8,15 +9,15 @@ import type { ModelView } from "../refusal-evals/types.ts";
 const model = JSON.parse(readFileSync(join(import.meta.dirname, "../../../../../examples/acme/generated/model/model.json"), "utf8")) as ModelView;
 
 describe("the evidence of a refusal", () => {
-  it("asks each declaring operation's docs and portal page, the spans and the clients' outcomes, and nothing else", async () => {
+  it("asks each declaring operation's docs and portal page, the spans and the clients' outcomes, and nothing else", () => {
     const asked: Array<string> = [];
     const ports: Ports = {
-      read: async (path) => { asked.push(`read ${path}`); return `docs of ${path}`; },
-      portal: async (route) => { asked.push(`portal ${route}`); return undefined; },
-      spans: async () => { asked.push("spans"); return [{ name: "x", attrs: {} }]; },
-      observed: async (refusal) => { asked.push(`observed ${refusal}`); return { cli: { status: 41, stdout: "", stderr: "line" } }; },
+      read: (path) => { asked.push(`read ${path}`); return Effect.succeed(`docs of ${path}`); },
+      portal: (route) => { asked.push(`portal ${route}`); return Effect.succeed(undefined); },
+      spans: () => { asked.push("spans"); return Effect.succeed([{ name: "x", attrs: {} }]); },
+      observed: (refusal) => { asked.push(`observed ${refusal}`); return Effect.succeed({ cli: { status: 41, stdout: "", stderr: "line" } }); },
     };
-    const evidence = await Evidence.ofRefusal({ model, refusal: "AllowanceNotActive", ports });
+    const evidence = Effect.runSync(Evidence.ofRefusal({ model, refusal: "AllowanceNotActive", ports }));
     expect(asked.sort()).toEqual([
       "observed AllowanceNotActive",
       "portal /portal/operations/allowance.revoke", "portal /portal/operations/allowance.spend",
@@ -30,9 +31,9 @@ describe("the evidence of a refusal", () => {
     expect(evidence.spans).toEqual([{ name: "x", attrs: {} }]);
   });
 
-  it("leaves what could not be observed undefined, so the eval is red and says so", async () => {
-    const ports: Ports = { read: async () => undefined, portal: async () => undefined, spans: async () => undefined, observed: async () => undefined };
-    const evidence = await Evidence.ofRefusal({ model, refusal: "AllowanceExceeded", ports });
+  it("leaves what could not be observed undefined, so the eval is red and says so", () => {
+    const ports: Ports = { read: () => Effect.succeed(undefined), portal: () => Effect.succeed(undefined), spans: () => Effect.succeed(undefined), observed: () => Effect.succeed(undefined) };
+    const evidence = Effect.runSync(Evidence.ofRefusal({ model, refusal: "AllowanceExceeded", ports }));
     expect(evidence).toMatchObject({ docs: { "allowance.spend": undefined }, spans: undefined, cli: undefined, mcp: undefined });
   });
 });
