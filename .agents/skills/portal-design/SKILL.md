@@ -20,7 +20,7 @@ slop on 19 November 2026.
 
 1. **Read the spec.** `design/portal.md` (the frame, the pages, the rules agreed in rounds 1 and 2),
    `design/decisions/K11-work-board.md` (the work board and its Item machine), `K10-factory.md` (the Factory face),
-   `K13-lock-down-first.md` (what M1 must ship: M1.13, the portal as a viewer on `examples/links` stage 1; on the
+   `K13-lock-down-first.md` (what M1 must ship: M1.13, the portal as a viewer on `examples/plugged-in` stage 1, the Plugged In app (K15); on the
    `conductor/k13-lock-down` branch until it merges), `design/milestones.md`, and the wire the pages are drawn from,
    `packages/portal/src/modules/wire/types.ts`. A page shows what the wire carries; a field the wire lacks is a gap to
    name, not something to invent.
@@ -126,9 +126,9 @@ narration, milestones, a progress block with a burn-up, workers with a pace chip
 Also open: which pages come first, the M1.13 viewer pages (the critical path) or everything together.
 
 **From the M1 lead.** Spec completeness belongs to M1.13 and is derived from the wire: blanks, journeys, proof and
-evals, the p95 budget, descriptions and refusal codes. Use `examples/links` stage 1 (things `profile`, `link`,
+evals, the p95 budget, descriptions and refusal codes. Use `examples/plugged-in` stage 1 (things `profile`, `link`,
 `handle`; operations to claim a handle, add, order and remove a link, plus a public read; the `HandleTaken` refusal),
 with the names the Canon session gives. The board itself is M3.17 and the Factory face M4.23.
 
-**Next.** Once Aaron answers and the links names are in: redraw every page around the four journeys on links stage 1,
+**Next.** Once Aaron answers and the Plugged In names are in: redraw every page around the four journeys on Plugged In stage 1,
 render and look at each, publish, then send the lead the list of Pro parts each page needs.

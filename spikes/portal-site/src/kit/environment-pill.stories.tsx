@@ -1,0 +1,11 @@
+import { environments } from "../model.ts";
+import { EnvironmentPill } from "./environment-pill.tsx";
+import type { Meta, Story } from "./stories.ts";
+type P = Parameters<typeof EnvironmentPill>[0];
+export default { title: "Model/EnvironmentPill", component: EnvironmentPill, parameters: { docs: { description: { component: "An environment as one object: live dot, name, and what it runs on from `cloud` and `database`. Replaces \"local · D1 local\"." } } } } satisfies Meta<P>;
+const [local, test, staging, production] = environments;
+export const Here: Story<P> = { name: "Local, live, you are here", args: { env: local!, live: true, here: true } };
+export const Test: Story<P> = { args: { env: test! } };
+export const Staging: Story<P> = { args: { env: staging! } };
+export const Production: Story<P> = { args: { env: production! } };
+export const NameOnly: Story<P> = { name: "Small, name only", args: { env: staging!, size: "sm", showRuns: false } };

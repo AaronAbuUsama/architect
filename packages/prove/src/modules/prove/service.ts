@@ -17,23 +17,23 @@ import { emptyWorld } from "./internal/empty-world.ts";
 const failed = (e: { readonly message: string }) => new ProveFailed({ message: e.message });
 
 /** The compiled model and the project's journeys, or why prove can't run. */
-const load = (root: string) =>
+const load = (root: string, empty = false) =>
   Effect.gen(function* () {
     const model = yield* Compiler.model.pipe(
       Effect.provide(nodeSource(root)),
       Effect.mapError((e) => new ProveFailed({ message: e._tag === "BlueprintInvalid" ? `the blueprint is invalid:\n  - ${e.problems.join("\n  - ")}` : e.message })),
     );
     const project = yield* Journeys.load(root, model).pipe(Effect.mapError(failed));
-    if (project.journeys.length === 0) return yield* new ProveFailed({ message: `no journeys in ${resolve(root, "journeys")}` });
+    if (project.journeys.length === 0 && !empty) return yield* new ProveFailed({ message: `no journeys in ${resolve(root, "journeys")}` });
     return { model, project };
   });
 
 export const Prove: ProveApi = {
   run: ({ root, port, empty = false, only, env }) =>
     Effect.gen(function* () {
-      const { model, project } = yield* load(root);
+      const { model, project } = yield* load(root, empty);
       const journeys = only === undefined ? project.journeys : project.journeys.filter((journey) => journey.name === only);
-      if (journeys.length === 0) return yield* new ProveFailed({ message: `no journey named "${only}"` });
+      if (journeys.length === 0 && !(empty && only === undefined)) return yield* new ProveFailed({ message: `no journey named "${only}"` });
       const bodies = handlerHashes(root, model);
       const world = empty ? yield* emptyWorld(root, model) : root;
       const dir = resolve(world, Names.folder, "prove-telemetry");
