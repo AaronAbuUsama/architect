@@ -6,10 +6,7 @@ import { looksComplete, readAll } from "./otlp.ts";
 /** Nothing new for this long after every trace looks complete: the spike's rule C. */
 const QUIET_MS = 250;
 const POLL_MS = 25;
-/** Spans are flushed after each response, so under load they trail the calls. Give up only when nothing has arrived for
- * this long (the clock restarts at every byte), or after CAP_MS in all. A fixed 10 s from the last call lost whole runs. */
-const STALL_MS = 10_000;
-const CAP_MS = 120_000;
+const LIMIT_MS = 10_000;
 
 const listOf = (dirs: string | ReadonlyArray<string>): ReadonlyArray<string> => (typeof dirs === "string" ? [dirs] : dirs);
 
@@ -18,16 +15,16 @@ const traces = (dirs: ReadonlyArray<string>): TraceSource["traces"] => (wanted: 
   Effect.gen(function* () {
     let last = readAll(dirs);
     let quietMs = 0;
-    let totalMs = 0;
     const settled = Effect.sync(() => {
       const now = readAll(dirs);
       quietMs = now.size === last.size ? quietMs + POLL_MS : 0;
-      totalMs += POLL_MS;
       last = now;
-      const complete = quietMs >= QUIET_MS && wanted.every((w) => looksComplete(now.byTrace.get(w.trace), w.parent, w.rooted));
-      return complete || quietMs >= STALL_MS || totalMs >= CAP_MS;
+      return quietMs >= QUIET_MS && wanted.every((w) => looksComplete(now.byTrace.get(w.trace), w.parent, w.rooted));
     });
-    yield* settled.pipe(Effect.repeat({ schedule: Schedule.spaced(`${POLL_MS} millis`), until: (done) => done }));
+    yield* settled.pipe(
+      Effect.repeat({ schedule: Schedule.spaced(`${POLL_MS} millis`), until: (done) => done }),
+      Effect.timeoutOption(`${LIMIT_MS} millis`),
+    );
     return new Map(wanted.map((w): [string, Trace] => [w.trace, last.byTrace.get(w.trace) ?? { spans: [], logs: [] }]));
   });
 
