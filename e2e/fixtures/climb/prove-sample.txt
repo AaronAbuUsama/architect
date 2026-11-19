@@ -1,8 +1,0 @@
-journey spend within an allowance ✘ 1/4 steps
-  ✘ "olga can't spend more than is left": refused with AllowanceExceeded {"_tag":"AllowanceExceeded","code":"AL-001","remaining":"379"}, expected {"remaining":"380"}
-  ✘ "olga spends the rest": expected an answer, refused with AllowanceExceeded
-journey climb: a wrong answer ✘ 0/1 steps
-  ✘ "olga spends some and is told what is left": answer "500", expected "380"
-journey revoke then spend ✔ 3/3 steps
-allowance.get answer shape ✔
-allowance.get coverage ✘ allowance.get reached by no journey

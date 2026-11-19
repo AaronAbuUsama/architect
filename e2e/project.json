@@ -43,7 +43,7 @@
     },
     "grid-tests": {
       "executor": "nx:run-commands",
-      "options": { "command": "vitest run --root {projectRoot} --config vitest.grid.config.ts grid" },
+      "options": { "parallel": false, "commands": ["vitest run --root {projectRoot} --config vitest.grid.config.ts grid", "node --test tools/climb"] },
       "cache": false
     },
     "grid": {

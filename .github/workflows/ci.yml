@@ -211,11 +211,9 @@ jobs:
 
   # Goal 3's climbability check (`e2e/climb/README.md`): `ortho prove` on planted wrong handlers must name the journey and
   # step, show expected and got, point to the handler file and declaration, finish fast and give the same result twice.
-  # Some properties are red today (the snags in the README), so the job reports and never blocks, until the framework
-  # builders clear them and the e2e ratchet lands; then `continue-on-error` goes (Goal 3's done check needs it green).
+  # All five properties hold since #119, so the job is required.
   e2e-climb:
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: pnpm/action-setup@v6.1.0

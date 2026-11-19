@@ -1,18 +1,20 @@
-// Reads `ortho prove`'s text (it prints no machine-readable report: snag S-01) into one entry per journey line:
-// `journey <name> ✔|✘ <green>/<total> steps`. Pure: no clock, no git, no files.
-
-const LINE = /^journey (.+) [✔✘] (\d+)\/(\d+) steps$/;
-
-/** @param {string} output prove's stdout and stderr, as printed. @returns {Array<{journey: string, green: number, total: number}>} */
-export const journeys = (output) =>
-  output.split("\n").flatMap((line) => {
-    const found = LINE.exec(line.trimEnd());
-    return found === null ? [] : [{ journey: found[1], green: Number(found[2]), total: Number(found[3]) }];
-  });
+// Reads `ortho prove --report <file>` (a `ProveReport`, schemaVersion 1, from @orthograph/prove) into one entry per journey.
+// Pure: no clock, no git, no files. A report this reader does not know is refused rather than half-read.
 
 /**
- * The lines to append to runs.jsonl: one per journey prove reported, each with the run's own time and exit.
- * @param {{ output: string, at: string, commit: string, seconds: number, exit: number | null }} run
+ * The lines to append to runs.jsonl: one per journey, with its steps green and total and its own time as prove measured it.
+ * `total` counts the steps that ran; a journey whose starting world stopped has none and says why in `stopped`.
+ * @param {{ report: any, at: string, commit: string, exit: number | null }} run
  */
-export const entries = ({ output, at, commit, seconds, exit }) =>
-  journeys(output).map((j) => ({ at, commit, journey: j.journey, green: j.green, total: j.total, run_seconds: seconds, exit }));
+export const entries = ({ report, at, commit, exit }) => {
+  if (report?.schemaVersion !== 1) throw new Error(`prove's report has schemaVersion ${String(report?.schemaVersion)}; the recorder reads 1`);
+  return report.journeys.map((j) => ({
+    at, commit, journey: j.name,
+    green: j.steps.filter((s) => s.verdict === "pass").length,
+    total: j.steps.length,
+    seconds: Math.round(j.ms) / 1000,
+    run_seconds: report.seconds,
+    exit,
+    ...(j.stopped === undefined ? {} : { stopped: j.stopped }),
+  }));
+};

@@ -2,7 +2,8 @@
 // run on it as an agent runs it. Read-only use of the earlier gates' helpers; nothing here touches a handler or a journey
 // of the repository (the planted ones are in `e2e/fixtures/climb`).
 import { spawnSync } from "node:child_process";
-import { cpSync } from "node:fs";
+import { cpSync, existsSync, readFileSync } from "node:fs";
+import type { ProveReport } from "@orthograph/prove";
 import { join } from "node:path";
 import { acme, cli, copyOf, nothingRunning, repo } from "../layer1/support.ts";
 
@@ -55,17 +56,21 @@ export interface Proved {
   readonly lines: ReadonlyArray<string>;
   /** Wall-clock seconds for the whole `ortho prove` process, world start included. */
   readonly seconds: number;
+  /** prove's own structured report (`--report`, schemaVersion 1): the journeys and steps as data. Absent when prove wrote none. */
+  readonly report: ProveReport | undefined;
 }
 
 /** `ortho prove [--only <journey>] --port <port>` in `root`, as the agent runs it, timed. */
 export const prove = (root: string, port: number, only?: string): Proved => {
   const start = performance.now();
+  const file = join(root, ".ortho-climb-report.json");
   // A prove that hangs would hold workerd and a collector for ever: it is killed at two minutes, and the check then fails on its status.
-  const result = spawnSync(process.execPath, [cli, "prove", ...(only === undefined ? [] : ["--only", only]), "--port", String(port), "--root", root], {
+  const result = spawnSync(process.execPath, [cli, "prove", ...(only === undefined ? [] : ["--only", only]), "--port", String(port), "--root", root, "--report", file], {
     cwd: root, encoding: "utf8", maxBuffer: 64 * 1024 * 1024, timeout: 120_000, killSignal: "SIGKILL",
   });
   const out = `${result.stdout}${result.stderr}`;
-  return { status: result.status, out, lines: out.split("\n"), seconds: (performance.now() - start) / 1000 };
+  const report = existsSync(file) ? (JSON.parse(readFileSync(file, "utf8")) as ProveReport) : undefined;
+  return { status: result.status, out, lines: out.split("\n"), seconds: (performance.now() - start) / 1000, report };
 };
 
 /** What prove says about the journeys, before its per-operation evals: what an agent reads first, and what a failure message shows. */
@@ -88,3 +93,7 @@ export const essence = (proved: Proved) =>
   proved.lines
     .map((line) => line.replace(/\b[a-z]{2,6}_[0-9a-z]{12,}\b/g, "<id>").replace(/\bp(50|95) \d+ms\b/g, "p$1 <ms>"))
     .filter((line) => line.trim() !== "");
+
+/** The structured detail of a journey's failing step, from prove's report. */
+export const stepOf = (proved: Proved, journey: string, step: string) =>
+  proved.report?.journeys.find((j) => j.name === journey)?.steps.find((s) => s.name === step);

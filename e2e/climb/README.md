@@ -28,40 +28,23 @@ kind is run twice with `--only <journey>` (property 5 compares the runs after ta
 times; property 4 times both). Each property is its own test, so a red test names a property that does not hold: a snag.
 Prove prints text only, so the assertions read its lines. Ports 19400 to 19419. No Docker.
 
-## What holds and what does not (today, 19 November 2026)
+## What holds (after #119, 19 November 2026)
 
-26 tests: 20 pass, 6 are red.
+26 tests, all pass. Before #119 six were red, and they were framework snags:
 
-| Property | wrong answer | missing refusal | missing event | wrong state | missing span |
-|---|---|---|---|---|---|
-| control passes (prove exits 0) | pass | | | | |
-| 1 names journey and step | pass | pass | pass | pass | pass |
-| 2 expected and what came back | pass | pass | pass | pass | **red** |
-| 3 handler file and declaration | **red** | **red** | **red** | **red** | **red** |
-| 4 under 30 s (about 5 s each) | pass | pass | pass | pass | pass |
-| 5 same result twice | pass | pass | pass | pass | pass |
+- **S-C1 / S-02 · prove named no handler file or declaration** (property 3, five kinds). Now the failing step's lines say
+  `handler src/allowance/spend.ts, declared in blueprint/things/allowance/verbs/spend.ts`, and the report carries `handlerFile` and `declarationFile`.
+- **S-C2 / S-03 · a missing span said only "missing"** (property 2). Now it says what it was read against, and the step has `expected` and `got`.
+- **S-01 · prove had no machine-readable report.** `ortho prove --report <file>` writes a `ProveReport` (schemaVersion 1). The check reads
+  it for properties 1 to 3 (journey and step names, expected and got, the two files) and still asserts the text lines an agent reads.
 
-### Snags (framework; the builder's, not the climber's)
-
-- **S-C1 · prove names no file.** Its failing step line gives the journey, the step and the cause, never `src/allowance/spend.ts`
-  or `blueprint/things/allowance/verbs/spend.ts`. Evidence: `✘ "olga spends some and is told what is left": answer "500", expected "380"`.
-  The model already holds the operation's declaration file (`operations["allowance.spend"].file`), and the handler is
-  `src/<thing>/<verb>.ts`. Five red tests (property 3).
-- **S-C2 · a missing span says "missing", not what was expected and what came back.** Evidence:
-  `✘ "olga spends some and the record step is traced": span allowance.spend.record missing`. It does not say the span was
-  expected present, nor which spans did occur. One red test (property 2).
-- **S-01 · prove has no machine-readable report.** Everything here, and the climb recorder, parses text. A JSON report would
-  touch `packages/cli/src/main.ts`, which PR #76 owns.
-- Not a failure, noted: two runs differ in world-made ids (`alw_…`) in the failing line and in measured p50 and p95; the check
-  takes those out, and the rest is identical.
-
-These six are not in an expected-failing list: the e2e ratchet is not on `goal/stage-1` yet. When it lands, list them there.
-CI job `e2e-climb` is `continue-on-error: true` until then.
+Property 4 (about 5 s per journey, world warm) and 5 (same result twice, world-made ids and p50/p95 taken out) held throughout.
+Ports 19400 to 19419. CI job `e2e-climb` is required.
 
 ## The climb recorder
 
-`node tools/climb/record.mjs <ortho prove args>` (or `nx run e2e:climb-record -- …`) runs `ortho prove`, streams its output
-unchanged, and appends one line per journey to `design/evidence/climb/runs.jsonl`:
-`{ at, commit, journey, green, total, run_seconds, exit }`, read from prove's own `journey <name> ✔|✘ n/m steps` lines (the parser,
-`tools/climb/parse.mjs`, is tested on real prove lines in `e2e/grid/climb-record.test.mjs`). `run_seconds` is the whole prove
-process, world start included (prove prints no per-journey time, so it is not one). `--runs <file>` sends the lines elsewhere. Snag S-01 is its floor.
+`node tools/climb/record.mjs <ortho prove args>` (or `nx run e2e:climb-record -- …`) runs `ortho prove --report <tmp>`, streams its
+output unchanged, and appends one line per journey to `design/evidence/climb/runs.jsonl`:
+`{ at, commit, journey, green, total, seconds, run_seconds, exit }`, read from prove's `ProveReport` (`seconds` is the journey's own
+time, `run_seconds` the whole run). The reader, `tools/climb/parse.mjs`, is tested on a real report with `node --test tools/climb`
+(part of `nx run e2e:grid`). `--runs <file>` sends the lines elsewhere.
