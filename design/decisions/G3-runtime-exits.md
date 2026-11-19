@@ -17,9 +17,10 @@ const HIGHEST = 125;
 
 HAN-10 makes `IdempotencyConflict` (a reused request key with another payload) a typed built-in refusal, so it needs
 an exit of its own that no declared refusal can take. 0 to 4 are full. The check's first draft took 5, the lowest
-declared exit, which blueprints already use (Plugged In's machine `notFrom` and the design pages that draw it,
-`design/walkthrough/journey.md:278`, `design/portal.md:592`), so taking it would break projects as they stand, and the
-next runtime refusal would move the floor again. (An earlier draft of this record said acme's `AllowanceExceeded` is 5;
+declared exit: the first one an author reaches for, and the one the design pages draw (`design/walkthrough/journey.md:278`,
+`design/portal.md:592`). No blueprint in the repository declares 5 today (`git grep "exit: 5"`), but K16 promised it to
+blueprints, so taking it breaks that promise for every project outside this repository, and the next runtime refusal
+would move the floor again. (An earlier draft of this record said acme's `AllowanceExceeded` is 5;
 it is 41. Corrected after the 🔍 review of #116.)
 
 ## The call
@@ -31,7 +32,7 @@ The runtime keeps **0 to 4 and 120 to 125**. A declared exit is **5 to 119**. `I
 
 | Option | Breaks | Room for the next runtime refusal |
 |---|---|---|
-| 5, declared from 6 | every blueprint's declared 5 (Plugged In's `notFrom`), the design pages that draw it | moves the floor again |
+| 5, declared from 6 | K16's promise of 5 to every project, the design pages that draw it | moves the floor again |
 | share 2 or 3 | the CLI can't tell two refusals apart (the clash K16 was written to stop) | none |
 | **120 to 125 held, declared 5 to 119** | nothing today | five more |
 
